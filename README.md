@@ -1,2 +1,2 @@
-# opencontracts
+# zep
 Smart Contract library
