@@ -1,3 +1,5 @@
+import "./Ownable.sol";
+
 /*
  * Killable
  * Base contract that can be killed by owner
