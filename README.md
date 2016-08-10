@@ -1,2 +1,2 @@
 # zep-solidity
-Smart Contract library for the Solidity language
+Secure Smart Contract library for the Solidity language
