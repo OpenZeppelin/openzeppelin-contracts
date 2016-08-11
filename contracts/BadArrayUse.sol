@@ -5,10 +5,16 @@ import './PullPaymentCapable.sol';
 contract BadArrayUse is PullPaymentCapable {
   address[] employees;
 
-  function payroll() {
+  function payBonus() {
     for (var i = 0; i < employees.length; i++) {
-      
+			address employee = employees[i];
+			uint bonus = calculateBonus(employee);
+    	asyncSend(employee, bonus);
     }
-      
   }
+
+	function calculateBonus(address employee) returns (uint) {
+    // some expensive computation...
+  }
+
 }
