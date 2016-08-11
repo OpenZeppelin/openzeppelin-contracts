@@ -1,5 +1,7 @@
 /*
  * Stoppable
+ * Abstract contract that allows children to implement an
+ * emergency stop mechanism. 
  */
 contract Stoppable {
   address public curator;
@@ -9,7 +11,7 @@ contract Stoppable {
   modifier onlyInEmergency { if (stopped) _ }
 
   function Stoppable(address _curator) {
-		if (_curator == 0) {
+    if (_curator == 0) {
       throw;
     }
     curator = _curator;
