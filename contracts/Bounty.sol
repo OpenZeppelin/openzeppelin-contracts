@@ -13,9 +13,7 @@ contract Bounty is PullPaymentCapable {
   mapping(address => address) public researchers;
 
   function() {
-    if (claimed) {
-      throw;
-    }
+    if (claimed) throw;
   }
 
   function createTarget() returns(Token) {
@@ -26,9 +24,7 @@ contract Bounty is PullPaymentCapable {
 
   function claim(Token target) {
     address researcher = researchers[target];
-    if (researcher == 0) {
-      throw;
-    }
+    if (researcher == 0) throw;
     // check Token contract invariants
     if (target.totalSupply() == target.balance) {
       throw;
