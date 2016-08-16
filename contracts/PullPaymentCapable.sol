@@ -1,7 +1,7 @@
 contract PullPaymentCapable {
   mapping(address => uint) refunds;
 
-  function asyncSend(address dest, uint amount) {
+  function asyncSend(address dest, uint amount) internal {
     refunds[dest] += amount;
   }
 

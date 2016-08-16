@@ -9,7 +9,10 @@ contract BadPushPayments {
 		if (msg.value < highestBid) throw;
 
 		if (highestBidder != 0) {
-			highestBidder.send(highestBid);
+      // return bid to previous winner
+			if (!highestBidder.send(highestBid)) {
+        throw;
+      }
 		}
 
 	  highestBidder = msg.sender;

@@ -14,7 +14,7 @@ contract GoodPullPayments {
     highestBid = msg.value;
   }
 
-  function withdrawRefund() external {
+  function withdrawBid() external {
     uint refund = refunds[msg.sender];
     refunds[msg.sender] = 0;
     if (!msg.sender.send(refund)) {
