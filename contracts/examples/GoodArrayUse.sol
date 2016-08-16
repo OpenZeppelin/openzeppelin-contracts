@@ -1,4 +1,4 @@
-import './PullPaymentCapable.sol';
+import '../PullPaymentCapable.sol';
 
 contract GoodArrayUse is PullPaymentCapable {
   address[] employees;

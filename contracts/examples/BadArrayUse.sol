@@ -1,4 +1,4 @@
-import './PullPaymentCapable.sol';
+import '../PullPaymentCapable.sol';
 
 // UNSAFE CODE, DO NOT USE!
 
