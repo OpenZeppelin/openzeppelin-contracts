@@ -2,7 +2,7 @@
 // Flat file implementation of `dappsys/token/base.sol::DSTokenBase`
 
 // Everything throws instead of returning false on failure.
-import 'ERC20.sol';
+import './ERC20.sol';
 
 contract Token is ERC20 {
 
