@@ -6,20 +6,20 @@ Provides contracts to help with easy implementation of common security patterns.
 ## Getting started
 
 Zeppelin integrates with [Truffle](https://github.com/ConsenSys/truffle), an Ethereum development environment. Please [install Truffle](https://github.com/ConsenSys/truffle#install) and initialize your project with `truffle init`.
-```
+```sh
 sudo npm install -g truffle
 mkdir myproject && cd myproject
 truffle init
 ```
 
 To install the Zeppelin library, run:
-```
+```sh
 npm i zeppelin-solidity
 ```
 
 After that, you'll get all the library's contracts in the `contracts/zeppelin` folder. You can use the contracts in the library like so:
 
-```
+```js
 import "./zeppelin/Rejector.sol";
 
 contract MetaCoin is Rejector { 
