@@ -1,5 +1,5 @@
-import './PullPaymentCapable.sol';
-import './Stoppable.sol';
+import '../PullPaymentCapable.sol';
+import '../Stoppable.sol';
 
 contract StoppableBid is Stoppable, PullPaymentCapable {
   address public highestBidder;
