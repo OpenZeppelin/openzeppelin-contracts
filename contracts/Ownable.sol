@@ -3,7 +3,7 @@
  * Base contract with an owner
  */
 contract Ownable {
-  address owner;
+  address public owner;
 
   function Ownable() {
     owner = msg.sender;
