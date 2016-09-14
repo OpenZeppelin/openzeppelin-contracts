@@ -27,6 +27,8 @@ contract MetaCoin is Rejector {
 }
 ```
 
+> NOTE: The current distribution channel is npm, which is not ideal. [We're looking into providing a better tool for code distribution](https://github.com/OpenZeppelin/zep-solidity/issues/13), and ideas are welcome.
+
 ## Security
 Zeppelin is meant to provide secure, tested and community-audited code, but please use common sense when doing anything that deals with real money! We take no responsibility for your implementation decisions.
 
