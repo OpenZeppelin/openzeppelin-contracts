@@ -1,7 +1,9 @@
 # Zeppelin Solidity
-Zeppelin is a secure Smart Contract library for the Solidity language.
+Zeppelin is a library for writing secure Smart Contracts on Ethereum.
 
-Provides contracts to help with easy implementation of common security patterns. See [Onward with Ethereum Smart Contract Security](https://medium.com/bitcorps-blog/onward-with-ethereum-smart-contract-security-97a827e47702#.y3kvdetbz).
+With Zeppelin, you can build distributed applications, protocols and organizations:
+- using common contract security patterns (See [Onward with Ethereum Smart Contract Security](https://medium.com/bitcorps-blog/onward-with-ethereum-smart-contract-security-97a827e47702#.y3kvdetbz))
+- in the Solidity language.
 
 ## Getting Started
 
