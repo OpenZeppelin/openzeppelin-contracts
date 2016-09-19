@@ -10,7 +10,7 @@ contract('Ownable', function(accounts) {
 
   it("changes owner after transfer", function(done) {
     var ownable = Ownable.deployed();
-    var other = '0xe682569efa3752a07fdc09885007c47beee803a7';
+    var other = accounts[1];
     return ownable.transfer(other)
     .then(function() {
       return ownable.owner();
@@ -20,4 +20,18 @@ contract('Ownable', function(accounts) {
     })
     .then(done)
   });
+
+  it("should prevent non-owners from transfering" ,function(done) {
+    var ownable = Ownable.deployed();
+    var other = accounts[2];
+    return ownable.transfer(other, {from: accounts[2]})
+    .then(function() {
+      return ownable.owner();
+    })
+    .then(function(owner) {
+      assert.isFalse(owner === other);
+    })
+    .then(done)
+  });
+
 });
