@@ -15,11 +15,13 @@ contract('PullPaymentBid', function(accounts) {
       value: bidAmount
     })
     .then(function() {
-      pullPaymentBid.highestBid()
+      return pullPaymentBid.highestBid()
       .then(function(bid) {
         assert.isTrue(bid.c[0] === bidAmount);
       });
-      pullPaymentBid.highestBidder()
+    })
+    .then(function() {
+      return pullPaymentBid.highestBidder()
       .then(function(bidder) {
         assert.isTrue(bidder === bidderAddress);
       });
