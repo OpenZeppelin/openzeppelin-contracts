@@ -51,5 +51,28 @@ contract('PullPaymentBid', function(accounts) {
     })
     .then(done);
   });
-  
+
+  it("does not replace top bid and bidder with a lower one", function(done) {
+    var bidAmount = 0;
+    var bidderAddress = accounts[3];
+
+    return pullPaymentBid.bid({
+      from: bidderAddress,
+      value: bidAmount
+    })
+    .then(function() {
+      return pullPaymentBid.highestBid()
+      .then(function(bid) {
+        assert.isTrue(bid.c[0] > bidAmount);
+      });
+    })
+    .then(function() {
+      return pullPaymentBid.highestBidder()
+      .then(function(bidder) {
+        assert.isFalse(bidder === bidderAddress);
+      });
+    })
+    .then(done);
+  });
+
 });
