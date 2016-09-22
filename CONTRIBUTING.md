@@ -63,7 +63,7 @@ Don't write long tests, write helper functions to make them be as short and conc
 
 #### T2 - Tests Must not be Random
 
-Inputs for tests should not be generated randomly. Also, the type and structure of outputs should be checked.
+Inputs for tests should not be generated randomly. Accounts used to create test contracts are an exception, those can be random. Also, the type and structure of outputs should be checked.
 
 
 ### Documentation
