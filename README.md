@@ -61,6 +61,9 @@ Interested in contributing to Zeppelin?
 - Issue tracker: https://github.com/OpenZeppelin/zeppelin-solidity/issues
 - Contribution guidelines: https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/CONTRIBUTING.md
 
+## Projects using Zeppelin
+- [Blockparty](https://github.com/makoto/blockparty)
+
 ## Contracts
 TODO
 
