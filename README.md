@@ -29,7 +29,7 @@ contract MetaCoin is Rejector {
 }
 ```
 
-> NOTE: The current distribution channel is npm, which is not ideal. [We're looking into providing a better tool for code distribution](https://github.com/OpenZeppelin/zep-solidity/issues/13), and ideas are welcome.
+> NOTE: The current distribution channel is npm, which is not ideal. [We're looking into providing a better tool for code distribution](https://github.com/OpenZeppelin/zeppelin-solidity/issues/13), and ideas are welcome.
 
 #### Truffle Beta Support
 We also support Truffle Beta npm integration. If you're using Truffle Beta, the contracts in `node_modules` will be enough, so feel free to delete the copies at your `contracts` folder. If you're using Truffle Beta, you can use Zeppelin contracts like so:
@@ -58,11 +58,11 @@ Building a distributed application, protocol or organization with Zeppelin?
 Interested in contributing to Zeppelin?
 
 - Framework proposal and roadmap: https://medium.com/zeppelin-blog/zeppelin-framework-proposal-and-development-roadmap-fdfa9a3a32ab#.iain47pak
-- Issue tracker: https://github.com/OpenZeppelin/zep-solidity/issues
-- Contribution guidelines: https://github.com/OpenZeppelin/zep-solidity/blob/master/CONTRIBUTING.md
+- Issue tracker: https://github.com/OpenZeppelin/zeppelin-solidity/issues
+- Contribution guidelines: https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/CONTRIBUTING.md
 
 ## Contracts
 TODO
 
 ## License
-Code released under the [MIT License](https://github.com/OpenZeppelin/zep-solidity/blob/master/LICENSE).
+Code released under the [MIT License](https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/LICENSE).
