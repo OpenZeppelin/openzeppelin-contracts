@@ -6,7 +6,7 @@ import "../Rejector.sol";
  */
 contract ProofOfExistence is Rejector {
 
-  mapping (bytes32 => bool) proofs;
+  mapping (bytes32 => bool) public proofs;
 
   // store a proof of existence in the contract state
   function storeProof(bytes32 proof) {
@@ -20,18 +20,18 @@ contract ProofOfExistence is Rejector {
   }
 
   // helper function to get a document's sha256
-  function calculateProof(string document) returns (bytes32) {
+  function calculateProof(string document) constant returns (bytes32) {
     return sha256(document);
   }
 
   // check if a document has been notarized
-  function checkDocument(string document) returns (bool) {
+  function checkDocument(string document) constant returns (bool) {
     var proof = calculateProof(document);
     return hasProof(proof);
   }
 
   // returns true if proof is stored
-  function hasProof(bytes32 proof) returns (bool) {
+  function hasProof(bytes32 proof) constant returns (bool) {
     return proofs[proof];
   }
 }
