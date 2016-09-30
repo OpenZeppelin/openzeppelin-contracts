@@ -1,5 +1,10 @@
-// Proof of Existence contract, version 3
-contract ProofOfExistence3 {
+import "../Rejector.sol";
+
+/*
+ * Proof of Existence example contract
+ * see https://medium.com/zeppelin-blog/the-hitchhikers-guide-to-smart-contracts-in-ethereum-848f08001f05
+ */
+contract ProofOfExistence is Rejector {
 
   mapping (bytes32 => bool) proofs;
 
