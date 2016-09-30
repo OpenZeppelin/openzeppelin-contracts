@@ -1,4 +1,4 @@
-import '../contracts/PullPaymentCapable.sol';
+import '../PullPaymentCapable.sol';
 
 // Example class using PullPaymentCapable
 contract PullPaymentCapableExample is PullPaymentCapable {
