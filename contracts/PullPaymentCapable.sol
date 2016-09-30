@@ -4,7 +4,7 @@
  * Inherit from this contract and use asyncSend instead of send.
  */
 contract PullPaymentCapable {
-  mapping(address => uint) payments;
+  mapping(address => uint) public payments;
 
   // store sent amount as credit to be pulled, called by payer
   function asyncSend(address dest, uint amount) internal {
