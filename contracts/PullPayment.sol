@@ -1,3 +1,4 @@
+pragma solidity ^0.4.0;
 /*
  * PullPaymentCapable
  * Base contract supporting async send for pull payments.

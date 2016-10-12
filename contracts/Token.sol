@@ -1,3 +1,4 @@
+pragma solidity ^0.4.0;
 // Source: https://github.com/nexusdev/erc20
 // Flat file implementation of `dappsys/token/base.sol::DSTokenBase`
 

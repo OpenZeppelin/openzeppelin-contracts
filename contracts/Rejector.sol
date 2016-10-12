@@ -1,3 +1,4 @@
+pragma solidity ^0.4.0;
 /*
  * Rejector
  * Base contract for rejecting direct deposits.
