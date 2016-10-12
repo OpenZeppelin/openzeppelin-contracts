@@ -1,6 +1,7 @@
-import '../PullPaymentCapable.sol';
+pragma solidity ^0.4.0;
+import '../PullPayment.sol';
 
-contract GoodArrayUse is PullPaymentCapable {
+contract GoodArrayUse is PullPayment {
   address[] employees;
   mapping(address => uint) bonuses;
 

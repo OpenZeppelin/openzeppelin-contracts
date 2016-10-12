@@ -1,3 +1,4 @@
+pragma solidity ^0.4.0;
 contract ERC20 {
     function totalSupply() constant returns (uint);
     function balanceOf(address who) constant returns (uint);

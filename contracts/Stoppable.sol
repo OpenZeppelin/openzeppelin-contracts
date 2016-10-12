@@ -1,3 +1,4 @@
+pragma solidity ^0.4.0;
 /*
  * Stoppable
  * Abstract contract that allows children to implement an
@@ -7,8 +8,8 @@ contract Stoppable {
   address public curator;
   bool public stopped;
 
-  modifier stopInEmergency { if (!stopped) _ }
-  modifier onlyInEmergency { if (stopped) _ }
+  modifier stopInEmergency { if (!stopped) _; }
+  modifier onlyInEmergency { if (stopped) _; }
 
   function Stoppable(address _curator) {
     if (_curator == 0) throw;

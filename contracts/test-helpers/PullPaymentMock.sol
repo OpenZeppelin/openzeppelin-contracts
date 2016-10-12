@@ -1,3 +1,4 @@
+pragma solidity ^0.4.0;
 import '../PullPayment.sol';
 
 // mock class using PullPayment

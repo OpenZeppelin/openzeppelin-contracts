@@ -1,9 +1,10 @@
+pragma solidity ^0.4.0;
 /*
- * PullPaymentCapable
+ * PullPayment
  * Base contract supporting async send for pull payments.
  * Inherit from this contract and use asyncSend instead of send.
  */
-contract PullPaymentCapable {
+contract PullPayment {
   mapping(address => uint) public payments;
 
   // store sent amount as credit to be pulled, called by payer

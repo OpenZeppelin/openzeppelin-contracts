@@ -1,8 +1,9 @@
-import '../PullPaymentCapable.sol';
+pragma solidity ^0.4.0;
+import '../PullPayment.sol';
 
 // UNSAFE CODE, DO NOT USE!
 
-contract BadArrayUse is PullPaymentCapable {
+contract BadArrayUse is PullPayment {
   address[] employees;
 
   function payBonus() {

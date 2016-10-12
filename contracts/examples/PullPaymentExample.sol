@@ -1,7 +1,9 @@
-import '../PullPaymentCapable.sol';
+pragma solidity ^0.4.0;
 
-// Example class using PullPaymentCapable
-contract PullPaymentCapableExample is PullPaymentCapable {
+import '../PullPayment.sol';
+
+// Example class using PullPayment
+contract PullPaymentExample is PullPayment {
   // test helper function to call asyncSend
   function callSend(address dest, uint amount) external {
     asyncSend(dest, amount);

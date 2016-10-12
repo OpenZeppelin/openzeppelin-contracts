@@ -1,4 +1,5 @@
-import './PullPaymentCapable.sol';
+pragma solidity ^0.4.0;
+import './PullPayment.sol';
 import './Token.sol';
 
 /*
@@ -7,7 +8,7 @@ import './Token.sol';
  * to be lower than its totalSupply, which would mean that it doesn't 
  * have sufficient ether for everyone to withdraw.
  */
-contract Bounty is PullPaymentCapable {
+contract Bounty is PullPayment {
 
   bool public claimed;
   mapping(address => address) public researchers;
