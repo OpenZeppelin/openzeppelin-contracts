@@ -1,3 +1,4 @@
+pragma solidity ^0.4.0;
 // UNSAFE CODE, DO NOT USE!
 
 contract BadFailEarly {
