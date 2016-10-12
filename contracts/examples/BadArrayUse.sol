@@ -1,8 +1,8 @@
-import '../PullPaymentCapable.sol';
+import '../PullPayment.sol';
 
 // UNSAFE CODE, DO NOT USE!
 
-contract BadArrayUse is PullPaymentCapable {
+contract BadArrayUse is PullPayment {
   address[] employees;
 
   function payBonus() {

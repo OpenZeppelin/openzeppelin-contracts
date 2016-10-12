@@ -1,6 +1,6 @@
-import '../PullPaymentCapable.sol';
+import '../PullPayment.sol';
 
-contract GoodArrayUse is PullPaymentCapable {
+contract GoodArrayUse is PullPayment {
   address[] employees;
   mapping(address => uint) bonuses;
 

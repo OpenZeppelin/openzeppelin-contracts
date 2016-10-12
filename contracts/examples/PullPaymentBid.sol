@@ -1,6 +1,6 @@
-import '../PullPaymentCapable.sol';
+import '../PullPayment.sol';
 
-contract PullPaymentBid is PullPaymentCapable {
+contract PullPaymentBid is PullPayment {
   address public highestBidder;
   uint public highestBid;
   

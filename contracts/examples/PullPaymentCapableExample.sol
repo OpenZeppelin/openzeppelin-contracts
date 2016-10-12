@@ -1,7 +1,7 @@
-import '../PullPaymentCapable.sol';
+import '../PullPayment.sol';
 
-// Example class using PullPaymentCapable
-contract PullPaymentCapableExample is PullPaymentCapable {
+// Example class using PullPayment
+contract PullPaymentExample is PullPayment {
   // test helper function to call asyncSend
   function callSend(address dest, uint amount) external {
     asyncSend(dest, amount);
