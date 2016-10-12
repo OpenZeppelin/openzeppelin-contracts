@@ -13,11 +13,16 @@ contract PullPayment {
   }
 
   // withdraw accumulated balance, called by payee
-  function withdrawPayments() external {
-    uint payment = payments[msg.sender];
-    payments[msg.sender] = 0;
-    if (!msg.sender.send(payment)) {
-      payments[msg.sender] = payment;
+  function withdrawPayments() {
+    address payee = msg.sender;
+    uint payment = payments[payee];
+    
+    if (payment == 0) throw;
+    if (this.balance < payment) throw;
+
+    payments[payee] = 0;
+    if (!payee.send(payment)) {
+      throw;
     }
   }
 }
