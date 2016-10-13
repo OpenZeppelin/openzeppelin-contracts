@@ -26,9 +26,11 @@ contract TimedAction {
   // implement to define the action to be taken in each period
   // times determines how many times to repeat the action.
   // it is safer to pass this as a parameter rather than calling
-  // periodAction in a loop, to avoid reentrancy attacks
+  // periodAction repeatedly in a loop, to avoid reentrancy attacks
+  // also saves gas -- number of iterations might be very long
   function periodAction(uint times) private;
 
+  // WARNING: called before state updates, be careful about reentrancy
   // implement to define how to get the current time stamp
   // simple options are just to return `now` or the block number.
   function getTime() private returns (uint timeStamp);
