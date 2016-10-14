@@ -2,15 +2,17 @@ pragma solidity ^0.4.0;
 
 import "../StandardToken.sol";
 
-contract ExampleToken is StandardToken {
+/*
+ * Simple ERC20 Token example, with crowdsale token creation
+ */
+contract CrowdsaleToken is StandardToken {
 
-    string public name = "ExampleToken";
-    string public symbol = "TOK";
+    string public name = "CrowdsaleToken";
+    string public symbol = "CRW";
     uint public decimals = 18;
 
     // 1 ether = 500 example tokens 
     uint PRICE = 500;
-    
 
     function () payable {
         createTokens(msg.sender);
