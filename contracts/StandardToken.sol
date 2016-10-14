@@ -29,7 +29,7 @@ contract StandardToken is ERC20, SafeMath {
   function transferFrom(address _from, address _to, uint256 _value) returns (bool success) {
     var _allowance = allowed[_from][msg.sender];
     if (balances[_from] < _value ||
-        _allowance < _value)) {
+        _allowance < _value) {
       throw;
     }
 
