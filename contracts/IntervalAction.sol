@@ -1,16 +1,21 @@
 pragma solidity ^0.4.0;
 
 /*
- * TimedAction
+ * IntervalAction
  * Provides helper methods for invoking an action at a certain rate.
  * The action, code to get time stamp, and number of time units per interval
  * is up to the implementer.
  */
 
-contract TimedAction {
+contract IntervalAction {
 
   uint private currentTimeStamp;
   uint private intervalSize;
+
+  function IntervalAction(uint iSize) {
+    intervalSize = iSize;
+    currentTimeStamp = getTime();
+  }
 
   function calculateIntervalAndInvokeAction() internal {
     uint newTimeStamp = getTime();
