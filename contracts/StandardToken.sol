@@ -12,11 +12,10 @@ import './SafeMath.sol';
  */
 contract StandardToken is ERC20, SafeMath {
 
-  mapping(address => uint256) balances;
-  mapping (address => mapping (address => uint256)) allowed;
-  uint256 public totalSupply;
+  mapping(address => uint) balances;
+  mapping (address => mapping (address => uint)) allowed;
 
-  function transfer(address _to, uint256 _value) returns (bool success) {
+  function transfer(address _to, uint _value) returns (bool success) {
     if (balances[msg.sender] < _value) {
       throw;
     } 
@@ -26,7 +25,7 @@ contract StandardToken is ERC20, SafeMath {
     return true;
   }
 
-  function transferFrom(address _from, address _to, uint256 _value) returns (bool success) {
+  function transferFrom(address _from, address _to, uint _value) returns (bool success) {
     var _allowance = allowed[_from][msg.sender];
     if (balances[_from] < _value ||
         _allowance < _value) {
@@ -40,17 +39,17 @@ contract StandardToken is ERC20, SafeMath {
     return true;
   }
 
-  function balanceOf(address _owner) constant returns (uint256 balance) {
+  function balanceOf(address _owner) constant returns (uint balance) {
     return balances[_owner];
   }
 
-  function approve(address _spender, uint256 _value) returns (bool success) {
+  function approve(address _spender, uint _value) returns (bool success) {
     allowed[msg.sender][_spender] = _value;
     Approval(msg.sender, _spender, _value);
     return true;
   }
 
-  function allowance(address _owner, address _spender) constant returns (uint256 remaining) {
+  function allowance(address _owner, address _spender) constant returns (uint remaining) {
     return allowed[_owner][_spender];
   }
 

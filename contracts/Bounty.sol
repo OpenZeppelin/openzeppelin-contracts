@@ -1,9 +1,10 @@
 pragma solidity ^0.4.0;
 import './PullPayment.sol';
+import './examples/ExampleToken.sol';
 
 /*
  * Bounty
- * This bounty will pay out if you can cause a Token's balance
+ * This bounty will pay out if you can cause a ExampleToken's balance
  * to be lower than its totalSupply, which would mean that it doesn't 
  * have sufficient ether for everyone to withdraw.
  */
@@ -16,16 +17,16 @@ contract Bounty is PullPayment {
     if (claimed) throw;
   }
 
-  function createTarget() returns(Token) {
-    Token target = new Token(0);
+  function createTarget() returns(ExampleToken) {
+    ExampleToken target = new ExampleToken();
     researchers[target] = msg.sender;
     return target;
   }
 
-  function claim(Token target) {
+  function claim(ExampleToken target) {
     address researcher = researchers[target];
     if (researcher == 0) throw;
-    // check Token contract invariants
+    // check ExampleToken contract invariants
     if (target.totalSupply() == target.balance) {
       throw;
     }
