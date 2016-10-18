@@ -9,14 +9,14 @@ import "../StandardToken.sol";
  */
 contract SimpleToken is StandardToken {
 
-    string public name = "SimpleToken";
-    string public symbol = "SIM";
-    uint public decimals = 18;
-    uint public INITIAL_SUPPLY = 10000;
-    
-    function SimpleToken() {
-      totalSupply = INITIAL_SUPPLY;
-      balances[msg.sender] = INITIAL_SUPPLY;
-    }
+  string public name = "SimpleToken";
+  string public symbol = "SIM";
+  uint public decimals = 18;
+  uint public INITIAL_SUPPLY = 10000;
+  
+  function SimpleToken() {
+    totalSupply = INITIAL_SUPPLY;
+    balances[msg.sender] = INITIAL_SUPPLY;
+  }
 
 }
