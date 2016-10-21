@@ -1,6 +1,6 @@
 pragma solidity ^0.4.0;
 import './PullPayment.sol';
-import './token/CrowdsaleToken.sol';
+import './../token/CrowdsaleToken.sol';
 
 /*
  * Bounty
