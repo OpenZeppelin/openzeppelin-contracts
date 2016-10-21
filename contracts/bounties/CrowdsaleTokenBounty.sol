@@ -8,7 +8,7 @@ import './token/CrowdsaleToken.sol';
  * to be lower than its totalSupply, which would mean that it doesn't 
  * have sufficient ether for everyone to withdraw.
  */
-contract Bounty is PullPayment {
+contract CrowdsaleTokenBounty is PullPayment {
 
   bool public claimed;
   mapping(address => address) public researchers;
