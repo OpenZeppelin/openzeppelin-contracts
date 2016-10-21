@@ -1,13 +1,14 @@
-import './PullPaymentCapable.sol';
-import './Token.sol';
+pragma solidity ^0.4.0;
+import './PullPayment.sol';
+import './token/SimpleToken.sol';
 
 /*
  * Bounty
- * This bounty will pay out if you can cause a Token's balance
+ * This bounty will pay out if you can cause a SimpleToken's balance
  * to be lower than its totalSupply, which would mean that it doesn't 
  * have sufficient ether for everyone to withdraw.
  */
-contract Bounty is PullPaymentCapable {
+contract Bounty is PullPayment {
 
   bool public claimed;
   mapping(address => address) public researchers;
@@ -16,16 +17,17 @@ contract Bounty is PullPaymentCapable {
     if (claimed) throw;
   }
 
-  function createTarget() returns(Token) {
-    Token target = new Token(0);
+  function createTarget() returns(SimpleToken) {
+    SimpleToken target = new SimpleToken();
     researchers[target] = msg.sender;
     return target;
   }
 
-  function claim(Token target) {
+  function claim(SimpleToken target) {
     address researcher = researchers[target];
     if (researcher == 0) throw;
-    // check Token contract invariants
+    // Check SimpleToken contract invariants
+    // Customize this to the specifics of your contract
     if (target.totalSupply() == target.balance) {
       throw;
     }

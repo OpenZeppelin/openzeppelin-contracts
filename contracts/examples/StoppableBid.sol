@@ -1,13 +1,15 @@
-import '../PullPaymentCapable.sol';
+pragma solidity ^0.4.0;
+
+import '../PullPayment.sol';
 import '../Stoppable.sol';
 
-contract StoppableBid is Stoppable, PullPaymentCapable {
+contract StoppableBid is Stoppable, PullPayment {
   address public highestBidder;
   uint public highestBid;
 
   function StoppableBid(address _curator)
     Stoppable(_curator)
-    PullPaymentCapable() {}
+    PullPayment() {}
 
   function bid() external stopInEmergency {
     if (msg.value <= highestBid) throw;

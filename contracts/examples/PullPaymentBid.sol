@@ -1,6 +1,8 @@
-import '../PullPaymentCapable.sol';
+pragma solidity ^0.4.0;
 
-contract PullPaymentBid is PullPaymentCapable {
+import '../PullPayment.sol';
+
+contract PullPaymentBid is PullPayment {
   address public highestBidder;
   uint public highestBid;
   

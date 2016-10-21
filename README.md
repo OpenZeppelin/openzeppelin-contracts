@@ -29,7 +29,20 @@ contract MetaCoin is Rejector {
 }
 ```
 
-> NOTE: The current distribution channel is npm, which is not ideal. [We're looking into providing a better tool for code distribution](https://github.com/OpenZeppelin/zep-solidity/issues/13), and ideas are welcome.
+> NOTE: The current distribution channel is npm, which is not ideal. [We're looking into providing a better tool for code distribution](https://github.com/OpenZeppelin/zeppelin-solidity/issues/13), and ideas are welcome.
+
+#### Truffle Beta Support
+We also support Truffle Beta npm integration. If you're using Truffle Beta, the contracts in `node_modules` will be enough, so feel free to delete the copies at your `contracts` folder. If you're using Truffle Beta, you can use Zeppelin contracts like so:
+
+```js
+import "zeppelin-solidity/contracts/Rejector.sol";
+
+contract MetaCoin is Rejector { 
+  ...
+}
+```
+
+For more info see [the Truffle Beta package management tutorial](http://truffleframework.com/tutorials/package-management).
 
 ## Security
 Zeppelin is meant to provide secure, tested and community-audited code, but please use common sense when doing anything that deals with real money! We take no responsibility for your implementation decisions.
@@ -45,11 +58,14 @@ Building a distributed application, protocol or organization with Zeppelin?
 Interested in contributing to Zeppelin?
 
 - Framework proposal and roadmap: https://medium.com/zeppelin-blog/zeppelin-framework-proposal-and-development-roadmap-fdfa9a3a32ab#.iain47pak
-- Issue tracker: https://github.com/OpenZeppelin/zep-solidity/issues
-- Contribution guidelines: https://github.com/OpenZeppelin/zep-solidity/blob/master/CONTRIBUTING.md
+- Issue tracker: https://github.com/OpenZeppelin/zeppelin-solidity/issues
+- Contribution guidelines: https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/CONTRIBUTING.md
+
+## Projects using Zeppelin
+- [Blockparty](https://github.com/makoto/blockparty)
 
 ## Contracts
 TODO
 
 ## License
-Code released under the [MIT License](https://github.com/OpenZeppelin/zep-solidity/blob/master/LICENSE).
+Code released under the [MIT License](https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/LICENSE).

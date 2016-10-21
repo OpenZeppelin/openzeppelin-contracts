@@ -63,7 +63,7 @@ Don't write long tests, write helper functions to make them be as short and conc
 
 #### T2 - Tests Must not be Random
 
-Inputs for tests should not be generated randomly. Also, the type and structure of outputs should be checked.
+Inputs for tests should not be generated randomly. Accounts used to create test contracts are an exception, those can be random. Also, the type and structure of outputs should be checked.
 
 
 ### Documentation
@@ -82,7 +82,7 @@ git checkout -b remove/some-file
 
 We expect pull requests to be rebased to the master branch before merging:
 ```sh
-git remote add zep git@github.com:OpenZeppelin/zep-solidity.git
+git remote add zep git@github.com:OpenZeppelin/zeppelin-solidity.git
 git pull --rebase zep master
 ```
 
@@ -95,11 +95,11 @@ git push origin feature/some-new-stuff
 git push origin fix/some-bug
 ```
 
-Finally go to [github.com/OpenZeppelin/zep-solidity](https://github.com/OpenZeppelin/zep-solidity) in your web browser and issue a new pull request.
+Finally go to [github.com/OpenZeppelin/zeppelin-solidity](https://github.com/OpenZeppelin/zeppelin-solidity) in your web browser and issue a new pull request.
 
 Main contributors will review your code and possibly ask for changes before your code is pulled in to the main repository.  We'll check that all tests pass, review the coding style, and check for general code correctness. If everything is OK, we'll merge your pull request and your code will be part of Zeppelin.
 
 If you have any questions feel free to post them to
-[github.com/OpenZeppelin/zep-solidity/issues](https://github.com/OpenZeppelin/zep-solidity/issues).
+[github.com/OpenZeppelin/zeppelin-solidity/issues](https://github.com/OpenZeppelin/zeppelin-solidity/issues).
 
 Thanks for your time and code!
