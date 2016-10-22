@@ -13,8 +13,8 @@ contract Target {
 }
 
 contract BytecodeDeployer {
-    function createFromAddress(address _addr){
-      return createFromBytecode(msg.value, getByteCode(_addr)
+    function createFromAddress(address _addr) returns (address){
+      return createFromBytecode(msg.value, getByteCode(_addr));
     }
 
     // From http://solidity.readthedocs.io/en/latest/control-structures.html#opcodes
