@@ -1,7 +1,7 @@
 pragma solidity ^0.4.0;
 
 contract SecureTargetMock {
-  function checkInvarient() returns(bool){
+  function checkInvariant() returns(bool){
     return true;
   }
 }

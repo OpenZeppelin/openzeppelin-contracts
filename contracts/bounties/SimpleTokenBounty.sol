@@ -9,7 +9,7 @@ import '../PullPayment.sol';
  */
 
 contract Target {
-  function checkInvarient() returns(bool);
+  function checkInvariant() returns(bool);
 }
 
 contract Bounty is PullPayment {
@@ -27,15 +27,15 @@ contract Bounty is PullPayment {
     return target;
   }
 
-  function checkInvarient() returns(bool){
-    return target.checkInvarient();
+  function checkInvariant() returns(bool){
+    return target.checkInvariant();
   }
 
   function claim(Target target) {
     address researcher = researchers[target];
     if (researcher == 0) throw;
     // Check Target contract invariants
-    if (!target.checkInvarient()) {
+    if (!target.checkInvariant()) {
       throw;
     }
     asyncSend(researcher, this.balance);
