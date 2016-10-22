@@ -5,6 +5,8 @@ module.exports = function(deployer) {
   deployer.deploy(Bounty);
   deployer.deploy(Ownable);
   deployer.deploy(LimitFunds);
-  deployer.deploy(SecureTargetMock);
-  deployer.deploy(InsecureTargetMock);
+  if(deployer.network == 'test'){
+    deployer.deploy(SecureTargetMock);
+    deployer.deploy(InsecureTargetMock);
+  };
 };
