@@ -6,4 +6,6 @@ module.exports = function(deployer) {
   deployer.deploy(CrowdsaleTokenBounty);
   deployer.deploy(Ownable);
   deployer.deploy(LimitFunds);
+  deployer.deploy(SecureTargetMock);
+  deployer.deploy(InsecureTargetMock);
 };

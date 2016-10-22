@@ -9,9 +9,7 @@ import '../PullPayment.sol';
  */
 
 contract Target {
-  function checkInvarient() returns(bool){
-    return true;
-  }
+  function checkInvarient() returns(bool);
 }
 
 contract Bounty is PullPayment {
@@ -23,8 +21,8 @@ contract Bounty is PullPayment {
     if (claimed) throw;
   }
 
-  function createTarget() returns(Target) {
-    target = new Target();
+  function createTarget(address targetAddress) returns(Target) {
+    target = Target(targetAddress);
     researchers[target] = msg.sender;
     return target;
   }
@@ -37,7 +35,6 @@ contract Bounty is PullPayment {
     address researcher = researchers[target];
     if (researcher == 0) throw;
     // Check Target contract invariants
-    // Customize this to the specifics of your contract
     if (!target.checkInvarient()) {
       throw;
     }
