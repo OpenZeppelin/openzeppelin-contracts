@@ -1,13 +1,26 @@
 contract('Bounty', function(accounts) {
-  it.only("create target", function(done){
+  it.only("can call checkInvarient for InsecureTargetMock", function(done){
     var bounty = Bounty.deployed();
-
-    bounty.createTarget().
+    var target = SecureTargetMock.deployed();
+    bounty.createTarget(target.address).
       then(function() {
         return bounty.checkInvarient.call()
       }).
       then(function(result) {
         assert.isTrue(result);
+      }).
+      then(done);
+  })
+
+  it("can call checkInvarient for InsecureTargetMock", function(done){
+    var bounty = Bounty.deployed();
+    var target = InsecureTargetMock.deployed();
+    bounty.createTarget(target.address).
+      then(function() {
+        return bounty.checkInvarient.call()
+      }).
+      then(function(result) {
+        assert.isFalse(result);
       }).
       then(done);
   })
