@@ -1,5 +1,5 @@
 contract('Bounty', function(accounts) {
-  it.only("can call checkInvarient for InsecureTargetMock", function(done){
+  it("can call checkInvarient for InsecureTargetMock", function(done){
     var bounty = Bounty.deployed();
     var target = SecureTargetMock.deployed();
     bounty.createTarget(target.address).
