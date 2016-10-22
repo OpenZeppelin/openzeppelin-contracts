@@ -5,3 +5,9 @@ contract SecureTargetMock {
     return true;
   }
 }
+
+contract Deployer {
+  function deployContract() returns (address) {
+    return new SecureTargetMock();
+  }
+}

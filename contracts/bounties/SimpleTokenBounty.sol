@@ -8,6 +8,10 @@ import '../PullPayment.sol';
  * have sufficient ether for everyone to withdraw.
  */
 
+contract Factory {
+  function deployContract() returns (address);
+}
+
 contract Target {
   function checkInvariant() returns(bool);
 }
@@ -21,8 +25,8 @@ contract Bounty is PullPayment {
     if (claimed) throw;
   }
 
-  function createTarget(address targetAddress) returns(Target) {
-    target = Target(targetAddress);
+  function createTarget(address factoryAddress) returns(Target) {
+    target = Target(Factory(factoryAddress).deployContract());
     researchers[target] = msg.sender;
     return target;
   }

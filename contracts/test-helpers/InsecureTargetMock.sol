@@ -5,3 +5,9 @@ contract InsecureTargetMock {
     return false;
   }
 }
+
+contract Deployer {
+  function deployContract() returns (address) {
+    return new InsecureTargetMock();
+  }
+}
