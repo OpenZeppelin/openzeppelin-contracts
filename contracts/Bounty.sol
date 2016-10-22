@@ -23,6 +23,10 @@ contract Bounty is PullPayment {
     return target;
   }
 
+  function checkInvarient() returns(bool){
+    return true;
+  }
+
   function claim(SimpleToken target) {
     address researcher = researchers[target];
     if (researcher == 0) throw;
