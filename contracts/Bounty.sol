@@ -47,7 +47,7 @@ contract Bounty is PullPayment, BytecodeDeployer {
   }
 
   function createTarget(address targetAddress) returns(Target) {
-    target = createFromAddress(targetAddress);
+    target = Target(createFromAddress(targetAddress));
     researchers[target] = msg.sender;
     return target;
   }
