@@ -27,8 +27,8 @@ contract Bounty is PullPayment {
     address researcher = researchers[target];
     if (researcher == 0) throw;
     // Check {{name}} contract invariants
-    // Customize this to the specifics of your contract
-    if (target.totalSupply() == target.balance) {
+    // Make sure that your contract implements checkInvariant function
+    if (!target.checkInvariant()) {
       throw;
     }
     asyncSend(researcher, this.balance);
