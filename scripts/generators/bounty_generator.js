@@ -3,7 +3,7 @@ var path = require('path');
 var Mustache = require('mustache');
 
 if (process.argv.length != 3) {
-  throw("Usage: node scripts/bounty_generator path_to_contract.sol")
+  throw("Usage: node scripts/generators/bounty_generator path_to_contract.sol")
 }
 
 // extract contract name from arguments
