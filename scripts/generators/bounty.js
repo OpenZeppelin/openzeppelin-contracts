@@ -3,7 +3,7 @@ var path = require('path');
 var Mustache = require('mustache');
 
 if (process.argv.length != 3) {
-  throw("Usage: node scripts/generators/bounty_generator path_to_contract.sol")
+  throw("Usage: node scripts/generators/bounty.js path_to_contract.sol")
 }
 
 // extract contract name from arguments
@@ -18,7 +18,7 @@ var view = {
 console.log(view)
 
 // Generate content from templates
-var contents = fs.readFileSync('./scripts/templates/Bounty.sol.mustache', 'utf8');
+var contents = fs.readFileSync('./scripts/generators/templates/Bounty.sol.mustache', 'utf8');
 var output = Mustache.render(contents, view);
 
 // Write template to contracts
