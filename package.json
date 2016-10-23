@@ -25,5 +25,8 @@
   "bugs": {
     "url": "https://github.com/OpenZeppelin/zeppelin-solidity/issues"
   },
-  "homepage": "https://github.com/OpenZeppelin/zeppelin-solidity"
+  "homepage": "https://github.com/OpenZeppelin/zeppelin-solidity",
+  "dependencies": {
+    "mustache": "^2.2.1"
+  }
 }
