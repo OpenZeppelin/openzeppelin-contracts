@@ -24,12 +24,60 @@ After that, you'll get all the library's contracts in the `contracts/zeppelin` f
 ```js
 import "./zeppelin/Rejector.sol";
 
-contract MetaCoin is Rejector { 
+contract MetaCoin is Rejector {
   ...
 }
 ```
 
 > NOTE: The current distribution channel is npm, which is not ideal. [We're looking into providing a better tool for code distribution](https://github.com/OpenZeppelin/zeppelin-solidity/issues/13), and ideas are welcome.
+
+## Generate your own Bounty contract
+
+So far the use use contracts through inheritance.
+A Bounty contract, however, is a special contract that is deployed on its own.
+Each researcher creates a separate copy of your contract, and can claim bounty by causing invariants to the copy of your contract without hacking the origin of your contract.
+
+To use the bounty contract, please follow the below instruction.
+
+### Implement invariant logic into your smart contract
+
+At contracts/YourToken.sol
+
+```
+contract YourToken {
+  function checkInvariant() returns(bool){
+    // Implement your logic to make sure that none of the state is broken.
+  }
+}
+```
+
+### Auto generate Bounty contract
+
+```
+node scripts/generators/bounty.js YourToken.sol
+```
+
+### Deploy contracts
+
+```
+truffle migrate
+```
+
+### Add a reward to the bounty contract
+
+From `truffle console`
+
+```
+address = 'your account address'
+reward = 'reward to pay to a researcher'
+
+web3.eth.sendTransaction({
+  from:address,
+  to:bounty.address,
+  value: web3.toWei(reward, "ether")
+}
+
+```
 
 #### Truffle Beta Support
 We also support Truffle Beta npm integration. If you're using Truffle Beta, the contracts in `node_modules` will be enough, so feel free to delete the copies at your `contracts` folder. If you're using Truffle Beta, you can use Zeppelin contracts like so:
@@ -37,7 +85,7 @@ We also support Truffle Beta npm integration. If you're using Truffle Beta, the 
 ```js
 import "zeppelin-solidity/contracts/Rejector.sol";
 
-contract MetaCoin is Rejector { 
+contract MetaCoin is Rejector {
   ...
 }
 ```
