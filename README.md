@@ -59,6 +59,15 @@ zep bounty YourToken.sol
 
 NOTE: if you install the module locally, prepend `./node_modules/.bin/` to the command
 
+### Auto the contract into migrations
+
+At `migrations/2_deploy_contracts.js`
+
+```
+module.exports = function(deployer) {
+  deployer.deploy(Bounty);
+};
+```
 
 ### Deploy contracts
 
