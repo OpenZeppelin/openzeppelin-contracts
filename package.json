@@ -8,6 +8,9 @@
     "test": "truffle test",
     "install": "scripts/install.sh"
   },
+  "bin" : {
+    "bounty_generator" : "./bin/generators/bounty.js"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/OpenZeppelin/zeppelin-solidity.git"

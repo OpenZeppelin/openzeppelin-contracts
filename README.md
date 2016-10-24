@@ -54,8 +54,11 @@ contract YourToken {
 ### Auto generate Bounty contract
 
 ```
-node scripts/generators/bounty.js YourToken.sol
+bounty_generator YourToken.sol
 ```
+
+NOTE: if you install the module locally, prepend `./node_modules/.bin/` to the command
+
 
 ### Deploy contracts
 
