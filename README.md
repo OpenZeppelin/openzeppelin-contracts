@@ -45,7 +45,7 @@ contract MetaCoin is Rejector {
 For more info see [the Truffle Beta package management tutorial](http://truffleframework.com/tutorials/package-management).
 
 ## Security
-Zeppelin is meant to provide secure, tested and community-audited code, but please use common sense when doing anything that deals with real money! We take no responsibility for your implementation decisions.
+Zeppelin is meant to provide secure, tested and community-audited code, but please use common sense when doing anything that deals with real money! We take no responsibility for your implementation decisions and any security problem you might experience.
 
 If you find a security issue, please email [security@openzeppelin.org](mailto:security@openzeppelin.org).
 
