@@ -31,27 +31,27 @@ contract MetaCoin is Rejector {
 
 > NOTE: The current distribution channel is npm, which is not ideal. [We're looking into providing a better tool for code distribution](https://github.com/OpenZeppelin/zeppelin-solidity/issues/13), and ideas are welcome.
 
-## Generate your own Bounty contract
+## Generate your own bounty contract
 
-So far the use use contracts through inheritance.
-A Bounty contract, however, is a special contract that is deployed on its own.
-Each researcher creates a separate copy of your contract, and can claim bounty by causing invariants to the copy of your contract without hacking the origin of your contract.
+So far you inherit contracts into your own contract through inheritance.
+A bounty contract, however, is a special contract that is deployed on its own.
+Each researcher creates a separate copy of your contract, and can claim bounty by causing invariants to the copy of your contract without hacking the your original contract.
 
 To use the bounty contract, please follow the below instruction.
 
 ### Implement invariant logic into your smart contract
 
-At contracts/YourToken.sol
+At contracts/YourContract.sol
 
 ```
-contract YourToken {
+contract YourContract {
   function checkInvariant() returns(bool){
     // Implement your logic to make sure that none of the state is broken.
   }
 }
 ```
 
-### Auto generate Bounty contract
+### Auto generate a bounty contract
 
 ```
 zep bounty YourToken.sol
