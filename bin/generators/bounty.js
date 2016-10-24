@@ -4,12 +4,12 @@ var fs = require('fs');
 var path = require('path');
 var Mustache = require('mustache');
 
-if (process.argv.length != 3) {
-  throw("Usage: pass contract name as an argument (eg: token/SimpleToken.sol)")
+if (process.argv.length != 4) {
+  throw("Usage: zep bounty token/SimpleToken.sol)")
 }
 
 // extract contract name from arguments
-var file_name = process.argv[2]
+var file_name = process.argv[3]
 var contract_name = path.basename(file_name).split('.')[0]
 
 var view = {

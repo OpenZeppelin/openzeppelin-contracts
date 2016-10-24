@@ -54,7 +54,7 @@ contract YourToken {
 ### Auto generate Bounty contract
 
 ```
-bounty_generator YourToken.sol
+zep bounty YourToken.sol
 ```
 
 NOTE: if you install the module locally, prepend `./node_modules/.bin/` to the command

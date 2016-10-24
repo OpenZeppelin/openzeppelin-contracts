@@ -9,7 +9,7 @@
     "install": "scripts/install.sh"
   },
   "bin" : {
-    "bounty_generator" : "./bin/generators/bounty.js"
+    "zep" : "./bin/generators/bounty.js"
   },
   "repository": {
     "type": "git",
