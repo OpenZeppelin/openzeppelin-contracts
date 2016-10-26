@@ -1,13 +1,33 @@
 contract('Bounty', function(accounts) {
+  before(function(){
+    owner = accounts[0];
+    researcher = accounts[1];
+  })
+
   it("can create bounty contract with factory address", function(done){
     var target = SecureTargetMock.deployed();
-
     SimpleTokenBounty.new(target.address).
       then(function(bounty){
         return bounty.factoryAddress.call()
       }).
       then(function(address){
         assert.equal(address, target.address)
+      }).
+      then(done);
+  })
+
+  it("sets reward", function(done){
+    var target = SecureTargetMock.deployed();
+    var reward = web3.toWei(1, "ether");
+    var bounty;
+    SimpleTokenBounty.new(target.address).
+      then(function(bounty){
+        web3.eth.sendTransaction({
+          from:owner,
+          to:bounty.address,
+          value: reward
+        })
+        assert.equal(reward, web3.eth.getBalance(bounty.address).toNumber())
       }).
       then(done);
   })

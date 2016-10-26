@@ -22,7 +22,7 @@ contract SimpleTokenBounty is PullPayment {
   address public factoryAddress;
   mapping(address => address) public researchers;
 
-  function() {
+  function() payable {
     if (claimed) throw;
   }
 
