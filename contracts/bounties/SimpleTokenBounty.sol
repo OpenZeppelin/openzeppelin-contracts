@@ -16,16 +16,21 @@ contract Target {
   function checkInvariant() returns(bool);
 }
 
-contract Bounty is PullPayment {
+contract SimpleTokenBounty is PullPayment {
   Target target;
   bool public claimed;
+  address public factoryAddress;
   mapping(address => address) public researchers;
 
   function() {
     if (claimed) throw;
   }
 
-  function createTarget(address factoryAddress) returns(Target) {
+  function SimpleTokenBounty(address _factoryAddress){
+    factoryAddress = _factoryAddress;
+  }
+
+  function createTarget() returns(Target) {
     target = Target(Factory(factoryAddress).deployContract());
     researchers[target] = msg.sender;
     return target;
