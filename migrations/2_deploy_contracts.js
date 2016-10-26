@@ -7,7 +7,7 @@ module.exports = function(deployer) {
   deployer.deploy(Ownable);
   deployer.deploy(LimitFunds);
   if(deployer.network == 'test'){
-    deployer.deploy(SecureTargetMock);
-    deployer.deploy(InsecureTargetMock);
+    deployer.deploy(SecureTargetFactory);
+    deployer.deploy(InsecureTargetFactory);
   };
 };

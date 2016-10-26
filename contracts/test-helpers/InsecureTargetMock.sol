@@ -6,7 +6,7 @@ contract InsecureTargetMock {
   }
 }
 
-contract Deployer {
+contract InsecureTargetFactory {
   function deployContract() returns (address) {
     return new InsecureTargetMock();
   }

@@ -11,17 +11,17 @@ contract('Bounty', function(accounts) {
       then(done);
   })
 
-  it.only("can call checkInvariant for SecureTargetMock", function(done){
+  it("can call checkInvariant for SecureTargetMock", function(done){
     var bounty;
-    var target = SecureTargetMock.deployed();
-    SimpleTokenBounty.new(target.address).
+    var targetFactory = SecureTargetFactory.deployed();
+    SimpleTokenBounty.new(targetFactory.address).
       then(function(_bounty) {
         bounty = _bounty;
-        return bounty.createTarget.sendTransaction({gas:200000});
+        return bounty.createTarget();
       }).
-      // then(function() {
-      //   return bounty.checkInvariant.call()
-      // }).
+      then(function() {
+        return bounty.checkInvariant.call()
+      }).
       then(function(result) {
         assert.isTrue(result);
       }).
@@ -29,9 +29,13 @@ contract('Bounty', function(accounts) {
   })
 
   it("can call checkInvariant for InsecureTargetMock", function(done){
-    var bounty = SimpleTokenBounty.deployed();
-    var target = InsecureTargetMock.deployed();
-    bounty.createTarget(target.address).
+    var bounty;
+    var targetFactory = InsecureTargetFactory.deployed();
+    SimpleTokenBounty.new(targetFactory.address).
+      then(function(_bounty) {
+        bounty = _bounty;
+        return bounty.createTarget();
+      }).
       then(function() {
         return bounty.checkInvariant.call()
       }).
