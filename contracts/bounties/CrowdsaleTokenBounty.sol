@@ -5,7 +5,7 @@ import '../token/CrowdsaleToken.sol';
 /*
  * Bounty
  * This bounty will pay out if you can cause a CrowdsaleToken's balance
- * to be lower than its totalSupply, which would mean that it doesn't 
+ * to be lower than its totalSupply, which would mean that it doesn't
  * have sufficient ether for everyone to withdraw.
  */
 contract CrowdsaleTokenBounty is PullPayment {
