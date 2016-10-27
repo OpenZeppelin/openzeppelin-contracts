@@ -51,7 +51,6 @@ contract('Bounty', function(accounts) {
       then(done);
   })
 
-
   describe("SecureTargetMock", function(){
     it("checkInvariant returns true", function(done){
       var targetFactory = SecureTargetFactory.deployed();
