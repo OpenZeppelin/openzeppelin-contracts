@@ -22,6 +22,8 @@ contract SimpleTokenBounty is PullPayment {
   address public factoryAddress;
   mapping(address => address) public researchers;
 
+  event TargetCreated(address createdAddress);
+
   function() payable {
     if (claimed) throw;
   }
@@ -33,6 +35,7 @@ contract SimpleTokenBounty is PullPayment {
   function createTarget() returns(Target) {
     target = Target(Factory(factoryAddress).deployContract());
     researchers[target] = msg.sender;
+    TargetCreated(target);
     return target;
   }
 
@@ -44,7 +47,7 @@ contract SimpleTokenBounty is PullPayment {
     address researcher = researchers[target];
     if (researcher == 0) throw;
     // Check Target contract invariants
-    if (!target.checkInvariant()) {
+    if (target.checkInvariant()) {
       throw;
     }
     asyncSend(researcher, this.balance);
