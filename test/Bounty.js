@@ -33,7 +33,7 @@ contract('Bounty', function(accounts) {
       then(done);
   })
 
-  it("ends", function(done){
+  it("empties itself when killed", function(done){
     var target = SecureTargetMock.deployed();
     var owner = accounts[0];
     var reward = web3.toWei(1, "ether");
@@ -51,7 +51,7 @@ contract('Bounty', function(accounts) {
       then(done);
   })
 
-  describe("SecureTargetMock", function(){
+  describe("Against secure contract", function(){
     it("checkInvariant returns true", function(done){
       var targetFactory = SecureTargetFactory.deployed();
       var bounty;
@@ -69,7 +69,7 @@ contract('Bounty', function(accounts) {
         then(done);
     })
 
-    it("cannot calim reward", function(done){
+    it("cannot claim reward", function(done){
       var targetFactory = SecureTargetFactory.deployed();
       var owner = accounts[0];
       var researcher = accounts[1];
@@ -104,7 +104,7 @@ contract('Bounty', function(accounts) {
     })
   })
 
-  describe("InsecureTargetMock", function(){
+  describe("Against broken contract", function(){
     it("checkInvariant returns false", function(done){
       var targetFactory = InsecureTargetFactory.deployed();
       var bounty;
@@ -122,7 +122,7 @@ contract('Bounty', function(accounts) {
         then(done);
     })
 
-    it("calims reward", function(done){
+    it("claims reward", function(done){
       var targetFactory = InsecureTargetFactory.deployed();
       var owner = accounts[0];
       var researcher = accounts[1];
