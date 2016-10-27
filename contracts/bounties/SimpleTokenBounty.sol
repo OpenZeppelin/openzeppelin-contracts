@@ -1,6 +1,6 @@
 pragma solidity ^0.4.0;
 import '../PullPayment.sol';
-
+import '../Killable.sol';
 /*
  * Bounty
  * This bounty will pay out if you can cause a SimpleToken's balance
@@ -16,7 +16,7 @@ contract Target {
   function checkInvariant() returns(bool);
 }
 
-contract SimpleTokenBounty is PullPayment {
+contract SimpleTokenBounty is PullPayment, Killable {
   Target target;
   bool public claimed;
   address public factoryAddress;

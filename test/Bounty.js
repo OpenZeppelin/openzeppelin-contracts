@@ -7,7 +7,7 @@ var sendReward = function(sender, receiver, value){
 }
 
 contract('Bounty', function(accounts) {
-  it("can create bounty contract with factory address", function(done){
+  it("creates bounty contract with factory address", function(done){
     var target = SecureTargetMock.deployed();
 
     SimpleTokenBounty.new(target.address).
@@ -32,6 +32,25 @@ contract('Bounty', function(accounts) {
       }).
       then(done);
   })
+
+  it("ends", function(done){
+    var target = SecureTargetMock.deployed();
+    var owner = accounts[0];
+    var reward = web3.toWei(1, "ether");
+    var bounty;
+    SimpleTokenBounty.new(target.address).
+      then(function(_bounty){
+        bounty = _bounty;
+        sendReward(owner, bounty.address, reward);
+        assert.equal(reward, web3.eth.getBalance(bounty.address).toNumber())
+        return bounty.kill()
+      }).
+      then(function(){
+        assert.equal(0, web3.eth.getBalance(bounty.address).toNumber())
+      }).
+      then(done);
+  })
+
 
   describe("SecureTargetMock", function(){
     it("checkInvariant returns true", function(done){
