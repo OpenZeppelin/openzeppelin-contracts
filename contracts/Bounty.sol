@@ -1,11 +1,11 @@
 pragma solidity ^0.4.0;
-import '../PullPayment.sol';
-import '../Killable.sol';
+import './PullPayment.sol';
+import './Killable.sol';
+
 /*
  * Bounty
- * This bounty will pay out if you can cause a SimpleToken's balance
- * to be lower than its totalSupply, which would mean that it doesn't
- * have sufficient ether for everyone to withdraw.
+ * This bounty will pay out to a researcher if he/she breaks invariant logic of
+ * the contract you bet reward against.
  */
 
 contract Factory {
@@ -16,7 +16,7 @@ contract Target {
   function checkInvariant() returns(bool);
 }
 
-contract SimpleTokenBounty is PullPayment, Killable {
+contract Bounty is PullPayment, Killable {
   Target target;
   bool public claimed;
   address public factoryAddress;
@@ -28,7 +28,7 @@ contract SimpleTokenBounty is PullPayment, Killable {
     if (claimed) throw;
   }
 
-  function SimpleTokenBounty(address _factoryAddress){
+  function Bounty(address _factoryAddress){
     factoryAddress = _factoryAddress;
   }
 

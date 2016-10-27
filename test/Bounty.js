@@ -10,7 +10,7 @@ contract('Bounty', function(accounts) {
   it("creates bounty contract with factory address", function(done){
     var target = SecureTargetMock.deployed();
 
-    SimpleTokenBounty.new(target.address).
+    Bounty.new(target.address).
       then(function(bounty){
         return bounty.factoryAddress.call()
       }).
@@ -25,7 +25,7 @@ contract('Bounty', function(accounts) {
     var owner = accounts[0];
     var reward = web3.toWei(1, "ether");
 
-    SimpleTokenBounty.new(target.address).
+    Bounty.new(target.address).
       then(function(bounty){
         sendReward(owner, bounty.address, reward);
         assert.equal(reward, web3.eth.getBalance(bounty.address).toNumber())
@@ -38,7 +38,7 @@ contract('Bounty', function(accounts) {
     var owner = accounts[0];
     var reward = web3.toWei(1, "ether");
     var bounty;
-    SimpleTokenBounty.new(target.address).
+    Bounty.new(target.address).
       then(function(_bounty){
         bounty = _bounty;
         sendReward(owner, bounty.address, reward);
@@ -55,7 +55,7 @@ contract('Bounty', function(accounts) {
     it("checkInvariant returns true", function(done){
       var targetFactory = SecureTargetFactory.deployed();
       var bounty;
-      SimpleTokenBounty.new(targetFactory.address).
+      Bounty.new(targetFactory.address).
         then(function(_bounty) {
           bounty = _bounty;
           return bounty.createTarget();
@@ -75,7 +75,7 @@ contract('Bounty', function(accounts) {
       var researcher = accounts[1];
       var reward = web3.toWei(1, "ether");
 
-      SimpleTokenBounty.new(targetFactory.address).
+      Bounty.new(targetFactory.address).
         then(function(bounty) {
           var event = bounty.TargetCreated({});
           event.watch(function(err, result) {
@@ -108,7 +108,7 @@ contract('Bounty', function(accounts) {
     it("checkInvariant returns false", function(done){
       var targetFactory = InsecureTargetFactory.deployed();
       var bounty;
-      SimpleTokenBounty.new(targetFactory.address).
+      Bounty.new(targetFactory.address).
         then(function(_bounty) {
           bounty = _bounty;
           return bounty.createTarget();
@@ -128,7 +128,7 @@ contract('Bounty', function(accounts) {
       var researcher = accounts[1];
       var reward = web3.toWei(1, "ether");
 
-      SimpleTokenBounty.new(targetFactory.address).
+      Bounty.new(targetFactory.address).
         then(function(bounty) {
           var event = bounty.TargetCreated({});
           event.watch(function(err, result) {
