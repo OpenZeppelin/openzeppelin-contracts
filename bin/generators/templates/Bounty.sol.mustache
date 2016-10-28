@@ -1,0 +1,38 @@
+pragma solidity ^0.4.0;
+import './PullPayment.sol';
+import './{{{file_name}}}';
+
+/*
+ * Bounty
+ * This bounty will pay out if you can cause a {{name}}'s balance
+ * to be lower than its totalSupply, which would mean that it doesn't
+ * have sufficient ether for everyone to withdraw.
+ */
+contract Bounty is PullPayment {
+
+  bool public claimed;
+  mapping(address => address) public researchers;
+
+  function() {
+    if (claimed) throw;
+  }
+
+  function createTarget() returns(SimpleToken) {
+    SimpleToken target = new {{name}}();
+    researchers[target] = msg.sender;
+    return target;
+  }
+
+  function claim({{name}} target) {
+    address researcher = researchers[target];
+    if (researcher == 0) throw;
+    // Check {{name}} contract invariants
+    // Make sure that your contract implements checkInvariant function
+    if (!target.checkInvariant()) {
+      throw;
+    }
+    asyncSend(researcher, this.balance);
+    claimed = true;
+  }
+
+}
