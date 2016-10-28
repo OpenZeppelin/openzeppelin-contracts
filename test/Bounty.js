@@ -33,6 +33,18 @@ contract('Bounty', function(accounts) {
       then(done);
   })
 
+  it("cannot create bounty without address", function(done){
+    var target = SecureTargetMock.deployed();
+    Bounty.new().
+      then(function(bounty){
+        throw {name : "NoThrowError", message : "should not come here"};
+      }).
+      catch(function(error){
+        assert.notEqual(error.name, "NoThrowError");
+      }).
+      then(done);
+  })
+
   it("empties itself when killed", function(done){
     var target = SecureTargetMock.deployed();
     var owner = accounts[0];

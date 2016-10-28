@@ -28,7 +28,12 @@ contract Bounty is PullPayment, Killable {
     if (claimed) throw;
   }
 
-  function Bounty(address _factoryAddress){
+  modifier withAddress(address _address) {
+    if(_address == 0) throw;
+    _;
+  }
+
+  function Bounty(address _factoryAddress) withAddress(_factoryAddress){
     factoryAddress = _factoryAddress;
   }
 
