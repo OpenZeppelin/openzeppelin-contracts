@@ -65,8 +65,9 @@ At `migrations/2_deploy_contracts.js`
 ```
 module.exports = function(deployer) {
   deployer.deploy(YourContract);
-  deployer.deploy(YourContractFactory);
-  deployer.deploy(Bounty);
+  deployer.deploy(YourContractFactory).then(function() {
+    return deployer.deploy(Bounty, YourContractFactory.address);
+  });
 };
 ```
 
