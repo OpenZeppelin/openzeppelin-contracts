@@ -2,7 +2,7 @@ pragma solidity ^0.4.0;
 /*
  * Stoppable
  * Abstract contract that allows children to implement an
- * emergency stop mechanism. 
+ * emergency stop mechanism.
  */
 contract Stoppable {
   address public curator;
@@ -19,6 +19,11 @@ contract Stoppable {
   function emergencyStop() external {
     if (msg.sender != curator) throw;
     stopped = true;
+  }
+
+  function release() external onlyInEmergency {
+    if (msg.sender != curator) throw;
+    stopped = false;
   }
 
 }
