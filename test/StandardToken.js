@@ -78,4 +78,20 @@ contract('StandardToken', function(accounts) {
       .then(done);
   });
 
+  it("should throw an error when trying to transfer more than allowed", function(done) {
+    var token;
+    return StandardTokenMock.new(accounts[0], 100)
+      .then(function(_token) {
+        token = _token;
+        return token.approve(accounts[1], 99);
+      })
+      .then(function() {
+        return token.transferFrom(accounts[0], accounts[2], 100, {from: accounts[1]});
+      })
+      .catch(function(error) {
+        if (error.message.search('invalid JUMP') == -1) throw error
+      })
+      .then(done);
+  });
+
 });
