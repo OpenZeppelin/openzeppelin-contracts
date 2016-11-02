@@ -2,11 +2,11 @@ pragma solidity ^0.4.0;
 import '../Stoppable.sol';
 
 // mock class using Stoppable
-contract StoppableMock is Stoppable(msg.sender) {
+contract StoppableMock is Stoppable {
   bool public drasticMeasureTaken;
   uint public count;
 
-  function StoppableMock() Stoppable(msg.sender){
+  function StoppableMock() {
     drasticMeasureTaken = false;
     count = 0;
   }
