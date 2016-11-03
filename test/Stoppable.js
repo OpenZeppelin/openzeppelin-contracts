@@ -2,7 +2,7 @@ contract('Stoppable', function(accounts) {
 
   it("can perform normal process in non-emergency", function(done) {
     var stoppable;
-    return StoppableMock.new(accounts[0])
+    return StoppableMock.new()
       .then(function(_stoppable) {
         stoppable = _stoppable;
         return stoppable.count();
@@ -24,7 +24,7 @@ contract('Stoppable', function(accounts) {
 
   it("can not perform normal process in emergency", function(done) {
     var stoppable;
-    return StoppableMock.new(accounts[0])
+    return StoppableMock.new()
       .then(function(_stoppable) {
         stoppable = _stoppable;
         return stoppable.emergencyStop();
@@ -50,7 +50,7 @@ contract('Stoppable', function(accounts) {
 
   it("can not take drastic measure in non-emergency", function(done) {
     var stoppable;
-    return StoppableMock.new(accounts[0])
+    return StoppableMock.new()
       .then(function(_stoppable) {
         stoppable = _stoppable;
         return stoppable.drasticMeasure();
@@ -66,7 +66,7 @@ contract('Stoppable', function(accounts) {
 
   it("can take a drastic measure in an emergency", function(done) {
     var stoppable;
-    return StoppableMock.new(accounts[0])
+    return StoppableMock.new()
       .then(function(_stoppable) {
         stoppable = _stoppable;
         return stoppable.emergencyStop();
@@ -85,7 +85,7 @@ contract('Stoppable', function(accounts) {
 
   it("should resume allowing normal process after emergency is over", function(done) {
     var stoppable;
-    return StoppableMock.new(accounts[0])
+    return StoppableMock.new()
       .then(function(_stoppable) {
         stoppable = _stoppable;
         return stoppable.emergencyStop();

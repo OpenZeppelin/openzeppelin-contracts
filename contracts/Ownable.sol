@@ -1,4 +1,5 @@
 pragma solidity ^0.4.0;
+
 /*
  * Ownable
  * Base contract with an owner
