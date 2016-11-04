@@ -18,7 +18,7 @@ contract StoppableBid is Stoppable, PullPayment {
   }
 
   function withdraw() onlyInEmergency {
-    suicide(owner);
+    selfdestruct(owner);
   }
 
 }
