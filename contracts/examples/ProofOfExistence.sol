@@ -1,12 +1,10 @@
-pragma solidity ^0.4.0;
-
-import "../Rejector.sol";
+pragma solidity ^0.4.4;
 
 /*
  * Proof of Existence example contract
  * see https://medium.com/zeppelin-blog/the-hitchhikers-guide-to-smart-contracts-in-ethereum-848f08001f05
  */
-contract ProofOfExistence is Rejector {
+contract ProofOfExistence {
 
   mapping (bytes32 => bool) public proofs;
 
