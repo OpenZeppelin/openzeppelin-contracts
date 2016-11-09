@@ -33,11 +33,18 @@ contract MetaCoin is Rejector {
 
 ## Add your own bounty contract
 
-So far you inherit Zeppelin contracts into your own contract through inheritance.
-A bounty contract, however, is a special contract that is deployed on its own.
-Each researcher creates a separate copy of your contract, and can claims bounty by breaking invariants logic on the copy of your contract without hacking your original contract.
+To create a bounty for your contract, inherit from the base Bounty contract and provide an implementation for `deployContract()` returning the new contract address.
 
-To use the bounty contract, please follow the below instruction.
+```
+import "./zeppelin/Bounty.sol";
+import "./YourContract.sol";
+
+contract YourBounty is Bounty {
+  function deployContract() internal returns(address) {
+    return new YourContract()
+  }
+}
+```
 
 ### Implement invariant logic into your smart contract
 
@@ -45,29 +52,20 @@ At contracts/YourContract.sol
 
 ```
 contract YourContract {
-  function checkInvariant() returns(bool){
+  function checkInvariant() returns(bool) {
     // Implement your logic to make sure that none of the state is broken.
-  }
-}
-
-contract YourContractFactory {
-  function deployContract() returns (address) {
-    // This contract allows researchers to create a copy of your contract
-    return new YourContract();
   }
 }
 ```
 
-### Add the bounty contracts as well as your contracts into migrations
+### Deploy your bounty contract as usual
 
 At `migrations/2_deploy_contracts.js`
 
 ```
 module.exports = function(deployer) {
   deployer.deploy(YourContract);
-  deployer.deploy(YourContractFactory).then(function() {
-    return deployer.deploy(Bounty, YourContractFactory.address);
-  });
+  deployer.deploy(YourBounty);
 };
 ```
 

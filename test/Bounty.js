@@ -7,25 +7,12 @@ var sendReward = function(sender, receiver, value){
 }
 
 contract('Bounty', function(accounts) {
-  it("creates bounty contract with factory address", function(done){
-    var target = SecureTargetMock.deployed();
-
-    Bounty.new(target.address).
-      then(function(bounty){
-        return bounty.factoryAddress.call()
-      }).
-      then(function(address){
-        assert.equal(address, target.address)
-      }).
-      then(done);
-  })
 
   it("sets reward", function(done){
-    var target = SecureTargetMock.deployed();
     var owner = accounts[0];
     var reward = web3.toWei(1, "ether");
 
-    Bounty.new(target.address).
+    SecureTargetBounty.new().
       then(function(bounty){
         sendReward(owner, bounty.address, reward);
         assert.equal(reward, web3.eth.getBalance(bounty.address).toNumber())
@@ -33,24 +20,12 @@ contract('Bounty', function(accounts) {
       then(done);
   })
 
-  it("cannot create bounty without address", function(done){
-    var target = SecureTargetMock.deployed();
-    Bounty.new().
-      then(function(bounty){
-        throw {name : "NoThrowError", message : "should not come here"};
-      }).
-      catch(function(error){
-        assert.notEqual(error.name, "NoThrowError");
-      }).
-      then(done);
-  })
-
   it("empties itself when killed", function(done){
-    var target = SecureTargetMock.deployed();
     var owner = accounts[0];
     var reward = web3.toWei(1, "ether");
     var bounty;
-    Bounty.new(target.address).
+
+    SecureTargetBounty.new().
       then(function(_bounty){
         bounty = _bounty;
         sendReward(owner, bounty.address, reward);
@@ -65,9 +40,9 @@ contract('Bounty', function(accounts) {
 
   describe("Against secure contract", function(){
     it("checkInvariant returns true", function(done){
-      var targetFactory = SecureTargetFactory.deployed();
       var bounty;
-      Bounty.new(targetFactory.address).
+
+      SecureTargetBounty.new().
         then(function(_bounty) {
           bounty = _bounty;
           return bounty.createTarget();
@@ -82,12 +57,11 @@ contract('Bounty', function(accounts) {
     })
 
     it("cannot claim reward", function(done){
-      var targetFactory = SecureTargetFactory.deployed();
       var owner = accounts[0];
       var researcher = accounts[1];
       var reward = web3.toWei(1, "ether");
 
-      Bounty.new(targetFactory.address).
+      SecureTargetBounty.new().
         then(function(bounty) {
           var event = bounty.TargetCreated({});
           event.watch(function(err, result) {
@@ -118,9 +92,9 @@ contract('Bounty', function(accounts) {
 
   describe("Against broken contract", function(){
     it("checkInvariant returns false", function(done){
-      var targetFactory = InsecureTargetFactory.deployed();
       var bounty;
-      Bounty.new(targetFactory.address).
+
+      InsecureTargetBounty.new().
         then(function(_bounty) {
           bounty = _bounty;
           return bounty.createTarget();
@@ -135,12 +109,11 @@ contract('Bounty', function(accounts) {
     })
 
     it("claims reward", function(done){
-      var targetFactory = InsecureTargetFactory.deployed();
       var owner = accounts[0];
       var researcher = accounts[1];
       var reward = web3.toWei(1, "ether");
 
-      Bounty.new(targetFactory.address).
+      InsecureTargetBounty.new().
         then(function(bounty) {
           var event = bounty.TargetCreated({});
           event.watch(function(err, result) {

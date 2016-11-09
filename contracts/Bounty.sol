@@ -8,10 +8,6 @@ import './Killable.sol';
  * the contract you bet reward against.
  */
 
-contract Factory {
-  function deployContract() returns (address);
-}
-
 contract Target {
   function checkInvariant() returns(bool);
 }
@@ -19,7 +15,6 @@ contract Target {
 contract Bounty is PullPayment, Killable {
   Target target;
   bool public claimed;
-  address public factoryAddress;
   mapping(address => address) public researchers;
 
   event TargetCreated(address createdAddress);
@@ -28,21 +23,14 @@ contract Bounty is PullPayment, Killable {
     if (claimed) throw;
   }
 
-  modifier withAddress(address _address) {
-    if(_address == 0) throw;
-    _;
-  }
-
-  function Bounty(address _factoryAddress) withAddress(_factoryAddress){
-    factoryAddress = _factoryAddress;
-  }
-
   function createTarget() returns(Target) {
-    target = Target(Factory(factoryAddress).deployContract());
+    target = Target(deployContract());
     researchers[target] = msg.sender;
     TargetCreated(target);
     return target;
   }
+
+  function deployContract() internal returns(address);
 
   function checkInvariant() returns(bool){
     return target.checkInvariant();
