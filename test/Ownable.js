@@ -34,4 +34,20 @@ contract('Ownable', function(accounts) {
       .then(done)
   });
 
+  it("should guard ownership against stuck state" ,function(done) {
+    var ownable = Ownable.deployed();
+
+    return ownable.owner()
+      .then(function (originalOwner) {
+        return ownable.transfer(null, {from: originalOwner})
+          .then(function() {
+            return ownable.owner();
+          })
+          .then(function(newOwner) {
+            assert.equal(originalOwner, newOwner);
+          })
+          .then(done);
+      });
+  });
+
 });
