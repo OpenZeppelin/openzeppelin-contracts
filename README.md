@@ -137,6 +137,7 @@ Interested in contributing to Zeppelin?
 - [Rootstock](http://www.rsk.co/)
 - [Consensys](https://consensys.net/)
 - [DigixGlobal](https://www.dgx.io/)
+- [Coinfund](https://coinfund.io/)
 - [DemocracyEarth](http://democracy.earth/)
 - [Ether.camp](http://www.ether.camp/)
 
