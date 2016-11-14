@@ -1,6 +1,13 @@
 contract('Ownable', function(accounts) {
+  var ownable;
+
+  beforeEach(function() {
+    return Ownable.new().then(function(deployed) {
+      ownable = deployed;
+    });
+  });
+
   it("should have an owner", function(done) {
-    var ownable = Ownable.deployed();
     return ownable.owner()
       .then(function(owner) {
         assert.isTrue(owner != 0);
@@ -9,7 +16,6 @@ contract('Ownable', function(accounts) {
   });
 
   it("changes owner after transfer", function(done) {
-    var ownable = Ownable.deployed();
     var other = accounts[1];
     return ownable.transfer(other)
       .then(function() {
@@ -22,7 +28,6 @@ contract('Ownable', function(accounts) {
   });
 
   it("should prevent non-owners from transfering" ,function(done) {
-    var ownable = Ownable.deployed();
     var other = accounts[2];
     return ownable.transfer(other, {from: accounts[2]})
       .then(function() {
