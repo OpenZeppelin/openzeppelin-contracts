@@ -6,6 +6,7 @@ contract StandardTokenMock is StandardToken {
 
   function StandardTokenMock(address initialAccount, uint initialBalance) {
     balances[initialAccount] = initialBalance;
+    totalSupply = initialBalance;
   }
 
 }

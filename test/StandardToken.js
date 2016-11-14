@@ -1,5 +1,16 @@
 contract('StandardToken', function(accounts) {
 
+  it("should return the correct totalSupply after construction", function(done) {
+    return StandardTokenMock.new(accounts[0], 100)
+      .then(function(token) {
+        return token.totalSupply();
+      })
+      .then(function(totalSupply) {
+        assert.equal(totalSupply, 100);
+      })
+      .then(done);
+  })
+
   it("should return the correct allowance amount after approval", function(done) {
     var token;
     return StandardTokenMock.new()
