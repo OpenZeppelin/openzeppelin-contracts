@@ -139,6 +139,7 @@ Interested in contributing to Zeppelin?
 - [DigixGlobal](https://www.dgx.io/)
 - [Coinfund](https://coinfund.io/)
 - [DemocracyEarth](http://democracy.earth/)
+- [Singatura](https://signatura.co/es/)
 - [Ether.camp](http://www.ether.camp/)
 
 among others...
