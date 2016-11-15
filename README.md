@@ -129,8 +129,20 @@ Interested in contributing to Zeppelin?
 - Issue tracker: https://github.com/OpenZeppelin/zeppelin-solidity/issues
 - Contribution guidelines: https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/CONTRIBUTING.md
 
-## Projects using Zeppelin
-- [Blockparty](https://github.com/makoto/blockparty)
+## Collaborating organizations and audits by Zeppelin
+- [Golem](https://golem.network/)
+- [Mediachain](https://golem.network/)
+- [Truffle](http://truffleframework.com/)
+- [Firstblood](http://firstblood.io/)
+- [Rootstock](http://www.rsk.co/)
+- [Consensys](https://consensys.net/)
+- [DigixGlobal](https://www.dgx.io/)
+- [Coinfund](https://coinfund.io/)
+- [DemocracyEarth](http://democracy.earth/)
+- [Signatura](https://signatura.co/)
+- [Ether.camp](http://www.ether.camp/)
+
+among others...
 
 ## Contracts
 TODO
