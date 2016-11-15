@@ -17,7 +17,7 @@ contract Ownable {
   }
 
   function transfer(address newOwner) onlyOwner {
-    owner = newOwner;
+    if (newOwner != address(0)) owner = newOwner;
   }
 
 }
