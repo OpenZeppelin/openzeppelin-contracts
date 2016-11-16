@@ -1,6 +1,6 @@
 pragma solidity ^0.4.4;
 
-import "../StandardToken.sol";
+import "./StandardToken.sol";
 
 /*
  * Simple ERC20 Token example, with crowdsale token creation

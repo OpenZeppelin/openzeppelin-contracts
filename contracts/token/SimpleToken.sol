@@ -1,6 +1,6 @@
 pragma solidity ^0.4.4;
 
-import "../StandardToken.sol";
+import "./StandardToken.sol";
 
 /*
  * Very simple ERC20 Token example, where all tokens are pre-assigned
