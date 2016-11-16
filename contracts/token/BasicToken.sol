@@ -7,7 +7,7 @@ import '../SafeMath.sol';
  * Basic token
  * Basic version of StandardToken, with no allowances
  */
-contract BasicToken is ERC20Lite, SafeMath {
+contract BasicToken is ERC20Basic, SafeMath {
 
   mapping(address => uint) balances;
 
