@@ -22,9 +22,9 @@ npm i zeppelin-solidity
 After that, you'll get all the library's contracts in the `contracts/zeppelin` folder. You can use the contracts in the library like so:
 
 ```js
-import "./zeppelin/Rejector.sol";
+import "./zeppelin/Ownable.sol";
 
-contract MetaCoin is Rejector {
+contract MyContract is Ownable {
   ...
 }
 ```
@@ -103,9 +103,9 @@ bounty.kill()
 We also support Truffle Beta npm integration. If you're using Truffle Beta, the contracts in `node_modules` will be enough, so feel free to delete the copies at your `contracts` folder. If you're using Truffle Beta, you can use Zeppelin contracts like so:
 
 ```js
-import "zeppelin-solidity/contracts/Rejector.sol";
+import "zeppelin-solidity/contracts/Ownable.sol";
 
-contract MetaCoin is Rejector {
+contract MyContract is Ownable {
   ...
 }
 ```
