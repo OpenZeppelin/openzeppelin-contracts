@@ -35,4 +35,30 @@ contract('LimitBalance', function(accounts) {
       .then(done)
   });
 
+  it("should allow multiple sends below limit", function(done) {
+    var amount = 500;
+    return lb.limitedDeposit({value: amount})
+      .then(function() { 
+        assert.equal(web3.eth.getBalance(lb.address), amount);
+        return lb.limitedDeposit({value: amount})
+      })
+      .then(function() { 
+        assert.equal(web3.eth.getBalance(lb.address), amount*2);
+      })
+      .then(done)
+  });
+
+  it("shouldnt allow multiple sends above limit", function(done) {
+    var amount = 500;
+    return lb.limitedDeposit({value: amount})
+      .then(function() { 
+        assert.equal(web3.eth.getBalance(lb.address), amount);
+        return lb.limitedDeposit({value: amount+1})
+      })
+      .catch(function(error) {
+        if (error.message.search('invalid JUMP') == -1) throw error;
+      })
+      .then(done)
+  });
+
 });

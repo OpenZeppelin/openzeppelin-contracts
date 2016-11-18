@@ -8,7 +8,7 @@ contract LimitBalance {
   }
 
   modifier limitedPayable() { 
-    if (this.balance + msg.value > limit) {
+    if (this.balance > limit) {
       throw;
     }
     _;
