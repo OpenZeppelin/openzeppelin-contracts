@@ -22,7 +22,9 @@ contract('DelayedClaimable', function(accounts) {
       })
       .then(function(pendingOwner) {
         assert.isTrue(pendingOwner === newOwner);
-        delayedClaimable.claimOwnership({from: newOwner});
+        return delayedClaimable.claimOwnership({from: newOwner});
+      })
+      .then(function() {
         return delayedClaimable.owner();
       })
       .then(function(owner) {
@@ -46,7 +48,9 @@ contract('DelayedClaimable', function(accounts) {
       })
       .then(function(pendingOwner) {
         assert.isTrue(pendingOwner === newOwner);
-        // delayedClaimable.claimOwnership({from: newOwner}); Uncomment to break the test.
+        return delayedClaimable.claimOwnership({from: newOwner});
+      })
+      .then(function() {
         return delayedClaimable.owner();
       })
       .then(function(owner) {

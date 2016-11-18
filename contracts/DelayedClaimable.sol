@@ -10,13 +10,16 @@ import './Claimable.sol';
 contract DelayedClaimable is Ownable, Claimable {
   uint public claimBefore;
 
+  modifier onTime() { 
+    if (block.number < claimBefore)
+      _;
+  }
+
   function setDelay(uint _claimBefore) onlyOwner {
     claimBefore = _claimBefore;
   }
 
-  function claimOwnership() onlyPendingOwner {
-    if (block.number > claimBefore)
-        throw;
+  function claimOwnership() onlyPendingOwner onTime {
     owner = pendingOwner;
     pendingOwner = 0x0;
     claimBefore = 0;
