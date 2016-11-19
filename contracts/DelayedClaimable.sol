@@ -4,25 +4,25 @@ import './Claimable.sol';
 
 /*
  * DelayedClaimable
- * Extension for the Claimable contract, where the ownership needs to be claimed before certain time
+ * Extension for the Claimable contract, where the ownership needs to be claimed before certain block number
  */
 
 contract DelayedClaimable is Ownable, Claimable {
-  uint public claimBefore;
+  uint public claimBeforeBlock;
 
-  modifier onTime() { 
-    if (block.number < claimBefore)
+  modifier claimBefore() {
+    if (block.number < claimBeforeBlock)
       _;
   }
 
-  function setDelay(uint _claimBefore) onlyOwner {
-    claimBefore = _claimBefore;
+  function setClaimBefore(uint _claimBeforeBlock) onlyOwner {
+    claimBeforeBlock = _claimBeforeBlock;
   }
 
-  function claimOwnership() onlyPendingOwner onTime {
+  function claimOwnership() onlyPendingOwner claimBefore {
     owner = pendingOwner;
     pendingOwner = 0x0;
-    claimBefore = 0;
+    claimBeforeBlock = 0;
   }
 
 }

@@ -11,13 +11,13 @@ contract('DelayedClaimable', function(accounts) {
     var newOwner = accounts[2];
     return delayedClaimable.transfer(newOwner)
       .then(function(){
-        return delayedClaimable.setDelay(1000)
+        return delayedClaimable.setClaimBefore(1000)
       })
       .then(function(){
-        return delayedClaimable.claimBefore();
+        return delayedClaimable.claimBeforeBlock();
       })
-      .then(function(claimBefore) {
-        assert.isTrue(claimBefore == 1000);
+      .then(function(claimBeforeBlock) {
+        assert.isTrue(claimBeforeBlock == 1000);
         return delayedClaimable.pendingOwner();
       })
       .then(function(pendingOwner) {
@@ -37,13 +37,13 @@ contract('DelayedClaimable', function(accounts) {
     var newOwner = accounts[1];
     return delayedClaimable.transfer(newOwner)
       .then(function(){
-        return delayedClaimable.setDelay(1)
+        return delayedClaimable.setClaimBefore(1)
       })
       .then(function(){
-        return delayedClaimable.claimBefore();
+        return delayedClaimable.claimBeforeBlock();
       })
-      .then(function(claimBefore) {
-        assert.isTrue(claimBefore == 1);
+      .then(function(claimBeforeBlock) {
+        assert.isTrue(claimBeforeBlock == 1);
         return delayedClaimable.pendingOwner();
       })
       .then(function(pendingOwner) {
