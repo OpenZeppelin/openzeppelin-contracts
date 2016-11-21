@@ -1,6 +1,6 @@
-pragma solidity ^0.4.0;
+pragma solidity ^0.4.4;
 
-import "../StandardToken.sol";
+import "./StandardToken.sol";
 
 /*
  * Very simple ERC20 Token example, where all tokens are pre-assigned
@@ -9,14 +9,14 @@ import "../StandardToken.sol";
  */
 contract SimpleToken is StandardToken {
 
-    string public name = "SimpleToken";
-    string public symbol = "SIM";
-    uint public decimals = 18;
-    uint public INITIAL_SUPPLY = 10000;
-    
-    function SimpleToken() {
-      totalSupply = INITIAL_SUPPLY;
-      balances[msg.sender] = INITIAL_SUPPLY;
-    }
+  string public name = "SimpleToken";
+  string public symbol = "SIM";
+  uint public decimals = 18;
+  uint public INITIAL_SUPPLY = 10000;
+  
+  function SimpleToken() {
+    totalSupply = INITIAL_SUPPLY;
+    balances[msg.sender] = INITIAL_SUPPLY;
+  }
 
 }

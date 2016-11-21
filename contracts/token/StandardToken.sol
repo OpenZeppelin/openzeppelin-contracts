@@ -1,7 +1,7 @@
-pragma solidity ^0.4.0;
+pragma solidity ^0.4.4;
 
 import './ERC20.sol';
-import './SafeMath.sol';
+import '../SafeMath.sol';
 
 /**
  * ERC20 token

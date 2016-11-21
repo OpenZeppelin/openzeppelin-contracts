@@ -1,4 +1,5 @@
-pragma solidity ^0.4.0;
+pragma solidity ^0.4.4;
+
 /*
  * Ownable
  * Base contract with an owner
@@ -16,7 +17,7 @@ contract Ownable {
   }
 
   function transfer(address newOwner) onlyOwner {
-    owner = newOwner;
+    if (newOwner != address(0)) owner = newOwner;
   }
 
 }

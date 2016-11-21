@@ -1,34 +1,34 @@
-pragma solidity ^0.4.0;
+pragma solidity ^0.4.4;
 
-import "../StandardToken.sol";
+import "./StandardToken.sol";
 
 /*
  * Simple ERC20 Token example, with crowdsale token creation
  */
 contract CrowdsaleToken is StandardToken {
 
-    string public name = "CrowdsaleToken";
-    string public symbol = "CRW";
-    uint public decimals = 18;
+  string public name = "CrowdsaleToken";
+  string public symbol = "CRW";
+  uint public decimals = 18;
 
-    // 1 ether = 500 example tokens 
-    uint PRICE = 500;
+  // 1 ether = 500 example tokens 
+  uint PRICE = 500;
 
-    function () payable {
-        createTokens(msg.sender);
-    }
-    
-    function createTokens(address recipient) payable {
-        if (msg.value == 0) throw;
-    
-        uint tokens = safeMul(msg.value, getPrice());
+  function () payable {
+    createTokens(msg.sender);
+  }
+  
+  function createTokens(address recipient) payable {
+    if (msg.value == 0) throw;
 
-        totalSupply = safeAdd(totalSupply, tokens);
-        balances[recipient] = safeAdd(balances[recipient], tokens);
-    }
-    
-    // replace this with any other price function
-    function getPrice() constant returns (uint result){
-      return PRICE;
-    }
+    uint tokens = safeMul(msg.value, getPrice());
+
+    totalSupply = safeAdd(totalSupply, tokens);
+    balances[recipient] = safeAdd(balances[recipient], tokens);
+  }
+  
+  // replace this with any other price function
+  function getPrice() constant returns (uint result){
+    return PRICE;
+  }
 }

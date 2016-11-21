@@ -1,4 +1,4 @@
-pragma solidity ^0.4.0;
+pragma solidity ^0.4.4;
 
 import '../PullPayment.sol';
 import '../Stoppable.sol';
@@ -6,10 +6,6 @@ import '../Stoppable.sol';
 contract StoppableBid is Stoppable, PullPayment {
   address public highestBidder;
   uint public highestBid;
-
-  function StoppableBid(address _curator)
-    Stoppable(_curator)
-    PullPayment() {}
 
   function bid() external stopInEmergency {
     if (msg.value <= highestBid) throw;
@@ -22,7 +18,7 @@ contract StoppableBid is Stoppable, PullPayment {
   }
 
   function withdraw() onlyInEmergency {
-    suicide(curator);
+    selfdestruct(owner);
   }
 
 }
