@@ -162,7 +162,6 @@ Based on code by FirstBlood: [FirstBloodToken.sol]
 Inherits from contract SafeMath. Implementation of abstract contract ERC20 (see [https://github.com/ethereum/EIPs/issues/20])
 
 [FirstBloodToken.sol]: https://github.com/Firstbloodio/token/blob/master/smart_contract/FirstBloodToken.sol
-[https://github.com/ethereum/EIPs/issues/20]: see https://github.com/ethereum/EIPs/issues/20
 
 #### approve(address _spender, uint _value) returns (bool success)
 Sets the amount of the sender's token balance that the passed address is approved to use.
