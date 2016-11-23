@@ -34,74 +34,6 @@ contract MyContract is Ownable {
 
 > NOTE: The current distribution channel is npm, which is not ideal. [We're looking into providing a better tool for code distribution](https://github.com/OpenZeppelin/zeppelin-solidity/issues/13), and ideas are welcome.
 
-## Add your own bounty contract
-
-To create a bounty for your contract, inherit from the base Bounty contract and provide an implementation for `deployContract()` returning the new contract address.
-
-```
-import "./zeppelin/Bounty.sol";
-import "./YourContract.sol";
-
-contract YourBounty is Bounty {
-  function deployContract() internal returns(address) {
-    return new YourContract()
-  }
-}
-```
-
-### Implement invariant logic into your smart contract
-
-At contracts/YourContract.sol
-
-```
-contract YourContract {
-  function checkInvariant() returns(bool) {
-    // Implement your logic to make sure that none of the state is broken.
-  }
-}
-```
-
-### Deploy your bounty contract as usual
-
-At `migrations/2_deploy_contracts.js`
-
-```
-module.exports = function(deployer) {
-  deployer.deploy(YourContract);
-  deployer.deploy(YourBounty);
-};
-```
-
-### Add a reward to the bounty contract
-
-After deploying the contract, send rewards money into the bounty contract.
-
-From `truffle console`
-
-```
-address = 'your account address'
-reward = 'reward to pay to a researcher'
-
-web3.eth.sendTransaction({
-  from:address,
-  to:bounty.address,
-  value: web3.toWei(reward, "ether")
-}
-
-```
-
-### Researchers hack the contract and claim their reward.
-
-For each researcher who wants to hack the contract and claims the reward, refer to our [test](./test/Bounty.js) for the detail.
-
-### Ends the contract
-
-If you manage to protect your contract from security researchers and wants to end the bounty, kill the contract so that all the rewards go back to the owner of the bounty contract.
-
-```
-bounty.kill()
-```
-
 #### Truffle Beta Support
 We also support Truffle Beta npm integration. If you're using Truffle Beta, the contracts in `node_modules` will be enough, so feel free to delete the copies at your `contracts` folder. If you're using Truffle Beta, you can use Zeppelin contracts like so:
 
@@ -114,6 +46,7 @@ contract MyContract is Ownable {
 ```
 
 For more info see [the Truffle Beta package management tutorial](http://truffleframework.com/tutorials/package-management).
+
 
 ## Security
 Zeppelin is meant to provide secure, tested and community-audited code, but please use common sense when doing anything that deals with real money! We take no responsibility for your implementation decisions and any security problem you might experience.
@@ -294,6 +227,74 @@ Creates tokens based on message value and credits to the recipient.
 
 #### getPrice() constant returns (uint result)
 Returns the amount of tokens per 1 ether.
+
+
+### Bounty
+To create a bounty for your contract, inherit from the base `Bounty` contract and provide an implementation for `deployContract()` returning the new contract address.
+
+```
+import "./zeppelin/Bounty.sol";
+import "./YourContract.sol";
+
+contract YourBounty is Bounty {
+  function deployContract() internal returns(address) {
+    return new YourContract()
+  }
+}
+```
+
+Next, implement invariant logic into your smart contract
+
+At contracts/YourContract.sol
+
+```
+contract YourContract {
+  function checkInvariant() returns(bool) {
+    // Implement your logic to make sure that none of the state is broken.
+  }
+}
+```
+
+Next, deploy your bounty contract along with your main contract to the network.
+
+At `migrations/2_deploy_contracts.js`
+
+```
+module.exports = function(deployer) {
+  deployer.deploy(YourContract);
+  deployer.deploy(YourBounty);
+};
+```
+
+Next, add a reward to the bounty contract
+
+After deploying the contract, send reward funds into the bounty contract.
+
+From `truffle console`
+
+```
+bounty = YourBounty.deployed();
+address = 0xb9f68f96cde3b895cc9f6b14b856081b41cb96f1; // your account address
+reward = 5; // reward to pay to a researcher who breaks your contract
+
+web3.eth.sendTransaction({
+  from: address,
+  to: bounty.address,
+  value: web3.toWei(reward, "ether")
+})
+
+```
+
+If researchers break the contract, they can claim their reward.
+
+For each researcher who wants to hack the contract and claims the reward, refer to our [test](./test/Bounty.js) for the detail.
+
+Finally, if you manage to protect your contract from security researchers, you can reclaim the bounty funds. To end the bounty, kill the contract so that all the rewards go back to the owner.
+
+```
+bounty.kill();
+```
+
 
 ## License
 Code released under the [MIT License](https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/LICENSE).
