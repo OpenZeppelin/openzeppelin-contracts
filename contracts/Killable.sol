@@ -6,7 +6,7 @@ import "./Ownable.sol";
  * Base contract that can be killed by owner
  */
 contract Killable is Ownable {
-  function kill() {
-    if (msg.sender == owner) selfdestruct(owner);
+  function kill() onlyOwner {
+    selfdestruct(owner);
   }
 }
