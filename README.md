@@ -1,4 +1,7 @@
 # Zeppelin Solidity
+[![NPM Package](https://img.shields.io/npm/v/zeppelin-solidity.svg?style=flat-square)](https://www.npmjs.org/package/zeppelin-solidity)
+[![Build Status](https://img.shields.io/travis/OpenZeppelin/zeppelin-solidity.svg?branch=master&style=flat-square)](https://travis-ci.org/bitpay/bitcore-lib)
+
 Zeppelin is a library for writing secure Smart Contracts on Ethereum.
 
 With Zeppelin, you can build distributed applications, protocols and organizations:
