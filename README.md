@@ -10,9 +10,9 @@ With Zeppelin, you can build distributed applications, protocols and organizatio
 
 ## Getting Started
 
-Zeppelin integrates with [Truffle](https://github.com/ConsenSys/truffle), an Ethereum development environment. Please [install Truffle](https://github.com/ConsenSys/truffle#install) and initialize your project with `truffle init`.
+Zeppelin integrates with [Truffle](https://github.com/ConsenSys/truffle), an Ethereum development environment. Please install Truffle and initialize your project with `truffle init`.
 ```sh
-sudo npm install -g truffle
+npm install -g truffle
 mkdir myproject && cd myproject
 truffle init
 ```
@@ -52,33 +52,6 @@ For more info see [the Truffle Beta package management tutorial](http://trufflef
 Zeppelin is meant to provide secure, tested and community-audited code, but please use common sense when doing anything that deals with real money! We take no responsibility for your implementation decisions and any security problem you might experience.
 
 If you find a security issue, please email [security@openzeppelin.org](mailto:security@openzeppelin.org).
-
-## Developer Resources
-
-Building a distributed application, protocol or organization with Zeppelin?
-
-- Ask for help and follow progress at: https://zeppelin-slackin.herokuapp.com/
-
-Interested in contributing to Zeppelin?
-
-- Framework proposal and roadmap: https://medium.com/zeppelin-blog/zeppelin-framework-proposal-and-development-roadmap-fdfa9a3a32ab#.iain47pak
-- Issue tracker: https://github.com/OpenZeppelin/zeppelin-solidity/issues
-- Contribution guidelines: https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/CONTRIBUTING.md
-
-## Collaborating organizations and audits by Zeppelin
-- [Golem](https://golem.network/)
-- [Mediachain](https://golem.network/)
-- [Truffle](http://truffleframework.com/)
-- [Firstblood](http://firstblood.io/)
-- [Rootstock](http://www.rsk.co/)
-- [Consensys](https://consensys.net/)
-- [DigixGlobal](https://www.dgx.io/)
-- [Coinfund](https://coinfund.io/)
-- [DemocracyEarth](http://democracy.earth/)
-- [Signatura](https://signatura.co/)
-- [Ether.camp](http://www.ether.camp/)
-
-among others...
 
 ## Contracts
 
@@ -294,6 +267,34 @@ Finally, if you manage to protect your contract from security researchers, you c
 ```
 bounty.kill();
 ```
+
+
+## More Developer Resources
+
+Building a distributed application, protocol or organization with Zeppelin?
+
+- Ask for help and follow progress at: https://zeppelin-slackin.herokuapp.com/
+
+Interested in contributing to Zeppelin?
+
+- Framework proposal and roadmap: https://medium.com/zeppelin-blog/zeppelin-framework-proposal-and-development-roadmap-fdfa9a3a32ab#.iain47pak
+- Issue tracker: https://github.com/OpenZeppelin/zeppelin-solidity/issues
+- Contribution guidelines: https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/CONTRIBUTING.md
+
+## Collaborating organizations and audits by Zeppelin
+- [Golem](https://golem.network/)
+- [Mediachain](https://golem.network/)
+- [Truffle](http://truffleframework.com/)
+- [Firstblood](http://firstblood.io/)
+- [Rootstock](http://www.rsk.co/)
+- [Consensys](https://consensys.net/)
+- [DigixGlobal](https://www.dgx.io/)
+- [Coinfund](https://coinfund.io/)
+- [DemocracyEarth](http://democracy.earth/)
+- [Signatura](https://signatura.co/)
+- [Ether.camp](http://www.ether.camp/)
+
+among others...
 
 
 ## License
