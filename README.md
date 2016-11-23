@@ -201,6 +201,7 @@ Creates tokens based on message value and credits to the recipient.
 Returns the amount of tokens per 1 ether.
 
 
+___
 ### Bounty
 To create a bounty for your contract, inherit from the base `Bounty` contract and provide an implementation for `deployContract()` returning the new contract address.
 
