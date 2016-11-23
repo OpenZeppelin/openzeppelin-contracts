@@ -53,7 +53,7 @@ contract DayLimit is Shareable {
 
   // checks to see if there is at least `_value` left from the daily limit today. if there is, subtracts it and
   // returns true. otherwise just returns false.
-  function underLimit(uint _value) internal onlyowner returns (bool) {
+  function underLimit(uint _value) internal onlyOwner returns (bool) {
     // reset the spend limit if we're on a different day to last time.
     if (today() > lastDay) {
       spentToday = 0;
