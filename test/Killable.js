@@ -52,7 +52,7 @@ contract('Killable', function(accounts) {
         kBalance = web3.eth.getBalance(killable.address);
       })
       .then(function() {
-        return killable.kill.call({from: owner});
+        return killable.kill({from: owner});
       })
       .then(function (txnHash) {
         return web3.eth.getTransactionReceiptMined(txnHash);
