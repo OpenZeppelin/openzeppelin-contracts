@@ -1,17 +1,15 @@
 pragma solidity ^0.4.4;
+
+
 import './PullPayment.sol';
 import './Killable.sol';
 
+
 /*
  * Bounty
- * This bounty will pay out to a researcher if he/she breaks invariant logic of
- * the contract you bet reward against.
+ * 
+ * This bounty will pay out to a researcher if they break invariant logic of the contract.
  */
-
-contract Target {
-  function checkInvariant() returns(bool);
-}
-
 contract Bounty is PullPayment, Killable {
   Target target;
   bool public claimed;
@@ -48,3 +46,9 @@ contract Bounty is PullPayment, Killable {
   }
 
 }
+
+
+contract Target {
+  function checkInvariant() returns(bool);
+}
+

@@ -206,7 +206,7 @@ ___
 To create a bounty for your contract, inherit from the base `Bounty` contract and provide an implementation for `deployContract()` returning the new contract address.
 
 ```
-import "./zeppelin/Bounty.sol";
+import {Bounty, Target} from "./zeppelin/Bounty.sol";
 import "./YourContract.sol";
 
 contract YourBounty is Bounty {
@@ -221,9 +221,10 @@ Next, implement invariant logic into your smart contract
 At contracts/YourContract.sol
 
 ```
-contract YourContract {
+import {Bounty, Target} from "./zeppelin/Bounty.sol";
+contract YourContract is Target {
   function checkInvariant() returns(bool) {
-    // Implement your logic to make sure that none of the state is broken.
+    // Implement your logic to make sure that none of the invariants are broken.
   }
 }
 ```
