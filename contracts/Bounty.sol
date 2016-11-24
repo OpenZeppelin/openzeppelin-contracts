@@ -1,17 +1,15 @@
 pragma solidity ^0.4.4;
+
+
 import './PullPayment.sol';
 import './Killable.sol';
 
+
 /*
  * Bounty
- * This bounty will pay out to a researcher if he/she breaks invariant logic of
- * the contract you bet reward against.
+ * 
+ * This bounty will pay out to a researcher if they break invariant logic of the contract.
  */
-
-contract Target {
-  function checkInvariant() returns(bool);
-}
-
 contract Bounty is PullPayment, Killable {
   Target target;
   bool public claimed;
@@ -48,3 +46,13 @@ contract Bounty is PullPayment, Killable {
   }
 
 }
+
+/*
+ * Target
+ * 
+ * Your main contract should inherit from this class and implement the checkInvariant method. This is a function that should check everything your contract assumes to be true all the time. If this function returns false, it means your contract was broken in some way and is in an inconsistent state. This is what security researchers will try to acomplish when trying to get the bounty.
+ */
+contract Target {
+  function checkInvariant() returns(bool);
+}
+

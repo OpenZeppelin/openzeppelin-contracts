@@ -1,8 +1,12 @@
 pragma solidity ^0.4.4;
 
+
 import "./StandardToken.sol";
 
+
 /*
+ * CrowdsaleToken
+ *
  * Simple ERC20 Token example, with crowdsale token creation
  */
 contract CrowdsaleToken is StandardToken {
