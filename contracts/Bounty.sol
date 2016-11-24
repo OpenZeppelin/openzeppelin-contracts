@@ -47,7 +47,11 @@ contract Bounty is PullPayment, Killable {
 
 }
 
-
+/*
+ * Target
+ * 
+ * Your main contract should inherit from this class and implement the checkInvariant method. This is a function that should check everything your contract assumes to be true all the time. If this function returns false, it means your contract was broken in some way and is in an inconsistent state. This is what security researchers will try to acomplish when trying to get the bounty.
+ */
 contract Target {
   function checkInvariant() returns(bool);
 }

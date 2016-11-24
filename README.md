@@ -216,7 +216,8 @@ contract YourBounty is Bounty {
 }
 ```
 
-Next, implement invariant logic into your smart contract
+Next, implement invariant logic into your smart contract.
+Your main contract should inherit from the Target class and implement the checkInvariant method. This is a function that should check everything your contract assumes to be true all the time. If this function returns false, it means your contract was broken in some way and is in an inconsistent state. This is what security researchers will try to acomplish when trying to get the bounty.
 
 At contracts/YourContract.sol
 
