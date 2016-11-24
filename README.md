@@ -159,7 +159,7 @@ ___
 ### StandardToken
 Based on code by FirstBlood: [FirstBloodToken.sol]
 
-Inherits from contract SafeMath. Implementation of abstract contract ERC20 (see [https://github.com/ethereum/EIPs/issues/20])
+Inherits from contract SafeMath. Implementation of abstract contract ERC20 (see https://github.com/ethereum/EIPs/issues/20)
 
 [FirstBloodToken.sol]: https://github.com/Firstbloodio/token/blob/master/smart_contract/FirstBloodToken.sol
 
