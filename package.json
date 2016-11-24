@@ -3,7 +3,10 @@
   "version": "0.0.11",
   "description": "Secure Smart Contract library for Solidity",
   "main": "truffle.js",
-  "devDependencies": {},
+  "devDependencies": {
+    "ethereumjs-testrpc": "^3.0.2",
+    "truffle": "^2.1.1"
+  },
   "scripts": {
     "test": "truffle test",
     "install": "scripts/install.sh"

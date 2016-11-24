@@ -1,8 +1,10 @@
 pragma solidity ^0.4.4;
 
 
-// see https://github.com/ethereum/EIPs/issues/20
-
+/*
+ * ERC20 interface
+ * see https://github.com/ethereum/EIPs/issues/20
+ */
 contract ERC20 {
   uint public totalSupply;
   function balanceOf(address who) constant returns (uint);

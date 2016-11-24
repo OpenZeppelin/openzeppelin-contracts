@@ -1,0 +1,12 @@
+dist: trusty
+sudo: false
+group: beta
+language: node_js
+node_js:
+  - "6"
+before_install:
+  - npm i -g ethereumjs-testrpc
+  - npm i -g truffle
+script:
+  - testrpc&
+  - npm test
