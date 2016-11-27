@@ -1,108 +1,61 @@
 contract('StandardToken', function(accounts) {
 
-  it("should return the correct totalSupply after construction", function(done) {
-    return StandardTokenMock.new(accounts[0], 100)
-      .then(function(token) {
-        return token.totalSupply();
-      })
-      .then(function(totalSupply) {
-        assert.equal(totalSupply, 100);
-      })
-      .then(done);
+  it("should return the correct totalSupply after construction", async function() {
+    let token = await StandardTokenMock.new(accounts[0], 100);
+    let totalSupply = await token.totalSupply();
+    assert.equal(totalSupply, 100);
   })
 
-  it("should return the correct allowance amount after approval", function(done) {
-    var token;
-    return StandardTokenMock.new()
-      .then(function(_token) {
-        token = _token;
-        return token.approve(accounts[1], 100);
-      })
-      .then(function() {
-        return token.allowance(accounts[0], accounts[1]);
-      })
-      .then(function(allowance) {
-        assert.equal(allowance, 100);
-      })
-      .then(done);
+  it("should return the correct allowance amount after approval", async function() {
+    let token = await StandardTokenMock.new();
+    let approve = await token.approve(accounts[1], 100);
+    let allowance = await token.allowance(accounts[0], accounts[1]);
+    assert.equal(allowance, 100);
   });
 
-  it("should return correct balances after transfer", function(done) {
-    var token;
-    return StandardTokenMock.new(accounts[0], 100)
-      .then(function(_token) {
-        token = _token;
-        return token.transfer(accounts[1], 100);
-      })
-      .then(function() {
-        return token.balanceOf(accounts[0]);
-      })
-      .then(function(balance) {
-        assert.equal(balance, 0);
-      })
-      .then(function() {
-        return token.balanceOf(accounts[1]);
-      })
-      .then(function(balance) {
-        assert.equal(balance, 100);
-      })
-      .then(done);
+  it("should return correct balances after transfer", async function() {
+    let token = await StandardTokenMock.new(accounts[0], 100);
+    let transfer = await token.transfer(accounts[1], 100);
+    let balance0 = await token.balanceOf(accounts[0]);
+    assert.equal(balance0, 0);
+    let balance1 = await token.balanceOf(accounts[1]);
+    assert.equal(balance1, 100);
   });
 
-  it("should throw an error when trying to transfer more than balance", function(done) {
-    var token;
-    return StandardTokenMock.new(accounts[0], 100)
-      .then(function(_token) {
-        token = _token;
-        return token.transfer(accounts[1], 101);
-      })
-      .catch(function(error) {
-        if (error.message.search('invalid JUMP') == -1) throw error
-      })
-      .then(done);
+  it("should throw an error when trying to transfer more than balance", async function() {
+    let token = await StandardTokenMock.new(accounts[0], 100);
+    try {
+      let transfer = await token.transfer(accounts[1], 101);
+    } catch(error) {
+      if (error.message.search('invalid JUMP') == -1) throw error
+      assert.isAbove(error.message.search('invalid JUMP'), -1, 'Invalid JUMP error must be returned');
+    }
   });
 
-  it("should return correct balances after transfering from another account", function(done) {
-    var token;
-    return StandardTokenMock.new(accounts[0], 100)
-      .then(function(_token) {
-        token = _token;
-        return token.approve(accounts[1], 100);
-      })
-      .then(function() {
-        return token.transferFrom(accounts[0], accounts[2], 100, {from: accounts[1]});
-      })
-      .then(function() {
-        return token.balanceOf(accounts[0]);
-      })
-      .then(function(balance) {
-        assert.equal(balance, 0);
-        return token.balanceOf(accounts[2]);
-      })
-      .then(function(balance) {
-        assert.equal(balance, 100)
-        return token.balanceOf(accounts[1]);
-      })
-      .then(function(balance) {
-        assert.equal(balance, 0);
-      })
-      .then(done);
+  it("should return correct balances after transfering from another account", async function() {
+    let token = await StandardTokenMock.new(accounts[0], 100);
+    let approve = await token.approve(accounts[1], 100);
+    let transferFrom = await token.transferFrom(accounts[0], accounts[2], 100, {from: accounts[1]});
+
+    let balance0 = await token.balanceOf(accounts[0]);
+    assert.equal(balance0, 0);
+
+    let balance1 = await token.balanceOf(accounts[2]);
+    assert.equal(balance1, 100);
+
+    let balance2 = await token.balanceOf(accounts[1]);
+    assert.equal(balance2, 0);
   });
 
-  it("should throw an error when trying to transfer more than allowed", function(done) {
-    var token;
-    return StandardTokenMock.new(accounts[0], 100)
-      .then(function(_token) {
-        token = _token;
-        return token.approve(accounts[1], 99);
-      })
-      .then(function() {
-        return token.transferFrom(accounts[0], accounts[2], 100, {from: accounts[1]});
-      })
-      .catch(function(error) {
-        if (error.message.search('invalid JUMP') == -1) throw error
-      })
-      .then(done);
+  it("should throw an error when trying to transfer more than allowed", async function() {
+    let token = await StandardTokenMock.new();
+    let approve = await token.approve(accounts[1], 99);
+    try {
+      let transfer = await token.transferFrom(accounts[0], accounts[2], 100, {from: accounts[1]});
+    } catch (error) {
+      if (error.message.search('invalid JUMP') == -1) throw error
+      assert.isAbove(error.message.search('invalid JUMP'), -1, 'Invalid JUMP error must be returned');
+    }
   });
 
 });

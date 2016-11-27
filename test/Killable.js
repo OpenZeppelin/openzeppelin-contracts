@@ -32,38 +32,24 @@ contract('Killable', function(accounts) {
     }
 };
 
-  it("should send balance to owner after death", function(done) {
-    var initBalance, newBalance, owner, address, killable, kBalance;
+  it("should send balance to owner after death", async function() {
+    let initBalance, newBalance, owner, address, killable, kBalance, txnHash, receiptMined;
     web3.eth.sendTransaction({from: web3.eth.coinbase, to: accounts[0], value: web3.toWei('50','ether')}, function(err, result) {
       if(err)
         console.log("ERROR:" + err);
       else {
         console.log(result);
       }
-    })
-    return Killable.new({from: accounts[0], value: web3.toWei('10','ether')})
-      .then(function(_killable) {
-        killable = _killable;
-        return killable.owner();
-      })
-      .then(function(_owner) {
-        owner = _owner;
-        initBalance = web3.eth.getBalance(owner);
-        kBalance = web3.eth.getBalance(killable.address);
-      })
-      .then(function() {
-        return killable.kill({from: owner});
-      })
-      .then(function (txnHash) {
-        return web3.eth.getTransactionReceiptMined(txnHash);
-      })
-      .then(function() {
-        newBalance = web3.eth.getBalance(owner);
-      })
-      .then(function() {
-        assert.isTrue(newBalance > initBalance);
-      })
-      .then(done);
+    });
+
+    killable = await Killable.new({from: accounts[0], value: web3.toWei('10','ether')});
+    owner = await killable.owner();
+    initBalance = web3.eth.getBalance(owner);
+    kBalance = web3.eth.getBalance(killable.address);
+    txnHash = await killable.kill({from: owner});
+    receiptMined = await web3.eth.getTransactionReceiptMined(txnHash);
+    newBalance = web3.eth.getBalance(owner);
+    assert.isTrue(newBalance > initBalance);
   });
 
 });

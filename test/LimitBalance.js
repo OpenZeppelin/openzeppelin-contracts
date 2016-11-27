@@ -1,64 +1,55 @@
 contract('LimitBalance', function(accounts) {
   var lb;
 
-  beforeEach(function() {
-    return LimitBalanceMock.new().then(function(deployed) {
-      lb = deployed;
-    });
+  beforeEach(async function() {
+    lb = await LimitBalanceMock.new();
   });
 
-  var LIMIT = 1000;
+  let LIMIT = 1000;
 
-  it("should expose limit", function(done) {
-    return lb.limit()
-      .then(function(limit) { 
-        assert.equal(limit, LIMIT);
-      })
-      .then(done)
+  it("should expose limit", async function() {
+    let limit = await lb.limit();
+    assert.equal(limit, LIMIT);
   });
 
-  it("should allow sending below limit", function(done) {
-    var amount = 1;
-    return lb.limitedDeposit({value: amount})
-      .then(function() { 
-        assert.equal(web3.eth.getBalance(lb.address), amount);
-      })
-      .then(done)
+  it("should allow sending below limit", async function() {
+    let amount = 1;
+    let limDeposit = await lb.limitedDeposit({value: amount});
+    assert.equal(web3.eth.getBalance(lb.address), amount);
   });
 
-  it("shouldnt allow sending above limit", function(done) {
-    var amount = 1100;
-    return lb.limitedDeposit({value: amount})
-      .catch(function(error) {
-        if (error.message.search('invalid JUMP') == -1) throw error
-      })
-      .then(done)
+  it("shouldnt allow sending above limit", async function() {
+
+    let amount = 1110;
+    try {
+      let limDeposit = await lb.limitedDeposit({value: amount});
+    } catch(error) {
+      if (error.message.search('invalid JUMP') == -1) throw error
+      assert.isAbove(error.message.search('invalid JUMP'), -1, 'Invalid JUMP error must be returned');
+    }
   });
 
-  it("should allow multiple sends below limit", function(done) {
-    var amount = 500;
-    return lb.limitedDeposit({value: amount})
-      .then(function() { 
-        assert.equal(web3.eth.getBalance(lb.address), amount);
-        return lb.limitedDeposit({value: amount})
-      })
-      .then(function() { 
-        assert.equal(web3.eth.getBalance(lb.address), amount*2);
-      })
-      .then(done)
+  it("should allow multiple sends below limit", async function() {
+    let amount = 500;
+
+    let limDeposit = await lb.limitedDeposit({value: amount});
+    assert.equal(web3.eth.getBalance(lb.address), amount);
+    let limDeposit2 = await lb.limitedDeposit({value: amount});
+    assert.equal(web3.eth.getBalance(lb.address), amount*2);
   });
 
-  it("shouldnt allow multiple sends above limit", function(done) {
-    var amount = 500;
-    return lb.limitedDeposit({value: amount})
-      .then(function() { 
-        assert.equal(web3.eth.getBalance(lb.address), amount);
-        return lb.limitedDeposit({value: amount+1})
-      })
-      .catch(function(error) {
-        if (error.message.search('invalid JUMP') == -1) throw error;
-      })
-      .then(done)
+  it("shouldnt allow multiple sends above limit", async function() {
+    let amount = 500;
+
+
+    let limDeposit = await lb.limitedDeposit({value: amount});
+    assert.equal(web3.eth.getBalance(lb.address), amount);
+    try {
+      lb.limitedDeposit({value: amount+1})
+    } catch(error) {
+      if (error.message.search('invalid JUMP') == -1) throw error
+      assert.isAbove(error.message.search('invalid JUMP'), -1, 'Invalid JUMP error must be returned');
+    }
   });
 
 });

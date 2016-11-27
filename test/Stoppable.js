@@ -1,108 +1,47 @@
 contract('Stoppable', function(accounts) {
 
-  it("can perform normal process in non-emergency", function(done) {
-    var stoppable;
-    return StoppableMock.new()
-      .then(function(_stoppable) {
-        stoppable = _stoppable;
-        return stoppable.count();
-      })
-      .then(function(count) {
-        assert.equal(count, 0);
-      })
-      .then(function () {
-        return stoppable.normalProcess();
-      })
-      .then(function() {
-        return stoppable.count();
-      })
-      .then(function(count) {
-        assert.equal(count, 1);
-      })
-      .then(done);
+  it("can perform normal process in non-emergency", async function() {
+    let stoppable = await StoppableMock.new();
+    let count0 = await stoppable.count();
+    assert.equal(count0, 0);
+    let normalProcess = await stoppable.normalProcess();
+    let count1 = await stoppable.count();
+    assert.equal(count1, 1);
   });
 
-  it("can not perform normal process in emergency", function(done) {
-    var stoppable;
-    return StoppableMock.new()
-      .then(function(_stoppable) {
-        stoppable = _stoppable;
-        return stoppable.emergencyStop();
-      })
-      .then(function () {
-        return stoppable.count();
-      })
-      .then(function(count) {
-        assert.equal(count, 0);
-      })
-      .then(function () {
-        return stoppable.normalProcess();
-      })
-      .then(function() {
-        return stoppable.count();
-      })
-      .then(function(count) {
-        assert.equal(count, 0);
-      })
-      .then(done);
+  it("can not perform normal process in emergency", async function() {
+    let stoppable = await StoppableMock.new();
+    let emergencyStop = await stoppable.emergencyStop();
+    let count0 = await stoppable.count();
+    assert.equal(count0, 0);
+    let normalProcess = await stoppable.normalProcess();
+    let count1 = await stoppable.count();
+    assert.equal(count1, 0);
   });
 
 
-  it("can not take drastic measure in non-emergency", function(done) {
-    var stoppable;
-    return StoppableMock.new()
-      .then(function(_stoppable) {
-        stoppable = _stoppable;
-        return stoppable.drasticMeasure();
-      })
-      .then(function() {
-        return stoppable.drasticMeasureTaken();
-      })
-      .then(function(taken) {
-        assert.isFalse(taken);
-      })
-      .then(done);
+  it("can not take drastic measure in non-emergency", async function() {
+    let stoppable = await StoppableMock.new();
+    let drasticMeasure = await stoppable.drasticMeasure();
+    let drasticMeasureTaken = await stoppable.drasticMeasureTaken();
+    assert.isFalse(drasticMeasureTaken);
   });
 
-  it("can take a drastic measure in an emergency", function(done) {
-    var stoppable;
-    return StoppableMock.new()
-      .then(function(_stoppable) {
-        stoppable = _stoppable;
-        return stoppable.emergencyStop();
-      })
-      .then(function() {
-        return stoppable.drasticMeasure();
-      })
-      .then(function() {
-        return stoppable.drasticMeasureTaken();
-      })
-      .then(function(taken) {
-        assert.isTrue(taken);
-      })
-      .then(done);
+  it("can take a drastic measure in an emergency", async function() {
+    let stoppable = await StoppableMock.new();
+    let emergencyStop = await stoppable.emergencyStop();
+    let drasticMeasure = await stoppable.drasticMeasure();
+    let drasticMeasureTaken = await stoppable.drasticMeasureTaken();
+    assert.isTrue(drasticMeasureTaken);
   });
 
-  it("should resume allowing normal process after emergency is over", function(done) {
-    var stoppable;
-    return StoppableMock.new()
-      .then(function(_stoppable) {
-        stoppable = _stoppable;
-        return stoppable.emergencyStop();
-      })
-      .then(function () {
-        return stoppable.release();
-      })
-      .then(function() {
-        return stoppable.normalProcess();
-      })
-      .then(function() {
-        return stoppable.count();
-      })
-      .then(function(count) {
-        assert.equal(count, 1);
-      })
-      .then(done);
+  it("should resume allowing normal process after emergency is over", async function() {
+    let stoppable = await StoppableMock.new();
+    let emergencyStop = await stoppable.emergencyStop();
+    let release = await stoppable.release();
+    let normalProcess = await stoppable.normalProcess();
+    let count0 = await stoppable.count();
+    assert.equal(count0, 1);
   });
 
 });
