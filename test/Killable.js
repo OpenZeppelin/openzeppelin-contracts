@@ -32,7 +32,7 @@ contract('Killable', function(accounts) {
     }
 };
 
-  it("should send balance to owner after death", async function() {
+  it("should send balance to owner after death", async function(done) {
     let initBalance, newBalance, owner, address, killable, kBalance, txnHash, receiptMined;
     web3.eth.sendTransaction({from: web3.eth.coinbase, to: accounts[0], value: web3.toWei('50','ether')}, function(err, result) {
       if(err)
@@ -50,6 +50,7 @@ contract('Killable', function(accounts) {
     receiptMined = await web3.eth.getTransactionReceiptMined(txnHash);
     newBalance = web3.eth.getBalance(owner);
     assert.isTrue(newBalance > initBalance);
+    done();
   });
 
 });

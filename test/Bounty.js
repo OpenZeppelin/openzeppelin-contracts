@@ -8,16 +8,17 @@ let sendReward = function(sender, receiver, value){
 
 contract('Bounty', function(accounts) {
 
-  it("sets reward", async function(){
+  it("sets reward", async function(done){
     let owner = accounts[0];
     let reward = web3.toWei(1, "ether");
 
     let bounty = await SecureTargetBounty.new();
     sendReward(owner, bounty.address, reward);
-    assert.equal(reward, web3.eth.getBalance(bounty.address).toNumber())
+    assert.equal(reward, web3.eth.getBalance(bounty.address).toNumber());
+    done();
   })
 
-  it("empties itself when killed", async function(){
+  it("empties itself when killed", async function(done){
     let owner = accounts[0];
     let reward = web3.toWei(1, "ether");
 
@@ -25,16 +26,18 @@ contract('Bounty', function(accounts) {
     sendReward(owner, bounty.address, reward);
     assert.equal(reward, web3.eth.getBalance(bounty.address).toNumber())
     await bounty.kill();
-    assert.equal(0, web3.eth.getBalance(bounty.address).toNumber())
+    assert.equal(0, web3.eth.getBalance(bounty.address).toNumber());
+    done();
   })
 
   describe("Against secure contract", function(){
-    it("checkInvariant returns true", async function(){
+    it("checkInvariant returns true", async function(done){
 
       let bounty = await SecureTargetBounty.new();
       let target = await bounty.createTarget();
       let check = await bounty.checkInvariant.call();
       assert.isTrue(check);
+      done();
     })
 
     it("cannot claim reward", async function(done){
@@ -72,14 +75,15 @@ contract('Bounty', function(accounts) {
   })
 
   describe("Against broken contract", function(){
-    it("checkInvariant returns false", async function(){
+    it("checkInvariant returns false", async function(done){
       let bounty = await InsecureTargetBounty.new();
       let target = await bounty.createTarget();
       let invarriantCall = await bounty.checkInvariant.call();
       assert.isFalse(invarriantCall);
+      done();
     })
 
-    it("claims reward", async function(){
+    it("claims reward", async function(done){
       let owner = accounts[0];
       let researcher = accounts[1];
       let reward = web3.toWei(1, "ether");
@@ -100,6 +104,7 @@ contract('Bounty', function(accounts) {
         assert.isTrue(claim);
         let payment = await bounty.withdrawPayments({from:researcher});
         assert.equal(0, web3.eth.getBalance(bounty.address).toNumber());
+        done();
       })
       bounty.createTarget({from:researcher});
     })
