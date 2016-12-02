@@ -79,9 +79,9 @@ contract('Bounty', function(accounts) {
     it("checkInvariant returns false", async function(){
       let bounty = await InsecureTargetBounty.new();
       let target = await bounty.createTarget();
-      let invarriantCall = await bounty.checkInvariant.call();
+      let invariantCall = await bounty.checkInvariant.call();
 
-      assert.isFalse(invarriantCall);
+      assert.isFalse(invariantCall);
     })
 
     it("claims reward", async function(done){
