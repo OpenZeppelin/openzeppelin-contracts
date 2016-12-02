@@ -1,7 +1,7 @@
 pragma solidity ^0.4.4;
 
 import './ERC20.sol';
-import './SafeMath.sol';
+import '../SafeMath.sol';
 
 /**
  * ERC20 token
@@ -16,9 +16,6 @@ contract StandardToken is ERC20, SafeMath {
   mapping (address => mapping (address => uint)) allowed;
 
   function transfer(address _to, uint _value) returns (bool success) {
-    if (balances[msg.sender] < _value) {
-      throw;
-    } 
     balances[msg.sender] = safeSub(balances[msg.sender], _value);
     balances[_to] = safeAdd(balances[_to], _value);
     Transfer(msg.sender, _to, _value);
@@ -27,11 +24,7 @@ contract StandardToken is ERC20, SafeMath {
 
   function transferFrom(address _from, address _to, uint _value) returns (bool success) {
     var _allowance = allowed[_from][msg.sender];
-    if (balances[_from] < _value ||
-        _allowance < _value) {
-      throw;
-    }
-
+    
     balances[_to] = safeAdd(balances[_to], _value);
     balances[_from] = safeSub(balances[_from], _value);
     allowed[_from][msg.sender] = safeSub(_allowance, _value);

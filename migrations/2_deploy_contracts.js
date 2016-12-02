@@ -4,7 +4,7 @@ module.exports = function(deployer) {
   deployer.deploy(ProofOfExistence);
   deployer.deploy(Ownable);
   deployer.deploy(Claimable);
-  deployer.deploy(LimitFunds);
+  deployer.deploy(LimitBalance);
   if(deployer.network == 'test'){
     deployer.deploy(SecureTargetBounty);
     deployer.deploy(InsecureTargetBounty);

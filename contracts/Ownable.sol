@@ -1,8 +1,11 @@
 pragma solidity ^0.4.4;
 
+
 /*
  * Ownable
- * Base contract with an owner
+ *
+ * Base contract with an owner.
+ * Provides onlyOwner modifier, which prevents function from running if it is called by anyone other than the owner.
  */
 contract Ownable {
   address public owner;
@@ -17,7 +20,7 @@ contract Ownable {
   }
 
   function transfer(address newOwner) onlyOwner {
-    owner = newOwner;
+    if (newOwner != address(0)) owner = newOwner;
   }
 
 }

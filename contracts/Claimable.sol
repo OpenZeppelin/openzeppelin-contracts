@@ -1,11 +1,14 @@
-pragma solidity ^0.4.4;
+pragma solidity ^0.4.0;
+
+
 import './Ownable.sol';
+
 
 /*
  * Claimable
- * Extension for the Ownable contract, where the ownership needs to be claimed
+ *
+ * Extension for the Ownable contract, where the ownership needs to be claimed. This allows the new owner to accept the transfer.
  */
-
 contract Claimable is Ownable {
   address public pendingOwner;
 
