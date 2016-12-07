@@ -8,8 +8,7 @@ contract('DelayedClaimable', function(accounts) {
   });
 
   it("changes pendingOwner after transfer succesful", function(done) {
-    var newOwner = accounts[2];
-    return delayedClaimable.transfer(newOwner)
+    return delayedClaimable.transfer(accounts[2])
       .then(function(){
         return delayedClaimable.setClaimBefore(1000)
       })
@@ -21,21 +20,20 @@ contract('DelayedClaimable', function(accounts) {
         return delayedClaimable.pendingOwner();
       })
       .then(function(pendingOwner) {
-        assert.isTrue(pendingOwner === newOwner);
-        return delayedClaimable.claimOwnership({from: newOwner});
+        assert.isTrue(pendingOwner === accounts[2]);
+        return delayedClaimable.claimOwnership({from: accounts[2]});
       })
       .then(function() {
         return delayedClaimable.owner();
       })
       .then(function(owner) {
-        assert.isTrue(owner === newOwner);
+        assert.isTrue(owner === accounts[2]);
       })
       .then(done)
   });
 
   it("changes pendingOwner after transfer fails", function(done) {
-    var newOwner = accounts[1];
-    return delayedClaimable.transfer(newOwner)
+    return delayedClaimable.transfer(accounts[1])
       .then(function(){
         return delayedClaimable.setClaimBefore(1)
       })
@@ -47,14 +45,17 @@ contract('DelayedClaimable', function(accounts) {
         return delayedClaimable.pendingOwner();
       })
       .then(function(pendingOwner) {
-        assert.isTrue(pendingOwner === newOwner);
-        return delayedClaimable.claimOwnership({from: newOwner});
+        assert.isTrue(pendingOwner === accounts[1]);
+        return delayedClaimable.claimOwnership({from: accounts[1]});
+      })
+      .catch(function(error) {
+        if (error.message.search('invalid JUMP') == -1) throw error
       })
       .then(function() {
         return delayedClaimable.owner();
       })
       .then(function(owner) {
-        assert.isTrue(owner != newOwner);
+        assert.isTrue(owner != accounts[1]);
       })
       .then(done)
   });
