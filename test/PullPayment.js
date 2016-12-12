@@ -35,7 +35,7 @@ contract('PullPayment', function(accounts) {
     assert.equal(paymentsToAccount1, 300);
   });
 
-  it("can withdraw payment", async function() {
+  it.only("can withdraw payment", async function() {
     let AMOUNT = 17*1e18;
     let payee = accounts[1];
     let initialBalance = web3.eth.getBalance(payee);
