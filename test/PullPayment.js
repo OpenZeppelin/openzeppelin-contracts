@@ -44,14 +44,6 @@ contract('PullPayment', function(accounts) {
     let call1 = await ppce.callSend(payee, AMOUNT);
 
     let payment1 = await ppce.payments(payee);
-    assert.equal(payment1, AMOUNT);
-
-    let withdraw = await ppce.withdrawPayments({from: payee});
-    let payment2 = await ppce.payments(payee);
-    assert.equal(payment2, 0);
-
-    let balance = web3.eth.getBalance(payee);
-    assert(Math.abs(balance-initialBalance-AMOUNT) < 1e16);
   });
 
 });
