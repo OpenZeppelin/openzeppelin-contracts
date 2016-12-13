@@ -4,6 +4,9 @@ import '../PullPayment.sol';
 // mock class using PullPayment
 contract PullPaymentMock is PullPayment {
   // test helper function to call asyncSend
+
+  function PullPaymentMock() payable { }
+
   function callSend(address dest, uint amount) {
     asyncSend(dest, amount);
   }
