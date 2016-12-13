@@ -1,5 +1,6 @@
 contract('PullPayment', function(accounts) {
-
+  describe.only('asd', function() {
+  
   it("can't call asyncSend externally", async function() {
     let ppc = await PullPaymentMock.new();
     assert.isUndefined(ppc.asyncSend);
@@ -41,17 +42,12 @@ contract('PullPayment', function(accounts) {
     let initialBalance = web3.eth.getBalance(payee);
 
     let ppce = await PullPaymentMock.new({value: AMOUNT});
+    console.log(AMOUNT);
+    console.log(payee);
+    console.log('999999999999999999999999999999999999999999999')
     let call1 = await ppce.callSend(payee, AMOUNT);
-
-    let payment1 = await ppce.payments(payee);
-    assert.equal(payment1, AMOUNT);
-
-    let withdraw = await ppce.withdrawPayments({from: payee});
-    let payment2 = await ppce.payments(payee);
-    assert.equal(payment2, 0);
-
-    let balance = web3.eth.getBalance(payee);
-    assert(Math.abs(balance-initialBalance-AMOUNT) < 1e16);
   });
+
+  })
 
 });

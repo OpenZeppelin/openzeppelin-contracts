@@ -1,5 +1,5 @@
 dist: trusty
-sudo: false
+sudo: true 
 group: beta
 language: node_js
 node_js:

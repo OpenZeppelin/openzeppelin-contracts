@@ -11,7 +11,7 @@
     "truffle": "^2.1.1"
   },
   "scripts": {
-    "test": "truffle test",
+    "test": "./node_modules/truffle/cli.js test",
     "install": "scripts/install.sh"
   },
   "repository": {
