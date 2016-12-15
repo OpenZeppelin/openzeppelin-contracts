@@ -14,12 +14,12 @@ contract Ownable {
     owner = msg.sender;
   }
 
-  modifier onlyOwner() { 
+  modifier onlyOwner() {
     if (msg.sender == owner)
       _;
   }
 
-  function transfer(address newOwner) onlyOwner {
+  function transferOwnership(address newOwner) onlyOwner {
     if (newOwner != address(0)) owner = newOwner;
   }
 
