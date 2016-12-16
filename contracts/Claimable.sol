@@ -1,10 +1,6 @@
-<<<<<<< HEAD
 pragma solidity ^0.4.0;
 
 
-=======
-pragma solidity ^0.4.4;
->>>>>>> 0aa4d02... DelayedClaimable contract with test added
 import './Ownable.sol';
 
 
