@@ -64,7 +64,7 @@ Sets the address of the creator of the contract as the owner.
 #### modifier onlyOwner( )
 Prevents function from running if it is called by anyone other than the owner.
 
-#### transfer(address newOwner) onlyOwner
+#### transferOwnership(address newOwner) onlyOwner
 Transfers ownership of the contract to the passed address.
 
 ---
@@ -97,7 +97,7 @@ ___
 ### Claimable
 Extension for the Ownable contract, where the ownership needs to be claimed
 
-#### transfer(address newOwner) onlyOwner
+#### transferOwnership(address newOwner) onlyOwner
 Sets the passed address as the pending owner.
 
 #### modifier onlyPendingOwner
