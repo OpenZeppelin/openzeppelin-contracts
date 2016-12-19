@@ -1,5 +1,6 @@
 pragma solidity ^0.4.4;
 
+
 contract GoodFailEarly {
 
   uint constant DEFAULT_SALARY = 50000;

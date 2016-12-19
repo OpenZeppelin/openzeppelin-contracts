@@ -1,5 +1,8 @@
 pragma solidity ^0.4.4;
+
+
 import '../Stoppable.sol';
+
 
 // mock class using Stoppable
 contract StoppableMock is Stoppable {

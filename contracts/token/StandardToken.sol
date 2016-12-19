@@ -1,10 +1,12 @@
 pragma solidity ^0.4.4;
 
+
 import './ERC20.sol';
 import '../SafeMath.sol';
 
+
 /**
- * ERC20 token
+ * Standard ERC20 token
  *
  * https://github.com/ethereum/EIPs/issues/20
  * Based on code by FirstBlood:
