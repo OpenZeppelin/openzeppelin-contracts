@@ -1,5 +1,6 @@
 pragma solidity ^0.4.4;
 
+
 /*
  * Proof of Existence example contract
  * see https://medium.com/zeppelin-blog/the-hitchhikers-guide-to-smart-contracts-in-ethereum-848f08001f05

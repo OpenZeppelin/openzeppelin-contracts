@@ -1,6 +1,8 @@
 pragma solidity ^0.4.4;
 
+
 import '../PullPayment.sol';
+
 
 contract PullPaymentBid is PullPayment {
   address public highestBidder;

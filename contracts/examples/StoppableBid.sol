@@ -1,7 +1,9 @@
 pragma solidity ^0.4.4;
 
+
 import '../PullPayment.sol';
 import '../Stoppable.sol';
+
 
 contract StoppableBid is Stoppable, PullPayment {
   address public highestBidder;

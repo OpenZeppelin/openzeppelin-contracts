@@ -1,8 +1,10 @@
 pragma solidity ^0.4.4;
+
+
 import '../PullPayment.sol';
 
-// UNSAFE CODE, DO NOT USE!
 
+// UNSAFE CODE, DO NOT USE!
 contract BadArrayUse is PullPayment {
   address[] employees;
 

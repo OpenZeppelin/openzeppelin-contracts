@@ -1,71 +1,50 @@
 contract('Claimable', function(accounts) {
-  var claimable;
+  let claimable;
 
-  beforeEach(function() {
-    return Claimable.new().then(function(deployed) {
-      claimable = deployed;
-    });
+  beforeEach(async function() {
+    claimable = await Claimable.new();
   });
 
-  it("should have an owner", function(done) {
-    return claimable.owner()
-      .then(function(owner) {
-        assert.isTrue(owner != 0);
-      })
-      .then(done)
+  it("should have an owner", async function() {
+    let owner = await claimable.owner();
+    assert.isTrue(owner != 0);
   });
 
-  it("changes pendingOwner after transfer", function(done) {
-    var newOwner = accounts[1];
-    return claimable.transfer(newOwner)
-      .then(function() {
-        return claimable.pendingOwner();
-      })
-      .then(function(pendingOwner) {
-        assert.isTrue(pendingOwner === newOwner);
-      })
-      .then(done)
+  it("changes pendingOwner after transfer", async function() {
+    let newOwner = accounts[1];
+    let transfer = await claimable.transferOwnership(newOwner);
+    let pendingOwner = await claimable.pendingOwner();
+
+    assert.isTrue(pendingOwner === newOwner);
   });
 
-  it("should prevent to claimOwnership from no pendingOwner", function(done) {
-    return claimable.claimOwnership({from: accounts[2]})
-      .then(function() {
-        return claimable.owner();
-      })
-      .then(function(owner) {
-        assert.isTrue(owner != accounts[2]);
-      })
-      .then(done)
+  it("should prevent to claimOwnership from no pendingOwner", async function() {
+    let claimedOwner = await claimable.claimOwnership({from: accounts[2]});
+    let owner = await claimable.owner();
+
+    assert.isTrue(owner != accounts[2]);
   });
 
-  it("should prevent non-owners from transfering" ,function(done) {
-    return claimable.transfer(accounts[2], {from: accounts[2]})
-      .then(function() {
-        return claimable.pendingOwner();
-      })
-      .then(function(pendingOwner) {
-        assert.isFalse(pendingOwner === accounts[2]);
-      })
-      .then(done)
+  it("should prevent non-owners from transfering", async function() {
+    let transfer = await claimable.transferOwnership(accounts[2], {from: accounts[2]});
+    let pendingOwner = await claimable.pendingOwner();
+
+    assert.isFalse(pendingOwner === accounts[2]);
   });
 
   describe("after initiating a transfer", function () {
-    var newOwner;
+    let newOwner;
 
-    beforeEach(function () {
+    beforeEach(async function () {
       newOwner = accounts[1];
-      return claimable.transfer(newOwner);
+      await claimable.transferOwnership(newOwner);
     });
 
-    it("changes allow pending owner to claim ownership", function(done) {
-      return claimable.claimOwnership({from: newOwner})
-        .then(function() {
-          return claimable.owner();
-        })
-        .then(function(owner) {
-          assert.isTrue(owner === newOwner);
-        })
-        .then(done)
+    it("changes allow pending owner to claim ownership", async function() {
+      let claimedOwner = await claimable.claimOwnership({from: newOwner})
+      let owner = await claimable.owner();
+
+      assert.isTrue(owner === newOwner);
     });
   });
 });
