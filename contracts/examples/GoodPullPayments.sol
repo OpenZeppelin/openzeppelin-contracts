@@ -1,4 +1,6 @@
 pragma solidity ^0.4.4;
+
+
 contract GoodPullPayments {
   address highestBidder;
   uint highestBid;

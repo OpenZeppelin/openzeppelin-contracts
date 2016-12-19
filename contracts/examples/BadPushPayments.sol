@@ -1,6 +1,7 @@
 pragma solidity ^0.4.4;
-// UNSAFE CODE, DO NOT USE!
 
+
+// UNSAFE CODE, DO NOT USE!
 contract BadPushPayments {
 
 	address highestBidder;

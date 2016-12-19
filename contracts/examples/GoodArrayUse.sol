@@ -1,5 +1,8 @@
 pragma solidity ^0.4.4;
+
+
 import '../PullPayment.sol';
+
 
 contract GoodArrayUse is PullPayment {
   address[] employees;

@@ -1,5 +1,8 @@
 pragma solidity ^0.4.4;
+
+
 import '../PullPayment.sol';
+
 
 // mock class using PullPayment
 contract PullPaymentMock is PullPayment {
