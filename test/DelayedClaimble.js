@@ -8,7 +8,7 @@ contract('DelayedClaimable', function(accounts) {
   });
 
   it("changes pendingOwner after transfer succesful", function(done) {
-    return delayedClaimable.transfer(accounts[2])
+    return delayedClaimable.transferOwnership(accounts[2])
       .then(function(){
         return delayedClaimable.setClaimBefore(1000)
       })
@@ -33,7 +33,7 @@ contract('DelayedClaimable', function(accounts) {
   });
 
   it("changes pendingOwner after transfer fails", function(done) {
-    return delayedClaimable.transfer(accounts[1])
+    return delayedClaimable.transferOwnership(accounts[1])
       .then(function(){
         return delayedClaimable.setClaimBefore(1)
       })
