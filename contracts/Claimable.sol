@@ -7,8 +7,8 @@ import './Ownable.sol';
 
 /*
  * Claimable
- * 
- * Extension for the Ownable contract, where the ownership needs to be claimed. This allows the new owner to accept the transfer. 
+ *
+ * Extension for the Ownable contract, where the ownership needs to be claimed. This allows the new owner to accept the transfer.
  */
 contract Claimable is Ownable {
   address public pendingOwner;
@@ -18,7 +18,7 @@ contract Claimable is Ownable {
       _;
   }
 
-  function transfer(address newOwner) onlyOwner {
+  function transferOwnership(address newOwner) onlyOwner {
     pendingOwner = newOwner;
   }
 

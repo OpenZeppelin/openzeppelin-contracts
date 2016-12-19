@@ -12,7 +12,7 @@ contract('Claimable', function(accounts) {
 
   it("changes pendingOwner after transfer", async function() {
     let newOwner = accounts[1];
-    let transfer = await claimable.transfer(newOwner);
+    let transfer = await claimable.transferOwnership(newOwner);
     let pendingOwner = await claimable.pendingOwner();
 
     assert.isTrue(pendingOwner === newOwner);
@@ -21,12 +21,12 @@ contract('Claimable', function(accounts) {
   it("should prevent to claimOwnership from no pendingOwner", async function() {
     let claimedOwner = await claimable.claimOwnership({from: accounts[2]});
     let owner = await claimable.owner();
-    
+
     assert.isTrue(owner != accounts[2]);
   });
 
   it("should prevent non-owners from transfering", async function() {
-    let transfer = await claimable.transfer(accounts[2], {from: accounts[2]});
+    let transfer = await claimable.transferOwnership(accounts[2], {from: accounts[2]});
     let pendingOwner = await claimable.pendingOwner();
 
     assert.isFalse(pendingOwner === accounts[2]);
@@ -37,7 +37,7 @@ contract('Claimable', function(accounts) {
 
     beforeEach(async function () {
       newOwner = accounts[1];
-      await claimable.transfer(newOwner);
+      await claimable.transferOwnership(newOwner);
     });
 
     it("changes allow pending owner to claim ownership", async function() {
