@@ -12,7 +12,7 @@ contract('Shareable', function(accounts) {
 
     for(let i = 0; i < accounts.length; i++) {
       let owner = await shareable.getOwner(i);
-      let isowner = await shareable.isOwnerConst(accounts[i]);
+      let isowner = await shareable.isOwner(accounts[i]);
       if(i <= owners.length) {
         assert.equal(accounts[i], owner);
         assert.isTrue(isowner);
@@ -67,7 +67,6 @@ contract('Shareable', function(accounts) {
     let hash = 1234;
 
     let initCount = await shareable.count();
-    //initCount = initCount.toString();
 
     for(let i = 0; i < requiredSigs * 3; i++) {
       await shareable.increaseCount(hash, {from: accounts[i % 4]});
@@ -76,7 +75,7 @@ contract('Shareable', function(accounts) {
         initCount = Number(initCount)+1;
         assert.equal(initCount, count);
       } else {
-        assert.equal(initCount, count);
+        assert.equal(initCount.toString(), count);
       }
     }
   });
@@ -95,7 +94,7 @@ contract('Shareable', function(accounts) {
       }
       await shareable.increaseCount(hash, {from: accounts[i]});
       let count = await shareable.count();
-      assert.equal(initCount, count);
+      assert.equal(initCount.toString(), count);
     }
   });
 

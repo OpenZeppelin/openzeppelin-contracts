@@ -13,7 +13,4 @@ contract ShareableMock is Shareable {
     count = count + 1;
   }
 
-  function isOwnerConst(address _addr) constant returns (bool) {
-    return isOwner(_addr);
-  }
 }
