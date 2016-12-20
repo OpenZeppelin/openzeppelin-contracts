@@ -67,16 +67,16 @@ contract('Shareable', function(accounts) {
     let hash = 1234;
 
     let initCount = await shareable.count();
-    initCount = initCount.toString();
+    //initCount = initCount.toString();
 
     for(let i = 0; i < requiredSigs * 3; i++) {
       await shareable.increaseCount(hash, {from: accounts[i % 4]});
       let count = await shareable.count();
       if((i%(requiredSigs)) == requiredSigs - 1) {
         initCount = Number(initCount)+1;
-        assert.equal(initCount, count.toString());
+        assert.equal(initCount, count);
       } else {
-        assert.equal(initCount, count.toString());
+        assert.equal(initCount, count);
       }
     }
   });
@@ -88,7 +88,6 @@ contract('Shareable', function(accounts) {
     let hash = 1234;
 
     let initCount = await shareable.count();
-    initCount = initCount.toString();
 
     for(let i = 0; i < requiredSigs; i++) {
       if(i == 1) {
@@ -96,7 +95,7 @@ contract('Shareable', function(accounts) {
       }
       await shareable.increaseCount(hash, {from: accounts[i]});
       let count = await shareable.count();
-      assert.equal(initCount, count.toString());
+      assert.equal(initCount, count);
     }
   });
 
