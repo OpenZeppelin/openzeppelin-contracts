@@ -6,7 +6,7 @@ contract GoodPullPayments {
   uint highestBid;
   mapping(address => uint) refunds;
 
-  function bid() external {
+  function bid() external payable {
     if (msg.value < highestBid) throw;
 
     if (highestBidder != 0) {

@@ -8,7 +8,7 @@ contract PullPaymentBid is PullPayment {
   address public highestBidder;
   uint public highestBid;
   
-  function bid() external {
+  function bid() external payable {
     if (msg.value <= highestBid) throw;
     
     if (highestBidder != 0) {

@@ -7,7 +7,7 @@ contract BadPushPayments {
 	address highestBidder;
 	uint highestBid;
 
-	function bid() {
+	function bid() payable {
 		if (msg.value < highestBid) throw;
 
 		if (highestBidder != 0) {

@@ -9,7 +9,7 @@ contract StoppableBid is Stoppable, PullPayment {
   address public highestBidder;
   uint public highestBid;
 
-  function bid() external stopInEmergency {
+  function bid() external payable stopInEmergency {
     if (msg.value <= highestBid) throw;
     
     if (highestBidder != 0) {
