@@ -4,7 +4,7 @@ import "../DayLimit.sol";
 contract DayLimitMock is DayLimit {
   uint public totalSpending;
 
-  function DayLimitMock(uint _value, address[] _owners, uint _required) DayLimit(_value) Shareable(_owners, _required) {
+  function DayLimitMock(uint _value) DayLimit(_value) {
     totalSpending = 0;
   }
 
