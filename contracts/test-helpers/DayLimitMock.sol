@@ -12,4 +12,12 @@ contract DayLimitMock is DayLimit {
     totalSpending += _value;
   }
 
+  function setDailyLimit(uint _newLimit) external {
+    _setDailyLimit(_newLimit);
+  }
+
+  function resetSpentToday() external {
+    _resetSpentToday();
+  }
+
 }

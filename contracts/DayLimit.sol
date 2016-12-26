@@ -39,12 +39,12 @@ contract DayLimit {
   // METHODS
 
   // (re)sets the daily limit. doesn't alter the amount already spent today.
-  function setDailyLimit(uint _newLimit) external {
+  function _setDailyLimit(uint _newLimit) internal {
     dailyLimit = _newLimit;
   }
 
   // resets the amount already spent today.
-  function resetSpentToday() external {
+  function _resetSpentToday() internal {
     spentToday = 0;
   }
 
