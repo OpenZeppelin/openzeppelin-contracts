@@ -11,7 +11,7 @@ import './Shareable.sol';
  * on a particular resource per calendar day. is multiowned to allow the limit to be altered. resource that method
  * uses is specified in the modifier.
  */
-contract DayLimit is Shareable {
+contract DayLimit {
   // FIELDS
 
   uint public dailyLimit;
@@ -38,13 +38,13 @@ contract DayLimit is Shareable {
 
   // METHODS
 
-  // (re)sets the daily limit. needs many of the owners to confirm. doesn't alter the amount already spent today.
-  function setDailyLimit(uint _newLimit) onlymanyowners(sha3(msg.data)) external {
+  // (re)sets the daily limit. doesn't alter the amount already spent today.
+  function _setDailyLimit(uint _newLimit) internal {
     dailyLimit = _newLimit;
   }
 
-  // resets the amount already spent today. needs many of the owners to confirm
-  function resetSpentToday() onlymanyowners(sha3(msg.data)) external {
+  // resets the amount already spent today.
+  function _resetSpentToday() internal {
     spentToday = 0;
   }
 
@@ -53,14 +53,14 @@ contract DayLimit is Shareable {
 
   // checks to see if there is at least `_value` left from the daily limit today. if there is, subtracts it and
   // returns true. otherwise just returns false.
-  function underLimit(uint _value) internal onlyOwner returns (bool) {
+  function underLimit(uint _value) internal returns (bool) {
     // reset the spend limit if we're on a different day to last time.
     if (today() > lastDay) {
       spentToday = 0;
       lastDay = today();
     }
     // check to see if there's enough left - if so, subtract and return true.
-    // overflow protection                    // dailyLimit check  
+    // overflow protection                    // dailyLimit check
     if (spentToday + _value >= spentToday && spentToday + _value <= dailyLimit) {
       spentToday += _value;
       return true;

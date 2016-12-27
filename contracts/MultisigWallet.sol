@@ -83,6 +83,14 @@ contract MultisigWallet is Multisig, Shareable, DayLimit {
     }
   }
 
+  function setDailyLimit(uint _newLimit) onlymanyowners(sha3(msg.data)) external {
+    _setDailyLimit(_newLimit);
+  }
+
+  function resetSpentToday() onlymanyowners(sha3(msg.data)) external {
+    _resetSpentToday();
+  }
+
 
   // INTERNAL METHODS
 
