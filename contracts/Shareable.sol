@@ -4,7 +4,7 @@ pragma solidity ^0.4.4;
 /*
  * Shareable
  *
- * Based on https://github.com/ethereum/dapp-bin/blob/master/wallet/wallet.sol 
+ * Based on https://github.com/ethereum/dapp-bin/blob/master/wallet/wallet.sol
  *
  * inheritable "property" contract that enables methods to be protected by requiring the acquiescence of either a single, or, crucially, each of a number of, designated owners.
  *
@@ -98,7 +98,7 @@ contract Shareable {
     return address(owners[ownerIndex + 1]);
   }
 
-  function isOwner(address _addr) returns (bool) {
+  function isOwner(address _addr) constant returns (bool) {
     return ownerIndex[uint(_addr)] > 0;
   }
 
@@ -162,4 +162,3 @@ contract Shareable {
   }
 
 }
-
