@@ -102,4 +102,6 @@ Main contributors will review your code and possibly ask for changes before your
 If you have any questions feel free to post them to
 [github.com/OpenZeppelin/zeppelin-solidity/issues](https://github.com/OpenZeppelin/zeppelin-solidity/issues).
 
+Finally, if you're looking to collaborate and want to find easy tasks to start, [look at the issues we marked as easy](https://github.com/OpenZeppelin/zeppelin-solidity/labels/easy).
+
 Thanks for your time and code!
