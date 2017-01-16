@@ -7,7 +7,7 @@ contract('Killable', function(accounts) {
     transactionReceiptAsync = function(txnHash, resolve, reject) {
         try {
             var receipt = web3.eth.getTransactionReceipt(txnHash);
-            if (receipt == null) {
+            if (receipt === null) {
                 setTimeout(function () {
                     transactionReceiptAsync(txnHash, resolve, reject);
                 }, interval);
@@ -37,9 +37,6 @@ contract('Killable', function(accounts) {
     web3.eth.sendTransaction({from: web3.eth.coinbase, to: accounts[0], value: web3.toWei('50','ether')}, function(err, result) {
       if(err)
         console.log("ERROR:" + err);
-      else {
-        console.log(result);
-      }
     });
 
     killable = await Killable.new({from: accounts[0], value: web3.toWei('10','ether')});
