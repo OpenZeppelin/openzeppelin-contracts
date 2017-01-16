@@ -1,7 +1,7 @@
 pragma solidity ^0.4.4;
 
 
-import './Ownable.sol';
+import '../ownership/Ownable.sol';
 
 
 contract Migrations is Ownable {

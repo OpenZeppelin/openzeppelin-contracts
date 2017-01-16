@@ -1,5 +1,5 @@
 pragma solidity ^0.4.4;
-import "../Shareable.sol";
+import "../ownership/Shareable.sol";
 
 contract ShareableMock is Shareable {
 
