@@ -1,7 +1,7 @@
 pragma solidity ^0.4.4;
 
 
-import '../PullPayment.sol';
+import '../payment/PullPayment.sol';
 
 
 // mock class using PullPayment

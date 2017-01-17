@@ -1,7 +1,7 @@
 pragma solidity ^0.4.4;
 
 
-import '../Stoppable.sol';
+import '../lifecycle/Stoppable.sol';
 
 
 // mock class using Stoppable

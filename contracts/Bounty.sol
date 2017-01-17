@@ -1,8 +1,8 @@
 pragma solidity ^0.4.4;
 
 
-import './PullPayment.sol';
-import './Killable.sol';
+import './payment/PullPayment.sol';
+import './lifecycle/Killable.sol';
 
 
 /*
