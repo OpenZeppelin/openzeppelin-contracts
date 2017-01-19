@@ -51,6 +51,8 @@ contract Shareable {
   modifier onlyOwner {
     if (isOwner(msg.sender))
       _;
+    else
+      throw;
   }
 
   // multi-sig function modifier: the operation must have an intrinsic hash in order
@@ -59,6 +61,8 @@ contract Shareable {
   modifier onlymanyowners(bytes32 _operation) {
     if (confirmAndCheck(_operation))
       _;
+    else
+      throw;
   }
 
 
