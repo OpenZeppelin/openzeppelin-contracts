@@ -26,8 +26,9 @@ contract('LimitBalance', function(accounts) {
     try {
       let limDeposit = await lb.limitedDeposit({value: amount});
     } catch(error) {
-      assertJump(error);
+      return assertJump(error);
     }
+    assert.fail('should have thrown before');
   });
 
   it("should allow multiple sends below limit", async function() {
@@ -49,8 +50,9 @@ contract('LimitBalance', function(accounts) {
     try {
       await lb.limitedDeposit({value: amount+1})
     } catch(error) {
-      assertJump(error);
+      return assertJump(error);
     }
+    assert.fail('should have thrown before');
   });
 
 });

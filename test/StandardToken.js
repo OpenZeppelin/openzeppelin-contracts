@@ -32,8 +32,9 @@ contract('StandardToken', function(accounts) {
     try {
       let transfer = await token.transfer(accounts[1], 101);
     } catch(error) {
-      assertJump(error);
+      return assertJump(error);
     }
+    assert.fail('should have thrown before');
   });
 
   it("should return correct balances after transfering from another account", async function() {
@@ -57,8 +58,9 @@ contract('StandardToken', function(accounts) {
     try {
       let transfer = await token.transferFrom(accounts[0], accounts[2], 100, {from: accounts[1]});
     } catch (error) {
-      assertJump(error);
+      return assertJump(error);
     }
+    assert.fail('should have thrown before');
   });
 
 });
