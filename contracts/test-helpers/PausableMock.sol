@@ -1,15 +1,15 @@
 pragma solidity ^0.4.4;
 
 
-import '../lifecycle/Stoppable.sol';
+import '../lifecycle/Pausable.sol';
 
 
-// mock class using Stoppable
-contract StoppableMock is Stoppable {
+// mock class using Pausable
+contract PausableMock is Pausable {
   bool public drasticMeasureTaken;
   uint public count;
 
-  function StoppableMock() {
+  function PausableMock() {
     drasticMeasureTaken = false;
     count = 0;
   }

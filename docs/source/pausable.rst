@@ -1,4 +1,4 @@
-Stoppable
+Pausable
 =============================================
 
 Base contract that provides an emergency stop mechanism.

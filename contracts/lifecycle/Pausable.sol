@@ -5,11 +5,11 @@ import "../ownership/Ownable.sol";
 
 
 /*
- * Stoppable
+ * Pausable
  * Abstract contract that allows children to implement an
  * emergency stop mechanism.
  */
-contract Stoppable is Ownable {
+contract Pausable is Ownable {
   bool public stopped;
 
   modifier stopInEmergency { if (!stopped) _; }
