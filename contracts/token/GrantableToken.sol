@@ -28,7 +28,7 @@ contract GrantableToken is StandardToken {
     grantStock(_to, _value);
   }
 
-  function removeStockGrant(address _holder, uint _grantId) {
+  function revokeStockGrant(address _holder, uint _grantId) {
     StockGrant grant = grants[_holder][_grantId];
 
     if (grant.granter != msg.sender) throw;
