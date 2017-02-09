@@ -1,7 +1,11 @@
 pragma solidity ^0.4.4;
-import "./StandardTokenMock.sol";
 
-contract GrantableTokenMock is StandardTokenMock {
-  function GrantableTokenMock(address initialAccount, uint initialBalance)
-           StandardTokenMock(initialAccount, initialBalance) {}
+import '../token/GrantableToken.sol';
+
+// mock class using StandardToken
+contract GrantableTokenMock is GrantableToken {
+  function GrantableTokenMock(address initialAccount, uint initialBalance) {
+    balances[initialAccount] = initialBalance;
+    totalSupply = initialBalance;
+  }
 }

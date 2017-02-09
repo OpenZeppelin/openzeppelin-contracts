@@ -3,7 +3,7 @@ pragma solidity ^0.4.8;
 import "./StandardToken.sol";
 
 contract GrantableToken is StandardToken {
-  struct StockGrant {
+  struct TokenGrant {
     address granter;
     uint256 value;
     uint64 cliff;
@@ -11,28 +11,28 @@ contract GrantableToken is StandardToken {
     uint64 start;
   }
 
-  mapping (address => StockGrant[]) public grants;
+  mapping (address => TokenGrant[]) public grants;
 
-  function grantStock(address _to, uint256 _value) {
+  function grantTokens(address _to, uint256 _value) {
     transfer(_to, _value);
   }
 
-  function grantVestedStock(address _to, uint256 _value, uint64 _start, uint64 _cliff, uint64 _vesting) {
+  function grantVestedTokens(address _to, uint256 _value, uint64 _start, uint64 _cliff, uint64 _vesting) {
     if (_cliff < _start) throw;
     if (_vesting < _start) throw;
     if (_vesting < _cliff) throw;
 
-    StockGrant memory grant = StockGrant({start: _start, value: _value, cliff: _cliff, vesting: _vesting, granter: msg.sender});
+    TokenGrant memory grant = TokenGrant({start: _start, value: _value, cliff: _cliff, vesting: _vesting, granter: msg.sender});
     grants[_to].push(grant);
 
-    grantStock(_to, _value);
+    grantTokens(_to, _value);
   }
 
-  function revokeStockGrant(address _holder, uint _grantId) {
-    StockGrant grant = grants[_holder][_grantId];
+  function revokeTokenGrant(address _holder, uint _grantId) {
+    TokenGrant grant = grants[_holder][_grantId];
 
     if (grant.granter != msg.sender) throw;
-    uint256 nonVested = nonVestedShares(grant, uint64(now));
+    uint256 nonVested = nonVestedTokens(grant, uint64(now));
 
     // remove grant from array
     delete grants[_holder][_grantId];
@@ -43,12 +43,12 @@ contract GrantableToken is StandardToken {
     balances[_holder] = safeSub(balances[_holder], nonVested);
   }
 
-  function stockGrantCount(address _holder) constant returns (uint index) {
+  function tokenGrantsCount(address _holder) constant returns (uint index) {
     return grants[_holder].length;
   }
 
-  function stockGrant(address _holder, uint _grantId) constant returns (address granter, uint256 value, uint256 vested, uint64 start, uint64 cliff, uint64 vesting) {
-    StockGrant grant = grants[_holder][_grantId];
+  function tokenGrant(address _holder, uint _grantId) constant returns (address granter, uint256 value, uint256 vested, uint64 start, uint64 cliff, uint64 vesting) {
+    TokenGrant grant = grants[_holder][_grantId];
 
     granter = grant.granter;
     value = grant.value;
@@ -56,26 +56,26 @@ contract GrantableToken is StandardToken {
     cliff = grant.cliff;
     vesting = grant.vesting;
 
-    vested = vestedShares(grant, uint64(now));
+    vested = vestedTokens(grant, uint64(now));
   }
 
-  function vestedShares(StockGrant grant, uint64 time) private constant returns (uint256 vestedShares) {
+  function vestedTokens(TokenGrant grant, uint64 time) private constant returns (uint256 vestedTokens) {
     if (time < grant.cliff) return 0;
     if (time > grant.vesting) return grant.value;
 
-    uint256 cliffShares = grant.value * uint256(grant.cliff - grant.start) / uint256(grant.vesting - grant.start);
-    vestedShares = cliffShares;
+    uint256 cliffTokens = grant.value * uint256(grant.cliff - grant.start) / uint256(grant.vesting - grant.start);
+    vestedTokens = cliffTokens;
 
-    uint256 vestingShares = safeSub(grant.value, cliffShares);
+    uint256 vestingTokens = safeSub(grant.value, cliffTokens);
 
-    vestedShares = safeAdd(vestedShares, vestingShares * (time - uint256(grant.cliff)) / uint256(grant.vesting - grant.start));
+    vestedTokens = safeAdd(vestedTokens, vestingTokens * (time - uint256(grant.cliff)) / uint256(grant.vesting - grant.start));
   }
 
-  function nonVestedShares(StockGrant grant, uint64 time) private constant returns (uint256) {
-    return safeSub(grant.value, vestedShares(grant, time));
+  function nonVestedTokens(TokenGrant grant, uint64 time) private constant returns (uint256) {
+    return safeSub(grant.value, vestedTokens(grant, time));
   }
 
-  function lastStockIsTransferrableEvent(address holder) constant public returns (uint64 date) {
+  function lastTokenIsTransferrableEvent(address holder) constant public returns (uint64 date) {
     date = uint64(now);
     uint256 grantIndex = grants[holder].length;
     for (uint256 i = 0; i < grantIndex; i++) {
@@ -83,18 +83,18 @@ contract GrantableToken is StandardToken {
     }
   }
 
-  function transferrableShares(address holder, uint64 time) constant public returns (uint256 nonVested) {
+  function transferrableTokens(address holder, uint64 time) constant public returns (uint256 nonVested) {
     uint256 grantIndex = grants[holder].length;
 
     for (uint256 i = 0; i < grantIndex; i++) {
-      nonVested = safeAdd(nonVested, nonVestedShares(grants[holder][i], time));
+      nonVested = safeAdd(nonVested, nonVestedTokens(grants[holder][i], time));
     }
 
     return safeSub(balances[holder], nonVested);
   }
 
   function transfer(address _to, uint _value) returns (bool success){
-    if (_value > transferrableShares(msg.sender, uint64(now))) throw;
+    if (_value > transferrableTokens(msg.sender, uint64(now))) throw;
 
     return super.transfer(_to, _value);
   }
