@@ -1,7 +1,7 @@
 const assertJump = require('./helpers/assertJump');
 const timer = require('./helpers/timer');
 
-contract('GrantableToken', function(accounts) {
+contract('VestedToken', function(accounts) {
   let token = null
   let now = 0
 
@@ -11,7 +11,7 @@ contract('GrantableToken', function(accounts) {
   const receiver = accounts[1]
 
   beforeEach(async () => {
-    token = await GrantableTokenMock.new(granter, 100);
+    token = await VestedTokenMock.new(granter, 100);
     now = +new Date()/1000;
   })
 

@@ -2,7 +2,7 @@ pragma solidity ^0.4.8;
 
 import "./StandardToken.sol";
 
-contract GrantableToken is StandardToken {
+contract VestedToken is StandardToken {
   struct TokenGrant {
     address granter;
     uint256 value;
