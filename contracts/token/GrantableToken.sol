@@ -67,12 +67,12 @@ contract GrantableToken is StandardToken {
     if (time < cliff) return 0;
     if (time > vesting) return tokens;
 
-    uint256 cliffTokens = safeMul(tokens, (cliff - start) / (vesting - start));
+    uint256 cliffTokens = safeMul(tokens, safeDiv(safeSub(cliff, start), safeSub(vesting, start)));
     vestedTokens = cliffTokens;
 
     uint256 vestingTokens = safeSub(tokens, cliffTokens);
 
-    vestedTokens = safeAdd(vestedTokens, vestingTokens * (time - cliff) / (vesting - start));
+    vestedTokens = safeAdd(vestedTokens, safeMul(vestingTokens, safeDiv(safeSub(time, cliff), safeSub(vesting, start))));
   }
 
   function nonVestedTokens(TokenGrant grant, uint64 time) private constant returns (uint256) {
@@ -101,13 +101,5 @@ contract GrantableToken is StandardToken {
     if (_value > transferableTokens(msg.sender, uint64(now))) throw;
 
     return super.transfer(_to, _value);
-  }
-
-  function max64(uint64 a, uint64 b) private constant returns (uint64) {
-    return a >= b ? a : b;
-  }
-
-  function min256(uint256 a, uint256 b) private constant returns (uint256) {
-    return a < b ? a : b;
   }
 }
