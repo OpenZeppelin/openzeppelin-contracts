@@ -79,7 +79,7 @@ contract GrantableToken is StandardToken {
     return safeSub(grant.value, vestedTokens(grant, time));
   }
 
-  function lastTokenIsTransferrableEvent(address holder) constant public returns (uint64 date) {
+  function lastTokenIsTransferableDate(address holder) constant public returns (uint64 date) {
     date = uint64(now);
     uint256 grantIndex = grants[holder].length;
     for (uint256 i = 0; i < grantIndex; i++) {
