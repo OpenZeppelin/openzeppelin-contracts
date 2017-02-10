@@ -16,7 +16,7 @@ contract('GrantableToken', function(accounts) {
   })
 
   it('granter can grant tokens without vesting', async () => {
-    await token.grantTokens(receiver, tokenAmount, { from: granter })
+    await token.transfer(receiver, tokenAmount, { from: granter })
 
     assert.equal(await token.balanceOf(receiver), tokenAmount);
     assert.equal(await token.transferableTokens(receiver, +new Date()/1000), tokenAmount);

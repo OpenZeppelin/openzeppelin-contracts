@@ -13,10 +13,6 @@ contract GrantableToken is StandardToken {
 
   mapping (address => TokenGrant[]) public grants;
 
-  function grantTokens(address _to, uint256 _value) {
-    transfer(_to, _value);
-  }
-
   function grantVestedTokens(address _to, uint256 _value, uint64 _start, uint64 _cliff, uint64 _vesting) {
     if (_cliff < _start) throw;
     if (_vesting < _start) throw;
@@ -25,7 +21,7 @@ contract GrantableToken is StandardToken {
     TokenGrant memory grant = TokenGrant({start: _start, value: _value, cliff: _cliff, vesting: _vesting, granter: msg.sender});
     grants[_to].push(grant);
 
-    grantTokens(_to, _value);
+    transfer(_to, _value);
   }
 
   function revokeTokenGrant(address _holder, uint _grantId) {
