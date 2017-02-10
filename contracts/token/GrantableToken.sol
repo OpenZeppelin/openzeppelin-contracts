@@ -59,16 +59,20 @@ contract GrantableToken is StandardToken {
     vested = vestedTokens(grant, uint64(now));
   }
 
-  function vestedTokens(TokenGrant grant, uint64 time) private constant returns (uint256 vestedTokens) {
-    if (time < grant.cliff) return 0;
-    if (time > grant.vesting) return grant.value;
+  function vestedTokens(TokenGrant grant, uint64 time) private constant returns (uint256) {
+    return calculateVestedTokens(grant.value, uint256(time), uint256(grant.start), uint256(grant.cliff), uint256(grant.vesting));
+  }
 
-    uint256 cliffTokens = grant.value * uint256(grant.cliff - grant.start) / uint256(grant.vesting - grant.start);
+  function calculateVestedTokens(uint256 tokens, uint256 time, uint256 start, uint256 cliff, uint256 vesting) constant returns (uint256 vestedTokens) {
+    if (time < cliff) return 0;
+    if (time > vesting) return tokens;
+
+    uint256 cliffTokens = safeMul(tokens, (cliff - start) / (vesting - start));
     vestedTokens = cliffTokens;
 
-    uint256 vestingTokens = safeSub(grant.value, cliffTokens);
+    uint256 vestingTokens = safeSub(tokens, cliffTokens);
 
-    vestedTokens = safeAdd(vestedTokens, vestingTokens * (time - uint256(grant.cliff)) / uint256(grant.vesting - grant.start));
+    vestedTokens = safeAdd(vestedTokens, vestingTokens * (time - cliff) / (vesting - start));
   }
 
   function nonVestedTokens(TokenGrant grant, uint64 time) private constant returns (uint256) {

@@ -26,4 +26,3 @@ contract SafeMath {
     if (!assertion) throw;
   }
 }
-
