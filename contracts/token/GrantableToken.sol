@@ -83,7 +83,7 @@ contract GrantableToken is StandardToken {
     }
   }
 
-  function transferrableTokens(address holder, uint64 time) constant public returns (uint256 nonVested) {
+  function transferableTokens(address holder, uint64 time) constant public returns (uint256 nonVested) {
     uint256 grantIndex = grants[holder].length;
 
     for (uint256 i = 0; i < grantIndex; i++) {
@@ -94,7 +94,7 @@ contract GrantableToken is StandardToken {
   }
 
   function transfer(address _to, uint _value) returns (bool success){
-    if (_value > transferrableTokens(msg.sender, uint64(now))) throw;
+    if (_value > transferableTokens(msg.sender, uint64(now))) throw;
 
     return super.transfer(_to, _value);
   }

@@ -19,7 +19,7 @@ contract('GrantableToken', function(accounts) {
     await token.grantTokens(receiver, tokenAmount, { from: granter })
 
     assert.equal(await token.balanceOf(receiver), tokenAmount);
-    assert.equal(await token.transferrableTokens(receiver, +new Date()/1000), tokenAmount);
+    assert.equal(await token.transferableTokens(receiver, +new Date()/1000), tokenAmount);
   })
 
   describe('getting a token grant', async () => {
@@ -34,12 +34,12 @@ contract('GrantableToken', function(accounts) {
       assert.equal(await token.balanceOf(receiver), tokenAmount);
     })
 
-    it('has 0 transferrable tokens before cliff', async () => {
-      assert.equal(await token.transferrableTokens(receiver, now), 0);
+    it('has 0 transferable tokens before cliff', async () => {
+      assert.equal(await token.transferableTokens(receiver, now), 0);
     })
 
-    it('all tokens are transferrable after vesting', async () => {
-      assert.equal(await token.transferrableTokens(receiver, now + vesting + 1), tokenAmount);
+    it('all tokens are transferable after vesting', async () => {
+      assert.equal(await token.transferableTokens(receiver, now + vesting + 1), tokenAmount);
     })
 
     it('throws when trying to transfer non vested tokens', async () => {
