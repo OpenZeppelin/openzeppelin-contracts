@@ -13,27 +13,6 @@ import "./DayLimit.sol";
  * Wallet(w).from(anotherOwner).confirm(h);
  */
 contract MultisigWallet is Multisig, Shareable, DayLimit {
-  // TYPES
-
-  // Transaction structure to remember details of transaction lest it need be saved for a later call.
-  struct Transaction {
-    address to;
-    uint value;
-    bytes data;
-  }
-
-
-  // CONSTRUCTOR
-
-  // just pass on the owner array to the multiowned and
-  // the limit to daylimit
-  function MultisigWallet(address[] _owners, uint _required, uint _daylimit)
-    Shareable(_owners, _required)
-    DayLimit(_daylimit) { }
-
-
-  // METHODS
-
   // kills the contract sending everything to `_to`.
   function kill(address _to) onlymanyowners(sha3(msg.data)) external {
     suicide(_to);
