@@ -1,4 +1,4 @@
-pragma solidity ^0.4.4;
+pragma solidity ^0.4.8;
 
 import "./StandardToken.sol";
 
@@ -37,6 +37,7 @@ contract VestedToken is StandardToken {
 
     balances[msg.sender] = safeAdd(balances[msg.sender], nonVested);
     balances[_holder] = safeSub(balances[_holder], nonVested);
+    Transfer(_holder, msg.sender, nonVested);
   }
 
   function tokenGrantsCount(address _holder) constant returns (uint index) {
@@ -63,12 +64,12 @@ contract VestedToken is StandardToken {
     if (time < cliff) return 0;
     if (time > vesting) return tokens;
 
-    uint256 cliffTokens = safeMul(tokens, safeDiv(safeSub(cliff, start), safeSub(vesting, start)));
+    uint256 cliffTokens = safeDiv(safeMul(tokens, safeSub(cliff, start)), safeSub(vesting, start));
     vestedTokens = cliffTokens;
 
     uint256 vestingTokens = safeSub(tokens, cliffTokens);
 
-    vestedTokens = safeAdd(vestedTokens, safeMul(vestingTokens, safeDiv(safeSub(time, cliff), safeSub(vesting, start))));
+    vestedTokens = safeAdd(vestedTokens, safeDiv(safeMul(vestingTokens, safeSub(time, cliff)), safeSub(vesting, start)));
   }
 
   function nonVestedTokens(TokenGrant grant, uint64 time) private constant returns (uint256) {
