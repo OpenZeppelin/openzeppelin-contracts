@@ -12,6 +12,7 @@
   },
   "scripts": {
     "test": "truffle test",
+    "console": "truffle console",
     "install": "scripts/install.sh"
   },
   "repository": {
