@@ -25,6 +25,8 @@ contract DayLimit {
   modifier limitedDaily(uint _value) {
     if (underLimit(_value))
       _;
+    else
+      throw;
   }
 
 

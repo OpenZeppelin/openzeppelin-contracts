@@ -17,11 +17,10 @@ contract LimitBalance {
   }
 
   modifier limitedPayable() { 
-    if (this.balance > limit) {
-      throw;
-    }
-    _;
-    
+    if (this.balance <= limit)
+      _;
+    else
+      throw;    
   }
 
 }

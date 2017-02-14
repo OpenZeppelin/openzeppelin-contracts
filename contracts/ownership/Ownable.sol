@@ -17,6 +17,8 @@ contract Ownable {
   modifier onlyOwner() {
     if (msg.sender == owner)
       _;
+    else
+      throw;
   }
 
   function transferOwnership(address newOwner) onlyOwner {
