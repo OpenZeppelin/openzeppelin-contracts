@@ -8,10 +8,10 @@
     "babel-preset-stage-2": "^6.18.0",
     "babel-preset-stage-3": "^6.17.0",
     "ethereumjs-testrpc": "^3.0.2",
-    "truffle": "^2.1.1"
+    "truffle": "^3.1.1"
   },
   "scripts": {
-    "test": "truffle test",
+    "test": "scripts/test.sh",
     "console": "truffle console",
     "install": "scripts/install.sh"
   },
