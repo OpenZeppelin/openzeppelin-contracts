@@ -71,7 +71,7 @@ Interested in contributing to Zeppelin?
 
 ## Collaborating organizations and audits by Zeppelin
 - [Golem](https://golem.network/)
-- [Mediachain](https://golem.network/)
+- [Mediachain](http://www.mediachain.io/)
 - [Truffle](http://truffleframework.com/)
 - [Firstblood](http://firstblood.io/)
 - [Rootstock](http://www.rsk.co/)
@@ -81,6 +81,7 @@ Interested in contributing to Zeppelin?
 - [DemocracyEarth](http://democracy.earth/)
 - [Signatura](https://signatura.co/)
 - [Ether.camp](http://www.ether.camp/)
+- [Aragon](https://aragon.one/)
 
 among others...
 
