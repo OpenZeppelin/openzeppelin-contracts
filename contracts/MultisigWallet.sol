@@ -13,6 +13,17 @@ import "./DayLimit.sol";
  * Wallet(w).from(anotherOwner).confirm(h);
  */
 contract MultisigWallet is Multisig, Shareable, DayLimit {
+
+  struct Transaction {
+    address to;
+    uint value;
+    bytes data;
+  }
+
+  function MultisigWallet(address[] _owners, uint _required, uint _daylimit)       
+    Shareable(_owners, _required)        
+    DayLimit(_daylimit) { }
+
   // kills the contract sending everything to `_to`.
   function kill(address _to) onlymanyowners(sha3(msg.data)) external {
     suicide(_to);

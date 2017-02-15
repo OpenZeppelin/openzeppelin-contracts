@@ -1,5 +1,6 @@
 const assertJump = require('./helpers/assertJump');
 const timer = require('./helpers/timer');
+var VestedTokenMock = artifacts.require("./helpers/VestedTokenMock.sol");
 
 contract('VestedToken', function(accounts) {
   let token = null

@@ -1,6 +1,6 @@
 pragma solidity ^0.4.4;
 
-import '../token/VestedToken.sol';
+import '../../contracts/token/VestedToken.sol';
 
 // mock class using StandardToken
 contract VestedTokenMock is VestedToken {
