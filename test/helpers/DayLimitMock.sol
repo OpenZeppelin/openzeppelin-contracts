@@ -1,5 +1,5 @@
 pragma solidity ^0.4.4;
-import "../DayLimit.sol";
+import "../../contracts/DayLimit.sol";
 
 contract DayLimitMock is DayLimit {
   uint public totalSpending;

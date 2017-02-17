@@ -7,11 +7,12 @@
     "babel-preset-es2015": "^6.18.0",
     "babel-preset-stage-2": "^6.18.0",
     "babel-preset-stage-3": "^6.17.0",
+    "babel-register": "^6.23.0",
     "ethereumjs-testrpc": "^3.0.2",
-    "truffle": "^2.1.1"
+    "truffle": "https://github.com/ConsenSys/truffle.git#3.1.9"
   },
   "scripts": {
-    "test": "truffle test",
+    "test": "scripts/test.sh",
     "console": "truffle console",
     "install": "scripts/install.sh"
   },

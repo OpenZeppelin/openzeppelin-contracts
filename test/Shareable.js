@@ -1,3 +1,5 @@
+var ShareableMock = artifacts.require("./helpers/ShareableMock.sol");
+
 contract('Shareable', function(accounts) {
 
   it('should construct with correct owners and number of sigs required', async function() {

@@ -1,5 +1,5 @@
 pragma solidity ^0.4.4;
-import "../MultisigWallet.sol";
+import "../../contracts/MultisigWallet.sol";
 
 contract MultisigWalletMock is MultisigWallet {
   uint public totalSpending;

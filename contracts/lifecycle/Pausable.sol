@@ -12,8 +12,17 @@ import "../ownership/Ownable.sol";
 contract Pausable is Ownable {
   bool public stopped;
 
-  modifier stopInEmergency { if (!stopped) _; }
-  modifier onlyInEmergency { if (stopped) _; }
+  modifier stopInEmergency {
+    if (!stopped) {
+      _;
+    }
+  }
+  
+  modifier onlyInEmergency {
+    if (stopped) {
+      _;
+    }
+  }
 
   // called by the owner on emergency, triggers stopped state
   function emergencyStop() external onlyOwner {

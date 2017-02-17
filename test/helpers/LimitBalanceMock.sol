@@ -1,7 +1,7 @@
 pragma solidity ^0.4.4;
 
 
-import '../LimitBalance.sol';
+import '../../contracts/LimitBalance.sol';
 
 
 // mock class using LimitBalance

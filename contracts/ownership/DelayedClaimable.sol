@@ -1,30 +1,32 @@
 pragma solidity ^0.4.4;
+
+
 import './Ownable.sol';
 import './Claimable.sol';
+
 
 /*
  * DelayedClaimable
  * Extension for the Claimable contract, where the ownership needs to be claimed before/after certain block number
  */
-
 contract DelayedClaimable is Ownable, Claimable {
 
-  uint public claimBeforeBlock;
-  uint public claimAfterBlock;
+  uint public end;
+  uint public start;
 
-  function setClaimBlocks(uint _claimBeforeBlock, uint _claimAfterBlock) onlyOwner {
-    if (_claimAfterBlock > claimBeforeBlock)
+  function setLimits(uint _start, uint _end) onlyOwner {
+    if (_start > _end)
         throw;
-    claimBeforeBlock = _claimBeforeBlock;
-    claimAfterBlock = _claimAfterBlock;
+    end = _end;
+    start = _start;
   }
 
   function claimOwnership() onlyPendingOwner {
-    if ((block.number > claimBeforeBlock) || (block.number < claimAfterBlock))
+    if ((block.number > end) || (block.number < start))
         throw;
     owner = pendingOwner;
     pendingOwner = 0x0;
-    claimBeforeBlock = 0;
+    end = 0;
   }
 
 }

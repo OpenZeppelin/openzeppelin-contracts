@@ -23,7 +23,9 @@ contract CrowdsaleToken is StandardToken {
   }
   
   function createTokens(address recipient) payable {
-    if (msg.value == 0) throw;
+    if (msg.value == 0) {
+      throw;
+    }
 
     uint tokens = safeMul(msg.value, getPrice());
 
@@ -32,7 +34,7 @@ contract CrowdsaleToken is StandardToken {
   }
   
   // replace this with any other price function
-  function getPrice() constant returns (uint result){
+  function getPrice() constant returns (uint result) {
     return PRICE;
   }
 }

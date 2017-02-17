@@ -12,33 +12,18 @@ import './ownership/Shareable.sol';
  * uses is specified in the modifier.
  */
 contract DayLimit {
-  // FIELDS
 
   uint public dailyLimit;
   uint public spentToday;
   uint public lastDay;
 
 
-  // MODIFIERS
-
-  // simple modifier for daily limit.
-  modifier limitedDaily(uint _value) {
-    if (underLimit(_value))
-      _;
-  }
-
-
-  // CONSTRUCTOR
-  // stores initial daily limit and records the present day's index.
   function DayLimit(uint _limit) {
     dailyLimit = _limit;
     lastDay = today();
   }
 
-
-  // METHODS
-
-  // (re)sets the daily limit. doesn't alter the amount already spent today.
+  // sets the daily limit. doesn't alter the amount already spent today
   function _setDailyLimit(uint _newLimit) internal {
     dailyLimit = _newLimit;
   }
@@ -47,9 +32,6 @@ contract DayLimit {
   function _resetSpentToday() internal {
     spentToday = 0;
   }
-
-
-  // INTERNAL METHODS
 
   // checks to see if there is at least `_value` left from the daily limit today. if there is, subtracts it and
   // returns true. otherwise just returns false.
@@ -71,5 +53,13 @@ contract DayLimit {
   // determines today's index.
   function today() private constant returns (uint) {
     return now / 1 days;
+  }
+
+
+  // simple modifier for daily limit.
+  modifier limitedDaily(uint _value) {
+    if (underLimit(_value)) {
+      _;
+    }
   }
 }
