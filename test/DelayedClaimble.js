@@ -1,3 +1,7 @@
+'use strict';
+
+var DelayedClaimable = artifacts.require('../contracts/ownership/DelayedClaimable.sol');
+
 contract('DelayedClaimable', function(accounts) {
   var delayedClaimable;
 
@@ -7,76 +11,58 @@ contract('DelayedClaimable', function(accounts) {
     });
   });
 
-  it("Changes pendingOwner after transfer succesfull", function(done) {
-    return delayedClaimable.transferOwnership(accounts[2])
-      .then(function(){
-        return delayedClaimable.setClaimBlocks(1000,0);
-      })
-      .then(function(){
-        return delayedClaimable.claimBeforeBlock();
-      })
-      .then(function(claimBeforeBlock) {
-        assert.isTrue(claimBeforeBlock == 1000);
-        return delayedClaimable.claimAfterBlock();
-      })
-      .then(function(claimAfterBlock) {
-        assert.isTrue(claimAfterBlock == 0);
-        return delayedClaimable.pendingOwner();
-      })
-      .then(function(pendingOwner) {
-        assert.isTrue(pendingOwner === accounts[2]);
-        return delayedClaimable.claimOwnership({from: accounts[2]});
-      })
-      .then(function() {
-        return delayedClaimable.owner();
-      })
-      .then(function(owner) {
-        assert.isTrue(owner === accounts[2]);
-      })
-      .then(done);
+  it('can set claim blocks', async function() {
+    await delayedClaimable.transferOwnership(accounts[2]);
+    await delayedClaimable.setLimits(0, 1000);
+    let end = await delayedClaimable.end();
+    assert.equal(end, 1000);
+    let start = await delayedClaimable.start();
+    assert.equal(start, 0);
   });
 
-  it("Changes pendingOwner after transfer fails", function(done) {
-    return delayedClaimable.transferOwnership(accounts[1])
-      .then(function(){
-        return delayedClaimable.setClaimBlocks(11000,10000);
-      })
-      .then(function(){
-        return delayedClaimable.claimBeforeBlock();
-      })
-      .then(function(claimBeforeBlock) {
-        assert.isTrue(claimBeforeBlock == 11000);
-        return delayedClaimable.claimAfterBlock();
-      })
-      .then(function(claimAfterBlock) {
-        assert.isTrue(claimAfterBlock == 10000);
-        return delayedClaimable.pendingOwner();
-      })
-      .then(function(pendingOwner) {
-        assert.isTrue(pendingOwner === accounts[1]);
-        return delayedClaimable.claimOwnership({from: accounts[1]});
-      })
-      .catch(function(error) {
-        if (error.message.search('invalid JUMP') == -1) throw error;
-      })
-      .then(function() {
-        return delayedClaimable.owner();
-      })
-      .then(function(owner) {
-        assert.isTrue(owner != accounts[1]);
-      })
-      .then(done);
+  it('changes pendingOwner after transfer successful', async function() {
+    await delayedClaimable.transferOwnership(accounts[2]);
+    await delayedClaimable.setLimits(0, 1000);
+    let end = await delayedClaimable.end();
+    assert.equal(end, 1000);
+    let start = await delayedClaimable.start();
+    assert.equal(start, 0);
+    let pendingOwner = await delayedClaimable.pendingOwner();
+    assert.equal(pendingOwner, accounts[2]);
+    await delayedClaimable.claimOwnership({from: accounts[2]});
+    let owner = await delayedClaimable.owner();
+    assert.equal(owner, accounts[2]);
   });
 
-  it("Set claimBeforeBlock and claimAfterBlock invalid values fail", function(done) {
-    return delayedClaimable.transferOwnership(accounts[1])
-      .then(function(){
-        return delayedClaimable.setClaimBlocks(1000,10000);
-      })
-      .catch(function(error) {
-        if (error.message.search('invalid JUMP') == -1) throw error;
-      })
-      .then(done);
+  it('changes pendingOwner after transfer fails', async function() {
+    await delayedClaimable.transferOwnership(accounts[1]);
+    await delayedClaimable.setLimits(100, 110);
+    let end = await delayedClaimable.end();
+    assert.equal(end, 110);
+    let start = await delayedClaimable.start();
+    assert.equal(start, 100);
+    let pendingOwner = await delayedClaimable.pendingOwner();
+    assert.equal(pendingOwner, accounts[1]);
+    var err = null;
+    try {
+      await delayedClaimable.claimOwnership({from: accounts[1]});
+    } catch (error) {
+      err = error;
+    }
+    assert.isFalse(err.message.search('invalid JUMP') === -1);
+    let owner = await delayedClaimable.owner();
+    assert.isTrue(owner !== accounts[1]);
+  });
+
+  it('set end and start invalid values fail', async function() {
+    await delayedClaimable.transferOwnership(accounts[1]);
+    var err = null;
+    try {
+      await delayedClaimable.setLimits(1001, 1000);
+    } catch (error) {
+      err = error;
+    }
+    assert.isFalse(err.message.search('invalid JUMP') === -1);
   });
 
 });

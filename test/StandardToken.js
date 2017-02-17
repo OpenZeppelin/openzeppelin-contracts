@@ -1,4 +1,5 @@
 const assertJump = require('./helpers/assertJump');
+var StandardTokenMock = artifacts.require("./helpers/StandardTokenMock.sol");
 
 contract('StandardToken', function(accounts) {
 

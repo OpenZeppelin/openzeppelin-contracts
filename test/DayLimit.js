@@ -1,3 +1,7 @@
+'use strict';
+
+var DayLimitMock = artifacts.require('helpers/DayLimitMock.sol');
+
 contract('DayLimit', function(accounts) {
 
   it('should construct with the passed daily limit', async function() {

@@ -1,3 +1,5 @@
+var PullPaymentMock = artifacts.require("./helpers/PullPaymentMock.sol");
+
 contract('PullPayment', function(accounts) {
 
   it("can't call asyncSend externally", async function() {
