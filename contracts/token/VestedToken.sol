@@ -73,8 +73,9 @@ contract VestedToken is StandardToken {
   }
 
   function vestedTokens(TokenGrant grant, uint64 time) private constant returns (uint256) {
-    return calculateVestedTokens(grant.value,
-      uint256(time)
+    return calculateVestedTokens(
+      grant.value,
+      uint256(time),
       uint256(grant.start),
       uint256(grant.cliff),
       uint256(grant.vesting)
