@@ -1,6 +1,8 @@
 pragma solidity ^0.4.8;
 
+
 import "./StandardToken.sol";
+
 
 contract VestedToken is StandardToken {
   struct TokenGrant {
@@ -13,10 +15,22 @@ contract VestedToken is StandardToken {
 
   mapping (address => TokenGrant[]) public grants;
 
-  function grantVestedTokens(address _to, uint256 _value, uint64 _start, uint64 _cliff, uint64 _vesting) {
-    if (_cliff < _start) throw;
-    if (_vesting < _start) throw;
-    if (_vesting < _cliff) throw;
+  function grantVestedTokens(
+    address _to,
+    uint256 _value,
+    uint64 _start,
+    uint64 _cliff,
+    uint64 _vesting) {
+
+    if (_cliff < _start) {
+      throw;
+    }
+    if (_vesting < _start) {
+      throw;
+    }
+    if (_vesting < _cliff) {
+      throw;
+    }
 
     TokenGrant memory grant = TokenGrant({start: _start, value: _value, cliff: _cliff, vesting: _vesting, granter: msg.sender});
     grants[_to].push(grant);
@@ -27,7 +41,9 @@ contract VestedToken is StandardToken {
   function revokeTokenGrant(address _holder, uint _grantId) {
     TokenGrant grant = grants[_holder][_grantId];
 
-    if (grant.granter != msg.sender) throw;
+    if (grant.granter != msg.sender) {
+      throw;
+    }
     uint256 nonVested = nonVestedTokens(grant, uint64(now));
 
     // remove grant from array
@@ -57,12 +73,28 @@ contract VestedToken is StandardToken {
   }
 
   function vestedTokens(TokenGrant grant, uint64 time) private constant returns (uint256) {
-    return calculateVestedTokens(grant.value, uint256(time), uint256(grant.start), uint256(grant.cliff), uint256(grant.vesting));
+    return calculateVestedTokens(grant.value,
+      uint256(time)
+      uint256(grant.start),
+      uint256(grant.cliff),
+      uint256(grant.vesting)
+    );
   }
 
-  function calculateVestedTokens(uint256 tokens, uint256 time, uint256 start, uint256 cliff, uint256 vesting) constant returns (uint256 vestedTokens) {
-    if (time < cliff) return 0;
-    if (time > vesting) return tokens;
+  function calculateVestedTokens(
+    uint256 tokens,
+    uint256 time,
+    uint256 start,
+    uint256 cliff,
+    uint256 vesting) constant returns (uint256 vestedTokens)
+    {
+
+    if (time < cliff) {
+      return 0;
+    }
+    if (time > vesting) {
+      return tokens;
+    }
 
     uint256 cliffTokens = safeDiv(safeMul(tokens, safeSub(cliff, start)), safeSub(vesting, start));
     vestedTokens = cliffTokens;
@@ -94,8 +126,10 @@ contract VestedToken is StandardToken {
     return safeSub(balances[holder], nonVested);
   }
 
-  function transfer(address _to, uint _value) returns (bool success){
-    if (_value > transferableTokens(msg.sender, uint64(now))) throw;
+  function transfer(address _to, uint _value) returns (bool success) {
+    if (_value > transferableTokens(msg.sender, uint64(now))) {
+      throw;
+    }
 
     return super.transfer(_to, _value);
   }
