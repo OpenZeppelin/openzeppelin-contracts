@@ -13,8 +13,10 @@ contract Claimable is Ownable {
   address public pendingOwner;
 
   modifier onlyPendingOwner() {
-    if (msg.sender == pendingOwner)
-      _;
+    if (msg.sender != pendingOwner) {
+      throw;
+    }
+    _;
   }
 
   function transferOwnership(address newOwner) onlyOwner {
