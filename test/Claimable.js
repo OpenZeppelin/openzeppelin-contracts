@@ -1,4 +1,5 @@
 'use strict';
+const assertJump = require('./helpers/assertJump');
 
 var Claimable = artifacts.require('../contracts/ownership/Claimable.sol');
 
@@ -23,17 +24,22 @@ contract('Claimable', function(accounts) {
   });
 
   it('should prevent to claimOwnership from no pendingOwner', async function() {
-    claimable.claimOwnership({from: accounts[2]});
-    let owner = await claimable.owner();
-
-    assert.isTrue(owner !== accounts[2]);
+    try {
+        await claimable.claimOwnership({from: accounts[2]});
+    } catch(error) {
+        assertJump(error);
+    }
   });
 
   it('should prevent non-owners from transfering', async function() {
-    await claimable.transferOwnership(accounts[2], {from: accounts[2]});
-    let pendingOwner = await claimable.pendingOwner();
-
-    assert.isFalse(pendingOwner === accounts[2]);
+    const other = accounts[2];
+    const owner = await claimable.owner.call();
+    assert.isTrue(owner !== other);
+    try {
+        await claimable.transferOwnership(other, {from: other});
+    } catch(error) {
+        assertJump(error);
+    }
   });
 
   describe('after initiating a transfer', function () {

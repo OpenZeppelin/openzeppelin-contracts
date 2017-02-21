@@ -39,9 +39,10 @@ contract Shareable {
 
   // simple single-sig function modifier.
   modifier onlyOwner {
-    if (isOwner(msg.sender)) {
-      _;
+    if (!isOwner(msg.sender)) {
+      throw;
     }
+    _;
   }
 
   // multi-sig function modifier: the operation must have an intrinsic hash in order
