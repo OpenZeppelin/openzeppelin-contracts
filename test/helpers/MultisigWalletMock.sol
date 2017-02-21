@@ -1,4 +1,4 @@
-pragma solidity ^0.4.4;
+pragma solidity ^0.4.8;
 import "../../contracts/MultisigWallet.sol";
 
 contract MultisigWalletMock is MultisigWallet {
