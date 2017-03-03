@@ -33,5 +33,8 @@
   "bugs": {
     "url": "https://github.com/OpenZeppelin/zeppelin-solidity/issues"
   },
-  "homepage": "https://github.com/OpenZeppelin/zeppelin-solidity"
+  "homepage": "https://github.com/OpenZeppelin/zeppelin-solidity",
+  "dependencies": {
+    "truffle-hdwallet-provider": "0.0.3"
+  }
 }
