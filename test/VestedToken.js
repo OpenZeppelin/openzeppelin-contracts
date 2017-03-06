@@ -52,6 +52,16 @@ contract('VestedToken', function(accounts) {
       assert.fail('should have thrown before');
     })
 
+    it('throws when trying to transfer from non vested tokens', async () => {
+      try {
+        await token.approve(accounts[7], 1, { from: receiver })
+        await token.transferFrom(receiver, accounts[7], tokenAmount, { from: accounts[7] })
+      } catch(error) {
+        return assertJump(error);
+      }
+      assert.fail('should have thrown before');
+    })
+
     it('can be revoked by granter', async () => {
       await token.revokeTokenGrant(receiver, 0, { from: granter });
       assert.equal(await token.balanceOf(receiver), 0);
@@ -76,6 +86,13 @@ contract('VestedToken', function(accounts) {
     it('can transfer all tokens after vesting ends', async () => {
       await timer(vesting + 1);
       await token.transfer(accounts[7], tokenAmount, { from: receiver })
+      assert.equal(await token.balanceOf(accounts[7]), tokenAmount);
+    })
+
+    it('can approve and transferFrom all tokens after vesting ends', async () => {
+      await timer(vesting + 1);
+      await token.approve(accounts[7], tokenAmount, { from: receiver })
+      await token.transferFrom(receiver, accounts[7], tokenAmount, { from: accounts[7] })
       assert.equal(await token.balanceOf(accounts[7]), tokenAmount);
     })
   })
