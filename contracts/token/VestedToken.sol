@@ -15,6 +15,19 @@ contract VestedToken is StandardToken {
 
   mapping (address => TokenGrant[]) public grants;
 
+  modifier canTransfer(uint _value) {
+    if (_value > transferableTokens(msg.sender, uint64(now))) throw;
+    _;
+  }
+
+  function transfer(address _to, uint _value) canTransfer(_value) returns (bool success) {
+    return super.transfer(_to, _value);
+  }
+
+  function approve(address _spender, uint _value) canTransfer(_value) returns (bool success) {
+    return super.approve(_spender, _value);
+  }
+
   function grantVestedTokens(
     address _to,
     uint256 _value,
@@ -125,13 +138,5 @@ contract VestedToken is StandardToken {
     }
 
     return safeSub(balances[holder], nonVested);
-  }
-
-  function transfer(address _to, uint _value) returns (bool success) {
-    if (_value > transferableTokens(msg.sender, uint64(now))) {
-      throw;
-    }
-
-    return super.transfer(_to, _value);
   }
 }
