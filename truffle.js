@@ -3,7 +3,7 @@ require('babel-polyfill');
 
 var HDWalletProvider = require('truffle-hdwallet-provider');
 
-var mnemonic = 'opinion destroy betray ...';
+var mnemonic = '[REDACTED]';
 var provider = new HDWalletProvider(mnemonic, 'https://ropsten.infura.io/');
 
 
