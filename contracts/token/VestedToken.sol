@@ -45,7 +45,8 @@ contract VestedToken is StandardToken {
       throw;
     }
 
-    TokenGrant memory grant = TokenGrant({start: _start, value: _value, cliff: _cliff, vesting: _vesting, granter: msg.sender});
+
+    TokenGrant memory grant = TokenGrant(msg.sender, _value, _cliff, _vesting, _start);
     grants[_to].push(grant);
 
     transfer(_to, _value);
