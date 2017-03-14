@@ -2,9 +2,9 @@ pragma solidity ^0.4.8;
 
 
 import "./StandardToken.sol";
+import "./TransferableToken.sol";
 
-
-contract VestedToken is StandardToken {
+contract VestedToken is StandardToken, TransferableToken {
   struct TokenGrant {
     address granter;
     uint256 value;
@@ -14,19 +14,6 @@ contract VestedToken is StandardToken {
   }
 
   mapping (address => TokenGrant[]) public grants;
-
-  modifier canTransfer(address _sender, uint _value) {
-    if (_value > transferableTokens(_sender, uint64(now))) throw;
-    _;
-  }
-
-  function transfer(address _to, uint _value) canTransfer(msg.sender, _value) returns (bool success) {
-    return super.transfer(_to, _value);
-  }
-
-  function transferFrom(address _from, address _to, uint _value) canTransfer(_from, _value) returns (bool success) {
-    return super.transferFrom(_from, _to, _value);
-  }
 
   function grantVestedTokens(
     address _to,
@@ -133,11 +120,10 @@ contract VestedToken is StandardToken {
 
   function transferableTokens(address holder, uint64 time) constant public returns (uint256 nonVested) {
     uint256 grantIndex = grants[holder].length;
-
     for (uint256 i = 0; i < grantIndex; i++) {
       nonVested = safeAdd(nonVested, nonVestedTokens(grants[holder][i], time));
     }
 
-    return safeSub(balances[holder], nonVested);
+    return min256(safeSub(balances[holder], nonVested), super.transferableTokens(holder, time));
   }
 }
