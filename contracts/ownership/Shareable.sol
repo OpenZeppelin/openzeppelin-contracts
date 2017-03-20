@@ -64,6 +64,9 @@ contract Shareable {
       ownerIndex[_owners[i]] = 2 + i;
     }
     required = _required;
+    if (required > owners.length) {
+      throw;
+    }
   }
 
   // Revokes a prior confirmation of the given operation
