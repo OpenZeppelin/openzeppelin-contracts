@@ -1,6 +1,7 @@
 'use strict';
 
-var PausableMock = artifacts.require('helpers/PausableMock.sol');
+const assertJump = require('./helpers/assertJump');
+const PausableMock = artifacts.require('helpers/PausableMock.sol');
 
 contract('Pausable', function(accounts) {
 
@@ -20,7 +21,11 @@ contract('Pausable', function(accounts) {
     let count0 = await Pausable.count();
     assert.equal(count0, 0);
 
-    await Pausable.normalProcess();
+    try {
+      await Pausable.normalProcess();
+    } catch(error) {
+      assertJump(error);
+    }
     let count1 = await Pausable.count();
     assert.equal(count1, 0);
   });
@@ -28,9 +33,13 @@ contract('Pausable', function(accounts) {
 
   it('can not take drastic measure in non-emergency', async function() {
     let Pausable = await PausableMock.new();
-    await Pausable.drasticMeasure();
-    let drasticMeasureTaken = await Pausable.drasticMeasureTaken();
+    try {
+      await Pausable.drasticMeasure();
+    } catch(error) {
+      assertJump(error);
+    }
 
+    const drasticMeasureTaken = await Pausable.drasticMeasureTaken();
     assert.isFalse(drasticMeasureTaken);
   });
 
