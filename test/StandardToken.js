@@ -12,7 +12,7 @@ contract('StandardToken', function(accounts) {
     assert.equal(totalSupply, 100);
   });
 
-  it.only('should return the correct allowance amount after approval', async function() {
+  it('should return the correct allowance amount after approval', async function() {
     let token = await StandardTokenMock.new();
     await token.approve(accounts[1], 100);
     let allowance = await token.allowance(accounts[0], accounts[1]);
