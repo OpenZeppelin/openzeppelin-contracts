@@ -67,6 +67,7 @@ Interested in contributing to OpenZeppelin?
 - [Signatura](https://signatura.co/)
 - [Ether.camp](http://www.ether.camp/)
 - [Aragon](https://aragon.one/)
+- [Wings](https://wings.ai/)
 
 among others...
 
