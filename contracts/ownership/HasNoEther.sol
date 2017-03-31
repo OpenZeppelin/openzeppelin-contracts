@@ -16,7 +16,7 @@ import "./Ownable.sol";
 contract HasNoEther is Ownable {
 
   /// Constructor that rejects incoming Ether
-  /// @dev The flag `payabe` is added so we can access `msg.value`
+  /// @dev The flag `payable` is added so we can access `msg.value`
   ///      without compiler warning. If we leave out payable, then
   ///      Solidity will allow inheriting contracts to implement a
   ///      payable constructor. By doing it this way we prevent a
