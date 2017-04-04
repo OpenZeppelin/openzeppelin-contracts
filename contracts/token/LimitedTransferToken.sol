@@ -9,10 +9,10 @@ to limit token transferability for different events.
 
 It is intended to be used as a base class for other token contracts.
 
-Over-writting transferableTokens(address holder, uint64 time) is the way to provide
-the specific logic for limitting token transferability for a holder over time.
+Overwriting transferableTokens(address holder, uint64 time) is the way to provide
+the specific logic for limiting token transferability for a holder over time.
 
-LimitedTransferToken has been designed to allow for different limitting factors,
+LimitedTransferToken has been designed to allow for different limiting factors,
 this can be achieved by recursively calling super.transferableTokens() until the
 base class is hit. For example:
 
