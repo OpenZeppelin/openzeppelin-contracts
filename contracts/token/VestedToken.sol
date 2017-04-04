@@ -2,9 +2,9 @@ pragma solidity ^0.4.8;
 
 
 import "./StandardToken.sol";
-import "./TransferableToken.sol";
+import "./LimitedTransferToken.sol";
 
-contract VestedToken is StandardToken, TransferableToken {
+contract VestedToken is StandardToken, LimitedTransferToken {
   struct TokenGrant {
     address granter;
     uint256 value;

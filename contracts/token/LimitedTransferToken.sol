@@ -4,7 +4,7 @@ import "./ERC20.sol";
 
 /*
 
-TransferableToken defines the generic interface and the implementation
+LimitedTransferToken defines the generic interface and the implementation
 to limit token transferability for different events.
 
 It is intended to be used as a base class for other token contracts.
@@ -12,7 +12,7 @@ It is intended to be used as a base class for other token contracts.
 Over-writting transferableTokens(address holder, uint64 time) is the way to provide
 the specific logic for limitting token transferability for a holder over time.
 
-TransferableToken has been designed to allow for different limitting factors,
+LimitedTransferToken has been designed to allow for different limitting factors,
 this can be achieved by recursively calling super.transferableTokens() until the
 base class is hit. For example:
 
@@ -25,7 +25,7 @@ https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/contracts/token/Ve
 
 */
 
-contract TransferableToken is ERC20 {
+contract LimitedTransferToken is ERC20 {
   // Checks whether it can transfer or otherwise throws.
   modifier canTransfer(address _sender, uint _value) {
    if (_value > transferableTokens(_sender, uint64(now))) throw;
