@@ -94,7 +94,7 @@ contract VestedToken is StandardToken, LimitedTransferToken {
     if (time < cliff) {
       return 0;
     }
-    if (time > vesting) {
+    if (time >= vesting) {
       return tokens;
     }
 
@@ -103,7 +103,7 @@ contract VestedToken is StandardToken, LimitedTransferToken {
 
     uint256 vestingTokens = safeSub(tokens, cliffTokens);
 
-    vestedTokens = safeAdd(vestedTokens, safeDiv(safeMul(vestingTokens, safeSub(time, cliff)), safeSub(vesting, start)));
+    vestedTokens = safeAdd(vestedTokens, safeDiv(safeMul(vestingTokens, safeSub(time, cliff)), safeSub(vesting, cliff)));
   }
 
   function nonVestedTokens(TokenGrant grant, uint64 time) private constant returns (uint256) {
