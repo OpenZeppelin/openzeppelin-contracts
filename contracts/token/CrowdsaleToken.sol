@@ -16,7 +16,7 @@ contract CrowdsaleToken is StandardToken {
   uint public decimals = 18;
 
   // 1 ether = 500 example tokens 
-  uint PRICE = 500;
+  uint internal PRICE = 500;
 
   function () payable {
     createTokens(msg.sender);
