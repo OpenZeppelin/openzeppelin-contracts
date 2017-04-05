@@ -1,7 +1,6 @@
 pragma solidity ^0.4.8;
 
 
-import './Ownable.sol';
 import './Claimable.sol';
 
 
@@ -9,7 +8,7 @@ import './Claimable.sol';
  * DelayedClaimable
  * Extension for the Claimable contract, where the ownership needs to be claimed before/after certain block number
  */
-contract DelayedClaimable is Ownable, Claimable {
+contract DelayedClaimable is Claimable {
 
   uint public end;
   uint public start;
