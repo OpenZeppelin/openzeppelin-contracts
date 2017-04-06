@@ -8,15 +8,20 @@ import "./StandardToken.sol";
  * CrowdsaleToken
  *
  * Simple ERC20 Token example, with crowdsale token creation
+ * IMPORTANT NOTE: do not use or deploy this contract as-is.
+ * It needs some changes to be production ready.
  */
 contract CrowdsaleToken is StandardToken {
 
-  string public name = "CrowdsaleToken";
-  string public symbol = "CRW";
-  uint public decimals = 18;
+  string public constant name = "CrowdsaleToken";
+  string public constant symbol = "CRW";
+  uint public constant decimals = 18;
+  // replace with your fund collection multisig address 
+  address public constant multisig = 0x0; 
+
 
   // 1 ether = 500 example tokens 
-  uint internal PRICE = 500;
+  uint public price = 500;
 
   function () payable {
     createTokens(msg.sender);
@@ -27,14 +32,13 @@ contract CrowdsaleToken is StandardToken {
       throw;
     }
 
-    uint tokens = safeMul(msg.value, getPrice());
-
+    uint tokens = safeMul(msg.value, price);
     totalSupply = safeAdd(totalSupply, tokens);
+
     balances[recipient] = safeAdd(balances[recipient], tokens);
-  }
-  
-  // replace this with any other price function
-  function getPrice() constant returns (uint result) {
-    return PRICE;
+
+    if (!multisig.send(msg.value)) {
+      throw;
+    }
   }
 }

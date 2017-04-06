@@ -64,6 +64,9 @@ contract Shareable {
       ownerIndex[_owners[i]] = 2 + i;
     }
     required = _required;
+    if (required > owners.length) {
+      throw;
+    }
   }
 
   // Revokes a prior confirmation of the given operation
@@ -105,12 +108,13 @@ contract Shareable {
     return !(pending.ownersDone & ownerIndexBit == 0);
   }
 
+  // returns true when operation can be executed
   function confirmAndCheck(bytes32 _operation) internal returns (bool) {
     // determine what index the present sender is:
     uint index = ownerIndex[msg.sender];
     // make sure they're an owner
     if (index == 0) {
-      return;
+      throw;
     }
 
     var pending = pendings[_operation];
@@ -140,6 +144,7 @@ contract Shareable {
         pending.ownersDone |= ownerIndexBit;
       }
     }
+    return false;
   }
 
   function clearPending() internal {

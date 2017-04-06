@@ -1,17 +1,20 @@
 pragma solidity ^0.4.8;
 
 
+import '../SafeMath.sol';
+
+
 /*
  * PullPayment
  * Base contract supporting async send for pull payments.
  * Inherit from this contract and use asyncSend instead of send.
  */
-contract PullPayment {
+contract PullPayment is SafeMath {
   mapping(address => uint) public payments;
 
   // store sent amount as credit to be pulled, called by payer
   function asyncSend(address dest, uint amount) internal {
-    payments[dest] += amount;
+    payments[dest] = safeAdd(payments[dest], amount);
   }
 
   // withdraw accumulated balance, called by payee
