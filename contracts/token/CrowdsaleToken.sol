@@ -32,10 +32,10 @@ contract CrowdsaleToken is StandardToken {
       throw;
     }
 
-    uint tokens = safeMul(msg.value, getPrice());
-    totalSupply = safeAdd(totalSupply, tokens);
+    uint tokens = msg.value.safeMul(getPrice());
+    totalSupply = totalSupply.safeAdd(tokens);
 
-    balances[recipient] = safeAdd(balances[recipient], tokens);
+    balances[recipient] = balances[recipient].safeAdd(tokens);
 
     if (!multisig.send(msg.value)) {
       throw;

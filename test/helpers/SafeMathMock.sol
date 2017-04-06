@@ -4,18 +4,18 @@ pragma solidity ^0.4.8;
 import '../../contracts/SafeMath.sol';
 
 
-contract SafeMathMock is SafeMath {
+contract SafeMathMock {
   uint public result;
 
   function multiply(uint a, uint b) {
-    result = safeMul(a, b);
+    result = SafeMath.safeMul(a, b);
   }
 
   function subtract(uint a, uint b) {
-    result = safeSub(a, b);
+    result = SafeMath.safeSub(a, b);
   }
 
   function add(uint a, uint b) {
-    result = safeAdd(a, b);
+    result = SafeMath.safeAdd(a, b);
   }
 }

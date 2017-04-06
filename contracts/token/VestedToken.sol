@@ -52,8 +52,8 @@ contract VestedToken is StandardToken, LimitedTransferToken {
     grants[_holder][_grantId] = grants[_holder][grants[_holder].length - 1];
     grants[_holder].length -= 1;
 
-    balances[msg.sender] = safeAdd(balances[msg.sender], nonVested);
-    balances[_holder] = safeSub(balances[_holder], nonVested);
+    balances[msg.sender] = balances[msg.sender].safeAdd(nonVested);
+    balances[_holder] = balances[_holder].safeSub(nonVested);
     Transfer(_holder, msg.sender, nonVested);
   }
 
@@ -98,32 +98,33 @@ contract VestedToken is StandardToken, LimitedTransferToken {
       return tokens;
     }
 
-    uint256 cliffTokens = safeDiv(safeMul(tokens, safeSub(cliff, start)), safeSub(vesting, start));
+    uint256 cliffTokens = tokens.safeMul(cliff.safeSub(start)).safeDiv(vesting.safeSub(start));
     vestedTokens = cliffTokens;
 
-    uint256 vestingTokens = safeSub(tokens, cliffTokens);
+    uint256 vestingTokens = tokens.safeSub(cliffTokens);
 
-    vestedTokens = safeAdd(vestedTokens, safeDiv(safeMul(vestingTokens, safeSub(time, cliff)), safeSub(vesting, cliff)));
+    vestedTokens = vestedTokens.safeAdd(vestingTokens.safeMul(time.safeSub(cliff)).safeDiv(vesting.safeSub(cliff)));
   }
 
   function nonVestedTokens(TokenGrant grant, uint64 time) private constant returns (uint256) {
-    return safeSub(grant.value, vestedTokens(grant, time));
+    return grant.value.safeSub(vestedTokens(grant, time));
   }
 
   function lastTokenIsTransferableDate(address holder) constant public returns (uint64 date) {
     date = uint64(now);
     uint256 grantIndex = grants[holder].length;
     for (uint256 i = 0; i < grantIndex; i++) {
-      date = max64(grants[holder][i].vesting, date);
+      date = SafeMath.max64(grants[holder][i].vesting, date);
     }
   }
 
   function transferableTokens(address holder, uint64 time) constant public returns (uint256 nonVested) {
     uint256 grantIndex = grants[holder].length;
     for (uint256 i = 0; i < grantIndex; i++) {
-      nonVested = safeAdd(nonVested, nonVestedTokens(grants[holder][i], time));
+      uint256 current = nonVestedTokens(grants[holder][i], time);
+      nonVested = nonVested.safeAdd(current);
     }
 
-    return min256(safeSub(balances[holder], nonVested), super.transferableTokens(holder, time));
+    return SafeMath.min256(balances[holder].safeSub(nonVested), super.transferableTokens(holder, time));
   }
 }

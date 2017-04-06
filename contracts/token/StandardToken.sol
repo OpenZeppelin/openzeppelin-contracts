@@ -22,9 +22,9 @@ contract StandardToken is BasicToken, ERC20 {
     // Check is not needed because safeSub(_allowance, _value) will already throw if this condition is not met
     // if (_value > _allowance) throw;
 
-    balances[_to] = safeAdd(balances[_to], _value);
-    balances[_from] = safeSub(balances[_from], _value);
-    allowed[_from][msg.sender] = safeSub(_allowance, _value);
+    balances[_to] = balances[_to].safeAdd(_value);
+    balances[_from] = balances[_from].safeSub(_value);
+    allowed[_from][msg.sender] = _allowance.safeSub(_value);
     Transfer(_from, _to, _value);
   }
 
