@@ -1,11 +1,11 @@
-Killable
+Destructible
 =============================================
 
-Base contract that can be killed by owner.
+Base contract that can be destroyed by owner.
 
 Inherits from contract Ownable.
 
-kill( ) onlyOwner
+destroy( ) onlyOwner
 """""""""""""""""""
 
 Destroys the contract and sends funds back to the owner.

@@ -31,7 +31,7 @@ contract('Bounty', function(accounts) {
     assert.equal(reward, web3.eth.getBalance(bounty.address).toNumber());
   });
 
-  it('empties itself when killed', async function(){
+  it('empties itself when destroyed', async function(){
     let owner = accounts[0];
     let reward = web3.toWei(1, 'ether');
     let bounty = await SecureTargetBounty.new();
@@ -39,7 +39,7 @@ contract('Bounty', function(accounts) {
 
     assert.equal(reward, web3.eth.getBalance(bounty.address).toNumber());
 
-    await bounty.kill();
+    await bounty.destroy();
     assert.equal(0, web3.eth.getBalance(bounty.address).toNumber());
   });
 

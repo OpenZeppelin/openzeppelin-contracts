@@ -22,11 +22,11 @@ contract('MultisigWallet', function(accounts) {
     let walletBalance = web3.eth.getBalance(wallet.address);
     let hash = 1234;
 
-    //Call kill function from two different owner accounts, satisfying owners required
-    await wallet.kill(accounts[0], {data: hash});
-    let txnHash = await wallet.kill(accounts[0], {from: accounts[1], data: hash});
+    //Call destroy function from two different owner accounts, satisfying owners required
+    await wallet.destroy(accounts[0], {data: hash});
+    let txnHash = await wallet.destroy(accounts[0], {from: accounts[1], data: hash});
 
-    //Get balances of owner and wallet after kill function is complete, compare with previous values
+    //Get balances of owner and wallet after destroy function is complete, compare with previous values
     let newOwnerBalance = web3.eth.getBalance(accounts[0]);
     let newWalletBalance = web3.eth.getBalance(wallet.address);
 
