@@ -24,8 +24,8 @@ contract MultisigWallet is Multisig, Shareable, DayLimit {
     Shareable(_owners, _required)        
     DayLimit(_daylimit) { }
 
-  // kills the contract sending everything to `_to`.
-  function kill(address _to) onlymanyowners(keccak256(msg.data)) external {
+  // destroys the contract sending everything to `_to`.
+  function destroy(address _to) onlymanyowners(keccak256(msg.data)) external {
     selfdestruct(_to);
   }
 

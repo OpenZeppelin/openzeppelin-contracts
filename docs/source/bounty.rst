@@ -55,6 +55,6 @@ If researchers break the contract, they can claim their reward.
 
 For each researcher who wants to hack the contract and claims the reward, refer to our `Test <https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/test/Bounty.js/>`_ for the detail.
 
-Finally, if you manage to protect your contract from security researchers, you can reclaim the bounty funds. To end the bounty, kill the contract so that all the rewards go back to the owner.::
+Finally, if you manage to protect your contract from security researchers, you can reclaim the bounty funds. To end the bounty, destroy the contract so that all the rewards go back to the owner.::
 
-	bounty.kill();
+	bounty.destroy();
