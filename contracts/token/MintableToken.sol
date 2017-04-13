@@ -18,6 +18,7 @@ import '../ownership/Ownable.sol';
 
 contract MintableToken is StandardToken, Ownable {
   event Mint(address indexed to, uint value);
+  event MintFinished();
 
   bool public mintingFinished = false;
   uint public totalSupply = 0;
@@ -36,6 +37,7 @@ contract MintableToken is StandardToken, Ownable {
 
   function finishMinting() onlyOwner returns (bool) {
     mintingFinished = true;
+    MintFinished();
     return true;
   }
 }
