@@ -17,8 +17,8 @@ contract PullPayment {
 
   // store sent amount as credit to be pulled, called by payer
   function asyncSend(address dest, uint amount) internal {
-    payments[dest] = payments[dest].safeAdd(amount);
-    totalPayments = totalPayments.safeAdd(amount);
+    payments[dest] = payments[dest].add(amount);
+    totalPayments = totalPayments.add(amount);
   }
 
   // withdraw accumulated balance, called by payee
@@ -34,7 +34,7 @@ contract PullPayment {
       throw;
     }
 
-    totalPayments = totalPayments.safeSub(payment);
+    totalPayments = totalPayments.sub(payment);
     payments[payee] = 0;
 
     if (!payee.send(payment)) {

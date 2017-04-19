@@ -52,8 +52,8 @@ contract VestedToken is StandardToken, LimitedTransferToken {
     grants[_holder][_grantId] = grants[_holder][grants[_holder].length - 1];
     grants[_holder].length -= 1;
 
-    balances[msg.sender] = balances[msg.sender].safeAdd(nonVested);
-    balances[_holder] = balances[_holder].safeSub(nonVested);
+    balances[msg.sender] = balances[msg.sender].add(nonVested);
+    balances[_holder] = balances[_holder].sub(nonVested);
     Transfer(_holder, msg.sender, nonVested);
   }
 
@@ -98,16 +98,16 @@ contract VestedToken is StandardToken, LimitedTransferToken {
       return tokens;
     }
 
-    uint256 cliffTokens = tokens.safeMul(cliff.safeSub(start)).safeDiv(vesting.safeSub(start));
+    uint256 cliffTokens = tokens.mul(cliff.sub(start)).div(vesting.sub(start));
     vestedTokens = cliffTokens;
 
-    uint256 vestingTokens = tokens.safeSub(cliffTokens);
+    uint256 vestingTokens = tokens.sub(cliffTokens);
 
-    vestedTokens = vestedTokens.safeAdd(vestingTokens.safeMul(time.safeSub(cliff)).safeDiv(vesting.safeSub(cliff)));
+    vestedTokens = vestedTokens.add(vestingTokens.mul(time.sub(cliff)).div(vesting.sub(cliff)));
   }
 
   function nonVestedTokens(TokenGrant grant, uint64 time) private constant returns (uint256) {
-    return grant.value.safeSub(vestedTokens(grant, time));
+    return grant.value.sub(vestedTokens(grant, time));
   }
 
   function lastTokenIsTransferableDate(address holder) constant public returns (uint64 date) {
@@ -122,9 +122,9 @@ contract VestedToken is StandardToken, LimitedTransferToken {
     uint256 grantIndex = grants[holder].length;
     for (uint256 i = 0; i < grantIndex; i++) {
       uint256 current = nonVestedTokens(grants[holder][i], time);
-      nonVested = nonVested.safeAdd(current);
+      nonVested = nonVested.add(current);
     }
 
-    return SafeMath.min256(balances[holder].safeSub(nonVested), super.transferableTokens(holder, time));
+    return SafeMath.min256(balances[holder].sub(nonVested), super.transferableTokens(holder, time));
   }
 }

@@ -18,13 +18,15 @@ contract BasicToken is ERC20Basic {
  * Fix for the ERC20 short address attack  
  */
   modifier onlyPayloadSize(uint size) {
-     assert(msg.data.length >= size + 4);
+     if(msg.data.length < size + 4) {
+       throw;
+     }
      _;
   }
 
   function transfer(address _to, uint _value) onlyPayloadSize(2 * 32) {
-    balances[msg.sender] = balances[msg.sender].safeSub(_value);
-    balances[_to] = balances[_to].safeAdd(_value);
+    balances[msg.sender] = balances[msg.sender].sub(_value);
+    balances[_to] = balances[_to].add(_value);
     Transfer(msg.sender, _to, _value);
   }
 
