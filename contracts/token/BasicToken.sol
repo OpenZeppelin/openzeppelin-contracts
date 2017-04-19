@@ -14,9 +14,9 @@ contract BasicToken is ERC20Basic {
 
   mapping(address => uint) balances;
 
-/*
- * Fix for the ERC20 short address attack  
- */
+  /*
+   * Fix for the ERC20 short address attack  
+   */
   modifier onlyPayloadSize(uint size) {
      if(msg.data.length < size + 4) {
        throw;
