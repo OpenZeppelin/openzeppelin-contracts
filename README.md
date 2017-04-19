@@ -46,7 +46,7 @@ Building a distributed application, protocol or organization with OpenZeppelin?
 
 - Read documentation: http://zeppelin-solidity.readthedocs.io/en/latest/
 
-- Ask for help and follow progress at: https://zeppelin-slackin.herokuapp.com/
+- Ask for help and follow progress at: https://slack.openzeppelin.org/
 
 Interested in contributing to OpenZeppelin?
 
