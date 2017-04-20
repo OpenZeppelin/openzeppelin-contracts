@@ -21,7 +21,7 @@ contract CrowdsaleToken is StandardToken {
 
 
   // 1 ether = 500 example tokens 
-  uint public constant PRICE = 500;
+  uint public price = 500;
 
   function () payable {
     createTokens(msg.sender);
@@ -32,7 +32,7 @@ contract CrowdsaleToken is StandardToken {
       throw;
     }
 
-    uint tokens = safeMul(msg.value, getPrice());
+    uint tokens = safeMul(msg.value, price);
     totalSupply = safeAdd(totalSupply, tokens);
 
     balances[recipient] = safeAdd(balances[recipient], tokens);
@@ -40,10 +40,5 @@ contract CrowdsaleToken is StandardToken {
     if (!multisig.send(msg.value)) {
       throw;
     }
-  }
-  
-  // replace this with any other price function
-  function getPrice() constant returns (uint result) {
-    return PRICE;
   }
 }
