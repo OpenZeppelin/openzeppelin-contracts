@@ -1,11 +1,8 @@
 pragma solidity ^0.4.8;
 
 /*
- * DayLimit
- *
- * inheritable "property" contract that enables methods to be protected by placing a linear limit (specifiable)
- * on a particular resource per calendar day. is multiowned to allow the limit to be altered. resource that method
- * uses is specified in the modifier.
+ * @title DayLimit
+ * @dev Base contract that enables methods to be protected by placing a linear limit (specifiable) on a particular resource per calendar day. Is multiowned to allow the limit to be altered
  */
 contract DayLimit {
 
@@ -13,24 +10,35 @@ contract DayLimit {
   uint public spentToday;
   uint public lastDay;
 
-
+  /*
+   * @dev Constructor that sets the passed value as a dailyLimit
+   * @param _limit Uint to represent the daily limit.
+   */
   function DayLimit(uint _limit) {
     dailyLimit = _limit;
     lastDay = today();
   }
 
-  // sets the daily limit. doesn't alter the amount already spent today
+  /*
+   * @dev sets the daily limit. doesn't alter the amount already spent today
+   * @param _newLimit Uint to represent the new limit.
+   */
   function _setDailyLimit(uint _newLimit) internal {
     dailyLimit = _newLimit;
   }
 
-  // resets the amount already spent today.
+  /*
+   * @dev Resets the amount already spent today.
+   */
   function _resetSpentToday() internal {
     spentToday = 0;
   }
 
-  // checks to see if there is at least `_value` left from the daily limit today. if there is, subtracts it and
-  // returns true. otherwise just returns false.
+  /*
+   * @dev Checks to see if there is enough resource to spend today. If true, the resource is expended.
+   * @param _value Uint representing the amout of resurce to spend.
+   * @return Boolean. True if the resource was spended and false otherwise.
+   */
   function underLimit(uint _value) internal returns (bool) {
     // reset the spend limit if we're on a different day to last time.
     if (today() > lastDay) {
@@ -46,13 +54,17 @@ contract DayLimit {
     return false;
   }
 
-  // determines today's index.
+  /*
+   * @dev Private function to determine today index
+   * @return Uint of todays index.
+   */
   function today() private constant returns (uint) {
     return now / 1 days;
   }
 
-
-  // simple modifier for daily limit.
+  /*
+   * @dev Simple modifier for daily limit.
+   */
   modifier limitedDaily(uint _value) {
     if (!underLimit(_value)) {
       throw;

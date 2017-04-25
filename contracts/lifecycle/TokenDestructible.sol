@@ -6,7 +6,7 @@ import "../token/ERC20Basic.sol";
 
 /// @title TokenDestructible:
 /// @author Remco Bloemen <remco@2π.com>
-///.Base contract that can be destroyed by owner. All funds in contract including
+/// @dev Base contract that can be destroyed by owner. All funds in contract including
 /// listed tokens will be sent to the owner
 contract TokenDestructible is Ownable {
 
