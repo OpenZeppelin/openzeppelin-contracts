@@ -11,7 +11,7 @@ contract LimitBalance {
 
   uint public limit;
 
-  /*
+  /**
    * @dev Constructor that sets the passed value as a limit
    * @param _limit Uint to represent the limit.
    */
@@ -19,7 +19,7 @@ contract LimitBalance {
     limit = _limit;
   }
 
-  /*
+  /**
    * @dev Checks if limit was reached. Case true, it throws.
    */
   modifier limitedPayable() {

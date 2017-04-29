@@ -5,7 +5,7 @@ import './payment/PullPayment.sol';
 import './lifecycle/Destructible.sol';
 
 
-/*
+/**
  * @title Bounty
  * @dev This bounty will pay out to a researcher if they break invariant logic of the contract.
  */
@@ -15,7 +15,7 @@ contract Bounty is PullPayment, Destructible {
 
   event TargetCreated(address createdAddress);
 
-  /*
+  /**
    * @dev Function that allows the contract to recieve funds, if it hasn't been claimed.
    */
   function() payable {
@@ -24,7 +24,7 @@ contract Bounty is PullPayment, Destructible {
     }
   }
 
-  /*
+  /**
    * @dev Create and deploy the target contract(extension of Target contract), and sets the msg.sender as a researcher
    * @return A target contract
    */
@@ -35,13 +35,13 @@ contract Bounty is PullPayment, Destructible {
     return target;
   }
 
-  /*
+  /**
    * @dev Internal function to deploy the target contract.
    * @return A target contract address
    */
   function deployContract() internal returns(address);
 
-  /*
+  /**
    * @dev Sends the contract funds to the researcher that proved the contract is broken.
    * @param Target contract
    */
@@ -61,14 +61,13 @@ contract Bounty is PullPayment, Destructible {
 }
 
 
-/*
+/**
  * @title Target
- *
  * @dev Your main contract should inherit from this class and implement the checkInvariant method.
  */
 contract Target {
 
-   /*
+   /**
     * @dev Funtion tha should check everything your contract assumes to be true all the time. If this function returns false, it means your contract was broken in some way and is in an inconsistent state. This is what security researchers will try to acomplish when trying to get the bounty.
     * @return A boolean that indicates if the contract is broken or not.
     */
