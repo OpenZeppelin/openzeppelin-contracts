@@ -1,17 +1,14 @@
 pragma solidity ^0.4.8;
 
 
-/*
- * Shareable
+/**
+ * @title Shareable
+ * @dev inheritable "property" contract that enables methods to be protected by requiring the acquiescence of either a single, or, crucially, each of a number of, designated owners.
  *
- * Based on https://github.com/ethereum/dapp-bin/blob/master/wallet/wallet.sol
- *
- * inheritable "property" contract that enables methods to be protected by requiring the acquiescence of either a single, or, crucially, each of a number of, designated owners.
- *
- * usage:
- * use modifiers onlyowner (just own owned) or onlymanyowners(hash), whereby the same hash must be provided by some number (specified in constructor) of the set of owners (specified in the constructor) before the interior is executed.
+ * @dev Usage: use modifiers onlyowner (just own owned) or onlymanyowners(hash), whereby the same hash must be provided by some number (specified in constructor) of the set of owners (specified in the constructor) before the interior is executed.
  */
 contract Shareable {
+
   // struct for the status of a pending operation.
   struct PendingState {
     uint yetNeeded;
@@ -54,8 +51,11 @@ contract Shareable {
     }
   }
 
-  // constructor is given number of sigs required to do protected "onlymanyowners" transactions
-  // as well as the selection of addresses capable of confirming them.
+  /** @dev Constructor is given number of sigs required to do protected "onlymanyowners" transactions
+  * as well as the selection of addresses capable of confirming them.
+  * @param _owners address[] A list of owners
+  * @param _required Uint The amout required for a transaction to be approved.
+  */
   function Shareable(address[] _owners, uint _required) {
     owners[1] = msg.sender;
     ownerIndex[msg.sender] = 1;
@@ -69,7 +69,10 @@ contract Shareable {
     }
   }
 
-  // Revokes a prior confirmation of the given operation
+  /**
+  * @dev Revokes a prior confirmation of the given operation
+  * @param _operation bytes32 A string the identfies the operation.
+  */
   function revoke(bytes32 _operation) external {
     uint index = ownerIndex[msg.sender];
     // make sure they're an owner
@@ -85,15 +88,30 @@ contract Shareable {
     }
   }
 
-  // Gets an owner by 0-indexed position (using numOwners as the count)
+  /**
+  * @dev Gets an owner by 0-indexed position (using numOwners as the count)
+  * @param ownerIndex Uint The index of the owner
+  * @return The address of the owner
+  */
   function getOwner(uint ownerIndex) external constant returns (address) {
     return address(owners[ownerIndex + 1]);
   }
 
+  /**
+  * @dev Checks if given address is an owner.
+  * @param _addr address The address which you want to check.
+  * @return True if the address is an owner and fase otherwise.
+  */
   function isOwner(address _addr) constant returns (bool) {
     return ownerIndex[_addr] > 0;
   }
 
+  /**
+  * @dev Function to check is specific owner has already confirme the operation
+  * @param _operation bytes32 The operation identifier
+  * @param _owner address The owner address
+  * @return True if the owner has confirmed and flase otherwise
+  */
   function hasConfirmed(bytes32 _operation, address _owner) constant returns (bool) {
     var pending = pendings[_operation];
     uint index = ownerIndex[_owner];
@@ -108,7 +126,11 @@ contract Shareable {
     return !(pending.ownersDone & ownerIndexBit == 0);
   }
 
-  // returns true when operation can be executed
+  /**
+  * @dev Confirm and operation and checks if it's already executable
+  * @param _operation bytes32 The operation identifier
+  * @return returns true when operation can be executed
+  */
   function confirmAndCheck(bytes32 _operation) internal returns (bool) {
     // determine what index the present sender is:
     uint index = ownerIndex[msg.sender];
@@ -147,6 +169,10 @@ contract Shareable {
     return false;
   }
 
+
+  /**
+  * @dev Clear the pedings list.
+  */
   function clearPending() internal {
     uint length = pendingsIndex.length;
     for (uint i = 0; i < length; ++i) {
