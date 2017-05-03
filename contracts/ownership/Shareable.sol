@@ -56,17 +56,10 @@ contract Shareable {
 
   // constructor is given number of sigs required to do protected "onlyManyOwners" transactions
   // as well as the selection of addresses capable of confirming them.
-  function Shareable(address[] _owners, uint _required) {
+  function Shareable() {
     owners[1] = msg.sender;
     ownerIndex[msg.sender] = 1;
-    for (uint i = 0; i < _owners.length; ++i) {
-      owners[2 + i] = _owners[i];
-      ownerIndex[_owners[i]] = 2 + i;
-    }
-    required = _required;
-    if (required > owners.length) {
-      throw;
-    }
+    required = 1;
   }
 
   // Revokes a prior confirmation of the given operation
@@ -83,6 +76,39 @@ contract Shareable {
       pending.ownersDone -= ownerIndexBit;
       Revoke(msg.sender, _operation);
     }
+  }
+
+  function addOwner(address _owner) onlyManyOwners(sha3(msg.data)) external {
+      if (isOwner(_owner)) return;
+
+      clearPending();
+      if (m_numOwners >= c_maxOwners)
+          reorganizeOwners();
+      if (m_numOwners >= c_maxOwners)
+          return;
+      m_numOwners++;
+      m_owners[m_numOwners] = uint(_owner);
+      m_ownerIndex[uint(_owner)] = m_numOwners;
+      OwnerAdded(_owner);
+  }
+
+  function removeOwner(address _owner) onlyManyOwners(sha3(msg.data)) external {
+      uint ownerIndex = m_ownerIndex[uint(_owner)];
+      if (ownerIndex == 0) return;
+      if (m_required > m_numOwners - 1) return;
+
+      m_owners[ownerIndex] = 0;
+      m_ownerIndex[uint(_owner)] = 0;
+      clearPending();
+      reorganizeOwners(); //make sure m_numOwner is equal to the number of owners and always points to the optimal free slot
+      OwnerRemoved(_owner);
+  }
+
+  function changeRequirement(uint _newRequired) onlyManyOwners(sha3(msg.data)) external {
+      if (_newRequired > m_numOwners) return;
+      m_required = _newRequired;
+      clearPending();
+      RequirementChanged(_newRequired);
   }
 
   // Gets an owner by 0-indexed position (using numOwners as the count)
@@ -145,6 +171,21 @@ contract Shareable {
       }
     }
     return false;
+  }
+
+  function reorganizeOwners() private {
+      uint free = 1;
+      while (free < m_numOwners)
+      {
+          while (free < m_numOwners && m_owners[free] != 0) free++;
+          while (m_numOwners > 1 && m_owners[m_numOwners] == 0) m_numOwners--;
+          if (free < m_numOwners && m_owners[m_numOwners] != 0 && m_owners[free] == 0)
+          {
+              m_owners[free] = m_owners[m_numOwners];
+              m_ownerIndex[m_owners[free]] = free;
+              m_owners[m_numOwners] = 0;
+          }
+      }
   }
 
   function clearPending() internal {
