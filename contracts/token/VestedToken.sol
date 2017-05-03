@@ -4,7 +4,13 @@ pragma solidity ^0.4.8;
 import "./StandardToken.sol";
 import "./LimitedTransferToken.sol";
 
+/**
+* @title Vested token
+* @dev This tokens can be granted to a specific address after a determined
+amount of time.
+*/
 contract VestedToken is StandardToken, LimitedTransferToken {
+
   struct TokenGrant {
     address granter;
     uint256 value;
@@ -15,6 +21,14 @@ contract VestedToken is StandardToken, LimitedTransferToken {
 
   mapping (address => TokenGrant[]) public grants;
 
+  /**
+  * @dev Grant tokens to a specified address
+  * @param _to address The address which the tokens will be granted to.
+  * @param _value uint256 The amount of tokens to be granted.
+  * @param _start uint 64 The time of the begining of the grant.
+  * @param _cliff uint64 The time before the grant is enforceble.
+  * @param _vesting uint64 The time in which the tokens will be vested.
+  */
   function grantVestedTokens(
     address _to,
     uint256 _value,
@@ -39,6 +53,12 @@ contract VestedToken is StandardToken, LimitedTransferToken {
     transfer(_to, _value);
   }
 
+
+    /**
+    * @dev Revoke the grant of tokens of a specifed address.
+    * @param _holder address The address which will have its tokens revoked.
+    * @param _grantId uint The id of the token grant.
+    */
   function revokeTokenGrant(address _holder, uint _grantId) {
     TokenGrant grant = grants[_holder][_grantId];
 
@@ -57,10 +77,20 @@ contract VestedToken is StandardToken, LimitedTransferToken {
     Transfer(_holder, msg.sender, nonVested);
   }
 
+ /**
+ * @dev Check the amount of grants that an address has.
+ * @param _holder address The holder of the grants.
+ * @return A uint representing the index of the grant.
+ */
   function tokenGrantsCount(address _holder) constant returns (uint index) {
     return grants[_holder].length;
   }
 
+  /**
+  * @dev 
+  * @param _holder address The address which will have its tokens revoked.
+  * @param _grantId uint The id of the token grant.
+  */
   function tokenGrant(address _holder, uint _grantId) constant returns (address granter, uint256 value, uint256 vested, uint64 start, uint64 cliff, uint64 vesting) {
     TokenGrant grant = grants[_holder][_grantId];
 

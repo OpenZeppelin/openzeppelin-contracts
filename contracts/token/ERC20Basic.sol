@@ -1,10 +1,10 @@
 pragma solidity ^0.4.8;
 
 
-/*
- * ERC20Basic
- * Simpler version of ERC20 interface
- * see https://github.com/ethereum/EIPs/issues/20
+/**
+ * @title ERC20Basic
+ * @dev Simpler version of ERC20 interface
+ * @dev see https://github.com/ethereum/EIPs/issues/20
  */
 contract ERC20Basic {
   uint public totalSupply;
