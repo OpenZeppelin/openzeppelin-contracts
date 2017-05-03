@@ -86,8 +86,8 @@ contract Shareable {
   }
 
   // Gets an owner by 0-indexed position (using numOwners as the count)
-  function getOwner(uint ownerIndex) external constant returns (address) {
-    return address(owners[ownerIndex + 1]);
+  function getOwner(uint _ownerIndex) external constant returns (address) {
+    return address(owners[_ownerIndex + 1]);
   }
 
   function isOwner(address _addr) constant returns (bool) {
