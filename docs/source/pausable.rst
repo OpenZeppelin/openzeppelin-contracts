@@ -1,26 +1,27 @@
 Pausable
 =============================================
 
-Base contract that provides an emergency stop mechanism.
+Base contract that provides a pause mechanism.
 
 Inherits from contract Ownable.
 
-emergencyStop( ) external onlyOwner
+pause() onlyOwner whenNotPaused returns (bool)
 """""""""""""""""""""""""""""""""""""
 
-Triggers the stop mechanism on the contract. After this function is called (by the owner of the contract), any function with modifier stopInEmergency will not run.
+Triggers pause mechanism on the contract. After this function is called (by the owner of the contract), any function with modifier whenNotPaused will not run.
 
-modifier stopInEmergency
+
+modifier whenNotPaused()
 """""""""""""""""""""""""""""""""""""
 
-Prevents function from running if stop mechanism is activated.
+Prevents function from running if pause mechanism is activated.
 
-modifier onlyInEmergency
+modifier whenPaused()
 """""""""""""""""""""""""""""""""""""
 
-Only runs if stop mechanism is activated.
+Only runs if pause mechanism is activated.
 
-release( ) external onlyOwner onlyInEmergency
+unpause() onlyOwner whenPaused returns (bool)
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-Deactivates the stop mechanism.
+Deactivates the pause mechanism.
