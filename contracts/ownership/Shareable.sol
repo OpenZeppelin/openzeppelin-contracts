@@ -9,7 +9,7 @@ pragma solidity ^0.4.8;
  * inheritable "property" contract that enables methods to be protected by requiring the acquiescence of either a single, or, crucially, each of a number of, designated owners.
  *
  * usage:
- * use modifiers onlyowner (just own owned) or onlymanyowners(hash), whereby the same hash must be provided by some number (specified in constructor) of the set of owners (specified in the constructor) before the interior is executed.
+ * use modifiers onlyOwner (just own owned) or onlyManyOwners(hash), whereby the same hash must be provided by some number (specified in constructor) of the set of owners (specified in the constructor) before the interior is executed.
  */
 contract Shareable {
   // struct for the status of a pending operation.
@@ -48,13 +48,13 @@ contract Shareable {
   // multi-sig function modifier: the operation must have an intrinsic hash in order
   // that later attempts can be realised as the same underlying operation and
   // thus count as confirmations.
-  modifier onlymanyowners(bytes32 _operation) {
+  modifier onlyManyOwners(bytes32 _operation) {
     if (confirmAndCheck(_operation)) {
       _;
     }
   }
 
-  // constructor is given number of sigs required to do protected "onlymanyowners" transactions
+  // constructor is given number of sigs required to do protected "onlyManyOwners" transactions
   // as well as the selection of addresses capable of confirming them.
   function Shareable(address[] _owners, uint _required) {
     owners[1] = msg.sender;
