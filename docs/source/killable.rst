@@ -9,3 +9,8 @@ destroy( ) onlyOwner
 """""""""""""""""""
 
 Destroys the contract and sends funds back to the owner.
+
+destroyAndSendRecepient(address _recipient) onlyOwner
+"""""""""""""""""""
+
+Destroys the contract and sends funds back to the _recepient.
