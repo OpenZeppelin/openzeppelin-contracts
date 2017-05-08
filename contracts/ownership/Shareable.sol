@@ -44,9 +44,8 @@ contract Shareable {
   
   /** 
    * @dev Modifier for multisig functions. 
-   * @param _operation The operation must have an intrinsic hash in order
-   * that later attempts can be realised as the same underlying operation and
-   * thus count as confirmations.
+   * @param _operation The operation must have an intrinsic hash in order that later attempts can be
+   * realised as the same underlying operation and thus count as confirmations.
    */
   modifier onlymanyowners(bytes32 _operation) {
     if (confirmAndCheck(_operation)) {
@@ -59,6 +58,7 @@ contract Shareable {
    * transactions as well as the selection of addresses capable of confirming them.
    * @param _owners A list of owners.
    * @param _required The amount required for a transaction to be approved.
+   * @param _limit Uint to represent the daily limit.
    */
   function Shareable(address[] _owners, uint _required) {
     owners[1] = msg.sender;
@@ -74,8 +74,8 @@ contract Shareable {
   }
 
   /**
-   * @dev Revokes a prior confirmation of the given operation
-   * @param _operation bytes32 A string the identfies the operation.
+   * @dev Revokes a prior confirmation of the given operation.
+   * @param _operation A string identifying the operation.
    */
   function revoke(bytes32 _operation) external {
     uint index = ownerIndex[msg.sender];

@@ -16,7 +16,7 @@ contract Bounty is PullPayment, Destructible {
   event TargetCreated(address createdAddress);
 
   /**
-   * @dev Function that allows the contract to recieve funds, if it hasn't been claimed.
+   * @dev Fallback function allowing the contract to recieve funds, if they haven't already been claimed.
    */
   function() payable {
     if (claimed) {
@@ -25,7 +25,8 @@ contract Bounty is PullPayment, Destructible {
   }
 
   /**
-   * @dev Create and deploy the target contract(extension of Target contract), and sets the msg.sender as a researcher
+   * @dev Create and deploy the target contract (extension of Target contract), and sets the 
+   * msg.sender as a researcher
    * @return A target contract
    */
   function createTarget() returns(Target) {
@@ -68,8 +69,10 @@ contract Bounty is PullPayment, Destructible {
 contract Target {
 
    /**
-    * @dev Funtion tha should check everything your contract assumes to be true all the time. If this function returns false, it means your contract was broken in some way and is in an inconsistent state. This is what security researchers will try to acomplish when trying to get the bounty.
-    * @return A boolean that indicates if the contract is broken or not.
+    * @dev Checks all values a contract assumes to be true all the time. If this function returns 
+    * false, the contract is broken in some way and is in an inconsistent state. 
+    * In order to win the bounty, security researchers will try to cause this broken state. 
+    * @return True if all invariant values are correct, false otherwise. 
     */
   function checkInvariant() returns(bool);
 }

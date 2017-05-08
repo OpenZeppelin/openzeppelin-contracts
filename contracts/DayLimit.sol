@@ -2,7 +2,8 @@ pragma solidity ^0.4.8;
 
 /**
  * @title DayLimit
- * @dev Base contract that enables methods to be protected by placing a linear limit (specifiable) on a particular resource per calendar day. Is multiowned to allow the limit to be altered
+ * @dev Base contract that enables methods to be protected by placing a linear limit (specifiable)
+ * on a particular resource per calendar day. Is multiowned to allow the limit to be altered.
  */
 contract DayLimit {
 
@@ -11,7 +12,7 @@ contract DayLimit {
   uint public lastDay;
 
   /**
-   * @dev Constructor that sets the passed value as a dailyLimit
+   * @dev Constructor that sets the passed value as a dailyLimit.
    * @param _limit Uint to represent the daily limit.
    */
   function DayLimit(uint _limit) {
@@ -20,7 +21,7 @@ contract DayLimit {
   }
 
   /**
-   * @dev sets the daily limit. doesn't alter the amount already spent today
+   * @dev sets the daily limit. Does not alter the amount already spent today.
    * @param _newLimit Uint to represent the new limit.
    */
   function _setDailyLimit(uint _newLimit) internal {
@@ -35,8 +36,8 @@ contract DayLimit {
   }
 
   /**
-   * @dev Checks to see if there is enough resource to spend today. If true, the resource is expended.
-   * @param _value Uint representing the amout of resurce to spend.
+   * @dev Checks to see if there is enough resource to spend today. If true, the resource may be expended.
+   * @param _value Uint representing the amount of resource to spend.
    * @return A boolean that is True if the resource was spended and false otherwise.
    */
   function underLimit(uint _value) internal returns (bool) {
@@ -55,8 +56,8 @@ contract DayLimit {
   }
 
   /**
-   * @dev Private function to determine today index
-   * @return Uint of todays index.
+   * @dev Private function to determine today's index
+   * @return Uint of today's index.
    */
   function today() private constant returns (uint) {
     return now / 1 days;

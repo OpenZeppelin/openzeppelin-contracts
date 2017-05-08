@@ -7,7 +7,7 @@ import '../SafeMath.sol';
 
 /**
  * @title Basic token
- * @dev Basic version of StandardToken, with no allowances
+ * @dev Basic version of StandardToken, with no allowances. 
  */
 contract BasicToken is ERC20Basic {
   using SafeMath for uint;
@@ -15,7 +15,7 @@ contract BasicToken is ERC20Basic {
   mapping(address => uint) balances;
 
   /**
-   * @dev Fix for the ERC20 short address attack
+   * @dev Fix for the ERC20 short address attack.
    */
   modifier onlyPayloadSize(uint size) {
      if(msg.data.length < size + 4) {
@@ -26,8 +26,8 @@ contract BasicToken is ERC20Basic {
 
   /**
   * @dev transfer token for a specified address
-  * @param _to address The address which you want to transfer to
-  * @param _value uint the amout to be transfered
+  * @param _to The address to transfer to.
+  * @param _value The amount to be transferred.
   */
   function transfer(address _to, uint _value) onlyPayloadSize(2 * 32) {
     balances[msg.sender] = balances[msg.sender].sub(_value);
@@ -36,9 +36,9 @@ contract BasicToken is ERC20Basic {
   }
 
   /**
-  * @dev Function to get the balance of the specified address
-  * @param _owner address The address you wish to get the balance from
-  * @return An uint representing the amout owned by the passed address
+  * @dev Gets the balance of the specified address.
+  * @param _owner The address to query the the balance of. 
+  * @return An uint representing the amount owned by the passed address.
   */
   function balanceOf(address _owner) constant returns (uint balance) {
     return balances[_owner];

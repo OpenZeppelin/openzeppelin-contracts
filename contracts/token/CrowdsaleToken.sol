@@ -4,12 +4,12 @@ pragma solidity ^0.4.8;
 import "./StandardToken.sol";
 
 
-/*
+/**
  * @title CrowdsaleToken
  *
  * @dev Simple ERC20 Token example, with crowdsale token creation
- * @dev IMPORTANT NOTE: do not use or deploy this contract as-is. It
- needs some changes to be production ready.
+ * @dev IMPORTANT NOTE: do not use or deploy this contract as-is. It needs some changes to be 
+ * production ready.
  */
 contract CrowdsaleToken is StandardToken {
 
@@ -24,17 +24,17 @@ contract CrowdsaleToken is StandardToken {
   uint public constant PRICE = 500;
 
   /**
-  * @dev A function that recieves ether and send the equivalent amount of
-  the token to the msg.sender
-  */
+   * @dev Fallback function which receives ether and sends the appropriate number of tokens to the 
+   * msg.sender.
+   */
   function () payable {
     createTokens(msg.sender);
   }
 
   /**
-  * @dev Function to create tokens and send to the specified address
-  * @param recipient address The address which will recieve the new tokens.
-  */
+   * @dev Creates tokens and send to the specified address.
+   * @param recipient The address which will recieve the new tokens.
+   */
   function createTokens(address recipient) payable {
     if (msg.value == 0) {
       throw;
@@ -51,9 +51,9 @@ contract CrowdsaleToken is StandardToken {
   }
 
   /**
-  * @dev replace this with any other price function
-  * @return The price per unit of token. 
-  */
+   * @dev replace this with any other price function
+   * @return The price per unit of token. 
+   */
   function getPrice() constant returns (uint result) {
     return PRICE;
   }
