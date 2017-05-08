@@ -6,7 +6,7 @@ import "../ownership/Ownable.sol";
 
 /**
  * @title Pausable
- * @dev Abstract contract that allows children to implement an emergency stop mechanism.
+ * @dev Base contract which allows children to implement an emergency stop mechanism.
  */
 contract Pausable is Ownable {
   event Pause();

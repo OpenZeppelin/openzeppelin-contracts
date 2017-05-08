@@ -3,9 +3,8 @@ pragma solidity ^0.4.8;
 
 /**
  * @title Ownable
- *
  * @dev The Ownable contract has an owner address, and provides basic authorization control 
- * functions, this simplifies the implementation of "user permissions".
+ * functions, this simplifies the implementation of "user permissions". 
  */
 contract Ownable {
   address public owner;
@@ -21,7 +20,7 @@ contract Ownable {
 
 
   /**
-   * @dev The onlyOwner modifier throws if called by any account other than the owner. 
+   * @dev Throws if called by any account other than the owner. 
    */
   modifier onlyOwner() {
     if (msg.sender != owner) {
@@ -32,8 +31,7 @@ contract Ownable {
 
 
   /**
-   * @dev The transferOwnership function allows the current owner to transfer control of the 
-   * contract to a newOwner.
+   * @dev Allows the current owner to transfer control of the contract to a newOwner.
    * @param newOwner The address to transfer ownership to. 
    */
   function transferOwnership(address newOwner) onlyOwner {

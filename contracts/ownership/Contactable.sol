@@ -12,12 +12,10 @@ contract Contactable is Ownable{
     string public contactInformation;
 
     /**
-     * @dev The setContactInformation() function allows the current owner to transfer control of the 
-     * contract to a newOwner.
-     * @param newOwner The address to transfer ownership to. 
+     * @dev Allows the owner to set a string with their contact information.
+     * @param info The contact information to attach to the contract.
      */
     function setContactInformation(string info) onlyOwner{
          contactInformation = info;
      }
-
 }

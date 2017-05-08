@@ -11,7 +11,7 @@ import "../ownership/Ownable.sol";
 contract Destructible is Ownable {
 
   /**
-   *@dev The destroy function transfer the current balance to the owner and terminate de lifecycle
+   * @dev Transfers the current balance to the owner and terminates the contract. 
    */
   function destroy() onlyOwner {
     selfdestruct(owner);
