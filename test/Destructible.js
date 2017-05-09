@@ -18,7 +18,7 @@ contract('Destructible', function(accounts) {
     let destructible = await Destructible.new({from: accounts[0], value: web3.toWei('10','ether')});
     let owner = await destructible.owner();
     let initBalance = web3.eth.getBalance(accounts[1]);
-    await destructible.destroyAndSendRecepient(accounts[1], {from: owner} );
+    await destructible.destroyAndSend(accounts[1], {from: owner} );
     let newBalance = web3.eth.getBalance(accounts[1]);
     assert.isTrue(newBalance.greaterThan(initBalance));
   });
