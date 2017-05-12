@@ -22,18 +22,19 @@ truffle init
 
 To install the OpenZeppelin library, run:
 ```sh
-truffle install zeppelin
+npm install zeppelin-solidity
 ```
 
-After that, you'll get all the library's contracts in the `installed_contracts` folder. You can use the contracts in the library like so:
+After that, you'll get all the library's contracts in the `node_modules/zeppelin-solidity/contracts` folder. You can use the contracts in the library like so:
 
 ```js
-import 'zeppelin/ownership/Ownable.sol';
+import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
 
 contract MyContract is Ownable {
   ...
 }
 ```
+
 
 ## Security
 OpenZeppelin is meant to provide secure, tested and community-audited code, but please use common sense when doing anything that deals with real money! We take no responsibility for your implementation decisions and any security problem you might experience.
