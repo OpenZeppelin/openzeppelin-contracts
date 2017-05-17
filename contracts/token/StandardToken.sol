@@ -33,6 +33,7 @@ contract StandardToken is BasicToken, ERC20 {
     // prevent double spend attack
     if ((_value != 0) && (allowed[msg.sender][_spender] != 0)) {
        return false;
+    }
     allowed[msg.sender][_spender] = _value;
     Approval(msg.sender, _spender, _value);
   }
