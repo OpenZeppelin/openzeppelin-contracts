@@ -16,15 +16,6 @@ contract StandardToken is BasicToken, ERC20 {
 
   mapping (address => mapping (address => uint)) allowed;
 
-  /*
-   * Fix for the ERC20 short address attack  
-   */
-  modifier onlyPayloadSize(uint size) {
-     if(msg.data.length < size + 4) {
-       throw;
-     }
-     _;
-  }
   
   function transferFrom(address _from, address _to, uint _value) onlyPayloadSize(3 * 32) {
     var _allowance = allowed[_from][msg.sender];
