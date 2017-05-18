@@ -16,7 +16,7 @@ contract StandardToken is BasicToken, ERC20 {
 
   mapping (address => mapping (address => uint)) allowed;
 
-  function transferFrom(address _from, address _to, uint _value) {
+  function transferFrom(address _from, address _to, uint _value) onlyPayloadSize(3 * 32) {
     var _allowance = allowed[_from][msg.sender];
 
     // Check is not needed because sub(_allowance, _value) will already throw if this condition is not met
