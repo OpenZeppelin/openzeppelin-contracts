@@ -75,17 +75,69 @@ contract VestedToken is StandardToken, TransferableToken {
     Transfer(_holder, receiver, nonVested);
   }
 
-  function transferableTokens(address holder, uint64 time) constant public returns (uint256 nonVested) {
+  function transferableTokens(address holder, uint64 time) constant public returns (uint256) {
     uint256 grantIndex = tokenGrantsCount(holder);
+
+    if (grantIndex == 0) return balanceOf(holder); // shortcut for holder without grants
+
+    // Iterate through all the grants the holder has, and add all non-vested tokens
+    uint256 nonVested = 0;
     for (uint256 i = 0; i < grantIndex; i++) {
       nonVested = safeAdd(nonVested, nonVestedTokens(grants[holder][i], time));
     }
 
-    return min256(safeSub(balances[holder], nonVested), super.transferableTokens(holder, time));
+    // Balance - totalNonVested is the amount of tokens a holder can transfer at any given time
+    uint256 vestedTransferable = safeSub(balanceOf(holder), nonVested);
+
+    // Return the minimum of how many vested can transfer and other value
+    // in case there are other limiting transferability factors (default is balanceOf)
+    return min256(vestedTransferable, super.transferableTokens(holder, time));
   }
 
   function tokenGrantsCount(address _holder) constant returns (uint index) {
     return grants[_holder].length;
+  }
+
+  //  transferableTokens
+  //   |                         _/--------   vestedTokens rect
+  //   |                       _/
+  //   |                     _/
+  //   |                   _/
+  //   |                 _/
+  //   |                /
+  //   |              .|
+  //   |            .  |
+  //   |          .    |
+  //   |        .      |
+  //   |      .        |
+  //   |    .          |
+  //   +===+===========+---------+----------> time
+  //      Start       Clift    Vesting
+  function calculateVestedTokens(
+    uint256 tokens,
+    uint256 time,
+    uint256 start,
+    uint256 cliff,
+    uint256 vesting) constant returns (uint256)
+    {
+      // Shortcuts for before cliff and after vesting cases.
+      if (time < cliff) return 0;
+      if (time >= vesting) return tokens;
+
+      // Interpolate all vested tokens.
+      // As before cliff the shortcut returns 0, we can use just calculate a value
+      // in the vesting rect (as shown in above's figure)
+
+      // vestedTokens = tokens * (time - start) / (vesting - start)
+      uint256 vestedTokens = safeDiv(
+                                    safeMul(
+                                      tokens,
+                                      safeSub(time, start)
+                                      ),
+                                    safeSub(vesting, start)
+                                    );
+
+      return vestedTokens;
   }
 
   function tokenGrant(address _holder, uint _grantId) constant returns (address granter, uint256 value, uint256 vested, uint64 start, uint64 cliff, uint64 vesting, bool revokable, bool burnsOnRevoke) {
@@ -110,29 +162,6 @@ contract VestedToken is StandardToken, TransferableToken {
       uint256(grant.cliff),
       uint256(grant.vesting)
     );
-  }
-
-  function calculateVestedTokens(
-    uint256 tokens,
-    uint256 time,
-    uint256 start,
-    uint256 cliff,
-    uint256 vesting) constant returns (uint256 vestedTokens)
-    {
-
-    if (time < cliff) {
-      return 0;
-    }
-    if (time > vesting) {
-      return tokens;
-    }
-
-    uint256 cliffTokens = safeDiv(safeMul(tokens, safeSub(cliff, start)), safeSub(vesting, start));
-    vestedTokens = cliffTokens;
-
-    uint256 vestingTokens = safeSub(tokens, cliffTokens);
-
-    vestedTokens = safeAdd(vestedTokens, safeDiv(safeMul(vestingTokens, safeSub(time, cliff)), safeSub(vesting, start)));
   }
 
   function nonVestedTokens(TokenGrant grant, uint64 time) private constant returns (uint256) {

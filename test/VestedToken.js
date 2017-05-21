@@ -95,6 +95,24 @@ contract('VestedToken', function(accounts) {
       await token.transferFrom(receiver, accounts[7], tokenAmount, { from: accounts[7] })
       assert.equal(await token.balanceOf(accounts[7]), tokenAmount);
     })
+
+    it('can handle composed vesting schedules', async () => {
+      await timer(cliff);
+      await token.transfer(accounts[7], 12, { from: receiver })
+      assert.equal(await token.balanceOf(accounts[7]), 12);
+
+      let newNow = web3.eth.getBlock(web3.eth.blockNumber).timestamp
+
+      await token.grantVestedTokens(receiver, tokenAmount, newNow, newNow + cliff, newNow + vesting, false, false, { from: granter })
+      await token.transfer(accounts[7], 13, { from: receiver })
+      assert.equal(await token.balanceOf(accounts[7]), tokenAmount / 2);
+
+      assert.equal(await token.balanceOf(receiver), 3 * tokenAmount / 2)
+      assert.equal(await token.transferableTokens(receiver, newNow), 0)
+      await timer(vesting);
+      await token.transfer(accounts[7], 3 * tokenAmount / 2, { from: receiver })
+      assert.equal(await token.balanceOf(accounts[7]), tokenAmount * 2)
+    })
   })
 
   describe('getting a non-revokable token grant', async () => {
