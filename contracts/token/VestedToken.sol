@@ -33,7 +33,7 @@ contract VestedToken is StandardToken, TransferableToken {
       throw;
     }
 
-    uint id = grants[_to].push(
+    uint count = grants[_to].push(
                 TokenGrant(
                   _revokable ? msg.sender : 0, // avoid storing an extra 20 bytes when it is non-revokable
                   _value,
@@ -47,7 +47,7 @@ contract VestedToken is StandardToken, TransferableToken {
 
     transfer(_to, _value);
 
-    NewTokenGrant(msg.sender, _to, _value, id);
+    NewTokenGrant(msg.sender, _to, _value, count - 1);
   }
 
   function revokeTokenGrant(address _holder, uint _grantId) public {
