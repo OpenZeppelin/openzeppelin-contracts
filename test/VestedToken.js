@@ -23,12 +23,12 @@ contract('VestedToken', function(accounts) {
     assert.equal(await token.transferableTokens(receiver, now), tokenAmount);
   })
 
-  describe('getting a token grant', async () => {
+  describe('getting a revokable/non-burnable token grant', async () => {
     const cliff = 10000
     const vesting = 20000 // seconds
 
     beforeEach(async () => {
-      await token.grantVestedTokens(receiver, tokenAmount, now, now + cliff, now + vesting, { from: granter })
+      await token.grantVestedTokens(receiver, tokenAmount, now, now + cliff, now + vesting, true, false, { from: granter })
     })
 
     it('tokens are received', async () => {
