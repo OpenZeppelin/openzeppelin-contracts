@@ -11,6 +11,8 @@ contract VestedToken is StandardToken, TransferableToken {
     uint64 cliff;
     uint64 vesting;
     uint64 start;
+    bool revokable;
+    bool burnsOnRevoke;
   }
 
   mapping (address => TokenGrant[]) public grants;
@@ -20,7 +22,9 @@ contract VestedToken is StandardToken, TransferableToken {
     uint256 _value,
     uint64 _start,
     uint64 _cliff,
-    uint64 _vesting) {
+    uint64 _vesting,
+    bool _revokable,
+    bool _burnsOnRevoke) {
 
     if (_cliff < _start) {
       throw;
@@ -32,9 +36,17 @@ contract VestedToken is StandardToken, TransferableToken {
       throw;
     }
 
-
-    TokenGrant memory grant = TokenGrant(msg.sender, _value, _cliff, _vesting, _start);
-    grants[_to].push(grant);
+    grants[_to].push(
+      TokenGrant(
+        msg.sender,
+        _value,
+        _cliff,
+        _vesting,
+        _start,
+        _revokable,
+        _burnsOnRevoke
+      )
+    );
 
     transfer(_to, _value);
   }
@@ -42,9 +54,16 @@ contract VestedToken is StandardToken, TransferableToken {
   function revokeTokenGrant(address _holder, uint _grantId) {
     TokenGrant grant = grants[_holder][_grantId];
 
-    if (grant.granter != msg.sender) {
+    if (!grant.revokable) { // Check if grant was revokable
       throw;
     }
+
+    if (grant.granter != msg.sender) { // Only granter can revoke it
+      throw;
+    }
+
+    address receiver = grant.burnsOnRevoke ? 0xdead : msg.sender;
+
     uint256 nonVested = nonVestedTokens(grant, uint64(now));
 
     // remove grant from array
@@ -52,16 +71,16 @@ contract VestedToken is StandardToken, TransferableToken {
     grants[_holder][_grantId] = grants[_holder][grants[_holder].length - 1];
     grants[_holder].length -= 1;
 
-    balances[msg.sender] = safeAdd(balances[msg.sender], nonVested);
+    balances[receiver] = safeAdd(balances[receiver], nonVested);
     balances[_holder] = safeSub(balances[_holder], nonVested);
-    Transfer(_holder, msg.sender, nonVested);
+    Transfer(_holder, receiver, nonVested);
   }
 
   function tokenGrantsCount(address _holder) constant returns (uint index) {
     return grants[_holder].length;
   }
 
-  function tokenGrant(address _holder, uint _grantId) constant returns (address granter, uint256 value, uint256 vested, uint64 start, uint64 cliff, uint64 vesting) {
+  function tokenGrant(address _holder, uint _grantId) constant returns (address granter, uint256 value, uint256 vested, uint64 start, uint64 cliff, uint64 vesting, bool revokable, bool burnsOnRevoke) {
     TokenGrant grant = grants[_holder][_grantId];
 
     granter = grant.granter;
@@ -69,6 +88,8 @@ contract VestedToken is StandardToken, TransferableToken {
     start = grant.start;
     cliff = grant.cliff;
     vesting = grant.vesting;
+    revokable = grant.revokable;
+    burnsOnRevoke = grant.burnsOnRevoke;
 
     vested = vestedTokens(grant, uint64(now));
   }
