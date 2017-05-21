@@ -1,26 +1,28 @@
+'use strict';
+
 const assertJump = require('./helpers/assertJump');
-var StandardTokenMock = artifacts.require("./helpers/StandardTokenMock.sol");
+var StandardTokenMock = artifacts.require('./helpers/StandardTokenMock.sol');
 
 contract('StandardToken', function(accounts) {
 
-  it("should return the correct totalSupply after construction", async function() {
+  it('should return the correct totalSupply after construction', async function() {
     let token = await StandardTokenMock.new(accounts[0], 100);
     let totalSupply = await token.totalSupply();
 
     assert.equal(totalSupply, 100);
-  })
+  });
 
-  it("should return the correct allowance amount after approval", async function() {
+  it('should return the correct allowance amount after approval', async function() {
     let token = await StandardTokenMock.new();
-    let approve = await token.approve(accounts[1], 100);
+    await token.approve(accounts[1], 100);
     let allowance = await token.allowance(accounts[0], accounts[1]);
 
     assert.equal(allowance, 100);
   });
 
-  it("should return correct balances after transfer", async function() {
+  it('should return correct balances after transfer', async function() {
     let token = await StandardTokenMock.new(accounts[0], 100);
-    let transfer = await token.transfer(accounts[1], 100);
+    await token.transfer(accounts[1], 100);
     let balance0 = await token.balanceOf(accounts[0]);
     assert.equal(balance0, 0);
 
@@ -28,20 +30,20 @@ contract('StandardToken', function(accounts) {
     assert.equal(balance1, 100);
   });
 
-  it("should throw an error when trying to transfer more than balance", async function() {
+  it('should throw an error when trying to transfer more than balance', async function() {
     let token = await StandardTokenMock.new(accounts[0], 100);
     try {
-      let transfer = await token.transfer(accounts[1], 101);
+      await token.transfer(accounts[1], 101);
     } catch(error) {
       return assertJump(error);
     }
     assert.fail('should have thrown before');
   });
 
-  it("should return correct balances after transfering from another account", async function() {
+  it('should return correct balances after transfering from another account', async function() {
     let token = await StandardTokenMock.new(accounts[0], 100);
-    let approve = await token.approve(accounts[1], 100);
-    let transferFrom = await token.transferFrom(accounts[0], accounts[2], 100, {from: accounts[1]});
+    await token.approve(accounts[1], 100);
+    await token.transferFrom(accounts[0], accounts[2], 100, {from: accounts[1]});
 
     let balance0 = await token.balanceOf(accounts[0]);
     assert.equal(balance0, 0);
@@ -53,11 +55,11 @@ contract('StandardToken', function(accounts) {
     assert.equal(balance2, 0);
   });
 
-  it("should throw an error when trying to transfer more than allowed", async function() {
+  it('should throw an error when trying to transfer more than allowed', async function() {
     let token = await StandardTokenMock.new();
-    let approve = await token.approve(accounts[1], 99);
+    await token.approve(accounts[1], 99);
     try {
-      let transfer = await token.transferFrom(accounts[0], accounts[2], 100, {from: accounts[1]});
+      await token.transferFrom(accounts[0], accounts[2], 100, {from: accounts[1]});
     } catch (error) {
       return assertJump(error);
     }

@@ -40,7 +40,7 @@ contract('VestedToken', function(accounts) {
     })
 
     it('all tokens are transferable after vesting', async () => {
-      assert.equal(await token.transferableTokens(receiver, now + vesting + 1), tokenAmount);
+      assert.equal(await token.transferableTokens(receiver, now + vesting), tokenAmount);
     })
 
     it('throws when trying to transfer non vested tokens', async () => {
@@ -84,13 +84,13 @@ contract('VestedToken', function(accounts) {
     })
 
     it('can transfer all tokens after vesting ends', async () => {
-      await timer(vesting + 1);
+      await timer(vesting);
       await token.transfer(accounts[7], tokenAmount, { from: receiver })
       assert.equal(await token.balanceOf(accounts[7]), tokenAmount);
     })
 
     it('can approve and transferFrom all tokens after vesting ends', async () => {
-      await timer(vesting + 1);
+      await timer(vesting);
       await token.approve(accounts[7], tokenAmount, { from: receiver })
       await token.transferFrom(receiver, accounts[7], tokenAmount, { from: accounts[7] })
       assert.equal(await token.balanceOf(accounts[7]), tokenAmount);
@@ -104,6 +104,7 @@ contract('VestedToken', function(accounts) {
       let newNow = web3.eth.getBlock(web3.eth.blockNumber).timestamp
 
       await token.grantVestedTokens(receiver, tokenAmount, newNow, newNow + cliff, newNow + vesting, false, false, { from: granter })
+
       await token.transfer(accounts[7], 13, { from: receiver })
       assert.equal(await token.balanceOf(accounts[7]), tokenAmount / 2);
 

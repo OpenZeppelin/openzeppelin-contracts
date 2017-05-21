@@ -1,9 +1,10 @@
 pragma solidity ^0.4.8;
 
 import "./StandardToken.sol";
-import "./TransferableToken.sol";
+import "./LimitedTransferToken.sol";
 
-contract VestedToken is StandardToken, TransferableToken {
+contract VestedToken is StandardToken, LimitedTransferToken {
+
   struct TokenGrant {
     address granter;     // 20 bytes
     uint256 value;       // 32 bytes
@@ -70,10 +71,11 @@ contract VestedToken is StandardToken, TransferableToken {
     grants[_holder][_grantId] = grants[_holder][grants[_holder].length - 1];
     grants[_holder].length -= 1;
 
-    balances[receiver] = safeAdd(balances[receiver], nonVested);
-    balances[_holder] = safeSub(balances[_holder], nonVested);
+    balances[receiver] = SafeMath.add(balances[receiver], nonVested);
+    balances[_holder] = SafeMath.sub(balances[_holder], nonVested);
     Transfer(_holder, receiver, nonVested);
   }
+
 
   function transferableTokens(address holder, uint64 time) constant public returns (uint256) {
     uint256 grantIndex = tokenGrantsCount(holder);
@@ -83,15 +85,15 @@ contract VestedToken is StandardToken, TransferableToken {
     // Iterate through all the grants the holder has, and add all non-vested tokens
     uint256 nonVested = 0;
     for (uint256 i = 0; i < grantIndex; i++) {
-      nonVested = safeAdd(nonVested, nonVestedTokens(grants[holder][i], time));
+      nonVested = SafeMath.add(nonVested, nonVestedTokens(grants[holder][i], time));
     }
 
     // Balance - totalNonVested is the amount of tokens a holder can transfer at any given time
-    uint256 vestedTransferable = safeSub(balanceOf(holder), nonVested);
+    uint256 vestedTransferable = SafeMath.sub(balanceOf(holder), nonVested);
 
     // Return the minimum of how many vested can transfer and other value
     // in case there are other limiting transferability factors (default is balanceOf)
-    return min256(vestedTransferable, super.transferableTokens(holder, time));
+    return SafeMath.min256(vestedTransferable, super.transferableTokens(holder, time));
   }
 
   function tokenGrantsCount(address _holder) constant returns (uint index) {
@@ -129,12 +131,12 @@ contract VestedToken is StandardToken, TransferableToken {
       // in the vesting rect (as shown in above's figure)
 
       // vestedTokens = tokens * (time - start) / (vesting - start)
-      uint256 vestedTokens = safeDiv(
-                                    safeMul(
+      uint256 vestedTokens = SafeMath.div(
+                                    SafeMath.mul(
                                       tokens,
-                                      safeSub(time, start)
+                                      SafeMath.sub(time, start)
                                       ),
-                                    safeSub(vesting, start)
+                                    SafeMath.sub(vesting, start)
                                     );
 
       return vestedTokens;
@@ -165,14 +167,14 @@ contract VestedToken is StandardToken, TransferableToken {
   }
 
   function nonVestedTokens(TokenGrant grant, uint64 time) private constant returns (uint256) {
-    return safeSub(grant.value, vestedTokens(grant, time));
+    return grant.value.sub(vestedTokens(grant, time));
   }
 
   function lastTokenIsTransferableDate(address holder) constant public returns (uint64 date) {
     date = uint64(now);
     uint256 grantIndex = grants[holder].length;
     for (uint256 i = 0; i < grantIndex; i++) {
-      date = max64(grants[holder][i].vesting, date);
+      date = SafeMath.max64(grants[holder][i].vesting, date);
     }
   }
 }

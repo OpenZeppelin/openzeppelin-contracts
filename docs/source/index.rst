@@ -27,7 +27,7 @@ The code is open-source, and `available on github <https://github.com/OpenZeppel
    
    ownable
    Pausable
-   killable
+   destructible
    claimable
    migrations
    safemath

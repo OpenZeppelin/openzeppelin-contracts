@@ -31,7 +31,7 @@ contract('Bounty', function(accounts) {
     assert.equal(reward, web3.eth.getBalance(bounty.address).toNumber());
   });
 
-  it('empties itself when killed', async function(){
+  it('empties itself when destroyed', async function(){
     let owner = accounts[0];
     let reward = web3.toWei(1, 'ether');
     let bounty = await SecureTargetBounty.new();
@@ -39,7 +39,7 @@ contract('Bounty', function(accounts) {
 
     assert.equal(reward, web3.eth.getBalance(bounty.address).toNumber());
 
-    await bounty.kill();
+    await bounty.destroy();
     assert.equal(0, web3.eth.getBalance(bounty.address).toNumber());
   });
 
@@ -52,7 +52,7 @@ contract('Bounty', function(accounts) {
       let bounty = await SecureTargetBounty.new();
       let event = bounty.TargetCreated({});
 
-      event.watch(async function(err, result) {
+      let watcher = async function(err, result) {
         event.stopWatching();
         if (err) { throw err; }
 
@@ -66,8 +66,8 @@ contract('Bounty', function(accounts) {
           await bounty.claim(targetAddress, {from:researcher});
           assert.isTrue(false); // should never reach here
         } catch(error) {
-            let reClaimedBounty = await bounty.claimed.call();
-            assert.isFalse(reClaimedBounty);
+          let reClaimedBounty = await bounty.claimed.call();
+          assert.isFalse(reClaimedBounty);
 
         }
         try {
@@ -77,8 +77,9 @@ contract('Bounty', function(accounts) {
           assert.equal(reward,
             web3.eth.getBalance(bounty.address).toNumber());
         }
-      });
+      };
       bounty.createTarget({from:researcher});
+      await awaitEvent(event, watcher);
     });
   });
 
