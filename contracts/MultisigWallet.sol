@@ -24,9 +24,9 @@ contract MultisigWallet is Multisig, Shareable, DayLimit {
     Shareable(_owners, _required)        
     DayLimit(_daylimit) { }
 
-  // kills the contract sending everything to `_to`.
-  function kill(address _to) onlymanyowners(sha3(msg.data)) external {
-    suicide(_to);
+  // destroys the contract sending everything to `_to`.
+  function destroy(address _to) onlymanyowners(keccak256(msg.data)) external {
+    selfdestruct(_to);
   }
 
   // gets called when no other function matches
@@ -51,7 +51,7 @@ contract MultisigWallet is Multisig, Shareable, DayLimit {
       return 0;
     }
     // determine our operation hash.
-    _r = sha3(msg.data, block.number);
+    _r = keccak256(msg.data, block.number);
     if (!confirm(_r) && txs[_r].to == 0) {
       txs[_r].to = _to;
       txs[_r].value = _value;
@@ -73,11 +73,11 @@ contract MultisigWallet is Multisig, Shareable, DayLimit {
     }
   }
 
-  function setDailyLimit(uint _newLimit) onlymanyowners(sha3(msg.data)) external {
+  function setDailyLimit(uint _newLimit) onlymanyowners(keccak256(msg.data)) external {
     _setDailyLimit(_newLimit);
   }
 
-  function resetSpentToday() onlymanyowners(sha3(msg.data)) external {
+  function resetSpentToday() onlymanyowners(keccak256(msg.data)) external {
     _resetSpentToday();
   }
 

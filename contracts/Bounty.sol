@@ -2,7 +2,7 @@ pragma solidity ^0.4.8;
 
 
 import './payment/PullPayment.sol';
-import './lifecycle/Killable.sol';
+import './lifecycle/Destructible.sol';
 
 
 /*
@@ -10,7 +10,7 @@ import './lifecycle/Killable.sol';
  * 
  * This bounty will pay out to a researcher if they break invariant logic of the contract.
  */
-contract Bounty is PullPayment, Killable {
+contract Bounty is PullPayment, Destructible {
   bool public claimed;
   mapping(address => address) public researchers;
 
