@@ -1,21 +1,22 @@
 pragma solidity ^0.4.8;
 
-
 import "./StandardToken.sol";
 import "./TransferableToken.sol";
 
 contract VestedToken is StandardToken, TransferableToken {
   struct TokenGrant {
-    address granter;
-    uint256 value;
+    address granter;     // 20 bytes
+    uint256 value;       // 32 bytes
     uint64 cliff;
     uint64 vesting;
-    uint64 start;
+    uint64 start;        // 3 * 8 = 24 bytes
     bool revokable;
-    bool burnsOnRevoke;
-  }
+    bool burnsOnRevoke;  // 2 * 1 = 2 bits? or 2 bytes?
+  } // total 78 bytes = 3 sstore per operation (32 per sstore)
 
   mapping (address => TokenGrant[]) public grants;
+
+  event NewTokenGrant(address indexed from, address indexed to, uint256 value, uint256 grantId);
 
   function grantVestedTokens(
     address _to,
@@ -24,34 +25,32 @@ contract VestedToken is StandardToken, TransferableToken {
     uint64 _cliff,
     uint64 _vesting,
     bool _revokable,
-    bool _burnsOnRevoke) {
+    bool _burnsOnRevoke
+  ) public {
 
-    if (_cliff < _start) {
-      throw;
-    }
-    if (_vesting < _start) {
-      throw;
-    }
-    if (_vesting < _cliff) {
+    // Check for date inconsistencies that may cause unexpected behavior
+    if (_cliff < _start || _vesting < _cliff) {
       throw;
     }
 
-    grants[_to].push(
-      TokenGrant(
-        msg.sender,
-        _value,
-        _cliff,
-        _vesting,
-        _start,
-        _revokable,
-        _burnsOnRevoke
-      )
-    );
+    uint id = grants[_to].push(
+                TokenGrant(
+                  _revokable ? msg.sender : 0, // avoid storing an extra 20 bytes when it is non-revokable
+                  _value,
+                  _cliff,
+                  _vesting,
+                  _start,
+                  _revokable,
+                  _burnsOnRevoke
+                )
+              );
 
     transfer(_to, _value);
+
+    NewTokenGrant(msg.sender, _to, _value, id);
   }
 
-  function revokeTokenGrant(address _holder, uint _grantId) {
+  function revokeTokenGrant(address _holder, uint _grantId) public {
     TokenGrant grant = grants[_holder][_grantId];
 
     if (!grant.revokable) { // Check if grant was revokable
@@ -74,6 +73,15 @@ contract VestedToken is StandardToken, TransferableToken {
     balances[receiver] = safeAdd(balances[receiver], nonVested);
     balances[_holder] = safeSub(balances[_holder], nonVested);
     Transfer(_holder, receiver, nonVested);
+  }
+
+  function transferableTokens(address holder, uint64 time) constant public returns (uint256 nonVested) {
+    uint256 grantIndex = tokenGrantsCount(holder);
+    for (uint256 i = 0; i < grantIndex; i++) {
+      nonVested = safeAdd(nonVested, nonVestedTokens(grants[holder][i], time));
+    }
+
+    return min256(safeSub(balances[holder], nonVested), super.transferableTokens(holder, time));
   }
 
   function tokenGrantsCount(address _holder) constant returns (uint index) {
@@ -137,14 +145,5 @@ contract VestedToken is StandardToken, TransferableToken {
     for (uint256 i = 0; i < grantIndex; i++) {
       date = max64(grants[holder][i].vesting, date);
     }
-  }
-
-  function transferableTokens(address holder, uint64 time) constant public returns (uint256 nonVested) {
-    uint256 grantIndex = grants[holder].length;
-    for (uint256 i = 0; i < grantIndex; i++) {
-      nonVested = safeAdd(nonVested, nonVestedTokens(grants[holder][i], time));
-    }
-
-    return min256(safeSub(balances[holder], nonVested), super.transferableTokens(holder, time));
   }
 }
