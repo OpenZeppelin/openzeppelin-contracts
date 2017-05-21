@@ -96,4 +96,61 @@ contract('VestedToken', function(accounts) {
       assert.equal(await token.balanceOf(accounts[7]), tokenAmount);
     })
   })
+
+  describe('getting a non-revokable token grant', async () => {
+    const cliff = 10000
+    const vesting = 20000 // seconds
+
+    beforeEach(async () => {
+      await token.grantVestedTokens(receiver, tokenAmount, now, now + cliff, now + vesting, false, false, { from: granter })
+    })
+
+    it('tokens are received', async () => {
+      assert.equal(await token.balanceOf(receiver), tokenAmount);
+    })
+
+    it('throws when granter attempts to revoke', async () => {
+      try {
+        await token.revokeTokenGrant(receiver, 0, { from: granter });
+      } catch(error) {
+        return assertJump(error);
+      }
+      assert.fail('should have thrown before');
+    })
+  })
+
+  describe('getting a revokable/burnable token grant', async () => {
+    const cliff = 100000
+    const vesting = 200000 // seconds
+    const burnAddress = '0x000000000000000000000000000000000000dead'
+
+    beforeEach(async () => {
+      await token.grantVestedTokens(receiver, tokenAmount, now, now + cliff, now + vesting, true, true, { from: granter })
+    })
+
+    it('tokens are received', async () => {
+      assert.equal(await token.balanceOf(receiver), tokenAmount);
+    })
+
+    it('can be revoked by granter and tokens are burned', async () => {
+      await token.revokeTokenGrant(receiver, 0, { from: granter });
+      assert.equal(await token.balanceOf(receiver), 0);
+      assert.equal(await token.balanceOf(burnAddress), tokenAmount);
+    })
+
+    it('cannot be revoked by non granter', async () => {
+      try {
+        await token.revokeTokenGrant(receiver, 0, { from: accounts[3] });
+      } catch(error) {
+        return assertJump(error);
+      }
+      assert.fail('should have thrown before');
+    })
+
+    it('can be revoked by granter and non vested tokens are returned', async () => {
+      await timer(cliff);
+      await token.revokeTokenGrant(receiver, 0, { from: granter });
+      assert.equal(await token.balanceOf(burnAddress), tokenAmount * cliff / vesting);
+    })
+  })
 });
