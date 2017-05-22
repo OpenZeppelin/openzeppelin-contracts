@@ -72,6 +72,7 @@ contract VestedToken is StandardToken, LimitedTransferToken {
 
     balances[receiver] = balances[receiver].add(nonVested);
     balances[_holder] = balances[_holder].sub(nonVested);
+
     Transfer(_holder, receiver, nonVested);
   }
 
