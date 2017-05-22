@@ -9,7 +9,7 @@ pragma solidity ^0.4.8;
  * inheritable "property" contract that enables methods to be protected by requiring the acquiescence of either a single, or, crucially, each of a number of, designated owners.
  *
  * usage:
- * use modifiers onlyowner (just own owned) or onlymanyowners(hash), whereby the same hash must be provided by some number (specified in constructor) of the set of owners (specified in the constructor) before the interior is executed.
+ * use modifiers onlyOwner (just own owned) or onlyManyOwners(hash), whereby the same hash must be provided by some number (specified in constructor) of the set of owners (specified in the constructor) before the interior is executed.
  */
 contract Shareable {
   // struct for the status of a pending operation.
@@ -48,25 +48,18 @@ contract Shareable {
   // multi-sig function modifier: the operation must have an intrinsic hash in order
   // that later attempts can be realised as the same underlying operation and
   // thus count as confirmations.
-  modifier onlymanyowners(bytes32 _operation) {
+  modifier onlyManyOwners(bytes32 _operation) {
     if (confirmAndCheck(_operation)) {
       _;
     }
   }
 
-  // constructor is given number of sigs required to do protected "onlymanyowners" transactions
+  // constructor is given number of sigs required to do protected "onlyManyOwners" transactions
   // as well as the selection of addresses capable of confirming them.
-  function Shareable(address[] _owners, uint _required) {
+  function Shareable() {
     owners[1] = msg.sender;
     ownerIndex[msg.sender] = 1;
-    for (uint i = 0; i < _owners.length; ++i) {
-      owners[2 + i] = _owners[i];
-      ownerIndex[_owners[i]] = 2 + i;
-    }
-    required = _required;
-    if (required > owners.length) {
-      throw;
-    }
+    required = 1;
   }
 
   // Revokes a prior confirmation of the given operation
@@ -85,9 +78,42 @@ contract Shareable {
     }
   }
 
+  function addOwner(address _owner) onlyManyOwners(sha3(msg.data)) external {
+      if (isOwner(_owner)) return;
+
+      clearPending();
+      if (m_numOwners >= c_maxOwners)
+          reorganizeOwners();
+      if (m_numOwners >= c_maxOwners)
+          return;
+      m_numOwners++;
+      m_owners[m_numOwners] = uint(_owner);
+      m_ownerIndex[uint(_owner)] = m_numOwners;
+      OwnerAdded(_owner);
+  }
+
+  function removeOwner(address _owner) onlyManyOwners(sha3(msg.data)) external {
+      uint ownerIndex = m_ownerIndex[uint(_owner)];
+      if (ownerIndex == 0) return;
+      if (m_required > m_numOwners - 1) return;
+
+      m_owners[ownerIndex] = 0;
+      m_ownerIndex[uint(_owner)] = 0;
+      clearPending();
+      reorganizeOwners(); //make sure m_numOwner is equal to the number of owners and always points to the optimal free slot
+      OwnerRemoved(_owner);
+  }
+
+  function changeRequirement(uint _newRequired) onlyManyOwners(sha3(msg.data)) external {
+      if (_newRequired > m_numOwners) return;
+      m_required = _newRequired;
+      clearPending();
+      RequirementChanged(_newRequired);
+  }
+
   // Gets an owner by 0-indexed position (using numOwners as the count)
-  function getOwner(uint ownerIndex) external constant returns (address) {
-    return address(owners[ownerIndex + 1]);
+  function getOwner(uint _ownerIndex) external constant returns (address) {
+    return address(owners[_ownerIndex + 1]);
   }
 
   function isOwner(address _addr) constant returns (bool) {
@@ -145,6 +171,21 @@ contract Shareable {
       }
     }
     return false;
+  }
+
+  function reorganizeOwners() private {
+      uint free = 1;
+      while (free < m_numOwners)
+      {
+          while (free < m_numOwners && m_owners[free] != 0) free++;
+          while (m_numOwners > 1 && m_owners[m_numOwners] == 0) m_numOwners--;
+          if (free < m_numOwners && m_owners[m_numOwners] != 0 && m_owners[free] == 0)
+          {
+              m_owners[free] = m_owners[m_numOwners];
+              m_ownerIndex[m_owners[free]] = free;
+              m_owners[m_numOwners] = 0;
+          }
+      }
   }
 
   function clearPending() internal {
