@@ -4,7 +4,6 @@ import "./StandardToken.sol";
 import "./LimitedTransferToken.sol";
 
 contract VestedToken is StandardToken, LimitedTransferToken {
-
   struct TokenGrant {
     address granter;     // 20 bytes
     uint256 value;       // 32 bytes
@@ -68,11 +67,11 @@ contract VestedToken is StandardToken, LimitedTransferToken {
 
     // remove grant from array
     delete grants[_holder][_grantId];
-    grants[_holder][_grantId] = grants[_holder][grants[_holder].length - 1];
+    grants[_holder][_grantId] = grants[_holder][grants[_holder].length.sub(1)];
     grants[_holder].length -= 1;
 
-    balances[receiver] = SafeMath.add(balances[receiver], nonVested);
-    balances[_holder] = SafeMath.sub(balances[_holder], nonVested);
+    balances[receiver] = balances[receiver].add(nonVested);
+    balances[_holder] = balances[_holder].sub(nonVested);
     Transfer(_holder, receiver, nonVested);
   }
 
