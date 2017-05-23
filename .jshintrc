@@ -1,0 +1,48 @@
+{
+    "bitwise": false,     // Prohibit bitwise operators (&, |, ^, etc.).
+    "browser": true,      // Standard browser globals e.g. `window`, `document`.
+    "camelcase": false,   // Permit only camelcase for `var` and `object indexes`.
+    "curly": true,        // Require {} for every new block or scope.
+    "devel": false,       // Allow development statements e.g. `console.log();`.
+    "eqeqeq": true,       // Require triple equals i.e. `===`.
+    "esnext": true,       // Allow ES.next specific features such as `const` and `let`.
+    "freeze": true,       // Forbid overwriting prototypes of native objects such as Array, Date and so on.
+    "immed": true,        // Require immediate invocations to be wrapped in parens e.g. `( function(){}() );`
+    "indent": 2,          // Specify indentation spacing
+    "latedef": true,      // Prohibit variable use before definition.
+    "newcap": false,      // Require capitalization of all constructor functions e.g. `new F()`.
+    "noarg": true,        // Prohibit use of `arguments.caller` and `arguments.callee`.
+    "node": true,         // Enable globals available when code is running inside of the NodeJS runtime environment.
+    "noempty": true,      // Prohibit use of empty blocks.
+    "nonew": true,        // Prohibits the use of constructor functions for side-effects
+    "quotmark": "single", // Define quotes to string values.
+    "regexp": true,       // Prohibit `.` and `[^...]` in regular expressions.
+    "smarttabs": false,   // Supress warnings about mixed tabs and spaces
+    "strict": true,       // Require `use strict` pragma in every file.
+    "trailing": true,     // Prohibit trailing whitespaces.
+    "undef": true,        // Require all non-global variables be declared before they are used.
+    "unused": true,       // Warn unused variables.
+
+    "maxparams": 4,       // Maximum number of parameters for a function
+    "maxstatements": 15,  // Maximum number of statements in a function
+    "maxcomplexity": 10,  // Cyclomatic complexity (http://en.wikipedia.org/wiki/Cyclomatic_complexity)
+    "maxdepth": 4,        // Maximum depth of nested control structures
+    "maxlen": 120,        // Maximum number of cols in a line
+    "multistr": true,     // Allow use of multiline EOL escaping
+    "experimental": ["asyncawait", "asyncreqawait"],
+
+    "predef": [ // Extra globals.
+        "after",
+        "afterEach",
+        "before",
+        "beforeEach",
+        "define",
+        "describe",
+        "exports",
+        "it",
+        "web3",
+        "artifacts",
+        "contract",
+        "assert"
+    ]
+}

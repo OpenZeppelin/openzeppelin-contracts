@@ -1,5 +1,7 @@
 const assertJump = require('./helpers/assertJump');
 
+var BasicTokenMock = artifacts.require("./helpers/BasicTokenMock.sol");
+
 contract('BasicToken', function(accounts) {
 
   it("should return the correct totalSupply after construction", async function() {
@@ -25,8 +27,9 @@ contract('BasicToken', function(accounts) {
     try {
       let transfer = await token.transfer(accounts[1], 101);
     } catch(error) {
-      assertJump(error);
+      return assertJump(error);
     }
+    assert.fail('should have thrown before');
   });
 
 });

@@ -1,0 +1,17 @@
+{
+  "package_name": "zeppelin",
+  "version": "1.0.5",
+  "description": "Secure Smart Contract library for Solidity",
+  "authors": [
+    "Manuel Araoz <manuelaraoz@gmail.com>"
+  ],
+  "keywords": [
+    "solidity",
+    "ethereum",
+    "smart",
+    "contracts",
+    "security",
+    "zeppelin"
+  ],
+  "license": "MIT"
+}

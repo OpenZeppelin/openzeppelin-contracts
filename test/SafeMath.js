@@ -1,4 +1,5 @@
 const assertJump = require('./helpers/assertJump');
+var SafeMathMock = artifacts.require("./helpers/SafeMathMock.sol");
 
 contract('SafeMath', function(accounts) {
 
@@ -40,8 +41,9 @@ contract('SafeMath', function(accounts) {
     try {
       let subtract = await safeMath.subtract(a, b);
     } catch(error) {
-      assertJump(error);
+      return assertJump(error);
     }
+    assert.fail('should have thrown before');
   });
 
   it("should throw an error on addition overflow", async function() {
@@ -50,8 +52,9 @@ contract('SafeMath', function(accounts) {
     try {
       let add = await safeMath.add(a, b);
     } catch(error) {
-      assertJump(error);
+      return assertJump(error);
     }
+    assert.fail('should have thrown before');
   });
 
   it("should throw an error on multiplication overflow", async function() {
@@ -60,8 +63,9 @@ contract('SafeMath', function(accounts) {
     try {
       let multiply = await safeMath.multiply(a, b);
     } catch(error) {
-      assertJump(error);
+      return assertJump(error);
     }
+    assert.fail('should have thrown before');
   });
 
 });

@@ -26,8 +26,8 @@ The code is open-source, and `available on github <https://github.com/OpenZeppel
    :caption: Smart Contracts
    
    ownable
-   stoppable
-   killable
+   Pausable
+   destructible
    claimable
    migrations
    safemath

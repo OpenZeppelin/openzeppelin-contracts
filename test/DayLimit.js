@@ -1,3 +1,8 @@
+'use strict';
+const assertJump = require('./helpers/assertJump');
+
+var DayLimitMock = artifacts.require('helpers/DayLimitMock.sol');
+
 contract('DayLimit', function(accounts) {
 
   it('should construct with the passed daily limit', async function() {
@@ -28,9 +33,11 @@ contract('DayLimit', function(accounts) {
     let spentToday = await dayLimit.spentToday();
     assert.equal(spentToday, 8);
 
-    await dayLimit.attemptSpend(3);
-    spentToday = await dayLimit.spentToday();
-    assert.equal(spentToday, 8);
+    try {
+        await dayLimit.attemptSpend(3);
+    } catch(error) {
+        assertJump(error);
+    }
   });
 
   it('should allow spending if daily limit is reached and then set higher', async function() {
@@ -41,7 +48,11 @@ contract('DayLimit', function(accounts) {
     let spentToday = await dayLimit.spentToday();
     assert.equal(spentToday, 8);
 
-    await dayLimit.attemptSpend(3);
+    try {
+        await dayLimit.attemptSpend(3);
+    } catch(error) {
+        assertJump(error);
+    }
     spentToday = await dayLimit.spentToday();
     assert.equal(spentToday, 8);
 
@@ -59,7 +70,11 @@ contract('DayLimit', function(accounts) {
     let spentToday = await dayLimit.spentToday();
     assert.equal(spentToday, 8);
 
-    await dayLimit.attemptSpend(3);
+    try {
+        await dayLimit.attemptSpend(3);
+    } catch(error) {
+        assertJump(error);
+    }
     spentToday = await dayLimit.spentToday();
     assert.equal(spentToday, 8);
 

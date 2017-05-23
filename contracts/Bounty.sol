@@ -1,8 +1,8 @@
-pragma solidity ^0.4.4;
+pragma solidity ^0.4.8;
 
 
-import './PullPayment.sol';
-import './Killable.sol';
+import './payment/PullPayment.sol';
+import './lifecycle/Destructible.sol';
 
 
 /*
@@ -10,19 +10,20 @@ import './Killable.sol';
  * 
  * This bounty will pay out to a researcher if they break invariant logic of the contract.
  */
-contract Bounty is PullPayment, Killable {
-  Target target;
+contract Bounty is PullPayment, Destructible {
   bool public claimed;
   mapping(address => address) public researchers;
 
   event TargetCreated(address createdAddress);
 
   function() payable {
-    if (claimed) throw;
+    if (claimed) {
+      throw;
+    }
   }
 
   function createTarget() returns(Target) {
-    target = Target(deployContract());
+    Target target = Target(deployContract());
     researchers[target] = msg.sender;
     TargetCreated(target);
     return target;
@@ -30,13 +31,11 @@ contract Bounty is PullPayment, Killable {
 
   function deployContract() internal returns(address);
 
-  function checkInvariant() returns(bool){
-    return target.checkInvariant();
-  }
-
   function claim(Target target) {
     address researcher = researchers[target];
-    if (researcher == 0) throw;
+    if (researcher == 0) {
+      throw;
+    }
     // Check Target contract invariants
     if (target.checkInvariant()) {
       throw;
@@ -46,6 +45,7 @@ contract Bounty is PullPayment, Killable {
   }
 
 }
+
 
 /*
  * Target
