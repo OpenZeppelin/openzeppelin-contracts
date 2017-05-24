@@ -4,6 +4,10 @@ pragma solidity ^0.4.8;
 import "./StandardToken.sol";
 import "./LimitedTransferToken.sol";
 
+/**
+ * @title Vested token
+ * @dev Tokens that can be vested for a group of addresses.
+ */
 contract VestedToken is StandardToken, LimitedTransferToken {
   struct TokenGrant {
     address granter;
@@ -15,6 +19,14 @@ contract VestedToken is StandardToken, LimitedTransferToken {
 
   mapping (address => TokenGrant[]) public grants;
 
+  /**
+   * @dev Grant tokens to a specified address
+   * @param _to address The address which the tokens will be granted to.
+   * @param _value uint256 The amount of tokens to be granted.
+   * @param _start uint64 Time of the beginning of the grant.
+   * @param _cliff uint64 Time of the cliff period.
+   * @param _vesting uint64 The vesting period.
+   */
   function grantVestedTokens(
     address _to,
     uint256 _value,
@@ -39,6 +51,12 @@ contract VestedToken is StandardToken, LimitedTransferToken {
     transfer(_to, _value);
   }
 
+
+  /**
+   * @dev Revoke the grant of tokens of a specifed address.
+   * @param _holder The address which will have its tokens revoked.
+   * @param _grantId The id of the token grant.
+   */
   function revokeTokenGrant(address _holder, uint _grantId) {
     TokenGrant grant = grants[_holder][_grantId];
 
@@ -57,10 +75,22 @@ contract VestedToken is StandardToken, LimitedTransferToken {
     Transfer(_holder, msg.sender, nonVested);
   }
 
+  /**
+   * @dev Check the amount of grants that an address has.
+   * @param _holder The holder of the grants.
+   * @return A uint representing the total amount of grants.
+   */
   function tokenGrantsCount(address _holder) constant returns (uint index) {
     return grants[_holder].length;
   }
 
+  /**
+   * @dev Get all information about a specifc grant.
+   * @param _holder The address which will have its tokens revoked.
+   * @param _grantId The id of the token grant.
+   * @return Returns all the values that represent a TokenGrant(address, value, start, cliff 
+   * and vesting) plus the vested value at the current time.
+   */
   function tokenGrant(address _holder, uint _grantId) constant returns (address granter, uint256 value, uint256 vested, uint64 start, uint64 cliff, uint64 vesting) {
     TokenGrant grant = grants[_holder][_grantId];
 
@@ -73,6 +103,12 @@ contract VestedToken is StandardToken, LimitedTransferToken {
     vested = vestedTokens(grant, uint64(now));
   }
 
+  /**
+   * @dev Get the amount of vested tokens at a specific time.
+   * @param grant TokenGrant The grant to be checked.
+   * @param time The time to be checked
+   * @return An uint representing the amount of vested tokens of a specific grant at a specific time.
+   */
   function vestedTokens(TokenGrant grant, uint64 time) private constant returns (uint256) {
     return calculateVestedTokens(
       grant.value,
@@ -83,6 +119,15 @@ contract VestedToken is StandardToken, LimitedTransferToken {
     );
   }
 
+  /**
+   * @dev Calculate amount of vested tokens at a specifc time.
+   * @param tokens uint256 The amount of tokens grantted.
+   * @param time uint64 The time to be checked
+   * @param start uint64 A time representing the begining of the grant
+   * @param _cliff uint64 The cliff period.
+   * @param _vesting uint64 The vesting period.
+   * @return An uint representing the amount of vested tokensof a specif grant.
+   */
   function calculateVestedTokens(
     uint256 tokens,
     uint256 time,
@@ -106,10 +151,22 @@ contract VestedToken is StandardToken, LimitedTransferToken {
     vestedTokens = vestedTokens.add(vestingTokens.mul(time.sub(cliff)).div(vesting.sub(cliff)));
   }
 
+  /**
+   * @dev Calculate the amount of non vested tokens at a specific time.
+   * @param grant TokenGrant The grant to be checked.
+   * @param time uint64 The time to be checked
+   * @return An uint representing the amount of non vested tokens of a specifc grant on the 
+   * passed time frame.
+   */
   function nonVestedTokens(TokenGrant grant, uint64 time) private constant returns (uint256) {
     return grant.value.sub(vestedTokens(grant, time));
   }
 
+  /**
+   * @dev Calculate the date when the holder can trasfer all its tokens
+   * @param holder address The address of the holder
+   * @return An uint representing the date of the last transferable tokens.
+   */
   function lastTokenIsTransferableDate(address holder) constant public returns (uint64 date) {
     date = uint64(now);
     uint256 grantIndex = grants[holder].length;
@@ -118,6 +175,12 @@ contract VestedToken is StandardToken, LimitedTransferToken {
     }
   }
 
+  /**
+   * @dev Calculate the total amount of transferable tokens of a holder at a given time
+   * @param holder address The address of the holder
+   * @param time uint64 The specific time.
+   * @return An uint representing a holder's total amount of transferable tokens.
+   */
   function transferableTokens(address holder, uint64 time) constant public returns (uint256 nonVested) {
     uint256 grantIndex = grants[holder].length;
     for (uint256 i = 0; i < grantIndex; i++) {
