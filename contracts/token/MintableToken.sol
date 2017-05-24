@@ -40,7 +40,7 @@ contract MintableToken is StandardToken, Ownable {
   }
 
   /**
-   * @dev Function to spot minting new tokens.
+   * @dev Function to stop minting new tokens.
    * @return True if the operation was successful.
    */
   function finishMinting() onlyOwner returns (bool) {

@@ -9,7 +9,6 @@ import "./LimitedTransferToken.sol";
  * @dev Tokens that can be vested for a group of addresses.
  */
 contract VestedToken is StandardToken, LimitedTransferToken {
-
   struct TokenGrant {
     address granter;
     uint256 value;
@@ -24,9 +23,9 @@ contract VestedToken is StandardToken, LimitedTransferToken {
    * @dev Grant tokens to a specified address
    * @param _to address The address which the tokens will be granted to.
    * @param _value uint256 The amount of tokens to be granted.
-   * @param _start uint64 Represents time of the begining of the grant.
-   * @param _cliff uint64 Represents the cliff period.
-   * @param _vesting uint64 Represents the vesting period.
+   * @param _start uint64 Time of the beginning of the grant.
+   * @param _cliff uint64 Time of the cliff period.
+   * @param _vesting uint64 The vesting period.
    */
   function grantVestedTokens(
     address _to,
@@ -121,14 +120,14 @@ contract VestedToken is StandardToken, LimitedTransferToken {
   }
 
   /**
-  * @dev Calculate amount of vested tokens at a specifc time.
-  * @param tokens uint256 The amount of tokens grantted.
-  * @param time uint64 The time to be checked
-  * @param start uint64 A time representing the begining of the grant
-  * @param _cliff uint64 Represents the cliff period.
-  * @param _vesting uint64 Represents the vesting period.
-  * @return An uint representing the amount of vested tokensof a specif grant.
-  */
+   * @dev Calculate amount of vested tokens at a specifc time.
+   * @param tokens uint256 The amount of tokens grantted.
+   * @param time uint64 The time to be checked
+   * @param start uint64 A time representing the begining of the grant
+   * @param _cliff uint64 The cliff period.
+   * @param _vesting uint64 The vesting period.
+   * @return An uint representing the amount of vested tokensof a specif grant.
+   */
   function calculateVestedTokens(
     uint256 tokens,
     uint256 time,
