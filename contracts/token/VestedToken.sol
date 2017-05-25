@@ -124,8 +124,8 @@ contract VestedToken is StandardToken, LimitedTransferToken {
    * @param tokens uint256 The amount of tokens grantted.
    * @param time uint64 The time to be checked
    * @param start uint64 A time representing the begining of the grant
-   * @param _cliff uint64 The cliff period.
-   * @param _vesting uint64 The vesting period.
+   * @param cliff uint64 The cliff period.
+   * @param vesting uint64 The vesting period.
    * @return An uint representing the amount of vested tokensof a specif grant.
    */
   function calculateVestedTokens(

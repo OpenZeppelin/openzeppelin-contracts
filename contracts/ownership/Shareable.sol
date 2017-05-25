@@ -58,7 +58,6 @@ contract Shareable {
    * transactions as well as the selection of addresses capable of confirming them.
    * @param _owners A list of owners.
    * @param _required The amount required for a transaction to be approved.
-   * @param _limit Uint to represent the daily limit.
    */
   function Shareable(address[] _owners, uint _required) {
     owners[1] = msg.sender;
