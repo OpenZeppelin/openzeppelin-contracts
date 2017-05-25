@@ -101,7 +101,6 @@ contract MultisigWallet is Multisig, Shareable, DayLimit {
 
   /** 
    * @dev Resets the value spent to enable more spending
-   * @param _newLimit 
    */
   function resetSpentToday() onlymanyowners(keccak256(msg.data)) external {
     _resetSpentToday();

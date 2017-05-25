@@ -44,7 +44,7 @@ contract Bounty is PullPayment, Destructible {
 
   /**
    * @dev Sends the contract funds to the researcher that proved the contract is broken.
-   * @param Target contract
+   * @param target contract
    */
   function claim(Target target) {
     address researcher = researchers[target];
