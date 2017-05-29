@@ -6,7 +6,8 @@
   "scripts": {
     "test": "scripts/test.sh",
     "console": "truffle console",
-    "install": "scripts/install.sh"
+    "install": "scripts/install.sh",
+    "coverage": "scripts/coverage.sh"
   },
   "repository": {
     "type": "git",
@@ -35,6 +36,7 @@
     "babel-preset-stage-3": "^6.17.0",
     "babel-register": "^6.23.0",
     "ethereumjs-testrpc": "^3.0.2",
+    "solidity-coverage": "^0.1.0",
     "truffle": "https://github.com/ConsenSys/truffle.git#3.1.9"
   }
 }
