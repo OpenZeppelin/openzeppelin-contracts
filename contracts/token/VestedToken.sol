@@ -8,6 +8,9 @@ import "./LimitedTransferToken.sol";
  * @dev Tokens that can be vested for a group of addresses.
  */
 contract VestedToken is StandardToken, LimitedTransferToken {
+
+  uint256 MAX_GRANTS_PER_ADDRESS = 20;
+
   struct TokenGrant {
     address granter;     // 20 bytes
     uint256 value;       // 32 bytes
@@ -44,6 +47,8 @@ contract VestedToken is StandardToken, LimitedTransferToken {
     if (_cliff < _start || _vesting < _cliff) {
       throw;
     }
+
+    if (tokenGrantsCount(_to) > MAX_GRANTS_PER_ADDRESS) throw;   // To prevent a user being spammed and have his balance locked (out of gas attack when calculating vesting).
 
     uint count = grants[_to].push(
                 TokenGrant(
