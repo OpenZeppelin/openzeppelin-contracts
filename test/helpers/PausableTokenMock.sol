@@ -5,7 +5,7 @@ import '../../contracts/token/PausableToken.sol';
 // mock class using PausableToken
 contract PausableTokenMock is PausableToken {
 
-  function PausableTokenMock(address initialAccount, uint initialBalance) {
+  function PausableTokenMock(address initialAccount, uint initialBalance) PausableToken(false){
     balances[initialAccount] = initialBalance;
   }
 
