@@ -10,3 +10,5 @@ before_install:
 script:
   - testrpc > /dev/null &
   - truffle test
+after_script:
+  - npm run coveralls
