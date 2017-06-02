@@ -10,7 +10,7 @@ upgrade(address new_address) onlyOwner
 
 Creates a new instance of the contract at the passed address.
 
-setCompleted(uint completed) onlyOwner**
+setCompleted(uint256 completed) onlyOwner**
 """"""""""""""""""""""""""""""""""""""""
 
 Sets the last time that a migration was completed.

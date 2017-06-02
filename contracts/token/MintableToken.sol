@@ -14,11 +14,11 @@ import '../ownership/Ownable.sol';
  */
 
 contract MintableToken is StandardToken, Ownable {
-  event Mint(address indexed to, uint value);
+  event Mint(address indexed to, uint256 value);
   event MintFinished();
 
   bool public mintingFinished = false;
-  uint public totalSupply = 0;
+  uint256 public totalSupply = 0;
 
 
   modifier canMint() {
@@ -32,7 +32,7 @@ contract MintableToken is StandardToken, Ownable {
    * @param _amount The amount of tokens to mint.
    * @return A boolean that indicates if the operation was successful.
    */
-  function mint(address _to, uint _amount) onlyOwner canMint returns (bool) {
+  function mint(address _to, uint256 _amount) onlyOwner canMint returns (bool) {
     totalSupply = totalSupply.add(_amount);
     balances[_to] = balances[_to].add(_amount);
     Mint(_to, _amount);

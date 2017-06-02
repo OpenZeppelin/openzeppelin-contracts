@@ -3,7 +3,7 @@ PullPayment
 
 Base contract supporting async send for pull payments. Inherit from this contract and use asyncSend instead of send.
 
-asyncSend(address dest, uint amount) internal
+asyncSend(address dest, uint256 amount) internal
 """""""""""""""""""""""""""""""""""""""""""""""
 Adds sent amount to available balance that payee can pull from this contract, called by payer.
 

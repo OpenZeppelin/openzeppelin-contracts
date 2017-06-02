@@ -7,7 +7,7 @@ import '../../contracts/lifecycle/Pausable.sol';
 // mock class using Pausable
 contract PausableMock is Pausable {
   bool public drasticMeasureTaken;
-  uint public count;
+  uint256 public count;
 
   function PausableMock() {
     drasticMeasureTaken = false;

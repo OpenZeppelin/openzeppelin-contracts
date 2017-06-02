@@ -9,6 +9,6 @@ createTokens(address recipient) payable
 """""""""""""""""""""""""""""""""""""""""
 Creates tokens based on message value and credits to the recipient.
 
-getPrice() constant returns (uint result)
+getPrice() constant returns (uint256 result)
 """""""""""""""""""""""""""""""""""""""""
 Returns the amount of tokens per 1 ether.
