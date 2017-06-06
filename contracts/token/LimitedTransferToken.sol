@@ -33,7 +33,7 @@ contract LimitedTransferToken is ERC20 {
    * @param _value The amount of tokens to be transferred.
    */
   function transfer(address _to, uint _value) canTransfer(msg.sender, _value) {
-   return super.transfer(_to, _value);
+    super.transfer(_to, _value);
   }
 
   /**
@@ -43,7 +43,7 @@ contract LimitedTransferToken is ERC20 {
   * @param _value The amount of tokens to be transferred.
   */
   function transferFrom(address _from, address _to, uint _value) canTransfer(_from, _value) {
-   return super.transferFrom(_from, _to, _value);
+    super.transferFrom(_from, _to, _value);
   }
 
   /**
