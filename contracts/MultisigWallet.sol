@@ -1,4 +1,4 @@
-pragma solidity ^0.4.8;
+pragma solidity ^0.4.11;
 
 
 import "./ownership/Multisig.sol";
@@ -93,7 +93,7 @@ contract MultisigWallet is Multisig, Shareable, DayLimit {
 
   /** 
    * @dev Updates the daily limit value. 
-   * @param _newLimit 
+   * @param _newLimit  Uint to represent the new limit.
    */
   function setDailyLimit(uint _newLimit) onlymanyowners(keccak256(msg.data)) external {
     _setDailyLimit(_newLimit);

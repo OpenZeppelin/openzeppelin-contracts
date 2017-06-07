@@ -35,7 +35,8 @@ contract('HasNoEther', function(accounts) {
     assert.equal(startBalance, 0);
 
     // Force ether into it
-    await ForceEther.new(hasNoEther.address, {value: amount});
+    let forceEther = await ForceEther.new({value: amount});
+    await forceEther.destroyAndSend(hasNoEther.address);
     const forcedBalance = await web3.eth.getBalance(hasNoEther.address);
     assert.equal(forcedBalance, amount);
 
@@ -53,7 +54,8 @@ contract('HasNoEther', function(accounts) {
     let hasNoEther = await HasNoEtherTest.new({from: accounts[0]});
 
     // Force ether into it
-    await ForceEther.new(hasNoEther.address, {value: amount});
+    let forceEther = await ForceEther.new({value: amount});
+    await forceEther.destroyAndSend(hasNoEther.address);
     const forcedBalance = await web3.eth.getBalance(hasNoEther.address);
     assert.equal(forcedBalance, amount);
 

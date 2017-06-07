@@ -1,4 +1,4 @@
-pragma solidity ^0.4.8;
+pragma solidity ^0.4.11;
 
 import "./HasNoEther.sol";
 import "./HasNoTokens.sol";
