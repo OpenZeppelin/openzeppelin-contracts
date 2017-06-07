@@ -48,7 +48,7 @@ We think much more could be done here, and recommend the OpenZeppelin team keep 
 
 ## Solidity Version Updates Recommended
 
-Most of the code uses Solidity 0.4.8, but some files under `Ownership` are marked 0.4.0. These should be updated.
+Most of the code uses Solidity 0.4.11, but some files under `Ownership` are marked 0.4.0. These should be updated.
 
 Solidity 0.4.10 will add several features which could be useful in these contracts:
 
