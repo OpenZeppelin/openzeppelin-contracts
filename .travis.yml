@@ -7,6 +7,8 @@ node_js:
 before_install:
   - npm install truffle@3.2.2 -g
   - npm i -g ethereumjs-testrpc
+before_script:
+  - rbenv global 2.3.1 && gem install danger --version '~> 4.0' && danger
 script:
   - testrpc > /dev/null &
   - truffle test
