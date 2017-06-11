@@ -4,11 +4,10 @@ group: beta
 language: node_js
 node_js:
   - "6"
-before_install:
-  - npm install truffle@3.2.2 -g
-  - npm i -g ethereumjs-testrpc
+cache:
+  yarn: true
 script:
   - testrpc > /dev/null &
   - truffle test
 after_script:
-  - npm run coveralls
+  - yarn run coveralls
