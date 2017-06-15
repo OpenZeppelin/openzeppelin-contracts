@@ -62,7 +62,11 @@ library ECRecovery {
     bool ret;
     address addr;
     (ret, addr) = safeRecover(hash, v, r, s);
-    return addr;
+
+    if (!ret)
+      return address(0);
+    else
+      return addr;
   }
 
 }
