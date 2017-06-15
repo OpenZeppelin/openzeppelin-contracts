@@ -38,6 +38,7 @@
     "babel-register": "^6.23.0",
     "coveralls": "^2.13.1",
     "ethereumjs-testrpc": "^3.0.2",
+    "ethereumjs-util": "^5.1.2",
     "mocha-lcov-reporter": "^1.3.0",
     "solidity-coverage": "^0.1.0",
     "truffle": "3.2.2"
