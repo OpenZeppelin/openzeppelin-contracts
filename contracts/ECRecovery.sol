@@ -8,7 +8,7 @@ pragma solidity ^0.4.11;
 library ECRecovery {
 
   // Duplicate Solidity's ecrecover, but catching the CALL return value
-  function safeRecover(bytes32 hash, uint8 v, bytes32 r, bytes32 s) internal returns (bool, address) {
+  function safeRecover(bytes32 hash, uint8 v, bytes32 r, bytes32 s) constant returns (bool, address) {
     // We do our own memory management here. Solidity uses memory offset
     // 0x40 to store the current end of memory. We write past it (as
     // writes are memory extensions), but don't update the offset so
@@ -33,8 +33,8 @@ library ECRecovery {
 
     return (ret, addr);
   }
-  
-  function recover(bytes32 hash, bytes sig) internal returns (address) {
+
+  function recover(bytes32 hash, bytes sig) constant returns (address) {
     bytes32 r;
     bytes32 s;
     uint8 v;
