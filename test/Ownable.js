@@ -15,6 +15,14 @@ contract('Ownable', function(accounts) {
     assert.isTrue(owner !== 0);
   });
 
+  it('should accept an owner as constructor argument', async function() {
+    let other = accounts[1];
+    ownable = await Ownable.new(other);
+    let owner = await ownable.owner();
+    assert.isTrue(owner === other);
+  });
+
+
   it('changes owner after transfer', async function() {
     let other = accounts[1];
     await ownable.transferOwnership(other);
