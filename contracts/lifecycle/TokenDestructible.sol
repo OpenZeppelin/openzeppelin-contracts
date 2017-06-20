@@ -24,7 +24,7 @@ contract TokenDestructible is Ownable {
   function destroy(address[] tokens) onlyOwner {
 
     // Transfer tokens to owner
-    for(uint i = 0; i < tokens.length; i++) {
+    for(uint256 i = 0; i < tokens.length; i++) {
       ERC20Basic token = ERC20Basic(tokens[i]);
       uint256 balance = token.balanceOf(this);
       token.transfer(owner, balance);
