@@ -22,7 +22,7 @@ contract LimitedTransferToken is ERC20 {
   /**
    * @dev Checks whether it can transfer or otherwise throws.
    */
-  modifier canTransfer(address _sender, uint _value) {
+  modifier canTransfer(address _sender, uint256 _value) {
    if (_value > transferableTokens(_sender, uint64(now))) throw;
    _;
   }
@@ -32,7 +32,7 @@ contract LimitedTransferToken is ERC20 {
    * @param _to The address that will recieve the tokens.
    * @param _value The amount of tokens to be transferred.
    */
-  function transfer(address _to, uint _value) canTransfer(msg.sender, _value) {
+  function transfer(address _to, uint256 _value) canTransfer(msg.sender, _value) {
     super.transfer(_to, _value);
   }
 
@@ -42,7 +42,7 @@ contract LimitedTransferToken is ERC20 {
   * @param _to The address that will recieve the tokens.
   * @param _value The amount of tokens to be transferred.
   */
-  function transferFrom(address _from, address _to, uint _value) canTransfer(_from, _value) {
+  function transferFrom(address _from, address _to, uint256 _value) canTransfer(_from, _value) {
     super.transferFrom(_from, _to, _value);
   }
 

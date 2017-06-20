@@ -14,8 +14,8 @@ contract SimpleToken is StandardToken {
 
   string public name = "SimpleToken";
   string public symbol = "SIM";
-  uint public decimals = 18;
-  uint public INITIAL_SUPPLY = 10000;
+  uint256 public decimals = 18;
+  uint256 public INITIAL_SUPPLY = 10000;
 
   /**
    * @dev Contructor that gives msg.sender all of existing tokens. 

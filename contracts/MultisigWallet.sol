@@ -16,7 +16,7 @@ contract MultisigWallet is Multisig, Shareable, DayLimit {
 
   struct Transaction {
     address to;
-    uint value;
+    uint256 value;
     bytes data;
   }
 
@@ -25,7 +25,7 @@ contract MultisigWallet is Multisig, Shareable, DayLimit {
    * @param _owners A list of owners.
    * @param _required The amount required for a transaction to be approved.
    */
-  function MultisigWallet(address[] _owners, uint _required, uint _daylimit)       
+  function MultisigWallet(address[] _owners, uint256 _required, uint256 _daylimit)       
     Shareable(_owners, _required)        
     DayLimit(_daylimit) { }
 
@@ -55,7 +55,7 @@ contract MultisigWallet is Multisig, Shareable, DayLimit {
    * @param _value The value to send
    * @param _data The data part of the transaction
    */
-  function execute(address _to, uint _value, bytes _data) external onlyOwner returns (bytes32 _r) {
+  function execute(address _to, uint256 _value, bytes _data) external onlyOwner returns (bytes32 _r) {
     // first, take the opportunity to check that we're under the daily limit.
     if (underLimit(_value)) {
       SingleTransact(msg.sender, _value, _to, _data);
@@ -93,9 +93,9 @@ contract MultisigWallet is Multisig, Shareable, DayLimit {
 
   /** 
    * @dev Updates the daily limit value. 
-   * @param _newLimit  Uint to represent the new limit.
+   * @param _newLimit  uint256 to represent the new limit.
    */
-  function setDailyLimit(uint _newLimit) onlymanyowners(keccak256(msg.data)) external {
+  function setDailyLimit(uint256 _newLimit) onlymanyowners(keccak256(msg.data)) external {
     _setDailyLimit(_newLimit);
   }
 
@@ -112,8 +112,8 @@ contract MultisigWallet is Multisig, Shareable, DayLimit {
    * @dev Clears the list of transactions pending approval.
    */
   function clearPending() internal {
-    uint length = pendingsIndex.length;
-    for (uint i = 0; i < length; ++i) {
+    uint256 length = pendingsIndex.length;
+    for (uint256 i = 0; i < length; ++i) {
       delete txs[pendingsIndex[i]];
     }
     super.clearPending();
