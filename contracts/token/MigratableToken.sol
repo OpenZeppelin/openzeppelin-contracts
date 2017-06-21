@@ -42,10 +42,8 @@ contract MigratableToken is StandardToken, Ownable, Migratable {
    * @param _amount The amount of token to be migrated
    */
   function migrate(uint256 _amount) whenMigrating external {
-    if (migrationTarget == 0 || migrationTarget == address(this)) throw;
-
+    if (migrationTarget == 0x0 || migrationTarget == address(this)) throw;
     if (_amount == 0) throw;
-    if (_amount > balances[msg.sender]) throw;
 
     balances[msg.sender] = balances[msg.sender].sub(_amount);
     totalSupply = totalSupply.sub(_amount);
@@ -59,7 +57,7 @@ contract MigratableToken is StandardToken, Ownable, Migratable {
    * @param _target The address of the MigrationTarget contract
    */
   function setMigrationTarget(address _target) onlyOwner external {
-    if (migrationTarget != 0) throw;
+    if (migrationTarget != 0x0) throw;
     migrationTarget = _target;
   }
 
