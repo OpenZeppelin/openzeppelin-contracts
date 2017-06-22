@@ -6,7 +6,6 @@
   "scripts": {
     "test": "scripts/test.sh",
     "console": "truffle console",
-    "install": "scripts/install.sh",
     "coverage": "scripts/coverage.sh",
     "coveralls": "scripts/coveralls.sh"
   },
