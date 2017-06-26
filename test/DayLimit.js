@@ -5,17 +5,19 @@ var DayLimitMock = artifacts.require('helpers/DayLimitMock.sol');
 
 contract('DayLimit', function(accounts) {
 
+  let dayLimit;
+  let initLimit = 10;
+
+  beforeEach( async function() {
+    dayLimit = await DayLimitMock.new(initLimit);
+  });
+  
   it('should construct with the passed daily limit', async function() {
-    let initLimit = 10;
-    let dayLimit = await DayLimitMock.new(initLimit);
     let dailyLimit = await dayLimit.dailyLimit();
     assert.equal(initLimit, dailyLimit);
   });
 
   it('should be able to spend if daily limit is not reached', async function() {
-    let limit = 10;
-    let dayLimit = await DayLimitMock.new(limit);
-
     await dayLimit.attemptSpend(8);
     let spentToday = await dayLimit.spentToday();
     assert.equal(spentToday, 8);
@@ -26,9 +28,6 @@ contract('DayLimit', function(accounts) {
   });
 
   it('should prevent spending if daily limit is reached', async function() {
-    let limit = 10;
-    let dayLimit = await DayLimitMock.new(limit);
-
     await dayLimit.attemptSpend(8);
     let spentToday = await dayLimit.spentToday();
     assert.equal(spentToday, 8);
@@ -41,9 +40,6 @@ contract('DayLimit', function(accounts) {
   });
 
   it('should allow spending if daily limit is reached and then set higher', async function() {
-    let limit = 10;
-    let dayLimit = await DayLimitMock.new(limit);
-
     await dayLimit.attemptSpend(8);
     let spentToday = await dayLimit.spentToday();
     assert.equal(spentToday, 8);
@@ -63,9 +59,6 @@ contract('DayLimit', function(accounts) {
   });
 
   it('should allow spending if daily limit is reached and then amount spent is reset', async function() {
-    let limit = 10;
-    let dayLimit = await DayLimitMock.new(limit);
-
     await dayLimit.attemptSpend(8);
     let spentToday = await dayLimit.spentToday();
     assert.equal(spentToday, 8);
