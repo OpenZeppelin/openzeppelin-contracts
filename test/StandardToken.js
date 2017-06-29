@@ -5,8 +5,13 @@ var StandardTokenMock = artifacts.require('./helpers/StandardTokenMock.sol');
 
 contract('StandardToken', function(accounts) {
 
+  let token;
+  
+  beforeEach(async function() {
+    token = await StandardTokenMock.new(accounts[0], 100);
+  });
+  
   it('should return the correct totalSupply after construction', async function() {
-    let token = await StandardTokenMock.new(accounts[0], 100);
     let totalSupply = await token.totalSupply();
 
     assert.equal(totalSupply, 100);
@@ -56,7 +61,6 @@ contract('StandardToken', function(accounts) {
   });
 
   it('should throw an error when trying to transfer more than allowed', async function() {
-    let token = await StandardTokenMock.new();
     await token.approve(accounts[1], 99);
     try {
       await token.transferFrom(accounts[0], accounts[2], 100, {from: accounts[1]});
