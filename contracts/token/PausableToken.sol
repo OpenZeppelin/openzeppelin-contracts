@@ -13,7 +13,7 @@ import '../lifecycle/Pausable.sol';
  * https://github.com/BCAPtoken/BCAPToken/blob/5cb5e76338cc47343ba9268663a915337c8b268e/sol/BCAPToken.sol#L27
  **/
 
-contract PausableToken is Pausable, StandardToken {
+contract PausableToken is StandardToken, Pausable {
 
   function transfer(address _to, uint256 _value) whenNotPaused {
     super.transfer(_to, _value);
