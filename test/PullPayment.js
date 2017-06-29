@@ -50,13 +50,13 @@ contract('PullPayment', function(accounts) {
     let payee = accounts[1];
     let initialBalance = web3.eth.getBalance(payee);
 
-    let call1 = await ppce.callSend(payee, AMOUNT);
+    let call1 = await ppce.callSend(payee, tAMOUNT);
 
     let payment1 = await ppce.payments(payee);
-    assert.equal(payment1, AMOUNT);
+    assert.equal(payment1, tAMOUNT);
 
     let totalPayments = await ppce.totalPayments();
-    assert.equal(totalPayments, AMOUNT);
+    assert.equal(totalPayments, tAMOUNT);
 
     let withdraw = await ppce.withdrawPayments({from: payee});
     let payment2 = await ppce.payments(payee);
@@ -66,7 +66,7 @@ contract('PullPayment', function(accounts) {
     assert.equal(totalPayments, 0);
 
     let balance = web3.eth.getBalance(payee);
-    assert(Math.abs(balance-initialBalance-AMOUNT) < 1e16);
+    assert(Math.abs(balance-initialBalance-tAMOUNT) < 1e16);
   });
 
 });
