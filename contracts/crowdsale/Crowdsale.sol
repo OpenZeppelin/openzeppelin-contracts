@@ -24,7 +24,7 @@ contract Crowdsale {
   // address where funds are collected
   address public wallet;
 
-  // token to ETH conversion rate
+  // how many token units a buyer gets per wei
   uint256 public rate;
 
   // amount of raised money in wei
