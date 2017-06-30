@@ -67,7 +67,7 @@ contract Crowdsale {
 
   // low level token purchase function
   function buyTokens(address beneficiary) payable {
-    require(canBuy());
+    require(purchaseValid());
 
     uint256 weiAmount = msg.value;
     uint256 updatedWeiRaised = weiRaised.add(weiAmount);
@@ -91,7 +91,7 @@ contract Crowdsale {
   }
 
   // @return true if the transaction can buy tokens
-  function canBuy() internal constant returns (bool) {
+  function purchaseValid() internal constant returns (bool) {
     uint256 current = block.number;
     bool withinPeriod = current >= startBlock && current <= endBlock;
     bool nonZeroPurchase = msg.value != 0;
