@@ -12,9 +12,7 @@ contract CappedCrowdsale is Crowdsale {
 
   uint256 public cap;
 
-  function CappedCrowdsale(
-    uint256 _cap
-  ) {
+  function CappedCrowdsale(uint256 _cap) {
     cap = _cap;
   }
 
