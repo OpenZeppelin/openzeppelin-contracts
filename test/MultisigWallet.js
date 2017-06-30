@@ -52,7 +52,7 @@ contract('MultisigWallet', function(accounts) {
 
     //Balance of account2 should have increased
     let newAccountBalance = web3.eth.getBalance(accounts[2]);
-    assert.isTrue(newAccountBalance > accountBalance);
+    assert.isTrue(newAccountBalance.greaterThan(accountBalance));
   });
 
   it('should prevent execution of transaction if above daily limit', async function() {
