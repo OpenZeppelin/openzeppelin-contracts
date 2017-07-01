@@ -6,7 +6,7 @@ import './ERC20Basic.sol';
 /**
  * @title TokenTimelock
  * @dev TokenTimelock is a token holder contract that will allow a 
- * beneficiary to extract the tokens after a time has passed
+ * beneficiary to extract the tokens after a given release time
  */
 contract TokenTimelock {
   
@@ -16,7 +16,7 @@ contract TokenTimelock {
   // beneficiary of tokens after they are released
   address beneficiary;
 
-  // timestamp where token release is enabled
+  // timestamp when token release is enabled
   uint releaseTime;
 
   function TokenTimelock(ERC20Basic _token, address _beneficiary, uint _releaseTime) {
