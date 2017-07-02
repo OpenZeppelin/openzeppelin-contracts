@@ -67,6 +67,7 @@ contract Crowdsale {
 
   // low level token purchase function
   function buyTokens(address beneficiary) payable {
+    require(beneficiary != 0x0);
     require(purchaseValid());
 
     uint256 weiAmount = msg.value;
