@@ -2,12 +2,20 @@ pragma solidity ^0.4.11;
 
 
 /**
-* Eliptic curve signature operations
-* Based on https://gist.github.com/axic/5b33912c6f61ae6fd96d6c4a47afde6d
-*/
+ * @title Eliptic curve signature operations
+ *
+ * @dev Based on https://gist.github.com/axic/5b33912c6f61ae6fd96d6c4a47afde6d
+ */
+
 library ECRecovery {
 
-  // Duplicate Solidity's ecrecover, but catching the CALL return value
+  /**
+   * @dev Duplicate Solidity's ecrecover, but catching the CALL return value
+   * @param hash bytes32 messahe hash from which the signature will be recovered
+   * @param v uint8 signature version
+   * @param r bytes32 signature r value
+   * @param s bytes32 signature s value
+   */
   function safeRecover(bytes32 hash, uint8 v, bytes32 r, bytes32 s) constant returns (bool, address) {
     // We do our own memory management here. Solidity uses memory offset
     // 0x40 to store the current end of memory. We write past it (as
@@ -34,6 +42,11 @@ library ECRecovery {
     return (ret, addr);
   }
 
+  /**
+   * @dev Recover signer address from a message by using his signature
+   * @param hash bytes32 messahe hash from which the signature will be recovered
+   * @param sig bytes signature
+   */
   function recover(bytes32 hash, bytes sig) constant returns (address) {
     bytes32 r;
     bytes32 s;
