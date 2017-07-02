@@ -1,5 +1,6 @@
 pragma solidity ^0.4.11;
 
+import "../math/Math.sol";
 import "./StandardToken.sol";
 import "./LimitedTransferToken.sol";
 
@@ -121,7 +122,7 @@ contract VestedToken is StandardToken, LimitedTransferToken {
 
     // Return the minimum of how many vested can transfer and other value
     // in case there are other limiting transferability factors (default is balanceOf)
-    return SafeMath.min256(vestedTransferable, super.transferableTokens(holder, time));
+    return Math.min256(vestedTransferable, super.transferableTokens(holder, time));
   }
 
   /**
@@ -241,7 +242,7 @@ contract VestedToken is StandardToken, LimitedTransferToken {
     date = uint64(now);
     uint256 grantIndex = grants[holder].length;
     for (uint256 i = 0; i < grantIndex; i++) {
-      date = SafeMath.max64(grants[holder][i].vesting, date);
+      date = Math.max64(grants[holder][i].vesting, date);
     }
   }
 }
