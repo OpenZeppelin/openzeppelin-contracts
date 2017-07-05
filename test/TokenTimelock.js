@@ -24,33 +24,33 @@ contract('TokenTimelock', function ([_, owner, beneficiary]) {
     await this.token.mint(this.timelock.address, amount, {from: owner})
   })
 
-  it('cannot be claimed before time limit', async function () {
-    await this.timelock.claim({from: beneficiary}).should.be.rejected
+  it('cannot be released before time limit', async function () {
+    await this.timelock.release().should.be.rejected
   })
 
-  it('cannot be claimed just before time limit', async function () {
+  it('cannot be released just before time limit', async function () {
     await increaseTime(moment.duration(0.99, 'year'))
-    await this.timelock.claim({from: beneficiary}).should.be.rejected
+    await this.timelock.release().should.be.rejected
   })
 
-  it('can be claimed just after limit', async function () {
+  it('can be released just after limit', async function () {
     await increaseTime(moment.duration(1.01, 'year'))
-    await this.timelock.claim({from: beneficiary}).should.be.fulfilled
+    await this.timelock.release().should.be.fulfilled
     const balance = await this.token.balanceOf(beneficiary)
     balance.should.be.bignumber.equal(amount)
   })
 
-  it('can be claimed after time limit', async function () {
+  it('can be released after time limit', async function () {
     await increaseTime(moment.duration(2, 'year'))
-    await this.timelock.claim({from: beneficiary}).should.be.fulfilled
+    await this.timelock.release().should.be.fulfilled
     const balance = await this.token.balanceOf(beneficiary)
     balance.should.be.bignumber.equal(amount)
   })
 
-  it('cannot be claimed twice', async function () {
+  it('cannot be released twice', async function () {
     await increaseTime(moment.duration(2, 'year'))
-    await this.timelock.claim({from: beneficiary}).should.be.fulfilled
-    await this.timelock.claim({from: beneficiary}).should.be.rejected
+    await this.timelock.release().should.be.fulfilled
+    await this.timelock.release().should.be.rejected
     const balance = await this.token.balanceOf(beneficiary)
     balance.should.be.bignumber.equal(amount)
   })

@@ -27,10 +27,18 @@ contract TokenTimelock {
   }
 
   /**
-   * @dev beneficiary claims tokens held by time lock
+   * @notice Transfers tokens held by timelock to beneficiary.
+   * Deprecated: please use TokenTimelock#release instead.
    */
   function claim() {
     require(msg.sender == beneficiary);
+    release();
+  }
+
+  /**
+   * @notice Transfers tokens held by timelock to beneficiary.
+   */
+  function release() {
     require(now >= releaseTime);
 
     uint amount = token.balanceOf(this);
