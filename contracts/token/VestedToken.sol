@@ -45,11 +45,9 @@ contract VestedToken is StandardToken, LimitedTransferToken {
   ) public {
 
     // Check for date inconsistencies that may cause unexpected behavior
-    if (_cliff < _start || _vesting < _cliff) {
-      throw;
-    }
+    require(_cliff >= _start && _vesting >= _cliff);
 
-    if (tokenGrantsCount(_to) > MAX_GRANTS_PER_ADDRESS) throw;   // To prevent a user being spammed and have his balance locked (out of gas attack when calculating vesting).
+    require(tokenGrantsCount(_to) <= MAX_GRANTS_PER_ADDRESS);   // To prevent a user being spammed and have his balance locked (out of gas attack when calculating vesting).
 
     uint256 count = grants[_to].push(
                 TokenGrant(
@@ -76,13 +74,8 @@ contract VestedToken is StandardToken, LimitedTransferToken {
   function revokeTokenGrant(address _holder, uint256 _grantId) public {
     TokenGrant grant = grants[_holder][_grantId];
 
-    if (!grant.revokable) { // Check if grant was revokable
-      throw;
-    }
-
-    if (grant.granter != msg.sender) { // Only granter can revoke it
-      throw;
-    }
+    require(grant.revokable);
+    require(grant.granter == msg.sender); // Only granter can revoke it
 
     address receiver = grant.burnsOnRevoke ? 0xdead : msg.sender;
 
