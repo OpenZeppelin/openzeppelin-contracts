@@ -19,13 +19,11 @@ contract Bounty is PullPayment, Destructible {
    * @dev Fallback function allowing the contract to recieve funds, if they haven't already been claimed.
    */
   function() payable {
-    if (claimed) {
-      throw;
-    }
+    require(!claimed);
   }
 
   /**
-   * @dev Create and deploy the target contract (extension of Target contract), and sets the 
+   * @dev Create and deploy the target contract (extension of Target contract), and sets the
    * msg.sender as a researcher
    * @return A target contract
    */
@@ -48,13 +46,9 @@ contract Bounty is PullPayment, Destructible {
    */
   function claim(Target target) {
     address researcher = researchers[target];
-    if (researcher == 0) {
-      throw;
-    }
+    require(researcher != 0);
     // Check Target contract invariants
-    if (target.checkInvariant()) {
-      throw;
-    }
+    require(!target.checkInvariant());
     asyncSend(researcher, this.balance);
     claimed = true;
   }
@@ -69,10 +63,10 @@ contract Bounty is PullPayment, Destructible {
 contract Target {
 
    /**
-    * @dev Checks all values a contract assumes to be true all the time. If this function returns 
-    * false, the contract is broken in some way and is in an inconsistent state. 
-    * In order to win the bounty, security researchers will try to cause this broken state. 
-    * @return True if all invariant values are correct, false otherwise. 
+    * @dev Checks all values a contract assumes to be true all the time. If this function returns
+    * false, the contract is broken in some way and is in an inconsistent state.
+    * In order to win the bounty, security researchers will try to cause this broken state.
+    * @return True if all invariant values are correct, false otherwise.
     */
   function checkInvariant() returns(bool);
 }

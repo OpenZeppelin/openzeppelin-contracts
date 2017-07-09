@@ -3,7 +3,7 @@ pragma solidity ^0.4.11;
 
 /**
  * @title Shareable
- * @dev inheritable "property" contract that enables methods to be protected by requiring the 
+ * @dev inheritable "property" contract that enables methods to be protected by requiring the
  * acquiescence of either a single, or, crucially, each of a number of, designated owners.
  * @dev Usage: use modifiers onlyowner (just own owned) or onlymanyowners(hash), whereby the same hash must be provided by some number (specified in constructor) of the set of owners (specified in the constructor) before the interior is executed.
  */
@@ -36,14 +36,12 @@ contract Shareable {
 
   // simple single-sig function modifier.
   modifier onlyOwner {
-    if (!isOwner(msg.sender)) {
-      throw;
-    }
+    require(isOwner(msg.sender));
     _;
   }
-  
-  /** 
-   * @dev Modifier for multisig functions. 
+
+  /**
+   * @dev Modifier for multisig functions.
    * @param _operation The operation must have an intrinsic hash in order that later attempts can be
    * realised as the same underlying operation and thus count as confirmations.
    */
@@ -53,8 +51,8 @@ contract Shareable {
     }
   }
 
-  /** 
-   * @dev Constructor is given the number of sigs required to do protected "onlymanyowners" 
+  /**
+   * @dev Constructor is given the number of sigs required to do protected "onlymanyowners"
    * transactions as well as the selection of addresses capable of confirming them.
    * @param _owners A list of owners.
    * @param _required The amount required for a transaction to be approved.
@@ -67,9 +65,7 @@ contract Shareable {
       ownerIndex[_owners[i]] = 2 + i;
     }
     required = _required;
-    if (required > owners.length) {
-      throw;
-    }
+    require(required <= owners.length);
   }
 
   /**
@@ -138,9 +134,7 @@ contract Shareable {
     // determine what index the present sender is:
     uint256 index = ownerIndex[msg.sender];
     // make sure they're an owner
-    if (index == 0) {
-      throw;
-    }
+    require(index != 0);
 
     var pending = pendings[_operation];
     // if we're not yet working on this operation, switch over and reset the confirmation status.

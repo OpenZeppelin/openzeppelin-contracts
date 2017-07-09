@@ -67,9 +67,7 @@ contract DayLimit {
    * @dev Simple modifier for daily limit.
    */
   modifier limitedDaily(uint256 _value) {
-    if (!underLimit(_value)) {
-      throw;
-    }
+    require(underLimit(_value));
     _;
   }
 }
