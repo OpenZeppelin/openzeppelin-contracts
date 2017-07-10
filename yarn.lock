@@ -2038,9 +2038,9 @@ ethereumjs-block@~1.2.2:
     ethereumjs-util "^4.0.1"
     merkle-patricia-tree "^2.1.2"
 
-"ethereumjs-testrpc-sc@https://github.com/sc-forks/testrpc-sc.git":
+"ethereumjs-testrpc-sc@git+https://github.com/sc-forks/testrpc-sc.git":
   version "3.0.3"
-  resolved "https://github.com/sc-forks/testrpc-sc.git#15cc0fb8e031bee152c7b8e3f8df5f2ad33ca04f"
+  resolved "git+https://github.com/sc-forks/testrpc-sc.git#2b7cad404a2b82023d2c8f5656b34e3cc44f2d08"
   dependencies:
     async "~1.5.0"
     bignumber.js "~2.1.4"
@@ -2058,7 +2058,7 @@ ethereumjs-block@~1.2.2:
     merkle-patricia-tree "~2.1.2"
     seedrandom "~2.4.2"
     shelljs "~0.6.0"
-    solc "0.4.6"
+    solc "0.4.8"
     temp "^0.8.3"
     tmp "0.0.31"
     web3 "~0.16.0"
@@ -5702,18 +5702,19 @@ solc@0.4.11, solc@^0.4.2:
     semver "^5.3.0"
     yargs "^4.7.1"
 
-solc@0.4.6:
-  version "0.4.6"
-  resolved "https://registry.yarnpkg.com/solc/-/solc-0.4.6.tgz#afa929a1ceafc0252cfbb4217c8e2b1dab139db7"
+solc@0.4.8:
+  version "0.4.8"
+  resolved "https://registry.yarnpkg.com/solc/-/solc-0.4.8.tgz#96abbee1266341ae97fb4bdc3abcc9bc1b5052ab"
   dependencies:
     fs-extra "^0.30.0"
     memorystream "^0.3.1"
     require-from-string "^1.1.0"
+    semver "^5.3.0"
     yargs "^4.7.1"
 
-solidity-coverage@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/solidity-coverage/-/solidity-coverage-0.1.0.tgz#e0f30319399dfe3a346f612e4f2a10361fe9e9c8"
+solidity-coverage@^0.1.7:
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/solidity-coverage/-/solidity-coverage-0.1.7.tgz#dd83d0685fc3bb107355da3b7da2db576bbc7374"
   dependencies:
     commander "^2.9.0"
     ethereumjs-testrpc-sc "https://github.com/sc-forks/testrpc-sc.git"
@@ -5723,11 +5724,19 @@ solidity-coverage@^0.1.0:
     req-cwd "^1.0.1"
     shelljs "^0.7.4"
     sol-explore "^1.6.2"
-    solidity-parser "0.3.0"
+    solidity-parser "git+https://github.com/sc-forks/solidity-parser.git"
 
-solidity-parser@0.3.0, solidity-parser@^0.3.0:
+solidity-parser@^0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/solidity-parser/-/solidity-parser-0.3.0.tgz#cab04f8e406bdc1f3c16512eec6aa87a1072f8b9"
+  dependencies:
+    mocha "^2.4.5"
+    pegjs "^0.10.0"
+    yargs "^4.6.0"
+
+"solidity-parser@git+https://github.com/sc-forks/solidity-parser.git":
+  version "0.3.0"
+  resolved "git+https://github.com/sc-forks/solidity-parser.git#6c544bd308fb6d38b2ca7e2adde9a42334221ab0"
   dependencies:
     mocha "^2.4.5"
     pegjs "^0.10.0"
@@ -5974,7 +5983,7 @@ supports-color@1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-1.2.0.tgz#ff1ed1e61169d06b3cf2d588e188b18d8847e17e"
 
-supports-color@3.1.2:
+supports-color@3.1.2, supports-color@^3.1.0:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-3.1.2.tgz#72a262894d9d408b956ca05ff37b2ed8a6e2a2d5"
   dependencies:
@@ -5983,12 +5992,6 @@ supports-color@3.1.2:
 supports-color@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-2.0.0.tgz#535d045ce6b6363fa40117084629995e9df324c7"
-
-supports-color@^3.1.0:
-  version "3.2.3"
-  resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-3.2.3.tgz#65ac0504b3954171d8a64946b2ae3cbb8a5f54f6"
-  dependencies:
-    has-flag "^1.0.0"
 
 table@^3.7.8:
   version "3.8.3"
