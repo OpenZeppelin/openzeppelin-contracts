@@ -13,7 +13,7 @@ To install the Zeppelin library, run::
 
 After that, you'll get all the library's contracts in the contracts/zeppelin folder. You can use the contracts in the library like so::
 
-	import "./zeppelin/Ownable.sol";
+	import "zeppelin-solidty/contracts/Ownable.sol";
 
 	contract MyContract is Ownable {
 	  ...
