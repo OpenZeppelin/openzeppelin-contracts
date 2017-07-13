@@ -109,7 +109,7 @@ contract VestedToken is StandardToken, LimitedTransferToken {
   function transferableTokens(address holder, uint64 time) constant public returns (uint256) {
     uint256 grantIndex = tokenGrantsCount(holder);
 
-    if (grantIndex == 0) return balanceOf(holder); // shortcut for holder without grants
+    if (grantIndex == 0) return super.transferableTokens(holder, time); // shortcut for holder without grants
 
     // Iterate through all the grants the holder has, and add all non-vested tokens
     uint256 nonVested = 0;
@@ -226,7 +226,7 @@ contract VestedToken is StandardToken, LimitedTransferToken {
    * @dev Calculate the amount of non vested tokens at a specific time.
    * @param grant TokenGrant The grant to be checked.
    * @param time uint64 The time to be checked
-   * @return An uint256 representing the amount of non vested tokens of a specifc grant on the 
+   * @return An uint256 representing the amount of non vested tokens of a specifc grant on the
    * passed time frame.
    */
   function nonVestedTokens(TokenGrant grant, uint64 time) private constant returns (uint256) {
