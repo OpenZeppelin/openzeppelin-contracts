@@ -11,8 +11,8 @@ library ECRecovery {
 
   /**
    * @dev Recover signer address from a message by using his signature
-   * @param hash bytes32 message hash from which the signature will be recovered
-   * @param sig bytes signature, the siganture is generated using web3.eth.sign()
+   * @param hash bytes32 message, the hash is the signed message. What is recovered is the signer address.
+   * @param sig bytes signature, the signature is generated using web3.eth.sign()
    */
   function recover(bytes32 hash, bytes sig) constant returns (address) {
     bytes32 r;
