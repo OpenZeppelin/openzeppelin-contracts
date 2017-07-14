@@ -17,6 +17,15 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor]) {
   const goal = ether(800)
   const lessThanGoal = ether(750)
 
+  describe('creating a valid crowdsale', function () {
+
+    it('should fail with zero goal', async function () {
+      await RefundableCrowdsale.new(this.startBlock, this.endBlock, rate, wallet, 0, {from: owner}).should.be.rejectedWith(EVMThrow);
+    })
+
+  });
+
+
   beforeEach(async function () {
     this.startBlock = web3.eth.blockNumber + 10
     this.endBlock =   web3.eth.blockNumber + 20
