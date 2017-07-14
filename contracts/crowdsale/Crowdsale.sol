@@ -70,17 +70,14 @@ contract Crowdsale {
     require(beneficiary != 0x0);
     require(validPurchase());
 
-    uint256 weiAmount = msg.value;
-    uint256 updatedWeiRaised = weiRaised.add(weiAmount);
-
     // calculate token amount to be created
-    uint256 tokens = weiAmount.mul(rate);
+    uint256 tokens = msg.value.mul(rate);
 
     // update state
-    weiRaised = updatedWeiRaised;
+    weiRaised = weiRaised.add(msg.value);
 
     token.mint(beneficiary, tokens);
-    TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
+    TokenPurchase(msg.sender, beneficiary, msg.value, tokens);
 
     forwardFunds();
   }
