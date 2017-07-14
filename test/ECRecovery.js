@@ -22,28 +22,16 @@ contract('ECRecovery', function(accounts) {
     assert.equal(signer, await ecrecovery.recover(message, signature));
   });
 
-  it("safeRecover v0", async function() {
-    let signer = '0x58d5f9f841bcf9e502b438cc81d1ea3ba3f8f7f3';
-    let message = '0x7dbaf558b0a1a5dc7a67202117ab143c1d8605a983e4a743bc06fcc03162dc0d'; // web3.sha3('OpenZeppelin')
-    let signature = '3690f285f30200dfacd35b9ee9af4beaf2c2f4b7880d93dd9bdf776e8fdbec6a095d00c80e20e95a68c8effc038707dd740aabf94a6ca37c09733874f772d6e000';
-    let v = (signature.substring(128,130) == '01') ? 28 : 27;
-    let r = '0x'+signature.substring(0,64);
-    let s = '0x'+signature.substring(64,128);
-    let result = await ecrecovery.safeRecover(message, v, r, s);
-    assert.equal(signer, result[1]);
-    assert.equal(true, result[0]);
+  it("recover using web3.eth.sign()", async function() {
+    let message = web3.sha3('OpenZeppelin');
+    let signature = web3.eth.sign(web3.eth.accounts[0], 'OpenZeppelin');
+    assert.equal(web3.eth.accounts[0], await ecrecovery.recover(message, signature));
   });
 
-  it("safeRecover v1", async function() {
-    let signer = '0x0b8124c2429c44e8ca31e7db6f85845abf146415';
-    let message = '0x7dbaf558b0a1a5dc7a67202117ab143c1d8605a983e4a743bc06fcc03162dc0d'; // web3.sha3('OpenZeppelin')
-    let signature = '7696f87b3f14e2f1c408c552c0005479bfe35df3a9efb493a2ad2bdf25d95c8c605b6f83699faca9bcbc3c665b434ed8d9c717aa71a1916f054fc41671dd38ad01';
-    let v = (signature.substring(128,130) == '01') ? 28 : 27;
-    let r = '0x'+signature.substring(0,64);
-    let s = '0x'+signature.substring(64,128);
-    let result = await ecrecovery.safeRecover(message, v, r, s);
-    assert.equal(signer, result[1]);
-    assert.equal(true, result[0]);
+  it("recover using web3.eth.sign() should return wrong signer", async function() {
+    let message = web3.sha3('OpenZeppelin');
+    let signature = web3.eth.sign(web3.eth.accounts[0], message);
+    assert.notEqual(web3.eth.accounts[0], await ecrecovery.recover(web3.sha3('OpenZeppelin2'), signature));
   });
 
 });
