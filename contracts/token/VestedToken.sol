@@ -47,7 +47,7 @@ contract VestedToken is StandardToken, LimitedTransferToken {
     // Check for date inconsistencies that may cause unexpected behavior
     require(_cliff >= _start && _vesting >= _cliff);
 
-    require(tokenGrantsCount(_to) <= MAX_GRANTS_PER_ADDRESS);   // To prevent a user being spammed and have his balance locked (out of gas attack when calculating vesting).
+    require(tokenGrantsCount(_to) < MAX_GRANTS_PER_ADDRESS);   // To prevent a user being spammed and have his balance locked (out of gas attack when calculating vesting).
 
     uint256 count = grants[_to].push(
                 TokenGrant(
