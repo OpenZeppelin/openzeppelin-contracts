@@ -905,6 +905,15 @@ bindings@^1.2.1, bindings@~1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/bindings/-/bindings-1.2.1.tgz#14ad6113812d2d37d72e67b4cacb4bb726505f11"
 
+bip39@2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/bip39/-/bip39-2.2.0.tgz#40e73f70674c267f148cdbf8374f2a50be166b0d"
+  dependencies:
+    create-hash "^1.1.0"
+    pbkdf2 "^3.0.0"
+    randombytes "^2.0.1"
+    unorm "^1.3.3"
+
 bip39@^2.2.0:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/bip39/-/bip39-2.3.1.tgz#c8238abc09d719c6f01136ef042daccc5dc3581b"
@@ -913,15 +922,6 @@ bip39@^2.2.0:
     pbkdf2 "^3.0.9"
     randombytes "^2.0.1"
     safe-buffer "^5.0.1"
-    unorm "^1.3.3"
-
-bip39@~2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/bip39/-/bip39-2.2.0.tgz#40e73f70674c267f148cdbf8374f2a50be166b0d"
-  dependencies:
-    create-hash "^1.1.0"
-    pbkdf2 "^3.0.0"
-    randombytes "^2.0.1"
     unorm "^1.3.3"
 
 bip66@^1.1.3:
@@ -2038,13 +2038,13 @@ ethereumjs-block@~1.2.2:
     ethereumjs-util "^4.0.1"
     merkle-patricia-tree "^2.1.2"
 
-"ethereumjs-testrpc-sc@git+https://github.com/sc-forks/testrpc-sc.git":
+"ethereumjs-testrpc-sc@https://github.com/sc-forks/testrpc-sc.git":
   version "3.0.3"
-  resolved "git+https://github.com/sc-forks/testrpc-sc.git#2b7cad404a2b82023d2c8f5656b34e3cc44f2d08"
+  resolved "https://github.com/sc-forks/testrpc-sc.git#c636f173cad9026a42a5909a768ba7e156f4abc7"
   dependencies:
     async "~1.5.0"
     bignumber.js "~2.1.4"
-    bip39 "~2.2.0"
+    bip39 "2.2.0"
     ethereumjs-account "~2.0.4"
     ethereumjs-block "~1.2.2"
     ethereumjs-tx "1.1.2"
@@ -5726,15 +5726,7 @@ solidity-coverage@^0.1.7:
     sol-explore "^1.6.2"
     solidity-parser "git+https://github.com/sc-forks/solidity-parser.git"
 
-solidity-parser@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/solidity-parser/-/solidity-parser-0.3.0.tgz#cab04f8e406bdc1f3c16512eec6aa87a1072f8b9"
-  dependencies:
-    mocha "^2.4.5"
-    pegjs "^0.10.0"
-    yargs "^4.6.0"
-
-"solidity-parser@git+https://github.com/sc-forks/solidity-parser.git":
+solidity-parser@^0.3.0, "solidity-parser@git+https://github.com/sc-forks/solidity-parser.git":
   version "0.3.0"
   resolved "git+https://github.com/sc-forks/solidity-parser.git#6c544bd308fb6d38b2ca7e2adde9a42334221ab0"
   dependencies:

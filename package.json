@@ -1,6 +1,6 @@
 {
   "name": "zeppelin-solidity",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Secure Smart Contract library for Solidity",
   "main": "truffle.js",
   "scripts": {
