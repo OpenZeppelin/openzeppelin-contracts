@@ -1,5 +1,6 @@
 var ECRecovery = artifacts.require("../contracts/ECRecovery.sol");
 var utils = require('ethereumjs-util');
+var hashMessage = require('./helpers/hashMessage.js');
 
 contract('ECRecovery', function(accounts) {
 
@@ -29,42 +30,26 @@ contract('ECRecovery', function(accounts) {
     // Create the signature using account[0]
     const signature = web3.eth.sign(web3.eth.accounts[0], web3.sha3('OpenZeppelin'));
 
-    // Testrpc add a prefix to the signed message, we generate the hash of
-    // 'OpenZeppelin' string repeating testrpc steps
-    const message = new Buffer(web3.sha3('OpenZeppelin').substring(2), 'hex');
-    const prefix = utils.toBuffer('\u0019Ethereum Signed Message:\n' + message.length.toString());
-    const prefixedHash = utils.bufferToHex( utils.sha3(Buffer.concat([prefix, message])) );
-
     // Recover the signer address form the generated message and signature.
-    assert.equal(web3.eth.accounts[0], await ecrecovery.recover(prefixedHash, signature));
+    assert.equal(web3.eth.accounts[0], await ecrecovery.recover(hashMessage('OpenZeppelin'), signature));
   });
 
   it("recover using web3.eth.sign() should return wrong signer", async function() {
     // Create the signature using account[0]
     const signature = web3.eth.sign(web3.eth.accounts[0], web3.sha3('OpenZeppelin'));
 
-    // Testrpc add a prefix to the signed message, we generate the hash of
-    // 'Test' string repeating testrpc steps
-    const message = new Buffer(web3.sha3('Test').substring(2), 'hex');
-    const prefix = utils.toBuffer('\u0019Ethereum Signed Message:\n' + message.length.toString());
-    const prefixedHash = utils.bufferToHex( utils.sha3(Buffer.concat([prefix, message])) );
-
     // Recover the signer address form the generated message and wrong signature.
-    assert.notEqual(web3.eth.accounts[0], await ecrecovery.recover(prefixedHash, signature));
+    assert.notEqual(web3.eth.accounts[0], await ecrecovery.recover(hashMessage('Test'), signature));
   });
 
   it("recover should fail when a wrong hash is sent", async function() {
     // Create the signature using account[0]
     let signature = web3.eth.sign(web3.eth.accounts[0], web3.sha3('OpenZeppelin'));
 
-    // Testrpc add a prefix to the signed message, we generate the hash of
-    // 'OpenZeppelin' string repeating testrpc steps
-    let message = new Buffer(web3.sha3('OpenZeppelin'), 'hex');
-    let prefix = utils.toBuffer('\u0019Ethereum Signed Message:\n' + message.length.toString());
-    let prefixedHash = utils.sha3(Buffer.concat([prefix, message]));
-
     // Recover the signer address form the generated message and wrong signature.
-    assert.equal('0x0000000000000000000000000000000000000000', await ecrecovery.recover(prefixedHash, signature));
+    assert.equal('0x0000000000000000000000000000000000000000',
+      await ecrecovery.recover(hashMessage('OpenZeppelin').substring(2), signature)
+    );
   });
 
 });
