@@ -10,7 +10,7 @@ contract PullPaymentMock is PullPayment {
   function PullPaymentMock() payable { }
 
   // test helper function to call asyncSend
-  function callSend(address dest, uint amount) {
+  function callSend(address dest, uint256 amount) {
     asyncSend(dest, amount);
   }
 
