@@ -15,7 +15,7 @@ contract ReentrancyMock is ReentrancyGuard {
     counter += 1;
   }
 
-  function countLocalRecursive(uint n) public nonReentrant {
+  function countLocalRecursive(uint256 n) public nonReentrant {
     if(n > 0) {
       count();
       countLocalRecursive(n - 1);

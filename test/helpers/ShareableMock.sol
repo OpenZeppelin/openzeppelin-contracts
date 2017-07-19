@@ -3,9 +3,9 @@ import "../../contracts/ownership/Shareable.sol";
 
 contract ShareableMock is Shareable {
 
-  uint public count = 0;
+  uint256 public count = 0;
 
-  function ShareableMock(address[] _owners, uint _required) Shareable(_owners, _required) {
+  function ShareableMock(address[] _owners, uint256 _required) Shareable(_owners, _required) {
 
   }
 
