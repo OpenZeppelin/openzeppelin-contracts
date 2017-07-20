@@ -21,7 +21,7 @@ contract MintableToken is StandardToken, Ownable {
 
 
   modifier canMint() {
-    if(mintingFinished) throw;
+    require(!mintingFinished);
     _;
   }
 

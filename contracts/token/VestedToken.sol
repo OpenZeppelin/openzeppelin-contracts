@@ -1,5 +1,6 @@
 pragma solidity ^0.4.11;
 
+import "../math/Math.sol";
 import "./StandardToken.sol";
 import "./LimitedTransferToken.sol";
 
@@ -44,11 +45,9 @@ contract VestedToken is StandardToken, LimitedTransferToken {
   ) public {
 
     // Check for date inconsistencies that may cause unexpected behavior
-    if (_cliff < _start || _vesting < _cliff) {
-      throw;
-    }
+    require(_cliff >= _start && _vesting >= _cliff);
 
-    if (tokenGrantsCount(_to) > MAX_GRANTS_PER_ADDRESS) throw;   // To prevent a user being spammed and have his balance locked (out of gas attack when calculating vesting).
+    require(tokenGrantsCount(_to) < MAX_GRANTS_PER_ADDRESS);   // To prevent a user being spammed and have his balance locked (out of gas attack when calculating vesting).
 
     uint256 count = grants[_to].push(
                 TokenGrant(
@@ -75,13 +74,8 @@ contract VestedToken is StandardToken, LimitedTransferToken {
   function revokeTokenGrant(address _holder, uint256 _grantId) public {
     TokenGrant grant = grants[_holder][_grantId];
 
-    if (!grant.revokable) { // Check if grant was revokable
-      throw;
-    }
-
-    if (grant.granter != msg.sender) { // Only granter can revoke it
-      throw;
-    }
+    require(grant.revokable);
+    require(grant.granter == msg.sender); // Only granter can revoke it
 
     address receiver = grant.burnsOnRevoke ? 0xdead : msg.sender;
 
@@ -108,7 +102,7 @@ contract VestedToken is StandardToken, LimitedTransferToken {
   function transferableTokens(address holder, uint64 time) constant public returns (uint256) {
     uint256 grantIndex = tokenGrantsCount(holder);
 
-    if (grantIndex == 0) return balanceOf(holder); // shortcut for holder without grants
+    if (grantIndex == 0) return super.transferableTokens(holder, time); // shortcut for holder without grants
 
     // Iterate through all the grants the holder has, and add all non-vested tokens
     uint256 nonVested = 0;
@@ -121,7 +115,7 @@ contract VestedToken is StandardToken, LimitedTransferToken {
 
     // Return the minimum of how many vested can transfer and other value
     // in case there are other limiting transferability factors (default is balanceOf)
-    return SafeMath.min256(vestedTransferable, super.transferableTokens(holder, time));
+    return Math.min256(vestedTransferable, super.transferableTokens(holder, time));
   }
 
   /**
@@ -225,7 +219,7 @@ contract VestedToken is StandardToken, LimitedTransferToken {
    * @dev Calculate the amount of non vested tokens at a specific time.
    * @param grant TokenGrant The grant to be checked.
    * @param time uint64 The time to be checked
-   * @return An uint256 representing the amount of non vested tokens of a specifc grant on the 
+   * @return An uint256 representing the amount of non vested tokens of a specifc grant on the
    * passed time frame.
    */
   function nonVestedTokens(TokenGrant grant, uint64 time) private constant returns (uint256) {
@@ -241,7 +235,7 @@ contract VestedToken is StandardToken, LimitedTransferToken {
     date = uint64(now);
     uint256 grantIndex = grants[holder].length;
     for (uint256 i = 0; i < grantIndex; i++) {
-      date = SafeMath.max64(grants[holder][i].vesting, date);
+      date = Math.max64(grants[holder][i].vesting, date);
     }
   }
 }
