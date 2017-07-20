@@ -2,10 +2,10 @@ var PullPaymentMock = artifacts.require("./helpers/PullPaymentMock.sol");
 
 contract('PullPayment', function(accounts) {
   let ppce;
-  let tAMOUNT = 17*1e18;
+  let amount = 17*1e18;
   
   beforeEach(async function() {
-    ppce = await PullPaymentMock.new({value: tAMOUNT});
+    ppce = await PullPaymentMock.new({value: amount});
   });
   
   it("can't call asyncSend externally", async function() {
@@ -50,13 +50,13 @@ contract('PullPayment', function(accounts) {
     let payee = accounts[1];
     let initialBalance = web3.eth.getBalance(payee);
 
-    let call1 = await ppce.callSend(payee, tAMOUNT);
+    let call1 = await ppce.callSend(payee, amount);
 
     let payment1 = await ppce.payments(payee);
-    assert.equal(payment1, tAMOUNT);
+    assert.equal(payment1, amount);
 
     let totalPayments = await ppce.totalPayments();
-    assert.equal(totalPayments, tAMOUNT);
+    assert.equal(totalPayments, amount);
 
     let withdraw = await ppce.withdrawPayments({from: payee});
     let payment2 = await ppce.payments(payee);
@@ -66,7 +66,7 @@ contract('PullPayment', function(accounts) {
     assert.equal(totalPayments, 0);
 
     let balance = web3.eth.getBalance(payee);
-    assert(Math.abs(balance-initialBalance-tAMOUNT) < 1e16);
+    assert(Math.abs(balance-initialBalance-amount) < 1e16);
   });
 
 });
