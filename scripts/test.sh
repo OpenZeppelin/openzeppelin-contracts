@@ -20,6 +20,6 @@ if [ ! $trpc_running ]; then
   trpc_pid=$!
 fi
 ./node_modules/truffle/cli.js test "$@"
-if [ ! $trpc_running ]; then
+if [ $trpc_running ]; then
   kill -9 $trpc_pid
 fi
