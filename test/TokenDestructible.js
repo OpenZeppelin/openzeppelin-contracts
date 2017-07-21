@@ -5,9 +5,13 @@ var StandardTokenMock = artifacts.require("./helpers/StandardTokenMock.sol");
 require('./helpers/transactionMined.js');
 
 contract('TokenDestructible', function(accounts) {
+  let destructible;
 
+  beforeEach(async function() {
+    destructible = await TokenDestructible.new({fron: accounts[0], value: web3.toWei('10', 'ether')});
+  });
+  
   it('should send balance to owner after destruction', async function() {
-    let destructible = await TokenDestructible.new({from: accounts[0], value: web3.toWei('10','ether')});
     let owner = await destructible.owner();
     let initBalance = web3.eth.getBalance(owner);
     await destructible.destroy([], {from: owner});
@@ -16,7 +20,6 @@ contract('TokenDestructible', function(accounts) {
   });
 
   it('should send tokens to owner after destruction', async function() {
-    let destructible = await TokenDestructible.new({from: accounts[0], value: web3.toWei('10','ether')});
     let owner = await destructible.owner();
     let token = await StandardTokenMock.new(destructible.address, 100);
     let initContractBalance = await token.balanceOf(destructible.address);
