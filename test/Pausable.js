@@ -62,4 +62,18 @@ contract('Pausable', function(accounts) {
     assert.equal(count0, 1);
   });
 
+  it('should prevent drastic measure after pause is over', async function() {
+    let Pausable = await PausableMock.new();
+    await Pausable.pause();
+    await Pausable.unpause();
+    try {
+      await Pausable.drasticMeasure();
+    } catch(error) {
+      assertJump(error);
+    }
+
+    const drasticMeasureTaken = await Pausable.drasticMeasureTaken();
+    assert.isFalse(drasticMeasureTaken);
+  });
+
 });
