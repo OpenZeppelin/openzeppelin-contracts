@@ -26,10 +26,10 @@ contract('BasicToken', function(accounts) {
     let token = await BasicTokenMock.new(accounts[0], 100);
     try {
       let transfer = await token.transfer(accounts[1], 101);
+      assert.fail('should have thrown before');
     } catch(error) {
-      return assertJump(error);
-    }
-    assert.fail('should have thrown before');
+      assertJump(error);
+    }    
   });
 
 });

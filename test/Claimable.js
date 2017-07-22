@@ -25,11 +25,11 @@ contract('Claimable', function(accounts) {
 
   it('should prevent to claimOwnership from no pendingOwner', async function() {
     try {
-        await claimable.claimOwnership({from: accounts[2]});
+      await claimable.claimOwnership({from: accounts[2]});
+      assert.fail('should have thrown before');
     } catch(error) {
-        return assertJump(error);
+      assertJump(error);
     }
-    assert.fail('should have thrown before');
   });
 
   it('should prevent non-owners from transfering', async function() {
@@ -37,11 +37,11 @@ contract('Claimable', function(accounts) {
     const owner = await claimable.owner.call();
     assert.isTrue(owner !== other);
     try {
-        await claimable.transferOwnership(other, {from: other});
+      await claimable.transferOwnership(other, {from: other});
+      assert.fail('should have thrown before');
     } catch(error) {
-        return assertJump(error);
+      assertJump(error);
     }
-    assert.fail('should have thrown before');
   });
 
   describe('after initiating a transfer', function () {

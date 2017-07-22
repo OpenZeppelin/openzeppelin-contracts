@@ -23,12 +23,12 @@ contract('Pausable', function(accounts) {
 
     try {
       await Pausable.normalProcess();
+      assert.fail('should have thrown before');
     } catch(error) {
-      let count1 = await Pausable.count();
-      assert.equal(count1, 0);
-      return assertJump(error);
+      assertJump(error);
     }
-    assert.fail('should have thrown before');
+    let count1 = await Pausable.count();
+    assert.equal(count1, 0);
   });
 
 
@@ -36,12 +36,12 @@ contract('Pausable', function(accounts) {
     let Pausable = await PausableMock.new();
     try {
       await Pausable.drasticMeasure();
+      assert.fail('should have thrown before');
     } catch(error) {
-      const drasticMeasureTaken = await Pausable.drasticMeasureTaken();
-      assert.isFalse(drasticMeasureTaken);
-      return assertJump(error);
+      assertJump(error);
     }
-    assert.fail('should have thrown before');
+    const drasticMeasureTaken = await Pausable.drasticMeasureTaken();
+    assert.isFalse(drasticMeasureTaken);
   });
 
   it('can take a drastic measure in a pause', async function() {
@@ -69,6 +69,7 @@ contract('Pausable', function(accounts) {
     await Pausable.unpause();
     try {
       await Pausable.drasticMeasure();
+      assert.fail('should have thrown before');
     } catch(error) {
       assertJump(error);
     }
