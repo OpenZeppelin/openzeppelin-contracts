@@ -38,7 +38,7 @@ contract('Ownable', function(accounts) {
     let originalOwner = await ownable.owner();
     try {
       await ownable.transferOwnership(null, {from: originalOwner});
-      assert.fail()
+      assert.fail();
     } catch(error) {
       assertJump(error);
     }
