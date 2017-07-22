@@ -37,8 +37,9 @@ contract('DayLimit', function(accounts) {
     try {
         await dayLimit.attemptSpend(3);
     } catch(error) {
-        assertJump(error);
+        return assertJump(error);
     }
+    assert.fail('should have thrown before');
   });
 
   it('should allow spending if daily limit is reached and then set higher', async function() {
@@ -47,17 +48,18 @@ contract('DayLimit', function(accounts) {
     assert.equal(spentToday, 8);
 
     try {
-        await dayLimit.attemptSpend(3);
+      await dayLimit.attemptSpend(3);
     } catch(error) {
-        assertJump(error);
-    }
-    spentToday = await dayLimit.spentToday();
-    assert.equal(spentToday, 8);
+      assertJump(error);
+      spentToday = await dayLimit.spentToday();
+      assert.equal(spentToday, 8);
 
-    await dayLimit.setDailyLimit(15);
-    await dayLimit.attemptSpend(3);
-    spentToday = await dayLimit.spentToday();
-    assert.equal(spentToday, 11);
+      await dayLimit.setDailyLimit(15);
+      await dayLimit.attemptSpend(3);
+      spentToday = await dayLimit.spentToday();
+      return assert.equal(spentToday, 11);
+    }
+    assert.fail('should have thrown before');
   });
 
   it('should allow spending if daily limit is reached and then amount spent is reset', async function() {
@@ -66,17 +68,18 @@ contract('DayLimit', function(accounts) {
     assert.equal(spentToday, 8);
 
     try {
-        await dayLimit.attemptSpend(3);
+      await dayLimit.attemptSpend(3);
     } catch(error) {
-        assertJump(error);
-    }
-    spentToday = await dayLimit.spentToday();
-    assert.equal(spentToday, 8);
+      assertJump(error);
+      spentToday = await dayLimit.spentToday();
+      assert.equal(spentToday, 8);
 
-    await dayLimit.resetSpentToday(15);
-    await dayLimit.attemptSpend(3);
-    spentToday = await dayLimit.spentToday();
-    assert.equal(spentToday, 3);
+      await dayLimit.resetSpentToday(15);
+      await dayLimit.attemptSpend(3);
+      spentToday = await dayLimit.spentToday();
+      return assert.equal(spentToday, 3);
+    }
+    assert.fail('should have thrown before');
   });
 
   it('should allow spending if daily limit is reached and then the next has come', async function() {
@@ -91,15 +94,16 @@ contract('DayLimit', function(accounts) {
       await dayLimit.attemptSpend(3);
     } catch(error) {
       assertJump(error);
+      spentToday = await dayLimit.spentToday();
+      assert.equal(spentToday, 8);
+
+      await timer(day);
+
+      await dayLimit.attemptSpend(3);
+      spentToday = await dayLimit.spentToday();
+      return assert.equal(spentToday, 3);
     }
-    spentToday = await dayLimit.spentToday();
-    assert.equal(spentToday, 8);
-
-    await timer(day);
-
-    await dayLimit.attemptSpend(3);
-    spentToday = await dayLimit.spentToday();
-    assert.equal(spentToday, 3);
+    assert.fail('should have thrown before');
   });
 
 });

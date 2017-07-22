@@ -30,8 +30,9 @@ contract('Ownable', function(accounts) {
     try {
       await ownable.transferOwnership(other, {from: other});
     } catch(error) {
-      assertJump(error);
+      return assertJump(error);
     }
+    assert.fail('should have thrown before');
   });
 
   it('should guard ownership against stuck state', async function() {

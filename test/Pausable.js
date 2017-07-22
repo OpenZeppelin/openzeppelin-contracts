@@ -24,10 +24,11 @@ contract('Pausable', function(accounts) {
     try {
       await Pausable.normalProcess();
     } catch(error) {
-      assertJump(error);
+      let count1 = await Pausable.count();
+      assert.equal(count1, 0);
+      return assertJump(error);
     }
-    let count1 = await Pausable.count();
-    assert.equal(count1, 0);
+    assert.fail('should have thrown before');
   });
 
 
@@ -36,11 +37,11 @@ contract('Pausable', function(accounts) {
     try {
       await Pausable.drasticMeasure();
     } catch(error) {
-      assertJump(error);
+      const drasticMeasureTaken = await Pausable.drasticMeasureTaken();
+      assert.isFalse(drasticMeasureTaken);
+      return assertJump(error);
     }
-
-    const drasticMeasureTaken = await Pausable.drasticMeasureTaken();
-    assert.isFalse(drasticMeasureTaken);
+    assert.fail('should have thrown before');
   });
 
   it('can take a drastic measure in a pause', async function() {

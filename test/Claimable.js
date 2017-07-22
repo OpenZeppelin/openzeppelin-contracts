@@ -27,8 +27,9 @@ contract('Claimable', function(accounts) {
     try {
         await claimable.claimOwnership({from: accounts[2]});
     } catch(error) {
-        assertJump(error);
+        return assertJump(error);
     }
+    assert.fail('should have thrown before');
   });
 
   it('should prevent non-owners from transfering', async function() {
@@ -38,8 +39,9 @@ contract('Claimable', function(accounts) {
     try {
         await claimable.transferOwnership(other, {from: other});
     } catch(error) {
-        assertJump(error);
+        return assertJump(error);
     }
+    assert.fail('should have thrown before');
   });
 
   describe('after initiating a transfer', function () {
