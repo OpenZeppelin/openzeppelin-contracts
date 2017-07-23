@@ -39,10 +39,10 @@ contract('StandardToken', function(accounts) {
     let token = await StandardTokenMock.new(accounts[0], 100);
     try {
       await token.transfer(accounts[1], 101);
+      assert.fail('should have thrown before');
     } catch(error) {
-      return assertJump(error);
+      assertJump(error);
     }
-    assert.fail('should have thrown before');
   });
 
   it('should return correct balances after transfering from another account', async function() {
@@ -64,10 +64,10 @@ contract('StandardToken', function(accounts) {
     await token.approve(accounts[1], 99);
     try {
       await token.transferFrom(accounts[0], accounts[2], 100, {from: accounts[1]});
+      assert.fail('should have thrown before');
     } catch (error) {
-      return assertJump(error);
+      assertJump(error);
     }
-    assert.fail('should have thrown before');
   });
 
 });

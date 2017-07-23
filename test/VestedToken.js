@@ -46,20 +46,20 @@ contract('VestedToken', function(accounts) {
     it('throws when trying to transfer non vested tokens', async () => {
       try {
         await token.transfer(accounts[7], 1, { from: receiver })
+        assert.fail('should have thrown before');
       } catch(error) {
-        return assertJump(error);
+        assertJump(error);
       }
-      assert.fail('should have thrown before');
     })
 
     it('throws when trying to transfer from non vested tokens', async () => {
       try {
         await token.approve(accounts[7], 1, { from: receiver })
         await token.transferFrom(receiver, accounts[7], tokenAmount, { from: accounts[7] })
+        assert.fail('should have thrown before');
       } catch(error) {
-        return assertJump(error);
+        assertJump(error);
       }
-      assert.fail('should have thrown before');
     })
 
     it('can be revoked by granter', async () => {
@@ -71,10 +71,10 @@ contract('VestedToken', function(accounts) {
     it('cannot be revoked by non granter', async () => {
       try {
         await token.revokeTokenGrant(receiver, 0, { from: accounts[3] });
+        assert.fail('should have thrown before');
       } catch(error) {
-        return assertJump(error);
+        assertJump(error);
       }
-      assert.fail('should have thrown before');
     })
 
     it('can be revoked by granter and non vested tokens are returned', async () => {
@@ -131,10 +131,10 @@ contract('VestedToken', function(accounts) {
     it('throws when granter attempts to revoke', async () => {
       try {
         await token.revokeTokenGrant(receiver, 0, { from: granter });
+        assert.fail('should have thrown before');
       } catch(error) {
-        return assertJump(error);
+        assertJump(error);
       }
-      assert.fail('should have thrown before');
     })
   })
 
@@ -160,10 +160,10 @@ contract('VestedToken', function(accounts) {
     it('cannot be revoked by non granter', async () => {
       try {
         await token.revokeTokenGrant(receiver, 0, { from: accounts[3] });
+        assert.fail('should have thrown before');
       } catch(error) {
-        return assertJump(error);
+        assertJump(error);
       }
-      assert.fail('should have thrown before');
     })
 
     it('can be revoked by granter and non vested tokens are returned', async () => {

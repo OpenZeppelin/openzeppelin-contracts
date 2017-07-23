@@ -40,10 +40,10 @@ contract('SafeMath', function(accounts) {
     let b = 5678;
     try {
       let subtract = await safeMath.subtract(a, b);
+      assert.fail('should have thrown before');
     } catch(error) {
-      return assertJump(error);
+      assertJump(error);
     }
-    assert.fail('should have thrown before');
   });
 
   it("should throw an error on addition overflow", async function() {
@@ -51,10 +51,10 @@ contract('SafeMath', function(accounts) {
     let b = 1;
     try {
       let add = await safeMath.add(a, b);
+      assert.fail('should have thrown before');
     } catch(error) {
-      return assertJump(error);
+      assertJump(error);
     }
-    assert.fail('should have thrown before');
   });
 
   it("should throw an error on multiplication overflow", async function() {
@@ -62,10 +62,10 @@ contract('SafeMath', function(accounts) {
     let b = 2;
     try {
       let multiply = await safeMath.multiply(a, b);
+      assert.fail('should have thrown before');
     } catch(error) {
-      return assertJump(error);
+      assertJump(error);
     }
-    assert.fail('should have thrown before');
   });
 
 });

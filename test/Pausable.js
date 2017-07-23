@@ -23,6 +23,7 @@ contract('Pausable', function(accounts) {
 
     try {
       await Pausable.normalProcess();
+      assert.fail('should have thrown before');
     } catch(error) {
       assertJump(error);
     }
@@ -35,10 +36,10 @@ contract('Pausable', function(accounts) {
     let Pausable = await PausableMock.new();
     try {
       await Pausable.drasticMeasure();
+      assert.fail('should have thrown before');
     } catch(error) {
       assertJump(error);
     }
-
     const drasticMeasureTaken = await Pausable.drasticMeasureTaken();
     assert.isFalse(drasticMeasureTaken);
   });
@@ -68,6 +69,7 @@ contract('Pausable', function(accounts) {
     await Pausable.unpause();
     try {
       await Pausable.drasticMeasure();
+      assert.fail('should have thrown before');
     } catch(error) {
       assertJump(error);
     }

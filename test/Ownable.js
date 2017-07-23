@@ -29,6 +29,7 @@ contract('Ownable', function(accounts) {
     assert.isTrue(owner !== other);
     try {
       await ownable.transferOwnership(other, {from: other});
+      assert.fail('should have thrown before');
     } catch(error) {
       assertJump(error);
     }
