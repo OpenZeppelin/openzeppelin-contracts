@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Executes cleanup function at script exit.
 trap cleanup EXIT
