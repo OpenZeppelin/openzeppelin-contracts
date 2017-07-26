@@ -13,7 +13,7 @@ contract('DayLimit', function(accounts) {
   beforeEach( async function() {
     dayLimit = await DayLimitMock.new(initLimit);
   });
-  
+
   it('should construct with the passed daily limit', async function() {
     let dailyLimit = await dayLimit.dailyLimit();
     assert.equal(initLimit, dailyLimit);
@@ -76,7 +76,7 @@ contract('DayLimit', function(accounts) {
     spentToday = await dayLimit.spentToday();
     assert.equal(spentToday, 8);
 
-    await dayLimit.resetSpentToday(15);
+    await dayLimit.resetSpentToday();
     await dayLimit.attemptSpend(3);
     spentToday = await dayLimit.spentToday();
     assert.equal(spentToday, 3);

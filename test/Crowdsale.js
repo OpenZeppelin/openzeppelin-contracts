@@ -45,7 +45,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
 
     it('should reject payments before start', async function () {
       await this.crowdsale.send(value).should.be.rejectedWith(EVMThrow)
-      await this.crowdsale.buyTokens(investor, value, {from: purchaser}).should.be.rejectedWith(EVMThrow)
+      await this.crowdsale.buyTokens(investor, {from: purchaser, value: value}).should.be.rejectedWith(EVMThrow)
     })
 
     it('should accept payments after start', async function () {
