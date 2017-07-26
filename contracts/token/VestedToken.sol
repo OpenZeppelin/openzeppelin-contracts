@@ -72,7 +72,7 @@ contract VestedToken is StandardToken, LimitedTransferToken {
    * @param _grantId The id of the token grant.
    */
   function revokeTokenGrant(address _holder, uint256 _grantId) public {
-    TokenGrant grant = grants[_holder][_grantId];
+    TokenGrant storage grant = grants[_holder][_grantId];
 
     require(grant.revokable);
     require(grant.granter == msg.sender); // Only granter can revoke it
@@ -186,7 +186,7 @@ contract VestedToken is StandardToken, LimitedTransferToken {
    * revokability, burnsOnRevoke, and vesting) plus the vested value at the current time.
    */
   function tokenGrant(address _holder, uint256 _grantId) constant returns (address granter, uint256 value, uint256 vested, uint64 start, uint64 cliff, uint64 vesting, bool revokable, bool burnsOnRevoke) {
-    TokenGrant grant = grants[_holder][_grantId];
+    TokenGrant storage grant = grants[_holder][_grantId];
 
     granter = grant.granter;
     value = grant.value;
