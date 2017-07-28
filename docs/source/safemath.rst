@@ -11,7 +11,7 @@ Throws an error if the passed result is false. Used in this contract by checking
 mul(uint256 a, uint256 b) internal returns (uint256)
 """""""""""""""""""""""""""""""""""""""""""""""""
 
-Multiplies two unisgned integers. Asserts that dividing the product by the non-zero multiplicand results in the multiplier.
+Multiplies two unsigned integers. Asserts that dividing the product by the non-zero multiplicand results in the multiplier.
 
 sub(uint256 a, uint256 b) internal returns (uint256)
 """""""""""""""""""""""""""""""""""""""""""""""""
