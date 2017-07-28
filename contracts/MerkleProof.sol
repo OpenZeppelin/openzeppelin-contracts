@@ -14,6 +14,9 @@ library MerkleProof {
    * @param _leaf Leaf of Merkle tree
    */
   function verifyProof(bytes _proof, bytes32 _root, bytes32 _leaf) constant returns (bool) {
+    // Check if proof length is a multiple of 32
+    if (_proof.length % 32 != 0) return false;
+
     bytes32 proofElement;
     bytes32 computedHash = _leaf;
 
@@ -25,10 +28,10 @@ library MerkleProof {
 
       if (computedHash < proofElement) {
         // Hash(current computed hash + current element of the proof)
-        computedHash = sha3(computedHash, proofElement);
+        computedHash = keccak256(computedHash, proofElement);
       } else {
         // Hash(current element of the proof + current computed hash)
-        computedHash = sha3(proofElement, computedHash);
+        computedHash = keccak256(proofElement, computedHash);
       }
     }
 
