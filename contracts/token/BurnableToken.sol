@@ -6,7 +6,7 @@ import './StandardToken.sol';
  * @title Burnable Token
  * @dev Token that can be irreversibly burned (destroyed).
  */
-contract BurnableToken is StandardToken{
+contract BurnableToken is StandardToken {
 
     /**
      * @dev Burns a specific amount of tokens.
@@ -17,8 +17,8 @@ contract BurnableToken is StandardToken{
     {
         require(_value > 0);
 
-        address burner = masg.sender;
-        balances[burner] = balanced[burner].sub(_value);
+        address burner = msg.sender;
+        balances[burner] = balances[burner].sub(_value);
         totalSupply = totalSupply.sub(_value);
         Burn(burner, _value);
     }
