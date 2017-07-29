@@ -34,7 +34,7 @@ contract('Crowdsale', function ([owner, wallet, investor]) {
     (await this.crowdsale.startBlock()).should.be.bignumber.equal(this.startBlock);
     (await this.crowdsale.endBlock()).should.be.bignumber.equal(this.endBlock);
     (await this.crowdsale.rate()).should.be.bignumber.equal(RATE);
-    (await this.crowdsale.wallet()).should.be.bignumber.equal(wallet);
+    (await this.crowdsale.wallet()).should.be.equal(wallet);
     (await this.crowdsale.goal()).should.be.bignumber.equal(GOAL);
     (await this.crowdsale.cap()).should.be.bignumber.equal(CAP);
   });
