@@ -23,8 +23,13 @@ contract('Mintable', function(accounts) {
   });
 
   it('should mint a given amount of tokens to a given address', async function() {
-    await token.mint(accounts[0], 100);
-    
+    const result = await token.mint(accounts[0], 100);
+    assert.equal(result.logs[0].event, 'Mint');
+    assert.equal(result.logs[0].args.to.valueOf(), accounts[0]);
+    assert.equal(result.logs[0].args.amount.valueOf(), 100);
+    assert.equal(result.logs[1].event, 'Transfer');
+    assert.equal(result.logs[1].args.from.valueOf(), 0x0);
+
     let balance0 = await token.balanceOf(accounts[0]);
     assert(balance0, 100);
     
