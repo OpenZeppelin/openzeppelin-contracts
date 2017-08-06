@@ -1,5 +1,8 @@
+import moment from 'moment'
 import ether from './helpers/ether'
 import advanceToBlock from './helpers/advanceToBlock'
+import increaseTime from './helpers/increaseTime'
+import latestTime from './helpers/latestTime'
 import EVMThrow from './helpers/EVMThrow'
 
 const BigNumber = web3.BigNumber
@@ -19,28 +22,33 @@ contract('CappedCrowdsale', function ([_, wallet]) {
   const cap = ether(300)
   const lessThanCap = ether(60)
 
-  describe('creating a valid crowdsale', function () {
-
-    it('should fail with zero cap', async function () {
-      await CappedCrowdsale.new(this.startBlock, this.endBlock, rate, wallet, 0).should.be.rejectedWith(EVMThrow);
-    })
-
-  });
-
+  before(async function() {
+    //Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
+    await advanceToBlock(web3.eth.getBlock('latest').number + 1)
+  })
 
   beforeEach(async function () {
-    this.startBlock = web3.eth.blockNumber + 10
-    this.endBlock =   web3.eth.blockNumber + 20
+    this.startTime = latestTime().unix() + moment.duration(1, 'week').asSeconds();
+    this.endTime =   latestTime().unix() + moment.duration(2, 'week').asSeconds();
 
-    this.crowdsale = await CappedCrowdsale.new(this.startBlock, this.endBlock, rate, wallet, cap)
+
+    this.crowdsale = await CappedCrowdsale.new(this.startTime, this.endTime, rate, wallet, cap)
 
     this.token = MintableToken.at(await this.crowdsale.token())
   })
 
+  describe('creating a valid crowdsale', function () {
+
+    it('should fail with zero cap', async function () {
+      await CappedCrowdsale.new(this.startTime, this.endTime, rate, wallet, 0).should.be.rejectedWith(EVMThrow);
+    })
+
+  });
+
   describe('accepting payments', function () {
 
     beforeEach(async function () {
-      await advanceToBlock(this.startBlock - 1)
+      await increaseTime(moment.duration(1, 'week'))
     })
 
     it('should accept payments within cap', async function () {
@@ -62,7 +70,7 @@ contract('CappedCrowdsale', function ([_, wallet]) {
   describe('ending', function () {
 
     beforeEach(async function () {
-      await advanceToBlock(this.startBlock - 1)
+      await increaseTime(moment.duration(1, 'week'))
     })
 
     it('should not be ended if under cap', async function () {
