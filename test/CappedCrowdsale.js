@@ -1,6 +1,6 @@
 import moment from 'moment'
 import ether from './helpers/ether'
-import advanceToBlock from './helpers/advanceToBlock'
+import {advanceBlock} from './helpers/advanceToBlock'
 import increaseTime from './helpers/increaseTime'
 import latestTime from './helpers/latestTime'
 import EVMThrow from './helpers/EVMThrow'
@@ -24,7 +24,7 @@ contract('CappedCrowdsale', function ([_, wallet]) {
 
   before(async function() {
     //Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
-    await advanceToBlock(web3.eth.getBlock('latest').number + 1)
+    await advanceBlock()
   })
 
   beforeEach(async function () {
