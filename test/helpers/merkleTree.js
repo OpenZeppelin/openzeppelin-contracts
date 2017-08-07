@@ -1,14 +1,9 @@
-import { sha3 } from "ethereumjs-util";
+import { sha3, bufferToHex } from "ethereumjs-util";
 
 export default class MerkleTree {
   constructor(elements) {
-    // Filter empty strings
-    this.elements = elements.filter(el => el);
-
-    // Check if elements are 32 byte buffers
-    if (this.elements.some(el => el.length !== 32 || !Buffer.isBuffer(el))) {
-      throw new Error("Elements must be 32 byte buffers");
-    }
+    // Filter empty strings and hash elements
+    this.elements = elements.filter(el => el).map(el => sha3(el));
 
     // Deduplicate elements
     this.elements = this.bufDedup(this.elements);
@@ -58,7 +53,7 @@ export default class MerkleTree {
   }
 
   getHexRoot() {
-    return this.bufToHex(this.getRoot());
+    return bufferToHex(this.getRoot());
   }
 
   getProof(el) {
@@ -98,8 +93,17 @@ export default class MerkleTree {
   }
 
   bufIndexOf(el, arr) {
+    let hash;
+
+    // Convert element to 32 byte hash if it is not one already
+    if (el.length !== 32 || !Buffer.isBuffer(el)) {
+      hash = sha3(el);
+    } else {
+      hash = el;
+    }
+
     for (let i = 0; i < arr.length; i++) {
-      if (el.equals(arr[i])) {
+      if (hash.equals(arr[i])) {
         return i;
       }
     }
@@ -111,14 +115,6 @@ export default class MerkleTree {
     return elements.filter((el, idx) => {
       return this.bufIndexOf(el, elements) === idx;
     });
-  }
-
-  bufToHex(el) {
-    if (!Buffer.isBuffer(el)) {
-      throw new Error("Element is not a buffer");
-    }
-
-    return "0x" + el.toString("hex");
   }
 
   bufArrToHex(arr) {
