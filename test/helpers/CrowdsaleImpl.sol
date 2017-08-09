@@ -1,21 +1,17 @@
 pragma solidity ^0.4.11;
 
-
-import '../../contracts/crowdsale/CappedCrowdsale.sol';
+import '../../contracts/crowdsale/Crowdsale.sol';
 import '../../contracts/crowdsale/FixedRate.sol';
 
+contract CrowdsaleImpl is Crowdsale, FixedRate {
 
-contract CappedCrowdsaleImpl is CappedCrowdsale, FixedRate {
-
-  function CappedCrowdsaleImpl (
+  function CrowdsaleImpl (
     uint256 _startBlock,
     uint256 _endBlock,
     uint256 _rate,
-    address _wallet,
-    uint256 _cap
+    address _wallet
   )
     Crowdsale(_startBlock, _endBlock, _wallet)
-    CappedCrowdsale(_cap) 
     FixedRate(_rate)
   {
   }

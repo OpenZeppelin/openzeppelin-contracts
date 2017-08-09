@@ -24,9 +24,6 @@ contract Crowdsale {
   // address where funds are collected
   address public wallet;
 
-  // how many token units a buyer gets per wei
-  uint256 public rate;
-
   // amount of raised money in wei
   uint256 public weiRaised;
 
@@ -40,25 +37,24 @@ contract Crowdsale {
   event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
 
 
-  function Crowdsale(uint256 _startBlock, uint256 _endBlock, uint256 _rate, address _wallet) {
+  function Crowdsale(uint256 _startBlock, uint256 _endBlock, address _wallet) {
     require(_startBlock >= block.number);
     require(_endBlock >= _startBlock);
-    require(_rate > 0);
     require(_wallet != 0x0);
 
     token = createTokenContract();
     startBlock = _startBlock;
     endBlock = _endBlock;
-    rate = _rate;
     wallet = _wallet;
   }
+
+  function getRate() returns (uint256);
 
   // creates the token to be sold. 
   // override this method to have crowdsale of a specific mintable token.
   function createTokenContract() internal returns (MintableToken) {
     return new MintableToken();
   }
-
 
   // fallback function can be used to buy tokens
   function () payable {
@@ -73,7 +69,7 @@ contract Crowdsale {
     uint256 weiAmount = msg.value;
 
     // calculate token amount to be created
-    uint256 tokens = weiAmount.mul(rate);
+    uint256 tokens = weiAmount.mul(getRate());
 
     // update state
     weiRaised = weiRaised.add(weiAmount);

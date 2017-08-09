@@ -2,9 +2,10 @@ pragma solidity ^0.4.11;
 
 
 import '../../contracts/crowdsale/FinalizableCrowdsale.sol';
+import '../../contracts/crowdsale/FixedRate.sol';
 
 
-contract FinalizableCrowdsaleImpl is FinalizableCrowdsale {
+contract FinalizableCrowdsaleImpl is FinalizableCrowdsale, FixedRate {
 
   function FinalizableCrowdsaleImpl (
     uint256 _startBlock,
@@ -12,8 +13,9 @@ contract FinalizableCrowdsaleImpl is FinalizableCrowdsale {
     uint256 _rate,
     address _wallet
   )
-    Crowdsale(_startBlock, _endBlock, _rate, _wallet)
+    Crowdsale(_startBlock, _endBlock, _wallet)
     FinalizableCrowdsale() 
+    FixedRate(_rate)
   {
   }
 
