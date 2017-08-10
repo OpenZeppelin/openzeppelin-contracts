@@ -29,26 +29,26 @@ contract('TokenTimelock', function ([_, owner, beneficiary]) {
   })
 
   it('cannot be released just before time limit', async function () {
-    await increaseTime(moment.duration(0.99, 'year'))
+    await increaseTime(moment.duration(0.99, 'year').asSeconds())
     await this.timelock.release().should.be.rejected
   })
 
   it('can be released just after limit', async function () {
-    await increaseTime(moment.duration(1.01, 'year'))
+    await increaseTime(moment.duration(1.01, 'year').asSeconds())
     await this.timelock.release().should.be.fulfilled
     const balance = await this.token.balanceOf(beneficiary)
     balance.should.be.bignumber.equal(amount)
   })
 
   it('can be released after time limit', async function () {
-    await increaseTime(moment.duration(2, 'year'))
+    await increaseTime(moment.duration(2, 'year').asSeconds())
     await this.timelock.release().should.be.fulfilled
     const balance = await this.token.balanceOf(beneficiary)
     balance.should.be.bignumber.equal(amount)
   })
 
   it('cannot be released twice', async function () {
-    await increaseTime(moment.duration(2, 'year'))
+    await increaseTime(moment.duration(2, 'year').asSeconds())
     await this.timelock.release().should.be.fulfilled
     await this.timelock.release().should.be.rejected
     const balance = await this.token.balanceOf(beneficiary)

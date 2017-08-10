@@ -1,6 +1,6 @@
-import moment from 'moment'
 import {advanceBlock} from './helpers/advanceToBlock'
 import increaseTime from './helpers/increaseTime'
+import {duration, increaseTimeHandicap} from './helpers/increaseTime'
 import latestTime from './helpers/latestTime'
 import EVMThrow from './helpers/EVMThrow'
 
@@ -24,8 +24,12 @@ contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
   })
 
   beforeEach(async function () {
-    this.startTime = latestTime().unix() + moment.duration(1, 'week').asSeconds();
-    this.endTime =   latestTime().unix() + moment.duration(2, 'week').asSeconds();
+    this.timeToStart = duration.weeks(1);
+    this.crowdsalePeriod = duration.weeks(1);
+    this.timeToEnd = this.timeToStart + this.crowdsalePeriod + increaseTimeHandicap;
+
+    this.startTime = latestTime().unix() + this.timeToStart;
+    this.endTime =   this.startTime + this.crowdsalePeriod;
 
     this.crowdsale = await FinalizableCrowdsale.new(this.startTime, this.endTime, rate, wallet, {from: owner})
 
@@ -37,30 +41,30 @@ contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
   })
 
   it('cannot be finalized by third party after ending', async function () {
-    await increaseTime(moment.duration(2.1, 'week'))
+    await increaseTime(this.timeToEnd)
     await this.crowdsale.finalize({from: thirdparty}).should.be.rejectedWith(EVMThrow)
   })
 
   it('can be finalized by owner after ending', async function () {
-    await increaseTime(moment.duration(2.1, 'week'))
+    await increaseTime(this.timeToEnd)
     await this.crowdsale.finalize({from: owner}).should.be.fulfilled
   })
 
   it('cannot be finalized twice', async function () {
-    await increaseTime(moment.duration(2.1, 'week'))
+    await increaseTime(this.timeToEnd)
     await this.crowdsale.finalize({from: owner})
     await this.crowdsale.finalize({from: owner}).should.be.rejectedWith(EVMThrow)
   })
 
   it('logs finalized', async function () {
-    await increaseTime(moment.duration(2.1, 'week'))
+    await increaseTime(this.timeToEnd)
     const {logs} = await this.crowdsale.finalize({from: owner})
     const event = logs.find(e => e.event === 'Finalized')
     should.exist(event)
   })
 
   it('finishes minting of token', async function () {
-    await increaseTime(moment.duration(2.1, 'week'))
+    await increaseTime(this.timeToEnd)
     await this.crowdsale.finalize({from: owner})
     const finished = await this.token.mintingFinished()
     finished.should.equal(true)

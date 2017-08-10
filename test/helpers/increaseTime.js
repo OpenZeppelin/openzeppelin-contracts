@@ -6,7 +6,7 @@ export default function increaseTime(duration) {
     web3.currentProvider.sendAsync({
       jsonrpc: '2.0',
       method: 'evm_increaseTime',
-      params: [duration.asSeconds()],
+      params: [duration],
       id: id,
     }, err1 => {
       if (err1) return reject(err1)
@@ -21,3 +21,13 @@ export default function increaseTime(duration) {
     })
   })
 }
+
+export const duration = {
+  seconds: function(val) { return val},
+  minutes: function(val) { return val * this.seconds(60) },
+  hours:   function(val) { return val * this.minutes(60) },
+  days:    function(val) { return val * this.hours(24) },
+  weeks:   function(val) { return val * this.days(7) }
+};
+
+export const increaseTimeHandicap = duration.seconds(10);

@@ -1,7 +1,7 @@
-import moment from 'moment'
 import ether from './helpers/ether'
 import {advanceBlock} from './helpers/advanceToBlock'
 import increaseTime from './helpers/increaseTime'
+import {duration, increaseTimeHandicap} from './helpers/increaseTime'
 import latestTime from './helpers/latestTime'
 import EVMThrow from './helpers/EVMThrow'
 
@@ -28,8 +28,11 @@ contract('CappedCrowdsale', function ([_, wallet]) {
   })
 
   beforeEach(async function () {
-    this.startTime = latestTime().unix() + moment.duration(1, 'week').asSeconds();
-    this.endTime =   latestTime().unix() + moment.duration(2, 'week').asSeconds();
+    this.timeToStart = duration.weeks(1);
+    this.crowdsalePeriod = duration.weeks(1);
+    
+    this.startTime = latestTime().unix() + this.timeToStart;
+    this.endTime =   this.startTime + this.crowdsalePeriod;
 
 
     this.crowdsale = await CappedCrowdsale.new(this.startTime, this.endTime, rate, wallet, cap)
@@ -48,7 +51,7 @@ contract('CappedCrowdsale', function ([_, wallet]) {
   describe('accepting payments', function () {
 
     beforeEach(async function () {
-      await increaseTime(moment.duration(1, 'week'))
+      await increaseTime(this.timeToStart)
     })
 
     it('should accept payments within cap', async function () {
@@ -70,7 +73,7 @@ contract('CappedCrowdsale', function ([_, wallet]) {
   describe('ending', function () {
 
     beforeEach(async function () {
-      await increaseTime(moment.duration(1, 'week'))
+      await increaseTime(this.timeToStart)
     })
 
     it('should not be ended if under cap', async function () {

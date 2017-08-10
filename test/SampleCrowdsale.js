@@ -1,7 +1,7 @@
-import moment from 'moment'
 import ether from './helpers/ether'
 import {advanceBlock} from './helpers/advanceToBlock'
 import increaseTime from './helpers/increaseTime'
+import {duration, increaseTimeHandicap} from './helpers/increaseTime'
 import latestTime from './helpers/latestTime'
 import EVMThrow from './helpers/EVMThrow'
 
@@ -27,8 +27,12 @@ contract('Crowdsale', function ([owner, wallet, investor]) {
   })
 
   beforeEach(async function () {
-    this.startTime = latestTime().unix() + moment.duration(1, 'week').asSeconds();
-    this.endTime =   latestTime().unix() + moment.duration(2, 'week').asSeconds();
+    this.timeToStart = duration.weeks(1);
+    this.crowdsalePeriod = duration.weeks(1);
+    this.timeToEnd = this.timeToStart + this.crowdsalePeriod + increaseTimeHandicap;
+
+    this.startTime = latestTime().unix() + this.timeToStart;
+    this.endTime =   this.startTime + this.crowdsalePeriod;
 
 
     this.crowdsale = await SampleCrowdsale.new(this.startTime, this.endTime, RATE, GOAL, CAP, wallet);
@@ -57,7 +61,7 @@ contract('Crowdsale', function ([owner, wallet, investor]) {
     const investmentAmount = ether(1);
     const expectedTokenAmount = RATE.mul(investmentAmount);
 
-    await increaseTime(moment.duration(1, 'week'));
+    await increaseTime(this.timeToStart);
     await this.crowdsale.buyTokens(investor, {value: investmentAmount, from: investor}).should.be.fulfilled;
 
     (await this.token.balanceOf(investor)).should.be.bignumber.equal(expectedTokenAmount);
@@ -65,23 +69,23 @@ contract('Crowdsale', function ([owner, wallet, investor]) {
   });
 
   it('should reject payments after end', async function () {
-    await increaseTime(moment.duration(2.1, 'week'));
+    await increaseTime(this.timeToEnd);
     await this.crowdsale.send(ether(1)).should.be.rejectedWith(EVMThrow);
     await this.crowdsale.buyTokens(investor, {value: ether(1), from: investor}).should.be.rejectedWith(EVMThrow);
   });
 
   it('should reject payments over cap', async function () {
-    await increaseTime(moment.duration(1, 'week'));
+    await increaseTime(this.timeToStart);
     await this.crowdsale.send(CAP);
     await this.crowdsale.send(1).should.be.rejectedWith(EVMThrow);
   });
 
   it('should allow finalization and transfer funds to wallet if the goal is reached', async function () {
-    await increaseTime(moment.duration(1, 'week'));
+    await increaseTime(this.timeToStart);
     await this.crowdsale.send(GOAL);
 
     const beforeFinalization = web3.eth.getBalance(wallet);
-    await increaseTime(moment.duration(1.1, 'week'));
+    await increaseTime(this.crowdsalePeriod + increaseTimeHandicap);
     await this.crowdsale.finalize({from: owner});
     const afterFinalization = web3.eth.getBalance(wallet);
 
@@ -91,9 +95,9 @@ contract('Crowdsale', function ([owner, wallet, investor]) {
   it('should allow refunds if the goal is not reached', async function () {
     const balanceBeforeInvestment = web3.eth.getBalance(investor);
 
-    await increaseTime(moment.duration(1, 'week'));
+    await increaseTime(this.timeToStart);
     await this.crowdsale.sendTransaction({value: ether(1), from: investor, gasPrice: 0});
-    await increaseTime(moment.duration(1.1, 'week'));
+    await increaseTime(this.crowdsalePeriod + increaseTimeHandicap);
 
     await this.crowdsale.finalize({from: owner});
     await this.crowdsale.claimRefund({from: investor, gasPrice: 0}).should.be.fulfilled;
