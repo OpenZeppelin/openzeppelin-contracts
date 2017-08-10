@@ -1,4 +1,6 @@
-import advanceToBlock from './helpers/advanceToBlock'
+import {advanceBlock} from './helpers/advanceToBlock'
+import {increaseTimeTo, duration} from './helpers/increaseTime'
+import latestTime from './helpers/latestTime'
 import EVMThrow from './helpers/EVMThrow'
 
 const BigNumber = web3.BigNumber
@@ -15,11 +17,18 @@ contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
 
   const rate = new BigNumber(1000)
 
-  beforeEach(async function () {
-    this.startBlock = web3.eth.blockNumber + 10
-    this.endBlock = web3.eth.blockNumber + 20
+  before(async function() {
+    //Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
+    await advanceBlock()
+  })
 
-    this.crowdsale = await FinalizableCrowdsale.new(this.startBlock, this.endBlock, rate, wallet, {from: owner})
+  beforeEach(async function () {
+    this.startTime = latestTime().unix() + duration.weeks(1)
+    this.endTime =   this.startTime + duration.weeks(1)
+    this.afterEndTime = this.endTime + duration.seconds(1)
+
+
+    this.crowdsale = await FinalizableCrowdsale.new(this.startTime, this.endTime, rate, wallet, {from: owner})
 
     this.token = MintableToken.at(await this.crowdsale.token())
   })
@@ -29,30 +38,30 @@ contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
   })
 
   it('cannot be finalized by third party after ending', async function () {
-    await advanceToBlock(this.endBlock)
+    await increaseTimeTo(this.afterEndTime)
     await this.crowdsale.finalize({from: thirdparty}).should.be.rejectedWith(EVMThrow)
   })
 
   it('can be finalized by owner after ending', async function () {
-    await advanceToBlock(this.endBlock)
+    await increaseTimeTo(this.afterEndTime)
     await this.crowdsale.finalize({from: owner}).should.be.fulfilled
   })
 
   it('cannot be finalized twice', async function () {
-    await advanceToBlock(this.endBlock + 1)
+    await increaseTimeTo(this.afterEndTime)
     await this.crowdsale.finalize({from: owner})
     await this.crowdsale.finalize({from: owner}).should.be.rejectedWith(EVMThrow)
   })
 
   it('logs finalized', async function () {
-    await advanceToBlock(this.endBlock)
+    await increaseTimeTo(this.afterEndTime)
     const {logs} = await this.crowdsale.finalize({from: owner})
     const event = logs.find(e => e.event === 'Finalized')
     should.exist(event)
   })
 
   it('finishes minting of token', async function () {
-    await advanceToBlock(this.endBlock)
+    await increaseTimeTo(this.afterEndTime)
     await this.crowdsale.finalize({from: owner})
     const finished = await this.token.mintingFinished()
     finished.should.equal(true)

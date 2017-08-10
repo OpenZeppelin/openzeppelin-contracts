@@ -1,5 +1,7 @@
 import ether from './helpers/ether'
-import advanceToBlock from './helpers/advanceToBlock'
+import {advanceBlock} from './helpers/advanceToBlock'
+import {increaseTimeTo, duration} from './helpers/increaseTime'
+import latestTime from './helpers/latestTime'
 import EVMThrow from './helpers/EVMThrow'
 
 const BigNumber = web3.BigNumber
@@ -19,11 +21,18 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
 
   const expectedTokenAmount = rate.mul(value)
 
-  beforeEach(async function () {
-    this.startBlock = web3.eth.blockNumber + 10
-    this.endBlock =   web3.eth.blockNumber + 20
+  before(async function() {
+    //Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
+    await advanceBlock()
+  })
 
-    this.crowdsale = await Crowdsale.new(this.startBlock, this.endBlock, rate, wallet)
+  beforeEach(async function () {
+    this.startTime = latestTime().unix() + duration.weeks(1);
+    this.endTime =   this.startTime + duration.weeks(1);
+    this.afterEndTime = this.endTime + duration.seconds(1)
+
+
+    this.crowdsale = await Crowdsale.new(this.startTime, this.endTime, rate, wallet)
 
     this.token = MintableToken.at(await this.crowdsale.token())
   })
@@ -36,7 +45,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
   it('should be ended only after end', async function () {
     let ended = await this.crowdsale.hasEnded()
     ended.should.equal(false)
-    await advanceToBlock(this.endBlock + 1)
+    await increaseTimeTo(this.afterEndTime)
     ended = await this.crowdsale.hasEnded()
     ended.should.equal(true)
   })
@@ -49,13 +58,13 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
     })
 
     it('should accept payments after start', async function () {
-      await advanceToBlock(this.startBlock - 1)
+      await increaseTimeTo(this.startTime)
       await this.crowdsale.send(value).should.be.fulfilled
       await this.crowdsale.buyTokens(investor, {value: value, from: purchaser}).should.be.fulfilled
     })
 
     it('should reject payments after end', async function () {
-      await advanceToBlock(this.endBlock)
+      await increaseTimeTo(this.afterEndTime)
       await this.crowdsale.send(value).should.be.rejectedWith(EVMThrow)
       await this.crowdsale.buyTokens(investor, {value: value, from: purchaser}).should.be.rejectedWith(EVMThrow)
     })
@@ -65,7 +74,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
   describe('high-level purchase', function () {
 
     beforeEach(async function() {
-      await advanceToBlock(this.startBlock)
+      await increaseTimeTo(this.startTime)
     })
 
     it('should log purchase', async function () {
@@ -104,33 +113,33 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
   describe('low-level purchase', function () {
 
     beforeEach(async function() {
-      await advanceToBlock(this.startBlock)
+      await increaseTimeTo(this.startTime)
     })
-
+    
     it('should log purchase', async function () {
       const {logs} = await this.crowdsale.buyTokens(investor, {value: value, from: purchaser})
-
+    
       const event = logs.find(e => e.event === 'TokenPurchase')
-
+    
       should.exist(event)
       event.args.purchaser.should.equal(purchaser)
       event.args.beneficiary.should.equal(investor)
       event.args.value.should.be.bignumber.equal(value)
       event.args.amount.should.be.bignumber.equal(expectedTokenAmount)
     })
-
+    
     it('should increase totalSupply', async function () {
       await this.crowdsale.buyTokens(investor, {value, from: purchaser})
       const totalSupply = await this.token.totalSupply()
       totalSupply.should.be.bignumber.equal(expectedTokenAmount)
     })
-
+    
     it('should assign tokens to beneficiary', async function () {
       await this.crowdsale.buyTokens(investor, {value, from: purchaser})
       const balance = await this.token.balanceOf(investor)
       balance.should.be.bignumber.equal(expectedTokenAmount)
     })
-
+    
     it('should forward funds to wallet', async function () {
       const pre = web3.eth.getBalance(wallet)
       await this.crowdsale.buyTokens(investor, {value, from: purchaser})
