@@ -1,7 +1,6 @@
 import ether from './helpers/ether'
 import {advanceBlock} from './helpers/advanceToBlock'
-import increaseTime from './helpers/increaseTime'
-import {duration, increaseTimeHandicap} from './helpers/increaseTime'
+import {increaseTimeTo, duration} from './helpers/increaseTime'
 import latestTime from './helpers/latestTime'
 import EVMThrow from './helpers/EVMThrow'
 
@@ -28,12 +27,10 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
   })
 
   beforeEach(async function () {
-    this.timeToStart = duration.weeks(1);
-    this.crowdsalePeriod = duration.weeks(1);
-    this.timeToEnd = this.timeToStart + this.crowdsalePeriod + increaseTimeHandicap;
+    this.startTime = latestTime().unix() + duration.weeks(1);
+    this.endTime =   this.startTime + duration.weeks(1);
+    this.afterEndTime = this.endTime + duration.seconds(1)
 
-    this.startTime = latestTime().unix() + this.timeToStart;
-    this.endTime =   this.startTime + this.crowdsalePeriod;
 
     this.crowdsale = await Crowdsale.new(this.startTime, this.endTime, rate, wallet)
 
@@ -48,7 +45,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
   it('should be ended only after end', async function () {
     let ended = await this.crowdsale.hasEnded()
     ended.should.equal(false)
-    await increaseTime(this.timeToEnd)
+    await increaseTimeTo(this.afterEndTime)
     ended = await this.crowdsale.hasEnded()
     ended.should.equal(true)
   })
@@ -61,13 +58,13 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
     })
 
     it('should accept payments after start', async function () {
-      await increaseTime(this.timeToStart)
+      await increaseTimeTo(this.startTime)
       await this.crowdsale.send(value).should.be.fulfilled
       await this.crowdsale.buyTokens(investor, {value: value, from: purchaser}).should.be.fulfilled
     })
 
     it('should reject payments after end', async function () {
-      await increaseTime(this.timeToEnd)
+      await increaseTimeTo(this.afterEndTime)
       await this.crowdsale.send(value).should.be.rejectedWith(EVMThrow)
       await this.crowdsale.buyTokens(investor, {value: value, from: purchaser}).should.be.rejectedWith(EVMThrow)
     })
@@ -77,7 +74,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
   describe('high-level purchase', function () {
 
     beforeEach(async function() {
-      await increaseTime(this.timeToStart)
+      await increaseTimeTo(this.startTime)
     })
 
     it('should log purchase', async function () {
@@ -116,7 +113,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
   describe('low-level purchase', function () {
 
     beforeEach(async function() {
-      await increaseTime(this.timeToStart)
+      await increaseTimeTo(this.startTime)
     })
     
     it('should log purchase', async function () {
