@@ -27,7 +27,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
   })
 
   beforeEach(async function () {
-    this.startTime = latestTime().unix() + duration.weeks(1);
+    this.startTime = latestTime() + duration.weeks(1);
     this.endTime =   this.startTime + duration.weeks(1);
     this.afterEndTime = this.endTime + duration.seconds(1)
 
