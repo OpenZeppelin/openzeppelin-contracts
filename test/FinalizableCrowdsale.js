@@ -60,11 +60,4 @@ contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
     should.exist(event)
   })
 
-  it('finishes minting of token', async function () {
-    await increaseTimeTo(this.afterEndTime)
-    await this.crowdsale.finalize({from: owner})
-    const finished = await this.token.mintingFinished()
-    finished.should.equal(true)
-  })
-
 })
