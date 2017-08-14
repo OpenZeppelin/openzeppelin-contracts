@@ -1,6 +1,6 @@
 'use strict';
 
-const assertJump = require('./helpers/assertJump');
+import expectThrow from './helpers/expectThrow';
 var MintableToken = artifacts.require('../contracts/Tokens/MintableToken.sol');
 
 contract('Mintable', function(accounts) {
@@ -35,6 +35,12 @@ contract('Mintable', function(accounts) {
     
     let totalSupply = await token.totalSupply();
     assert(totalSupply, 100);
+  })
+
+  it('should fail to mint after call to finishMinting', async function () {
+    await token.finishMinting();
+    assert.equal(await token.mintingFinished(), true);
+    await expectThrow(token.mint(accounts[0], 100));
   })
 
 });
