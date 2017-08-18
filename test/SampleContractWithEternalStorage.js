@@ -16,7 +16,7 @@ contract('SampleContractWithEternalStorage', function (accounts) {
   it('should start with a count of 0', async function () {
     let value = await sample.getValue();
 
-    assert.equal(value, 0);
+    assert.equal(value.toNumber(), 0);
   });
   
   it('should fail to write to eternalStorage', async function () {
@@ -27,8 +27,7 @@ contract('SampleContractWithEternalStorage', function (accounts) {
     await storage.transferOwnership(sample.address);
     await sample.incrementValue();
     let value = await sample.getValue();
-
-    assert.equal(value, 1);
+    assert.equal(value.toNumber(), 1);
   });
 
 });
