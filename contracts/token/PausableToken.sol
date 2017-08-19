@@ -4,9 +4,9 @@ import './StandardToken.sol';
 import '../lifecycle/Pausable.sol';
 
 /**
- * Pausable token
+ * @title Pausable token
  *
- * Simple ERC20 Token example, with pausable token creation
+ * @dev StandardToken modified with pausable transfers.
  **/
 
 contract PausableToken is StandardToken, Pausable {
