@@ -6,7 +6,12 @@ node_js:
   - "6"
 cache:
   yarn: true
+env:
+  -
+  - SOLIDITY_COVERAGE=true
+matrix:
+  fast_finish: true
+  allow_failures:
+    - env: SOLIDITY_COVERAGE=true
 script:
   - yarn test
-after_script:
-  - yarn run coveralls
