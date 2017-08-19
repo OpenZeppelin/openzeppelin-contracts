@@ -71,7 +71,6 @@ contract StandardToken is ERC20, BasicToken {
    * From MonolithDAO Token.sol
    */
   function increaseApproval (address _spender, uint _addedValue) 
-    onlyPayloadSize(2 * 32)
     returns (bool success) {
         allowed[msg.sender][_spender] = allowed[msg.sender][_spender].add(_addedValue);
         Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
@@ -79,7 +78,6 @@ contract StandardToken is ERC20, BasicToken {
     }
 
   function decreaseApproval (address _spender, uint _subtractedValue) 
-    onlyPayloadSize(2 * 32)
     returns (bool success) {
         uint oldValue = allowed[msg.sender][_spender];
         if (_subtractedValue > oldValue) {
