@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Exit script as soon as a command fails.
+set -o errexit
+
 # Executes cleanup function at script exit.
 trap cleanup EXIT
 
@@ -10,8 +13,22 @@ cleanup() {
   fi
 }
 
+if [ "$SOLIDITY_COVERAGE" = true ]; then
+  testrpc_port=8555
+else
+  testrpc_port=8545
+fi
+
 testrpc_running() {
-  nc -z localhost 8545
+  nc -z localhost "$testrpc_port"
+}
+
+testrpc() {
+  if [ "$SOLIDITY_COVERAGE" = true ]; then
+    node_modules/.bin/testrpc-sc --gasLimit 0xfffffffffff --port "$testrpc_port" "$@"
+  else
+    node_modules/.bin/testrpc "$@"
+  fi
 }
 
 if testrpc_running; then
@@ -34,4 +51,12 @@ else
   testrpc_pid=$!
 fi
 
-node_modules/.bin/truffle test "$@"
+if [ "$SOLIDITY_COVERAGE" = true ]; then
+  node_modules/.bin/solidity-coverage
+
+  if [ "$CONTINUOUS_INTEGRATION" = true ]; then
+    cat coverage/lcov.info | node_modules/.bin/coveralls
+  fi
+else
+  node_modules/.bin/truffle test "$@"
+fi
