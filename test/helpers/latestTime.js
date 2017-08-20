@@ -1,6 +1,4 @@
-import moment from 'moment'
-
-// Returns a moment.js instance representing the time of the last mined block
+// Returns the time of the last mined block in seconds
 export default function latestTime() {
-  return moment.unix(web3.eth.getBlock('latest').timestamp)
+  return web3.eth.getBlock('latest').timestamp;
 }

@@ -16,7 +16,7 @@ With OpenZeppelin, you can build distributed applications, protocols and organiz
 OpenZeppelin integrates with [Truffle](https://github.com/ConsenSys/truffle), an Ethereum development environment. Please install Truffle and initialize your project with `truffle init`.
 
 ```sh
-npm install -g truffle@beta
+npm install -g truffle
 mkdir myproject && cd myproject
 truffle init
 ```

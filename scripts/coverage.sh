@@ -19,7 +19,7 @@ if testrpc_running; then
 else
   echo "Starting testrpc-sc to generate coverage"
   # We define 10 accounts with balance 1M ether, needed for high-value tests.
-  ./node_modules/ethereumjs-testrpc-sc/bin/testrpc --gasLimit 0xfffffffffff --port 8555 \
+  ./node_modules/ethereumjs-testrpc-sc/build/cli.node.js --gasLimit 0xfffffffffff --port 8555 \
     --account="0x2bdd21761a483f71054e14f5b827213567971c676928d9a1808cbfa4b7501200,1000000000000000000000000"  \
     --account="0x2bdd21761a483f71054e14f5b827213567971c676928d9a1808cbfa4b7501201,1000000000000000000000000"  \
     --account="0x2bdd21761a483f71054e14f5b827213567971c676928d9a1808cbfa4b7501202,1000000000000000000000000"  \
