@@ -16,11 +16,6 @@ contract StandardToken is ERC20, BasicToken {
 
   mapping (address => mapping (address => uint256)) allowed;
 
-  modifier onlyPayloadSize(uint numwords) {
-    require(msg.data.length == numwords * 32 + 4);
-    _;
-  }
-
   /**
    * @dev Transfer tokens from one address to another
    * @param _from address The address which you want to send tokens from
