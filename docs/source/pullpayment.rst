@@ -9,4 +9,4 @@ Adds sent amount to available balance that payee can pull from this contract, ca
 
 withdrawPayments( )
 """""""""""""""""""""""""""""""""""""""""""""""
-Sends designated balance to payee calling the contract. Throws error if designated balance is 0, if contract does not hold enough funds ot pay the payee, or if the send transaction is not successful.
+Sends designated balance to payee calling the contract. Throws error if designated balance is 0, if contract does not hold enough funds to pay the payee, or if the send transaction is not successful.
