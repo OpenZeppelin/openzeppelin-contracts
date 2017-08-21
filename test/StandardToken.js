@@ -70,4 +70,22 @@ contract('StandardToken', function(accounts) {
     }
   });
 
+  describe('validating allowance updates to spender', function() {
+    let preApproved;
+    
+    it('should start with zero', async function() {
+      preApproved = await token.allowance(accounts[0], accounts[1]);
+      assert.equal(preApproved, 0);
+    })
+
+    it('should increase by 50 then decrease by 10', async function() {
+      await token.increaseApproval(accounts[1], 50);
+      let postIncrease = await token.allowance(accounts[0], accounts[1]);
+      preApproved.plus(50).should.be.bignumber.equal(postIncrease);
+      await token.decreaseApproval(accounts[1], 10);
+      let postDecrease = await token.allowance(accounts[0], accounts[1]);
+      postIncrease.minus(10).should.be.bignumber.equal(postDecrease);
+    })
+  });
+
 });
