@@ -5,8 +5,7 @@
   "scripts": {
     "test": "scripts/test.sh",
     "console": "truffle console",
-    "coverage": "scripts/coverage.sh",
-    "coveralls": "scripts/coveralls.sh"
+    "coverage": "scripts/coverage.sh"
   },
   "repository": {
     "type": "git",
