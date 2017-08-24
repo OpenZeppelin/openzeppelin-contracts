@@ -68,7 +68,7 @@ contract Crowdsale {
   // low level token purchase function
   function buyTokens(address beneficiary) payable {
     require(beneficiary != 0x0);
-    require(shouldBuyTokens(beneficiary));
+    require(canBuyTokens(beneficiary));
     willBuyTokens(beneficiary);
 
     uint256 weiAmount = msg.value;
@@ -87,7 +87,7 @@ contract Crowdsale {
   }
 
   // pre-flight method - authorizing buying tokens
-  function shouldBuyTokens(address beneficiary) internal returns (bool) {
+  function canBuyTokens(address beneficiary) internal returns (bool) {
     return validPurchase();
   }
 
