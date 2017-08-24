@@ -68,7 +68,7 @@ contract Crowdsale {
   // low level token purchase function
   function buyTokens(address beneficiary) payable {
     require(beneficiary != 0x0);
-    require(validPurchase());
+    require(willBuyTokens(beneficiary));
 
     uint256 weiAmount = msg.value;
 
@@ -79,9 +79,20 @@ contract Crowdsale {
     weiRaised = weiRaised.add(weiAmount);
 
     token.mint(beneficiary, tokens);
-    TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
 
     forwardFunds();
+
+    didBuyTokens(beneficiary, weiAmount, tokens);
+  }
+
+  // pre-flight method - authorizing buying tokens
+  function willBuyTokens(address beneficiary) internal returns (bool) {
+    return validPurchase();
+  }
+
+  // post-flight method - notifying buying tokens
+  function didBuyTokens(address beneficiary, uint256 weiAmount, uint256 amount) internal {
+    TokenPurchase(msg.sender, beneficiary, weiAmount, amount);
   }
 
   // send ether to the fund collection wallet
