@@ -8,7 +8,7 @@ contract('CanReclaimToken', function(accounts) {
   let token = null;
   let canReclaimToken = null;
 
-  beforeEach(async () => {
+  beforeEach(async function() {
     // Create contract and token
     token = await BasicTokenMock.new(accounts[0], 100);
     canReclaimToken = await CanReclaimToken.new();
