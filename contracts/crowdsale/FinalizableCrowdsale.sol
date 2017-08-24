@@ -7,7 +7,7 @@ import './Crowdsale.sol';
 /**
  * @title FinalizableCrowdsale
  * @dev Extension of Crowsdale where an owner can do extra work
- * after finishing. By default, it will end token minting.
+ * after finishing. 
  */
 contract FinalizableCrowdsale is Crowdsale, Ownable {
   using SafeMath for uint256;
