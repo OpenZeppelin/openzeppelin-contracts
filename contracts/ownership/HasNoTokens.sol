@@ -17,9 +17,8 @@ contract HasNoTokens is CanReclaimToken {
   * param value_ uint256 the amount of the specified token
   * param data_ Bytes The data passed from the caller.
   */
-  function tokenFallback(address from_, uint256 value_, bytes data_) external {
-    // revert();    
-    if(true || from_ == 0 || value_ == 0 || data_.length == 0 ) revert(); // Temporary fix for solidity compiler warning
+  function tokenFallback(address /*from_*/, uint256 /*value_*/, bytes /*data_*/) external {
+    revert();
   }
 
 }
