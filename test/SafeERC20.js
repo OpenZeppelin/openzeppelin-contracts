@@ -24,4 +24,15 @@ contract('SafeERC20', function () {
     await this.helper.doFailingApprove().should.be.rejectedWith(EVMThrow);
   });
 
+  it('should not throw on succeeding transfer', async function () {
+    await this.helper.doSucceedingTransfer().should.be.fulfilled;
+  });
+
+  it('should not throw on succeeding transferFrom', async function () {
+    await this.helper.doSucceedingTransferFrom().should.be.fulfilled;
+  });
+
+  it('should not throw on succeeding approve', async function () {
+    await this.helper.doSucceedingApprove().should.be.fulfilled;
+  });
 });

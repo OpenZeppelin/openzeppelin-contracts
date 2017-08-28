@@ -25,24 +25,60 @@ contract ERC20FailingMock is ERC20 {
   }
 }
 
+contract ERC20SucceedingMock is ERC20 {
+  function transfer(address, uint256) returns (bool) {
+    return true;
+  }
+
+  function transferFrom(address, address, uint256) returns (bool) {
+    return true;
+  }
+
+  function approve(address, uint256) returns (bool) {
+    return true;
+  }
+
+  function balanceOf(address) constant returns (uint256) {
+    return 0;
+  }
+
+  function allowance(address, address) constant returns (uint256) {
+    return 0;
+  }
+}
+
 contract SafeERC20Helper {
   using SafeERC20 for ERC20;
 
-  ERC20 token;
+  ERC20 failing;
+  ERC20 succeeding;
 
   function SafeERC20Helper() {
-    token = new ERC20FailingMock();
+    failing = new ERC20FailingMock();
+    succeeding = new ERC20SucceedingMock();
   }
 
   function doFailingTransfer() {
-    token.safeTransfer(0, 0);
+    failing.safeTransfer(0, 0);
   }
 
   function doFailingTransferFrom() {
-    token.safeTransferFrom(0, 0, 0);
+    failing.safeTransferFrom(0, 0, 0);
   }
 
   function doFailingApprove() {
-    token.safeApprove(0, 0);
+    failing.safeApprove(0, 0);
+  }
+
+  function doSucceedingTransfer() {
+    succeeding.safeTransfer(0, 0);
+  }
+
+  function doSucceedingTransferFrom() {
+    succeeding.safeTransferFrom(0, 0, 0);
+  }
+
+  function doSucceedingApprove() {
+    succeeding.safeApprove(0, 0);
   }
 }
