@@ -31,6 +31,10 @@ contract TokenVesting is Ownable {
    * @param _end timestamp of the moment when all balance will have been vested
    */
   function TokenVesting(address _beneficiary, uint256 _cliff, uint256 _end) {
+    require(_beneficiary != 0x0);
+    require(_cliff > now);
+    require(_end > _cliff);
+
     beneficiary = _beneficiary;
     cliff = _cliff;
     end = _end;
