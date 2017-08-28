@@ -1,7 +1,6 @@
 pragma solidity ^0.4.11;
 
-import "./Ownable.sol";
-import "../token/ERC20Basic.sol";
+import "./CanReclaimToken.sol";
 
 /**
  * @title Contracts that should not own Tokens
@@ -10,7 +9,7 @@ import "../token/ERC20Basic.sol";
  * Should tokens (any ERC20Basic compatible) end up in the contract, it allows the
  * owner to reclaim the tokens.
  */
-contract HasNoTokens is Ownable {
+contract HasNoTokens is CanReclaimToken {
 
  /**
   * @dev Reject all ERC23 compatible tokens
@@ -22,13 +21,4 @@ contract HasNoTokens is Ownable {
     revert();
   }
 
-  /**
-   * @dev Reclaim all ERC20Basic compatible tokens
-   * @param tokenAddr address The address of the token contract
-   */
-  function reclaimToken(address tokenAddr) external onlyOwner {
-    ERC20Basic tokenInst = ERC20Basic(tokenAddr);
-    uint256 balance = tokenInst.balanceOf(this);
-    tokenInst.transfer(owner, balance);
-  }
 }
