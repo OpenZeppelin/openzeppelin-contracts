@@ -13,13 +13,12 @@ contract HasNoTokens is CanReclaimToken {
 
  /**
   * @dev Reject all ERC23 compatible tokens
-  * @param from_ address The address that is transferring the tokens
-  * @param value_ uint256 the amount of the specified token
-  * @param data_ Bytes The data passed from the caller.
+  * param from_ address The address that is transferring the tokens
+  * param value_ uint256 the amount of the specified token
+  * param data_ Bytes The data passed from the caller.
   */
-  function tokenFallback(address from_, uint256 value_, bytes data_) external {
-    // revert();    
-    if(true || from_ == 0 || value_ == 0 || data_.length == 0 ) revert(); // Temporary fix for solidity compiler warning
+  function tokenFallback(address /*from_*/, uint256 /*value_*/, bytes /*data_*/) external {
+    revert();
   }
 
 }
