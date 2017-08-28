@@ -88,4 +88,25 @@ contract('StandardToken', function(accounts) {
     })
   });
 
+  it('should throw an error when trying to transfer to 0x0', async function() {
+    let token = await StandardTokenMock.new(accounts[0], 100);
+    try {
+      let transfer = await token.transfer(0x0, 100);
+      assert.fail('should have thrown before');
+    } catch(error) {
+      assertJump(error);
+    }
+  });
+
+  it('should throw an error when trying to transferFrom to 0x0', async function() {
+    let token = await StandardTokenMock.new(accounts[0], 100);
+    await token.approve(accounts[1], 100);
+    try {
+      let transfer = await token.transferFrom(accounts[0], 0x0, 100, {from: accounts[1]});
+      assert.fail('should have thrown before');
+    } catch(error) {
+      assertJump(error);
+    }
+  });
+
 });
