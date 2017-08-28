@@ -70,6 +70,8 @@ contract TokenVesting is Ownable {
   function vestedAmount(ERC20Basic token) constant returns (uint256) {
     if (now < cliff) {
       return 0;
+    } else if (now >= end) {
+      return token.balanceOf(this);
     } else {
       uint256 currentBalance = token.balanceOf(this);
       uint256 totalBalance = currentBalance.add(released[token]);
