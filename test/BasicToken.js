@@ -33,7 +33,7 @@ contract('BasicToken', function(accounts) {
   });
 
   it('should throw an error when trying to transfer to 0x0', async function() {
-    let token = await StandardTokenMock.new(accounts[0], 100);
+    let token = await BasicTokenMock.new(accounts[0], 100);
     try {
       let transfer = await token.transfer(0x0, 100);
       assert.fail('should have thrown before');
