@@ -48,11 +48,17 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     balance.should.bignumber.equal(amount.mul(releaseTime - this.start).div(this.end - this.start).floor());
   });
 
+  it('should linearly release tokens during vesting period');
+
   it('should have released all after end', async function () {
     await increaseTimeTo(this.end);
     await this.vesting.release(this.token.address);
     const balance = await this.token.balanceOf(beneficiary);
     balance.should.bignumber.equal(amount);
   });
+
+  it('should fail to be revoked by owner if revocable not set');
+
+  it('should be emptied when revoked by owner');
 
 });
