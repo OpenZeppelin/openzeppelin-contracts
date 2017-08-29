@@ -8,7 +8,8 @@ import '../math/SafeMath.sol';
 /**
  * @title TokenVesting
  * @dev A token holder contract that can release its token balance gradually like a
- * typical vesting scheme, with a cliff and vesting period. Revokable by the owner.
+ * typical vesting scheme, with a cliff and vesting period. Optionally revocable by the
+ * owner.
  */
 contract TokenVesting is Ownable {
   using SafeMath for uint256;
@@ -20,6 +21,8 @@ contract TokenVesting is Ownable {
   uint256 start;
   uint256 end;
 
+  bool revocable;
+
   mapping (address => uint256) released;
 
   /**
@@ -29,8 +32,9 @@ contract TokenVesting is Ownable {
    * @param _beneficiary address of the beneficiary to whom vested tokens are transferred
    * @param _cliff timestamp of the moment when tokens will begin to vest
    * @param _end timestamp of the moment when all balance will have been vested
+   * @param _revocable whether the vesting is revocable or not
    */
-  function TokenVesting(address _beneficiary, uint256 _cliff, uint256 _end) {
+  function TokenVesting(address _beneficiary, uint256 _cliff, uint256 _end, bool _revocable) {
     require(_beneficiary != 0x0);
     require(_cliff > now);
     require(_end > _cliff);
@@ -38,6 +42,8 @@ contract TokenVesting is Ownable {
     beneficiary = _beneficiary;
     cliff = _cliff;
     end = _end;
+    revocable = _revocable;
+
     start = now;
   }
 
@@ -60,6 +66,8 @@ contract TokenVesting is Ownable {
    * @param token ERC20 token which is being vested
    */
   function revoke(ERC20Basic token) onlyOwner {
+    require(revocable);
+
     uint256 balance = token.balanceOf(this);
 
     uint256 vested = vestedAmount(token);
