@@ -22,7 +22,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     this.cliff = latestTime() + duration.years(1);
     this.end = latestTime() + duration.years(2);
 
-    this.vesting = await TokenVesting.new(beneficiary, this.cliff, this.end, { from: owner });
+    this.vesting = await TokenVesting.new(beneficiary, this.cliff, this.end, true, { from: owner });
 
     this.start = latestTime(); // gets the timestamp at construction
 
