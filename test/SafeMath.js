@@ -68,4 +68,26 @@ contract('SafeMath', function(accounts) {
     }
   });
 
+  it("should throw an error on add addition MAX_UINT256", async function() {
+    let a = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+    let b = 1;
+    try {
+      let add = await safeMath.add(a, b);
+      assert.fail('should have thrown before');
+    } catch(error) {
+      assertJump(error);
+    }
+  });
+
+  it("should throw an error on multiplication MAX_UINT256", async function() {
+    let a = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+    let b = 2;
+    try {
+      let multiply = await safeMath.multiply(a, b);
+      assert.fail('should have thrown before');
+    } catch(error) {
+      assertJump(error);
+    }
+  });
+
 });
