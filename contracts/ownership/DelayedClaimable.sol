@@ -36,6 +36,7 @@ contract DelayedClaimable is Claimable {
     owner = pendingOwner;
     pendingOwner = 0x0;
     end = 0;
+    OwnershipTransferred(owner);
   }
 
 }
