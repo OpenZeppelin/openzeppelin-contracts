@@ -63,6 +63,12 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
       await this.crowdsale.buyTokens(investor, {value: value, from: purchaser}).should.be.fulfilled
     })
 
+    it('should measure buyTokens tx costs', async function () {
+        await increaseTimeTo(this.startTime)
+        let tx = await this.crowdsale.buyTokens(investor, {value: value, from: purchaser}).should.be.fulfilled
+        console.log("*** INHERITANCE: " + tx.receipt.gasUsed + " gas used.");
+    })
+
     it('should reject payments after end', async function () {
       await increaseTimeTo(this.afterEndTime)
       await this.crowdsale.send(value).should.be.rejectedWith(EVMThrow)
