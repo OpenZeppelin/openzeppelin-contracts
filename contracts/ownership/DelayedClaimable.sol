@@ -33,6 +33,7 @@ contract DelayedClaimable is Claimable {
    */
   function claimOwnership() onlyPendingOwner {
     require((block.number <= end) && (block.number >= start));
+    OwnershipTransferred(owner, pendingOwner);
     owner = pendingOwner;
     pendingOwner = 0x0;
     end = 0;
