@@ -2,6 +2,7 @@ pragma solidity ^0.4.11;
 
 
 import './ERC20Basic.sol';
+import "../token/SafeERC20.sol";
 
 /**
  * @title TokenTimelock
@@ -9,6 +10,7 @@ import './ERC20Basic.sol';
  * beneficiary to extract the tokens after a given release time
  */
 contract TokenTimelock {
+  using SafeERC20 for ERC20Basic;
 
   // ERC20 basic token contract being held
   ERC20Basic token;
@@ -44,6 +46,6 @@ contract TokenTimelock {
     uint256 amount = token.balanceOf(this);
     require(amount > 0);
 
-    token.transfer(beneficiary, amount);
+    token.safeTransfer(beneficiary, amount);
   }
 }
