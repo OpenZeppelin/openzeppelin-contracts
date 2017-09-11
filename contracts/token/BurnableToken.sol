@@ -23,5 +23,5 @@ contract BurnableToken is StandardToken {
         Burn(burner, _value);
     }
 
-    event Burn(address indexed burner, uint indexed value);
+    event Burn(address indexed burner, uint256 value);
 }
