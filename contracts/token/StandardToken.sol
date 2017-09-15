@@ -26,7 +26,7 @@ contract StandardToken is ERC20, BasicToken {
   function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {
     require(_to != address(0));
 
-    var _allowance = allowed[_from][msg.sender];
+    uint256 _allowance = allowed[_from][msg.sender];
 
     // Check is not needed because sub(_allowance, _value) will already throw if this condition is not met
     // require (_value <= _allowance);
