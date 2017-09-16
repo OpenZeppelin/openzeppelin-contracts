@@ -149,7 +149,7 @@ contract VestedToken is StandardToken, LimitedTransferToken {
    *   |      .        |
    *   |    .          |
    *   +===+===========+---------+----------> time
-   *      Start       Clift    Vesting
+   *      Start       Cliff    Vesting
    */
   function calculateVestedTokens(
     uint256 tokens,
