@@ -3,11 +3,11 @@ var PullPaymentMock = artifacts.require("./helpers/PullPaymentMock.sol");
 contract('PullPayment', function(accounts) {
   let ppce;
   let amount = 17*1e18;
-  
+
   beforeEach(async function() {
     ppce = await PullPaymentMock.new({value: amount});
   });
-  
+
   it("can't call asyncSend externally", async function() {
     assert.isUndefined(ppce.asyncSend);
   });

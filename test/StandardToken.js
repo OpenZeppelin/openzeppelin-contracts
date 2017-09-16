@@ -6,11 +6,11 @@ var StandardTokenMock = artifacts.require('./helpers/StandardTokenMock.sol');
 contract('StandardToken', function(accounts) {
 
   let token;
-  
+
   beforeEach(async function() {
     token = await StandardTokenMock.new(accounts[0], 100);
   });
-  
+
   it('should return the correct totalSupply after construction', async function() {
     let totalSupply = await token.totalSupply();
 
@@ -72,7 +72,7 @@ contract('StandardToken', function(accounts) {
 
   describe('validating allowance updates to spender', function() {
     let preApproved;
-    
+
     it('should start with zero', async function() {
       preApproved = await token.allowance(accounts[0], accounts[1]);
       assert.equal(preApproved, 0);
