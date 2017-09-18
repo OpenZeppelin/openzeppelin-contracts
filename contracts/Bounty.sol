@@ -16,7 +16,7 @@ contract Bounty is PullPayment, Destructible {
   event TargetCreated(address createdAddress);
 
   /**
-   * @dev Fallback function allowing the contract to recieve funds, if they haven't already been claimed.
+   * @dev Fallback function allowing the contract to receive funds, if they haven't already been claimed.
    */
   function() payable {
     require(!claimed);

@@ -38,7 +38,7 @@ contract DayLimit {
   /**
    * @dev Checks to see if there is enough resource to spend today. If true, the resource may be expended.
    * @param _value uint256 representing the amount of resource to spend.
-   * @return A boolean that is True if the resource was spended and false otherwise.
+   * @return A boolean that is True if the resource was spent and false otherwise.
    */
   function underLimit(uint256 _value) internal returns (bool) {
     // reset the spend limit if we're on a different day to last time.
