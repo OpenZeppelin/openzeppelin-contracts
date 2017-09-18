@@ -15,7 +15,7 @@ function awaitEvent(event, handler) {
     function wrappedHandler(...args) {
       Promise.resolve(handler(...args)).then(resolve).catch(reject);
     }
-  
+
     event.watch(wrappedHandler);
   });
 }
@@ -90,7 +90,7 @@ contract('Bounty', function(accounts) {
       let reward = web3.toWei(1, 'ether');
       let bounty = await InsecureTargetBounty.new();
       let event = bounty.TargetCreated({});
-      
+
       let watcher = async function(err, result) {
         event.stopWatching();
         if (err) { throw err; }

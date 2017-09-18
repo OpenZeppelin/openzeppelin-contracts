@@ -7,24 +7,24 @@ pragma solidity ^0.4.11;
  */
 contract DayLimit {
 
-  uint public dailyLimit;
-  uint public spentToday;
-  uint public lastDay;
+  uint256 public dailyLimit;
+  uint256 public spentToday;
+  uint256 public lastDay;
 
   /**
    * @dev Constructor that sets the passed value as a dailyLimit.
-   * @param _limit Uint to represent the daily limit.
+   * @param _limit uint256 to represent the daily limit.
    */
-  function DayLimit(uint _limit) {
+  function DayLimit(uint256 _limit) {
     dailyLimit = _limit;
     lastDay = today();
   }
 
   /**
    * @dev sets the daily limit. Does not alter the amount already spent today.
-   * @param _newLimit Uint to represent the new limit.
+   * @param _newLimit uint256 to represent the new limit.
    */
-  function _setDailyLimit(uint _newLimit) internal {
+  function _setDailyLimit(uint256 _newLimit) internal {
     dailyLimit = _newLimit;
   }
 
@@ -37,10 +37,10 @@ contract DayLimit {
 
   /**
    * @dev Checks to see if there is enough resource to spend today. If true, the resource may be expended.
-   * @param _value Uint representing the amount of resource to spend.
-   * @return A boolean that is True if the resource was spended and false otherwise.
+   * @param _value uint256 representing the amount of resource to spend.
+   * @return A boolean that is True if the resource was spent and false otherwise.
    */
-  function underLimit(uint _value) internal returns (bool) {
+  function underLimit(uint256 _value) internal returns (bool) {
     // reset the spend limit if we're on a different day to last time.
     if (today() > lastDay) {
       spentToday = 0;
@@ -57,19 +57,17 @@ contract DayLimit {
 
   /**
    * @dev Private function to determine today's index
-   * @return Uint of today's index.
+   * @return uint256 of today's index.
    */
-  function today() private constant returns (uint) {
+  function today() private constant returns (uint256) {
     return now / 1 days;
   }
 
   /**
    * @dev Simple modifier for daily limit.
    */
-  modifier limitedDaily(uint _value) {
-    if (!underLimit(_value)) {
-      throw;
-    }
+  modifier limitedDaily(uint256 _value) {
+    require(underLimit(_value));
     _;
   }
 }

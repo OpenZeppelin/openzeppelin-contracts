@@ -5,7 +5,7 @@ Authored by Dennis Peterson and Peter Vessenes
 
 # Introduction
 
-Zeppelin requested that New Alchemy perform an audit of the contracts in their OpenZeppelin library. The OpenZeppelin contracts are a set of contracts intended to be a safe building block for a variety of uses by parties that may not be as sophisticated as the OpenZeppelin team. It is a design goal that the contracts be deployable safely and "as-is". 
+Zeppelin requested that New Alchemy perform an audit of the contracts in their OpenZeppelin library. The OpenZeppelin contracts are a set of contracts intended to be a safe building block for a variety of uses by parties that may not be as sophisticated as the OpenZeppelin team. It is a design goal that the contracts be deployable safely and "as-is".
 
 The contracts are hosted at:
 
@@ -22,9 +22,9 @@ The audit makes no statements or warrantees about utility of the code, safety of
 
 # Executive Summary
 
-Overall the OpenZeppelin codebase is of reasonably high quality -- it is clean, modular and follows best practices throughout. 
+Overall the OpenZeppelin codebase is of reasonably high quality -- it is clean, modular and follows best practices throughout.
 
-It is still in flux as a codebase, and needs better documentation per file as to expected behavior and future plans. It probably needs more comprehensive and aggressive tests written by people less nice than the current OpenZeppelin team. 
+It is still in flux as a codebase, and needs better documentation per file as to expected behavior and future plans. It probably needs more comprehensive and aggressive tests written by people less nice than the current OpenZeppelin team.
 
 We identified two critical errors and one moderate issue, and would not recommend this commit hash for public use until these bugs are remedied.
 
@@ -34,12 +34,12 @@ The repository includes a set of Truffle unit tests, a requirement and best prac
 
 ## Big Picture: Is This A Worthwhile Project?
 
-As soon as a developer touches OpenZeppelin contracts, they will modify something, leaving them in an un-audited state. We do not recommend developers deploy any unaudited code to the Blockchain if it will handle money, information or other things of value. 
+As soon as a developer touches OpenZeppelin contracts, they will modify something, leaving them in an un-audited state. We do not recommend developers deploy any unaudited code to the Blockchain if it will handle money, information or other things of value.
 
 > "In accordance with Unix philosophy, Perl gives you enough rope to hang yourself"
 > --Larry Wall
 
-We think this is an incredibly worthwhile project -- aided by the high code quality. Creating a framework that can be easily extended helps increase the average code quality on the Blockchain by charting a course for developers and encouraging containment of modifications to certain sections. 
+We think this is an incredibly worthwhile project -- aided by the high code quality. Creating a framework that can be easily extended helps increase the average code quality on the Blockchain by charting a course for developers and encouraging containment of modifications to certain sections.
 
 > "Rust: The language that makes you take the safety off before shooting yourself in the foot"
 > -- (@mbrubeck)
@@ -65,7 +65,7 @@ In general we prefer `throw` in our code audits, because it is simpler -- it's l
 
 In the OpenZeppelin contracts, both styles are used in different parts of the codebase. `SimpleToken` transfers throw upon failure, while the full ERC20 token returns `false`. Some modifiers `throw`, others just wrap the function body in a conditional, effectively allowing the function to return false if the condition is not met.
 
-We don't love this, and would usually recommend you stick with one style or the other throughout the codebase. 
+We don't love this, and would usually recommend you stick with one style or the other throughout the codebase.
 
 In at least one case, these different techniques are combined cleverly (see the Multisig comments, line 65). As a set of contracts intended for general use, we recommend you either strive for more consistency or document explicit design criteria that govern which techniques are used where.
 
@@ -77,19 +77,19 @@ Note that it may be impossible to use either one in all situations. For example,
 CrowdsaleToken.sol has no provision for withdrawing the raised ether. We *strongly* recommend a standard `withdraw` function be added. There is no scenario in which someone should deploy this contract as is, whether for testing or live.
 
 ## Recursive Call in MultisigWallet
-Line 45 of `MultisigWallet.sol` checks if the amount being sent by `execute` is under a daily limit. 
+Line 45 of `MultisigWallet.sol` checks if the amount being sent by `execute` is under a daily limit.
 
-This function can only be called by the "Owner". As a first angle of attack, it's worth asking what will happen if the multisig wallet owners reset the daily limit by approving a call to `resetSpentToday`. 
+This function can only be called by the "Owner". As a first angle of attack, it's worth asking what will happen if the multisig wallet owners reset the daily limit by approving a call to `resetSpentToday`.
 
 If a chain of calls can be constructed in which the owner confirms the `resetSpentToday` function and then withdraws through `execute` in a recursive call, the contract can be drained. In fact, this could be done without a recursive call, just through repeated `execute` calls alternating with the `confirm` calls.
 
-We are still working through the confirmation protocol in `Shareable.sol`, but we are not convinced that this is impossible, in fact it looks possible. The flexibility any shared owner has in being able to revoke confirmation later is another worrisome angle of approach even if some simple patches are included. 
+We are still working through the confirmation protocol in `Shareable.sol`, but we are not convinced that this is impossible, in fact it looks possible. The flexibility any shared owner has in being able to revoke confirmation later is another worrisome angle of approach even if some simple patches are included.
 
 This bug has a number of causes that need to be addressed:
 
-1. `resetSpentToday` and `confirm` together do not limit the days on which the function can be called or (it appears) the number of times it can be called. 
-1. Once a call has been confirmed and `execute`d it appears that it can be re-executed. This is not good. 
-3. `confirmandCheck` doesn't seem to have logic about whether or not the function in question has been called. 
+1. `resetSpentToday` and `confirm` together do not limit the days on which the function can be called or (it appears) the number of times it can be called.
+1. Once a call has been confirmed and `execute`d it appears that it can be re-executed. This is not good.
+3. `confirmandCheck` doesn't seem to have logic about whether or not the function in question has been called.
 4. Even if it did, `revoke` would need updates and logic to deal with revocation requests after a function call had been completed.
 
 We do not recommend using the MultisigWallet until these issues are fixed.
@@ -97,9 +97,9 @@ We do not recommend using the MultisigWallet until these issues are fixed.
 # Moderate to Minor Issues
 
 ## PullPayment
-PullPayment.sol needs some work. It has no explicit provision for cancelling a payment. This would be desirable in a number of scenarios; consider a payee losing their wallet, or giving a griefing address, or just an address that requires more than the default gas offered by `send`. 
+PullPayment.sol needs some work. It has no explicit provision for cancelling a payment. This would be desirable in a number of scenarios; consider a payee losing their wallet, or giving a griefing address, or just an address that requires more than the default gas offered by `send`.
 
-`asyncSend` has no overflow checking. This is a bad plan. We recommend overflow and underflow checking at the layer closest to the data manipulation. 
+`asyncSend` has no overflow checking. This is a bad plan. We recommend overflow and underflow checking at the layer closest to the data manipulation.
 
 `asyncSend` allows more balance to be queued up for sending than the contract holds. This is probably a bad idea, or at the very least should be called something different. If the intent is to allow this, it should have provisions for dealing with race conditions between competing `withdrawPayments` calls.
 
@@ -107,7 +107,7 @@ It would be nice to see how many payments are pending. This would imply a bit of
 
 ## Shareable Contract
 
-We do not believe the `Shareable.sol` contract is ready for primetime. It is missing functions, and as written may be vulnerable to a reordering attack -- an attack in which a miner or other party "racing" with a smart contract participant inserts their own information into a list or mapping. 
+We do not believe the `Shareable.sol` contract is ready for primetime. It is missing functions, and as written may be vulnerable to a reordering attack -- an attack in which a miner or other party "racing" with a smart contract participant inserts their own information into a list or mapping.
 
 The confirmation and revocation code needs to be looked over with a very careful eye imagining extraordinarily bad behavior by shared owners before this contract can be called safe.
 
@@ -129,7 +129,7 @@ I presume that the goal of this contract is to allow and annotate a migration to
 
 ### Pausable
 
-We like these pauses! Note that these allow significant griefing potential by owners, and that this might not be obvious to participants in smart contracts using the OpenZeppelin framework. We would recommend that additional sample logic be added to for instance the TokenContract showing safer use of the pause and resume functions. In particular, we would recommend a timelock after which anyone could unpause the contract. 
+We like these pauses! Note that these allow significant griefing potential by owners, and that this might not be obvious to participants in smart contracts using the OpenZeppelin framework. We would recommend that additional sample logic be added to for instance the TokenContract showing safer use of the pause and resume functions. In particular, we would recommend a timelock after which anyone could unpause the contract.
 
 The modifers use the pattern `if(bool){_;}`. This is fine for functions that return false upon failure, but could be problematic for functions expected to throw upon failure. See our comments above on standardizing on `throw` or `return(false)`.
 
@@ -163,7 +163,7 @@ Line 34: "this contract only has six types of events"...actually only two.
 
 Line 61: Why is `ownerIndex` keyed by addresses hashed to `uint`s? Why not use the addresses directly, so `ownerIndex` is less obscure, and so there's stronger typing?
 
-Line 62: Do not love `++i) ... owners[2+ i]`. Makes me do math, which is not what I want to do. I want to not have to do math. 
+Line 62: Do not love `++i) ... owners[2+ i]`. Makes me do math, which is not what I want to do. I want to not have to do math.
 
 There should probably be a function for adding a new operation, so the developer doesn't have to work directly with the internal data. (This would make the multisig contract even shorter.)
 
@@ -171,7 +171,7 @@ There's a `revoke` function but not a `propose` function that we can see.
 
 Beware reordering. If `propose` allows the user to choose a bytes string for their proposal, bad things(TM) will happen as currently written.
 
-	
+
 ### Multisig
 
 Just an interface. Note it allows changing an owner address, but not changing the number of owners. This is somewhat limiting but also simplifies implementation.
@@ -184,9 +184,9 @@ Safe from reentrance attack since ether send is at the end, plus it uses `.send(
 
 There's an argument to be made that `.call.value()` is a better option *if* you're sure that it will be done after all state updates, since `.send` will fail if the recipient has an expensive fallback function. However, in the context of a function meant to be embedded in other contracts, it's probably better to use `.send`. One possible compromise is to add a function which allows only the owner to send ether via `.call.value`.
 
-If you don't use `call.value` you should implement a `cancel` function in case some value is pending here. 
+If you don't use `call.value` you should implement a `cancel` function in case some value is pending here.
 
-Line 14: 
+Line 14:
 Doesn't use safeAdd. Although it appears that payout amounts can only be increased, in fact the payer could lower the payout as much as desired via overflow. Also, the payer could add a large non-overflowing amount, causing the payment to exceed the contract balance and therefore fail when withdraw is attempted.
 
 Recommendation: track the sum of non-withdrawn asyncSends, and don't allow a new one which exceeds the leftover balance. If it's ever desirable to make payments revocable, it should be done explicitly.
@@ -195,7 +195,7 @@ Recommendation: track the sum of non-withdrawn asyncSends, and don't allow a new
 
 ### ERC20
 
-Standard ERC20 interface only. 
+Standard ERC20 interface only.
 
 There's a security hole in the standard, reported at Edcon: `approve` does not protect against race conditions and simply replaces the current value. An approved spender could wait for the owner to call `approve` again, then attempt to spend the old limit before the new limit is applied. If successful, this attacker could successfully spend the sum of both limits.
 
@@ -208,11 +208,11 @@ https://drive.google.com/file/d/0ByMtMw2hul0EN3NCaVFHSFdxRzA/view
 
 ### ERC20Basic
 
-Simpler interface skipping the Approve function. Note this departs from ERC20 in another way: transfer throws instead of returning false. 
+Simpler interface skipping the Approve function. Note this departs from ERC20 in another way: transfer throws instead of returning false.
 
 ### BasicToken
 
-Uses `SafeSub` and `SafeMath`, so transfer `throw`s instead of returning false. This complies with ERC20Basic but not the actual ERC20 standard. 
+Uses `SafeSub` and `SafeMath`, so transfer `throw`s instead of returning false. This complies with ERC20Basic but not the actual ERC20 standard.
 
 ### StandardToken
 
@@ -234,10 +234,10 @@ Note: an alternative pattern is a mint() function which is only callable from a 
 
 ### VestedToken
 
-Lines 23, 27: 
-Functions `transfer()` and `transferFrom()` have a modifier canTransfer which throws if not enough tokens are available. However, transfer() returns a boolean success. Inconsistent treatment of failure conditions may cause problems for other contracts using the token. (Note that transferableTokens() relies on safeSub(), so will also throw if there's insufficient balance.) 
+Lines 23, 27:
+Functions `transfer()` and `transferFrom()` have a modifier canTransfer which throws if not enough tokens are available. However, transfer() returns a boolean success. Inconsistent treatment of failure conditions may cause problems for other contracts using the token. (Note that transferableTokens() relies on safeSub(), so will also throw if there's insufficient balance.)
 
-Line 64: 
+Line 64:
 Delete not actually necessary since the value is overwritten in the next line anyway.
 
 ## Root level
@@ -255,7 +255,7 @@ The modifier `limitedDaily` calls `underLimit`, which both checks that the spend
 Lines 4, 11:
 Comment claims that `DayLimit` is multiowned, and Shareable is imported, but DayLimit does not actually inherit from Shareable. The intent may be for child contracts to inherit from Shareable (as Multisig does); in this case the import should be removed and the comment altered.
 
-Line 46: 
+Line 46:
 Manual overflow check instead of using safeAdd. Since this is called from a function that throws upon failure anyway, there's no real downside to using safeAdd.
 
 ### LimitBalance
@@ -264,19 +264,19 @@ No issues.
 
 ### MultisigWallet
 
-Lines 28, 76, 80: 
+Lines 28, 76, 80:
 `kill`, `setDailyLimit`, and `resetSpentToday` only happen with multisig approval, and hashes for these actions are logged by Shareable. However, they should probably post their own events for easy reading.
 
-Line 45: 
+Line 45:
 This call to underLimit will reduce the daily limit, and then either throw or return 0. So in this case there's no danger that the limit will be reduced without the operation going through.
 
-Line 65: 
+Line 65:
 Shareable's onlyManyOwners will take the user's confirmation, and execute the function body if and only if enough users have confirmed. Whole thing throws if the send fails, which will roll back the confirmation. Confirm returns false if not enough have confirmed yet, true if the whole thing succeeds, and throws only in the exceptional circumstance that the designated transaction unexpectedly fails. Elegant design.
 
-Line 68: 
+Line 68:
 Throw here is good but note this function can fail either by returning false or by throwing.
 
-Line 92: 
+Line 92:
 A bit odd to split `clearPending()` between this contract and Shareable. However this does allow contracts inheriting from Shareable to use custom structs for pending transactions.
 
 

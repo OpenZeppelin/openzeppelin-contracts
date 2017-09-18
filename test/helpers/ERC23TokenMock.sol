@@ -5,18 +5,18 @@ import '../../contracts/token/BasicToken.sol';
 
 
 contract ERC23ContractInterface {
-  function tokenFallback(address _from, uint _value, bytes _data) external;
+  function tokenFallback(address _from, uint256 _value, bytes _data) external;
 }
 
 contract ERC23TokenMock is BasicToken {
 
-  function ERC23TokenMock(address initialAccount, uint initialBalance) {
+  function ERC23TokenMock(address initialAccount, uint256 initialBalance) {
     balances[initialAccount] = initialBalance;
     totalSupply = initialBalance;
   }
 
   // ERC23 compatible transfer function (except the name)
-  function transferERC23(address _to, uint _value, bytes _data)
+  function transferERC23(address _to, uint256 _value, bytes _data)
     returns (bool success)
   {
     transfer(_to, _value);

@@ -27,11 +27,11 @@ contract('LimitBalance', function(accounts) {
   it('shouldnt allow sending above limit', async function() {
     let amount = 1110;
     try {
-       await lb.limitedDeposit({value: amount});
+      await lb.limitedDeposit({value: amount});
+      assert.fail('should have thrown before');
     } catch(error) {
-      return assertJump(error);
+      assertJump(error);
     }
-    assert.fail('should have thrown before');
   });
 
   it('should allow multiple sends below limit', async function() {
@@ -52,10 +52,10 @@ contract('LimitBalance', function(accounts) {
 
     try {
       await lb.limitedDeposit({value: amount+1});
+      assert.fail('should have thrown before');
     } catch(error) {
-      return assertJump(error);
+      assertJump(error);
     }
-    assert.fail('should have thrown before');
   });
 
 });

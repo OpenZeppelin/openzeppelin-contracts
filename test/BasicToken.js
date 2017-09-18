@@ -22,14 +22,24 @@ contract('BasicToken', function(accounts) {
     assert.equal(secondAccountBalance, 100);
   });
 
-  it("should throw an error when trying to transfer more than balance", async function() {
+  it('should throw an error when trying to transfer more than balance', async function() {
     let token = await BasicTokenMock.new(accounts[0], 100);
     try {
       let transfer = await token.transfer(accounts[1], 101);
+      assert.fail('should have thrown before');
     } catch(error) {
-      return assertJump(error);
+      assertJump(error);
     }
-    assert.fail('should have thrown before');
+  });
+
+  it('should throw an error when trying to transfer to 0x0', async function() {
+    let token = await BasicTokenMock.new(accounts[0], 100);
+    try {
+      let transfer = await token.transfer(0x0, 100);
+      assert.fail('should have thrown before');
+    } catch(error) {
+      assertJump(error);
+    }
   });
 
 });

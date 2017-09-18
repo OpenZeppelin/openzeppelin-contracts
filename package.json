@@ -1,14 +1,11 @@
 {
   "name": "zeppelin-solidity",
-  "version": "1.0.7",
+  "version": "1.2.0",
   "description": "Secure Smart Contract library for Solidity",
-  "main": "truffle.js",
   "scripts": {
     "test": "scripts/test.sh",
     "console": "truffle console",
-    "install": "scripts/install.sh",
-    "coverage": "scripts/coverage.sh",
-    "coveralls": "scripts/coveralls.sh"
+    "coverage": "scripts/coverage.sh"
   },
   "repository": {
     "type": "git",
@@ -28,19 +25,21 @@
     "url": "https://github.com/OpenZeppelin/zeppelin-solidity/issues"
   },
   "homepage": "https://github.com/OpenZeppelin/zeppelin-solidity",
-  "dependencies": {
-    "truffle-hdwallet-provider": "0.0.3"
-  },
   "devDependencies": {
+    "babel-polyfill": "^6.23.0",
     "babel-preset-es2015": "^6.18.0",
     "babel-preset-stage-2": "^6.18.0",
     "babel-preset-stage-3": "^6.17.0",
     "babel-register": "^6.23.0",
+    "chai": "^4.0.2",
+    "chai-as-promised": "^7.0.0",
+    "chai-bignumber": "^2.0.0",
     "coveralls": "^2.13.1",
-    "ethereumjs-testrpc": "^3.0.2",
     "ethereumjs-util": "^5.1.2",
+    "ethereumjs-testrpc": "^4.1.1",
     "mocha-lcov-reporter": "^1.3.0",
-    "solidity-coverage": "^0.1.0",
-    "truffle": "3.2.2"
+    "solidity-coverage": "^0.2.2",
+    "truffle": "^3.4.6",
+    "truffle-hdwallet-provider": "0.0.3"
   }
 }

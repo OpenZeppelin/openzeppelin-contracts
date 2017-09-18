@@ -16,36 +16,34 @@ contract Pausable is Ownable {
 
 
   /**
-   * @dev modifier to allow actions only when the contract IS paused
+   * @dev Modifier to make a function callable only when the contract is not paused.
    */
   modifier whenNotPaused() {
-    if (paused) throw;
+    require(!paused);
     _;
   }
 
   /**
-   * @dev modifier to allow actions only when the contract IS NOT paused
+   * @dev Modifier to make a function callable only when the contract is paused.
    */
-  modifier whenPaused {
-    if (!paused) throw;
+  modifier whenPaused() {
+    require(paused);
     _;
   }
 
   /**
    * @dev called by the owner to pause, triggers stopped state
    */
-  function pause() onlyOwner whenNotPaused returns (bool) {
+  function pause() onlyOwner whenNotPaused public {
     paused = true;
     Pause();
-    return true;
   }
 
   /**
    * @dev called by the owner to unpause, returns to normal state
    */
-  function unpause() onlyOwner whenPaused returns (bool) {
+  function unpause() onlyOwner whenPaused public {
     paused = false;
     Unpause();
-    return true;
   }
 }

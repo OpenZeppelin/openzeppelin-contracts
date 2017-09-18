@@ -1,3 +1,3 @@
-#! /bin/bash
+#!/usr/bin/env bash
 
-SOLIDITY_COVERAGE=true ./node_modules/.bin/solidity-coverage
+SOLIDITY_COVERAGE=true scripts/test.sh

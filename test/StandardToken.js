@@ -5,8 +5,13 @@ var StandardTokenMock = artifacts.require('./helpers/StandardTokenMock.sol');
 
 contract('StandardToken', function(accounts) {
 
+  let token;
+
+  beforeEach(async function() {
+    token = await StandardTokenMock.new(accounts[0], 100);
+  });
+
   it('should return the correct totalSupply after construction', async function() {
-    let token = await StandardTokenMock.new(accounts[0], 100);
     let totalSupply = await token.totalSupply();
 
     assert.equal(totalSupply, 100);
@@ -34,10 +39,10 @@ contract('StandardToken', function(accounts) {
     let token = await StandardTokenMock.new(accounts[0], 100);
     try {
       await token.transfer(accounts[1], 101);
+      assert.fail('should have thrown before');
     } catch(error) {
-      return assertJump(error);
+      assertJump(error);
     }
-    assert.fail('should have thrown before');
   });
 
   it('should return correct balances after transfering from another account', async function() {
@@ -56,14 +61,52 @@ contract('StandardToken', function(accounts) {
   });
 
   it('should throw an error when trying to transfer more than allowed', async function() {
-    let token = await StandardTokenMock.new();
     await token.approve(accounts[1], 99);
     try {
       await token.transferFrom(accounts[0], accounts[2], 100, {from: accounts[1]});
+      assert.fail('should have thrown before');
     } catch (error) {
-      return assertJump(error);
+      assertJump(error);
     }
-    assert.fail('should have thrown before');
+  });
+
+  describe('validating allowance updates to spender', function() {
+    let preApproved;
+
+    it('should start with zero', async function() {
+      preApproved = await token.allowance(accounts[0], accounts[1]);
+      assert.equal(preApproved, 0);
+    })
+
+    it('should increase by 50 then decrease by 10', async function() {
+      await token.increaseApproval(accounts[1], 50);
+      let postIncrease = await token.allowance(accounts[0], accounts[1]);
+      preApproved.plus(50).should.be.bignumber.equal(postIncrease);
+      await token.decreaseApproval(accounts[1], 10);
+      let postDecrease = await token.allowance(accounts[0], accounts[1]);
+      postIncrease.minus(10).should.be.bignumber.equal(postDecrease);
+    })
+  });
+
+  it('should throw an error when trying to transfer to 0x0', async function() {
+    let token = await StandardTokenMock.new(accounts[0], 100);
+    try {
+      let transfer = await token.transfer(0x0, 100);
+      assert.fail('should have thrown before');
+    } catch(error) {
+      assertJump(error);
+    }
+  });
+
+  it('should throw an error when trying to transferFrom to 0x0', async function() {
+    let token = await StandardTokenMock.new(accounts[0], 100);
+    await token.approve(accounts[1], 100);
+    try {
+      let transfer = await token.transferFrom(accounts[0], 0x0, 100, {from: accounts[1]});
+      assert.fail('should have thrown before');
+    } catch(error) {
+      assertJump(error);
+    }
   });
 
 });
