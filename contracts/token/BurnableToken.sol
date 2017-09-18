@@ -12,9 +12,7 @@ contract BurnableToken is StandardToken {
      * @dev Burns a specific amount of tokens.
      * @param _value The amount of token to be burned.
      */
-    function burn(uint _value)
-        public
-    {
+    function burn(uint _value) public {
         require(_value > 0);
 
         address burner = msg.sender;
