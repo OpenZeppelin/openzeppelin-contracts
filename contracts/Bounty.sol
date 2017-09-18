@@ -27,7 +27,7 @@ contract Bounty is PullPayment, Destructible {
    * msg.sender as a researcher
    * @return A target contract
    */
-  function createTarget() returns(Target) {
+  function createTarget() public returns(Target) {
     Target target = Target(deployContract());
     researchers[target] = msg.sender;
     TargetCreated(target);
@@ -44,7 +44,7 @@ contract Bounty is PullPayment, Destructible {
    * @dev Sends the contract funds to the researcher that proved the contract is broken.
    * @param target contract
    */
-  function claim(Target target) {
+  function claim(Target target) public {
     address researcher = researchers[target];
     require(researcher != 0);
     // Check Target contract invariants
@@ -68,5 +68,5 @@ contract Target {
     * In order to win the bounty, security researchers will try to cause this broken state.
     * @return True if all invariant values are correct, false otherwise.
     */
-  function checkInvariant() returns(bool);
+  function checkInvariant() public returns(bool);
 }
