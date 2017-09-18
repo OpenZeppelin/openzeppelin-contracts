@@ -53,7 +53,7 @@ contract('PausableToken', function(accounts) {
 
   it('should throw an error trying to transfer while transactions are paused', async function() {
     await token.pause();
-    try { 
+    try {
       await token.transfer(accounts[1], 100);
       assert.fail('should have thrown before');
     } catch (error) {
@@ -63,7 +63,7 @@ contract('PausableToken', function(accounts) {
 
   it('should throw an error trying to transfer from another account while transactions are paused', async function() {
     await token.pause();
-    try { 
+    try {
       await token.transferFrom(accounts[0], accounts[1], 100);
       assert.fail('should have thrown before');
     } catch (error) {

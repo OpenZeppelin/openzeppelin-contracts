@@ -29,7 +29,7 @@ contract('BasicToken', function(accounts) {
       assert.fail('should have thrown before');
     } catch(error) {
       assertJump(error);
-    }    
+    }
   });
 
   it('should throw an error when trying to transfer to 0x0', async function() {

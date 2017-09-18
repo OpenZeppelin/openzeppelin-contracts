@@ -34,7 +34,7 @@ contract('Crowdsale', function ([owner, wallet, investor]) {
     this.token = SampleCrowdsaleToken.at(await this.crowdsale.token());
   });
 
-  
+
   it('should create crowdsale with correct parameters', async function () {
     this.crowdsale.should.exist;
     this.token.should.exist;

@@ -7,7 +7,7 @@ import './Crowdsale.sol';
 /**
  * @title FinalizableCrowdsale
  * @dev Extension of Crowsdale where an owner can do extra work
- * after finishing. 
+ * after finishing.
  */
 contract FinalizableCrowdsale is Crowdsale, Ownable {
   using SafeMath for uint256;
@@ -26,7 +26,7 @@ contract FinalizableCrowdsale is Crowdsale, Ownable {
 
     finalization();
     Finalized();
-    
+
     isFinalized = true;
   }
 

@@ -115,31 +115,31 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
     beforeEach(async function() {
       await increaseTimeTo(this.startTime)
     })
-    
+
     it('should log purchase', async function () {
       const {logs} = await this.crowdsale.buyTokens(investor, {value: value, from: purchaser})
-    
+
       const event = logs.find(e => e.event === 'TokenPurchase')
-    
+
       should.exist(event)
       event.args.purchaser.should.equal(purchaser)
       event.args.beneficiary.should.equal(investor)
       event.args.value.should.be.bignumber.equal(value)
       event.args.amount.should.be.bignumber.equal(expectedTokenAmount)
     })
-    
+
     it('should increase totalSupply', async function () {
       await this.crowdsale.buyTokens(investor, {value, from: purchaser})
       const totalSupply = await this.token.totalSupply()
       totalSupply.should.be.bignumber.equal(expectedTokenAmount)
     })
-    
+
     it('should assign tokens to beneficiary', async function () {
       await this.crowdsale.buyTokens(investor, {value, from: purchaser})
       const balance = await this.token.balanceOf(investor)
       balance.should.be.bignumber.equal(expectedTokenAmount)
     })
-    
+
     it('should forward funds to wallet', async function () {
       const pre = web3.eth.getBalance(wallet)
       await this.crowdsale.buyTokens(investor, {value, from: purchaser})

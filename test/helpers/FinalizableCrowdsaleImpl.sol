@@ -13,7 +13,7 @@ contract FinalizableCrowdsaleImpl is FinalizableCrowdsale {
     address _wallet
   )
     Crowdsale(_startTime, _endTime, _rate, _wallet)
-    FinalizableCrowdsale() 
+    FinalizableCrowdsale()
   {
   }
 

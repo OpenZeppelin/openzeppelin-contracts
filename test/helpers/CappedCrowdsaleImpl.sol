@@ -14,7 +14,7 @@ contract CappedCrowdsaleImpl is CappedCrowdsale {
     uint256 _cap
   )
     Crowdsale(_startTime, _endTime, _rate, _wallet)
-    CappedCrowdsale(_cap) 
+    CappedCrowdsale(_cap)
   {
   }
 

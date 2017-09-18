@@ -6,14 +6,14 @@
 Welcome to Zeppelin-Solidity
 =============================================
 
-Zeppelin is a library for writing secure Smart Contracts on Ethereum. 
+Zeppelin is a library for writing secure Smart Contracts on Ethereum.
 
 With Zeppelin, you can build distributed applications, protocols and organizations:
 
 * using :doc:`contract-security-patterns`
 * in the `Solidity language <https://solidity.readthedocs.io/en/develop/>`_.
 
-The code is open-source, and `available on github <https://github.com/OpenZeppelin/zeppelin-solidity>`_. 
+The code is open-source, and `available on github <https://github.com/OpenZeppelin/zeppelin-solidity>`_.
 
 .. toctree::
    :maxdepth: 2
@@ -24,7 +24,7 @@ The code is open-source, and `available on github <https://github.com/OpenZeppel
 .. toctree::
    :maxdepth: 2
    :caption: Smart Contracts
-   
+
    ownable
    Pausable
    destructible
@@ -41,7 +41,7 @@ The code is open-source, and `available on github <https://github.com/OpenZeppel
 .. toctree::
    :maxdepth: 2
    :caption: Developer Resources
-   
+
    contract-security-patterns
    developer-resources
    license
