@@ -179,7 +179,7 @@ contract VestedToken is StandardToken, LimitedTransferToken {
   }
 
   /**
-   * @dev Get all information about a specifc grant.
+   * @dev Get all information about a specific grant.
    * @param _holder The address which will have its tokens revoked.
    * @param _grantId The id of the token grant.
    * @return Returns all the values that represent a TokenGrant(address, value, start, cliff,
@@ -219,7 +219,7 @@ contract VestedToken is StandardToken, LimitedTransferToken {
    * @dev Calculate the amount of non vested tokens at a specific time.
    * @param grant TokenGrant The grant to be checked.
    * @param time uint64 The time to be checked
-   * @return An uint256 representing the amount of non vested tokens of a specifc grant on the
+   * @return An uint256 representing the amount of non vested tokens of a specific grant on the
    * passed time frame.
    */
   function nonVestedTokens(TokenGrant grant, uint64 time) private constant returns (uint256) {
@@ -227,7 +227,7 @@ contract VestedToken is StandardToken, LimitedTransferToken {
   }
 
   /**
-   * @dev Calculate the date when the holder can trasfer all its tokens
+   * @dev Calculate the date when the holder can transfer all its tokens
    * @param holder address The address of the holder
    * @return An uint256 representing the date of the last transferable tokens.
    */

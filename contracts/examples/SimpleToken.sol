@@ -19,7 +19,7 @@ contract SimpleToken is StandardToken {
   uint256 public constant INITIAL_SUPPLY = 10000 * (10 ** uint256(decimals));
 
   /**
-   * @dev Contructor that gives msg.sender all of existing tokens.
+   * @dev Constructor that gives msg.sender all of existing tokens.
    */
   function SimpleToken() {
     totalSupply = INITIAL_SUPPLY;

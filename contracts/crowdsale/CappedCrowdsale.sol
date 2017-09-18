@@ -5,7 +5,7 @@ import './Crowdsale.sol';
 
 /**
  * @title CappedCrowdsale
- * @dev Extension of Crowsdale with a max amount of funds raised
+ * @dev Extension of Crowdsale with a max amount of funds raised
  */
 contract CappedCrowdsale is Crowdsale {
   using SafeMath for uint256;
