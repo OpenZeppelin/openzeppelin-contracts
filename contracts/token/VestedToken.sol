@@ -128,13 +128,13 @@ contract VestedToken is StandardToken, LimitedTransferToken {
   }
 
   /**
-   * @dev Calculate amount of vested tokens at a specifc time.
-   * @param tokens uint256 The amount of tokens grantted.
+   * @dev Calculate amount of vested tokens at a specific time
+   * @param tokens uint256 The amount of tokens granted
    * @param time uint64 The time to be checked
    * @param start uint64 A time representing the begining of the grant
-   * @param cliff uint64 The cliff period.
-   * @param vesting uint64 The vesting period.
-   * @return An uint256 representing the amount of vested tokensof a specif grant.
+   * @param cliff uint64 The cliff period, the period until which nothing can be vested
+   * @param vesting uint64 The vesting period
+   * @return An uint256 representing the amount of vested tokens of a specific grant
    *  transferableTokens
    *   |                         _/--------   vestedTokens rect
    *   |                       _/
@@ -149,7 +149,7 @@ contract VestedToken is StandardToken, LimitedTransferToken {
    *   |      .        |
    *   |    .          |
    *   +===+===========+---------+----------> time
-   *      Start       Clift    Vesting
+   *      Start       Cliff    Vesting
    */
   function calculateVestedTokens(
     uint256 tokens,
