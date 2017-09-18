@@ -5,7 +5,7 @@ Base contract that provides mechanism for limiting the amount of funds a contrac
 
 LimitBalance(unit _limit)
 """"""""""""""""""""""""""""
-Constructor takes an unisgned integer and sets it as the limit of funds this contract can hold.
+Constructor takes an unsigned integer and sets it as the limit of funds this contract can hold.
 
 modifier limitedPayable()
 """"""""""""""""""""""""""""
