@@ -32,7 +32,7 @@ contract LimitedTransferToken is ERC20 {
    * @param _to The address that will recieve the tokens.
    * @param _value The amount of tokens to be transferred.
    */
-  function transfer(address _to, uint256 _value) canTransfer(msg.sender, _value) returns (bool) {
+  function transfer(address _to, uint256 _value) canTransfer(msg.sender, _value) public returns (bool) {
     return super.transfer(_to, _value);
   }
 
@@ -42,7 +42,7 @@ contract LimitedTransferToken is ERC20 {
   * @param _to The address that will recieve the tokens.
   * @param _value The amount of tokens to be transferred.
   */
-  function transferFrom(address _from, address _to, uint256 _value) canTransfer(_from, _value) returns (bool) {
+  function transferFrom(address _from, address _to, uint256 _value) canTransfer(_from, _value) public returns (bool) {
     return super.transferFrom(_from, _to, _value);
   }
 
@@ -51,7 +51,7 @@ contract LimitedTransferToken is ERC20 {
    * @dev Overwriting transferableTokens(address holder, uint64 time) is the way to provide the
    * specific logic for limiting token transferability for a holder over time.
    */
-  function transferableTokens(address holder, uint64 time) constant public returns (uint256) {
+  function transferableTokens(address holder, uint64 time) public constant returns (uint256) {
     return balanceOf(holder);
   }
 }
