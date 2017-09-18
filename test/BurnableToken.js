@@ -12,7 +12,7 @@ require('chai')
 const expect = require('chai').expect
 
 contract('BurnableToken', function (accounts) {
-    let token 
+    let token
     let expectedTokenSupply = new BigNumber(999)
 
     beforeEach(async function () {
@@ -34,6 +34,6 @@ contract('BurnableToken', function (accounts) {
 
     it('cannot burn more tokens than your balance', async function () {
         await token.burn(2000, { from: accounts[0] })
-        .should.be.rejectedWith(EVMThrow) 
+        .should.be.rejectedWith(EVMThrow)
     })
 })

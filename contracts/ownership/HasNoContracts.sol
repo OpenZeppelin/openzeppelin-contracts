@@ -2,7 +2,7 @@ pragma solidity ^0.4.11;
 
 import "./Ownable.sol";
 
-/** 
+/**
  * @title Contracts that should not own Contracts
  * @author Remco Bloemen <remco@2π.com>
  * @dev Should contracts (anything Ownable) end up being owned by this contract, it allows the owner

@@ -14,7 +14,7 @@ contract RefundableCrowdsaleImpl is RefundableCrowdsale {
     uint256 _goal
   )
     Crowdsale(_startTime, _endTime, _rate, _wallet)
-    RefundableCrowdsale(_goal) 
+    RefundableCrowdsale(_goal)
   {
   }
 

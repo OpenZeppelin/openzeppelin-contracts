@@ -32,7 +32,7 @@ contract('Mintable', function(accounts) {
 
     let balance0 = await token.balanceOf(accounts[0]);
     assert(balance0, 100);
-    
+
     let totalSupply = await token.totalSupply();
     assert(totalSupply, 100);
   })

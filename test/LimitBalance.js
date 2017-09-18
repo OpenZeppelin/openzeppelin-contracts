@@ -31,7 +31,7 @@ contract('LimitBalance', function(accounts) {
       assert.fail('should have thrown before');
     } catch(error) {
       assertJump(error);
-    }    
+    }
   });
 
   it('should allow multiple sends below limit', async function() {
@@ -55,7 +55,7 @@ contract('LimitBalance', function(accounts) {
       assert.fail('should have thrown before');
     } catch(error) {
       assertJump(error);
-    }    
+    }
   });
 
 });
