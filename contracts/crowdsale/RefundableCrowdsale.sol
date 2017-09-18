@@ -35,7 +35,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
   }
 
   // if crowdsale is unsuccessful, investors can claim refunds here
-  function claimRefund() {
+  function claimRefund() public {
     require(isFinalized);
     require(!goalReached());
 
