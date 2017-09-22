@@ -1,6 +1,7 @@
 'use strict';
 
 const assertJump = require('./helpers/assertJump');
+const BigNumber = require('bignumber.js');
 var StandardTokenMock = artifacts.require('./helpers/StandardTokenMock.sol');
 
 contract('StandardToken', function(accounts) {
@@ -68,6 +69,14 @@ contract('StandardToken', function(accounts) {
     } catch (error) {
       assertJump(error);
     }
+  });
+
+  it('should not change allowance after transferring from another account if allowed MAX_UINT256', async function () {
+    const MAX_UINT256 = new BigNumber(2).pow(256).minus(1);
+    await token.approve(accounts[1], MAX_UINT256);
+    await token.transferFrom(accounts[0], accounts[2], 100, {from: accounts[1]});
+    let allowance = await token.allowance(accounts[0], accounts[1]);
+    allowance.should.be.bignumber.equal(MAX_UINT256);
   });
 
   describe('validating allowance updates to spender', function() {

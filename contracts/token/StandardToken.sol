@@ -15,7 +15,7 @@ import './ERC20.sol';
 contract StandardToken is ERC20, BasicToken {
 
   mapping (address => mapping (address => uint256)) internal allowed;
-
+  uint256 constant MAX_UINT256 = 2**256 - 1;
 
   /**
    * @dev Transfer tokens from one address to another
@@ -29,11 +29,14 @@ contract StandardToken is ERC20, BasicToken {
     uint256 _allowance = allowed[_from][msg.sender];
 
     // Check is not needed because sub(_allowance, _value) will already throw if this condition is not met
+    // Check will always be true if _allowance == MAX_UINT256
     // require (_value <= _allowance);
 
     balances[_from] = balances[_from].sub(_value);
     balances[_to] = balances[_to].add(_value);
-    allowed[_from][msg.sender] = _allowance.sub(_value);
+    if (_allowance < MAX_UINT256) {
+      allowed[_from][msg.sender] = _allowance.sub(_value);
+    }
     Transfer(_from, _to, _value);
     return true;
   }
