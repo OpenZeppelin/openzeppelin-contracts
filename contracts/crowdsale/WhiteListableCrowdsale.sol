@@ -4,6 +4,6 @@ import '../ownership/WhiteListable.sol';
 import './Crowdsale.sol';
 
 
-contract WhiteListableCrowdsale is WhiteListable {
+contract WhiteListableCrowdsale is Crowdsale, WhiteListable {
     // TODO:
 }
