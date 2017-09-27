@@ -14,6 +14,9 @@ import '../math/SafeMath.sol';
 contract TokenVesting is Ownable {
   using SafeMath for uint256;
 
+  event Release(uint256 amount);
+  event Revoke();
+
   // beneficiary of tokens after they are released
   address beneficiary;
 
@@ -59,6 +62,8 @@ contract TokenVesting is Ownable {
     token.transfer(beneficiary, vested);
 
     released[token] = released[token].add(vested);
+
+    Release(vested);
   }
 
   /**
@@ -73,6 +78,8 @@ contract TokenVesting is Ownable {
     uint256 vested = vestedAmount(token);
 
     token.transfer(owner, balance - vested);
+
+    Revoke();
   }
 
   /**
