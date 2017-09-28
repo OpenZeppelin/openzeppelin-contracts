@@ -57,8 +57,39 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     balance.should.bignumber.equal(amount);
   });
 
-  it('should fail to be revoked by owner if revocable not set');
+  it('should not fail to be revoked by owner if revocable is set', async function () {
+    const vesting = await TokenVesting.new(beneficiary, this.cliff, this.end, true, { from: owner } );
+    await vesting.revoke(this.token.address, { from: owner }).should.be.rejectedWith(EVMThrow);
+  });
 
-  it('should be emptied when revoked by owner');
+  it('should fail to be revoked by owner if revocable not set', async function () {
+    const vesting = await TokenVesting.new(beneficiary, this.cliff, this.end, false, { from: owner } );
+    await vesting.revoke(this.token.address, { from: owner }).should.be.rejectedWith(EVMThrow);
+  });
+
+  it('should return the non-vested tokens when revoked by owner', async function () {
+    await increaseTimeTo(this.cliff + duration.weeks(1));
+    await this.vesting.release(this.token.address);
+
+    const vested = await this.vesting.vestedAmount(this.token.address);
+    const balance = await this.token.balanceOf(this.vesting.address);
+
+    await this.vesting.revoke(this.token.address, { from: owner });
+
+    const ownerBalance = await this.token.balanceOf(owner);
+    ownerBalance.should.bignumber.equal(balance.sub(vested));
+  });
+
+  it('should keep the vested tokens when revoked by owner', async function () {
+    await increaseTimeTo(this.cliff + duration.weeks(1));
+    await this.vesting.release(this.token.address);
+
+    const vested = await this.vesting.vestedAmount(this.token.address);
+
+    await this.vesting.revoke(this.token.address, { from: owner });
+
+    const balance = await this.token.balanceOf(this.vesting.address);
+    balance.should.bignumber.equal(vested);
+  });
 
 });
