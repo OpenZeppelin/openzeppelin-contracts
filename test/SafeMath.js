@@ -10,16 +10,22 @@ contract('SafeMath', function(accounts) {
   });
 
   it("multiplies correctly", async function() {
-    let a = 5678;
-    let b = 1234;
+    let randomSign = Math.random() < 0.5 ? -1 : 1;
+
+    let a = Math.floor(Math.random() * 100) * randomSign;
+    let b = Math.floor(Math.random() * 100) * randomSign;
+    
     let mult = await safeMath.multiply(a, b);
     let result = await safeMath.result();
     assert.equal(result, a*b);
   });
 
   it("adds correctly", async function() {
-    let a = 5678;
-    let b = 1234;
+    let randomSign = Math.random() < 0.5 ? -1 : 1;
+
+    let a = Math.floor(Math.random() * 100) * randomSign;
+    let b = Math.floor(Math.random() * 100) * randomSign;
+    
     let add = await safeMath.add(a, b);
     let result = await safeMath.result();
 
@@ -27,8 +33,11 @@ contract('SafeMath', function(accounts) {
   });
 
   it("subtracts correctly", async function() {
-    let a = 5678;
-    let b = 1234;
+    let randomSign = Math.random() < 0.5 ? -1 : 1;
+
+    let a = Math.floor(Math.random() * 100) * randomSign;
+    let b = Math.floor(Math.random() * 100) * randomSign;
+    
     let subtract = await safeMath.subtract(a, b);
     let result = await safeMath.result();
 
@@ -36,8 +45,11 @@ contract('SafeMath', function(accounts) {
   });
 
   it("should throw an error if subtraction result would be negative", async function () {
-    let a = 1234;
-    let b = 5678;
+    let randomSign = Math.random() < 0.5 ? -1 : 1;
+
+    let a = Math.floor(Math.random() * 100) * randomSign;
+    let b = Math.floor(Math.random() * 100) * randomSign;
+    
     try {
       let subtract = await safeMath.subtract(a, b);
       assert.fail('should have thrown before');
@@ -47,8 +59,10 @@ contract('SafeMath', function(accounts) {
   });
 
   it("should throw an error on addition overflow", async function() {
-    let a = 115792089237316195423570985008687907853269984665640564039457584007913129639935;
-    let b = 1;
+    let randomSign = Math.random() < 0.5 ? -1 : 1;
+
+    let a = Math.floor(Math.random() ** 10000000000000000000000000) * randomSign;
+    let b = Math.floor(Math.random() * 100) * randomSign;
     try {
       let add = await safeMath.add(a, b);
       assert.fail('should have thrown before');
@@ -58,8 +72,11 @@ contract('SafeMath', function(accounts) {
   });
 
   it("should throw an error on multiplication overflow", async function() {
-    let a = 115792089237316195423570985008687907853269984665640564039457584007913129639933;
-    let b = 2;
+    let randomSign = Math.random() < 0.5 ? -1 : 1;
+
+    let a = Math.floor(Math.random() ** 10000000000000000000000000) * randomSign;
+    let b = Math.floor(Math.random() * 100) * randomSign;
+    
     try {
       let multiply = await safeMath.multiply(a, b);
       assert.fail('should have thrown before');
