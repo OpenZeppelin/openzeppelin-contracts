@@ -9,6 +9,7 @@ Zeppelin integrates with `Truffle <https://github.com/ConsenSys/truffle/>`_, an 
 
 To install the Zeppelin library, run::
 
+	npm init # follow instructions
 	npm i zeppelin-solidity
 
 After that, you'll get all the library's contracts in the contracts/zeppelin folder. You can use the contracts in the library like so::
