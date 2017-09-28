@@ -57,9 +57,9 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     balance.should.bignumber.equal(amount);
   });
 
-  it('should not fail to be revoked by owner if revocable is set', async function () {
+  it('should be revoked by owner if revocable is set', async function () {
     const vesting = await TokenVesting.new(beneficiary, this.cliff, this.end, true, { from: owner } );
-    await vesting.revoke(this.token.address, { from: owner }).should.be.rejectedWith(EVMThrow);
+    await vesting.revoke(this.token.address, { from: owner }).should.be.fulfilled;
   });
 
   it('should fail to be revoked by owner if revocable not set', async function () {
