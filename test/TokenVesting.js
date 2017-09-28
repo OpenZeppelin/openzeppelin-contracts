@@ -48,7 +48,20 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     balance.should.bignumber.equal(amount.mul(releaseTime - this.start).div(this.end - this.start).floor());
   });
 
-  it('should linearly release tokens during vesting period');
+  it('should linearly release tokens during vesting period', async function () {
+    const duration = this.end - this.cliff;
+    const checkpoints = 4;
+
+    for (let i = 1; i <= checkpoints; i++) {
+      const now = this.cliff + i * (duration / checkpoints);
+      await increaseTimeTo(now);
+
+      const vested = await this.vesting.vestedAmount(this.token.address);
+      const expectedVesting = amount.mul(now - this.start).div(this.end - this.start).floor();
+
+      vested.should.bignumber.equal(expectedVesting);
+    }
+  });
 
   it('should have released all after end', async function () {
     await increaseTimeTo(this.end);
