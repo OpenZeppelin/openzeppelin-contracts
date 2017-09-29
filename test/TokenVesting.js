@@ -56,10 +56,11 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
       const now = this.cliff + i * (duration / checkpoints);
       await increaseTimeTo(now);
 
-      const vested = await this.vesting.vestedAmount(this.token.address);
+      await this.vesting.release(this.token.address);
+      const balance = await this.token.balanceOf(beneficiary);
       const expectedVesting = amount.mul(now - this.start).div(this.end - this.start).floor();
 
-      vested.should.bignumber.equal(expectedVesting);
+      balance.should.bignumber.equal(expectedVesting);
     }
   });
 
