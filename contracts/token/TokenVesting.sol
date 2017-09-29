@@ -22,7 +22,7 @@ contract TokenVesting is Ownable {
 
   uint256 cliff;
   uint256 start;
-  uint256 end;
+  uint256 duration;
 
   bool revocable;
 
@@ -30,24 +30,23 @@ contract TokenVesting is Ownable {
 
   /**
    * @dev Creates a vesting contract that vests its balance of any ERC20 token to the
-   * _beneficiary, gradually in a linear fashion until _end. By then all of the balance
-   * will have vested.
+   * _beneficiary, gradually in a linear fashion until _start + _duration. By then all
+   * of the balance will have vested.
    * @param _beneficiary address of the beneficiary to whom vested tokens are transferred
-   * @param _cliff timestamp of the moment when tokens will begin to vest
-   * @param _end timestamp of the moment when all balance will have been vested
+   * @param _cliff duration in seconds of the cliff in which tokens will begin to vest
+   * @param _duration duration in seconds of the period in which the tokens will vest
    * @param _revocable whether the vesting is revocable or not
    */
-  function TokenVesting(address _beneficiary, uint256 _cliff, uint256 _end, bool _revocable) {
+  function TokenVesting(address _beneficiary, uint256 _start, uint256 _cliff, uint256 _duration, bool _revocable) {
     require(_beneficiary != 0x0);
-    require(_cliff > now);
-    require(_end > _cliff);
+    require(_cliff < _duration);
+    require(_start >= now);
 
     beneficiary = _beneficiary;
-    cliff = _cliff;
-    end = _end;
     revocable = _revocable;
-
-    start = now;
+    duration = _duration;
+    cliff = _start + _cliff;
+    start = _start;
   }
 
   /**
@@ -89,13 +88,13 @@ contract TokenVesting is Ownable {
   function vestedAmount(ERC20Basic token) constant returns (uint256) {
     if (now < cliff) {
       return 0;
-    } else if (now >= end) {
+    } else if (now >= start + duration) {
       return token.balanceOf(this);
     } else {
       uint256 currentBalance = token.balanceOf(this);
       uint256 totalBalance = currentBalance.add(released[token]);
 
-      uint256 vested = totalBalance.mul(now - start).div(end - start);
+      uint256 vested = totalBalance.mul(now - start).div(duration);
       uint256 unreleased = vested.sub(released[token]);
 
       // currentBalance can be 0 in case of a revoke
