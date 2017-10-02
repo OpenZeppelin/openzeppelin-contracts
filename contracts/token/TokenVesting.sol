@@ -39,8 +39,7 @@ contract TokenVesting is Ownable {
    */
   function TokenVesting(address _beneficiary, uint256 _start, uint256 _cliff, uint256 _duration, bool _revocable) {
     require(_beneficiary != 0x0);
-    require(_cliff < _duration);
-    require(_start >= now);
+    require(_cliff <= _duration);
 
     beneficiary = _beneficiary;
     revocable = _revocable;
@@ -82,7 +81,7 @@ contract TokenVesting is Ownable {
   }
 
   /**
-   * @dev Calculates the amount that has already vested but not released.
+   * @dev Calculates the amount that has already vested but hasn't been released yet.
    * @param token ERC20 token which is being vested
    */
   function vestedAmount(ERC20Basic token) constant returns (uint256) {
@@ -97,7 +96,7 @@ contract TokenVesting is Ownable {
       uint256 vested = totalBalance.mul(now - start).div(duration);
       uint256 unreleased = vested.sub(released[token]);
 
-      // currentBalance can be 0 in case of a revoke
+      // currentBalance can be 0 in case of vesting being revoked earlier.
       return Math.min256(currentBalance, unreleased);
     }
   }
