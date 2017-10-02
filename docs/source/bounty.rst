@@ -7,8 +7,8 @@ To create a bounty for your contract, inherit from the base `Bounty` contract an
 	import "./YourContract.sol";
 
 	contract YourBounty is Bounty {
-	function deployContract() internal returns(address) {
-	return new YourContract()
+	  function deployContract() internal returns(address) {
+	    return new YourContract()
 	  }
 	}
 
