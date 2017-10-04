@@ -12,9 +12,15 @@ contract CappedCrowdsale is Crowdsale {
 
   uint256 public cap;
 
-  function CappedCrowdsale(uint256 _cap) {
+  function CappedCrowdsale(uint256 _cap, uint256 _rate, address _wallet) {
     require(_cap > 0);
+    require(_rate > 0);
+    require(_wallet != 0x0);
+
+    token = createTokenContract();
     cap = _cap;
+    rate = _rate;
+    wallet = _wallet;
   }
 
   // overriding Crowdsale#validPurchase to add extra cap logic
