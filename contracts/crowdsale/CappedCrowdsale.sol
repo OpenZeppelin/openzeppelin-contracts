@@ -27,8 +27,12 @@ contract CappedCrowdsale is Crowdsale {
   // overriding Crowdsale#hasEnded to add cap logic
   // @return true if crowdsale event has ended
   function hasEnded() public constant returns (bool) {
-    bool capReached = weiRaised >= cap;
-    return super.hasEnded() || capReached;
+    return super.hasEnded() || capReached();
+  }
+
+  // @return true if cap has been reached
+  function capReached() internal constant returns (bool) {
+    return weiRaised >= cap;
   }
 
 }
