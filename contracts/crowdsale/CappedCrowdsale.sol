@@ -19,8 +19,8 @@ contract CappedCrowdsale is Crowdsale {
 
   // overriding Crowdsale#validPurchase to add extra cap logic
   // @return true if investors can buy at the moment
-  function validPurchase() internal constant returns (bool) {
-    return super.validPurchase() && !capReached();
+  function validPurchase(uint256 weiAmount) internal constant returns (bool) {
+    return super.validPurchase(weiAmount) && !capReached();
   }
 
   // overriding Crowdsale#hasEnded to add cap logic
