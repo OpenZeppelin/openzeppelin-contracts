@@ -11,7 +11,7 @@ To install the Zeppelin library, run::
 
 	npm i zeppelin-solidity
 
-After that, you'll get all the library's contracts in the contracts/zeppelin folder. You can use the contracts in the library like so::
+After that, you'll get all the library's contracts in the `node_modules/zeppelin-solidity/contracts` folder. You can use the contracts in the library like so::
 
 	import "zeppelin-solidity/contracts/Ownable.sol";
 
