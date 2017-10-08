@@ -15,3 +15,14 @@ matrix:
     - env: SOLIDITY_COVERAGE=true
 script:
   - yarn test
+
+deploy:
+  provider: pages
+  local_dir: mochawesome-report
+  target_branch: gh-pages
+  email: travis@ci.com
+  name: Deployment Bot
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN # Set in travis-ci.org dashboard
+  on:
+    branch: master

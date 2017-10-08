@@ -28,5 +28,8 @@ module.exports = {
       gas: 0xfffffffffff,
       gasPrice: 0x01
     }
+  },
+  mocha: {
+    reporter: 'mochawesome'
   }
 };
