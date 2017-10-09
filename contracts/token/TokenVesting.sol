@@ -53,7 +53,7 @@ contract TokenVesting is Ownable {
    * @notice Transfers vested tokens to beneficiary.
    * @param token ERC20 token which is being vested
    */
-  function release(ERC20Basic token) {
+  function release(ERC20Basic token) public {
     uint256 vested = vestedAmount(token);
 
     require(vested > 0);
@@ -70,7 +70,7 @@ contract TokenVesting is Ownable {
    * remain in the contract, the rest are returned to the owner.
    * @param token ERC20 token which is being vested
    */
-  function revoke(ERC20Basic token) onlyOwner {
+  function revoke(ERC20Basic token) public onlyOwner {
     require(revocable);
     require(!revoked[token]);
 
@@ -90,7 +90,7 @@ contract TokenVesting is Ownable {
    * @dev Calculates the amount that has already vested but hasn't been released yet.
    * @param token ERC20 token which is being vested
    */
-  function vestedAmount(ERC20Basic token) constant returns (uint256) {
+  function vestedAmount(ERC20Basic token) public constant returns (uint256) {
     if (now < cliff) {
       return 0;
     } else if (now >= start + duration || revoked[token]) {
