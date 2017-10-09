@@ -18,16 +18,16 @@ contract TokenVesting is Ownable {
   event Revoked();
 
   // beneficiary of tokens after they are released
-  address beneficiary;
+  address public beneficiary;
 
-  uint256 cliff;
-  uint256 start;
-  uint256 duration;
+  uint256 public cliff;
+  uint256 public start;
+  uint256 public duration;
 
-  bool revocable;
+  bool public revocable;
 
-  mapping (address => uint256) released;
-  mapping (address => bool) revoked;
+  mapping (address => uint256) public released;
+  mapping (address => bool) public revoked;
 
   /**
    * @dev Creates a vesting contract that vests its balance of any ERC20 token to the
