@@ -27,6 +27,7 @@ contract TokenVesting is Ownable {
   bool revocable;
 
   mapping (address => uint256) released;
+  mapping (address => bool) revoked;
 
   /**
    * @dev Creates a vesting contract that vests its balance of any ERC20 token to the
@@ -65,17 +66,22 @@ contract TokenVesting is Ownable {
   }
 
   /**
-   * @notice Allows the owner to revoke the vesting. Tokens already vested remain in the contract.
+   * @notice Allows the owner to revoke the vesting. Tokens already vested
+   * remain in the contract, the rest are returned to the owner.
    * @param token ERC20 token which is being vested
    */
   function revoke(ERC20Basic token) onlyOwner {
     require(revocable);
+    require(!revoked[token]);
 
     uint256 balance = token.balanceOf(this);
 
     uint256 vested = vestedAmount(token);
+    uint256 vesting = balance - vested;
 
-    token.transfer(owner, balance - vested);
+    revoked[token] = true;
+
+    token.transfer(owner, vesting);
 
     Revoked();
   }
@@ -87,7 +93,7 @@ contract TokenVesting is Ownable {
   function vestedAmount(ERC20Basic token) constant returns (uint256) {
     if (now < cliff) {
       return 0;
-    } else if (now >= start + duration) {
+    } else if (now >= start + duration || revoked[token]) {
       return token.balanceOf(this);
     } else {
       uint256 currentBalance = token.balanceOf(this);
