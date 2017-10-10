@@ -18,15 +18,17 @@ contract TokenVesting is Ownable {
   event Revoked();
 
   // beneficiary of tokens after they are released
-  address beneficiary;
+  address public beneficiary;
 
-  uint256 cliff;
-  uint256 start;
-  uint256 duration;
+  uint256 public cliff;
+  uint256 public start;
+  uint256 public duration;
 
-  bool revocable;
+  bool public revocable;
 
-  mapping (address => uint256) released;
+  uint256 public released;
+
+  ERC20Basic public token;
 
   /**
    * @dev Creates a vesting contract that vests its balance of any ERC20 token to the
@@ -36,68 +38,100 @@ contract TokenVesting is Ownable {
    * @param _cliff duration in seconds of the cliff in which tokens will begin to vest
    * @param _duration duration in seconds of the period in which the tokens will vest
    * @param _revocable whether the vesting is revocable or not
+   * @param _token address of the ERC20 token contract
    */
-  function TokenVesting(address _beneficiary, uint256 _start, uint256 _cliff, uint256 _duration, bool _revocable) {
+  function TokenVesting(
+    address _beneficiary,
+    uint256 _start,
+    uint256 _cliff,
+    uint256 _duration,
+    bool    _revocable,
+    address _token
+  ) {
     require(_beneficiary != 0x0);
     require(_cliff <= _duration);
 
     beneficiary = _beneficiary;
-    revocable = _revocable;
-    duration = _duration;
-    cliff = _start + _cliff;
-    start = _start;
+    start       = _start;
+    cliff       = _start + _cliff;
+    duration    = _duration;
+    revocable   = _revocable;
+    token       = ERC20Basic(_token);
+  }
+
+  /**
+   * @notice Only allow calls from the beneficiary of the vesting contract
+   */
+  modifier onlyBeneficiary() {
+    require(msg.sender == beneficiary);
+    _;
   }
 
   /**
    * @notice Transfers vested tokens to beneficiary.
-   * @param token ERC20 token which is being vested
    */
-  function release(ERC20Basic token) {
-    uint256 vested = vestedAmount(token);
+  function release() onlyBeneficiary public {
+    uint256 vested = vestedAmount();
 
     require(vested > 0);
 
-    token.transfer(beneficiary, vested);
+    released = released.add(vested);
 
-    released[token] = released[token].add(vested);
+    token.transfer(beneficiary, vested);
 
     Released(vested);
   }
 
   /**
-   * @notice Allows the owner to revoke the vesting. Tokens already vested remain in the contract.
-   * @param token ERC20 token which is being vested
+   * @notice Allow the beneficiary to change its address
+   * @param target the address to transfer the right to
    */
-  function revoke(ERC20Basic token) onlyOwner {
+  function changeBeneficiary(address target) onlyBeneficiary public {
+    require(target != 0);
+    beneficiary = target;
+  }
+
+  /**
+   * @notice Allows the owner to revoke the vesting. Tokens already vested are sent to the beneficiary.
+   */
+  function revoke() onlyOwner public {
     require(revocable);
 
     uint256 balance = token.balanceOf(this);
-
-    uint256 vested = vestedAmount(token);
+    uint256 vested = vestedAmount();
 
     token.transfer(owner, balance - vested);
+    token.transfer(beneficiary, vested);
 
     Revoked();
   }
 
   /**
    * @dev Calculates the amount that has already vested but hasn't been released yet.
-   * @param token ERC20 token which is being vested
    */
-  function vestedAmount(ERC20Basic token) constant returns (uint256) {
+  function vestedAmount() public constant returns (uint256) {
     if (now < cliff) {
+
       return 0;
+
     } else if (now >= start + duration) {
+
       return token.balanceOf(this);
+
     } else {
+
       uint256 currentBalance = token.balanceOf(this);
-      uint256 totalBalance = currentBalance.add(released[token]);
+      uint256 totalBalance = currentBalance.add(released);
 
       uint256 vested = totalBalance.mul(now - start).div(duration);
-      uint256 unreleased = vested.sub(released[token]);
+      uint256 unreleased = vested.sub(released);
 
       // currentBalance can be 0 in case of vesting being revoked earlier.
       return Math.min256(currentBalance, unreleased);
     }
+  }
+
+  function () payable public {
+    revert();
   }
 }

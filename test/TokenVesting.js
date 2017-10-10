@@ -12,7 +12,7 @@ import {increaseTimeTo, duration} from './helpers/increaseTime';
 const MintableToken = artifacts.require('MintableToken');
 const TokenVesting = artifacts.require('TokenVesting');
 
-contract('TokenVesting', function ([_, owner, beneficiary]) {
+contract('TokenVesting', function ([_, owner, beneficiary, unknown, thirdParty]) {
 
   const amount = new BigNumber(1000);
 
@@ -23,24 +23,29 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     this.cliff = duration.years(1);
     this.duration = duration.years(2);
 
-    this.vesting = await TokenVesting.new(beneficiary, this.start, this.cliff, this.duration, true, { from: owner });
+    this.vesting = await TokenVesting.new(beneficiary, this.start, this.cliff, this.duration, true, this.token.address, { from: owner });
 
     await this.token.mint(this.vesting.address, amount, { from: owner });
   });
 
   it('cannot be released before cliff', async function () {
-    await this.vesting.release(this.token.address).should.be.rejectedWith(EVMThrow);
+    await this.vesting.release({ from: beneficiary }).should.be.rejectedWith(EVMThrow);
   });
 
   it('can be released after cliff', async function () {
     await increaseTimeTo(this.start + this.cliff + duration.weeks(1));
-    await this.vesting.release(this.token.address).should.be.fulfilled;
+    await this.vesting.release({ from: beneficiary }).should.be.fulfilled;
+  });
+
+  it('release cannot be called by an unknown', async function() {
+    await increaseTimeTo(this.start + this.cliff + duration.weeks(1));
+    await this.vesting.release({ from: unknown }).should.be.rejectedWith(EVMThrow);
   });
 
   it('should release proper amount after cliff', async function () {
     await increaseTimeTo(this.start + this.cliff);
 
-    const { receipt } = await this.vesting.release(this.token.address);
+    const { receipt } = await this.vesting.release({ from: beneficiary });
     const releaseTime = web3.eth.getBlock(receipt.blockNumber).timestamp;
 
     const balance = await this.token.balanceOf(beneficiary);
@@ -55,7 +60,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
       const now = this.start + this.cliff + i * (vestingPeriod / checkpoints);
       await increaseTimeTo(now);
 
-      await this.vesting.release(this.token.address);
+      await this.vesting.release({ from: beneficiary });
       const balance = await this.token.balanceOf(beneficiary);
       const expectedVesting = amount.mul(now - this.start).div(this.duration).floor();
 
@@ -65,43 +70,66 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
   it('should have released all after end', async function () {
     await increaseTimeTo(this.start + this.duration);
-    await this.vesting.release(this.token.address);
+    await this.vesting.release({ from: beneficiary });
     const balance = await this.token.balanceOf(beneficiary);
     balance.should.bignumber.equal(amount);
   });
 
-  it('should be revoked by owner if revocable is set', async function () {
-    await this.vesting.revoke(this.token.address, { from: owner }).should.be.fulfilled;
+  it('should be revocable by owner', async function () {
+    await this.vesting.revoke({ from: owner }).should.be.fulfilled;
   });
 
   it('should fail to be revoked by owner if revocable not set', async function () {
-    const vesting = await TokenVesting.new(beneficiary, this.start, this.cliff, this.duration, false, { from: owner } );
-    await vesting.revoke(this.token.address, { from: owner }).should.be.rejectedWith(EVMThrow);
+    const vesting = await TokenVesting.new(
+      beneficiary, this.start, this.cliff, this.duration, false, this.token.address, { from: owner }
+    );
+    await vesting.revoke({ from: owner }).should.be.rejectedWith(EVMThrow);
   });
 
   it('should return the non-vested tokens when revoked by owner', async function () {
     await increaseTimeTo(this.start + this.cliff + duration.weeks(1));
-    await this.vesting.release(this.token.address);
+    await this.vesting.release({ from: beneficiary });
 
-    const vested = await this.vesting.vestedAmount(this.token.address);
+    const vested = await this.vesting.vestedAmount();
     const balance = await this.token.balanceOf(this.vesting.address);
 
-    await this.vesting.revoke(this.token.address, { from: owner });
+    await this.vesting.revoke({ from: owner });
 
     const ownerBalance = await this.token.balanceOf(owner);
     ownerBalance.should.bignumber.equal(balance.sub(vested));
   });
 
-  it('should keep the vested tokens when revoked by owner', async function () {
+  it('should return the vested tokens to the beneficiary when revoked by owner', async function () {
     await increaseTimeTo(this.start + this.cliff + duration.weeks(1));
-    await this.vesting.release(this.token.address);
+    const claimed = await this.vesting.vestedAmount();
 
-    const vested = await this.vesting.vestedAmount(this.token.address);
+    await this.vesting.release({ from: beneficiary });
 
-    await this.vesting.revoke(this.token.address, { from: owner });
+    await increaseTimeTo(this.start + this.cliff + duration.weeks(2));
 
-    const balance = await this.token.balanceOf(this.vesting.address);
-    balance.should.bignumber.equal(vested);
+    const vested = await this.vesting.vestedAmount();
+    await this.vesting.revoke({ from: owner });
+
+    const balance = await this.token.balanceOf(beneficiary);
+    balance.should.bignumber.equal(vested.plus(claimed));
   });
 
+  it('should allow the beneficiary to change the beneficiary\'s address', async function () {
+    await this.vesting.changeBeneficiary(thirdParty, { from: beneficiary }).should.be.fulfilled;
+    const newBeneficiary = await this.vesting.beneficiary()
+    newBeneficiary.should.equal(thirdParty);
+  });
+
+  it('random user can\'t change the beneficiary', async function () {
+    await this.vesting.changeBeneficiary(thirdParty, { from: unknown })
+      .should.be.rejectedWith(EVMThrow);
+  });
+
+  it('should reject payments', async function () {
+    await this.vesting.sendTransaction({ from: _, value: 1 }).should.be.rejectedWith(EVMThrow);
+  });
+
+  it('should prevent beneficiary change to the null address', async function () {
+    await this.vesting.changeBeneficiary(0, { from: beneficiary }).should.be.rejectedWith(EVMThrow);
+  });
 });
