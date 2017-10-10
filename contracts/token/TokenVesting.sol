@@ -71,13 +71,28 @@ contract TokenVesting is Ownable {
    * @notice Transfers vested tokens to beneficiary.
    */
   function release() onlyBeneficiary public {
+    _releaseTo(beneficiary);
+  }
+
+  /**
+   * @notice Transfers vested tokens to a target address.
+   * @param target the address to send the tokens to
+   */
+  function releaseTo(address target) onlyBeneficiary public {
+    _releaseTo(target);
+  }
+
+  /**
+   * @notice Transfers vested tokens to beneficiary.
+   */
+  function _releaseTo(address target) internal {
     uint256 vested = vestedAmount();
 
     require(vested > 0);
 
     released = released.add(vested);
 
-    token.transfer(beneficiary, vested);
+    token.transfer(target, vested);
 
     Released(vested);
   }

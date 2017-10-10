@@ -52,6 +52,16 @@ contract('TokenVesting', function ([_, owner, beneficiary, unknown, thirdParty])
     balance.should.bignumber.equal(amount.mul(releaseTime - this.start).div(this.duration).floor());
   });
 
+  it('should allow the beneficiary to transfer tokens to another address', async function () {
+    await increaseTimeTo(this.start + this.cliff);
+
+    const { receipt } = await this.vesting.releaseTo(thirdParty, { from: beneficiary });
+    const releaseTime = web3.eth.getBlock(receipt.blockNumber).timestamp;
+
+    const balance = await this.token.balanceOf(thirdParty);
+    balance.should.bignumber.equal(amount.mul(releaseTime - this.start).div(this.duration).floor());
+  });
+
   it('should linearly release tokens during vesting period', async function () {
     const vestingPeriod = this.duration - this.cliff;
     const checkpoints = 4;
