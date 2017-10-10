@@ -89,6 +89,11 @@ contract('TokenVesting', function ([_, owner, beneficiary, unknown, thirdParty])
     await this.vesting.revoke({ from: owner }).should.be.fulfilled;
   });
 
+  it('should not be revocable twice', async function () {
+    await this.vesting.revoke({ from: owner }).should.be.fulfilled;
+    await this.vesting.revoke({ from: owner }).should.be.rejectedWith(EVMThrow);
+  });
+
   it('should fail to be revoked by owner if revocable not set', async function () {
     const vesting = await TokenVesting.new(
       beneficiary, this.start, this.cliff, this.duration, false, this.token.address, { from: owner }
@@ -96,17 +101,16 @@ contract('TokenVesting', function ([_, owner, beneficiary, unknown, thirdParty])
     await vesting.revoke({ from: owner }).should.be.rejectedWith(EVMThrow);
   });
 
-  it('should return the non-vested tokens when revoked by owner', async function () {
+  it('should keep the non-vested tokens when revoked by owner', async function () {
     await increaseTimeTo(this.start + this.cliff + duration.weeks(1));
     await this.vesting.release({ from: beneficiary });
 
     const vested = await this.vesting.vestedAmount();
-    const balance = await this.token.balanceOf(this.vesting.address);
 
     await this.vesting.revoke({ from: owner });
 
-    const ownerBalance = await this.token.balanceOf(owner);
-    ownerBalance.should.bignumber.equal(balance.sub(vested));
+    const remainder = await this.token.balanceOf(this.vesting.address);
+    remainder.should.bignumber.equal(vested);
   });
 
   it('should return the vested tokens to the beneficiary when revoked by owner', async function () {
@@ -117,11 +121,14 @@ contract('TokenVesting', function ([_, owner, beneficiary, unknown, thirdParty])
 
     await increaseTimeTo(this.start + this.cliff + duration.weeks(2));
 
-    const vested = await this.vesting.vestedAmount();
+    const vestedAfterClaim = await this.vesting.vestedAmount();
+
     await this.vesting.revoke({ from: owner });
 
+    await this.vesting.release({ from: beneficiary });
+
     const balance = await this.token.balanceOf(beneficiary);
-    balance.should.bignumber.equal(vested.plus(claimed));
+    balance.should.bignumber.equal(vestedAfterClaim.plus(claimed));
   });
 
   it('should allow the beneficiary to change the beneficiary\'s address', async function () {

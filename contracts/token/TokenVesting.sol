@@ -25,6 +25,7 @@ contract TokenVesting is Ownable {
   uint256 public duration;
 
   bool public revocable;
+  bool public revoked;
 
   uint256 public released;
 
@@ -111,12 +112,13 @@ contract TokenVesting is Ownable {
    */
   function revoke() onlyOwner public {
     require(revocable);
+    require(!revoked);
 
     uint256 balance = token.balanceOf(this);
     uint256 vested = vestedAmount();
+    revoked = true;
 
     token.transfer(owner, balance - vested);
-    token.transfer(beneficiary, vested);
 
     Revoked();
   }
@@ -129,7 +131,7 @@ contract TokenVesting is Ownable {
 
       return 0;
 
-    } else if (now >= start + duration) {
+    } else if (now >= start + duration || revoked) {
 
       return token.balanceOf(this);
 
