@@ -1,6 +1,6 @@
 pragma solidity ^0.4.11;
 
-import './ERC20Basic.sol';
+import './ERC20.sol';
 import '../ownership/Ownable.sol';
 import '../math/Math.sol';
 import '../math/SafeMath.sol';
@@ -28,7 +28,7 @@ contract TokenVesting is Ownable {
 
   uint256 public released;
 
-  ERC20Basic public token;
+  ERC20 public token;
 
   /**
    * @dev Creates a vesting contract that vests its balance of any ERC20 token to the
@@ -56,7 +56,7 @@ contract TokenVesting is Ownable {
     cliff       = _start + _cliff;
     duration    = _duration;
     revocable   = _revocable;
-    token       = ERC20Basic(_token);
+    token       = ERC20(_token);
   }
 
   /**
@@ -131,7 +131,11 @@ contract TokenVesting is Ownable {
     }
   }
 
-  function () payable public {
-    revert();
+  /**
+   * @notice Allow withdrawing any token other than the relevant one
+   */
+  function releaseToken(ERC20 _token, uint256 amount) onlyOwner {
+    require(_token != token);
+    _token.transfer(owner, amount);
   }
 }

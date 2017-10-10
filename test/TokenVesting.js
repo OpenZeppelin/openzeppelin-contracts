@@ -132,4 +132,14 @@ contract('TokenVesting', function ([_, owner, beneficiary, unknown, thirdParty])
   it('should prevent beneficiary change to the null address', async function () {
     await this.vesting.changeBeneficiary(0, { from: beneficiary }).should.be.rejectedWith(EVMThrow);
   });
+
+  it('allows withdraws of tokens other than the one vested', async function () {
+    const amount = 100
+    const token2 = await MintableToken.new({ from: owner });
+    await token2.mint(this.vesting.address, amount, { from: owner });
+    await this.vesting.releaseToken(token2.address, amount, { from: owner });
+
+    const balance = await token2.balanceOf(owner);
+    balance.should.bignumber.equal(amount);
+  });
 });
