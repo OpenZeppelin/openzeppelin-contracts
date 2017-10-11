@@ -1,6 +1,7 @@
 pragma solidity ^0.4.11;
 
 import './ERC20Basic.sol';
+import './SafeERC20.sol';
 import '../ownership/Ownable.sol';
 import '../math/Math.sol';
 import '../math/SafeMath.sol';
@@ -13,6 +14,7 @@ import '../math/SafeMath.sol';
  */
 contract TokenVesting is Ownable {
   using SafeMath for uint256;
+  using SafeERC20 for ERC20Basic;
 
   event Released(uint256 amount);
   event Revoked();
@@ -58,7 +60,7 @@ contract TokenVesting is Ownable {
 
     require(vested > 0);
 
-    token.transfer(beneficiary, vested);
+    token.safeTransfer(beneficiary, vested);
 
     released[token] = released[token].add(vested);
 
@@ -81,7 +83,7 @@ contract TokenVesting is Ownable {
 
     revoked[token] = true;
 
-    token.transfer(owner, vesting);
+    token.safeTransfer(owner, vesting);
 
     Revoked();
   }
