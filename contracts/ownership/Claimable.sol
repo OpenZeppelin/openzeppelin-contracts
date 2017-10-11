@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.15;
 
 
 import './Ownable.sol';
@@ -10,30 +10,30 @@ import './Ownable.sol';
  * This allows the new owner to accept the transfer.
  */
 contract Claimable is Ownable {
-  address public pendingOwner;
+    address public pendingOwner;
 
-  /**
-   * @dev Modifier throws if called by any account other than the pendingOwner.
-   */
-  modifier onlyPendingOwner() {
-    require(msg.sender == pendingOwner);
-    _;
-  }
+    /**
+     * @dev Modifier throws if called by any account other than the pendingOwner.
+     */
+    modifier onlyPendingOwner() {
+        require(msg.sender == pendingOwner);
+        _;
+    }
 
-  /**
-   * @dev Allows the current owner to set the pendingOwner address.
-   * @param newOwner The address to transfer ownership to.
-   */
-  function transferOwnership(address newOwner) onlyOwner public {
-    pendingOwner = newOwner;
-  }
+    /**
+     * @dev Allows the current owner to set the pendingOwner address.
+     * @param newOwner The address to transfer ownership to.
+     */
+    function transferOwnership(address newOwner) onlyOwner public {
+        pendingOwner = newOwner;
+    }
 
-  /**
-   * @dev Allows the pendingOwner address to finalize the transfer.
-   */
-  function claimOwnership() onlyPendingOwner public {
-    OwnershipTransferred(owner, pendingOwner);
-    owner = pendingOwner;
-    pendingOwner = 0x0;
-  }
+    /**
+     * @dev Allows the pendingOwner address to finalize the transfer.
+     */
+    function claimOwnership() onlyPendingOwner public {
+        OwnershipTransferred(owner, pendingOwner);
+        owner = pendingOwner;
+        pendingOwner = 0x0;
+    }
 }

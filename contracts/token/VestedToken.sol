@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.15;
 
 import "../math/Math.sol";
 import "./StandardToken.sol";
@@ -42,8 +42,8 @@ contract VestedToken is StandardToken, LimitedTransferToken {
     uint64 _vesting,
     bool _revokable,
     bool _burnsOnRevoke
-  ) public {
-
+    ) public
+    {
     // Check for date inconsistencies that may cause unexpected behavior
     require(_cliff >= _start && _vesting >= _cliff);
 
@@ -102,7 +102,8 @@ contract VestedToken is StandardToken, LimitedTransferToken {
   function transferableTokens(address holder, uint64 time) public constant returns (uint256) {
     uint256 grantIndex = tokenGrantsCount(holder);
 
-    if (grantIndex == 0) return super.transferableTokens(holder, time); // shortcut for holder without grants
+    if (grantIndex == 0)
+    return super.transferableTokens(holder, time); // shortcut for holder without grants
 
     // Iterate through all the grants the holder has, and add all non-vested tokens
     uint256 nonVested = 0;
@@ -159,8 +160,10 @@ contract VestedToken is StandardToken, LimitedTransferToken {
     uint256 vesting) public constant returns (uint256)
     {
       // Shortcuts for before cliff and after vesting cases.
-      if (time < cliff) return 0;
-      if (time >= vesting) return tokens;
+      if (time < cliff)
+      return 0;
+      if (time >= vesting)
+      return tokens;
 
       // Interpolate all vested tokens.
       // As before cliff the shortcut returns 0, we can use just calculate a value
