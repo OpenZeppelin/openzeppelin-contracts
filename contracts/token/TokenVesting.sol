@@ -47,7 +47,7 @@ contract TokenVesting is Ownable {
     beneficiary = _beneficiary;
     revocable = _revocable;
     duration = _duration;
-    cliff = _start + _cliff;
+    cliff = _start.add(_cliff);
     start = _start;
   }
 
