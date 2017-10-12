@@ -34,4 +34,17 @@ contract CappedCrowdsale is Crowdsale {
     return weiRaised >= cap;
   }
 
+  // overriding Crowdsale#buyTokens to add partial refund logic
+  function buyTokens(address beneficiary) public payable {
+    uint256 weiToCap = cap.sub(weiRaised);
+    uint256 weiAmount = weiToCap < msg.value ? weiToCap : msg.value;
+
+    buyTokens(beneficiary, weiAmount);
+
+    uint256 refund = msg.value.sub(weiAmount);
+    if (refund > 0) {
+      msg.sender.transfer(refund);
+    }
+  }
+
 }
