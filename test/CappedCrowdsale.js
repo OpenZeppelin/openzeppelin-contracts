@@ -14,12 +14,13 @@ require('chai')
 const CappedCrowdsale = artifacts.require('./helpers/CappedCrowdsaleImpl.sol')
 const MintableToken = artifacts.require('MintableToken')
 
-contract('CappedCrowdsale', function ([_, wallet]) {
+contract('CappedCrowdsale', function ([investor, wallet]) {
 
   const rate = new BigNumber(1000)
 
   const cap = ether(300)
   const lessThanCap = ether(60)
+  const moreThanCap = cap.plus(1)
 
   before(async function() {
     //Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
@@ -59,8 +60,41 @@ contract('CappedCrowdsale', function ([_, wallet]) {
       await this.crowdsale.send(1).should.be.rejectedWith(EVMThrow)
     })
 
-    it('should reject payments that exceed cap', async function () {
-      await this.crowdsale.send(cap.plus(1)).should.be.rejectedWith(EVMThrow)
+    it('should accept payments that exceed cap', async function () {
+      await this.crowdsale.send(moreThanCap).should.be.fulfilled
+    })
+
+  })
+
+  describe('partial refunds', function () {
+
+    beforeEach(async function () {
+      await increaseTimeTo(this.startTime)
+    })
+
+    it('should refund part of the funds if cap is exceeded', async function () {
+      const weiRaised = await this.crowdsale.weiRaised()
+      const cap = await this.crowdsale.cap()
+      const weiToCap = await cap.minus(weiRaised)
+
+      const walletBalanceBefore = await web3.eth.getBalance(wallet)
+      const investorBalanceBefore = await web3.eth.getBalance(investor)
+
+      const {tx, receipt} = await this.crowdsale.send(moreThanCap)
+      const transaction = await web3.eth.getTransaction(tx)
+      const txFee = transaction.gasPrice.mul(receipt.gasUsed)
+
+      const walletBalanceAfter = await web3.eth.getBalance(wallet)
+      const investorBalanceAfter = await web3.eth.getBalance(investor)
+
+      walletBalanceAfter.should.be.bignumber.equal(walletBalanceBefore.plus(weiToCap))
+      investorBalanceAfter.should.be.bignumber.equal(investorBalanceBefore.minus(weiToCap).minus(txFee))
+    })
+
+    it('should not mint tokens for the exceeding funds', async function () {
+      await this.crowdsale.send(moreThanCap).should.be.fulfilled
+      const totalSupply = await this.token.totalSupply()
+      totalSupply.should.be.bignumber.equal(cap.mul(rate))
     })
 
   })
