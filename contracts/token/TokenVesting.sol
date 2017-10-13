@@ -61,9 +61,9 @@ contract TokenVesting is Ownable {
 
     require(unreleased > 0);
 
-    token.safeTransfer(beneficiary, unreleased);
-
     released[token] = released[token].add(unreleased);
+
+    token.safeTransfer(beneficiary, unreleased);
 
     Released(unreleased);
   }
