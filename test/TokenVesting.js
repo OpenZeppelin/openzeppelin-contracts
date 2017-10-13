@@ -83,12 +83,11 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     await increaseTimeTo(this.start + this.cliff + duration.weeks(12));
 
     const vested = await this.vesting.vestedAmount(this.token.address);
-    const balance = await this.token.balanceOf(this.vesting.address);
 
     await this.vesting.revoke(this.token.address, { from: owner });
 
     const ownerBalance = await this.token.balanceOf(owner);
-    ownerBalance.should.bignumber.equal(balance.sub(vested));
+    ownerBalance.should.bignumber.equal(amount.sub(vested));
   });
 
   it('should keep the vested tokens when revoked by owner', async function () {
