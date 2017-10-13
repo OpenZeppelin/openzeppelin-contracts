@@ -56,7 +56,6 @@ contract TokenVesting is Ownable {
    * @param token ERC20 token which is being vested
    */
   function release(ERC20Basic token) public {
-    uint256 vested = vestedAmount(token);
     uint256 unreleased = releasableAmount(token);
 
     require(unreleased > 0);
