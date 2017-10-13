@@ -57,14 +57,15 @@ contract TokenVesting is Ownable {
    */
   function release(ERC20Basic token) public {
     uint256 vested = vestedAmount(token);
+    uint256 unreleased = releasableAmount(token);
 
-    require(vested > 0);
+    require(unreleased > 0);
 
-    token.safeTransfer(beneficiary, vested);
+    token.safeTransfer(beneficiary, unreleased);
 
-    released[token] = released[token].add(vested);
+    released[token] = released[token].add(unreleased);
 
-    Released(vested);
+    Released(unreleased);
   }
 
   /**
@@ -78,12 +79,12 @@ contract TokenVesting is Ownable {
 
     uint256 balance = token.balanceOf(this);
 
-    uint256 vested = vestedAmount(token);
-    uint256 vesting = balance - vested;
+    uint256 unreleased = releasableAmount(token);
+    uint256 refund = balance.sub(unreleased);
 
     revoked[token] = true;
 
-    token.safeTransfer(owner, vesting);
+    token.safeTransfer(owner, refund);
 
     Revoked();
   }
@@ -92,20 +93,24 @@ contract TokenVesting is Ownable {
    * @dev Calculates the amount that has already vested but hasn't been released yet.
    * @param token ERC20 token which is being vested
    */
+  function releasableAmount(ERC20Basic token) public constant returns (uint256) {
+    return vestedAmount(token).sub(released[token]);
+  }
+
+  /**
+   * @dev Calculates the amount that has already vested.
+   * @param token ERC20 token which is being vested
+   */
   function vestedAmount(ERC20Basic token) public constant returns (uint256) {
+    uint256 currentBalance = token.balanceOf(this);
+    uint256 totalBalance = currentBalance.add(released[token]);
+
     if (now < cliff) {
       return 0;
     } else if (now >= start + duration || revoked[token]) {
-      return token.balanceOf(this);
+      return totalBalance;
     } else {
-      uint256 currentBalance = token.balanceOf(this);
-      uint256 totalBalance = currentBalance.add(released[token]);
-
-      uint256 vested = totalBalance.mul(now - start).div(duration);
-      uint256 unreleased = vested.sub(released[token]);
-
-      // currentBalance can be 0 in case of vesting being revoked earlier.
-      return Math.min256(currentBalance, unreleased);
+      return totalBalance.mul(now - start).div(duration);
     }
   }
 }
