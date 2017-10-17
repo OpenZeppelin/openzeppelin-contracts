@@ -27,9 +27,7 @@ contract ReentrancyMock is ReentrancyGuard {
     if(n > 0) {
       count();
       bool result = this.call(func, n - 1);
-      if(result != true) {
-        throw;
-      }
+      assert(result == true);
     }
   }
 
