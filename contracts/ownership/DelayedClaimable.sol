@@ -35,7 +35,7 @@ contract DelayedClaimable is Claimable {
     require((block.number <= end) && (block.number >= start));
     OwnershipTransferred(owner, pendingOwner);
     owner = pendingOwner;
-    pendingOwner = 0x0;
+    pendingOwner = address(0);
     end = 0;
   }
 
