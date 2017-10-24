@@ -23,7 +23,7 @@ library SafeMath {
     if(b > a) {
       revert();
     }
-    return a -b;
+    return a - b;
   }
 
   function add(uint256 a, uint256 b) internal constant returns (uint256) {
