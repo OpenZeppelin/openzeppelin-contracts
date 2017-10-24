@@ -41,7 +41,7 @@ contract TokenVesting is Ownable {
    * @param _revocable whether the vesting is revocable or not
    */
   function TokenVesting(address _beneficiary, uint256 _start, uint256 _cliff, uint256 _duration, bool _revocable) {
-    require(_beneficiary != 0x0);
+    require(_beneficiary != address(0));
     require(_cliff <= _duration);
 
     beneficiary = _beneficiary;
