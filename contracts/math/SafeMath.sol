@@ -20,10 +20,10 @@ library SafeMath {
   }
 
   function sub(uint256 a, uint256 b) internal constant returns (uint256) {
-    if(b <= a) {
-      return a - b;
+    if(b > a) {
+      revert();
     }
-    revert();
+    return a -b;
   }
 
   function add(uint256 a, uint256 b) internal constant returns (uint256) {
