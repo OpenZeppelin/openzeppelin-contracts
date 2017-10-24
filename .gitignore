@@ -7,3 +7,4 @@ build/
 coverage.json
 allFiredEvents
 scTopics
+coverageEnv/
