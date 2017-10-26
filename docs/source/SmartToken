@@ -1,0 +1,16 @@
+SmartToken
+=============================================
+
+Inherits from contract StandardToken. Implementation of a ERC20 compatible token with methods to transfer value and execute calls in transfers and approvals (see https://github.com/ethereum/EIPs/issues/20)
+
+approveData(address _spender, uint _value, bytes _data) returns (bool success)
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+It allows to approve the transfer of value and execute a call with the sent data.
+
+function transferData(address _to, uint _value, bytes _data) returns (bool success)
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Transfer tokens to a specified address and execute a call with the sent data on the same transaction
+
+transferDataFrom(address _from, address _to, uint _value, bytes _data) returns (bool success)
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Transfer tokens from one address to another and make a contract call on the same transaction
