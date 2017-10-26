@@ -14,7 +14,7 @@ https://github.com/OpenZeppelin/zeppelin-solidity
 All the contracts in the "contracts" folder are in scope.
 
 The git commit hash we evaluated is:
-9c5975a706b076b7000e8179f8101e0c610.4.17;
+9c5975a706b076b7000e8179f8101e0c61024c87
 
 # Disclaimer
 
@@ -48,9 +48,9 @@ We think much more could be done here, and recommend the OpenZeppelin team keep 
 
 ## Solidity Version Updates Recommended
 
-Most of the code uses Solidity 0.4.17;
+Most of the code uses Solidity 0.4.17, but some files under `Ownership` are marked 0.4.0. These should be updated.
 
-Solidity 0.4.17;
+Solidity 0.4.10 will add several features which could be useful in these contracts:
 
 - `assert(condition)`, which throws if the condition is false
 
