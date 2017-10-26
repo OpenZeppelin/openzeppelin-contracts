@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.17;
 
 
 import "../token/StandardToken.sol";
@@ -12,11 +12,11 @@ import "../token/StandardToken.sol";
  */
 contract SimpleToken is StandardToken {
 
-  string public constant name = "SimpleToken";
-  string public constant symbol = "SIM";
-  uint8 public constant decimals = 18;
+  string public view name = "SimpleToken";
+  string public view symbol = "SIM";
+  uint8 public view decimals = 18;
 
-  uint256 public constant INITIAL_SUPPLY = 10000 * (10 ** uint256(decimals));
+  uint256 public view INITIAL_SUPPLY = 10000 * (10 ** uint256(decimals));
 
   /**
    * @dev Constructor that gives msg.sender all of existing tokens.

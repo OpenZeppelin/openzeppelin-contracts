@@ -40,9 +40,9 @@ The design guidelines have quite a high abstraction level. These style guideline
 
 Follow the official Solidity style guide: http://solidity.readthedocs.io/en/latest/style-guide.html
 
-#### G1 - No Magic Constants
+#### G1 - No Magic views
 
-Avoid constants in the code as much as possible. Magic strings are also magic constants.
+Avoid views in the code as much as possible. Magic strings are also magic views.
 
 #### G2 - Code that Fails Early
 
