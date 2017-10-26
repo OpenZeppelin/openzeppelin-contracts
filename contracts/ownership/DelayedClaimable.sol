@@ -20,7 +20,7 @@ contract DelayedClaimable is Claimable {
    * @param _start The earliest time ownership can be claimed.
    * @param _end The latest time ownership can be claimed.
    */
-  function setLimits(uint256 _start, uint256 _end) onlyOwner public {
+  function setLimits(uint256 _start, uint256 _end) public onlyOwner {
     require(_start <= _end);
     end = _end;
     start = _start;
