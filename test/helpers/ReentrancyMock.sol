@@ -11,10 +11,6 @@ contract ReentrancyMock is ReentrancyGuard {
     counter = 0;
   }
 
-  function count() private {
-    counter += 1;
-  }
-
   function countLocalRecursive(uint256 n) public nonReentrant {
     if(n > 0) {
       count();
@@ -43,4 +39,7 @@ contract ReentrancyMock is ReentrancyGuard {
     count();
   }
 
+  function count() private {
+    counter += 1;
+  }
 }
