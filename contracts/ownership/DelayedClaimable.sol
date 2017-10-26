@@ -31,7 +31,7 @@ contract DelayedClaimable is Claimable {
    * @dev Allows the pendingOwner address to finalize the transfer, as long as it is called within
    * the specified start and end time.
    */
-  function claimOwnership() onlyPendingOwner public {
+  function claimOwnership() public onlyPendingOwner {
     require((block.number <= end) && (block.number >= start));
     OwnershipTransferred(owner, pendingOwner);
     owner = pendingOwner;
