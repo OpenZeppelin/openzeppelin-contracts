@@ -14,8 +14,8 @@ import '../math/SafeMath.sol';
 contract Crowdsale {
   using SafeMath for uint256;
 
-  // The token being sold
-  MintableToken public token;
+  // minter interface providing the tokens being sold
+  Mintable public token;
 
   // start and end timestamps where investments are allowed (both inclusive)
   uint256 public startTime;
@@ -55,7 +55,7 @@ contract Crowdsale {
 
   // creates the token to be sold.
   // override this method to have crowdsale of a specific mintable token.
-  function createTokenContract() internal returns (MintableToken) {
+  function createTokenContract() internal returns (Mintable) {
     return new MintableToken();
   }
 

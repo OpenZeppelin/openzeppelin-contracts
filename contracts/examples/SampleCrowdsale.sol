@@ -41,7 +41,7 @@ contract SampleCrowdsale is CappedCrowdsale, RefundableCrowdsale {
     require(_goal <= _cap);
   }
 
-  function createTokenContract() internal returns (MintableToken) {
+  function createTokenContract() internal returns (Mintable) {
     return new SampleCrowdsaleToken();
   }
 
