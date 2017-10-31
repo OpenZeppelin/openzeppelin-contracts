@@ -31,7 +31,7 @@ contract('PreMintedCrowdsale', function ([_, wallet]) {
     this.crowdsale = PreMintedCrowdsale.at(await this.vault.crowdsale())
     this.pseudoMinter = PseudoMinter.at(await this.crowdsale.token())
     this.tokenCap = new BigNumber(await this.pseudoMinter.availableSupply.call())
-    this.cap = new BigNumber(this.tokenCap/rate)
+    this.cap = this.tokenCap.div(rate)
     this.lessThanCap = rate
   })
 
