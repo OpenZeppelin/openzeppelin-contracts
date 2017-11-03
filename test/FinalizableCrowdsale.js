@@ -1,7 +1,7 @@
 import {advanceBlock} from './helpers/advanceToBlock'
 import {increaseTimeTo, duration} from './helpers/increaseTime'
 import latestTime from './helpers/latestTime'
-import EVMThrow from './helpers/EVMThrow'
+import EVMRevert from './helpers/EVMRevert'
 
 const BigNumber = web3.BigNumber
 
@@ -34,12 +34,12 @@ contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
   })
 
   it('cannot be finalized before ending', async function () {
-    await this.crowdsale.finalize({from: owner}).should.be.rejectedWith(EVMThrow)
+    await this.crowdsale.finalize({from: owner}).should.be.rejectedWith(EVMRevert)
   })
 
   it('cannot be finalized by third party after ending', async function () {
     await increaseTimeTo(this.afterEndTime)
-    await this.crowdsale.finalize({from: thirdparty}).should.be.rejectedWith(EVMThrow)
+    await this.crowdsale.finalize({from: thirdparty}).should.be.rejectedWith(EVMRevert)
   })
 
   it('can be finalized by owner after ending', async function () {
@@ -50,7 +50,7 @@ contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
   it('cannot be finalized twice', async function () {
     await increaseTimeTo(this.afterEndTime)
     await this.crowdsale.finalize({from: owner})
-    await this.crowdsale.finalize({from: owner}).should.be.rejectedWith(EVMThrow)
+    await this.crowdsale.finalize({from: owner}).should.be.rejectedWith(EVMRevert)
   })
 
   it('logs finalized', async function () {

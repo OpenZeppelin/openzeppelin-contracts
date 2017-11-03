@@ -2,7 +2,7 @@ import ether from './helpers/ether'
 import {advanceBlock} from './helpers/advanceToBlock'
 import {increaseTimeTo, duration} from './helpers/increaseTime'
 import latestTime from './helpers/latestTime'
-import EVMThrow from './helpers/EVMThrow'
+import EVMRevert from './helpers/EVMRevert'
 
 const BigNumber = web3.BigNumber
 
@@ -53,8 +53,8 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
   describe('accepting payments', function () {
 
     it('should reject payments before start', async function () {
-      await this.crowdsale.send(value).should.be.rejectedWith(EVMThrow)
-      await this.crowdsale.buyTokens(investor, {from: purchaser, value: value}).should.be.rejectedWith(EVMThrow)
+      await this.crowdsale.send(value).should.be.rejectedWith(EVMRevert)
+      await this.crowdsale.buyTokens(investor, {from: purchaser, value: value}).should.be.rejectedWith(EVMRevert)
     })
 
     it('should accept payments after start', async function () {
@@ -65,8 +65,8 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
 
     it('should reject payments after end', async function () {
       await increaseTimeTo(this.afterEndTime)
-      await this.crowdsale.send(value).should.be.rejectedWith(EVMThrow)
-      await this.crowdsale.buyTokens(investor, {value: value, from: purchaser}).should.be.rejectedWith(EVMThrow)
+      await this.crowdsale.send(value).should.be.rejectedWith(EVMRevert)
+      await this.crowdsale.buyTokens(investor, {value: value, from: purchaser}).should.be.rejectedWith(EVMRevert)
     })
 
   })
