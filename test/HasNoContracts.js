@@ -24,6 +24,7 @@ contract('HasNoContracts', function(accounts) {
 
   it('should allow owner to reclaim contracts', async function() {
     await hasNoContracts.reclaimContract(ownable.address);
+    await ownable.takeOwnership();
     const owner = await ownable.owner();
     assert.equal(owner, accounts[0]);
   });
