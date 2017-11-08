@@ -17,6 +17,7 @@ contract('HasNoContracts', function(accounts) {
 
     // Force ownership into contract
     await ownable.transferOwnership(hasNoContracts.address);
+    await ownable.takeOwnership({from: hasNoContracts.address});
     const owner = await ownable.owner();
     assert.equal(owner, hasNoContracts.address);
   });
