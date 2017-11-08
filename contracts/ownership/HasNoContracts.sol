@@ -11,6 +11,15 @@ import "./Ownable.sol";
 contract HasNoContracts is Ownable {
 
   /**
+   * @dev Claim ownership of Ownable contracts
+   * @param contractAddr The address of the Ownable to be claimed.
+   */
+  function claimContract(address contractAddr) external onlyOwner {
+    Ownable contractInst = Ownable(contractAddr);
+    contractInst.takeOwnership();
+  }
+
+  /**
    * @dev Reclaim ownership of Ownable contracts
    * @param contractAddr The address of the Ownable to be reclaimed.
    */
