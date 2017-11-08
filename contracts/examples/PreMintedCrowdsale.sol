@@ -39,7 +39,7 @@ contract PreMintedCrowdsale is Crowdsale {
     token = new PseudoMinter(_token, msg.sender);
   }
 
-  // return address zero since Mintable is created in the constructor above
+  // save gas by returning address zero
   function createMintableContract() internal returns (Mintable) {
     return Mintable(0x0);
   }
