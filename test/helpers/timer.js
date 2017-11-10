@@ -1,15 +1,29 @@
+'use strict';
+
 // timer for tests specific to testrpc
-module.exports = s => {
+// s is the amount of seconds to advance
+// if account is provided, will send a transaction from that account to force testrpc to mine the block
+module.exports = (s) => {
   return new Promise((resolve, reject) => {
     web3.currentProvider.sendAsync({
-      jsonrpc: '2.0',
+      jsonrpc: '2.0', 
       method: 'evm_increaseTime',
-      params: [s], // 60 seaconds, may need to be hex, I forget
-      id: new Date().getTime() // Id of the request; anything works, really
+      params: [s], 
+      id: new Date().getTime()
     }, function(err) {
-      if (err) return reject(err);
-      resolve();
+      if (err) {
+        return reject(err);
+      }
+      web3.currentProvider.sendAsync({
+        jsonrpc: '2.0', 
+        method: 'evm_mine',
+        id: new Date().getTime()
+      }, (err, result) => {
+        if (err) {
+          return reject(err);
+        }
+        resolve(result);
+      });
     });
-    //setTimeout(() => resolve(), s * 1000 + 600) // 600ms breathing room for testrpc to sync
   });
 };
