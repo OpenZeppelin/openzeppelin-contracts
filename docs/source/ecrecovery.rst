@@ -1,4 +1,4 @@
-ECReovery
+ECRecovery
 =============================================
 
 Returns the signer of the the hash using the signature divided in v, r, and s values.
