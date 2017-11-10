@@ -105,10 +105,10 @@ contract TokenVesting is Ownable {
 
     if (now < cliff) {
       return 0;
-    } else if (now >= start.add(duration) || revoked[token]) {
-      return totalBalance;
-    } else {
-      return totalBalance.mul(now.sub(start)).div(duration);
     }
+    if (now >= start.add(duration) || revoked[token]) {
+      return totalBalance;
+    }
+    return totalBalance.mul(now.sub(start)).div(duration);
   }
 }
