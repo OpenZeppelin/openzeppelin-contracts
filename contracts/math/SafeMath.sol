@@ -6,9 +6,10 @@ pragma solidity ^0.4.11;
  * @dev Math operations with safety checks that throw on error
  */
 library SafeMath {
+  uint256 constant public MAX_UINT256 = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
   function mul(uint256 a, uint256 b) internal constant returns (uint256) {
     uint256 c = a * b;
-    assert(a == 0 || c / a == b);
+    assert(a == 0 || c / a == b || c <= MAX_UINT256);
     return c;
   }
 
@@ -26,7 +27,7 @@ library SafeMath {
 
   function add(uint256 a, uint256 b) internal constant returns (uint256) {
     uint256 c = a + b;
-    assert(c >= a);
+    assert(c >= a || c <= MAX_UINT256);
     return c;
   }
 }
