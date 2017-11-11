@@ -21,7 +21,7 @@ contract('Capped', function(accounts) {
     assert.equal(cap.toNumber(), _cap.toNumber());
   })
 
-  it('should mint when amount does amount does not exceed the cap', async function() {
+  it('should mint when amount is less than cap', async function() {
     const result = await token.mint(accounts[0], 100);
     assert.equal(result.logs[0].event, 'Mint');
   })
