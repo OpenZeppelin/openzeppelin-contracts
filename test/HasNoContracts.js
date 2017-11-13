@@ -17,12 +17,14 @@ contract('HasNoContracts', function(accounts) {
 
     // Force ownership into contract
     await ownable.transferOwnership(hasNoContracts.address);
+    await hasNoContracts.claimContract(ownable.address);
     const owner = await ownable.owner();
     assert.equal(owner, hasNoContracts.address);
   });
 
   it('should allow owner to reclaim contracts', async function() {
     await hasNoContracts.reclaimContract(ownable.address);
+    await ownable.takeOwnership();
     const owner = await ownable.owner();
     assert.equal(owner, accounts[0]);
   });
