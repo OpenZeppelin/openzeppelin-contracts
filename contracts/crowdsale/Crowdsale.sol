@@ -50,9 +50,7 @@ contract Crowdsale {
     uint256 _endTime,
     uint256 _rate,
     address _wallet
-  )
-    internal
-  {
+  ) {
     require(_startTime >= now);
     require(_endTime >= _startTime);
     require(_rate > 0);
