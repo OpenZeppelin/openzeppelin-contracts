@@ -3,6 +3,7 @@ pragma solidity ^0.4.11;
 import '../math/SafeMath.sol';
 import './Crowdsale.sol';
 
+
 /**
  * @title CappedCrowdsale
  * @dev Extension of Crowdsale with a max amount of funds raised
@@ -12,7 +13,7 @@ contract CappedCrowdsale is Crowdsale {
 
   uint256 public cap;
 
-  function CappedCrowdsale(uint256 _cap) {
+  function CappedCrowdsale(uint256 _cap) internal {
     require(_cap > 0);
     cap = _cap;
   }

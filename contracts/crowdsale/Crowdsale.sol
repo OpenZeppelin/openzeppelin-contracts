@@ -3,6 +3,7 @@ pragma solidity ^0.4.11;
 import '../token/MintableToken.sol';
 import '../math/SafeMath.sol';
 
+
 /**
  * @title Crowdsale
  * @dev Crowdsale is a base contract for managing a token crowdsale.
@@ -37,10 +38,21 @@ contract Crowdsale {
    * @param value weis paid for purchase
    * @param amount amount of tokens purchased
    */
-  event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
+  event TokenPurchase(
+    address indexed purchaser,
+    address indexed beneficiary,
+    uint256 value,
+    uint256 amount
+  );
 
-
-  function Crowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet) {
+  function Crowdsale(
+    uint256 _startTime,
+    uint256 _endTime,
+    uint256 _rate,
+    address _wallet
+  )
+    public
+  {
     require(_startTime >= now);
     require(_endTime >= _startTime);
     require(_rate > 0);
@@ -59,9 +71,8 @@ contract Crowdsale {
     return new MintableToken();
   }
 
-
   // fallback function can be used to buy tokens
-  function () payable {
+  function () public payable {
     buyTokens(msg.sender);
   }
 

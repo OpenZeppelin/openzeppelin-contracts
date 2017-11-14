@@ -4,6 +4,7 @@ import "../crowdsale/CappedCrowdsale.sol";
 import "../crowdsale/RefundableCrowdsale.sol";
 import "../token/MintableToken.sol";
 
+
 /**
  * @title SampleCrowdsaleToken
  * @dev Very simple ERC20 Token that can be minted.
@@ -11,11 +12,12 @@ import "../token/MintableToken.sol";
  */
 contract SampleCrowdsaleToken is MintableToken {
 
-  string public constant name = "Sample Crowdsale Token";
-  string public constant symbol = "SCT";
-  uint8 public constant decimals = 18;
+  string public constant NAME = "Sample Crowdsale Token";
+  string public constant SYMBOL = "SCT";
+  uint8 public constant DECIMALS = 18;
 
 }
+
 
 /**
  * @title SampleCrowdsale
@@ -30,7 +32,15 @@ contract SampleCrowdsaleToken is MintableToken {
  */
 contract SampleCrowdsale is CappedCrowdsale, RefundableCrowdsale {
 
-  function SampleCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, uint256 _goal, uint256 _cap, address _wallet)
+  function SampleCrowdsale(
+    uint256 _startTime,
+    uint256 _endTime,
+    uint256 _rate,
+    uint256 _goal,
+    uint256 _cap,
+    address _wallet
+  )
+    public
     CappedCrowdsale(_cap)
     FinalizableCrowdsale()
     RefundableCrowdsale(_goal)

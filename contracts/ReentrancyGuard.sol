@@ -1,5 +1,6 @@
 pragma solidity ^0.4.11;
 
+
 /**
  * @title Helps contracts guard agains rentrancy attacks.
  * @author Remco Bloemen <remco@2π.com>
