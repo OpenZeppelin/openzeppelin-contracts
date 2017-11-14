@@ -1,16 +1,17 @@
 'use strict';
 const assertJump = require('./helpers/assertJump');
-const timer = require('./helpers/timer');
+import latestTime from './helpers/latestTime'
+import {increaseTimeTo, duration} from './helpers/increaseTime'
 
 var DayLimitMock = artifacts.require('./helpers/DayLimitMock.sol');
 
 contract('DayLimit', function(accounts) {
-  const day = 60 * 60 * 24;
 
   let dayLimit;
   let initLimit = 10;
 
   beforeEach( async function() {
+    this.startTime = latestTime();
     dayLimit = await DayLimitMock.new(initLimit);
   });
 
@@ -99,7 +100,7 @@ contract('DayLimit', function(accounts) {
     spentToday = await dayLimit.spentToday();
     assert.equal(spentToday, 8);
 
-    await timer(day);
+    await increaseTimeTo(this.startTime + duration.days(1));
 
     await dayLimit.attemptSpend(3);
     spentToday = await dayLimit.spentToday();
