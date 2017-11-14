@@ -1,6 +1,6 @@
 'use strict';
 
-const assertJump = require('./helpers/assertJump');
+const assertRevert = require('./helpers/assertRevert');
 const PausableMock = artifacts.require('helpers/PausableMock.sol');
 
 contract('Pausable', function(accounts) {
@@ -25,7 +25,7 @@ contract('Pausable', function(accounts) {
       await Pausable.normalProcess();
       assert.fail('should have thrown before');
     } catch(error) {
-      assertJump(error);
+      assertRevert(error);
     }
     let count1 = await Pausable.count();
     assert.equal(count1, 0);
@@ -38,7 +38,7 @@ contract('Pausable', function(accounts) {
       await Pausable.drasticMeasure();
       assert.fail('should have thrown before');
     } catch(error) {
-      assertJump(error);
+      assertRevert(error);
     }
     const drasticMeasureTaken = await Pausable.drasticMeasureTaken();
     assert.isFalse(drasticMeasureTaken);
@@ -71,7 +71,7 @@ contract('Pausable', function(accounts) {
       await Pausable.drasticMeasure();
       assert.fail('should have thrown before');
     } catch(error) {
-      assertJump(error);
+      assertRevert(error);
     }
 
     const drasticMeasureTaken = await Pausable.drasticMeasureTaken();

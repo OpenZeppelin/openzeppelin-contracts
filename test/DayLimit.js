@@ -1,5 +1,5 @@
 'use strict';
-const assertJump = require('./helpers/assertJump');
+const assertRevert = require('./helpers/assertRevert');
 const timer = require('./helpers/timer');
 
 var DayLimitMock = artifacts.require('./helpers/DayLimitMock.sol');
@@ -38,7 +38,7 @@ contract('DayLimit', function(accounts) {
       await dayLimit.attemptSpend(3);
       assert.fail('should have thrown before');
     } catch(error) {
-      assertJump(error);
+      assertRevert(error);
     }
   });
 
@@ -51,7 +51,7 @@ contract('DayLimit', function(accounts) {
       await dayLimit.attemptSpend(3);
       assert.fail('should have thrown before');
     } catch(error) {
-      assertJump(error);
+      assertRevert(error);
     }
     spentToday = await dayLimit.spentToday();
     assert.equal(spentToday, 8);
@@ -71,7 +71,7 @@ contract('DayLimit', function(accounts) {
       await dayLimit.attemptSpend(3);
       assert.fail('should have thrown before');
     } catch(error) {
-      assertJump(error);
+      assertRevert(error);
     }
     spentToday = await dayLimit.spentToday();
     assert.equal(spentToday, 8);
@@ -94,7 +94,7 @@ contract('DayLimit', function(accounts) {
       await dayLimit.attemptSpend(3);
       assert.fail('should have thrown before');
     } catch(error) {
-      assertJump(error);
+      assertRevert(error);
     }
     spentToday = await dayLimit.spentToday();
     assert.equal(spentToday, 8);

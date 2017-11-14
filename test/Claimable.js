@@ -1,5 +1,5 @@
 'use strict';
-const assertJump = require('./helpers/assertJump');
+const assertRevert = require('./helpers/assertRevert');
 
 var Claimable = artifacts.require('../contracts/ownership/Claimable.sol');
 
@@ -28,7 +28,7 @@ contract('Claimable', function(accounts) {
       await claimable.claimOwnership({from: accounts[2]});
       assert.fail('should have thrown before');
     } catch(error) {
-      assertJump(error);
+      assertRevert(error);
     }
   });
 
@@ -40,7 +40,7 @@ contract('Claimable', function(accounts) {
       await claimable.transferOwnership(other, {from: other});
       assert.fail('should have thrown before');
     } catch(error) {
-      assertJump(error);
+      assertRevert(error);
     }
   });
 

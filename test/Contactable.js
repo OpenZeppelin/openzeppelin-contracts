@@ -1,5 +1,5 @@
 'use strict';
-const assertJump = require('./helpers/assertJump');
+const assertRevert = require('./helpers/assertRevert');
 
 var Contactable = artifacts.require('../contracts/ownership/Contactable.sol');
 

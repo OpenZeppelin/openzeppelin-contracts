@@ -49,7 +49,7 @@ contract('DelayedClaimable', function(accounts) {
     } catch (error) {
       err = error;
     }
-    assert.isFalse(err.message.search('invalid opcode') === -1);
+    assert.isFalse(err.message.search('revert') === -1);
     let owner = await delayedClaimable.owner();
     assert.isTrue(owner !== accounts[1]);
   });
@@ -62,7 +62,7 @@ contract('DelayedClaimable', function(accounts) {
     } catch (error) {
       err = error;
     }
-    assert.isFalse(err.message.search('invalid opcode') === -1);
+    assert.isFalse(err.message.search('revert') === -1);
   });
 
 });
