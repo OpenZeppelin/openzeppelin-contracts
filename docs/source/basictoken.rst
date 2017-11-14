@@ -3,7 +3,7 @@ BasicToken
 
 Simpler version of StandardToken, with no allowances
 
-balanceOf(address _owner) constant returns (uint balance)
+balanceOf(address _owner) view returns (uint balance)
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Returns the token balance of the passed address.
 

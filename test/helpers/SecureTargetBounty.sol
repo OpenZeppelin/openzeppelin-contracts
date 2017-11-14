@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.17;
 
 
 import {Bounty, Target} from "../../contracts/Bounty.sol";

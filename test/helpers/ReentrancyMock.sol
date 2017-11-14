@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.17;
 
 import '../../contracts/ReentrancyGuard.sol';
 import './ReentrancyAttack.sol';
@@ -11,12 +11,8 @@ contract ReentrancyMock is ReentrancyGuard {
     counter = 0;
   }
 
-  function count() private {
-    counter += 1;
-  }
-
   function countLocalRecursive(uint256 n) public nonReentrant {
-    if(n > 0) {
+    if (n > 0) {
       count();
       countLocalRecursive(n - 1);
     }
@@ -24,10 +20,10 @@ contract ReentrancyMock is ReentrancyGuard {
 
   function countThisRecursive(uint256 n) public nonReentrant {
     bytes4 func = bytes4(keccak256("countThisRecursive(uint256)"));
-    if(n > 0) {
+    if (n > 0) {
       count();
       bool result = this.call(func, n - 1);
-      if(result != true) {
+      if (result != true) {
         throw;
       }
     }
@@ -43,4 +39,7 @@ contract ReentrancyMock is ReentrancyGuard {
     count();
   }
 
+  function count() private {
+    counter += 1;
+  }
 }

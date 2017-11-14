@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.17;
 
 /**
  * @title Helps contracts guard agains rentrancy attacks.

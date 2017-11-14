@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.17;
 
 import "../crowdsale/CappedCrowdsale.sol";
 import "../crowdsale/RefundableCrowdsale.sol";
@@ -11,9 +11,9 @@ import "../token/MintableToken.sol";
  */
 contract SampleCrowdsaleToken is MintableToken {
 
-  string public constant name = "Sample Crowdsale Token";
-  string public constant symbol = "SCT";
-  uint8 public constant decimals = 18;
+  string public view name = "Sample Crowdsale Token";
+  string public view symbol = "SCT";
+  uint8 public view decimals = 18;
 
 }
 

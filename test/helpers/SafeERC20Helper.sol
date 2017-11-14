@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.17;
 
 import '../../contracts/token/ERC20.sol';
 import '../../contracts/token/SafeERC20.sol';
@@ -16,11 +16,11 @@ contract ERC20FailingMock is ERC20 {
     return false;
   }
 
-  function balanceOf(address) constant returns (uint256) {
+  function balanceOf(address) pure returns (uint256) {
     return 0;
   }
 
-  function allowance(address, address) constant returns (uint256) {
+  function allowance(address, address) pure returns (uint256) {
     return 0;
   }
 }
@@ -38,11 +38,11 @@ contract ERC20SucceedingMock is ERC20 {
     return true;
   }
 
-  function balanceOf(address) constant returns (uint256) {
+  function balanceOf(address) pure returns (uint256) {
     return 0;
   }
 
-  function allowance(address, address) constant returns (uint256) {
+  function allowance(address, address) pure returns (uint256) {
     return 0;
   }
 }

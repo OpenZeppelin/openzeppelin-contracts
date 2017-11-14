@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.17;
 
 
 import "../ownership/Ownable.sol";
@@ -21,7 +21,7 @@ contract TokenDestructible is Ownable {
    * @notice The called token contracts could try to re-enter this contract. Only
    supply token contracts you trust.
    */
-  function destroy(address[] tokens) onlyOwner public {
+  function destroy(address[] tokens) public onlyOwner {
 
     // Transfer tokens to owner
     for(uint256 i = 0; i < tokens.length; i++) {

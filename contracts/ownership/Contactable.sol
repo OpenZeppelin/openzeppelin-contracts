@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.17;
 
 import './Ownable.sol';
 
@@ -15,7 +15,7 @@ contract Contactable is Ownable{
      * @dev Allows the owner to set a string with their contact information.
      * @param info The contact information to attach to the contract.
      */
-    function setContactInformation(string info) onlyOwner public {
+    function setContactInformation(string info) public onlyOwner {
          contactInformation = info;
      }
 }
