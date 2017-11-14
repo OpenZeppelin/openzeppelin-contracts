@@ -6,7 +6,6 @@ import {increaseTimeTo, duration} from './helpers/increaseTime'
 var DayLimitMock = artifacts.require('./helpers/DayLimitMock.sol');
 
 contract('DayLimit', function(accounts) {
-  const day = 60 * 60 * 24;
 
   let dayLimit;
   let initLimit = 10;
