@@ -4,7 +4,7 @@
   "description": "Secure Smart Contract library for Solidity",
   "scripts": {
     "solhint": "solhint ./contracts/*.sol ./contracts/**/*.sol",
-    "test": "scripts/test.sh",
+    "test": "npm run solhint && scripts/test.sh",
     "console": "truffle console",
     "coverage": "scripts/coverage.sh"
   },
