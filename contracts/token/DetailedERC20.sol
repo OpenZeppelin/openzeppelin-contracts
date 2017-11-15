@@ -8,7 +8,7 @@ contract DetailedERC20 is ERC20 {
   string public symbol;
   uint8 public decimals;
 
-  function DetailedERC20(string _name, string _symbol, uint8 _decimals) public {
+  function DetailedERC20(string _name, string _symbol, uint8 _decimals) {
     name = _name;
     symbol = _symbol;
     decimals = _decimals;

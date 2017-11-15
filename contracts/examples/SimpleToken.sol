@@ -20,7 +20,7 @@ contract SimpleToken is StandardToken {
   /**
    * @dev Constructor that gives msg.sender all of existing tokens.
    */
-  function SimpleToken() public {
+  function SimpleToken() {
     totalSupply = INITIAL_SUPPLY;
     balances[msg.sender] = INITIAL_SUPPLY;
   }
