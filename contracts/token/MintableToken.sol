@@ -35,7 +35,7 @@ contract MintableToken is StandardToken, Ownable {
     totalSupply = totalSupply.add(_amount);
     balances[_to] = balances[_to].add(_amount);
     Mint(_to, _amount);
-    Transfer(0x0, _to, _amount);
+    Transfer(address(0), _to, _amount);
     return true;
   }
 
@@ -43,7 +43,7 @@ contract MintableToken is StandardToken, Ownable {
    * @dev Function to stop minting new tokens.
    * @return True if the operation was successful.
    */
-  function finishMinting() onlyOwner public returns (bool) {
+  function finishMinting() onlyOwner canMint public returns (bool) {
     mintingFinished = true;
     MintFinished();
     return true;

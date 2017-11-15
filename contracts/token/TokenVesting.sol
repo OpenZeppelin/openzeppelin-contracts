@@ -1,8 +1,8 @@
 pragma solidity ^0.4.11;
 
 import './ERC20Basic.sol';
+import './SafeERC20.sol';
 import '../ownership/Ownable.sol';
-import '../math/Math.sol';
 import '../math/SafeMath.sol';
 
 /**
@@ -13,20 +13,22 @@ import '../math/SafeMath.sol';
  */
 contract TokenVesting is Ownable {
   using SafeMath for uint256;
+  using SafeERC20 for ERC20Basic;
 
   event Released(uint256 amount);
   event Revoked();
 
   // beneficiary of tokens after they are released
-  address beneficiary;
+  address public beneficiary;
 
-  uint256 cliff;
-  uint256 start;
-  uint256 duration;
+  uint256 public cliff;
+  uint256 public start;
+  uint256 public duration;
 
-  bool revocable;
+  bool public revocable;
 
-  mapping (address => uint256) released;
+  mapping (address => uint256) public released;
+  mapping (address => bool) public revoked;
 
   /**
    * @dev Creates a vesting contract that vests its balance of any ERC20 token to the
@@ -38,13 +40,13 @@ contract TokenVesting is Ownable {
    * @param _revocable whether the vesting is revocable or not
    */
   function TokenVesting(address _beneficiary, uint256 _start, uint256 _cliff, uint256 _duration, bool _revocable) {
-    require(_beneficiary != 0x0);
+    require(_beneficiary != address(0));
     require(_cliff <= _duration);
 
     beneficiary = _beneficiary;
     revocable = _revocable;
     duration = _duration;
-    cliff = _start + _cliff;
+    cliff = _start.add(_cliff);
     start = _start;
   }
 
@@ -52,30 +54,35 @@ contract TokenVesting is Ownable {
    * @notice Transfers vested tokens to beneficiary.
    * @param token ERC20 token which is being vested
    */
-  function release(ERC20Basic token) {
-    uint256 vested = vestedAmount(token);
+  function release(ERC20Basic token) public {
+    uint256 unreleased = releasableAmount(token);
 
-    require(vested > 0);
+    require(unreleased > 0);
 
-    token.transfer(beneficiary, vested);
+    released[token] = released[token].add(unreleased);
 
-    released[token] = released[token].add(vested);
+    token.safeTransfer(beneficiary, unreleased);
 
-    Released(vested);
+    Released(unreleased);
   }
 
   /**
-   * @notice Allows the owner to revoke the vesting. Tokens already vested remain in the contract.
+   * @notice Allows the owner to revoke the vesting. Tokens already vested
+   * remain in the contract, the rest are returned to the owner.
    * @param token ERC20 token which is being vested
    */
-  function revoke(ERC20Basic token) onlyOwner {
+  function revoke(ERC20Basic token) public onlyOwner {
     require(revocable);
+    require(!revoked[token]);
 
     uint256 balance = token.balanceOf(this);
 
-    uint256 vested = vestedAmount(token);
+    uint256 unreleased = releasableAmount(token);
+    uint256 refund = balance.sub(unreleased);
 
-    token.transfer(owner, balance - vested);
+    revoked[token] = true;
+
+    token.safeTransfer(owner, refund);
 
     Revoked();
   }
@@ -84,20 +91,24 @@ contract TokenVesting is Ownable {
    * @dev Calculates the amount that has already vested but hasn't been released yet.
    * @param token ERC20 token which is being vested
    */
-  function vestedAmount(ERC20Basic token) constant returns (uint256) {
+  function releasableAmount(ERC20Basic token) public constant returns (uint256) {
+    return vestedAmount(token).sub(released[token]);
+  }
+
+  /**
+   * @dev Calculates the amount that has already vested.
+   * @param token ERC20 token which is being vested
+   */
+  function vestedAmount(ERC20Basic token) public constant returns (uint256) {
+    uint256 currentBalance = token.balanceOf(this);
+    uint256 totalBalance = currentBalance.add(released[token]);
+
     if (now < cliff) {
       return 0;
-    } else if (now >= start + duration) {
-      return token.balanceOf(this);
+    } else if (now >= start.add(duration) || revoked[token]) {
+      return totalBalance;
     } else {
-      uint256 currentBalance = token.balanceOf(this);
-      uint256 totalBalance = currentBalance.add(released[token]);
-
-      uint256 vested = totalBalance.mul(now - start).div(duration);
-      uint256 unreleased = vested.sub(released[token]);
-
-      // currentBalance can be 0 in case of vesting being revoked earlier.
-      return Math.min256(currentBalance, unreleased);
+      return totalBalance.mul(now.sub(start)).div(duration);
     }
   }
 }

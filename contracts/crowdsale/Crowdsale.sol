@@ -44,7 +44,7 @@ contract Crowdsale {
     require(_startTime >= now);
     require(_endTime >= _startTime);
     require(_rate > 0);
-    require(_wallet != 0x0);
+    require(_wallet != address(0));
 
     token = createTokenContract();
     startTime = _startTime;
@@ -67,7 +67,7 @@ contract Crowdsale {
 
   // low level token purchase function
   function buyTokens(address beneficiary) public payable {
-    require(beneficiary != 0x0);
+    require(beneficiary != address(0));
     require(validPurchase());
 
     uint256 weiAmount = msg.value;

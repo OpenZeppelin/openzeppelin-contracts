@@ -9,6 +9,7 @@ OpenZeppelin integrates with `Truffle <https://github.com/ConsenSys/truffle/>`_,
 
 To install the OpenZeppelin library, run::
 
+	npm init # follow instructions
 	npm install zeppelin-solidity
 
 	# If you are using yarn, add dependency like this -
