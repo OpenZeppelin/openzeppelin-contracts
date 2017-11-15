@@ -27,7 +27,7 @@ contract PullPayment {
     totalPayments = totalPayments.sub(payment);
     payments[payee] = 0;
 
-    assert(payee.send(payment)); // solhint-disable-line
+    assert(payee.send(payment));
   }
 
   /**
