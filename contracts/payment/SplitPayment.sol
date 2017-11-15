@@ -1,10 +1,11 @@
 pragma solidity ^0.4.11;
 
-import '../math/SafeMath.sol';
+import "../math/SafeMath.sol";
+
 
 /**
  * @title SplitPayment
- * @dev Base contract that supports multiple payees claiming funds sent to this contract 
+ * @dev Base contract that supports multiple payees claiming funds sent to this contract
  * according to the proportion they own.
  */
 contract SplitPayment {
@@ -20,27 +21,12 @@ contract SplitPayment {
   /**
    * @dev Constructor
    */
-  function SplitPayment(address[] _payees, uint256[] _shares) {
+  function SplitPayment(address[] _payees, uint256[] _shares) public {
     require(_payees.length == _shares.length);
 
     for (uint256 i = 0; i < _payees.length; i++) {
       addPayee(_payees[i], _shares[i]);
     }
-  }
-
-  /**
-   * @dev Add a new payee to the contract.
-   * @param _payee The address of the payee to add.
-   * @param _shares The number of shares owned by the payee.
-   */
-  function addPayee(address _payee, uint256 _shares) internal {
-    require(_payee != address(0));
-    require(_shares > 0);
-    require(shares[_payee] == 0);
-
-    payees.push(_payee);
-    shares[_payee] = _shares;
-    totalShares = totalShares.add(_shares);
   }
 
   /**
@@ -61,5 +47,20 @@ contract SplitPayment {
     totalReleased = totalReleased.add(payment);
 
     payee.transfer(payment);
+  }
+
+  /**
+   * @dev Add a new payee to the contract.
+   * @param _payee The address of the payee to add.
+   * @param _shares The number of shares owned by the payee.
+   */
+  function addPayee(address _payee, uint256 _shares) internal {
+    require(_payee != address(0));
+    require(_shares > 0);
+    require(shares[_payee] == 0);
+
+    payees.push(_payee);
+    shares[_payee] = _shares;
+    totalShares = totalShares.add(_shares);
   }
 }

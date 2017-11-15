@@ -2,6 +2,7 @@ pragma solidity ^0.4.11;
 
 import "./Ownable.sol";
 
+
 /**
  * @title Contracts that should not own Ether
  * @author Remco Bloemen <remco@2π.com>
@@ -21,7 +22,7 @@ contract HasNoEther is Ownable {
   * constructor. By doing it this way we prevent a payable constructor from working. Alternatively
   * we could use assembly to access msg.value.
   */
-  function HasNoEther() payable {
+  function HasNoEther() public payable {
     require(msg.value == 0);
   }
 

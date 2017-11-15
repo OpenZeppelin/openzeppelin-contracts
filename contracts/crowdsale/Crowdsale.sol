@@ -1,7 +1,8 @@
 pragma solidity ^0.4.11;
 
-import '../token/MintableToken.sol';
-import '../math/SafeMath.sol';
+import "../token/MintableToken.sol";
+import "../math/SafeMath.sol";
+
 
 /**
  * @title Crowdsale
@@ -39,8 +40,7 @@ contract Crowdsale {
    */
   event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
 
-
-  function Crowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet) {
+  function Crowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet) public {
     require(_startTime >= now);
     require(_endTime >= _startTime);
     require(_rate > 0);
@@ -53,15 +53,8 @@ contract Crowdsale {
     wallet = _wallet;
   }
 
-  // creates the token to be sold.
-  // override this method to have crowdsale of a specific mintable token.
-  function createTokenContract() internal returns (MintableToken) {
-    return new MintableToken();
-  }
-
-
   // fallback function can be used to buy tokens
-  function () payable {
+  function () external payable {
     buyTokens(msg.sender);
   }
 
@@ -84,6 +77,11 @@ contract Crowdsale {
     forwardFunds();
   }
 
+  // @return true if crowdsale event has ended
+  function hasEnded() public constant returns (bool) {
+    return now > endTime;
+  }
+
   // send ether to the fund collection wallet
   // override to create custom fund forwarding mechanisms
   function forwardFunds() internal {
@@ -97,10 +95,10 @@ contract Crowdsale {
     return withinPeriod && nonZeroPurchase;
   }
 
-  // @return true if crowdsale event has ended
-  function hasEnded() public constant returns (bool) {
-    return now > endTime;
+  // creates the token to be sold.
+  // override this method to have crowdsale of a specific mintable token.
+  function createTokenContract() internal returns (MintableToken) {
+    return new MintableToken();
   }
-
 
 }

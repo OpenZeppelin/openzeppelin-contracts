@@ -1,6 +1,5 @@
 pragma solidity ^0.4.11;
 
-
 import "../token/StandardToken.sol";
 
 
@@ -21,7 +20,7 @@ contract SimpleToken is StandardToken {
   /**
    * @dev Constructor that gives msg.sender all of existing tokens.
    */
-  function SimpleToken() {
+  function SimpleToken() public {
     totalSupply = INITIAL_SUPPLY;
     balances[msg.sender] = INITIAL_SUPPLY;
   }

@@ -2,7 +2,10 @@
     "extends": "default",
     "rules": {
         "indent": ["error", 2],
-        "quotes": ["error", "double"],         
-        "max-line-length": ["error", 120]
+        "quotes": ["error", "double"],
+        "max-line-length": ["error", 120],
+        "var-name-mixedcase": "warn",
+        "const-name-snakecase": "warn",
+        "check-send-result": false
     }
 }
