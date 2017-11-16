@@ -12,7 +12,7 @@ import "../token/ERC20Basic.sol";
  */
 contract TokenDestructible is Ownable {
 
-  function TokenDestructible() payable { }
+  function TokenDestructible() public payable { }
 
   /**
    * @notice Terminate contract and refund to owner

@@ -20,7 +20,7 @@ contract SplitPayment {
   /**
    * @dev Constructor
    */
-  function SplitPayment(address[] _payees, uint256[] _shares) {
+  function SplitPayment(address[] _payees, uint256[] _shares) public {
     require(_payees.length == _shares.length);
 
     for (uint256 i = 0; i < _payees.length; i++) {
