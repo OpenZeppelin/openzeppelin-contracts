@@ -13,6 +13,9 @@ matrix:
   fast_finish: true
   allow_failures:
     - env: SOLIDITY_COVERAGE=true
+before_script:
+  - truffle version
+  - yarn list
 script:
   - yarn test
 notifications:
