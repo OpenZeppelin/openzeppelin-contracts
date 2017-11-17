@@ -23,6 +23,7 @@ truffle init
 
 To install the OpenZeppelin library, run:
 ```sh
+npm init
 npm install zeppelin-solidity
 
 # If you are using yarn, add dependency like this -
