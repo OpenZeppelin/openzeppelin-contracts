@@ -8,7 +8,6 @@ require('chai')
 
 import latestTime from './helpers/latestTime'
 import {increaseTimeTo, duration} from './helpers/increaseTime'
-import {advanceBlock} from './helpers/advanceToBlock'
 import ether from './helpers/ether'
 
 const EtherTimelock = artifacts.require('EtherTimelock')
@@ -16,11 +15,6 @@ const EtherTimelock = artifacts.require('EtherTimelock')
 contract('EtherTimelock', function ([_, owner, beneficiary]) {
 
   const FUNDS = ether(1)
-
-  // before(async function() {
-  //   //Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
-  //   await advanceBlock()
-  // })
 
   beforeEach(async function () {
     this.releaseTime = latestTime() + duration.years(1)
