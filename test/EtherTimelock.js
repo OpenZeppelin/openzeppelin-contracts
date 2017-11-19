@@ -48,7 +48,7 @@ contract('EtherTimelock', function ([_, owner, beneficiary]) {
     await this.timelock.release().should.be.fulfilled
   })
 
-  it('cannot be released twice', async function () {
+  it('cannot be released with zero amount', async function () {
     await increaseTimeTo(this.releaseTime + duration.years(1))
     await this.timelock.release().should.be.fulfilled
     await this.timelock.release().should.be.rejected
