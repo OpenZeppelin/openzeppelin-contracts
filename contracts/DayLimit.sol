@@ -59,7 +59,7 @@ contract DayLimit {
    * @dev Private function to determine today's index
    * @return uint256 of today's index.
    */
-  function today() private constant returns (uint256) {
+  function today() private view returns (uint256) {
     return now / 1 days;
   }
 

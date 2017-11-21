@@ -91,7 +91,7 @@ contract TokenVesting is Ownable {
    * @dev Calculates the amount that has already vested but hasn't been released yet.
    * @param token ERC20 token which is being vested
    */
-  function releasableAmount(ERC20Basic token) public constant returns (uint256) {
+  function releasableAmount(ERC20Basic token) public view returns (uint256) {
     return vestedAmount(token).sub(released[token]);
   }
 
@@ -99,7 +99,7 @@ contract TokenVesting is Ownable {
    * @dev Calculates the amount that has already vested.
    * @param token ERC20 token which is being vested
    */
-  function vestedAmount(ERC20Basic token) public constant returns (uint256) {
+  function vestedAmount(ERC20Basic token) public view returns (uint256) {
     uint256 currentBalance = token.balanceOf(this);
     uint256 totalBalance = currentBalance.add(released[token]);
 
