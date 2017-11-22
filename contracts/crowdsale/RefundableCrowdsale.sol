@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.18;
 
 
 import '../math/SafeMath.sol';
@@ -53,7 +53,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
     super.finalization();
   }
 
-  function goalReached() public constant returns (bool) {
+  function goalReached() public view returns (bool) {
     return weiRaised >= goal;
   }
 
