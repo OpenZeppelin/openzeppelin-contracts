@@ -18,7 +18,7 @@ contract('Capped', function(accounts) {
   it('should start with the correct cap', async function() {
     let _cap = await token.cap();
 
-    assert.equal(cap.toNumber(), _cap.toNumber());
+    assert(cap.eq(_cap));
   })
 
   it('should mint when amount is less than cap', async function() {
