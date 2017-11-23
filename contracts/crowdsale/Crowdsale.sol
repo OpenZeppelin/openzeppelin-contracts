@@ -61,7 +61,7 @@ contract Crowdsale {
 
 
   // fallback function can be used to buy tokens
-  function () public payable {
+  function () external payable {
     buyTokens(msg.sender);
   }
 

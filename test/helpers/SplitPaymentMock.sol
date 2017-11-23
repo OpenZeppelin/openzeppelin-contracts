@@ -6,5 +6,5 @@ import '../../contracts/payment/SplitPayment.sol';
 contract SplitPaymentMock is SplitPayment {
   function SplitPaymentMock(address[] _payees, uint256[] _shares) public
     SplitPayment(_payees, _shares) payable {}
-  function () public payable {}
+  function () external payable {}
 }
