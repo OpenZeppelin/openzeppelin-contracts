@@ -78,11 +78,6 @@ contract Crowdsale {
   }
 
   // @return true if crowdsale event has ended
-  function hasEnded() public constant returns (bool) {
-    return now > endTime;
-  }
-  
-  // @return true if crowdsale event has ended
   function hasEnded() public view returns (bool) {
     return now > endTime;
   }
@@ -98,6 +93,12 @@ contract Crowdsale {
     bool withinPeriod = now >= startTime && now <= endTime;
     bool nonZeroPurchase = msg.value != 0;
     return withinPeriod && nonZeroPurchase;
+  }
+
+  // creates the token to be sold.
+  // override this method to have crowdsale of a specific mintable token.
+  function createTokenContract() internal returns (MintableToken) {
+    return new MintableToken();
   }
 
 }

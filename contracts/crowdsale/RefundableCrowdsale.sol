@@ -34,10 +34,6 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
     vault.refund(msg.sender);
   }
 
-  function goalReached() public constant returns (bool) {
-    return weiRaised >= goal;
-  }
-  
   function goalReached() public view returns (bool) {
     return weiRaised >= goal;
   }
