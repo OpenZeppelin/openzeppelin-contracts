@@ -10,7 +10,7 @@ import './Ownable.sol';
  * case that the current owner stops "heartbeating". Only the heir can pronounce the
  * owner's death.
  */
-contract Inheritable2 is Ownable {
+contract Inheritable is Ownable {
   address public heir;
 
   // Time window the owner has to notify she is alive.

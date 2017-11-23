@@ -7,7 +7,7 @@ import assertJump from './helpers/assertJump'
 
 const NULL_ADDRESS = '0x0000000000000000000000000000000000000000'
 
-const Inheritable = artifacts.require('../contracts/ownership/Inheritable2.sol')
+const Inheritable = artifacts.require('../contracts/ownership/Inheritable.sol')
 
 contract('Inheritable', function(accounts) {
   let inheritable
