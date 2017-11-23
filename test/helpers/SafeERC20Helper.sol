@@ -4,45 +4,45 @@ import '../../contracts/token/ERC20.sol';
 import '../../contracts/token/SafeERC20.sol';
 
 contract ERC20FailingMock is ERC20 {
-  function transfer(address, uint256) returns (bool) {
+  function transfer(address, uint256) public returns (bool) {
     return false;
   }
 
-  function transferFrom(address, address, uint256) returns (bool) {
+  function transferFrom(address, address, uint256) public returns (bool) {
     return false;
   }
 
-  function approve(address, uint256) returns (bool) {
+  function approve(address, uint256) public returns (bool) {
     return false;
   }
 
-  function balanceOf(address) constant returns (uint256) {
+  function balanceOf(address) public constant returns (uint256) {
     return 0;
   }
 
-  function allowance(address, address) constant returns (uint256) {
+  function allowance(address, address) public constant returns (uint256) {
     return 0;
   }
 }
 
 contract ERC20SucceedingMock is ERC20 {
-  function transfer(address, uint256) returns (bool) {
+  function transfer(address, uint256) public returns (bool) {
     return true;
   }
 
-  function transferFrom(address, address, uint256) returns (bool) {
+  function transferFrom(address, address, uint256) public returns (bool) {
     return true;
   }
 
-  function approve(address, uint256) returns (bool) {
+  function approve(address, uint256) public returns (bool) {
     return true;
   }
 
-  function balanceOf(address) constant returns (uint256) {
+  function balanceOf(address) public constant returns (uint256) {
     return 0;
   }
 
-  function allowance(address, address) constant returns (uint256) {
+  function allowance(address, address) public constant returns (uint256) {
     return 0;
   }
 }
@@ -53,32 +53,32 @@ contract SafeERC20Helper {
   ERC20 failing;
   ERC20 succeeding;
 
-  function SafeERC20Helper() {
+  function SafeERC20Helper() public {
     failing = new ERC20FailingMock();
     succeeding = new ERC20SucceedingMock();
   }
 
-  function doFailingTransfer() {
+  function doFailingTransfer() public {
     failing.safeTransfer(0, 0);
   }
 
-  function doFailingTransferFrom() {
+  function doFailingTransferFrom() public {
     failing.safeTransferFrom(0, 0, 0);
   }
 
-  function doFailingApprove() {
+  function doFailingApprove() public {
     failing.safeApprove(0, 0);
   }
 
-  function doSucceedingTransfer() {
+  function doSucceedingTransfer() public {
     succeeding.safeTransfer(0, 0);
   }
 
-  function doSucceedingTransferFrom() {
+  function doSucceedingTransferFrom() public {
     succeeding.safeTransferFrom(0, 0, 0);
   }
 
-  function doSucceedingApprove() {
+  function doSucceedingApprove() public {
     succeeding.safeApprove(0, 0);
   }
 }

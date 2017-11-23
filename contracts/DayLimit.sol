@@ -15,7 +15,7 @@ contract DayLimit {
    * @dev Constructor that sets the passed value as a dailyLimit.
    * @param _limit uint256 to represent the daily limit.
    */
-  function DayLimit(uint256 _limit) {
+  function DayLimit(uint256 _limit) public {
     dailyLimit = _limit;
     lastDay = today();
   }

@@ -12,7 +12,7 @@ contract CappedCrowdsaleImpl is CappedCrowdsale {
     uint256 _rate,
     address _wallet,
     uint256 _cap
-  )
+  ) public
     Crowdsale(_startTime, _endTime, _rate, _wallet)
     CappedCrowdsale(_cap)
   {

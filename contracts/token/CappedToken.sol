@@ -11,7 +11,7 @@ contract CappedToken is MintableToken {
 
   uint256 public cap;
 
-  function CappedToken(uint256 _cap) {
+  function CappedToken(uint256 _cap) public {
     require(_cap > 0);
     cap = _cap;
   }
