@@ -1,4 +1,4 @@
-pragma solidity ^0.4.13;
+pragma solidity ^0.4.18;
 
 import '../../contracts/token/BurnableToken.sol';
 

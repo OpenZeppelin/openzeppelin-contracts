@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.18;
 
 import "../token/MintableToken.sol";
 import "../math/SafeMath.sol";
@@ -81,6 +81,11 @@ contract Crowdsale {
   function hasEnded() public constant returns (bool) {
     return now > endTime;
   }
+  
+  // @return true if crowdsale event has ended
+  function hasEnded() public view returns (bool) {
+    return now > endTime;
+  }
 
   // send ether to the fund collection wallet
   // override to create custom fund forwarding mechanisms
@@ -89,16 +94,10 @@ contract Crowdsale {
   }
 
   // @return true if the transaction can buy tokens
-  function validPurchase() internal constant returns (bool) {
+  function validPurchase() internal view returns (bool) {
     bool withinPeriod = now >= startTime && now <= endTime;
     bool nonZeroPurchase = msg.value != 0;
     return withinPeriod && nonZeroPurchase;
-  }
-
-  // creates the token to be sold.
-  // override this method to have crowdsale of a specific mintable token.
-  function createTokenContract() internal returns (MintableToken) {
-    return new MintableToken();
   }
 
 }

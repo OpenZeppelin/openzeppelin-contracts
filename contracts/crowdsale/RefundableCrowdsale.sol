@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.18;
 
 import "../math/SafeMath.sol";
 import "./FinalizableCrowdsale.sol";
@@ -37,6 +37,10 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
   function goalReached() public constant returns (bool) {
     return weiRaised >= goal;
   }
+  
+  function goalReached() public view returns (bool) {
+    return weiRaised >= goal;
+  }
 
   // We're overriding the fund forwarding from Crowdsale.
   // In addition to sending the funds, we want to call
@@ -55,5 +59,4 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
 
     super.finalization();
   }
-
 }
