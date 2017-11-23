@@ -9,7 +9,7 @@ contract PausableMock is Pausable {
   bool public drasticMeasureTaken;
   uint256 public count;
 
-  function PausableMock() {
+  function PausableMock() public {
     drasticMeasureTaken = false;
     count = 0;
   }

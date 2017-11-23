@@ -4,7 +4,7 @@ import "../../contracts/DayLimit.sol";
 contract DayLimitMock is DayLimit {
   uint256 public totalSpending;
 
-  function DayLimitMock(uint256 _value) DayLimit(_value) {
+  function DayLimitMock(uint256 _value) public DayLimit(_value) {
     totalSpending = 0;
   }
 
