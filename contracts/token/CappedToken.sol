@@ -1,6 +1,6 @@
 pragma solidity ^0.4.11;
 
-import './MintableToken.sol';
+import "./MintableToken.sol";
 
 /**
  * @title Capped token
@@ -22,7 +22,7 @@ contract CappedToken is MintableToken {
    * @param _amount The amount of tokens to mint.
    * @return A boolean that indicates if the operation was successful.
    */
-  function mint(address _to, uint256 _amount) onlyOwner canMint public returns (bool) {
+  function mint(address _to, uint256 _amount) public onlyOwner canMint returns (bool) {
     require(totalSupply.add(_amount) <= cap);
 
     return super.mint(_to, _amount);
