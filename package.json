@@ -41,5 +41,8 @@
     "solidity-coverage": "^0.2.2",
     "truffle": "^4.0.0",
     "truffle-hdwallet-provider": "0.0.3"
+  },
+  "dependencies": {
+    "dotenv": "^4.0.0"
   }
 }
