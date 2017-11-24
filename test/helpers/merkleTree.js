@@ -15,7 +15,7 @@ export default class MerkleTree {
   }
 
   getLayers (elements) {
-    if (elements.length == 0) {
+    if (elements.length === 0) {
       return [['']];
     }
 

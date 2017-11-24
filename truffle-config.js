@@ -21,15 +21,15 @@ module.exports = {
     development: {
       host: 'localhost',
       port: 8545,
-      network_id: '*',
+      network_id: '*', // eslint-disable-line camelcase
     },
     ropsten: {
       provider: ropstenProvider,
-      network_id: 3, // official id of the ropsten network
+      network_id: 3, // eslint-disable-line camelcase
     },
     coverage: {
       host: 'localhost',
-      network_id: '*',
+      network_id: '*', // eslint-disable-line camelcase
       port: 8555,
       gas: 0xfffffffffff,
       gasPrice: 0x01,
@@ -37,12 +37,12 @@ module.exports = {
     testrpc: {
       host: 'localhost',
       port: 8545,
-      network_id: '*',
+      network_id: '*', // eslint-disable-line camelcase
     },
     ganache: {
       host: 'localhost',
       port: 7545,
-      network_id: '*',
+      network_id: '*', // eslint-disable-line camelcase
     },
   },
 };

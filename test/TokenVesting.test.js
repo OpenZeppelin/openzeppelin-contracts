@@ -1,13 +1,13 @@
+import EVMRevert from './helpers/EVMRevert';
+import latestTime from './helpers/latestTime';
+import { increaseTimeTo, duration } from './helpers/increaseTime';
+
 const BigNumber = web3.BigNumber;
 
 require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
-
-import EVMRevert from './helpers/EVMRevert';
-import latestTime from './helpers/latestTime';
-import { increaseTimeTo, duration } from './helpers/increaseTime';
 
 const MintableToken = artifacts.require('MintableToken');
 const TokenVesting = artifacts.require('TokenVesting');
@@ -104,7 +104,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
   it('should fail to be revoked a second time', async function () {
     await increaseTimeTo(this.start + this.cliff + duration.weeks(12));
 
-    const vested = await this.vesting.vestedAmount(this.token.address);
+    await this.vesting.vestedAmount(this.token.address);
 
     await this.vesting.revoke(this.token.address, { from: owner });
 

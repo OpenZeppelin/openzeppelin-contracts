@@ -1,6 +1,4 @@
 
-const assertRevert = require('./helpers/assertRevert');
-
 var Contactable = artifacts.require('../contracts/ownership/Contactable.sol');
 
 contract('Contactable', function (accounts) {
@@ -12,7 +10,7 @@ contract('Contactable', function (accounts) {
 
   it('should have an empty contact info', async function () {
     let info = await contactable.contactInformation();
-    assert.isTrue(info == '');
+    assert.isTrue(info === '');
   });
 
   describe('after setting the contact information', function () {

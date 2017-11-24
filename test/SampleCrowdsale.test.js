@@ -6,7 +6,7 @@ import EVMRevert from './helpers/EVMRevert';
 
 const BigNumber = web3.BigNumber;
 
-const should = require('chai')
+require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
@@ -14,7 +14,7 @@ const should = require('chai')
 const SampleCrowdsale = artifacts.require('SampleCrowdsale');
 const SampleCrowdsaleToken = artifacts.require('SampleCrowdsaleToken');
 
-contract('Crowdsale', function ([owner, wallet, investor]) {
+contract('SampleCrowdsale', function ([owner, wallet, investor]) {
   const RATE = new BigNumber(10);
   const GOAL = ether(10);
   const CAP = ether(20);
@@ -37,12 +37,19 @@ contract('Crowdsale', function ([owner, wallet, investor]) {
     this.crowdsale.should.exist;
     this.token.should.exist;
 
-    (await this.crowdsale.startTime()).should.be.bignumber.equal(this.startTime);
-    (await this.crowdsale.endTime()).should.be.bignumber.equal(this.endTime);
-    (await this.crowdsale.rate()).should.be.bignumber.equal(RATE);
-    (await this.crowdsale.wallet()).should.be.equal(wallet);
-    (await this.crowdsale.goal()).should.be.bignumber.equal(GOAL);
-    (await this.crowdsale.cap()).should.be.bignumber.equal(CAP);
+    const startTime = await this.crowdsale.startTime();
+    const endTime = await this.crowdsale.endTime();
+    const rate = await this.crowdsale.rate();
+    const walletAddress = await this.crowdsale.wallet();
+    const goal = await this.crowdsale.goal();
+    const cap = await this.crowdsale.cap();
+
+    startTime.should.be.bignumber.equal(this.startTime);
+    endTime.should.be.bignumber.equal(this.endTime);
+    rate.should.be.bignumber.equal(RATE);
+    walletAddress.should.be.equal(wallet);
+    goal.should.be.bignumber.equal(GOAL);
+    cap.should.be.bignumber.equal(CAP);
   });
 
   it('should not accept payments before start', async function () {

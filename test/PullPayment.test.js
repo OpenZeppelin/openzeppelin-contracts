@@ -14,7 +14,7 @@ contract('PullPayment', function (accounts) {
 
   it('can record an async payment correctly', async function () {
     let AMOUNT = 100;
-    let callSend = await ppce.callSend(accounts[0], AMOUNT);
+    await ppce.callSend(accounts[0], AMOUNT);
     let paymentsToAccount0 = await ppce.payments(accounts[0]);
     let totalPayments = await ppce.totalPayments();
 
@@ -23,8 +23,8 @@ contract('PullPayment', function (accounts) {
   });
 
   it('can add multiple balances on one account', async function () {
-    let call1 = await ppce.callSend(accounts[0], 200);
-    let call2 = await ppce.callSend(accounts[0], 300);
+    await ppce.callSend(accounts[0], 200);
+    await ppce.callSend(accounts[0], 300);
     let paymentsToAccount0 = await ppce.payments(accounts[0]);
     let totalPayments = await ppce.totalPayments();
 
@@ -33,8 +33,8 @@ contract('PullPayment', function (accounts) {
   });
 
   it('can add balances on multiple accounts', async function () {
-    let call1 = await ppce.callSend(accounts[0], 200);
-    let call2 = await ppce.callSend(accounts[1], 300);
+    await ppce.callSend(accounts[0], 200);
+    await ppce.callSend(accounts[1], 300);
 
     let paymentsToAccount0 = await ppce.payments(accounts[0]);
     assert.equal(paymentsToAccount0, 200);
@@ -50,7 +50,7 @@ contract('PullPayment', function (accounts) {
     let payee = accounts[1];
     let initialBalance = web3.eth.getBalance(payee);
 
-    let call1 = await ppce.callSend(payee, amount);
+    await ppce.callSend(payee, amount);
 
     let payment1 = await ppce.payments(payee);
     assert.equal(payment1, amount);
@@ -58,7 +58,7 @@ contract('PullPayment', function (accounts) {
     let totalPayments = await ppce.totalPayments();
     assert.equal(totalPayments, amount);
 
-    let withdraw = await ppce.withdrawPayments({ from: payee });
+    await ppce.withdrawPayments({ from: payee });
     let payment2 = await ppce.payments(payee);
     assert.equal(payment2, 0);
 

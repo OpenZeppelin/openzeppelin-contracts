@@ -1,12 +1,12 @@
+import latestTime from './helpers/latestTime';
+import { increaseTimeTo, duration } from './helpers/increaseTime';
+
 const BigNumber = web3.BigNumber;
 
 require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
-
-import latestTime from './helpers/latestTime';
-import { increaseTimeTo, duration } from './helpers/increaseTime';
 
 const MintableToken = artifacts.require('MintableToken');
 const TokenTimelock = artifacts.require('TokenTimelock');

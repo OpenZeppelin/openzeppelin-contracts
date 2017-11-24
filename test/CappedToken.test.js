@@ -1,9 +1,8 @@
 
 import expectThrow from './helpers/expectThrow';
 import ether from './helpers/ether';
-var CappedToken = artifacts.require('../contracts/Tokens/CappedToken.sol');
 
-const BigNumber = web3.BigNumber;
+var CappedToken = artifacts.require('../contracts/Tokens/CappedToken.sol');
 
 contract('Capped', function (accounts) {
   const cap = ether(1000);

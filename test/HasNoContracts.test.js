@@ -1,6 +1,6 @@
 
 import expectThrow from './helpers/expectThrow';
-import toPromise from './helpers/toPromise';
+
 const Ownable = artifacts.require('../contracts/ownership/Ownable.sol');
 const HasNoContracts = artifacts.require(
   '../contracts/ownership/HasNoContracts.sol',

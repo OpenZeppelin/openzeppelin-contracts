@@ -33,7 +33,8 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor]) {
 
   describe('creating a valid crowdsale', function () {
     it('should fail with zero goal', async function () {
-      await RefundableCrowdsale.new(this.startTime, this.endTime, rate, wallet, 0, { from: owner }).should.be.rejectedWith(EVMRevert);
+      await RefundableCrowdsale.new(this.startTime, this.endTime, rate, wallet, 0, { from: owner })
+        .should.be.rejectedWith(EVMRevert);
     });
   });
 
