@@ -1,5 +1,5 @@
 
-var LimitBalanceMock = artifacts.require('helpers/LimitBalanceMock.sol');
+var LimitBalanceMock = artifacts.require('mocks/LimitBalanceMock.sol');
 const assertRevert = require('./helpers/assertRevert');
 
 contract('LimitBalance', function (accounts) {

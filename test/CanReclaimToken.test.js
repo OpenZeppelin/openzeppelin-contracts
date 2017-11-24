@@ -2,7 +2,7 @@
 import expectThrow from './helpers/expectThrow';
 import toPromise from './helpers/toPromise';
 const CanReclaimToken = artifacts.require('../contracts/ownership/CanReclaimToken.sol');
-const BasicTokenMock = artifacts.require('./helpers/BasicTokenMock.sol');
+const BasicTokenMock = artifacts.require('./mocks/BasicTokenMock.sol');
 
 contract('CanReclaimToken', function (accounts) {
   let token = null;

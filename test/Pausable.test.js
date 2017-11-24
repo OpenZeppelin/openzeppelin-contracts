@@ -1,6 +1,6 @@
 
 const assertRevert = require('./helpers/assertRevert');
-const PausableMock = artifacts.require('helpers/PausableMock.sol');
+const PausableMock = artifacts.require('mocks/PausableMock.sol');
 
 contract('Pausable', function (accounts) {
   it('can perform normal process in non-pause', async function () {

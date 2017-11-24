@@ -6,8 +6,8 @@ let sendReward = function (sender, receiver, value) {
     value: value,
   });
 };
-var SecureTargetBounty = artifacts.require('helpers/SecureTargetBounty.sol');
-var InsecureTargetBounty = artifacts.require('helpers/InsecureTargetBounty.sol');
+var SecureTargetBounty = artifacts.require('mocks/SecureTargetBounty.sol');
+var InsecureTargetBounty = artifacts.require('mocks/InsecureTargetBounty.sol');
 
 function awaitEvent (event, handler) {
   return new Promise((resolve, reject) => {

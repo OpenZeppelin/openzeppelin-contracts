@@ -1,7 +1,7 @@
 
 const assertRevert = require('./helpers/assertRevert');
 const expectThrow = require('./helpers/expectThrow');
-var StandardTokenMock = artifacts.require('./helpers/StandardTokenMock.sol');
+var StandardTokenMock = artifacts.require('./mocks/StandardTokenMock.sol');
 
 contract('StandardToken', function (accounts) {
   let token;
