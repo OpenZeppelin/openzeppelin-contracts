@@ -1,30 +1,30 @@
-'use strict';
+
 const assertRevert = require('./helpers/assertRevert');
 
 var Contactable = artifacts.require('../contracts/ownership/Contactable.sol');
 
-contract('Contactable', function(accounts) {
+contract('Contactable', function (accounts) {
   let contactable;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     contactable = await Contactable.new();
   });
 
-  it('should have an empty contact info', async function() {
+  it('should have an empty contact info', async function () {
     let info = await contactable.contactInformation();
-    assert.isTrue(info == "");
+    assert.isTrue(info == '');
   });
 
   describe('after setting the contact information', function () {
-    let contactInfo = "contact information"
+    let contactInfo = 'contact information';
 
     beforeEach(async function () {
       await contactable.setContactInformation(contactInfo);
     });
 
-    it('should return the setted contact information', async function() {
+    it('should return the setted contact information', async function () {
       let info = await contactable.contactInformation();
       assert.isTrue(info === contactInfo);
-   });
+    });
   });
 });

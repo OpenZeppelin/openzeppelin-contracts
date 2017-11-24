@@ -1,16 +1,15 @@
-var ECRecovery = artifacts.require("../contracts/ECRecovery.sol");
+var ECRecovery = artifacts.require('../contracts/ECRecovery.sol');
 var utils = require('ethereumjs-util');
 var hashMessage = require('./helpers/hashMessage.js');
 
-contract('ECRecovery', function(accounts) {
-
+contract('ECRecovery', function (accounts) {
   let ecrecovery;
 
-  before(async function() {
+  before(async function () {
     ecrecovery = await ECRecovery.new();
   });
 
-  it("recover v0", async function() {
+  it('recover v0', async function () {
     // Signature generated outside testrpc with method web3.eth.sign(signer, message)
     let signer = '0x2cc1166f6212628a0deef2b33befb2187d35b86c';
     let message = '0x7dbaf558b0a1a5dc7a67202117ab143c1d8605a983e4a743bc06fcc03162dc0d'; // web3.sha3('OpenZeppelin')
@@ -18,7 +17,7 @@ contract('ECRecovery', function(accounts) {
     assert.equal(signer, await ecrecovery.recover(message, signature));
   });
 
-  it("recover v1", async function() {
+  it('recover v1', async function () {
     // Signature generated outside testrpc with method web3.eth.sign(signer, message)
     let signer = '0x1e318623ab09fe6de3c9b8672098464aeda9100e';
     let message = '0x7dbaf558b0a1a5dc7a67202117ab143c1d8605a983e4a743bc06fcc03162dc0d'; // web3.sha3('OpenZeppelin')
@@ -26,7 +25,7 @@ contract('ECRecovery', function(accounts) {
     assert.equal(signer, await ecrecovery.recover(message, signature));
   });
 
-  it("recover using web3.eth.sign()", async function() {
+  it('recover using web3.eth.sign()', async function () {
     // Create the signature using account[0]
     const signature = web3.eth.sign(web3.eth.accounts[0], web3.sha3('OpenZeppelin'));
 
@@ -34,7 +33,7 @@ contract('ECRecovery', function(accounts) {
     assert.equal(web3.eth.accounts[0], await ecrecovery.recover(hashMessage('OpenZeppelin'), signature));
   });
 
-  it("recover using web3.eth.sign() should return wrong signer", async function() {
+  it('recover using web3.eth.sign() should return wrong signer', async function () {
     // Create the signature using account[0]
     const signature = web3.eth.sign(web3.eth.accounts[0], web3.sha3('OpenZeppelin'));
 
@@ -42,7 +41,7 @@ contract('ECRecovery', function(accounts) {
     assert.notEqual(web3.eth.accounts[0], await ecrecovery.recover(hashMessage('Test'), signature));
   });
 
-  it("recover should fail when a wrong hash is sent", async function() {
+  it('recover should fail when a wrong hash is sent', async function () {
     // Create the signature using account[0]
     let signature = web3.eth.sign(web3.eth.accounts[0], web3.sha3('OpenZeppelin'));
 
@@ -51,5 +50,4 @@ contract('ECRecovery', function(accounts) {
       await ecrecovery.recover(hashMessage('OpenZeppelin').substring(2), signature)
     );
   });
-
 });

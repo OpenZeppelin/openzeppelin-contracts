@@ -10,11 +10,11 @@ const DetailedERC20Mock = artifacts.require('./helpers/DetailedERC20Mock.sol');
 contract('DetailedERC20', accounts => {
   let detailedERC20 = null;
 
-  const _name = "My Detailed ERC20";
-  const _symbol = "MDT";
+  const _name = 'My Detailed ERC20';
+  const _symbol = 'MDT';
   const _decimals = 18;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     detailedERC20 = await DetailedERC20Mock.new(_name, _symbol, _decimals);
   });
 
@@ -30,6 +30,6 @@ contract('DetailedERC20', accounts => {
 
   it('has an amount of decimals', async function () {
     const decimals = await detailedERC20.decimals();
-    decimals.should.be.bignumber.equal(_decimals)
+    decimals.should.be.bignumber.equal(_decimals);
   });
 });

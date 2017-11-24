@@ -1,18 +1,18 @@
-var MerkleProof = artifacts.require("./MerkleProof.sol");
+var MerkleProof = artifacts.require('./MerkleProof.sol');
 
-import MerkleTree from "./helpers/merkleTree.js";
-import { sha3, bufferToHex } from "ethereumjs-util";
+import MerkleTree from './helpers/merkleTree.js';
+import { sha3, bufferToHex } from 'ethereumjs-util';
 
-contract('MerkleProof', function(accounts) {
+contract('MerkleProof', function (accounts) {
   let merkleProof;
 
-  before(async function() {
+  before(async function () {
     merkleProof = await MerkleProof.new();
   });
 
-  describe("verifyProof", function() {
-    it("should return true for a valid Merkle proof", async function() {
-      const elements = ["a", "b", "c", "d"];
+  describe('verifyProof', function () {
+    it('should return true for a valid Merkle proof', async function () {
+      const elements = ['a', 'b', 'c', 'd'];
       const merkleTree = new MerkleTree(elements);
 
       const root = merkleTree.getHexRoot();
@@ -22,28 +22,28 @@ contract('MerkleProof', function(accounts) {
       const leaf = bufferToHex(sha3(elements[0]));
 
       const result = await merkleProof.verifyProof(proof, root, leaf);
-      assert.isOk(result, "verifyProof did not return true for a valid proof");
+      assert.isOk(result, 'verifyProof did not return true for a valid proof');
     });
 
-    it("should return false for an invalid Merkle proof", async function() {
-      const correctElements = ["a", "b", "c"]
+    it('should return false for an invalid Merkle proof', async function () {
+      const correctElements = ['a', 'b', 'c'];
       const correctMerkleTree = new MerkleTree(correctElements);
 
       const correctRoot = correctMerkleTree.getHexRoot();
 
       const correctLeaf = bufferToHex(sha3(correctElements[0]));
 
-      const badElements = ["d", "e", "f"]
-      const badMerkleTree = new MerkleTree(badElements)
+      const badElements = ['d', 'e', 'f'];
+      const badMerkleTree = new MerkleTree(badElements);
 
-      const badProof = badMerkleTree.getHexProof(badElements[0])
+      const badProof = badMerkleTree.getHexProof(badElements[0]);
 
       const result = await merkleProof.verifyProof(badProof, correctRoot, correctLeaf);
-      assert.isNotOk(result, "verifyProof did not return false for an invalid proof");
+      assert.isNotOk(result, 'verifyProof did not return false for an invalid proof');
     });
 
-    it("should return false for a Merkle proof of invalid length", async function() {
-      const elements = ["a", "b", "c"]
+    it('should return false for a Merkle proof of invalid length', async function () {
+      const elements = ['a', 'b', 'c'];
       const merkleTree = new MerkleTree(elements);
 
       const root = merkleTree.getHexRoot();
@@ -54,7 +54,7 @@ contract('MerkleProof', function(accounts) {
       const leaf = bufferToHex(sha3(elements[0]));
 
       const result = await merkleProof.verifyProof(badProof, root, leaf);
-      assert.isNotOk(result, "verifyProof did not return false for proof of invalid length");
-    })
+      assert.isNotOk(result, 'verifyProof did not return false for proof of invalid length');
+    });
   });
 });

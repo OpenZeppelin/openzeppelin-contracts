@@ -1,14 +1,14 @@
-'use strict';
+
 import expectThrow from './helpers/expectThrow';
 import toPromise from './helpers/toPromise';
 const CanReclaimToken = artifacts.require('../contracts/ownership/CanReclaimToken.sol');
-const BasicTokenMock = artifacts.require("./helpers/BasicTokenMock.sol");
+const BasicTokenMock = artifacts.require('./helpers/BasicTokenMock.sol');
 
-contract('CanReclaimToken', function(accounts) {
+contract('CanReclaimToken', function (accounts) {
   let token = null;
   let canReclaimToken = null;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     // Create contract and token
     token = await BasicTokenMock.new(accounts[0], 100);
     canReclaimToken = await CanReclaimToken.new();
@@ -18,7 +18,7 @@ contract('CanReclaimToken', function(accounts) {
     assert.equal(startBalance, 10);
   });
 
-  it('should allow owner to reclaim tokens', async function() {
+  it('should allow owner to reclaim tokens', async function () {
     const ownerStartBalance = await token.balanceOf(accounts[0]);
     await canReclaimToken.reclaimToken(token.address);
     const ownerFinalBalance = await token.balanceOf(accounts[0]);
@@ -27,9 +27,9 @@ contract('CanReclaimToken', function(accounts) {
     assert.equal(ownerFinalBalance - ownerStartBalance, 10);
   });
 
-  it('should allow only owner to reclaim tokens', async function() {
+  it('should allow only owner to reclaim tokens', async function () {
     await expectThrow(
-      canReclaimToken.reclaimToken(token.address, {from: accounts[1]}),
+      canReclaimToken.reclaimToken(token.address, { from: accounts[1] }),
     );
   });
 });

@@ -1,19 +1,18 @@
-const BigNumber = web3.BigNumber
+const BigNumber = web3.BigNumber;
 
 require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-import EVMRevert from './helpers/EVMRevert'
+import EVMRevert from './helpers/EVMRevert';
 import latestTime from './helpers/latestTime';
-import {increaseTimeTo, duration} from './helpers/increaseTime';
+import { increaseTimeTo, duration } from './helpers/increaseTime';
 
 const MintableToken = artifacts.require('MintableToken');
 const TokenVesting = artifacts.require('TokenVesting');
 
 contract('TokenVesting', function ([_, owner, beneficiary]) {
-
   const amount = new BigNumber(1000);
 
   beforeEach(async function () {
@@ -75,7 +74,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
   });
 
   it('should fail to be revoked by owner if revocable not set', async function () {
-    const vesting = await TokenVesting.new(beneficiary, this.start, this.cliff, this.duration, false, { from: owner } );
+    const vesting = await TokenVesting.new(beneficiary, this.start, this.cliff, this.duration, false, { from: owner });
     await vesting.revoke(this.token.address, { from: owner }).should.be.rejectedWith(EVMRevert);
   });
 
@@ -111,5 +110,4 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
     await this.vesting.revoke(this.token.address, { from: owner }).should.be.rejectedWith(EVMRevert);
   });
-
 });

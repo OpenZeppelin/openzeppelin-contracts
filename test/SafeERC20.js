@@ -7,7 +7,6 @@ require('chai')
 const SafeERC20Helper = artifacts.require('./helpers/SafeERC20Helper.sol');
 
 contract('SafeERC20', function () {
-
   beforeEach(async function () {
     this.helper = await SafeERC20Helper.new();
   });

@@ -1,17 +1,16 @@
-'use strict';
 
 var DelayedClaimable = artifacts.require('../contracts/ownership/DelayedClaimable.sol');
 
-contract('DelayedClaimable', function(accounts) {
+contract('DelayedClaimable', function (accounts) {
   var delayedClaimable;
 
-  beforeEach(function() {
-    return DelayedClaimable.new().then(function(deployed) {
+  beforeEach(function () {
+    return DelayedClaimable.new().then(function (deployed) {
       delayedClaimable = deployed;
     });
   });
 
-  it('can set claim blocks', async function() {
+  it('can set claim blocks', async function () {
     await delayedClaimable.transferOwnership(accounts[2]);
     await delayedClaimable.setLimits(0, 1000);
     let end = await delayedClaimable.end();
@@ -20,7 +19,7 @@ contract('DelayedClaimable', function(accounts) {
     assert.equal(start, 0);
   });
 
-  it('changes pendingOwner after transfer successful', async function() {
+  it('changes pendingOwner after transfer successful', async function () {
     await delayedClaimable.transferOwnership(accounts[2]);
     await delayedClaimable.setLimits(0, 1000);
     let end = await delayedClaimable.end();
@@ -29,12 +28,12 @@ contract('DelayedClaimable', function(accounts) {
     assert.equal(start, 0);
     let pendingOwner = await delayedClaimable.pendingOwner();
     assert.equal(pendingOwner, accounts[2]);
-    await delayedClaimable.claimOwnership({from: accounts[2]});
+    await delayedClaimable.claimOwnership({ from: accounts[2] });
     let owner = await delayedClaimable.owner();
     assert.equal(owner, accounts[2]);
   });
 
-  it('changes pendingOwner after transfer fails', async function() {
+  it('changes pendingOwner after transfer fails', async function () {
     await delayedClaimable.transferOwnership(accounts[1]);
     await delayedClaimable.setLimits(100, 110);
     let end = await delayedClaimable.end();
@@ -45,7 +44,7 @@ contract('DelayedClaimable', function(accounts) {
     assert.equal(pendingOwner, accounts[1]);
     var err = null;
     try {
-      await delayedClaimable.claimOwnership({from: accounts[1]});
+      await delayedClaimable.claimOwnership({ from: accounts[1] });
     } catch (error) {
       err = error;
     }
@@ -54,7 +53,7 @@ contract('DelayedClaimable', function(accounts) {
     assert.isTrue(owner !== accounts[1]);
   });
 
-  it('set end and start invalid values fail', async function() {
+  it('set end and start invalid values fail', async function () {
     await delayedClaimable.transferOwnership(accounts[1]);
     var err = null;
     try {
@@ -64,5 +63,4 @@ contract('DelayedClaimable', function(accounts) {
     }
     assert.isFalse(err.message.search('revert') === -1);
   });
-
 });
