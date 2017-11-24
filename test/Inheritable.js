@@ -58,7 +58,7 @@ contract('Inheritable', function(accounts) {
     assert.isTrue(heir === NULL_ADDRESS)
   })
 
-  it('owner can set heartbeatTimeout only if she\'s alive', async function() {
+  it('owner can set heartbeatTimeout only if they are alive', async function() {
     const newTimeout = 41414141
     await inheritable.setHeartbeatTimeout(newTimeout, {from: owner})
 
@@ -127,13 +127,31 @@ contract('Inheritable', function(accounts) {
     }
   })
 
-  it('should log owner dead and ownership transfer', async function() {
+  it('should log events appropriately', async function() {
     const heir = accounts[1]
-    await inheritable.setHeir(heir, {from: owner})
-    const { logs } = await inheritable.pronounceDeath({from: heir})
-    const event = logs.find(e => e.event === 'OwnerPronouncedDead')
 
-    assert.isTrue(event.args.owner === owner)
-    assert.isTrue(event.args.heir === heir)
+    const setHeirLogs = (await inheritable.setHeir(heir, {from: owner})).logs
+    const setHeirEvent = setHeirLogs.find(e => e.event === 'HeirChanged')
+
+    assert.isTrue(setHeirEvent.args.owner === owner)
+    assert.isTrue(setHeirEvent.args.newHeir === heir)
+
+    const heartbeatLogs = (await inheritable.heartbeat({from: owner})).logs
+    const heartbeatEvent = heartbeatLogs.find(e => e.event === 'OwnerHeartbeated')
+
+    assert.isTrue(heartbeatEvent.args.owner === owner)
+
+    const pronounceDeathLogs = (await inheritable.pronounceDeath({from: heir})).logs
+    const ownerDeadEvent = pronounceDeathLogs.find(e => e.event === 'OwnerPronouncedDead')
+
+    assert.isTrue(ownerDeadEvent.args.owner === owner)
+    assert.isTrue(ownerDeadEvent.args.heir === heir)
+
+    const inheritLogs = (await inheritable.inherit({from: heir})).logs
+    const ownershipTransferredEvent = inheritLogs.find(e => e.event === 'OwnershipTransferred')
+
+    assert.isTrue(ownershipTransferredEvent.args.previousOwner === owner)
+    assert.isTrue(ownershipTransferredEvent.args.newOwner === heir)
+
   })
 })

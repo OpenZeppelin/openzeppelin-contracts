@@ -13,14 +13,16 @@ import './Ownable.sol';
 contract Inheritable is Ownable {
   address public heir;
 
-  // Time window the owner has to notify she is alive.
+  // Time window the owner has to notify they are alive.
   uint public heartbeatTimeout;
 
   // Timestamp of the owner's death, as pronounced by the heir.
   uint public timeOfDeath;
 
 
-  event OwnerPronouncedDead(address indexed owner, address indexed heir, uint indexed timeOfDeath);
+  event HeirChanged(address indexed owner, address indexed newHeir);
+  event OwnerHeartbeated(address indexed owner);
+  event OwnerPronouncedDead(address indexed owner, address indexed heir, uint timeOfDeath);
 
 
   /**
@@ -34,7 +36,7 @@ contract Inheritable is Ownable {
 
   /**
    * @notice Create a new Inheritable Contract with heir address 0x0.
-   * @param _heartbeatTimeout time available for the owner to notify she's alive,
+   * @param _heartbeatTimeout time available for the owner to notify they are alive,
    * before the heir can take ownership.
    */
   function Inheritable(uint _heartbeatTimeout) public {
@@ -42,6 +44,8 @@ contract Inheritable is Ownable {
   }
 
   function setHeir(address newHeir) public onlyOwner {
+    heartbeat();
+    HeirChanged(owner, newHeir);
     heir = newHeir;
   }
 
@@ -49,7 +53,8 @@ contract Inheritable is Ownable {
    * @dev set heir = 0x0
    */
   function removeHeir() public onlyOwner {
-    delete(heir);
+    heartbeat();
+    heir = 0;
   }
 
   function setHeartbeatTimeout(uint newHeartbeatTimeout) public onlyOwner {
@@ -58,20 +63,21 @@ contract Inheritable is Ownable {
   }
 
   /**
-   * @dev Heir can pronounce the owners death. To inherit the ownership, he will
+   * @dev Heir can pronounce the owners death. To inherit the ownership, they will
    * have to wait for `heartbeatTimeout` seconds.
    */
   function pronounceDeath() public onlyHeir {
     require(ownerLives());
-    timeOfDeath = now;
     OwnerPronouncedDead(owner, heir, timeOfDeath);
+    timeOfDeath = now;
   }
 
   /**
-   * @dev Owner can send a heartbeat if she was mistakenly pronounced dead.
+   * @dev Owner can send a heartbeat if they were mistakenly pronounced dead.
    */
   function heartbeat() public onlyOwner {
-    delete(timeOfDeath);
+    OwnerHeartbeated(owner);
+    timeOfDeath = 0;
   }
 
   /**
@@ -82,7 +88,7 @@ contract Inheritable is Ownable {
     require(now >= timeOfDeath + heartbeatTimeout);
     OwnershipTransferred(owner, heir);
     owner = heir;
-    delete(timeOfDeath);
+    timeOfDeath = 0;
   }
 
   function ownerLives() internal returns (bool) {
