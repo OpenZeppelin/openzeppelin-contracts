@@ -1,5 +1,5 @@
 import ether from './helpers/ether'
-import EVMThrow from './helpers/EVMThrow'
+import EVMRevert from './helpers/EVMRevert'
 
 const BigNumber = web3.BigNumber
 
@@ -35,14 +35,14 @@ contract('PseudoMinter', function ([owner, tokenAddress]) {
 
   it('should reject minting outside approved cap', async function () {
     await this.pseudoMinter.mint(tokenAddress, this.cap).should.be.fulfilled
-    await this.pseudoMinter.mint(tokenAddress, 1).should.be.rejectedWith(EVMThrow)
+    await this.pseudoMinter.mint(tokenAddress, 1).should.be.rejectedWith(EVMRevert)
 
     let amount = await this.simpleToken.balanceOf(tokenAddress)
     amount.should.be.bignumber.equal(this.cap)
   })
 
   it('should reject minting that exceed approved cap', async function () {
-    await this.pseudoMinter.mint(tokenAddress, this.cap.plus(1)).should.be.rejectedWith(EVMThrow)
+    await this.pseudoMinter.mint(tokenAddress, this.cap.plus(1)).should.be.rejectedWith(EVMRevert)
 
     let amount = await this.simpleToken.balanceOf(tokenAddress)
     amount.should.be.bignumber.equal(0)
@@ -54,7 +54,7 @@ contract('PseudoMinter', function ([owner, tokenAddress]) {
     let amount = await this.pseudoMinter.availableSupply.call()
     amount.should.be.bignumber.equal(0)
 
-    await this.pseudoMinter.mint(tokenAddress, 1).should.be.rejectedWith(EVMThrow)
+    await this.pseudoMinter.mint(tokenAddress, 1).should.be.rejectedWith(EVMRevert)
   })
 
 })

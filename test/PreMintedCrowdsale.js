@@ -2,7 +2,7 @@ import ether from './helpers/ether'
 import {advanceBlock} from './helpers/advanceToBlock'
 import {increaseTimeTo, duration} from './helpers/increaseTime'
 import latestTime from './helpers/latestTime'
-import EVMThrow from './helpers/EVMThrow'
+import EVMRevert from './helpers/EVMRevert'
 
 const BigNumber = web3.BigNumber
 
@@ -48,11 +48,11 @@ contract('PreMintedCrowdsale', function ([_, wallet]) {
 
     it('should reject payments outside cap', async function () {
       await this.crowdsale.send(this.cap)
-      await this.crowdsale.send(1).should.be.rejectedWith(EVMThrow)
+      await this.crowdsale.send(1).should.be.rejectedWith(EVMRevert)
     })
 
     it('should reject payments that exceed cap', async function () {
-      await this.crowdsale.send(this.cap.plus(1)).should.be.rejectedWith(EVMThrow)
+      await this.crowdsale.send(this.cap.plus(1)).should.be.rejectedWith(EVMRevert)
     })
 
   })

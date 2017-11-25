@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.18;
 
 import "../token/PseudoMinter.sol";
 import "../crowdsale/Crowdsale.sol";
@@ -15,10 +15,15 @@ contract PreMintedCrowdsaleVault {
   SimpleToken public token;
   PreMintedCrowdsale public crowdsale;
 
-  function PreMintedCrowdsaleVault(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet) {
+  function PreMintedCrowdsaleVault(
+    uint256 _startTime,
+    uint256 _endTime,
+    uint256 _rate,
+    address _wallet
+  ) public {
     token = new SimpleToken();
     crowdsale = new PreMintedCrowdsale(_startTime, _endTime, _rate, _wallet, token);
-    
+
     PseudoMinter _pseudoMinter = PseudoMinter(crowdsale.token());
     token.approve(_pseudoMinter, token.balanceOf(this));
   }
@@ -33,14 +38,18 @@ contract PreMintedCrowdsaleVault {
  */
 contract PreMintedCrowdsale is Crowdsale {
 
-  function PreMintedCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet, ERC20 _token)
-    Crowdsale(_startTime, _endTime, _rate, _wallet)
-  {
+  function PreMintedCrowdsale(
+    uint256 _startTime,
+    uint256 _endTime,
+    uint256 _rate,
+    address _wallet,
+    ERC20 _token
+  ) public Crowdsale(_startTime, _endTime, _rate, _wallet) {
     token = new PseudoMinter(_token, msg.sender);
   }
 
   // save gas by returning address zero
-  function createMintableContract() internal returns (Mintable) {
+  function createMintableContract() internal pure returns (Mintable) {
     return Mintable(0x0);
   }
 

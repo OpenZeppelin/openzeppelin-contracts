@@ -1,7 +1,8 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.18;
 
 import "./ERC20.sol";
 import "./Mintable.sol";
+import "../math/SafeMath.sol";
 import "../ownership/Ownable.sol";
 
 /**
@@ -20,13 +21,16 @@ import "../ownership/Ownable.sol";
  * For an example implementation see contracts/example/PreMintedCrowdsale.sol
  */
 contract PseudoMinter is Mintable, Ownable {
+  using SafeMath for uint256;
 
   // The token being sold
   ERC20 public token;
   // address which provides tokens via token.approve(...) function
   address public vault;
+  // amount of tokens which have been pseudo minted
+  uint256 public tokensMinted;
 
-  function PseudoMinter(ERC20 _token, address _vault) {
+  function PseudoMinter(ERC20 _token, address _vault) public {
     require(address(_token) != 0x0);
     require(_vault != 0x0);
 
@@ -42,6 +46,7 @@ contract PseudoMinter is Mintable, Ownable {
    * @return A boolean that indicates if the operation was successful.
    */
   function mint(address _to, uint256 _amount) onlyOwner public returns (bool) {
+    tokensMinted.add(_amount);
     token.transferFrom(vault, _to, _amount);
     return true;
   }
@@ -50,7 +55,7 @@ contract PseudoMinter is Mintable, Ownable {
    * @dev returns amount of tokens that can be pseudo minted. Be aware that
    * this does not necessarily represent the hard cap of spendable tokens!
    */
-  function availableSupply() public returns (uint256) {
+  function availableSupply() public constant returns (uint256) {
     return token.allowance(vault, this);
   }
 }
