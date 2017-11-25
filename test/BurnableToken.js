@@ -1,6 +1,6 @@
 'use strict'
 
-const EVMThrow = require('./helpers/EVMThrow.js')
+const EVMRevert = require('./helpers/EVMRevert.js')
 const BurnableTokenMock = artifacts.require("./helpers/BurnableTokenMock.sol")
 const BigNumber = web3.BigNumber
 
@@ -34,6 +34,6 @@ contract('BurnableToken', function (accounts) {
 
     it('cannot burn more tokens than your balance', async function () {
         await token.burn(2000, { from: accounts[0] })
-        .should.be.rejectedWith(EVMThrow)
+        .should.be.rejectedWith(EVMRevert)
     })
 })

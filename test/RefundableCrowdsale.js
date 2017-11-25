@@ -2,7 +2,7 @@ import ether from './helpers/ether'
 import {advanceBlock} from './helpers/advanceToBlock'
 import {increaseTimeTo, duration} from './helpers/increaseTime'
 import latestTime from './helpers/latestTime'
-import EVMThrow from './helpers/EVMThrow'
+import EVMRevert from './helpers/EVMRevert'
 
 const BigNumber = web3.BigNumber
 
@@ -35,22 +35,22 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor]) {
   describe('creating a valid crowdsale', function () {
 
     it('should fail with zero goal', async function () {
-      await RefundableCrowdsale.new(this.startTime, this.endTime, rate, wallet, 0, {from: owner}).should.be.rejectedWith(EVMThrow);
+      await RefundableCrowdsale.new(this.startTime, this.endTime, rate, wallet, 0, {from: owner}).should.be.rejectedWith(EVMRevert);
     })
 
   });
 
   it('should deny refunds before end', async function () {
-    await this.crowdsale.claimRefund({from: investor}).should.be.rejectedWith(EVMThrow)
+    await this.crowdsale.claimRefund({from: investor}).should.be.rejectedWith(EVMRevert)
     await increaseTimeTo(this.startTime)
-    await this.crowdsale.claimRefund({from: investor}).should.be.rejectedWith(EVMThrow)
+    await this.crowdsale.claimRefund({from: investor}).should.be.rejectedWith(EVMRevert)
   })
 
   it('should deny refunds after end if goal was reached', async function () {
     await increaseTimeTo(this.startTime)
     await this.crowdsale.sendTransaction({value: goal, from: investor})
     await increaseTimeTo(this.afterEndTime)
-    await this.crowdsale.claimRefund({from: investor}).should.be.rejectedWith(EVMThrow)
+    await this.crowdsale.claimRefund({from: investor}).should.be.rejectedWith(EVMRevert)
   })
 
   it('should allow refunds after end if goal was not reached', async function () {

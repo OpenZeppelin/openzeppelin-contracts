@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.18;
 
 
 import './Mintable.sol';
@@ -44,7 +44,7 @@ contract MintableToken is Mintable, StandardToken, Ownable {
    * @dev Function to stop minting new tokens.
    * @return True if the operation was successful.
    */
-  function finishMinting() onlyOwner public returns (bool) {
+  function finishMinting() onlyOwner canMint public returns (bool) {
     mintingFinished = true;
     MintFinished();
     return true;

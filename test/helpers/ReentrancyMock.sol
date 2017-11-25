@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.18;
 
 import '../../contracts/ReentrancyGuard.sol';
 import './ReentrancyAttack.sol';
@@ -7,7 +7,7 @@ contract ReentrancyMock is ReentrancyGuard {
 
   uint256 public counter;
 
-  function ReentrancyMock() {
+  function ReentrancyMock() public {
     counter = 0;
   }
 
@@ -27,9 +27,7 @@ contract ReentrancyMock is ReentrancyGuard {
     if(n > 0) {
       count();
       bool result = this.call(func, n - 1);
-      if(result != true) {
-        throw;
-      }
+      require(result == true);
     }
   }
 
