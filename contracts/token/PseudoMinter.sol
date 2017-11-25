@@ -55,7 +55,7 @@ contract PseudoMinter is Mintable, Ownable {
    * @dev returns amount of tokens that can be pseudo minted. Be aware that
    * this does not necessarily represent the hard cap of spendable tokens!
    */
-  function availableSupply() public constant returns (uint256) {
+  function availableSupply() public view returns (uint256) {
     return token.allowance(vault, this);
   }
 }

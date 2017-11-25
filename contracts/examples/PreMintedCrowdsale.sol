@@ -54,7 +54,7 @@ contract PreMintedCrowdsale is Crowdsale {
   }
 
   // @return true if crowdsale event has ended
-  function hasEnded() public constant returns (bool) {
+  function hasEnded() public view returns (bool) {
     bool capReached = PseudoMinter(token).availableSupply() < rate;
     return super.hasEnded() || capReached;
   }
