@@ -40,7 +40,6 @@ contract TokenVesting is Ownable {
    * @param _duration duration in seconds of the period in which the tokens will vest
    * @param _revocable whether the vesting is revocable or not
    */
-<<<<<<< HEAD
   function TokenVesting(
     address _beneficiary,
     uint256 _start,
@@ -50,9 +49,6 @@ contract TokenVesting is Ownable {
   )
     public
   {
-=======
-  function TokenVesting(address _beneficiary, uint256 _start, uint256 _cliff, uint256 _duration, bool _revocable) public {
->>>>>>> e183cd3606ed43129745e000d5fd0b51f9c2bdb6
     require(_beneficiary != address(0));
     require(_cliff <= _duration);
 
