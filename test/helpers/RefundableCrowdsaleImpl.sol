@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.18;
 
 
 import '../../contracts/crowdsale/RefundableCrowdsale.sol';
@@ -12,7 +12,7 @@ contract RefundableCrowdsaleImpl is RefundableCrowdsale {
     uint256 _rate,
     address _wallet,
     uint256 _goal
-  )
+  ) public
     Crowdsale(_startTime, _endTime, _rate, _wallet)
     RefundableCrowdsale(_goal)
   {
