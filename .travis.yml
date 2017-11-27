@@ -3,14 +3,15 @@ sudo: required
 group: beta
 language: node_js
 node_js:
-  - "6"
+  - "8"
 cache:
-  yarn: true
+  directories:
+    - node_modules
 before_script:
   - truffle version
-  - yarn list
+  - npm list
 script:
-  - yarn test
+  - npm test
 notifications:
   slack:
     rooms:

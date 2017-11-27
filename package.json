@@ -19,6 +19,9 @@
     "security",
     "zeppelin"
   ],
+  "engines": {
+    "node": ">=8.9.1"
+  },
   "author": "Manuel Araoz <manuelaraoz@gmail.com>",
   "license": "MIT",
   "bugs": {
