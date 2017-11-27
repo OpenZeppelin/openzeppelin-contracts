@@ -7,7 +7,7 @@ contract ReentrancyMock is ReentrancyGuard {
 
   uint256 public counter;
 
-  function ReentrancyMock() {
+  function ReentrancyMock() public {
     counter = 0;
   }
 

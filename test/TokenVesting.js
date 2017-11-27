@@ -5,7 +5,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-import EVMThrow from './helpers/EVMThrow'
+import EVMRevert from './helpers/EVMRevert'
 import latestTime from './helpers/latestTime';
 import {increaseTimeTo, duration} from './helpers/increaseTime';
 
@@ -29,7 +29,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
   });
 
   it('cannot be released before cliff', async function () {
-    await this.vesting.release(this.token.address).should.be.rejectedWith(EVMThrow);
+    await this.vesting.release(this.token.address).should.be.rejectedWith(EVMRevert);
   });
 
   it('can be released after cliff', async function () {
@@ -76,7 +76,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
   it('should fail to be revoked by owner if revocable not set', async function () {
     const vesting = await TokenVesting.new(beneficiary, this.start, this.cliff, this.duration, false, { from: owner } );
-    await vesting.revoke(this.token.address, { from: owner }).should.be.rejectedWith(EVMThrow);
+    await vesting.revoke(this.token.address, { from: owner }).should.be.rejectedWith(EVMRevert);
   });
 
   it('should return the non-vested tokens when revoked by owner', async function () {
@@ -109,7 +109,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
     await this.vesting.revoke(this.token.address, { from: owner });
 
-    await this.vesting.revoke(this.token.address, { from: owner }).should.be.rejectedWith(EVMThrow);
+    await this.vesting.revoke(this.token.address, { from: owner }).should.be.rejectedWith(EVMRevert);
   });
 
 });

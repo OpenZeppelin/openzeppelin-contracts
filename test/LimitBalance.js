@@ -1,7 +1,7 @@
 'use strict';
 
 var LimitBalanceMock = artifacts.require('helpers/LimitBalanceMock.sol');
-const assertJump = require('./helpers/assertJump');
+const assertRevert = require('./helpers/assertRevert');
 
 contract('LimitBalance', function(accounts) {
   let lb;
@@ -30,7 +30,7 @@ contract('LimitBalance', function(accounts) {
       await lb.limitedDeposit({value: amount});
       assert.fail('should have thrown before');
     } catch(error) {
-      assertJump(error);
+      assertRevert(error);
     }
   });
 
@@ -54,7 +54,7 @@ contract('LimitBalance', function(accounts) {
       await lb.limitedDeposit({value: amount+1});
       assert.fail('should have thrown before');
     } catch(error) {
-      assertJump(error);
+      assertRevert(error);
     }
   });
 

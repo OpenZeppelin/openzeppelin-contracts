@@ -10,13 +10,13 @@ contract ERC23ContractInterface {
 
 contract ERC23TokenMock is BasicToken {
 
-  function ERC23TokenMock(address initialAccount, uint256 initialBalance) {
+  function ERC23TokenMock(address initialAccount, uint256 initialBalance) public {
     balances[initialAccount] = initialBalance;
     totalSupply = initialBalance;
   }
 
   // ERC23 compatible transfer function (except the name)
-  function transferERC23(address _to, uint256 _value, bytes _data)
+  function transferERC23(address _to, uint256 _value, bytes _data) public
     returns (bool success)
   {
     transfer(_to, _value);
