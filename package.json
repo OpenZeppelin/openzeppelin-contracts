@@ -4,6 +4,7 @@
   "description": "Secure Smart Contract library for Solidity",
   "scripts": {
     "test": "scripts/test.sh",
+    "lint": "eslint .",
     "console": "truffle console",
     "coverage": "scripts/coverage.sh"
   },
