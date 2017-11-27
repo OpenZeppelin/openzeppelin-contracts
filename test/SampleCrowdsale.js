@@ -2,7 +2,7 @@ import ether from './helpers/ether'
 import {advanceBlock} from './helpers/advanceToBlock'
 import {increaseTimeTo, duration} from './helpers/increaseTime'
 import latestTime from './helpers/latestTime'
-import EVMThrow from './helpers/EVMThrow'
+import EVMRevert from './helpers/EVMRevert'
 
 const BigNumber = web3.BigNumber;
 
@@ -48,8 +48,8 @@ contract('Crowdsale', function ([owner, wallet, investor]) {
   });
 
   it('should not accept payments before start', async function () {
-    await this.crowdsale.send(ether(1)).should.be.rejectedWith(EVMThrow);
-    await this.crowdsale.buyTokens(investor, {from: investor, value: ether(1)}).should.be.rejectedWith(EVMThrow);
+    await this.crowdsale.send(ether(1)).should.be.rejectedWith(EVMRevert);
+    await this.crowdsale.buyTokens(investor, {from: investor, value: ether(1)}).should.be.rejectedWith(EVMRevert);
   });
 
   it('should accept payments during the sale', async function () {
@@ -65,14 +65,14 @@ contract('Crowdsale', function ([owner, wallet, investor]) {
 
   it('should reject payments after end', async function () {
     await increaseTimeTo(this.afterEnd);
-    await this.crowdsale.send(ether(1)).should.be.rejectedWith(EVMThrow);
-    await this.crowdsale.buyTokens(investor, {value: ether(1), from: investor}).should.be.rejectedWith(EVMThrow);
+    await this.crowdsale.send(ether(1)).should.be.rejectedWith(EVMRevert);
+    await this.crowdsale.buyTokens(investor, {value: ether(1), from: investor}).should.be.rejectedWith(EVMRevert);
   });
 
   it('should reject payments over cap', async function () {
     await increaseTimeTo(this.startTime);
     await this.crowdsale.send(CAP);
-    await this.crowdsale.send(1).should.be.rejectedWith(EVMThrow);
+    await this.crowdsale.send(1).should.be.rejectedWith(EVMRevert);
   });
 
   it('should allow finalization and transfer funds to wallet if the goal is reached', async function () {

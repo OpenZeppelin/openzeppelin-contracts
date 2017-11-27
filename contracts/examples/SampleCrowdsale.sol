@@ -40,6 +40,7 @@ contract SampleCrowdsale is CappedCrowdsale, RefundableCrowdsale {
     uint256 _cap,
     address _wallet
   )
+    public
     CappedCrowdsale(_cap)
     FinalizableCrowdsale()
     RefundableCrowdsale(_goal)
