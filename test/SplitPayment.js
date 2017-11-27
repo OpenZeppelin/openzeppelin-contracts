@@ -6,7 +6,7 @@ const should = require('chai')
   .should()
 
 const EVMThrow = require('./helpers/EVMThrow.js')
-const SplitPaymentMock = artifacts.require('./helpers/SplitPaymentMock.sol')
+const SplitPayment = artifacts.require('../contracts/payment/SplitPayment.sol')
 
 contract('SplitPayment', function ([owner, payee1, payee2, payee3, nonpayee1, payer1]) {
   const amount = web3.toWei(1.0, 'ether')
@@ -15,7 +15,7 @@ contract('SplitPayment', function ([owner, payee1, payee2, payee3, nonpayee1, pa
     this.payees = [payee1, payee2, payee3]
     this.shares = [20, 10, 70]
 
-    this.contract = await SplitPaymentMock.new(this.payees, this.shares)
+    this.contract = await SplitPayment.new(this.payees, this.shares)
   })
 
   it('should accept payments', async function () {
@@ -43,7 +43,7 @@ contract('SplitPayment', function ([owner, payee1, payee2, payee3, nonpayee1, pa
     await web3.eth.sendTransaction({from: payer1, to: this.contract.address, value: amount})
     await this.contract.claim({from: nonpayee1}).should.be.rejectedWith(EVMThrow)
   })
-  
+
   it('should distribute funds to payees', async function () {
     await web3.eth.sendTransaction({from: payer1, to: this.contract.address, value: amount})
 

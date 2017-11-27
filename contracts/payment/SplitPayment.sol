@@ -4,7 +4,7 @@ import '../math/SafeMath.sol';
 
 /**
  * @title SplitPayment
- * @dev Base contract that supports multiple payees claiming funds sent to this contract 
+ * @dev Base contract that supports multiple payees claiming funds sent to this contract
  * according to the proportion they own.
  */
 contract SplitPayment {
@@ -20,7 +20,7 @@ contract SplitPayment {
   /**
    * @dev Constructor
    */
-  function SplitPayment(address[] _payees, uint256[] _shares) public {
+  function SplitPayment(address[] _payees, uint256[] _shares) public payable {
     require(_payees.length == _shares.length);
 
     for (uint256 i = 0; i < _payees.length; i++) {
@@ -62,4 +62,9 @@ contract SplitPayment {
 
     payee.transfer(payment);
   }
+
+  /**
+   * @dev payable fallback
+   */
+  function () public payable {}
 }
