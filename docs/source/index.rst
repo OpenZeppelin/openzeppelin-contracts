@@ -25,18 +25,20 @@ The code is open-source, and `available on github <https://github.com/OpenZeppel
    :maxdepth: 2
    :caption: Smart Contracts
 
-   ownable
-   Pausable
-   destructible
-   claimable
-   migrations
-   safemath
-   limitbalance
-   pullpayment
    standardtoken
    basictoken
-   crowdsaletoken
+   safemath
+   math
+   ownable
+   pausable
+   claimable
+   migrations
+   limitbalance
+   pullpayment
    bounty
+   killable
+   merkleproof
+   ecrecovery
 
 .. toctree::
    :maxdepth: 2
