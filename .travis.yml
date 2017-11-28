@@ -9,7 +9,6 @@ cache:
     - node_modules
 before_script:
   - truffle version
-  - npm list
 script:
   - npm test
 notifications:
