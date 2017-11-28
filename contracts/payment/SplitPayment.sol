@@ -21,13 +21,18 @@ contract SplitPayment {
   /**
    * @dev Constructor
    */
-  function SplitPayment(address[] _payees, uint256[] _shares) public {
+  function SplitPayment(address[] _payees, uint256[] _shares) public payable {
     require(_payees.length == _shares.length);
 
     for (uint256 i = 0; i < _payees.length; i++) {
       addPayee(_payees[i], _shares[i]);
     }
   }
+  
+  /**
+   * @dev payable fallback
+   */
+  function () public payable {}
 
   /**
    * @dev Claim your share of the balance.
@@ -63,4 +68,5 @@ contract SplitPayment {
     shares[_payee] = _shares;
     totalShares = totalShares.add(_shares);
   }
+
 }
