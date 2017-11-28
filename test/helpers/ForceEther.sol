@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.18;
 
 // @title Force Ether into a contract.
 // @notice  even
@@ -7,9 +7,9 @@ pragma solidity ^0.4.11;
 // @author Remco Bloemen <remco@neufund.org>
 contract ForceEther  {
 
-  function ForceEther() payable { }
+  function ForceEther() public payable { }
 
-  function destroyAndSend(address _recipient) {
+  function destroyAndSend(address _recipient) public {
     selfdestruct(_recipient);
   }
 }

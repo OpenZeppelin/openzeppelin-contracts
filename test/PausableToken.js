@@ -1,6 +1,6 @@
 'user strict';
 
-const assertJump = require('./helpers/assertJump');
+const assertRevert = require('./helpers/assertRevert');
 var PausableTokenMock = artifacts.require('./helpers/PausableTokenMock.sol');
 
 contract('PausableToken', function(accounts) {
@@ -57,7 +57,7 @@ contract('PausableToken', function(accounts) {
       await token.transfer(accounts[1], 100);
       assert.fail('should have thrown before');
     } catch (error) {
-      assertJump(error);
+      assertRevert(error);
     }
   });
 
@@ -67,7 +67,7 @@ contract('PausableToken', function(accounts) {
       await token.transferFrom(accounts[0], accounts[1], 100);
       assert.fail('should have thrown before');
     } catch (error) {
-      assertJump(error);
+      assertRevert(error);
     }
   });
 })

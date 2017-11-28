@@ -1,11 +1,11 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.18;
 
 
 import {Bounty, Target} from "../../contracts/Bounty.sol";
 
 
 contract InsecureTargetMock is Target {
-  function checkInvariant() returns(bool){
+  function checkInvariant() public returns(bool){
     return false;
   }
 }

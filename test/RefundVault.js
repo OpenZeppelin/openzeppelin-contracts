@@ -6,7 +6,7 @@ require('chai')
   .should()
 
 import ether from './helpers/ether'
-import EVMThrow from './helpers/EVMThrow'
+import EVMRevert from './helpers/EVMRevert'
 
 const RefundVault = artifacts.require('RefundVault')
 
@@ -24,11 +24,11 @@ contract('RefundVault', function ([_, owner, wallet, investor]) {
 
   it('should not refund contribution during active state', async function () {
     await this.vault.deposit(investor, {value, from: owner})
-    await this.vault.refund(investor).should.be.rejectedWith(EVMThrow)
+    await this.vault.refund(investor).should.be.rejectedWith(EVMRevert)
   })
 
   it('only owner can enter refund mode', async function () {
-    await this.vault.enableRefunds({from: _}).should.be.rejectedWith(EVMThrow)
+    await this.vault.enableRefunds({from: _}).should.be.rejectedWith(EVMRevert)
     await this.vault.enableRefunds({from: owner}).should.be.fulfilled
   })
 
@@ -44,7 +44,7 @@ contract('RefundVault', function ([_, owner, wallet, investor]) {
   })
 
   it('only owner can close', async function () {
-    await this.vault.close({from: _}).should.be.rejectedWith(EVMThrow)
+    await this.vault.close({from: _}).should.be.rejectedWith(EVMRevert)
     await this.vault.close({from: owner}).should.be.fulfilled
   })
 
