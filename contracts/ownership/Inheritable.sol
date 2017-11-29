@@ -22,7 +22,7 @@ contract Inheritable is Ownable {
 
   event HeirChanged(address indexed owner, address indexed newHeir);
   event OwnerHeartbeated(address indexed owner);
-  event OwnerPronouncedDead(address indexed owner, address indexed heir, uint timeOfDeath);
+  event OwnerProclaimedDead(address indexed owner, address indexed heir, uint timeOfDeath);
   event Inherited(address indexed previousOwner, address indexed newOwner);
 
 
@@ -67,9 +67,9 @@ contract Inheritable is Ownable {
    * @dev Heir can pronounce the owners death. To inherit the ownership, they will
    * have to wait for `heartbeatTimeout` seconds.
    */
-  function pronounceDeath() public onlyHeir {
+  function proclaimDeath() public onlyHeir {
     require(ownerLives());
-    OwnerPronouncedDead(owner, heir, timeOfDeath);
+    OwnerProclaimedDead(owner, heir, timeOfDeath);
     timeOfDeath = now;
   }
 
