@@ -66,7 +66,7 @@ contract('Inheritable', function(accounts) {
 
     const heir = accounts[1]
     await inheritable.setHeir(heir, {from: owner})
-    await inheritable.pronounceDeath({from: heir})
+    await inheritable.proclaimDeath({from: heir})
 
     try {
       await inheritable.setHeartbeatTimeout(newTimeout, {from: owner})
@@ -88,7 +88,7 @@ contract('Inheritable', function(accounts) {
       assertJump(error)
     }
 
-    await inheritable.pronounceDeath({from: heir})
+    await inheritable.proclaimDeath({from: heir})
     await increaseTime(1)
     try {
       await inheritable.inherit({from: heir})
@@ -107,7 +107,7 @@ contract('Inheritable', function(accounts) {
     await inheritable.setHeir(heir, {from: owner})
     await inheritable.setHeartbeatTimeout(4141, {from: owner})
       
-    await inheritable.pronounceDeath({from: heir})
+    await inheritable.proclaimDeath({from: heir})
     await inheritable.heartbeat({from: owner})
     try {
       await inheritable.inherit({from: heir})
@@ -116,7 +116,7 @@ contract('Inheritable', function(accounts) {
       assertJump(error)
     }
 
-    await inheritable.pronounceDeath({from: heir})
+    await inheritable.proclaimDeath({from: heir})
     await increaseTime(4141)
     await inheritable.heartbeat({from: owner})
     try {
@@ -141,14 +141,14 @@ contract('Inheritable', function(accounts) {
 
     assert.isTrue(heartbeatEvent.args.owner === owner)
 
-    const pronounceDeathLogs = (await inheritable.pronounceDeath({from: heir})).logs
-    const ownerDeadEvent = pronounceDeathLogs.find(e => e.event === 'OwnerPronouncedDead')
+    const proclaimDeathLogs = (await inheritable.proclaimDeath({from: heir})).logs
+    const ownerDeadEvent = proclaimDeathLogs.find(e => e.event === 'OwnerProclaimedDead')
 
     assert.isTrue(ownerDeadEvent.args.owner === owner)
     assert.isTrue(ownerDeadEvent.args.heir === heir)
 
     const inheritLogs = (await inheritable.inherit({from: heir})).logs
-    const ownershipTransferredEvent = inheritLogs.find(e => e.event === 'OwnershipTransferred')
+    const ownershipTransferredEvent = inheritLogs.find(e => e.event === 'Inherited')
 
     assert.isTrue(ownershipTransferredEvent.args.previousOwner === owner)
     assert.isTrue(ownershipTransferredEvent.args.newOwner === heir)
