@@ -23,6 +23,7 @@ contract Inheritable is Ownable {
   event HeirChanged(address indexed owner, address indexed newHeir);
   event OwnerHeartbeated(address indexed owner);
   event OwnerPronouncedDead(address indexed owner, address indexed heir, uint timeOfDeath);
+  event Inherited(address indexed previousOwner, address indexed newOwner);
 
 
   /**
@@ -86,7 +87,7 @@ contract Inheritable is Ownable {
   function inherit() public onlyHeir {
     require(!ownerLives());
     require(now >= timeOfDeath + heartbeatTimeout);
-    OwnershipTransferred(owner, heir);
+    Inherited(owner, heir);
     owner = heir;
     timeOfDeath = 0;
   }
