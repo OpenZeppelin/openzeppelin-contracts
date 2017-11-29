@@ -7,8 +7,8 @@ import '../../contracts/crowdsale/RefundableCrowdsale.sol';
 contract RefundableCrowdsaleImpl is RefundableCrowdsale {
 
   function RefundableCrowdsaleImpl (
-    uint256 _startTime,
-    uint256 _endTime,
+    uint64 _startTime,
+    uint64 _endTime,
     uint256 _rate,
     address _wallet,
     uint256 _goal
