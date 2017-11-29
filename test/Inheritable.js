@@ -14,7 +14,7 @@ contract('Inheritable', function(accounts) {
   let owner
 
   beforeEach(async function() {
-    inheritable = await Inheritable.new()
+    inheritable = await Inheritable.new(4141)
     owner = await inheritable.owner()
   })
 
@@ -58,28 +58,9 @@ contract('Inheritable', function(accounts) {
     assert.isTrue(heir === NULL_ADDRESS)
   })
 
-  it('owner can set heartbeatTimeout only if they are alive', async function() {
-    const newTimeout = 41414141
-    await inheritable.setHeartbeatTimeout(newTimeout, {from: owner})
-
-    assert.isTrue((await inheritable.heartbeatTimeout()).equals(new web3.BigNumber(newTimeout)))
-
-    const heir = accounts[1]
-    await inheritable.setHeir(heir, {from: owner})
-    await inheritable.proclaimDeath({from: heir})
-
-    try {
-      await inheritable.setHeartbeatTimeout(newTimeout, {from: owner})
-      assert.fail('should have thrown before')
-    } catch(error) {
-      assertJump(error)
-    }
-  })
-
   it('heir can inherit only if owner is dead and timeout was reached', async function() {
     const heir = accounts[1]
     await inheritable.setHeir(heir, {from: owner})
-    await inheritable.setHeartbeatTimeout(4141, {from: owner})
 
     try {
       await inheritable.inherit({from: heir})
@@ -99,13 +80,11 @@ contract('Inheritable', function(accounts) {
 
     await increaseTime(4141)
     await inheritable.inherit({from: heir})
-
   })
 
   it('heir can\'t inherit if owner heartbeats', async function() {
     const heir = accounts[1]
     await inheritable.setHeir(heir, {from: owner})
-    await inheritable.setHeartbeatTimeout(4141, {from: owner})
       
     await inheritable.proclaimDeath({from: heir})
     await inheritable.heartbeat({from: owner})
@@ -147,6 +126,7 @@ contract('Inheritable', function(accounts) {
     assert.isTrue(ownerDeadEvent.args.owner === owner)
     assert.isTrue(ownerDeadEvent.args.heir === heir)
 
+    await increaseTime(4141)
     const inheritLogs = (await inheritable.inherit({from: heir})).logs
     const ownershipTransferredEvent = inheritLogs.find(e => e.event === 'Inherited')
 

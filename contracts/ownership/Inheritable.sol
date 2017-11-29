@@ -41,7 +41,7 @@ contract Inheritable is Ownable {
    * before the heir can take ownership.
    */
   function Inheritable(uint _heartbeatTimeout) public {
-    heartbeatTimeout = _heartbeatTimeout;
+    setHeartbeatTimeout(_heartbeatTimeout);
   }
 
   function setHeir(address newHeir) public onlyOwner {
@@ -56,11 +56,6 @@ contract Inheritable is Ownable {
   function removeHeir() public onlyOwner {
     heartbeat();
     heir = 0;
-  }
-
-  function setHeartbeatTimeout(uint newHeartbeatTimeout) public onlyOwner {
-    require(ownerLives());
-    heartbeatTimeout = newHeartbeatTimeout;
   }
 
   /**
@@ -90,6 +85,11 @@ contract Inheritable is Ownable {
     Inherited(owner, heir);
     owner = heir;
     timeOfDeath = 0;
+  }
+
+  function setHeartbeatTimeout(uint newHeartbeatTimeout) internal onlyOwner {
+    require(ownerLives());
+    heartbeatTimeout = newHeartbeatTimeout;
   }
 
   function ownerLives() internal constant returns (bool) {
