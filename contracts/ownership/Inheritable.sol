@@ -45,6 +45,7 @@ contract Inheritable is Ownable {
   }
 
   function setHeir(address newHeir) public onlyOwner {
+    require(newHeir != owner);
     heartbeat();
     HeirChanged(owner, newHeir);
     heir = newHeir;
