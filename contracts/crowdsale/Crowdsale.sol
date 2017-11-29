@@ -18,8 +18,8 @@ contract Crowdsale {
   MintableToken public token;
 
   // start and end timestamps where investments are allowed (both inclusive)
-  uint256 public startTime;
-  uint256 public endTime;
+  uint64 public startTime;
+  uint64 public endTime;
 
   // address where funds are collected
   address public wallet;
@@ -40,7 +40,7 @@ contract Crowdsale {
   event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
 
 
-  function Crowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet) public {
+  function Crowdsale(uint64 _startTime, uint64 _endTime, uint256 _rate, address _wallet) public {
     require(_startTime >= now);
     require(_endTime >= _startTime);
     require(_rate > 0);
