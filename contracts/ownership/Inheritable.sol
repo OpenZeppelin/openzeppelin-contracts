@@ -92,7 +92,7 @@ contract Inheritable is Ownable {
     timeOfDeath = 0;
   }
 
-  function ownerLives() internal returns (bool) {
+  function ownerLives() internal view returns (bool) {
     return timeOfDeath == 0;
   }
 }
