@@ -1,24 +1,25 @@
 pragma solidity ^0.4.11;
 
-import "../ownership/Inheritable.sol";
+import "../ownership/Heritable.sol";
 
 
 /**
  * @title SimpleSavingsWallet
- * @dev Simplest form of savings wallet that can be inherited if owner dies.
+ * @dev Simplest form of savings wallet whose ownership can be claimed by a heir
+ * if owner dies.
  * In this example, we take a very simple savings wallet providing two operations
- * (to send and receive funds) and extend its capabilities by making it Inheritable.
+ * (to send and receive funds) and extend its capabilities by making it Heritable.
  * The account that creates the contract is set as owner, who has the authority to
  * choose an heir account. Heir account can reclaim the contract ownership in the
  * case that the owner dies.
  */
-contract SimpleSavingsWallet is Inheritable {
+contract SimpleSavingsWallet is Heritable {
 
   event Sent(address payee, uint amount, uint balance);
   event Received(address payer, uint amount, uint balance);
 
 
-  function SimpleSavingsWallet(uint _heartbeatTimeout) Inheritable(_heartbeatTimeout) public {}
+  function SimpleSavingsWallet(uint _heartbeatTimeout) Heritable(_heartbeatTimeout) public {}
   
   /**
    * @dev wallet can receive funds.
