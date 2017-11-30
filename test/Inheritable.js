@@ -1,9 +1,6 @@
 'use strict'
-import { advanceBlock } from './helpers/advanceToBlock'
 import increaseTime from './helpers/increaseTime'
-import { increaseTimeTo, duration } from './helpers/increaseTime'
-import assertJump from './helpers/assertJump'
-
+import expectThrow from './helpers/expectThrow';
 
 const NULL_ADDRESS = '0x0000000000000000000000000000000000000000'
 
@@ -39,12 +36,7 @@ contract('Inheritable', function(accounts) {
     assert.isTrue(owner !== someRandomAddress)
 
     await inheritable.setHeir(newHeir, {from: owner})
-    try {
-      await inheritable.setHeir(newHeir, {from: someRandomAddress})
-      assert.fail('should have thrown before')
-    } catch(error) {
-      assertJump(error)
-    }
+    await expectThrow(inheritable.setHeir(newHeir, {from: someRandomAddress}))
   })
 
   it('owner can remove heir', async function() {
@@ -61,25 +53,15 @@ contract('Inheritable', function(accounts) {
   it('heir can inherit only if owner is dead and timeout was reached', async function() {
     const heir = accounts[1]
     await inheritable.setHeir(heir, {from: owner})
-
-    try {
-      await inheritable.inherit({from: heir})
-      assert.fail('should have thrown before')
-    } catch(error) {
-      assertJump(error)
-    }
+    await expectThrow(inheritable.inherit({from: heir}))
 
     await inheritable.proclaimDeath({from: heir})
     await increaseTime(1)
-    try {
-      await inheritable.inherit({from: heir})
-      assert.fail('should have thrown before')
-    } catch(error) {
-      assertJump(error)
-    }
+    await expectThrow(inheritable.inherit({from: heir}))
 
     await increaseTime(4141)
     await inheritable.inherit({from: heir})
+    assert.isTrue(await inheritable.heir() === heir)
   })
 
   it('heir can\'t inherit if owner heartbeats', async function() {
@@ -88,22 +70,12 @@ contract('Inheritable', function(accounts) {
       
     await inheritable.proclaimDeath({from: heir})
     await inheritable.heartbeat({from: owner})
-    try {
-      await inheritable.inherit({from: heir})
-      assert.fail('should have thrown before')
-    } catch(error) {
-      assertJump(error)
-    }
+    await expectThrow(inheritable.inherit({from: heir}))
 
     await inheritable.proclaimDeath({from: heir})
     await increaseTime(4141)
     await inheritable.heartbeat({from: owner})
-    try {
-      await inheritable.inherit({from: heir})
-      assert.fail('should have thrown before')
-    } catch(error) {
-      assertJump(error)
-    }
+    await expectThrow(inheritable.inherit({from: heir}))
   })
 
   it('should log events appropriately', async function() {
