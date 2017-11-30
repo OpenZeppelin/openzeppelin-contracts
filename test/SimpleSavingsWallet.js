@@ -1,5 +1,5 @@
 'use strict'
-import assertJump from './helpers/assertJump'
+import expectThrow from './helpers/expectThrow';
 
 const SimpleSavingsWallet = artifacts.require('../contracts/examples/SimpleSavingsWallet.sol')
 
@@ -24,29 +24,12 @@ contract('SimpleSavingsWallet', function(accounts) {
   it('owner can send funds', async function() {
   	// Receive payment so we have some money to spend.
 		await web3.eth.sendTransaction({from: accounts[9], to: savingsWallet.address, value: 1000000})
-    try {
-      await savingsWallet.sendTo(0, paymentAmount, {from: owner})
-      assert.fail('should have thrown before')
-    } catch(error) {
-      assertJump(error)
-    }
-    try {
-  		await savingsWallet.sendTo(savingsWallet.address, paymentAmount, {from: owner})
-      assert.fail('should have thrown before')
-    } catch(error) {
-      assertJump(error)
-    }
-    try {
-	  	await savingsWallet.sendTo(accounts[1], 0, {from: owner})
-      assert.fail('should have thrown before')
-    } catch(error) {
-      assertJump(error)
-    }
+    await expectThrow(savingsWallet.sendTo(0, paymentAmount, {from: owner}))
+    await expectThrow(savingsWallet.sendTo(savingsWallet.address, paymentAmount, {from: owner}))
+    await expectThrow(savingsWallet.sendTo(accounts[1], 0, {from: owner}))
 
     const balance = web3.eth.getBalance(accounts[1])
   	await savingsWallet.sendTo(accounts[1], paymentAmount, {from: owner})
-  	assert.isTrue(
-  		balance.plus(paymentAmount).equals(web3.eth.getBalance(accounts[1]))
-  	)
+  	assert.isTrue(balance.plus(paymentAmount).equals(web3.eth.getBalance(accounts[1])))
   })
 })
