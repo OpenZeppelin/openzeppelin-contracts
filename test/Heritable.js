@@ -67,7 +67,7 @@ contract('Heritable', function(accounts) {
   it('heir can\'t claim ownership if owner heartbeats', async function() {
     const heir = accounts[1]
     await heritable.setHeir(heir, {from: owner})
-      
+
     await heritable.proclaimDeath({from: heir})
     await heritable.heartbeat({from: owner})
     await expectThrow(heritable.claimHeirOwnership({from: heir}))
@@ -101,9 +101,12 @@ contract('Heritable', function(accounts) {
     await increaseTime(4141)
     const claimHeirOwnershipLogs = (await heritable.claimHeirOwnership({from: heir})).logs
     const ownershipTransferredEvent = claimHeirOwnershipLogs.find(e => e.event === 'OwnershipTransferred')
+    const heirOwnershipClaimedEvent = claimHeirOwnershipLogs.find(e => e.event === 'HeirOwnershipClaimed')
 
     assert.isTrue(ownershipTransferredEvent.args.previousOwner === owner)
     assert.isTrue(ownershipTransferredEvent.args.newOwner === heir)
+    assert.isTrue(heirOwnershipClaimedEvent.args.previousOwner === owner)
+    assert.isTrue(heirOwnershipClaimedEvent.args.newOwner === heir)
 
   })
 })
