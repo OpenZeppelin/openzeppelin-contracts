@@ -128,7 +128,7 @@ contract('Inheritable', function(accounts) {
 
     await increaseTime(4141)
     const inheritLogs = (await inheritable.inherit({from: heir})).logs
-    const ownershipTransferredEvent = inheritLogs.find(e => e.event === 'Inherited')
+    const ownershipTransferredEvent = inheritLogs.find(e => e.event === 'OwnershipTransferred')
 
     assert.isTrue(ownershipTransferredEvent.args.previousOwner === owner)
     assert.isTrue(ownershipTransferredEvent.args.newOwner === heir)
