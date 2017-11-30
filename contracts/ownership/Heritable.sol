@@ -5,12 +5,12 @@ import './Ownable.sol';
 
 
 /**
- * @title Inheritable
- * @dev The Inheritable contract provides ownership transfer capabilities, in the
+ * @title Heritable
+ * @dev The Heritable contract provides ownership transfer capabilities, in the
  * case that the current owner stops "heartbeating". Only the heir can pronounce the
  * owner's death.
  */
-contract Inheritable is Ownable {
+contract Heritable is Ownable {
   address public heir;
 
   // Time window the owner has to notify they are alive.
@@ -35,11 +35,11 @@ contract Inheritable is Ownable {
 
 
   /**
-   * @notice Create a new Inheritable Contract with heir address 0x0.
+   * @notice Create a new Heritable Contract with heir address 0x0.
    * @param _heartbeatTimeout time available for the owner to notify they are alive,
    * before the heir can take ownership.
    */
-  function Inheritable(uint _heartbeatTimeout) public {
+  function Heritable(uint _heartbeatTimeout) public {
     setHeartbeatTimeout(_heartbeatTimeout);
   }
 
@@ -59,7 +59,7 @@ contract Inheritable is Ownable {
   }
 
   /**
-   * @dev Heir can pronounce the owners death. To inherit the ownership, they will
+   * @dev Heir can pronounce the owners death. To claim the ownership, they will
    * have to wait for `heartbeatTimeout` seconds.
    */
   function proclaimDeath() public onlyHeir {
@@ -79,7 +79,7 @@ contract Inheritable is Ownable {
   /**
    * @dev Allows heir to transfer ownership only if heartbeat has timed out.
    */
-  function inherit() public onlyHeir {
+  function claimHeirOwnership() public onlyHeir {
     require(!ownerLives());
     require(now >= timeOfDeath + heartbeatTimeout);
     OwnershipTransferred(owner, heir);

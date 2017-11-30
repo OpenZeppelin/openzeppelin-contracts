@@ -4,19 +4,19 @@ import expectThrow from './helpers/expectThrow';
 
 const NULL_ADDRESS = '0x0000000000000000000000000000000000000000'
 
-const Inheritable = artifacts.require('../contracts/ownership/Inheritable.sol')
+const Heritable = artifacts.require('../contracts/ownership/Heritable.sol')
 
-contract('Inheritable', function(accounts) {
-  let inheritable
+contract('Heritable', function(accounts) {
+  let heritable
   let owner
 
   beforeEach(async function() {
-    inheritable = await Inheritable.new(4141)
-    owner = await inheritable.owner()
+    heritable = await Heritable.new(4141)
+    owner = await heritable.owner()
   })
 
   it('should start off with an owner, but without heir', async function() {
-    const heir = await inheritable.heir()
+    const heir = await heritable.heir()
 
     assert.equal(typeof(owner), 'string')
     assert.equal(typeof(heir), 'string')
@@ -35,72 +35,72 @@ contract('Inheritable', function(accounts) {
     const someRandomAddress = accounts[2]
     assert.isTrue(owner !== someRandomAddress)
 
-    await inheritable.setHeir(newHeir, {from: owner})
-    await expectThrow(inheritable.setHeir(newHeir, {from: someRandomAddress}))
+    await heritable.setHeir(newHeir, {from: owner})
+    await expectThrow(heritable.setHeir(newHeir, {from: someRandomAddress}))
   })
 
   it('owner can remove heir', async function() {
     const newHeir = accounts[1]
-    await inheritable.setHeir(newHeir, {from: owner})
-    let heir = await inheritable.heir()
+    await heritable.setHeir(newHeir, {from: owner})
+    let heir = await heritable.heir()
 
     assert.notStrictEqual(heir, NULL_ADDRESS)
-    await inheritable.removeHeir()
-    heir = await inheritable.heir()
+    await heritable.removeHeir()
+    heir = await heritable.heir()
     assert.isTrue(heir === NULL_ADDRESS)
   })
 
-  it('heir can inherit only if owner is dead and timeout was reached', async function() {
+  it('heir can claim ownership only if owner is dead and timeout was reached', async function() {
     const heir = accounts[1]
-    await inheritable.setHeir(heir, {from: owner})
-    await expectThrow(inheritable.inherit({from: heir}))
+    await heritable.setHeir(heir, {from: owner})
+    await expectThrow(heritable.claimHeirOwnership({from: heir}))
 
-    await inheritable.proclaimDeath({from: heir})
+    await heritable.proclaimDeath({from: heir})
     await increaseTime(1)
-    await expectThrow(inheritable.inherit({from: heir}))
+    await expectThrow(heritable.claimHeirOwnership({from: heir}))
 
     await increaseTime(4141)
-    await inheritable.inherit({from: heir})
-    assert.isTrue(await inheritable.heir() === heir)
+    await heritable.claimHeirOwnership({from: heir})
+    assert.isTrue(await heritable.heir() === heir)
   })
 
-  it('heir can\'t inherit if owner heartbeats', async function() {
+  it('heir can\'t claim ownership if owner heartbeats', async function() {
     const heir = accounts[1]
-    await inheritable.setHeir(heir, {from: owner})
+    await heritable.setHeir(heir, {from: owner})
       
-    await inheritable.proclaimDeath({from: heir})
-    await inheritable.heartbeat({from: owner})
-    await expectThrow(inheritable.inherit({from: heir}))
+    await heritable.proclaimDeath({from: heir})
+    await heritable.heartbeat({from: owner})
+    await expectThrow(heritable.claimHeirOwnership({from: heir}))
 
-    await inheritable.proclaimDeath({from: heir})
+    await heritable.proclaimDeath({from: heir})
     await increaseTime(4141)
-    await inheritable.heartbeat({from: owner})
-    await expectThrow(inheritable.inherit({from: heir}))
+    await heritable.heartbeat({from: owner})
+    await expectThrow(heritable.claimHeirOwnership({from: heir}))
   })
 
   it('should log events appropriately', async function() {
     const heir = accounts[1]
 
-    const setHeirLogs = (await inheritable.setHeir(heir, {from: owner})).logs
+    const setHeirLogs = (await heritable.setHeir(heir, {from: owner})).logs
     const setHeirEvent = setHeirLogs.find(e => e.event === 'HeirChanged')
 
     assert.isTrue(setHeirEvent.args.owner === owner)
     assert.isTrue(setHeirEvent.args.newHeir === heir)
 
-    const heartbeatLogs = (await inheritable.heartbeat({from: owner})).logs
+    const heartbeatLogs = (await heritable.heartbeat({from: owner})).logs
     const heartbeatEvent = heartbeatLogs.find(e => e.event === 'OwnerHeartbeated')
 
     assert.isTrue(heartbeatEvent.args.owner === owner)
 
-    const proclaimDeathLogs = (await inheritable.proclaimDeath({from: heir})).logs
+    const proclaimDeathLogs = (await heritable.proclaimDeath({from: heir})).logs
     const ownerDeadEvent = proclaimDeathLogs.find(e => e.event === 'OwnerProclaimedDead')
 
     assert.isTrue(ownerDeadEvent.args.owner === owner)
     assert.isTrue(ownerDeadEvent.args.heir === heir)
 
     await increaseTime(4141)
-    const inheritLogs = (await inheritable.inherit({from: heir})).logs
-    const ownershipTransferredEvent = inheritLogs.find(e => e.event === 'OwnershipTransferred')
+    const claimHeirOwnershipLogs = (await heritable.claimHeirOwnership({from: heir})).logs
+    const ownershipTransferredEvent = claimHeirOwnershipLogs.find(e => e.event === 'OwnershipTransferred')
 
     assert.isTrue(ownershipTransferredEvent.args.previousOwner === owner)
     assert.isTrue(ownershipTransferredEvent.args.newOwner === heir)
