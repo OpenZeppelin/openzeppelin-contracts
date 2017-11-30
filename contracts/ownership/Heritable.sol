@@ -92,7 +92,7 @@ contract Heritable is Ownable {
     heartbeatTimeout = newHeartbeatTimeout;
   }
 
-  function ownerLives() internal constant returns (bool) {
+  function ownerLives() internal view returns (bool) {
     return timeOfDeath == 0;
   }
 }
