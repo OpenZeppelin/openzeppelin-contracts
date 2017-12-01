@@ -10,39 +10,39 @@ contract('RBAC', function(accounts) {
   let mock
 
   const [
-    owner,
+    admin,
     anyone,
     ...advisors
   ] = accounts
 
   before(async () => {
-    mock = await RBACMock.new(advisors, { from: owner })
+    mock = await RBACMock.new(advisors, { from: admin })
   })
 
   context('in normal conditions', () => {
-    it('allows owner to call #onlyOwnersCanDoThis', async () => {
-      await mock.onlyOwnersCanDoThis({ from: owner })
+    it('allows admin to call #onlyAdminsCanDoThis', async () => {
+      await mock.onlyAdminsCanDoThis({ from: admin })
         .should.be.fulfilled
     })
-    it('allows owner to call #onlyAdvisorsCanDoThis', async () => {
-      await mock.onlyAdvisorsCanDoThis({ from: owner })
+    it('allows admin to call #onlyAdvisorsCanDoThis', async () => {
+      await mock.onlyAdvisorsCanDoThis({ from: admin })
         .should.be.fulfilled
     })
     it('allows advisors to call #onlyAdvisorsCanDoThis', async () => {
       await mock.onlyAdvisorsCanDoThis({ from: advisors[0] })
         .should.be.fulfilled
     })
-    it('allows owner to call #eitherOwnerOrAdvisorCanDoThis', async () => {
-      await mock.eitherOwnerOrAdvisorCanDoThis({ from: owner })
+    it('allows admin to call #eitherAdminOrAdvisorCanDoThis', async () => {
+      await mock.eitherAdminOrAdvisorCanDoThis({ from: admin })
         .should.be.fulfilled
     })
-    it('allows advisors to call #eitherOwnerOrAdvisorCanDoThis', async () => {
-      await mock.eitherOwnerOrAdvisorCanDoThis({ from: advisors[0] })
+    it('allows advisors to call #eitherAdminOrAdvisorCanDoThis', async () => {
+      await mock.eitherAdminOrAdvisorCanDoThis({ from: advisors[0] })
         .should.be.fulfilled
     })
-    it('does not allow owners to call #nobodyCanDoThis', async () => {
+    it('does not allow admins to call #nobodyCanDoThis', async () => {
       expectThrow(
-        mock.nobodyCanDoThis({ from: owner })
+        mock.nobodyCanDoThis({ from: admin })
       )
     })
     it('does not allow advisors to call #nobodyCanDoThis', async () => {
@@ -55,8 +55,12 @@ contract('RBAC', function(accounts) {
         mock.nobodyCanDoThis({ from: anyone })
       )
     })
-    it('allows an owner to remove an advisor\'s role', async () => {
-      await mock.removeAdvisor(advisors[0], { from: owner })
+    it('allows an admin to remove an advisor\'s role', async () => {
+      await mock.removeAdvisor(advisors[0], { from: admin })
+        .should.be.fulfilled
+    })
+    it('allows admins to #adminRemoveRole', async () => {
+      await mock.adminRemoveRole(advisors[3], 'advisor', { from: admin })
         .should.be.fulfilled
     })
   })

@@ -17,6 +17,23 @@ contract RBAC {
 
     mapping (string => Roles.Role) internal roles;
 
+    event LogRoleAdded(address addr, string roleName);
+    event LogRoleRemoved(address addr, string roleName);
+
+    /**
+     * A constant role name for indicating admins.
+     */
+    string public constant ROLE_ADMIN = "admin";
+
+    /**
+     * @dev constructor. Sets msg.sender as admin by default
+     */
+    function RBAC()
+        public
+    {
+        addRole(msg.sender, ROLE_ADMIN);
+    }
+
     /**
      * @dev add a role to an address
      * @param addr address
@@ -26,6 +43,7 @@ contract RBAC {
         internal
     {
         roles[roleName].add(addr);
+        LogRoleAdded(addr, roleName);
     }
 
     /**
@@ -37,6 +55,7 @@ contract RBAC {
         internal
     {
         roles[roleName].remove(addr);
+        LogRoleRemoved(addr, roleName);
     }
 
     /**
@@ -47,7 +66,7 @@ contract RBAC {
      */
     function checkRole(address addr, string roleName)
         view
-        internal
+        public
     {
         roles[roleName].check(addr);
     }
@@ -60,11 +79,36 @@ contract RBAC {
      */
     function hasRole(address addr, string roleName)
         view
-        internal
+        public
         returns (bool)
     {
         return roles[roleName].has(addr);
     }
+
+    /**
+     * @dev add a role to an address
+     * @param addr address
+     * @param roleName the name of the role
+     */
+    function adminAddRole(address addr, string roleName)
+        onlyAdmin
+        public
+    {
+        addRole(addr, roleName);
+    }
+
+    /**
+     * @dev remove a role from an address
+     * @param addr address
+     * @param roleName the name of the role
+     */
+    function adminRemoveRole(address addr, string roleName)
+        onlyAdmin
+        public
+    {
+        removeRole(addr, roleName);
+    }
+
 
     /**
      * @dev modifier to scope access to a single role (uses msg.sender as addr)
@@ -78,11 +122,21 @@ contract RBAC {
     }
 
     /**
+     * @dev modifier to scope access to admins
+     * // reverts
+     */
+    modifier onlyAdmin()
+    {
+        checkRole(msg.sender, ROLE_ADMIN);
+        _;
+    }
+
+    /**
      * @dev modifier to scope access to a set of roles (uses msg.sender as addr)
      * @param roleNames the names of the roles to scope access to
      * // reverts
      *
-     * @TODO - when solidity supports dynamic arrays as arguments, provide this
+     * @TODO - when solidity supports dynamic arrays as arguments to modifiers, provide this
      *  see: https://github.com/ethereum/solidity/issues/2467
      */
     // modifier onlyRoles(string[] roleNames) {

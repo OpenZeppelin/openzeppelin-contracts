@@ -5,10 +5,10 @@ import '../../contracts/ownership/rbac/RBAC.sol';
 
 contract RBACMock is RBAC {
 
-    modifier onlyOwnerOrAdvisor()
+    modifier onlyAdminOrAdvisor()
     {
         require(
-            hasRole(msg.sender, "owner") ||
+            hasRole(msg.sender, "admin") ||
             hasRole(msg.sender, "advisor")
         );
         _;
@@ -17,7 +17,7 @@ contract RBACMock is RBAC {
     function RBACMock(address[] _advisors)
         public
     {
-        addRole(msg.sender, "owner");
+        addRole(msg.sender, "admin");
         addRole(msg.sender, "advisor");
 
         for (uint256 i = 0; i < _advisors.length; i++) {
@@ -25,8 +25,8 @@ contract RBACMock is RBAC {
         }
     }
 
-    function onlyOwnersCanDoThis()
-        onlyRole("owner")
+    function onlyAdminsCanDoThis()
+        onlyRole("admin")
         view
         external
     {
@@ -39,8 +39,8 @@ contract RBACMock is RBAC {
     {
     }
 
-    function eitherOwnerOrAdvisorCanDoThis()
-        onlyOwnerOrAdvisor
+    function eitherAdminOrAdvisorCanDoThis()
+        onlyAdminOrAdvisor
         view
         external
     {
@@ -53,9 +53,9 @@ contract RBACMock is RBAC {
     {
     }
 
-    // owners can remove advisor's role
+    // admins can remove advisor's role
     function removeAdvisor(address _addr)
-        onlyRole("owner")
+        onlyAdmin
         public
     {
         // revert if the user isn't an advisor
