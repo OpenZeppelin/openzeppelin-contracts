@@ -15,7 +15,7 @@ import './Roles.sol';
 contract RBAC {
     using Roles for Roles.Role;
 
-    mapping (string => Roles.Role) internal roles;
+    mapping (string => Roles.Role) private roles;
 
     event LogRoleAdded(address addr, string roleName);
     event LogRoleRemoved(address addr, string roleName);
