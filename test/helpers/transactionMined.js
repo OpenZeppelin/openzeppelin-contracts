@@ -1,10 +1,9 @@
-'use strict';
 
-//from https://gist.github.com/xavierlepretre/88682e871f4ad07be4534ae560692ee6
+// from https://gist.github.com/xavierlepretre/88682e871f4ad07be4534ae560692ee6
 module.export = web3.eth.transactionMined = function (txnHash, interval) {
   var transactionReceiptAsync;
-  interval = interval ? interval : 500;
-  transactionReceiptAsync = function(txnHash, resolve, reject) {
+  interval = interval || 500;
+  transactionReceiptAsync = function (txnHash, resolve, reject) {
     try {
       var receipt = web3.eth.getTransactionReceipt(txnHash);
       if (receipt === null) {
@@ -14,7 +13,7 @@ module.export = web3.eth.transactionMined = function (txnHash, interval) {
       } else {
         resolve(receipt);
       }
-    } catch(e) {
+    } catch (e) {
       reject(e);
     }
   };

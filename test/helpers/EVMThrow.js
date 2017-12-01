@@ -1,1 +1,1 @@
-export default 'invalid opcode'
+export default 'invalid opcode';
