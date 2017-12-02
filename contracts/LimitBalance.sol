@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.18;
 
 
 /**
@@ -15,7 +15,7 @@ contract LimitBalance {
    * @dev Constructor that sets the passed value as a limit.
    * @param _limit uint256 to represent the limit.
    */
-  function LimitBalance(uint256 _limit) {
+  function LimitBalance(uint256 _limit) public {
     limit = _limit;
   }
 
