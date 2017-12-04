@@ -11,14 +11,16 @@ import './Roles.sol';
  *      See //contracts/examples/RBACExample.sol for an example of usage.
  * This RBAC method uses strings to key roles. It may be beneficial
  *  for you to write your own implementation of this interface using Enums or similar.
+ * It's also recommended that you define constants in the contract, like ROLE_ADMIN below,
+ *  to avoid typos.
  */
 contract RBAC {
     using Roles for Roles.Role;
 
     mapping (string => Roles.Role) private roles;
 
-    event LogRoleAdded(address addr, string roleName);
-    event LogRoleRemoved(address addr, string roleName);
+    event RoleAdded(address addr, string roleName);
+    event RoleRemoved(address addr, string roleName);
 
     /**
      * A constant role name for indicating admins.
@@ -43,7 +45,7 @@ contract RBAC {
         internal
     {
         roles[roleName].add(addr);
-        LogRoleAdded(addr, roleName);
+        RoleAdded(addr, roleName);
     }
 
     /**
@@ -55,7 +57,7 @@ contract RBAC {
         internal
     {
         roles[roleName].remove(addr);
-        LogRoleRemoved(addr, roleName);
+        RoleRemoved(addr, roleName);
     }
 
     /**

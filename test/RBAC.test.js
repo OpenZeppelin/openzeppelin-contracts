@@ -1,10 +1,13 @@
-const RBACMock = artifacts.require('./helpers/RBACMock.sol')
+const RBACMock = artifacts.require('./mocks/RBACMock.sol')
 
 import expectThrow from './helpers/expectThrow'
+import expectEvent from './helpers/expectEvent'
 
 require('chai')
   .use(require('chai-as-promised'))
   .should()
+
+const ROLE_ADVISOR = 'advisor';
 
 contract('RBAC', function(accounts) {
   let mock
@@ -12,6 +15,7 @@ contract('RBAC', function(accounts) {
   const [
     admin,
     anyone,
+    futureAdvisor,
     ...advisors
   ] = accounts
 
@@ -60,8 +64,22 @@ contract('RBAC', function(accounts) {
         .should.be.fulfilled
     })
     it('allows admins to #adminRemoveRole', async () => {
-      await mock.adminRemoveRole(advisors[3], 'advisor', { from: admin })
+      await mock.adminRemoveRole(advisors[3], ROLE_ADVISOR, { from: admin })
         .should.be.fulfilled
+    })
+
+    it('announces a RoleAdded event on addRole', async () => {
+      expectEvent.inTransaction(
+        mock.adminAddRole(futureAdvisor, ROLE_ADVISOR, { from: admin }),
+        'RoleAdded'
+      )
+    })
+
+    it('announces a RoleRemoved event on removeRole', async () => {
+      expectEvent.inTransaction(
+        mock.adminRemoveRole(futureAdvisor, ROLE_ADVISOR, { from: admin }),
+        'RoleRemoved'
+      )
     })
   })
 

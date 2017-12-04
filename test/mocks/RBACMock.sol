@@ -5,11 +5,13 @@ import '../../contracts/ownership/rbac/RBAC.sol';
 
 contract RBACMock is RBAC {
 
+    string constant ROLE_ADVISOR = "advisor";
+
     modifier onlyAdminOrAdvisor()
     {
         require(
-            hasRole(msg.sender, "admin") ||
-            hasRole(msg.sender, "advisor")
+            hasRole(msg.sender, ROLE_ADMIN) ||
+            hasRole(msg.sender, ROLE_ADVISOR)
         );
         _;
     }
@@ -17,23 +19,22 @@ contract RBACMock is RBAC {
     function RBACMock(address[] _advisors)
         public
     {
-        addRole(msg.sender, "admin");
-        addRole(msg.sender, "advisor");
+        addRole(msg.sender, ROLE_ADVISOR);
 
         for (uint256 i = 0; i < _advisors.length; i++) {
-            addRole(_advisors[i], "advisor");
+            addRole(_advisors[i], ROLE_ADVISOR);
         }
     }
 
     function onlyAdminsCanDoThis()
-        onlyRole("admin")
+        onlyAdmin
         view
         external
     {
     }
 
     function onlyAdvisorsCanDoThis()
-        onlyRole("advisor")
+        onlyRole(ROLE_ADVISOR)
         view
         external
     {
@@ -60,9 +61,9 @@ contract RBACMock is RBAC {
     {
         // revert if the user isn't an advisor
         //  (perhaps you want to soft-fail here instead?)
-        checkRole(_addr, "advisor");
+        checkRole(_addr, ROLE_ADVISOR);
 
         // remove the advisor's role
-        removeRole(_addr, "advisor");
+        removeRole(_addr, ROLE_ADVISOR);
     }
 }
