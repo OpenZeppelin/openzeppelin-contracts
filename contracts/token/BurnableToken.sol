@@ -1,12 +1,12 @@
 pragma solidity ^0.4.18;
 
-import './StandardToken.sol';
+import './BasicToken.sol';
 
 /**
  * @title Burnable Token
  * @dev Token that can be irreversibly burned (destroyed).
  */
-contract BurnableToken is StandardToken {
+contract BurnableToken is BasicToken {
 
     event Burn(address indexed burner, uint256 value);
 
