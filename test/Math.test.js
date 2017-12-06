@@ -22,5 +22,4 @@ contract('Math', function (accounts) {
     let result = await math.result();
     assert.equal(result, b);
   });
-
 });
