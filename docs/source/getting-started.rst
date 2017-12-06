@@ -12,10 +12,6 @@ To install the OpenZeppelin library, run::
 	npm init # follow instructions
 	npm install zeppelin-solidity
 
-	# If you are using yarn, add dependency like this -
-	yarn add zeppelin-solidity
-
-
 After that, you'll get all the library's contracts in the `node_modules/zeppelin-solidity/contracts` folder. You can use the contracts in the library like so::
 
 	import "zeppelin-solidity/contracts/ownership/Ownable.sol";
