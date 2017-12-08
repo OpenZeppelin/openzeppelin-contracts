@@ -1,7 +1,7 @@
 
 import expectThrow from './helpers/expectThrow';
-const ReentrancyMock = artifacts.require('./helper/ReentrancyMock.sol');
-const ReentrancyAttack = artifacts.require('./helper/ReentrancyAttack.sol');
+const ReentrancyMock = artifacts.require('./mocks/ReentrancyMock.sol');
+const ReentrancyAttack = artifacts.require('./mocks/ReentrancyAttack.sol');
 
 contract('ReentrancyGuard', function (accounts) {
   let reentrancyMock;
