@@ -43,12 +43,12 @@ contract('Basic223Token', function(accounts) {
     }
   });
 
-  it("should throw an error when trying to transfer less than 0", async function() {
+  it('should throw an error when trying to transfer less than 0', async function() {
     let token = await Basic223TokenMock.new(accounts[0], 100);  
     await expectThrow(token.transfer(accounts[1], -2));
   });
 
-  it("should throw an error when trying to transfer without any tokens", async function() {
+  it('should throw an error when trying to transfer without any tokens', async function() {
     let token = await Basic223TokenMock.new(accounts[0], 0);
     await expectThrow(token.transfer(accounts[1], 100));
   });
