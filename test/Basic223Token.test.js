@@ -1,7 +1,6 @@
 import expectThrow from './helpers/expectThrow';
 
 const assertRevert = require('./helpers/assertRevert');
-const assertJump = require('./helpers/assertJump');
 
 var Basic223TokenMock = artifacts.require("./helpers/Basic223TokenMock.sol");
 
