@@ -1,5 +1,3 @@
-'use strict';
-
 import expectThrow from './helpers/expectThrow';
 
 const assertRevert = require('./helpers/assertRevert');
