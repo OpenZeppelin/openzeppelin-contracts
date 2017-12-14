@@ -2,7 +2,7 @@ import expectThrow from './helpers/expectThrow';
 
 const assertRevert = require('./helpers/assertRevert');
 
-var Basic223TokenMock = artifacts.require("./helpers/Basic223TokenMock.sol");
+var Basic223TokenMock = artifacts.require('./helpers/Basic223TokenMock.sol');
 
 contract('Basic223Token', function(accounts) {
   it('should return the correct totalSupply after construction', async function () {
