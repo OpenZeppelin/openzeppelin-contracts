@@ -1,7 +1,7 @@
 pragma solidity ^0.4.18;
 
 
-import '../../contracts/crowdsale/FinalizableCrowdsale.sol';
+import '../crowdsale/FinalizableCrowdsale.sol';
 
 
 contract FinalizableCrowdsaleImpl is FinalizableCrowdsale {

@@ -11,7 +11,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const CappedCrowdsale = artifacts.require('./mocks/CappedCrowdsaleImpl.sol');
+const CappedCrowdsale = artifacts.require('mocks/CappedCrowdsaleImpl.sol');
 const MintableToken = artifacts.require('MintableToken');
 
 contract('CappedCrowdsale', function ([_, wallet]) {

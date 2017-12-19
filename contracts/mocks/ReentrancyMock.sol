@@ -1,6 +1,6 @@
 pragma solidity ^0.4.18;
 
-import '../../contracts/ReentrancyGuard.sol';
+import '../ReentrancyGuard.sol';
 import './ReentrancyAttack.sol';
 
 contract ReentrancyMock is ReentrancyGuard {

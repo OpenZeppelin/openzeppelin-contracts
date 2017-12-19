@@ -5,7 +5,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const DetailedERC20Mock = artifacts.require('./mocks/DetailedERC20Mock.sol');
+const DetailedERC20Mock = artifacts.require('mocks/DetailedERC20Mock.sol');
 
 contract('DetailedERC20', accounts => {
   let detailedERC20 = null;

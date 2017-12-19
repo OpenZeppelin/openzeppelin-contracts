@@ -11,7 +11,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const RefundableCrowdsale = artifacts.require('./mocks/RefundableCrowdsaleImpl.sol');
+const RefundableCrowdsale = artifacts.require('mocks/RefundableCrowdsaleImpl.sol');
 
 contract('RefundableCrowdsale', function ([_, owner, wallet, investor]) {
   const rate = new BigNumber(1000);
