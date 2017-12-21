@@ -65,6 +65,10 @@ contract Crowdsale {
     buyTokens(msg.sender);
   }
 
+  function getRate() internal constant returns(uint256) {
+    return rate;
+  }
+
   // low level token purchase function
   function buyTokens(address beneficiary) public payable {
     require(beneficiary != address(0));
@@ -73,7 +77,8 @@ contract Crowdsale {
     uint256 weiAmount = msg.value;
 
     // calculate token amount to be created
-    uint256 tokens = weiAmount.mul(rate);
+    uint256 _rate = getRate();
+    uint256 tokens = weiAmount.mul(_rate);
 
     // update state
     weiRaised = weiRaised.add(weiAmount);
