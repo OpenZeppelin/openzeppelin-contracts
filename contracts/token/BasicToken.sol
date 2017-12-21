@@ -1,8 +1,7 @@
 pragma solidity ^0.4.18;
 
-
-import './ERC20Basic.sol';
-import '../math/SafeMath.sol';
+import "./ERC20Basic.sol";
+import "../math/SafeMath.sol";
 
 
 /**
@@ -12,7 +11,7 @@ import '../math/SafeMath.sol';
 contract BasicToken is ERC20Basic {
   using SafeMath for uint256;
 
-  mapping(address => uint256) balances;
+  mapping(address => uint256) public balances;
 
   /**
   * @dev transfer token for a specified address

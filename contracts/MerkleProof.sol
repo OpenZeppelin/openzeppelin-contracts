@@ -1,5 +1,6 @@
 pragma solidity ^0.4.18;
 
+
 /*
  * @title MerkleProof
  * @dev Merkle proof verification
@@ -13,6 +14,7 @@ library MerkleProof {
    * @param _root Merkle root
    * @param _leaf Leaf of Merkle tree
    */
+
   function verifyProof(bytes _proof, bytes32 _root, bytes32 _leaf) public pure returns (bool) {
     // Check if proof length is a multiple of 32
     if (_proof.length % 32 != 0) return false;

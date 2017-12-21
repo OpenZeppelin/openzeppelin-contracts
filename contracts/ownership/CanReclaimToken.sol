@@ -4,10 +4,12 @@ import "./Ownable.sol";
 import "../token/ERC20Basic.sol";
 import "../token/SafeERC20.sol";
 
+
 /**
  * @title Contracts that should be able to recover tokens
  * @author SylTi
- * @dev This allow a contract to recover any ERC20 token received in a contract by transferring the balance to the contract owner.
+ * @dev This allow a contract to recover any ERC20 token received in a contract
+ * by transferring the balance to the contract owner.
  * This will prevent any accidental loss of tokens.
  */
 contract CanReclaimToken is Ownable {

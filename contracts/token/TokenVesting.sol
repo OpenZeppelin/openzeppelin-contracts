@@ -1,9 +1,10 @@
 pragma solidity ^0.4.18;
 
-import './ERC20Basic.sol';
-import './SafeERC20.sol';
-import '../ownership/Ownable.sol';
-import '../math/SafeMath.sol';
+import "./ERC20Basic.sol";
+import "./SafeERC20.sol";
+import "../ownership/Ownable.sol";
+import "../math/SafeMath.sol";
+
 
 /**
  * @title TokenVesting
@@ -39,7 +40,15 @@ contract TokenVesting is Ownable {
    * @param _duration duration in seconds of the period in which the tokens will vest
    * @param _revocable whether the vesting is revocable or not
    */
-  function TokenVesting(address _beneficiary, uint256 _start, uint256 _cliff, uint256 _duration, bool _revocable) public {
+  function TokenVesting(
+    address _beneficiary,
+    uint256 _start,
+    uint256 _cliff,
+    uint256 _duration,
+    bool _revocable
+  )
+    public
+  {
     require(_beneficiary != address(0));
     require(_cliff <= _duration);
 
