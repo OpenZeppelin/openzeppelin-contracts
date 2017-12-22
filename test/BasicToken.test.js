@@ -1,6 +1,6 @@
 const assertRevert = require('./helpers/assertRevert');
 
-var BasicTokenMock = artifacts.require('./mocks/BasicTokenMock.sol');
+var BasicTokenMock = artifacts.require('mocks/BasicTokenMock.sol');
 
 contract('BasicToken', function (accounts) {
   it('should return the correct totalSupply after construction', async function () {

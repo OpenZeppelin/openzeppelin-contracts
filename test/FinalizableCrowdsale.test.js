@@ -10,7 +10,7 @@ const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const FinalizableCrowdsale = artifacts.require('./mocks/FinalizableCrowdsaleImpl.sol');
+const FinalizableCrowdsale = artifacts.require('mocks/FinalizableCrowdsaleImpl.sol');
 const MintableToken = artifacts.require('MintableToken');
 
 contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
