@@ -2,7 +2,7 @@
 import latestTime from './helpers/latestTime';
 import { increaseTimeTo, duration } from './helpers/increaseTime';
 
-const assertRevert = require('./helpers/assertRevert');
+import assertRevert from './helpers/assertRevert';
 
 const DayLimitMock = artifacts.require('mocks/DayLimitMock.sol');
 
@@ -34,13 +34,7 @@ contract('DayLimit', function (accounts) {
     await dayLimit.attemptSpend(8);
     let spentToday = await dayLimit.spentToday();
     assert.equal(spentToday, 8);
-
-    try {
-      await dayLimit.attemptSpend(3);
-      assert.fail('should have thrown before');
-    } catch (error) {
-      assertRevert(error);
-    }
+    await assertRevert(dayLimit.attemptSpend(3));
   });
 
   it('should allow spending if daily limit is reached and then set higher', async function () {
@@ -48,12 +42,7 @@ contract('DayLimit', function (accounts) {
     let spentToday = await dayLimit.spentToday();
     assert.equal(spentToday, 8);
 
-    try {
-      await dayLimit.attemptSpend(3);
-      assert.fail('should have thrown before');
-    } catch (error) {
-      assertRevert(error);
-    }
+    await assertRevert(dayLimit.attemptSpend(3));
     spentToday = await dayLimit.spentToday();
     assert.equal(spentToday, 8);
 
@@ -68,12 +57,7 @@ contract('DayLimit', function (accounts) {
     let spentToday = await dayLimit.spentToday();
     assert.equal(spentToday, 8);
 
-    try {
-      await dayLimit.attemptSpend(3);
-      assert.fail('should have thrown before');
-    } catch (error) {
-      assertRevert(error);
-    }
+    await assertRevert(dayLimit.attemptSpend(3));
     spentToday = await dayLimit.spentToday();
     assert.equal(spentToday, 8);
 
@@ -91,12 +75,7 @@ contract('DayLimit', function (accounts) {
     let spentToday = await dayLimit.spentToday();
     assert.equal(spentToday, 8);
 
-    try {
-      await dayLimit.attemptSpend(3);
-      assert.fail('should have thrown before');
-    } catch (error) {
-      assertRevert(error);
-    }
+    await assertRevert(dayLimit.attemptSpend(3));
     spentToday = await dayLimit.spentToday();
     assert.equal(spentToday, 8);
 

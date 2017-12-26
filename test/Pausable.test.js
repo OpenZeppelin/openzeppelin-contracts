@@ -1,5 +1,5 @@
 
-const assertRevert = require('./helpers/assertRevert');
+import assertRevert from './helpers/assertRevert';
 const PausableMock = artifacts.require('mocks/PausableMock.sol');
 
 contract('Pausable', function (accounts) {
@@ -19,24 +19,14 @@ contract('Pausable', function (accounts) {
     let count0 = await Pausable.count();
     assert.equal(count0, 0);
 
-    try {
-      await Pausable.normalProcess();
-      assert.fail('should have thrown before');
-    } catch (error) {
-      assertRevert(error);
-    }
+    await assertRevert(Pausable.normalProcess());
     let count1 = await Pausable.count();
     assert.equal(count1, 0);
   });
 
   it('can not take drastic measure in non-pause', async function () {
     let Pausable = await PausableMock.new();
-    try {
-      await Pausable.drasticMeasure();
-      assert.fail('should have thrown before');
-    } catch (error) {
-      assertRevert(error);
-    }
+    await assertRevert(Pausable.drasticMeasure());
     const drasticMeasureTaken = await Pausable.drasticMeasureTaken();
     assert.isFalse(drasticMeasureTaken);
   });
@@ -64,12 +54,8 @@ contract('Pausable', function (accounts) {
     let Pausable = await PausableMock.new();
     await Pausable.pause();
     await Pausable.unpause();
-    try {
-      await Pausable.drasticMeasure();
-      assert.fail('should have thrown before');
-    } catch (error) {
-      assertRevert(error);
-    }
+
+    await assertRevert(Pausable.drasticMeasure());
 
     const drasticMeasureTaken = await Pausable.drasticMeasureTaken();
     assert.isFalse(drasticMeasureTaken);
