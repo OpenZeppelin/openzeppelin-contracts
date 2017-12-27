@@ -1,1 +1,2 @@
+include setup.cfg
 recursive-include contracts *
