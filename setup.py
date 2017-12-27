@@ -9,7 +9,7 @@ for dir_name, subdirs, file_names in os.walk(contracts_dir_name):
         contract_files = data_files.get(dir_name, [])
         contract_files.append(file_path)
         data_files[dir_name] = contract_files
-print(data_files.items())
+
 setup(
     name="zeppelin-solidity",
     version="1.4.0",
