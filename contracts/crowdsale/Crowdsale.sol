@@ -65,6 +65,7 @@ contract Crowdsale {
     buyTokens(msg.sender);
   }
 
+  // determines the rate of the crowdsale. Override this for periodization logic
   function getRate() internal constant returns(uint256) {
     return rate;
   }
