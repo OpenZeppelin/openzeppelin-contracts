@@ -23,12 +23,9 @@ contract EtherTimelock {
    * @notice Transfers funds held by timelock to beneficiary.
    */
     function release() public { 
-        require(now > releaseTime);
+        require(now > releaseTime && this.balance > 0);
 
-        uint256 amount = this.balance;
-        require(amount > 0);
-
-        beneficiary.transfer(amount);
+        beneficiary.transfer(this.balance);
     }
 
     function () payable {
