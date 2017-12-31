@@ -7,7 +7,10 @@ contract('TokenDestructible', function (accounts) {
   let destructible;
 
   beforeEach(async function () {
-    destructible = await TokenDestructible.new({ fron: accounts[0], value: web3.toWei('10', 'ether') });
+    destructible = await TokenDestructible.new({
+      from: accounts[0],
+      value: web3.toWei('10', 'ether'),
+    });
   });
 
   it('should send balance to owner after destruction', async function () {
