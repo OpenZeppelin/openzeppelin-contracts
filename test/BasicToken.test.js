@@ -1,4 +1,4 @@
-const assertRevert = require('./helpers/assertRevert');
+import assertRevert from './helpers/assertRevert';
 
 var BasicTokenMock = artifacts.require('mocks/BasicTokenMock.sol');
 
@@ -23,21 +23,11 @@ contract('BasicToken', function (accounts) {
 
   it('should throw an error when trying to transfer more than balance', async function () {
     let token = await BasicTokenMock.new(accounts[0], 100);
-    try {
-      await token.transfer(accounts[1], 101);
-      assert.fail('should have thrown before');
-    } catch (error) {
-      assertRevert(error);
-    }
+    await assertRevert(token.transfer(accounts[1], 101));
   });
 
   it('should throw an error when trying to transfer to 0x0', async function () {
     let token = await BasicTokenMock.new(accounts[0], 100);
-    try {
-      await token.transfer(0x0, 100);
-      assert.fail('should have thrown before');
-    } catch (error) {
-      assertRevert(error);
-    }
+    await assertRevert(token.transfer(0x0, 100));
   });
 });

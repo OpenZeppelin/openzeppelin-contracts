@@ -1,6 +1,5 @@
-
+import assertRevert from './helpers/assertRevert';
 var LimitBalanceMock = artifacts.require('mocks/LimitBalanceMock.sol');
-const assertRevert = require('./helpers/assertRevert');
 
 contract('LimitBalance', function (accounts) {
   let lb;
@@ -25,12 +24,7 @@ contract('LimitBalance', function (accounts) {
 
   it('shouldnt allow sending above limit', async function () {
     let amount = 1110;
-    try {
-      await lb.limitedDeposit({ value: amount });
-      assert.fail('should have thrown before');
-    } catch (error) {
-      assertRevert(error);
-    }
+    await assertRevert(lb.limitedDeposit({ value: amount }));
   });
 
   it('should allow multiple sends below limit', async function () {
@@ -48,12 +42,6 @@ contract('LimitBalance', function (accounts) {
     await lb.limitedDeposit({ value: amount });
 
     assert.equal(web3.eth.getBalance(lb.address), amount);
-
-    try {
-      await lb.limitedDeposit({ value: amount + 1 });
-      assert.fail('should have thrown before');
-    } catch (error) {
-      assertRevert(error);
-    }
+    await assertRevert(lb.limitedDeposit({ value: amount + 1 }));
   });
 });
