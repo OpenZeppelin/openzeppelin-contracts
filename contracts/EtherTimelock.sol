@@ -13,7 +13,7 @@ contract EtherTimelock {
     uint64 public releaseTime;
 
     function EtherTimelock(address _beneficiary, uint64 _releaseTime) {
-        require(_releaseTime > now);
+        require(_releaseTime > now && _beneficiary != address(0));
 
         beneficiary = _beneficiary;
         releaseTime = _releaseTime;
