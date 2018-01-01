@@ -38,7 +38,7 @@ The design guidelines have quite a high abstraction level. These style guideline
 
 #### G0 - Default to Solidity's official style guide.
 
-Follow the official Solidity style guide: http://solidity.readthedocs.io/en/latest/style-guide.html
+Follow the official Solidity style guide: https://solidity.readthedocs.io/en/latest/style-guide.html
 
 #### G1 - No Magic Constants
 

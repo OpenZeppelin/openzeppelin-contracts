@@ -1,7 +1,7 @@
 pragma solidity ^0.4.18;
 
 
-import '../../contracts/crowdsale/RefundableCrowdsale.sol';
+import '../crowdsale/RefundableCrowdsale.sol';
 
 
 contract RefundableCrowdsaleImpl is RefundableCrowdsale {

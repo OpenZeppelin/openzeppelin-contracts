@@ -1,7 +1,7 @@
 pragma solidity ^0.4.18;
 
 
-import '../../contracts/crowdsale/CappedCrowdsale.sol';
+import '../crowdsale/CappedCrowdsale.sol';
 
 
 contract CappedCrowdsaleImpl is CappedCrowdsale {

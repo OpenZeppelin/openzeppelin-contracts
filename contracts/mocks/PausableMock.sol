@@ -1,7 +1,7 @@
 pragma solidity ^0.4.18;
 
 
-import '../../contracts/lifecycle/Pausable.sol';
+import '../lifecycle/Pausable.sol';
 
 
 // mock class using Pausable

@@ -1,5 +1,5 @@
 
-const assertRevert = require('./helpers/assertRevert');
+import assertRevert from './helpers/assertRevert';
 
 var Ownable = artifacts.require('../contracts/ownership/Ownable.sol');
 
@@ -27,21 +27,11 @@ contract('Ownable', function (accounts) {
     const other = accounts[2];
     const owner = await ownable.owner.call();
     assert.isTrue(owner !== other);
-    try {
-      await ownable.transferOwnership(other, { from: other });
-      assert.fail('should have thrown before');
-    } catch (error) {
-      assertRevert(error);
-    }
+    await assertRevert(ownable.transferOwnership(other, { from: other }));
   });
 
   it('should guard ownership against stuck state', async function () {
     let originalOwner = await ownable.owner();
-    try {
-      await ownable.transferOwnership(null, { from: originalOwner });
-      assert.fail();
-    } catch (error) {
-      assertRevert(error);
-    }
+    await assertRevert(ownable.transferOwnership(null, { from: originalOwner }));
   });
 });

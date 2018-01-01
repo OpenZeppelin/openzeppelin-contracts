@@ -2,7 +2,7 @@
 import expectThrow from './helpers/expectThrow';
 
 const HasNoTokens = artifacts.require('../contracts/lifecycle/HasNoTokens.sol');
-const ERC23TokenMock = artifacts.require('./mocks/ERC23TokenMock.sol');
+const ERC23TokenMock = artifacts.require('mocks/ERC23TokenMock.sol');
 
 contract('HasNoTokens', function (accounts) {
   let hasNoTokens = null;

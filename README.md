@@ -7,7 +7,7 @@ OpenZeppelin is a library for writing secure [Smart Contracts](https://en.wikipe
 
 With OpenZeppelin, you can build distributed applications, protocols and organizations:
 - using common contract security patterns (See [Onward with Ethereum Smart Contract Security](https://medium.com/bitcorps-blog/onward-with-ethereum-smart-contract-security-97a827e47702#.y3kvdetbz))
-- in the [Solidity language](http://solidity.readthedocs.io/en/develop/).
+- in the [Solidity language](https://solidity.readthedocs.io/en/develop/).
 
 > NOTE: New to smart contract development? Check our [introductory guide](https://medium.com/zeppelin-blog/the-hitchhikers-guide-to-smart-contracts-in-ethereum-848f08001f05#.cox40d2ut).
 
@@ -47,7 +47,7 @@ If you find a security issue, please email [security@openzeppelin.org](mailto:se
 
 Building a distributed application, protocol or organization with OpenZeppelin?
 
-- Read documentation: http://zeppelin-solidity.readthedocs.io/en/latest/
+- Read documentation: https://zeppelin-solidity.readthedocs.io/en/latest/
 
 - Ask for help and follow progress at: https://slack.openzeppelin.org/
 
@@ -61,12 +61,12 @@ Interested in contributing to OpenZeppelin?
 - [Golem](https://golem.network/)
 - [Mediachain](http://www.mediachain.io/)
 - [Truffle](http://truffleframework.com/)
-- [Firstblood](http://firstblood.io/)
-- [Rootstock](http://www.rsk.co/)
+- [Firstblood](https://firstblood.io/)
+- [Rootstock](https://www.rsk.co/)
 - [Consensys](https://consensys.net/)
 - [DigixGlobal](https://www.dgx.io/)
 - [Coinfund](https://coinfund.io/)
-- [DemocracyEarth](http://democracy.earth/)
+- [DemocracyEarth](https://democracy.earth/)
 - [Signatura](https://signatura.co/)
 - [Ether.camp](http://www.ether.camp/)
 - [Aragon](https://aragon.one/)
