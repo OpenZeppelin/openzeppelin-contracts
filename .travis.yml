@@ -3,14 +3,22 @@ sudo: required
 group: beta
 language: node_js
 node_js:
-  - "6"
+  - "8"
 cache:
-  yarn: true
+  directories:
+    - node_modules
+env:
+  -
+  - SOLIDITY_COVERAGE=true
+matrix:
+  fast_finish: true
+  allow_failures:
+    - env: SOLIDITY_COVERAGE=true
 before_script:
   - truffle version
-  - yarn list
 script:
-  - yarn test
+  - npm run lint
+  - npm run test
 notifications:
   slack:
     rooms:

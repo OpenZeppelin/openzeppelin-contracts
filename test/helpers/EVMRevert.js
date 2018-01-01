@@ -1,1 +1,1 @@
-export default 'revert'
+export default 'revert';
