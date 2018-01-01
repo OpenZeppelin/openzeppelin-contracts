@@ -10,9 +10,9 @@ contract EtherTimelock {
     address public beneficiary;
 
     //timestamp when funds are able to be released
-    uint64 public releaseTime;
+    uint256 public releaseTime;
 
-    function EtherTimelock(address _beneficiary, uint64 _releaseTime) {
+    function EtherTimelock(address _beneficiary, uint256 _releaseTime) {
         require(_releaseTime > now);
         require(_beneficiary != address(0));
 
