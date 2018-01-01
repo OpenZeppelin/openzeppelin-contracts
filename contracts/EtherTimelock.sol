@@ -13,7 +13,8 @@ contract EtherTimelock {
     uint64 public releaseTime;
 
     function EtherTimelock(address _beneficiary, uint64 _releaseTime) {
-        require(_releaseTime > now && _beneficiary != address(0));
+        require(_releaseTime > now);
+        require(_beneficiary != address(0));
 
         beneficiary = _beneficiary;
         releaseTime = _releaseTime;
@@ -23,7 +24,8 @@ contract EtherTimelock {
    * @notice Transfers funds held by timelock to beneficiary.
    */
     function release() public { 
-        require(now > releaseTime && this.balance > 0);
+        require(now > releaseTime);
+        require(this.balance > 0);
 
         beneficiary.transfer(this.balance);
     }
