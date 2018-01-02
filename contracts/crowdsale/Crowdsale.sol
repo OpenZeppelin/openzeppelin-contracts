@@ -65,6 +65,16 @@ contract Crowdsale {
     buyTokens(msg.sender);
   }
 
+<<<<<<< HEAD
+  function getTokenAmount(uint256 weiAmount) internal constant returns(uint256) {
+    return weiAmount.mul(rate);
+=======
+  // determines the rate of the crowdsale. Override this for periodization logic
+  function getRate() internal constant returns(uint256) {
+    return rate;
+>>>>>>> fc3653b682085237789abea21f9e9ddcef988bc6
+  }
+
   // low level token purchase function
   function buyTokens(address beneficiary) public payable {
     require(beneficiary != address(0));
@@ -73,7 +83,12 @@ contract Crowdsale {
     uint256 weiAmount = msg.value;
 
     // calculate token amount to be created
-    uint256 tokens = weiAmount.mul(rate);
+<<<<<<< HEAD
+    uint256 tokens = getTokenAmount(weiAmount);
+=======
+    uint256 _rate = getRate();
+    uint256 tokens = weiAmount.mul(_rate);
+>>>>>>> fc3653b682085237789abea21f9e9ddcef988bc6
 
     // update state
     weiRaised = weiRaised.add(weiAmount);
