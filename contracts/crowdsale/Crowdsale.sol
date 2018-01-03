@@ -59,10 +59,14 @@ contract Crowdsale {
     return new MintableToken();
   }
 
-
   // fallback function can be used to buy tokens
   function () external payable {
     buyTokens(msg.sender);
+  }
+
+  // Override this function to create logic for periodization
+  function getTokenAmount(uint256 weiAmount) internal constant returns(uint256) {
+    return weiAmount.mul(rate);
   }
 
   // low level token purchase function
