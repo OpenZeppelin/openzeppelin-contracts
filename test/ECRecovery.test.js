@@ -34,25 +34,25 @@ contract('ECRecovery', function (accounts) {
 
   it('recover using web3.eth.sign()', async function () {
     // Create the signature using account[0]
-    const signature = web3.eth.sign(web3.eth.accounts[0], web3.sha3('OpenZeppelin'));
+    const signature = web3.eth.sign(accounts[0], web3.sha3('OpenZeppelin'));
 
     // Recover the signer address form the generated message and signature.
     await ecrecovery.recover(hashMessage('OpenZeppelin'), signature);
-    assert.equal(web3.eth.accounts[0], await ecrecovery.addrRecovered());
+    assert.equal(accounts[0], await ecrecovery.addrRecovered());
   });
 
   it('recover using web3.eth.sign() should return wrong signer', async function () {
     // Create the signature using account[0]
-    const signature = web3.eth.sign(web3.eth.accounts[0], web3.sha3('OpenZeppelin'));
+    const signature = web3.eth.sign(accounts[0], web3.sha3('OpenZeppelin'));
 
     // Recover the signer address form the generated message and wrong signature.
     await ecrecovery.recover(hashMessage('Test'), signature);
-    assert.notEqual(web3.eth.accounts[0], await ecrecovery.addrRecovered());
+    assert.notEqual(accounts[0], await ecrecovery.addrRecovered());
   });
 
   it('recover should fail when a wrong hash is sent', async function () {
     // Create the signature using account[0]
-    let signature = web3.eth.sign(web3.eth.accounts[0], web3.sha3('OpenZeppelin'));
+    let signature = web3.eth.sign(accounts[0], web3.sha3('OpenZeppelin'));
 
     // Recover the signer address form the generated message and wrong signature.
     await ecrecovery.recover(hashMessage('OpenZeppelin').substring(2), signature);
