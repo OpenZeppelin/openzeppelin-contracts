@@ -80,6 +80,8 @@ git checkout -b fix/some-bug
 git checkout -b remove/some-file
 ```
 
+If your branch is planned to fix an open issue, postfix your branch name with the issue number like `fix/some-bug-#123`.
+
 We expect pull requests to be rebased to the master branch before merging:
 ```sh
 git remote add zep git@github.com:OpenZeppelin/zeppelin-solidity.git
