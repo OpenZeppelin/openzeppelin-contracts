@@ -1,6 +1,6 @@
 {
   "name": "zeppelin-solidity",
-  "version": "1.5.1",
+  "version": "1.5.0",
   "description": "Secure Smart Contract library for Solidity",
   "scripts": {
     "test": "scripts/test.sh",
