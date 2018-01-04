@@ -5,7 +5,7 @@ var hashMessage = require('./helpers/hashMessage.js');
 
 contract('ECRecovery', function (accounts) {
   let ecrecovery;
-  const TEST_MESSAGE = 'OpenZeppelin'
+  const TEST_MESSAGE = 'OpenZeppelin';
 
   before(async function () {
     const ecRecoveryLib = await ECRecoveryLib.new();
