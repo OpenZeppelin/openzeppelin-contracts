@@ -12,7 +12,7 @@ contract EtherTimelock {
     //timestamp when funds are able to be released
     uint256 public releaseTime;
 
-    function EtherTimelock(address _beneficiary, uint256 _releaseTime) {
+    function EtherTimelock(address _beneficiary, uint256 _releaseTime) public {
         require(_releaseTime > now);
         require(_beneficiary != address(0));
 
@@ -30,7 +30,7 @@ contract EtherTimelock {
         beneficiary.transfer(this.balance);
     }
 
-    function () payable {
+    function () payable public {
         
     }
 }
