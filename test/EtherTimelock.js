@@ -1,6 +1,5 @@
 import latestTime from './helpers/latestTime';
 import { increaseTimeTo, duration } from './helpers/increaseTime';
-import { advanceBlock } from './helpers/advanceToBlock';
 import ether from './helpers/ether';
 
 const BigNumber = web3.BigNumber;
@@ -13,14 +12,13 @@ require('chai')
 const EtherTimelock = artifacts.require('EtherTimelock');
 
 contract('EtherTimelock', function ([_, owner, beneficiary]) {
-
   const FUNDS = ether(1);
 
   beforeEach(async function () {
     this.releaseTime = latestTime() + duration.years(1);
     this.timelock = await EtherTimelock.new(beneficiary, this.releaseTime);
 
-    await this.timelock.sendTransaction({value: FUNDS, from: owner});
+    await this.timelock.sendTransaction({ value: FUNDS, from: owner });
   });
 
   it('cannot be released before time limit', async function () {
