@@ -5,6 +5,7 @@
   "scripts": {
     "test": "scripts/test.sh",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "console": "truffle console",
     "coverage": "scripts/coverage.sh"
   },
