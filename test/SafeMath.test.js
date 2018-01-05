@@ -57,4 +57,17 @@ contract('SafeMath', function (accounts) {
     let b = 2;
     await assertRevert(safeMath.multiply(a, b));
   });
+
+  for (let n = 0; n < 256; n++) {
+    it(`shiftleft test:`, async () => {
+      try {
+        await safeMath.shiftleft(1, n);
+        let result = await safeMath.result();
+        assert(n < 255 && result.equals(1 << n), `shiftleft test passed when it should have failed`);
+      }
+      catch (error) {
+        assert(n == 255, `shiftleft test failed when it should have passed`);
+      }
+    });
+  }
 });
