@@ -14,6 +14,7 @@ setup(
     name="zeppelin-solidity",
     version="1.4.0",
     description="Secure Smart Contract library for Solidity",
+    url="https://github.com/OpenZeppelin/zeppelin-solidity.git",
     author="Manuel Araoz",
     author_email = "manuelaraoz@gmail.com",
     packages=[],
