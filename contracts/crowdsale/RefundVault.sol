@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.18;
 
 import '../math/SafeMath.sol';
 import '../ownership/Ownable.sol';
@@ -22,8 +22,8 @@ contract RefundVault is Ownable {
   event RefundsEnabled();
   event Refunded(address indexed beneficiary, uint256 weiAmount);
 
-  function RefundVault(address _wallet) {
-    require(_wallet != 0x0);
+  function RefundVault(address _wallet) public {
+    require(_wallet != address(0));
     wallet = _wallet;
     state = State.Active;
   }

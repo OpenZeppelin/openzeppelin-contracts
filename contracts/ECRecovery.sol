@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.18;
 
 
 /**
@@ -14,7 +14,7 @@ library ECRecovery {
    * @param hash bytes32 message, the hash is the signed message. What is recovered is the signer address.
    * @param sig bytes signature, the signature is generated using web3.eth.sign()
    */
-  function recover(bytes32 hash, bytes sig) public constant returns (address) {
+  function recover(bytes32 hash, bytes sig) public pure returns (address) {
     bytes32 r;
     bytes32 s;
     uint8 v;

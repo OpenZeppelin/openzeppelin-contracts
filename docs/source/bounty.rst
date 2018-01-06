@@ -7,14 +7,14 @@ To create a bounty for your contract, inherit from the base `Bounty` contract an
 	import "./YourContract.sol";
 
 	contract YourBounty is Bounty {
-	function deployContract() internal returns(address) {
-	return new YourContract()
+	  function deployContract() internal returns(address) {
+	    return new YourContract()
 	  }
 	}
 
 
 Next, implement invariant logic into your smart contract.
-Your main contract should inherit from the Target class and implement the checkInvariant method. This is a function that should check everything your contract assumes to be true all the time. If this function returns false, it means your contract was broken in some way and is in an inconsistent state. This is what security researchers will try to acomplish when trying to get the bounty.
+Your main contract should inherit from the `Target` class and implement the ```checkInvariant()``` method. This is a function that should check everything your contract assumes to be true all the time. If this function returns false, it means your contract was broken in some way and is in an inconsistent state. This is what security researchers will try to acomplish when trying to get the bounty.
 
 At contracts/YourContract.sol::
 
@@ -35,7 +35,7 @@ At ```migrations/2_deploy_contracts.js```::
 	  deployer.deploy(YourBounty);
 	};
 
-Next, add a reward to the bounty contract
+Next, add a reward to the bounty contract.
 
 After deploying the contract, send reward funds into the bounty contract.
 

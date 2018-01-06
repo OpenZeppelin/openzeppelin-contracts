@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.18;
 
 
 import './Ownable.sol';
@@ -34,6 +34,6 @@ contract Claimable is Ownable {
   function claimOwnership() onlyPendingOwner public {
     OwnershipTransferred(owner, pendingOwner);
     owner = pendingOwner;
-    pendingOwner = 0x0;
+    pendingOwner = address(0);
   }
 }
