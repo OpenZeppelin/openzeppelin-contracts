@@ -10,9 +10,10 @@ export default async promise => {
     //       we distinguish this from an actual out of gas event? (The
     //       testrpc log actually show an 'invalid jump' event.)
     const outOfGas = error.message.search('out of gas') >= 0;
+    const revert = error.message.search('revert') >= 0;
     assert(
-      invalidOpcode || outOfGas,
-      "Expected throw, got '" + error + "' instead",
+      invalidOpcode || outOfGas || revert,
+      'Expected throw, got \'' + error + '\' instead',
     );
     return;
   }

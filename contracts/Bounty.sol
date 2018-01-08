@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.18;
 
 
 import './payment/PullPayment.sol';
@@ -16,9 +16,9 @@ contract Bounty is PullPayment, Destructible {
   event TargetCreated(address createdAddress);
 
   /**
-   * @dev Fallback function allowing the contract to recieve funds, if they haven't already been claimed.
+   * @dev Fallback function allowing the contract to receive funds, if they haven't already been claimed.
    */
-  function() payable {
+  function() external payable {
     require(!claimed);
   }
 

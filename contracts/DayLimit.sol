@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.18;
 
 /**
  * @title DayLimit
@@ -15,7 +15,7 @@ contract DayLimit {
    * @dev Constructor that sets the passed value as a dailyLimit.
    * @param _limit uint256 to represent the daily limit.
    */
-  function DayLimit(uint256 _limit) {
+  function DayLimit(uint256 _limit) public {
     dailyLimit = _limit;
     lastDay = today();
   }
@@ -38,7 +38,7 @@ contract DayLimit {
   /**
    * @dev Checks to see if there is enough resource to spend today. If true, the resource may be expended.
    * @param _value uint256 representing the amount of resource to spend.
-   * @return A boolean that is True if the resource was spended and false otherwise.
+   * @return A boolean that is True if the resource was spent and false otherwise.
    */
   function underLimit(uint256 _value) internal returns (bool) {
     // reset the spend limit if we're on a different day to last time.
@@ -59,7 +59,7 @@ contract DayLimit {
    * @dev Private function to determine today's index
    * @return uint256 of today's index.
    */
-  function today() private constant returns (uint256) {
+  function today() private view returns (uint256) {
     return now / 1 days;
   }
 
