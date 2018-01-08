@@ -21,14 +21,14 @@ contract CappedCrowdsale is Crowdsale {
   // @return true if investors can buy at the moment
   function validPurchase() internal view returns (bool) {
     bool withinCap = weiRaised.add(msg.value) <= cap;
-    return super.validPurchase() && withinCap;
+    return withinCap && super.validPurchase();
   }
 
   // overriding Crowdsale#hasEnded to add cap logic
   // @return true if crowdsale event has ended
   function hasEnded() public view returns (bool) {
     bool capReached = weiRaised >= cap;
-    return super.hasEnded() || capReached;
+    return capReached || super.hasEnded();
   }
 
 }
