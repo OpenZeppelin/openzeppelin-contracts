@@ -1,7 +1,7 @@
 ## The Problem
 
-[] 🐛 This is a bug report.
-[] 📈 This is a feature request.
+- [ ] 🐛 This is a bug report.
+- [ ] 📈 This is a feature request.
 
 <!-- Please check one of the above by placing an x in the box. -->
 
