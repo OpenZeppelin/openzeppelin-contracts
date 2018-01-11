@@ -13,7 +13,7 @@ import "./StandardToken.sol";
 contract ERC827 is StandardToken {
 
   /**
-     @dev `approveData` is an addition to ERC20 token methods. It allows to
+     @dev Addition to ERC20 token methods. It allows to
      approve the transfer of value and execute a call with the sent data.
 
      Beware that changing an allowance with this method brings the risk that
@@ -29,7 +29,7 @@ contract ERC827 is StandardToken {
 
      @return true if the call function was executed successfully
    */
-  function approveData(address _spender, uint256 _value, bytes _data) public returns (bool) {
+  function approve(address _spender, uint256 _value, bytes _data) public returns (bool) {
     require(_spender != address(this));
 
     super.approve(_spender, _value);
@@ -49,7 +49,7 @@ contract ERC827 is StandardToken {
 
      @return true if the call function was executed successfully
    */
-  function transferData(address _to, uint256 _value, bytes _data) public returns (bool) {
+  function transfer(address _to, uint256 _value, bytes _data) public returns (bool) {
     require(_to != address(this));
 
     super.transfer(_to, _value);
@@ -69,7 +69,7 @@ contract ERC827 is StandardToken {
 
      @return true if the call function was executed successfully
    */
-  function transferDataFrom(address _from, address _to, uint256 _value, bytes _data) public returns (bool) {
+  function transferFrom(address _from, address _to, uint256 _value, bytes _data) public returns (bool) {
     require(_to != address(this));
 
     super.transferFrom(_from, _to, _value);

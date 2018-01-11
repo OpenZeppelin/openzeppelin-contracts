@@ -4,7 +4,7 @@ var Message = artifacts.require('./mock/MessageHelper.sol');
 var ERC827TokenMock = artifacts.require('./mock/ERC827TokenMock.sol');
 
 var BigNumber = web3.BigNumber;
-
+var ethjsABI = require('ethjs-abi');
 require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
@@ -110,152 +110,186 @@ contract('ERC827 Token', function (accounts) {
       .should.be.rejectedWith(EVMRevert);
   });
 
-  it('should return correct balances after approve and show the event on receiver contract', async function () {
-    let message = await Message.new();
+  describe('Test ERC827 methods', function () {
 
-    let data = message.contract.showMessage.getData(
-      web3.toHex(123456), 666, 'Transfer Done'
-    );
+    it('should return correct balances after transfer (with data) and show the event on receiver contract', async function () {
+      const message = await Message.new();
 
-    let transaction = await token.approveData(
-      message.contract.address, 100, data, { from: accounts[0] }
-    );
+      const extraData = message.contract.showMessage.getData(
+        web3.toHex(123456), 666, 'Transfer Done'
+      );
 
-    assert.equal(2, transaction.receipt.logs.length);
+      // Use method #8 tranfer of the abi to encode the data tx
+      const transferData = ethjsABI.encodeMethod(token.abi[8],
+        [message.contract.address, 100, extraData]
+      );
+      const transaction = await token.sendTransaction(
+        { from: accounts[0], data: transferData }
+      );
 
-    new BigNumber(100).should.be.bignumber.equal(
-      await token.allowance(accounts[0], message.contract.address)
-    );
-  });
+      assert.equal(2, transaction.receipt.logs.length);
 
-  it('should return correct balances after transferData and show the event on receiver contract', async function () {
-    let message = await Message.new();
+      new BigNumber(100).should.be.bignumber.equal(
+        await token.balanceOf(message.contract.address)
+      );
+    });
 
-    let data = message.contract.showMessage.getData(
-      web3.toHex(123456), 666, 'Transfer Done'
-    );
+    it('should return correct allowance after approve (with data) and show the event on receiver contract', async function () {
+      const message = await Message.new();
 
-    let transaction = await token.transferData(
-      message.contract.address, 100, data, { from: accounts[0] }
-    );
+      const extraData = message.contract.showMessage.getData(
+        web3.toHex(123456), 666, 'Transfer Done'
+      );
 
-    assert.equal(2, transaction.receipt.logs.length);
+      // Use method #3 approve of the abi to encode the data tx
+      const approveData = ethjsABI.encodeMethod(token.abi[3],
+        [message.contract.address, 100, extraData]
+      );
+      const transaction = await token.sendTransaction(
+        { from: accounts[0], data: approveData }
+      );
 
-    new BigNumber(100).should.be.bignumber.equal(
-      await token.balanceOf(message.contract.address)
-    );
-  });
+      assert.equal(2, transaction.receipt.logs.length);
 
-  it('should return correct allowance after approveData and show the event on receiver contract', async function () {
-    let message = await Message.new();
+      new BigNumber(100).should.be.bignumber.equal(
+        await token.allowance(accounts[0], message.contract.address)
+      );
+    });
 
-    let data = message.contract.showMessage.getData(
-      web3.toHex(123456), 666, 'Transfer Done'
-    );
+    it('should return correct balances after transferFrom (with data) and show the event on receiver contract', async function () {
+      const message = await Message.new();
 
-    let transaction = await token.approveData(
-      message.contract.address, 100, data, { from: accounts[0] }
-    );
+      const extraData = message.contract.showMessage.getData(
+        web3.toHex(123456), 666, 'Transfer Done'
+      );
 
-    assert.equal(2, transaction.receipt.logs.length);
+      await token.approve(accounts[1], 100, { from: accounts[0] });
 
-    new BigNumber(100).should.be.bignumber.equal(
-      await token.allowance(accounts[0], message.contract.address)
-    );
-  });
+      new BigNumber(100).should.be.bignumber.equal(
+        await token.allowance(accounts[0], accounts[1])
+      );
 
-  it('should return correct balances after transferFrom and show the event on receiver contract', async function () {
-    let message = await Message.new();
+      // Use method #7 transferFrom of the abi to encode the data tx
+      const transferFromData = ethjsABI.encodeMethod(token.abi[7],
+        [accounts[0], message.contract.address, 100, extraData]
+      );
+      const transaction = await token.sendTransaction(
+        { from: accounts[1], data: transferFromData }
+      );
 
-    let data = message.contract.showMessage.getData(
-      web3.toHex(123456), 666, 'Transfer Done'
-    );
+      assert.equal(2, transaction.receipt.logs.length);
 
-    await token.approve(accounts[1], 100, { from: accounts[0] });
+      new BigNumber(100).should.be.bignumber.equal(
+        await token.balanceOf(message.contract.address)
+      );
+    });
 
-    new BigNumber(100).should.be.bignumber.equal(
-      await token.allowance(accounts[0], accounts[1])
-    );
+    it('should fail inside approve (with data)', async function () {
+      const message = await Message.new();
 
-    let transaction = await token.transferDataFrom(
-      accounts[0], message.contract.address, 100, data, { from: accounts[1] }
-    );
+      const extraData = message.contract.fail.getData();
 
-    assert.equal(2, transaction.receipt.logs.length);
+      // Use method #3 approve of the abi to encode the data tx
+      const approveData = ethjsABI.encodeMethod(token.abi[3],
+        [message.contract.address, 10, extraData]
+      );
+      await token.sendTransaction(
+        { from: accounts[0], data: approveData }
+      ).should.be.rejectedWith(EVMRevert);
 
-    new BigNumber(100).should.be.bignumber.equal(
-      await token.balanceOf(message.contract.address)
-    );
-  });
+      // approval should not have gone through so allowance is still 0
+      new BigNumber(0).should.be.bignumber
+        .equal(await token.allowance(accounts[1], message.contract.address));
+    });
 
-  it('should fail inside approveData', async function () {
-    let message = await Message.new();
+    it('should fail inside transfer (with data)', async function () {
+      const message = await Message.new();
 
-    let data = message.contract.fail.getData();
+      const extraData = message.contract.fail.getData();
 
-    await token.approveData(
-      message.contract.address, 10, data,
-      { from: accounts[1] }
-    ).should.be.rejectedWith(EVMRevert);
+      // Use method #8 tranfer of the abi to encode the data tx
+      const transferData = ethjsABI.encodeMethod(token.abi[8],
+        [message.contract.address, 10, extraData]
+      );
+      await token.sendTransaction(
+        { from: accounts[0], data: transferData }
+      ).should.be.rejectedWith(EVMRevert);
 
-    // approval should not have gone through so allowance is still 0
-    new BigNumber(0).should.be.bignumber
-      .equal(await token.allowance(accounts[1], message.contract.address));
-  });
+      // transfer should not have gone through, so balance is still 0
+      new BigNumber(0).should.be.bignumber
+        .equal(await token.balanceOf(message.contract.address));
+    });
 
-  it('should fail inside transferData', async function () {
-    let message = await Message.new();
+    it('should fail inside transferFrom (with data)', async function () {
+      const message = await Message.new();
 
-    let data = message.contract.fail.getData();
+      const extraData = message.contract.fail.getData();
 
-    await token.transferData(
-      message.contract.address, 10, data,
-      { from: accounts[0] }
-    ).should.be.rejectedWith(EVMRevert);
+      await token.approve(accounts[1], 10, { from: accounts[2] });
 
-    // transfer should not have gone through, so balance is still 0
-    new BigNumber(0).should.be.bignumber
-      .equal(await token.balanceOf(message.contract.address));
-  });
+      // Use method #7 tranferFrom of the abi to encode the data tx
+      const transferFromData = ethjsABI.encodeMethod(token.abi[7],
+        [accounts[2], message.contract.address, 10, extraData]
+      );
+      await token.sendTransaction(
+        { from: accounts[1], data: transferFromData }
+      ).should.be.rejectedWith(EVMRevert);
 
-  it('should fail inside transferDataFrom', async function () {
-    let message = await Message.new();
+      // transferFrom should have failed so balance is still 0 but allowance is 10
+      new BigNumber(10).should.be.bignumber
+        .equal(await token.allowance(accounts[2], accounts[1]));
+      new BigNumber(0).should.be.bignumber
+        .equal(await token.balanceOf(message.contract.address));
+    });
 
-    let data = message.contract.fail.getData();
+    it('should fail approve (with data) when using token contract address as receiver', async function () {
+      const message = await Message.new();
 
-    await token.approve(accounts[1], 10, { from: accounts[2] });
+      const extraData = message.contract.showMessage.getData(
+        web3.toHex(123456), 666, 'Transfer Done'
+      );
 
-    await token.transferDataFrom(
-      accounts[2], message.contract.address, 10, data,
-      { from: accounts[1] }
-    ).should.be.rejectedWith(EVMRevert);
+      // Use method #3 approve of the abi to encode the data tx
+      const approveData = ethjsABI.encodeMethod(token.abi[3],
+        [token.contract.address, 100, extraData]
+      );
+      await token.sendTransaction(
+        { from: accounts[0], data: approveData }
+      ).should.be.rejectedWith(EVMRevert);
+    });
 
-    // transferDataFrom should have failed so balance is still 0 but allowance is 10
-    new BigNumber(10).should.be.bignumber
-      .equal(await token.allowance(accounts[2], accounts[1]));
-    new BigNumber(0).should.be.bignumber
-      .equal(await token.balanceOf(message.contract.address));
-  });
+    it('should fail transfer (with data) when using token contract address as receiver', async function () {
+      const message = await Message.new();
 
-  it('should fail approveData when using token contract address as receiver', async function () {
-    let data = token.contract.approve.getData(accounts[5], 66);
+      const extraData = message.contract.showMessage.getData(
+        web3.toHex(123456), 666, 'Transfer Done'
+      );
 
-    await token.approveData(
-      token.contract.address, 100, data,
-      { from: accounts[0] }
-    ).should.be.rejectedWith(EVMRevert);
-  });
+      // Use method #8 tranfer of the abi to encode the data tx
+      const transferData = ethjsABI.encodeMethod(token.abi[8],
+        [token.contract.address, 100, extraData]
+      );
+      await token.sendTransaction(
+        { from: accounts[0], data: transferData }
+      ).should.be.rejectedWith(EVMRevert);
+    });
 
-  it('should fail transferData when using token contract address as receiver', async function () {
-    await token.transferData(
-      token.contract.address, 100, web3.toHex(0), { from: accounts[0] }
-    ).should.be.rejectedWith(EVMRevert);
-  });
+    it('should fail transferFrom (with data) when using token contract address as receiver', async function () {
+      const message = await Message.new();
 
-  it('should fail transferDataFrom when using token contract address as receiver', async function () {
-    await token.approve(accounts[1], 1, { from: accounts[0] });
-    await token.transferDataFrom(
-      accounts[0], token.contract.address, 1, web3.toHex(0), { from: accounts[1] }
-    ).should.be.rejectedWith(EVMRevert);
+      const extraData = message.contract.showMessage.getData(
+        web3.toHex(123456), 666, 'Transfer Done'
+      );
+
+      await token.approve(accounts[1], 1, { from: accounts[0] });
+
+      // Use method #7 tranferFrom of the abi to encode the data tx
+      const transferFromData = ethjsABI.encodeMethod(token.abi[7],
+        [accounts[0], token.contract.address, 1, extraData]
+      );
+      await token.sendTransaction(
+        { from: accounts[1], data: transferFromData }
+      ).should.be.rejectedWith(EVMRevert);
+    });
   });
 });
