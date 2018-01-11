@@ -73,7 +73,8 @@ contract Crowdsale {
     uint256 weiAmount = msg.value;
 
     // calculate token amount to be created
-    uint256 tokens = weiAmount.mul(rate);
+    uint256 _rate = getRate(beneficiary, weiAmount, now);
+    uint256 tokens = weiAmount.mul(_rate);
 
     // update state
     weiRaised = weiRaised.add(weiAmount);
@@ -82,6 +83,12 @@ contract Crowdsale {
     TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
 
     forwardFunds();
+  }
+  
+  // low level get rate function
+  // override to create custom rate function, like giving bonus for early contributors or whitelist addresses
+  function getRate(address beneficiary, uint256 weiAmount, uint256 time) returns (uint256){
+    return rate;
   }
 
   // send ether to the fund collection wallet
