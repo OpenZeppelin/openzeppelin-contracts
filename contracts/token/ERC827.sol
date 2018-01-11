@@ -52,9 +52,9 @@ contract ERC827 is StandardToken {
   function transferData(address _to, uint256 _value, bytes _data) public returns (bool) {
     require(_to != address(this));
 
-    require(_to.call(_data));
-
     super.transfer(_to, _value);
+
+    require(_to.call(_data));
     return true;
   }
 
@@ -72,9 +72,9 @@ contract ERC827 is StandardToken {
   function transferDataFrom(address _from, address _to, uint256 _value, bytes _data) public returns (bool) {
     require(_to != address(this));
 
-    require(_to.call(_data));
-
     super.transferFrom(_from, _to, _value);
+
+    require(_to.call(_data));
     return true;
   }
 
