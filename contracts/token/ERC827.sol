@@ -3,14 +3,14 @@ pragma solidity ^0.4.13;
 import "./StandardToken.sol";
 
 /**
-   @title SmartToken, an extension of ERC20 token standard
+   @title ERC827, an extension of ERC20 token standard
 
-   Implementation the SmartToken, following the ERC20 standard with extra
+   Implementation the ERC827, following the ERC20 standard with extra
    methods to transfer value and data and execute calls in transfers and
    approvals.
    Uses OpenZeppelin StandardToken.
  */
-contract SmartToken is StandardToken {
+contract ERC827 is StandardToken {
 
   /**
      @dev `approveData` is an addition to ERC20 token methods. It allows to

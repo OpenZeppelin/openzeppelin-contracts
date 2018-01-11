@@ -1,7 +1,7 @@
 
 import EVMRevert from './helpers/EVMRevert';
 var Message = artifacts.require('./mock/MessageHelper.sol');
-var SmartTokenMock = artifacts.require('./mock/SmartTokenMock.sol');
+var ERC827TokenMock = artifacts.require('./mock/ERC827TokenMock.sol');
 
 var BigNumber = web3.BigNumber;
 
@@ -10,11 +10,11 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('SmartToken', function (accounts) {
+contract('ERC827 Token', function (accounts) {
   let token;
 
   beforeEach(async function () {
-    token = await SmartTokenMock.new(accounts[0], 100);
+    token = await ERC827TokenMock.new(accounts[0], 100);
   });
 
   it('should return the correct totalSupply after construction', async function () {
@@ -24,7 +24,7 @@ contract('SmartToken', function (accounts) {
   });
 
   it('should return the correct allowance amount after approval', async function () {
-    let token = await SmartTokenMock.new();
+    let token = await ERC827TokenMock.new();
     await token.approve(accounts[1], 100);
     let allowance = await token.allowance(accounts[0], accounts[1]);
 
