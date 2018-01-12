@@ -12,7 +12,7 @@ import './PullPayment.sol';
  * This will allow to reduce the network load in time of high congestion 
  * One of the possible extention to this contract would be to pay a bounty to the executer of the contract based on the total amount of ether contributed/number of token bought
  */
-contract ERC20Buyer {
+contract ERC20Buyer is PullPayment {
 
   Crowdsale public crowdsale;
   ERC20Basic public token;
@@ -21,8 +21,8 @@ contract ERC20Buyer {
   uint256 public executionTime;
 
 
-  function ERC20Buyer(Crowdsale _crowdsale) {
-    require(_crowdsale != 0);
+  function ERC20Buyer(Crowdsale _crowdsale) public {
+    require(address(_crowdsale) != address(0));
     crowdsale = _crowdsale;
     token = crowdsale.token();
     rate = crowdsale.rate();
@@ -38,11 +38,11 @@ contract ERC20Buyer {
   function execute() public {
     require(executionTime == 0);
     executionTime = now;
-    crowdsale.buyToken.value(totalPayments)(address(this));
+    crowdsale.buyTokens.value(totalPayments)(address(this));
     require(token.balanceOf(address(this)) == totalPayments.mul(rate)); //fill entirely or fail
   }
 
-  function getTokens() {
+  function getTokens() public {
     require(executionTime != 0);
     require(payments[msg.sender] > 0);
     require(hasRedeemedToken[msg.sender] == false);
