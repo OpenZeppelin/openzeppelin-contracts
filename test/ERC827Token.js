@@ -4,6 +4,7 @@ var Message = artifacts.require('./mock/MessageHelper.sol');
 var ERC827TokenMock = artifacts.require('./mock/ERC827TokenMock.sol');
 
 var BigNumber = web3.BigNumber;
+var _ = require('lodash');
 var ethjsABI = require('ethjs-abi');
 require('chai')
   .use(require('chai-as-promised'))
@@ -12,6 +13,15 @@ require('chai')
 
 contract('ERC827 Token', function (accounts) {
   let token;
+
+  function findMethod (abi, name, args) {
+    for (var i = 0; i < abi.length; i++) {
+      const methodArgs = _.map(abi[i].inputs, 'type').join(',');
+      if ((abi[i].name === name) && (methodArgs === args)) {
+        return abi[i];
+      }
+    }
+  }
 
   beforeEach(async function () {
     token = await ERC827TokenMock.new(accounts[0], 100);
@@ -111,86 +121,90 @@ contract('ERC827 Token', function (accounts) {
   });
 
   describe('Test ERC827 methods', function () {
+    it(
+      'should return correct balances after transfer (with data) and show the event on receiver contract'
+      , async function () {
+        const message = await Message.new();
 
-    it('should return correct balances after transfer (with data) and show the event on receiver contract', async function () {
-      const message = await Message.new();
+        const extraData = message.contract.showMessage.getData(
+          web3.toHex(123456), 666, 'Transfer Done'
+        );
+        const abiMethod = findMethod(token.abi, 'transfer', 'address,uint256,bytes');
+        const transferData = ethjsABI.encodeMethod(abiMethod,
+          [message.contract.address, 100, extraData]
+        );
+        const transaction = await token.sendTransaction(
+          { from: accounts[0], data: transferData }
+        );
 
-      const extraData = message.contract.showMessage.getData(
-        web3.toHex(123456), 666, 'Transfer Done'
-      );
+        assert.equal(2, transaction.receipt.logs.length);
 
-      // Use method #8 tranfer of the abi to encode the data tx
-      const transferData = ethjsABI.encodeMethod(token.abi[8],
-        [message.contract.address, 100, extraData]
-      );
-      const transaction = await token.sendTransaction(
-        { from: accounts[0], data: transferData }
-      );
+        new BigNumber(100).should.be.bignumber.equal(
+          await token.balanceOf(message.contract.address)
+        );
+      });
 
-      assert.equal(2, transaction.receipt.logs.length);
+    it(
+      'should return correct allowance after approve (with data) and show the event on receiver contract'
+      , async function () {
+        const message = await Message.new();
 
-      new BigNumber(100).should.be.bignumber.equal(
-        await token.balanceOf(message.contract.address)
-      );
-    });
+        const extraData = message.contract.showMessage.getData(
+          web3.toHex(123456), 666, 'Transfer Done'
+        );
 
-    it('should return correct allowance after approve (with data) and show the event on receiver contract', async function () {
-      const message = await Message.new();
+        const abiMethod = findMethod(token.abi, 'approve', 'address,uint256,bytes');
+        const approveData = ethjsABI.encodeMethod(abiMethod,
+          [message.contract.address, 100, extraData]
+        );
+        const transaction = await token.sendTransaction(
+          { from: accounts[0], data: approveData }
+        );
 
-      const extraData = message.contract.showMessage.getData(
-        web3.toHex(123456), 666, 'Transfer Done'
-      );
+        assert.equal(2, transaction.receipt.logs.length);
 
-      // Use method #3 approve of the abi to encode the data tx
-      const approveData = ethjsABI.encodeMethod(token.abi[3],
-        [message.contract.address, 100, extraData]
-      );
-      const transaction = await token.sendTransaction(
-        { from: accounts[0], data: approveData }
-      );
+        new BigNumber(100).should.be.bignumber.equal(
+          await token.allowance(accounts[0], message.contract.address)
+        );
+      });
 
-      assert.equal(2, transaction.receipt.logs.length);
+    it(
+      'should return correct balances after transferFrom (with data) and show the event on receiver contract'
+      , async function () {
+        const message = await Message.new();
 
-      new BigNumber(100).should.be.bignumber.equal(
-        await token.allowance(accounts[0], message.contract.address)
-      );
-    });
+        const extraData = message.contract.showMessage.getData(
+          web3.toHex(123456), 666, 'Transfer Done'
+        );
 
-    it('should return correct balances after transferFrom (with data) and show the event on receiver contract', async function () {
-      const message = await Message.new();
+        await token.approve(accounts[1], 100, { from: accounts[0] });
 
-      const extraData = message.contract.showMessage.getData(
-        web3.toHex(123456), 666, 'Transfer Done'
-      );
+        new BigNumber(100).should.be.bignumber.equal(
+          await token.allowance(accounts[0], accounts[1])
+        );
 
-      await token.approve(accounts[1], 100, { from: accounts[0] });
+        const abiMethod = findMethod(token.abi, 'transferFrom', 'address,address,uint256,bytes');
+        const transferFromData = ethjsABI.encodeMethod(abiMethod,
+          [accounts[0], message.contract.address, 100, extraData]
+        );
+        const transaction = await token.sendTransaction(
+          { from: accounts[1], data: transferFromData }
+        );
 
-      new BigNumber(100).should.be.bignumber.equal(
-        await token.allowance(accounts[0], accounts[1])
-      );
+        assert.equal(2, transaction.receipt.logs.length);
 
-      // Use method #7 transferFrom of the abi to encode the data tx
-      const transferFromData = ethjsABI.encodeMethod(token.abi[7],
-        [accounts[0], message.contract.address, 100, extraData]
-      );
-      const transaction = await token.sendTransaction(
-        { from: accounts[1], data: transferFromData }
-      );
-
-      assert.equal(2, transaction.receipt.logs.length);
-
-      new BigNumber(100).should.be.bignumber.equal(
-        await token.balanceOf(message.contract.address)
-      );
-    });
+        new BigNumber(100).should.be.bignumber.equal(
+          await token.balanceOf(message.contract.address)
+        );
+      });
 
     it('should fail inside approve (with data)', async function () {
       const message = await Message.new();
 
       const extraData = message.contract.fail.getData();
 
-      // Use method #3 approve of the abi to encode the data tx
-      const approveData = ethjsABI.encodeMethod(token.abi[3],
+      const abiMethod = findMethod(token.abi, 'approve', 'address,uint256,bytes');
+      const approveData = ethjsABI.encodeMethod(abiMethod,
         [message.contract.address, 10, extraData]
       );
       await token.sendTransaction(
@@ -207,8 +221,8 @@ contract('ERC827 Token', function (accounts) {
 
       const extraData = message.contract.fail.getData();
 
-      // Use method #8 tranfer of the abi to encode the data tx
-      const transferData = ethjsABI.encodeMethod(token.abi[8],
+      const abiMethod = findMethod(token.abi, 'transfer', 'address,uint256,bytes');
+      const transferData = ethjsABI.encodeMethod(abiMethod,
         [message.contract.address, 10, extraData]
       );
       await token.sendTransaction(
@@ -227,8 +241,8 @@ contract('ERC827 Token', function (accounts) {
 
       await token.approve(accounts[1], 10, { from: accounts[2] });
 
-      // Use method #7 tranferFrom of the abi to encode the data tx
-      const transferFromData = ethjsABI.encodeMethod(token.abi[7],
+      const abiMethod = findMethod(token.abi, 'transferFrom', 'address,address,uint256,bytes');
+      const transferFromData = ethjsABI.encodeMethod(abiMethod,
         [accounts[2], message.contract.address, 10, extraData]
       );
       await token.sendTransaction(
@@ -249,8 +263,8 @@ contract('ERC827 Token', function (accounts) {
         web3.toHex(123456), 666, 'Transfer Done'
       );
 
-      // Use method #3 approve of the abi to encode the data tx
-      const approveData = ethjsABI.encodeMethod(token.abi[3],
+      const abiMethod = findMethod(token.abi, 'approve', 'address,uint256,bytes');
+      const approveData = ethjsABI.encodeMethod(abiMethod,
         [token.contract.address, 100, extraData]
       );
       await token.sendTransaction(
@@ -265,8 +279,8 @@ contract('ERC827 Token', function (accounts) {
         web3.toHex(123456), 666, 'Transfer Done'
       );
 
-      // Use method #8 tranfer of the abi to encode the data tx
-      const transferData = ethjsABI.encodeMethod(token.abi[8],
+      const abiMethod = findMethod(token.abi, 'transfer', 'address,uint256,bytes');
+      const transferData = ethjsABI.encodeMethod(abiMethod,
         [token.contract.address, 100, extraData]
       );
       await token.sendTransaction(
@@ -283,8 +297,8 @@ contract('ERC827 Token', function (accounts) {
 
       await token.approve(accounts[1], 1, { from: accounts[0] });
 
-      // Use method #7 tranferFrom of the abi to encode the data tx
-      const transferFromData = ethjsABI.encodeMethod(token.abi[7],
+      const abiMethod = findMethod(token.abi, 'transferFrom', 'address,address,uint256,bytes');
+      const transferFromData = ethjsABI.encodeMethod(abiMethod,
         [accounts[0], token.contract.address, 1, extraData]
       );
       await token.sendTransaction(
