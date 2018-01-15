@@ -45,17 +45,17 @@ contract('RBAC', function (accounts) {
         .should.be.fulfilled;
     });
     it('does not allow admins to call #nobodyCanDoThis', async () => {
-      expectThrow(
+      await expectThrow(
         mock.nobodyCanDoThis({ from: admin })
       );
     });
     it('does not allow advisors to call #nobodyCanDoThis', async () => {
-      expectThrow(
+      await expectThrow(
         mock.nobodyCanDoThis({ from: advisors[0] })
       );
     });
     it('does not allow anyone to call #nobodyCanDoThis', async () => {
-      expectThrow(
+      await expectThrow(
         mock.nobodyCanDoThis({ from: anyone })
       );
     });
@@ -69,14 +69,14 @@ contract('RBAC', function (accounts) {
     });
 
     it('announces a RoleAdded event on addRole', async () => {
-      expectEvent.inTransaction(
+      await expectEvent.inTransaction(
         mock.adminAddRole(futureAdvisor, ROLE_ADVISOR, { from: admin }),
         'RoleAdded'
       );
     });
 
     it('announces a RoleRemoved event on removeRole', async () => {
-      expectEvent.inTransaction(
+      await expectEvent.inTransaction(
         mock.adminRemoveRole(futureAdvisor, ROLE_ADVISOR, { from: admin }),
         'RoleRemoved'
       );
@@ -85,12 +85,12 @@ contract('RBAC', function (accounts) {
 
   context('in adversarial conditions', () => {
     it('does not allow an advisor to remove another advisor', async () => {
-      expectThrow(
+      await expectThrow(
         mock.removeAdvisor(advisors[1], { from: advisors[0] })
       );
     });
     it('does not allow "anyone" to remove an advisor', async () => {
-      expectThrow(
+      await expectThrow(
         mock.removeAdvisor(advisors[0], { from: anyone })
       );
     });
