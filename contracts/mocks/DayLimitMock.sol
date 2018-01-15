@@ -1,5 +1,7 @@
 pragma solidity ^0.4.18;
+
 import "../../contracts/DayLimit.sol";
+
 
 contract DayLimitMock is DayLimit {
   uint256 public totalSpending;
