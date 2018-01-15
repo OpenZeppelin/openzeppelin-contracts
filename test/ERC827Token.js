@@ -94,7 +94,13 @@ contract('ERC827 Token', function (accounts) {
     });
 
     it('should increase by 50 then decrease by 10', async function () {
-      await token.increaseApproval(accounts[1], 50);
+      const abiMethod = findMethod(token.abi, 'increaseApproval', 'address,uint256');
+      const increaseApprovalData = ethjsABI.encodeMethod(abiMethod,
+        [accounts[1], 50]
+      );
+      await token.sendTransaction(
+        { from: accounts[0], data: increaseApprovalData }
+      );
       let postIncrease = await token.allowance(accounts[0], accounts[1]);
       preApproved.plus(50).should.be.bignumber.equal(postIncrease);
       await token.decreaseApproval(accounts[1], 10);
@@ -164,6 +170,56 @@ contract('ERC827 Token', function (accounts) {
         assert.equal(2, transaction.receipt.logs.length);
 
         new BigNumber(100).should.be.bignumber.equal(
+          await token.allowance(accounts[0], message.contract.address)
+        );
+      });
+
+    it(
+      'should return correct allowance after increaseApproval (with data) and show the event on receiver contract'
+      , async function () {
+        const message = await Message.new();
+
+        const extraData = message.contract.showMessage.getData(
+          web3.toHex(123456), 666, 'Transfer Done'
+        );
+
+        const abiMethod = findMethod(token.abi, 'increaseApproval', 'address,uint256,bytes');
+        const increaseApprovalData = ethjsABI.encodeMethod(abiMethod,
+          [message.contract.address, 50, extraData]
+        );
+        const transaction = await token.sendTransaction(
+          { from: accounts[0], data: increaseApprovalData }
+        );
+
+        assert.equal(2, transaction.receipt.logs.length);
+
+        new BigNumber(50).should.be.bignumber.equal(
+          await token.allowance(accounts[0], message.contract.address)
+        );
+      });
+
+    it(
+      'should return correct allowance after decreaseApproval (with data) and show the event on receiver contract'
+      , async function () {
+        const message = await Message.new();
+
+        await token.approve(message.contract.address, 100);
+
+        const extraData = message.contract.showMessage.getData(
+          web3.toHex(123456), 666, 'Transfer Done'
+        );
+
+        const abiMethod = findMethod(token.abi, 'decreaseApproval', 'address,uint256,bytes');
+        const decreaseApprovalData = ethjsABI.encodeMethod(abiMethod,
+          [message.contract.address, 60, extraData]
+        );
+        const transaction = await token.sendTransaction(
+          { from: accounts[0], data: decreaseApprovalData }
+        );
+
+        assert.equal(2, transaction.receipt.logs.length);
+
+        new BigNumber(40).should.be.bignumber.equal(
           await token.allowance(accounts[0], message.contract.address)
         );
       });
