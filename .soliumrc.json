@@ -5,6 +5,8 @@
     "quotes": ["error", "double"],
     "indentation": ["error", 2],
     "arg-overflow": ["warning", 3],
-    "security/enforce-explicit-visibility": ["error"]
+    "security/enforce-explicit-visibility": ["error"],
+    "security/no-block-members": ["warning"],
+    "security/no-inline-assembly": ["warning"]
   }
 }

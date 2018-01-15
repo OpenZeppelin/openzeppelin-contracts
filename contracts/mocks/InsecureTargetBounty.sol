@@ -4,7 +4,7 @@ import {Bounty, Target} from "../../contracts/Bounty.sol";
 
 
 contract InsecureTargetMock is Target {
-  function checkInvariant() public returns(bool){
+  function checkInvariant() public returns(bool) {
     return false;
   }
 }

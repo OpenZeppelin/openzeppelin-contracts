@@ -8,7 +8,7 @@ import "./Ownable.sol";
  * @dev Basic version of a contactable contract, allowing the owner to provide a string with their
  * contact information.
  */
-contract Contactable is Ownable{
+contract Contactable is Ownable {
 
   string public contactInformation;
 

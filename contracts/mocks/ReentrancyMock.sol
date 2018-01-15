@@ -17,7 +17,7 @@ contract ReentrancyMock is ReentrancyGuard {
   }
 
   function countLocalRecursive(uint256 n) public nonReentrant {
-    if(n > 0) {
+    if (n > 0) {
       count();
       countLocalRecursive(n - 1);
     }
@@ -25,7 +25,7 @@ contract ReentrancyMock is ReentrancyGuard {
 
   function countThisRecursive(uint256 n) public nonReentrant {
     bytes4 func = bytes4(keccak256("countThisRecursive(uint256)"));
-    if(n > 0) {
+    if (n > 0) {
       count();
       bool result = this.call(func, n - 1);
       require(result == true);

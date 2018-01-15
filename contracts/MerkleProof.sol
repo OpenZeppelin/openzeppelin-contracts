@@ -16,7 +16,9 @@ library MerkleProof {
    */
   function verifyProof(bytes _proof, bytes32 _root, bytes32 _leaf) public pure returns (bool) {
     // Check if proof length is a multiple of 32
-    if (_proof.length % 32 != 0) return false;
+    if (_proof.length % 32 != 0) {
+      return false;
+    }
 
     bytes32 proofElement;
     bytes32 computedHash = _leaf;

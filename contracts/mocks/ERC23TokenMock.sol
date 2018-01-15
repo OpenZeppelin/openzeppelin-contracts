@@ -25,7 +25,7 @@ contract ERC23TokenMock is BasicToken {
     assembly {
       is_contract := not(iszero(extcodesize(_to)))
     }
-    if(is_contract) {
+    if (is_contract) {
       ERC23ContractInterface receiver = ERC23ContractInterface(_to);
       receiver.tokenFallback(msg.sender, _value, _data);
     }
