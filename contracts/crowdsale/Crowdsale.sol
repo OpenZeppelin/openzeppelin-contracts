@@ -54,20 +54,9 @@ contract Crowdsale {
     wallet = _wallet;
   }
 
-  // creates the token to be sold.
-  // override this method to have crowdsale of a specific mintable token.
-  function createTokenContract() internal returns (MintableToken) {
-    return new MintableToken();
-  }
-
   // fallback function can be used to buy tokens
   function () external payable {
     buyTokens(msg.sender);
-  }
-
-  // Override this method to have a way to add business logic to your crowdsale when buying
-  function getTokenAmount(uint256 weiAmount) internal view returns(uint256) {
-    return weiAmount.mul(rate);
   }
 
   // low level token purchase function
@@ -89,6 +78,22 @@ contract Crowdsale {
     forwardFunds();
   }
 
+  // @return true if crowdsale event has ended
+  function hasEnded() public view returns (bool) {
+    return now > endTime;
+  }
+
+  // creates the token to be sold.
+  // override this method to have crowdsale of a specific mintable token.
+  function createTokenContract() internal returns (MintableToken) {
+    return new MintableToken();
+  }
+
+  // Override this method to have a way to add business logic to your crowdsale when buying
+  function getTokenAmount(uint256 weiAmount) internal view returns(uint256) {
+    return weiAmount.mul(rate);
+  }
+
   // send ether to the fund collection wallet
   // override to create custom fund forwarding mechanisms
   function forwardFunds() internal {
@@ -101,11 +106,5 @@ contract Crowdsale {
     bool nonZeroPurchase = msg.value != 0;
     return withinPeriod && nonZeroPurchase;
   }
-
-  // @return true if crowdsale event has ended
-  function hasEnded() public view returns (bool) {
-    return now > endTime;
-  }
-
 
 }

@@ -27,19 +27,16 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
     goal = _goal;
   }
 
-  // We're overriding the fund forwarding from Crowdsale.
-  // In addition to sending the funds, we want to call
-  // the RefundVault deposit function
-  function forwardFunds() internal {
-    vault.deposit.value(msg.value)(msg.sender);
-  }
-
   // if crowdsale is unsuccessful, investors can claim refunds here
   function claimRefund() public {
     require(isFinalized);
     require(!goalReached());
 
     vault.refund(msg.sender);
+  }
+
+  function goalReached() public view returns (bool) {
+    return weiRaised >= goal;
   }
 
   // vault finalization task, called when owner calls finalize()
@@ -53,8 +50,11 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
     super.finalization();
   }
 
-  function goalReached() public view returns (bool) {
-    return weiRaised >= goal;
+  // We're overriding the fund forwarding from Crowdsale.
+  // In addition to sending the funds, we want to call
+  // the RefundVault deposit function
+  function forwardFunds() internal {
+    vault.deposit.value(msg.value)(msg.sender);
   }
 
 }

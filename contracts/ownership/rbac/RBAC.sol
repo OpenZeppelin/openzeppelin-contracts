@@ -37,30 +37,6 @@ contract RBAC {
   }
 
   /**
-   * @dev add a role to an address
-   * @param addr address
-   * @param roleName the name of the role
-   */
-  function addRole(address addr, string roleName)
-    internal
-  {
-    roles[roleName].add(addr);
-    RoleAdded(addr, roleName);
-  }
-
-  /**
-   * @dev remove a role from an address
-   * @param addr address
-   * @param roleName the name of the role
-   */
-  function removeRole(address addr, string roleName)
-    internal
-  {
-    roles[roleName].remove(addr);
-    RoleRemoved(addr, roleName);
-  }
-
-  /**
    * @dev reverts if addr does not have role
    * @param addr address
    * @param roleName the name of the role
@@ -109,6 +85,30 @@ contract RBAC {
     public
   {
     removeRole(addr, roleName);
+  }
+
+  /**
+   * @dev add a role to an address
+   * @param addr address
+   * @param roleName the name of the role
+   */
+  function addRole(address addr, string roleName)
+    internal
+  {
+    roles[roleName].add(addr);
+    RoleAdded(addr, roleName);
+  }
+
+  /**
+   * @dev remove a role from an address
+   * @param addr address
+   * @param roleName the name of the role
+   */
+  function removeRole(address addr, string roleName)
+    internal
+  {
+    roles[roleName].remove(addr);
+    RoleRemoved(addr, roleName);
   }
 
   /**

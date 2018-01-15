@@ -12,8 +12,8 @@ contract ReentrancyMock is ReentrancyGuard {
     counter = 0;
   }
 
-  function count() private {
-    counter += 1;
+  function callback() external nonReentrant {
+    count();
   }
 
   function countLocalRecursive(uint256 n) public nonReentrant {
@@ -38,8 +38,8 @@ contract ReentrancyMock is ReentrancyGuard {
     attacker.callSender(func);
   }
 
-  function callback() external nonReentrant {
-    count();
+  function count() private {
+    counter += 1;
   }
 
 }

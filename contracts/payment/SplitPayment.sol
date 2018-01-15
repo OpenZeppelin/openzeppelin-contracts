@@ -30,19 +30,9 @@ contract SplitPayment {
   }
 
   /**
-   * @dev Add a new payee to the contract.
-   * @param _payee The address of the payee to add.
-   * @param _shares The number of shares owned by the payee.
+   * @dev payable fallback
    */
-  function addPayee(address _payee, uint256 _shares) internal {
-    require(_payee != address(0));
-    require(_shares > 0);
-    require(shares[_payee] == 0);
-
-    payees.push(_payee);
-    shares[_payee] = _shares;
-    totalShares = totalShares.add(_shares);
-  }
+  function () public payable {}
 
   /**
    * @dev Claim your share of the balance.
@@ -65,7 +55,17 @@ contract SplitPayment {
   }
 
   /**
-   * @dev payable fallback
+   * @dev Add a new payee to the contract.
+   * @param _payee The address of the payee to add.
+   * @param _shares The number of shares owned by the payee.
    */
-  function () public payable {}
+  function addPayee(address _payee, uint256 _shares) internal {
+    require(_payee != address(0));
+    require(_shares > 0);
+    require(shares[_payee] == 0);
+
+    payees.push(_payee);
+    shares[_payee] = _shares;
+    totalShares = totalShares.add(_shares);
+  }
 }
