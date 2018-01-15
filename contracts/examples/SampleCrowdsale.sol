@@ -12,9 +12,9 @@ import "../token/MintableToken.sol";
  */
 contract SampleCrowdsaleToken is MintableToken {
 
-  string public constant name = "Sample Crowdsale Token";
-  string public constant symbol = "SCT";
-  uint8 public constant decimals = 18;
+  string public constant name = "Sample Crowdsale Token"; // solium-disable-line uppercase
+  string public constant symbol = "SCT"; // solium-disable-line uppercase
+  uint8 public constant decimals = 18; // solium-disable-line uppercase
 
 }
 
