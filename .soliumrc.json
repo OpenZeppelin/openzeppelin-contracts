@@ -2,9 +2,9 @@
   "extends": "solium:all",
   "plugins": ["security"],
   "rules": {
-    "indentation": ["error", 2],
     "quotes": ["error", "double"],
-    "security/enforce-explicit-visibility": ["error"],
-    "security/no-block-members": ["warning", ["timestamp"]]
+    "indentation": ["error", 2],
+    "arg-overflow": ["warning", 3],
+    "security/enforce-explicit-visibility": ["error"]
   }
 }
