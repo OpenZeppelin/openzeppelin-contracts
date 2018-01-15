@@ -1,6 +1,6 @@
 pragma solidity ^0.4.18;
 
-import '../math/SafeMath.sol';
+import "../math/SafeMath.sol";
 
 /**
  * @title SplitPayment

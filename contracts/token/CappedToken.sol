@@ -1,6 +1,6 @@
 pragma solidity ^0.4.11;
 
-import './MintableToken.sol';
+import "./MintableToken.sol";
 
 /**
  * @title Capped token

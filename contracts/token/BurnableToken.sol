@@ -1,6 +1,6 @@
 pragma solidity ^0.4.18;
 
-import './BasicToken.sol';
+import "./BasicToken.sol";
 
 /**
  * @title Burnable Token

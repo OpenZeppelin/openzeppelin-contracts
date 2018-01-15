@@ -1,6 +1,6 @@
 pragma solidity ^0.4.8;
 
-import '../ownership/rbac/RBAC.sol';
+import "../ownership/rbac/RBAC.sol";
 
 
 contract RBACMock is RBAC {

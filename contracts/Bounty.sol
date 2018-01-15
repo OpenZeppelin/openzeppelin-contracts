@@ -1,8 +1,8 @@
 pragma solidity ^0.4.18;
 
 
-import './payment/PullPayment.sol';
-import './lifecycle/Destructible.sol';
+import "./payment/PullPayment.sol";
+import "./lifecycle/Destructible.sol";
 
 
 /**
