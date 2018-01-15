@@ -6,6 +6,10 @@
     "test": "scripts/test.sh",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "lint:sol": "solium -d .",
+    "lint:sol:fix": "solium -d . --fix",
+    "lint:all": "npm run lint && npm run lint:sol",
+    "lint:all:fix": "npm run lint:fix && npm run lint:sol:fix",
     "console": "truffle console",
     "coverage": "scripts/coverage.sh"
   },
@@ -47,6 +51,7 @@
     "ethereumjs-util": "^5.1.2",
     "mocha-lcov-reporter": "^1.3.0",
     "solidity-coverage": "^0.4.3",
+    "solium": "^1.1.2",
     "truffle": "^4.0.0",
     "truffle-hdwallet-provider": "0.0.3"
   },
