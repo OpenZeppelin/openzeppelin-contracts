@@ -59,10 +59,14 @@ contract Crowdsale {
     return new MintableToken();
   }
 
-
   // fallback function can be used to buy tokens
   function () external payable {
     buyTokens(msg.sender);
+  }
+
+  // Override this method to have a way to add business logic to your crowdsale when buying
+  function getTokenAmount(uint256 weiAmount) internal view returns(uint256) {
+    return weiAmount.mul(rate);
   }
 
   // low level token purchase function
@@ -73,7 +77,7 @@ contract Crowdsale {
     uint256 weiAmount = msg.value;
 
     // calculate token amount to be created
-    uint256 tokens = weiAmount.mul(rate);
+    uint256 tokens = getTokenAmount(weiAmount);
 
     // update state
     weiRaised = weiRaised.add(weiAmount);
