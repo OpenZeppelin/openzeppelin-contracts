@@ -111,7 +111,6 @@ contract RBAC {
     removeRole(addr, roleName);
   }
 
-
   /**
    * @dev modifier to scope access to a single role (uses msg.sender as addr)
    * @param roleName the name of the role

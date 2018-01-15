@@ -2,6 +2,7 @@ pragma solidity ^0.4.18;
 
 import "../math/SafeMath.sol";
 
+
 /**
  * @title SplitPayment
  * @dev Base contract that supports multiple payees claiming funds sent to this contract

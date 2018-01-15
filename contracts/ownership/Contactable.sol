@@ -2,6 +2,7 @@ pragma solidity ^0.4.18;
 
 import "./Ownable.sol";
 
+
 /**
  * @title Contactable token
  * @dev Basic version of a contactable contract, allowing the owner to provide a string with their

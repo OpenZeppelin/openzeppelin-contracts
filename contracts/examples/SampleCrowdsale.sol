@@ -4,6 +4,7 @@ import "../crowdsale/CappedCrowdsale.sol";
 import "../crowdsale/RefundableCrowdsale.sol";
 import "../token/MintableToken.sol";
 
+
 /**
  * @title SampleCrowdsaleToken
  * @dev Very simple ERC20 Token that can be minted.
@@ -16,6 +17,7 @@ contract SampleCrowdsaleToken is MintableToken {
   uint8 public constant decimals = 18;
 
 }
+
 
 /**
  * @title SampleCrowdsale

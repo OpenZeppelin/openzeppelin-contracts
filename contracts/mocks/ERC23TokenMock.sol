@@ -8,6 +8,7 @@ contract ERC23ContractInterface {
   function tokenFallback(address _from, uint256 _value, bytes _data) external;
 }
 
+
 contract ERC23TokenMock is BasicToken {
 
   function ERC23TokenMock(address initialAccount, uint256 initialBalance) public {

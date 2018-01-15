@@ -3,6 +3,7 @@ pragma solidity ^0.4.18;
 import "../math/SafeMath.sol";
 import "./Crowdsale.sol";
 
+
 /**
  * @title CappedCrowdsale
  * @dev Extension of Crowdsale with a max amount of funds raised

@@ -3,6 +3,7 @@ pragma solidity ^0.4.18;
 import "../token/MintableToken.sol";
 import "../math/SafeMath.sol";
 
+
 /**
  * @title Crowdsale
  * @dev Crowdsale is a base contract for managing a token crowdsale.

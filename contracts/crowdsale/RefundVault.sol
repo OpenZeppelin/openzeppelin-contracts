@@ -3,6 +3,7 @@ pragma solidity ^0.4.18;
 import "../math/SafeMath.sol";
 import "../ownership/Ownable.sol";
 
+
 /**
  * @title RefundVault
  * @dev This contract is used for storing funds while a crowdsale

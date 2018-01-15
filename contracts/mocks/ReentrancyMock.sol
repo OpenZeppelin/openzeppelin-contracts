@@ -3,6 +3,7 @@ pragma solidity ^0.4.18;
 import "../ReentrancyGuard.sol";
 import "./ReentrancyAttack.sol";
 
+
 contract ReentrancyMock is ReentrancyGuard {
 
   uint256 public counter;
