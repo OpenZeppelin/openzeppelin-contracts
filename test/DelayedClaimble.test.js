@@ -1,4 +1,6 @@
 
+import assertRevert from './helpers/assertRevert';
+
 var DelayedClaimable = artifacts.require('../contracts/ownership/DelayedClaimable.sol');
 
 contract('DelayedClaimable', function (accounts) {
@@ -42,25 +44,13 @@ contract('DelayedClaimable', function (accounts) {
     assert.equal(start, 100);
     let pendingOwner = await delayedClaimable.pendingOwner();
     assert.equal(pendingOwner, accounts[1]);
-    var err = null;
-    try {
-      await delayedClaimable.claimOwnership({ from: accounts[1] });
-    } catch (error) {
-      err = error;
-    }
-    assert.isFalse(err.message.search('revert') === -1);
+    await assertRevert(delayedClaimable.claimOwnership({ from: accounts[1] }));
     let owner = await delayedClaimable.owner();
     assert.isTrue(owner !== accounts[1]);
   });
 
   it('set end and start invalid values fail', async function () {
     await delayedClaimable.transferOwnership(accounts[1]);
-    var err = null;
-    try {
-      await delayedClaimable.setLimits(1001, 1000);
-    } catch (error) {
-      err = error;
-    }
-    assert.isFalse(err.message.search('revert') === -1);
+    await assertRevert(delayedClaimable.setLimits(1001, 1000));
   });
 });
