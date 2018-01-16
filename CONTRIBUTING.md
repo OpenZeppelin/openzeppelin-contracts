@@ -1,7 +1,7 @@
-Contributing to Open Zeppelin
+Contributing to OpenZeppelin
 =======
 
-We really appreciate and value contributions to Open Zeppelin. Please take 5' to review the items listed below to make sure that your contributions are merged as soon as possible. 
+We really appreciate and value contributions to OpenZeppelin. Please take 5' to review the items listed below to make sure that your contributions are merged as soon as possible. 
 
 ## Contribution guidelines
 
@@ -20,11 +20,12 @@ As a contributor, you are expected to fork this repository, work on your own for
 1) Make sure your fork is up to date with the main repository:
 
 ```
-cd my-zeppelin-solidity-fork
+cd zeppelin-solidity
 git fetch upstream
 git checkout development
 git pull --rebase upstream development
 ```
+NOTE: The directory `zeppelin-solidity` represents your fork's local copy.
 
 2) Branch out from `development` into `fix/some-bug-#123`:
 (Postfixing #123 will associate your PR with the issue #123 and make everyone's life easier =D)
@@ -35,7 +36,7 @@ git checkout -b fix/some-bug-#123
 3) Make your changes, add your files, commit and push to your fork.
 
 ```
-git add -A
+git add SomeFile.js
 git commit "Fix some bug #123"
 git push origin fix/some-bug-#123
 ```
@@ -45,9 +46,9 @@ git push origin fix/some-bug-#123
 *IMPORTANT* Read the PR template very carefully and make sure to follow all the instructions. These instructions 
 refer to some very important conditions that your PR must meet in order to be accepted, such as making sure that all tests pass, JS linting tests pass, solidity linting tests pass, etc.
 
-5) Maintainers will review your code and possibly ask for changes before your code is pulled in to the main repository. We'll check that all tests pass, review the coding style, and check for general code correctness. If everything is OK, we'll merge your pull request and your code will be part of Open Zeppelin.
+5) Maintainers will review your code and possibly ask for changes before your code is pulled in to the main repository. We'll check that all tests pass, review the coding style, and check for general code correctness. If everything is OK, we'll merge your pull request and your code will be part of OpenZeppelin.
 
-*IMPORTANT* Please pay attention to the maintainer's feedback, since its a necessary step to keep up with the standards Open Zeppelin attains to.
+*IMPORTANT* Please pay attention to the maintainer's feedback, since its a necessary step to keep up with the standards OpenZeppelin attains to.
 
 ## All set!
 
