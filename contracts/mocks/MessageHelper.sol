@@ -12,7 +12,7 @@ contract MessageHelper {
   }
 
   function fail() {
-    throw;
+    require(false);
   }
 
   function call(address to, bytes data) returns (bool) {
