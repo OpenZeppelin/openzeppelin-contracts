@@ -45,4 +45,13 @@ library SafeMath {
     assert(c >= a);
     return c;
   }
+
+  /**
+  * @dev Shift-left operation of a by b positions.
+  */
+  function shiftLeft(uint256 a, uint256 b) internal pure returns (uint256) {
+    uint256 c = a << b;
+    assert((c >> b) == a);
+    return c;
+  }
 }

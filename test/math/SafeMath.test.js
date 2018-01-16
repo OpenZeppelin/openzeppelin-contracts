@@ -35,6 +35,15 @@ contract('SafeMath', function (accounts) {
     assert.equal(result, a - b);
   });
 
+  it('shifts left correctly', async function () {
+    let a = 5678;
+    let b = 10;
+    await safeMath.shiftLeft(a, b);
+    let result = await safeMath.result();
+
+    assert.equal(result, a << b);
+  });
+
   it('should throw an error if subtraction result would be negative', async function () {
     let a = 1234;
     let b = 5678;
@@ -56,5 +65,11 @@ contract('SafeMath', function (accounts) {
     let a = 115792089237316195423570985008687907853269984665640564039457584007913129639933;
     let b = 2;
     await assertRevert(safeMath.multiply(a, b));
+  });
+
+  it('should throw an error on shift left overflow', async function () {
+    let a = 115792089237316195423570985008687907853269984665640564039457584007913129639933;
+    let b = 2;
+    await assertRevert(safeMath.shiftLeft(a, b));
   });
 });

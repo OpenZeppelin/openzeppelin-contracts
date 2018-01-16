@@ -18,4 +18,8 @@ contract SafeMathMock {
   function add(uint256 a, uint256 b) public {
     result = SafeMath.add(a, b);
   }
+
+  function shiftLeft(uint256 a, uint256 b) public {
+    result = SafeMath.shiftLeft(a, b);
+  }
 }
