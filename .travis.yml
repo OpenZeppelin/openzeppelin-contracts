@@ -7,10 +7,19 @@ node_js:
 cache:
   directories:
     - node_modules
+env:
+  -
+  - SOLIDITY_COVERAGE=true
+matrix:
+  fast_finish: true
+  allow_failures:
+    - env: SOLIDITY_COVERAGE=true
 before_script:
   - truffle version
 script:
-  - npm test
+  - npm run lint
+  - npm run lint:sol
+  - npm run test
 notifications:
   slack:
     rooms:

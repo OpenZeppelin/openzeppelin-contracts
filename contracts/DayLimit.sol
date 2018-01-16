@@ -1,5 +1,6 @@
 pragma solidity ^0.4.18;
 
+
 /**
  * @title DayLimit
  * @dev Base contract that enables methods to be protected by placing a linear limit (specifiable)

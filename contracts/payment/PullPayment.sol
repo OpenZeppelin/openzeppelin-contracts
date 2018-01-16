@@ -1,7 +1,7 @@
 pragma solidity ^0.4.18;
 
 
-import '../math/SafeMath.sol';
+import "../math/SafeMath.sol";
 
 
 /**
@@ -14,16 +14,6 @@ contract PullPayment {
 
   mapping(address => uint256) public payments;
   uint256 public totalPayments;
-
-  /**
-  * @dev Called by the payer to store the sent amount as credit to be pulled.
-  * @param dest The destination address of the funds.
-  * @param amount The amount to transfer.
-  */
-  function asyncSend(address dest, uint256 amount) internal {
-    payments[dest] = payments[dest].add(amount);
-    totalPayments = totalPayments.add(amount);
-  }
 
   /**
   * @dev withdraw accumulated balance, called by payee.
@@ -39,5 +29,15 @@ contract PullPayment {
     payments[payee] = 0;
 
     assert(payee.send(payment));
+  }
+
+  /**
+  * @dev Called by the payer to store the sent amount as credit to be pulled.
+  * @param dest The destination address of the funds.
+  * @param amount The amount to transfer.
+  */
+  function asyncSend(address dest, uint256 amount) internal {
+    payments[dest] = payments[dest].add(amount);
+    totalPayments = totalPayments.add(amount);
   }
 }

@@ -38,7 +38,7 @@ The design guidelines have quite a high abstraction level. These style guideline
 
 #### G0 - Default to Solidity's official style guide.
 
-Follow the official Solidity style guide: http://solidity.readthedocs.io/en/latest/style-guide.html
+Follow the official Solidity style guide: https://solidity.readthedocs.io/en/latest/style-guide.html
 
 #### G1 - No Magic Constants
 
@@ -79,6 +79,8 @@ git checkout -b feature/some-new-stuff
 git checkout -b fix/some-bug
 git checkout -b remove/some-file
 ```
+
+If your branch is planned to fix an open issue, postfix your branch name with the issue number like `fix/some-bug-#123`.
 
 We expect pull requests to be rebased to the master branch before merging:
 ```sh
