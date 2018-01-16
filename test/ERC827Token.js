@@ -183,6 +183,11 @@ contract('ERC827 Token', function (accounts) {
           web3.toHex(123456), 666, 'Transfer Done'
         );
 
+        await token.approve(message.contract.address, 10);
+        new BigNumber(10).should.be.bignumber.equal(
+          await token.allowance(accounts[0], message.contract.address)
+        );
+
         const abiMethod = findMethod(token.abi, 'increaseApproval', 'address,uint256,bytes');
         const increaseApprovalData = ethjsABI.encodeMethod(abiMethod,
           [message.contract.address, 50, extraData]
@@ -193,7 +198,7 @@ contract('ERC827 Token', function (accounts) {
 
         assert.equal(2, transaction.receipt.logs.length);
 
-        new BigNumber(50).should.be.bignumber.equal(
+        new BigNumber(60).should.be.bignumber.equal(
           await token.allowance(accounts[0], message.contract.address)
         );
       });
@@ -204,6 +209,10 @@ contract('ERC827 Token', function (accounts) {
         const message = await Message.new();
 
         await token.approve(message.contract.address, 100);
+
+        new BigNumber(100).should.be.bignumber.equal(
+          await token.allowance(accounts[0], message.contract.address)
+        );
 
         const extraData = message.contract.showMessage.getData(
           web3.toHex(123456), 666, 'Transfer Done'

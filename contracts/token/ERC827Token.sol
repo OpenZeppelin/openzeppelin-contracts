@@ -94,7 +94,7 @@ contract ERC827Token is ERC827, StandardToken {
   function increaseApproval(address _spender, uint _addedValue, bytes _data) public returns (bool) {
     require(_spender != address(this));
 
-    super.approve(_spender, _addedValue);
+    super.increaseApproval(_spender, _addedValue);
 
     require(_spender.call(_data));
 
