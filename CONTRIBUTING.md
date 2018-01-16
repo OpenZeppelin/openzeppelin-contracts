@@ -7,17 +7,13 @@ We really appreciate and value contributions to Open Zeppelin. Please take 5' to
 
 Smart contracts manage value and are highly vulnerable to errors and attacks. We have very strict guidelines, please make sure to review them: ["Contribution guidelines wiki entry"](https://github.com/OpenZeppelin/zeppelin-solidity/wiki/Contrbuting-guidelines).
 
-## Branching
-
-When it comes to branching, we follow the "git-flow" method. Please see ["Git flow wiki entry"](https://github.com/OpenZeppelin/zeppelin-solidity/wiki/Git-flow).
-
-*IMPORTANT* This means that our main development branch is `development`, not `master`.
-
 ## Creating Pull Requests (PRs)
 
 As a contributor, you are expected to fork this repository, work on your own fork and then submit pull requests. The pull requests will be reviewed and eventually merged into the main repo. See ["Fork-a-Repo"](https://help.github.com/articles/fork-a-repo/) for how this works.
 
-*IMPORTANT* Please use `rebase` instead of `merge`.
+*IMPORTANT* 
+* Please use `rebase` instead of `merge` when updating your fork.
+* Please see ["Git flow wiki entry"](https://github.com/OpenZeppelin/zeppelin-solidity/wiki/Git-flow) for understanding how to use branches in this repository.
 
 ## A typical workflow
 
@@ -51,7 +47,7 @@ refer to some very important conditions that your PR must meet in order to be ac
 
 5) Maintainers will review your code and possibly ask for changes before your code is pulled in to the main repository. We'll check that all tests pass, review the coding style, and check for general code correctness. If everything is OK, we'll merge your pull request and your code will be part of Open Zeppelin.
 
-*IMPORTANT* It is not uncommon for almost finished PRs to stay unmerged for a long time, so, considering the effort you put in your code, please pay attention to the maintainer's feedback since its a necessary to keep up with the standards Open Zeppelin attains to. 
+*IMPORTANT* Please pay attention to the maintainer's feedback, since its a necessary step to keep up with the standards Open Zeppelin attains to.
 
 ## All set!
 
