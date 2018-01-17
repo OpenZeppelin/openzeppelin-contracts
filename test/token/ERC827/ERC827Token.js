@@ -1,7 +1,7 @@
 
-import EVMRevert from './helpers/EVMRevert';
-var Message = artifacts.require('./mock/MessageHelper.sol');
-var ERC827TokenMock = artifacts.require('./mock/ERC827TokenMock.sol');
+import EVMRevert from '../../helpers/EVMRevert';
+var Message = artifacts.require('MessageHelper.sol');
+var ERC827TokenMock = artifacts.require('ERC827TokenMock.sol');
 
 var BigNumber = web3.BigNumber;
 var _ = require('lodash');
