@@ -56,6 +56,7 @@
     "truffle-hdwallet-provider": "0.0.3"
   },
   "dependencies": {
-    "dotenv": "^4.0.0"
+    "dotenv": "^4.0.0",
+    "ethjs-abi": "^0.2.1"
   }
 }
