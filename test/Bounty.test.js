@@ -74,7 +74,7 @@ contract('Bounty', function (accounts) {
             web3.eth.getBalance(bounty.address).toNumber());
         }
       };
-      bounty.createTarget({ from: researcher });
+      await bounty.createTarget({ from: researcher });
       await awaitEvent(event, watcher);
     });
   });
@@ -104,7 +104,7 @@ contract('Bounty', function (accounts) {
 
         assert.equal(0, web3.eth.getBalance(bounty.address).toNumber());
       };
-      bounty.createTarget({ from: researcher });
+      await bounty.createTarget({ from: researcher });
       await awaitEvent(event, watcher);
     });
   });
