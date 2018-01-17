@@ -1,7 +1,7 @@
 pragma solidity ^0.4.18;
 
-import './ERC721.sol';
-import '../math/SafeMath.sol';
+import "./ERC721.sol";
+import "../math/SafeMath.sol";
 
 /**
  * @title ERC721Token
@@ -97,9 +97,10 @@ contract ERC721Token is ERC721 {
   function approve(address _to, uint256 _tokenId) public onlyOwnerOf(_tokenId) {
     address owner = ownerOf(_tokenId);
     require(_to != owner);
-    if(approvedFor(_tokenId) == 0 && _to == 0) return;
-    tokenApprovals[_tokenId] = _to;
-    Approval(owner, _to, _tokenId);
+    if (approvedFor(_tokenId) != 0 || _to != 0) {
+      tokenApprovals[_tokenId] = _to;
+      Approval(owner, _to, _tokenId);
+    }
   }
 
   /**
@@ -127,7 +128,7 @@ contract ERC721Token is ERC721 {
   * @param _tokenId uint256 ID of the token being burned by the msg.sender
   */
   function burn(uint256 _tokenId) onlyOwnerOf(_tokenId) internal {
-    if(approvedFor(_tokenId) != 0) {
+    if (approvedFor(_tokenId) != 0) {
       clearApproval(msg.sender, _tokenId);
     }
     removeToken(msg.sender, _tokenId);
