@@ -1,4 +1,3 @@
-## The Problem
 
 - [ ] 🐛 This is a bug report.
 - [ ] 📈 This is a feature request.

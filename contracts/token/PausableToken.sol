@@ -1,14 +1,14 @@
 pragma solidity ^0.4.18;
 
-import './StandardToken.sol';
-import '../lifecycle/Pausable.sol';
+import "./StandardToken.sol";
+import "../lifecycle/Pausable.sol";
+
 
 /**
  * @title Pausable token
  *
  * @dev StandardToken modified with pausable transfers.
  **/
-
 contract PausableToken is StandardToken, Pausable {
 
   function transfer(address _to, uint256 _value) public whenNotPaused returns (bool) {
