@@ -1,10 +1,10 @@
-import EVMThrow from '../helpers/EVMThrow';
+import EVMThrow from '../../helpers/EVMThrow';
 
 require('chai')
   .use(require('chai-as-promised'))
   .should();
 
-const SafeERC20Helper = artifacts.require('mocks/SafeERC20Helper.sol');
+const SafeERC20Helper = artifacts.require('SafeERC20Helper.sol');
 
 contract('SafeERC20', function () {
   beforeEach(async function () {
