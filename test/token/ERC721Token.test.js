@@ -17,8 +17,8 @@ contract('ERC721Token', accounts => {
 
   beforeEach(async function () {
     token = await ERC721Token.new({ from: _creator });
-    await token.publicMint(_creator, _firstTokenId, { from: _creator });
-    await token.publicMint(_creator, _secondTokenId, { from: _creator });
+    await token.mint(_creator, _firstTokenId, { from: _creator });
+    await token.mint(_creator, _secondTokenId, { from: _creator });
   });
 
   describe('totalSupply', function () {
@@ -73,7 +73,7 @@ contract('ERC721Token', accounts => {
         it('mints the given token ID to the given address', async function () {
           const previousBalance = await token.balanceOf(to);
 
-          await token.publicMint(to, tokenId);
+          await token.mint(to, tokenId);
 
           const owner = await token.ownerOf(tokenId);
           owner.should.be.equal(to);
@@ -83,7 +83,7 @@ contract('ERC721Token', accounts => {
         });
 
         it('adds that token to the token list of the owner', async function () {
-          await token.publicMint(to, tokenId);
+          await token.mint(to, tokenId);
 
           const tokens = await token.tokensOf(to);
           tokens.length.should.be.equal(1);
@@ -91,7 +91,7 @@ contract('ERC721Token', accounts => {
         });
 
         it('emits a transfer event', async function () {
-          const { logs } = await token.publicMint(to, tokenId);
+          const { logs } = await token.mint(to, tokenId);
 
           logs.length.should.be.equal(1);
           logs[0].event.should.be.eq('Transfer');
@@ -105,7 +105,7 @@ contract('ERC721Token', accounts => {
         const to = ZERO_ADDRESS;
 
         it('reverts', async function () {
-          await assertRevert(token.publicMint(to, tokenId));
+          await assertRevert(token.mint(to, tokenId));
         });
       });
     });
@@ -114,7 +114,7 @@ contract('ERC721Token', accounts => {
       const tokenId = _firstTokenId;
 
       it('reverts', async function () {
-        await assertRevert(token.publicMint(accounts[1], tokenId));
+        await assertRevert(token.mint(accounts[1], tokenId));
       });
     });
   });
@@ -129,7 +129,7 @@ contract('ERC721Token', accounts => {
         it('burns the given token ID and adjusts the balance of the owner', async function () {
           const previousBalance = await token.balanceOf(sender);
 
-          await token.publicBurn(tokenId, { from: sender });
+          await token.burn(tokenId, { from: sender });
 
           await assertRevert(token.ownerOf(tokenId));
           const balance = await token.balanceOf(sender);
@@ -137,7 +137,7 @@ contract('ERC721Token', accounts => {
         });
 
         it('removes that token from the token list of the owner', async function () {
-          await token.publicBurn(tokenId, { from: sender });
+          await token.burn(tokenId, { from: sender });
 
           const tokens = await token.tokensOf(sender);
           tokens.length.should.be.equal(1);
@@ -145,7 +145,7 @@ contract('ERC721Token', accounts => {
         });
 
         it('emits a burn event', async function () {
-          const { logs } = await token.publicBurn(tokenId, { from: sender });
+          const { logs } = await token.burn(tokenId, { from: sender });
 
           logs.length.should.be.equal(1);
           logs[0].event.should.be.eq('Transfer');
@@ -160,13 +160,13 @@ contract('ERC721Token', accounts => {
           });
 
           it('clears the approval', async function () {
-            await token.publicBurn(tokenId, { from: sender });
+            await token.burn(tokenId, { from: sender });
             const approvedAccount = await token.approvedFor(tokenId);
             approvedAccount.should.be.equal(ZERO_ADDRESS);
           });
 
           it('emits an approval event', async function () {
-            const { logs } = await token.publicBurn(tokenId, { from: sender });
+            const { logs } = await token.burn(tokenId, { from: sender });
 
             logs.length.should.be.equal(2);
 
@@ -182,7 +182,7 @@ contract('ERC721Token', accounts => {
         const sender = accounts[1];
 
         it('reverts', async function () {
-          await assertRevert(token.publicBurn(tokenId, { from: sender }));
+          await assertRevert(token.burn(tokenId, { from: sender }));
         });
       });
     });
@@ -191,7 +191,7 @@ contract('ERC721Token', accounts => {
       const tokenID = _unknownTokenId;
 
       it('reverts', async function () {
-        await assertRevert(token.publicBurn(tokenID, { from: _creator }));
+        await assertRevert(token.burn(tokenID, { from: _creator }));
       });
     });
   });

@@ -108,7 +108,7 @@ contract ERC721Token is ERC721 {
   * @param _tokenId uint256 ID of the token being claimed by the msg.sender
   */
   function takeOwnership(uint256 _tokenId) public {
-    require(isApprovedFor(_tokenId));
+    require(isApprovedFor(msg.sender, _tokenId));
     clearApprovalAndTransfer(ownerOf(_tokenId), msg.sender, _tokenId);
   }
 
@@ -117,7 +117,7 @@ contract ERC721Token is ERC721 {
   * @param _to The address that will own the minted token
   * @param _tokenId uint256 ID of the token to be minted by the msg.sender
   */
-  function mint(address _to, uint256 _tokenId) internal {
+  function _mint(address _to, uint256 _tokenId) internal {
     require(_to != address(0));
     addToken(_to, _tokenId);
     Transfer(0x0, _to, _tokenId);
@@ -127,12 +127,23 @@ contract ERC721Token is ERC721 {
   * @dev Burns a specific token
   * @param _tokenId uint256 ID of the token being burned by the msg.sender
   */
-  function burn(uint256 _tokenId) onlyOwnerOf(_tokenId) internal {
+  function _burn(uint256 _tokenId) onlyOwnerOf(_tokenId) internal {
     if (approvedFor(_tokenId) != 0) {
       clearApproval(msg.sender, _tokenId);
     }
     removeToken(msg.sender, _tokenId);
     Transfer(msg.sender, 0x0, _tokenId);
+  }
+
+  /**
+   * @dev Tells whether the msg.sender is approved for the given token ID or not
+   * This function is not private so it can be extended in further implementations like the operatable ERC721
+   * @param _owner address of the owner to query the approval of
+   * @param _tokenId uint256 ID of the token to query the approval of
+   * @return bool whether the msg.sender is approved for the given token ID or not
+   */
+  function isApprovedFor(address _owner, uint256 _tokenId) internal view returns (bool) {
+    return approvedFor(_tokenId) == _owner;
   }
 
   /**
@@ -156,7 +167,7 @@ contract ERC721Token is ERC721 {
   * @dev Internal function to clear current approval of a given token ID
   * @param _tokenId uint256 ID of the token to be transferred
   */
-  function clearApproval(address _owner, uint256 _tokenId) internal {
+  function clearApproval(address _owner, uint256 _tokenId) private {
     require(ownerOf(_tokenId) == _owner);
     tokenApprovals[_tokenId] = 0;
     Approval(_owner, 0, _tokenId);
@@ -167,7 +178,7 @@ contract ERC721Token is ERC721 {
   * @param _to address representing the new owner of the given token ID
   * @param _tokenId uint256 ID of the token to be added to the tokens list of the given address
   */
-  function addToken(address _to, uint256 _tokenId) internal {
+  function addToken(address _to, uint256 _tokenId) private {
     require(tokenOwner[_tokenId] == address(0));
     tokenOwner[_tokenId] = _to;
     uint256 length = balanceOf(_to);
@@ -181,8 +192,7 @@ contract ERC721Token is ERC721 {
   * @param _from address representing the previous owner of the given token ID
   * @param _tokenId uint256 ID of the token to be removed from the tokens list of the given address
   */
-  function removeToken(address _from, uint256 _tokenId) internal {
-    require(balanceOf(_from) > 0);
+  function removeToken(address _from, uint256 _tokenId) private {
     require(ownerOf(_tokenId) == _from);
 
     uint256 tokenIndex = ownedTokensIndex[_tokenId];
@@ -192,18 +202,13 @@ contract ERC721Token is ERC721 {
     tokenOwner[_tokenId] = 0;
     ownedTokens[_from][tokenIndex] = lastToken;
     ownedTokens[_from][lastTokenIndex] = 0;
+    // Note that this will handle single-element arrays. In that case, both tokenIndex and lastTokenIndex are going to
+    // be zero. Then we can make sure that we will remove _tokenId from the ownedTokens list since we are first swapping
+    // the lastToken to the first position, and then dropping the element placed in the last position of the list
+
     ownedTokens[_from].length--;
     ownedTokensIndex[_tokenId] = 0;
     ownedTokensIndex[lastToken] = tokenIndex;
     totalTokens = totalTokens.sub(1);
-  }
-
-  /**
-   * @dev Tells whether the msg.sender is approved for the given token ID or not
-   * @param _tokenId uint256 ID of the token to query the approval of
-   * @return bool whether the msg.sender is approved for the given token ID or not
-   */
-  function isApprovedFor(uint256 _tokenId) internal view returns (bool) {
-    return approvedFor(_tokenId) == msg.sender;
   }
 }
