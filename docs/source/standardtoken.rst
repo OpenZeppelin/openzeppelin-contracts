@@ -9,11 +9,11 @@ approve(address _spender, uint _value) returns (bool success)
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Sets the amount of the sender's token balance that the passed address is approved to use.
 
-allowance(address _owner, address _spender) constant returns (uint remaining)
+allowance(address _owner, address _spender) view returns (uint remaining)
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Returns the approved amount of the owner's balance that the spender can use.
 
-balanceOf(address _owner) constant returns (uint balance)
+balanceOf(address _owner) view returns (uint balance)
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Returns the token balance of the passed address.
 
