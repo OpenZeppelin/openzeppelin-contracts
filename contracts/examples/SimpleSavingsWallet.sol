@@ -15,11 +15,11 @@ import "../ownership/Heritable.sol";
  */
 contract SimpleSavingsWallet is Heritable {
 
-  event Sent(address payee, uint amount, uint balance);
-  event Received(address payer, uint amount, uint balance);
+  event Sent(address indexed payee, uint256 amount, uint256 balance);
+  event Received(address indexed payer, uint256 amount, uint256 balance);
 
 
-  function SimpleSavingsWallet(uint _heartbeatTimeout) Heritable(_heartbeatTimeout) public {}
+  function SimpleSavingsWallet(uint256 _heartbeatTimeout) Heritable(_heartbeatTimeout) public {}
   
   /**
    * @dev wallet can receive funds.
@@ -31,7 +31,7 @@ contract SimpleSavingsWallet is Heritable {
   /**
    * @dev wallet can send funds
    */
-  function sendTo(address payee, uint amount) public onlyOwner {
+  function sendTo(address payee, uint256 amount) public onlyOwner {
     require(payee != 0 && payee != address(this));
     require(amount > 0);
     payee.transfer(amount);
