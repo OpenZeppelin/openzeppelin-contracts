@@ -1,5 +1,5 @@
-import decodeLogs from './helpers/decodeLogs';
-const SimpleToken = artifacts.require('examples/SimpleToken.sol');
+import decodeLogs from '../helpers/decodeLogs';
+const SimpleToken = artifacts.require('SimpleToken.sol');
 
 contract('SimpleToken', accounts => {
   let token;
@@ -23,7 +23,7 @@ contract('SimpleToken', accounts => {
     const decimals = await token.decimals();
     assert(decimals.eq(18));
   });
-  
+
   it('assigns the initial total supply to the creator', async function () {
     const totalSupply = await token.totalSupply();
     const creatorBalance = await token.balanceOf(creator);

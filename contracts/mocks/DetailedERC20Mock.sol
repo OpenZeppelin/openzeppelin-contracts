@@ -1,7 +1,7 @@
 pragma solidity ^0.4.18;
 
 import "../token/StandardToken.sol";
-import "../token/DetailedERC20.sol";
+import "../token/ERC20/DetailedERC20.sol";
 
 
 contract DetailedERC20Mock is StandardToken, DetailedERC20 {
