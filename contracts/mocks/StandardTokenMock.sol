@@ -9,7 +9,7 @@ contract StandardTokenMock is StandardToken {
 
   function StandardTokenMock(address initialAccount, uint256 initialBalance) public {
     balances[initialAccount] = initialBalance;
-    totalSupply = initialBalance;
+    totalSupply_ = initialBalance;
   }
 
 }

@@ -9,7 +9,7 @@ contract ERC827TokenMock is ERC827Token {
 
   function ERC827TokenMock(address initialAccount, uint256 initialBalance) public {
     balances[initialAccount] = initialBalance;
-    totalSupply = initialBalance;
+    totalSupply_ = initialBalance;
   }
 
 }
