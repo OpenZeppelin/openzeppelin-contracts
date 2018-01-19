@@ -12,9 +12,9 @@ import "../token/StandardToken.sol";
  */
 contract SimpleToken is StandardToken {
 
-  string public constant name = "SimpleToken";
-  string public constant symbol = "SIM";
-  uint8 public constant decimals = 18;
+  string public constant name = "SimpleToken"; // solium-disable-line uppercase
+  string public constant symbol = "SIM"; // solium-disable-line uppercase
+  uint8 public constant decimals = 18; // solium-disable-line uppercase
 
   uint256 public constant INITIAL_SUPPLY = 10000 * (10 ** uint256(decimals));
 
@@ -24,6 +24,7 @@ contract SimpleToken is StandardToken {
   function SimpleToken() public {
     totalSupply = INITIAL_SUPPLY;
     balances[msg.sender] = INITIAL_SUPPLY;
+    Transfer(0x0, msg.sender, INITIAL_SUPPLY);
   }
 
 }
