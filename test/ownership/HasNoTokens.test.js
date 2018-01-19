@@ -2,7 +2,7 @@
 import expectThrow from '../helpers/expectThrow';
 
 const HasNoTokens = artifacts.require('../contracts/lifecycle/HasNoTokens.sol');
-const ERC23TokenMock = artifacts.require('mocks/ERC23TokenMock.sol');
+const ERC223TokenMock = artifacts.require('mocks/ERC223TokenMock.sol');
 
 contract('HasNoTokens', function (accounts) {
   let hasNoTokens = null;
@@ -11,7 +11,7 @@ contract('HasNoTokens', function (accounts) {
   beforeEach(async () => {
     // Create contract and token
     hasNoTokens = await HasNoTokens.new();
-    token = await ERC23TokenMock.new(accounts[0], 100);
+    token = await ERC223TokenMock.new(accounts[0], 100);
 
     // Force token into contract
     await token.transfer(hasNoTokens.address, 10);
@@ -19,8 +19,8 @@ contract('HasNoTokens', function (accounts) {
     assert.equal(startBalance, 10);
   });
 
-  it('should not accept ERC23 tokens', async function () {
-    await expectThrow(token.transferERC23(hasNoTokens.address, 10, ''));
+  it('should not accept ERC223 tokens', async function () {
+    await expectThrow(token.transferERC223(hasNoTokens.address, 10, ''));
   });
 
   it('should allow owner to reclaim tokens', async function () {
