@@ -7,7 +7,7 @@ contract BurnableTokenMock is BurnableToken {
 
   function BurnableTokenMock(address initialAccount, uint initialBalance) public {
     balances[initialAccount] = initialBalance;
-    totalSupply = initialBalance;
+    totalSupply_ = initialBalance;
   }
 
 }
