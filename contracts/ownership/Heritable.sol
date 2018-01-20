@@ -11,13 +11,13 @@ import "./Ownable.sol";
  * owner's death.
  */
 contract Heritable is Ownable {
-  address public heir;
+  address internal heir;
 
   // Time window the owner has to notify they are alive.
-  uint256 public heartbeatTimeout;
+  uint256 internal heartbeatTimeout;
 
   // Timestamp of the owner's death, as pronounced by the heir.
-  uint256 public timeOfDeath;
+  uint256 internal timeOfDeath;
 
   event HeirChanged(address indexed owner, address indexed newHeir);
   event OwnerHeartbeated(address indexed owner);
@@ -48,6 +48,18 @@ contract Heritable is Ownable {
     heartbeat();
     HeirChanged(owner, newHeir);
     heir = newHeir;
+  }
+
+  function getHeir() external view returns(address) {
+      return heir;
+  }
+
+  function getHeartbeatTimeout() external view returns(uint256) {
+      return heartbeatTimeout;
+  }
+  
+  function getTimeOfDeath() external view returns(uint256) {
+      return timeOfDeath;
   }
 
   /**
