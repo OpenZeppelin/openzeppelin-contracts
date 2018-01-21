@@ -50,6 +50,11 @@ contract Heritable is Ownable {
     heir = newHeir;
   }
 
+
+  /**
+   * @dev Use these getter functions to access the internal variables in
+   * an inherited contract.
+   */
   function getHeir() external view returns(address) {
       return heir;
   }
