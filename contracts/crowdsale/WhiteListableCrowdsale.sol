@@ -1,9 +1,9 @@
 pragma solidity ^0.4.11;
 
-import '../ownership/WhiteListable.sol';
+import '../ownership/RBAC.sol';
 import './Crowdsale.sol';
 
 
-contract WhiteListableCrowdsale is Crowdsale, WhiteListable {
+contract WhiteListableCrowdsale is Crowdsale, RBAC {
     // TODO:
 }
