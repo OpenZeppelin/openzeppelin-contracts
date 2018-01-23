@@ -2,7 +2,6 @@ pragma solidity ^0.4.18;
 
 import "./ERC20.sol";
 
-
 contract DetailedERC20 is ERC20 {
   string public name;
   string public symbol;

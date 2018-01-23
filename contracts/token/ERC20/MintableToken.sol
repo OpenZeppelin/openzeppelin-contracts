@@ -1,10 +1,7 @@
 pragma solidity ^0.4.18;
 
-
 import "./StandardToken.sol";
-import "../ownership/Ownable.sol";
-
-
+import "../../ownership/Ownable.sol";
 
 /**
  * @title Mintable token
@@ -12,7 +9,6 @@ import "../ownership/Ownable.sol";
  * @dev Issue: * https://github.com/OpenZeppelin/zeppelin-solidity/issues/120
  * Based on code by TokenMarketNet: https://github.com/TokenMarketNet/ico/blob/master/contracts/MintableToken.sol
  */
-
 contract MintableToken is StandardToken, Ownable {
   event Mint(address indexed to, uint256 amount);
   event MintFinished();

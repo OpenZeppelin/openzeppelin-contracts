@@ -1,8 +1,6 @@
 pragma solidity ^0.4.18;
 
-
-import "../token/BasicToken.sol";
-
+import "../token/ERC20/BasicToken.sol";
 
 contract ERC223ContractInterface {
   function tokenFallback(address _from, uint256 _value, bytes _data) external;
