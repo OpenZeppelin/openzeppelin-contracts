@@ -1,6 +1,6 @@
 pragma solidity ^0.4.18;
 
-import "../token/ERC721Token.sol";
+import "../token/ERC721/ERC721Token.sol";
 
 /**
  * @title ERC721TokenMock

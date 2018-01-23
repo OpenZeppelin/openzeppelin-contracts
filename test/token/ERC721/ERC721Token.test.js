@@ -1,4 +1,4 @@
-import assertRevert from '../helpers/assertRevert';
+import assertRevert from '../../helpers/assertRevert';
 const BigNumber = web3.BigNumber;
 const ERC721Token = artifacts.require('ERC721TokenMock.sol');
 
