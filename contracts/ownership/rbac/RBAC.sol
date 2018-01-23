@@ -8,7 +8,7 @@ import "./Roles.sol";
  * @author Matt Condon (@Shrugs)
  * @dev Stores and provides setters and getters for roles and addresses.
  *      Supports unlimited numbers of roles and addresses.
- *      See //contracts/examples/RBACExample.sol for an example of usage.
+ *      See //contracts/mocks/RBACMock.sol for an example of usage.
  * This RBAC method uses strings to key roles. It may be beneficial
  *  for you to write your own implementation of this interface using Enums or similar.
  * It's also recommended that you define constants in the contract, like ROLE_ADMIN below,
