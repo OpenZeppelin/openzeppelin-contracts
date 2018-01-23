@@ -2,6 +2,7 @@ pragma solidity ^0.4.18;
 
 import "./BasicToken.sol";
 
+
 /**
  * @title Burnable Token
  * @dev Token that can be irreversibly burned (destroyed).
