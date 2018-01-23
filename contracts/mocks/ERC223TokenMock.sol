@@ -12,7 +12,7 @@ contract ERC223TokenMock is BasicToken {
 
   function ERC223TokenMock(address initialAccount, uint256 initialBalance) public {
     balances[initialAccount] = initialBalance;
-    totalSupply = initialBalance;
+    totalSupply_ = initialBalance;
   }
 
   // ERC223 compatible transfer function (except the name)
