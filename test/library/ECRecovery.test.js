@@ -1,7 +1,7 @@
-var ECRecoveryMock = artifacts.require('../contracts/mocks/ECRecoveryMock.sol');
-var ECRecoveryLib = artifacts.require('../contracts/ECRecovery.sol');
+var ECRecoveryMock = artifacts.require('ECRecoveryMock.sol');
+var ECRecoveryLib = artifacts.require('ECRecovery.sol');
 
-var hashMessage = require('./helpers/hashMessage.js');
+var hashMessage = require('../helpers/hashMessage.js');
 
 contract('ECRecovery', function (accounts) {
   let ecrecovery;
