@@ -1,8 +1,8 @@
 
 import expectThrow from '../helpers/expectThrow';
 import toPromise from '../helpers/toPromise';
-const HasNoEtherTest = artifacts.require('../mocks/HasNoEtherTest.sol');
-const ForceEther = artifacts.require('../mocks/ForceEther.sol');
+const HasNoEtherTest = artifacts.require('HasNoEtherTest');
+const ForceEther = artifacts.require('ForceEther');
 
 contract('HasNoEther', function (accounts) {
   const amount = web3.toWei('1', 'ether');

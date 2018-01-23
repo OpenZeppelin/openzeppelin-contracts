@@ -1,4 +1,4 @@
-var PullPaymentMock = artifacts.require('mocks/PullPaymentMock.sol');
+var PullPaymentMock = artifacts.require('PullPaymentMock');
 
 contract('PullPayment', function (accounts) {
   let ppce;
