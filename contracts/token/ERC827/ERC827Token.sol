@@ -1,7 +1,7 @@
 pragma solidity ^0.4.13;
 
 import "./ERC827.sol";
-import "../StandardToken.sol";
+import "../ERC20/StandardToken.sol";
 
 /**
    @title ERC827, an extension of ERC20 token standard

@@ -1,7 +1,7 @@
 pragma solidity ^0.4.18;
 
 
-import "../token/BasicToken.sol";
+import "../token/ERC20/BasicToken.sol";
 
 
 // mock class using BasicToken
