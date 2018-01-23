@@ -1,7 +1,7 @@
 pragma solidity ^0.4.18;
 
 import "./ERC721.sol";
-import "../math/SafeMath.sol";
+import "../../math/SafeMath.sol";
 
 /**
  * @title ERC721Token
