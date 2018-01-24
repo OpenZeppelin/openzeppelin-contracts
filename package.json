@@ -57,6 +57,7 @@
   },
   "dependencies": {
     "dotenv": "^4.0.0",
-    "ethjs-abi": "^0.2.1"
+    "ethjs-abi": "^0.2.1",
+    "lint": "^1.1.2"
   }
 }

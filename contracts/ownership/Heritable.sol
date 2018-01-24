@@ -50,21 +50,20 @@ contract Heritable is Ownable {
     heir = newHeir;
   }
 
-
   /**
    * @dev Use these getter functions to access the internal variables in
    * an inherited contract.
    */
   function getHeir() public view returns(address) {
-      return heir;
+    return heir;
   }
 
   function getHeartbeatTimeout() public view returns(uint256) {
-      return heartbeatTimeout;
+    return heartbeatTimeout;
   }
   
   function getTimeOfDeath() public view returns(uint256) {
-      return timeOfDeath;
+    return timeOfDeath;
   }
 
   /**
@@ -82,7 +81,7 @@ contract Heritable is Ownable {
   function proclaimDeath() public onlyHeir {
     require(ownerLives());
     OwnerProclaimedDead(owner, heir, timeOfDeath);
-    timeOfDeath = now;
+    timeOfDeath = block.timestamp;
   }
 
   /**
@@ -98,7 +97,7 @@ contract Heritable is Ownable {
    */
   function claimHeirOwnership() public onlyHeir {
     require(!ownerLives());
-    require(now >= timeOfDeath + heartbeatTimeout);
+    require(block.timestamp >= timeOfDeath + heartbeatTimeout);
     OwnershipTransferred(owner, heir);
     HeirOwnershipClaimed(owner, heir);
     owner = heir;
