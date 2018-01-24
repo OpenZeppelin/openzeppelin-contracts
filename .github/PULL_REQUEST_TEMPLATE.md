@@ -14,4 +14,4 @@ Fixes #
 - [ ] 📘 I've reviewed the [OpenZeppelin Contributor Guidelines](/docs/CONTRIBUTING.md)
 - [ ] ✅ I've added tests where applicable to test my new functionality.
 - [ ] 📖 I've made sure that my contracts are well-documented.
-- [ ] 🎨 I've run the JS/Solidity linters (`npm run lint:all:fix`) and fixed any issues.
+- [ ] 🎨 I've run the JS/Solidity linters and fixed any issues (`npm run lint:all:fix`).
