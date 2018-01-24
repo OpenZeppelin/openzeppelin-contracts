@@ -10,7 +10,9 @@ import "../math/SafeMath.sol";
  * Crowdsales have a start and end timestamps, where investors can make
  * token purchases and the crowdsale will assign them tokens based
  * on a token per ETH rate. Funds collected are forwarded to a wallet
- * as they arrive.
+ * as they arrive. The contract requires a MintableToken that will be
+ * minted as contributions arrive, note that the crowdsale contract
+ * must be owner of the token in order to be able to mint it.
  */
 contract Crowdsale {
   using SafeMath for uint256;
@@ -41,17 +43,18 @@ contract Crowdsale {
   event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
 
 
-  function Crowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet) public {
+  function Crowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet, MintableToken _token) public {
     require(_startTime >= now);
     require(_endTime >= _startTime);
     require(_rate > 0);
     require(_wallet != address(0));
+    require(_token != address(0));
 
-    token = createTokenContract();
     startTime = _startTime;
     endTime = _endTime;
     rate = _rate;
     wallet = _wallet;
+    token = _token;
   }
 
   // fallback function can be used to buy tokens
@@ -81,12 +84,6 @@ contract Crowdsale {
   // @return true if crowdsale event has ended
   function hasEnded() public view returns (bool) {
     return now > endTime;
-  }
-
-  // creates the token to be sold.
-  // override this method to have crowdsale of a specific mintable token.
-  function createTokenContract() internal returns (MintableToken) {
-    return new MintableToken();
   }
 
   // Override this method to have a way to add business logic to your crowdsale when buying
