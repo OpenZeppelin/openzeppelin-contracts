@@ -2,7 +2,7 @@ pragma solidity ^0.4.18;
 
 import "../crowdsale/CappedCrowdsale.sol";
 import "../crowdsale/RefundableCrowdsale.sol";
-import "../token/MintableToken.sol";
+import "../token/ERC20/MintableToken.sol";
 
 
 /**
