@@ -15,7 +15,7 @@ contract('Heritable', function (accounts) {
   });
 
   it('should start off with an owner, but without heir', async function () {
-    const heir = await heritable.heir();
+    const heir = await heritable.getHeir();
 
     assert.equal(typeof (owner), 'string');
     assert.equal(typeof (heir), 'string');
@@ -41,11 +41,11 @@ contract('Heritable', function (accounts) {
   it('owner can remove heir', async function () {
     const newHeir = accounts[1];
     await heritable.setHeir(newHeir, { from: owner });
-    let heir = await heritable.heir();
+    let heir = await heritable.getHeir();
 
     assert.notStrictEqual(heir, NULL_ADDRESS);
     await heritable.removeHeir();
-    heir = await heritable.heir();
+    heir = await heritable.getHeir();
     assert.isTrue(heir === NULL_ADDRESS);
   });
 
@@ -60,7 +60,7 @@ contract('Heritable', function (accounts) {
 
     await increaseTime(4141);
     await heritable.claimHeirOwnership({ from: heir });
-    assert.isTrue(await heritable.heir() === heir);
+    assert.isTrue(await heritable.getHeir() === heir);
   });
 
   it('heir can\'t claim ownership if owner heartbeats', async function () {
