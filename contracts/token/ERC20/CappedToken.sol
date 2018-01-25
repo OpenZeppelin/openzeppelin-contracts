@@ -7,7 +7,6 @@ import "./MintableToken.sol";
  * @title Capped token
  * @dev Mintable token with a token cap.
  */
-
 contract CappedToken is MintableToken {
 
   uint256 public cap;

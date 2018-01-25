@@ -30,9 +30,9 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
     this.endTime = this.startTime + duration.weeks(1);
     this.afterEndTime = this.endTime + duration.seconds(1);
 
-    this.crowdsale = await Crowdsale.new(this.startTime, this.endTime, rate, wallet);
-
-    this.token = MintableToken.at(await this.crowdsale.token());
+    this.token = await MintableToken.new();
+    this.crowdsale = await Crowdsale.new(this.startTime, this.endTime, rate, wallet, this.token.address);
+    await this.token.transferOwnership(this.crowdsale.address);
   });
 
   it('should be token owner', async function () {

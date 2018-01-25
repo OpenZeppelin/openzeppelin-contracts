@@ -29,9 +29,9 @@ contract('CappedCrowdsale', function ([_, wallet]) {
     this.startTime = latestTime() + duration.weeks(1);
     this.endTime = this.startTime + duration.weeks(1);
 
-    this.crowdsale = await CappedCrowdsale.new(this.startTime, this.endTime, rate, wallet, cap);
-
-    this.token = MintableToken.at(await this.crowdsale.token());
+    this.token = await MintableToken.new();
+    this.crowdsale = await CappedCrowdsale.new(this.startTime, this.endTime, rate, wallet, cap, this.token.address);
+    await this.token.transferOwnership(this.crowdsale.address);
   });
 
   describe('creating a valid crowdsale', function () {
