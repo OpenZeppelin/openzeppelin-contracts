@@ -1,7 +1,7 @@
 'user strict';
 
 import assertRevert from '../helpers/assertRevert';
-var PausableTokenMock = artifacts.require('./mocks/PausableTokenMock.sol');
+var PausableTokenMock = artifacts.require('PausableTokenMock');
 
 contract('PausableToken', function (accounts) {
   let token;

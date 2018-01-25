@@ -1,5 +1,5 @@
 import decodeLogs from '../helpers/decodeLogs';
-const SimpleToken = artifacts.require('SimpleToken.sol');
+const SimpleToken = artifacts.require('SimpleToken');
 
 contract('SimpleToken', accounts => {
   let token;

@@ -1,5 +1,5 @@
 
-var Destructible = artifacts.require('../contracts/lifecycle/Destructible.sol');
+var Destructible = artifacts.require('Destructible');
 require('../helpers/transactionMined.js');
 
 contract('Destructible', function (accounts) {

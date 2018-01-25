@@ -3,7 +3,7 @@ import expectThrow from './helpers/expectThrow';
 
 const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
 
-const Heritable = artifacts.require('../contracts/ownership/Heritable.sol');
+const Heritable = artifacts.require('Heritable');
 
 contract('Heritable', function (accounts) {
   let heritable;

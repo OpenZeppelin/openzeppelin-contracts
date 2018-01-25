@@ -1,7 +1,7 @@
 import expectThrow from '../../helpers/expectThrow';
 import expectEvent from '../../helpers/expectEvent';
 
-const RBACMock = artifacts.require('mocks/RBACMock.sol');
+const RBACMock = artifacts.require('RBACMock');
 
 require('chai')
   .use(require('chai-as-promised'))

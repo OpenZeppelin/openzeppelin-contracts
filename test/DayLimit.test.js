@@ -4,7 +4,7 @@ import { increaseTimeTo, duration } from './helpers/increaseTime';
 
 import assertRevert from './helpers/assertRevert';
 
-const DayLimitMock = artifacts.require('mocks/DayLimitMock.sol');
+const DayLimitMock = artifacts.require('DayLimitMock');
 
 contract('DayLimit', function (accounts) {
   let dayLimit;

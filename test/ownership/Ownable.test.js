@@ -1,7 +1,7 @@
 
 import assertRevert from '../helpers/assertRevert';
 
-var Ownable = artifacts.require('../contracts/ownership/Ownable.sol');
+var Ownable = artifacts.require('Ownable');
 
 contract('Ownable', function (accounts) {
   let ownable;

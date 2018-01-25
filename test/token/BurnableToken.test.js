@@ -1,6 +1,6 @@
 
 const EVMRevert = require('../helpers/EVMRevert.js');
-const BurnableTokenMock = artifacts.require('mocks/BurnableTokenMock.sol');
+const BurnableTokenMock = artifacts.require('BurnableTokenMock');
 const BigNumber = web3.BigNumber;
 
 require('chai')
