@@ -29,7 +29,7 @@ contract Heritable is Ownable {
    * @dev Throw an exception if called by any account other than the heir's.
    */
   modifier onlyHeir() {
-    require(msg.sender == heir);
+    require(msg.sender == heir_);
     _;
   }
 
@@ -47,7 +47,7 @@ contract Heritable is Ownable {
     require(newHeir != owner);
     heartbeat();
     HeirChanged(owner, newHeir);
-    heir = newHeir;
+    heir_ = newHeir;
   }
 
   /**
@@ -71,7 +71,7 @@ contract Heritable is Ownable {
    */
   function removeHeir() public onlyOwner {
     heartbeat();
-    heir = 0;
+    heir_ = 0;
   }
 
   /**
@@ -80,8 +80,8 @@ contract Heritable is Ownable {
    */
   function proclaimDeath() public onlyHeir {
     require(ownerLives());
-    OwnerProclaimedDead(owner, heir, timeOfDeath);
-    timeOfDeath = block.timestamp;
+    OwnerProclaimedDead(owner, heir_, timeOfDeath_);
+    timeOfDeath_ = block.timestamp;
   }
 
   /**
@@ -89,7 +89,7 @@ contract Heritable is Ownable {
    */
   function heartbeat() public onlyOwner {
     OwnerHeartbeated(owner);
-    timeOfDeath = 0;
+    timeOfDeath_ = 0;
   }
 
   /**
@@ -97,19 +97,19 @@ contract Heritable is Ownable {
    */
   function claimHeirOwnership() public onlyHeir {
     require(!ownerLives());
-    require(block.timestamp >= timeOfDeath + heartbeatTimeout);
-    OwnershipTransferred(owner, heir);
-    HeirOwnershipClaimed(owner, heir);
-    owner = heir;
-    timeOfDeath = 0;
+    require(block.timestamp >= timeOfDeath_ + heartbeatTimeout_);
+    OwnershipTransferred(owner, heir_);
+    HeirOwnershipClaimed(owner, heir_);
+    owner = heir_;
+    timeOfDeath_ = 0;
   }
 
   function setHeartbeatTimeout(uint256 newHeartbeatTimeout) internal onlyOwner {
     require(ownerLives());
-    heartbeatTimeout = newHeartbeatTimeout;
+    heartbeatTimeout_ = newHeartbeatTimeout;
   }
 
   function ownerLives() internal view returns (bool) {
-    return timeOfDeath == 0;
+    return timeOfDeath_ == 0;
   }
 }
