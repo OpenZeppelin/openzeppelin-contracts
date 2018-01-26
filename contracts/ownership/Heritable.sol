@@ -11,13 +11,13 @@ import "./Ownable.sol";
  * owner's death.
  */
 contract Heritable is Ownable {
-  address private heir;
+  address private heir_;
 
   // Time window the owner has to notify they are alive.
-  uint256 private heartbeatTimeout;
+  uint256 private heartbeatTimeout_;
 
   // Timestamp of the owner's death, as pronounced by the heir.
-  uint256 private timeOfDeath;
+  uint256 private timeOfDeath_;
 
   event HeirChanged(address indexed owner, address indexed newHeir);
   event OwnerHeartbeated(address indexed owner);
@@ -54,16 +54,16 @@ contract Heritable is Ownable {
    * @dev Use these getter functions to access the internal variables in
    * an inherited contract.
    */
-  function getHeir() public view returns(address) {
-    return heir;
+  function heir() public view returns(address) {
+    return heir_;
   }
 
-  function getHeartbeatTimeout() public view returns(uint256) {
-    return heartbeatTimeout;
+  function heartbeatTimeout() public view returns(uint256) {
+    return heartbeatTimeout_;
   }
   
-  function getTimeOfDeath() public view returns(uint256) {
-    return timeOfDeath;
+  function timeOfDeath() public view returns(uint256) {
+    return timeOfDeath_;
   }
 
   /**
