@@ -1,5 +1,5 @@
 
-var Contactable = artifacts.require('../contracts/ownership/Contactable.sol');
+var Contactable = artifacts.require('Contactable');
 
 contract('Contactable', function (accounts) {
   let contactable;

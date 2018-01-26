@@ -1,5 +1,5 @@
-var ECRecoveryMock = artifacts.require('ECRecoveryMock.sol');
-var ECRecoveryLib = artifacts.require('ECRecovery.sol');
+var ECRecoveryMock = artifacts.require('ECRecoveryMock');
+var ECRecoveryLib = artifacts.require('ECRecovery');
 
 var hashMessage = require('../helpers/hashMessage.js');
 

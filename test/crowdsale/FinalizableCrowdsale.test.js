@@ -10,7 +10,7 @@ const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const FinalizableCrowdsale = artifacts.require('mocks/FinalizableCrowdsaleImpl.sol');
+const FinalizableCrowdsale = artifacts.require('FinalizableCrowdsaleImpl');
 const MintableToken = artifacts.require('MintableToken');
 
 contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
@@ -26,9 +26,11 @@ contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
     this.endTime = this.startTime + duration.weeks(1);
     this.afterEndTime = this.endTime + duration.seconds(1);
 
-    this.crowdsale = await FinalizableCrowdsale.new(this.startTime, this.endTime, rate, wallet, { from: owner });
-
-    this.token = MintableToken.at(await this.crowdsale.token());
+    this.token = await MintableToken.new();
+    this.crowdsale = await FinalizableCrowdsale.new(
+      this.startTime, this.endTime, rate, wallet, this.token.address, { from: owner }
+    );
+    await this.token.transferOwnership(this.crowdsale.address);
   });
 
   it('cannot be finalized before ending', async function () {

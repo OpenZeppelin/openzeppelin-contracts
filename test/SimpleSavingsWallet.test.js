@@ -1,14 +1,14 @@
 
 import expectThrow from './helpers/expectThrow';
 
-const SimpleSavingsWallet = artifacts.require('../contracts/examples/SimpleSavingsWallet.sol');
+const SimpleSavingsWallet = artifacts.require('SimpleSavingsWallet');
 
 contract('SimpleSavingsWallet', function (accounts) {
   let savingsWallet;
   let owner;
 
   const paymentAmount = 4242;
- 
+
   beforeEach(async function () {
     savingsWallet = await SimpleSavingsWallet.new(4141);
     owner = await savingsWallet.owner();

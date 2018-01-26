@@ -1,7 +1,7 @@
 
 import assertRevert from '../helpers/assertRevert';
 
-var StandardTokenMock = artifacts.require('mocks/StandardTokenMock.sol');
+var StandardTokenMock = artifacts.require('StandardTokenMock');
 
 contract('StandardToken', function (accounts) {
   let token;
