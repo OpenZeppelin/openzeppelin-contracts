@@ -1,38 +1,40 @@
-
-const EVMRevert = require('../helpers/EVMRevert.js');
+import assertRevert from '../helpers/assertRevert';
 const BurnableTokenMock = artifacts.require('BurnableTokenMock');
-const BigNumber = web3.BigNumber;
 
-require('chai')
-  .use(require('chai-as-promised'))
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
-
-const expect = require('chai').expect;
-
-contract('BurnableToken', function (accounts) {
-  let token;
-  let expectedTokenSupply = new BigNumber(999);
-
+contract('BurnableToken', function ([owner]) {
   beforeEach(async function () {
-    token = await BurnableTokenMock.new(accounts[0], 1000);
+    this.token = await BurnableTokenMock.new(owner, 1000);
   });
 
-  it('owner should be able to burn tokens', async function () {
-    const { logs } = await token.burn(1, { from: accounts[0] });
+  describe('burn', function () {
+    const from = owner;
 
-    const balance = await token.balanceOf(accounts[0]);
-    balance.should.be.bignumber.equal(expectedTokenSupply);
+    describe('when the given amount is not greater than balance of the sender', function () {
+      const amount = 100;
 
-    const totalSupply = await token.totalSupply();
-    totalSupply.should.be.bignumber.equal(expectedTokenSupply);
+      it('burns the requested amount', async function () {
+        await this.token.burn(amount, { from });
 
-    const event = logs.find(e => e.event === 'Burn');
-    expect(event).to.exist;
-  });
+        const balance = await this.token.balanceOf(from);
+        assert.equal(balance, 900);
+      });
 
-  it('cannot burn more tokens than your balance', async function () {
-    await token.burn(2000, { from: accounts[0] })
-      .should.be.rejectedWith(EVMRevert);
+      it('emits a burn event', async function () {
+        const { logs } = await this.token.burn(amount, { from });
+
+        assert.equal(logs.length, 1);
+        assert.equal(logs[0].event, 'Burn');
+        assert.equal(logs[0].args.burner, owner);
+        assert.equal(logs[0].args.value, amount);
+      });
+    });
+
+    describe('when the given amount is greater than the balance of the sender', function () {
+      const amount = 1001;
+
+      it('reverts', async function () {
+        await assertRevert(this.token.burn(amount, { from }));
+      });
+    });
   });
 });
