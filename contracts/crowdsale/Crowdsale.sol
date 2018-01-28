@@ -24,14 +24,17 @@ contract Crowdsale {
   uint256 public startTime;
   uint256 public endTime;
 
-  // address where funds are collected
-  address public wallet;
-
   // how many token units a buyer gets per wei
   uint256 public rate;
 
   // amount of raised money in wei
   uint256 public weiRaised;
+
+  // address where funds are collected
+  address public wallet;
+
+
+
 
   /**
    * event for token purchase logging
