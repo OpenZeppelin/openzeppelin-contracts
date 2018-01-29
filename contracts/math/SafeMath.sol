@@ -45,4 +45,23 @@ library SafeMath {
     assert(c >= a);
     return c;
   }
+
+  function sub(int256 a, int256 b) internal pure returns (int256) {
+    return a - b;
+  }
+
+  function add(int256 a, int256 b) internal pure returns (int256) {
+    return a + b;
+  }
+
+  function mul(int256 a, int256 b) internal pure returns (int256) {
+    if (a == 0) {
+      return 0;
+    }
+    int256 c = a * b;
+    assert(c / a == b);
+    return c;
+  }
+
+
 }
