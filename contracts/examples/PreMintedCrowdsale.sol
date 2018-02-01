@@ -20,7 +20,9 @@ contract PreMintedCrowdsaleVault {
     uint256 _endTime,
     uint256 _rate,
     address _wallet
-  ) public {
+  )
+    public
+  {
     token = new SimpleToken();
     PseudoMinter _pseudoMinter = new PseudoMinter(token, this);
 
@@ -46,7 +48,10 @@ contract PreMintedCrowdsale is Crowdsale {
     uint256 _rate,
     address _wallet,
     Mintable _token
-  ) public Crowdsale(_startTime, _endTime, _rate, _wallet, _token) { }
+  )
+    public Crowdsale(_startTime, _endTime, _rate, _wallet, _token)
+  {
+  }
 
   // @return true if crowdsale event has ended
   function hasEnded() public view returns (bool) {
