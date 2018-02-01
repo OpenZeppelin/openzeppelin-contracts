@@ -37,7 +37,7 @@ contract('CappedCrowdsale', function ([_, wallet]) {
   describe('creating a valid crowdsale', function () {
     it('should fail with zero cap', async function () {
       await CappedCrowdsale
-        .new(this.startTime, this.endTime, rate, wallet, 0, this.token)
+        .new(this.startTime, this.endTime, rate, wallet, 0, this.token.address)
         .should.be.rejectedWith(EVMRevert);
     });
   });
