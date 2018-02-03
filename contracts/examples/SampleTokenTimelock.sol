@@ -14,7 +14,7 @@ import "../token/ERC20/TokenTimelock.sol";
 contract SampleTokenTimelockToken is MintableToken {
 
 
-  string public constant name = "Sample TokenTimelock Token"; // solium-disable-line uppercase
+  string public constant name = "Sample TokenTimelock Token";
   string public constant symbol = "STT"; // solium-disable-line uppercase
   uint8 public constant decimals = 18; // solium-disable-line uppercase
 
@@ -27,9 +27,9 @@ contract SampleTokenTimelockToken is MintableToken {
 
 /**
  * @title SampleTokenTimelock
-
+ *
  * @dev This is an example of a token time lock, which allows a beneficiary to recieve funds after a specified date
-
+ *
  */
 
 contract SampleTokenTimelock is TokenTimelock {

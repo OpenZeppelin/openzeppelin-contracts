@@ -11,7 +11,7 @@ require('chai')
 
 const SampleTokenTimelock = artifacts.require('SampleTokenTimelock');
 
-const MintableToken = artifacts.require('MintableToken');
+const SampleTokenTimelockToken = artifacts.require('SampleTokenTimelockToken');
 
 contract('SampleTokenTimelock', function ([_, owner, beneficiary]) {
   const amount = new BigNumber(100);
@@ -22,7 +22,7 @@ contract('SampleTokenTimelock', function ([_, owner, beneficiary]) {
   });
 
   beforeEach(async function () {
-    this.token = await MintableToken.new({ from: owner });
+    this.token = await SampleTokenTimelockToken.new({ from: owner });
     this.releaseTime = latestTime() + duration.years(1);
     this.timelock = await SampleTokenTimelock.new(this.token.address, beneficiary, this.releaseTime);
     await this.token.mint(this.timelock.address, amount, { from: owner });
@@ -48,7 +48,7 @@ contract('SampleTokenTimelock', function ([_, owner, beneficiary]) {
   });
 
   it('cannot be released just before time limit', async function () {
-    await increaseTimeTo(this.releaseTime - duration.seconds(1));
+    await increaseTimeTo(this.releaseTime - duration.seconds(3));
     await this.timelock.release().should.be.rejected;
   });
 
