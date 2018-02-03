@@ -1,4 +1,3 @@
-import ether from '../helpers/ether';
 import { advanceBlock } from '../helpers/advanceToBlock';
 import { increaseTimeTo, duration } from '../helpers/increaseTime';
 import latestTime from '../helpers/latestTime';
@@ -11,13 +10,11 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const SampleCrowdsale = artifacts.require('SampleCrowdsale');
-const SampleCrowdsaleToken = artifacts.require('SampleCrowdsaleToken');
+const MintableToken = artifacts.require('MintableToken');
+const SampleTokenVesting = artifacts.require('SampleTokenVesting');
 
-contract('SampleCrowdsale', function ([owner, wallet, investor]) {
-  const RATE = new BigNumber(10);
-  const GOAL = ether(10);
-  const CAP = ether(20);
+contract('SampleTokenVesting', function ([_, owner, beneficiary]) {
+  const amount = new BigNumber(1000);
 
   before(async function () {
     // Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
@@ -25,87 +22,134 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
   });
 
   beforeEach(async function () {
-    this.startTime = latestTime() + duration.weeks(1);
-    this.endTime = this.startTime + duration.weeks(1);
-    this.afterEndTime = this.endTime + duration.seconds(1);
+    this.startTime = latestTime() + duration.minutes(1); // +1 minute so it starts after contract instantiation
+    this.cliff = duration.years(1);
+    this.contractDuration = duration.years(2);
+    this.token = await MintableToken.new({ from: owner });
 
-    this.token = await SampleCrowdsaleToken.new();
-    this.crowdsale = await SampleCrowdsale.new(
-      this.startTime, this.endTime, RATE, GOAL, CAP, wallet, this.token.address
+    this.vesting = await SampleTokenVesting.new(
+      beneficiary, this.startTime, this.cliff, this.contractDuration, true, { from: owner },
     );
-    await this.token.transferOwnership(this.crowdsale.address);
+
+    await this.token.mint(this.vesting.address, amount, { from: owner }).should.be.fulfilled;
   });
 
-  it('should create crowdsale with correct parameters', async function () {
-    this.crowdsale.should.exist;
-    this.token.should.exist;
+  it('should create SampleTokenVesting with correct parameters', async function () {
+    await this.token.should.exist;
+    await this.vesting.should.exist;
 
-    const startTime = await this.crowdsale.startTime();
-    const endTime = await this.crowdsale.endTime();
-    const rate = await this.crowdsale.rate();
-    const walletAddress = await this.crowdsale.wallet();
-    const goal = await this.crowdsale.goal();
-    const cap = await this.crowdsale.cap();
+    const beneficiery_ = await this.vesting.beneficiary();
 
-    startTime.should.be.bignumber.equal(this.startTime);
-    endTime.should.be.bignumber.equal(this.endTime);
-    rate.should.be.bignumber.equal(RATE);
-    walletAddress.should.be.equal(wallet);
-    goal.should.be.bignumber.equal(GOAL);
-    cap.should.be.bignumber.equal(CAP);
+    const revokable_ = await this.vesting.revocable();
+
+    const cliff_ = await this.vesting.cliff();
+    const duration_ = await this.vesting.duration();
+
+    const start_ = await this.vesting.start();
+    start_.should.be.bignumber.equal(this.startTime);
+
+    revokable_.should.be.equal(true);
+
+    cliff_.should.be.bignumber.equal(new BigNumber(this.cliff).add(this.startTime));
+
+    duration_.should.be.bignumber.equal(this.contractDuration);
+
+    beneficiery_.should.be.equal(beneficiary);
   });
 
-  it('should not accept payments before start', async function () {
-    await this.crowdsale.send(ether(1)).should.be.rejectedWith(EVMRevert);
-    await this.crowdsale.buyTokens(investor, { from: investor, value: ether(1) }).should.be.rejectedWith(EVMRevert);
+  it('cannot be released before this.cliff', async function () {
+    await this.vesting.release(this.token.address).should.be.rejectedWith(EVMRevert);
   });
 
-  it('should accept payments during the sale', async function () {
-    const investmentAmount = ether(1);
-    const expectedTokenAmount = RATE.mul(investmentAmount);
-
-    await increaseTimeTo(this.startTime);
-    await this.crowdsale.buyTokens(investor, { value: investmentAmount, from: investor }).should.be.fulfilled;
-
-    (await this.token.balanceOf(investor)).should.be.bignumber.equal(expectedTokenAmount);
-    (await this.token.totalSupply()).should.be.bignumber.equal(expectedTokenAmount);
+  it('cannot be released just prior this.cliff', async function () {
+    await increaseTimeTo(this.startTime + this.cliff - duration.seconds(3));
+    await this.vesting.release(this.token.address).should.be.rejectedWith(EVMRevert);
   });
 
-  it('should reject payments after end', async function () {
-    await increaseTimeTo(this.afterEnd);
-    await this.crowdsale.send(ether(1)).should.be.rejectedWith(EVMRevert);
-    await this.crowdsale.buyTokens(investor, { value: ether(1), from: investor }).should.be.rejectedWith(EVMRevert);
+  it('can be released just after this.cliff', async function () {
+    await increaseTimeTo(this.startTime + this.cliff + duration.seconds(3));
+    await this.vesting.release(this.token.address).should.be.fulfilled;
   });
 
-  it('should reject payments over cap', async function () {
-    await increaseTimeTo(this.startTime);
-    await this.crowdsale.send(CAP);
-    await this.crowdsale.send(1).should.be.rejectedWith(EVMRevert);
+  it('can be released after this.cliff', async function () {
+    await increaseTimeTo(this.startTime + this.cliff + duration.weeks(1));
+    await this.vesting.release(this.token.address).should.be.fulfilled;
   });
 
-  it('should allow finalization and transfer funds to wallet if the goal is reached', async function () {
-    await increaseTimeTo(this.startTime);
-    await this.crowdsale.send(GOAL);
+  it('should release proper amount after this.cliff', async function () {
+    await increaseTimeTo(this.startTime + this.cliff);
 
-    const beforeFinalization = web3.eth.getBalance(wallet);
-    await increaseTimeTo(this.afterEndTime);
-    await this.crowdsale.finalize({ from: owner });
-    const afterFinalization = web3.eth.getBalance(wallet);
+    const { receipt } = await this.vesting.release(this.token.address);
+    const releaseTime = web3.eth.getBlock(receipt.blockNumber).timestamp;
 
-    afterFinalization.minus(beforeFinalization).should.be.bignumber.equal(GOAL);
+    const balance = await this.token.balanceOf(beneficiary);
+    balance.should.bignumber.equal(amount.mul(releaseTime - this.startTime).div(this.contractDuration).floor());
   });
 
-  it('should allow refunds if the goal is not reached', async function () {
-    const balanceBeforeInvestment = web3.eth.getBalance(investor);
+  it('should linearly release tokens during vesting period', async function () {
+    const vestingPeriod = this.contractDuration - this.cliff;
+    const checkpoints = 4;
 
-    await increaseTimeTo(this.startTime);
-    await this.crowdsale.sendTransaction({ value: ether(1), from: investor, gasPrice: 0 });
-    await increaseTimeTo(this.afterEndTime);
+    for (let i = 1; i <= checkpoints; i++) {
+      const now = this.startTime + this.cliff + i * (vestingPeriod / checkpoints);
+      await increaseTimeTo(now);
 
-    await this.crowdsale.finalize({ from: owner });
-    await this.crowdsale.claimRefund({ from: investor, gasPrice: 0 }).should.be.fulfilled;
+      await this.vesting.release(this.token.address);
+      const balance = await this.token.balanceOf(beneficiary);
+      const expectedVesting = amount.mul(now - this.startTime).div(this.contractDuration).floor();
 
-    const balanceAfterRefund = web3.eth.getBalance(investor);
-    balanceBeforeInvestment.should.be.bignumber.equal(balanceAfterRefund);
+      balance.should.bignumber.equal(expectedVesting);
+    }
+  });
+
+  it('should have released all after end', async function () {
+    await increaseTimeTo(this.startTime + this.contractDuration);
+    await this.vesting.release(this.token.address);
+    const balance = await this.token.balanceOf(beneficiary);
+    balance.should.bignumber.equal(amount);
+  });
+
+  it('should be revoked by owner if revocable is set', async function () {
+    await this.vesting.revoke(this.token.address, { from: owner }).should.be.fulfilled;
+  });
+
+  it('should fail to be revoked by owner if revocable not set', async function () {
+    const vesting = await SampleTokenVesting.new(
+      beneficiary, this.startTime, this.cliff, this.contractDuration, false, { from: owner },
+    );
+    await vesting.revoke(this.token.address, { from: owner }).should.be.rejectedWith(EVMRevert);
+  });
+
+  it('should return the non-vested tokens when revoked by owner', async function () {
+    await increaseTimeTo(this.startTime + this.cliff + duration.weeks(12));
+
+    const vested = await this.vesting.vestedAmount(this.token.address);
+
+    await this.vesting.revoke(this.token.address, { from: owner });
+
+    const ownerBalance = await this.token.balanceOf(owner);
+    ownerBalance.should.bignumber.equal(amount - vested);
+  });
+
+  it('should keep the vested tokens when revoked by owner', async function () {
+    await increaseTimeTo(this.startTime + this.cliff + duration.weeks(12));
+
+    const vestedPre = await this.vesting.vestedAmount(this.token.address);
+
+    await this.vesting.revoke(this.token.address, { from: owner });
+
+    const vestedPost = await this.vesting.vestedAmount(this.token.address);
+
+    vestedPre.should.bignumber.equal(vestedPost);
+  });
+
+  it('should fail to be revoked a second time', async function () {
+    await increaseTimeTo(this.startTime + this.cliff + duration.weeks(12));
+
+    await this.vesting.vestedAmount(this.token.address);
+
+    await this.vesting.revoke(this.token.address, { from: owner }).should.be.fulfilled;
+
+    await this.vesting.revoke(this.token.address, { from: owner }).should.be.rejectedWith(EVMRevert);
   });
 });

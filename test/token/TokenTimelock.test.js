@@ -26,7 +26,7 @@ contract('TokenTimelock', function ([_, owner, beneficiary]) {
   });
 
   it('cannot be released just before time limit', async function () {
-    await increaseTimeTo(this.releaseTime - duration.seconds(3));
+    await increaseTimeTo(this.releaseTime - duration.seconds(1));
     await this.timelock.release().should.be.rejected;
   });
 
