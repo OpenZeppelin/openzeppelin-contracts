@@ -49,7 +49,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
       describe('when the sender has enough balance', function () {
         const amount = 100;
 
-        it('transfer the requested amount', async function () {
+        it('transfers the requested amount', async function () {
           await this.token.transfer(to, amount, { from: owner });
 
           const senderBalance = await this.token.balanceOf(owner);
@@ -194,7 +194,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         describe('when the owner has enough balance', function () {
           const amount = 100;
 
-          it('transfer the requested amount', async function () {
+          it('transfers the requested amount', async function () {
             await this.token.transferFrom(owner, to, amount, { from: spender });
 
             const senderBalance = await this.token.balanceOf(owner);
