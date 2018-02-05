@@ -1,7 +1,7 @@
 
 import assertRevert from '../helpers/assertRevert';
 
-var Claimable = artifacts.require('../contracts/ownership/Claimable.sol');
+var Claimable = artifacts.require('Claimable');
 
 contract('Claimable', function (accounts) {
   let claimable;

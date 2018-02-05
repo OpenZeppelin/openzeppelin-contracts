@@ -2,7 +2,7 @@
 import expectThrow from '../helpers/expectThrow';
 import ether from '../helpers/ether';
 
-var CappedToken = artifacts.require('../contracts/Tokens/CappedToken.sol');
+var CappedToken = artifacts.require('CappedToken');
 
 contract('Capped', function (accounts) {
   const cap = ether(1000);

@@ -1,6 +1,6 @@
 import assertRevert from '../helpers/assertRevert';
 
-var DelayedClaimable = artifacts.require('../contracts/ownership/DelayedClaimable.sol');
+var DelayedClaimable = artifacts.require('DelayedClaimable');
 
 contract('DelayedClaimable', function (accounts) {
   var delayedClaimable;

@@ -1,10 +1,8 @@
 
 import expectThrow from '../helpers/expectThrow';
 
-const Ownable = artifacts.require('../contracts/ownership/Ownable.sol');
-const HasNoContracts = artifacts.require(
-  '../contracts/ownership/HasNoContracts.sol',
-);
+const Ownable = artifacts.require('Ownable');
+const HasNoContracts = artifacts.require('HasNoContracts');
 
 contract('HasNoContracts', function (accounts) {
   let hasNoContracts = null;

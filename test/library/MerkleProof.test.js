@@ -2,7 +2,7 @@
 import MerkleTree from '../helpers/merkleTree.js';
 import { sha3, bufferToHex } from 'ethereumjs-util';
 
-var MerkleProof = artifacts.require('MerkleProof.sol');
+var MerkleProof = artifacts.require('MerkleProof');
 
 contract('MerkleProof', function (accounts) {
   let merkleProof;

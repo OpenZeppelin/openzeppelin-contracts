@@ -29,8 +29,11 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
     this.endTime = this.startTime + duration.weeks(1);
     this.afterEndTime = this.endTime + duration.seconds(1);
 
-    this.crowdsale = await SampleCrowdsale.new(this.startTime, this.endTime, RATE, GOAL, CAP, wallet);
-    this.token = SampleCrowdsaleToken.at(await this.crowdsale.token());
+    this.token = await SampleCrowdsaleToken.new();
+    this.crowdsale = await SampleCrowdsale.new(
+      this.startTime, this.endTime, RATE, GOAL, CAP, wallet, this.token.address
+    );
+    await this.token.transferOwnership(this.crowdsale.address);
   });
 
   it('should create crowdsale with correct parameters', async function () {

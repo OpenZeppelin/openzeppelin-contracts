@@ -11,13 +11,13 @@ import "./Ownable.sol";
  * owner's death.
  */
 contract Heritable is Ownable {
-  address public heir;
+  address private heir_;
 
   // Time window the owner has to notify they are alive.
-  uint256 public heartbeatTimeout;
+  uint256 private heartbeatTimeout_;
 
   // Timestamp of the owner's death, as pronounced by the heir.
-  uint256 public timeOfDeath;
+  uint256 private timeOfDeath_;
 
   event HeirChanged(address indexed owner, address indexed newHeir);
   event OwnerHeartbeated(address indexed owner);
@@ -29,7 +29,7 @@ contract Heritable is Ownable {
    * @dev Throw an exception if called by any account other than the heir's.
    */
   modifier onlyHeir() {
-    require(msg.sender == heir);
+    require(msg.sender == heir_);
     _;
   }
 
@@ -47,7 +47,23 @@ contract Heritable is Ownable {
     require(newHeir != owner);
     heartbeat();
     HeirChanged(owner, newHeir);
-    heir = newHeir;
+    heir_ = newHeir;
+  }
+
+  /**
+   * @dev Use these getter functions to access the internal variables in
+   * an inherited contract.
+   */
+  function heir() public view returns(address) {
+    return heir_;
+  }
+
+  function heartbeatTimeout() public view returns(uint256) {
+    return heartbeatTimeout_;
+  }
+  
+  function timeOfDeath() public view returns(uint256) {
+    return timeOfDeath_;
   }
 
   /**
@@ -55,7 +71,7 @@ contract Heritable is Ownable {
    */
   function removeHeir() public onlyOwner {
     heartbeat();
-    heir = 0;
+    heir_ = 0;
   }
 
   /**
@@ -64,8 +80,8 @@ contract Heritable is Ownable {
    */
   function proclaimDeath() public onlyHeir {
     require(ownerLives());
-    OwnerProclaimedDead(owner, heir, timeOfDeath);
-    timeOfDeath = now;
+    OwnerProclaimedDead(owner, heir_, timeOfDeath_);
+    timeOfDeath_ = block.timestamp;
   }
 
   /**
@@ -73,7 +89,7 @@ contract Heritable is Ownable {
    */
   function heartbeat() public onlyOwner {
     OwnerHeartbeated(owner);
-    timeOfDeath = 0;
+    timeOfDeath_ = 0;
   }
 
   /**
@@ -81,19 +97,19 @@ contract Heritable is Ownable {
    */
   function claimHeirOwnership() public onlyHeir {
     require(!ownerLives());
-    require(now >= timeOfDeath + heartbeatTimeout);
-    OwnershipTransferred(owner, heir);
-    HeirOwnershipClaimed(owner, heir);
-    owner = heir;
-    timeOfDeath = 0;
+    require(block.timestamp >= timeOfDeath_ + heartbeatTimeout_);
+    OwnershipTransferred(owner, heir_);
+    HeirOwnershipClaimed(owner, heir_);
+    owner = heir_;
+    timeOfDeath_ = 0;
   }
 
   function setHeartbeatTimeout(uint256 newHeartbeatTimeout) internal onlyOwner {
     require(ownerLives());
-    heartbeatTimeout = newHeartbeatTimeout;
+    heartbeatTimeout_ = newHeartbeatTimeout;
   }
 
   function ownerLives() internal view returns (bool) {
-    return timeOfDeath == 0;
+    return timeOfDeath_ == 0;
   }
 }

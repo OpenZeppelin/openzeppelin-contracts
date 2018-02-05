@@ -1,6 +1,6 @@
 
 import expectThrow from '../helpers/expectThrow';
-var MintableToken = artifacts.require('../contracts/Tokens/MintableToken.sol');
+var MintableToken = artifacts.require('MintableToken');
 
 contract('Mintable', function (accounts) {
   let token;

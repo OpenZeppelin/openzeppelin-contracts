@@ -1,4 +1,4 @@
-var MathMock = artifacts.require('../mocks/MathMock.sol');
+var MathMock = artifacts.require('MathMock');
 
 contract('Math', function (accounts) {
   let math;

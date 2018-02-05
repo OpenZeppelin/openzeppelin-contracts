@@ -11,7 +11,8 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const RefundableCrowdsale = artifacts.require('mocks/RefundableCrowdsaleImpl.sol');
+const RefundableCrowdsale = artifacts.require('RefundableCrowdsaleImpl');
+const MintableToken = artifacts.require('MintableToken');
 
 contract('RefundableCrowdsale', function ([_, owner, wallet, investor]) {
   const rate = new BigNumber(1000);
@@ -28,7 +29,11 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor]) {
     this.endTime = this.startTime + duration.weeks(1);
     this.afterEndTime = this.endTime + duration.seconds(1);
 
-    this.crowdsale = await RefundableCrowdsale.new(this.startTime, this.endTime, rate, wallet, goal, { from: owner });
+    this.token = await MintableToken.new();
+    this.crowdsale = await RefundableCrowdsale.new(
+      this.startTime, this.endTime, rate, wallet, goal, this.token.address, { from: owner }
+    );
+    await this.token.transferOwnership(this.crowdsale.address);
   });
 
   describe('creating a valid crowdsale', function () {

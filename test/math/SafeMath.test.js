@@ -1,6 +1,6 @@
 import assertRevert from '../helpers/assertRevert';
 const assertJump = require('../helpers/assertJump');
-var SafeMathMock = artifacts.require('mocks/SafeMathMock.sol');
+var SafeMathMock = artifacts.require('SafeMathMock');
 
 contract('SafeMath', function (accounts) {
   let safeMath;
