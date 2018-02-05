@@ -19,7 +19,7 @@ contract CappedCrowdsale is TimedCrowdsale {
   }
 
   function _postValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
-    super.postValidatePurchase(_beneficiary, _weiAmount);
+    super._postValidatePurchase(_beneficiary, _weiAmount);
     require(weiRaised <= cap);
   }
 

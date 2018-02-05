@@ -20,7 +20,7 @@ contract WhitelistedCrowdsale is Crowdsale, Ownable {
   }
 
   function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
-    super.preValidatePurchase(_beneficiary, _weiAmount);
+    super._preValidatePurchase(_beneficiary, _weiAmount);
     require(isWhitelisted(_beneficiary));
   }
 }

@@ -5,7 +5,7 @@ import "../../token/ERC20/ERC20.sol";
 
 contract PostDeliveryCrowdsale is TimedCrowdsale {
   
-  mapping(address => uint256) promised;
+  mapping(address => uint256) promises;
 
   function processPurchase(address _beneficiary, uint256 _tokenAmount) internal {
     promises[_beneficiary] = promises[_beneficiary].add(_tokenAmount);
@@ -16,6 +16,6 @@ contract PostDeliveryCrowdsale is TimedCrowdsale {
     uint256 amount = promises[msg.sender];
     require(amount > 0);
     promises[msg.sender] = 0;
-    emitTokens(msg.sender, amount);
+    _emitTokens(msg.sender, amount);
   }
 }
