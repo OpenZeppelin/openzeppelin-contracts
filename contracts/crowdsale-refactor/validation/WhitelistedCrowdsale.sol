@@ -1,9 +1,9 @@
 pragma solidity ^ 0.4.18;
 
-import "../CrowdsaleBase.sol";
+import "../Crowdsale.sol";
 import "../../ownership/Ownable.sol";
 
-contract WhitelistedCrowdsale is CrowdsaleBase, Ownable {
+contract WhitelistedCrowdsale is Crowdsale, Ownable {
   
   mapping(address => bool) public whitelist;
 
@@ -19,7 +19,7 @@ contract WhitelistedCrowdsale is CrowdsaleBase, Ownable {
     return whitelist[_beneficiary];
   }
 
-  function preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
+  function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
     super.preValidatePurchase(_beneficiary, _weiAmount);
     require(isWhitelisted(_beneficiary));
   }

@@ -17,7 +17,7 @@ contract ApprovedCrowdsale is Crowdsale {
 
   // TODO: consider querying approval left and end crowdsale if depleted 
 
-  function emitTokens(address _beneficiary, uint256 _tokenAmount) internal {
+  function _emitTokens(address _beneficiary, uint256 _tokenAmount) internal {
     token.transferFrom(tokenOwner, _beneficiary, _tokenAmount);
   }
 }

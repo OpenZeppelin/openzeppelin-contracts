@@ -1,9 +1,9 @@
 pragma solidity ^0.4.18;
 
-import "../CrowdsaleBase.sol";
+import "../validation/TimedCrowdsale.sol";
 import "../../token/ERC20/ERC20.sol";
 
-contract PostDeliveryCrowdsale is CrowdsaleBase {
+contract PostDeliveryCrowdsale is TimedCrowdsale {
   
   mapping(address => uint256) promised;
 

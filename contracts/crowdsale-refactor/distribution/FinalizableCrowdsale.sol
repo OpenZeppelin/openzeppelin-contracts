@@ -2,15 +2,14 @@ pragma solidity ^0.4.18;
 
 import "../../math/SafeMath.sol";
 import "../../ownership/Ownable.sol";
-import "../CrowdsaleBase.sol";
-
+import "../validation/TimedCrowdsale.sol";
 
 /**
  * @title FinalizableCrowdsale
  * @dev Extension of Crowdsale where an owner can do extra work
  * after finishing.
  */
-contract FinalizableCrowdsale is CrowdsaleBase, Ownable {
+contract FinalizableCrowdsale is TimedCrowdsale, Ownable {
   using SafeMath for uint256;
 
   bool public isFinalized = false;
