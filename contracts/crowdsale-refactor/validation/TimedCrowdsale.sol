@@ -7,7 +7,7 @@ contract TimedCrowdsale is Crowdsale {
   uint256 public startTime;
   uint256 public endTime;
 
-  function Crowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet, ERC20 _token) public {
+  function TimedCrowdsale(uint256 _startTime, uint256 _endTime) public {
     require(_startTime >= now);
     require(_endTime >= _startTime);
 
