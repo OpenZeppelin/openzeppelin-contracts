@@ -45,4 +45,26 @@ library SafeMath {
     assert(c >= a);
     return c;
   }
+
+  /**
+   * @dev Multiply two fixed point decimals (represented as unsigned integers). Rounds down if digits cannot be represented with the
+   * precision defined by `base`
+   * @param a A fixed point decimal factor represented as an unsigned integer with precision defined by `base`
+   * @param b A fixed point decimal factor represented as an unsigned integer with precision defined by `base`
+   * @param base The base unit representing the number 1.0 and defines the precision for the fixed point decimals
+   */
+  function fxpMul(uint256 a, uint256 b, uint256 base) internal pure returns (uint256) {
+    return div(mul(a, b), base);
+  }
+
+  /**
+   * @dev Divide two fixed point decimals (represented as unsigned integers). Rounds down if digits cannot be represented with the
+   * precision defined by `base`
+   * @param a A fixed point decimal dividend represented as an unsigned integer with precision defined by `base`
+   * @param b A fixed point decimal divisor represented as an unsigned integer with precision defined by `base`
+   * @param base The base unit representing the number 1.0 and defines the precision for the fixed point decimals
+   */
+  function fxpDiv(uint256 a, uint256 b, uint256 base) internal pure returns (uint256) {
+    return div(mul(a, base), b);
+  }
 }

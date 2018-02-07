@@ -18,4 +18,12 @@ contract SafeMathMock {
   function add(uint256 a, uint256 b) public {
     result = SafeMath.add(a, b);
   }
+
+  function fxpMul(uint256 a, uint256 b, uint256 base) public {
+    result = SafeMath.fxpMul(a, b, base);
+  }
+
+  function fxpDiv(uint256 a, uint256 b, uint256 base) public {
+    result = SafeMath.fxpDiv(a, b, base);
+  }
 }

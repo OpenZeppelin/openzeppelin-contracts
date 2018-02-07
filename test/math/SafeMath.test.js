@@ -57,4 +57,66 @@ contract('SafeMath', function (accounts) {
     let b = 2;
     await assertRevert(safeMath.multiply(a, b));
   });
+
+  describe('fxpMul', () => {
+    it('should throw an error if base is 0', async function () {
+      let base = 0;
+      let a = 100;
+      let b = 7;
+      try {
+        await safeMath.fxpMul(a, b, base);
+        assert.fail('should have thrown before');
+      } catch (error) {
+        assertJump(error);
+      }
+    });
+
+    it('should throw an error on multiplication overflow', async function () {
+      let base = 1000000;
+      let a = 115792089237316195423570985008687907853269984665640564039457584007913129639933;
+      let b = 2;
+      await assertRevert(safeMath.fxpMul(a, b, base));
+    });
+
+    it('should multiply fixed point decimals represented as unsigned integers correctly', async function () {
+      let base = 1000000;
+      let a = 100 * base;
+      let b = 0.7 * base;
+      await safeMath.fxpMul(a, b, base);
+      let result = await safeMath.result();
+
+      assert.equal(result, (100 * 0.7) * base);
+    });
+  });
+
+  describe('fxpDiv', () => {
+    it('should throw an error if divisor is 0', async function () {
+      let base = 1000000;
+      let a = 100;
+      let b = 0;
+      try {
+        await safeMath.fxpDiv(a, b, base);
+        assert.fail('should have thrown before');
+      } catch (error) {
+        assertJump(error);
+      }
+    });
+
+    it('should throw an error on multiplication overflow', async function () {
+      let base = 1000000;
+      let a = 115792089237316195423570985008687907853269984665640564039457584007913129639933;
+      let b = 2;
+      await assertRevert(safeMath.fxpMul(a, b, base));
+    });
+
+    it('should divide fixed point decimals represented as unsigned integers correctly', async function () {
+      let base = 1000000;
+      let a = 25 * base;
+      let b = 100 * base;
+      await safeMath.fxpDiv(a, b, base);
+      let result = await safeMath.result();
+
+      assert.equal(result, (25 / 100) * base);
+    });
+  });
 });
