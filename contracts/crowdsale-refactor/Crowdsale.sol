@@ -5,8 +5,8 @@ import "../math/SafeMath.sol";
 
 /**
  * @title Crowdsale
- * @dev Crowdsale is a base contract for managing a token crowdsale, 
- * allowing investors to purchase tokens with ether. This contract implements 
+ * @dev Crowdsale is a base contract for managing a token crowdsale,
+ * allowing investors to purchase tokens with ether. This contract implements
  * such functionality in it's most fundamental form and can be extended to provide additional
  * functionality and/or custom behavior.
  */
@@ -48,8 +48,8 @@ contract Crowdsale {
   // Crowdsale external interface
   // -----------------------------------------
 
-  /** 
-  * These functions represent the basic 
+  /**
+  * These functions represent the basic
   * interface for purchasing tokens, conform
   * the base architecture for crowdsales,
   * and are not intended to be modified / overriden.
@@ -85,9 +85,9 @@ contract Crowdsale {
   // Internal (extensible) implementations
   // -----------------------------------------
 
-  /** 
-  * These functions conform the extensible 
-  * and modifyable surface of crowdsales. 
+  /**
+  * These functions conform the extensible
+  * and modifyable surface of crowdsales.
   * Override the methods to add additional functionality.
   * Consider using 'super' where appropiate to concatenate
   * behavior.
@@ -105,9 +105,9 @@ contract Crowdsale {
   function _postValidatePurchase(address beneficiary, uint256 weiAmount) internal {
     // optional override
   }
-  
+
   // Ultimate source of tokens.
-  // Override this method to modify how the crowdsale ultimately gets and 
+  // Override this method to modify how the crowdsale ultimately gets and
   // sends its tokens.
   function _emitTokens(address _beneficiary, uint256 _tokenAmount) internal {
     token.transfer(_beneficiary, _tokenAmount);
