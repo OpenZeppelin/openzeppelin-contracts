@@ -3,6 +3,7 @@ pragma solidity ^0.4.18;
 import "../Crowdsale.sol";
 
 contract TimedCrowdsale is Crowdsale {
+  using SafeMath for uint256; //adding this for safety, inherited? CHECK
 
   uint256 public startTime;
   uint256 public endTime;
@@ -15,7 +16,7 @@ contract TimedCrowdsale is Crowdsale {
     endTime = _endTime;
   }
 
-  function hasEnded() public view returns (bool) {
+  function hasExpired() public view returns (bool) {
     return now > endTime;
   }
 
