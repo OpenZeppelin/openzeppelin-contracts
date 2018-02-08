@@ -4,7 +4,7 @@ import "../../math/SafeMath.sol";
 import "../Crowdsale.sol";
 
 contract TimedCrowdsale is Crowdsale {
-  using SafeMath for uint256; //adding this for safety, inherited? CHECK
+  using SafeMath for uint256;
 
   uint256 public startTime;
   uint256 public endTime;

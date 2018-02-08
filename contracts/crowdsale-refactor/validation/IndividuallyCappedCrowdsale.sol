@@ -1,9 +1,11 @@
 pragma solidity ^ 0.4.18;
 
+import "../../math/SafeMath.sol";
 import "../Crowdsale.sol";
 import "../../ownership/Ownable.sol";
 
 contract IndividuallyCappedCrowdsale is Crowdsale, Ownable {
+  using SafeMath for uint256;
 
   mapping(address => uint256) public contributions;
   mapping(address => uint256) public caps;

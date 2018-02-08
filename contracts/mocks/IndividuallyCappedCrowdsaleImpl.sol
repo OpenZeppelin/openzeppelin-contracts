@@ -6,7 +6,7 @@ import "../crowdsale-refactor/validation/IndividuallyCappedCrowdsale.sol";
 
 
 contract IndividuallyCappedCrowdsaleImpl is IndividuallyCappedCrowdsale {
-
+  
   function IndividuallyCappedCrowdsaleImpl (
     uint256 _rate,
     address _wallet,
