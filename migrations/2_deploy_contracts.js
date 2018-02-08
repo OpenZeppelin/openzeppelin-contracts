@@ -1,4 +1,4 @@
-// var Ownable = artifacts.require("ownership/Ownable.sol");
+// var Ownable = artifacts.require("Ownable");
 
 // NOTE: Use this file to easily deploy the contracts you're writing.
 //   (but make sure to reset this file before committing

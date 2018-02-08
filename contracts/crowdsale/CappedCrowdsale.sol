@@ -1,7 +1,8 @@
 pragma solidity ^0.4.18;
 
-import '../math/SafeMath.sol';
-import './Crowdsale.sol';
+import "../math/SafeMath.sol";
+import "./Crowdsale.sol";
+
 
 /**
  * @title CappedCrowdsale
@@ -17,18 +18,18 @@ contract CappedCrowdsale is Crowdsale {
     cap = _cap;
   }
 
-  // overriding Crowdsale#validPurchase to add extra cap logic
-  // @return true if investors can buy at the moment
-  function validPurchase() internal view returns (bool) {
-    bool withinCap = weiRaised.add(msg.value) <= cap;
-    return super.validPurchase() && withinCap;
-  }
-
   // overriding Crowdsale#hasEnded to add cap logic
   // @return true if crowdsale event has ended
   function hasEnded() public view returns (bool) {
     bool capReached = weiRaised >= cap;
-    return super.hasEnded() || capReached;
+    return capReached || super.hasEnded();
+  }
+
+  // overriding Crowdsale#validPurchase to add extra cap logic
+  // @return true if investors can buy at the moment
+  function validPurchase() internal view returns (bool) {
+    bool withinCap = weiRaised.add(msg.value) <= cap;
+    return withinCap && super.validPurchase();
   }
 
 }

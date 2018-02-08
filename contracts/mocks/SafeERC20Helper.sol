@@ -1,9 +1,14 @@
 pragma solidity ^0.4.18;
 
-import '../token/ERC20.sol';
-import '../token/SafeERC20.sol';
+import "../token/ERC20/ERC20.sol";
+import "../token/ERC20/SafeERC20.sol";
+
 
 contract ERC20FailingMock is ERC20 {
+  function totalSupply() public view returns (uint256) {
+    return 0;
+  }
+
   function transfer(address, uint256) public returns (bool) {
     return false;
   }
@@ -24,8 +29,13 @@ contract ERC20FailingMock is ERC20 {
     return 0;
   }
 }
+
 
 contract ERC20SucceedingMock is ERC20 {
+  function totalSupply() public view returns (uint256) {
+    return 0;
+  }
+  
   function transfer(address, uint256) public returns (bool) {
     return true;
   }
@@ -46,6 +56,7 @@ contract ERC20SucceedingMock is ERC20 {
     return 0;
   }
 }
+
 
 contract SafeERC20Helper {
   using SafeERC20 for ERC20;
