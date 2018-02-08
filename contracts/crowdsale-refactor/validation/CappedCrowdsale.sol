@@ -1,9 +1,9 @@
 pragma solidity ^0.4.18;
 
 import "../../math/SafeMath.sol";
-import "./TimedCrowdsale.sol";
+import "../Crowdsale.sol";
 
-contract CappedCrowdsale is TimedCrowdsale {
+contract CappedCrowdsale is Crowdsale {
   using SafeMath for uint256;
 
   uint256 public cap;
@@ -13,9 +13,8 @@ contract CappedCrowdsale is TimedCrowdsale {
     cap = _cap;
   }
 
-  function hasEnded() public view returns (bool) {
-    bool capReached = weiRaised >= cap;
-    return capReached || super.hasEnded();
+  function capReached() public view returns (bool) {
+    return weiRaised >= cap;
   }
 
   function _postValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
