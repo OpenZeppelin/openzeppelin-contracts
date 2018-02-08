@@ -1,7 +1,7 @@
 
 import expectThrow from './helpers/expectThrow';
-const ReentrancyMock = artifacts.require('./helper/ReentrancyMock.sol');
-const ReentrancyAttack = artifacts.require('./helper/ReentrancyAttack.sol');
+const ReentrancyMock = artifacts.require('ReentrancyMock');
+const ReentrancyAttack = artifacts.require('ReentrancyAttack');
 
 contract('ReentrancyGuard', function (accounts) {
   let reentrancyMock;
@@ -17,7 +17,7 @@ contract('ReentrancyGuard', function (accounts) {
     await expectThrow(reentrancyMock.countAndCall(attacker.address));
   });
 
-  // The following are more side-effects that intended behaviour:
+  // The following are more side-effects than intended behaviour:
   // I put them here as documentation, and to monitor any changes
   // in the side-effects.
 

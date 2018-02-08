@@ -1,8 +1,9 @@
 pragma solidity ^0.4.18;
 
 import "./Ownable.sol";
-import "../token/ERC20Basic.sol";
-import "../token/SafeERC20.sol";
+import "../token/ERC20/ERC20Basic.sol";
+import "../token/ERC20/SafeERC20.sol";
+
 
 /**
  * @title Contracts that should be able to recover tokens

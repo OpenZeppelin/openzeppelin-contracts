@@ -2,6 +2,7 @@ pragma solidity ^0.4.18;
 
 import "./Ownable.sol";
 
+
 /**
  * @title Contracts that should not own Contracts
  * @author Remco Bloemen <remco@2π.com>
