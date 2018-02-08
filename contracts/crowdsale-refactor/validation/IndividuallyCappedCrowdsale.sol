@@ -3,8 +3,8 @@ pragma solidity ^ 0.4.18;
 import "../Crowdsale.sol";
 import "../../ownership/Ownable.sol";
 
-contract UserCappedCrowdsale is Crowdsale, Ownable {
-  
+contract IndividuallyCappedCrowdsale is Crowdsale, Ownable {
+
   mapping(address => uint256) public contributions;
   mapping(address => uint256) public caps;
 

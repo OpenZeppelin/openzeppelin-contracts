@@ -1,0 +1,60 @@
+import ether from '../helpers/ether';
+import EVMRevert from '../helpers/EVMRevert';
+
+const BigNumber = web3.BigNumber;
+
+require('chai')
+  .use(require('chai-as-promised'))
+  .use(require('chai-bignumber')(BigNumber))
+  .should();
+
+const CappedCrowdsale = artifacts.require('IndividuallyCappedCrowdsaleImpl');
+const SimpleToken = artifacts.require('SimpleToken');
+
+contract('IndividuallyCappedCrowdsale', function ([_, wallet, alice, bob, charlie]) {
+  const rate = new BigNumber(1);// Not that many SimpleTokens!! 1000);
+
+  const capAlice = ether(10);
+  const capBob = ether(2);
+  const lessThanCapAlice = ether(6);
+  const lessThanCapBoth = ether(1);
+  const capital = ether(1000);
+
+  beforeEach(async function () {
+    this.token = await SimpleToken.new();
+    this.crowdsale = await CappedCrowdsale.new(rate, wallet, this.token.address);
+    this.crowdsale.setUserCap(alice, capAlice);
+    this.crowdsale.setUserCap(bob, capBob);
+    this.token.transfer(this.crowdsale.address, capital);
+  });
+
+
+  describe('accepting payments', function () {
+
+    it('should accept payments within cap', async function () {
+      await this.crowdsale.buyTokens(alice, {value: lessThanCapAlice}).should.be.fulfilled;
+      await this.crowdsale.buyTokens(bob, {value: lessThanCapBoth}).should.be.fulfilled;
+    });
+
+    it('should reject payments outside cap', async function () {
+      await this.crowdsale.buyTokens(alice, {value: capAlice});
+      await this.crowdsale.buyTokens(alice, {value: 1}).should.be.rejectedWith(EVMRevert);
+    });
+
+    it('should reject payments that exceed cap', async function () {
+      await this.crowdsale.buyTokens(alice, {value: capAlice.plus(1)}).should.be.rejectedWith(EVMRevert);
+      await this.crowdsale.buyTokens(bob, {value: capBob.plus(1)}).should.be.rejectedWith(EVMRevert);
+    });
+
+    it('should manage independent caps', async function () {
+      await this.crowdsale.buyTokens(alice, {value: lessThanCapAlice}).should.be.fulfilled;
+      await this.crowdsale.buyTokens(bob, {value: lessThanCapAlice}).should.be.rejectedWith(EVMRevert);
+    });
+
+    it('should default to a cap of zero', async function () {
+      await this.crowdsale.buyTokens(charlie, {value: lessThanCapBoth}).should.be.rejectedWith(EVMRevert);
+    });
+
+  });
+
+});
