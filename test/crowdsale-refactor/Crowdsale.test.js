@@ -15,9 +15,9 @@ const Crowdsale = artifacts.require('Crowdsale');
 const SimpleToken = artifacts.require('SimpleToken');
 
 contract('Crowdsale', function ([god, investor, wallet, purchaser]) {
-  const rate = new BigNumber(1000);
-  const value = ether(4.2);
-  const holdings = ether(10000);
+  const rate = new BigNumber(1); // Not that many SimpleTokens!! 1000);
+  const value = ether(42);
+  const capital = ether(10000);
 
   const expectedTokenAmount = rate.mul(value);
 
@@ -25,8 +25,7 @@ contract('Crowdsale', function ([god, investor, wallet, purchaser]) {
 
     this.token = await SimpleToken.new();
     this.crowdsale = await Crowdsale.new(rate, wallet, this.token.address);
-    //fund crowdsale
-    this.token.transfer(this.crowdsale.address, holdings);
+    this.token.transfer(this.crowdsale.address, capital);
   });
 
 
@@ -56,13 +55,6 @@ contract('Crowdsale', function ([god, investor, wallet, purchaser]) {
       event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
     });
 
-    //OBSOLETE, not minting
-    // it('should increase totalSupply', async function () {
-    //   await this.crowdsale.send(value);
-    //   const totalSupply = await this.token.totalSupply();
-    //   totalSupply.should.be.bignumber.equal(expectedTokenAmount);
-    // });
-
     it('should assign tokens to sender', async function () {
       await this.crowdsale.sendTransaction({ value: value, from: investor });
       let balance = await this.token.balanceOf(investor);
@@ -91,13 +83,6 @@ contract('Crowdsale', function ([god, investor, wallet, purchaser]) {
       //DOES THIS APPLY?
       event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
     });
-
-  //  OBSOLETE
-  //   it('should increase totalSupply', async function () {
-  //     await this.crowdsale.buyTokens(investor, { value, from: purchaser });
-  //     const totalSupply = await this.token.totalSupply();
-  //     totalSupply.should.be.bignumber.equal(expectedTokenAmount);
-  //   });
 
     it('should assign tokens to beneficiary', async function () {
       await this.crowdsale.buyTokens(investor, { value, from: purchaser });

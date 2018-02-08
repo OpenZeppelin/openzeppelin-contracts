@@ -12,38 +12,28 @@ require('chai')
   .should();
 
 const CappedCrowdsale = artifacts.require('CappedCrowdsaleImpl');
-const MintableToken = artifacts.require('MintableToken');
+const SimpleToken = artifacts.require('SimpleToken');
 
 contract('CappedCrowdsale', function ([_, wallet]) {
-  const rate = new BigNumber(1000);
+  const rate = new BigNumber(1);// Not that many SimpleTokens!! 1000);
 
-  const cap = ether(300);
+  const cap = ether(100);
   const lessThanCap = ether(60);
-
-  before(async function () {
-    // Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
-    await advanceBlock();
-  });
+  const capital = ether(1000);
 
   beforeEach(async function () {
-    this.startTime = latestTime() + duration.weeks(1);
-    this.endTime = this.startTime + duration.weeks(1);
-
-    this.token = await MintableToken.new();
-    this.crowdsale = await CappedCrowdsale.new(this.startTime, this.endTime, rate, wallet, cap, this.token.address);
-    await this.token.transferOwnership(this.crowdsale.address);
+    this.token = await SimpleToken.new();
+    this.crowdsale = await CappedCrowdsale.new(rate, wallet, cap, this.token.address);
+    this.token.transfer(this.crowdsale.address, capital);
   });
 
   describe('creating a valid crowdsale', function () {
     it('should fail with zero cap', async function () {
-      await CappedCrowdsale.new(this.startTime, this.endTime, rate, wallet, 0).should.be.rejectedWith(EVMRevert);
+      await CappedCrowdsale.new(rate, wallet, 0, this.token.address).should.be.rejectedWith(EVMRevert);
     });
   });
 
   describe('accepting payments', function () {
-    beforeEach(async function () {
-      await increaseTimeTo(this.startTime);
-    });
 
     it('should accept payments within cap', async function () {
       await this.crowdsale.send(cap.minus(lessThanCap)).should.be.fulfilled;
@@ -61,28 +51,25 @@ contract('CappedCrowdsale', function ([_, wallet]) {
   });
 
   describe('ending', function () {
-    beforeEach(async function () {
-      await increaseTimeTo(this.startTime);
-    });
 
-    it('should not be ended if under cap', async function () {
-      let hasEnded = await this.crowdsale.hasEnded();
-      hasEnded.should.equal(false);
+    it('should not reach cap if sent under cap', async function () {
+      let capReached = await this.crowdsale.capReached();
+      capReached.should.equal(false);
       await this.crowdsale.send(lessThanCap);
-      hasEnded = await this.crowdsale.hasEnded();
-      hasEnded.should.equal(false);
+      capReached = await this.crowdsale.capReached();
+      capReached.should.equal(false);
     });
 
-    it('should not be ended if just under cap', async function () {
+    it('should not reach cap if sent just under cap', async function () {
       await this.crowdsale.send(cap.minus(1));
-      let hasEnded = await this.crowdsale.hasEnded();
-      hasEnded.should.equal(false);
+      let capReached = await this.crowdsale.capReached();
+      capReached.should.equal(false);
     });
 
-    it('should be ended if cap reached', async function () {
+    it('should reach cap if cap sent', async function () {
       await this.crowdsale.send(cap);
-      let hasEnded = await this.crowdsale.hasEnded();
-      hasEnded.should.equal(true);
+      let capReached = await this.crowdsale.capReached();
+      capReached.should.equal(true);
     });
   });
 });
