@@ -25,7 +25,7 @@ contract('Crowdsale', function ([god, investor, wallet, purchaser]) {
 
     this.token = await SimpleToken.new();
     this.crowdsale = await Crowdsale.new(rate, wallet, this.token.address);
-    this.token.transfer(this.crowdsale.address, capital);
+    await this.token.transfer(this.crowdsale.address, capital);
   });
 
 

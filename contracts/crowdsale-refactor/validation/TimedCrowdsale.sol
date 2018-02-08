@@ -10,8 +10,8 @@ contract TimedCrowdsale is Crowdsale {
   uint256 public endTime;
 
   function TimedCrowdsale(uint256 _startTime, uint256 _endTime) public {
-    //require(_startTime >= now);
-    //require(_endTime >= _startTime);
+    require(_startTime >= now);
+    require(_endTime >= _startTime);
 
     startTime = _startTime;
     endTime = _endTime;
