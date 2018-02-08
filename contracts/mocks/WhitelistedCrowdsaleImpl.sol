@@ -13,7 +13,7 @@ contract WhitelistedCrowdsaleImpl is WhitelistedCrowdsale {
     ERC20 _token
   ) public
     Crowdsale(_rate, _wallet, _token)
-    Ownable() //Do I need to call it anyway?!
+    //Ownable() //Do I need to call it anyway?! --apparently not
   {
   }
 
