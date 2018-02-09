@@ -10,7 +10,7 @@ contract VariablePriceCrowdsale is TimedCrowdsale {
   uint256 public finalRate;
 
   function VariablePriceCrowdsale(uint256 _initialRate, uint256 _finalRate) public {
-    require(_initialRate >= 0);
+    require(_initialRate > 0);
     require(_finalRate > 0);
 
     initialRate = _initialRate;
@@ -21,7 +21,7 @@ contract VariablePriceCrowdsale is TimedCrowdsale {
     uint256 elapsedTime = now - startTime;
     uint256 timeRange = endTime - startTime;
     uint256 rateRange = initialRate - finalRate;
-    return initialRate.add(elapsedTime.mul(rateRange).div(timeRange));
+    return initialRate.sub(elapsedTime.mul(rateRange).div(timeRange));
   }
 
   function _getTokenAmount(uint256 weiAmount) internal view returns (uint256) {

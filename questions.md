@@ -62,6 +62,7 @@
 
 
 * What is the point in using `Impl`s as opposed to passing arguments to base constructors? In particular, from Solidity docs: "Derived contracts need to provide all arguments needed for the base constructors."
+  - Talked to Fran, due to multiple inheritance, would repeat base constructor calls with no guarantee of actually calling it twice :-\
 
 
 * Does `VariablePriceCrowdsale` work as is with decreasing price?
