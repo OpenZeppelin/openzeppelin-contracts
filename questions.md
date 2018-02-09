@@ -55,6 +55,18 @@
 * Which token to use in `CappedCrowdsaleImpl`? Simple, like the one used in test or ERC20? Both work.
 
 
+* What does integer division do in safeMath?
+
+
+* `VariablePriceCrowdsale`: I'm making externally available the current price by `getCurrentRate`, is that desirable? Also, this gets called each time someone buys token, is there an extra cost of making this external/public? Check `view` modifier.
+
+
+* What is the point in using `Impl`s as opposed to passing arguments to base constructors? In particular, from Solidity docs: "Derived contracts need to provide all arguments needed for the base constructors."
+
+
+* Does `VariablePriceCrowdsale` work as is with decreasing price?
+
+
 ## Tests
 
 * Check crowdsale funding, need to finely tune amount, smarter way? strange, is this the gas? high rate? rate should be inverse?!
