@@ -9,7 +9,7 @@ import "../math/SafeMath.sol";
  * @dev Crowdsale is a base contract for managing a token crowdsale.
  * Crowdsales have a start and end timestamps, where investors can make
  * token purchases and the crowdsale will assign them tokens based
- * on a token per ETH rate. Funds collected are forwarded to a wallet
+ * on a token per wei rate. Funds collected are forwarded to a wallet
  * as they arrive. The contract requires a MintableToken that will be
  * minted as contributions arrive, note that the crowdsale contract
  * must be owner of the token in order to be able to mint it.
