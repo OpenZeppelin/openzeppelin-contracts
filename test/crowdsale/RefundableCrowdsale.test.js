@@ -40,7 +40,8 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor]) {
       wallet,
       goal,
       this.vault.address,
-      this.token.address
+      this.token.address,
+      { from: owner }
     );
 
     await this.token.transferOwnership(this.crowdsale.address);
@@ -56,7 +57,8 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor]) {
         wallet,
         0,
         this.vault.address,
-        this.token.address
+        this.token.address,
+        { from: owner }
       )
         .should.be.rejectedWith(EVMRevert);
     });
