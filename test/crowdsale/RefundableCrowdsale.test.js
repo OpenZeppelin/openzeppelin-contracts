@@ -13,6 +13,7 @@ require('chai')
 
 const RefundableCrowdsale = artifacts.require('RefundableCrowdsaleImpl');
 const MintableToken = artifacts.require('MintableToken');
+const RefundVault = artifacts.require('RefundVault');
 
 contract('RefundableCrowdsale', function ([_, owner, wallet, investor]) {
   const rate = new BigNumber(1000);
@@ -30,15 +31,33 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor]) {
     this.afterEndTime = this.endTime + duration.seconds(1);
 
     this.token = await MintableToken.new();
+    this.vault = await RefundVault.new(wallet);
+
     this.crowdsale = await RefundableCrowdsale.new(
-      this.startTime, this.endTime, rate, wallet, goal, this.token.address, { from: owner }
+      this.startTime,
+      this.endTime,
+      rate,
+      wallet,
+      goal,
+      this.vault.address,
+      this.token.address
     );
+
     await this.token.transferOwnership(this.crowdsale.address);
+    await this.vault.transferOwnership(this.crowdsale.address);
   });
 
   describe('creating a valid crowdsale', function () {
     it('should fail with zero goal', async function () {
-      await RefundableCrowdsale.new(this.startTime, this.endTime, rate, wallet, 0, { from: owner })
+      await RefundableCrowdsale.new(
+        this.startTime,
+        this.endTime,
+        rate,
+        wallet,
+        0,
+        this.vault.address,
+        this.token.address
+      )
         .should.be.rejectedWith(EVMRevert);
     });
   });
