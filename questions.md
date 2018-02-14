@@ -91,8 +91,9 @@
 
 # PENDING
 
-* CHECK all mocks!!
+* Alignment between sales and this proposal
 
+* Tests: modify "capital" variable, remove confusing "ether"
 
 # BUGS
 
@@ -129,10 +130,10 @@
 
 ## Distribution
   - FinalizableCrowdsale
+  - PostDeliveryCrowdsale
 
 
 # PENDING
 
 ## Distribution
-  - PostDeliveryCrowdsale
   - RefundableCrowdsale

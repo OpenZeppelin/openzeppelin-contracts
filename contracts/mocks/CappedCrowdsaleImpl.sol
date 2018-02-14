@@ -10,8 +10,8 @@ contract CappedCrowdsaleImpl is CappedCrowdsale {
   function CappedCrowdsaleImpl (
     uint256 _rate,
     address _wallet,
-    uint256 _cap,
-    ERC20 _token
+    ERC20 _token,
+    uint256 _cap
   ) public
     Crowdsale(_rate, _wallet, _token)
     CappedCrowdsale(_cap)
