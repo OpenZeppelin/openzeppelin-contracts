@@ -13,6 +13,7 @@ contract PremintedCrowdsale is Crowdsale {
   }
 
   // TODO: consider querying approval left and end crowdsale if depleted
+  // But approval could be increased..
 
   function _emitTokens(address _beneficiary, uint256 _tokenAmount) internal {
     token.transferFrom(tokenWallet, _beneficiary, _tokenAmount);

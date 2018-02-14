@@ -10,9 +10,6 @@
   - Used in PostDeliveryCrowdsale.
 
 
-* Comment "overrideability" of `forwardFunds`.
-
-
 * Can plain `Crowdsale` function on its own, or "virtual"?
   - Works, but useful for anything?
 
@@ -24,7 +21,7 @@
 
 
 * Lack of constructor in inheritance: does `super` get called anyway?? With right parameters?
-
+  - See discussion on Impl's below, this is to be sure of who is calling who in multiple inheritance
 
 * What's this: "Warning: Function state mutability can be restricted to pure?" in Crowdsale functions?
 
@@ -54,7 +51,7 @@
 
 
 * Which token to use in `CappedCrowdsaleImpl`? Simple, like the one used in test or ERC20? Both work.
-
+  - Using ERC20, more generic.
 
 * What does integer division do in safeMath?
 
@@ -126,13 +123,14 @@
 ## Price
   - IncreasingPriceCrowdsale
 
+## Emission
+  - ApprovedCrowdsale
+  - MintedCrowdsale
+
+
 # PENDING
 
 ## Distribution
   - FinalizableCrowdsale
   - PostDeliveryCrowdsale
   - RefundableCrowdsale
-
-## Emission
-  - ApprovedCrowdsale: token not Ownable by default, so _tokenOwner is meaningless, and token.transferFrom will fail. Discuss if meaningful to implement this with an Ownable token.
-  - MintedCrowdsale: Impl necessary??
