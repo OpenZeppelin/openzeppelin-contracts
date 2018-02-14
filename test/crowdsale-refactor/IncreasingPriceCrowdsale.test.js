@@ -11,10 +11,10 @@ const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const VariablePriceCrowdsale = artifacts.require('VariablePriceCrowdsaleImpl');
+const IncreasingTimeCrowdsale = artifacts.require('IncreasingTimeCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
-contract('VariablePriceCrowdsale', function ([_, investor, wallet, purchaser]) {
+contract('IncreasingTimeCrowdsale', function ([_, investor, wallet, purchaser]) {
   const value = ether(1);
   const capital = ether(10000);
 
@@ -42,7 +42,7 @@ contract('VariablePriceCrowdsale', function ([_, investor, wallet, purchaser]) {
       this.afterEndTime = this.endTime + duration.seconds(1);
 
       this.token = await SimpleToken.new();
-      this.crowdsale = await VariablePriceCrowdsale.new(this.startTime, this.endTime, wallet, this.token.address, initialRate, finalRate);
+      this.crowdsale = await IncreasingTimeCrowdsale.new(this.startTime, this.endTime, wallet, this.token.address, initialRate, finalRate);
       await this.token.transfer(this.crowdsale.address, capital);
 
     })

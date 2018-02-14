@@ -58,15 +58,15 @@
 * What does integer division do in safeMath?
 
 
-* `VariablePriceCrowdsale`: I'm making externally available the current price by `getCurrentRate`, is that desirable? Also, this gets called each time someone buys token, is there an extra cost of making this external/public? Check `view` modifier.
-
+* `IncreasingTimeCrowdsale`: I'm making externally available the current price by `getCurrentRate`, is that desirable? Also, this gets called each time someone buys token, is there an extra cost of making this external/public? Check `view` modifier.
+  - Talked with Fran, update.
 
 * What is the point in using `Impl`s as opposed to passing arguments to base constructors? In particular, from Solidity docs: "Derived contracts need to provide all arguments needed for the base constructors."
   - Talked to Fran, due to multiple inheritance, would repeat base constructor calls with no guarantee of actually calling it twice :-\
 
 
-* Does `VariablePriceCrowdsale` work as is with decreasing price?
-
+* Does `IncreasingTimeCrowdsale` work as is with decreasing price?
+  - Looks like it doesn't due to uints. Changed name, adding require() to ensure this.
 
 ## Tests
 

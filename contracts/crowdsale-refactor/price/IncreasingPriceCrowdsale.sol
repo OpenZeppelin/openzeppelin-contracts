@@ -3,14 +3,14 @@ pragma solidity ^0.4.18;
 import "../validation/TimedCrowdsale.sol";
 import "../../math/SafeMath.sol";
 
-contract VariablePriceCrowdsale is TimedCrowdsale {
+contract IncreasingTimeCrowdsale is TimedCrowdsale {
   using SafeMath for uint256;
 
   uint256 public initialRate;
   uint256 public finalRate;
 
-  function VariablePriceCrowdsale(uint256 _initialRate, uint256 _finalRate) public {
-    require(_initialRate > 0);
+  function IncreasingTimeCrowdsale(uint256 _initialRate, uint256 _finalRate) public {
+    require(_initialRate >= _finalRate);
     require(_finalRate > 0);
 
     initialRate = _initialRate;
