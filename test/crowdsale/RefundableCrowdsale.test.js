@@ -12,12 +12,14 @@ require('chai')
   .should();
 
 const RefundableCrowdsale = artifacts.require('RefundableCrowdsaleImpl');
-const MintableToken = artifacts.require('MintableToken');
+const SimpleToken = artifacts.require('SimpleToken');
+const RefundVault = artifacts.require('RefundVault');
 
-contract('RefundableCrowdsale', function ([_, owner, wallet, investor]) {
-  const rate = new BigNumber(1000);
-  const goal = ether(800);
-  const lessThanGoal = ether(750);
+contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser]) {
+  const rate = new BigNumber(1);
+  const goal = ether(50);
+  const lessThanGoal = ether(45);
+  const capital = ether(10000);
 
   before(async function () {
     // Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
@@ -29,16 +31,18 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor]) {
     this.endTime = this.startTime + duration.weeks(1);
     this.afterEndTime = this.endTime + duration.seconds(1);
 
-    this.token = await MintableToken.new();
+    this.token = await SimpleToken.new();
+    this.vault = await RefundVault.new(wallet);
     this.crowdsale = await RefundableCrowdsale.new(
-      this.startTime, this.endTime, rate, wallet, goal, this.token.address, { from: owner }
+      this.startTime, this.endTime, rate, wallet, this.token.address, goal, this.vault.address, { from: owner }
     );
-    await this.token.transferOwnership(this.crowdsale.address);
+    await this.token.transfer(this.crowdsale.address, capital);
+    await this.vault.transferOwnership(this.crowdsale.address);
   });
 
   describe('creating a valid crowdsale', function () {
     it('should fail with zero goal', async function () {
-      await RefundableCrowdsale.new(this.startTime, this.endTime, rate, wallet, 0, { from: owner })
+      await RefundableCrowdsale.new(this.startTime, this.endTime, rate, wallet, this.token.address, 0, this.vault.address, { from: owner })
         .should.be.rejectedWith(EVMRevert);
     });
   });

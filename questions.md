@@ -131,9 +131,4 @@
 ## Distribution
   - FinalizableCrowdsale
   - PostDeliveryCrowdsale
-
-
-# PENDING
-
-## Distribution
   - RefundableCrowdsale
