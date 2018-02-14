@@ -15,7 +15,6 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
   const rate = new BigNumber(1); // Not that many SimpleTokens!! 1000);
   const value = ether(42);
   const capital = ether(10000);
-
   const expectedTokenAmount = rate.mul(value);
 
   beforeEach(async function () {
@@ -77,7 +76,6 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
       event.args.purchaser.should.equal(purchaser);
       event.args.beneficiary.should.equal(investor);
       event.args.value.should.be.bignumber.equal(value);
-      //DOES THIS APPLY?
       event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
     });
 

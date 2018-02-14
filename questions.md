@@ -127,10 +127,12 @@
   - ApprovedCrowdsale
   - MintedCrowdsale
 
+## Distribution
+  - FinalizableCrowdsale
+
 
 # PENDING
 
 ## Distribution
-  - FinalizableCrowdsale
   - PostDeliveryCrowdsale
   - RefundableCrowdsale

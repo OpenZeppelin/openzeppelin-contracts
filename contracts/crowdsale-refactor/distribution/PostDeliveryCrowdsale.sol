@@ -2,14 +2,14 @@ pragma solidity ^0.4.18;
 
 import "../validation/TimedCrowdsale.sol";
 import "../../token/ERC20/ERC20.sol";
+import "../../math/SafeMath.sol";
 
 contract PostDeliveryCrowdsale is TimedCrowdsale {
-  //using safemath?
-  
+  using SafeMath for uint256;
+
   mapping(address => uint256) promises;
 
   function _processPurchase(address _beneficiary, uint256 _tokenAmount) internal {
-    //requires?
     promises[_beneficiary] = promises[_beneficiary].add(_tokenAmount);
   }
 
