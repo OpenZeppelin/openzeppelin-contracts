@@ -11,7 +11,7 @@ const should = require('chai')
 const Crowdsale = artifacts.require('Crowdsale');
 const SimpleToken = artifacts.require('SimpleToken');
 
-contract('Crowdsale', function ([god, investor, wallet, purchaser]) {
+contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
   const rate = new BigNumber(1); // Not that many SimpleTokens!! 1000);
   const value = ether(42);
   const capital = ether(10000);

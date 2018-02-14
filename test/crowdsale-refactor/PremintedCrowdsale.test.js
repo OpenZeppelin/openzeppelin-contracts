@@ -8,33 +8,31 @@ const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const MintedCrowdsale = artifacts.require('MintedCrowdsaleImpl');
-const MintableToken = artifacts.require('MintableToken');
+const PremintedCrowdsale = artifacts.require('PremintedCrowdsaleImpl');
+const SimpleToken = artifacts.require('SimpleToken');
 
-contract('MintedCrowdsale', function ([_, investor, wallet, purchaser]) {
-  const rate = new BigNumber(1000);
-  const value = ether(42);
-  //const capital = ether(10000);
+contract('PremintedCrowdsale', function ([_, investor, wallet, purchaser, tokenWallet]) {
+  const rate = new BigNumber(1);
+  const value = ether(0.42);
+  const capital = ether(10000);
 
   const expectedTokenAmount = rate.mul(value);
 
   beforeEach(async function () {
 
-    this.token = await MintableToken.new();
-    this.crowdsale = await MintedCrowdsale.new(rate, wallet, this.token.address);
-    await this.token.transferOwnership(this.crowdsale.address);
+    this.token = await SimpleToken.new({from: tokenWallet});
+    this.crowdsale = await PremintedCrowdsale.new(rate, wallet, this.token.address, tokenWallet);
+    await this.token.approve(this.crowdsale.address, expectedTokenAmount, {from: tokenWallet});
 
   });
 
   describe('accepting payments', function () {
 
-    it('should be token owner', async function () {
-      const owner = await this.token.owner();
-      owner.should.equal(this.crowdsale.address);
+    it('should accept sends', async function () {
+      await this.crowdsale.send(value).should.be.fulfilled;
     });
 
     it('should accept payments', async function () {
-      await this.crowdsale.send(value).should.be.fulfilled;
       await this.crowdsale.buyTokens(investor, { value: value, from: purchaser }).should.be.fulfilled;
     });
 
