@@ -1,11 +1,11 @@
 pragma solidity ^0.4.18;
 
-import "../crowdsale-refactor/price/IncreasingTimeCrowdsale.sol";
+import "../crowdsale-refactor/price/IncreasingPriceCrowdsale.sol";
 import "../math/SafeMath.sol";
 
-contract IncreasingTimeCrowdsaleImpl is IncreasingTimeCrowdsale {
+contract IncreasingPriceCrowdsaleImpl is IncreasingPriceCrowdsale {
 
-  function IncreasingTimeCrowdsaleImpl (
+  function IncreasingPriceCrowdsaleImpl (
       uint256 _startTime,
       uint256 _endTime,
       address _wallet,
@@ -15,7 +15,7 @@ contract IncreasingTimeCrowdsaleImpl is IncreasingTimeCrowdsale {
     ) public
       Crowdsale(_initialRate, _wallet, _token)
       TimedCrowdsale(_startTime, _endTime)
-      IncreasingTimeCrowdsale(_initialRate, _finalRate)
+      IncreasingPriceCrowdsale(_initialRate, _finalRate)
     {
     }
 

@@ -4,10 +4,12 @@ import "../validation/TimedCrowdsale.sol";
 import "../../token/ERC20/ERC20.sol";
 
 contract PostDeliveryCrowdsale is TimedCrowdsale {
-
+  //using safemath?
+  
   mapping(address => uint256) promises;
 
-  function processPurchase(address _beneficiary, uint256 _tokenAmount) internal {
+  function _processPurchase(address _beneficiary, uint256 _tokenAmount) internal {
+    //requires?
     promises[_beneficiary] = promises[_beneficiary].add(_tokenAmount);
   }
 

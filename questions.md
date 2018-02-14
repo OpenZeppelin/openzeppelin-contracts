@@ -7,6 +7,7 @@
 
 
 * `_emitTokens` & `_processPurchase`: do we need both?
+  - Used in PostDeliveryCrowdsale.
 
 
 * Comment "overrideability" of `forwardFunds`.
@@ -122,11 +123,16 @@
   - WhitelistedCrowdsale
   - IndividuallyCappedCrowdsale
 
+## Price
+  - IncreasingPriceCrowdsale
 
-# MISSING
+# PENDING
 
 ## Distribution
+  - FinalizableCrowdsale
+  - PostDeliveryCrowdsale
+  - RefundableCrowdsale
 
 ## Emission
-
-## Price
+  - ApprovedCrowdsale: token not Ownable by default, so _tokenOwner is meaningless, and token.transferFrom will fail. Discuss if meaningful to implement this with an Ownable token.
+  - MintedCrowdsale: Impl necessary??
