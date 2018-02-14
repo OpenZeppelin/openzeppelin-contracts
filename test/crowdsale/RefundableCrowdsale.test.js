@@ -39,8 +39,8 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor]) {
       rate,
       wallet,
       goal,
-      this.vault.address,
       this.token.address,
+      this.vault.address,
       { from: owner }
     );
 
@@ -56,8 +56,8 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor]) {
         rate,
         wallet,
         0,
-        this.vault.address,
         this.token.address,
+        this.vault.address,
         { from: owner }
       )
         .should.be.rejectedWith(EVMRevert);
