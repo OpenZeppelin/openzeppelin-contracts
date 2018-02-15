@@ -7,7 +7,7 @@ contract PremintedCrowdsale is Crowdsale {
 
   address public tokenWallet;
 
-  function PremintedCrowdsale(address _tokenWallet) {
+  function PremintedCrowdsale(address _tokenWallet) public {
     require(_tokenWallet != address(0));
     tokenWallet = _tokenWallet;
   }

@@ -24,9 +24,9 @@ contract IncreasingPriceCrowdsale is TimedCrowdsale {
     return initialRate.sub(elapsedTime.mul(rateRange).div(timeRange));
   }
 
-  function _getTokenAmount(uint256 weiAmount) internal view returns (uint256) {
+  function _getTokenAmount(uint256 _weiAmount) internal view returns (uint256) {
     uint256 currentRate = getCurrentRate();
-    return currentRate.mul(weiAmount);
+    return currentRate.mul(_weiAmount);
   }
 
 }

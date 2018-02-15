@@ -33,7 +33,12 @@ contract Crowdsale {
    * @param amount amount of tokens purchased
    */
   event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
-
+  
+  /**
+   * @param _rate Number of token units a buyer gets per wei
+   * @param _wallet Address where collected funds will be forwarded to
+   * @param _token Address of the token being sold
+   */
   function Crowdsale(uint256 _rate, address _wallet, ERC20 _token) public {
     require(_rate > 0);
     require(_wallet != address(0));
@@ -55,18 +60,21 @@ contract Crowdsale {
   * and are not intended to be modified / overriden.
   */
 
-  // Fallback function routes to buyTokens()
-  // *** DO NOT OVERRIDE ***
+  /**
+   * @dev fallback function ***DO NOT OVERRIDE***
+   */
   function () external payable {
     buyTokens(msg.sender);
   }
 
-  // Low level token purchase function
-  // *** DO NOT OVERRIDE ***
-  function buyTokens(address beneficiary) public payable {
+  /**
+   * @dev low level token purchase ***DO NOT OVERRIDE*** 
+   * @param _beneficiary Address performing the token purchase
+   */
+  function buyTokens(address _beneficiary) public payable {
 
     uint256 weiAmount = msg.value;
-    _preValidatePurchase(beneficiary, weiAmount);
+    _preValidatePurchase(_beneficiary, weiAmount);
 
     // calculate token amount to be created
     uint256 tokens = _getTokenAmount(weiAmount);
@@ -74,11 +82,11 @@ contract Crowdsale {
     // update state
     weiRaised = weiRaised.add(weiAmount);
 
-    _processPurchase(beneficiary, tokens);
-    TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
+    _processPurchase(_beneficiary, tokens);
+    TokenPurchase(msg.sender, _beneficiary, weiAmount, tokens);
 
     _forwardFunds();
-    _postValidatePurchase(beneficiary, weiAmount);
+    _postValidatePurchase(_beneficiary, weiAmount);
   }
 
   // -----------------------------------------
@@ -87,45 +95,61 @@ contract Crowdsale {
 
   /**
   * These functions conform the extensible
-  * and modifyable surface of crowdsales.
+  * and modifiable surface of crowdsales.
   * Override the methods to add additional functionality.
   * Consider using 'super' where appropiate to concatenate
   * behavior.
   */
 
-  // Validation of an incoming purchase.
-  // Use require to revert when conditions are not met.
+  /**
+   * @dev Validation of an incoming purchase. Use require statemens to revert state when conditions are not met. Use super to concatenate validations.
+   * @param _beneficiary Address performing the token purchase
+   * @param _weiAmount Value in wei involved in the purchase
+   */
   function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
     require(_beneficiary != address(0));
     require(_weiAmount != 0);
   }
 
-  // Validation of an executed purchase.
-  // Observe state and use revert/require to undo changes.
-  function _postValidatePurchase(address beneficiary, uint256 weiAmount) internal {
+  /**
+   * @dev Validation of an executed purchase. Observe state and use revert statements to undo rollback when valid conditions are not met. 
+   * @param _beneficiary Address performing the token purchase
+   * @param _weiAmount Value in wei involved in the purchase
+   */
+  function _postValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
     // optional override
   }
 
-  // Ultimate source of tokens.
-  // Override this method to modify how the crowdsale ultimately gets and
-  // sends its tokens.
+  /**
+   * @dev Source of tokens. Override this method to modify the way in which the crowdsale ultimately gets and sends its tokens.
+   * @param _beneficiary Address performing the token purchase
+   * @param _tokenAmount Number of tokens to be emitted
+   */
   function _emitTokens(address _beneficiary, uint256 _tokenAmount) internal {
     token.transfer(_beneficiary, _tokenAmount);
   }
 
-  // Executed when a purchase has been validated and is ready to be executed.
-  // Might not necessarily emit/send tokens.
+  /**
+   * @dev Executed when a purchase has been validated and is ready to be executed. Not necessarily emits/sends tokens.
+   * @param _beneficiary Address receiving the tokens
+   * @param _tokenAmount Number of tokens to be purchased
+   */
   function _processPurchase(address _beneficiary, uint256 _tokenAmount) internal {
     _emitTokens(_beneficiary, _tokenAmount);
   }
 
-  // Determines the relationship of ETH to amount of tokens.
-  // Not necessarily determined directly by rate.
-  function _getTokenAmount(uint256 weiAmount) internal view returns (uint256) {
-    return weiAmount.mul(rate);
+  /**
+   * @dev Override to extend the way in which ether is converted to tokens. 
+   * @param _weiAmount Value in wei to be converted into tokens
+   * @return Number of tokens that can be purchased with the specified _weiAmount
+   */
+  function _getTokenAmount(uint256 _weiAmount) internal view returns (uint256) {
+    return _weiAmount.mul(rate);
   }
 
-  // Determines how ETH is stored/forwarded on purchases.
+  /**
+   * @dev Determines how ETH is stored/forwarded on purchases.
+   */
   function _forwardFunds() internal {
     wallet.transfer(msg.value);
   }
