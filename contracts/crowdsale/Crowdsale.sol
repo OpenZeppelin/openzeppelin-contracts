@@ -75,10 +75,17 @@ contract Crowdsale {
     // update state
     weiRaised = weiRaised.add(weiAmount);
 
-    token.mint(beneficiary, tokens);
+    transferToken(beneficiary, tokens);
     TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
 
     forwardFunds();
+  }
+  
+  // low level token transfer function
+  // override to create custom token transfer mechanism
+  // eg. pull pattern to save gas during contribution period when congestion is more likely
+  function transferToken(address beneficiary, uint256 tokens) internal {
+    token.mint(beneficiary, tokens);
   }
 
   // @return true if crowdsale event has ended
