@@ -16,12 +16,12 @@ contract('CappedCrowdsale', function ([_, wallet]) {
 
   const cap = ether(100);
   const lessThanCap = ether(60);
-  const capital = ether(1000);
+  const tokenSupply = new BigNumber('1e22');
 
   beforeEach(async function () {
     this.token = await SimpleToken.new();
     this.crowdsale = await CappedCrowdsale.new(rate, wallet, this.token.address, cap);
-    this.token.transfer(this.crowdsale.address, capital);
+    this.token.transfer(this.crowdsale.address, tokenSupply);
   });
 
   describe('creating a valid crowdsale', function () {

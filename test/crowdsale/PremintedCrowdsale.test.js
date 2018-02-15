@@ -14,8 +14,6 @@ const SimpleToken = artifacts.require('SimpleToken');
 contract('PremintedCrowdsale', function ([_, investor, wallet, purchaser, tokenWallet]) {
   const rate = new BigNumber(1);
   const value = ether(0.42);
-  const capital = ether(10000);
-
   const expectedTokenAmount = rate.mul(value);
 
   beforeEach(async function () {

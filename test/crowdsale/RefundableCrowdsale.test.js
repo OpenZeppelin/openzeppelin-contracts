@@ -19,7 +19,7 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
   const rate = new BigNumber(1);
   const goal = ether(50);
   const lessThanGoal = ether(45);
-  const capital = ether(10000);
+  const tokenSupply = new BigNumber('1e22');
 
   before(async function () {
     // Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
@@ -36,7 +36,7 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
     this.crowdsale = await RefundableCrowdsale.new(
       this.startTime, this.endTime, rate, wallet, this.token.address, goal, this.vault.address, { from: owner }
     );
-    await this.token.transfer(this.crowdsale.address, capital);
+    await this.token.transfer(this.crowdsale.address, tokenSupply);
     await this.vault.transferOwnership(this.crowdsale.address);
   });
 

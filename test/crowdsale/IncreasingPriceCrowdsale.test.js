@@ -16,7 +16,7 @@ const SimpleToken = artifacts.require('SimpleToken');
 
 contract('IncreasingTimeCrowdsale', function ([_, investor, wallet, purchaser]) {
   const value = ether(1);
-  const capital = ether(10000);
+  const tokenSupply = new BigNumber('1e22');
 
   describe('rate during crowdsale should change at a fixed step every block', async function () {
 
@@ -43,7 +43,7 @@ contract('IncreasingTimeCrowdsale', function ([_, investor, wallet, purchaser]) 
 
       this.token = await SimpleToken.new();
       this.crowdsale = await IncreasingTimeCrowdsale.new(this.startTime, this.endTime, wallet, this.token.address, initialRate, finalRate);
-      await this.token.transfer(this.crowdsale.address, capital);
+      await this.token.transfer(this.crowdsale.address, tokenSupply);
 
     })
 

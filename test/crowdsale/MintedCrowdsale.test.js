@@ -14,7 +14,6 @@ const MintableToken = artifacts.require('MintableToken');
 contract('MintedCrowdsale', function ([_, investor, wallet, purchaser]) {
   const rate = new BigNumber(1000);
   const value = ether(42);
-  //const capital = ether(10000);
 
   const expectedTokenAmount = rate.mul(value);
 

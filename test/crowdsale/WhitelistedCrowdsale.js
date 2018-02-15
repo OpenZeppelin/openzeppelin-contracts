@@ -13,13 +13,13 @@ contract('WhitelistedCrowdsale', function([_, wallet, authorized, unauthorized])
   var property;
   const rate = 1;
   const value = ether(42);
-  const capital = ether(10000);
+  const tokenSupply = new BigNumber('1e22');
 
   beforeEach(async function() {
 
     this.token = await SimpleToken.new();
     this.crowdsale = await WhitelistedCrowdsale.new(rate, wallet, this.token.address);
-    await this.token.transfer(this.crowdsale.address, capital);
+    await this.token.transfer(this.crowdsale.address, tokenSupply);
     await this.crowdsale.addToWhitelist(authorized);
   });
 

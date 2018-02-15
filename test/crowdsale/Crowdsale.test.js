@@ -14,14 +14,14 @@ const SimpleToken = artifacts.require('SimpleToken');
 contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
   const rate = new BigNumber(1); // Not that many SimpleTokens!! 1000);
   const value = ether(42);
-  const capital = ether(10000);
+  const tokenSupply = new BigNumber('1e22');
   const expectedTokenAmount = rate.mul(value);
 
   beforeEach(async function () {
 
     this.token = await SimpleToken.new();
     this.crowdsale = await Crowdsale.new(rate, wallet, this.token.address);
-    await this.token.transfer(this.crowdsale.address, capital);
+    await this.token.transfer(this.crowdsale.address, tokenSupply);
   });
 
 

@@ -17,7 +17,7 @@ const SimpleToken = artifacts.require('SimpleToken');
 contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
   const rate = new BigNumber(1);
   const value = ether(42);
-  const capital = ether(10000);
+  const tokenSupply = new BigNumber('1e22');
 
   const expectedTokenAmount = rate.mul(value);
 
@@ -33,7 +33,7 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
 
     this.token = await SimpleToken.new();
     this.crowdsale = await TimedCrowdsale.new(this.startTime, this.endTime, rate, wallet, this.token.address);
-    await this.token.transfer(this.crowdsale.address, capital);
+    await this.token.transfer(this.crowdsale.address, tokenSupply);
 
   });
 
@@ -63,5 +63,5 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
       await this.crowdsale.buyTokens(investor, { value: value, from: purchaser }).should.be.rejectedWith(EVMRevert);
     });
   });
-  
+
 });

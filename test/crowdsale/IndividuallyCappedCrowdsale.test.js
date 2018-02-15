@@ -18,14 +18,14 @@ contract('IndividuallyCappedCrowdsale', function ([_, wallet, alice, bob, charli
   const capBob = ether(2);
   const lessThanCapAlice = ether(6);
   const lessThanCapBoth = ether(1);
-  const capital = ether(1000);
+  const tokenSupply = new BigNumber('1e22');
 
   beforeEach(async function () {
     this.token = await SimpleToken.new();
     this.crowdsale = await CappedCrowdsale.new(rate, wallet, this.token.address);
     this.crowdsale.setUserCap(alice, capAlice);
     this.crowdsale.setUserCap(bob, capBob);
-    this.token.transfer(this.crowdsale.address, capital);
+    this.token.transfer(this.crowdsale.address, tokenSupply);
   });
 
 
