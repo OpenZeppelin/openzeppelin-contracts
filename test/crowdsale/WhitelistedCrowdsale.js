@@ -1,5 +1,7 @@
 import ether from '../helpers/ether';
 
+const BigNumber = web3.BigNumber;
+
 require('chai')
   .use(require('chai-as-promised'))
   .should();
@@ -32,7 +34,7 @@ contract('WhitelistedCrowdsale', function([_, wallet, authorized, unauthorized])
     });
 
     it('should reject payments to whitelisted (with whichever buyers)', async function () {
-      await this.crowdsale.send(value).should.be.rejected; // send() goes from _ (accounts[0])
+      await this.crowdsale.send(value).should.be.rejected;
       await this.crowdsale.buyTokens(unauthorized, { value: value, from: unauthorized }).should.be.rejected;
       await this.crowdsale.buyTokens(unauthorized, { value: value, from: authorized }).should.be.rejected;
     });
