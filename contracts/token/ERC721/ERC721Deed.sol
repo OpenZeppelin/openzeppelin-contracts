@@ -1,14 +1,13 @@
 pragma solidity ^0.4.18;
 
-/// @author Nastassia Sachs (https://github.com/nastassiasachs)
-/// Based on the ERC721Token from OpenZeppelin.
-
 import "./ERC721.sol";
 import "../../math/SafeMath.sol";
 
 /**
  * @title ERC721Deed
  * Generic implementation for the required functionality of the ERC721 standard
+ * @author Nastassia Sachs (https://github.com/nastassiasachs)
+ * Based on OpenZeppelin's ERC721Token
  */
 
 
