@@ -7,7 +7,7 @@ import "../../math/SafeMath.sol";
 contract PostDeliveryCrowdsale is TimedCrowdsale {
   using SafeMath for uint256;
 
-  mapping(address => uint256) promises;
+  mapping(address => uint256) public promises;
 
   function _processPurchase(address _beneficiary, uint256 _tokenAmount) internal {
     promises[_beneficiary] = promises[_beneficiary].add(_tokenAmount);
