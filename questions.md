@@ -89,11 +89,12 @@
 
 
 
-# PENDING
+# TODO
 
 * Alignment between sales and this proposal
 
 * Tests: modify "capital" variable, remove confusing "ether"
+
 
 # BUGS
 
