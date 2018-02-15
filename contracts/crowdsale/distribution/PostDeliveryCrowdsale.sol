@@ -4,6 +4,10 @@ import "../validation/TimedCrowdsale.sol";
 import "../../token/ERC20/ERC20.sol";
 import "../../math/SafeMath.sol";
 
+/**
+ * @title PostDeliveryCrowdsale
+ * @dev Crowdsale that locks funds from withdrawal until it ends
+ */
 contract PostDeliveryCrowdsale is TimedCrowdsale {
   using SafeMath for uint256;
 
@@ -13,6 +17,9 @@ contract PostDeliveryCrowdsale is TimedCrowdsale {
     promises[_beneficiary] = promises[_beneficiary].add(_tokenAmount);
   }
 
+  /**
+   * @dev Withdraw tokens only after crowdsale ends
+   */
   function withdrawTokens() public {
     require(hasExpired());
     uint256 amount = promises[msg.sender];

@@ -21,6 +21,10 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
   // refund vault used to hold funds while crowdsale is running
   RefundVault public vault;
 
+  /**
+   * @param _goal Funding goal
+   * @param _vault Refund vault to temporarily store funds
+   */
   function RefundableCrowdsale(uint256 _goal, RefundVault _vault) public {
     require(_goal > 0);
     require(_vault != address(0));
@@ -28,7 +32,9 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
     vault = _vault;
   }
 
-  // if crowdsale is unsuccessful, investors can claim refunds here
+  /**
+   * @dev Investors can claim refunds here if crowdsale is unsuccessful
+   */
   function claimRefund() public {
     require(isFinalized);
     require(!goalReached());
@@ -36,11 +42,16 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
     vault.refund(msg.sender);
   }
 
+  /**
+   * @return Whether funding goal was reached
+   */
   function goalReached() public view returns (bool) {
     return weiRaised >= goal;
   }
 
-  // vault finalization task, called when owner calls finalize()
+  /**
+   * @dev vault finalization task, called when owner calls finalize()
+   */
   function finalization() internal {
     if (goalReached()) {
       vault.close();
@@ -51,9 +62,9 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
     super.finalization();
   }
 
-  // We're overriding the fund forwarding from Crowdsale.
-  // In addition to sending the funds, we want to call
-  // the RefundVault deposit function
+  /**
+   * @dev Overrides Crowdsale fund forwarding. In addition to sending the funds, we call the RefundVault deposit function
+   */
   function _forwardFunds() internal {
     vault.deposit.value(msg.value)(msg.sender);
   }
