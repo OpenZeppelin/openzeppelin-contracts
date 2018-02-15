@@ -2,7 +2,7 @@ pragma solidity ^0.4.18;
 
 //import "../examples/SimpleToken.sol";
 import "../token/ERC20/ERC20.sol";
-import "../crowdsale-refactor/validation/WhitelistedCrowdsale.sol";
+import "../crowdsale/validation/WhitelistedCrowdsale.sol";
 
 
 contract WhitelistedCrowdsaleImpl is WhitelistedCrowdsale {

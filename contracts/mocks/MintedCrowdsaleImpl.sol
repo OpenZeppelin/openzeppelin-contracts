@@ -1,7 +1,7 @@
 pragma solidity ^0.4.18;
 
 import "../token/ERC20/MintableToken.sol";
-import "../crowdsale-refactor/emission/MintedCrowdsale.sol";
+import "../crowdsale/emission/MintedCrowdsale.sol";
 
 
 contract MintedCrowdsaleImpl is MintedCrowdsale {

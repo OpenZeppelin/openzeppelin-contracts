@@ -1,6 +1,6 @@
 pragma solidity ^0.4.18;
 
-import "../crowdsale-refactor/price/IncreasingPriceCrowdsale.sol";
+import "../crowdsale/price/IncreasingPriceCrowdsale.sol";
 import "../math/SafeMath.sol";
 
 contract IncreasingPriceCrowdsaleImpl is IncreasingPriceCrowdsale {

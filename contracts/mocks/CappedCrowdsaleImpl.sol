@@ -2,7 +2,7 @@ pragma solidity ^0.4.18;
 
 //import "../examples/SimpleToken.sol";
 import "../token/ERC20/ERC20.sol";
-import "../crowdsale-refactor/validation/CappedCrowdsale.sol";
+import "../crowdsale/validation/CappedCrowdsale.sol";
 
 
 contract CappedCrowdsaleImpl is CappedCrowdsale {

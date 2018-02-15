@@ -1,8 +1,8 @@
 pragma solidity ^0.4.18;
 
 import "../token/ERC20/MintableToken.sol";
-import "../crowdsale-refactor/distribution/RefundableCrowdsale.sol";
-import "../crowdsale-refactor/distribution/utils/RefundVault.sol";
+import "../crowdsale/distribution/RefundableCrowdsale.sol";
+import "../crowdsale/distribution/utils/RefundVault.sol";
 
 contract RefundableCrowdsaleImpl is RefundableCrowdsale {
 

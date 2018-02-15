@@ -1,8 +1,8 @@
 pragma solidity ^0.4.18;
 
-import "../crowdsale-refactor/validation/CappedCrowdsale.sol";
-import "../crowdsale-refactor/distribution/RefundableCrowdsale.sol";
-import "../crowdsale-refactor/emission/MintedCrowdsale.sol";
+import "../crowdsale/validation/CappedCrowdsale.sol";
+import "../crowdsale/distribution/RefundableCrowdsale.sol";
+import "../crowdsale/emission/MintedCrowdsale.sol";
 import "../token/ERC20/MintableToken.sol";
 
 
