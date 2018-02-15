@@ -1,17 +1,17 @@
 import assertRevert from '../helpers/assertRevert';
-const assertJump = require('../helpers/assertJump');
-var SafeMathMock = artifacts.require('SafeMathMock');
 
-contract('SafeMath', function (accounts) {
+var SafeMathSignedMock = artifacts.require('SafeMathSignedMock');
+
+contract('SafeMathSigned', function (accounts) {
   let safeMath;
 
   before(async function () {
-    safeMath = await SafeMathMock.new();
+    safeMath = await SafeMathSignedMock.new();
   });
 
   it('multiplies correctly', async function () {
     let a = 5678;
-    let b = 1234;
+    let b = -1234;
     await safeMath.multiply(a, b);
     let result = await safeMath.result();
     assert.equal(result, a * b);
@@ -19,7 +19,7 @@ contract('SafeMath', function (accounts) {
 
   it('adds correctly', async function () {
     let a = 5678;
-    let b = 1234;
+    let b = -1234;
     await safeMath.add(a, b);
     let result = await safeMath.result();
 
@@ -27,7 +27,7 @@ contract('SafeMath', function (accounts) {
   });
 
   it('subtracts correctly', async function () {
-    let a = 5678;
+    let a = -5678;
     let b = 1234;
     await safeMath.subtract(a, b);
     let result = await safeMath.result();
@@ -35,21 +35,22 @@ contract('SafeMath', function (accounts) {
     assert.equal(result, a - b);
   });
 
-  it('should throw an error if subtraction result would be negative', async function () {
-    let a = 1234;
-    let b = 5678;
-    try {
-      await safeMath.subtract(a, b);
-      assert.fail('should have thrown before');
-    } catch (error) {
-      assertJump(error);
-    }
-  });
-
-  it('should throw an error on addition overflow', async function () {
+  it('should throw an error on addition overflow positive boundaries', async function () {
     let a = 2 ** 256;
     let b = 1;
     await assertRevert(safeMath.add(a, b));
+  });
+
+  it('should throw an error on addition overflow negative boundaries', async function () {
+    let a = 2 ** 256;
+    let b = 1;
+    await assertRevert(safeMath.add(-a, -b));
+  });
+
+  it('should throw an error on multiplication overflow', async function () {
+    let a = 2 ** 256;
+    let b = 2;
+    await assertRevert(safeMath.multiply(a, b));
   });
 
   it('should throw an error on multiplication overflow', async function () {
