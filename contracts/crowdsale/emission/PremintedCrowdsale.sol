@@ -7,6 +7,9 @@ contract PremintedCrowdsale is Crowdsale {
 
   address public tokenWallet;
 
+  /**
+   * @param _tokenWallet Address holding the tokens, which has approved allowance to the crowdsale 
+   */
   function PremintedCrowdsale(address _tokenWallet) public {
     require(_tokenWallet != address(0));
     tokenWallet = _tokenWallet;
