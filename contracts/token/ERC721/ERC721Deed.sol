@@ -5,10 +5,13 @@ pragma solidity ^0.4.18;
 
 import "./ERC721.sol";
 import "../../math/SafeMath.sol";
+
 /**
  * @title ERC721Deed
  * Generic implementation for the required functionality of the ERC721 standard
  */
+
+
 contract ERC721Deed is ERC721 {
   using SafeMath for uint256;
 
@@ -41,8 +44,7 @@ contract ERC721Deed is ERC721 {
   * @param _deedId uint256 ID of the deed to query the owner of
   * @return owner address currently marked as the owner of the given deed ID
   */
-  function ownerOf(uint256 _deedId)
-  external view returns (address _owner) {
+  function ownerOf(uint256 _deedId) external view returns (address _owner) {
     require(deedOwner[_deedId] != address(0));
     _owner = deedOwner[_deedId];
   }
@@ -51,8 +53,7 @@ contract ERC721Deed is ERC721 {
   * @dev Gets the total amount of deeds stored by the contract
   * @return uint256 representing the total amount of deeds
   */
-  function countOfDeeds()
-  external view returns (uint256) {
+  function countOfDeeds() external view returns (uint256) {
     return totalDeeds;
   }
 
@@ -61,8 +62,7 @@ contract ERC721Deed is ERC721 {
   * @param _owner address to query the number of deeds
   * @return uint256 representing the number of deeds owned by the passed address
   */
-  function countOfDeedsByOwner(address _owner)
-  external view returns (uint256 _count) {
+  function countOfDeedsByOwner(address _owner) external view returns (uint256 _count) {
     require(_owner != address(0));
     _count = ownedDeeds[_owner].length;
   }
@@ -73,8 +73,7 @@ contract ERC721Deed is ERC721 {
   * @param _index uint256 for the n-th deed in the list of deeds owned by this owner
   * @return uint256 representing the ID of the deed
   */
-  function deedOfOwnerByIndex(address _owner, uint256 _index)
-  external view returns (uint256 _deedId) {
+  function deedOfOwnerByIndex(address _owner, uint256 _index) external view returns (uint256 _deedId) {
     require(_owner != address(0));
     require(_index < ownedDeeds[_owner].length);
     _deedId = ownedDeeds[_owner][_index];
@@ -85,8 +84,7 @@ contract ERC721Deed is ERC721 {
   * @param _owner address for the deed's owner
   * @return uint256[] representing all deed IDs owned by the passed address
   */
-  function deedsOf(address _owner)
-  external view returns (uint256[] _ownedDeedIds) {
+  function deedsOf(address _owner) external view returns (uint256[] _ownedDeedIds) {
     require(_owner != address(0));
     _ownedDeedIds = ownedDeeds[_owner];
   }
@@ -96,10 +94,9 @@ contract ERC721Deed is ERC721 {
   * @param _to address to be approved for the given deed ID
   * @param _deedId uint256 ID of the deed to be approved
   */
-  function approve(address _to, uint256 _deedId)
-  external onlyOwnerOf(_deedId) payable {
+  function approve(address _to, uint256 _deedId) external onlyOwnerOf(_deedId) payable {
     require(_to != msg.sender);
-    if(_to != address(0) || approvedFor(_deedId) != address(0)) {
+    if (_to != address(0) || approvedFor(_deedId) != address(0)) {
       Approval(msg.sender, _to, _deedId);
     }
     deedApprovedFor[_deedId] = _to;
@@ -109,8 +106,7 @@ contract ERC721Deed is ERC721 {
   * @dev Claims the ownership of a given deed ID
   * @param _deedId uint256 ID of the deed being claimed by the msg.sender
   */
-  function takeOwnership(uint256 _deedId)
-  external payable {
+  function takeOwnership(uint256 _deedId) external payable {
     require(approvedFor(_deedId) == msg.sender);
     clearApprovalAndTransfer(deedOwner[_deedId], msg.sender, _deedId);
   }
@@ -120,8 +116,7 @@ contract ERC721Deed is ERC721 {
    * @param _deedId uint256 ID of the deed to query the approval of
    * @return address currently approved to take ownership of the given deed ID
    */
-  function approvedFor(uint256 _deedId)
-  public view returns (address) {
+  function approvedFor(uint256 _deedId) public view returns (address) {
     return deedApprovedFor[_deedId];
   }
 
@@ -130,8 +125,7 @@ contract ERC721Deed is ERC721 {
   * @param _to address to receive the ownership of the given deed ID
   * @param _deedId uint256 ID of the deed to be transferred
   */
-  function transfer(address _to, uint256 _deedId)
-  public onlyOwnerOf(_deedId) {
+  function transfer(address _to, uint256 _deedId) public onlyOwnerOf(_deedId) {
     clearApprovalAndTransfer(msg.sender, _to, _deedId);
   }
 
@@ -139,8 +133,7 @@ contract ERC721Deed is ERC721 {
   * @dev Mint deed function
   * @param _to The address that will own the minted deed
   */
-  function _mint(address _to, uint256 _deedId)
-  internal {
+  function _mint(address _to, uint256 _deedId) internal {
     require(_to != address(0));
     addDeed(_to, _deedId);
     Transfer(0x0, _to, _deedId);
@@ -150,8 +143,7 @@ contract ERC721Deed is ERC721 {
   * @dev Burns a specific deed
   * @param _deedId uint256 ID of the deed being burned by the msg.sender
   */
-  function _burn(uint256 _deedId) onlyOwnerOf(_deedId)
-  internal {
+  function _burn(uint256 _deedId) onlyOwnerOf(_deedId) internal {
     if (approvedFor(_deedId) != 0) {
       clearApproval(msg.sender, _deedId);
     }
@@ -165,8 +157,7 @@ contract ERC721Deed is ERC721 {
   * @param _to address which you want to transfer the deed to
   * @param _deedId uint256 ID of the deed to be transferred
   */
-  function clearApprovalAndTransfer(address _from, address _to, uint256 _deedId)
-  internal {
+  function clearApprovalAndTransfer(address _from, address _to, uint256 _deedId) internal {
     require(_to != address(0));
     require(_to != _from);
     require(deedOwner[_deedId] == _from);
@@ -181,8 +172,7 @@ contract ERC721Deed is ERC721 {
   * @dev Internal function to clear current approval of a given deed ID
   * @param _deedId uint256 ID of the deed to be transferred
   */
-  function clearApproval(address _owner, uint256 _deedId)
-  private {
+  function clearApproval(address _owner, uint256 _deedId) private {
     require(deedOwner[_deedId] == _owner);
     deedApprovedFor[_deedId] = 0;
     Approval(_owner, 0, _deedId);
@@ -193,8 +183,7 @@ contract ERC721Deed is ERC721 {
   * @param _to address representing the new owner of the given deed ID
   * @param _deedId uint256 ID of the deed to be added to the deeds list of the given address
   */
-  function addDeed(address _to, uint256 _deedId)
-  private {
+  function addDeed(address _to, uint256 _deedId) private {
     require(deedOwner[_deedId] == address(0));
     deedOwner[_deedId] = _to;
     uint256 length = ownedDeeds[_to].length;
@@ -208,8 +197,7 @@ contract ERC721Deed is ERC721 {
   * @param _from address representing the previous owner of the given deed ID
   * @param _deedId uint256 ID of the deed to be removed from the deeds list of the given address
   */
-  function removeDeed(address _from, uint256 _deedId)
-  private {
+  function removeDeed(address _from, uint256 _deedId) private {
     require(deedOwner[_deedId] == _from);
 
     uint256 deedIndex = ownedDeedsIndex[_deedId];
