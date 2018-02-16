@@ -8,10 +8,10 @@ const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const PremintedCrowdsale = artifacts.require('PremintedCrowdsaleImpl');
+const AllowanceCrowdsale = artifacts.require('AllowanceCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
-contract('PremintedCrowdsale', function ([_, investor, wallet, purchaser, tokenWallet]) {
+contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenWallet]) {
   const rate = new BigNumber(1);
   const value = ether(0.42);
   const expectedTokenAmount = rate.mul(value);
@@ -19,7 +19,7 @@ contract('PremintedCrowdsale', function ([_, investor, wallet, purchaser, tokenW
   beforeEach(async function () {
 
     this.token = await SimpleToken.new({from: tokenWallet});
-    this.crowdsale = await PremintedCrowdsale.new(rate, wallet, this.token.address, tokenWallet);
+    this.crowdsale = await AllowanceCrowdsale.new(rate, wallet, this.token.address, tokenWallet);
     await this.token.approve(this.crowdsale.address, expectedTokenAmount, {from: tokenWallet});
 
   });

@@ -3,14 +3,14 @@ pragma solidity ^0.4.18;
 import "../Crowdsale.sol";
 import "../../token/ERC20/ERC20.sol";
 
-contract PremintedCrowdsale is Crowdsale {
+contract AllowanceCrowdsale is Crowdsale {
 
   address public tokenWallet;
 
   /**
-   * @param _tokenWallet Address holding the tokens, which has approved allowance to the crowdsale 
+   * @param _tokenWallet Address holding the tokens, which has approved allowance to the crowdsale
    */
-  function PremintedCrowdsale(address _tokenWallet) public {
+  function AllowanceCrowdsale(address _tokenWallet) public {
     require(_tokenWallet != address(0));
     tokenWallet = _tokenWallet;
   }
