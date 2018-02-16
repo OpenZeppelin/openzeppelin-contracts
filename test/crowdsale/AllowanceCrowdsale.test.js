@@ -15,12 +15,13 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
   const rate = new BigNumber(1);
   const value = ether(0.42);
   const expectedTokenAmount = rate.mul(value);
+  const tokenAllowance = new BigNumber('1e22');
 
   beforeEach(async function () {
 
     this.token = await SimpleToken.new({from: tokenWallet});
     this.crowdsale = await AllowanceCrowdsale.new(rate, wallet, this.token.address, tokenWallet);
-    await this.token.approve(this.crowdsale.address, expectedTokenAmount, {from: tokenWallet});
+    await this.token.approve(this.crowdsale.address, tokenAllowance, {from: tokenWallet});
 
   });
 
@@ -61,6 +62,17 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
       await this.crowdsale.sendTransaction({ value, from: investor });
       const post = web3.eth.getBalance(wallet);
       post.minus(pre).should.be.bignumber.equal(value);
+    });
+  });
+
+
+  describe('check remaining allowance', function () {
+
+    it('should report correct allowace left', async function () {
+      let remainingAllowance = tokenAllowance - expectedTokenAmount;
+      await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
+      let tokensRemaining = await this.crowdsale.remainingTokens();
+      tokensRemaining.should.be.bignumber.equal(remainingAllowance);
     });
   });
 

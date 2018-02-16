@@ -2,8 +2,10 @@ pragma solidity ^0.4.18;
 
 import "../Crowdsale.sol";
 import "../../token/ERC20/ERC20.sol";
+import "../../math/SafeMath.sol";
 
 contract AllowanceCrowdsale is Crowdsale {
+  using SafeMath for uint256;
 
   address public tokenWallet;
 
@@ -15,8 +17,12 @@ contract AllowanceCrowdsale is Crowdsale {
     tokenWallet = _tokenWallet;
   }
 
-  // TODO: consider querying approval left and end crowdsale if depleted
-  // But approval could be increased..
+  /**
+   * @return Amount of tokens left in the allowance
+   */
+  function remainingTokens() public view returns (uint256) {
+    return token.allowance(tokenWallet, this);
+  }
 
   function _emitTokens(address _beneficiary, uint256 _tokenAmount) internal {
     token.transferFrom(tokenWallet, _beneficiary, _tokenAmount);
