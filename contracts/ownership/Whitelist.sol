@@ -12,8 +12,8 @@ import "./Ownable.sol";
 contract Whitelist is Ownable {
   mapping(address => bool) public whitelist;
   
-  event WhitelistItemAdded(address addr);
-  event WhitelistItemRemoved(address addr);
+  event WhitelistedAddressAdded(address addr);
+  event WhitelistedAddressRemoved(address addr);
 
   /**
    * @dev Throws if called by any account that's not whitelisted and not an owner.
@@ -32,7 +32,7 @@ contract Whitelist is Ownable {
       return false; 
     }
     whitelist[addr] = true;
-    WhitelistItemAdded(addr);
+    WhitelistedAddressAdded(addr);
     return true;
   }
 
@@ -45,7 +45,7 @@ contract Whitelist is Ownable {
       return false;
     }
     whitelist[addr] = false;
-    WhitelistItemRemoved(addr);
+    WhitelistedAddressRemoved(addr);
     return true;
   }
 
