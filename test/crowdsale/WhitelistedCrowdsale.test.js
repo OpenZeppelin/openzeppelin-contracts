@@ -9,25 +9,19 @@ require('chai')
 const WhitelistedCrowdsale = artifacts.require('WhitelistedCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
-contract('WhitelistedCrowdsale', function([_, wallet, authorized, unauthorized]) {
-
-  var crowdsale;
-  var property;
+contract('WhitelistedCrowdsale', function ([_, wallet, authorized, unauthorized]) {
   const rate = 1;
   const value = ether(42);
   const tokenSupply = new BigNumber('1e22');
 
-  beforeEach(async function() {
-
+  beforeEach(async function () {
     this.token = await SimpleToken.new();
     this.crowdsale = await WhitelistedCrowdsale.new(rate, wallet, this.token.address);
     await this.token.transfer(this.crowdsale.address, tokenSupply);
     await this.crowdsale.addToWhitelist(authorized);
   });
 
-
   describe('accepting payments', function () {
-
     it('should accept payments to whitelisted (from whichever buyers)', async function () {
       await this.crowdsale.buyTokens(authorized, { value: value, from: authorized }).should.be.fulfilled;
       await this.crowdsale.buyTokens(authorized, { value: value, from: unauthorized }).should.be.fulfilled;
@@ -38,6 +32,5 @@ contract('WhitelistedCrowdsale', function([_, wallet, authorized, unauthorized])
       await this.crowdsale.buyTokens(unauthorized, { value: value, from: unauthorized }).should.be.rejected;
       await this.crowdsale.buyTokens(unauthorized, { value: value, from: authorized }).should.be.rejected;
     });
-
   });
 });
