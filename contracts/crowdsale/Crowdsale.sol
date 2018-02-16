@@ -33,7 +33,7 @@ contract Crowdsale {
    * @param amount amount of tokens purchased
    */
   event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
-  
+
   /**
    * @param _rate Number of token units a buyer gets per wei
    * @param _wallet Address where collected funds will be forwarded to
@@ -68,7 +68,7 @@ contract Crowdsale {
   }
 
   /**
-   * @dev low level token purchase ***DO NOT OVERRIDE*** 
+   * @dev low level token purchase ***DO NOT OVERRIDE***
    * @param _beneficiary Address performing the token purchase
    */
   function buyTokens(address _beneficiary) public payable {
@@ -84,6 +84,8 @@ contract Crowdsale {
 
     _processPurchase(_beneficiary, tokens);
     TokenPurchase(msg.sender, _beneficiary, weiAmount, tokens);
+
+    _updatePurchasingState(_beneficiary, weiAmount);
 
     _forwardFunds();
     _postValidatePurchase(_beneficiary, weiAmount);
@@ -112,7 +114,7 @@ contract Crowdsale {
   }
 
   /**
-   * @dev Validation of an executed purchase. Observe state and use revert statements to undo rollback when valid conditions are not met. 
+   * @dev Validation of an executed purchase. Observe state and use revert statements to undo rollback when valid conditions are not met.
    * @param _beneficiary Address performing the token purchase
    * @param _weiAmount Value in wei involved in the purchase
    */
@@ -139,7 +141,16 @@ contract Crowdsale {
   }
 
   /**
-   * @dev Override to extend the way in which ether is converted to tokens. 
+   * @dev Override for extensions that require an internal state to check for validity (current user contributions, etc.)
+   * @param _beneficiary Address receiving the tokens
+   * @param _weiAmount Value in wei involved in the purchase
+   */
+  function _updatePurchasingState(address _beneficiary, uint256 _weiAmount) internal {
+    // optional override
+  }
+
+  /**
+   * @dev Override to extend the way in which ether is converted to tokens.
    * @param _weiAmount Value in wei to be converted into tokens
    * @return Number of tokens that can be purchased with the specified _weiAmount
    */
