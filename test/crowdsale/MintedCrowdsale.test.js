@@ -1,5 +1,4 @@
 import ether from '../helpers/ether';
-import EVMRevert from '../helpers/EVMRevert';
 
 const BigNumber = web3.BigNumber;
 
@@ -18,15 +17,12 @@ contract('MintedCrowdsale', function ([_, investor, wallet, purchaser]) {
   const expectedTokenAmount = rate.mul(value);
 
   beforeEach(async function () {
-
     this.token = await MintableToken.new();
     this.crowdsale = await MintedCrowdsale.new(rate, wallet, this.token.address);
     await this.token.transferOwnership(this.crowdsale.address);
-
   });
 
   describe('accepting payments', function () {
-
     it('should be token owner', async function () {
       const owner = await this.token.owner();
       owner.should.equal(this.crowdsale.address);
@@ -36,16 +32,12 @@ contract('MintedCrowdsale', function ([_, investor, wallet, purchaser]) {
       await this.crowdsale.send(value).should.be.fulfilled;
       await this.crowdsale.buyTokens(investor, { value: value, from: purchaser }).should.be.fulfilled;
     });
-
   });
 
   describe('high-level purchase', function () {
-
     it('should log purchase', async function () {
       const { logs } = await this.crowdsale.sendTransaction({ value: value, from: investor });
-
       const event = logs.find(e => e.event === 'TokenPurchase');
-
       should.exist(event);
       event.args.purchaser.should.equal(investor);
       event.args.beneficiary.should.equal(investor);
@@ -66,5 +58,4 @@ contract('MintedCrowdsale', function ([_, investor, wallet, purchaser]) {
       post.minus(pre).should.be.bignumber.equal(value);
     });
   });
-
 });

@@ -1,5 +1,4 @@
 import ether from '../helpers/ether';
-import EVMRevert from '../helpers/EVMRevert';
 
 const BigNumber = web3.BigNumber;
 
@@ -12,38 +11,28 @@ const Crowdsale = artifacts.require('Crowdsale');
 const SimpleToken = artifacts.require('SimpleToken');
 
 contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
-  const rate = new BigNumber(1); // Not that many SimpleTokens!! 1000);
+  const rate = new BigNumber(1);
   const value = ether(42);
   const tokenSupply = new BigNumber('1e22');
   const expectedTokenAmount = rate.mul(value);
 
   beforeEach(async function () {
-
     this.token = await SimpleToken.new();
     this.crowdsale = await Crowdsale.new(rate, wallet, this.token.address);
     await this.token.transfer(this.crowdsale.address, tokenSupply);
   });
 
-
   describe('accepting payments', function () {
-
     it('should accept payments', async function () {
-
       await this.crowdsale.send(value).should.be.fulfilled;
       await this.crowdsale.buyTokens(investor, { value: value, from: purchaser }).should.be.fulfilled;
-
     });
-
   });
 
-
   describe('high-level purchase', function () {
-
     it('should log purchase', async function () {
       const { logs } = await this.crowdsale.sendTransaction({ value: value, from: investor });
-
       const event = logs.find(e => e.event === 'TokenPurchase');
-
       should.exist(event);
       event.args.purchaser.should.equal(investor);
       event.args.beneficiary.should.equal(investor);
@@ -66,12 +55,9 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
   });
 
   describe('low-level purchase', function () {
-
     it('should log purchase', async function () {
       const { logs } = await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
-
       const event = logs.find(e => e.event === 'TokenPurchase');
-
       should.exist(event);
       event.args.purchaser.should.equal(purchaser);
       event.args.beneficiary.should.equal(investor);
@@ -92,6 +78,4 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
       post.minus(pre).should.be.bignumber.equal(value);
     });
   });
-
-
 });

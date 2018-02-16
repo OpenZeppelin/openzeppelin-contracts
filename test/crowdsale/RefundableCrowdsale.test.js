@@ -42,8 +42,9 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
 
   describe('creating a valid crowdsale', function () {
     it('should fail with zero goal', async function () {
-      await RefundableCrowdsale.new(this.startTime, this.endTime, rate, wallet, this.token.address, 0, this.vault.address, { from: owner })
-        .should.be.rejectedWith(EVMRevert);
+      await RefundableCrowdsale.new(
+        this.startTime, this.endTime, rate, wallet, this.token.address, 0, this.vault.address, { from: owner }
+      ).should.be.rejectedWith(EVMRevert);
     });
   });
 
@@ -64,14 +65,11 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
     await increaseTimeTo(this.startTime);
     await this.crowdsale.sendTransaction({ value: lessThanGoal, from: investor });
     await increaseTimeTo(this.afterEndTime);
-
     await this.crowdsale.finalize({ from: owner });
-
     const pre = web3.eth.getBalance(investor);
     await this.crowdsale.claimRefund({ from: investor, gasPrice: 0 })
       .should.be.fulfilled;
     const post = web3.eth.getBalance(investor);
-
     post.minus(pre).should.be.bignumber.equal(lessThanGoal);
   });
 
@@ -79,11 +77,9 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
     await increaseTimeTo(this.startTime);
     await this.crowdsale.sendTransaction({ value: goal, from: investor });
     await increaseTimeTo(this.afterEndTime);
-
     const pre = web3.eth.getBalance(wallet);
     await this.crowdsale.finalize({ from: owner });
     const post = web3.eth.getBalance(wallet);
-
     post.minus(pre).should.be.bignumber.equal(goal);
   });
 });

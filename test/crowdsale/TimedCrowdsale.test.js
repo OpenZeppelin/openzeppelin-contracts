@@ -6,7 +6,7 @@ import EVMRevert from '../helpers/EVMRevert';
 
 const BigNumber = web3.BigNumber;
 
-const should = require('chai')
+require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
@@ -19,8 +19,6 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
   const value = ether(42);
   const tokenSupply = new BigNumber('1e22');
 
-  const expectedTokenAmount = rate.mul(value);
-
   before(async function () {
     // Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
     await advanceBlock();
@@ -30,11 +28,9 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
     this.startTime = latestTime() + duration.weeks(1);
     this.endTime = this.startTime + duration.weeks(1);
     this.afterEndTime = this.endTime + duration.seconds(1);
-
     this.token = await SimpleToken.new();
     this.crowdsale = await TimedCrowdsale.new(this.startTime, this.endTime, rate, wallet, this.token.address);
     await this.token.transfer(this.crowdsale.address, tokenSupply);
-
   });
 
   it('should be ended only after end', async function () {
@@ -63,5 +59,4 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
       await this.crowdsale.buyTokens(investor, { value: value, from: purchaser }).should.be.rejectedWith(EVMRevert);
     });
   });
-
 });

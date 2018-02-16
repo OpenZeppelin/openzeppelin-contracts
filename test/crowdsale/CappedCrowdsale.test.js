@@ -12,8 +12,7 @@ const CappedCrowdsale = artifacts.require('CappedCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
 contract('CappedCrowdsale', function ([_, wallet]) {
-  const rate = new BigNumber(1);// Not that many SimpleTokens!! 1000);
-
+  const rate = new BigNumber(1);
   const cap = ether(100);
   const lessThanCap = ether(60);
   const tokenSupply = new BigNumber('1e22');
@@ -31,7 +30,6 @@ contract('CappedCrowdsale', function ([_, wallet]) {
   });
 
   describe('accepting payments', function () {
-
     it('should accept payments within cap', async function () {
       await this.crowdsale.send(cap.minus(lessThanCap)).should.be.fulfilled;
       await this.crowdsale.send(lessThanCap).should.be.fulfilled;
@@ -48,7 +46,6 @@ contract('CappedCrowdsale', function ([_, wallet]) {
   });
 
   describe('ending', function () {
-
     it('should not reach cap if sent under cap', async function () {
       let capReached = await this.crowdsale.capReached();
       capReached.should.equal(false);
