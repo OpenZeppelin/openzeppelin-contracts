@@ -49,7 +49,7 @@ If you find a security issue, please email [security@openzeppelin.org](mailto:se
 
 Building a distributed application, protocol or organization with OpenZeppelin?
 
-- Read documentation: https://zeppelin-solidity.readthedocs.io/en/latest/
+- Read documentation: https://openzeppelin.org/api/docs/open-zeppelin.html
 
 - Ask for help and follow progress at: https://slack.openzeppelin.org/
 
