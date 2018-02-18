@@ -35,7 +35,6 @@ contract ERC20Channels {
   mapping (bytes32 => ClosingRequest) public closingRequests;
   struct ClosingRequest {
     uint256 closingBalance;
-    uint8 state;
     uint256 closeTime;
   }
 
@@ -299,7 +298,6 @@ contract ERC20Channels {
 
     // Remove closed channel structures
     // channel.nonce will become 0
-    // Change state before transfer call
     delete channels[channelId];
     delete closingRequests[channelId];
 
