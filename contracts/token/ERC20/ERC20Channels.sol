@@ -1,8 +1,8 @@
 pragma solidity ^0.4.18;
 
 import "./ERC20.sol";
-import "../math/SafeMath.sol";
-import "../ECRecovery.sol";
+import "../../math/SafeMath.sol";
+import "../../ECRecovery.sol";
 
 /**
    @title ERC20Channels, State channels for ERC20 Tokens
@@ -82,7 +82,7 @@ contract ERC20Channels {
   /**
    * @dev Creates a channel between the msg.sender and the receiver
    * @param receiver address, the receiver of the channel
-   * @param deposit uint256, the balance taht I want to load in the channel
+   * @param deposit uint256, the balance that I want to load in the channel
    * @param nonce uint8, the nonce number of the channel
    */
   function openChannel(
@@ -95,10 +95,10 @@ contract ERC20Channels {
     require(receiver != address(0));
     require(deposit > 0);
 
-    // Create unique identifier from sender, receiver and current block timestamp
+    // Create unique identifier from sender, receiver and nonce
     bytes32 channelId = getChannelId(msg.sender, receiver, nonce);
 
-    // Check taht teh channel not exist
+    // Check that the channel not exist
     require(channels[channelId].deposit == 0);
     require(channels[channelId].nonce == 0);
     require(closingRequests[channelId].closeTime == 0);
@@ -113,10 +113,10 @@ contract ERC20Channels {
   }
 
   /**
-   * @dev Starts a close channel request form the sender
+   * @dev Creates a closing request of a channel from the sender
    * @param receiver address, the receiver of the channel
    * @param nonce uint8, the nonce number of the channel
-   * @param balance uint256, the final balance of teh receiver
+   * @param balance uint256, the final balance of the receiver
    */
   function uncooperativeClose(
     address receiver,
@@ -133,20 +133,18 @@ contract ERC20Channels {
 
     // Mark channel as closed and create closing request
     closingRequests[channelId].closeTime = block.timestamp.add(challengeTime);
-    require(closingRequests[channelId].closeTime > block.timestamp);
     closingRequests[channelId].closingBalance = balance;
     ChannelCloseRequested(msg.sender, receiver, nonce, balance);
   }
 
   /**
    * @dev Close a channel with the agreement of the sender and receiver
-   * @param receiver address, the receiver of the channel
    * @param nonce uint8, the nonce number of the channel
+   * @param balance uint256, the final balance transfered of the channel
    * @param balanceMsgSig bytes, the signature of the sender
    * @param closingSig bytes, the signature of the receiver
    */
   function cooperativeClose(
-    address receiver,
     uint8 nonce,
     uint256 balance,
     bytes balanceMsgSig,
@@ -154,12 +152,26 @@ contract ERC20Channels {
   ) external {
     // Derive receiver address from signature
     bytes32 msgHash = keccak256(balanceMsgSig);
-    require(receiver == msgHash.recover(closingSig));
+    address receiver = msgHash.recover(closingSig);
 
     // Derive sender address from signed balance proof
     address sender = getSignerOfBalanceHash(receiver, nonce, balance, balanceMsgSig);
 
     close(sender, receiver, nonce, balance);
+  }
+
+  /**
+   * @dev Close a channel with mutual agreement from receiver address
+   * @param sender address, the sender of the channel
+   * @param nonce uint8, the nonce number of the channel
+   * @param balance uint256, the final balance transfered of the channel
+   */
+  function cooperativeCloseReceiver(
+    address sender,
+    uint8 nonce,
+    uint256 balance
+  ) external {
+    close(sender, msg.sender, nonce, balance);
   }
 
   /**
