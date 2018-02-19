@@ -63,7 +63,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
   }
 
   /**
-   * @dev Overrides Crowdsale fund forwarding. In addition to sending the funds, we call the RefundVault deposit function
+   * @dev Overrides Crowdsale fund forwarding, sending funds to vault.
    */
   function _forwardFunds() internal {
     vault.deposit.value(msg.value)(msg.sender);

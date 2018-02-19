@@ -7,9 +7,15 @@ import "../math/SafeMath.sol";
  * @title Crowdsale
  * @dev Crowdsale is a base contract for managing a token crowdsale,
  * allowing investors to purchase tokens with ether. This contract implements
- * such functionality in it's most fundamental form and can be extended to provide additional
+ * such functionality in its most fundamental form and can be extended to provide additional
  * functionality and/or custom behavior.
+ * The external interface represents the basic interface for purchasing tokens, and conform
+ * the base architecture for crowdsales. They are *not* intended to be modified / overriden.
+ * The internal interface conforms the extensible and modifiable surface of crowdsales. Override 
+ * the methods to add functionality. Consider using 'super' where appropiate to concatenate
+ * behavior.
  */
+
 contract Crowdsale {
   using SafeMath for uint256;
 
@@ -54,13 +60,6 @@ contract Crowdsale {
   // -----------------------------------------
 
   /**
-  * These functions represent the basic
-  * interface for purchasing tokens, conform
-  * the base architecture for crowdsales,
-  * and are not intended to be modified / overriden.
-  */
-
-  /**
    * @dev fallback function ***DO NOT OVERRIDE***
    */
   function () external payable {
@@ -92,16 +91,8 @@ contract Crowdsale {
   }
 
   // -----------------------------------------
-  // Internal (extensible) implementations
+  // Internal interface (extensible)
   // -----------------------------------------
-
-  /**
-  * These functions conform the extensible
-  * and modifiable surface of crowdsales.
-  * Override the methods to add additional functionality.
-  * Consider using 'super' where appropiate to concatenate
-  * behavior.
-  */
 
   /**
    * @dev Validation of an incoming purchase. Use require statemens to revert state when conditions are not met. Use super to concatenate validations.

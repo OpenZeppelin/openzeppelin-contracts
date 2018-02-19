@@ -6,19 +6,24 @@ import "../../math/SafeMath.sol";
 
 /**
  * @title PostDeliveryCrowdsale
- * @dev Crowdsale that locks funds from withdrawal until it ends
+ * @dev Crowdsale that locks tokens from withdrawal until it ends.
  */
 contract PostDeliveryCrowdsale is TimedCrowdsale {
   using SafeMath for uint256;
 
   mapping(address => uint256) public promises;
 
+  /**
+   * @dev Overrides parent by storing balances instead of issuing tokens right away.
+   * @param _beneficiary Token purchaser
+   * @param _tokenAmount Amount of tokens purchased
+   */
   function _processPurchase(address _beneficiary, uint256 _tokenAmount) internal {
     promises[_beneficiary] = promises[_beneficiary].add(_tokenAmount);
   }
 
   /**
-   * @dev Withdraw tokens only after crowdsale ends
+   * @dev Withdraw tokens only after crowdsale ends.
    */
   function withdrawTokens() public {
     require(hasExpired());

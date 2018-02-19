@@ -4,6 +4,11 @@ import "../Crowdsale.sol";
 import "../../token/ERC20/ERC20.sol";
 import "../../math/SafeMath.sol";
 
+
+/**
+ * @title AllowanceCrowdsale
+ * @dev Extension of Crowdsale where tokens are held by a wallet, which approves an allowance to the crowdsale.
+ */
 contract AllowanceCrowdsale is Crowdsale {
   using SafeMath for uint256;
 
@@ -24,6 +29,11 @@ contract AllowanceCrowdsale is Crowdsale {
     return token.allowance(tokenWallet, this);
   }
 
+  /**
+   * @dev Overrides parent behavior by transferring tokens from wallet.
+   * @param _beneficiary Token purchaser
+   * @param _tokenAmount Amount of tokens purchased
+   */
   function _emitTokens(address _beneficiary, uint256 _tokenAmount) internal {
     token.transferFrom(tokenWallet, _beneficiary, _tokenAmount);
   }

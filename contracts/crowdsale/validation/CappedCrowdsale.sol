@@ -3,8 +3,10 @@ pragma solidity ^0.4.18;
 import "../../math/SafeMath.sol";
 import "../Crowdsale.sol";
 
+
 /**
- * @dev Crowdsale with a limit for total contributions
+ * @title CappedCrowdsale
+ * @dev Crowdsale with a limit for total contributions.
  */
 contract CappedCrowdsale is Crowdsale {
   using SafeMath for uint256;
@@ -26,6 +28,11 @@ contract CappedCrowdsale is Crowdsale {
     return weiRaised >= cap;
   }
 
+  /**
+   * @dev Extend parent behavior requiring to not exceed the cap.
+   * @param _beneficiary Token purchaser
+   * @param _weiAmount Amount of wei contributed
+   */
   function _postValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
     super._postValidatePurchase(_beneficiary, _weiAmount);
     require(weiRaised <= cap);

@@ -3,8 +3,10 @@ pragma solidity ^0.4.18;
 import "../../math/SafeMath.sol";
 import "../Crowdsale.sol";
 
+
 /**
- * @dev Crowdsale accepting contributions only within a time frame
+ * @title TimedCrowdsale
+ * @dev Crowdsale accepting contributions only within a time frame.
  */
 contract TimedCrowdsale is Crowdsale {
   using SafeMath for uint256;
@@ -30,7 +32,12 @@ contract TimedCrowdsale is Crowdsale {
   function hasExpired() public view returns (bool) {
     return now > endTime;
   }
-
+  
+  /**
+   * @dev Extend parent behavior requiring to be within contributing period
+   * @param _beneficiary Token purchaser
+   * @param _weiAmount Amount of wei contributed
+   */
   function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
     super._preValidatePurchase(_beneficiary, _weiAmount);
     require(now >= startTime && now <= endTime);

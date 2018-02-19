@@ -3,8 +3,10 @@ pragma solidity ^ 0.4.18;
 import "../Crowdsale.sol";
 import "../../ownership/Ownable.sol";
 
+
 /**
- * @dev Crowdsale in which only whitelisted users can contribute
+ * @title WhitelistedCrowdsale
+ * @dev Crowdsale in which only whitelisted users can contribute.
  */
 contract WhitelistedCrowdsale is Crowdsale, Ownable {
 
@@ -32,6 +34,11 @@ contract WhitelistedCrowdsale is Crowdsale, Ownable {
     return whitelist[_beneficiary];
   }
 
+  /**
+   * @dev Extend parent behavior requiring beneficiary to be in whitelist.
+   * @param _beneficiary Token beneficiary
+   * @param _weiAmount Amount of wei contributed
+   */
   function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
     super._preValidatePurchase(_beneficiary, _weiAmount);
     require(isWhitelisted(_beneficiary));

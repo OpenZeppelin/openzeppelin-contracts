@@ -4,8 +4,10 @@ import "../../math/SafeMath.sol";
 import "../Crowdsale.sol";
 import "../../ownership/Ownable.sol";
 
+
 /**
- * @dev Crowdsale with per-user caps
+ * @title IndividuallyCappedCrowdsale
+ * @dev Crowdsale with per-user caps.
  */
 contract IndividuallyCappedCrowdsale is Crowdsale, Ownable {
   using SafeMath for uint256;
@@ -37,11 +39,21 @@ contract IndividuallyCappedCrowdsale is Crowdsale, Ownable {
     return contributions[_beneficiary];
   }
 
+  /**
+   * @dev Extend parent behavior requiring to not exceed the individual cap.
+   * @param _beneficiary Token purchaser
+   * @param _weiAmount Amount of wei contributed
+   */
   function _postValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
     super._postValidatePurchase(_beneficiary, _weiAmount);
     require(contributions[_beneficiary] <= caps[_beneficiary]);
   }
 
+  /**
+   * @dev Extend parent behavior to update user contributions
+   * @param _beneficiary Token purchaser
+   * @param _weiAmount Amount of wei contributed
+   */
   function _updatePurchasingState(address _beneficiary, uint256 _weiAmount) internal {
     super._updatePurchasingState(_beneficiary, _weiAmount);
     contributions[_beneficiary] = contributions[_beneficiary].add(_weiAmount);
