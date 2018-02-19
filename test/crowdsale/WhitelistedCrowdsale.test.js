@@ -32,5 +32,19 @@ contract('WhitelistedCrowdsale', function ([_, wallet, authorized, unauthorized]
       await this.crowdsale.buyTokens(unauthorized, { value: value, from: unauthorized }).should.be.rejected;
       await this.crowdsale.buyTokens(unauthorized, { value: value, from: authorized }).should.be.rejected;
     });
+
+    it('should reject payments to addresses removed from whitelist', async function () {
+      await this.crowdsale.removeFromWhitelist(authorized);
+      await this.crowdsale.buyTokens(authorized, { value: value, from: authorized }).should.be.rejected;
+    });
+  });
+
+  describe('reporting whitelisted', function () {
+    it('should correctly report whitelisted addresses', async function () {
+      let isAuthorized = await this.crowdsale.isWhitelisted(authorized);
+      isAuthorized.should.equal(true);
+      let isntAuthorized = await this.crowdsale.isWhitelisted(unauthorized);
+      isntAuthorized.should.equal(false);
+    });
   });
 });
