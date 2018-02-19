@@ -23,13 +23,11 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
 
   /**
    * @param _goal Funding goal
-   * @param _vault Refund vault to temporarily store funds
    */
-  function RefundableCrowdsale(uint256 _goal, RefundVault _vault) public {
+  function RefundableCrowdsale(uint256 _goal) public {
     require(_goal > 0);
-    require(_vault != address(0));
+    vault = new RefundVault(wallet);
     goal = _goal;
-    vault = _vault;
   }
 
   /**

@@ -32,18 +32,16 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
     this.afterEndTime = this.endTime + duration.seconds(1);
 
     this.token = await SimpleToken.new();
-    this.vault = await RefundVault.new(wallet);
     this.crowdsale = await RefundableCrowdsale.new(
-      this.startTime, this.endTime, rate, wallet, this.token.address, goal, this.vault.address, { from: owner }
+      this.startTime, this.endTime, rate, wallet, this.token.address, goal, { from: owner }
     );
     await this.token.transfer(this.crowdsale.address, tokenSupply);
-    await this.vault.transferOwnership(this.crowdsale.address);
   });
 
   describe('creating a valid crowdsale', function () {
     it('should fail with zero goal', async function () {
       await RefundableCrowdsale.new(
-        this.startTime, this.endTime, rate, wallet, this.token.address, 0, this.vault.address, { from: owner }
+        this.startTime, this.endTime, rate, wallet, this.token.address, 0, { from: owner }
       ).should.be.rejectedWith(EVMRevert);
     });
   });

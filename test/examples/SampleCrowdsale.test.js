@@ -33,7 +33,7 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
     this.token = await SampleCrowdsaleToken.new({ from: owner });
     this.vault = await RefundVault.new(wallet, { from: owner });
     this.crowdsale = await SampleCrowdsale.new(
-      this.startTime, this.endTime, RATE, wallet, CAP, this.token.address, GOAL, this.vault.address
+      this.startTime, this.endTime, RATE, wallet, CAP, this.token.address, GOAL
     );
     await this.token.transferOwnership(this.crowdsale.address);
     await this.vault.transferOwnership(this.crowdsale.address);

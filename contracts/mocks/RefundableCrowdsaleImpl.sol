@@ -12,12 +12,11 @@ contract RefundableCrowdsaleImpl is RefundableCrowdsale {
     uint256 _rate,
     address _wallet,
     MintableToken _token,
-    uint256 _goal,
-    RefundVault _vault
+    uint256 _goal
   ) public
     Crowdsale(_rate, _wallet, _token)
     TimedCrowdsale(_startTime, _endTime)
-    RefundableCrowdsale(_goal, _vault)
+    RefundableCrowdsale(_goal)
   {
   }
 
