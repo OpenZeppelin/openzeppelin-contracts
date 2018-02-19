@@ -25,7 +25,7 @@ contract('Whitelist', function (accounts) {
 
   context('in normal conditions', () => {
     it('should add address to the whitelist', async function () {
-      expectEvent.inTransaction(
+      await expectEvent.inTransaction(
         mock.addAddressToWhitelist(whitelistedAddress1, { from: owner }),
         'WhitelistedAddressAdded'
       );
@@ -34,7 +34,7 @@ contract('Whitelist', function (accounts) {
     });
 
     it('should add addresses to the whitelist', async function () {
-      expectEvent.inTransaction(
+      await expectEvent.inTransaction(
         mock.addAddressesToWhitelist(whitelistedAddresses, { from: owner }),
         'WhitelistedAddressAdded'
       );
@@ -46,11 +46,11 @@ contract('Whitelist', function (accounts) {
 
     it('should not announce WhitelistedAddressAdded event if address is already in the whitelist', async function () {
       const { logs } = await mock.addAddressToWhitelist(whitelistedAddress1, { from: owner });
-      logs.length.should.be.equal(0);
+      logs.should.be.empty;
     });
 
     it('should remove address from the whitelist', async function () {
-      expectEvent.inTransaction(
+      await expectEvent.inTransaction(
         mock.removeAddressFromWhitelist(whitelistedAddress1, { from: owner }),
         'WhitelistedAddressRemoved'
       );
@@ -59,7 +59,7 @@ contract('Whitelist', function (accounts) {
     });
 
     it('should remove addresses from the the whitelist', async function () {
-      expectEvent.inTransaction(
+      await expectEvent.inTransaction(
         mock.removeAddressesFromWhitelist(whitelistedAddresses, { from: owner }),
         'WhitelistedAddressRemoved'
       );
@@ -71,7 +71,7 @@ contract('Whitelist', function (accounts) {
 
     it('should not announce WhitelistedAddressRemoved event if address is not in the whitelist', async function () {
       const { logs } = await mock.removeAddressFromWhitelist(whitelistedAddress1, { from: owner });
-      logs.length.should.be.equal(0);
+      logs.should.be.empty;
     });
     
     it('should allow whitelisted address to call #onlyWhitelistedCanDoThis', async () => {
