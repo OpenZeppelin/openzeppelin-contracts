@@ -15,6 +15,14 @@ contract TimedCrowdsale is Crowdsale {
   uint256 public endTime;
 
   /**
+   * @dev Reverts if not in crowdsale time range. 
+   */
+  modifier inTimeRange {
+    require(now >= startTime && now <= endTime);
+    _;
+  }
+
+  /**
    * @dev Constructor, takes crowdsale opening and closing times.
    * @param _startTime Crowdsale opening time
    * @param _endTime Crowdsale closing time
@@ -25,14 +33,6 @@ contract TimedCrowdsale is Crowdsale {
 
     startTime = _startTime;
     endTime = _endTime;
-  }
-
-  /**
-   * @dev Reverts if not in crowdsale time range. 
-   */
-  modifier inTimeRange {
-    require(now >= startTime && now <= endTime);
-    _;
   }
 
   /**
