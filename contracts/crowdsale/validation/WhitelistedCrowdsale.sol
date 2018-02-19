@@ -13,6 +13,7 @@ contract WhitelistedCrowdsale is Crowdsale, Ownable {
   mapping(address => bool) public whitelist;
 
   /**
+   * @dev Adds address to whitelist.
    * @param _beneficiary Address to be added to the whitelist
    */
   function addToWhitelist(address _beneficiary) external onlyOwner {
@@ -20,6 +21,7 @@ contract WhitelistedCrowdsale is Crowdsale, Ownable {
   }
 
   /**
+   * @dev Removes address from whitelist. 
    * @param _beneficiary Address to be removed to the whitelist
    */
   function removeFromWhitelist(address _beneficiary) external onlyOwner {
@@ -27,6 +29,7 @@ contract WhitelistedCrowdsale is Crowdsale, Ownable {
   }
 
   /**
+   * @dev Checks whether a specific user is whitelisted. 
    * @param _beneficiary Address to check whether already in the whitelist
    * @return Whether the address is whitelisted
    */

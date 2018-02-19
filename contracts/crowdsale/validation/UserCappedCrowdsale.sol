@@ -16,6 +16,7 @@ contract UserCappedCrowdsale is Crowdsale, Ownable {
   mapping(address => uint256) public caps;
 
   /**
+   * @dev Sets a specific user's maximum contribution.
    * @param _beneficiary Address to be capped
    * @param _cap Wei limit for individual contribution
    */
@@ -24,6 +25,7 @@ contract UserCappedCrowdsale is Crowdsale, Ownable {
   }
 
   /**
+   * @dev Returns the cap of a specific user. 
    * @param _beneficiary Address whose cap is to be checked
    * @return Current cap for individual user
    */
@@ -32,6 +34,7 @@ contract UserCappedCrowdsale is Crowdsale, Ownable {
   }
 
   /**
+   * @dev Returns the amount contributed so far by a sepecific user.
    * @param _beneficiary Address of contributor
    * @return User contribution so far
    */

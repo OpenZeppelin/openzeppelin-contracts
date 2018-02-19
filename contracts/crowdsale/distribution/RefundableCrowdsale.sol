@@ -22,6 +22,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
   RefundVault public vault;
 
   /**
+   * @dev Constructor, creates RefundVault. 
    * @param _goal Funding goal
    */
   function RefundableCrowdsale(uint256 _goal) public {
@@ -41,6 +42,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
   }
 
   /**
+   * @dev Checks whether funding goal was reached. 
    * @return Whether funding goal was reached
    */
   function goalReached() public view returns (bool) {

@@ -14,6 +14,7 @@ contract CappedCrowdsale is Crowdsale {
   uint256 public cap;
 
   /**
+   * @dev Constructor, takes maximum amount of wei accepted in the crowdsale.
    * @param _cap Max amount of wei to be contributed
    */
   function CappedCrowdsale(uint256 _cap) public {
@@ -22,6 +23,7 @@ contract CappedCrowdsale is Crowdsale {
   }
 
   /**
+   * @dev Checks whether the cap has been reached. 
    * @return Whether the cap was reached
    */
   function capReached() public view returns (bool) {

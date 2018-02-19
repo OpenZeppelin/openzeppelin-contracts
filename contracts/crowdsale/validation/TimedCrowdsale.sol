@@ -15,6 +15,7 @@ contract TimedCrowdsale is Crowdsale {
   uint256 public endTime;
 
   /**
+   * @dev Constructor, takes crowdsale opening and closing times.
    * @param _startTime Crowdsale opening time
    * @param _endTime Crowdsale closing time
    */
@@ -27,6 +28,7 @@ contract TimedCrowdsale is Crowdsale {
   }
 
   /**
+   * @dev Checks whether the period in which the crowdsale is open has already elapsed.
    * @return Whether crowdsale period has elapsed
    */
   function hasExpired() public view returns (bool) {

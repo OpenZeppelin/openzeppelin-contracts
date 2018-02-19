@@ -15,6 +15,7 @@ contract AllowanceCrowdsale is Crowdsale {
   address public tokenWallet;
 
   /**
+   * @dev Constructor, takes token wallet address. 
    * @param _tokenWallet Address holding the tokens, which has approved allowance to the crowdsale
    */
   function AllowanceCrowdsale(address _tokenWallet) public {
@@ -23,6 +24,7 @@ contract AllowanceCrowdsale is Crowdsale {
   }
 
   /**
+   * @dev Checks the amount of tokens left in the allowance.
    * @return Amount of tokens left in the allowance
    */
   function remainingTokens() public view returns (uint256) {
