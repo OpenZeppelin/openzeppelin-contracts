@@ -19,7 +19,7 @@ contract Whitelist is Ownable {
    * @dev Throws if called by any account that's not whitelisted and not an owner.
    */
   modifier onlyWhitelisted() {
-    require(whitelist[msg.sender] || owner == msg.sender);
+    require(whitelist[msg.sender]);
     _;
   }
 
