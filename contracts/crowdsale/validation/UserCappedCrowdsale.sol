@@ -25,6 +25,17 @@ contract UserCappedCrowdsale is Crowdsale, Ownable {
   }
 
   /**
+   * @dev Sets a group of users' maximum contribution.
+   * @param _beneficiaries List of addresses to be capped
+   * @param _cap Wei limit for individual contribution
+   */
+  function setGroupCap(address[] _beneficiaries, uint256 _cap) external onlyOwner {
+    for (uint i = 0; i < _beneficiaries.length; i++) {
+      caps[_beneficiaries[i]] = _cap;
+    }
+  }
+
+  /**
    * @dev Returns the cap of a specific user. 
    * @param _beneficiary Address whose cap is to be checked
    * @return Current cap for individual user

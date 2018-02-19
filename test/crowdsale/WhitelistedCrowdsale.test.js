@@ -15,6 +15,7 @@ contract('WhitelistedCrowdsale', function ([_, wallet, authorized, unauthorized,
   const tokenSupply = new BigNumber('1e22');
 
   describe('single user whitelisting', function () {
+    
     beforeEach(async function () {
       this.token = await SimpleToken.new();
       this.crowdsale = await WhitelistedCrowdsale.new(rate, wallet, this.token.address);
