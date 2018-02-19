@@ -8,10 +8,10 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const CappedCrowdsale = artifacts.require('IndividuallyCappedCrowdsaleImpl');
+const CappedCrowdsale = artifacts.require('UserCappedCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
-contract('IndividuallyCappedCrowdsale', function ([_, wallet, alice, bob, charlie]) {
+contract('UserCappedCrowdsale', function ([_, wallet, alice, bob, charlie]) {
   const rate = new BigNumber(1);
   const capAlice = ether(10);
   const capBob = ether(2);

@@ -6,10 +6,10 @@ import "../../ownership/Ownable.sol";
 
 
 /**
- * @title IndividuallyCappedCrowdsale
+ * @title UserCappedCrowdsale
  * @dev Crowdsale with per-user caps.
  */
-contract IndividuallyCappedCrowdsale is Crowdsale, Ownable {
+contract UserCappedCrowdsale is Crowdsale, Ownable {
   using SafeMath for uint256;
 
   mapping(address => uint256) public contributions;
