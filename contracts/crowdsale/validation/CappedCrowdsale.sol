@@ -29,13 +29,13 @@ contract CappedCrowdsale is Crowdsale {
   }
 
   /**
-   * @dev Extend parent behavior requiring to not exceed the cap.
+   * @dev Extend parent behavior requiring purchase to respect the funding cap.
    * @param _beneficiary Token purchaser
    * @param _weiAmount Amount of wei contributed
    */
-  function _postValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
-    super._postValidatePurchase(_beneficiary, _weiAmount);
-    require(weiRaised <= cap);
+  function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
+    super._preValidatePurchase(_beneficiary, _weiAmount);
+    require(weiRaised.add(_weiAmount) <= cap);
   }
 
 }

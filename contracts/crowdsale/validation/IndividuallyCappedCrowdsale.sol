@@ -40,13 +40,13 @@ contract IndividuallyCappedCrowdsale is Crowdsale, Ownable {
   }
 
   /**
-   * @dev Extend parent behavior requiring to not exceed the individual cap.
+   * @dev Extend parent behavior requiring purchase to respect the user's funding cap.
    * @param _beneficiary Token purchaser
    * @param _weiAmount Amount of wei contributed
    */
-  function _postValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
-    super._postValidatePurchase(_beneficiary, _weiAmount);
-    require(contributions[_beneficiary] <= caps[_beneficiary]);
+  function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
+    super._preValidatePurchase(_beneficiary, _weiAmount);
+    require(contributions[_beneficiary].add(_weiAmount) <= caps[_beneficiary]);
   }
 
   /**
