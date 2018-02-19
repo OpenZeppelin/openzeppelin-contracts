@@ -1,4 +1,4 @@
-pragma solidity ^0.4.8;
+pragma solidity ^0.4.18;
 
 import "../ownership/Whitelist.sol";
 
