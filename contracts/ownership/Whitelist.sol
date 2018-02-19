@@ -43,7 +43,7 @@ contract Whitelist is Ownable {
    * false if all addresses were already in the whitelist  
    */
   function addAddressesToWhitelist(address[] addrs) onlyOwner public returns(bool success) {
-    for(uint256 i = 0; i < addrs.length; i++) {
+    for (uint256 i = 0; i < addrs.length; i++) {
       if (addAddressToWhitelist(addrs[i])) {
         success = true;
       }
@@ -71,7 +71,7 @@ contract Whitelist is Ownable {
    * false if all addresses weren't in the whitelist in the first place
    */
   function removeAddressesFromWhitelist(address[] addrs) onlyOwner public returns(bool success) {
-    for(uint256 i = 0; i < addrs.length; i++) {
+    for (uint256 i = 0; i < addrs.length; i++) {
       if (removeAddressFromWhitelist(addrs[i])) {
         success = true;
       }
