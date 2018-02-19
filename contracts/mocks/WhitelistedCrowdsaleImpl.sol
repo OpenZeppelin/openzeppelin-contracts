@@ -1,6 +1,5 @@
 pragma solidity ^0.4.18;
 
-//import "../examples/SimpleToken.sol";
 import "../token/ERC20/ERC20.sol";
 import "../crowdsale/validation/WhitelistedCrowdsale.sol";
 

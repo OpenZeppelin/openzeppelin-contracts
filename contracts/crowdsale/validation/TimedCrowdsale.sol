@@ -28,6 +28,14 @@ contract TimedCrowdsale is Crowdsale {
   }
 
   /**
+   * @dev Reverts if not in crowdsale time range. 
+   */
+  modifier inTimeRange {
+    require(now >= startTime && now <= endTime);
+    _;
+  }
+
+  /**
    * @dev Checks whether the period in which the crowdsale is open has already elapsed.
    * @return Whether crowdsale period has elapsed
    */
@@ -42,14 +50,6 @@ contract TimedCrowdsale is Crowdsale {
    */
   function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal inTimeRange {
     super._preValidatePurchase(_beneficiary, _weiAmount);
-  }
-
-  /**
-   * @dev Reverts if not in crowdsale time range. 
-   */
-  modifier inTimeRange {
-    require(now >= startTime && now <= endTime);
-    _;
   }
 
 }
