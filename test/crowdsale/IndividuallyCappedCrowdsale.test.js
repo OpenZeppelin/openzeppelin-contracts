@@ -52,4 +52,17 @@ contract('IndividuallyCappedCrowdsale', function ([_, wallet, alice, bob, charli
       await this.crowdsale.buyTokens(charlie, { value: lessThanCapBoth }).should.be.rejectedWith(EVMRevert);
     });
   });
+
+  describe('reporting state', function () {
+    it('should report correct cap', async function () {
+      let retrievedCap = await this.crowdsale.getUserCap(alice);
+      retrievedCap.should.be.bignumber.equal(capAlice);
+    });
+
+    it('should report actual contribution', async function () {
+      await this.crowdsale.buyTokens(alice, { value: lessThanCapAlice });
+      let retrievedContribution = await this.crowdsale.getUserContribution(alice);
+      retrievedContribution.should.be.bignumber.equal(lessThanCapAlice);
+    });
+  });
 });
