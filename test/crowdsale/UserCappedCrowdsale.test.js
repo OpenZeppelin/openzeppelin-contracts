@@ -20,7 +20,6 @@ contract('UserCappedCrowdsale', function ([_, wallet, alice, bob, charlie]) {
   const tokenSupply = new BigNumber('1e22');
 
   describe('individual capping', function () {
-
     beforeEach(async function () {
       this.token = await SimpleToken.new();
       this.crowdsale = await CappedCrowdsale.new(rate, wallet, this.token.address);
@@ -70,7 +69,6 @@ contract('UserCappedCrowdsale', function ([_, wallet, alice, bob, charlie]) {
   });
 
   describe('group capping', function () {
-
     beforeEach(async function () {
       this.token = await SimpleToken.new();
       this.crowdsale = await CappedCrowdsale.new(rate, wallet, this.token.address);

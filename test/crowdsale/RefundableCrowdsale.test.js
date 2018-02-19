@@ -13,7 +13,6 @@ require('chai')
 
 const RefundableCrowdsale = artifacts.require('RefundableCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
-const RefundVault = artifacts.require('RefundVault');
 
 contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser]) {
   const rate = new BigNumber(1);
