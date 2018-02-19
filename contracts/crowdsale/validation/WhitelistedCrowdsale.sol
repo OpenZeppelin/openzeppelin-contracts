@@ -39,21 +39,22 @@ contract WhitelistedCrowdsale is Crowdsale, Ownable {
   }
 
   /**
-   * @dev Checks whether a specific user is whitelisted. 
-   * @param _beneficiary Address to check whether already in the whitelist
-   * @return Whether the address is whitelisted
-   */
-  function isWhitelisted(address _beneficiary) public view returns (bool) {
-    return whitelist[_beneficiary];
-  }
-
-  /**
    * @dev Extend parent behavior requiring beneficiary to be in whitelist.
    * @param _beneficiary Token beneficiary
    * @param _weiAmount Amount of wei contributed
    */
   function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
+    require(whitelist[_beneficiary]);
     super._preValidatePurchase(_beneficiary, _weiAmount);
-    require(isWhitelisted(_beneficiary));
+    
   }
+
+  /**
+   * @dev Reverts if beneficiary is not whitelisted. Can be used when extending this contract.
+   */
+  modifier isWhitelisted(address _beneficiary) {
+     require(whitelist[_beneficiary]);
+     _;
+  }
+  
 }

@@ -40,8 +40,16 @@ contract TimedCrowdsale is Crowdsale {
    * @param _beneficiary Token purchaser
    * @param _weiAmount Amount of wei contributed
    */
-  function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
+  function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal inTimeRange {
     super._preValidatePurchase(_beneficiary, _weiAmount);
-    require(now >= startTime && now <= endTime);
   }
+
+  /**
+   * @dev Reverts if not in crowdsale time range. 
+   */
+  modifier inTimeRange {
+    require(now >= startTime && now <= endTime);
+    _;
+  }
+
 }

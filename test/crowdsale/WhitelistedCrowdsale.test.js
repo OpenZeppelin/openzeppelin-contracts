@@ -15,7 +15,7 @@ contract('WhitelistedCrowdsale', function ([_, wallet, authorized, unauthorized,
   const tokenSupply = new BigNumber('1e22');
 
   describe('single user whitelisting', function () {
-    
+
     beforeEach(async function () {
       this.token = await SimpleToken.new();
       this.crowdsale = await WhitelistedCrowdsale.new(rate, wallet, this.token.address);
@@ -43,9 +43,9 @@ contract('WhitelistedCrowdsale', function ([_, wallet, authorized, unauthorized,
 
     describe('reporting whitelisted', function () {
       it('should correctly report whitelisted addresses', async function () {
-        let isAuthorized = await this.crowdsale.isWhitelisted(authorized);
+        let isAuthorized = await this.crowdsale.whitelist(authorized);
         isAuthorized.should.equal(true);
-        let isntAuthorized = await this.crowdsale.isWhitelisted(unauthorized);
+        let isntAuthorized = await this.crowdsale.whitelist(unauthorized);
         isntAuthorized.should.equal(false);
       });
     });
@@ -83,11 +83,11 @@ contract('WhitelistedCrowdsale', function ([_, wallet, authorized, unauthorized,
 
     describe('reporting whitelisted', function () {
       it('should correctly report whitelisted addresses', async function () {
-        let isAuthorized = await this.crowdsale.isWhitelisted(authorized);
+        let isAuthorized = await this.crowdsale.whitelist(authorized);
         isAuthorized.should.equal(true);
-        let isAnotherAuthorized = await this.crowdsale.isWhitelisted(anotherAuthorized);
+        let isAnotherAuthorized = await this.crowdsale.whitelist(anotherAuthorized);
         isAnotherAuthorized.should.equal(true);
-        let isntAuthorized = await this.crowdsale.isWhitelisted(unauthorized);
+        let isntAuthorized = await this.crowdsale.whitelist(unauthorized);
         isntAuthorized.should.equal(false);
       });
     });
