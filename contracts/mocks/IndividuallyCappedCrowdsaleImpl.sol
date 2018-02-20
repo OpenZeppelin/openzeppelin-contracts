@@ -1,12 +1,12 @@
 pragma solidity ^0.4.18;
 
 import "../token/ERC20/ERC20.sol";
-import "../crowdsale/validation/UserCappedCrowdsale.sol";
+import "../crowdsale/validation/IndividuallyCappedCrowdsale.sol";
 
 
-contract UserCappedCrowdsaleImpl is UserCappedCrowdsale {
+contract IndividuallyCappedCrowdsaleImpl is IndividuallyCappedCrowdsale {
   
-  function UserCappedCrowdsaleImpl (
+  function IndividuallyCappedCrowdsaleImpl (
     uint256 _rate,
     address _wallet,
     ERC20 _token
