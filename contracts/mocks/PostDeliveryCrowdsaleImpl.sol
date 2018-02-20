@@ -12,7 +12,8 @@ contract PostDeliveryCrowdsaleImpl is PostDeliveryCrowdsale {
     uint256 _rate,
     address _wallet,
     ERC20 _token
-  ) public
+  ) 
+    public
     TimedCrowdsale(_startTime, _endTime)
     Crowdsale(_rate, _wallet, _token)
   {

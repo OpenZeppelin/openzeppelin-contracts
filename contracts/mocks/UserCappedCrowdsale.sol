@@ -10,7 +10,8 @@ contract UserCappedCrowdsaleImpl is UserCappedCrowdsale {
     uint256 _rate,
     address _wallet,
     ERC20 _token
-  ) public
+  ) 
+    public
     Crowdsale(_rate, _wallet, _token)
   {
   }

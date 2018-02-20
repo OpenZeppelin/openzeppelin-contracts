@@ -11,7 +11,8 @@ contract TimedCrowdsaleImpl is TimedCrowdsale {
     uint256 _rate,
     address _wallet,
     ERC20 _token
-  ) public
+  ) 
+    public
     Crowdsale(_rate, _wallet, _token)
     TimedCrowdsale(_startTime, _endTime)
   {

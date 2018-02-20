@@ -13,7 +13,8 @@ contract IncreasingPriceCrowdsaleImpl is IncreasingPriceCrowdsale {
     ERC20 _token,
     uint256 _initialRate,
     uint256 _finalRate
-  ) public
+  ) 
+    public
     Crowdsale(_initialRate, _wallet, _token)
     TimedCrowdsale(_startTime, _endTime)
     IncreasingPriceCrowdsale(_initialRate, _finalRate)

@@ -10,7 +10,8 @@ contract MintedCrowdsaleImpl is MintedCrowdsale {
     uint256 _rate,
     address _wallet,
     MintableToken _token
-  ) public
+  ) 
+    public
     Crowdsale(_rate, _wallet, _token)
   {
   }

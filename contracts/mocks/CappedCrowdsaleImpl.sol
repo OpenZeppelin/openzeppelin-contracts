@@ -11,7 +11,8 @@ contract CappedCrowdsaleImpl is CappedCrowdsale {
     address _wallet,
     ERC20 _token,
     uint256 _cap
-  ) public
+  ) 
+    public
     Crowdsale(_rate, _wallet, _token)
     CappedCrowdsale(_cap)
   {

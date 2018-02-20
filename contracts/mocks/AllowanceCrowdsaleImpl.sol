@@ -11,7 +11,8 @@ contract AllowanceCrowdsaleImpl is AllowanceCrowdsale {
     address _wallet,
     ERC20 _token,
     address _tokenWallet
-  ) public
+  ) 
+    public
     Crowdsale(_rate, _wallet, _token)
     AllowanceCrowdsale(_tokenWallet)
   {

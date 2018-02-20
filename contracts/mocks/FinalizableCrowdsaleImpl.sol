@@ -12,9 +12,10 @@ contract FinalizableCrowdsaleImpl is FinalizableCrowdsale {
     uint256 _rate,
     address _wallet,
     MintableToken _token
-  ) public
-    TimedCrowdsale(_startTime, _endTime)
+  ) 
+    public
     Crowdsale(_rate, _wallet, _token)
+    TimedCrowdsale(_startTime, _endTime)
   {
   }
 
