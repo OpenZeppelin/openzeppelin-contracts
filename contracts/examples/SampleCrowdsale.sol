@@ -34,11 +34,10 @@ contract SampleCrowdsaleToken is MintableToken {
 contract SampleCrowdsale is CappedCrowdsale, RefundableCrowdsale, MintedCrowdsale {
 
   function SampleCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet, uint256 _cap, MintableToken _token, uint256 _goal) public
-    CappedCrowdsale(_cap)
-    FinalizableCrowdsale()
-    RefundableCrowdsale(_goal)
-    TimedCrowdsale(_startTime, _endTime)
     Crowdsale(_rate, _wallet, _token)
+    CappedCrowdsale(_cap)
+    TimedCrowdsale(_startTime, _endTime)
+    RefundableCrowdsale(_goal)
   {
     //As goal needs to be met for a successful crowdsale
     //the value needs to less or equal than a cap which is limit for accepted funds
