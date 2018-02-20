@@ -55,7 +55,7 @@ contract('WhitelistedCrowdsale', function ([_, wallet, authorized, unauthorized,
       this.token = await SimpleToken.new();
       this.crowdsale = await WhitelistedCrowdsale.new(rate, wallet, this.token.address);
       await this.token.transfer(this.crowdsale.address, tokenSupply);
-      await this.crowdsale.addCrowdToWhitelist([authorized, anotherAuthorized]);
+      await this.crowdsale.addManyToWhitelist([authorized, anotherAuthorized]);
     });
 
     describe('accepting payments', function () {
