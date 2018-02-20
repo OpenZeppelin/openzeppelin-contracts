@@ -25,17 +25,17 @@ contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
   });
 
   beforeEach(async function () {
-    this.startTime = latestTime() + duration.weeks(1);
-    this.endTime = this.startTime + duration.weeks(1);
-    this.beforeEndTime = this.endTime - duration.hours(1);
-    this.afterEndTime = this.endTime + duration.seconds(1);
+    this.openingTime = latestTime() + duration.weeks(1);
+    this.closingTime = this.openingTime + duration.weeks(1);
+    this.beforeEndTime = this.closingTime - duration.hours(1);
+    this.afterClosingTime = this.closingTime + duration.seconds(1);
     this.token = await SimpleToken.new();
-    this.crowdsale = await PostDeliveryCrowdsale.new(this.startTime, this.endTime, rate, wallet, this.token.address);
+    this.crowdsale = await PostDeliveryCrowdsale.new(this.openingTime, this.closingTime, rate, wallet, this.token.address);
     await this.token.transfer(this.crowdsale.address, tokenSupply);
   });
 
   it('should not immediately assign tokens to beneficiary', async function () {
-    await increaseTimeTo(this.startTime);
+    await increaseTimeTo(this.openingTime);
     await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
     const balance = await this.token.balanceOf(investor);
     balance.should.be.bignumber.equal(0);
@@ -48,16 +48,16 @@ contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
   });
 
   it('should allow beneficiaries to withdraw tokens after crowdsale ends', async function () {
-    await increaseTimeTo(this.startTime);
+    await increaseTimeTo(this.openingTime);
     await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
-    await increaseTimeTo(this.afterEndTime);
+    await increaseTimeTo(this.afterClosingTime);
     await this.crowdsale.withdrawTokens({ from: investor }).should.be.fulfilled;
   });
 
   it('should return the amount of tokens bought', async function () {
-    await increaseTimeTo(this.startTime);
+    await increaseTimeTo(this.openingTime);
     await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
-    await increaseTimeTo(this.afterEndTime);
+    await increaseTimeTo(this.afterClosingTime);
     await this.crowdsale.withdrawTokens({ from: investor });
     const balance = await this.token.balanceOf(investor);
     balance.should.be.bignumber.equal(value);

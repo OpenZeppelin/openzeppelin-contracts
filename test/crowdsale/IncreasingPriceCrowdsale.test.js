@@ -31,11 +31,11 @@ contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser])
     beforeEach(async function () {
       await advanceBlock();
       this.startTime = latestTime() + duration.weeks(1);
-      this.endTime = this.startTime + duration.weeks(1);
-      this.afterEndTime = this.endTime + duration.seconds(1);
+      this.closingTime = this.startTime + duration.weeks(1);
+      this.afterClosingTime = this.closingTime + duration.seconds(1);
       this.token = await SimpleToken.new();
       this.crowdsale = await IncreasingPriceCrowdsale.new(
-        this.startTime, this.endTime, wallet, this.token.address, initialRate, finalRate
+        this.startTime, this.closingTime, wallet, this.token.address, initialRate, finalRate
       );
       await this.token.transfer(this.crowdsale.address, tokenSupply);
     });

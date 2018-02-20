@@ -11,28 +11,28 @@ import "../Crowdsale.sol";
 contract TimedCrowdsale is Crowdsale {
   using SafeMath for uint256;
 
-  uint256 public startTime;
-  uint256 public endTime;
+  uint256 public openingTime;
+  uint256 public closingTime;
 
   /**
    * @dev Reverts if not in crowdsale time range. 
    */
   modifier onlyWhileOpen {
-    require(now >= startTime && now <= endTime);
+    require(now >= openingTime && now <= closingTime);
     _;
   }
 
   /**
    * @dev Constructor, takes crowdsale opening and closing times.
-   * @param _startTime Crowdsale opening time
-   * @param _endTime Crowdsale closing time
+   * @param _openingTime Crowdsale opening time
+   * @param _closingTime Crowdsale closing time
    */
-  function TimedCrowdsale(uint256 _startTime, uint256 _endTime) public {
-    require(_startTime >= now);
-    require(_endTime >= _startTime);
+  function TimedCrowdsale(uint256 _openingTime, uint256 _closingTime) public {
+    require(_openingTime >= now);
+    require(_closingTime >= _openingTime);
 
-    startTime = _startTime;
-    endTime = _endTime;
+    openingTime = _openingTime;
+    closingTime = _closingTime;
   }
 
   /**
@@ -40,7 +40,7 @@ contract TimedCrowdsale is Crowdsale {
    * @return Whether crowdsale period has elapsed
    */
   function hasClosed() public view returns (bool) {
-    return now > endTime;
+    return now > closingTime;
   }
   
   /**

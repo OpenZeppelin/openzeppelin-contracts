@@ -7,8 +7,8 @@ import "../math/SafeMath.sol";
 contract IncreasingPriceCrowdsaleImpl is IncreasingPriceCrowdsale {
 
   function IncreasingPriceCrowdsaleImpl (
-    uint256 _startTime,
-    uint256 _endTime,
+    uint256 _openingTime,
+    uint256 _closingTime,
     address _wallet,
     ERC20 _token,
     uint256 _initialRate,
@@ -16,7 +16,7 @@ contract IncreasingPriceCrowdsaleImpl is IncreasingPriceCrowdsale {
   ) 
     public
     Crowdsale(_initialRate, _wallet, _token)
-    TimedCrowdsale(_startTime, _endTime)
+    TimedCrowdsale(_openingTime, _closingTime)
     IncreasingPriceCrowdsale(_initialRate, _finalRate)
   {
   }
