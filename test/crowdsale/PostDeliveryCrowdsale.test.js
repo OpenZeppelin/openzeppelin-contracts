@@ -30,7 +30,9 @@ contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
     this.beforeEndTime = this.closingTime - duration.hours(1);
     this.afterClosingTime = this.closingTime + duration.seconds(1);
     this.token = await SimpleToken.new();
-    this.crowdsale = await PostDeliveryCrowdsale.new(this.openingTime, this.closingTime, rate, wallet, this.token.address);
+    this.crowdsale = await PostDeliveryCrowdsale.new(
+      this.openingTime, this.closingTime, rate, wallet, this.token.address
+    );
     await this.token.transfer(this.crowdsale.address, tokenSupply);
   });
 
