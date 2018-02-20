@@ -17,7 +17,7 @@ contract TimedCrowdsale is Crowdsale {
   /**
    * @dev Reverts if not in crowdsale time range. 
    */
-  modifier inTimeRange {
+  modifier onlyWhileOpen {
     require(now >= startTime && now <= endTime);
     _;
   }
@@ -39,7 +39,7 @@ contract TimedCrowdsale is Crowdsale {
    * @dev Checks whether the period in which the crowdsale is open has already elapsed.
    * @return Whether crowdsale period has elapsed
    */
-  function hasExpired() public view returns (bool) {
+  function hasClosed() public view returns (bool) {
     return now > endTime;
   }
   
@@ -48,7 +48,7 @@ contract TimedCrowdsale is Crowdsale {
    * @param _beneficiary Token purchaser
    * @param _weiAmount Amount of wei contributed
    */
-  function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal inTimeRange {
+  function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal onlyWhileOpen {
     super._preValidatePurchase(_beneficiary, _weiAmount);
   }
 
