@@ -118,7 +118,7 @@ contract Crowdsale {
    * @param _beneficiary Address performing the token purchase
    * @param _tokenAmount Number of tokens to be emitted
    */
-  function _emitTokens(address _beneficiary, uint256 _tokenAmount) internal {
+  function _deliverTokens(address _beneficiary, uint256 _tokenAmount) internal {
     token.transfer(_beneficiary, _tokenAmount);
   }
 
@@ -128,7 +128,7 @@ contract Crowdsale {
    * @param _tokenAmount Number of tokens to be purchased
    */
   function _processPurchase(address _beneficiary, uint256 _tokenAmount) internal {
-    _emitTokens(_beneficiary, _tokenAmount);
+    _deliverTokens(_beneficiary, _tokenAmount);
   }
 
   /**

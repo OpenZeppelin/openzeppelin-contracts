@@ -30,6 +30,6 @@ contract PostDeliveryCrowdsale is TimedCrowdsale {
     uint256 amount = balances[msg.sender];
     require(amount > 0);
     balances[msg.sender] = 0;
-    _emitTokens(msg.sender, amount);
+    _deliverTokens(msg.sender, amount);
   }
 }
