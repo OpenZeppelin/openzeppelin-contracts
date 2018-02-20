@@ -1,40 +1,38 @@
 pragma solidity ^0.4.18;
 
-import "../token/ERC20/MintableToken.sol";
+import "../token/ERC20/ERC20.sol";
 import "../math/SafeMath.sol";
-
 
 /**
  * @title Crowdsale
- * @dev Crowdsale is a base contract for managing a token crowdsale.
- * Crowdsales have a start and end timestamps, where investors can make
- * token purchases and the crowdsale will assign them tokens based
- * on a token per ETH rate. Funds collected are forwarded to a wallet
- * as they arrive. The contract requires a MintableToken that will be
- * minted as contributions arrive, note that the crowdsale contract
- * must be owner of the token in order to be able to mint it.
+ * @dev Crowdsale is a base contract for managing a token crowdsale,
+ * allowing investors to purchase tokens with ether. This contract implements
+ * such functionality in its most fundamental form and can be extended to provide additional
+ * functionality and/or custom behavior.
+ * The external interface represents the basic interface for purchasing tokens, and conform
+ * the base architecture for crowdsales. They are *not* intended to be modified / overriden.
+ * The internal interface conforms the extensible and modifiable surface of crowdsales. Override 
+ * the methods to add functionality. Consider using 'super' where appropiate to concatenate
+ * behavior.
  */
+
 contract Crowdsale {
   using SafeMath for uint256;
 
   // The token being sold
-  MintableToken public token;
+  ERC20 public token;
 
-  // start and end timestamps where investments are allowed (both inclusive)
-  uint256 public startTime;
-  uint256 public endTime;
-
-  // address where funds are collected
+  // Address where funds are collected
   address public wallet;
 
-  // how many token units a buyer gets per wei
+  // How many token units a buyer gets per wei
   uint256 public rate;
 
-  // amount of raised money in wei
+  // Amount of wei raised
   uint256 public weiRaised;
 
   /**
-   * event for token purchase logging
+   * Event for token purchase logging
    * @param purchaser who paid for the tokens
    * @param beneficiary who got the tokens
    * @param value weis paid for purchase
@@ -42,66 +40,119 @@ contract Crowdsale {
    */
   event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
 
-
-  function Crowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet, MintableToken _token) public {
-    require(_startTime >= now);
-    require(_endTime >= _startTime);
+  /**
+   * @param _rate Number of token units a buyer gets per wei
+   * @param _wallet Address where collected funds will be forwarded to
+   * @param _token Address of the token being sold
+   */
+  function Crowdsale(uint256 _rate, address _wallet, ERC20 _token) public {
     require(_rate > 0);
     require(_wallet != address(0));
     require(_token != address(0));
 
-    startTime = _startTime;
-    endTime = _endTime;
     rate = _rate;
     wallet = _wallet;
     token = _token;
   }
 
-  // fallback function can be used to buy tokens
+  // -----------------------------------------
+  // Crowdsale external interface
+  // -----------------------------------------
+
+  /**
+   * @dev fallback function ***DO NOT OVERRIDE***
+   */
   function () external payable {
     buyTokens(msg.sender);
   }
 
-  // low level token purchase function
-  function buyTokens(address beneficiary) public payable {
-    require(beneficiary != address(0));
-    require(validPurchase());
+  /**
+   * @dev low level token purchase ***DO NOT OVERRIDE***
+   * @param _beneficiary Address performing the token purchase
+   */
+  function buyTokens(address _beneficiary) public payable {
 
     uint256 weiAmount = msg.value;
+    _preValidatePurchase(_beneficiary, weiAmount);
 
     // calculate token amount to be created
-    uint256 tokens = getTokenAmount(weiAmount);
+    uint256 tokens = _getTokenAmount(weiAmount);
 
     // update state
     weiRaised = weiRaised.add(weiAmount);
 
-    token.mint(beneficiary, tokens);
-    TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
+    _processPurchase(_beneficiary, tokens);
+    TokenPurchase(msg.sender, _beneficiary, weiAmount, tokens);
 
-    forwardFunds();
+    _updatePurchasingState(_beneficiary, weiAmount);
+
+    _forwardFunds();
+    _postValidatePurchase(_beneficiary, weiAmount);
   }
 
-  // @return true if crowdsale event has ended
-  function hasEnded() public view returns (bool) {
-    return now > endTime;
+  // -----------------------------------------
+  // Internal interface (extensible)
+  // -----------------------------------------
+
+  /**
+   * @dev Validation of an incoming purchase. Use require statemens to revert state when conditions are not met. Use super to concatenate validations.
+   * @param _beneficiary Address performing the token purchase
+   * @param _weiAmount Value in wei involved in the purchase
+   */
+  function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
+    require(_beneficiary != address(0));
+    require(_weiAmount != 0);
   }
 
-  // Override this method to have a way to add business logic to your crowdsale when buying
-  function getTokenAmount(uint256 weiAmount) internal view returns(uint256) {
-    return weiAmount.mul(rate);
+  /**
+   * @dev Validation of an executed purchase. Observe state and use revert statements to undo rollback when valid conditions are not met.
+   * @param _beneficiary Address performing the token purchase
+   * @param _weiAmount Value in wei involved in the purchase
+   */
+  function _postValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
+    // optional override
   }
 
-  // send ether to the fund collection wallet
-  // override to create custom fund forwarding mechanisms
-  function forwardFunds() internal {
+  /**
+   * @dev Source of tokens. Override this method to modify the way in which the crowdsale ultimately gets and sends its tokens.
+   * @param _beneficiary Address performing the token purchase
+   * @param _tokenAmount Number of tokens to be emitted
+   */
+  function _deliverTokens(address _beneficiary, uint256 _tokenAmount) internal {
+    token.transfer(_beneficiary, _tokenAmount);
+  }
+
+  /**
+   * @dev Executed when a purchase has been validated and is ready to be executed. Not necessarily emits/sends tokens.
+   * @param _beneficiary Address receiving the tokens
+   * @param _tokenAmount Number of tokens to be purchased
+   */
+  function _processPurchase(address _beneficiary, uint256 _tokenAmount) internal {
+    _deliverTokens(_beneficiary, _tokenAmount);
+  }
+
+  /**
+   * @dev Override for extensions that require an internal state to check for validity (current user contributions, etc.)
+   * @param _beneficiary Address receiving the tokens
+   * @param _weiAmount Value in wei involved in the purchase
+   */
+  function _updatePurchasingState(address _beneficiary, uint256 _weiAmount) internal {
+    // optional override
+  }
+
+  /**
+   * @dev Override to extend the way in which ether is converted to tokens.
+   * @param _weiAmount Value in wei to be converted into tokens
+   * @return Number of tokens that can be purchased with the specified _weiAmount
+   */
+  function _getTokenAmount(uint256 _weiAmount) internal view returns (uint256) {
+    return _weiAmount.mul(rate);
+  }
+
+  /**
+   * @dev Determines how ETH is stored/forwarded on purchases.
+   */
+  function _forwardFunds() internal {
     wallet.transfer(msg.value);
   }
-
-  // @return true if the transaction can buy tokens
-  function validPurchase() internal view returns (bool) {
-    bool withinPeriod = now >= startTime && now <= endTime;
-    bool nonZeroPurchase = msg.value != 0;
-    return withinPeriod && nonZeroPurchase;
-  }
-
 }
