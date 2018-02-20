@@ -5,7 +5,7 @@ We really appreciate and value contributions to OpenZeppelin. Please take 5' to 
 
 ## Contribution guidelines
 
-Smart contracts manage value and are highly vulnerable to errors and attacks. We have very strict guidelines, please make sure to review them: ["Contribution guidelines wiki entry"](https://github.com/OpenZeppelin/zeppelin-solidity/wiki/Contrbuting-guidelines).
+Smart contracts manage value and are highly vulnerable to errors and attacks. We have very strict guidelines, please make sure to review them: ["Contribution guidelines wiki entry"](https://github.com/OpenZeppelin/zeppelin-solidity/wiki/Contribution-guidelines).
 
 ## Creating Pull Requests (PRs)
 
