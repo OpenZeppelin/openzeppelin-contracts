@@ -1,9 +1,9 @@
 pragma solidity ^0.4.18;
 
 
-import "../math/SafeMath.sol";
+import "../../math/SafeMath.sol";
 import "./FinalizableCrowdsale.sol";
-import "./RefundVault.sol";
+import "./utils/RefundVault.sol";
 
 
 /**
@@ -21,13 +21,19 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
   // refund vault used to hold funds while crowdsale is running
   RefundVault public vault;
 
+  /**
+   * @dev Constructor, creates RefundVault. 
+   * @param _goal Funding goal
+   */
   function RefundableCrowdsale(uint256 _goal) public {
     require(_goal > 0);
     vault = new RefundVault(wallet);
     goal = _goal;
   }
 
-  // if crowdsale is unsuccessful, investors can claim refunds here
+  /**
+   * @dev Investors can claim refunds here if crowdsale is unsuccessful
+   */
   function claimRefund() public {
     require(isFinalized);
     require(!goalReached());
@@ -35,11 +41,17 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
     vault.refund(msg.sender);
   }
 
+  /**
+   * @dev Checks whether funding goal was reached. 
+   * @return Whether funding goal was reached
+   */
   function goalReached() public view returns (bool) {
     return weiRaised >= goal;
   }
 
-  // vault finalization task, called when owner calls finalize()
+  /**
+   * @dev vault finalization task, called when owner calls finalize()
+   */
   function finalization() internal {
     if (goalReached()) {
       vault.close();
@@ -50,10 +62,10 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
     super.finalization();
   }
 
-  // We're overriding the fund forwarding from Crowdsale.
-  // In addition to sending the funds, we want to call
-  // the RefundVault deposit function
-  function forwardFunds() internal {
+  /**
+   * @dev Overrides Crowdsale fund forwarding, sending funds to vault.
+   */
+  function _forwardFunds() internal {
     vault.deposit.value(msg.value)(msg.sender);
   }
 

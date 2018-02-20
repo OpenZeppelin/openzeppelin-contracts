@@ -1,7 +1,8 @@
 pragma solidity ^0.4.18;
 
-import "../crowdsale/CappedCrowdsale.sol";
-import "../crowdsale/RefundableCrowdsale.sol";
+import "../crowdsale/validation/CappedCrowdsale.sol";
+import "../crowdsale/distribution/RefundableCrowdsale.sol";
+import "../crowdsale/emission/MintedCrowdsale.sol";
 import "../token/ERC20/MintableToken.sol";
 
 
@@ -30,13 +31,13 @@ contract SampleCrowdsaleToken is MintableToken {
  * After adding multiple features it's good practice to run integration tests
  * to ensure that subcontracts works together as intended.
  */
-contract SampleCrowdsale is CappedCrowdsale, RefundableCrowdsale {
+contract SampleCrowdsale is CappedCrowdsale, RefundableCrowdsale, MintedCrowdsale {
 
-  function SampleCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, uint256 _goal, uint256 _cap, address _wallet, MintableToken _token) public
+  function SampleCrowdsale(uint256 _openingTime, uint256 _closingTime, uint256 _rate, address _wallet, uint256 _cap, MintableToken _token, uint256 _goal) public
+    Crowdsale(_rate, _wallet, _token)
     CappedCrowdsale(_cap)
-    FinalizableCrowdsale()
+    TimedCrowdsale(_openingTime, _closingTime)
     RefundableCrowdsale(_goal)
-    Crowdsale(_startTime, _endTime, _rate, _wallet, _token)
   {
     //As goal needs to be met for a successful crowdsale
     //the value needs to less or equal than a cap which is limit for accepted funds

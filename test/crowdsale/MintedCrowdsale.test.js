@@ -7,22 +7,27 @@ const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const Crowdsale = artifacts.require('Crowdsale');
-const SimpleToken = artifacts.require('SimpleToken');
+const MintedCrowdsale = artifacts.require('MintedCrowdsaleImpl');
+const MintableToken = artifacts.require('MintableToken');
 
-contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
-  const rate = new BigNumber(1);
+contract('MintedCrowdsale', function ([_, investor, wallet, purchaser]) {
+  const rate = new BigNumber(1000);
   const value = ether(42);
-  const tokenSupply = new BigNumber('1e22');
+
   const expectedTokenAmount = rate.mul(value);
 
   beforeEach(async function () {
-    this.token = await SimpleToken.new();
-    this.crowdsale = await Crowdsale.new(rate, wallet, this.token.address);
-    await this.token.transfer(this.crowdsale.address, tokenSupply);
+    this.token = await MintableToken.new();
+    this.crowdsale = await MintedCrowdsale.new(rate, wallet, this.token.address);
+    await this.token.transferOwnership(this.crowdsale.address);
   });
 
   describe('accepting payments', function () {
+    it('should be token owner', async function () {
+      const owner = await this.token.owner();
+      owner.should.equal(this.crowdsale.address);
+    });
+
     it('should accept payments', async function () {
       await this.crowdsale.send(value).should.be.fulfilled;
       await this.crowdsale.buyTokens(investor, { value: value, from: purchaser }).should.be.fulfilled;
@@ -49,31 +54,6 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
     it('should forward funds to wallet', async function () {
       const pre = web3.eth.getBalance(wallet);
       await this.crowdsale.sendTransaction({ value, from: investor });
-      const post = web3.eth.getBalance(wallet);
-      post.minus(pre).should.be.bignumber.equal(value);
-    });
-  });
-
-  describe('low-level purchase', function () {
-    it('should log purchase', async function () {
-      const { logs } = await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
-      const event = logs.find(e => e.event === 'TokenPurchase');
-      should.exist(event);
-      event.args.purchaser.should.equal(purchaser);
-      event.args.beneficiary.should.equal(investor);
-      event.args.value.should.be.bignumber.equal(value);
-      event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
-    });
-
-    it('should assign tokens to beneficiary', async function () {
-      await this.crowdsale.buyTokens(investor, { value, from: purchaser });
-      const balance = await this.token.balanceOf(investor);
-      balance.should.be.bignumber.equal(expectedTokenAmount);
-    });
-
-    it('should forward funds to wallet', async function () {
-      const pre = web3.eth.getBalance(wallet);
-      await this.crowdsale.buyTokens(investor, { value, from: purchaser });
       const post = web3.eth.getBalance(wallet);
       post.minus(pre).should.be.bignumber.equal(value);
     });
