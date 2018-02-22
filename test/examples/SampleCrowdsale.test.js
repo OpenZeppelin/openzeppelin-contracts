@@ -12,6 +12,7 @@ require('chai')
   .should();
 
 const SampleCrowdsale = artifacts.require('SampleCrowdsale');
+const SampleCrowdsaleFail = artifacts.require('SampleCrowdsale');
 const SampleCrowdsaleToken = artifacts.require('SampleCrowdsaleToken');
 const RefundVault = artifacts.require('RefundVault');
 
@@ -110,5 +111,33 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
 
     const balanceAfterRefund = web3.eth.getBalance(investor);
     balanceBeforeInvestment.should.be.bignumber.equal(balanceAfterRefund);
+  });
+});
+
+contract('SampleCrowdsaleFail', function ([owner, wallet, investor]) {
+  const RATE = new BigNumber(10);
+  // goal > cap
+  const GOAL = ether(20);
+  const CAP = ether(10);
+
+  before(async function () {
+    // Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
+    await advanceBlock();
+  });
+
+  beforeEach(async function () {
+  });
+
+  it('should not create crowdsale with goal > cap', async function () {
+    this.openingTime = latestTime() + duration.weeks(1);
+    this.closingTime = this.openingTime + duration.weeks(1);
+    this.afterClosingTime = this.closingTime + duration.seconds(1);
+
+    this.token = await SampleCrowdsaleToken.new({ from: owner });
+    this.vault = await RefundVault.new(wallet, { from: owner });
+
+    await SampleCrowdsaleFail.new(
+      this.openingTime, this.closingTime, RATE, wallet, CAP, this.token.address, GOAL
+    ).should.be.rejectedWith(EVMRevert);
   });
 });
