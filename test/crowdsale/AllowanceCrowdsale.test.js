@@ -1,4 +1,5 @@
 import ether from '../helpers/ether';
+import EVMRevert from '../helpers/EVMRevert';
 
 const BigNumber = web3.BigNumber;
 
@@ -8,6 +9,7 @@ const should = require('chai')
   .should();
 
 const AllowanceCrowdsale = artifacts.require('AllowanceCrowdsaleImpl');
+const AllowanceCrowdsaleFail = artifacts.require('AllowanceCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
 contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenWallet]) {
@@ -26,7 +28,7 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
     it('should accept sends', async function () {
       await this.crowdsale.send(value).should.be.fulfilled;
     });
-    
+
     it('should accept payments', async function () {
       await this.crowdsale.buyTokens(investor, { value: value, from: purchaser }).should.be.fulfilled;
     });
@@ -64,5 +66,15 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
       let tokensRemaining = await this.crowdsale.remainingTokens();
       tokensRemaining.should.be.bignumber.equal(remainingAllowance);
     });
+  });
+});
+
+contract('AllowanceCrowdsaleFail', function ([_, investor, wallet, purchaser, tokenWallet]) {
+  const rate = new BigNumber(1);
+  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+
+  it('should fail with token wallet different from token address', async function () {
+    this.token = await SimpleToken.new({ from: tokenWallet });
+    await AllowanceCrowdsaleFail.new(rate, wallet, this.token.address, ZERO_ADDRESS).should.be.rejectedWith(EVMRevert);
   });
 });
