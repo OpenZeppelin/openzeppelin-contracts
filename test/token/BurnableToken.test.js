@@ -21,11 +21,16 @@ contract('BurnableToken', function ([owner]) {
 
       it('emits a burn event', async function () {
         const { logs } = await this.token.burn(amount, { from });
-
-        assert.equal(logs.length, 1);
+        const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+        assert.equal(logs.length, 2);
         assert.equal(logs[0].event, 'Burn');
         assert.equal(logs[0].args.burner, owner);
         assert.equal(logs[0].args.value, amount);
+
+        assert.equal(logs[1].event, 'Transfer');
+        assert.equal(logs[1].args.from, owner);
+        assert.equal(logs[1].args.to, ZERO_ADDRESS);
+        assert.equal(logs[1].args.value, amount);
       });
     });
 
