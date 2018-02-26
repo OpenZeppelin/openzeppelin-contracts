@@ -1,4 +1,4 @@
-import assertRevert from '../helpers/assertRevert';
+import assertRevert from '../../helpers/assertRevert';
 const BurnableTokenMock = artifacts.require('BurnableTokenMock');
 
 contract('BurnableToken', function ([owner]) {
