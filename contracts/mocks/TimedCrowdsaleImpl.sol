@@ -1,17 +1,16 @@
 pragma solidity ^0.4.18;
 
-import "../token/ERC20/MintableToken.sol";
-import "../crowdsale/distribution/FinalizableCrowdsale.sol";
+import "../token/ERC20/ERC20.sol";
+import "../crowdsale/validation/TimedCrowdsale.sol";
 
+contract TimedCrowdsaleImpl is TimedCrowdsale {
 
-contract FinalizableCrowdsaleImpl is FinalizableCrowdsale {
-
-  function FinalizableCrowdsaleImpl (
+  function TimedCrowdsaleImpl (
     uint256 _openingTime,
     uint256 _closingTime,
     uint256 _rate,
     address _wallet,
-    MintableToken _token
+    ERC20 _token
   ) 
     public
     Crowdsale(_rate, _wallet, _token)

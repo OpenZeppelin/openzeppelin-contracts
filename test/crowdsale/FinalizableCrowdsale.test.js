@@ -22,13 +22,13 @@ contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
   });
 
   beforeEach(async function () {
-    this.startTime = latestTime() + duration.weeks(1);
-    this.endTime = this.startTime + duration.weeks(1);
-    this.afterEndTime = this.endTime + duration.seconds(1);
+    this.openingTime = latestTime() + duration.weeks(1);
+    this.closingTime = this.openingTime + duration.weeks(1);
+    this.afterClosingTime = this.closingTime + duration.seconds(1);
 
     this.token = await MintableToken.new();
     this.crowdsale = await FinalizableCrowdsale.new(
-      this.startTime, this.endTime, rate, wallet, this.token.address, { from: owner }
+      this.openingTime, this.closingTime, rate, wallet, this.token.address, { from: owner }
     );
     await this.token.transferOwnership(this.crowdsale.address);
   });
@@ -38,23 +38,23 @@ contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
   });
 
   it('cannot be finalized by third party after ending', async function () {
-    await increaseTimeTo(this.afterEndTime);
+    await increaseTimeTo(this.afterClosingTime);
     await this.crowdsale.finalize({ from: thirdparty }).should.be.rejectedWith(EVMRevert);
   });
 
   it('can be finalized by owner after ending', async function () {
-    await increaseTimeTo(this.afterEndTime);
+    await increaseTimeTo(this.afterClosingTime);
     await this.crowdsale.finalize({ from: owner }).should.be.fulfilled;
   });
 
   it('cannot be finalized twice', async function () {
-    await increaseTimeTo(this.afterEndTime);
+    await increaseTimeTo(this.afterClosingTime);
     await this.crowdsale.finalize({ from: owner });
     await this.crowdsale.finalize({ from: owner }).should.be.rejectedWith(EVMRevert);
   });
 
   it('logs finalized', async function () {
-    await increaseTimeTo(this.afterEndTime);
+    await increaseTimeTo(this.afterClosingTime);
     const { logs } = await this.crowdsale.finalize({ from: owner });
     const event = logs.find(e => e.event === 'Finalized');
     should.exist(event);
