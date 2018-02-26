@@ -1,13 +1,13 @@
 import assertRevert from '../../helpers/assertRevert';
 const BigNumber = web3.BigNumber;
-const ERC721Token = artifacts.require('ERC721TokenMock.sol');
+const BaseERC721Token = artifacts.require('BaseERC721TokenMock.sol');
 
 require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('ERC721Token', accounts => {
+contract('BaseERC721Token', accounts => {
   let token = null;
   const _firstTokenId = 1;
   const _secondTokenId = 2;
@@ -16,7 +16,7 @@ contract('ERC721Token', accounts => {
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
   beforeEach(async function () {
-    token = await ERC721Token.new({ from: _creator });
+    token = await BaseERC721Token.new({ from: _creator });
     await token.mint(_creator, _firstTokenId, { from: _creator });
     await token.mint(_creator, _secondTokenId, { from: _creator });
   });
