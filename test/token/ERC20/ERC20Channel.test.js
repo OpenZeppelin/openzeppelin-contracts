@@ -1,5 +1,5 @@
 import latestTime from '../../helpers/latestTime';
-import { increaseTimeTo } from '../../helpers/increaseTime';
+import { increaseTimeTo, duration } from '../../helpers/increaseTime';
 var ethUtils = require('ethereumjs-util');
 
 var BigNumber = web3.BigNumber;
@@ -12,12 +12,12 @@ require('chai')
 import EVMRevert from '../../helpers/EVMRevert';
 
 var StandardTokenMock = artifacts.require('StandardTokenMock.sol');
-var ERC20Channels = artifacts.require('ERC20Channels.sol');
+var ERC20Channel = artifacts.require('ERC20Channel.sol');
 var ECRecovery = artifacts.require('ECRecovery.sol');
 
-contract('ERC20Channels', function ([_, receiver, sender]) {
+contract('ERC20Channel', function ([_, receiver, sender]) {
   var token;
-  var tokenChannels;
+  var tokenChannel;
 
   // This private keys should match the ones used by testrpc
   const privateKeys = {};
@@ -32,94 +32,90 @@ contract('ERC20Channels', function ([_, receiver, sender]) {
 
   beforeEach(async function () {
     const ecrecovery = await ECRecovery.new();
-    ERC20Channels.link('ECRecovery', ecrecovery.address);
+    ERC20Channel.link('ECRecovery', ecrecovery.address);
     token = await StandardTokenMock.new(sender, 100);
-    tokenChannels = await ERC20Channels.new(token.address, 60);
+
   });
 
-  it.only('create channel', async function () {
-    await token.approve(tokenChannels.address, 30, { from: sender });
-    const nonce = 66;
-    await tokenChannels.openChannel(receiver, 30, nonce, { from: sender });
-    const channelInfo = await tokenChannels.getChannelInfo(sender, receiver, nonce);
-    assert.equal(channelInfo[1], 30);
+  it('create channel', async function () {
+    tokenChannel = await ERC20Channel.new(token.address, receiver, duration.days(1), { from: sender });
+    await token.transfer(tokenChannel.address, 60, { from: sender });
+    const channelInfo = await tokenChannel.getChannelInfo();
+    assert.equal(channelInfo[0], 60);
+    assert.equal(channelInfo[1], 0);
     assert.equal(channelInfo[2], 0);
-    assert.equal(channelInfo[3], 0);
   });
 
-  it.only('create channel and close it with a mutual agreement from sender', async function () {
-    await token.approve(tokenChannels.address, 30, { from: sender });
-    const nonce = 33;
-    await tokenChannels.openChannel(receiver, 30, nonce, { from: sender });
-    const hash = await tokenChannels.generateBalanceHash(receiver, nonce, 20);
+  it('create channel and close it with a mutual agreement from sender', async function () {
+    tokenChannel = await ERC20Channel.new(token.address, receiver, duration.days(1), { from: sender });
+    await token.transfer(tokenChannel.address, 30, { from: sender });
+    const hash = await tokenChannel.generateBalanceHash(20);
     const senderSig = signMsg(hash, privateKeys[sender]);
     assert.equal(sender,
-      await tokenChannels.getSignerOfBalanceHash(receiver, nonce, 20, senderSig)
+      await tokenChannel.getSignerOfBalanceHash(20, senderSig)
     );
-    const senderHash = await tokenChannels.generateKeccak256(senderSig);
+    const senderHash = await tokenChannel.generateKeccak256(senderSig);
     const closingSig = signMsg(senderHash, privateKeys[receiver]);
-    await tokenChannels.cooperativeClose(nonce, 20, senderSig, closingSig, { from: receiver });
+    await tokenChannel.cooperativeClose(20, senderSig, closingSig, { from: receiver });
     (await token.balanceOf(sender)).should.be.bignumber
       .equal(80);
     (await token.balanceOf(receiver)).should.be.bignumber
       .equal(20);
   });
 
-  it.only('create channel and close it with a mutual agreement from receiver', async function () {
-    await token.approve(tokenChannels.address, 30, { from: sender });
-    const nonce = 33;
-    await tokenChannels.openChannel(receiver, 30, nonce, { from: sender });
-    const hash = await tokenChannels.generateBalanceHash(receiver, nonce, 20);
+  it('create channel and close it with a mutual agreement from receiver', async function () {
+    tokenChannel = await ERC20Channel.new(token.address, receiver, duration.days(1), { from: sender });
+    await token.transfer(tokenChannel.address, 30, { from: sender });
+    const hash = await tokenChannel.generateBalanceHash(20);
     const senderSig = signMsg(hash, privateKeys[sender]);
     assert.equal(sender,
-      await tokenChannels.getSignerOfBalanceHash(receiver, nonce, 20, senderSig)
+      await tokenChannel.getSignerOfBalanceHash(20, senderSig)
     );
-    const senderHash = await tokenChannels.generateKeccak256(senderSig);
+    const senderHash = await tokenChannel.generateKeccak256(senderSig);
     const closingSig = signMsg(senderHash, privateKeys[receiver]);
-    await tokenChannels.cooperativeClose(nonce, 20, senderSig, closingSig, { from: sender });
+    await tokenChannel.cooperativeClose(20, senderSig, closingSig, { from: sender });
     (await token.balanceOf(sender)).should.be.bignumber
       .equal(80);
     (await token.balanceOf(receiver)).should.be.bignumber
       .equal(20);
   });
 
-  it.only('create channel and close it from sender with uncooperativeClose', async function () {
-    await token.approve(tokenChannels.address, 30, { from: sender });
-    const nonce = 33;
-    await tokenChannels.openChannel(receiver, 30, nonce, { from: sender });
-    const hash = await tokenChannels.generateBalanceHash(receiver, nonce, 10);
+  it('create channel and close it from sender with uncooperativeClose', async function () {
+    tokenChannel = await ERC20Channel.new(token.address, receiver, duration.days(1), { from: sender });
+    await token.transfer(tokenChannel.address, 30, { from: sender });
+    const hash = await tokenChannel.generateBalanceHash(10);
     const senderSig = signMsg(hash, privateKeys[sender]);
     assert.equal(sender,
-      await tokenChannels.getSignerOfBalanceHash(receiver, nonce, 10, senderSig)
+      await tokenChannel.getSignerOfBalanceHash(10, senderSig)
     );
-    await tokenChannels.uncooperativeClose(receiver, nonce, 10, { from: sender });
-    await tokenChannels.closeChannel(receiver, nonce, { from: sender })
+    await tokenChannel.uncooperativeClose(10, { from: sender });
+    await tokenChannel.closeChannel({ from: sender })
       .should.be.rejectedWith(EVMRevert);
-    await increaseTimeTo(latestTime() + 61);
-    await tokenChannels.closeChannel(receiver, nonce, { from: sender });
+    await increaseTimeTo(latestTime() + duration.days(2));
+    await tokenChannel.closeChannel({ from: sender });
     (await token.balanceOf(sender)).should.be.bignumber
       .equal(90);
     (await token.balanceOf(receiver)).should.be.bignumber
       .equal(10);
   });
 
-  it.only('create channel and close it from receiver after sender challenge with different balance', async function () {
-    await token.approve(tokenChannels.address, 30, { from: sender });
-    const nonce = 33;
-    await tokenChannels.openChannel(receiver, 30, nonce, { from: sender });
-    const hash = await tokenChannels.generateBalanceHash(receiver, nonce, 20);
+  it('create channel and close it from receiver after sender challenge with different balance', async function () {
+    tokenChannel = await ERC20Channel.new(token.address, receiver, duration.days(1), { from: sender });
+    await token.transfer(tokenChannel.address, 30, { from: sender });
+    const hash = await tokenChannel.generateBalanceHash(20);
     const senderSig = signMsg(hash, privateKeys[sender]);
     assert.equal(sender,
-      await tokenChannels.getSignerOfBalanceHash(receiver, nonce, 20, senderSig)
+      await tokenChannel.getSignerOfBalanceHash(20, senderSig)
     );
-    const senderHash = await tokenChannels.generateKeccak256(senderSig);
+    const senderHash = await tokenChannel.generateKeccak256(senderSig);
     const closingSig = signMsg(senderHash, privateKeys[receiver]);
-    await tokenChannels.uncooperativeClose(receiver, nonce, 10, { from: sender });
+    await tokenChannel.uncooperativeClose(10, { from: sender });
     await increaseTimeTo(latestTime() + 10);
-    await tokenChannels.cooperativeClose(nonce, 20, senderSig, closingSig, { from: receiver });
+    await tokenChannel.cooperativeClose(20, senderSig, closingSig, { from: receiver });
     (await token.balanceOf(sender)).should.be.bignumber
       .equal(80);
     (await token.balanceOf(receiver)).should.be.bignumber
       .equal(20);
   });
+
 });
