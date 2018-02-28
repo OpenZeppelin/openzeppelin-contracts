@@ -22,4 +22,7 @@ contract ERC827 is ERC20 {
   )
     public
     returns (bool);
+
+  function increaseApproval(address _spender, uint _addedValue, bytes _data) public returns (bool);
+  function decreaseApproval(address _spender, uint _subtractedValue, bytes _data) public returns (bool);
 }
