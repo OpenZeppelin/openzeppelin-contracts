@@ -13,6 +13,9 @@ import "../../ECRecovery.sol";
    signatures offchain to agree on the final value of the transfer.
    Uses OpenZeppelin ERC20 and SafeMath lib.
 
+   Note: The owner of the contract is the sender, therefore it should be
+    deployed by the sender itself.
+
    The channel can be closed in two ways: With and agreement or not.
 
    - Contract closed with an agreement:
@@ -83,7 +86,9 @@ contract ERC20Channel is Ownable {
    */
 
   /**
-   * @dev Creates a closing request of a channel from the sender
+   * @dev Request an uncooperativeClose, it can be called only by the
+    sender/owner. It will save the closing balance requested and start the
+    challenge time period where the receiver can ask for a cooperativeClose.
    * @param balance uint256, the final balance of the receiver
    */
   function uncooperativeClose(
@@ -103,8 +108,10 @@ contract ERC20Channel is Ownable {
   /**
    * @dev Close a channel with the agreement of the sender and receiver
    * @param balance uint256, the final balance transfered of the channel
-   * @param balanceMsgSig bytes, the signature of the sender
+   * @param balanceMsgSig bytes, the signature of the sender.
+    The msg signed by the receiver is generateBalanceHash(balance)
    * @param closingSig bytes, the signature of the receiver
+    The msg signed by the sender is generateKeccak256(balanceMsgSig)
    */
   function cooperativeClose(
     uint256 balance,
@@ -122,7 +129,7 @@ contract ERC20Channel is Ownable {
   }
 
   /**
-   * @dev Close a channel with an existing closing request
+   * @dev Close a channel with an uncooperativeClose already requested
    */
   function closeChannel() external onlyOwner {
     // Check that the closing request was created
