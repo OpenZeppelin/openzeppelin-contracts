@@ -67,11 +67,7 @@ contract ERC20Channel is Ownable {
    * @param _challengeTime uint256, the time that a channel has before ends
     with and uncoopertive close
    */
-  function ERC20Channel(
-    address tokenAddress,
-    address _receiver,
-    uint256 _challengeTime
-  ) {
+  function ERC20Channel(address tokenAddress, address _receiver, uint256 _challengeTime) public {
     require(tokenAddress != address(0));
     require(_receiver != address(0));
     require(_challengeTime >= 0);
@@ -91,9 +87,7 @@ contract ERC20Channel is Ownable {
     challenge time period where the receiver can ask for a cooperativeClose.
    * @param balance uint256, the final balance of the receiver
    */
-  function uncooperativeClose(
-    uint256 balance
-  ) external onlyOwner {
+  function uncooperativeClose(uint256 balance) external onlyOwner {
     // Check that the closing request dont exist
     require(closeTime == 0);
 
@@ -101,7 +95,7 @@ contract ERC20Channel is Ownable {
     require(balance <= token.balanceOf(address(this)));
 
     // Mark channel as closed and create closing request
-    closeTime = block.timestamp.add(challengeTime);
+    closeTime = now.add(challengeTime);
     closingBalance = balance;
   }
 
@@ -113,11 +107,7 @@ contract ERC20Channel is Ownable {
    * @param closingSig bytes, the signature of the receiver
     The msg signed by the sender is generateKeccak256(balanceMsgSig)
    */
-  function cooperativeClose(
-    uint256 balance,
-    bytes balanceMsgSig,
-    bytes closingSig
-  ) external {
+  function cooperativeClose(uint256 balance, bytes balanceMsgSig, bytes closingSig) external {
     // Derive receiver address from signature
     require(receiver == keccak256(balanceMsgSig).recover(closingSig));
 
@@ -148,23 +138,16 @@ contract ERC20Channel is Ownable {
    /**
     * @dev Get the channel info
     */
-   function getInfo() public view returns (uint256, uint256, uint256) {
-     return (
-       token.balanceOf(address(this)),
-       closeTime,
-       closingBalance
-     );
-   }
+  function getInfo() public view returns (uint256, uint256, uint256) {
+    return (token.balanceOf(address(this)), closeTime, closingBalance);
+  }
 
   /**
    * @dev Get the signer of a balance hash signed
    * @param balance uint256, the balance to hash
    * @param msgSigned bytes, the balance hash signed
    */
-  function getSignerOfBalanceHash(
-    uint256 balance,
-    bytes msgSigned
-  ) public view returns (address) {
+  function getSignerOfBalanceHash(uint256 balance, bytes msgSigned) public view returns (address) {
     bytes32 msgHash = generateBalanceHash(balance);
     // Derive address from signature
     address signer = msgHash.recover(msgSigned);
@@ -175,9 +158,7 @@ contract ERC20Channel is Ownable {
    * @dev Generate a hash balance for an address
    * @param balance uint256, the balance to hash
    */
-  function generateBalanceHash(
-    uint256 balance
-  ) public view returns (bytes32) {
+  function generateBalanceHash(uint256 balance) public view returns (bytes32) {
     return keccak256(receiver, balance, address(this));
   }
 
