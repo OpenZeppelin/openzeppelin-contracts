@@ -40,10 +40,10 @@ contract('ERC20Channel', function ([_, receiver, sender]) {
   it('create channel', async function () {
     tokenChannel = await ERC20Channel.new(token.address, receiver, duration.days(1), { from: sender });
     await token.transfer(tokenChannel.address, 60, { from: sender });
-    const channelInfo = await tokenChannel.getChannelInfo();
-    assert.equal(channelInfo[0], 60);
-    assert.equal(channelInfo[1], 0);
-    assert.equal(channelInfo[2], 0);
+    const channelInfo = await tokenChannel.getInfo();
+    assert.equal(parseInt(channelInfo[0]), 60);
+    assert.equal(parseInt(channelInfo[1]), 0);
+    assert.equal(parseInt(channelInfo[2]), 0);
   });
 
   it('create channel and close it with a mutual agreement from sender', async function () {
@@ -56,6 +56,10 @@ contract('ERC20Channel', function ([_, receiver, sender]) {
     );
     const senderHash = await tokenChannel.generateKeccak256(senderSig);
     const closingSig = signMsg(senderHash, privateKeys[receiver]);
+    const channelInfo = await tokenChannel.getInfo();
+    assert.equal(parseInt(channelInfo[0]), 30);
+    assert.equal(parseInt(channelInfo[1]), 0);
+    assert.equal(parseInt(channelInfo[2]), 0);
     await tokenChannel.cooperativeClose(20, senderSig, closingSig, { from: receiver });
     (await token.balanceOf(sender)).should.be.bignumber
       .equal(80);
@@ -89,6 +93,10 @@ contract('ERC20Channel', function ([_, receiver, sender]) {
       await tokenChannel.getSignerOfBalanceHash(10, senderSig)
     );
     await tokenChannel.uncooperativeClose(10, { from: sender });
+    const channelInfo = await tokenChannel.getInfo();
+    assert.equal(parseInt(channelInfo[0]), 30);
+    assert.equal(parseInt(channelInfo[1]), latestTime() + duration.days(1));
+    assert.equal(parseInt(channelInfo[2]), 10);
     await tokenChannel.closeChannel({ from: sender })
       .should.be.rejectedWith(EVMRevert);
     await increaseTimeTo(latestTime() + duration.days(2));

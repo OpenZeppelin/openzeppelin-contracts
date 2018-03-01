@@ -45,7 +45,7 @@ contract ERC20Channel is Ownable {
     address tokenAddress,
     address _receiver,
     uint256 _challengeTime
-  ) public {
+  ) {
     require(tokenAddress != address(0));
     require(_receiver != address(0));
     require(_challengeTime >= 0);
@@ -54,6 +54,10 @@ contract ERC20Channel is Ownable {
     challengeTime = _challengeTime;
     receiver = _receiver;
   }
+
+  /*
+   *  External functions
+   */
 
   /**
    * @dev Creates a closing request of a channel from the sender
@@ -107,20 +111,20 @@ contract ERC20Channel is Ownable {
     close(closingBalance);
   }
 
-  /**
-   * @dev Get the channel info
-   */
-  function getChannelInfo() external view returns (uint256, uint256, uint256) {
-    return (
-      token.balanceOf(address(this)),
-      closeTime,
-      closingBalance
-    );
-  }
-
   /*
    *  Public functions
    */
+
+   /**
+    * @dev Get the channel info
+    */
+   function getInfo() public view returns (uint256, uint256, uint256) {
+     return (
+       token.balanceOf(address(this)),
+       closeTime,
+       closingBalance
+     );
+   }
 
   /**
    * @dev Get the signer of a balance hash signed
@@ -173,6 +177,7 @@ contract ERC20Channel is Ownable {
     // Send remaining balance back to sender
     require(token.transfer(owner, tokenBalance.sub(finalBalance)));
 
+    // Destroy contract
     selfdestruct(owner);
   }
 
