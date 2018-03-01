@@ -126,10 +126,10 @@ contract('Heritable', function (accounts) {
   });
 
   it('timeOfDeath can be queried', async function () {
-    assert.isTrue(await heritable.timeOfDeath() === 0);
+    assert.equal(await heritable.timeOfDeath(), 0);
   });
 
   it('heartbeatTimeout can be queried', async function () {
-    assert.isTrue(await heritable.heartbeatTimeout() === 4141);
+    assert.equal(await heritable.heartbeatTimeout(), 4141);
   });
 });
