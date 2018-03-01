@@ -68,8 +68,7 @@ contract('Heritable', function (accounts) {
   });
 
   it('only heir can proclaim death', async function () {
-    const heir = accounts[1];
-    const someRandomAddress = accounts[2]
+    const someRandomAddress = accounts[2];
     await expectThrow(heritable.proclaimDeath({ from: owner }));
     await expectThrow(heritable.proclaimDeath({ from: someRandomAddress }));
   });
@@ -77,7 +76,7 @@ contract('Heritable', function (accounts) {
   it('heir can\'t proclaim death if owner is death', async function () {
     const heir = accounts[1];
     await heritable.setHeir(heir, { from: owner });
-    heritable.proclaimDeath({ from: heir })
+    heritable.proclaimDeath({ from: heir });
     await expectThrow(heritable.proclaimDeath({ from: heir }));
   });
 
@@ -127,10 +126,10 @@ contract('Heritable', function (accounts) {
   });
 
   it('timeOfDeath can be queried', async function () {
-    assert.isTrue(await heritable.timeOfDeath() == 0)
+    assert.isTrue(await heritable.timeOfDeath() === 0);
   });
 
   it('heartbeatTimeout can be queried', async function () {
-    assert.isTrue(await heritable.heartbeatTimeout() == 4141)
+    assert.isTrue(await heritable.heartbeatTimeout() === 4141);
   });
 });
