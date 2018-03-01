@@ -12,6 +12,29 @@ import "../../ECRecovery.sol";
    state channel between two users, once a channel is open the users can exchange
    signatures offchain to agree on the final value of the transfer.
    Uses OpenZeppelin ERC20 and SafeMath lib.
+
+   The channel can be closed in two ways: With and agreement or not.
+
+   - Contract closed with an agreement:
+     Can happen at anytime while the channel is still opened. Two signatures
+     are needed for this, one is the signature of the receiver agreeing to
+     receive a certain value, with the receiver signature the sender can now
+     agree on the value and use sign the receiver signature.
+
+      cooperativeClose(
+       FinalBalance,
+       Receiver.sign(FinalBalance),
+       Sender.sign(SHA3( Receiver.sign(FinalBalance) ))
+      )
+
+   - Contract closed without agreement:
+    This can happen only in behalf of the sender, and it has a time to be
+     "challenged" by the receiver. The sender and receiver exchange signatures
+     of a final value to be transfered but they reach a point where they dont
+     agree on the final value. The sender can ask to close the channel with a
+     final value, if the challenge time passes and the channel does not receive
+     a cooperativeClose request it would be able to be closed by the sender
+     transfering the final value requested.
  */
 contract ERC20Channel is Ownable {
   using SafeMath for uint256;

@@ -1,5 +1,6 @@
 import latestTime from '../../helpers/latestTime';
 import { increaseTimeTo, duration } from '../../helpers/increaseTime';
+import EVMRevert from '../../helpers/EVMRevert';
 var ethUtils = require('ethereumjs-util');
 
 var BigNumber = web3.BigNumber;
@@ -8,8 +9,6 @@ require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
-
-import EVMRevert from '../../helpers/EVMRevert';
 
 var StandardTokenMock = artifacts.require('StandardTokenMock.sol');
 var ERC20Channel = artifacts.require('ERC20Channel.sol');
@@ -34,7 +33,6 @@ contract('ERC20Channel', function ([_, receiver, sender]) {
     const ecrecovery = await ECRecovery.new();
     ERC20Channel.link('ECRecovery', ecrecovery.address);
     token = await StandardTokenMock.new(sender, 100);
-
   });
 
   it('create channel', async function () {
@@ -125,5 +123,4 @@ contract('ERC20Channel', function ([_, receiver, sender]) {
     (await token.balanceOf(receiver)).should.be.bignumber
       .equal(20);
   });
-
 });
