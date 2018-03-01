@@ -2,8 +2,8 @@ pragma solidity ^0.4.20;
 
 /// @title ERC-721 Non-Fungible Token Standard
 /// @dev See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
-///  Note: the ERC-165 identifier for this interface is 0xTODO_FILL_IN
-interface ERC721 /* is ERC165 */ {
+///  Note: the ERC-165 identifier for this interface is 0x6466353c
+interface ERC721 /* is ERC165  */ {
     /// @dev This emits when ownership of any NFT changes by any mechanism.
     ///  This event emits when NFTs are created (`from` == 0) and destroyed
     ///  (`to` == 0). Exception: during contract creation, any number of NFTs
@@ -35,6 +35,28 @@ interface ERC721 /* is ERC165 */ {
     /// @return The address of the owner of the NFT
     function ownerOf(uint256 _tokenId) external view returns (address);
 
+    /// @notice Transfers the ownership of an NFT from one address to another address
+    /// @dev Throws unless `msg.sender` is the current owner, an authorized
+    ///  operator, or the approved address for this NFT. Throws if `_from` is
+    ///  not the current owner. Throws if `_to` is the zero address. Throws if
+    ///  `_tokenId` is not a valid NFT. When transfer is complete, this function
+    ///  checks if `_to` is a smart contract (code size > 0). If so, it calls
+    ///  `onERC721Received` on `_to` and throws if the return value is not
+    ///  `bytes4(keccak256("onERC721Received(address,uint256,bytes)"))`.
+    /// @param _from The current owner of the NFT
+    /// @param _to The new owner
+    /// @param _tokenId The NFT to transfer
+    /// @param data Additional data with no specified format, sent in call to `_to`
+    function safeTransferFrom(address _from, address _to, uint256 _tokenId, bytes data) external payable;
+	
+    /// @notice Transfers the ownership of an NFT from one address to another address
+    /// @dev This works identically to the other function with an extra data parameter,
+    ///  except this function just sets data to []
+    /// @param _from The current owner of the NFT
+    /// @param _to The new owner
+    /// @param _tokenId The NFT to transfer
+    function safeTransferFrom(address _from, address _to, uint256 _tokenId) external payable;
+
     /// @notice Transfer ownership of an NFT -- THE CALLER IS RESPONSIBLE
     ///  TO CONFIRM THAT `_to` IS CAPABLE OF RECEIVING NFTS OR ELSE
     ///  THEY MAY BE PERMANENTLY LOST
@@ -42,28 +64,6 @@ interface ERC721 /* is ERC165 */ {
     ///  operator, or the approved address for this NFT. Throws if `_from` is
     ///  not the current owner. Throws if `_to` is the zero address. Throws if
     ///  `_tokenId` is not a valid NFT.
-    /// @param _from The current owner of the NFT
-    /// @param _to The new owner
-    /// @param _tokenId The NFT to transfer
-    function unsafeTransfer(address _from, address _to, uint256 _tokenId) external payable;
-
-    /// @notice Transfers the ownership of an NFT from one address to another address
-    /// @dev Throws unless `msg.sender` is the current owner, an authorized
-    ///  operator, or the approved address for this NFT. Throws if `_from` is
-    ///  not the current owner. Throws if `_to` is the zero address. Throws if
-    ///  `_tokenId` is not a valid NFT. When transfer is complete, this function
-    ///  checks if `_to` is a smart contract (code size > 0). If so, it calls
-    ///  `onNFTReceived` on `_to` and throws if the return value is not
-    ///  `bytes4(keccak256("onNFTReceived(address,uint256,bytes)"))`.
-    /// @param _from The current owner of the NFT
-    /// @param _to The new owner
-    /// @param _tokenId The NFT to transfer
-    /// @param data Additional data with no specified format, sent in call to `_to`
-    function transferFrom(address _from, address _to, uint256 _tokenId, bytes[] data) external payable;
-	
-    /// @notice Transfers the ownership of an NFT from one address to another address
-    /// @dev This works identically to the other function with an extra data parameter,
-    ///  except this function just sets data to []
     /// @param _from The current owner of the NFT
     /// @param _to The new owner
     /// @param _tokenId The NFT to transfer
@@ -88,13 +88,13 @@ interface ERC721 /* is ERC165 */ {
     /// @dev Throws if `_tokenId` is not a valid NFT
     /// @param _tokenId The NFT to find the approved address for
     /// @return The approved address for this NFT, or the zero address if there is none
-    function getApproved(uint256 _tokenId) returns (address);
+    function getApproved(uint256 _tokenId) external returns (address);
 
     /// @notice Query if an address is an authorized operator for another address
     /// @param _owner The address that owns the NFTs
     /// @param _operator The address that acts on behalf of the owner
     /// @return True if `_operator` is an approved operator for `_owner`, false otherwise
-    function isApprovedForAll(address _owner, address _operator) returns (bool);
+    function isApprovedForAll(address _owner, address _operator) external view returns (bool);
 }
 
 interface ERC165 {
@@ -107,6 +107,7 @@ interface ERC165 {
     function supportsInterface(bytes4 interfaceID) external view returns (bool);
 }
 
+/// @dev Note: the ERC-165 identifier for this interface is 0xf0b9e5ba
 interface ERC721TokenReceiver {
     /// @notice Handle the receipt of an NFT
     /// @dev The ERC721 smart contract calls this function on the recipient
@@ -117,13 +118,14 @@ interface ERC721TokenReceiver {
     /// @param _from The sending address 
     /// @param _tokenId The NFT identifier which is being transfered
     /// @param data Additional data with no specified format
-    /// @return Always returns `keccak256("ERC721_ONNFTRECEIVED")`, unless throwing
-	function onNFTReceived(address _from, uint256 _tokenId, bytes data) external returns(bytes4);
+    /// @return `bytes4(keccak256("onERC721Received(address,uint256,bytes)"))`
+    ///  unless throwing
+	function onERC721Received(address _from, uint256 _tokenId, bytes data) external returns(bytes4);
 }
 
 /// @title ERC-721 Non-Fungible Token Standard, optional metadata extension
 /// @dev See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
-///  Note: the ERC-165 identifier for this interface is 0xTODO_ADD_THIS
+///  Note: the ERC-165 identifier for this interface is 0x5b5e139f
 interface ERC721Metadata /* is ERC721 */ {
     /// @notice A descriptive name for a collection of NFTs in this contract
     function name() external pure returns (string _name);
@@ -140,7 +142,7 @@ interface ERC721Metadata /* is ERC721 */ {
 
 /// @title ERC-721 Non-Fungible Token Standard, optional enumeration extension
 /// @dev See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
-///  Note: the ERC-165 identifier for this interface is 0xTODO_ADD_THIS
+///  Note: the ERC-165 identifier for this interface is 0x780e9d63
 interface ERC721Enumerable /* is ERC721 */ {
     /// @notice Count NFTs tracked by this contract
     /// @return A count of valid NFTs tracked by this contract, where each one of
@@ -153,16 +155,6 @@ interface ERC721Enumerable /* is ERC721 */ {
     /// @return The token identifier for the `_index`th NFT,
     ///  (sort order not specified)
     function tokenByIndex(uint256 _index) external view returns (uint256);
-
-    /// @notice Count of owners which own at least one NFT
-    /// @return A count of the number of owners which own NFTs
-    function countOfOwners() external view returns (uint256);
-
-    /// @notice Enumerate owners which own at least one NFT
-    /// @dev Throws if `_index` >= `countOfOwners()`
-    /// @param _index A counter less than `countOfOwners()`
-    /// @return The address of the `_index`th owner (sort order not specified)
-    function ownerByIndex(uint256 _index) external view returns (address);
 
     /// @notice Enumerate NFTs assigned to an owner
     /// @dev Throws if `_index` >= `balanceOf(_owner)` or if
