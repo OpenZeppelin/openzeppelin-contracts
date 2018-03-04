@@ -57,7 +57,7 @@ contract ERC20Channel is Ownable {
   // The closing balance requested by the sender
   uint256 public closingBalance;
 
-  // The timestamp of when the channel can ble closed by the sender
+  // The timestamp of when the channel can be closed by the sender
   uint256 public closeTime;
 
   /**
@@ -65,7 +65,7 @@ contract ERC20Channel is Ownable {
    * @param tokenAddress address, the address of the ERC20 token that will be used
    * @param _receiver address, the address of the receiver
    * @param _challengeTime uint256, the time that a channel has before ends
-    with and uncoopertive close
+    with an uncooperative close
    */
   function ERC20Channel(address tokenAddress, address _receiver, uint256 _challengeTime) public {
     require(tokenAddress != address(0));
@@ -88,10 +88,10 @@ contract ERC20Channel is Ownable {
    * @param balance uint256, the final balance of the receiver
    */
   function uncooperativeClose(uint256 balance) external onlyOwner {
-    // Check that the closing request dont exist
+    // Check that the closing request doesn't exist
     require(closeTime == 0);
 
-    // Check that the balance is less or equal of the token balance
+    // Check that the balance is less or equal to the token balance
     require(balance <= token.balanceOf(address(this)));
 
     // Mark channel as closed and create closing request
