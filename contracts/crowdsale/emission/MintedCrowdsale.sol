@@ -11,7 +11,7 @@ import "../../token/ERC20/MintableToken.sol";
  */
 contract MintedCrowdsale is Crowdsale {
 
-  /**
+ /**
   * @dev Overrides delivery by minting tokens upon purchase.
   * @param _beneficiary Token purchaser
   * @param _tokenAmount Number of tokens to be minted
