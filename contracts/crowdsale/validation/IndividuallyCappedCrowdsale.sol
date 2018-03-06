@@ -1,4 +1,4 @@
-pragma solidity ^ 0.4.18;
+pragma solidity ^0.4.18;
 
 import "../../math/SafeMath.sol";
 import "../Crowdsale.sol";
@@ -36,7 +36,7 @@ contract IndividuallyCappedCrowdsale is Crowdsale, Ownable {
   }
 
   /**
-   * @dev Returns the cap of a specific user. 
+   * @dev Returns the cap of a specific user.
    * @param _beneficiary Address whose cap is to be checked
    * @return Current cap for individual user
    */
