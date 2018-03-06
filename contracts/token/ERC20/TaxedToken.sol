@@ -20,20 +20,13 @@ contract TaxedToken is BasicToken {
    * @param _value The number of tokens to transfer.
    */
   function transfer(address _to, uint256 _value) public returns (bool) {
-    require(_to != address(0));
-    require(_value <= balances[msg.sender]);
     require(_value % (uint256(10) ** decimals) == 0);
-
-    balances[msg.sender] = balances[msg.sender].sub(_value);
 
     uint256 fee = Math.min256(_value.mul(transferFeePercentage).div(100), maxTransferFee);
     uint256 taxedValue = _value.sub(fee);
 
-    balances[_to] = balances[_to].add(taxedValue);
-    Transfer(msg.sender, _to, taxedValue);
-
-    balances[feeAccount] = balances[feeAccount].add(fee);
-    Transfer(msg.sender, feeAccount, fee);
+    require(super.transfer(feeAccount, fee));
+    require(super.transfer(_to, taxedValue));
 
     return true;
   }

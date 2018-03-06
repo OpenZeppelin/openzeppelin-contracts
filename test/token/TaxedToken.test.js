@@ -15,6 +15,9 @@ contract('TaxedToken', function ([owner, recipient, feeAccount]) {
 
         it('reverts', async function () {
           await assertRevert(this.token.transfer(to, amount, { from: owner }));
+
+          const ownerBalance = await this.token.balanceOf(owner);
+          assert.equal(ownerBalance, 1000);
         });
       });
 
@@ -40,13 +43,13 @@ contract('TaxedToken', function ([owner, recipient, feeAccount]) {
           assert.equal(logs.length, 2);
           assert.equal(logs[0].event, 'Transfer');
           assert.equal(logs[0].args.from, owner);
-          assert.equal(logs[0].args.to, to);
-          assert(logs[0].args.value.eq(99));
+          assert.equal(logs[0].args.to, feeAccount);
+          assert(logs[0].args.value.eq(1));
 
           assert.equal(logs[1].event, 'Transfer');
           assert.equal(logs[1].args.from, owner);
-          assert.equal(logs[1].args.to, feeAccount);
-          assert(logs[1].args.value.eq(1));
+          assert.equal(logs[1].args.to, to);
+          assert(logs[1].args.value.eq(99));
         });
 
         it('reverts if not evenly divisible', async function () {
