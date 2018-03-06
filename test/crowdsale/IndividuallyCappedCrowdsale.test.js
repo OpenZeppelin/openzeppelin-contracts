@@ -25,7 +25,7 @@ contract('IndividuallyCappedCrowdsale', function ([_, wallet, alice, bob, charli
       this.crowdsale = await CappedCrowdsale.new(rate, wallet, this.token.address);
       this.crowdsale.setUserCap(alice, capAlice);
       this.crowdsale.setUserCap(bob, capBob);
-      this.token.transfer(this.crowdsale.address, tokenSupply);
+      await this.token.transfer(this.crowdsale.address, tokenSupply);
     });
 
     describe('accepting payments', function () {
@@ -73,7 +73,7 @@ contract('IndividuallyCappedCrowdsale', function ([_, wallet, alice, bob, charli
       this.token = await SimpleToken.new();
       this.crowdsale = await CappedCrowdsale.new(rate, wallet, this.token.address);
       this.crowdsale.setGroupCap([bob, charlie], capBob);
-      this.token.transfer(this.crowdsale.address, tokenSupply);
+      await this.token.transfer(this.crowdsale.address, tokenSupply);
     });
 
     describe('accepting payments', function () {
