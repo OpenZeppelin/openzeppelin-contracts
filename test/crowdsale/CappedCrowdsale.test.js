@@ -20,7 +20,7 @@ contract('CappedCrowdsale', function ([_, wallet]) {
   beforeEach(async function () {
     this.token = await SimpleToken.new();
     this.crowdsale = await CappedCrowdsale.new(rate, wallet, this.token.address, cap);
-    this.token.transfer(this.crowdsale.address, tokenSupply);
+    await this.token.transfer(this.crowdsale.address, tokenSupply);
   });
 
   describe('creating a valid crowdsale', function () {
