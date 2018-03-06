@@ -208,8 +208,9 @@ contract ERC721Token is ERC721 {
 
     ownedTokens[_from].length--;
     ownedTokensIndex[_tokenId] = 0;
-    if (tokenIndex != lastTokenIndex)
+    if (tokenIndex != lastTokenIndex) {
       ownedTokensIndex[lastToken] = tokenIndex;
+    }
     totalTokens = totalTokens.sub(1);
   }
 }
