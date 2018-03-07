@@ -1,11 +1,32 @@
 
 let sendReward = function (sender, receiver, value) {
-  web3.eth.sendTransaction({
-    from: sender,
-    to: receiver,
-    value: value,
+  return new Promise(function (accept, reject) {
+    web3.eth.sendTransaction({
+      from: sender,
+      to: receiver,
+      value: value,
+    }, function (err, result) {
+      if (err) {
+        reject(err);
+      } else {
+        accept(result)
+      }
+    });
   });
 };
+
+let getBalance = function (address) {
+  return new Promise(function (accept, reject) {
+    web3.eth.getBalance(address, function (err, result) {
+      if (err) {
+        reject(err);
+      } else {
+        accept(result);
+      }
+    })
+  });
+}
+
 var SecureTargetBounty = artifacts.require('SecureTargetBounty');
 var InsecureTargetBounty = artifacts.require('InsecureTargetBounty');
 
@@ -24,21 +45,21 @@ contract('Bounty', function (accounts) {
     let owner = accounts[0];
     let reward = web3.toWei(1, 'ether');
     let bounty = await SecureTargetBounty.new();
-    sendReward(owner, bounty.address, reward);
+    await sendReward(owner, bounty.address, reward);
 
-    assert.equal(reward, web3.eth.getBalance(bounty.address).toNumber());
+    assert.equal(reward, (await getBalance(bounty.address)).toNumber());
   });
 
   it('empties itself when destroyed', async function () {
     let owner = accounts[0];
     let reward = web3.toWei(1, 'ether');
     let bounty = await SecureTargetBounty.new();
-    sendReward(owner, bounty.address, reward);
+    await sendReward(owner, bounty.address, reward);
 
-    assert.equal(reward, web3.eth.getBalance(bounty.address).toNumber());
+    assert.equal(reward, (await getBalance(bounty.address)).toNumber());
 
     await bounty.destroy();
-    assert.equal(0, web3.eth.getBalance(bounty.address).toNumber());
+    assert.equal(0, (await getBalance(bounty.address)).toNumber());
   });
 
   describe('Against secure contract', function () {
@@ -54,10 +75,10 @@ contract('Bounty', function (accounts) {
         if (err) { throw err; }
 
         var targetAddress = result.args.createdAddress;
-        sendReward(owner, bounty.address, reward);
+        await sendReward(owner, bounty.address, reward);
 
         assert.equal(reward,
-          web3.eth.getBalance(bounty.address).toNumber());
+          (await getBalance(bounty.address)).toNumber());
 
         try {
           await bounty.claim(targetAddress, { from: researcher });
@@ -71,7 +92,7 @@ contract('Bounty', function (accounts) {
           assert.isTrue(false); // should never reach here
         } catch (err) {
           assert.equal(reward,
-            web3.eth.getBalance(bounty.address).toNumber());
+            (await getBalance(bounty.address)).toNumber());
         }
       };
       await bounty.createTarget({ from: researcher });
@@ -91,9 +112,9 @@ contract('Bounty', function (accounts) {
         event.stopWatching();
         if (err) { throw err; }
         let targetAddress = result.args.createdAddress;
-        sendReward(owner, bounty.address, reward);
+        await sendReward(owner, bounty.address, reward);
 
-        assert.equal(reward, web3.eth.getBalance(bounty.address).toNumber());
+        assert.equal(reward, (await getBalance(bounty.address)).toNumber());
 
         await bounty.claim(targetAddress, { from: researcher });
         let claim = await bounty.claimed.call();
@@ -102,7 +123,7 @@ contract('Bounty', function (accounts) {
 
         await bounty.withdrawPayments({ from: researcher });
 
-        assert.equal(0, web3.eth.getBalance(bounty.address).toNumber());
+        assert.equal(0, (await getBalance(bounty.address)).toNumber());
       };
       await bounty.createTarget({ from: researcher });
       await awaitEvent(event, watcher);
