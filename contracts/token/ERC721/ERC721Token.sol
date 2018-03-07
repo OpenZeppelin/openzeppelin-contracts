@@ -1,7 +1,8 @@
 pragma solidity ^0.4.18;
 
 import "./ERC721.sol";
-import "./BaseERC721Token.sol";
+import "./DeprecatedERC721.sol";
+import "./ERC721BasicToken.sol";
 
 
 /**
@@ -10,22 +11,34 @@ import "./BaseERC721Token.sol";
  * Moreover, it includes approve all functionality using operatable terminology
  * @dev see https://github.com/ethereum/eips/issues/721 and https://github.com/ethereum/EIPs/pull/841
  */
-contract ERC721Token is ERC721, BaseERC721Token {
+contract ERC721Token is ERC721, ERC721BasicToken {
   // Token name
-  string private _name;
+  string internal name_;
 
   // Token symbol
-  string private _symbol;
+  string internal symbol_;
 
-  // Mapping from owner to operator approvals
-  mapping (address => mapping (address => bool)) private operatorApprovals;
+  // Mapping from owner to list of owned token IDs
+  mapping (address => uint256[]) internal ownedTokens;
+
+  // Mapping from token ID to index of the owner tokens list
+  mapping(uint256 => uint256) internal ownedTokensIndex;
 
   /**
   * @dev Constructor function
   */
-  function ERC721Token(string name, string symbol) public {
-    _name = name;
-    _symbol = symbol;
+  function ERC721Token(string _name, string _symbol) public {
+    name_ = _name;
+    symbol_ = _symbol;
+  }
+
+  /**
+  * @dev Gets the balance of the specified address
+  * @param _owner address to query the balance of
+  * @return uint256 representing the amount owned by the passed address
+  */
+  function balanceOf(address _owner) public view returns (uint256) {
+    return ownedTokens[_owner].length;
   }
 
   /**
@@ -33,7 +46,7 @@ contract ERC721Token is ERC721, BaseERC721Token {
   * @return string representing the token name
   */
   function name() public view returns (string) {
-    return _name;
+    return name_;
   }
 
   /**
@@ -41,7 +54,7 @@ contract ERC721Token is ERC721, BaseERC721Token {
   * @return string representing the token symbol
   */
   function symbol() public view returns (string) {
-    return _symbol;
+    return symbol_;
   }
 
   /**
@@ -52,48 +65,52 @@ contract ERC721Token is ERC721, BaseERC721Token {
   */
   function tokenOfOwnerByIndex(address _owner, uint256 _index) public view returns (uint256) {
     require(_index < balanceOf(_owner));
-    return tokensOf(_owner)[_index];
+    return ownedTokens[_owner][_index];
   }
 
   /**
-  * @dev Claims the ownership of a given token ID for a given recipient
-  * @param _to address which you want to transfer the token to
-  * @param _tokenId uint256 ID of the token being claimed by the msg.sender
+  * @dev Gets the total amount of tokens stored by the contract
+  * @return uint256 representing the total amount of tokens
   */
-  function takeOwnershipFor(address _to, uint256 _tokenId) public {
-    require(isApprovedFor(msg.sender, _tokenId));
-    clearApprovalAndTransfer(ownerOf(_tokenId), _to, _tokenId);
+  function totalSupply() public view returns (uint256) {
+    return totalTokens;
   }
 
   /**
-  * @dev Sets the approval of a given operator
-  * @param _to operator address to set the approval
-  * @param _approved representing the status of the approval to be set
+  * @dev Internal function to add a token ID to the list of a given address
+  * @param _to address representing the new owner of the given token ID
+  * @param _tokenId uint256 ID of the token to be added to the tokens list of the given address
   */
-  function setOperatorApproval(address _to, bool _approved) public {
-    require(_to != msg.sender);
-    operatorApprovals[msg.sender][_to] = _approved;
-    OperatorApproval(msg.sender, _to, _approved);
+  function addToken(address _to, uint256 _tokenId) internal {
+    require(tokenOwner[_tokenId] == address(0));
+    tokenOwner[_tokenId] = _to;
+    uint256 length = balanceOf(_to);
+    ownedTokens[_to].push(_tokenId);
+    ownedTokensIndex[_tokenId] = length;
   }
 
   /**
-   * @dev Tells whether an operator is approved by a given owner
-   * @param _owner owner address which you want to query the approval of
-   * @param _operator operator address which you want to query the approval of
-   * @return bool whether the given operator is approved by the given owner
-   */
-  function isOperatorApprovedFor(address _owner, address _operator) public view returns (bool) {
-    return operatorApprovals[_owner][_operator];
+  * @dev Internal function to remove a token ID from the list of a given address
+  * @param _from address representing the previous owner of the given token ID
+  * @param _tokenId uint256 ID of the token to be removed from the tokens list of the given address
+  */
+  function removeToken(address _from, uint256 _tokenId) internal {
+    require(ownerOf(_tokenId) == _from);
+
+    uint256 tokenIndex = ownedTokensIndex[_tokenId];
+    uint256 lastTokenIndex = balanceOf(_from).sub(1);
+    uint256 lastToken = ownedTokens[_from][lastTokenIndex];
+
+    tokenOwner[_tokenId] = 0;
+    ownedTokens[_from][tokenIndex] = lastToken;
+    ownedTokens[_from][lastTokenIndex] = 0;
+    // Note that this will handle single-element arrays. In that case, both tokenIndex and lastTokenIndex are going to
+    // be zero. Then we can make sure that we will remove _tokenId from the ownedTokens list since we are first swapping
+    // the lastToken to the first position, and then dropping the element placed in the last position of the list
+
+    ownedTokens[_from].length--;
+    ownedTokensIndex[_tokenId] = 0;
+    ownedTokensIndex[lastToken] = tokenIndex;
   }
 
-  /**
-   * @dev Tells whether the given spender is approved for the given token ID or
-   * if the given owner is an operator approved by the owner of the token
-   * @param _spender address of the spender to query the approval of
-   * @param _tokenId uint256 ID of the token to query the approval of
-   * @return bool whether the msg.sender is approved for the given token ID or not
-   */
-  function isApprovedFor(address _spender, uint256 _tokenId) internal view returns (bool) {
-    return super.isApprovedFor(_spender, _tokenId) || isOperatorApprovedFor(ownerOf(_tokenId), _spender);
-  }
 }
