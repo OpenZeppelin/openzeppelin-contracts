@@ -21,7 +21,7 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
   const CAP = ether(20);
 
   before(async function () {
-    // Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
+    // Advance to the next block to correctly read time in the solidity "now" function interpreted by ganache
     await advanceBlock();
   });
 

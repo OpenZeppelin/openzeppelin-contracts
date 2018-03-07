@@ -11,7 +11,7 @@ contract('ECRecovery', function (accounts) {
   });
 
   it('recover v0', async function () {
-    // Signature generated outside testrpc with method web3.eth.sign(signer, message)
+    // Signature generated outside ganache with method web3.eth.sign(signer, message)
     let signer = '0x2cc1166f6212628a0deef2b33befb2187d35b86c';
     let message = web3.sha3(TEST_MESSAGE);
     // eslint-disable-next-line max-len
@@ -21,7 +21,7 @@ contract('ECRecovery', function (accounts) {
   });
 
   it('recover v1', async function () {
-    // Signature generated outside testrpc with method web3.eth.sign(signer, message)
+    // Signature generated outside ganache with method web3.eth.sign(signer, message)
     let signer = '0x1e318623ab09fe6de3c9b8672098464aeda9100e';
     let message = web3.sha3(TEST_MESSAGE);
     // eslint-disable-next-line max-len
