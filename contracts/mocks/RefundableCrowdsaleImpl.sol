@@ -1,20 +1,21 @@
 pragma solidity ^0.4.18;
 
-
-import "../crowdsale/RefundableCrowdsale.sol";
-
+import "../token/ERC20/MintableToken.sol";
+import "../crowdsale/distribution/RefundableCrowdsale.sol";
 
 contract RefundableCrowdsaleImpl is RefundableCrowdsale {
 
   function RefundableCrowdsaleImpl (
-    uint256 _startTime,
-    uint256 _endTime,
+    uint256 _openingTime,
+    uint256 _closingTime,
     uint256 _rate,
     address _wallet,
-    uint256 _goal,
-    MintableToken _token
-  ) public
-    Crowdsale(_startTime, _endTime, _rate, _wallet, _token)
+    MintableToken _token,
+    uint256 _goal
+  ) 
+    public
+    Crowdsale(_rate, _wallet, _token)
+    TimedCrowdsale(_openingTime, _closingTime)
     RefundableCrowdsale(_goal)
   {
   }

@@ -34,7 +34,7 @@ contract('ERC827 Token', function (accounts) {
   });
 
   it('should return the correct allowance amount after approval', async function () {
-    let token = await ERC827TokenMock.new();
+    let token = await ERC827TokenMock.new(accounts[0], 100);
     await token.approve(accounts[1], 100);
     let allowance = await token.allowance(accounts[0], accounts[1]);
 
