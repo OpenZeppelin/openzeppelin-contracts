@@ -195,13 +195,12 @@ contract ERC721BasicToken is ERC721Basic {
     require(_from != address(0));
     require(_to != address(0));
     require(_to != ownerOf(_tokenId));
-    require(ownerOf(_tokenId) == _from);
 
     clearApproval(_from, _tokenId);
     removeToken(_from, _tokenId);
     addToken(_to, _tokenId);
     
-    require(!_safe || checkSafeTransfer(_from, _to, _tokenId, _data));
+    require(!_safe || checkAndCallSafeTransfer(_from, _to, _tokenId, _data));
 
     Transfer(_from, _to, _tokenId);
   }
@@ -240,7 +239,7 @@ contract ERC721BasicToken is ERC721Basic {
     tokenOwner[_tokenId] = 0;
   }
 
-  function checkSafeTransfer(address _from, address _to, uint256 _tokenId, bytes _data) internal returns (bool) {
+  function checkAndCallSafeTransfer(address _from, address _to, uint256 _tokenId, bytes _data) internal returns (bool) {
     return !_to.isContract() ||
       (ERC721Receiver(_to).onERC721Received.gas(SAFE_TRANSFER_GAS_STIPEND)(_from, _tokenId, _data) == ERC721_RECEIVED);
   }
