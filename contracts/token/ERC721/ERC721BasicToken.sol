@@ -177,9 +177,7 @@ contract ERC721BasicToken is ERC721Basic {
   * @param _tokenId uint256 ID of the token being burned by the msg.sender
   */
   function doBurn(uint256 _tokenId) onlyOwnerOf(_tokenId) internal {
-    if (getApproved(_tokenId) != 0) {
-      clearApproval(msg.sender, _tokenId);
-    }
+    clearApproval(msg.sender, _tokenId);
     removeToken(msg.sender, _tokenId);
     totalTokens = totalTokens.sub(1);
     Transfer(msg.sender, 0x0, _tokenId);
@@ -214,8 +212,10 @@ contract ERC721BasicToken is ERC721Basic {
   */
   function clearApproval(address _owner, uint256 _tokenId) internal {
     require(ownerOf(_tokenId) == _owner);
-    tokenApprovals[_tokenId] = 0;
-    Approval(_owner, 0, _tokenId);
+    if (tokenApprovals[_tokenId] != 0) {
+      tokenApprovals[_tokenId] = 0;
+      Approval(_owner, 0, _tokenId);
+    }
   }
 
   /**

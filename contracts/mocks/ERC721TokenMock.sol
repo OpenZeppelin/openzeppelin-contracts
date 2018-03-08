@@ -20,13 +20,20 @@ contract ERC721TokenMock is ERC721Token, ERC721BasicTokenMock {
   function tokenURI(uint256 _tokenId) public view returns (string) {
     require(exists(_tokenId));
     
-    bytes memory uri = new bytes(78);
+    bytes memory uri = new bytes(78 + 7);
     
     uint256 i;
     uint256 value = _tokenId;
     
+    uri[0] = "m";
+    uri[1] = "o";
+    uri[2] = "c";
+    uri[3] = "k";
+    uri[4] = ":";
+    uri[5] = "/";
+    uri[6] = "/";
     for (i = 0; i < 78; i++) {
-      uri[7 + 78 - i] = byte(value % 10 + 48);
+      uri[6 + 78 - i] = byte(value % 10 + 48);
       value = value / 10;
     }
 
