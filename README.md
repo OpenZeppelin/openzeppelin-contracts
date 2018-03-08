@@ -12,17 +12,46 @@ With OpenZeppelin, you can build distributed applications, protocols and organiz
 > NOTE: New to smart contract development? Check our [introductory guide](https://medium.com/zeppelin-blog/the-hitchhikers-guide-to-smart-contracts-in-ethereum-848f08001f05#.cox40d2ut).
 
 ## Getting Started
+### Requirements
+- Global Truffle
+- Global Ganache-CLI 
+- Local Zeppelin-Solidity
 
+### Global Truffle installation
 OpenZeppelin integrates with [Truffle](https://github.com/ConsenSys/truffle), an Ethereum development environment. Please install Truffle and initialize your project with `truffle init`.
 
-```sh
+```bash
 npm install -g truffle
 mkdir myproject && cd myproject
 truffle init
 ```
 
+Truffle can be used together with [Ganache]() to speed up testing. More info [here](http://truffleframework.com/docs/ganache/using).
+
+![](http://truffleframework.com/docs/ganache/images/ganache-logo.png)
+
+#### Global Ganache-CLI installation
+Please make sure Ganache-CLI is installed globally. If not, please install it as follows:
+
+```bash
+npm install -g ganache-cli
+```
+
+#### To start Ganache-CLI
+
+```bash
+npm run ganache
+```
+
+#### To test migration to ganache
+From a separate command shell than the one used to run ganache, start migration by: 
+```bash
+truffle migrate --network ganache
+```
+
+### Open Zeppelin installation
 To install the OpenZeppelin library, run the following in your Solidity project root directory:
-```sh
+```bash
 npm init -y
 npm install -E zeppelin-solidity
 ```
@@ -31,7 +60,7 @@ npm install -E zeppelin-solidity
 
 After that, you'll get all the library's contracts in the `node_modules/zeppelin-solidity/contracts` folder. You can use the contracts in the library like so:
 
-```js
+```javascript
 import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
 
 contract MyContract is Ownable {
