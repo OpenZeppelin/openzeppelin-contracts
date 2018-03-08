@@ -6,8 +6,8 @@ import "./Ownable.sol";
 
 /**
  * @title Whitelist
- * @dev The Whitelist contract has a whitelist of addresses, and provides basic authorization control
- * functions, this simplifies the implementation of "user permissions".
+ * @dev The Whitelist contract has a whitelist of addresses, and provides basic authorization control functions.
+ * @dev This simplifies the implementation of "user permissions".
  */
 contract Whitelist is Ownable {
   mapping(address => bool) public whitelist;
