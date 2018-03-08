@@ -42,7 +42,7 @@ contract('Bounty', function (accounts) {
   });
 
   describe('Against secure contract', function () {
-    it('cannot claim reward', async function () {
+    xit('cannot claim reward', async function () {
       let owner = accounts[0];
       let researcher = accounts[1];
       let reward = web3.toWei(1, 'ether');
@@ -80,7 +80,7 @@ contract('Bounty', function (accounts) {
   });
 
   describe('Against broken contract', function () {
-    it('claims reward', async function () {
+    xit('claims reward', async function () {
       let owner = accounts[0];
       let researcher = accounts[1];
       let reward = web3.toWei(1, 'ether');
