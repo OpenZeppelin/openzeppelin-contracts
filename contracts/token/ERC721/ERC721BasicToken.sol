@@ -6,13 +6,14 @@ import "../../math/SafeMath.sol";
 import "../../AddressUtils.sol";
 
 /**
- * @title ERC721BasicToken
- * Generic implementation for the required functionality of the ERC721 standard
+ * @title ERC721 Non-Fungible Token Standard basic implementation
+ * @dev see https://github.com/ethereum/eips/issues/721
  */
 contract ERC721BasicToken is ERC721Basic {
   using SafeMath for uint256;
   using AddressUtils for address;
 
+  // Gas allowed in calls to onERC721Received on safeTransfers
   uint256 SAFE_TRANSFER_GAS_STIPEND = 50000;
   
   // Equals to bytes4(keccak256("onERC721Received(address,uint256,bytes)"))
@@ -42,6 +43,10 @@ contract ERC721BasicToken is ERC721Basic {
     _;
   }
 
+  /**
+  * @dev Checks msg.sender can transfer a token, by being owner, approved, or operator
+  * @param _tokenId uint256 ID of the token to validate
+  */
   modifier canTransfer(uint256 _tokenId) {
     require(isApprovedOrOwner(msg.sender, _tokenId));
     _;
@@ -67,13 +72,20 @@ contract ERC721BasicToken is ERC721Basic {
     return owner;
   }
 
+  /**
+  * @dev Returns whether the specified token exists
+  * @param _tokenId uint256 ID of the token to query the existance of
+  * @return whether the token exists
+  */
   function exists(uint256 _tokenId) public view returns (bool) {
     address owner = tokenOwner[_tokenId];
     return owner != 0;
   }
 
   /**
-  * @dev Approves another address to claim for the ownership of the given token ID
+  * @dev Approves another address to transfer the given token ID
+  * @dev The zero address indicates there is no approved address.
+  * @dev There can only be one approved address per token at a given time.
   * @param _to address to be approved for the given token ID
   * @param _tokenId uint256 ID of the token to be approved
   */
@@ -87,9 +99,9 @@ contract ERC721BasicToken is ERC721Basic {
   }
 
   /**
-   * @dev Gets the approved address to take ownership of a given token ID
+   * @dev Gets the approved address for a token ID, or zero if no address set
    * @param _tokenId uint256 ID of the token to query the approval of
-   * @return address currently approved to take ownership of the given token ID
+   * @return address currently approved for a the given token ID
    */
   function getApproved(uint256 _tokenId) public view returns (address) {
     return tokenApprovals[_tokenId];
@@ -97,7 +109,8 @@ contract ERC721BasicToken is ERC721Basic {
 
 
   /**
-  * @dev Sets the approval of a given operator
+  * @dev Sets or unsets the approval of a given operator
+  * @dev An operator is allowed to transfer all tokens of the sender on their behalf
   * @param _to operator address to set the approval
   * @param _approved representing the status of the approval to be set
   */
@@ -119,6 +132,8 @@ contract ERC721BasicToken is ERC721Basic {
 
   /**
   * @dev Transfers the ownership of a given token ID to another address
+  * @dev Usage of this method is discouraged, use `safeTransferFrom` whenever possible
+  * @dev Requires the msg sender to be the owner, approved, or operator
   * @param _from current owner of the token
   * @param _to address to receive the ownership of the given token ID
   * @param _tokenId uint256 ID of the token to be transferred
@@ -128,7 +143,12 @@ contract ERC721BasicToken is ERC721Basic {
   }
 
   /**
-  * @dev Transfers the ownership of a given token ID to another address
+  * @dev Safely transfers the ownership of a given token ID to another address
+  * @dev If the target address is a contract, it must implement `onERC721Received`,
+  *  which is called upon a safe transfer, and return the magic value
+  *  `bytes4(keccak256("onERC721Received(address,uint256,bytes)"))`; otherwise,
+  *  the transfer is reverted.
+  * @dev Requires the msg sender to be the owner, approved, or operator
   * @param _from current owner of the token
   * @param _to address to receive the ownership of the given token ID
   * @param _tokenId uint256 ID of the token to be transferred
@@ -138,7 +158,12 @@ contract ERC721BasicToken is ERC721Basic {
   }
 
   /**
-  * @dev Transfers the ownership of a given token ID to another address
+  * @dev Safely transfers the ownership of a given token ID to another address
+  * @dev If the target address is a contract, it must implement `onERC721Received`,
+  *  which is called upon a safe transfer, and return the magic value
+  *  `bytes4(keccak256("onERC721Received(address,uint256,bytes)"))`; otherwise,
+  *  the transfer is reverted.
+  * @dev Requires the msg sender to be the owner, approved, or operator
   * @param _from current owner of the token
   * @param _to address to receive the ownership of the given token ID
   * @param _tokenId uint256 ID of the token to be transferred
@@ -149,7 +174,7 @@ contract ERC721BasicToken is ERC721Basic {
   }
 
   /**
-   * @dev Tells whether the given spender can transfer a given token ID
+   * @dev Returns whether the given spender can transfer a given token ID
    * @param _spender address of the spender to query
    * @param _tokenId uint256 ID of the token to be transferred
    * @return bool whether the msg.sender is approved for the given token ID,
@@ -161,7 +186,8 @@ contract ERC721BasicToken is ERC721Basic {
   }
 
   /**
-  * @dev Mint token function
+  * @dev Internal function to mint a new token
+  * @dev Reverts if the given token ID already exists
   * @param _to The address that will own the minted token
   * @param _tokenId uint256 ID of the token to be minted by the msg.sender
   */
@@ -173,7 +199,8 @@ contract ERC721BasicToken is ERC721Basic {
   }
 
   /**
-  * @dev Burns a specific token
+  * @dev Internal function to burn a specific token
+  * @dev Reverts if the token does not exist
   * @param _tokenId uint256 ID of the token being burned by the msg.sender
   */
   function doBurn(uint256 _tokenId) onlyOwnerOf(_tokenId) internal {
@@ -207,6 +234,8 @@ contract ERC721BasicToken is ERC721Basic {
 
   /**
   * @dev Internal function to clear current approval of a given token ID
+  * @dev Reverts if the given address is not indeed the owner of the token
+  * @param _owner owner of the token
   * @param _tokenId uint256 ID of the token to be transferred
   */
   function clearApproval(address _owner, uint256 _tokenId) internal {
@@ -239,6 +268,15 @@ contract ERC721BasicToken is ERC721Basic {
     tokenOwner[_tokenId] = 0;
   }
 
+  /**
+  * @dev Internal function to invoke `onERC721Received` on a target address
+  * @dev The call is not executed if the target address is not a contract
+  * @dev Returns whether the call correctly returned the expected magic value
+  * @param _from address representing the previous owner of the given token ID
+  * @param _to target address that will receive the tokens
+  * @param _tokenId uint256 ID of the token to be transferred
+  * @param _data bytes optional data to send along with the call
+  */
   function checkAndCallSafeTransfer(address _from, address _to, uint256 _tokenId, bytes _data) internal returns (bool) {
     return !_to.isContract() ||
       (ERC721Receiver(_to).onERC721Received.gas(SAFE_TRANSFER_GAS_STIPEND)(_from, _tokenId, _data) == ERC721_RECEIVED);
