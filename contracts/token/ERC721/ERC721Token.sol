@@ -100,7 +100,9 @@ contract ERC721Token is ERC721 {
     if (approvedFor(_tokenId) != 0 || _to != 0) {
       tokenApprovals[_tokenId] = _to;
       Approval(owner, _to, _tokenId);
-    }
+    } else if (_to == 0 && approvedFor(_tokenId) != 0) {
+      clearApproval(owner, _tokenId);
+      }
   }
 
   /**
