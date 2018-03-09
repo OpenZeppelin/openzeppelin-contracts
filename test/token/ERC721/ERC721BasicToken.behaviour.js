@@ -287,6 +287,30 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
       const to = accounts[1];
 
       let logs = null;
+
+      const itClearsApproval = function () {
+        it('clears approval for the token', async function () {
+          const approvedAccount = await this.token.getApproved(tokenId);
+          approvedAccount.should.be.equal(ZERO_ADDRESS);
+        });
+      };
+
+      const itApproves = function (address) {
+        it('sets the approval for the target address', async function () {
+          const approvedAccount = await this.token.getApproved(tokenId);
+          approvedAccount.should.be.equal(address);
+        });
+      };
+
+      const itEmitsApprovalEvent = function (address) {
+        it('emits an approval event', async function () {
+          logs.length.should.be.equal(1);
+          logs[0].event.should.be.eq('Approval');
+          logs[0].args._owner.should.be.equal(sender);
+          logs[0].args._approved.should.be.equal(address);
+          logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
+        });
+      };
       
       describe('when clearing approval', function () {
         describe('when there was no prior approval', function () {
@@ -294,10 +318,7 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
             ({ logs } = await this.token.approve(ZERO_ADDRESS, tokenId, { from: sender }));
           });
 
-          it('clears the approval for that token', async function () {
-            const approvedAccount = await this.token.getApproved(tokenId);
-            approvedAccount.should.be.equal(ZERO_ADDRESS);
-          });
+          itClearsApproval();
 
           it('does not emit an approval event', async function () {
             logs.length.should.be.equal(0);
@@ -310,18 +331,8 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
             ({ logs } = await this.token.approve(ZERO_ADDRESS, tokenId, { from: sender }));
           });
 
-          it('clears the approval for that token', async function () {
-            const approvedAccount = await this.token.getApproved(tokenId);
-            approvedAccount.should.be.equal(ZERO_ADDRESS);
-          });
-
-          it('emits an approval event', async function () {
-            logs.length.should.be.equal(1);
-            logs[0].event.should.be.eq('Approval');
-            logs[0].args._owner.should.be.equal(sender);
-            logs[0].args._approved.should.be.equal(ZERO_ADDRESS);
-            logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
-          });
+          itClearsApproval();
+          itEmitsApprovalEvent(ZERO_ADDRESS);
         });
       });
 
@@ -331,18 +342,8 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
             ({ logs } = await this.token.approve(to, tokenId, { from: sender }));
           });
 
-          it('sets the approval for that token', async function () {
-            const approvedAccount = await this.token.getApproved(tokenId);
-            approvedAccount.should.be.equal(to);
-          });
-
-          it('emits an approval event', async function () {
-            logs.length.should.be.equal(1);
-            logs[0].event.should.be.eq('Approval');
-            logs[0].args._owner.should.be.equal(sender);
-            logs[0].args._approved.should.be.equal(to);
-            logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
-          });
+          itApproves(to);
+          itEmitsApprovalEvent(to);
         });
 
         describe('when there was a prior approval to the same address', function () {
@@ -351,18 +352,8 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
             ({ logs } = await this.token.approve(to, tokenId, { from: sender }));
           });
 
-          it('keeps the approval for that token', async function () {
-            const approvedAccount = await this.token.getApproved(tokenId);
-            approvedAccount.should.be.equal(to);
-          });
-
-          it('emits an approval event', async function () {
-            logs.length.should.be.equal(1);
-            logs[0].event.should.be.eq('Approval');
-            logs[0].args._owner.should.be.equal(sender);
-            logs[0].args._approved.should.be.equal(to);
-            logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
-          });
+          itApproves(to);
+          itEmitsApprovalEvent(to);
         });
 
         describe('when there was a prior approval to a different address', function () {
@@ -371,18 +362,8 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
             ({ logs } = await this.token.approve(to, tokenId, { from: sender }));
           });
 
-          it('sets the approval for that token', async function () {
-            const approvedAccount = await this.token.getApproved(tokenId);
-            approvedAccount.should.be.equal(to);
-          });
-
-          it('emits an approval event', async function () {
-            logs.length.should.be.equal(1);
-            logs[0].event.should.be.eq('Approval');
-            logs[0].args._owner.should.be.equal(sender);
-            logs[0].args._approved.should.be.equal(to);
-            logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
-          });
+          itApproves(to);
+          itEmitsApprovalEvent(to);
         });
       });
 
@@ -403,6 +384,17 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
           await this.token.approve(accounts[2], tokenId, { from: sender });
           await assertRevert(this.token.approve(to, tokenId, { from: accounts[2] }));
         });
+      });
+
+      describe('when the sender is an operator', function () {
+        const operator = accounts[2];
+        beforeEach(async function () {
+          await this.token.setApprovalForAll(operator, true, { from: sender });
+          ({ logs } = await this.token.approve(to, tokenId, { from: operator }));
+        });
+
+        itApproves(to);
+        itEmitsApprovalEvent(to);
       });
 
       describe('when the given token ID does not exist', function () {
