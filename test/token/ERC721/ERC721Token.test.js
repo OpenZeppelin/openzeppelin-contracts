@@ -77,6 +77,8 @@ contract('ERC721Token', function (accounts) {
     });
     
     describe('metadata', function () {
+      const sampleUri = 'mock://mytoken';
+
       it('has a name', async function () {
         const name = await this.token.name();
         name.should.be.equal(name);
@@ -87,10 +89,26 @@ contract('ERC721Token', function (accounts) {
         symbol.should.be.equal(symbol);
       });
 
-      it('returns metadata for a token id', async function () {
+      it('sets and returns metadata for a token id', async function () {
+        await this.token.setTokenURI(firstTokenId, sampleUri);
         const uri = await this.token.tokenURI(firstTokenId);
-        const expected = `mock://${firstTokenId.toString().padStart(78, 0)}`;
-        uri.should.be.equal(expected);
+        uri.should.be.equal(sampleUri);
+      });
+
+      it('can burn token with metadata', async function () {
+        await this.token.setTokenURI(firstTokenId, sampleUri);
+        await this.token.burn(firstTokenId);
+        const exists = await this.token.exists(firstTokenId);
+        exists.should.be.false;
+      });
+
+      it('returns empty metadata for token', async function () {
+        const uri = await this.token.tokenURI(firstTokenId);
+        uri.should.be.equal('');
+      });
+
+      it('reverts when querying metadata for non existant token id', async function () {
+        await assertRevert(this.token.tokenURI(500));
       });
     });
 

@@ -30,6 +30,9 @@ contract ERC721Token is ERC721, ERC721BasicToken {
   // Mapping from token id to position in the allTokens array
   mapping(uint256 => uint256) internal allTokensIndex;
 
+  // Optional mapping for token URIs 
+  mapping(uint256 => string) internal tokenURIs;
+
   /**
   * @dev Constructor function
   */
@@ -61,6 +64,27 @@ contract ERC721Token is ERC721, ERC721BasicToken {
   */
   function symbol() public view returns (string) {
     return symbol_;
+  }
+
+  /**
+  * @dev Returns an URI for a given token ID
+  * @dev Throws if the token ID does not exist. May return an empty string.
+  * @param _tokenId uint256 ID of the token to query
+  */
+  function tokenURI(uint256 _tokenId) public view returns (string) {
+    require(exists(_tokenId));
+    return tokenURIs[_tokenId];
+  }
+
+  /**
+  * @dev Internal function to set the token URI for a given token
+  * @dev Reverts if the token ID does not exist
+  * @param _tokenId uint256 ID of the token to set its URI
+  * @param _uri string URI to assign
+  */
+  function doSetTokenURI(uint256 _tokenId, string _uri) internal {
+    require(exists(_tokenId));
+    tokenURIs[_tokenId] = _uri;
   }
 
   /**
@@ -152,6 +176,12 @@ contract ERC721Token is ERC721, ERC721BasicToken {
   function doBurn(address _owner, uint256 _tokenId) internal {
     super.doBurn(_owner, _tokenId);
 
+    // Clear metadata (if any)
+    if (bytes(tokenURIs[_tokenId]).length == 0) {
+      delete tokenURIs[_tokenId];
+    }
+
+    // Reorg all tokens array
     uint256 tokenIndex = allTokensIndex[_tokenId];
     uint256 lastTokenIndex = allTokens.length.sub(1);
     uint256 lastToken = allTokens[lastTokenIndex];
