@@ -12,9 +12,6 @@ import "../../AddressUtils.sol";
 contract ERC721BasicToken is ERC721Basic {
   using SafeMath for uint256;
   using AddressUtils for address;
-
-  // Gas allowed in calls to onERC721Received on safeTransfers
-  uint256 SAFE_TRANSFER_GAS_STIPEND = 50000;
   
   // Equals to bytes4(keccak256("onERC721Received(address,uint256,bytes)"))
   bytes4 ERC721_RECEIVED = 0xf0b9e5ba; 
@@ -91,7 +88,7 @@ contract ERC721BasicToken is ERC721Basic {
     address owner = ownerOf(_tokenId);
     require(_to != owner);
     require(msg.sender == owner || isApprovedForAll(owner, msg.sender));
-    
+
     if (getApproved(_tokenId) != 0 || _to != 0) {
       tokenApprovals[_tokenId] = _to;
       Approval(owner, _to, _tokenId);
@@ -277,6 +274,6 @@ contract ERC721BasicToken is ERC721Basic {
   */
   function checkAndCallSafeTransfer(address _from, address _to, uint256 _tokenId, bytes _data) internal returns (bool) {
     return !_to.isContract() ||
-      (ERC721Receiver(_to).onERC721Received.gas(SAFE_TRANSFER_GAS_STIPEND)(_from, _tokenId, _data) == ERC721_RECEIVED);
+      (ERC721Receiver(_to).onERC721Received(_from, _tokenId, _data) == ERC721_RECEIVED);
   }
 }

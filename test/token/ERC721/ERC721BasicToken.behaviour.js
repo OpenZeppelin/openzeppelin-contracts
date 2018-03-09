@@ -245,7 +245,6 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
               log.args._address.should.be.equal(owner);
               log.args._tokenId.toNumber().should.be.equal(tokenId);
               log.args._data.should.be.equal(data);
-              log.args._gas.toNumber().should.be.lessThan(50000);
             });
           });
         };
