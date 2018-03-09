@@ -40,13 +40,6 @@ export default function shouldMintAndBurnERC721Token (accounts) {
           balance.should.be.bignumber.equal(1);
         });
 
-        it('adjusts owner tokens by index', async function () {
-          if (!this.token.tokensOfOwnerByIndex) return;
-          
-          const token = await this.tokensOfOwnerByIndex(to, 0);
-          token.should.be.equal(tokenId);
-        });
-
         it('emits a transfer event', async function () {
           logs.length.should.be.equal(1);
           logs[0].event.should.be.eq('Transfer');
@@ -86,13 +79,6 @@ export default function shouldMintAndBurnERC721Token (accounts) {
           balance.should.be.bignumber.equal(1);
         });
 
-        it('removes that token from the token list of the owner', async function () {
-          if (!this.token.tokensOfOwnerByIndex) return;
-          
-          const token = await this.tokensOfOwnerByIndex(sender, 0);
-          token.should.not.be.equal(tokenId);
-        });
-
         it('emits a burn event', async function () {
           logs.length.should.be.equal(1);
           logs[0].event.should.be.eq('Transfer');
@@ -123,12 +109,6 @@ export default function shouldMintAndBurnERC721Token (accounts) {
           logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
 
           logs[1].event.should.be.eq('Transfer');
-        });
-      });
-
-      describe('when the msg.sender does not own given token', function () {
-        it('reverts', async function () {
-          await assertRevert(this.token.burn(tokenId, { from: accounts[1] }));
         });
       });
 

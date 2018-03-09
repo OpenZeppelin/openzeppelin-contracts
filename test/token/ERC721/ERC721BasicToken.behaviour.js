@@ -138,13 +138,13 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
         });
 
         it('adjusts owners tokens by index', async function () {
-          if (!this.token.tokensOfOwnerByIndex) return;
+          if (!this.token.tokenOfOwnerByIndex) return;
 
-          const newOwnerToken = await this.tokensOfOwnerByIndex(this.to, 0);
-          newOwnerToken.should.be.equal(tokenId);
+          const newOwnerToken = await this.token.tokenOfOwnerByIndex(this.to, 0);
+          newOwnerToken.toNumber().should.be.equal(tokenId);
           
-          const previousOwnerToken = await this.tokensOfOwnerByIndex(owner, 0);
-          previousOwnerToken.should.not.be.equal(tokenId);
+          const previousOwnerToken = await this.token.tokenOfOwnerByIndex(owner, 0);
+          previousOwnerToken.toNumber().should.not.be.equal(tokenId);
         });
       };
 

@@ -19,9 +19,6 @@ contract ERC721BasicToken is ERC721Basic {
   // Equals to bytes4(keccak256("onERC721Received(address,uint256,bytes)"))
   bytes4 ERC721_RECEIVED = 0xf0b9e5ba; 
 
-  // Total amount of tokens
-  uint256 internal totalTokens;
-
   // Mapping from token ID to owner
   mapping (uint256 => address) internal tokenOwner;
 
@@ -194,7 +191,6 @@ contract ERC721BasicToken is ERC721Basic {
   function doMint(address _to, uint256 _tokenId) internal {
     require(_to != address(0));
     addToken(_to, _tokenId);
-    totalTokens = totalTokens.add(1);
     Transfer(0x0, _to, _tokenId);
   }
 
@@ -203,11 +199,10 @@ contract ERC721BasicToken is ERC721Basic {
   * @dev Reverts if the token does not exist
   * @param _tokenId uint256 ID of the token being burned by the msg.sender
   */
-  function doBurn(uint256 _tokenId) onlyOwnerOf(_tokenId) internal {
-    clearApproval(msg.sender, _tokenId);
-    removeToken(msg.sender, _tokenId);
-    totalTokens = totalTokens.sub(1);
-    Transfer(msg.sender, 0x0, _tokenId);
+  function doBurn(address _owner, uint256 _tokenId) internal {
+    clearApproval(_owner, _tokenId);
+    removeToken(_owner, _tokenId);
+    Transfer(_owner, 0x0, _tokenId);
   }
 
   /**

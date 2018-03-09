@@ -1,6 +1,5 @@
 pragma solidity ^0.4.18;
 
-import "./ERC721BasicTokenMock.sol";
 import "../token/ERC721/ERC721Token.sol";
 
 /**
@@ -8,12 +7,19 @@ import "../token/ERC721/ERC721Token.sol";
  * This mock just provides a public mint and burn functions for testing purposes,
  * and a mock metadata URI implementation
  */
-contract ERC721TokenMock is ERC721Token, ERC721BasicTokenMock {
+contract ERC721TokenMock is ERC721Token {
   function ERC721TokenMock(string name, string symbol)
-  ERC721BasicTokenMock()
   ERC721Token(name, symbol)
   public
   { }
+
+  function mint(address _to, uint256 _tokenId) public {
+    doMint(_to, _tokenId);
+  }
+
+  function burn(uint256 _tokenId) public {
+    doBurn(ownerOf(_tokenId), _tokenId);
+  }
 
   // Mock implementation for testing.
   // Do not use this code in production!

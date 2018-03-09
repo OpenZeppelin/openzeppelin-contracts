@@ -24,6 +24,12 @@ contract ERC721Token is ERC721, ERC721BasicToken {
   // Mapping from token ID to index of the owner tokens list
   mapping(uint256 => uint256) internal ownedTokensIndex;
 
+  // Array with all token ids, used for enumeration
+  uint256[] internal allTokens;
+
+  // Mapping from token id to position in the allTokens array
+  mapping(uint256 => uint256) internal allTokensIndex;
+
   /**
   * @dev Constructor function
   */
@@ -73,7 +79,18 @@ contract ERC721Token is ERC721, ERC721BasicToken {
   * @return uint256 representing the total amount of tokens
   */
   function totalSupply() public view returns (uint256) {
-    return totalTokens;
+    return allTokens.length;
+  }
+
+  /**
+  * @dev Gets the token ID at a given index of all the tokens in this contract
+  * @dev Reverts if the index is greater or equal to the total number of tokens
+  * @param _index uint256 representing the index to be accessed of the tokens list
+  * @return uint256 token ID at the given index of the tokens list
+  */
+  function tokenByIndex(uint256 _index) public view returns (uint256) {
+    require(_index < totalSupply());
+    return allTokens[_index];
   }
 
   /**
@@ -111,6 +128,40 @@ contract ERC721Token is ERC721, ERC721BasicToken {
     ownedTokens[_from].length--;
     ownedTokensIndex[_tokenId] = 0;
     ownedTokensIndex[lastToken] = tokenIndex;
+  }
+
+  /**
+  * @dev Internal function to mint a new token
+  * @dev Reverts if the given token ID already exists
+  * @param _to address the beneficiary that will own the minted token
+  * @param _tokenId uint256 ID of the token to be minted by the msg.sender
+  */
+  function doMint(address _to, uint256 _tokenId) internal {
+    super.doMint(_to, _tokenId);
+    
+    allTokensIndex[_tokenId] = allTokens.length;
+    allTokens.push(_tokenId);
+  }
+
+  /**
+  * @dev Internal function to burn a specific token
+  * @dev Reverts if the token does not exist
+  * @param _owner owner of the token to burn
+  * @param _tokenId uint256 ID of the token being burned by the msg.sender
+  */
+  function doBurn(address _owner, uint256 _tokenId) internal {
+    super.doBurn(_owner, _tokenId);
+
+    uint256 tokenIndex = allTokensIndex[_tokenId];
+    uint256 lastTokenIndex = allTokens.length.sub(1);
+    uint256 lastToken = allTokens[lastTokenIndex];
+
+    allTokens[tokenIndex] = lastToken;
+    allTokens[lastTokenIndex] = 0;
+
+    allTokens.length--;
+    allTokensIndex[_tokenId] = 0;
+    allTokensIndex[lastToken] = tokenIndex;
   }
 
 }

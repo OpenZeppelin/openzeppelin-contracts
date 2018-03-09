@@ -12,6 +12,6 @@ contract ERC721BasicTokenMock is ERC721BasicToken {
   }
 
   function burn(uint256 _tokenId) public {
-    super.doBurn(_tokenId);
+    super.doBurn(ownerOf(_tokenId), _tokenId);
   }
 }
