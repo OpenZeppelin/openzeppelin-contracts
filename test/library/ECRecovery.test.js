@@ -1,7 +1,6 @@
 var ECRecoveryMock = artifacts.require('ECRecoveryMock');
 var ECRecoveryLib = artifacts.require('ECRecovery');
 
-
 contract('ECRecovery', function (accounts) {
   let ecrecovery;
   const TEST_MESSAGE = 'OpenZeppelin';
