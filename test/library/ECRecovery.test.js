@@ -38,7 +38,7 @@ contract('ECRecovery', function (accounts) {
     const signature = web3.eth.sign(accounts[0], web3.sha3(TEST_MESSAGE));
 
     // Recover the signer address from the generated message and signature.
-    await ecrecovery.recover(hashMessage(TEST_MESSAGE), signature);
+    await ecrecovery.recover(web3.sha3(TEST_MESSAGE), signature);
     assert.equal(accounts[0], await ecrecovery.addrRecovered());
   });
 
@@ -47,7 +47,7 @@ contract('ECRecovery', function (accounts) {
     const signature = web3.eth.sign(accounts[0], web3.sha3(TEST_MESSAGE));
 
     // Recover the signer address from the generated message and wrong signature.
-    await ecrecovery.recover(hashMessage('Test'), signature);
+    await ecrecovery.recover(web3.sha3('Test'), signature);
     assert.notEqual(accounts[0], await ecrecovery.addrRecovered());
   });
 
@@ -56,7 +56,7 @@ contract('ECRecovery', function (accounts) {
     let signature = web3.eth.sign(accounts[0], web3.sha3(TEST_MESSAGE));
 
     // Recover the signer address from the generated message and wrong signature.
-    await ecrecovery.recover(hashMessage(TEST_MESSAGE).substring(2), signature);
+    await ecrecovery.recover(web3.sha3(TEST_MESSAGE).substring(2), signature);
     assert.equal('0x0000000000000000000000000000000000000000', await ecrecovery.addrRecovered());
   });
 });
