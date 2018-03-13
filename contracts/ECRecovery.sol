@@ -41,13 +41,12 @@ library ECRecovery {
       return (address(0));
     } else {
 	   
-	   /* 
-        * https://github.com/ethereum/go-ethereum/issues/3731
-        */
+	    /* 
+       * https://github.com/ethereum/go-ethereum/issues/3731
+       */
 		
-      bytes memory prefix = "\x19Ethereum Signed Message:\n32";
-      hash = keccak256(prefix, hash);
-      return ecrecover(hash, v, r, s);
+      bytes memory prefix = "\x19Ethereum Signed Message:\n32"; 
+      return ecrecover(keccak256(prefix, hash), v, r, s);
     }
   }
 
