@@ -76,7 +76,7 @@ contract ERC20Channel is Ownable {
   function ERC20Channel(address tokenAddress, address _receiver, uint256 _challengeTime) public {
     require(tokenAddress != address(0));
     require(_receiver != address(0));
-    require(_challengeTime >= 0);
+    require(_challengeTime > 0);
 
     token = ERC20(tokenAddress);
     challengeTime = _challengeTime;
