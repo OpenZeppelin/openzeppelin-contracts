@@ -60,6 +60,12 @@ contract ERC20Channel is Ownable {
   // The timestamp of when the channel can be closed by the sender
   uint256 public closeTime;
 
+  // Event triggered when the channel close is requested
+  event closeRequested(uint256 closeTime, uint256 closingBalance);
+
+  // Channel closed
+  event channelClosed(uint256 closeTime, uint256 finalBalance);
+
   /**
    * @dev Constructor
    * @param tokenAddress address, the address of the ERC20 token that will be used
@@ -97,6 +103,7 @@ contract ERC20Channel is Ownable {
     // Mark channel as closed and create closing request
     closeTime = now.add(challengeTime);
     closingBalance = balance;
+    closeRequested(closeTime, closingBalance);
   }
 
   /**
@@ -190,6 +197,8 @@ contract ERC20Channel is Ownable {
 
     // Destroy contract
     selfdestruct(owner);
+
+    channelClosed(now, finalBalance);
   }
 
 }
