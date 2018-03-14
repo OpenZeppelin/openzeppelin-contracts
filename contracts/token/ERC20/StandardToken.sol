@@ -27,9 +27,9 @@ contract StandardToken is ERC20, BasicToken {
     require(_value <= balances[_from]);
     require(_value <= allowed[_from][msg.sender]);
 
-    balances[_from] = balances[_from].sub(_value);
+    balances[_from] -= _value;
     balances[_to] = balances[_to].add(_value);
-    allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value);
+    allowed[_from][msg.sender] -= _value;
     Transfer(_from, _to, _value);
     return true;
   }
@@ -91,7 +91,7 @@ contract StandardToken is ERC20, BasicToken {
     if (_subtractedValue > oldValue) {
       allowed[msg.sender][_spender] = 0;
     } else {
-      allowed[msg.sender][_spender] = oldValue.sub(_subtractedValue);
+      allowed[msg.sender][_spender] = oldValue - _subtractedValue;
     }
     Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
     return true;
