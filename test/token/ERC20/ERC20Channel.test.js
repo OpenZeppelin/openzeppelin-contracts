@@ -86,10 +86,6 @@ contract('ERC20Channel', function ([_, receiver, sender]) {
     tokenChannel = await ERC20Channel.new(token.address, receiver, duration.days(1), { from: sender });
     await token.transfer(tokenChannel.address, 30, { from: sender });
     const hash = await tokenChannel.generateBalanceHash(10);
-    const senderSig = signMsg(hash, privateKeys[sender]);
-    assert.equal(sender,
-      await tokenChannel.getSignerOfBalanceHash(10, senderSig)
-    );
     await tokenChannel.uncooperativeClose(10, { from: sender });
     const channelInfo = await tokenChannel.getInfo();
     assert.equal(parseInt(channelInfo[0]), 30);
