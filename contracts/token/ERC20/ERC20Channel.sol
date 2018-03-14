@@ -16,7 +16,7 @@ import "../../ECRecovery.sol";
    Note: The owner of the contract is the sender, therefore it should be
     deployed by the sender itself.
 
-   The channel can be closed in two ways: With and agreement or not.
+   The channel can be closed in two ways: With an agreement or not.
 
    - Contract closed with an agreement:
      Can happen at anytime while the channel is still opened. Two signatures
