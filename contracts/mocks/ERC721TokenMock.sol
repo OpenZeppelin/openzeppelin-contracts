@@ -13,7 +13,7 @@ contract ERC721TokenMock is ERC721Token {
     super._mint(_to, _tokenId);
   }
 
-  function burn(uint256 _tokenId) public {
+  function burn(uint256 _tokenId) onlyOwnerOf(_tokenId) public {
     super._burn(_tokenId);
   }
 }
