@@ -28,7 +28,7 @@ contract PullPayment {
     totalPayments = totalPayments.sub(payment);
     payments[payee] = 0;
 
-    assert(payee.send(payment));
+    payee.transfer(payment);
   }
 
   /**
