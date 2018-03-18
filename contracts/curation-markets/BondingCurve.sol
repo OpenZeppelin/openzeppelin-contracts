@@ -36,7 +36,7 @@ contract BondingCurve is StandardToken, BancorFormula, Ownable {
 
   /**
    * @dev default function
-   * gas price for this one is 128686 ~ $3 - too high for fallback fn
+   * gas price for this one is 128686 ~ $3 - too high for fallback function
    * do we need it?
    */
   function() public payable {
@@ -44,7 +44,7 @@ contract BondingCurve is StandardToken, BancorFormula, Ownable {
   }
 
   /**
-   * @dev buy tokens
+   * @dev Buy tokens
    * gas cost 77508
    * TODO implement maxAmount that helps prevent miner front-running
    */
