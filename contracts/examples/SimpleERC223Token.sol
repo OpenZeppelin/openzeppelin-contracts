@@ -10,6 +10,7 @@ import "../token/ERC223/ERC223Token.sol";
 * @dev All tokens are initially given msg.sender and should then be allocated using transfer() functions.
 */
 contract SimpleERC223Token is ERC223Token {
+
   // Simple constructor
   function SimpleERC223Token()  public {
     name = "SimpleToken";
