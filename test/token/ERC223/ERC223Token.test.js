@@ -37,7 +37,7 @@ contract('ERC223Token', function (accounts) {
       let decimals = await token.decimals();
       decimals.should.be.bignumber.equal(_decimals);
     });
-
+    
     it('should return the right total supply', async function () {
       let supply = await token.totalSupply();
       supply.should.be.bignumber.equal(_initialSupply);
