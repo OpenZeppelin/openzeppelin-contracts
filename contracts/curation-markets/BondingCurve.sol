@@ -92,8 +92,8 @@ contract BondingCurve is StandardToken, BancorFormula, Ownable {
   }
 
   /**
-    @dev Allows the owner to update the gas price limit
-    @param _gasPrice The new gas price limit
+  * @dev Allows the owner to update the gas price limit
+  * @param _gasPrice The new gas price limit
   */
   function setGasPrice(uint256 _gasPrice) onlyOwner public {
     require(_gasPrice > 0);
