@@ -1,7 +1,6 @@
 pragma solidity ^0.4.9;
 
 
-import "../ERC20/StandardToken.sol";
 import "./ERC223.sol";
 import "./ERC223TokenReceiver.sol";
 import "../../math/SafeMath.sol";
@@ -10,9 +9,57 @@ import "../../math/SafeMath.sol";
 /**
 * @title ERC223Token
 * @dev Generic implementation for the required functionality of the ERC223 standard.
+* @dev 
 */
-contract ERC223Token is ERC223, StandardToken {
+contract ERC223Token is ERC223 {
     using SafeMath for uint256;
+  
+    string public name;
+    string public symbol;
+    uint8 public decimals;
+    uint256 public totalSupply;
+    mapping(address => uint256) public balances;
+
+    /**
+    * @dev Function to access name of token.
+    * @return _name string the name of the token.
+    */
+    function name() public view returns (string _name) {
+        return name;
+    }
+    
+    /**
+    * @dev Function to access symbol of token.
+    * @return _symbol string the symbol of the token.
+    */
+    function symbol() public view returns (string _symbol) {
+        return symbol;
+    }
+    
+    /**
+    * @dev Function to access decimals of token.
+    * @return _decimals uint8 decimal point of token fractions.
+    */
+    function decimals() public view returns (uint8 _decimals) {
+        return decimals;
+    }
+
+    /**
+    * @dev Function to access total supply of tokens.
+    * @return _totalSupply uint256 total token supply.
+    */
+    function totalSupply() public view returns (uint256 _totalSupply) {
+        return totalSupply;
+    }
+
+    /**
+    * @dev Function to access the balance of a specific address.
+    * @param _owner address the target address to get the balance from.
+    * @return _balance uint256 the balance of the target address.
+    */
+    function balanceOf(address _owner) public view returns (uint256 _balance) {
+        return balances[_owner];
+    }
 
     /**
     * @dev Function that is called when a user or another contract wants to transfer funds using custom fallback.
