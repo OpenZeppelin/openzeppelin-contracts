@@ -29,7 +29,7 @@ contract('ERC223Token', function(accounts) {
             symbol.should.be.equal(_symbol);
         });
 
-        it('should return the right amount of decimals', async function() {
+        it('should return the right decimal point', async function() {
             let decimals = await token.decimals();
             decimals.should.be.bignumber.equal(_decimals);
         });
