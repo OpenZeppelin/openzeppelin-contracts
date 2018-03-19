@@ -36,8 +36,7 @@ contract BondingCurve is StandardToken, BancorFormula, Ownable {
 
   /**
    * @dev default function
-   * gas price for this one is 128686 ~ $3 - too high for fallback function
-   * do we need it?
+   * gas ~ 91645
    */
   function() public payable {
     buy();
@@ -45,17 +44,12 @@ contract BondingCurve is StandardToken, BancorFormula, Ownable {
 
   /**
    * @dev Buy tokens
-   * gas cost 77508
+   * gas ~ 77825
    * TODO implement maxAmount that helps prevent miner front-running
    */
   function buy() validGasPrice public payable returns(bool) {
     require(msg.value > 0);
-    uint256 tokensToMint = calculatePurchaseReturn(
-      totalSupply_,
-      poolBalance,
-      reserveRatio,
-      msg.value
-    );
+    uint256 tokensToMint = calculatePurchaseReturn(totalSupply_, poolBalance, reserveRatio, msg.value);
     totalSupply_ = totalSupply_.add(tokensToMint);
     balances[msg.sender] = balances[msg.sender].add(tokensToMint);
     poolBalance = poolBalance.add(msg.value);
@@ -65,18 +59,13 @@ contract BondingCurve is StandardToken, BancorFormula, Ownable {
 
   /**
    * @dev Sell tokens
-   * gas cost 86454
+   * gas ~ 86936
    * @param sellAmount Amount of tokens to withdraw
    * TODO implement maxAmount that helps prevent miner front-running
    */
   function sell(uint256 sellAmount) validGasPrice public returns(bool) {
     require(sellAmount > 0 && balances[msg.sender] >= sellAmount);
-    uint256 ethAmount = calculateSaleReturn(
-      totalSupply_,
-      poolBalance,
-      reserveRatio,
-      sellAmount
-    );
+    uint256 ethAmount = calculateSaleReturn(totalSupply_, poolBalance, reserveRatio, sellAmount);
     msg.sender.transfer(ethAmount);
     poolBalance = poolBalance.sub(ethAmount);
     balances[msg.sender] = balances[msg.sender].sub(sellAmount);
@@ -92,8 +81,8 @@ contract BondingCurve is StandardToken, BancorFormula, Ownable {
   }
 
   /**
-  * @dev Allows the owner to update the gas price limit
-  * @param _gasPrice The new gas price limit
+    @dev Allows the owner to update the gas price limit
+    @param _gasPrice The new gas price limit
   */
   function setGasPrice(uint256 _gasPrice) onlyOwner public {
     require(_gasPrice > 0);
