@@ -2,6 +2,8 @@ import assertRevert from '../../helpers/assertRevert';
 import expectThrow from '../../helpers/expectThrow';
 const ERC223TestToken = artifacts.require('ERC223TokenMock');
 const BigNumber = web3.BigNumber;
+import assertRevert from '../../helpers/assertRevert';
+import expectThrow from '../../helpers/expectThrow';
 
 require('chai')
   .use(require('chai-as-promised'))
@@ -10,7 +12,7 @@ require('chai')
 
 contract('ERC223Token', function (accounts) {
   let token = null;
-
+  
   const _name = 'My Test ERC223 Token';
   const _symbol = 'M223T';
   const _decimals = 8;
@@ -42,13 +44,13 @@ contract('ERC223Token', function (accounts) {
       let supply = await token.totalSupply();
       supply.should.be.bignumber.equal(_initialSupply);
     });
-
+    
     it('should return the balance of an address', async function () {
       let balance = await token.balanceOf(accounts[0]);
       balance.should.be.bignumber.equal(_initialSupply);
     });
   });
-
+  
   describe('Transaction methods', function () {
     it('should succesfully transfer to existing address without data (ERC20)', async function () {
       await token.transfer(accounts[1], _amount);
