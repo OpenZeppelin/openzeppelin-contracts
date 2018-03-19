@@ -1,5 +1,7 @@
 const ERC223TestToken = artifacts.require('ERC223TokenMock');
 const BigNumber = web3.BigNumber;
+import assertRevert from '../../helpers/assertRevert';
+import expectThrow from '../../helpers/expectThrow';
 
 require('chai')
     .use(require('chai-as-promised'))
@@ -13,6 +15,8 @@ contract('ERC223Token', function(accounts) {
     const _symbol = 'M223T';
     const _decimals = 8;
     const _supply = 100;
+    const _initialSupply = _supply * (10 ** _decimals);
+    const _amount = 100;
 
     beforeEach(async function() {
         token = await ERC223TestToken.new(_name, _symbol, _decimals, _supply);
@@ -36,21 +40,51 @@ contract('ERC223Token', function(accounts) {
 
         it('should return the right total supply', async function() {
             let supply = await token.totalSupply();
-            supply.should.be.bignumber.equal(_supply * (10 ** _decimals));
+            supply.should.be.bignumber.equal(_initialSupply);
+        });
+
+        it('should return the balance of an address', async function() {
+            let balance = await token.balanceOf(accounts[0]);
+            balance.should.be.bignumber.equal(_initialSupply);
         });
     });
 
     describe('Transaction methods', function() {
-        it('should return the balance of an address');
+        it('should succesfully transfer to existing address', async function() {
+            let opening = await token.balanceOf(accounts[0]);
+            await token.transfer(accounts[1], _amount);
+            let close = await token.balanceOf(accounts[0]);
+            close.should.be.bignumber.equal(opening - _amount);
+            let target = await token.balanceOf(accounts[1]);
+            target.should.be.bignumber.equal(_amount);
+        });
 
-        it('should throw on failed transfer');
+        it('emits a complete transfer event', async function() {
+            const { logs } = await token.transfer(accounts[1], _amount);
+            expect(logs).to.have.lengthOf(1);
+            expect(logs[0].event).to.equal('Transfer');
+            expect(logs[0].args.from).to.equal(accounts[0]);
+            expect(logs[0].args.to).to.equal(accounts[1]);
+            assert(logs[0].args.value.eq(_amount));
+            expect(logs[0].args.data).to.equal('0x');
+        });
 
-        it('should throw on failed approve');
+        it('should throw an error when trying to transfer to 0x0', async function() {
+            try {
+                await token.transfer(0x0, _amount);
+                assert.fail('should have thrown before');
+            } catch (error) {
+                assertRevert(error);
+            }
+        });
 
-        it('should not throw on succeeding transfer');
+        it('should throw an error when trying to transfer more than balance', async function() {
+            let balance = await token.balanceOf(accounts[0]);
+            await expectThrow(token.transfer(accounts[1], balance + 1));
+        });
 
-        it('should not throw on succeeding transferFrom');
-
-        it('should not throw on succeeding approve');
+        it('should throw an error when trying to transfer less than 0', async function() {
+            await expectThrow(token.transfer(accounts[1], -1));
+        });
     });
 });
