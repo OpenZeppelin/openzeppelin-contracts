@@ -2,6 +2,7 @@ pragma solidity ^0.4.18;
 
 import "../validation/TimedCrowdsale.sol";
 import "../../math/SafeMath.sol";
+
 
 /**
  * @title IncreasingPriceCrowdsale

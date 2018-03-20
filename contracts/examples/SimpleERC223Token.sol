@@ -9,14 +9,13 @@ import "../token/ERC223/ERC223Token.sol";
 * @dev A simple ERC223 token example.
 * @dev All tokens are initially given msg.sender and should then be allocated using transfer() functions.
 */
-contract SimpleToken is ERC223Token {
-
-    // Simple constructor 
-    function SimpleToken() {
-        name = "SimpleToken";
-        symbol = "SIMPLE";
-        decimals = 8;
-        totalSupply = 100 * (10 ** uint256(decimals));
-        balances[msg.sender] = totalSupply;
-    }
+contract SimpleERC223Token is ERC223Token {
+  // Simple constructor
+  function SimpleERC223Token()  public {
+    name = "SimpleToken";
+    symbol = "SIMPLE";
+    decimals = uint8(8);
+    totalSupply = 100 * (10 ** uint256(decimals));
+    balances[msg.sender] = totalSupply;
+  }
 }

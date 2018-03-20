@@ -1,4 +1,5 @@
 pragma solidity ^0.4.18;
+
 
 /**
  * @title ERC721 interface
