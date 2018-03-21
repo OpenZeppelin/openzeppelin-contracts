@@ -8,9 +8,8 @@ import "../token/ERC721/ERC721Token.sol";
  * and a public setter for metadata URI
  */
 contract ERC721TokenMock is ERC721Token {
-  function ERC721TokenMock(string name, string symbol)
-  ERC721Token(name, symbol)
-  public
+  function ERC721TokenMock(string name, string symbol) public
+    ERC721Token(name, symbol)
   { }
 
   function mint(address _to, uint256 _tokenId) public {
