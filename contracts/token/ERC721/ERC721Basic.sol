@@ -2,7 +2,7 @@ pragma solidity ^0.4.18;
 
 /**
  * @title ERC721 Non-Fungible Token Standard basic interface
- * @dev see https://github.com/ethereum/eips/issues/721
+ * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
 contract ERC721Basic {
   event Transfer(address indexed _from, address indexed _to, uint256 _tokenId);

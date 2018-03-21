@@ -7,7 +7,7 @@ import "../../AddressUtils.sol";
 
 /**
  * @title ERC721 Non-Fungible Token Standard basic implementation
- * @dev see https://github.com/ethereum/eips/issues/721
+ * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
 contract ERC721BasicToken is ERC721Basic {
   using SafeMath for uint256;
