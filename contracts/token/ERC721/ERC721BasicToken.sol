@@ -263,7 +263,7 @@ contract ERC721BasicToken is ERC721Basic {
   function removeToken(address _from, uint256 _tokenId) internal {
     require(ownerOf(_tokenId) == _from);
     ownedTokensCount[_from] = ownedTokensCount[_from].sub(1);
-    tokenOwner[_tokenId] = 0;
+    tokenOwner[_tokenId] = address(0);
   }
 
   /**
