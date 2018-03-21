@@ -74,7 +74,7 @@ contract ERC721BasicToken is ERC721Basic {
   */
   function exists(uint256 _tokenId) public view returns (bool) {
     address owner = tokenOwner[_tokenId];
-    return owner != 0;
+    return owner != address(0);
   }
 
   /**
@@ -90,7 +90,7 @@ contract ERC721BasicToken is ERC721Basic {
     require(_to != owner);
     require(msg.sender == owner || isApprovedForAll(owner, msg.sender));
 
-    if (getApproved(_tokenId) != 0 || _to != 0) {
+    if (getApproved(_tokenId) != address(0) || _to != address(0)) {
       tokenApprovals[_tokenId] = _to;
       Approval(owner, _to, _tokenId);
     }
@@ -192,7 +192,7 @@ contract ERC721BasicToken is ERC721Basic {
   function doMint(address _to, uint256 _tokenId) internal {
     require(_to != address(0));
     addToken(_to, _tokenId);
-    Transfer(0x0, _to, _tokenId);
+    Transfer(address(0), _to, _tokenId);
   }
 
   /**
@@ -203,7 +203,7 @@ contract ERC721BasicToken is ERC721Basic {
   function doBurn(address _owner, uint256 _tokenId) internal {
     clearApproval(_owner, _tokenId);
     removeToken(_owner, _tokenId);
-    Transfer(_owner, 0x0, _tokenId);
+    Transfer(_owner, address(0), _tokenId);
   }
 
   /**
@@ -236,9 +236,9 @@ contract ERC721BasicToken is ERC721Basic {
   */
   function clearApproval(address _owner, uint256 _tokenId) internal {
     require(ownerOf(_tokenId) == _owner);
-    if (tokenApprovals[_tokenId] != 0) {
-      tokenApprovals[_tokenId] = 0;
-      Approval(_owner, 0, _tokenId);
+    if (tokenApprovals[_tokenId] != address(0)) {
+      tokenApprovals[_tokenId] = address(0);
+      Approval(_owner, address(0), _tokenId);
     }
   }
 
