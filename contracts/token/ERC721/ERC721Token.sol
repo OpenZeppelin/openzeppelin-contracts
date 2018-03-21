@@ -42,15 +42,6 @@ contract ERC721Token is ERC721, ERC721BasicToken {
   }
 
   /**
-  * @dev Gets the balance of the specified address
-  * @param _owner address to query the balance of
-  * @return uint256 representing the amount owned by the passed address
-  */
-  function balanceOf(address _owner) public view returns (uint256) {
-    return ownedTokens[_owner].length;
-  }
-
-  /**
   * @dev Gets the token name
   * @return string representing the token name
   */
@@ -123,8 +114,7 @@ contract ERC721Token is ERC721, ERC721BasicToken {
   * @param _tokenId uint256 ID of the token to be added to the tokens list of the given address
   */
   function addToken(address _to, uint256 _tokenId) internal {
-    require(tokenOwner[_tokenId] == address(0));
-    tokenOwner[_tokenId] = _to;
+    super.addToken(_to, _tokenId);
     uint256 length = balanceOf(_to);
     ownedTokens[_to].push(_tokenId);
     ownedTokensIndex[_tokenId] = length;
@@ -136,13 +126,12 @@ contract ERC721Token is ERC721, ERC721BasicToken {
   * @param _tokenId uint256 ID of the token to be removed from the tokens list of the given address
   */
   function removeToken(address _from, uint256 _tokenId) internal {
-    require(ownerOf(_tokenId) == _from);
+    super.removeToken(_from, _tokenId);
 
     uint256 tokenIndex = ownedTokensIndex[_tokenId];
     uint256 lastTokenIndex = balanceOf(_from).sub(1);
     uint256 lastToken = ownedTokens[_from][lastTokenIndex];
 
-    tokenOwner[_tokenId] = 0;
     ownedTokens[_from][tokenIndex] = lastToken;
     ownedTokens[_from][lastTokenIndex] = 0;
     // Note that this will handle single-element arrays. In that case, both tokenIndex and lastTokenIndex are going to
