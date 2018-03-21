@@ -223,7 +223,9 @@ contract ERC721BasicToken is ERC721Basic {
     removeToken(_from, _tokenId);
     addToken(_to, _tokenId);
     
-    require(!_safe || checkAndCallSafeTransfer(_from, _to, _tokenId, _data));
+    if (_safe) {
+      require(checkAndCallSafeTransfer(_from, _to, _tokenId, _data));
+    }
 
     Transfer(_from, _to, _tokenId);
   }
@@ -274,7 +276,10 @@ contract ERC721BasicToken is ERC721Basic {
   * @return whether the call correctly returned the expected magic value
   */
   function checkAndCallSafeTransfer(address _from, address _to, uint256 _tokenId, bytes _data) internal returns (bool) {
-    return !_to.isContract() ||
-      (ERC721Receiver(_to).onERC721Received(_from, _tokenId, _data) == ERC721_RECEIVED);
+    if (!_to.isContract()) {
+      return true;
+    }
+    bytes4 retval = ERC721Receiver(_to).onERC721Received(_from, _tokenId, _data);
+    return (retval == ERC721_RECEIVED);
   }
 }
