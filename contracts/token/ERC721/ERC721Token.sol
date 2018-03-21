@@ -166,7 +166,7 @@ contract ERC721Token is ERC721, ERC721BasicToken {
     super.doBurn(_owner, _tokenId);
 
     // Clear metadata (if any)
-    if (bytes(tokenURIs[_tokenId]).length == 0) {
+    if (bytes(tokenURIs[_tokenId]).length != 0) {
       delete tokenURIs[_tokenId];
     }
 
