@@ -53,6 +53,7 @@ contract ERC721BasicToken is ERC721Basic {
   * @return uint256 representing the amount owned by the passed address
   */
   function balanceOf(address _owner) public view returns (uint256) {
+    require(_owner != address(0));
     return ownedTokensCount[_owner];
   }
 

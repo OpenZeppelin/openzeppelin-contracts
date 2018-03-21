@@ -38,6 +38,12 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
           balance.should.be.bignumber.equal(0);
         });
       });
+
+      describe('when querying the zero address', function () {
+        it('throws', async function () {
+          await assertRevert(this.token.balanceOf(0));
+        });
+      });
     });
 
     describe('exists', function () {
