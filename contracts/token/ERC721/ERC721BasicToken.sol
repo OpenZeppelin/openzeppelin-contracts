@@ -152,7 +152,7 @@ contract ERC721BasicToken is ERC721Basic {
   * @param _tokenId uint256 ID of the token to be transferred
   */
   function safeTransferFrom(address _from, address _to, uint256 _tokenId) public canTransfer(_tokenId) {
-    clearApprovalAndTransfer(_from, _to, _tokenId, "", true);
+    safeTransferFrom(_from, _to, _tokenId, "");
   }
 
   /**
