@@ -8,7 +8,7 @@ import "./ERC721BasicToken.sol";
 /**
  * @title Full ERC721 Token
  * This implementation includes all the required and some optional functionality of the ERC721 standard
- * Moreover, it includes approve all functionality using operatable terminology
+ * Moreover, it includes approve all functionality using operator terminology
  * @dev see https://github.com/ethereum/eips/issues/721
  */
 contract ERC721Token is ERC721, ERC721BasicToken {

@@ -208,8 +208,8 @@ contract ERC721BasicToken is ERC721Basic {
 
   /**
   * @dev Internal function to clear current approval and transfer the ownership of a given token ID
-  * @param _from address which you want to send tokens from
-  * @param _to address which you want to transfer the token to
+  * @param _from address from which you want to send tokens
+  * @param _to address which you want to transfer the token
   * @param _tokenId uint256 ID of the token to be transferred
   * @param _data bytes data to send along with a safe transfer check
   * @param _safe bool whether to perform a safe transfer
@@ -267,11 +267,11 @@ contract ERC721BasicToken is ERC721Basic {
   /**
   * @dev Internal function to invoke `onERC721Received` on a target address
   * @dev The call is not executed if the target address is not a contract
-  * @dev Returns whether the call correctly returned the expected magic value
   * @param _from address representing the previous owner of the given token ID
   * @param _to target address that will receive the tokens
   * @param _tokenId uint256 ID of the token to be transferred
   * @param _data bytes optional data to send along with the call
+  * @return whether the call correctly returned the expected magic value
   */
   function checkAndCallSafeTransfer(address _from, address _to, uint256 _tokenId, bytes _data) internal returns (bool) {
     return !_to.isContract() ||
