@@ -1,4 +1,4 @@
-import assertRevert from '../helpers/assertRevert';
+import assertRevert from '../../helpers/assertRevert';
 const MintableToken = artifacts.require('MintableToken');
 
 contract('Mintable', function ([owner, anotherAccount]) {
