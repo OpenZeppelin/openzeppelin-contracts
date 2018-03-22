@@ -113,8 +113,8 @@ contract ERC721Token is ERC721, ERC721BasicToken {
   * @param _to address representing the new owner of the given token ID
   * @param _tokenId uint256 ID of the token to be added to the tokens list of the given address
   */
-  function addToken(address _to, uint256 _tokenId) internal {
-    super.addToken(_to, _tokenId);
+  function addTokenTo(address _to, uint256 _tokenId) internal {
+    super.addTokenTo(_to, _tokenId);
     uint256 length = balanceOf(_to);
     ownedTokens[_to].push(_tokenId);
     ownedTokensIndex[_tokenId] = length;
@@ -125,8 +125,8 @@ contract ERC721Token is ERC721, ERC721BasicToken {
   * @param _from address representing the previous owner of the given token ID
   * @param _tokenId uint256 ID of the token to be removed from the tokens list of the given address
   */
-  function removeToken(address _from, uint256 _tokenId) internal {
-    super.removeToken(_from, _tokenId);
+  function removeTokenFrom(address _from, uint256 _tokenId) internal {
+    super.removeTokenFrom(_from, _tokenId);
 
     uint256 tokenIndex = ownedTokensIndex[_tokenId];
     uint256 lastTokenIndex = balanceOf(_from).sub(1);

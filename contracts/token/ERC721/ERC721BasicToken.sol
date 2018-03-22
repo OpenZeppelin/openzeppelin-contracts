@@ -138,7 +138,15 @@ contract ERC721BasicToken is ERC721Basic {
   * @param _tokenId uint256 ID of the token to be transferred
   */
   function transferFrom(address _from, address _to, uint256 _tokenId) public canTransfer(_tokenId) {
-    clearApprovalAndTransfer(_from, _to, _tokenId, "", false);
+    require(_from != address(0));
+    require(_to != address(0));
+    require(_to != ownerOf(_tokenId));
+
+    clearApproval(_from, _tokenId);
+    removeTokenFrom(_from, _tokenId);
+    addTokenTo(_to, _tokenId);
+    
+    Transfer(_from, _to, _tokenId);
   }
 
   /**
@@ -169,7 +177,8 @@ contract ERC721BasicToken is ERC721Basic {
   * @param _data bytes data to send along with a safe transfer check
   */
   function safeTransferFrom(address _from, address _to, uint256 _tokenId, bytes _data) public canTransfer(_tokenId) {
-    clearApprovalAndTransfer(_from, _to, _tokenId, _data, true);
+    transferFrom(_from, _to, _tokenId);
+    require(checkAndCallSafeTransfer(_from, _to, _tokenId, _data));
   }
 
   /**
@@ -192,7 +201,7 @@ contract ERC721BasicToken is ERC721Basic {
   */
   function doMint(address _to, uint256 _tokenId) internal {
     require(_to != address(0));
-    addToken(_to, _tokenId);
+    addTokenTo(_to, _tokenId);
     Transfer(address(0), _to, _tokenId);
   }
 
@@ -203,32 +212,8 @@ contract ERC721BasicToken is ERC721Basic {
   */
   function doBurn(address _owner, uint256 _tokenId) internal {
     clearApproval(_owner, _tokenId);
-    removeToken(_owner, _tokenId);
+    removeTokenFrom(_owner, _tokenId);
     Transfer(_owner, address(0), _tokenId);
-  }
-
-  /**
-  * @dev Internal function to clear current approval and transfer the ownership of a given token ID
-  * @param _from address from which you want to send tokens
-  * @param _to address which you want to transfer the token
-  * @param _tokenId uint256 ID of the token to be transferred
-  * @param _data bytes data to send along with a safe transfer check
-  * @param _safe bool whether to perform a safe transfer
-  */
-  function clearApprovalAndTransfer(address _from, address _to, uint256 _tokenId, bytes _data, bool _safe) internal {
-    require(_from != address(0));
-    require(_to != address(0));
-    require(_to != ownerOf(_tokenId));
-
-    clearApproval(_from, _tokenId);
-    removeToken(_from, _tokenId);
-    addToken(_to, _tokenId);
-    
-    if (_safe) {
-      require(checkAndCallSafeTransfer(_from, _to, _tokenId, _data));
-    }
-
-    Transfer(_from, _to, _tokenId);
   }
 
   /**
@@ -250,7 +235,7 @@ contract ERC721BasicToken is ERC721Basic {
   * @param _to address representing the new owner of the given token ID
   * @param _tokenId uint256 ID of the token to be added to the tokens list of the given address
   */
-  function addToken(address _to, uint256 _tokenId) internal {
+  function addTokenTo(address _to, uint256 _tokenId) internal {
     require(tokenOwner[_tokenId] == address(0));
     tokenOwner[_tokenId] = _to;
     ownedTokensCount[_to] = ownedTokensCount[_to].add(1);
@@ -261,7 +246,7 @@ contract ERC721BasicToken is ERC721Basic {
   * @param _from address representing the previous owner of the given token ID
   * @param _tokenId uint256 ID of the token to be removed from the tokens list of the given address
   */
-  function removeToken(address _from, uint256 _tokenId) internal {
+  function removeTokenFrom(address _from, uint256 _tokenId) internal {
     require(ownerOf(_tokenId) == _from);
     ownedTokensCount[_from] = ownedTokensCount[_from].sub(1);
     tokenOwner[_tokenId] = address(0);
