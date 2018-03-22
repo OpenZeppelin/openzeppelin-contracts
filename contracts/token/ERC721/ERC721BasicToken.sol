@@ -199,7 +199,7 @@ contract ERC721BasicToken is ERC721Basic {
   * @param _to The address that will own the minted token
   * @param _tokenId uint256 ID of the token to be minted by the msg.sender
   */
-  function doMint(address _to, uint256 _tokenId) internal {
+  function _mint(address _to, uint256 _tokenId) internal {
     require(_to != address(0));
     addTokenTo(_to, _tokenId);
     Transfer(address(0), _to, _tokenId);
@@ -210,7 +210,7 @@ contract ERC721BasicToken is ERC721Basic {
   * @dev Reverts if the token does not exist
   * @param _tokenId uint256 ID of the token being burned by the msg.sender
   */
-  function doBurn(address _owner, uint256 _tokenId) internal {
+  function _burn(address _owner, uint256 _tokenId) internal {
     clearApproval(_owner, _tokenId);
     removeTokenFrom(_owner, _tokenId);
     Transfer(_owner, address(0), _tokenId);

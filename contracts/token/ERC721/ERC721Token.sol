@@ -149,8 +149,8 @@ contract ERC721Token is ERC721, ERC721BasicToken {
   * @param _to address the beneficiary that will own the minted token
   * @param _tokenId uint256 ID of the token to be minted by the msg.sender
   */
-  function doMint(address _to, uint256 _tokenId) internal {
-    super.doMint(_to, _tokenId);
+  function _mint(address _to, uint256 _tokenId) internal {
+    super._mint(_to, _tokenId);
     
     allTokensIndex[_tokenId] = allTokens.length;
     allTokens.push(_tokenId);
@@ -162,8 +162,8 @@ contract ERC721Token is ERC721, ERC721BasicToken {
   * @param _owner owner of the token to burn
   * @param _tokenId uint256 ID of the token being burned by the msg.sender
   */
-  function doBurn(address _owner, uint256 _tokenId) internal {
-    super.doBurn(_owner, _tokenId);
+  function _burn(address _owner, uint256 _tokenId) internal {
+    super._burn(_owner, _tokenId);
 
     // Clear metadata (if any)
     if (bytes(tokenURIs[_tokenId]).length != 0) {

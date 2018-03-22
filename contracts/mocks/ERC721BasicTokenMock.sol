@@ -8,10 +8,10 @@ import "../token/ERC721/ERC721BasicToken.sol";
  */
 contract ERC721BasicTokenMock is ERC721BasicToken {
   function mint(address _to, uint256 _tokenId) public {
-    super.doMint(_to, _tokenId);
+    super._mint(_to, _tokenId);
   }
 
   function burn(uint256 _tokenId) public {
-    super.doBurn(ownerOf(_tokenId), _tokenId);
+    super._burn(ownerOf(_tokenId), _tokenId);
   }
 }
