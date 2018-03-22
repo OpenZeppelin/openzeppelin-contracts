@@ -13,14 +13,14 @@ contract ERC721TokenMock is ERC721Token {
   { }
 
   function mint(address _to, uint256 _tokenId) public {
-    _mint(_to, _tokenId);
+    super._mint(_to, _tokenId);
   }
 
   function burn(uint256 _tokenId) public {
-    _burn(ownerOf(_tokenId), _tokenId);
+    super._burn(ownerOf(_tokenId), _tokenId);
   }
 
   function setTokenURI(uint256 _tokenId, string _uri) public {
-    doSetTokenURI(_tokenId, _uri);
+    super._setTokenURI(_tokenId, _uri);
   }
 }

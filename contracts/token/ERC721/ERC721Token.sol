@@ -73,7 +73,7 @@ contract ERC721Token is ERC721, ERC721BasicToken {
   * @param _tokenId uint256 ID of the token to set its URI
   * @param _uri string URI to assign
   */
-  function doSetTokenURI(uint256 _tokenId, string _uri) internal {
+  function _setTokenURI(uint256 _tokenId, string _uri) internal {
     require(exists(_tokenId));
     tokenURIs[_tokenId] = _uri;
   }
