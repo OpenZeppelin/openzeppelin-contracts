@@ -13,7 +13,7 @@ library AddressUtils {
    * @return whether there is code in the target address
    */
   function isContract(address addr) internal view returns (bool) {
-    uint size;
+    uint256 size;
     assembly { size := extcodesize(addr) }
     return size > 0;
   }
