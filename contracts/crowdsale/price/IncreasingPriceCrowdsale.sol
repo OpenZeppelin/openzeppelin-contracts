@@ -3,6 +3,7 @@ pragma solidity ^0.4.18;
 import "../validation/TimedCrowdsale.sol";
 import "../../math/SafeMath.sol";
 
+
 /**
  * @title IncreasingPriceCrowdsale
  * @dev Extension of Crowdsale contract that increases the price of tokens linearly in time. 

@@ -3,6 +3,7 @@ pragma solidity ^0.4.18;
 import "../token/ERC20/ERC20.sol";
 import "../crowdsale/validation/TimedCrowdsale.sol";
 
+
 contract TimedCrowdsaleImpl is TimedCrowdsale {
 
   function TimedCrowdsaleImpl (
