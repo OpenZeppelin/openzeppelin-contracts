@@ -115,7 +115,7 @@ contract ERC721Token is ERC721, ERC721BasicToken {
   */
   function addTokenTo(address _to, uint256 _tokenId) internal {
     super.addTokenTo(_to, _tokenId);
-    uint256 length = balanceOf(_to);
+    uint256 length = ownedTokens[_to].length;
     ownedTokens[_to].push(_tokenId);
     ownedTokensIndex[_tokenId] = length;
   }
@@ -129,7 +129,7 @@ contract ERC721Token is ERC721, ERC721BasicToken {
     super.removeTokenFrom(_from, _tokenId);
 
     uint256 tokenIndex = ownedTokensIndex[_tokenId];
-    uint256 lastTokenIndex = balanceOf(_from).sub(1);
+    uint256 lastTokenIndex = ownedTokens[_from].length.sub(1);
     uint256 lastToken = ownedTokens[_from][lastTokenIndex];
 
     ownedTokens[_from][tokenIndex] = lastToken;
