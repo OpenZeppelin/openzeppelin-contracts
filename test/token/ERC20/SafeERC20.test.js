@@ -1,4 +1,4 @@
-import EVMThrow from '../../helpers/EVMThrow';
+import EVMRevert from '../../helpers/EVMRevert';
 
 require('chai')
   .use(require('chai-as-promised'))
@@ -12,15 +12,15 @@ contract('SafeERC20', function () {
   });
 
   it('should throw on failed transfer', async function () {
-    await this.helper.doFailingTransfer().should.be.rejectedWith(EVMThrow);
+    await this.helper.doFailingTransfer().should.be.rejectedWith(EVMRevert);
   });
 
   it('should throw on failed transferFrom', async function () {
-    await this.helper.doFailingTransferFrom().should.be.rejectedWith(EVMThrow);
+    await this.helper.doFailingTransferFrom().should.be.rejectedWith(EVMRevert);
   });
 
   it('should throw on failed approve', async function () {
-    await this.helper.doFailingApprove().should.be.rejectedWith(EVMThrow);
+    await this.helper.doFailingApprove().should.be.rejectedWith(EVMRevert);
   });
 
   it('should not throw on succeeding transfer', async function () {
