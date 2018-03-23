@@ -1,6 +1,6 @@
-import EVMRevert from '../helpers/EVMRevert';
-import latestTime from '../helpers/latestTime';
-import { increaseTimeTo, duration } from '../helpers/increaseTime';
+import EVMRevert from '../../helpers/EVMRevert';
+import latestTime from '../../helpers/latestTime';
+import { increaseTimeTo, duration } from '../../helpers/increaseTime';
 
 const BigNumber = web3.BigNumber;
 

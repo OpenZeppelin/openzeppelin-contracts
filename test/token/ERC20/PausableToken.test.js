@@ -1,4 +1,4 @@
-import assertRevert from '../helpers/assertRevert';
+import assertRevert from '../../helpers/assertRevert';
 const PausableToken = artifacts.require('PausableTokenMock');
 
 contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
@@ -18,7 +18,7 @@ contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
           assert.equal(paused, true);
         });
 
-        it('emits a paused event', async function () {
+        it('emits a Pause event', async function () {
           const { logs } = await this.token.pause({ from });
 
           assert.equal(logs.length, 1);
@@ -62,7 +62,7 @@ contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
           assert.equal(paused, false);
         });
 
-        it('emits an unpaused event', async function () {
+        it('emits an Unpause event', async function () {
           const { logs } = await this.token.unpause({ from });
 
           assert.equal(logs.length, 1);

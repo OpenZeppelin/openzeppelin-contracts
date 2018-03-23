@@ -1,4 +1,4 @@
-import assertRevert from '../helpers/assertRevert';
+import assertRevert from '../../helpers/assertRevert';
 const BasicToken = artifacts.require('BasicTokenMock');
 
 contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
