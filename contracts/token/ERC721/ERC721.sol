@@ -1,6 +1,5 @@
 pragma solidity ^0.4.18;
 
-<<<<<<< HEAD
 import "./ERC721Basic.sol";
 
 /**
@@ -12,8 +11,6 @@ contract ERC721Enumerable is ERC721Basic {
   function tokenOfOwnerByIndex(address _owner, uint256 _index) public view returns (uint256 _tokenId);
   function tokenByIndex(uint256 _index) public view returns (uint256);
 }
-=======
->>>>>>> edits based on review feedback
 
 /**
  * @title ERC-721 Non-Fungible Token Standard, optional metadata extension
