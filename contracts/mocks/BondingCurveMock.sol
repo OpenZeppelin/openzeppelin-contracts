@@ -6,13 +6,17 @@ import "../curation-markets/BondingCurve.sol";
 contract BondingCurveMock is BondingCurve {
   function BondingCurveMock(
     uint256 _totalSupply,
-    uint256 _poolBalance,
     uint32 _reserveRatio,
-    uint256 _gasPrice) public
+    uint256 _gasPrice) public payable
   {
+
     reserveRatio = _reserveRatio;
     totalSupply_ = _totalSupply;
-    poolBalance = _poolBalance;
+    poolBalance = msg.value;
     gasPrice = _gasPrice;
+
+    balances[owner] = _totalSupply;
+    Transfer(0x0, owner, _totalSupply);
   }
 }
+

@@ -6,35 +6,48 @@ const BondingCurveMock = artifacts.require('BondingCurveMock.sol');
 contract('BondingCurve', accounts => {
   let instance;
   const decimals = 18;
-  const startSupply = 10 * 10 ** 18; // 1
-  const startPoolBalance = 10 ** 14; // one coin costs .0001 ether;
+  const startSupply = 10 * 1e18; // 10 using a value lower then 10 makes results less accurate
+  const startPoolBalance = 1 * 1e14; // one coin costs .00001 ETH;
   const reserveRatio = Math.round(1 / 3 * 1000000) / 1000000;
   const solRatio = Math.floor(reserveRatio * 1000000);
-
-  // this parameter might need to be adjusted based on test network settings
   let gasPrice = 1 * 1e18;
 
   before(async () => {
-    instance = await BondingCurveMock.new(startSupply, startPoolBalance, solRatio, gasPrice);
+    instance = await BondingCurveMock.new(
+      startSupply,
+      solRatio,
+      gasPrice,
+      { value: startPoolBalance, from: accounts[0] }
+    );
   });
 
   async function getRequestParams (amount) {
-    let supply = await instance.totalSupply.call();
-    supply = supply.valueOf();
+    let totalSupply = await instance.totalSupply.call();
+    totalSupply = totalSupply.valueOf();
     let poolBalance = await instance.poolBalance.call();
     poolBalance = poolBalance.valueOf();
 
-    let price = poolBalance * ((1 + amount / supply) ** (1 / (reserveRatio)) - 1);
+    let price = poolBalance * ((1 + amount / totalSupply) ** (1 / (reserveRatio)) - 1);
     return {
-      supply, poolBalance, solRatio, price,
+      totalSupply, poolBalance, solRatio, price
     };
   }
+
+  it('should initialize contract correctly', async () => {
+    let p = await getRequestParams(0);
+    let contractBalance = await web3.eth.getBalance(instance.address);
+    let ownerBalance = await instance.balanceOf.call(accounts[0]);
+
+    assert.equal(p.totalSupply, ownerBalance.valueOf(), 'should send initial tokens to owner');
+    assert.equal(startPoolBalance, contractBalance.valueOf(), 'contract should hold correct amount of ETH');
+    assert.equal(startPoolBalance, p.poolBalance, 'should initialize pool balance correctly');
+  });
 
   it('should estimate price for token amount correctly', async () => {
     let amount = 13 * (10 ** decimals);
     let p = await getRequestParams(amount);
     let estimate = await instance.calculatePurchaseReturn.call(
-      p.supply,
+      p.totalSupply,
       p.poolBalance,
       solRatio,
       p.price
@@ -87,7 +100,7 @@ contract('BondingCurve', accounts => {
 
     let p = await getRequestParams(amount);
     let saleReturn = await instance.calculateSaleReturn.call(
-      p.supply,
+      p.totalSupply,
       p.poolBalance,
       solRatio,
       sellAmount
@@ -98,12 +111,14 @@ contract('BondingCurve', accounts => {
     await instance.sell(sellAmount.valueOf());
 
     let endContractBalance = await web3.eth.getBalance(instance.address);
-    assert.equal(saleReturn.valueOf(),
+    assert.equal(
+      saleReturn.valueOf(),
       contractBalance - endContractBalance,
-      'contract change should match sale return');
+      'contract change should match sale return'
+    );
 
     const endBalance = await instance.balanceOf.call(accounts[0]);
-    assert.isAtMost(Math.abs(endBalance.valueOf() * 1 - (amount - sellAmount)), 1e3, 'balance should be correct');
+    assert.isAtMost(Math.abs(endBalance.valueOf() * 1 - (amount - sellAmount)), 1e4, 'balance should be correct');
   });
 
   it('should not be able to buy anything with 0 ETH', async () => {
@@ -122,7 +137,7 @@ contract('BondingCurve', accounts => {
 
     let p = await getRequestParams(amount);
     let saleReturn = await instance.calculateSaleReturn.call(
-      p.supply,
+      p.totalSupply,
       p.poolBalance,
       solRatio,
       amount
@@ -131,13 +146,20 @@ contract('BondingCurve', accounts => {
     await instance.sell(amount);
 
     let endContractBalance = await web3.eth.getBalance(instance.address);
-    assert.equal(saleReturn.valueOf(),
+    assert.equal(
+      saleReturn.valueOf(),
       contractBalance - endContractBalance,
-      'contract change should match sale return');
+      'contract change should match sale return'
+    );
 
     const endBalance = await instance.balanceOf.call(accounts[0]);
     assert.equal(endBalance.valueOf(), 0, 'balance should be 0 tokens');
   });
+
+  /**
+   * TODO selling ALL tokens sets the totalSupply to 0 and kills the contract
+   * this is because bancor formulas cannot handle totalSupply or poolBalance = 0 or even close to 0
+   */
 
   it('should not be able to set gas price of 0', async function () {
     await assertRevert(instance.setGasPrice.call(0));
