@@ -140,7 +140,6 @@ contract ERC721BasicToken is ERC721Basic {
   function transferFrom(address _from, address _to, uint256 _tokenId) public canTransfer(_tokenId) {
     require(_from != address(0));
     require(_to != address(0));
-    require(_to != ownerOf(_tokenId));
 
     clearApproval(_from, _tokenId);
     removeTokenFrom(_from, _tokenId);

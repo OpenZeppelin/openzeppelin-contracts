@@ -1,6 +1,7 @@
 import assertRevert from '../../helpers/assertRevert';
 import decodeLogs from '../../helpers/decodeLogs';
 import sendTransaction from '../../helpers/sendTransaction';
+import _ from 'lodash';
 
 const ERC721Receiver = artifacts.require('ERC721ReceiverMock.sol');
 const BigNumber = web3.BigNumber;
@@ -182,6 +183,46 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
             ({ logs } = await transferFunction.call(this, owner, this.to, tokenId, { from: operator }));
           });
           transferWasSuccessful({ owner, tokenId, approved: null });
+        });
+
+        describe('when sent to the owner', function () {
+          beforeEach(async function () {
+            ({ logs } = await transferFunction.call(this, owner, owner, tokenId, { from: owner }));
+          });
+
+          it('keeps ownership of the token', async function () {
+            const newOwner = await this.token.ownerOf(tokenId);
+            newOwner.should.be.equal(owner);
+          });
+  
+          it('clears the approval for the token ID', async function () {
+            const approvedAccount = await this.token.getApproved(tokenId);
+            approvedAccount.should.be.equal(ZERO_ADDRESS);
+          });
+  
+          it('emits an approval and transfer events', async function () {
+            logs.length.should.be.equal(2);
+            logs[0].event.should.be.eq('Approval');
+            logs[0].args._owner.should.be.equal(owner);
+            logs[0].args._approved.should.be.equal(ZERO_ADDRESS);
+            logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
+  
+            logs[1].event.should.be.eq('Transfer');
+            logs[1].args._from.should.be.equal(owner);
+            logs[1].args._to.should.be.equal(owner);
+            logs[1].args._tokenId.should.be.bignumber.equal(tokenId);
+          });
+  
+          it('keeps the owner balance', async function () {
+            const ownerBalance = await this.token.balanceOf(owner);
+            ownerBalance.should.be.bignumber.equal(2);
+          });
+  
+          it('keeps same tokens by index', async function () {
+            if (!this.token.tokenOfOwnerByIndex) return;
+            const tokensListed = await Promise.all(_.range(2).map(i => this.token.tokenOfOwnerByIndex(owner, i)));
+            tokensListed.map(t => t.toNumber()).should.have.members([firstTokenId, secondTokenId]);
+          });
         });
         
         describe('when the address of the previous owner is incorrect', function () {
