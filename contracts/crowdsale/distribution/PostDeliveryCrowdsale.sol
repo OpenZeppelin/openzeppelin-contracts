@@ -4,6 +4,7 @@ import "../validation/TimedCrowdsale.sol";
 import "../../token/ERC20/ERC20.sol";
 import "../../math/SafeMath.sol";
 
+
 /**
  * @title PostDeliveryCrowdsale
  * @dev Crowdsale that locks tokens from withdrawal until it ends.
@@ -12,15 +13,6 @@ contract PostDeliveryCrowdsale is TimedCrowdsale {
   using SafeMath for uint256;
 
   mapping(address => uint256) public balances;
-
-  /**
-   * @dev Overrides parent by storing balances instead of issuing tokens right away.
-   * @param _beneficiary Token purchaser
-   * @param _tokenAmount Amount of tokens purchased
-   */
-  function _processPurchase(address _beneficiary, uint256 _tokenAmount) internal {
-    balances[_beneficiary] = balances[_beneficiary].add(_tokenAmount);
-  }
 
   /**
    * @dev Withdraw tokens only after crowdsale ends.
@@ -32,4 +24,14 @@ contract PostDeliveryCrowdsale is TimedCrowdsale {
     balances[msg.sender] = 0;
     _deliverTokens(msg.sender, amount);
   }
+
+  /**
+   * @dev Overrides parent by storing balances instead of issuing tokens right away.
+   * @param _beneficiary Token purchaser
+   * @param _tokenAmount Amount of tokens purchased
+   */
+  function _processPurchase(address _beneficiary, uint256 _tokenAmount) internal {
+    balances[_beneficiary] = balances[_beneficiary].add(_tokenAmount);
+  }
+
 }
