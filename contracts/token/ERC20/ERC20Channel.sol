@@ -156,9 +156,7 @@ contract ERC20Channel is Ownable {
    */
   function getSignerOfBalanceHash(uint256 balance, bytes msgSigned) public view returns (address) {
     bytes32 msgHash = generateBalanceHash(balance);
-    // Derive address from signature
-    address signer = msgHash.recover(msgSigned);
-    return signer;
+    return msgHash.recover(msgSigned);
   }
 
   /**
