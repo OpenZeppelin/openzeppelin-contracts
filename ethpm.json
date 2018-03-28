@@ -1,6 +1,6 @@
 {
   "package_name": "zeppelin",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "Secure Smart Contract library for Solidity",
   "authors": [
     "Manuel Araoz <manuelaraoz@gmail.com>"

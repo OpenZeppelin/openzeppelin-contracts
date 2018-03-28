@@ -23,8 +23,8 @@ contract('IndividuallyCappedCrowdsale', function ([_, wallet, alice, bob, charli
     beforeEach(async function () {
       this.token = await SimpleToken.new();
       this.crowdsale = await CappedCrowdsale.new(rate, wallet, this.token.address);
-      this.crowdsale.setUserCap(alice, capAlice);
-      this.crowdsale.setUserCap(bob, capBob);
+      await this.crowdsale.setUserCap(alice, capAlice);
+      await this.crowdsale.setUserCap(bob, capBob);
       await this.token.transfer(this.crowdsale.address, tokenSupply);
     });
 

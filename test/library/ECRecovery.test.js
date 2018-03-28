@@ -1,5 +1,4 @@
 var ECRecoveryMock = artifacts.require('ECRecoveryMock');
-var ECRecoveryLib = artifacts.require('ECRecovery');
 
 var hashMessage = require('../helpers/hashMessage.js');
 
@@ -8,8 +7,6 @@ contract('ECRecovery', function (accounts) {
   const TEST_MESSAGE = 'OpenZeppelin';
 
   before(async function () {
-    const ecRecoveryLib = await ECRecoveryLib.new();
-    ECRecoveryMock.link('ECRecovery', ecRecoveryLib.address);
     ecrecovery = await ECRecoveryMock.new();
   });
 

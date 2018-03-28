@@ -1,5 +1,5 @@
-import latestTime from '../helpers/latestTime';
-import { increaseTimeTo, duration } from '../helpers/increaseTime';
+import latestTime from '../../helpers/latestTime';
+import { increaseTimeTo, duration } from '../../helpers/increaseTime';
 
 const BigNumber = web3.BigNumber;
 
