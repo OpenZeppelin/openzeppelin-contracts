@@ -40,7 +40,15 @@ contract TokenVesting is Ownable {
    * @param _duration duration in seconds of the period in which the tokens will vest
    * @param _revocable whether the vesting is revocable or not
    */
-  function TokenVesting(address _beneficiary, uint256 _start, uint256 _cliff, uint256 _duration, bool _revocable) public {
+  function TokenVesting(
+    address _beneficiary,
+    uint256 _start,
+    uint256 _cliff,
+    uint256 _duration,
+    bool _revocable
+  )
+    public
+  {
     require(_beneficiary != address(0));
     require(_cliff <= _duration);
 
@@ -104,12 +112,12 @@ contract TokenVesting is Ownable {
     uint256 currentBalance = token.balanceOf(this);
     uint256 totalBalance = currentBalance.add(released[token]);
 
-    if (now < cliff) {
+    if (block.timestamp < cliff) {
       return 0;
-    } else if (now >= start.add(duration) || revoked[token]) {
+    } else if (block.timestamp >= start.add(duration) || revoked[token]) {
       return totalBalance;
     } else {
-      return totalBalance.mul(now.sub(start)).div(duration);
+      return totalBalance.mul(block.timestamp.sub(start)).div(duration);
     }
   }
 }

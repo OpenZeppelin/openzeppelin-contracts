@@ -24,6 +24,7 @@ library MerkleProof {
     bytes32 computedHash = _leaf;
 
     for (uint256 i = 32; i <= _proof.length; i += 32) {
+      // solium-disable-next-line security/no-inline-assembly
       assembly {
         // Load the current element of the proof
         proofElement := mload(add(_proof, i))
