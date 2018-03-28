@@ -3,6 +3,7 @@ pragma solidity ^0.4.18;
 import "../token/ERC20/ERC20.sol";
 import "../math/SafeMath.sol";
 
+
 /**
  * @title Crowdsale
  * @dev Crowdsale is a base contract for managing a token crowdsale,
@@ -11,11 +12,10 @@ import "../math/SafeMath.sol";
  * functionality and/or custom behavior.
  * The external interface represents the basic interface for purchasing tokens, and conform
  * the base architecture for crowdsales. They are *not* intended to be modified / overriden.
- * The internal interface conforms the extensible and modifiable surface of crowdsales. Override 
+ * The internal interface conforms the extensible and modifiable surface of crowdsales. Override
  * the methods to add functionality. Consider using 'super' where appropiate to concatenate
  * behavior.
  */
-
 contract Crowdsale {
   using SafeMath for uint256;
 
