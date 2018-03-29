@@ -53,34 +53,34 @@ contract('ERC20Channel', function () {
     assert.equal(parseInt(channelInfo[4]), receiver);
   });
 
-  [['sender', sender], ['receiver', receiver]].forEach(function(closeFrom) {
-   it(`create channel and close it with a mutual agreement from ${closeFrom[0]}`, async function () {
-     tokenChannel = await ERC20Channel.new(token.address, receiver, duration.days(1), { from: sender });
-     await token.transfer(tokenChannel.address, 30, { from: sender });
-     const hash = await tokenChannel.generateBalanceHash(20);
-     const senderSig = signMsg(hash, senderPrivateKey);
-     assert.equal(sender,
-       await tokenChannel.getSignerOfBalanceHash(20, senderSig)
-     );
-     const senderHash = await tokenChannel.generateKeccak256(senderSig);
-     const closingSig = signMsg(senderHash, receiverPrivateKey);
-     const channelInfo = await tokenChannel.getInfo();
-     assert.equal(parseInt(channelInfo[0]), 30);
-     assert.equal(parseInt(channelInfo[1]), 0);
-     assert.equal(parseInt(channelInfo[2]), 0);
-     await tokenChannel.cooperativeClose(20, senderSig, closingSig, { from: closeFrom[1] });
+  [['sender', sender], ['receiver', receiver]].forEach(function (closeFrom) {
+    it(`create channel and close it with a mutual agreement from ${closeFrom[0]}`, async function () {
+      tokenChannel = await ERC20Channel.new(token.address, receiver, duration.days(1), { from: sender });
+      await token.transfer(tokenChannel.address, 30, { from: sender });
+      const hash = await tokenChannel.generateBalanceHash(20);
+      const senderSig = signMsg(hash, senderPrivateKey);
+      assert.equal(sender,
+        await tokenChannel.getSignerOfBalanceHash(20, senderSig)
+      );
+      const senderHash = await tokenChannel.generateKeccak256(senderSig);
+      const closingSig = signMsg(senderHash, receiverPrivateKey);
+      const channelInfo = await tokenChannel.getInfo();
+      assert.equal(parseInt(channelInfo[0]), 30);
+      assert.equal(parseInt(channelInfo[1]), 0);
+      assert.equal(parseInt(channelInfo[2]), 0);
+      await tokenChannel.cooperativeClose(20, senderSig, closingSig, { from: closeFrom[1] });
 
-     // Tranfer approved balance from token channel
-     await token.transferFrom(tokenChannel.address, sender, 10, {from: sender});
-     await token.transferFrom(tokenChannel.address, receiver, 20, {from: receiver});
+      // Tranfer approved balance from token channel
+      await token.transferFrom(tokenChannel.address, sender, 10, { from: sender });
+      await token.transferFrom(tokenChannel.address, receiver, 20, { from: receiver });
 
-     // Check sender and receiver balance
-     (await token.balanceOf(sender)).should.be.bignumber
-       .equal(80);
-     (await token.balanceOf(receiver)).should.be.bignumber
-       .equal(20);
-   });
-});
+      // Check sender and receiver balance
+      (await token.balanceOf(sender)).should.be.bignumber
+        .equal(80);
+      (await token.balanceOf(receiver)).should.be.bignumber
+        .equal(20);
+    });
+  });
 
   it('tryes to force the close of the channel with wrong value and signatures', async function () {
     tokenChannel = await ERC20Channel.new(token.address, receiver, duration.days(1), { from: sender });
@@ -140,8 +140,8 @@ contract('ERC20Channel', function () {
     await tokenChannel.closeChannel({ from: sender });
 
     // Tranfer approved balance from token channel
-    await token.transferFrom(tokenChannel.address, sender, 20, {from: sender});
-    await token.transferFrom(tokenChannel.address, receiver, 10, {from: receiver});
+    await token.transferFrom(tokenChannel.address, sender, 20, { from: sender });
+    await token.transferFrom(tokenChannel.address, receiver, 10, { from: receiver });
 
     // Check sender and receiver balance
     (await token.balanceOf(sender)).should.be.bignumber
@@ -171,8 +171,8 @@ contract('ERC20Channel', function () {
       .equal(20);
 
     // Tranfer approved balance from token channel
-    await token.transferFrom(tokenChannel.address, sender, 10, {from: sender});
-    await token.transferFrom(tokenChannel.address, receiver, 20, {from: receiver});
+    await token.transferFrom(tokenChannel.address, sender, 10, { from: sender });
+    await token.transferFrom(tokenChannel.address, receiver, 20, { from: receiver });
 
     // Check sender and receiver balance
     (await token.balanceOf(sender)).should.be.bignumber
@@ -180,7 +180,7 @@ contract('ERC20Channel', function () {
     (await token.balanceOf(receiver)).should.be.bignumber
       .equal(20);
 
-    //Check that contract is destroyed
-    assert.equal('0x0', await web3.eth.getCode(tokenChannel.contract.address))
+    // Check that contract is destroyed
+    assert.equal('0x0', await web3.eth.getCode(tokenChannel.contract.address));
   });
 });
