@@ -49,6 +49,8 @@ contract('ERC20Channel', function () {
     assert.equal(parseInt(channelInfo[0]), 60);
     assert.equal(parseInt(channelInfo[1]), 0);
     assert.equal(parseInt(channelInfo[2]), 0);
+    assert.equal(parseInt(channelInfo[3]), sender);
+    assert.equal(parseInt(channelInfo[4]), receiver);
   });
 
   [['sender', sender], ['receiver', receiver]].forEach(function(closeFrom) {

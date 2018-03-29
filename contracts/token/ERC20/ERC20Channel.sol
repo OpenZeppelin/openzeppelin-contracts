@@ -145,8 +145,8 @@ contract ERC20Channel is Ownable {
    /**
     * @dev Get the channel info
     */
-  function getInfo() public view returns (uint256, uint256, uint256) {
-    return (token.balanceOf(address(this)), closeTime, closingBalance);
+  function getInfo() public view returns (uint256, uint256, uint256, address, address) {
+    return (token.balanceOf(address(this)), closeTime, closingBalance, owner, receiver);
   }
 
   /**
