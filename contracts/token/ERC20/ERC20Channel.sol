@@ -188,10 +188,10 @@ contract ERC20Channel is Ownable {
     require(finalBalance <= tokenBalance);
 
     // Send balance to the receiver
-    require(token.transfer(receiver, finalBalance));
+    require(token.approve(receiver, finalBalance));
 
     // Send remaining balance back to sender
-    require(token.transfer(owner, tokenBalance.sub(finalBalance)));
+    require(token.approve(owner, tokenBalance.sub(finalBalance)));
 
     // Destroy contract
     selfdestruct(owner);

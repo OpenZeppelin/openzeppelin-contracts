@@ -70,6 +70,10 @@ contract('ERC20Channel', function () {
      assert.equal(parseInt(channelInfo[2]), 0);
      await tokenChannel.cooperativeClose(20, senderSig, closingSig, { from: closeFrom[1] });
 
+     // Tranfer approved balance from token channel
+     await token.transferFrom(tokenChannel.address, sender, 10, {from: sender});
+     await token.transferFrom(tokenChannel.address, receiver, 20, {from: receiver});
+
      // Check sender and receiver balance
      (await token.balanceOf(sender)).should.be.bignumber
        .equal(80);
@@ -135,6 +139,10 @@ contract('ERC20Channel', function () {
     await increaseTimeTo(latestTime() + duration.days(2));
     await tokenChannel.closeChannel({ from: sender });
 
+    // Tranfer approved balance from token channel
+    await token.transferFrom(tokenChannel.address, sender, 20, {from: sender});
+    await token.transferFrom(tokenChannel.address, receiver, 10, {from: receiver});
+
     // Check sender and receiver balance
     (await token.balanceOf(sender)).should.be.bignumber
       .equal(90);
@@ -155,6 +163,16 @@ contract('ERC20Channel', function () {
     await tokenChannel.uncooperativeClose(10, { from: sender });
     await increaseTimeTo(latestTime() + 10);
     await tokenChannel.cooperativeClose(20, senderSig, closingSig, { from: receiver });
+
+    // Check sender and receiver allowance after close
+    (await token.allowance(tokenChannel.address, sender)).should.be.bignumber
+      .equal(10);
+    (await token.allowance(tokenChannel.address, receiver)).should.be.bignumber
+      .equal(20);
+
+    // Tranfer approved balance from token channel
+    await token.transferFrom(tokenChannel.address, sender, 10, {from: sender});
+    await token.transferFrom(tokenChannel.address, receiver, 20, {from: receiver});
 
     // Check sender and receiver balance
     (await token.balanceOf(sender)).should.be.bignumber
