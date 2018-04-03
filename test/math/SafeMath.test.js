@@ -7,85 +7,197 @@ require('chai')
   .should();
 
 contract('SafeMath', () => {
-  const MAX_UINT = new BigNumber('115792089237316195423570985008687907853269984665640564039457584007913129639935');
+  const MIN_INT = new BigNumber(2).pow(255).times(-1);
+  const MAX_INT = new BigNumber(2).pow(255).minus(1);
+  const MAX_UINT = new BigNumber(2).pow(256).minus(1);
 
   before(async function () {
     this.safeMath = await SafeMathMock.new();
   });
 
-  describe('add', function () {
-    it('adds correctly', async function () {
-      const a = new BigNumber(5678);
-      const b = new BigNumber(1234);
+  describe('unsigned integers', function () {
+    describe('add', function () {
+      it('adds correctly', async function () {
+        const a = new BigNumber(5678);
+        const b = new BigNumber(1234);
 
-      const result = await this.safeMath.add(a, b);
-      result.should.be.bignumber.equal(a.plus(b));
+        const result = await this.safeMath.addUints(a, b);
+        result.should.be.bignumber.equal(a.plus(b));
+      });
+
+      it('throws an error on addition overflow', async function () {
+        const a = MAX_UINT;
+        const b = new BigNumber(1);
+
+        await assertJump(this.safeMath.addUints(a, b));
+      });
     });
 
-    it('throws an error on addition overflow', async function () {
-      const a = MAX_UINT;
-      const b = new BigNumber(1);
+    describe('sub', function () {
+      it('subtracts correctly', async function () {
+        const a = new BigNumber(5678);
+        const b = new BigNumber(1234);
 
-      await assertJump(this.safeMath.add(a, b));
+        const result = await this.safeMath.subUints(a, b);
+        result.should.be.bignumber.equal(a.minus(b));
+      });
+
+      it('throws an error if subtraction result would be negative', async function () {
+        const a = new BigNumber(1234);
+        const b = new BigNumber(5678);
+
+        await assertJump(this.safeMath.subUints(a, b));
+      });
+    });
+
+    describe('mul', function () {
+      it('multiplies correctly', async function () {
+        const a = new BigNumber(1234);
+        const b = new BigNumber(5678);
+
+        const result = await this.safeMath.mulUints(a, b);
+        result.should.be.bignumber.equal(a.times(b));
+      });
+
+      it('handles a zero product correctly', async function () {
+        const a = new BigNumber(0);
+        const b = new BigNumber(5678);
+
+        const result = await this.safeMath.mulUints(a, b);
+        result.should.be.bignumber.equal(a.times(b));
+      });
+
+      it('throws an error on multiplication overflow', async function () {
+        const a = MAX_UINT;
+        const b = new BigNumber(2);
+
+        await assertJump(this.safeMath.mulUints(a, b));
+      });
+    });
+
+    describe('div', function () {
+      it('divides correctly', async function () {
+        const a = new BigNumber(5678);
+        const b = new BigNumber(5678);
+
+        const result = await this.safeMath.divUints(a, b);
+        result.should.be.bignumber.equal(a.div(b));
+      });
+
+      it('throws an error on zero division', async function () {
+        const a = new BigNumber(5678);
+        const b = new BigNumber(0);
+
+        await assertJump(this.safeMath.divUints(a, b));
+      });
     });
   });
 
-  describe('sub', function () {
-    it('subtracts correctly', async function () {
-      const a = new BigNumber(5678);
-      const b = new BigNumber(1234);
+  describe('signed integers', function () {
+    describe('add', function () {
+      it('adds correctly if it does not overflow and the result is positve', async function () {
+        const a = new BigNumber(1234);
+        const b = new BigNumber(5678);
 
-      const result = await this.safeMath.sub(a, b);
-      result.should.be.bignumber.equal(a.minus(b));
+        const result = await this.safeMath.addInts(a, b);
+        result.should.be.bignumber.equal(a.plus(b));
+      });
+
+      it('adds correctly if it does not overflow and the result is negative', async function () {
+        const a = MAX_INT;
+        const b = MIN_INT;
+
+        const result = await this.safeMath.addInts(a, b);
+        result.should.be.bignumber.equal(a.plus(b));
+      });
+
+      it('throws an error on positive addition overflow', async function () {
+        const a = MAX_INT;
+        const b = new BigNumber(1);
+
+        await assertJump(this.safeMath.addInts(a, b));
+      });
+
+      it('throws an error on negative addition overflow', async function () {
+        const a = MIN_INT;
+        const b = new BigNumber(-1);
+
+        await assertJump(this.safeMath.addInts(a, b));
+      });
     });
 
-    it('throws an error if subtraction result would be negative', async function () {
-      const a = new BigNumber(1234);
-      const b = new BigNumber(5678);
+    describe('mul', function () {
+      it('multiplies correctly', async function () {
+        const a = new BigNumber(5678);
+        const b = new BigNumber(-1234);
 
-      await assertJump(this.safeMath.sub(a, b));
-    });
-  });
+        const result = await this.safeMath.mulInts(a, b);
+        result.should.be.bignumber.equal(a.times(b));
+      });
 
-  describe('mul', function () {
-    it('multiplies correctly', async function () {
-      const a = new BigNumber(1234);
-      const b = new BigNumber(5678);
+      it('handles a zero product correctly', async function () {
+        const a = new BigNumber(0);
+        const b = new BigNumber(5678);
 
-      const result = await this.safeMath.mul(a, b);
-      result.should.be.bignumber.equal(a.times(b));
-    });
+        const result = await this.safeMath.mulInts(a, b);
+        result.should.be.bignumber.equal(a.times(b));
+      });
 
-    it('handles a zero product correctly', async function () {
-      const a = new BigNumber(0);
-      const b = new BigNumber(5678);
+      it('throws an error on multiplication overflow', async function () {
+        const a = MAX_INT;
+        const b = new BigNumber(2);
 
-      const result = await this.safeMath.mul(a, b);
-      result.should.be.bignumber.equal(a.times(b));
-    });
-
-    it('throws an error on multiplication overflow', async function () {
-      const a = MAX_UINT;
-      const b = new BigNumber(2);
-
-      await assertJump(this.safeMath.mul(a, b));
-    });
-  });
-
-  describe('div', function () {
-    it('divides correctly', async function () {
-      const a = new BigNumber(5678);
-      const b = new BigNumber(5678);
-
-      const result = await this.safeMath.div(a, b);
-      result.should.be.bignumber.equal(a.div(b));
+        await assertJump(this.safeMath.mulInts(a, b));
+      });
     });
 
-    it('throws an error on zero division', async function () {
-      const a = new BigNumber(5678);
-      const b = new BigNumber(0);
+    describe('sub', function () {
+      it('subtracts correctly if it does not overflow and the result is positive', async function () {
+        const a = new BigNumber(5678);
+        const b = new BigNumber(1234);
 
-      await assertJump(this.safeMath.div(a, b));
+        const result = await this.safeMath.subInts(a, b);
+        result.should.be.bignumber.equal(a.minus(b));
+      });
+
+      it('subtracts correctly if it does not overflow and the result is negative', async function () {
+        const a = new BigNumber(1234);
+        const b = new BigNumber(5678);
+
+        const result = await this.safeMath.subInts(a, b);
+        result.should.be.bignumber.equal(a.minus(b));
+      });
+
+      it('throws an error on positive subtraction overflow', async function () {
+        const a = MAX_INT;
+        const b = new BigNumber(-1);
+
+        await assertJump(this.safeMath.subInts(a, b));
+      });
+
+      it('throws an error on negative subtraction overflow', async function () {
+        const a = MIN_INT;
+        const b = new BigNumber(1);
+
+        await assertJump(this.safeMath.subInts(a, b));
+      });
+    });
+
+    describe('div', function () {
+      it('divides correctly', async function () {
+        const a = new BigNumber(-5678);
+        const b = new BigNumber(5678);
+
+        const result = await this.safeMath.divInts(a, b);
+        result.should.be.bignumber.equal(a.div(b));
+      });
+
+      it('throws an error on zero division', async function () {
+        const a = new BigNumber(-5678);
+        const b = new BigNumber(0);
+
+        await assertJump(this.safeMath.divInts(a, b));
+      });
     });
   });
 });
