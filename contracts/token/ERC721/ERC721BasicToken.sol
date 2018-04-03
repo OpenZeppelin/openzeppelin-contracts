@@ -5,6 +5,7 @@ import "./ERC721Receiver.sol";
 import "../../math/SafeMath.sol";
 import "../../AddressUtils.sol";
 
+
 /**
  * @title ERC721 Non-Fungible Token Standard basic implementation
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
@@ -12,10 +13,10 @@ import "../../AddressUtils.sol";
 contract ERC721BasicToken is ERC721Basic {
   using SafeMath for uint256;
   using AddressUtils for address;
-  
+
   // Equals to `bytes4(keccak256("onERC721Received(address,uint256,bytes)"))`
   // which can be also obtained as `ERC721Receiver(0).onERC721Received.selector`
-  bytes4 constant ERC721_RECEIVED = 0xf0b9e5ba; 
+  bytes4 constant ERC721_RECEIVED = 0xf0b9e5ba;
 
   // Mapping from token ID to owner
   mapping (uint256 => address) internal tokenOwner;
@@ -106,7 +107,6 @@ contract ERC721BasicToken is ERC721Basic {
     return tokenApprovals[_tokenId];
   }
 
-
   /**
   * @dev Sets or unsets the approval of a given operator
   * @dev An operator is allowed to transfer all tokens of the sender on their behalf
@@ -144,7 +144,7 @@ contract ERC721BasicToken is ERC721Basic {
     clearApproval(_from, _tokenId);
     removeTokenFrom(_from, _tokenId);
     addTokenTo(_to, _tokenId);
-    
+
     Transfer(_from, _to, _tokenId);
   }
 
@@ -159,7 +159,14 @@ contract ERC721BasicToken is ERC721Basic {
   * @param _to address to receive the ownership of the given token ID
   * @param _tokenId uint256 ID of the token to be transferred
   */
-  function safeTransferFrom(address _from, address _to, uint256 _tokenId) public canTransfer(_tokenId) {
+  function safeTransferFrom(
+    address _from,
+    address _to,
+    uint256 _tokenId
+  )
+    public
+    canTransfer(_tokenId)
+  {
     safeTransferFrom(_from, _to, _tokenId, "");
   }
 
@@ -175,7 +182,15 @@ contract ERC721BasicToken is ERC721Basic {
   * @param _tokenId uint256 ID of the token to be transferred
   * @param _data bytes data to send along with a safe transfer check
   */
-  function safeTransferFrom(address _from, address _to, uint256 _tokenId, bytes _data) public canTransfer(_tokenId) {
+  function safeTransferFrom(
+    address _from,
+    address _to,
+    uint256 _tokenId,
+    bytes _data
+  )
+    public
+    canTransfer(_tokenId)
+  {
     transferFrom(_from, _to, _tokenId);
     require(checkAndCallSafeTransfer(_from, _to, _tokenId, _data));
   }
@@ -260,7 +275,15 @@ contract ERC721BasicToken is ERC721Basic {
   * @param _data bytes optional data to send along with the call
   * @return whether the call correctly returned the expected magic value
   */
-  function checkAndCallSafeTransfer(address _from, address _to, uint256 _tokenId, bytes _data) internal returns (bool) {
+  function checkAndCallSafeTransfer(
+    address _from,
+    address _to,
+    uint256 _tokenId,
+    bytes _data
+  )
+    internal
+    returns (bool)
+  {
     if (!_to.isContract()) {
       return true;
     }
