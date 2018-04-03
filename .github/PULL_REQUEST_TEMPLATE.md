@@ -11,7 +11,7 @@ Fixes #
 
 <!-- 3. Before submitting, please review the following checklist: -->
 
-- [ ] 📘 I've reviewed the [OpenZeppelin Contributor Guidelines](../CONTRIBUTING.md)
+- [ ] 📘 I've reviewed the [OpenZeppelin Contributor Guidelines](../blob/master/CONTRIBUTING.md)
 - [ ] ✅ I've added tests where applicable to test my new functionality.
 - [ ] 📖 I've made sure that my contracts are well-documented.
 - [ ] 🎨 I've run the JS/Solidity linters and fixed any issues (`npm run lint:all:fix`).
