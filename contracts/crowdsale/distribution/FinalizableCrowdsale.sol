@@ -4,6 +4,7 @@ import "../../math/SafeMath.sol";
 import "../../ownership/Ownable.sol";
 import "../validation/TimedCrowdsale.sol";
 
+
 /**
  * @title FinalizableCrowdsale
  * @dev Extension of Crowdsale where an owner can do extra work
@@ -37,4 +38,5 @@ contract FinalizableCrowdsale is TimedCrowdsale, Ownable {
    */
   function finalization() internal {
   }
+
 }

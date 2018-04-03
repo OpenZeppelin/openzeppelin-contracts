@@ -3,6 +3,7 @@ pragma solidity ^0.4.13;
 import "./ERC827.sol";
 import "../ERC20/StandardToken.sol";
 
+
 /**
    @title ERC827, an extension of ERC20 token standard
 
@@ -70,7 +71,14 @@ contract ERC827Token is ERC827, StandardToken {
 
      @return true if the call function was executed successfully
    */
-  function transferFrom(address _from, address _to, uint256 _value, bytes _data) public returns (bool) {
+  function transferFrom(
+    address _from,
+    address _to,
+    uint256 _value,
+    bytes _data
+  )
+    public returns (bool)
+  {
     require(_to != address(this));
 
     super.transferFrom(_from, _to, _value);

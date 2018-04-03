@@ -1,5 +1,6 @@
 pragma solidity ^0.4.18;
 
+
 /**
  * @title ERC721 token receiver interface
  * @dev Interface for any contract that wants to support safeTransfers
@@ -11,7 +12,7 @@ contract ERC721Receiver {
    *  Equals to `bytes4(keccak256("onERC721Received(address,uint256,bytes)"))`,
    *  which can be also obtained as `ERC721Receiver(0).onERC721Received.selector`
    */
-  bytes4 constant ERC721_RECEIVED = 0xf0b9e5ba; 
+  bytes4 constant ERC721_RECEIVED = 0xf0b9e5ba;
 
   /**
    * @notice Handle the receipt of an NFT
@@ -20,7 +21,7 @@ contract ERC721Receiver {
    *  transfer. This function MUST use 50,000 gas or less. Return of other
    *  than the magic value MUST result in the transaction being reverted.
    *  Note: the contract address is always the message sender.
-   * @param _from The sending address 
+   * @param _from The sending address
    * @param _tokenId The NFT identifier which is being transfered
    * @param _data Additional data with no specified format
    * @return `bytes4(keccak256("onERC721Received(address,uint256,bytes)"))`

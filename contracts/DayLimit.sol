@@ -61,7 +61,7 @@ contract DayLimit {
    * @return uint256 of today's index.
    */
   function today() private view returns (uint256) {
-    return now / 1 days;
+    return block.timestamp / 1 days;
   }
 
   /**
