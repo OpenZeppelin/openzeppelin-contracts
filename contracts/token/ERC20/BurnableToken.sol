@@ -23,7 +23,7 @@ contract BurnableToken is BasicToken {
     address burner = msg.sender;
     balances[burner] = balances[burner].sub(_value);
     totalSupply_ = totalSupply_.sub(_value);
-    Burn(burner, _value);
+    emit Burn(burner, _value);
     Transfer(burner, address(0), _value);
   }
 }

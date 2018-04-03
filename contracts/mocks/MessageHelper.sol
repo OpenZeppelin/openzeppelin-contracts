@@ -6,7 +6,7 @@ contract MessageHelper {
   event Show(bytes32 b32, uint256 number, string text);
 
   function showMessage( bytes32 message, uint256 number, string text ) public returns (bool) {
-    Show(message, number, text);
+    emit Show(message, number, text);
     return true;
   }
 
