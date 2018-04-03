@@ -1,7 +1,6 @@
 pragma solidity ^0.4.18;
 
 import "./ERC721.sol";
-import "./DeprecatedERC721.sol";
 import "./ERC721BasicToken.sol";
 
 
