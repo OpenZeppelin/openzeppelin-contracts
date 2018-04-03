@@ -1,6 +1,6 @@
 
-import expectThrow from '../helpers/expectThrow';
-import ether from '../helpers/ether';
+import expectThrow from '../../helpers/expectThrow';
+import ether from '../../helpers/ether';
 
 var CappedToken = artifacts.require('CappedToken');
 

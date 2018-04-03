@@ -1,4 +1,4 @@
-pragma solidity ^ 0.4.18;
+pragma solidity ^0.4.18;
 
 import "../Crowdsale.sol";
 import "../../ownership/Ownable.sol";
@@ -27,9 +27,9 @@ contract WhitelistedCrowdsale is Crowdsale, Ownable {
   function addToWhitelist(address _beneficiary) external onlyOwner {
     whitelist[_beneficiary] = true;
   }
-  
+
   /**
-   * @dev Adds list of addresses to whitelist. Not overloaded due to limitations with truffle testing. 
+   * @dev Adds list of addresses to whitelist. Not overloaded due to limitations with truffle testing.
    * @param _beneficiaries Addresses to be added to the whitelist
    */
   function addManyToWhitelist(address[] _beneficiaries) external onlyOwner {
@@ -39,7 +39,7 @@ contract WhitelistedCrowdsale is Crowdsale, Ownable {
   }
 
   /**
-   * @dev Removes single address from whitelist. 
+   * @dev Removes single address from whitelist.
    * @param _beneficiary Address to be removed to the whitelist
    */
   function removeFromWhitelist(address _beneficiary) external onlyOwner {
