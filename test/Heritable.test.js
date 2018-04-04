@@ -1,5 +1,6 @@
 import increaseTime from './helpers/increaseTime';
 import expectThrow from './helpers/expectThrow';
+import assertRevert from './helpers/assertRevert';
 
 const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
 
@@ -77,7 +78,7 @@ contract('Heritable', function (accounts) {
     const heir = accounts[1];
     await heritable.setHeir(heir, { from: owner });
     heritable.proclaimDeath({ from: heir });
-    await expectThrow(heritable.proclaimDeath({ from: heir }));
+    await assertRevert(heritable.proclaimDeath({ from: heir }));
   });
 
   it('heir can\'t claim ownership if owner heartbeats', async function () {

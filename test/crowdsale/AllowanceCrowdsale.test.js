@@ -1,5 +1,6 @@
 import ether from '../helpers/ether';
 import EVMRevert from '../helpers/EVMRevert';
+import assertRevert from '../helpers/assertRevert';
 
 const BigNumber = web3.BigNumber;
 
@@ -17,6 +18,7 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
   const value = ether(0.42);
   const expectedTokenAmount = rate.mul(value);
   const tokenAllowance = new BigNumber('1e22');
+  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
   beforeEach(async function () {
     this.token = await SimpleToken.new({ from: tokenWallet });
@@ -67,14 +69,11 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
       tokensRemaining.should.be.bignumber.equal(remainingAllowance);
     });
   });
-});
 
-contract('AllowanceCrowdsaleFail', function ([_, investor, wallet, purchaser, tokenWallet]) {
-  const rate = new BigNumber(1);
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-
-  it('should fail with token wallet different from token address', async function () {
-    this.token = await SimpleToken.new({ from: tokenWallet });
-    await AllowanceCrowdsaleFail.new(rate, wallet, this.token.address, ZERO_ADDRESS).should.be.rejectedWith(EVMRevert);
+  describe('check token address', function () {
+    it('should fail with token wallet different from token address', async function () {
+      this.token = await SimpleToken.new({ from: tokenWallet });
+      await assertRevert(AllowanceCrowdsaleFail.new(rate, wallet, this.token.address, ZERO_ADDRESS));
+    });
   });
 });
