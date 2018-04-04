@@ -1,5 +1,4 @@
 import ether from '../helpers/ether';
-import EVMRevert from '../helpers/EVMRevert';
 import assertRevert from '../helpers/assertRevert';
 
 const BigNumber = web3.BigNumber;
@@ -10,7 +9,6 @@ const should = require('chai')
   .should();
 
 const AllowanceCrowdsale = artifacts.require('AllowanceCrowdsaleImpl');
-const AllowanceCrowdsaleFail = artifacts.require('AllowanceCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
 contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenWallet]) {
@@ -73,7 +71,7 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
   describe('check token address', function () {
     it('should fail with token wallet different from token address', async function () {
       this.token = await SimpleToken.new({ from: tokenWallet });
-      await assertRevert(AllowanceCrowdsaleFail.new(rate, wallet, this.token.address, ZERO_ADDRESS));
+      await assertRevert(AllowanceCrowdsale.new(rate, wallet, this.token.address, ZERO_ADDRESS));
     });
   });
 });
