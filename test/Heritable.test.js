@@ -40,7 +40,7 @@ contract('Heritable', function (accounts) {
   });
 
   it('owner can\'t be heir', async function () {
-    await expectThrow(heritable.setHeir(owner, { from: owner }));
+    await assertRevert(heritable.setHeir(owner, { from: owner }));
   });
 
   it('owner can remove heir', async function () {
@@ -70,8 +70,8 @@ contract('Heritable', function (accounts) {
 
   it('only heir can proclaim death', async function () {
     const someRandomAddress = accounts[2];
-    await expectThrow(heritable.proclaimDeath({ from: owner }));
-    await expectThrow(heritable.proclaimDeath({ from: someRandomAddress }));
+    await assertRevert(heritable.proclaimDeath({ from: owner }));
+    await assertRevert(heritable.proclaimDeath({ from: someRandomAddress }));
   });
 
   it('heir can\'t proclaim death if owner is death', async function () {
