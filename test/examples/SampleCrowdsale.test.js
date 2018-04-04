@@ -3,6 +3,7 @@ import { advanceBlock } from '../helpers/advanceToBlock';
 import { increaseTimeTo, duration } from '../helpers/increaseTime';
 import latestTime from '../helpers/latestTime';
 import EVMRevert from '../helpers/EVMRevert';
+import assertRevert from '../helpers/assertRevert';
 
 const BigNumber = web3.BigNumber;
 
@@ -19,6 +20,8 @@ const RefundVault = artifacts.require('RefundVault');
 contract('SampleCrowdsale', function ([owner, wallet, investor]) {
   const RATE = new BigNumber(10);
   const GOAL = ether(10);
+  // goal > cap
+  const HIGH_GOAL = ether(30);
   const CAP = ether(20);
 
   before(async function () {
@@ -112,32 +115,12 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
     const balanceAfterRefund = web3.eth.getBalance(investor);
     balanceBeforeInvestment.should.be.bignumber.equal(balanceAfterRefund);
   });
-});
 
-contract('SampleCrowdsaleFail', function ([owner, wallet, investor]) {
-  const RATE = new BigNumber(10);
-  // goal > cap
-  const GOAL = ether(20);
-  const CAP = ether(10);
-
-  before(async function () {
-    // Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
-    await advanceBlock();
-  });
-
-  beforeEach(async function () {
-  });
-
-  it('should not create crowdsale with goal > cap', async function () {
-    this.openingTime = latestTime() + duration.weeks(1);
-    this.closingTime = this.openingTime + duration.weeks(1);
-    this.afterClosingTime = this.closingTime + duration.seconds(1);
-
-    this.token = await SampleCrowdsaleToken.new({ from: owner });
-    this.vault = await RefundVault.new(wallet, { from: owner });
-
-    await SampleCrowdsaleFail.new(
-      this.openingTime, this.closingTime, RATE, wallet, CAP, this.token.address, GOAL
-    ).should.be.rejectedWith(EVMRevert);
+  describe('check limits', function () {
+    it('should not create crowdsale with goal > cap', async function () {
+      await assertRevert(SampleCrowdsale.new(
+        this.openingTime, this.closingTime, RATE, wallet, CAP, this.token.address, HIGH_GOAL
+      ));
+    });
   });
 });
