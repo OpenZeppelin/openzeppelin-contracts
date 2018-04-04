@@ -13,7 +13,6 @@ require('chai')
   .should();
 
 const SampleCrowdsale = artifacts.require('SampleCrowdsale');
-const SampleCrowdsaleFail = artifacts.require('SampleCrowdsale');
 const SampleCrowdsaleToken = artifacts.require('SampleCrowdsaleToken');
 const RefundVault = artifacts.require('RefundVault');
 
