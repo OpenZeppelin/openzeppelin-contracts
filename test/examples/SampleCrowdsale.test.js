@@ -115,8 +115,8 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
     balanceBeforeInvestment.should.be.bignumber.equal(balanceAfterRefund);
   });
 
-  describe('check limits', function () {
-    it('should not create crowdsale with goal > cap', async function () {
+  describe('when goal > cap', function () {
+    it('creation reverts', async function () {
       await assertRevert(SampleCrowdsale.new(
         this.openingTime, this.closingTime, RATE, wallet, CAP, this.token.address, HIGH_GOAL
       ));
