@@ -15,11 +15,19 @@ contract DestructibleDelayed is Ownable {
    uint256 public destructionTime = 2**256-1;
 
    // Minimum delay after which destroy() can be called once requested
-   uint256 public SELFDESTRUCTION_DELAY = 2 weeks; 
+   uint256 public SELFDESTRUCTION_DELAY; 
 
    // Events
    event SelfDestructionRequest(uint256 _destructionTime);
    event SelfDestructionRequestCancelled();
+
+  /*
+     @dev Constructor that sets SELFDESTRUCTION_DELAY
+     @param _destructionDelay Imposed delay between destructionRequest and selfdestruct.
+  */
+  function DestructibleDelayed(uint256 _destructionDelay) public {
+    SELFDESTRUCTION_DELAY =_destructionDelay;
+  }
 
    /*
       @dev Requesting to destroy the contract 
