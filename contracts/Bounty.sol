@@ -30,7 +30,7 @@ contract Bounty is PullPayment, Destructible {
   function createTarget() public returns(Target) {
     Target target = Target(deployContract());
     researchers[target] = msg.sender;
-    TargetCreated(target);
+    emit TargetCreated(target);
     return target;
   }
 
