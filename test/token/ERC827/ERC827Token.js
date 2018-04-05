@@ -94,7 +94,7 @@ contract('ERC827 Token', function (accounts) {
     });
 
     it('should increase by 50 then decrease by 10', async function () {
-      const abiMethod = findMethod(token.abi, 'increaseApprovalAndCall', 'address,uint256');
+      const abiMethod = findMethod(token.abi, 'increaseApproval', 'address,uint256');
       const increaseApprovalData = ethjsABI.encodeMethod(abiMethod,
         [accounts[1], 50]
       );
