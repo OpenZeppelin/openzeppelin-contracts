@@ -31,7 +31,7 @@ contract Whitelist is Ownable {
   function addAddressToWhitelist(address addr) onlyOwner public returns(bool success) {
     if (!whitelist[addr]) {
       whitelist[addr] = true;
-      WhitelistedAddressAdded(addr);
+      emit WhitelistedAddressAdded(addr);
       success = true; 
     }
   }
@@ -59,7 +59,7 @@ contract Whitelist is Ownable {
   function removeAddressFromWhitelist(address addr) onlyOwner public returns(bool success) {
     if (whitelist[addr]) {
       whitelist[addr] = false;
-      WhitelistedAddressRemoved(addr);
+      emit WhitelistedAddressRemoved(addr);
       success = true;
     }
   }
