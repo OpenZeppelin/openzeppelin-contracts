@@ -52,7 +52,7 @@
     "ganache-cli": "6.1.0",
     "mocha-lcov-reporter": "^1.3.0",
     "solidity-coverage": "^0.4.15",
-    "solium": "^1.1.2",
+    "solium": "^1.1.6",
     "truffle": "^4.1.5",
     "truffle-hdwallet-provider": "0.0.3"
   },
