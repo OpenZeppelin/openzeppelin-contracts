@@ -26,13 +26,15 @@ contract RBAC {
    * @dev reverts if addr does not have role
    * @param addr address
    * @param roleName the name of the role
+   * @return bool
    * // reverts
    */
   function checkRole(address addr, string roleName)
     view
     public
+    returns (bool)
   {
-    roles[roleName].check(addr);
+    return roles[roleName].check(addr);
   }
 
   /**
