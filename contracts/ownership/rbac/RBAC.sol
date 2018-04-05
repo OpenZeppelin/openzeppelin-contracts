@@ -60,7 +60,7 @@ contract RBAC {
     internal
   {
     roles[roleName].add(addr);
-    emit RoleAdded(addr, roleName);
+    RoleAdded(addr, roleName);
   }
 
   /**
@@ -72,7 +72,7 @@ contract RBAC {
     internal
   {
     roles[roleName].remove(addr);
-    emit RoleRemoved(addr, roleName);
+    RoleRemoved(addr, roleName);
   }
 
   /**

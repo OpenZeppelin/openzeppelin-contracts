@@ -72,7 +72,7 @@ contract TokenVesting is Ownable {
 
     token.safeTransfer(beneficiary, unreleased);
 
-    emit Released(unreleased);
+    Released(unreleased);
   }
 
   /**
@@ -93,7 +93,7 @@ contract TokenVesting is Ownable {
 
     token.safeTransfer(owner, refund);
 
-    emit Revoked();
+    Revoked();
   }
 
   /**

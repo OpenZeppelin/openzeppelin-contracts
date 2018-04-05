@@ -26,7 +26,7 @@ contract FinalizableCrowdsale is TimedCrowdsale, Ownable {
     require(hasClosed());
 
     finalization();
-    emit Finalized();
+    Finalized();
 
     isFinalized = true;
   }
