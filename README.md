@@ -31,7 +31,7 @@ npm install -E zeppelin-solidity
 
 After that, you'll get all the library's contracts in the `node_modules/zeppelin-solidity/contracts` folder. You can use the contracts in the library like so:
 
-```js
+```solidity
 import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
 
 contract MyContract is Ownable {
@@ -59,24 +59,6 @@ Interested in contributing to OpenZeppelin?
 - Issue tracker: https://github.com/OpenZeppelin/zeppelin-solidity/issues
 - Contribution guidelines: https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/CONTRIBUTING.md
 - Wiki: https://github.com/OpenZeppelin/zeppelin-solidity/wiki
-
-## Collaborating organizations and audits by OpenZeppelin
-- [Golem](https://golem.network/)
-- [Mediachain](http://www.mediachain.io/)
-- [Truffle](http://truffleframework.com/)
-- [Firstblood](https://firstblood.io/)
-- [Rootstock](https://www.rsk.co/)
-- [Consensys](https://consensys.net/)
-- [DigixGlobal](https://www.dgx.io/)
-- [Coinfund](https://coinfund.io/)
-- [DemocracyEarth](https://democracy.earth/)
-- [Signatura](https://signatura.co/)
-- [Ether.camp](http://www.ether.camp/)
-- [Aragon](https://aragon.one/)
-- [Wings](https://wings.ai/)
-
-among others...
-
 
 ## License
 Code released under the [MIT License](https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/LICENSE).
