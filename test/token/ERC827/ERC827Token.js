@@ -94,7 +94,7 @@ contract('ERC827 Token', function (accounts) {
     });
 
     it('should increase by 50 then decrease by 10', async function () {
-      const abiMethod = findMethod(token.abi, 'increaseApproval', 'address,uint256');
+      const abiMethod = findMethod(token.abi, 'increaseApprovalAndCall', 'address,uint256');
       const increaseApprovalData = ethjsABI.encodeMethod(abiMethod,
         [accounts[1], 50]
       );
@@ -135,7 +135,7 @@ contract('ERC827 Token', function (accounts) {
         const extraData = message.contract.showMessage.getData(
           web3.toHex(123456), 666, 'Transfer Done'
         );
-        const abiMethod = findMethod(token.abi, 'transfer', 'address,uint256,bytes');
+        const abiMethod = findMethod(token.abi, 'transferAndCall', 'address,uint256,bytes');
         const transferData = ethjsABI.encodeMethod(abiMethod,
           [message.contract.address, 100, extraData]
         );
@@ -159,7 +159,7 @@ contract('ERC827 Token', function (accounts) {
           web3.toHex(123456), 666, 'Transfer Done'
         );
 
-        const abiMethod = findMethod(token.abi, 'approve', 'address,uint256,bytes');
+        const abiMethod = findMethod(token.abi, 'approveAndCall', 'address,uint256,bytes');
         const approveData = ethjsABI.encodeMethod(abiMethod,
           [message.contract.address, 100, extraData]
         );
@@ -188,7 +188,7 @@ contract('ERC827 Token', function (accounts) {
           await token.allowance(accounts[0], message.contract.address)
         );
 
-        const abiMethod = findMethod(token.abi, 'increaseApproval', 'address,uint256,bytes');
+        const abiMethod = findMethod(token.abi, 'increaseApprovalAndCall', 'address,uint256,bytes');
         const increaseApprovalData = ethjsABI.encodeMethod(abiMethod,
           [message.contract.address, 50, extraData]
         );
@@ -218,7 +218,7 @@ contract('ERC827 Token', function (accounts) {
           web3.toHex(123456), 666, 'Transfer Done'
         );
 
-        const abiMethod = findMethod(token.abi, 'decreaseApproval', 'address,uint256,bytes');
+        const abiMethod = findMethod(token.abi, 'decreaseApprovalAndCall', 'address,uint256,bytes');
         const decreaseApprovalData = ethjsABI.encodeMethod(abiMethod,
           [message.contract.address, 60, extraData]
         );
@@ -248,7 +248,7 @@ contract('ERC827 Token', function (accounts) {
           await token.allowance(accounts[0], accounts[1])
         );
 
-        const abiMethod = findMethod(token.abi, 'transferFrom', 'address,address,uint256,bytes');
+        const abiMethod = findMethod(token.abi, 'transferFromAndCall', 'address,address,uint256,bytes');
         const transferFromData = ethjsABI.encodeMethod(abiMethod,
           [accounts[0], message.contract.address, 100, extraData]
         );
@@ -268,7 +268,7 @@ contract('ERC827 Token', function (accounts) {
 
       const extraData = message.contract.fail.getData();
 
-      const abiMethod = findMethod(token.abi, 'approve', 'address,uint256,bytes');
+      const abiMethod = findMethod(token.abi, 'approveAndCall', 'address,uint256,bytes');
       const approveData = ethjsABI.encodeMethod(abiMethod,
         [message.contract.address, 10, extraData]
       );
@@ -286,7 +286,7 @@ contract('ERC827 Token', function (accounts) {
 
       const extraData = message.contract.fail.getData();
 
-      const abiMethod = findMethod(token.abi, 'transfer', 'address,uint256,bytes');
+      const abiMethod = findMethod(token.abi, 'transferAndCall', 'address,uint256,bytes');
       const transferData = ethjsABI.encodeMethod(abiMethod,
         [message.contract.address, 10, extraData]
       );
@@ -306,7 +306,7 @@ contract('ERC827 Token', function (accounts) {
 
       await token.approve(accounts[1], 10, { from: accounts[2] });
 
-      const abiMethod = findMethod(token.abi, 'transferFrom', 'address,address,uint256,bytes');
+      const abiMethod = findMethod(token.abi, 'transferFromAndCall', 'address,address,uint256,bytes');
       const transferFromData = ethjsABI.encodeMethod(abiMethod,
         [accounts[2], message.contract.address, 10, extraData]
       );
@@ -328,7 +328,7 @@ contract('ERC827 Token', function (accounts) {
         web3.toHex(123456), 666, 'Transfer Done'
       );
 
-      const abiMethod = findMethod(token.abi, 'approve', 'address,uint256,bytes');
+      const abiMethod = findMethod(token.abi, 'approveAndCall', 'address,uint256,bytes');
       const approveData = ethjsABI.encodeMethod(abiMethod,
         [token.contract.address, 100, extraData]
       );
@@ -344,7 +344,7 @@ contract('ERC827 Token', function (accounts) {
         web3.toHex(123456), 666, 'Transfer Done'
       );
 
-      const abiMethod = findMethod(token.abi, 'transfer', 'address,uint256,bytes');
+      const abiMethod = findMethod(token.abi, 'transferAndCall', 'address,uint256,bytes');
       const transferData = ethjsABI.encodeMethod(abiMethod,
         [token.contract.address, 100, extraData]
       );
@@ -362,7 +362,7 @@ contract('ERC827 Token', function (accounts) {
 
       await token.approve(accounts[1], 1, { from: accounts[0] });
 
-      const abiMethod = findMethod(token.abi, 'transferFrom', 'address,address,uint256,bytes');
+      const abiMethod = findMethod(token.abi, 'transferFromAndCall', 'address,address,uint256,bytes');
       const transferFromData = ethjsABI.encodeMethod(abiMethod,
         [accounts[0], token.contract.address, 1, extraData]
       );
