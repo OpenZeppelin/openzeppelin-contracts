@@ -77,7 +77,7 @@ contract('Heritable', function (accounts) {
   it('heir can\'t proclaim death if owner is death', async function () {
     const heir = accounts[1];
     await heritable.setHeir(heir, { from: owner });
-    heritable.proclaimDeath({ from: heir });
+    await heritable.proclaimDeath({ from: heir });
     await assertRevert(heritable.proclaimDeath({ from: heir }));
   });
 
