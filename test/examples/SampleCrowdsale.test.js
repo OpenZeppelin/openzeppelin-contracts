@@ -19,8 +19,6 @@ const RefundVault = artifacts.require('RefundVault');
 contract('SampleCrowdsale', function ([owner, wallet, investor]) {
   const RATE = new BigNumber(10);
   const GOAL = ether(10);
-  // goal > cap
-  const HIGH_GOAL = ether(30);
   const CAP = ether(20);
 
   before(async function () {
@@ -116,6 +114,9 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
   });
 
   describe('when goal > cap', function () {
+    // goal > cap
+    const HIGH_GOAL = ether(30);
+
     it('creation reverts', async function () {
       await assertRevert(SampleCrowdsale.new(
         this.openingTime, this.closingTime, RATE, wallet, CAP, this.token.address, HIGH_GOAL
