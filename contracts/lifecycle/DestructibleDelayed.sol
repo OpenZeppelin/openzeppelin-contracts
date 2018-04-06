@@ -21,17 +21,17 @@ contract DestructibleDelayed is Ownable {
    event SelfDestructionRequest(uint256 _destructionTime);
    event SelfDestructionRequestCancelled();
 
-  /*
-     @dev Constructor that sets SELFDESTRUCTION_DELAY
-     @param _destructionDelay Imposed delay between destructionRequest and selfdestruct.
-  */
+  /**
+   * @dev Constructor that sets SELFDESTRUCTION_DELAY
+   * @param _destructionDelay Imposed delay between destructionRequest and selfdestruct.
+   */
   function DestructibleDelayed(uint256 _destructionDelay) public {
-    SELFDESTRUCTION_DELAY =_destructionDelay;
+    SELFDESTRUCTION_DELAY = _destructionDelay;
   }
 
-   /*
-      @dev Requesting to destroy the contract 
-   */
+   /**
+    * @dev Requesting to destroy the contract 
+    */
    function destroyRequest() public onlyOwner returns (bool)
    {
       require(!destructionRequested);
@@ -43,10 +43,10 @@ contract DestructibleDelayed is Ownable {
       return true;
    }
 
-   /*
-      @dev Cancel the latest destroy request
-   */
-   function cancelDestroyRequest() public onlyOwner  returns (bool)
+   /**
+    * @dev Cancel the latest destroy request
+    */
+   function cancelDestroyRequest() public onlyOwner returns (bool)
    {  
      require(destructionRequested);
      destructionRequested = false;
@@ -58,10 +58,10 @@ contract DestructibleDelayed is Ownable {
      return true;
    }
 
-   /* 
-      @dev Destroy the contract
-      @param _destination Where to send the ethers held in the contract
-   */
+   /** 
+    * @dev Destroy the contract
+    * @param _destination Where to send the ethers held in the contract
+    */
    function destroy(address _destination) public onlyOwner
    {
      require(_destination != 0x0);
