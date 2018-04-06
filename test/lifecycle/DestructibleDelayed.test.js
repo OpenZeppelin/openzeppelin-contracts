@@ -12,7 +12,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const twoWeeks = 1209600;
+const twoWeeks = 2* 7 * 24 * 60 * 60; //In seconds
 
 contract('DestructibleDelayed', function ([owner, anyone]) {
   let destructibleDelayed;
@@ -41,7 +41,7 @@ contract('DestructibleDelayed', function ([owner, anyone]) {
       );
     });
     
-    describe('once destruction requested,', function () {
+    context('once destruction requested,', function () {
       var block;
       var tx;
 
@@ -88,12 +88,12 @@ contract('DestructibleDelayed', function ([owner, anyone]) {
         );
       });
 
-      describe('once destructionTime is passed', function () {
+      context('once destructionTime is passed', function () {
         beforeEach(async function () {
           await web3.currentProvider.send({
             jsonrpc: '2.0',
             method: 'evm_increaseTime',
-            params: [1209601], // 2 weeks + 1 second
+            params: [twoWeeks + 1], // 2 weeks + 1 second
             id: 0,
           });
         });
@@ -111,7 +111,7 @@ contract('DestructibleDelayed', function ([owner, anyone]) {
           await destructibleDelayed.destroy(owner, { from: owner });
           let newBalance = await web3.eth.getBalance(owner);
 
-          assert.isTrue(newBalance.greaterThan(initBalance));
+          newBalance.should.be.bignumber.greaterThan(initBalance)
         });
 
         it('should send balance to anyone after destruction', async function () {
@@ -119,7 +119,7 @@ contract('DestructibleDelayed', function ([owner, anyone]) {
           await destructibleDelayed.destroy(anyone, { from: owner });
           let newBalance = await web3.eth.getBalance(anyone);
 
-          assert.isTrue(newBalance.greaterThan(initBalance));
+          newBalance.should.be.bignumber.greaterThan(initBalance);
         });
       });
     });
