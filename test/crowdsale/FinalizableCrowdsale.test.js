@@ -17,7 +17,7 @@ contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
   const rate = new BigNumber(1000);
 
   before(async function () {
-    // Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
+    // Advance to the next block to correctly read time in the solidity "now" function interpreted by ganache
     await advanceBlock();
   });
 

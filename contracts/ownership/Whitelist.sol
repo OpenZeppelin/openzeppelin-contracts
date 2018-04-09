@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.21;
 
 
 import "./Ownable.sol";
@@ -11,7 +11,7 @@ import "./Ownable.sol";
  */
 contract Whitelist is Ownable {
   mapping(address => bool) public whitelist;
-  
+
   event WhitelistedAddressAdded(address addr);
   event WhitelistedAddressRemoved(address addr);
 
@@ -26,21 +26,21 @@ contract Whitelist is Ownable {
   /**
    * @dev add an address to the whitelist
    * @param addr address
-   * @return true if the address was added to the whitelist, false if the address was already in the whitelist 
+   * @return true if the address was added to the whitelist, false if the address was already in the whitelist
    */
   function addAddressToWhitelist(address addr) onlyOwner public returns(bool success) {
     if (!whitelist[addr]) {
       whitelist[addr] = true;
-      WhitelistedAddressAdded(addr);
-      success = true; 
+      emit WhitelistedAddressAdded(addr);
+      success = true;
     }
   }
 
   /**
    * @dev add addresses to the whitelist
    * @param addrs addresses
-   * @return true if at least one address was added to the whitelist, 
-   * false if all addresses were already in the whitelist  
+   * @return true if at least one address was added to the whitelist,
+   * false if all addresses were already in the whitelist
    */
   function addAddressesToWhitelist(address[] addrs) onlyOwner public returns(bool success) {
     for (uint256 i = 0; i < addrs.length; i++) {
@@ -53,13 +53,13 @@ contract Whitelist is Ownable {
   /**
    * @dev remove an address from the whitelist
    * @param addr address
-   * @return true if the address was removed from the whitelist, 
-   * false if the address wasn't in the whitelist in the first place 
+   * @return true if the address was removed from the whitelist,
+   * false if the address wasn't in the whitelist in the first place
    */
   function removeAddressFromWhitelist(address addr) onlyOwner public returns(bool success) {
     if (whitelist[addr]) {
       whitelist[addr] = false;
-      WhitelistedAddressRemoved(addr);
+      emit WhitelistedAddressRemoved(addr);
       success = true;
     }
   }
@@ -67,7 +67,7 @@ contract Whitelist is Ownable {
   /**
    * @dev remove addresses from the whitelist
    * @param addrs addresses
-   * @return true if at least one address was removed from the whitelist, 
+   * @return true if at least one address was removed from the whitelist,
    * false if all addresses weren't in the whitelist in the first place
    */
   function removeAddressesFromWhitelist(address[] addrs) onlyOwner public returns(bool success) {

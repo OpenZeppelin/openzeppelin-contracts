@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.21;
 
 
 /*
@@ -14,7 +14,7 @@ library MerkleProof {
    * @param _root Merkle root
    * @param _leaf Leaf of Merkle tree
    */
-  function verifyProof(bytes32[] _proof, bytes32 _root, bytes32 _leaf) public pure returns (bool) {
+  function verifyProof(bytes32[] _proof, bytes32 _root, bytes32 _leaf) internal pure returns (bool) {
     bytes32 computedHash = _leaf;
 
     for (uint256 i = 0; i < _proof.length; i++) {
