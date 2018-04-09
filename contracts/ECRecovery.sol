@@ -47,7 +47,13 @@ library ECRecovery {
     if (v != 27 && v != 28) {
       return (address(0));
     } else {
-      return ecrecover(hash, v, r, s);
+	   
+	    /* 
+       * https://github.com/ethereum/go-ethereum/issues/3731
+       */
+		
+      bytes memory prefix = "\x19Ethereum Signed Message:\n32"; 
+      return ecrecover(keccak256(prefix, hash), v, r, s);
     }
   }
 
