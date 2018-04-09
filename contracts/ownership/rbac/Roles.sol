@@ -32,13 +32,16 @@ library Roles {
 
   /**
    * @dev check if an address has this role
+   * @return bool
    * // reverts
    */
   function check(Role storage role, address addr)
     view
     internal
+    returns (bool)
   {
     require(has(role, addr));
+    return true;
   }
 
   /**
