@@ -34,7 +34,7 @@ contract Ownable {
    * @param newOwner The address to transfer ownership to.
    */
   function transferOwnership(address newOwner) public onlyOwner {
-    require(newOwner != address(0));
+    require(newOwner != address(0) && newOwner != owner);
     OwnershipTransferred(owner, newOwner);
     owner = newOwner;
   }
