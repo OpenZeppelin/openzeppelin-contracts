@@ -20,7 +20,7 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
   const tokenSupply = new BigNumber('1e22');
 
   before(async function () {
-    // Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
+    // Advance to the next block to correctly read time in the solidity "now" function interpreted by ganache
     await advanceBlock();
   });
 
