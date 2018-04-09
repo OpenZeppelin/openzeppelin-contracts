@@ -1,6 +1,7 @@
 pragma solidity ^0.4.21;
 
-import { MerkleProof } from '../MerkleProof.sol';
+import { MerkleProof } from "../MerkleProof.sol";
+
 
 contract MerkleProofWrapper {
 
