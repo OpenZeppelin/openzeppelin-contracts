@@ -23,7 +23,7 @@ contract PullPayment {
     uint256 payment = payments[payee];
 
     require(payment != 0);
-    require(this.balance >= payment);
+    require(address(this).balance >= payment);
 
     totalPayments = totalPayments.sub(payment);
     payments[payee] = 0;

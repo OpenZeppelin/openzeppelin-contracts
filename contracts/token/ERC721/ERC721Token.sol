@@ -33,85 +33,85 @@ contract ERC721Token is ERC721, ERC721BasicToken {
   mapping(uint256 => string) internal tokenURIs;
 
   /**
-  * @dev Constructor function
-  */
+   * @dev Constructor function
+   */
   function ERC721Token(string _name, string _symbol) public {
     name_ = _name;
     symbol_ = _symbol;
   }
 
   /**
-  * @dev Gets the token name
-  * @return string representing the token name
-  */
+   * @dev Gets the token name
+   * @return string representing the token name
+   */
   function name() public view returns (string) {
     return name_;
   }
 
   /**
-  * @dev Gets the token symbol
-  * @return string representing the token symbol
-  */
+   * @dev Gets the token symbol
+   * @return string representing the token symbol
+   */
   function symbol() public view returns (string) {
     return symbol_;
   }
 
   /**
-  * @dev Returns an URI for a given token ID
-  * @dev Throws if the token ID does not exist. May return an empty string.
-  * @param _tokenId uint256 ID of the token to query
-  */
+   * @dev Returns an URI for a given token ID
+   * @dev Throws if the token ID does not exist. May return an empty string.
+   * @param _tokenId uint256 ID of the token to query
+   */
   function tokenURI(uint256 _tokenId) public view returns (string) {
     require(exists(_tokenId));
     return tokenURIs[_tokenId];
   }
 
   /**
-  * @dev Gets the token ID at a given index of the tokens list of the requested owner
-  * @param _owner address owning the tokens list to be accessed
-  * @param _index uint256 representing the index to be accessed of the requested tokens list
-  * @return uint256 token ID at the given index of the tokens list owned by the requested address
-  */
+   * @dev Gets the token ID at a given index of the tokens list of the requested owner
+   * @param _owner address owning the tokens list to be accessed
+   * @param _index uint256 representing the index to be accessed of the requested tokens list
+   * @return uint256 token ID at the given index of the tokens list owned by the requested address
+   */
   function tokenOfOwnerByIndex(address _owner, uint256 _index) public view returns (uint256) {
     require(_index < balanceOf(_owner));
     return ownedTokens[_owner][_index];
   }
 
   /**
-  * @dev Gets the total amount of tokens stored by the contract
-  * @return uint256 representing the total amount of tokens
-  */
+   * @dev Gets the total amount of tokens stored by the contract
+   * @return uint256 representing the total amount of tokens
+   */
   function totalSupply() public view returns (uint256) {
     return allTokens.length;
   }
 
   /**
-  * @dev Gets the token ID at a given index of all the tokens in this contract
-  * @dev Reverts if the index is greater or equal to the total number of tokens
-  * @param _index uint256 representing the index to be accessed of the tokens list
-  * @return uint256 token ID at the given index of the tokens list
-  */
+   * @dev Gets the token ID at a given index of all the tokens in this contract
+   * @dev Reverts if the index is greater or equal to the total number of tokens
+   * @param _index uint256 representing the index to be accessed of the tokens list
+   * @return uint256 token ID at the given index of the tokens list
+   */
   function tokenByIndex(uint256 _index) public view returns (uint256) {
     require(_index < totalSupply());
     return allTokens[_index];
   }
 
   /**
-  * @dev Internal function to set the token URI for a given token
-  * @dev Reverts if the token ID does not exist
-  * @param _tokenId uint256 ID of the token to set its URI
-  * @param _uri string URI to assign
-  */
+   * @dev Internal function to set the token URI for a given token
+   * @dev Reverts if the token ID does not exist
+   * @param _tokenId uint256 ID of the token to set its URI
+   * @param _uri string URI to assign
+   */
   function _setTokenURI(uint256 _tokenId, string _uri) internal {
     require(exists(_tokenId));
     tokenURIs[_tokenId] = _uri;
   }
 
   /**
-  * @dev Internal function to add a token ID to the list of a given address
-  * @param _to address representing the new owner of the given token ID
-  * @param _tokenId uint256 ID of the token to be added to the tokens list of the given address
-  */
+   * @dev Internal function to add a token ID to the list of a given address
+   * @param _to address representing the new owner of the given token ID
+   * @param _tokenId uint256 ID of the token to be added to the tokens list of the given address
+   */
   function addTokenTo(address _to, uint256 _tokenId) internal {
     super.addTokenTo(_to, _tokenId);
     uint256 length = ownedTokens[_to].length;
@@ -120,10 +120,10 @@ contract ERC721Token is ERC721, ERC721BasicToken {
   }
 
   /**
-  * @dev Internal function to remove a token ID from the list of a given address
-  * @param _from address representing the previous owner of the given token ID
-  * @param _tokenId uint256 ID of the token to be removed from the tokens list of the given address
-  */
+   * @dev Internal function to remove a token ID from the list of a given address
+   * @param _from address representing the previous owner of the given token ID
+   * @param _tokenId uint256 ID of the token to be removed from the tokens list of the given address
+   */
   function removeTokenFrom(address _from, uint256 _tokenId) internal {
     super.removeTokenFrom(_from, _tokenId);
 
@@ -143,11 +143,11 @@ contract ERC721Token is ERC721, ERC721BasicToken {
   }
 
   /**
-  * @dev Internal function to mint a new token
-  * @dev Reverts if the given token ID already exists
-  * @param _to address the beneficiary that will own the minted token
-  * @param _tokenId uint256 ID of the token to be minted by the msg.sender
-  */
+   * @dev Internal function to mint a new token
+   * @dev Reverts if the given token ID already exists
+   * @param _to address the beneficiary that will own the minted token
+   * @param _tokenId uint256 ID of the token to be minted by the msg.sender
+   */
   function _mint(address _to, uint256 _tokenId) internal {
     super._mint(_to, _tokenId);
 
@@ -156,11 +156,11 @@ contract ERC721Token is ERC721, ERC721BasicToken {
   }
 
   /**
-  * @dev Internal function to burn a specific token
-  * @dev Reverts if the token does not exist
-  * @param _owner owner of the token to burn
-  * @param _tokenId uint256 ID of the token being burned by the msg.sender
-  */
+   * @dev Internal function to burn a specific token
+   * @dev Reverts if the token does not exist
+   * @param _owner owner of the token to burn
+   * @param _tokenId uint256 ID of the token being burned by the msg.sender
+   */
   function _burn(address _owner, uint256 _tokenId) internal {
     super._burn(_owner, _tokenId);
 

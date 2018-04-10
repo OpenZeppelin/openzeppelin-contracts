@@ -14,9 +14,21 @@ contract ERC721ReceiverMock is ERC721Receiver {
     reverts = _reverts;
   }
 
-  function onERC721Received(address _address, uint256 _tokenId, bytes _data) public returns(bytes4) {
+  function onERC721Received(
+    address _address,
+    uint256 _tokenId,
+    bytes _data
+  )
+    public
+    returns(bytes4)
+  {
     require(!reverts);
-    emit Received(_address, _tokenId, _data, msg.gas);
+    emit Received(
+      _address,
+      _tokenId,
+      _data,
+      gasleft() // msg.gas was deprecated in solidityv0.4.21
+    );
     return retval;
   }
 }
