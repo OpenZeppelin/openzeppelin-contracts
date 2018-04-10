@@ -1,13 +1,24 @@
 import assertRevert from '../../helpers/assertRevert';
+import { inLogs } from '../../helpers/expectEvent';
 import shouldBehaveLikeBurnableToken from './BurnableToken.behaviour';
+
 const StandardBurnableTokenMock = artifacts.require('StandardBurnableTokenMock');
+const BigNumber = web3.BigNumber;
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+
+require('chai')
+  .use(require('chai-as-promised'))
+  .use(require('chai-bignumber')(BigNumber))
+  .should();
 
 contract('StandardBurnableToken', function ([owner, burner]) {
+  const initialBalance = 1000;
+  
   beforeEach(async function () {
-    this.token = await StandardBurnableTokenMock.new(owner, 1000);
+    this.token = await StandardBurnableTokenMock.new(owner, initialBalance);
   });
 
-  shouldBehaveLikeBurnableToken([owner]);
+  shouldBehaveLikeBurnableToken([owner], initialBalance);
 
   describe('burnFrom', function () {
     describe('on success', function () {
@@ -21,31 +32,30 @@ contract('StandardBurnableToken', function ([owner, burner]) {
 
       it('burns the requested amount', async function () {
         const balance = await this.token.balanceOf(owner);
-        assert.equal(balance, 900);
+        balance.should.be.bignumber.equal(initialBalance - amount);
       });
 
       it('decrements allowance', async function () {
         const allowance = await this.token.allowance(owner, burner);
-        assert.equal(allowance, 200);
+        allowance.should.be.bignumber.equal(200);
       });
 
       it('emits a burn event', async function () {
-        const logs = this.logs;
-        const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-        assert.equal(logs.length, 2);
-        assert.equal(logs[0].event, 'Burn');
-        assert.equal(logs[0].args.burner, owner);
-        assert.equal(logs[0].args.value, amount);
+        const event = await inLogs(this.logs, 'Burn');
+        event.args.burner.should.eq(owner);
+        event.args.value.should.be.bignumber.equal(amount);
+      });
 
-        assert.equal(logs[1].event, 'Transfer');
-        assert.equal(logs[1].args.from, owner);
-        assert.equal(logs[1].args.to, ZERO_ADDRESS);
-        assert.equal(logs[1].args.value, amount);
+      it('emits a transfer event', async function () {
+        const event = await inLogs(this.logs, 'Transfer');
+        event.args.from.should.eq(owner);
+        event.args.to.should.eq(ZERO_ADDRESS);
+        event.args.value.should.be.bignumber.equal(amount);
       });
     });
 
     describe('when the given amount is greater than the balance of the sender', function () {
-      const amount = 1001;
+      const amount = initialBalance + 1;
       it('reverts', async function () {
         await this.token.approve(burner, amount, { from: owner });
         await assertRevert(this.token.burnFrom(owner, amount, { from: burner }));
