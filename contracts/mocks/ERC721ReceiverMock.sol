@@ -27,7 +27,7 @@ contract ERC721ReceiverMock is ERC721Receiver {
       _address,
       _tokenId,
       _data,
-      msg.gas
+      gasleft() // msg.gas was deprecated in solidityv0.4.21
     );
     return retval;
   }
