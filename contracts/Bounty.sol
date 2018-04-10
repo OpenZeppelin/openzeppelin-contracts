@@ -43,7 +43,7 @@ contract Bounty is PullPayment, Destructible {
     require(researcher != 0);
     // Check Target contract invariants
     require(!target.checkInvariant());
-    asyncSend(researcher, this.balance);
+    asyncSend(researcher, address(this).balance);
     claimed = true;
   }
 
