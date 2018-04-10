@@ -3,6 +3,7 @@
   "plugins": ["security"],
   "rules": {
     "quotes": ["error", "double"],
+    "no-empty-blocks": "off",
     "indentation": ["error", 2],
     "arg-overflow": ["warning", 3],
     "security/enforce-explicit-visibility": ["error"],
