@@ -81,6 +81,7 @@ contract Heritable is Ownable {
   function proclaimDeath() public onlyHeir {
     require(ownerLives());
     emit OwnerProclaimedDead(owner, heir_, timeOfDeath_);
+    // solium-disable-next-line security/no-block-members
     timeOfDeath_ = block.timestamp;
   }
 
@@ -97,6 +98,7 @@ contract Heritable is Ownable {
    */
   function claimHeirOwnership() public onlyHeir {
     require(!ownerLives());
+    // solium-disable-next-line security/no-block-members
     require(block.timestamp >= timeOfDeath_ + heartbeatTimeout_);
     emit OwnershipTransferred(owner, heir_);
     emit HeirOwnershipClaimed(owner, heir_);

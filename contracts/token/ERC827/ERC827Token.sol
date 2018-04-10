@@ -1,3 +1,5 @@
+/* solium-disable security/no-low-level-calls */
+
 pragma solidity ^0.4.21;
 
 import "./ERC827.sol";
