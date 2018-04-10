@@ -167,6 +167,7 @@ contract ERC721BasicToken is ERC721Basic {
     public
     canTransfer(_tokenId)
   {
+    // solium-disable-next-line arg-overflow
     safeTransferFrom(_from, _to, _tokenId, "");
   }
 
@@ -192,6 +193,7 @@ contract ERC721BasicToken is ERC721Basic {
     canTransfer(_tokenId)
   {
     transferFrom(_from, _to, _tokenId);
+    // solium-disable-next-line arg-overflow
     require(checkAndCallSafeTransfer(_from, _to, _tokenId, _data));
   }
 

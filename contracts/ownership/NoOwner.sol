@@ -11,5 +11,5 @@ import "./HasNoContracts.sol";
  * @dev Solves a class of errors where a contract accidentally becomes owner of Ether, Tokens or
  * Owned contracts. See respective base contracts for details.
  */
-contract NoOwner is HasNoEther, HasNoTokens, HasNoContracts {
+contract NoOwner is HasNoEther, HasNoTokens, HasNoContracts { // solium-disable-line no-empty-blocks
 }
