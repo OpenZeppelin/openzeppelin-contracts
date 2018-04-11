@@ -15,6 +15,7 @@ contract MessageHelper {
   }
 
   function call(address to, bytes data) public returns (bool) {
+    // solium-disable-next-line security/no-low-level-calls
     if (to.call(data))
       return true;
     else

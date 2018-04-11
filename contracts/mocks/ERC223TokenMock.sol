@@ -21,6 +21,7 @@ contract ERC223TokenMock is BasicToken {
   {
     transfer(_to, _value);
     bool isContract = false;
+    // solium-disable-next-line security/no-inline-assembly
     assembly {
       isContract := not(iszero(extcodesize(_to)))
     }

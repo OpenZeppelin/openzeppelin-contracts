@@ -27,7 +27,8 @@ contract ReentrancyMock is ReentrancyGuard {
     bytes4 func = bytes4(keccak256("countThisRecursive(uint256)"));
     if (n > 0) {
       count();
-      bool result = this.call(func, n - 1);
+      // solium-disable-next-line security/no-low-level-calls
+      bool result = address(this).call(func, n - 1);
       require(result == true);
     }
   }

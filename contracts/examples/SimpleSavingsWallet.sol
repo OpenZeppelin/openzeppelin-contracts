@@ -25,7 +25,7 @@ contract SimpleSavingsWallet is Heritable {
    * @dev wallet can receive funds.
    */
   function () public payable {
-    emit Received(msg.sender, msg.value, this.balance);
+    emit Received(msg.sender, msg.value, address(this).balance);
   }
 
   /**
@@ -35,6 +35,6 @@ contract SimpleSavingsWallet is Heritable {
     require(payee != 0 && payee != address(this));
     require(amount > 0);
     payee.transfer(amount);
-    emit Sent(payee, amount, this.balance);
+    emit Sent(payee, amount, address(this).balance);
   }
 }
