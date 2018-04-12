@@ -1,6 +1,7 @@
 pragma solidity ^0.4.18;
 
-import "./ownership/rbac/RBACOwnable.sol";
+import "./ownership/Ownable.sol";
+import "./ownership/rbac/RBAC.sol";
 import "./ECRecovery.sol";
 
 /**
@@ -20,52 +21,70 @@ import "./ECRecovery.sol";
  * @dev
  * @dev See the tests Bouncer.test.js for specific usage examples.
  */
-contract Bouncer is RBACOwnable {
+contract Bouncer is Ownable, RBAC {
   using ECRecovery for bytes32;
-
-
-  event BouncerAdded(address indexed _bouncer);
-  event BouncerRemoved(address indexed _bouncer);
-
 
   string public constant ROLE_BOUNCER = "bouncer";
 
-
+  /**
+   * @dev requires that a valid signature of a bouncer was provided
+   */
   modifier onlyValidSignature(bytes _sig)
   {
     require(isValidSignature(msg.sender, _sig));
     _;
   }
 
+  /**
+   * @dev allows the owner to add additional bouncer addresses
+   */
   function addBouncer(address _bouncer)
     onlyOwner
-    onlyValidAddress(_bouncer)
     public
   {
+    require(_bouncer != address(0));
     addRole(_bouncer, ROLE_BOUNCER);
-    BouncerAdded(_bouncer);
   }
 
+  /**
+   * @dev allows the owner to remove bouncer addresses
+   */
   function removeBouncer(address _bouncer)
     onlyOwner
-    onlyValidAddress(_bouncer)
     public
   {
+    require(_bouncer != address(0));
     removeRole(_bouncer, ROLE_BOUNCER);
-    BouncerRemoved(_bouncer);
   }
 
+  /**
+   * @dev is the signature from a bouncer?
+   * @return bool
+   */
   function isValidSignature(address _address, bytes _sig)
     internal
     view
     returns (bool)
   {
-    return hasRole(
-      keccak256(
-        "\x19Ethereum Signed Message:\n32",
-        keccak256(address(this), _address)
-      ).recover(_sig),
-      ROLE_BOUNCER
+    return isValidDataHash(
+      keccak256(address(this), _address),
+      _sig
     );
+  }
+
+  /**
+   * @dev internal function to convert a hash to an eth signed message
+   * @dev and then recover the signature
+   * @return bool
+   */
+  function isValidDataHash(bytes32 hash, bytes _sig)
+    internal
+    view
+    returns (bool)
+  {
+    address signer = hash
+      .toEthSignedMessage()
+      .recover(_sig);
+    return hasRole(signer, ROLE_BOUNCER);
   }
 }
