@@ -1,5 +1,6 @@
 
 import assertRevert from '../helpers/assertRevert';
+import expectEvent from '../helpers/expectEvent';
 
 var Ownable = artifacts.require('Ownable');
 
@@ -33,5 +34,13 @@ contract('Ownable', function (accounts) {
   it('should guard ownership against stuck state', async function () {
     let originalOwner = await ownable.owner();
     await assertRevert(ownable.transferOwnership(null, { from: originalOwner }));
+  });
+
+  it('should emit OwnershipTransferred', async () => {
+    const other = accounts[2];
+    await expectEvent.inTransaction(
+      ownable.transferOwnership(other),
+      'OwnershipTransferred'
+    );
   });
 });
