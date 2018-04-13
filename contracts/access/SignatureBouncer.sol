@@ -1,11 +1,11 @@
 pragma solidity ^0.4.18;
 
-import "./ownership/Ownable.sol";
-import "./ownership/rbac/RBAC.sol";
-import "./ECRecovery.sol";
+import "../ownership/Ownable.sol";
+import "../ownership/rbac/RBAC.sol";
+import "../ECRecovery.sol";
 
 /**
- * @title Bouncer
+ * @title SignatureBouncer
  * @author PhABC and Shrugs
  * @dev Bouncer allows users to submit a signature as a permission to do an action.
  * @dev If the signature is from one of the authorized bouncer addresses, the signature
@@ -21,7 +21,7 @@ import "./ECRecovery.sol";
  * @dev
  * @dev See the tests Bouncer.test.js for specific usage examples.
  */
-contract Bouncer is Ownable, RBAC {
+contract SignatureBouncer is Ownable, RBAC {
   using ECRecovery for bytes32;
 
   string public constant ROLE_BOUNCER = "bouncer";
@@ -58,7 +58,7 @@ contract Bouncer is Ownable, RBAC {
   }
 
   /**
-   * @dev is the signature from a bouncer?
+   * @dev is the signature of `this + sender` from a bouncer?
    * @return bool
    */
   function isValidSignature(address _address, bytes _sig)

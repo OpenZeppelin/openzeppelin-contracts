@@ -1,8 +1,8 @@
 
-import assertRevert from './helpers/assertRevert';
-import { signHex } from './helpers/sign';
+import assertRevert from '../helpers/assertRevert';
+import { signHex } from '../helpers/sign';
 
-const Bouncer = artifacts.require('BouncerMock');
+const Bouncer = artifacts.require('SignatureBouncerMock');
 
 require('chai')
   .use(require('chai-as-promised'))
