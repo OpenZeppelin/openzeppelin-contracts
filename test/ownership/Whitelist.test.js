@@ -73,7 +73,7 @@ contract('Whitelist', function (accounts) {
       const { logs } = await mock.removeAddressFromWhitelist(whitelistedAddress1, { from: owner });
       logs.should.be.empty;
     });
-    
+
     it('should allow whitelisted address to call #onlyWhitelistedCanDoThis', async () => {
       await mock.addAddressToWhitelist(whitelistedAddress1, { from: owner });
       await mock.onlyWhitelistedCanDoThis({ from: whitelistedAddress1 })
@@ -87,13 +87,13 @@ contract('Whitelist', function (accounts) {
         mock.addAddressToWhitelist(whitelistedAddress1, { from: anyone })
       );
     });
-    
+
     it('should not allow "anyone" to remove from the whitelist', async () => {
       await expectThrow(
         mock.removeAddressFromWhitelist(whitelistedAddress1, { from: anyone })
       );
     });
-    
+
     it('should not allow "anyone" to call #onlyWhitelistedCanDoThis', async () => {
       await expectThrow(
         mock.onlyWhitelistedCanDoThis({ from: anyone })
