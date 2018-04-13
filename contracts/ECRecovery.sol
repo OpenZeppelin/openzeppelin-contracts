@@ -57,11 +57,11 @@ library ECRecovery {
   }
 
   /**
-   * toEthSignedMessage
+   * toEthSignedMessageHash
    * @dev prefix a bytes32 value with "\x19Ethereum Signed Message:"
-   * @dev and
+   * @dev and hash the result
    */
-  function toEthSignedMessage(bytes32 hash)
+  function toEthSignedMessageHash(bytes32 hash)
     internal
     pure
     returns (bytes32)

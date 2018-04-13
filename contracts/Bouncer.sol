@@ -74,7 +74,7 @@ contract Bouncer is Ownable, RBAC {
 
   /**
    * @dev internal function to convert a hash to an eth signed message
-   * @dev and then recover the signature
+   * @dev and then recover the signature and check it against the bouncer role
    * @return bool
    */
   function isValidDataHash(bytes32 hash, bytes _sig)
@@ -83,7 +83,7 @@ contract Bouncer is Ownable, RBAC {
     returns (bool)
   {
     address signer = hash
-      .toEthSignedMessage()
+      .toEthSignedMessageHash()
       .recover(_sig);
     return hasRole(signer, ROLE_BOUNCER);
   }
