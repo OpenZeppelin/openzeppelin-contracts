@@ -264,7 +264,9 @@ contract('ERC827 Token', function (accounts) {
     it('should revert funds of failure inside approve (with data)', async function () {
       const message = await Message.new();
 
-      const extraData = message.contract.failOnBuy.getData();
+      const extraData = message.contract.showMessage.getData(
+        web3.toHex(123456), 666, 'Transfer Done'
+      );
 
       const abiMethod = findMethod(token.abi, 'approve', 'address,uint256,bytes');
       const approveData = ethjsABI.encodeMethod(abiMethod,
@@ -284,7 +286,9 @@ contract('ERC827 Token', function (accounts) {
     it('should revert funds of failure inside transfer (with data)', async function () {
       const message = await Message.new();
 
-      const extraData = message.contract.failOnBuy.getData();
+      const extraData = message.contract.showMessage.getData(
+        web3.toHex(123456), 666, 'Transfer Done'
+      );
 
       const abiMethod = findMethod(token.abi, 'transfer', 'address,uint256,bytes');
       const transferData = ethjsABI.encodeMethod(abiMethod,
@@ -304,7 +308,9 @@ contract('ERC827 Token', function (accounts) {
     it('should revert funds of failure inside transferFrom (with data)', async function () {
       const message = await Message.new();
 
-      const extraData = message.contract.failOnBuy.getData();
+      const extraData = message.contract.showMessage.getData(
+        web3.toHex(123456), 666, 'Transfer Done'
+      );
 
       await token.approve(accounts[1], 10, { from: accounts[2] });
 
