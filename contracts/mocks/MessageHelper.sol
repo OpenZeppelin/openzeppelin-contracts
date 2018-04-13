@@ -12,7 +12,11 @@ contract MessageHelper {
   }
 
   function buyMessage( bytes32 message, uint256 number, string text ) public payable returns (bool) {
-    emit Buy(message, number, text, msg.value);
+    emit Buy(
+      message,
+      number,
+      text,
+      msg.value);
     return true;
   }
 
