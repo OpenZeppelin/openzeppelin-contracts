@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.21;
 
 
 /**
@@ -61,6 +61,7 @@ contract DayLimit {
    * @return uint256 of today's index.
    */
   function today() private view returns (uint256) {
+    // solium-disable-next-line security/no-block-members
     return block.timestamp / 1 days;
   }
 

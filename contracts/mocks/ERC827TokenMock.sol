@@ -1,4 +1,4 @@
-pragma solidity ^0.4.13;
+pragma solidity ^0.4.21;
 
 
 import "../token/ERC827/ERC827Token.sol";

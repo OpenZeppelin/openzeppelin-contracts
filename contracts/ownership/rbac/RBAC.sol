@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.21;
 
 import "./Roles.sol";
 
@@ -58,7 +58,7 @@ contract RBAC {
     internal
   {
     roles[roleName].add(addr);
-    RoleAdded(addr, roleName);
+    emit RoleAdded(addr, roleName);
   }
 
   /**
@@ -70,7 +70,7 @@ contract RBAC {
     internal
   {
     roles[roleName].remove(addr);
-    RoleRemoved(addr, roleName);
+    emit RoleRemoved(addr, roleName);
   }
 
   /**

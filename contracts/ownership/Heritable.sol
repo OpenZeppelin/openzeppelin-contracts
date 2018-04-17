@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.21;
 
 
 import "./Ownable.sol";
@@ -46,7 +46,7 @@ contract Heritable is Ownable {
   function setHeir(address newHeir) public onlyOwner {
     require(newHeir != owner);
     heartbeat();
-    HeirChanged(owner, newHeir);
+    emit HeirChanged(owner, newHeir);
     heir_ = newHeir;
   }
 
@@ -61,7 +61,7 @@ contract Heritable is Ownable {
   function heartbeatTimeout() public view returns(uint256) {
     return heartbeatTimeout_;
   }
-  
+
   function timeOfDeath() public view returns(uint256) {
     return timeOfDeath_;
   }
@@ -80,7 +80,8 @@ contract Heritable is Ownable {
    */
   function proclaimDeath() public onlyHeir {
     require(ownerLives());
-    OwnerProclaimedDead(owner, heir_, timeOfDeath_);
+    emit OwnerProclaimedDead(owner, heir_, timeOfDeath_);
+    // solium-disable-next-line security/no-block-members
     timeOfDeath_ = block.timestamp;
   }
 
@@ -88,7 +89,7 @@ contract Heritable is Ownable {
    * @dev Owner can send a heartbeat if they were mistakenly pronounced dead.
    */
   function heartbeat() public onlyOwner {
-    OwnerHeartbeated(owner);
+    emit OwnerHeartbeated(owner);
     timeOfDeath_ = 0;
   }
 
@@ -97,9 +98,10 @@ contract Heritable is Ownable {
    */
   function claimHeirOwnership() public onlyHeir {
     require(!ownerLives());
+    // solium-disable-next-line security/no-block-members
     require(block.timestamp >= timeOfDeath_ + heartbeatTimeout_);
-    OwnershipTransferred(owner, heir_);
-    HeirOwnershipClaimed(owner, heir_);
+    emit OwnershipTransferred(owner, heir_);
+    emit HeirOwnershipClaimed(owner, heir_);
     owner = heir_;
     timeOfDeath_ = 0;
   }

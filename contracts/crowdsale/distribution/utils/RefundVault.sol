@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.21;
 
 import "../../../math/SafeMath.sol";
 import "../../../ownership/Ownable.sol";
@@ -43,14 +43,14 @@ contract RefundVault is Ownable {
   function close() onlyOwner public {
     require(state == State.Active);
     state = State.Closed;
-    Closed();
-    wallet.transfer(this.balance);
+    emit Closed();
+    wallet.transfer(address(this).balance);
   }
 
   function enableRefunds() onlyOwner public {
     require(state == State.Active);
     state = State.Refunding;
-    RefundsEnabled();
+    emit RefundsEnabled();
   }
 
   /**
@@ -61,6 +61,6 @@ contract RefundVault is Ownable {
     uint256 depositedValue = deposited[investor];
     deposited[investor] = 0;
     investor.transfer(depositedValue);
-    Refunded(investor, depositedValue);
+    emit Refunded(investor, depositedValue);
   }
 }
