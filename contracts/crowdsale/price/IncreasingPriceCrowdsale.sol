@@ -34,6 +34,7 @@ contract IncreasingPriceCrowdsale is TimedCrowdsale {
    * @return The number of tokens a buyer gets per wei at a given time
    */
   function getCurrentRate() public view returns (uint256) {
+    // solium-disable-next-line security/no-block-members
     uint256 elapsedTime = block.timestamp.sub(openingTime);
     uint256 timeRange = closingTime.sub(openingTime);
     uint256 rateRange = initialRate.sub(finalRate);
