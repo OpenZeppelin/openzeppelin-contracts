@@ -3,6 +3,7 @@ import { advanceBlock } from '../helpers/advanceToBlock';
 import { increaseTimeTo, duration } from '../helpers/increaseTime';
 import latestTime from '../helpers/latestTime';
 import EVMRevert from '../helpers/EVMRevert';
+import assertRevert from '../helpers/assertRevert';
 
 const BigNumber = web3.BigNumber;
 
@@ -110,5 +111,16 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
 
     const balanceAfterRefund = web3.eth.getBalance(investor);
     balanceBeforeInvestment.should.be.bignumber.equal(balanceAfterRefund);
+  });
+
+  describe('when goal > cap', function () {
+    // goal > cap
+    const HIGH_GOAL = ether(30);
+
+    it('creation reverts', async function () {
+      await assertRevert(SampleCrowdsale.new(
+        this.openingTime, this.closingTime, RATE, wallet, CAP, this.token.address, HIGH_GOAL
+      ));
+    });
   });
 });
