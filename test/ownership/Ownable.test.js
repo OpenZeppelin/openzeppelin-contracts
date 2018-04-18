@@ -8,6 +8,7 @@ contract('Ownable', function (accounts) {
 
   beforeEach(async function () {
     ownable = await Ownable.new();
+    await ownable.initialize(accounts[0]);
   });
 
   it('should have an owner', async function () {

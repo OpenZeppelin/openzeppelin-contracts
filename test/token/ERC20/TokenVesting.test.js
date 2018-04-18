@@ -16,13 +16,15 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
   const amount = new BigNumber(1000);
 
   beforeEach(async function () {
-    this.token = await MintableToken.new({ from: owner });
+    this.token = await MintableToken.new();
+    await this.token.initialize(owner);
 
     this.start = latestTime() + duration.minutes(1); // +1 minute so it starts after contract instantiation
     this.cliff = duration.years(1);
     this.duration = duration.years(2);
 
-    this.vesting = await TokenVesting.new(beneficiary, this.start, this.cliff, this.duration, true, { from: owner });
+    this.vesting = await TokenVesting.new();
+    await this.vesting.initialize(owner, beneficiary, this.start, this.cliff, this.duration, true);
 
     await this.token.mint(this.vesting.address, amount, { from: owner });
   });

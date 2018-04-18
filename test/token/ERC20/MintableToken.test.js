@@ -3,7 +3,8 @@ const MintableToken = artifacts.require('MintableToken');
 
 contract('Mintable', function ([owner, anotherAccount]) {
   beforeEach(async function () {
-    this.token = await MintableToken.new({ from: owner });
+    this.token = await MintableToken.new();
+    await this.token.initialize(owner);
   });
 
   describe('minting finished', function () {

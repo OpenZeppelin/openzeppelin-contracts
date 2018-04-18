@@ -1,24 +1,24 @@
 pragma solidity ^0.4.21;
 
+import 'zos-lib/contracts/migrations/Migratable.sol';
 
 /**
  * @title Ownable
  * @dev The Ownable contract has an owner address, and provides basic authorization control
  * functions, this simplifies the implementation of "user permissions".
  */
-contract Ownable {
+contract Ownable is Migratable {
   address public owner;
 
 
   event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
-
   /**
    * @dev The Ownable constructor sets the original `owner` of the contract to the sender
    * account.
    */
-  function Ownable() public {
-    owner = msg.sender;
+  function initialize(address _sender) public isInitializer("Ownable", "0") {
+    owner = _sender;
   }
 
   /**
