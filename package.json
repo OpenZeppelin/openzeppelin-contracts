@@ -1,6 +1,6 @@
 {
   "name": "zeppelin-solidity",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "Secure Smart Contract library for Solidity",
   "scripts": {
     "test": "scripts/test.sh",
@@ -47,16 +47,16 @@
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
-    "ethereumjs-testrpc": "^6.0.1",
     "ethereumjs-util": "^5.1.2",
+    "ethjs-abi": "^0.2.1",
+    "ganache-cli": "6.1.0",
     "mocha-lcov-reporter": "^1.3.0",
-    "solidity-coverage": "^0.4.3",
-    "solium": "^1.1.2",
-    "truffle": "^4.0.0",
+    "solidity-coverage": "^0.4.15",
+    "solium": "^1.1.6",
+    "truffle": "^4.1.5",
     "truffle-hdwallet-provider": "0.0.3"
   },
   "dependencies": {
-    "dotenv": "^4.0.0",
-    "ethjs-abi": "^0.2.1"
+    "dotenv": "^4.0.0"
   }
 }

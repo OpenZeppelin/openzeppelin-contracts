@@ -1,7 +1,8 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.21;
 
 import "../token/ERC20/MintableToken.sol";
 import "../crowdsale/distribution/RefundableCrowdsale.sol";
+
 
 contract RefundableCrowdsaleImpl is RefundableCrowdsale {
 
@@ -12,7 +13,7 @@ contract RefundableCrowdsaleImpl is RefundableCrowdsale {
     address _wallet,
     MintableToken _token,
     uint256 _goal
-  ) 
+  )
     public
     Crowdsale(_rate, _wallet, _token)
     TimedCrowdsale(_openingTime, _closingTime)
