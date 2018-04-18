@@ -57,6 +57,7 @@
     "truffle-hdwallet-provider": "0.0.3"
   },
   "dependencies": {
-    "dotenv": "^4.0.0"
+    "dotenv": "^4.0.0",
+    "zos-upgradeability": "git://github.com/zeppelinos/upgradeability-lib.git"
   }
 }

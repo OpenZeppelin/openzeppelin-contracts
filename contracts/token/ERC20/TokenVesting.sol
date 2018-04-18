@@ -6,6 +6,7 @@ import "./ERC20Basic.sol";
 import "./SafeERC20.sol";
 import "../../ownership/Ownable.sol";
 import "../../math/SafeMath.sol";
+import 'zos-upgradeability/contracts/migrations/Initializable.sol';
 
 
 /**
@@ -14,7 +15,7 @@ import "../../math/SafeMath.sol";
  * typical vesting scheme, with a cliff and vesting period. Optionally revocable by the
  * owner.
  */
-contract TokenVesting is Ownable {
+contract TokenVesting is Initializable, Ownable {
   using SafeMath for uint256;
   using SafeERC20 for ERC20Basic;
 
@@ -42,7 +43,8 @@ contract TokenVesting is Ownable {
    * @param _duration duration in seconds of the period in which the tokens will vest
    * @param _revocable whether the vesting is revocable or not
    */
-  function TokenVesting(
+  function initialize(
+    address _sender,
     address _beneficiary,
     uint256 _start,
     uint256 _cliff,
@@ -50,7 +52,10 @@ contract TokenVesting is Ownable {
     bool _revocable
   )
     public
+    isInitializer
   {
+    Ownable.initialize(_sender);
+
     require(_beneficiary != address(0));
     require(_cliff <= _duration);
 

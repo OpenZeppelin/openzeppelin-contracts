@@ -10,6 +10,8 @@ contract PausableMock is Pausable {
   uint256 public count;
 
   function PausableMock() public {
+    Ownable.initialize(msg.sender);
+
     drasticMeasureTaken = false;
     count = 0;
   }

@@ -15,9 +15,11 @@ contract('TokenTimelock', function ([_, owner, beneficiary]) {
   const amount = new BigNumber(100);
 
   beforeEach(async function () {
-    this.token = await MintableToken.new({ from: owner });
+    this.token = await MintableToken.new();
+    await this.token.initialize(owner);
     this.releaseTime = latestTime() + duration.years(1);
-    this.timelock = await TokenTimelock.new(this.token.address, beneficiary, this.releaseTime);
+    this.timelock = await TokenTimelock.new();
+    await this.timelock.initialize(this.token.address, beneficiary, this.releaseTime);
     await this.token.mint(this.timelock.address, amount, { from: owner });
   });
 

@@ -1,14 +1,14 @@
 pragma solidity ^0.4.21;
 
 import "./SafeERC20.sol";
-
+import "zos-upgradeability/contracts/migrations/Initializable.sol";
 
 /**
  * @title TokenTimelock
  * @dev TokenTimelock is a token holder contract that will allow a
  * beneficiary to extract the tokens after a given release time
  */
-contract TokenTimelock {
+contract TokenTimelock is Initializable {
   using SafeERC20 for ERC20Basic;
 
   // ERC20 basic token contract being held
@@ -20,7 +20,7 @@ contract TokenTimelock {
   // timestamp when token release is enabled
   uint256 public releaseTime;
 
-  function TokenTimelock(ERC20Basic _token, address _beneficiary, uint256 _releaseTime) public {
+  function initialize(ERC20Basic _token, address _beneficiary, uint256 _releaseTime) public isInitializer {
     // solium-disable-next-line security/no-block-members
     require(_releaseTime > block.timestamp);
     token = _token;

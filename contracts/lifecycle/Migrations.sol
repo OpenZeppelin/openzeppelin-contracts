@@ -10,6 +10,10 @@ import "../ownership/Ownable.sol";
 contract Migrations is Ownable {
   uint256 public lastCompletedMigration;
 
+  function Migrations() public {
+    Ownable.initialize(msg.sender);
+  }
+
   function setCompleted(uint256 completed) onlyOwner public {
     lastCompletedMigration = completed;
   }
