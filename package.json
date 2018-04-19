@@ -2,6 +2,9 @@
   "name": "zeppelin-solidity",
   "version": "1.8.0",
   "description": "Secure Smart Contract library for Solidity",
+  "files": [
+    "contracts"
+  ],
   "scripts": {
     "test": "scripts/test.sh",
     "lint": "eslint .",
