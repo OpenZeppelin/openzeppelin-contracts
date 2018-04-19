@@ -3,9 +3,11 @@
   "version": "1.8.0",
   "description": "Secure Smart Contract library for Solidity",
   "files": [
-    "contracts"
+    "contracts",
+    "build"
   ],
   "scripts": {
+    "prepack": "truffle compile",
     "test": "scripts/test.sh",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
