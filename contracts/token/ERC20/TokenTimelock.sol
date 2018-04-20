@@ -1,7 +1,7 @@
 pragma solidity ^0.4.21;
 
 import "./SafeERC20.sol";
-import "zos-upgradeability/contracts/migrations/Initializable.sol";
+import "zos-lib/contracts/migrations/Initializable.sol";
 
 /**
  * @title TokenTimelock

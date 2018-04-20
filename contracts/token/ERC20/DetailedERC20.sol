@@ -1,7 +1,7 @@
 pragma solidity ^0.4.21;
 
 import "./ERC20.sol";
-import 'zos-upgradeability/contracts/migrations/Initializable.sol';
+import 'zos-lib/contracts/migrations/Initializable.sol';
 
 contract DetailedERC20 is Initializable, ERC20 {
   string public name;

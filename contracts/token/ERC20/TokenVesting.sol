@@ -6,7 +6,7 @@ import "./ERC20Basic.sol";
 import "./SafeERC20.sol";
 import "../../ownership/Ownable.sol";
 import "../../math/SafeMath.sol";
-import 'zos-upgradeability/contracts/migrations/Initializable.sol';
+import 'zos-lib/contracts/migrations/Initializable.sol';
 
 
 /**
