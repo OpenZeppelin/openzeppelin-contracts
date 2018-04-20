@@ -1,0 +1,10 @@
+{
+  "contracts": {
+    "DetailedMintableToken": "DetailedMintableToken",
+    "DetailedPremintedToken": "DetailedPremintedToken",
+    "MintableERC721Token": "MintableERC721Token",
+    "TokenTimelock": "TokenTimelock",
+    "TokenVesting": "TokenVesting"
+  },
+  "name": "openzeppelin-zos"
+}
