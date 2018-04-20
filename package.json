@@ -3,7 +3,8 @@
   "version": "1.8.0",
   "description": "Secure Smart Contract library for Solidity",
   "files": [
-    "contracts"
+    "contracts",
+    "test"
   ],
   "scripts": {
     "test": "scripts/test.sh",
