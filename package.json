@@ -1,6 +1,6 @@
 {
-  "name": "zeppelin-solidity",
-  "version": "1.8.0",
+  "name": "openzeppelin-zos",
+  "version": "1.9.0-beta",
   "description": "Secure Smart Contract library for Solidity",
   "files": [
     "contracts",
