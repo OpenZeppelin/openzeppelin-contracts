@@ -19,7 +19,7 @@ contract('TokenTimelock', function ([_, owner, beneficiary]) {
     await this.token.initialize(owner);
     this.releaseTime = latestTime() + duration.years(1);
     this.timelock = await TokenTimelock.new();
-    await this.timelock.initialize(this.token.address, beneficiary, this.releaseTime);
+    await this.timelock.initialize(owner, this.token.address, beneficiary, this.releaseTime);
     await this.token.mint(this.timelock.address, amount, { from: owner });
   });
 
