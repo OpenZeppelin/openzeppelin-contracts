@@ -1,6 +1,7 @@
 pragma solidity ^0.4.21;
 
 import "../math/SafeMath.sol";
+import "../token/ERC20/ERC20.sol";
 
 
 /**
@@ -52,6 +53,26 @@ contract SplitPayment {
     totalReleased = totalReleased.add(payment);
 
     payee.transfer(payment);
+  }
+
+  /**
+   * @dev Claim your share of the balance through ERC20 token.
+   */
+  function claim(ERC20 token) public {
+    address payee = msg.sender;
+
+    require(shares[payee] > 0);
+
+    uint256 totalReceived = token.balanceOf(address(this)).add(totalReleased);
+    uint256 payment = totalReceived.mul(shares[payee]).div(totalShares).sub(released[payee]);
+
+    require(payment != 0);
+    require(token.balanceOf(address(this)) >= payment);
+
+    released[payee] = released[payee].add(payment);
+    totalReleased = totalReleased.add(payment);
+
+    token.transfer(payee, payment);
   }
 
   /**
