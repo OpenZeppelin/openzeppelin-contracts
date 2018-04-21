@@ -1,7 +1,7 @@
 pragma solidity ^0.4.21;
 
 import "../math/SafeMath.sol";
-import "../token/ERC20/ERC20.sol";
+import "../token/ERC20/ERC20Basic.sol";
 
 
 /**
@@ -14,9 +14,11 @@ contract SplitPayment {
 
   uint256 public totalShares = 0;
   uint256 public totalReleased = 0;
+  mapping(address => uint256) public tokensTotalReleased;
 
   mapping(address => uint256) public shares;
   mapping(address => uint256) public released;
+  mapping(address => mapping(address => uint256)) public tokensReleased;
   address[] public payees;
 
   /**
@@ -58,19 +60,22 @@ contract SplitPayment {
   /**
    * @dev Claim your share of the balance through ERC20 token.
    */
-  function claim(ERC20 token) public {
+  function claim(ERC20Basic token) public {
     address payee = msg.sender;
 
     require(shares[payee] > 0);
 
-    uint256 totalReceived = token.balanceOf(address(this)).add(totalReleased);
-    uint256 payment = totalReceived.mul(shares[payee]).div(totalShares).sub(released[payee]);
+    uint256 totalTokenReleased = tokensTotalReleased[address(token)];
+    uint256 payeeTokenReleased = tokensReleased[address(token)][payee];
+
+    uint256 totalReceived = token.balanceOf(address(this)).add(totalTokenReleased);
+    uint256 payment = totalReceived.mul(shares[payee]).div(totalShares).sub(payeeTokenReleased);
 
     require(payment != 0);
     require(token.balanceOf(address(this)) >= payment);
 
-    released[payee] = released[payee].add(payment);
-    totalReleased = totalReleased.add(payment);
+    tokensReleased[address(token)][payee] = payeeTokenReleased.add(payment);
+    tokensTotalReleased[address(token)] = totalTokenReleased.add(payment);
 
     token.transfer(payee, payment);
   }
