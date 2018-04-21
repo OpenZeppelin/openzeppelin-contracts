@@ -63,6 +63,7 @@
   },
   "dependencies": {
     "dotenv": "^4.0.0",
-    "zos-lib": "git://github.com/zeppelinos/zos-lib.git"
+    "zos": "^0.3.7",
+    "zos-lib": "0.0.5"
   }
 }
