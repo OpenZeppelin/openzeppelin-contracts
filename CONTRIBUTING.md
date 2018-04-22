@@ -12,7 +12,6 @@ Smart contracts manage value and are highly vulnerable to errors and attacks. We
 As a contributor, you are expected to fork this repository, work on your own fork and then submit pull requests. The pull requests will be reviewed and eventually merged into the main repo. See ["Fork-a-Repo"](https://help.github.com/articles/fork-a-repo/) for how this works.
 
 *IMPORTANT* 
-* Please use `rebase` instead of `merge` when updating your fork.
 * Please see ["Git flow wiki entry"](https://github.com/OpenZeppelin/zeppelin-solidity/wiki/Git-flow) for understanding how to use branches in this repository.
 
 ## A typical workflow

@@ -1,5 +1,6 @@
 import increaseTime from './helpers/increaseTime';
 import expectThrow from './helpers/expectThrow';
+import assertRevert from './helpers/assertRevert';
 
 const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
 
@@ -38,6 +39,10 @@ contract('Heritable', function (accounts) {
     await expectThrow(heritable.setHeir(newHeir, { from: someRandomAddress }));
   });
 
+  it('owner can\'t be heir', async function () {
+    await assertRevert(heritable.setHeir(owner, { from: owner }));
+  });
+
   it('owner can remove heir', async function () {
     const newHeir = accounts[1];
     await heritable.setHeir(newHeir, { from: owner });
@@ -61,6 +66,19 @@ contract('Heritable', function (accounts) {
     await increaseTime(4141);
     await heritable.claimHeirOwnership({ from: heir });
     assert.isTrue(await heritable.heir() === heir);
+  });
+
+  it('only heir can proclaim death', async function () {
+    const someRandomAddress = accounts[2];
+    await assertRevert(heritable.proclaimDeath({ from: owner }));
+    await assertRevert(heritable.proclaimDeath({ from: someRandomAddress }));
+  });
+
+  it('heir can\'t proclaim death if owner is death', async function () {
+    const heir = accounts[1];
+    await heritable.setHeir(heir, { from: owner });
+    await heritable.proclaimDeath({ from: heir });
+    await assertRevert(heritable.proclaimDeath({ from: heir }));
   });
 
   it('heir can\'t claim ownership if owner heartbeats', async function () {
@@ -106,5 +124,13 @@ contract('Heritable', function (accounts) {
     assert.isTrue(ownershipTransferredEvent.args.newOwner === heir);
     assert.isTrue(heirOwnershipClaimedEvent.args.previousOwner === owner);
     assert.isTrue(heirOwnershipClaimedEvent.args.newOwner === heir);
+  });
+
+  it('timeOfDeath can be queried', async function () {
+    assert.equal(await heritable.timeOfDeath(), 0);
+  });
+
+  it('heartbeatTimeout can be queried', async function () {
+    assert.equal(await heritable.heartbeatTimeout(), 4141);
   });
 });

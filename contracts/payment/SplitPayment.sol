@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.21;
 
 import "../math/SafeMath.sol";
 
@@ -42,11 +42,11 @@ contract SplitPayment {
 
     require(shares[payee] > 0);
 
-    uint256 totalReceived = this.balance.add(totalReleased);
+    uint256 totalReceived = address(this).balance.add(totalReleased);
     uint256 payment = totalReceived.mul(shares[payee]).div(totalShares).sub(released[payee]);
 
     require(payment != 0);
-    require(this.balance >= payment);
+    require(address(this).balance >= payment);
 
     released[payee] = released[payee].add(payment);
     totalReleased = totalReleased.add(payment);
