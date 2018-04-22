@@ -60,7 +60,7 @@ contract SplitPayment {
   /**
    * @dev Claim your share of the balance through ERC20 token.
    */
-  function claim(ERC20Basic token) public {
+  function claimWith(ERC20Basic token) public {
     address payee = msg.sender;
 
     require(shares[payee] > 0);

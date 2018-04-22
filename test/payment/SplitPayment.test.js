@@ -7,13 +7,16 @@ require('chai')
 
 const EVMThrow = require('../helpers/EVMThrow.js');
 const SplitPayment = artifacts.require('SplitPayment');
+const BasicToken = artifacts.require('BasicTokenMock');
 
 contract('SplitPayment', function ([owner, payee1, payee2, payee3, nonpayee1, payer1]) {
   const amount = web3.toWei(1.0, 'ether');
+  const tokenAmount = 100;
 
   beforeEach(async function () {
     this.payees = [payee1, payee2, payee3];
     this.shares = [20, 10, 70];
+    this.token = await BasicToken.new(owner, tokenAmount);
 
     this.contract = await SplitPayment.new(this.payees, this.shares);
   });
@@ -73,6 +76,47 @@ contract('SplitPayment', function ([owner, payee1, payee2, payee3, nonpayee1, pa
 
     // check correct funds released accounting
     const totalReleased = await this.contract.totalReleased.call();
+    totalReleased.should.be.bignumber.equal(initBalance);
+  });
+
+  it('should throw if no token funds to claim', async function () {
+    await this.contract.claimWith(this.token.address, { from: payee1 }).should.be.rejectedWith(EVMThrow);
+  });
+
+  it('should throw if non-payee want to claim with token', async function () {
+    await this.token.transfer(this.contract.address, tokenAmount, { from: owner });
+    await this.contract.claimWith(this.token.address, { from: nonpayee1 }).should.be.rejectedWith(EVMThrow);
+  });
+
+  it('should distribute token funds to payees', async function () {
+    await this.token.transfer(this.contract.address, tokenAmount, { from: owner });
+
+    // receive funds
+    const initBalance = await this.token.balanceOf(this.contract.address);
+    initBalance.should.be.bignumber.equal(tokenAmount);
+
+    // distribute to payees
+    const initAmount1 = await this.token.balanceOf(payee1);
+    await this.contract.claimWith(this.token.address, { from: payee1 });
+    const profit1 = await this.token.balanceOf(payee1) - initAmount1;
+    profit1.should.be.bignumber.equal(20);
+
+    const initAmount2 = await this.token.balanceOf(payee2);
+    await this.contract.claimWith(this.token.address, { from: payee2 });
+    const profit2 = await this.token.balanceOf(payee2) - initAmount2;
+    profit2.should.be.bignumber.equal(10);
+
+    const initAmount3 = await this.token.balanceOf(payee3);
+    await this.contract.claimWith(this.token.address, { from: payee3 });
+    const profit3 = await this.token.balanceOf(payee3) - initAmount3;
+    profit3.should.be.bignumber.equal(70);
+
+    // end balance should be zero
+    const endBalance = await this.token.balanceOf(this.contract.address);
+    endBalance.should.be.bignumber.equal(0);
+
+    // check correct funds released accounting
+    const totalReleased = await this.contract.tokensTotalReleased.call(this.token.address);
     totalReleased.should.be.bignumber.equal(initBalance);
   });
 });
