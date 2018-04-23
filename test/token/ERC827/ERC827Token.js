@@ -111,6 +111,196 @@ contract('ERC827 Token', function (accounts) {
 
   describe('Test ERC827 methods', function () {
     it(
+      'should allow payment through transfer'
+      , async function () {
+        const message = await Message.new();
+
+        const extraData = message.contract.buyMessage.getData(
+          web3.toHex(123456), 666, 'Transfer Done'
+        );
+
+        const transaction = await token.transferAndCall(
+          message.contract.address, 100, extraData, { from: accounts[0], value: 1000 }
+        );
+
+        assert.equal(2, transaction.receipt.logs.length);
+
+        new BigNumber(100).should.be.bignumber.equal(
+          await token.balanceOf(message.contract.address)
+        );
+        new BigNumber(1000).should.be.bignumber.equal(
+          await web3.eth.getBalance(message.contract.address)
+        );
+      });
+
+    it(
+      'should allow payment through approve'
+      , async function () {
+        const message = await Message.new();
+
+        const extraData = message.contract.buyMessage.getData(
+          web3.toHex(123456), 666, 'Transfer Done'
+        );
+
+        const transaction = await token.approveAndCall(
+          message.contract.address, 100, extraData, { from: accounts[0], value: 1000 }
+        );
+
+        assert.equal(2, transaction.receipt.logs.length);
+
+        new BigNumber(100).should.be.bignumber.equal(
+          await token.allowance(accounts[0], message.contract.address)
+        );
+        new BigNumber(1000).should.be.bignumber.equal(
+          await web3.eth.getBalance(message.contract.address)
+        );
+      });
+
+    it(
+      'should allow payment through increaseApproval'
+      , async function () {
+        const message = await Message.new();
+
+        const extraData = message.contract.buyMessage.getData(
+          web3.toHex(123456), 666, 'Transfer Done'
+        );
+
+        await token.approve(message.contract.address, 10);
+        new BigNumber(10).should.be.bignumber.equal(
+          await token.allowance(accounts[0], message.contract.address)
+        );
+
+        const transaction = await token.increaseApprovalAndCall(
+          message.contract.address, 50, extraData, { from: accounts[0], value: 1000 }
+        );
+
+        assert.equal(2, transaction.receipt.logs.length);
+
+        new BigNumber(60).should.be.bignumber.equal(
+          await token.allowance(accounts[0], message.contract.address)
+        );
+        new BigNumber(1000).should.be.bignumber.equal(
+          await web3.eth.getBalance(message.contract.address)
+        );
+      });
+
+    it(
+      'should allow payment through decreaseApproval'
+      , async function () {
+        const message = await Message.new();
+
+        await token.approve(message.contract.address, 100);
+
+        new BigNumber(100).should.be.bignumber.equal(
+          await token.allowance(accounts[0], message.contract.address)
+        );
+
+        const extraData = message.contract.buyMessage.getData(
+          web3.toHex(123456), 666, 'Transfer Done'
+        );
+
+        const transaction = await token.decreaseApprovalAndCall(
+          message.contract.address, 60, extraData, { from: accounts[0], value: 1000 }
+        );
+
+        assert.equal(2, transaction.receipt.logs.length);
+
+        new BigNumber(40).should.be.bignumber.equal(
+          await token.allowance(accounts[0], message.contract.address)
+        );
+        new BigNumber(1000).should.be.bignumber.equal(
+          await web3.eth.getBalance(message.contract.address)
+        );
+      });
+
+    it(
+      'should allow payment through transferFrom'
+      , async function () {
+        const message = await Message.new();
+
+        const extraData = message.contract.buyMessage.getData(
+          web3.toHex(123456), 666, 'Transfer Done'
+        );
+
+        await token.approve(accounts[1], 100, { from: accounts[0] });
+
+        new BigNumber(100).should.be.bignumber.equal(
+          await token.allowance(accounts[0], accounts[1])
+        );
+
+        const transaction = await token.transferFromAndCall(
+          accounts[0], message.contract.address, 100, extraData, { from: accounts[1], value: 1000 }
+        );
+
+        assert.equal(2, transaction.receipt.logs.length);
+
+        new BigNumber(100).should.be.bignumber.equal(
+          await token.balanceOf(message.contract.address)
+        );
+        new BigNumber(1000).should.be.bignumber.equal(
+          await web3.eth.getBalance(message.contract.address)
+        );
+      });
+
+    it('should revert funds of failure inside approve (with data)', async function () {
+      const message = await Message.new();
+
+      const extraData = message.contract.showMessage.getData(
+        web3.toHex(123456), 666, 'Transfer Done'
+      );
+
+      await token.approveAndCall(
+        message.contract.address, 10, extraData, { from: accounts[0], value: 1000 }
+      ).should.be.rejectedWith(EVMRevert);
+
+      // approval should not have gone through so allowance is still 0
+      new BigNumber(0).should.be.bignumber
+        .equal(await token.allowance(accounts[1], message.contract.address));
+      new BigNumber(0).should.be.bignumber
+        .equal(await web3.eth.getBalance(message.contract.address));
+    });
+
+    it('should revert funds of failure inside transfer (with data)', async function () {
+      const message = await Message.new();
+
+      const extraData = message.contract.showMessage.getData(
+        web3.toHex(123456), 666, 'Transfer Done'
+      );
+
+      await token.transferAndCall(
+        message.contract.address, 10, extraData, { from: accounts[0], value: 1000 }
+      ).should.be.rejectedWith(EVMRevert);
+
+      // transfer should not have gone through, so balance is still 0
+      new BigNumber(0).should.be.bignumber
+        .equal(await token.balanceOf(message.contract.address));
+      new BigNumber(0).should.be.bignumber
+        .equal(await web3.eth.getBalance(message.contract.address));
+    });
+
+    it('should revert funds of failure inside transferFrom (with data)', async function () {
+      const message = await Message.new();
+
+      const extraData = message.contract.showMessage.getData(
+        web3.toHex(123456), 666, 'Transfer Done'
+      );
+
+      await token.approve(accounts[1], 10, { from: accounts[2] });
+
+      await token.transferFromAndCall(
+        accounts[2], message.contract.address, 10, extraData, { from: accounts[2], value: 1000 }
+      ).should.be.rejectedWith(EVMRevert);
+
+      // transferFrom should have failed so balance is still 0 but allowance is 10
+      new BigNumber(10).should.be.bignumber
+        .equal(await token.allowance(accounts[2], accounts[1]));
+      new BigNumber(0).should.be.bignumber
+        .equal(await token.balanceOf(message.contract.address));
+      new BigNumber(0).should.be.bignumber
+        .equal(await web3.eth.getBalance(message.contract.address));
+    });
+
+    it(
       'should return correct balances after transfer (with data) and show the event on receiver contract'
       , async function () {
         const message = await Message.new();
