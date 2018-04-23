@@ -4,8 +4,6 @@ var Message = artifacts.require('MessageHelper');
 var ERC827TokenMock = artifacts.require('ERC827TokenMock');
 
 var BigNumber = web3.BigNumber;
-var _ = require('lodash');
-var ethjsABI = require('ethjs-abi');
 require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
@@ -13,15 +11,6 @@ require('chai')
 
 contract('ERC827 Token', function (accounts) {
   let token;
-
-  function findMethod (abi, name, args) {
-    for (var i = 0; i < abi.length; i++) {
-      const methodArgs = _.map(abi[i].inputs, 'type').join(',');
-      if ((abi[i].name === name) && (methodArgs === args)) {
-        return abi[i];
-      }
-    }
-  }
 
   beforeEach(async function () {
     token = await ERC827TokenMock.new(accounts[0], 100);
@@ -94,13 +83,7 @@ contract('ERC827 Token', function (accounts) {
     });
 
     it('should increase by 50 then decrease by 10', async function () {
-      const abiMethod = findMethod(token.abi, 'increaseApproval', 'address,uint256');
-      const increaseApprovalData = ethjsABI.encodeMethod(abiMethod,
-        [accounts[1], 50]
-      );
-      await token.sendTransaction(
-        { from: accounts[0], data: increaseApprovalData }
-      );
+      await token.increaseApproval(accounts[1], 50);
       let postIncrease = await token.allowance(accounts[0], accounts[1]);
       preApproved.plus(50).should.be.bignumber.equal(postIncrease);
       await token.decreaseApproval(accounts[1], 10);
@@ -135,13 +118,8 @@ contract('ERC827 Token', function (accounts) {
         const extraData = message.contract.showMessage.getData(
           web3.toHex(123456), 666, 'Transfer Done'
         );
-        const abiMethod = findMethod(token.abi, 'transfer', 'address,uint256,bytes');
-        const transferData = ethjsABI.encodeMethod(abiMethod,
-          [message.contract.address, 100, extraData]
-        );
-        const transaction = await token.sendTransaction(
-          { from: accounts[0], data: transferData }
-        );
+
+        const transaction = await token.transferAndCall(message.contract.address, 100, extraData);
 
         assert.equal(2, transaction.receipt.logs.length);
 
@@ -159,13 +137,7 @@ contract('ERC827 Token', function (accounts) {
           web3.toHex(123456), 666, 'Transfer Done'
         );
 
-        const abiMethod = findMethod(token.abi, 'approve', 'address,uint256,bytes');
-        const approveData = ethjsABI.encodeMethod(abiMethod,
-          [message.contract.address, 100, extraData]
-        );
-        const transaction = await token.sendTransaction(
-          { from: accounts[0], data: approveData }
-        );
+        const transaction = await token.approveAndCall(message.contract.address, 100, extraData);
 
         assert.equal(2, transaction.receipt.logs.length);
 
@@ -188,13 +160,7 @@ contract('ERC827 Token', function (accounts) {
           await token.allowance(accounts[0], message.contract.address)
         );
 
-        const abiMethod = findMethod(token.abi, 'increaseApproval', 'address,uint256,bytes');
-        const increaseApprovalData = ethjsABI.encodeMethod(abiMethod,
-          [message.contract.address, 50, extraData]
-        );
-        const transaction = await token.sendTransaction(
-          { from: accounts[0], data: increaseApprovalData }
-        );
+        const transaction = await token.increaseApprovalAndCall(message.contract.address, 50, extraData);
 
         assert.equal(2, transaction.receipt.logs.length);
 
@@ -218,13 +184,7 @@ contract('ERC827 Token', function (accounts) {
           web3.toHex(123456), 666, 'Transfer Done'
         );
 
-        const abiMethod = findMethod(token.abi, 'decreaseApproval', 'address,uint256,bytes');
-        const decreaseApprovalData = ethjsABI.encodeMethod(abiMethod,
-          [message.contract.address, 60, extraData]
-        );
-        const transaction = await token.sendTransaction(
-          { from: accounts[0], data: decreaseApprovalData }
-        );
+        const transaction = await token.decreaseApprovalAndCall(message.contract.address, 60, extraData);
 
         assert.equal(2, transaction.receipt.logs.length);
 
@@ -248,13 +208,9 @@ contract('ERC827 Token', function (accounts) {
           await token.allowance(accounts[0], accounts[1])
         );
 
-        const abiMethod = findMethod(token.abi, 'transferFrom', 'address,address,uint256,bytes');
-        const transferFromData = ethjsABI.encodeMethod(abiMethod,
-          [accounts[0], message.contract.address, 100, extraData]
-        );
-        const transaction = await token.sendTransaction(
-          { from: accounts[1], data: transferFromData }
-        );
+        const transaction = await token.transferFromAndCall(accounts[0], message.contract.address, 100, extraData, {
+          from: accounts[1],
+        });
 
         assert.equal(2, transaction.receipt.logs.length);
 
@@ -268,13 +224,8 @@ contract('ERC827 Token', function (accounts) {
 
       const extraData = message.contract.fail.getData();
 
-      const abiMethod = findMethod(token.abi, 'approve', 'address,uint256,bytes');
-      const approveData = ethjsABI.encodeMethod(abiMethod,
-        [message.contract.address, 10, extraData]
-      );
-      await token.sendTransaction(
-        { from: accounts[0], data: approveData }
-      ).should.be.rejectedWith(EVMRevert);
+      await token.approveAndCall(message.contract.address, 10, extraData)
+        .should.be.rejectedWith(EVMRevert);
 
       // approval should not have gone through so allowance is still 0
       new BigNumber(0).should.be.bignumber
@@ -286,13 +237,8 @@ contract('ERC827 Token', function (accounts) {
 
       const extraData = message.contract.fail.getData();
 
-      const abiMethod = findMethod(token.abi, 'transfer', 'address,uint256,bytes');
-      const transferData = ethjsABI.encodeMethod(abiMethod,
-        [message.contract.address, 10, extraData]
-      );
-      await token.sendTransaction(
-        { from: accounts[0], data: transferData }
-      ).should.be.rejectedWith(EVMRevert);
+      await token.transferAndCall(message.contract.address, 10, extraData)
+        .should.be.rejectedWith(EVMRevert);
 
       // transfer should not have gone through, so balance is still 0
       new BigNumber(0).should.be.bignumber
@@ -305,14 +251,8 @@ contract('ERC827 Token', function (accounts) {
       const extraData = message.contract.fail.getData();
 
       await token.approve(accounts[1], 10, { from: accounts[2] });
-
-      const abiMethod = findMethod(token.abi, 'transferFrom', 'address,address,uint256,bytes');
-      const transferFromData = ethjsABI.encodeMethod(abiMethod,
-        [accounts[2], message.contract.address, 10, extraData]
-      );
-      await token.sendTransaction(
-        { from: accounts[1], data: transferFromData }
-      ).should.be.rejectedWith(EVMRevert);
+      await token.transferFromAndCall(accounts[2], message.contract.address, 10, extraData, { from: accounts[1] })
+        .should.be.rejectedWith(EVMRevert);
 
       // transferFrom should have failed so balance is still 0 but allowance is 10
       new BigNumber(10).should.be.bignumber
@@ -328,13 +268,8 @@ contract('ERC827 Token', function (accounts) {
         web3.toHex(123456), 666, 'Transfer Done'
       );
 
-      const abiMethod = findMethod(token.abi, 'approve', 'address,uint256,bytes');
-      const approveData = ethjsABI.encodeMethod(abiMethod,
-        [token.contract.address, 100, extraData]
-      );
-      await token.sendTransaction(
-        { from: accounts[0], data: approveData }
-      ).should.be.rejectedWith(EVMRevert);
+      await token.approveAndCall(token.contract.address, 100, extraData, { from: accounts[0] })
+        .should.be.rejectedWith(EVMRevert);
     });
 
     it('should fail transfer (with data) when using token contract address as receiver', async function () {
@@ -344,13 +279,8 @@ contract('ERC827 Token', function (accounts) {
         web3.toHex(123456), 666, 'Transfer Done'
       );
 
-      const abiMethod = findMethod(token.abi, 'transfer', 'address,uint256,bytes');
-      const transferData = ethjsABI.encodeMethod(abiMethod,
-        [token.contract.address, 100, extraData]
-      );
-      await token.sendTransaction(
-        { from: accounts[0], data: transferData }
-      ).should.be.rejectedWith(EVMRevert);
+      await token.transferAndCall(token.contract.address, 100, extraData)
+        .should.be.rejectedWith(EVMRevert);
     });
 
     it('should fail transferFrom (with data) when using token contract address as receiver', async function () {
@@ -362,13 +292,8 @@ contract('ERC827 Token', function (accounts) {
 
       await token.approve(accounts[1], 1, { from: accounts[0] });
 
-      const abiMethod = findMethod(token.abi, 'transferFrom', 'address,address,uint256,bytes');
-      const transferFromData = ethjsABI.encodeMethod(abiMethod,
-        [accounts[0], token.contract.address, 1, extraData]
-      );
-      await token.sendTransaction(
-        { from: accounts[1], data: transferFromData }
-      ).should.be.rejectedWith(EVMRevert);
+      await token.transferFromAndCall(accounts[0], token.contract.address, 1, extraData, { from: accounts[1] })
+        .should.be.rejectedWith(EVMRevert);
     });
   });
 });
