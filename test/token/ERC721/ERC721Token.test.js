@@ -51,7 +51,7 @@ contract('ERC721Token', function (accounts) {
     });
 
     describe('burn', function () {
-      const tokenId = firstTokenId;
+      const tokenId = secondTokenId;
       const sender = creator;
 
       beforeEach(async function () {
@@ -59,17 +59,30 @@ contract('ERC721Token', function (accounts) {
       });
 
       it('removes that token from the token list of the owner', async function () {
-        const token = await this.token.tokenOfOwnerByIndex(sender, 0);
-        token.toNumber().should.be.equal(secondTokenId);
+        const firstToken = await this.token.tokenOfOwnerByIndex(sender, 0);
+        firstToken.toNumber().should.be.equal(firstTokenId);
+        await assertRevert(this.token.tokenOfOwnerByIndex(sender, 1));
       });
 
       it('adjusts all tokens list', async function () {
-        const token = await this.token.tokenByIndex(0);
-        token.toNumber().should.be.equal(secondTokenId);
+        const firstToken = await this.token.tokenByIndex(0);
+        firstToken.toNumber().should.be.equal(firstTokenId);
+        await assertRevert(this.token.tokenByIndex(1));
+      });
+
+      ['ownedTokenIndex', 'allTokenIndex'].forEach(fnName => {
+        const mappingName = fnName.replace('Token', 'Tokens');
+
+        it(`adjusts ${mappingName}`, async function () {
+          const firstTokenIndex = await this.token[fnName](firstTokenId);
+          const secondTokenIndex = await this.token[fnName](secondTokenId);
+          firstTokenIndex.toNumber().should.be.equal(0);
+          secondTokenIndex.toNumber().should.be.equal(0);
+        });
       });
 
       it('burns all tokens', async function () {
-        await this.token.burn(secondTokenId, { from: sender });
+        await this.token.burn(firstTokenId, { from: sender });
         const total = await this.token.totalSupply();
         total.toNumber().should.be.equal(0);
         await assertRevert(this.token.tokenByIndex(0));

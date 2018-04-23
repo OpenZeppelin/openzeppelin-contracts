@@ -24,4 +24,12 @@ contract ERC721TokenMock is ERC721Token {
   function setTokenURI(uint256 _tokenId, string _uri) public {
     super._setTokenURI(_tokenId, _uri);
   }
+
+  function ownedTokenIndex(uint256 _tokenId) public view returns(uint256) {
+    return ownedTokensIndex[_tokenId];
+  }
+
+  function allTokenIndex(uint256 _tokenId) public view returns(uint256) {
+    return allTokensIndex[_tokenId];
+  }
 }

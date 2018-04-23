@@ -138,8 +138,11 @@ contract ERC721Token is ERC721, ERC721BasicToken {
     // the lastToken to the first position, and then dropping the element placed in the last position of the list
 
     ownedTokens[_from].length--;
-    ownedTokensIndex[_tokenId] = 0;
-    ownedTokensIndex[lastToken] = tokenIndex;
+    delete ownedTokensIndex[_tokenId];
+
+    if (_tokenId != lastToken) {
+      ownedTokensIndex[lastToken] = tokenIndex;
+    }
   }
 
   /**
@@ -178,8 +181,10 @@ contract ERC721Token is ERC721, ERC721BasicToken {
     allTokens[lastTokenIndex] = 0;
 
     allTokens.length--;
-    allTokensIndex[_tokenId] = 0;
-    allTokensIndex[lastToken] = tokenIndex;
-  }
+    delete allTokensIndex[_tokenId];
 
+    if (_tokenId != lastToken) {
+      allTokensIndex[lastToken] = tokenIndex;
+    }
+  }
 }
