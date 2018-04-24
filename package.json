@@ -45,6 +45,7 @@
     "chai-as-promised": "^7.0.0",
     "chai-bignumber": "^2.0.0",
     "coveralls": "^2.13.1",
+    "dotenv": "^4.0.0",
     "eslint": "^4.11.0",
     "eslint-config-standard": "^10.2.1",
     "eslint-plugin-import": "^2.8.0",
@@ -58,8 +59,5 @@
     "solium": "^1.1.6",
     "truffle": "^4.1.5",
     "truffle-hdwallet-provider": "0.0.3"
-  },
-  "dependencies": {
-    "dotenv": "^4.0.0"
   }
 }
