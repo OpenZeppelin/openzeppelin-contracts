@@ -45,4 +45,17 @@ library SafeMath {
     assert(c >= a);
     return c;
   }
+
+  /**
+  * @dev Integer modulo operation of two numbers.
+  */
+  function mod(uint256 a, uint256 b) internal pure returns (uint256 c) {
+    // d = a / b
+    // a = d * b + c
+    // c = a - d * b    
+    uint256 d = div(a,b);
+    c = sub(a, mul(d,b));
+    assert(c < b);
+    return c;
+  }
 }
