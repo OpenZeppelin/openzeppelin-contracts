@@ -88,4 +88,21 @@ contract('SafeMath', () => {
       await assertJump(this.safeMath.div(a, b));
     });
   });
+
+  describe('mod', function () {
+    it('modulo correctly', async function () {
+      const a = new BigNumber(5678);
+      const b = new BigNumber(284);
+
+      const result = await this.safeMath.mod(a, b);
+      result.should.be.bignumber.equal(a.mod(b));
+    });
+
+    it('throws an error on zero modulo', async function () {
+      const a = new BigNumber(5678);
+      const b = new BigNumber(0);
+
+      await assertJump(this.safeMath.mod(a, b));
+    });
+  });
 });
