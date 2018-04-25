@@ -1,5 +1,5 @@
 {
-  "name": "zeppelin-solidity",
+  "name": "openzeppelin-solidity",
   "version": "1.8.0",
   "description": "Secure Smart Contract library for Solidity",
   "scripts": {
