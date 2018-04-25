@@ -80,13 +80,13 @@ contract('ERC721Token', function (accounts) {
       const sampleUri = 'mock://mytoken';
 
       it('has a name', async function () {
-        const name = await this.token.name();
-        name.should.be.equal(name);
+        const tokenName = await this.token.name();
+        tokenName.should.be.equal(name);
       });
 
       it('has a symbol', async function () {
-        const symbol = await this.token.symbol();
-        symbol.should.be.equal(symbol);
+        const tokenSymbol = await this.token.symbol();
+        tokenSymbol.should.be.equal(symbol);
       });
 
       it('sets and returns metadata for a token id', async function () {
