@@ -46,5 +46,11 @@ export default function ([owner], initialBalance) {
         await assertRevert(this.token.burn(amount, { from }));
       });
     });
+
+    describe('when the given amount is zero', function () {
+      it('reverts', async function () {
+        await assertRevert(this.token.burn(0, { from }));
+      });
+    });
   });
 };
