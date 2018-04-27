@@ -1,0 +1,18 @@
+{
+  "distribution": {
+    "address": "0x57ed03ed45a70ef67479dec896ed782a72e40e8c"
+  },
+  "contracts": {
+    "DetailedMintableToken": "DetailedMintableToken",
+    "DetailedPremintedToken": "DetailedPremintedToken",
+    "MintableERC721Token": "MintableERC721Token",
+    "TokenTimelock": "TokenTimelock",
+    "TokenVesting": "TokenVesting"
+  },
+  "kernel": {
+    "address": "0xdf38ad6335299dcaab4e663b40d466140702285d"
+  },
+  "provider": {
+    "address": "0xA739d10Cc20211B973dEE09DB8F0D75736E2D817"
+  }
+}
