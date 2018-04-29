@@ -18,6 +18,7 @@ import "../math/SafeMath.sol";
  */
 
 contract DutchAuction {
+  using SafeMath for uint256;
 
   address public beneficiary;
 
@@ -34,11 +35,11 @@ contract DutchAuction {
   function DutchAuction (
   	uint _auctionLength, 
   	uint _highAskingPrice, 
-  	uint _lowAskingPrice) {
+  	uint _lowAskingPrice) public {
 
   }
 
-  function findCurrentPrice () {
+  function findCurrentPrice () public {
   	// (highAskingPrice - lowAskingPrice) / totalAuctionTime = descendingPriceRate
   }
 
@@ -46,7 +47,7 @@ contract DutchAuction {
 
   }
 
-  function payBeneficiary (address beneficiary) {
+  function payBeneficiary (address _beneficiary) internal {
 
   }
 
