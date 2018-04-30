@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.23;
 
 
 import "../../math/SafeMath.sol";
@@ -25,7 +25,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
    * @dev Constructor, creates RefundVault.
    * @param _goal Funding goal
    */
-  function RefundableCrowdsale(uint256 _goal) public {
+  constructor(uint256 _goal) public {
     require(_goal > 0);
     vault = new RefundVault(wallet);
     goal = _goal;

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.23;
 
 import "./Ownable.sol";
 
@@ -22,7 +22,7 @@ contract HasNoEther is Ownable {
   * constructor. By doing it this way we prevent a payable constructor from working. Alternatively
   * we could use assembly to access msg.value.
   */
-  function HasNoEther() public payable {
+  constructor() public payable {
     require(msg.value == 0);
   }
 
