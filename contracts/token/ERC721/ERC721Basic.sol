@@ -21,12 +21,7 @@ contract ERC721Basic {
   function isApprovedForAll(address _owner, address _operator) public view returns (bool);
 
   function transferFrom(address _from, address _to, uint256 _tokenId) public;
+  
   function safeTransferFrom(address _from, address _to, uint256 _tokenId) public;
-  function safeTransferFrom(
-    address _from,
-    address _to,
-    uint256 _tokenId,
-    bytes _data
-  )
-    public;
+  function safeTransferFrom(address _from, address _to, uint256 _tokenId, bytes _data) public;
 }
