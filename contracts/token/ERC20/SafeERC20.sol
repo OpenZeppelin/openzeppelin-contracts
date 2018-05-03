@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.21;
 
 import "./ERC20Basic.sol";
 import "./ERC20.sol";
@@ -15,7 +15,14 @@ library SafeERC20 {
     require(token.transfer(to, value));
   }
 
-  function safeTransferFrom(ERC20 token, address from, address to, uint256 value) internal {
+  function safeTransferFrom(
+    ERC20 token,
+    address from,
+    address to,
+    uint256 value
+  )
+    internal
+  {
     require(token.transferFrom(from, to, value));
   }
 

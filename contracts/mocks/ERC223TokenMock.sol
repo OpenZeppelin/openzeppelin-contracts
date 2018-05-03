@@ -1,10 +1,12 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.21;
 
 import "../token/ERC20/BasicToken.sol";
+
 
 contract ERC223ContractInterface {
   function tokenFallback(address _from, uint256 _value, bytes _data) external;
 }
+
 
 contract ERC223TokenMock is BasicToken {
 
@@ -18,11 +20,12 @@ contract ERC223TokenMock is BasicToken {
     returns (bool success)
   {
     transfer(_to, _value);
-    bool is_contract = false;
+    bool isContract = false;
+    // solium-disable-next-line security/no-inline-assembly
     assembly {
-      is_contract := not(iszero(extcodesize(_to)))
+      isContract := not(iszero(extcodesize(_to)))
     }
-    if (is_contract) {
+    if (isContract) {
       ERC223ContractInterface receiver = ERC223ContractInterface(_to);
       receiver.tokenFallback(msg.sender, _value, _data);
     }

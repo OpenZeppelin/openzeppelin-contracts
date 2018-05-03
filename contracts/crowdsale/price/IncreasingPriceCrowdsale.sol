@@ -1,11 +1,12 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.21;
 
 import "../validation/TimedCrowdsale.sol";
 import "../../math/SafeMath.sol";
 
+
 /**
  * @title IncreasingPriceCrowdsale
- * @dev Extension of Crowdsale contract that increases the price of tokens linearly in time. 
+ * @dev Extension of Crowdsale contract that increases the price of tokens linearly in time.
  * Note that what should be provided to the constructor is the initial and final _rates_, that is,
  * the amount of tokens per wei contributed. Thus, the initial rate must be greater than the final rate.
  */
@@ -28,12 +29,13 @@ contract IncreasingPriceCrowdsale is TimedCrowdsale {
   }
 
   /**
-   * @dev Returns the rate of tokens per wei at the present time. 
-   * Note that, as price _increases_ with time, the rate _decreases_. 
+   * @dev Returns the rate of tokens per wei at the present time.
+   * Note that, as price _increases_ with time, the rate _decreases_.
    * @return The number of tokens a buyer gets per wei at a given time
    */
   function getCurrentRate() public view returns (uint256) {
-    uint256 elapsedTime = now.sub(openingTime);
+    // solium-disable-next-line security/no-block-members
+    uint256 elapsedTime = block.timestamp.sub(openingTime);
     uint256 timeRange = closingTime.sub(openingTime);
     uint256 rateRange = initialRate.sub(finalRate);
     return initialRate.sub(elapsedTime.mul(rateRange).div(timeRange));

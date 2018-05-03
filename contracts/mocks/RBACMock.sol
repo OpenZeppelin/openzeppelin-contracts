@@ -1,9 +1,9 @@
-pragma solidity ^0.4.8;
+pragma solidity ^0.4.21;
 
-import "../ownership/rbac/RBAC.sol";
+import "../ownership/rbac/RBACWithAdmin.sol";
 
 
-contract RBACMock is RBAC {
+contract RBACMock is RBACWithAdmin {
 
   string constant ROLE_ADVISOR = "advisor";
 

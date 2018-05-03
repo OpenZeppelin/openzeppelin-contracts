@@ -1,11 +1,22 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.21;
+
 
 contract MessageHelper {
 
   event Show(bytes32 b32, uint256 number, string text);
+  event Buy(bytes32 b32, uint256 number, string text, uint256 value);
 
   function showMessage( bytes32 message, uint256 number, string text ) public returns (bool) {
-    Show(message, number, text);
+    emit Show(message, number, text);
+    return true;
+  }
+
+  function buyMessage( bytes32 message, uint256 number, string text ) public payable returns (bool) {
+    emit Buy(
+      message,
+      number,
+      text,
+      msg.value);
     return true;
   }
 
@@ -14,6 +25,7 @@ contract MessageHelper {
   }
 
   function call(address to, bytes data) public returns (bool) {
+    // solium-disable-next-line security/no-low-level-calls
     if (to.call(data))
       return true;
     else

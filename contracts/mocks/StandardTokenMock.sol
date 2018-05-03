@@ -1,6 +1,7 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.21;
 
 import "../token/ERC20/StandardToken.sol";
+
 
 // mock class using StandardToken
 contract StandardTokenMock is StandardToken {

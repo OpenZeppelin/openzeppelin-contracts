@@ -1,7 +1,11 @@
 {
-  "name": "zeppelin-solidity",
-  "version": "1.7.0",
+  "name": "openzeppelin-solidity",
+  "version": "1.9.0",
   "description": "Secure Smart Contract library for Solidity",
+  "files": [
+    "contracts",
+    "test"
+  ],
   "scripts": {
     "test": "scripts/test.sh",
     "lint": "eslint .",
@@ -11,7 +15,8 @@
     "lint:all": "npm run lint && npm run lint:sol",
     "lint:all:fix": "npm run lint:fix && npm run lint:sol:fix",
     "console": "truffle console",
-    "coverage": "scripts/coverage.sh"
+    "coverage": "scripts/coverage.sh",
+    "version": "scripts/version.js"
   },
   "repository": {
     "type": "git",
@@ -41,22 +46,19 @@
     "chai-as-promised": "^7.0.0",
     "chai-bignumber": "^2.0.0",
     "coveralls": "^2.13.1",
+    "dotenv": "^4.0.0",
     "eslint": "^4.11.0",
     "eslint-config-standard": "^10.2.1",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
-    "ethereumjs-testrpc": "^6.0.1",
     "ethereumjs-util": "^5.1.2",
-    "mocha-lcov-reporter": "^1.3.0",
-    "solidity-coverage": "^0.4.3",
-    "solium": "^1.1.2",
-    "truffle": "^4.0.0",
+    "ethjs-abi": "^0.2.1",
+    "ganache-cli": "6.1.0",
+    "solidity-coverage": "^0.4.15",
+    "solium": "^1.1.6",
+    "truffle": "^4.1.5",
     "truffle-hdwallet-provider": "0.0.3"
-  },
-  "dependencies": {
-    "dotenv": "^4.0.0",
-    "ethjs-abi": "^0.2.1"
   }
 }

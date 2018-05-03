@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.21;
 
 
 /**
@@ -10,6 +10,7 @@ contract Ownable {
   address public owner;
 
 
+  event OwnershipRenounced(address indexed previousOwner);
   event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
 
@@ -35,8 +36,15 @@ contract Ownable {
    */
   function transferOwnership(address newOwner) public onlyOwner {
     require(newOwner != address(0));
-    OwnershipTransferred(owner, newOwner);
+    emit OwnershipTransferred(owner, newOwner);
     owner = newOwner;
   }
 
+  /**
+   * @dev Allows the current owner to relinquish control of the contract.
+   */
+  function renounceOwnership() public onlyOwner {
+    emit OwnershipRenounced(owner);
+    owner = address(0);
+  }
 }
