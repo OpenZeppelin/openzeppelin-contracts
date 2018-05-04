@@ -1,6 +1,5 @@
 pragma solidity ^0.4.21;
 
-import "../token/ERC20/ERC20.sol";
 import "../math/SafeMath.sol";
 
 /**
@@ -21,10 +20,12 @@ contract DutchAuction {
   using SafeMath for uint256;
 
   address public beneficiary;
+  address public winner;
 
   uint public auctionLength;
   uint public highAskingPrice;
   uint public lowAskingPrice;
+  uint public currentAskingPrice;
 
   address public bidder;
   uint public bid;
@@ -32,18 +33,28 @@ contract DutchAuction {
   // Necessary modifiers
   // TBD
 
-  function DutchAuction (
-  	uint _auctionLength, 
-  	uint _highAskingPrice, 
-  	uint _lowAskingPrice) public {
+ 
+  function DutchAuction (uint _highAskingPrice, uint _lowAskingPrice, uint _auctionLength) public {
+  	highAskingPrice = _highAskingPrice;
+  	lowAskingPrice = _lowAskingPrice;
+  	auctionLength = _auctionLength;
+
+    require(lowAskingPrice < highAskingPrice);
+    require(lowAskingPrice > 0);
+    require(highAskingPrice > 0);
+
+  }
+/*
+  function findCurrentPrice () public returns (bool) {
+  	// (highAskingPrice - lowAskingPrice) / auctionLength = descendingPriceRate
 
   }
 
-  function findCurrentPrice () public {
-  	// (highAskingPrice - lowAskingPrice) / totalAuctionTime = descendingPriceRate
+  function processBid (uint _bid, address _bidder) public payable {
+
   }
 
-  function placeBid (uint _bid, address _bidder) public payable {
+  function returnToBeneficiary (address _beneficiary) internal {
 
   }
 
@@ -51,4 +62,8 @@ contract DutchAuction {
 
   }
 
+  function payWinner (address _winner) internal {
+
+  }
+*/
 }
