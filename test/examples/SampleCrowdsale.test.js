@@ -66,7 +66,6 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
 
   it('should accept payments during the sale', async function () {
     const investmentAmount = ether(1);
-    const expectedTokenAmount = RATE.mul(investmentAmount);
 
     await increaseTimeTo(this.openingTime);
     await this.crowdsale.buyTokens(investor, { value: investmentAmount, from: investor })
