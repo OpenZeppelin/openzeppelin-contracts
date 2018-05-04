@@ -69,10 +69,8 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
     const expectedTokenAmount = RATE.mul(investmentAmount);
 
     await increaseTimeTo(this.openingTime);
-    await this.crowdsale.buyTokens(investor, { value: investmentAmount, from: investor }).should.be.fulfilled;
-
-    (await this.token.balanceOf(investor)).should.be.bignumber.equal(expectedTokenAmount);
-    (await this.token.totalSupply()).should.be.bignumber.equal(expectedTokenAmount);
+    await this.crowdsale.buyTokens(investor, { value: investmentAmount, from: investor })
+      .should.be.fulfilled;
   });
 
   it('should reject payments after end', async function () {
@@ -89,14 +87,20 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
 
   it('should allow finalization and transfer funds to wallet if the goal is reached', async function () {
     await increaseTimeTo(this.openingTime);
-    await this.crowdsale.send(GOAL);
+    await this.crowdsale.sendTransaction({ value: GOAL, from: investor });
+    const expectedTokenAmount = RATE.mul(GOAL);
 
     const beforeFinalization = web3.eth.getBalance(wallet);
     await increaseTimeTo(this.afterClosingTime);
     await this.crowdsale.finalize({ from: owner });
     const afterFinalization = web3.eth.getBalance(wallet);
-
     afterFinalization.minus(beforeFinalization).should.be.bignumber.equal(GOAL);
+
+    await this.crowdsale.withdrawTokens({ from: investor });
+    const tokenBalance = await this.token.balanceOf(investor);
+    tokenBalance.should.be.bignumber.eq(expectedTokenAmount);
+    const totalSupply = await this.token.totalSupply();
+    totalSupply.should.be.bignumber.eq(expectedTokenAmount);
   });
 
   it('should allow refunds if the goal is not reached', async function () {

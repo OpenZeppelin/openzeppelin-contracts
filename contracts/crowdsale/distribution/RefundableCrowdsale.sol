@@ -3,6 +3,7 @@ pragma solidity ^0.4.21;
 
 import "../../math/SafeMath.sol";
 import "./FinalizableCrowdsale.sol";
+import "./PostDeliveryCrowdsale.sol";
 import "./utils/RefundVault.sol";
 
 
@@ -11,8 +12,9 @@ import "./utils/RefundVault.sol";
  * @dev Extension of Crowdsale contract that adds a funding goal, and
  * the possibility of users getting a refund if goal is not met.
  * Uses a RefundVault as the crowdsale's vault.
+ * Only distributes tokens after funding goal is met.
  */
-contract RefundableCrowdsale is FinalizableCrowdsale {
+contract RefundableCrowdsale is FinalizableCrowdsale, PostDeliveryCrowdsale {
   using SafeMath for uint256;
 
   // minimum amount of funds to be raised in weis
@@ -29,6 +31,17 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
     require(_goal > 0);
     vault = new RefundVault(wallet);
     goal = _goal;
+  }
+
+  /**
+   * @dev Investors can claim their tokens if a crowdsale is successful
+   */
+  function withdrawTokens() public {
+    // require that the crowdsale is finalized and that the goal was reached
+    require(isFinalized);
+    require(goalReached());
+    // then allow users to withdraw tokens
+    super.withdrawTokens();
   }
 
   /**

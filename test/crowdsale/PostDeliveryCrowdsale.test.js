@@ -1,10 +1,11 @@
 import { advanceBlock } from '../helpers/advanceToBlock';
 import { increaseTimeTo, duration } from '../helpers/increaseTime';
 import latestTime from '../helpers/latestTime';
-import EVMRevert from '../helpers/EVMRevert';
 import ether from '../helpers/ether';
+import shouldBePostDeliveryCrowdsale from './PostDeliveryCrowdsale.behavior';
 
 const BigNumber = web3.BigNumber;
+const value = ether(1);
 
 require('chai')
   .use(require('chai-as-promised'))
@@ -16,7 +17,6 @@ const SimpleToken = artifacts.require('SimpleToken');
 
 contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
   const rate = new BigNumber(1);
-  const value = ether(42);
   const tokenSupply = new BigNumber('1e22');
 
   before(async function () {
@@ -34,34 +34,14 @@ contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
       this.openingTime, this.closingTime, rate, wallet, this.token.address
     );
     await this.token.transfer(this.crowdsale.address, tokenSupply);
+    this.endCrowdsale = async function () {
+      await increaseTimeTo(this.openingTime);
+      await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
+      await increaseTimeTo(this.afterClosingTime);
+    };
   });
 
-  it('should not immediately assign tokens to beneficiary', async function () {
-    await increaseTimeTo(this.openingTime);
-    await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
-    const balance = await this.token.balanceOf(investor);
-    balance.should.be.bignumber.equal(0);
-  });
-
-  it('should not allow beneficiaries to withdraw tokens before crowdsale ends', async function () {
-    await increaseTimeTo(this.beforeEndTime);
-    await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
-    await this.crowdsale.withdrawTokens({ from: investor }).should.be.rejectedWith(EVMRevert);
-  });
-
-  it('should allow beneficiaries to withdraw tokens after crowdsale ends', async function () {
-    await increaseTimeTo(this.openingTime);
-    await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
-    await increaseTimeTo(this.afterClosingTime);
-    await this.crowdsale.withdrawTokens({ from: investor }).should.be.fulfilled;
-  });
-
-  it('should return the amount of tokens bought', async function () {
-    await increaseTimeTo(this.openingTime);
-    await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
-    await increaseTimeTo(this.afterClosingTime);
-    await this.crowdsale.withdrawTokens({ from: investor });
-    const balance = await this.token.balanceOf(investor);
-    balance.should.be.bignumber.equal(value);
+  shouldBePostDeliveryCrowdsale(investor, purchaser, value, async function () {
+    await this.endCrowdsale();
   });
 });
