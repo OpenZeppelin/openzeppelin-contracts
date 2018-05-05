@@ -1,19 +1,30 @@
 pragma solidity ^0.4.21;
 
-import "./MintableToken.sol";
+import "./StandardToken.sol";
 import "../../ownership/rbac/RBACWithAdmin.sol";
 
 
 /**
- * @title RBACMintable token
+ * @title RBACMintableToken
  * @author Vittorio Minacori (@vittominacori)
  * @dev Simple ERC20 Mintable Token, with RBAC minter permissions
  */
-contract RBACMintableToken is MintableToken, RBACWithAdmin {
+contract RBACMintableToken is StandardToken, RBACWithAdmin {
+  event Mint(address indexed to, uint256 amount);
+  event MintFinished();
+
   /**
    * A constant role name for indicating minters.
    */
   string public constant ROLE_MINTER = "minter";
+
+  bool public mintingFinished = false;
+
+
+  modifier canMint() {
+    require(!mintingFinished);
+    _;
+  }
 
   /**
    * @dev modifier to scope access to minters
@@ -36,6 +47,16 @@ contract RBACMintableToken is MintableToken, RBACWithAdmin {
     balances[_to] = balances[_to].add(_amount);
     emit Mint(_to, _amount);
     emit Transfer(address(0), _to, _amount);
+    return true;
+  }
+
+  /**
+   * @dev Function to stop minting new tokens.
+   * @return True if the operation was successful.
+   */
+  function finishMinting() onlyAdmin canMint public returns (bool) {
+    mintingFinished = true;
+    emit MintFinished();
     return true;
   }
 }
