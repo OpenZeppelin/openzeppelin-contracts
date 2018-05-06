@@ -2,6 +2,7 @@ pragma solidity ^0.4.21;
 
 import "../../token/ERC20/ERC20.sol";
 
+
 /**
  * @title ERC-1047 Token Metadata
  * @dev See https://eips.ethereum.org/EIPS/eip-1046
@@ -11,6 +12,7 @@ import "../../token/ERC20/ERC20.sol";
 contract ERC20TokenMetadata is ERC20 {
   function tokenURI() public view returns (string);
 }
+
 
 contract ERC20WithMetadata is ERC20TokenMetadata {
   string private tokenURI_ = "";
