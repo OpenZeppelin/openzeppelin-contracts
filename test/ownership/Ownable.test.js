@@ -2,6 +2,7 @@
 import assertRevert from '../helpers/assertRevert';
 
 var Ownable = artifacts.require('Ownable');
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 contract('Ownable', function (accounts) {
   let ownable;
@@ -33,5 +34,19 @@ contract('Ownable', function (accounts) {
   it('should guard ownership against stuck state', async function () {
     let originalOwner = await ownable.owner();
     await assertRevert(ownable.transferOwnership(null, { from: originalOwner }));
+  });
+
+  it('loses owner after renouncement', async function () {
+    await ownable.renounceOwnership();
+    let owner = await ownable.owner();
+
+    assert.isTrue(owner === ZERO_ADDRESS);
+  });
+
+  it('should prevent non-owners from renouncement', async function () {
+    const other = accounts[2];
+    const owner = await ownable.owner.call();
+    assert.isTrue(owner !== other);
+    await assertRevert(ownable.renounceOwnership({ from: other }));
   });
 });
