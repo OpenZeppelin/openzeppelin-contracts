@@ -8,11 +8,11 @@ import "./Ownable.sol";
  * @author Remco Bloemen <remco@2π.com>
  * @dev This tries to block incoming ether to prevent accidental loss of Ether. Should Ether end up
  * in the contract, it will allow the owner to reclaim this ether.
- * @notice Ether can still be send to this contract by:
+ * @notice Ether can still be sent to this contract by:
  * calling functions labeled `payable`
  * `selfdestruct(contract_address)`
  * mining directly to the contract address
-*/
+ */
 contract HasNoEther is Ownable {
 
   /**
@@ -36,7 +36,6 @@ contract HasNoEther is Ownable {
    * @dev Transfer all Ether held by the contract to the owner.
    */
   function reclaimEther() external onlyOwner {
-    // solium-disable-next-line security/no-send
-    assert(owner.send(address(this).balance));
+    owner.transfer(this.balance);
   }
 }
