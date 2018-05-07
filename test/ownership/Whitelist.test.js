@@ -44,11 +44,6 @@ contract('Whitelist', function (accounts) {
       }
     });
 
-    it('should not announce WhitelistedAddressAdded event if address is already in the whitelist', async function () {
-      const { logs } = await mock.addAddressToWhitelist(whitelistedAddress1, { from: owner });
-      logs.should.be.empty;
-    });
-
     it('should remove address from the whitelist', async function () {
       await expectEvent.inTransaction(
         mock.removeAddressFromWhitelist(whitelistedAddress1, { from: owner }),
@@ -67,11 +62,6 @@ contract('Whitelist', function (accounts) {
         const isWhitelisted = await mock.whitelist(addr);
         isWhitelisted.should.be.equal(false);
       }
-    });
-
-    it('should not announce WhitelistedAddressRemoved event if address is not in the whitelist', async function () {
-      const { logs } = await mock.removeAddressFromWhitelist(whitelistedAddress1, { from: owner });
-      logs.should.be.empty;
     });
 
     it('should allow whitelisted address to call #onlyWhitelistedCanDoThis', async () => {

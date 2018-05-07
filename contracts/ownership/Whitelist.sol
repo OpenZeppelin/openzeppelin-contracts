@@ -33,10 +33,6 @@ contract Whitelist is Ownable, RBAC {
     onlyOwner
     public
   {
-    // silent fail if address already exists (backwards compat)
-    if (whitelist(addr)) {
-      return;
-    }
     addRole(addr, ROLE_WHITELISTED);
     emit WhitelistedAddressAdded(addr);
   }
@@ -77,10 +73,6 @@ contract Whitelist is Ownable, RBAC {
     onlyOwner
     public
   {
-    // silent fail if address already exists (backwards compat)
-    if (!whitelist(addr)) {
-      return;
-    }
     removeRole(addr, ROLE_WHITELISTED);
     emit WhitelistedAddressRemoved(addr);
   }
