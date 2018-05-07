@@ -33,37 +33,45 @@ contract DutchAuction {
   // Necessary modifiers
   // TBD
 
- 
-  function DutchAuction (uint _highAskingPrice, uint _lowAskingPrice, uint _auctionLength) public {
+
+  function DutchAuction(uint _highAskingPrice, uint _lowAskingPrice, uint _auctionLength) public {
+  	require(_lowAskingPrice < _highAskingPrice && _lowAskingPrice > 0 && _highAskingPrice > 0);
+
   	highAskingPrice = _highAskingPrice;
   	lowAskingPrice = _lowAskingPrice;
   	auctionLength = _auctionLength;
 
-    require(lowAskingPrice < highAskingPrice);
-    require(lowAskingPrice > 0);
-    require(highAskingPrice > 0);
-
   }
-/*
+/* Kseniya
   function findCurrentPrice () public returns (bool) {
   	// (highAskingPrice - lowAskingPrice) / auctionLength = descendingPriceRate
 
   }
 
-  function processBid (uint _bid, address _bidder) public payable {
+  function TBD decrement time
+*/
 
+  /**
+   * @dev fallback function
+   
+  function () external payable {
+    processBid(msg.sender);
   }
 
+  function processBid (address _bidder) public payable {
+  	require(bid > 0 && bid != 0 && bid == currentAskingPrice);
+
+  	bid = msg.value;
+  	bidder = _bidder;
+
+//  	payBeneficiary(bidder, bid);
+  }
+/*
   function returnToBeneficiary (address _beneficiary) internal {
 
   }
 
-  function payBeneficiary (address _beneficiary) internal {
+  function payBeneficiary (address _beneficiary, uint bid) internal {
 
-  }
-
-  function payWinner (address _winner) internal {
-
-  }
-*/
+  } */
 }

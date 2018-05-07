@@ -13,6 +13,8 @@ contract ('DutchAuction', function () {
   var _lowAskingPrice = 500;
   var _auctionLength = 10;
 
+  var _bid = 750;
+
   beforeEach(async function () {
     auction = await DutchAuction.new(_highAskingPrice, _lowAskingPrice, _auctionLength);
   });
@@ -26,15 +28,15 @@ contract ('DutchAuction', function () {
 	  assert.exists( { _lowAskingPrice: 500 }, '_lowAskingPrice is neither `null` nor `undefined`');
   	})
 
-  	it('should have a low asking price that is greater than 0', async function (){
+  	it('should have a low asking price that is greater than 0', function (){
       assert.isAbove(_lowAskingPrice, 0, '_lowAskingPrice is greater than 0');
   	})
 
-  	it('should have a high asking price that is greater than 0', async function (){
+  	it('should have a high asking price that is greater than 0', function (){
       assert.isAbove(_highAskingPrice, 0, '_lowAskingPrice is greater than 0');
   	})
 
-  	it('should have a low asking price that is less than the high asking price', async function (){
+  	it('should have a low asking price that is less than the high asking price', function (){
       assert.isBelow(_lowAskingPrice, _highAskingPrice, '_lowAskingPrice is less than _highAskingPrice');
   	})
 
@@ -70,7 +72,7 @@ contract ('DutchAuction', function () {
 
   describe('process a bid', function () {
   	it('should not accept negative bids', function (){
-
+      assert.isAbove(_bid, 0, '_bid is greater than 0');
   	})
 
   	it('should not accept bids of 0', function (){
