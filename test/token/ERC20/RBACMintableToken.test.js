@@ -48,8 +48,7 @@ contract('RBACMintableToken', function ([admin, anotherAccount, minter]) {
       const from = minter;
 
       beforeEach(async function () {
-        this.token = await RBACMintableToken.new({ from: admin });
-        await this.token.adminAddRole(minter, ROLE_MINTER);
+        await this.token.adminAddRole(minter, ROLE_MINTER, { from: admin });
       });
 
       describe('when the token minting is not finished', function () {
