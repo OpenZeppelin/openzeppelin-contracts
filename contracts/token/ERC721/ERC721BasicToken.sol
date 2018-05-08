@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.23;
 
 import "./ERC721Basic.sol";
 import "./ERC721Receiver.sol";
