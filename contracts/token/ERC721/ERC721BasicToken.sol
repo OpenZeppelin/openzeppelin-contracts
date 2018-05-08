@@ -71,7 +71,7 @@ contract ERC721BasicToken is ERC721Basic {
 
   /**
    * @dev Returns whether the specified token exists
-   * @param _tokenId uint256 ID of the token to query the existance of
+   * @param _tokenId uint256 ID of the token to query the existence of
    * @return whether the token exists
    */
   function exists(uint256 _tokenId) public view returns (bool) {
@@ -101,7 +101,7 @@ contract ERC721BasicToken is ERC721Basic {
   /**
    * @dev Gets the approved address for a token ID, or zero if no address set
    * @param _tokenId uint256 ID of the token to query the approval of
-   * @return address currently approved for a the given token ID
+   * @return address currently approved for the given token ID
    */
   function getApproved(uint256 _tokenId) public view returns (address) {
     return tokenApprovals[_tokenId];

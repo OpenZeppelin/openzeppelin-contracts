@@ -12,7 +12,7 @@ import "./ERC20.sol";
  */
 library SafeERC20 {
   function safeTransfer(ERC20Basic token, address to, uint256 value) internal {
-    assert(token.transfer(to, value));
+    require(token.transfer(to, value));
   }
 
   function safeTransferFrom(
@@ -23,10 +23,10 @@ library SafeERC20 {
   )
     internal
   {
-    assert(token.transferFrom(from, to, value));
+    require(token.transferFrom(from, to, value));
   }
 
   function safeApprove(ERC20 token, address spender, uint256 value) internal {
-    assert(token.approve(spender, value));
+    require(token.approve(spender, value));
   }
 }
