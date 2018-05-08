@@ -1,5 +1,6 @@
 import assertRevert from '../../helpers/assertRevert';
 import expectThrow from '../../helpers/expectThrow';
+import shouldBehaveLikeMintableToken from './MintableToken.behaviour';
 const RBACMintableToken = artifacts.require('RBACMintableToken');
 
 const ROLE_ADMIN = 'admin';
@@ -9,6 +10,8 @@ contract('RBACMintableToken', function ([admin, anotherAccount, minter]) {
   beforeEach(async function () {
     this.token = await RBACMintableToken.new({ from: admin });
   });
+
+  shouldBehaveLikeMintableToken([admin, anotherAccount]);
 
   describe('after token creation', function () {
     it('sender should have the admin role', async function () {
@@ -35,78 +38,6 @@ contract('RBACMintableToken', function ([admin, anotherAccount, minter]) {
       await expectThrow(
         this.token.adminRemoveRole(minter, ROLE_MINTER, { from: anotherAccount })
       );
-    });
-  });
-
-  describe('minting finished', function () {
-    describe('when the token minting is not finished', function () {
-      it('returns false', async function () {
-        const mintingFinished = await this.token.mintingFinished();
-        assert.equal(mintingFinished, false);
-      });
-    });
-
-    describe('when the token is minting finished', function () {
-      beforeEach(async function () {
-        await this.token.finishMinting({ from: admin });
-      });
-
-      it('returns true', async function () {
-        const mintingFinished = await this.token.mintingFinished();
-        assert.equal(mintingFinished, true);
-      });
-    });
-  });
-
-  describe('finish minting', function () {
-    describe('when the sender has the admin role', function () {
-      const from = admin;
-
-      describe('when the token minting was not finished', function () {
-        it('finishes token minting', async function () {
-          await this.token.finishMinting({ from });
-
-          const mintingFinished = await this.token.mintingFinished();
-          assert.equal(mintingFinished, true);
-        });
-
-        it('emits a mint finished event', async function () {
-          const { logs } = await this.token.finishMinting({ from });
-
-          assert.equal(logs.length, 1);
-          assert.equal(logs[0].event, 'MintFinished');
-        });
-      });
-
-      describe('when the token minting was already finished', function () {
-        beforeEach(async function () {
-          await this.token.finishMinting({ from });
-        });
-
-        it('reverts', async function () {
-          await assertRevert(this.token.finishMinting({ from }));
-        });
-      });
-    });
-
-    describe('when the sender has not the admin role', function () {
-      const from = anotherAccount;
-
-      describe('when the token minting was not finished', function () {
-        it('reverts', async function () {
-          await assertRevert(this.token.finishMinting({ from }));
-        });
-      });
-
-      describe('when the token was already finished', function () {
-        beforeEach(async function () {
-          await this.token.finishMinting({ from: admin });
-        });
-
-        it('reverts', async function () {
-          await assertRevert(this.token.finishMinting({ from }));
-        });
-      });
     });
   });
 
