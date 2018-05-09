@@ -1,7 +1,7 @@
 import shouldBehaveLikeMintableToken from './MintableToken.behaviour';
 const MintableToken = artifacts.require('MintableToken');
 
-contract('Mintable', function ([owner, anotherAccount]) {
+contract('MintableToken', function ([owner, anotherAccount]) {
   const minter = owner;
 
   beforeEach(async function () {
