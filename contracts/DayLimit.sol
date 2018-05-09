@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.23;
 
 
 /**
@@ -16,7 +16,7 @@ contract DayLimit {
    * @dev Constructor that sets the passed value as a dailyLimit.
    * @param _limit uint256 to represent the daily limit.
    */
-  function DayLimit(uint256 _limit) public {
+  constructor(uint256 _limit) public {
     dailyLimit = _limit;
     lastDay = today();
   }

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.23;
 
 import "../../contracts/DayLimit.sol";
 
@@ -6,7 +6,7 @@ import "../../contracts/DayLimit.sol";
 contract DayLimitMock is DayLimit {
   uint256 public totalSpending;
 
-  function DayLimitMock(uint256 _value) public DayLimit(_value) {
+  constructor(uint256 _value) public DayLimit(_value) {
     totalSpending = 0;
   }
 

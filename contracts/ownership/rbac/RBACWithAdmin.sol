@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.23;
 
 import "./RBAC.sol";
 
@@ -28,7 +28,7 @@ contract RBACWithAdmin is RBAC {
   /**
    * @dev constructor. Sets msg.sender as admin by default
    */
-  function RBACWithAdmin()
+  constructor()
     public
   {
     addRole(msg.sender, ROLE_ADMIN);
