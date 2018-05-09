@@ -7,8 +7,15 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-export default function ([admin, anotherAccount, minter]) {
+export default function ([owner, anotherAccount, minter]) {
   describe('as a basic mintable token', function () {
+    describe('after token creation', function () {
+      it('sender should be token owner', async function () {
+        const tokenOwner = await this.token.owner({ from: owner });
+        tokenOwner.should.equal(owner);
+      });
+    });
+
     describe('minting finished', function () {
       describe('when the token minting is not finished', function () {
         it('returns false', async function () {
@@ -19,7 +26,7 @@ export default function ([admin, anotherAccount, minter]) {
 
       describe('when the token is minting finished', function () {
         beforeEach(async function () {
-          await this.token.finishMinting({ from: admin });
+          await this.token.finishMinting({ from: owner });
         });
 
         it('returns true', async function () {
@@ -30,8 +37,8 @@ export default function ([admin, anotherAccount, minter]) {
     });
 
     describe('finish minting', function () {
-      describe('when the sender has the finishMinting permission', function () {
-        const from = admin;
+      describe('when the sender is the token owner', function () {
+        const from = owner;
 
         describe('when the token minting was not finished', function () {
           it('finishes token minting', async function () {
@@ -60,7 +67,7 @@ export default function ([admin, anotherAccount, minter]) {
         });
       });
 
-      describe('when the sender has not the finishMinting permission', function () {
+      describe('when the sender is not the token owner', function () {
         const from = anotherAccount;
 
         describe('when the token minting was not finished', function () {
@@ -71,7 +78,7 @@ export default function ([admin, anotherAccount, minter]) {
 
         describe('when the token minting was already finished', function () {
           beforeEach(async function () {
-            await this.token.finishMinting({ from: admin });
+            await this.token.finishMinting({ from: owner });
           });
 
           it('reverts', async function () {
@@ -89,18 +96,18 @@ export default function ([admin, anotherAccount, minter]) {
 
         describe('when the token minting is not finished', function () {
           it('mints the requested amount', async function () {
-            await this.token.mint(admin, amount, { from });
+            await this.token.mint(owner, amount, { from });
 
-            const balance = await this.token.balanceOf(admin);
+            const balance = await this.token.balanceOf(owner);
             assert.equal(balance, amount);
           });
 
           it('emits a mint and a transfer event', async function () {
-            const { logs } = await this.token.mint(admin, amount, { from });
+            const { logs } = await this.token.mint(owner, amount, { from });
 
             assert.equal(logs.length, 2);
             assert.equal(logs[0].event, 'Mint');
-            assert.equal(logs[0].args.to, admin);
+            assert.equal(logs[0].args.to, owner);
             assert.equal(logs[0].args.amount, amount);
             assert.equal(logs[1].event, 'Transfer');
           });
@@ -108,11 +115,11 @@ export default function ([admin, anotherAccount, minter]) {
 
         describe('when the token minting is finished', function () {
           beforeEach(async function () {
-            await this.token.finishMinting({ from: admin });
+            await this.token.finishMinting({ from: owner });
           });
 
           it('reverts', async function () {
-            await assertRevert(this.token.mint(admin, amount, { from }));
+            await assertRevert(this.token.mint(owner, amount, { from }));
           });
         });
       });
@@ -122,17 +129,17 @@ export default function ([admin, anotherAccount, minter]) {
 
         describe('when the token minting is not finished', function () {
           it('reverts', async function () {
-            await assertRevert(this.token.mint(admin, amount, { from }));
+            await assertRevert(this.token.mint(owner, amount, { from }));
           });
         });
 
         describe('when the token minting is already finished', function () {
           beforeEach(async function () {
-            await this.token.finishMinting({ from: admin });
+            await this.token.finishMinting({ from: owner });
           });
 
           it('reverts', async function () {
-            await assertRevert(this.token.mint(admin, amount, { from }));
+            await assertRevert(this.token.mint(owner, amount, { from }));
           });
         });
       });

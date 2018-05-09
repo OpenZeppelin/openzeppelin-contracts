@@ -27,11 +27,6 @@ contract MintableToken is StandardToken, Ownable {
     _;
   }
 
-  modifier hasFinishMintingPermission() {
-    require(msg.sender == owner);
-    _;
-  }
-
   /**
    * @dev Function to mint tokens
    * @param _to The address that will receive the minted tokens.
@@ -50,7 +45,7 @@ contract MintableToken is StandardToken, Ownable {
    * @dev Function to stop minting new tokens.
    * @return True if the operation was successful.
    */
-  function finishMinting() hasFinishMintingPermission canMint public returns (bool) {
+  function finishMinting() onlyOwner canMint public returns (bool) {
     mintingFinished = true;
     emit MintFinished();
     return true;

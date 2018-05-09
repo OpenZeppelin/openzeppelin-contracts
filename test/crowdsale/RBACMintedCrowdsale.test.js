@@ -21,7 +21,7 @@ contract('MintedCrowdsale using RBACMintableToken', function ([_, investor, wall
   beforeEach(async function () {
     this.token = await RBACMintableToken.new();
     this.crowdsale = await MintedCrowdsale.new(rate, wallet, this.token.address);
-    await this.token.adminAddRole(this.crowdsale.address, ROLE_MINTER);
+    await this.token.addMinter(this.crowdsale.address);
   });
 
   describe('accepting payments', function () {
