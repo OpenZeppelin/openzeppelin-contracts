@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.23;
 
 import "../token/ERC20/ERC20.sol";
 import "../token/ERC20/SafeERC20.sol";
@@ -35,7 +35,7 @@ contract ERC20SucceedingMock is ERC20 {
   function totalSupply() public view returns (uint256) {
     return 0;
   }
-  
+
   function transfer(address, uint256) public returns (bool) {
     return true;
   }
@@ -64,7 +64,7 @@ contract SafeERC20Helper {
   ERC20 failing;
   ERC20 succeeding;
 
-  function SafeERC20Helper() public {
+  constructor() public {
     failing = new ERC20FailingMock();
     succeeding = new ERC20SucceedingMock();
   }

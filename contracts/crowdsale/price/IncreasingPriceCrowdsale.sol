@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.23;
 
 import "../validation/TimedCrowdsale.sol";
 import "../../math/SafeMath.sol";
@@ -21,7 +21,7 @@ contract IncreasingPriceCrowdsale is TimedCrowdsale {
    * @param _initialRate Number of tokens a buyer gets per wei at the start of the crowdsale
    * @param _finalRate Number of tokens a buyer gets per wei at the end of the crowdsale
    */
-  function IncreasingPriceCrowdsale(uint256 _initialRate, uint256 _finalRate) public {
+  constructor(uint256 _initialRate, uint256 _finalRate) public {
     require(_initialRate >= _finalRate);
     require(_finalRate > 0);
     initialRate = _initialRate;

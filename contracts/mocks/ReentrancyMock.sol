@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.23;
 
 import "../ReentrancyGuard.sol";
 import "./ReentrancyAttack.sol";
@@ -8,7 +8,7 @@ contract ReentrancyMock is ReentrancyGuard {
 
   uint256 public counter;
 
-  function ReentrancyMock() public {
+  constructor() public {
     counter = 0;
   }
 

@@ -1,6 +1,6 @@
 /* solium-disable security/no-block-members */
 
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.23;
 
 import "./ERC20Basic.sol";
 import "./SafeERC20.sol";
@@ -42,7 +42,7 @@ contract TokenVesting is Ownable {
    * @param _duration duration in seconds of the period in which the tokens will vest
    * @param _revocable whether the vesting is revocable or not
    */
-  function TokenVesting(
+  constructor(
     address _beneficiary,
     uint256 _start,
     uint256 _cliff,
