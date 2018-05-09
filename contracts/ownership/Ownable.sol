@@ -42,6 +42,9 @@ contract Ownable {
 
   /**
    * @dev Allows the current owner to relinquish control of the contract.
+   * @notice Renouncing to ownership will leave the contract without an owner.
+   * It will not be possible to call anymore the functions with the onlyOwner
+   * modifier.
    */
   function renounceOwnership() public onlyOwner {
     emit OwnershipRenounced(owner);
