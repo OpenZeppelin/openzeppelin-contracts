@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.23;
 
 import "../token/ERC20/PausableToken.sol";
 
@@ -6,7 +6,7 @@ import "../token/ERC20/PausableToken.sol";
 // mock class using PausableToken
 contract PausableTokenMock is PausableToken {
 
-  function PausableTokenMock(address initialAccount, uint initialBalance) public {
+  constructor(address initialAccount, uint initialBalance) public {
     balances[initialAccount] = initialBalance;
   }
 

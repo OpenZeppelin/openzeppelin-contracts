@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.23;
 
 
 import "./Ownable.sol";
@@ -39,7 +39,7 @@ contract Heritable is Ownable {
    * @param _heartbeatTimeout time available for the owner to notify they are alive,
    * before the heir can take ownership.
    */
-  function Heritable(uint256 _heartbeatTimeout) public {
+  constructor(uint256 _heartbeatTimeout) public {
     setHeartbeatTimeout(_heartbeatTimeout);
   }
 

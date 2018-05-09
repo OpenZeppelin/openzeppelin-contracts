@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.23;
 
 import "../token/ERC20/BasicToken.sol";
 
@@ -10,7 +10,7 @@ contract ERC223ContractInterface {
 
 contract ERC223TokenMock is BasicToken {
 
-  function ERC223TokenMock(address initialAccount, uint256 initialBalance) public {
+  constructor(address initialAccount, uint256 initialBalance) public {
     balances[initialAccount] = initialBalance;
     totalSupply_ = initialBalance;
   }

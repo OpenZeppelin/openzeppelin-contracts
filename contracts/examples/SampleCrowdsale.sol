@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.23;
 
 import "../crowdsale/validation/CappedCrowdsale.sol";
 import "../crowdsale/distribution/RefundableCrowdsale.sol";
@@ -33,7 +33,7 @@ contract SampleCrowdsaleToken is MintableToken {
  */
 contract SampleCrowdsale is CappedCrowdsale, RefundableCrowdsale, MintedCrowdsale {
 
-  function SampleCrowdsale(
+  constructor(
     uint256 _openingTime,
     uint256 _closingTime,
     uint256 _rate,
