@@ -1,6 +1,6 @@
 pragma solidity ^0.4.23;
 
-import "../ownership/Ownable.sol";
+import "../ownership/rbac/RBACOwnable.sol";
 import "../ownership/rbac/RBAC.sol";
 import "../ECRecovery.sol";
 
@@ -22,7 +22,7 @@ import "../ECRecovery.sol";
  * @dev
  * @dev See the tests Bouncer.test.js for specific usage examples.
  */
-contract SignatureBouncer is Ownable, RBAC {
+contract SignatureBouncer is RBACOwnable {
   using ECRecovery for bytes32;
 
   string public constant ROLE_BOUNCER = "bouncer";

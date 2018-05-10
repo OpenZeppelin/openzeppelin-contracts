@@ -19,12 +19,13 @@ contract('Bouncer', ([_, owner, authorizedUser, anyone, bouncerAddress, newBounc
   before(async function () {
     this.bouncer = await Bouncer.new({ from: owner });
     this.roleBouncer = await this.bouncer.ROLE_BOUNCER();
+    this.roleOwner = await this.bouncer.ROLE_OWNER();
     this.genSig = getSigner(this.bouncer, bouncerAddress);
   });
 
-  it('should have a default owner of self', async function () {
-    const theOwner = await this.bouncer.owner();
-    theOwner.should.eq(owner);
+  it('should have a default owner', async function () {
+    const hasRole = await this.bouncer.hasRole(owner, this.roleOwner);
+    hasRole.should.eq(true);
   });
 
   it('should allow owner to add a bouncer', async function () {
