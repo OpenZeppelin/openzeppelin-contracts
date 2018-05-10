@@ -21,4 +21,18 @@ contract RBACOwnable is RBAC {
     checkRole(msg.sender, ROLE_OWNER);
     _;
   }
+
+  function addOwner(address _owner)
+    onlyOwner
+    public
+  {
+    addRole(_owner, ROLE_OWNER);
+  }
+
+  function removeOwner(address _owner)
+    onlyOwner
+    public
+  {
+    removeRole(_owner, ROLE_OWNER);
+  }
 }
