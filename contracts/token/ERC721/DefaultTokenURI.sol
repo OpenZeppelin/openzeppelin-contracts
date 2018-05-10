@@ -9,7 +9,7 @@ contract DefaultTokenURI is ERC721Token {
   constructor(string _tokenURI)
     public
   {
-    require(bytes(tokenURI_).length > 0);
+    require(bytes(_tokenURI).length > 0);
     tokenURI_ = _tokenURI;
   }
 
