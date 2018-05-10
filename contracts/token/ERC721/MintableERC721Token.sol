@@ -17,4 +17,20 @@ contract MintableERC721Token is Autoincrementing, RBACOwnable, RBACMintable, ERC
     _setTokenURI(tokenId, _tokenURI);
     return tokenId;
   }
+
+  /**
+   * @dev add a minter role to an address
+   * @param minter address
+   */
+  function addMinter(address minter) onlyOwner public {
+    addRole(minter, ROLE_MINTER);
+  }
+
+  /**
+   * @dev remove a minter role from an address
+   * @param minter address
+   */
+  function removeMinter(address minter) onlyOwner public {
+    removeRole(minter, ROLE_MINTER);
+  }
 }
