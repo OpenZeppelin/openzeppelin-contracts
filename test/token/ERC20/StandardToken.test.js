@@ -1,4 +1,5 @@
 import assertRevert from '../../helpers/assertRevert';
+import expectEvent from '../../helpers/expectEvent';
 const StandardTokenMock = artifacts.require('StandardTokenMock');
 
 contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
@@ -62,11 +63,11 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         it('emits a transfer event', async function () {
           const { logs } = await this.token.transfer(to, amount, { from: owner });
 
-          assert.equal(logs.length, 1);
-          assert.equal(logs[0].event, 'Transfer');
-          assert.equal(logs[0].args.from, owner);
-          assert.equal(logs[0].args.to, to);
-          assert(logs[0].args.value.eq(amount));
+          await expectEvent.inLogs(logs, 'Transfer', {
+            from: owner,
+            to: to,
+            value: amount,
+          });
         });
       });
     });
@@ -90,11 +91,11 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         it('emits an approval event', async function () {
           const { logs } = await this.token.approve(spender, amount, { from: owner });
 
-          assert.equal(logs.length, 1);
-          assert.equal(logs[0].event, 'Approval');
-          assert.equal(logs[0].args.owner, owner);
-          assert.equal(logs[0].args.spender, spender);
-          assert(logs[0].args.value.eq(amount));
+          await expectEvent.inLogs(logs, 'Approval', {
+            owner: owner,
+            spender: spender,
+            value: amount,
+          });
         });
 
         describe('when there was no approved amount before', function () {
@@ -126,11 +127,11 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         it('emits an approval event', async function () {
           const { logs } = await this.token.approve(spender, amount, { from: owner });
 
-          assert.equal(logs.length, 1);
-          assert.equal(logs[0].event, 'Approval');
-          assert.equal(logs[0].args.owner, owner);
-          assert.equal(logs[0].args.spender, spender);
-          assert(logs[0].args.value.eq(amount));
+          await expectEvent.inLogs(logs, 'Approval', {
+            owner: owner,
+            spender: spender,
+            value: amount,
+          });
         });
 
         describe('when there was no approved amount before', function () {
@@ -171,11 +172,11 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
       it('emits an approval event', async function () {
         const { logs } = await this.token.approve(spender, amount, { from: owner });
 
-        assert.equal(logs.length, 1);
-        assert.equal(logs[0].event, 'Approval');
-        assert.equal(logs[0].args.owner, owner);
-        assert.equal(logs[0].args.spender, spender);
-        assert(logs[0].args.value.eq(amount));
+        await expectEvent.inLogs(logs, 'Approval', {
+          owner: owner,
+          spender: spender,
+          value: amount,
+        });
       });
     });
   });
@@ -214,11 +215,11 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
           it('emits a transfer event', async function () {
             const { logs } = await this.token.transferFrom(owner, to, amount, { from: spender });
 
-            assert.equal(logs.length, 1);
-            assert.equal(logs[0].event, 'Transfer');
-            assert.equal(logs[0].args.from, owner);
-            assert.equal(logs[0].args.to, to);
-            assert(logs[0].args.value.eq(amount));
+            await expectEvent.inLogs(logs, 'Transfer', {
+              from: owner,
+              to: to,
+              value: amount,
+            });
           });
         });
 
@@ -278,11 +279,11 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         it('emits an approval event', async function () {
           const { logs } = await this.token.decreaseApproval(spender, amount, { from: owner });
 
-          assert.equal(logs.length, 1);
-          assert.equal(logs[0].event, 'Approval');
-          assert.equal(logs[0].args.owner, owner);
-          assert.equal(logs[0].args.spender, spender);
-          assert(logs[0].args.value.eq(0));
+          await expectEvent.inLogs(logs, 'Approval', {
+            owner: owner,
+            spender: spender,
+            value: 0,
+          });
         });
 
         describe('when there was no approved amount before', function () {
@@ -314,11 +315,11 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         it('emits an approval event', async function () {
           const { logs } = await this.token.decreaseApproval(spender, amount, { from: owner });
 
-          assert.equal(logs.length, 1);
-          assert.equal(logs[0].event, 'Approval');
-          assert.equal(logs[0].args.owner, owner);
-          assert.equal(logs[0].args.spender, spender);
-          assert(logs[0].args.value.eq(0));
+          await expectEvent.inLogs(logs, 'Approval', {
+            owner: owner,
+            spender: spender,
+            value: 0,
+          });
         });
 
         describe('when there was no approved amount before', function () {
@@ -359,11 +360,11 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
       it('emits an approval event', async function () {
         const { logs } = await this.token.decreaseApproval(spender, amount, { from: owner });
 
-        assert.equal(logs.length, 1);
-        assert.equal(logs[0].event, 'Approval');
-        assert.equal(logs[0].args.owner, owner);
-        assert.equal(logs[0].args.spender, spender);
-        assert(logs[0].args.value.eq(0));
+        await expectEvent.inLogs(logs, 'Approval', {
+          owner: owner,
+          spender: spender,
+          value: 0,
+        });
       });
     });
   });
@@ -378,11 +379,11 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         it('emits an approval event', async function () {
           const { logs } = await this.token.increaseApproval(spender, amount, { from: owner });
 
-          assert.equal(logs.length, 1);
-          assert.equal(logs[0].event, 'Approval');
-          assert.equal(logs[0].args.owner, owner);
-          assert.equal(logs[0].args.spender, spender);
-          assert(logs[0].args.value.eq(amount));
+          await expectEvent.inLogs(logs, 'Approval', {
+            owner: owner,
+            spender: spender,
+            value: amount,
+          });
         });
 
         describe('when there was no approved amount before', function () {
@@ -414,11 +415,11 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         it('emits an approval event', async function () {
           const { logs } = await this.token.increaseApproval(spender, amount, { from: owner });
 
-          assert.equal(logs.length, 1);
-          assert.equal(logs[0].event, 'Approval');
-          assert.equal(logs[0].args.owner, owner);
-          assert.equal(logs[0].args.spender, spender);
-          assert(logs[0].args.value.eq(amount));
+          await expectEvent.inLogs(logs, 'Approval', {
+            owner: owner,
+            spender: spender,
+            value: amount,
+          })
         });
 
         describe('when there was no approved amount before', function () {
@@ -458,11 +459,11 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
       it('emits an approval event', async function () {
         const { logs } = await this.token.increaseApproval(spender, amount, { from: owner });
 
-        assert.equal(logs.length, 1);
-        assert.equal(logs[0].event, 'Approval');
-        assert.equal(logs[0].args.owner, owner);
-        assert.equal(logs[0].args.spender, spender);
-        assert(logs[0].args.value.eq(amount));
+        await expectEvent.inLogs(logs, 'Approval', {
+          owner: owner,
+          spender: spender,
+          value: amount,
+        });
       });
     });
   });

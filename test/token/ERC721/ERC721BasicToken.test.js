@@ -1,6 +1,4 @@
 import shouldBehaveLikeERC721BasicToken from './ERC721BasicToken.behaviour';
-import shouldBehaveLikeMintableERC721Token from './ERC721Mint.behaviour';
-import shouldBehaveLikeBurnableERC721Token from './ERC721Burn.behaviour';
 
 const BigNumber = web3.BigNumber;
 const ERC721BasicToken = artifacts.require('ERC721BasicTokenMock.sol');
@@ -10,12 +8,10 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('ERC721BasicToken', function (accounts) {
+contract('ERC721BasicToken', function ([_, ...accounts]) {
   beforeEach(async function () {
     this.token = await ERC721BasicToken.new({ from: accounts[0] });
   });
 
   shouldBehaveLikeERC721BasicToken(accounts);
-  shouldBehaveLikeMintableERC721Token(accounts);
-  shouldBehaveLikeBurnableERC721Token(accounts);
 });

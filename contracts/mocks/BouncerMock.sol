@@ -51,4 +51,10 @@ contract SignatureBouncerMock is SignatureBouncer {
   {
 
   }
+
+  function theWrongMethod(bytes _sig)
+    public
+  {
+
+  }
 }

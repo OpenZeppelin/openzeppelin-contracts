@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../ownership/Ownable.sol";
+import "../ownership/rbac/RBACOwnable.sol";
 import "../ownership/rbac/RBAC.sol";
 import "../ECRecovery.sol";
 
@@ -29,13 +29,13 @@ import "../ECRecovery.sol";
  * Also non fixed sized parameters make constructing the data in the signature
  * much more complex. See https://ethereum.stackexchange.com/a/50616 for more details.
  */
-contract SignatureBouncer is Ownable, RBAC {
+contract SignatureBouncer is RBACOwnable {
   using ECRecovery for bytes32;
 
   string public constant ROLE_BOUNCER = "bouncer";
   uint constant METHOD_ID_SIZE = 4;
-  // (signature length size) 32 bytes + (signature size 65 bytes padded) 96 bytes
-  uint constant SIGNATURE_SIZE = 128;
+  // signature size is 65 bytes (tightly packed v + r + s), but gets padded to 96 bytes
+  uint constant SIGNATURE_SIZE = 96;
 
   /**
    * @dev requires that a valid signature of a bouncer was provided

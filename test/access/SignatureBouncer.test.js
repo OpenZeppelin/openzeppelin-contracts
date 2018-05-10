@@ -1,55 +1,28 @@
 
 import assertRevert from '../helpers/assertRevert';
-import { signHex } from '../helpers/sign';
+import { getBouncerSigner } from '../helpers/sign';
 
-const Bouncer = artifacts.require('SignatureBouncerMock');
+const SignatureBouncer = artifacts.require('SignatureBouncerMock');
 
 require('chai')
   .use(require('chai-as-promised'))
   .should();
 
-export const getSigner = (contract, signer, data = '') => (addr) => {
-  // via: https://github.com/OpenZeppelin/zeppelin-solidity/pull/812/files
-  const message = contract.address.substr(2) + addr.substr(2) + data;
-  // ^ substr to remove `0x` because in solidity the address is a set of byes, not a string `0xabcd`
-  return signHex(signer, message);
-};
-
-export const getMethodId = (methodName, ...paramTypes) => {
-  // methodId is a sha3 of the first 4 bytes after 0x of 'method(paramType1,...)'
-  return web3.sha3(`${methodName}(${paramTypes.join(',')})`).substr(2, 8);
-};
-
-export const stripAndPadHexValue = (hexVal, sizeInBytes, start = true) => {
-  // strip 0x from the font and pad with 0's for
-  const strippedHexVal = hexVal.substr(2);
-  return start ? strippedHexVal.padStart(sizeInBytes * 2, 0) : strippedHexVal.padEnd(sizeInBytes * 2, 0);
-};
+const UINT_VALUE = 23;
+const BYTES_VALUE = web3.toHex('test');
+const INVALID_SIGNATURE = '0xabcd';
 
 contract('Bouncer', ([_, owner, authorizedUser, anyone, bouncerAddress, newBouncer]) => {
   before(async function () {
-    this.bouncer = await Bouncer.new({ from: owner });
+    this.bouncer = await SignatureBouncer.new({ from: owner });
     this.roleBouncer = await this.bouncer.ROLE_BOUNCER();
-    this.genSig = getSigner(this.bouncer, bouncerAddress);
-    this.uintValue = 23;
-    this.checkValidSignatureAndMethodId = getMethodId('checkValidSignatureAndMethod', 'address', 'bytes');
-    this.uintValueData = stripAndPadHexValue(web3.toHex(this.uintValue), 32);
-    this.authorizedUserData = stripAndPadHexValue(authorizedUser, 32);
-    this.bytesValue = web3.toHex('bytesValue');
-    this.validateSignatureAndDataMsgData = [
-      getMethodId('checkValidSignatureAndData', 'address', 'bytes', 'uint256', 'bytes'),
-      stripAndPadHexValue(authorizedUser, 32),
-      stripAndPadHexValue(web3.toHex(32 * 4), 32), // bytesValue location
-      this.uintValueData,
-      stripAndPadHexValue(web3.toHex(32 * 6), 32), // sig location
-      stripAndPadHexValue(web3.toHex(this.bytesValue.substr(2).length / 2), 32), // bytesValue size
-      stripAndPadHexValue(this.bytesValue, 32, false), // bytesValue
-    ];
+    this.roleOwner = await this.bouncer.ROLE_OWNER();
+    this.signFor = getBouncerSigner(this.bouncer, bouncerAddress);
   });
 
-  it('should have a default owner of self', async function () {
-    const theOwner = await this.bouncer.owner();
-    theOwner.should.eq(owner);
+  it('should have a default owner', async function () {
+    const hasRole = await this.bouncer.hasRole(owner, this.roleOwner);
+    hasRole.should.eq(true);
   });
 
   it('should allow owner to add a bouncer', async function () {
@@ -67,58 +40,44 @@ contract('Bouncer', ([_, owner, authorizedUser, anyone, bouncerAddress, newBounc
   context('modifiers', () => {
     it('should allow valid signature for sender', async function () {
       await this.bouncer.onlyWithValidSignature(
-        this.genSig(authorizedUser),
+        this.signFor(authorizedUser),
         { from: authorizedUser }
       );
     });
     it('should not allow invalid signature for sender', async function () {
       await assertRevert(
         this.bouncer.onlyWithValidSignature(
-          'abcd',
+          INVALID_SIGNATURE,
           { from: authorizedUser }
         )
       );
     });
     it('should allow valid signature with a valid method for sender', async function () {
-      const sig = getSigner(
-        this.bouncer,
-        bouncerAddress,
-        getMethodId('onlyWithValidSignatureAndMethod', 'bytes')
-      )(authorizedUser);
       await this.bouncer.onlyWithValidSignatureAndMethod(
-        sig,
+        this.signFor(authorizedUser, 'onlyWithValidSignatureAndMethod'),
         { from: authorizedUser }
       );
     });
     it('should not allow invalid signature with method for sender', async function () {
       await assertRevert(
         this.bouncer.onlyWithValidSignatureAndMethod(
-          'abcd',
+          INVALID_SIGNATURE,
           { from: authorizedUser }
         )
       );
     });
     it('should allow valid signature with a valid data for sender', async function () {
-      const sig = getSigner(
-        this.bouncer,
-        bouncerAddress,
-        [
-          getMethodId('onlyWithValidSignatureAndData', 'uint256', 'bytes'),
-          this.uintValueData,
-          stripAndPadHexValue(web3.toHex(64), 32),
-        ].join('')
-      )(authorizedUser);
       await this.bouncer.onlyWithValidSignatureAndData(
-        this.uintValue,
-        sig,
+        UINT_VALUE,
+        this.signFor(authorizedUser, 'onlyWithValidSignatureAndData', [UINT_VALUE]),
         { from: authorizedUser }
       );
     });
     it('should not allow invalid signature with data for sender', async function () {
       await assertRevert(
         this.bouncer.onlyWithValidSignatureAndData(
-          this.uintValue,
-          'abcd',
+          UINT_VALUE,
+          INVALID_SIGNATURE,
           { from: authorizedUser }
         )
       );
@@ -129,14 +88,14 @@ contract('Bouncer', ([_, owner, authorizedUser, anyone, bouncerAddress, newBounc
     it('should accept valid message for valid user', async function () {
       const isValid = await this.bouncer.checkValidSignature(
         authorizedUser,
-        this.genSig(authorizedUser)
+        this.signFor(authorizedUser)
       );
       isValid.should.eq(true);
     });
     it('should not accept invalid message for valid user', async function () {
       const isValid = await this.bouncer.checkValidSignature(
         authorizedUser,
-        this.genSig(anyone)
+        this.signFor(anyone)
       );
       isValid.should.eq(false);
     });
@@ -150,100 +109,55 @@ contract('Bouncer', ([_, owner, authorizedUser, anyone, bouncerAddress, newBounc
     it('should not accept valid message for invalid user', async function () {
       const isValid = await this.bouncer.checkValidSignature(
         anyone,
-        this.genSig(authorizedUser)
+        this.signFor(authorizedUser)
       );
       isValid.should.eq(false);
     });
     it('should accept valid message with valid method for valid user', async function () {
-      const sig = getSigner(
-        this.bouncer,
-        bouncerAddress,
-        getMethodId('checkValidSignatureAndMethod', 'address', 'bytes')
-      )(authorizedUser);
       const isValid = await this.bouncer.checkValidSignatureAndMethod(
         authorizedUser,
-        sig
+        this.signFor(authorizedUser, 'checkValidSignatureAndMethod')
       );
       isValid.should.eq(true);
     });
     it('should not accept valid message with an invalid method for valid user', async function () {
-      const sig = getSigner(
-        this.bouncer,
-        bouncerAddress,
-        getMethodId('invalidMethod', 'address', 'bytes')
-      )(authorizedUser);
       const isValid = await this.bouncer.checkValidSignatureAndMethod(
         authorizedUser,
-        sig
+        this.signFor(authorizedUser, 'theWrongMethod')
       );
       isValid.should.eq(false);
     });
     it('should not accept valid message with a valid method for an invalid user', async function () {
-      const sig = getSigner(
-        this.bouncer,
-        bouncerAddress,
-        this.checkValidSignatureAndMethodId
-      )(authorizedUser);
       const isValid = await this.bouncer.checkValidSignatureAndMethod(
         anyone,
-        sig
+        this.signFor(authorizedUser, 'checkValidSignatureAndMethod')
       );
       isValid.should.eq(false);
     });
     it('should accept valid method with valid params for valid user', async function () {
-      const sig = getSigner(
-        this.bouncer,
-        bouncerAddress,
-        this.validateSignatureAndDataMsgData.join('')
-      )(authorizedUser);
       const isValid = await this.bouncer.checkValidSignatureAndData(
         authorizedUser,
-        this.bytesValue,
-        this.uintValue,
-        sig
+        BYTES_VALUE,
+        UINT_VALUE,
+        this.signFor(authorizedUser, 'checkValidSignatureAndData', [authorizedUser, BYTES_VALUE, UINT_VALUE])
       );
       isValid.should.eq(true);
     });
-    it('should not accept an invalid method with valid params for valid user', async function () {
-      this.validateSignatureAndDataMsgData[0] = getMethodId('invalidMethod', 'address', 'bytes', 'uint256', 'bytes');
-      const sig = getSigner(
-        this.bouncer,
-        bouncerAddress,
-        this.validateSignatureAndDataMsgData.join('')
-      )(authorizedUser);
-      const isValid = await this.bouncer.checkValidSignatureAndData(
-        authorizedUser,
-        this.bytesValue,
-        this.uintValue,
-        sig
-      );
-      isValid.should.eq(false);
-    });
     it('should not accept valid method with invalid params for valid user', async function () {
-      const sig = getSigner(
-        this.bouncer,
-        bouncerAddress,
-        this.validateSignatureAndDataMsgData.join('')
-      )(authorizedUser);
       const isValid = await this.bouncer.checkValidSignatureAndData(
         authorizedUser,
-        this.bytesValue,
+        BYTES_VALUE,
         500,
-        sig
+        this.signFor(authorizedUser, 'checkValidSignatureAndData', [authorizedUser, BYTES_VALUE, UINT_VALUE])
       );
       isValid.should.eq(false);
     });
     it('should not accept valid method with valid params for invalid user', async function () {
-      const sig = getSigner(
-        this.bouncer,
-        bouncerAddress,
-        this.validateSignatureAndDataMsgData.join('')
-      )(authorizedUser);
       const isValid = await this.bouncer.checkValidSignatureAndData(
         anyone,
-        this.bytesValue,
-        this.uintValue,
-        sig
+        BYTES_VALUE,
+        UINT_VALUE,
+        this.signFor(authorizedUser, 'checkValidSignatureAndData', [authorizedUser, BYTES_VALUE, UINT_VALUE])
       );
       isValid.should.eq(false);
     });

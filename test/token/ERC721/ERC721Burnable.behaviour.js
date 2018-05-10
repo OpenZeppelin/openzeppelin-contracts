@@ -23,7 +23,7 @@ export default function shouldBurnLikeERC721Token ([minter, beneficiary, another
 
       describe('when successful', function () {
         beforeEach(async function () {
-          const result = await this.token.burn(tokenId, { from: sender });
+          const result = await this.token.burnFrom(sender, tokenId, { from: sender });
           logs = result.logs;
         });
 
@@ -45,7 +45,7 @@ export default function shouldBurnLikeERC721Token ([minter, beneficiary, another
       describe('when there is a previous approval', function () {
         beforeEach(async function () {
           await this.token.approve(anotherAccount, tokenId, { from: sender });
-          const result = await this.token.burn(tokenId, { from: sender });
+          const result = await this.token.burnFrom(sender, tokenId, { from: sender });
           logs = result.logs;
         });
 
@@ -57,7 +57,7 @@ export default function shouldBurnLikeERC721Token ([minter, beneficiary, another
 
       describe('when the given token ID was not tracked by this contract', function () {
         it('reverts', async function () {
-          await assertRevert(this.token.burn(unknownTokenId, { from: sender }));
+          await assertRevert(this.token.burnFrom(sender, unknownTokenId, { from: sender }));
         });
       });
     });

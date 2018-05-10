@@ -19,51 +19,6 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
       await this.token.mint(creator, secondTokenId, { from: creator });
     });
 
-    describe('mint', function () {
-      const to = accounts[1];
-      const tokenId = 3;
-
-      beforeEach(async function () {
-        await this.token.mint(to, tokenId);
-      });
-
-      it('adjusts owner tokens by index', async function () {
-        const token = await this.token.tokenOfOwnerByIndex(to, 0);
-        token.toNumber().should.be.equal(tokenId);
-      });
-
-      it('adjusts all tokens list', async function () {
-        const newToken = await this.token.tokenByIndex(2);
-        newToken.toNumber().should.be.equal(tokenId);
-      });
-    });
-
-    describe('burn', function () {
-      const tokenId = firstTokenId;
-      const sender = creator;
-
-      beforeEach(async function () {
-        await this.token.burn(tokenId, { from: sender });
-      });
-
-      it('removes that token from the token list of the owner', async function () {
-        const token = await this.token.tokenOfOwnerByIndex(sender, 0);
-        token.toNumber().should.be.equal(secondTokenId);
-      });
-
-      it('adjusts all tokens list', async function () {
-        const token = await this.token.tokenByIndex(0);
-        token.toNumber().should.be.equal(secondTokenId);
-      });
-
-      it('burns all tokens', async function () {
-        await this.token.burn(secondTokenId, { from: sender });
-        const total = await this.token.totalSupply();
-        total.toNumber().should.be.equal(0);
-        await assertRevert(this.token.tokenByIndex(0));
-      });
-    });
-
     describe('metadata', function () {
       const sampleUri = 'mock://mytoken';
 
@@ -81,13 +36,6 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
         await this.token.setTokenURI(firstTokenId, sampleUri);
         const uri = await this.token.tokenURI(firstTokenId);
         uri.should.be.equal(sampleUri);
-      });
-
-      it('can burn token with metadata', async function () {
-        await this.token.setTokenURI(firstTokenId, sampleUri);
-        await this.token.burn(firstTokenId);
-        const exists = await this.token.exists(firstTokenId);
-        exists.should.be.false;
       });
 
       it('returns empty metadata for token', async function () {
@@ -159,28 +107,6 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
 
       it('should revert if index is greater than supply', async function () {
         await assertRevert(this.token.tokenByIndex(2));
-      });
-
-      [firstTokenId, secondTokenId].forEach(function (tokenId) {
-        it(`should return all tokens after burning token ${tokenId} and minting new tokens`, async function () {
-          const owner = accounts[0];
-          const newTokenId = 300;
-          const anotherNewTokenId = 400;
-
-          await this.token.burn(tokenId, { from: owner });
-          await this.token.mint(owner, newTokenId, { from: owner });
-          await this.token.mint(owner, anotherNewTokenId, { from: owner });
-
-          const count = await this.token.totalSupply();
-          count.toNumber().should.be.equal(3);
-
-          const tokensListed = await Promise.all(_.range(3).map(i => this.token.tokenByIndex(i)));
-          const expectedTokens = _.filter(
-            [firstTokenId, secondTokenId, newTokenId, anotherNewTokenId],
-            x => (x !== tokenId)
-          );
-          tokensListed.map(t => t.toNumber()).should.have.members(expectedTokens);
-        });
       });
     });
   });
