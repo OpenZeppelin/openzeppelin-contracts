@@ -37,6 +37,7 @@ contract AllowanceCrowdsale is Crowdsale {
    * @param _tokenAmount Amount of tokens purchased
    */
   function _deliverTokens(address _beneficiary, uint256 _tokenAmount) internal {
+    require(_tokenAmount > 0);
     token.transferFrom(tokenWallet, _beneficiary, _tokenAmount);
   }
 }
