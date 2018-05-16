@@ -32,9 +32,10 @@ contract DutchAuction {
 
   // Necessary modifiers
   // TBD
+  // Doug include stages
 
 
-  function DutchAuction(uint _highAskingPrice, uint _lowAskingPrice, uint _auctionLength) public {
+  function DutchAuction(ERC721 token, uint _highAskingPrice, uint _lowAskingPrice, uint _auctionLength) public {
   	require(_lowAskingPrice < _highAskingPrice && _lowAskingPrice > 0 && _highAskingPrice > 0);
 
   	highAskingPrice = _highAskingPrice;
@@ -47,12 +48,10 @@ contract DutchAuction {
   	// (highAskingPrice - lowAskingPrice) / auctionLength = descendingPriceRate
 
   }
-
-  function TBD decrement time
 */
 
-  /**
-   * @dev fallback function
+
+   /* @dev fallback function */
    
   function () external payable {
     processBid(msg.sender);
