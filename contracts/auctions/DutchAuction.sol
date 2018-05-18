@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 pragma solidity ^0.4.23;
 
 import "../math/SafeMath.sol";
@@ -89,21 +90,20 @@ contract DutchAuction is Ownable{
 
   }
 
-
   function processBid (address _bidder) public payable {
   	require(bid > 0 && bid != 0 && bid == currentAskingPrice);
 
   	bid = msg.value;
   	bidder = _bidder;
 
-//  	payBeneficiary(bidder, bid);
+  	payBeneficiary(bidder, bid);
   }
-/*
+
   function returnToBeneficiary (address _beneficiary) internal {
 
   }
 
   function payBeneficiary (address _beneficiary, uint bid) internal {
 
-  } */
-}
+  } 
+*/
