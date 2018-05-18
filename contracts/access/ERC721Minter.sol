@@ -2,6 +2,7 @@ pragma solidity ^0.4.23;
 
 import "../token/ERC721/MintableERC721Token.sol";
 import "./SignatureBouncer.sol";
+import "./NonceTracker.sol";
 
 /**
  * @title ERC721Minter
@@ -14,7 +15,7 @@ import "./SignatureBouncer.sol";
  * @dev 4. Generate a valid bouncer signature and submit it to the ERC721Minter using `mint`
  * @dev Override `mint()` to add tokenURI information.
  */
-contract ERC721Minter is SignatureBouncer {
+contract ERC721Minter is SignatureBouncer, NonceTracker {
   MintableERC721Token public token;
 
   constructor(MintableERC721Token _token)
@@ -25,6 +26,7 @@ contract ERC721Minter is SignatureBouncer {
 
   function mint(bytes _sig)
     onlyValidSignature(_sig)
+    withAccess(msg.sender, 1)
     public
     returns (uint256)
   {
