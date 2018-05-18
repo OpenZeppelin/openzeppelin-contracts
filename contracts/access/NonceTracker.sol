@@ -1,7 +1,7 @@
 pragma solidity ^0.4.23;
 
 /**
- * @name NonceTracker
+ * @title NonceTracker
  * @author Matt Condon (@shrugs)
  * @dev A simple way to keep track of nonces and restrict access.
  * @dev Use the `withAccess` modifier to restrict access by address.
