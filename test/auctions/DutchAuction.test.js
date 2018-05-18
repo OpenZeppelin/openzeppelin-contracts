@@ -4,7 +4,7 @@ const BigNumber = web3.BigNumber;
 
 const DutchAuction = artifacts.require('DutchAuction');
 
-contract('DutchAuction', function () {
+contract('DutchAuction', function (accounts) {
   let auction;
   var chai = require('chai');
   var assert = chai.assert;
@@ -12,21 +12,26 @@ contract('DutchAuction', function () {
   var _highAskingPrice = 1000;
   var _lowAskingPrice = 500;
   var _auctionLength = 10;
+  var _beneficiary = accounts[0];
 
   var _currentAskingPrice = 750;
   var _bid = 750;
 
   beforeEach(async function () {
-    auction = await DutchAuction.new(_highAskingPrice, _lowAskingPrice, _auctionLength);
+    auction = await DutchAuction.new(_beneficiary, _highAskingPrice, _lowAskingPrice, _auctionLength);
   });
 
   describe('start an auction', function () {
-  	it('should include a high asking price', function () {
-	  assert.exists({ _highAskingPrice: 1000 }, '_highAskingPrice is neither `null` nor `undefined`');
+  	it('should include a beneficiary', function () {
+      assert.exists({ _beneficiary }, '_beneficiary is neither `null` nor `undefined`');
+    });
+
+    it('should include a high asking price', function () {
+	    assert.exists({ _highAskingPrice: 1000 }, '_highAskingPrice is neither `null` nor `undefined`');
   	});
 
   	it('should include a low asking price', function () {
-	  assert.exists({ _lowAskingPrice: 500 }, '_lowAskingPrice is neither `null` nor `undefined`');
+	    assert.exists({ _lowAskingPrice: 500 }, '_lowAskingPrice is neither `null` nor `undefined`');
   	});
 
   	it('should have a low asking price that is greater than 0', function () {
@@ -42,7 +47,7 @@ contract('DutchAuction', function () {
   	});
 
   	it('should include an auction length', function () {
-	  assert.exists({ _auctionLength: 10 }, '_auctionLength is neither `null` nor `undefined`');
+	    assert.exists({ _auctionLength: 10 }, '_auctionLength is neither `null` nor `undefined`');
   	});
 
   	it('the contract address that calls DutchAuction should be the beneficiary', function () {

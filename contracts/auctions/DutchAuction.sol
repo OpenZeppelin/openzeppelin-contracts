@@ -1,10 +1,9 @@
-<<<<<<< HEAD
 pragma solidity ^0.4.23;
 
 import "../math/SafeMath.sol";
 import "../ownership/Ownable.sol";
 import "../token/ERC721/ERC721BasicToken.sol";
-/**
+/*
  * @title DutchAuction
  * @dev DutchAuction is a contract for managing a dutch auction. A beneficiary sets their
  * high asking price and their low, reserve price for the ERC721 token they are auctioning. 
@@ -83,6 +82,8 @@ contract DutchAuction is Ownable{
       endTime = startTime + auctionLength;
       stage = Stages.AuctionStarted;
   }
+
+}
 
 /* Kseniya
   function findCurrentPrice () public returns (bool) {
