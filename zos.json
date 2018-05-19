@@ -1,4 +1,6 @@
 {
+  "name": "openzeppelin-zos",
+  "version": "1.9.0-beta",
   "contracts": {
     "DetailedMintableToken": "DetailedMintableToken",
     "DetailedPremintedToken": "DetailedPremintedToken",
@@ -6,5 +8,5 @@
     "TokenTimelock": "TokenTimelock",
     "TokenVesting": "TokenVesting"
   },
-  "name": "openzeppelin-zos"
+  "lib": true
 }
