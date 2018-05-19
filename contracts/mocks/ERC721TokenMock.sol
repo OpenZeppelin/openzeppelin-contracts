@@ -10,7 +10,7 @@ import "../token/ERC721/ERC721Token.sol";
  */
 contract ERC721TokenMock is ERC721Token {
   function ERC721TokenMock(string name, string symbol) public {
-    ERC721Token.initialize(msg.sender, name, symbol);
+    ERC721Token.initialize(name, symbol);
   }
 
   function mint(address _to, uint256 _tokenId) public {
