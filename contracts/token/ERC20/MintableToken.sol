@@ -22,6 +22,10 @@ contract MintableToken is Migratable, Ownable, StandardToken {
     _;
   }
 
+  function initialize(address _sender) isInitializer("MintableToken", "1.9.0-beta") {
+    Ownable.initialize(_sender);
+  }
+
   /**
    * @dev Function to mint tokens
    * @param _to The address that will receive the minted tokens.

@@ -36,7 +36,7 @@ contract ERC721Token is Migratable, ERC721, ERC721BasicToken {
   /**
    * @dev Constructor function
    */
-  function initialize(address _sender, string _name, string _symbol) public isInitializer("ERC721Token", "0") {
+  function initialize(address _sender, string _name, string _symbol) public isInitializer("ERC721Token", "1.9.0-beta") {
     name_ = _name;
     symbol_ = _symbol;
   }

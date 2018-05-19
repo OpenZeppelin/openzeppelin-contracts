@@ -17,7 +17,7 @@ contract Ownable is Migratable {
    * @dev The Ownable constructor sets the original `owner` of the contract to the sender
    * account.
    */
-  function initialize(address _sender) public isInitializer("Ownable", "0") {
+  function initialize(address _sender) public isInitializer("Ownable", "1.9.0-beta") {
     owner = _sender;
   }
 

@@ -52,7 +52,7 @@ contract TokenVesting is Migratable, Ownable {
     bool _revocable
   )
     public
-    isInitializer("TokenVesting", "0")
+    isInitializer("TokenVesting", "1.9.0-beta")
   {
     Ownable.initialize(_sender);
 
