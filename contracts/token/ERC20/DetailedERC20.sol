@@ -8,7 +8,7 @@ contract DetailedERC20 is Migratable, ERC20 {
   string public symbol;
   uint8 public decimals;
 
-  function initialize(address _sender, string _name, string _symbol, uint8 _decimals) public isInitializer("DetailedERC20", "1.9.0-beta") {
+  function initialize(string _name, string _symbol, uint8 _decimals) public isInitializer("DetailedERC20", "1.9.0-beta") {
     name = _name;
     symbol = _symbol;
     decimals = _decimals;
