@@ -1,7 +1,7 @@
 pragma solidity ^0.4.21;
 
 import "./RBAC.sol";
-
+import 'zos-lib/contracts/migrations/Migratable.sol';
 
 /**
  * @title RBACWithAdmin
@@ -9,7 +9,7 @@ import "./RBAC.sol";
  * @dev It's recommended that you define constants in the contract,
  * @dev like ROLE_ADMIN below, to avoid typos.
  */
-contract RBACWithAdmin is RBAC {
+contract RBACWithAdmin is RBAC, Migratable {
   /**
    * A constant role name for indicating admins.
    */
@@ -26,12 +26,13 @@ contract RBACWithAdmin is RBAC {
   }
 
   /**
-   * @dev constructor. Sets msg.sender as admin by default
+   * @dev constructor. Sets initialAdmin as admin.
    */
-  function RBACWithAdmin()
+  function initialize(address initialAdmin)
+    isInitializer("RBACWithAdmin", "1.9.0-beta")
     public
   {
-    addRole(msg.sender, ROLE_ADMIN);
+    addRole(initialAdmin, ROLE_ADMIN);
   }
 
   /**

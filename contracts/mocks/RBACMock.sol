@@ -19,6 +19,8 @@ contract RBACMock is RBACWithAdmin {
   function RBACMock(address[] _advisors)
     public
   {
+    RBACWithAdmin.initialize(msg.sender);
+
     addRole(msg.sender, ROLE_ADVISOR);
 
     for (uint256 i = 0; i < _advisors.length; i++) {
