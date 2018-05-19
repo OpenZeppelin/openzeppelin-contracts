@@ -8,12 +8,16 @@ import "../ownership/Ownable.sol";
  * @title Pausable
  * @dev Base contract which allows children to implement an emergency stop mechanism.
  */
-contract Pausable is Ownable {
+contract Pausable is Migratable, Ownable {
   event Pause();
   event Unpause();
 
   bool public paused = false;
 
+
+  function initialize(address _sender) isInitializer("Pausable", "1.9.0-beta") {
+    Ownable.initialize(_sender);
+  }
 
   /**
    * @dev Modifier to make a function callable only when the contract is not paused.

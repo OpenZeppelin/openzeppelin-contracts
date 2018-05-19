@@ -8,7 +8,11 @@ import "../../lifecycle/Pausable.sol";
  * @title Pausable token
  * @dev StandardToken modified with pausable transfers.
  **/
-contract PausableToken is StandardToken, Pausable {
+contract PausableToken is Migratable, StandardToken, Pausable {
+
+  function initialize(address _sender) isInitializer("PausableToken", "1.9.0-beta") {
+    Pausable.initialize(_sender);
+  }
 
   function transfer(address _to, uint256 _value) public whenNotPaused returns (bool) {
     return super.transfer(_to, _value);
