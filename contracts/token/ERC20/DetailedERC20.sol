@@ -1,7 +1,8 @@
 pragma solidity ^0.4.21;
 
 import "./ERC20.sol";
-import 'zos-lib/contracts/migrations/Migratable.sol';
+import "zos-lib/contracts/migrations/Migratable.sol";
+
 
 contract DetailedERC20 is Migratable, ERC20 {
   string public name;

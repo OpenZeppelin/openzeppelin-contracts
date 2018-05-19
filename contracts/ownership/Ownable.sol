@@ -1,6 +1,7 @@
 pragma solidity ^0.4.21;
 
-import 'zos-lib/contracts/migrations/Migratable.sol';
+import "zos-lib/contracts/migrations/Migratable.sol";
+
 
 /**
  * @title Ownable

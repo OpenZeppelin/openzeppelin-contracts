@@ -4,6 +4,7 @@ import "./StandardToken.sol";
 import "../../ownership/Ownable.sol";
 import "zos-lib/contracts/migrations/Migratable.sol";
 
+
 /**
  * @title Mintable token
  * @dev Simple ERC20 Token example, with mintable token creation
@@ -22,7 +23,7 @@ contract MintableToken is Migratable, Ownable, StandardToken {
     _;
   }
 
-  function initialize(address _sender) isInitializer("MintableToken", "1.9.0-beta") {
+  function initialize(address _sender) isInitializer("MintableToken", "1.9.0-beta")  public {
     Ownable.initialize(_sender);
   }
 

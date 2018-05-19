@@ -3,6 +3,7 @@ pragma solidity ^0.4.18;
 import "./BurnableToken.sol";
 import "./StandardToken.sol";
 
+
 /**
  * @title Standard Burnable Token
  * @dev Adds burnFrom method to ERC20 implementations
