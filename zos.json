@@ -6,7 +6,8 @@
     "DetailedPremintedToken": "DetailedPremintedToken",
     "MintableERC721Token": "MintableERC721Token",
     "TokenTimelock": "TokenTimelock",
-    "TokenVesting": "TokenVesting"
+    "TokenVesting": "TokenVesting",
+    "SplitPayment": "SplitPayment"
   },
   "lib": true
 }
