@@ -1,4 +1,5 @@
 import utils from 'ethereumjs-util';
+import { soliditySha3 } from 'web3-utils';
 
 /**
  * Hash and add same prefix to the hash that ganache use.
@@ -11,12 +12,19 @@ export const hashMessage = (message) => {
   return utils.bufferToHex(utils.sha3(Buffer.concat([prefix, messageHex])));
 };
 
-// signs message using web3 (auto-applies prefix)
-export const signMessage = (signer, message = '', options = {}) => {
-  return web3.eth.sign(signer, web3.sha3(message, options));
+// signs message in node (auto-applies prefix)
+// message must be in hex already! will not be autoconverted!
+export const signMessage = (signer, message = '') => {
+  return web3.eth.sign(signer, message);
 };
 
-// signs hex string using web3 (auto-applies prefix)
-export const signHex = (signer, message = '') => {
-  return signMessage(signer, message, { encoding: 'hex' });
+export const getBouncerSigner = (contract, signer) => (addr, extra = []) => {
+  const args = [
+    contract.address,
+    addr,
+    ...extra,
+  ];
+  // ^ substr to remove `0x` because in solidity the address is a set of byes, not a string `0xabcd`
+  const hashOfMessage = soliditySha3(...args);
+  return signMessage(signer, hashOfMessage);
 };

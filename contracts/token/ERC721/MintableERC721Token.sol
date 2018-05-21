@@ -6,16 +6,28 @@ import "../../ownership/rbac/RBACMintable.sol";
 import "./ERC721Token.sol";
 
 
-contract MintableERC721Token is Autoincrementing, RBACOwnable, RBACMintable, ERC721Token {
-  function mint(address _to, string _tokenURI)
+/**
+ * @title MintableERC721Token
+ * @author Matt Condon (@shrugs)
+ * @dev This is an ERC721Token than can be minted by any sender with the role
+ * @dev ROLE_MINTER. It features an auto-incrementing tokenId.
+ * @dev This contract is designed to be used with a *Bouncer of some sort that
+ * @dev provides access control an input verification.
+ */
+contract MintableERC721Token is AutoIncrementing, RBACOwnable, RBACMintable, ERC721Token { // solium-disable-line max-len
+
+  constructor(string _name, string _symbol)
+    ERC721Token(_name, _symbol)
+    public
+  {
+  }
+
+  function mint(address _to, uint256 _tokenId, string _tokenURI)
     onlyMinter
     public
-    returns (uint256)
   {
-    uint256 tokenId = nextId();
-    _mint(_to, tokenId);
-    _setTokenURI(tokenId, _tokenURI);
-    return tokenId;
+    _mint(_to, _tokenId);
+    _setTokenURI(_tokenId, _tokenURI);
   }
 
   /**

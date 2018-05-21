@@ -1,7 +1,7 @@
 pragma solidity ^0.4.23;
 
 
-contract Autoincrementing {
+contract AutoIncrementing {
   uint256 internal nextId_ = 0;
 
   function nextId() internal returns (uint256) {

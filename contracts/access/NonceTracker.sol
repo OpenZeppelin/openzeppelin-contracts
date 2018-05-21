@@ -1,11 +1,13 @@
 pragma solidity ^0.4.23;
 
+
 /**
  * @title NonceTracker
  * @author Matt Condon (@shrugs)
  * @dev A simple way to keep track of nonces and restrict access.
  * @dev Use the `withAccess` modifier to restrict access by address.
- * @dev For example, withAccess(msg.sender, 1) will only allow once-per-address
+ * @dev Use the `withMaxAccess` modifier to restrict access by address up to a max amount
+ * @dev For example, withAccess(msg.sender, 1) will only allow once-per-address.
  * @dev You can also accept nonces from users (as part of a hash you verify).
  */
 contract NonceTracker {
@@ -14,6 +16,20 @@ contract NonceTracker {
   modifier withAccess(address _address, uint256 _nonce)
   {
     access(_address, _nonce);
+    _;
+  }
+
+  /**
+   * @dev use withMaxAccess to restrict access per-address for a maxiumum
+   * @dev number of times
+   */
+  modifier withMaxAccess(address _address, uint256 _maxNonce)
+  {
+    // require that we haven't accessed this resource too much
+    require(nonce(_address) < _maxNonce);
+    // access it once more by incrementing the nonce
+    access(_address, nonce(_address) + 1);
+    // allow access
     _;
   }
 
