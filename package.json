@@ -66,6 +66,6 @@
   },
   "dependencies": {
     "dotenv": "^4.0.0",
-    "zos-lib": "^0.1.22"
+    "zos-lib": "^0.1.26"
   }
 }
