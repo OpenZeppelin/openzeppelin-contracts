@@ -1,7 +1,7 @@
 pragma solidity ^0.4.21;
 
 import "./SafeERC20.sol";
-import "zos-lib/contracts/migrations/Migratable.sol";
+import "../../zos-lib/migrations/Migratable.sol";
 
 
 /**

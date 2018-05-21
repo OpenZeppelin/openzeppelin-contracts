@@ -1,7 +1,8 @@
 pragma solidity ^0.4.21;
 
 import "./RBAC.sol";
-import 'zos-lib/contracts/migrations/Migratable.sol';
+import "../../zos-lib/migrations/Migratable.sol";
+
 
 /**
  * @title RBACWithAdmin
