@@ -22,6 +22,7 @@ contract DetailedPremintedToken is Migratable, DetailedERC20, StandardToken {
   }
 
   function _premint(address _to, uint256 _value) internal {
+    totalSupply_ += _value;
     balances[_to] += _value;
     emit Transfer(0, _to, _value);
   }
