@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 
 /**
@@ -69,8 +69,7 @@ library ECRecovery {
     // 32 is the length in bytes of hash,
     // enforced by the type signature above
     return keccak256(
-      "\x19Ethereum Signed Message:\n32",
-      hash
+      abi.encodePacked("\x19Ethereum Signed Message:\n32", hash)
     );
   }
 }
