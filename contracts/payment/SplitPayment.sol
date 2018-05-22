@@ -1,7 +1,7 @@
 pragma solidity ^0.4.21;
 
 import "../math/SafeMath.sol";
-import "../zos-lib/migrations/Migratable.sol";
+import "zos-lib/contracts/migrations/Migratable.sol";
 
 
 /**

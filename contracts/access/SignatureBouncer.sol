@@ -1,10 +1,8 @@
 pragma solidity ^0.4.18;
 
-import "../zos-lib/migrations/Migratable.sol";
 import "../ownership/Ownable.sol";
 import "../ownership/rbac/RBAC.sol";
 import "../ECRecovery.sol";
-
 
 /**
  * @title SignatureBouncer
