@@ -65,7 +65,9 @@
     "zos": "^0.7.0"
   },
   "dependencies": {
-    "dotenv": "^4.0.0",
+    "zos-lib": "^0.1.26"
+  },
+  "peerDependencies": {
     "zos-lib": "^0.1.26"
   }
 }
