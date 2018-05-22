@@ -15,10 +15,18 @@
     "DetailedMintableToken": {
       "address": "0xe631f5353e12e0aeb1c1f60541a346e95d52f731",
       "bytecodeHash": "5baf52008954818f59f903fbdcae7c437a4d473e98a10053847598fe29fb37cc"
+    },
+    "SplitPayment": {
+      "address": "0x957064bf47d54f0a90d400113bd4c76284be0d5e",
+      "bytecodeHash": "f6a770b74aa8113ec77c6a64997afd3e3b87e91ca4a4070b42c0e7a5d3a17eb3"
+    },
+    "MintableERC721Token": {
+      "address": "0x591009a93bfc0014d1c9dc51b490ad06b9fa1c2f",
+      "bytecodeHash": "07df50333453baa4da4999b352a107d33ad5f9adf4f7041bf600083eadeea1df"
     }
   },
   "lib": true,
-  "frozen": false,
+  "frozen": true,
   "package": {
     "address": "0x3bd95b5a003481b801010bcde4f7e0a32a925deb"
   },
