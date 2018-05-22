@@ -5,7 +5,9 @@
   "files": [
     "contracts",
     "build",
-    "test"
+    "test",
+    "zos.json",
+    "zos.*.json"
   ],
   "scripts": {
     "prepack": "truffle compile",
