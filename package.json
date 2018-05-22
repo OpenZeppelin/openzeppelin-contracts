@@ -62,7 +62,7 @@
     "solium": "^1.1.6",
     "truffle": "^4.1.5",
     "truffle-hdwallet-provider": "0.0.3",
-    "zos": "^0.7.0"
+    "zos": "^0.8.0"
   },
   "dependencies": {
     "zos-lib": "^0.1.26"
