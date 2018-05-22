@@ -3,16 +3,40 @@
     "address": "0x57ed03ed45a70ef67479dec896ed782a72e40e8c"
   },
   "contracts": {
-    "DetailedMintableToken": "DetailedMintableToken",
-    "DetailedPremintedToken": "DetailedPremintedToken",
-    "MintableERC721Token": "MintableERC721Token",
-    "TokenTimelock": "TokenTimelock",
-    "TokenVesting": "TokenVesting"
+    "DetailedPremintedToken": {
+      "address": "0x7c7876e4d7d77fdedf79c7f4d4fc523192d2c0ec",
+      "bytecodeHash": "e1f23b3c8e9b6d44a4decf1af92fc64ef78ca7a63b88a9ff005ea9e03bb29c1b"
+    },
+    "TokenVesting": {
+      "address": "0xaaf5aff7cfdc8877caa6a9d4b6bc2491f3ed330a",
+      "bytecodeHash": "4e68575e28a0747ef08e17ea18f1ae0fb25f85ca4f49c4bc524e348e49cc5236"
+    },
+    "SplitPayment": {
+      "address": "0x8dcacd22087a6f081af47e7a8bb8a66f2711d276",
+      "bytecodeHash": "f6a770b74aa8113ec77c6a64997afd3e3b87e91ca4a4070b42c0e7a5d3a17eb3"
+    },
+    "TokenTimelock": {
+      "address": "0x9b58751141a3a419f40fa29d460c3cbc92258403",
+      "bytecodeHash": "45c35a494bc634318b455de0124b610352324daa7aaccc9ed8ecffb8ca57f3e6"
+    },
+    "MintableERC721Token": {
+      "address": "0x9f3fbf875c425dafba9af3ab742c4f8d7838a971",
+      "bytecodeHash": "07df50333453baa4da4999b352a107d33ad5f9adf4f7041bf600083eadeea1df"
+    },
+    "DetailedMintableToken": {
+      "address": "0x3a8c444373684526a5d2510a95cbb4e4fc91b680",
+      "bytecodeHash": "5baf52008954818f59f903fbdcae7c437a4d473e98a10053847598fe29fb37cc"
+    }
   },
   "kernel": {
     "address": "0xdf38ad6335299dcaab4e663b40d466140702285d"
   },
   "provider": {
-    "address": "0xA739d10Cc20211B973dEE09DB8F0D75736E2D817"
-  }
+    "address": "0x4e7134170fa8548134f942ea74679dce05c1d13e"
+  },
+  "package": {
+    "address": "0x22137ecc8483e4c2a86969d867c54babf5a6a184"
+  },
+  "frozen": true,
+  "version": "1.9.0"
 }
