@@ -1,0 +1,29 @@
+{
+  "contracts": {
+    "DetailedPremintedToken": {
+      "address": "0x62a17f4f2140537fc6bc5fe74724569fff257e05",
+      "bytecodeHash": "e1f23b3c8e9b6d44a4decf1af92fc64ef78ca7a63b88a9ff005ea9e03bb29c1b"
+    },
+    "TokenTimelock": {
+      "address": "0x659515c7d0bc5b2868c6a0482443bc32472005c9",
+      "bytecodeHash": "45c35a494bc634318b455de0124b610352324daa7aaccc9ed8ecffb8ca57f3e6"
+    },
+    "TokenVesting": {
+      "address": "0x66a1a32c100768461f7725ab0e6b716a76bd805a",
+      "bytecodeHash": "4e68575e28a0747ef08e17ea18f1ae0fb25f85ca4f49c4bc524e348e49cc5236"
+    },
+    "DetailedMintableToken": {
+      "address": "0xe631f5353e12e0aeb1c1f60541a346e95d52f731",
+      "bytecodeHash": "5baf52008954818f59f903fbdcae7c437a4d473e98a10053847598fe29fb37cc"
+    }
+  },
+  "lib": true,
+  "frozen": false,
+  "package": {
+    "address": "0x3bd95b5a003481b801010bcde4f7e0a32a925deb"
+  },
+  "provider": {
+    "address": "0x8500768509c476fc32477e5510aea608c42dd3a6"
+  },
+  "version": "1.9.0"
+}
