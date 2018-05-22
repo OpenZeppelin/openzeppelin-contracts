@@ -26,7 +26,7 @@
     }
   },
   "lib": true,
-  "frozen": false,
+  "frozen": true,
   "package": {
     "address": "0x92a9369a08b30a67f4faf76cad03cf1e6beef5bf"
   },
