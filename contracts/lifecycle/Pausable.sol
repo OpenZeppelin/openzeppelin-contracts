@@ -15,7 +15,7 @@ contract Pausable is Migratable, Ownable {
   bool public paused = false;
 
 
-  function initialize(address _sender) isInitializer("Pausable", "1.9.0-beta")  public {
+  function initialize(address _sender) isInitializer("Pausable", "1.9.0")  public {
     Ownable.initialize(_sender);
   }
 

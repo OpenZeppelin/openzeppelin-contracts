@@ -23,7 +23,7 @@ contract SplitPayment is Migratable {
    * @dev Constructor
    */
   function initialize(address[] _payees, uint256[] _shares)
-    isInitializer("SplitPayment", "1.9.0-beta")
+    isInitializer("SplitPayment", "1.9.0")
     public
     payable
   {

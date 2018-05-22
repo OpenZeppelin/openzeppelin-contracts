@@ -13,7 +13,7 @@ contract DetailedPremintedToken is Migratable, DetailedERC20, StandardToken {
     uint8 _decimals,
     uint256 _initialBalance
   )
-    isInitializer("DetailedPremintedToken", "1.9.0-beta")
+    isInitializer("DetailedPremintedToken", "1.9.0")
     public
   {
     DetailedERC20.initialize(_name, _symbol, _decimals);

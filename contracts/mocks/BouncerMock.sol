@@ -5,7 +5,7 @@ import "../access/SignatureBouncer.sol";
 
 contract SignatureBouncerMock is SignatureBouncer {
   function initialize(address _sender)
-    isInitializer("SignatureBouncerMock", "1.9.0-beta")
+    isInitializer("SignatureBouncerMock", "1.9.0")
     public
   {
     SignatureBouncer.initialize(_sender);

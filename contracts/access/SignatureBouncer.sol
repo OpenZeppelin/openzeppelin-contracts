@@ -29,7 +29,7 @@ contract SignatureBouncer is Migratable, Ownable, RBAC {
   string public constant ROLE_BOUNCER = "bouncer";
 
   function initialize(address _sender)
-    isInitializer("SignatureBouncer", "1.9.0-beta")
+    isInitializer("SignatureBouncer", "1.9.0")
     public
   {
     Ownable.initialize(_sender);

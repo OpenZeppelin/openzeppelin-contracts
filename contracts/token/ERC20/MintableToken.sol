@@ -23,7 +23,7 @@ contract MintableToken is Migratable, Ownable, StandardToken {
     _;
   }
 
-  function initialize(address _sender) isInitializer("MintableToken", "1.9.0-beta")  public {
+  function initialize(address _sender) isInitializer("MintableToken", "1.9.0")  public {
     Ownable.initialize(_sender);
   }
 

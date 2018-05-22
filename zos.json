@@ -1,6 +1,6 @@
 {
   "name": "openzeppelin-zos",
-  "version": "1.9.0-beta",
+  "version": "1.9.0",
   "contracts": {
     "DetailedMintableToken": "DetailedMintableToken",
     "DetailedPremintedToken": "DetailedPremintedToken",

@@ -10,7 +10,7 @@ import "../../lifecycle/Pausable.sol";
  **/
 contract PausableToken is Migratable, StandardToken, Pausable {
 
-  function initialize(address _sender) isInitializer("PausableToken", "1.9.0-beta")  public {
+  function initialize(address _sender) isInitializer("PausableToken", "1.9.0")  public {
     Pausable.initialize(_sender);
   }
 

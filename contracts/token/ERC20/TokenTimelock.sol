@@ -27,7 +27,7 @@ contract TokenTimelock is Migratable {
     address _beneficiary,
     uint256 _releaseTime
   )
-    isInitializer("TokenTimelock", "1.9.0-beta")
+    isInitializer("TokenTimelock", "1.9.0")
     public
   {
     // solium-disable-next-line security/no-block-members

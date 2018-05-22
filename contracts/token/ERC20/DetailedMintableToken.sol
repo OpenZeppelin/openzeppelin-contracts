@@ -12,7 +12,7 @@ contract DetailedMintableToken is Migratable, DetailedERC20, MintableToken {
     string _symbol,
     uint8 _decimals
   )
-    isInitializer("DetailedMintableToken", "1.9.0-beta")
+    isInitializer("DetailedMintableToken", "1.9.0")
     public
   {
     DetailedERC20.initialize(_name, _symbol, _decimals);

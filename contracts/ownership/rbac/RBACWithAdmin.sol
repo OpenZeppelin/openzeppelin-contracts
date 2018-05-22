@@ -30,7 +30,7 @@ contract RBACWithAdmin is RBAC, Migratable {
    * @dev constructor. Sets initialAdmin as admin.
    */
   function initialize(address initialAdmin)
-    isInitializer("RBACWithAdmin", "1.9.0-beta")
+    isInitializer("RBACWithAdmin", "1.9.0")
     public
   {
     addRole(initialAdmin, ROLE_ADMIN);
