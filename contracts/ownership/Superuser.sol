@@ -12,12 +12,11 @@ import "./rbac/RBAC.sol";
  * @dev A superuser can transfer his role to a new address. 
  */
 contract Superuser is Ownable, RBAC {
-  event SuperuserTransferred(address indexed previousSuperuser, address indexed newSuperuser);
   event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
   string public constant ROLE_SUPERUSER = "superuser";
 
-  constructor () {
+  constructor ()public {
     addRole(msg.sender, ROLE_SUPERUSER);
   }
 
@@ -29,38 +28,37 @@ contract Superuser is Ownable, RBAC {
     _;
   }
 
-    /**
+  /**
    * @dev getter to determine if address has superuser role
    */
-  function superuser(address addr)
+  function isSuperuser(address _addr)
     public
     view
     returns (bool)
   {
-    return hasRole(addr, ROLE_SUPERUSER);
+    return hasRole(_addr, ROLE_SUPERUSER);
   }
 
   /**
    * @dev Allows the current superuser to transfer his role to a newSuperuser.
-   * @param newSuperuser The address to transfer ownership to.
+   * @param _newSuperuser The address to transfer ownership to.
    */
-  function transferSuperuser(address newSuperuser) 
+  function transferSuperuser(address _newSuperuser) 
     onlySuperuser
     public
   {
-    require(newSuperuser != address(0));
-    emit SuperuserTransferred(msg.sender, newSuperuser);
+    require(_newSuperuser != address(0));
     removeRole(msg.sender, ROLE_SUPERUSER);
-    addRole(newSuperuser, ROLE_SUPERUSER);
+    addRole(_newSuperuser, ROLE_SUPERUSER);
   }
 
   /**
    * @dev Allows the current superuser to transfer control of the contract to a newOwner.
-   * @param newOwner The address to transfer ownership to.
+   * @param _newOwner The address to transfer ownership to.
    */
-  function transferOwnership(address newOwner) public onlySuperuser {
-    require(newOwner != address(0));
-    emit OwnershipTransferred(owner, newOwner);
-    owner = newOwner;
+  function transferOwnership(address _newOwner) public onlySuperuser {
+    require(_newOwner != address(0));
+    owner = _newOwner;
+    emit OwnershipTransferred(owner, _newOwner);
   }
 }
