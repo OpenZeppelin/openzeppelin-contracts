@@ -49,7 +49,10 @@ contract DayLimit {
     }
     // check to see if there's enough left - if so, subtract and return true.
     // overflow protection                    // dailyLimit check
-    if (spentToday + _value >= spentToday && spentToday + _value <= dailyLimit) {
+    if (
+      spentToday + _value >= spentToday &&
+      spentToday + _value <= dailyLimit
+    ) {
       spentToday += _value;
       return true;
     }

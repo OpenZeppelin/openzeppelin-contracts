@@ -35,7 +35,12 @@ contract CappedCrowdsale is Crowdsale {
    * @param _beneficiary Token purchaser
    * @param _weiAmount Amount of wei contributed
    */
-  function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
+  function _preValidatePurchase(
+    address _beneficiary,
+    uint256 _weiAmount
+  )
+    internal
+  {
     super._preValidatePurchase(_beneficiary, _weiAmount);
     require(weiRaised.add(_weiAmount) <= cap);
   }

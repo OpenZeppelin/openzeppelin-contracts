@@ -7,7 +7,12 @@ contract ERC721ReceiverMock is ERC721Receiver {
   bytes4 retval;
   bool reverts;
 
-  event Received(address _address, uint256 _tokenId, bytes _data, uint256 _gas);
+  event Received(
+    address _address,
+    uint256 _tokenId,
+    bytes _data,
+    uint256 _gas
+  );
 
   constructor(bytes4 _retval, bool _reverts) public {
     retval = _retval;

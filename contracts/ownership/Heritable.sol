@@ -21,8 +21,15 @@ contract Heritable is Ownable {
 
   event HeirChanged(address indexed owner, address indexed newHeir);
   event OwnerHeartbeated(address indexed owner);
-  event OwnerProclaimedDead(address indexed owner, address indexed heir, uint256 timeOfDeath);
-  event HeirOwnershipClaimed(address indexed previousOwner, address indexed newOwner);
+  event OwnerProclaimedDead(
+    address indexed owner,
+    address indexed heir,
+    uint256 timeOfDeath
+  );
+  event HeirOwnershipClaimed(
+    address indexed previousOwner,
+    address indexed newOwner
+  );
 
 
   /**
@@ -106,7 +113,9 @@ contract Heritable is Ownable {
     timeOfDeath_ = 0;
   }
 
-  function setHeartbeatTimeout(uint256 newHeartbeatTimeout) internal onlyOwner {
+  function setHeartbeatTimeout(uint256 newHeartbeatTimeout)
+    internal onlyOwner
+  {
     require(ownerLives());
     heartbeatTimeout_ = newHeartbeatTimeout;
   }

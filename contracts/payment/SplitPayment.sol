@@ -43,7 +43,11 @@ contract SplitPayment {
     require(shares[payee] > 0);
 
     uint256 totalReceived = address(this).balance.add(totalReleased);
-    uint256 payment = totalReceived.mul(shares[payee]).div(totalShares).sub(released[payee]);
+    uint256 payment = totalReceived.mul(
+      shares[payee]).div(
+        totalShares).sub(
+          released[payee]
+    );
 
     require(payment != 0);
     require(address(this).balance >= payment);
