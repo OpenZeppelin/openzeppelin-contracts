@@ -25,12 +25,13 @@
       "bytecodeHash": "5baf52008954818f59f903fbdcae7c437a4d473e98a10053847598fe29fb37cc"
     }
   },
+  "lib": true,
+  "frozen": true,
   "package": {
     "address": "0x22137ecc8483e4c2a86969d867c54babf5a6a184"
   },
   "provider": {
     "address": "0x4e7134170fa8548134f942ea74679dce05c1d13e"
   },
-  "frozen": true,
-  "version": "1.9.0"
+  "version": "1.9.1"
 }
