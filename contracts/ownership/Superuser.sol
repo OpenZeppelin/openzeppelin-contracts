@@ -12,8 +12,6 @@ import "./rbac/RBAC.sol";
  * @dev A superuser can transfer his role to a new address. 
  */
 contract Superuser is Ownable, RBAC {
-  event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-
   string public constant ROLE_SUPERUSER = "superuser";
 
   constructor ()public {
