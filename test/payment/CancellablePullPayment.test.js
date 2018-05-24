@@ -1,5 +1,7 @@
 var CancellablePullPaymentMock = artifacts.require('CancellablePullPaymentMock');
 
+const EVMThrow = require('../helpers/EVMThrow.js');
+
 contract('CancellablePullPayment', function (accounts) {
   let mock;
   let amount = 17 * 1e18;
@@ -62,8 +64,6 @@ contract('CancellablePullPayment', function (accounts) {
   });
 
   it('should not allow to cancel a non-existent payment', async () => {
-    await expectThrow(
-      mock.callCancel(payee1)
-    );
+    await mock.callCancel(payee1).should.be.rejectedWith(EVMThrow);
   });
 });
