@@ -14,7 +14,7 @@ import "./rbac/RBAC.sol";
 contract Superuser is Ownable, RBAC {
   string public constant ROLE_SUPERUSER = "superuser";
 
-  constructor ()public {
+  constructor () public {
     addRole(msg.sender, ROLE_SUPERUSER);
   }
 
