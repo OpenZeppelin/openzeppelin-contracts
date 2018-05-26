@@ -6,7 +6,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-export default function shouldMintAndBurnERC721Token (minter, beneficiary, anotherAccount) {
+export default function shouldMintAndBurnERC721Token ([minter, beneficiary, anotherAccount]) {
   const firstTokenId = 1;
   const unknownTokenId = 3;
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';

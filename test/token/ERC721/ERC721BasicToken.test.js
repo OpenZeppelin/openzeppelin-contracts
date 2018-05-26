@@ -16,6 +16,6 @@ contract('ERC721BasicToken', function (accounts) {
   });
 
   shouldBehaveLikeERC721BasicToken(accounts);
-  shouldBehaveLikeMintableERC721Token(accounts[0], accounts[1]);
-  shouldBehaveLikeBurnableERC721Token(accounts[0], accounts[1], accounts[2]);
+  shouldBehaveLikeMintableERC721Token(accounts);
+  shouldBehaveLikeBurnableERC721Token(accounts);
 });

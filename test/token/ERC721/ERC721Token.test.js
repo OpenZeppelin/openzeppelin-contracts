@@ -13,6 +13,8 @@ require('chai')
 
 contract('ERC721Token', function (accounts) {
   const creator = accounts[0];
+  const beneficiary = accounts[1];
+  const anotherAccount = accounts[2];
 
   beforeEach(async function () {
     this.name = 'Non Fungible Token';
@@ -22,6 +24,6 @@ contract('ERC721Token', function (accounts) {
 
   shouldBehaveLikeERC721BasicToken(accounts);
   shouldBehaveLikeERC721Token(accounts);
-  shouldBehaveLikeMintableERC721Token(accounts[0], accounts[1]);
-  shouldBehaveLikeBurnableERC721Token(accounts[0], accounts[1], accounts[2]);
+  shouldBehaveLikeMintableERC721Token([creator, beneficiary]);
+  shouldBehaveLikeBurnableERC721Token([creator, beneficiary, anotherAccount]);
 });
