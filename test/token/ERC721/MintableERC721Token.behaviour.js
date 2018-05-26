@@ -86,7 +86,7 @@ export default function ([owner, minter, beneficiary, anotherAccount]) {
 
     describe('when the sender has the minting permission', function () {
       describe('when the token minting is not finished', function () {
-        shouldMintLikeERC721Token([owner, beneficiary]);
+        shouldMintLikeERC721Token([minter, beneficiary]);
       });
 
       describe('when the token minting is finished', function () {

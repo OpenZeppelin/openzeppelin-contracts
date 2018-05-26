@@ -23,6 +23,10 @@ contract RBACMintableERC721Token is MintableERC721Token, RBAC {
     _;
   }
 
+  constructor(string _name, string _symbol) public
+  MintableERC721Token(_name, _symbol)
+  { }
+
   /**
    * @dev add a minter role to an address
    * @param minter address
