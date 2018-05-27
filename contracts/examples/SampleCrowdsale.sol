@@ -13,7 +13,8 @@ import "../token/ERC20/MintableToken.sol";
  */
 contract SampleCrowdsaleToken is MintableToken {
 
-  string public constant name = "Sample Crowdsale Token"; // solium-disable-line uppercase
+  // solium-disable-next-line uppercase
+  string public constant name = "Sample Crowdsale Token";
   string public constant symbol = "SCT"; // solium-disable-line uppercase
   uint8 public constant decimals = 18; // solium-disable-line uppercase
 
@@ -31,6 +32,11 @@ contract SampleCrowdsaleToken is MintableToken {
  * After adding multiple features it's good practice to run integration tests
  * to ensure that subcontracts works together as intended.
  */
+// XXX There doesn't seem to be a way to split this line that keeps solium
+// happy. See:
+// https://github.com/duaraghav8/Solium/issues/205
+// --elopio - 2018-05-10
+// solium-disable-next-line max-len
 contract SampleCrowdsale is CappedCrowdsale, RefundableCrowdsale, MintedCrowdsale {
 
   constructor(

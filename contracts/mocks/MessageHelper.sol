@@ -6,12 +6,27 @@ contract MessageHelper {
   event Show(bytes32 b32, uint256 number, string text);
   event Buy(bytes32 b32, uint256 number, string text, uint256 value);
 
-  function showMessage( bytes32 message, uint256 number, string text ) public returns (bool) {
+  function showMessage(
+    bytes32 message,
+    uint256 number,
+    string text
+  )
+    public
+    returns (bool)
+  {
     emit Show(message, number, text);
     return true;
   }
 
-  function buyMessage( bytes32 message, uint256 number, string text ) public payable returns (bool) {
+  function buyMessage(
+    bytes32 message,
+    uint256 number,
+    string text
+  )
+    public
+    payable
+    returns (bool)
+  {
     emit Buy(
       message,
       number,

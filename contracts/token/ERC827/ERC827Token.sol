@@ -34,7 +34,15 @@ contract ERC827Token is ERC827, StandardToken {
    *
    * @return true if the call function was executed successfully
    */
-  function approveAndCall(address _spender, uint256 _value, bytes _data) public payable returns (bool) {
+  function approveAndCall(
+    address _spender,
+    uint256 _value,
+    bytes _data
+  )
+    public
+    payable
+    returns (bool)
+  {
     require(_spender != address(this));
 
     super.approve(_spender, _value);
@@ -55,7 +63,15 @@ contract ERC827Token is ERC827, StandardToken {
    *
    * @return true if the call function was executed successfully
    */
-  function transferAndCall(address _to, uint256 _value, bytes _data) public payable returns (bool) {
+  function transferAndCall(
+    address _to,
+    uint256 _value,
+    bytes _data
+  )
+    public
+    payable
+    returns (bool)
+  {
     require(_to != address(this));
 
     super.transfer(_to, _value);
@@ -106,7 +122,15 @@ contract ERC827Token is ERC827, StandardToken {
    * @param _addedValue The amount of tokens to increase the allowance by.
    * @param _data ABI-encoded contract call to call `_spender` address.
    */
-  function increaseApprovalAndCall(address _spender, uint _addedValue, bytes _data) public payable returns (bool) {
+  function increaseApprovalAndCall(
+    address _spender,
+    uint _addedValue,
+    bytes _data
+  )
+    public
+    payable
+    returns (bool)
+  {
     require(_spender != address(this));
 
     super.increaseApproval(_spender, _addedValue);
@@ -130,7 +154,15 @@ contract ERC827Token is ERC827, StandardToken {
    * @param _subtractedValue The amount of tokens to decrease the allowance by.
    * @param _data ABI-encoded contract call to call `_spender` address.
    */
-  function decreaseApprovalAndCall(address _spender, uint _subtractedValue, bytes _data) public payable returns (bool) {
+  function decreaseApprovalAndCall(
+    address _spender,
+    uint _subtractedValue,
+    bytes _data
+  )
+    public
+    payable
+    returns (bool)
+  {
     require(_spender != address(this));
 
     super.decreaseApproval(_spender, _subtractedValue);
