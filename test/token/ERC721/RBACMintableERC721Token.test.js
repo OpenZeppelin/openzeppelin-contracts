@@ -5,11 +5,8 @@ const RBACMintableERC721Token = artifacts.require('RBACMintableERC721Token');
 const ROLE_MINTER = 'minter';
 
 contract('RBACMintableERC721Token', function ([owner, minter, beneficiary, anotherAccount]) {
-  const name = 'Non Fungible Token';
-  const symbol = 'NFT';
-
   beforeEach(async function () {
-    this.token = await RBACMintableERC721Token.new(name, symbol, { from: owner });
+    this.token = await RBACMintableERC721Token.new({ from: owner });
     await this.token.addMinter(minter, { from: owner });
   });
 

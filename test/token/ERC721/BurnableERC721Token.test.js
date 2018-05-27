@@ -3,12 +3,10 @@ import assertRevert from '../../helpers/assertRevert';
 const BurnableERC721Token = artifacts.require('BurnableERC721TokenMock');
 
 contract('BurnableERC721Token', function ([creator, beneficiary, anotherAccount]) {
-  const name = 'Non Fungible Token';
-  const symbol = 'NFT';
   const minter = creator;
 
   beforeEach(async function () {
-    this.token = await BurnableERC721Token.new(name, symbol, { from: creator });
+    this.token = await BurnableERC721Token.new({ from: creator });
   });
 
   shouldBurnLikeERC721Token([minter, beneficiary, anotherAccount]);

@@ -1,6 +1,6 @@
 pragma solidity ^0.4.23;
 
-import "./ERC721Token.sol";
+import "./ERC721BasicToken.sol";
 import "../../ownership/Ownable.sol";
 
 
@@ -9,7 +9,7 @@ import "../../ownership/Ownable.sol";
  * @author Vittorio Minacori (@vittominacori)
  * @dev Simple ERC721 Token, with mintable token creation
  */
-contract MintableERC721Token is ERC721Token, Ownable {
+contract MintableERC721Token is ERC721BasicToken, Ownable {
   event MintFinished();
 
   bool public mintingFinished = false;
@@ -23,10 +23,6 @@ contract MintableERC721Token is ERC721Token, Ownable {
     require(msg.sender == owner);
     _;
   }
-
-  constructor(string _name, string _symbol) public
-  ERC721Token(_name, _symbol)
-  { }
 
   /**
    * @dev Function to mint token

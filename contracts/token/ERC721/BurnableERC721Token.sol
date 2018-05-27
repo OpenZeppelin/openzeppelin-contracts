@@ -1,6 +1,6 @@
 pragma solidity ^0.4.23;
 
-import "./ERC721Token.sol";
+import "./ERC721BasicToken.sol";
 
 
 /**
@@ -8,11 +8,7 @@ import "./ERC721Token.sol";
  * @author Vittorio Minacori (@vittominacori)
  * @dev Simple ERC721 Token, with burnable function
  */
-contract BurnableERC721Token is ERC721Token {
-  constructor(string _name, string _symbol) public
-  ERC721Token(_name, _symbol)
-  { }
-
+contract BurnableERC721Token is ERC721BasicToken {
   /**
    * @dev Only token owner can burn his token
    */
