@@ -6,7 +6,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-export default function shouldMintERC721Token ([minter, beneficiary]) {
+export default function shouldMintLikeERC721Token ([minter, beneficiary]) {
   const tokenId = 1;
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
