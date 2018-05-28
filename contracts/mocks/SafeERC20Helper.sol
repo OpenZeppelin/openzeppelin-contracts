@@ -21,11 +21,11 @@ contract ERC20FailingMock is ERC20 {
     return false;
   }
 
-  function balanceOf(address) public constant returns (uint256) {
+  function balanceOf(address) public view returns (uint256) {
     return 0;
   }
 
-  function allowance(address, address) public constant returns (uint256) {
+  function allowance(address, address) public view returns (uint256) {
     return 0;
   }
 }
@@ -48,11 +48,11 @@ contract ERC20SucceedingMock is ERC20 {
     return true;
   }
 
-  function balanceOf(address) public constant returns (uint256) {
+  function balanceOf(address) public view returns (uint256) {
     return 0;
   }
 
-  function allowance(address, address) public constant returns (uint256) {
+  function allowance(address, address) public view returns (uint256) {
     return 0;
   }
 }

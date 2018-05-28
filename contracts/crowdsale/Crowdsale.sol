@@ -38,7 +38,12 @@ contract Crowdsale {
    * @param value weis paid for purchase
    * @param amount amount of tokens purchased
    */
-  event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
+  event TokenPurchase(
+    address indexed purchaser,
+    address indexed beneficiary,
+    uint256 value,
+    uint256 amount
+  );
 
   /**
    * @param _rate Number of token units a buyer gets per wei
@@ -104,7 +109,12 @@ contract Crowdsale {
    * @param _beneficiary Address performing the token purchase
    * @param _weiAmount Value in wei involved in the purchase
    */
-  function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
+  function _preValidatePurchase(
+    address _beneficiary,
+    uint256 _weiAmount
+  )
+    internal
+  {
     require(_beneficiary != address(0));
     require(_weiAmount != 0);
   }
@@ -114,7 +124,12 @@ contract Crowdsale {
    * @param _beneficiary Address performing the token purchase
    * @param _weiAmount Value in wei involved in the purchase
    */
-  function _postValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
+  function _postValidatePurchase(
+    address _beneficiary,
+    uint256 _weiAmount
+  )
+    internal
+  {
     // optional override
   }
 
@@ -123,7 +138,12 @@ contract Crowdsale {
    * @param _beneficiary Address performing the token purchase
    * @param _tokenAmount Number of tokens to be emitted
    */
-  function _deliverTokens(address _beneficiary, uint256 _tokenAmount) internal {
+  function _deliverTokens(
+    address _beneficiary,
+    uint256 _tokenAmount
+  )
+    internal
+  {
     token.transfer(_beneficiary, _tokenAmount);
   }
 
@@ -132,7 +152,12 @@ contract Crowdsale {
    * @param _beneficiary Address receiving the tokens
    * @param _tokenAmount Number of tokens to be purchased
    */
-  function _processPurchase(address _beneficiary, uint256 _tokenAmount) internal {
+  function _processPurchase(
+    address _beneficiary,
+    uint256 _tokenAmount
+  )
+    internal
+  {
     _deliverTokens(_beneficiary, _tokenAmount);
   }
 
@@ -141,7 +166,12 @@ contract Crowdsale {
    * @param _beneficiary Address receiving the tokens
    * @param _weiAmount Value in wei involved in the purchase
    */
-  function _updatePurchasingState(address _beneficiary, uint256 _weiAmount) internal {
+  function _updatePurchasingState(
+    address _beneficiary,
+    uint256 _weiAmount
+  )
+    internal
+  {
     // optional override
   }
 
@@ -150,7 +180,9 @@ contract Crowdsale {
    * @param _weiAmount Value in wei to be converted into tokens
    * @return Number of tokens that can be purchased with the specified _weiAmount
    */
-  function _getTokenAmount(uint256 _weiAmount) internal view returns (uint256) {
+  function _getTokenAmount(uint256 _weiAmount)
+    internal view returns (uint256)
+  {
     return _weiAmount.mul(rate);
   }
 
