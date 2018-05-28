@@ -18,14 +18,10 @@ contract('DutchAuction', function (accounts) {
   var _bid = 750;
 
   beforeEach(async function () {
-    auction = await DutchAuction.new(_beneficiary, _highAskingPrice, _lowAskingPrice, _auctionLength);
+    auction = await DutchAuction.new(_highAskingPrice, _lowAskingPrice, _auctionLength);
   });
 
   describe('start an auction', function () {
-  	it('should include a beneficiary', function () {
-      assert.exists({ _beneficiary }, '_beneficiary is neither `null` nor `undefined`');
-    });
-
     it('should include a high asking price', function () {
 	    assert.exists({ _highAskingPrice: 1000 }, '_highAskingPrice is neither `null` nor `undefined`');
   	});

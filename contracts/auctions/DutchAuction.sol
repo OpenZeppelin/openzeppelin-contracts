@@ -18,11 +18,9 @@ import "../token/ERC721/ERC721.sol";
  * since a sale never requires more than one bid. 
  */
 
-contract DutchAuction is ERC721,Ownable{
+contract DutchAuction is Ownable{
   using SafeMath for uint256;
 
-  // @dev The token being auctioned
-  uint256 public tokenId;
   address public beneficiary;
   address public bidder;
   uint public bid;
@@ -33,7 +31,21 @@ contract DutchAuction is ERC721,Ownable{
 
   uint public highAskingPrice;
   uint public lowAskingPrice;
-  uint public currentAskingPrice;
+
+  /// REMOVE THE 1 ETHER VALUE AFTER findCurrentPrice IS IMPLEMENTED
+  uint public currentAskingPrice = 15 ether;
+
+  // @dev The token being auctioned
+  ERC721 public token;
+
+  // @dev ERC721 token's unique ID
+  uint public tokenId;
+
+  // @dev Mapping from token ID to owner
+  mapping (uint256 => address) internal tokenOwner;
+
+  // @dev Mapping from token ID to approved address
+  mapping (uint256 => address) internal tokenApprovals;
 
   /// @dev create user-defined "Stages" type to manage state of the auction
   Stages public stage;
@@ -49,6 +61,12 @@ contract DutchAuction is ERC721,Ownable{
        revert("The auction is not at the appropriate stage");
    _;
   }
+
+  modifier validBid() {
+     require(msg.value > 0);
+     require(msg.value == currentAskingPrice);
+     _;
+   }
 
   constructor(uint _highAskingPrice, uint _lowAskingPrice, uint _auctionLength) 
     public 
@@ -68,13 +86,13 @@ contract DutchAuction is ERC721,Ownable{
     payable 
   {
     if(stage != Stages.AuctionStarted)
-      revert("Auction has not started, yet.");
-      processBid(msg.sender);
+      revert("The auction is not at the appropriate stage");
+      processBid();
   }
 
   /// @dev Starts auction and identifies the auction's endTime
   /// @param _beneficiary address that will receive payment in return for their ERC721 token
-  function startAuction(address _beneficiary, uint256 _tokenId)
+  function startAuction(address _beneficiary, uint _tokenId)
     public
     onlyOwner
     atStage(Stages.AuctionDeployed)
@@ -84,6 +102,7 @@ contract DutchAuction is ERC721,Ownable{
     endTime = startTime + auctionLength * 1 days;
     stage = Stages.AuctionStarted;
     tokenId = _tokenId;
+    tokenOwner[tokenId] = beneficiary;
   }
 
 /* Kseniya
@@ -94,34 +113,51 @@ contract DutchAuction is ERC721,Ownable{
 */
 
   /// @dev The first one to bid wins the ERC721 token 
-  function processBid(address _bidder) 
+  function processBid() 
     public 
     payable 
     atStage(Stages.AuctionStarted)
+    validBid()
  {    
-    require(bid > 0 && bid != 0 && bid == currentAskingPrice);
-
     bid = msg.value;
-    bidder = _bidder;
-
-  	payBeneficiary();
-    sendToBidder();
+    bidder = msg.sender;
 
     stage = Stages.AuctionEnded;
+
+    payBeneficiary();
+//  sendToBidder();
   }
 
   /// @dev Pay the _beneficiary the ETH from the bidder's bid
-  function payBeneficiary () internal atStage(Stages.AuctionEnded) {
+  function payBeneficiary()
+    internal 
+    atStage(Stages.AuctionEnded)
+    returns (bool)
+  {
+    beneficiary.transfer(bid);
 
-  } 
+    return true;
+  }
 
   /// @dev Award bidder with the ERC721 token 
-  function sendToBidder() internal atStage(Stages.AuctionEnded) {
-    safeTransferFrom(beneficiary, bidder, tokenId);
+  function sendToBidder() 
+    internal 
+    atStage(Stages.AuctionEnded) 
+  {
+  // Ensure they have permission to send ERC721 token
+  // approve(bidder, tokenId);
+
+    tokenApprovals[tokenId] = bidder;
+
+    tokenOwner[tokenId] = bidder;
   }
 
   /// @dev If no bid is received during auctionLength, return the ERC721 token to the _beneficiary
-  function returnToBeneficiary () internal atStage(Stages.AuctionEnded) {
+  function returnToBeneficiary() 
+    internal 
+    view 
+    atStage(Stages.AuctionEnded) 
+  {
 
   }
 }
