@@ -71,11 +71,11 @@ contract DutchAuction is Ownable{
   constructor(uint _highAskingPrice, uint _lowAskingPrice, uint _auctionLength) 
     public 
   {
-  	require(_lowAskingPrice < _highAskingPrice && _lowAskingPrice > 0 && _highAskingPrice > 0);
+    require(_lowAskingPrice < _highAskingPrice && _lowAskingPrice > 0 && _highAskingPrice > 0);
 
-  	highAskingPrice = _highAskingPrice;
-  	lowAskingPrice = _lowAskingPrice;
-  	auctionLength = _auctionLength;
+    highAskingPrice = _highAskingPrice;
+    lowAskingPrice = _lowAskingPrice;
+    auctionLength = _auctionLength;
 
     stage = Stages.AuctionDeployed;
   }
@@ -107,8 +107,7 @@ contract DutchAuction is Ownable{
 
 /* Kseniya
   function findCurrentPrice () public returns (bool) {
-  	// (highAskingPrice - lowAskingPrice) / auctionLength = descendingPriceRate
-
+    // (highAskingPrice - lowAskingPrice) / auctionLength = descendingPriceRate
   }
 */
 
@@ -125,7 +124,7 @@ contract DutchAuction is Ownable{
     stage = Stages.AuctionEnded;
 
     payBeneficiary();
-//  sendToBidder();
+    sendToBidder();
   }
 
   /// @dev Pay the _beneficiary the ETH from the bidder's bid
@@ -150,6 +149,8 @@ contract DutchAuction is Ownable{
     tokenApprovals[tokenId] = bidder;
 
     tokenOwner[tokenId] = bidder;
+
+    token.safeTransferFrom(beneficiary, bidder, tokenId);
   }
 
   /// @dev If no bid is received during auctionLength, return the ERC721 token to the _beneficiary
