@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.23;
 
 
 /**
@@ -16,7 +16,7 @@ contract DayLimit {
    * @dev Constructor that sets the passed value as a dailyLimit.
    * @param _limit uint256 to represent the daily limit.
    */
-  function DayLimit(uint256 _limit) public {
+  constructor(uint256 _limit) public {
     dailyLimit = _limit;
     lastDay = today();
   }
@@ -49,7 +49,10 @@ contract DayLimit {
     }
     // check to see if there's enough left - if so, subtract and return true.
     // overflow protection                    // dailyLimit check
-    if (spentToday + _value >= spentToday && spentToday + _value <= dailyLimit) {
+    if (
+      spentToday + _value >= spentToday &&
+      spentToday + _value <= dailyLimit
+    ) {
       spentToday += _value;
       return true;
     }

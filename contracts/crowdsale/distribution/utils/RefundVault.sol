@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.23;
 
 import "../../../math/SafeMath.sol";
 import "../../../ownership/Ownable.sol";
@@ -26,7 +26,7 @@ contract RefundVault is Ownable {
   /**
    * @param _wallet Vault address
    */
-  function RefundVault(address _wallet) public {
+  constructor(address _wallet) public {
     require(_wallet != address(0));
     wallet = _wallet;
     state = State.Active;
