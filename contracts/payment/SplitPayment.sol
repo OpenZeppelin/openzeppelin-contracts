@@ -22,7 +22,7 @@ contract SplitPayment {
    * @dev Constructor
    */
   constructor(address[] _payees, uint256[] _shares) public payable {
-    require(_payees.length == _shares.length);
+    require(_payees.length == _shares.length, "Amount of payees and shares do not match");
 
     for (uint256 i = 0; i < _payees.length; i++) {
       addPayee(_payees[i], _shares[i]);
@@ -40,13 +40,13 @@ contract SplitPayment {
   function claim() public {
     address payee = msg.sender;
 
-    require(shares[payee] > 0);
+    require(shares[payee] > 0, "No share was found");
 
     uint256 totalReceived = address(this).balance.add(totalReleased);
     uint256 payment = totalReceived.mul(shares[payee]).div(totalShares).sub(released[payee]);
 
-    require(payment != 0);
-    require(address(this).balance >= payment);
+    require(payment != 0, "The share for the payee is zero");
+    require(address(this).balance >= payment, "Not enough funds to do the payment");
 
     released[payee] = released[payee].add(payment);
     totalReleased = totalReleased.add(payment);
@@ -60,9 +60,9 @@ contract SplitPayment {
    * @param _shares The number of shares owned by the payee.
    */
   function addPayee(address _payee, uint256 _shares) internal {
-    require(_payee != address(0));
-    require(_shares > 0);
-    require(shares[_payee] == 0);
+    require(_payee != address(0), "Invalid payee address");
+    require(_shares > 0, "Shares must be positive");
+    require(shares[_payee] == 0, "Payee already added");
 
     payees.push(_payee);
     shares[_payee] = _shares;

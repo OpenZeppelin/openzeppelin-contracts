@@ -22,8 +22,8 @@ contract PullPayment {
     address payee = msg.sender;
     uint256 payment = payments[payee];
 
-    require(payment != 0);
-    require(address(this).balance >= payment);
+    require(payment != 0, "No pending payments were found");
+    require(address(this).balance >= payment, "Not enough funds to do the payment");
 
     totalPayments = totalPayments.sub(payment);
     payments[payee] = 0;
