@@ -32,7 +32,7 @@ contract DutchAuction is Ownable{
   uint public highAskingPrice;
   uint public lowAskingPrice;
 
-  /// REMOVE THE 1 ETHER VALUE AFTER findCurrentPrice IS IMPLEMENTED
+  /// REMOVE THE 15 ETHER VALUE AFTER findCurrentPrice IS IMPLEMENTED
   uint public currentAskingPrice = 15 ether;
 
   // @dev The token being auctioned
@@ -63,7 +63,6 @@ contract DutchAuction is Ownable{
   }
 
   modifier validBid() {
-     require(msg.value > 0);
      require(msg.value == currentAskingPrice);
      _;
    }
@@ -124,7 +123,8 @@ contract DutchAuction is Ownable{
     stage = Stages.AuctionEnded;
 
     payBeneficiary();
-    sendToBidder();
+//  sendToBidder();
+
   }
 
   /// @dev Pay the _beneficiary the ETH from the bidder's bid
@@ -144,13 +144,11 @@ contract DutchAuction is Ownable{
     atStage(Stages.AuctionEnded) 
   {
   // Ensure they have permission to send ERC721 token
-  // approve(bidder, tokenId);
+  // token.approve(bidder, tokenId);
 
     tokenApprovals[tokenId] = bidder;
 
     tokenOwner[tokenId] = bidder;
-
-    token.safeTransferFrom(beneficiary, bidder, tokenId);
   }
 
   /// @dev If no bid is received during auctionLength, return the ERC721 token to the _beneficiary
