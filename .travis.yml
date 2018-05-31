@@ -18,20 +18,21 @@ jobs:
     - env: SOLIDITY_COVERAGE=true
     - env: SOLC_NIGHTLY=true
   include:
+    # Run the unit test suite three times in parallel.
+    # The first one gets results faster and is the only one required to pass.
+    # The second one generates the coverage report.
+    # The third one is to keep us informed about possible issues with the
+    # upcoming solidity release.
     - stage: unit
-      # Run the unit test suite three times in parallel.
-      # The first one gets results faster and is the only one required to pass.
-      # The second one generates the coverage report.
-      # The third one is to keep us informed about possible issues with the
-      # upcoming solidity release.
       script: npm run test
-    - script: npm run test
+    - stage: unit
+      script: npm run test
       env: SOLIDITY_COVERAGE=true
-    - script: npm run test
+    - stage: unit
+      script: npm run test
       env: SOLC_NIGHTLY=true
+    # solidity and javascript style tests.
     - stage: static
-      # solidity and javascript style tests.
-      # Required to pass before running the rest of the tests
       script: npm run lint
 
 notifications:
