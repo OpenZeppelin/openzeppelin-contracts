@@ -27,6 +27,8 @@ contract('Oracle', function ([owner, oracle, other]) {
   it('should accept activation if sufficiently funded', async function () {
     await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: amount });
     await this.contract.activate({ from: owner });
+    const isActive = await this.contract.isActive();
+    isActive.should.be.equal(true);
   });
 
   it('should accept funding the reward by the owner', async function () {

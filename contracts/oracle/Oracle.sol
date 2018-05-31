@@ -21,7 +21,7 @@ contract Oracle is Ownable {
   }
 
   OracleStorage public oracleStorage;
-  bool isActive;
+  bool activated;
 
   /**
    * @dev Constructor
@@ -43,7 +43,7 @@ contract Oracle is Ownable {
     oracleStorage.oracleData = new uint256[](_amountOfUpdates);
     oracleStorage.updatedAmount = 0;
 
-    isActive = false;
+    activated = false;
   }
 
   /**
@@ -64,8 +64,15 @@ contract Oracle is Ownable {
    * Prerequisite: contract is funded
    */
   function activate() public onlyOwner {
-    require(this.balance >= oracleStorage.reward, "Contract has to be sufficiently funded to be activated");
-    isActive = true;
+    require(address(this).balance >= oracleStorage.reward, "Contract has to be sufficiently funded to be activated");
+    activated = true;
+  }
+
+  /**
+   * @dev Check if contract is active
+   */
+  function isActive() public view returns (bool){
+    return activated;
   }
 
   /**
