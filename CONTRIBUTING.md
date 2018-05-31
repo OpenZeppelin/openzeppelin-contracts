@@ -21,12 +21,11 @@ As a contributor, you are expected to fork this repository, work on your own for
 ```
 cd openzeppelin-solidity
 git fetch upstream
-git checkout development
-git pull --rebase upstream development
+git pull --rebase upstream master
 ```
 NOTE: The directory `openzeppelin-solidity` represents your fork's local copy.
 
-2) Branch out from `development` into `fix/some-bug-#123`:
+2) Branch out from `master` into `fix/some-bug-#123`:
 (Postfixing #123 will associate your PR with the issue #123 and make everyone's life easier =D)
 ```
 git checkout -b fix/some-bug-#123
