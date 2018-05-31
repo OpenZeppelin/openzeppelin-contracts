@@ -13,7 +13,7 @@ contract('Oracle', function ([owner, oracle, other]) {
   const amount = web3.toWei(1.0, 'ether');
 
   beforeEach(async function () {
-    const amountOfUpdates = 10;
+    const amountOfUpdates = 3;
     // 24h
     const minFrequencyInSeconds = 60 * 60 * 24;
     // 25h
@@ -52,6 +52,9 @@ contract('Oracle', function ([owner, oracle, other]) {
     const valueOne = 1;
     const valueTwo = 2;
 
+    await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: amount });
+    await this.contract.activate({ from: owner });
+
     increaseTime(60 * 60 * 24 + 1);
 
     await this.contract.addOracleData(valueOne, { from: oracle });
@@ -64,6 +67,25 @@ contract('Oracle', function ([owner, oracle, other]) {
     await this.contract.addOracleData(valueTwo, { from: oracle });
     oracleData = await this.contract.getOracleData();
     oracleData[1].should.be.bignumber.equal(valueTwo);
+  });
+
+  it('should reward the oracle if all updates happened properly', async function () {
+    const value = 1;
+
+    await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: amount });
+    await this.contract.activate({ from: owner });
+
+    increaseTime(60 * 60 * 24 + 1);
+    await this.contract.addOracleData(value, { from: oracle });
+
+    increaseTime(60 * 60 * 24 + 1);
+    await this.contract.addOracleData(value, { from: oracle });
+
+    increaseTime(60 * 60 * 24 + 1);
+    await this.contract.addOracleData(value, { from: oracle });
+
+    // claim reward by oracle
+    await this.contract.claimReward({ from: oracle });
   });
 
   it('should throw is updated more frequently than allowed', async function () {

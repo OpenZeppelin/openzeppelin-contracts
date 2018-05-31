@@ -84,6 +84,7 @@ contract Oracle is Ownable {
    * @param   _value value to add
    */
   function addOracleData(uint256 _value) public onlyOracle {
+    require(activated);
     // solium-disable-next-line security/no-block-members
     uint256 blockDifference = block.timestamp.sub(oracleStorage.lastUpdate);
     require(blockDifference <= oracleStorage.maxFrequency); 
@@ -100,5 +101,15 @@ contract Oracle is Ownable {
    */
   function getOracleData() public view returns (uint256[]) {
     return oracleStorage.oracleData;
+  }
+
+  /**
+   * @dev Get a reward
+   * Prerequisite: all required updates happened
+   */
+  function claimReward() public onlyOracle {
+    require(activated);
+    require(oracleStorage.updatedAmount == oracleStorage.amountOfUpdates);
+    oracleStorage.oracle.transfer(oracleStorage.reward);
   }
 }
