@@ -99,7 +99,6 @@ contract('Oracle', function ([owner, oracle, other]) {
   });
 
   it('should allow owner to cancel the reward if oracle violated the frequency', async function () {
-
     await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: amount });
     await this.contract.activate({ from: owner });
 

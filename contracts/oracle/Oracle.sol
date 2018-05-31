@@ -3,6 +3,7 @@ pragma solidity ^0.4.23;
 import "../math/SafeMath.sol";
 import "../ownership/Ownable.sol";
 
+
 /**
  * @title Oracle
  * @dev Base contract supporting payments for oracle data.
@@ -12,11 +13,11 @@ contract Oracle is Ownable {
 
   struct OracleStorage {
     address oracle;       // oracle address
-    uint256 amountOfUpdates; // needed amount of the updates required from the oracle
+    uint256 amountOfUpdates; // needed amount of the updates 
     uint256[] oracleData; // storage to be updated by the oracle
-    uint256 minFrequency; // minimum allowed frequency in seconds to be updated
-    uint256 maxFrequency; // maximum allowed frequency in seconds to be updated
-    uint256 reward;       // amount in wei which should be used as a reward if oracle did its job
+    uint256 minFrequency; // minimum allowed frequency in seconds
+    uint256 maxFrequency; // maximum allowed frequency in seconds
+    uint256 reward;       // rewart to pay the oracle
     uint256 updatedAmount;// how many times data was updated
     uint256 lastUpdate;   // block.timestamp of the last update
   }
@@ -31,7 +32,11 @@ contract Oracle is Ownable {
    * @param _maxFrequency  frequency of the updates - maximum in seconds
    * @param _reward        reward for the oracle
    */
-  constructor(address _oracle, uint256 _amountOfUpdates, uint256 _minFrequency, uint256 _maxFrequency, uint256 _reward) public payable {
+  constructor(address _oracle, 
+  uint256 _amountOfUpdates, 
+  uint256 _minFrequency, 
+  uint256 _maxFrequency, 
+  uint256 _reward) public payable {
     require(_amountOfUpdates > 0);
     require(_minFrequency > 0);
     require(_reward > 0);
@@ -68,14 +73,15 @@ contract Oracle is Ownable {
    * Prerequisite: contract is funded
    */
   function activate() public onlyOwner {
-    require(address(this).balance >= oracleStorage.reward, "Contract has to be sufficiently funded to be activated");
+    // Contract has to be sufficiently funded to be activated
+    require(address(this).balance >= oracleStorage.reward);
     activated = true;
   }
 
   /**
    * @dev Check if contract is active
    */
-  function isActive() public view returns (bool){
+  function isActive() public view returns (bool) {
     return activated;
   }
 
