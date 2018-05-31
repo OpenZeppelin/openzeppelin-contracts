@@ -18,6 +18,7 @@ contract Oracle is Ownable {
     uint256 maxFrequency;
     uint256 reward;
     uint256 updatedAmount;
+    uint256 lastUpdate;
   }
 
   OracleStorage public oracleStorage;
@@ -34,6 +35,7 @@ contract Oracle is Ownable {
     require(_amountOfUpdates > 0);
     require(_minFrequency > 0);
     require(_reward > 0);
+    require(_minFrequency <= _maxFrequency);
 
     oracleStorage.oracle = _oracle;
     oracleStorage.amountOfUpdates = _amountOfUpdates;
@@ -42,6 +44,7 @@ contract Oracle is Ownable {
     oracleStorage.reward = _reward;
     oracleStorage.oracleData = new uint256[](_amountOfUpdates);
     oracleStorage.updatedAmount = 0;
+    oracleStorage.lastUpdate = block.number;
 
     activated = false;
   }
@@ -80,6 +83,10 @@ contract Oracle is Ownable {
    * @param   _value value to add
    */
   function addOracleData(uint256 _value) public onlyOracle {
+    uint256 blockDifference = block.number - oracleStorage.lastUpdate;
+    require(blockDifference <= oracleStorage.maxFrequency); 
+    require(blockDifference >= oracleStorage.minFrequency);
+
     oracleStorage.oracleData[oracleStorage.updatedAmount] = _value;
     oracleStorage.updatedAmount++;
   }

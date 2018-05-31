@@ -1,5 +1,6 @@
 const BigNumber = web3.BigNumber;
 const EVMThrow = require('../helpers/EVMThrow.js');
+import { advanceBlock } from '../helpers/advanceToBlock';
 
 require('chai')
   .use(require('chai-as-promised'))
@@ -18,6 +19,7 @@ contract('Oracle', function ([owner, oracle, other]) {
     const reward = amount;
 
     this.contract = await Oracle.new(oracle, amountOfUpdates, minFrequencyInBlocks, maxFrequencyInBlocks, reward);
+    await advanceBlock();
   });
 
   it('should reject activation if not sufficiently funded', async function () {
