@@ -4,24 +4,26 @@ group: beta
 language: node_js
 node_js:
   - "8"
+
 cache:
   directories:
     - node_modules
-env:
-  -
-  - SOLIDITY_COVERAGE=true
-  - SOLC_NIGHTLY=true
-matrix:
+
+jobs:
   fast_finish: true
   allow_failures:
     - env: SOLIDITY_COVERAGE=true
     - env: SOLC_NIGHTLY=true
-before_script:
-  - truffle version
-script:
-  - npm run lint
-  - npm run lint:sol
-  - npm run test
+  include:
+    - stage: static
+      script: npm run lint
+    - stage: unit
+      script: npm run test
+    - script: npm run test
+      env: SOLIDITY_COVERAGE=true
+    - script: npm run test
+      env: SOLC_NIGHTLY=true
+
 notifications:
   slack:
     rooms:
