@@ -59,7 +59,7 @@ contract MyContract is Ownable {
 If you are using Embark, you can also import directly from github:
 
 ```solidity
-import 'github.com/OpenZeppelin/openzeppelin-solidity/contracts/ownership/Ownable.sol';
+import "github.com/OpenZeppelin/openzeppelin-solidity/contracts/ownership/Ownable.sol#v1.9.0";
 
 contract MyContract is Ownable {
   ...
