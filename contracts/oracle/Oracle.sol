@@ -16,6 +16,8 @@ contract Oracle {
 
   mapping(string => uint256) internal oracleData;
 
+  event DEBUG(address add, string what);
+
   /**
    * @dev Constructor
    * @param _oracle        oracle address
@@ -34,6 +36,14 @@ contract Oracle {
   }
 
   /**
+   * @dev Throw an exception if called by any account other than the oracle.
+   */
+  modifier onlyOracle() {
+    require(msg.sender == oracle);
+    _;
+  }
+
+  /**
    * @dev Fund the reward for the oracle
    */
   function () public payable {}
@@ -43,7 +53,7 @@ contract Oracle {
    * @param   _key key to update
    * @param   _value value to update
    */
-  function updateData(string _key, uint256 _value) public {
+  function updateData(string _key, uint256 _value) public onlyOracle {
     oracleData[_key] = _value;
   }
 
