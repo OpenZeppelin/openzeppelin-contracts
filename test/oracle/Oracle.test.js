@@ -98,6 +98,19 @@ contract('Oracle', function ([owner, oracle, other]) {
     isActive.should.be.equal(false);
   });
 
+  it('should allow owner to cancel the reward if oracle violated the frequency', async function () {
+
+    await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: amount });
+    await this.contract.activate({ from: owner });
+
+    // time is violated - no updates came
+    increaseTime(60 * 60 * 24 + 60 * 60 * 24);
+
+    await this.contract.cancelReward({ from: owner });
+    const contractBalance = web3.eth.getBalance(this.contract.address);
+    contractBalance.should.be.bignumber.equal(0);
+  });
+
   it('should throw is updated more frequently than allowed', async function () {
     const valueOne = 1;
     // 1 day minus one second

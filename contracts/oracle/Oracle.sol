@@ -86,9 +86,9 @@ contract Oracle is Ownable {
   function addOracleData(uint256 _value) public onlyOracle {
     require(activated);
     // solium-disable-next-line security/no-block-members
-    uint256 blockDifference = block.timestamp.sub(oracleStorage.lastUpdate);
-    require(blockDifference <= oracleStorage.maxFrequency); 
-    require(blockDifference >= oracleStorage.minFrequency);
+    uint256 elapsedTime = block.timestamp.sub(oracleStorage.lastUpdate);
+    require(elapsedTime <= oracleStorage.maxFrequency); 
+    require(elapsedTime >= oracleStorage.minFrequency);
 
     oracleStorage.oracleData[oracleStorage.updatedAmount] = _value;
     oracleStorage.updatedAmount++;
@@ -111,6 +111,20 @@ contract Oracle is Ownable {
     require(activated);
     require(oracleStorage.updatedAmount == oracleStorage.amountOfUpdates);
     oracleStorage.oracle.transfer(oracleStorage.reward);
+    activated = false;
+  }
+
+  /**
+   * @dev Cancel contract
+   * Prerequisite: oracle missed the deadline (maxFrequeny was violated)
+   */
+  function cancelReward() public onlyOwner {
+    require(activated);
+    require(oracleStorage.updatedAmount != oracleStorage.amountOfUpdates);
+    // solium-disable-next-line security/no-block-members
+    uint256 elapsedTime = block.timestamp.sub(oracleStorage.lastUpdate);
+    require(elapsedTime > oracleStorage.maxFrequency);
+    owner.transfer(oracleStorage.reward);
     activated = false;
   }
 }
