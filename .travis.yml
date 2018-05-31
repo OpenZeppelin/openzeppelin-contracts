@@ -18,10 +18,6 @@ jobs:
     - env: SOLIDITY_COVERAGE=true
     - env: SOLC_NIGHTLY=true
   include:
-    - stage: static
-      # solidity and javascript style tests.
-      # Required to pass before running the rest of the tests
-      script: npm run lint
     - stage: unit
       # Run the unit test suite three times in parallel.
       # The first one gets results faster and is the only one required to pass.
@@ -33,6 +29,10 @@ jobs:
       env: SOLIDITY_COVERAGE=true
     - script: npm run test
       env: SOLC_NIGHTLY=true
+    - stage: static
+      # solidity and javascript style tests.
+      # Required to pass before running the rest of the tests
+      script: npm run lint
 
 notifications:
   slack:
