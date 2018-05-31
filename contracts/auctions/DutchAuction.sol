@@ -32,8 +32,7 @@ contract DutchAuction is Ownable{
   uint public highAskingPrice;
   uint public lowAskingPrice;
 
-  /// REMOVE THE 15 ETHER VALUE AFTER findCurrentPrice IS IMPLEMENTED
-  uint public currentAskingPrice = 15 ether;
+  uint public currentAskingPrice;
 
   // @dev The token being auctioned
   ERC721 public token;
@@ -57,13 +56,15 @@ contract DutchAuction is Ownable{
   }
 
   modifier atStage(Stages _stage) {
-   if (stage != _stage)
-       revert("The auction is not at the appropriate stage");
-   _;
+    if (stage != _stage)
+      revert("The auction is not at the appropriate stage");
+    _;
   }
 
   modifier validBid() {
-     require(msg.value == currentAskingPrice);
+    require(msg.value > 0);
+    require(block.timestamp >= startTime);
+    require(block.timestamp <= endTime);
      _;
    }
 
@@ -104,12 +105,6 @@ contract DutchAuction is Ownable{
     tokenOwner[tokenId] = beneficiary;
   }
 
-/* Kseniya
-  function findCurrentPrice () public returns (bool) {
-    // (highAskingPrice - lowAskingPrice) / auctionLength = descendingPriceRate
-  }
-*/
-
   /// @dev The first one to bid wins the ERC721 token 
   function processBid() 
     public 
@@ -120,11 +115,18 @@ contract DutchAuction is Ownable{
     bid = msg.value;
     bidder = msg.sender;
 
-    stage = Stages.AuctionEnded;
+    getCurrentAskingPrice();
 
-    payBeneficiary();
-//  sendToBidder();
-
+    if(bid == currentAskingPrice)
+    {
+      stage = Stages.AuctionEnded;
+      payBeneficiary();
+    //  sendToBidder();
+    } 
+    else 
+    {
+      revert("Bid does not match currentAskingPrice");
+    } 
   }
 
   /// @dev Pay the _beneficiary the ETH from the bidder's bid
@@ -158,5 +160,29 @@ contract DutchAuction is Ownable{
     atStage(Stages.AuctionEnded) 
   {
 
+  }
+
+  /// @dev Determines the current asking price for the ERC721 token that's being auctioned
+  function getCurrentAskingPrice() 
+    public
+    atStage(Stages.AuctionStarted)
+    returns (uint)
+  {
+    uint rateOfDecrease = (highAskingPrice - lowAskingPrice) / auctionLength;
+    /// @dev The total length of the auction in seconds divided by 86400 (the number of seconds in a day)
+    uint numberOfDaysPassed = (now - startTime) / 1 days;
+    /// @dev After every day that has passed subtract the rateOfDecrease from highAskingPrice
+    currentAskingPrice = (highAskingPrice - (numberOfDaysPassed * rateOfDecrease)) * 10 ** 18;
+
+    return currentAskingPrice;
+  }
+
+  function findCurrentAskingPrice() 
+    public
+    view
+    atStage(Stages.AuctionStarted)
+    returns (uint)
+  {
+    return currentAskingPrice;
   }
 }
