@@ -9,14 +9,17 @@ import "../math/SafeMath.sol";
 contract Oracle {
   using SafeMath for uint256;
 
-  address public oracle;
-  uint256 public minFrequency;
-  uint256 public maxFrequency;
-  uint256 public reward;
+  struct OracleStorage {
+    address oracle;
+    uint256 amountOfUpdates;
+    uint256[] oracleData;
+    uint256 minFrequency;
+    uint256 maxFrequency;
+    uint256 reward;
+    uint256 updatedAmount;
+  }
 
-  mapping(string => uint256) internal oracleData;
-
-  event DEBUG(address add, string what);
+  OracleStorage public oracleStorage;
 
   /**
    * @dev Constructor
@@ -25,21 +28,25 @@ contract Oracle {
    * @param _maxFrequency  frequency of the updates - maximum in blocks
    * @param _reward        reward for the oracle
    */
-  constructor(address _oracle, uint256 _minFrequency, uint256 _maxFrequency, uint256 _reward) public payable {
+  constructor(address _oracle, uint256 _amountOfUpdates, uint256 _minFrequency, uint256 _maxFrequency, uint256 _reward) public payable {
+    require(_amountOfUpdates > 0);
     require(_minFrequency > 0);
     require(_reward > 0);
 
-    oracle = _oracle;
-    minFrequency = _minFrequency;
-    maxFrequency = _maxFrequency;
-    reward = _reward;
+    oracleStorage.oracle = _oracle;
+    oracleStorage.amountOfUpdates = _amountOfUpdates;
+    oracleStorage.minFrequency = _minFrequency;
+    oracleStorage.maxFrequency = _maxFrequency;
+    oracleStorage.reward = _reward;
+    oracleStorage.oracleData = new uint256[](_amountOfUpdates);
+    oracleStorage.updatedAmount = 0;
   }
 
   /**
    * @dev Throw an exception if called by any account other than the oracle.
    */
   modifier onlyOracle() {
-    require(msg.sender == oracle);
+    require(msg.sender == oracleStorage.oracle);
     _;
   }
 
@@ -50,18 +57,25 @@ contract Oracle {
 
   /**
    * @dev Update the data by the oracle
-   * @param   _key key to update
-   * @param   _value value to update
+   * @param   _value value to add
    */
-  function updateData(string _key, uint256 _value) public onlyOracle {
-    oracleData[_key] = _value;
+  function addOracleData(uint256 _value) public onlyOracle {
+    oracleStorage.oracleData[oracleStorage.updatedAmount] = _value;
+    oracleStorage.updatedAmount++;
   }
 
   /**
-   * @dev Get the data
-   * @param   _key key to get the data
+   * @dev Get oracle data
    */
-  function getData(string _key) public view returns (uint256) {
-    return oracleData[_key];
+  function getOracleData() public view returns (uint256[]) {
+    return oracleStorage.oracleData;
   }
+
+  /**
+   * @dev Get oracle data
+   */
+  function getOracleDataByIndex(uint256 _index) public view returns (uint256) {
+    return oracleStorage.oracleData[_index];
+  }
+
 }

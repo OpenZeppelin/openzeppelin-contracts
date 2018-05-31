@@ -12,7 +12,12 @@ contract('Oracle', function ([owner, oracle, other]) {
   const amount = web3.toWei(1.0, 'ether');
 
   beforeEach(async function () {
-    this.contract = await Oracle.new(oracle, 10, 20, 30);
+    const amountOfUpdates = 10;
+    const minFrequencyInBlocks = 1;
+    const maxFrequencyInBlocks = 10;
+    const reward = amount;
+
+    this.contract = await Oracle.new(oracle, amountOfUpdates, minFrequencyInBlocks, maxFrequencyInBlocks, reward);
   });
 
   it('should accept funding the reward by the owner', async function () {
@@ -30,17 +35,20 @@ contract('Oracle', function ([owner, oracle, other]) {
   });
 
   it('should accept updating the data only by the oracle', async function () {
-    const key = 'keyOne';
-    const value = 1;
+    const valueOne = 1;
+    const valueTwo = 2;
 
-    await this.contract.updateData(key, value, { from: oracle });
-    const result = await this.contract.getData(key);
-    result.should.be.bignumber.equal(value);
+    await this.contract.addOracleData(valueOne, { from: oracle });
+    let oracleData = await this.contract.getOracleData();
+    oracleData[0].should.be.bignumber.equal(valueOne);
+
+    await this.contract.addOracleData(valueTwo, { from: oracle });
+    oracleData = await this.contract.getOracleData();
+    oracleData[1].should.be.bignumber.equal(valueTwo);
   });
 
   it('should throw if called not by the oracle', async function () {
-    const key = 'keyOne';
     const value = 1;
-    await this.contract.updateData(key, value, { from: other }).should.be.rejectedWith(EVMThrow);
+    await this.contract.addOracleData(value, { from: other }).should.be.rejectedWith(EVMThrow);
   });
 });
