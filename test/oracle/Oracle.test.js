@@ -20,6 +20,15 @@ contract('Oracle', function ([owner, oracle, other]) {
     this.contract = await Oracle.new(oracle, amountOfUpdates, minFrequencyInBlocks, maxFrequencyInBlocks, reward);
   });
 
+  it('should reject activation if not sufficiently funded', async function () {
+    await this.contract.activate().should.be.rejectedWith(EVMThrow);
+  });
+
+  it('should accept activation if sufficiently funded', async function () {
+    await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: amount });
+    await this.contract.activate({ from: owner });
+  });
+
   it('should accept funding the reward by the owner', async function () {
     await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: amount });
 

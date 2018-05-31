@@ -1,12 +1,13 @@
 pragma solidity ^0.4.23;
 
 import "../math/SafeMath.sol";
+import "../ownership/Ownable.sol";
 
 /**
  * @title Oracle
  * @dev Base contract supporting payments for oracle data.
  */
-contract Oracle {
+contract Oracle is Ownable {
   using SafeMath for uint256;
 
   struct OracleStorage {
@@ -20,6 +21,7 @@ contract Oracle {
   }
 
   OracleStorage public oracleStorage;
+  bool isActive;
 
   /**
    * @dev Constructor
@@ -40,6 +42,8 @@ contract Oracle {
     oracleStorage.reward = _reward;
     oracleStorage.oracleData = new uint256[](_amountOfUpdates);
     oracleStorage.updatedAmount = 0;
+
+    isActive = false;
   }
 
   /**
@@ -54,6 +58,15 @@ contract Oracle {
    * @dev Fund the reward for the oracle
    */
   function () public payable {}
+
+  /**
+   * @dev Activate the contract - enabling oracle to start updating the data
+   * Prerequisite: contract is funded
+   */
+  function activate() public onlyOwner {
+    require(this.balance >= oracleStorage.reward, "Contract has to be sufficiently funded to be activated");
+    isActive = true;
+  }
 
   /**
    * @dev Update the data by the oracle
