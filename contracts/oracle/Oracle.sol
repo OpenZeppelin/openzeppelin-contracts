@@ -11,14 +11,14 @@ contract Oracle is Ownable {
   using SafeMath for uint256;
 
   struct OracleStorage {
-    address oracle;
-    uint256 amountOfUpdates;
-    uint256[] oracleData;
-    uint256 minFrequency;
-    uint256 maxFrequency;
-    uint256 reward;
-    uint256 updatedAmount;
-    uint256 lastUpdate;
+    address oracle;       // oracle address
+    uint256 amountOfUpdates; // needed amount of the updates required from the oracle
+    uint256[] oracleData; // storage to be updated by the oracle
+    uint256 minFrequency; // minimum allowed frequency in seconds to be updated
+    uint256 maxFrequency; // maximum allowed frequency in seconds to be updated
+    uint256 reward;       // amount in wei which should be used as a reward if oracle did its job
+    uint256 updatedAmount;// how many times data was updated
+    uint256 lastUpdate;   // block.timestamp of the last update
   }
 
   OracleStorage public oracleStorage;
@@ -27,8 +27,8 @@ contract Oracle is Ownable {
   /**
    * @dev Constructor
    * @param _oracle        oracle address
-   * @param _minFrequency  frequency of the updates - minimum in blocks
-   * @param _maxFrequency  frequency of the updates - maximum in blocks
+   * @param _minFrequency  frequency of the updates - minimum in seconds
+   * @param _maxFrequency  frequency of the updates - maximum in seconds
    * @param _reward        reward for the oracle
    */
   constructor(address _oracle, uint256 _amountOfUpdates, uint256 _minFrequency, uint256 _maxFrequency, uint256 _reward) public payable {
@@ -44,7 +44,8 @@ contract Oracle is Ownable {
     oracleStorage.reward = _reward;
     oracleStorage.oracleData = new uint256[](_amountOfUpdates);
     oracleStorage.updatedAmount = 0;
-    oracleStorage.lastUpdate = block.number;
+    // solium-disable-next-line security/no-block-members
+    oracleStorage.lastUpdate = block.timestamp;
 
     activated = false;
   }
@@ -83,12 +84,15 @@ contract Oracle is Ownable {
    * @param   _value value to add
    */
   function addOracleData(uint256 _value) public onlyOracle {
-    uint256 blockDifference = block.number - oracleStorage.lastUpdate;
+    // solium-disable-next-line security/no-block-members
+    uint256 blockDifference = block.timestamp.sub(oracleStorage.lastUpdate);
     require(blockDifference <= oracleStorage.maxFrequency); 
     require(blockDifference >= oracleStorage.minFrequency);
 
     oracleStorage.oracleData[oracleStorage.updatedAmount] = _value;
     oracleStorage.updatedAmount++;
+    // solium-disable-next-line security/no-block-members
+    oracleStorage.lastUpdate = block.timestamp;
   }
 
   /**

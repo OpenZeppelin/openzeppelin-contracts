@@ -1,4 +1,4 @@
-import { advanceBlock } from '../helpers/advanceToBlock';
+import increaseTime from '../helpers/increaseTime';
 const BigNumber = web3.BigNumber;
 const EVMThrow = require('../helpers/EVMThrow.js');
 
@@ -14,12 +14,13 @@ contract('Oracle', function ([owner, oracle, other]) {
 
   beforeEach(async function () {
     const amountOfUpdates = 10;
-    const minFrequencyInBlocks = 1;
-    const maxFrequencyInBlocks = 10;
+    // 24h
+    const minFrequencyInSeconds = 60 * 60 * 24;
+    // 25h
+    const maxFrequencyInSeconds = 60 * 60 * 24 + 60 * 60;
     const reward = amount;
 
-    this.contract = await Oracle.new(oracle, amountOfUpdates, minFrequencyInBlocks, maxFrequencyInBlocks, reward);
-    await advanceBlock();
+    this.contract = await Oracle.new(oracle, amountOfUpdates, minFrequencyInSeconds, maxFrequencyInSeconds, reward);
   });
 
   it('should reject activation if not sufficiently funded', async function () {
@@ -47,17 +48,36 @@ contract('Oracle', function ([owner, oracle, other]) {
     balance.should.be.bignumber.equal(amount);
   });
 
-  it('should accept updating the data only by the oracle', async function () {
+  it('should accept updating the data only by the oracle and according to the frequency rules', async function () {
     const valueOne = 1;
     const valueTwo = 2;
 
+    increaseTime(60 * 60 * 24 + 1);
+
     await this.contract.addOracleData(valueOne, { from: oracle });
+
     let oracleData = await this.contract.getOracleData();
     oracleData[0].should.be.bignumber.equal(valueOne);
+
+    increaseTime(60 * 60 * 24 + 1);
 
     await this.contract.addOracleData(valueTwo, { from: oracle });
     oracleData = await this.contract.getOracleData();
     oracleData[1].should.be.bignumber.equal(valueTwo);
+  });
+
+  it('should throw is updated more frequently than allowed', async function () {
+    const valueOne = 1;
+    // 1 day minus one second
+    increaseTime(60 * 60 * 24 - 1);
+    await this.contract.addOracleData(valueOne, { from: oracle }).should.be.rejectedWith(EVMThrow);
+  });
+
+  it('should throw is updated less frequently than allowed', async function () {
+    const valueOne = 1;
+    // 2 days
+    increaseTime(60 * 60 * 24 * 2);
+    await this.contract.addOracleData(valueOne, { from: oracle }).should.be.rejectedWith(EVMThrow);
   });
 
   it('should throw if called not by the oracle', async function () {
