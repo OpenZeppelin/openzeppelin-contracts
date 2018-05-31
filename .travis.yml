@@ -10,14 +10,24 @@ cache:
     - node_modules
 
 jobs:
+  # XXX fast_finish doesn't work with stages yet. See
+  # https://github.com/travis-ci/travis-ci/issues/8425
+  # --elopio - 20180531
   fast_finish: true
   allow_failures:
     - env: SOLIDITY_COVERAGE=true
     - env: SOLC_NIGHTLY=true
   include:
     - stage: static
+      # solidity and javascript style tests.
+      # Required to pass before running the rest of the tests
       script: npm run lint
     - stage: unit
+      # Run the unit test suite three times in parallel.
+      # The first one gets results faster and is the only one required to pass.
+      # The second one generates the coverage report.
+      # The third one is to keep us informed about possible issues with the
+      # upcoming solidity release.
       script: npm run test
     - script: npm run test
       env: SOLIDITY_COVERAGE=true
