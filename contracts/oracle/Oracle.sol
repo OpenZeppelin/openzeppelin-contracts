@@ -70,12 +70,4 @@ contract Oracle {
   function getOracleData() public view returns (uint256[]) {
     return oracleStorage.oracleData;
   }
-
-  /**
-   * @dev Get oracle data
-   */
-  function getOracleDataByIndex(uint256 _index) public view returns (uint256) {
-    return oracleStorage.oracleData[_index];
-  }
-
 }
