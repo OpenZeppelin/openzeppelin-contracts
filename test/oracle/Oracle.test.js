@@ -1,6 +1,6 @@
+import { advanceBlock } from '../helpers/advanceToBlock';
 const BigNumber = web3.BigNumber;
 const EVMThrow = require('../helpers/EVMThrow.js');
-import { advanceBlock } from '../helpers/advanceToBlock';
 
 require('chai')
   .use(require('chai-as-promised'))
