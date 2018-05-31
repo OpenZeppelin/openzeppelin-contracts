@@ -14,6 +14,8 @@ contract Oracle {
   uint256 public maxFrequency;
   uint256 public reward;
 
+  mapping(string => uint256) internal oracleData;
+
   /**
    * @dev Constructor
    * @param _oracle        oracle address
@@ -32,7 +34,24 @@ contract Oracle {
   }
 
   /**
-   * @dev payable fallback to fund the reward for the oracle
+   * @dev Fund the reward for the oracle
    */
   function () public payable {}
+
+  /**
+   * @dev Update the data by the oracle
+   * @param   _key key to update
+   * @param   _value value to update
+   */
+  function updateData(string _key, uint256 _value) public {
+    oracleData[_key] = _value;
+  }
+
+  /**
+   * @dev Get the data
+   * @param   _key key to get the data
+   */
+  function getData(string _key) public view returns (uint256) {
+    return oracleData[_key];
+  }
 }

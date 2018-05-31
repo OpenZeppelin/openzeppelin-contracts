@@ -27,4 +27,13 @@ contract('Oracle', function ([owner, oracle, externalCaller]) {
     const balance = web3.eth.getBalance(this.contract.address);
     balance.should.be.bignumber.equal(amount);
   });
+
+  it('should accept updating the data by the oracle', async function () {
+    const key = 'keyOne';
+    const value = 1;
+
+    await this.contract.updateData(key, value);
+    const result = await this.contract.getData(key);
+    result.should.be.bignumber.equal(value);
+  });
 });
