@@ -18,9 +18,8 @@ contract('Oracle', function ([owner, oracle, other]) {
     const minFrequencyInSeconds = 60 * 60 * 24;
     // 25h
     const maxFrequencyInSeconds = 60 * 60 * 24 + 60 * 60;
-    const reward = amount;
 
-    this.contract = await Oracle.new(oracle, amountOfUpdates, minFrequencyInSeconds, maxFrequencyInSeconds, reward);
+    this.contract = await Oracle.new(oracle, amountOfUpdates, minFrequencyInSeconds, maxFrequencyInSeconds, amount);
   });
 
   it('should reject activation if not sufficiently funded', async function () {
@@ -84,8 +83,19 @@ contract('Oracle', function ([owner, oracle, other]) {
     increaseTime(60 * 60 * 24 + 1);
     await this.contract.addOracleData(value, { from: oracle });
 
+    const initialOracleBalance = web3.eth.getBalance(oracle);
+
     // claim reward by oracle
     await this.contract.claimReward({ from: oracle });
+
+    const contractBalance = web3.eth.getBalance(this.contract.address);
+    contractBalance.should.be.bignumber.equal(0);
+
+    const oracleBalance = web3.eth.getBalance(oracle);
+    oracleBalance.should.be.bignumber.not.equal(initialOracleBalance);
+
+    const isActive = await this.contract.isActive();
+    isActive.should.be.equal(false);
   });
 
   it('should throw is updated more frequently than allowed', async function () {

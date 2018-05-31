@@ -104,12 +104,13 @@ contract Oracle is Ownable {
   }
 
   /**
-   * @dev Get a reward
+   * @dev Get a reward, called only by oracle
    * Prerequisite: all required updates happened
    */
   function claimReward() public onlyOracle {
     require(activated);
     require(oracleStorage.updatedAmount == oracleStorage.amountOfUpdates);
     oracleStorage.oracle.transfer(oracleStorage.reward);
+    activated = false;
   }
 }
