@@ -22,6 +22,7 @@ export const getMethodId = (methodName, ...paramTypes) => {
 }
 
 export const stripAndPadHexValue = (hexVal, sizeInBytes) => {
+  // strip 0x from the font and pad with 0's for
   return hexVal.substr(2).padStart(sizeInBytes * 2, 0);
 } 
 
@@ -96,57 +97,108 @@ contract('Bouncer', ([_, owner, authorizedUser, anyone, bouncerAddress, newBounc
       isValid.should.eq(false);
     });
     it('should accept valid message with valid method for valid user', async function () {
-      let getSigAndData = getSigner(
+      const sig = getSigner(
         this.bouncer,
         bouncerAddress,
         getMethodId('checkValidSignatureAndMethod', 'address', 'bytes')
-      );
+      )(authorizedUser);
       const isValid = await this.bouncer.checkValidSignatureAndMethod(
         authorizedUser,
-        getSigAndData(authorizedUser)
+        sig
       );
       isValid.should.eq(true);
     });
     it('should not accept valid message with an invalid method for valid user', async function () {
-      let getSigAndData = getSigner(
+      const sig = getSigner(
         this.bouncer,
         bouncerAddress,
         getMethodId('invalidMethod', 'address', 'bytes')
-      );
+      )(authorizedUser);
       const isValid = await this.bouncer.checkValidSignatureAndMethod(
         authorizedUser,
-        getSigAndData(authorizedUser)
+        sig
       );
       isValid.should.eq(false);
     });
-    it('should accept valid message with valid data for valid user', async function () {
-      const methodId = getMethodId('checkValidSignatureAndData', 'address', 'bytes');
-      let getSigAndData = getSigner(
+    it('should not accept valid message with a valid method for an invalid user', async function () {
+      const sig = getSigner(
         this.bouncer,
         bouncerAddress,
-        `${methodId}${stripAndPadHexValue(authorizedUser,32)}`
+        getMethodId('checkValidSignatureAndMethod', 'address', 'bytes')
+      )(authorizedUser);
+      const isValid = await this.bouncer.checkValidSignatureAndMethod(
+        anyone,
+        sig
       );
+      isValid.should.eq(false);
+    });
+    it('should accept valid method with valid params for valid user', async function () {
+      const methodId = getMethodId('checkValidSignatureAndData', 'address', 'uint256', 'bytes');
+      const val = 23;
+      const addressData = stripAndPadHexValue(authorizedUser,32);
+      const valData = stripAndPadHexValue(web3.toHex(val),32);
+      const sig = getSigner(
+        this.bouncer,
+        bouncerAddress,
+        `${methodId}${addressData}${valData}`
+      )(authorizedUser);
       const isValid = await this.bouncer.checkValidSignatureAndData(
         authorizedUser,
-        getSigAndData(authorizedUser)
+        val,
+        sig
       );
       isValid.should.eq(true);
     });
-    it('should accept valid message with valid data and params for valid user', async function () {
-      const methodId = getMethodId('checkValidSignatureAndDataWithParams', 'address', 'uint256', 'bytes');
+    it('should not accept an invalid method with valid params for valid user', async function () {
+      const methodId = getMethodId('invalidMethod', 'address', 'uint256', 'bytes');
       const val = 23;
-
-      let getSigAndData = getSigner(
+      const addressData = stripAndPadHexValue(authorizedUser,32);
+      const valData = stripAndPadHexValue(web3.toHex(val),32);
+      const sig = getSigner(
         this.bouncer,
         bouncerAddress,
-        `${methodId}${stripAndPadHexValue(authorizedUser,32)}${stripAndPadHexValue(web3.toHex(val),32)}`
-      );
-      const isValid = await this.bouncer.checkValidSignatureAndDataWithParams(
+        `${methodId}${addressData}${valData}`
+      )(authorizedUser);
+      const isValid = await this.bouncer.checkValidSignatureAndData(
         authorizedUser,
         val,
-        getSigAndData(authorizedUser)
+        sig
       );
-      isValid.should.eq(true);
+      isValid.should.eq(false);
+    });
+    it('should not accept valid method with invalid params for valid user', async function () {
+      const methodId = getMethodId('checkValidSignatureAndData', 'address', 'uint256', 'bytes');
+      const val = 23;
+      const addressData = stripAndPadHexValue(authorizedUser,32);
+      const valData = stripAndPadHexValue(web3.toHex(val),32);
+      const sig = getSigner(
+        this.bouncer,
+        bouncerAddress,
+        `${methodId}${addressData}${valData}`
+      )(authorizedUser);
+      const isValid = await this.bouncer.checkValidSignatureAndData(
+        authorizedUser,
+        500,
+        sig
+      );
+      isValid.should.eq(false);
+    });
+    it('should not accept valid method with valid params for invalid user', async function () {
+      const methodId = getMethodId('checkValidSignatureAndData', 'address', 'uint256', 'bytes');
+      const val = 23;
+      const addressData = stripAndPadHexValue(authorizedUser,32);
+      const valData = stripAndPadHexValue(web3.toHex(val),32);
+      const sig = getSigner(
+        this.bouncer,
+        bouncerAddress,
+        `${methodId}${addressData}${valData}`
+      )(authorizedUser);
+      const isValid = await this.bouncer.checkValidSignatureAndData(
+        anyone,
+        val,
+        sig
+      );
+      isValid.should.eq(false);
     });
   });
 

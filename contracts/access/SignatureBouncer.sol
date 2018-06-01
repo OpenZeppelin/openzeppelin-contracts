@@ -26,6 +26,8 @@ contract SignatureBouncer is Ownable, RBAC {
   using ECRecovery for bytes32;
 
   string public constant ROLE_BOUNCER = "bouncer";
+  uint constant METHOD_ID_SIZE = 4;
+  uint constant SIG_SIZE = 160;
 
   /**
    * @dev requires that a valid signature of a bouncer was provided
@@ -73,15 +75,18 @@ contract SignatureBouncer is Ownable, RBAC {
     );
   }
 
-  // takes a signature that has a msg.data as part of the message in the signature
-  // because _sig is a param it will have to part of the msg data
-  // hence we can't build this
+  /**
+    * @dev is the signature of `this + sender + methodId + params(s)` from a bouncer?
+    * @notice the _sig parameter of the method being validated must be the "last" parameter
+    * @return bool
+    */
   function isValidSignatureAndData(address _address, bytes _sig)
     internal
     view
     returns (bool)
   {
-    bytes memory data = new bytes(msg.data.length - 160);
+    require(msg.data.length > SIG_SIZE);
+    bytes memory data = new bytes(msg.data.length - SIG_SIZE);
     for (uint i = 0; i < data.length; i++) {
       data[i] = msg.data[i];
     }
@@ -91,12 +96,16 @@ contract SignatureBouncer is Ownable, RBAC {
     );
   }
 
+  /**
+   * @dev is the signature of `this + sender + methodId` from a bouncer?
+   * @return bool
+   */
   function isValidSignatureAndMethod(address _address, bytes _sig)
     internal
     view
     returns (bool)
   {
-    bytes memory data = new bytes(4);
+    bytes memory data = new bytes(METHOD_ID_SIZE);
     for (uint i = 0; i < data.length; i++) {
       data[i] = msg.data[i];
     }
