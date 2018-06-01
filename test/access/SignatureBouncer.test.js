@@ -1,7 +1,6 @@
 
 import assertRevert from '../helpers/assertRevert';
 import { signHex } from '../helpers/sign';
-import { ENGINE_METHOD_DIGESTS } from 'constants';
 
 const Bouncer = artifacts.require('SignatureBouncerMock');
 
@@ -19,12 +18,12 @@ export const getSigner = (contract, signer, data = '') => (addr) => {
 export const getMethodId = (methodName, ...paramTypes) => {
   // methodId is a sha3 of the first 4 bytes after 0x of 'method(paramType1,...)'
   return web3.sha3(`${methodName}(${paramTypes.join(',')})`).substr(2, 8);
-}
+};
 
 export const stripAndPadHexValue = (hexVal, sizeInBytes) => {
   // strip 0x from the font and pad with 0's for
   return hexVal.substr(2).padStart(sizeInBytes * 2, 0);
-} 
+};
 
 contract('Bouncer', ([_, owner, authorizedUser, anyone, bouncerAddress, newBouncer]) => {
   before(async function () {
@@ -135,8 +134,8 @@ contract('Bouncer', ([_, owner, authorizedUser, anyone, bouncerAddress, newBounc
     it('should accept valid method with valid params for valid user', async function () {
       const methodId = getMethodId('checkValidSignatureAndData', 'address', 'uint256', 'bytes');
       const val = 23;
-      const addressData = stripAndPadHexValue(authorizedUser,32);
-      const valData = stripAndPadHexValue(web3.toHex(val),32);
+      const addressData = stripAndPadHexValue(authorizedUser, 32);
+      const valData = stripAndPadHexValue(web3.toHex(val), 32);
       const sig = getSigner(
         this.bouncer,
         bouncerAddress,
@@ -152,8 +151,8 @@ contract('Bouncer', ([_, owner, authorizedUser, anyone, bouncerAddress, newBounc
     it('should not accept an invalid method with valid params for valid user', async function () {
       const methodId = getMethodId('invalidMethod', 'address', 'uint256', 'bytes');
       const val = 23;
-      const addressData = stripAndPadHexValue(authorizedUser,32);
-      const valData = stripAndPadHexValue(web3.toHex(val),32);
+      const addressData = stripAndPadHexValue(authorizedUser, 32);
+      const valData = stripAndPadHexValue(web3.toHex(val), 32);
       const sig = getSigner(
         this.bouncer,
         bouncerAddress,
@@ -169,8 +168,8 @@ contract('Bouncer', ([_, owner, authorizedUser, anyone, bouncerAddress, newBounc
     it('should not accept valid method with invalid params for valid user', async function () {
       const methodId = getMethodId('checkValidSignatureAndData', 'address', 'uint256', 'bytes');
       const val = 23;
-      const addressData = stripAndPadHexValue(authorizedUser,32);
-      const valData = stripAndPadHexValue(web3.toHex(val),32);
+      const addressData = stripAndPadHexValue(authorizedUser, 32);
+      const valData = stripAndPadHexValue(web3.toHex(val), 32);
       const sig = getSigner(
         this.bouncer,
         bouncerAddress,
@@ -186,8 +185,8 @@ contract('Bouncer', ([_, owner, authorizedUser, anyone, bouncerAddress, newBounc
     it('should not accept valid method with valid params for invalid user', async function () {
       const methodId = getMethodId('checkValidSignatureAndData', 'address', 'uint256', 'bytes');
       const val = 23;
-      const addressData = stripAndPadHexValue(authorizedUser,32);
-      const valData = stripAndPadHexValue(web3.toHex(val),32);
+      const addressData = stripAndPadHexValue(authorizedUser, 32);
+      const valData = stripAndPadHexValue(web3.toHex(val), 32);
       const sig = getSigner(
         this.bouncer,
         bouncerAddress,
