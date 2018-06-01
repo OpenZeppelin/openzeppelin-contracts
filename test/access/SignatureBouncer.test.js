@@ -64,6 +64,49 @@ contract('Bouncer', ([_, owner, authorizedUser, anyone, bouncerAddress, newBounc
         )
       );
     });
+    it('should allow valid signature with a valid method for sender', async function () {
+      const sig = getSigner(
+        this.bouncer,
+        bouncerAddress,
+        getMethodId('onlyWithValidSignatureAndMethod', 'bytes')
+      )(authorizedUser);
+      await this.bouncer.onlyWithValidSignatureAndMethod(
+        sig,
+        { from: authorizedUser }
+      );
+    });
+    it('should not allow invalid signature with method for sender', async function () {
+      await assertRevert(
+        this.bouncer.onlyWithValidSignatureAndMethod(
+          'abcd',
+          { from: authorizedUser }
+        )
+      );
+    });
+    it('should allow valid signature with a valid data for sender', async function () {
+      const methodId = getMethodId('onlyWithValidSignatureAndData', 'uint256', 'bytes');
+      const val = 23;
+      const valData = stripAndPadHexValue(web3.toHex(val), 32);
+      const sig = getSigner(
+        this.bouncer,
+        bouncerAddress,
+        `${methodId}${valData}`
+      )(authorizedUser);
+      await this.bouncer.onlyWithValidSignatureAndData(
+        val,
+        sig,
+        { from: authorizedUser }
+      );
+    });
+    it('should not allow invalid signature with data for sender', async function () {
+      await assertRevert(
+        this.bouncer.onlyWithValidSignatureAndData(
+          23,
+          'abcd',
+          { from: authorizedUser }
+        )
+      );
+    });
   });
 
   context('signatures', () => {

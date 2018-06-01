@@ -39,6 +39,24 @@ contract SignatureBouncer is Ownable, RBAC {
   }
 
   /**
+   * @dev requires that a valid signature with a specifed method of a bouncer was provided
+   */
+  modifier onlyValidSignatureAndMethod(bytes _sig)
+  {
+    require(isValidSignatureAndMethod(msg.sender, _sig));
+    _;
+  }
+
+  /**
+   * @dev requires that a valid signature with a specifed method and params of a bouncer was provided
+   */
+  modifier onlyValidSignatureAndData(bytes _sig)
+  {
+    require(isValidSignatureAndData(msg.sender, _sig));
+    _;
+  }
+
+  /**
    * @dev allows the owner to add additional bouncer addresses
    */
   function addBouncer(address _bouncer)
@@ -76,6 +94,25 @@ contract SignatureBouncer is Ownable, RBAC {
   }
 
   /**
+   * @dev is the signature of `this + sender + methodId` from a bouncer?
+   * @return bool
+   */
+  function isValidSignatureAndMethod(address _address, bytes _sig)
+    internal
+    view
+    returns (bool)
+  {
+    bytes memory data = new bytes(METHOD_ID_SIZE);
+    for (uint i = 0; i < data.length; i++) {
+      data[i] = msg.data[i];
+    }
+    return isValidDataHash(
+      keccak256(address(this), _address, data),
+      _sig
+    );
+  }
+
+  /**
     * @dev is the signature of `this + sender + methodId + params(s)` from a bouncer?
     * @notice the _sig parameter of the method being validated must be the "last" parameter
     * @return bool
@@ -87,25 +124,6 @@ contract SignatureBouncer is Ownable, RBAC {
   {
     require(msg.data.length > SIG_SIZE);
     bytes memory data = new bytes(msg.data.length - SIG_SIZE);
-    for (uint i = 0; i < data.length; i++) {
-      data[i] = msg.data[i];
-    }
-    return isValidDataHash(
-      keccak256(address(this), _address, data),
-      _sig
-    );
-  }
-
-  /**
-   * @dev is the signature of `this + sender + methodId` from a bouncer?
-   * @return bool
-   */
-  function isValidSignatureAndMethod(address _address, bytes _sig)
-    internal
-    view
-    returns (bool)
-  {
-    bytes memory data = new bytes(METHOD_ID_SIZE);
     for (uint i = 0; i < data.length; i++) {
       data[i] = msg.data[i];
     }
