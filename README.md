@@ -13,7 +13,7 @@ With OpenZeppelin, you can build distributed applications, protocols and organiz
 
 ## Getting Started
 
-OpenZeppelin integrates with [Truffle](https://github.com/ConsenSys/truffle) and [Embark](https://github.com/embark-framework/embark/)
+OpenZeppelin integrates with [Truffle](https://github.com/ConsenSys/truffle) and [Embark](https://github.com/embark-framework/embark/).
 
 ## Truffle
 
