@@ -1,6 +1,7 @@
 
 import assertRevert from '../helpers/assertRevert';
 import { signHex } from '../helpers/sign';
+import { ENGINE_METHOD_DIGESTS } from 'constants';
 
 const Bouncer = artifacts.require('SignatureBouncerMock');
 
@@ -14,6 +15,15 @@ export const getSigner = (contract, signer, data = '') => (addr) => {
   // ^ substr to remove `0x` because in solidity the address is a set of byes, not a string `0xabcd`
   return signHex(signer, message);
 };
+
+export const getMethodId = (methodName, ...paramTypes) => {
+  // methodId is a sha3 of the first 4 bytes after 0x of 'method(paramType1,...)'
+  return web3.sha3(`${methodName}(${paramTypes.join(',')})`).substr(2, 8);
+}
+
+export const stripAndPadHexValue = (hexVal, sizeInBytes) => {
+  return hexVal.substr(2).padStart(sizeInBytes * 2, 0);
+} 
 
 contract('Bouncer', ([_, owner, authorizedUser, anyone, bouncerAddress, newBouncer]) => {
   before(async function () {
@@ -84,6 +94,59 @@ contract('Bouncer', ([_, owner, authorizedUser, anyone, bouncerAddress, newBounc
         this.genSig(authorizedUser)
       );
       isValid.should.eq(false);
+    });
+    it('should accept valid message with valid method for valid user', async function () {
+      let getSigAndData = getSigner(
+        this.bouncer,
+        bouncerAddress,
+        getMethodId('checkValidSignatureAndMethod', 'address', 'bytes')
+      );
+      const isValid = await this.bouncer.checkValidSignatureAndMethod(
+        authorizedUser,
+        getSigAndData(authorizedUser)
+      );
+      isValid.should.eq(true);
+    });
+    it('should not accept valid message with an invalid method for valid user', async function () {
+      let getSigAndData = getSigner(
+        this.bouncer,
+        bouncerAddress,
+        getMethodId('invalidMethod', 'address', 'bytes')
+      );
+      const isValid = await this.bouncer.checkValidSignatureAndMethod(
+        authorizedUser,
+        getSigAndData(authorizedUser)
+      );
+      isValid.should.eq(false);
+    });
+    it('should accept valid message with valid data for valid user', async function () {
+      const methodId = getMethodId('checkValidSignatureAndData', 'address', 'bytes');
+      let getSigAndData = getSigner(
+        this.bouncer,
+        bouncerAddress,
+        `${methodId}${stripAndPadHexValue(authorizedUser,32)}`
+      );
+      const isValid = await this.bouncer.checkValidSignatureAndData(
+        authorizedUser,
+        getSigAndData(authorizedUser)
+      );
+      isValid.should.eq(true);
+    });
+    it('should accept valid message with valid data and params for valid user', async function () {
+      const methodId = getMethodId('checkValidSignatureAndDataWithParams', 'address', 'uint256', 'bytes');
+      const val = 23;
+
+      let getSigAndData = getSigner(
+        this.bouncer,
+        bouncerAddress,
+        `${methodId}${stripAndPadHexValue(authorizedUser,32)}${stripAndPadHexValue(web3.toHex(val),32)}`
+      );
+      const isValid = await this.bouncer.checkValidSignatureAndDataWithParams(
+        authorizedUser,
+        val,
+        getSigAndData(authorizedUser)
+      );
+      isValid.should.eq(true);
     });
   });
 

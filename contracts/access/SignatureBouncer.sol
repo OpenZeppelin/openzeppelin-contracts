@@ -73,6 +73,39 @@ contract SignatureBouncer is Ownable, RBAC {
     );
   }
 
+  // takes a signature that has a msg.data as part of the message in the signature
+  // because _sig is a param it will have to part of the msg data
+  // hence we can't build this
+  function isValidSignatureAndData(address _address, bytes _sig)
+    internal
+    view
+    returns (bool)
+  {
+    bytes memory data = new bytes(msg.data.length - 160);
+    for (uint i = 0; i < data.length; i++) {
+      data[i] = msg.data[i];
+    }
+    return isValidDataHash(
+      keccak256(address(this), _address, data),
+      _sig
+    );
+  }
+
+  function isValidSignatureAndMethod(address _address, bytes _sig)
+    internal
+    view
+    returns (bool)
+  {
+    bytes memory data = new bytes(4);
+    for (uint i = 0; i < data.length; i++) {
+      data[i] = msg.data[i];
+    }
+    return isValidDataHash(
+      keccak256(address(this), _address, data),
+      _sig
+    );
+  }
+
   /**
    * @dev internal function to convert a hash to an eth signed message
    * @dev and then recover the signature and check it against the bouncer role
