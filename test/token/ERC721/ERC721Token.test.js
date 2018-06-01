@@ -1,3 +1,4 @@
+import makeInterfaceId from '../../helpers/makeInterfaceId';
 import assertRevert from '../../helpers/assertRevert';
 import shouldBehaveLikeERC721BasicToken from './ERC721BasicToken.behaviour';
 import shouldMintAndBurnERC721Token from './ERC721MintBurn.behaviour';
@@ -75,7 +76,7 @@ contract('ERC721Token', function (accounts) {
         await assertRevert(this.token.tokenByIndex(0));
       });
     });
-    
+
     describe('metadata', function () {
       const sampleUri = 'mock://mytoken';
 
@@ -122,7 +123,7 @@ contract('ERC721Token', function (accounts) {
     describe('tokenOfOwnerByIndex', function () {
       const owner = creator;
       const another = accounts[1];
-        
+
       describe('when the given index is lower than the amount of tokens owned by the given address', function () {
         it('returns the token ID placed at the given index', async function () {
           const tokenId = await this.token.tokenOfOwnerByIndex(owner, 0);
@@ -178,14 +179,14 @@ contract('ERC721Token', function (accounts) {
           const owner = accounts[0];
           const newTokenId = 300;
           const anotherNewTokenId = 400;
-          
+
           await this.token.burn(tokenId, { from: owner });
           await this.token.mint(owner, newTokenId, { from: owner });
           await this.token.mint(owner, anotherNewTokenId, { from: owner });
-  
+
           const count = await this.token.totalSupply();
           count.toNumber().should.be.equal(3);
-          
+
           const tokensListed = await Promise.all(_.range(3).map(i => this.token.tokenByIndex(i)));
           const expectedTokens = _.filter(
             [firstTokenId, secondTokenId, newTokenId, anotherNewTokenId],
@@ -194,6 +195,24 @@ contract('ERC721Token', function (accounts) {
           tokensListed.map(t => t.toNumber()).should.have.members(expectedTokens);
         });
       });
+    });
+  });
+
+  describe('supportsInterface', function () {
+    it('supports ERC721Enumerable', async function () {
+      await this.token.supportsInterface(makeInterfaceId([
+        'totalSupply()',
+        'tokenOfOwnerByIndex(address,uint256)',
+        'tokenByIndex(uint256)',
+      ])).should.eventually.eq(true);
+    });
+
+    it('supports ERC721Metadata', async function () {
+      await this.token.supportsInterface(makeInterfaceId([
+        'name()',
+        'symbol()',
+        'tokenURI(uint256)',
+      ])).should.eventually.eq(true);
     });
   });
 });

@@ -24,7 +24,7 @@ contract ERC721Basic is SupportsInterfaceWithLookup {
     bool _approved
   );
 
-  bytes4 constant InterfaceId_ERC721 = 0x80ac58cd;
+  bytes4 private constant InterfaceId_ERC721 = 0x80ac58cd;
   /*
    * 0x80ac58cd ===
    *   bytes4(keccak256('balanceOf(address)')) ^
@@ -38,7 +38,7 @@ contract ERC721Basic is SupportsInterfaceWithLookup {
    *   bytes4(keccak256('safeTransferFrom(address,address,uint256,bytes)'))
    */
 
-  bytes4 public constant InterfaceId_ERC721_Exists = 0x4f558e79;
+  bytes4 private constant InterfaceId_ERC721Exists = 0x4f558e79;
   /*
    * 0x4f558e79 ===
    *   bytes4(keccak256('exists(uint256)'))
@@ -49,7 +49,7 @@ contract ERC721Basic is SupportsInterfaceWithLookup {
   {
     // register the supported interfaces to conform to ERC721 via ERC165
     _registerInterface(InterfaceId_ERC721);
-    _registerInterface(InterfaceId_ERC721_Exists);
+    _registerInterface(InterfaceId_ERC721Exists);
   }
 
   function balanceOf(address _owner) public view returns (uint256 _balance);

@@ -9,7 +9,7 @@ import "./ERC721Basic.sol";
  */
 contract ERC721Enumerable is ERC721Basic {
 
-  bytes4 constant InterfaceId_ERC721Enumerable = 0x780e9d63;
+  bytes4 private constant InterfaceId_ERC721Enumerable = 0x780e9d63;
   /**
    * 0x780e9d63 ===
    *   bytes4(keccak256('totalSupply()')) ^
@@ -42,7 +42,7 @@ contract ERC721Enumerable is ERC721Basic {
  */
 contract ERC721Metadata is ERC721Basic {
 
-  bytes4 constant InterfaceId_ERC721Metadata = 0x5b5e139f;
+  bytes4 private constant InterfaceId_ERC721Metadata = 0x5b5e139f;
   /**
    * 0x5b5e139f ===
    *   bytes4(keccak256('name()')) ^
