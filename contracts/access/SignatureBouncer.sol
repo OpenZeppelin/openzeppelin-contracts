@@ -20,7 +20,15 @@ import "../ECRecovery.sol";
  * @dev Then restrict access to your crowdsale/whitelist/airdrop using the
  * @dev `onlyValidSignature` modifier (or implement your own using isValidSignature).
  * @dev
+ * @dev In addition to `onlyValidSignature`, `onlyValidSignatureAndMethod` and
+ * @dev `onlyValidSignatureAndData` can be used to restrict access to only a given method
+ * @dev or a given method with given parameters respectively.
+ * @dev
  * @dev See the tests Bouncer.test.js for specific usage examples.
+ * @notice A method that uses the `onlyValidSignatureAndData` modifier must make the _sig
+ * @notice parameter the "last" parameter. You cannot sign a message that has its own
+ * @notice signature in it so the last 160 bytes is of msg.data (which represents _sig)
+ * @notice is ignored when validating.
  */
 contract SignatureBouncer is Ownable, RBAC {
   using ECRecovery for bytes32;
