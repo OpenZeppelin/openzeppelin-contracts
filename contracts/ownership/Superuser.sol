@@ -26,6 +26,11 @@ contract Superuser is Ownable, RBAC {
     _;
   }
 
+  modifier onlyOwnerOrSuperuser() {
+    require(msg.sender == owner || isSuperuser(msg.sender));
+    _;
+  }
+
   /**
    * @dev getter to determine if address has superuser role
    */
@@ -41,22 +46,17 @@ contract Superuser is Ownable, RBAC {
    * @dev Allows the current superuser to transfer his role to a newSuperuser.
    * @param _newSuperuser The address to transfer ownership to.
    */
-  function transferSuperuser(address _newSuperuser) 
-    onlySuperuser
-    public
-  {
+  function transferSuperuser(address _newSuperuser) public onlySuperuser {
     require(_newSuperuser != address(0));
     removeRole(msg.sender, ROLE_SUPERUSER);
     addRole(_newSuperuser, ROLE_SUPERUSER);
   }
 
   /**
-   * @dev Allows the current superuser to transfer control of the contract to a newOwner.
+   * @dev Allows the current superuser or owner to transfer control of the contract to a newOwner.
    * @param _newOwner The address to transfer ownership to.
    */
-  function transferOwnership(address _newOwner) public onlySuperuser {
-    require(_newOwner != address(0));
-    owner = _newOwner;
-    emit OwnershipTransferred(owner, _newOwner);
+  function transferOwnership(address _newOwner) public onlyOwnerOrSuperuser {
+    _transferOwnership(_newOwner);
   }
 }
