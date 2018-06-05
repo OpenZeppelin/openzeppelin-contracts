@@ -12,11 +12,10 @@ contract('Superuser', function (accounts) {
     firstOwner,
     newSuperuser,
     newOwner,
-    finalOwner,
     anyone,
   ] = accounts;
 
-  before(async function () {
+  beforeEach(async function () {
     this.superuser = await Superuser.new();
   });
 
@@ -32,11 +31,13 @@ contract('Superuser', function (accounts) {
       const ownerIsSuperuser = await this.superuser.isSuperuser(firstOwner);
       ownerIsSuperuser.should.be.equal(false);
 
-      const address1IsSuperuser = await this.superuser.isSuperuser(newSuperuser);
-      address1IsSuperuser.should.be.equal(true);
+      const newSuperuserIsSuperuser = await this.superuser.isSuperuser(newSuperuser);
+      newSuperuserIsSuperuser.should.be.equal(true);
     });
 
     it('should change owner after the superuser transfers the ownership', async function () {
+      await this.superuser.transferSuperuser(newSuperuser, { from: firstOwner });
+
       await expectEvent.inTransaction(
         this.superuser.transferOwnership(newOwner, { from: newSuperuser }),
         'OwnershipTransferred'
@@ -48,12 +49,12 @@ contract('Superuser', function (accounts) {
 
     it('should change owner after the owner transfers the ownership', async function () {
       await expectEvent.inTransaction(
-        this.superuser.transferOwnership(finalOwner, { from: newOwner }),
+        this.superuser.transferOwnership(newOwner, { from: firstOwner }),
         'OwnershipTransferred'
       );
 
       const currentOwner = await this.superuser.owner();
-      currentOwner.should.be.equal(finalOwner);
+      currentOwner.should.be.equal(newOwner);
     });
   });
 
