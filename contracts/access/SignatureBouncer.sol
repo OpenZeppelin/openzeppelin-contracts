@@ -35,7 +35,7 @@ contract SignatureBouncer is Ownable, RBAC {
 
   string public constant ROLE_BOUNCER = "bouncer";
   uint constant METHOD_ID_SIZE = 4;
-  uint constant SIG_SIZE = 160;
+  uint constant SIG_SIZE = 128;
 
   /**
    * @dev requires that a valid signature of a bouncer was provided
