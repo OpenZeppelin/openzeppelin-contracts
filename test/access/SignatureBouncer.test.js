@@ -43,8 +43,8 @@ contract('Bouncer', ([_, owner, authorizedUser, anyone, bouncerAddress, newBounc
       this.uintValueData,
       stripAndPadHexValue(web3.toHex(32 * 6), 32), // sig location
       stripAndPadHexValue(web3.toHex(this.bytesValue.substr(2).length / 2), 32), // bytesValue size
-      stripAndPadHexValue(this.bytesValue, 32, false) // bytesValue
-    ]
+      stripAndPadHexValue(this.bytesValue, 32, false), // bytesValue
+    ];
   });
 
   it('should have a default owner of self', async function () {
@@ -105,7 +105,7 @@ contract('Bouncer', ([_, owner, authorizedUser, anyone, bouncerAddress, newBounc
         [
           getMethodId('onlyWithValidSignatureAndData', 'uint256', 'bytes'),
           this.uintValueData,
-          stripAndPadHexValue(web3.toHex(64), 32)
+          stripAndPadHexValue(web3.toHex(64), 32),
         ].join('')
       )(authorizedUser);
       await this.bouncer.onlyWithValidSignatureAndData(
