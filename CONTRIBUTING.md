@@ -20,6 +20,7 @@ As a contributor, you are expected to fork this repository, work on your own for
 
 ```
 cd openzeppelin-solidity
+git remote add upstream https://github.com/OpenZeppelin/openzeppelin-solidity.git
 git fetch upstream
 git pull --rebase upstream master
 ```
