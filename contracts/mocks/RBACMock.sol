@@ -1,6 +1,6 @@
 pragma solidity ^0.4.23;
 
-import "../ownership/rbac/RBACWithAdmin.sol";
+import "../examples/RBACWithAdmin.sol";
 
 
 contract RBACMock is RBACWithAdmin {
