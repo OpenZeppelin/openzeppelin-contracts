@@ -32,12 +32,19 @@ contract('Bouncer', ([_, owner, authorizedUser, anyone, bouncerAddress, newBounc
     this.roleBouncer = await this.bouncer.ROLE_BOUNCER();
     this.genSig = getSigner(this.bouncer, bouncerAddress);
     this.uintValue = 23;
-    this.checkValidSignatureAndDataId = getMethodId('checkValidSignatureAndData', 'address', 'uint256', 'bytes');
     this.checkValidSignatureAndMethodId = getMethodId('checkValidSignatureAndMethod', 'address', 'bytes');
     this.uintValueData = stripAndPadHexValue(web3.toHex(this.uintValue), 32);
     this.authorizedUserData = stripAndPadHexValue(authorizedUser, 32);
-    this.sigIntLocation = stripAndPadHexValue(web3.toHex(64), 32);
-    this.sigAddressIntLocation = stripAndPadHexValue(web3.toHex(96), 32);
+    this.bytesValue = web3.toHex('bytesValue');
+    this.validateSignatureAndDataMsgData = [
+      getMethodId('checkValidSignatureAndData', 'address', 'bytes', 'uint256', 'bytes'),
+      stripAndPadHexValue(authorizedUser, 32),
+      stripAndPadHexValue(web3.toHex(32 * 4), 32), // bytesValue location
+      this.uintValueData,
+      stripAndPadHexValue(web3.toHex(32 * 6), 32), // sig location
+      stripAndPadHexValue(web3.toHex(this.bytesValue.substr(2).length / 2), 32), // bytesValue size
+      stripAndPadHexValue(this.bytesValue, 32, false) // bytesValue
+    ]
   });
 
   it('should have a default owner of self', async function () {
@@ -95,7 +102,11 @@ contract('Bouncer', ([_, owner, authorizedUser, anyone, bouncerAddress, newBounc
       const sig = getSigner(
         this.bouncer,
         bouncerAddress,
-        `${getMethodId('onlyWithValidSignatureAndData', 'uint256', 'bytes')}${this.uintValueData}${this.sigIntLocation}`
+        [
+          getMethodId('onlyWithValidSignatureAndData', 'uint256', 'bytes'),
+          this.uintValueData,
+          stripAndPadHexValue(web3.toHex(64), 32)
+        ].join('')
       )(authorizedUser);
       await this.bouncer.onlyWithValidSignatureAndData(
         this.uintValue,
@@ -179,47 +190,30 @@ contract('Bouncer', ([_, owner, authorizedUser, anyone, bouncerAddress, newBounc
       );
       isValid.should.eq(false);
     });
-    it('should accept valid method with valid params for valid user (address, uint, _sig)', async function () {
+    it('should accept valid method with valid params for valid user', async function () {
       const sig = getSigner(
         this.bouncer,
         bouncerAddress,
-        `${this.checkValidSignatureAndDataId}${this.authorizedUserData}${this.uintValueData}${this.sigAddressIntLocation}`
+        this.validateSignatureAndDataMsgData.join('')
       )(authorizedUser);
       const isValid = await this.bouncer.checkValidSignatureAndData(
         authorizedUser,
-        this.uintValue,
-        sig
-      );
-      isValid.should.eq(true);
-    });
-    it('should accept valid method with valid params for valid user (address, bytes, uint, _sig)', async function () {
-      const bytesVal = web3.toHex('bytesValue');
-      const bytesLoc = stripAndPadHexValue(web3.toHex(32 * 4), 32);
-      const sigLoc = stripAndPadHexValue(web3.toHex(32 * 6), 32);
-      const bytesValSize = stripAndPadHexValue(web3.toHex(bytesVal.substr(2).length / 2), 32);
-      const bytesValData = stripAndPadHexValue(bytesVal, 32, false);
-      const methodId = getMethodId('checkValidSignatureAndDataBytes', 'address', 'bytes', 'uint256', 'bytes');
-      const sig = getSigner(
-        this.bouncer,
-        bouncerAddress,
-        `${methodId}${this.authorizedUserData}${bytesLoc}${this.uintValueData}${sigLoc}${bytesValSize}${bytesValData}`
-      )(authorizedUser);
-      const isValid = await this.bouncer.checkValidSignatureAndDataBytes(
-        authorizedUser,
-        bytesVal,
+        this.bytesValue,
         this.uintValue,
         sig
       );
       isValid.should.eq(true);
     });
     it('should not accept an invalid method with valid params for valid user', async function () {
+      this.validateSignatureAndDataMsgData[0] = getMethodId('invalidMethod', 'address', 'bytes', 'uint256', 'bytes');
       const sig = getSigner(
         this.bouncer,
         bouncerAddress,
-        `${getMethodId('invalidMethod', 'address', 'uint256', 'bytes')}${this.authorizedUserData}${this.uintValueData}${this.sigAddressIntLocation}`
+        this.validateSignatureAndDataMsgData.join('')
       )(authorizedUser);
       const isValid = await this.bouncer.checkValidSignatureAndData(
         authorizedUser,
+        this.bytesValue,
         this.uintValue,
         sig
       );
@@ -229,10 +223,11 @@ contract('Bouncer', ([_, owner, authorizedUser, anyone, bouncerAddress, newBounc
       const sig = getSigner(
         this.bouncer,
         bouncerAddress,
-        `${this.checkValidSignatureAndDataId}${this.authorizedUserData}${this.uintValueData}${this.sigAddressIntLocation}`
+        this.validateSignatureAndDataMsgData.join('')
       )(authorizedUser);
       const isValid = await this.bouncer.checkValidSignatureAndData(
         authorizedUser,
+        this.bytesValue,
         500,
         sig
       );
@@ -242,10 +237,11 @@ contract('Bouncer', ([_, owner, authorizedUser, anyone, bouncerAddress, newBounc
       const sig = getSigner(
         this.bouncer,
         bouncerAddress,
-        `${this.checkValidSignatureAndDataId}${this.authorizedUserData}${this.uintValueData}${this.sigAddressIntLocation}`
+        this.validateSignatureAndDataMsgData.join('')
       )(authorizedUser);
       const isValid = await this.bouncer.checkValidSignatureAndData(
         anyone,
+        this.bytesValue,
         this.uintValue,
         sig
       );
