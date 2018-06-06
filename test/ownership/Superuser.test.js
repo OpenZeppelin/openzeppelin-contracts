@@ -15,7 +15,7 @@ contract('Superuser', function (accounts) {
     anyone,
   ] = accounts;
 
-  before(async function () {
+  beforeEach(async function () {
     this.superuser = await Superuser.new();
   });
 
@@ -31,13 +31,25 @@ contract('Superuser', function (accounts) {
       const ownerIsSuperuser = await this.superuser.isSuperuser(firstOwner);
       ownerIsSuperuser.should.be.equal(false);
 
-      const address1IsSuperuser = await this.superuser.isSuperuser(newSuperuser);
-      address1IsSuperuser.should.be.equal(true);
+      const newSuperuserIsSuperuser = await this.superuser.isSuperuser(newSuperuser);
+      newSuperuserIsSuperuser.should.be.equal(true);
     });
 
-    it('should change owner after transferring', async function () {
+    it('should change owner after the superuser transfers the ownership', async function () {
+      await this.superuser.transferSuperuser(newSuperuser, { from: firstOwner });
+
       await expectEvent.inTransaction(
         this.superuser.transferOwnership(newOwner, { from: newSuperuser }),
+        'OwnershipTransferred'
+      );
+
+      const currentOwner = await this.superuser.owner();
+      currentOwner.should.be.equal(newOwner);
+    });
+
+    it('should change owner after the owner transfers the ownership', async function () {
+      await expectEvent.inTransaction(
+        this.superuser.transferOwnership(newOwner, { from: firstOwner }),
         'OwnershipTransferred'
       );
 
@@ -53,7 +65,7 @@ contract('Superuser', function (accounts) {
       );
     });
 
-    it('should prevent non-superusers from setting a new owner', async function () {
+    it('should prevent users that are not superuser nor owner from setting a new owner', async function () {
       await expectThrow(
         this.superuser.transferOwnership(newOwner, { from: anyone })
       );
