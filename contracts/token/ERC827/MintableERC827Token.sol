@@ -13,7 +13,7 @@ import "../ERC20/MintableToken.sol";
    approvals.
    Uses OpenZeppelin StandardToken.
  */
-contract MintableERC827Token is ERC827, MintableToken {
+contract MintableERC827Token is ERC827Token, MintableToken {
 
   /**
      @dev Addition to ERC20 token methods. It allows to
