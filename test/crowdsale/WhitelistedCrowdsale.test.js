@@ -24,13 +24,13 @@ contract('WhitelistedCrowdsale', function ([_, wallet, authorized, unauthorized,
 
     describe('accepting payments', function () {
       it('should accept payments to whitelisted (from whichever buyers)', async function () {
-        await this.crowdsale.send(value, { from: authorized }).should.be.fulfilled;
+        await this.crowdsale.sendTransaction({ value, from: authorized }).should.be.fulfilled;
         await this.crowdsale.buyTokens(authorized, { value: value, from: authorized }).should.be.fulfilled;
         await this.crowdsale.buyTokens(authorized, { value: value, from: unauthorized }).should.be.fulfilled;
       });
 
       it('should reject payments to not whitelisted (from whichever buyers)', async function () {
-        await this.crowdsale.send(value).should.be.rejected;
+        await this.crowdsale.sendTransaction({ value, from: unauthorized }).should.be.rejected;
         await this.crowdsale.buyTokens(unauthorized, { value: value, from: unauthorized }).should.be.rejected;
         await this.crowdsale.buyTokens(unauthorized, { value: value, from: authorized }).should.be.rejected;
       });

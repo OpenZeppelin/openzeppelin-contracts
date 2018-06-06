@@ -27,7 +27,7 @@ contract('Whitelist', function (accounts) {
     it('should add address to the whitelist', async function () {
       await expectEvent.inTransaction(
         mock.addAddressToWhitelist(whitelistedAddress1, { from: owner }),
-        'WhitelistedAddressAdded'
+        'RoleAdded'
       );
       const isWhitelisted = await mock.whitelist(whitelistedAddress1);
       isWhitelisted.should.be.equal(true);
@@ -36,7 +36,7 @@ contract('Whitelist', function (accounts) {
     it('should add addresses to the whitelist', async function () {
       await expectEvent.inTransaction(
         mock.addAddressesToWhitelist(whitelistedAddresses, { from: owner }),
-        'WhitelistedAddressAdded'
+        'RoleAdded'
       );
       for (let addr of whitelistedAddresses) {
         const isWhitelisted = await mock.whitelist(addr);
@@ -47,7 +47,7 @@ contract('Whitelist', function (accounts) {
     it('should remove address from the whitelist', async function () {
       await expectEvent.inTransaction(
         mock.removeAddressFromWhitelist(whitelistedAddress1, { from: owner }),
-        'WhitelistedAddressRemoved'
+        'RoleRemoved'
       );
       let isWhitelisted = await mock.whitelist(whitelistedAddress1);
       isWhitelisted.should.be.equal(false);
@@ -56,7 +56,7 @@ contract('Whitelist', function (accounts) {
     it('should remove addresses from the the whitelist', async function () {
       await expectEvent.inTransaction(
         mock.removeAddressesFromWhitelist(whitelistedAddresses, { from: owner }),
-        'WhitelistedAddressRemoved'
+        'RoleRemoved'
       );
       for (let addr of whitelistedAddresses) {
         const isWhitelisted = await mock.whitelist(addr);

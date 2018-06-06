@@ -11,9 +11,6 @@ import "../ownership/rbac/RBAC.sol";
  * This simplifies the implementation of "user permissions".
  */
 contract Whitelist is Ownable, RBAC {
-  event WhitelistedAddressAdded(address addr);
-  event WhitelistedAddressRemoved(address addr);
-
   string public constant ROLE_WHITELISTED = "whitelist";
 
   /**
@@ -43,7 +40,6 @@ contract Whitelist is Ownable, RBAC {
     public
   {
     addRole(_addr, ROLE_WHITELISTED);
-    emit WhitelistedAddressAdded(_addr);
   }
 
   /**
@@ -83,7 +79,6 @@ contract Whitelist is Ownable, RBAC {
     public
   {
     removeRole(_addr, ROLE_WHITELISTED);
-    emit WhitelistedAddressRemoved(_addr);
   }
 
   /**
