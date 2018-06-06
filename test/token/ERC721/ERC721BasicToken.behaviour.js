@@ -541,7 +541,7 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
 
     describe('supportsInterface', function () {
       it('supports ERC721', async function () {
-        await this.token.supportsInterface(makeInterfaceId([
+        const isSupported = await this.token.supportsInterface(makeInterfaceId([
           'balanceOf(address)',
           'ownerOf(uint256)',
           'approve(address,uint256)',
@@ -551,13 +551,16 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
           'transferFrom(address,address,uint256)',
           'safeTransferFrom(address,address,uint256)',
           'safeTransferFrom(address,address,uint256,bytes)',
-        ])).should.eventually.eq(true);
+        ]));
+        isSupported.should.eq(true);
       });
 
       it('supports ERC721Exists', async function () {
-        await this.token.supportsInterface(makeInterfaceId([
+        const isSupported = await this.token.supportsInterface(makeInterfaceId([
           'exists(uint256)',
-        ])).should.eventually.eq(true);
+        ]));
+
+        isSupported.should.eq(true);
       });
     });
   });

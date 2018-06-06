@@ -200,19 +200,23 @@ contract('ERC721Token', function (accounts) {
 
   describe('supportsInterface', function () {
     it('supports ERC721Enumerable', async function () {
-      await this.token.supportsInterface(makeInterfaceId([
+      const isSupported = await this.token.supportsInterface(makeInterfaceId([
         'totalSupply()',
         'tokenOfOwnerByIndex(address,uint256)',
         'tokenByIndex(uint256)',
-      ])).should.eventually.eq(true);
+      ]));
+
+      isSupported.should.eq(true);
     });
 
     it('supports ERC721Metadata', async function () {
-      await this.token.supportsInterface(makeInterfaceId([
+      const isSupported = await this.token.supportsInterface(makeInterfaceId([
         'name()',
         'symbol()',
         'tokenURI(uint256)',
-      ])).should.eventually.eq(true);
+      ]));
+
+      isSupported.should.eq(true);
     });
   });
 });

@@ -12,10 +12,12 @@ contract('SupportsInterfaceWithLookup', function (accounts) {
   });
 
   it('should support supportsInterface()', async function () {
-    await this.mock.supportsInterface(
+    const isSupported = await this.mock.supportsInterface(
       makeInterfaceId([
         'supportsInterface(bytes4)',
       ])
-    ).should.eventually.eq(true);
+    );
+
+    isSupported.should.eq(true);
   });
 });
