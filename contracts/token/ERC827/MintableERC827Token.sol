@@ -1,19 +1,17 @@
 pragma solidity ^0.4.13;
 
-import "./ERC827.sol";
+import "./ERC827Token.sol";
 import "../ERC20/MintableToken.sol";
 
 
 
 /**
-   @title ERC827, an extension of ERC20 token standard
+   @title MintableERC827Token, an extension of ERC827Token
 
-   Implementation the ERC827, following the ERC20 standard with extra
-   methods to transfer value and data and execute calls in transfers and
-   approvals.
-   Uses OpenZeppelin StandardToken.
+   Implementation the ERC827Token that is mintable.
+   Uses OpenZeppelin MintableToken.
  */
-contract MintableERC827Token is MintableToken, ERC827Token {
+contract MintableERC827Token is ERC827Token, MintableToken {
 
   /**
      @dev Addition to ERC20 token methods. It allows to
