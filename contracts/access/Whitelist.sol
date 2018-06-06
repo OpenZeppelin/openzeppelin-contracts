@@ -18,6 +18,7 @@ contract Whitelist is Ownable, RBAC {
 
   /**
    * @dev Throws if called by any account that's not whitelisted.
+   * @dev kept as `onlyWhitelisted` for backwards compatibility
    */
   modifier onlyWhitelisted() {
     checkRole(msg.sender, ROLE_WHITELISTED);
@@ -25,70 +26,78 @@ contract Whitelist is Ownable, RBAC {
   }
 
   /**
+   * @dev Throws if beneficiary is not whitelisted.
+   */
+  modifier isWhitelisted(address _beneficiary) {
+    checkRole(_beneficiary, ROLE_WHITELISTED);
+    _;
+  }
+
+  /**
    * @dev add an address to the whitelist
-   * @param addr address
+   * @param _addr address
    * @return true if the address was added to the whitelist, false if the address was already in the whitelist
    */
-  function addAddressToWhitelist(address addr)
+  function addAddressToWhitelist(address _addr)
     onlyOwner
     public
   {
-    addRole(addr, ROLE_WHITELISTED);
-    emit WhitelistedAddressAdded(addr);
+    addRole(_addr, ROLE_WHITELISTED);
+    emit WhitelistedAddressAdded(_addr);
   }
 
   /**
    * @dev getter to determine if address is in whitelist
    */
-  function whitelist(address addr)
+  function whitelist(address _addr)
     public
     view
     returns (bool)
   {
-    return hasRole(addr, ROLE_WHITELISTED);
+    return hasRole(_addr, ROLE_WHITELISTED);
   }
 
   /**
    * @dev add addresses to the whitelist
-   * @param addrs addresses
+   * @param _addrs addresses
    * @return true if at least one address was added to the whitelist,
    * false if all addresses were already in the whitelist
    */
-  function addAddressesToWhitelist(address[] addrs)
+  function addAddressesToWhitelist(address[] _addrs)
     onlyOwner
     public
   {
-    for (uint256 i = 0; i < addrs.length; i++) {
-      addAddressToWhitelist(addrs[i]);
+    for (uint256 i = 0; i < _addrs.length; i++) {
+      addAddressToWhitelist(_addrs[i]);
     }
   }
 
   /**
    * @dev remove an address from the whitelist
-   * @param addr address
+   * @param _addr address
    * @return true if the address was removed from the whitelist,
    * false if the address wasn't in the whitelist in the first place
    */
-  function removeAddressFromWhitelist(address addr)
+  function removeAddressFromWhitelist(address _addr)
     onlyOwner
     public
   {
-    removeRole(addr, ROLE_WHITELISTED);
-    emit WhitelistedAddressRemoved(addr);
+    removeRole(_addr, ROLE_WHITELISTED);
+    emit WhitelistedAddressRemoved(_addr);
   }
 
   /**
    * @dev remove addresses from the whitelist
-   * @param addrs addresses
+   * @param _addrs addresses
    * @return true if at least one address was removed from the whitelist,
    * false if all addresses weren't in the whitelist in the first place
    */
-  function removeAddressesFromWhitelist(address[] addrs)
+  function removeAddressesFromWhitelist(address[] _addrs)
     onlyOwner
     public
   {
-    for (uint256 i = 0; i < addrs.length; i++) {
-      removeAddressFromWhitelist(addrs[i]);
+    for (uint256 i = 0; i < _addrs.length; i++) {
+      removeAddressFromWhitelist(_addrs[i]);
     }
   }
 
