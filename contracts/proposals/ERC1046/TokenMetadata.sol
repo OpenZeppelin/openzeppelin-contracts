@@ -10,7 +10,7 @@ import "../../token/ERC20/ERC20.sol";
  * @dev TODO - update https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/token/ERC721/ERC721.sol#L17 when 1046 is finalized
  */
 contract ERC20TokenMetadata is ERC20 {
-  function tokenURI() public view returns (string);
+  function tokenURI() external view returns (string);
 }
 
 
@@ -23,7 +23,7 @@ contract ERC20WithMetadata is ERC20TokenMetadata {
     tokenURI_ = _tokenURI;
   }
 
-  function tokenURI() public view returns (string) {
+  function tokenURI() external view returns (string) {
     // in the effort of minimum-effort compatibility,
     //   tokenURI MUST throw if not exists https://eips.ethereum.org/EIPS/eip-721
     bytes memory _tokenURI = bytes(tokenURI_);
