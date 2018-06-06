@@ -2,7 +2,7 @@ pragma solidity ^0.4.23;
 
 import "../math/SafeMath.sol";
 import "../ownership/Ownable.sol";
-import "../token/ERC721/ERC721.sol";
+import "../token/ERC721/ERC721BasicToken.sol";
 
 /*
  * @title DutchAuction
@@ -29,22 +29,15 @@ contract DutchAuction is Ownable{
   uint public startTime;
   uint public endTime;
 
-  uint public highAskingPrice;
+  uint public highAskingPrice;  
   uint public lowAskingPrice;
 
   uint public currentAskingPrice;
 
-  // @dev The token being auctioned
-  ERC721 public token;
+  address public tokenContract;
 
-  // @dev ERC721 token's unique ID
+  // @dev ERC721BasicToken's unique ID
   uint public tokenId;
-
-  // @dev Mapping from token ID to owner
-  mapping (uint256 => address) internal tokenOwner;
-
-  // @dev Mapping from token ID to approved address
-  mapping (uint256 => address) internal tokenApprovals;
 
   /// @dev create user-defined "Stages" type to manage state of the auction
   Stages public stage;
@@ -54,6 +47,19 @@ contract DutchAuction is Ownable{
      AuctionStarted,
      AuctionEnded
   }
+
+  /**
+   * Event for auction logging
+   * @param beneficiary who sold the NFT
+   * @param bidder who paid for the NFT
+   * @param bid amount in weis paid for NFT
+   */
+  event TokenAuctioned(
+    address indexed beneficiary,
+    address indexed bidder,
+    uint256 bid,
+    uint256 tokenId
+  );
 
   modifier atStage(Stages _stage) {
     if (stage != _stage)
@@ -76,7 +82,6 @@ contract DutchAuction is Ownable{
     highAskingPrice = _highAskingPrice;
     lowAskingPrice = _lowAskingPrice;
     auctionLength = _auctionLength;
-
     stage = Stages.AuctionDeployed;
   }
 
@@ -90,19 +95,19 @@ contract DutchAuction is Ownable{
       processBid();
   }
 
-  /// @dev Starts auction and identifies the auction's endTime
-  /// @param _beneficiary address that will receive payment in return for their ERC721 token
-  function startAuction(address _beneficiary, uint _tokenId)
+  /// @dev Starts auction and determines the auction's endTime
+  /// @param _tokenId ID of the NFT that's being auctioned
+  function startAuction(address _tokenContract, uint _tokenId)
     public
     onlyOwner
     atStage(Stages.AuctionDeployed)
   {
-    beneficiary = _beneficiary;
+    beneficiary = msg.sender;
     startTime = now;
-    endTime = startTime + auctionLength * 1 days;
+    endTime = startTime.add(auctionLength.mul(1 days));
     stage = Stages.AuctionStarted;
+    tokenContract = _tokenContract;
     tokenId = _tokenId;
-    tokenOwner[tokenId] = beneficiary;
   }
 
   /// @dev The first one to bid wins the ERC721 token 
@@ -115,14 +120,14 @@ contract DutchAuction is Ownable{
     bid = msg.value;
     bidder = msg.sender;
 
-    getCurrentAskingPrice();
+    getCurrentAskingPrice();   
 
     if(bid == currentAskingPrice)
     {
-      stage = Stages.AuctionEnded;
+      stage = Stages.AuctionEnded;  
       payBeneficiary();
-    //  sendToBidder();
-    } 
+      sendToBidder();
+    }   
     else 
     {
       revert("Bid does not match currentAskingPrice");
@@ -142,37 +147,34 @@ contract DutchAuction is Ownable{
 
   /// @dev Award bidder with the ERC721 token 
   function sendToBidder() 
-    internal 
+    internal
     atStage(Stages.AuctionEnded) 
+    returns (bool)
   {
-  // Ensure they have permission to send ERC721 token
-  // token.approve(bidder, tokenId);
+    ERC721BasicToken erc721Token = ERC721BasicToken(tokenContract);
+    erc721Token.safeTransferFrom(beneficiary, bidder, tokenId);
 
-    tokenApprovals[tokenId] = bidder;
+    emit TokenAuctioned(
+      beneficiary,
+      bidder,
+      bid,
+      tokenId
+    );
 
-    tokenOwner[tokenId] = bidder;
-  }
-
-  /// @dev If no bid is received during auctionLength, return the ERC721 token to the _beneficiary
-  function returnToBeneficiary() 
-    internal 
-    view 
-    atStage(Stages.AuctionEnded) 
-  {
-
+    return true;
   }
 
   /// @dev Determines the current asking price for the ERC721 token that's being auctioned
   function getCurrentAskingPrice() 
-    public
+    internal
     atStage(Stages.AuctionStarted)
     returns (uint)
   {
-    uint rateOfDecrease = (highAskingPrice - lowAskingPrice) / auctionLength;
+    uint rateOfDecrease = (highAskingPrice.sub(lowAskingPrice)).div(auctionLength);
     /// @dev The total length of the auction in seconds divided by 86400 (the number of seconds in a day)
-    uint numberOfDaysPassed = (now - startTime) / 1 days;
+    uint numberOfDaysPassed = (now.sub(startTime)).div(1 days);
     /// @dev After every day that has passed subtract the rateOfDecrease from highAskingPrice
-    currentAskingPrice = (highAskingPrice - (numberOfDaysPassed * rateOfDecrease)) * 10 ** 18;
+    currentAskingPrice = (highAskingPrice.sub(numberOfDaysPassed.mul(rateOfDecrease))).mul(10 ** 18);
 
     return currentAskingPrice;
   }
