@@ -27,8 +27,10 @@ import "../ECRecovery.sol";
  * @dev See the tests Bouncer.test.js for specific usage examples.
  * @notice A method that uses the `onlyValidSignatureAndData` modifier must make the _sig
  * @notice parameter the "last" parameter. You cannot sign a message that has its own
- * @notice signature in it so the last 160 bytes is of msg.data (which represents _sig)
- * @notice is ignored when validating.
+ * @notice signature in it so the last 128 bytes is of msg.data (which represents the
+ * @notice length of the _sig data and the _sig data itself) is ignored when validating.
+ * @notice Also non fixed sized parameters make constructing the data in the signature
+ * @notice much more complex. See https://bit.ly/2sGSPBc for more details.
  */
 contract SignatureBouncer is Ownable, RBAC {
   using ECRecovery for bytes32;
