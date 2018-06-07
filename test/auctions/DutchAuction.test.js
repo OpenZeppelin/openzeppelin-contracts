@@ -80,24 +80,30 @@ contract('DutchAuction', function (accounts) {
 
   describe('pay the beneficiary', function () {
   	it('the bidder should pay the beneficiary after a bid has been received', async function () {
-/*      var beneficiaryOriginalBalance = web3.eth.getBalance(web3.eth.accounts[0]);
+      var beneficiaryOriginalBalance = web3.eth.getBalance(web3.eth.accounts[0]);
       console.log(beneficiaryOriginalBalance.toNumber());
       var txHash1 = await auction.startAuction(token.address, tokenId, { from: web3.eth.accounts[0] });
       var txHash2 = await token.approve(auction.address, tokenId, {from: web3.eth.accounts[0]});
-      var txHash3 = await auction.processBid({from: web3.eth.accounts[2], value: bid});
+
+      await auction.processBid({from: web3.eth.accounts[2], value: bid});
 
       var txHash1_TransactionReceipt = web3.eth.getTransactionReceipt(txHash1.tx);
       var txHash2_TransactionReceipt = web3.eth.getTransactionReceipt(txHash2.tx);
 
-      var beneficiaryFinalBalance = web3.eth.getBalance(web3.eth.accounts[0]);
-      var cumulativeGasCost = txHash1_TransactionReceipt.gasUsed + txHash1_TransactionReceipt.gasUsed;
-      var correctBalance = beneficiaryOriginalBalance + bid - cumulativeGasCost; 
+      var gasForTransaction1 = web3.toWei(txHash1_TransactionReceipt.gasUsed, "ether");
+      var gasForTransaction2 = web3.toWei(txHash2_TransactionReceipt.gasUsed, "ether");
 
-      console.log(bid.toNumber());
+      console.log(gasForTransaction1);
+      console.log(gasForTransaction2);
+
+//      var beneficiaryFinalBalance = web3.eth.getBalance(web3.eth.accounts[0]);
+      var cumulativeGasCost = gasForTransaction1 + gasForTransaction2;
+//      var correctBalance = beneficiaryOriginalBalance + bid - cumulativeGasCost; 
+
       console.log(cumulativeGasCost);
 
-      console.log(beneficiaryFinalBalance.toNumber());
-      console.log(correctBalance);
+//      console.log(beneficiaryFinalBalance.toNumber());
+//      console.log(correctBalance);
 
 //      assert.equal(beneficiaryFinalBalance, correctBalance, 'beneficiary final balance is greater than or equal to their original balance plus the bid amount');
 
