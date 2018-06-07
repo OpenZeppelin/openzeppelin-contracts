@@ -25,8 +25,8 @@ contract('DutchAuction', function (accounts) {
   const tokenId = 12345;
 
   beforeEach(async function () {
-    token = await ERC721BasicTokenMock.new({ from: web3.eth.accounts[0] });
-    await token.mint(beneficiary, tokenId, { from: web3.eth.accounts[0] });
+    token = await ERC721BasicTokenMock.new({ from: beneficiary });
+    await token.mint(beneficiary, tokenId, { from: beneficiary });
     auction = await DutchAuction.new(highAskingPrice, lowAskingPrice, auctionLength);
   });
 
@@ -63,8 +63,8 @@ contract('DutchAuction', function (accounts) {
   describe('process a bid', function () {
   	it('should revert if bid is less than currentAskingPrice', async function () {
       bid = ether(1);
-      await auction.startAuction(token.address, tokenId, { from: web3.eth.accounts[0]});
-      await token.approve(auction.address, tokenId, {from: web3.eth.accounts[0]});
+      await auction.startAuction(token.address, tokenId, { from: beneficiary});
+      await token.approve(auction.address, tokenId, {from: beneficiary});
       await assertRevert(auction.processBid( {from: bidder, value: bid }));
     });
     
@@ -73,8 +73,8 @@ contract('DutchAuction', function (accounts) {
       // original balance of bidder
       const bidderOriginalBalance = web3.eth.getBalance(bidder);
 
-      await auction.startAuction(token.address, tokenId, { from: web3.eth.accounts[0]});
-      await token.approve(auction.address, tokenId, {from: web3.eth.accounts[0]});
+      await auction.startAuction(token.address, tokenId, { from: beneficiary});
+      await token.approve(auction.address, tokenId, {from: beneficiary});
 
       // obtain gas used from the receipt
       const txReceipt = await auction.processBid({from: bidder, value: bid});
@@ -94,8 +94,8 @@ contract('DutchAuction', function (accounts) {
     it('should find the currentAskingPrice after an auction has started', async function () {
       // Shouldn't this work even if bid is lower than currentAskingPrice?
       bid = ether(2);
-      await auction.startAuction(token.address, tokenId, { from: web3.eth.accounts[0]});
-      await token.approve(auction.address, tokenId, {from: web3.eth.accounts[0]});
+      await auction.startAuction(token.address, tokenId, { from: beneficiary});
+      await token.approve(auction.address, tokenId, {from: beneficiary});
       await auction.processBid( {from: bidder, value: bid });
       const currentAskingPrice = await auction.currentAskingPrice();
       assert.exists(currentAskingPrice.toNumber(), 'currentAskingPrice is neither `null` nor `undefined`');
@@ -105,11 +105,11 @@ contract('DutchAuction', function (accounts) {
 
   describe('pay the beneficiary', function () {
   	it('the bidder should pay the beneficiary after a bid has been received', async function () {
-      var beneficiaryOriginalBalance = web3.eth.getBalance(web3.eth.accounts[0]);
-      var txHash1 = await auction.startAuction(token.address, tokenId, { from: web3.eth.accounts[0] });
-      var txHash2 = await token.approve(auction.address, tokenId, {from: web3.eth.accounts[0]});
+      let beneficiaryOriginalBalance = web3.eth.getBalance(beneficiary);
+      let txHash1 = await auction.startAuction(token.address, tokenId, { from: beneficiary });
+      let txHash2 = await token.approve(auction.address, tokenId, {from: beneficiary});
 
-      await auction.processBid({from: web3.eth.accounts[2], value: bid});
+      await auction.processBid({from: bidder, value: bid});
 
       const tx1 = await web3.eth.getTransaction(txHash1.tx);
       const gasPrice1 = tx1.gasPrice;
@@ -117,18 +117,18 @@ contract('DutchAuction', function (accounts) {
       const tx2 = await web3.eth.getTransaction(txHash2.tx);
       const gasPrice2 = tx2.gasPrice;
 
-      var txHash1_TransactionReceipt = web3.eth.getTransactionReceipt(txHash1.tx);
-      var txHash2_TransactionReceipt = web3.eth.getTransactionReceipt(txHash2.tx);
+      let txHash1_TransactionReceipt = web3.eth.getTransactionReceipt(txHash1.tx);
+      let txHash2_TransactionReceipt = web3.eth.getTransactionReceipt(txHash2.tx);
 
-      var gasForTransaction1 = txHash1_TransactionReceipt.gasUsed;
-      var gasForTransaction2 = txHash2_TransactionReceipt.gasUsed;
+      let gasForTransaction1 = txHash1_TransactionReceipt.gasUsed;
+      let gasForTransaction2 = txHash2_TransactionReceipt.gasUsed;
 
-      var gasSpent1 = gasForTransaction1 * gasPrice1;
-      var gasSpent2 = gasForTransaction2 * gasPrice2;
+      let gasSpent1 = gasForTransaction1 * gasPrice1;
+      let gasSpent2 = gasForTransaction2 * gasPrice2;
 
-      var beneficiaryFinalBalance = web3.eth.getBalance(web3.eth.accounts[0]);
-      var cumulativeGasCost = gasSpent1 + gasSpent2;
-      var correctBalance = (beneficiaryOriginalBalance.add(bid)).sub(cumulativeGasCost); 
+      let beneficiaryFinalBalance = web3.eth.getBalance(beneficiary);
+      let cumulativeGasCost = gasSpent1 + gasSpent2;
+      let correctBalance = (beneficiaryOriginalBalance.add(bid)).sub(cumulativeGasCost); 
 
       assert.equal(beneficiaryFinalBalance.toNumber(), correctBalance.toNumber(), 'beneficiary final balance is greater than or equal to their original balance plus the bid amount minus was was spent on gas');
     }); 
@@ -153,7 +153,7 @@ contract('DutchAuction', function (accounts) {
       beneficiary = await token.ownerOf(tokenId);
       assert.equal(beneficiary, accounts[0])
       await auction.startAuction(token.address, tokenId, { from: beneficiary });
-      await token.approve(auction.address, tokenId, {from: web3.eth.accounts[0]});
+      await token.approve(auction.address, tokenId, {from: beneficiary});
       await auction.processBid({from: bidder, value: bid});
       bidder = await token.ownerOf(tokenId);
       assert.equal(bidder, accounts[2])
