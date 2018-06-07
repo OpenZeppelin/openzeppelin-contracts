@@ -103,13 +103,14 @@ export default function ([owner, anotherAccount, minter]) {
             assert.equal(balance, amount);
           });
 
-          it('mints the requested amount to the agreed upon address with a signed proof from any address', async function () {
-            const signature = web3.eth.sign(owner, soliditySha3(this.token.address, anotherAccount, amount, 0));
-            await this.token.mintWithSignature(anotherAccount, amount, 0, signature, { from });
+          it('mints the requested amount to the agreed upon address with a signed proof from any address',
+            async function () {
+              const signature = web3.eth.sign(owner, soliditySha3(this.token.address, anotherAccount, amount, 0));
+              await this.token.mintWithSignature(anotherAccount, amount, 0, signature, { from });
 
-            const balance = await this.token.balanceOf(anotherAccount);
-            assert.equal(amount, balance);
-          });
+              const balance = await this.token.balanceOf(anotherAccount);
+              assert.equal(amount, balance);
+            });
 
           it('mints the requested amount from the same signed proof should fail', async function () {
             const signature = web3.eth.sign(owner, soliditySha3(this.token.address, anotherAccount, amount, 0));
@@ -127,12 +128,13 @@ export default function ([owner, anotherAccount, minter]) {
             await this.token.mintWithSignature(anotherAccount, amount, 1, signature2, { anotherAccount });
             
             const balance = await this.token.balanceOf(anotherAccount);
-            assert.equal(amount+amount, balance);
+            assert.equal(amount + amount, balance);
           });
 
           it('mints with different parameters than the signed proof should fail', async function () {
             const signature = web3.eth.sign(owner, soliditySha3(this.token.address, anotherAccount, amount, 0));
-            await assertRevert(this.token.mintWithSignature(anotherAccount, amount+1, 0, signature, { anotherAccount }));
+            await assertRevert(this.token.mintWithSignature(anotherAccount, amount + 1, 0, signature,
+              { anotherAccount }));
             await assertRevert(this.token.mintWithSignature(anotherAccount, amount, 1, signature, { anotherAccount }));
             await assertRevert(this.token.mintWithSignature(owner, amount, 0, signature, { anotherAccount }));
           });
