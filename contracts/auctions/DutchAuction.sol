@@ -124,6 +124,7 @@ contract DutchAuction is Ownable{
     payable 
     atStage(Stages.AuctionStarted)
     validBid()
+    returns (uint)
  {    
     bid = msg.value;
     bidder = msg.sender;
@@ -197,14 +198,4 @@ contract DutchAuction is Ownable{
     currentAskingPrice = (highAskingPrice.sub(numberOfDaysPassed.mul(rateOfDecrease))).mul(10 ** 18);
     return currentAskingPrice;
   }
-  /// @dev Returns the currentAskingPrice of the auction. Perhaps useful for front-end interface.
-  /// @return The auction's currentAskingPrice 
-  // function findCurrentAskingPrice() 
-  //   public
-  //   view
-  //   atStage(Stages.AuctionStarted)
-  //   returns (uint)
-  // {
-  //   return currentAskingPrice;
-  // }
 }

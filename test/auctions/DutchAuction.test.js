@@ -67,7 +67,7 @@ contract('DutchAuction', function (accounts) {
       await token.approve(auction.address, tokenId, {from: beneficiary});
       await assertRevert(auction.processBid( {from: bidder, value: bid }));
     });
-    
+
     it('should transfer overage to bidder if bid is greater than currentAskingPrice', async function () {
       bid = ether(3);
       // original balance of bidder
@@ -104,10 +104,11 @@ contract('DutchAuction', function (accounts) {
   });
 
   describe('pay the beneficiary', function () {
-  	it('the bidder should pay the beneficiary after a bid has been received', async function () {
-      let beneficiaryOriginalBalance = web3.eth.getBalance(beneficiary);
-      let txHash1 = await auction.startAuction(token.address, tokenId, { from: beneficiary });
-      let txHash2 = await token.approve(auction.address, tokenId, {from: beneficiary});
+  	it('the bidder should pay the beneficiary after a bid at currentAskingPrice has been received', async function () {
+      bid = ether(2);
+      const beneficiaryOriginalBalance = web3.eth.getBalance(beneficiary);
+      const txHash1 = await auction.startAuction(token.address, tokenId, { from: beneficiary });
+      const txHash2 = await token.approve(auction.address, tokenId, {from: beneficiary});
 
       await auction.processBid({from: bidder, value: bid});
 
@@ -117,18 +118,18 @@ contract('DutchAuction', function (accounts) {
       const tx2 = await web3.eth.getTransaction(txHash2.tx);
       const gasPrice2 = tx2.gasPrice;
 
-      let txHash1_TransactionReceipt = web3.eth.getTransactionReceipt(txHash1.tx);
-      let txHash2_TransactionReceipt = web3.eth.getTransactionReceipt(txHash2.tx);
+      const txHash1_TransactionReceipt = web3.eth.getTransactionReceipt(txHash1.tx);
+      const txHash2_TransactionReceipt = web3.eth.getTransactionReceipt(txHash2.tx);
 
-      let gasForTransaction1 = txHash1_TransactionReceipt.gasUsed;
-      let gasForTransaction2 = txHash2_TransactionReceipt.gasUsed;
+      const gasForTransaction1 = txHash1_TransactionReceipt.gasUsed;
+      const gasForTransaction2 = txHash2_TransactionReceipt.gasUsed;
 
-      let gasSpent1 = gasForTransaction1 * gasPrice1;
-      let gasSpent2 = gasForTransaction2 * gasPrice2;
+      const gasSpent1 = gasForTransaction1 * gasPrice1;
+      const gasSpent2 = gasForTransaction2 * gasPrice2;
 
-      let beneficiaryFinalBalance = web3.eth.getBalance(beneficiary);
-      let cumulativeGasCost = gasSpent1 + gasSpent2;
-      let correctBalance = (beneficiaryOriginalBalance.add(bid)).sub(cumulativeGasCost); 
+      const beneficiaryFinalBalance = web3.eth.getBalance(beneficiary);
+      const cumulativeGasCost = gasSpent1 + gasSpent2;
+      const correctBalance = (beneficiaryOriginalBalance.add(bid)).sub(cumulativeGasCost); 
 
       assert.equal(beneficiaryFinalBalance.toNumber(), correctBalance.toNumber(), 'beneficiary final balance is greater than or equal to their original balance plus the bid amount minus was was spent on gas');
     }); 
