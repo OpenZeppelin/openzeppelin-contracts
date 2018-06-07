@@ -1,26 +1,28 @@
 import ether from '../helpers/ether';
+import expectThrow from '../helpers/expectThrow';
+import assertRevert from '../helpers/assertRevert';
 
 const DutchAuction = artifacts.require('DutchAuction');
 const ERC721BasicToken = artifacts.require('ERC721BasicToken.sol');
 const ERC721BasicTokenMock = artifacts.require('ERC721BasicTokenMock.sol');
 
-var chai = require('chai');
-var assert = chai.assert;
+const chai = require('chai');
+const assert = chai.assert;
 
 contract('DutchAuction', function (accounts) {
   
-  var auction;
-  var highAskingPrice = 2;
-  var lowAskingPrice = 1;
-  var auctionLength = 5;
-  var currentAskingPrice;
+  let auction;
+  const highAskingPrice = 2;
+  const lowAskingPrice = 1;
+  const auctionLength = 5;
+  let currentAskingPrice;
 
-  var beneficiary = accounts[0];
-  var bidder = accounts[2];
-  var bid = ether(2);
+  let beneficiary = accounts[0];
+  let bidder = accounts[2];
+  let bid;
 
-  var token;
-  var tokenId = 12345;
+  let token;
+  const tokenId = 12345;
 
   beforeEach(async function () {
     token = await ERC721BasicTokenMock.new({ from: web3.eth.accounts[0] });
@@ -59,20 +61,43 @@ contract('DutchAuction', function (accounts) {
   });
 
   describe('process a bid', function () {
-  	it('should not accept a bid that does not equal the currentAskingPrice', async function () {
-      var badBid = ether(1);
-      await auction.startAuction(token.address, tokenId, { from: web3.eth.accounts[0] });
+  	it('should revert if bid is less than currentAskingPrice', async function () {
+      bid = ether(1);
+      await auction.startAuction(token.address, tokenId, { from: web3.eth.accounts[0]});
       await token.approve(auction.address, tokenId, {from: web3.eth.accounts[0]});
-      await auction.processBid( {from: bidder, value: badBid });
-      currentAskingPrice = await auction.findCurrentAskingPrice({from: auction.address});
-      assert.notEqual(badBid.toNumber(), currentAskingPrice.toNumber(), 'bid is not equal to currentAskingPrice');
+      await assertRevert(auction.processBid( {from: bidder, value: bid }));
+    });
+    
+    it('should transfer overage to bidder if bid is greater than currentAskingPrice', async function () {
+      bid = ether(3);
+      // original balance of bidder
+      const bidderOriginalBalance = web3.eth.getBalance(bidder);
+
+      await auction.startAuction(token.address, tokenId, { from: web3.eth.accounts[0]});
+      await token.approve(auction.address, tokenId, {from: web3.eth.accounts[0]});
+
+      // obtain gas used from the receipt
+      const txReceipt = await auction.processBid({from: bidder, value: bid});
+      const gasUsed = txReceipt.receipt.gasUsed;
+
+      // obtain gasPrice from the transaction
+      const transaction = await web3.eth.getTransaction(txReceipt.tx);
+      const gasPrice = transaction.gasPrice;
+      const totalGasCost = gasPrice.mul(gasUsed).toString();
+      
+      const currentAskingPrice = await auction.currentAskingPrice();
+      const bidderFinalBalance = web3.eth.getBalance(bidder);
+      const correctBalance = (bidderOriginalBalance.sub(currentAskingPrice)).sub(totalGasCost);
+      assert.equal(bidderFinalBalance.toNumber(), correctBalance.toNumber());
   	});  
 
     it('should find the currentAskingPrice after an auction has started', async function () {
-      await auction.startAuction(token.address, tokenId, { from: web3.eth.accounts[0] });
+      // Shouldn't this work even if bid is lower than currentAskingPrice?
+      bid = ether(2);
+      await auction.startAuction(token.address, tokenId, { from: web3.eth.accounts[0]});
       await token.approve(auction.address, tokenId, {from: web3.eth.accounts[0]});
-      await auction.processBid( {from: bidder, value: ether(1) });
-      currentAskingPrice = await auction.findCurrentAskingPrice({from: web3.eth.accounts[8]});
+      await auction.processBid( {from: bidder, value: bid });
+      const currentAskingPrice = await auction.currentAskingPrice();
       assert.exists(currentAskingPrice.toNumber(), 'currentAskingPrice is neither `null` nor `undefined`');
       assert.isAbove(currentAskingPrice.toNumber(), 0, 'currentAskingPrice is greater than 0');
     });  
