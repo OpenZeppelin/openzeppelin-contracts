@@ -69,7 +69,7 @@ contract DutchAuction is Ownable{
     address indexed beneficiary,
     address indexed bidder,
     uint256 bid,
-    uint256 tokenId
+    uint256 indexed tokenId
   );
 
   /// @dev Modifier use to ensure the auction is at the appropriate stage 
@@ -134,6 +134,7 @@ contract DutchAuction is Ownable{
     payable 
     atStage(Stages.AuctionStarted)
     validBid()
+    returns (bool)
  {    
     bid = msg.value;
     bidder = msg.sender;
@@ -145,11 +146,17 @@ contract DutchAuction is Ownable{
       stage = Stages.AuctionEnded;  
       payBeneficiary();
       sendToBidder();
-    }   
-    else 
+
+      return true;
+    } 
+      else
+    {
+      return false;
+    }  
+/*    else 
     {
       revert("Bid does not match currentAskingPrice");
-    } 
+    } */
   }
 
   /// @dev Pay the beneficiary the ETH from the bidder's bid
