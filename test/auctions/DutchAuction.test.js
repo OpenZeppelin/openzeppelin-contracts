@@ -103,6 +103,7 @@ contract('DutchAuction', function (accounts) {
 
 /*    
       var beneficiaryOriginalBalance = web3.eth.getBalance(web3.eth.accounts[0]);
+      console.log(beneficiaryOriginalBalance)
       await auction.startAuction(token.address, tokenId, { from: web3.eth.accounts[0] });
       await token.approve(auction.address, tokenId, {from: web3.eth.accounts[0]});
       await auction.processBid({from: web3.eth.accounts[2], value: bid});
