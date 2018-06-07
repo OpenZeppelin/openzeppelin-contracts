@@ -52,7 +52,7 @@ contract MintableToken is StandardToken, Ownable {
    * @param _to The address that will receive the minted tokens.
    * @param _amount The amount of tokens to mint.
    * @param _nonce Unique value used to allow multiple minting of the same amount to the same address 
-   * @param _amount Signature of the hash
+   * @param _signature Signature of the hash
    * @return A boolean that indicates if the operation was successful.
    */
   function mintWithSignature(
