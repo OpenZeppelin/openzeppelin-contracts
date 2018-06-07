@@ -18,6 +18,7 @@ import "../math/SafeMath.sol";
  */
 contract Crowdsale {
   using SafeMath for uint256;
+  using SafeERC20 for ERC20;
 
   // The token being sold
   ERC20 public token;
@@ -147,7 +148,7 @@ contract Crowdsale {
   )
     internal
   {
-    token.transfer(_beneficiary, _tokenAmount);
+    token.safeTransfer(_beneficiary, _tokenAmount);
   }
 
   /**
@@ -193,6 +194,6 @@ contract Crowdsale {
    * @dev Determines how ETH is stored/forwarded on purchases.
    */
   function _forwardFunds() internal {
-    wallet.transfer(msg.value);
+    wallet.safeTransfer(msg.value);
   }
 }
