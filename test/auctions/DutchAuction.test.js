@@ -81,40 +81,31 @@ contract('DutchAuction', function (accounts) {
   describe('pay the beneficiary', function () {
   	it('the bidder should pay the beneficiary after a bid has been received', async function () {
       var beneficiaryOriginalBalance = web3.eth.getBalance(web3.eth.accounts[0]);
-      console.log(beneficiaryOriginalBalance.toNumber());
       var txHash1 = await auction.startAuction(token.address, tokenId, { from: web3.eth.accounts[0] });
       var txHash2 = await token.approve(auction.address, tokenId, {from: web3.eth.accounts[0]});
 
       await auction.processBid({from: web3.eth.accounts[2], value: bid});
 
+      const tx1 = await web3.eth.getTransaction(txHash1.tx);
+      const gasPrice1 = tx1.gasPrice;
+
+      const tx2 = await web3.eth.getTransaction(txHash2.tx);
+      const gasPrice2 = tx2.gasPrice;
+
       var txHash1_TransactionReceipt = web3.eth.getTransactionReceipt(txHash1.tx);
       var txHash2_TransactionReceipt = web3.eth.getTransactionReceipt(txHash2.tx);
 
-      var gasForTransaction1 = web3.toWei(txHash1_TransactionReceipt.gasUsed, "ether");
-      var gasForTransaction2 = web3.toWei(txHash2_TransactionReceipt.gasUsed, "ether");
+      var gasForTransaction1 = txHash1_TransactionReceipt.gasUsed;
+      var gasForTransaction2 = txHash2_TransactionReceipt.gasUsed;
 
-      console.log(gasForTransaction1);
-      console.log(gasForTransaction2);
+      var gasSpent1 = gasForTransaction1 * gasPrice1;
+      var gasSpent2 = gasForTransaction2 * gasPrice2;
 
-//      var beneficiaryFinalBalance = web3.eth.getBalance(web3.eth.accounts[0]);
-      var cumulativeGasCost = gasForTransaction1 + gasForTransaction2;
-//      var correctBalance = beneficiaryOriginalBalance + bid - cumulativeGasCost; 
-
-      console.log(cumulativeGasCost);
-
-//      console.log(beneficiaryFinalBalance.toNumber());
-//      console.log(correctBalance);
-
-//      assert.equal(beneficiaryFinalBalance, correctBalance, 'beneficiary final balance is greater than or equal to their original balance plus the bid amount');
-
-/*    
-      var beneficiaryOriginalBalance = web3.eth.getBalance(web3.eth.accounts[0]);
-      await auction.startAuction(token.address, tokenId, { from: web3.eth.accounts[0] });
-      await token.approve(auction.address, tokenId, {from: web3.eth.accounts[0]});
-      await auction.processBid({from: web3.eth.accounts[2], value: bid});
       var beneficiaryFinalBalance = web3.eth.getBalance(web3.eth.accounts[0]);
-      assert.isAbove(beneficiaryryFinalBalance.toNumber(), beneficiaryOriginalBalance.toNumber(), 'beneficiary final balance is greater than or equal to their original balance plus the bid amount');
-*/
+      var cumulativeGasCost = gasSpent1 + gasSpent2;
+      var correctBalance = (beneficiaryOriginalBalance.add(bid)).sub(cumulativeGasCost); 
+
+      assert.equal(beneficiaryFinalBalance.toNumber(), correctBalance.toNumber(), 'beneficiary final balance is greater than or equal to their original balance plus the bid amount minus was was spent on gas');
     }); 
   });
 
