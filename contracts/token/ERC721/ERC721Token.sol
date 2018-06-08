@@ -44,7 +44,7 @@ contract ERC721Token is ERC721, ERC721BasicToken {
    * @dev Gets the token name
    * @return string representing the token name
    */
-  function name() public view returns (string) {
+  function name() external view returns (string) {
     return name_;
   }
 
@@ -52,7 +52,7 @@ contract ERC721Token is ERC721, ERC721BasicToken {
    * @dev Gets the token symbol
    * @return string representing the token symbol
    */
-  function symbol() public view returns (string) {
+  function symbol() external view returns (string) {
     return symbol_;
   }
 
