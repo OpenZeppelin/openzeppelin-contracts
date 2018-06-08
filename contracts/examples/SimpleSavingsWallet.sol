@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.23;
 
 import "../ownership/Heritable.sol";
 
@@ -19,7 +19,7 @@ contract SimpleSavingsWallet is Heritable {
   event Received(address indexed payer, uint256 amount, uint256 balance);
 
 
-  function SimpleSavingsWallet(uint256 _heartbeatTimeout) Heritable(_heartbeatTimeout) public {}
+  constructor(uint256 _heartbeatTimeout) Heritable(_heartbeatTimeout) public {}
 
   /**
    * @dev wallet can receive funds.
