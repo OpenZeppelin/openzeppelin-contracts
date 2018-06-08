@@ -27,10 +27,10 @@ import "../ECRecovery.sol";
  * @dev See the tests Bouncer.test.js for specific usage examples.
  * @notice A method that uses the `onlyValidSignatureAndData` modifier must make the _sig
  * @notice parameter the "last" parameter. You cannot sign a message that has its own
- * @notice signature in it so the last 128 bytes is of msg.data (which represents the
+ * @notice signature in it so the last 128 bytes of msg.data (which represents the
  * @notice length of the _sig data and the _sig data itself) is ignored when validating.
  * @notice Also non fixed sized parameters make constructing the data in the signature
- * @notice much more complex. See https://bit.ly/2sGSPBc for more details.
+ * @notice much more complex. See https://ethereum.stackexchange.com/a/50616 for more details.
  */
 contract SignatureBouncer is Ownable, RBAC {
   using ECRecovery for bytes32;
@@ -38,7 +38,7 @@ contract SignatureBouncer is Ownable, RBAC {
   string public constant ROLE_BOUNCER = "bouncer";
   uint constant METHOD_ID_SIZE = 4;
   // (signature length size) 32 bytes + (signature size 65 bytes padded) 96 bytes
-  uint constant SIG_SIZE = 128;
+  uint constant SIGNATURE_SIZE = 128;
 
   /**
    * @dev requires that a valid signature of a bouncer was provided
@@ -133,8 +133,8 @@ contract SignatureBouncer is Ownable, RBAC {
     view
     returns (bool)
   {
-    require(msg.data.length > SIG_SIZE);
-    bytes memory data = new bytes(msg.data.length - SIG_SIZE);
+    require(msg.data.length > SIGNATURE_SIZE);
+    bytes memory data = new bytes(msg.data.length - SIGNATURE_SIZE);
     for (uint i = 0; i < data.length; i++) {
       data[i] = msg.data[i];
     }
