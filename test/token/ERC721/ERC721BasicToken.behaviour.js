@@ -1,4 +1,4 @@
-import makeInterfaceId from '../../helpers/makeInterfaceId';
+import shouldSupportInterfaces from '../../introspection/SupportsInterface.behavior';
 import assertRevert from '../../helpers/assertRevert';
 import decodeLogs from '../../helpers/decodeLogs';
 import sendTransaction from '../../helpers/sendTransaction';
@@ -539,29 +539,10 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
       });
     });
 
-    describe('supportsInterface', function () {
-      it('supports ERC721', async function () {
-        const isSupported = await this.token.supportsInterface(makeInterfaceId([
-          'balanceOf(address)',
-          'ownerOf(uint256)',
-          'approve(address,uint256)',
-          'getApproved(uint256)',
-          'setApprovalForAll(address,bool)',
-          'isApprovedForAll(address,address)',
-          'transferFrom(address,address,uint256)',
-          'safeTransferFrom(address,address,uint256)',
-          'safeTransferFrom(address,address,uint256,bytes)',
-        ]));
-        isSupported.should.eq(true);
-      });
-
-      it('supports ERC721Exists', async function () {
-        const isSupported = await this.token.supportsInterface(makeInterfaceId([
-          'exists(uint256)',
-        ]));
-
-        isSupported.should.eq(true);
-      });
-    });
+    shouldSupportInterfaces([
+      'ERC165',
+      'ERC721',
+      'ERC721Exists',
+    ]);
   });
 };

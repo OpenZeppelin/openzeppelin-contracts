@@ -1,7 +1,7 @@
-import makeInterfaceId from '../../helpers/makeInterfaceId';
 import assertRevert from '../../helpers/assertRevert';
 import shouldBehaveLikeERC721BasicToken from './ERC721BasicToken.behaviour';
 import shouldMintAndBurnERC721Token from './ERC721MintBurn.behaviour';
+import shouldSupportInterfaces from '../../introspection/SupportsInterface.behavior';
 import _ from 'lodash';
 
 const BigNumber = web3.BigNumber;
@@ -198,25 +198,11 @@ contract('ERC721Token', function (accounts) {
     });
   });
 
-  describe('supportsInterface', function () {
-    it('supports ERC721Enumerable', async function () {
-      const isSupported = await this.token.supportsInterface(makeInterfaceId([
-        'totalSupply()',
-        'tokenOfOwnerByIndex(address,uint256)',
-        'tokenByIndex(uint256)',
-      ]));
-
-      isSupported.should.eq(true);
-    });
-
-    it('supports ERC721Metadata', async function () {
-      const isSupported = await this.token.supportsInterface(makeInterfaceId([
-        'name()',
-        'symbol()',
-        'tokenURI(uint256)',
-      ]));
-
-      isSupported.should.eq(true);
-    });
-  });
+  shouldSupportInterfaces([
+    'ERC165',
+    'ERC721',
+    'ERC721Exists',
+    'ERC721Enumerable',
+    'ERC721Metadata',
+  ]);
 });

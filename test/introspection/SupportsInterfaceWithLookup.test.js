@@ -1,4 +1,4 @@
-import makeInterfaceId from '../helpers/makeInterfaceId';
+import shouldSupportInterfaces from './SupportsInterface.behavior';
 
 const SupportsInterfaceWithLookup = artifacts.require('SupportsInterfaceWithLookup.sol');
 
@@ -11,13 +11,7 @@ contract('SupportsInterfaceWithLookup', function (accounts) {
     this.mock = await SupportsInterfaceWithLookup.new();
   });
 
-  it('should support supportsInterface()', async function () {
-    const isSupported = await this.mock.supportsInterface(
-      makeInterfaceId([
-        'supportsInterface(bytes4)',
-      ])
-    );
-
-    isSupported.should.eq(true);
-  });
+  shouldSupportInterfaces([
+    'ERC165',
+  ]);
 });
