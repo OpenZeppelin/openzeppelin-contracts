@@ -1,205 +1,143 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.23;
 
 import "./ERC721.sol";
-import "../../math/SafeMath.sol";
+import "./ERC721BasicToken.sol";
+
 
 /**
- * @title ERC721Token
- * Generic implementation for the required functionality of the ERC721 standard
+ * @title Full ERC721 Token
+ * This implementation includes all the required and some optional functionality of the ERC721 standard
+ * Moreover, it includes approve all functionality using operator terminology
+ * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
-contract ERC721Token is ERC721 {
-  using SafeMath for uint256;
+contract ERC721Token is ERC721, ERC721BasicToken {
+  // Token name
+  string internal name_;
 
-  // Total amount of tokens
-  uint256 private totalTokens;
-
-  // Mapping from token ID to owner
-  mapping (uint256 => address) private tokenOwner;
-
-  // Mapping from token ID to approved address
-  mapping (uint256 => address) private tokenApprovals;
+  // Token symbol
+  string internal symbol_;
 
   // Mapping from owner to list of owned token IDs
-  mapping (address => uint256[]) private ownedTokens;
+  mapping(address => uint256[]) internal ownedTokens;
 
   // Mapping from token ID to index of the owner tokens list
-  mapping(uint256 => uint256) private ownedTokensIndex;
+  mapping(uint256 => uint256) internal ownedTokensIndex;
+
+  // Array with all token ids, used for enumeration
+  uint256[] internal allTokens;
+
+  // Mapping from token id to position in the allTokens array
+  mapping(uint256 => uint256) internal allTokensIndex;
+
+  // Optional mapping for token URIs
+  mapping(uint256 => string) internal tokenURIs;
 
   /**
-  * @dev Guarantees msg.sender is owner of the given token
-  * @param _tokenId uint256 ID of the token to validate its ownership belongs to msg.sender
-  */
-  modifier onlyOwnerOf(uint256 _tokenId) {
-    require(ownerOf(_tokenId) == msg.sender);
-    _;
+   * @dev Constructor function
+   */
+  constructor(string _name, string _symbol) public {
+    name_ = _name;
+    symbol_ = _symbol;
   }
 
   /**
-  * @dev Gets the total amount of tokens stored by the contract
-  * @return uint256 representing the total amount of tokens
-  */
+   * @dev Gets the token name
+   * @return string representing the token name
+   */
+  function name() public view returns (string) {
+    return name_;
+  }
+
+  /**
+   * @dev Gets the token symbol
+   * @return string representing the token symbol
+   */
+  function symbol() public view returns (string) {
+    return symbol_;
+  }
+
+  /**
+   * @dev Returns an URI for a given token ID
+   * @dev Throws if the token ID does not exist. May return an empty string.
+   * @param _tokenId uint256 ID of the token to query
+   */
+  function tokenURI(uint256 _tokenId) public view returns (string) {
+    require(exists(_tokenId));
+    return tokenURIs[_tokenId];
+  }
+
+  /**
+   * @dev Gets the token ID at a given index of the tokens list of the requested owner
+   * @param _owner address owning the tokens list to be accessed
+   * @param _index uint256 representing the index to be accessed of the requested tokens list
+   * @return uint256 token ID at the given index of the tokens list owned by the requested address
+   */
+  function tokenOfOwnerByIndex(
+    address _owner,
+    uint256 _index
+  )
+    public
+    view
+    returns (uint256)
+  {
+    require(_index < balanceOf(_owner));
+    return ownedTokens[_owner][_index];
+  }
+
+  /**
+   * @dev Gets the total amount of tokens stored by the contract
+   * @return uint256 representing the total amount of tokens
+   */
   function totalSupply() public view returns (uint256) {
-    return totalTokens;
+    return allTokens.length;
   }
 
   /**
-  * @dev Gets the balance of the specified address
-  * @param _owner address to query the balance of
-  * @return uint256 representing the amount owned by the passed address
-  */
-  function balanceOf(address _owner) public view returns (uint256) {
-    return ownedTokens[_owner].length;
-  }
-
-  /**
-  * @dev Gets the list of tokens owned by a given address
-  * @param _owner address to query the tokens of
-  * @return uint256[] representing the list of tokens owned by the passed address
-  */
-  function tokensOf(address _owner) public view returns (uint256[]) {
-    return ownedTokens[_owner];
-  }
-
-  /**
-  * @dev Gets the owner of the specified token ID
-  * @param _tokenId uint256 ID of the token to query the owner of
-  * @return owner address currently marked as the owner of the given token ID
-  */
-  function ownerOf(uint256 _tokenId) public view returns (address) {
-    address owner = tokenOwner[_tokenId];
-    require(owner != address(0));
-    return owner;
-  }
-
-  /**
-   * @dev Gets the approved address to take ownership of a given token ID
-   * @param _tokenId uint256 ID of the token to query the approval of
-   * @return address currently approved to take ownership of the given token ID
+   * @dev Gets the token ID at a given index of all the tokens in this contract
+   * @dev Reverts if the index is greater or equal to the total number of tokens
+   * @param _index uint256 representing the index to be accessed of the tokens list
+   * @return uint256 token ID at the given index of the tokens list
    */
-  function approvedFor(uint256 _tokenId) public view returns (address) {
-    return tokenApprovals[_tokenId];
+  function tokenByIndex(uint256 _index) public view returns (uint256) {
+    require(_index < totalSupply());
+    return allTokens[_index];
   }
 
   /**
-  * @dev Transfers the ownership of a given token ID to another address
-  * @param _to address to receive the ownership of the given token ID
-  * @param _tokenId uint256 ID of the token to be transferred
-  */
-  function transfer(address _to, uint256 _tokenId) public onlyOwnerOf(_tokenId) {
-    clearApprovalAndTransfer(msg.sender, _to, _tokenId);
-  }
-
-  /**
-  * @dev Approves another address to claim for the ownership of the given token ID
-  * @param _to address to be approved for the given token ID
-  * @param _tokenId uint256 ID of the token to be approved
-  */
-  function approve(address _to, uint256 _tokenId) public onlyOwnerOf(_tokenId) {
-    address owner = ownerOf(_tokenId);
-    require(_to != owner);
-    if (approvedFor(_tokenId) != 0 || _to != 0) {
-      tokenApprovals[_tokenId] = _to;
-      Approval(owner, _to, _tokenId);
-    }
-  }
-
-  /**
-  * @dev Claims the ownership of a given token ID
-  * @param _tokenId uint256 ID of the token being claimed by the msg.sender
-  */
-  function takeOwnership(uint256 _tokenId) public {
-    require(isApprovedFor(msg.sender, _tokenId));
-    clearApprovalAndTransfer(ownerOf(_tokenId), msg.sender, _tokenId);
-  }
-
-  /**
-  * @dev Mint token function
-  * @param _to The address that will own the minted token
-  * @param _tokenId uint256 ID of the token to be minted by the msg.sender
-  */
-  function _mint(address _to, uint256 _tokenId) internal {
-    require(_to != address(0));
-    addToken(_to, _tokenId);
-    Transfer(0x0, _to, _tokenId);
-  }
-
-  /**
-  * @dev Burns a specific token
-  * @param _tokenId uint256 ID of the token being burned by the msg.sender
-  */
-  function _burn(uint256 _tokenId) onlyOwnerOf(_tokenId) internal {
-    if (approvedFor(_tokenId) != 0) {
-      clearApproval(msg.sender, _tokenId);
-    }
-    removeToken(msg.sender, _tokenId);
-    Transfer(msg.sender, 0x0, _tokenId);
-  }
-
-  /**
-   * @dev Tells whether the msg.sender is approved for the given token ID or not
-   * This function is not private so it can be extended in further implementations like the operatable ERC721
-   * @param _owner address of the owner to query the approval of
-   * @param _tokenId uint256 ID of the token to query the approval of
-   * @return bool whether the msg.sender is approved for the given token ID or not
+   * @dev Internal function to set the token URI for a given token
+   * @dev Reverts if the token ID does not exist
+   * @param _tokenId uint256 ID of the token to set its URI
+   * @param _uri string URI to assign
    */
-  function isApprovedFor(address _owner, uint256 _tokenId) internal view returns (bool) {
-    return approvedFor(_tokenId) == _owner;
+  function _setTokenURI(uint256 _tokenId, string _uri) internal {
+    require(exists(_tokenId));
+    tokenURIs[_tokenId] = _uri;
   }
 
   /**
-  * @dev Internal function to clear current approval and transfer the ownership of a given token ID
-  * @param _from address which you want to send tokens from
-  * @param _to address which you want to transfer the token to
-  * @param _tokenId uint256 ID of the token to be transferred
-  */
-  function clearApprovalAndTransfer(address _from, address _to, uint256 _tokenId) internal {
-    require(_to != address(0));
-    require(_to != ownerOf(_tokenId));
-    require(ownerOf(_tokenId) == _from);
-
-    clearApproval(_from, _tokenId);
-    removeToken(_from, _tokenId);
-    addToken(_to, _tokenId);
-    Transfer(_from, _to, _tokenId);
-  }
-
-  /**
-  * @dev Internal function to clear current approval of a given token ID
-  * @param _tokenId uint256 ID of the token to be transferred
-  */
-  function clearApproval(address _owner, uint256 _tokenId) private {
-    require(ownerOf(_tokenId) == _owner);
-    tokenApprovals[_tokenId] = 0;
-    Approval(_owner, 0, _tokenId);
-  }
-
-  /**
-  * @dev Internal function to add a token ID to the list of a given address
-  * @param _to address representing the new owner of the given token ID
-  * @param _tokenId uint256 ID of the token to be added to the tokens list of the given address
-  */
-  function addToken(address _to, uint256 _tokenId) private {
-    require(tokenOwner[_tokenId] == address(0));
-    tokenOwner[_tokenId] = _to;
-    uint256 length = balanceOf(_to);
+   * @dev Internal function to add a token ID to the list of a given address
+   * @param _to address representing the new owner of the given token ID
+   * @param _tokenId uint256 ID of the token to be added to the tokens list of the given address
+   */
+  function addTokenTo(address _to, uint256 _tokenId) internal {
+    super.addTokenTo(_to, _tokenId);
+    uint256 length = ownedTokens[_to].length;
     ownedTokens[_to].push(_tokenId);
     ownedTokensIndex[_tokenId] = length;
-    totalTokens = totalTokens.add(1);
   }
 
   /**
-  * @dev Internal function to remove a token ID from the list of a given address
-  * @param _from address representing the previous owner of the given token ID
-  * @param _tokenId uint256 ID of the token to be removed from the tokens list of the given address
-  */
-  function removeToken(address _from, uint256 _tokenId) private {
-    require(ownerOf(_tokenId) == _from);
+   * @dev Internal function to remove a token ID from the list of a given address
+   * @param _from address representing the previous owner of the given token ID
+   * @param _tokenId uint256 ID of the token to be removed from the tokens list of the given address
+   */
+  function removeTokenFrom(address _from, uint256 _tokenId) internal {
+    super.removeTokenFrom(_from, _tokenId);
 
     uint256 tokenIndex = ownedTokensIndex[_tokenId];
-    uint256 lastTokenIndex = balanceOf(_from).sub(1);
+    uint256 lastTokenIndex = ownedTokens[_from].length.sub(1);
     uint256 lastToken = ownedTokens[_from][lastTokenIndex];
 
-    tokenOwner[_tokenId] = 0;
     ownedTokens[_from][tokenIndex] = lastToken;
     ownedTokens[_from][lastTokenIndex] = 0;
     // Note that this will handle single-element arrays. In that case, both tokenIndex and lastTokenIndex are going to
@@ -209,6 +147,46 @@ contract ERC721Token is ERC721 {
     ownedTokens[_from].length--;
     ownedTokensIndex[_tokenId] = 0;
     ownedTokensIndex[lastToken] = tokenIndex;
-    totalTokens = totalTokens.sub(1);
   }
+
+  /**
+   * @dev Internal function to mint a new token
+   * @dev Reverts if the given token ID already exists
+   * @param _to address the beneficiary that will own the minted token
+   * @param _tokenId uint256 ID of the token to be minted by the msg.sender
+   */
+  function _mint(address _to, uint256 _tokenId) internal {
+    super._mint(_to, _tokenId);
+
+    allTokensIndex[_tokenId] = allTokens.length;
+    allTokens.push(_tokenId);
+  }
+
+  /**
+   * @dev Internal function to burn a specific token
+   * @dev Reverts if the token does not exist
+   * @param _owner owner of the token to burn
+   * @param _tokenId uint256 ID of the token being burned by the msg.sender
+   */
+  function _burn(address _owner, uint256 _tokenId) internal {
+    super._burn(_owner, _tokenId);
+
+    // Clear metadata (if any)
+    if (bytes(tokenURIs[_tokenId]).length != 0) {
+      delete tokenURIs[_tokenId];
+    }
+
+    // Reorg all tokens array
+    uint256 tokenIndex = allTokensIndex[_tokenId];
+    uint256 lastTokenIndex = allTokens.length.sub(1);
+    uint256 lastToken = allTokens[lastTokenIndex];
+
+    allTokens[tokenIndex] = lastToken;
+    allTokens[lastTokenIndex] = 0;
+
+    allTokens.length--;
+    allTokensIndex[_tokenId] = 0;
+    allTokensIndex[lastToken] = tokenIndex;
+  }
+
 }

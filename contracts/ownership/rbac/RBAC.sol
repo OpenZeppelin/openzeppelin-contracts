@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.23;
 
 import "./Roles.sol";
 
@@ -7,8 +7,8 @@ import "./Roles.sol";
  * @title RBAC (Role-Based Access Control)
  * @author Matt Condon (@Shrugs)
  * @dev Stores and provides setters and getters for roles and addresses.
- *      Supports unlimited numbers of roles and addresses.
- *      See //contracts/mocks/RBACMock.sol for an example of usage.
+ * @dev Supports unlimited numbers of roles and addresses.
+ * @dev See //contracts/mocks/RBACMock.sol for an example of usage.
  * This RBAC method uses strings to key roles. It may be beneficial
  *  for you to write your own implementation of this interface using Enums or similar.
  * It's also recommended that you define constants in the contract, like ROLE_ADMIN below,
@@ -21,20 +21,6 @@ contract RBAC {
 
   event RoleAdded(address addr, string roleName);
   event RoleRemoved(address addr, string roleName);
-
-  /**
-   * A constant role name for indicating admins.
-   */
-  string public constant ROLE_ADMIN = "admin";
-
-  /**
-   * @dev constructor. Sets msg.sender as admin by default
-   */
-  function RBAC()
-    public
-  {
-    addRole(msg.sender, ROLE_ADMIN);
-  }
 
   /**
    * @dev reverts if addr does not have role
@@ -68,35 +54,11 @@ contract RBAC {
    * @param addr address
    * @param roleName the name of the role
    */
-  function adminAddRole(address addr, string roleName)
-    onlyAdmin
-    public
-  {
-    addRole(addr, roleName);
-  }
-
-  /**
-   * @dev remove a role from an address
-   * @param addr address
-   * @param roleName the name of the role
-   */
-  function adminRemoveRole(address addr, string roleName)
-    onlyAdmin
-    public
-  {
-    removeRole(addr, roleName);
-  }
-
-  /**
-   * @dev add a role to an address
-   * @param addr address
-   * @param roleName the name of the role
-   */
   function addRole(address addr, string roleName)
     internal
   {
     roles[roleName].add(addr);
-    RoleAdded(addr, roleName);
+    emit RoleAdded(addr, roleName);
   }
 
   /**
@@ -108,7 +70,7 @@ contract RBAC {
     internal
   {
     roles[roleName].remove(addr);
-    RoleRemoved(addr, roleName);
+    emit RoleRemoved(addr, roleName);
   }
 
   /**
@@ -119,16 +81,6 @@ contract RBAC {
   modifier onlyRole(string roleName)
   {
     checkRole(msg.sender, roleName);
-    _;
-  }
-
-  /**
-   * @dev modifier to scope access to admins
-   * // reverts
-   */
-  modifier onlyAdmin()
-  {
-    checkRole(msg.sender, ROLE_ADMIN);
     _;
   }
 

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.23;
 
 
 import "../math/SafeMath.sol";
@@ -7,7 +7,7 @@ import "../math/SafeMath.sol";
 /**
  * @title PullPayment
  * @dev Base contract supporting async send for pull payments. Inherit from this
- * contract and use asyncSend instead of send.
+ * contract and use asyncSend instead of send or transfer.
  */
 contract PullPayment {
   using SafeMath for uint256;
@@ -16,19 +16,19 @@ contract PullPayment {
   uint256 public totalPayments;
 
   /**
-  * @dev withdraw accumulated balance, called by payee.
+  * @dev Withdraw accumulated balance, called by payee.
   */
   function withdrawPayments() public {
     address payee = msg.sender;
     uint256 payment = payments[payee];
 
     require(payment != 0);
-    require(this.balance >= payment);
+    require(address(this).balance >= payment);
 
     totalPayments = totalPayments.sub(payment);
     payments[payee] = 0;
 
-    assert(payee.send(payment));
+    payee.transfer(payment);
   }
 
   /**

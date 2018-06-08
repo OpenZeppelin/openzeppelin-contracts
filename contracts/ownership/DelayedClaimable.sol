@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.23;
 
 import "./Claimable.sol";
 
@@ -31,7 +31,7 @@ contract DelayedClaimable is Claimable {
    */
   function claimOwnership() onlyPendingOwner public {
     require((block.number <= end) && (block.number >= start));
-    OwnershipTransferred(owner, pendingOwner);
+    emit OwnershipTransferred(owner, pendingOwner);
     owner = pendingOwner;
     pendingOwner = address(0);
     end = 0;

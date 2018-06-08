@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.23;
 
 
 /**
@@ -12,7 +12,7 @@ contract ReentrancyGuard {
   /**
    * @dev We use a single lock for the whole contract.
    */
-  bool private reentrancy_lock = false;
+  bool private reentrancyLock = false;
 
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
@@ -23,10 +23,10 @@ contract ReentrancyGuard {
    * wrapper marked as `nonReentrant`.
    */
   modifier nonReentrant() {
-    require(!reentrancy_lock);
-    reentrancy_lock = true;
+    require(!reentrancyLock);
+    reentrancyLock = true;
     _;
-    reentrancy_lock = false;
+    reentrancyLock = false;
   }
 
 }

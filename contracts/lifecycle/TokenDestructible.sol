@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.23;
 
 import "../ownership/Ownable.sol";
 import "../token/ERC20/ERC20Basic.sol";
@@ -12,7 +12,7 @@ import "../token/ERC20/ERC20Basic.sol";
  */
 contract TokenDestructible is Ownable {
 
-  function TokenDestructible() public payable { }
+  constructor() public payable { }
 
   /**
    * @notice Terminate contract and refund to owner

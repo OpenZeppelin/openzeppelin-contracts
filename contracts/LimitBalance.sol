@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.23;
 
 
 /**
@@ -15,7 +15,7 @@ contract LimitBalance {
    * @dev Constructor that sets the passed value as a limit.
    * @param _limit uint256 to represent the limit.
    */
-  function LimitBalance(uint256 _limit) public {
+  constructor(uint256 _limit) public {
     limit = _limit;
   }
 
@@ -23,7 +23,7 @@ contract LimitBalance {
    * @dev Checks if limit was reached. Case true, it throws.
    */
   modifier limitedPayable() {
-    require(this.balance <= limit);
+    require(address(this).balance <= limit);
     _;
 
   }

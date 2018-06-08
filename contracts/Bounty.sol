@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.23;
 
 
 import "./payment/PullPayment.sol";
@@ -30,7 +30,7 @@ contract Bounty is PullPayment, Destructible {
   function createTarget() public returns(Target) {
     Target target = Target(deployContract());
     researchers[target] = msg.sender;
-    TargetCreated(target);
+    emit TargetCreated(target);
     return target;
   }
 
@@ -43,7 +43,7 @@ contract Bounty is PullPayment, Destructible {
     require(researcher != 0);
     // Check Target contract invariants
     require(!target.checkInvariant());
-    asyncSend(researcher, this.balance);
+    asyncSend(researcher, address(this).balance);
     claimed = true;
   }
 
