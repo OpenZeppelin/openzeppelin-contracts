@@ -6,6 +6,7 @@ contract WhitelistMock is Whitelist {
 
   function onlyWhitelistedCanDoThis()
     onlyWhitelisted
+    isWhitelisted(msg.sender)
     view
     external
   {

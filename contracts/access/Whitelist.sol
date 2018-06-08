@@ -16,6 +16,7 @@ contract Whitelist is Ownable, RBAC {
   /**
    * @dev Throws if called by any account that's not whitelisted.
    * @dev kept as `onlyWhitelisted` for backwards compatibility
+   * @dev use isWhitelisted(address) and pass in msg.sender for more readable code
    */
   modifier onlyWhitelisted() {
     checkRole(msg.sender, ROLE_WHITELISTED);
