@@ -1,4 +1,4 @@
-import makeInterfaceId from './helpers/makeInterfaceId';
+import makeInterfaceId from '../helpers/makeInterfaceId';
 
 const SupportsInterfaceWithLookup = artifacts.require('SupportsInterfaceWithLookup.sol');
 
