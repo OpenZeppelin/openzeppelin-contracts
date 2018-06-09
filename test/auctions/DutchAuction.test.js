@@ -61,7 +61,7 @@ contract('DutchAuction', function (accounts) {
   });
 
   describe('process a bid', function () {
-    it('should revert if bid is less than currentAskingPrice', async function () {
+  	it('should revert if bid is less than currentAskingPrice', async function () {
       bid = ether(1);
       await auction.startAuction(token.address, tokenId, { from: beneficiary});
       await token.approve(auction.address, tokenId, {from: beneficiary});
@@ -89,7 +89,7 @@ contract('DutchAuction', function (accounts) {
       const bidderFinalBalance = web3.eth.getBalance(bidder);
       const correctBalance = (bidderOriginalBalance.sub(currentAskingPrice)).sub(totalGasCost);
       assert.equal(bidderFinalBalance.toNumber(), correctBalance.toNumber());
-    });  
+    });   
 
     it('should find the currentAskingPrice after an auction has started', async function () {
       bid = ether(2);
@@ -103,7 +103,7 @@ contract('DutchAuction', function (accounts) {
   });
 
   describe('pay the beneficiary', function () {
-    it('the bidder should pay the beneficiary after a bid at currentAskingPrice has been received', async function () {
+  	it('the bidder should pay the beneficiary after a bid at currentAskingPrice has been received', async function () {
       bid = ether(2);
       const beneficiaryOriginalBalance = web3.eth.getBalance(beneficiary);
       const txHash1 = await auction.startAuction(token.address, tokenId, { from: beneficiary });
