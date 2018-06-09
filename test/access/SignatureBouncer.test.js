@@ -1,30 +1,24 @@
 
 import assertRevert from '../helpers/assertRevert';
-import { signHex } from '../helpers/sign';
+import { getBouncerSigner } from '../helpers/sign';
 
-const Bouncer = artifacts.require('SignatureBouncerMock');
+const SignatureBouncer = artifacts.require('SignatureBouncerMock');
 
 require('chai')
   .use(require('chai-as-promised'))
   .should();
 
-export const getSigner = (contract, signer, data = '') => (addr) => {
-  // via: https://github.com/OpenZeppelin/zeppelin-solidity/pull/812/files
-  const message = contract.address.substr(2) + addr.substr(2) + data;
-  // ^ substr to remove `0x` because in solidity the address is a set of byes, not a string `0xabcd`
-  return signHex(signer, message);
-};
-
-contract('Bouncer', ([_, owner, authorizedUser, anyone, bouncerAddress, newBouncer]) => {
+contract('SignatureBouncer', ([_, owner, authorizedUser, anyone, bouncerAddress, newBouncer]) => {
   before(async function () {
-    this.bouncer = await Bouncer.new({ from: owner });
+    this.bouncer = await SignatureBouncer.new({ from: owner });
     this.roleBouncer = await this.bouncer.ROLE_BOUNCER();
-    this.genSig = getSigner(this.bouncer, bouncerAddress);
+    this.roleOwner = await this.bouncer.ROLE_OWNER();
+    this.genSig = getBouncerSigner(this.bouncer, bouncerAddress);
   });
 
-  it('should have a default owner of self', async function () {
-    const theOwner = await this.bouncer.owner();
-    theOwner.should.eq(owner);
+  it('should have a default owner', async function () {
+    const hasRole = await this.bouncer.hasRole(owner, this.roleOwner);
+    hasRole.should.eq(true);
   });
 
   it('should allow owner to add a bouncer', async function () {
