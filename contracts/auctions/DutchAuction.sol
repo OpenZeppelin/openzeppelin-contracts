@@ -2,6 +2,8 @@ pragma solidity ^0.4.23;
 import "../math/SafeMath.sol";
 import "../ownership/Ownable.sol";
 import "../token/ERC721/ERC721BasicToken.sol";
+
+
 /**
  * @title DutchAuction
  * @author Doug Crescenzi, Kseniya Lifanova - team@upstate.agency
@@ -22,7 +24,7 @@ import "../token/ERC721/ERC721BasicToken.sol";
  * This type of auction is good for auctioning goods quickly, 
  * since a sale never requires more than one bid. 
  **/
-contract DutchAuction is Ownable{
+contract DutchAuction is Ownable {
   using SafeMath for uint256;
   /// The address of the user auctioning off their NFT
   address public beneficiary;
@@ -77,8 +79,8 @@ contract DutchAuction is Ownable{
     require(msg.value > 0);
     require(block.timestamp >= startTime);
     require(block.timestamp <= endTime);
-     _;
-   }
+    _;
+  }
   /// @dev Contructor used to setup the auction's preliminaries
   /// @param _highAskingPrice for the NFT
   /// @param _lowAskingPrice or reserve price for the NFT
@@ -98,9 +100,9 @@ contract DutchAuction is Ownable{
     public 
     payable 
   {
-    if(stage != Stages.AuctionStarted && msg.sender != beneficiary)
+    if (stage != Stages.AuctionStarted && msg.sender != beneficiary)
       revert("The auction is not at the appropriate stage");
-      processBid();
+    processBid();
   }
   /// @dev Starts auction and determines the auction's endTime
   /// @param _tokenContract the address of the 
@@ -136,15 +138,11 @@ contract DutchAuction is Ownable{
       stage = Stages.AuctionEnded;  
       payBeneficiary();
       sendToBidder();
-    } 
-    else if(bid == currentAskingPrice)
-    {
+    } else if (bid == currentAskingPrice) {
       stage = Stages.AuctionEnded;  
       payBeneficiary();
       sendToBidder();
-    } 
-    else 
-    {
+    } else {
       revert("Bid is lower than currentAskingPrice");
     }
   }
