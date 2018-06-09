@@ -1,9 +1,7 @@
 pragma solidity ^0.4.23;
-
 import "../math/SafeMath.sol";
 import "../ownership/Ownable.sol";
 import "../token/ERC721/ERC721BasicToken.sol";
-
 /**
  * @title DutchAuction
  * @author Doug Crescenzi, Kseniya Lifanova - team@upstate.agency
@@ -24,16 +22,16 @@ import "../token/ERC721/ERC721BasicToken.sol";
  * This type of auction is good for auctioning goods quickly, 
  * since a sale never requires more than one bid. 
  **/
-
 contract DutchAuction is Ownable{
   using SafeMath for uint256;
-
   /// The address of the user auctioning off their NFT
   address public beneficiary;
   /// The address of the user that bids on the NFT
   address public bidder;
   /// The value of the bid from the bidder
   uint public bid;
+  /// The difference between the bid and currentAskingPrice if bid is higher
+  uint public overage;
   /// The number of days the auction will run for. 
   /// See `startAuction` and `getCurrentAskingPrice` for how _auctionLength is used and why it's in days
   uint public auctionLength;  
@@ -51,16 +49,13 @@ contract DutchAuction is Ownable{
   address public tokenContract;
   /// The NFT's unique ID
   uint public tokenId;
-
   /// @dev create user-defined "Stages" type to manage state of the auction
   Stages public stage;
-
   enum Stages {
      AuctionDeployed,
      AuctionStarted,
      AuctionEnded
   }
-
   /// @dev Event for auction logging
   /// @param beneficiary who sold the NFT
   /// @param bidder who paid for the NFT
@@ -71,7 +66,6 @@ contract DutchAuction is Ownable{
     uint256 bid,
     uint256 indexed tokenId
   );
-
   /// @dev Modifier use to ensure the auction is at the appropriate stage 
   modifier atStage(Stages _stage) {
     if (stage != _stage)
@@ -85,7 +79,6 @@ contract DutchAuction is Ownable{
     require(block.timestamp <= endTime);
      _;
    }
-
   /// @dev Contructor used to setup the auction's preliminaries
   /// @param _highAskingPrice for the NFT
   /// @param _lowAskingPrice or reserve price for the NFT
@@ -95,13 +88,11 @@ contract DutchAuction is Ownable{
     public 
   {
     require(_lowAskingPrice < _highAskingPrice && _lowAskingPrice > 0 && _highAskingPrice > 0);
-
     highAskingPrice = _highAskingPrice;
     lowAskingPrice = _lowAskingPrice;
     auctionLength = _auctionLength;
     stage = Stages.AuctionDeployed;
   }
-
   /// @dev Fallback function - if the auction is active, make a bid on behalf of msg.sender
   function () 
     public 
@@ -111,7 +102,6 @@ contract DutchAuction is Ownable{
       revert("The auction is not at the appropriate stage");
       processBid();
   }
-
   /// @dev Starts auction and determines the auction's endTime
   /// @param _tokenContract the address of the 
   /// @param _tokenId ID of the NFT that's being auctioned
@@ -127,38 +117,37 @@ contract DutchAuction is Ownable{
     tokenContract = _tokenContract;
     tokenId = _tokenId;
   }
-
   /// @dev The first one to provide a bid at the currentAskingPrice is awarded the beneficiary's NFT
+  /// @dev If a bidder overbids on the NFT they will win the auction and their overage will be returned
   function processBid() 
     public 
     payable 
     atStage(Stages.AuctionStarted)
     validBid()
-    returns (bool)
+    returns (uint)
  {    
     bid = msg.value;
     bidder = msg.sender;
-
-    getCurrentAskingPrice();   
-
-    if(bid == currentAskingPrice)
+    getCurrentAskingPrice(); 
+    if (bid > currentAskingPrice) {
+      overage = bid.sub(currentAskingPrice);
+      bidder.transfer(overage);
+      bid = currentAskingPrice;
+      stage = Stages.AuctionEnded;  
+      payBeneficiary();
+      sendToBidder();
+    } 
+    else if(bid == currentAskingPrice)
     {
       stage = Stages.AuctionEnded;  
       payBeneficiary();
       sendToBidder();
-
-      return true;
     } 
-      else
+    else 
     {
-      return false;
-    }  
-/*    else 
-    {
-      revert("Bid does not match currentAskingPrice");
-    } */
+      revert("Bid is lower than currentAskingPrice");
+    }
   }
-
   /// @dev Pay the beneficiary the ETH from the bidder's bid
   function payBeneficiary()
     internal 
@@ -166,10 +155,8 @@ contract DutchAuction is Ownable{
     returns (bool)
   {
     beneficiary.transfer(bid);
-
     return true;
   }
-
   /// @dev Send the bidder the NFT with `safeTransferFrom`
   /// @dev In order for this contract to perform `safeTransferFrom` and transfer the NFT,
   /// the beneficiary must approve DutchAuction to send the NFT to the bidder.
@@ -184,7 +171,6 @@ contract DutchAuction is Ownable{
   {
     ERC721BasicToken erc721Token = ERC721BasicToken(tokenContract);
     erc721Token.safeTransferFrom(beneficiary, bidder, tokenId);
-
    /// Emit event for token auction logging
    /// @param beneficiary who auctioned off their NFT
    /// @param bidder who paid for the beneficiary's NFT
@@ -196,10 +182,8 @@ contract DutchAuction is Ownable{
       bid,
       tokenId
     );
-
     return true;
   }
-
   /// @dev Determines the current asking price for the ERC721 token that's being auctioned
   /// @return The auction's currentAskingPrice 
   function getCurrentAskingPrice() 
@@ -212,18 +196,6 @@ contract DutchAuction is Ownable{
     uint numberOfDaysPassed = (now.sub(startTime)).div(1 days);
     /// @dev After every day that has passed subtract the rateOfDecrease from highAskingPrice
     currentAskingPrice = (highAskingPrice.sub(numberOfDaysPassed.mul(rateOfDecrease))).mul(10 ** 18);
-
-    return currentAskingPrice;
-  }
-
-  /// @dev Returns the currentAskingPrice of the auction. Perhaps useful for front-end interface.
-  /// @return The auction's currentAskingPrice 
-  function findCurrentAskingPrice() 
-    public
-    view
-    atStage(Stages.AuctionStarted)
-    returns (uint)
-  {
     return currentAskingPrice;
   }
 }
