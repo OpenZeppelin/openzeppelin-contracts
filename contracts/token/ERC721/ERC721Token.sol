@@ -2,6 +2,7 @@ pragma solidity ^0.4.23;
 
 import "./ERC721.sol";
 import "./ERC721BasicToken.sol";
+import "../../introspection/SupportsInterfaceWithLookup.sol";
 
 
 /**
@@ -10,7 +11,24 @@ import "./ERC721BasicToken.sol";
  * Moreover, it includes approve all functionality using operator terminology
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
-contract ERC721Token is ERC721, ERC721BasicToken {
+contract ERC721Token is SupportsInterfaceWithLookup, ERC721BasicToken, ERC721 {
+
+  bytes4 private constant InterfaceId_ERC721Enumerable = 0x780e9d63;
+  /**
+   * 0x780e9d63 ===
+   *   bytes4(keccak256('totalSupply()')) ^
+   *   bytes4(keccak256('tokenOfOwnerByIndex(address,uint256)')) ^
+   *   bytes4(keccak256('tokenByIndex(uint256)'))
+   */
+
+  bytes4 private constant InterfaceId_ERC721Metadata = 0x5b5e139f;
+  /**
+   * 0x5b5e139f ===
+   *   bytes4(keccak256('name()')) ^
+   *   bytes4(keccak256('symbol()')) ^
+   *   bytes4(keccak256('tokenURI(uint256)'))
+   */
+
   // Token name
   string internal name_;
 
@@ -38,6 +56,10 @@ contract ERC721Token is ERC721, ERC721BasicToken {
   constructor(string _name, string _symbol) public {
     name_ = _name;
     symbol_ = _symbol;
+
+    // register the supported interfaces to conform to ERC721 via ERC165
+    _registerInterface(InterfaceId_ERC721Enumerable);
+    _registerInterface(InterfaceId_ERC721Metadata);
   }
 
   /**
