@@ -19,8 +19,8 @@ contract RBAC {
 
   mapping (string => Roles.Role) private roles;
 
-  event RoleAdded(address indexed _operator, string _role);
-  event RoleRemoved(address indexed _operator, string _role);
+  event RoleAdded(address indexed operator, string role);
+  event RoleRemoved(address indexed operator, string role);
 
   /**
    * @dev reverts if addr does not have role

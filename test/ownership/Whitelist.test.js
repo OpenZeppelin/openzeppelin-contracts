@@ -27,7 +27,7 @@ contract('Whitelist', function (accounts) {
       await expectEvent.inTransaction(
         this.mock.addAddressToWhitelist(whitelistedAddress1, { from: owner }),
         'RoleAdded',
-        { _role: this.role },
+        { role: this.role },
       );
       const isWhitelisted = await this.mock.whitelist(whitelistedAddress1);
       isWhitelisted.should.be.equal(true);
@@ -37,7 +37,7 @@ contract('Whitelist', function (accounts) {
       await expectEvent.inTransaction(
         this.mock.addAddressesToWhitelist(whitelistedAddresses, { from: owner }),
         'RoleAdded',
-        { _role: this.role },
+        { role: this.role },
       );
       for (let addr of whitelistedAddresses) {
         const isWhitelisted = await this.mock.whitelist(addr);
@@ -49,7 +49,7 @@ contract('Whitelist', function (accounts) {
       await expectEvent.inTransaction(
         this.mock.removeAddressFromWhitelist(whitelistedAddress1, { from: owner }),
         'RoleRemoved',
-        { _role: this.role },
+        { role: this.role },
       );
       let isWhitelisted = await this.mock.whitelist(whitelistedAddress1);
       isWhitelisted.should.be.equal(false);
@@ -59,7 +59,7 @@ contract('Whitelist', function (accounts) {
       await expectEvent.inTransaction(
         this.mock.removeAddressesFromWhitelist(whitelistedAddresses, { from: owner }),
         'RoleRemoved',
-        { _role: this.role },
+        { role: this.role },
       );
       for (let addr of whitelistedAddresses) {
         const isWhitelisted = await this.mock.whitelist(addr);
