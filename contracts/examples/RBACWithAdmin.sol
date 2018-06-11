@@ -8,8 +8,7 @@ import "../ownership/rbac/RBAC.sol";
  * @author Matt Condon (@Shrugs)
  * @dev It's recommended that you define constants in the contract,
  * like ROLE_ADMIN below, to avoid typos.
- *
- * NOTE: RBACWithAdmin is probably too expansive and powerful for your
+ * @notice RBACWithAdmin is probably too expansive and powerful for your
  * application; an admin is actually able to change any address to any role
  * which is a very large API surface. It's recommended that you follow a strategy
  * of strictly defining the abilities of your roles
