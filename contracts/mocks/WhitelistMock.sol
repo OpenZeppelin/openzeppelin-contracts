@@ -1,7 +1,6 @@
 pragma solidity ^0.4.23;
 
-import "../ownership/Whitelist.sol";
-
+import "../access/Whitelist.sol";
 
 contract WhitelistMock is Whitelist {
 
