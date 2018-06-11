@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.23;
 
 import "../token/ERC20/ERC20.sol";
 import "../crowdsale/validation/TimedCrowdsale.sol";
@@ -6,7 +6,7 @@ import "../crowdsale/validation/TimedCrowdsale.sol";
 
 contract TimedCrowdsaleImpl is TimedCrowdsale {
 
-  function TimedCrowdsaleImpl (
+  constructor (
     uint256 _openingTime,
     uint256 _closingTime,
     uint256 _rate,

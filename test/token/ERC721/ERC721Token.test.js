@@ -1,6 +1,7 @@
 import assertRevert from '../../helpers/assertRevert';
 import shouldBehaveLikeERC721BasicToken from './ERC721BasicToken.behaviour';
 import shouldMintAndBurnERC721Token from './ERC721MintBurn.behaviour';
+import shouldSupportInterfaces from '../../introspection/SupportsInterface.behavior';
 import _ from 'lodash';
 
 const BigNumber = web3.BigNumber;
@@ -93,13 +94,13 @@ contract('ERC721Token', function (accounts) {
       const sampleUri = 'mock://mytoken';
 
       it('has a name', async function () {
-        const name = await this.token.name();
-        name.should.be.equal(name);
+        const tokenName = await this.token.name();
+        tokenName.should.be.equal(name);
       });
 
       it('has a symbol', async function () {
-        const symbol = await this.token.symbol();
-        symbol.should.be.equal(symbol);
+        const tokenSymbol = await this.token.symbol();
+        tokenSymbol.should.be.equal(symbol);
       });
 
       it('sets and returns metadata for a token id', async function () {
@@ -209,4 +210,12 @@ contract('ERC721Token', function (accounts) {
       });
     });
   });
+
+  shouldSupportInterfaces([
+    'ERC165',
+    'ERC721',
+    'ERC721Exists',
+    'ERC721Enumerable',
+    'ERC721Metadata',
+  ]);
 });
