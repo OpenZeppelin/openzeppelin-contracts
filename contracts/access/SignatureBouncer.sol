@@ -7,7 +7,7 @@ import "../ECRecovery.sol";
 
 /**
  * @title SignatureBouncer
- * @author PhABC and Shrugs
+ * @author PhABC, Shrugs and aflesher
  * @dev Bouncer allows users to submit a signature as a permission to do an action.
  * @dev If the signature is from one of the authorized bouncer addresses, the signature
  * @dev is valid. The owner of the contract adds/removes bouncers.
