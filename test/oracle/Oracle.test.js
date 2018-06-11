@@ -49,7 +49,7 @@ contract('Oracle', function ([owner, oracle, other]) {
   });
 
   it('should reject contruction if reward is wrong', async function () {
-    const wrongReward = -1;
+    const wrongReward = 0;
     await Oracle.new(oracle,
       amountOfUpdates,
       minFrequencyInSeconds,
