@@ -23,22 +23,38 @@ contract('Oracle', function ([owner, oracle, other]) {
 
   it('should reject contruction if amount of update is wrong', async function () {
     const wrongAmountOfUpdates = 0;
-    await Oracle.new(oracle, wrongAmountOfUpdates, minFrequencyInSeconds, maxFrequencyInSeconds, amount).should.be.rejectedWith(EVMThrow);
+    await Oracle.new(oracle,
+      wrongAmountOfUpdates,
+      minFrequencyInSeconds,
+      maxFrequencyInSeconds,
+      amount).should.be.rejectedWith(EVMThrow);
   });
 
   it('should reject contruction if min frequency is wrong', async function () {
     const wrongMinFrequency = 0;
-    await Oracle.new(oracle, amountOfUpdates, wrongMinFrequency, maxFrequencyInSeconds, amount).should.be.rejectedWith(EVMThrow);
+    await Oracle.new(oracle,
+      amountOfUpdates,
+      wrongMinFrequency,
+      maxFrequencyInSeconds,
+      amount).should.be.rejectedWith(EVMThrow);
   });
 
   it('should reject contruction if max frequency is wrong', async function () {
     const wrongMaxFrequency = 0;
-    await Oracle.new(oracle, amountOfUpdates, minFrequencyInSeconds, wrongMaxFrequency, amount).should.be.rejectedWith(EVMThrow);
+    await Oracle.new(oracle,
+      amountOfUpdates,
+      minFrequencyInSeconds,
+      wrongMaxFrequency,
+      amount).should.be.rejectedWith(EVMThrow);
   });
 
   it('should reject contruction if reward is wrong', async function () {
     const wrongReward = -1;
-    await Oracle.new(oracle, amountOfUpdates, minFrequencyInSeconds, maxFrequencyInSeconds, wrongReward).should.be.rejectedWith(EVMThrow);
+    await Oracle.new(oracle,
+      amountOfUpdates,
+      minFrequencyInSeconds,
+      maxFrequencyInSeconds,
+      wrongReward).should.be.rejectedWith(EVMThrow);
   });
 
   it('should reject contruction if max frequency is less than a minimum', async function () {
@@ -82,7 +98,6 @@ contract('Oracle', function ([owner, oracle, other]) {
 
   it('should reject updating the data if updated too frequently', async function () {
     const valueOne = 1;
-
     await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: amount });
     await this.contract.activate({ from: owner });
     await this.contract.addOracleData(valueOne, { from: oracle }).should.be.rejectedWith(EVMThrow);
