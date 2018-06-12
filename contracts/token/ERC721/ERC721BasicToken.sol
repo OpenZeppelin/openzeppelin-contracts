@@ -220,7 +220,6 @@ contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
    * which is called upon a safe transfer, and return the magic value
    * `bytes4(keccak256("onERC721Received(address,uint256,bytes)"))`; otherwise,
    * the transfer is reverted.
-   *
    * Requires the msg sender to be the owner, approved, or operator
    * @param _from current owner of the token
    * @param _to address to receive the ownership of the given token ID

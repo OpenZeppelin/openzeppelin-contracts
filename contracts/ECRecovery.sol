@@ -3,12 +3,9 @@ pragma solidity ^0.4.24;
 
 /**
  * @title Eliptic curve signature operations
- *
  * @dev Based on https://gist.github.com/axic/5b33912c6f61ae6fd96d6c4a47afde6d
- *
  * TODO Remove this library once solidity supports passing a signature to ecrecover.
  * See https://github.com/ethereum/solidity/issues/864
- *
  */
 
 library ECRecovery {

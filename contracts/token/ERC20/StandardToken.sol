@@ -43,7 +43,6 @@ contract StandardToken is ERC20, BasicToken {
 
   /**
    * @dev Approve the passed address to spend the specified amount of tokens on behalf of msg.sender.
-   *
    * Beware that changing an allowance with this method brings the risk that someone may use both the old
    * and the new allowance by unfortunate transaction ordering. One possible solution to mitigate this
    * race condition is to first reduce the spender's allowance to 0 and set the desired value afterwards:
@@ -76,7 +75,6 @@ contract StandardToken is ERC20, BasicToken {
 
   /**
    * @dev Increase the amount of tokens that an owner allowed to a spender.
-   *
    * approve should be called when allowed[_spender] == 0. To increment
    * allowed value is better to use this function to avoid 2 calls (and wait until
    * the first transaction is mined)
@@ -99,7 +97,6 @@ contract StandardToken is ERC20, BasicToken {
 
   /**
    * @dev Decrease the amount of tokens that an owner allowed to a spender.
-   *
    * approve should be called when allowed[_spender] == 0. To decrement
    * allowed value is better to use this function to avoid 2 calls (and wait until
    * the first transaction is mined)
