@@ -25,7 +25,7 @@ jobs:
     # upcoming solidity release.
     - stage: Unit tests
       script: npm run test
-    - stage: unit
+    - stage: Unit tests
       script: npm run test
       env: SOLIDITY_COVERAGE=true
     - stage: Unit tests
