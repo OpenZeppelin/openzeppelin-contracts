@@ -23,16 +23,16 @@ jobs:
     # The second one generates the coverage report.
     # The third one is to keep us informed about possible issues with the
     # upcoming solidity release.
-    - stage: unit
+    - stage: Unit tests
       script: npm run test
     - stage: unit
       script: npm run test
       env: SOLIDITY_COVERAGE=true
-    - stage: unit
+    - stage: Unit tests
       script: npm run test
       env: SOLC_NIGHTLY=true
     # solidity and javascript style tests.
-    - stage: static
+    - stage: Linting
       script: npm run lint
 
 notifications:
