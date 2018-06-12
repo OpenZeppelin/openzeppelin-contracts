@@ -1,6 +1,6 @@
 pragma solidity ^0.4.23;
 
-import "../../introspection/SupportsInterfaceWithLookup.sol";
+import "../../introspection/ERC165.sol";
 
 
 /**

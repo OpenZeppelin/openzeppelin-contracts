@@ -11,7 +11,7 @@ import "../../introspection/SupportsInterfaceWithLookup.sol";
  * @title ERC721 Non-Fungible Token Standard basic implementation
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
-contract ERC721BasicToken is ERC721Basic, SupportsInterfaceWithLookup {
+contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
 
   bytes4 private constant InterfaceId_ERC721 = 0x80ac58cd;
   /*
