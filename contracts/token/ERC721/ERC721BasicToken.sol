@@ -4,13 +4,35 @@ import "./ERC721Basic.sol";
 import "./ERC721Receiver.sol";
 import "../../math/SafeMath.sol";
 import "../../AddressUtils.sol";
+import "../../introspection/SupportsInterfaceWithLookup.sol";
 
 
 /**
  * @title ERC721 Non-Fungible Token Standard basic implementation
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
-contract ERC721BasicToken is ERC721Basic {
+contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
+
+  bytes4 private constant InterfaceId_ERC721 = 0x80ac58cd;
+  /*
+   * 0x80ac58cd ===
+   *   bytes4(keccak256('balanceOf(address)')) ^
+   *   bytes4(keccak256('ownerOf(uint256)')) ^
+   *   bytes4(keccak256('approve(address,uint256)')) ^
+   *   bytes4(keccak256('getApproved(uint256)')) ^
+   *   bytes4(keccak256('setApprovalForAll(address,bool)')) ^
+   *   bytes4(keccak256('isApprovedForAll(address,address)')) ^
+   *   bytes4(keccak256('transferFrom(address,address,uint256)')) ^
+   *   bytes4(keccak256('safeTransferFrom(address,address,uint256)')) ^
+   *   bytes4(keccak256('safeTransferFrom(address,address,uint256,bytes)'))
+   */
+
+  bytes4 private constant InterfaceId_ERC721Exists = 0x4f558e79;
+  /*
+   * 0x4f558e79 ===
+   *   bytes4(keccak256('exists(uint256)'))
+   */
+
   using SafeMath for uint256;
   using AddressUtils for address;
 
@@ -46,6 +68,14 @@ contract ERC721BasicToken is ERC721Basic {
   modifier canTransfer(uint256 _tokenId) {
     require(isApprovedOrOwner(msg.sender, _tokenId));
     _;
+  }
+
+  constructor()
+    public
+  {
+    // register the supported interfaces to conform to ERC721 via ERC165
+    _registerInterface(InterfaceId_ERC721);
+    _registerInterface(InterfaceId_ERC721Exists);
   }
 
   /**
@@ -92,10 +122,8 @@ contract ERC721BasicToken is ERC721Basic {
     require(_to != owner);
     require(msg.sender == owner || isApprovedForAll(owner, msg.sender));
 
-    if (getApproved(_tokenId) != address(0) || _to != address(0)) {
-      tokenApprovals[_tokenId] = _to;
-      emit Approval(owner, _to, _tokenId);
-    }
+    tokenApprovals[_tokenId] = _to;
+    emit Approval(owner, _to, _tokenId);
   }
 
   /**
