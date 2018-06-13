@@ -294,6 +294,20 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
               log.args._tokenId.toNumber().should.be.equal(tokenId);
               log.args._data.should.be.equal(data);
             });
+
+            describe('with an invalid token id', function () {
+              it('reverts', async function () {
+                await assertRevert(
+                  transferFun.call(
+                    this,
+                    owner,
+                    this.to,
+                    unknownTokenId,
+                    { from: owner },
+                  )
+                );
+              });
+            });
           });
         };
 
@@ -366,10 +380,7 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
           });
 
           itClearsApproval();
-
-          it('does not emit an approval event', async function () {
-            logs.length.should.be.equal(0);
-          });
+          itEmitsApprovalEvent(ZERO_ADDRESS);
         });
 
         context('when there was a prior approval', function () {

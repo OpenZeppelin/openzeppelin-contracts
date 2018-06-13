@@ -1,16 +1,17 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 import "../Crowdsale.sol";
 import "../../token/ERC20/ERC20.sol";
+import "../../token/ERC20/ERC20Basic.sol";
+import "../../token/ERC20/SafeERC20.sol";
 import "../../math/SafeMath.sol";
-
-
 /**
  * @title AllowanceCrowdsale
  * @dev Extension of Crowdsale where tokens are held by a wallet, which approves an allowance to the crowdsale.
  */
 contract AllowanceCrowdsale is Crowdsale {
   using SafeMath for uint256;
+  using SafeERC20 for ERC20;
 
   address public tokenWallet;
 
@@ -42,6 +43,6 @@ contract AllowanceCrowdsale is Crowdsale {
   )
     internal
   {
-    token.transferFrom(tokenWallet, _beneficiary, _tokenAmount);
+    token.safeTransferFrom(tokenWallet, _beneficiary, _tokenAmount);
   }
 }
