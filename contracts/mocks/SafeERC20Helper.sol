@@ -70,26 +70,26 @@ contract SafeERC20Helper {
   }
 
   function doFailingTransfer() public {
-    failing.safeTransfer(0, 0);
+    failing.safeTransfer(address(0), 0);
   }
 
   function doFailingTransferFrom() public {
-    failing.safeTransferFrom(0, 0, 0);
+    failing.safeTransferFrom(address(0), address(0), 0);
   }
 
   function doFailingApprove() public {
-    failing.safeApprove(0, 0);
+    failing.safeApprove(address(0), 0);
   }
 
   function doSucceedingTransfer() public {
-    succeeding.safeTransfer(0, 0);
+    succeeding.safeTransfer(address(0), 0);
   }
 
   function doSucceedingTransferFrom() public {
-    succeeding.safeTransferFrom(0, 0, 0);
+    succeeding.safeTransferFrom(address(0), address(0), 0);
   }
 
   function doSucceedingApprove() public {
-    succeeding.safeApprove(0, 0);
+    succeeding.safeApprove(address(0), 0);
   }
 }

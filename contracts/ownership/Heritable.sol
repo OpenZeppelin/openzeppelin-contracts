@@ -78,7 +78,7 @@ contract Heritable is Ownable {
    */
   function removeHeir() public onlyOwner {
     heartbeat();
-    heir_ = 0;
+    heir_ = address(0);
   }
 
   /**
