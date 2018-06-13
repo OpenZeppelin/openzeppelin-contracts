@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 import "../ownership/Ownable.sol";
 import "../ownership/rbac/RBAC.sol";
@@ -16,7 +16,7 @@ import "../ECRecovery.sol";
  * @dev
  * @dev This technique is useful for whitelists and airdrops; instead of putting all
  * @dev valid addresses on-chain, simply sign a grant of the form
- * @dev keccak256(`:contractAddress` + `:granteeAddress`) using a valid bouncer address.
+ * @dev keccak256(abi.encodePacked(`:contractAddress` + `:granteeAddress`)) using a valid bouncer address.
  * @dev Then restrict access to your crowdsale/whitelist/airdrop using the
  * @dev `onlyValidSignature` modifier (or implement your own using isValidSignature).
  * @dev
@@ -99,7 +99,7 @@ contract SignatureBouncer is Ownable, RBAC {
     returns (bool)
   {
     return isValidDataHash(
-      keccak256(address(this), _address),
+      keccak256(abi.encodePacked(address(this), _address)),
       _sig
     );
   }
@@ -118,7 +118,7 @@ contract SignatureBouncer is Ownable, RBAC {
       data[i] = msg.data[i];
     }
     return isValidDataHash(
-      keccak256(address(this), _address, data),
+      keccak256(abi.encodePacked(address(this), _address, data)),
       _sig
     );
   }
@@ -139,7 +139,7 @@ contract SignatureBouncer is Ownable, RBAC {
       data[i] = msg.data[i];
     }
     return isValidDataHash(
-      keccak256(address(this), _address, data),
+      keccak256(abi.encodePacked(address(this), _address, data)),
       _sig
     );
   }
