@@ -118,7 +118,7 @@ contract SignatureBouncer is Ownable, RBAC {
       data[i] = msg.data[i];
     }
     return isValidDataHash(
-      keccak256(address(this), _address, data),
+      keccak256(abi.encodePacked(address(this), _address, data)),
       _sig
     );
   }
@@ -139,7 +139,7 @@ contract SignatureBouncer is Ownable, RBAC {
       data[i] = msg.data[i];
     }
     return isValidDataHash(
-      keccak256(address(this), _address, data),
+      keccak256(abi.encodePacked(address(this), _address, data)),
       _sig
     );
   }
