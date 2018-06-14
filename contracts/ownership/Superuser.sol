@@ -7,9 +7,9 @@ import "./rbac/RBAC.sol";
 
 /**
  * @title Superuser
- * @dev The Superuser contract defines a single superuser who can transfer the ownership
- * @dev of a contract to a new address, even if he is not the owner.
- * @dev A superuser can transfer his role to a new address.
+ * @dev The Superuser contract defines a single superuser who can transfer the ownership 
+ * of a contract to a new address, even if he is not the owner. 
+ * A superuser can transfer his role to a new address. 
  */
 contract Superuser is Ownable, RBAC {
   string public constant ROLE_SUPERUSER = "superuser";

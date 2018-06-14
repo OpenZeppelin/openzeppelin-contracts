@@ -9,28 +9,25 @@ import "../ECRecovery.sol";
  * @title SignatureBouncer
  * @author PhABC, Shrugs and aflesher
  * @dev Bouncer allows users to submit a signature as a permission to do an action.
- * @dev If the signature is from one of the authorized bouncer addresses, the signature
- * @dev is valid. The owner of the contract adds/removes bouncers.
- * @dev Bouncer addresses can be individual servers signing grants or different
- * @dev users within a decentralized club that have permission to invite other members.
- * @dev
- * @dev This technique is useful for whitelists and airdrops; instead of putting all
- * @dev valid addresses on-chain, simply sign a grant of the form
- * @dev keccak256(abi.encodePacked(`:contractAddress` + `:granteeAddress`)) using a valid bouncer address.
- * @dev Then restrict access to your crowdsale/whitelist/airdrop using the
- * @dev `onlyValidSignature` modifier (or implement your own using isValidSignature).
- * @dev
- * @dev In addition to `onlyValidSignature`, `onlyValidSignatureAndMethod` and
- * @dev `onlyValidSignatureAndData` can be used to restrict access to only a given method
- * @dev or a given method with given parameters respectively.
- * @dev
- * @dev See the tests Bouncer.test.js for specific usage examples.
+ * If the signature is from one of the authorized bouncer addresses, the signature
+ * is valid. The owner of the contract adds/removes bouncers.
+ * Bouncer addresses can be individual servers signing grants or different
+ * users within a decentralized club that have permission to invite other members.
+ * This technique is useful for whitelists and airdrops; instead of putting all
+ * valid addresses on-chain, simply sign a grant of the form
+ * keccak256(abi.encodePacked(`:contractAddress` + `:granteeAddress`)) using a valid bouncer address.
+ * Then restrict access to your crowdsale/whitelist/airdrop using the
+ * `onlyValidSignature` modifier (or implement your own using isValidSignature).
+ * In addition to `onlyValidSignature`, `onlyValidSignatureAndMethod` and
+ * `onlyValidSignatureAndData` can be used to restrict access to only a given method
+ * or a given method with given parameters respectively.
+ * See the tests Bouncer.test.js for specific usage examples.
  * @notice A method that uses the `onlyValidSignatureAndData` modifier must make the _sig
- * @notice parameter the "last" parameter. You cannot sign a message that has its own
- * @notice signature in it so the last 128 bytes of msg.data (which represents the
- * @notice length of the _sig data and the _sig data itself) is ignored when validating.
- * @notice Also non fixed sized parameters make constructing the data in the signature
- * @notice much more complex. See https://ethereum.stackexchange.com/a/50616 for more details.
+ * parameter the "last" parameter. You cannot sign a message that has its own
+ * signature in it so the last 128 bytes of msg.data (which represents the
+ * length of the _sig data and the _sig data itself) is ignored when validating.
+ * Also non fixed sized parameters make constructing the data in the signature
+ * much more complex. See https://ethereum.stackexchange.com/a/50616 for more details.
  */
 contract SignatureBouncer is Ownable, RBAC {
   using ECRecovery for bytes32;
@@ -146,7 +143,7 @@ contract SignatureBouncer is Ownable, RBAC {
 
   /**
    * @dev internal function to convert a hash to an eth signed message
-   * @dev and then recover the signature and check it against the bouncer role
+   * and then recover the signature and check it against the bouncer role
    * @return bool
    */
   function isValidDataHash(bytes32 hash, bytes _sig)
