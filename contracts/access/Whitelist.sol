@@ -1,8 +1,8 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 
-import "./Ownable.sol";
-import "./rbac/RBAC.sol";
+import "../ownership/Ownable.sol";
+import "../ownership/rbac/RBAC.sol";
 
 
 /**

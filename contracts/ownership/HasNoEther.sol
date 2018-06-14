@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 import "./Ownable.sol";
 
@@ -36,6 +36,6 @@ contract HasNoEther is Ownable {
    * @dev Transfer all Ether held by the contract to the owner.
    */
   function reclaimEther() external onlyOwner {
-    owner.transfer(this.balance);
+    owner.transfer(address(this).balance);
   }
 }

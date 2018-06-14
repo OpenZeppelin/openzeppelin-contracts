@@ -1,20 +1,22 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
+
+import "../../introspection/ERC165.sol";
 
 
 /**
  * @title ERC721 Non-Fungible Token Standard basic interface
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
-contract ERC721Basic {
+contract ERC721Basic is ERC165 {
   event Transfer(
     address indexed _from,
     address indexed _to,
-    uint256 _tokenId
+    uint256 indexed _tokenId
   );
   event Approval(
     address indexed _owner,
     address indexed _approved,
-    uint256 _tokenId
+    uint256 indexed _tokenId
   );
   event ApprovalForAll(
     address indexed _owner,

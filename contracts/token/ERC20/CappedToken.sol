@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 import "./MintableToken.sol";
 
@@ -26,8 +26,6 @@ contract CappedToken is MintableToken {
     address _to,
     uint256 _amount
   )
-    onlyOwner
-    canMint
     public
     returns (bool)
   {

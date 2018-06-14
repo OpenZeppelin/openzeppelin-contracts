@@ -13,7 +13,11 @@ With OpenZeppelin, you can build distributed applications, protocols and organiz
 
 ## Getting Started
 
-OpenZeppelin integrates with [Truffle](https://github.com/ConsenSys/truffle), an Ethereum development environment. Please install Truffle and initialize your project with `truffle init`.
+OpenZeppelin integrates with [Truffle](https://github.com/ConsenSys/truffle) and [Embark](https://github.com/embark-framework/embark/).
+
+## Truffle
+
+To use with Truffle, first install it and initialize your project with `truffle init`.
 
 ```sh
 npm install -g truffle
@@ -21,7 +25,20 @@ mkdir myproject && cd myproject
 truffle init
 ```
 
-To install the OpenZeppelin library, run the following in your Solidity project root directory:
+## Embark
+
+To use with Embark, first install it and initialize your project with `embark new MyApp`.
+
+```sh
+npm install -g embark
+embark new MyApp
+cd MyApp
+```
+
+## Installing OpenZeppelin
+
+After installing either Framework, to install the OpenZeppelin library, run the following in your Solidity project root directory:
+
 ```sh
 npm init -y
 npm install -E openzeppelin-solidity
@@ -39,6 +56,15 @@ contract MyContract is Ownable {
 }
 ```
 
+If you are using Embark, you can also import directly from github:
+
+```solidity
+import "github.com/OpenZeppelin/openzeppelin-solidity/contracts/ownership/Ownable.sol#v1.9.0";
+
+contract MyContract is Ownable {
+  ...
+}
+```
 
 ## Security
 OpenZeppelin is meant to provide secure, tested and community-audited code, but please use common sense when doing anything that deals with real money! We take no responsibility for your implementation decisions and any security problem you might experience.
