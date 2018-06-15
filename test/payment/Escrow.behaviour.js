@@ -1,15 +1,9 @@
+import EVMRevert from '../helpers/EVMRevert';
+
 const BigNumber = web3.BigNumber;
 
 require('chai')
   .use(require('chai-bignumber')(BigNumber))
-  .should();
-
-import EVMRevert from '../helpers/EVMRevert';
-
-const Escrow = artifacts.require('Escrow');
-
-require('chai')
-  .use(require('chai-as-promised'))
   .should();
 
 export default function ([payer1, payer2, payee1, payee2]) {

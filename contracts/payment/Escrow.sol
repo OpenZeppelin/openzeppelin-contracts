@@ -11,32 +11,36 @@ import "../math/SafeMath.sol";
 contract Escrow {
   using SafeMath for uint256;
 
-  mapping(address => uint256) public deposits;
+  mapping(address => uint256) private _deposits;
+
+  function deposits(address _payee) public view returns (uint256) {
+    return _deposits[_payee];
+  }
 
   /**
   * @dev Called by the payer to store the sent amount as credit to be pulled.
-  * @param payee The destination address of the funds.
+  * @param _payee The destination address of the funds.
   */
-  function deposit(address payee) payable public {
+  function deposit(address _payee) payable public {
     uint256 amount = msg.value;
     require(amount > 0);
 
-    deposits[payee] = deposits[payee].add(amount);
+    _deposits[_payee] = _deposits[_payee].add(amount);
   }
 
   /**
   * @dev Withdraw accumulated balance for a payee. Any address can trigger a
   * withdrawal.
-  * @param payee The address whose funds will be withdrawn and transferred to.
+  * @param _payee The address whose funds will be withdrawn and transferred to.
   */
-  function withdraw(address payee) public {
-    uint256 payment = deposits[payee];
+  function withdraw(address _payee) public {
+    uint256 payment = _deposits[_payee];
 
     require(payment != 0);
     require(address(this).balance >= payment);
 
-    deposits[payee] = 0;
+    _deposits[_payee] = 0;
 
-    payee.transfer(payment);
+    _payee.transfer(payment);
   }
 }
