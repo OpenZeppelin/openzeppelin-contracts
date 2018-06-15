@@ -14,7 +14,7 @@ export default function ([payer1, payer2, payee1, payee2]) {
       await this.contract.deposit(payee1, { from: payer1, value: amount });
 
       const balance = await web3.eth.getBalance(this.contract.address);
-      const deposit = await this.contract.deposits(payee1);
+      const deposit = await this.contract.depositsOf(payee1);
 
       balance.should.be.bignumber.equal(amount);
       deposit.should.be.bignumber.equal(amount);
@@ -29,7 +29,7 @@ export default function ([payer1, payer2, payee1, payee2]) {
       await this.contract.deposit(payee1, { from: payer2, value: amount * 2 });
 
       const balance = await web3.eth.getBalance(this.contract.address);
-      const deposit = await this.contract.deposits(payee1);
+      const deposit = await this.contract.depositsOf(payee1);
 
       balance.should.be.bignumber.equal(amount * 3);
       deposit.should.be.bignumber.equal(amount * 3);
@@ -40,8 +40,8 @@ export default function ([payer1, payer2, payee1, payee2]) {
       await this.contract.deposit(payee2, { from: payer1, value: amount * 2 });
 
       const balance = await web3.eth.getBalance(this.contract.address);
-      const depositPayee1 = await this.contract.deposits(payee1);
-      const depositPayee2 = await this.contract.deposits(payee2);
+      const depositPayee1 = await this.contract.depositsOf(payee1);
+      const depositPayee2 = await this.contract.depositsOf(payee2);
 
       balance.should.be.bignumber.equal(amount * 3);
       depositPayee1.should.be.bignumber.equal(amount);
@@ -55,7 +55,7 @@ export default function ([payer1, payer2, payee1, payee2]) {
       await this.contract.withdraw(payee1, { from: payer2 });
 
       const escrowBalance = await web3.eth.getBalance(this.contract.address);
-      const finalDeposit = await this.contract.deposits(payee1);
+      const finalDeposit = await this.contract.depositsOf(payee1);
       const payeeFinalBalance = await web3.eth.getBalance(payee1);
 
       escrowBalance.should.be.bignumber.equal(0);

@@ -11,10 +11,10 @@ import "../math/SafeMath.sol";
 contract Escrow {
   using SafeMath for uint256;
 
-  mapping(address => uint256) private _deposits;
+  mapping(address => uint256) private deposits;
 
-  function deposits(address _payee) public view returns (uint256) {
-    return _deposits[_payee];
+  function depositsOf(address _payee) public view returns (uint256) {
+    return deposits[_payee];
   }
 
   /**
@@ -25,7 +25,7 @@ contract Escrow {
     uint256 amount = msg.value;
     require(amount > 0);
 
-    _deposits[_payee] = _deposits[_payee].add(amount);
+    deposits[_payee] = deposits[_payee].add(amount);
   }
 
   /**
@@ -34,12 +34,12 @@ contract Escrow {
   * @param _payee The address whose funds will be withdrawn and transferred to.
   */
   function withdraw(address _payee) public {
-    uint256 payment = _deposits[_payee];
+    uint256 payment = deposits[_payee];
 
     require(payment != 0);
     require(address(this).balance >= payment);
 
-    _deposits[_payee] = 0;
+    deposits[_payee] = 0;
 
     _payee.transfer(payment);
   }

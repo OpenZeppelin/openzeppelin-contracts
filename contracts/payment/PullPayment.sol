@@ -28,7 +28,7 @@ contract PullPayment {
   & @param _dest The creditor's address.
   */
   function payments(address _dest) public view returns (uint256) {
-    return escrow.deposits(_dest);
+    return escrow.depositsOf(_dest);
   }
 
   /**
