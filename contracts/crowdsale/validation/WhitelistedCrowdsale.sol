@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "../Crowdsale.sol";
-import "../../ownership/Whitelist.sol";
+import "../../access/Whitelist.sol";
 
 
 /**
