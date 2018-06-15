@@ -49,7 +49,7 @@ export default function ([payer1, payer2, payee1, payee2]) {
     });
 
     it('can withdraw payments from any account', async function () {
-      let payeeInitialBalance = await web3.eth.getBalance(payee1);
+      const payeeInitialBalance = await web3.eth.getBalance(payee1);
 
       await this.contract.deposit(payee1, { from: payer1, value: amount });
       await this.contract.withdraw(payee1, { from: payer2 });
