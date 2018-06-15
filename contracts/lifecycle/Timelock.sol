@@ -22,7 +22,6 @@ contract Timelock {
   )
     public
   {
-    // solium-disable-next-line security/no-block-members
     require(_beneficiary != address(0));
     require(_releaseTime > block.timestamp);
     beneficiary = _beneficiary;
@@ -34,7 +33,6 @@ contract Timelock {
    * @param token The token that is being withdrawn
    */
   function releaseToken(ERC20Basic token) public {
-    // solium-disable-next-line security/no-block-members
     require(block.timestamp >= releaseTime);
 
     uint256 amount = token.balanceOf(this);
