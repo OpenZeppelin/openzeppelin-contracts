@@ -1,7 +1,8 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.24;
 
 import "./BurnableToken.sol";
 import "./StandardToken.sol";
+
 
 /**
  * @title Standard Burnable Token
