@@ -7,12 +7,12 @@ import "./Roles.sol";
  * @title RBAC (Role-Based Access Control)
  * @author Matt Condon (@Shrugs)
  * @dev Stores and provides setters and getters for roles and addresses.
- * @dev Supports unlimited numbers of roles and addresses.
- * @dev See //contracts/mocks/RBACMock.sol for an example of usage.
+ * Supports unlimited numbers of roles and addresses.
+ * See //contracts/mocks/RBACMock.sol for an example of usage.
  * This RBAC method uses strings to key roles. It may be beneficial
- *  for you to write your own implementation of this interface using Enums or similar.
+ * for you to write your own implementation of this interface using Enums or similar.
  * It's also recommended that you define constants in the contract, like ROLE_ADMIN below,
- *  to avoid typos.
+ * to avoid typos.
  */
 contract RBAC {
   using Roles for Roles.Role;
