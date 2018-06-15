@@ -45,14 +45,14 @@ contract Timelock {
   * @notice Transfers any ether held by timelock to beneficiary.
   */
   function release() public {
-      require(block.timestamp >= releaseTime);
-      require(address(this).balance > 0);
+    require(block.timestamp >= releaseTime);
+    require(address(this).balance > 0);
 
-      beneficiary.transfer(address(this).balance);
+    beneficiary.transfer(address(this).balance);
   }
 
   /**
   * @notice Make fallback payable
-   */
-   function () payable {}
+  */
+  function () public payable {}
 }
