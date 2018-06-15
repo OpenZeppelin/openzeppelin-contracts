@@ -69,4 +69,4 @@ contract('Timelock', function ([_, owner, beneficiary]) {
     const tokenBalance = await this.token.balanceOf(beneficiary);
     tokenBalance.should.be.bignumber.equal(amount);
   });
-}); 
+});
