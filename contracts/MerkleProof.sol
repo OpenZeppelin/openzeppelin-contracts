@@ -1,10 +1,10 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.24;
 
 
 /*
  * @title MerkleProof
- * @dev Merkle proof verification
- * @note Based on https://github.com/ameensol/merkle-tree-solidity/blob/master/src/MerkleProof.sol
+ * @dev Merkle proof verification based on
+ * https://github.com/ameensol/merkle-tree-solidity/blob/master/src/MerkleProof.sol
  */
 library MerkleProof {
   /*
@@ -14,27 +14,26 @@ library MerkleProof {
    * @param _root Merkle root
    * @param _leaf Leaf of Merkle tree
    */
-  function verifyProof(bytes _proof, bytes32 _root, bytes32 _leaf) public pure returns (bool) {
-    // Check if proof length is a multiple of 32
-    if (_proof.length % 32 != 0) {
-      return false;
-    }
-
-    bytes32 proofElement;
+  function verifyProof(
+    bytes32[] _proof,
+    bytes32 _root,
+    bytes32 _leaf
+  )
+    internal
+    pure
+    returns (bool)
+  {
     bytes32 computedHash = _leaf;
 
-    for (uint256 i = 32; i <= _proof.length; i += 32) {
-      assembly {
-        // Load the current element of the proof
-        proofElement := mload(add(_proof, i))
-      }
+    for (uint256 i = 0; i < _proof.length; i++) {
+      bytes32 proofElement = _proof[i];
 
       if (computedHash < proofElement) {
         // Hash(current computed hash + current element of the proof)
-        computedHash = keccak256(computedHash, proofElement);
+        computedHash = keccak256(abi.encodePacked(computedHash, proofElement));
       } else {
         // Hash(current element of the proof + current computed hash)
-        computedHash = keccak256(proofElement, computedHash);
+        computedHash = keccak256(abi.encodePacked(proofElement, computedHash));
       }
     }
 

@@ -3,6 +3,7 @@ import { advanceBlock } from '../helpers/advanceToBlock';
 import { increaseTimeTo, duration } from '../helpers/increaseTime';
 import latestTime from '../helpers/latestTime';
 import EVMRevert from '../helpers/EVMRevert';
+import assertRevert from '../helpers/assertRevert';
 
 const BigNumber = web3.BigNumber;
 
@@ -21,7 +22,7 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
   const CAP = ether(20);
 
   before(async function () {
-    // Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
+    // Advance to the next block to correctly read time in the solidity "now" function interpreted by ganache
     await advanceBlock();
   });
 
@@ -75,7 +76,7 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
   });
 
   it('should reject payments after end', async function () {
-    await increaseTimeTo(this.afterEnd);
+    await increaseTimeTo(this.afterClosingTime);
     await this.crowdsale.send(ether(1)).should.be.rejectedWith(EVMRevert);
     await this.crowdsale.buyTokens(investor, { value: ether(1), from: investor }).should.be.rejectedWith(EVMRevert);
   });
@@ -110,5 +111,16 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
 
     const balanceAfterRefund = web3.eth.getBalance(investor);
     balanceBeforeInvestment.should.be.bignumber.equal(balanceAfterRefund);
+  });
+
+  describe('when goal > cap', function () {
+    // goal > cap
+    const HIGH_GOAL = ether(30);
+
+    it('creation reverts', async function () {
+      await assertRevert(SampleCrowdsale.new(
+        this.openingTime, this.closingTime, RATE, wallet, CAP, this.token.address, HIGH_GOAL
+      ));
+    });
   });
 });

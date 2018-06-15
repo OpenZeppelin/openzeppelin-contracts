@@ -1,9 +1,9 @@
-pragma solidity ^0.4.8;
+pragma solidity ^0.4.24;
 
-import "../ownership/rbac/RBAC.sol";
+import "../examples/RBACWithAdmin.sol";
 
 
-contract RBACMock is RBAC {
+contract RBACMock is RBACWithAdmin {
 
   string constant ROLE_ADVISOR = "advisor";
 
@@ -16,7 +16,7 @@ contract RBACMock is RBAC {
     _;
   }
 
-  function RBACMock(address[] _advisors)
+  constructor(address[] _advisors)
     public
   {
     addRole(msg.sender, ROLE_ADVISOR);

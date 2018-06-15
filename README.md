@@ -1,7 +1,7 @@
-# Zeppelin Solidity
-[![NPM Package](https://img.shields.io/npm/v/zeppelin-solidity.svg?style=flat-square)](https://www.npmjs.org/package/zeppelin-solidity)
-[![Build Status](https://img.shields.io/travis/OpenZeppelin/zeppelin-solidity.svg?branch=master&style=flat-square)](https://travis-ci.org/OpenZeppelin/zeppelin-solidity)
-[![Coverage Status](https://img.shields.io/coveralls/github/OpenZeppelin/zeppelin-solidity/master.svg?style=flat-square)](https://coveralls.io/github/OpenZeppelin/zeppelin-solidity?branch=master)
+# OpenZeppelin Solidity
+[![NPM Package](https://img.shields.io/npm/v/openzeppelin-solidity.svg?style=flat-square)](https://www.npmjs.org/package/openzeppelin-solidity)
+[![Build Status](https://img.shields.io/travis/OpenZeppelin/openzeppelin-solidity.svg?branch=master&style=flat-square)](https://travis-ci.org/OpenZeppelin/openzeppelin-solidity)
+[![Coverage Status](https://img.shields.io/coveralls/github/OpenZeppelin/openzeppelin-solidity/master.svg?style=flat-square)](https://coveralls.io/github/OpenZeppelin/openzeppelin-solidity?branch=master)
 
 OpenZeppelin is a library for writing secure [Smart Contracts](https://en.wikipedia.org/wiki/Smart_contract) on Ethereum.
 
@@ -13,7 +13,11 @@ With OpenZeppelin, you can build distributed applications, protocols and organiz
 
 ## Getting Started
 
-OpenZeppelin integrates with [Truffle](https://github.com/ConsenSys/truffle), an Ethereum development environment. Please install Truffle and initialize your project with `truffle init`.
+OpenZeppelin integrates with [Truffle](https://github.com/ConsenSys/truffle) and [Embark](https://github.com/embark-framework/embark/).
+
+## Truffle
+
+To use with Truffle, first install it and initialize your project with `truffle init`.
 
 ```sh
 npm install -g truffle
@@ -21,24 +25,46 @@ mkdir myproject && cd myproject
 truffle init
 ```
 
-To install the OpenZeppelin library, run the following in your Solidity project root directory:
+## Embark
+
+To use with Embark, first install it and initialize your project with `embark new MyApp`.
+
+```sh
+npm install -g embark
+embark new MyApp
+cd MyApp
+```
+
+## Installing OpenZeppelin
+
+After installing either Framework, to install the OpenZeppelin library, run the following in your Solidity project root directory:
+
 ```sh
 npm init -y
-npm install -E zeppelin-solidity
+npm install -E openzeppelin-solidity
 ```
 
 **Note that OpenZeppelin does not currently follow semantic versioning.** You may encounter breaking changes upon a minor version bump. We recommend pinning the version of OpenZeppelin you use, as done by the `-E` (`--save-exact`) option.
 
-After that, you'll get all the library's contracts in the `node_modules/zeppelin-solidity/contracts` folder. You can use the contracts in the library like so:
+After that, you'll get all the library's contracts in the `node_modules/openzeppelin-solidity/contracts` folder. You can use the contracts in the library like so:
 
-```js
-import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
+```solidity
+import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
 
 contract MyContract is Ownable {
   ...
 }
 ```
 
+If you are using Embark, you can also import directly from github:
+
+```solidity
+import "github.com/OpenZeppelin/openzeppelin-solidity/contracts/ownership/Ownable.sol#v1.9.0";
+
+contract MyContract is Ownable {
+  ...
+}
+```
 
 ## Security
 OpenZeppelin is meant to provide secure, tested and community-audited code, but please use common sense when doing anything that deals with real money! We take no responsibility for your implementation decisions and any security problem you might experience.
@@ -56,27 +82,9 @@ Building a distributed application, protocol or organization with OpenZeppelin?
 Interested in contributing to OpenZeppelin?
 
 - Framework proposal and roadmap: https://medium.com/zeppelin-blog/zeppelin-framework-proposal-and-development-roadmap-fdfa9a3a32ab#.iain47pak
-- Issue tracker: https://github.com/OpenZeppelin/zeppelin-solidity/issues
-- Contribution guidelines: https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/CONTRIBUTING.md
-- Wiki: https://github.com/OpenZeppelin/zeppelin-solidity/wiki
-
-## Collaborating organizations and audits by OpenZeppelin
-- [Golem](https://golem.network/)
-- [Mediachain](http://www.mediachain.io/)
-- [Truffle](http://truffleframework.com/)
-- [Firstblood](https://firstblood.io/)
-- [Rootstock](https://www.rsk.co/)
-- [Consensys](https://consensys.net/)
-- [DigixGlobal](https://www.dgx.io/)
-- [Coinfund](https://coinfund.io/)
-- [DemocracyEarth](https://democracy.earth/)
-- [Signatura](https://signatura.co/)
-- [Ether.camp](http://www.ether.camp/)
-- [Aragon](https://aragon.one/)
-- [Wings](https://wings.ai/)
-
-among others...
-
+- Issue tracker: https://github.com/OpenZeppelin/openzeppelin-solidity/issues
+- Contribution guidelines: https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/CONTRIBUTING.md
+- Wiki: https://github.com/OpenZeppelin/openzeppelin-solidity/wiki
 
 ## License
-Code released under the [MIT License](https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/LICENSE).
+Code released under the [MIT License](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/LICENSE).
