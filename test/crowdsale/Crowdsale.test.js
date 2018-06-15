@@ -1,4 +1,5 @@
 import ether from '../helpers/ether';
+import toPromise from '../helpers/toPromise';
 
 const BigNumber = web3.BigNumber;
 
@@ -47,9 +48,9 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
     });
 
     it('should forward funds to wallet', async function () {
-      const pre = web3.eth.getBalance(wallet);
+      const pre = await toPromise(web3.eth.getBalance)(wallet);
       await this.crowdsale.sendTransaction({ value, from: investor });
-      const post = web3.eth.getBalance(wallet);
+      const post = await toPromise(web3.eth.getBalance)(wallet);
       post.minus(pre).should.be.bignumber.equal(value);
     });
   });
@@ -72,9 +73,9 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
     });
 
     it('should forward funds to wallet', async function () {
-      const pre = web3.eth.getBalance(wallet);
+      const pre = await toPromise(web3.eth.getBalance)(wallet);
       await this.crowdsale.buyTokens(investor, { value, from: purchaser });
-      const post = web3.eth.getBalance(wallet);
+      const post = await toPromise(web3.eth.getBalance)(wallet);
       post.minus(pre).should.be.bignumber.equal(value);
     });
   });

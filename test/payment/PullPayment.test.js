@@ -5,6 +5,7 @@ require('chai')
   .should();
 
 const PullPaymentMock = artifacts.require('PullPaymentMock');
+import toPromise from '../helpers/toPromise';
 
 contract('PullPayment', function (accounts) {
   const amount = web3.toWei(17.0, 'ether');

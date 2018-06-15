@@ -1,4 +1,5 @@
 import ether from '../helpers/ether';
+import toPromise from '../helpers/toPromise';
 import assertRevert from '../helpers/assertRevert';
 
 const BigNumber = web3.BigNumber;
@@ -52,9 +53,9 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
     });
 
     it('should forward funds to wallet', async function () {
-      const pre = web3.eth.getBalance(wallet);
+      const pre = await toPromise(web3.eth.getBalance)(wallet);
       await this.crowdsale.sendTransaction({ value, from: investor });
-      const post = web3.eth.getBalance(wallet);
+      const post = await toPromise(web3.eth.getBalance)(wallet);
       post.minus(pre).should.be.bignumber.equal(value);
     });
   });

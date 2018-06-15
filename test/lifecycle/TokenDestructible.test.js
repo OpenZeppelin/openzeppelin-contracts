@@ -1,4 +1,4 @@
-
+import toPromise from '../helpers/toPromise';
 var TokenDestructible = artifacts.require('TokenDestructible');
 var StandardTokenMock = artifacts.require('StandardTokenMock');
 require('../helpers/transactionMined.js');
@@ -15,9 +15,9 @@ contract('TokenDestructible', function (accounts) {
 
   it('should send balance to owner after destruction', async function () {
     let owner = await destructible.owner();
-    let initBalance = web3.eth.getBalance(owner);
+    let initBalance = await toPromise(web3.eth.getBalance)(owner);
     await destructible.destroy([], { from: owner });
-    let newBalance = web3.eth.getBalance(owner);
+    let newBalance = await toPromise(web3.eth.getBalance)(owner);
     assert.isTrue(newBalance > initBalance);
   });
 
