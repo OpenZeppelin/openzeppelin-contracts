@@ -126,31 +126,6 @@ contract('SafeMath', () => {
       });
     });
 
-    describe('mul', function () {
-      it('multiplies correctly', async function () {
-        const a = new BigNumber(5678);
-        const b = new BigNumber(-1234);
-
-        const result = await this.safeMath.mulInts(a, b);
-        result.should.be.bignumber.equal(a.times(b));
-      });
-
-      it('handles a zero product correctly', async function () {
-        const a = new BigNumber(0);
-        const b = new BigNumber(5678);
-
-        const result = await this.safeMath.mulInts(a, b);
-        result.should.be.bignumber.equal(a.times(b));
-      });
-
-      it('throws an error on multiplication overflow', async function () {
-        const a = MAX_INT;
-        const b = new BigNumber(2);
-
-        await assertJump(this.safeMath.mulInts(a, b));
-      });
-    });
-
     describe('sub', function () {
       it('subtracts correctly if it does not overflow and the result is positive', async function () {
         const a = new BigNumber(5678);
@@ -180,6 +155,38 @@ contract('SafeMath', () => {
         const b = new BigNumber(1);
 
         await assertJump(this.safeMath.subInts(a, b));
+      });
+    });
+
+    describe('mul', function () {
+      it('multiplies correctly', async function () {
+        const a = new BigNumber(5678);
+        const b = new BigNumber(-1234);
+
+        const result = await this.safeMath.mulInts(a, b);
+        result.should.be.bignumber.equal(a.times(b));
+      });
+
+      it('handles a zero product correctly', async function () {
+        const a = new BigNumber(0);
+        const b = new BigNumber(5678);
+
+        const result = await this.safeMath.mulInts(a, b);
+        result.should.be.bignumber.equal(a.times(b));
+      });
+
+      it('throws an error on multiplication overflow, positive operands', async function () {
+        const a = MAX_INT;
+        const b = new BigNumber(2);
+
+        await assertJump(this.safeMath.mulInts(a, b));
+      });
+
+      it('throws an error on multiplication overflow, negative operands', async function () {
+        const a = MIN_INT;
+        const b = new BigNumber(-1);
+
+        await assertJump(this.safeMath.mulInts(a, b));
       });
     });
 
