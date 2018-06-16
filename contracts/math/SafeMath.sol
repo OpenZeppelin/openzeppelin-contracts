@@ -56,7 +56,6 @@ library SafeMath {
     // Overflow only happens when the smallest negative int is multiplied by -1.
     int256 INT256_MIN = int256((uint256(1) << 255));
     assert(a != INT256_MIN || b != -1);
-    assert(a != -1 || b != INT256_MIN);
     return a / b;
   }
 
