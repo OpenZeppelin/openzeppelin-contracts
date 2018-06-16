@@ -10,7 +10,7 @@ contract SafeMathMock {
     return SafeMath.mul(a, b);
   }
 
-  function mulInts(int256 a, int256 b) public view returns (int256) {
+  function mulInts(int256 a, int256 b) public pure returns (int256) {
     return SafeMath.mul(a, b);
   }
 
