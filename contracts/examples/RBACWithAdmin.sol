@@ -1,13 +1,19 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.24;
 
-import "./RBAC.sol";
+import "../ownership/rbac/RBAC.sol";
 
 
 /**
  * @title RBACWithAdmin
  * @author Matt Condon (@Shrugs)
  * @dev It's recommended that you define constants in the contract,
- * @dev like ROLE_ADMIN below, to avoid typos.
+ * like ROLE_ADMIN below, to avoid typos.
+ * @notice RBACWithAdmin is probably too expansive and powerful for your
+ * application; an admin is actually able to change any address to any role
+ * which is a very large API surface. It's recommended that you follow a strategy
+ * of strictly defining the abilities of your roles
+ * and the API-surface of your contract.
+ * This is just an example for example's sake.
  */
 contract RBACWithAdmin is RBAC {
   /**
@@ -28,7 +34,7 @@ contract RBACWithAdmin is RBAC {
   /**
    * @dev constructor. Sets msg.sender as admin by default
    */
-  function RBACWithAdmin()
+  constructor()
     public
   {
     addRole(msg.sender, ROLE_ADMIN);

@@ -12,7 +12,7 @@
 Next, we need to know what your environment looks like.
 
 - Which version of OpenZeppelin are you using?
-- What network are you deploying to? testrpc? Ganache? Ropsten?
+- What network are you deploying to? Ganache? Ropsten?
 - How are you deploying your OpenZeppelin-backed contracts? truffle? Remix? Let us know!
 
 ## 📝 Details

@@ -10,10 +10,12 @@ cache:
 env:
   -
   - SOLIDITY_COVERAGE=true
+  - SOLC_NIGHTLY=true
 matrix:
   fast_finish: true
   allow_failures:
     - env: SOLIDITY_COVERAGE=true
+    - env: SOLC_NIGHTLY=true
 before_script:
   - truffle version
 script:

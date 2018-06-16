@@ -1,6 +1,6 @@
 import latestTime from './latestTime';
 
-// Increases testrpc time by the passed duration in seconds
+// Increases ganache time by the passed duration in seconds
 export default function increaseTime (duration) {
   const id = Date.now();
 
@@ -25,7 +25,7 @@ export default function increaseTime (duration) {
 }
 
 /**
- * Beware that due to the need of calling two separate testrpc methods and rpc calls overhead
+ * Beware that due to the need of calling two separate ganache methods and rpc calls overhead
  * it's hard to increase time precisely to a target point so design your test to tolerate
  * small fluctuations from time to time.
  *

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.24;
 
 import "../token/ERC20/BasicToken.sol";
 
@@ -10,7 +10,7 @@ contract ERC223ContractInterface {
 
 contract ERC223TokenMock is BasicToken {
 
-  function ERC223TokenMock(address initialAccount, uint256 initialBalance) public {
+  constructor(address initialAccount, uint256 initialBalance) public {
     balances[initialAccount] = initialBalance;
     totalSupply_ = initialBalance;
   }
@@ -21,6 +21,7 @@ contract ERC223TokenMock is BasicToken {
   {
     transfer(_to, _value);
     bool isContract = false;
+    // solium-disable-next-line security/no-inline-assembly
     assembly {
       isContract := not(iszero(extcodesize(_to)))
     }
