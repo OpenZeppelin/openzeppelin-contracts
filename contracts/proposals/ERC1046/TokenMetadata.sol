@@ -24,11 +24,6 @@ contract ERC20WithMetadata is ERC20TokenMetadata {
   }
 
   function tokenURI() external view returns (string) {
-    // in the effort of minimum-effort compatibility,
-    //   tokenURI MUST throw if not exists https://eips.ethereum.org/EIPS/eip-721
-    bytes memory _tokenURI = bytes(tokenURI_);
-    require(_tokenURI.length > 0);
-
     return tokenURI_;
   }
 }
