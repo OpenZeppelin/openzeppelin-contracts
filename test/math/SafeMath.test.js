@@ -212,7 +212,6 @@ contract('SafeMath', () => {
 
         await assertJump(this.safeMath.divInts(a, b));
       });
-
     });
   });
 });
