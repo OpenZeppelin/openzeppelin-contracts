@@ -198,6 +198,20 @@ contract('SafeMath', () => {
 
         await assertJump(this.safeMath.divInts(a, b));
       });
+
+      it('throws an error on overflow, negative second', async function () {
+        const a = new BigNumber(MIN_INT);
+        const b = new BigNumber(-1);
+
+        await assertJump(this.safeMath.divInts(a, b));
+      });
+
+      it('throws an error on overflow, negative first', async function () {
+        const a = new BigNumber(-1);
+        const b = new BigNumber(MIN_INT);
+
+        await assertJump(this.safeMath.divInts(a, b));
+      });
     });
   });
 });

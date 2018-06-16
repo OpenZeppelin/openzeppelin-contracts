@@ -53,8 +53,10 @@ library SafeMath {
   */
   function div(int256 a, int256 b) internal pure returns (int256) {
     // assert(b > 0); // Solidity automatically throws when dividing by 0
-    // int256 c = a / b;
-    // assert(a == b * c + a % b); // There is no case in which this doesn't hold
+    // Overflow only happens when the smallest negative int is multiplied by -1.
+    int256 INT256_MIN = int256((uint256(1) << 255));
+    assert(a != INT256_MIN || b != -1);
+    assert(a != -1 || b != INT256_MIN);
     return a / b;
   }
 
