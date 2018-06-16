@@ -26,7 +26,7 @@ contract ERC827Token is ERC827, StandardToken {
    * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
    * @param _spender The address that will spend the funds.
    * @param _value The amount of tokens to be spent.
-   * @param _data ABI-encoded contract call to call `_to` address.
+   * @param _data ABI-encoded contract call to call `_spender` address.
    * @return true if the call function was executed successfully
    */
   function approveAndCall(
