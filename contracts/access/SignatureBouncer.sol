@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../ownership/Ownable.sol";
+import "../ownership/rbac/RBACOwnable.sol";
 import "../ownership/rbac/RBAC.sol";
 import "../ECRecovery.sol";
 
@@ -29,7 +29,7 @@ import "../ECRecovery.sol";
  * Also non fixed sized parameters make constructing the data in the signature
  * much more complex. See https://ethereum.stackexchange.com/a/50616 for more details.
  */
-contract SignatureBouncer is Ownable, RBAC {
+contract SignatureBouncer is RBACOwnable {
   using ECRecovery for bytes32;
 
   string public constant ROLE_BOUNCER = "bouncer";

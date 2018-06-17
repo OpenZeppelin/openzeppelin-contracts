@@ -1,7 +1,7 @@
 const { assertRevert } = require('../helpers/assertRevert');
 const { getBouncerSigner } = require('../helpers/sign');
 
-const Bouncer = artifacts.require('SignatureBouncerMock');
+const SignatureBouncer = artifacts.require('SignatureBouncerMock');
 
 require('chai')
   .use(require('chai-as-promised'))
@@ -13,15 +13,11 @@ const INVALID_SIGNATURE = '0xabcd';
 
 contract('Bouncer', ([_, owner, anyone, bouncerAddress, authorizedUser]) => {
   beforeEach(async function () {
-    this.bouncer = await Bouncer.new({ from: owner });
+    this.bouncer = await SignatureBouncer.new({ from: owner });
     this.roleBouncer = await this.bouncer.ROLE_BOUNCER();
   });
 
   context('management', () => {
-    it('has a default owner of self', async function () {
-      (await this.bouncer.owner()).should.eq(owner);
-    });
-
     it('allows the owner to add a bouncer', async function () {
       await this.bouncer.addBouncer(bouncerAddress, { from: owner });
       (await this.bouncer.hasRole(bouncerAddress, this.roleBouncer)).should.eq(true);
