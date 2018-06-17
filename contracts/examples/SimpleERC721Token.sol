@@ -14,12 +14,16 @@ contract SimpleERC721Token is ERC721Token, BurnableERC721Token {
 
   // no access control, anyone can mint
   function mint(address _to, uint256 _tokenId) public {
-    super._mint(_to, _tokenId);
+    _mint(_to, _tokenId);
   }
 
+  // no access control, anyone can burn
+  function burn(uint256 _tokenId) public {
+    _burn(ownerOf(_tokenId), _tokenId);
+  }
 
-  // no access control, anyone can set token uri
+  // no access control, anyone can set token URI
   function setTokenURI(uint256 _tokenId, string _uri) public {
-    super._setTokenURI(_tokenId, _uri);
+    _setTokenURI(_tokenId, _uri);
   }
 }

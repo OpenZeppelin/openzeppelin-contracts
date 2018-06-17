@@ -36,12 +36,7 @@ contract SignatureBouncerMock is SignatureBouncer {
 
   }
 
-  function checkValidSignatureAndData(
-    address _address,
-    bytes _bytes,
-    uint _val,
-    bytes _sig
-  )
+  function checkValidSignatureAndData(address _address, bytes _bytes, uint _val, bytes _sig)
     public
     view
     returns (bool)
@@ -53,12 +48,6 @@ contract SignatureBouncerMock is SignatureBouncer {
     onlyValidSignatureAndData(_sig)
     public
     view
-  {
-
-  }
-
-  function theWrongMethod(bytes _sig)
-    public
   {
 
   }
