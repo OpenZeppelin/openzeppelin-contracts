@@ -148,5 +148,4 @@ contract('MintableERC721Token', function ([_, owner, minter, beneficiary, anothe
       });
     });
   });
-
 });

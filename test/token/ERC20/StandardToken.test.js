@@ -419,7 +419,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
             owner: owner,
             spender: spender,
             value: amount,
-          })
+          });
         });
 
         describe('when there was no approved amount before', function () {

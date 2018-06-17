@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 import "../token/ERC721/MintableERC721Token.sol";
 import "../token/ERC721/DefaultTokenURI.sol";

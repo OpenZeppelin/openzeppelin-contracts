@@ -31,12 +31,14 @@ contract ERC721Metadata is ERC721Basic {
   function tokenURI(uint256 _tokenId) public view returns (string);
 }
 
+
 /**
  * @title ERC-721 Non-Fungible Token Standard, full implementation interface
  * @dev See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
 contract ERC721 is ERC721Basic, ERC721Enumerable, ERC721Metadata {
 }
+
 
 /**
  * @title ERC721Burnable
