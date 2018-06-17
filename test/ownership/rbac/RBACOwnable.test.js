@@ -22,9 +22,13 @@ contract('RBAC', function ([_, owner, newOwner, notOwner]) {
     );
   });
 
-  it('should allow existing owner to add a new owner', async function () {
+  it('should allow existing owner to add and remove a newOwner', async function () {
     await this.ownable.addOwner(newOwner, { from: owner });
-    const hasRole = await this.ownable.hasRole(newOwner, this.roleOwner);
+    let hasRole = await this.ownable.hasRole(newOwner, this.roleOwner);
     hasRole.should.eq(true);
+
+    await this.ownable.removeOwner(newOwner, { from: owner });
+    hasRole = await this.ownable.hasRole(newOwner, this.roleOwner);
+    hasRole.should.eq(false);
   });
 });

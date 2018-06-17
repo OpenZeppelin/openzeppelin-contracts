@@ -13,6 +13,7 @@ import "../../introspection/SupportsInterfaceWithLookup.sol";
  */
 contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
 
+  // solium-disable-next-line uppercase
   bytes4 private constant InterfaceId_ERC721 = 0x80ac58cd;
   /*
    * 0x80ac58cd ===
@@ -27,6 +28,7 @@ contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
    *   bytes4(keccak256('safeTransferFrom(address,address,uint256,bytes)'))
    */
 
+  // solium-disable-next-line uppercase
   bytes4 private constant InterfaceId_ERC721Exists = 0x4f558e79;
   /*
    * 0x4f558e79 ===

@@ -11,6 +11,8 @@ require('chai')
 export default function shouldBehaveLikeERC721BasicToken (accounts) {
   const firstTokenId = 1;
   const secondTokenId = 2;
+  const invalidTokenId = 3;
+  const sampleUri = 'mock://mytoken';
   const creator = accounts[0];
 
   describe('like a full ERC721', function () {
@@ -20,8 +22,6 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
     });
 
     describe('metadata', function () {
-      const sampleUri = 'mock://mytoken';
-
       it('has a name', async function () {
         const tokenName = await this.token.name();
         tokenName.should.be.equal(this.name);
@@ -36,6 +36,12 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
         await this.token.setTokenURI(firstTokenId, sampleUri);
         const uri = await this.token.tokenURI(firstTokenId);
         uri.should.be.equal(sampleUri);
+      });
+
+      it('does not allow setting metadata for invalid token', async function () {
+        await assertRevert(
+          this.token.setTokenURI(invalidTokenId, sampleUri)
+        );
       });
 
       it('returns empty metadata for token', async function () {
@@ -107,6 +113,22 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
 
       it('should revert if index is greater than supply', async function () {
         await assertRevert(this.token.tokenByIndex(2));
+      });
+    });
+
+    describe('_burn', function () {
+      it('burns a token', async function () {
+        await this.token.burn(firstTokenId);
+      });
+
+      it('clears metadata if existed', async function () {
+        await this.token.setTokenURI(firstTokenId, sampleUri);
+        const uri = await this.token.tokenURI(firstTokenId);
+        uri.should.be.equal(sampleUri);
+        await this.token.burn(firstTokenId);
+        await assertRevert(
+          this.token.tokenURI(firstTokenId),
+        );
       });
     });
   });

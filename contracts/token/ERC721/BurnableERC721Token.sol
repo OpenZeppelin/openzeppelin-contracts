@@ -11,6 +11,7 @@ import "./ERC721BasicToken.sol";
  */
 contract BurnableERC721Token is ERC721Burnable, ERC721BasicToken {
 
+  // solium-disable-next-line uppercase
   bytes4 private constant InterfaceId_ERC721Burnable = 0x79cc6790;
   /*
    * 0x79cc6790 ===

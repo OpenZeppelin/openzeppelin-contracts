@@ -39,7 +39,7 @@ contract('MintableERC721Token', function ([_, owner, minter, beneficiary, anothe
     });
   });
 
-  context('after token creation', function () {
+  context('normal operation', function () {
     it('sender should be token owner', async function () {
       const hasRole = await this.token.hasRole(owner, ROLE_OWNER);
       hasRole.should.eq(true);
@@ -48,6 +48,10 @@ contract('MintableERC721Token', function ([_, owner, minter, beneficiary, anothe
     it('has not finished minting', async function () {
       const mintingFinished = await this.token.mintingFinished();
       mintingFinished.should.eq(false);
+    });
+
+    it('should allow minting', async function () {
+      await this.token.mint(beneficiary, tokenId, TOKEN_URI, { from: minter });
     });
   });
 
