@@ -1,9 +1,9 @@
 import assertRevert from '../../helpers/assertRevert';
-const BigNumber = web3.BigNumber;
+import expectEvent from '../../helpers/expectEvent';
 
 require('chai')
   .use(require('chai-as-promised'))
-  .use(require('chai-bignumber')(BigNumber))
+  .use(require('chai-bignumber')(web3.BigNumber))
   .should();
 
 export default function shouldBurnLikeERC721Token ([minter, beneficiary, anotherAccount]) {
@@ -35,10 +35,11 @@ export default function shouldBurnLikeERC721Token ([minter, beneficiary, another
 
         it('emits a transfer event', async function () {
           logs.length.should.be.equal(1);
-          logs[0].event.should.be.eq('Transfer');
-          logs[0].args._from.should.be.equal(sender);
-          logs[0].args._to.should.be.equal(ZERO_ADDRESS);
-          logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
+          await expectEvent.inLogs(logs, 'Transfer', {
+            _from: sender,
+            _to: ZERO_ADDRESS,
+            _tokenId: tokenId,
+          });
         });
       });
 
@@ -52,6 +53,15 @@ export default function shouldBurnLikeERC721Token ([minter, beneficiary, another
         it('clears the approval', async function () {
           const approvedAccount = await this.token.getApproved(tokenId);
           approvedAccount.should.be.equal(ZERO_ADDRESS);
+        });
+
+        it('emits a transfer event', async function () {
+          logs.length.should.be.equal(1);
+          await expectEvent.inLogs(logs, 'Transfer', {
+            _from: sender,
+            _to: ZERO_ADDRESS,
+            _tokenId: tokenId,
+          });
         });
       });
 
