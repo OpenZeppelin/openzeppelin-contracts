@@ -1,4 +1,3 @@
-import assertRevert from '../../helpers/assertRevert';
 const ERC20WithMetadata = artifacts.require('ERC20WithMetadataMock');
 
 require('chai')
@@ -6,28 +5,14 @@ require('chai')
   .should();
 
 const metadataURI = 'https://example.com';
-const invalidMetadataURI = '';
 
 describe('ERC20WithMetadata', function () {
-  context('invalid metadata', function () {
-    before(async function () {
-      this.token = await ERC20WithMetadata.new(invalidMetadataURI);
-    });
-
-    it('throws', async function () {
-      await assertRevert(
-        this.token.tokenURI()
-      );
-    });
+  before(async function () {
+    this.token = await ERC20WithMetadata.new(metadataURI);
   });
-  context('valid metadata', function () {
-    before(async function () {
-      this.token = await ERC20WithMetadata.new(metadataURI);
-    });
 
-    it('responds with the metadata', async function () {
-      const got = await this.token.tokenURI();
-      got.should.eq(metadataURI);
-    });
+  it('responds with the metadata', async function () {
+    const got = await this.token.tokenURI();
+    got.should.eq(metadataURI);
   });
 });
