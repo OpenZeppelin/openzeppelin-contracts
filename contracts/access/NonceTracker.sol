@@ -5,10 +5,10 @@ pragma solidity ^0.4.24;
  * @title NonceTracker
  * @author Matt Condon (@shrugs)
  * @dev A simple way to keep track of nonces and restrict access.
- * @dev Use the `withAccess` modifier to restrict access by address.
- * @dev Use the `withMaxAccess` modifier to restrict access by address up to a max amount
- * @dev For example, withMaxAccess(msg.sender, 1) will only allow once-per-address.
- * @dev You can also accept nonces from users (as part of a hash you verify).
+ * Use the `withAccess` modifier to restrict access by address.
+ * Use the `withMaxAccess` modifier to restrict access by address up to a max amount
+ * For example, withMaxAccess(msg.sender, 1) will only allow once-per-address.
+ * You can also accept nonces from users (as part of a hash you verify).
  */
 contract NonceTracker {
   mapping(address => uint256) private nonces;
