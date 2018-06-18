@@ -34,3 +34,6 @@ build/
 
 # lol macs
 .DS_Store/
+
+# truffle
+.node-xmlhttprequest-*
