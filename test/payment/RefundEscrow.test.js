@@ -1,4 +1,5 @@
 import EVMRevert from '../helpers/EVMRevert';
+import { inLogs } from '../helpers/expectEvent';
 
 const BigNumber = web3.BigNumber;
 
@@ -40,8 +41,7 @@ contract('RefundEscrow', function ([owner, beneficiary, refundee1, refundee2]) {
 
     const receipt = await this.escrow.close({ from: owner });
 
-    receipt.logs.length.should.equal(1);
-    receipt.logs[0].event.should.equal('Closed');
+    await inLogs(receipt.logs, 'Closed');
   });
 
   context('closed state', function () {
@@ -73,8 +73,7 @@ contract('RefundEscrow', function ([owner, beneficiary, refundee1, refundee2]) {
 
     const receipt = await this.escrow.enableRefunds({ from: owner });
 
-    receipt.logs.length.should.equal(1);
-    receipt.logs[0].event.should.equal('RefundsEnabled');
+    inLogs(receipt.logs, 'RefundsEnabled');
   });
 
   context('refund state', function () {
@@ -96,9 +95,7 @@ contract('RefundEscrow', function ([owner, beneficiary, refundee1, refundee2]) {
 
         refundeeFinalBalance.sub(refundeeInitialBalance).should.be.bignumber.equal(amount);
 
-        receipt.logs.length.should.equal(1);
-        receipt.logs[0].event.should.equal('Refunded');
-        receipt.logs[0].args.refundee.should.equal(refundee);
+        inLogs(receipt.logs, 'Refunded', { refundee });
         receipt.logs[0].args.weiAmount.should.be.bignumber.equal(amount);
       }
     });
