@@ -1,5 +1,5 @@
 import EVMRevert from '../helpers/EVMRevert';
-import { inLogs } from '../helpers/expectEvent';
+import expectEvent from '../helpers/expectEvent';
 
 const BigNumber = web3.BigNumber;
 
@@ -41,7 +41,7 @@ contract('RefundEscrow', function ([owner, beneficiary, refundee1, refundee2]) {
 
     const receipt = await this.escrow.close({ from: owner });
 
-    await inLogs(receipt.logs, 'Closed');
+    await expectEvent.inLogs(receipt.logs, 'Closed');
   });
 
   context('closed state', function () {
@@ -73,7 +73,7 @@ contract('RefundEscrow', function ([owner, beneficiary, refundee1, refundee2]) {
 
     const receipt = await this.escrow.enableRefunds({ from: owner });
 
-    inLogs(receipt.logs, 'RefundsEnabled');
+    await expectEvent.inLogs(receipt.logs, 'RefundsEnabled');
   });
 
   context('refund state', function () {
@@ -95,8 +95,8 @@ contract('RefundEscrow', function ([owner, beneficiary, refundee1, refundee2]) {
 
         refundeeFinalBalance.sub(refundeeInitialBalance).should.be.bignumber.equal(amount);
 
-        inLogs(receipt.logs, 'Refunded', { refundee });
-        receipt.logs[0].args.weiAmount.should.be.bignumber.equal(amount);
+        const event = await expectEvent.inLogs(receipt.logs, 'Refunded', { refundee });
+        event.args.weiAmount.should.be.bignumber.equal(amount);
       }
     });
 

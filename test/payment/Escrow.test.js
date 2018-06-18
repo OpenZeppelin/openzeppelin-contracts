@@ -1,4 +1,4 @@
-import { shouldBehaveLikeEscrow } from './Escrow.behaviour';
+import shouldBehaveLikeEscrow from './Escrow.behaviour';
 
 const Escrow = artifacts.require('Escrow');
 
