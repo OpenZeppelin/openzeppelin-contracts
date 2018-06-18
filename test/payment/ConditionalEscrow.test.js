@@ -1,4 +1,4 @@
-import shouldBehaveLikeEscrow from './Escrow.behaviour';
+import { shouldBehaveLikeEscrow } from './Escrow.behaviour';
 import EVMRevert from '../helpers/EVMRevert';
 
 const BigNumber = web3.BigNumber;
@@ -11,12 +11,12 @@ const ConditionalEscrowMock = artifacts.require('ConditionalEscrowMock');
 
 contract('ConditionalEscrow', function (accounts) {
   beforeEach(async function () {
-    this.contract = await ConditionalEscrowMock.new();
+    this.escrow = await ConditionalEscrowMock.new();
   });
 
   context('when withdrawal is allowed', function () {
     beforeEach(async function () {
-      await Promise.all(accounts.map(payee => this.contract.setAllowed(payee, true)));
+      await Promise.all(accounts.map(payee => this.escrow.setAllowed(payee, true)));
     });
 
     shouldBehaveLikeEscrow(accounts);
@@ -30,13 +30,13 @@ contract('ConditionalEscrow', function (accounts) {
     const withdrawer = accounts[2];
 
     beforeEach(async function () {
-      await this.contract.setAllowed(payee, false);
+      await this.escrow.setAllowed(payee, false);
     });
 
     it('reverts on withdrawals', async function () {
-      await this.contract.deposit(payee, { from: payer, value: amount });
+      await this.escrow.deposit(payee, { from: payer, value: amount });
 
-      await this.contract.withdraw(payee, { from: withdrawer }).should.be.rejectedWith(EVMRevert);
+      await this.escrow.withdraw(payee, { from: withdrawer }).should.be.rejectedWith(EVMRevert);
     });
   });
 });

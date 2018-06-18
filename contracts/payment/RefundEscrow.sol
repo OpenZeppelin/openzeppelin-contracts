@@ -6,22 +6,23 @@ import "../ownership/Ownable.sol";
 
 /**
  * @title RefundEscrow
- * @dev Escrow that holds investor funds for a unique benefitiary, and allows for
- * either withdrawal by the benefiatiary, or refunds to the investors.
+ * @dev Escrow that holds funds for a beneficiary, deposited from multiple parties.
+ * The contract owner may close the deposit period, and allow for either withdrawal
+ * by the beneficiary, or refunds to the depositors.
  */
 contract RefundEscrow is ConditionalEscrow, Ownable {
   enum State { Active, Refunding, Closed }
 
   event Closed();
   event RefundsEnabled();
-  event Refunded(address indexed investor, uint256 weiAmount);
+  event Refunded(address indexed refundee, uint256 weiAmount);
 
   State public state;
   address public beneficiary;
 
   /**
    * @dev Constructor.
-   * @param _beneficiary The beneficiary of the investments.
+   * @param _beneficiary The beneficiary of the deposits.
    */
   constructor(address _beneficiary) public {
     require(_beneficiary != address(0));
@@ -31,23 +32,16 @@ contract RefundEscrow is ConditionalEscrow, Ownable {
 
   /**
    * @dev Stores funds that may later be refunded.
-   * @param _investor The address funds will be sent to if a refund occurs.
+   * @param _refundee The address funds will be sent to if a refund occurs.
    */
-  function invest(address _investor) payable public {
+  function deposit(address _refundee) payable public {
     require(state == State.Active);
-    super.deposit(_investor);
-  }
-
-  /**
-   * @dev Disable the base deposit function, use invest instead.
-   */
-  function deposit(address _payee) payable public {
-    revert();
+    super.deposit(_refundee);
   }
 
   /**
    * @dev Allows for the beneficiary to withdraw their funds, rejecting
-   * further investments.
+   * further deposits.
    */
   function close() onlyOwner public {
     require(state == State.Active);
@@ -56,7 +50,7 @@ contract RefundEscrow is ConditionalEscrow, Ownable {
   }
 
   /**
-   * @dev Allows for refunds to take place, rejecting further investments.
+   * @dev Allows for refunds to take place, rejecting further deposits.
    */
   function enableRefunds() onlyOwner public {
     require(state == State.Active);
@@ -67,23 +61,23 @@ contract RefundEscrow is ConditionalEscrow, Ownable {
   /**
    * @dev Withdraws the beneficiary's funds.
    */
-  function withdraw() public {
+  function beneficiaryWithdraw() public {
     require(state == State.Closed);
     beneficiary.transfer(address(this).balance);
   }
 
   /**
-   * @dev Refunds an investor.
-   * @param _investor The address to refund.
+   * @dev Refunds a refundee.
+   * @param _refundee The address to refund.
    */
-  function refund(address _investor) public {
-    uint256 amount = depositsOf(_investor);
-    super.withdraw(_investor);
-    emit Refunded(_investor, amount);
+  function withdraw(address _refundee) public {
+    uint256 amount = depositsOf(_refundee);
+    super.withdraw(_refundee);
+    emit Refunded(_refundee, amount);
   }
 
   /**
-   * @dev Returns whether investors can withdraw their investments (be refunded).
+   * @dev Returns whether refundees can withdraw their deposits (be refunded).
    */
   function withdrawalAllowed(address _payee) public view returns (bool) {
     return state == State.Refunding;

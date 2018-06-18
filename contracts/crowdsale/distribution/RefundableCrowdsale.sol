@@ -10,7 +10,6 @@ import "../../payment/RefundEscrow.sol";
  * @title RefundableCrowdsale
  * @dev Extension of Crowdsale contract that adds a funding goal, and
  * the possibility of users getting a refund if goal is not met.
- * Uses a RefundEscrow as the crowdsale's escrow.
  */
 contract RefundableCrowdsale is FinalizableCrowdsale {
   using SafeMath for uint256;
@@ -19,7 +18,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
   uint256 public goal;
 
   // refund escrow used to hold funds while crowdsale is running
-  RefundEscrow public escrow;
+  RefundEscrow private escrow;
 
   /**
    * @dev Constructor, creates RefundEscrow.
@@ -38,7 +37,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
     require(isFinalized);
     require(!goalReached());
 
-    escrow.refund(msg.sender);
+    escrow.withdraw(msg.sender);
   }
 
   /**
@@ -55,7 +54,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
   function finalization() internal {
     if (goalReached()) {
       escrow.close();
-      escrow.withdraw();
+      escrow.beneficiaryWithdraw();
     } else {
       escrow.enableRefunds();
     }
@@ -67,7 +66,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
    * @dev Overrides Crowdsale fund forwarding, sending funds to escrow.
    */
   function _forwardFunds() internal {
-    escrow.invest.value(msg.value)(msg.sender);
+    escrow.deposit.value(msg.value)(msg.sender);
   }
 
 }

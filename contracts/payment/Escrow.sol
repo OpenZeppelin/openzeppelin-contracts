@@ -37,7 +37,7 @@ contract Escrow {
     uint256 payment = deposits[_payee];
 
     require(payment != 0);
-    require(address(this).balance >= payment);
+    assert(address(this).balance >= payment);
 
     deposits[_payee] = 0;
 

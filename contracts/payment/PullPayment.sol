@@ -6,10 +6,10 @@ import "./Escrow.sol";
 /**
  * @title PullPayment
  * @dev Base contract supporting async send for pull payments. Inherit from this
- * contract and use asyncSend instead of send or transfer.
+ * contract and use asyncTransfer instead of send or transfer.
  */
 contract PullPayment {
-  Escrow public escrow;
+  Escrow private escrow;
 
   constructor() public {
     escrow = new Escrow();
@@ -25,7 +25,7 @@ contract PullPayment {
 
   /**
   * @dev Returns the credit owed to an address.
-  & @param _dest The creditor's address.
+  * @param _dest The creditor's address.
   */
   function payments(address _dest) public view returns (uint256) {
     return escrow.depositsOf(_dest);
@@ -36,7 +36,7 @@ contract PullPayment {
   * @param _dest The destination address of the funds.
   * @param _amount The amount to transfer.
   */
-  function asyncSend(address _dest, uint256 _amount) internal {
+  function asyncTransfer(address _dest, uint256 _amount) internal {
     escrow.deposit.value(_amount)(_dest);
   }
 }

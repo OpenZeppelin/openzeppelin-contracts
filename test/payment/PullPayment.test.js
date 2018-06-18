@@ -19,22 +19,22 @@ contract('PullPayment', function (accounts) {
 
   it('can record an async payment correctly', async function () {
     const AMOUNT = 100;
-    await this.contract.callSend(accounts[0], AMOUNT);
+    await this.contract.callTransfer(accounts[0], AMOUNT);
 
     const paymentsToAccount0 = await this.contract.payments(accounts[0]);
     paymentsToAccount0.should.be.bignumber.equal(AMOUNT);
   });
 
   it('can add multiple balances on one account', async function () {
-    await this.contract.callSend(accounts[0], 200);
-    await this.contract.callSend(accounts[0], 300);
+    await this.contract.callTransfer(accounts[0], 200);
+    await this.contract.callTransfer(accounts[0], 300);
     const paymentsToAccount0 = await this.contract.payments(accounts[0]);
     paymentsToAccount0.should.be.bignumber.equal(500);
   });
 
   it('can add balances on multiple accounts', async function () {
-    await this.contract.callSend(accounts[0], 200);
-    await this.contract.callSend(accounts[1], 300);
+    await this.contract.callTransfer(accounts[0], 200);
+    await this.contract.callTransfer(accounts[1], 300);
 
     const paymentsToAccount0 = await this.contract.payments(accounts[0]);
     paymentsToAccount0.should.be.bignumber.equal(200);
@@ -47,7 +47,7 @@ contract('PullPayment', function (accounts) {
     const payee = accounts[1];
     const initialBalance = web3.eth.getBalance(payee);
 
-    await this.contract.callSend(payee, amount);
+    await this.contract.callTransfer(payee, amount);
 
     const payment1 = await this.contract.payments(payee);
     payment1.should.be.bignumber.equal(amount);

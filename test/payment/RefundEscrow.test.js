@@ -8,41 +8,37 @@ require('chai')
 
 const RefundEscrow = artifacts.require('RefundEscrow');
 
-contract('RefundEscrow', function ([owner, beneficiary, investor1, investor2]) {
+contract('RefundEscrow', function ([owner, beneficiary, refundee1, refundee2]) {
   const amount = web3.toWei(54.0, 'ether');
-  const investors = [investor1, investor2];
+  const refundees = [refundee1, refundee2];
 
   beforeEach(async function () {
-    this.contract = await RefundEscrow.new(beneficiary);
-  });
-
-  it('disallows direct deposits', async function () {
-    await this.contract.deposit(investor1, { from: investor1, value: amount }).should.be.rejectedWith(EVMRevert);
+    this.escrow = await RefundEscrow.new(beneficiary);
   });
 
   context('active state', function () {
-    it('accepts investments', async function () {
-      await this.contract.invest(investor1, { from: investor1, value: amount });
+    it('accepts deposits', async function () {
+      await this.escrow.deposit(refundee1, { from: refundee1, value: amount });
 
-      const investment = await this.contract.depositsOf(investor1);
-      investment.should.be.bignumber.equal(amount);
+      const deposit = await this.escrow.depositsOf(refundee1);
+      deposit.should.be.bignumber.equal(amount);
     });
 
-    it('does not refund investors', async function () {
-      await this.contract.invest(investor1, { from: investor1, value: amount });
-      await this.contract.refund(investor1).should.be.rejectedWith(EVMRevert);
+    it('does not refund refundees', async function () {
+      await this.escrow.deposit(refundee1, { from: refundee1, value: amount });
+      await this.escrow.withdraw(refundee1).should.be.rejectedWith(EVMRevert);
     });
 
     it('does not allow beneficiary withdrawal', async function () {
-      await this.contract.invest(investor1, { from: investor1, value: amount });
-      await this.contract.withdraw().should.be.rejectedWith(EVMRevert);
+      await this.escrow.deposit(refundee1, { from: refundee1, value: amount });
+      await this.escrow.beneficiaryWithdraw().should.be.rejectedWith(EVMRevert);
     });
   });
 
   it('only owner can enter closed state', async function () {
-    await this.contract.close({ from: beneficiary }).should.be.rejectedWith(EVMRevert);
+    await this.escrow.close({ from: beneficiary }).should.be.rejectedWith(EVMRevert);
 
-    const receipt = await this.contract.close({ from: owner });
+    const receipt = await this.escrow.close({ from: owner });
 
     receipt.logs.length.should.equal(1);
     receipt.logs[0].event.should.equal('Closed');
@@ -50,32 +46,32 @@ contract('RefundEscrow', function ([owner, beneficiary, investor1, investor2]) {
 
   context('closed state', function () {
     beforeEach(async function () {
-      await Promise.all(investors.map(investor => this.contract.invest(investor, { from: investor, value: amount })));
+      await Promise.all(refundees.map(refundee => this.escrow.deposit(refundee, { from: refundee, value: amount })));
 
-      await this.contract.close({ from: owner });
+      await this.escrow.close({ from: owner });
     });
 
-    it('rejects investments', async function () {
-      await this.contract.invest(investor1, { from: investor1, value: amount }).should.be.rejectedWith(EVMRevert);
+    it('rejects deposits', async function () {
+      await this.escrow.deposit(refundee1, { from: refundee1, value: amount }).should.be.rejectedWith(EVMRevert);
     });
 
-    it('does not refund investors', async function () {
-      await this.contract.refund(investor1).should.be.rejectedWith(EVMRevert);
+    it('does not refund refundees', async function () {
+      await this.escrow.withdraw(refundee1).should.be.rejectedWith(EVMRevert);
     });
 
     it('allows beneficiary withdrawal', async function () {
       const beneficiaryInitialBalance = await web3.eth.getBalance(beneficiary);
-      await this.contract.withdraw();
+      await this.escrow.beneficiaryWithdraw();
       const beneficiaryFinalBalance = await web3.eth.getBalance(beneficiary);
 
-      beneficiaryFinalBalance.sub(beneficiaryInitialBalance).should.be.bignumber.equal(amount * investors.length);
+      beneficiaryFinalBalance.sub(beneficiaryInitialBalance).should.be.bignumber.equal(amount * refundees.length);
     });
   });
 
   it('only owner can enter refund state', async function () {
-    await this.contract.enableRefunds({ from: beneficiary }).should.be.rejectedWith(EVMRevert);
+    await this.escrow.enableRefunds({ from: beneficiary }).should.be.rejectedWith(EVMRevert);
 
-    const receipt = await this.contract.enableRefunds({ from: owner });
+    const receipt = await this.escrow.enableRefunds({ from: owner });
 
     receipt.logs.length.should.equal(1);
     receipt.logs[0].event.should.equal('RefundsEnabled');
@@ -83,32 +79,32 @@ contract('RefundEscrow', function ([owner, beneficiary, investor1, investor2]) {
 
   context('refund state', function () {
     beforeEach(async function () {
-      await Promise.all(investors.map(investor => this.contract.invest(investor, { from: investor, value: amount })));
+      await Promise.all(refundees.map(refundee => this.escrow.deposit(refundee, { from: refundee, value: amount })));
 
-      await this.contract.enableRefunds({ from: owner });
+      await this.escrow.enableRefunds({ from: owner });
     });
 
-    it('rejects investments', async function () {
-      await this.contract.invest(investor1, { from: investor1, value: amount }).should.be.rejectedWith(EVMRevert);
+    it('rejects deposits', async function () {
+      await this.escrow.deposit(refundee1, { from: refundee1, value: amount }).should.be.rejectedWith(EVMRevert);
     });
 
-    it('refunds investors', async function () {
-      for (let investor of [investor1, investor2]) {
-        const investorInitialBalance = await web3.eth.getBalance(investor);
-        const receipt = await this.contract.refund(investor);
-        const investorFinalBalance = await web3.eth.getBalance(investor);
+    it('refunds refundees', async function () {
+      for (let refundee of [refundee1, refundee2]) {
+        const refundeeInitialBalance = await web3.eth.getBalance(refundee);
+        const receipt = await this.escrow.withdraw(refundee);
+        const refundeeFinalBalance = await web3.eth.getBalance(refundee);
 
-        investorFinalBalance.sub(investorInitialBalance).should.be.bignumber.equal(amount);
+        refundeeFinalBalance.sub(refundeeInitialBalance).should.be.bignumber.equal(amount);
 
         receipt.logs.length.should.equal(1);
         receipt.logs[0].event.should.equal('Refunded');
-        receipt.logs[0].args.investor.should.equal(investor);
+        receipt.logs[0].args.refundee.should.equal(refundee);
         receipt.logs[0].args.weiAmount.should.be.bignumber.equal(amount);
       }
     });
 
     it('does not allow beneficiary withdrawal', async function () {
-      await this.contract.withdraw().should.be.rejectedWith(EVMRevert);
+      await this.escrow.beneficiaryWithdraw().should.be.rejectedWith(EVMRevert);
     });
   });
 });
