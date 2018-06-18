@@ -1,6 +1,7 @@
 import EVMRevert from '../../helpers/EVMRevert';
 import latestTime from '../../helpers/latestTime';
 import { increaseTimeTo, duration } from '../../helpers/increaseTime';
+import toPromise from '../../helpers/toPromise';
 
 const BigNumber = web3.BigNumber;
 
@@ -40,7 +41,8 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     await increaseTimeTo(this.start + this.cliff);
 
     const { receipt } = await this.vesting.release(this.token.address);
-    const releaseTime = web3.eth.getBlock(receipt.blockNumber).timestamp;
+    const block = await toPromise(web3.eth.getBlock)(receipt.blockNumber);
+    const releaseTime = block.timestamp;
 
     const balance = await this.token.balanceOf(beneficiary);
     balance.should.bignumber.equal(amount.mul(releaseTime - this.start).div(this.duration).floor());

@@ -25,7 +25,7 @@ contract('Bounty', function (accounts) {
     let owner = accounts[0];
     let reward = web3.toWei(1, 'ether');
     let bounty = await SecureTargetBounty.new();
-    sendReward(owner, bounty.address, reward);
+    await sendReward(owner, bounty.address, reward);
 
     const balance = await toPromise(web3.eth.getBalance)(bounty.address);
     assert.equal(reward, balance.toNumber());
@@ -35,7 +35,7 @@ contract('Bounty', function (accounts) {
     let owner = accounts[0];
     let reward = web3.toWei(1, 'ether');
     let bounty = await SecureTargetBounty.new();
-    sendReward(owner, bounty.address, reward);
+    await sendReward(owner, bounty.address, reward);
 
     const balance = await toPromise(web3.eth.getBalance)(bounty.address);
     assert.equal(reward, balance.toNumber());
@@ -58,7 +58,7 @@ contract('Bounty', function (accounts) {
         if (err) { throw err; }
 
         var targetAddress = result.args.createdAddress;
-        sendReward(owner, bounty.address, reward);
+        await sendReward(owner, bounty.address, reward);
 
         const balance = await toPromise(web3.eth.getBalance)(bounty.address);
         assert.equal(reward, balance.toNumber());
@@ -95,7 +95,7 @@ contract('Bounty', function (accounts) {
         event.stopWatching();
         if (err) { throw err; }
         let targetAddress = result.args.createdAddress;
-        sendReward(owner, bounty.address, reward);
+        await sendReward(owner, bounty.address, reward);
 
         const balance = await toPromise(web3.eth.getBalance)(bounty.address);
         assert.equal(reward, balance.toNumber());
