@@ -20,8 +20,8 @@ export function shouldBehaveLikeEscrow([payer1, payer2, payee1, payee2]) {
       deposit.should.be.bignumber.equal(amount);
     });
 
-    it('reverts on empty deposits', async function () {
-      await this.escrow.deposit(payee1, { from: payer1, value: 0 }).should.be.rejectedWith(EVMRevert);
+    it('can accept an empty deposit', async function () {
+      await this.escrow.deposit(payee1, { from: payer1, value: 0 });
     });
 
     it('can add multiple deposits on a single account', async function () {
@@ -63,8 +63,8 @@ export function shouldBehaveLikeEscrow([payer1, payer2, payee1, payee2]) {
       payeeFinalBalance.sub(payeeInitialBalance).should.be.bignumber.equal(amount);
     });
 
-    it('reverts on empty withdrawals', async function () {
-      await this.escrow.withdraw(payee1, { from: payer1 }).should.be.rejectedWith(EVMRevert);
+    it('can do an empty withdrawal', async function () {
+      await this.escrow.withdraw(payee1, { from: payer1 });
     });
   });
 };

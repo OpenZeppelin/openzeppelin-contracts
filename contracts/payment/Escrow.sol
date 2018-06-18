@@ -23,8 +23,6 @@ contract Escrow {
   */
   function deposit(address _payee) payable public {
     uint256 amount = msg.value;
-    require(amount > 0);
-
     deposits[_payee] = deposits[_payee].add(amount);
   }
 
@@ -35,8 +33,6 @@ contract Escrow {
   */
   function withdraw(address _payee) public {
     uint256 payment = deposits[_payee];
-
-    require(payment != 0);
     assert(address(this).balance >= payment);
 
     deposits[_payee] = 0;
