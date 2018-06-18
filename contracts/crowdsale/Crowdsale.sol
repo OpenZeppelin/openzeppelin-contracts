@@ -1,7 +1,8 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 import "../token/ERC20/ERC20.sol";
 import "../math/SafeMath.sol";
+import "../token/ERC20/SafeERC20.sol";
 
 
 /**
@@ -18,6 +19,7 @@ import "../math/SafeMath.sol";
  */
 contract Crowdsale {
   using SafeMath for uint256;
+  using SafeERC20 for ERC20;
 
   // The token being sold
   ERC20 public token;
@@ -147,7 +149,7 @@ contract Crowdsale {
   )
     internal
   {
-    token.transfer(_beneficiary, _tokenAmount);
+    token.safeTransfer(_beneficiary, _tokenAmount);
   }
 
   /**

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 
 import "../token/ERC20/StandardToken.sol";
@@ -24,7 +24,7 @@ contract SimpleToken is StandardToken {
   constructor() public {
     totalSupply_ = INITIAL_SUPPLY;
     balances[msg.sender] = INITIAL_SUPPLY;
-    emit Transfer(0x0, msg.sender, INITIAL_SUPPLY);
+    emit Transfer(address(0), msg.sender, INITIAL_SUPPLY);
   }
 
 }

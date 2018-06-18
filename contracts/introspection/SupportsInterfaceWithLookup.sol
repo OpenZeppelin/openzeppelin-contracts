@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 import "./ERC165.sol";
 
@@ -22,7 +22,7 @@ contract SupportsInterfaceWithLookup is ERC165 {
 
   /**
    * @dev A contract implementing SupportsInterfaceWithLookup
-   * @dev  implement ERC165 itself
+   * implement ERC165 itself
    */
   constructor()
     public

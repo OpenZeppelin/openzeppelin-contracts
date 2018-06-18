@@ -1,12 +1,11 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
-import "../ownership/Whitelist.sol";
-
+import "../access/Whitelist.sol";
 
 contract WhitelistMock is Whitelist {
 
   function onlyWhitelistedCanDoThis()
-    onlyWhitelisted
+    onlyIfWhitelisted(msg.sender)
     view
     external
   {

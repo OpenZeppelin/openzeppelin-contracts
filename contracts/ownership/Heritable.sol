@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 
 import "./Ownable.sol";
@@ -78,7 +78,7 @@ contract Heritable is Ownable {
    */
   function removeHeir() public onlyOwner {
     heartbeat();
-    heir_ = 0;
+    heir_ = address(0);
   }
 
   /**

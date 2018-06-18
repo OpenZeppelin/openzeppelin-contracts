@@ -1,10 +1,10 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 
 /*
  * @title MerkleProof
- * @dev Merkle proof verification
- * @note Based on https://github.com/ameensol/merkle-tree-solidity/blob/master/src/MerkleProof.sol
+ * @dev Merkle proof verification based on
+ * https://github.com/ameensol/merkle-tree-solidity/blob/master/src/MerkleProof.sol
  */
 library MerkleProof {
   /*
@@ -30,10 +30,10 @@ library MerkleProof {
 
       if (computedHash < proofElement) {
         // Hash(current computed hash + current element of the proof)
-        computedHash = keccak256(computedHash, proofElement);
+        computedHash = keccak256(abi.encodePacked(computedHash, proofElement));
       } else {
         // Hash(current element of the proof + current computed hash)
-        computedHash = keccak256(proofElement, computedHash);
+        computedHash = keccak256(abi.encodePacked(proofElement, computedHash));
       }
     }
 
