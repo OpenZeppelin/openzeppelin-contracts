@@ -161,13 +161,25 @@ contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
   )
     public
   {
-    require(isApprovedOrOwner(msg.sender, _tokenId));
-    require(_from != address(0));
+    address owner = ownerOf(_tokenId);
+    require(_from == owner);
     require(_to != address(0));
 
-    clearApproval(_from, _tokenId);
-    removeTokenFrom(_from, _tokenId);
-    addTokenTo(_to, _tokenId);
+    address spender = msg.sender;
+    require(
+      spender == owner ||
+      isApprovedForAll(owner, spender) ||
+      getApproved(_tokenId) == spender
+    );
+
+    if (tokenApprovals[_tokenId] != address(0)) {
+      tokenApprovals[_tokenId] = address(0);
+      emit Approval(owner, address(0), _tokenId);
+    }
+
+    tokenOwner[_tokenId] = _to;
+    ownedTokensCount[_from] = ownedTokensCount[_from].sub(1);
+    ownedTokensCount[_to] = ownedTokensCount[_to].add(1);
 
     emit Transfer(_from, _to, _tokenId);
   }
