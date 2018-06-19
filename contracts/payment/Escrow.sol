@@ -11,6 +11,9 @@ import "../math/SafeMath.sol";
 contract Escrow {
   using SafeMath for uint256;
 
+  event Deposited(address indexed payee, uint256 weiAmount);
+  event Withdrawn(address indexed payee, uint256 weiAmount);
+
   mapping(address => uint256) private deposits;
 
   function depositsOf(address _payee) public view returns (uint256) {
@@ -24,6 +27,8 @@ contract Escrow {
   function deposit(address _payee) payable public {
     uint256 amount = msg.value;
     deposits[_payee] = deposits[_payee].add(amount);
+
+    emit Deposited(_payee, amount);
   }
 
   /**
@@ -38,5 +43,7 @@ contract Escrow {
     deposits[_payee] = 0;
 
     _payee.transfer(payment);
+
+    emit Withdrawn(_payee, payment);
   }
 }

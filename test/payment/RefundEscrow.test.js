@@ -90,13 +90,10 @@ contract('RefundEscrow', function ([owner, beneficiary, refundee1, refundee2]) {
     it('refunds refundees', async function () {
       for (let refundee of [refundee1, refundee2]) {
         const refundeeInitialBalance = await web3.eth.getBalance(refundee);
-        const receipt = await this.escrow.withdraw(refundee);
+        await this.escrow.withdraw(refundee);
         const refundeeFinalBalance = await web3.eth.getBalance(refundee);
 
         refundeeFinalBalance.sub(refundeeInitialBalance).should.be.bignumber.equal(amount);
-
-        const event = await expectEvent.inLogs(receipt.logs, 'Refunded', { refundee });
-        event.args.weiAmount.should.be.bignumber.equal(amount);
       }
     });
 

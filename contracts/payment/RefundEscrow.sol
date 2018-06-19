@@ -15,7 +15,6 @@ contract RefundEscrow is ConditionalEscrow, Ownable {
 
   event Closed();
   event RefundsEnabled();
-  event Refunded(address indexed refundee, uint256 weiAmount);
 
   State public state;
   address public beneficiary;
@@ -64,16 +63,6 @@ contract RefundEscrow is ConditionalEscrow, Ownable {
   function beneficiaryWithdraw() public {
     require(state == State.Closed);
     beneficiary.transfer(address(this).balance);
-  }
-
-  /**
-   * @dev Refunds a refundee.
-   * @param _refundee The address to refund.
-   */
-  function withdraw(address _refundee) public {
-    uint256 amount = depositsOf(_refundee);
-    super.withdraw(_refundee);
-    emit Refunded(_refundee, amount);
   }
 
   /**
