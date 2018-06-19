@@ -2,16 +2,14 @@ pragma solidity ^0.4.21;
 
 import { MerkleProof } from "../../MerkleProof.sol";
 import "../../math/SafeMath.sol";
-import "../../ownership/Ownable.sol";
-import "../Crowdsale.sol";
+import "./IndividuallyCappedCrowdsale.sol";
 
 
 /**
  * @title MerkleIndividuallyCappedCrowdsale
  * @dev Crowdsale with per-user caps stored as Merkle tree.
  */
-contract MerkleIndividuallyCappedCrowdsale is Crowdsale, Ownable {
-  mapping(address => uint256) public contributions;
+contract MerkleIndividuallyCappedCrowdsale is IndividuallyCappedCrowdsale {
   bytes32 public capsMerkleRoot;
 
   /**
@@ -23,26 +21,35 @@ contract MerkleIndividuallyCappedCrowdsale is Crowdsale, Ownable {
   }
 
   /**
-   * @dev Override parent behavior to deny this method usage
-   * @param _beneficiary Token purchaser
+   * @dev Sets a specific user's maximum contribution.
+   * @param _beneficiary Address to be capped
+   * @param _cap Wei limit for individual contribution
+   * @param _proof Merkle tree proof up to capsMerkleRoot
    */
-  function buyTokens(address _beneficiary) public payable {
+  function setUserCap(address _beneficiary, uint256 _cap, bytes32[] _proof) external {
+    require(contributions[_beneficiary] + msg.value <= _cap);
+    bytes32 leaf = keccak256(_beneficiary, _cap);
+    require(MerkleProof.verifyProof(_proof, capsMerkleRoot, leaf));
+    caps[_beneficiary] = _cap;
+  }
+
+  /**
+   * @dev Sets a group of users' maximum contribution.
+   * @param _beneficiaries List of addresses to be capped
+   * @param _cap Wei limit for individual contribution
+   */
+  function setGroupCap(address[] _beneficiaries, uint256 _cap) external {
     revert();
   }
 
   /**
-   * @dev Extend parent behavior to update user contributions
-   * @param _beneficiary Token purchaser
-   * @param _individualCap Beneficiary personal cap in wei
-   * @param _proof Merkle proof of personal cap
+   * @dev Sets a specific user's maximum contribution an buy tokens in the same transaction
+   * @param _beneficiary Address to be capped
+   * @param _cap Wei limit for individual contribution
    */
-  function buyTokens(address _beneficiary, uint256 _individualCap, bytes32[] _proof) public payable {
-    require(contributions[_beneficiary] + msg.value <= _individualCap);
-    bytes32 leaf = keccak256(_beneficiary, _individualCap);
-    require(MerkleProof.verifyProof(_proof, capsMerkleRoot, leaf));
-    
-    contributions[_beneficiary] += msg.value;
-    super.buyTokens(_beneficiary);
+  function setUserCapAndBuyTokens(address _beneficiary, uint256 _cap, bytes32[] _proof) external payable {
+    this.setUserCap(_beneficiary, _cap, _proof);
+    buyTokens(_beneficiary);
   }
 
 }
