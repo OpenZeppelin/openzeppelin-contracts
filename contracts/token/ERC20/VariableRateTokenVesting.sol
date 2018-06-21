@@ -37,7 +37,7 @@ contract VariableRateTokenVesting is TokenVesting {
     uint256[] _cumulativeRates,
     uint256 _interval
   ) public
-    // We don't need `duration`, also always allow revoking.
+    // We don't need `duration`.
     TokenVesting(_beneficiary, _start, _cliff, /*duration: uint max*/~uint256(0), _revocable)
   {
     // Validate rates.
