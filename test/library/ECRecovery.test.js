@@ -58,13 +58,15 @@ contract('ECRecovery', function (accounts) {
     assert.notEqual(accounts[0], addrRecovered);
   });
 
-  it('recover should fail when a wrong hash is sent', async function () {
+  it('recover should revert when a small hash is sent', async function () {
     // Create the signature using account[0]
     let signature = signMessage(accounts[0], TEST_MESSAGE);
-
-    // Recover the signer address from the generated message and wrong signature.
-    const addrRecovered = await ecrecovery.recover(hashMessage(TEST_MESSAGE).substring(2), signature);
-    addrRecovered.should.eq('0x0000000000000000000000000000000000000000');
+    try {
+      // Revert while trying to recover the signer address from a small message.
+      const addrRecovered = await ecrecovery.recover(hashMessage(TEST_MESSAGE).substring(2), signature);
+      assert(false);
+    } catch(error) {
+    }
   });
 
   context('toEthSignedMessage', () => {
