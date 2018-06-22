@@ -1,12 +1,12 @@
 pragma solidity ^0.4.24;
 
-import "./BasicToken.sol";
+import "./StandardToken.sol";
 
 /**
  * @title MultiSend Token
  * @dev Basic token with transfer to multiple addresses functionality.
  */
-contract MultiSendToken is BasicToken {
+contract MultiSendToken is StandardToken {
 
     /**
      * @dev Transfers specific amounts of tokens to specified addresses.
