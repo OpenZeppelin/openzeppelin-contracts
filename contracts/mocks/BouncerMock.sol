@@ -4,7 +4,7 @@ import "../access/SignatureBouncer.sol";
 
 
 contract SignatureBouncerMock is SignatureBouncer {
-  function checkValidSignature(address _address, bytes _sig)
+  function checkValidSignature(address _address, bytes memory _sig)
     public
     view
     returns (bool)
@@ -20,7 +20,7 @@ contract SignatureBouncerMock is SignatureBouncer {
 
   }
 
-  function checkValidSignatureAndMethod(address _address, bytes _sig)
+  function checkValidSignatureAndMethod(address _address, bytes memory _sig)
     public
     view
     returns (bool)
@@ -36,7 +36,7 @@ contract SignatureBouncerMock is SignatureBouncer {
 
   }
 
-  function checkValidSignatureAndData(address _address, bytes _bytes, uint _val, bytes _sig)
+  function checkValidSignatureAndData(address _address, bytes memory _bytes, uint _val, bytes memory _sig)
     public
     view
     returns (bool)
@@ -44,7 +44,7 @@ contract SignatureBouncerMock is SignatureBouncer {
     return isValidSignatureAndData(_address, _sig);
   }
 
-  function onlyWithValidSignatureAndData(uint _val, bytes _sig)
+  function onlyWithValidSignatureAndData(uint _val, bytes memory _sig)
     onlyValidSignatureAndData(_sig)
     public
     view

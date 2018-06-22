@@ -54,7 +54,7 @@ contract Whitelist is Ownable, RBAC {
    * @return true if at least one address was added to the whitelist,
    * false if all addresses were already in the whitelist
    */
-  function addAddressesToWhitelist(address[] addrs)
+  function addAddressesToWhitelist(address[] memory addrs)
     onlyOwner
     public
   {
@@ -83,7 +83,7 @@ contract Whitelist is Ownable, RBAC {
    * @return true if at least one address was removed from the whitelist,
    * false if all addresses weren't in the whitelist in the first place
    */
-  function removeAddressesFromWhitelist(address[] addrs)
+  function removeAddressesFromWhitelist(address[] memory addrs)
     onlyOwner
     public
   {

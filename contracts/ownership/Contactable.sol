@@ -16,7 +16,7 @@ contract Contactable is Ownable {
     * @dev Allows the owner to set a string with their contact information.
     * @param info The contact information to attach to the contract.
     */
-  function setContactInformation(string info) onlyOwner public {
+  function setContactInformation(string memory info) onlyOwner public {
     contactInformation = info;
   }
 }

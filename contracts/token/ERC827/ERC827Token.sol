@@ -32,7 +32,7 @@ contract ERC827Token is ERC827, StandardToken {
   function approveAndCall(
     address _spender,
     uint256 _value,
-    bytes _data
+    bytes memory _data
   )
     public
     payable
@@ -59,7 +59,7 @@ contract ERC827Token is ERC827, StandardToken {
   function transferAndCall(
     address _to,
     uint256 _value,
-    bytes _data
+    bytes memory _data
   )
     public
     payable
@@ -87,7 +87,7 @@ contract ERC827Token is ERC827, StandardToken {
     address _from,
     address _to,
     uint256 _value,
-    bytes _data
+    bytes memory _data
   )
     public payable returns (bool)
   {
@@ -114,7 +114,7 @@ contract ERC827Token is ERC827, StandardToken {
   function increaseApprovalAndCall(
     address _spender,
     uint _addedValue,
-    bytes _data
+    bytes memory _data
   )
     public
     payable
@@ -144,7 +144,7 @@ contract ERC827Token is ERC827, StandardToken {
   function decreaseApprovalAndCall(
     address _spender,
     uint _subtractedValue,
-    bytes _data
+    bytes memory _data
   )
     public
     payable

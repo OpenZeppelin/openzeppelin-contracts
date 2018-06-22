@@ -44,7 +44,7 @@ contract ERC721Basic is ERC165 {
     address _from,
     address _to,
     uint256 _tokenId,
-    bytes _data
+    bytes memory _data
   )
     public;
 }
