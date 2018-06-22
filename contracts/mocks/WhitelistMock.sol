@@ -6,7 +6,7 @@ import "../access/Whitelist.sol";
 contract WhitelistMock is Whitelist {
 
   function onlyWhitelistedCanDoThis()
-    onlyWhitelisted
+    onlyIfWhitelisted(msg.sender)
     view
     external
   {

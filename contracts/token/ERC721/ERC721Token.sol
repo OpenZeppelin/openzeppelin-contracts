@@ -80,7 +80,7 @@ contract ERC721Token is SupportsInterfaceWithLookup, ERC721BasicToken, ERC721 {
 
   /**
    * @dev Returns an URI for a given token ID
-   * @dev Throws if the token ID does not exist. May return an empty string.
+   * Throws if the token ID does not exist. May return an empty string.
    * @param _tokenId uint256 ID of the token to query
    */
   function tokenURI(uint256 _tokenId) public view returns (string) {
@@ -116,7 +116,7 @@ contract ERC721Token is SupportsInterfaceWithLookup, ERC721BasicToken, ERC721 {
 
   /**
    * @dev Gets the token ID at a given index of all the tokens in this contract
-   * @dev Reverts if the index is greater or equal to the total number of tokens
+   * Reverts if the index is greater or equal to the total number of tokens
    * @param _index uint256 representing the index to be accessed of the tokens list
    * @return uint256 token ID at the given index of the tokens list
    */
@@ -127,7 +127,7 @@ contract ERC721Token is SupportsInterfaceWithLookup, ERC721BasicToken, ERC721 {
 
   /**
    * @dev Internal function to set the token URI for a given token
-   * @dev Reverts if the token ID does not exist
+   * Reverts if the token ID does not exist
    * @param _tokenId uint256 ID of the token to set its URI
    * @param _uri string URI to assign
    */
@@ -173,7 +173,7 @@ contract ERC721Token is SupportsInterfaceWithLookup, ERC721BasicToken, ERC721 {
 
   /**
    * @dev Internal function to mint a new token
-   * @dev Reverts if the given token ID already exists
+   * Reverts if the given token ID already exists
    * @param _to address the beneficiary that will own the minted token
    * @param _tokenId uint256 ID of the token to be minted by the msg.sender
    */
@@ -186,7 +186,7 @@ contract ERC721Token is SupportsInterfaceWithLookup, ERC721BasicToken, ERC721 {
 
   /**
    * @dev Internal function to burn a specific token
-   * @dev Reverts if the token does not exist
+   * Reverts if the token does not exist
    * @param _owner owner of the token to burn
    * @param _tokenId uint256 ID of the token being burned by the msg.sender
    */
