@@ -21,7 +21,7 @@ contract HasNoTokens is CanReclaimToken {
   function tokenFallback(
     address _from,
     uint256 _value,
-    bytes _data
+    bytes memory _data
   )
     external
     pure

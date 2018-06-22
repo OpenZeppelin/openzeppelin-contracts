@@ -45,7 +45,7 @@ contract RBACWithAdmin is RBAC {
    * @param _account the account that will have the role
    * @param _roleName the name of the role
    */
-  function adminAddRole(address _account, string _roleName)
+  function adminAddRole(address _account, string memory _roleName)
     public
     onlyAdmin
   {

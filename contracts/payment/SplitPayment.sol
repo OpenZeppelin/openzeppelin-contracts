@@ -21,7 +21,7 @@ contract SplitPayment {
   /**
    * @dev Constructor
    */
-  constructor(address[] _payees, uint256[] _shares) public payable {
+  constructor(address[] memory _payees, uint256[] memory _shares) public payable {
     require(_payees.length == _shares.length);
     require(_payees.length > 0);
 

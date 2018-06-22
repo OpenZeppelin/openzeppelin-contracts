@@ -12,7 +12,7 @@ contract SignatureBouncerMock is SignatureBouncer {
     return isValidSignature(_address, _signature);
   }
 
-  function onlyWithValidSignature(bytes _signature)
+  function onlyWithValidSignature(bytes memory _signature)
     public
     onlyValidSignature(_signature)
     view
@@ -20,7 +20,7 @@ contract SignatureBouncerMock is SignatureBouncer {
 
   }
 
-  function checkValidSignatureAndMethod(address _address, bytes _signature)
+  function checkValidSignatureAndMethod(address _address, bytes memory _signature)
     public
     view
     returns (bool)
@@ -28,7 +28,7 @@ contract SignatureBouncerMock is SignatureBouncer {
     return isValidSignatureAndMethod(_address, _signature);
   }
 
-  function onlyWithValidSignatureAndMethod(bytes _signature)
+  function onlyWithValidSignatureAndMethod(bytes memory _signature)
     public
     onlyValidSignatureAndMethod(_signature)
     view
@@ -38,9 +38,9 @@ contract SignatureBouncerMock is SignatureBouncer {
 
   function checkValidSignatureAndData(
     address _address,
-    bytes,
+    bytes memory,
     uint,
-    bytes _signature
+    bytes memory _signature
   )
     public
     view
@@ -49,7 +49,7 @@ contract SignatureBouncerMock is SignatureBouncer {
     return isValidSignatureAndData(_address, _signature);
   }
 
-  function onlyWithValidSignatureAndData(uint, bytes _signature)
+  function onlyWithValidSignatureAndData(uint, bytes memory _signature)
     public
     onlyValidSignatureAndData(_signature)
     view

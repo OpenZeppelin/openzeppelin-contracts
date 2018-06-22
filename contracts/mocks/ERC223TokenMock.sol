@@ -4,7 +4,7 @@ import "../token/ERC20/StandardToken.sol";
 
 
 contract ERC223ContractInterface {
-  function tokenFallback(address _from, uint256 _value, bytes _data) external;
+  function tokenFallback(address _from, uint256 _value, bytes calldata _data) external;
 }
 
 
@@ -15,7 +15,7 @@ contract ERC223TokenMock is StandardToken {
   }
 
   // ERC223 compatible transfer function (except the name)
-  function transferERC223(address _to, uint256 _value, bytes _data) public
+  function transferERC223(address _to, uint256 _value, bytes memory _data) public
     returns (bool success)
   {
     transfer(_to, _value);

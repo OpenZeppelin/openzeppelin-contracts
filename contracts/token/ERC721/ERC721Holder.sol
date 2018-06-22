@@ -8,7 +8,7 @@ contract ERC721Holder is ERC721Receiver {
     address,
     address,
     uint256,
-    bytes
+    bytes memory
   )
     public
     returns(bytes4)

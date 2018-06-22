@@ -40,7 +40,7 @@ contract SignatureBouncer is Ownable, RBAC {
   /**
    * @dev requires that a valid signature of a bouncer was provided
    */
-  modifier onlyValidSignature(bytes _signature)
+  modifier onlyValidSignature(bytes memory _signature)
   {
     require(isValidSignature(msg.sender, _signature));
     _;
@@ -49,7 +49,7 @@ contract SignatureBouncer is Ownable, RBAC {
   /**
    * @dev requires that a valid signature with a specifed method of a bouncer was provided
    */
-  modifier onlyValidSignatureAndMethod(bytes _signature)
+  modifier onlyValidSignatureAndMethod(bytes memory _signature)
   {
     require(isValidSignatureAndMethod(msg.sender, _signature));
     _;
@@ -58,7 +58,7 @@ contract SignatureBouncer is Ownable, RBAC {
   /**
    * @dev requires that a valid signature with a specifed method and params of a bouncer was provided
    */
-  modifier onlyValidSignatureAndData(bytes _signature)
+  modifier onlyValidSignatureAndData(bytes memory _signature)
   {
     require(isValidSignatureAndData(msg.sender, _signature));
     _;
@@ -89,7 +89,7 @@ contract SignatureBouncer is Ownable, RBAC {
    * @dev is the signature of `this + sender` from a bouncer?
    * @return bool
    */
-  function isValidSignature(address _address, bytes _signature)
+  function isValidSignature(address _address, bytes memory _signature)
     internal
     view
     returns (bool)
@@ -104,7 +104,7 @@ contract SignatureBouncer is Ownable, RBAC {
    * @dev is the signature of `this + sender + methodId` from a bouncer?
    * @return bool
    */
-  function isValidSignatureAndMethod(address _address, bytes _signature)
+  function isValidSignatureAndMethod(address _address, bytes memory _signature)
     internal
     view
     returns (bool)
@@ -124,7 +124,7 @@ contract SignatureBouncer is Ownable, RBAC {
     * @notice the _signature parameter of the method being validated must be the "last" parameter
     * @return bool
     */
-  function isValidSignatureAndData(address _address, bytes _signature)
+  function isValidSignatureAndData(address _address, bytes memory _signature)
     internal
     view
     returns (bool)
@@ -145,7 +145,7 @@ contract SignatureBouncer is Ownable, RBAC {
    * and then recover the signature and check it against the bouncer role
    * @return bool
    */
-  function isValidDataHash(bytes32 _hash, bytes _signature)
+  function isValidDataHash(bytes32 _hash, bytes memory _signature)
     internal
     view
     returns (bool)

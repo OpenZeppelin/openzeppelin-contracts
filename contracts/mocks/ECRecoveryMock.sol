@@ -7,7 +7,7 @@ import "../ECRecovery.sol";
 contract ECRecoveryMock {
   using ECRecovery for bytes32;
 
-  function recover(bytes32 _hash, bytes _signature)
+  function recover(bytes32 _hash, bytes memory _signature)
     public
     pure
     returns (address)

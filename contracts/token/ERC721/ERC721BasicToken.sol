@@ -179,7 +179,7 @@ contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
     address _from,
     address _to,
     uint256 _tokenId,
-    bytes _data
+    bytes memory _data
   )
     public
   {
@@ -295,7 +295,7 @@ contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
     address _from,
     address _to,
     uint256 _tokenId,
-    bytes _data
+    bytes memory _data
   )
     internal
     returns (bool)

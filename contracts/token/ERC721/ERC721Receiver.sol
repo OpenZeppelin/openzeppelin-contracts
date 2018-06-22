@@ -31,7 +31,7 @@ contract ERC721Receiver {
     address _operator,
     address _from,
     uint256 _tokenId,
-    bytes _data
+    bytes memory _data
   )
     public
     returns(bytes4);

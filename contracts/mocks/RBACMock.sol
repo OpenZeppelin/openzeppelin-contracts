@@ -16,7 +16,7 @@ contract RBACMock is RBACWithAdmin {
     _;
   }
 
-  constructor(address[] _advisors)
+  constructor(address[] memory _advisors)
     public
   {
     addRole(msg.sender, ROLE_ADVISOR);

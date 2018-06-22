@@ -26,7 +26,7 @@ contract RBAC {
    * @param _role the name of the role
    * // reverts
    */
-  function checkRole(address _operator, string _role)
+  function checkRole(address _operator, string memory _role)
     public
     view
   {
@@ -39,7 +39,7 @@ contract RBAC {
    * @param _role the name of the role
    * @return bool
    */
-  function hasRole(address _operator, string _role)
+  function hasRole(address _operator, string memory _role)
     public
     view
     returns (bool)
@@ -52,7 +52,7 @@ contract RBAC {
    * @param _operator address
    * @param _role the name of the role
    */
-  function addRole(address _operator, string _role)
+  function addRole(address _operator, string memory _role)
     internal
   {
     roles[_role].add(_operator);
@@ -64,7 +64,7 @@ contract RBAC {
    * @param _operator address
    * @param _role the name of the role
    */
-  function removeRole(address _operator, string _role)
+  function removeRole(address _operator, string memory _role)
     internal
   {
     roles[_role].remove(_operator);
@@ -76,7 +76,7 @@ contract RBAC {
    * @param _role the name of the role
    * // reverts
    */
-  modifier onlyRole(string _role)
+  modifier onlyRole(string memory _role)
   {
     checkRole(msg.sender, _role);
     _;
@@ -90,7 +90,7 @@ contract RBAC {
    * @TODO - when solidity supports dynamic arrays as arguments to modifiers, provide this
    *  see: https://github.com/ethereum/solidity/issues/2467
    */
-  // modifier onlyRoles(string[] _roles) {
+  // modifier onlyRoles(string[] memory _roles) {
   //     bool hasAnyRole = false;
   //     for (uint8 i = 0; i < _roles.length; i++) {
   //         if (hasRole(msg.sender, _roles[i])) {

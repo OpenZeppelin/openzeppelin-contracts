@@ -37,7 +37,7 @@ contract ERC721Token is SupportsInterfaceWithLookup, ERC721BasicToken, ERC721 {
   /**
    * @dev Constructor function
    */
-  constructor(string _name, string _symbol) public {
+  constructor(string memory _name, string memory _symbol) public {
     name_ = _name;
     symbol_ = _symbol;
 
@@ -50,7 +50,7 @@ contract ERC721Token is SupportsInterfaceWithLookup, ERC721BasicToken, ERC721 {
    * @dev Gets the token name
    * @return string representing the token name
    */
-  function name() external view returns (string) {
+  function name() external view returns (string memory) {
     return name_;
   }
 
@@ -58,7 +58,7 @@ contract ERC721Token is SupportsInterfaceWithLookup, ERC721BasicToken, ERC721 {
    * @dev Gets the token symbol
    * @return string representing the token symbol
    */
-  function symbol() external view returns (string) {
+  function symbol() external view returns (string memory) {
     return symbol_;
   }
 
@@ -67,7 +67,7 @@ contract ERC721Token is SupportsInterfaceWithLookup, ERC721BasicToken, ERC721 {
    * Throws if the token ID does not exist. May return an empty string.
    * @param _tokenId uint256 ID of the token to query
    */
-  function tokenURI(uint256 _tokenId) public view returns (string) {
+  function tokenURI(uint256 _tokenId) public view returns (string memory) {
     require(_exists(_tokenId));
     return tokenURIs[_tokenId];
   }
@@ -115,7 +115,7 @@ contract ERC721Token is SupportsInterfaceWithLookup, ERC721BasicToken, ERC721 {
    * @param _tokenId uint256 ID of the token to set its URI
    * @param _uri string URI to assign
    */
-  function _setTokenURI(uint256 _tokenId, string _uri) internal {
+  function _setTokenURI(uint256 _tokenId, string memory _uri) internal {
     require(_exists(_tokenId));
     tokenURIs[_tokenId] = _uri;
   }
