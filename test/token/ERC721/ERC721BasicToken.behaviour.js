@@ -12,13 +12,13 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-export default function shouldBehaveLikeERC721BasicToken (accounts) {
+export default function shouldBehaveLikeERC721BasicToken(accounts) {
   const firstTokenId = 1;
   const secondTokenId = 2;
   const unknownTokenId = 3;
   const creator = accounts[0];
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-  const RECEIVER_MAGIC_VALUE = '0xf0b9e5ba';
+  const RECEIVER_MAGIC_VALUE = '0x150b7a02';
 
   describe('like an ERC721BasicToken', function () {
     beforeEach(async function () {
