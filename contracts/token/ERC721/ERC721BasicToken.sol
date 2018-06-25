@@ -117,7 +117,7 @@ contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
    * @param _to address to be approved for the given token ID
    * @param _tokenId uint256 ID of the token to be approved
    */
-  function approve(address _to, uint256 _tokenId) public {
+  function approve(address _to, uint256 _tokenId) public payable {
     address owner = ownerOf(_tokenId);
     require(_to != owner);
     require(msg.sender == owner || isApprovedForAll(owner, msg.sender));
@@ -178,6 +178,7 @@ contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
     uint256 _tokenId
   )
     public
+    payable
     canTransfer(_tokenId)
   {
     require(_from != address(0));
@@ -208,6 +209,7 @@ contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
     uint256 _tokenId
   )
     public
+    payable
     canTransfer(_tokenId)
   {
     // solium-disable-next-line arg-overflow
@@ -233,6 +235,7 @@ contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
     bytes _data
   )
     public
+    payable
     canTransfer(_tokenId)
   {
     transferFrom(_from, _to, _tokenId);
