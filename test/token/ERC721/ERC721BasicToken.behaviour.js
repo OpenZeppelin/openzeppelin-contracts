@@ -280,7 +280,19 @@ export default function shouldBehaveLikeERC721BasicToken(accounts) {
               result.receipt.logs.length.should.be.equal(2);
               const [log] = decodeLogs([result.receipt.logs[1]], ERC721Receiver, this.receiver.address);
               log.event.should.be.eq('Received');
-              log.args._address.should.be.equal(owner);
+              log.args._operator.should.be.equal(owner);
+              log.args._from.should.be.equal(owner);
+              log.args._tokenId.toNumber().should.be.equal(tokenId);
+              log.args._data.should.be.equal(data);
+            });
+
+            it('should call onERC721Received from approved', async function () {
+              const result = await transferFun.call(this, owner, this.to, tokenId, { from: approved });
+              result.receipt.logs.length.should.be.equal(2);
+              const [log] = decodeLogs([result.receipt.logs[1]], ERC721Receiver, this.receiver.address);
+              log.event.should.be.eq('Received');
+              log.args._operator.should.be.equal(approved);
+              log.args._from.should.be.equal(owner);
               log.args._tokenId.toNumber().should.be.equal(tokenId);
               log.args._data.should.be.equal(data);
             });
