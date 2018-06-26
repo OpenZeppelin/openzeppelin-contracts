@@ -12,7 +12,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-export default function shouldBehaveLikeERC721BasicToken(accounts) {
+export default function shouldBehaveLikeERC721BasicToken (accounts) {
   const firstTokenId = 1;
   const secondTokenId = 2;
   const unknownTokenId = 3;
