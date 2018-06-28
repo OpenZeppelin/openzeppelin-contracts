@@ -115,17 +115,12 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
         });
 
         if (approved) {
-          it('emits an approval and transfer events', async function () {
-            logs.length.should.be.equal(2);
-            logs[0].event.should.be.eq('Approval');
-            logs[0].args._owner.should.be.equal(owner);
-            logs[0].args._approved.should.be.equal(ZERO_ADDRESS);
+          it('emit only a transfer event', async function () {
+            logs.length.should.be.equal(1);
+            logs[0].event.should.be.eq('Transfer');
+            logs[0].args._from.should.be.equal(owner);
+            logs[0].args._to.should.be.equal(this.to);
             logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
-
-            logs[1].event.should.be.eq('Transfer');
-            logs[1].args._from.should.be.equal(owner);
-            logs[1].args._to.should.be.equal(this.to);
-            logs[1].args._tokenId.should.be.bignumber.equal(tokenId);
           });
         } else {
           it('emits only a transfer event', async function () {
@@ -201,17 +196,12 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
             approvedAccount.should.be.equal(ZERO_ADDRESS);
           });
 
-          it('emits an approval and transfer events', async function () {
-            logs.length.should.be.equal(2);
-            logs[0].event.should.be.eq('Approval');
-            logs[0].args._owner.should.be.equal(owner);
-            logs[0].args._approved.should.be.equal(ZERO_ADDRESS);
+          it('emits only a transfer event', async function () {
+            logs.length.should.be.equal(1);
+            logs[0].event.should.be.eq('Transfer');
+            logs[0].args._from.should.be.equal(owner);
+            logs[0].args._to.should.be.equal(owner);
             logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
-
-            logs[1].event.should.be.eq('Transfer');
-            logs[1].args._from.should.be.equal(owner);
-            logs[1].args._to.should.be.equal(owner);
-            logs[1].args._tokenId.should.be.bignumber.equal(tokenId);
           });
 
           it('keeps the owner balance', async function () {
@@ -287,8 +277,8 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
 
             it('should call onERC721Received', async function () {
               const result = await transferFun.call(this, owner, this.to, tokenId, { from: owner });
-              result.receipt.logs.length.should.be.equal(3);
-              const [log] = decodeLogs([result.receipt.logs[2]], ERC721Receiver, this.receiver.address);
+              result.receipt.logs.length.should.be.equal(2);
+              const [log] = decodeLogs([result.receipt.logs[1]], ERC721Receiver, this.receiver.address);
               log.event.should.be.eq('Received');
               log.args._address.should.be.equal(owner);
               log.args._tokenId.toNumber().should.be.equal(tokenId);
