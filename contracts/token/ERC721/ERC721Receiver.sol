@@ -17,11 +17,11 @@ contract ERC721Receiver {
   /**
    * @notice Handle the receipt of an NFT
    * @dev The ERC721 smart contract calls this function on the recipient
-   * after a `safetransfer`. This function MAY throw to revert and reject the
-   * transfer. This function MUST use 50,000 gas or less. Return of other
-   * than the magic value MUST result in the transaction being reverted.
+   * after a `safeTransferFrom`. This function MAY throw to revert and reject
+   * the transfer. Return of other than the magic value MUST result
+   * in the transaction being reverted.
    * Note: the contract address is always the message sender.
-   * @param _from The sending address
+   * @param _from The address which previously owned the token.
    * @param _tokenId The NFT identifier which is being transfered
    * @param _data Additional data with no specified format
    * @return `bytes4(keccak256("onERC721Received(address,uint256,bytes)"))`
