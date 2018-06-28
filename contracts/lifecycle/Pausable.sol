@@ -2,7 +2,7 @@ pragma solidity ^0.4.21;
 
 
 import "../ownership/Ownable.sol";
-
+import "zos-lib/contracts/migrations/Migratable.sol";
 
 /**
  * @title Pausable
