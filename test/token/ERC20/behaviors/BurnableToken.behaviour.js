@@ -1,5 +1,5 @@
-import assertRevert from '../../helpers/assertRevert';
-import { inLogs } from '../../helpers/expectEvent';
+import { inLogs } from '../../../helpers/expectEvent';
+import assertRevert from '../../../helpers/assertRevert';
 
 const BigNumber = web3.BigNumber;
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';

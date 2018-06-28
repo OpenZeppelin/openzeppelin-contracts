@@ -1,6 +1,6 @@
 import assertRevert from '../../helpers/assertRevert';
 import { inLogs } from '../../helpers/expectEvent';
-import shouldBehaveLikeBurnableToken from './BurnableToken.behaviour';
+import shouldBehaveLikeBurnableToken from './behaviors/BurnableToken.behaviour';
 
 const StandardBurnableTokenMock = artifacts.require('StandardBurnableTokenMock');
 const BigNumber = web3.BigNumber;

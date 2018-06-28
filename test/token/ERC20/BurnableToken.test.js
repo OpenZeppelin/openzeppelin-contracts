@@ -1,4 +1,5 @@
-import shouldBehaveLikeBurnableToken from './BurnableToken.behaviour';
+import shouldBehaveLikeBurnableToken from './behaviors/BurnableToken.behaviour';
+
 const BurnableTokenMock = artifacts.require('BurnableTokenMock');
 
 contract('BurnableToken', function ([owner]) {
