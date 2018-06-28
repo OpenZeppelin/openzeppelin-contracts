@@ -61,8 +61,5 @@
     "truffle": "^4.1.11",
     "truffle-hdwallet-provider": "0.0.3",
     "web3-utils": "^1.0.0-beta.34"
-  },
-  "dependencies": {
-    "es6-promisify": "^6.0.0"
   }
 }
