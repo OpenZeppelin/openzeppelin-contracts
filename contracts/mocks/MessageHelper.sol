@@ -9,7 +9,7 @@ contract MessageHelper {
   function showMessage(
     bytes32 message,
     uint256 number,
-    string text
+    string memory text
   )
     public
     returns (bool)
@@ -21,7 +21,7 @@ contract MessageHelper {
   function buyMessage(
     bytes32 message,
     uint256 number,
-    string text
+    string memory text
   )
     public
     payable
@@ -39,7 +39,7 @@ contract MessageHelper {
     require(false);
   }
 
-  function call(address to, bytes data) public returns (bool) {
+  function call(address to, bytes memory data) public returns (bool) {
     // solium-disable-next-line security/no-low-level-calls
     if (to.call(data))
       return true;

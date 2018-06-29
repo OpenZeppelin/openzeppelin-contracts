@@ -29,7 +29,7 @@ contract ERC721Receiver {
   function onERC721Received(
     address _from,
     uint256 _tokenId,
-    bytes _data
+    bytes memory _data
   )
     public
     returns(bytes4);

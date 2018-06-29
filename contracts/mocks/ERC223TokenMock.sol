@@ -16,7 +16,7 @@ contract ERC223TokenMock is BasicToken {
   }
 
   // ERC223 compatible transfer function (except the name)
-  function transferERC223(address _to, uint256 _value, bytes _data) public
+  function transferERC223(address _to, uint256 _value, bytes memory _data) public
     returns (bool success)
   {
     transfer(_to, _value);

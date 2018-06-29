@@ -90,7 +90,7 @@ contract SignatureBouncer is Ownable, RBAC {
    * @dev is the signature of `this + sender` from a bouncer?
    * @return bool
    */
-  function isValidSignature(address _address, bytes _sig)
+  function isValidSignature(address _address, bytes memory _sig)
     internal
     view
     returns (bool)
@@ -105,7 +105,7 @@ contract SignatureBouncer is Ownable, RBAC {
    * @dev is the signature of `this + sender + methodId` from a bouncer?
    * @return bool
    */
-  function isValidSignatureAndMethod(address _address, bytes _sig)
+  function isValidSignatureAndMethod(address _address, bytes memory _sig)
     internal
     view
     returns (bool)
@@ -125,7 +125,7 @@ contract SignatureBouncer is Ownable, RBAC {
     * @notice the _sig parameter of the method being validated must be the "last" parameter
     * @return bool
     */
-  function isValidSignatureAndData(address _address, bytes _sig)
+  function isValidSignatureAndData(address _address, bytes memory _sig)
     internal
     view
     returns (bool)
@@ -146,7 +146,7 @@ contract SignatureBouncer is Ownable, RBAC {
    * and then recover the signature and check it against the bouncer role
    * @return bool
    */
-  function isValidDataHash(bytes32 hash, bytes _sig)
+  function isValidDataHash(bytes32 hash, bytes memory _sig)
     internal
     view
     returns (bool)

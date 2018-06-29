@@ -15,7 +15,7 @@ contract ERC827 is ERC20 {
   function approveAndCall(
     address _spender,
     uint256 _value,
-    bytes _data
+    bytes memory _data
   )
     public
     payable
@@ -24,7 +24,7 @@ contract ERC827 is ERC20 {
   function transferAndCall(
     address _to,
     uint256 _value,
-    bytes _data
+    bytes memory _data
   )
     public
     payable
@@ -34,7 +34,7 @@ contract ERC827 is ERC20 {
     address _from,
     address _to,
     uint256 _value,
-    bytes _data
+    bytes memory _data
   )
     public
     payable

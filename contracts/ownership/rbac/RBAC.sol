@@ -28,7 +28,7 @@ contract RBAC {
    * @param roleName the name of the role
    * // reverts
    */
-  function checkRole(address addr, string roleName)
+  function checkRole(address addr, string memory roleName)
     view
     public
   {
@@ -41,7 +41,7 @@ contract RBAC {
    * @param roleName the name of the role
    * @return bool
    */
-  function hasRole(address addr, string roleName)
+  function hasRole(address addr, string memory roleName)
     view
     public
     returns (bool)
@@ -54,7 +54,7 @@ contract RBAC {
    * @param addr address
    * @param roleName the name of the role
    */
-  function addRole(address addr, string roleName)
+  function addRole(address addr, string memory roleName)
     internal
   {
     roles[roleName].add(addr);
@@ -66,7 +66,7 @@ contract RBAC {
    * @param addr address
    * @param roleName the name of the role
    */
-  function removeRole(address addr, string roleName)
+  function removeRole(address addr, string memory roleName)
     internal
   {
     roles[roleName].remove(addr);

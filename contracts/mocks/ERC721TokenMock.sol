@@ -9,7 +9,7 @@ import "../token/ERC721/ERC721Token.sol";
  * and a public setter for metadata URI
  */
 contract ERC721TokenMock is ERC721Token {
-  constructor(string name, string symbol) public
+  constructor(string memory name, string memory symbol) public
     ERC721Token(name, symbol)
   { }
 
@@ -21,7 +21,7 @@ contract ERC721TokenMock is ERC721Token {
     super._burn(ownerOf(_tokenId), _tokenId);
   }
 
-  function setTokenURI(uint256 _tokenId, string _uri) public {
+  function setTokenURI(uint256 _tokenId, string memory _uri) public {
     super._setTokenURI(_tokenId, _uri);
   }
 }
