@@ -10,7 +10,7 @@ import "../token/ERC721/ERC721BasicToken.sol";
  * @notice DutchAuction is a contract for managing the dutch auction of a non-fungible token (NFT). 
  * The contract owner, or beneficiary, sets their high asking price and their low, 
  * reserve price for the NFT they are auctioning off. Additionally, the beneficiary sets the 
- * lenght of time for which they'd like their auction to run.
+ * length of time for which they'd like their auction to run.
  * 
  * To start the auction the beneficiary calls the startAuction function and passes it the 
  * token's contract as well as the tokenId of the NFT they are auctioning. 
@@ -43,7 +43,7 @@ contract DutchAuction is Ownable {
   uint public endTime;
   /// The high asking price sought for the NFT
   uint public highAskingPrice;  
-  /// The absolute lowest price that would be accepted in returnfor the NFT
+  /// The absolute lowest price that would be accepted in return for the NFT
   uint public lowAskingPrice;
   /// The auction's current asking price for the NFT
   uint public currentAskingPrice;
@@ -81,7 +81,7 @@ contract DutchAuction is Ownable {
     require(block.timestamp <= endTime);
     _;
   }
-  /// @dev Contructor used to setup the auction's preliminaries
+  /// @dev Contructor used to set up the auction's preliminaries
   /// @param _highAskingPrice for the NFT
   /// @param _lowAskingPrice or reserve price for the NFT
   /// @param _auctionLength the number of days the auction will run for. 
