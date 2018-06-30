@@ -8,7 +8,8 @@ contract ERC721ReceiverMock is ERC721Receiver {
   bool reverts;
 
   event Received(
-    address _address,
+    address _operator,
+    address _from,
     uint256 _tokenId,
     bytes _data,
     uint256 _gas
@@ -20,7 +21,8 @@ contract ERC721ReceiverMock is ERC721Receiver {
   }
 
   function onERC721Received(
-    address _address,
+    address _operator,
+    address _from,
     uint256 _tokenId,
     bytes _data
   )
@@ -29,7 +31,8 @@ contract ERC721ReceiverMock is ERC721Receiver {
   {
     require(!reverts);
     emit Received(
-      _address,
+      _operator,
+      _from,
       _tokenId,
       _data,
       gasleft() // msg.gas was deprecated in solidityv0.4.21
