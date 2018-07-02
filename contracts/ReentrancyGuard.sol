@@ -10,15 +10,15 @@ pragma solidity ^0.4.24;
 contract ReentrancyGuard {
 
   /// @dev Constant for unlocked guard state
-  uint private constant reentrancyGuardFree = 1;
+  uint private constant REENTRANCY_GUARD_FREE = 1;
 
   /// @dev Constant for locked guard state
-  uint private constant reentrancyGuardLocked = 2;
+  uint private constant REENTRANCY_GUARD_LOCKED = 2;
 
   /**
    * @dev We use a single lock for the whole contract.
    */
-  uint private reentrancyLock = reentrancyGuardFree;
+  uint private reentrancyLock = REENTRANCY_GUARD_FREE;
 
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
@@ -29,10 +29,10 @@ contract ReentrancyGuard {
    * wrapper marked as `nonReentrant`.
    */
   modifier nonReentrant() {
-    require(reentrancyGuardFree == reentrancyLock);
-    reentrancyLock = reentrancyGuardLocked;
+    require(REENTRANCY_GUARD_FREE == reentrancyLock);
+    reentrancyLock = REENTRANCY_GUARD_LOCKED;
     _;
-    reentrancyLock = reentrancyGuardFree;
+    reentrancyLock = REENTRANCY_GUARD_FREE;
   }
 
 }
