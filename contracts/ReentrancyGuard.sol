@@ -3,16 +3,22 @@ pragma solidity ^0.4.24;
 
 /**
  * @title Helps contracts guard agains reentrancy attacks.
- * @author Remco Bloemen <remco@2π.com>
+ * @author Remco Bloemen <remco@2π.com>, Eenae <alexey@mixbytes.io>
  * @notice If you mark a function `nonReentrant`, you should also
  * mark it `external`.
  */
 contract ReentrancyGuard {
 
+  /// @dev Constant for unlocked guard state
+  uint private constant reentrancyGuardFree = 1;
+
+  /// @dev Constant for locked guard state
+  uint private constant reentrancyGuardLocked = 2;
+
   /**
    * @dev We use a single lock for the whole contract.
    */
-  bool private reentrancyLock = false;
+  uint private reentrancyLock = reentrancyGuardFree;
 
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
@@ -23,10 +29,10 @@ contract ReentrancyGuard {
    * wrapper marked as `nonReentrant`.
    */
   modifier nonReentrant() {
-    require(!reentrancyLock);
-    reentrancyLock = true;
+    require(reentrancyGuardFree == reentrancyLock);
+    reentrancyLock = reentrancyGuardLocked;
     _;
-    reentrancyLock = false;
+    reentrancyLock = reentrancyGuardFree;
   }
 
 }
