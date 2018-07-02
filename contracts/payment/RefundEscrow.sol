@@ -10,7 +10,7 @@ import "../ownership/Ownable.sol";
  * The contract owner may close the deposit period, and allow for either withdrawal
  * by the beneficiary, or refunds to the depositors.
  */
-contract RefundEscrow is ConditionalEscrow, Ownable {
+contract RefundEscrow is Ownable, ConditionalEscrow {
   enum State { Active, Refunding, Closed }
 
   event Closed();
@@ -33,7 +33,7 @@ contract RefundEscrow is ConditionalEscrow, Ownable {
    * @dev Stores funds that may later be refunded.
    * @param _refundee The address funds will be sent to if a refund occurs.
    */
-  function deposit(address _refundee) payable public {
+  function deposit(address _refundee) public payable {
     require(state == State.Active);
     super.deposit(_refundee);
   }
@@ -42,7 +42,7 @@ contract RefundEscrow is ConditionalEscrow, Ownable {
    * @dev Allows for the beneficiary to withdraw their funds, rejecting
    * further deposits.
    */
-  function close() onlyOwner public {
+  function close() public onlyOwner {
     require(state == State.Active);
     state = State.Closed;
     emit Closed();
@@ -51,7 +51,7 @@ contract RefundEscrow is ConditionalEscrow, Ownable {
   /**
    * @dev Allows for refunds to take place, rejecting further deposits.
    */
-  function enableRefunds() onlyOwner public {
+  function enableRefunds() public onlyOwner {
     require(state == State.Active);
     state = State.Refunding;
     emit RefundsEnabled();

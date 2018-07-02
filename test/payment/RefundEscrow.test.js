@@ -14,24 +14,24 @@ contract('RefundEscrow', function ([owner, beneficiary, refundee1, refundee2]) {
   const refundees = [refundee1, refundee2];
 
   beforeEach(async function () {
-    this.escrow = await RefundEscrow.new(beneficiary);
+    this.escrow = await RefundEscrow.new(beneficiary, { from: owner });
   });
 
   context('active state', function () {
     it('accepts deposits', async function () {
-      await this.escrow.deposit(refundee1, { from: refundee1, value: amount });
+      await this.escrow.deposit(refundee1, { from: owner, value: amount });
 
       const deposit = await this.escrow.depositsOf(refundee1);
       deposit.should.be.bignumber.equal(amount);
     });
 
     it('does not refund refundees', async function () {
-      await this.escrow.deposit(refundee1, { from: refundee1, value: amount });
+      await this.escrow.deposit(refundee1, { from: owner, value: amount });
       await this.escrow.withdraw(refundee1).should.be.rejectedWith(EVMRevert);
     });
 
     it('does not allow beneficiary withdrawal', async function () {
-      await this.escrow.deposit(refundee1, { from: refundee1, value: amount });
+      await this.escrow.deposit(refundee1, { from: owner, value: amount });
       await this.escrow.beneficiaryWithdraw().should.be.rejectedWith(EVMRevert);
     });
   });
@@ -46,13 +46,13 @@ contract('RefundEscrow', function ([owner, beneficiary, refundee1, refundee2]) {
 
   context('closed state', function () {
     beforeEach(async function () {
-      await Promise.all(refundees.map(refundee => this.escrow.deposit(refundee, { from: refundee, value: amount })));
+      await Promise.all(refundees.map(refundee => this.escrow.deposit(refundee, { from: owner, value: amount })));
 
       await this.escrow.close({ from: owner });
     });
 
     it('rejects deposits', async function () {
-      await this.escrow.deposit(refundee1, { from: refundee1, value: amount }).should.be.rejectedWith(EVMRevert);
+      await this.escrow.deposit(refundee1, { from: owner, value: amount }).should.be.rejectedWith(EVMRevert);
     });
 
     it('does not refund refundees', async function () {
@@ -78,13 +78,13 @@ contract('RefundEscrow', function ([owner, beneficiary, refundee1, refundee2]) {
 
   context('refund state', function () {
     beforeEach(async function () {
-      await Promise.all(refundees.map(refundee => this.escrow.deposit(refundee, { from: refundee, value: amount })));
+      await Promise.all(refundees.map(refundee => this.escrow.deposit(refundee, { from: owner, value: amount })));
 
       await this.escrow.enableRefunds({ from: owner });
     });
 
     it('rejects deposits', async function () {
-      await this.escrow.deposit(refundee1, { from: refundee1, value: amount }).should.be.rejectedWith(EVMRevert);
+      await this.escrow.deposit(refundee1, { from: owner, value: amount }).should.be.rejectedWith(EVMRevert);
     });
 
     it('refunds refundees', async function () {

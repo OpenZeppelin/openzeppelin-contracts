@@ -10,8 +10,10 @@ require('chai')
 const ConditionalEscrowMock = artifacts.require('ConditionalEscrowMock');
 
 contract('ConditionalEscrow', function (accounts) {
+  const owner = accounts[0];
+
   beforeEach(async function () {
-    this.escrow = await ConditionalEscrowMock.new();
+    this.escrow = await ConditionalEscrowMock.new({ from: owner });
   });
 
   context('when withdrawal is allowed', function () {
@@ -19,24 +21,21 @@ contract('ConditionalEscrow', function (accounts) {
       await Promise.all(accounts.map(payee => this.escrow.setAllowed(payee, true)));
     });
 
-    shouldBehaveLikeEscrow(accounts);
+    shouldBehaveLikeEscrow(owner, accounts.slice(1));
   });
 
   context('when withdrawal is disallowed', function () {
     const amount = web3.toWei(23.0, 'ether');
-
-    const payee = accounts[0];
-    const payer = accounts[1];
-    const withdrawer = accounts[2];
+    const payee = accounts[1];
 
     beforeEach(async function () {
       await this.escrow.setAllowed(payee, false);
     });
 
     it('reverts on withdrawals', async function () {
-      await this.escrow.deposit(payee, { from: payer, value: amount });
+      await this.escrow.deposit(payee, { from: owner, value: amount });
 
-      await this.escrow.withdraw(payee, { from: withdrawer }).should.be.rejectedWith(EVMRevert);
+      await this.escrow.withdraw(payee, { from: owner }).should.be.rejectedWith(EVMRevert);
     });
   });
 });
