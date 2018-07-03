@@ -14,7 +14,6 @@ require('chai')
 
 const SampleCrowdsale = artifacts.require('SampleCrowdsale');
 const SampleCrowdsaleToken = artifacts.require('SampleCrowdsaleToken');
-const RefundVault = artifacts.require('RefundVault');
 
 contract('SampleCrowdsale', function ([owner, wallet, investor]) {
   const RATE = new BigNumber(10);
@@ -32,12 +31,10 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
     this.afterClosingTime = this.closingTime + duration.seconds(1);
 
     this.token = await SampleCrowdsaleToken.new({ from: owner });
-    this.vault = await RefundVault.new(wallet, { from: owner });
     this.crowdsale = await SampleCrowdsale.new(
       this.openingTime, this.closingTime, RATE, wallet, CAP, this.token.address, GOAL
     );
     await this.token.transferOwnership(this.crowdsale.address);
-    await this.vault.transferOwnership(this.crowdsale.address);
   });
 
   it('should create crowdsale with correct parameters', async function () {
