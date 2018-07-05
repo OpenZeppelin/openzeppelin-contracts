@@ -11,6 +11,8 @@ import "./SafeERC20.sol";
 contract TokenTimelock {
   using SafeERC20 for ERC20Basic;
 
+  event Released();
+
   // ERC20 basic token contract being held
   ERC20Basic public token;
 
@@ -45,5 +47,6 @@ contract TokenTimelock {
     require(amount > 0);
 
     token.safeTransfer(beneficiary, amount);
+    emit Released();
   }
 }
