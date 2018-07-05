@@ -1,5 +1,4 @@
 import assertRevert from '../../helpers/assertRevert';
-import { soliditySha3 } from 'web3-utils';
 
 const BigNumber = web3.BigNumber;
 
@@ -103,42 +102,6 @@ export default function ([owner, anotherAccount, minter]) {
             assert.equal(balance, amount);
           });
 
-          it('mints the requested amount to the agreed upon address with a signed proof from any address',
-            async function () {
-              const signature = web3.eth.sign(owner, soliditySha3(this.token.address, anotherAccount, amount, 0));
-              await this.token.mintWithSignature(anotherAccount, amount, 0, signature, { from });
-
-              const balance = await this.token.balanceOf(anotherAccount);
-              assert.equal(amount, balance);
-            });
-
-          it('mints the requested amount from the same signed proof should fail', async function () {
-            const signature = web3.eth.sign(owner, soliditySha3(this.token.address, anotherAccount, amount, 0));
-            await this.token.mintWithSignature(anotherAccount, amount, 0, signature, { anotherAccount });
-            await assertRevert(this.token.mintWithSignature(anotherAccount, amount, 0, signature, { anotherAccount }));
-            await assertRevert(this.token.mintWithSignature(anotherAccount, amount, 0, signature, { owner }));
-            await assertRevert(this.token.mintWithSignature(anotherAccount, amount, 0, signature, { minter }));
-          });
-
-          it('mints the requested amount twice from the different signed proof', async function () {
-            const signature = web3.eth.sign(owner, soliditySha3(this.token.address, anotherAccount, amount, 0));
-            const signature2 = web3.eth.sign(owner, soliditySha3(this.token.address, anotherAccount, amount, 1));
-
-            await this.token.mintWithSignature(anotherAccount, amount, 0, signature, { anotherAccount });
-            await this.token.mintWithSignature(anotherAccount, amount, 1, signature2, { anotherAccount });
-            
-            const balance = await this.token.balanceOf(anotherAccount);
-            assert.equal(amount + amount, balance);
-          });
-
-          it('mints with different parameters than the signed proof should fail', async function () {
-            const signature = web3.eth.sign(owner, soliditySha3(this.token.address, anotherAccount, amount, 0));
-            await assertRevert(this.token.mintWithSignature(anotherAccount, amount + 1, 0, signature,
-              { anotherAccount }));
-            await assertRevert(this.token.mintWithSignature(anotherAccount, amount, 1, signature, { anotherAccount }));
-            await assertRevert(this.token.mintWithSignature(owner, amount, 0, signature, { anotherAccount }));
-          });
-
           it('emits a mint and a transfer event', async function () {
             const { logs } = await this.token.mint(owner, amount, { from });
 
@@ -158,11 +121,6 @@ export default function ([owner, anotherAccount, minter]) {
           it('reverts', async function () {
             await assertRevert(this.token.mint(owner, amount, { from }));
           });
-
-          it('reverts', async function () {
-            const signature = web3.eth.sign(from, soliditySha3(this.token.address, owner, amount, 0));
-            await assertRevert(this.token.mintWithSignature(owner, amount, 0, signature, { from }));
-          });
         });
       });
 
@@ -173,11 +131,6 @@ export default function ([owner, anotherAccount, minter]) {
           it('reverts', async function () {
             await assertRevert(this.token.mint(owner, amount, { from }));
           });
-          it('reverts', async function () {
-            const signature = web3.eth.sign(from, soliditySha3(this.token.address, owner, amount, 0));
-            await assertRevert(this.token.mintWithSignature(owner, amount, 0, signature, { from }));
-            await assertRevert(this.token.mintWithSignature(owner, amount, 0, signature, { owner }));
-          });
         });
 
         describe('when the token minting is already finished', function () {
@@ -187,11 +140,6 @@ export default function ([owner, anotherAccount, minter]) {
 
           it('reverts', async function () {
             await assertRevert(this.token.mint(owner, amount, { from }));
-          });
-
-          it('reverts', async function () {
-            const signature = web3.eth.sign(from, soliditySha3(this.token.address, owner, amount, 0));
-            await assertRevert(this.token.mintWithSignature(owner, amount, 0, signature, { from }));
           });
         });
       });
