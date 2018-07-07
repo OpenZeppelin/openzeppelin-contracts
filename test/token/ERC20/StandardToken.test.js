@@ -305,6 +305,16 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
             const allowance = await this.token.allowance(owner, spender);
             assert.equal(allowance, 1);
           });
+
+          describe('when the decrease amount is equal to allowed amount', function () {
+            it('set the allowance to zero', async function () {
+              await this.token.decreaseApproval(spender, amount+1, { from: owner });
+              const allowance = await this.token.allowance(owner, spender);
+              assert.equal(allowance, 0);
+            });
+        });
+
+
         });
       });
 
