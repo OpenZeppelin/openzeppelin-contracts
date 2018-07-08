@@ -78,7 +78,7 @@ contract RBAC {
    * @param roleName the name of the role
    * // reverts
    */
-  modifier onlyRole(string roleName)
+  modifier onlyRole(string memory roleName)
   {
     checkRole(msg.sender, roleName);
     _;
