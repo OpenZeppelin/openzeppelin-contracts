@@ -3,6 +3,7 @@ import {
   hashMessage,
   signMessage,
 } from '../helpers/sign';
+import assertRevert from '../helpers/assertRevert';
 const ECRecoveryMock = artifacts.require('ECRecoveryMock');
 
 require('chai')
@@ -63,8 +64,9 @@ contract('ECRecovery', function (accounts) {
     let signature = signMessage(accounts[0], TEST_MESSAGE);
 
     // Recover the signer address from the generated message and wrong signature.
-    const addrRecovered = await ecrecovery.recover(hashMessage(TEST_MESSAGE).substring(2), signature);
-    addrRecovered.should.eq('0x0000000000000000000000000000000000000000');
+    await assertRevert(
+      ecrecovery.recover(hashMessage(TEST_MESSAGE).substring(2), signature)
+    );
   });
 
   context('toEthSignedMessage', () => {
