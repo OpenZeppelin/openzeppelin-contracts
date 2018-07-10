@@ -19,7 +19,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
   beforeEach(async function () {
     this.token = await MintableToken.new({ from: owner });
 
-    this.start = latestTime() + duration.minutes(1); // +1 minute so it starts after contract instantiation
+    this.start = (await latestTime()) + duration.minutes(1); // +1 minute so it starts after contract instantiation
     this.cliff = duration.years(1);
     this.duration = duration.years(2);
 

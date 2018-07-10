@@ -1,4 +1,4 @@
-import { ethGetBalance } from '../helpers/web3';
+import { ethGetBalance, ethSendTransaction } from '../helpers/web3';
 
 const BigNumber = web3.BigNumber;
 
@@ -21,7 +21,7 @@ contract('SplitPayment', function ([owner, payee1, payee2, payee3, nonpayee1, pa
   });
 
   it('should accept payments', async function () {
-    await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: amount });
+    await ethSendTransaction({ from: owner, to: this.contract.address, value: amount });
 
     const balance = await ethGetBalance(this.contract.address);
     balance.should.be.bignumber.equal(amount);
@@ -42,12 +42,12 @@ contract('SplitPayment', function ([owner, payee1, payee2, payee3, nonpayee1, pa
   });
 
   it('should throw if non-payee want to claim', async function () {
-    await web3.eth.sendTransaction({ from: payer1, to: this.contract.address, value: amount });
+    await ethSendTransaction({ from: payer1, to: this.contract.address, value: amount });
     await this.contract.claim({ from: nonpayee1 }).should.be.rejectedWith(EVMThrow);
   });
 
   it('should distribute funds to payees', async function () {
-    await web3.eth.sendTransaction({ from: payer1, to: this.contract.address, value: amount });
+    await ethSendTransaction({ from: payer1, to: this.contract.address, value: amount });
 
     // receive funds
     const initBalance = await ethGetBalance(this.contract.address);

@@ -1,12 +1,8 @@
-import { ethGetBalance } from './helpers/web3';
+import { ethGetBalance, ethSendTransaction } from './helpers/web3';
 
-let sendReward = function (sender, receiver, value) {
-  web3.eth.sendTransaction({
-    from: sender,
-    to: receiver,
-    value: value,
-  });
-};
+const sendReward = async (from, to, value) => ethSendTransaction({
+  from, to, value,
+});
 var SecureTargetBounty = artifacts.require('SecureTargetBounty');
 var InsecureTargetBounty = artifacts.require('InsecureTargetBounty');
 
