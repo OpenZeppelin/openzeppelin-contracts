@@ -1,6 +1,7 @@
 import EVMRevert from '../../helpers/EVMRevert';
 import latestTime from '../../helpers/latestTime';
 import { increaseTimeTo, duration } from '../../helpers/increaseTime';
+import { ethGetBlock } from '../../helpers/web3';
 
 const BigNumber = web3.BigNumber;
 
@@ -18,7 +19,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
   beforeEach(async function () {
     this.token = await MintableToken.new({ from: owner });
 
-    this.start = latestTime() + duration.minutes(1); // +1 minute so it starts after contract instantiation
+    this.start = (await latestTime()) + duration.minutes(1); // +1 minute so it starts after contract instantiation
     this.cliff = duration.years(1);
     this.duration = duration.years(2);
 
@@ -40,7 +41,8 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     await increaseTimeTo(this.start + this.cliff);
 
     const { receipt } = await this.vesting.release(this.token.address);
-    const releaseTime = web3.eth.getBlock(receipt.blockNumber).timestamp;
+    const block = await ethGetBlock(receipt.blockNumber);
+    const releaseTime = block.timestamp;
 
     const balance = await this.token.balanceOf(beneficiary);
     balance.should.bignumber.equal(amount.mul(releaseTime - this.start).div(this.duration).floor());

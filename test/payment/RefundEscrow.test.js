@@ -1,5 +1,6 @@
 import EVMRevert from '../helpers/EVMRevert';
 import expectEvent from '../helpers/expectEvent';
+import { ethGetBalance } from '../helpers/web3';
 
 const BigNumber = web3.BigNumber;
 
@@ -60,9 +61,9 @@ contract('RefundEscrow', function ([owner, beneficiary, refundee1, refundee2]) {
     });
 
     it('allows beneficiary withdrawal', async function () {
-      const beneficiaryInitialBalance = await web3.eth.getBalance(beneficiary);
+      const beneficiaryInitialBalance = await ethGetBalance(beneficiary);
       await this.escrow.beneficiaryWithdraw();
-      const beneficiaryFinalBalance = await web3.eth.getBalance(beneficiary);
+      const beneficiaryFinalBalance = await ethGetBalance(beneficiary);
 
       beneficiaryFinalBalance.sub(beneficiaryInitialBalance).should.be.bignumber.equal(amount * refundees.length);
     });
@@ -89,9 +90,9 @@ contract('RefundEscrow', function ([owner, beneficiary, refundee1, refundee2]) {
 
     it('refunds refundees', async function () {
       for (let refundee of [refundee1, refundee2]) {
-        const refundeeInitialBalance = await web3.eth.getBalance(refundee);
+        const refundeeInitialBalance = await ethGetBalance(refundee);
         await this.escrow.withdraw(refundee);
-        const refundeeFinalBalance = await web3.eth.getBalance(refundee);
+        const refundeeFinalBalance = await ethGetBalance(refundee);
 
         refundeeFinalBalance.sub(refundeeInitialBalance).should.be.bignumber.equal(amount);
       }

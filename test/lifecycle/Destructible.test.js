@@ -1,23 +1,24 @@
+import { ethGetBalance } from '../helpers/web3';
 
-var Destructible = artifacts.require('Destructible');
+const Destructible = artifacts.require('Destructible');
 require('../helpers/transactionMined.js');
 
 contract('Destructible', function (accounts) {
   it('should send balance to owner after destruction', async function () {
     let destructible = await Destructible.new({ from: accounts[0], value: web3.toWei('10', 'ether') });
     let owner = await destructible.owner();
-    let initBalance = web3.eth.getBalance(owner);
+    let initBalance = await ethGetBalance(owner);
     await destructible.destroy({ from: owner });
-    let newBalance = web3.eth.getBalance(owner);
+    let newBalance = await ethGetBalance(owner);
     assert.isTrue(newBalance > initBalance);
   });
 
   it('should send balance to recepient after destruction', async function () {
     let destructible = await Destructible.new({ from: accounts[0], value: web3.toWei('10', 'ether') });
     let owner = await destructible.owner();
-    let initBalance = web3.eth.getBalance(accounts[1]);
+    let initBalance = await ethGetBalance(accounts[1]);
     await destructible.destroyAndSend(accounts[1], { from: owner });
-    let newBalance = web3.eth.getBalance(accounts[1]);
+    let newBalance = await ethGetBalance(accounts[1]);
     assert.isTrue(newBalance.greaterThan(initBalance));
   });
 });
