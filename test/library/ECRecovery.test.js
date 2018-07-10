@@ -3,6 +3,7 @@ import {
   hashMessage,
   signMessage,
 } from '../helpers/sign';
+import expectThrow from '../helpers/expectThrow';
 const ECRecoveryMock = artifacts.require('ECRecoveryMock');
 
 require('chai')
@@ -61,12 +62,9 @@ contract('ECRecovery', function (accounts) {
   it('recover should revert when a small hash is sent', async function () {
     // Create the signature using account[0]
     let signature = signMessage(accounts[0], TEST_MESSAGE);
-    try {
-      // Revert while trying to recover the signer address from a small message.
-      const addrRecovered = await ecrecovery.recover(hashMessage(TEST_MESSAGE).substring(2), signature);
-      assert(false);
-    } catch(error) {
-    }
+    await expectThrow(
+      ecrecovery.recover(hashMessage(TEST_MESSAGE).substring(2), signature)
+    );
   });
 
   context('toEthSignedMessage', () => {
