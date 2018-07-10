@@ -1,6 +1,6 @@
-
+import { ethSendTransaction } from '../helpers/web3';
 import expectThrow from '../helpers/expectThrow';
-import toPromise from '../helpers/toPromise';
+
 const HasNoEtherTest = artifacts.require('HasNoEtherTest');
 const ForceEther = artifacts.require('ForceEther');
 
@@ -19,7 +19,7 @@ contract('HasNoEther', function (accounts) {
     let hasNoEther = await HasNoEtherTest.new();
 
     await expectThrow(
-      toPromise(web3.eth.sendTransaction)({
+      ethSendTransaction({
         from: accounts[1],
         to: hasNoEther.address,
         value: amount,

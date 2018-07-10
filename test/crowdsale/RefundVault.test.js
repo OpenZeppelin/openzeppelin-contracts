@@ -1,6 +1,6 @@
 import ether from '../helpers/ether';
+import { ethGetBalance } from '../helpers/web3';
 import EVMRevert from '../helpers/EVMRevert';
-import toPromise from '../helpers/toPromise';
 
 const BigNumber = web3.BigNumber;
 
@@ -36,9 +36,9 @@ contract('RefundVault', function ([_, owner, wallet, investor]) {
     await this.vault.deposit(investor, { value, from: owner });
     await this.vault.enableRefunds({ from: owner });
 
-    const pre = await toPromise(web3.eth.getBalance)(investor);
+    const pre = await ethGetBalance(investor);
     await this.vault.refund(investor);
-    const post = await toPromise(web3.eth.getBalance)(investor);
+    const post = await ethGetBalance(investor);
 
     post.minus(pre).should.be.bignumber.equal(value);
   });
@@ -51,9 +51,9 @@ contract('RefundVault', function ([_, owner, wallet, investor]) {
   it('should forward funds to wallet after closing', async function () {
     await this.vault.deposit(investor, { value, from: owner });
 
-    const pre = await toPromise(web3.eth.getBalance)(wallet);
+    const pre = await ethGetBalance(wallet);
     await this.vault.close({ from: owner });
-    const post = await toPromise(web3.eth.getBalance)(wallet);
+    const post = await ethGetBalance(wallet);
 
     post.minus(pre).should.be.bignumber.equal(value);
   });

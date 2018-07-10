@@ -4,7 +4,7 @@ import { increaseTimeTo, duration } from '../helpers/increaseTime';
 import latestTime from '../helpers/latestTime';
 import EVMRevert from '../helpers/EVMRevert';
 import assertRevert from '../helpers/assertRevert';
-import toPromise from '../helpers/toPromise';
+import { ethGetBalance } from '../helpers/web3';
 
 const BigNumber = web3.BigNumber;
 
@@ -89,16 +89,16 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
     await increaseTimeTo(this.openingTime);
     await this.crowdsale.send(GOAL);
 
-    const beforeFinalization = await toPromise(web3.eth.getBalance)(wallet);
+    const beforeFinalization = await ethGetBalance(wallet);
     await increaseTimeTo(this.afterClosingTime);
     await this.crowdsale.finalize({ from: owner });
-    const afterFinalization = await toPromise(web3.eth.getBalance)(wallet);
+    const afterFinalization = await ethGetBalance(wallet);
 
     afterFinalization.minus(beforeFinalization).should.be.bignumber.equal(GOAL);
   });
 
   it('should allow refunds if the goal is not reached', async function () {
-    const balanceBeforeInvestment = await toPromise(web3.eth.getBalance)(investor);
+    const balanceBeforeInvestment = await ethGetBalance(investor);
 
     await increaseTimeTo(this.openingTime);
     await this.crowdsale.sendTransaction({ value: ether(1), from: investor, gasPrice: 0 });
@@ -107,7 +107,7 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
     await this.crowdsale.finalize({ from: owner });
     await this.crowdsale.claimRefund({ from: investor, gasPrice: 0 }).should.be.fulfilled;
 
-    const balanceAfterRefund = await toPromise(web3.eth.getBalance)(investor);
+    const balanceAfterRefund = await ethGetBalance(investor);
     balanceBeforeInvestment.should.be.bignumber.equal(balanceAfterRefund);
   });
 

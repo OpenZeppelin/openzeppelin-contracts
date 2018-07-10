@@ -1,4 +1,5 @@
-import toPromise from '../helpers/toPromise';
+import { ethGetBalance } from '../helpers/web3';
+
 const BigNumber = web3.BigNumber;
 
 require('chai')
@@ -22,7 +23,7 @@ contract('SplitPayment', function ([owner, payee1, payee2, payee3, nonpayee1, pa
   it('should accept payments', async function () {
     await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: amount });
 
-    const balance = await toPromise(web3.eth.getBalance)(this.contract.address);
+    const balance = await ethGetBalance(this.contract.address);
     balance.should.be.bignumber.equal(amount);
   });
 
@@ -49,27 +50,27 @@ contract('SplitPayment', function ([owner, payee1, payee2, payee3, nonpayee1, pa
     await web3.eth.sendTransaction({ from: payer1, to: this.contract.address, value: amount });
 
     // receive funds
-    const initBalance = await toPromise(web3.eth.getBalance)(this.contract.address);
+    const initBalance = await ethGetBalance(this.contract.address);
     initBalance.should.be.bignumber.equal(amount);
 
     // distribute to payees
-    const initAmount1 = await toPromise(web3.eth.getBalance)(payee1);
+    const initAmount1 = await ethGetBalance(payee1);
     await this.contract.claim({ from: payee1 });
-    const profit1 = await toPromise(web3.eth.getBalance)(payee1) - initAmount1;
+    const profit1 = await ethGetBalance(payee1) - initAmount1;
     assert(Math.abs(profit1 - web3.toWei(0.20, 'ether')) < 1e16);
 
-    const initAmount2 = await toPromise(web3.eth.getBalance)(payee2);
+    const initAmount2 = await ethGetBalance(payee2);
     await this.contract.claim({ from: payee2 });
-    const profit2 = await toPromise(web3.eth.getBalance)(payee2) - initAmount2;
+    const profit2 = await ethGetBalance(payee2) - initAmount2;
     assert(Math.abs(profit2 - web3.toWei(0.10, 'ether')) < 1e16);
 
-    const initAmount3 = await toPromise(web3.eth.getBalance)(payee3);
+    const initAmount3 = await ethGetBalance(payee3);
     await this.contract.claim({ from: payee3 });
-    const profit3 = await toPromise(web3.eth.getBalance)(payee3) - initAmount3;
+    const profit3 = await ethGetBalance(payee3) - initAmount3;
     assert(Math.abs(profit3 - web3.toWei(0.70, 'ether')) < 1e16);
 
     // end balance should be zero
-    const endBalance = await toPromise(web3.eth.getBalance)(this.contract.address);
+    const endBalance = await ethGetBalance(this.contract.address);
     endBalance.should.be.bignumber.equal(0);
 
     // check correct funds released accounting

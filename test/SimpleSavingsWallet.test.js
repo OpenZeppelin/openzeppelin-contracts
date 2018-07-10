@@ -1,6 +1,6 @@
 
 import expectThrow from './helpers/expectThrow';
-import toPromise from './helpers/toPromise';
+import { ethGetBalance } from './helpers/web3';
 
 const SimpleSavingsWallet = artifacts.require('SimpleSavingsWallet');
 
@@ -17,7 +17,7 @@ contract('SimpleSavingsWallet', function (accounts) {
 
   it('should receive funds', async function () {
     await web3.eth.sendTransaction({ from: owner, to: savingsWallet.address, value: paymentAmount });
-    const balance = await toPromise(web3.eth.getBalance)(savingsWallet.address);
+    const balance = await ethGetBalance(savingsWallet.address);
     assert.isTrue((new web3.BigNumber(paymentAmount)).equals(balance));
   });
 
@@ -28,9 +28,9 @@ contract('SimpleSavingsWallet', function (accounts) {
     await expectThrow(savingsWallet.sendTo(savingsWallet.address, paymentAmount, { from: owner }));
     await expectThrow(savingsWallet.sendTo(accounts[1], 0, { from: owner }));
 
-    const balance = await toPromise(web3.eth.getBalance)(accounts[1]);
+    const balance = await ethGetBalance(accounts[1]);
     await savingsWallet.sendTo(accounts[1], paymentAmount, { from: owner });
-    const updatedBalance = await toPromise(web3.eth.getBalance)(accounts[1]);
+    const updatedBalance = await ethGetBalance(accounts[1]);
     assert.isTrue(balance.plus(paymentAmount).equals(updatedBalance));
   });
 });

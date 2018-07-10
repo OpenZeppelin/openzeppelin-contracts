@@ -1,4 +1,4 @@
-import toPromise from './helpers/toPromise';
+import { ethGetBalance } from './helpers/web3';
 
 let sendReward = function (sender, receiver, value) {
   web3.eth.sendTransaction({
@@ -27,7 +27,7 @@ contract('Bounty', function (accounts) {
     let bounty = await SecureTargetBounty.new();
     await sendReward(owner, bounty.address, reward);
 
-    const balance = await toPromise(web3.eth.getBalance)(bounty.address);
+    const balance = await ethGetBalance(bounty.address);
     assert.equal(reward, balance.toNumber());
   });
 
@@ -37,11 +37,11 @@ contract('Bounty', function (accounts) {
     let bounty = await SecureTargetBounty.new();
     await sendReward(owner, bounty.address, reward);
 
-    const balance = await toPromise(web3.eth.getBalance)(bounty.address);
+    const balance = await ethGetBalance(bounty.address);
     assert.equal(reward, balance.toNumber());
 
     await bounty.destroy();
-    const updatedBalance = await toPromise(web3.eth.getBalance)(bounty.address);
+    const updatedBalance = await ethGetBalance(bounty.address);
     assert.equal(0, updatedBalance.toNumber());
   });
 
@@ -60,7 +60,7 @@ contract('Bounty', function (accounts) {
         var targetAddress = result.args.createdAddress;
         await sendReward(owner, bounty.address, reward);
 
-        const balance = await toPromise(web3.eth.getBalance)(bounty.address);
+        const balance = await ethGetBalance(bounty.address);
         assert.equal(reward, balance.toNumber());
 
         try {
@@ -74,7 +74,7 @@ contract('Bounty', function (accounts) {
           await bounty.withdrawPayments({ from: researcher });
           assert.isTrue(false); // should never reach here
         } catch (err) {
-          const updatedBalance = await toPromise(web3.eth.getBalance)(bounty.address);
+          const updatedBalance = await ethGetBalance(bounty.address);
           assert.equal(reward, updatedBalance.toNumber());
         }
       };
@@ -97,7 +97,7 @@ contract('Bounty', function (accounts) {
         let targetAddress = result.args.createdAddress;
         await sendReward(owner, bounty.address, reward);
 
-        const balance = await toPromise(web3.eth.getBalance)(bounty.address);
+        const balance = await ethGetBalance(bounty.address);
         assert.equal(reward, balance.toNumber());
 
         await bounty.claim(targetAddress, { from: researcher });
@@ -106,7 +106,7 @@ contract('Bounty', function (accounts) {
         assert.isTrue(claim);
 
         await bounty.withdrawPayments({ from: researcher });
-        const updatedBalance = await toPromise(web3.eth.getBalance)(bounty.address);
+        const updatedBalance = await ethGetBalance(bounty.address);
         assert.equal(0, updatedBalance.toNumber());
       };
       await bounty.createTarget({ from: researcher });
