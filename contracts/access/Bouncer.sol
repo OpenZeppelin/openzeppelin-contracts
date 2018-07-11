@@ -1,27 +1,35 @@
 pragma solidity ^0.4.24;
 
+import "../introspection/ERC165Checker.sol";
+import "./IBouncerDelegate.sol";
 import "../ownership/rbac/RBACOwnable.sol";
 import "../ownership/rbac/RBAC.sol";
 import "../ECRecovery.sol";
 
 
 /**
- * @title SignatureBouncer
+ * @title Bouncer
  * @author PhABC, Shrugs and aflesher
- * @dev Bouncer allows users to submit a signature as a permission to do an action.
- * If the signature is from one of the authorized bouncer addresses, the signature
- * is valid. The owner of the contract adds/removes bouncers.
- * Bouncer addresses can be individual servers signing grants or different
+ * @dev Bouncer allows users to submit a `ticket` from a `delegate` as a permission to do an action.
+ * A ticket is a cryptographic signature generated via
+ * Ethereum ECDSA signing (web3.eth.personal_sign).
+ * Tickets must be a signature (with `Ethereum Signed Message:` prefix) of the hash of the verified
+ * information. See //test/helpers/sign.js for example ticket construction.
+ *
+ * If the ticket is from one of the authorized delegates, the ticket
+ * is valid. The owner of the contract adds/removes delegates.
+ * Delegates can be individual servers signing grants or different
  * users within a decentralized club that have permission to invite other members.
+ * Delegates can also be other contracts that implement `isValidSignature`, allowing you to write
+ * whatever access-control logic you want, like using alternative signature schemes.
+ *
  * This technique is useful for whitelists and airdrops; instead of putting all
  * valid addresses on-chain, simply sign a grant of the form
- * keccak256(abi.encodePacked(`:contractAddress` + `:granteeAddress`)) using a valid bouncer address.
- * Then restrict access to your crowdsale/whitelist/airdrop using the
- * `onlyValidSignature` modifier (or implement your own using isValidSignature).
- * In addition to `onlyValidSignature`, `onlyValidSignatureAndMethod` and
- * `onlyValidSignatureAndData` can be used to restrict access to only a given method
- * or a given method with given parameters respectively.
- * See the tests Bouncer.test.js for specific usage examples.
+ * keccak256(abi.encodePacked(`:contractAddress` + `:granteeAddress`)) using a valid signer.
+ *
+ * Then restrict access to your crowdsale/whitelist/airdrop using the `onlyValidSignatureAndData`
+ * modifier, which allows users claiming your tokens to pay their own gas.
+ *
  * @notice A method that uses the `onlyValidSignatureAndData` modifier must make the _sig
  * parameter the "last" parameter. You cannot sign a message that has its own
  * signature in it so the last 128 bytes of msg.data (which represents the
@@ -29,16 +37,20 @@ import "../ECRecovery.sol";
  * Also non fixed sized parameters make constructing the data in the signature
  * much more complex. See https://ethereum.stackexchange.com/a/50616 for more details.
  */
-contract SignatureBouncer is RBACOwnable {
+contract Bouncer is RBACOwnable {
   using ECRecovery for bytes32;
+  using ERC165Checker for address;
 
-  string public constant ROLE_BOUNCER = "bouncer";
+  // @TODO - de-duplicate this line from IBouncerDelegate once sharing constants is possible
+  bytes4 internal constant InterfaceId_BouncerDelegate = 0x1626ba7e;
+  string public constant ROLE_DELEGATE = "delegate";
   uint constant METHOD_ID_SIZE = 4;
   // signature size is 65 bytes (tightly packed v + r + s), but gets padded to 96 bytes
   uint constant SIGNATURE_SIZE = 96;
 
   /**
    * @dev requires that a valid signature of a bouncer was provided
+   * @notice does not validate method arguments
    */
   modifier onlyValidSignature(bytes _sig)
   {
@@ -48,6 +60,7 @@ contract SignatureBouncer is RBACOwnable {
 
   /**
    * @dev requires that a valid signature with a specifed method of a bouncer was provided
+   * @notice validates methodId, but not method arguments
    */
   modifier onlyValidSignatureAndMethod(bytes _sig)
   {
@@ -57,6 +70,7 @@ contract SignatureBouncer is RBACOwnable {
 
   /**
    * @dev requires that a valid signature with a specifed method and params of a bouncer was provided
+   * @notice verifies entire calldata
    */
   modifier onlyValidSignatureAndData(bytes _sig)
   {
@@ -65,25 +79,25 @@ contract SignatureBouncer is RBACOwnable {
   }
 
   /**
-   * @dev allows the owner to add additional bouncer addresses
+   * @dev allows the owner to add additional signer addresses
    */
-  function addBouncer(address _bouncer)
+  function addDelegate(address _delegate)
     onlyOwner
     public
   {
-    require(_bouncer != address(0));
-    addRole(_bouncer, ROLE_BOUNCER);
+    require(_delegate != address(0));
+    addRole(_delegate, ROLE_DELEGATE);
   }
 
   /**
-   * @dev allows the owner to remove bouncer addresses
+   * @dev allows the owner to remove signer addresses
    */
-  function removeBouncer(address _bouncer)
+  function removeDelegate(address _delegate)
     onlyOwner
     public
   {
-    require(_bouncer != address(0));
-    removeRole(_bouncer, ROLE_BOUNCER);
+    require(_delegate != address(0));
+    removeRole(_delegate, ROLE_DELEGATE);
   }
 
   /**
@@ -146,14 +160,26 @@ contract SignatureBouncer is RBACOwnable {
    * and then recover the signature and check it against the bouncer role
    * @return bool
    */
-  function isValidDataHash(bytes32 hash, bytes _sig)
+  function isValidDataHash(bytes32 _hash, bytes _sig)
     internal
     view
     returns (bool)
   {
-    address signer = hash
+    // if the sender is a delegate AND supports isValidSignature, we delegate validation to them
+    // this allows someone who wants custom validation logic (perhaps they check another contract's state)
+    // to code their own delegate. The users then submit actions to the delegate contract, which proxies
+    // them to this contract, which then pings-back to check if it's cool.
+    // This is also useful for contracts-as-identities: your identity contract implements isValidSignature
+    // and can then recover the signer and check it against the whitelisted ACTION keys.
+    if (hasRole(msg.sender, ROLE_DELEGATE) && msg.sender.supportsInterface(InterfaceId_BouncerDelegate)) {
+      return IBouncerDelegate(msg.sender).isValidSignature(_hash, _sig);
+    }
+
+    // otherwise it's an ECDSA Ethereum Signed Message hash,
+    // so recover and check the signer's delegate status
+    address signer = _hash
       .toEthSignedMessageHash()
       .recover(_sig);
-    return hasRole(signer, ROLE_BOUNCER);
+    return hasRole(signer, ROLE_DELEGATE);
   }
 }

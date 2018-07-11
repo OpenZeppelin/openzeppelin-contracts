@@ -4,7 +4,7 @@ const { decodeLogs } = require('../../helpers/decodeLogs');
 const { sendTransaction } = require('../../helpers/sendTransaction');
 const _ = require('lodash');
 
-const ERC721Receiver = artifacts.require('ERC721ReceiverMock.sol');
+const ERC721Receiver = artifacts.require('ERC721ReceiverMock');
 const BigNumber = web3.BigNumber;
 
 require('chai')

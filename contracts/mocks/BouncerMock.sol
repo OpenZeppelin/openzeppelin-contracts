@@ -1,9 +1,9 @@
 pragma solidity ^0.4.24;
 
-import "../access/SignatureBouncer.sol";
+import "../access/Bouncer.sol";
 
 
-contract SignatureBouncerMock is SignatureBouncer {
+contract BouncerMock is Bouncer {
   function checkValidSignature(address _address, bytes _sig)
     public
     view

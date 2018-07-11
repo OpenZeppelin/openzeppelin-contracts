@@ -1,7 +1,9 @@
 const { assertRevert } = require('../helpers/assertRevert');
 const { getBouncerSigner } = require('../helpers/sign');
+const makeInterfaceId = require('../helpers/makeInterfaceId');
 
-const SignatureBouncer = artifacts.require('SignatureBouncerMock');
+const Bouncer = artifacts.require('BouncerMock');
+const BouncerDelegateImpl = artifacts.require('BouncerDelegateImpl');
 
 require('chai')
   .use(require('chai-as-promised'))
@@ -235,6 +237,51 @@ contract('Bouncer', ([_, owner, anyone, bouncerAddress, authorizedUser]) => {
             ).should.eq(false);
           }
         );
+      });
+    });
+  });
+
+  context('contract delegate', () => {
+    context('not a delegate', () => {
+      beforeEach(async function () {
+        this.delegateContract = await BouncerDelegateImpl.new(true, this.bouncer.address, { from: owner });
+      });
+
+      it('should fail', async function () {
+        await assertRevert(
+          this.delegateContract.forward({ from: anyone })
+        );
+      });
+    });
+
+    context('invalid delegate', () => {
+      beforeEach(async function () {
+        this.delegateContract = await BouncerDelegateImpl.new(false, this.bouncer.address, { from: owner });
+        await this.bouncer.addDelegate(this.delegateContract.address, { from: owner });
+      });
+
+      it('should be invalid', async function () {
+        await assertRevert(
+          this.delegateContract.forward({ from: anyone })
+        );
+      });
+    });
+
+    context('valid delegate', () => {
+      beforeEach(async function () {
+        this.delegateContract = await BouncerDelegateImpl.new(true, this.bouncer.address, { from: owner });
+        await this.bouncer.addDelegate(this.delegateContract.address, { from: owner });
+      });
+
+      it('should support isValidSignature', async function () {
+        const supported = await this.delegateContract.supportsInterface(makeInterfaceId([
+          'isValidSignature(bytes32,bytes)',
+        ]));
+        supported.should.eq(true);
+      });
+
+      it('should be valid', async function () {
+        await this.delegateContract.forward({ from: anyone });
       });
     });
   });
