@@ -3,6 +3,7 @@ pragma solidity 0.4.24;
 import "../access/BouncerDelegate.sol";
 import "./BouncerMock.sol";
 
+
 contract BouncerDelegateImpl is BouncerDelegate {
 
   bool public shouldPass = false;
@@ -13,12 +14,6 @@ contract BouncerDelegateImpl is BouncerDelegate {
   {
     shouldPass = _shouldPass;
     bouncer = _bouncer;
-  }
-
-  function forward()
-    public
-  {
-    bouncer.onlyWithValidSignature("");
   }
 
   /**
@@ -37,4 +32,11 @@ contract BouncerDelegateImpl is BouncerDelegate {
   {
     return shouldPass;
   }
+
+  function forward()
+    public
+  {
+    bouncer.onlyWithValidSignature("");
+  }
+
 }

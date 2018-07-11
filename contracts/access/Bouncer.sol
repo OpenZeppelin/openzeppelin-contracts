@@ -171,7 +171,8 @@ contract Bouncer is RBACOwnable {
     // them to this contract, which then pings-back to check if it's cool.
     // This is also useful for contracts-as-identities: your identity contract implements isValidSignature
     // and can then recover the signer and check it against the whitelisted ACTION keys.
-    if (hasRole(msg.sender, ROLE_DELEGATE) && msg.sender.supportsInterface(InterfaceId_BouncerDelegate)) {
+    if (hasRole(msg.sender, ROLE_DELEGATE) &&
+        msg.sender.supportsInterface(InterfaceId_BouncerDelegate)) {
       return IBouncerDelegate(msg.sender).isValidSignature(_hash, _sig);
     }
 

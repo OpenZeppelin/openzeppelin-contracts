@@ -3,6 +3,7 @@ pragma solidity 0.4.24;
 import "./IBouncerDelegate.sol";
 import "../introspection/SupportsInterfaceWithLookup.sol";
 
+
 /**
  * @title BouncerDelegate
  * @dev Partial implementation of IBouncerDelegate that adds ERC165 support

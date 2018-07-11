@@ -1,5 +1,3 @@
-import assertRevert from '../helpers/assertRevert';
-
 const ERC165Checker = artifacts.require('ERC165CheckerMock');
 const ERC165NotSupported = artifacts.require('ERC165NotSupported');
 const ERC165GenerallySupported = artifacts.require('ERC165GenerallySupported');
