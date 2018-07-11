@@ -3,6 +3,7 @@ import { advanceBlock } from '../helpers/advanceToBlock';
 import { increaseTimeTo, duration } from '../helpers/increaseTime';
 import latestTime from '../helpers/latestTime';
 import EVMRevert from '../helpers/EVMRevert';
+import { ethGetBalance } from '../helpers/web3';
 
 const BigNumber = web3.BigNumber;
 
@@ -26,7 +27,7 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
   });
 
   beforeEach(async function () {
-    this.openingTime = latestTime() + duration.weeks(1);
+    this.openingTime = (await latestTime()) + duration.weeks(1);
     this.closingTime = this.openingTime + duration.weeks(1);
     this.afterClosingTime = this.closingTime + duration.seconds(1);
 
@@ -63,10 +64,10 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
     await this.crowdsale.sendTransaction({ value: lessThanGoal, from: investor });
     await increaseTimeTo(this.afterClosingTime);
     await this.crowdsale.finalize({ from: owner });
-    const pre = web3.eth.getBalance(investor);
+    const pre = await ethGetBalance(investor);
     await this.crowdsale.claimRefund({ from: investor, gasPrice: 0 })
       .should.be.fulfilled;
-    const post = web3.eth.getBalance(investor);
+    const post = await ethGetBalance(investor);
     post.minus(pre).should.be.bignumber.equal(lessThanGoal);
   });
 
@@ -74,9 +75,9 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
     await increaseTimeTo(this.openingTime);
     await this.crowdsale.sendTransaction({ value: goal, from: investor });
     await increaseTimeTo(this.afterClosingTime);
-    const pre = web3.eth.getBalance(wallet);
+    const pre = await ethGetBalance(wallet);
     await this.crowdsale.finalize({ from: owner });
-    const post = web3.eth.getBalance(wallet);
+    const post = await ethGetBalance(wallet);
     post.minus(pre).should.be.bignumber.equal(goal);
   });
 });

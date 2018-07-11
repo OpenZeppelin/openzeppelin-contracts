@@ -1,4 +1,6 @@
 import assertRevert from './helpers/assertRevert';
+import { ethGetBalance } from './helpers/web3';
+
 var LimitBalanceMock = artifacts.require('LimitBalanceMock');
 
 contract('LimitBalance', function (accounts) {
@@ -19,7 +21,8 @@ contract('LimitBalance', function (accounts) {
     let amount = 1;
     await lb.limitedDeposit({ value: amount });
 
-    assert.equal(web3.eth.getBalance(lb.address), amount);
+    const balance = await ethGetBalance(lb.address);
+    assert.equal(balance, amount);
   });
 
   it('shouldnt allow sending above limit', async function () {
@@ -31,17 +34,20 @@ contract('LimitBalance', function (accounts) {
     let amount = 500;
     await lb.limitedDeposit({ value: amount });
 
-    assert.equal(web3.eth.getBalance(lb.address), amount);
+    const balance = await ethGetBalance(lb.address);
+    assert.equal(balance, amount);
 
     await lb.limitedDeposit({ value: amount });
-    assert.equal(web3.eth.getBalance(lb.address), amount * 2);
+    const updatedBalance = await ethGetBalance(lb.address);
+    assert.equal(updatedBalance, amount * 2);
   });
 
   it('shouldnt allow multiple sends above limit', async function () {
     let amount = 500;
     await lb.limitedDeposit({ value: amount });
 
-    assert.equal(web3.eth.getBalance(lb.address), amount);
+    const balance = await ethGetBalance(lb.address);
+    assert.equal(balance, amount);
     await assertRevert(lb.limitedDeposit({ value: amount + 1 }));
   });
 });
