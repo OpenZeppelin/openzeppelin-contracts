@@ -16,7 +16,7 @@ contract('TokenTimelock', function ([_, owner, beneficiary]) {
 
   beforeEach(async function () {
     this.token = await MintableToken.new({ from: owner });
-    this.releaseTime = latestTime() + duration.years(1);
+    this.releaseTime = (await latestTime()) + duration.years(1);
     this.timelock = await TokenTimelock.new(this.token.address, beneficiary, this.releaseTime);
     await this.token.mint(this.timelock.address, amount, { from: owner });
   });
