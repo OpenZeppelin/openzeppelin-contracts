@@ -40,7 +40,7 @@ contract SignatureBouncer is Ownable, RBAC {
   /**
    * @dev requires that a valid signature of a bouncer was provided
    */
-  modifier onlyValidSignature(bytes _sig)
+  modifier onlyValidSignature(bytes memory _sig)
   {
     require(isValidSignature(msg.sender, _sig));
     _;
@@ -49,7 +49,7 @@ contract SignatureBouncer is Ownable, RBAC {
   /**
    * @dev requires that a valid signature with a specifed method of a bouncer was provided
    */
-  modifier onlyValidSignatureAndMethod(bytes _sig)
+  modifier onlyValidSignatureAndMethod(bytes memory _sig)
   {
     require(isValidSignatureAndMethod(msg.sender, _sig));
     _;
@@ -58,7 +58,7 @@ contract SignatureBouncer is Ownable, RBAC {
   /**
    * @dev requires that a valid signature with a specifed method and params of a bouncer was provided
    */
-  modifier onlyValidSignatureAndData(bytes _sig)
+  modifier onlyValidSignatureAndData(bytes memory _sig)
   {
     require(isValidSignatureAndData(msg.sender, _sig));
     _;

@@ -92,7 +92,7 @@ contract RBAC {
    * @TODO - when solidity supports dynamic arrays as arguments to modifiers, provide this
    *  see: https://github.com/ethereum/solidity/issues/2467
    */
-  // modifier onlyRoles(string[] roleNames) {
+  // modifier onlyRoles(string[] memory roleNames) {
   //     bool hasAnyRole = false;
   //     for (uint8 i = 0; i < roleNames.length; i++) {
   //         if (hasRole(msg.sender, roleNames[i])) {
