@@ -4,6 +4,7 @@ import "../Crowdsale.sol";
 import "../../math/SafeMath.sol";
 import "../../ownership/Ownable.sol";
 
+
 /**
  * @title CapStagedCrowdsale
  * @dev Extension of Crowdsale contract that changes the price of tokens regarding of raised ETH. Each stage of crowdsale is defined in StageLimit (cap limit for the stage) and stageRate (stage rate)
