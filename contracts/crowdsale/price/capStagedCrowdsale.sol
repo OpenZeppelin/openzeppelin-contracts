@@ -3,7 +3,7 @@ pragma solidity ^ 0.4.23;
 import "../Crowdsale.sol";
 import "../../math/SafeMath.sol";
 import "../../ownership/Ownable.sol";
-
+import "../../token/ERC20/MintableToken.sol";
 
 /**
  * @title CapStagedCrowdsale
@@ -58,4 +58,13 @@ contract CapStagedCrowdsale is Crowdsale, Ownable {
     uint256 currentRate = getRate();
     return currentRate.mul(_weiAmount);
   }
+  /**	
+  * @dev Overrides delivery by minting tokens upon purchase.	
+  * @param _beneficiary Token purchaser
+  * @param _tokenAmount Number of tokens to be minted
+  */
+  function _deliverTokens(address _beneficiary, uint256 _tokenAmount) internal {
+    require(MintableToken(token).mint(_beneficiary, _tokenAmount));
+  }
 }
+
