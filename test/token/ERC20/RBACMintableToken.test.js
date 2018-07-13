@@ -1,5 +1,5 @@
-import shouldBehaveLikeRBACMintableToken from './RBACMintableToken.behaviour';
-import shouldBehaveLikeMintableToken from './MintableToken.behaviour';
+const { shouldBehaveLikeRBACMintableToken } = require('./RBACMintableToken.behaviour');
+const { shouldBehaveLikeMintableToken } = require('./MintableToken.behaviour');
 
 const RBACMintableToken = artifacts.require('RBACMintableToken');
 

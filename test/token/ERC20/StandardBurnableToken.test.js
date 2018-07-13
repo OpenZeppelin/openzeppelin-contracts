@@ -1,6 +1,6 @@
 const { assertRevert } = require('../../helpers/assertRevert');
 const { inLogs } = require('../../helpers/expectEvent');
-import shouldBehaveLikeBurnableToken from './BurnableToken.behaviour';
+const { shouldBehaveLikeBurnableToken } = require('./BurnableToken.behaviour');
 
 const StandardBurnableTokenMock = artifacts.require('StandardBurnableTokenMock');
 const BigNumber = web3.BigNumber;

@@ -9,7 +9,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-export default function ([owner], initialBalance) {
+function shouldBehaveLikeBurnableToken ([owner], initialBalance) {
   describe('as a basic burnable token', function () {
     const from = owner;
 
@@ -47,4 +47,8 @@ export default function ([owner], initialBalance) {
       });
     });
   });
+}
+
+module.exports = {
+  shouldBehaveLikeBurnableToken,
 };

@@ -1,4 +1,4 @@
-import utils from 'ethereumjs-util';
+const utils = require('ethereumjs-util');
 
 /**
  * Hash and add same prefix to the hash that ganache use.

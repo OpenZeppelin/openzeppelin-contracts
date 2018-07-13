@@ -5,7 +5,7 @@ const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-export default function ([_, investor, wallet, purchaser], rate, value) {
+function shouldBehaveLikeMintedCrowdsale ([_, investor, wallet, purchaser], rate, value) {
   const expectedTokenAmount = rate.mul(value);
 
   describe('as a minted crowdsale', function () {
@@ -42,3 +42,7 @@ export default function ([_, investor, wallet, purchaser], rate, value) {
     });
   });
 }
+
+module.exports = {
+  shouldBehaveLikeMintedCrowdsale,
+};

@@ -7,7 +7,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-export default function (owner, [payee1, payee2]) {
+function shouldBehaveLikeEscrow (owner, [payee1, payee2]) {
   const amount = web3.toWei(42.0, 'ether');
 
   describe('as an escrow', function () {
@@ -95,4 +95,8 @@ export default function (owner, [payee1, payee2]) {
       });
     });
   });
+}
+
+module.exports = {
+  shouldBehaveLikeEscrow,
 };

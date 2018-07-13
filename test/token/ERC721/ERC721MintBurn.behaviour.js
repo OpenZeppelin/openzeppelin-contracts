@@ -6,7 +6,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-export default function shouldMintAndBurnERC721Token (accounts) {
+function shouldBehaveLikeMintAndBurnERC721Token (accounts) {
   const firstTokenId = 1;
   const secondTokenId = 2;
   const unknownTokenId = 3;
@@ -108,4 +108,8 @@ export default function shouldMintAndBurnERC721Token (accounts) {
       });
     });
   });
+}
+
+module.exports = {
+  shouldBehaveLikeMintAndBurnERC721Token,
 };

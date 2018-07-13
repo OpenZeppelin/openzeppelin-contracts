@@ -1,4 +1,4 @@
-import EVMRevert from '../../helpers/EVMRevert';
+const { EVMRevert } = require('../../helpers/EVMRevert');
 const { latestTime } = require('../../helpers/latestTime');
 const { increaseTimeTo, duration } = require('../../helpers/increaseTime');
 

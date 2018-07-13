@@ -1,7 +1,5 @@
-
 var TokenDestructible = artifacts.require('TokenDestructible');
 var StandardTokenMock = artifacts.require('StandardTokenMock');
-require('../helpers/transactionMined.js');
 
 contract('TokenDestructible', function (accounts) {
   let destructible;

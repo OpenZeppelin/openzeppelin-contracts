@@ -1,8 +1,8 @@
-import shouldSupportInterfaces from '../../introspection/SupportsInterface.behavior';
+const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 const { assertRevert } = require('../../helpers/assertRevert');
 const { decodeLogs } = require('../../helpers/decodeLogs');
 const { sendTransaction } = require('../../helpers/sendTransaction');
-import _ from 'lodash';
+const _ = require('lodash');
 
 const ERC721Receiver = artifacts.require('ERC721ReceiverMock.sol');
 const BigNumber = web3.BigNumber;
@@ -12,7 +12,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-export default function shouldBehaveLikeERC721BasicToken (accounts) {
+function shouldBehaveLikeERC721BasicToken (accounts) {
   const firstTokenId = 1;
   const secondTokenId = 2;
   const unknownTokenId = 3;
@@ -558,4 +558,8 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
       'ERC721Exists',
     ]);
   });
+}
+
+module.exports = {
+  shouldBehaveLikeERC721BasicToken,
 };

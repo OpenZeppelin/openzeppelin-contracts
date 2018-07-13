@@ -1,8 +1,4 @@
-
-import {
-  hashMessage,
-  signMessage,
-} from '../helpers/sign';
+const { hashMessage, signMessage } = require('../helpers/sign');
 const ECRecoveryMock = artifacts.require('ECRecoveryMock');
 
 require('chai')

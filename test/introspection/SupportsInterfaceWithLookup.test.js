@@ -1,4 +1,4 @@
-import shouldSupportInterfaces from './SupportsInterface.behavior';
+const { shouldSupportInterfaces } = require('./SupportsInterface.behavior');
 const { assertRevert } = require('../helpers/assertRevert');
 
 const SupportsInterfaceWithLookup = artifacts.require('SupportsInterfaceWithLookupMock');

@@ -1,6 +1,4 @@
-
 var Destructible = artifacts.require('Destructible');
-require('../helpers/transactionMined.js');
 
 contract('Destructible', function (accounts) {
   it('should send balance to owner after destruction', async function () {

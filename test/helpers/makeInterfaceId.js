@@ -1,4 +1,4 @@
-import { soliditySha3 } from 'web3-utils';
+const { soliditySha3 } = require('web3-utils');
 
 const INTERFACE_ID_LENGTH = 4;
 

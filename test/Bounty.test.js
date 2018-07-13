@@ -1,4 +1,3 @@
-
 let sendReward = function (sender, receiver, value) {
   web3.eth.sendTransaction({
     from: sender,
