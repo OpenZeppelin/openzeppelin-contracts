@@ -1,6 +1,6 @@
-const { ether } = require('../../helpers/ether')
-const { shouldBehaveLikeMintableToken } = require('./MintableToken.behaviour')
-const { shouldBehaveLikeCappedToken } = require('./CappedToken.behaviour')
+const { ether } = require('../../helpers/ether');
+const { shouldBehaveLikeMintableToken } = require('./MintableToken.behaviour');
+const { shouldBehaveLikeCappedToken } = require('./CappedToken.behaviour');
 
 var CappedToken = artifacts.require('CappedToken');
 
