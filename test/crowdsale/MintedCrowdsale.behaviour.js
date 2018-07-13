@@ -1,3 +1,5 @@
+const { ethGetBalance } = require('../helpers/web3');
+
 const BigNumber = web3.BigNumber;
 
 const should = require('chai')
@@ -34,9 +36,9 @@ function shouldBehaveLikeMintedCrowdsale ([_, investor, wallet, purchaser], rate
       });
 
       it('should forward funds to wallet', async function () {
-        const pre = web3.eth.getBalance(wallet);
+        const pre = await ethGetBalance(wallet);
         await this.crowdsale.sendTransaction({ value, from: investor });
-        const post = web3.eth.getBalance(wallet);
+        const post = await ethGetBalance(wallet);
         post.minus(pre).should.be.bignumber.equal(value);
       });
     });
