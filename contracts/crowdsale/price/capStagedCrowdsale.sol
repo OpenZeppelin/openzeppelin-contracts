@@ -10,10 +10,8 @@ import "../../ownership/Ownable.sol";
  * Stages must be inserted from first to last with increasing stageLimit.
  */
 contract CapStagedCrowdsale is Crowdsale, Ownable {
-    using SafeMath
-    for uint256;
-    using SafeMath
-    for uint;
+    using SafeMath for uint256;
+    using SafeMath for uint;
 
     struct Stage {
         uint256 stageLimit;
