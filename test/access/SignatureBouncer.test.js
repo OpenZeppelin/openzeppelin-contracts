@@ -1,6 +1,5 @@
-
-import assertRevert from '../helpers/assertRevert';
-import { signHex } from '../helpers/sign';
+const { assertRevert } = require('../helpers/assertRevert');
+const { signHex } = require('../helpers/sign');
 
 const Bouncer = artifacts.require('SignatureBouncerMock');
 

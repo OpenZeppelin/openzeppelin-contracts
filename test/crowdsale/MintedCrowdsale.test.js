@@ -1,5 +1,5 @@
 import shouldBehaveLikeMintedCrowdsale from './MintedCrowdsale.behaviour';
-import ether from '../helpers/ether';
+const { ether } = require('../helpers/ether');
 
 const BigNumber = web3.BigNumber;
 

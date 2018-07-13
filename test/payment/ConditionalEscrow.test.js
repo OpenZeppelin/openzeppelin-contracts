@@ -1,5 +1,5 @@
 import shouldBehaveLikeEscrow from './Escrow.behaviour';
-import EVMRevert from '../helpers/EVMRevert';
+const { EVMRevert } = require('../helpers/EVMRevert');
 
 const BigNumber = web3.BigNumber;
 

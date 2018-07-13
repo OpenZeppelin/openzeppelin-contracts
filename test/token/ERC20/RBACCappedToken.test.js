@@ -1,4 +1,4 @@
-import ether from '../../helpers/ether';
+const { ether } = require('../../helpers/ether');
 import shouldBehaveLikeRBACMintableToken from './RBACMintableToken.behaviour';
 import shouldBehaveLikeMintableToken from './MintableToken.behaviour';
 import shouldBehaveLikeCappedToken from './CappedToken.behaviour';

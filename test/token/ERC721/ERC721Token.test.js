@@ -1,4 +1,4 @@
-import assertRevert from '../../helpers/assertRevert';
+const { assertRevert } = require('../../helpers/assertRevert');
 import shouldBehaveLikeERC721BasicToken from './ERC721BasicToken.behaviour';
 import shouldMintAndBurnERC721Token from './ERC721MintBurn.behaviour';
 import shouldSupportInterfaces from '../../introspection/SupportsInterface.behavior';

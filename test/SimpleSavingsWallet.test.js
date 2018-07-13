@@ -1,5 +1,4 @@
-
-import expectThrow from './helpers/expectThrow';
+const { expectThrow } = require('./helpers/expectThrow');
 
 const SimpleSavingsWallet = artifacts.require('SimpleSavingsWallet');
 

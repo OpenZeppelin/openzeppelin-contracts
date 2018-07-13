@@ -1,5 +1,5 @@
-import expectEvent from '../helpers/expectEvent';
-import EVMRevert from '../helpers/EVMRevert';
+const expectEvent = require('../helpers/expectEvent');
+const { EVMRevert } = require('../helpers/EVMRevert');
 
 const BigNumber = web3.BigNumber;
 

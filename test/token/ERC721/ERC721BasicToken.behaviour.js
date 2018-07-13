@@ -1,7 +1,7 @@
 import shouldSupportInterfaces from '../../introspection/SupportsInterface.behavior';
-import assertRevert from '../../helpers/assertRevert';
-import decodeLogs from '../../helpers/decodeLogs';
-import sendTransaction from '../../helpers/sendTransaction';
+const { assertRevert } = require('../../helpers/assertRevert');
+const { decodeLogs } = require('../../helpers/decodeLogs');
+const { sendTransaction } = require('../../helpers/sendTransaction');
 import _ from 'lodash';
 
 const ERC721Receiver = artifacts.require('ERC721ReceiverMock.sol');

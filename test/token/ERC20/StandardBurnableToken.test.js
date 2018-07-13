@@ -1,5 +1,5 @@
-import assertRevert from '../../helpers/assertRevert';
-import { inLogs } from '../../helpers/expectEvent';
+const { assertRevert } = require('../../helpers/assertRevert');
+const { inLogs } = require('../../helpers/expectEvent');
 import shouldBehaveLikeBurnableToken from './BurnableToken.behaviour';
 
 const StandardBurnableTokenMock = artifacts.require('StandardBurnableTokenMock');
@@ -13,7 +13,7 @@ require('chai')
 
 contract('StandardBurnableToken', function ([owner, burner]) {
   const initialBalance = 1000;
-  
+
   beforeEach(async function () {
     this.token = await StandardBurnableTokenMock.new(owner, initialBalance);
   });

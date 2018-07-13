@@ -1,4 +1,4 @@
-import assertRevert from './helpers/assertRevert';
+const { assertRevert } = require('./helpers/assertRevert');
 var LimitBalanceMock = artifacts.require('LimitBalanceMock');
 
 contract('LimitBalance', function (accounts) {

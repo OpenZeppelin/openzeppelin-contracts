@@ -1,6 +1,5 @@
-
-import expectThrow from '../helpers/expectThrow';
-import toPromise from '../helpers/toPromise';
+const { expectThrow } = require('../helpers/expectThrow');
+const { toPromise } = require('../helpers/toPromise');
 const HasNoEtherTest = artifacts.require('HasNoEtherTest');
 const ForceEther = artifacts.require('ForceEther');
 

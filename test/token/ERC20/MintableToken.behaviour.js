@@ -1,4 +1,4 @@
-import assertRevert from '../../helpers/assertRevert';
+const { assertRevert } = require('../../helpers/assertRevert');
 
 const BigNumber = web3.BigNumber;
 

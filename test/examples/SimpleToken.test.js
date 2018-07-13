@@ -1,4 +1,4 @@
-import decodeLogs from '../helpers/decodeLogs';
+const { decodeLogs } = require('../helpers/decodeLogs');
 const SimpleToken = artifacts.require('SimpleToken');
 
 contract('SimpleToken', accounts => {
