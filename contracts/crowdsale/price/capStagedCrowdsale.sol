@@ -52,11 +52,9 @@ contract CapStagedCrowdsale is Crowdsale, Ownable {
   * @param _weiAmount The value in wei to be converted into tokens
   * @return The number of tokens _weiAmount wei will buy at present time
   */
-  function _getTokenAmount(uint256 _weiAmount)
-    internal view returns(uint256) {
+  function _getTokenAmount(uint256 _weiAmount) internal view returns(uint256) {
     require(stages[(stages.length).sub(1)].stageLimit > weiRaised); //make sure that weiRaised is not bigger than last stage limit
     uint256 currentRate = getRate();
     return currentRate.mul(_weiAmount);
   }
-
 }
