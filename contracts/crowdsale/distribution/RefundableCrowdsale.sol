@@ -3,14 +3,13 @@ pragma solidity ^0.4.24;
 
 import "../../math/SafeMath.sol";
 import "./FinalizableCrowdsale.sol";
-import "./utils/RefundVault.sol";
+import "../../payment/RefundEscrow.sol";
 
 
 /**
  * @title RefundableCrowdsale
  * @dev Extension of Crowdsale contract that adds a funding goal, and
  * the possibility of users getting a refund if goal is not met.
- * Uses a RefundVault as the crowdsale's vault.
  */
 contract RefundableCrowdsale is FinalizableCrowdsale {
   using SafeMath for uint256;
@@ -18,16 +17,16 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
   // minimum amount of funds to be raised in weis
   uint256 public goal;
 
-  // refund vault used to hold funds while crowdsale is running
-  RefundVault public vault;
+  // refund escrow used to hold funds while crowdsale is running
+  RefundEscrow private escrow;
 
   /**
-   * @dev Constructor, creates RefundVault.
+   * @dev Constructor, creates RefundEscrow.
    * @param _goal Funding goal
    */
   constructor(uint256 _goal) public {
     require(_goal > 0);
-    vault = new RefundVault(wallet);
+    escrow = new RefundEscrow(wallet);
     goal = _goal;
   }
 
@@ -38,7 +37,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
     require(isFinalized);
     require(!goalReached());
 
-    vault.refund(msg.sender);
+    escrow.withdraw(msg.sender);
   }
 
   /**
@@ -50,23 +49,24 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
   }
 
   /**
-   * @dev vault finalization task, called when owner calls finalize()
+   * @dev escrow finalization task, called when owner calls finalize()
    */
   function finalization() internal {
     if (goalReached()) {
-      vault.close();
+      escrow.close();
+      escrow.beneficiaryWithdraw();
     } else {
-      vault.enableRefunds();
+      escrow.enableRefunds();
     }
 
     super.finalization();
   }
 
   /**
-   * @dev Overrides Crowdsale fund forwarding, sending funds to vault.
+   * @dev Overrides Crowdsale fund forwarding, sending funds to escrow.
    */
   function _forwardFunds() internal {
-    vault.deposit.value(msg.value)(msg.sender);
+    escrow.deposit.value(msg.value)(msg.sender);
   }
 
 }
