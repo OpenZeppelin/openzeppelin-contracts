@@ -22,6 +22,7 @@ contract MintedCrowdsale is Crowdsale {
   )
     internal
   {
-    require(MintableToken(token).mint(_beneficiary, _tokenAmount));
+    // Potentially dangerous assumption about the type of the token.
+    require(MintableToken(address(token)).mint(_beneficiary, _tokenAmount));
   }
 }
