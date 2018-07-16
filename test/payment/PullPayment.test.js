@@ -1,3 +1,5 @@
+import { ethGetBalance } from '../helpers/web3';
+
 const BigNumber = web3.BigNumber;
 
 require('chai')
@@ -45,7 +47,7 @@ contract('PullPayment', function (accounts) {
 
   it('can withdraw payment', async function () {
     const payee = accounts[1];
-    const initialBalance = web3.eth.getBalance(payee);
+    const initialBalance = await ethGetBalance(payee);
 
     await this.contract.callTransfer(payee, amount);
 
@@ -56,7 +58,7 @@ contract('PullPayment', function (accounts) {
     const payment2 = await this.contract.payments(payee);
     payment2.should.be.bignumber.equal(0);
 
-    const balance = web3.eth.getBalance(payee);
+    const balance = await ethGetBalance(payee);
     Math.abs(balance - initialBalance - amount).should.be.lt(1e16);
   });
 });
