@@ -1,7 +1,7 @@
 import shouldSupportInterfaces from '../../introspection/SupportsInterface.behavior';
 import assertRevert from '../../helpers/assertRevert';
 import decodeLogs from '../../helpers/decodeLogs';
-import sendTransaction from '../../helpers/sendTransaction';
+import expectEvent from '../../helpers/expectEvent';
 import _ from 'lodash';
 
 const ERC721Receiver = artifacts.require('ERC721ReceiverMock.sol');
@@ -12,31 +12,37 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-export default function shouldBehaveLikeERC721BasicToken (accounts) {
+export default function shouldBehaveLikeERC721BasicToken ([
+  creator,
+  owner,
+  approved,
+  operator,
+  unauthorized,
+  user,
+]) {
   const firstTokenId = 1;
   const secondTokenId = 2;
   const unknownTokenId = 3;
-  const creator = accounts[0];
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
   const RECEIVER_MAGIC_VALUE = '0x150b7a02';
 
   describe('like an ERC721BasicToken', function () {
     beforeEach(async function () {
-      await this.token.mint(creator, firstTokenId, { from: creator });
-      await this.token.mint(creator, secondTokenId, { from: creator });
+      await this.token.mint(owner, firstTokenId, { from: creator });
+      await this.token.mint(owner, secondTokenId, { from: creator });
     });
 
     describe('balanceOf', function () {
       context('when the given address owns some tokens', function () {
         it('returns the amount of tokens owned by the given address', async function () {
-          const balance = await this.token.balanceOf(creator);
+          const balance = await this.token.balanceOf(owner);
           balance.should.be.bignumber.equal(2);
         });
       });
 
       context('when the given address does not own any tokens', function () {
         it('returns 0', async function () {
-          const balance = await this.token.balanceOf(accounts[1]);
+          const balance = await this.token.balanceOf(user);
           balance.should.be.bignumber.equal(0);
         });
       });
@@ -74,7 +80,7 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
 
         it('returns the owner of the given token ID', async function () {
           const owner = await this.token.ownerOf(tokenId);
-          owner.should.be.equal(creator);
+          owner.should.be.equal(owner);
         });
       });
 
@@ -88,17 +94,13 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
     });
 
     describe('transfers', function () {
-      const owner = accounts[0];
-      const approved = accounts[2];
-      const operator = accounts[3];
-      const unauthorized = accounts[4];
       const tokenId = firstTokenId;
       const data = '0x42';
 
       let logs = null;
 
       beforeEach(async function () {
-        this.to = accounts[1];
+        this.to = user;
         await this.token.approve(approved, tokenId, { from: owner });
         await this.token.setApprovalForAll(operator, true, { from: owner });
       });
@@ -114,23 +116,13 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
           approvedAccount.should.be.equal(ZERO_ADDRESS);
         });
 
-        if (approved) {
-          it('emit only a transfer event', async function () {
-            logs.length.should.be.equal(1);
-            logs[0].event.should.be.eq('Transfer');
-            logs[0].args._from.should.be.equal(owner);
-            logs[0].args._to.should.be.equal(this.to);
-            logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
+        it('emit only a transfer event', async function () {
+          await expectEvent.inLogs(logs, 'Transfer', {
+            _from: owner,
+            _to: this.to,
+            _tokenId: tokenId,
           });
-        } else {
-          it('emits only a transfer event', async function () {
-            logs.length.should.be.equal(1);
-            logs[0].event.should.be.eq('Transfer');
-            logs[0].args._from.should.be.equal(owner);
-            logs[0].args._to.should.be.equal(this.to);
-            logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
-          });
-        }
+        });
 
         it('adjusts owners balances', async function () {
           const newOwnerBalance = await this.token.balanceOf(this.to);
@@ -196,12 +188,12 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
             approvedAccount.should.be.equal(ZERO_ADDRESS);
           });
 
-          it('emits only a transfer event', async function () {
-            logs.length.should.be.equal(1);
-            logs[0].event.should.be.eq('Transfer');
-            logs[0].args._from.should.be.equal(owner);
-            logs[0].args._to.should.be.equal(owner);
-            logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
+          it('emits a transfer event', async function () {
+            await expectEvent.inLogs(logs, 'Transfer', {
+              _from: owner,
+              _to: owner,
+              _tokenId: tokenId,
+            });
           });
 
           it('keeps the owner balance', async function () {
@@ -242,24 +234,27 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
       };
 
       describe('via transferFrom', function () {
-        shouldTransferTokensByUsers(function (from, to, tokenId, opts) {
-          return this.token.transferFrom(from, to, tokenId, opts);
+        shouldTransferTokensByUsers(function (...args) {
+          return this.token.transferFrom(...args);
         });
       });
 
       describe('via safeTransferFrom', function () {
-        const safeTransferFromWithData = function (from, to, tokenId, opts) {
-          return sendTransaction(
-            this.token,
-            'safeTransferFrom',
-            'address,address,uint256,bytes',
-            [from, to, tokenId, data],
-            opts
-          );
+        const safeTransferFromWithData = (data) => function (from, to, tokenId, opts) {
+          return this.token.sendTransaction({
+            data: this.token.contract
+              .safeTransferFrom['address,address,uint256,bytes']
+              .getData(from, to, tokenId, data),
+            ...opts,
+          });
         };
-
-        const safeTransferFromWithoutData = function (from, to, tokenId, opts) {
-          return this.token.safeTransferFrom(from, to, tokenId, opts);
+        const safeTransferFromWithoutData = async function (from, to, tokenId, opts) {
+          return this.token.sendTransaction({
+            data: this.token.contract
+              .safeTransferFrom['address,address,uint256']
+              .getData(from, to, tokenId),
+            ...opts,
+          });
         };
 
         const shouldTransferSafely = function (transferFun, data) {
@@ -305,6 +300,7 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
                     owner,
                     this.to,
                     unknownTokenId,
+                    data,
                     { from: owner },
                   )
                 );
@@ -314,7 +310,7 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
         };
 
         describe('with data', function () {
-          shouldTransferSafely(safeTransferFromWithData, data);
+          shouldTransferSafely(safeTransferFromWithData(data), data);
         });
 
         describe('without data', function () {
@@ -346,8 +342,8 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
 
     describe('approve', function () {
       const tokenId = firstTokenId;
-      const sender = creator;
-      const to = accounts[1];
+      const sender = owner;
+      const to = user;
 
       let logs = null;
 
@@ -367,11 +363,11 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
 
       const itEmitsApprovalEvent = function (address) {
         it('emits an approval event', async function () {
-          logs.length.should.be.equal(1);
-          logs[0].event.should.be.eq('Approval');
-          logs[0].args._owner.should.be.equal(sender);
-          logs[0].args._approved.should.be.equal(address);
-          logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
+          await expectEvent.inLogs(logs, 'Approval', {
+            _owner: sender,
+            _approved: address,
+            _tokenId: tokenId,
+          });
         });
       };
 
@@ -418,7 +414,7 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
 
         context('when there was a prior approval to a different address', function () {
           beforeEach(async function () {
-            await this.token.approve(accounts[2], tokenId, { from: sender });
+            await this.token.approve(user, tokenId, { from: sender });
             ({ logs } = await this.token.approve(to, tokenId, { from: sender }));
           });
 
@@ -435,19 +431,19 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
 
       context('when the sender does not own the given token ID', function () {
         it('reverts', async function () {
-          await assertRevert(this.token.approve(to, tokenId, { from: accounts[2] }));
+          await assertRevert(this.token.approve(to, tokenId, { from: user }));
         });
       });
 
       context('when the sender is approved for the given token ID', function () {
         it('reverts', async function () {
-          await this.token.approve(accounts[2], tokenId, { from: sender });
-          await assertRevert(this.token.approve(to, tokenId, { from: accounts[2] }));
+          await this.token.approve(user, tokenId, { from: sender });
+          await assertRevert(this.token.approve(to, tokenId, { from: user }));
         });
       });
 
       context('when the sender is an operator', function () {
-        const operator = accounts[2];
+        const operator = user;
         beforeEach(async function () {
           await this.token.setApprovalForAll(operator, true, { from: sender });
           ({ logs } = await this.token.approve(to, tokenId, { from: operator }));
@@ -468,7 +464,7 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
       const sender = creator;
 
       context('when the operator willing to approve is not the owner', function () {
-        const operator = accounts[1];
+        const operator = user;
 
         context('when there is no operator approval set by the sender', function () {
           it('approves the operator', async function () {

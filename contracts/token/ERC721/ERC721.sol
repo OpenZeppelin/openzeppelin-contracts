@@ -38,3 +38,12 @@ contract ERC721Metadata is ERC721Basic {
  */
 contract ERC721 is ERC721Basic, ERC721Enumerable, ERC721Metadata {
 }
+
+
+/**
+ * @title ERC721Burnable
+ * @dev Provides burnFrom(address,uint256) for burning tokens
+ */
+contract ERC721Burnable is ERC721Basic {
+  function burnFrom(address _from, uint256 _tokenId) public;
+}

@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "./MintableToken.sol";
-import "../../ownership/rbac/RBAC.sol";
+import "../../ownership/rbac/RBACMintable.sol";
 
 
 /**
@@ -9,12 +9,7 @@ import "../../ownership/rbac/RBAC.sol";
  * @author Vittorio Minacori (@vittominacori)
  * @dev Mintable Token, with RBAC minter permissions
  */
-contract RBACMintableToken is MintableToken, RBAC {
-  /**
-   * A constant role name for indicating minters.
-   */
-  string public constant ROLE_MINTER = "minter";
-
+contract RBACMintableToken is MintableToken, RBACMintable {
   /**
    * @dev override the Mintable token modifier to add role based logic
    */
