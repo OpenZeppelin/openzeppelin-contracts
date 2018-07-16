@@ -25,7 +25,7 @@ contract IBouncerDelegate is ERC165 {
     bytes32 _hash,
     bytes _sig
   )
-    external
+    public
     view
     returns (bool);
 }

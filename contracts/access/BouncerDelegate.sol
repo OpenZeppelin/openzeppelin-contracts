@@ -26,7 +26,7 @@ contract BouncerDelegate is IBouncerDelegate, SupportsInterfaceWithLookup {
     bytes32 _hash,
     bytes _sig
   )
-    external
+    public
     view
     returns (bool);
 }

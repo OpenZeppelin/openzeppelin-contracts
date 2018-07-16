@@ -36,7 +36,7 @@ contract BouncerDelegateImpl is BouncerDelegate {
   function forward()
     public
   {
-    bouncer.onlyWithValidSignature("");
+    bouncer.onlyWithValidTicket("");
   }
 
 }

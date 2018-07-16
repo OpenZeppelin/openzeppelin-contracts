@@ -19,28 +19,48 @@ contract('Bouncer', ([_, owner, anyone, bouncerAddress, authorizedUser]) => {
     this.roleBouncer = await this.bouncer.ROLE_BOUNCER();
   });
 
-  context('management', () => {
-    it('allows the owner to add a bouncer', async function () {
-      await this.bouncer.addBouncer(bouncerAddress, { from: owner });
-      (await this.bouncer.hasRole(bouncerAddress, this.roleBouncer)).should.eq(true);
+  it('should not allow anyone to add a delegate', async function () {
+    await assertRevert(
+      this.bouncer.addDelegate(delegate, { from: anyone })
+    );
+  });
+
+  context('modifiers', () => {
+    it('should allow valid signature for sender', async function () {
+      await this.bouncer.onlyWithValidTicket(
+        this.signFor(authorizedUser),
+        { from: authorizedUser }
+      );
     });
 
     it('does not allow adding an invalid address', async function () {
       await assertRevert(
-        this.bouncer.addBouncer('0x0', { from: owner })
+        this.bouncer.onlyWithValidTicket(
+          INVALID_SIGNATURE,
+          { from: authorizedUser }
+        )
       );
     });
-
-    it('allows the owner to remove a bouncer', async function () {
-      await this.bouncer.addBouncer(bouncerAddress, { from: owner });
-
-      await this.bouncer.removeBouncer(bouncerAddress, { from: owner });
-      (await this.bouncer.hasRole(bouncerAddress, this.roleBouncer)).should.eq(false);
+    it('should allow valid signature with a valid method for sender', async function () {
+      await this.bouncer.onlyWithValidTicketAndMethod(
+        this.signFor(authorizedUser, 'onlyWithValidTicketAndMethod'),
+        { from: authorizedUser }
+      );
     });
 
     it('does not allow anyone to add a bouncer', async function () {
       await assertRevert(
-        this.bouncer.addBouncer(bouncerAddress, { from: anyone })
+        this.bouncer.onlyWithValidTicketAndMethod(
+          INVALID_SIGNATURE,
+          { from: authorizedUser }
+        )
+      );
+    });
+    it('should allow valid signature with a valid data for sender', async function () {
+      await this.bouncer.onlyWithValidTicketAndData(
+        UINT_VALUE,
+        this.signFor(authorizedUser, 'onlyWithValidTicketAndData', [UINT_VALUE]),
+        { from: authorizedUser }
       );
     });
 
@@ -48,16 +68,93 @@ contract('Bouncer', ([_, owner, anyone, bouncerAddress, authorizedUser]) => {
       await this.bouncer.addBouncer(bouncerAddress, { from: owner });
 
       await assertRevert(
-        this.bouncer.removeBouncer(bouncerAddress, { from: anyone })
+        this.bouncer.onlyWithValidTicketAndData(
+          UINT_VALUE,
+          INVALID_SIGNATURE,
+          { from: authorizedUser }
+        )
       );
     });
   });
 
-  context('with bouncer address', () => {
-    beforeEach(async function () {
-      await this.bouncer.addBouncer(bouncerAddress, { from: owner });
-      this.signFor = getBouncerSigner(this.bouncer, bouncerAddress);
+  context('signatures', () => {
+    it('should accept valid message for valid user', async function () {
+      const isValid = await this.bouncer.checkValidTicket(
+        authorizedUser,
+        this.signFor(authorizedUser)
+      );
+      isValid.should.eq(true);
     });
+    it('should not accept invalid message for valid user', async function () {
+      const isValid = await this.bouncer.checkValidTicket(
+        authorizedUser,
+        this.signFor(anyone)
+      );
+      isValid.should.eq(false);
+    });
+    it('should not accept invalid message for invalid user', async function () {
+      const isValid = await this.bouncer.checkValidTicket(
+        anyone,
+        'abcd'
+      );
+      isValid.should.eq(false);
+    });
+    it('should not accept valid message for invalid user', async function () {
+      const isValid = await this.bouncer.checkValidTicket(
+        anyone,
+        this.signFor(authorizedUser)
+      );
+      isValid.should.eq(false);
+    });
+    it('should accept valid message with valid method for valid user', async function () {
+      const isValid = await this.bouncer.checkValidTicketAndMethod(
+        authorizedUser,
+        this.signFor(authorizedUser, 'checkValidTicketAndMethod')
+      );
+      isValid.should.eq(true);
+    });
+    it('should not accept valid message with an invalid method for valid user', async function () {
+      const isValid = await this.bouncer.checkValidTicketAndMethod(
+        authorizedUser,
+        this.signFor(authorizedUser, 'theWrongMethod')
+      );
+      isValid.should.eq(false);
+    });
+    it('should not accept valid message with a valid method for an invalid user', async function () {
+      const isValid = await this.bouncer.checkValidTicketAndMethod(
+        anyone,
+        this.signFor(authorizedUser, 'checkValidTicketAndMethod')
+      );
+      isValid.should.eq(false);
+    });
+    it('should accept valid method with valid params for valid user', async function () {
+      const isValid = await this.bouncer.checkValidTicketAndData(
+        authorizedUser,
+        BYTES_VALUE,
+        UINT_VALUE,
+        this.signFor(authorizedUser, 'checkValidTicketAndData', [authorizedUser, BYTES_VALUE, UINT_VALUE])
+      );
+      isValid.should.eq(true);
+    });
+    it('should not accept valid method with invalid params for valid user', async function () {
+      const isValid = await this.bouncer.checkValidTicketAndData(
+        authorizedUser,
+        BYTES_VALUE,
+        500,
+        this.signFor(authorizedUser, 'checkValidTicketAndData', [authorizedUser, BYTES_VALUE, UINT_VALUE])
+      );
+      isValid.should.eq(false);
+    });
+    it('should not accept valid method with valid params for invalid user', async function () {
+      const isValid = await this.bouncer.checkValidTicketAndData(
+        anyone,
+        BYTES_VALUE,
+        UINT_VALUE,
+        this.signFor(authorizedUser, 'checkValidTicketAndData', [authorizedUser, BYTES_VALUE, UINT_VALUE])
+      );
+      isValid.should.eq(false);
+    });
+  });
 
     describe('modifiers', () => {
       context('plain signature', () => {

@@ -4,39 +4,39 @@ import "../access/Bouncer.sol";
 
 
 contract BouncerMock is Bouncer {
-  function checkValidSignature(address _address, bytes _sig)
+  function checkValidTicket(address _address, bytes _sig)
     public
     view
     returns (bool)
   {
-    return isValidSignature(_address, _sig);
+    return isValidTicket(address(this), _address, _sig);
   }
 
-  function onlyWithValidSignature(bytes _sig)
-    onlyValidSignature(_sig)
+  function onlyWithValidTicket(bytes _sig)
+    onlyValidTicket(address(this), _sig)
     public
     view
   {
 
   }
 
-  function checkValidSignatureAndMethod(address _address, bytes _sig)
+  function checkValidTicketAndMethod(address _address, bytes _sig)
     public
     view
     returns (bool)
   {
-    return isValidSignatureAndMethod(_address, _sig);
+    return isValidTicketAndMethod(address(this), _address, _sig);
   }
 
-  function onlyWithValidSignatureAndMethod(bytes _sig)
-    onlyValidSignatureAndMethod(_sig)
+  function onlyWithValidTicketAndMethod(bytes _sig)
+    onlyValidTicketForMethod(address(this), _sig)
     public
     view
   {
 
   }
 
-  function checkValidSignatureAndData(
+  function checkValidTicketAndData(
     address _address,
     bytes,
     uint,
@@ -46,11 +46,11 @@ contract BouncerMock is Bouncer {
     view
     returns (bool)
   {
-    return isValidSignatureAndData(_address, _sig);
+    return isValidTicketAndData(address(this), _address, _sig);
   }
 
-  function onlyWithValidSignatureAndData(uint, bytes _sig)
-    onlyValidSignatureAndData(_sig)
+  function onlyWithValidTicketAndData(uint, bytes _sig)
+    onlyValidTicketForData(address(this), _sig)
     public
     view
   {
