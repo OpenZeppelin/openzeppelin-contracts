@@ -3,6 +3,7 @@ import {
   hashMessage,
   signMessage,
 } from '../helpers/sign';
+import expectThrow from '../helpers/expectThrow';
 const ECRecoveryMock = artifacts.require('ECRecoveryMock');
 
 require('chai')
@@ -54,17 +55,20 @@ contract('ECRecovery', function (accounts) {
     const signature = signMessage(accounts[0], TEST_MESSAGE);
 
     // Recover the signer address from the generated message and wrong signature.
-    const addrRecovered = await ecrecovery.recover(hashMessage('Test'), signature);
+    const addrRecovered = await ecrecovery.recover(hashMessage('Nope'), signature);
     assert.notEqual(accounts[0], addrRecovered);
   });
 
-  it('recover should fail when a wrong hash is sent', async function () {
+  it('recover should revert when a small hash is sent', async function () {
     // Create the signature using account[0]
     let signature = signMessage(accounts[0], TEST_MESSAGE);
-
-    // Recover the signer address from the generated message and wrong signature.
-    const addrRecovered = await ecrecovery.recover(hashMessage(TEST_MESSAGE).substring(2), signature);
-    addrRecovered.should.eq('0x0000000000000000000000000000000000000000');
+    try {
+      await expectThrow(
+        ecrecovery.recover(hashMessage(TEST_MESSAGE).substring(2), signature)
+      );
+    } catch (error) {
+      // @TODO(shrugs) - remove this once we upgrade to solc^0.5
+    }
   });
 
   context('toEthSignedMessage', () => {
