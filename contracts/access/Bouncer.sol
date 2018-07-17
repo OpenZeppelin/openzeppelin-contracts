@@ -82,7 +82,7 @@ contract Bouncer is RBACOwnable {
    * @dev allows the owner to add additional signer addresses
    */
   function addDelegate(address _delegate)
-    onlyOwner
+    onlyOwners
     public
   {
     require(_delegate != address(0));
@@ -93,7 +93,7 @@ contract Bouncer is RBACOwnable {
    * @dev allows the owner to remove signer addresses
    */
   function removeDelegate(address _delegate)
-    onlyOwner
+    onlyOwners
     public
   {
     require(_delegate != address(0));
