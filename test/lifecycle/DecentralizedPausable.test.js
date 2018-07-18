@@ -53,8 +53,8 @@ contract('DecentralizedPausable', function (accounts) {
   it('should resume allowing normal process specify unpaused user.', async function () {
     let DecentralizedPausable = await DecentralizedPausableMock.new();
     await DecentralizedPausable.pause();
-    await DecentralizedPausable.unpauseOnlySelf({from: accounts[1]});
-    await DecentralizedPausable.normalProcess({from: accounts[1]});
+    await DecentralizedPausable.unpauseOnlySelf({ from: accounts[1] });
+    await DecentralizedPausable.normalProcess({ from: accounts[1] });
     let count0 = await DecentralizedPausable.count();
 
     assert.equal(count0, 1);
@@ -64,13 +64,12 @@ contract('DecentralizedPausable', function (accounts) {
     let DecentralizedPausable = await DecentralizedPausableMock.new();
     await DecentralizedPausable.pause();
     await assertRevert(DecentralizedPausable.unpauseOnlySelf());
-
   });
 
   it('can not perform normal process to not specify unpaused user.', async function () {
     let DecentralizedPausable = await DecentralizedPausableMock.new();
     await DecentralizedPausable.pause();
-    await DecentralizedPausable.unpauseOnlySelf({from: accounts[1]});
+    await DecentralizedPausable.unpauseOnlySelf({ from: accounts[1] });
     await assertRevert(DecentralizedPausable.normalProcess());
 
     await DecentralizedPausable.drasticMeasure();
@@ -82,15 +81,15 @@ contract('DecentralizedPausable', function (accounts) {
   it('can not perform normal process when second pause.', async function () {
     let DecentralizedPausable = await DecentralizedPausableMock.new();
     await DecentralizedPausable.pause();
-    await DecentralizedPausable.unpauseOnlySelf({from: accounts[1]});
-    await DecentralizedPausable.normalProcess({from: accounts[1]});
+    await DecentralizedPausable.unpauseOnlySelf({ from: accounts[1] });
+    await DecentralizedPausable.normalProcess({ from: accounts[1] });
     let count0 = await DecentralizedPausable.count();
 
     assert.equal(count0, 1);
 
     await DecentralizedPausable.unpause();
     await DecentralizedPausable.pause();
-    await assertRevert(DecentralizedPausable.normalProcess({from: accounts[1]}));
+    await assertRevert(DecentralizedPausable.normalProcess({ from: accounts[1] }));
   });
 
   it('should prevent drastic measure after pause is over', async function () {

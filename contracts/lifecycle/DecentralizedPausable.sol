@@ -20,7 +20,7 @@ contract DecentralizedPausable is Pausable {
    * @dev Modifier to make a function callable only when the contract is not paused.
    */
   modifier whenNotPaused() {
-    if(paused) {
+    if (paused) {
       require(unpausedUsers[pauseStartBlock][msg.sender]);
     }
     _;
@@ -30,7 +30,7 @@ contract DecentralizedPausable is Pausable {
    * @dev Modifier to make a function callable only when the contract is paused.
    */
   modifier whenPaused() {
-    if(paused) {
+    if (paused) {
       require(!unpausedUsers[pauseStartBlock][msg.sender]);
     } else {
       revert();
