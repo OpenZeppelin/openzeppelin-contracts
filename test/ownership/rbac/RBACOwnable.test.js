@@ -1,4 +1,4 @@
-import assertRevert from '../../helpers/assertRevert';
+const { assertRevert } = require('../../helpers/assertRevert');
 
 const RBACOwnable = artifacts.require('RBACOwnable');
 

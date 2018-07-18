@@ -1,7 +1,7 @@
 
 const { assertRevert } = require('../helpers/assertRevert');
 const { getBouncerTicketGenerator } = require('../helpers/sign');
-const makeInterfaceId = require('../helpers/makeInterfaceId');
+const { makeInterfaceId } = require('../helpers/makeInterfaceId');
 
 const Bouncer = artifacts.require('BouncerMock');
 const BouncerDelegateImpl = artifacts.require('BouncerDelegateImpl');
