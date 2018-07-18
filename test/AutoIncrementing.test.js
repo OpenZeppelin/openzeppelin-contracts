@@ -10,7 +10,7 @@ const EXPECTED = [1, 2, 3, 4];
 const KEY1 = hashMessage('key1');
 const KEY2 = hashMessage('key2');
 
-contract.only('AutoIncrementing', function ([_, owner]) {
+contract('AutoIncrementing', function ([_, owner]) {
   beforeEach(async function () {
     this.mock = await AutoIncrementing.new({ from: owner });
   });
