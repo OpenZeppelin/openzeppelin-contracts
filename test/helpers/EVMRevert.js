@@ -1,1 +1,5 @@
-export default 'revert';
+const EVMRevert = 'revert';
+
+module.exports = {
+  EVMRevert,
+};

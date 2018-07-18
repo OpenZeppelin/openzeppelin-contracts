@@ -1,8 +1,8 @@
-import { soliditySha3 } from 'web3-utils';
+const { soliditySha3 } = require('web3-utils');
 
 const INTERFACE_ID_LENGTH = 4;
 
-export default (interfaces = []) => {
+function makeInterfaceId (interfaces = []) {
   const interfaceIdBuffer = interfaces
     .map(methodSignature => soliditySha3(methodSignature)) // keccak256
     .map(h =>
@@ -18,4 +18,8 @@ export default (interfaces = []) => {
     }, Buffer.alloc(INTERFACE_ID_LENGTH));
 
   return `0x${interfaceIdBuffer.toString('hex')}`;
+}
+
+module.exports = {
+  makeInterfaceId,
 };
