@@ -10,6 +10,8 @@ pragma solidity ^0.4.24;
  * Include with `using AutoIncrementing for AutoIncrementing.Counter;`
  * @notice Does not allow an Id of 0, which is popularly used to signify a null state in solidity.
  * Does not protect from overflows, but if you have 2^256 ids, you have other problems.
+ * (But actually, it's generally impossible to increment a counter this many times, energy wise
+ * so it's not something you have to worry about.)
  */
 library AutoIncrementing {
 
