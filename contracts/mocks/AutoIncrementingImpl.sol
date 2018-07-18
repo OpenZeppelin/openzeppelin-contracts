@@ -3,22 +3,19 @@ pragma solidity ^0.4.24;
 import "../AutoIncrementing.sol";
 
 
-contract AutoIncrementingImpl is AutoIncrementing {
+contract AutoIncrementingImpl {
+  using AutoIncrementing for AutoIncrementing.Counter;
+
   uint256 public theId;
 
-  function doThingWithDefault()
-    public
-    returns (uint256)
-  {
-    theId = nextId(DEFAULT_COUNTER);
-    return theId;
-  }
+  // use whatever key you want to track your counters
+  mapping(string => AutoIncrementing.Counter) private counters;
 
-  function doThing(bytes32 _key)
+  function doThing(string _key)
     public
     returns (uint256)
   {
-    theId = nextId(_key);
+    theId = counters[_key].nextId();
     return theId;
   }
 }

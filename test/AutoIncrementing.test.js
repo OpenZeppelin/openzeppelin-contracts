@@ -1,4 +1,4 @@
-import { hashMessage } from './helpers/sign';
+const { hashMessage } = require('./helpers/sign');
 
 const AutoIncrementing = artifacts.require('AutoIncrementingImpl');
 
@@ -7,28 +7,18 @@ require('chai')
   .should();
 
 const EXPECTED = [1, 2, 3, 4];
-const key = hashMessage('custom');
-const key2 = hashMessage('custom2');
+const KEY1 = hashMessage('key1');
+const KEY2 = hashMessage('key2');
 
-contract('AutoIncrementing', function ([_, owner]) {
+contract.only('AutoIncrementing', function ([_, owner]) {
   beforeEach(async function () {
     this.mock = await AutoIncrementing.new({ from: owner });
-  });
-
-  context('default key', async function () {
-    it('should return expected  values', async function () {
-      for (let expectedId of EXPECTED) {
-        await this.mock.doThingWithDefault({ from: owner });
-        const actualId = await this.mock.theId();
-        actualId.should.be.bignumber.eq(expectedId);
-      }
-    });
   });
 
   context('custom key', async function () {
     it('should return expected values', async function () {
       for (let expectedId of EXPECTED) {
-        await this.mock.doThing(key, { from: owner });
+        await this.mock.doThing(KEY1, { from: owner });
         const actualId = await this.mock.theId();
         actualId.should.be.bignumber.eq(expectedId);
       }
@@ -38,11 +28,11 @@ contract('AutoIncrementing', function ([_, owner]) {
   context('parallel keys', async function () {
     it('should return expected values for each counter', async function () {
       for (let expectedId of EXPECTED) {
-        await this.mock.doThing(key, { from: owner });
+        await this.mock.doThing(KEY1, { from: owner });
         let actualId = await this.mock.theId();
         actualId.should.be.bignumber.eq(expectedId);
 
-        await this.mock.doThing(key2, { from: owner });
+        await this.mock.doThing(KEY2, { from: owner });
         actualId = await this.mock.theId();
         actualId.should.be.bignumber.eq(expectedId);
       }
