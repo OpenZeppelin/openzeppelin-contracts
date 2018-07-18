@@ -3,7 +3,7 @@ const { soliditySha3 } = require('web3-utils');
 
 const REAL_SIGNATURE_SIZE = 2 * 65; // 65 bytes in hexadecimal string legnth
 const PADDED_SIGNATURE_SIZE = 2 * 96; // 96 bytes in hexadecimal string length
-const DUMMY_SIGNATURE = `0x${web3.padLeft('', REAL_SIGNATURE_SIZE)}`; // '0x' plus 130 '0's
+const DUMMY_SIGNATURE = `0x${web3.padLeft('', REAL_SIGNATURE_SIZE)}`; // '0x' plus 130 '0's because hex
 
 /**
  * Hash and add same prefix to the hash that ganache uses.
@@ -25,7 +25,6 @@ const signMessage = (signer, message = '') => {
 // @TODO - remove this when we migrate to web3-1.0.0
 const transformToFullName = function (json) {
   if (json.name.indexOf('(') !== -1) {
-    console.log(json);
     return json.name;
   }
 
@@ -40,14 +39,12 @@ const transformToFullName = function (json) {
  *   fetcher because the method on the contract isn't actually the SolidityFunction object ಠ_ಠ
  * @param contract TruffleContract
  * @param signer address
- * @param redeemer address
  * @param methodName string
  * @param methodArgs any[]
  */
-const getBouncerSigner = (contract, signer) => (redeemer, methodName, methodArgs = []) => {
+const getBouncerTicketGenerator = (contract, signer) => (methodName, methodArgs = []) => {
   const parts = [
     contract.address,
-    redeemer,
   ];
 
   // if we have a method, add it to the parts that we're signing
@@ -80,5 +77,5 @@ const getBouncerSigner = (contract, signer) => (redeemer, methodName, methodArgs
 module.exports = {
   hashMessage,
   signMessage,
-  getBouncerSigner,
+  getBouncerTicketGenerator,
 };

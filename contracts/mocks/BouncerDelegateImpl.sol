@@ -26,7 +26,7 @@ contract BouncerDelegateImpl is BouncerDelegate {
     bytes32 _hash,
     bytes _sig
   )
-    external
+    public
     view
     returns (bool)
   {
@@ -34,9 +34,10 @@ contract BouncerDelegateImpl is BouncerDelegate {
   }
 
   function forward()
+    view
     public
   {
-    bouncer.onlyWithValidTicket("");
+    require(bouncer.checkValidTicket(address(this), ""));
   }
 
 }

@@ -2,6 +2,7 @@ pragma solidity ^0.4.24;
 
 import "../introspection/ERC165Checker.sol";
 import "./IBouncerDelegate.sol";
+import "./BouncerUtils.sol";
 import "./BouncerDelegate.sol";
 import "../ownership/rbac/RBACOwnable.sol";
 import "../ECRecovery.sol";
@@ -9,7 +10,7 @@ import "../ECRecovery.sol";
 
 /**
  * @title Bouncer
- * @author PhABC, Shrugs and aflesher
+ * @author PhABC, Shrugs, and aflesher
  * @dev Bouncer allows users to submit a `ticket` from a `delegate` as a permission to do an action.
  * By default a `ticket` is a cryptographic signature
  * generated via Ethereum ECDSA signing (web3.eth.personal_sign).
@@ -40,13 +41,9 @@ import "../ECRecovery.sol";
 contract Bouncer is RBACOwnable, BouncerDelegate {
   using ECRecovery for bytes32;
   using ERC165Checker for address;
+  using BouncerUtils for bytes32;
 
   string public constant ROLE_DELEGATE = "delegate";
-
-  // method ids are 4 bytes long
-  uint constant METHOD_ID_SIZE = 4;
-  // signature size is 65 bytes (tightly packed v + r + s), but gets padded to 96 bytes
-  uint constant SIGNATURE_SIZE = 96;
 
   /**
    * @dev requires that a valid signature of a bouncer was provided
@@ -54,7 +51,7 @@ contract Bouncer is RBACOwnable, BouncerDelegate {
    */
   modifier onlyValidTicket(address _delegate, bytes _sig)
   {
-    require(isValidTicket(_delegate, msg.sender, _sig));
+    require(isValidTicket(_delegate, _sig));
     _;
   }
 
@@ -64,7 +61,7 @@ contract Bouncer is RBACOwnable, BouncerDelegate {
    */
   modifier onlyValidTicketForMethod(address _delegate, bytes _sig)
   {
-    require(isValidTicketAndMethod(_delegate, msg.sender, _sig));
+    require(isValidTicketAndMethod(_delegate, _sig));
     _;
   }
 
@@ -74,7 +71,7 @@ contract Bouncer is RBACOwnable, BouncerDelegate {
    */
   modifier onlyValidTicketForData(address _delegate, bytes _sig)
   {
-    require(isValidTicketAndData(_delegate, msg.sender, _sig));
+    require(isValidTicketAndData(_delegate, _sig));
     _;
   }
 
@@ -108,63 +105,63 @@ contract Bouncer is RBACOwnable, BouncerDelegate {
   }
 
   /**
-   * @dev is the signature of `this + sender` from a bouncer?
+   * @dev is the signature of `delegate + sender` from a bouncer?
    * @return bool
    */
-  function isValidTicket(address _delegate, address _sender, bytes _sig)
+  function isValidTicket(address _delegate, bytes _sig)
     internal
     view
     returns (bool)
   {
     return isDelegatedSignatureValidForHash(
       _delegate,
-      keccak256(abi.encodePacked(_delegate, _sender)),
+      keccak256(abi.encodePacked(_delegate)),
       _sig
     );
   }
 
   /**
-   * @dev is the signature of `this + sender + methodId` from a bouncer?
+   * @dev is the signature of `delegate + sender + methodId` from a bouncer?
    * @return bool
    */
-  function isValidTicketAndMethod(address _delegate, address _sender, bytes _sig)
+  function isValidTicketAndMethod(address _delegate, bytes _sig)
     internal
     view
     returns (bool)
   {
     return isDelegatedSignatureValidForHash(
       _delegate,
-      keccak256(abi.encodePacked(_delegate, _sender, getMethodId())),
+      keccak256(abi.encodePacked(_delegate, BouncerUtils.getMethodId())),
       _sig
     );
   }
 
   /**
-    * @dev is the signature of `this + sender + methodId + params(s)` from a bouncer?
+    * @dev is the signature of `delegate + sender + msg.data` from a bouncer?
     * @notice the _sig parameter of the method being validated must be the "last" parameter
     * @return bool
     */
-  function isValidTicketAndData(address _delegate, address _sender, bytes _sig)
+  function isValidTicketAndData(address _delegate, bytes _sig)
     internal
     view
     returns (bool)
   {
     return isDelegatedSignatureValidForHash(
       _delegate,
-      keccak256(abi.encodePacked(_delegate, _sender, getMessageData())),
+      keccak256(abi.encodePacked(_delegate, BouncerUtils.getMessageData())),
       _sig
     );
   }
 
   /**
    * @dev tests to see if the signature is valid according to the delegate
-   * The delegate address must either be this contract or have the delegate role AND support isValidSignature
+   * The delegate address must have the delegate role AND support isValidSignature
    * This allows someone who wants custom validation logic (perhaps they check another contract's state)
    * to code their own delegate. The users then submit signatures to the Bouncer,
    * which then pings back to the delegate to check if it's cool.
    * This is also useful for contracts-as-identities: your identity contract implements
    * isValidTicket and can then recover the signer and check it against the whitelisted ACTION keys.
-   * @return bool is the ticket valid
+   * @return bool validity of the signature
    */
   function isDelegatedSignatureValidForHash(address _delegate, bytes32 _hash, bytes _sig)
     internal
@@ -172,11 +169,14 @@ contract Bouncer is RBACOwnable, BouncerDelegate {
     returns (bool)
   {
     bool isDelegate = hasRole(_delegate, ROLE_DELEGATE);
-    bool hasInterface = msg.sender.supportsInterface(InterfaceId_BouncerDelegate);
+    bool hasInterface = _delegate.supportsInterface(InterfaceId_BouncerDelegate);
 
     if (isDelegate && hasInterface) {
       return IBouncerDelegate(_delegate).isValidSignature(_hash, _sig);
     }
+
+    // delegate is invalid, so signature is invalid as well
+    return false;
   }
 
   /**
@@ -190,43 +190,7 @@ contract Bouncer is RBACOwnable, BouncerDelegate {
     view
     returns (bool)
   {
-    address signer = _hash
-      .toEthSignedMessageHash()
-      .recover(_sig);
+    address signer = _hash.signerWithSignature(_sig);
     return hasRole(signer, ROLE_DELEGATE);
-  }
-
-  /**
-   * @dev Returns the first METHOD_ID_SIZE bytes of msg.data, which is the method signature
-   */
-  function getMethodId()
-    internal
-    pure
-    returns (bytes)
-  {
-    bytes memory data = new bytes(METHOD_ID_SIZE);
-    for (uint i = 0; i < data.length; i++) {
-      data[i] = msg.data[i];
-    }
-
-    return data;
-  }
-
-  /**
-   * @dev returns msg.data, sans the last SIGNATURE_SIZE bytes
-   */
-  function getMessageData()
-    internal
-    pure
-    returns (bytes)
-  {
-    require(msg.data.length > SIGNATURE_SIZE);
-
-    bytes memory data = new bytes(msg.data.length - SIGNATURE_SIZE);
-    for (uint i = 0; i < data.length; i++) {
-      data[i] = msg.data[i];
-    }
-
-    return data;
   }
 }

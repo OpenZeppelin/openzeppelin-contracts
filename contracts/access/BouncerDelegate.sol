@@ -11,22 +11,9 @@ import "../introspection/SupportsInterfaceWithLookup.sol";
  * As a delegate, you must proxy calls from accounts you consider valid.
  */
 contract BouncerDelegate is IBouncerDelegate, SupportsInterfaceWithLookup {
-
   constructor ()
     public
   {
     _registerInterface(InterfaceId_BouncerDelegate);
   }
-
-  /**
-   * @dev See IBouncerDelegate#isValidSignature for more info
-   * Override this function to supply implementation.
-   */
-  function isValidSignature(
-    bytes32 _hash,
-    bytes _sig
-  )
-    public
-    view
-    returns (bool);
 }

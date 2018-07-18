@@ -4,12 +4,12 @@ import "../access/Bouncer.sol";
 
 
 contract BouncerMock is Bouncer {
-  function checkValidTicket(address _address, bytes _sig)
+  function checkValidTicket(address _delegate, bytes _sig)
     public
     view
     returns (bool)
   {
-    return isValidTicket(address(this), _address, _sig);
+    return isValidTicket(_delegate, _sig);
   }
 
   function onlyWithValidTicket(bytes _sig)
@@ -20,12 +20,12 @@ contract BouncerMock is Bouncer {
 
   }
 
-  function checkValidTicketAndMethod(address _address, bytes _sig)
+  function checkValidTicketAndMethod(address _delegate, bytes _sig)
     public
     view
     returns (bool)
   {
-    return isValidTicketAndMethod(address(this), _address, _sig);
+    return isValidTicketAndMethod(_delegate, _sig);
   }
 
   function onlyWithValidTicketAndMethod(bytes _sig)
@@ -37,7 +37,7 @@ contract BouncerMock is Bouncer {
   }
 
   function checkValidTicketAndData(
-    address _address,
+    address _delegate,
     bytes,
     uint,
     bytes _sig
@@ -46,7 +46,7 @@ contract BouncerMock is Bouncer {
     view
     returns (bool)
   {
-    return isValidTicketAndData(address(this), _address, _sig);
+    return isValidTicketAndData(_delegate, _sig);
   }
 
   function onlyWithValidTicketAndData(uint, bytes _sig)
