@@ -29,7 +29,8 @@ contract CapStagedCrowdsale is Crowdsale, Ownable {
     ERC20 _token
   )
   public
-  Crowdsale(_rate, _wallet, _token) {
+  Crowdsale(_rate, _wallet, _token) 
+  {
   }
 
   /**
