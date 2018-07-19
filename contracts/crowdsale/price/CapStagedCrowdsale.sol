@@ -56,9 +56,6 @@ contract CapStagedCrowdsale is Crowdsale, Ownable {
         }
       }
     }
-    if (isSet == false) {
-      return rate; //return initial rate if any of the stages limit does not match
-    }
   }
   /**
   * @dev Overrides parent method taking into account variable rate.
@@ -69,9 +66,5 @@ contract CapStagedCrowdsale is Crowdsale, Ownable {
     require(stages[(stages.length).sub(1)].stageLimit > weiRaised); //make sure that weiRaised is not bigger than last stage limit
     uint256 currentRate = getRate();
     return currentRate.mul(_weiAmount);
-  }
-
-  function () external payable {
-    super.buyTokens(msg.sender);
   }
 }
