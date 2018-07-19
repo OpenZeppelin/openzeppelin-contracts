@@ -1,5 +1,4 @@
-
-import expectThrow from '../helpers/expectThrow';
+const { expectThrow } = require('../helpers/expectThrow');
 
 const HasNoTokens = artifacts.require('HasNoTokens');
 const ERC223TokenMock = artifacts.require('ERC223TokenMock');

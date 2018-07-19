@@ -1,5 +1,5 @@
-import ether from '../helpers/ether';
-import EVMRevert from '../helpers/EVMRevert';
+const { ether } = require('../helpers/ether');
+const { EVMRevert } = require('../helpers/EVMRevert');
 
 const BigNumber = web3.BigNumber;
 

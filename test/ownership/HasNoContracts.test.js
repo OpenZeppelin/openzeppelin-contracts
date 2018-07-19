@@ -1,5 +1,4 @@
-
-import expectThrow from '../helpers/expectThrow';
+const { expectThrow } = require('../helpers/expectThrow');
 
 const Ownable = artifacts.require('Ownable');
 const HasNoContracts = artifacts.require('HasNoContracts');
