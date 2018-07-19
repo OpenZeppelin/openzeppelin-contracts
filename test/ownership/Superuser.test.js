@@ -1,5 +1,5 @@
-import expectThrow from '../helpers/expectThrow';
-import expectEvent from '../helpers/expectEvent';
+const { expectThrow } = require('../helpers/expectThrow');
+const expectEvent = require('../helpers/expectEvent');
 
 const Superuser = artifacts.require('Superuser');
 
@@ -27,7 +27,7 @@ contract('Superuser', function (accounts) {
 
     it('should change superuser after transferring', async function () {
       await this.superuser.transferSuperuser(newSuperuser, { from: firstOwner });
-      
+
       const ownerIsSuperuser = await this.superuser.isSuperuser(firstOwner);
       ownerIsSuperuser.should.be.equal(false);
 

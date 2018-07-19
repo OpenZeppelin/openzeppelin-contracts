@@ -1,4 +1,4 @@
-export default async promise => {
+async function expectThrow (promise) {
   try {
     await promise;
   } catch (error) {
@@ -18,4 +18,8 @@ export default async promise => {
     return;
   }
   assert.fail('Expected throw not received');
+}
+
+module.exports = {
+  expectThrow,
 };

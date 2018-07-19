@@ -1,4 +1,4 @@
-import EVMRevert from '../helpers/EVMRevert';
+const { EVMRevert } = require('../helpers/EVMRevert');
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
@@ -6,7 +6,7 @@ require('chai')
   .use(require('chai-as-promised'))
   .should();
 
-export default function (accounts) {
+function shouldBehaveLikeOwnable (accounts) {
   describe('as an ownable', function () {
     it('should have an owner', async function () {
       let owner = await this.ownable.owner();
@@ -47,4 +47,8 @@ export default function (accounts) {
       await this.ownable.renounceOwnership({ from: other }).should.be.rejectedWith(EVMRevert);
     });
   });
+}
+
+module.exports = {
+  shouldBehaveLikeOwnable,
 };
