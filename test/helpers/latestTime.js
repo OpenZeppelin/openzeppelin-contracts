@@ -1,7 +1,11 @@
-import { ethGetBlock } from './web3';
+const { ethGetBlock } = require('./web3');
 
 // Returns the time of the last mined block in seconds
-export default async function latestTime () {
+async function latestTime () {
   const block = await ethGetBlock('latest');
   return block.timestamp;
 }
+
+module.exports = {
+  latestTime,
+};

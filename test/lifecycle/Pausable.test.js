@@ -1,5 +1,4 @@
-
-import assertRevert from '../helpers/assertRevert';
+const { assertRevert } = require('../helpers/assertRevert');
 const PausableMock = artifacts.require('PausableMock');
 
 contract('Pausable', function (accounts) {

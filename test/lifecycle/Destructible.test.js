@@ -1,7 +1,5 @@
-import { ethGetBalance } from '../helpers/web3';
-
-const Destructible = artifacts.require('Destructible');
-require('../helpers/transactionMined.js');
+var Destructible = artifacts.require('Destructible');
+const { ethGetBalance } = require('../helpers/web3');
 
 contract('Destructible', function (accounts) {
   it('should send balance to owner after destruction', async function () {

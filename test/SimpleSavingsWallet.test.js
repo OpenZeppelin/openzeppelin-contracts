@@ -1,6 +1,5 @@
-
-import expectThrow from './helpers/expectThrow';
-import { ethGetBalance, ethSendTransaction } from './helpers/web3';
+const { expectThrow } = require('./helpers/expectThrow');
+const { ethGetBalance, ethSendTransaction } = require('./helpers/web3');
 
 const SimpleSavingsWallet = artifacts.require('SimpleSavingsWallet');
 

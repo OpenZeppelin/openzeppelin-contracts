@@ -1,4 +1,4 @@
-import assertJump from '../helpers/assertJump';
+const { assertJump } = require('../helpers/assertJump');
 const BigNumber = web3.BigNumber;
 const SafeMathMock = artifacts.require('SafeMathMock');
 

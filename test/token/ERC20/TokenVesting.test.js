@@ -1,7 +1,7 @@
-import EVMRevert from '../../helpers/EVMRevert';
-import latestTime from '../../helpers/latestTime';
-import { increaseTimeTo, duration } from '../../helpers/increaseTime';
-import { ethGetBlock } from '../../helpers/web3';
+const { EVMRevert } = require('../../helpers/EVMRevert');
+const { latestTime } = require('../../helpers/latestTime');
+const { increaseTimeTo, duration } = require('../../helpers/increaseTime');
+const { ethGetBlock } = require('../../helpers/web3');
 
 const BigNumber = web3.BigNumber;
 

@@ -1,9 +1,9 @@
-import ether from '../helpers/ether';
-import { advanceBlock } from '../helpers/advanceToBlock';
-import { increaseTimeTo, duration } from '../helpers/increaseTime';
-import latestTime from '../helpers/latestTime';
-import EVMRevert from '../helpers/EVMRevert';
-import { ethGetBalance } from '../helpers/web3';
+const { ether } = require('../helpers/ether');
+const { advanceBlock } = require('../helpers/advanceToBlock');
+const { increaseTimeTo, duration } = require('../helpers/increaseTime');
+const { latestTime } = require('../helpers/latestTime');
+const { EVMRevert } = require('../helpers/EVMRevert');
+const { ethGetBalance } = require('../helpers/web3');
 
 const BigNumber = web3.BigNumber;
 

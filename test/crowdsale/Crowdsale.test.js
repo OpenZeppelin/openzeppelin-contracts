@@ -1,5 +1,5 @@
-import ether from '../helpers/ether';
-import { ethGetBalance } from '../helpers/web3';
+const { ether } = require('../helpers/ether');
+const { ethGetBalance } = require('../helpers/web3');
 
 const BigNumber = web3.BigNumber;
 

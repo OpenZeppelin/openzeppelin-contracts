@@ -1,4 +1,4 @@
-import EVMRevert from '../../helpers/EVMRevert';
+const { EVMRevert } = require('../../helpers/EVMRevert');
 
 require('chai')
   .use(require('chai-as-promised'))

@@ -1,6 +1,5 @@
-
-// from https://gist.github.com/xavierlepretre/88682e871f4ad07be4534ae560692ee6
-module.export = web3.eth.transactionMined = function (txnHash, interval) {
+// From https://gist.github.com/xavierlepretre/88682e871f4ad07be4534ae560692ee6
+function transactionMined (txnHash, interval) {
   var transactionReceiptAsync;
   interval = interval || 500;
   transactionReceiptAsync = function (txnHash, resolve, reject) {
@@ -30,4 +29,10 @@ module.export = web3.eth.transactionMined = function (txnHash, interval) {
       transactionReceiptAsync(txnHash, resolve, reject);
     });
   }
+}
+
+web3.eth.transactionMined = transactionMined;
+
+module.exports = {
+  transactionMined,
 };

@@ -1,5 +1,5 @@
-import assertRevert from './helpers/assertRevert';
-import { ethGetBalance } from './helpers/web3';
+const { assertRevert } = require('./helpers/assertRevert');
+const { ethGetBalance } = require('./helpers/web3');
 
 var LimitBalanceMock = artifacts.require('LimitBalanceMock');
 

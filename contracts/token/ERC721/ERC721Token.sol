@@ -13,22 +13,6 @@ import "../../introspection/SupportsInterfaceWithLookup.sol";
  */
 contract ERC721Token is SupportsInterfaceWithLookup, ERC721BasicToken, ERC721 {
 
-  bytes4 private constant InterfaceId_ERC721Enumerable = 0x780e9d63;
-  /**
-   * 0x780e9d63 ===
-   *   bytes4(keccak256('totalSupply()')) ^
-   *   bytes4(keccak256('tokenOfOwnerByIndex(address,uint256)')) ^
-   *   bytes4(keccak256('tokenByIndex(uint256)'))
-   */
-
-  bytes4 private constant InterfaceId_ERC721Metadata = 0x5b5e139f;
-  /**
-   * 0x5b5e139f ===
-   *   bytes4(keccak256('name()')) ^
-   *   bytes4(keccak256('symbol()')) ^
-   *   bytes4(keccak256('tokenURI(uint256)'))
-   */
-
   // Token name
   string internal name_;
 

@@ -1,4 +1,4 @@
-import makeInterfaceId from '../helpers/makeInterfaceId';
+const { makeInterfaceId } = require('../helpers/makeInterfaceId');
 
 const INTERFACE_IDS = {
   ERC165: makeInterfaceId([
@@ -30,7 +30,7 @@ const INTERFACE_IDS = {
   ]),
 };
 
-export default function (interfaces = []) {
+function shouldSupportInterfaces (interfaces = []) {
   describe('ERC165\'s supportsInterface(bytes4)', function () {
     beforeEach(function () {
       this.thing = this.mock || this.token;
@@ -52,3 +52,7 @@ export default function (interfaces = []) {
     }
   });
 }
+
+module.exports = {
+  shouldSupportInterfaces,
+};

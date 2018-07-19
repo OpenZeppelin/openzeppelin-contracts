@@ -1,4 +1,3 @@
-
 var Contactable = artifacts.require('Contactable');
 
 contract('Contactable', function (accounts) {
