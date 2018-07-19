@@ -1,4 +1,4 @@
-import ether from '../helpers/ether';
+const ether = artifacts.require ('../helpers/ether');
 const CapStagedCrowdsale = artifacts.require('CapStagedCrowdsale');
 const BigNumber = web3.BigNumber;
 const CapStagedCrowdsaleToken = artifacts.require('CapStagedCrowdsaleToken');
