@@ -1,4 +1,4 @@
-pragma solidity ^ 0.4.23;
+pragma solidity ^ 0.4.24;
 
 import "../Crowdsale.sol";
 import "../../math/SafeMath.sol";
@@ -18,7 +18,19 @@ contract CapStagedCrowdsale is Crowdsale, Ownable {
     uint256 stageRate;
   }
 
+
+
   Stage[] public stages;
+
+  function CapStagedCrowdsale
+  (
+      uint256 _rate,
+      address _wallet,
+      ERC20 _token
+  )
+  public
+  Crowdsale(_rate, _wallet, _token) {
+  }
 
   /**
   * @dev Function for adding stages. Stages must be inserted from first to last
@@ -57,5 +69,8 @@ contract CapStagedCrowdsale is Crowdsale, Ownable {
     uint256 currentRate = getRate();
     return currentRate.mul(_weiAmount);
   }
-}
 
+function () external payable {
+    super.buyTokens(msg.sender);
+  }
+}
