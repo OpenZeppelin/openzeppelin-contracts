@@ -3,6 +3,7 @@ pragma solidity ^0.4.24;
 import "./ERC20.sol";
 import "./SafeERC20.sol";
 
+
 /**
  * @title MigratableERC20
  * @dev This strategy carries out an optional migration of the token balances. This migration is performed and paid for

@@ -1,10 +1,10 @@
-import assertRevert from '../../helpers/assertRevert';
-import shouldBehaveLikeStandardToken from './behaviors/StandardToken.behavior';
+const { assertRevert } = require('../../helpers/assertRevert');
+const { shouldBehaveLikeStandardToken } = require('./behaviors/StandardToken.behavior');
 
-const StandardTokenMock = artifacts.require('StandardTokenMock');
+const StandardTokenMock = artifacts.require('ERC20Mock');
 const MigratedERC20Mock = artifacts.require('MigratedERC20Mock');
 
-contract.only('OptInERC20Migration', function ([_, owner, recipient, anotherAccount]) {
+contract('MigratableERC20', function ([_, owner, recipient, anotherAccount]) {
   const BURN_ADDRESS = '0x000000000000000000000000000000000000dead';
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
@@ -38,6 +38,9 @@ contract.only('OptInERC20Migration', function ([_, owner, recipient, anotherAcco
       it('burns a given amount of old tokens', async function () {
         const currentBurnedBalance = await this.legacyToken.balanceOf(BURN_ADDRESS);
         assert(currentBurnedBalance.eq(this.balanceToBeMigrated));
+
+        const currentLegacyTokenBalance = await this.legacyToken.balanceOf(owner);
+        assert(currentLegacyTokenBalance.eq(0));
 
         const event = this.receipt.logs[1];
         assert.equal(event.args.from, owner);
@@ -89,6 +92,9 @@ contract.only('OptInERC20Migration', function ([_, owner, recipient, anotherAcco
         const currentBurnedBalance = await this.legacyToken.balanceOf(BURN_ADDRESS);
         assert(currentBurnedBalance.eq(amount));
 
+        const currentLegacyTokenBalance = await this.legacyToken.balanceOf(owner);
+        assert(currentLegacyTokenBalance.eq(150));
+
         const event = this.receipt.logs[1];
         assert.equal(event.args.from, owner);
         assert.equal(event.args.to, BURN_ADDRESS);
@@ -136,6 +142,9 @@ contract.only('OptInERC20Migration', function ([_, owner, recipient, anotherAcco
       it('burns a given amount of old tokens', async function () {
         const currentBurnedBalance = await this.legacyToken.balanceOf(BURN_ADDRESS);
         assert(currentBurnedBalance.eq(amount));
+
+        const currentLegacyTokenBalance = await this.legacyToken.balanceOf(owner);
+        assert(currentLegacyTokenBalance.eq(150));
 
         const event = this.receipt.logs[1];
         assert.equal(event.args.from, owner);

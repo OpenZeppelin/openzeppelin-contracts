@@ -1,4 +1,4 @@
-const shouldBehaveLikeStandardToken = require('./behaviors/StandardToken.behavior');
+const { shouldBehaveLikeStandardToken } = require('./behaviors/StandardToken.behavior');
 
 const ERC20 = artifacts.require('ERC20Mock');
 

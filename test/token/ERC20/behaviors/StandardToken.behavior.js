@@ -1,5 +1,5 @@
 const { assertRevert } = require('../../../helpers/assertRevert');
-const expectEvent = require('../../helpers/expectEvent');
+const expectEvent = require('../../../helpers/expectEvent');
 
 const BigNumber = web3.BigNumber;
 
@@ -7,7 +7,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-export default function shouldBehaveLikeStandardToken ([owner, recipient, anotherAccount]) {
+function shouldBehaveLikeStandardToken ([owner, recipient, anotherAccount]) {
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
   describe('total supply', function () {
@@ -596,3 +596,7 @@ export default function shouldBehaveLikeStandardToken ([owner, recipient, anothe
     });
   });
 }
+
+module.exports = {
+  shouldBehaveLikeStandardToken
+};
