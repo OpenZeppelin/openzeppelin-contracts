@@ -28,8 +28,8 @@ contract CapStagedCrowdsale is Crowdsale, Ownable {
     address _wallet,
     ERC20 _token
   )
-  public
   Crowdsale(_rate, _wallet, _token) 
+  public
   {
   }
 
