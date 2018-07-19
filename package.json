@@ -7,7 +7,7 @@
     "test"
   ],
   "scripts": {
-    "test": "scripts/test.sh",
+    "test": "NODE_ENV=test jest",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "lint:sol": "solium -d .",
