@@ -2,10 +2,7 @@ import ether from '../helpers/ether';
 const CapStagedCrowdsale = artifacts.require('CapStagedCrowdsale');
 const BigNumber = web3.BigNumber;
 const CapStagedCrowdsaleToken = artifacts.require('CapStagedCrowdsaleToken');
-require('chai')
-  .use(require('chai-as-promised'))
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('chai').use(require('chai-as-promised')).use(require('chai-bignumber')(BigNumber)).should();
 
 contract('CapStagedCrowdsale', accounts => {
   const _wallet = accounts[0];
@@ -18,7 +15,6 @@ contract('CapStagedCrowdsale', accounts => {
   const stage3Rate = new BigNumber(2000);
   const creator = accounts[0];
   const investor = accounts[1];
-  const value = ether(1);
 
   it('should create contract', async function () {
     this._token = await CapStagedCrowdsaleToken.new({ from: creator });
@@ -38,30 +34,30 @@ contract('CapStagedCrowdsale', accounts => {
   });
 
  it('should accept payments in stage 1 (rate 4000)', async function () {
-   await this._csale.buyTokens(investor, {from: investor, value: ether(10)}).should.be.fulfilled;
-   const rt = await this._csale.getRate();
-   assert.equal(rt, 4000);
-   const wi = await this._csale.weiRaised();
-   console.log(rt);
-   console.log(wi);
+    await this._csale.buyTokens(investor, {from: investor, value: ether(10)}).should.be.fulfilled;
+    const rt = await this._csale.getRate();
+    assert.equal(rt, 4000);
+    const wi = await this._csale.weiRaised();
+    console.log(rt);
+    console.log(wi);
  });
 
  it('should accept payments in stage 2 (rate 3000)', async function () {
-   await this._csale.buyTokens(investor, {from: investor, value: ether(10)}).should.be.fulfilled;
-   const rt = await this._csale.getRate();
-   assert.equal(rt, 3000);
-   const wi = await this._csale.weiRaised();
-   console.log(rt);
-   console.log(wi);
-   });
+    await this._csale.buyTokens(investor, {from: investor, value: ether(10)}).should.be.fulfilled;
+    const rt = await this._csale.getRate();
+    assert.equal(rt, 3000);
+    const wi = await this._csale.weiRaised();
+    console.log(rt);
+    console.log(wi);
+  });
 
-   it('should accept payments in stage 3 (rate 2000)', async function () {
-     await this._csale.buyTokens(investor, {from: investor, value: ether(10)}).should.be.fulfilled;
-     const rt = await this._csale.getRate();
-     assert.equal(rt, 2000);
-     const wi = await this._csale.weiRaised();
-     console.log(rt);
-     console.log(wi);
+  it('should accept payments in stage 3 (rate 2000)', async function () {
+    await this._csale.buyTokens(investor, {from: investor, value: ether(10)}).should.be.fulfilled;
+    const rt = await this._csale.getRate();
+    assert.equal(rt, 2000);
+    const wi = await this._csale.weiRaised();
+    console.log(rt);
+    console.log(wi);
   });
    
   it('should reject payments in stage 3 (rate 2000)', async function () {
