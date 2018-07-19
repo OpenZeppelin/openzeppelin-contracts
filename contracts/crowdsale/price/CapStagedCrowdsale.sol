@@ -22,7 +22,7 @@ contract CapStagedCrowdsale is Crowdsale, Ownable {
 
   Stage[] public stages;
 
-  function CapStagedCrowdsale
+  constructor
   (
     uint256 _rate,
     address _wallet,
