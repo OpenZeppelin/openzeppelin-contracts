@@ -24,9 +24,9 @@ contract CapStagedCrowdsale is Crowdsale, Ownable {
 
   function CapStagedCrowdsale
   (
-      uint256 _rate,
-      address _wallet,
-      ERC20 _token
+    uint256 _rate,
+    address _wallet,
+    ERC20 _token
   )
   public
   Crowdsale(_rate, _wallet, _token) {
@@ -70,7 +70,7 @@ contract CapStagedCrowdsale is Crowdsale, Ownable {
     return currentRate.mul(_weiAmount);
   }
 
-function () external payable {
+  function () external payable {
     super.buyTokens(msg.sender);
   }
 }
