@@ -11,7 +11,7 @@ contract('ECRecovery', function (accounts) {
   let ecrecovery;
   const TEST_MESSAGE = 'OpenZeppelin';
 
-  before(async function () {
+  beforeEach(async function () {
     ecrecovery = await ECRecoveryMock.new();
   });
 

@@ -5,16 +5,18 @@ var StandardTokenMock = artifacts.require('StandardTokenMock');
 
 contract('TokenDestructible', function (accounts) {
   let destructible;
+  let owner;
 
   beforeEach(async function () {
     destructible = await TokenDestructible.new({
       from: accounts[0],
       value: web3.toWei('10', 'ether'),
     });
+
+    owner = await destructible.owner();
   });
 
   it('should send balance to owner after destruction', async function () {
-    let owner = await destructible.owner();
     let initBalance = await ethGetBalance(owner);
     await destructible.destroy([], { from: owner });
     let newBalance = await ethGetBalance(owner);
@@ -22,7 +24,6 @@ contract('TokenDestructible', function (accounts) {
   });
 
   it('should send tokens to owner after destruction', async function () {
-    let owner = await destructible.owner();
     let token = await StandardTokenMock.new(destructible.address, 100);
     let initContractBalance = await token.balanceOf(destructible.address);
     let initOwnerBalance = await token.balanceOf(owner);
