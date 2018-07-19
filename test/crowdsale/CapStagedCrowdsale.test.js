@@ -33,17 +33,17 @@ contract('CapStagedCrowdsale', accounts => {
     assert.equal(rt, 1000);
   });
 
- it('should accept payments in stage 1 (rate 4000)', async function () {
-    await this._csale.buyTokens(investor, {from: investor, value: ether(10)}).should.be.fulfilled;
+  it('should accept payments in stage 1 (rate 4000)', async function () {
+    await this._csale.buyTokens(investor, { from: investor, value: ether(10) }).should.be.fulfilled;
     const rt = await this._csale.getRate();
     assert.equal(rt, 4000);
     const wi = await this._csale.weiRaised();
     console.log(rt);
     console.log(wi);
- });
+  });
 
- it('should accept payments in stage 2 (rate 3000)', async function () {
-    await this._csale.buyTokens(investor, {from: investor, value: ether(10)}).should.be.fulfilled;
+  it('should accept payments in stage 2 (rate 3000)', async function () {
+    await this._csale.buyTokens(investor, { from: investor, value: ether(10) }).should.be.fulfilled;
     const rt = await this._csale.getRate();
     assert.equal(rt, 3000);
     const wi = await this._csale.weiRaised();
@@ -52,7 +52,7 @@ contract('CapStagedCrowdsale', accounts => {
   });
 
   it('should accept payments in stage 3 (rate 2000)', async function () {
-    await this._csale.buyTokens(investor, {from: investor, value: ether(10)}).should.be.fulfilled;
+    await this._csale.buyTokens(investor, { from: investor, value: ether(10) }).should.be.fulfilled;
     const rt = await this._csale.getRate();
     assert.equal(rt, 2000);
     const wi = await this._csale.weiRaised();
@@ -65,6 +65,6 @@ contract('CapStagedCrowdsale', accounts => {
     const wi = await this._csale.weiRaised();
     console.log(rt);
     console.log(wi);
-    await this._csale.buyTokens(investor, {from: investor, value: ether(10)}).should.be.rejected;
+    await this._csale.buyTokens(investor, { from: investor, value: ether(10) }).should.be.rejected;
   });
 });
