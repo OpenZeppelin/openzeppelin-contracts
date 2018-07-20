@@ -1,6 +1,5 @@
-
-import MerkleTree from '../helpers/merkleTree.js';
-import { sha3, bufferToHex } from 'ethereumjs-util';
+const { MerkleTree } = require('../helpers/merkleTree.js');
+const { sha3, bufferToHex } = require('ethereumjs-util');
 
 var MerkleProofWrapper = artifacts.require('MerkleProofWrapper');
 

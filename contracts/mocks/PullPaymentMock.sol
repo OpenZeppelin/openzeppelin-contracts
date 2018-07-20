@@ -9,9 +9,9 @@ contract PullPaymentMock is PullPayment {
 
   constructor() public payable { }
 
-  // test helper function to call asyncSend
-  function callSend(address dest, uint256 amount) public {
-    asyncSend(dest, amount);
+  // test helper function to call asyncTransfer
+  function callTransfer(address dest, uint256 amount) public {
+    asyncTransfer(dest, amount);
   }
 
 }
