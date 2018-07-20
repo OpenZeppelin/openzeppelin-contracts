@@ -1,4 +1,4 @@
-import shouldBehaveLikeMintableToken from './MintableToken.behaviour';
+const { shouldBehaveLikeMintableToken } = require('./MintableToken.behaviour');
 const MintableToken = artifacts.require('MintableToken');
 
 contract('MintableToken', function ([owner, anotherAccount]) {

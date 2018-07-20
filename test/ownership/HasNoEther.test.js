@@ -1,5 +1,5 @@
-import { ethSendTransaction, ethGetBalance } from '../helpers/web3';
-import expectThrow from '../helpers/expectThrow';
+const { expectThrow } = require('../helpers/expectThrow');
+const { ethSendTransaction, ethGetBalance } = require('../helpers/web3');
 
 const HasNoEtherTest = artifacts.require('HasNoEtherTest');
 const ForceEther = artifacts.require('ForceEther');
