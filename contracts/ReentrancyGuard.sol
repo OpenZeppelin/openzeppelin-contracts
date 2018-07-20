@@ -2,7 +2,7 @@ pragma solidity ^0.4.24;
 
 
 /**
- * @title Helps contracts guard agains reentrancy attacks.
+ * @title Helps contracts guard against reentrancy attacks.
  * @author Remco Bloemen <remco@2π.com>
  * @notice If you mark a function `nonReentrant`, you should also
  * mark it `external`.
