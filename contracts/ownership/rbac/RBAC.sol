@@ -29,8 +29,8 @@ contract RBAC {
    * // reverts
    */
   function checkRole(address _operator, string _role)
-    view
     public
+    view
   {
     roles[_role].check(_operator);
   }
@@ -42,8 +42,8 @@ contract RBAC {
    * @return bool
    */
   function hasRole(address _operator, string _role)
-    view
     public
+    view
     returns (bool)
   {
     return roles[_role].has(_operator);
