@@ -96,7 +96,7 @@ contract('ERC721Token', function (accounts) {
         count.toNumber().should.be.equal(1);
       });
 
-      it('doesnt adjust supply', async function () {
+      it('does not adjust supply', async function () {
         const total = await this.token.totalSupply();
         total.toNumber().should.be.equal(2);
       });
