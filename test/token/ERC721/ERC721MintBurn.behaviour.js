@@ -1,4 +1,4 @@
-import assertRevert from '../../helpers/assertRevert';
+const { assertRevert } = require('../../helpers/assertRevert');
 const BigNumber = web3.BigNumber;
 
 require('chai')
@@ -6,7 +6,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-export default function shouldMintAndBurnERC721Token (accounts) {
+function shouldBehaveLikeMintAndBurnERC721Token (accounts) {
   const firstTokenId = 1;
   const secondTokenId = 2;
   const unknownTokenId = 3;
@@ -23,7 +23,7 @@ export default function shouldMintAndBurnERC721Token (accounts) {
       const to = accounts[1];
       const tokenId = unknownTokenId;
       let logs = null;
-      
+
       describe('when successful', function () {
         beforeEach(async function () {
           const result = await this.token.mint(to, tokenId);
@@ -108,4 +108,8 @@ export default function shouldMintAndBurnERC721Token (accounts) {
       });
     });
   });
+}
+
+module.exports = {
+  shouldBehaveLikeMintAndBurnERC721Token,
 };

@@ -1,6 +1,6 @@
-import expectEvent from '../helpers/expectEvent';
-import EVMRevert from '../helpers/EVMRevert';
-import { ethGetBalance } from '../helpers/web3';
+const expectEvent = require('../helpers/expectEvent');
+const { EVMRevert } = require('../helpers/EVMRevert');
+const { ethGetBalance } = require('../helpers/web3');
 
 const BigNumber = web3.BigNumber;
 
@@ -8,7 +8,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-export default function (owner, [payee1, payee2]) {
+function shouldBehaveLikeEscrow (owner, [payee1, payee2]) {
   const amount = web3.toWei(42.0, 'ether');
 
   describe('as an escrow', function () {
@@ -96,4 +96,8 @@ export default function (owner, [payee1, payee2]) {
       });
     });
   });
+}
+
+module.exports = {
+  shouldBehaveLikeEscrow,
 };

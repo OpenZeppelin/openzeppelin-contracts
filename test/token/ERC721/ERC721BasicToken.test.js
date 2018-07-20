@@ -1,5 +1,5 @@
-import shouldBehaveLikeERC721BasicToken from './ERC721BasicToken.behaviour';
-import shouldMintAndBurnERC721Token from './ERC721MintBurn.behaviour';
+const { shouldBehaveLikeERC721BasicToken } = require('./ERC721BasicToken.behaviour');
+const { shouldBehaveLikeMintAndBurnERC721Token } = require('./ERC721MintBurn.behaviour');
 
 const BigNumber = web3.BigNumber;
 const ERC721BasicToken = artifacts.require('ERC721BasicTokenMock.sol');
@@ -15,5 +15,5 @@ contract('ERC721BasicToken', function (accounts) {
   });
 
   shouldBehaveLikeERC721BasicToken(accounts);
-  shouldMintAndBurnERC721Token(accounts);
+  shouldBehaveLikeMintAndBurnERC721Token(accounts);
 });

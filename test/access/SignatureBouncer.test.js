@@ -1,6 +1,5 @@
-
-import assertRevert from '../helpers/assertRevert';
-import { signHex } from '../helpers/sign';
+const { assertRevert } = require('../helpers/assertRevert');
+const { signHex } = require('../helpers/sign');
 
 const Bouncer = artifacts.require('SignatureBouncerMock');
 
@@ -8,19 +7,19 @@ require('chai')
   .use(require('chai-as-promised'))
   .should();
 
-export const getSigner = (contract, signer, data = '') => (addr) => {
+const getSigner = (contract, signer, data = '') => (addr) => {
   // via: https://github.com/OpenZeppelin/zeppelin-solidity/pull/812/files
   const message = contract.address.substr(2) + addr.substr(2) + data;
   // ^ substr to remove `0x` because in solidity the address is a set of byes, not a string `0xabcd`
   return signHex(signer, message);
 };
 
-export const getMethodId = (methodName, ...paramTypes) => {
+const getMethodId = (methodName, ...paramTypes) => {
   // methodId is a sha3 of the first 4 bytes after 0x of 'method(paramType1,...)'
   return web3.sha3(`${methodName}(${paramTypes.join(',')})`).substr(2, 8);
 };
 
-export const stripAndPadHexValue = (hexVal, sizeInBytes, start = true) => {
+const stripAndPadHexValue = (hexVal, sizeInBytes, start = true) => {
   // strip 0x from the font and pad with 0's for
   const strippedHexVal = hexVal.substr(2);
   return start ? strippedHexVal.padStart(sizeInBytes * 2, 0) : strippedHexVal.padEnd(sizeInBytes * 2, 0);
