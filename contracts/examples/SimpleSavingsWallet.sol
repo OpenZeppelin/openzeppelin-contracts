@@ -24,7 +24,7 @@ contract SimpleSavingsWallet is Heritable {
   /**
    * @dev wallet can receive funds.
    */
-  function () public payable {
+  function () external payable {
     emit Received(msg.sender, msg.value, address(this).balance);
   }
 
