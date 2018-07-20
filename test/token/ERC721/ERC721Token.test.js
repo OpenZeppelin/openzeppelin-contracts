@@ -1,8 +1,8 @@
-import assertRevert from '../../helpers/assertRevert';
-import shouldBehaveLikeERC721BasicToken from './ERC721BasicToken.behaviour';
-import shouldMintAndBurnERC721Token from './ERC721MintBurn.behaviour';
-import shouldSupportInterfaces from '../../introspection/SupportsInterface.behavior';
-import _ from 'lodash';
+const { assertRevert } = require('../../helpers/assertRevert');
+const { shouldBehaveLikeERC721BasicToken } = require('./ERC721BasicToken.behaviour');
+const { shouldBehaveLikeMintAndBurnERC721Token } = require('./ERC721MintBurn.behaviour');
+const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
+const _ = require('lodash');
 
 const BigNumber = web3.BigNumber;
 const ERC721Token = artifacts.require('ERC721TokenMock.sol');
@@ -24,7 +24,7 @@ contract('ERC721Token', function (accounts) {
   });
 
   shouldBehaveLikeERC721BasicToken(accounts);
-  shouldMintAndBurnERC721Token(accounts);
+  shouldBehaveLikeMintAndBurnERC721Token(accounts);
 
   describe('like a full ERC721', function () {
     beforeEach(async function () {
