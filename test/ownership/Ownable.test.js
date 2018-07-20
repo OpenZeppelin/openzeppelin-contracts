@@ -1,4 +1,4 @@
-import shouldBehaveLikeOwnable from './Ownable.behaviour';
+const { shouldBehaveLikeOwnable } = require('./Ownable.behaviour');
 
 const Ownable = artifacts.require('Ownable');
 

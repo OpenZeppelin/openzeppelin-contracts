@@ -1,6 +1,6 @@
-import expectThrow from '../../helpers/expectThrow';
+const { expectThrow } = require('../../helpers/expectThrow');
 
-export default function ([owner, anotherAccount, minter, cap]) {
+function shouldBehaveLikeCappedToken ([owner, anotherAccount, minter, cap]) {
   describe('capped token', function () {
     const from = minter;
 
@@ -26,3 +26,7 @@ export default function ([owner, anotherAccount, minter, cap]) {
     });
   });
 }
+
+module.exports = {
+  shouldBehaveLikeCappedToken,
+};

@@ -1,6 +1,6 @@
-import EVMRevert from '../helpers/EVMRevert';
-import expectEvent from '../helpers/expectEvent';
-import { ethGetBalance } from '../helpers/web3';
+const { EVMRevert } = require('../helpers/EVMRevert');
+const expectEvent = require('../helpers/expectEvent');
+const { ethGetBalance } = require('../helpers/web3');
 
 const BigNumber = web3.BigNumber;
 
