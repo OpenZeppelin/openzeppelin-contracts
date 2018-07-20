@@ -1,7 +1,6 @@
-
-import ether from '../helpers/ether';
-import assertRevert from '../helpers/assertRevert';
-import { ethGetBalance } from '../helpers/web3';
+const { ether } = require('../helpers/ether');
+const { assertRevert } = require('../helpers/assertRevert');
+const { ethGetBalance } = require('../helpers/web3');
 
 const BigNumber = web3.BigNumber;
 

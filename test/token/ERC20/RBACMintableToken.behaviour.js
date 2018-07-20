@@ -1,8 +1,8 @@
-import expectThrow from '../../helpers/expectThrow';
+const { expectThrow } = require('../../helpers/expectThrow');
 
 const ROLE_MINTER = 'minter';
 
-export default function ([owner, anotherAccount]) {
+function shouldBehaveLikeRBACMintableToken ([owner, anotherAccount]) {
   describe('handle roles', function () {
     it('owner can add and remove a minter role', async function () {
       await this.token.addMinter(anotherAccount, { from: owner });
@@ -25,4 +25,8 @@ export default function ([owner, anotherAccount]) {
       );
     });
   });
+}
+
+module.exports = {
+  shouldBehaveLikeRBACMintableToken,
 };

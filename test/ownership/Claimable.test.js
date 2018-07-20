@@ -1,5 +1,4 @@
-
-import assertRevert from '../helpers/assertRevert';
+const { assertRevert } = require('../helpers/assertRevert');
 
 var Claimable = artifacts.require('Claimable');
 
