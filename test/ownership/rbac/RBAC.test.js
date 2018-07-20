@@ -19,7 +19,7 @@ contract('RBAC', function (accounts) {
     ...advisors
   ] = accounts;
 
-  before(async () => {
+  beforeEach(async () => {
     mock = await RBACMock.new(advisors, { from: admin });
   });
 

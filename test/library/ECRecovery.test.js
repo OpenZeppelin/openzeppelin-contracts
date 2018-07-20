@@ -11,7 +11,7 @@ contract('ECRecovery', function (accounts) {
   let ecrecovery;
   const TEST_MESSAGE = 'OpenZeppelin';
 
-  before(async function () {
+  beforeEach(async function () {
     ecrecovery = await ECRecoveryMock.new();
   });
 
@@ -37,7 +37,7 @@ contract('ECRecovery', function (accounts) {
 
   it('recover using web3.eth.sign()', async function () {
     // Create the signature using account[0]
-    const signature = signMessage(accounts[0], TEST_MESSAGE);
+    const signature = signMessage(accounts[0], web3.sha3(TEST_MESSAGE));
 
     // Recover the signer address from the generated message and signature.
     const addrRecovered = await ecrecovery.recover(
@@ -49,7 +49,7 @@ contract('ECRecovery', function (accounts) {
 
   it('recover using web3.eth.sign() should return wrong signer', async function () {
     // Create the signature using account[0]
-    const signature = signMessage(accounts[0], TEST_MESSAGE);
+    const signature = signMessage(accounts[0], web3.sha3(TEST_MESSAGE));
 
     // Recover the signer address from the generated message and wrong signature.
     const addrRecovered = await ecrecovery.recover(hashMessage('Nope'), signature);
