@@ -1,7 +1,7 @@
-import ether from '../helpers/ether';
-import { advanceBlock } from '../helpers/advanceToBlock';
-import { increaseTimeTo, duration } from '../helpers/increaseTime';
-import latestTime from '../helpers/latestTime';
+const { ether } = require('../helpers/ether');
+const { advanceBlock } = require('../helpers/advanceToBlock');
+const { increaseTimeTo, duration } = require('../helpers/increaseTime');
+const { latestTime } = require('../helpers/latestTime');
 
 const BigNumber = web3.BigNumber;
 
@@ -30,7 +30,7 @@ contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser])
 
     beforeEach(async function () {
       await advanceBlock();
-      this.startTime = latestTime() + duration.weeks(1);
+      this.startTime = (await latestTime()) + duration.weeks(1);
       this.closingTime = this.startTime + duration.weeks(1);
       this.afterClosingTime = this.closingTime + duration.seconds(1);
       this.token = await SimpleToken.new();

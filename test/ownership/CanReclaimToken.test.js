@@ -1,5 +1,4 @@
-
-import expectThrow from '../helpers/expectThrow';
+const { expectThrow } = require('../helpers/expectThrow');
 
 const CanReclaimToken = artifacts.require('CanReclaimToken');
 const BasicTokenMock = artifacts.require('BasicTokenMock');

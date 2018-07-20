@@ -1,5 +1,5 @@
-import expectThrow from '../helpers/expectThrow';
-import expectEvent from '../helpers/expectEvent';
+const { expectThrow } = require('../helpers/expectThrow');
+const expectEvent = require('../helpers/expectEvent');
 
 const WhitelistMock = artifacts.require('WhitelistMock');
 
