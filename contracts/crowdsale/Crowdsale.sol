@@ -110,7 +110,10 @@ contract Crowdsale {
   // -----------------------------------------
 
   /**
-   * @dev Validation of an incoming purchase. Use require statements to revert state when conditions are not met. Use super to concatenate validations.
+   * @dev Validation of an incoming purchase. Use require statements to revert state when conditions are not met. Use `super` in contracts that inherit from Crowdsale to extend their validations.
+   * Example from CappedCrowdsale.sol's _preValidatePurchase method: 
+   *   super._preValidatePurchase(_beneficiary, _weiAmount);
+   *   require(weiRaised.add(_weiAmount) <= cap);
    * @param _beneficiary Address performing the token purchase
    * @param _weiAmount Value in wei involved in the purchase
    */
