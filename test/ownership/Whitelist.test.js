@@ -17,7 +17,7 @@ contract('Whitelist', function (accounts) {
 
   const whitelistedAddresses = [whitelistedAddress1, whitelistedAddress2];
 
-  before(async function () {
+  beforeEach(async function () {
     this.mock = await WhitelistMock.new();
     this.role = await this.mock.ROLE_WHITELISTED();
   });

@@ -3,7 +3,7 @@ var MathMock = artifacts.require('MathMock');
 contract('Math', function (accounts) {
   let math;
 
-  before(async function () {
+  beforeEach(async function () {
     math = await MathMock.new();
   });
 

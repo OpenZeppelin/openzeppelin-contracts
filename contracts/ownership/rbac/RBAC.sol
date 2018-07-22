@@ -11,8 +11,6 @@ import "./Roles.sol";
  * See //contracts/mocks/RBACMock.sol for an example of usage.
  * This RBAC method uses strings to key roles. It may be beneficial
  * for you to write your own implementation of this interface using Enums or similar.
- * It's also recommended that you define constants in the contract, like ROLE_ADMIN below,
- * to avoid typos.
  */
 contract RBAC {
   using Roles for Roles.Role;
