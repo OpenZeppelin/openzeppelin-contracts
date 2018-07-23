@@ -4,7 +4,11 @@ const { ethGetBalance } = require('../helpers/web3');
 contract('Destructible', function (accounts) {
   beforeEach(async function () {
     this.destructible = await DestructibleMock.new({ from: accounts[0] });
-    await web3.eth.sendTransaction({ from: accounts[0], to: this.destructible.address, value: web3.toWei('10', "ether") });
+    await web3.eth.sendTransaction({
+      from: accounts[0],
+      to: this.destructible.address,
+      value: web3.toWei('10', 'ether'),
+    });
 
     this.owner = await this.destructible.owner();
   });
