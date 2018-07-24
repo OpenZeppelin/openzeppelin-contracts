@@ -15,7 +15,6 @@ contract.only('RecoverableToken', function ([creator, owner, recipient, anotherA
 
   describe('Recover token', function () {
     it('transfer token from contract to owner', async function () {
-
       const amount = 10;
       const ownerStartBalance = await this.token.balanceOf(owner);
       await this.token.transfer(this.otherToken.address, amount, {
