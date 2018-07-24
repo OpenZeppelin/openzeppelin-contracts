@@ -17,7 +17,7 @@ contract RecoverableToken is StandardToken, Ownable {
    */
   function recoverToken(address _token) public onlyOwner returns (bool) {
 
-    require(isContract(_token));
+    require(AddressUtils.isContract(_token));
     ERC20 token = ERC20(_token);
     uint256 balance = token.balanceOf(address(this));
     token.transfer(owner, balance);
