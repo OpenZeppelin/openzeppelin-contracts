@@ -12,9 +12,9 @@ import "../token/ERC20/SafeERC20.sol";
  * such functionality in its most fundamental form and can be extended to provide additional
  * functionality and/or custom behavior.
  * The external interface represents the basic interface for purchasing tokens, and conform
- * the base architecture for crowdsales. They are *not* intended to be modified / overriden.
+ * the base architecture for crowdsales. They are *not* intended to be modified / overridden.
  * The internal interface conforms the extensible and modifiable surface of crowdsales. Override
- * the methods to add functionality. Consider using 'super' where appropiate to concatenate
+ * the methods to add functionality. Consider using 'super' where appropriate to concatenate
  * behavior.
  */
 contract Crowdsale {
@@ -110,7 +110,10 @@ contract Crowdsale {
   // -----------------------------------------
 
   /**
-   * @dev Validation of an incoming purchase. Use require statements to revert state when conditions are not met. Use super to concatenate validations.
+   * @dev Validation of an incoming purchase. Use require statements to revert state when conditions are not met. Use `super` in contracts that inherit from Crowdsale to extend their validations.
+   * Example from CappedCrowdsale.sol's _preValidatePurchase method: 
+   *   super._preValidatePurchase(_beneficiary, _weiAmount);
+   *   require(weiRaised.add(_weiAmount) <= cap);
    * @param _beneficiary Address performing the token purchase
    * @param _weiAmount Value in wei involved in the purchase
    */

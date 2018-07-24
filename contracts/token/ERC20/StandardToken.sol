@@ -30,9 +30,9 @@ contract StandardToken is ERC20, BasicToken {
     public
     returns (bool)
   {
-    require(_to != address(0));
     require(_value <= balances[_from]);
     require(_value <= allowed[_from][msg.sender]);
+    require(_to != address(0));
 
     balances[_from] = balances[_from].sub(_value);
     balances[_to] = balances[_to].add(_value);
@@ -112,7 +112,7 @@ contract StandardToken is ERC20, BasicToken {
     returns (bool)
   {
     uint256 oldValue = allowed[msg.sender][_spender];
-    if (_subtractedValue > oldValue) {
+    if (_subtractedValue >= oldValue) {
       allowed[msg.sender][_spender] = 0;
     } else {
       allowed[msg.sender][_spender] = oldValue.sub(_subtractedValue);

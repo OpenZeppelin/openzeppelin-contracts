@@ -8,7 +8,7 @@ require('chai')
   .should();
 
 contract('SupportsInterfaceWithLookup', function (accounts) {
-  before(async function () {
+  beforeEach(async function () {
     this.mock = await SupportsInterfaceWithLookup.new();
   });
 

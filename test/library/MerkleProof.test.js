@@ -6,7 +6,7 @@ var MerkleProofWrapper = artifacts.require('MerkleProofWrapper');
 contract('MerkleProof', function (accounts) {
   let merkleProof;
 
-  before(async function () {
+  beforeEach(async function () {
     merkleProof = await MerkleProofWrapper.new();
   });
 

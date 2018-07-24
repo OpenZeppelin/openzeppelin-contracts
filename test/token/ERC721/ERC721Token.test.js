@@ -77,6 +77,31 @@ contract('ERC721Token', function (accounts) {
       });
     });
 
+    describe('removeTokenFrom', function () {
+      beforeEach(async function () {
+        await this.token._removeTokenFrom(creator, firstTokenId, { from: creator });
+      });
+
+      it('has been removed', async function () {
+        await assertRevert(this.token.tokenOfOwnerByIndex(creator, 1));
+      });
+
+      it('adjusts token list', async function () {
+        const token = await this.token.tokenOfOwnerByIndex(creator, 0);
+        token.toNumber().should.be.equal(secondTokenId);
+      });
+
+      it('adjusts owner count', async function () {
+        const count = await this.token.balanceOf(creator);
+        count.toNumber().should.be.equal(1);
+      });
+
+      it('does not adjust supply', async function () {
+        const total = await this.token.totalSupply();
+        total.toNumber().should.be.equal(2);
+      });
+    });
+
     describe('metadata', function () {
       const sampleUri = 'mock://mytoken';
 

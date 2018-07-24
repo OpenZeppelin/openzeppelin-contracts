@@ -7,7 +7,7 @@ const ForceEther = artifacts.require('ForceEther');
 contract('HasNoEther', function (accounts) {
   const amount = web3.toWei('1', 'ether');
 
-  it('should be constructorable', async function () {
+  it('should be constructible', async function () {
     await HasNoEtherTest.new();
   });
 
