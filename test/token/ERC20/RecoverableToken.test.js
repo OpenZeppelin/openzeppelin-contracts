@@ -7,7 +7,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract.only('RecoverableToken', function ([creator, owner, recipient, anotherAccount]) {
+contract('RecoverableToken', function ([creator, owner, recipient, anotherAccount]) {
   beforeEach(async function () {
     this.token = await StandardTokenMock.new(owner, 100);
     this.otherToken = await RecoverableTokenMock.new(anotherAccount, 100);
