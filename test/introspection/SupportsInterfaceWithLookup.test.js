@@ -4,7 +4,6 @@ const { assertRevert } = require('../helpers/assertRevert');
 const SupportsInterfaceWithLookup = artifacts.require('SupportsInterfaceWithLookupMock');
 
 require('chai')
-  .use(require('chai-as-promised'))
   .should();
 
 contract('SupportsInterfaceWithLookup', function (accounts) {

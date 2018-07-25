@@ -1,9 +1,9 @@
+const { expectThrow } = require('../helpers/expectThrow');
 const { EVMRevert } = require('../helpers/EVMRevert');
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 require('chai')
-  .use(require('chai-as-promised'))
   .should();
 
 function shouldBehaveLikeOwnable (accounts) {
@@ -25,12 +25,12 @@ function shouldBehaveLikeOwnable (accounts) {
       const other = accounts[2];
       const owner = await this.ownable.owner.call();
       owner.should.not.eq(other);
-      await this.ownable.transferOwnership(other, { from: other }).should.be.rejectedWith(EVMRevert);
+      await expectThrow(this.ownable.transferOwnership(other, { from: other }), EVMRevert);
     });
 
     it('should guard ownership against stuck state', async function () {
       let originalOwner = await this.ownable.owner();
-      await this.ownable.transferOwnership(null, { from: originalOwner }).should.be.rejectedWith(EVMRevert);
+      await expectThrow(this.ownable.transferOwnership(null, { from: originalOwner }), EVMRevert);
     });
 
     it('loses owner after renouncement', async function () {
@@ -44,7 +44,7 @@ function shouldBehaveLikeOwnable (accounts) {
       const other = accounts[2];
       const owner = await this.ownable.owner.call();
       owner.should.not.eq(other);
-      await this.ownable.renounceOwnership({ from: other }).should.be.rejectedWith(EVMRevert);
+      await expectThrow(this.ownable.renounceOwnership({ from: other }), EVMRevert);
     });
   });
 }
