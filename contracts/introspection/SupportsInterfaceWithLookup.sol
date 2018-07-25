@@ -9,6 +9,8 @@ import "./ERC165.sol";
  * @dev Implements ERC165 using a lookup table.
  */
 contract SupportsInterfaceWithLookup is ERC165 {
+
+  // solium-disable-next-line uppercase
   bytes4 public constant InterfaceId_ERC165 = 0x01ffc9a7;
   /**
    * 0x01ffc9a7 ===
