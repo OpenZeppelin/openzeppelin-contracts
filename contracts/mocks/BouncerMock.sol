@@ -1,43 +1,43 @@
 pragma solidity ^0.4.24;
 
-import "../access/SignatureBouncer.sol";
+import "../access/Bouncer.sol";
 
 
-contract SignatureBouncerMock is SignatureBouncer {
-  function checkValidSignature(address _address, bytes _sig)
+contract BouncerMock is Bouncer {
+  function checkValidTicket(address _delegate, bytes _sig)
     public
     view
     returns (bool)
   {
-    return isValidSignature(_address, _sig);
+    return isValidTicket(_delegate, _sig);
   }
 
-  function onlyWithValidSignature(bytes _sig)
-    onlyValidSignature(_sig)
+  function onlyWithValidTicket(bytes _sig)
+    onlyValidTicket(address(this), _sig)
     public
     view
   {
 
   }
 
-  function checkValidSignatureAndMethod(address _address, bytes _sig)
+  function checkValidTicketAndMethod(address _delegate, bytes _sig)
     public
     view
     returns (bool)
   {
-    return isValidSignatureAndMethod(_address, _sig);
+    return isValidTicketAndMethod(_delegate, _sig);
   }
 
-  function onlyWithValidSignatureAndMethod(bytes _sig)
-    onlyValidSignatureAndMethod(_sig)
+  function onlyWithValidTicketAndMethod(bytes _sig)
+    onlyValidTicketForMethod(address(this), _sig)
     public
     view
   {
 
   }
 
-  function checkValidSignatureAndData(
-    address _address,
+  function checkValidTicketAndData(
+    address _delegate,
     bytes,
     uint,
     bytes _sig
@@ -46,11 +46,11 @@ contract SignatureBouncerMock is SignatureBouncer {
     view
     returns (bool)
   {
-    return isValidSignatureAndData(_address, _sig);
+    return isValidTicketAndData(_delegate, _sig);
   }
 
-  function onlyWithValidSignatureAndData(uint, bytes _sig)
-    onlyValidSignatureAndData(_sig)
+  function onlyWithValidTicketAndData(uint, bytes _sig)
+    onlyValidTicketForData(address(this), _sig)
     public
     view
   {

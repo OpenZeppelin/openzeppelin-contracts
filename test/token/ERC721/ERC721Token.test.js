@@ -5,7 +5,7 @@ const { shouldSupportInterfaces } = require('../../introspection/SupportsInterfa
 const _ = require('lodash');
 
 const BigNumber = web3.BigNumber;
-const ERC721Token = artifacts.require('ERC721TokenMock.sol');
+const ERC721Token = artifacts.require('ERC721TokenMock');
 
 require('chai')
   .use(require('chai-as-promised'))

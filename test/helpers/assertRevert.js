@@ -1,7 +1,7 @@
 async function assertRevert (promise) {
   try {
     await promise;
-    assert.fail('Expected revert not received');
+    throw new Error('Transaction succeeded when it shouldn\'t have');
   } catch (error) {
     const revertFound = error.message.search('revert') >= 0;
     assert(revertFound, `Expected "revert", got ${error} instead`);
