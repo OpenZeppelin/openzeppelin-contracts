@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "../ownership/Ownable.sol";
-import "../ownership/rbac/RBAC.sol";
+import "../access/rbac/RBAC.sol";
 import "../ECRecovery.sol";
 
 

@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../ownership/rbac/RBAC.sol";
+import "../access/rbac/RBAC.sol";
 
 
 /**

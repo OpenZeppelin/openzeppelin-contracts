@@ -1,9 +1,15 @@
-var Destructible = artifacts.require('Destructible');
+const DestructibleMock = artifacts.require('DestructibleMock');
 const { ethGetBalance } = require('../helpers/web3');
 
 contract('Destructible', function (accounts) {
   beforeEach(async function () {
-    this.destructible = await Destructible.new({ from: accounts[0], value: web3.toWei('10', 'ether') });
+    this.destructible = await DestructibleMock.new({ from: accounts[0] });
+    await web3.eth.sendTransaction({
+      from: accounts[0],
+      to: this.destructible.address,
+      value: web3.toWei('10', 'ether'),
+    });
+
     this.owner = await this.destructible.owner();
   });
 
