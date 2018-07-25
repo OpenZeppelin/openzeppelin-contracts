@@ -1,5 +1,8 @@
 pragma solidity ^0.4.24;
 
+import "./signatures/ISignatureDelegate.sol";
+import "./introspection/ERC165Checker.sol";
+
 
 /**
  * @title Elliptic curve signature operations
@@ -7,8 +10,11 @@ pragma solidity ^0.4.24;
  * TODO Remove this library once solidity supports passing a signature to ecrecover.
  * See https://github.com/ethereum/solidity/issues/864
  */
-
 library ECRecovery {
+  using ERC165Checker for address;
+
+  // @TODO - de-dup this constant once we can share constants in solidity without a hack
+  bytes4 internal constant InterfaceId_SignatureDelegate = 0x1626ba7e;
 
   /**
    * @dev Recover signer address from a message by using their signature
@@ -68,5 +74,19 @@ library ECRecovery {
     return keccak256(
       abi.encodePacked("\x19Ethereum Signed Message:\n32", _hash)
     );
+  }
+
+  function isSignedBy(bytes32 _hash, address _delegate, bytes _sig)
+    internal
+    view
+    returns (bool)
+  {
+    // if the delegate address supports SignatureDelegation, delegate
+    if (_delegate.supportsInterface(InterfaceId_SignatureDelegate)) {
+      return ISignatureDelegate(_delegate).isValidSignature(_hash, _sig);
+    }
+
+    // otherwise make sure the hash was personally signed by the EOA account
+    return _delegate == recover(toEthSignedMessageHash(_hash), _sig);
   }
 }

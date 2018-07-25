@@ -16,15 +16,9 @@ contract SignatureDelegateImpl is SignatureDelegate {
     bouncer = _bouncer;
   }
 
-  /**
-   * @dev verifies that a signature of a hash is valid
-   * @param _hash message hash that is signed
-   * @param _sig the provided signature
-   * @return bool validity of signature for the hash
-   */
   function isValidSignature(
-    bytes32 _hash,
-    bytes _sig
+    bytes32,
+    bytes
   )
     public
     view

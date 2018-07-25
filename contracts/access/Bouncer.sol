@@ -1,8 +1,9 @@
 pragma solidity ^0.4.24;
 
+import "../ownership/rbac/RBACOwnable.sol";
 import "../ECRecovery.sol";
 import "./BouncerUtils.sol";
-import "../signatures/SignatureChecker.sol";
+import "../signatures/SignatureDelegate.sol";
 
 
 /**
@@ -35,9 +36,11 @@ import "../signatures/SignatureChecker.sol";
  * signature in it so the last 96 bytes of msg.data (which represents the _sig data itself)
  * is ignored when constructing the data hash that is validated.
  */
-contract Bouncer is SignatureChecker {
+contract Bouncer is RBACOwnable, SignatureDelegate {
   using ECRecovery for bytes32;
   using BouncerUtils for bytes32;
+
+  string public constant ROLE_DELEGATE = "delegate";
 
   /**
    * @dev requires that a valid signature of a bouncer was provided
@@ -69,6 +72,36 @@ contract Bouncer is SignatureChecker {
     _;
   }
 
+
+  constructor()
+    public
+  {
+    // this contract implements ISignatureDelegate for all of its EOA delegate accounts.
+    addRole(address(this), ROLE_DELEGATE);
+  }
+
+  /**
+   * @dev allows the owner to add additional signer addresses
+   */
+  function addDelegate(address _delegate)
+    onlyOwners
+    public
+  {
+    require(_delegate != address(0));
+    addRole(_delegate, ROLE_DELEGATE);
+  }
+
+  /**
+   * @dev allows the owner to remove signer addresses
+   */
+  function removeDelegate(address _delegate)
+    onlyOwners
+    public
+  {
+    require(_delegate != address(0));
+    removeRole(_delegate, ROLE_DELEGATE);
+  }
+
   /**
    * @dev is the signature of `delegate + sender` from a bouncer?
    * @return bool
@@ -78,7 +111,7 @@ contract Bouncer is SignatureChecker {
     view
     returns (bool)
   {
-    return isDelegatedSignatureValidForHash(
+    return isSignatureValidForHash(
       _delegate,
       keccak256(abi.encodePacked(_delegate)),
       _sig
@@ -94,7 +127,7 @@ contract Bouncer is SignatureChecker {
     view
     returns (bool)
   {
-    return isDelegatedSignatureValidForHash(
+    return isSignatureValidForHash(
       _delegate,
       keccak256(abi.encodePacked(_delegate, BouncerUtils.getMethodId())),
       _sig
@@ -111,10 +144,33 @@ contract Bouncer is SignatureChecker {
     view
     returns (bool)
   {
-    return isDelegatedSignatureValidForHash(
+    return isSignatureValidForHash(
       _delegate,
       keccak256(abi.encodePacked(_delegate, BouncerUtils.getMessageData())),
       _sig
+    );
+  }
+
+  function isSignatureValidForHash(address _delegate, bytes32 _hash, bytes _sig)
+    internal
+    view
+    returns (bool)
+  {
+    bool isDelegate = hasRole(_delegate, ROLE_DELEGATE);
+    return isDelegate && _hash.isSignedBy(_delegate, _sig);
+  }
+
+  function isValidSignature(
+    bytes32 _hash,
+    bytes _sig
+  )
+    public
+    view
+    returns (bool)
+  {
+    return hasRole(
+      _hash.toEthSignedMessageHash().recover(_sig),
+      ROLE_DELEGATE
     );
   }
 }
