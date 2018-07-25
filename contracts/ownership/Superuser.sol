@@ -2,14 +2,14 @@ pragma solidity ^0.4.24;
 
 
 import "./Ownable.sol";
-import "./rbac/RBAC.sol";
+import "../access/rbac/RBAC.sol";
 
 
 /**
  * @title Superuser
- * @dev The Superuser contract defines a single superuser who can transfer the ownership 
- * of a contract to a new address, even if he is not the owner. 
- * A superuser can transfer his role to a new address. 
+ * @dev The Superuser contract defines a single superuser who can transfer the ownership
+ * of a contract to a new address, even if he is not the owner.
+ * A superuser can transfer his role to a new address.
  */
 contract Superuser is Ownable, RBAC {
   string public constant ROLE_SUPERUSER = "superuser";
