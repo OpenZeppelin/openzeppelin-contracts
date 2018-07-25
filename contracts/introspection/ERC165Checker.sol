@@ -59,19 +59,19 @@ library ERC165Checker {
 
     // solium-disable-next-line security/no-inline-assembly
     assembly {
-      let x := mload(0x40)               // Find empty storage location using "free memory pointer"
-      mstore(x, erc165ID)                // Place signature at begining of empty storage to call supportsInterface()
-      mstore(add(x, 0x04), _interfaceId) // Place first argument directly next to signature
+      let x := mload(0x40)                // Find empty storage location using "free memory pointer"
+      mstore(x, erc165ID)                 // Place signature at begining of empty storage to call supportsInterface()
+      mstore(add(x, 0x04), _interfaceId)  // Place first argument directly next to signature
 
       success := staticcall(
-                          30000,         // 30k gas
-                          _address,      // To addr
-                          x,             // Inputs are stored at location x
-                          0x20,          // Inputs are 32 bytes long
-                          x,             // Store output over input (saves space)
-                          0x20)          // Outputs are 32 bytes long
-
-      result := mload(x)                 // Load the result
+        30000,         // 30k gas
+        _address,      // To addr
+        x,             // Inputs are stored at location x
+        0x20,          // Inputs are 32 bytes long
+        x,             // Store output over input (saves space)
+        0x20           // Outputs are 32 bytes long
+      )
+      result := mload(x)  // Load the result
     }
   }
 }
