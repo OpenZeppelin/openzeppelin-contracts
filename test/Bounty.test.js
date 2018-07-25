@@ -19,9 +19,9 @@ function awaitEvent (event, handler) {
 
 contract('Bounty', function (accounts) {
   it('sets reward', async function () {
-    let owner = accounts[0];
-    let reward = web3.toWei(1, 'ether');
-    let bounty = await SecureTargetBounty.new();
+    const owner = accounts[0];
+    const reward = web3.toWei(1, 'ether');
+    const bounty = await SecureTargetBounty.new();
     await sendReward(owner, bounty.address, reward);
 
     const balance = await ethGetBalance(bounty.address);
@@ -29,9 +29,9 @@ contract('Bounty', function (accounts) {
   });
 
   it('empties itself when destroyed', async function () {
-    let owner = accounts[0];
-    let reward = web3.toWei(1, 'ether');
-    let bounty = await SecureTargetBounty.new();
+    const owner = accounts[0];
+    const reward = web3.toWei(1, 'ether');
+    const bounty = await SecureTargetBounty.new();
     await sendReward(owner, bounty.address, reward);
 
     const balance = await ethGetBalance(bounty.address);
@@ -44,13 +44,13 @@ contract('Bounty', function (accounts) {
 
   describe('Against secure contract', function () {
     it('cannot claim reward', async function () {
-      let owner = accounts[0];
-      let researcher = accounts[1];
-      let reward = web3.toWei(1, 'ether');
-      let bounty = await SecureTargetBounty.new();
-      let event = bounty.TargetCreated({});
+      const owner = accounts[0];
+      const researcher = accounts[1];
+      const reward = web3.toWei(1, 'ether');
+      const bounty = await SecureTargetBounty.new();
+      const event = bounty.TargetCreated({});
 
-      let watcher = async function (err, result) {
+      const watcher = async function (err, result) {
         event.stopWatching();
         if (err) { throw err; }
 
@@ -64,7 +64,7 @@ contract('Bounty', function (accounts) {
           await bounty.claim(targetAddress, { from: researcher });
           assert.isTrue(false); // should never reach here
         } catch (error) {
-          let reClaimedBounty = await bounty.claimed.call();
+          const reClaimedBounty = await bounty.claimed.call();
           assert.isFalse(reClaimedBounty);
         }
         try {
@@ -82,23 +82,23 @@ contract('Bounty', function (accounts) {
 
   describe('Against broken contract', function () {
     it('claims reward', async function () {
-      let owner = accounts[0];
-      let researcher = accounts[1];
-      let reward = web3.toWei(1, 'ether');
-      let bounty = await InsecureTargetBounty.new();
-      let event = bounty.TargetCreated({});
+      const owner = accounts[0];
+      const researcher = accounts[1];
+      const reward = web3.toWei(1, 'ether');
+      const bounty = await InsecureTargetBounty.new();
+      const event = bounty.TargetCreated({});
 
-      let watcher = async function (err, result) {
+      const watcher = async function (err, result) {
         event.stopWatching();
         if (err) { throw err; }
-        let targetAddress = result.args.createdAddress;
+        const targetAddress = result.args.createdAddress;
         await sendReward(owner, bounty.address, reward);
 
         const balance = await ethGetBalance(bounty.address);
         assert.equal(reward, balance.toNumber());
 
         await bounty.claim(targetAddress, { from: researcher });
-        let claim = await bounty.claimed.call();
+        const claim = await bounty.claimed.call();
 
         assert.isTrue(claim);
 

@@ -7,21 +7,21 @@ contract('Pausable', function (accounts) {
   });
 
   it('can perform normal process in non-pause', async function () {
-    let count0 = await this.Pausable.count();
+    const count0 = await this.Pausable.count();
     assert.equal(count0, 0);
 
     await this.Pausable.normalProcess();
-    let count1 = await this.Pausable.count();
+    const count1 = await this.Pausable.count();
     assert.equal(count1, 1);
   });
 
   it('can not perform normal process in pause', async function () {
     await this.Pausable.pause();
-    let count0 = await this.Pausable.count();
+    const count0 = await this.Pausable.count();
     assert.equal(count0, 0);
 
     await assertRevert(this.Pausable.normalProcess());
-    let count1 = await this.Pausable.count();
+    const count1 = await this.Pausable.count();
     assert.equal(count1, 0);
   });
 
@@ -34,7 +34,7 @@ contract('Pausable', function (accounts) {
   it('can take a drastic measure in a pause', async function () {
     await this.Pausable.pause();
     await this.Pausable.drasticMeasure();
-    let drasticMeasureTaken = await this.Pausable.drasticMeasureTaken();
+    const drasticMeasureTaken = await this.Pausable.drasticMeasureTaken();
 
     assert.isTrue(drasticMeasureTaken);
   });
@@ -43,7 +43,7 @@ contract('Pausable', function (accounts) {
     await this.Pausable.pause();
     await this.Pausable.unpause();
     await this.Pausable.normalProcess();
-    let count0 = await this.Pausable.count();
+    const count0 = await this.Pausable.count();
 
     assert.equal(count0, 1);
   });

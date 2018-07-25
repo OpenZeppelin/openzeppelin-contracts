@@ -14,16 +14,16 @@ contract('Destructible', function (accounts) {
   });
 
   it('should send balance to owner after destruction', async function () {
-    let initBalance = await ethGetBalance(this.owner);
+    const initBalance = await ethGetBalance(this.owner);
     await this.destructible.destroy({ from: this.owner });
-    let newBalance = await ethGetBalance(this.owner);
+    const newBalance = await ethGetBalance(this.owner);
     assert.isTrue(newBalance > initBalance);
   });
 
   it('should send balance to recepient after destruction', async function () {
-    let initBalance = await ethGetBalance(accounts[1]);
+    const initBalance = await ethGetBalance(accounts[1]);
     await this.destructible.destroyAndSend(accounts[1], { from: this.owner });
-    let newBalance = await ethGetBalance(accounts[1]);
+    const newBalance = await ethGetBalance(accounts[1]);
     assert.isTrue(newBalance.greaterThan(initBalance));
   });
 });
