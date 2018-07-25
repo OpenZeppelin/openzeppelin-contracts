@@ -1,4 +1,4 @@
-var Contactable = artifacts.require('Contactable');
+const Contactable = artifacts.require('Contactable');
 
 contract('Contactable', function (accounts) {
   let contactable;

@@ -1,7 +1,7 @@
 const { ethGetBalance } = require('../helpers/web3');
 
-var TokenDestructible = artifacts.require('TokenDestructible');
-var StandardTokenMock = artifacts.require('StandardTokenMock');
+const TokenDestructible = artifacts.require('TokenDestructible');
+const StandardTokenMock = artifacts.require('StandardTokenMock');
 
 contract('TokenDestructible', function (accounts) {
   let destructible;

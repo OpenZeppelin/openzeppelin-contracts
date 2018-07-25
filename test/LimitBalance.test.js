@@ -1,7 +1,7 @@
 const { assertRevert } = require('./helpers/assertRevert');
 const { ethGetBalance } = require('./helpers/web3');
 
-var LimitBalanceMock = artifacts.require('LimitBalanceMock');
+const LimitBalanceMock = artifacts.require('LimitBalanceMock');
 
 contract('LimitBalance', function (accounts) {
   let lb;

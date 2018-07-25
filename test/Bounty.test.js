@@ -1,7 +1,7 @@
 const { ethGetBalance, ethSendTransaction } = require('./helpers/web3');
 
-var SecureTargetBounty = artifacts.require('SecureTargetBounty');
-var InsecureTargetBounty = artifacts.require('InsecureTargetBounty');
+const SecureTargetBounty = artifacts.require('SecureTargetBounty');
+const InsecureTargetBounty = artifacts.require('InsecureTargetBounty');
 
 const sendReward = async (from, to, value) => ethSendTransaction({
   from, to, value,
@@ -54,7 +54,7 @@ contract('Bounty', function (accounts) {
         event.stopWatching();
         if (err) { throw err; }
 
-        var targetAddress = result.args.createdAddress;
+        const targetAddress = result.args.createdAddress;
         await sendReward(owner, bounty.address, reward);
 
         const balance = await ethGetBalance(bounty.address);

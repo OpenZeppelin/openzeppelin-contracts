@@ -42,6 +42,7 @@
     "no-dupe-keys": 2,
     "no-debugger": 0,
     "no-undef": 2,
+    "no-var": 2,
     "object-curly-spacing": [2, "always"],
     "max-len": [2, 120, 2],
     "generator-star-spacing": ["error", "before"],
