@@ -1,11 +1,8 @@
 pragma solidity ^0.4.24;
 
-import "../introspection/ERC165Checker.sol";
-import "./IBouncerDelegate.sol";
-import "./BouncerUtils.sol";
-import "./BouncerDelegate.sol";
-import "../ownership/rbac/RBACOwnable.sol";
 import "../ECRecovery.sol";
+import "./BouncerUtils.sol";
+import "../signatures/SignatureChecker.sol";
 
 
 /**
@@ -38,12 +35,9 @@ import "../ECRecovery.sol";
  * signature in it so the last 96 bytes of msg.data (which represents the _sig data itself)
  * is ignored when constructing the data hash that is validated.
  */
-contract Bouncer is RBACOwnable, BouncerDelegate {
+contract Bouncer is SignatureChecker {
   using ECRecovery for bytes32;
-  using ERC165Checker for address;
   using BouncerUtils for bytes32;
-
-  string public constant ROLE_DELEGATE = "delegate";
 
   /**
    * @dev requires that a valid signature of a bouncer was provided
@@ -73,35 +67,6 @@ contract Bouncer is RBACOwnable, BouncerDelegate {
   {
     require(isValidTicketAndData(_delegate, _sig));
     _;
-  }
-
-  constructor()
-    public
-  {
-    // this contract implements IBouncerDelegate for all of its EOA delegate accounts.
-    addRole(address(this), ROLE_DELEGATE);
-  }
-
-  /**
-   * @dev allows the owner to add additional signer addresses
-   */
-  function addDelegate(address _delegate)
-    onlyOwners
-    public
-  {
-    require(_delegate != address(0));
-    addRole(_delegate, ROLE_DELEGATE);
-  }
-
-  /**
-   * @dev allows the owner to remove signer addresses
-   */
-  function removeDelegate(address _delegate)
-    onlyOwners
-    public
-  {
-    require(_delegate != address(0));
-    removeRole(_delegate, ROLE_DELEGATE);
   }
 
   /**
@@ -151,46 +116,5 @@ contract Bouncer is RBACOwnable, BouncerDelegate {
       keccak256(abi.encodePacked(_delegate, BouncerUtils.getMessageData())),
       _sig
     );
-  }
-
-  /**
-   * @dev tests to see if the signature is valid according to the delegate
-   * The delegate address must have the delegate role AND support isValidSignature
-   * This allows someone who wants custom validation logic (perhaps they check another contract's state)
-   * to code their own delegate. The users then submit signatures to the Bouncer,
-   * which then pings back to the delegate to check if it's cool.
-   * This is also useful for contracts-as-identities: your identity contract implements
-   * isValidTicket and can then recover the signer and check it against the whitelisted ACTION keys.
-   * @return bool validity of the signature
-   */
-  function isDelegatedSignatureValidForHash(address _delegate, bytes32 _hash, bytes _sig)
-    internal
-    view
-    returns (bool)
-  {
-    bool isDelegate = hasRole(_delegate, ROLE_DELEGATE);
-    bool hasInterface = _delegate.supportsInterface(InterfaceId_BouncerDelegate);
-
-    if (isDelegate && hasInterface) {
-      return IBouncerDelegate(_delegate).isValidSignature(_hash, _sig);
-    }
-
-    // delegate is invalid, so signature is invalid as well
-    return false;
-  }
-
-  /**
-   * @dev implement `isValidSignature` of IBouncerDelegate for EOA accounts that have the delegate role
-   */
-  function isValidSignature(
-    bytes32 _hash,
-    bytes _sig
-  )
-    public
-    view
-    returns (bool)
-  {
-    address signer = _hash.signerWithSignature(_sig);
-    return hasRole(signer, ROLE_DELEGATE);
   }
 }

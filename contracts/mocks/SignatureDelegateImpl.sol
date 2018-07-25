@@ -1,10 +1,10 @@
 pragma solidity 0.4.24;
 
-import "../access/BouncerDelegate.sol";
+import "../signatures/SignatureDelegate.sol";
 import "./BouncerMock.sol";
 
 
-contract BouncerDelegateImpl is BouncerDelegate {
+contract SignatureDelegateImpl is SignatureDelegate {
 
   bool public shouldPass = false;
   BouncerMock public bouncer;

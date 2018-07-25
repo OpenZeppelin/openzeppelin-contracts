@@ -4,7 +4,7 @@ const { getBouncerTicketGenerator } = require('../helpers/sign');
 const { makeInterfaceId } = require('../helpers/makeInterfaceId');
 
 const Bouncer = artifacts.require('BouncerMock');
-const BouncerDelegateImpl = artifacts.require('BouncerDelegateImpl');
+const SignatureDelegateImpl = artifacts.require('SignatureDelegateImpl');
 
 require('chai')
   .use(require('chai-as-promised'))
@@ -190,7 +190,7 @@ contract('Bouncer', ([_, owner, anyone, delegate, newDelegate]) => {
   context('contract delegate', () => {
     context('not a delegate', () => {
       beforeEach(async function () {
-        this.delegateContract = await BouncerDelegateImpl.new(true, this.bouncer.address, { from: owner });
+        this.delegateContract = await SignatureDelegateImpl.new(true, this.bouncer.address, { from: owner });
       });
 
       it('should fail', async function () {
@@ -202,7 +202,7 @@ contract('Bouncer', ([_, owner, anyone, delegate, newDelegate]) => {
 
     context('invalid delegate', () => {
       beforeEach(async function () {
-        this.delegateContract = await BouncerDelegateImpl.new(false, this.bouncer.address, { from: owner });
+        this.delegateContract = await SignatureDelegateImpl.new(false, this.bouncer.address, { from: owner });
         await this.bouncer.addDelegate(this.delegateContract.address, { from: owner });
       });
 
@@ -215,7 +215,7 @@ contract('Bouncer', ([_, owner, anyone, delegate, newDelegate]) => {
 
     context('valid delegate', () => {
       beforeEach(async function () {
-        this.delegateContract = await BouncerDelegateImpl.new(true, this.bouncer.address, { from: owner });
+        this.delegateContract = await SignatureDelegateImpl.new(true, this.bouncer.address, { from: owner });
         await this.bouncer.addDelegate(this.delegateContract.address, { from: owner });
       });
 

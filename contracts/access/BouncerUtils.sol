@@ -23,7 +23,7 @@ import "../ECRecovery.sol";
  *       address(this),
  *       _to,
  *       _amount
- *     )).signerWithSignature(_sig) == owner,
+ *     )).toEthSignedMessageHash().recover(_sig) == owner,
  *     "invalid signature"
  *   );
  *   _;
@@ -63,16 +63,6 @@ library BouncerUtils {
   // signature size is 65 bytes (tightly packed v + r + s), but gets padded to 96 bytes
   uint constant SIGNATURE_SIZE = 96;
 
-  function signerWithSignature(bytes32 _hash, bytes _sig)
-    internal
-    pure
-    returns (address)
-  {
-    return _hash
-      .toEthSignedMessageHash()
-      .recover(_sig);
-  }
-
   /**
   * @dev recover the signer of the msg.data, assuming all arguments are checked and the last
   * argument is a compact vrs signature, padded to 96 bytes.
@@ -80,7 +70,7 @@ library BouncerUtils {
   */
   function signerOfMessageData(address _delegate)
     internal
-    view
+    pure
     returns (address)
   {
     bytes32 hashOfMessageData = keccak256(
@@ -90,10 +80,11 @@ library BouncerUtils {
       )
     );
 
-    return signerWithSignature(
-      hashOfMessageData,
-      getSignatureArgument()
-    );
+    return hashOfMessageData
+      .toEthSignedMessageHash()
+      .recover(
+        getSignatureArgument()
+      );
   }
 
 
