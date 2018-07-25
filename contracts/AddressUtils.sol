@@ -7,7 +7,7 @@ import "./ECRecovery.sol";
  */
 library AddressUtils {
 
-  using ECRecovery for ECRecovery.recover;
+  using ECRecovery for bytes32;
 
   /**
    * Returns whether the target address is a contract
@@ -37,7 +37,7 @@ library AddressUtils {
    * @return whether the target address is a contract
    */
   function safeIsContract(address addr, bytes32 hash, bytes sig) internal view returns (bool) {
-    return ECRecovery.recover(hash, sig) == addr;
+    return hash.recover(sig) == addr;
   }
 
 }
