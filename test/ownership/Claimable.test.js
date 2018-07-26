@@ -1,6 +1,6 @@
 const { assertRevert } = require('../helpers/assertRevert');
 
-var Claimable = artifacts.require('Claimable');
+const Claimable = artifacts.require('Claimable');
 
 contract('Claimable', function (accounts) {
   let claimable;
@@ -10,14 +10,14 @@ contract('Claimable', function (accounts) {
   });
 
   it('should have an owner', async function () {
-    let owner = await claimable.owner();
+    const owner = await claimable.owner();
     assert.isTrue(owner !== 0);
   });
 
   it('changes pendingOwner after transfer', async function () {
-    let newOwner = accounts[1];
+    const newOwner = accounts[1];
     await claimable.transferOwnership(newOwner);
-    let pendingOwner = await claimable.pendingOwner();
+    const pendingOwner = await claimable.pendingOwner();
 
     assert.isTrue(pendingOwner === newOwner);
   });
@@ -44,7 +44,7 @@ contract('Claimable', function (accounts) {
 
     it('changes allow pending owner to claim ownership', async function () {
       await claimable.claimOwnership({ from: newOwner });
-      let owner = await claimable.owner();
+      const owner = await claimable.owner();
 
       assert.isTrue(owner === newOwner);
     });

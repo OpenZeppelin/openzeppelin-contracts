@@ -9,14 +9,14 @@ require('chai')
 function shouldBehaveLikeOwnable (accounts) {
   describe('as an ownable', function () {
     it('should have an owner', async function () {
-      let owner = await this.ownable.owner();
+      const owner = await this.ownable.owner();
       owner.should.not.eq(ZERO_ADDRESS);
     });
 
     it('changes owner after transfer', async function () {
-      let other = accounts[1];
+      const other = accounts[1];
       await this.ownable.transferOwnership(other);
-      let owner = await this.ownable.owner();
+      const owner = await this.ownable.owner();
 
       owner.should.eq(other);
     });
@@ -29,13 +29,13 @@ function shouldBehaveLikeOwnable (accounts) {
     });
 
     it('should guard ownership against stuck state', async function () {
-      let originalOwner = await this.ownable.owner();
+      const originalOwner = await this.ownable.owner();
       await expectThrow(this.ownable.transferOwnership(null, { from: originalOwner }), EVMRevert);
     });
 
     it('loses owner after renouncement', async function () {
       await this.ownable.renounceOwnership();
-      let owner = await this.ownable.owner();
+      const owner = await this.ownable.owner();
 
       owner.should.eq(ZERO_ADDRESS);
     });

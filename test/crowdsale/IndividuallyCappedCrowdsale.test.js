@@ -56,13 +56,13 @@ contract('IndividuallyCappedCrowdsale', function ([_, wallet, alice, bob, charli
 
     describe('reporting state', function () {
       it('should report correct cap', async function () {
-        let retrievedCap = await this.crowdsale.getUserCap(alice);
+        const retrievedCap = await this.crowdsale.getUserCap(alice);
         retrievedCap.should.be.bignumber.equal(capAlice);
       });
 
       it('should report actual contribution', async function () {
         await this.crowdsale.buyTokens(alice, { value: lessThanCapAlice });
-        let retrievedContribution = await this.crowdsale.getUserContribution(alice);
+        const retrievedContribution = await this.crowdsale.getUserContribution(alice);
         retrievedContribution.should.be.bignumber.equal(lessThanCapAlice);
       });
     });
@@ -97,9 +97,9 @@ contract('IndividuallyCappedCrowdsale', function ([_, wallet, alice, bob, charli
 
     describe('reporting state', function () {
       it('should report correct cap', async function () {
-        let retrievedCapBob = await this.crowdsale.getUserCap(bob);
+        const retrievedCapBob = await this.crowdsale.getUserCap(bob);
         retrievedCapBob.should.be.bignumber.equal(capBob);
-        let retrievedCapCharlie = await this.crowdsale.getUserCap(charlie);
+        const retrievedCapCharlie = await this.crowdsale.getUserCap(charlie);
         retrievedCapCharlie.should.be.bignumber.equal(capBob);
       });
     });

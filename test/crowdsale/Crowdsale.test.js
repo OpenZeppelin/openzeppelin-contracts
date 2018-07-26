@@ -42,7 +42,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
 
     it('should assign tokens to sender', async function () {
       await this.crowdsale.sendTransaction({ value: value, from: investor });
-      let balance = await this.token.balanceOf(investor);
+      const balance = await this.token.balanceOf(investor);
       balance.should.be.bignumber.equal(expectedTokenAmount);
     });
 

@@ -90,7 +90,7 @@ contract('RefundEscrow', function ([owner, beneficiary, refundee1, refundee2]) {
     });
 
     it('refunds refundees', async function () {
-      for (let refundee of [refundee1, refundee2]) {
+      for (const refundee of [refundee1, refundee2]) {
         const refundeeInitialBalance = await ethGetBalance(refundee);
         await this.escrow.withdraw(refundee);
         const refundeeFinalBalance = await ethGetBalance(refundee);

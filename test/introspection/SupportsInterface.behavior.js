@@ -36,7 +36,7 @@ function shouldSupportInterfaces (interfaces = []) {
       this.thing = this.mock || this.token;
     });
 
-    for (let k of interfaces) {
+    for (const k of interfaces) {
       const interfaceId = INTERFACE_IDS[k];
       describe(k, function () {
         it('should use less than 30k gas', async function () {

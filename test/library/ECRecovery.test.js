@@ -16,20 +16,20 @@ contract('ECRecovery', function (accounts) {
 
   it('recover v0', async function () {
     // Signature generated outside ganache with method web3.eth.sign(signer, message)
-    let signer = '0x2cc1166f6212628a0deef2b33befb2187d35b86c';
-    let message = web3.sha3(TEST_MESSAGE);
+    const signer = '0x2cc1166f6212628a0deef2b33befb2187d35b86c';
+    const message = web3.sha3(TEST_MESSAGE);
     // eslint-disable-next-line max-len
-    let signature = '0x5d99b6f7f6d1f73d1a26497f2b1c89b24c0993913f86e9a2d02cd69887d9c94f3c880358579d811b21dd1b7fd9bb01c1d81d10e69f0384e675c32b39643be89200';
+    const signature = '0x5d99b6f7f6d1f73d1a26497f2b1c89b24c0993913f86e9a2d02cd69887d9c94f3c880358579d811b21dd1b7fd9bb01c1d81d10e69f0384e675c32b39643be89200';
     const addrRecovered = await ecrecovery.recover(message, signature);
     addrRecovered.should.eq(signer);
   });
 
   it('recover v1', async function () {
     // Signature generated outside ganache with method web3.eth.sign(signer, message)
-    let signer = '0x1e318623ab09fe6de3c9b8672098464aeda9100e';
-    let message = web3.sha3(TEST_MESSAGE);
+    const signer = '0x1e318623ab09fe6de3c9b8672098464aeda9100e';
+    const message = web3.sha3(TEST_MESSAGE);
     // eslint-disable-next-line max-len
-    let signature = '0x331fe75a821c982f9127538858900d87d3ec1f9f737338ad67cad133fa48feff48e6fa0c18abc62e42820f05943e47af3e9fbe306ce74d64094bdf1691ee53e001';
+    const signature = '0x331fe75a821c982f9127538858900d87d3ec1f9f737338ad67cad133fa48feff48e6fa0c18abc62e42820f05943e47af3e9fbe306ce74d64094bdf1691ee53e001';
     const addrRecovered = await ecrecovery.recover(message, signature);
     addrRecovered.should.eq(signer);
   });
@@ -57,7 +57,7 @@ contract('ECRecovery', function (accounts) {
 
   it('recover should revert when a small hash is sent', async function () {
     // Create the signature using account[0]
-    let signature = signMessage(accounts[0], TEST_MESSAGE);
+    const signature = signMessage(accounts[0], TEST_MESSAGE);
     try {
       await expectThrow(
         ecrecovery.recover(hashMessage(TEST_MESSAGE).substring(2), signature)
