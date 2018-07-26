@@ -1,9 +1,9 @@
 const { ether } = require('../helpers/ether');
+const { expectThrow } = require('../helpers/expectThrow');
 
 const BigNumber = web3.BigNumber;
 
 require('chai')
-  .use(require('chai-as-promised'))
   .should();
 
 const WhitelistedCrowdsale = artifacts.require('WhitelistedCrowdsaleImpl');
@@ -24,20 +24,20 @@ contract('WhitelistedCrowdsale', function ([_, wallet, authorized, unauthorized,
 
     describe('accepting payments', function () {
       it('should accept payments to whitelisted (from whichever buyers)', async function () {
-        await this.crowdsale.sendTransaction({ value, from: authorized }).should.be.fulfilled;
-        await this.crowdsale.buyTokens(authorized, { value: value, from: authorized }).should.be.fulfilled;
-        await this.crowdsale.buyTokens(authorized, { value: value, from: unauthorized }).should.be.fulfilled;
+        await this.crowdsale.sendTransaction({ value, from: authorized });
+        await this.crowdsale.buyTokens(authorized, { value: value, from: authorized });
+        await this.crowdsale.buyTokens(authorized, { value: value, from: unauthorized });
       });
 
       it('should reject payments to not whitelisted (from whichever buyers)', async function () {
-        await this.crowdsale.sendTransaction({ value, from: unauthorized }).should.be.rejected;
-        await this.crowdsale.buyTokens(unauthorized, { value: value, from: unauthorized }).should.be.rejected;
-        await this.crowdsale.buyTokens(unauthorized, { value: value, from: authorized }).should.be.rejected;
+        await expectThrow(this.crowdsale.sendTransaction({ value, from: unauthorized }));
+        await expectThrow(this.crowdsale.buyTokens(unauthorized, { value: value, from: unauthorized }));
+        await expectThrow(this.crowdsale.buyTokens(unauthorized, { value: value, from: authorized }));
       });
 
       it('should reject payments to addresses removed from whitelist', async function () {
         await this.crowdsale.removeAddressFromWhitelist(authorized);
-        await this.crowdsale.buyTokens(authorized, { value: value, from: authorized }).should.be.rejected;
+        await expectThrow(this.crowdsale.buyTokens(authorized, { value: value, from: authorized }));
       });
     });
 
@@ -61,22 +61,22 @@ contract('WhitelistedCrowdsale', function ([_, wallet, authorized, unauthorized,
 
     describe('accepting payments', function () {
       it('should accept payments to whitelisted (from whichever buyers)', async function () {
-        await this.crowdsale.buyTokens(authorized, { value: value, from: authorized }).should.be.fulfilled;
-        await this.crowdsale.buyTokens(authorized, { value: value, from: unauthorized }).should.be.fulfilled;
-        await this.crowdsale.buyTokens(anotherAuthorized, { value: value, from: authorized }).should.be.fulfilled;
-        await this.crowdsale.buyTokens(anotherAuthorized, { value: value, from: unauthorized }).should.be.fulfilled;
+        await this.crowdsale.buyTokens(authorized, { value: value, from: authorized });
+        await this.crowdsale.buyTokens(authorized, { value: value, from: unauthorized });
+        await this.crowdsale.buyTokens(anotherAuthorized, { value: value, from: authorized });
+        await this.crowdsale.buyTokens(anotherAuthorized, { value: value, from: unauthorized });
       });
 
       it('should reject payments to not whitelisted (with whichever buyers)', async function () {
-        await this.crowdsale.send(value).should.be.rejected;
-        await this.crowdsale.buyTokens(unauthorized, { value: value, from: unauthorized }).should.be.rejected;
-        await this.crowdsale.buyTokens(unauthorized, { value: value, from: authorized }).should.be.rejected;
+        await expectThrow(this.crowdsale.send(value));
+        await expectThrow(this.crowdsale.buyTokens(unauthorized, { value: value, from: unauthorized }));
+        await expectThrow(this.crowdsale.buyTokens(unauthorized, { value: value, from: authorized }));
       });
 
       it('should reject payments to addresses removed from whitelist', async function () {
         await this.crowdsale.removeAddressFromWhitelist(anotherAuthorized);
-        await this.crowdsale.buyTokens(authorized, { value: value, from: authorized }).should.be.fulfilled;
-        await this.crowdsale.buyTokens(anotherAuthorized, { value: value, from: authorized }).should.be.rejected;
+        await this.crowdsale.buyTokens(authorized, { value: value, from: authorized });
+        await expectThrow(this.crowdsale.buyTokens(anotherAuthorized, { value: value, from: authorized }));
       });
     });
 

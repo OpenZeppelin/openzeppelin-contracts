@@ -1,10 +1,10 @@
 const { ether } = require('../helpers/ether');
+const { expectThrow } = require('../helpers/expectThrow');
 const { EVMRevert } = require('../helpers/EVMRevert');
 
 const BigNumber = web3.BigNumber;
 
 require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
@@ -30,27 +30,27 @@ contract('IndividuallyCappedCrowdsale', function ([_, wallet, alice, bob, charli
 
     describe('accepting payments', function () {
       it('should accept payments within cap', async function () {
-        await this.crowdsale.buyTokens(alice, { value: lessThanCapAlice }).should.be.fulfilled;
-        await this.crowdsale.buyTokens(bob, { value: lessThanCapBoth }).should.be.fulfilled;
+        await this.crowdsale.buyTokens(alice, { value: lessThanCapAlice });
+        await this.crowdsale.buyTokens(bob, { value: lessThanCapBoth });
       });
 
       it('should reject payments outside cap', async function () {
         await this.crowdsale.buyTokens(alice, { value: capAlice });
-        await this.crowdsale.buyTokens(alice, { value: 1 }).should.be.rejectedWith(EVMRevert);
+        await expectThrow(this.crowdsale.buyTokens(alice, { value: 1 }), EVMRevert);
       });
 
       it('should reject payments that exceed cap', async function () {
-        await this.crowdsale.buyTokens(alice, { value: capAlice.plus(1) }).should.be.rejectedWith(EVMRevert);
-        await this.crowdsale.buyTokens(bob, { value: capBob.plus(1) }).should.be.rejectedWith(EVMRevert);
+        await expectThrow(this.crowdsale.buyTokens(alice, { value: capAlice.plus(1) }), EVMRevert);
+        await expectThrow(this.crowdsale.buyTokens(bob, { value: capBob.plus(1) }), EVMRevert);
       });
 
       it('should manage independent caps', async function () {
-        await this.crowdsale.buyTokens(alice, { value: lessThanCapAlice }).should.be.fulfilled;
-        await this.crowdsale.buyTokens(bob, { value: lessThanCapAlice }).should.be.rejectedWith(EVMRevert);
+        await this.crowdsale.buyTokens(alice, { value: lessThanCapAlice });
+        await expectThrow(this.crowdsale.buyTokens(bob, { value: lessThanCapAlice }), EVMRevert);
       });
 
       it('should default to a cap of zero', async function () {
-        await this.crowdsale.buyTokens(charlie, { value: lessThanCapBoth }).should.be.rejectedWith(EVMRevert);
+        await expectThrow(this.crowdsale.buyTokens(charlie, { value: lessThanCapBoth }), EVMRevert);
       });
     });
 
@@ -78,20 +78,20 @@ contract('IndividuallyCappedCrowdsale', function ([_, wallet, alice, bob, charli
 
     describe('accepting payments', function () {
       it('should accept payments within cap', async function () {
-        await this.crowdsale.buyTokens(bob, { value: lessThanCapBoth }).should.be.fulfilled;
-        await this.crowdsale.buyTokens(charlie, { value: lessThanCapBoth }).should.be.fulfilled;
+        await this.crowdsale.buyTokens(bob, { value: lessThanCapBoth });
+        await this.crowdsale.buyTokens(charlie, { value: lessThanCapBoth });
       });
 
       it('should reject payments outside cap', async function () {
         await this.crowdsale.buyTokens(bob, { value: capBob });
-        await this.crowdsale.buyTokens(bob, { value: 1 }).should.be.rejectedWith(EVMRevert);
+        await expectThrow(this.crowdsale.buyTokens(bob, { value: 1 }), EVMRevert);
         await this.crowdsale.buyTokens(charlie, { value: capBob });
-        await this.crowdsale.buyTokens(charlie, { value: 1 }).should.be.rejectedWith(EVMRevert);
+        await expectThrow(this.crowdsale.buyTokens(charlie, { value: 1 }), EVMRevert);
       });
 
       it('should reject payments that exceed cap', async function () {
-        await this.crowdsale.buyTokens(bob, { value: capBob.plus(1) }).should.be.rejectedWith(EVMRevert);
-        await this.crowdsale.buyTokens(charlie, { value: capBob.plus(1) }).should.be.rejectedWith(EVMRevert);
+        await expectThrow(this.crowdsale.buyTokens(bob, { value: capBob.plus(1) }), EVMRevert);
+        await expectThrow(this.crowdsale.buyTokens(charlie, { value: capBob.plus(1) }), EVMRevert);
       });
     });
 

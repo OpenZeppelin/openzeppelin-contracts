@@ -8,7 +8,6 @@ const BigNumber = web3.BigNumber;
 const ERC721Token = artifacts.require('ERC721TokenMock.sol');
 
 require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 

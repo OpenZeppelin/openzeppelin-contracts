@@ -3,7 +3,6 @@ const { assertRevert } = require('../../helpers/assertRevert');
 const BigNumber = web3.BigNumber;
 
 require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
