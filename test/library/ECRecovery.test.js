@@ -4,7 +4,6 @@ const { expectThrow } = require('../helpers/expectThrow');
 const ECRecoveryMock = artifacts.require('ECRecoveryMock');
 
 require('chai')
-  .use(require('chai-as-promised'))
   .should();
 
 contract('ECRecovery', function (accounts) {

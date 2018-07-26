@@ -1,4 +1,5 @@
 const { shouldBehaveLikeEscrow } = require('./Escrow.behaviour');
+const { expectThrow } = require('../helpers/expectThrow');
 const { EVMRevert } = require('../helpers/EVMRevert');
 
 const BigNumber = web3.BigNumber;
@@ -35,7 +36,7 @@ contract('ConditionalEscrow', function (accounts) {
     it('reverts on withdrawals', async function () {
       await this.escrow.deposit(payee, { from: owner, value: amount });
 
-      await this.escrow.withdraw(payee, { from: owner }).should.be.rejectedWith(EVMRevert);
+      await expectThrow(this.escrow.withdraw(payee, { from: owner }), EVMRevert);
     });
   });
 });

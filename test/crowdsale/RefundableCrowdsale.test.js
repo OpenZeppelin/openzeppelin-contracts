@@ -2,13 +2,13 @@ const { ether } = require('../helpers/ether');
 const { advanceBlock } = require('../helpers/advanceToBlock');
 const { increaseTimeTo, duration } = require('../helpers/increaseTime');
 const { latestTime } = require('../helpers/latestTime');
+const { expectThrow } = require('../helpers/expectThrow');
 const { EVMRevert } = require('../helpers/EVMRevert');
 const { ethGetBalance } = require('../helpers/web3');
 
 const BigNumber = web3.BigNumber;
 
 require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
@@ -40,23 +40,26 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
 
   describe('creating a valid crowdsale', function () {
     it('should fail with zero goal', async function () {
-      await RefundableCrowdsale.new(
-        this.openingTime, this.closingTime, rate, wallet, this.token.address, 0, { from: owner }
-      ).should.be.rejectedWith(EVMRevert);
+      await expectThrow(
+        RefundableCrowdsale.new(
+          this.openingTime, this.closingTime, rate, wallet, this.token.address, 0, { from: owner }
+        ),
+        EVMRevert,
+      );
     });
   });
 
   it('should deny refunds before end', async function () {
-    await this.crowdsale.claimRefund({ from: investor }).should.be.rejectedWith(EVMRevert);
+    await expectThrow(this.crowdsale.claimRefund({ from: investor }), EVMRevert);
     await increaseTimeTo(this.openingTime);
-    await this.crowdsale.claimRefund({ from: investor }).should.be.rejectedWith(EVMRevert);
+    await expectThrow(this.crowdsale.claimRefund({ from: investor }), EVMRevert);
   });
 
   it('should deny refunds after end if goal was reached', async function () {
     await increaseTimeTo(this.openingTime);
     await this.crowdsale.sendTransaction({ value: goal, from: investor });
     await increaseTimeTo(this.afterClosingTime);
-    await this.crowdsale.claimRefund({ from: investor }).should.be.rejectedWith(EVMRevert);
+    await expectThrow(this.crowdsale.claimRefund({ from: investor }), EVMRevert);
   });
 
   it('should allow refunds after end if goal was not reached', async function () {
@@ -65,8 +68,7 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
     await increaseTimeTo(this.afterClosingTime);
     await this.crowdsale.finalize({ from: owner });
     const pre = await ethGetBalance(investor);
-    await this.crowdsale.claimRefund({ from: investor, gasPrice: 0 })
-      .should.be.fulfilled;
+    await this.crowdsale.claimRefund({ from: investor, gasPrice: 0 });
     const post = await ethGetBalance(investor);
     post.minus(pre).should.be.bignumber.equal(lessThanGoal);
   });

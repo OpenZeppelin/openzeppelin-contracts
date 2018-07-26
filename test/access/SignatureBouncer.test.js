@@ -4,7 +4,6 @@ const { getBouncerSigner } = require('../helpers/sign');
 const Bouncer = artifacts.require('SignatureBouncerMock');
 
 require('chai')
-  .use(require('chai-as-promised'))
   .should();
 
 const UINT_VALUE = 23;

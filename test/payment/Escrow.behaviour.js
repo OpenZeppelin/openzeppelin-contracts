@@ -1,4 +1,5 @@
 const expectEvent = require('../helpers/expectEvent');
+const { expectThrow } = require('../helpers/expectThrow');
 const { EVMRevert } = require('../helpers/EVMRevert');
 const { ethGetBalance } = require('../helpers/web3');
 
@@ -28,7 +29,7 @@ function shouldBehaveLikeEscrow (owner, [payee1, payee2]) {
       });
 
       it('only the owner can deposit', async function () {
-        await this.escrow.deposit(payee1, { from: payee2 }).should.be.rejectedWith(EVMRevert);
+        await expectThrow(this.escrow.deposit(payee1, { from: payee2 }), EVMRevert);
       });
 
       it('emits a deposited event', async function () {
@@ -84,7 +85,7 @@ function shouldBehaveLikeEscrow (owner, [payee1, payee2]) {
       });
 
       it('only the owner can withdraw', async function () {
-        await this.escrow.withdraw(payee1, { from: payee1 }).should.be.rejectedWith(EVMRevert);
+        await expectThrow(this.escrow.withdraw(payee1, { from: payee1 }), EVMRevert);
       });
 
       it('emits a withdrawn event', async function () {

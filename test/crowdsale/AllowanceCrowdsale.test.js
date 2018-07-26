@@ -5,7 +5,6 @@ const { ethGetBalance } = require('../helpers/web3');
 const BigNumber = web3.BigNumber;
 
 const should = require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
@@ -27,11 +26,11 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
 
   describe('accepting payments', function () {
     it('should accept sends', async function () {
-      await this.crowdsale.send(value).should.be.fulfilled;
+      await this.crowdsale.send(value);
     });
 
     it('should accept payments', async function () {
-      await this.crowdsale.buyTokens(investor, { value: value, from: purchaser }).should.be.fulfilled;
+      await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
     });
   });
 

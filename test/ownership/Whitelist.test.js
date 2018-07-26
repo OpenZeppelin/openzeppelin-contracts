@@ -4,7 +4,6 @@ const expectEvent = require('../helpers/expectEvent');
 const WhitelistMock = artifacts.require('WhitelistMock');
 
 require('chai')
-  .use(require('chai-as-promised'))
   .should();
 
 contract('Whitelist', function (accounts) {
@@ -69,8 +68,7 @@ contract('Whitelist', function (accounts) {
 
     it('should allow whitelisted address to call #onlyWhitelistedCanDoThis', async function () {
       await this.mock.addAddressToWhitelist(whitelistedAddress1, { from: owner });
-      await this.mock.onlyWhitelistedCanDoThis({ from: whitelistedAddress1 })
-        .should.be.fulfilled;
+      await this.mock.onlyWhitelistedCanDoThis({ from: whitelistedAddress1 });
     });
   });
 
