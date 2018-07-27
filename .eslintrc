@@ -28,7 +28,7 @@
     "comma-dangle": ["warn", "always-multiline"],
     "comma-spacing": ["error", {"before": false, "after": true}],
     "dot-notation": ["error", {"allowKeywords": true, "allowPattern": ""}],
-    "eol-last": "warn",
+    "eol-last": ["error", "always"],
     "eqeqeq": ["error", "smart"],
     "generator-star-spacing": ["error", "before"],
     "indent": ["error", 2],
