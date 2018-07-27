@@ -8,7 +8,7 @@ import "./StandardToken.sol";
  * @title Standard Burnable Token
  * @dev Adds burnFrom method to ERC20 implementations
  */
-contract StandardBurnableToken is BurnableToken, StandardToken {
+contract StandardBurnableToken is StandardToken, BurnableToken {
 
   /**
    * @dev Burns a specific amount of tokens from the target address and decrements allowance

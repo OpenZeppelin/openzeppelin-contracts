@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "./ERC20Basic.sol";
+import "./StandardToken.sol";
 import "./ERC20.sol";
 
 
@@ -11,7 +11,7 @@ import "./ERC20.sol";
  * which allows you to call the safe operations as `token.safeTransfer(...)`, etc.
  */
 library SafeERC20 {
-  function safeTransfer(ERC20Basic token, address to, uint256 value) internal {
+  function safeTransfer(ERC20 token, address to, uint256 value) internal {
     require(token.transfer(to, value));
   }
 
