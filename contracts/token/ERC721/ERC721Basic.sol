@@ -9,7 +9,6 @@ import "../../introspection/ERC165.sol";
  */
 contract ERC721Basic is ERC165 {
 
-  // solium-disable-next-line uppercase
   bytes4 internal constant InterfaceId_ERC721 = 0x80ac58cd;
   /*
    * 0x80ac58cd ===
@@ -24,14 +23,12 @@ contract ERC721Basic is ERC165 {
    *   bytes4(keccak256('safeTransferFrom(address,address,uint256,bytes)'))
    */
 
-  // solium-disable-next-line uppercase
   bytes4 internal constant InterfaceId_ERC721Exists = 0x4f558e79;
   /*
    * 0x4f558e79 ===
    *   bytes4(keccak256('exists(uint256)'))
    */
 
-  // solium-disable-next-line uppercase
   bytes4 internal constant InterfaceId_ERC721Enumerable = 0x780e9d63;
   /**
    * 0x780e9d63 ===
@@ -40,7 +37,6 @@ contract ERC721Basic is ERC165 {
    *   bytes4(keccak256('tokenByIndex(uint256)'))
    */
 
-  // solium-disable-next-line uppercase
   bytes4 internal constant InterfaceId_ERC721Metadata = 0x5b5e139f;
   /**
    * 0x5b5e139f ===
