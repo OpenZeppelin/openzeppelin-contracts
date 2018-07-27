@@ -12,9 +12,9 @@ import "../../math/SafeMath.sol";
 contract BasicToken is ERC20Basic {
   using SafeMath for uint256;
 
-  mapping(address => uint256) public balances;
+  mapping(address => uint256) internal balances;
 
-  uint256 public totalSupply_;
+  uint256 internal totalSupply_;
 
   /**
   * @dev total number of tokens in existence
