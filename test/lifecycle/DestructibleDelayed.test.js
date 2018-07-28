@@ -1,24 +1,23 @@
-
-import expectEvent from  '../helpers/expectEvent';
-import expectThrow from  '../helpers/expectThrow';
-import increaseTime from '../helpers/increaseTime';
+const expectEvent = require('../helpers/expectEvent');
+const { EVMRevert } = require('../helpers/EVMRevert');
+const { expectThrow } = require('../helpers/expectThrow');
+const { increaseTime } = require('../helpers/increaseTime');
 
 const BigNumber = web3.BigNumber;
+const DestructibleDelayedMock = artifacts.require('DestructibleDelayedMock');
 
-var DestructibleDelayedMock = artifacts.require('DestructibleDelayedMock');
 require('../helpers/transactionMined.js');
 
 require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const twoWeeks = 2* 7 * 24 * 60 * 60; //In seconds
+const twoWeeks = 2 * 7 * 24 * 60 * 60; // In seconds
 
 contract('DestructibleDelayed', function ([owner, anyone]) {
   let destructibleDelayed;
 
-  describe.only('Destruction requests', function () {
+  describe('Destruction requests', function () {
     beforeEach(async function () {
       destructibleDelayed = await DestructibleDelayedMock.new(
         twoWeeks, { from: owner, value: web3.toWei('10', 'ether') }
@@ -32,7 +31,6 @@ contract('DestructibleDelayed', function ([owner, anyone]) {
       );
 
       const destructionRequested = await destructibleDelayed.destructionRequested();
-
       destructionRequested.should.be.equal(true);
     });
 
@@ -41,10 +39,10 @@ contract('DestructibleDelayed', function ([owner, anyone]) {
         destructibleDelayed.destroyRequest({ from: anyone })
       );
     });
-    
+
     context('once destruction requested,', function () {
-      var block;
-      var tx;
+      let block;
+      let tx;
 
       beforeEach(async function () {
         tx = await destructibleDelayed.destroyRequest({ from: owner });
@@ -53,7 +51,7 @@ contract('DestructibleDelayed', function ([owner, anyone]) {
 
       it('destruction time should be set to block.timestamp + destruction_delay', async function () {
         const destructionTime = await destructibleDelayed.destructionTime();
-        const destructionDelay = await destructibleDelayed.SELFDESTRUCTION_DELAY();
+        const destructionDelay = await destructibleDelayed.getDestructionDelay();
 
         destructionTime.should.be.bignumber.equal(
           destructionDelay.plus(block.timestamp)
@@ -95,25 +93,25 @@ contract('DestructibleDelayed', function ([owner, anyone]) {
         });
 
         it('should allow #destroy after delay is passed', async function () {
-          await destructibleDelayed.destroy(owner, { from: owner }).should.be.fulfilled;
+          await destructibleDelayed.destroy(owner, { from: owner });
         });
 
         it('should not allow anyone to call #destroy after delay is passed', async function () {
-          await destructibleDelayed.destroy(anyone, { from: anyone }).should.be.rejected;
+          await expectThrow(destructibleDelayed.destroy(anyone, { from: anyone }), EVMRevert);
         });
 
         it('should send balance to owner after destruction', async function () {
-          let initBalance = await web3.eth.getBalance(owner);
+          const initBalance = await web3.eth.getBalance(owner);
           await destructibleDelayed.destroy(owner, { from: owner });
-          let newBalance = await web3.eth.getBalance(owner);
+          const newBalance = await web3.eth.getBalance(owner);
 
-          newBalance.should.be.bignumber.greaterThan(initBalance)
+          newBalance.should.be.bignumber.greaterThan(initBalance);
         });
 
         it('should send balance to anyone after destruction', async function () {
-          let initBalance = await web3.eth.getBalance(anyone);
+          const initBalance = await web3.eth.getBalance(anyone);
           await destructibleDelayed.destroy(anyone, { from: owner });
-          let newBalance = await web3.eth.getBalance(anyone);
+          const newBalance = await web3.eth.getBalance(anyone);
 
           newBalance.should.be.bignumber.greaterThan(initBalance);
         });

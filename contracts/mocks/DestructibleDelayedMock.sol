@@ -2,6 +2,7 @@ pragma solidity ^0.4.18;
 
 import "../lifecycle/DestructibleDelayed.sol";
 
+
 // mock class using BasicToken
 contract DestructibleDelayedMock is DestructibleDelayed {
 
@@ -12,5 +13,5 @@ contract DestructibleDelayedMock is DestructibleDelayed {
   {
   }
 
- }
+}
  
