@@ -1,12 +1,11 @@
-import assertRevert from '../../helpers/assertRevert';
+const { assertRevert } = require('../../helpers/assertRevert');
 const BigNumber = web3.BigNumber;
 
 require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-export default function shouldMintAndBurnERC721Token (accounts) {
+function shouldBehaveLikeMintAndBurnERC721Token (accounts) {
   const firstTokenId = 1;
   const secondTokenId = 2;
   const unknownTokenId = 3;
@@ -23,7 +22,7 @@ export default function shouldMintAndBurnERC721Token (accounts) {
       const to = accounts[1];
       const tokenId = unknownTokenId;
       let logs = null;
-      
+
       describe('when successful', function () {
         beforeEach(async function () {
           const result = await this.token.mint(to, tokenId);
@@ -99,17 +98,6 @@ export default function shouldMintAndBurnERC721Token (accounts) {
           const approvedAccount = await this.token.getApproved(tokenId);
           approvedAccount.should.be.equal(ZERO_ADDRESS);
         });
-
-        it('emits an approval event', async function () {
-          logs.length.should.be.equal(2);
-
-          logs[0].event.should.be.eq('Approval');
-          logs[0].args._owner.should.be.equal(sender);
-          logs[0].args._approved.should.be.equal(ZERO_ADDRESS);
-          logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
-
-          logs[1].event.should.be.eq('Transfer');
-        });
       });
 
       describe('when the given token ID was not tracked by this contract', function () {
@@ -119,4 +107,8 @@ export default function shouldMintAndBurnERC721Token (accounts) {
       });
     });
   });
+}
+
+module.exports = {
+  shouldBehaveLikeMintAndBurnERC721Token,
 };

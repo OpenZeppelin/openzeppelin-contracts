@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 import "../math/SafeMath.sol";
 
@@ -32,7 +32,7 @@ contract SplitPayment {
   /**
    * @dev payable fallback
    */
-  function () public payable {}
+  function () external payable {}
 
   /**
    * @dev Claim your share of the balance.

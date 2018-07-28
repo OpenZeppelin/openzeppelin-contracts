@@ -1,15 +1,14 @@
-import assertRevert from '../../helpers/assertRevert';
-import { inLogs } from '../../helpers/expectEvent';
+const { assertRevert } = require('../../helpers/assertRevert');
+const { inLogs } = require('../../helpers/expectEvent');
 
 const BigNumber = web3.BigNumber;
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-export default function ([owner], initialBalance) {
+function shouldBehaveLikeBurnableToken ([owner], initialBalance) {
   describe('as a basic burnable token', function () {
     const from = owner;
 
@@ -47,4 +46,8 @@ export default function ([owner], initialBalance) {
       });
     });
   });
+}
+
+module.exports = {
+  shouldBehaveLikeBurnableToken,
 };

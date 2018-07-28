@@ -4,6 +4,7 @@
   "rules": {
     "quotes": ["error", "double"],
     "no-empty-blocks": "off",
+    "uppercase": "off",
     "indentation": ["error", 2],
     "max-len": ["warning", 79],
     "no-constant": ["error"],

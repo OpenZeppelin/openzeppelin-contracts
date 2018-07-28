@@ -1,24 +1,23 @@
-import shouldSupportInterfaces from '../../introspection/SupportsInterface.behavior';
-import assertRevert from '../../helpers/assertRevert';
-import decodeLogs from '../../helpers/decodeLogs';
-import sendTransaction from '../../helpers/sendTransaction';
-import _ from 'lodash';
+const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
+const { assertRevert } = require('../../helpers/assertRevert');
+const { decodeLogs } = require('../../helpers/decodeLogs');
+const { sendTransaction } = require('../../helpers/sendTransaction');
+const _ = require('lodash');
 
 const ERC721Receiver = artifacts.require('ERC721ReceiverMock.sol');
 const BigNumber = web3.BigNumber;
 
 require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-export default function shouldBehaveLikeERC721BasicToken (accounts) {
+function shouldBehaveLikeERC721BasicToken (accounts) {
   const firstTokenId = 1;
   const secondTokenId = 2;
   const unknownTokenId = 3;
   const creator = accounts[0];
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-  const RECEIVER_MAGIC_VALUE = '0xf0b9e5ba';
+  const RECEIVER_MAGIC_VALUE = '0x150b7a02';
 
   describe('like an ERC721BasicToken', function () {
     beforeEach(async function () {
@@ -115,17 +114,12 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
         });
 
         if (approved) {
-          it('emits an approval and transfer events', async function () {
-            logs.length.should.be.equal(2);
-            logs[0].event.should.be.eq('Approval');
-            logs[0].args._owner.should.be.equal(owner);
-            logs[0].args._approved.should.be.equal(ZERO_ADDRESS);
+          it('emit only a transfer event', async function () {
+            logs.length.should.be.equal(1);
+            logs[0].event.should.be.eq('Transfer');
+            logs[0].args._from.should.be.equal(owner);
+            logs[0].args._to.should.be.equal(this.to);
             logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
-
-            logs[1].event.should.be.eq('Transfer');
-            logs[1].args._from.should.be.equal(owner);
-            logs[1].args._to.should.be.equal(this.to);
-            logs[1].args._tokenId.should.be.bignumber.equal(tokenId);
           });
         } else {
           it('emits only a transfer event', async function () {
@@ -201,17 +195,12 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
             approvedAccount.should.be.equal(ZERO_ADDRESS);
           });
 
-          it('emits an approval and transfer events', async function () {
-            logs.length.should.be.equal(2);
-            logs[0].event.should.be.eq('Approval');
-            logs[0].args._owner.should.be.equal(owner);
-            logs[0].args._approved.should.be.equal(ZERO_ADDRESS);
+          it('emits only a transfer event', async function () {
+            logs.length.should.be.equal(1);
+            logs[0].event.should.be.eq('Transfer');
+            logs[0].args._from.should.be.equal(owner);
+            logs[0].args._to.should.be.equal(owner);
             logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
-
-            logs[1].event.should.be.eq('Transfer');
-            logs[1].args._from.should.be.equal(owner);
-            logs[1].args._to.should.be.equal(owner);
-            logs[1].args._tokenId.should.be.bignumber.equal(tokenId);
           });
 
           it('keeps the owner balance', async function () {
@@ -287,12 +276,38 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
 
             it('should call onERC721Received', async function () {
               const result = await transferFun.call(this, owner, this.to, tokenId, { from: owner });
-              result.receipt.logs.length.should.be.equal(3);
-              const [log] = decodeLogs([result.receipt.logs[2]], ERC721Receiver, this.receiver.address);
+              result.receipt.logs.length.should.be.equal(2);
+              const [log] = decodeLogs([result.receipt.logs[1]], ERC721Receiver, this.receiver.address);
               log.event.should.be.eq('Received');
-              log.args._address.should.be.equal(owner);
+              log.args._operator.should.be.equal(owner);
+              log.args._from.should.be.equal(owner);
               log.args._tokenId.toNumber().should.be.equal(tokenId);
               log.args._data.should.be.equal(data);
+            });
+
+            it('should call onERC721Received from approved', async function () {
+              const result = await transferFun.call(this, owner, this.to, tokenId, { from: approved });
+              result.receipt.logs.length.should.be.equal(2);
+              const [log] = decodeLogs([result.receipt.logs[1]], ERC721Receiver, this.receiver.address);
+              log.event.should.be.eq('Received');
+              log.args._operator.should.be.equal(approved);
+              log.args._from.should.be.equal(owner);
+              log.args._tokenId.toNumber().should.be.equal(tokenId);
+              log.args._data.should.be.equal(data);
+            });
+
+            describe('with an invalid token id', function () {
+              it('reverts', async function () {
+                await assertRevert(
+                  transferFun.call(
+                    this,
+                    owner,
+                    this.to,
+                    unknownTokenId,
+                    { from: owner },
+                  )
+                );
+              });
             });
           });
         };
@@ -366,10 +381,7 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
           });
 
           itClearsApproval();
-
-          it('does not emit an approval event', async function () {
-            logs.length.should.be.equal(0);
-          });
+          itEmitsApprovalEvent(ZERO_ADDRESS);
         });
 
         context('when there was a prior approval', function () {
@@ -545,4 +557,8 @@ export default function shouldBehaveLikeERC721BasicToken (accounts) {
       'ERC721Exists',
     ]);
   });
+}
+
+module.exports = {
+  shouldBehaveLikeERC721BasicToken,
 };

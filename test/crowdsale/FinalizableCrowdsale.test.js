@@ -1,12 +1,12 @@
-import { advanceBlock } from '../helpers/advanceToBlock';
-import { increaseTimeTo, duration } from '../helpers/increaseTime';
-import latestTime from '../helpers/latestTime';
-import EVMRevert from '../helpers/EVMRevert';
+const { advanceBlock } = require('../helpers/advanceToBlock');
+const { increaseTimeTo, duration } = require('../helpers/increaseTime');
+const { latestTime } = require('../helpers/latestTime');
+const { expectThrow } = require('../helpers/expectThrow');
+const { EVMRevert } = require('../helpers/EVMRevert');
 
 const BigNumber = web3.BigNumber;
 
 const should = require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
@@ -22,7 +22,7 @@ contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
   });
 
   beforeEach(async function () {
-    this.openingTime = latestTime() + duration.weeks(1);
+    this.openingTime = (await latestTime()) + duration.weeks(1);
     this.closingTime = this.openingTime + duration.weeks(1);
     this.afterClosingTime = this.closingTime + duration.seconds(1);
 
@@ -34,23 +34,23 @@ contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
   });
 
   it('cannot be finalized before ending', async function () {
-    await this.crowdsale.finalize({ from: owner }).should.be.rejectedWith(EVMRevert);
+    await expectThrow(this.crowdsale.finalize({ from: owner }), EVMRevert);
   });
 
   it('cannot be finalized by third party after ending', async function () {
     await increaseTimeTo(this.afterClosingTime);
-    await this.crowdsale.finalize({ from: thirdparty }).should.be.rejectedWith(EVMRevert);
+    await expectThrow(this.crowdsale.finalize({ from: thirdparty }), EVMRevert);
   });
 
   it('can be finalized by owner after ending', async function () {
     await increaseTimeTo(this.afterClosingTime);
-    await this.crowdsale.finalize({ from: owner }).should.be.fulfilled;
+    await this.crowdsale.finalize({ from: owner });
   });
 
   it('cannot be finalized twice', async function () {
     await increaseTimeTo(this.afterClosingTime);
     await this.crowdsale.finalize({ from: owner });
-    await this.crowdsale.finalize({ from: owner }).should.be.rejectedWith(EVMRevert);
+    await expectThrow(this.crowdsale.finalize({ from: owner }), EVMRevert);
   });
 
   it('logs finalized', async function () {

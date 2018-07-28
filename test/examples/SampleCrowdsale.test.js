@@ -1,20 +1,20 @@
-import ether from '../helpers/ether';
-import { advanceBlock } from '../helpers/advanceToBlock';
-import { increaseTimeTo, duration } from '../helpers/increaseTime';
-import latestTime from '../helpers/latestTime';
-import EVMRevert from '../helpers/EVMRevert';
-import assertRevert from '../helpers/assertRevert';
+const { ether } = require('../helpers/ether');
+const { advanceBlock } = require('../helpers/advanceToBlock');
+const { increaseTimeTo, duration } = require('../helpers/increaseTime');
+const { latestTime } = require('../helpers/latestTime');
+const { expectThrow } = require('../helpers/expectThrow');
+const { EVMRevert } = require('../helpers/EVMRevert');
+const { assertRevert } = require('../helpers/assertRevert');
+const { ethGetBalance } = require('../helpers/web3');
 
 const BigNumber = web3.BigNumber;
 
 require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
 const SampleCrowdsale = artifacts.require('SampleCrowdsale');
 const SampleCrowdsaleToken = artifacts.require('SampleCrowdsaleToken');
-const RefundVault = artifacts.require('RefundVault');
 
 contract('SampleCrowdsale', function ([owner, wallet, investor]) {
   const RATE = new BigNumber(10);
@@ -27,17 +27,15 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
   });
 
   beforeEach(async function () {
-    this.openingTime = latestTime() + duration.weeks(1);
+    this.openingTime = (await latestTime()) + duration.weeks(1);
     this.closingTime = this.openingTime + duration.weeks(1);
     this.afterClosingTime = this.closingTime + duration.seconds(1);
 
     this.token = await SampleCrowdsaleToken.new({ from: owner });
-    this.vault = await RefundVault.new(wallet, { from: owner });
     this.crowdsale = await SampleCrowdsale.new(
       this.openingTime, this.closingTime, RATE, wallet, CAP, this.token.address, GOAL
     );
     await this.token.transferOwnership(this.crowdsale.address);
-    await this.vault.transferOwnership(this.crowdsale.address);
   });
 
   it('should create crowdsale with correct parameters', async function () {
@@ -60,8 +58,14 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
   });
 
   it('should not accept payments before start', async function () {
-    await this.crowdsale.send(ether(1)).should.be.rejectedWith(EVMRevert);
-    await this.crowdsale.buyTokens(investor, { from: investor, value: ether(1) }).should.be.rejectedWith(EVMRevert);
+    await expectThrow(
+      this.crowdsale.send(ether(1)),
+      EVMRevert,
+    );
+    await expectThrow(
+      this.crowdsale.buyTokens(investor, { from: investor, value: ether(1) }),
+      EVMRevert,
+    );
   });
 
   it('should accept payments during the sale', async function () {
@@ -69,7 +73,7 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
     const expectedTokenAmount = RATE.mul(investmentAmount);
 
     await increaseTimeTo(this.openingTime);
-    await this.crowdsale.buyTokens(investor, { value: investmentAmount, from: investor }).should.be.fulfilled;
+    await this.crowdsale.buyTokens(investor, { value: investmentAmount, from: investor });
 
     (await this.token.balanceOf(investor)).should.be.bignumber.equal(expectedTokenAmount);
     (await this.token.totalSupply()).should.be.bignumber.equal(expectedTokenAmount);
@@ -77,39 +81,39 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
 
   it('should reject payments after end', async function () {
     await increaseTimeTo(this.afterClosingTime);
-    await this.crowdsale.send(ether(1)).should.be.rejectedWith(EVMRevert);
-    await this.crowdsale.buyTokens(investor, { value: ether(1), from: investor }).should.be.rejectedWith(EVMRevert);
+    await expectThrow(this.crowdsale.send(ether(1)), EVMRevert);
+    await expectThrow(this.crowdsale.buyTokens(investor, { value: ether(1), from: investor }), EVMRevert);
   });
 
   it('should reject payments over cap', async function () {
     await increaseTimeTo(this.openingTime);
     await this.crowdsale.send(CAP);
-    await this.crowdsale.send(1).should.be.rejectedWith(EVMRevert);
+    await expectThrow(this.crowdsale.send(1), EVMRevert);
   });
 
   it('should allow finalization and transfer funds to wallet if the goal is reached', async function () {
     await increaseTimeTo(this.openingTime);
     await this.crowdsale.send(GOAL);
 
-    const beforeFinalization = web3.eth.getBalance(wallet);
+    const beforeFinalization = await ethGetBalance(wallet);
     await increaseTimeTo(this.afterClosingTime);
     await this.crowdsale.finalize({ from: owner });
-    const afterFinalization = web3.eth.getBalance(wallet);
+    const afterFinalization = await ethGetBalance(wallet);
 
     afterFinalization.minus(beforeFinalization).should.be.bignumber.equal(GOAL);
   });
 
   it('should allow refunds if the goal is not reached', async function () {
-    const balanceBeforeInvestment = web3.eth.getBalance(investor);
+    const balanceBeforeInvestment = await ethGetBalance(investor);
 
     await increaseTimeTo(this.openingTime);
     await this.crowdsale.sendTransaction({ value: ether(1), from: investor, gasPrice: 0 });
     await increaseTimeTo(this.afterClosingTime);
 
     await this.crowdsale.finalize({ from: owner });
-    await this.crowdsale.claimRefund({ from: investor, gasPrice: 0 }).should.be.fulfilled;
+    await this.crowdsale.claimRefund({ from: investor, gasPrice: 0 });
 
-    const balanceAfterRefund = web3.eth.getBalance(investor);
+    const balanceAfterRefund = await ethGetBalance(investor);
     balanceBeforeInvestment.should.be.bignumber.equal(balanceAfterRefund);
   });
 

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 import "../Crowdsale.sol";
 import "../../token/ERC20/MintableToken.sol";
@@ -22,6 +22,7 @@ contract MintedCrowdsale is Crowdsale {
   )
     internal
   {
-    require(MintableToken(token).mint(_beneficiary, _tokenAmount));
+    // Potentially dangerous assumption about the type of the token.
+    require(MintableToken(address(token)).mint(_beneficiary, _tokenAmount));
   }
 }

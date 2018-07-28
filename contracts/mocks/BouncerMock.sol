@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 import "../access/SignatureBouncer.sol";
 
@@ -36,7 +36,12 @@ contract SignatureBouncerMock is SignatureBouncer {
 
   }
 
-  function checkValidSignatureAndData(address _address, bytes _bytes, uint _val, bytes _sig)
+  function checkValidSignatureAndData(
+    address _address,
+    bytes,
+    uint,
+    bytes _sig
+  )
     public
     view
     returns (bool)
@@ -44,10 +49,17 @@ contract SignatureBouncerMock is SignatureBouncer {
     return isValidSignatureAndData(_address, _sig);
   }
 
-  function onlyWithValidSignatureAndData(uint _val, bytes _sig)
+  function onlyWithValidSignatureAndData(uint, bytes _sig)
     onlyValidSignatureAndData(_sig)
     public
     view
+  {
+
+  }
+
+  function theWrongMethod(bytes)
+    public
+    pure
   {
 
   }

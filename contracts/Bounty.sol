@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 
 import "./payment/PullPayment.sol";
@@ -35,15 +35,15 @@ contract Bounty is PullPayment, Destructible {
   }
 
   /**
-   * @dev Sends the contract funds to the researcher that proved the contract is broken.
+   * @dev Transfers the contract funds to the researcher that proved the contract is broken.
    * @param target contract
    */
   function claim(Target target) public {
     address researcher = researchers[target];
-    require(researcher != 0);
+    require(researcher != address(0));
     // Check Target contract invariants
     require(!target.checkInvariant());
-    asyncSend(researcher, address(this).balance);
+    asyncTransfer(researcher, address(this).balance);
     claimed = true;
   }
 

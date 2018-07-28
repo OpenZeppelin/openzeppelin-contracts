@@ -1,11 +1,11 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 
 /**
  * @title Roles
  * @author Francisco Giordano (@frangio)
  * @dev Library for managing addresses assigned to a Role.
- *      See RBAC.sol for example usage.
+ * See RBAC.sol for example usage.
  */
 library Roles {
   struct Role {

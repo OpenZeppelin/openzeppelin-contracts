@@ -1,15 +1,12 @@
-import expectThrow from '../helpers/expectThrow';
-import expectEvent from '../helpers/expectEvent';
+const { expectThrow } = require('../helpers/expectThrow');
+const expectEvent = require('../helpers/expectEvent');
 
 const WhitelistMock = artifacts.require('WhitelistMock');
 
 require('chai')
-  .use(require('chai-as-promised'))
   .should();
 
 contract('Whitelist', function (accounts) {
-  let mock;
-
   const [
     owner,
     whitelistedAddress1,
@@ -19,74 +16,78 @@ contract('Whitelist', function (accounts) {
 
   const whitelistedAddresses = [whitelistedAddress1, whitelistedAddress2];
 
-  before(async function () {
-    mock = await WhitelistMock.new();
+  beforeEach(async function () {
+    this.mock = await WhitelistMock.new();
+    this.role = await this.mock.ROLE_WHITELISTED();
   });
 
-  context('in normal conditions', () => {
+  context('in normal conditions', function () {
     it('should add address to the whitelist', async function () {
       await expectEvent.inTransaction(
-        mock.addAddressToWhitelist(whitelistedAddress1, { from: owner }),
-        'WhitelistedAddressAdded'
+        this.mock.addAddressToWhitelist(whitelistedAddress1, { from: owner }),
+        'RoleAdded',
+        { role: this.role },
       );
-      const isWhitelisted = await mock.whitelist(whitelistedAddress1);
+      const isWhitelisted = await this.mock.whitelist(whitelistedAddress1);
       isWhitelisted.should.be.equal(true);
     });
 
     it('should add addresses to the whitelist', async function () {
       await expectEvent.inTransaction(
-        mock.addAddressesToWhitelist(whitelistedAddresses, { from: owner }),
-        'WhitelistedAddressAdded'
+        this.mock.addAddressesToWhitelist(whitelistedAddresses, { from: owner }),
+        'RoleAdded',
+        { role: this.role },
       );
-      for (let addr of whitelistedAddresses) {
-        const isWhitelisted = await mock.whitelist(addr);
+      for (const addr of whitelistedAddresses) {
+        const isWhitelisted = await this.mock.whitelist(addr);
         isWhitelisted.should.be.equal(true);
       }
     });
 
     it('should remove address from the whitelist', async function () {
       await expectEvent.inTransaction(
-        mock.removeAddressFromWhitelist(whitelistedAddress1, { from: owner }),
-        'WhitelistedAddressRemoved'
+        this.mock.removeAddressFromWhitelist(whitelistedAddress1, { from: owner }),
+        'RoleRemoved',
+        { role: this.role },
       );
-      let isWhitelisted = await mock.whitelist(whitelistedAddress1);
+      const isWhitelisted = await this.mock.whitelist(whitelistedAddress1);
       isWhitelisted.should.be.equal(false);
     });
 
     it('should remove addresses from the the whitelist', async function () {
       await expectEvent.inTransaction(
-        mock.removeAddressesFromWhitelist(whitelistedAddresses, { from: owner }),
-        'WhitelistedAddressRemoved'
+        this.mock.removeAddressesFromWhitelist(whitelistedAddresses, { from: owner }),
+        'RoleRemoved',
+        { role: this.role },
       );
-      for (let addr of whitelistedAddresses) {
-        const isWhitelisted = await mock.whitelist(addr);
+      for (const addr of whitelistedAddresses) {
+        const isWhitelisted = await this.mock.whitelist(addr);
         isWhitelisted.should.be.equal(false);
       }
     });
 
-    it('should allow whitelisted address to call #onlyWhitelistedCanDoThis', async () => {
-      await mock.addAddressToWhitelist(whitelistedAddress1, { from: owner });
-      await mock.onlyWhitelistedCanDoThis({ from: whitelistedAddress1 })
-        .should.be.fulfilled;
+    it('should allow whitelisted address to call #onlyWhitelistedCanDoThis', async function () {
+      await this.mock.addAddressToWhitelist(whitelistedAddress1, { from: owner });
+      await this.mock.onlyWhitelistedCanDoThis({ from: whitelistedAddress1 });
     });
   });
 
-  context('in adversarial conditions', () => {
-    it('should not allow "anyone" to add to the whitelist', async () => {
+  context('in adversarial conditions', function () {
+    it('should not allow "anyone" to add to the whitelist', async function () {
       await expectThrow(
-        mock.addAddressToWhitelist(whitelistedAddress1, { from: anyone })
+        this.mock.addAddressToWhitelist(whitelistedAddress1, { from: anyone })
       );
     });
 
-    it('should not allow "anyone" to remove from the whitelist', async () => {
+    it('should not allow "anyone" to remove from the whitelist', async function () {
       await expectThrow(
-        mock.removeAddressFromWhitelist(whitelistedAddress1, { from: anyone })
+        this.mock.removeAddressFromWhitelist(whitelistedAddress1, { from: anyone })
       );
     });
 
-    it('should not allow "anyone" to call #onlyWhitelistedCanDoThis', async () => {
+    it('should not allow "anyone" to call #onlyWhitelistedCanDoThis', async function () {
       await expectThrow(
-        mock.onlyWhitelistedCanDoThis({ from: anyone })
+        this.mock.onlyWhitelistedCanDoThis({ from: anyone })
       );
     });
   });
