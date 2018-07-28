@@ -9,7 +9,7 @@ import "./SafeERC20.sol";
  * beneficiary to extract the tokens after a given release time
  */
 contract TokenTimelock {
-  using SafeERC20 for StandardToken;
+  using SafeERC20 for ERC20;
 
   // ERC20 basic token contract being held
   ERC20 public token;
