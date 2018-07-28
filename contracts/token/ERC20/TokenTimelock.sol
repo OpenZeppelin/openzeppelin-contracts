@@ -12,7 +12,7 @@ contract TokenTimelock {
   using SafeERC20 for StandardToken;
 
   // ERC20 basic token contract being held
-  StandardToken public token;
+  ERC20 public token;
 
   // beneficiary of tokens after they are released
   address public beneficiary;
