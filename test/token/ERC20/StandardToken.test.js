@@ -1,4 +1,4 @@
-import assertRevert from '../../helpers/assertRevert';
+const { assertRevert } = require('../../helpers/assertRevert');
 const StandardTokenMock = artifacts.require('StandardTokenMock');
 
 contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
@@ -295,15 +295,29 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         });
 
         describe('when the spender had an approved amount', function () {
+          const approvedAmount = amount;
+
           beforeEach(async function () {
-            await this.token.approve(spender, amount + 1, { from: owner });
+            await this.token.approve(spender, approvedAmount, { from: owner });
           });
 
           it('decreases the spender allowance subtracting the requested amount', async function () {
-            await this.token.decreaseApproval(spender, amount, { from: owner });
+            await this.token.decreaseApproval(spender, approvedAmount - 5, { from: owner });
 
             const allowance = await this.token.allowance(owner, spender);
-            assert.equal(allowance, 1);
+            assert.equal(allowance, 5);
+          });
+
+          it('sets the allowance to zero when all allowance is removed', async function () {
+            await this.token.decreaseApproval(spender, approvedAmount, { from: owner });
+            const allowance = await this.token.allowance(owner, spender);
+            assert.equal(allowance, 0);
+          });
+
+          it('sets the allowance to zero when more than the full allowance is removed', async function () {
+            await this.token.decreaseApproval(spender, approvedAmount + 5, { from: owner });
+            const allowance = await this.token.allowance(owner, spender);
+            assert.equal(allowance, 0);
           });
         });
       });

@@ -35,7 +35,7 @@ contract Bounty is PullPayment, Destructible {
   }
 
   /**
-   * @dev Sends the contract funds to the researcher that proved the contract is broken.
+   * @dev Transfers the contract funds to the researcher that proved the contract is broken.
    * @param target contract
    */
   function claim(Target target) public {
@@ -43,7 +43,7 @@ contract Bounty is PullPayment, Destructible {
     require(researcher != address(0));
     // Check Target contract invariants
     require(!target.checkInvariant());
-    asyncSend(researcher, address(this).balance);
+    asyncTransfer(researcher, address(this).balance);
     claimed = true;
   }
 

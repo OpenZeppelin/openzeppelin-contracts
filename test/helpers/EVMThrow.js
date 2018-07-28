@@ -1,1 +1,5 @@
-export default 'invalid opcode';
+const EVMThrow = 'invalid opcode';
+
+module.exports = {
+  EVMThrow,
+};
