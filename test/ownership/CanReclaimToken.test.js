@@ -1,7 +1,7 @@
 const { expectThrow } = require('../helpers/expectThrow');
 
 const CanReclaimToken = artifacts.require('CanReclaimToken');
-const BasicTokenMock = artifacts.require('BasicTokenMock');
+const StandardTokenMock = artifacts.require('StandardTokenMock');
 
 contract('CanReclaimToken', function (accounts) {
   let token = null;
@@ -9,7 +9,7 @@ contract('CanReclaimToken', function (accounts) {
 
   beforeEach(async function () {
     // Create contract and token
-    token = await BasicTokenMock.new(accounts[0], 100);
+    token = await StandardTokenMock.new(accounts[0], 100);
     canReclaimToken = await CanReclaimToken.new();
     // Force token into contract
     await token.transfer(canReclaimToken.address, 10);
