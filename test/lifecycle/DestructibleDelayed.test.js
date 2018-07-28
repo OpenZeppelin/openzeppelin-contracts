@@ -1,6 +1,7 @@
 
-import expectEvent from '../helpers/expectEvent';
-import expectThrow from '../helpers/expectThrow';
+import expectEvent from  '../helpers/expectEvent';
+import expectThrow from  '../helpers/expectThrow';
+import increaseTime from '../helpers/increaseTime';
 
 const BigNumber = web3.BigNumber;
 
@@ -17,7 +18,7 @@ const twoWeeks = 2* 7 * 24 * 60 * 60; //In seconds
 contract('DestructibleDelayed', function ([owner, anyone]) {
   let destructibleDelayed;
 
-  describe('Destruction requests', function () {
+  describe.only('Destruction requests', function () {
     beforeEach(async function () {
       destructibleDelayed = await DestructibleDelayedMock.new(
         twoWeeks, { from: owner, value: web3.toWei('10', 'ether') }
@@ -90,12 +91,7 @@ contract('DestructibleDelayed', function ([owner, anyone]) {
 
       context('once destructionTime is passed', function () {
         beforeEach(async function () {
-          await web3.currentProvider.send({
-            jsonrpc: '2.0',
-            method: 'evm_increaseTime',
-            params: [twoWeeks + 1], // 2 weeks + 1 second
-            id: 0,
-          });
+          await increaseTime(twoWeeks + 1);
         });
 
         it('should allow #destroy after delay is passed', async function () {
