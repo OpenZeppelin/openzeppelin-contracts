@@ -21,7 +21,7 @@ contract TokenTimelock {
   uint256 public releaseTime;
 
   constructor(
-    StandardToken _token,
+    ERC20 _token,
     address _beneficiary,
     uint256 _releaseTime
   )
