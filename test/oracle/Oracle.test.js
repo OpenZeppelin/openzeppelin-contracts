@@ -1,132 +1,118 @@
-import increaseTime from '../helpers/increaseTime';
 const BigNumber = web3.BigNumber;
-const EVMThrow = require('../helpers/EVMThrow.js');
+const { EVMRevert } = require('../helpers/EVMRevert');
+const { expectThrow } = require('../helpers/expectThrow');
 
 require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
 const Oracle = artifacts.require('Oracle');
 
 contract('Oracle', function ([owner, oracle, other]) {
-  const amount = web3.toWei(1.0, 'ether');
-  const amountOfUpdates = 3;
-  // 24h
-  const minFrequencyInSeconds = 60 * 60 * 24;
-  // 25h
-  const maxFrequencyInSeconds = 60 * 60 * 24 + 60 * 60;
+  const reward = web3.toWei(1.0, 'ether');
+  const updatesNeeded = 3;
 
   beforeEach(async function () {
-    this.contract = await Oracle.new(oracle, amountOfUpdates, minFrequencyInSeconds, maxFrequencyInSeconds, amount);
+    this.contract = await Oracle.new(oracle, updatesNeeded, reward);
   });
 
-  it('should reject contruction if amount of update is wrong', async function () {
-    const wrongAmountOfUpdates = 0;
-    await Oracle.new(oracle,
-      wrongAmountOfUpdates,
-      minFrequencyInSeconds,
-      maxFrequencyInSeconds,
-      amount).should.be.rejectedWith(EVMThrow);
-  });
-
-  it('should reject contruction if min frequency is wrong', async function () {
-    const wrongMinFrequency = 0;
-    await Oracle.new(oracle,
-      amountOfUpdates,
-      wrongMinFrequency,
-      maxFrequencyInSeconds,
-      amount).should.be.rejectedWith(EVMThrow);
-  });
-
-  it('should reject contruction if max frequency is wrong', async function () {
-    const wrongMaxFrequency = 0;
-    await Oracle.new(oracle,
-      amountOfUpdates,
-      minFrequencyInSeconds,
-      wrongMaxFrequency,
-      amount).should.be.rejectedWith(EVMThrow);
+  it('should reject contruction if amount of updates is wrong', async function () {
+    const wrongUpdatesNeeded = 0;
+    await expectThrow(Oracle.new(oracle, wrongUpdatesNeeded, reward),
+      EVMRevert
+    );
   });
 
   it('should reject contruction if reward is wrong', async function () {
     const wrongReward = 0;
-    await Oracle.new(oracle,
-      amountOfUpdates,
-      minFrequencyInSeconds,
-      maxFrequencyInSeconds,
-      wrongReward).should.be.rejectedWith(EVMThrow);
-  });
-
-  it('should reject contruction if max frequency is less than a minimum', async function () {
-    const minFrequency = 10;
-    const maxFrequency = 1;
-    await Oracle.new(oracle, amountOfUpdates, minFrequency, maxFrequency, amount).should.be.rejectedWith(EVMThrow);
+    await expectThrow(Oracle.new(oracle, updatesNeeded, wrongReward), EVMRevert);
   });
 
   it('should reject canceling the reward if contract was not activated', async function () {
-    await this.contract.cancelReward({ from: oracle }).should.be.rejectedWith(EVMThrow);
+    await expectThrow(this.contract.cancelReward({ from: owner }), EVMRevert);
   });
 
-  it('should reject activation if not sufficiently funded during the activation', async function () {
-    await this.contract.activate().should.be.rejectedWith(EVMThrow);
+  it('should reject activation if not sufficiently funded before the activation', async function () {
+    await expectThrow(this.contract.activate(), EVMRevert);
+  });
+
+  it('should reject adding the data if contract is not activated yet', async function () {
+    const value = 1;
+    await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: reward });
+    await expectThrow(this.contract.addOracleData(value, { from: oracle }), EVMRevert);
+  });
+
+  it('should accept funding the reward by the owner', async function () {
+    await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: reward });
+    const balance = web3.eth.getBalance(this.contract.address);
+    balance.should.be.bignumber.equal(reward);
+  });
+
+  it('should accept funding the reward by the external caller', async function () {
+    await web3.eth.sendTransaction({ from: other, to: this.contract.address, value: reward });
+    const balance = web3.eth.getBalance(this.contract.address);
+    balance.should.be.bignumber.equal(reward);
   });
 
   it('should reject claiming the reward if contract was not activated', async function () {
-    await this.contract.claimReward({ from: oracle }).should.be.rejectedWith(EVMThrow);
+    await expectThrow(this.contract.claimReward({ from: oracle }), EVMRevert);
   });
 
   it('should accept activation if sufficiently funded', async function () {
-    await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: amount });
+    await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: reward });
     await this.contract.activate({ from: owner });
     const isActive = await this.contract.isActive();
     isActive.should.be.equal(true);
   });
 
-  it('should accept funding the reward by the owner', async function () {
-    await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: amount });
-
-    const balance = web3.eth.getBalance(this.contract.address);
-    balance.should.be.bignumber.equal(amount);
-  });
-
-  it('should accept funding the reward by the external caller', async function () {
-    await web3.eth.sendTransaction({ from: other, to: this.contract.address, value: amount });
-
-    const balance = web3.eth.getBalance(this.contract.address);
-    balance.should.be.bignumber.equal(amount);
-  });
-
-  it('should reject updating the data if updated too frequently', async function () {
-    const valueOne = 1;
-    await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: amount });
+  it('should accept cancellation if oracle has not updated the data yet', async function () {
+    await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: reward });
     await this.contract.activate({ from: owner });
-    await this.contract.addOracleData(valueOne, { from: oracle }).should.be.rejectedWith(EVMThrow);
+    const isActive = await this.contract.isActive();
+    isActive.should.be.equal(true);
+    this.contract.cancelReward({ from: owner });
+    const isActiveAfterCancellation = await this.contract.isActive();
+    isActiveAfterCancellation.should.be.equal(false);
   });
 
-  it('should reject updating the data if updated too late', async function () {
-    const valueOne = 1;
-
-    await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: amount });
+  it('should reject cancellation if oracle has updated the data required amount of times', async function () {
+    await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: reward });
     await this.contract.activate({ from: owner });
-    increaseTime(2 * 60 * 60 * 24 + 1);
-    await this.contract.addOracleData(valueOne, { from: oracle }).should.be.rejectedWith(EVMThrow);
+    const value = 1;
+    await this.contract.addOracleData(value, { from: oracle });
+    await this.contract.addOracleData(value, { from: oracle });
+    await this.contract.addOracleData(value, { from: oracle });
+    await expectThrow(this.contract.cancelReward({ from: owner }), EVMRevert);
   });
 
-  it('should accept updating the data only by the oracle and according to the frequency rules', async function () {
+  it('should not allow to update the data more times than needed', async function () {
+    await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: reward });
+    await this.contract.activate({ from: owner });
+    const value = 1;
+    await this.contract.addOracleData(value, { from: oracle });
+    await this.contract.addOracleData(value, { from: oracle });
+    await this.contract.addOracleData(value, { from: oracle });
+    await expectThrow(this.contract.addOracleData(value, { from: oracle }), EVMRevert);
+  });
+
+  it('should reject double activation', async function () {
+    await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: reward });
+    await this.contract.activate({ from: owner });
+    const isActive = await this.contract.isActive();
+    isActive.should.be.equal(true);
+    await expectThrow(this.contract.activate({ from: owner }), EVMRevert);
+  });
+
+  it('should accept updating the data only by the oracle', async function () {
     const valueOne = 1;
     const valueTwo = 2;
 
-    await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: amount });
+    await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: reward });
     await this.contract.activate({ from: owner });
 
-    increaseTime(60 * 60 * 24 + 1);
-
     await this.contract.addOracleData(valueOne, { from: oracle });
-
     let oracleData = await this.contract.getOracleData();
     oracleData[0].should.be.bignumber.equal(valueOne);
-
-    increaseTime(60 * 60 * 24 + 1);
 
     await this.contract.addOracleData(valueTwo, { from: oracle });
     oracleData = await this.contract.getOracleData();
@@ -136,21 +122,14 @@ contract('Oracle', function ([owner, oracle, other]) {
   it('should reward the oracle if all updates happened properly', async function () {
     const value = 1;
 
-    await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: amount });
+    await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: reward });
     await this.contract.activate({ from: owner });
-
-    increaseTime(60 * 60 * 24 + 1);
     await this.contract.addOracleData(value, { from: oracle });
-
-    increaseTime(60 * 60 * 24 + 1);
     await this.contract.addOracleData(value, { from: oracle });
-
-    increaseTime(60 * 60 * 24 + 1);
     await this.contract.addOracleData(value, { from: oracle });
 
     const initialOracleBalance = web3.eth.getBalance(oracle);
-
-    // claim reward by oracle
+    // claim reward by oracle after updating the data required three times
     await this.contract.claimReward({ from: oracle });
 
     const contractBalance = web3.eth.getBalance(this.contract.address);
@@ -163,34 +142,19 @@ contract('Oracle', function ([owner, oracle, other]) {
     isActive.should.be.equal(false);
   });
 
-  it('should allow owner to cancel the reward if oracle violated the frequency', async function () {
-    await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: amount });
-    await this.contract.activate({ from: owner });
-
-    // time is violated - no updates came
-    increaseTime(60 * 60 * 24 + 60 * 60 * 24);
-
-    await this.contract.cancelReward({ from: owner });
-    const contractBalance = web3.eth.getBalance(this.contract.address);
-    contractBalance.should.be.bignumber.equal(0);
-  });
-
-  it('should throw is updated more frequently than allowed', async function () {
-    const valueOne = 1;
-    // 1 day minus one second
-    increaseTime(60 * 60 * 24 - 1);
-    await this.contract.addOracleData(valueOne, { from: oracle }).should.be.rejectedWith(EVMThrow);
-  });
-
-  it('should throw is updated less frequently than allowed', async function () {
-    const valueOne = 1;
-    // 2 days
-    increaseTime(60 * 60 * 24 * 2);
-    await this.contract.addOracleData(valueOne, { from: oracle }).should.be.rejectedWith(EVMThrow);
-  });
-
-  it('should throw if called not by the oracle', async function () {
+  it('should reject claiming the reward if not updated enough times by oracle', async function () {
     const value = 1;
-    await this.contract.addOracleData(value, { from: other }).should.be.rejectedWith(EVMThrow);
+    await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: reward });
+    await this.contract.activate({ from: owner });
+    // update data only once (three times are required)
+    await this.contract.addOracleData(value, { from: oracle });
+    await expectThrow(this.contract.claimReward({ from: oracle }), EVMRevert);
+  });
+
+  it('should not allow adding data by anybody except oracle', async function () {
+    const value = 1;
+    await web3.eth.sendTransaction({ from: owner, to: this.contract.address, value: reward });
+    await this.contract.activate({ from: owner });
+    await expectThrow(this.contract.addOracleData(value, { from: other }), EVMRevert);
   });
 });
