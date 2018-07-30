@@ -90,10 +90,6 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
       // end balance should be zero
       const endBalance = await ethGetBalance(this.contract.address);
       endBalance.should.be.bignumber.equal(0);
-
-      // check correct funds released accounting
-      const totalReleased = await this.contract.totalReleased.call();
-      totalReleased.should.be.bignumber.equal(initBalance);
     });
   });
 });

@@ -12,7 +12,6 @@ contract SplitPayment {
   using SafeMath for uint256;
 
   uint256 public totalShares = 0;
-  uint256 public totalReleased = 0;
   uint256 public totalFundsPerShare = 0;
 
   mapping(address => uint256) public shares;
@@ -57,7 +56,6 @@ contract SplitPayment {
     require(address(this).balance >= payment);
 
     released[payee] = released[payee].add(payment);
-    totalReleased = totalReleased.add(payment);
 
     payee.transfer(payment);
   }
