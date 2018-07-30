@@ -1,4 +1,4 @@
-pragma solidity ^0.4.20;
+pragma solidity ^0.4.24;
 
 
 /**
@@ -6,7 +6,10 @@ pragma solidity ^0.4.20;
  * @dev https://github.com/ethereum/EIPs/blob/master/EIPS/eip-165.md
  */
 library ERC165Query {
+  // As per the EIP-165 spec, no interface should ever match 0xffffffff
   bytes4 constant INVALID_ID = 0xffffffff;
+
+  // As per the EIP-165 spec, ERC165_ID == bytes4(keccak256('supportsInterface(bytes4)')
   bytes4 constant ERC165_ID = 0x01ffc9a7;
 
   /**
@@ -30,17 +33,17 @@ library ERC165Query {
     uint256 result;
 
     (success, result) = noThrowCall(_contract, ERC165_ID);
-    if ((success==0)||(result==0)) {
+    if ((success==0) || (result==0)) {
       return false;
     }
 
     (success, result) = noThrowCall(_contract, INVALID_ID);
-    if ((success==0)||(result!=0)) {
+    if ((success==0) || (result!=0)) {
       return false;
     }
 
     (success, result) = noThrowCall(_contract, _interfaceId);
-    if ((success==1)&&(result==1)) {
+    if ((success==1) && (result==1)) {
       return true;
     }
     return false;
