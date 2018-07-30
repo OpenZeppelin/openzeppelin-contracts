@@ -38,6 +38,11 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
 
       const balance = await ethGetBalance(this.contract.address);
       balance.should.be.bignumber.equal(amount);
+
+      // check correct totalFundsPerShare calculation
+      const totalFundsPerShare = await this.contract.totalFundsPerShare.call();
+      const totalShares = await this.contract.totalShares.call();
+      totalFundsPerShare.should.be.bignumber.equal(amount / totalShares);
     });
 
     it('should store shares if address is payee', async function () {
