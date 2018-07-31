@@ -10,7 +10,27 @@ import "./BurnableToken.sol";
  * @dev Token that can preserve the balances after some EVENT happens (voting is started, didivends are calculated, etc)
  * without blocking the transfers! Please notice that EVENT in this case has nothing to do with Ethereum events.
  *
- * Example of usage (pseudocode):
+ * Example of usage1 (pseudocode):
+ *   PreserveBalancesOnTransferToken token;
+ *
+ *   token.mint(ADDRESS_A, 100);
+ *   assert.equal(token.balanceOf(ADDRESS_A), 100);
+ *   assert.equal(token.balanceOf(ADDRESS_B), 0);
+ *
+ *   SnapshotToken snapshot = token.createNewSnapshot();
+ *   token.transfer(ADDRESS_A, ADDRESS_B, 30);
+ *
+ *   assert.equal(token.balanceOf(ADDRESS_A), 70);
+ *   assert.equal(token.balanceOf(ADDRESS_B), 30);
+ *
+ *   assert.equal(snapshot.balanceOf(ADDRESS_A), 100);
+ *   assert.equal(snapshot.balanceOf(ADDRESS_B), 0);
+ *
+ *   token.stopSnapshot(snapshot);
+ *
+ * Example of usage2 (pseudocode):
+ *   PreserveBalancesOnTransferToken token;
+ *
  *   token.mint(ADDRESS_A, 100);
  *   assert.equal(token.balanceOf(ADDRESS_A), 100);
  *   assert.equal(token.balanceOf(ADDRESS_B), 0);
@@ -25,7 +45,7 @@ import "./BurnableToken.sol";
  *   assert.equal(token.getBalanceAtEvent(someEventID_1, ADDRESS_B), 0);
  *
  *   token.finishEvent(someEventID_1);
- */
+*/
 contract PreserveBalancesOnTransferToken is MintableToken, BurnableToken {
   struct Holder {
     uint256 balance;
@@ -38,9 +58,16 @@ contract PreserveBalancesOnTransferToken is MintableToken, BurnableToken {
     uint eventStartTime;
   }
   mapping (uint => Event) events;
+  SnapshotToken[] snapshotTokens;
 
   event EventStarted(address indexed _address, uint _eventID);
   event EventFinished(address indexed _address, uint _eventID);
+  event SnapshotCreated(address indexed _snapshotTokenAddress);
+
+  modifier onlyFromSnapshotOrOwner() {
+    require((msg.sender == owner) || isFromSnapshot(msg.sender));
+    _;
+  }
 
 // BasicToken overrides:
   /**
@@ -83,11 +110,38 @@ contract PreserveBalancesOnTransferToken is MintableToken, BurnableToken {
 
 // PreserveBalancesOnTransferToken - new methods:
   /**
+   * @dev Creates new ERC20 balances snapshot. 
+   * In this case SnapshotToken is an easy way to get the balances 
+   * using the standard 'balanceOf' method instead of getBalanceAtEventStart()
+   * @return Address of the new created snapshot ERC20 token.
+   */
+  function createNewSnapshot() public onlyOwner returns(address) {
+    SnapshotToken st = new SnapshotToken(this);
+
+    snapshotTokens.push(st);
+    // will call back this.startNewEvent();
+    st.start();
+
+    emit SnapshotCreated(st);
+    return st;
+  }
+
+  /**
+   * @dev End working with the ERC20 balances snapshot 
+   * @param _st The SnapshotToken that was created with 'createNewSnapshot' 
+   * method before
+   */
+  function stopSnapshot(SnapshotToken _st) public onlyOwner {
+    // will call back this.finishEvent();
+    _st.finish();
+  } 
+
+  /**
    * @dev Function to signal that some event happens (dividends are calculated, voting, etc) 
-  * so we need to start preserving balances AT THE time this event happened.
+   * so we need to start preserving balances AT THE time this event happened.
    * @return An index of the event started.
    */
-  function startNewEvent() public onlyOwner returns(uint) {
+  function startNewEvent() public onlyFromSnapshotOrOwner returns(uint) {
     for (uint i = 0; i < 20; i++) {
       if (!events[i].isEventInProgress) {
         events[i].isEventInProgress = true;
@@ -104,7 +158,7 @@ contract PreserveBalancesOnTransferToken is MintableToken, BurnableToken {
    * @dev Function to signal that some event is finished 
    * @param _eventID An index of the event that was previously returned by startNewEvent().
    */
-  function finishEvent(uint _eventID) public onlyOwner {
+  function finishEvent(uint _eventID) public onlyFromSnapshotOrOwner {
     require(events[_eventID].isEventInProgress);
     events[_eventID].isEventInProgress = false;
 
@@ -170,5 +224,86 @@ contract PreserveBalancesOnTransferToken is MintableToken, BurnableToken {
   {
     return (events[_eventID].holders[_for].lastUpdateTime >= 
     events[_eventID].eventStartTime);
+  }
+
+  function isFromSnapshot(address _a) internal view returns(bool){
+    for(uint i = 0; i < snapshotTokens.length; ++i) {
+      if(snapshotTokens[i] == _a) {
+        return true;
+      }
+    }
+    return false;
+  }
+}
+
+/**
+ * @title SnapshotToken
+ * @author Based on code by Thetta DAO Framework: https://github.com/Thetta/Thetta-DAO-Framework/
+ * @dev Wapper to use snapshot.balanceOf() instead of token.getBalanceAtEventStart() 
+ * Should not be created directly. Please use PreserveBalancesOnTransferToken.createNewSnapshot() method
+*/
+contract SnapshotToken is StandardToken, Ownable {
+  PreserveBalancesOnTransferToken public pbott;
+  uint public snapshotID = 0;
+  bool isStarted = false;
+
+  constructor(PreserveBalancesOnTransferToken _pbott) public {
+     pbott = _pbott; 
+  }
+
+// BasicToken overrides:
+  /**
+  * @dev Gets the balance of the specified address.
+  * @param _owner The address to query the the balance of.
+  * @return An uint256 representing the amount owned by the passed address.
+  */
+  function balanceOf(address _owner) public view returns (uint256) {
+    return pbott.getBalanceAtEventStart(snapshotID, _owner);
+  }
+
+  /**
+  * @dev Transfer token for a specified address. Blocked!
+  * @param _to The address to transfer to.
+  * @param _value The amount to be transferred.
+  */
+  function transfer(address _to, uint256 _value) public returns (bool) {
+     revert();
+     return false;
+  }
+
+// StandardToken overrides:
+  /**
+   * @dev Transfer tokens from one address to another. Blocked!
+   * @param _from address The address which you want to send tokens from
+   * @param _to address The address which you want to transfer to
+   * @param _value uint256 the amount of tokens to be transferred
+   */
+  function transferFrom(address _from, address _to, uint256 _value) 
+    public returns (bool) 
+  {
+    revert();
+    return false;
+  }
+
+// New methods:
+  /**
+   * @dev Should be called automatically from the PreserveBalancesOnTransferToken 
+   */
+  function start() public {
+     require(pbott == msg.sender);
+     require(!isStarted);
+
+     snapshotID = pbott.startNewEvent();
+     isStarted = true;
+  }
+
+  /**
+   * @dev Should be called automatically from the PreserveBalancesOnTransferToken 
+   */
+  function finish() public {
+     require(pbott == msg.sender);
+     require(isStarted);
+
+     pbott.finishEvent(snapshotID);
   }
 }

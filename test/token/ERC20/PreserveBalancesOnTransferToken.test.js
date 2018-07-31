@@ -1,5 +1,8 @@
 const BigNumber = web3.BigNumber;
+
 const PreserveBalancesOnTransferToken = artifacts.require('PreserveBalancesOnTransferToken');
+const PreserveBalancesOnTransferTokenMock = artifacts.require('PreserveBalancesOnTransferTokenMock');
+const SnapshotToken = artifacts.require('SnapshotToken');
 
 // Increases ganache time by the passed duration in seconds
 function increaseTime (duration) {
@@ -106,7 +109,6 @@ contract('PreserveBalancesOnTransferToken', (accounts) => {
   describe('startNewEvent', function () {
     it('should not allow to create > 20 separate events', async () => {
       this.token = await PreserveBalancesOnTransferToken.new();
-
       await this.token.startNewEvent();// 1
       await this.token.startNewEvent();// 2
       await this.token.startNewEvent();// 3
@@ -256,6 +258,7 @@ contract('PreserveBalancesOnTransferToken', (accounts) => {
 
     it('should work correctly if time passed and new event is started', async () => {
       this.token = await PreserveBalancesOnTransferToken.new();
+
       await this.token.mint(account3, 100);
       await this.token.mint(account4, 20);
 
@@ -316,6 +319,7 @@ contract('PreserveBalancesOnTransferToken', (accounts) => {
     // That is a feature, not a bug!
     it('should work correctly if time NOT passed and new event is started', async () => {
       this.token = await PreserveBalancesOnTransferToken.new();
+
       await this.token.mint(account3, 100);
       await this.token.mint(account4, 20);
 
@@ -393,6 +397,187 @@ contract('PreserveBalancesOnTransferToken', (accounts) => {
       assert.equal(account5EventBalance.toNumber(), 0);
 
       await this.token.finishEvent(75).should.be.rejectedWith('revert');
+    });
+  });
+
+  describe('createNewSnapshot', function () {
+    it('should fail due to not owner call', async function () {
+      this.token = await PreserveBalancesOnTransferToken.new();
+      await this.token.createNewSnapshot(
+        { from: web3.eth.accounts[1] }).should.be.rejectedWith('revert');
+    });
+
+    it('should succeed', async function () {
+      this.token = await PreserveBalancesOnTransferToken.new();
+      await this.token.createNewSnapshot().should.be.fulfilled;
+    });
+  });
+
+  describe('stopSnapshot', function () {
+    it('should fail due to not owner call', async function () {
+      this.token = await PreserveBalancesOnTransferToken.new();
+
+      const tx = await this.token.createNewSnapshot();
+      const events = tx.logs.filter(l => l.event === 'SnapshotCreated');
+      const snapshotTokenAddress = events[0].args._snapshotTokenAddress;
+
+      this.snapshot = await SnapshotToken.at(snapshotTokenAddress);
+      await this.token.stopSnapshot(
+        this.snapshot.address,
+        { from: web3.eth.accounts[1] } ).should.be.rejectedWith('revert');
+    });
+    
+    it('should succeed', async function () {
+      this.token = await PreserveBalancesOnTransferToken.new();
+
+      const tx = await this.token.createNewSnapshot();
+      const events = tx.logs.filter(l => l.event === 'SnapshotCreated');
+      const snapshotTokenAddress = events[0].args._snapshotTokenAddress;
+
+      this.snapshot = await SnapshotToken.at(snapshotTokenAddress);
+      await this.token.stopSnapshot(this.snapshot.address).should.be.fulfilled;
+    });
+  });
+});
+
+contract('SnapshotToken', (accounts) => {
+  const creator = accounts[0];
+  const account3 = accounts[3];
+  const account4 = accounts[4];
+  const account5 = accounts[5];
+    
+  beforeEach(async function () {
+
+  });
+
+  describe('start', function () {
+    it('should fail because not called from the PreserveBalancesOnTransferToken', async function () {
+      this.token = await PreserveBalancesOnTransferTokenMock.new();
+      this.snapshot = await SnapshotToken.new(this.token.address);
+
+      await this.snapshot.start(
+        { from: web3.eth.accounts[1] }).should.be.rejectedWith('revert');
+    });
+
+    it('should fail if already started', async function () {
+      this.token = await PreserveBalancesOnTransferTokenMock.new();
+      this.snapshot = await SnapshotToken.new(this.token.address);
+
+      await this.token.TEST_callStartForSnapshot(this.snapshot.address).should.be.fulfilled;
+      await this.token.TEST_callStartForSnapshot(this.snapshot.address).should.be.rejectedWith('revert');
+    });
+
+    it('should succeed', async function () {
+      this.token = await PreserveBalancesOnTransferTokenMock.new();
+      this.snapshot = await SnapshotToken.new(this.token.address);
+
+      await this.token.TEST_callStartForSnapshot(this.snapshot.address).should.be.fulfilled;
+    });
+  });
+
+  describe('finish', function () {
+    it('should fail because not called by the owner', async function () {
+      this.token = await PreserveBalancesOnTransferTokenMock.new();
+
+      const tx = await this.token.createNewSnapshot();
+      const events = tx.logs.filter(l => l.event === 'SnapshotCreated');
+      const snapshotTokenAddress = events[0].args._snapshotTokenAddress;
+
+      this.snapshot = await SnapshotToken.at(snapshotTokenAddress);
+      await this.snapshot.finish( {from: web3.eth.accounts[1]} ).should.be.rejectedWith('revert');
+      await this.snapshot.finish().should.be.rejectedWith('revert');
+    });
+
+    it('should fail if was not started', async function () {
+      this.token = await PreserveBalancesOnTransferTokenMock.new();
+      this.snapshot = await SnapshotToken.new(this.token.address);
+
+      await this.token.TEST_callFinishForSnapshot(this.snapshot.address).should.be.rejectedWith('revert');
+    });
+
+    it('should succeed', async function () {
+      this.token = await PreserveBalancesOnTransferTokenMock.new();
+      this.snapshot = await SnapshotToken.new(this.token.address);
+
+      await this.token.TEST_callStartForSnapshot(this.snapshot.address);
+      await this.token.TEST_callFinishForSnapshot(this.snapshot.address).should.be.fulfilled;
+    });
+  });
+
+  describe('balanceOf', function () {
+    it('should fail if not started', async function () {
+      this.token = await PreserveBalancesOnTransferTokenMock.new();
+      await this.token.mint(web3.eth.accounts[0], 1000);
+
+      this.snapshot = await SnapshotToken.new(this.token.address);
+      let balanceAtStart = await this.snapshot.balanceOf(web3.eth.accounts[0]).should.be.rejectedWith('revert');
+    });
+
+    it('should return correct value if minted some tokens', async function () {
+      // not a mock contract here!
+      this.token = await PreserveBalancesOnTransferToken.new();
+
+      // this calls 'start' automatically
+      const tx = await this.token.createNewSnapshot();
+      const events = tx.logs.filter(l => l.event === 'SnapshotCreated');
+      const snapshotTokenAddress = events[0].args._snapshotTokenAddress;
+
+      this.snapshot = await SnapshotToken.at(snapshotTokenAddress);
+
+      await this.token.mint(web3.eth.accounts[0], 1000);
+
+      let balanceReal = await this.token.balanceOf(web3.eth.accounts[0]);
+      let balanceAtStart = await this.snapshot.balanceOf(web3.eth.accounts[0]);
+
+      assert.equal(balanceReal.toNumber(), 1000);
+      assert.equal(balanceAtStart.toNumber(), 0);
+    });
+
+    it('should return correct value if transferred some tokens', async function () {
+      // not a mock contract here!
+      this.token = await PreserveBalancesOnTransferToken.new();
+      await this.token.mint(web3.eth.accounts[0], 1000);
+
+      // this calls 'start' automatically
+      const tx = await this.token.createNewSnapshot();
+      const events = tx.logs.filter(l => l.event === 'SnapshotCreated');
+      const snapshotTokenAddress = events[0].args._snapshotTokenAddress;
+
+      this.snapshot = await SnapshotToken.at(snapshotTokenAddress);
+      await this.token.transfer(web3.eth.accounts[1],200);
+
+      let balanceReal = await this.token.balanceOf(web3.eth.accounts[0]);
+      let balanceReal2 = await this.token.balanceOf(web3.eth.accounts[1]);
+      let balanceAtStart = await this.snapshot.balanceOf(web3.eth.accounts[0]);
+      let balanceAtStart2 = await this.snapshot.balanceOf(web3.eth.accounts[1]);
+
+      assert.equal(balanceReal.toNumber(), 800);
+      assert.equal(balanceReal2.toNumber(), 200);
+
+      assert.equal(balanceAtStart.toNumber(), 1000);
+      assert.equal(balanceAtStart2.toNumber(), 0);
+    });
+  });
+
+  describe('transfer', function () {
+    it('should be blocked', async function () {
+      this.token = await PreserveBalancesOnTransferTokenMock.new();
+      await this.token.mint(web3.eth.accounts[0], 1000);
+
+      this.snapshot = await SnapshotToken.new(this.token.address);
+      await this.snapshot.transfer(web3.eth.accounts[1],200).should.be.rejectedWith('revert');
+    });
+  });
+
+  describe('transferFrom', function () {
+    it('should be blocked', async function () {
+      this.token = await PreserveBalancesOnTransferTokenMock.new();
+      await this.token.mint(account4, 1000);
+
+      this.snapshot = await SnapshotToken.new(this.token.address);
+
+      await this.snapshot.approve(account3, 1, { from: account4 });
+      await this.snapshot.transferFrom(account4, account5, 1, { from: account3 }).should.be.rejectedWith('revert');
     });
   });
 });
