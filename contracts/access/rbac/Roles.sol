@@ -15,41 +15,41 @@ library Roles {
   /**
    * @dev give an address access to this role
    */
-  function add(Role storage role, address addr)
+  function add(Role storage _role, address _addr)
     internal
   {
-    role.bearer[addr] = true;
+    _role.bearer[_addr] = true;
   }
 
   /**
    * @dev remove an address' access to this role
    */
-  function remove(Role storage role, address addr)
+  function remove(Role storage _role, address _addr)
     internal
   {
-    role.bearer[addr] = false;
+    _role.bearer[_addr] = false;
   }
 
   /**
    * @dev check if an address has this role
    * // reverts
    */
-  function check(Role storage role, address addr)
+  function check(Role storage _role, address _addr)
     view
     internal
   {
-    require(has(role, addr));
+    require(has(_role, _addr));
   }
 
   /**
    * @dev check if an address has this role
    * @return bool
    */
-  function has(Role storage role, address addr)
+  function has(Role storage _role, address _addr)
     view
     internal
     returns (bool)
   {
-    return role.bearer[addr];
+    return _role.bearer[_addr];
   }
 }

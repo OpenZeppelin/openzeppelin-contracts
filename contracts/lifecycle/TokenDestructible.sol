@@ -16,16 +16,16 @@ contract TokenDestructible is Ownable {
 
   /**
    * @notice Terminate contract and refund to owner
-   * @param tokens List of addresses of ERC20 or ERC20Basic token contracts to
+   * @param _tokens List of addresses of ERC20 or ERC20Basic token contracts to
    refund.
    * @notice The called token contracts could try to re-enter this contract. Only
    supply token contracts you trust.
    */
-  function destroy(address[] tokens) onlyOwner public {
+  function destroy(address[] _tokens) onlyOwner public {
 
     // Transfer tokens to owner
-    for (uint256 i = 0; i < tokens.length; i++) {
-      ERC20Basic token = ERC20Basic(tokens[i]);
+    for (uint256 i = 0; i < _tokens.length; i++) {
+      ERC20Basic token = ERC20Basic(_tokens[i]);
       uint256 balance = token.balanceOf(this);
       token.transfer(owner, balance);
     }

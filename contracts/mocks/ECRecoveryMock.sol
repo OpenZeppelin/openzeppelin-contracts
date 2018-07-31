@@ -7,19 +7,19 @@ import "../ECRecovery.sol";
 contract ECRecoveryMock {
   using ECRecovery for bytes32;
 
-  function recover(bytes32 hash, bytes sig)
+  function recover(bytes32 _hash, bytes _sig)
     public
     pure
     returns (address)
   {
-    return hash.recover(sig);
+    return _hash.recover(_sig);
   }
 
-  function toEthSignedMessageHash(bytes32 hash)
+  function toEthSignedMessageHash(bytes32 _hash)
     public
     pure
     returns (bytes32)
   {
-    return hash.toEthSignedMessageHash();
+    return _hash.toEthSignedMessageHash();
   }
 }
