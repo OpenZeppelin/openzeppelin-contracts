@@ -87,7 +87,7 @@ contract TokenVesting is Ownable {
     require(revocable);
     require(!revoked[token]);
 
-    uint256 balance = token.balanceOf(this);
+    uint256 balance = token.balanceOf(address(this));
 
     uint256 unreleased = releasableAmount(token);
     uint256 refund = balance.sub(unreleased);
@@ -112,7 +112,7 @@ contract TokenVesting is Ownable {
    * @param token ERC20 token which is being vested
    */
   function vestedAmount(ERC20Basic token) public view returns (uint256) {
-    uint256 currentBalance = token.balanceOf(this);
+    uint256 currentBalance = token.balanceOf(address(this));
     uint256 totalBalance = currentBalance.add(released[token]);
 
     if (block.timestamp < cliff) {
