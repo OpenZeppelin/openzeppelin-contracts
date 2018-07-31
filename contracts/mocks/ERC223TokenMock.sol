@@ -10,9 +10,9 @@ contract ERC223ContractInterface {
 
 contract ERC223TokenMock is BasicToken {
 
-  constructor(address initialAccount, uint256 initialBalance) public {
-    balances[initialAccount] = initialBalance;
-    totalSupply_ = initialBalance;
+  constructor(address _initialAccount, uint256 _initialBalance) public {
+    balances[_initialAccount] = _initialBalance;
+    totalSupply_ = _initialBalance;
   }
 
   // ERC223 compatible transfer function (except the name)

@@ -11,22 +11,22 @@ import "./ERC20.sol";
  * which allows you to call the safe operations as `token.safeTransfer(...)`, etc.
  */
 library SafeERC20 {
-  function safeTransfer(ERC20Basic token, address to, uint256 value) internal {
-    require(token.transfer(to, value));
+  function safeTransfer(ERC20Basic _token, address _to, uint256 _value) internal {
+    require(_token.transfer(_to, _value));
   }
 
   function safeTransferFrom(
-    ERC20 token,
-    address from,
-    address to,
-    uint256 value
+    ERC20 _token,
+    address _from,
+    address _to,
+    uint256 _value
   )
     internal
   {
-    require(token.transferFrom(from, to, value));
+    require(_token.transferFrom(_from, _to, _value));
   }
 
-  function safeApprove(ERC20 token, address spender, uint256 value) internal {
-    require(token.approve(spender, value));
+  function safeApprove(ERC20 _token, address _spender, uint256 _value) internal {
+    require(_token.approve(_spender, _value));
   }
 }
