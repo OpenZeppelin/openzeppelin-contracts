@@ -5,6 +5,7 @@
     "quotes": ["error", "double"],
     "no-empty-blocks": "off",
     "uppercase": "off",
+    "error-reason": "off",
     "indentation": ["error", 2],
     "max-len": ["warning", 79],
     "no-constant": ["error"],
