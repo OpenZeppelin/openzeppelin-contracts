@@ -32,14 +32,14 @@ contract Superuser is Ownable, RBAC {
   }
 
   /**
-   * @dev getter to determine if address has superuser role
+   * @dev getter to determine if an account has superuser role
    */
-  function isSuperuser(address _addr)
+  function isSuperuser(address _account)
     public
     view
     returns (bool)
   {
-    return hasRole(_addr, ROLE_SUPERUSER);
+    return hasRole(_account, ROLE_SUPERUSER);
   }
 
   /**

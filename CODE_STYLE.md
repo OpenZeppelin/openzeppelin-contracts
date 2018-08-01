@@ -14,6 +14,8 @@ Any exception or additions specific to our project are documented below.
 
 ### Naming
 
+* Try to avoid acronyms and abbreviations.
+
 * Parameters must be prefixed with an underscore.
 
 ```

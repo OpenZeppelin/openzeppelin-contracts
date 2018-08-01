@@ -13,9 +13,9 @@ library ECRecovery {
   /**
    * @dev Recover signer address from a message by using their signature
    * @param _hash bytes32 message, the hash is the signed message. What is recovered is the signer address.
-   * @param _sig bytes signature, the signature is generated using web3.eth.sign()
+   * @param _signature bytes signature, the signature is generated using web3.eth.sign()
    */
-  function recover(bytes32 _hash, bytes _sig)
+  function recover(bytes32 _hash, bytes _signature)
     internal
     pure
     returns (address)
@@ -25,7 +25,7 @@ library ECRecovery {
     uint8 v;
 
     // Check the signature length
-    if (_sig.length != 65) {
+    if (_signature.length != 65) {
       return (address(0));
     }
 
@@ -34,9 +34,9 @@ library ECRecovery {
     // currently is to use assembly.
     // solium-disable-next-line security/no-inline-assembly
     assembly {
-      r := mload(add(_sig, 32))
-      s := mload(add(_sig, 64))
-      v := byte(0, mload(add(_sig, 96)))
+      r := mload(add(_signature, 32))
+      s := mload(add(_signature, 64))
+      v := byte(0, mload(add(_signature, 96)))
     }
 
     // Version of signature should be 27 or 28, but 0 and 1 are also possible versions
