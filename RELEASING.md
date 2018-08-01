@@ -1,6 +1,6 @@
 # Releasing
 
-This document describes our release policy, and constains the steps to be followed by an OpenZeppelin maintainer at the several stages of a release.
+This document describes our release process, and contains the steps to be followed by an OpenZeppelin maintainer at the several stages of a release.
 
 We release a new version of OpenZeppelin monthly. Release cycles are tracked in the [issue milestones](https://github.com/OpenZeppelin/openzeppelin-solidity/milestones).
 
@@ -34,7 +34,7 @@ git push upstream release-vX.Y.Z
 git push upstream vX.Y.Z-rc.R
 ```
 
-Draft the release notes in our [GitHub releases](https://github.com/OpenZeppelin/openzeppelin-solidity/releases). Try to be consistent with our previous release notes in the title and format of the text. Release notes for release candidates don't need a detailed changelog, but make sure to include a link to GitHub's compare page.
+Draft the release notes in our [GitHub releases](https://github.com/OpenZeppelin/openzeppelin-solidity/releases). Make sure to mark it as a prerelease! Try to be consistent with our previous release notes in the title and format of the text. Release candidates don't need a detailed changelog, but make sure to include a link to GitHub's compare page.
 
 Once the CI run for the new tag is green, publish on npm.
 
@@ -42,7 +42,7 @@ Once the CI run for the new tag is green, publish on npm.
 npm publish
 ```
 
-Ask our community manager to announce the release candidate on at least Slack and Twitter.
+Publish the release notes on GitHub and ask our community manager to announce the release candidate on at least Slack and Twitter.
 
 ## Creating the final release
 
@@ -59,6 +59,14 @@ git push upstream vX.Y.Z
 ```
 
 Draft the release notes in GitHub releases. Try to be consistent with our previous release notes in the title and format of the text. Make sure to include a detailed changelog.
+
+Once the CI run for the new tag is green, publish on npm.
+
+```
+npm publish
+```
+
+Publish the release notes on GitHub and ask our community manager to announce the release!
 
 ## Merging the release branch
 
