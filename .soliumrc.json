@@ -9,6 +9,7 @@
     "no-empty-blocks": "off",
     "quotes": ["error", "double"],
     "uppercase": "off",
+    "visibility-first": "error",
 
     "security/enforce-explicit-visibility": ["error"],
     "security/no-block-members": ["warning"],
