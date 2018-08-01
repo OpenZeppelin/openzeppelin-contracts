@@ -30,7 +30,6 @@ to `X.Y.Z-rc.R`. (This will be `vX.Y.Z-rc.1` for the first release candidate.)
 git add package.json package-lock.json ethpm.json
 git commit -m "Release candidate vX.Y.Z-rc.R"
 git tag -a vX.Y.Z-rc.R
-npm test
 git push upstream release-vX.Y.Z
 git push upstream vX.Y.Z-rc.R
 ```
