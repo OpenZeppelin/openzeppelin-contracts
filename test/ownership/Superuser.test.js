@@ -4,7 +4,6 @@ const expectEvent = require('../helpers/expectEvent');
 const Superuser = artifacts.require('Superuser');
 
 require('chai')
-  .use(require('chai-as-promised'))
   .should();
 
 contract('Superuser', function (accounts) {

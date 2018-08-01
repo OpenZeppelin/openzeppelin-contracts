@@ -16,7 +16,7 @@ contract('HasNoEther', function (accounts) {
   });
 
   it('should not accept ether', async function () {
-    let hasNoEther = await HasNoEtherTest.new();
+    const hasNoEther = await HasNoEtherTest.new();
 
     await expectThrow(
       ethSendTransaction({
@@ -29,12 +29,12 @@ contract('HasNoEther', function (accounts) {
 
   it('should allow owner to reclaim ether', async function () {
     // Create contract
-    let hasNoEther = await HasNoEtherTest.new();
+    const hasNoEther = await HasNoEtherTest.new();
     const startBalance = await ethGetBalance(hasNoEther.address);
     assert.equal(startBalance, 0);
 
     // Force ether into it
-    let forceEther = await ForceEther.new({ value: amount });
+    const forceEther = await ForceEther.new({ value: amount });
     await forceEther.destroyAndSend(hasNoEther.address);
     const forcedBalance = await ethGetBalance(hasNoEther.address);
     assert.equal(forcedBalance, amount);
@@ -50,10 +50,10 @@ contract('HasNoEther', function (accounts) {
 
   it('should allow only owner to reclaim ether', async function () {
     // Create contract
-    let hasNoEther = await HasNoEtherTest.new({ from: accounts[0] });
+    const hasNoEther = await HasNoEtherTest.new({ from: accounts[0] });
 
     // Force ether into it
-    let forceEther = await ForceEther.new({ value: amount });
+    const forceEther = await ForceEther.new({ value: amount });
     await forceEther.destroyAndSend(hasNoEther.address);
     const forcedBalance = await ethGetBalance(hasNoEther.address);
     assert.equal(forcedBalance, amount);

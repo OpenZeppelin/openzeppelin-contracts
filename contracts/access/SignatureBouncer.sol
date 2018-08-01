@@ -146,12 +146,12 @@ contract SignatureBouncer is Ownable, RBAC {
    * and then recover the signature and check it against the bouncer role
    * @return bool
    */
-  function isValidDataHash(bytes32 hash, bytes _sig)
+  function isValidDataHash(bytes32 _hash, bytes _sig)
     internal
     view
     returns (bool)
   {
-    address signer = hash
+    address signer = _hash
       .toEthSignedMessageHash()
       .recover(_sig);
     return hasRole(signer, ROLE_BOUNCER);

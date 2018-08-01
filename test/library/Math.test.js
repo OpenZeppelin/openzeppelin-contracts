@@ -1,4 +1,4 @@
-var MathMock = artifacts.require('MathMock');
+const MathMock = artifacts.require('MathMock');
 
 contract('Math', function (accounts) {
   let math;
@@ -8,35 +8,35 @@ contract('Math', function (accounts) {
   });
 
   it('returns max64 correctly', async function () {
-    let a = 5678;
-    let b = 1234;
+    const a = 5678;
+    const b = 1234;
     await math.max64(a, b);
-    let result = await math.result64();
+    const result = await math.result64();
     assert.equal(result, a);
   });
 
   it('returns min64 correctly', async function () {
-    let a = 5678;
-    let b = 1234;
+    const a = 5678;
+    const b = 1234;
     await math.min64(a, b);
-    let result = await math.result64();
+    const result = await math.result64();
 
     assert.equal(result, b);
   });
 
   it('returns max256 correctly', async function () {
-    let a = 5678;
-    let b = 1234;
+    const a = 5678;
+    const b = 1234;
     await math.max256(a, b);
-    let result = await math.result256();
+    const result = await math.result256();
     assert.equal(result, a);
   });
 
   it('returns min256 correctly', async function () {
-    let a = 5678;
-    let b = 1234;
+    const a = 5678;
+    const b = 1234;
     await math.min256(a, b);
-    let result = await math.result256();
+    const result = await math.result256();
 
     assert.equal(result, b);
   });

@@ -2,7 +2,7 @@ const { ether } = require('../../helpers/ether');
 const { shouldBehaveLikeMintableToken } = require('./MintableToken.behaviour');
 const { shouldBehaveLikeCappedToken } = require('./CappedToken.behaviour');
 
-var CappedToken = artifacts.require('CappedToken');
+const CappedToken = artifacts.require('CappedToken');
 
 contract('Capped', function ([owner, anotherAccount]) {
   const _cap = ether(1000);

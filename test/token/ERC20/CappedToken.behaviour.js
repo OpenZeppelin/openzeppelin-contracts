@@ -5,7 +5,7 @@ function shouldBehaveLikeCappedToken ([owner, anotherAccount, minter, cap]) {
     const from = minter;
 
     it('should start with the correct cap', async function () {
-      let _cap = await this.token.cap();
+      const _cap = await this.token.cap();
 
       assert(cap.eq(_cap));
     });
