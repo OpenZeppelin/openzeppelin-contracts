@@ -27,37 +27,37 @@ contract RBACMock is RBACWithAdmin {
   }
 
   function onlyAdminsCanDoThis()
+    external
     onlyAdmin
     view
-    external
   {
   }
 
   function onlyAdvisorsCanDoThis()
+    external
     onlyRole(ROLE_ADVISOR)
     view
-    external
   {
   }
 
   function eitherAdminOrAdvisorCanDoThis()
+    external
     onlyAdminOrAdvisor
     view
-    external
   {
   }
 
   function nobodyCanDoThis()
+    external
     onlyRole("unknown")
     view
-    external
   {
   }
 
   // admins can remove advisor's role
   function removeAdvisor(address _addr)
-    onlyAdmin
     public
+    onlyAdmin
   {
     // revert if the user isn't an advisor
     //  (perhaps you want to soft-fail here instead?)

@@ -21,7 +21,7 @@ contract TokenDestructible is Ownable {
    * @notice The called token contracts could try to re-enter this contract. Only
    supply token contracts you trust.
    */
-  function destroy(address[] _tokens) onlyOwner public {
+  function destroy(address[] _tokens) public onlyOwner {
 
     // Transfer tokens to owner
     for (uint256 i = 0; i < _tokens.length; i++) {

@@ -35,8 +35,8 @@ library Roles {
    * // reverts
    */
   function check(Role storage _role, address _addr)
-    view
     internal
+    view
   {
     require(has(_role, _addr));
   }
@@ -46,8 +46,8 @@ library Roles {
    * @return bool
    */
   function has(Role storage _role, address _addr)
-    view
     internal
+    view
     returns (bool)
   {
     return _role.bearer[_addr];

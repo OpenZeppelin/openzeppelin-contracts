@@ -18,7 +18,14 @@ contract HasNoTokens is CanReclaimToken {
   * @param _value uint256 the amount of the specified token
   * @param _data Bytes The data passed from the caller.
   */
-  function tokenFallback(address _from, uint256 _value, bytes _data) external pure {
+  function tokenFallback(
+    address _from,
+    uint256 _value,
+    bytes _data
+  )
+    external
+    pure
+  {
     _from;
     _value;
     _data;

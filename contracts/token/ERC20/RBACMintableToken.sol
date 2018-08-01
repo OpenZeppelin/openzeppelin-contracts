@@ -27,7 +27,7 @@ contract RBACMintableToken is MintableToken, RBAC {
    * @dev add a minter role to an address
    * @param _minter address
    */
-  function addMinter(address _minter) onlyOwner public {
+  function addMinter(address _minter) public onlyOwner {
     addRole(_minter, ROLE_MINTER);
   }
 
@@ -35,7 +35,7 @@ contract RBACMintableToken is MintableToken, RBAC {
    * @dev remove a minter role from an address
    * @param _minter address
    */
-  function removeMinter(address _minter) onlyOwner public {
+  function removeMinter(address _minter) public onlyOwner {
     removeRole(_minter, ROLE_MINTER);
   }
 }

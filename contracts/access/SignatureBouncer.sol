@@ -68,8 +68,8 @@ contract SignatureBouncer is Ownable, RBAC {
    * @dev allows the owner to add additional bouncer addresses
    */
   function addBouncer(address _bouncer)
-    onlyOwner
     public
+    onlyOwner
   {
     require(_bouncer != address(0));
     addRole(_bouncer, ROLE_BOUNCER);
@@ -79,8 +79,8 @@ contract SignatureBouncer is Ownable, RBAC {
    * @dev allows the owner to remove bouncer addresses
    */
   function removeBouncer(address _bouncer)
-    onlyOwner
     public
+    onlyOwner
   {
     require(_bouncer != address(0));
     removeRole(_bouncer, ROLE_BOUNCER);

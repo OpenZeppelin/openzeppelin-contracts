@@ -46,8 +46,8 @@ contract RBACWithAdmin is RBAC {
    * @param _roleName the name of the role
    */
   function adminAddRole(address _addr, string _roleName)
-    onlyAdmin
     public
+    onlyAdmin
   {
     addRole(_addr, _roleName);
   }
@@ -58,8 +58,8 @@ contract RBACWithAdmin is RBAC {
    * @param _roleName the name of the role
    */
   function adminRemoveRole(address _addr, string _roleName)
-    onlyAdmin
     public
+    onlyAdmin
   {
     removeRole(_addr, _roleName);
   }

@@ -45,7 +45,7 @@ contract('HasNoEther', function (accounts) {
     const ownerFinalBalance = await ethGetBalance(accounts[0]);
     const finalBalance = await ethGetBalance(hasNoEther.address);
     assert.equal(finalBalance, 0);
-    assert.isAbove(ownerFinalBalance, ownerStartBalance);
+    assert.isTrue(ownerFinalBalance.greaterThan(ownerStartBalance));
   });
 
   it('should allow only owner to reclaim ether', async function () {
