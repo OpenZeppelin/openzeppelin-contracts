@@ -8,18 +8,11 @@ require('chai')
 
 const ROLE_ADVISOR = 'advisor';
 
-contract('RBAC', function (accounts) {
+contract('RBAC', function ([_, admin, anyone, advisor, otherAdvisor, futureAdvisor]) {
   let mock;
 
-  const [
-    admin,
-    anyone,
-    futureAdvisor,
-    ...advisors
-  ] = accounts;
-
   beforeEach(async () => {
-    mock = await RBACMock.new(advisors, { from: admin });
+    mock = await RBACMock.new([advisor, otherAdvisor], { from: admin });
   });
 
   context('in normal conditions', () => {
@@ -30,30 +23,28 @@ contract('RBAC', function (accounts) {
       await mock.onlyAdvisorsCanDoThis({ from: admin });
     });
     it('allows advisors to call #onlyAdvisorsCanDoThis', async () => {
-      await mock.onlyAdvisorsCanDoThis({ from: advisors[0] });
+      await mock.onlyAdvisorsCanDoThis({ from: advisor });
     });
     it('allows admin to call #eitherAdminOrAdvisorCanDoThis', async () => {
       await mock.eitherAdminOrAdvisorCanDoThis({ from: admin });
     });
     it('allows advisors to call #eitherAdminOrAdvisorCanDoThis', async () => {
-      await mock.eitherAdminOrAdvisorCanDoThis({ from: advisors[0] });
+      await mock.eitherAdminOrAdvisorCanDoThis({ from: advisor });
     });
     it('does not allow admins to call #nobodyCanDoThis', async () => {
       await expectThrow(mock.nobodyCanDoThis({ from: admin }));
     });
     it('does not allow advisors to call #nobodyCanDoThis', async () => {
-      await expectThrow(mock.nobodyCanDoThis({ from: advisors[0] }));
+      await expectThrow(mock.nobodyCanDoThis({ from: advisor }));
     });
     it('does not allow anyone to call #nobodyCanDoThis', async () => {
       await expectThrow(mock.nobodyCanDoThis({ from: anyone }));
     });
     it('allows an admin to remove an advisor\'s role', async () => {
-      await mock.removeAdvisor(advisors[0], { from: admin })
-      ;
+      await mock.removeAdvisor(advisor, { from: admin });
     });
     it('allows admins to #adminRemoveRole', async () => {
-      await mock.adminRemoveRole(advisors[3], ROLE_ADVISOR, { from: admin })
-      ;
+      await mock.adminRemoveRole(advisor, ROLE_ADVISOR, { from: admin });
     });
 
     it('announces a RoleAdded event on addRole', async () => {
@@ -73,10 +64,10 @@ contract('RBAC', function (accounts) {
 
   context('in adversarial conditions', () => {
     it('does not allow an advisor to remove another advisor', async () => {
-      await expectThrow(mock.removeAdvisor(advisors[1], { from: advisors[0] }));
+      await expectThrow(mock.removeAdvisor(otherAdvisor, { from: advisor }));
     });
     it('does not allow "anyone" to remove an advisor', async () => {
-      await expectThrow(mock.removeAdvisor(advisors[0], { from: anyone }));
+      await expectThrow(mock.removeAdvisor(advisor, { from: anyone }));
     });
   });
 });

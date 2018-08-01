@@ -5,15 +5,15 @@ const { shouldBehaveLikeCappedToken } = require('./CappedToken.behaviour');
 
 const RBACCappedTokenMock = artifacts.require('RBACCappedTokenMock');
 
-contract('RBACCappedToken', function ([owner, anotherAccount, minter]) {
-  const _cap = ether(1000);
+contract('RBACCappedToken', function ([_, owner, minter, ...otherAccounts]) {
+  const cap = ether(1000);
 
   beforeEach(async function () {
-    this.token = await RBACCappedTokenMock.new(_cap, { from: owner });
+    this.token = await RBACCappedTokenMock.new(cap, { from: owner });
     await this.token.addMinter(minter, { from: owner });
   });
 
-  shouldBehaveLikeMintableToken([owner, anotherAccount, minter]);
-  shouldBehaveLikeRBACMintableToken([owner, anotherAccount]);
-  shouldBehaveLikeCappedToken([owner, anotherAccount, minter, _cap]);
+  shouldBehaveLikeMintableToken(owner, minter, otherAccounts);
+  shouldBehaveLikeRBACMintableToken(owner, otherAccounts);
+  shouldBehaveLikeCappedToken(minter, otherAccounts, cap);
 });

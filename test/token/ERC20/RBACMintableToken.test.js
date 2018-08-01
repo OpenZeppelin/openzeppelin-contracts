@@ -3,12 +3,12 @@ const { shouldBehaveLikeMintableToken } = require('./MintableToken.behaviour');
 
 const RBACMintableToken = artifacts.require('RBACMintableToken');
 
-contract('RBACMintableToken', function ([owner, anotherAccount, minter]) {
+contract('RBACMintableToken', function ([_, owner, minter, ...otherAccounts]) {
   beforeEach(async function () {
     this.token = await RBACMintableToken.new({ from: owner });
     await this.token.addMinter(minter, { from: owner });
   });
 
-  shouldBehaveLikeRBACMintableToken([owner, anotherAccount, minter]);
-  shouldBehaveLikeMintableToken([owner, anotherAccount, minter]);
+  shouldBehaveLikeRBACMintableToken(owner, otherAccounts);
+  shouldBehaveLikeMintableToken(owner, minter, otherAccounts);
 });

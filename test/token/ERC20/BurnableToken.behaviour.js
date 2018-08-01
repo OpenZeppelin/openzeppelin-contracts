@@ -8,19 +8,17 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-function shouldBehaveLikeBurnableToken ([owner], initialBalance) {
+function shouldBehaveLikeBurnableToken (owner, initialBalance) {
   describe('as a basic burnable token', function () {
-    const from = owner;
-
     describe('when the given amount is not greater than balance of the sender', function () {
       const amount = 100;
 
       beforeEach(async function () {
-        ({ logs: this.logs } = await this.token.burn(amount, { from }));
+        ({ logs: this.logs } = await this.token.burn(amount, { from: owner }));
       });
 
       it('burns the requested amount', async function () {
-        const balance = await this.token.balanceOf(from);
+        const balance = await this.token.balanceOf(owner);
         balance.should.be.bignumber.equal(initialBalance - amount);
       });
 
@@ -42,7 +40,7 @@ function shouldBehaveLikeBurnableToken ([owner], initialBalance) {
       const amount = initialBalance + 1;
 
       it('reverts', async function () {
-        await assertRevert(this.token.burn(amount, { from }));
+        await assertRevert(this.token.burn(amount, { from: owner }));
       });
     });
   });

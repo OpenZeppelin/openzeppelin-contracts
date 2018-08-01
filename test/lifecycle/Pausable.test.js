@@ -1,7 +1,7 @@
 const { assertRevert } = require('../helpers/assertRevert');
 const PausableMock = artifacts.require('PausableMock');
 
-contract('Pausable', function (accounts) {
+contract('Pausable', function () {
   beforeEach(async function () {
     this.Pausable = await PausableMock.new();
   });

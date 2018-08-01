@@ -6,7 +6,7 @@ const ECRecoveryMock = artifacts.require('ECRecoveryMock');
 require('chai')
   .should();
 
-contract('ECRecovery', function (accounts) {
+contract('ECRecovery', function ([_, anyone]) {
   let ecrecovery;
   const TEST_MESSAGE = 'OpenZeppelin';
 
@@ -36,28 +36,28 @@ contract('ECRecovery', function (accounts) {
 
   it('recover using web3.eth.sign()', async function () {
     // Create the signature using account[0]
-    const signature = signMessage(accounts[0], web3.sha3(TEST_MESSAGE));
+    const signature = signMessage(anyone, web3.sha3(TEST_MESSAGE));
 
     // Recover the signer address from the generated message and signature.
     const addrRecovered = await ecrecovery.recover(
       hashMessage(TEST_MESSAGE),
       signature
     );
-    addrRecovered.should.eq(accounts[0]);
+    addrRecovered.should.eq(anyone);
   });
 
   it('recover using web3.eth.sign() should return wrong signer', async function () {
     // Create the signature using account[0]
-    const signature = signMessage(accounts[0], web3.sha3(TEST_MESSAGE));
+    const signature = signMessage(anyone, web3.sha3(TEST_MESSAGE));
 
     // Recover the signer address from the generated message and wrong signature.
     const addrRecovered = await ecrecovery.recover(hashMessage('Nope'), signature);
-    assert.notEqual(accounts[0], addrRecovered);
+    assert.notEqual(anyone, addrRecovered);
   });
 
   it('recover should revert when a small hash is sent', async function () {
     // Create the signature using account[0]
-    const signature = signMessage(accounts[0], TEST_MESSAGE);
+    const signature = signMessage(anyone, TEST_MESSAGE);
     try {
       await expectThrow(
         ecrecovery.recover(hashMessage(TEST_MESSAGE).substring(2), signature)
