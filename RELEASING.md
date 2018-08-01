@@ -8,8 +8,7 @@ Each release has at least one release candidate published first, intended for co
 
 Before starting make sure to verify the following items.
 * Your local `master` branch is in sync with your upstream remote.
-* Your repo is clean, particularly with no untracked files in
-  the contracts and tests directories. Verify with `git clean -n`.
+* Your repo is clean, particularly with no untracked files in the contracts and tests directories. Verify with `git clean -n`.
 
 
 ## Creating the release branch
@@ -23,8 +22,7 @@ git checkout -b release-vX.Y.Z
 
 ## Creating a release candidate
 
-Once in the release branch, change the version string in `package.json`, `package-lock.json` and `ethpm.json`
-to `X.Y.Z-rc.R`. (This will be `vX.Y.Z-rc.1` for the first release candidate.)
+Once in the release branch, change the version string in `package.json`, `package-lock.json` and `ethpm.json` to `X.Y.Z-rc.R`. (This will be `X.Y.Z-rc.1` for the first release candidate.) Commit these changes and tag the commit as `vX.Y.Z-rc.R`.
 
 ```
 git add package.json package-lock.json ethpm.json
@@ -50,7 +48,7 @@ Publish the release notes on GitHub and ask our community manager to announce th
 git checkout release-vX.Y.Z
 ```
 
-Change the version string in `package.json`, `package-lock.json` and `ethpm.json` removing the "-rc.R" suffix.
+Change the version string in `package.json`, `package-lock.json` and `ethpm.json` removing the "-rc.R" suffix. Commit these changes and tag the commit as `vX.Y.Z`.
 
 ```
 git add package.json package-lock.json ethpm.json
@@ -78,3 +76,5 @@ git checkout master
 git merge --no-ff release-vX.Y.Z
 git push upstream master
 ```
+
+The release branch can then be deleted on GitHub.
