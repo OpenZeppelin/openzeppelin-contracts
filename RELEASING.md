@@ -1,64 +1,71 @@
 # Releasing
 
-Checklist before starting:
-* Make sure that your local master branch is in sync with upstream.
-* Make sure that package-lock.json is up-to-date, and generated with the latest npm
-  LTS version.
-* Make sure that your repo is clean, particularly with no untracked files in
-  the contracts and tests directories.
+This document describes our release policy, and constains the steps to be followed by an OpenZeppelin maintainer at the several stages of a release.
 
-## Make a release candidate
+We release a new version of OpenZeppelin monthly. Release cycles are tracked in the [issue milestones](https://github.com/OpenZeppelin/openzeppelin-solidity/milestones).
+
+Each release has at least one release candidate published first, intended for community review and any critical fixes that may come out of it. At the moment we leave 1 week between the first release candidate and the final release.
+
+Before starting make sure to verify the following items.
+* Your local `master` branch is in sync with your upstream remote.
+* Your repo is clean, particularly with no untracked files in
+  the contracts and tests directories. Verify with `git clean -n`.
+
+
+## Creating the release branch
+
+We'll refer to a release `vX.Y.Z`.
 
 ```
 git checkout master
-git checkout -b release-v#.##.#
+git checkout -b release-vX.Y.Z
 ```
 
-Edit the version in `package.json`, `package-lock.json` and `ethpm.json`
-to "#.##.#-rc.#".
+## Creating a release candidate
+
+Once in the release branch, change the version string in `package.json`, `package-lock.json` and `ethpm.json`
+to `X.Y.Z-rc.R`. (This will be `vX.Y.Z-rc.1` for the first release candidate.)
 
 ```
-git commit -m "Release candidate v#.##.#-rc.#"
-git tag -a v#.##.#-rc.#
+git commit -m "Release candidate vX.Y.Z-rc.R"
+git tag -a vX.Y.Z-rc.R
 npm test
-git push upstream release-v#.##.#
-git push upstream v#.##.#-rc.#
+git push upstream release-vX.Y.Z
+git push upstream vX.Y.Z-rc.R
 ```
 
-Check that the travis execution for the tag is green.
+Draft the release notes in our [GitHub releases](https://github.com/OpenZeppelin/openzeppelin-solidity/releases). Try to be consistent with our previous release notes in the title and format of the text. Release notes for release candidates don't need a detailed changelog, but make sure to include a link to GitHub's compare page.
 
-Draft the release notes in GitHub releases:
-* Name the v#.##.# RC #.
-* Add a short summary.
-* Finish with: "Find the log of changes staged for this release at
-  v#.##.#...v#.##.0-rc.1".
+Once the CI run for the new tag is green, publish on npm.
 
 ```
 npm publish
 ```
 
-Ask our community manager to announce the release candidate on Slack, Twitter,
-Telegram... Recommend them to use plenty of emojis.
+Ask our community manager to announce the release candidate on at least Slack and Twitter.
 
-## Create a final release
+## Creating the final release
 
 ```
 git checkout release-v#.##.#
 ```
 
-Manually modify the version in `package.json`, `package-lock.json` and `ethpm.json`
-to remove the "-rc.#".
+Change the version string in `package.json`, `package-lock.json` and `ethpm.json` removing the "-rc.R" suffix.
 
 ```
-git commit -m "Release v#.##.#"
-git tag -a v#.##.#
-git push upstream v#.##.#
+git commit -m "Release vX.Y.Z"
+git tag -a vX.Y.Z
+git push upstream vX.Y.Z
 ```
 
-Draft the release notes in Github Releases.
+Draft the release notes in GitHub releases. Try to be consistent with our previous release notes in the title and format of the text. Make sure to include a detailed changelog.
+
+## Merging the release branch
+
+After the final release, the release branch should be merged back into `master`. This merge must not be squashed, because it would lose the tagged release commit, so it should be merged locally and pushed.
 
 ```
 git checkout master
-git merge release-v#.#.##.#
-git push --set-upstream upstream master
+git merge --no-ff release-vX.Y.Z
+git push upstream master
 ```
