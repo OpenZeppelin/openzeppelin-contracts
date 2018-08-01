@@ -34,7 +34,7 @@ git push upstream release-vX.Y.Z
 git push upstream vX.Y.Z-rc.R
 ```
 
-Draft the release notes in our [GitHub releases](https://github.com/OpenZeppelin/openzeppelin-solidity/releases). Make sure to mark it as a prerelease! Try to be consistent with our previous release notes in the title and format of the text. Release candidates don't need a detailed changelog, but make sure to include a link to GitHub's compare page.
+Draft the release notes in our [GitHub releases](https://github.com/OpenZeppelin/openzeppelin-solidity/releases). Make sure to mark it as a pre-release! Try to be consistent with our previous release notes in the title and format of the text. Release candidates don't need a detailed changelog, but make sure to include a link to GitHub's compare page.
 
 Once the CI run for the new tag is green, publish on npm.
 
