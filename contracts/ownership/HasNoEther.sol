@@ -7,7 +7,7 @@ import "./Ownable.sol";
  * @title Contracts that should not own Ether
  * @author Remco Bloemen <remco@2π.com>
  * @dev This tries to block incoming ether to prevent accidental loss of Ether. Should Ether end up
- * in the contract, it will allow the owner to reclaim this ether.
+ * in the contract, it will allow the owner to reclaim this Ether.
  * @notice Ether can still be sent to this contract by:
  * calling functions labeled `payable`
  * `selfdestruct(contract_address)`
@@ -27,7 +27,7 @@ contract HasNoEther is Ownable {
   }
 
   /**
-   * @dev Disallows direct send by settings a default function without the `payable` flag.
+   * @dev Disallows direct send by setting a default function without the `payable` flag.
    */
   function() external {
   }
