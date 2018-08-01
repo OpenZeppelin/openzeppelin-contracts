@@ -27,6 +27,7 @@ Once in the release branch, change the version string in `package.json`, `packag
 to `X.Y.Z-rc.R`. (This will be `vX.Y.Z-rc.1` for the first release candidate.)
 
 ```
+git add package.json package-lock.json ethpm.json
 git commit -m "Release candidate vX.Y.Z-rc.R"
 git tag -a vX.Y.Z-rc.R
 npm test
@@ -47,12 +48,13 @@ Publish the release notes on GitHub and ask our community manager to announce th
 ## Creating the final release
 
 ```
-git checkout release-v#.##.#
+git checkout release-vX.Y.Z
 ```
 
 Change the version string in `package.json`, `package-lock.json` and `ethpm.json` removing the "-rc.R" suffix.
 
 ```
+git add package.json package-lock.json ethpm.json
 git commit -m "Release vX.Y.Z"
 git tag -a vX.Y.Z
 git push upstream vX.Y.Z
