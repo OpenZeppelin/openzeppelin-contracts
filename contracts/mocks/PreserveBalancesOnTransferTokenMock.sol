@@ -3,7 +3,7 @@ pragma solidity ^0.4.24;
 import "../token/ERC20/PreserveBalancesOnTransferToken.sol";
 
 
-contract PreserveBalancesOnTransferTokenMock is PreserveBalancesOnTransferToken {
+contract PreserveBalancesMock is PreserveBalancesOnTransferToken {
   // without modifiers. allow anyone to call this
   function startNewEvent() public returns(uint) {
     // do nothing. just for tests

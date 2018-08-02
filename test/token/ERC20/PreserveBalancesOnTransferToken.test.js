@@ -1,7 +1,7 @@
 const BigNumber = web3.BigNumber;
 
 const PreserveBalancesOnTransferToken = artifacts.require('PreserveBalancesOnTransferToken');
-const PreserveBalancesOnTransferTokenMock = artifacts.require('PreserveBalancesOnTransferTokenMock');
+const PreserveBalancesMock = artifacts.require('PreserveBalancesMock');
 const SnapshotToken = artifacts.require('SnapshotToken');
 
 // Increases ganache time by the passed duration in seconds
@@ -451,7 +451,7 @@ contract('SnapshotToken', (accounts) => {
 
   describe('start', function () {
     it('should fail because not called from the PreserveBalancesOnTransferToken', async function () {
-      this.token = await PreserveBalancesOnTransferTokenMock.new();
+      this.token = await PreserveBalancesMock.new();
       this.snapshot = await SnapshotToken.new(this.token.address);
 
       await this.snapshot.start(
@@ -459,7 +459,7 @@ contract('SnapshotToken', (accounts) => {
     });
 
     it('should fail if already started', async function () {
-      this.token = await PreserveBalancesOnTransferTokenMock.new();
+      this.token = await PreserveBalancesMock.new();
       this.snapshot = await SnapshotToken.new(this.token.address);
 
       await this.token.testCallStartForSnapshot(this.snapshot.address).should.be.fulfilled;
@@ -467,7 +467,7 @@ contract('SnapshotToken', (accounts) => {
     });
 
     it('should succeed', async function () {
-      this.token = await PreserveBalancesOnTransferTokenMock.new();
+      this.token = await PreserveBalancesMock.new();
       this.snapshot = await SnapshotToken.new(this.token.address);
 
       await this.token.testCallStartForSnapshot(this.snapshot.address).should.be.fulfilled;
@@ -476,7 +476,7 @@ contract('SnapshotToken', (accounts) => {
 
   describe('finish', function () {
     it('should fail because not called by the owner', async function () {
-      this.token = await PreserveBalancesOnTransferTokenMock.new();
+      this.token = await PreserveBalancesMock.new();
 
       const tx = await this.token.createNewSnapshot();
       const events = tx.logs.filter(l => l.event === 'SnapshotCreated');
@@ -488,14 +488,14 @@ contract('SnapshotToken', (accounts) => {
     });
 
     it('should fail if was not started', async function () {
-      this.token = await PreserveBalancesOnTransferTokenMock.new();
+      this.token = await PreserveBalancesMock.new();
       this.snapshot = await SnapshotToken.new(this.token.address);
 
       await this.token.testCallFinishForSnapshot(this.snapshot.address).should.be.rejectedWith('revert');
     });
 
     it('should succeed', async function () {
-      this.token = await PreserveBalancesOnTransferTokenMock.new();
+      this.token = await PreserveBalancesMock.new();
       this.snapshot = await SnapshotToken.new(this.token.address);
 
       await this.token.testCallStartForSnapshot(this.snapshot.address);
@@ -505,7 +505,7 @@ contract('SnapshotToken', (accounts) => {
 
   describe('balanceOf', function () {
     it('should fail if not started', async function () {
-      this.token = await PreserveBalancesOnTransferTokenMock.new();
+      this.token = await PreserveBalancesMock.new();
       await this.token.mint(web3.eth.accounts[0], 1000);
 
       this.snapshot = await SnapshotToken.new(this.token.address);
@@ -560,7 +560,7 @@ contract('SnapshotToken', (accounts) => {
 
   describe('transfer', function () {
     it('should be blocked', async function () {
-      this.token = await PreserveBalancesOnTransferTokenMock.new();
+      this.token = await PreserveBalancesMock.new();
       await this.token.mint(web3.eth.accounts[0], 1000);
 
       this.snapshot = await SnapshotToken.new(this.token.address);
@@ -570,7 +570,7 @@ contract('SnapshotToken', (accounts) => {
 
   describe('transferFrom', function () {
     it('should be blocked', async function () {
-      this.token = await PreserveBalancesOnTransferTokenMock.new();
+      this.token = await PreserveBalancesMock.new();
       await this.token.mint(account4, 1000);
 
       this.snapshot = await SnapshotToken.new(this.token.address);
