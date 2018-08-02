@@ -35,7 +35,7 @@ contract CapStagedCrowdsale is Crowdsale, Ownable {
 
   /**
   * @dev Function for adding stages. Stages must be inserted from first to last
-  * @param stLimit - Stage limit in wei, stRate - rate of tokens for the stage
+  * @param stLimit - Stage limit in wei, stRate - limit in weiRaise for the stage
   */
   function addStage(uint256 stLimit, uint256 stRate) public onlyOwner {
     Stage memory stage = Stage(stLimit, stRate);
