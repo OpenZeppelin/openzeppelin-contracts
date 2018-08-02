@@ -51,8 +51,8 @@
     "ethjs-abi": "^0.2.1",
     "ganache-cli": "6.1.0",
     "solidity-coverage": "^0.5.4",
-    "solium": "^1.1.7",
-    "truffle": "^4.1.11",
+    "solium": "^1.1.8",
+    "truffle": "^4.1.13",
     "truffle-hdwallet-provider": "0.0.5",
     "web3-utils": "^1.0.0-beta.34"
   }

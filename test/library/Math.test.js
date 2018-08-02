@@ -1,6 +1,6 @@
 const MathMock = artifacts.require('MathMock');
 
-contract('Math', function (accounts) {
+contract('Math', function () {
   let math;
 
   beforeEach(async function () {
