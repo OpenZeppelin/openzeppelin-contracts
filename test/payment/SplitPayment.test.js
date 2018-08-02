@@ -10,7 +10,7 @@ const { expectThrow } = require('../helpers/expectThrow');
 const EVMThrow = require('../helpers/EVMThrow.js');
 const SplitPayment = artifacts.require('SplitPayment');
 
-contract('SplitPayment', function ([owner, payee1, payee2, payee3, nonpayee1, payer1]) {
+contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1, payer1]) {
   const amount = web3.toWei(1.0, 'ether');
 
   beforeEach(async function () {

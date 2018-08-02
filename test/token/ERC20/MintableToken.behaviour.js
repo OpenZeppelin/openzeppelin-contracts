@@ -6,7 +6,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-function shouldBehaveLikeMintableToken ([owner, anotherAccount, minter]) {
+function shouldBehaveLikeMintableToken (owner, minter, [anyone]) {
   describe('as a basic mintable token', function () {
     describe('after token creation', function () {
       it('sender should be token owner', async function () {
@@ -67,7 +67,7 @@ function shouldBehaveLikeMintableToken ([owner, anotherAccount, minter]) {
       });
 
       describe('when the sender is not the token owner', function () {
-        const from = anotherAccount;
+        const from = anyone;
 
         describe('when the token minting was not finished', function () {
           it('reverts', async function () {
@@ -124,7 +124,7 @@ function shouldBehaveLikeMintableToken ([owner, anotherAccount, minter]) {
       });
 
       describe('when the sender has not the minting permission', function () {
-        const from = anotherAccount;
+        const from = anyone;
 
         describe('when the token minting is not finished', function () {
           it('reverts', async function () {

@@ -6,18 +6,11 @@ const WhitelistMock = artifacts.require('WhitelistMock');
 require('chai')
   .should();
 
-contract('Whitelist', function (accounts) {
-  const [
-    owner,
-    whitelistedAddress1,
-    whitelistedAddress2,
-    anyone,
-  ] = accounts;
-
+contract('Whitelist', function ([_, owner, whitelistedAddress1, whitelistedAddress2, anyone]) {
   const whitelistedAddresses = [whitelistedAddress1, whitelistedAddress2];
 
   beforeEach(async function () {
-    this.mock = await WhitelistMock.new();
+    this.mock = await WhitelistMock.new({ from: owner });
     this.role = await this.mock.ROLE_WHITELISTED();
   });
 

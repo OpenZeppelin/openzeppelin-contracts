@@ -10,14 +10,14 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('StandardBurnableToken', function ([owner, burner]) {
+contract('StandardBurnableToken', function ([_, owner, burner]) {
   const initialBalance = 1000;
 
   beforeEach(async function () {
     this.token = await StandardBurnableTokenMock.new(owner, initialBalance);
   });
 
-  shouldBehaveLikeBurnableToken([owner], initialBalance);
+  shouldBehaveLikeBurnableToken(owner, initialBalance);
 
   describe('burnFrom', function () {
     describe('on success', function () {
