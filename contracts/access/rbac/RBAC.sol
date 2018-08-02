@@ -11,8 +11,6 @@ import "./Roles.sol";
  * See //contracts/mocks/RBACMock.sol for an example of usage.
  * This RBAC method uses strings to key roles. It may be beneficial
  * for you to write your own implementation of this interface using Enums or similar.
- * It's also recommended that you define constants in the contract, like ROLE_ADMIN below,
- * to avoid typos.
  */
 contract RBAC {
   using Roles for Roles.Role;
@@ -29,8 +27,8 @@ contract RBAC {
    * // reverts
    */
   function checkRole(address _operator, string _role)
-    view
     public
+    view
   {
     roles[_role].check(_operator);
   }
@@ -42,8 +40,8 @@ contract RBAC {
    * @return bool
    */
   function hasRole(address _operator, string _role)
-    view
     public
+    view
     returns (bool)
   {
     return roles[_role].has(_operator);

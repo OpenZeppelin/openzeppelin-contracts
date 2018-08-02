@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "../ownership/Ownable.sol";
-import "../ownership/rbac/RBAC.sol";
+import "../access/rbac/RBAC.sol";
 import "../ECRecovery.sol";
 
 
@@ -34,8 +34,8 @@ contract SignatureBouncer is Ownable, RBAC {
 
   string public constant ROLE_BOUNCER = "bouncer";
   uint constant METHOD_ID_SIZE = 4;
-  // (signature length size) 32 bytes + (signature size 65 bytes padded) 96 bytes
-  uint constant SIGNATURE_SIZE = 128;
+  // signature size is 65 bytes (tightly packed v + r + s), but gets padded to 96 bytes
+  uint constant SIGNATURE_SIZE = 96;
 
   /**
    * @dev requires that a valid signature of a bouncer was provided
@@ -68,8 +68,8 @@ contract SignatureBouncer is Ownable, RBAC {
    * @dev allows the owner to add additional bouncer addresses
    */
   function addBouncer(address _bouncer)
-    onlyOwner
     public
+    onlyOwner
   {
     require(_bouncer != address(0));
     addRole(_bouncer, ROLE_BOUNCER);
@@ -79,8 +79,8 @@ contract SignatureBouncer is Ownable, RBAC {
    * @dev allows the owner to remove bouncer addresses
    */
   function removeBouncer(address _bouncer)
-    onlyOwner
     public
+    onlyOwner
   {
     require(_bouncer != address(0));
     removeRole(_bouncer, ROLE_BOUNCER);
@@ -146,12 +146,12 @@ contract SignatureBouncer is Ownable, RBAC {
    * and then recover the signature and check it against the bouncer role
    * @return bool
    */
-  function isValidDataHash(bytes32 hash, bytes _sig)
+  function isValidDataHash(bytes32 _hash, bytes _sig)
     internal
     view
     returns (bool)
   {
-    address signer = hash
+    address signer = _hash
       .toEthSignedMessageHash()
       .recover(_sig);
     return hasRole(signer, ROLE_BOUNCER);

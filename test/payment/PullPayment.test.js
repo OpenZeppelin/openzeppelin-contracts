@@ -1,4 +1,4 @@
-import { ethGetBalance } from '../helpers/web3';
+const { ethGetBalance } = require('../helpers/web3');
 
 const BigNumber = web3.BigNumber;
 

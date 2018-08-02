@@ -1,6 +1,6 @@
-import increaseTime from './helpers/increaseTime';
-import expectThrow from './helpers/expectThrow';
-import assertRevert from './helpers/assertRevert';
+const { increaseTime } = require('./helpers/increaseTime');
+const { expectThrow } = require('./helpers/expectThrow');
+const { assertRevert } = require('./helpers/assertRevert');
 
 const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
 

@@ -13,10 +13,10 @@ contract HasNoContracts is Ownable {
 
   /**
    * @dev Reclaim ownership of Ownable contracts
-   * @param contractAddr The address of the Ownable to be reclaimed.
+   * @param _contractAddr The address of the Ownable to be reclaimed.
    */
-  function reclaimContract(address contractAddr) external onlyOwner {
-    Ownable contractInst = Ownable(contractAddr);
+  function reclaimContract(address _contractAddr) external onlyOwner {
+    Ownable contractInst = Ownable(_contractAddr);
     contractInst.transferOwnership(owner);
   }
 }

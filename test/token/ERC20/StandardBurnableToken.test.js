@@ -1,19 +1,18 @@
-import assertRevert from '../../helpers/assertRevert';
-import { inLogs } from '../../helpers/expectEvent';
-import shouldBehaveLikeBurnableToken from './BurnableToken.behaviour';
+const { assertRevert } = require('../../helpers/assertRevert');
+const { inLogs } = require('../../helpers/expectEvent');
+const { shouldBehaveLikeBurnableToken } = require('./BurnableToken.behaviour');
 
 const StandardBurnableTokenMock = artifacts.require('StandardBurnableTokenMock');
 const BigNumber = web3.BigNumber;
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
 contract('StandardBurnableToken', function ([owner, burner]) {
   const initialBalance = 1000;
-  
+
   beforeEach(async function () {
     this.token = await StandardBurnableTokenMock.new(owner, initialBalance);
   });

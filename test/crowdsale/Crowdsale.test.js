@@ -1,10 +1,9 @@
-import ether from '../helpers/ether';
-import { ethGetBalance } from '../helpers/web3';
+const { ether } = require('../helpers/ether');
+const { ethGetBalance } = require('../helpers/web3');
 
 const BigNumber = web3.BigNumber;
 
 const should = require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
@@ -25,8 +24,8 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
 
   describe('accepting payments', function () {
     it('should accept payments', async function () {
-      await this.crowdsale.send(value).should.be.fulfilled;
-      await this.crowdsale.buyTokens(investor, { value: value, from: purchaser }).should.be.fulfilled;
+      await this.crowdsale.send(value);
+      await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
     });
   });
 
@@ -43,7 +42,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
 
     it('should assign tokens to sender', async function () {
       await this.crowdsale.sendTransaction({ value: value, from: investor });
-      let balance = await this.token.balanceOf(investor);
+      const balance = await this.token.balanceOf(investor);
       balance.should.be.bignumber.equal(expectedTokenAmount);
     });
 

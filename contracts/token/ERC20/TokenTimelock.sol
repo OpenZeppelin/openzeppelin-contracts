@@ -41,7 +41,7 @@ contract TokenTimelock {
     // solium-disable-next-line security/no-block-members
     require(block.timestamp >= releaseTime);
 
-    uint256 amount = token.balanceOf(this);
+    uint256 amount = token.balanceOf(address(this));
     require(amount > 0);
 
     token.safeTransfer(beneficiary, amount);

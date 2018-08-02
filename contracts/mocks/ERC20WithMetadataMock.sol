@@ -5,9 +5,8 @@ import "../proposals/ERC1046/TokenMetadata.sol";
 
 
 contract ERC20WithMetadataMock is StandardToken, ERC20WithMetadata {
-  function ERC20WithMetadataMock(string _tokenURI)
+  constructor(string _tokenURI) public
     ERC20WithMetadata(_tokenURI)
-    public
   {
   }
 }

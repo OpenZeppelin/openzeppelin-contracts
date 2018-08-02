@@ -1,14 +1,13 @@
-import assertRevert from '../../helpers/assertRevert';
-import shouldBehaveLikeERC721BasicToken from './ERC721BasicToken.behaviour';
-import shouldMintAndBurnERC721Token from './ERC721MintBurn.behaviour';
-import shouldSupportInterfaces from '../../introspection/SupportsInterface.behavior';
-import _ from 'lodash';
+const { assertRevert } = require('../../helpers/assertRevert');
+const { shouldBehaveLikeERC721BasicToken } = require('./ERC721BasicToken.behaviour');
+const { shouldBehaveLikeMintAndBurnERC721Token } = require('./ERC721MintBurn.behaviour');
+const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
+const _ = require('lodash');
 
 const BigNumber = web3.BigNumber;
 const ERC721Token = artifacts.require('ERC721TokenMock.sol');
 
 require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
@@ -24,7 +23,7 @@ contract('ERC721Token', function (accounts) {
   });
 
   shouldBehaveLikeERC721BasicToken(accounts);
-  shouldMintAndBurnERC721Token(accounts);
+  shouldBehaveLikeMintAndBurnERC721Token(accounts);
 
   describe('like a full ERC721', function () {
     beforeEach(async function () {
@@ -74,6 +73,31 @@ contract('ERC721Token', function (accounts) {
         const total = await this.token.totalSupply();
         total.toNumber().should.be.equal(0);
         await assertRevert(this.token.tokenByIndex(0));
+      });
+    });
+
+    describe('removeTokenFrom', function () {
+      beforeEach(async function () {
+        await this.token._removeTokenFrom(creator, firstTokenId, { from: creator });
+      });
+
+      it('has been removed', async function () {
+        await assertRevert(this.token.tokenOfOwnerByIndex(creator, 1));
+      });
+
+      it('adjusts token list', async function () {
+        const token = await this.token.tokenOfOwnerByIndex(creator, 0);
+        token.toNumber().should.be.equal(secondTokenId);
+      });
+
+      it('adjusts owner count', async function () {
+        const count = await this.token.balanceOf(creator);
+        count.toNumber().should.be.equal(1);
+      });
+
+      it('does not adjust supply', async function () {
+        const total = await this.token.totalSupply();
+        total.toNumber().should.be.equal(2);
       });
     });
 

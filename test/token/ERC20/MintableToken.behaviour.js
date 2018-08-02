@@ -1,13 +1,12 @@
-import assertRevert from '../../helpers/assertRevert';
+const { assertRevert } = require('../../helpers/assertRevert');
 
 const BigNumber = web3.BigNumber;
 
 require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-export default function ([owner, anotherAccount, minter]) {
+function shouldBehaveLikeMintableToken ([owner, anotherAccount, minter]) {
   describe('as a basic mintable token', function () {
     describe('after token creation', function () {
       it('sender should be token owner', async function () {
@@ -145,4 +144,8 @@ export default function ([owner, anotherAccount, minter]) {
       });
     });
   });
+}
+
+module.exports = {
+  shouldBehaveLikeMintableToken,
 };

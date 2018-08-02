@@ -1,10 +1,9 @@
-import expectThrow from '../helpers/expectThrow';
-import expectEvent from '../helpers/expectEvent';
+const { expectThrow } = require('../helpers/expectThrow');
+const expectEvent = require('../helpers/expectEvent');
 
 const WhitelistMock = artifacts.require('WhitelistMock');
 
 require('chai')
-  .use(require('chai-as-promised'))
   .should();
 
 contract('Whitelist', function (accounts) {
@@ -17,7 +16,7 @@ contract('Whitelist', function (accounts) {
 
   const whitelistedAddresses = [whitelistedAddress1, whitelistedAddress2];
 
-  before(async function () {
+  beforeEach(async function () {
     this.mock = await WhitelistMock.new();
     this.role = await this.mock.ROLE_WHITELISTED();
   });
@@ -39,7 +38,7 @@ contract('Whitelist', function (accounts) {
         'RoleAdded',
         { role: this.role },
       );
-      for (let addr of whitelistedAddresses) {
+      for (const addr of whitelistedAddresses) {
         const isWhitelisted = await this.mock.whitelist(addr);
         isWhitelisted.should.be.equal(true);
       }
@@ -51,7 +50,7 @@ contract('Whitelist', function (accounts) {
         'RoleRemoved',
         { role: this.role },
       );
-      let isWhitelisted = await this.mock.whitelist(whitelistedAddress1);
+      const isWhitelisted = await this.mock.whitelist(whitelistedAddress1);
       isWhitelisted.should.be.equal(false);
     });
 
@@ -61,7 +60,7 @@ contract('Whitelist', function (accounts) {
         'RoleRemoved',
         { role: this.role },
       );
-      for (let addr of whitelistedAddresses) {
+      for (const addr of whitelistedAddresses) {
         const isWhitelisted = await this.mock.whitelist(addr);
         isWhitelisted.should.be.equal(false);
       }
@@ -69,8 +68,7 @@ contract('Whitelist', function (accounts) {
 
     it('should allow whitelisted address to call #onlyWhitelistedCanDoThis', async function () {
       await this.mock.addAddressToWhitelist(whitelistedAddress1, { from: owner });
-      await this.mock.onlyWhitelistedCanDoThis({ from: whitelistedAddress1 })
-        .should.be.fulfilled;
+      await this.mock.onlyWhitelistedCanDoThis({ from: whitelistedAddress1 });
     });
   });
 

@@ -1,5 +1,4 @@
-
-import expectThrow from './helpers/expectThrow';
+const { expectThrow } = require('./helpers/expectThrow');
 const ReentrancyMock = artifacts.require('ReentrancyMock');
 const ReentrancyAttack = artifacts.require('ReentrancyAttack');
 
@@ -8,12 +7,12 @@ contract('ReentrancyGuard', function (accounts) {
 
   beforeEach(async function () {
     reentrancyMock = await ReentrancyMock.new();
-    let initialCounter = await reentrancyMock.counter();
+    const initialCounter = await reentrancyMock.counter();
     assert.equal(initialCounter, 0);
   });
 
   it('should not allow remote callback', async function () {
-    let attacker = await ReentrancyAttack.new();
+    const attacker = await ReentrancyAttack.new();
     await expectThrow(reentrancyMock.countAndCall(attacker.address));
   });
 

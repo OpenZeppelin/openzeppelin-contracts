@@ -6,19 +6,19 @@ pragma solidity ^0.4.24;
  * @dev Assorted math operations
  */
 library Math {
-  function max64(uint64 a, uint64 b) internal pure returns (uint64) {
-    return a >= b ? a : b;
+  function max64(uint64 _a, uint64 _b) internal pure returns (uint64) {
+    return _a >= _b ? _a : _b;
   }
 
-  function min64(uint64 a, uint64 b) internal pure returns (uint64) {
-    return a < b ? a : b;
+  function min64(uint64 _a, uint64 _b) internal pure returns (uint64) {
+    return _a < _b ? _a : _b;
   }
 
-  function max256(uint256 a, uint256 b) internal pure returns (uint256) {
-    return a >= b ? a : b;
+  function max256(uint256 _a, uint256 _b) internal pure returns (uint256) {
+    return _a >= _b ? _a : _b;
   }
 
-  function min256(uint256 a, uint256 b) internal pure returns (uint256) {
-    return a < b ? a : b;
+  function min256(uint256 _a, uint256 _b) internal pure returns (uint256) {
+    return _a < _b ? _a : _b;
   }
 }
