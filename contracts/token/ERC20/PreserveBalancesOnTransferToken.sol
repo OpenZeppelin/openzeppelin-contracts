@@ -101,8 +101,8 @@ contract PreserveBalancesOnTransferToken is MintableToken, BurnableToken {
    * @param _amount The amount of tokens to mint.
    * @return A boolean that indicates if the operation was successful.
    */
-  function mint(address _to, uint256 _amount) canMint onlyOwner 
-    public returns(bool) 
+  function mint(address _to, uint256 _amount) public canMint onlyOwner 
+    returns(bool) 
   {
     updateCopyOnWriteMap(_to);
     return super.mint(_to, _amount);

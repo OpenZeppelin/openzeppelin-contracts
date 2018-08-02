@@ -29,9 +29,9 @@ function increaseTime (duration) {
 }
 
 function increaseTimeTo (target) {
-  let now = web3.eth.getBlock('latest').timestamp;
+  const now = web3.eth.getBlock('latest').timestamp;
   if (target < now) throw Error(`Cannot increase current time(${now}) to a moment in the past(${target})`);
-  let diff = target - now;
+  const diff = target - now;
   return increaseTime(diff);
 }
 
@@ -54,7 +54,7 @@ contract('PreserveBalancesOnTransferToken', (accounts) => {
   const account3 = accounts[3];
   const account4 = accounts[4];
   const account5 = accounts[5];
-    
+
   beforeEach(async function () {
 
   });
@@ -65,7 +65,7 @@ contract('PreserveBalancesOnTransferToken', (accounts) => {
       await this.token.mint(web3.eth.accounts[1], 1000,
         { from: web3.eth.accounts[1] }).should.be.rejectedWith('revert');
     });
-          
+
     it('should fail with isMintable = false', async function () {
       this.token = await PreserveBalancesOnTransferToken.new();
       await this.token.mint(web3.eth.accounts[1], 1000);
@@ -76,11 +76,11 @@ contract('PreserveBalancesOnTransferToken', (accounts) => {
       await this.token.finishMinting();
       await this.token.mint(web3.eth.accounts[1], 1000).should.be.rejectedWith('revert');
     });
-          
+
     it('should pass', async function () {
       this.token = await PreserveBalancesOnTransferToken.new();
       await this.token.mint(web3.eth.accounts[0], 1000);
-      let balance = await this.token.balanceOf(web3.eth.accounts[0]);
+      const balance = await this.token.balanceOf(web3.eth.accounts[0]);
       assert.equal(balance.toNumber(), 1000);
     });
   });
@@ -91,7 +91,7 @@ contract('PreserveBalancesOnTransferToken', (accounts) => {
       await this.token.mint(web3.eth.accounts[1], 1000);
       await this.token.burn(1000, { from: web3.eth.accounts[0] }).should.be.rejectedWith('revert');
     });
-          
+
     it('should fail due to not enough tokens in the address provided', async function () {
       this.token = await PreserveBalancesOnTransferToken.new();
       await this.token.burn(1000).should.be.rejectedWith('revert');
@@ -101,7 +101,7 @@ contract('PreserveBalancesOnTransferToken', (accounts) => {
       this.token = await PreserveBalancesOnTransferToken.new();
       await this.token.mint(web3.eth.accounts[0], 1000);
       await this.token.burn(1000);
-      let balance = await this.token.balanceOf(web3.eth.accounts[0]);
+      const balance = await this.token.balanceOf(web3.eth.accounts[0]);
       assert.equal(balance.toNumber(), 0);
     });
   });
@@ -143,8 +143,8 @@ contract('PreserveBalancesOnTransferToken', (accounts) => {
       this.token = await PreserveBalancesOnTransferToken.new();
       await this.token.mint(account4, 1);
 
-      let account4Balance = await this.token.balanceOf(account4);
-      let account5Balance = await this.token.balanceOf(account5);
+      const account4Balance = await this.token.balanceOf(account4);
+      const account5Balance = await this.token.balanceOf(account5);
 
       assert.equal(account4Balance.toNumber(), 1);
       assert.equal(account5Balance.toNumber(), 0);
@@ -153,8 +153,8 @@ contract('PreserveBalancesOnTransferToken', (accounts) => {
       const events = tx.logs.filter(l => l.event === 'EventStarted');
       const eventID = events.filter(e => e.args._address === creator)[0].args._eventID;
 
-      let account4EventBalance = await this.token.getBalanceAtEventStart(eventID, account4);
-      let account5EventBalance = await this.token.getBalanceAtEventStart(eventID, account5);
+      const account4EventBalance = await this.token.getBalanceAtEventStart(eventID, account4);
+      const account5EventBalance = await this.token.getBalanceAtEventStart(eventID, account5);
 
       assert.equal(account4EventBalance.toNumber(), 1);
       assert.equal(account5EventBalance.toNumber(), 0);
@@ -170,11 +170,11 @@ contract('PreserveBalancesOnTransferToken', (accounts) => {
 
       await this.token.transfer(account5, 1, { from: account4 });
 
-      let account4Balance = await this.token.balanceOf(account4);
-      let account5Balance = await this.token.balanceOf(account5);
+      const account4Balance = await this.token.balanceOf(account4);
+      const account5Balance = await this.token.balanceOf(account5);
 
-      let account4EventBalance = await this.token.getBalanceAtEventStart(eventID, account4);
-      let account5EventBalance = await this.token.getBalanceAtEventStart(eventID, account5);
+      const account4EventBalance = await this.token.getBalanceAtEventStart(eventID, account4);
+      const account5EventBalance = await this.token.getBalanceAtEventStart(eventID, account5);
 
       assert.equal(account4Balance.toNumber(), 0);
       assert.equal(account5Balance.toNumber(), 1);
@@ -192,8 +192,8 @@ contract('PreserveBalancesOnTransferToken', (accounts) => {
 
       await this.token.mint(account4, 1);
 
-      let account4Balance = await this.token.balanceOf(account4);
-      let account4EventBalance = await this.token.getBalanceAtEventStart(eventID, account4);
+      const account4Balance = await this.token.balanceOf(account4);
+      const account4EventBalance = await this.token.getBalanceAtEventStart(eventID, account4);
 
       assert.equal(account4Balance.toNumber(), 1);
       assert.equal(account4EventBalance.toNumber(), 0);
@@ -237,11 +237,11 @@ contract('PreserveBalancesOnTransferToken', (accounts) => {
       await this.token.approve(account3, 1, { from: account4 });
       await this.token.transferFrom(account4, account5, 1, { from: account3 });
 
-      let account4Balance = await this.token.balanceOf(account4);
-      let account5Balance = await this.token.balanceOf(account5);
+      const account4Balance = await this.token.balanceOf(account4);
+      const account5Balance = await this.token.balanceOf(account5);
 
-      let account4EventBalance = await this.token.getBalanceAtEventStart(eventID, account4);
-      let account5EventBalance = await this.token.getBalanceAtEventStart(eventID, account5);
+      const account4EventBalance = await this.token.getBalanceAtEventStart(eventID, account4);
+      const account5EventBalance = await this.token.getBalanceAtEventStart(eventID, account5);
 
       assert.equal(account4Balance.toNumber(), 0);
       assert.equal(account5Balance.toNumber(), 1);
@@ -249,7 +249,7 @@ contract('PreserveBalancesOnTransferToken', (accounts) => {
       assert.equal(account4EventBalance.toNumber(), 1);
       assert.equal(account5EventBalance.toNumber(), 0);
     });
-           
+
     it('should throw exception because event is not started yet', async function () {
       this.token = await PreserveBalancesOnTransferToken.new();
       await this.token.mint(web3.eth.accounts[0], 1000);
@@ -282,7 +282,7 @@ contract('PreserveBalancesOnTransferToken', (accounts) => {
       // 3 - finish event
       await this.token.finishEvent(eventID1);
       // 4 - increase time
-      let now = web3.eth.getBlock('latest').timestamp;
+      const now = web3.eth.getBlock('latest').timestamp;
       await increaseTimeTo(now + duration.seconds(1));
 
       // 5 - create event 2
@@ -335,7 +335,7 @@ contract('PreserveBalancesOnTransferToken', (accounts) => {
       assert.equal(await this.token.balanceOf(account3), 95);
       assert.equal(await this.token.balanceOf(account4), 13);
       assert.equal(await this.token.balanceOf(account5), 12);
-         
+
       assert.equal(await this.token.getBalanceAtEventStart(eventID1, account3), 100);
       assert.equal(await this.token.getBalanceAtEventStart(eventID1, account4), 20);
       assert.equal(await this.token.getBalanceAtEventStart(eventID1, account5), 0);
@@ -390,8 +390,8 @@ contract('PreserveBalancesOnTransferToken', (accounts) => {
 
       await this.token.transfer(account5, 1, { from: account4 });
 
-      let account4EventBalance = await this.token.getBalanceAtEventStart(eventID, account4);
-      let account5EventBalance = await this.token.getBalanceAtEventStart(eventID, account5);
+      const account4EventBalance = await this.token.getBalanceAtEventStart(eventID, account4);
+      const account5EventBalance = await this.token.getBalanceAtEventStart(eventID, account5);
 
       assert.equal(account4EventBalance.toNumber(), 1);
       assert.equal(account5EventBalance.toNumber(), 0);
@@ -426,7 +426,7 @@ contract('PreserveBalancesOnTransferToken', (accounts) => {
         this.snapshot.address,
         { from: web3.eth.accounts[1] }).should.be.rejectedWith('revert');
     });
-    
+
     it('should succeed', async function () {
       this.token = await PreserveBalancesOnTransferToken.new();
 
@@ -444,7 +444,7 @@ contract('SnapshotToken', (accounts) => {
   const account3 = accounts[3];
   const account4 = accounts[4];
   const account5 = accounts[5];
-    
+
   beforeEach(async function () {
 
   });
@@ -525,8 +525,8 @@ contract('SnapshotToken', (accounts) => {
 
       await this.token.mint(web3.eth.accounts[0], 1000);
 
-      let balanceReal = await this.token.balanceOf(web3.eth.accounts[0]);
-      let balanceAtStart = await this.snapshot.balanceOf(web3.eth.accounts[0]);
+      const balanceReal = await this.token.balanceOf(web3.eth.accounts[0]);
+      const balanceAtStart = await this.snapshot.balanceOf(web3.eth.accounts[0]);
 
       assert.equal(balanceReal.toNumber(), 1000);
       assert.equal(balanceAtStart.toNumber(), 0);
@@ -545,10 +545,10 @@ contract('SnapshotToken', (accounts) => {
       this.snapshot = await SnapshotToken.at(snapshotTokenAddress);
       await this.token.transfer(web3.eth.accounts[1], 200);
 
-      let balanceReal = await this.token.balanceOf(web3.eth.accounts[0]);
-      let balanceReal2 = await this.token.balanceOf(web3.eth.accounts[1]);
-      let balanceAtStart = await this.snapshot.balanceOf(web3.eth.accounts[0]);
-      let balanceAtStart2 = await this.snapshot.balanceOf(web3.eth.accounts[1]);
+      const balanceReal = await this.token.balanceOf(web3.eth.accounts[0]);
+      const balanceReal2 = await this.token.balanceOf(web3.eth.accounts[1]);
+      const balanceAtStart = await this.snapshot.balanceOf(web3.eth.accounts[0]);
+      const balanceAtStart2 = await this.snapshot.balanceOf(web3.eth.accounts[1]);
 
       assert.equal(balanceReal.toNumber(), 800);
       assert.equal(balanceReal2.toNumber(), 200);
