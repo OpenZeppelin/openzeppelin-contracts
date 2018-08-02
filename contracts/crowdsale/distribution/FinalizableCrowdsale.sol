@@ -10,7 +10,7 @@ import "../validation/TimedCrowdsale.sol";
  * @dev Extension of Crowdsale where an owner can do extra work
  * after finishing.
  */
-contract FinalizableCrowdsale is TimedCrowdsale, Ownable {
+contract FinalizableCrowdsale is Ownable, TimedCrowdsale {
   using SafeMath for uint256;
 
   bool public isFinalized = false;
