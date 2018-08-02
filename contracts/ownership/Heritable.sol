@@ -50,11 +50,11 @@ contract Heritable is Ownable {
     setHeartbeatTimeout(_heartbeatTimeout);
   }
 
-  function setHeir(address newHeir) public onlyOwner {
-    require(newHeir != owner);
+  function setHeir(address _newHeir) public onlyOwner {
+    require(_newHeir != owner);
     heartbeat();
-    emit HeirChanged(owner, newHeir);
-    heir_ = newHeir;
+    emit HeirChanged(owner, _newHeir);
+    heir_ = _newHeir;
   }
 
   /**
@@ -113,11 +113,11 @@ contract Heritable is Ownable {
     timeOfDeath_ = 0;
   }
 
-  function setHeartbeatTimeout(uint256 newHeartbeatTimeout)
+  function setHeartbeatTimeout(uint256 _newHeartbeatTimeout)
     internal onlyOwner
   {
     require(ownerLives());
-    heartbeatTimeout_ = newHeartbeatTimeout;
+    heartbeatTimeout_ = _newHeartbeatTimeout;
   }
 
   function ownerLives() internal view returns (bool) {

@@ -13,8 +13,8 @@ contract SignatureBouncerMock is SignatureBouncer {
   }
 
   function onlyWithValidSignature(bytes _sig)
-    onlyValidSignature(_sig)
     public
+    onlyValidSignature(_sig)
     view
   {
 
@@ -29,8 +29,8 @@ contract SignatureBouncerMock is SignatureBouncer {
   }
 
   function onlyWithValidSignatureAndMethod(bytes _sig)
-    onlyValidSignatureAndMethod(_sig)
     public
+    onlyValidSignatureAndMethod(_sig)
     view
   {
 
@@ -50,8 +50,8 @@ contract SignatureBouncerMock is SignatureBouncer {
   }
 
   function onlyWithValidSignatureAndData(uint, bytes _sig)
-    onlyValidSignatureAndData(_sig)
     public
+    onlyValidSignatureAndData(_sig)
     view
   {
 

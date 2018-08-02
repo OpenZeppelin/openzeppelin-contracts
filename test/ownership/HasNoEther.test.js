@@ -47,6 +47,7 @@ contract('HasNoEther', function ([_, owner, anyone]) {
     const ownerFinalBalance = await ethGetBalance(owner);
     const finalBalance = await ethGetBalance(this.hasNoEther.address);
     assert.equal(finalBalance, 0);
+
     ownerFinalBalance.should.be.bignumber.gt(ownerStartBalance);
   });
 

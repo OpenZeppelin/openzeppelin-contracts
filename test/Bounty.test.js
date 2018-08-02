@@ -25,7 +25,7 @@ contract('Bounty', function ([_, owner, researcher]) {
 
     it('can set reward', async function () {
       await sendReward(owner, this.bounty.address, reward);
-      
+
       const balance = await ethGetBalance(this.bounty.address);
       balance.should.be.bignumber.eq(reward);
     });
