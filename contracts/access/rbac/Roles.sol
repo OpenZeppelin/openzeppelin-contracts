@@ -22,7 +22,7 @@ library Roles {
   }
 
   /**
-   * @dev remove an account' access to this role
+   * @dev remove an account's access to this role
    */
   function remove(Role storage _role, address _account)
     internal
