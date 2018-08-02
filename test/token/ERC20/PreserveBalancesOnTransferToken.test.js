@@ -424,7 +424,7 @@ contract('PreserveBalancesOnTransferToken', (accounts) => {
       this.snapshot = await SnapshotToken.at(snapshotTokenAddress);
       await this.token.stopSnapshot(
         this.snapshot.address,
-        { from: web3.eth.accounts[1] } ).should.be.rejectedWith('revert');
+        { from: web3.eth.accounts[1] }).should.be.rejectedWith('revert');
     });
     
     it('should succeed', async function () {
@@ -441,7 +441,6 @@ contract('PreserveBalancesOnTransferToken', (accounts) => {
 });
 
 contract('SnapshotToken', (accounts) => {
-  const creator = accounts[0];
   const account3 = accounts[3];
   const account4 = accounts[4];
   const account5 = accounts[5];
@@ -463,15 +462,15 @@ contract('SnapshotToken', (accounts) => {
       this.token = await PreserveBalancesOnTransferTokenMock.new();
       this.snapshot = await SnapshotToken.new(this.token.address);
 
-      await this.token.TEST_callStartForSnapshot(this.snapshot.address).should.be.fulfilled;
-      await this.token.TEST_callStartForSnapshot(this.snapshot.address).should.be.rejectedWith('revert');
+      await this.token.testCallStartForSnapshot(this.snapshot.address).should.be.fulfilled;
+      await this.token.testCallStartForSnapshot(this.snapshot.address).should.be.rejectedWith('revert');
     });
 
     it('should succeed', async function () {
       this.token = await PreserveBalancesOnTransferTokenMock.new();
       this.snapshot = await SnapshotToken.new(this.token.address);
 
-      await this.token.TEST_callStartForSnapshot(this.snapshot.address).should.be.fulfilled;
+      await this.token.testCallStartForSnapshot(this.snapshot.address).should.be.fulfilled;
     });
   });
 
@@ -484,7 +483,7 @@ contract('SnapshotToken', (accounts) => {
       const snapshotTokenAddress = events[0].args._snapshotTokenAddress;
 
       this.snapshot = await SnapshotToken.at(snapshotTokenAddress);
-      await this.snapshot.finish( {from: web3.eth.accounts[1]} ).should.be.rejectedWith('revert');
+      await this.snapshot.finish({ from: web3.eth.accounts[1] }).should.be.rejectedWith('revert');
       await this.snapshot.finish().should.be.rejectedWith('revert');
     });
 
@@ -492,15 +491,15 @@ contract('SnapshotToken', (accounts) => {
       this.token = await PreserveBalancesOnTransferTokenMock.new();
       this.snapshot = await SnapshotToken.new(this.token.address);
 
-      await this.token.TEST_callFinishForSnapshot(this.snapshot.address).should.be.rejectedWith('revert');
+      await this.token.testCallFinishForSnapshot(this.snapshot.address).should.be.rejectedWith('revert');
     });
 
     it('should succeed', async function () {
       this.token = await PreserveBalancesOnTransferTokenMock.new();
       this.snapshot = await SnapshotToken.new(this.token.address);
 
-      await this.token.TEST_callStartForSnapshot(this.snapshot.address);
-      await this.token.TEST_callFinishForSnapshot(this.snapshot.address).should.be.fulfilled;
+      await this.token.testCallStartForSnapshot(this.snapshot.address);
+      await this.token.testCallFinishForSnapshot(this.snapshot.address).should.be.fulfilled;
     });
   });
 
@@ -510,7 +509,7 @@ contract('SnapshotToken', (accounts) => {
       await this.token.mint(web3.eth.accounts[0], 1000);
 
       this.snapshot = await SnapshotToken.new(this.token.address);
-      let balanceAtStart = await this.snapshot.balanceOf(web3.eth.accounts[0]).should.be.rejectedWith('revert');
+      await this.snapshot.balanceOf(web3.eth.accounts[0]).should.be.rejectedWith('revert');
     });
 
     it('should return correct value if minted some tokens', async function () {
@@ -544,7 +543,7 @@ contract('SnapshotToken', (accounts) => {
       const snapshotTokenAddress = events[0].args._snapshotTokenAddress;
 
       this.snapshot = await SnapshotToken.at(snapshotTokenAddress);
-      await this.token.transfer(web3.eth.accounts[1],200);
+      await this.token.transfer(web3.eth.accounts[1], 200);
 
       let balanceReal = await this.token.balanceOf(web3.eth.accounts[0]);
       let balanceReal2 = await this.token.balanceOf(web3.eth.accounts[1]);
@@ -565,7 +564,7 @@ contract('SnapshotToken', (accounts) => {
       await this.token.mint(web3.eth.accounts[0], 1000);
 
       this.snapshot = await SnapshotToken.new(this.token.address);
-      await this.snapshot.transfer(web3.eth.accounts[1],200).should.be.rejectedWith('revert');
+      await this.snapshot.transfer(web3.eth.accounts[1], 200).should.be.rejectedWith('revert');
     });
   });
 

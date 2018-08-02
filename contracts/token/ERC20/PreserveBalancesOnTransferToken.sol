@@ -226,15 +226,16 @@ contract PreserveBalancesOnTransferToken is MintableToken, BurnableToken {
     events[_eventID].eventStartTime);
   }
 
-  function isFromSnapshot(address _a) internal view returns(bool){
-    for(uint i = 0; i < snapshotTokens.length; ++i) {
-      if(snapshotTokens[i] == _a) {
+  function isFromSnapshot(address _a) internal view returns(bool) {
+    for (uint i = 0; i < snapshotTokens.length; ++i) {
+      if (snapshotTokens[i] == _a) {
         return true;
       }
     }
     return false;
   }
 }
+
 
 /**
  * @title SnapshotToken
@@ -248,7 +249,7 @@ contract SnapshotToken is StandardToken, Ownable {
   bool isStarted = false;
 
   constructor(PreserveBalancesOnTransferToken _pbott) public {
-     pbott = _pbott; 
+    pbott = _pbott; 
   }
 
 // BasicToken overrides:
@@ -267,8 +268,8 @@ contract SnapshotToken is StandardToken, Ownable {
   * @param _value The amount to be transferred.
   */
   function transfer(address _to, uint256 _value) public returns (bool) {
-     revert();
-     return false;
+    revert();
+    return false;
   }
 
 // StandardToken overrides:
@@ -290,20 +291,20 @@ contract SnapshotToken is StandardToken, Ownable {
    * @dev Should be called automatically from the PreserveBalancesOnTransferToken 
    */
   function start() public {
-     require(pbott == msg.sender);
-     require(!isStarted);
+    require(pbott == msg.sender);
+    require(!isStarted);
 
-     snapshotID = pbott.startNewEvent();
-     isStarted = true;
+    snapshotID = pbott.startNewEvent();
+    isStarted = true;
   }
 
   /**
    * @dev Should be called automatically from the PreserveBalancesOnTransferToken 
    */
   function finish() public {
-     require(pbott == msg.sender);
-     require(isStarted);
+    require(pbott == msg.sender);
+    require(isStarted);
 
-     pbott.finishEvent(snapshotID);
+    pbott.finishEvent(snapshotID);
   }
 }

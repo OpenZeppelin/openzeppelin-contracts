@@ -15,11 +15,11 @@ contract PreserveBalancesOnTransferTokenMock is PreserveBalancesOnTransferToken 
     // do nothing. just for tests
   }
 
-  function TEST_callStartForSnapshot(SnapshotToken _st) public {
+  function testCallStartForSnapshot(SnapshotToken _st) public {
     _st.start();
   }
 
-  function TEST_callFinishForSnapshot(SnapshotToken _st) public {
+  function testCallFinishForSnapshot(SnapshotToken _st) public {
     _st.finish();
   }
 }
