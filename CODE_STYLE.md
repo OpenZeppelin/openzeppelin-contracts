@@ -19,7 +19,7 @@ Any exception or additions specific to our project are documented below.
 * Parameters must be prefixed with an underscore.
 
 ```
-function test(_testParameter1, _testParameter2) {
+function test(uint256 _testParameter1, uint256 _testParameter2) {
     ...
 }
 ```
