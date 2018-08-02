@@ -58,7 +58,7 @@ contract('CapStagedCrowdsale', accounts => {
     console.log(rt);
     console.log(wi);
   });
-   
+
   it('should reject payments in stage 3 (rate 2000)', async function () {
     const rt = await this._csale.getRate();
     const wi = await this._csale.weiRaised();
