@@ -2,7 +2,6 @@
 
 pragma solidity ^0.4.24;
 
-import "./ERC20Basic.sol";
 import "./SafeERC20.sol";
 import "../../ownership/Ownable.sol";
 import "../../math/SafeMath.sol";
@@ -16,7 +15,7 @@ import "../../math/SafeMath.sol";
  */
 contract TokenVesting is Ownable {
   using SafeMath for uint256;
-  using SafeERC20 for ERC20Basic;
+  using SafeERC20 for ERC20;
 
   event Released(uint256 amount);
   event Revoked();
@@ -66,7 +65,7 @@ contract TokenVesting is Ownable {
    * @notice Transfers vested tokens to beneficiary.
    * @param _token ERC20 token which is being vested
    */
-  function release(ERC20Basic _token) public {
+  function release(ERC20 _token) public {
     uint256 unreleased = releasableAmount(_token);
 
     require(unreleased > 0);
@@ -83,7 +82,7 @@ contract TokenVesting is Ownable {
    * remain in the contract, the rest are returned to the owner.
    * @param _token ERC20 token which is being vested
    */
-  function revoke(ERC20Basic _token) public onlyOwner {
+  function revoke(ERC20 _token) public onlyOwner {
     require(revocable);
     require(!revoked[_token]);
 
@@ -103,7 +102,7 @@ contract TokenVesting is Ownable {
    * @dev Calculates the amount that has already vested but hasn't been released yet.
    * @param _token ERC20 token which is being vested
    */
-  function releasableAmount(ERC20Basic _token) public view returns (uint256) {
+  function releasableAmount(ERC20 _token) public view returns (uint256) {
     return vestedAmount(_token).sub(released[_token]);
   }
 
@@ -111,8 +110,8 @@ contract TokenVesting is Ownable {
    * @dev Calculates the amount that has already vested.
    * @param _token ERC20 token which is being vested
    */
-  function vestedAmount(ERC20Basic _token) public view returns (uint256) {
-    uint256 currentBalance = _token.balanceOf(address(this));
+  function vestedAmount(ERC20 _token) public view returns (uint256) {
+    uint256 currentBalance = _token.balanceOf(this);
     uint256 totalBalance = currentBalance.add(released[_token]);
 
     if (block.timestamp < cliff) {

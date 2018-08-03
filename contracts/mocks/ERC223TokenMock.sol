@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../token/ERC20/BasicToken.sol";
+import "../token/ERC20/StandardToken.sol";
 
 
 contract ERC223ContractInterface {
@@ -8,7 +8,7 @@ contract ERC223ContractInterface {
 }
 
 
-contract ERC223TokenMock is BasicToken {
+contract ERC223TokenMock is StandardToken {
 
   constructor(address _initialAccount, uint256 _initialBalance) public {
     balances[_initialAccount] = _initialBalance;
