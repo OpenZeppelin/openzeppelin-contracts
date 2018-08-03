@@ -1,4 +1,4 @@
-const { shouldBehaveLikeEscrow } = require('./Escrow.behaviour');
+const { shouldBehaveLikeEscrow } = require('./Escrow.behavior');
 const { expectThrow } = require('../helpers/expectThrow');
 const { EVMRevert } = require('../helpers/EVMRevert');
 

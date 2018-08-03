@@ -1,4 +1,4 @@
-const { shouldBehaveLikeOwnable } = require('./Ownable.behaviour');
+const { shouldBehaveLikeOwnable } = require('./Ownable.behavior');
 
 const Ownable = artifacts.require('Ownable');
 

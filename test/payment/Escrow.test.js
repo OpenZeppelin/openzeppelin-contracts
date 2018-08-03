@@ -1,4 +1,4 @@
-const { shouldBehaveLikeEscrow } = require('./Escrow.behaviour');
+const { shouldBehaveLikeEscrow } = require('./Escrow.behavior');
 
 const Escrow = artifacts.require('Escrow');
 
