@@ -17,7 +17,7 @@ contract ERC20TokenMetadata is ERC20 {
 contract ERC20WithMetadata is ERC20TokenMetadata {
   string private tokenURI_ = "";
 
-  function ERC20WithMetadata(string _tokenURI)
+  constructor(string _tokenURI)
     public
   {
     tokenURI_ = _tokenURI;

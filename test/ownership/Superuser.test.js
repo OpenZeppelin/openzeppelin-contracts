@@ -4,19 +4,11 @@ const expectEvent = require('../helpers/expectEvent');
 const Superuser = artifacts.require('Superuser');
 
 require('chai')
-  .use(require('chai-as-promised'))
   .should();
 
-contract('Superuser', function (accounts) {
-  const [
-    firstOwner,
-    newSuperuser,
-    newOwner,
-    anyone,
-  ] = accounts;
-
+contract('Superuser', function ([_, firstOwner, newSuperuser, newOwner, anyone]) {
   beforeEach(async function () {
-    this.superuser = await Superuser.new();
+    this.superuser = await Superuser.new({ from: firstOwner });
   });
 
   context('in normal conditions', () => {

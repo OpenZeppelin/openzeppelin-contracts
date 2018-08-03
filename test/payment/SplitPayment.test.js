@@ -3,14 +3,14 @@ const { ethGetBalance, ethSendTransaction } = require('../helpers/web3');
 const BigNumber = web3.BigNumber;
 
 require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
+const { expectThrow } = require('../helpers/expectThrow');
 const EVMThrow = require('../helpers/EVMThrow.js');
 const SplitPayment = artifacts.require('SplitPayment');
 
-contract('SplitPayment', function ([owner, payee1, payee2, payee3, nonpayee1, payer1]) {
+contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1, payer1]) {
   const amount = web3.toWei(1.0, 'ether');
 
   beforeEach(async function () {
@@ -38,12 +38,12 @@ contract('SplitPayment', function ([owner, payee1, payee2, payee3, nonpayee1, pa
   });
 
   it('should throw if no funds to claim', async function () {
-    await this.contract.claim({ from: payee1 }).should.be.rejectedWith(EVMThrow);
+    await expectThrow(this.contract.claim({ from: payee1 }), EVMThrow);
   });
 
   it('should throw if non-payee want to claim', async function () {
     await ethSendTransaction({ from: payer1, to: this.contract.address, value: amount });
-    await this.contract.claim({ from: nonpayee1 }).should.be.rejectedWith(EVMThrow);
+    await expectThrow(this.contract.claim({ from: nonpayee1 }), EVMThrow);
   });
 
   it('should distribute funds to payees', async function () {
