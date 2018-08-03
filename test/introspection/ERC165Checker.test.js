@@ -18,11 +18,11 @@ contract('ERC165Checker', function (accounts) {
     beforeEach(async function () {
       this.target = await ERC165NotSupported.new();
     });
-    
+
     it('does not support ERC165', async function () {
       const supported = await this.mock.supportsERC165(this.target.address);
       supported.should.eq(false);
-    })
+    });
   });
 
   context('generally supported', () => {
@@ -33,7 +33,7 @@ contract('ERC165Checker', function (accounts) {
     it('supports ERC165', async function () {
       const supported = await this.mock.supportsERC165(this.target.address);
       supported.should.eq(true);
-    })
+    });
 
     it(`does not support ${DUMMY_ID}`, async function () {
       const supported = await this.mock.supportsInterface(this.target.address, DUMMY_ID);
@@ -49,7 +49,7 @@ contract('ERC165Checker', function (accounts) {
     it('supports ERC165', async function () {
       const supported = await this.mock.supportsERC165(this.target.address);
       supported.should.eq(true);
-    })
+    });
 
     it(`supports ${DUMMY_ID}`, async function () {
       const supported = await this.mock.supportsInterface(this.target.address, DUMMY_ID);

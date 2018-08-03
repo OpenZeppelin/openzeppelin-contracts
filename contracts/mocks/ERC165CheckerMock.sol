@@ -2,6 +2,7 @@ pragma solidity ^0.4.24;
 
 import "../introspection/ERC165Checker.sol";
 
+
 contract ERC165CheckerMock {
   using ERC165Checker for address;
 

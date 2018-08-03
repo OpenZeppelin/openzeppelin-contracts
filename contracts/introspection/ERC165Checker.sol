@@ -66,6 +66,7 @@ library ERC165Checker {
   {
     bytes4 erc165ID = InterfaceId_ERC165;
 
+    // solium-disable-next-line security/no-inline-assembly
     assembly {
         let x := mload(0x40)               // Find empty storage location using "free memory pointer"
         mstore(x, erc165ID)                // Place signature at begining of empty storage
