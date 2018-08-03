@@ -13,20 +13,8 @@ library ERC165Checker {
   // As per the EIP-165 spec, ERC165_ID == bytes4(keccak256('supportsInterface(bytes4)')
   bytes4 private constant InterfaceId_ERC165 = 0x01ffc9a7;
 
-
-  function supportsERC165(address _address)
-    internal 
-    view 
-    returns (bool)
-  {
-    // Any contract that implements ERC165 must explicitly indicate support of
-    // InterfaceId_ERC165 and explicitly indicate non-support of InterfaceId_Invalid
-    return supportsInterface(_address, InterfaceId_ERC165) &&
-      !supportsInterface(_address, InterfaceId_Invalid);
-  }
-
   /**
-   * @notice Query if a contract implements an interface
+   * @notice Query if a contract implements an interface, does not check ERC165 support
    * @param _address The address of the contract to query for support of an interface
    * @param _interfaceId The interface identifier, as specified in ERC-165
    * @return true if the contract at _address indicates support of the interface with
@@ -36,7 +24,7 @@ library ERC165Checker {
    *      with the `supportsERC165` method in this library. 
    *      Interface identification is specified in ERC-165.
    */
-  function supportsInterface(address _address, bytes4 _interfaceId)
+  function supportsERC165Interface(address _address, bytes4 _interfaceId)
     internal
     view
     returns (bool)
@@ -46,6 +34,39 @@ library ERC165Checker {
     (bool success, bool result) = noThrowCall(_address, _interfaceId);
 
     return (success && result);
+  }
+
+  /**
+   * @notice Query if a contract supports ERC165
+   * @param _address The address of the contract to query for support of ERC165
+   * @return true if the contract at _address implements ERC165
+   */
+  function supportsERC165(address _address)
+    internal 
+    view 
+    returns (bool)
+  {
+    // Any contract that implements ERC165 must explicitly indicate support of
+    // InterfaceId_ERC165 and explicitly indicate non-support of InterfaceId_Invalid
+    return supportsERC165Interface(_address, InterfaceId_ERC165) &&
+      !supportsERC165Interface(_address, InterfaceId_Invalid);
+  }
+
+  /**
+   * @notice Query if a contract implements an interface, also checks support of ERC165
+   * @param _address The address of the contract to query for support of an interface
+   * @param _interfaceId The interface identifier, as specified in ERC-165
+   * @return true if the contract at _address indicates support of the interface with
+   * identifier _interfaceId, false otherwise
+   * @dev Interface identification is specified in ERC-165.
+   */
+  function supportsInterface(address _address, bytes4 _interfaceId)
+    internal
+    view
+    returns (bool)
+  {
+    // query support of both ERC165 as per the spec and support of _interfaceId
+    return supportsERC165(_address) && supportsERC165Interface(_address, _interfaceId);
   }
 
   /**

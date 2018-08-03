@@ -6,7 +6,6 @@ const ERC165InterfaceSupported = artifacts.require('ERC165InterfaceSupported');
 const DUMMY_ID = '0xdeadbeef';
 
 require('chai')
-  .use(require('chai-as-promised'))
   .should();
 
 contract('ERC165Checker', function (accounts) {
@@ -23,6 +22,11 @@ contract('ERC165Checker', function (accounts) {
       const supported = await this.mock.supportsERC165(this.target.address);
       supported.should.eq(false);
     });
+
+    it(`does not support ${DUMMY_ID} via supportsInterface`, async function () {
+      const supported = await this.mock.supportsInterface(this.target.address, DUMMY_ID);
+      supported.should.eq(false);
+    });
   });
 
   context('generally supported', () => {
@@ -35,7 +39,12 @@ contract('ERC165Checker', function (accounts) {
       supported.should.eq(true);
     });
 
-    it(`does not support ${DUMMY_ID}`, async function () {
+    it(`does not support ${DUMMY_ID} via supportsERC165Interface`, async function () {
+      const supported = await this.mock.supportsERC165Interface(this.target.address, DUMMY_ID);
+      supported.should.eq(false);
+    });
+
+    it(`does not support ${DUMMY_ID} via supportsInterface`, async function () {
       const supported = await this.mock.supportsInterface(this.target.address, DUMMY_ID);
       supported.should.eq(false);
     });
@@ -51,7 +60,12 @@ contract('ERC165Checker', function (accounts) {
       supported.should.eq(true);
     });
 
-    it(`supports ${DUMMY_ID}`, async function () {
+    it(`supports ${DUMMY_ID} via supportsERC165Interface`, async function () {
+      const supported = await this.mock.supportsERC165Interface(this.target.address, DUMMY_ID);
+      supported.should.eq(true);
+    });
+
+    it(`supports ${DUMMY_ID} via supportsInterface`, async function () {
       const supported = await this.mock.supportsInterface(this.target.address, DUMMY_ID);
       supported.should.eq(true);
     });
