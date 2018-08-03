@@ -1,6 +1,6 @@
 const { assertRevert } = require('../../helpers/assertRevert');
-const { shouldBehaveLikeERC721BasicToken } = require('./ERC721BasicToken.behaviour');
-const { shouldBehaveLikeMintAndBurnERC721Token } = require('./ERC721MintBurn.behaviour');
+const { shouldBehaveLikeERC721BasicToken } = require('./ERC721BasicToken.behavior');
+const { shouldBehaveLikeMintAndBurnERC721Token } = require('./ERC721MintBurn.behavior');
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 const _ = require('lodash');
 

@@ -1,4 +1,4 @@
-const { shouldBehaveLikeBurnableToken } = require('./BurnableToken.behaviour');
+const { shouldBehaveLikeBurnableToken } = require('./BurnableToken.behavior');
 const BurnableTokenMock = artifacts.require('BurnableTokenMock');
 
 contract('BurnableToken', function ([_, owner, ...otherAccounts]) {
