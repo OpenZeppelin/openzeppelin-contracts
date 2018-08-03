@@ -19,7 +19,7 @@ contract('HasNoTokens', function ([_, owner, initialAccount, anyone]) {
   });
 
   it('should not accept ERC223 tokens', async function () {
-    await expectThrow(token.transferERC223(hasNoTokens.address, 10, ''));
+    await expectThrow(token.transferERC223(hasNoTokens.address, 10, '', { from: initialAccount }));
   });
 
   it('should allow owner to reclaim tokens', async function () {
