@@ -16,12 +16,11 @@ contract('CapStagedCrowdsale', function ([_, creator, wallet, investor]) {
   const stage2Rate = new BigNumber(3000);
   const stage3Limit = web3.toWei('30', 'ether');//  10ether//  30ether
   const stage3Rate = new BigNumber(2000);
-
+  var stLimits = [stage1Limit, stage2Limit];
+  var stRates = [stage1Rate, stage2Rate];
   beforeEach(async function () {
     this._token = await CapStagedCrowdsaleToken.new();
-    this._csale = await CapStagedCrowdsale.new(_rate, wallet, this._token.address);
-    await this._csale.addStage(stage1Limit, stage1Rate);
-    await this._csale.addStage(stage2Limit, stage2Rate);
+    this._csale = await CapStagedCrowdsale.new(_rate, wallet, this._token.address, stLimits, stRates);
     await this._csale.addStage(stage3Limit, stage3Rate);
     await this._token.transfer(this._csale.address, 1000000000000000000000000);
     await this._token.transferOwnership(this._csale.address);
