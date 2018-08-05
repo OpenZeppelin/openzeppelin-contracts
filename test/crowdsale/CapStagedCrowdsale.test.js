@@ -17,7 +17,7 @@ contract('CapStagedCrowdsale', function ([_, creator, wallet, investor]) {
   const stage3Limit = web3.toWei('30', 'ether');//  10ether//  30ether
   const stage3Rate = new BigNumber(2000);
   var stLimits = [stage1Limit, stage2Limit];
-  var stRates = [stage1Rate, stage2Rate];
+  var stRates = [stage1Limit, stage2Rate];
   beforeEach(async function () {
     this._token = await CapStagedCrowdsaleToken.new();
     this._csale = await CapStagedCrowdsale.new(_rate, wallet, this._token.address, stLimits, stRates);
