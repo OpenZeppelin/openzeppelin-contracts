@@ -7,36 +7,19 @@ contract('Math', function () {
     math = await MathMock.new();
   });
 
-  it('returns max64 correctly', async function () {
+  it('returns max correctly', async function () {
     const a = 5678;
     const b = 1234;
-    await math.max64(a, b);
-    const result = await math.result64();
+    await math.max(a, b);
+    const result = await math.result();
     assert.equal(result, a);
   });
 
-  it('returns min64 correctly', async function () {
+  it('returns min correctly', async function () {
     const a = 5678;
     const b = 1234;
-    await math.min64(a, b);
-    const result = await math.result64();
-
-    assert.equal(result, b);
-  });
-
-  it('returns max256 correctly', async function () {
-    const a = 5678;
-    const b = 1234;
-    await math.max256(a, b);
-    const result = await math.result256();
-    assert.equal(result, a);
-  });
-
-  it('returns min256 correctly', async function () {
-    const a = 5678;
-    const b = 1234;
-    await math.min256(a, b);
-    const result = await math.result256();
+    await math.min(a, b);
+    const result = await math.result();
 
     assert.equal(result, b);
   });
