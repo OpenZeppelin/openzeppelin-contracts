@@ -25,7 +25,7 @@ contract('SplitPayment', function ([owner, payee1, payee2, payee3, nonpayee1, pa
     await expectThrow(SplitPayment.new([payee1, payee2], [20, 30, 40]), EVMThrow);
   });
 
-  context('with deployed contract', function () {
+  context('once deployed', function () {
     beforeEach(async function () {
       this.payees = [payee1, payee2, payee3];
       this.shares = [20, 10, 70];
