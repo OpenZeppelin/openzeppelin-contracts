@@ -1,43 +1,34 @@
 const MathMock = artifacts.require('MathMock');
 
 contract('Math', function () {
-  let math;
+  const min = 1234;
+  const max = 5678;
 
   beforeEach(async function () {
-    math = await MathMock.new();
+    this.math = await MathMock.new();
   });
 
-  it('returns max64 correctly', async function () {
-    const a = 5678;
-    const b = 1234;
-    await math.max64(a, b);
-    const result = await math.result64();
-    assert.equal(result, a);
+  describe('max', function () {
+    it('is correctly detected in first argument position', async function () {
+      const result = await this.math.max(max, min);
+      assert.equal(result, max);
+    });
+
+    it('is correctly detected in second argument position', async function () {
+      const result = await this.math.max(min, max);
+      assert.equal(result, max);
+    });
   });
 
-  it('returns min64 correctly', async function () {
-    const a = 5678;
-    const b = 1234;
-    await math.min64(a, b);
-    const result = await math.result64();
+  describe('min', function () {
+    it('is correctly detected in first argument position', async function () {
+      const result = await this.math.min(min, max);
+      assert.equal(result, min);
+    });
 
-    assert.equal(result, b);
-  });
-
-  it('returns max256 correctly', async function () {
-    const a = 5678;
-    const b = 1234;
-    await math.max256(a, b);
-    const result = await math.result256();
-    assert.equal(result, a);
-  });
-
-  it('returns min256 correctly', async function () {
-    const a = 5678;
-    const b = 1234;
-    await math.min256(a, b);
-    const result = await math.result256();
-
-    assert.equal(result, b);
+    it('is correctly detected in second argument position', async function () {
+      const result = await this.math.min(max, min);
+      assert.equal(result, min);
+    });
   });
 });
