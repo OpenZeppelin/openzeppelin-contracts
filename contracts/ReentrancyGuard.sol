@@ -9,17 +9,8 @@ pragma solidity ^0.4.24;
  */
 contract ReentrancyGuard {
 
-  /// @dev Constant for unlocked guard state - non-zero to prevent extra gas costs.
-  /// See: https://github.com/OpenZeppelin/openzeppelin-solidity/issues/1056
-  uint private constant REENTRANCY_GUARD_FREE = 1;
-
-  /// @dev Constant for locked guard state
-  uint private constant REENTRANCY_GUARD_LOCKED = 2;
-
-  /**
-   * @dev We use a single lock for the whole contract.
-   */
-  uint private reentrancyLock = REENTRANCY_GUARD_FREE;
+  /// @dev counter to allow mutex lock with only one SSTORE operation
+  uint256 private guardCounter = 1;
 
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
@@ -30,10 +21,10 @@ contract ReentrancyGuard {
    * wrapper marked as `nonReentrant`.
    */
   modifier nonReentrant() {
-    require(reentrancyLock == REENTRANCY_GUARD_FREE);
-    reentrancyLock = REENTRANCY_GUARD_LOCKED;
+    guardCounter += 1;
+    uint256 localCounter = guardCounter;
     _;
-    reentrancyLock = REENTRANCY_GUARD_FREE;
+    require(localCounter == guardCounter);
   }
 
 }
