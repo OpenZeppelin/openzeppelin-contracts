@@ -17,7 +17,7 @@ contract('AutoIncrementing', function ([_, owner]) {
 
   context('custom key', async function () {
     it('should return expected values', async function () {
-      for (let expectedId of EXPECTED) {
+      for (const expectedId of EXPECTED) {
         await this.mock.doThing(KEY1, { from: owner });
         const actualId = await this.mock.theId();
         actualId.should.be.bignumber.eq(expectedId);
@@ -27,7 +27,7 @@ contract('AutoIncrementing', function ([_, owner]) {
 
   context('parallel keys', async function () {
     it('should return expected values for each counter', async function () {
-      for (let expectedId of EXPECTED) {
+      for (const expectedId of EXPECTED) {
         await this.mock.doThing(KEY1, { from: owner });
         let actualId = await this.mock.theId();
         actualId.should.be.bignumber.eq(expectedId);

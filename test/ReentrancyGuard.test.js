@@ -2,21 +2,21 @@ const { expectThrow } = require('./helpers/expectThrow');
 const ReentrancyMock = artifacts.require('ReentrancyMock');
 const ReentrancyAttack = artifacts.require('ReentrancyAttack');
 
-contract('ReentrancyGuard', function (accounts) {
+contract('ReentrancyGuard', function () {
   let reentrancyMock;
 
   beforeEach(async function () {
     reentrancyMock = await ReentrancyMock.new();
-    let initialCounter = await reentrancyMock.counter();
+    const initialCounter = await reentrancyMock.counter();
     assert.equal(initialCounter, 0);
   });
 
   it('should not allow remote callback', async function () {
-    let attacker = await ReentrancyAttack.new();
+    const attacker = await ReentrancyAttack.new();
     await expectThrow(reentrancyMock.countAndCall(attacker.address));
   });
 
-  // The following are more side-effects than intended behaviour:
+  // The following are more side-effects than intended behavior:
   // I put them here as documentation, and to monitor any changes
   // in the side-effects.
 
