@@ -56,7 +56,7 @@ contract CapStagedCrowdsale is Crowdsale, Ownable {
     * @dev Function for adding stages. Stages must be inserted from first to last. Stages can only be added until weiRaised is 0
     * @param _limit - Stage limit in wei, _rate - stage rate
     */
-  function addStage(uint256 _limit, uint256 _rate) beforeCrowdsaleStart internal {
+  function addStage(uint256 _limit, uint256 _rate) internal beforeCrowdsaleStart {
     stages.push(Stage({
       limit: _limit,
       rate: _rate
