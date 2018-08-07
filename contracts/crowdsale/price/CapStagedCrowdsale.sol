@@ -69,7 +69,7 @@ contract CapStagedCrowdsale is Crowdsale, Ownable {
     */
   function getRate() public view returns(uint256) {
     bool isSet = false;
-    if (stages.length > 0){
+    if (stages.length > 0) {
       for (uint x = 0; x < stages.length; x++) {
         if (isSet == false) {
           if (stages[x].limit >= weiRaised) {
@@ -78,10 +78,9 @@ contract CapStagedCrowdsale is Crowdsale, Ownable {
           }
         }
       }
-    }
-    else {
+    } else {
       return rate;
-    }
+      }
   }
 
   /**
