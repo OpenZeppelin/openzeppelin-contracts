@@ -29,7 +29,7 @@ const transformToFullName = function (json) {
     return json.name;
   }
 
-  var typeName = json.inputs.map(function (i) { return i.type; }).join();
+  const typeName = json.inputs.map(function (i) { return i.type; }).join();
   return json.name + '(' + typeName + ')';
 };
 

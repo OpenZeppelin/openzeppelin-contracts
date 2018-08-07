@@ -36,9 +36,9 @@ contract MintableToken is StandardToken, Ownable {
     address _to,
     uint256 _amount
   )
+    public
     hasMintPermission
     canMint
-    public
     returns (bool)
   {
     totalSupply_ = totalSupply_.add(_amount);
@@ -52,7 +52,7 @@ contract MintableToken is StandardToken, Ownable {
    * @dev Function to stop minting new tokens.
    * @return True if the operation was successful.
    */
-  function finishMinting() onlyOwner canMint public returns (bool) {
+  function finishMinting() public onlyOwner canMint returns (bool) {
     mintingFinished = true;
     emit MintFinished();
     return true;

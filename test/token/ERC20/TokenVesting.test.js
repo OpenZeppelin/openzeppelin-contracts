@@ -1,3 +1,4 @@
+const { expectThrow } = require('../../helpers/expectThrow');
 const { EVMRevert } = require('../../helpers/EVMRevert');
 const { latestTime } = require('../../helpers/latestTime');
 const { increaseTimeTo, duration } = require('../../helpers/increaseTime');
@@ -6,7 +7,6 @@ const { ethGetBlock } = require('../../helpers/web3');
 const BigNumber = web3.BigNumber;
 
 require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
@@ -29,12 +29,15 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
   });
 
   it('cannot be released before cliff', async function () {
-    await this.vesting.release(this.token.address).should.be.rejectedWith(EVMRevert);
+    await expectThrow(
+      this.vesting.release(this.token.address),
+      EVMRevert,
+    );
   });
 
   it('can be released after cliff', async function () {
     await increaseTimeTo(this.start + this.cliff + duration.weeks(1));
-    await this.vesting.release(this.token.address).should.be.fulfilled;
+    await this.vesting.release(this.token.address);
   });
 
   it('should release proper amount after cliff', async function () {
@@ -72,12 +75,15 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
   });
 
   it('should be revoked by owner if revocable is set', async function () {
-    await this.vesting.revoke(this.token.address, { from: owner }).should.be.fulfilled;
+    await this.vesting.revoke(this.token.address, { from: owner });
   });
 
   it('should fail to be revoked by owner if revocable not set', async function () {
     const vesting = await TokenVesting.new(beneficiary, this.start, this.cliff, this.duration, false, { from: owner });
-    await vesting.revoke(this.token.address, { from: owner }).should.be.rejectedWith(EVMRevert);
+    await expectThrow(
+      vesting.revoke(this.token.address, { from: owner }),
+      EVMRevert,
+    );
   });
 
   it('should return the non-vested tokens when revoked by owner', async function () {
@@ -110,6 +116,9 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
     await this.vesting.revoke(this.token.address, { from: owner });
 
-    await this.vesting.revoke(this.token.address, { from: owner }).should.be.rejectedWith(EVMRevert);
+    await expectThrow(
+      this.vesting.revoke(this.token.address, { from: owner }),
+      EVMRevert,
+    );
   });
 });

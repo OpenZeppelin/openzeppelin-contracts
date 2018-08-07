@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../ownership/rbac/RBAC.sol";
+import "../access/rbac/RBAC.sol";
 
 
 /**
@@ -41,26 +41,26 @@ contract RBACWithAdmin is RBAC {
   }
 
   /**
-   * @dev add a role to an address
-   * @param addr address
-   * @param roleName the name of the role
+   * @dev add a role to an account
+   * @param _account the account that will have the role
+   * @param _roleName the name of the role
    */
-  function adminAddRole(address addr, string roleName)
-    onlyAdmin
+  function adminAddRole(address _account, string _roleName)
     public
+    onlyAdmin
   {
-    addRole(addr, roleName);
+    addRole(_account, _roleName);
   }
 
   /**
-   * @dev remove a role from an address
-   * @param addr address
-   * @param roleName the name of the role
+   * @dev remove a role from an account
+   * @param _account the account that will no longer have the role
+   * @param _roleName the name of the role
    */
-  function adminRemoveRole(address addr, string roleName)
-    onlyAdmin
+  function adminRemoveRole(address _account, string _roleName)
     public
+    onlyAdmin
   {
-    removeRole(addr, roleName);
+    removeRole(_account, _roleName);
   }
 }

@@ -1,11 +1,11 @@
 const { assertRevert } = require('../../helpers/assertRevert');
-const StandardTokenMock = artifacts.require('StandardTokenMock');
+const StandardToken = artifacts.require('StandardTokenMock');
 
 contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
   beforeEach(async function () {
-    this.token = await StandardTokenMock.new(owner, 100);
+    this.token = await StandardToken.new(owner, 100);
   });
 
   describe('total supply', function () {
