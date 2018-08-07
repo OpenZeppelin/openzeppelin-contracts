@@ -2,7 +2,7 @@ const { assertRevert } = require('../helpers/assertRevert');
 
 const Claimable = artifacts.require('Claimable');
 
-contract('Claimable', function ([_, owner, newOwner, anyone]) {
+contract('Claimable', function ([owner, newOwner, anyone]) {
   let claimable;
 
   beforeEach(async function () {
