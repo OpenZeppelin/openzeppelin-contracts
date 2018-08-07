@@ -6,7 +6,7 @@ contract('Claimable', function ([_, owner, newOwner, anyone]) {
   let claimable;
 
   beforeEach(async function () {
-    claimable = await Claimable.new();
+    claimable = await Claimable.new({ from: owner });
   });
 
   it('changes pendingOwner after transfer', async function () {
