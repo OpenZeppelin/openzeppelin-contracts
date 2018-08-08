@@ -1,111 +1,97 @@
+const { ethGetBalance, ethSendTransaction } = require('./helpers/web3');
+const expectEvent = require('./helpers/expectEvent');
+const { assertRevert } = require('./helpers/assertRevert');
 
-let sendReward = function (sender, receiver, value) {
-  web3.eth.sendTransaction({
-    from: sender,
-    to: receiver,
-    value: value,
-  });
-};
-var SecureTargetBounty = artifacts.require('SecureTargetBounty');
-var InsecureTargetBounty = artifacts.require('InsecureTargetBounty');
+const SecureTargetBounty = artifacts.require('SecureTargetBounty');
+const InsecureTargetBounty = artifacts.require('InsecureTargetBounty');
 
-function awaitEvent (event, handler) {
-  return new Promise((resolve, reject) => {
-    function wrappedHandler (...args) {
-      Promise.resolve(handler(...args)).then(resolve).catch(reject);
-    }
+require('chai')
+  .use(require('chai-bignumber')(web3.BigNumber))
+  .should();
 
-    event.watch(wrappedHandler);
-  });
-}
+const sendReward = async (from, to, value) => ethSendTransaction({
+  from,
+  to,
+  value,
+});
 
-contract('Bounty', function (accounts) {
-  it('sets reward', async function () {
-    let owner = accounts[0];
-    let reward = web3.toWei(1, 'ether');
-    let bounty = await SecureTargetBounty.new();
-    sendReward(owner, bounty.address, reward);
+const reward = new web3.BigNumber(web3.toWei(1, 'ether'));
 
-    assert.equal(reward, web3.eth.getBalance(bounty.address).toNumber());
-  });
+contract('Bounty', function ([_, owner, researcher]) {
+  context('against secure contract', function () {
+    beforeEach(async function () {
+      this.bounty = await SecureTargetBounty.new({ from: owner });
+    });
 
-  it('empties itself when destroyed', async function () {
-    let owner = accounts[0];
-    let reward = web3.toWei(1, 'ether');
-    let bounty = await SecureTargetBounty.new();
-    sendReward(owner, bounty.address, reward);
+    it('can set reward', async function () {
+      await sendReward(owner, this.bounty.address, reward);
 
-    assert.equal(reward, web3.eth.getBalance(bounty.address).toNumber());
+      const balance = await ethGetBalance(this.bounty.address);
+      balance.should.be.bignumber.eq(reward);
+    });
 
-    await bounty.destroy();
-    assert.equal(0, web3.eth.getBalance(bounty.address).toNumber());
-  });
+    context('with reward', function () {
+      beforeEach(async function () {
+        const result = await this.bounty.createTarget({ from: researcher });
+        const event = await expectEvent.inLogs(result.logs, 'TargetCreated');
 
-  describe('Against secure contract', function () {
-    it('cannot claim reward', async function () {
-      let owner = accounts[0];
-      let researcher = accounts[1];
-      let reward = web3.toWei(1, 'ether');
-      let bounty = await SecureTargetBounty.new();
-      let event = bounty.TargetCreated({});
+        this.targetAddress = event.args.createdAddress;
 
-      let watcher = async function (err, result) {
-        event.stopWatching();
-        if (err) { throw err; }
+        await sendReward(owner, this.bounty.address, reward);
 
-        var targetAddress = result.args.createdAddress;
-        sendReward(owner, bounty.address, reward);
+        const balance = await ethGetBalance(this.bounty.address);
+        balance.should.be.bignumber.eq(reward);
+      });
 
-        assert.equal(reward,
-          web3.eth.getBalance(bounty.address).toNumber());
-
-        try {
-          await bounty.claim(targetAddress, { from: researcher });
-          assert.isTrue(false); // should never reach here
-        } catch (error) {
-          let reClaimedBounty = await bounty.claimed.call();
-          assert.isFalse(reClaimedBounty);
-        }
-        try {
-          await bounty.withdrawPayments({ from: researcher });
-          assert.isTrue(false); // should never reach here
-        } catch (err) {
-          assert.equal(reward,
-            web3.eth.getBalance(bounty.address).toNumber());
-        }
-      };
-      await bounty.createTarget({ from: researcher });
-      await awaitEvent(event, watcher);
+      it('cannot claim reward', async function () {
+        await assertRevert(
+          this.bounty.claim(this.targetAddress, { from: researcher }),
+        );
+      });
     });
   });
 
-  describe('Against broken contract', function () {
-    it('claims reward', async function () {
-      let owner = accounts[0];
-      let researcher = accounts[1];
-      let reward = web3.toWei(1, 'ether');
-      let bounty = await InsecureTargetBounty.new();
-      let event = bounty.TargetCreated({});
+  context('against broken contract', function () {
+    beforeEach(async function () {
+      this.bounty = await InsecureTargetBounty.new();
 
-      let watcher = async function (err, result) {
-        event.stopWatching();
-        if (err) { throw err; }
-        let targetAddress = result.args.createdAddress;
-        sendReward(owner, bounty.address, reward);
+      const result = await this.bounty.createTarget({ from: researcher });
+      const event = await expectEvent.inLogs(result.logs, 'TargetCreated');
 
-        assert.equal(reward, web3.eth.getBalance(bounty.address).toNumber());
+      this.targetAddress = event.args.createdAddress;
+      await sendReward(owner, this.bounty.address, reward);
+    });
 
-        await bounty.claim(targetAddress, { from: researcher });
-        let claim = await bounty.claimed.call();
+    it('can claim reward', async function () {
+      await this.bounty.claim(this.targetAddress, { from: researcher });
+      const claim = await this.bounty.claimed();
 
-        assert.isTrue(claim);
+      claim.should.eq(true);
 
-        await bounty.withdrawPayments({ from: researcher });
+      const researcherPrevBalance = await ethGetBalance(researcher);
 
-        assert.equal(0, web3.eth.getBalance(bounty.address).toNumber());
-      };
-      await bounty.createTarget({ from: researcher });
-      await awaitEvent(event, watcher);
+      const gas = await this.bounty.withdrawPayments.estimateGas({ from: researcher });
+      const gasPrice = web3.toWei(1, 'gwei');
+      const gasCost = (new web3.BigNumber(gas)).times(gasPrice);
+
+      await this.bounty.withdrawPayments({ from: researcher, gasPrice: gasPrice });
+      const updatedBalance = await ethGetBalance(this.bounty.address);
+      updatedBalance.should.be.bignumber.eq(0);
+
+      const researcherCurrBalance = await ethGetBalance(researcher);
+      researcherCurrBalance.sub(researcherPrevBalance).should.be.bignumber.eq(reward.sub(gasCost));
+    });
+
+    context('reward claimed', function () {
+      beforeEach(async function () {
+        await this.bounty.claim(this.targetAddress, { from: researcher });
+      });
+
+      it('should no longer be payable', async function () {
+        await assertRevert(
+          sendReward(owner, this.bounty.address, reward)
+        );
+      });
     });
   });
 });

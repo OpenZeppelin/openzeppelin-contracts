@@ -1,13 +1,13 @@
-import ether from '../helpers/ether';
-import { advanceBlock } from '../helpers/advanceToBlock';
-import { increaseTimeTo, duration } from '../helpers/increaseTime';
-import latestTime from '../helpers/latestTime';
-import EVMRevert from '../helpers/EVMRevert';
+const { ether } = require('../helpers/ether');
+const { advanceBlock } = require('../helpers/advanceToBlock');
+const { increaseTimeTo, duration } = require('../helpers/increaseTime');
+const { latestTime } = require('../helpers/latestTime');
+const { expectThrow } = require('../helpers/expectThrow');
+const { EVMRevert } = require('../helpers/EVMRevert');
 
 const BigNumber = web3.BigNumber;
 
 require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
@@ -25,7 +25,7 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
   });
 
   beforeEach(async function () {
-    this.openingTime = latestTime() + duration.weeks(1);
+    this.openingTime = (await latestTime()) + duration.weeks(1);
     this.closingTime = this.openingTime + duration.weeks(1);
     this.afterClosingTime = this.closingTime + duration.seconds(1);
     this.token = await SimpleToken.new();
@@ -43,20 +43,20 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
 
   describe('accepting payments', function () {
     it('should reject payments before start', async function () {
-      await this.crowdsale.send(value).should.be.rejectedWith(EVMRevert);
-      await this.crowdsale.buyTokens(investor, { from: purchaser, value: value }).should.be.rejectedWith(EVMRevert);
+      await expectThrow(this.crowdsale.send(value), EVMRevert);
+      await expectThrow(this.crowdsale.buyTokens(investor, { from: purchaser, value: value }), EVMRevert);
     });
 
     it('should accept payments after start', async function () {
       await increaseTimeTo(this.openingTime);
-      await this.crowdsale.send(value).should.be.fulfilled;
-      await this.crowdsale.buyTokens(investor, { value: value, from: purchaser }).should.be.fulfilled;
+      await this.crowdsale.send(value);
+      await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
     });
 
     it('should reject payments after end', async function () {
       await increaseTimeTo(this.afterClosingTime);
-      await this.crowdsale.send(value).should.be.rejectedWith(EVMRevert);
-      await this.crowdsale.buyTokens(investor, { value: value, from: purchaser }).should.be.rejectedWith(EVMRevert);
+      await expectThrow(this.crowdsale.send(value), EVMRevert);
+      await expectThrow(this.crowdsale.buyTokens(investor, { value: value, from: purchaser }), EVMRevert);
     });
   });
 });

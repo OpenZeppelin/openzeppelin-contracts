@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
 
 import "../ownership/Ownable.sol";
@@ -9,17 +9,14 @@ import "../ownership/Ownable.sol";
  * @dev Base contract that can be destroyed by owner. All funds in contract will be sent to the owner.
  */
 contract Destructible is Ownable {
-
-  function Destructible() public payable { }
-
   /**
    * @dev Transfers the current balance to the owner and terminates the contract.
    */
-  function destroy() onlyOwner public {
+  function destroy() public onlyOwner {
     selfdestruct(owner);
   }
 
-  function destroyAndSend(address _recipient) onlyOwner public {
+  function destroyAndSend(address _recipient) public onlyOwner {
     selfdestruct(_recipient);
   }
 }

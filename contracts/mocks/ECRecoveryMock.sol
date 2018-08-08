@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
 
 import "../ECRecovery.sol";
@@ -7,19 +7,19 @@ import "../ECRecovery.sol";
 contract ECRecoveryMock {
   using ECRecovery for bytes32;
 
-  function recover(bytes32 hash, bytes sig)
+  function recover(bytes32 _hash, bytes _signature)
     public
     pure
     returns (address)
   {
-    return hash.recover(sig);
+    return _hash.recover(_signature);
   }
 
-  function toEthSignedMessageHash(bytes32 hash)
+  function toEthSignedMessageHash(bytes32 _hash)
     public
     pure
     returns (bytes32)
   {
-    return hash.toEthSignedMessageHash();
+    return _hash.toEthSignedMessageHash();
   }
 }

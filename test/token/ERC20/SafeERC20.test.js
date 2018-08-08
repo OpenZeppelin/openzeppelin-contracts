@@ -1,7 +1,7 @@
-import EVMThrow from '../../helpers/EVMThrow';
+const { expectThrow } = require('../../helpers/expectThrow');
+const { EVMRevert } = require('../../helpers/EVMRevert');
 
 require('chai')
-  .use(require('chai-as-promised'))
   .should();
 
 const SafeERC20Helper = artifacts.require('SafeERC20Helper');
@@ -12,26 +12,26 @@ contract('SafeERC20', function () {
   });
 
   it('should throw on failed transfer', async function () {
-    await this.helper.doFailingTransfer().should.be.rejectedWith(EVMThrow);
+    await expectThrow(this.helper.doFailingTransfer(), EVMRevert);
   });
 
   it('should throw on failed transferFrom', async function () {
-    await this.helper.doFailingTransferFrom().should.be.rejectedWith(EVMThrow);
+    await expectThrow(this.helper.doFailingTransferFrom(), EVMRevert);
   });
 
   it('should throw on failed approve', async function () {
-    await this.helper.doFailingApprove().should.be.rejectedWith(EVMThrow);
+    await expectThrow(this.helper.doFailingApprove(), EVMRevert);
   });
 
   it('should not throw on succeeding transfer', async function () {
-    await this.helper.doSucceedingTransfer().should.be.fulfilled;
+    await this.helper.doSucceedingTransfer();
   });
 
   it('should not throw on succeeding transferFrom', async function () {
-    await this.helper.doSucceedingTransferFrom().should.be.fulfilled;
+    await this.helper.doSucceedingTransferFrom();
   });
 
   it('should not throw on succeeding approve', async function () {
-    await this.helper.doSucceedingApprove().should.be.fulfilled;
+    await this.helper.doSucceedingApprove();
   });
 });

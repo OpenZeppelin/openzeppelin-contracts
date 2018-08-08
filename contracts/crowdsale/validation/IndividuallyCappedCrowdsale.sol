@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
 import "../../math/SafeMath.sol";
 import "../Crowdsale.sol";
@@ -9,7 +9,7 @@ import "../../ownership/Ownable.sol";
  * @title IndividuallyCappedCrowdsale
  * @dev Crowdsale with per-user caps.
  */
-contract IndividuallyCappedCrowdsale is Crowdsale, Ownable {
+contract IndividuallyCappedCrowdsale is Ownable, Crowdsale {
   using SafeMath for uint256;
 
   mapping(address => uint256) public contributions;
@@ -29,7 +29,13 @@ contract IndividuallyCappedCrowdsale is Crowdsale, Ownable {
    * @param _beneficiaries List of addresses to be capped
    * @param _cap Wei limit for individual contribution
    */
-  function setGroupCap(address[] _beneficiaries, uint256 _cap) external onlyOwner {
+  function setGroupCap(
+    address[] _beneficiaries,
+    uint256 _cap
+  )
+    external
+    onlyOwner
+  {
     for (uint256 i = 0; i < _beneficiaries.length; i++) {
       caps[_beneficiaries[i]] = _cap;
     }
@@ -49,7 +55,9 @@ contract IndividuallyCappedCrowdsale is Crowdsale, Ownable {
    * @param _beneficiary Address of contributor
    * @return User contribution so far
    */
-  function getUserContribution(address _beneficiary) public view returns (uint256) {
+  function getUserContribution(address _beneficiary)
+    public view returns (uint256)
+  {
     return contributions[_beneficiary];
   }
 
@@ -58,7 +66,12 @@ contract IndividuallyCappedCrowdsale is Crowdsale, Ownable {
    * @param _beneficiary Token purchaser
    * @param _weiAmount Amount of wei contributed
    */
-  function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
+  function _preValidatePurchase(
+    address _beneficiary,
+    uint256 _weiAmount
+  )
+    internal
+  {
     super._preValidatePurchase(_beneficiary, _weiAmount);
     require(contributions[_beneficiary].add(_weiAmount) <= caps[_beneficiary]);
   }
@@ -68,7 +81,12 @@ contract IndividuallyCappedCrowdsale is Crowdsale, Ownable {
    * @param _beneficiary Token purchaser
    * @param _weiAmount Amount of wei contributed
    */
-  function _updatePurchasingState(address _beneficiary, uint256 _weiAmount) internal {
+  function _updatePurchasingState(
+    address _beneficiary,
+    uint256 _weiAmount
+  )
+    internal
+  {
     super._updatePurchasingState(_beneficiary, _weiAmount);
     contributions[_beneficiary] = contributions[_beneficiary].add(_weiAmount);
   }

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
 
 import "./Ownable.sol";
@@ -21,8 +21,15 @@ contract Heritable is Ownable {
 
   event HeirChanged(address indexed owner, address indexed newHeir);
   event OwnerHeartbeated(address indexed owner);
-  event OwnerProclaimedDead(address indexed owner, address indexed heir, uint256 timeOfDeath);
-  event HeirOwnershipClaimed(address indexed previousOwner, address indexed newOwner);
+  event OwnerProclaimedDead(
+    address indexed owner,
+    address indexed heir,
+    uint256 timeOfDeath
+  );
+  event HeirOwnershipClaimed(
+    address indexed previousOwner,
+    address indexed newOwner
+  );
 
 
   /**
@@ -39,15 +46,15 @@ contract Heritable is Ownable {
    * @param _heartbeatTimeout time available for the owner to notify they are alive,
    * before the heir can take ownership.
    */
-  function Heritable(uint256 _heartbeatTimeout) public {
+  constructor(uint256 _heartbeatTimeout) public {
     setHeartbeatTimeout(_heartbeatTimeout);
   }
 
-  function setHeir(address newHeir) public onlyOwner {
-    require(newHeir != owner);
+  function setHeir(address _newHeir) public onlyOwner {
+    require(_newHeir != owner);
     heartbeat();
-    emit HeirChanged(owner, newHeir);
-    heir_ = newHeir;
+    emit HeirChanged(owner, _newHeir);
+    heir_ = _newHeir;
   }
 
   /**
@@ -71,7 +78,7 @@ contract Heritable is Ownable {
    */
   function removeHeir() public onlyOwner {
     heartbeat();
-    heir_ = 0;
+    heir_ = address(0);
   }
 
   /**
@@ -106,9 +113,11 @@ contract Heritable is Ownable {
     timeOfDeath_ = 0;
   }
 
-  function setHeartbeatTimeout(uint256 newHeartbeatTimeout) internal onlyOwner {
+  function setHeartbeatTimeout(uint256 _newHeartbeatTimeout)
+    internal onlyOwner
+  {
     require(ownerLives());
-    heartbeatTimeout_ = newHeartbeatTimeout;
+    heartbeatTimeout_ = _newHeartbeatTimeout;
   }
 
   function ownerLives() internal view returns (bool) {

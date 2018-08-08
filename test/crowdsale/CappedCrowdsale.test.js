@@ -1,10 +1,10 @@
-import ether from '../helpers/ether';
-import EVMRevert from '../helpers/EVMRevert';
+const { ether } = require('../helpers/ether');
+const { expectThrow } = require('../helpers/expectThrow');
+const { EVMRevert } = require('../helpers/EVMRevert');
 
 const BigNumber = web3.BigNumber;
 
 require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
@@ -25,44 +25,51 @@ contract('CappedCrowdsale', function ([_, wallet]) {
 
   describe('creating a valid crowdsale', function () {
     it('should fail with zero cap', async function () {
-      await CappedCrowdsale.new(rate, wallet, 0, this.token.address).should.be.rejectedWith(EVMRevert);
+      await expectThrow(
+        CappedCrowdsale.new(rate, wallet, 0, this.token.address),
+        EVMRevert,
+      );
     });
   });
 
   describe('accepting payments', function () {
     it('should accept payments within cap', async function () {
-      await this.crowdsale.send(cap.minus(lessThanCap)).should.be.fulfilled;
-      await this.crowdsale.send(lessThanCap).should.be.fulfilled;
+      await this.crowdsale.send(cap.minus(lessThanCap));
+      await this.crowdsale.send(lessThanCap);
     });
 
     it('should reject payments outside cap', async function () {
       await this.crowdsale.send(cap);
-      await this.crowdsale.send(1).should.be.rejectedWith(EVMRevert);
+      await expectThrow(
+        this.crowdsale.send(1),
+        EVMRevert,
+      );
     });
 
     it('should reject payments that exceed cap', async function () {
-      await this.crowdsale.send(cap.plus(1)).should.be.rejectedWith(EVMRevert);
+      await expectThrow(
+        this.crowdsale.send(cap.plus(1)),
+        EVMRevert,
+      );
     });
   });
 
   describe('ending', function () {
     it('should not reach cap if sent under cap', async function () {
-      let capReached = await this.crowdsale.capReached();
-      capReached.should.equal(false);
       await this.crowdsale.send(lessThanCap);
-      capReached = await this.crowdsale.capReached();
+      const capReached = await this.crowdsale.capReached();
       capReached.should.equal(false);
     });
 
     it('should not reach cap if sent just under cap', async function () {
       await this.crowdsale.send(cap.minus(1));
-      let capReached = await this.crowdsale.capReached();
+      const capReached = await this.crowdsale.capReached();
       capReached.should.equal(false);
     });
 
     it('should reach cap if cap sent', async function () {
       await this.crowdsale.send(cap);
-      let capReached = await this.crowdsale.capReached();
+      const capReached = await this.crowdsale.capReached();
       capReached.should.equal(true);
     });
   });
