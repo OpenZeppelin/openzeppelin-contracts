@@ -13,4 +13,12 @@ library Math {
   function min(uint256 _a, uint256 _b) internal pure returns (uint256) {
     return _a < _b ? _a : _b;
   }
+
+  function average(uint256 _a, uint256 _b) internal pure returns (uint256) {
+    // (_a + _b) / 2 can overflow, so we distribute
+    uint256 c = (_a / 2) + (_b / 2) + ((_a % 2 + _b % 2) / 2);
+    assert((_a <= c && c <= _b) || (_a >= c && c >= _b));
+
+    return c;
+  }
 }
