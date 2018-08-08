@@ -47,15 +47,15 @@ library SafeMath {
   }
 
   /**
-  * @dev Integer modulo operation of two numbers.
+  * @dev Divides two numbers and returns the remainder (unsigned integer modulo),
+  * reverts when dividing by zero.
   */
-  function mod(uint256 a, uint256 b) internal pure returns (uint256 c) {
-    // d = a / b
-    // a = d * b + c
-    // c = a - d * b    
-    uint256 d = div(a,b);
-    c = sub(a, mul(d,b));
+  function mod(uint256 a, uint256 b) internal pure returns (uint256) {
+    require(b != 0);
+
+    uint256 c = a % b;
     assert(c < b);
+
     return c;
   }
 }
