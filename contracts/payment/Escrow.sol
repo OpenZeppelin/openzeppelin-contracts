@@ -17,10 +17,10 @@ contract Escrow is Ownable {
   event Deposited(address indexed payee, uint256 weiAmount);
   event Withdrawn(address indexed payee, uint256 weiAmount);
 
-  mapping(address => uint256) private deposits;
+  mapping(address => uint256) private deposits_;
 
   function depositsOf(address _payee) public view returns (uint256) {
-    return deposits[_payee];
+    return deposits_[_payee];
   }
 
   /**
@@ -29,7 +29,7 @@ contract Escrow is Ownable {
   */
   function deposit(address _payee) public onlyOwner payable {
     uint256 amount = msg.value;
-    deposits[_payee] = deposits[_payee].add(amount);
+    deposits_[_payee] = deposits_[_payee].add(amount);
 
     emit Deposited(_payee, amount);
   }
@@ -39,10 +39,10 @@ contract Escrow is Ownable {
   * @param _payee The address whose funds will be withdrawn and transferred to.
   */
   function withdraw(address _payee) public onlyOwner {
-    uint256 payment = deposits[_payee];
+    uint256 payment = deposits_[_payee];
     assert(address(this).balance >= payment);
 
-    deposits[_payee] = 0;
+    deposits_[_payee] = 0;
 
     _payee.transfer(payment);
 

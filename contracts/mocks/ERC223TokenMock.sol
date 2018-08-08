@@ -11,7 +11,7 @@ contract ERC223ContractInterface {
 contract ERC223TokenMock is StandardToken {
 
   constructor(address _initialAccount, uint256 _initialBalance) public {
-    balances[_initialAccount] = _initialBalance;
+    balances_[_initialAccount] = _initialBalance;
     totalSupply_ = _initialBalance;
   }
 

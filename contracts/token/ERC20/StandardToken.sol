@@ -14,9 +14,9 @@ import "../../math/SafeMath.sol";
 contract StandardToken is ERC20 {
   using SafeMath for uint256;
 
-  mapping(address => uint256) balances;
+  mapping(address => uint256) balances_;
 
-  mapping (address => mapping (address => uint256)) internal allowed;
+  mapping (address => mapping (address => uint256)) internal allowed_;
 
   uint256 totalSupply_;
 
@@ -33,7 +33,7 @@ contract StandardToken is ERC20 {
   * @return An uint256 representing the amount owned by the passed address.
   */
   function balanceOf(address _owner) public view returns (uint256) {
-    return balances[_owner];
+    return balances_[_owner];
   }
 
   /**
@@ -50,7 +50,7 @@ contract StandardToken is ERC20 {
     view
     returns (uint256)
   {
-    return allowed[_owner][_spender];
+    return allowed_[_owner][_spender];
   }
 
   /**
@@ -59,11 +59,11 @@ contract StandardToken is ERC20 {
   * @param _value The amount to be transferred.
   */
   function transfer(address _to, uint256 _value) public returns (bool) {
-    require(_value <= balances[msg.sender]);
+    require(_value <= balances_[msg.sender]);
     require(_to != address(0));
 
-    balances[msg.sender] = balances[msg.sender].sub(_value);
-    balances[_to] = balances[_to].add(_value);
+    balances_[msg.sender] = balances_[msg.sender].sub(_value);
+    balances_[_to] = balances_[_to].add(_value);
     emit Transfer(msg.sender, _to, _value);
     return true;
   }
@@ -78,7 +78,7 @@ contract StandardToken is ERC20 {
    * @param _value The amount of tokens to be spent.
    */
   function approve(address _spender, uint256 _value) public returns (bool) {
-    allowed[msg.sender][_spender] = _value;
+    allowed_[msg.sender][_spender] = _value;
     emit Approval(msg.sender, _spender, _value);
     return true;
   }
@@ -97,13 +97,13 @@ contract StandardToken is ERC20 {
     public
     returns (bool)
   {
-    require(_value <= balances[_from]);
-    require(_value <= allowed[_from][msg.sender]);
+    require(_value <= balances_[_from]);
+    require(_value <= allowed_[_from][msg.sender]);
     require(_to != address(0));
 
-    balances[_from] = balances[_from].sub(_value);
-    balances[_to] = balances[_to].add(_value);
-    allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value);
+    balances_[_from] = balances_[_from].sub(_value);
+    balances_[_to] = balances_[_to].add(_value);
+    allowed_[_from][msg.sender] = allowed_[_from][msg.sender].sub(_value);
     emit Transfer(_from, _to, _value);
     return true;
   }
@@ -124,9 +124,9 @@ contract StandardToken is ERC20 {
     public
     returns (bool)
   {
-    allowed[msg.sender][_spender] = (
-      allowed[msg.sender][_spender].add(_addedValue));
-    emit Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
+    allowed_[msg.sender][_spender] = (
+      allowed_[msg.sender][_spender].add(_addedValue));
+    emit Approval(msg.sender, _spender, allowed_[msg.sender][_spender]);
     return true;
   }
 
@@ -146,13 +146,13 @@ contract StandardToken is ERC20 {
     public
     returns (bool)
   {
-    uint256 oldValue = allowed[msg.sender][_spender];
+    uint256 oldValue = allowed_[msg.sender][_spender];
     if (_subtractedValue >= oldValue) {
-      allowed[msg.sender][_spender] = 0;
+      allowed_[msg.sender][_spender] = 0;
     } else {
-      allowed[msg.sender][_spender] = oldValue.sub(_subtractedValue);
+      allowed_[msg.sender][_spender] = oldValue.sub(_subtractedValue);
     }
-    emit Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
+    emit Approval(msg.sender, _spender, allowed_[msg.sender][_spender]);
     return true;
   }
 

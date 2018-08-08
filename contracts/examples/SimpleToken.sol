@@ -23,7 +23,7 @@ contract SimpleToken is StandardToken {
    */
   constructor() public {
     totalSupply_ = INITIAL_SUPPLY;
-    balances[msg.sender] = INITIAL_SUPPLY;
+    balances_[msg.sender] = INITIAL_SUPPLY;
     emit Transfer(address(0), msg.sender, INITIAL_SUPPLY);
   }
 

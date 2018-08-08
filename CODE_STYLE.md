@@ -23,3 +23,23 @@ function test(uint256 _testParameter1, uint256 _testParameter2) {
     ...
 }
 ```
+
+* Internal state variables should have an underscore suffix: by internal state
+  variable we mean any variable with no modifier or with the internal or private
+  modifiers whose scope is not a function. For instance, variables that are
+  declared in a function should not follow this rule.
+
+
+```
+contract myContract{
+
+  uint256 internalVar_;
+  uint256 public publicVar;
+
+  function test(uint256 _testParameter1, uint256 _testParameter2) {
+    uint256 functionVar;
+    ...
+  }
+
+}
+```

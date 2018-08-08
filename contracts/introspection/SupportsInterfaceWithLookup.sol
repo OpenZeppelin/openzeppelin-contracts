@@ -19,7 +19,7 @@ contract SupportsInterfaceWithLookup is ERC165 {
   /**
    * @dev a mapping of interface id to whether or not it's supported
    */
-  mapping(bytes4 => bool) internal supportedInterfaces;
+  mapping(bytes4 => bool) internal supportedInterfaces_;
 
   /**
    * @dev A contract implementing SupportsInterfaceWithLookup
@@ -39,7 +39,7 @@ contract SupportsInterfaceWithLookup is ERC165 {
     view
     returns (bool)
   {
-    return supportedInterfaces[_interfaceId];
+    return supportedInterfaces_[_interfaceId];
   }
 
   /**
@@ -49,6 +49,6 @@ contract SupportsInterfaceWithLookup is ERC165 {
     internal
   {
     require(_interfaceId != 0xffffffff);
-    supportedInterfaces[_interfaceId] = true;
+    supportedInterfaces_[_interfaceId] = true;
   }
 }

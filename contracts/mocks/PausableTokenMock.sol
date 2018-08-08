@@ -7,7 +7,7 @@ import "../token/ERC20/PausableToken.sol";
 contract PausableTokenMock is PausableToken {
 
   constructor(address _initialAccount, uint _initialBalance) public {
-    balances[_initialAccount] = _initialBalance;
+    balances_[_initialAccount] = _initialBalance;
   }
 
 }

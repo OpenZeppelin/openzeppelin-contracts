@@ -7,7 +7,7 @@ import "../token/ERC20/StandardToken.sol";
 contract StandardTokenMock is StandardToken {
 
   constructor(address _initialAccount, uint256 _initialBalance) public {
-    balances[_initialAccount] = _initialBalance;
+    balances_[_initialAccount] = _initialBalance;
     totalSupply_ = _initialBalance;
   }
 
