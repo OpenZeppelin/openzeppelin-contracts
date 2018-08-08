@@ -1,5 +1,5 @@
 const { assertRevert } = require('../../helpers/assertRevert');
-const { inLogs } = require('../../helpers/expectEvent');
+const expectEvent = require('../../helpers/expectEvent');
 
 const BigNumber = web3.BigNumber;
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
@@ -23,13 +23,13 @@ function shouldBehaveLikeBurnableToken (owner, initialBalance, [burner]) {
       });
 
       it('emits a burn event', async function () {
-        const event = await inLogs(this.logs, 'Burn');
+        const event = expectEvent.inLogs(this.logs, 'Burn');
         event.args.burner.should.eq(owner);
         event.args.value.should.be.bignumber.equal(amount);
       });
 
       it('emits a transfer event', async function () {
-        const event = await inLogs(this.logs, 'Transfer');
+        const event = expectEvent.inLogs(this.logs, 'Transfer');
         event.args.from.should.eq(owner);
         event.args.to.should.eq(ZERO_ADDRESS);
         event.args.value.should.be.bignumber.equal(amount);
@@ -66,13 +66,13 @@ function shouldBehaveLikeBurnableToken (owner, initialBalance, [burner]) {
       });
 
       it('emits a burn event', async function () {
-        const event = await inLogs(this.logs, 'Burn');
+        const event = expectEvent.inLogs(this.logs, 'Burn');
         event.args.burner.should.eq(owner);
         event.args.value.should.be.bignumber.equal(amount);
       });
 
       it('emits a transfer event', async function () {
-        const event = await inLogs(this.logs, 'Transfer');
+        const event = expectEvent.inLogs(this.logs, 'Transfer');
         event.args.from.should.eq(owner);
         event.args.to.should.eq(ZERO_ADDRESS);
         event.args.value.should.be.bignumber.equal(amount);
