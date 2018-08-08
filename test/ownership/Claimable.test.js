@@ -10,7 +10,7 @@ contract('Claimable', function ([_, owner, newOwner, anyone]) {
   });
 
   it('changes pendingOwner after transfer', async function () {
-    await claimable.transferOwnership(newOwner);
+    await claimable.transferOwnership(newOwner, { from: owner });
     const pendingOwner = await claimable.pendingOwner();
 
     assert.isTrue(pendingOwner === newOwner);
@@ -26,7 +26,7 @@ contract('Claimable', function ([_, owner, newOwner, anyone]) {
 
   describe('after initiating a transfer', function () {
     beforeEach(async function () {
-      await claimable.transferOwnership(newOwner);
+      await claimable.transferOwnership(newOwner, { from: owner });
     });
 
     it('changes allow pending owner to claim ownership', async function () {
