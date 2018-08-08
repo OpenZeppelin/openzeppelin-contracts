@@ -35,7 +35,7 @@ function shouldBehaveLikeEscrow (owner, [payee1, payee2]) {
       it('emits a deposited event', async function () {
         const receipt = await this.escrow.deposit(payee1, { from: owner, value: amount });
 
-        const event = await expectEvent.inLogs(receipt.logs, 'Deposited', { payee: payee1 });
+        const event = expectEvent.inLogs(receipt.logs, 'Deposited', { payee: payee1 });
         event.args.weiAmount.should.be.bignumber.equal(amount);
       });
 
@@ -92,7 +92,7 @@ function shouldBehaveLikeEscrow (owner, [payee1, payee2]) {
         await this.escrow.deposit(payee1, { from: owner, value: amount });
         const receipt = await this.escrow.withdraw(payee1, { from: owner });
 
-        const event = await expectEvent.inLogs(receipt.logs, 'Withdrawn', { payee: payee1 });
+        const event = expectEvent.inLogs(receipt.logs, 'Withdrawn', { payee: payee1 });
         event.args.weiAmount.should.be.bignumber.equal(amount);
       });
     });
