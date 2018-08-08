@@ -107,29 +107,10 @@ contract('PreserveBalancesOnTransferToken', (accounts) => {
   });
 
   describe('startNewEvent', function () {
-    it('should not allow to create > 20 separate events', async () => {
+    it('should allow to create many separate events', async () => {
       this.token = await PreserveBalancesOnTransferToken.new();
-      await this.token.startNewEvent();// 1
-      await this.token.startNewEvent();// 2
-      await this.token.startNewEvent();// 3
-      await this.token.startNewEvent();// 4
-      await this.token.startNewEvent();// 5
-      await this.token.startNewEvent();// 6
-      await this.token.startNewEvent();// 7
-      await this.token.startNewEvent();// 8
-      await this.token.startNewEvent();// 9
-      await this.token.startNewEvent();// 10
-      await this.token.startNewEvent();// 11
-      await this.token.startNewEvent();// 12
-      await this.token.startNewEvent();// 13
-      await this.token.startNewEvent();// 14
-      await this.token.startNewEvent();// 15
-      await this.token.startNewEvent();// 16
-      await this.token.startNewEvent();// 17
-      await this.token.startNewEvent();// 18
-      await this.token.startNewEvent();// 19
-      await this.token.startNewEvent();// 20
-      await this.token.startNewEvent().should.be.rejectedWith('revert');
+      await this.token.startNewEvent().should.be.fulfilled;// 1
+      await this.token.startNewEvent().should.be.fulfilled;// 2
     });
 
     it('should not be possible to call by non-owner', async () => {

@@ -57,7 +57,7 @@ contract PreserveBalancesOnTransferToken is MintableToken, BurnableToken {
     bool isEventInProgress;
     uint eventStartTime;
   }
-  mapping (uint => Event) events;
+  Event[] events;
   SnapshotToken[] snapshotTokens;
 
   event EventStarted(address indexed _address, uint _eventID);
@@ -142,7 +142,8 @@ contract PreserveBalancesOnTransferToken is MintableToken, BurnableToken {
    * @return An index of the event started.
    */
   function startNewEvent() public onlyFromSnapshotOrOwner returns(uint) {
-    for (uint i = 0; i < 20; i++) {
+	 // check if we have empty slots
+    for (uint i = 0; i < events.length; ++i) {
       if (!events[i].isEventInProgress) {
         events[i].isEventInProgress = true;
         events[i].eventStartTime = now;
@@ -151,7 +152,15 @@ contract PreserveBalancesOnTransferToken is MintableToken, BurnableToken {
         return i;
       }
     }
-    revert(); //all slots busy at the moment
+
+	 // create new event and add to the tail
+	 Event e;
+	 e.isEventInProgress = true;
+	 e.eventStartTime = now;
+	 events.push(e);
+
+	 emit EventStarted(msg.sender, events.length - 1);
+	 return (events.length - 1);
   }
 
   /**
@@ -159,7 +168,11 @@ contract PreserveBalancesOnTransferToken is MintableToken, BurnableToken {
    * @param _eventID An index of the event that was previously returned by startNewEvent().
    */
   function finishEvent(uint _eventID) public onlyFromSnapshotOrOwner {
+	 require(_eventID < events.length);
     require(events[_eventID].isEventInProgress);
+
+	 // TODO: check that we are from the snapshot
+
     events[_eventID].isEventInProgress = false;
 
     emit EventFinished(msg.sender, _eventID);
@@ -178,6 +191,7 @@ contract PreserveBalancesOnTransferToken is MintableToken, BurnableToken {
   function getBalanceAtEventStart(uint _eventID, address _for) 
     public view returns(uint256) 
   {
+	 require(_eventID < events.length);
     require(events[_eventID].isEventInProgress);
 
     if (!isBalanceWasChangedAfterEventStarted(_eventID, _for)) {
@@ -203,7 +217,7 @@ contract PreserveBalancesOnTransferToken is MintableToken, BurnableToken {
   }
 
   function updateCopyOnWriteMap(address _for) internal {
-    for (uint i = 0; i < 20; i++) {
+    for (uint i = 0; i < events.length; ++i) {
       bool res = isNeedToUpdateBalancesMap(i, _for);
       if (res) {
         events[i].holders[_for].balance = balances[_for];
