@@ -142,7 +142,7 @@ contract PreserveBalancesOnTransferToken is MintableToken, BurnableToken {
    * @return An index of the event started.
    */
   function startNewEvent() public onlyFromSnapshotOrOwner returns(uint) {
-	 // check if we have empty slots
+    // check if we have empty slots
     for (uint i = 0; i < events.length; ++i) {
       if (!events[i].isEventInProgress) {
         events[i].isEventInProgress = true;
@@ -153,14 +153,14 @@ contract PreserveBalancesOnTransferToken is MintableToken, BurnableToken {
       }
     }
 
-	 // create new event and add to the tail
-	 Event e;
-	 e.isEventInProgress = true;
-	 e.eventStartTime = now;
-	 events.push(e);
+    // create new event and add to the tail
+    Event e;
+    e.isEventInProgress = true;
+    e.eventStartTime = now;
+    events.push(e);
 
-	 emit EventStarted(msg.sender, events.length - 1);
-	 return (events.length - 1);
+    emit EventStarted(msg.sender, events.length - 1);
+    return (events.length - 1);
   }
 
   /**
@@ -168,10 +168,10 @@ contract PreserveBalancesOnTransferToken is MintableToken, BurnableToken {
    * @param _eventID An index of the event that was previously returned by startNewEvent().
    */
   function finishEvent(uint _eventID) public onlyFromSnapshotOrOwner {
-	 require(_eventID < events.length);
+    require(_eventID < events.length);
     require(events[_eventID].isEventInProgress);
 
-	 // TODO: check that we are from the snapshot
+    // TODO: check that we are from the snapshot
 
     events[_eventID].isEventInProgress = false;
 
@@ -191,7 +191,7 @@ contract PreserveBalancesOnTransferToken is MintableToken, BurnableToken {
   function getBalanceAtEventStart(uint _eventID, address _for) 
     public view returns(uint256) 
   {
-	 require(_eventID < events.length);
+    require(_eventID < events.length);
     require(events[_eventID].isEventInProgress);
 
     if (!isBalanceWasChangedAfterEventStarted(_eventID, _for)) {
