@@ -33,7 +33,7 @@ contract('Bounty', function ([_, owner, researcher]) {
     context('with reward', function () {
       beforeEach(async function () {
         const result = await this.bounty.createTarget({ from: researcher });
-        const event = await expectEvent.inLogs(result.logs, 'TargetCreated');
+        const event = expectEvent.inLogs(result.logs, 'TargetCreated');
 
         this.targetAddress = event.args.createdAddress;
 
@@ -56,7 +56,7 @@ contract('Bounty', function ([_, owner, researcher]) {
       this.bounty = await InsecureTargetBounty.new();
 
       const result = await this.bounty.createTarget({ from: researcher });
-      const event = await expectEvent.inLogs(result.logs, 'TargetCreated');
+      const event = expectEvent.inLogs(result.logs, 'TargetCreated');
 
       this.targetAddress = event.args.createdAddress;
       await sendReward(owner, this.bounty.address, reward);

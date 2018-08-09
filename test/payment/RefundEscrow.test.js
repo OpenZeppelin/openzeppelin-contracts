@@ -43,7 +43,7 @@ contract('RefundEscrow', function ([_, owner, beneficiary, refundee1, refundee2]
 
     const receipt = await this.escrow.close({ from: owner });
 
-    await expectEvent.inLogs(receipt.logs, 'Closed');
+    expectEvent.inLogs(receipt.logs, 'Closed');
   });
 
   context('closed state', function () {
@@ -75,7 +75,7 @@ contract('RefundEscrow', function ([_, owner, beneficiary, refundee1, refundee2]
 
     const receipt = await this.escrow.enableRefunds({ from: owner });
 
-    await expectEvent.inLogs(receipt.logs, 'RefundsEnabled');
+    expectEvent.inLogs(receipt.logs, 'RefundsEnabled');
   });
 
   context('refund state', function () {

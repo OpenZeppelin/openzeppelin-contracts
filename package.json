@@ -30,7 +30,7 @@
     "security",
     "zeppelin"
   ],
-  "author": "Manuel Araoz <manuelaraoz@gmail.com>",
+  "author": "OpenZeppelin Community <maintainers@openzeppelin.org>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/OpenZeppelin/zeppelin-solidity/issues"

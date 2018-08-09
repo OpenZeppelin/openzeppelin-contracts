@@ -4,7 +4,7 @@
   "rules": {
     "error-reason": "off",
     "indentation": ["error", 2],
-    "max-len": ["warning", 79],
+    "max-len": ["error", 79],
     "no-constant": ["error"],
     "no-empty-blocks": "off",
     "quotes": ["error", "double"],
