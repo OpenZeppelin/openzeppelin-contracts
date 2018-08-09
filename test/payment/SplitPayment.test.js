@@ -69,18 +69,18 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
       // distribute to payees
       const initAmount1 = await ethGetBalance(payee1);
       await this.contract.claim({ from: payee1 });
-      const profit1 = await ethGetBalance(payee1).sub(initAmount1);
-      profit1.sub(web3.toWei(0.20, 'ether')).abs().should.be.lt(1e16);
+      const profit1 = (await ethGetBalance(payee1)).sub(initAmount1);
+      profit1.sub(web3.toWei(0.20, 'ether')).abs().should.be.bignumber.lt(1e16);
 
       const initAmount2 = await ethGetBalance(payee2);
       await this.contract.claim({ from: payee2 });
-      const profit2 = await ethGetBalance(payee2).sub(initAmount2);
-      profit2.sub(web3.toWei(0.10, 'ether')).abs().should.be.lt(1e16);
+      const profit2 = (await ethGetBalance(payee2)).sub(initAmount2);
+      profit2.sub(web3.toWei(0.10, 'ether')).abs().should.be.bignumber.lt(1e16);
 
       const initAmount3 = await ethGetBalance(payee3);
       await this.contract.claim({ from: payee3 });
-      const profit3 = await ethGetBalance(payee3).sub(initAmount3);
-      profit3.sub(web3.toWei(0.70, 'ether')).abs().should.be.lt(1e16);
+      const profit3 = (await ethGetBalance(payee3)).sub(initAmount3);
+      profit3.sub(web3.toWei(0.70, 'ether')).abs().should.be.bignumber.lt(1e16);
 
       // end balance should be zero
       const endBalance = await ethGetBalance(this.contract.address);
