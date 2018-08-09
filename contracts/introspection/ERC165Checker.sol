@@ -69,7 +69,8 @@ library ERC165Checker {
     returns (bool)
   {
     // query support of both ERC165 as per the spec and support of _interfaceId
-    return supportsERC165(_address) && supportsERC165Interface(_address, _interfaceId);
+    return supportsERC165(_address) &&
+      supportsERC165Interface(_address, _interfaceId);
   }
 
   /**
