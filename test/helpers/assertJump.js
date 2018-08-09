@@ -1,4 +1,4 @@
-require('chai')
+const should = require('chai')
   .should();
 
 async function assertJump (promise) {
