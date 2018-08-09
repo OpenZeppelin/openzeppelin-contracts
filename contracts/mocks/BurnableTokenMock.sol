@@ -5,7 +5,7 @@ import "../token/ERC20/BurnableToken.sol";
 
 contract BurnableTokenMock is BurnableToken {
 
-  constructor(address _initialAccount, uint _initialBalance) public {
+  constructor(address _initialAccount, uint256 _initialBalance) public {
     balances[_initialAccount] = _initialBalance;
     totalSupply_ = _initialBalance;
   }

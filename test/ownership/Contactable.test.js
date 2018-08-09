@@ -1,6 +1,6 @@
 const Contactable = artifacts.require('Contactable');
 
-contract('Contactable', function (accounts) {
+contract('Contactable', function () {
   let contactable;
 
   beforeEach(async function () {

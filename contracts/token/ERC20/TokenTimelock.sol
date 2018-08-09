@@ -9,10 +9,10 @@ import "./SafeERC20.sol";
  * beneficiary to extract the tokens after a given release time
  */
 contract TokenTimelock {
-  using SafeERC20 for ERC20Basic;
+  using SafeERC20 for ERC20;
 
   // ERC20 basic token contract being held
-  ERC20Basic public token;
+  ERC20 public token;
 
   // beneficiary of tokens after they are released
   address public beneficiary;
@@ -21,7 +21,7 @@ contract TokenTimelock {
   uint256 public releaseTime;
 
   constructor(
-    ERC20Basic _token,
+    ERC20 _token,
     address _beneficiary,
     uint256 _releaseTime
   )

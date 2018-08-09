@@ -6,16 +6,9 @@ const Superuser = artifacts.require('Superuser');
 require('chai')
   .should();
 
-contract('Superuser', function (accounts) {
-  const [
-    firstOwner,
-    newSuperuser,
-    newOwner,
-    anyone,
-  ] = accounts;
-
+contract('Superuser', function ([_, firstOwner, newSuperuser, newOwner, anyone]) {
   beforeEach(async function () {
-    this.superuser = await Superuser.new();
+    this.superuser = await Superuser.new({ from: firstOwner });
   });
 
   context('in normal conditions', () => {

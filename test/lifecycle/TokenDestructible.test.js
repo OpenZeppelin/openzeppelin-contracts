@@ -9,17 +9,14 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('TokenDestructible', function (accounts) {
+contract('TokenDestructible', function ([_, owner]) {
   let tokenDestructible;
-  let owner;
 
   beforeEach(async function () {
     tokenDestructible = await TokenDestructible.new({
-      from: accounts[0],
+      from: owner,
       value: web3.toWei('10', 'ether'),
     });
-
-    owner = await tokenDestructible.owner();
   });
 
   it('should send balance to owner after destruction', async function () {

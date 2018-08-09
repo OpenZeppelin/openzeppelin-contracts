@@ -16,7 +16,7 @@ require('chai')
 const SampleCrowdsale = artifacts.require('SampleCrowdsale');
 const SampleCrowdsaleToken = artifacts.require('SampleCrowdsaleToken');
 
-contract('SampleCrowdsale', function ([owner, wallet, investor]) {
+contract('SampleCrowdsale', function ([_, owner, wallet, investor]) {
   const RATE = new BigNumber(10);
   const GOAL = ether(10);
   const CAP = ether(20);
@@ -33,9 +33,10 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
 
     this.token = await SampleCrowdsaleToken.new({ from: owner });
     this.crowdsale = await SampleCrowdsale.new(
-      this.openingTime, this.closingTime, RATE, wallet, CAP, this.token.address, GOAL
+      this.openingTime, this.closingTime, RATE, wallet, CAP, this.token.address, GOAL,
+      { from: owner }
     );
-    await this.token.transferOwnership(this.crowdsale.address);
+    await this.token.transferOwnership(this.crowdsale.address, { from: owner });
   });
 
   it('should create crowdsale with correct parameters', async function () {

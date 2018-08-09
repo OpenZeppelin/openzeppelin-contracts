@@ -3,7 +3,7 @@ const { ethGetBalance } = require('./helpers/web3');
 
 const LimitBalanceMock = artifacts.require('LimitBalanceMock');
 
-contract('LimitBalance', function (accounts) {
+contract('LimitBalance', function () {
   let limitBalance;
 
   beforeEach(async function () {

@@ -6,7 +6,7 @@ const SupportsInterfaceWithLookup = artifacts.require('SupportsInterfaceWithLook
 require('chai')
   .should();
 
-contract('SupportsInterfaceWithLookup', function (accounts) {
+contract('SupportsInterfaceWithLookup', function () {
   beforeEach(async function () {
     this.mock = await SupportsInterfaceWithLookup.new();
   });

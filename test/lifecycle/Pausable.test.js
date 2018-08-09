@@ -7,7 +7,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('Pausable', function (accounts) {
+contract('Pausable', function () {
   beforeEach(async function () {
     this.Pausable = await PausableMock.new();
   });

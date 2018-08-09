@@ -55,15 +55,15 @@ contract RBACMock is RBACWithAdmin {
   }
 
   // admins can remove advisor's role
-  function removeAdvisor(address _addr)
+  function removeAdvisor(address _account)
     public
     onlyAdmin
   {
     // revert if the user isn't an advisor
     //  (perhaps you want to soft-fail here instead?)
-    checkRole(_addr, ROLE_ADVISOR);
+    checkRole(_account, ROLE_ADVISOR);
 
     // remove the advisor's role
-    removeRole(_addr, ROLE_ADVISOR);
+    removeRole(_account, ROLE_ADVISOR);
   }
 }

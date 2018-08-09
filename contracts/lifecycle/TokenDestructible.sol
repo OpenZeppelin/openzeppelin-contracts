@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "../ownership/Ownable.sol";
-import "../token/ERC20/ERC20Basic.sol";
+import "../token/ERC20/ERC20.sol";
 
 
 /**
@@ -16,7 +16,7 @@ contract TokenDestructible is Ownable {
 
   /**
    * @notice Terminate contract and refund to owner
-   * @param _tokens List of addresses of ERC20 or ERC20Basic token contracts to
+   * @param _tokens List of addresses of ERC20 token contracts to
    refund.
    * @notice The called token contracts could try to re-enter this contract. Only
    supply token contracts you trust.
@@ -25,7 +25,7 @@ contract TokenDestructible is Ownable {
 
     // Transfer tokens to owner
     for (uint256 i = 0; i < _tokens.length; i++) {
-      ERC20Basic token = ERC20Basic(_tokens[i]);
+      ERC20 token = ERC20(_tokens[i]);
       uint256 balance = token.balanceOf(this);
       token.transfer(owner, balance);
     }

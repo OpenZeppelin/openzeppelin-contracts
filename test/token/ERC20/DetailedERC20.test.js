@@ -6,7 +6,7 @@ require('chai')
 
 const DetailedERC20Mock = artifacts.require('DetailedERC20Mock');
 
-contract('DetailedERC20', accounts => {
+contract('DetailedERC20', function () {
   let detailedERC20 = null;
 
   const _name = 'My Detailed ERC20';

@@ -41,26 +41,26 @@ contract RBACWithAdmin is RBAC {
   }
 
   /**
-   * @dev add a role to an address
-   * @param _addr address
+   * @dev add a role to an account
+   * @param _account the account that will have the role
    * @param _roleName the name of the role
    */
-  function adminAddRole(address _addr, string _roleName)
+  function adminAddRole(address _account, string _roleName)
     public
     onlyAdmin
   {
-    addRole(_addr, _roleName);
+    addRole(_account, _roleName);
   }
 
   /**
-   * @dev remove a role from an address
-   * @param _addr address
+   * @dev remove a role from an account
+   * @param _account the account that will no longer have the role
    * @param _roleName the name of the role
    */
-  function adminRemoveRole(address _addr, string _roleName)
+  function adminRemoveRole(address _account, string _roleName)
     public
     onlyAdmin
   {
-    removeRole(_addr, _roleName);
+    removeRole(_account, _roleName);
   }
 }

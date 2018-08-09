@@ -8,11 +8,11 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('Claimable', function (accounts) {
+contract('Claimable', function ([_, owner, newOwner, anyone]) {
   let claimable;
 
   beforeEach(async function () {
-    claimable = await Claimable.new();
+    claimable = await Claimable.new({ from: owner });
   });
 
   it('should have an owner', async function () {
@@ -21,38 +21,29 @@ contract('Claimable', function (accounts) {
   });
 
   it('changes pendingOwner after transfer', async function () {
-    const newOwner = accounts[1];
-    await claimable.transferOwnership(newOwner);
+    await claimable.transferOwnership(newOwner, { from: owner });
     const pendingOwner = await claimable.pendingOwner();
 
     pendingOwner.should.eq(newOwner);
   });
 
-  it('should prevent to claimOwnership from no pendingOwner', async function () {
-    await assertRevert(claimable.claimOwnership({ from: accounts[2] }));
+  it('should prevent to claimOwnership from anyone', async function () {
+    await assertRevert(claimable.claimOwnership({ from: anyone }));
   });
 
   it('should prevent non-owners from transfering', async function () {
-    const other = accounts[2];
-    const owner = await claimable.owner.call();
-
-    owner.should.eq(other);
-    await assertRevert(claimable.transferOwnership(other, { from: other }));
+    await assertRevert(claimable.transferOwnership(anyone, { from: anyone }));
   });
 
   describe('after initiating a transfer', function () {
-    let newOwner;
-
     beforeEach(async function () {
-      newOwner = accounts[1];
-      await claimable.transferOwnership(newOwner);
+      await claimable.transferOwnership(newOwner, { from: owner });
     });
 
     it('changes allow pending owner to claim ownership', async function () {
       await claimable.claimOwnership({ from: newOwner });
-      const owner = await claimable.owner();
 
-      owner.should.eq(newOwner);
+      (await claimable.owner()).should.eq(newOwner);
     });
   });
 });
