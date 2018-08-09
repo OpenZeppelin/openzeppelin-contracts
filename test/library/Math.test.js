@@ -29,12 +29,12 @@ contract('Math', function () {
   describe('min', function () {
     it('is correctly detected in first argument position', async function () {
       const result = await this.math.min(min, max);
-      result.should.be.bignumber.eq(max);
+      result.should.be.bignumber.eq(min);
     });
 
     it('is correctly detected in second argument position', async function () {
       const result = await this.math.min(max, min);
-      result.should.be.bignumber.eq(max);
+      result.should.be.bignumber.eq(min);
     });
   });
 });

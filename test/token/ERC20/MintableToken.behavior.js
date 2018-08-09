@@ -19,7 +19,7 @@ function shouldBehaveLikeMintableToken (owner, minter, [anyone]) {
       describe('when the token minting is not finished', function () {
         it('returns false', async function () {
           const mintingFinished = await this.token.mintingFinished();
-          assert.eq(mintingFinished, false);
+          mintingFinished.should.be.false;
         });
       });
 
@@ -30,7 +30,7 @@ function shouldBehaveLikeMintableToken (owner, minter, [anyone]) {
 
         it('returns true', async function () {
           const mintingFinished = await this.token.mintingFinished();
-          assert.eq(mintingFinished, true);
+          mintingFinished.should.be.true;
         });
       });
     });
@@ -44,14 +44,14 @@ function shouldBehaveLikeMintableToken (owner, minter, [anyone]) {
             await this.token.finishMinting({ from });
 
             const mintingFinished = await this.token.mintingFinished();
-            assert.eq(mintingFinished, true);
+            mintingFinished.should.be.true;
           });
 
           it('emits a mint finished event', async function () {
             const { logs } = await this.token.finishMinting({ from });
 
-            assert.eq(logs.length, 1);
-            assert.eq(logs[0].event, 'MintFinished');
+            logs.length.should.be.eq(1);
+            logs[0].event.should.eq('MintFinished');
           });
         });
 
@@ -98,17 +98,17 @@ function shouldBehaveLikeMintableToken (owner, minter, [anyone]) {
             await this.token.mint(owner, amount, { from });
 
             const balance = await this.token.balanceOf(owner);
-            assert.eq(balance, amount);
+            balance.should.be.bignumber.eq(amount);
           });
 
           it('emits a mint and a transfer event', async function () {
             const { logs } = await this.token.mint(owner, amount, { from });
 
-            assert.eq(logs.length, 2);
-            assert.eq(logs[0].event, 'Mint');
-            assert.eq(logs[0].args.to, owner);
-            assert.eq(logs[0].args.amount, amount);
-            assert.eq(logs[1].event, 'Transfer');
+            logs.length.should.eq(2);
+            logs[0].event.should.eq('Mint');
+            logs[0].args.to.should.eq(owner);
+            logs[0].args.amount.should.be.bignumber.eq(amount);
+            logs[1].event.should.eq('Transfer');
           });
         });
 

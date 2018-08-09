@@ -15,10 +15,6 @@ contract('PullPayment', function ([_, payer, payee1, payee2]) {
     this.contract = await PullPaymentMock.new({ value: amount });
   });
 
-  it('can\'t call asyncSend externally', async function () {
-    assert.isUndefined(this.contract.asyncSend);
-  });
-
   it('can record an async payment correctly', async function () {
     await this.contract.callTransfer(payee1, 100, { from: payer });
     const paymentsToPayee1 = await this.contract.payments(payee1);
