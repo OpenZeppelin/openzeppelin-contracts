@@ -22,7 +22,7 @@ contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
           const { logs } = await this.token.pause({ from });
 
           assert.equal(logs.length, 1);
-          assert.equal(logs[0].event, 'Pause');
+          assert.equal(logs[0].event, 'Paused');
         });
       });
 
@@ -66,7 +66,7 @@ contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
           const { logs } = await this.token.unpause({ from });
 
           assert.equal(logs.length, 1);
-          assert.equal(logs[0].event, 'Unpause');
+          assert.equal(logs[0].event, 'Unpaused');
         });
       });
 

@@ -23,3 +23,6 @@ function test(uint256 _testParameter1, uint256 _testParameter2) {
     ...
 }
 ```
+
+* Events should be emitted immediately after the state change that they
+  represent, and consequently they should be named in past tense.

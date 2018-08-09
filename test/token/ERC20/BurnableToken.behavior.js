@@ -23,7 +23,7 @@ function shouldBehaveLikeBurnableToken (owner, initialBalance, [burner]) {
       });
 
       it('emits a burn event', async function () {
-        const event = expectEvent.inLogs(this.logs, 'Burn');
+        const event = expectEvent.inLogs(this.logs, 'TokensBurned');
         event.args.burner.should.eq(owner);
         event.args.value.should.be.bignumber.equal(amount);
       });
@@ -66,7 +66,7 @@ function shouldBehaveLikeBurnableToken (owner, initialBalance, [burner]) {
       });
 
       it('emits a burn event', async function () {
-        const event = expectEvent.inLogs(this.logs, 'Burn');
+        const event = expectEvent.inLogs(this.logs, 'TokensBurned');
         event.args.burner.should.eq(owner);
         event.args.value.should.be.bignumber.equal(amount);
       });

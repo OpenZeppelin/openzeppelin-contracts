@@ -32,7 +32,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
   describe('high-level purchase', function () {
     it('should log purchase', async function () {
       const { logs } = await this.crowdsale.sendTransaction({ value: value, from: investor });
-      const event = logs.find(e => e.event === 'TokenPurchase');
+      const event = logs.find(e => e.event === 'TokenPurchased');
       should.exist(event);
       event.args.purchaser.should.equal(investor);
       event.args.beneficiary.should.equal(investor);
@@ -57,7 +57,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
   describe('low-level purchase', function () {
     it('should log purchase', async function () {
       const { logs } = await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
-      const event = logs.find(e => e.event === 'TokenPurchase');
+      const event = logs.find(e => e.event === 'TokenPurchased');
       should.exist(event);
       event.args.purchaser.should.equal(purchaser);
       event.args.beneficiary.should.equal(investor);
