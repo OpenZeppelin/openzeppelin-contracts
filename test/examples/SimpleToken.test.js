@@ -11,12 +11,12 @@ contract('SimpleToken', accounts => {
 
   it('has a name', async function () {
     const name = await token.name();
-    assert.equal(name, 'SimpleToken');
+    assert.eq(name, 'SimpleToken');
   });
 
   it('has a symbol', async function () {
     const symbol = await token.symbol();
-    assert.equal(symbol, 'SIM');
+    assert.eq(symbol, 'SIM');
   });
 
   it('has 18 decimals', async function () {
@@ -32,10 +32,10 @@ contract('SimpleToken', accounts => {
 
     const receipt = await web3.eth.getTransactionReceipt(token.transactionHash);
     const logs = decodeLogs(receipt.logs, SimpleToken, token.address);
-    assert.equal(logs.length, 1);
-    assert.equal(logs[0].event, 'Transfer');
-    assert.equal(logs[0].args.from.valueOf(), 0x0);
-    assert.equal(logs[0].args.to.valueOf(), creator);
+    assert.eq(logs.length, 1);
+    assert.eq(logs[0].event, 'Transfer');
+    assert.eq(logs[0].args.from.valueOf(), 0x0);
+    assert.eq(logs[0].args.to.valueOf(), creator);
     assert(logs[0].args.value.eq(totalSupply));
   });
 });

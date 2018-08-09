@@ -12,7 +12,8 @@ contract('Math', function (accounts) {
     const b = 1234;
     await math.max64(a, b);
     const result = await math.result64();
-    assert.equal(result, a);
+
+    result.should.eq(a);
   });
 
   it('returns min64 correctly', async function () {
@@ -21,7 +22,7 @@ contract('Math', function (accounts) {
     await math.min64(a, b);
     const result = await math.result64();
 
-    assert.equal(result, b);
+    result.should.eq(b);
   });
 
   it('returns max256 correctly', async function () {
@@ -29,7 +30,8 @@ contract('Math', function (accounts) {
     const b = 1234;
     await math.max256(a, b);
     const result = await math.result256();
-    assert.equal(result, a);
+
+    result.should.eq(a);
   });
 
   it('returns min256 correctly', async function () {
@@ -38,6 +40,6 @@ contract('Math', function (accounts) {
     await math.min256(a, b);
     const result = await math.result256();
 
-    assert.equal(result, b);
+    result.should.eq(b);
   });
 });

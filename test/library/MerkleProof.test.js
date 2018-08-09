@@ -3,6 +3,9 @@ const { sha3, bufferToHex } = require('ethereumjs-util');
 
 const MerkleProofWrapper = artifacts.require('MerkleProofWrapper');
 
+require('chai')
+  .should();
+
 contract('MerkleProof', function (accounts) {
   let merkleProof;
 
@@ -22,7 +25,7 @@ contract('MerkleProof', function (accounts) {
       const leaf = bufferToHex(sha3(elements[0]));
 
       const result = await merkleProof.verifyProof(proof, root, leaf);
-      assert.isOk(result, 'verifyProof did not return true for a valid proof');
+      result.should.be.true('verifyProof did not return true for a valid proof');
     });
 
     it('should return false for an invalid Merkle proof', async function () {
@@ -39,7 +42,7 @@ contract('MerkleProof', function (accounts) {
       const badProof = badMerkleTree.getHexProof(badElements[0]);
 
       const result = await merkleProof.verifyProof(badProof, correctRoot, correctLeaf);
-      assert.isNotOk(result, 'verifyProof did not return false for an invalid proof');
+      result.should.be.false('verifyProof did not return false for an invalid proof');
     });
 
     it('should return false for a Merkle proof of invalid length', async function () {
@@ -54,7 +57,7 @@ contract('MerkleProof', function (accounts) {
       const leaf = bufferToHex(sha3(elements[0]));
 
       const result = await merkleProof.verifyProof(badProof, root, leaf);
-      assert.isNotOk(result, 'verifyProof did not return false for proof of invalid length');
+      result.should.be.false('verifyProof did not return false for proof of invalid length');
     });
   });
 });

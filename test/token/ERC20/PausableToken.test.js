@@ -15,14 +15,14 @@ contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
           await this.token.pause({ from });
 
           const paused = await this.token.paused();
-          assert.equal(paused, true);
+          assert.eq(paused, true);
         });
 
         it('emits a Pause event', async function () {
           const { logs } = await this.token.pause({ from });
 
-          assert.equal(logs.length, 1);
-          assert.equal(logs[0].event, 'Pause');
+          assert.eq(logs.length, 1);
+          assert.eq(logs[0].event, 'Pause');
         });
       });
 
@@ -59,14 +59,14 @@ contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
           await this.token.unpause({ from });
 
           const paused = await this.token.paused();
-          assert.equal(paused, false);
+          assert.eq(paused, false);
         });
 
         it('emits an Unpause event', async function () {
           const { logs } = await this.token.unpause({ from });
 
-          assert.equal(logs.length, 1);
-          assert.equal(logs[0].event, 'Unpause');
+          assert.eq(logs.length, 1);
+          assert.eq(logs[0].event, 'Unpause');
         });
       });
 
@@ -93,14 +93,14 @@ contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
       it('is not paused by default', async function () {
         const paused = await this.token.paused({ from });
 
-        assert.equal(paused, false);
+        assert.eq(paused, false);
       });
 
       it('is paused after being paused', async function () {
         await this.token.pause({ from });
         const paused = await this.token.paused({ from });
 
-        assert.equal(paused, true);
+        assert.eq(paused, true);
       });
 
       it('is not paused after being paused and then unpaused', async function () {
@@ -108,7 +108,7 @@ contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
         await this.token.unpause({ from });
         const paused = await this.token.paused();
 
-        assert.equal(paused, false);
+        assert.eq(paused, false);
       });
     });
 
@@ -117,10 +117,10 @@ contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
         await this.token.transfer(recipient, 100, { from: owner });
 
         const senderBalance = await this.token.balanceOf(owner);
-        assert.equal(senderBalance, 0);
+        assert.eq(senderBalance, 0);
 
         const recipientBalance = await this.token.balanceOf(recipient);
-        assert.equal(recipientBalance, 100);
+        assert.eq(recipientBalance, 100);
       });
 
       it('allows to transfer when paused and then unpaused', async function () {
@@ -130,10 +130,10 @@ contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
         await this.token.transfer(recipient, 100, { from: owner });
 
         const senderBalance = await this.token.balanceOf(owner);
-        assert.equal(senderBalance, 0);
+        assert.eq(senderBalance, 0);
 
         const recipientBalance = await this.token.balanceOf(recipient);
-        assert.equal(recipientBalance, 100);
+        assert.eq(recipientBalance, 100);
       });
 
       it('reverts when trying to transfer when paused', async function () {
@@ -148,7 +148,7 @@ contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
         await this.token.approve(anotherAccount, 40, { from: owner });
 
         const allowance = await this.token.allowance(owner, anotherAccount);
-        assert.equal(allowance, 40);
+        assert.eq(allowance, 40);
       });
 
       it('allows to transfer when paused and then unpaused', async function () {
@@ -158,7 +158,7 @@ contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
         await this.token.approve(anotherAccount, 40, { from: owner });
 
         const allowance = await this.token.allowance(owner, anotherAccount);
-        assert.equal(allowance, 40);
+        assert.eq(allowance, 40);
       });
 
       it('reverts when trying to transfer when paused', async function () {
@@ -177,10 +177,10 @@ contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
         await this.token.transferFrom(owner, recipient, 40, { from: anotherAccount });
 
         const senderBalance = await this.token.balanceOf(owner);
-        assert.equal(senderBalance, 60);
+        assert.eq(senderBalance, 60);
 
         const recipientBalance = await this.token.balanceOf(recipient);
-        assert.equal(recipientBalance, 40);
+        assert.eq(recipientBalance, 40);
       });
 
       it('allows to transfer when paused and then unpaused', async function () {
@@ -190,10 +190,10 @@ contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
         await this.token.transferFrom(owner, recipient, 40, { from: anotherAccount });
 
         const senderBalance = await this.token.balanceOf(owner);
-        assert.equal(senderBalance, 60);
+        assert.eq(senderBalance, 60);
 
         const recipientBalance = await this.token.balanceOf(recipient);
-        assert.equal(recipientBalance, 40);
+        assert.eq(recipientBalance, 40);
       });
 
       it('reverts when trying to transfer from when paused', async function () {
@@ -212,7 +212,7 @@ contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
         await this.token.decreaseApproval(anotherAccount, 40, { from: owner });
 
         const allowance = await this.token.allowance(owner, anotherAccount);
-        assert.equal(allowance, 60);
+        assert.eq(allowance, 60);
       });
 
       it('allows to decrease approval when paused and then unpaused', async function () {
@@ -222,7 +222,7 @@ contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
         await this.token.decreaseApproval(anotherAccount, 40, { from: owner });
 
         const allowance = await this.token.allowance(owner, anotherAccount);
-        assert.equal(allowance, 60);
+        assert.eq(allowance, 60);
       });
 
       it('reverts when trying to transfer when paused', async function () {
@@ -241,7 +241,7 @@ contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
         await this.token.increaseApproval(anotherAccount, 40, { from: owner });
 
         const allowance = await this.token.allowance(owner, anotherAccount);
-        assert.equal(allowance, 140);
+        assert.eq(allowance, 140);
       });
 
       it('allows to increase approval when paused and then unpaused', async function () {
@@ -251,7 +251,7 @@ contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
         await this.token.increaseApproval(anotherAccount, 40, { from: owner });
 
         const allowance = await this.token.allowance(owner, anotherAccount);
-        assert.equal(allowance, 140);
+        assert.eq(allowance, 140);
       });
 
       it('reverts when trying to increase approval when paused', async function () {

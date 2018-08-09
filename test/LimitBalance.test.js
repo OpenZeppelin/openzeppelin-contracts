@@ -14,7 +14,7 @@ contract('LimitBalance', function (accounts) {
 
   it('should expose limit', async function () {
     const limit = await limitBalance.limit();
-    assert.equal(limit, LIMIT);
+    assert.eq(limit, LIMIT);
   });
 
   it('should allow sending below limit', async function () {
@@ -22,7 +22,7 @@ contract('LimitBalance', function (accounts) {
     await limitBalance.limitedDeposit({ value: amount });
 
     const balance = await ethGetBalance(limitBalance.address);
-    assert.equal(balance, amount);
+    assert.eq(balance, amount);
   });
 
   it('shouldnt allow sending above limit', async function () {
@@ -35,11 +35,11 @@ contract('LimitBalance', function (accounts) {
     await limitBalance.limitedDeposit({ value: amount });
 
     const balance = await ethGetBalance(limitBalance.address);
-    assert.equal(balance, amount);
+    assert.eq(balance, amount);
 
     await limitBalance.limitedDeposit({ value: amount });
     const updatedBalance = await ethGetBalance(limitBalance.address);
-    assert.equal(updatedBalance, amount * 2);
+    assert.eq(updatedBalance, amount * 2);
   });
 
   it('shouldnt allow multiple sends above limit', async function () {
@@ -47,7 +47,7 @@ contract('LimitBalance', function (accounts) {
     await limitBalance.limitedDeposit({ value: amount });
 
     const balance = await ethGetBalance(limitBalance.address);
-    assert.equal(balance, amount);
+    assert.eq(balance, amount);
     await assertRevert(limitBalance.limitedDeposit({ value: amount + 1 }));
   });
 });

@@ -1,6 +1,12 @@
 const { assertRevert } = require('../../helpers/assertRevert');
 const BasicToken = artifacts.require('BasicTokenMock');
 
+const BigNumber = web3.BigNumber;
+
+require('chai')
+  .use(require('chai-bignumber')(BigNumber))
+  .should();
+
 contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
@@ -12,7 +18,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
     it('returns the total amount of tokens', async function () {
       const totalSupply = await this.token.totalSupply();
 
-      assert.equal(totalSupply, 100);
+      totalSupply.should.be.bignumber.eq(100);
     });
   });
 
@@ -21,7 +27,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
       it('returns zero', async function () {
         const balance = await this.token.balanceOf(anotherAccount);
 
-        assert.equal(balance, 0);
+        balance.should.be.bignumber.eq(0);
       });
     });
 
@@ -29,7 +35,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
       it('returns the total amount of tokens', async function () {
         const balance = await this.token.balanceOf(owner);
 
-        assert.equal(balance, 100);
+        balance.should.be.bignumber.eq(100);
       });
     });
   });
@@ -53,19 +59,19 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
           await this.token.transfer(to, amount, { from: owner });
 
           const senderBalance = await this.token.balanceOf(owner);
-          assert.equal(senderBalance, 0);
+          senderBalance.should.be.bignumber.eq(0);
 
           const recipientBalance = await this.token.balanceOf(to);
-          assert.equal(recipientBalance, amount);
+          recipientBalance.should.be.bignumber.eq(amount);
         });
 
         it('emits a transfer event', async function () {
           const { logs } = await this.token.transfer(to, amount, { from: owner });
 
-          assert.equal(logs.length, 1);
-          assert.equal(logs[0].event, 'Transfer');
-          assert.equal(logs[0].args.from, owner);
-          assert.equal(logs[0].args.to, to);
+          assert.eq(logs.length, 1);
+          assert.eq(logs[0].event, 'Transfer');
+          assert.eq(logs[0].args.from, owner);
+          assert.eq(logs[0].args.to, to);
           assert(logs[0].args.value.eq(amount));
         });
       });

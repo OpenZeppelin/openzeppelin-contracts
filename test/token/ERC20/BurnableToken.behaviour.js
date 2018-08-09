@@ -21,20 +21,20 @@ function shouldBehaveLikeBurnableToken ([owner], initialBalance) {
 
       it('burns the requested amount', async function () {
         const balance = await this.token.balanceOf(from);
-        balance.should.be.bignumber.equal(initialBalance - amount);
+        balance.should.be.bignumber.eq(initialBalance - amount);
       });
 
       it('emits a burn event', async function () {
         const event = await inLogs(this.logs, 'Burn');
         event.args.burner.should.eq(owner);
-        event.args.value.should.be.bignumber.equal(amount);
+        event.args.value.should.be.bignumber.eq(amount);
       });
 
       it('emits a transfer event', async function () {
         const event = await inLogs(this.logs, 'Transfer');
         event.args.from.should.eq(owner);
         event.args.to.should.eq(ZERO_ADDRESS);
-        event.args.value.should.be.bignumber.equal(amount);
+        event.args.value.should.be.bignumber.eq(amount);
       });
     });
 

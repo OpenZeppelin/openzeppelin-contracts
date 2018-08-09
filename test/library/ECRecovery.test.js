@@ -52,7 +52,7 @@ contract('ECRecovery', function (accounts) {
 
     // Recover the signer address from the generated message and wrong signature.
     const addrRecovered = await ecrecovery.recover(hashMessage('Nope'), signature);
-    assert.notEqual(accounts[0], addrRecovered);
+    accounts[0].should.not.eq(addrRecovered);
   });
 
   it('recover should revert when a small hash is sent', async function () {

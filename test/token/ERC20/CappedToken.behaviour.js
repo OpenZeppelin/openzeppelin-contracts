@@ -12,7 +12,7 @@ function shouldBehaveLikeCappedToken ([owner, anotherAccount, minter, cap]) {
 
     it('should mint when amount is less than cap', async function () {
       const result = await this.token.mint(owner, cap.sub(1), { from });
-      assert.equal(result.logs[0].event, 'Mint');
+      assert.eq(result.logs[0].event, 'Mint');
     });
 
     it('should fail to mint if the ammount exceeds the cap', async function () {

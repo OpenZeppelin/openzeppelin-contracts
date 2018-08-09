@@ -34,14 +34,14 @@ contract('TokenTimelock', function ([_, owner, beneficiary]) {
     await increaseTimeTo(this.releaseTime + duration.seconds(1));
     await this.timelock.release();
     const balance = await this.token.balanceOf(beneficiary);
-    balance.should.be.bignumber.equal(amount);
+    balance.should.be.bignumber.eq(amount);
   });
 
   it('can be released after time limit', async function () {
     await increaseTimeTo(this.releaseTime + duration.years(1));
     await this.timelock.release();
     const balance = await this.token.balanceOf(beneficiary);
-    balance.should.be.bignumber.equal(amount);
+    balance.should.be.bignumber.eq(amount);
   });
 
   it('cannot be released twice', async function () {
@@ -49,6 +49,6 @@ contract('TokenTimelock', function ([_, owner, beneficiary]) {
     await this.timelock.release();
     await expectThrow(this.timelock.release());
     const balance = await this.token.balanceOf(beneficiary);
-    balance.should.be.bignumber.equal(amount);
+    balance.should.be.bignumber.eq(amount);
   });
 });

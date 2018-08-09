@@ -2,6 +2,12 @@ const { assertRevert } = require('../helpers/assertRevert');
 
 const Claimable = artifacts.require('Claimable');
 
+const BigNumber = web3.BigNumber;
+
+require('chai')
+  .use(require('chai-bignumber')(BigNumber))
+  .should();
+
 contract('Claimable', function (accounts) {
   let claimable;
 
@@ -11,7 +17,7 @@ contract('Claimable', function (accounts) {
 
   it('should have an owner', async function () {
     const owner = await claimable.owner();
-    assert.isTrue(owner !== 0);
+    owner.should.not.eq(0);
   });
 
   it('changes pendingOwner after transfer', async function () {
@@ -19,7 +25,7 @@ contract('Claimable', function (accounts) {
     await claimable.transferOwnership(newOwner);
     const pendingOwner = await claimable.pendingOwner();
 
-    assert.isTrue(pendingOwner === newOwner);
+    pendingOwner.should.eq(newOwner);
   });
 
   it('should prevent to claimOwnership from no pendingOwner', async function () {
@@ -30,7 +36,7 @@ contract('Claimable', function (accounts) {
     const other = accounts[2];
     const owner = await claimable.owner.call();
 
-    assert.isTrue(owner !== other);
+    owner.should.eq(other);
     await assertRevert(claimable.transferOwnership(other, { from: other }));
   });
 
@@ -46,7 +52,7 @@ contract('Claimable', function (accounts) {
       await claimable.claimOwnership({ from: newOwner });
       const owner = await claimable.owner();
 
-      assert.isTrue(owner === newOwner);
+      owner.should.eq(newOwner);
     });
   });
 });

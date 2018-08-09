@@ -11,7 +11,7 @@ function shouldBehaveLikeMintableToken ([owner, anotherAccount, minter]) {
     describe('after token creation', function () {
       it('sender should be token owner', async function () {
         const tokenOwner = await this.token.owner({ from: owner });
-        tokenOwner.should.equal(owner);
+        tokenOwner.should.eq(owner);
       });
     });
 
@@ -19,7 +19,7 @@ function shouldBehaveLikeMintableToken ([owner, anotherAccount, minter]) {
       describe('when the token minting is not finished', function () {
         it('returns false', async function () {
           const mintingFinished = await this.token.mintingFinished();
-          assert.equal(mintingFinished, false);
+          assert.eq(mintingFinished, false);
         });
       });
 
@@ -30,7 +30,7 @@ function shouldBehaveLikeMintableToken ([owner, anotherAccount, minter]) {
 
         it('returns true', async function () {
           const mintingFinished = await this.token.mintingFinished();
-          assert.equal(mintingFinished, true);
+          assert.eq(mintingFinished, true);
         });
       });
     });
@@ -44,14 +44,14 @@ function shouldBehaveLikeMintableToken ([owner, anotherAccount, minter]) {
             await this.token.finishMinting({ from });
 
             const mintingFinished = await this.token.mintingFinished();
-            assert.equal(mintingFinished, true);
+            assert.eq(mintingFinished, true);
           });
 
           it('emits a mint finished event', async function () {
             const { logs } = await this.token.finishMinting({ from });
 
-            assert.equal(logs.length, 1);
-            assert.equal(logs[0].event, 'MintFinished');
+            assert.eq(logs.length, 1);
+            assert.eq(logs[0].event, 'MintFinished');
           });
         });
 
@@ -98,17 +98,17 @@ function shouldBehaveLikeMintableToken ([owner, anotherAccount, minter]) {
             await this.token.mint(owner, amount, { from });
 
             const balance = await this.token.balanceOf(owner);
-            assert.equal(balance, amount);
+            assert.eq(balance, amount);
           });
 
           it('emits a mint and a transfer event', async function () {
             const { logs } = await this.token.mint(owner, amount, { from });
 
-            assert.equal(logs.length, 2);
-            assert.equal(logs[0].event, 'Mint');
-            assert.equal(logs[0].args.to, owner);
-            assert.equal(logs[0].args.amount, amount);
-            assert.equal(logs[1].event, 'Transfer');
+            assert.eq(logs.length, 2);
+            assert.eq(logs[0].event, 'Mint');
+            assert.eq(logs[0].args.to, owner);
+            assert.eq(logs[0].args.amount, amount);
+            assert.eq(logs[1].event, 'Transfer');
           });
         });
 

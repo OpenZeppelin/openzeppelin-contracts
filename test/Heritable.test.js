@@ -6,6 +6,9 @@ const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 const Heritable = artifacts.require('Heritable');
 
+require('chai')
+  .should();
+
 contract('Heritable', function (accounts) {
   let heritable;
   let owner;
@@ -18,22 +21,14 @@ contract('Heritable', function (accounts) {
   it('should start off with an owner, but without heir', async function () {
     const heir = await heritable.heir();
 
-    assert.equal(typeof (owner), 'string');
-    assert.equal(typeof (heir), 'string');
-    assert.notStrictEqual(
-      owner, NULL_ADDRESS,
-      'Owner shouldn\'t be the null address'
-    );
-    assert.isTrue(
-      heir === NULL_ADDRESS,
-      'Heir should be the null address'
-    );
+    owner.should.be.a('string').that.is.not.equal(NULL_ADDRESS);
+    heir.should.be.a('string').that.is.equal(NULL_ADDRESS);
   });
 
   it('only owner should set heir', async function () {
     const newHeir = accounts[1];
     const someRandomAddress = accounts[2];
-    assert.isTrue(owner !== someRandomAddress);
+    owner.should.equal(someRandomAddress);
 
     await heritable.setHeir(newHeir, { from: owner });
     await expectThrow(heritable.setHeir(newHeir, { from: someRandomAddress }));
@@ -48,10 +43,10 @@ contract('Heritable', function (accounts) {
     await heritable.setHeir(newHeir, { from: owner });
     let heir = await heritable.heir();
 
-    assert.notStrictEqual(heir, NULL_ADDRESS);
+    heir.should.eq(newHeir);
     await heritable.removeHeir();
     heir = await heritable.heir();
-    assert.isTrue(heir === NULL_ADDRESS);
+    heir.should.eq(NULL_ADDRESS);
   });
 
   it('heir can claim ownership only if owner is dead and timeout was reached', async function () {
@@ -65,7 +60,7 @@ contract('Heritable', function (accounts) {
 
     await increaseTime(4141);
     await heritable.claimHeirOwnership({ from: heir });
-    assert.isTrue(await heritable.heir() === heir);
+    (await heritable.heir()).should.eq(heir);
   });
 
   it('only heir can proclaim death', async function () {
@@ -127,10 +122,10 @@ contract('Heritable', function (accounts) {
   });
 
   it('timeOfDeath can be queried', async function () {
-    assert.equal(await heritable.timeOfDeath(), 0);
+    assert.eq(await heritable.timeOfDeath(), 0);
   });
 
   it('heartbeatTimeout can be queried', async function () {
-    assert.equal(await heritable.heartbeatTimeout(), 4141);
+    assert.eq(await heritable.heartbeatTimeout(), 4141);
   });
 });

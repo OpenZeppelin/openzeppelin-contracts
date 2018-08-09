@@ -1,13 +1,13 @@
+require('chai')
+  .should();
+
 async function expectThrow (promise, message) {
   try {
     await promise;
   } catch (error) {
     // Message is an optional parameter here
     if (message) {
-      assert(
-        error.message.search(message) >= 0,
-        'Expected \'' + message + '\', got \'' + error + '\' instead',
-      );
+      error.message.should.include(message, 'Expected \'' + message + '\', got \'' + error + '\' instead');
       return;
     } else {
       // TODO: Check jump destination to destinguish between a throw
@@ -26,7 +26,7 @@ async function expectThrow (promise, message) {
       return;
     }
   }
-  assert.fail('Expected throw not received');
+  should.fail('Expected throw not received');
 }
 
 module.exports = {

@@ -40,7 +40,7 @@ contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
     await increaseTimeTo(this.openingTime);
     await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
     const balance = await this.token.balanceOf(investor);
-    balance.should.be.bignumber.equal(0);
+    balance.should.be.bignumber.eq(0);
   });
 
   it('should not allow beneficiaries to withdraw tokens before crowdsale ends', async function () {
@@ -62,6 +62,6 @@ contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
     await increaseTimeTo(this.afterClosingTime);
     await this.crowdsale.withdrawTokens({ from: investor });
     const balance = await this.token.balanceOf(investor);
-    balance.should.be.bignumber.equal(value);
+    balance.should.be.bignumber.eq(value);
   });
 });

@@ -49,12 +49,12 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
     const goal = await this.crowdsale.goal();
     const cap = await this.crowdsale.cap();
 
-    openingTime.should.be.bignumber.equal(this.openingTime);
-    closingTime.should.be.bignumber.equal(this.closingTime);
-    rate.should.be.bignumber.equal(RATE);
-    walletAddress.should.be.equal(wallet);
-    goal.should.be.bignumber.equal(GOAL);
-    cap.should.be.bignumber.equal(CAP);
+    openingTime.should.be.bignumber.eq(this.openingTime);
+    closingTime.should.be.bignumber.eq(this.closingTime);
+    rate.should.be.bignumber.eq(RATE);
+    walletAddress.should.be.eq(wallet);
+    goal.should.be.bignumber.eq(GOAL);
+    cap.should.be.bignumber.eq(CAP);
   });
 
   it('should not accept payments before start', async function () {
@@ -75,8 +75,8 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
     await increaseTimeTo(this.openingTime);
     await this.crowdsale.buyTokens(investor, { value: investmentAmount, from: investor });
 
-    (await this.token.balanceOf(investor)).should.be.bignumber.equal(expectedTokenAmount);
-    (await this.token.totalSupply()).should.be.bignumber.equal(expectedTokenAmount);
+    (await this.token.balanceOf(investor)).should.be.bignumber.eq(expectedTokenAmount);
+    (await this.token.totalSupply()).should.be.bignumber.eq(expectedTokenAmount);
   });
 
   it('should reject payments after end', async function () {
@@ -100,7 +100,7 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
     await this.crowdsale.finalize({ from: owner });
     const afterFinalization = await ethGetBalance(wallet);
 
-    afterFinalization.minus(beforeFinalization).should.be.bignumber.equal(GOAL);
+    afterFinalization.minus(beforeFinalization).should.be.bignumber.eq(GOAL);
   });
 
   it('should allow refunds if the goal is not reached', async function () {
@@ -114,7 +114,7 @@ contract('SampleCrowdsale', function ([owner, wallet, investor]) {
     await this.crowdsale.claimRefund({ from: investor, gasPrice: 0 });
 
     const balanceAfterRefund = await ethGetBalance(investor);
-    balanceBeforeInvestment.should.be.bignumber.equal(balanceAfterRefund);
+    balanceBeforeInvestment.should.be.bignumber.eq(balanceAfterRefund);
   });
 
   describe('when goal > cap', function () {

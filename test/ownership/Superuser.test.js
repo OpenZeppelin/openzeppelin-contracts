@@ -21,17 +21,17 @@ contract('Superuser', function (accounts) {
   context('in normal conditions', () => {
     it('should set the owner as the default superuser', async function () {
       const ownerIsSuperuser = await this.superuser.isSuperuser(firstOwner);
-      ownerIsSuperuser.should.be.equal(true);
+      ownerIsSuperuser.should.be.eq(true);
     });
 
     it('should change superuser after transferring', async function () {
       await this.superuser.transferSuperuser(newSuperuser, { from: firstOwner });
 
       const ownerIsSuperuser = await this.superuser.isSuperuser(firstOwner);
-      ownerIsSuperuser.should.be.equal(false);
+      ownerIsSuperuser.should.be.eq(false);
 
       const newSuperuserIsSuperuser = await this.superuser.isSuperuser(newSuperuser);
-      newSuperuserIsSuperuser.should.be.equal(true);
+      newSuperuserIsSuperuser.should.be.eq(true);
     });
 
     it('should change owner after the superuser transfers the ownership', async function () {
@@ -43,7 +43,7 @@ contract('Superuser', function (accounts) {
       );
 
       const currentOwner = await this.superuser.owner();
-      currentOwner.should.be.equal(newOwner);
+      currentOwner.should.be.eq(newOwner);
     });
 
     it('should change owner after the owner transfers the ownership', async function () {
@@ -53,7 +53,7 @@ contract('Superuser', function (accounts) {
       );
 
       const currentOwner = await this.superuser.owner();
-      currentOwner.should.be.equal(newOwner);
+      currentOwner.should.be.eq(newOwner);
     });
   });
 
