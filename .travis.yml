@@ -34,6 +34,11 @@ jobs:
     # solidity and javascript style tests.
     - stage: Linting
       script: npm run lint
+    - stage: Update docs
+      if: tag =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
+      script:
+        - sudo apt install --yes curl
+        - ./scripts/ci/trigger_docs_update "${TRAVIS_TAG}"
 
 notifications:
   slack:
