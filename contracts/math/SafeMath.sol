@@ -3,15 +3,15 @@ pragma solidity ^0.4.24;
 
 /**
  * @title SafeMath
- * @dev Math operations with safety checks that throw on error
+ * @dev Math operations with safety checks that revert on error
  */
 library SafeMath {
 
   /**
-  * @dev Multiplies two numbers, throws on overflow.
+  * @dev Multiplies two numbers, reverts on overflow.
   */
   function mul(uint256 _a, uint256 _b) internal pure returns (uint256) {
-    // Gas optimization: this is cheaper than asserting 'a' not being zero, but the
+    // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
     // benefit is lost if 'b' is also tested.
     // See: https://github.com/OpenZeppelin/openzeppelin-solidity/pull/522
     if (_a == 0) {
@@ -19,7 +19,7 @@ library SafeMath {
     }
 
     uint256 c = _a * _b;
-    assert(c / _a == _b);
+    require(c / _a == _b);
 
     return c;
   }
@@ -28,7 +28,7 @@ library SafeMath {
   * @dev Integer division of two numbers, truncating the quotient.
   */
   function div(uint256 _a, uint256 _b) internal pure returns (uint256) {
-    // assert(_b > 0); // Solidity automatically throws when dividing by 0
+    require(_b > 0); // Solidity only automatically asserts when dividing by 0
     uint256 c = _a / _b;
     // assert(_a == _b * c + _a % _b); // There is no case in which this doesn't hold
 
@@ -36,21 +36,21 @@ library SafeMath {
   }
 
   /**
-  * @dev Subtracts two numbers, throws on overflow (i.e. if subtrahend is greater than minuend).
+  * @dev Subtracts two numbers, reverts on overflow (i.e. if subtrahend is greater than minuend).
   */
   function sub(uint256 _a, uint256 _b) internal pure returns (uint256) {
-    assert(_b <= _a);
+    require(_b <= _a);
     uint256 c = _a - _b;
 
     return c;
   }
 
   /**
-  * @dev Adds two numbers, throws on overflow.
+  * @dev Adds two numbers, reverts on overflow.
   */
   function add(uint256 _a, uint256 _b) internal pure returns (uint256) {
     uint256 c = _a + _b;
-    assert(c >= _a);
+    require(c >= _a);
 
     return c;
   }
