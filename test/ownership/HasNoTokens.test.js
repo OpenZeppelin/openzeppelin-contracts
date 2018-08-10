@@ -37,7 +37,7 @@ contract('HasNoTokens', function ([_, owner, initialAccount, anyone]) {
     const finalBalance = await token.balanceOf(hasNoTokens.address);
 
     finalBalance.should.be.bignumber.equal(0);
-    (ownerFinalBalance.sub(ownerStartBalance)).should.be.bignumber.equal(10);
+    ownerFinalBalance.sub(ownerStartBalance).should.be.bignumber.equal(10);
   });
 
   it('should allow only owner to reclaim tokens', async function () {
