@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
 import "./ERC721Basic.sol";
 
@@ -9,7 +9,14 @@ import "./ERC721Basic.sol";
  */
 contract ERC721Enumerable is ERC721Basic {
   function totalSupply() public view returns (uint256);
-  function tokenOfOwnerByIndex(address _owner, uint256 _index) public view returns (uint256 _tokenId);
+  function tokenOfOwnerByIndex(
+    address _owner,
+    uint256 _index
+  )
+    public
+    view
+    returns (uint256 _tokenId);
+
   function tokenByIndex(uint256 _index) public view returns (uint256);
 }
 
@@ -19,8 +26,8 @@ contract ERC721Enumerable is ERC721Basic {
  * @dev See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
 contract ERC721Metadata is ERC721Basic {
-  function name() public view returns (string _name);
-  function symbol() public view returns (string _symbol);
+  function name() external view returns (string _name);
+  function symbol() external view returns (string _symbol);
   function tokenURI(uint256 _tokenId) public view returns (string);
 }
 

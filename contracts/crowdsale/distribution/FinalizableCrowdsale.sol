@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
 import "../../math/SafeMath.sol";
 import "../../ownership/Ownable.sol";
@@ -10,7 +10,7 @@ import "../validation/TimedCrowdsale.sol";
  * @dev Extension of Crowdsale where an owner can do extra work
  * after finishing.
  */
-contract FinalizableCrowdsale is TimedCrowdsale, Ownable {
+contract FinalizableCrowdsale is Ownable, TimedCrowdsale {
   using SafeMath for uint256;
 
   bool public isFinalized = false;
@@ -21,7 +21,7 @@ contract FinalizableCrowdsale is TimedCrowdsale, Ownable {
    * @dev Must be called after crowdsale ends, to do some extra finalization
    * work. Calls the contract's finalization function.
    */
-  function finalize() onlyOwner public {
+  function finalize() public onlyOwner {
     require(!isFinalized);
     require(hasClosed());
 

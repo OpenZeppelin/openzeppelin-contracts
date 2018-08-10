@@ -1,13 +1,13 @@
-import assertRevert from '../../helpers/assertRevert';
-import shouldBehaveLikeERC721BasicToken from './ERC721BasicToken.behaviour';
-import shouldMintAndBurnERC721Token from './ERC721MintBurn.behaviour';
-import _ from 'lodash';
+const { assertRevert } = require('../../helpers/assertRevert');
+const { shouldBehaveLikeERC721BasicToken } = require('./ERC721BasicToken.behavior');
+const { shouldBehaveLikeMintAndBurnERC721Token } = require('./ERC721MintBurn.behavior');
+const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
+const _ = require('lodash');
 
 const BigNumber = web3.BigNumber;
 const ERC721Token = artifacts.require('ERC721TokenMock.sol');
 
 require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
@@ -23,7 +23,7 @@ contract('ERC721Token', function (accounts) {
   });
 
   shouldBehaveLikeERC721BasicToken(accounts);
-  shouldMintAndBurnERC721Token(accounts);
+  shouldBehaveLikeMintAndBurnERC721Token(accounts);
 
   describe('like a full ERC721', function () {
     beforeEach(async function () {
@@ -75,7 +75,32 @@ contract('ERC721Token', function (accounts) {
         await assertRevert(this.token.tokenByIndex(0));
       });
     });
-    
+
+    describe('removeTokenFrom', function () {
+      beforeEach(async function () {
+        await this.token._removeTokenFrom(creator, firstTokenId, { from: creator });
+      });
+
+      it('has been removed', async function () {
+        await assertRevert(this.token.tokenOfOwnerByIndex(creator, 1));
+      });
+
+      it('adjusts token list', async function () {
+        const token = await this.token.tokenOfOwnerByIndex(creator, 0);
+        token.toNumber().should.be.equal(secondTokenId);
+      });
+
+      it('adjusts owner count', async function () {
+        const count = await this.token.balanceOf(creator);
+        count.toNumber().should.be.equal(1);
+      });
+
+      it('does not adjust supply', async function () {
+        const total = await this.token.totalSupply();
+        total.toNumber().should.be.equal(2);
+      });
+    });
+
     describe('metadata', function () {
       const sampleUri = 'mock://mytoken';
 
@@ -122,7 +147,7 @@ contract('ERC721Token', function (accounts) {
     describe('tokenOfOwnerByIndex', function () {
       const owner = creator;
       const another = accounts[1];
-        
+
       describe('when the given index is lower than the amount of tokens owned by the given address', function () {
         it('returns the token ID placed at the given index', async function () {
           const tokenId = await this.token.tokenOfOwnerByIndex(owner, 0);
@@ -178,14 +203,14 @@ contract('ERC721Token', function (accounts) {
           const owner = accounts[0];
           const newTokenId = 300;
           const anotherNewTokenId = 400;
-          
+
           await this.token.burn(tokenId, { from: owner });
           await this.token.mint(owner, newTokenId, { from: owner });
           await this.token.mint(owner, anotherNewTokenId, { from: owner });
-  
+
           const count = await this.token.totalSupply();
           count.toNumber().should.be.equal(3);
-          
+
           const tokensListed = await Promise.all(_.range(3).map(i => this.token.tokenByIndex(i)));
           const expectedTokens = _.filter(
             [firstTokenId, secondTokenId, newTokenId, anotherNewTokenId],
@@ -196,4 +221,12 @@ contract('ERC721Token', function (accounts) {
       });
     });
   });
+
+  shouldSupportInterfaces([
+    'ERC165',
+    'ERC721',
+    'ERC721Exists',
+    'ERC721Enumerable',
+    'ERC721Metadata',
+  ]);
 });

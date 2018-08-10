@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
 import "../math/SafeMath.sol";
 
@@ -21,8 +21,9 @@ contract SplitPayment {
   /**
    * @dev Constructor
    */
-  function SplitPayment(address[] _payees, uint256[] _shares) public payable {
+  constructor(address[] _payees, uint256[] _shares) public payable {
     require(_payees.length == _shares.length);
+    require(_payees.length > 0);
 
     for (uint256 i = 0; i < _payees.length; i++) {
       addPayee(_payees[i], _shares[i]);
@@ -32,7 +33,7 @@ contract SplitPayment {
   /**
    * @dev payable fallback
    */
-  function () public payable {}
+  function () external payable {}
 
   /**
    * @dev Claim your share of the balance.
@@ -43,7 +44,11 @@ contract SplitPayment {
     require(shares[payee] > 0);
 
     uint256 totalReceived = address(this).balance.add(totalReleased);
-    uint256 payment = totalReceived.mul(shares[payee]).div(totalShares).sub(released[payee]);
+    uint256 payment = totalReceived.mul(
+      shares[payee]).div(
+        totalShares).sub(
+          released[payee]
+    );
 
     require(payment != 0);
     require(address(this).balance >= payment);

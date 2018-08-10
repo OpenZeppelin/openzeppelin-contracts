@@ -1,13 +1,12 @@
 const BigNumber = web3.BigNumber;
 
 require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
 const DetailedERC20Mock = artifacts.require('DetailedERC20Mock');
 
-contract('DetailedERC20', accounts => {
+contract('DetailedERC20', function () {
   let detailedERC20 = null;
 
   const _name = 'My Detailed ERC20';
