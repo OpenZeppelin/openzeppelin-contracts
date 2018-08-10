@@ -1,6 +1,12 @@
 const { assertRevert } = require('../../helpers/assertRevert');
 const StandardToken = artifacts.require('StandardTokenMock');
 
+const BigNumber = web3.BigNumber;
+
+require('chai')
+  .use(require('chai-bignumber')(BigNumber))
+  .should();
+
 contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
@@ -12,7 +18,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
     it('returns the total amount of tokens', async function () {
       const totalSupply = await this.token.totalSupply();
 
-      assert.equal(totalSupply, 100);
+      totalSupply.should.be.bignumber.equal(100);
     });
   });
 
@@ -21,7 +27,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
       it('returns zero', async function () {
         const balance = await this.token.balanceOf(anotherAccount);
 
-        assert.equal(balance, 0);
+        balance.should.be.bignumber.equal(0);
       });
     });
 
@@ -29,7 +35,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
       it('returns the total amount of tokens', async function () {
         const balance = await this.token.balanceOf(owner);
 
-        assert.equal(balance, 100);
+        balance.should.be.bignumber.equal(100);
       });
     });
   });
@@ -53,20 +59,20 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
           await this.token.transfer(to, amount, { from: owner });
 
           const senderBalance = await this.token.balanceOf(owner);
-          assert.equal(senderBalance, 0);
+          senderBalance.should.be.bignumber.equal(0);
 
           const recipientBalance = await this.token.balanceOf(to);
-          assert.equal(recipientBalance, amount);
+          recipientBalance.should.be.bignumber.equal(amount);
         });
 
         it('emits a transfer event', async function () {
           const { logs } = await this.token.transfer(to, amount, { from: owner });
 
-          assert.equal(logs.length, 1);
-          assert.equal(logs[0].event, 'Transfer');
-          assert.equal(logs[0].args.from, owner);
-          assert.equal(logs[0].args.to, to);
-          assert(logs[0].args.value.eq(amount));
+          logs.length.should.eq(1);
+          logs[0].event.should.eq('Transfer');
+          logs[0].args.from.should.eq(owner);
+          logs[0].args.to.should.eq(to);
+          logs[0].args.value.should.be.bignumber.equal(amount);
         });
       });
     });
@@ -90,11 +96,11 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         it('emits an approval event', async function () {
           const { logs } = await this.token.approve(spender, amount, { from: owner });
 
-          assert.equal(logs.length, 1);
-          assert.equal(logs[0].event, 'Approval');
-          assert.equal(logs[0].args.owner, owner);
-          assert.equal(logs[0].args.spender, spender);
-          assert(logs[0].args.value.eq(amount));
+          logs.length.should.eq(1);
+          logs[0].event.should.eq('Approval');
+          logs[0].args.owner.should.eq(owner);
+          logs[0].args.spender.should.eq(spender);
+          logs[0].args.value.should.be.bignumber.equal(amount);
         });
 
         describe('when there was no approved amount before', function () {
@@ -102,7 +108,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
             await this.token.approve(spender, amount, { from: owner });
 
             const allowance = await this.token.allowance(owner, spender);
-            assert.equal(allowance, amount);
+            allowance.should.be.bignumber.equal(amount);
           });
         });
 
@@ -115,7 +121,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
             await this.token.approve(spender, amount, { from: owner });
 
             const allowance = await this.token.allowance(owner, spender);
-            assert.equal(allowance, amount);
+            allowance.should.be.bignumber.equal(amount);
           });
         });
       });
@@ -126,11 +132,11 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         it('emits an approval event', async function () {
           const { logs } = await this.token.approve(spender, amount, { from: owner });
 
-          assert.equal(logs.length, 1);
-          assert.equal(logs[0].event, 'Approval');
-          assert.equal(logs[0].args.owner, owner);
-          assert.equal(logs[0].args.spender, spender);
-          assert(logs[0].args.value.eq(amount));
+          logs.length.should.eq(1);
+          logs[0].event.should.eq('Approval');
+          logs[0].args.owner.should.eq(owner);
+          logs[0].args.spender.should.eq(spender);
+          logs[0].args.value.should.be.bignumber.equal(amount);
         });
 
         describe('when there was no approved amount before', function () {
@@ -138,7 +144,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
             await this.token.approve(spender, amount, { from: owner });
 
             const allowance = await this.token.allowance(owner, spender);
-            assert.equal(allowance, amount);
+            allowance.should.be.bignumber.equal(amount);
           });
         });
 
@@ -151,7 +157,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
             await this.token.approve(spender, amount, { from: owner });
 
             const allowance = await this.token.allowance(owner, spender);
-            assert.equal(allowance, amount);
+            allowance.should.be.bignumber.equal(amount);
           });
         });
       });
@@ -165,17 +171,17 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         await this.token.approve(spender, amount, { from: owner });
 
         const allowance = await this.token.allowance(owner, spender);
-        assert.equal(allowance, amount);
+        allowance.should.be.bignumber.equal(amount);
       });
 
       it('emits an approval event', async function () {
         const { logs } = await this.token.approve(spender, amount, { from: owner });
 
-        assert.equal(logs.length, 1);
-        assert.equal(logs[0].event, 'Approval');
-        assert.equal(logs[0].args.owner, owner);
-        assert.equal(logs[0].args.spender, spender);
-        assert(logs[0].args.value.eq(amount));
+        logs.length.should.eq(1);
+        logs[0].event.should.eq('Approval');
+        logs[0].args.owner.should.eq(owner);
+        logs[0].args.spender.should.eq(spender);
+        logs[0].args.value.should.be.bignumber.equal(amount);
       });
     });
   });
@@ -198,27 +204,27 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
             await this.token.transferFrom(owner, to, amount, { from: spender });
 
             const senderBalance = await this.token.balanceOf(owner);
-            assert.equal(senderBalance, 0);
+            senderBalance.should.be.bignumber.equal(0);
 
             const recipientBalance = await this.token.balanceOf(to);
-            assert.equal(recipientBalance, amount);
+            recipientBalance.should.be.bignumber.equal(amount);
           });
 
           it('decreases the spender allowance', async function () {
             await this.token.transferFrom(owner, to, amount, { from: spender });
 
             const allowance = await this.token.allowance(owner, spender);
-            assert(allowance.eq(0));
+            allowance.should.be.bignumber.equal(0);
           });
 
           it('emits a transfer event', async function () {
             const { logs } = await this.token.transferFrom(owner, to, amount, { from: spender });
 
-            assert.equal(logs.length, 1);
-            assert.equal(logs[0].event, 'Transfer');
-            assert.equal(logs[0].args.from, owner);
-            assert.equal(logs[0].args.to, to);
-            assert(logs[0].args.value.eq(amount));
+            logs.length.should.eq(1);
+            logs[0].event.should.eq('Transfer');
+            logs[0].args.from.should.eq(owner);
+            logs[0].args.to.should.eq(to);
+            logs[0].args.value.should.be.bignumber.equal(amount);
           });
         });
 
@@ -278,11 +284,11 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         it('emits an approval event', async function () {
           const { logs } = await this.token.decreaseApproval(spender, amount, { from: owner });
 
-          assert.equal(logs.length, 1);
-          assert.equal(logs[0].event, 'Approval');
-          assert.equal(logs[0].args.owner, owner);
-          assert.equal(logs[0].args.spender, spender);
-          assert(logs[0].args.value.eq(0));
+          logs.length.should.eq(1);
+          logs[0].event.should.eq('Approval');
+          logs[0].args.owner.should.eq(owner);
+          logs[0].args.spender.should.eq(spender);
+          logs[0].args.value.should.be.bignumber.equal(0);
         });
 
         describe('when there was no approved amount before', function () {
@@ -290,7 +296,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
             await this.token.decreaseApproval(spender, amount, { from: owner });
 
             const allowance = await this.token.allowance(owner, spender);
-            assert.equal(allowance, 0);
+            allowance.should.be.bignumber.equal(0);
           });
         });
 
@@ -305,19 +311,19 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
             await this.token.decreaseApproval(spender, approvedAmount - 5, { from: owner });
 
             const allowance = await this.token.allowance(owner, spender);
-            assert.equal(allowance, 5);
+            allowance.should.be.bignumber.equal(5);
           });
 
           it('sets the allowance to zero when all allowance is removed', async function () {
             await this.token.decreaseApproval(spender, approvedAmount, { from: owner });
             const allowance = await this.token.allowance(owner, spender);
-            assert.equal(allowance, 0);
+            allowance.should.be.bignumber.equal(0);
           });
 
           it('sets the allowance to zero when more than the full allowance is removed', async function () {
             await this.token.decreaseApproval(spender, approvedAmount + 5, { from: owner });
             const allowance = await this.token.allowance(owner, spender);
-            assert.equal(allowance, 0);
+            allowance.should.be.bignumber.equal(0);
           });
         });
       });
@@ -328,11 +334,11 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         it('emits an approval event', async function () {
           const { logs } = await this.token.decreaseApproval(spender, amount, { from: owner });
 
-          assert.equal(logs.length, 1);
-          assert.equal(logs[0].event, 'Approval');
-          assert.equal(logs[0].args.owner, owner);
-          assert.equal(logs[0].args.spender, spender);
-          assert(logs[0].args.value.eq(0));
+          logs.length.should.eq(1);
+          logs[0].event.should.eq('Approval');
+          logs[0].args.owner.should.eq(owner);
+          logs[0].args.spender.should.eq(spender);
+          logs[0].args.value.should.be.bignumber.equal(0);
         });
 
         describe('when there was no approved amount before', function () {
@@ -340,7 +346,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
             await this.token.decreaseApproval(spender, amount, { from: owner });
 
             const allowance = await this.token.allowance(owner, spender);
-            assert.equal(allowance, 0);
+            allowance.should.be.bignumber.equal(0);
           });
         });
 
@@ -353,7 +359,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
             await this.token.decreaseApproval(spender, amount, { from: owner });
 
             const allowance = await this.token.allowance(owner, spender);
-            assert.equal(allowance, 1);
+            allowance.should.be.bignumber.equal(1);
           });
         });
       });
@@ -367,17 +373,17 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         await this.token.decreaseApproval(spender, amount, { from: owner });
 
         const allowance = await this.token.allowance(owner, spender);
-        assert.equal(allowance, 0);
+        allowance.should.be.bignumber.equal(0);
       });
 
       it('emits an approval event', async function () {
         const { logs } = await this.token.decreaseApproval(spender, amount, { from: owner });
 
-        assert.equal(logs.length, 1);
-        assert.equal(logs[0].event, 'Approval');
-        assert.equal(logs[0].args.owner, owner);
-        assert.equal(logs[0].args.spender, spender);
-        assert(logs[0].args.value.eq(0));
+        logs.length.should.eq(1);
+        logs[0].event.should.eq('Approval');
+        logs[0].args.owner.should.eq(owner);
+        logs[0].args.spender.should.eq(spender);
+        logs[0].args.value.should.be.bignumber.equal(0);
       });
     });
   });
@@ -392,11 +398,11 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         it('emits an approval event', async function () {
           const { logs } = await this.token.increaseApproval(spender, amount, { from: owner });
 
-          assert.equal(logs.length, 1);
-          assert.equal(logs[0].event, 'Approval');
-          assert.equal(logs[0].args.owner, owner);
-          assert.equal(logs[0].args.spender, spender);
-          assert(logs[0].args.value.eq(amount));
+          logs.length.should.eq(1);
+          logs[0].event.should.eq('Approval');
+          logs[0].args.owner.should.eq(owner);
+          logs[0].args.spender.should.eq(spender);
+          logs[0].args.value.should.be.bignumber.equal(amount);
         });
 
         describe('when there was no approved amount before', function () {
@@ -404,7 +410,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
             await this.token.increaseApproval(spender, amount, { from: owner });
 
             const allowance = await this.token.allowance(owner, spender);
-            assert.equal(allowance, amount);
+            allowance.should.be.bignumber.equal(amount);
           });
         });
 
@@ -417,7 +423,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
             await this.token.increaseApproval(spender, amount, { from: owner });
 
             const allowance = await this.token.allowance(owner, spender);
-            assert.equal(allowance, amount + 1);
+            allowance.should.be.bignumber.equal(amount + 1);
           });
         });
       });
@@ -428,11 +434,11 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         it('emits an approval event', async function () {
           const { logs } = await this.token.increaseApproval(spender, amount, { from: owner });
 
-          assert.equal(logs.length, 1);
-          assert.equal(logs[0].event, 'Approval');
-          assert.equal(logs[0].args.owner, owner);
-          assert.equal(logs[0].args.spender, spender);
-          assert(logs[0].args.value.eq(amount));
+          logs.length.should.eq(1);
+          logs[0].event.should.eq('Approval');
+          logs[0].args.owner.should.eq(owner);
+          logs[0].args.spender.should.eq(spender);
+          logs[0].args.value.should.be.bignumber.equal(amount);
         });
 
         describe('when there was no approved amount before', function () {
@@ -440,7 +446,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
             await this.token.increaseApproval(spender, amount, { from: owner });
 
             const allowance = await this.token.allowance(owner, spender);
-            assert.equal(allowance, amount);
+            allowance.should.be.bignumber.equal(amount);
           });
         });
 
@@ -453,7 +459,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
             await this.token.increaseApproval(spender, amount, { from: owner });
 
             const allowance = await this.token.allowance(owner, spender);
-            assert.equal(allowance, amount + 1);
+            allowance.should.be.bignumber.equal(amount + 1);
           });
         });
       });
@@ -466,17 +472,17 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         await this.token.increaseApproval(spender, amount, { from: owner });
 
         const allowance = await this.token.allowance(owner, spender);
-        assert.equal(allowance, amount);
+        allowance.should.be.bignumber.equal(amount);
       });
 
       it('emits an approval event', async function () {
         const { logs } = await this.token.increaseApproval(spender, amount, { from: owner });
 
-        assert.equal(logs.length, 1);
-        assert.equal(logs[0].event, 'Approval');
-        assert.equal(logs[0].args.owner, owner);
-        assert.equal(logs[0].args.spender, spender);
-        assert(logs[0].args.value.eq(amount));
+        logs.length.should.eq(1);
+        logs[0].event.should.eq('Approval');
+        logs[0].args.owner.should.eq(owner);
+        logs[0].args.spender.should.eq(spender);
+        logs[0].args.value.should.be.bignumber.equal(amount);
       });
     });
   });

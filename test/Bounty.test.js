@@ -27,7 +27,7 @@ contract('Bounty', function ([_, owner, researcher]) {
       await sendReward(owner, this.bounty.address, reward);
 
       const balance = await ethGetBalance(this.bounty.address);
-      balance.should.be.bignumber.eq(reward);
+      balance.should.be.bignumber.equal(reward);
     });
 
     context('with reward', function () {
@@ -40,7 +40,7 @@ contract('Bounty', function ([_, owner, researcher]) {
         await sendReward(owner, this.bounty.address, reward);
 
         const balance = await ethGetBalance(this.bounty.address);
-        balance.should.be.bignumber.eq(reward);
+        balance.should.be.bignumber.equal(reward);
       });
 
       it('cannot claim reward', async function () {
@@ -76,10 +76,10 @@ contract('Bounty', function ([_, owner, researcher]) {
 
       await this.bounty.withdrawPayments({ from: researcher, gasPrice: gasPrice });
       const updatedBalance = await ethGetBalance(this.bounty.address);
-      updatedBalance.should.be.bignumber.eq(0);
+      updatedBalance.should.be.bignumber.equal(0);
 
       const researcherCurrBalance = await ethGetBalance(researcher);
-      researcherCurrBalance.sub(researcherPrevBalance).should.be.bignumber.eq(reward.sub(gasCost));
+      researcherCurrBalance.sub(researcherPrevBalance).should.be.bignumber.equal(reward.sub(gasCost));
     });
 
     context('reward claimed', function () {

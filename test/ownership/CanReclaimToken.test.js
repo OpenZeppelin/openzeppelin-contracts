@@ -3,6 +3,12 @@ const { expectThrow } = require('../helpers/expectThrow');
 const CanReclaimToken = artifacts.require('CanReclaimToken');
 const StandardTokenMock = artifacts.require('StandardTokenMock');
 
+const BigNumber = web3.BigNumber;
+
+require('chai')
+  .use(require('chai-bignumber')(BigNumber))
+  .should();
+
 contract('CanReclaimToken', function ([_, owner, anyone]) {
   let token = null;
   let canReclaimToken = null;
@@ -15,7 +21,7 @@ contract('CanReclaimToken', function ([_, owner, anyone]) {
     // Force token into contract
     await token.transfer(canReclaimToken.address, 10, { from: owner });
     const startBalance = await token.balanceOf(canReclaimToken.address);
-    assert.equal(startBalance, 10);
+    startBalance.should.be.bignumber.equal(10);
   });
 
   it('should allow owner to reclaim tokens', async function () {
@@ -23,8 +29,8 @@ contract('CanReclaimToken', function ([_, owner, anyone]) {
     await canReclaimToken.reclaimToken(token.address, { from: owner });
     const ownerFinalBalance = await token.balanceOf(owner);
     const finalBalance = await token.balanceOf(canReclaimToken.address);
-    assert.equal(finalBalance, 0);
-    assert.equal(ownerFinalBalance - ownerStartBalance, 10);
+    finalBalance.should.be.bignumber.equal(0);
+    ownerFinalBalance.sub(ownerStartBalance).should.be.bignumber.equal(10);
   });
 
   it('should allow only owner to reclaim tokens', async function () {
