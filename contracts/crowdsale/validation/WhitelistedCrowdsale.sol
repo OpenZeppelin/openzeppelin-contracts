@@ -18,8 +18,8 @@ contract WhitelistedCrowdsale is Whitelist, Crowdsale {
     address _beneficiary,
     uint256 _weiAmount
   )
-    onlyIfWhitelisted(_beneficiary)
     internal
+    onlyIfWhitelisted(_beneficiary)
   {
     super._preValidatePurchase(_beneficiary, _weiAmount);
   }

@@ -1,6 +1,6 @@
 const { expectThrow } = require('../../helpers/expectThrow');
 
-function shouldBehaveLikeCappedToken ([owner, anotherAccount, minter, cap]) {
+function shouldBehaveLikeCappedToken (minter, [anyone], cap) {
   describe('capped token', function () {
     const from = minter;
 
@@ -11,18 +11,18 @@ function shouldBehaveLikeCappedToken ([owner, anotherAccount, minter, cap]) {
     });
 
     it('should mint when amount is less than cap', async function () {
-      const result = await this.token.mint(owner, cap.sub(1), { from });
+      const result = await this.token.mint(anyone, cap.sub(1), { from });
       assert.equal(result.logs[0].event, 'Mint');
     });
 
     it('should fail to mint if the ammount exceeds the cap', async function () {
-      await this.token.mint(owner, cap.sub(1), { from });
-      await expectThrow(this.token.mint(owner, 100, { from }));
+      await this.token.mint(anyone, cap.sub(1), { from });
+      await expectThrow(this.token.mint(anyone, 100, { from }));
     });
 
     it('should fail to mint after cap is reached', async function () {
-      await this.token.mint(owner, cap, { from });
-      await expectThrow(this.token.mint(owner, 1, { from }));
+      await this.token.mint(anyone, cap, { from });
+      await expectThrow(this.token.mint(anyone, 1, { from }));
     });
   });
 }

@@ -4,5 +4,5 @@ import "../lifecycle/Destructible.sol";
 
 
 contract DestructibleMock is Destructible {
-  function() payable public {}
+  function() public payable {}
 }

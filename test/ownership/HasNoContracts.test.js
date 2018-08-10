@@ -3,30 +3,27 @@ const { expectThrow } = require('../helpers/expectThrow');
 const Ownable = artifacts.require('Ownable');
 const HasNoContracts = artifacts.require('HasNoContracts');
 
-contract('HasNoContracts', function (accounts) {
+contract('HasNoContracts', function ([_, owner, anyone]) {
   let hasNoContracts = null;
   let ownable = null;
 
   beforeEach(async () => {
     // Create contract and token
-    hasNoContracts = await HasNoContracts.new();
-    ownable = await Ownable.new();
+    hasNoContracts = await HasNoContracts.new({ from: owner });
+    ownable = await Ownable.new({ from: owner });
 
     // Force ownership into contract
-    await ownable.transferOwnership(hasNoContracts.address);
-    const owner = await ownable.owner();
-    assert.equal(owner, hasNoContracts.address);
+    await ownable.transferOwnership(hasNoContracts.address, { from: owner });
   });
 
   it('should allow owner to reclaim contracts', async function () {
-    await hasNoContracts.reclaimContract(ownable.address);
-    const owner = await ownable.owner();
-    assert.equal(owner, accounts[0]);
+    await hasNoContracts.reclaimContract(ownable.address, { from: owner });
+    assert.equal((await ownable.owner()), owner);
   });
 
   it('should allow only owner to reclaim contracts', async function () {
     await expectThrow(
-      hasNoContracts.reclaimContract(ownable.address, { from: accounts[1] }),
+      hasNoContracts.reclaimContract(ownable.address, { from: anyone })
     );
   });
 });

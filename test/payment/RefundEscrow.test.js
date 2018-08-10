@@ -11,7 +11,7 @@ require('chai')
 
 const RefundEscrow = artifacts.require('RefundEscrow');
 
-contract('RefundEscrow', function ([owner, beneficiary, refundee1, refundee2]) {
+contract('RefundEscrow', function ([_, owner, beneficiary, refundee1, refundee2]) {
   const amount = web3.toWei(54.0, 'ether');
   const refundees = [refundee1, refundee2];
 
@@ -43,7 +43,7 @@ contract('RefundEscrow', function ([owner, beneficiary, refundee1, refundee2]) {
 
     const receipt = await this.escrow.close({ from: owner });
 
-    await expectEvent.inLogs(receipt.logs, 'Closed');
+    expectEvent.inLogs(receipt.logs, 'Closed');
   });
 
   context('closed state', function () {
@@ -75,7 +75,7 @@ contract('RefundEscrow', function ([owner, beneficiary, refundee1, refundee2]) {
 
     const receipt = await this.escrow.enableRefunds({ from: owner });
 
-    await expectEvent.inLogs(receipt.logs, 'RefundsEnabled');
+    expectEvent.inLogs(receipt.logs, 'RefundsEnabled');
   });
 
   context('refund state', function () {
@@ -92,7 +92,7 @@ contract('RefundEscrow', function ([owner, beneficiary, refundee1, refundee2]) {
     it('refunds refundees', async function () {
       for (const refundee of [refundee1, refundee2]) {
         const refundeeInitialBalance = await ethGetBalance(refundee);
-        await this.escrow.withdraw(refundee);
+        await this.escrow.withdraw(refundee, { from: owner });
         const refundeeFinalBalance = await ethGetBalance(refundee);
 
         refundeeFinalBalance.sub(refundeeInitialBalance).should.be.bignumber.equal(amount);

@@ -3,7 +3,7 @@
   "version": "1.11.0",
   "description": "Secure Smart Contract library for Solidity",
   "authors": [
-    "Manuel Araoz <manuelaraoz@gmail.com>"
+    "OpenZeppelin Community <maintainers@openzeppelin.org>"
   ],
   "keywords": [
     "solidity",

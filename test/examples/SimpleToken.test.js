@@ -1,9 +1,8 @@
 const { decodeLogs } = require('../helpers/decodeLogs');
 const SimpleToken = artifacts.require('SimpleToken');
 
-contract('SimpleToken', accounts => {
+contract('SimpleToken', function ([_, creator]) {
   let token;
-  const creator = accounts[0];
 
   beforeEach(async function () {
     token = await SimpleToken.new({ from: creator });

@@ -3,7 +3,7 @@ const { sha3, bufferToHex } = require('ethereumjs-util');
 
 const MerkleProofWrapper = artifacts.require('MerkleProofWrapper');
 
-contract('MerkleProof', function (accounts) {
+contract('MerkleProof', function () {
   let merkleProof;
 
   beforeEach(async function () {

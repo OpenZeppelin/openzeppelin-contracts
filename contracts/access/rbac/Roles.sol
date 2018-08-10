@@ -13,43 +13,43 @@ library Roles {
   }
 
   /**
-   * @dev give an address access to this role
+   * @dev give an account access to this role
    */
-  function add(Role storage role, address addr)
+  function add(Role storage _role, address _account)
     internal
   {
-    role.bearer[addr] = true;
+    _role.bearer[_account] = true;
   }
 
   /**
-   * @dev remove an address' access to this role
+   * @dev remove an account's access to this role
    */
-  function remove(Role storage role, address addr)
+  function remove(Role storage _role, address _account)
     internal
   {
-    role.bearer[addr] = false;
+    _role.bearer[_account] = false;
   }
 
   /**
-   * @dev check if an address has this role
+   * @dev check if an account has this role
    * // reverts
    */
-  function check(Role storage role, address addr)
-    view
+  function check(Role storage _role, address _account)
     internal
+    view
   {
-    require(has(role, addr));
+    require(has(_role, _account));
   }
 
   /**
-   * @dev check if an address has this role
+   * @dev check if an account has this role
    * @return bool
    */
-  function has(Role storage role, address addr)
-    view
+  function has(Role storage _role, address _account)
     internal
+    view
     returns (bool)
   {
-    return role.bearer[addr];
+    return _role.bearer[_account];
   }
 }

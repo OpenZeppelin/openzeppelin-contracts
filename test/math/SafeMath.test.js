@@ -7,7 +7,7 @@ require('chai')
   .should();
 
 contract('SafeMath', () => {
-  const MAX_UINT = new BigNumber('115792089237316195423570985008687907853269984665640564039457584007913129639935');
+  const MAX_UINT = new BigNumber(2).pow(256).minus(1);
 
   beforeEach(async function () {
     this.safeMath = await SafeMathMock.new();
