@@ -37,7 +37,7 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
       await ethSendTransaction({ from: owner, to: this.contract.address, value: amount });
 
       const balance = await ethGetBalance(this.contract.address);
-      balance.should.be.bignumber.eq(amount);
+      balance.should.be.bignumber.equal(amount);
     });
 
     it('should store shares if address is payee', async function () {
@@ -47,7 +47,7 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
 
     it('should not store shares if address is not payee', async function () {
       const shares = await this.contract.shares.call(nonpayee1);
-      shares.should.be.bignumber.eq(0);
+      shares.should.be.bignumber.equal(0);
     });
 
     it('should throw if no funds to claim', async function () {
@@ -64,7 +64,7 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
 
       // receive funds
       const initBalance = await ethGetBalance(this.contract.address);
-      initBalance.should.be.bignumber.eq(amount);
+      initBalance.should.be.bignumber.equal(amount);
 
       // distribute to payees
       const initAmount1 = await ethGetBalance(payee1);
@@ -84,11 +84,11 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
 
       // end balance should be zero
       const endBalance = await ethGetBalance(this.contract.address);
-      endBalance.should.be.bignumber.eq(0);
+      endBalance.should.be.bignumber.equal(0);
 
       // check correct funds released accounting
       const totalReleased = await this.contract.totalReleased.call();
-      totalReleased.should.be.bignumber.eq(initBalance);
+      totalReleased.should.be.bignumber.equal(initBalance);
     });
   });
 });

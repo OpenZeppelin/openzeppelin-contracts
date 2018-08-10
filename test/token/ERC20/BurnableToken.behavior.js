@@ -57,25 +57,25 @@ function shouldBehaveLikeBurnableToken (owner, initialBalance, [burner]) {
 
       it('burns the requested amount', async function () {
         const balance = await this.token.balanceOf(owner);
-        balance.should.be.bignumber.eq(initialBalance - amount);
+        balance.should.be.bignumber.equal(initialBalance - amount);
       });
 
       it('decrements allowance', async function () {
         const allowance = await this.token.allowance(owner, burner);
-        allowance.should.be.bignumber.eq(200);
+        allowance.should.be.bignumber.equal(200);
       });
 
       it('emits a burn event', async function () {
         const event = expectEvent.inLogs(this.logs, 'Burn');
         event.args.burner.should.eq(owner);
-        event.args.value.should.be.bignumber.eq(amount);
+        event.args.value.should.be.bignumber.equal(amount);
       });
 
       it('emits a transfer event', async function () {
         const event = expectEvent.inLogs(this.logs, 'Transfer');
         event.args.from.should.eq(owner);
         event.args.to.should.eq(ZERO_ADDRESS);
-        event.args.value.should.be.bignumber.eq(amount);
+        event.args.value.should.be.bignumber.equal(amount);
       });
     });
 

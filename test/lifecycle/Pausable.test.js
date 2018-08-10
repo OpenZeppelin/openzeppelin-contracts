@@ -14,21 +14,21 @@ contract('Pausable', function () {
 
   it('can perform normal process in non-pause', async function () {
     const count0 = await this.Pausable.count();
-    count0.should.be.bignumber.eq(0);
+    count0.should.be.bignumber.equal(0);
 
     await this.Pausable.normalProcess();
     const count1 = await this.Pausable.count();
-    count1.should.be.bignumber.eq(1);
+    count1.should.be.bignumber.equal(1);
   });
 
   it('can not perform normal process in pause', async function () {
     await this.Pausable.pause();
     const count0 = await this.Pausable.count();
-    count0.should.be.bignumber.eq(0);
+    count0.should.be.bignumber.equal(0);
 
     await assertRevert(this.Pausable.normalProcess());
     const count1 = await this.Pausable.count();
-    count1.should.be.bignumber.eq(0);
+    count1.should.be.bignumber.equal(0);
   });
 
   it('can not take drastic measure in non-pause', async function () {
@@ -52,7 +52,7 @@ contract('Pausable', function () {
     await this.Pausable.normalProcess();
     const count0 = await this.Pausable.count();
 
-    count0.should.be.bignumber.eq(1);
+    count0.should.be.bignumber.equal(1);
   });
 
   it('should prevent drastic measure after pause is over', async function () {

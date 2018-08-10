@@ -17,24 +17,24 @@ contract('Math', function () {
   describe('max', function () {
     it('is correctly detected in first argument position', async function () {
       const result = await this.math.max(max, min);
-      result.should.be.bignumber.eq(max);
+      result.should.be.bignumber.equal(max);
     });
 
     it('is correctly detected in second argument position', async function () {
       const result = await this.math.max(min, max);
-      result.should.be.bignumber.eq(max);
+      result.should.be.bignumber.equal(max);
     });
   });
 
   describe('min', function () {
     it('is correctly detected in first argument position', async function () {
       const result = await this.math.min(min, max);
-      result.should.be.bignumber.eq(min);
+      result.should.be.bignumber.equal(min);
     });
 
     it('is correctly detected in second argument position', async function () {
       const result = await this.math.min(max, min);
-      result.should.be.bignumber.eq(min);
+      result.should.be.bignumber.equal(min);
     });
   });
 });

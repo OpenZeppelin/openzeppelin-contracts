@@ -111,10 +111,10 @@ contract('Heritable', function ([_, owner, heir, anyone]) {
   });
 
   it('timeOfDeath can be queried', async function () {
-    (await heritable.timeOfDeath()).should.be.bignumber.eq(0);
+    (await heritable.timeOfDeath()).should.be.bignumber.equal(0);
   });
 
   it('heartbeatTimeout can be queried', async function () {
-    (await heritable.heartbeatTimeout()).should.be.bignumber.eq(heartbeatTimeout);
+    (await heritable.heartbeatTimeout()).should.be.bignumber.equal(heartbeatTimeout);
   });
 });

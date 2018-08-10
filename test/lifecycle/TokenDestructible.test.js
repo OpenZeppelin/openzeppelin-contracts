@@ -31,13 +31,13 @@ contract('TokenDestructible', function ([_, owner]) {
     const token = await StandardTokenMock.new(tokenDestructible.address, 100);
     const initContractBalance = await token.balanceOf(tokenDestructible.address);
     const initOwnerBalance = await token.balanceOf(owner);
-    initContractBalance.should.be.bignumber.eq(100);
-    initOwnerBalance.should.be.bignumber.eq(0);
+    initContractBalance.should.be.bignumber.equal(100);
+    initOwnerBalance.should.be.bignumber.equal(0);
 
     await tokenDestructible.destroy([token.address], { from: owner });
     const newContractBalance = await token.balanceOf(tokenDestructible.address);
     const newOwnerBalance = await token.balanceOf(owner);
-    newContractBalance.should.be.bignumber.eq(0);
-    newOwnerBalance.should.be.bignumber.eq(100);
+    newContractBalance.should.be.bignumber.equal(0);
+    newOwnerBalance.should.be.bignumber.equal(100);
   });
 });

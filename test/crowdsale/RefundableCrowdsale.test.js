@@ -70,7 +70,7 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
     const pre = await ethGetBalance(investor);
     await this.crowdsale.claimRefund({ from: investor, gasPrice: 0 });
     const post = await ethGetBalance(investor);
-    post.minus(pre).should.be.bignumber.eq(lessThanGoal);
+    post.minus(pre).should.be.bignumber.equal(lessThanGoal);
   });
 
   it('should forward funds to wallet after end if goal was reached', async function () {
@@ -80,6 +80,6 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
     const pre = await ethGetBalance(wallet);
     await this.crowdsale.finalize({ from: owner });
     const post = await ethGetBalance(wallet);
-    post.minus(pre).should.be.bignumber.eq(goal);
+    post.minus(pre).should.be.bignumber.equal(goal);
   });
 });

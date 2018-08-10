@@ -24,7 +24,7 @@ contract('RefundEscrow', function ([_, owner, beneficiary, refundee1, refundee2]
       await this.escrow.deposit(refundee1, { from: owner, value: amount });
 
       const deposit = await this.escrow.depositsOf(refundee1);
-      deposit.should.be.bignumber.eq(amount);
+      deposit.should.be.bignumber.equal(amount);
     });
 
     it('does not refund refundees', async function () {
@@ -66,7 +66,7 @@ contract('RefundEscrow', function ([_, owner, beneficiary, refundee1, refundee2]
       await this.escrow.beneficiaryWithdraw();
       const beneficiaryFinalBalance = await ethGetBalance(beneficiary);
 
-      beneficiaryFinalBalance.sub(beneficiaryInitialBalance).should.be.bignumber.eq(amount * refundees.length);
+      beneficiaryFinalBalance.sub(beneficiaryInitialBalance).should.be.bignumber.equal(amount * refundees.length);
     });
   });
 
@@ -95,7 +95,7 @@ contract('RefundEscrow', function ([_, owner, beneficiary, refundee1, refundee2]
         await this.escrow.withdraw(refundee, { from: owner });
         const refundeeFinalBalance = await ethGetBalance(refundee);
 
-        refundeeFinalBalance.sub(refundeeInitialBalance).should.be.bignumber.eq(amount);
+        refundeeFinalBalance.sub(refundeeInitialBalance).should.be.bignumber.equal(amount);
       }
     });
 

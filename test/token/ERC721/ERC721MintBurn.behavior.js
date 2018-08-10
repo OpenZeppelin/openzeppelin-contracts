@@ -31,20 +31,20 @@ function shouldBehaveLikeMintAndBurnERC721Token (accounts) {
 
         it('assigns the token to the new owner', async function () {
           const owner = await this.token.ownerOf(tokenId);
-          owner.should.be.eq(to);
+          owner.should.be.equal(to);
         });
 
         it('increases the balance of its owner', async function () {
           const balance = await this.token.balanceOf(to);
-          balance.should.be.bignumber.eq(1);
+          balance.should.be.bignumber.equal(1);
         });
 
         it('emits a transfer event', async function () {
-          logs.length.should.be.eq(1);
-          logs[0].event.should.be.eq('Transfer');
-          logs[0].args._from.should.be.eq(ZERO_ADDRESS);
-          logs[0].args._to.should.be.eq(to);
-          logs[0].args._tokenId.should.be.bignumber.eq(tokenId);
+          logs.length.should.be.equal(1);
+          logs[0].event.should.be.equal('Transfer');
+          logs[0].args._from.should.be.equal(ZERO_ADDRESS);
+          logs[0].args._to.should.be.equal(to);
+          logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
         });
       });
 
@@ -75,15 +75,15 @@ function shouldBehaveLikeMintAndBurnERC721Token (accounts) {
         it('burns the given token ID and adjusts the balance of the owner', async function () {
           await assertRevert(this.token.ownerOf(tokenId));
           const balance = await this.token.balanceOf(sender);
-          balance.should.be.bignumber.eq(1);
+          balance.should.be.bignumber.equal(1);
         });
 
         it('emits a burn event', async function () {
-          logs.length.should.be.eq(1);
-          logs[0].event.should.be.eq('Transfer');
-          logs[0].args._from.should.be.eq(sender);
-          logs[0].args._to.should.be.eq(ZERO_ADDRESS);
-          logs[0].args._tokenId.should.be.bignumber.eq(tokenId);
+          logs.length.should.be.equal(1);
+          logs[0].event.should.be.equal('Transfer');
+          logs[0].args._from.should.be.equal(sender);
+          logs[0].args._to.should.be.equal(ZERO_ADDRESS);
+          logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
         });
       });
 
@@ -96,7 +96,7 @@ function shouldBehaveLikeMintAndBurnERC721Token (accounts) {
 
         it('clears the approval', async function () {
           const approvedAccount = await this.token.getApproved(tokenId);
-          approvedAccount.should.be.eq(ZERO_ADDRESS);
+          approvedAccount.should.be.equal(ZERO_ADDRESS);
         });
       });
 

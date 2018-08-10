@@ -28,14 +28,14 @@ contract('SimpleToken', function ([_, creator]) {
 
   it('has 18 decimals', async function () {
     const decimals = await token.decimals();
-    decimals.should.be.bignumber.eq(18);
+    decimals.should.be.bignumber.equal(18);
   });
 
   it('assigns the initial total supply to the creator', async function () {
     const totalSupply = await token.totalSupply();
     const creatorBalance = await token.balanceOf(creator);
 
-    creatorBalance.should.be.bignumber.eq(totalSupply);
+    creatorBalance.should.be.bignumber.equal(totalSupply);
 
     const receipt = await web3.eth.getTransactionReceipt(token.transactionHash);
     const logs = decodeLogs(receipt.logs, SimpleToken, token.address);
@@ -43,6 +43,6 @@ contract('SimpleToken', function ([_, creator]) {
     logs[0].event.should.equal('Transfer');
     logs[0].args.from.valueOf().should.equal(ZERO_ADDRESS);
     logs[0].args.to.valueOf().should.equal(creator);
-    logs[0].args.value.should.be.bignumber.eq(totalSupply);
+    logs[0].args.value.should.be.bignumber.equal(totalSupply);
   });
 });

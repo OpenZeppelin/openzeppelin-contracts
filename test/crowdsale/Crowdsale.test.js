@@ -36,21 +36,21 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
       should.exist(event);
       event.args.purchaser.should.eq(investor);
       event.args.beneficiary.should.eq(investor);
-      event.args.value.should.be.bignumber.eq(value);
-      event.args.amount.should.be.bignumber.eq(expectedTokenAmount);
+      event.args.value.should.be.bignumber.equal(value);
+      event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
     });
 
     it('should assign tokens to sender', async function () {
       await this.crowdsale.sendTransaction({ value: value, from: investor });
       const balance = await this.token.balanceOf(investor);
-      balance.should.be.bignumber.eq(expectedTokenAmount);
+      balance.should.be.bignumber.equal(expectedTokenAmount);
     });
 
     it('should forward funds to wallet', async function () {
       const pre = await ethGetBalance(wallet);
       await this.crowdsale.sendTransaction({ value, from: investor });
       const post = await ethGetBalance(wallet);
-      post.minus(pre).should.be.bignumber.eq(value);
+      post.minus(pre).should.be.bignumber.equal(value);
     });
   });
 
@@ -61,21 +61,21 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
       should.exist(event);
       event.args.purchaser.should.eq(purchaser);
       event.args.beneficiary.should.eq(investor);
-      event.args.value.should.be.bignumber.eq(value);
-      event.args.amount.should.be.bignumber.eq(expectedTokenAmount);
+      event.args.value.should.be.bignumber.equal(value);
+      event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
     });
 
     it('should assign tokens to beneficiary', async function () {
       await this.crowdsale.buyTokens(investor, { value, from: purchaser });
       const balance = await this.token.balanceOf(investor);
-      balance.should.be.bignumber.eq(expectedTokenAmount);
+      balance.should.be.bignumber.equal(expectedTokenAmount);
     });
 
     it('should forward funds to wallet', async function () {
       const pre = await ethGetBalance(wallet);
       await this.crowdsale.buyTokens(investor, { value, from: purchaser });
       const post = await ethGetBalance(wallet);
-      post.minus(pre).should.be.bignumber.eq(value);
+      post.minus(pre).should.be.bignumber.equal(value);
     });
   });
 });

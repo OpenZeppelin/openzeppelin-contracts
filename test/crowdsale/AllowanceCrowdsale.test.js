@@ -41,21 +41,21 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
       should.exist(event);
       event.args.purchaser.should.eq(investor);
       event.args.beneficiary.should.eq(investor);
-      event.args.value.should.be.bignumber.eq(value);
-      event.args.amount.should.be.bignumber.eq(expectedTokenAmount);
+      event.args.value.should.be.bignumber.equal(value);
+      event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
     });
 
     it('should assign tokens to sender', async function () {
       await this.crowdsale.sendTransaction({ value: value, from: investor });
       const balance = await this.token.balanceOf(investor);
-      balance.should.be.bignumber.eq(expectedTokenAmount);
+      balance.should.be.bignumber.equal(expectedTokenAmount);
     });
 
     it('should forward funds to wallet', async function () {
       const pre = await ethGetBalance(wallet);
       await this.crowdsale.sendTransaction({ value, from: investor });
       const post = await ethGetBalance(wallet);
-      post.minus(pre).should.be.bignumber.eq(value);
+      post.minus(pre).should.be.bignumber.equal(value);
     });
   });
 
@@ -64,7 +64,7 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
       const remainingAllowance = tokenAllowance - expectedTokenAmount;
       await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
       const tokensRemaining = await this.crowdsale.remainingTokens();
-      tokensRemaining.should.be.bignumber.eq(remainingAllowance);
+      tokensRemaining.should.be.bignumber.equal(remainingAllowance);
     });
   });
 

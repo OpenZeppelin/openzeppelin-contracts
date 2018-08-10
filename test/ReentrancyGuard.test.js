@@ -14,7 +14,7 @@ contract('ReentrancyGuard', function () {
   beforeEach(async function () {
     reentrancyMock = await ReentrancyMock.new();
     const initialCounter = await reentrancyMock.counter();
-    initialCounter.should.be.bignumber.eq(0);
+    initialCounter.should.be.bignumber.equal(0);
   });
 
   it('should not allow remote callback', async function () {

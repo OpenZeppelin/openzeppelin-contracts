@@ -50,7 +50,7 @@ function shouldBehaveLikeMintableToken (owner, minter, [anyone]) {
           it('emits a mint finished event', async function () {
             const { logs } = await this.token.finishMinting({ from });
 
-            logs.length.should.be.eq(1);
+            logs.length.should.be.equal(1);
             logs[0].event.should.eq('MintFinished');
           });
         });
@@ -98,7 +98,7 @@ function shouldBehaveLikeMintableToken (owner, minter, [anyone]) {
             await this.token.mint(owner, amount, { from });
 
             const balance = await this.token.balanceOf(owner);
-            balance.should.be.bignumber.eq(amount);
+            balance.should.be.bignumber.equal(amount);
           });
 
           it('emits a mint and a transfer event', async function () {
@@ -107,7 +107,7 @@ function shouldBehaveLikeMintableToken (owner, minter, [anyone]) {
             logs.length.should.eq(2);
             logs[0].event.should.eq('Mint');
             logs[0].args.to.should.eq(owner);
-            logs[0].args.amount.should.be.bignumber.eq(amount);
+            logs[0].args.amount.should.be.bignumber.equal(amount);
             logs[1].event.should.eq('Transfer');
           });
         });

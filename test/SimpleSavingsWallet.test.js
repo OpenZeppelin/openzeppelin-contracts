@@ -21,7 +21,7 @@ contract('SimpleSavingsWallet', function ([_, owner, anyone]) {
   it('should receive funds', async function () {
     await ethSendTransaction({ from: owner, to: savingsWallet.address, value: paymentAmount });
     const balance = await ethGetBalance(savingsWallet.address);
-    balance.should.be.bignumber.eq(paymentAmount);
+    balance.should.be.bignumber.equal(paymentAmount);
   });
 
   it('owner can send funds', async function () {
@@ -35,6 +35,6 @@ contract('SimpleSavingsWallet', function ([_, owner, anyone]) {
     const balance = await ethGetBalance(anyone);
     await savingsWallet.sendTo(anyone, paymentAmount, { from: owner });
     const updatedBalance = await ethGetBalance(anyone);
-    balance.plus(paymentAmount).should.be.bignumber.eq(updatedBalance);
+    balance.plus(paymentAmount).should.be.bignumber.equal(updatedBalance);
   });
 });

@@ -20,8 +20,8 @@ function shouldBehaveLikeEscrow (owner, [payee1, payee2]) {
         const balance = await ethGetBalance(this.escrow.address);
         const deposit = await this.escrow.depositsOf(payee1);
 
-        balance.should.be.bignumber.eq(amount);
-        deposit.should.be.bignumber.eq(amount);
+        balance.should.be.bignumber.equal(amount);
+        deposit.should.be.bignumber.equal(amount);
       });
 
       it('can accept an empty deposit', async function () {
@@ -36,7 +36,7 @@ function shouldBehaveLikeEscrow (owner, [payee1, payee2]) {
         const receipt = await this.escrow.deposit(payee1, { from: owner, value: amount });
 
         const event = expectEvent.inLogs(receipt.logs, 'Deposited', { payee: payee1 });
-        event.args.weiAmount.should.be.bignumber.eq(amount);
+        event.args.weiAmount.should.be.bignumber.equal(amount);
       });
 
       it('can add multiple deposits on a single account', async function () {
@@ -46,8 +46,8 @@ function shouldBehaveLikeEscrow (owner, [payee1, payee2]) {
         const balance = await ethGetBalance(this.escrow.address);
         const deposit = await this.escrow.depositsOf(payee1);
 
-        balance.should.be.bignumber.eq(amount * 3);
-        deposit.should.be.bignumber.eq(amount * 3);
+        balance.should.be.bignumber.equal(amount * 3);
+        deposit.should.be.bignumber.equal(amount * 3);
       });
 
       it('can track deposits to multiple accounts', async function () {
@@ -58,9 +58,9 @@ function shouldBehaveLikeEscrow (owner, [payee1, payee2]) {
         const depositPayee1 = await this.escrow.depositsOf(payee1);
         const depositPayee2 = await this.escrow.depositsOf(payee2);
 
-        balance.should.be.bignumber.eq(amount * 3);
-        depositPayee1.should.be.bignumber.eq(amount);
-        depositPayee2.should.be.bignumber.eq(amount * 2);
+        balance.should.be.bignumber.equal(amount * 3);
+        depositPayee1.should.be.bignumber.equal(amount);
+        depositPayee2.should.be.bignumber.equal(amount * 2);
       });
     });
 
@@ -75,9 +75,9 @@ function shouldBehaveLikeEscrow (owner, [payee1, payee2]) {
         const finalDeposit = await this.escrow.depositsOf(payee1);
         const payeeFinalBalance = await ethGetBalance(payee1);
 
-        escrowBalance.should.be.bignumber.eq(0);
-        finalDeposit.should.be.bignumber.eq(0);
-        payeeFinalBalance.sub(payeeInitialBalance).should.be.bignumber.eq(amount);
+        escrowBalance.should.be.bignumber.equal(0);
+        finalDeposit.should.be.bignumber.equal(0);
+        payeeFinalBalance.sub(payeeInitialBalance).should.be.bignumber.equal(amount);
       });
 
       it('can do an empty withdrawal', async function () {
@@ -93,7 +93,7 @@ function shouldBehaveLikeEscrow (owner, [payee1, payee2]) {
         const receipt = await this.escrow.withdraw(payee1, { from: owner });
 
         const event = expectEvent.inLogs(receipt.logs, 'Withdrawn', { payee: payee1 });
-        event.args.weiAmount.should.be.bignumber.eq(amount);
+        event.args.weiAmount.should.be.bignumber.equal(amount);
       });
     });
   });
