@@ -9,7 +9,6 @@ import "../../lifecycle/Pausable.sol";
  * @dev ERC721BasicToken modified with pausable transfers.
  **/
 contract ERC721PausableToken is ERC721BasicToken, Pausable {
-
   function approve(
     address _to,
     uint256 _tokenId
