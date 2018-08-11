@@ -6,7 +6,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('CapStagedCrowdsale', function ([_, creator, wallet, investor]) {
+contract('CapStagedCrowdsale', function ([_, owner, wallet, investor]) {
   const _rate = new BigNumber(1000);
   const _value = web3.toWei('10', 'ether');//  10ether
   const stage1Limit = web3.toWei('10', 'ether');//  10ether
@@ -19,9 +19,9 @@ contract('CapStagedCrowdsale', function ([_, creator, wallet, investor]) {
   const stRates = [stage1Rate, stage2Rate, stage3Rate];
   const tokenSupply = new BigNumber(1e+22);
   beforeEach(async function () {
-    this._token = await SimpleToken.new();
-    this._csale = await CapStagedCrowdsale.new(_rate, wallet, this._token.address, stLimits, stRates);
-    await this._token.transfer(this._csale.address, tokenSupply);
+    this._token = await SimpleToken.new({from: owner});
+    this._csale = await CapStagedCrowdsale.new(_rate, wallet, this._token.address, stLimits, stRates, {from: owner});
+    await this._token.transfer(this._csale.address, tokenSupply, {from: owner});
 
   });
 
