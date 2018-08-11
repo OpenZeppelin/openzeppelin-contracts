@@ -19,12 +19,10 @@ contract('CapStagedCrowdsale', function ([_, owner, wallet, investor]) {
   const stRates = [stage1Rate, stage2Rate, stage3Rate];
   const tokenSupply = new BigNumber(160000000000000000000);
   beforeEach(async function () {
-    this._token = await SimpleToken.new({from: owner});
-    this._csale = await CapStagedCrowdsale.new(_rate, wallet, this._token.address, stLimits, stRates, {from: owner});
-    await this._token.transfer(this._csale.address, tokenSupply, {from: owner});
-
+    this._token = await SimpleToken.new({ from: owner });
+    this._csale = await CapStagedCrowdsale.new(_rate, wallet, this._token.address, stLimits, stRates, { from: owner });
+    await this._token.transfer(this._csale.address, tokenSupply, { from: owner });
   });
-
   describe('should accept payments in stage 1 (rate 40)', function () {
     it('should accept payments in stage 1 (rate 40)', async function () {
       await this._csale.buyTokens(investor, { from: investor, value: _value }).should.be.fulfilled;
@@ -32,7 +30,6 @@ contract('CapStagedCrowdsale', function ([_, owner, wallet, investor]) {
       assert(rt.should.be.bignumber.eq(40));
       const wi = await this._csale.weiRaised();
       assert(wi.should.be.bignumber.eq(1000000000000000000));
-      console.log(wi);
     });
   });
   describe('should accept payments in stage 2 (rate 30)', function () {
@@ -42,7 +39,6 @@ contract('CapStagedCrowdsale', function ([_, owner, wallet, investor]) {
       assert(rt.should.be.bignumber.eq(30));
       const wi = await this._csale.weiRaised();
       assert(wi.should.be.bignumber.eq(2000000000000000000));
-      console.log(wi);
     });
   });
   describe('should accept payments in stage 3 (rate 20)', function () {
@@ -52,7 +48,6 @@ contract('CapStagedCrowdsale', function ([_, owner, wallet, investor]) {
       assert(rt.should.be.bignumber.eq(20));
       const wi = await this._csale.weiRaised();
       assert(wi.should.be.bignumber.eq(3000000000000000000));
-      console.log(wi);
     });
   });
   describe('should reject payments in stage 3 (rate 20)', function () {
@@ -60,7 +55,6 @@ contract('CapStagedCrowdsale', function ([_, owner, wallet, investor]) {
       await this._csale.buyTokens(investor, { from: investor, value: _value * 3 }).should.be.fulfilled;
       const rt = await this._csale.getRate();
       const wi = await this._csale.weiRaised();
-      console.log(wi + " " +  rt); 
       assert(rt.should.be.bignumber.eq(20));
       assert(wi.should.be.bignumber.eq(3000000000000000000));
       await this._csale.buyTokens(investor, { from: investor, value: _value * 1 }).should.be.rejected;
