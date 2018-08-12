@@ -65,7 +65,7 @@ contract CapStagedCrowdsale is Crowdsale {
   /**
     * @dev Overrides parent method taking into account variable rate.
     * @param _weiAmount The value in wei to be converted into tokens
-    * @return The number of tokens _weiAmount wei will buy at present time
+    * @return The number of tokens _weiAmount wei will buy at current stage
     */
   function _getTokenAmount(uint256 _weiAmount) internal view returns(uint256) {
     require((weiRaised + _weiAmount) <= stages[stages.length-1].limit);
