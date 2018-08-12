@@ -62,16 +62,6 @@ contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
   }
 
   /**
-   * @dev Returns whether the specified token exists
-   * @param _tokenId uint256 ID of the token to query the existence of
-   * @return whether the token exists
-   */
-  function exists(uint256 _tokenId) public view returns (bool) {
-    address owner = tokenOwner[_tokenId];
-    return owner != address(0);
-  }
-
-  /**
    * @dev Approves another address to transfer the given token ID
    * The zero address indicates there is no approved address.
    * There can only be one approved address per token at a given time.
@@ -198,6 +188,16 @@ contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
     transferFrom(_from, _to, _tokenId);
     // solium-disable-next-line arg-overflow
     require(checkAndCallSafeTransfer(_from, _to, _tokenId, _data));
+  }
+
+  /**
+   * @dev Returns whether the specified token exists
+   * @param _tokenId uint256 ID of the token to query the existence of
+   * @return whether the token exists
+   */
+  function _exists(uint256 _tokenId) internal view returns (bool) {
+    address owner = tokenOwner[_tokenId];
+    return owner != address(0);
   }
 
   /**

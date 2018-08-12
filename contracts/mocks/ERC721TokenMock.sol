@@ -21,10 +21,14 @@ contract ERC721TokenMock is ERC721Token {
     super._burn(ownerOf(_tokenId), _tokenId);
   }
 
+  function exists(uint256 _tokenId) public view returns (bool) {
+    return super._exists(_tokenId);
+  }
+
   function setTokenURI(uint256 _tokenId, string _uri) public {
     super._setTokenURI(_tokenId, _uri);
   }
-  
+
   function _removeTokenFrom(address _from, uint256 _tokenId) public {
     super.removeTokenFrom(_from, _tokenId);
   }
