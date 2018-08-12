@@ -54,9 +54,9 @@ contract CapStagedCrowdsale is Crowdsale {
     */
   function getRate() public view returns(uint256) {
     if (stages.length > 0) {
-      for (uint x = 0; x < stages.length; x++) {
-        if (stages[x].limit >= weiRaised) {
-          return stages[x].rate;
+      for (uint256 i = 0; i < stages.length; i++) {
+        if (stages[i].limit >= weiRaised) {
+          return stages[i].rate;
         }
       }
     }
