@@ -156,18 +156,37 @@ contract StandardToken is ERC20 {
     return true;
   }
 
+  /**
+   * @dev Internal function that mints an amount of the token and assigns it to
+   * an account. This encapsulates the modification of balances such that the
+   * proper events are emitted.
+   * @param _account The account that will receive the created tokens.
+   * @param _amount The amount that will be created.
+   */
   function _mint(address _account, uint256 _amount) internal {
     totalSupply_ = totalSupply_.add(_amount);
     balances[_account] = balances[_account].add(_amount);
     emit Transfer(address(0), _account, _amount);
   }
 
+  /**
+   * @dev Internal function that burns an amount of the token of a given
+   * account.
+   * @param _account The account whose tokens will be burnt.
+   * @param _amount The amount that will be burnt.
+   */
   function _burn(address _account, uint256 _amount) internal {
     totalSupply_ = totalSupply_.sub(_amount);
     balances[_account] = balances[_account].sub(_amount);
     emit Transfer(_account, address(0), _amount);
   }
 
+  /**
+   * @dev Internal function that burns an amount of the token of a given
+   * account, deducting from the allowance of the transaction sender.
+   * @param _account The account whose tokens will be burnt.
+   * @param _amount The amount that will be burnt.
+   */
   function _burnFrom(address _account, uint256 _amount) internal {
     // Should https://github.com/OpenZeppelin/zeppelin-solidity/issues/707 be accepted,
     // this function needs to emit an event with the updated approval.
