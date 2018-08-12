@@ -14,11 +14,11 @@ import "../../math/SafeMath.sol";
 contract StandardToken is ERC20 {
   using SafeMath for uint256;
 
-  mapping(address => uint256) balances;
+  mapping (address => uint256) private balances;
 
-  mapping (address => mapping (address => uint256)) internal allowed;
+  mapping (address => mapping (address => uint256)) private allowed;
 
-  uint256 totalSupply_;
+  uint256 private totalSupply_;
 
   /**
   * @dev Total number of tokens in existence
@@ -156,4 +156,22 @@ contract StandardToken is ERC20 {
     return true;
   }
 
+  function _mint(address _account, uint256 _amount) internal {
+    totalSupply_ = totalSupply_.add(_amount);
+    balances[_account] = balances[_account].add(_amount);
+    emit Transfer(address(0), _account, _amount);
+  }
+
+  function _burn(address _account, uint256 _amount) internal {
+    totalSupply_ = totalSupply_.sub(_amount);
+    balances[_account] = balances[_account].sub(_amount);
+    emit Transfer(_account, address(0), _amount);
+  }
+
+  function _burnFrom(address _account, uint256 _amount) internal {
+    // Should https://github.com/OpenZeppelin/zeppelin-solidity/issues/707 be accepted,
+    // this function needs to emit an event with the updated approval.
+    allowed[_account][msg.sender] = allowed[_account][msg.sender].sub(_amount);
+    _burn(_account, _amount);
+  }
 }
