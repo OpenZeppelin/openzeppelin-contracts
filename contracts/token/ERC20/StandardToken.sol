@@ -8,7 +8,7 @@ import "../../math/SafeMath.sol";
  * @title Standard ERC20 token
  *
  * @dev Implementation of the basic standard token.
- * https://github.com/ethereum/EIPs/issues/20
+ * https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md
  * Based on code by FirstBlood: https://github.com/Firstbloodio/token/blob/master/smart_contract/FirstBloodToken.sol
  */
 contract StandardToken is ERC20 {
