@@ -17,7 +17,7 @@ const sendReward = async (from, to, value) => ethSendTransaction({
 
 const reward = new web3.BigNumber(web3.toWei(1, 'ether'));
 
-contract('Bounty', function ([_, owner, researcher, anyContract]) {
+contract('Bounty', function ([_, owner, researcher, nonTarget]) {
   context('against secure contract', function () {
     beforeEach(async function () {
       this.bounty = await SecureTargetBounty.new({ from: owner });
@@ -84,7 +84,7 @@ contract('Bounty', function ([_, owner, researcher, anyContract]) {
 
     it('cannot claim reward from non-target', async function() {
       await assertRevert(
-        this.bounty.claim(anyContract, { from: researcher })
+        this.bounty.claim(nonTarget, { from: researcher })
       );
     });
 
