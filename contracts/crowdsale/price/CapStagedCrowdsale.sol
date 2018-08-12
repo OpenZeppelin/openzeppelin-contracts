@@ -59,9 +59,7 @@ contract CapStagedCrowdsale is Crowdsale {
           return stages[x].rate;
         }
       }
-    } else {
-      return rate;
-      }
+    }
   }
 
   /**
