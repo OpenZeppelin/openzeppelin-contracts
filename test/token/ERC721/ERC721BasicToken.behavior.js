@@ -221,6 +221,12 @@ function shouldBehaveLikeERC721BasicToken (accounts) {
           });
         });
 
+        context('when the address of the previous owner is null', function () {
+          it('reverts', async function () {
+            await assertRevert(transferFunction.call(this, ZERO_ADDRESS, this.to, tokenId, { from: owner }));
+          });
+        });
+
         context('when the sender is not authorized for the token id', function () {
           it('reverts', async function () {
             await assertRevert(transferFunction.call(this, owner, this.to, tokenId, { from: unauthorized }));
