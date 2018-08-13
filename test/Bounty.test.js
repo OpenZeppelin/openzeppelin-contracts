@@ -82,7 +82,7 @@ contract('Bounty', function ([_, owner, researcher, nonTarget]) {
       researcherCurrBalance.sub(researcherPrevBalance).should.be.bignumber.equal(reward.sub(gasCost));
     });
 
-    it('cannot claim reward from non-target', async function() {
+    it('cannot claim reward from non-target', async function () {
       await assertRevert(
         this.bounty.claim(nonTarget, { from: researcher })
       );
