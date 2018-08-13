@@ -489,4 +489,102 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
       });
     });
   });
+
+  describe('_mint', function () {
+    const initialSupply = new BigNumber(100);
+    const amount = new BigNumber(50);
+
+    beforeEach('minting', async function () {
+      const { logs } = await this.token.mint(recipient, amount);
+      this.logs = logs;
+    });
+
+    it('increments totalSupply', async function () {
+      const expectedSupply = initialSupply.plus(amount);
+      (await this.token.totalSupply()).should.be.bignumber.equal(expectedSupply);
+    });
+
+    it('increments recipient balance', async function () {
+      (await this.token.balanceOf(recipient)).should.be.bignumber.equal(amount);
+    });
+
+    it('emits Transfer event', async function () {
+      const event = expectEvent.inLogs(this.logs, 'Transfer', {
+        from: ZERO_ADDRESS,
+        to: recipient,
+      });
+
+      event.args.value.should.be.bignumber.equal(amount);
+    });
+  });
+
+  describe('_burn', function () {
+    const initialSupply = new BigNumber(100);
+    const amount = new BigNumber(50);
+
+    beforeEach('burning', async function () {
+      const { logs } = await this.token.burn(owner, amount);
+      this.logs = logs;
+    });
+
+    it('decrements totalSupply', async function () {
+      const expectedSupply = initialSupply.minus(amount);
+      (await this.token.totalSupply()).should.be.bignumber.equal(expectedSupply);
+    });
+
+    it('decrements owner balance', async function () {
+      const expectedBalance = initialSupply.minus(amount);
+      (await this.token.balanceOf(owner)).should.be.bignumber.equal(expectedBalance);
+    });
+
+    it('emits Transfer event', async function () {
+      const event = expectEvent.inLogs(this.logs, 'Transfer', {
+        from: owner,
+        to: ZERO_ADDRESS,
+      });
+
+      event.args.value.should.be.bignumber.equal(amount);
+    });
+  });
+
+  describe('_burnFrom', function () {
+    const initialSupply = new BigNumber(100);
+    const allowance = new BigNumber(70);
+    const amount = new BigNumber(50);
+
+    const spender = anotherAccount;
+
+    beforeEach('approving', async function () {
+      await this.token.approve(spender, allowance, { from: owner });
+    });
+
+    beforeEach('burning', async function () {
+      const { logs } = await this.token.burnFrom(owner, amount, { from: spender });
+      this.logs = logs;
+    });
+
+    it('decrements totalSupply', async function () {
+      const expectedSupply = initialSupply.minus(amount);
+      (await this.token.totalSupply()).should.be.bignumber.equal(expectedSupply);
+    });
+
+    it('decrements owner balance', async function () {
+      const expectedBalance = initialSupply.minus(amount);
+      (await this.token.balanceOf(owner)).should.be.bignumber.equal(expectedBalance);
+    });
+
+    it('decrements spender allowance', async function () {
+      const expectedAllowance = allowance.minus(amount);
+      (await this.token.allowance(owner, spender)).should.be.bignumber.equal(expectedAllowance);
+    });
+
+    it('emits Transfer event', async function () {
+      const event = expectEvent.inLogs(this.logs, 'Transfer', {
+        from: owner,
+        to: ZERO_ADDRESS,
+      });
+
+      event.args.value.should.be.bignumber.equal(amount);
+    });
+  });
 });

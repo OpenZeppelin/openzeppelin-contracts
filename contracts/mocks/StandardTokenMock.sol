@@ -10,4 +10,16 @@ contract StandardTokenMock is StandardToken {
     _mint(_initialAccount, _initialBalance);
   }
 
+  function mint(address _account, uint256 _amount) public {
+    _mint(_account, _amount);
+  }
+
+  function burn(address _account, uint256 _amount) public {
+    _burn(_account, _amount);
+  }
+
+  function burnFrom(address _account, uint256 _amount) public {
+    _burnFrom(_account, _amount);
+  }
+
 }
