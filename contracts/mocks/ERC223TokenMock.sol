@@ -1,6 +1,5 @@
 pragma solidity ^0.4.24;
 
-import "./StandardTokenMock.sol";
 import "../token/ERC20/StandardToken.sol";
 
 
@@ -9,12 +8,11 @@ contract ERC223ContractInterface {
 }
 
 
-contract ERC223TokenMock is StandardTokenMock {
+contract ERC223TokenMock is StandardToken {
 
-  constructor(address _initialAccount, uint256 _initialBalance)
-    StandardTokenMock(_initialAccount, _initialBalance)
-    public
-  { }
+  constructor(address _initialAccount, uint256 _initialBalance) public {
+    _mint(_initialAccount, _initialBalance);
+  }
 
   // ERC223 compatible transfer function (except the name)
   function transferERC223(address _to, uint256 _value, bytes _data) public
