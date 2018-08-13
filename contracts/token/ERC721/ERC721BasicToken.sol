@@ -37,7 +37,6 @@ contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
   {
     // register the supported interfaces to conform to ERC721 via ERC165
     _registerInterface(InterfaceId_ERC721);
-    _registerInterface(InterfaceId_ERC721Exists);
   }
 
   /**
