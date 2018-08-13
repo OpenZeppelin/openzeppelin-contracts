@@ -37,7 +37,6 @@ contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
   {
     // register the supported interfaces to conform to ERC721 via ERC165
     _registerInterface(InterfaceId_ERC721);
-    _registerInterface(InterfaceId_ERC721Exists);
   }
 
   /**
@@ -59,16 +58,6 @@ contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
     address owner = tokenOwner[_tokenId];
     require(owner != address(0));
     return owner;
-  }
-
-  /**
-   * @dev Returns whether the specified token exists
-   * @param _tokenId uint256 ID of the token to query the existence of
-   * @return whether the token exists
-   */
-  function exists(uint256 _tokenId) public view returns (bool) {
-    address owner = tokenOwner[_tokenId];
-    return owner != address(0);
   }
 
   /**
@@ -198,6 +187,16 @@ contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
     transferFrom(_from, _to, _tokenId);
     // solium-disable-next-line arg-overflow
     require(checkAndCallSafeTransfer(_from, _to, _tokenId, _data));
+  }
+
+  /**
+   * @dev Returns whether the specified token exists
+   * @param _tokenId uint256 ID of the token to query the existence of
+   * @return whether the token exists
+   */
+  function _exists(uint256 _tokenId) internal view returns (bool) {
+    address owner = tokenOwner[_tokenId];
+    return owner != address(0);
   }
 
   /**
