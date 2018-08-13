@@ -64,4 +64,12 @@ contract('Pausable', function () {
     const drasticMeasureTaken = await this.Pausable.drasticMeasureTaken();
     drasticMeasureTaken.should.be.false;
   });
+
+  it('should log events appropriately', async function () {
+    const setPauseLogs = (await this.Pausable.pause()).logs;
+    setPauseLogs.find(e => e.event === 'Pause');
+
+    const setUnPauseLogs = (await this.Pausable.unpause()).logs;
+    setUnPauseLogs.find(e => e.event === 'UnPause');
+  });
 });
