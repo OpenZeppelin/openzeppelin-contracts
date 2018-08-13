@@ -12,7 +12,7 @@ contract SplitPayment {
   using SafeMath for uint256;
 
   uint256 public totalShares = 0;
-  uint256 public totalReleased = 0;
+  uint256 public totalFundsPerShare = 0;
 
   mapping(address => uint256) public shares;
   mapping(address => uint256) public released;
@@ -33,7 +33,11 @@ contract SplitPayment {
   /**
    * @dev payable fallback
    */
-  function () external payable {}
+  function () external payable {
+    uint256 newFunds = msg.value;
+    uint256 fundsPerShare = newFunds.div(totalShares);
+    totalFundsPerShare = totalFundsPerShare.add(fundsPerShare);
+  }
 
   /**
    * @dev Claim your share of the balance.
@@ -43,18 +47,15 @@ contract SplitPayment {
 
     require(shares[payee] > 0);
 
-    uint256 totalReceived = address(this).balance.add(totalReleased);
-    uint256 payment = totalReceived.mul(
-      shares[payee]).div(
-        totalShares).sub(
-          released[payee]
+    uint256 payment = totalFundsPerShare.mul(
+      shares[payee]).sub(
+        released[payee]
     );
 
     require(payment != 0);
     assert(address(this).balance >= payment);
 
     released[payee] = released[payee].add(payment);
-    totalReleased = totalReleased.add(payment);
 
     payee.transfer(payment);
   }
