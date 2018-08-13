@@ -1,71 +1,63 @@
-var PullPaymentMock = artifacts.require('PullPaymentMock');
+const { ethGetBalance } = require('../helpers/web3');
 
-contract('PullPayment', function (accounts) {
-  let ppce;
-  let amount = 17 * 1e18;
+const BigNumber = web3.BigNumber;
+
+require('chai')
+  .use(require('chai-bignumber')(BigNumber))
+  .should();
+
+const PullPaymentMock = artifacts.require('PullPaymentMock');
+
+contract('PullPayment', function ([_, payer, payee1, payee2]) {
+  const amount = web3.toWei(17.0, 'ether');
 
   beforeEach(async function () {
-    ppce = await PullPaymentMock.new({ value: amount });
+    this.contract = await PullPaymentMock.new({ value: amount });
   });
 
   it('can\'t call asyncSend externally', async function () {
-    assert.isUndefined(ppce.asyncSend);
+    assert.isUndefined(this.contract.asyncSend);
   });
 
   it('can record an async payment correctly', async function () {
-    let AMOUNT = 100;
-    await ppce.callSend(accounts[0], AMOUNT);
-    let paymentsToAccount0 = await ppce.payments(accounts[0]);
-    let totalPayments = await ppce.totalPayments();
+    const AMOUNT = 100;
+    await this.contract.callTransfer(payee1, AMOUNT, { from: payer });
 
-    assert.equal(totalPayments, AMOUNT);
-    assert.equal(paymentsToAccount0, AMOUNT);
+    const paymentsToPayee1 = await this.contract.payments(payee1);
+    paymentsToPayee1.should.be.bignumber.equal(AMOUNT);
   });
 
   it('can add multiple balances on one account', async function () {
-    await ppce.callSend(accounts[0], 200);
-    await ppce.callSend(accounts[0], 300);
-    let paymentsToAccount0 = await ppce.payments(accounts[0]);
-    let totalPayments = await ppce.totalPayments();
-
-    assert.equal(totalPayments, 500);
-    assert.equal(paymentsToAccount0, 500);
+    await this.contract.callTransfer(payee1, 200, { from: payer });
+    await this.contract.callTransfer(payee1, 300, { from: payer });
+    const paymentsToPayee1 = await this.contract.payments(payee1);
+    paymentsToPayee1.should.be.bignumber.equal(500);
   });
 
   it('can add balances on multiple accounts', async function () {
-    await ppce.callSend(accounts[0], 200);
-    await ppce.callSend(accounts[1], 300);
+    await this.contract.callTransfer(payee1, 200, { from: payer });
+    await this.contract.callTransfer(payee2, 300, { from: payer });
 
-    let paymentsToAccount0 = await ppce.payments(accounts[0]);
-    assert.equal(paymentsToAccount0, 200);
+    const paymentsToPayee1 = await this.contract.payments(payee1);
+    paymentsToPayee1.should.be.bignumber.equal(200);
 
-    let paymentsToAccount1 = await ppce.payments(accounts[1]);
-    assert.equal(paymentsToAccount1, 300);
-
-    let totalPayments = await ppce.totalPayments();
-    assert.equal(totalPayments, 500);
+    const paymentsToPayee2 = await this.contract.payments(payee2);
+    paymentsToPayee2.should.be.bignumber.equal(300);
   });
 
   it('can withdraw payment', async function () {
-    let payee = accounts[1];
-    let initialBalance = web3.eth.getBalance(payee);
+    const initialBalance = await ethGetBalance(payee1);
 
-    await ppce.callSend(payee, amount);
+    await this.contract.callTransfer(payee1, amount, { from: payer });
 
-    let payment1 = await ppce.payments(payee);
-    assert.equal(payment1, amount);
+    const payment1 = await this.contract.payments(payee1);
+    payment1.should.be.bignumber.equal(amount);
 
-    let totalPayments = await ppce.totalPayments();
-    assert.equal(totalPayments, amount);
+    await this.contract.withdrawPayments({ from: payee1 });
+    const payment2 = await this.contract.payments(payee1);
+    payment2.should.be.bignumber.equal(0);
 
-    await ppce.withdrawPayments({ from: payee });
-    let payment2 = await ppce.payments(payee);
-    assert.equal(payment2, 0);
-
-    totalPayments = await ppce.totalPayments();
-    assert.equal(totalPayments, 0);
-
-    let balance = web3.eth.getBalance(payee);
-    assert(Math.abs(balance - initialBalance - amount) < 1e16);
+    const balance = await ethGetBalance(payee1);
+    Math.abs(balance - initialBalance - amount).should.be.lt(1e16);
   });
 });

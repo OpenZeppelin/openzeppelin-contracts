@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
 import "../token/ERC721/ERC721Token.sol";
 
@@ -9,7 +9,7 @@ import "../token/ERC721/ERC721Token.sol";
  * and a public setter for metadata URI
  */
 contract ERC721TokenMock is ERC721Token {
-  function ERC721TokenMock(string name, string symbol) public
+  constructor(string name, string symbol) public
     ERC721Token(name, symbol)
   { }
 
@@ -23,5 +23,9 @@ contract ERC721TokenMock is ERC721Token {
 
   function setTokenURI(uint256 _tokenId, string _uri) public {
     super._setTokenURI(_tokenId, _uri);
+  }
+  
+  function _removeTokenFrom(address _from, uint256 _tokenId) public {
+    super.removeTokenFrom(_from, _tokenId);
   }
 }

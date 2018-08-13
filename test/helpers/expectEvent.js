@@ -1,15 +1,19 @@
-const assert = require('chai').assert;
+const should = require('chai').should();
 
-const inLogs = async (logs, eventName) => {
+async function inLogs (logs, eventName, eventArgs = {}) {
   const event = logs.find(e => e.event === eventName);
-  assert.exists(event);
+  should.exist(event);
+  for (const [k, v] of Object.entries(eventArgs)) {
+    should.exist(event.args[k]);
+    event.args[k].should.eq(v);
+  }
   return event;
-};
+}
 
-const inTransaction = async (tx, eventName) => {
+async function inTransaction (tx, eventName, eventArgs = {}) {
   const { logs } = await tx;
-  return inLogs(logs, eventName);
-};
+  return inLogs(logs, eventName, eventArgs);
+}
 
 module.exports = {
   inLogs,
