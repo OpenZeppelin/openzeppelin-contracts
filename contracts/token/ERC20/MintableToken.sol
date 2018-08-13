@@ -41,8 +41,8 @@ contract MintableToken is StandardToken, Ownable {
     canMint
     returns (bool)
   {
-    emit Mint(_to, _amount);
     _mint(_to, _amount);
+    emit Mint(_to, _amount);
     return true;
   }
 

@@ -1,4 +1,5 @@
 const { assertRevert } = require('../../helpers/assertRevert');
+const expectEvent = require('../../helpers/expectEvent');
 
 const BigNumber = web3.BigNumber;
 
@@ -7,6 +8,8 @@ require('chai')
   .should();
 
 function shouldBehaveLikeMintableToken (owner, minter, [anyone]) {
+  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+
   describe('as a basic mintable token', function () {
     describe('after token creation', function () {
       it('sender should be token owner', async function () {
@@ -104,11 +107,16 @@ function shouldBehaveLikeMintableToken (owner, minter, [anyone]) {
           it('emits a mint and a transfer event', async function () {
             const { logs } = await this.token.mint(owner, amount, { from });
 
-            logs.length.should.eq(2);
-            logs[0].event.should.eq('Mint');
-            logs[0].args.to.should.eq(owner);
-            logs[0].args.amount.should.be.bignumber.equal(amount);
-            logs[1].event.should.eq('Transfer');
+            const mintEvent = expectEvent.inLogs(logs, 'Mint', {
+              to: owner,
+            });
+            mintEvent.args.amount.should.be.bignumber.equal(amount);
+
+            const transferEvent = expectEvent.inLogs(logs, 'Transfer', {
+              from: ZERO_ADDRESS,
+              to: owner,
+            });
+            transferEvent.args.value.should.be.bignumber.equal(amount);
           });
         });
 

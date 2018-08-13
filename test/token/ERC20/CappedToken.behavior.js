@@ -1,4 +1,5 @@
 const { expectThrow } = require('../../helpers/expectThrow');
+const expectEvent = require('../../helpers/expectEvent');
 
 const BigNumber = web3.BigNumber;
 
@@ -15,8 +16,8 @@ function shouldBehaveLikeCappedToken (minter, [anyone], cap) {
     });
 
     it('should mint when amount is less than cap', async function () {
-      const result = await this.token.mint(anyone, cap.sub(1), { from });
-      result.logs[0].event.should.equal('Mint');
+      const { logs } = await this.token.mint(anyone, cap.sub(1), { from });
+      expectEvent.inLogs(logs, 'Mint');
     });
 
     it('should fail to mint if the ammount exceeds the cap', async function () {

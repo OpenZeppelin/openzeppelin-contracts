@@ -1,4 +1,6 @@
 const { assertRevert } = require('../../helpers/assertRevert');
+const expectEvent = require('../../helpers/expectEvent');
+
 const StandardToken = artifacts.require('StandardTokenMock');
 
 const BigNumber = web3.BigNumber;
@@ -68,11 +70,12 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         it('emits a transfer event', async function () {
           const { logs } = await this.token.transfer(to, amount, { from: owner });
 
-          logs.length.should.eq(1);
-          logs[0].event.should.eq('Transfer');
-          logs[0].args.from.should.eq(owner);
-          logs[0].args.to.should.eq(to);
-          logs[0].args.value.should.be.bignumber.equal(amount);
+          const event = expectEvent.inLogs(logs, 'Transfer', {
+            from: owner,
+            to: to,
+          });
+
+          event.args.value.should.be.bignumber.equal(amount);
         });
       });
     });
