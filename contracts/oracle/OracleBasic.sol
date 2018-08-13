@@ -8,6 +8,8 @@ contract OracleBasic is Oracle, OracleHandler {
 
   /**
    * Result to update by an oracle 
+   * result - actual holder of the data
+   * exists - flag to indicate if data already exists
    */
   struct Result {
     bytes32 result; // data to store
@@ -31,7 +33,7 @@ contract OracleBasic is Oracle, OracleHandler {
    * @param _result   result ot store
    */
   function receiveResult(bytes32 _id, bytes32 _result) external {
-    require(msg.sender == oracle, "Could be called only by the oracle");
+    require(msg.sender == oracle, "Could be called only by an oracle");
     require(!resultExist(_id), "Id is not unique");
     results[_id].exists = true;
     results[_id].result = _result;
@@ -40,7 +42,7 @@ contract OracleBasic is Oracle, OracleHandler {
   /**
    * @dev Returns stored result
    * @param _id id of the result
-   * @return    result
+   * @return bytes32, throws if data does not exist
    */
   function resultFor(bytes32 _id) external view returns (bytes32 result) {
     require(resultExist(_id), "Data does not exists");
