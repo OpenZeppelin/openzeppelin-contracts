@@ -2,6 +2,7 @@ const CapStagedCrowdsale = artifacts.require('CapStagedCrowdsale');
 const BigNumber = web3.BigNumber;
 const SimpleToken = artifacts.require('SimpleToken');
 require('chai')
+  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
