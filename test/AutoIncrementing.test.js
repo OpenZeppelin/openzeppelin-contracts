@@ -20,7 +20,7 @@ contract('AutoIncrementing', function ([_, owner]) {
       for (const expectedId of EXPECTED) {
         await this.mock.doThing(KEY1, { from: owner });
         const actualId = await this.mock.theId();
-        actualId.should.be.bignumber.eq(expectedId);
+        actualId.should.be.bignumber.equal(expectedId);
       }
     });
   });
@@ -30,11 +30,11 @@ contract('AutoIncrementing', function ([_, owner]) {
       for (const expectedId of EXPECTED) {
         await this.mock.doThing(KEY1, { from: owner });
         let actualId = await this.mock.theId();
-        actualId.should.be.bignumber.eq(expectedId);
+        actualId.should.be.bignumber.equal(expectedId);
 
         await this.mock.doThing(KEY2, { from: owner });
         actualId = await this.mock.theId();
-        actualId.should.be.bignumber.eq(expectedId);
+        actualId.should.be.bignumber.equal(expectedId);
       }
     });
   });

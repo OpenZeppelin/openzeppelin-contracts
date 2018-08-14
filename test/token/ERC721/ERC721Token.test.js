@@ -225,7 +225,6 @@ contract('ERC721Token', function (accounts) {
   shouldSupportInterfaces([
     'ERC165',
     'ERC721',
-    'ERC721Exists',
     'ERC721Enumerable',
     'ERC721Metadata',
   ]);

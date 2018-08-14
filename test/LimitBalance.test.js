@@ -3,6 +3,12 @@ const { ethGetBalance } = require('./helpers/web3');
 
 const LimitBalanceMock = artifacts.require('LimitBalanceMock');
 
+const BigNumber = web3.BigNumber;
+
+require('chai')
+  .use(require('chai-bignumber')(BigNumber))
+  .should();
+
 contract('LimitBalance', function () {
   let limitBalance;
 
@@ -14,7 +20,7 @@ contract('LimitBalance', function () {
 
   it('should expose limit', async function () {
     const limit = await limitBalance.limit();
-    assert.equal(limit, LIMIT);
+    limit.should.be.bignumber.equal(LIMIT);
   });
 
   it('should allow sending below limit', async function () {
@@ -22,7 +28,7 @@ contract('LimitBalance', function () {
     await limitBalance.limitedDeposit({ value: amount });
 
     const balance = await ethGetBalance(limitBalance.address);
-    assert.equal(balance, amount);
+    balance.should.be.bignumber.equal(amount);
   });
 
   it('shouldnt allow sending above limit', async function () {
@@ -35,11 +41,11 @@ contract('LimitBalance', function () {
     await limitBalance.limitedDeposit({ value: amount });
 
     const balance = await ethGetBalance(limitBalance.address);
-    assert.equal(balance, amount);
+    balance.should.be.bignumber.equal(amount);
 
     await limitBalance.limitedDeposit({ value: amount });
     const updatedBalance = await ethGetBalance(limitBalance.address);
-    assert.equal(updatedBalance, amount * 2);
+    updatedBalance.should.be.bignumber.equal(amount * 2);
   });
 
   it('shouldnt allow multiple sends above limit', async function () {
@@ -47,7 +53,7 @@ contract('LimitBalance', function () {
     await limitBalance.limitedDeposit({ value: amount });
 
     const balance = await ethGetBalance(limitBalance.address);
-    assert.equal(balance, amount);
+    balance.should.be.bignumber.equal(amount);
     await assertRevert(limitBalance.limitedDeposit({ value: amount + 1 }));
   });
 });

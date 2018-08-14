@@ -34,8 +34,8 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
       const { logs } = await this.crowdsale.sendTransaction({ value: value, from: investor });
       const event = logs.find(e => e.event === 'TokenPurchase');
       should.exist(event);
-      event.args.purchaser.should.equal(investor);
-      event.args.beneficiary.should.equal(investor);
+      event.args.purchaser.should.eq(investor);
+      event.args.beneficiary.should.eq(investor);
       event.args.value.should.be.bignumber.equal(value);
       event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
     });
@@ -59,8 +59,8 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
       const { logs } = await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
       const event = logs.find(e => e.event === 'TokenPurchase');
       should.exist(event);
-      event.args.purchaser.should.equal(purchaser);
-      event.args.beneficiary.should.equal(investor);
+      event.args.purchaser.should.eq(purchaser);
+      event.args.beneficiary.should.eq(investor);
       event.args.value.should.be.bignumber.equal(value);
       event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
     });

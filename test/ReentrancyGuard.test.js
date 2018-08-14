@@ -2,13 +2,19 @@ const { expectThrow } = require('./helpers/expectThrow');
 const ReentrancyMock = artifacts.require('ReentrancyMock');
 const ReentrancyAttack = artifacts.require('ReentrancyAttack');
 
+const BigNumber = web3.BigNumber;
+
+require('chai')
+  .use(require('chai-bignumber')(BigNumber))
+  .should();
+
 contract('ReentrancyGuard', function () {
   let reentrancyMock;
 
   beforeEach(async function () {
     reentrancyMock = await ReentrancyMock.new();
     const initialCounter = await reentrancyMock.counter();
-    assert.equal(initialCounter, 0);
+    initialCounter.should.be.bignumber.equal(0);
   });
 
   it('should not allow remote callback', async function () {
