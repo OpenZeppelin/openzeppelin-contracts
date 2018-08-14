@@ -8,7 +8,7 @@ const CappedToken = artifacts.require('CappedToken');
 contract('Capped', function ([_, owner, ...otherAccounts]) {
   const cap = ether(1000);
 
-  it('requires a non-null cap', async function () {
+  it('requires a non-zero cap', async function () {
     await assertRevert(
       CappedToken.new(0, { from: owner })
     );

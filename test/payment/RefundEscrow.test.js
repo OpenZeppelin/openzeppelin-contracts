@@ -16,7 +16,7 @@ contract('RefundEscrow', function ([_, owner, beneficiary, refundee1, refundee2]
   const refundees = [refundee1, refundee2];
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
-  it('requires a valid beneficiary', async function () {
+  it('requires a non-null beneficiary', async function () {
     await expectThrow(
       RefundEscrow.new(ZERO_ADDRESS, { from: owner })
     );

@@ -26,11 +26,11 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
     await expectThrow(SplitPayment.new([payee1, payee2], [20, 30, 40]), EVMRevert);
   });
 
-  it('requires valid payees', async function () {
+  it('requires non-null payees', async function () {
     await expectThrow(SplitPayment.new([payee1, ZERO_ADDRESS], [20, 30]), EVMRevert);
   });
 
-  it('requires non-null shares', async function () {
+  it('requires non-zero shares', async function () {
     await expectThrow(SplitPayment.new([payee1, payee2], [20, 0]), EVMRevert);
   });
 

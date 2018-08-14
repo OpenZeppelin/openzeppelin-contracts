@@ -19,7 +19,7 @@ contract('TokenTimelock', function ([_, owner, beneficiary]) {
       this.token = await MintableToken.new({ from: owner });
     });
 
-    it('requires a future release time', async function () {
+    it('rejects a release time in the past', async function () {
       const pastReleaseTime = (await latestTime()) - duration.years(1);
       await expectThrow(
         TokenTimelock.new(this.token.address, beneficiary, pastReleaseTime)

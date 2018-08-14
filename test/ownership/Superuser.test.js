@@ -29,7 +29,7 @@ contract('Superuser', function ([_, firstOwner, newSuperuser, newOwner, anyone])
       newSuperuserIsSuperuser.should.be.equal(true);
     });
 
-    it('should prevent changing to an invalid superuser', async function () {
+    it('should prevent changing to a null superuser', async function () {
       await expectThrow(
         this.superuser.transferSuperuser(ZERO_ADDRESS, { from: firstOwner })
       );

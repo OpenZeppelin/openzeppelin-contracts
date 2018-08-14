@@ -18,7 +18,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
   const expectedTokenAmount = rate.mul(value);
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
-  it('requires a valid token', async function () {
+  it('requires a non-null token', async function () {
     await assertRevert(
       Crowdsale.new(rate, wallet, ZERO_ADDRESS)
     );
@@ -35,7 +35,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
       );
     });
 
-    it('requires a valid wallet', async function () {
+    it('requires a non-null wallet', async function () {
       await assertRevert(
         Crowdsale.new(rate, ZERO_ADDRESS, this.token.address)
       );
@@ -53,7 +53,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
             await this.crowdsale.send(value, { from: purchaser });
           });
 
-          it('reverts on empty payments', async function () {
+          it('reverts on zero-valued payments', async function () {
             await assertRevert(
               this.crowdsale.send(0, { from: purchaser })
             );
@@ -65,13 +65,13 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
             await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
           });
 
-          it('reverts on empty payments', async function () {
+          it('reverts on zero-valued payments', async function () {
             await assertRevert(
               this.crowdsale.buyTokens(investor, { value: 0, from: purchaser })
             );
           });
 
-          it('requires a valid beneficiary', async function () {
+          it('requires a non-null beneficiary', async function () {
             await assertRevert(
               this.crowdsale.buyTokens(ZERO_ADDRESS, { value: value, from: purchaser })
             );
