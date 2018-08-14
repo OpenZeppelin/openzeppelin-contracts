@@ -82,7 +82,6 @@ contract SignatureBouncer is Ownable, RBAC {
     public
     onlyOwner
   {
-    require(_bouncer != address(0));
     removeRole(_bouncer, ROLE_BOUNCER);
   }
 

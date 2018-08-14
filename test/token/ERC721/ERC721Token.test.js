@@ -16,7 +16,9 @@ contract('ERC721Token', function (accounts) {
   const symbol = 'NFT';
   const firstTokenId = 100;
   const secondTokenId = 200;
+  const nonExistentTokenId = 999;
   const creator = accounts[0];
+  const anyone = accounts[9];
 
   beforeEach(async function () {
     this.token = await ERC721Token.new(name, symbol, { from: creator });
@@ -77,27 +79,35 @@ contract('ERC721Token', function (accounts) {
     });
 
     describe('removeTokenFrom', function () {
-      beforeEach(async function () {
-        await this.token._removeTokenFrom(creator, firstTokenId, { from: creator });
+      it('reverts if the correct owner is not passed', async function () {
+        await assertRevert(
+          this.token._removeTokenFrom(anyone, firstTokenId, { from: creator })
+        );
       });
 
-      it('has been removed', async function () {
-        await assertRevert(this.token.tokenOfOwnerByIndex(creator, 1));
-      });
+      context('once removed', function () {
+        beforeEach(async function () {
+          await this.token._removeTokenFrom(creator, firstTokenId, { from: creator });
+        });
 
-      it('adjusts token list', async function () {
-        const token = await this.token.tokenOfOwnerByIndex(creator, 0);
-        token.toNumber().should.be.equal(secondTokenId);
-      });
+        it('has been removed', async function () {
+          await assertRevert(this.token.tokenOfOwnerByIndex(creator, 1));
+        });
 
-      it('adjusts owner count', async function () {
-        const count = await this.token.balanceOf(creator);
-        count.toNumber().should.be.equal(1);
-      });
+        it('adjusts token list', async function () {
+          const token = await this.token.tokenOfOwnerByIndex(creator, 0);
+          token.toNumber().should.be.equal(secondTokenId);
+        });
 
-      it('does not adjust supply', async function () {
-        const total = await this.token.totalSupply();
-        total.toNumber().should.be.equal(2);
+        it('adjusts owner count', async function () {
+          const count = await this.token.balanceOf(creator);
+          count.toNumber().should.be.equal(1);
+        });
+
+        it('does not adjust supply', async function () {
+          const total = await this.token.totalSupply();
+          total.toNumber().should.be.equal(2);
+        });
       });
     });
 
@@ -120,6 +130,10 @@ contract('ERC721Token', function (accounts) {
         uri.should.be.equal(sampleUri);
       });
 
+      it('reverts when setting metadata for non existent token id', async function () {
+        await assertRevert(this.token.setTokenURI(nonExistentTokenId, sampleUri));
+      });
+
       it('can burn token with metadata', async function () {
         await this.token.setTokenURI(firstTokenId, sampleUri);
         await this.token.burn(firstTokenId);
@@ -132,8 +146,8 @@ contract('ERC721Token', function (accounts) {
         uri.should.be.equal('');
       });
 
-      it('reverts when querying metadata for non existant token id', async function () {
-        await assertRevert(this.token.tokenURI(500));
+      it('reverts when querying metadata for non existent token id', async function () {
+        await assertRevert(this.token.tokenURI(nonExistentTokenId));
       });
     });
 

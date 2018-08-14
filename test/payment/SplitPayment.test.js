@@ -12,6 +12,7 @@ const SplitPayment = artifacts.require('SplitPayment');
 
 contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1, payer1]) {
   const amount = web3.toWei(1.0, 'ether');
+  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
   it('cannot be created with no payees', async function () {
     await expectThrow(SplitPayment.new([], []), EVMRevert);
@@ -23,6 +24,18 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
 
   it('requires a payee for each share', async function () {
     await expectThrow(SplitPayment.new([payee1, payee2], [20, 30, 40]), EVMRevert);
+  });
+
+  it('requires non-null payees', async function () {
+    await expectThrow(SplitPayment.new([payee1, ZERO_ADDRESS], [20, 30]), EVMRevert);
+  });
+
+  it('requires non-zero shares', async function () {
+    await expectThrow(SplitPayment.new([payee1, payee2], [20, 0]), EVMRevert);
+  });
+
+  it('rejects repeated payees', async function () {
+    await expectThrow(SplitPayment.new([payee1, payee1], [20, 0]), EVMRevert);
   });
 
   context('once deployed', function () {
