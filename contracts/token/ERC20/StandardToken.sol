@@ -164,6 +164,7 @@ contract StandardToken is ERC20 {
    * @param _amount The amount that will be created.
    */
   function _mint(address _account, uint256 _amount) internal {
+    require(_account != 0);
     totalSupply_ = totalSupply_.add(_amount);
     balances[_account] = balances[_account].add(_amount);
     emit Transfer(address(0), _account, _amount);
@@ -176,6 +177,7 @@ contract StandardToken is ERC20 {
    * @param _amount The amount that will be burnt.
    */
   function _burn(address _account, uint256 _amount) internal {
+    require(_account != 0);
     totalSupply_ = totalSupply_.sub(_amount);
     balances[_account] = balances[_account].sub(_amount);
     emit Transfer(_account, address(0), _amount);
@@ -188,6 +190,7 @@ contract StandardToken is ERC20 {
    * @param _amount The amount that will be burnt.
    */
   function _burnFrom(address _account, uint256 _amount) internal {
+    require(_account != 0);
     // Should https://github.com/OpenZeppelin/zeppelin-solidity/issues/707 be accepted,
     // this function needs to emit an event with the updated approval.
     allowed[_account][msg.sender] = allowed[_account][msg.sender].sub(_amount);
