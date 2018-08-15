@@ -131,7 +131,6 @@ contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
     public
   {
     require(isApprovedOrOwner(msg.sender, _tokenId));
-    require(_from != address(0));
     require(_to != address(0));
 
     clearApproval(_from, _tokenId);
