@@ -9,7 +9,7 @@ import "./Escrow.sol";
  * contract and use asyncTransfer instead of send or transfer.
  */
 contract PullPayment {
-  Escrow private escrow;
+  Escrow public escrow;
 
   constructor() public {
     escrow = new Escrow();
