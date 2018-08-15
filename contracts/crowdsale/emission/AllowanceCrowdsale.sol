@@ -1,10 +1,11 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 import "../Crowdsale.sol";
 import "../../token/ERC20/ERC20.sol";
-import "../../token/ERC20/ERC20Basic.sol";
 import "../../token/ERC20/SafeERC20.sol";
 import "../../math/SafeMath.sol";
+
+
 /**
  * @title AllowanceCrowdsale
  * @dev Extension of Crowdsale where tokens are held by a wallet, which approves an allowance to the crowdsale.

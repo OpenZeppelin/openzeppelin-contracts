@@ -1,94 +1,90 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 
 import "../ownership/Ownable.sol";
-import "../ownership/rbac/RBAC.sol";
+import "../access/rbac/RBAC.sol";
 
 
 /**
  * @title Whitelist
  * @dev The Whitelist contract has a whitelist of addresses, and provides basic authorization control functions.
- * @dev This simplifies the implementation of "user permissions".
+ * This simplifies the implementation of "user permissions".
  */
 contract Whitelist is Ownable, RBAC {
-  event WhitelistedAddressAdded(address addr);
-  event WhitelistedAddressRemoved(address addr);
-
   string public constant ROLE_WHITELISTED = "whitelist";
 
   /**
-   * @dev Throws if called by any account that's not whitelisted.
+   * @dev Throws if operator is not whitelisted.
+   * @param _operator address
    */
-  modifier onlyWhitelisted() {
-    checkRole(msg.sender, ROLE_WHITELISTED);
+  modifier onlyIfWhitelisted(address _operator) {
+    checkRole(_operator, ROLE_WHITELISTED);
     _;
   }
 
   /**
    * @dev add an address to the whitelist
-   * @param addr address
+   * @param _operator address
    * @return true if the address was added to the whitelist, false if the address was already in the whitelist
    */
-  function addAddressToWhitelist(address addr)
-    onlyOwner
+  function addAddressToWhitelist(address _operator)
     public
+    onlyOwner
   {
-    addRole(addr, ROLE_WHITELISTED);
-    emit WhitelistedAddressAdded(addr);
+    addRole(_operator, ROLE_WHITELISTED);
   }
 
   /**
    * @dev getter to determine if address is in whitelist
    */
-  function whitelist(address addr)
+  function whitelist(address _operator)
     public
     view
     returns (bool)
   {
-    return hasRole(addr, ROLE_WHITELISTED);
+    return hasRole(_operator, ROLE_WHITELISTED);
   }
 
   /**
    * @dev add addresses to the whitelist
-   * @param addrs addresses
+   * @param _operators addresses
    * @return true if at least one address was added to the whitelist,
    * false if all addresses were already in the whitelist
    */
-  function addAddressesToWhitelist(address[] addrs)
-    onlyOwner
+  function addAddressesToWhitelist(address[] _operators)
     public
+    onlyOwner
   {
-    for (uint256 i = 0; i < addrs.length; i++) {
-      addAddressToWhitelist(addrs[i]);
+    for (uint256 i = 0; i < _operators.length; i++) {
+      addAddressToWhitelist(_operators[i]);
     }
   }
 
   /**
    * @dev remove an address from the whitelist
-   * @param addr address
+   * @param _operator address
    * @return true if the address was removed from the whitelist,
    * false if the address wasn't in the whitelist in the first place
    */
-  function removeAddressFromWhitelist(address addr)
-    onlyOwner
+  function removeAddressFromWhitelist(address _operator)
     public
+    onlyOwner
   {
-    removeRole(addr, ROLE_WHITELISTED);
-    emit WhitelistedAddressRemoved(addr);
+    removeRole(_operator, ROLE_WHITELISTED);
   }
 
   /**
    * @dev remove addresses from the whitelist
-   * @param addrs addresses
+   * @param _operators addresses
    * @return true if at least one address was removed from the whitelist,
    * false if all addresses weren't in the whitelist in the first place
    */
-  function removeAddressesFromWhitelist(address[] addrs)
-    onlyOwner
+  function removeAddressesFromWhitelist(address[] _operators)
     public
+    onlyOwner
   {
-    for (uint256 i = 0; i < addrs.length; i++) {
-      removeAddressFromWhitelist(addrs[i]);
+    for (uint256 i = 0; i < _operators.length; i++) {
+      removeAddressFromWhitelist(_operators[i]);
     }
   }
 

@@ -1,24 +1,21 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 
 /**
- * @title Eliptic curve signature operations
- *
+ * @title Elliptic curve signature operations
  * @dev Based on https://gist.github.com/axic/5b33912c6f61ae6fd96d6c4a47afde6d
- *
  * TODO Remove this library once solidity supports passing a signature to ecrecover.
  * See https://github.com/ethereum/solidity/issues/864
- *
  */
 
 library ECRecovery {
 
   /**
    * @dev Recover signer address from a message by using their signature
-   * @param hash bytes32 message, the hash is the signed message. What is recovered is the signer address.
-   * @param sig bytes signature, the signature is generated using web3.eth.sign()
+   * @param _hash bytes32 message, the hash is the signed message. What is recovered is the signer address.
+   * @param _signature bytes signature, the signature is generated using web3.eth.sign()
    */
-  function recover(bytes32 hash, bytes sig)
+  function recover(bytes32 _hash, bytes _signature)
     internal
     pure
     returns (address)
@@ -28,7 +25,7 @@ library ECRecovery {
     uint8 v;
 
     // Check the signature length
-    if (sig.length != 65) {
+    if (_signature.length != 65) {
       return (address(0));
     }
 
@@ -37,9 +34,9 @@ library ECRecovery {
     // currently is to use assembly.
     // solium-disable-next-line security/no-inline-assembly
     assembly {
-      r := mload(add(sig, 32))
-      s := mload(add(sig, 64))
-      v := byte(0, mload(add(sig, 96)))
+      r := mload(add(_signature, 32))
+      s := mload(add(_signature, 64))
+      v := byte(0, mload(add(_signature, 96)))
     }
 
     // Version of signature should be 27 or 28, but 0 and 1 are also possible versions
@@ -52,16 +49,16 @@ library ECRecovery {
       return (address(0));
     } else {
       // solium-disable-next-line arg-overflow
-      return ecrecover(hash, v, r, s);
+      return ecrecover(_hash, v, r, s);
     }
   }
 
   /**
    * toEthSignedMessageHash
    * @dev prefix a bytes32 value with "\x19Ethereum Signed Message:"
-   * @dev and hash the result
+   * and hash the result
    */
-  function toEthSignedMessageHash(bytes32 hash)
+  function toEthSignedMessageHash(bytes32 _hash)
     internal
     pure
     returns (bytes32)
@@ -69,8 +66,7 @@ library ECRecovery {
     // 32 is the length in bytes of hash,
     // enforced by the type signature above
     return keccak256(
-      "\x19Ethereum Signed Message:\n32",
-      hash
+      abi.encodePacked("\x19Ethereum Signed Message:\n32", _hash)
     );
   }
 }

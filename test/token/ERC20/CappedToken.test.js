@@ -1,17 +1,16 @@
-import ether from '../../helpers/ether';
-import shouldBehaveLikeMintableToken from './MintableToken.behaviour';
-import shouldBehaveLikeCappedToken from './CappedToken.behaviour';
+const { ether } = require('../../helpers/ether');
+const { shouldBehaveLikeMintableToken } = require('./MintableToken.behavior');
+const { shouldBehaveLikeCappedToken } = require('./CappedToken.behavior');
 
-var CappedToken = artifacts.require('CappedToken');
+const CappedToken = artifacts.require('CappedToken');
 
-contract('Capped', function ([owner, anotherAccount]) {
-  const _cap = ether(1000);
-  
+contract('Capped', function ([_, owner, ...otherAccounts]) {
+  const cap = ether(1000);
+
   beforeEach(async function () {
-    this.token = await CappedToken.new(_cap, { from: owner });
+    this.token = await CappedToken.new(cap, { from: owner });
   });
 
-  shouldBehaveLikeCappedToken([owner, anotherAccount, owner, _cap]);
-
-  shouldBehaveLikeMintableToken([owner, anotherAccount, owner]);
+  shouldBehaveLikeCappedToken(owner, otherAccounts, cap);
+  shouldBehaveLikeMintableToken(owner, owner, otherAccounts);
 });

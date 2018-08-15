@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 import "../crowdsale/validation/CappedCrowdsale.sol";
 import "../crowdsale/distribution/RefundableCrowdsale.sol";
@@ -13,10 +13,9 @@ import "../token/ERC20/MintableToken.sol";
  */
 contract SampleCrowdsaleToken is MintableToken {
 
-  // solium-disable-next-line uppercase
   string public constant name = "Sample Crowdsale Token";
-  string public constant symbol = "SCT"; // solium-disable-line uppercase
-  uint8 public constant decimals = 18; // solium-disable-line uppercase
+  string public constant symbol = "SCT";
+  uint8 public constant decimals = 18;
 
 }
 

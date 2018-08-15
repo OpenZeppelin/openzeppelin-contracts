@@ -1,53 +1,65 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 import "../access/SignatureBouncer.sol";
 
 
 contract SignatureBouncerMock is SignatureBouncer {
-  function checkValidSignature(address _address, bytes _sig)
+  function checkValidSignature(address _address, bytes _signature)
     public
     view
     returns (bool)
   {
-    return isValidSignature(_address, _sig);
+    return isValidSignature(_address, _signature);
   }
 
-  function onlyWithValidSignature(bytes _sig)
-    onlyValidSignature(_sig)
+  function onlyWithValidSignature(bytes _signature)
     public
+    onlyValidSignature(_signature)
     view
   {
 
   }
 
-  function checkValidSignatureAndMethod(address _address, bytes _sig)
+  function checkValidSignatureAndMethod(address _address, bytes _signature)
     public
     view
     returns (bool)
   {
-    return isValidSignatureAndMethod(_address, _sig);
+    return isValidSignatureAndMethod(_address, _signature);
   }
 
-  function onlyWithValidSignatureAndMethod(bytes _sig)
-    onlyValidSignatureAndMethod(_sig)
+  function onlyWithValidSignatureAndMethod(bytes _signature)
     public
+    onlyValidSignatureAndMethod(_signature)
     view
   {
 
   }
 
-  function checkValidSignatureAndData(address _address, bytes _bytes, uint _val, bytes _sig)
+  function checkValidSignatureAndData(
+    address _address,
+    bytes,
+    uint,
+    bytes _signature
+  )
     public
     view
     returns (bool)
   {
-    return isValidSignatureAndData(_address, _sig);
+    return isValidSignatureAndData(_address, _signature);
   }
 
-  function onlyWithValidSignatureAndData(uint _val, bytes _sig)
-    onlyValidSignatureAndData(_sig)
+  function onlyWithValidSignatureAndData(uint, bytes _signature)
     public
+    onlyValidSignatureAndData(_signature)
     view
+  {
+
+  }
+
+  function theWrongMethod(bytes)
+    public
+    pure
   {
 
   }

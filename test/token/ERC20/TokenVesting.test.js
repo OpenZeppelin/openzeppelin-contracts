@@ -1,11 +1,12 @@
-import EVMRevert from '../../helpers/EVMRevert';
-import latestTime from '../../helpers/latestTime';
-import { increaseTimeTo, duration } from '../../helpers/increaseTime';
+const { expectThrow } = require('../../helpers/expectThrow');
+const { EVMRevert } = require('../../helpers/EVMRevert');
+const { latestTime } = require('../../helpers/latestTime');
+const { increaseTimeTo, duration } = require('../../helpers/increaseTime');
+const { ethGetBlock } = require('../../helpers/web3');
 
 const BigNumber = web3.BigNumber;
 
 require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
@@ -18,7 +19,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
   beforeEach(async function () {
     this.token = await MintableToken.new({ from: owner });
 
-    this.start = latestTime() + duration.minutes(1); // +1 minute so it starts after contract instantiation
+    this.start = (await latestTime()) + duration.minutes(1); // +1 minute so it starts after contract instantiation
     this.cliff = duration.years(1);
     this.duration = duration.years(2);
 
@@ -28,19 +29,23 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
   });
 
   it('cannot be released before cliff', async function () {
-    await this.vesting.release(this.token.address).should.be.rejectedWith(EVMRevert);
+    await expectThrow(
+      this.vesting.release(this.token.address),
+      EVMRevert,
+    );
   });
 
   it('can be released after cliff', async function () {
     await increaseTimeTo(this.start + this.cliff + duration.weeks(1));
-    await this.vesting.release(this.token.address).should.be.fulfilled;
+    await this.vesting.release(this.token.address);
   });
 
   it('should release proper amount after cliff', async function () {
     await increaseTimeTo(this.start + this.cliff);
 
     const { receipt } = await this.vesting.release(this.token.address);
-    const releaseTime = web3.eth.getBlock(receipt.blockNumber).timestamp;
+    const block = await ethGetBlock(receipt.blockNumber);
+    const releaseTime = block.timestamp;
 
     const balance = await this.token.balanceOf(beneficiary);
     balance.should.bignumber.equal(amount.mul(releaseTime - this.start).div(this.duration).floor());
@@ -70,12 +75,15 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
   });
 
   it('should be revoked by owner if revocable is set', async function () {
-    await this.vesting.revoke(this.token.address, { from: owner }).should.be.fulfilled;
+    await this.vesting.revoke(this.token.address, { from: owner });
   });
 
   it('should fail to be revoked by owner if revocable not set', async function () {
     const vesting = await TokenVesting.new(beneficiary, this.start, this.cliff, this.duration, false, { from: owner });
-    await vesting.revoke(this.token.address, { from: owner }).should.be.rejectedWith(EVMRevert);
+    await expectThrow(
+      vesting.revoke(this.token.address, { from: owner }),
+      EVMRevert,
+    );
   });
 
   it('should return the non-vested tokens when revoked by owner', async function () {
@@ -108,6 +116,9 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
     await this.vesting.revoke(this.token.address, { from: owner });
 
-    await this.vesting.revoke(this.token.address, { from: owner }).should.be.rejectedWith(EVMRevert);
+    await expectThrow(
+      this.vesting.revoke(this.token.address, { from: owner }),
+      EVMRevert,
+    );
   });
 });

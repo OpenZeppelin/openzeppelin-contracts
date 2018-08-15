@@ -1,22 +1,14 @@
-import expectThrow from '../helpers/expectThrow';
-import expectEvent from '../helpers/expectEvent';
+const { expectThrow } = require('../helpers/expectThrow');
+const expectEvent = require('../helpers/expectEvent');
 
 const Superuser = artifacts.require('Superuser');
 
 require('chai')
-  .use(require('chai-as-promised'))
   .should();
 
-contract('Superuser', function (accounts) {
-  const [
-    firstOwner,
-    newSuperuser,
-    newOwner,
-    anyone,
-  ] = accounts;
-
+contract('Superuser', function ([_, firstOwner, newSuperuser, newOwner, anyone]) {
   beforeEach(async function () {
-    this.superuser = await Superuser.new();
+    this.superuser = await Superuser.new({ from: firstOwner });
   });
 
   context('in normal conditions', () => {
@@ -27,7 +19,7 @@ contract('Superuser', function (accounts) {
 
     it('should change superuser after transferring', async function () {
       await this.superuser.transferSuperuser(newSuperuser, { from: firstOwner });
-      
+
       const ownerIsSuperuser = await this.superuser.isSuperuser(firstOwner);
       ownerIsSuperuser.should.be.equal(false);
 

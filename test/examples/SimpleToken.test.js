@@ -1,9 +1,8 @@
-import decodeLogs from '../helpers/decodeLogs';
+const { decodeLogs } = require('../helpers/decodeLogs');
 const SimpleToken = artifacts.require('SimpleToken');
 
-contract('SimpleToken', accounts => {
+contract('SimpleToken', function ([_, creator]) {
   let token;
-  const creator = accounts[0];
 
   beforeEach(async function () {
     token = await SimpleToken.new({ from: creator });
@@ -30,7 +29,7 @@ contract('SimpleToken', accounts => {
 
     assert(creatorBalance.eq(totalSupply));
 
-    const receipt = web3.eth.getTransactionReceipt(token.transactionHash);
+    const receipt = await web3.eth.getTransactionReceipt(token.transactionHash);
     const logs = decodeLogs(receipt.logs, SimpleToken, token.address);
     assert.equal(logs.length, 1);
     assert.equal(logs[0].event, 'Transfer');

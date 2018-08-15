@@ -1,6 +1,6 @@
-import { sha3, bufferToHex } from 'ethereumjs-util';
+const { sha3, bufferToHex } = require('ethereumjs-util');
 
-export default class MerkleTree {
+class MerkleTree {
   constructor (elements) {
     // Filter empty strings and hash elements
     this.elements = elements.filter(el => el).map(el => sha3(el));
@@ -129,3 +129,7 @@ export default class MerkleTree {
     return Buffer.concat([...args].sort(Buffer.compare));
   }
 }
+
+module.exports = {
+  MerkleTree,
+};
