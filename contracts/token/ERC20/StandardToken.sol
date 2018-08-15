@@ -187,14 +187,13 @@ contract StandardToken is ERC20 {
 
   /**
    * @dev Internal function that burns an amount of the token of a given
-   * account, deducting from the allowance of the transaction sender.
+   * account, deducting from the sender's allowance for said account. Uses the
+   * internal _burn function.
    * @param _account The account whose tokens will be burnt.
    * @param _amount The amount that will be burnt.
    */
   function _burnFrom(address _account, uint256 _amount) internal {
-    require(_account != 0);
     require(allowed[_account][msg.sender] > _amount);
-    require(balances[_account] > _amount);
 
     // Should https://github.com/OpenZeppelin/zeppelin-solidity/issues/707 be accepted,
     // this function needs to emit an event with the updated approval.
