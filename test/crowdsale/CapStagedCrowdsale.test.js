@@ -25,7 +25,7 @@ contract('CapStagedCrowdsale', function ([_, owner, wallet, investor]) {
   ];
   const wrongRates = wrongStages.map((s) => s.rate);
   const wrongLimits = wrongStages.map((s) => s.limit);
-  const capital = web3.toWei(3, 'ether');
+  const capital = web3.toWei(4, 'ether');
   const tokenSupply = web3.toWei(160, 'ether');
   describe('sending stages in correct order', function () {
     beforeEach(async function () {
@@ -56,10 +56,18 @@ contract('CapStagedCrowdsale', function ([_, owner, wallet, investor]) {
       });
     });
     context('over last stage limit', function () {
-      it('should reject payments over last stage limit (stage 3, rate 20)', async function () {
+      it('should accept payments over last stage limit - rate 20)', async function () {
         await this.crowdsale.buyTokens(investor, { from: investor, value: _value * 3 });
         const wi = await this.crowdsale.weiRaised();
         assert(wi.should.be.bignumber.eq(web3.toWei(3, 'ether')));
+        await this.crowdsale.buyTokens(investor, { from: investor, value: _value * 1 });
+      });
+    });
+    context('over last stage limit', function () {
+      it('should reject payments over cap limit', async function () {
+        await this.crowdsale.buyTokens(investor, { from: investor, value: _value * 4 });
+        const wi = await this.crowdsale.weiRaised();
+        assert(wi.should.be.bignumber.eq(web3.toWei(4, 'ether')));
         await expectThrow(
           this.crowdsale.buyTokens(investor, { from: investor, value: _value * 1 }),
           EVMRevert,
