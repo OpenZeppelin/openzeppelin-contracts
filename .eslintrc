@@ -32,6 +32,7 @@
     "eqeqeq": ["error", "smart"],
     "generator-star-spacing": ["error", "before"],
     "indent": ["error", 2],
+    "linebreak-style": ["error", "unix"],
     "max-len": ["error", 120, 2],
     "no-debugger": "off",
     "no-dupe-args": "error",
