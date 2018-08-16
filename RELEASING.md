@@ -78,7 +78,14 @@ npm dist-tag rm --otp $2FA_CODE openzeppelin-solidity next
 
 ## Merging the release branch
 
-After the final release, the release branch should be merged back into `master`. This merge must not be squashed, because it would lose the tagged release commit, so it should be merged locally and pushed.
+After the final release, the release branch should be merged back into `master`. This merge must not be squashed because it would lose the tagged release commit. Since the GitHub repo is set up to only allow squashed merges, the merge should be done locally and pushed.
+
+Make sure to have the latest changes from `upstream` in your local release branch.
+
+```
+git checkout release-vX.Y.Z
+git pull upstream
+```
 
 ```
 git checkout master
