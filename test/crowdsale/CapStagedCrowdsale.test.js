@@ -31,7 +31,7 @@ contract('CapStagedCrowdsale', function ([_, owner, wallet, investor]) {
     beforeEach(async function () {
       this.token = await SimpleToken.new({ from: owner });
       this.crowdsale = await CapStagedCrowdsale
-      .new(_rate, wallet, this.token.address, capital, limits, rates, { from: owner });
+        .new(_rate, wallet, this.token.address, capital, limits, rates, { from: owner });
       await this.token.transfer(this.crowdsale.address, tokenSupply, { from: owner });
     });
     context('stage 1', function () {
@@ -71,7 +71,7 @@ contract('CapStagedCrowdsale', function ([_, owner, wallet, investor]) {
     it('shoud be reverted', async function () {
       this.token = await SimpleToken.new({ from: owner });
       await assertRevert(CapStagedCrowdsale
-      .new(_rate, wallet, this.token.address, capital, wrongLimits, wrongRates, { from: owner }));
+        .new(_rate, wallet, this.token.address, capital, wrongLimits, wrongRates, { from: owner }));
     });
   });
 });
