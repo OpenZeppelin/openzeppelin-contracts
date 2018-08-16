@@ -37,4 +37,28 @@ contract('Math', function () {
       result.should.be.bignumber.equal(min);
     });
   });
+
+  describe('average', function () {
+    function bnAverage (a, b) {
+      return a.plus(b).div(2).truncated();
+    }
+
+    it('is correctly calculated with two odd numbers', async function () {
+      const a = new BigNumber(57417);
+      const b = new BigNumber(95431);
+      (await this.math.average(a, b)).should.be.bignumber.equal(bnAverage(a, b));
+    });
+
+    it('is correctly calculated with two even numbers', async function () {
+      const a = new BigNumber(42304);
+      const b = new BigNumber(84346);
+      (await this.math.average(a, b)).should.be.bignumber.equal(bnAverage(a, b));
+    });
+
+    it('is correctly calculated with one even and one odd number', async function () {
+      const a = new BigNumber(57417);
+      const b = new BigNumber(84346);
+      (await this.math.average(a, b)).should.be.bignumber.equal(bnAverage(a, b));
+    });
+  });
 });

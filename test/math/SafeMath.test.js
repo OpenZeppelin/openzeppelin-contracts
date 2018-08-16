@@ -1,4 +1,5 @@
 const { assertRevert } = require('../helpers/assertRevert');
+
 const BigNumber = web3.BigNumber;
 const SafeMathMock = artifacts.require('SafeMathMock');
 
@@ -86,6 +87,45 @@ contract('SafeMath', () => {
       const b = new BigNumber(0);
 
       await assertRevert(this.safeMath.div(a, b));
+    });
+  });
+
+  describe('mod', function () {
+    describe('modulos correctly', async function () {
+      it('when the dividend is smaller than the divisor', async function () {
+        const a = new BigNumber(284);
+        const b = new BigNumber(5678);
+
+        (await this.safeMath.mod(a, b)).should.be.bignumber.equal(a.mod(b));
+      });
+
+      it('when the dividend is equal to the divisor', async function () {
+        const a = new BigNumber(5678);
+        const b = new BigNumber(5678);
+
+        (await this.safeMath.mod(a, b)).should.be.bignumber.equal(a.mod(b));
+      });
+
+      it('when the dividend is larger than the divisor', async function () {
+        const a = new BigNumber(7000);
+        const b = new BigNumber(5678);
+
+        (await this.safeMath.mod(a, b)).should.be.bignumber.equal(a.mod(b));
+      });
+
+      it('when the dividend is a multiple of the divisor', async function () {
+        const a = new BigNumber(17034); // 17034 == 5678 * 3
+        const b = new BigNumber(5678);
+
+        (await this.safeMath.mod(a, b)).should.be.bignumber.equal(a.mod(b));
+      });
+    });
+
+    it('reverts with a 0 divisor', async function () {
+      const a = new BigNumber(5678);
+      const b = new BigNumber(0);
+
+      await assertRevert(this.safeMath.mod(a, b));
     });
   });
 });

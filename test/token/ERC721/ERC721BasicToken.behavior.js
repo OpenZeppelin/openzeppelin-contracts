@@ -47,26 +47,6 @@ function shouldBehaveLikeERC721BasicToken (accounts) {
       });
     });
 
-    describe('exists', function () {
-      context('when the token exists', function () {
-        const tokenId = firstTokenId;
-
-        it('should return true', async function () {
-          const result = await this.token.exists(tokenId);
-          result.should.be.true;
-        });
-      });
-
-      context('when the token does not exist', function () {
-        const tokenId = unknownTokenId;
-
-        it('should return false', async function () {
-          const result = await this.token.exists(tokenId);
-          result.should.be.false;
-        });
-      });
-    });
-
     describe('ownerOf', function () {
       context('when the given token ID was tracked by this token', function () {
         const tokenId = firstTokenId;
@@ -554,7 +534,6 @@ function shouldBehaveLikeERC721BasicToken (accounts) {
     shouldSupportInterfaces([
       'ERC165',
       'ERC721',
-      'ERC721Exists',
     ]);
   });
 }
