@@ -30,7 +30,8 @@ contract('CapStagedCrowdsale', function ([_, owner, wallet, investor]) {
   describe('sending stages in correct order', function () {
     beforeEach(async function () {
       this.token = await SimpleToken.new({ from: owner });
-      this.crowdsale = await CapStagedCrowdsale.new(_rate, wallet, this.token.address, capital, limits, rates, { from: owner });
+      this.crowdsale = await CapStagedCrowdsale
+      .new(_rate, wallet, this.token.address, capital, limits, rates, { from: owner });
       await this.token.transfer(this.crowdsale.address, tokenSupply, { from: owner });
     });
     context('stage 1', function () {
@@ -60,8 +61,8 @@ contract('CapStagedCrowdsale', function ([_, owner, wallet, investor]) {
         const wi = await this.crowdsale.weiRaised();
         assert(wi.should.be.bignumber.eq(web3.toWei(3, 'ether')));
         await expectThrow(
-        this.crowdsale.buyTokens(investor, { from: investor, value: _value * 1 }),
-        EVMRevert,
+          this.crowdsale.buyTokens(investor, { from: investor, value: _value * 1 }),
+          EVMRevert,
         );
       });
     });
@@ -69,7 +70,8 @@ contract('CapStagedCrowdsale', function ([_, owner, wallet, investor]) {
   describe('sending stages in wrong order', function () {
     it('shoud be reverted', async function () {
       this.token = await SimpleToken.new({ from: owner });
-      await assertRevert(CapStagedCrowdsale.new(_rate, wallet, this.token.address, capital, wrongLimits, wrongRates, { from: owner }));
+      await assertRevert(CapStagedCrowdsale
+      .new(_rate, wallet, this.token.address, capital, wrongLimits, wrongRates, { from: owner }));
     });
   });
 });
