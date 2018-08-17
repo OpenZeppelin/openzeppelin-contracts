@@ -39,8 +39,7 @@ contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
   it('should not immediately assign tokens to beneficiary', async function () {
     await increaseTimeTo(this.openingTime);
     await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
-    const balance = await this.token.balanceOf(investor);
-    balance.should.be.bignumber.equal(0);
+    (await this.token.balanceOf(investor)).should.be.bignumber.equal(0);
   });
 
   it('should not allow beneficiaries to withdraw tokens before crowdsale ends', async function () {
@@ -61,7 +60,6 @@ contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
     await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
     await increaseTimeTo(this.afterClosingTime);
     await this.crowdsale.withdrawTokens({ from: investor });
-    const balance = await this.token.balanceOf(investor);
-    balance.should.be.bignumber.equal(value);
+    (await this.token.balanceOf(investor)).should.be.bignumber.equal(value);
   });
 });

@@ -19,8 +19,7 @@ contract('SafeMath', () => {
       const a = new BigNumber(5678);
       const b = new BigNumber(1234);
 
-      const result = await this.safeMath.add(a, b);
-      result.should.be.bignumber.equal(a.plus(b));
+      (await this.safeMath.add(a, b)).should.be.bignumber.equal(a.plus(b));
     });
 
     it('throws a revert error on addition overflow', async function () {
@@ -36,8 +35,7 @@ contract('SafeMath', () => {
       const a = new BigNumber(5678);
       const b = new BigNumber(1234);
 
-      const result = await this.safeMath.sub(a, b);
-      result.should.be.bignumber.equal(a.minus(b));
+      (await this.safeMath.sub(a, b)).should.be.bignumber.equal(a.minus(b));
     });
 
     it('throws a revert error if subtraction result would be negative', async function () {
@@ -53,16 +51,14 @@ contract('SafeMath', () => {
       const a = new BigNumber(1234);
       const b = new BigNumber(5678);
 
-      const result = await this.safeMath.mul(a, b);
-      result.should.be.bignumber.equal(a.times(b));
+      (await this.safeMath.mul(a, b)).should.be.bignumber.equal(a.times(b));
     });
 
     it('handles a zero product correctly', async function () {
       const a = new BigNumber(0);
       const b = new BigNumber(5678);
 
-      const result = await this.safeMath.mul(a, b);
-      result.should.be.bignumber.equal(a.times(b));
+      (await this.safeMath.mul(a, b)).should.be.bignumber.equal(a.times(b));
     });
 
     it('throws a revert error on multiplication overflow', async function () {
@@ -78,8 +74,7 @@ contract('SafeMath', () => {
       const a = new BigNumber(5678);
       const b = new BigNumber(5678);
 
-      const result = await this.safeMath.div(a, b);
-      result.should.be.bignumber.equal(a.div(b));
+      (await this.safeMath.div(a, b)).should.be.bignumber.equal(a.div(b));
     });
 
     it('throws a revert error on zero division', async function () {

@@ -43,19 +43,12 @@ contract('SampleCrowdsale', function ([_, owner, wallet, investor]) {
     this.crowdsale.should.exist;
     this.token.should.exist;
 
-    const openingTime = await this.crowdsale.openingTime();
-    const closingTime = await this.crowdsale.closingTime();
-    const rate = await this.crowdsale.rate();
-    const walletAddress = await this.crowdsale.wallet();
-    const goal = await this.crowdsale.goal();
-    const cap = await this.crowdsale.cap();
-
-    openingTime.should.be.bignumber.equal(this.openingTime);
-    closingTime.should.be.bignumber.equal(this.closingTime);
-    rate.should.be.bignumber.equal(RATE);
-    walletAddress.should.be.equal(wallet);
-    goal.should.be.bignumber.equal(GOAL);
-    cap.should.be.bignumber.equal(CAP);
+    (await this.crowdsale.openingTime()).should.be.bignumber.equal(this.openingTime);
+    (await this.crowdsale.closingTime()).should.be.bignumber.equal(this.closingTime);
+    (await this.crowdsale.rate()).should.be.bignumber.equal(RATE);
+    (await this.crowdsale.wallet()).should.be.equal(wallet);
+    (await this.crowdsale.goal()).should.be.bignumber.equal(GOAL);
+    (await this.crowdsale.cap()).should.be.bignumber.equal(CAP);
   });
 
   it('should not accept payments before start', async function () {

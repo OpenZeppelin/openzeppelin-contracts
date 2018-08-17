@@ -16,26 +16,20 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
 
   describe('total supply', function () {
     it('returns the total amount of tokens', async function () {
-      const totalSupply = await this.token.totalSupply();
-
-      totalSupply.should.be.bignumber.equal(100);
+      (await this.token.totalSupply()).should.be.bignumber.equal(100);
     });
   });
 
   describe('balanceOf', function () {
     describe('when the requested account has no tokens', function () {
       it('returns zero', async function () {
-        const balance = await this.token.balanceOf(anotherAccount);
-
-        balance.should.be.bignumber.equal(0);
+        (await this.token.balanceOf(anotherAccount)).should.be.bignumber.equal(0);
       });
     });
 
     describe('when the requested account has some tokens', function () {
       it('returns the total amount of tokens', async function () {
-        const balance = await this.token.balanceOf(owner);
-
-        balance.should.be.bignumber.equal(100);
+        (await this.token.balanceOf(owner)).should.be.bignumber.equal(100);
       });
     });
   });
@@ -58,11 +52,9 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         it('transfers the requested amount', async function () {
           await this.token.transfer(to, amount, { from: owner });
 
-          const senderBalance = await this.token.balanceOf(owner);
-          senderBalance.should.be.bignumber.equal(0);
+          (await this.token.balanceOf(owner)).should.be.bignumber.equal(0);
 
-          const recipientBalance = await this.token.balanceOf(to);
-          recipientBalance.should.be.bignumber.equal(amount);
+          (await this.token.balanceOf(to)).should.be.bignumber.equal(amount);
         });
 
         it('emits a transfer event', async function () {
@@ -107,8 +99,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
           it('approves the requested amount', async function () {
             await this.token.approve(spender, amount, { from: owner });
 
-            const allowance = await this.token.allowance(owner, spender);
-            allowance.should.be.bignumber.equal(amount);
+            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount);
           });
         });
 
@@ -120,8 +111,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
           it('approves the requested amount and replaces the previous one', async function () {
             await this.token.approve(spender, amount, { from: owner });
 
-            const allowance = await this.token.allowance(owner, spender);
-            allowance.should.be.bignumber.equal(amount);
+            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount);
           });
         });
       });
@@ -143,8 +133,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
           it('approves the requested amount', async function () {
             await this.token.approve(spender, amount, { from: owner });
 
-            const allowance = await this.token.allowance(owner, spender);
-            allowance.should.be.bignumber.equal(amount);
+            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount);
           });
         });
 
@@ -156,8 +145,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
           it('approves the requested amount and replaces the previous one', async function () {
             await this.token.approve(spender, amount, { from: owner });
 
-            const allowance = await this.token.allowance(owner, spender);
-            allowance.should.be.bignumber.equal(amount);
+            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount);
           });
         });
       });
@@ -170,8 +158,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
       it('approves the requested amount', async function () {
         await this.token.approve(spender, amount, { from: owner });
 
-        const allowance = await this.token.allowance(owner, spender);
-        allowance.should.be.bignumber.equal(amount);
+        (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount);
       });
 
       it('emits an approval event', async function () {
@@ -203,18 +190,15 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
           it('transfers the requested amount', async function () {
             await this.token.transferFrom(owner, to, amount, { from: spender });
 
-            const senderBalance = await this.token.balanceOf(owner);
-            senderBalance.should.be.bignumber.equal(0);
+            (await this.token.balanceOf(owner)).should.be.bignumber.equal(0);
 
-            const recipientBalance = await this.token.balanceOf(to);
-            recipientBalance.should.be.bignumber.equal(amount);
+            (await this.token.balanceOf(to)).should.be.bignumber.equal(amount);
           });
 
           it('decreases the spender allowance', async function () {
             await this.token.transferFrom(owner, to, amount, { from: spender });
 
-            const allowance = await this.token.allowance(owner, spender);
-            allowance.should.be.bignumber.equal(0);
+            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(0);
           });
 
           it('emits a transfer event', async function () {
@@ -295,8 +279,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
           it('keeps the allowance to zero', async function () {
             await this.token.decreaseApproval(spender, amount, { from: owner });
 
-            const allowance = await this.token.allowance(owner, spender);
-            allowance.should.be.bignumber.equal(0);
+            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(0);
           });
         });
 
@@ -310,20 +293,17 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
           it('decreases the spender allowance subtracting the requested amount', async function () {
             await this.token.decreaseApproval(spender, approvedAmount - 5, { from: owner });
 
-            const allowance = await this.token.allowance(owner, spender);
-            allowance.should.be.bignumber.equal(5);
+            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(5);
           });
 
           it('sets the allowance to zero when all allowance is removed', async function () {
             await this.token.decreaseApproval(spender, approvedAmount, { from: owner });
-            const allowance = await this.token.allowance(owner, spender);
-            allowance.should.be.bignumber.equal(0);
+            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(0);
           });
 
           it('sets the allowance to zero when more than the full allowance is removed', async function () {
             await this.token.decreaseApproval(spender, approvedAmount + 5, { from: owner });
-            const allowance = await this.token.allowance(owner, spender);
-            allowance.should.be.bignumber.equal(0);
+            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(0);
           });
         });
       });
@@ -345,8 +325,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
           it('keeps the allowance to zero', async function () {
             await this.token.decreaseApproval(spender, amount, { from: owner });
 
-            const allowance = await this.token.allowance(owner, spender);
-            allowance.should.be.bignumber.equal(0);
+            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(0);
           });
         });
 
@@ -358,8 +337,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
           it('decreases the spender allowance subtracting the requested amount', async function () {
             await this.token.decreaseApproval(spender, amount, { from: owner });
 
-            const allowance = await this.token.allowance(owner, spender);
-            allowance.should.be.bignumber.equal(1);
+            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(1);
           });
         });
       });
@@ -372,8 +350,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
       it('decreases the requested amount', async function () {
         await this.token.decreaseApproval(spender, amount, { from: owner });
 
-        const allowance = await this.token.allowance(owner, spender);
-        allowance.should.be.bignumber.equal(0);
+        (await this.token.allowance(owner, spender)).should.be.bignumber.equal(0);
       });
 
       it('emits an approval event', async function () {
@@ -409,8 +386,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
           it('approves the requested amount', async function () {
             await this.token.increaseApproval(spender, amount, { from: owner });
 
-            const allowance = await this.token.allowance(owner, spender);
-            allowance.should.be.bignumber.equal(amount);
+            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount);
           });
         });
 
@@ -422,8 +398,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
           it('increases the spender allowance adding the requested amount', async function () {
             await this.token.increaseApproval(spender, amount, { from: owner });
 
-            const allowance = await this.token.allowance(owner, spender);
-            allowance.should.be.bignumber.equal(amount + 1);
+            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount + 1);
           });
         });
       });
@@ -445,8 +420,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
           it('approves the requested amount', async function () {
             await this.token.increaseApproval(spender, amount, { from: owner });
 
-            const allowance = await this.token.allowance(owner, spender);
-            allowance.should.be.bignumber.equal(amount);
+            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount);
           });
         });
 
@@ -458,8 +432,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
           it('increases the spender allowance adding the requested amount', async function () {
             await this.token.increaseApproval(spender, amount, { from: owner });
 
-            const allowance = await this.token.allowance(owner, spender);
-            allowance.should.be.bignumber.equal(amount + 1);
+            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount + 1);
           });
         });
       });
@@ -471,8 +444,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
       it('approves the requested amount', async function () {
         await this.token.increaseApproval(spender, amount, { from: owner });
 
-        const allowance = await this.token.allowance(owner, spender);
-        allowance.should.be.bignumber.equal(amount);
+        (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount);
       });
 
       it('emits an approval event', async function () {

@@ -38,25 +38,22 @@ contract('HasNoEther', function ([_, owner, anyone]) {
     // Force ether into it
     const forceEther = await ForceEther.new({ value: amount });
     await forceEther.destroyAndSend(this.hasNoEther.address);
-    const forcedBalance = await ethGetBalance(this.hasNoEther.address);
-    forcedBalance.should.be.bignumber.equal(amount);
+    (await ethGetBalance(this.hasNoEther.address)).should.be.bignumber.equal(amount);
 
     // Reclaim
     const ownerStartBalance = await ethGetBalance(owner);
     await this.hasNoEther.reclaimEther({ from: owner });
     const ownerFinalBalance = await ethGetBalance(owner);
-    const finalBalance = await ethGetBalance(this.hasNoEther.address);
-    finalBalance.should.be.bignumber.equal(0);
-
     ownerFinalBalance.should.be.bignumber.gt(ownerStartBalance);
+
+    (await ethGetBalance(this.hasNoEther.address)).should.be.bignumber.equal(0);
   });
 
   it('should allow only owner to reclaim ether', async function () {
     // Force ether into it
     const forceEther = await ForceEther.new({ value: amount });
     await forceEther.destroyAndSend(this.hasNoEther.address);
-    const forcedBalance = await ethGetBalance(this.hasNoEther.address);
-    forcedBalance.should.be.bignumber.equal(amount);
+    (await ethGetBalance(this.hasNoEther.address)).should.be.bignumber.equal(amount);
 
     // Reclaim
     await expectThrow(this.hasNoEther.reclaimEther({ from: anyone }));
