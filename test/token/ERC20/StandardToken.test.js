@@ -565,7 +565,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
       };
 
       describeBurn('for entire balance', initialSupply);
-      describeBurn('for less amount than balance', new BigNumber(50));
+      describeBurn('for less amount than balance', initialSupply.sub(1));
     });
   });
 
@@ -626,7 +626,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
       };
 
       describeBurnFrom('for entire allowance', allowance);
-      describeBurnFrom('for less amount than allowance', new BigNumber(50));
+      describeBurnFrom('for less amount than allowance', allowance.sub(1));
     });
   });
 });
