@@ -498,10 +498,9 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
 
   describe('_burn', function () {
     const initialSupply = new BigNumber(100);
-    const amount = new BigNumber(50);
 
     it('rejects a null account', async function () {
-      await assertRevert(this.token.burn(ZERO_ADDRESS, amount));
+      await assertRevert(this.token.burn(ZERO_ADDRESS, 1));
     });
 
     describe('for a non null account', function () {
@@ -509,38 +508,42 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         await assertRevert(this.token.burn(owner, initialSupply.plus(1)));
       });
 
-      describe('for less amount than balance', function () {
-        beforeEach('burning', async function () {
-          const { logs } = await this.token.burn(owner, amount);
-          this.logs = logs;
-        });
-
-        it('decrements totalSupply', async function () {
-          const expectedSupply = initialSupply.minus(amount);
-          (await this.token.totalSupply()).should.be.bignumber.equal(expectedSupply);
-        });
-
-        it('decrements owner balance', async function () {
-          const expectedBalance = initialSupply.minus(amount);
-          (await this.token.balanceOf(owner)).should.be.bignumber.equal(expectedBalance);
-        });
-
-        it('emits Transfer event', async function () {
-          const event = expectEvent.inLogs(this.logs, 'Transfer', {
-            from: owner,
-            to: ZERO_ADDRESS,
+      const describeBurn = function (description, amount) {
+        describe(description, function () {
+          beforeEach('burning', async function () {
+            const { logs } = await this.token.burn(owner, amount);
+            this.logs = logs;
           });
 
-          event.args.value.should.be.bignumber.equal(amount);
+          it('decrements totalSupply', async function () {
+            const expectedSupply = initialSupply.minus(amount);
+            (await this.token.totalSupply()).should.be.bignumber.equal(expectedSupply);
+          });
+
+          it('decrements owner balance', async function () {
+            const expectedBalance = initialSupply.minus(amount);
+            (await this.token.balanceOf(owner)).should.be.bignumber.equal(expectedBalance);
+          });
+
+          it('emits Transfer event', async function () {
+            const event = expectEvent.inLogs(this.logs, 'Transfer', {
+              from: owner,
+              to: ZERO_ADDRESS,
+            });
+
+            event.args.value.should.be.bignumber.equal(amount);
+          });
         });
-      });
+      };
+
+      describeBurn('for entire balance', initialSupply);
+      describeBurn('for less amount than balance', initialSupply.sub(1));
     });
   });
 
   describe('_burnFrom', function () {
     const initialSupply = new BigNumber(100);
     const allowance = new BigNumber(70);
-    const amount = new BigNumber(50);
 
     const spender = anotherAccount;
 
@@ -549,7 +552,7 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
     });
 
     it('rejects a null account', async function () {
-      await assertRevert(this.token.burnFrom(ZERO_ADDRESS, amount));
+      await assertRevert(this.token.burnFrom(ZERO_ADDRESS, 1));
     });
 
     describe('for a non null account', function () {
@@ -561,36 +564,41 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         await assertRevert(this.token.burnFrom(owner, initialSupply.plus(1)));
       });
 
-      describe('for less amount than allowance', function () {
-        beforeEach('burning', async function () {
-          const { logs } = await this.token.burnFrom(owner, amount, { from: spender });
-          this.logs = logs;
-        });
-
-        it('decrements totalSupply', async function () {
-          const expectedSupply = initialSupply.minus(amount);
-          (await this.token.totalSupply()).should.be.bignumber.equal(expectedSupply);
-        });
-
-        it('decrements owner balance', async function () {
-          const expectedBalance = initialSupply.minus(amount);
-          (await this.token.balanceOf(owner)).should.be.bignumber.equal(expectedBalance);
-        });
-
-        it('decrements spender allowance', async function () {
-          const expectedAllowance = allowance.minus(amount);
-          (await this.token.allowance(owner, spender)).should.be.bignumber.equal(expectedAllowance);
-        });
-
-        it('emits Transfer event', async function () {
-          const event = expectEvent.inLogs(this.logs, 'Transfer', {
-            from: owner,
-            to: ZERO_ADDRESS,
+      const describeBurnFrom = function (description, amount) {
+        describe(description, function () {
+          beforeEach('burning', async function () {
+            const { logs } = await this.token.burnFrom(owner, amount, { from: spender });
+            this.logs = logs;
           });
 
-          event.args.value.should.be.bignumber.equal(amount);
+          it('decrements totalSupply', async function () {
+            const expectedSupply = initialSupply.minus(amount);
+            (await this.token.totalSupply()).should.be.bignumber.equal(expectedSupply);
+          });
+
+          it('decrements owner balance', async function () {
+            const expectedBalance = initialSupply.minus(amount);
+            (await this.token.balanceOf(owner)).should.be.bignumber.equal(expectedBalance);
+          });
+
+          it('decrements spender allowance', async function () {
+            const expectedAllowance = allowance.minus(amount);
+            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(expectedAllowance);
+          });
+
+          it('emits Transfer event', async function () {
+            const event = expectEvent.inLogs(this.logs, 'Transfer', {
+              from: owner,
+              to: ZERO_ADDRESS,
+            });
+
+            event.args.value.should.be.bignumber.equal(amount);
+          });
         });
-      });
+      };
+
+      describeBurnFrom('for entire allowance', allowance);
+      describeBurnFrom('for less amount than allowance', allowance.sub(1));
     });
   });
 });
