@@ -24,15 +24,19 @@ jobs:
     # The third one is to keep us informed about possible issues with the
     # upcoming solidity release.
     - stage: tests
+      name: "unit tests"
       script: npm run test
     - stage: tests
+      name: "unit tests with coverage"
       script: npm run test
       env: SOLIDITY_COVERAGE=true
     - stage: tests
+      name: "unit tests with solc nightly"
       script: npm run test
       env: SOLC_NIGHTLY=true
     # solidity and javascript style tests.
     - stage: tests
+      name: "static tests"
       script: npm run lint
 
 notifications:
