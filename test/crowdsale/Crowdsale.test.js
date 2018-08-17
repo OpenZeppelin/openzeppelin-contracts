@@ -92,8 +92,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
 
         it('should assign tokens to sender', async function () {
           await this.crowdsale.sendTransaction({ value: value, from: investor });
-          const balance = await this.token.balanceOf(investor);
-          balance.should.be.bignumber.equal(expectedTokenAmount);
+          (await this.token.balanceOf(investor)).should.be.bignumber.equal(expectedTokenAmount);
         });
 
         it('should forward funds to wallet', async function () {
@@ -117,8 +116,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
 
         it('should assign tokens to beneficiary', async function () {
           await this.crowdsale.buyTokens(investor, { value, from: purchaser });
-          const balance = await this.token.balanceOf(investor);
-          balance.should.be.bignumber.equal(expectedTokenAmount);
+          (await this.token.balanceOf(investor)).should.be.bignumber.equal(expectedTokenAmount);
         });
 
         it('should forward funds to wallet', async function () {

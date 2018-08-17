@@ -15,18 +15,15 @@ contract('Superuser', function ([_, firstOwner, newSuperuser, newOwner, anyone])
 
   context('in normal conditions', () => {
     it('should set the owner as the default superuser', async function () {
-      const ownerIsSuperuser = await this.superuser.isSuperuser(firstOwner);
-      ownerIsSuperuser.should.be.equal(true);
+      (await this.superuser.isSuperuser(firstOwner)).should.be.be.true;
     });
 
     it('should change superuser after transferring', async function () {
       await this.superuser.transferSuperuser(newSuperuser, { from: firstOwner });
 
-      const ownerIsSuperuser = await this.superuser.isSuperuser(firstOwner);
-      ownerIsSuperuser.should.be.equal(false);
+      (await this.superuser.isSuperuser(firstOwner)).should.be.be.false;
 
-      const newSuperuserIsSuperuser = await this.superuser.isSuperuser(newSuperuser);
-      newSuperuserIsSuperuser.should.be.equal(true);
+      (await this.superuser.isSuperuser(newSuperuser)).should.be.be.true;
     });
 
     it('should prevent changing to a null superuser', async function () {
@@ -43,8 +40,7 @@ contract('Superuser', function ([_, firstOwner, newSuperuser, newOwner, anyone])
         'OwnershipTransferred'
       );
 
-      const currentOwner = await this.superuser.owner();
-      currentOwner.should.be.equal(newOwner);
+      (await this.superuser.owner()).should.equal(newOwner);
     });
 
     it('should change owner after the owner transfers the ownership', async function () {
@@ -53,8 +49,7 @@ contract('Superuser', function ([_, firstOwner, newSuperuser, newOwner, anyone])
         'OwnershipTransferred'
       );
 
-      const currentOwner = await this.superuser.owner();
-      currentOwner.should.be.equal(newOwner);
+      (await this.superuser.owner()).should.equal(newOwner);
     });
   });
 

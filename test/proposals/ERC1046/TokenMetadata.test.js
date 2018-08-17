@@ -11,7 +11,6 @@ describe('ERC20WithMetadata', function () {
   });
 
   it('responds with the metadata', async function () {
-    const got = await this.token.tokenURI();
-    got.should.eq(metadataURI);
+    (await this.token.tokenURI()).should.eq(metadataURI);
   });
 });

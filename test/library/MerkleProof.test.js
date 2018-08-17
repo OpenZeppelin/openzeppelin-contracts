@@ -24,8 +24,7 @@ contract('MerkleProof', function () {
 
       const leaf = bufferToHex(sha3(elements[0]));
 
-      const result = await merkleProof.verifyProof(proof, root, leaf);
-      result.should.be.true;
+      (await merkleProof.verifyProof(proof, root, leaf)).should.be.true;
     });
 
     it('should return false for an invalid Merkle proof', async function () {
@@ -41,8 +40,7 @@ contract('MerkleProof', function () {
 
       const badProof = badMerkleTree.getHexProof(badElements[0]);
 
-      const result = await merkleProof.verifyProof(badProof, correctRoot, correctLeaf);
-      result.should.be.false;
+      (await merkleProof.verifyProof(badProof, correctRoot, correctLeaf)).should.be.false;
     });
 
     it('should return false for a Merkle proof of invalid length', async function () {
@@ -56,8 +54,7 @@ contract('MerkleProof', function () {
 
       const leaf = bufferToHex(sha3(elements[0]));
 
-      const result = await merkleProof.verifyProof(badProof, root, leaf);
-      result.should.be.false;
+      (await merkleProof.verifyProof(badProof, root, leaf)).should.be.false;
     });
   });
 });

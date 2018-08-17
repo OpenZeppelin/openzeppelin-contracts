@@ -20,17 +20,16 @@ contract('CanReclaimToken', function ([_, owner, anyone]) {
 
     // Force token into contract
     await token.transfer(canReclaimToken.address, 10, { from: owner });
-    const startBalance = await token.balanceOf(canReclaimToken.address);
-    startBalance.should.be.bignumber.equal(10);
+    (await token.balanceOf(canReclaimToken.address)).should.be.bignumber.equal(10);
   });
 
   it('should allow owner to reclaim tokens', async function () {
     const ownerStartBalance = await token.balanceOf(owner);
     await canReclaimToken.reclaimToken(token.address, { from: owner });
     const ownerFinalBalance = await token.balanceOf(owner);
-    const finalBalance = await token.balanceOf(canReclaimToken.address);
-    finalBalance.should.be.bignumber.equal(0);
     ownerFinalBalance.sub(ownerStartBalance).should.be.bignumber.equal(10);
+
+    (await token.balanceOf(canReclaimToken.address)).should.be.bignumber.equal(0);
   });
 
   it('should allow only owner to reclaim tokens', async function () {

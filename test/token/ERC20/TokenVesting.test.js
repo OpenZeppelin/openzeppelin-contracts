@@ -67,8 +67,9 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
       const block = await ethGetBlock(receipt.blockNumber);
       const releaseTime = block.timestamp;
 
-      const balance = await this.token.balanceOf(beneficiary);
-      balance.should.bignumber.eq(amount.mul(releaseTime - this.start).div(this.duration).floor());
+      (await this.token.balanceOf(beneficiary)).should.bignumber.eq(
+        amount.mul(releaseTime - this.start).div(this.duration).floor()
+      );
     });
 
     it('should linearly release tokens during vesting period', async function () {
@@ -80,18 +81,15 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
         await increaseTimeTo(now);
 
         await this.vesting.release(this.token.address);
-        const balance = await this.token.balanceOf(beneficiary);
         const expectedVesting = amount.mul(now - this.start).div(this.duration).floor();
-
-        balance.should.bignumber.eq(expectedVesting);
+        (await this.token.balanceOf(beneficiary)).should.bignumber.eq(expectedVesting);
       }
     });
 
     it('should have released all after end', async function () {
       await increaseTimeTo(this.start + this.duration);
       await this.vesting.release(this.token.address);
-      const balance = await this.token.balanceOf(beneficiary);
-      balance.should.bignumber.eq(amount);
+      (await this.token.balanceOf(beneficiary)).should.bignumber.eq(amount);
     });
 
     it('should be revoked by owner if revocable is set', async function () {
@@ -116,8 +114,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
       await this.vesting.revoke(this.token.address, { from: owner });
 
-      const ownerBalance = await this.token.balanceOf(owner);
-      ownerBalance.should.bignumber.eq(amount.sub(vested));
+      (await this.token.balanceOf(owner)).should.bignumber.eq(amount.sub(vested));
     });
 
     it('should keep the vested tokens when revoked by owner', async function () {

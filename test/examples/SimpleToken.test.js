@@ -17,18 +17,15 @@ contract('SimpleToken', function ([_, creator]) {
   });
 
   it('has a name', async function () {
-    const name = await token.name();
-    name.should.eq('SimpleToken');
+    (await token.name()).should.eq('SimpleToken');
   });
 
   it('has a symbol', async function () {
-    const symbol = await token.symbol();
-    symbol.should.eq('SIM');
+    (await token.symbol()).should.eq('SIM');
   });
 
   it('has 18 decimals', async function () {
-    const decimals = await token.decimals();
-    decimals.should.be.bignumber.equal(18);
+    (await token.decimals()).should.be.bignumber.equal(18);
   });
 
   it('assigns the initial total supply to the creator', async function () {

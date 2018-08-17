@@ -13,16 +13,14 @@ function shouldBehaveLikeMintableToken (owner, minter, [anyone]) {
   describe('as a basic mintable token', function () {
     describe('after token creation', function () {
       it('sender should be token owner', async function () {
-        const tokenOwner = await this.token.owner({ from: owner });
-        tokenOwner.should.eq(owner);
+        (await this.token.owner({ from: owner })).should.equal(owner);
       });
     });
 
     describe('minting finished', function () {
       describe('when the token minting is not finished', function () {
         it('returns false', async function () {
-          const mintingFinished = await this.token.mintingFinished();
-          mintingFinished.should.be.false;
+          (await this.token.mintingFinished()).should.be.false;
         });
       });
 
@@ -32,8 +30,7 @@ function shouldBehaveLikeMintableToken (owner, minter, [anyone]) {
         });
 
         it('returns true', async function () {
-          const mintingFinished = await this.token.mintingFinished();
-          mintingFinished.should.be.true;
+          (await this.token.mintingFinished()).should.be.true;
         });
       });
     });
@@ -46,8 +43,7 @@ function shouldBehaveLikeMintableToken (owner, minter, [anyone]) {
           it('finishes token minting', async function () {
             await this.token.finishMinting({ from });
 
-            const mintingFinished = await this.token.mintingFinished();
-            mintingFinished.should.be.true;
+            (await this.token.mintingFinished()).should.be.true;
           });
 
           it('emits a mint finished event', async function () {
@@ -100,8 +96,7 @@ function shouldBehaveLikeMintableToken (owner, minter, [anyone]) {
           it('mints the requested amount', async function () {
             await this.token.mint(owner, amount, { from });
 
-            const balance = await this.token.balanceOf(owner);
-            balance.should.be.bignumber.equal(amount);
+            (await this.token.balanceOf(owner)).should.be.bignumber.equal(amount);
           });
 
           it('emits a mint and a transfer event', async function () {

@@ -21,8 +21,7 @@ contract('HasNoTokens', function ([_, owner, initialAccount, anyone]) {
     // Force token into contract
     await token.transfer(hasNoTokens.address, 10, { from: initialAccount });
 
-    const startBalance = await token.balanceOf(hasNoTokens.address);
-    startBalance.should.be.bignumber.equal(10);
+    (await token.balanceOf(hasNoTokens.address)).should.be.bignumber.equal(10);
   });
 
   it('should not accept ERC223 tokens', async function () {
@@ -34,10 +33,9 @@ contract('HasNoTokens', function ([_, owner, initialAccount, anyone]) {
     await hasNoTokens.reclaimToken(token.address, { from: owner });
 
     const ownerFinalBalance = await token.balanceOf(owner);
-    const finalBalance = await token.balanceOf(hasNoTokens.address);
-
-    finalBalance.should.be.bignumber.equal(0);
     ownerFinalBalance.sub(ownerStartBalance).should.be.bignumber.equal(10);
+
+    (await token.balanceOf(hasNoTokens.address)).should.be.bignumber.equal(0);
   });
 
   it('should allow only owner to reclaim tokens', async function () {

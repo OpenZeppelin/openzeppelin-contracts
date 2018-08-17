@@ -17,11 +17,9 @@ function shouldBehaveLikeEscrow (owner, [payee1, payee2]) {
       it('can accept a single deposit', async function () {
         await this.escrow.deposit(payee1, { from: owner, value: amount });
 
-        const balance = await ethGetBalance(this.escrow.address);
-        const deposit = await this.escrow.depositsOf(payee1);
+        (await ethGetBalance(this.escrow.address)).should.be.bignumber.equal(amount);
 
-        balance.should.be.bignumber.equal(amount);
-        deposit.should.be.bignumber.equal(amount);
+        (await this.escrow.depositsOf(payee1)).should.be.bignumber.equal(amount);
       });
 
       it('can accept an empty deposit', async function () {
@@ -43,24 +41,20 @@ function shouldBehaveLikeEscrow (owner, [payee1, payee2]) {
         await this.escrow.deposit(payee1, { from: owner, value: amount });
         await this.escrow.deposit(payee1, { from: owner, value: amount * 2 });
 
-        const balance = await ethGetBalance(this.escrow.address);
-        const deposit = await this.escrow.depositsOf(payee1);
+        (await ethGetBalance(this.escrow.address)).should.be.bignumber.equal(amount * 3);
 
-        balance.should.be.bignumber.equal(amount * 3);
-        deposit.should.be.bignumber.equal(amount * 3);
+        (await this.escrow.depositsOf(payee1)).should.be.bignumber.equal(amount * 3);
       });
 
       it('can track deposits to multiple accounts', async function () {
         await this.escrow.deposit(payee1, { from: owner, value: amount });
         await this.escrow.deposit(payee2, { from: owner, value: amount * 2 });
 
-        const balance = await ethGetBalance(this.escrow.address);
-        const depositPayee1 = await this.escrow.depositsOf(payee1);
-        const depositPayee2 = await this.escrow.depositsOf(payee2);
+        (await ethGetBalance(this.escrow.address)).should.be.bignumber.equal(amount * 3);
 
-        balance.should.be.bignumber.equal(amount * 3);
-        depositPayee1.should.be.bignumber.equal(amount);
-        depositPayee2.should.be.bignumber.equal(amount * 2);
+        (await this.escrow.depositsOf(payee1)).should.be.bignumber.equal(amount);
+
+        (await this.escrow.depositsOf(payee2)).should.be.bignumber.equal(amount * 2);
       });
     });
 
@@ -71,12 +65,11 @@ function shouldBehaveLikeEscrow (owner, [payee1, payee2]) {
         await this.escrow.deposit(payee1, { from: owner, value: amount });
         await this.escrow.withdraw(payee1, { from: owner });
 
-        const escrowBalance = await ethGetBalance(this.escrow.address);
-        const finalDeposit = await this.escrow.depositsOf(payee1);
-        const payeeFinalBalance = await ethGetBalance(payee1);
+        (await ethGetBalance(this.escrow.address)).should.be.bignumber.equal(0);
 
-        escrowBalance.should.be.bignumber.equal(0);
-        finalDeposit.should.be.bignumber.equal(0);
+        (await this.escrow.depositsOf(payee1)).should.be.bignumber.equal(0);
+
+        const payeeFinalBalance = await ethGetBalance(payee1);
         payeeFinalBalance.sub(payeeInitialBalance).should.be.bignumber.equal(amount);
       });
 

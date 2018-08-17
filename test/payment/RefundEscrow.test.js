@@ -31,8 +31,7 @@ contract('RefundEscrow', function ([_, owner, beneficiary, refundee1, refundee2]
       it('accepts deposits', async function () {
         await this.escrow.deposit(refundee1, { from: owner, value: amount });
 
-        const deposit = await this.escrow.depositsOf(refundee1);
-        deposit.should.be.bignumber.equal(amount);
+        (await this.escrow.depositsOf(refundee1)).should.be.bignumber.equal(amount);
       });
 
       it('does not refund refundees', async function () {
