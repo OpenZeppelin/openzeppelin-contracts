@@ -66,7 +66,7 @@ contract('Bounty', function ([_, owner, researcher, nonTarget]) {
       await this.bounty.claim(this.targetAddress, { from: researcher });
       const claim = await this.bounty.claimed();
 
-      claim.should.equal(true);
+      claim.should.be.true;
 
       const researcherPrevBalance = await ethGetBalance(researcher);
 
