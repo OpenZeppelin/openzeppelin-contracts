@@ -3,7 +3,10 @@ const { getBouncerSigner } = require('../helpers/sign');
 
 const Bouncer = artifacts.require('SignatureBouncerMock');
 
+const BigNumber = web3.BigNumber;
+
 require('chai')
+  .use(require('chai-bignumber')(BigNumber))
   .should();
 
 const UINT_VALUE = 23;

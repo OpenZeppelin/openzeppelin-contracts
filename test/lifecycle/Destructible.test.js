@@ -1,6 +1,12 @@
 const DestructibleMock = artifacts.require('DestructibleMock');
 const { ethGetBalance } = require('../helpers/web3');
 
+const BigNumber = web3.BigNumber;
+
+require('chai')
+  .use(require('chai-bignumber')(BigNumber))
+  .should();
+
 contract('Destructible', function ([_, owner, recipient]) {
   beforeEach(async function () {
     this.destructible = await DestructibleMock.new({ from: owner });
@@ -15,13 +21,13 @@ contract('Destructible', function ([_, owner, recipient]) {
     const initBalance = await ethGetBalance(owner);
     await this.destructible.destroy({ from: owner });
     const newBalance = await ethGetBalance(owner);
-    assert.isTrue(newBalance > initBalance);
+    newBalance.should.be.bignumber.gt(initBalance);
   });
 
   it('should send balance to recepient after destruction', async function () {
     const initBalance = await ethGetBalance(recipient);
     await this.destructible.destroyAndSend(recipient, { from: owner });
     const newBalance = await ethGetBalance(recipient);
-    assert.isTrue(newBalance.greaterThan(initBalance));
+    newBalance.should.be.bignumber.gt(initBalance);
   });
 });

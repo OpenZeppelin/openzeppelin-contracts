@@ -7,6 +7,8 @@ require('chai')
   .should();
 
 contract('Superuser', function ([_, firstOwner, newSuperuser, newOwner, anyone]) {
+  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+
   beforeEach(async function () {
     this.superuser = await Superuser.new({ from: firstOwner });
   });
@@ -25,6 +27,12 @@ contract('Superuser', function ([_, firstOwner, newSuperuser, newOwner, anyone])
 
       const newSuperuserIsSuperuser = await this.superuser.isSuperuser(newSuperuser);
       newSuperuserIsSuperuser.should.be.equal(true);
+    });
+
+    it('should prevent changing to a null superuser', async function () {
+      await expectThrow(
+        this.superuser.transferSuperuser(ZERO_ADDRESS, { from: firstOwner })
+      );
     });
 
     it('should change owner after the superuser transfers the ownership', async function () {

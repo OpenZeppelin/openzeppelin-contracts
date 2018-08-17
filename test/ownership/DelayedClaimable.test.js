@@ -1,5 +1,11 @@
 const { assertRevert } = require('../helpers/assertRevert');
 
+const BigNumber = web3.BigNumber;
+
+require('chai')
+  .use(require('chai-bignumber')(BigNumber))
+  .should();
+
 const DelayedClaimable = artifacts.require('DelayedClaimable');
 
 contract('DelayedClaimable', function ([_, owner, newOwner]) {
@@ -10,34 +16,42 @@ contract('DelayedClaimable', function ([_, owner, newOwner]) {
   it('can set claim blocks', async function () {
     await this.delayedClaimable.transferOwnership(newOwner, { from: owner });
     await this.delayedClaimable.setLimits(0, 1000, { from: owner });
+
     const end = await this.delayedClaimable.end();
-    assert.equal(end, 1000);
+    end.should.be.bignumber.equal(1000);
+
     const start = await this.delayedClaimable.start();
-    assert.equal(start, 0);
+    start.should.be.bignumber.equal(0);
   });
 
   it('changes pendingOwner after transfer successful', async function () {
     await this.delayedClaimable.transferOwnership(newOwner, { from: owner });
     await this.delayedClaimable.setLimits(0, 1000, { from: owner });
+
     const end = await this.delayedClaimable.end();
-    assert.equal(end, 1000);
+    end.should.be.bignumber.equal(1000);
+
     const start = await this.delayedClaimable.start();
-    assert.equal(start, 0);
-    assert.equal((await this.delayedClaimable.pendingOwner()), newOwner);
+    start.should.be.bignumber.equal(0);
+
+    (await this.delayedClaimable.pendingOwner()).should.eq(newOwner);
     await this.delayedClaimable.claimOwnership({ from: newOwner });
-    assert.equal((await this.delayedClaimable.owner()), newOwner);
+    (await this.delayedClaimable.owner()).should.eq(newOwner);
   });
 
   it('changes pendingOwner after transfer fails', async function () {
     await this.delayedClaimable.transferOwnership(newOwner, { from: owner });
     await this.delayedClaimable.setLimits(100, 110, { from: owner });
+
     const end = await this.delayedClaimable.end();
-    assert.equal(end, 110);
+    end.should.be.bignumber.equal(110);
+
     const start = await this.delayedClaimable.start();
-    assert.equal(start, 100);
-    assert.equal((await this.delayedClaimable.pendingOwner()), newOwner);
+    start.should.be.bignumber.equal(100);
+
+    (await this.delayedClaimable.pendingOwner()).should.eq(newOwner);
     await assertRevert(this.delayedClaimable.claimOwnership({ from: newOwner }));
-    assert.isTrue((await this.delayedClaimable.owner()) !== newOwner);
+    (await this.delayedClaimable.owner()).should.not.eq(newOwner);
   });
 
   it('set end and start invalid values fail', async function () {

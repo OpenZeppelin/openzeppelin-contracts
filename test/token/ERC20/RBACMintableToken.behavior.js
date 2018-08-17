@@ -7,11 +7,11 @@ function shouldBehaveLikeRBACMintableToken (owner, [anyone]) {
     it('owner can add and remove a minter role', async function () {
       await this.token.addMinter(anyone, { from: owner });
       let hasRole = await this.token.hasRole(anyone, ROLE_MINTER);
-      assert.equal(hasRole, true);
+      hasRole.should.be.true;
 
       await this.token.removeMinter(anyone, { from: owner });
       hasRole = await this.token.hasRole(anyone, ROLE_MINTER);
-      assert.equal(hasRole, false);
+      hasRole.should.be.false;
     });
 
     it('anyone can\'t add or remove a minter role', async function () {

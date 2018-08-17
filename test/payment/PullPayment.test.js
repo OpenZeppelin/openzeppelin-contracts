@@ -15,16 +15,10 @@ contract('PullPayment', function ([_, payer, payee1, payee2]) {
     this.contract = await PullPaymentMock.new({ value: amount });
   });
 
-  it('can\'t call asyncSend externally', async function () {
-    assert.isUndefined(this.contract.asyncSend);
-  });
-
   it('can record an async payment correctly', async function () {
-    const AMOUNT = 100;
-    await this.contract.callTransfer(payee1, AMOUNT, { from: payer });
-
+    await this.contract.callTransfer(payee1, 100, { from: payer });
     const paymentsToPayee1 = await this.contract.payments(payee1);
-    paymentsToPayee1.should.be.bignumber.equal(AMOUNT);
+    paymentsToPayee1.should.be.bignumber.equal(100);
   });
 
   it('can add multiple balances on one account', async function () {

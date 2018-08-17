@@ -6,26 +6,25 @@ const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 const Heritable = artifacts.require('Heritable');
 
+const BigNumber = web3.BigNumber;
+
+require('chai')
+  .use(require('chai-bignumber')(BigNumber))
+  .should();
+
 contract('Heritable', function ([_, owner, heir, anyone]) {
+  const heartbeatTimeout = 4141;
   let heritable;
 
   beforeEach(async function () {
-    heritable = await Heritable.new(4141, { from: owner });
+    heritable = await Heritable.new(heartbeatTimeout, { from: owner });
   });
 
   it('should start off with an owner, but without heir', async function () {
     const heir = await heritable.heir();
 
-    assert.equal(typeof (owner), 'string');
-    assert.equal(typeof (heir), 'string');
-    assert.notStrictEqual(
-      owner, NULL_ADDRESS,
-      'Owner shouldn\'t be the null address'
-    );
-    assert.isTrue(
-      heir === NULL_ADDRESS,
-      'Heir should be the null address'
-    );
+    owner.should.be.a('string').that.is.not.equal(NULL_ADDRESS);
+    heir.should.be.a('string').that.is.equal(NULL_ADDRESS);
   });
 
   it('only owner should set heir', async function () {
@@ -39,10 +38,10 @@ contract('Heritable', function ([_, owner, heir, anyone]) {
 
   it('owner can remove heir', async function () {
     await heritable.setHeir(heir, { from: owner });
-    assert.equal(await heritable.heir(), heir);
+    (await heritable.heir()).should.eq(heir);
 
     await heritable.removeHeir({ from: owner });
-    assert.equal(await heritable.heir(), NULL_ADDRESS);
+    (await heritable.heir()).should.eq(NULL_ADDRESS);
   });
 
   it('heir can claim ownership only if owner is dead and timeout was reached', async function () {
@@ -53,9 +52,9 @@ contract('Heritable', function ([_, owner, heir, anyone]) {
     await increaseTime(1);
     await expectThrow(heritable.claimHeirOwnership({ from: heir }));
 
-    await increaseTime(4141);
+    await increaseTime(heartbeatTimeout);
     await heritable.claimHeirOwnership({ from: heir });
-    assert.isTrue(await heritable.heir() === heir);
+    (await heritable.heir()).should.eq(heir);
   });
 
   it('only heir can proclaim death', async function () {
@@ -77,7 +76,7 @@ contract('Heritable', function ([_, owner, heir, anyone]) {
     await expectThrow(heritable.claimHeirOwnership({ from: heir }));
 
     await heritable.proclaimDeath({ from: heir });
-    await increaseTime(4141);
+    await increaseTime(heartbeatTimeout);
     await heritable.heartbeat({ from: owner });
     await expectThrow(heritable.claimHeirOwnership({ from: heir }));
   });
@@ -86,36 +85,36 @@ contract('Heritable', function ([_, owner, heir, anyone]) {
     const setHeirLogs = (await heritable.setHeir(heir, { from: owner })).logs;
     const setHeirEvent = setHeirLogs.find(e => e.event === 'HeirChanged');
 
-    assert.isTrue(setHeirEvent.args.owner === owner);
-    assert.isTrue(setHeirEvent.args.newHeir === heir);
+    setHeirEvent.args.owner.should.eq(owner);
+    setHeirEvent.args.newHeir.should.eq(heir);
 
     const heartbeatLogs = (await heritable.heartbeat({ from: owner })).logs;
     const heartbeatEvent = heartbeatLogs.find(e => e.event === 'OwnerHeartbeated');
 
-    assert.isTrue(heartbeatEvent.args.owner === owner);
+    heartbeatEvent.args.owner.should.eq(owner);
 
     const proclaimDeathLogs = (await heritable.proclaimDeath({ from: heir })).logs;
     const ownerDeadEvent = proclaimDeathLogs.find(e => e.event === 'OwnerProclaimedDead');
 
-    assert.isTrue(ownerDeadEvent.args.owner === owner);
-    assert.isTrue(ownerDeadEvent.args.heir === heir);
+    ownerDeadEvent.args.owner.should.eq(owner);
+    ownerDeadEvent.args.heir.should.eq(heir);
 
-    await increaseTime(4141);
+    await increaseTime(heartbeatTimeout);
     const claimHeirOwnershipLogs = (await heritable.claimHeirOwnership({ from: heir })).logs;
     const ownershipTransferredEvent = claimHeirOwnershipLogs.find(e => e.event === 'OwnershipTransferred');
     const heirOwnershipClaimedEvent = claimHeirOwnershipLogs.find(e => e.event === 'HeirOwnershipClaimed');
 
-    assert.isTrue(ownershipTransferredEvent.args.previousOwner === owner);
-    assert.isTrue(ownershipTransferredEvent.args.newOwner === heir);
-    assert.isTrue(heirOwnershipClaimedEvent.args.previousOwner === owner);
-    assert.isTrue(heirOwnershipClaimedEvent.args.newOwner === heir);
+    ownershipTransferredEvent.args.previousOwner.should.eq(owner);
+    ownershipTransferredEvent.args.newOwner.should.eq(heir);
+    heirOwnershipClaimedEvent.args.previousOwner.should.eq(owner);
+    heirOwnershipClaimedEvent.args.newOwner.should.eq(heir);
   });
 
   it('timeOfDeath can be queried', async function () {
-    assert.equal(await heritable.timeOfDeath(), 0);
+    (await heritable.timeOfDeath()).should.be.bignumber.equal(0);
   });
 
   it('heartbeatTimeout can be queried', async function () {
-    assert.equal(await heritable.heartbeatTimeout(), 4141);
+    (await heritable.heartbeatTimeout()).should.be.bignumber.equal(heartbeatTimeout);
   });
 });

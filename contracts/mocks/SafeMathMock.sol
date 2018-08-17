@@ -21,4 +21,8 @@ contract SafeMathMock {
   function add(uint256 _a, uint256 _b) public pure returns (uint256) {
     return SafeMath.add(_a, _b);
   }
+
+  function mod(uint256 a, uint256 b) public pure returns (uint256) {
+    return SafeMath.mod(a, b);
+  }
 }

@@ -23,12 +23,6 @@ contract ERC721Basic is ERC165 {
    *   bytes4(keccak256('safeTransferFrom(address,address,uint256,bytes)'))
    */
 
-  bytes4 internal constant InterfaceId_ERC721Exists = 0x4f558e79;
-  /*
-   * 0x4f558e79 ===
-   *   bytes4(keccak256('exists(uint256)'))
-   */
-
   bytes4 internal constant InterfaceId_ERC721Enumerable = 0x780e9d63;
   /**
    * 0x780e9d63 ===
@@ -63,7 +57,6 @@ contract ERC721Basic is ERC165 {
 
   function balanceOf(address _owner) public view returns (uint256 _balance);
   function ownerOf(uint256 _tokenId) public view returns (address _owner);
-  function exists(uint256 _tokenId) public view returns (bool _exists);
 
   function approve(address _to, uint256 _tokenId) public;
   function getApproved(uint256 _tokenId)
