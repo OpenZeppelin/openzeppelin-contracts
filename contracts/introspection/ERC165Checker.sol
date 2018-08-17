@@ -34,7 +34,8 @@ library ERC165Checker {
   {
     // success determines whether the staticcall succeeded and result determines
     // whether the contract at _address indicates support of _interfaceId
-    (bool success, bool result) = noThrowCall(_address, _interfaceId);
+    (bool success, bool result) = callERC165SupportsInterface(
+      _address, _interfaceId);
 
     return (success && result);
   }
@@ -81,31 +82,34 @@ library ERC165Checker {
    * @return result true if the STATICCALL succeeded and the contract at _address
    * indicates support of the interface with identifier _interfaceId, false otherwise
    */
-  function noThrowCall (
+  function callERC165SupportsInterface (
     address _address,
     bytes4 _interfaceId
   ) 
-    internal
+    private
     view
     returns (bool success, bool result)
   {
-    bytes4 erc165ID = InterfaceId_ERC165;
+    bytes memory encodedParams = abi.encodeWithSelector(
+      InterfaceId_ERC165, _interfaceId);
 
     // solium-disable-next-line security/no-inline-assembly
     assembly {
-        let x := mload(0x40)               // Find empty storage location using "free memory pointer"
-        mstore(x, erc165ID)                // Place signature at begining of empty storage
-        mstore(add(x, 0x04), _interfaceId) // Place first argument directly next to signature
+        let encodedParams_data := add(0x20, encodedParams)
+        let encodedParams_size := mload(encodedParams)
+        
+        let output := mload(0x40)  // Find empty storage location using "free memory pointer"
+        mstore(output, 0x0)
 
         success := staticcall(
                   30000,     // 30k gas
-                  _address, // To addr
-                  x,         // Inputs are stored at location x
-                  0x20,      // Inputs are 32 bytes long
-                  x,         // Store output over input (saves space)
+                  _address,  // To addr
+                  encodedParams_data,
+                  encodedParams_size,
+                  output,
                   0x20)      // Outputs are 32 bytes long
 
-        result := mload(x)   // Load the result
+        result := mload(output) // Load the result
     }
   }
 }
