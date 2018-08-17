@@ -178,7 +178,7 @@ contract StandardToken is ERC20 {
    */
   function _burn(address _account, uint256 _amount) internal {
     require(_account != 0);
-    require(balances[_account] > _amount);
+    require(_amount <= balances[_account]);
 
     totalSupply_ = totalSupply_.sub(_amount);
     balances[_account] = balances[_account].sub(_amount);
@@ -193,7 +193,7 @@ contract StandardToken is ERC20 {
    * @param _amount The amount that will be burnt.
    */
   function _burnFrom(address _account, uint256 _amount) internal {
-    require(allowed[_account][msg.sender] > _amount);
+    require(_amount <= allowed[_account][msg.sender]);
 
     // Should https://github.com/OpenZeppelin/zeppelin-solidity/issues/707 be accepted,
     // this function needs to emit an event with the updated approval.
