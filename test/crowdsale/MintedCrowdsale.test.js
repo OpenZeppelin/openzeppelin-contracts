@@ -19,7 +19,7 @@ contract('MintedCrowdsale', function ([_, investor, wallet, purchaser]) {
     });
 
     it('should be token owner', async function () {
-      (await this.token.owner()).should.eq(this.crowdsale.address);
+      (await this.token.owner()).should.equal(this.crowdsale.address);
     });
 
     shouldBehaveLikeMintedCrowdsale([_, investor, wallet, purchaser], rate, value);

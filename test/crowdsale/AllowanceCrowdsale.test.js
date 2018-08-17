@@ -39,8 +39,8 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
       const { logs } = await this.crowdsale.sendTransaction({ value: value, from: investor });
       const event = logs.find(e => e.event === 'TokenPurchase');
       should.exist(event);
-      event.args.purchaser.should.eq(investor);
-      event.args.beneficiary.should.eq(investor);
+      event.args.purchaser.should.equal(investor);
+      event.args.beneficiary.should.equal(investor);
       event.args.value.should.be.bignumber.equal(value);
       event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
     });

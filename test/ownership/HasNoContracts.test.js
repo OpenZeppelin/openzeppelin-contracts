@@ -18,7 +18,7 @@ contract('HasNoContracts', function ([_, owner, anyone]) {
 
   it('should allow owner to reclaim contracts', async function () {
     await hasNoContracts.reclaimContract(ownable.address, { from: owner });
-    (await ownable.owner()).should.eq(owner);
+    (await ownable.owner()).should.equal(owner);
   });
 
   it('should allow only owner to reclaim contracts', async function () {

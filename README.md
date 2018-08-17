@@ -1,3 +1,5 @@
+[![NPM Package](https://img.shields.io/npm/v/openzeppelin-solidity.svg?style=flat-square)](https://www.npmjs.org/package/openzeppelin-solidity)
+
 # OpenZeppelin Solidity
 [![NPM Package](https://img.shields.io/npm/v/openzeppelin-solidity.svg?style=flat-square)](https://www.npmjs.org/package/openzeppelin-solidity)
 [![Build Status](https://img.shields.io/travis/OpenZeppelin/openzeppelin-solidity.svg?branch=master&style=flat-square)](https://travis-ci.org/OpenZeppelin/openzeppelin-solidity)
@@ -89,7 +91,7 @@ The following provides visibility into how OpenZeppelin's contracts are organize
 	- **ERC20** - A standard interface for fungible tokens:
 		- *Interfaces* - Includes the ERC-20 token standard basic interface. I.e., what the contract’s ABI can represent.
 		- *Implementations* - Includes ERC-20 token implementations that include all required and some optional ERC-20 functionality.
-	- **ERC721** - A standard interface for non-fungible tokens 
+	- **ERC721** - A standard interface for non-fungible tokens
 		- *Interfaces* - Includes the ERC-721 token standard basic interface. I.e., what the contract’s ABI can represent.
 		- *Implementations* - Includes ERC-721 token implementations that include all required and some optional ERC-721 functionality.
 
