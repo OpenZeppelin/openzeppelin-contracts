@@ -5,6 +5,8 @@ const ERC165InterfacesSupported = artifacts.require('ERC165InterfacesSupported')
 const DUMMY_ID = '0xdeadbeef';
 const DUMMY_ID_2 = '0xcafebabe';
 const DUMMY_ID_3 = '0xdecafbad';
+const DUMMY_UNSUPPORTED_ID = '0xbaddcafe';
+const DUMMY_UNSUPPORTED_ID_2 = '0xbaadcafe';
 const DUMMY_ACCOUNT = '0x1111111111111111111111111111111111111111';
 
 require('chai')
@@ -126,6 +128,20 @@ contract('ERC165Checker', function (accounts) {
       const supported = await this.mock.supportsInterfaces(this.target.address, this.supportedInterfaces);
 
       assertIgnoringCoverage(supported, true);
+    });
+
+    it('supports none of the interfaces queried via supportsInterfaces', async function () {
+      const interfaceIdsToTest = [DUMMY_UNSUPPORTED_ID, DUMMY_UNSUPPORTED_ID_2];
+      const supported = await this.mock.supportsInterfaces(this.target.address, interfaceIdsToTest);
+
+      assertIgnoringCoverage(supported, false);
+    });
+
+    it('supports not all of the interfaces queried via supportsInterfaces', async function () {
+      const interfaceIdsToTest = [...this.supportedInterfaces, DUMMY_UNSUPPORTED_ID];
+      const supported = await this.mock.supportsInterfaces(this.target.address, interfaceIdsToTest);
+
+      assertIgnoringCoverage(supported, false);
     });
   });
 
