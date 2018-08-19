@@ -61,6 +61,10 @@ contract('CapStagedCrowdsale', function ([_, owner, wallet, investor]) {
         const wi = await this.crowdsale.weiRaised();
         assert(wi.should.be.bignumber.eq(web3.toWei(3, 'ether')));
         await this.crowdsale.buyTokens(investor, { from: investor, value: _value * 1 });
+        const wi1 = await this.crowdsale.weiRaised();
+        assert(wi1.should.be.bignumber.eq(web3.toWei(4, 'ether')));
+        const rt = await this.crowdsale.getRate();
+        assert(rt.should.be.bignumber.eq(20));
       });
     });
     context('over last stage limit', function () {
