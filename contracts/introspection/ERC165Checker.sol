@@ -4,7 +4,7 @@ pragma solidity ^0.4.24;
 /**
  * @title ERC165Checker
  * @dev Use `using ERC165Checker for address`; to include this library
- *      https://github.com/ethereum/EIPs/blob/master/EIPS/eip-165.md
+ * https://github.com/ethereum/EIPs/blob/master/EIPS/eip-165.md
  */
 library ERC165Checker {
   // As per the EIP-165 spec, no interface should ever match 0xffffffff
@@ -87,9 +87,9 @@ library ERC165Checker {
    * @return true if the contract at _address indicates support of the interface with
    * identifier _interfaceId, false otherwise
    * @dev Assumes that _address contains a contract that supports ERC165, otherwise
-   *      the behavior of this method is undefined. This precondition can be checked 
-   *      with the `supportsERC165` method in this library. 
-   *      Interface identification is specified in ERC-165.
+   * the behavior of this method is undefined. This precondition can be checked 
+   * with the `supportsERC165` method in this library. 
+   * Interface identification is specified in ERC-165.
    */
   function supportsERC165Interface(address _address, bytes4 _interfaceId)
     private
@@ -112,7 +112,7 @@ library ERC165Checker {
    * @return result true if the STATICCALL succeeded and the contract at _address
    * indicates support of the interface with identifier _interfaceId, false otherwise
    */
-  function callERC165SupportsInterface (
+  function callERC165SupportsInterface(
     address _address,
     bytes4 _interfaceId
   ) 
@@ -121,7 +121,9 @@ library ERC165Checker {
     returns (bool success, bool result)
   {
     bytes memory encodedParams = abi.encodeWithSelector(
-      InterfaceId_ERC165, _interfaceId);
+      InterfaceId_ERC165, 
+      _interfaceId
+    );
 
     // solium-disable-next-line security/no-inline-assembly
     assembly {

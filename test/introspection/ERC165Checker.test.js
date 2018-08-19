@@ -22,7 +22,7 @@ contract('ERC165Checker', function (accounts) {
    */
   const assertIgnoringCoverage = function (actual, expected) {
     if (!process.env.SOLIDITY_COVERAGE) {
-      actual.should.eq(expected);
+      actual.should.equal(expected);
     }
   };
 
