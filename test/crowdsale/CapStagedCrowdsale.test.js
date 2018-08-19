@@ -56,7 +56,7 @@ contract('CapStagedCrowdsale', function ([_, owner, wallet, investor]) {
       });
     });
     context('over last stage limit', function () {
-      it('should accept payments over last stage limit - rate 20)', async function () {
+      it('should accept payments over last stage limit rate 20)', async function () {
         await this.crowdsale.buyTokens(investor, { from: investor, value: _value * 3 });
         const wi = await this.crowdsale.weiRaised();
         assert(wi.should.be.bignumber.eq(web3.toWei(3, 'ether')));

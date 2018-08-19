@@ -71,7 +71,7 @@ contract CapStagedCrowdsale is CappedCrowdsale {
     */
   function getRate() public view returns(uint256) {
     for (uint256 i = 0; i < stages.length; i++) {
-      if (cap >= weiRaised) {
+      if (stages[stages.length - 1].limit >= weiRaised) {
         if (stages[i].limit >= weiRaised) {
           return stages[i].rate;
         }
