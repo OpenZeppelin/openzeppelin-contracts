@@ -18,8 +18,7 @@ function shouldBehaveLikeBurnableToken (owner, initialBalance, [burner]) {
       });
 
       it('burns the requested amount', async function () {
-        const balance = await this.token.balanceOf(owner);
-        balance.should.be.bignumber.equal(initialBalance - amount);
+        (await this.token.balanceOf(owner)).should.be.bignumber.equal(initialBalance - amount);
       });
 
       it('emits a burn event', async function () {
@@ -56,13 +55,11 @@ function shouldBehaveLikeBurnableToken (owner, initialBalance, [burner]) {
       });
 
       it('burns the requested amount', async function () {
-        const balance = await this.token.balanceOf(owner);
-        balance.should.be.bignumber.equal(initialBalance - amount);
+        (await this.token.balanceOf(owner)).should.be.bignumber.equal(initialBalance - amount);
       });
 
       it('decrements allowance', async function () {
-        const allowance = await this.token.allowance(owner, burner);
-        allowance.should.be.bignumber.equal(200);
+        (await this.token.allowance(owner, burner)).should.be.bignumber.equal(200);
       });
 
       it('emits a burn event', async function () {

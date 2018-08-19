@@ -56,14 +56,12 @@ contract('IndividuallyCappedCrowdsale', function ([_, wallet, alice, bob, charli
 
     describe('reporting state', function () {
       it('should report correct cap', async function () {
-        const retrievedCap = await this.crowdsale.getUserCap(alice);
-        retrievedCap.should.be.bignumber.equal(capAlice);
+        (await this.crowdsale.getUserCap(alice)).should.be.bignumber.equal(capAlice);
       });
 
       it('should report actual contribution', async function () {
         await this.crowdsale.buyTokens(alice, { value: lessThanCapAlice });
-        const retrievedContribution = await this.crowdsale.getUserContribution(alice);
-        retrievedContribution.should.be.bignumber.equal(lessThanCapAlice);
+        (await this.crowdsale.getUserContribution(alice)).should.be.bignumber.equal(lessThanCapAlice);
       });
     });
   });
@@ -97,10 +95,8 @@ contract('IndividuallyCappedCrowdsale', function ([_, wallet, alice, bob, charli
 
     describe('reporting state', function () {
       it('should report correct cap', async function () {
-        const retrievedCapBob = await this.crowdsale.getUserCap(bob);
-        retrievedCapBob.should.be.bignumber.equal(capBob);
-        const retrievedCapCharlie = await this.crowdsale.getUserCap(charlie);
-        retrievedCapCharlie.should.be.bignumber.equal(capBob);
+        (await this.crowdsale.getUserCap(bob)).should.be.bignumber.equal(capBob);
+        (await this.crowdsale.getUserCap(charlie)).should.be.bignumber.equal(capBob);
       });
     });
   });

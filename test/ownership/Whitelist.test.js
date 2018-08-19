@@ -21,8 +21,7 @@ contract('Whitelist', function ([_, owner, whitelistedAddress1, whitelistedAddre
         'RoleAdded',
         { role: this.role },
       );
-      const isWhitelisted = await this.mock.whitelist(whitelistedAddress1);
-      isWhitelisted.should.be.equal(true);
+      (await this.mock.whitelist(whitelistedAddress1)).should.be.be.true;
     });
 
     it('should add addresses to the whitelist', async function () {
@@ -32,8 +31,7 @@ contract('Whitelist', function ([_, owner, whitelistedAddress1, whitelistedAddre
         { role: this.role },
       );
       for (const addr of whitelistedAddresses) {
-        const isWhitelisted = await this.mock.whitelist(addr);
-        isWhitelisted.should.be.equal(true);
+        (await this.mock.whitelist(addr)).should.be.be.true;
       }
     });
 
@@ -43,8 +41,7 @@ contract('Whitelist', function ([_, owner, whitelistedAddress1, whitelistedAddre
         'RoleRemoved',
         { role: this.role },
       );
-      const isWhitelisted = await this.mock.whitelist(whitelistedAddress1);
-      isWhitelisted.should.be.equal(false);
+      (await this.mock.whitelist(whitelistedAddress1)).should.be.be.false;
     });
 
     it('should remove addresses from the the whitelist', async function () {
@@ -54,8 +51,7 @@ contract('Whitelist', function ([_, owner, whitelistedAddress1, whitelistedAddre
         { role: this.role },
       );
       for (const addr of whitelistedAddresses) {
-        const isWhitelisted = await this.mock.whitelist(addr);
-        isWhitelisted.should.be.equal(false);
+        (await this.mock.whitelist(addr)).should.be.be.false;
       }
     });
 

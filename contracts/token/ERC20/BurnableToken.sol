@@ -25,21 +25,15 @@ contract BurnableToken is StandardToken {
    * @param _value uint256 The amount of token to be burned
    */
   function burnFrom(address _from, uint256 _value) public {
-    require(_value <= allowed[_from][msg.sender]);
-    // Should https://github.com/OpenZeppelin/zeppelin-solidity/issues/707 be accepted,
-    // this function needs to emit an event with the updated approval.
-    allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value);
-    _burn(_from, _value);
+    _burnFrom(_from, _value);
   }
 
+  /**
+   * @dev Overrides StandardToken._burn in order for burn and burnFrom to emit
+   * an additional Burn event.
+   */
   function _burn(address _who, uint256 _value) internal {
-    require(_value <= balances[_who]);
-    // no need to require value <= totalSupply, since that would imply the
-    // sender's balance is greater than the totalSupply, which *should* be an assertion failure
-
-    balances[_who] = balances[_who].sub(_value);
-    totalSupply_ = totalSupply_.sub(_value);
+    super._burn(_who, _value);
     emit Burn(_who, _value);
-    emit Transfer(_who, address(0), _value);
   }
 }

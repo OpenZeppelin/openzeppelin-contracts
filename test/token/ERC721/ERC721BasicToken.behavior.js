@@ -28,15 +28,13 @@ function shouldBehaveLikeERC721BasicToken (accounts) {
     describe('balanceOf', function () {
       context('when the given address owns some tokens', function () {
         it('returns the amount of tokens owned by the given address', async function () {
-          const balance = await this.token.balanceOf(creator);
-          balance.should.be.bignumber.equal(2);
+          (await this.token.balanceOf(creator)).should.be.bignumber.equal(2);
         });
       });
 
       context('when the given address does not own any tokens', function () {
         it('returns 0', async function () {
-          const balance = await this.token.balanceOf(accounts[1]);
-          balance.should.be.bignumber.equal(0);
+          (await this.token.balanceOf(accounts[1])).should.be.bignumber.equal(0);
         });
       });
 
@@ -52,8 +50,7 @@ function shouldBehaveLikeERC721BasicToken (accounts) {
         const tokenId = firstTokenId;
 
         it('returns the owner of the given token ID', async function () {
-          const owner = await this.token.ownerOf(tokenId);
-          owner.should.be.equal(creator);
+          (await this.token.ownerOf(tokenId)).should.be.equal(creator);
         });
       });
 
@@ -84,13 +81,11 @@ function shouldBehaveLikeERC721BasicToken (accounts) {
 
       const transferWasSuccessful = function ({ owner, tokenId, approved }) {
         it('transfers the ownership of the given token ID to the given address', async function () {
-          const newOwner = await this.token.ownerOf(tokenId);
-          newOwner.should.be.equal(this.to);
+          (await this.token.ownerOf(tokenId)).should.be.equal(this.to);
         });
 
         it('clears the approval for the token ID', async function () {
-          const approvedAccount = await this.token.getApproved(tokenId);
-          approvedAccount.should.be.equal(ZERO_ADDRESS);
+          (await this.token.getApproved(tokenId)).should.be.equal(ZERO_ADDRESS);
         });
 
         if (approved) {
@@ -112,21 +107,17 @@ function shouldBehaveLikeERC721BasicToken (accounts) {
         }
 
         it('adjusts owners balances', async function () {
-          const newOwnerBalance = await this.token.balanceOf(this.to);
-          newOwnerBalance.should.be.bignumber.equal(1);
+          (await this.token.balanceOf(this.to)).should.be.bignumber.equal(1);
 
-          const previousOwnerBalance = await this.token.balanceOf(owner);
-          previousOwnerBalance.should.be.bignumber.equal(1);
+          (await this.token.balanceOf(owner)).should.be.bignumber.equal(1);
         });
 
         it('adjusts owners tokens by index', async function () {
           if (!this.token.tokenOfOwnerByIndex) return;
 
-          const newOwnerToken = await this.token.tokenOfOwnerByIndex(this.to, 0);
-          newOwnerToken.toNumber().should.be.equal(tokenId);
+          (await this.token.tokenOfOwnerByIndex(this.to, 0)).toNumber().should.be.equal(tokenId);
 
-          const previousOwnerToken = await this.token.tokenOfOwnerByIndex(owner, 0);
-          previousOwnerToken.toNumber().should.not.be.eq(tokenId);
+          (await this.token.tokenOfOwnerByIndex(owner, 0)).toNumber().should.not.be.eq(tokenId);
         });
       };
 
@@ -166,13 +157,11 @@ function shouldBehaveLikeERC721BasicToken (accounts) {
           });
 
           it('keeps ownership of the token', async function () {
-            const newOwner = await this.token.ownerOf(tokenId);
-            newOwner.should.be.equal(owner);
+            (await this.token.ownerOf(tokenId)).should.be.equal(owner);
           });
 
           it('clears the approval for the token ID', async function () {
-            const approvedAccount = await this.token.getApproved(tokenId);
-            approvedAccount.should.be.equal(ZERO_ADDRESS);
+            (await this.token.getApproved(tokenId)).should.be.equal(ZERO_ADDRESS);
           });
 
           it('emits only a transfer event', async function () {
@@ -184,8 +173,7 @@ function shouldBehaveLikeERC721BasicToken (accounts) {
           });
 
           it('keeps the owner balance', async function () {
-            const ownerBalance = await this.token.balanceOf(owner);
-            ownerBalance.should.be.bignumber.equal(2);
+            (await this.token.balanceOf(owner)).should.be.bignumber.equal(2);
           });
 
           it('keeps same tokens by index', async function () {
@@ -332,15 +320,13 @@ function shouldBehaveLikeERC721BasicToken (accounts) {
 
       const itClearsApproval = function () {
         it('clears approval for the token', async function () {
-          const approvedAccount = await this.token.getApproved(tokenId);
-          approvedAccount.should.be.equal(ZERO_ADDRESS);
+          (await this.token.getApproved(tokenId)).should.be.equal(ZERO_ADDRESS);
         });
       };
 
       const itApproves = function (address) {
         it('sets the approval for the target address', async function () {
-          const approvedAccount = await this.token.getApproved(tokenId);
-          approvedAccount.should.be.equal(address);
+          (await this.token.getApproved(tokenId)).should.be.equal(address);
         });
       };
 
@@ -453,8 +439,7 @@ function shouldBehaveLikeERC721BasicToken (accounts) {
           it('approves the operator', async function () {
             await this.token.setApprovalForAll(operator, true, { from: sender });
 
-            const isApproved = await this.token.isApprovedForAll(sender, operator);
-            isApproved.should.be.true;
+            (await this.token.isApprovedForAll(sender, operator)).should.be.true;
           });
 
           it('emits an approval event', async function () {
@@ -476,8 +461,7 @@ function shouldBehaveLikeERC721BasicToken (accounts) {
           it('approves the operator', async function () {
             await this.token.setApprovalForAll(operator, true, { from: sender });
 
-            const isApproved = await this.token.isApprovedForAll(sender, operator);
-            isApproved.should.be.true;
+            (await this.token.isApprovedForAll(sender, operator)).should.be.true;
           });
 
           it('emits an approval event', async function () {
@@ -493,8 +477,7 @@ function shouldBehaveLikeERC721BasicToken (accounts) {
           it('can unset the operator approval', async function () {
             await this.token.setApprovalForAll(operator, false, { from: sender });
 
-            const isApproved = await this.token.isApprovedForAll(sender, operator);
-            isApproved.should.be.false;
+            (await this.token.isApprovedForAll(sender, operator)).should.be.false;
           });
         });
 
@@ -506,8 +489,7 @@ function shouldBehaveLikeERC721BasicToken (accounts) {
           it('keeps the approval to the given address', async function () {
             await this.token.setApprovalForAll(operator, true, { from: sender });
 
-            const isApproved = await this.token.isApprovedForAll(sender, operator);
-            isApproved.should.be.true;
+            (await this.token.isApprovedForAll(sender, operator)).should.be.true;
           });
 
           it('emits an approval event', async function () {

@@ -30,13 +30,11 @@ function shouldBehaveLikeMintAndBurnERC721Token (accounts) {
         });
 
         it('assigns the token to the new owner', async function () {
-          const owner = await this.token.ownerOf(tokenId);
-          owner.should.be.equal(to);
+          (await this.token.ownerOf(tokenId)).should.be.equal(to);
         });
 
         it('increases the balance of its owner', async function () {
-          const balance = await this.token.balanceOf(to);
-          balance.should.be.bignumber.equal(1);
+          (await this.token.balanceOf(to)).should.be.bignumber.equal(1);
         });
 
         it('emits a transfer event', async function () {
@@ -74,8 +72,7 @@ function shouldBehaveLikeMintAndBurnERC721Token (accounts) {
 
         it('burns the given token ID and adjusts the balance of the owner', async function () {
           await assertRevert(this.token.ownerOf(tokenId));
-          const balance = await this.token.balanceOf(sender);
-          balance.should.be.bignumber.equal(1);
+          (await this.token.balanceOf(sender)).should.be.bignumber.equal(1);
         });
 
         it('emits a burn event', async function () {
@@ -95,8 +92,7 @@ function shouldBehaveLikeMintAndBurnERC721Token (accounts) {
         });
 
         it('clears the approval', async function () {
-          const approvedAccount = await this.token.getApproved(tokenId);
-          approvedAccount.should.be.equal(ZERO_ADDRESS);
+          (await this.token.getApproved(tokenId)).should.be.equal(ZERO_ADDRESS);
         });
       });
 

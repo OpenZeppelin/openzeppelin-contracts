@@ -4,24 +4,41 @@ group: beta
 language: node_js
 node_js:
   - "8"
+
 cache:
   directories:
     - node_modules
-env:
-  -
-  - SOLIDITY_COVERAGE=true
-  - SOLC_NIGHTLY=true
-matrix:
+
+jobs:
+  # XXX fast_finish doesn't work with stages yet. See
+  # https://github.com/travis-ci/travis-ci/issues/8425
+  # --elopio - 20180531
   fast_finish: true
   allow_failures:
     - env: SOLIDITY_COVERAGE=true
     - env: SOLC_NIGHTLY=true
-before_script:
-  - truffle version
-script:
-  - npm run lint
-  - npm run lint:sol
-  - npm run test
+  include:
+    # Run the unit test suite three times in parallel.
+    # The first one gets results faster and is the only one required to pass.
+    # The second one generates the coverage report.
+    # The third one is to keep us informed about possible issues with the
+    # upcoming solidity release.
+    - stage: tests
+      name: "unit tests"
+      script: npm run test
+    - stage: tests
+      name: "unit tests with coverage"
+      script: npm run test
+      env: SOLIDITY_COVERAGE=true
+    - stage: tests
+      name: "unit tests with solc nightly"
+      script: npm run test
+      env: SOLC_NIGHTLY=true
+    # solidity and javascript style tests.
+    - stage: tests
+      name: "static tests"
+      script: npm run lint
+
 notifications:
   slack:
     rooms:

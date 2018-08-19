@@ -17,22 +17,18 @@ contract('DelayedClaimable', function ([_, owner, newOwner]) {
     await this.delayedClaimable.transferOwnership(newOwner, { from: owner });
     await this.delayedClaimable.setLimits(0, 1000, { from: owner });
 
-    const end = await this.delayedClaimable.end();
-    end.should.be.bignumber.equal(1000);
+    (await this.delayedClaimable.end()).should.be.bignumber.equal(1000);
 
-    const start = await this.delayedClaimable.start();
-    start.should.be.bignumber.equal(0);
+    (await this.delayedClaimable.start()).should.be.bignumber.equal(0);
   });
 
   it('changes pendingOwner after transfer successful', async function () {
     await this.delayedClaimable.transferOwnership(newOwner, { from: owner });
     await this.delayedClaimable.setLimits(0, 1000, { from: owner });
 
-    const end = await this.delayedClaimable.end();
-    end.should.be.bignumber.equal(1000);
+    (await this.delayedClaimable.end()).should.be.bignumber.equal(1000);
 
-    const start = await this.delayedClaimable.start();
-    start.should.be.bignumber.equal(0);
+    (await this.delayedClaimable.start()).should.be.bignumber.equal(0);
 
     (await this.delayedClaimable.pendingOwner()).should.eq(newOwner);
     await this.delayedClaimable.claimOwnership({ from: newOwner });
@@ -43,11 +39,9 @@ contract('DelayedClaimable', function ([_, owner, newOwner]) {
     await this.delayedClaimable.transferOwnership(newOwner, { from: owner });
     await this.delayedClaimable.setLimits(100, 110, { from: owner });
 
-    const end = await this.delayedClaimable.end();
-    end.should.be.bignumber.equal(110);
+    (await this.delayedClaimable.end()).should.be.bignumber.equal(110);
 
-    const start = await this.delayedClaimable.start();
-    start.should.be.bignumber.equal(100);
+    (await this.delayedClaimable.start()).should.be.bignumber.equal(100);
 
     (await this.delayedClaimable.pendingOwner()).should.eq(newOwner);
     await assertRevert(this.delayedClaimable.claimOwnership({ from: newOwner }));
