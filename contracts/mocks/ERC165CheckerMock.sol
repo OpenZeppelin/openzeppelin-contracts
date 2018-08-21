@@ -14,14 +14,6 @@ contract ERC165CheckerMock {
     return _address.supportsERC165();
   }
 
-  function supportsERC165Interface(address _address, bytes4 _interfaceId)
-    public
-    view
-    returns (bool)
-  {
-    return _address.supportsERC165Interface(_interfaceId);
-  }
-
   function supportsInterface(address _address, bytes4 _interfaceId)
     public
     view

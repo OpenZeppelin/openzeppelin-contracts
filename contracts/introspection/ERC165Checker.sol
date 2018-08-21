@@ -92,7 +92,7 @@ library ERC165Checker {
    * Interface identification is specified in ERC-165.
    */
   function supportsERC165Interface(address _address, bytes4 _interfaceId)
-    internal
+    private
     view
     returns (bool)
   {
