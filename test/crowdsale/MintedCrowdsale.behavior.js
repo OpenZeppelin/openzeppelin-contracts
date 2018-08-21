@@ -1,20 +1,19 @@
-import { ethGetBalance } from '../helpers/web3';
+const { ethGetBalance } = require('../helpers/web3');
 
 const BigNumber = web3.BigNumber;
 
 const should = require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-export default function ([_, investor, wallet, purchaser], rate, value) {
+function shouldBehaveLikeMintedCrowdsale ([_, investor, wallet, purchaser], rate, value) {
   const expectedTokenAmount = rate.mul(value);
 
   describe('as a minted crowdsale', function () {
     describe('accepting payments', function () {
       it('should accept payments', async function () {
-        await this.crowdsale.send(value).should.be.fulfilled;
-        await this.crowdsale.buyTokens(investor, { value: value, from: purchaser }).should.be.fulfilled;
+        await this.crowdsale.send(value);
+        await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
       });
     });
 
@@ -23,16 +22,15 @@ export default function ([_, investor, wallet, purchaser], rate, value) {
         const { logs } = await this.crowdsale.sendTransaction({ value: value, from: investor });
         const event = logs.find(e => e.event === 'TokenPurchase');
         should.exist(event);
-        event.args.purchaser.should.equal(investor);
-        event.args.beneficiary.should.equal(investor);
+        event.args.purchaser.should.eq(investor);
+        event.args.beneficiary.should.eq(investor);
         event.args.value.should.be.bignumber.equal(value);
         event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
       });
 
       it('should assign tokens to sender', async function () {
         await this.crowdsale.sendTransaction({ value: value, from: investor });
-        let balance = await this.token.balanceOf(investor);
-        balance.should.be.bignumber.equal(expectedTokenAmount);
+        (await this.token.balanceOf(investor)).should.be.bignumber.equal(expectedTokenAmount);
       });
 
       it('should forward funds to wallet', async function () {
@@ -44,3 +42,7 @@ export default function ([_, investor, wallet, purchaser], rate, value) {
     });
   });
 }
+
+module.exports = {
+  shouldBehaveLikeMintedCrowdsale,
+};

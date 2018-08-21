@@ -1,24 +1,16 @@
-import expectThrow from '../helpers/expectThrow';
-import expectEvent from '../helpers/expectEvent';
+const { expectThrow } = require('../helpers/expectThrow');
+const expectEvent = require('../helpers/expectEvent');
 
 const WhitelistMock = artifacts.require('WhitelistMock');
 
 require('chai')
-  .use(require('chai-as-promised'))
   .should();
 
-contract('Whitelist', function (accounts) {
-  const [
-    owner,
-    whitelistedAddress1,
-    whitelistedAddress2,
-    anyone,
-  ] = accounts;
-
+contract('Whitelist', function ([_, owner, whitelistedAddress1, whitelistedAddress2, anyone]) {
   const whitelistedAddresses = [whitelistedAddress1, whitelistedAddress2];
 
-  before(async function () {
-    this.mock = await WhitelistMock.new();
+  beforeEach(async function () {
+    this.mock = await WhitelistMock.new({ from: owner });
     this.role = await this.mock.ROLE_WHITELISTED();
   });
 
@@ -29,8 +21,7 @@ contract('Whitelist', function (accounts) {
         'RoleAdded',
         { role: this.role },
       );
-      const isWhitelisted = await this.mock.whitelist(whitelistedAddress1);
-      isWhitelisted.should.be.equal(true);
+      (await this.mock.whitelist(whitelistedAddress1)).should.be.be.true;
     });
 
     it('should add addresses to the whitelist', async function () {
@@ -39,9 +30,8 @@ contract('Whitelist', function (accounts) {
         'RoleAdded',
         { role: this.role },
       );
-      for (let addr of whitelistedAddresses) {
-        const isWhitelisted = await this.mock.whitelist(addr);
-        isWhitelisted.should.be.equal(true);
+      for (const addr of whitelistedAddresses) {
+        (await this.mock.whitelist(addr)).should.be.be.true;
       }
     });
 
@@ -51,8 +41,7 @@ contract('Whitelist', function (accounts) {
         'RoleRemoved',
         { role: this.role },
       );
-      let isWhitelisted = await this.mock.whitelist(whitelistedAddress1);
-      isWhitelisted.should.be.equal(false);
+      (await this.mock.whitelist(whitelistedAddress1)).should.be.be.false;
     });
 
     it('should remove addresses from the the whitelist', async function () {
@@ -61,16 +50,14 @@ contract('Whitelist', function (accounts) {
         'RoleRemoved',
         { role: this.role },
       );
-      for (let addr of whitelistedAddresses) {
-        const isWhitelisted = await this.mock.whitelist(addr);
-        isWhitelisted.should.be.equal(false);
+      for (const addr of whitelistedAddresses) {
+        (await this.mock.whitelist(addr)).should.be.be.false;
       }
     });
 
     it('should allow whitelisted address to call #onlyWhitelistedCanDoThis', async function () {
       await this.mock.addAddressToWhitelist(whitelistedAddress1, { from: owner });
-      await this.mock.onlyWhitelistedCanDoThis({ from: whitelistedAddress1 })
-        .should.be.fulfilled;
+      await this.mock.onlyWhitelistedCanDoThis({ from: whitelistedAddress1 });
     });
   });
 

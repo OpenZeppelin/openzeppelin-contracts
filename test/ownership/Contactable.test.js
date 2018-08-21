@@ -1,7 +1,6 @@
+const Contactable = artifacts.require('Contactable');
 
-var Contactable = artifacts.require('Contactable');
-
-contract('Contactable', function (accounts) {
+contract('Contactable', function () {
   let contactable;
 
   beforeEach(async function () {
@@ -9,20 +8,18 @@ contract('Contactable', function (accounts) {
   });
 
   it('should have an empty contact info', async function () {
-    let info = await contactable.contactInformation();
-    assert.isTrue(info === '');
+    (await contactable.contactInformation()).should.eq('');
   });
 
   describe('after setting the contact information', function () {
-    let contactInfo = 'contact information';
+    const contactInfo = 'contact information';
 
     beforeEach(async function () {
       await contactable.setContactInformation(contactInfo);
     });
 
     it('should return the setted contact information', async function () {
-      let info = await contactable.contactInformation();
-      assert.isTrue(info === contactInfo);
+      (await contactable.contactInformation()).should.eq(contactInfo);
     });
   });
 });

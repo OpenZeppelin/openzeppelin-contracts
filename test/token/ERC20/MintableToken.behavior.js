@@ -1,26 +1,26 @@
-import assertRevert from '../../helpers/assertRevert';
+const { assertRevert } = require('../../helpers/assertRevert');
+const expectEvent = require('../../helpers/expectEvent');
 
 const BigNumber = web3.BigNumber;
 
 require('chai')
-  .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-export default function ([owner, anotherAccount, minter]) {
+function shouldBehaveLikeMintableToken (owner, minter, [anyone]) {
+  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+
   describe('as a basic mintable token', function () {
     describe('after token creation', function () {
       it('sender should be token owner', async function () {
-        const tokenOwner = await this.token.owner({ from: owner });
-        tokenOwner.should.equal(owner);
+        (await this.token.owner({ from: owner })).should.equal(owner);
       });
     });
 
     describe('minting finished', function () {
       describe('when the token minting is not finished', function () {
         it('returns false', async function () {
-          const mintingFinished = await this.token.mintingFinished();
-          assert.equal(mintingFinished, false);
+          (await this.token.mintingFinished()).should.be.false;
         });
       });
 
@@ -30,8 +30,7 @@ export default function ([owner, anotherAccount, minter]) {
         });
 
         it('returns true', async function () {
-          const mintingFinished = await this.token.mintingFinished();
-          assert.equal(mintingFinished, true);
+          (await this.token.mintingFinished()).should.be.true;
         });
       });
     });
@@ -44,15 +43,14 @@ export default function ([owner, anotherAccount, minter]) {
           it('finishes token minting', async function () {
             await this.token.finishMinting({ from });
 
-            const mintingFinished = await this.token.mintingFinished();
-            assert.equal(mintingFinished, true);
+            (await this.token.mintingFinished()).should.be.true;
           });
 
           it('emits a mint finished event', async function () {
             const { logs } = await this.token.finishMinting({ from });
 
-            assert.equal(logs.length, 1);
-            assert.equal(logs[0].event, 'MintFinished');
+            logs.length.should.be.equal(1);
+            logs[0].event.should.eq('MintFinished');
           });
         });
 
@@ -68,7 +66,7 @@ export default function ([owner, anotherAccount, minter]) {
       });
 
       describe('when the sender is not the token owner', function () {
-        const from = anotherAccount;
+        const from = anyone;
 
         describe('when the token minting was not finished', function () {
           it('reverts', async function () {
@@ -98,18 +96,22 @@ export default function ([owner, anotherAccount, minter]) {
           it('mints the requested amount', async function () {
             await this.token.mint(owner, amount, { from });
 
-            const balance = await this.token.balanceOf(owner);
-            assert.equal(balance, amount);
+            (await this.token.balanceOf(owner)).should.be.bignumber.equal(amount);
           });
 
           it('emits a mint and a transfer event', async function () {
             const { logs } = await this.token.mint(owner, amount, { from });
 
-            assert.equal(logs.length, 2);
-            assert.equal(logs[0].event, 'Mint');
-            assert.equal(logs[0].args.to, owner);
-            assert.equal(logs[0].args.amount, amount);
-            assert.equal(logs[1].event, 'Transfer');
+            const mintEvent = expectEvent.inLogs(logs, 'Mint', {
+              to: owner,
+            });
+            mintEvent.args.amount.should.be.bignumber.equal(amount);
+
+            const transferEvent = expectEvent.inLogs(logs, 'Transfer', {
+              from: ZERO_ADDRESS,
+              to: owner,
+            });
+            transferEvent.args.value.should.be.bignumber.equal(amount);
           });
         });
 
@@ -125,7 +127,7 @@ export default function ([owner, anotherAccount, minter]) {
       });
 
       describe('when the sender has not the minting permission', function () {
-        const from = anotherAccount;
+        const from = anyone;
 
         describe('when the token minting is not finished', function () {
           it('reverts', async function () {
@@ -145,4 +147,8 @@ export default function ([owner, anotherAccount, minter]) {
       });
     });
   });
+}
+
+module.exports = {
+  shouldBehaveLikeMintableToken,
 };

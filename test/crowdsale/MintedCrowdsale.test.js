@@ -1,5 +1,5 @@
-import shouldBehaveLikeMintedCrowdsale from './MintedCrowdsale.behaviour';
-import ether from '../helpers/ether';
+const { shouldBehaveLikeMintedCrowdsale } = require('./MintedCrowdsale.behavior');
+const { ether } = require('../helpers/ether');
 
 const BigNumber = web3.BigNumber;
 
@@ -19,8 +19,7 @@ contract('MintedCrowdsale', function ([_, investor, wallet, purchaser]) {
     });
 
     it('should be token owner', async function () {
-      const owner = await this.token.owner();
-      owner.should.equal(this.crowdsale.address);
+      (await this.token.owner()).should.eq(this.crowdsale.address);
     });
 
     shouldBehaveLikeMintedCrowdsale([_, investor, wallet, purchaser], rate, value);
@@ -36,8 +35,7 @@ contract('MintedCrowdsale', function ([_, investor, wallet, purchaser]) {
     });
 
     it('should have minter role on token', async function () {
-      const isMinter = await this.token.hasRole(this.crowdsale.address, ROLE_MINTER);
-      isMinter.should.equal(true);
+      (await this.token.hasRole(this.crowdsale.address, ROLE_MINTER)).should.be.true;
     });
 
     shouldBehaveLikeMintedCrowdsale([_, investor, wallet, purchaser], rate, value);

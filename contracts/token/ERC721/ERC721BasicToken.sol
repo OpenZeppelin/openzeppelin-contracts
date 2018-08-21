@@ -32,30 +32,11 @@ contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
   // Mapping from owner to operator approvals
   mapping (address => mapping (address => bool)) internal operatorApprovals;
 
-  /**
-   * @dev Guarantees msg.sender is owner of the given token
-   * @param _tokenId uint256 ID of the token to validate its ownership belongs to msg.sender
-   */
-  modifier onlyOwnerOf(uint256 _tokenId) {
-    require(ownerOf(_tokenId) == msg.sender);
-    _;
-  }
-
-  /**
-   * @dev Checks msg.sender can transfer a token, by being owner, approved, or operator
-   * @param _tokenId uint256 ID of the token to validate
-   */
-  modifier canTransfer(uint256 _tokenId) {
-    require(isApprovedOrOwner(msg.sender, _tokenId));
-    _;
-  }
-
   constructor()
     public
   {
     // register the supported interfaces to conform to ERC721 via ERC165
     _registerInterface(InterfaceId_ERC721);
-    _registerInterface(InterfaceId_ERC721Exists);
   }
 
   /**
@@ -77,16 +58,6 @@ contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
     address owner = tokenOwner[_tokenId];
     require(owner != address(0));
     return owner;
-  }
-
-  /**
-   * @dev Returns whether the specified token exists
-   * @param _tokenId uint256 ID of the token to query the existence of
-   * @return whether the token exists
-   */
-  function exists(uint256 _tokenId) public view returns (bool) {
-    address owner = tokenOwner[_tokenId];
-    return owner != address(0);
   }
 
   /**
@@ -158,9 +129,8 @@ contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
     uint256 _tokenId
   )
     public
-    canTransfer(_tokenId)
   {
-    require(_from != address(0));
+    require(isApprovedOrOwner(msg.sender, _tokenId));
     require(_to != address(0));
 
     clearApproval(_from, _tokenId);
@@ -188,7 +158,6 @@ contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
     uint256 _tokenId
   )
     public
-    canTransfer(_tokenId)
   {
     // solium-disable-next-line arg-overflow
     safeTransferFrom(_from, _to, _tokenId, "");
@@ -213,11 +182,20 @@ contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
     bytes _data
   )
     public
-    canTransfer(_tokenId)
   {
     transferFrom(_from, _to, _tokenId);
     // solium-disable-next-line arg-overflow
     require(checkAndCallSafeTransfer(_from, _to, _tokenId, _data));
+  }
+
+  /**
+   * @dev Returns whether the specified token exists
+   * @param _tokenId uint256 ID of the token to query the existence of
+   * @return whether the token exists
+   */
+  function _exists(uint256 _tokenId) internal view returns (bool) {
+    address owner = tokenOwner[_tokenId];
+    return owner != address(0);
   }
 
   /**

@@ -1,38 +1,35 @@
-import expectThrow from '../helpers/expectThrow';
-import expectEvent from '../helpers/expectEvent';
+const { expectThrow } = require('../helpers/expectThrow');
+const expectEvent = require('../helpers/expectEvent');
 
 const Superuser = artifacts.require('Superuser');
 
 require('chai')
-  .use(require('chai-as-promised'))
   .should();
 
-contract('Superuser', function (accounts) {
-  const [
-    firstOwner,
-    newSuperuser,
-    newOwner,
-    anyone,
-  ] = accounts;
+contract('Superuser', function ([_, firstOwner, newSuperuser, newOwner, anyone]) {
+  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
   beforeEach(async function () {
-    this.superuser = await Superuser.new();
+    this.superuser = await Superuser.new({ from: firstOwner });
   });
 
-  context('in normal conditions', () => {
+  context('in normal conditions', function () {
     it('should set the owner as the default superuser', async function () {
-      const ownerIsSuperuser = await this.superuser.isSuperuser(firstOwner);
-      ownerIsSuperuser.should.be.equal(true);
+      (await this.superuser.isSuperuser(firstOwner)).should.be.be.true;
     });
 
     it('should change superuser after transferring', async function () {
       await this.superuser.transferSuperuser(newSuperuser, { from: firstOwner });
-      
-      const ownerIsSuperuser = await this.superuser.isSuperuser(firstOwner);
-      ownerIsSuperuser.should.be.equal(false);
 
-      const newSuperuserIsSuperuser = await this.superuser.isSuperuser(newSuperuser);
-      newSuperuserIsSuperuser.should.be.equal(true);
+      (await this.superuser.isSuperuser(firstOwner)).should.be.be.false;
+
+      (await this.superuser.isSuperuser(newSuperuser)).should.be.be.true;
+    });
+
+    it('should prevent changing to a null superuser', async function () {
+      await expectThrow(
+        this.superuser.transferSuperuser(ZERO_ADDRESS, { from: firstOwner })
+      );
     });
 
     it('should change owner after the superuser transfers the ownership', async function () {
@@ -43,8 +40,7 @@ contract('Superuser', function (accounts) {
         'OwnershipTransferred'
       );
 
-      const currentOwner = await this.superuser.owner();
-      currentOwner.should.be.equal(newOwner);
+      (await this.superuser.owner()).should.equal(newOwner);
     });
 
     it('should change owner after the owner transfers the ownership', async function () {
@@ -53,12 +49,11 @@ contract('Superuser', function (accounts) {
         'OwnershipTransferred'
       );
 
-      const currentOwner = await this.superuser.owner();
-      currentOwner.should.be.equal(newOwner);
+      (await this.superuser.owner()).should.equal(newOwner);
     });
   });
 
-  context('in adversarial conditions', () => {
+  context('in adversarial conditions', function () {
     it('should prevent non-superusers from transfering the superuser role', async function () {
       await expectThrow(
         this.superuser.transferSuperuser(newOwner, { from: anyone })

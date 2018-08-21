@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "./Ownable.sol";
-import "../token/ERC20/ERC20Basic.sol";
+import "../token/ERC20/ERC20.sol";
 import "../token/ERC20/SafeERC20.sol";
 
 
@@ -12,15 +12,15 @@ import "../token/ERC20/SafeERC20.sol";
  * This will prevent any accidental loss of tokens.
  */
 contract CanReclaimToken is Ownable {
-  using SafeERC20 for ERC20Basic;
+  using SafeERC20 for ERC20;
 
   /**
-   * @dev Reclaim all ERC20Basic compatible tokens
-   * @param token ERC20Basic The address of the token contract
+   * @dev Reclaim all ERC20 compatible tokens
+   * @param _token ERC20 The address of the token contract
    */
-  function reclaimToken(ERC20Basic token) external onlyOwner {
-    uint256 balance = token.balanceOf(this);
-    token.safeTransfer(owner, balance);
+  function reclaimToken(ERC20 _token) external onlyOwner {
+    uint256 balance = _token.balanceOf(this);
+    _token.safeTransfer(owner, balance);
   }
 
 }
