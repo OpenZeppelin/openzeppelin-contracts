@@ -16,6 +16,7 @@ library ERC165Checker {
    *   bytes4(keccak256('supportsInterface(bytes4)'))
    */
 
+
   /**
    * @notice Query if a contract supports ERC165
    * @param _address The address of the contract to query for support of ERC165
@@ -31,7 +32,6 @@ library ERC165Checker {
     return supportsERC165Interface(_address, InterfaceId_ERC165) &&
       !supportsERC165Interface(_address, InterfaceId_Invalid);
   }
-
 
   /**
    * @notice Query if a contract implements an interface, also checks support of ERC165
