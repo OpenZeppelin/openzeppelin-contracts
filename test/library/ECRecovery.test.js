@@ -63,7 +63,7 @@ contract('ECRecovery', function ([_, anyone]) {
     }
   });
 
-  context('toEthSignedMessage', () => {
+  context('toEthSignedMessage', function () {
     it('should prefix hashes correctly', async function () {
       const hashedMessage = web3.sha3(TEST_MESSAGE);
       (await ecrecovery.toEthSignedMessageHash(hashedMessage)).should.eq(hashMessage(TEST_MESSAGE));
