@@ -22,8 +22,8 @@ library ERC165Checker {
    * @return true if the contract at _address implements ERC165
    */
   function supportsERC165(address _address)
-    internal 
-    view 
+    internal
+    view
     returns (bool)
   {
     // Any contract that implements ERC165 must explicitly indicate support of
@@ -70,7 +70,7 @@ library ERC165Checker {
     }
 
     // query support of each interface in _interfaceIds
-    for (uint i = 0; i < _interfaceIds.length; i++) {
+    for (uint256 i = 0; i < _interfaceIds.length; i++) {
       if (!supportsERC165Interface(_address, _interfaceIds[i])) {
         return false;
       }
@@ -87,12 +87,12 @@ library ERC165Checker {
    * @return true if the contract at _address indicates support of the interface with
    * identifier _interfaceId, false otherwise
    * @dev Assumes that _address contains a contract that supports ERC165, otherwise
-   * the behavior of this method is undefined. This precondition can be checked 
-   * with the `supportsERC165` method in this library. 
+   * the behavior of this method is undefined. This precondition can be checked
+   * with the `supportsERC165` method in this library.
    * Interface identification is specified in ERC-165.
    */
   function supportsERC165Interface(address _address, bytes4 _interfaceId)
-    private
+    internal
     view
     returns (bool)
   {
@@ -115,33 +115,34 @@ library ERC165Checker {
   function callERC165SupportsInterface(
     address _address,
     bytes4 _interfaceId
-  ) 
+  )
     private
     view
     returns (bool success, bool result)
   {
     bytes memory encodedParams = abi.encodeWithSelector(
-      InterfaceId_ERC165, 
+      InterfaceId_ERC165,
       _interfaceId
     );
 
     // solium-disable-next-line security/no-inline-assembly
     assembly {
-        let encodedParams_data := add(0x20, encodedParams)
-        let encodedParams_size := mload(encodedParams)
-        
-        let output := mload(0x40)  // Find empty storage location using "free memory pointer"
-        mstore(output, 0x0)
+      let encodedParams_data := add(0x20, encodedParams)
+      let encodedParams_size := mload(encodedParams)
 
-        success := staticcall(
-                  30000,     // 30k gas
-                  _address,  // To addr
-                  encodedParams_data,
-                  encodedParams_size,
-                  output,
-                  0x20)      // Outputs are 32 bytes long
+      let output := mload(0x40)  // Find empty storage location using "free memory pointer"
+      mstore(output, 0x0)
 
-        result := mload(output) // Load the result
+      success := staticcall(
+        30000,                 // 30k gas
+        _address,              // To addr
+        encodedParams_data,
+        encodedParams_size,
+        output,
+        0x20                   // Outputs are 32 bytes long
+      )
+
+      result := mload(output)  // Load the result
     }
   }
 }
