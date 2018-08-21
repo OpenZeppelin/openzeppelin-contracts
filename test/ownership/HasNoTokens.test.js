@@ -13,7 +13,7 @@ contract('HasNoTokens', function ([_, owner, initialAccount, anyone]) {
   let hasNoTokens = null;
   let token = null;
 
-  beforeEach(async () => {
+  beforeEach(async function () {
     // Create contract and token
     hasNoTokens = await HasNoTokens.new({ from: owner });
     token = await ERC223TokenMock.new(initialAccount, 100);

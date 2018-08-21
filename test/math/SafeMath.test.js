@@ -7,7 +7,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('SafeMath', () => {
+contract('SafeMath', function () {
   const MAX_UINT = new BigNumber(2).pow(256).minus(1);
 
   beforeEach(async function () {

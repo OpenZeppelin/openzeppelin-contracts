@@ -13,7 +13,7 @@ contract('Superuser', function ([_, firstOwner, newSuperuser, newOwner, anyone])
     this.superuser = await Superuser.new({ from: firstOwner });
   });
 
-  context('in normal conditions', () => {
+  context('in normal conditions', function () {
     it('should set the owner as the default superuser', async function () {
       (await this.superuser.isSuperuser(firstOwner)).should.be.be.true;
     });
@@ -53,7 +53,7 @@ contract('Superuser', function ([_, firstOwner, newSuperuser, newOwner, anyone])
     });
   });
 
-  context('in adversarial conditions', () => {
+  context('in adversarial conditions', function () {
     it('should prevent non-superusers from transfering the superuser role', async function () {
       await expectThrow(
         this.superuser.transferSuperuser(newOwner, { from: anyone })
