@@ -11,28 +11,36 @@ require('chai')
 function shouldBehaveLikeBurnableToken (owner, initialBalance, [burner]) {
   describe('burn', function () {
     describe('when the given amount is not greater than balance of the sender', function () {
-      const amount = 100;
-
-      beforeEach(async function () {
-        ({ logs: this.logs } = await this.token.burn(amount, { from: owner }));
+      context('for a zero amount', function () {
+        shouldBurn(0);
       });
 
-      it('burns the requested amount', async function () {
-        (await this.token.balanceOf(owner)).should.be.bignumber.equal(initialBalance - amount);
+      context('for a non-zero amount', function () {
+        shouldBurn(100);
       });
 
-      it('emits a burn event', async function () {
-        const event = expectEvent.inLogs(this.logs, 'Burn');
-        event.args.burner.should.eq(owner);
-        event.args.value.should.be.bignumber.equal(amount);
-      });
+      function shouldBurn (amount) {
+        beforeEach(async function () {
+          ({ logs: this.logs } = await this.token.burn(amount, { from: owner }));
+        });
 
-      it('emits a transfer event', async function () {
-        const event = expectEvent.inLogs(this.logs, 'Transfer');
-        event.args.from.should.eq(owner);
-        event.args.to.should.eq(ZERO_ADDRESS);
-        event.args.value.should.be.bignumber.equal(amount);
-      });
+        it('burns the requested amount', async function () {
+          (await this.token.balanceOf(owner)).should.be.bignumber.equal(initialBalance - amount);
+        });
+
+        it('emits a burn event', async function () {
+          const event = expectEvent.inLogs(this.logs, 'Burn');
+          event.args.burner.should.eq(owner);
+          event.args.value.should.be.bignumber.equal(amount);
+        });
+
+        it('emits a transfer event', async function () {
+          const event = expectEvent.inLogs(this.logs, 'Transfer');
+          event.args.from.should.eq(owner);
+          event.args.to.should.eq(ZERO_ADDRESS);
+          event.args.value.should.be.bignumber.equal(amount);
+        });
+      }
     });
 
     describe('when the given amount is greater than the balance of the sender', function () {
@@ -46,34 +54,44 @@ function shouldBehaveLikeBurnableToken (owner, initialBalance, [burner]) {
 
   describe('burnFrom', function () {
     describe('on success', function () {
-      const amount = 100;
-
-      beforeEach(async function () {
-        await this.token.approve(burner, 300, { from: owner });
-        const { logs } = await this.token.burnFrom(owner, amount, { from: burner });
-        this.logs = logs;
+      context('for a zero amount', function () {
+        shouldBurnFrom(0);
       });
 
-      it('burns the requested amount', async function () {
-        (await this.token.balanceOf(owner)).should.be.bignumber.equal(initialBalance - amount);
+      context('for a non-zero amount', function () {
+        shouldBurnFrom(100);
       });
 
-      it('decrements allowance', async function () {
-        (await this.token.allowance(owner, burner)).should.be.bignumber.equal(200);
-      });
+      function shouldBurnFrom (amount) {
+        const originalAllowance = amount * 3;
 
-      it('emits a burn event', async function () {
-        const event = expectEvent.inLogs(this.logs, 'Burn');
-        event.args.burner.should.eq(owner);
-        event.args.value.should.be.bignumber.equal(amount);
-      });
+        beforeEach(async function () {
+          await this.token.approve(burner, originalAllowance, { from: owner });
+          const { logs } = await this.token.burnFrom(owner, amount, { from: burner });
+          this.logs = logs;
+        });
 
-      it('emits a transfer event', async function () {
-        const event = expectEvent.inLogs(this.logs, 'Transfer');
-        event.args.from.should.eq(owner);
-        event.args.to.should.eq(ZERO_ADDRESS);
-        event.args.value.should.be.bignumber.equal(amount);
-      });
+        it('burns the requested amount', async function () {
+          (await this.token.balanceOf(owner)).should.be.bignumber.equal(initialBalance - amount);
+        });
+
+        it('decrements allowance', async function () {
+          (await this.token.allowance(owner, burner)).should.be.bignumber.equal(originalAllowance - amount);
+        });
+
+        it('emits a burn event', async function () {
+          const event = expectEvent.inLogs(this.logs, 'Burn');
+          event.args.burner.should.eq(owner);
+          event.args.value.should.be.bignumber.equal(amount);
+        });
+
+        it('emits a transfer event', async function () {
+          const event = expectEvent.inLogs(this.logs, 'Transfer');
+          event.args.from.should.eq(owner);
+          event.args.to.should.eq(ZERO_ADDRESS);
+          event.args.value.should.be.bignumber.equal(amount);
+        });
+      }
     });
 
     describe('when the given amount is greater than the balance of the sender', function () {
