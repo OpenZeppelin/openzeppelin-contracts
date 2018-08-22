@@ -27,7 +27,7 @@ library Roles {
   function addMany(Role storage _role, address[] _accounts)
     internal
   {
-    for (uint i = 0; i < _accounts.length; ++i) {
+    for (uint256 i = 0; i < _accounts.length; ++i) {
       add(_role, _accounts[i]);
     }
   }
