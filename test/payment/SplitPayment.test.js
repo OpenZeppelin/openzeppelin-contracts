@@ -53,7 +53,7 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
     });
 
     it('should store shares if address is payee', async function () {
-      (await this.contract.shares.call(payee1)).should.be.bignumber.not.eq(0);
+      (await this.contract.shares.call(payee1)).should.be.bignumber.not.equal(0);
     });
 
     it('should not store shares if address is not payee', async function () {

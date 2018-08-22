@@ -8,7 +8,7 @@ contract('Contactable', function () {
   });
 
   it('should have an empty contact info', async function () {
-    (await contactable.contactInformation()).should.eq('');
+    (await contactable.contactInformation()).should.equal('');
   });
 
   describe('after setting the contact information', function () {
@@ -19,7 +19,7 @@ contract('Contactable', function () {
     });
 
     it('should return the setted contact information', async function () {
-      (await contactable.contactInformation()).should.eq(contactInfo);
+      (await contactable.contactInformation()).should.equal(contactInfo);
     });
   });
 });

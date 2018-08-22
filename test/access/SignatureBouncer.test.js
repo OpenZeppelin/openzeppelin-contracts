@@ -21,12 +21,12 @@ contract('Bouncer', function ([_, owner, anyone, bouncerAddress, authorizedUser]
 
   context('management', function () {
     it('has a default owner of self', async function () {
-      (await this.bouncer.owner()).should.eq(owner);
+      (await this.bouncer.owner()).should.equal(owner);
     });
 
     it('allows the owner to add a bouncer', async function () {
       await this.bouncer.addBouncer(bouncerAddress, { from: owner });
-      (await this.bouncer.hasRole(bouncerAddress, this.roleBouncer)).should.eq(true);
+      (await this.bouncer.hasRole(bouncerAddress, this.roleBouncer)).should.equal(true);
     });
 
     it('does not allow adding an invalid address', async function () {
@@ -39,7 +39,7 @@ contract('Bouncer', function ([_, owner, anyone, bouncerAddress, authorizedUser]
       await this.bouncer.addBouncer(bouncerAddress, { from: owner });
 
       await this.bouncer.removeBouncer(bouncerAddress, { from: owner });
-      (await this.bouncer.hasRole(bouncerAddress, this.roleBouncer)).should.eq(false);
+      (await this.bouncer.hasRole(bouncerAddress, this.roleBouncer)).should.equal(false);
     });
 
     it('does not allow anyone to add a bouncer', async function () {
@@ -168,20 +168,20 @@ contract('Bouncer', function ([_, owner, anyone, bouncerAddress, authorizedUser]
     context('signature validation', function () {
       context('plain signature', function () {
         it('validates valid signature for valid user', async function () {
-          (await this.bouncer.checkValidSignature(authorizedUser, this.signFor(authorizedUser))).should.eq(true);
+          (await this.bouncer.checkValidSignature(authorizedUser, this.signFor(authorizedUser))).should.equal(true);
         });
 
         it('does not validate invalid signature for valid user', async function () {
-          (await this.bouncer.checkValidSignature(authorizedUser, INVALID_SIGNATURE)).should.eq(false);
+          (await this.bouncer.checkValidSignature(authorizedUser, INVALID_SIGNATURE)).should.equal(false);
         });
 
         it('does not validate valid signature for anyone', async function () {
-          (await this.bouncer.checkValidSignature(anyone, this.signFor(authorizedUser))).should.eq(false);
+          (await this.bouncer.checkValidSignature(anyone, this.signFor(authorizedUser))).should.equal(false);
         });
 
         it('does not validate valid signature for method for valid user', async function () {
           (await this.bouncer.checkValidSignature(authorizedUser, this.signFor(authorizedUser, 'checkValidSignature'))
-          ).should.eq(false);
+          ).should.equal(false);
         });
       });
 
@@ -189,22 +189,22 @@ contract('Bouncer', function ([_, owner, anyone, bouncerAddress, authorizedUser]
         it('validates valid signature with correct method for valid user', async function () {
           (await this.bouncer.checkValidSignatureAndMethod(authorizedUser,
             this.signFor(authorizedUser, 'checkValidSignatureAndMethod'))
-          ).should.eq(true);
+          ).should.equal(true);
         });
 
         it('does not validate invalid signature with correct method for valid user', async function () {
-          (await this.bouncer.checkValidSignatureAndMethod(authorizedUser, INVALID_SIGNATURE)).should.eq(false);
+          (await this.bouncer.checkValidSignatureAndMethod(authorizedUser, INVALID_SIGNATURE)).should.equal(false);
         });
 
         it('does not validate valid signature with correct method for anyone', async function () {
           (await this.bouncer.checkValidSignatureAndMethod(anyone,
             this.signFor(authorizedUser, 'checkValidSignatureAndMethod'))
-          ).should.eq(false);
+          ).should.equal(false);
         });
 
         it('does not validate valid non-method signature with correct method for valid user', async function () {
           (await this.bouncer.checkValidSignatureAndMethod(authorizedUser, this.signFor(authorizedUser))
-          ).should.eq(false);
+          ).should.equal(false);
         });
       });
 
@@ -212,33 +212,33 @@ contract('Bouncer', function ([_, owner, anyone, bouncerAddress, authorizedUser]
         it('validates valid signature with correct method and data for valid user', async function () {
           (await this.bouncer.checkValidSignatureAndData(authorizedUser, BYTES_VALUE, UINT_VALUE,
             this.signFor(authorizedUser, 'checkValidSignatureAndData', [authorizedUser, BYTES_VALUE, UINT_VALUE]))
-          ).should.eq(true);
+          ).should.equal(true);
         });
 
         it('does not validate invalid signature with correct method and data for valid user', async function () {
           (await this.bouncer.checkValidSignatureAndData(authorizedUser, BYTES_VALUE, UINT_VALUE, INVALID_SIGNATURE)
-          ).should.eq(false);
+          ).should.equal(false);
         });
 
         it('does not validate valid signature with correct method and incorrect data for valid user',
           async function () {
             (await this.bouncer.checkValidSignatureAndData(authorizedUser, BYTES_VALUE, UINT_VALUE + 10,
               this.signFor(authorizedUser, 'checkValidSignatureAndData', [authorizedUser, BYTES_VALUE, UINT_VALUE]))
-            ).should.eq(false);
+            ).should.equal(false);
           }
         );
 
         it('does not validate valid signature with correct method and data for anyone', async function () {
           (await this.bouncer.checkValidSignatureAndData(anyone, BYTES_VALUE, UINT_VALUE,
             this.signFor(authorizedUser, 'checkValidSignatureAndData', [authorizedUser, BYTES_VALUE, UINT_VALUE]))
-          ).should.eq(false);
+          ).should.equal(false);
         });
 
         it('does not validate valid non-method-data signature with correct method and data for valid user',
           async function () {
             (await this.bouncer.checkValidSignatureAndData(authorizedUser, BYTES_VALUE, UINT_VALUE,
               this.signFor(authorizedUser, 'checkValidSignatureAndData'))
-            ).should.eq(false);
+            ).should.equal(false);
           }
         );
       });

@@ -17,11 +17,11 @@ contract('SimpleToken', function ([_, creator]) {
   });
 
   it('has a name', async function () {
-    (await token.name()).should.eq('SimpleToken');
+    (await token.name()).should.equal('SimpleToken');
   });
 
   it('has a symbol', async function () {
-    (await token.symbol()).should.eq('SIM');
+    (await token.symbol()).should.equal('SIM');
   });
 
   it('has 18 decimals', async function () {
@@ -36,7 +36,7 @@ contract('SimpleToken', function ([_, creator]) {
 
     const receipt = await web3.eth.getTransactionReceipt(token.transactionHash);
     const logs = decodeLogs(receipt.logs, SimpleToken, token.address);
-    logs.length.should.eq(1);
+    logs.length.should.equal(1);
     logs[0].event.should.equal('Transfer');
     logs[0].args.from.valueOf().should.equal(ZERO_ADDRESS);
     logs[0].args.to.valueOf().should.equal(creator);

@@ -439,7 +439,7 @@ function shouldBehaveLikeERC721BasicToken (accounts) {
           it('approves the operator', async function () {
             await this.token.setApprovalForAll(operator, true, { from: sender });
 
-            (await this.token.isApprovedForAll(sender, operator)).should.be.true;
+            (await this.token.isApprovedForAll(sender, operator)).should.equal(true);
           });
 
           it('emits an approval event', async function () {
@@ -449,7 +449,7 @@ function shouldBehaveLikeERC721BasicToken (accounts) {
             logs[0].event.should.be.equal('ApprovalForAll');
             logs[0].args._owner.should.be.equal(sender);
             logs[0].args._operator.should.be.equal(operator);
-            logs[0].args._approved.should.be.true;
+            logs[0].args._approved.should.equal(true);
           });
         });
 
@@ -461,7 +461,7 @@ function shouldBehaveLikeERC721BasicToken (accounts) {
           it('approves the operator', async function () {
             await this.token.setApprovalForAll(operator, true, { from: sender });
 
-            (await this.token.isApprovedForAll(sender, operator)).should.be.true;
+            (await this.token.isApprovedForAll(sender, operator)).should.equal(true);
           });
 
           it('emits an approval event', async function () {
@@ -471,13 +471,13 @@ function shouldBehaveLikeERC721BasicToken (accounts) {
             logs[0].event.should.be.equal('ApprovalForAll');
             logs[0].args._owner.should.be.equal(sender);
             logs[0].args._operator.should.be.equal(operator);
-            logs[0].args._approved.should.be.true;
+            logs[0].args._approved.should.equal(true);
           });
 
           it('can unset the operator approval', async function () {
             await this.token.setApprovalForAll(operator, false, { from: sender });
 
-            (await this.token.isApprovedForAll(sender, operator)).should.be.false;
+            (await this.token.isApprovedForAll(sender, operator)).should.equal(false);
           });
         });
 
@@ -489,7 +489,7 @@ function shouldBehaveLikeERC721BasicToken (accounts) {
           it('keeps the approval to the given address', async function () {
             await this.token.setApprovalForAll(operator, true, { from: sender });
 
-            (await this.token.isApprovedForAll(sender, operator)).should.be.true;
+            (await this.token.isApprovedForAll(sender, operator)).should.equal(true);
           });
 
           it('emits an approval event', async function () {
@@ -499,7 +499,7 @@ function shouldBehaveLikeERC721BasicToken (accounts) {
             logs[0].event.should.be.equal('ApprovalForAll');
             logs[0].args._owner.should.be.equal(sender);
             logs[0].args._operator.should.be.equal(operator);
-            logs[0].args._approved.should.be.true;
+            logs[0].args._approved.should.equal(true);
           });
         });
       });

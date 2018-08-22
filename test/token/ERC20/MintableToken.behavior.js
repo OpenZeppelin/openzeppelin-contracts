@@ -20,7 +20,7 @@ function shouldBehaveLikeMintableToken (owner, minter, [anyone]) {
     describe('minting finished', function () {
       describe('when the token minting is not finished', function () {
         it('returns false', async function () {
-          (await this.token.mintingFinished()).should.be.false;
+          (await this.token.mintingFinished()).should.equal(false);
         });
       });
 
@@ -30,7 +30,7 @@ function shouldBehaveLikeMintableToken (owner, minter, [anyone]) {
         });
 
         it('returns true', async function () {
-          (await this.token.mintingFinished()).should.be.true;
+          (await this.token.mintingFinished()).should.equal(true);
         });
       });
     });
@@ -43,7 +43,7 @@ function shouldBehaveLikeMintableToken (owner, minter, [anyone]) {
           it('finishes token minting', async function () {
             await this.token.finishMinting({ from });
 
-            (await this.token.mintingFinished()).should.be.true;
+            (await this.token.mintingFinished()).should.equal(true);
           });
 
           it('emits a mint finished event', async function () {

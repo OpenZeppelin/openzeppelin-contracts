@@ -38,10 +38,10 @@ contract('Heritable', function ([_, owner, heir, anyone]) {
 
   it('owner can remove heir', async function () {
     await heritable.setHeir(heir, { from: owner });
-    (await heritable.heir()).should.eq(heir);
+    (await heritable.heir()).should.equal(heir);
 
     await heritable.removeHeir({ from: owner });
-    (await heritable.heir()).should.eq(NULL_ADDRESS);
+    (await heritable.heir()).should.equal(NULL_ADDRESS);
   });
 
   it('heir can claim ownership only if owner is dead and timeout was reached', async function () {
@@ -54,7 +54,7 @@ contract('Heritable', function ([_, owner, heir, anyone]) {
 
     await increaseTime(heartbeatTimeout);
     await heritable.claimHeirOwnership({ from: heir });
-    (await heritable.heir()).should.eq(heir);
+    (await heritable.heir()).should.equal(heir);
   });
 
   it('only heir can proclaim death', async function () {
@@ -85,29 +85,29 @@ contract('Heritable', function ([_, owner, heir, anyone]) {
     const setHeirLogs = (await heritable.setHeir(heir, { from: owner })).logs;
     const setHeirEvent = setHeirLogs.find(e => e.event === 'HeirChanged');
 
-    setHeirEvent.args.owner.should.eq(owner);
-    setHeirEvent.args.newHeir.should.eq(heir);
+    setHeirEvent.args.owner.should.equal(owner);
+    setHeirEvent.args.newHeir.should.equal(heir);
 
     const heartbeatLogs = (await heritable.heartbeat({ from: owner })).logs;
     const heartbeatEvent = heartbeatLogs.find(e => e.event === 'OwnerHeartbeated');
 
-    heartbeatEvent.args.owner.should.eq(owner);
+    heartbeatEvent.args.owner.should.equal(owner);
 
     const proclaimDeathLogs = (await heritable.proclaimDeath({ from: heir })).logs;
     const ownerDeadEvent = proclaimDeathLogs.find(e => e.event === 'OwnerProclaimedDead');
 
-    ownerDeadEvent.args.owner.should.eq(owner);
-    ownerDeadEvent.args.heir.should.eq(heir);
+    ownerDeadEvent.args.owner.should.equal(owner);
+    ownerDeadEvent.args.heir.should.equal(heir);
 
     await increaseTime(heartbeatTimeout);
     const claimHeirOwnershipLogs = (await heritable.claimHeirOwnership({ from: heir })).logs;
     const ownershipTransferredEvent = claimHeirOwnershipLogs.find(e => e.event === 'OwnershipTransferred');
     const heirOwnershipClaimedEvent = claimHeirOwnershipLogs.find(e => e.event === 'HeirOwnershipClaimed');
 
-    ownershipTransferredEvent.args.previousOwner.should.eq(owner);
-    ownershipTransferredEvent.args.newOwner.should.eq(heir);
-    heirOwnershipClaimedEvent.args.previousOwner.should.eq(owner);
-    heirOwnershipClaimedEvent.args.newOwner.should.eq(heir);
+    ownershipTransferredEvent.args.previousOwner.should.equal(owner);
+    ownershipTransferredEvent.args.newOwner.should.equal(heir);
+    heirOwnershipClaimedEvent.args.previousOwner.should.equal(owner);
+    heirOwnershipClaimedEvent.args.newOwner.should.equal(heir);
   });
 
   it('timeOfDeath can be queried', async function () {

@@ -9,12 +9,12 @@ require('chai')
 function shouldBehaveLikeOwnable (owner, [anyone]) {
   describe('as an ownable', function () {
     it('should have an owner', async function () {
-      (await this.ownable.owner()).should.eq(owner);
+      (await this.ownable.owner()).should.equal(owner);
     });
 
     it('changes owner after transfer', async function () {
       await this.ownable.transferOwnership(anyone, { from: owner });
-      (await this.ownable.owner()).should.eq(anyone);
+      (await this.ownable.owner()).should.equal(anyone);
     });
 
     it('should prevent non-owners from transfering', async function () {
@@ -27,7 +27,7 @@ function shouldBehaveLikeOwnable (owner, [anyone]) {
 
     it('loses owner after renouncement', async function () {
       await this.ownable.renounceOwnership({ from: owner });
-      (await this.ownable.owner()).should.eq(ZERO_ADDRESS);
+      (await this.ownable.owner()).should.equal(ZERO_ADDRESS);
     });
 
     it('should prevent non-owners from renouncement', async function () {

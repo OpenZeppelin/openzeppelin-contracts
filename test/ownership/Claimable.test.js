@@ -16,12 +16,12 @@ contract('Claimable', function ([_, owner, newOwner, anyone]) {
   });
 
   it('should have an owner', async function () {
-    (await claimable.owner()).should.not.eq(0);
+    (await claimable.owner()).should.not.equal(0);
   });
 
   it('changes pendingOwner after transfer', async function () {
     await claimable.transferOwnership(newOwner, { from: owner });
-    (await claimable.pendingOwner()).should.eq(newOwner);
+    (await claimable.pendingOwner()).should.equal(newOwner);
   });
 
   it('should prevent to claimOwnership from anyone', async function () {
@@ -40,7 +40,7 @@ contract('Claimable', function ([_, owner, newOwner, anyone]) {
     it('changes allow pending owner to claim ownership', async function () {
       await claimable.claimOwnership({ from: newOwner });
 
-      (await claimable.owner()).should.eq(newOwner);
+      (await claimable.owner()).should.equal(newOwner);
     });
   });
 });

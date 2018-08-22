@@ -29,13 +29,13 @@ contract('Pausable', function () {
 
   it('can not take drastic measure in non-pause', async function () {
     await assertRevert(this.Pausable.drasticMeasure());
-    (await this.Pausable.drasticMeasureTaken()).should.be.false;
+    (await this.Pausable.drasticMeasureTaken()).should.equal(false);
   });
 
   it('can take a drastic measure in a pause', async function () {
     await this.Pausable.pause();
     await this.Pausable.drasticMeasure();
-    (await this.Pausable.drasticMeasureTaken()).should.be.true;
+    (await this.Pausable.drasticMeasureTaken()).should.equal(true);
   });
 
   it('should resume allowing normal process after pause is over', async function () {
@@ -51,6 +51,6 @@ contract('Pausable', function () {
 
     await assertRevert(this.Pausable.drasticMeasure());
 
-    (await this.Pausable.drasticMeasureTaken()).should.be.false;
+    (await this.Pausable.drasticMeasureTaken()).should.equal(false);
   });
 });

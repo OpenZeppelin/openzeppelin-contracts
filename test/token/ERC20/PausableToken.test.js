@@ -13,7 +13,7 @@ contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
       describe('when the token is unpaused', function () {
         it('pauses the token', async function () {
           await this.token.pause({ from });
-          (await this.token.paused()).should.be.true;
+          (await this.token.paused()).should.equal(true);
         });
 
         it('emits a Pause event', async function () {
@@ -55,7 +55,7 @@ contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
 
         it('unpauses the token', async function () {
           await this.token.unpause({ from });
-          (await this.token.paused()).should.be.false;
+          (await this.token.paused()).should.equal(false);
         });
 
         it('emits an Unpause event', async function () {
@@ -87,18 +87,18 @@ contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
 
     describe('paused', function () {
       it('is not paused by default', async function () {
-        (await this.token.paused({ from })).should.be.false;
+        (await this.token.paused({ from })).should.equal(false);
       });
 
       it('is paused after being paused', async function () {
         await this.token.pause({ from });
-        (await this.token.paused({ from })).should.be.true;
+        (await this.token.paused({ from })).should.equal(true);
       });
 
       it('is not paused after being paused and then unpaused', async function () {
         await this.token.pause({ from });
         await this.token.unpause({ from });
-        (await this.token.paused()).should.be.false;
+        (await this.token.paused()).should.equal(false);
       });
     });
 
