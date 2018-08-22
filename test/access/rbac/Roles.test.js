@@ -1,5 +1,4 @@
 const { assertRevert } = require('../../helpers/assertRevert');
-const expectEvent = require('../../helpers/expectEvent');
 
 const RolesMock = artifacts.require('RolesMock');
 
