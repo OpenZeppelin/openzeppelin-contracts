@@ -26,7 +26,7 @@ contract('Bouncer', ([_, owner, anyone, bouncerAddress, authorizedUser]) => {
 
     it('allows the owner to add a bouncer', async function () {
       await this.bouncer.addBouncer(bouncerAddress, { from: owner });
-      (await this.bouncer.hasRole(bouncerAddress, this.roleBouncer)).should.be.true;
+      (await this.bouncer.hasRole(bouncerAddress, this.roleBouncer)).should.equal(true);
     });
 
     it('does not allow adding an invalid address', async function () {
@@ -39,7 +39,7 @@ contract('Bouncer', ([_, owner, anyone, bouncerAddress, authorizedUser]) => {
       await this.bouncer.addBouncer(bouncerAddress, { from: owner });
 
       await this.bouncer.removeBouncer(bouncerAddress, { from: owner });
-      (await this.bouncer.hasRole(bouncerAddress, this.roleBouncer)).should.be.false;
+      (await this.bouncer.hasRole(bouncerAddress, this.roleBouncer)).should.equal(false);
     });
 
     it('does not allow anyone to add a bouncer', async function () {
@@ -168,20 +168,20 @@ contract('Bouncer', ([_, owner, anyone, bouncerAddress, authorizedUser]) => {
     context('signature validation', () => {
       context('plain signature', () => {
         it('validates valid signature for valid user', async function () {
-          (await this.bouncer.checkValidSignature(authorizedUser, this.signFor(authorizedUser))).should.be.true;
+          (await this.bouncer.checkValidSignature(authorizedUser, this.signFor(authorizedUser))).should.equal(true);
         });
 
         it('does not validate invalid signature for valid user', async function () {
-          (await this.bouncer.checkValidSignature(authorizedUser, INVALID_SIGNATURE)).should.be.false;
+          (await this.bouncer.checkValidSignature(authorizedUser, INVALID_SIGNATURE)).should.equal(false);
         });
 
         it('does not validate valid signature for anyone', async function () {
-          (await this.bouncer.checkValidSignature(anyone, this.signFor(authorizedUser))).should.be.false;
+          (await this.bouncer.checkValidSignature(anyone, this.signFor(authorizedUser))).should.equal(false);
         });
 
         it('does not validate valid signature for method for valid user', async function () {
           (await this.bouncer.checkValidSignature(authorizedUser, this.signFor(authorizedUser, 'checkValidSignature'))
-          ).should.be.false;
+          ).should.equal(false);
         });
       });
 
@@ -189,22 +189,22 @@ contract('Bouncer', ([_, owner, anyone, bouncerAddress, authorizedUser]) => {
         it('validates valid signature with correct method for valid user', async function () {
           (await this.bouncer.checkValidSignatureAndMethod(authorizedUser,
             this.signFor(authorizedUser, 'checkValidSignatureAndMethod'))
-          ).should.be.true;
+          ).should.equal(true);
         });
 
         it('does not validate invalid signature with correct method for valid user', async function () {
-          (await this.bouncer.checkValidSignatureAndMethod(authorizedUser, INVALID_SIGNATURE)).should.be.false;
+          (await this.bouncer.checkValidSignatureAndMethod(authorizedUser, INVALID_SIGNATURE)).should.equal(false);
         });
 
         it('does not validate valid signature with correct method for anyone', async function () {
           (await this.bouncer.checkValidSignatureAndMethod(anyone,
             this.signFor(authorizedUser, 'checkValidSignatureAndMethod'))
-          ).should.be.false;
+          ).should.equal(false);
         });
 
         it('does not validate valid non-method signature with correct method for valid user', async function () {
           (await this.bouncer.checkValidSignatureAndMethod(authorizedUser, this.signFor(authorizedUser))
-          ).should.be.false;
+          ).should.equal(false);
         });
       });
 
@@ -212,33 +212,33 @@ contract('Bouncer', ([_, owner, anyone, bouncerAddress, authorizedUser]) => {
         it('validates valid signature with correct method and data for valid user', async function () {
           (await this.bouncer.checkValidSignatureAndData(authorizedUser, BYTES_VALUE, UINT_VALUE,
             this.signFor(authorizedUser, 'checkValidSignatureAndData', [authorizedUser, BYTES_VALUE, UINT_VALUE]))
-          ).should.be.true;
+          ).should.equal(true);
         });
 
         it('does not validate invalid signature with correct method and data for valid user', async function () {
           (await this.bouncer.checkValidSignatureAndData(authorizedUser, BYTES_VALUE, UINT_VALUE, INVALID_SIGNATURE)
-          ).should.be.false;
+          ).should.equal(false);
         });
 
         it('does not validate valid signature with correct method and incorrect data for valid user',
           async function () {
             (await this.bouncer.checkValidSignatureAndData(authorizedUser, BYTES_VALUE, UINT_VALUE + 10,
               this.signFor(authorizedUser, 'checkValidSignatureAndData', [authorizedUser, BYTES_VALUE, UINT_VALUE]))
-            ).should.be.false;
+            ).should.equal(false);
           }
         );
 
         it('does not validate valid signature with correct method and data for anyone', async function () {
           (await this.bouncer.checkValidSignatureAndData(anyone, BYTES_VALUE, UINT_VALUE,
             this.signFor(authorizedUser, 'checkValidSignatureAndData', [authorizedUser, BYTES_VALUE, UINT_VALUE]))
-          ).should.be.false;
+          ).should.equal(false);
         });
 
         it('does not validate valid non-method-data signature with correct method and data for valid user',
           async function () {
             (await this.bouncer.checkValidSignatureAndData(authorizedUser, BYTES_VALUE, UINT_VALUE,
               this.signFor(authorizedUser, 'checkValidSignatureAndData'))
-            ).should.be.false;
+            ).should.equal(false);
           }
         );
       });

@@ -44,7 +44,7 @@ function shouldSupportInterfaces (interfaces = []) {
         });
 
         it('is supported', async function () {
-          (await this.thing.supportsInterface(interfaceId)).should.be.true;
+          (await this.thing.supportsInterface(interfaceId)).should.equal(true);
         });
       });
     }

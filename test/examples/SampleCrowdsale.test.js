@@ -9,7 +9,7 @@ const { ethGetBalance } = require('../helpers/web3');
 
 const BigNumber = web3.BigNumber;
 
-require('chai')
+const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
@@ -40,8 +40,8 @@ contract('SampleCrowdsale', function ([_, owner, wallet, investor]) {
   });
 
   it('should create crowdsale with correct parameters', async function () {
-    this.crowdsale.should.exist;
-    this.token.should.exist;
+    should.exist(this.crowdsale);
+    should.exist(this.token);
 
     (await this.crowdsale.openingTime()).should.be.bignumber.equal(this.openingTime);
     (await this.crowdsale.closingTime()).should.be.bignumber.equal(this.closingTime);

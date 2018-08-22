@@ -35,7 +35,7 @@ contract('MintedCrowdsale', function ([_, investor, wallet, purchaser]) {
     });
 
     it('should have minter role on token', async function () {
-      (await this.token.hasRole(this.crowdsale.address, ROLE_MINTER)).should.be.true;
+      (await this.token.hasRole(this.crowdsale.address, ROLE_MINTER)).should.equal(true);
     });
 
     shouldBehaveLikeMintedCrowdsale([_, investor, wallet, purchaser], rate, value);

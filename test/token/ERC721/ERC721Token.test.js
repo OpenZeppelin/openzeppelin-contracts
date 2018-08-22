@@ -126,7 +126,7 @@ contract('ERC721Token', function (accounts) {
       it('can burn token with metadata', async function () {
         await this.token.setTokenURI(firstTokenId, sampleUri);
         await this.token.burn(firstTokenId);
-        (await this.token.exists(firstTokenId)).should.be.false;
+        (await this.token.exists(firstTokenId)).should.equal(false);
       });
 
       it('returns empty metadata for token', async function () {
