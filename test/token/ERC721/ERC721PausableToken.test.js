@@ -1,4 +1,4 @@
-const { shouldBehaveLikeERC721PausableToken } = require('./ERC721PausableToken.behavior');
+const { shouldBehaveLikeERC721PausedToken } = require('./ERC721PausedToken.behavior');
 const { shouldBehaveLikeERC721BasicToken } = require('./ERC721BasicToken.behavior');
 
 const BigNumber = web3.BigNumber;
@@ -14,7 +14,11 @@ contract('ERC721PausableToken', function ([_, owner, recipient, operator, ...oth
   });
 
   context('when token is paused', function () {
-    shouldBehaveLikeERC721PausableToken([owner, recipient, operator]);
+    beforeEach(async function () {
+      await this.token.pause({ from: owner });
+    });
+
+    shouldBehaveLikeERC721PausedToken(owner, [...otherAccounts]);
   });
 
   context('when token is not paused yet', function () {
