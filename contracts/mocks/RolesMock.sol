@@ -28,10 +28,6 @@ contract RolesMock {
     dummyRole.transfer(_account);
   }
 
-  function check(address _account) public view {
-    dummyRole.check(_account);
-  }
-
   function has(address _account) public view returns (bool) {
     return dummyRole.has(_account);
   }

@@ -12,8 +12,12 @@ contract MinterRole {
     minters.addMany(_minters);
   }
 
-  modifier hasMintPermission() {
-    minters.check(msg.sender);
+  function isMinter(address _account) public view returns (bool) {
+    return minters.has(msg.sender);
+  }
+
+  modifier onlyMinter() {
+    require(isMinter(msg.sender));
     _;
   }
 
@@ -52,7 +56,7 @@ contract MintableToken is StandardToken, MinterRole {
     uint256 _amount
   )
     public
-    hasMintPermission
+    onlyMinter
     canMint
     returns (bool)
   {
@@ -65,7 +69,7 @@ contract MintableToken is StandardToken, MinterRole {
    * @dev Function to stop minting new tokens.
    * @return True if the operation was successful.
    */
-  function finishMinting() public hasMintPermission canMint returns (bool) {
+  function finishMinting() public onlyMinter canMint returns (bool) {
     mintingFinished = true;
     emit MintFinished();
     return true;

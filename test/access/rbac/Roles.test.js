@@ -10,46 +10,37 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
 
   beforeEach(async function () {
     this.roles = await RolesMock.new();
-    this.testRole = async (account, expected) => {
-      if (expected) {
-        (await this.roles.has(account)).should.equal(true);
-        await this.roles.check(account); // this call shouldn't revert, but is otherwise a no-op
-      } else {
-        (await this.roles.has(account)).should.equal(false);
-        await assertRevert(this.roles.check(account));
-      }
-    };
   });
 
   context('initially', function () {
     it('doesn\'t pre-assign roles', async function () {
-      await this.testRole(authorized, false);
-      await this.testRole(otherAuthorized, false);
-      await this.testRole(anyone, false);
+      (await this.roles.has(authorized)).should.equal(false);
+      (await this.roles.has(otherAuthorized)).should.equal(false);
+      (await this.roles.has(anyone)).should.equal(false);
     });
 
     describe('adding roles', function () {
       it('adds roles to a single account', async function () {
         await this.roles.add(authorized);
-        await this.testRole(authorized, true);
-        await this.testRole(anyone, false);
+        (await this.roles.has(authorized)).should.equal(true);
+        (await this.roles.has(anyone)).should.equal(false);
       });
 
       it('adds roles to an already-assigned account', async function () {
         await this.roles.add(authorized);
         await this.roles.add(authorized);
-        await this.testRole(authorized, true);
+        (await this.roles.has(authorized)).should.equal(true);
       });
 
       it('adds roles to multiple accounts', async function () {
         await this.roles.addMany([authorized, otherAuthorized]);
-        await this.testRole(authorized, true);
-        await this.testRole(otherAuthorized, true);
+        (await this.roles.has(authorized)).should.equal(true);
+        (await this.roles.has(otherAuthorized)).should.equal(true);
       });
 
       it('adds roles to multiple identical accounts', async function () {
         await this.roles.addMany([authorized, authorized]);
-        await this.testRole(authorized, true);
+        (await this.roles.has(authorized)).should.equal(true);
       });
 
       it('doesn\'t revert when adding roles to the null account', async function () {
@@ -66,8 +57,8 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
     describe('removing roles', function () {
       it('removes a single role', async function () {
         await this.roles.remove(authorized);
-        await this.testRole(authorized, false);
-        await this.testRole(otherAuthorized, true);
+        (await this.roles.has(authorized)).should.equal(false);
+        (await this.roles.has(otherAuthorized)).should.equal(true);
       });
 
       it('doesn\'t revert when removing unassigned roles', async function () {
@@ -124,19 +115,19 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
 
         it('transfers to other account with no role', async function () {
           await this.roles.transfer(anyone, { from });
-          await this.testRole(anyone, true);
-          await this.testRole(authorized, false);
+          (await this.roles.has(anyone)).should.equal(true);
+          (await this.roles.has(authorized)).should.equal(false);
         });
 
         it('transfers to other account with role', async function () {
           await this.roles.transfer(otherAuthorized, { from });
-          await this.testRole(otherAuthorized, true);
-          await this.testRole(authorized, false);
+          (await this.roles.has(otherAuthorized)).should.equal(true);
+          (await this.roles.has(authorized)).should.equal(false);
         });
 
         it('transfers to self', async function () {
           await this.roles.transfer(authorized, { from });
-          await this.testRole(authorized, true);
+          (await this.roles.has(authorized)).should.equal(true);
         });
       });
 

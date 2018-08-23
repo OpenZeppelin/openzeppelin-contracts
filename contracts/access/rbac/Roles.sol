@@ -35,7 +35,6 @@ library Roles {
     _role.bearer[_account] = false;
   }
 
-
   function transfer(Role storage _role, address _account) internal {
     require(_account != address(0));
     require(!has(_role, _account));
@@ -47,14 +46,6 @@ library Roles {
 
   function renounce(Role storage _role) internal {
     remove(_role, msg.sender);
-  }
-
-  /**
-   * @dev check if an account has this role
-   * // reverts
-   */
-  function check(Role storage _role, address _account) internal view {
-    require(has(_role, _account));
   }
 
   /**
