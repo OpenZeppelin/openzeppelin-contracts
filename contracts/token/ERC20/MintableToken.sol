@@ -1,30 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "./StandardToken.sol";
-import "../../access/rbac/Roles.sol";
-
-contract MinterRole {
-  using Roles for Roles.Role;
-
-  Roles.Role private minters;
-
-  constructor(address[] _minters) {
-    minters.addMany(_minters);
-  }
-
-  function isMinter(address _account) public view returns (bool) {
-    return minters.has(msg.sender);
-  }
-
-  modifier onlyMinter() {
-    require(isMinter(msg.sender));
-    _;
-  }
-
-  function transferMinterRole(address _account) public {
-    minters.transfer(_account);
-  }
-}
+import "../../access/rbac/MinterRole.sol";
 
 /**
  * @title Mintable token
