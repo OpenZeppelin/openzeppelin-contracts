@@ -35,6 +35,7 @@ library Roles {
     _role.bearer[_account] = false;
   }
 
+
   function transfer(Role storage _role, address _account) internal {
     require(_account != address(0));
     require(!has(_role, _account));
