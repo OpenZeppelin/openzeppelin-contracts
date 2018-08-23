@@ -21,8 +21,8 @@ contract MinterRole {
     _;
   }
 
-  function transferMintPermission(address _acount) public {
-    minters.transfer(_acount);
+  function transferMinterRole(address _account) public {
+    minters.transfer(_account);
   }
 }
 

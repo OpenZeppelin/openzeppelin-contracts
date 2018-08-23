@@ -36,7 +36,7 @@ contract('SampleCrowdsale', function ([_, initialMinter, owner, wallet, investor
       this.openingTime, this.closingTime, RATE, wallet, CAP, this.token.address, GOAL,
       { from: owner }
     );
-    await this.token.transferMintPermission(this.crowdsale.address, { from: initialMinter });
+    await this.token.transferMinterRole(this.crowdsale.address, { from: initialMinter });
   });
 
   it('should create crowdsale with correct parameters', async function () {
