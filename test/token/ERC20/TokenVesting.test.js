@@ -13,7 +13,7 @@ require('chai')
 const MintableToken = artifacts.require('MintableToken');
 const TokenVesting = artifacts.require('TokenVesting');
 
-contract('TokenVesting', function ([_, owner, beneficiary]) {
+contract('TokenVesting', function ([_, owner, beneficiary, minter]) {
   const amount = new BigNumber(1000);
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
@@ -44,8 +44,8 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     beforeEach(async function () {
       this.vesting = await TokenVesting.new(beneficiary, this.start, this.cliff, this.duration, true, { from: owner });
 
-      this.token = await MintableToken.new({ from: owner });
-      await this.token.mint(this.vesting.address, amount, { from: owner });
+      this.token = await MintableToken.new([minter]);
+      await this.token.mint(this.vesting.address, amount, { from: minter });
     });
 
     it('cannot be released before cliff', async function () {

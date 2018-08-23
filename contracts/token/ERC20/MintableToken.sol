@@ -3,19 +3,8 @@ pragma solidity ^0.4.24;
 import "./StandardToken.sol";
 import "../../access/rbac/Roles.sol";
 
-
-/**
- * @title Mintable token
- * @dev Simple ERC20 Token example, with mintable token creation
- * Based on code by TokenMarketNet: https://github.com/TokenMarketNet/ico/blob/master/contracts/MintableToken.sol
- */
-contract MintableToken is StandardToken {
+contract MinterRole {
   using Roles for Roles.Role;
-
-  event Mint(address indexed to, uint256 amount);
-  event MintFinished();
-
-  bool public mintingFinished = false;
 
   Roles.Role private minters;
 
@@ -23,13 +12,32 @@ contract MintableToken is StandardToken {
     minters.addMany(_minters);
   }
 
-  modifier canMint() {
-    require(!mintingFinished);
+  modifier hasMintPermission() {
+    minters.check(msg.sender);
     _;
   }
 
-  modifier hasMintPermission() {
-    minters.check(msg.sender);
+  function transferMintPermission(address _acount) public {
+    minters.transfer(_acount);
+  }
+}
+
+/**
+ * @title Mintable token
+ * @dev Simple ERC20 Token example, with mintable token creation
+ * Based on code by TokenMarketNet: https://github.com/TokenMarketNet/ico/blob/master/contracts/MintableToken.sol
+ */
+contract MintableToken is StandardToken, MinterRole {
+  event Mint(address indexed to, uint256 amount);
+  event MintFinished();
+
+  bool public mintingFinished = false;
+
+  constructor(address[] _minters) MinterRole(_minters) {
+  }
+
+  modifier canMint() {
+    require(!mintingFinished);
     _;
   }
 
