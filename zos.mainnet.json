@@ -1,40 +1,40 @@
 {
   "contracts": {
+    "DetailedMintableToken": {
+      "address": "0x2d0df0100c08aa62976d7ab4e2e820c3f9af4641",
+      "constructorCode": "60806040526000600860006101000a81548160ff02191690831515021790555034801561002b57600080fd5b506127d68061003b6000396000f300",
+      "bodyBytecodeHash": "f99213cde38d1e3182c7575f34f59dae30c6760b18ab11810111b68dd0f036c4",
+      "bytecodeHash": "99fcb4e401387a40b83c24e44a5786f1d8c7caa9b7ca582f4c774e08fd730cdc"
+    },
     "DetailedPremintedToken": {
-      "address": "0xb112267e91a56b2f4588b1d0cd9b3e55a71a371b",
+      "address": "0x55a4d0a98a8df3bdc9e6ca3deb1d0019cbc257cd",
       "constructorCode": "608060405234801561001057600080fd5b50611d2c806100206000396000f300",
       "bodyBytecodeHash": "ed78bb86d973826f5292ac4c7a47969574047e2d6e28afdf2ed92f450409dc0e",
       "bytecodeHash": "23db7c6068981c7090aeec3a1d566cdbf9e08d77d7cf62b312a50cc744e4eb61"
     },
-    "TokenVesting": {
-      "address": "0x33d1434f0a70e5613c9febbca30e0c267da8c4e9",
-      "constructorCode": "608060405234801561001057600080fd5b506116e9806100206000396000f300",
-      "bodyBytecodeHash": "5ec5e029def2186b121a5bf8fdc074e6336933c6dcca18ef26da6a64f3a7e9b7",
-      "bytecodeHash": "6d216d72b05cd126eea42564d4c94c00284d3b60f3f50aa5c7ba2b7318071b63"
-    },
-    "MintableERC721Token": {
-      "address": "0x6e3771aa2a5808678e26b97dd1501ce504bd6a0d",
-      "constructorCode": "608060405234801561001057600080fd5b50612b5d806100206000396000f300",
-      "bodyBytecodeHash": "21ed76dc286f651bde28dd07cc1089f33de5ad1b3c2ab6eb6191bc597dbc3f75",
-      "bytecodeHash": "2037c50c42a482c4f5d4d971b5ee6245f711767a3ed47747f7f0220a74dae9ec"
-    },
     "SplitPayment": {
-      "address": "0xc6e7fe05be2c121a994ee1ed5efa2c5566cde91b",
+      "address": "0x03c057c82358946cdc9c617a5e87c292f82a6c3f",
       "constructorCode": "60806040526000600155600060025534801561001a57600080fd5b50610c448061002a6000396000f300",
       "bodyBytecodeHash": "a0db0119626b513adea89bd2002afc671159c824d758118bbb0acecd578ce933",
       "bytecodeHash": "7230f750f319bb7b38598a5330d9841a3bec04cbef4ed64c83320ab8a9c9664f"
     },
     "TokenTimelock": {
-      "address": "0xd9a62656f092b656b18ffa6fc07e8b8af682a47b",
+      "address": "0xf6efb09b65986d2a5a6ce0566260d18cb834bb52",
       "constructorCode": "608060405234801561001057600080fd5b506109ba806100206000396000f300",
       "bodyBytecodeHash": "32e666fcbd5cd6151e13b699b1d03c76974565f4fc004ec054116ea1f5506af5",
       "bytecodeHash": "c7eaf6545e2ae07c7c974aeb97df74a3040cdd21991fa32e04d178c47e300456"
     },
-    "DetailedMintableToken": {
-      "address": "0x87f8cf4efc125f4df41af488d9736879e9b559ab",
-      "constructorCode": "60806040526000600860006101000a81548160ff02191690831515021790555034801561002b57600080fd5b506127d68061003b6000396000f300",
-      "bodyBytecodeHash": "f99213cde38d1e3182c7575f34f59dae30c6760b18ab11810111b68dd0f036c4",
-      "bytecodeHash": "99fcb4e401387a40b83c24e44a5786f1d8c7caa9b7ca582f4c774e08fd730cdc"
+    "TokenVesting": {
+      "address": "0x7513fc8ddd710cbd54b0e383e9749d7d2fd7ec50",
+      "constructorCode": "608060405234801561001057600080fd5b506116e9806100206000396000f300",
+      "bodyBytecodeHash": "5ec5e029def2186b121a5bf8fdc074e6336933c6dcca18ef26da6a64f3a7e9b7",
+      "bytecodeHash": "6d216d72b05cd126eea42564d4c94c00284d3b60f3f50aa5c7ba2b7318071b63"
+    },
+    "MintableERC721Token": {
+      "address": "0xd1aa787859f5ec7afc5befb2062000e1c958d4ff",
+      "constructorCode": "608060405234801561001057600080fd5b50612b49806100206000396000f300",
+      "bodyBytecodeHash": "b9dbc2eaace5ae13e376b2e5cbbc10fdf70be49d6338a9ad622e8bb109e64d89",
+      "bytecodeHash": "6f76f8a40043f87afd01a906bf8d5a85aab7cc3d9985cc183f3199b2b3456821"
     }
   },
   "lib": true,
@@ -43,7 +43,7 @@
     "address": "0x3bd95b5a003481b801010bcde4f7e0a32a925deb"
   },
   "provider": {
-    "address": "0xac50270363da99cc98d677f8ff5b63a70f68c9b8"
+    "address": "0xbbda6d3f3fc23f8fb81f8961a51b3125c07ceb59"
   },
-  "version": "1.9.2"
+  "version": "1.9.3"
 }
