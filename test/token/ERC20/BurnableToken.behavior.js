@@ -30,14 +30,14 @@ function shouldBehaveLikeBurnableToken (owner, initialBalance, [burner]) {
 
         it('emits a burn event', async function () {
           const event = expectEvent.inLogs(this.logs, 'Burn');
-          event.args.burner.should.eq(owner);
+          event.args.burner.should.equal(owner);
           event.args.value.should.be.bignumber.equal(amount);
         });
 
         it('emits a transfer event', async function () {
           const event = expectEvent.inLogs(this.logs, 'Transfer');
-          event.args.from.should.eq(owner);
-          event.args.to.should.eq(ZERO_ADDRESS);
+          event.args.from.should.equal(owner);
+          event.args.to.should.equal(ZERO_ADDRESS);
           event.args.value.should.be.bignumber.equal(amount);
         });
       }
@@ -81,14 +81,14 @@ function shouldBehaveLikeBurnableToken (owner, initialBalance, [burner]) {
 
         it('emits a burn event', async function () {
           const event = expectEvent.inLogs(this.logs, 'Burn');
-          event.args.burner.should.eq(owner);
+          event.args.burner.should.equal(owner);
           event.args.value.should.be.bignumber.equal(amount);
         });
 
         it('emits a transfer event', async function () {
           const event = expectEvent.inLogs(this.logs, 'Transfer');
-          event.args.from.should.eq(owner);
-          event.args.to.should.eq(ZERO_ADDRESS);
+          event.args.from.should.equal(owner);
+          event.args.to.should.equal(ZERO_ADDRESS);
           event.args.value.should.be.bignumber.equal(amount);
         });
       }

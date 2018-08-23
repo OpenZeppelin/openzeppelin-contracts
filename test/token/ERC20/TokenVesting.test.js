@@ -67,7 +67,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
       const block = await ethGetBlock(receipt.blockNumber);
       const releaseTime = block.timestamp;
 
-      (await this.token.balanceOf(beneficiary)).should.bignumber.eq(
+      (await this.token.balanceOf(beneficiary)).should.bignumber.equal(
         amount.mul(releaseTime - this.start).div(this.duration).floor()
       );
     });
@@ -82,14 +82,14 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
         await this.vesting.release(this.token.address);
         const expectedVesting = amount.mul(now - this.start).div(this.duration).floor();
-        (await this.token.balanceOf(beneficiary)).should.bignumber.eq(expectedVesting);
+        (await this.token.balanceOf(beneficiary)).should.bignumber.equal(expectedVesting);
       }
     });
 
     it('should have released all after end', async function () {
       await increaseTimeTo(this.start + this.duration);
       await this.vesting.release(this.token.address);
-      (await this.token.balanceOf(beneficiary)).should.bignumber.eq(amount);
+      (await this.token.balanceOf(beneficiary)).should.bignumber.equal(amount);
     });
 
     it('should be revoked by owner if revocable is set', async function () {
@@ -114,7 +114,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
       await this.vesting.revoke(this.token.address, { from: owner });
 
-      (await this.token.balanceOf(owner)).should.bignumber.eq(amount.sub(vested));
+      (await this.token.balanceOf(owner)).should.bignumber.equal(amount.sub(vested));
     });
 
     it('should keep the vested tokens when revoked by owner', async function () {
@@ -126,7 +126,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
       const vestedPost = await this.vesting.vestedAmount(this.token.address);
 
-      vestedPre.should.bignumber.eq(vestedPost);
+      vestedPre.should.bignumber.equal(vestedPost);
     });
 
     it('should fail to be revoked a second time', async function () {

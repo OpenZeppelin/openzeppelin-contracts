@@ -19,8 +19,8 @@ contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
         it('emits a Pause event', async function () {
           const { logs } = await this.token.pause({ from });
 
-          logs.length.should.eq(1);
-          logs[0].event.should.eq('Pause');
+          logs.length.should.equal(1);
+          logs[0].event.should.equal('Pause');
         });
       });
 
@@ -61,8 +61,8 @@ contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
         it('emits an Unpause event', async function () {
           const { logs } = await this.token.unpause({ from });
 
-          logs.length.should.eq(1);
-          logs[0].event.should.eq('Unpause');
+          logs.length.should.equal(1);
+          logs[0].event.should.equal('Unpause');
         });
       });
 
