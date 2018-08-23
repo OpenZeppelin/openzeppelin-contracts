@@ -20,6 +20,10 @@ contract RolesMock {
     dummyRole.remove(_account);
   }
 
+  function transfer(address _account) public {
+    dummyRole.transfer(_account);
+  }
+
   function check(address _account) public view {
     dummyRole.check(_account);
   }

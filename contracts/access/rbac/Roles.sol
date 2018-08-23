@@ -41,6 +41,14 @@ library Roles {
     _role.bearer[_account] = false;
   }
 
+  function transfer(Role storage _role, address _account)
+    internal
+  {
+    check(_role, msg.sender);
+    remove(_role, msg.sender);
+    add(_role, _account);
+  }
+
   /**
    * @dev check if an account has this role
    * // reverts

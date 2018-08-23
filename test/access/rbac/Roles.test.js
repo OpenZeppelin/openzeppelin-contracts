@@ -68,5 +68,36 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
         await this.roles.remove(anyone);
       });
     });
+
+    describe('transfering roles', function () {
+      context('from account with role', function () {
+        const from = authorized;
+
+        it('transfers to other account with no role', async function () {
+          await this.roles.transfer(anyone, { from });
+          await this.testRole(anyone, true);
+          await this.testRole(authorized, false);
+        });
+
+        it('transfers to other account with role', async function () {
+          await this.roles.transfer(otherAuthorized, { from });
+          await this.testRole(otherAuthorized, true);
+          await this.testRole(authorized, false);
+        });
+
+        it('transfers to self', async function () {
+          await this.roles.transfer(authorized, { from });
+          await this.testRole(authorized, true);
+        });
+      });
+
+      context('from account without role', function () {
+        const from = anyone;
+
+        it('reverts', async function () {
+          await assertRevert(this.roles.transfer(authorized, { from }));
+        });
+      });
+    });
   });
 });
