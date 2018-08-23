@@ -91,10 +91,10 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         it('emits an approval event', async function () {
           const { logs } = await this.token.approve(spender, amount, { from: owner });
 
-          logs.length.should.eq(1);
-          logs[0].event.should.eq('Approval');
-          logs[0].args.owner.should.eq(owner);
-          logs[0].args.spender.should.eq(spender);
+          logs.length.should.equal(1);
+          logs[0].event.should.equal('Approval');
+          logs[0].args.owner.should.equal(owner);
+          logs[0].args.spender.should.equal(spender);
           logs[0].args.value.should.be.bignumber.equal(amount);
         });
 
@@ -125,10 +125,10 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         it('emits an approval event', async function () {
           const { logs } = await this.token.approve(spender, amount, { from: owner });
 
-          logs.length.should.eq(1);
-          logs[0].event.should.eq('Approval');
-          logs[0].args.owner.should.eq(owner);
-          logs[0].args.spender.should.eq(spender);
+          logs.length.should.equal(1);
+          logs[0].event.should.equal('Approval');
+          logs[0].args.owner.should.equal(owner);
+          logs[0].args.spender.should.equal(spender);
           logs[0].args.value.should.be.bignumber.equal(amount);
         });
 
@@ -167,10 +167,10 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
       it('emits an approval event', async function () {
         const { logs } = await this.token.approve(spender, amount, { from: owner });
 
-        logs.length.should.eq(1);
-        logs[0].event.should.eq('Approval');
-        logs[0].args.owner.should.eq(owner);
-        logs[0].args.spender.should.eq(spender);
+        logs.length.should.equal(1);
+        logs[0].event.should.equal('Approval');
+        logs[0].args.owner.should.equal(owner);
+        logs[0].args.spender.should.equal(spender);
         logs[0].args.value.should.be.bignumber.equal(amount);
       });
     });
@@ -207,10 +207,10 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
           it('emits a transfer event', async function () {
             const { logs } = await this.token.transferFrom(owner, to, amount, { from: spender });
 
-            logs.length.should.eq(1);
-            logs[0].event.should.eq('Transfer');
-            logs[0].args.from.should.eq(owner);
-            logs[0].args.to.should.eq(to);
+            logs.length.should.equal(1);
+            logs[0].event.should.equal('Transfer');
+            logs[0].args.from.should.equal(owner);
+            logs[0].args.to.should.equal(to);
             logs[0].args.value.should.be.bignumber.equal(amount);
           });
         });
@@ -271,10 +271,10 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         it('emits an approval event', async function () {
           const { logs } = await this.token.decreaseApproval(spender, amount, { from: owner });
 
-          logs.length.should.eq(1);
-          logs[0].event.should.eq('Approval');
-          logs[0].args.owner.should.eq(owner);
-          logs[0].args.spender.should.eq(spender);
+          logs.length.should.equal(1);
+          logs[0].event.should.equal('Approval');
+          logs[0].args.owner.should.equal(owner);
+          logs[0].args.spender.should.equal(spender);
           logs[0].args.value.should.be.bignumber.equal(0);
         });
 
@@ -317,10 +317,10 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         it('emits an approval event', async function () {
           const { logs } = await this.token.decreaseApproval(spender, amount, { from: owner });
 
-          logs.length.should.eq(1);
-          logs[0].event.should.eq('Approval');
-          logs[0].args.owner.should.eq(owner);
-          logs[0].args.spender.should.eq(spender);
+          logs.length.should.equal(1);
+          logs[0].event.should.equal('Approval');
+          logs[0].args.owner.should.equal(owner);
+          logs[0].args.spender.should.equal(spender);
           logs[0].args.value.should.be.bignumber.equal(0);
         });
 
@@ -359,10 +359,10 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
       it('emits an approval event', async function () {
         const { logs } = await this.token.decreaseApproval(spender, amount, { from: owner });
 
-        logs.length.should.eq(1);
-        logs[0].event.should.eq('Approval');
-        logs[0].args.owner.should.eq(owner);
-        logs[0].args.spender.should.eq(spender);
+        logs.length.should.equal(1);
+        logs[0].event.should.equal('Approval');
+        logs[0].args.owner.should.equal(owner);
+        logs[0].args.spender.should.equal(spender);
         logs[0].args.value.should.be.bignumber.equal(0);
       });
     });
@@ -378,10 +378,10 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         it('emits an approval event', async function () {
           const { logs } = await this.token.increaseApproval(spender, amount, { from: owner });
 
-          logs.length.should.eq(1);
-          logs[0].event.should.eq('Approval');
-          logs[0].args.owner.should.eq(owner);
-          logs[0].args.spender.should.eq(spender);
+          logs.length.should.equal(1);
+          logs[0].event.should.equal('Approval');
+          logs[0].args.owner.should.equal(owner);
+          logs[0].args.spender.should.equal(spender);
           logs[0].args.value.should.be.bignumber.equal(amount);
         });
 
@@ -412,10 +412,10 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
         it('emits an approval event', async function () {
           const { logs } = await this.token.increaseApproval(spender, amount, { from: owner });
 
-          logs.length.should.eq(1);
-          logs[0].event.should.eq('Approval');
-          logs[0].args.owner.should.eq(owner);
-          logs[0].args.spender.should.eq(spender);
+          logs.length.should.equal(1);
+          logs[0].event.should.equal('Approval');
+          logs[0].args.owner.should.equal(owner);
+          logs[0].args.spender.should.equal(spender);
           logs[0].args.value.should.be.bignumber.equal(amount);
         });
 
@@ -453,10 +453,10 @@ contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
       it('emits an approval event', async function () {
         const { logs } = await this.token.increaseApproval(spender, amount, { from: owner });
 
-        logs.length.should.eq(1);
-        logs[0].event.should.eq('Approval');
-        logs[0].args.owner.should.eq(owner);
-        logs[0].args.spender.should.eq(spender);
+        logs.length.should.equal(1);
+        logs[0].event.should.equal('Approval');
+        logs[0].args.owner.should.equal(owner);
+        logs[0].args.spender.should.equal(spender);
         logs[0].args.value.should.be.bignumber.equal(amount);
       });
     });

@@ -117,7 +117,7 @@ function shouldBehaveLikeERC721BasicToken (accounts) {
 
           (await this.token.tokenOfOwnerByIndex(this.to, 0)).toNumber().should.be.equal(tokenId);
 
-          (await this.token.tokenOfOwnerByIndex(owner, 0)).toNumber().should.not.be.eq(tokenId);
+          (await this.token.tokenOfOwnerByIndex(owner, 0)).toNumber().should.not.be.equal(tokenId);
         });
       };
 

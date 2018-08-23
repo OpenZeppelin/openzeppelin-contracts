@@ -50,7 +50,7 @@ function shouldBehaveLikeMintableToken (owner, minter, [anyone]) {
             const { logs } = await this.token.finishMinting({ from });
 
             logs.length.should.be.equal(1);
-            logs[0].event.should.eq('MintFinished');
+            logs[0].event.should.equal('MintFinished');
           });
         });
 
