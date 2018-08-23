@@ -30,7 +30,7 @@ contract RBAC {
     public
     view
   {
-    roles[_role].check(_operator);
+    require(roles[_role].has(_operator));
   }
 
   /**
