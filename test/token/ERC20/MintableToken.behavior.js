@@ -93,26 +93,36 @@ function shouldBehaveLikeMintableToken (owner, minter, [anyone]) {
         const from = minter;
 
         describe('when the token minting is not finished', function () {
-          it('mints the requested amount', async function () {
-            await this.token.mint(owner, amount, { from });
-
-            (await this.token.balanceOf(owner)).should.be.bignumber.equal(amount);
+          context('for a zero amount', function () {
+            shouldMint(0);
           });
 
-          it('emits a mint and a transfer event', async function () {
-            const { logs } = await this.token.mint(owner, amount, { from });
-
-            const mintEvent = expectEvent.inLogs(logs, 'Mint', {
-              to: owner,
-            });
-            mintEvent.args.amount.should.be.bignumber.equal(amount);
-
-            const transferEvent = expectEvent.inLogs(logs, 'Transfer', {
-              from: ZERO_ADDRESS,
-              to: owner,
-            });
-            transferEvent.args.value.should.be.bignumber.equal(amount);
+          context('for a non-zero amount', function () {
+            shouldMint(amount);
           });
+
+          function shouldMint (amount) {
+            beforeEach(async function () {
+              ({ logs: this.logs } = await this.token.mint(anyone, amount, { from }));
+            });
+
+            it('mints the requested amount', async function () {
+              (await this.token.balanceOf(anyone)).should.be.bignumber.equal(amount);
+            });
+
+            it('emits a mint and a transfer event', async function () {
+              const mintEvent = expectEvent.inLogs(this.logs, 'Mint', {
+                to: anyone,
+              });
+              mintEvent.args.amount.should.be.bignumber.equal(amount);
+
+              const transferEvent = expectEvent.inLogs(this.logs, 'Transfer', {
+                from: ZERO_ADDRESS,
+                to: anyone,
+              });
+              transferEvent.args.value.should.be.bignumber.equal(amount);
+            });
+          }
         });
 
         describe('when the token minting is finished', function () {
@@ -121,7 +131,7 @@ function shouldBehaveLikeMintableToken (owner, minter, [anyone]) {
           });
 
           it('reverts', async function () {
-            await assertRevert(this.token.mint(owner, amount, { from }));
+            await assertRevert(this.token.mint(anyone, amount, { from }));
           });
         });
       });
@@ -131,7 +141,7 @@ function shouldBehaveLikeMintableToken (owner, minter, [anyone]) {
 
         describe('when the token minting is not finished', function () {
           it('reverts', async function () {
-            await assertRevert(this.token.mint(owner, amount, { from }));
+            await assertRevert(this.token.mint(anyone, amount, { from }));
           });
         });
 
@@ -141,7 +151,7 @@ function shouldBehaveLikeMintableToken (owner, minter, [anyone]) {
           });
 
           it('reverts', async function () {
-            await assertRevert(this.token.mint(owner, amount, { from }));
+            await assertRevert(this.token.mint(anyone, amount, { from }));
           });
         });
       });
