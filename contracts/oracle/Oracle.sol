@@ -7,5 +7,5 @@ interface Oracle {
   /**
    * Returns stored result
    */
-  function resultFor(bytes32 id) external view returns (bytes32 result);
+  function resultFor(bytes32 id) external view returns (bytes result);
 }
