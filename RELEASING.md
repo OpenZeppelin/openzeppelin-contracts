@@ -7,7 +7,7 @@ We release a new version of OpenZeppelin monthly. Release cycles are tracked in 
 Each release has at least one release candidate published first, intended for community review and any critical fixes that may come out of it. At the moment we leave 1 week between the first release candidate and the final release.
 
 Before starting make sure to verify the following items.
-* Your local `master` branch is in sync with your upstream remote.
+* Your local `master` branch is in sync with your `upstream` remote (it may have another name depending on your setup).
 * Your repo is clean, particularly with no untracked files in the contracts and tests directories. Verify with `git clean -n`.
 
 
@@ -44,8 +44,11 @@ Publish the release notes on GitHub and ask our community manager to announce th
 
 ## Creating the final release
 
+Make sure to have the latest changes from `upstream` in your local release branch.
+
 ```
 git checkout release-vX.Y.Z
+git pull upstream
 ```
 
 Change the version string in `package.json`, `package-lock.json` and `ethpm.json` removing the "-rc.R" suffix. Commit these changes and tag the commit as `vX.Y.Z`.
@@ -75,7 +78,14 @@ npm dist-tag rm --otp $2FA_CODE openzeppelin-solidity next
 
 ## Merging the release branch
 
-After the final release, the release branch should be merged back into `master`. This merge must not be squashed, because it would lose the tagged release commit, so it should be merged locally and pushed.
+After the final release, the release branch should be merged back into `master`. This merge must not be squashed because it would lose the tagged release commit. Since the GitHub repo is set up to only allow squashed merges, the merge should be done locally and pushed.
+
+Make sure to have the latest changes from `upstream` in your local release branch.
+
+```
+git checkout release-vX.Y.Z
+git pull upstream
+```
 
 ```
 git checkout master
