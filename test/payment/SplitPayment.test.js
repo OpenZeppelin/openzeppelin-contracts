@@ -35,7 +35,7 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
   });
 
   it('rejects repeated payees', async function () {
-    await expectThrow(SplitPayment.new([payee1, payee1], [20, 0]), EVMRevert);
+    await expectThrow(SplitPayment.new([payee1, payee1], [20, 30]), EVMRevert);
   });
 
   context('once deployed', function () {
