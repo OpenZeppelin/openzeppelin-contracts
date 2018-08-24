@@ -14,28 +14,28 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
   const amount = web3.toWei(1.0, 'ether');
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
-  it('cannot be created with no payees', async function () {
+  it('rejects an empty set of payees', async function () {
     await expectThrow(SplitPayment.new([], []), EVMRevert);
   });
 
-  it('requires shares for each payee', async function () {
+  it('rejects more payees than shares', async function () {
     await expectThrow(SplitPayment.new([payee1, payee2, payee3], [20, 30]), EVMRevert);
   });
 
-  it('requires a payee for each share', async function () {
+  it('rejects more shares than payees', async function () {
     await expectThrow(SplitPayment.new([payee1, payee2], [20, 30, 40]), EVMRevert);
   });
 
-  it('requires non-null payees', async function () {
+  it('rejects null payees', async function () {
     await expectThrow(SplitPayment.new([payee1, ZERO_ADDRESS], [20, 30]), EVMRevert);
   });
 
-  it('requires non-zero shares', async function () {
+  it('rejects zero-valued shares', async function () {
     await expectThrow(SplitPayment.new([payee1, payee2], [20, 0]), EVMRevert);
   });
 
   it('rejects repeated payees', async function () {
-    await expectThrow(SplitPayment.new([payee1, payee1], [20, 0]), EVMRevert);
+    await expectThrow(SplitPayment.new([payee1, payee1], [20, 30]), EVMRevert);
   });
 
   context('once deployed', function () {

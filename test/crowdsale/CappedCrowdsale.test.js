@@ -19,55 +19,58 @@ contract('CappedCrowdsale', function ([_, wallet]) {
 
   beforeEach(async function () {
     this.token = await SimpleToken.new();
-    this.crowdsale = await CappedCrowdsale.new(rate, wallet, this.token.address, cap);
-    await this.token.transfer(this.crowdsale.address, tokenSupply);
   });
 
-  describe('creating a valid crowdsale', function () {
-    it('should fail with zero cap', async function () {
-      await expectThrow(
-        CappedCrowdsale.new(rate, wallet, 0, this.token.address),
-        EVMRevert,
-      );
-    });
+  it('rejects a cap of zero', async function () {
+    await expectThrow(
+      CappedCrowdsale.new(rate, wallet, this.token.address, 0),
+      EVMRevert,
+    );
   });
 
-  describe('accepting payments', function () {
-    it('should accept payments within cap', async function () {
-      await this.crowdsale.send(cap.minus(lessThanCap));
-      await this.crowdsale.send(lessThanCap);
+  context('with crowdsale', function () {
+    beforeEach(async function () {
+      this.crowdsale = await CappedCrowdsale.new(rate, wallet, this.token.address, cap);
+      await this.token.transfer(this.crowdsale.address, tokenSupply);
     });
 
-    it('should reject payments outside cap', async function () {
-      await this.crowdsale.send(cap);
-      await expectThrow(
-        this.crowdsale.send(1),
-        EVMRevert,
-      );
+    describe('accepting payments', function () {
+      it('should accept payments within cap', async function () {
+        await this.crowdsale.send(cap.minus(lessThanCap));
+        await this.crowdsale.send(lessThanCap);
+      });
+
+      it('should reject payments outside cap', async function () {
+        await this.crowdsale.send(cap);
+        await expectThrow(
+          this.crowdsale.send(1),
+          EVMRevert,
+        );
+      });
+
+      it('should reject payments that exceed cap', async function () {
+        await expectThrow(
+          this.crowdsale.send(cap.plus(1)),
+          EVMRevert,
+        );
+      });
     });
 
-    it('should reject payments that exceed cap', async function () {
-      await expectThrow(
-        this.crowdsale.send(cap.plus(1)),
-        EVMRevert,
-      );
-    });
-  });
+    describe('ending', function () {
+      it('should not reach cap if sent under cap', async function () {
+        await this.crowdsale.send(lessThanCap);
+        (await this.crowdsale.capReached()).should.equal(false);
+      });
 
-  describe('ending', function () {
-    it('should not reach cap if sent under cap', async function () {
-      await this.crowdsale.send(lessThanCap);
-      (await this.crowdsale.capReached()).should.equal(false);
-    });
+      it('should not reach cap if sent just under cap', async function () {
+        await this.crowdsale.send(cap.minus(1));
+        (await this.crowdsale.capReached()).should.equal(false);
+      });
 
-    it('should not reach cap if sent just under cap', async function () {
-      await this.crowdsale.send(cap.minus(1));
-      (await this.crowdsale.capReached()).should.equal(false);
-    });
-
-    it('should reach cap if cap sent', async function () {
-      await this.crowdsale.send(cap);
-      (await this.crowdsale.capReached()).should.equal(true);
+      it('should reach cap if cap sent', async function () {
+        await this.crowdsale.send(cap);
+        (await this.crowdsale.capReached()).should.equal(true);
+      });
     });
   });
 });
