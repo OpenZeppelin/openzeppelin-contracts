@@ -35,13 +35,13 @@ contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser])
       this.token = await SimpleToken.new();
     });
 
-    it('requires a final rate smaller than the initial rate', async function () {
+    it('rejects a final rate larger than the initial rate', async function () {
       await assertRevert(IncreasingPriceCrowdsale.new(
         this.startTime, this.closingTime, wallet, this.token.address, initialRate, initialRate.plus(1)
       ));
     });
 
-    it('requires a non-zero final rate', async function () {
+    it('rejects a final rate of zero', async function () {
       await assertRevert(IncreasingPriceCrowdsale.new(
         this.startTime, this.closingTime, wallet, this.token.address, initialRate, 0
       ));

@@ -21,7 +21,7 @@ contract('CappedCrowdsale', function ([_, wallet]) {
     this.token = await SimpleToken.new();
   });
 
-  it('requires a non-zero cap', async function () {
+  it('rejects a cap of zero', async function () {
     await expectThrow(
       CappedCrowdsale.new(rate, wallet, this.token.address, 0),
       EVMRevert,

@@ -35,7 +35,7 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
     this.token = await SimpleToken.new();
   });
 
-  it('it requires a non-zero goal', async function () {
+  it('rejects a goal of zero', async function () {
     await expectThrow(
       RefundableCrowdsale.new(
         this.openingTime, this.closingTime, rate, wallet, this.token.address, 0, { from: owner }
@@ -54,7 +54,7 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
     });
 
     context('before opening time', function () {
-      it('should deny refunds', async function () {
+      it('denies refunds', async function () {
         await expectThrow(this.crowdsale.claimRefund({ from: investor }), EVMRevert);
       });
     });
@@ -64,7 +64,7 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
         await increaseTimeTo(this.openingTime);
       });
 
-      it('should deny refunds', async function () {
+      it('denies refunds', async function () {
         await expectThrow(this.crowdsale.claimRefund({ from: investor }), EVMRevert);
       });
 
@@ -79,7 +79,7 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
             await this.crowdsale.finalize({ from: owner });
           });
 
-          it('should refund', async function () {
+          it('refunds', async function () {
             const pre = await ethGetBalance(investor);
             await this.crowdsale.claimRefund({ from: investor, gasPrice: 0 });
             const post = await ethGetBalance(investor);
@@ -99,11 +99,11 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
             await this.crowdsale.finalize({ from: owner });
           });
 
-          it('should deny refunds', async function () {
+          it('denies refunds', async function () {
             await expectThrow(this.crowdsale.claimRefund({ from: investor }), EVMRevert);
           });
 
-          it('should forward funds to wallet', async function () {
+          it('forwards funds to wallet', async function () {
             const postWalletBalance = await ethGetBalance(wallet);
             postWalletBalance.minus(this.preWalletBalance).should.be.bignumber.equal(goal);
           });
