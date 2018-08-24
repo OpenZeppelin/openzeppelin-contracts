@@ -1,11 +1,13 @@
 const { shouldBehaveLikeMintedCrowdsale } = require('./MintedCrowdsale.behavior');
 const { ether } = require('../helpers/ether');
+const { assertRevert } = require('../helpers/assertRevert');
 
 const BigNumber = web3.BigNumber;
 
 const MintedCrowdsale = artifacts.require('MintedCrowdsaleImpl');
 const MintableToken = artifacts.require('MintableToken');
 const RBACMintableToken = artifacts.require('RBACMintableToken');
+const StandardToken = artifacts.require('StandardToken');
 
 contract('MintedCrowdsale', function ([_, investor, wallet, purchaser]) {
   const rate = new BigNumber(1000);
@@ -39,5 +41,20 @@ contract('MintedCrowdsale', function ([_, investor, wallet, purchaser]) {
     });
 
     shouldBehaveLikeMintedCrowdsale([_, investor, wallet, purchaser], rate, value);
+  });
+
+  describe('using non-mintable token', function () {
+    beforeEach(async function () {
+      this.token = await StandardToken.new();
+      this.crowdsale = await MintedCrowdsale.new(rate, wallet, this.token.address);
+    });
+
+    it('rejects bare payments', async function () {
+      await assertRevert(this.crowdsale.send(value));
+    });
+
+    it('rejects token purchases', async function () {
+      await assertRevert(this.crowdsale.buyTokens(investor, { value: value, from: purchaser }));
+    });
   });
 });

@@ -57,7 +57,6 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
       it('should deny refunds', async function () {
         await expectThrow(this.crowdsale.claimRefund({ from: investor }), EVMRevert);
       });
-
     });
 
     context('after opening time', function () {
