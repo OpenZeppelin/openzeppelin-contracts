@@ -1,0 +1,65 @@
+/*
+
+MultiSigFunction by Nikita Fuchs
+
+This is a proof-of-concept of how msg.data can be used for a multi-sig mechanism, 
+which makes sure functions are called by predefined addresses with the same parameters before they are executed.
+
+In other words:
+Changes only happen, if all administrators agreed on the details.
+Only if the same function is called with the same arguments by all admins, the function code is actually executed.
+
+TODO: Add for-loop based checks to allow a dynamic amount of admins.
+
+*/
+
+
+pragma solidity ^0.4.8;
+
+contract Sign {
+    
+    string public message;          // For testing
+    address[] public admins;        // all admin addresses stored
+
+    // used for storing the admin's address and the msg.data of his function calls
+    struct admin {
+        address _address;
+        bytes _dataSent;
+    }
+    
+    mapping (address=> admin) isAdmin;
+    
+    
+    // add admins to mapping and array
+    function Sign(address _admin1, address _admin2) {
+        isAdmin[_admin1]._address = _admin1;
+        isAdmin[_admin2]._address = _admin2;
+        admins.push(_admin1);
+        admins.push(_admin2);
+        message = "old message.";
+    }
+
+    
+    modifier onlyTogether() {
+        
+        // 0. check if the caller is admin
+        if (isAdmin[msg.sender]._address != 0x0) {
+        
+        // 1. store the data   
+           isAdmin[msg.sender]._dataSent = msg.data;
+        // 2. check the equality of data
+        if (sha3(isAdmin[admins[0]]._dataSent) == sha3(isAdmin[admins[1]]._dataSent)) {
+              // 3. if data is equal, run the function
+            _;
+              // if it's not equal..
+        } else {message = "Call data is still different.";}
+            // if not admin...
+        } else {throw;}
+    }
+    
+    // here we go:
+    function changeMessage() onlyTogether {
+        message = "It worked!";
+    }
+    
+}
