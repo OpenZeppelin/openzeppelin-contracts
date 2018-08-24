@@ -47,7 +47,7 @@ contract Heritable is Ownable {
    * before the heir can take ownership.
    */
   constructor(uint256 _heartbeatTimeout) public {
-    setHeartbeatTimeout(_heartbeatTimeout);
+    heartbeatTimeout_ = _heartbeatTimeout;
   }
 
   function setHeir(address _newHeir) public onlyOwner {
@@ -111,13 +111,6 @@ contract Heritable is Ownable {
     emit HeirOwnershipClaimed(owner, heir_);
     owner = heir_;
     timeOfDeath_ = 0;
-  }
-
-  function setHeartbeatTimeout(uint256 _newHeartbeatTimeout)
-    internal onlyOwner
-  {
-    require(ownerLives());
-    heartbeatTimeout_ = _newHeartbeatTimeout;
   }
 
   function ownerLives() internal view returns (bool) {
