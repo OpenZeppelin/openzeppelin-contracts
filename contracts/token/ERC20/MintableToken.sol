@@ -14,7 +14,10 @@ contract MintableToken is StandardToken, MinterRole {
 
   bool public mintingFinished = false;
 
-  constructor(address[] _minters) MinterRole(_minters) {
+  constructor(address[] _minters)
+    MinterRole(_minters)
+    public
+  {
   }
 
   modifier canMint() {

@@ -7,7 +7,7 @@ contract MinterRole {
 
   Roles.Role private minters;
 
-  constructor(address[] _minters) {
+  constructor(address[] _minters) public {
     minters.addMany(_minters);
   }
 
@@ -24,7 +24,7 @@ contract MinterRole {
   }
 
   function isMinter(address _account) public view returns (bool) {
-    return minters.has(msg.sender);
+    return minters.has(_account);
   }
 
   modifier onlyMinter() {
