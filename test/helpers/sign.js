@@ -1,26 +1,21 @@
-const utils = require('ethereumjs-util');
-const { soliditySha3 } = require('web3-utils');
+const { sha3, soliditySha3 } = require('web3-utils');
 
 const REAL_SIGNATURE_SIZE = 2 * 65; // 65 bytes in hexadecimal string legnth
 const PADDED_SIGNATURE_SIZE = 2 * 96; // 96 bytes in hexadecimal string length
 
 const DUMMY_SIGNATURE = `0x${web3.padLeft('', REAL_SIGNATURE_SIZE)}`;
 
-/**
- * Hash and add same prefix to the hash that ganache use.
- * @param {string} message the plaintext/ascii/original message
- * @return {string} the hash of the message, prefixed, and then hashed again
- */
-function hashMessage (message) {
-  const messageHex = Buffer.from(utils.sha3(message).toString('hex'), 'hex');
-  const prefix = utils.toBuffer('\u0019Ethereum Signed Message:\n' + messageHex.length.toString());
-  return utils.bufferToHex(utils.sha3(Buffer.concat([prefix, messageHex])));
+// messageHex = '0xdeadbeef'
+function toEthSignedMessageHash (messageHex) {
+  const messageBuffer = Buffer.from(messageHex.substring(2), 'hex');
+  const prefix = Buffer.from(`\u0019Ethereum Signed Message:\n${messageBuffer.length}`);
+  return sha3(Buffer.concat([prefix, messageBuffer]));
 }
 
-// signs message in node (auto-applies prefix)
-// message must be in hex already! will not be autoconverted!
-const signMessage = (signer, message = '') => {
-  return web3.eth.sign(signer, message);
+// signs message in node (ganache auto-applies "Ethereum Signed Message" prefix)
+// messageHex = '0xdeadbeef'
+const signMessage = (signer, messageHex = '0x') => {
+  return web3.eth.sign(signer, messageHex); // actually personal_sign
 };
 
 // @TODO - remove this when we migrate to web3-1.0.0
@@ -62,18 +57,18 @@ const getBouncerSigner = (contract, signer) => (redeemer, methodName, methodArgs
     } else {
       const abi = contract.abi.find(abi => abi.name === methodName);
       const name = transformToFullName(abi);
-      const signature = web3.sha3(name).slice(0, 10);
+      const signature = sha3(name).slice(0, 10);
       parts.push(signature);
     }
   }
 
-  // ^ substr to remove `0x` because in solidity the address is a set of byes, not a string `0xabcd`
-  const hashOfMessage = soliditySha3(...parts);
-  return signMessage(signer, hashOfMessage);
+  // return the signature of the "Ethereum Signed Message" hash of the hash of `parts`
+  const messageHex = soliditySha3(...parts);
+  return signMessage(signer, messageHex);
 };
 
 module.exports = {
-  hashMessage,
   signMessage,
+  toEthSignedMessageHash,
   getBouncerSigner,
 };
