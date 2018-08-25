@@ -24,7 +24,7 @@ contract TokenEscrow is Ownable {
 
   mapping(address => uint256) private deposits;
 
-  ERC20 token;
+  ERC20 public token;
 
   constructor (ERC20 _token) public {
     require(_token != address(0));
@@ -37,21 +37,13 @@ contract TokenEscrow is Ownable {
 
   /**
   * @dev Puts in escrow a certain amount of tokens as credit to be withdrawn.
-  * @param _payer Address holding tokens which will be put in escrow.
   * @param _payee The destination address of the tokens.
   * @param _amount The amount of tokens to deposit in escrow.
   */
-  function deposit(
-    address _payer,
-    address _payee,
-    uint256 _amount
-  )
-    public
-    onlyOwner
-  {
+  function deposit(address _payee, uint256 _amount) public onlyOwner {
     deposits[_payee] = deposits[_payee].add(_amount);
 
-    token.safeTransferFrom(_payer, address(this), _amount);
+    token.safeTransferFrom(msg.sender, address(this), _amount);
 
     emit Deposited(_payee, _amount);
   }
@@ -66,7 +58,7 @@ contract TokenEscrow is Ownable {
 
     deposits[_payee] = 0;
 
-    token.transfer(_payee, payment);
+    token.safeTransfer(_payee, payment);
 
     emit Withdrawn(_payee, payment);
   }

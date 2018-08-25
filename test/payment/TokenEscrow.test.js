@@ -9,9 +9,9 @@ require('chai')
   .should();
 
 const TokenEscrow = artifacts.require('TokenEscrow');
-const StandardToken = artifacts.require('StandardTokenMock');
+const token = artifacts.require('StandardTokenMock');
 
-contract('TokenEscrow', function ([_, owner, payer, payee1, payee2]) {
+contract('TokenEscrow', function ([_, owner, payee1, payee2]) {
   const amount = new BigNumber(100);
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
@@ -23,14 +23,19 @@ contract('TokenEscrow', function ([_, owner, payer, payee1, payee2]) {
 
   context('with token', function () {
     beforeEach(async function () {
-      this.standardToken = await StandardToken.new(payer, amount * 2);
-      this.tokenEscrow = await TokenEscrow.new(this.standardToken.address, { from: owner });
+      this.token = await token.new(owner, amount * 3);
+      this.tokenEscrow = await TokenEscrow.new(this.token.address, { from: owner });
+    });
+
+    it('stores the token\'s address', async function () {
+      const address = await this.tokenEscrow.token();
+      address.should.be.equal(this.token.address);
     });
 
     context('when not approved by payer', function () {
       it('reverts on deposits', async function () {
         await expectThrow(
-          this.tokenEscrow.deposit(payer, payee1, amount, { from: owner }),
+          this.tokenEscrow.deposit(payee1, amount, { from: owner }),
           EVMRevert
         );
       });
@@ -38,81 +43,84 @@ contract('TokenEscrow', function ([_, owner, payer, payee1, payee2]) {
 
     context('when approved by payer', function () {
       beforeEach(async function () {
-        this.standardToken.approve(this.tokenEscrow.address, amount * 2, { from: payer });
+        this.token.approve(this.tokenEscrow.address, amount * 3, { from: owner });
       });
 
       describe('deposits', function () {
-        it('can accept a single deposit', async function () {
-          await this.tokenEscrow.deposit(payer, payee1, amount, { from: owner });
+        it('accepts a single deposit', async function () {
+          await this.tokenEscrow.deposit(payee1, amount, { from: owner });
 
-          (await this.standardToken.balanceOf(this.tokenEscrow.address)).should.be.bignumber.equal(amount);
+          (await this.token.balanceOf(this.tokenEscrow.address)).should.be.bignumber.equal(amount);
 
           (await this.tokenEscrow.depositsOf(payee1)).should.be.bignumber.equal(amount);
         });
 
-        it('can accept an empty deposit', async function () {
-          await this.tokenEscrow.deposit(payer, payee1, new BigNumber(0), { from: owner });
+        it('accepts an empty deposit', async function () {
+          await this.tokenEscrow.deposit(payee1, new BigNumber(0), { from: owner });
         });
 
-        it('only the owner can deposit', async function () {
-          await expectThrow(this.tokenEscrow.deposit(payer, payee1, amount, { from: payee2 }), EVMRevert);
+        it('only allows the owner to deposit', async function () {
+          await expectThrow(this.tokenEscrow.deposit(payee1, amount, { from: payee2 }), EVMRevert);
         });
 
         it('emits a deposited event', async function () {
-          const receipt = await this.tokenEscrow.deposit(payer, payee1, amount, { from: owner });
+          const receipt = await this.tokenEscrow.deposit(payee1, amount, { from: owner });
 
           const event = expectEvent.inLogs(receipt.logs, 'Deposited', { payee: payee1 });
           event.args.tokenAmount.should.be.bignumber.equal(amount);
         });
 
-        it('can add multiple deposits on a single account', async function () {
-          await this.tokenEscrow.deposit(payer, payee1, amount, { from: owner });
-          await this.tokenEscrow.deposit(payer, payee1, amount, { from: owner });
+        it('adds multiple deposits on a single account', async function () {
+          await this.tokenEscrow.deposit(payee1, amount, { from: owner });
+          await this.tokenEscrow.deposit(payee1, amount * 2, { from: owner });
 
-          (await this.standardToken.balanceOf(this.tokenEscrow.address)).should.be.bignumber.equal(amount * 2);
+          (await this.token.balanceOf(this.tokenEscrow.address)).should.be.bignumber.equal(amount * 3);
 
-          (await this.tokenEscrow.depositsOf(payee1)).should.be.bignumber.equal(amount * 2);
+          (await this.tokenEscrow.depositsOf(payee1)).should.be.bignumber.equal(amount * 3);
         });
 
-        it('can track deposits to multiple accounts', async function () {
-          for (const payee of [payee1, payee2]) {
-            await this.tokenEscrow.deposit(payer, payee, amount, { from: owner });
-            (await this.tokenEscrow.depositsOf(payee)).should.be.bignumber.equal(amount);
-          }
+        it('tracks deposits to multiple accounts', async function () {
+          await this.tokenEscrow.deposit(payee1, amount, { from: owner });
+          await this.tokenEscrow.deposit(payee2, amount * 2, { from: owner });
 
-          (await this.standardToken.balanceOf(this.tokenEscrow.address)).should.be.bignumber.equal(amount * 2);
+          (await this.tokenEscrow.depositsOf(payee1)).should.be.bignumber.equal(amount);
+          (await this.tokenEscrow.depositsOf(payee2)).should.be.bignumber.equal(amount * 2);
+
+          (await this.token.balanceOf(this.tokenEscrow.address)).should.be.bignumber.equal(amount * 3);
         });
       });
 
-      describe('withdrawals', function () {
-        it('can withdraw payments', async function () {
-          const payeeInitialBalance = await this.standardToken.balanceOf(payee1);
+      context('with deposit', function () {
+        describe('withdrawals', function () {
+          it('withdraws payments', async function () {
+            const payeeInitialBalance = await this.token.balanceOf(payee1);
 
-          await this.tokenEscrow.deposit(payer, payee1, amount, { from: owner });
-          await this.tokenEscrow.withdraw(payee1, { from: owner });
+            await this.tokenEscrow.deposit(payee1, amount, { from: owner });
+            await this.tokenEscrow.withdraw(payee1, { from: owner });
 
-          (await this.standardToken.balanceOf(this.tokenEscrow.address)).should.be.bignumber.equal(0);
+            (await this.token.balanceOf(this.tokenEscrow.address)).should.be.bignumber.equal(0);
 
-          (await this.tokenEscrow.depositsOf(payee1)).should.be.bignumber.equal(0);
+            (await this.tokenEscrow.depositsOf(payee1)).should.be.bignumber.equal(0);
 
-          const payeeFinalBalance = await this.standardToken.balanceOf(payee1);
-          payeeFinalBalance.sub(payeeInitialBalance).should.be.bignumber.equal(amount);
-        });
+            const payeeFinalBalance = await this.token.balanceOf(payee1);
+            payeeFinalBalance.sub(payeeInitialBalance).should.be.bignumber.equal(amount);
+          });
 
-        it('can do an empty withdrawal', async function () {
-          await this.tokenEscrow.withdraw(payee1, { from: owner });
-        });
+          it('accepts empty withdrawal', async function () {
+            await this.tokenEscrow.withdraw(payee1, { from: owner });
+          });
 
-        it('only the owner can withdraw', async function () {
-          await expectThrow(this.tokenEscrow.withdraw(payee1, { from: payee1 }), EVMRevert);
-        });
+          it('only allows the owner to withdraw', async function () {
+            await expectThrow(this.tokenEscrow.withdraw(payee1, { from: payee1 }), EVMRevert);
+          });
 
-        it('emits a withdrawn event', async function () {
-          await this.tokenEscrow.deposit(payer, payee1, amount, { from: owner });
-          const receipt = await this.tokenEscrow.withdraw(payee1, { from: owner });
+          it('emits a withdrawn event', async function () {
+            await this.tokenEscrow.deposit(payee1, amount, { from: owner });
+            const receipt = await this.tokenEscrow.withdraw(payee1, { from: owner });
 
-          const event = expectEvent.inLogs(receipt.logs, 'Withdrawn', { payee: payee1 });
-          event.args.tokenAmount.should.be.bignumber.equal(amount);
+            const event = expectEvent.inLogs(receipt.logs, 'Withdrawn', { payee: payee1 });
+            event.args.tokenAmount.should.be.bignumber.equal(amount);
+          });
         });
       });
     });
