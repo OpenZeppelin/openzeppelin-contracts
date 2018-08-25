@@ -2,7 +2,8 @@
 #
 # Trigger the job that will update the documentation website.
 # Argument:
-#   version: the version of the new release.
+#   version: the version of the new release. This should be a tag in the
+#     https://github.com/OpenZeppelin/openzeppelin-solidity repository.
 
 set -ev
 
