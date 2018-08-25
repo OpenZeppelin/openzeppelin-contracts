@@ -11,30 +11,28 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('ERC721', function (accounts) {
+contract('ERC721', function ([owner, anyone, ...otherAccounts]) {
   const name = 'Non Fungible Token';
   const symbol = 'NFT';
   const firstTokenId = 100;
   const secondTokenId = 200;
   const nonExistentTokenId = 999;
-  const creator = accounts[0];
-  const anyone = accounts[9];
 
   beforeEach(async function () {
-    this.token = await ERC721.new(name, symbol, { from: creator });
+    this.token = await ERC721.new(name, symbol, { from: owner });
   });
 
-  shouldBehaveLikeERC721Basic(accounts);
-  shouldBehaveLikeMintAndBurnERC721(accounts);
+  shouldBehaveLikeERC721Basic(owner, otherAccounts);
+  shouldBehaveLikeMintAndBurnERC721(owner, otherAccounts);
 
   describe('like a full ERC721', function () {
     beforeEach(async function () {
-      await this.token.mint(creator, firstTokenId, { from: creator });
-      await this.token.mint(creator, secondTokenId, { from: creator });
+      await this.token.mint(owner, firstTokenId, { from: owner });
+      await this.token.mint(owner, secondTokenId, { from: owner });
     });
 
     describe('mint', function () {
-      const to = accounts[1];
+      const to = anyone;
       const tokenId = 3;
 
       beforeEach(async function () {
@@ -52,7 +50,7 @@ contract('ERC721', function (accounts) {
 
     describe('burn', function () {
       const tokenId = firstTokenId;
-      const sender = creator;
+      const sender = owner;
 
       beforeEach(async function () {
         await this.token.burn(tokenId, { from: sender });
@@ -76,25 +74,25 @@ contract('ERC721', function (accounts) {
     describe('removeTokenFrom', function () {
       it('reverts if the correct owner is not passed', async function () {
         await assertRevert(
-          this.token.removeTokenFrom(anyone, firstTokenId, { from: creator })
+          this.token.removeTokenFrom(anyone, firstTokenId, { from: owner })
         );
       });
 
       context('once removed', function () {
         beforeEach(async function () {
-          await this.token.removeTokenFrom(creator, firstTokenId, { from: creator });
+          await this.token.removeTokenFrom(owner, firstTokenId, { from: owner });
         });
 
         it('has been removed', async function () {
-          await assertRevert(this.token.tokenOfOwnerByIndex(creator, 1));
+          await assertRevert(this.token.tokenOfOwnerByIndex(owner, 1));
         });
 
         it('adjusts token list', async function () {
-          (await this.token.tokenOfOwnerByIndex(creator, 0)).toNumber().should.be.equal(secondTokenId);
+          (await this.token.tokenOfOwnerByIndex(owner, 0)).toNumber().should.be.equal(secondTokenId);
         });
 
         it('adjusts owner count', async function () {
-          (await this.token.balanceOf(creator)).toNumber().should.be.equal(1);
+          (await this.token.balanceOf(owner)).toNumber().should.be.equal(1);
         });
 
         it('does not adjust supply', async function () {
@@ -145,9 +143,6 @@ contract('ERC721', function (accounts) {
     });
 
     describe('tokenOfOwnerByIndex', function () {
-      const owner = creator;
-      const another = accounts[1];
-
       describe('when the given index is lower than the amount of tokens owned by the given address', function () {
         it('returns the token ID placed at the given index', async function () {
           (await this.token.tokenOfOwnerByIndex(owner, 0)).should.be.bignumber.equal(firstTokenId);
@@ -162,19 +157,19 @@ contract('ERC721', function (accounts) {
 
       describe('when the given address does not own any token', function () {
         it('reverts', async function () {
-          await assertRevert(this.token.tokenOfOwnerByIndex(another, 0));
+          await assertRevert(this.token.tokenOfOwnerByIndex(anyone, 0));
         });
       });
 
       describe('after transferring all tokens to another user', function () {
         beforeEach(async function () {
-          await this.token.transferFrom(owner, another, firstTokenId, { from: owner });
-          await this.token.transferFrom(owner, another, secondTokenId, { from: owner });
+          await this.token.transferFrom(owner, anyone, firstTokenId, { from: owner });
+          await this.token.transferFrom(owner, anyone, secondTokenId, { from: owner });
         });
 
         it('returns correct token IDs for target', async function () {
-          (await this.token.balanceOf(another)).toNumber().should.be.equal(2);
-          const tokensListed = await Promise.all(_.range(2).map(i => this.token.tokenOfOwnerByIndex(another, i)));
+          (await this.token.balanceOf(anyone)).toNumber().should.be.equal(2);
+          const tokensListed = await Promise.all(_.range(2).map(i => this.token.tokenOfOwnerByIndex(anyone, i)));
           tokensListed.map(t => t.toNumber()).should.have.members([firstTokenId, secondTokenId]);
         });
 
@@ -197,7 +192,6 @@ contract('ERC721', function (accounts) {
 
       [firstTokenId, secondTokenId].forEach(function (tokenId) {
         it(`should return all tokens after burning token ${tokenId} and minting new tokens`, async function () {
-          const owner = accounts[0];
           const newTokenId = 300;
           const anotherNewTokenId = 400;
 

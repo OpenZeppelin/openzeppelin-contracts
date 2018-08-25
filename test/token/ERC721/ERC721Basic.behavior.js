@@ -11,24 +11,23 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-function shouldBehaveLikeERC721Basic (accounts) {
+function shouldBehaveLikeERC721Basic (owner, [...accounts]) {
   const firstTokenId = 1;
   const secondTokenId = 2;
   const unknownTokenId = 3;
-  const creator = accounts[0];
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
   const RECEIVER_MAGIC_VALUE = '0x150b7a02';
 
   describe('like an ERC721Basic', function () {
     beforeEach(async function () {
-      await this.token.mint(creator, firstTokenId, { from: creator });
-      await this.token.mint(creator, secondTokenId, { from: creator });
+      await this.token.mint(owner, firstTokenId, { from: owner });
+      await this.token.mint(owner, secondTokenId, { from: owner });
     });
 
     describe('balanceOf', function () {
       context('when the given address owns some tokens', function () {
         it('returns the amount of tokens owned by the given address', async function () {
-          (await this.token.balanceOf(creator)).should.be.bignumber.equal(2);
+          (await this.token.balanceOf(owner)).should.be.bignumber.equal(2);
         });
       });
 
@@ -50,7 +49,7 @@ function shouldBehaveLikeERC721Basic (accounts) {
         const tokenId = firstTokenId;
 
         it('returns the owner of the given token ID', async function () {
-          (await this.token.ownerOf(tokenId)).should.be.equal(creator);
+          (await this.token.ownerOf(tokenId)).should.be.equal(owner);
         });
       });
 
@@ -64,7 +63,6 @@ function shouldBehaveLikeERC721Basic (accounts) {
     });
 
     describe('transfers', function () {
-      const owner = accounts[0];
       const approved = accounts[2];
       const operator = accounts[3];
       const unauthorized = accounts[4];
@@ -313,7 +311,7 @@ function shouldBehaveLikeERC721Basic (accounts) {
 
     describe('approve', function () {
       const tokenId = firstTokenId;
-      const sender = creator;
+      const sender = owner;
       const to = accounts[1];
 
       let logs = null;
@@ -430,7 +428,7 @@ function shouldBehaveLikeERC721Basic (accounts) {
     });
 
     describe('setApprovalForAll', function () {
-      const sender = creator;
+      const sender = owner;
 
       context('when the operator willing to approve is not the owner', function () {
         const operator = accounts[1];
@@ -505,7 +503,7 @@ function shouldBehaveLikeERC721Basic (accounts) {
       });
 
       context('when the operator is the owner', function () {
-        const operator = creator;
+        const operator = owner;
 
         it('reverts', async function () {
           await assertRevert(this.token.setApprovalForAll(operator, true, { from: sender }));

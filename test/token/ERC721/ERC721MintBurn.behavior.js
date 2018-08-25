@@ -5,21 +5,20 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-function shouldBehaveLikeMintAndBurnERC721 (accounts) {
+function shouldBehaveLikeMintAndBurnERC721 (owner, [spender, anyone]) {
   const firstTokenId = 1;
   const secondTokenId = 2;
   const unknownTokenId = 3;
-  const creator = accounts[0];
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
   describe('like a mintable and burnable ERC721', function () {
     beforeEach(async function () {
-      await this.token.mint(creator, firstTokenId, { from: creator });
-      await this.token.mint(creator, secondTokenId, { from: creator });
+      await this.token.mint(owner, firstTokenId, { from: owner });
+      await this.token.mint(owner, secondTokenId, { from: owner });
     });
 
     describe('mint', function () {
-      const to = accounts[1];
+      const to = anyone;
       const tokenId = unknownTokenId;
       let logs = null;
 
@@ -54,14 +53,14 @@ function shouldBehaveLikeMintAndBurnERC721 (accounts) {
 
       describe('when the given token ID was already tracked by this contract', function () {
         it('reverts', async function () {
-          await assertRevert(this.token.mint(accounts[1], firstTokenId));
+          await assertRevert(this.token.mint(anyone, firstTokenId));
         });
       });
     });
 
     describe('burn', function () {
       const tokenId = firstTokenId;
-      const sender = creator;
+      const sender = owner;
       let logs = null;
 
       describe('when successful', function () {
@@ -86,7 +85,7 @@ function shouldBehaveLikeMintAndBurnERC721 (accounts) {
 
       describe('when there is a previous approval', function () {
         beforeEach(async function () {
-          await this.token.approve(accounts[1], tokenId, { from: sender });
+          await this.token.approve(spender, tokenId, { from: sender });
           const result = await this.token.burn(tokenId, { from: sender });
           logs = result.logs;
         });
@@ -98,7 +97,7 @@ function shouldBehaveLikeMintAndBurnERC721 (accounts) {
 
       describe('when the given token ID was not tracked by this contract', function () {
         it('reverts', async function () {
-          await assertRevert(this.token.burn(unknownTokenId, { from: creator }));
+          await assertRevert(this.token.burn(unknownTokenId, { from: owner }));
         });
       });
     });

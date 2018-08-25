@@ -8,11 +8,11 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('ERC721Basic', function (accounts) {
+contract('ERC721Basic', function ([_, owner, ...otherAccounts]) {
   beforeEach(async function () {
-    this.token = await ERC721Basic.new({ from: accounts[0] });
+    this.token = await ERC721Basic.new({ from: owner });
   });
 
-  shouldBehaveLikeERC721Basic(accounts);
-  shouldBehaveLikeMintAndBurnERC721(accounts);
+  shouldBehaveLikeERC721Basic(owner, otherAccounts);
+  shouldBehaveLikeMintAndBurnERC721(owner, otherAccounts);
 });

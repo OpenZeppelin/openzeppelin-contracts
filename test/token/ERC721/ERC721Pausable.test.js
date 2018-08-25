@@ -8,7 +8,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('ERC721Pausable', function ([_, owner, recipient, operator, ...otherAccounts]) {
+contract('ERC721Pausable', function ([_, owner, ...otherAccounts]) {
   beforeEach(async function () {
     this.token = await ERC721Pausable.new({ from: owner });
   });
@@ -18,11 +18,11 @@ contract('ERC721Pausable', function ([_, owner, recipient, operator, ...otherAcc
       await this.token.pause({ from: owner });
     });
 
-    shouldBehaveLikeERC721PausedToken(owner, [...otherAccounts]);
+    shouldBehaveLikeERC721PausedToken(owner, otherAccounts);
   });
 
   context('when token is not paused yet', function () {
-    shouldBehaveLikeERC721Basic([owner, ...otherAccounts]);
+    shouldBehaveLikeERC721Basic(owner, otherAccounts);
   });
 
   context('when token is paused and then unpaused', function () {
@@ -31,6 +31,6 @@ contract('ERC721Pausable', function ([_, owner, recipient, operator, ...otherAcc
       await this.token.unpause({ from: owner });
     });
 
-    shouldBehaveLikeERC721Basic([owner, ...otherAccounts]);
+    shouldBehaveLikeERC721Basic(owner, otherAccounts);
   });
 });
