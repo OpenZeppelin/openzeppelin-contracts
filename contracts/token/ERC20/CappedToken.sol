@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 import "./MintableToken.sol";
 
@@ -29,7 +29,7 @@ contract CappedToken is MintableToken {
     public
     returns (bool)
   {
-    require(totalSupply_.add(_amount) <= cap);
+    require(totalSupply().add(_amount) <= cap);
 
     return super.mint(_to, _amount);
   }

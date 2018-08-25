@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 import "../../math/SafeMath.sol";
 import "../Crowdsale.sol";
@@ -9,7 +9,7 @@ import "../../ownership/Ownable.sol";
  * @title IndividuallyCappedCrowdsale
  * @dev Crowdsale with per-user caps.
  */
-contract IndividuallyCappedCrowdsale is Crowdsale, Ownable {
+contract IndividuallyCappedCrowdsale is Ownable, Crowdsale {
   using SafeMath for uint256;
 
   mapping(address => uint256) public contributions;

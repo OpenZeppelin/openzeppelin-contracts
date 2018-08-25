@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 import "./StandardToken.sol";
 import "../../ownership/Ownable.sol";
@@ -7,7 +7,6 @@ import "../../ownership/Ownable.sol";
 /**
  * @title Mintable token
  * @dev Simple ERC20 Token example, with mintable token creation
- * @dev Issue: * https://github.com/OpenZeppelin/openzeppelin-solidity/issues/120
  * Based on code by TokenMarketNet: https://github.com/TokenMarketNet/ico/blob/master/contracts/MintableToken.sol
  */
 contract MintableToken is StandardToken, Ownable {
@@ -37,15 +36,13 @@ contract MintableToken is StandardToken, Ownable {
     address _to,
     uint256 _amount
   )
+    public
     hasMintPermission
     canMint
-    public
     returns (bool)
   {
-    totalSupply_ = totalSupply_.add(_amount);
-    balances[_to] = balances[_to].add(_amount);
+    _mint(_to, _amount);
     emit Mint(_to, _amount);
-    emit Transfer(address(0), _to, _amount);
     return true;
   }
 
@@ -53,7 +50,7 @@ contract MintableToken is StandardToken, Ownable {
    * @dev Function to stop minting new tokens.
    * @return True if the operation was successful.
    */
-  function finishMinting() onlyOwner canMint public returns (bool) {
+  function finishMinting() public onlyOwner canMint returns (bool) {
     mintingFinished = true;
     emit MintFinished();
     return true;

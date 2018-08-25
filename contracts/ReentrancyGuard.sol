@@ -1,32 +1,30 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 
 /**
- * @title Helps contracts guard agains reentrancy attacks.
- * @author Remco Bloemen <remco@2π.com>
- * @notice If you mark a function `nonReentrant`, you should also
+ * @title Helps contracts guard against reentrancy attacks.
+ * @author Remco Bloemen <remco@2π.com>, Eenae <alexey@mixbytes.io>
+ * @dev If you mark a function `nonReentrant`, you should also
  * mark it `external`.
  */
 contract ReentrancyGuard {
 
-  /**
-   * @dev We use a single lock for the whole contract.
-   */
-  bool private reentrancyLock = false;
+  /// @dev counter to allow mutex lock with only one SSTORE operation
+  uint256 private guardCounter = 1;
 
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
-   * @notice If you mark a function `nonReentrant`, you should also
-   * mark it `external`. Calling one nonReentrant function from
+   * If you mark a function `nonReentrant`, you should also
+   * mark it `external`. Calling one `nonReentrant` function from
    * another is not supported. Instead, you can implement a
-   * `private` function doing the actual work, and a `external`
+   * `private` function doing the actual work, and an `external`
    * wrapper marked as `nonReentrant`.
    */
   modifier nonReentrant() {
-    require(!reentrancyLock);
-    reentrancyLock = true;
+    guardCounter += 1;
+    uint256 localCounter = guardCounter;
     _;
-    reentrancyLock = false;
+    require(localCounter == guardCounter);
   }
 
 }

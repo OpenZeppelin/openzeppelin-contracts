@@ -1,13 +1,13 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
-import "./BasicToken.sol";
+import "./StandardToken.sol";
 
 
 /**
  * @title Burnable Token
  * @dev Token that can be irreversibly burned (destroyed).
  */
-contract BurnableToken is BasicToken {
+contract BurnableToken is StandardToken {
 
   event Burn(address indexed burner, uint256 value);
 
@@ -19,14 +19,21 @@ contract BurnableToken is BasicToken {
     _burn(msg.sender, _value);
   }
 
-  function _burn(address _who, uint256 _value) internal {
-    require(_value <= balances[_who]);
-    // no need to require value <= totalSupply, since that would imply the
-    // sender's balance is greater than the totalSupply, which *should* be an assertion failure
+  /**
+   * @dev Burns a specific amount of tokens from the target address and decrements allowance
+   * @param _from address The address which you want to send tokens from
+   * @param _value uint256 The amount of token to be burned
+   */
+  function burnFrom(address _from, uint256 _value) public {
+    _burnFrom(_from, _value);
+  }
 
-    balances[_who] = balances[_who].sub(_value);
-    totalSupply_ = totalSupply_.sub(_value);
+  /**
+   * @dev Overrides StandardToken._burn in order for burn and burnFrom to emit
+   * an additional Burn event.
+   */
+  function _burn(address _who, uint256 _value) internal {
+    super._burn(_who, _value);
     emit Burn(_who, _value);
-    emit Transfer(_who, address(0), _value);
   }
 }

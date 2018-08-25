@@ -1,5 +1,5 @@
 dist: trusty
-sudo: required
+sudo: false
 group: beta
 language: node_js
 node_js:
@@ -34,10 +34,28 @@ jobs:
     # solidity and javascript style tests.
     - stage: Linting
       script: npm run lint
+    - stage: tests
+      name: "unit tests"
+      script: npm run test
+    - stage: tests
+      name: "unit tests with coverage"
+      script: npm run test
+      env: SOLIDITY_COVERAGE=true
+    - stage: tests
+      name: "unit tests with solc nightly"
+      script: npm run test
+      env: SOLC_NIGHTLY=true
+    # solidity and javascript style tests.
+    - stage: tests
+      name: "static tests"
+      script: npm run lint
     - stage: Update docs
       if: tag =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
+      addons:
+        apt:
+          packages:
+            - curl
       script:
-        - sudo apt install --yes curl
         - ./scripts/ci/trigger_docs_update "${TRAVIS_TAG}"
 
 notifications:

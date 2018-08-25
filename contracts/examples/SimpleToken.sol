@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 
 import "../token/ERC20/StandardToken.sol";
@@ -12,9 +12,9 @@ import "../token/ERC20/StandardToken.sol";
  */
 contract SimpleToken is StandardToken {
 
-  string public constant name = "SimpleToken"; // solium-disable-line uppercase
-  string public constant symbol = "SIM"; // solium-disable-line uppercase
-  uint8 public constant decimals = 18; // solium-disable-line uppercase
+  string public constant name = "SimpleToken";
+  string public constant symbol = "SIM";
+  uint8 public constant decimals = 18;
 
   uint256 public constant INITIAL_SUPPLY = 10000 * (10 ** uint256(decimals));
 
@@ -22,9 +22,7 @@ contract SimpleToken is StandardToken {
    * @dev Constructor that gives msg.sender all of existing tokens.
    */
   constructor() public {
-    totalSupply_ = INITIAL_SUPPLY;
-    balances[msg.sender] = INITIAL_SUPPLY;
-    emit Transfer(0x0, msg.sender, INITIAL_SUPPLY);
+    _mint(msg.sender, INITIAL_SUPPLY);
   }
 
 }

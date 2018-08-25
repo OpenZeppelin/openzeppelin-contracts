@@ -1,20 +1,19 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
-import "../ownership/rbac/RBAC.sol";
+import "../access/rbac/RBAC.sol";
 
 
 /**
  * @title RBACWithAdmin
  * @author Matt Condon (@Shrugs)
  * @dev It's recommended that you define constants in the contract,
- * @dev like ROLE_ADMIN below, to avoid typos.
- * @dev
- * @dev NOTE: RBACWithAdmin is probably too expansive and powerful for your
- * @dev  application; an admin is actually able to change any address to any role
- * @dev  which is a very large API surface. It's recommended that you follow a strategy
- * @dev  of strictly defining the abilities of your roles
- * @dev  and the API-surface of your contract.
- * @dev  This is just an example for example's sake.
+ * like ROLE_ADMIN below, to avoid typos.
+ * @notice RBACWithAdmin is probably too expansive and powerful for your
+ * application; an admin is actually able to change any address to any role
+ * which is a very large API surface. It's recommended that you follow a strategy
+ * of strictly defining the abilities of your roles
+ * and the API-surface of your contract.
+ * This is just an example for example's sake.
  */
 contract RBACWithAdmin is RBAC {
   /**
@@ -42,26 +41,26 @@ contract RBACWithAdmin is RBAC {
   }
 
   /**
-   * @dev add a role to an address
-   * @param addr address
-   * @param roleName the name of the role
+   * @dev add a role to an account
+   * @param _account the account that will have the role
+   * @param _roleName the name of the role
    */
-  function adminAddRole(address addr, string roleName)
-    onlyAdmin
+  function adminAddRole(address _account, string _roleName)
     public
+    onlyAdmin
   {
-    addRole(addr, roleName);
+    addRole(_account, _roleName);
   }
 
   /**
-   * @dev remove a role from an address
-   * @param addr address
-   * @param roleName the name of the role
+   * @dev remove a role from an account
+   * @param _account the account that will no longer have the role
+   * @param _roleName the name of the role
    */
-  function adminRemoveRole(address addr, string roleName)
-    onlyAdmin
+  function adminRemoveRole(address _account, string _roleName)
     public
+    onlyAdmin
   {
-    removeRole(addr, roleName);
+    removeRole(_account, _roleName);
   }
 }

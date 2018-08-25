@@ -1,63 +1,56 @@
-
-import assertRevert from '../helpers/assertRevert';
+const { assertRevert } = require('../helpers/assertRevert');
 const PausableMock = artifacts.require('PausableMock');
 
-contract('Pausable', function (accounts) {
-  it('can perform normal process in non-pause', async function () {
-    let Pausable = await PausableMock.new();
-    let count0 = await Pausable.count();
-    assert.equal(count0, 0);
+const BigNumber = web3.BigNumber;
 
-    await Pausable.normalProcess();
-    let count1 = await Pausable.count();
-    assert.equal(count1, 1);
+require('chai')
+  .use(require('chai-bignumber')(BigNumber))
+  .should();
+
+contract('Pausable', function () {
+  beforeEach(async function () {
+    this.Pausable = await PausableMock.new();
+  });
+
+  it('can perform normal process in non-pause', async function () {
+    (await this.Pausable.count()).should.be.bignumber.equal(0);
+
+    await this.Pausable.normalProcess();
+    (await this.Pausable.count()).should.be.bignumber.equal(1);
   });
 
   it('can not perform normal process in pause', async function () {
-    let Pausable = await PausableMock.new();
-    await Pausable.pause();
-    let count0 = await Pausable.count();
-    assert.equal(count0, 0);
+    await this.Pausable.pause();
+    (await this.Pausable.count()).should.be.bignumber.equal(0);
 
-    await assertRevert(Pausable.normalProcess());
-    let count1 = await Pausable.count();
-    assert.equal(count1, 0);
+    await assertRevert(this.Pausable.normalProcess());
+    (await this.Pausable.count()).should.be.bignumber.equal(0);
   });
 
   it('can not take drastic measure in non-pause', async function () {
-    let Pausable = await PausableMock.new();
-    await assertRevert(Pausable.drasticMeasure());
-    const drasticMeasureTaken = await Pausable.drasticMeasureTaken();
-    assert.isFalse(drasticMeasureTaken);
+    await assertRevert(this.Pausable.drasticMeasure());
+    (await this.Pausable.drasticMeasureTaken()).should.equal(false);
   });
 
   it('can take a drastic measure in a pause', async function () {
-    let Pausable = await PausableMock.new();
-    await Pausable.pause();
-    await Pausable.drasticMeasure();
-    let drasticMeasureTaken = await Pausable.drasticMeasureTaken();
-
-    assert.isTrue(drasticMeasureTaken);
+    await this.Pausable.pause();
+    await this.Pausable.drasticMeasure();
+    (await this.Pausable.drasticMeasureTaken()).should.equal(true);
   });
 
   it('should resume allowing normal process after pause is over', async function () {
-    let Pausable = await PausableMock.new();
-    await Pausable.pause();
-    await Pausable.unpause();
-    await Pausable.normalProcess();
-    let count0 = await Pausable.count();
-
-    assert.equal(count0, 1);
+    await this.Pausable.pause();
+    await this.Pausable.unpause();
+    await this.Pausable.normalProcess();
+    (await this.Pausable.count()).should.be.bignumber.equal(1);
   });
 
   it('should prevent drastic measure after pause is over', async function () {
-    let Pausable = await PausableMock.new();
-    await Pausable.pause();
-    await Pausable.unpause();
+    await this.Pausable.pause();
+    await this.Pausable.unpause();
 
-    await assertRevert(Pausable.drasticMeasure());
+    await assertRevert(this.Pausable.drasticMeasure());
 
-    const drasticMeasureTaken = await Pausable.drasticMeasureTaken();
-    assert.isFalse(drasticMeasureTaken);
+    (await this.Pausable.drasticMeasureTaken()).should.equal(false);
   });
 });
