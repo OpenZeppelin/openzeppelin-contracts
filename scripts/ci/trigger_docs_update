@@ -18,7 +18,7 @@ readonly BODY="{
     \"request\": {
         \"branch\": \"master\",
         \"config\": {
-            \"env\": [\"VERSION="${VERSION}"\"]
+            \"env\": [\"VERSION=${VERSION}\"]
         }
     }
 }"
@@ -27,6 +27,6 @@ curl -s -X POST \
    -H "Content-Type: application/json" \
    -H "Accept: application/json" \
    -H "Travis-API-Version: 3" \
-   -H "Authorization: token "${DOCS_TRAVIS_API_TOKEN}"" \
+   -H "Authorization: token ${DOCS_TRAVIS_API_TOKEN}" \
    -d "${BODY}" \
    https://api.travis-ci.com/repo/OpenZeppelin%2Fopenzeppelin-docs/requests
