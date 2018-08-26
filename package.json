@@ -47,7 +47,6 @@
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-promise": "^3.8.0",
     "eslint-plugin-standard": "^3.1.0",
-    "ethereumjs-util": "^5.2.0",
     "ethjs-abi": "^0.2.1",
     "ganache-cli": "6.1.0",
     "solidity-coverage": "^0.5.4",
@@ -55,6 +54,5 @@
     "truffle": "^4.1.13",
     "truffle-hdwallet-provider": "0.0.5",
     "web3-utils": "^1.0.0-beta.34"
-  },
-  "dependencies": {}
+  }
 }
