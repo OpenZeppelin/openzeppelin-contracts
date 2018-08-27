@@ -5,7 +5,9 @@ const RolesMock = artifacts.require('RolesMock');
 require('chai')
   .should();
 
-contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
+contract.only('Roles', function ([_, authorized, otherAuthorized, anyone]) {
+  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+
   beforeEach(async function () {
     this.roles = await RolesMock.new();
     this.testRole = async (account, expected) => {
@@ -49,6 +51,10 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
         await this.roles.addMany([authorized, authorized]);
         await this.testRole(authorized, true);
       });
+
+      it('doesn\'t revert when adding roles to the null account', async function () {
+        await this.roles.add(ZERO_ADDRESS);
+      });
     });
   });
 
@@ -64,8 +70,12 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
         await this.testRole(otherAuthorized, true);
       });
 
-      it('removes unassigned roles', async function () {
+      it('doesn\'t revert when removing unassigned roles', async function () {
         await this.roles.remove(anyone);
+      });
+
+      it('doesn\'t revert when removing roles from the null account', async function () {
+        await this.roles.remove(ZERO_ADDRESS);
       });
     });
 
