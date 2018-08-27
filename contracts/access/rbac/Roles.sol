@@ -44,6 +44,8 @@ library Roles {
   function transfer(Role storage _role, address _account)
     internal
   {
+    require(!has(_role, _account));
+
     check(_role, msg.sender);
     remove(_role, msg.sender);
     add(_role, _account);
