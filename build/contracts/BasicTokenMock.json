@@ -95,24 +95,24 @@
       "type": "event"
     }
   ],
-  "bytecode": "0x608060405234801561001057600080fd5b506040516040806104ad8339810180604052810190808051906020019092919080519060200190929190505050806000808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002081905550806001819055505050610415806100986000396000f300608060405260043610610057576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806318160ddd1461005c57806370a0823114610087578063a9059cbb146100de575b600080fd5b34801561006857600080fd5b50610071610143565b6040518082815260200191505060405180910390f35b34801561009357600080fd5b506100c8600480360381019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919050505061014d565b6040518082815260200191505060405180910390f35b3480156100ea57600080fd5b50610129600480360381019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190505050610195565b604051808215151515815260200191505060405180910390f35b6000600154905090565b60008060008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020549050919050565b60008073ffffffffffffffffffffffffffffffffffffffff168373ffffffffffffffffffffffffffffffffffffffff16141515156101d257600080fd5b6000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054821115151561021f57600080fd5b610270826000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020546103b490919063ffffffff16565b6000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002081905550610303826000808673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020546103cd90919063ffffffff16565b6000808573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055508273ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef846040518082815260200191505060405180910390a36001905092915050565b60008282111515156103c257fe5b818303905092915050565b600081830190508281101515156103e057fe5b809050929150505600a165627a7a7230582004cd3694485d98dd74521219fbc3f7802b3636dfbd90e200659b2c00cd1f78820029",
-  "deployedBytecode": "0x608060405260043610610057576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806318160ddd1461005c57806370a0823114610087578063a9059cbb146100de575b600080fd5b34801561006857600080fd5b50610071610143565b6040518082815260200191505060405180910390f35b34801561009357600080fd5b506100c8600480360381019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919050505061014d565b6040518082815260200191505060405180910390f35b3480156100ea57600080fd5b50610129600480360381019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190505050610195565b604051808215151515815260200191505060405180910390f35b6000600154905090565b60008060008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020549050919050565b60008073ffffffffffffffffffffffffffffffffffffffff168373ffffffffffffffffffffffffffffffffffffffff16141515156101d257600080fd5b6000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054821115151561021f57600080fd5b610270826000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020546103b490919063ffffffff16565b6000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002081905550610303826000808673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020546103cd90919063ffffffff16565b6000808573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055508273ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef846040518082815260200191505060405180910390a36001905092915050565b60008282111515156103c257fe5b818303905092915050565b600081830190508281101515156103e057fe5b809050929150505600a165627a7a7230582004cd3694485d98dd74521219fbc3f7802b3636dfbd90e200659b2c00cd1f78820029",
-  "sourceMap": "100:212:7:-;;;143:166;8:9:-1;5:2;;;30:1;27;20:12;5:2;143:166:7;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;255:14;228:8;:24;237:14;228:24;;;;;;;;;;;;;;;:41;;;;290:14;275:12;:29;;;;143:166;;100:212;;;;;;",
-  "deployedSourceMap": "100:212:7:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;371:83:31;;8:9:-1;5:2;;;30:1;27;20:12;5:2;371:83:31;;;;;;;;;;;;;;;;;;;;;;;1131:99;;8:9:-1;5:2;;;30:1;27;20:12;5:2;1131:99:31;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;608:321;;8:9:-1;5:2;;;30:1;27;20:12;5:2;608:321:31;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;371:83;415:7;437:12;;430:19;;371:83;:::o;1131:99::-;1187:7;1209:8;:16;1218:6;1209:16;;;;;;;;;;;;;;;;1202:23;;1131:99;;;:::o;608:321::-;671:4;706:1;691:17;;:3;:17;;;;683:26;;;;;;;;733:8;:20;742:10;733:20;;;;;;;;;;;;;;;;723:6;:30;;715:39;;;;;;;;784:32;809:6;784:8;:20;793:10;784:20;;;;;;;;;;;;;;;;:24;;:32;;;;:::i;:::-;761:8;:20;770:10;761:20;;;;;;;;;;;;;;;:55;;;;838:25;856:6;838:8;:13;847:3;838:13;;;;;;;;;;;;;;;;:17;;:25;;;;:::i;:::-;822:8;:13;831:3;822:13;;;;;;;;;;;;;;;:41;;;;895:3;874:33;;883:10;874:33;;;900:6;874:33;;;;;;;;;;;;;;;;;;920:4;913:11;;608:321;;;;:::o;836:110:6:-;894:7;921:1;916;:6;;909:14;;;;;;940:1;936;:5;929:12;;836:110;;;;:::o;1008:123::-;1066:9;1091:1;1087;:5;1083:9;;1110:1;1105;:6;;1098:14;;;;;;1125:1;1118:8;;1008:123;;;;:::o",
+  "bytecode": "0x608060405234801561001057600080fd5b506040516040806104ad8339810180604052810190808051906020019092919080519060200190929190505050806000808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002081905550806001819055505050610415806100986000396000f300608060405260043610610057576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806318160ddd1461005c57806370a0823114610087578063a9059cbb146100de575b600080fd5b34801561006857600080fd5b50610071610143565b6040518082815260200191505060405180910390f35b34801561009357600080fd5b506100c8600480360381019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919050505061014d565b6040518082815260200191505060405180910390f35b3480156100ea57600080fd5b50610129600480360381019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190505050610195565b604051808215151515815260200191505060405180910390f35b6000600154905090565b60008060008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020549050919050565b60008073ffffffffffffffffffffffffffffffffffffffff168373ffffffffffffffffffffffffffffffffffffffff16141515156101d257600080fd5b6000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054821115151561021f57600080fd5b610270826000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020546103b490919063ffffffff16565b6000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002081905550610303826000808673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020546103cd90919063ffffffff16565b6000808573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055508273ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef846040518082815260200191505060405180910390a36001905092915050565b60008282111515156103c257fe5b818303905092915050565b600081830190508281101515156103e057fe5b809050929150505600a165627a7a72305820d5c0c70b2fe87c8174bc417e7449423d7ff0917dfa02d90f9f697a63193eb2bf0029",
+  "deployedBytecode": "0x608060405260043610610057576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806318160ddd1461005c57806370a0823114610087578063a9059cbb146100de575b600080fd5b34801561006857600080fd5b50610071610143565b6040518082815260200191505060405180910390f35b34801561009357600080fd5b506100c8600480360381019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919050505061014d565b6040518082815260200191505060405180910390f35b3480156100ea57600080fd5b50610129600480360381019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190505050610195565b604051808215151515815260200191505060405180910390f35b6000600154905090565b60008060008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020549050919050565b60008073ffffffffffffffffffffffffffffffffffffffff168373ffffffffffffffffffffffffffffffffffffffff16141515156101d257600080fd5b6000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054821115151561021f57600080fd5b610270826000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020546103b490919063ffffffff16565b6000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002081905550610303826000808673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020546103cd90919063ffffffff16565b6000808573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055508273ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef846040518082815260200191505060405180910390a36001905092915050565b60008282111515156103c257fe5b818303905092915050565b600081830190508281101515156103e057fe5b809050929150505600a165627a7a72305820d5c0c70b2fe87c8174bc417e7449423d7ff0917dfa02d90f9f697a63193eb2bf0029",
+  "sourceMap": "100:212:9:-;;;143:166;8:9:-1;5:2;;;30:1;27;20:12;5:2;143:166:9;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;255:14;228:8;:24;237:14;228:24;;;;;;;;;;;;;;;:41;;;;290:14;275:12;:29;;;;143:166;;100:212;;;;;;",
+  "deployedSourceMap": "100:212:9:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;371:83:33;;8:9:-1;5:2;;;30:1;27;20:12;5:2;371:83:33;;;;;;;;;;;;;;;;;;;;;;;1131:99;;8:9:-1;5:2;;;30:1;27;20:12;5:2;1131:99:33;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;608:321;;8:9:-1;5:2;;;30:1;27;20:12;5:2;608:321:33;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;371:83;415:7;437:12;;430:19;;371:83;:::o;1131:99::-;1187:7;1209:8;:16;1218:6;1209:16;;;;;;;;;;;;;;;;1202:23;;1131:99;;;:::o;608:321::-;671:4;706:1;691:17;;:3;:17;;;;683:26;;;;;;;;733:8;:20;742:10;733:20;;;;;;;;;;;;;;;;723:6;:30;;715:39;;;;;;;;784:32;809:6;784:8;:20;793:10;784:20;;;;;;;;;;;;;;;;:24;;:32;;;;:::i;:::-;761:8;:20;770:10;761:20;;;;;;;;;;;;;;;:55;;;;838:25;856:6;838:8;:13;847:3;838:13;;;;;;;;;;;;;;;;:17;;:25;;;;:::i;:::-;822:8;:13;831:3;822:13;;;;;;;;;;;;;;;:41;;;;895:3;874:33;;883:10;874:33;;;900:6;874:33;;;;;;;;;;;;;;;;;;920:4;913:11;;608:321;;;;:::o;836:110:8:-;894:7;921:1;916;:6;;909:14;;;;;;940:1;936;:5;929:12;;836:110;;;;:::o;1008:123::-;1066:9;1091:1;1087;:5;1083:9;;1110:1;1105;:6;;1098:14;;;;;;1125:1;1118:8;;1008:123;;;;:::o",
   "source": "pragma solidity ^0.4.21;\n\n\nimport \"../token/ERC20/BasicToken.sol\";\n\n\n// mock class using BasicToken\ncontract BasicTokenMock is BasicToken {\n\n  function BasicTokenMock(address initialAccount, uint256 initialBalance) public {\n    balances[initialAccount] = initialBalance;\n    totalSupply_ = initialBalance;\n  }\n\n}\n",
   "sourcePath": "/home/spalladino/Projects/openzeppelin-zos/contracts/mocks/BasicTokenMock.sol",
   "ast": {
     "absolutePath": "/home/spalladino/Projects/openzeppelin-zos/contracts/mocks/BasicTokenMock.sol",
     "exportedSymbols": {
       "BasicTokenMock": [
-        560
+        603
       ]
     },
-    "id": 561,
+    "id": 604,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 538,
+        "id": 581,
         "literals": [
           "solidity",
           "^",
@@ -120,16 +120,16 @@
           ".21"
         ],
         "nodeType": "PragmaDirective",
-        "src": "0:24:7"
+        "src": "0:24:9"
       },
       {
         "absolutePath": "/home/spalladino/Projects/openzeppelin-zos/contracts/token/ERC20/BasicToken.sol",
         "file": "../token/ERC20/BasicToken.sol",
-        "id": 539,
+        "id": 582,
         "nodeType": "ImportDirective",
-        "scope": 561,
-        "sourceUnit": 2216,
-        "src": "27:39:7",
+        "scope": 604,
+        "sourceUnit": 2264,
+        "src": "27:39:9",
         "symbolAliases": [],
         "unitAlias": ""
       },
@@ -139,47 +139,47 @@
             "arguments": null,
             "baseName": {
               "contractScope": null,
-              "id": 540,
+              "id": 583,
               "name": "BasicToken",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 2215,
-              "src": "127:10:7",
+              "referencedDeclaration": 2263,
+              "src": "127:10:9",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_BasicToken_$2215",
+                "typeIdentifier": "t_contract$_BasicToken_$2263",
                 "typeString": "contract BasicToken"
               }
             },
-            "id": 541,
+            "id": 584,
             "nodeType": "InheritanceSpecifier",
-            "src": "127:10:7"
+            "src": "127:10:9"
           }
         ],
         "contractDependencies": [
-          2215,
-          2511
+          2263,
+          2559
         ],
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 560,
+        "id": 603,
         "linearizedBaseContracts": [
-          560,
-          2215,
-          2511
+          603,
+          2263,
+          2559
         ],
         "name": "BasicTokenMock",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
             "body": {
-              "id": 558,
+              "id": 601,
               "nodeType": "Block",
-              "src": "222:87:7",
+              "src": "222:87:9",
               "statements": [
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 552,
+                    "id": 595,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -188,26 +188,26 @@
                       "argumentTypes": null,
                       "baseExpression": {
                         "argumentTypes": null,
-                        "id": 548,
+                        "id": 591,
                         "name": "balances",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 2132,
-                        "src": "228:8:7",
+                        "referencedDeclaration": 2180,
+                        "src": "228:8:9",
                         "typeDescriptions": {
                           "typeIdentifier": "t_mapping$_t_address_$_t_uint256_$",
                           "typeString": "mapping(address => uint256)"
                         }
                       },
-                      "id": 550,
+                      "id": 593,
                       "indexExpression": {
                         "argumentTypes": null,
-                        "id": 549,
+                        "id": 592,
                         "name": "initialAccount",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 543,
-                        "src": "237:14:7",
+                        "referencedDeclaration": 586,
+                        "src": "237:14:9",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
                           "typeString": "address"
@@ -218,7 +218,7 @@
                       "isPure": false,
                       "lValueRequested": true,
                       "nodeType": "IndexAccess",
-                      "src": "228:24:7",
+                      "src": "228:24:9",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint256",
                         "typeString": "uint256"
@@ -228,43 +228,43 @@
                     "operator": "=",
                     "rightHandSide": {
                       "argumentTypes": null,
-                      "id": 551,
+                      "id": 594,
                       "name": "initialBalance",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 545,
-                      "src": "255:14:7",
+                      "referencedDeclaration": 588,
+                      "src": "255:14:9",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint256",
                         "typeString": "uint256"
                       }
                     },
-                    "src": "228:41:7",
+                    "src": "228:41:9",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
                     }
                   },
-                  "id": 553,
+                  "id": 596,
                   "nodeType": "ExpressionStatement",
-                  "src": "228:41:7"
+                  "src": "228:41:9"
                 },
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 556,
+                    "id": 599,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
                       "argumentTypes": null,
-                      "id": 554,
+                      "id": 597,
                       "name": "totalSupply_",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 2134,
-                      "src": "275:12:7",
+                      "referencedDeclaration": 2182,
+                      "src": "275:12:9",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint256",
                         "typeString": "uint256"
@@ -274,31 +274,31 @@
                     "operator": "=",
                     "rightHandSide": {
                       "argumentTypes": null,
-                      "id": 555,
+                      "id": 598,
                       "name": "initialBalance",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 545,
-                      "src": "290:14:7",
+                      "referencedDeclaration": 588,
+                      "src": "290:14:9",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint256",
                         "typeString": "uint256"
                       }
                     },
-                    "src": "275:29:7",
+                    "src": "275:29:9",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
                     }
                   },
-                  "id": 557,
+                  "id": 600,
                   "nodeType": "ExpressionStatement",
-                  "src": "275:29:7"
+                  "src": "275:29:9"
                 }
               ]
             },
             "documentation": null,
-            "id": 559,
+            "id": 602,
             "implemented": true,
             "isConstructor": true,
             "isDeclaredConst": false,
@@ -306,16 +306,16 @@
             "name": "BasicTokenMock",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 546,
+              "id": 589,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 543,
+                  "id": 586,
                   "name": "initialAccount",
                   "nodeType": "VariableDeclaration",
-                  "scope": 559,
-                  "src": "167:22:7",
+                  "scope": 602,
+                  "src": "167:22:9",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -323,10 +323,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 542,
+                    "id": 585,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "167:7:7",
+                    "src": "167:7:9",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
                       "typeString": "address"
@@ -337,11 +337,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 545,
+                  "id": 588,
                   "name": "initialBalance",
                   "nodeType": "VariableDeclaration",
-                  "scope": 559,
-                  "src": "191:22:7",
+                  "scope": 602,
+                  "src": "191:22:9",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -349,10 +349,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 544,
+                    "id": 587,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "191:7:7",
+                    "src": "191:7:9",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -362,40 +362,40 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "166:48:7"
+              "src": "166:48:9"
             },
             "payable": false,
             "returnParameters": {
-              "id": 547,
+              "id": 590,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "222:0:7"
+              "src": "222:0:9"
             },
-            "scope": 560,
-            "src": "143:166:7",
+            "scope": 603,
+            "src": "143:166:9",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
           }
         ],
-        "scope": 561,
-        "src": "100:212:7"
+        "scope": 604,
+        "src": "100:212:9"
       }
     ],
-    "src": "0:313:7"
+    "src": "0:313:9"
   },
   "legacyAST": {
     "absolutePath": "/home/spalladino/Projects/openzeppelin-zos/contracts/mocks/BasicTokenMock.sol",
     "exportedSymbols": {
       "BasicTokenMock": [
-        560
+        603
       ]
     },
-    "id": 561,
+    "id": 604,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 538,
+        "id": 581,
         "literals": [
           "solidity",
           "^",
@@ -403,16 +403,16 @@
           ".21"
         ],
         "nodeType": "PragmaDirective",
-        "src": "0:24:7"
+        "src": "0:24:9"
       },
       {
         "absolutePath": "/home/spalladino/Projects/openzeppelin-zos/contracts/token/ERC20/BasicToken.sol",
         "file": "../token/ERC20/BasicToken.sol",
-        "id": 539,
+        "id": 582,
         "nodeType": "ImportDirective",
-        "scope": 561,
-        "sourceUnit": 2216,
-        "src": "27:39:7",
+        "scope": 604,
+        "sourceUnit": 2264,
+        "src": "27:39:9",
         "symbolAliases": [],
         "unitAlias": ""
       },
@@ -422,47 +422,47 @@
             "arguments": null,
             "baseName": {
               "contractScope": null,
-              "id": 540,
+              "id": 583,
               "name": "BasicToken",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 2215,
-              "src": "127:10:7",
+              "referencedDeclaration": 2263,
+              "src": "127:10:9",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_BasicToken_$2215",
+                "typeIdentifier": "t_contract$_BasicToken_$2263",
                 "typeString": "contract BasicToken"
               }
             },
-            "id": 541,
+            "id": 584,
             "nodeType": "InheritanceSpecifier",
-            "src": "127:10:7"
+            "src": "127:10:9"
           }
         ],
         "contractDependencies": [
-          2215,
-          2511
+          2263,
+          2559
         ],
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 560,
+        "id": 603,
         "linearizedBaseContracts": [
-          560,
-          2215,
-          2511
+          603,
+          2263,
+          2559
         ],
         "name": "BasicTokenMock",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
             "body": {
-              "id": 558,
+              "id": 601,
               "nodeType": "Block",
-              "src": "222:87:7",
+              "src": "222:87:9",
               "statements": [
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 552,
+                    "id": 595,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -471,26 +471,26 @@
                       "argumentTypes": null,
                       "baseExpression": {
                         "argumentTypes": null,
-                        "id": 548,
+                        "id": 591,
                         "name": "balances",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 2132,
-                        "src": "228:8:7",
+                        "referencedDeclaration": 2180,
+                        "src": "228:8:9",
                         "typeDescriptions": {
                           "typeIdentifier": "t_mapping$_t_address_$_t_uint256_$",
                           "typeString": "mapping(address => uint256)"
                         }
                       },
-                      "id": 550,
+                      "id": 593,
                       "indexExpression": {
                         "argumentTypes": null,
-                        "id": 549,
+                        "id": 592,
                         "name": "initialAccount",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 543,
-                        "src": "237:14:7",
+                        "referencedDeclaration": 586,
+                        "src": "237:14:9",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
                           "typeString": "address"
@@ -501,7 +501,7 @@
                       "isPure": false,
                       "lValueRequested": true,
                       "nodeType": "IndexAccess",
-                      "src": "228:24:7",
+                      "src": "228:24:9",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint256",
                         "typeString": "uint256"
@@ -511,43 +511,43 @@
                     "operator": "=",
                     "rightHandSide": {
                       "argumentTypes": null,
-                      "id": 551,
+                      "id": 594,
                       "name": "initialBalance",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 545,
-                      "src": "255:14:7",
+                      "referencedDeclaration": 588,
+                      "src": "255:14:9",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint256",
                         "typeString": "uint256"
                       }
                     },
-                    "src": "228:41:7",
+                    "src": "228:41:9",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
                     }
                   },
-                  "id": 553,
+                  "id": 596,
                   "nodeType": "ExpressionStatement",
-                  "src": "228:41:7"
+                  "src": "228:41:9"
                 },
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 556,
+                    "id": 599,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
                       "argumentTypes": null,
-                      "id": 554,
+                      "id": 597,
                       "name": "totalSupply_",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 2134,
-                      "src": "275:12:7",
+                      "referencedDeclaration": 2182,
+                      "src": "275:12:9",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint256",
                         "typeString": "uint256"
@@ -557,31 +557,31 @@
                     "operator": "=",
                     "rightHandSide": {
                       "argumentTypes": null,
-                      "id": 555,
+                      "id": 598,
                       "name": "initialBalance",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 545,
-                      "src": "290:14:7",
+                      "referencedDeclaration": 588,
+                      "src": "290:14:9",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint256",
                         "typeString": "uint256"
                       }
                     },
-                    "src": "275:29:7",
+                    "src": "275:29:9",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
                     }
                   },
-                  "id": 557,
+                  "id": 600,
                   "nodeType": "ExpressionStatement",
-                  "src": "275:29:7"
+                  "src": "275:29:9"
                 }
               ]
             },
             "documentation": null,
-            "id": 559,
+            "id": 602,
             "implemented": true,
             "isConstructor": true,
             "isDeclaredConst": false,
@@ -589,16 +589,16 @@
             "name": "BasicTokenMock",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 546,
+              "id": 589,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 543,
+                  "id": 586,
                   "name": "initialAccount",
                   "nodeType": "VariableDeclaration",
-                  "scope": 559,
-                  "src": "167:22:7",
+                  "scope": 602,
+                  "src": "167:22:9",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -606,10 +606,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 542,
+                    "id": 585,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "167:7:7",
+                    "src": "167:7:9",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
                       "typeString": "address"
@@ -620,11 +620,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 545,
+                  "id": 588,
                   "name": "initialBalance",
                   "nodeType": "VariableDeclaration",
-                  "scope": 559,
-                  "src": "191:22:7",
+                  "scope": 602,
+                  "src": "191:22:9",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -632,10 +632,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 544,
+                    "id": 587,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "191:7:7",
+                    "src": "191:7:9",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -645,33 +645,33 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "166:48:7"
+              "src": "166:48:9"
             },
             "payable": false,
             "returnParameters": {
-              "id": 547,
+              "id": 590,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "222:0:7"
+              "src": "222:0:9"
             },
-            "scope": 560,
-            "src": "143:166:7",
+            "scope": 603,
+            "src": "143:166:9",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
           }
         ],
-        "scope": 561,
-        "src": "100:212:7"
+        "scope": 604,
+        "src": "100:212:9"
       }
     ],
-    "src": "0:313:7"
+    "src": "0:313:9"
   },
   "compiler": {
     "name": "solc",
-    "version": "0.4.24+commit.e67f0147.Emscripten.clang"
+    "version": "0.4.23+commit.124ca40d.Emscripten.clang"
   },
   "networks": {},
-  "schemaVersion": "2.0.1",
-  "updatedAt": "2018-08-23T14:35:50.614Z"
+  "schemaVersion": "2.0.0",
+  "updatedAt": "2018-08-27T20:45:00.204Z"
 }

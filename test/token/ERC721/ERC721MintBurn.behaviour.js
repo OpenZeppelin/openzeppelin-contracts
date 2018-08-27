@@ -99,17 +99,6 @@ export default function shouldMintAndBurnERC721Token (accounts) {
           const approvedAccount = await this.token.getApproved(tokenId);
           approvedAccount.should.be.equal(ZERO_ADDRESS);
         });
-
-        it('emits an approval event', async function () {
-          logs.length.should.be.equal(2);
-
-          logs[0].event.should.be.eq('Approval');
-          logs[0].args._owner.should.be.equal(sender);
-          logs[0].args._approved.should.be.equal(ZERO_ADDRESS);
-          logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
-
-          logs[1].event.should.be.eq('Transfer');
-        });
       });
 
       describe('when the given token ID was not tracked by this contract', function () {

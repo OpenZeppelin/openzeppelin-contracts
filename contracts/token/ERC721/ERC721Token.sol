@@ -2,6 +2,7 @@ pragma solidity ^0.4.21;
 
 import "./ERC721.sol";
 import "./ERC721BasicToken.sol";
+import "../../introspection/ERC165.sol";
 import "zos-lib/contracts/migrations/Migratable.sol";
 
 
@@ -11,7 +12,24 @@ import "zos-lib/contracts/migrations/Migratable.sol";
  * Moreover, it includes approve all functionality using operator terminology
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
-contract ERC721Token is Migratable, ERC721, ERC721BasicToken {
+contract ERC721Token is Migratable, ERC165Support, ERC721BasicToken, ERC721 {
+
+  bytes4 private constant InterfaceId_ERC721Enumerable = 0x780e9d63;
+  /**
+   * 0x780e9d63 ===
+   *   bytes4(keccak256('totalSupply()')) ^
+   *   bytes4(keccak256('tokenOfOwnerByIndex(address,uint256)')) ^
+   *   bytes4(keccak256('tokenByIndex(uint256)'))
+   */
+
+  bytes4 private constant InterfaceId_ERC721Metadata = 0x5b5e139f;
+  /**
+   * 0x5b5e139f ===
+   *   bytes4(keccak256('name()')) ^
+   *   bytes4(keccak256('symbol()')) ^
+   *   bytes4(keccak256('tokenURI(uint256)'))
+   */
+
   // Token name
   string internal name_;
 
@@ -19,7 +37,7 @@ contract ERC721Token is Migratable, ERC721, ERC721BasicToken {
   string internal symbol_;
 
   // Mapping from owner to list of owned token IDs
-  mapping (address => uint256[]) internal ownedTokens;
+  mapping(address => uint256[]) internal ownedTokens;
 
   // Mapping from token ID to index of the owner tokens list
   mapping(uint256 => uint256) internal ownedTokensIndex;
@@ -41,11 +59,20 @@ contract ERC721Token is Migratable, ERC721, ERC721BasicToken {
     symbol_ = _symbol;
   }
 
+  function _supportsInterface(bytes4 _interfaceId)
+    internal
+    view
+    returns (bool)
+  {
+    return super._supportsInterface(_interfaceId) || 
+      _interfaceId == InterfaceId_ERC721Enumerable || _interfaceId == InterfaceId_ERC721Metadata;
+  }
+
   /**
    * @dev Gets the token name
    * @return string representing the token name
    */
-  function name() public view returns (string) {
+  function name() external view returns (string) {
     return name_;
   }
 
@@ -53,13 +80,13 @@ contract ERC721Token is Migratable, ERC721, ERC721BasicToken {
    * @dev Gets the token symbol
    * @return string representing the token symbol
    */
-  function symbol() public view returns (string) {
+  function symbol() external view returns (string) {
     return symbol_;
   }
 
   /**
    * @dev Returns an URI for a given token ID
-   * @dev Throws if the token ID does not exist. May return an empty string.
+   * Throws if the token ID does not exist. May return an empty string.
    * @param _tokenId uint256 ID of the token to query
    */
   function tokenURI(uint256 _tokenId) public view returns (string) {
@@ -73,7 +100,14 @@ contract ERC721Token is Migratable, ERC721, ERC721BasicToken {
    * @param _index uint256 representing the index to be accessed of the requested tokens list
    * @return uint256 token ID at the given index of the tokens list owned by the requested address
    */
-  function tokenOfOwnerByIndex(address _owner, uint256 _index) public view returns (uint256) {
+  function tokenOfOwnerByIndex(
+    address _owner,
+    uint256 _index
+  )
+    public
+    view
+    returns (uint256)
+  {
     require(_index < balanceOf(_owner));
     return ownedTokens[_owner][_index];
   }
@@ -88,7 +122,7 @@ contract ERC721Token is Migratable, ERC721, ERC721BasicToken {
 
   /**
    * @dev Gets the token ID at a given index of all the tokens in this contract
-   * @dev Reverts if the index is greater or equal to the total number of tokens
+   * Reverts if the index is greater or equal to the total number of tokens
    * @param _index uint256 representing the index to be accessed of the tokens list
    * @return uint256 token ID at the given index of the tokens list
    */
@@ -99,7 +133,7 @@ contract ERC721Token is Migratable, ERC721, ERC721BasicToken {
 
   /**
    * @dev Internal function to set the token URI for a given token
-   * @dev Reverts if the token ID does not exist
+   * Reverts if the token ID does not exist
    * @param _tokenId uint256 ID of the token to set its URI
    * @param _uri string URI to assign
    */
@@ -145,7 +179,7 @@ contract ERC721Token is Migratable, ERC721, ERC721BasicToken {
 
   /**
    * @dev Internal function to mint a new token
-   * @dev Reverts if the given token ID already exists
+   * Reverts if the given token ID already exists
    * @param _to address the beneficiary that will own the minted token
    * @param _tokenId uint256 ID of the token to be minted by the msg.sender
    */
@@ -158,7 +192,7 @@ contract ERC721Token is Migratable, ERC721, ERC721BasicToken {
 
   /**
    * @dev Internal function to burn a specific token
-   * @dev Reverts if the token does not exist
+   * Reverts if the token does not exist
    * @param _owner owner of the token to burn
    * @param _tokenId uint256 ID of the token being burned by the msg.sender
    */
