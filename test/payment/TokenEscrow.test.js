@@ -9,13 +9,14 @@ require('chai')
   .should();
 
 const TokenEscrow = artifacts.require('TokenEscrow');
-const token = artifacts.require('StandardTokenMock');
+const StandardToken = artifacts.require('StandardTokenMock');
 
 contract('TokenEscrow', function ([_, owner, payee1, payee2]) {
   const amount = new BigNumber(100);
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+  const MAX_UINT256 = new BigNumber(2).pow(256).minus(1);
 
-  it('requires a non-null token', async function () {
+  it('reverts when deployed with a null token address', async function () {
     await expectThrow(
       TokenEscrow.new(ZERO_ADDRESS, { from: owner }), EVMRevert
     );
@@ -23,7 +24,7 @@ contract('TokenEscrow', function ([_, owner, payee1, payee2]) {
 
   context('with token', function () {
     beforeEach(async function () {
-      this.token = await token.new(owner, amount * 3);
+      this.token = await StandardToken.new(owner, MAX_UINT256);
       this.tokenEscrow = await TokenEscrow.new(this.token.address, { from: owner });
     });
 
@@ -43,7 +44,7 @@ contract('TokenEscrow', function ([_, owner, payee1, payee2]) {
 
     context('when approved by payer', function () {
       beforeEach(async function () {
-        this.token.approve(this.tokenEscrow.address, amount * 3, { from: owner });
+        this.token.approve(this.tokenEscrow.address, MAX_UINT256, { from: owner });
       });
 
       describe('deposits', function () {
@@ -59,7 +60,7 @@ contract('TokenEscrow', function ([_, owner, payee1, payee2]) {
           await this.tokenEscrow.deposit(payee1, new BigNumber(0), { from: owner });
         });
 
-        it('only allows the owner to deposit', async function () {
+        it('reverts when non-owners deposit', async function () {
           await expectThrow(this.tokenEscrow.deposit(payee1, amount, { from: payee2 }), EVMRevert);
         });
 
@@ -91,11 +92,14 @@ contract('TokenEscrow', function ([_, owner, payee1, payee2]) {
       });
 
       context('with deposit', function () {
+        beforeEach(async function () {
+          await this.tokenEscrow.deposit(payee1, amount, { from: owner });
+        });
+
         describe('withdrawals', function () {
           it('withdraws payments', async function () {
             const payeeInitialBalance = await this.token.balanceOf(payee1);
 
-            await this.tokenEscrow.deposit(payee1, amount, { from: owner });
             await this.tokenEscrow.withdraw(payee1, { from: owner });
 
             (await this.token.balanceOf(this.tokenEscrow.address)).should.be.bignumber.equal(0);
@@ -108,14 +112,17 @@ contract('TokenEscrow', function ([_, owner, payee1, payee2]) {
 
           it('accepts empty withdrawal', async function () {
             await this.tokenEscrow.withdraw(payee1, { from: owner });
+
+            (await this.tokenEscrow.depositsOf(payee1)).should.be.bignumber.equal(0);
+
+            await this.tokenEscrow.withdraw(payee1, { from: owner });
           });
 
-          it('only allows the owner to withdraw', async function () {
+          it('reverts when non-owners withdraw', async function () {
             await expectThrow(this.tokenEscrow.withdraw(payee1, { from: payee1 }), EVMRevert);
           });
 
           it('emits a withdrawn event', async function () {
-            await this.tokenEscrow.deposit(payee1, amount, { from: owner });
             const receipt = await this.tokenEscrow.withdraw(payee1, { from: owner });
 
             const event = expectEvent.inLogs(receipt.logs, 'Withdrawn', { payee: payee1 });
