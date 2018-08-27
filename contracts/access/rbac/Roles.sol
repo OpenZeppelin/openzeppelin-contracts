@@ -44,11 +44,17 @@ library Roles {
   function transfer(Role storage _role, address _account)
     internal
   {
+    require(_account != address(0));
     require(!has(_role, _account));
+    require(has(_role, msg.sender));
 
-    check(_role, msg.sender);
     remove(_role, msg.sender);
     add(_role, _account);
+  }
+
+  function renounce(Role storage _role) internal
+  {
+    remove(_role, msg.sender);
   }
 
   /**

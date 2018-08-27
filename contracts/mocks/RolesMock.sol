@@ -20,6 +20,10 @@ contract RolesMock {
     dummyRole.remove(_account);
   }
 
+  function renounce() public {
+    dummyRole.renounce();
+  }
+
   function transfer(address _account) public {
     dummyRole.transfer(_account);
   }

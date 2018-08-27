@@ -5,7 +5,7 @@ const RolesMock = artifacts.require('RolesMock');
 require('chai')
   .should();
 
-contract.only('Roles', function ([_, authorized, otherAuthorized, anyone]) {
+contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
   beforeEach(async function () {
@@ -89,15 +89,12 @@ contract.only('Roles', function ([_, authorized, otherAuthorized, anyone]) {
           await this.testRole(authorized, false);
         });
 
-        it('transfers to other account with role', async function () {
-          await this.roles.transfer(otherAuthorized, { from });
-          await this.testRole(otherAuthorized, true);
-          await this.testRole(authorized, false);
+        it('reverts when transfering to an account with role', async function () {
+          await assertRevert(this.roles.transfer(otherAuthorized, { from }));
         });
 
-        it('transfers to self', async function () {
-          await this.roles.transfer(authorized, { from });
-          await this.testRole(authorized, true);
+        it('reverts when transfering to the null account', async function () {
+          await assertRevert(this.roles.transfer(ZERO_ADDRESS, { from }));
         });
       });
 
@@ -107,6 +104,17 @@ contract.only('Roles', function ([_, authorized, otherAuthorized, anyone]) {
         it('reverts', async function () {
           await assertRevert(this.roles.transfer(authorized, { from }));
         });
+      });
+    });
+
+    describe('renouncing roles', function () {
+      it('renounces an assigned role', async function () {
+        await this.roles.renounce({ from: authorized });
+        await this.testRole(authorized, false);
+      });
+
+      it('doesn\'t revert when renouncing unassigned role', async function () {
+        await this.roles.renounce({ from: anyone });
       });
     });
   });
