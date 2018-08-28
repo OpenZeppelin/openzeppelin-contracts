@@ -1,5 +1,4 @@
-/* global artifacts, contract, it, before, assert, web3 */
-/* eslint-disable prefer-reflect, no-loop-func */
+const { assertRevert } = require('../helpers/assertRevert');
 const constants = require('../helpers/powerConstants');
 const PowerMock = artifacts.require('PowerMock.sol');
 let formula;
@@ -16,6 +15,16 @@ contract('PowerMock', () => {
     .minus(1);
   const MIN_BASE_D = web3.toBigNumber(1);
   const MAX_EXPONENT = 1000000;
+
+  const baseN = web3.toBigNumber(1);
+  const baseD = web3.toBigNumber(2);
+  const expN = web3.toBigNumber(1);
+  const expD = web3.toBigNumber(1);
+  it(`Function power(0x${baseN.toString(16)}, 0x${baseD.toString(
+    16
+  )}, ${expN}, ${expD}): should revert when base < 1`, async () => {
+    await assertRevert(formula.powerTest(baseN, baseD, expN, expD));
+  });
 
   for (let percent = 1; percent <= 100; percent++) {
     const baseN = MAX_BASE_N;
@@ -170,7 +179,9 @@ contract('PowerMock', () => {
     for (let index = 0; index < tuples.length; index++) {
       const input = tuples[index].input;
       const output = tuples[index].output;
-      const test = `Function findPositionInMaxExpArray(0x${input.toString(16)})`;
+      const test = `Function findPositionInMaxExpArray(0x${input.toString(
+        16
+      )})`;
 
       it(`${test}:`, async () => {
         try {
@@ -228,7 +239,9 @@ contract('PowerMock', () => {
     precision <= constants.MAX_PRECISION;
     precision++
   ) {
-    const minExp = web3.toBigNumber(constants.maxExpArray[precision - 1]).plus(1);
+    const minExp = web3
+      .toBigNumber(constants.maxExpArray[precision - 1])
+      .plus(1);
     const minVal = web3.toBigNumber(2).toPower(precision);
     const test = `Function generalExp(0x${minExp.toString(16)}, ${precision})`;
 
