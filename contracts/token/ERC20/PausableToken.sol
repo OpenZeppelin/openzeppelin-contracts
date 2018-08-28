@@ -6,9 +6,9 @@ import "../../lifecycle/Pausable.sol";
 
 /**
  * @title Pausable token
- * @dev StandardToken modified with pausable transfers.
+ * @dev ERC20 modified with pausable transfers.
  **/
-contract PausableToken is StandardToken, Pausable {
+contract PausableToken is ERC20, Pausable {
 
   function transfer(
     address _to,

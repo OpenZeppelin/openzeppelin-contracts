@@ -4,7 +4,7 @@ import "../token/ERC20/StandardToken.sol";
 import "../token/ERC20/DetailedERC20.sol";
 
 
-contract DetailedERC20Mock is StandardToken, DetailedERC20 {
+contract DetailedERC20Mock is ERC20, DetailedERC20 {
   constructor(
     string _name,
     string _symbol,

@@ -3,8 +3,8 @@ pragma solidity ^0.4.24;
 import "../token/ERC20/StandardToken.sol";
 
 
-// mock class using StandardToken
-contract StandardTokenMock is StandardToken {
+// mock class using ERC20
+contract StandardTokenMock is ERC20 {
 
   constructor(address _initialAccount, uint256 _initialBalance) public {
     _mint(_initialAccount, _initialBalance);

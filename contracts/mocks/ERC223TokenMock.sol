@@ -8,7 +8,7 @@ contract ERC223ContractInterface {
 }
 
 
-contract ERC223TokenMock is StandardToken {
+contract ERC223TokenMock is ERC20 {
 
   constructor(address _initialAccount, uint256 _initialBalance) public {
     _mint(_initialAccount, _initialBalance);
