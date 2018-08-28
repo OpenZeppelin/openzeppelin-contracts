@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "../ownership/Ownable.sol";
-import "../token/ERC20/ERC20.sol";
+import "../token/ERC20/IERC20.sol";
 
 
 /**
