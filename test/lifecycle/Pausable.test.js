@@ -1,4 +1,5 @@
 const { assertRevert } = require('../helpers/assertRevert');
+const expectEvent = require('../helpers/expectEvent');
 const PausableMock = artifacts.require('PausableMock');
 
 const BigNumber = web3.BigNumber;
@@ -52,5 +53,13 @@ contract('Pausable', function () {
     await assertRevert(this.Pausable.drasticMeasure());
 
     (await this.Pausable.drasticMeasureTaken()).should.equal(false);
+  });
+
+  it('should log Pause and Unpause events appropriately', async function () {
+    const setPauseLogs = (await this.Pausable.pause()).logs;
+    expectEvent.inLogs(setPauseLogs, 'Pause');
+
+    const setUnPauseLogs = (await this.Pausable.unpause()).logs;
+    expectEvent.inLogs(setUnPauseLogs, 'Unpause');
   });
 });
