@@ -40,6 +40,7 @@
     "chai": "^4.1.2",
     "chai-bignumber": "^2.0.2",
     "coveralls": "^3.0.1",
+    "decimal.js": "^10.0.1",
     "dotenv": "^4.0.0",
     "eslint": "^4.19.1",
     "eslint-config-standard": "^10.2.1",

@@ -1,4 +1,3 @@
-/* eslint-disable no-multi-spaces */
 module.exports.MIN_PRECISION = 32;
 module.exports.MAX_PRECISION = 127;
 module.exports.maxExpArray = [
