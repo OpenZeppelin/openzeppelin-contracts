@@ -6,6 +6,8 @@ require('chai')
   .should();
 
 contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
+  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+
   beforeEach(async function () {
     this.roles = await RolesMock.new();
     this.testRole = async (account, expected) => {
@@ -49,6 +51,10 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
         await this.roles.addMany([authorized, authorized]);
         await this.testRole(authorized, true);
       });
+
+      it('doesn\'t revert when adding roles to the null account', async function () {
+        await this.roles.add(ZERO_ADDRESS);
+      });
     });
   });
 
@@ -64,8 +70,51 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
         await this.testRole(otherAuthorized, true);
       });
 
-      it('removes unassigned roles', async function () {
+      it('doesn\'t revert when removing unassigned roles', async function () {
         await this.roles.remove(anyone);
+      });
+
+      it('doesn\'t revert when removing roles from the null account', async function () {
+        await this.roles.remove(ZERO_ADDRESS);
+      });
+    });
+
+    describe('transfering roles', function () {
+      context('from account with role', function () {
+        const from = authorized;
+
+        it('transfers to other account with no role', async function () {
+          await this.roles.transfer(anyone, { from });
+          await this.testRole(anyone, true);
+          await this.testRole(authorized, false);
+        });
+
+        it('reverts when transfering to an account with role', async function () {
+          await assertRevert(this.roles.transfer(otherAuthorized, { from }));
+        });
+
+        it('reverts when transfering to the null account', async function () {
+          await assertRevert(this.roles.transfer(ZERO_ADDRESS, { from }));
+        });
+      });
+
+      context('from account without role', function () {
+        const from = anyone;
+
+        it('reverts', async function () {
+          await assertRevert(this.roles.transfer(anyone, { from }));
+        });
+      });
+    });
+
+    describe('renouncing roles', function () {
+      it('renounces an assigned role', async function () {
+        await this.roles.renounce({ from: authorized });
+        await this.testRole(authorized, false);
+      });
+
+      it('doesn\'t revert when renouncing unassigned role', async function () {
+        await this.roles.renounce({ from: anyone });
       });
     });
   });
