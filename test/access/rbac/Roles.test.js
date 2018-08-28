@@ -76,8 +76,8 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
 
         it('transfers to other account with no role', async function () {
           await this.roles.transfer(anyone, { from });
-          await this.testRole(anyone, true);
-          await this.testRole(authorized, false);
+          (await this.roles.has(anyone)).should.equal(true);
+          (await this.roles.has(authorized)).should.equal(false);
         });
 
         it('reverts when transfering to an account with role', async function () {
@@ -101,42 +101,11 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
     describe('renouncing roles', function () {
       it('renounces an assigned role', async function () {
         await this.roles.renounce({ from: authorized });
-        await this.testRole(authorized, false);
+        (await this.roles.has(authorized)).should.equal(false);
       });
 
       it('doesn\'t revert when renouncing unassigned role', async function () {
         await this.roles.renounce({ from: anyone });
-      });
-    });
-
-    describe('transfering roles', function () {
-      context('from account with role', function () {
-        const from = authorized;
-
-        it('transfers to other account with no role', async function () {
-          await this.roles.transfer(anyone, { from });
-          (await this.roles.has(anyone)).should.equal(true);
-          (await this.roles.has(authorized)).should.equal(false);
-        });
-
-        it('transfers to other account with role', async function () {
-          await this.roles.transfer(otherAuthorized, { from });
-          (await this.roles.has(otherAuthorized)).should.equal(true);
-          (await this.roles.has(authorized)).should.equal(false);
-        });
-
-        it('transfers to self', async function () {
-          await this.roles.transfer(authorized, { from });
-          (await this.roles.has(authorized)).should.equal(true);
-        });
-      });
-
-      context('from account without role', function () {
-        const from = anyone;
-
-        it('reverts', async function () {
-          await assertRevert(this.roles.transfer(authorized, { from }));
-        });
       });
     });
   });
