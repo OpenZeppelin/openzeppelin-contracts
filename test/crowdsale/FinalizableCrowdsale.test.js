@@ -26,7 +26,7 @@ contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
     this.closingTime = this.openingTime + duration.weeks(1);
     this.afterClosingTime = this.closingTime + duration.seconds(1);
 
-    this.token = await StandardToken.new([]);
+    this.token = await StandardToken.new();
     this.crowdsale = await FinalizableCrowdsale.new(
       this.openingTime, this.closingTime, rate, wallet, this.token.address, { from: owner }
     );

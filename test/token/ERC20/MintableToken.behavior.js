@@ -18,7 +18,7 @@ function shouldBehaveLikeMintableToken (minter, [anyone]) {
         });
       });
 
-      describe('when the token minting is finished', function () {
+      describe('when token minting is finished', function () {
         beforeEach(async function () {
           await this.token.finishMinting({ from: minter });
         });
