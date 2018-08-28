@@ -12,7 +12,7 @@ import "../../math/SafeMath.sol";
  */
 contract AllowanceCrowdsale is Crowdsale {
   using SafeMath for uint256;
-  using SafeERC20 for ERC20;
+  using SafeERC20 for IERC20;
 
   address public tokenWallet;
 

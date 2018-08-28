@@ -9,7 +9,7 @@ contract CappedCrowdsaleImpl is CappedCrowdsale {
   constructor (
     uint256 _rate,
     address _wallet,
-    ERC20 _token,
+    IERC20 _token,
     uint256 _cap
   )
     public

@@ -10,7 +10,7 @@ contract IncreasingPriceCrowdsaleImpl is IncreasingPriceCrowdsale {
     uint256 _openingTime,
     uint256 _closingTime,
     address _wallet,
-    ERC20 _token,
+    IERC20 _token,
     uint256 _initialRate,
     uint256 _finalRate
   )

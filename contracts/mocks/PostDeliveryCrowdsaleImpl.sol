@@ -11,7 +11,7 @@ contract PostDeliveryCrowdsaleImpl is PostDeliveryCrowdsale {
     uint256 _closingTime,
     uint256 _rate,
     address _wallet,
-    ERC20 _token
+    IERC20 _token
   )
     public
     TimedCrowdsale(_openingTime, _closingTime)
