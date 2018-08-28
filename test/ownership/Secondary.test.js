@@ -6,6 +6,8 @@ require('chai')
   .should();
 
 contract('Secondary', function ([_, primary, newPrimary, anyone]) {
+  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+
   beforeEach(async function () {
     this.secondary = await SecondaryMock.new({ from: primary });
   });
@@ -28,6 +30,10 @@ contract('Secondary', function ([_, primary, newPrimary, anyone]) {
     it('makes the recipient the new primary', async function () {
       await this.secondary.transferPrimary(newPrimary, { from: primary });
       (await this.secondary.primary()).should.equal(newPrimary);
+    });
+
+    it('reverts when transfering to the null address', async function () {
+      await assertRevert(this.secondary.transferPrimary(ZERO_ADDRESS, { from: primary }));
     });
 
     it('reverts when called by anyone', async function () {

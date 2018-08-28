@@ -24,6 +24,8 @@ contract Secondary {
   }
 
   function transferPrimary(address _recipient) public onlyPrimary {
+    require(_recipient != address(0));
+
     primary = _recipient;
   }
 }
