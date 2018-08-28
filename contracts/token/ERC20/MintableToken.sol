@@ -3,6 +3,7 @@ pragma solidity ^0.4.24;
 import "./StandardToken.sol";
 import "../../access/rbac/MinterRole.sol";
 
+
 /**
  * @title Mintable token
  * @dev Simple ERC20 Token example, with mintable token creation

@@ -2,6 +2,7 @@ pragma solidity ^0.4.24;
 
 import "./Roles.sol";
 
+
 contract MinterRole {
   using Roles for Roles.Role;
 
@@ -9,14 +10,6 @@ contract MinterRole {
 
   constructor(address[] _minters) public {
     minters.addMany(_minters);
-  }
-
-  function addMinter(address _account) internal {
-    minters.add(_account);
-  }
-
-  function removeMinter(address _account) internal {
-    minters.remove(_account);
   }
 
   function transferMinterRole(address _account) public {
@@ -30,5 +23,13 @@ contract MinterRole {
   modifier onlyMinter() {
     require(isMinter(msg.sender));
     _;
+  }
+
+  function addMinter(address _account) internal {
+    minters.add(_account);
+  }
+
+  function removeMinter(address _account) internal {
+    minters.remove(_account);
   }
 }

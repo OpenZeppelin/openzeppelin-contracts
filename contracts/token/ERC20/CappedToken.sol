@@ -11,7 +11,10 @@ contract CappedToken is MintableToken {
 
   uint256 public cap;
 
-  constructor(uint256 _cap, address[] _minters) public MintableToken(_minters) {
+  constructor(uint256 _cap, address[] _minters)
+    public
+    MintableToken(_minters)
+  {
     require(_cap > 0);
     cap = _cap;
   }
