@@ -15,18 +15,14 @@ library Roles {
   /**
    * @dev give an account access to this role
    */
-  function add(Role storage _role, address _account)
-    internal
-  {
+  function add(Role storage _role, address _account) internal {
     _role.bearer[_account] = true;
   }
 
   /**
    * @dev give multiple accounts access to this role
    */
-  function addMany(Role storage _role, address[] _accounts)
-    internal
-  {
+  function addMany(Role storage _role, address[] _accounts) internal {
     for (uint256 i = 0; i < _accounts.length; ++i) {
       add(_role, _accounts[i]);
     }
@@ -35,15 +31,11 @@ library Roles {
   /**
    * @dev remove an account's access to this role
    */
-  function remove(Role storage _role, address _account)
-    internal
-  {
+  function remove(Role storage _role, address _account) internal {
     _role.bearer[_account] = false;
   }
 
-  function transfer(Role storage _role, address _account)
-    internal
-  {
+  function transfer(Role storage _role, address _account) internal {
     require(_account != address(0));
     require(!has(_role, _account));
     require(has(_role, msg.sender));
@@ -52,8 +44,7 @@ library Roles {
     add(_role, _account);
   }
 
-  function renounce(Role storage _role) internal
-  {
+  function renounce(Role storage _role) internal {
     remove(_role, msg.sender);
   }
 
@@ -61,10 +52,7 @@ library Roles {
    * @dev check if an account has this role
    * // reverts
    */
-  function check(Role storage _role, address _account)
-    internal
-    view
-  {
+  function check(Role storage _role, address _account) internal view {
     require(has(_role, _account));
   }
 
