@@ -102,7 +102,7 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
         const from = anyone;
 
         it('reverts', async function () {
-          await assertRevert(this.roles.transfer(authorized, { from }));
+          await assertRevert(this.roles.transfer(anyone, { from }));
         });
       });
     });
