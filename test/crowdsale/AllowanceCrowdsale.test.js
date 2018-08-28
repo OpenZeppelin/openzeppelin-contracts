@@ -47,8 +47,7 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
 
     it('should assign tokens to sender', async function () {
       await this.crowdsale.sendTransaction({ value: value, from: investor });
-      const balance = await this.token.balanceOf(investor);
-      balance.should.be.bignumber.equal(expectedTokenAmount);
+      (await this.token.balanceOf(investor)).should.be.bignumber.equal(expectedTokenAmount);
     });
 
     it('should forward funds to wallet', async function () {
@@ -63,8 +62,7 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
     it('should report correct allowace left', async function () {
       const remainingAllowance = tokenAllowance - expectedTokenAmount;
       await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
-      const tokensRemaining = await this.crowdsale.remainingTokens();
-      tokensRemaining.should.be.bignumber.equal(remainingAllowance);
+      (await this.crowdsale.remainingTokens()).should.be.bignumber.equal(remainingAllowance);
     });
   });
 

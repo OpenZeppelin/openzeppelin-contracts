@@ -5,7 +5,7 @@ function inLogs (logs, eventName, eventArgs = {}) {
   should.exist(event);
   for (const [k, v] of Object.entries(eventArgs)) {
     should.exist(event.args[k]);
-    event.args[k].should.eq(v);
+    event.args[k].should.equal(v);
   }
   return event;
 }
