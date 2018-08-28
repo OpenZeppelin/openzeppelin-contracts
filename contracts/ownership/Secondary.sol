@@ -23,7 +23,7 @@ contract Secondary {
     _;
   }
 
-  function transferPrimary(address _recipient) onlyPrimary public {
+  function transferPrimary(address _recipient) public onlyPrimary {
     primary = _recipient;
   }
 }
