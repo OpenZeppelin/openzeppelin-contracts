@@ -43,7 +43,7 @@ contract Crowdsale {
    * @param value weis paid for purchase
    * @param amount amount of tokens purchased
    */
-  event TokenPurchased(
+  event TokensPurchased(
     address indexed purchaser,
     address indexed beneficiary,
     uint256 value,
@@ -92,7 +92,7 @@ contract Crowdsale {
     weiRaised = weiRaised.add(weiAmount);
 
     _processPurchase(_beneficiary, tokens);
-    emit TokenPurchased(
+    emit TokensPurchased(
       msg.sender,
       _beneficiary,
       weiAmount,
