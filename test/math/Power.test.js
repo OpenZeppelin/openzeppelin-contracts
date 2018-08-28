@@ -1,6 +1,6 @@
 /* global artifacts, contract, it, before, assert, web3 */
 /* eslint-disable prefer-reflect, no-loop-func */
-const constants = require('./helpers/powerConstants');
+const constants = require('../helpers/powerConstants');
 const PowerMock = artifacts.require('PowerMock.sol');
 let formula;
 
