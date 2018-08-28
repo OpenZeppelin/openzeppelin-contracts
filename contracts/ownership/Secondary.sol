@@ -22,4 +22,8 @@ contract Secondary {
     require(msg.sender == primary);
     _;
   }
+
+  function transferPrimary(address _recipient) onlyPrimary public {
+    primary = _recipient;
+  }
 }
