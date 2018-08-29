@@ -4,10 +4,10 @@ import "../token/ERC721/ERC721BasicToken.sol";
 
 
 /**
- * @title ERC721BasicTokenMock
+ * @title ERC721BasicMock
  * This mock just provides a public mint and burn functions for testing purposes
  */
-contract ERC721BasicTokenMock is ERC721BasicToken {
+contract ERC721BasicMock is ERC721Basic {
   function mint(address _to, uint256 _tokenId) public {
     super._mint(_to, _tokenId);
   }

@@ -1,5 +1,5 @@
 const { assertRevert } = require('../../helpers/assertRevert');
-const { shouldBehaveLikeERC721BasicToken } = require('./ERC721BasicToken.behavior');
+const { shouldBehaveLikeERC721Basic } = require('./ERC721Basic.behavior');
 const { shouldBehaveLikeMintAndBurnERC721 } = require('./ERC721MintBurn.behavior');
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 const _ = require('lodash');
@@ -24,7 +24,7 @@ contract('ERC721', function (accounts) {
     this.token = await ERC721.new(name, symbol, { from: creator });
   });
 
-  shouldBehaveLikeERC721BasicToken(accounts);
+  shouldBehaveLikeERC721Basic(accounts);
   shouldBehaveLikeMintAndBurnERC721(accounts);
 
   describe('like a full ERC721', function () {
