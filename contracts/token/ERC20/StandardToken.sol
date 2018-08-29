@@ -110,7 +110,7 @@ contract StandardToken is ERC20 {
 
   /**
    * @dev Increase the amount of tokens that an owner allowed to a spender.
-   * approve should be called when allowed[_spender] == 0. To increment
+   * approve should be called when allowed_[_spender] == 0. To increment
    * allowed value is better to use this function to avoid 2 calls (and wait until
    * the first transaction is mined)
    * From MonolithDAO Token.sol
@@ -132,7 +132,7 @@ contract StandardToken is ERC20 {
 
   /**
    * @dev Decrease the amount of tokens that an owner allowed to a spender.
-   * approve should be called when allowed[_spender] == 0. To decrement
+   * approve should be called when allowed_[_spender] == 0. To decrement
    * allowed value is better to use this function to avoid 2 calls (and wait until
    * the first transaction is mined)
    * From MonolithDAO Token.sol
@@ -166,7 +166,7 @@ contract StandardToken is ERC20 {
   function _mint(address _account, uint256 _amount) internal {
     require(_account != 0);
     totalSupply_ = totalSupply_.add(_amount);
-    balances[_account] = balances[_account].add(_amount);
+    balances_[_account] = balances_[_account].add(_amount);
     emit Transfer(address(0), _account, _amount);
   }
 
@@ -178,10 +178,10 @@ contract StandardToken is ERC20 {
    */
   function _burn(address _account, uint256 _amount) internal {
     require(_account != 0);
-    require(_amount <= balances[_account]);
+    require(_amount <= balances_[_account]);
 
     totalSupply_ = totalSupply_.sub(_amount);
-    balances[_account] = balances[_account].sub(_amount);
+    balances_[_account] = balances_[_account].sub(_amount);
     emit Transfer(_account, address(0), _amount);
   }
 
@@ -193,11 +193,11 @@ contract StandardToken is ERC20 {
    * @param _amount The amount that will be burnt.
    */
   function _burnFrom(address _account, uint256 _amount) internal {
-    require(_amount <= allowed[_account][msg.sender]);
+    require(_amount <= allowed_[_account][msg.sender]);
 
     // Should https://github.com/OpenZeppelin/zeppelin-solidity/issues/707 be accepted,
     // this function needs to emit an event with the updated approval.
-    allowed[_account][msg.sender] = allowed[_account][msg.sender].sub(_amount);
+    allowed_[_account][msg.sender] = allowed_[_account][msg.sender].sub(_amount);
     _burn(_account, _amount);
   }
 }
