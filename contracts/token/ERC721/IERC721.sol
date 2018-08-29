@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "./ERC721Basic.sol";
+import "./IERC721Basic.sol";
 
 
 /**

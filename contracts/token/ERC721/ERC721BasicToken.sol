@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
-import "./ERC721Basic.sol";
-import "./ERC721Receiver.sol";
+import "./IERC721Basic.sol";
+import "./IERC721Receiver.sol";
 import "../../math/SafeMath.sol";
 import "../../AddressUtils.sol";
 import "../../introspection/SupportsInterfaceWithLookup.sol";
