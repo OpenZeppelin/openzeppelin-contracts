@@ -7,7 +7,7 @@ import "../../introspection/ERC165.sol";
  * @title ERC721 Non-Fungible Token Standard basic interface
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
-contract IERC721Basic is ERC165 {
+contract IERC721Basic is IERC165 {
 
   bytes4 internal constant InterfaceId_ERC721 = 0x80ac58cd;
   /*
