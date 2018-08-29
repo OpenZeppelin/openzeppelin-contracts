@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../ReentrancyGuard.sol";
+import "../utils/ReentrancyGuard.sol";
 import "./ReentrancyAttack.sol";
 
 

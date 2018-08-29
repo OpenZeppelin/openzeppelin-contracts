@@ -1,7 +1,7 @@
 const { signMessage, toEthSignedMessageHash } = require('../helpers/sign');
 const { expectThrow } = require('../helpers/expectThrow');
 
-const ECRecoveryMock = artifacts.require('ECRecoveryMock');
+const ECDSAMock = artifacts.require('ECDSAMock');
 
 require('chai')
   .should();
@@ -9,9 +9,9 @@ require('chai')
 const TEST_MESSAGE = web3.sha3('OpenZeppelin');
 const WRONG_MESSAGE = web3.sha3('Nope');
 
-contract('ECRecovery', function ([_, anyone]) {
+contract('ECDSA', function ([_, anyone]) {
   beforeEach(async function () {
-    this.mock = await ECRecoveryMock.new();
+    this.mock = await ECDSAMock.new();
   });
 
   it('recover v0', async function () {
