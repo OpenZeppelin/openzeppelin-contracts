@@ -33,8 +33,8 @@ contract('ECRecovery', function ([_, anyone]) {
   it('recover v27', async function () {
     // Signature generated outside ganache with method web3.eth.sign(signer, message)
     const signer = '0x2cc1166f6212628a0deef2b33befb2187d35b86c';
-    // eslint-disable-next-line max-len
     // The last two hex digits are the signature version: 27 = 1b.
+    // eslint-disable-next-line max-len
     const signature = '0x5d99b6f7f6d1f73d1a26497f2b1c89b24c0993913f86e9a2d02cd69887d9c94f3c880358579d811b21dd1b7fd9bb01c1d81d10e69f0384e675c32b39643be8921b';
     (await this.mock.recover(TEST_MESSAGE, signature)).should.equal(signer);
   });
@@ -42,16 +42,16 @@ contract('ECRecovery', function ([_, anyone]) {
   it('recover v28', async function () {
     // Signature generated outside ganache with method web3.eth.sign(signer, message)
     const signer = '0x1e318623ab09fe6de3c9b8672098464aeda9100e';
-    // eslint-disable-next-line max-len
     // The last two hex digits are the signature version: 28 = 1c.
+    // eslint-disable-next-line max-len
     const signature = '0x331fe75a821c982f9127538858900d87d3ec1f9f737338ad67cad133fa48feff48e6fa0c18abc62e42820f05943e47af3e9fbe306ce74d64094bdf1691ee53e01c';
     (await this.mock.recover(TEST_MESSAGE, signature)).should.equal(signer);
   });
 
   it('wrong signature version', async function () {
-    // eslint-disable-next-line max-len
     // The last two hex digits are the signature version.
     // The only valid values are 0, 1, 27 and 28.
+    // eslint-disable-next-line max-len
     const signature = '0x331fe75a821c982f9127538858900d87d3ec1f9f737338ad67cad133fa48feff48e6fa0c18abc62e42820f05943e47af3e9fbe306ce74d64094bdf1691ee53e002';
     (await this.mock.recover(TEST_MESSAGE, signature)).should.equal(
       '0x0000000000000000000000000000000000000000');
