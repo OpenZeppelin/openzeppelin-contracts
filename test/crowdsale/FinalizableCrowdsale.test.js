@@ -56,7 +56,7 @@ contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
   it('logs finalized', async function () {
     await increaseTimeTo(this.afterClosingTime);
     const { logs } = await this.crowdsale.finalize({ from: owner });
-    const event = logs.find(e => e.event === 'Finalized');
+    const event = logs.find(e => e.event === 'CrowdsaleFinalized');
     should.exist(event);
   });
 });

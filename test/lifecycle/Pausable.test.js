@@ -57,9 +57,9 @@ contract('Pausable', function () {
 
   it('should log Pause and Unpause events appropriately', async function () {
     const setPauseLogs = (await this.Pausable.pause()).logs;
-    expectEvent.inLogs(setPauseLogs, 'Pause');
+    expectEvent.inLogs(setPauseLogs, 'Paused');
 
     const setUnPauseLogs = (await this.Pausable.unpause()).logs;
-    expectEvent.inLogs(setUnPauseLogs, 'Unpause');
+    expectEvent.inLogs(setUnPauseLogs, 'Unpaused');
   });
 });

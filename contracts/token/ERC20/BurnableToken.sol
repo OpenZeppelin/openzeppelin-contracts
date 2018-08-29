@@ -9,7 +9,7 @@ import "./StandardToken.sol";
  */
 contract BurnableToken is StandardToken {
 
-  event Burn(address indexed burner, uint256 value);
+  event TokensBurned(address indexed burner, uint256 value);
 
   /**
    * @dev Burns a specific amount of tokens.
@@ -34,6 +34,6 @@ contract BurnableToken is StandardToken {
    */
   function _burn(address _who, uint256 _value) internal {
     super._burn(_who, _value);
-    emit Burn(_who, _value);
+    emit TokensBurned(_who, _value);
   }
 }
