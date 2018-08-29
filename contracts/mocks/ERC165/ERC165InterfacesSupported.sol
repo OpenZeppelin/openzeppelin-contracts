@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../../introspection/ERC165.sol";
+import "../../introspection/IERC165.sol";
 
 
 /**
