@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../token/ERC20/PausableToken.sol";
+import "../token/ERC20/ERC20Pausable.sol";
 
 
 // mock class using ERC20Pausable
