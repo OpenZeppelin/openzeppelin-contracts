@@ -14,8 +14,8 @@ contract MintableToken is StandardToken, Ownable {
   event MintFinished();
 
   bool public mintingFinished = false;
-
-
+  
+  
   modifier canMint() {
     require(!mintingFinished);
     _;
@@ -45,7 +45,7 @@ contract MintableToken is StandardToken, Ownable {
     emit Mint(_to, _amount);
     return true;
   }
-
+  
   /**
    * @dev Function to stop minting new tokens.
    * @return True if the operation was successful.
