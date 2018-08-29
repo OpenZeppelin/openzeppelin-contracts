@@ -197,7 +197,8 @@ contract StandardToken is ERC20 {
 
     // Should https://github.com/OpenZeppelin/zeppelin-solidity/issues/707 be accepted,
     // this function needs to emit an event with the updated approval.
-    allowed_[_account][msg.sender] = allowed_[_account][msg.sender].sub(_amount);
+    allowed_[_account][msg.sender] = allowed_[_account][msg.sender].sub(
+      _amount);
     _burn(_account, _amount);
   }
 }
