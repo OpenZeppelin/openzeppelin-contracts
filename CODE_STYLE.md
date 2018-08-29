@@ -24,6 +24,24 @@ Any exception or additions specific to our project are documented below.
     }
     ```
 
+* Internal and private state variables should have an underscore suffix.
+
+    ```
+    contract TestContract {
+      uint256 internal internalVar_;
+      uint256 private privateVar_;
+    }
+    ```
+
+  Variables declared in a function should not follow this rule.
+
+    ```
+    function test() {
+       uint256 functionVar;
+       ...
+    }
+    ```
+
 * Events should be emitted immediately after the state change that they
   represent, and consequently they should be named in past tense.
 

@@ -14,9 +14,9 @@ import "../../math/SafeMath.sol";
 contract StandardToken is ERC20 {
   using SafeMath for uint256;
 
-  mapping (address => uint256) private balances;
+  mapping (address => uint256) private balances_;
 
-  mapping (address => mapping (address => uint256)) private allowed;
+  mapping (address => mapping (address => uint256)) private allowed_;
 
   uint256 private totalSupply_;
 
@@ -33,7 +33,7 @@ contract StandardToken is ERC20 {
   * @return An uint256 representing the amount owned by the passed address.
   */
   function balanceOf(address _owner) public view returns (uint256) {
-    return balances[_owner];
+    return balances_[_owner];
   }
 
   /**
@@ -50,7 +50,7 @@ contract StandardToken is ERC20 {
     view
     returns (uint256)
   {
-    return allowed[_owner][_spender];
+    return allowed_[_owner][_spender];
   }
 
   /**
@@ -59,11 +59,11 @@ contract StandardToken is ERC20 {
   * @param _value The amount to be transferred.
   */
   function transfer(address _to, uint256 _value) public returns (bool) {
-    require(_value <= balances[msg.sender]);
+    require(_value <= balances_[msg.sender]);
     require(_to != address(0));
 
-    balances[msg.sender] = balances[msg.sender].sub(_value);
-    balances[_to] = balances[_to].add(_value);
+    balances_[msg.sender] = balances_[msg.sender].sub(_value);
+    balances_[_to] = balances_[_to].add(_value);
     emit Transfer(msg.sender, _to, _value);
     return true;
   }
@@ -78,7 +78,7 @@ contract StandardToken is ERC20 {
    * @param _value The amount of tokens to be spent.
    */
   function approve(address _spender, uint256 _value) public returns (bool) {
-    allowed[msg.sender][_spender] = _value;
+    allowed_[msg.sender][_spender] = _value;
     emit Approval(msg.sender, _spender, _value);
     return true;
   }
@@ -97,20 +97,20 @@ contract StandardToken is ERC20 {
     public
     returns (bool)
   {
-    require(_value <= balances[_from]);
-    require(_value <= allowed[_from][msg.sender]);
+    require(_value <= balances_[_from]);
+    require(_value <= allowed_[_from][msg.sender]);
     require(_to != address(0));
 
-    balances[_from] = balances[_from].sub(_value);
-    balances[_to] = balances[_to].add(_value);
-    allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value);
+    balances_[_from] = balances_[_from].sub(_value);
+    balances_[_to] = balances_[_to].add(_value);
+    allowed_[_from][msg.sender] = allowed_[_from][msg.sender].sub(_value);
     emit Transfer(_from, _to, _value);
     return true;
   }
 
   /**
    * @dev Increase the amount of tokens that an owner allowed to a spender.
-   * approve should be called when allowed[_spender] == 0. To increment
+   * approve should be called when allowed_[_spender] == 0. To increment
    * allowed value is better to use this function to avoid 2 calls (and wait until
    * the first transaction is mined)
    * From MonolithDAO Token.sol
@@ -124,15 +124,15 @@ contract StandardToken is ERC20 {
     public
     returns (bool)
   {
-    allowed[msg.sender][_spender] = (
-      allowed[msg.sender][_spender].add(_addedValue));
-    emit Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
+    allowed_[msg.sender][_spender] = (
+      allowed_[msg.sender][_spender].add(_addedValue));
+    emit Approval(msg.sender, _spender, allowed_[msg.sender][_spender]);
     return true;
   }
 
   /**
    * @dev Decrease the amount of tokens that an owner allowed to a spender.
-   * approve should be called when allowed[_spender] == 0. To decrement
+   * approve should be called when allowed_[_spender] == 0. To decrement
    * allowed value is better to use this function to avoid 2 calls (and wait until
    * the first transaction is mined)
    * From MonolithDAO Token.sol
@@ -146,13 +146,13 @@ contract StandardToken is ERC20 {
     public
     returns (bool)
   {
-    uint256 oldValue = allowed[msg.sender][_spender];
+    uint256 oldValue = allowed_[msg.sender][_spender];
     if (_subtractedValue >= oldValue) {
-      allowed[msg.sender][_spender] = 0;
+      allowed_[msg.sender][_spender] = 0;
     } else {
-      allowed[msg.sender][_spender] = oldValue.sub(_subtractedValue);
+      allowed_[msg.sender][_spender] = oldValue.sub(_subtractedValue);
     }
-    emit Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
+    emit Approval(msg.sender, _spender, allowed_[msg.sender][_spender]);
     return true;
   }
 
@@ -166,7 +166,7 @@ contract StandardToken is ERC20 {
   function _mint(address _account, uint256 _amount) internal {
     require(_account != 0);
     totalSupply_ = totalSupply_.add(_amount);
-    balances[_account] = balances[_account].add(_amount);
+    balances_[_account] = balances_[_account].add(_amount);
     emit Transfer(address(0), _account, _amount);
   }
 
@@ -178,10 +178,10 @@ contract StandardToken is ERC20 {
    */
   function _burn(address _account, uint256 _amount) internal {
     require(_account != 0);
-    require(_amount <= balances[_account]);
+    require(_amount <= balances_[_account]);
 
     totalSupply_ = totalSupply_.sub(_amount);
-    balances[_account] = balances[_account].sub(_amount);
+    balances_[_account] = balances_[_account].sub(_amount);
     emit Transfer(_account, address(0), _amount);
   }
 
@@ -193,11 +193,12 @@ contract StandardToken is ERC20 {
    * @param _amount The amount that will be burnt.
    */
   function _burnFrom(address _account, uint256 _amount) internal {
-    require(_amount <= allowed[_account][msg.sender]);
+    require(_amount <= allowed_[_account][msg.sender]);
 
     // Should https://github.com/OpenZeppelin/zeppelin-solidity/issues/707 be accepted,
     // this function needs to emit an event with the updated approval.
-    allowed[_account][msg.sender] = allowed[_account][msg.sender].sub(_amount);
+    allowed_[_account][msg.sender] = allowed_[_account][msg.sender].sub(
+      _amount);
     _burn(_account, _amount);
   }
 }
