@@ -7,7 +7,7 @@ import "./MintableToken.sol";
  * @title Capped token
  * @dev Mintable token with a token cap.
  */
-contract CappedToken is MintableToken {
+contract CappedToken is ERC20Mintable {
 
   uint256 public cap;
 

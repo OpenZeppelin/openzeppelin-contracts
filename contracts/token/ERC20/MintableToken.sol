@@ -9,7 +9,7 @@ import "../../ownership/Ownable.sol";
  * @dev Simple ERC20 Token example, with mintable token creation
  * Based on code by TokenMarketNet: https://github.com/TokenMarketNet/ico/blob/master/contracts/MintableToken.sol
  */
-contract MintableToken is ERC20, Ownable {
+contract ERC20Mintable is ERC20, Ownable {
   event Mint(address indexed to, uint256 amount);
   event MintFinished();
 

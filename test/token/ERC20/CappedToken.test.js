@@ -1,6 +1,6 @@
 const { assertRevert } = require('../../helpers/assertRevert');
 const { ether } = require('../../helpers/ether');
-const { shouldBehaveLikeMintableToken } = require('./MintableToken.behavior');
+const { shouldBehaveLikeERC20Mintable } = require('./MintableToken.behavior');
 const { shouldBehaveLikeCappedToken } = require('./CappedToken.behavior');
 
 const CappedToken = artifacts.require('CappedToken');
@@ -20,6 +20,6 @@ contract('Capped', function ([_, owner, ...otherAccounts]) {
     });
 
     shouldBehaveLikeCappedToken(owner, otherAccounts, cap);
-    shouldBehaveLikeMintableToken(owner, owner, otherAccounts);
+    shouldBehaveLikeERC20Mintable(owner, owner, otherAccounts);
   });
 });

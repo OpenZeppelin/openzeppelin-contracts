@@ -1,10 +1,10 @@
-const { shouldBehaveLikeMintableToken } = require('./MintableToken.behavior');
-const MintableToken = artifacts.require('MintableToken');
+const { shouldBehaveLikeERC20Mintable } = require('./MintableToken.behavior');
+const ERC20Mintable = artifacts.require('ERC20Mintable');
 
-contract('MintableToken', function ([_, owner, ...otherAccounts]) {
+contract('ERC20Mintable', function ([_, owner, ...otherAccounts]) {
   beforeEach(async function () {
-    this.token = await MintableToken.new({ from: owner });
+    this.token = await ERC20Mintable.new({ from: owner });
   });
 
-  shouldBehaveLikeMintableToken(owner, owner, otherAccounts);
+  shouldBehaveLikeERC20Mintable(owner, owner, otherAccounts);
 });
