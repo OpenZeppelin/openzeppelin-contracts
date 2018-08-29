@@ -1,7 +1,7 @@
 const { assertRevert } = require('../../helpers/assertRevert');
 const expectEvent = require('../../helpers/expectEvent');
 
-const ERC20 = artifacts.require('StandardTokenMock');
+const ERC20 = artifacts.require('ERC20Mock');
 
 const BigNumber = web3.BigNumber;
 
