@@ -2,15 +2,15 @@ const { shouldBehaveLikeERC721PausedToken } = require('./ERC721PausedToken.behav
 const { shouldBehaveLikeERC721Basic } = require('./ERC721Basic.behavior');
 
 const BigNumber = web3.BigNumber;
-const ERC721PausableToken = artifacts.require('ERC721PausableTokenMock.sol');
+const ERC721Pausable = artifacts.require('ERC721PausableMock.sol');
 
 require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('ERC721PausableToken', function ([_, owner, recipient, operator, ...otherAccounts]) {
+contract('ERC721Pausable', function ([_, owner, recipient, operator, ...otherAccounts]) {
   beforeEach(async function () {
-    this.token = await ERC721PausableToken.new({ from: owner });
+    this.token = await ERC721Pausable.new({ from: owner });
   });
 
   context('when token is paused', function () {
