@@ -24,23 +24,21 @@ Any exception or additions specific to our project are documented below.
     }
     ```
 
-* Internal state variables should have an underscore suffix: by internal state
-  variable we mean any variable with no modifier or with the internal or private
-  modifiers whose scope is not a function. For instance, variables that are
-  declared in a function should not follow this rule.
-
+* Internal and private state variables should have an underscore suffix.
 
     ```
-    contract myContract{
+    contract TestContract {
+      uint256 internal internalVar_;
+      uint256 private privateVar_;
+    }
+    ```
 
-      uint256 internalVar_;
-      uint256 public publicVar;
+  Variables declared in a function should not follow this rule.
 
-      function test(uint256 _testParameter1, uint256 _testParameter2) {
-        uint256 functionVar;
-        ...
-      }
-
+    ```
+    function test() {
+       uint256 functionVar;
+       ...
     }
     ```
 
@@ -56,4 +54,3 @@ Any exception or additions specific to our project are documented below.
 
   Some standards (e.g. ERC20) use present tense, and in those cases the
   standard specification prevails.
->>>>>>> master
