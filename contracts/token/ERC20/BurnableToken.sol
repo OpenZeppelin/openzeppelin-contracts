@@ -7,7 +7,7 @@ import "./ERC20.sol";
  * @title Burnable Token
  * @dev Token that can be irreversibly burned (destroyed).
  */
-contract BurnableToken is ERC20 {
+contract ERC20Burnable is ERC20 {
 
   event TokensBurned(address indexed burner, uint256 value);
 
