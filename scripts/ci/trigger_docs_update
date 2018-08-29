@@ -1,0 +1,32 @@
+#!/bin/bash
+#
+# Trigger the job that will update the documentation website.
+# Argument:
+#   version: the version of the new release. This should be a tag in the
+#     https://github.com/OpenZeppelin/openzeppelin-solidity repository.
+
+set -ev
+
+if [ "$#" -lt 1 ]; then
+    echo "Usage: $0 <version>"
+    exit 1
+fi
+
+readonly VERSION="$1"
+
+readonly BODY="{
+    \"request\": {
+        \"branch\": \"master\",
+        \"config\": {
+            \"env\": [\"VERSION=${VERSION}\"]
+        }
+    }
+}"
+
+curl -s -X POST \
+   -H "Content-Type: application/json" \
+   -H "Accept: application/json" \
+   -H "Travis-API-Version: 3" \
+   -H "Authorization: token ${DOCS_TRAVIS_API_TOKEN}" \
+   -d "${BODY}" \
+   https://api.travis-ci.com/repo/OpenZeppelin%2Fopenzeppelin-docs/requests

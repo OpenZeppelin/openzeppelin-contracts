@@ -18,11 +18,11 @@ Any exception or additions specific to our project are documented below.
 
 * Parameters must be prefixed with an underscore.
 
-```
-function test(uint256 _testParameter1, uint256 _testParameter2) {
+    ```
+    function test(uint256 _testParameter1, uint256 _testParameter2) {
     ...
-}
-```
+    }
+    ```
 
 * Internal state variables should have an underscore suffix: by internal state
   variable we mean any variable with no modifier or with the internal or private
@@ -30,16 +30,30 @@ function test(uint256 _testParameter1, uint256 _testParameter2) {
   declared in a function should not follow this rule.
 
 
-```
-contract myContract{
+    ```
+    contract myContract{
 
-  uint256 internalVar_;
-  uint256 public publicVar;
+      uint256 internalVar_;
+      uint256 public publicVar;
 
-  function test(uint256 _testParameter1, uint256 _testParameter2) {
-    uint256 functionVar;
-    ...
-  }
+      function test(uint256 _testParameter1, uint256 _testParameter2) {
+        uint256 functionVar;
+        ...
+      }
 
-}
-```
+    }
+    ```
+
+* Events should be emitted immediately after the state change that they
+  represent, and consequently they should be named in past tense.
+
+    ```
+    function _burn(address _who, uint256 _value) internal {
+      super._burn(_who, _value);
+      emit TokensBurned(_who, _value);
+    }
+    ```
+
+  Some standards (e.g. ERC20) use present tense, and in those cases the
+  standard specification prevails.
+>>>>>>> master

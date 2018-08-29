@@ -89,7 +89,7 @@ The following provides visibility into how OpenZeppelin's contracts are organize
 	- **ERC20** - A standard interface for fungible tokens:
 		- *Interfaces* - Includes the ERC-20 token standard basic interface. I.e., what the contract’s ABI can represent.
 		- *Implementations* - Includes ERC-20 token implementations that include all required and some optional ERC-20 functionality.
-	- **ERC721** - A standard interface for non-fungible tokens 
+	- **ERC721** - A standard interface for non-fungible tokens
 		- *Interfaces* - Includes the ERC-721 token standard basic interface. I.e., what the contract’s ABI can represent.
 		- *Implementations* - Includes ERC-721 token implementations that include all required and some optional ERC-721 functionality.
 

@@ -30,56 +30,85 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
     this.openingTime = (await latestTime()) + duration.weeks(1);
     this.closingTime = this.openingTime + duration.weeks(1);
     this.afterClosingTime = this.closingTime + duration.seconds(1);
+    this.preWalletBalance = await ethGetBalance(wallet);
 
     this.token = await SimpleToken.new();
-    this.crowdsale = await RefundableCrowdsale.new(
-      this.openingTime, this.closingTime, rate, wallet, this.token.address, goal, { from: owner }
+  });
+
+  it('rejects a goal of zero', async function () {
+    await expectThrow(
+      RefundableCrowdsale.new(
+        this.openingTime, this.closingTime, rate, wallet, this.token.address, 0, { from: owner }
+      ),
+      EVMRevert,
     );
-    await this.token.transfer(this.crowdsale.address, tokenSupply);
   });
 
-  describe('creating a valid crowdsale', function () {
-    it('should fail with zero goal', async function () {
-      await expectThrow(
-        RefundableCrowdsale.new(
-          this.openingTime, this.closingTime, rate, wallet, this.token.address, 0, { from: owner }
-        ),
-        EVMRevert,
+  context('with crowdsale', function () {
+    beforeEach(async function () {
+      this.crowdsale = await RefundableCrowdsale.new(
+        this.openingTime, this.closingTime, rate, wallet, this.token.address, goal, { from: owner }
       );
+
+      await this.token.transfer(this.crowdsale.address, tokenSupply);
     });
-  });
 
-  it('should deny refunds before end', async function () {
-    await expectThrow(this.crowdsale.claimRefund({ from: investor }), EVMRevert);
-    await increaseTimeTo(this.openingTime);
-    await expectThrow(this.crowdsale.claimRefund({ from: investor }), EVMRevert);
-  });
+    context('before opening time', function () {
+      it('denies refunds', async function () {
+        await expectThrow(this.crowdsale.claimRefund({ from: investor }), EVMRevert);
+      });
+    });
 
-  it('should deny refunds after end if goal was reached', async function () {
-    await increaseTimeTo(this.openingTime);
-    await this.crowdsale.sendTransaction({ value: goal, from: investor });
-    await increaseTimeTo(this.afterClosingTime);
-    await expectThrow(this.crowdsale.claimRefund({ from: investor }), EVMRevert);
-  });
+    context('after opening time', function () {
+      beforeEach(async function () {
+        await increaseTimeTo(this.openingTime);
+      });
 
-  it('should allow refunds after end if goal was not reached', async function () {
-    await increaseTimeTo(this.openingTime);
-    await this.crowdsale.sendTransaction({ value: lessThanGoal, from: investor });
-    await increaseTimeTo(this.afterClosingTime);
-    await this.crowdsale.finalize({ from: owner });
-    const pre = await ethGetBalance(investor);
-    await this.crowdsale.claimRefund({ from: investor, gasPrice: 0 });
-    const post = await ethGetBalance(investor);
-    post.minus(pre).should.be.bignumber.equal(lessThanGoal);
-  });
+      it('denies refunds', async function () {
+        await expectThrow(this.crowdsale.claimRefund({ from: investor }), EVMRevert);
+      });
 
-  it('should forward funds to wallet after end if goal was reached', async function () {
-    await increaseTimeTo(this.openingTime);
-    await this.crowdsale.sendTransaction({ value: goal, from: investor });
-    await increaseTimeTo(this.afterClosingTime);
-    const pre = await ethGetBalance(wallet);
-    await this.crowdsale.finalize({ from: owner });
-    const post = await ethGetBalance(wallet);
-    post.minus(pre).should.be.bignumber.equal(goal);
+      context('with unreached goal', function () {
+        beforeEach(async function () {
+          await this.crowdsale.sendTransaction({ value: lessThanGoal, from: investor });
+        });
+
+        context('after closing time and finalization', function () {
+          beforeEach(async function () {
+            await increaseTimeTo(this.afterClosingTime);
+            await this.crowdsale.finalize({ from: owner });
+          });
+
+          it('refunds', async function () {
+            const pre = await ethGetBalance(investor);
+            await this.crowdsale.claimRefund({ from: investor, gasPrice: 0 });
+            const post = await ethGetBalance(investor);
+            post.minus(pre).should.be.bignumber.equal(lessThanGoal);
+          });
+        });
+      });
+
+      context('with reached goal', function () {
+        beforeEach(async function () {
+          await this.crowdsale.sendTransaction({ value: goal, from: investor });
+        });
+
+        context('after closing time and finalization', function () {
+          beforeEach(async function () {
+            await increaseTimeTo(this.afterClosingTime);
+            await this.crowdsale.finalize({ from: owner });
+          });
+
+          it('denies refunds', async function () {
+            await expectThrow(this.crowdsale.claimRefund({ from: investor }), EVMRevert);
+          });
+
+          it('forwards funds to wallet', async function () {
+            const postWalletBalance = await ethGetBalance(wallet);
+            postWalletBalance.minus(this.preWalletBalance).should.be.bignumber.equal(goal);
+          });
+        });
+      });
+    });
   });
 });

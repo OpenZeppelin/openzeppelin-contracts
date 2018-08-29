@@ -3,6 +3,12 @@ const { ethGetBalance, ethSendTransaction } = require('./helpers/web3');
 
 const SimpleSavingsWallet = artifacts.require('SimpleSavingsWallet');
 
+const BigNumber = web3.BigNumber;
+
+require('chai')
+  .use(require('chai-bignumber')(BigNumber))
+  .should();
+
 contract('SimpleSavingsWallet', function ([_, owner, anyone]) {
   let savingsWallet;
 
@@ -15,7 +21,7 @@ contract('SimpleSavingsWallet', function ([_, owner, anyone]) {
   it('should receive funds', async function () {
     await ethSendTransaction({ from: owner, to: savingsWallet.address, value: paymentAmount });
     const balance = await ethGetBalance(savingsWallet.address);
-    assert.isTrue((new web3.BigNumber(paymentAmount)).equals(balance));
+    balance.should.be.bignumber.equal(paymentAmount);
   });
 
   it('owner can send funds', async function () {
@@ -29,6 +35,6 @@ contract('SimpleSavingsWallet', function ([_, owner, anyone]) {
     const balance = await ethGetBalance(anyone);
     await savingsWallet.sendTo(anyone, paymentAmount, { from: owner });
     const updatedBalance = await ethGetBalance(anyone);
-    assert.isTrue(balance.plus(paymentAmount).equals(updatedBalance));
+    balance.plus(paymentAmount).should.be.bignumber.equal(updatedBalance);
   });
 });

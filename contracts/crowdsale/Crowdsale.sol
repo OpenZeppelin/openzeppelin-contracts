@@ -43,7 +43,7 @@ contract Crowdsale {
    * @param value weis paid for purchase
    * @param amount amount of tokens purchased
    */
-  event TokenPurchase(
+  event TokensPurchased(
     address indexed purchaser,
     address indexed beneficiary,
     uint256 value,
@@ -92,7 +92,7 @@ contract Crowdsale {
     weiRaised = weiRaised.add(weiAmount);
 
     _processPurchase(_beneficiary, tokens);
-    emit TokenPurchase(
+    emit TokensPurchased(
       msg.sender,
       _beneficiary,
       weiAmount,
@@ -111,7 +111,7 @@ contract Crowdsale {
 
   /**
    * @dev Validation of an incoming purchase. Use require statements to revert state when conditions are not met. Use `super` in contracts that inherit from Crowdsale to extend their validations.
-   * Example from CappedCrowdsale.sol's _preValidatePurchase method: 
+   * Example from CappedCrowdsale.sol's _preValidatePurchase method:
    *   super._preValidatePurchase(_beneficiary, _weiAmount);
    *   require(weiRaised.add(_weiAmount) <= cap);
    * @param _beneficiary Address performing the token purchase

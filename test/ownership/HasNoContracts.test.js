@@ -7,7 +7,7 @@ contract('HasNoContracts', function ([_, owner, anyone]) {
   let hasNoContracts = null;
   let ownable = null;
 
-  beforeEach(async () => {
+  beforeEach(async function () {
     // Create contract and token
     hasNoContracts = await HasNoContracts.new({ from: owner });
     ownable = await Ownable.new({ from: owner });
@@ -18,7 +18,7 @@ contract('HasNoContracts', function ([_, owner, anyone]) {
 
   it('should allow owner to reclaim contracts', async function () {
     await hasNoContracts.reclaimContract(ownable.address, { from: owner });
-    assert.equal((await ownable.owner()), owner);
+    (await ownable.owner()).should.equal(owner);
   });
 
   it('should allow only owner to reclaim contracts', async function () {
