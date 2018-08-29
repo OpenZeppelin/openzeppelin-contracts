@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "./ERC721BasicToken.sol";
+import "./ERC721Basic.sol";
 import "../../lifecycle/Pausable.sol";
 
 
