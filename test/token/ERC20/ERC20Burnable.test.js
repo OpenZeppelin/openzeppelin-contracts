@@ -1,4 +1,4 @@
-const { shouldBehaveLikeERC20Burnable } = require('./BurnableToken.behavior');
+const { shouldBehaveLikeERC20Burnable } = require('./ERC20Burnable.behavior');
 const ERC20BurnableMock = artifacts.require('ERC20BurnableMock');
 
 contract('ERC20Burnable', function ([_, owner, ...otherAccounts]) {
