@@ -20,7 +20,7 @@ contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
           const { logs } = await this.token.pause({ from });
 
           logs.length.should.equal(1);
-          logs[0].event.should.equal('Pause');
+          logs[0].event.should.equal('Paused');
         });
       });
 
@@ -62,7 +62,7 @@ contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
           const { logs } = await this.token.unpause({ from });
 
           logs.length.should.equal(1);
-          logs[0].event.should.equal('Unpause');
+          logs[0].event.should.equal('Unpaused');
         });
       });
 

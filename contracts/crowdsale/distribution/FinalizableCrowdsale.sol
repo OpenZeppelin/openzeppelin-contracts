@@ -15,7 +15,7 @@ contract FinalizableCrowdsale is Ownable, TimedCrowdsale {
 
   bool public isFinalized = false;
 
-  event Finalized();
+  event CrowdsaleFinalized();
 
   /**
    * @dev Must be called after crowdsale ends, to do some extra finalization
@@ -26,7 +26,7 @@ contract FinalizableCrowdsale is Ownable, TimedCrowdsale {
     require(hasClosed());
 
     finalization();
-    emit Finalized();
+    emit CrowdsaleFinalized();
 
     isFinalized = true;
   }
