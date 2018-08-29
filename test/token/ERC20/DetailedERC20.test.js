@@ -4,9 +4,9 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const DetailedERC20Mock = artifacts.require('DetailedERC20Mock');
+const ERC20DetailedMock = artifacts.require('ERC20DetailedMock');
 
-contract('DetailedERC20', function () {
+contract('ERC20Detailed', function () {
   let detailedERC20 = null;
 
   const _name = 'My Detailed ERC20';
@@ -14,7 +14,7 @@ contract('DetailedERC20', function () {
   const _decimals = 18;
 
   beforeEach(async function () {
-    detailedERC20 = await DetailedERC20Mock.new(_name, _symbol, _decimals);
+    detailedERC20 = await ERC20DetailedMock.new(_name, _symbol, _decimals);
   });
 
   it('has a name', async function () {

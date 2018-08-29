@@ -4,12 +4,12 @@ import "./IERC20.sol";
 
 
 /**
- * @title DetailedERC20 token
+ * @title ERC20Detailed token
  * @dev The decimals are only for visualization purposes.
  * All the operations are done using the smallest and indivisible token unit,
  * just as on Ethereum all the operations are done in wei.
  */
-contract DetailedERC20 is IERC20 {
+contract ERC20Detailed is IERC20 {
   string public name;
   string public symbol;
   uint8 public decimals;
