@@ -11,7 +11,7 @@ import "../../introspection/SupportsInterfaceWithLookup.sol";
  * @title ERC721 Non-Fungible Token Standard basic implementation
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
-contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
+contract ERC721BasicToken is SupportsInterfaceWithLookup, IERC721Basic {
 
   using SafeMath for uint256;
   using AddressUtils for address;
@@ -303,7 +303,7 @@ contract ERC721BasicToken is SupportsInterfaceWithLookup, ERC721Basic {
     if (!_to.isContract()) {
       return true;
     }
-    bytes4 retval = ERC721Receiver(_to).onERC721Received(
+    bytes4 retval = IERC721Receiver(_to).onERC721Received(
       msg.sender, _from, _tokenId, _data);
     return (retval == ERC721_RECEIVED);
   }

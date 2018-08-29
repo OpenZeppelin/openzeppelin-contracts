@@ -3,7 +3,7 @@ pragma solidity ^0.4.24;
 import "../token/ERC721/ERC721Receiver.sol";
 
 
-contract ERC721ReceiverMock is ERC721Receiver {
+contract ERC721ReceiverMock is IERC721Receiver {
   bytes4 retval_;
   bool reverts_;
 

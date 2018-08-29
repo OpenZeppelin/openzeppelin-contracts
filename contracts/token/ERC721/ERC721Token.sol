@@ -11,7 +11,7 @@ import "../../introspection/SupportsInterfaceWithLookup.sol";
  * Moreover, it includes approve all functionality using operator terminology
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
-contract ERC721Token is SupportsInterfaceWithLookup, ERC721BasicToken, ERC721 {
+contract ERC721Token is SupportsInterfaceWithLookup, ERC721BasicToken, IERC721 {
 
   // Token name
   string internal name_;
