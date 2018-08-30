@@ -15,7 +15,7 @@ contract Superuser is Ownable, RBAC {
   string public constant ROLE_SUPERUSER = "superuser";
 
   constructor () public {
-    addRole(msg.sender, ROLE_SUPERUSER);
+    _addRole(msg.sender, ROLE_SUPERUSER);
   }
 
   /**
@@ -48,8 +48,8 @@ contract Superuser is Ownable, RBAC {
    */
   function transferSuperuser(address _newSuperuser) public onlySuperuser {
     require(_newSuperuser != address(0));
-    removeRole(msg.sender, ROLE_SUPERUSER);
-    addRole(_newSuperuser, ROLE_SUPERUSER);
+    _removeRole(msg.sender, ROLE_SUPERUSER);
+    _addRole(_newSuperuser, ROLE_SUPERUSER);
   }
 
   /**

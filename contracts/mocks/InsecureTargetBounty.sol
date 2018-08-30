@@ -11,7 +11,7 @@ contract InsecureTargetMock is Target {
 
 
 contract InsecureTargetBounty is Bounty {
-  function deployContract() internal returns (address) {
+  function _deployContract() internal returns (address) {
     return new InsecureTargetMock();
   }
 }

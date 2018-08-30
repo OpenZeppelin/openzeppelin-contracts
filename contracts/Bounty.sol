@@ -28,7 +28,7 @@ contract Bounty is PullPayment, Destructible {
    * @return A target contract
    */
   function createTarget() public returns(Target) {
-    Target target = Target(deployContract());
+    Target target = Target(_deployContract());
     researchers[target] = msg.sender;
     emit TargetCreated(target);
     return target;
@@ -43,7 +43,7 @@ contract Bounty is PullPayment, Destructible {
     require(researcher != address(0));
     // Check Target contract invariants
     require(!_target.checkInvariant());
-    asyncTransfer(researcher, address(this).balance);
+    _asyncTransfer(researcher, address(this).balance);
     claimed = true;
   }
 
@@ -51,7 +51,7 @@ contract Bounty is PullPayment, Destructible {
    * @dev Internal function to deploy the target contract.
    * @return A target contract address
    */
-  function deployContract() internal returns(address);
+  function _deployContract() internal returns(address);
 
 }
 

@@ -29,7 +29,7 @@ contract ERC721TokenMock is ERC721Token {
     super._setTokenURI(_tokenId, _uri);
   }
 
-  function _removeTokenFrom(address _from, uint256 _tokenId) public {
-    super.removeTokenFrom(_from, _tokenId);
+  function removeTokenFrom(address _from, uint256 _tokenId) public {
+    super._removeTokenFrom(_from, _tokenId);
   }
 }
