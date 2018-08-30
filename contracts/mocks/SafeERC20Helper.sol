@@ -61,35 +61,35 @@ contract ERC20SucceedingMock is ERC20 {
 contract SafeERC20Helper {
   using SafeERC20 for ERC20;
 
-  ERC20 failing;
-  ERC20 succeeding;
+  ERC20 internal failing_;
+  ERC20 internal succeeding_;
 
   constructor() public {
-    failing = new ERC20FailingMock();
-    succeeding = new ERC20SucceedingMock();
+    failing_ = new ERC20FailingMock();
+    succeeding_ = new ERC20SucceedingMock();
   }
 
   function doFailingTransfer() public {
-    failing.safeTransfer(address(0), 0);
+    failing_.safeTransfer(address(0), 0);
   }
 
   function doFailingTransferFrom() public {
-    failing.safeTransferFrom(address(0), address(0), 0);
+    failing_.safeTransferFrom(address(0), address(0), 0);
   }
 
   function doFailingApprove() public {
-    failing.safeApprove(address(0), 0);
+    failing_.safeApprove(address(0), 0);
   }
 
   function doSucceedingTransfer() public {
-    succeeding.safeTransfer(address(0), 0);
+    succeeding_.safeTransfer(address(0), 0);
   }
 
   function doSucceedingTransferFrom() public {
-    succeeding.safeTransferFrom(address(0), address(0), 0);
+    succeeding_.safeTransferFrom(address(0), address(0), 0);
   }
 
   function doSucceedingApprove() public {
-    succeeding.safeApprove(address(0), 0);
+    succeeding_.safeApprove(address(0), 0);
   }
 }

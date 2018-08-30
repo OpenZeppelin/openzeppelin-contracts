@@ -125,6 +125,7 @@ Interested in contributing to OpenZeppelin?
 - Framework proposal and roadmap: https://medium.com/zeppelin-blog/zeppelin-framework-proposal-and-development-roadmap-fdfa9a3a32ab#.iain47pak
 - Issue tracker: https://github.com/OpenZeppelin/openzeppelin-solidity/issues
 - Contribution guidelines: https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/CONTRIBUTING.md
+- Code-style guide: https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/CODE_STYLE.md
 - Wiki: https://github.com/OpenZeppelin/openzeppelin-solidity/wiki
 
 ## License
