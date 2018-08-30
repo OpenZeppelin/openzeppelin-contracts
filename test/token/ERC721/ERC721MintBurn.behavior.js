@@ -91,8 +91,10 @@ function shouldBehaveLikeMintAndBurnERC721Token (accounts) {
           logs = result.logs;
         });
 
-        it('clears the approval', async function () {
-          (await this.token.getApproved(tokenId)).should.be.equal(ZERO_ADDRESS);
+        context('when the token ID does not exist', function () {
+          it('reverts', async function () {
+            await assertRevert(this.token.getApproved(tokenId));
+          });
         });
       });
 
