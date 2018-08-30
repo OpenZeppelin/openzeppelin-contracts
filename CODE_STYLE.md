@@ -24,6 +24,9 @@ Any exception or additions specific to our project are documented below.
     }
     ```
 
+  The exception are the parameters of events. There is not chance of ambiguity
+  with these, so they should not have underscores.
+
 * Internal and private state variables should have an underscore suffix.
 
     ```
