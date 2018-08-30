@@ -12,8 +12,12 @@ contract MinterRole {
     minters.addMany(_minters);
   }
 
-  function transferMinterRole(address _account) public {
+  function transferMinter(address _account) public {
     minters.transfer(_account);
+  }
+
+  function renounceMinter() public {
+    minters.renounce();
   }
 
   function isMinter(address _account) public view returns (bool) {
@@ -25,11 +29,11 @@ contract MinterRole {
     _;
   }
 
-  function addMinter(address _account) internal {
+  function _addMinter(address _account) internal {
     minters.add(_account);
   }
 
-  function removeMinter(address _account) internal {
+  function _removeMinter(address _account) internal {
     minters.remove(_account);
   }
 }
