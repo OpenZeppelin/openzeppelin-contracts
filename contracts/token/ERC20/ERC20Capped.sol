@@ -1,13 +1,13 @@
 pragma solidity ^0.4.24;
 
-import "./MintableToken.sol";
+import "./ERC20Mintable.sol";
 
 
 /**
  * @title Capped token
  * @dev Mintable token with a token cap.
  */
-contract CappedToken is MintableToken {
+contract ERC20Capped is ERC20Mintable {
 
   uint256 public cap;
 

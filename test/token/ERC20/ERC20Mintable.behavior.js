@@ -7,7 +7,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-function shouldBehaveLikeMintableToken (owner, minter, [anyone]) {
+function shouldBehaveLikeERC20Mintable (owner, minter, [anyone]) {
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
   describe('as a basic mintable token', function () {
@@ -160,5 +160,5 @@ function shouldBehaveLikeMintableToken (owner, minter, [anyone]) {
 }
 
 module.exports = {
-  shouldBehaveLikeMintableToken,
+  shouldBehaveLikeERC20Mintable,
 };

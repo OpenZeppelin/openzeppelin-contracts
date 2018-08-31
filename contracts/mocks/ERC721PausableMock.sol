@@ -1,13 +1,13 @@
 pragma solidity ^0.4.24;
 
-import "../token/ERC721/ERC721PausableToken.sol";
+import "../token/ERC721/ERC721Pausable.sol";
 
 
 /**
- * @title ERC721PausableTokenMock
+ * @title ERC721PausableMock
  * This mock just provides a public mint, burn and exists functions for testing purposes
  */
-contract ERC721PausableTokenMock is ERC721PausableToken {
+contract ERC721PausableMock is ERC721Pausable {
   function mint(address _to, uint256 _tokenId) public {
     super._mint(_to, _tokenId);
   }

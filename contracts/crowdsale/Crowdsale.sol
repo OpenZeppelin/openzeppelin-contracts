@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../token/ERC20/ERC20.sol";
+import "../token/ERC20/IERC20.sol";
 import "../math/SafeMath.sol";
 import "../token/ERC20/SafeERC20.sol";
 
@@ -19,17 +19,17 @@ import "../token/ERC20/SafeERC20.sol";
  */
 contract Crowdsale {
   using SafeMath for uint256;
-  using SafeERC20 for ERC20;
+  using SafeERC20 for IERC20;
 
   // The token being sold
-  ERC20 public token;
+  IERC20 public token;
 
   // Address where funds are collected
   address public wallet;
 
   // How many token units a buyer gets per wei.
   // The rate is the conversion between wei and the smallest and indivisible token unit.
-  // So, if you are using a rate of 1 with a DetailedERC20 token with 3 decimals called TOK
+  // So, if you are using a rate of 1 with a ERC20Detailed token with 3 decimals called TOK
   // 1 wei will give you 1 unit, or 0.001 TOK.
   uint256 public rate;
 
@@ -55,7 +55,7 @@ contract Crowdsale {
    * @param _wallet Address where collected funds will be forwarded to
    * @param _token Address of the token being sold
    */
-  constructor(uint256 _rate, address _wallet, ERC20 _token) public {
+  constructor(uint256 _rate, address _wallet, IERC20 _token) public {
     require(_rate > 0);
     require(_wallet != address(0));
     require(_token != address(0));

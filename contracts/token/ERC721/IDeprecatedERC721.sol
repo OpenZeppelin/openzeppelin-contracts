@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "./ERC721.sol";
+import "./IERC721.sol";
 
 
 /**
@@ -8,7 +8,7 @@ import "./ERC721.sol";
  * @dev Only use this interface for compatibility with previously deployed contracts
  * Use ERC721 for interacting with new contracts which are standard-compliant
  */
-contract DeprecatedERC721 is ERC721 {
+contract IDeprecatedERC721 is IERC721 {
   function takeOwnership(uint256 _tokenId) public;
   function transfer(address _to, uint256 _tokenId) public;
   function tokensOf(address _owner) public view returns (uint256[]);
