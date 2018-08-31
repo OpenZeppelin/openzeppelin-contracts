@@ -5,8 +5,8 @@ import "../token/ERC20/ERC20.sol";
 
 
 /**
- * @title RefundEscrow
- * @dev Escrow that holds funds for a beneficiary, deposited from multiple parties.
+ * @title RefundTokenEscrow
+ * @dev Escrow that holds tokens for a beneficiary, deposited from multiple parties.
  * The contract owner may close the deposit period, and allow for either withdrawal
  * by the beneficiary, or refunds to the depositors.
  */
@@ -22,6 +22,7 @@ contract RefundTokenEscrow is ConditionalTokenEscrow {
 
   /**
    * @dev Constructor.
+   * @param _token Address of the ERC20 token that will be put in escrow.
    * @param _beneficiary The beneficiary of the deposits.
    */
   constructor(ERC20 _token, address _beneficiary) public TokenEscrow(_token) {
@@ -31,8 +32,9 @@ contract RefundTokenEscrow is ConditionalTokenEscrow {
   }
 
   /**
-   * @dev Stores funds that may later be refunded.
-   * @param _refundee The address funds will be sent to if a refund occurs.
+   * @dev Stores tokens that may later be refunded.
+   * @param _refundee The address tokens will be sent to if a refund occurs.
+   * @param _amount The amount of tokens to store.
    */
   function deposit(address _refundee, uint256 _amount) public {
     require(state == State.Active);
@@ -40,7 +42,7 @@ contract RefundTokenEscrow is ConditionalTokenEscrow {
   }
 
   /**
-   * @dev Allows for the beneficiary to withdraw their funds, rejecting
+   * @dev Allows for the beneficiary to withdraw their tokens, rejecting
    * further deposits.
    */
   function close() public onlyOwner {
@@ -59,7 +61,7 @@ contract RefundTokenEscrow is ConditionalTokenEscrow {
   }
 
   /**
-   * @dev Withdraws the beneficiary's funds.
+   * @dev Withdraws the beneficiary's tokens.
    */
   function beneficiaryWithdraw() public {
     require(state == State.Closed);
