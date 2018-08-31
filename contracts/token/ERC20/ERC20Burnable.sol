@@ -1,13 +1,13 @@
 pragma solidity ^0.4.24;
 
-import "./StandardToken.sol";
+import "./ERC20.sol";
 
 
 /**
  * @title Burnable Token
  * @dev Token that can be irreversibly burned (destroyed).
  */
-contract BurnableToken is StandardToken {
+contract ERC20Burnable is ERC20 {
 
   event TokensBurned(address indexed burner, uint256 value);
 
@@ -29,7 +29,7 @@ contract BurnableToken is StandardToken {
   }
 
   /**
-   * @dev Overrides StandardToken._burn in order for burn and burnFrom to emit
+   * @dev Overrides ERC20._burn in order for burn and burnFrom to emit
    * an additional Burn event.
    */
   function _burn(address _who, uint256 _value) internal {

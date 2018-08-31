@@ -5,7 +5,7 @@ pragma solidity ^0.4.24;
  * @title AutoIncrementing
  * @author Matt Condon (@shrugs)
  * @dev Provides an auto-incrementing uint256 id acquired by the `Counter#nextId` getter.
- * Use this for issuing ERC721Token ids or keeping track of request ids, anything you want, really.
+ * Use this for issuing ERC721 ids or keeping track of request ids, anything you want, really.
  *
  * Include with `using AutoIncrementing for AutoIncrementing.Counter;`
  * @notice Does not allow an Id of 0, which is popularly used to signify a null state in solidity.

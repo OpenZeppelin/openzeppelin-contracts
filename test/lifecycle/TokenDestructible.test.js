@@ -1,7 +1,7 @@
 const { ethGetBalance } = require('../helpers/web3');
 
 const TokenDestructible = artifacts.require('TokenDestructible');
-const StandardTokenMock = artifacts.require('StandardTokenMock');
+const ERC20Mock = artifacts.require('ERC20Mock');
 
 const BigNumber = web3.BigNumber;
 
@@ -28,7 +28,7 @@ contract('TokenDestructible', function ([_, owner]) {
   });
 
   it('should send tokens to owner after destruction', async function () {
-    const token = await StandardTokenMock.new(tokenDestructible.address, 100);
+    const token = await ERC20Mock.new(tokenDestructible.address, 100);
     (await token.balanceOf(tokenDestructible.address)).should.be.bignumber.equal(100);
     (await token.balanceOf(owner)).should.be.bignumber.equal(0);
 

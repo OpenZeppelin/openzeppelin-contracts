@@ -10,7 +10,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const MintableToken = artifacts.require('MintableToken');
+const ERC20Mintable = artifacts.require('ERC20Mintable');
 const TokenVesting = artifacts.require('TokenVesting');
 
 contract('TokenVesting', function ([_, owner, beneficiary]) {
@@ -44,7 +44,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     beforeEach(async function () {
       this.vesting = await TokenVesting.new(beneficiary, this.start, this.cliff, this.duration, true, { from: owner });
 
-      this.token = await MintableToken.new({ from: owner });
+      this.token = await ERC20Mintable.new({ from: owner });
       await this.token.mint(this.vesting.address, amount, { from: owner });
     });
 

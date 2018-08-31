@@ -5,14 +5,14 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-function shouldBehaveLikeMintAndBurnERC721Token (accounts) {
+function shouldBehaveLikeMintAndBurnERC721 (accounts) {
   const firstTokenId = 1;
   const secondTokenId = 2;
   const unknownTokenId = 3;
   const creator = accounts[0];
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
-  describe('like a mintable and burnable ERC721Token', function () {
+  describe('like a mintable and burnable ERC721', function () {
     beforeEach(async function () {
       await this.token.mint(creator, firstTokenId, { from: creator });
       await this.token.mint(creator, secondTokenId, { from: creator });
@@ -106,5 +106,5 @@ function shouldBehaveLikeMintAndBurnERC721Token (accounts) {
 }
 
 module.exports = {
-  shouldBehaveLikeMintAndBurnERC721Token,
+  shouldBehaveLikeMintAndBurnERC721,
 };

@@ -13,7 +13,7 @@ function shouldBehaveLikeERC721PausedToken (owner, [recipient, operator]) {
   const mockData = '0x42';
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
-  describe('like a paused ERC721Token', function () {
+  describe('like a paused ERC721', function () {
     beforeEach(async function () {
       await this.token.mint(owner, firstTokenId, { from: owner });
     });

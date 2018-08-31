@@ -1,10 +1,10 @@
 pragma solidity ^0.4.24;
 
-import "../token/ERC20/ERC20.sol";
+import "../token/ERC20/IERC20.sol";
 import "../token/ERC20/SafeERC20.sol";
 
 
-contract ERC20FailingMock is ERC20 {
+contract ERC20FailingMock is IERC20 {
   function totalSupply() public view returns (uint256) {
     return 0;
   }
@@ -31,7 +31,7 @@ contract ERC20FailingMock is ERC20 {
 }
 
 
-contract ERC20SucceedingMock is ERC20 {
+contract ERC20SucceedingMock is IERC20 {
   function totalSupply() public view returns (uint256) {
     return 0;
   }
@@ -59,10 +59,10 @@ contract ERC20SucceedingMock is ERC20 {
 
 
 contract SafeERC20Helper {
-  using SafeERC20 for ERC20;
+  using SafeERC20 for IERC20;
 
-  ERC20 failing;
-  ERC20 succeeding;
+  IERC20 failing;
+  IERC20 succeeding;
 
   constructor() public {
     failing = new ERC20FailingMock();

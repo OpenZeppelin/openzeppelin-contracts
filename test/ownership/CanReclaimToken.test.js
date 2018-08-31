@@ -1,7 +1,7 @@
 const { expectThrow } = require('../helpers/expectThrow');
 
 const CanReclaimToken = artifacts.require('CanReclaimToken');
-const StandardTokenMock = artifacts.require('StandardTokenMock');
+const ERC20Mock = artifacts.require('ERC20Mock');
 
 const BigNumber = web3.BigNumber;
 
@@ -15,7 +15,7 @@ contract('CanReclaimToken', function ([_, owner, anyone]) {
 
   beforeEach(async function () {
     // Create contract and token
-    token = await StandardTokenMock.new(owner, 100, { from: owner });
+    token = await ERC20Mock.new(owner, 100, { from: owner });
     canReclaimToken = await CanReclaimToken.new({ from: owner });
 
     // Force token into contract

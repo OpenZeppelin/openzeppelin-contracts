@@ -11,7 +11,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-function shouldBehaveLikeERC721BasicToken (accounts) {
+function shouldBehaveLikeERC721Basic (accounts) {
   const firstTokenId = 1;
   const secondTokenId = 2;
   const unknownTokenId = 3;
@@ -19,7 +19,7 @@ function shouldBehaveLikeERC721BasicToken (accounts) {
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
   const RECEIVER_MAGIC_VALUE = '0x150b7a02';
 
-  describe('like an ERC721BasicToken', function () {
+  describe('like an ERC721Basic', function () {
     beforeEach(async function () {
       await this.token.mint(creator, firstTokenId, { from: creator });
       await this.token.mint(creator, secondTokenId, { from: creator });
@@ -521,5 +521,5 @@ function shouldBehaveLikeERC721BasicToken (accounts) {
 }
 
 module.exports = {
-  shouldBehaveLikeERC721BasicToken,
+  shouldBehaveLikeERC721Basic,
 };
