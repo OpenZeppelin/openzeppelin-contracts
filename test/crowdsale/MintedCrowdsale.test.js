@@ -14,7 +14,7 @@ contract('MintedCrowdsale', function ([_, initialMinter, investor, wallet, purch
     beforeEach(async function () {
       this.token = await MintableToken.new([initialMinter]);
       this.crowdsale = await MintedCrowdsale.new(rate, wallet, this.token.address);
-      await this.token.transferMinterRole(this.crowdsale.address, { from: initialMinter });
+      await this.token.transferMinter(this.crowdsale.address, { from: initialMinter });
     });
 
     shouldBehaveLikeMintedCrowdsale([_, investor, wallet, purchaser], rate, value);
