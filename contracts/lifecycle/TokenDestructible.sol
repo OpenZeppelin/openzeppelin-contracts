@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "../ownership/Ownable.sol";
-import "../token/ERC20/ERC20.sol";
+import "../token/ERC20/IERC20.sol";
 
 
 /**
@@ -25,7 +25,7 @@ contract TokenDestructible is Ownable {
 
     // Transfer tokens to owner
     for (uint256 i = 0; i < _tokens.length; i++) {
-      ERC20 token = ERC20(_tokens[i]);
+      IERC20 token = IERC20(_tokens[i]);
       uint256 balance = token.balanceOf(this);
       token.transfer(owner, balance);
     }

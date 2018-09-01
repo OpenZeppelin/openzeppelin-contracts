@@ -1,7 +1,7 @@
 const { assertRevert } = require('../../helpers/assertRevert');
 const expectEvent = require('../../helpers/expectEvent');
 
-const StandardToken = artifacts.require('StandardTokenMock');
+const ERC20 = artifacts.require('ERC20Mock');
 
 const BigNumber = web3.BigNumber;
 
@@ -9,11 +9,11 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('StandardToken', function ([_, owner, recipient, anotherAccount]) {
+contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
   beforeEach(async function () {
-    this.token = await StandardToken.new(owner, 100);
+    this.token = await ERC20.new(owner, 100);
   });
 
   describe('total supply', function () {

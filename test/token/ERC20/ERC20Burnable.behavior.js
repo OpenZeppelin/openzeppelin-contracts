@@ -8,7 +8,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-function shouldBehaveLikeBurnableToken (owner, initialBalance, [burner]) {
+function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
   describe('burn', function () {
     describe('when the given amount is not greater than balance of the sender', function () {
       context('for a zero amount', function () {
@@ -113,5 +113,5 @@ function shouldBehaveLikeBurnableToken (owner, initialBalance, [burner]) {
 }
 
 module.exports = {
-  shouldBehaveLikeBurnableToken,
+  shouldBehaveLikeERC20Burnable,
 };

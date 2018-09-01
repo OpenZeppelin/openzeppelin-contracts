@@ -1,9 +1,9 @@
 const { assertRevert } = require('../../helpers/assertRevert');
-const PausableToken = artifacts.require('PausableTokenMock');
+const ERC20Pausable = artifacts.require('ERC20PausableMock');
 
-contract('PausableToken', function ([_, owner, recipient, anotherAccount]) {
+contract('ERC20Pausable', function ([_, owner, recipient, anotherAccount]) {
   beforeEach(async function () {
-    this.token = await PausableToken.new(owner, 100, { from: owner });
+    this.token = await ERC20Pausable.new(owner, 100, { from: owner });
   });
 
   describe('pause', function () {
