@@ -4,8 +4,8 @@ import "../token/ERC721/IERC721Receiver.sol";
 
 
 contract ERC721ReceiverMock is IERC721Receiver {
-  bytes4 retval_;
-  bool reverts_;
+  bytes4 internal retval_;
+  bool internal reverts_;
 
   event Received(
     address _operator,
