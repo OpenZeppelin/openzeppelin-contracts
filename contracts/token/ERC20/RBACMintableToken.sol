@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "./MintableToken.sol";
+import "./ERC20Mintable.sol";
 import "../../access/rbac/RBAC.sol";
 
 
@@ -9,7 +9,7 @@ import "../../access/rbac/RBAC.sol";
  * @author Vittorio Minacori (@vittominacori)
  * @dev Mintable Token, with RBAC minter permissions
  */
-contract RBACMintableToken is MintableToken, RBAC {
+contract RBACMintableToken is ERC20Mintable, RBAC {
   /**
    * A constant role name for indicating minters.
    */

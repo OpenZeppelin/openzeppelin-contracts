@@ -5,7 +5,7 @@ import "../examples/RBACWithAdmin.sol";
 
 contract RBACMock is RBACWithAdmin {
 
-  string constant ROLE_ADVISOR = "advisor";
+  string internal constant ROLE_ADVISOR = "advisor";
 
   modifier onlyAdminOrAdvisor()
   {

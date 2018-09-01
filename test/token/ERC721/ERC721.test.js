@@ -1,17 +1,17 @@
 const { assertRevert } = require('../../helpers/assertRevert');
-const { shouldBehaveLikeERC721BasicToken } = require('./ERC721BasicToken.behavior');
-const { shouldBehaveLikeMintAndBurnERC721Token } = require('./ERC721MintBurn.behavior');
+const { shouldBehaveLikeERC721Basic } = require('./ERC721Basic.behavior');
+const { shouldBehaveLikeMintAndBurnERC721 } = require('./ERC721MintBurn.behavior');
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 const _ = require('lodash');
 
 const BigNumber = web3.BigNumber;
-const ERC721Token = artifacts.require('ERC721TokenMock.sol');
+const ERC721 = artifacts.require('ERC721Mock.sol');
 
 require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('ERC721Token', function (accounts) {
+contract('ERC721', function (accounts) {
   const name = 'Non Fungible Token';
   const symbol = 'NFT';
   const firstTokenId = 100;
@@ -21,11 +21,11 @@ contract('ERC721Token', function (accounts) {
   const anyone = accounts[9];
 
   beforeEach(async function () {
-    this.token = await ERC721Token.new(name, symbol, { from: creator });
+    this.token = await ERC721.new(name, symbol, { from: creator });
   });
 
-  shouldBehaveLikeERC721BasicToken(accounts);
-  shouldBehaveLikeMintAndBurnERC721Token(accounts);
+  shouldBehaveLikeERC721Basic(accounts);
+  shouldBehaveLikeMintAndBurnERC721(accounts);
 
   describe('like a full ERC721', function () {
     beforeEach(async function () {

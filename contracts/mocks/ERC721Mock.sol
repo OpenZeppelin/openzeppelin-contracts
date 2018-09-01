@@ -1,16 +1,16 @@
 pragma solidity ^0.4.24;
 
-import "../token/ERC721/ERC721Token.sol";
+import "../token/ERC721/ERC721.sol";
 
 
 /**
- * @title ERC721TokenMock
+ * @title ERC721Mock
  * This mock just provides a public mint and burn functions for testing purposes,
  * and a public setter for metadata URI
  */
-contract ERC721TokenMock is ERC721Token {
+contract ERC721Mock is ERC721 {
   constructor(string name, string symbol) public
-    ERC721Token(name, symbol)
+    ERC721(name, symbol)
   { }
 
   function mint(address _to, uint256 _tokenId) public {

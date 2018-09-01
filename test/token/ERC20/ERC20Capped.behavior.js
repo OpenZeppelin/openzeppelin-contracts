@@ -7,7 +7,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-function shouldBehaveLikeCappedToken (minter, [anyone], cap) {
+function shouldBehaveLikeERC20Capped (minter, [anyone], cap) {
   describe('capped token', function () {
     const from = minter;
 
@@ -33,5 +33,5 @@ function shouldBehaveLikeCappedToken (minter, [anyone], cap) {
 }
 
 module.exports = {
-  shouldBehaveLikeCappedToken,
+  shouldBehaveLikeERC20Capped,
 };
