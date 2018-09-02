@@ -3,8 +3,10 @@ const { assertRevert } = require('../helpers/assertRevert');
 const PausableCrowdsale = artifacts.require('PausableCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
+const BigNumber = web3.BigNumber;
+
 require('chai')
-  .use(require('chai-as-promised'))
+  .use(require('chai-bignumber')(BigNumber))
   .should();
 
 contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
