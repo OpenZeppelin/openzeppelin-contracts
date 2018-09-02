@@ -6,7 +6,7 @@ import "../crowdsale/PausableCrowdsale.sol";
 
 contract PausableCrowdsaleImpl is PausableCrowdsale {
 
-  function PausableCrowdsaleImpl (
+  constructor (
     uint256 _rate,
     address _wallet,
     ERC20 _token
