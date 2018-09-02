@@ -9,10 +9,10 @@ import "./SafeERC20.sol";
  * beneficiary to extract the tokens after a given release time
  */
 contract TokenTimelock {
-  using SafeERC20 for ERC20Basic;
+  using SafeERC20 for IERC20;
 
   // ERC20 basic token contract being held
-  ERC20Basic public token;
+  IERC20 public token;
 
   // beneficiary of tokens after they are released
   address public beneficiary;
@@ -21,7 +21,7 @@ contract TokenTimelock {
   uint256 public releaseTime;
 
   constructor(
-    ERC20Basic _token,
+    IERC20 _token,
     address _beneficiary,
     uint256 _releaseTime
   )
@@ -41,7 +41,7 @@ contract TokenTimelock {
     // solium-disable-next-line security/no-block-members
     require(block.timestamp >= releaseTime);
 
-    uint256 amount = token.balanceOf(this);
+    uint256 amount = token.balanceOf(address(this));
     require(amount > 0);
 
     token.safeTransfer(beneficiary, amount);

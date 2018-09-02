@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../token/ERC20/BasicToken.sol";
+import "../token/ERC20/ERC20.sol";
 
 
 contract ERC223ContractInterface {
@@ -8,11 +8,10 @@ contract ERC223ContractInterface {
 }
 
 
-contract ERC223TokenMock is BasicToken {
+contract ERC223TokenMock is ERC20 {
 
-  constructor(address initialAccount, uint256 initialBalance) public {
-    balances[initialAccount] = initialBalance;
-    totalSupply_ = initialBalance;
+  constructor(address _initialAccount, uint256 _initialBalance) public {
+    _mint(_initialAccount, _initialBalance);
   }
 
   // ERC223 compatible transfer function (except the name)

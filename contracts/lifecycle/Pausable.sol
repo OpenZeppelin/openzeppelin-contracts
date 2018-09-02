@@ -9,8 +9,8 @@ import "../ownership/Ownable.sol";
  * @dev Base contract which allows children to implement an emergency stop mechanism.
  */
 contract Pausable is Ownable {
-  event Pause();
-  event Unpause();
+  event Paused();
+  event Unpaused();
 
   bool public paused = false;
 
@@ -34,16 +34,16 @@ contract Pausable is Ownable {
   /**
    * @dev called by the owner to pause, triggers stopped state
    */
-  function pause() onlyOwner whenNotPaused public {
+  function pause() public onlyOwner whenNotPaused {
     paused = true;
-    emit Pause();
+    emit Paused();
   }
 
   /**
    * @dev called by the owner to unpause, returns to normal state
    */
-  function unpause() onlyOwner whenPaused public {
+  function unpause() public onlyOwner whenPaused {
     paused = false;
-    emit Unpause();
+    emit Unpaused();
   }
 }

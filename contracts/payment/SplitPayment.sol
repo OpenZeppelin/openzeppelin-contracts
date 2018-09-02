@@ -23,6 +23,7 @@ contract SplitPayment {
    */
   constructor(address[] _payees, uint256[] _shares) public payable {
     require(_payees.length == _shares.length);
+    require(_payees.length > 0);
 
     for (uint256 i = 0; i < _payees.length; i++) {
       addPayee(_payees[i], _shares[i]);
@@ -32,7 +33,7 @@ contract SplitPayment {
   /**
    * @dev payable fallback
    */
-  function () public payable {}
+  function () external payable {}
 
   /**
    * @dev Claim your share of the balance.
@@ -50,7 +51,7 @@ contract SplitPayment {
     );
 
     require(payment != 0);
-    require(address(this).balance >= payment);
+    assert(address(this).balance >= payment);
 
     released[payee] = released[payee].add(payment);
     totalReleased = totalReleased.add(payment);

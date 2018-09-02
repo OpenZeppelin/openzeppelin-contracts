@@ -1,37 +1,39 @@
+const { ethGetBalance } = require('../helpers/web3');
 
-var TokenDestructible = artifacts.require('TokenDestructible');
-var StandardTokenMock = artifacts.require('StandardTokenMock');
-require('../helpers/transactionMined.js');
+const TokenDestructible = artifacts.require('TokenDestructible');
+const ERC20Mock = artifacts.require('ERC20Mock');
 
-contract('TokenDestructible', function (accounts) {
-  let destructible;
+const BigNumber = web3.BigNumber;
+
+require('chai')
+  .use(require('chai-bignumber')(BigNumber))
+  .should();
+
+contract('TokenDestructible', function ([_, owner]) {
+  let tokenDestructible;
 
   beforeEach(async function () {
-    destructible = await TokenDestructible.new({
-      from: accounts[0],
+    tokenDestructible = await TokenDestructible.new({
+      from: owner,
       value: web3.toWei('10', 'ether'),
     });
   });
 
   it('should send balance to owner after destruction', async function () {
-    let owner = await destructible.owner();
-    let initBalance = web3.eth.getBalance(owner);
-    await destructible.destroy([], { from: owner });
-    let newBalance = web3.eth.getBalance(owner);
-    assert.isTrue(newBalance > initBalance);
+    const initBalance = await ethGetBalance(owner);
+    await tokenDestructible.destroy([], { from: owner });
+
+    const newBalance = await ethGetBalance(owner);
+    newBalance.should.be.bignumber.gt(initBalance);
   });
 
   it('should send tokens to owner after destruction', async function () {
-    let owner = await destructible.owner();
-    let token = await StandardTokenMock.new(destructible.address, 100);
-    let initContractBalance = await token.balanceOf(destructible.address);
-    let initOwnerBalance = await token.balanceOf(owner);
-    assert.equal(initContractBalance, 100);
-    assert.equal(initOwnerBalance, 0);
-    await destructible.destroy([token.address], { from: owner });
-    let newContractBalance = await token.balanceOf(destructible.address);
-    let newOwnerBalance = await token.balanceOf(owner);
-    assert.equal(newContractBalance, 0);
-    assert.equal(newOwnerBalance, 100);
+    const token = await ERC20Mock.new(tokenDestructible.address, 100);
+    (await token.balanceOf(tokenDestructible.address)).should.be.bignumber.equal(100);
+    (await token.balanceOf(owner)).should.be.bignumber.equal(0);
+
+    await tokenDestructible.destroy([token.address], { from: owner });
+    (await token.balanceOf(tokenDestructible.address)).should.be.bignumber.equal(0);
+    (await token.balanceOf(owner)).should.be.bignumber.equal(100);
   });
 });

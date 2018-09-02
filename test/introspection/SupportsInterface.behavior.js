@@ -1,4 +1,4 @@
-import makeInterfaceId from '../helpers/makeInterfaceId';
+const { makeInterfaceId } = require('../helpers/makeInterfaceId');
 
 const INTERFACE_IDS = {
   ERC165: makeInterfaceId([
@@ -30,25 +30,27 @@ const INTERFACE_IDS = {
   ]),
 };
 
-export default function (interfaces = []) {
+function shouldSupportInterfaces (interfaces = []) {
   describe('ERC165\'s supportsInterface(bytes4)', function () {
     beforeEach(function () {
       this.thing = this.mock || this.token;
     });
 
-    for (let k of interfaces) {
+    for (const k of interfaces) {
       const interfaceId = INTERFACE_IDS[k];
       describe(k, function () {
         it('should use less than 30k gas', async function () {
-          const gasEstimate = await this.thing.supportsInterface.estimateGas(interfaceId);
-          gasEstimate.should.be.lte(30000);
+          (await this.thing.supportsInterface.estimateGas(interfaceId)).should.be.lte(30000);
         });
 
         it('is supported', async function () {
-          const isSupported = await this.thing.supportsInterface(interfaceId);
-          isSupported.should.eq(true);
+          (await this.thing.supportsInterface(interfaceId)).should.equal(true);
         });
       });
     }
   });
 }
+
+module.exports = {
+  shouldSupportInterfaces,
+};

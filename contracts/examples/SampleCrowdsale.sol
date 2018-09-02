@@ -3,7 +3,7 @@ pragma solidity ^0.4.24;
 import "../crowdsale/validation/CappedCrowdsale.sol";
 import "../crowdsale/distribution/RefundableCrowdsale.sol";
 import "../crowdsale/emission/MintedCrowdsale.sol";
-import "../token/ERC20/MintableToken.sol";
+import "../token/ERC20/ERC20Mintable.sol";
 
 
 /**
@@ -11,12 +11,11 @@ import "../token/ERC20/MintableToken.sol";
  * @dev Very simple ERC20 Token that can be minted.
  * It is meant to be used in a crowdsale contract.
  */
-contract SampleCrowdsaleToken is MintableToken {
+contract SampleCrowdsaleToken is ERC20Mintable {
 
-  // solium-disable-next-line uppercase
   string public constant name = "Sample Crowdsale Token";
-  string public constant symbol = "SCT"; // solium-disable-line uppercase
-  uint8 public constant decimals = 18; // solium-disable-line uppercase
+  string public constant symbol = "SCT";
+  uint8 public constant decimals = 18;
 
 }
 
@@ -45,7 +44,7 @@ contract SampleCrowdsale is CappedCrowdsale, RefundableCrowdsale, MintedCrowdsal
     uint256 _rate,
     address _wallet,
     uint256 _cap,
-    MintableToken _token,
+    ERC20Mintable _token,
     uint256 _goal
   )
     public
