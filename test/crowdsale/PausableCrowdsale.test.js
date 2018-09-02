@@ -140,13 +140,13 @@ contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
 
     describe('high-level purchase using fallback function', function () {
       it('should accept payments', async function () {
-        await this.crowdsale.sendTransaction({ from, value }).should.be.fulfilled;
+        await this.crowdsale.sendTransaction({ from, value });
       });
     });
 
     describe('buyTokens()', function () {
       it('should accept payments', async function () {
-        await this.crowdsale.buyTokens(from, { from, value }).should.be.fulfilled;
+        await this.crowdsale.buyTokens(from, { from, value });
       });
     });
   });
