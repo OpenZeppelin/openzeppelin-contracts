@@ -104,7 +104,7 @@ contract ERC20 is IERC20 {
     balances_[_from] = balances_[_from].sub(_value);
     balances_[_to] = balances_[_to].add(_value);
     allowed_[_from][msg.sender] = allowed_[_from][msg.sender].sub(_value);
-    emit Transfer(_from, _to, _value);
+    emit TransferFrom(msg.sender, _from, _to, _value);
     return true;
   }
 
@@ -200,5 +200,6 @@ contract ERC20 is IERC20 {
     allowed_[_account][msg.sender] = allowed_[_account][msg.sender].sub(
       _amount);
     _burn(_account, _amount);
+    emit TransferFrom(msg.sender, _account, address(0), _amount);
   }
 }
