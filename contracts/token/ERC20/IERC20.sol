@@ -32,4 +32,9 @@ interface IERC20 {
     address indexed spender,
     uint256 value
   );
+  event TransferFrom(
+      address indexed executor,
+      address indexed from,
+      address indexed to,
+      uint256 value);
 }
