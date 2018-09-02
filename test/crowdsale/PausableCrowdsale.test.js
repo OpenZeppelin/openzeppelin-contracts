@@ -31,7 +31,7 @@ contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
         it('emits a Pause event', async function () {
           const { logs } = await this.crowdsale.pause({ from });
           assert.equal(logs.length, 1);
-          assert.equal(logs[0].event, 'Pause');
+          assert.equal(logs[0].event, 'Paused');
         });
       });
 
@@ -73,7 +73,7 @@ contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
         it('emits an Unpause event', async function () {
           const { logs } = await this.crowdsale.unpause({ from });
           assert.equal(logs.length, 1);
-          assert.equal(logs[0].event, 'Unpause');
+          assert.equal(logs[0].event, 'Unpaused');
         });
       });
 
