@@ -8,7 +8,7 @@ import "../lifecycle/Pausable.sol";
  * @title PausableCrowdsale
  * @dev Extension of Crowdsale contract that can be paused and unpaused by owner
  */
-contract PausableCrowdsale is Crowdsale, Pausable {
+contract PausableCrowdsale is Pausable, Crowdsale {
 
   /**
    * @dev Validation of an incoming purchase. Use require statements to revert state when conditions are not met. Use super to concatenate validations.
