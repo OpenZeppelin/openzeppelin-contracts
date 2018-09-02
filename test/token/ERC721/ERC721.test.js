@@ -2,7 +2,6 @@ const { assertRevert } = require('../../helpers/assertRevert');
 const { shouldBehaveLikeERC721Basic } = require('./ERC721Basic.behavior');
 const { shouldBehaveLikeMintAndBurnERC721 } = require('./ERC721MintBurn.behavior');
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
-const _ = require('lodash');
 
 const BigNumber = web3.BigNumber;
 const ERC721 = artifacts.require('ERC721Mock.sol');
@@ -11,7 +10,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('ERC721', function ([owner, anyone, ...otherAccounts]) {
+contract('ERC721', function ([_, owner, anyone, ...otherAccounts]) {
   const name = 'Non Fungible Token';
   const symbol = 'NFT';
   const firstTokenId = 100;
@@ -169,7 +168,9 @@ contract('ERC721', function ([owner, anyone, ...otherAccounts]) {
 
         it('returns correct token IDs for target', async function () {
           (await this.token.balanceOf(anyone)).toNumber().should.be.equal(2);
-          const tokensListed = await Promise.all(_.range(2).map(i => this.token.tokenOfOwnerByIndex(anyone, i)));
+          const tokensListed = await Promise.all(
+            [0, 1].map(i => this.token.tokenOfOwnerByIndex(anyone, i))
+          );
           tokensListed.map(t => t.toNumber()).should.have.members([firstTokenId, secondTokenId]);
         });
 
@@ -182,7 +183,9 @@ contract('ERC721', function ([owner, anyone, ...otherAccounts]) {
 
     describe('tokenByIndex', function () {
       it('should return all tokens', async function () {
-        const tokensListed = await Promise.all(_.range(2).map(i => this.token.tokenByIndex(i)));
+        const tokensListed = await Promise.all(
+          [0, 1].map(i => this.token.tokenByIndex(i))
+        );
         tokensListed.map(t => t.toNumber()).should.have.members([firstTokenId, secondTokenId]);
       });
 
@@ -201,9 +204,10 @@ contract('ERC721', function ([owner, anyone, ...otherAccounts]) {
 
           (await this.token.totalSupply()).toNumber().should.be.equal(3);
 
-          const tokensListed = await Promise.all(_.range(3).map(i => this.token.tokenByIndex(i)));
-          const expectedTokens = _.filter(
-            [firstTokenId, secondTokenId, newTokenId, anotherNewTokenId],
+          const tokensListed = await Promise.all(
+            [0, 1, 2].map(i => this.token.tokenByIndex(i))
+          );
+          const expectedTokens = [firstTokenId, secondTokenId, newTokenId, anotherNewTokenId].filter(
             x => (x !== tokenId)
           );
           tokensListed.map(t => t.toNumber()).should.have.members(expectedTokens);
