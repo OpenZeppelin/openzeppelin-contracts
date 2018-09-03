@@ -12,8 +12,15 @@ contract Pausable is Ownable {
   event Paused();
   event Unpaused();
 
-  bool public paused = false;
+  bool private paused = false;
 
+
+  /**
+   * @return true if the contract is paused, false otherwise.
+   */
+  function isPaused() public view returns(bool) {
+    return paused;
+  }
 
   /**
    * @dev Modifier to make a function callable only when the contract is not paused.
