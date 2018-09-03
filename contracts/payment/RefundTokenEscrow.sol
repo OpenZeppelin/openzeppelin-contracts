@@ -11,7 +11,6 @@ import "../token/ERC20/ERC20.sol";
  * by the beneficiary, or refunds to the depositors.
  */
 contract RefundTokenEscrow is ConditionalTokenEscrow {
-
   enum State { Active, Refunding, Closed }
 
   event Closed();

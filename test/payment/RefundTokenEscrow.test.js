@@ -17,6 +17,12 @@ contract('RefundTokenEscrow', function ([_, owner, beneficiary, refundee1, refun
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
   const MAX_UINT256 = new BigNumber(2).pow(256).minus(1);
 
+  const RefundStates = {
+    'Active': 0,
+    'Refunding': 1,
+    'Closed': 2,
+  };
+
   it('reverts when deployed with a null token address', async function () {
     await expectThrow(
       RefundTokenEscrow.new(ZERO_ADDRESS, beneficiary, { from: owner })
@@ -40,6 +46,14 @@ contract('RefundTokenEscrow', function ([_, owner, beneficiary, refundee1, refun
         this.token.approve(this.escrow.address, MAX_UINT256, { from: owner });
       });
 
+      it('is in active state', async function () {
+        (await this.escrow.state()).should.be.bignumber.equal(RefundStates.Active);
+      });
+
+      it('stores the beneficiary', async function () {
+        (await this.escrow.beneficiary()).should.be.equal(beneficiary);
+      });
+
       context('active state', function () {
         it('accepts deposits', async function () {
           await this.escrow.deposit(refundee1, amount, { from: owner });
@@ -51,7 +65,7 @@ contract('RefundTokenEscrow', function ([_, owner, beneficiary, refundee1, refun
 
         it('reverts on refund attempts', async function () {
           await this.escrow.deposit(refundee1, amount, { from: owner });
-          await expectThrow(this.escrow.withdraw(refundee1), EVMRevert);
+          await expectThrow(this.escrow.withdraw(refundee1, { from: owner }), EVMRevert);
         });
 
         it('reverts on beneficiary withdrawal', async function () {
@@ -60,14 +74,18 @@ contract('RefundTokenEscrow', function ([_, owner, beneficiary, refundee1, refun
         });
       });
 
-      it('reverts when non-owners enter close state', async function () {
-        await expectThrow(this.escrow.close({ from: beneficiary }), EVMRevert);
-      });
+      describe('entering close state', function () {
+        it('reverts when non-owners enter close state', async function () {
+          await expectThrow(this.escrow.close({ from: beneficiary }), EVMRevert);
+        });
 
-      it('emits Closed event when owner enters close state', async function () {
-        const receipt = await this.escrow.close({ from: owner });
+        it('emits Closed event when owner enters close state', async function () {
+          const receipt = await this.escrow.close({ from: owner });
 
-        expectEvent.inLogs(receipt.logs, 'Closed');
+          (await this.escrow.state()).should.be.bignumber.equal(RefundStates.Closed);
+
+          expectEvent.inLogs(receipt.logs, 'Closed');
+        });
       });
 
       context('closed state', function () {
@@ -108,14 +126,18 @@ contract('RefundTokenEscrow', function ([_, owner, beneficiary, refundee1, refun
         });
       });
 
-      it('reverts when non-owners enter refund state', async function () {
-        await expectThrow(this.escrow.enableRefunds({ from: beneficiary }), EVMRevert);
-      });
+      describe('entering refund state', function () {
+        it('reverts when non-owners enter refund state', async function () {
+          await expectThrow(this.escrow.enableRefunds({ from: beneficiary }), EVMRevert);
+        });
 
-      it('emits RefundsEnabled event when owner enters refund state', async function () {
-        const receipt = await this.escrow.enableRefunds({ from: owner });
+        it('emits RefundsEnabled event when owner enters refund state', async function () {
+          const receipt = await this.escrow.enableRefunds({ from: owner });
 
-        expectEvent.inLogs(receipt.logs, 'RefundsEnabled');
+          (await this.escrow.state()).should.be.bignumber.equal(RefundStates.Refunding);
+
+          expectEvent.inLogs(receipt.logs, 'RefundsEnabled');
+        });
       });
 
       context('refund state', function () {
@@ -132,13 +154,15 @@ contract('RefundTokenEscrow', function ([_, owner, beneficiary, refundee1, refun
         });
 
         it('refunds refundees', async function () {
-          for (const refundee of [refundee1, refundee2]) {
+          for (const refundee of refundees) {
             const refundeeInitialBalance = await this.token.balanceOf(refundee);
             await this.escrow.withdraw(refundee, { from: owner });
             const refundeeFinalBalance = await this.token.balanceOf(refundee);
 
             refundeeFinalBalance.sub(refundeeInitialBalance).should.be.bignumber.equal(amount);
           }
+
+          await this.escrow.withdraw(refundee1, { from: owner });
 
           (await this.token.balanceOf(this.escrow.address)).should.be.bignumber.equal(0);
         });
