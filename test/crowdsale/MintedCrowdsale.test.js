@@ -28,7 +28,6 @@ contract('MintedCrowdsale', function ([_, investor, wallet, purchaser]) {
   });
 
   describe('using RBACMintableToken', function () {
-
     beforeEach(async function () {
       this.token = await RBACMintableToken.new();
       this.crowdsale = await MintedCrowdsale.new(rate, wallet, this.token.address);
