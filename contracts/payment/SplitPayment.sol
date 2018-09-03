@@ -11,12 +11,12 @@ import "../math/SafeMath.sol";
 contract SplitPayment {
   using SafeMath for uint256;
 
-  uint256 public totalShares = 0;
-  uint256 public totalReleased = 0;
+  uint256 private totalShares_ = 0;
+  uint256 private totalReleased_ = 0;
 
-  mapping(address => uint256) public shares;
-  mapping(address => uint256) public released;
-  address[] public payees;
+  mapping(address => uint256) private shares_;
+  mapping(address => uint256) private released_;
+  address[] private payees_;
 
   /**
    * @dev Constructor
@@ -36,25 +36,60 @@ contract SplitPayment {
   function () external payable {}
 
   /**
+   * @return the total shares of the contract.
+   */
+  function getTotalShares() public view returns(uint256) {
+    return totalShares_;
+  }
+
+  /**
+   * @return the total amount already released.
+   */
+  function getTotalReleased() public view returns(uint256) {
+    return totalReleased_;
+  }
+
+  /**
+   * @return the shares of an account.
+   */
+  function getShares(address _account) public view returns(uint256) {
+    return shares_[_account];
+  }
+
+  /**
+   * @return the amount already released to an account.
+   */
+  function getReleased(address _account) public view returns(uint256) {
+    return released_[_account];
+  }
+
+  /**
+   * @return the address of a payee.
+   */
+  function getPayee(uint256 index) public view returns(address) {
+    return payees_[index];
+  }
+
+  /**
    * @dev Claim your share of the balance.
    */
   function claim() public {
     address payee = msg.sender;
 
-    require(shares[payee] > 0);
+    require(shares_[payee] > 0);
 
-    uint256 totalReceived = address(this).balance.add(totalReleased);
+    uint256 totalReceived = address(this).balance.add(totalReleased_);
     uint256 payment = totalReceived.mul(
-      shares[payee]).div(
-        totalShares).sub(
-          released[payee]
+      shares_[payee]).div(
+        totalShares_).sub(
+          released_[payee]
     );
 
     require(payment != 0);
     assert(address(this).balance >= payment);
 
-    released[payee] = released[payee].add(payment);
-    totalReleased = totalReleased.add(payment);
+    released_[payee] = released_[payee].add(payment);
+    totalReleased_ = totalReleased_.add(payment);
 
     payee.transfer(payment);
   }
@@ -67,10 +102,10 @@ contract SplitPayment {
   function _addPayee(address _payee, uint256 _shares) internal {
     require(_payee != address(0));
     require(_shares > 0);
-    require(shares[_payee] == 0);
+    require(shares_[_payee] == 0);
 
-    payees.push(_payee);
-    shares[_payee] = _shares;
-    totalShares = totalShares.add(_shares);
+    payees_.push(_payee);
+    shares_[_payee] = _shares;
+    totalShares_ = totalShares_.add(_shares);
   }
 }

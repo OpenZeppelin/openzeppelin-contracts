@@ -28,6 +28,10 @@ contract('RefundEscrow', function ([_, owner, beneficiary, refundee1, refundee2]
     });
 
     context('active state', function () {
+      it('has beneficiary', async function () {
+        (await this.escrow.getBeneficiary()).should.be.equal(beneficiary);
+      });
+
       it('accepts deposits', async function () {
         await this.escrow.deposit(refundee1, { from: owner, value: amount });
 

@@ -53,11 +53,11 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
     });
 
     it('should store shares if address is payee', async function () {
-      (await this.contract.shares.call(payee1)).should.be.bignumber.not.equal(0);
+      (await this.contract.getShares(payee1)).should.be.bignumber.not.equal(0);
     });
 
     it('should not store shares if address is not payee', async function () {
-      (await this.contract.shares.call(nonpayee1)).should.be.bignumber.equal(0);
+      (await this.contract.getShares(nonpayee1)).should.be.bignumber.equal(0);
     });
 
     it('should throw if no funds to claim', async function () {
@@ -96,7 +96,7 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
       (await ethGetBalance(this.contract.address)).should.be.bignumber.equal(0);
 
       // check correct funds released accounting
-      (await this.contract.totalReleased.call()).should.be.bignumber.equal(initBalance);
+      (await this.contract.getTotalReleased()).should.be.bignumber.equal(initBalance);
     });
   });
 });
