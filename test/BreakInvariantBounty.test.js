@@ -64,7 +64,7 @@ contract('BreakInvariantBounty', function ([_, owner, researcher, nonTarget]) {
 
     it('can claim reward', async function () {
       await this.bounty.claim(this.targetAddress, { from: researcher });
-      const claim = await this.bounty.claimed();
+      const claim = await this.bounty.wasClaimed();
 
       claim.should.equal(true);
 
