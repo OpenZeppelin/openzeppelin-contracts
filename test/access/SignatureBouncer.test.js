@@ -38,7 +38,7 @@ contract('Bouncer', function ([_, owner, anyone, bouncerAddress, authorizedUser]
       await this.bouncer.addBouncer(bouncerAddress, { from: owner });
 
       await this.bouncer.removeBouncer(bouncerAddress, { from: owner });
-      (await this.bouncer.hasRole(bouncerAddress, this.roleBouncer)).should.equal(false);
+      (await this.bouncer.isBouncer(bouncerAddress)).should.equal(false);
     });
 
     it('does not allow anyone to add a bouncer', async function () {
