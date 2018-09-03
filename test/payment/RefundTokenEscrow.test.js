@@ -162,8 +162,6 @@ contract('RefundTokenEscrow', function ([_, owner, beneficiary, refundee1, refun
             refundeeFinalBalance.sub(refundeeInitialBalance).should.be.bignumber.equal(amount);
           }
 
-          await this.escrow.withdraw(refundee1, { from: owner });
-
           (await this.token.balanceOf(this.escrow.address)).should.be.bignumber.equal(0);
         });
 
