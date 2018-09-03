@@ -12,8 +12,8 @@ import "../../ownership/Ownable.sol";
 contract IndividuallyCappedCrowdsale is Ownable, Crowdsale {
   using SafeMath for uint256;
 
-  mapping(address => uint256) public contributions;
-  mapping(address => uint256) public caps;
+  mapping(address => uint256) private contributions_;
+  mapping(address => uint256) private caps_;
 
   /**
    * @dev Sets a specific user's maximum contribution.
@@ -21,7 +21,7 @@ contract IndividuallyCappedCrowdsale is Ownable, Crowdsale {
    * @param _cap Wei limit for individual contribution
    */
   function setUserCap(address _beneficiary, uint256 _cap) external onlyOwner {
-    caps[_beneficiary] = _cap;
+    caps_[_beneficiary] = _cap;
   }
 
   /**
@@ -37,7 +37,7 @@ contract IndividuallyCappedCrowdsale is Ownable, Crowdsale {
     onlyOwner
   {
     for (uint256 i = 0; i < _beneficiaries.length; i++) {
-      caps[_beneficiaries[i]] = _cap;
+      caps_[_beneficiaries[i]] = _cap;
     }
   }
 
@@ -47,7 +47,7 @@ contract IndividuallyCappedCrowdsale is Ownable, Crowdsale {
    * @return Current cap for individual user
    */
   function getUserCap(address _beneficiary) public view returns (uint256) {
-    return caps[_beneficiary];
+    return caps_[_beneficiary];
   }
 
   /**
@@ -58,7 +58,7 @@ contract IndividuallyCappedCrowdsale is Ownable, Crowdsale {
   function getUserContribution(address _beneficiary)
     public view returns (uint256)
   {
-    return contributions[_beneficiary];
+    return contributions_[_beneficiary];
   }
 
   /**
@@ -73,7 +73,8 @@ contract IndividuallyCappedCrowdsale is Ownable, Crowdsale {
     internal
   {
     super._preValidatePurchase(_beneficiary, _weiAmount);
-    require(contributions[_beneficiary].add(_weiAmount) <= caps[_beneficiary]);
+    require(
+      contributions_[_beneficiary].add(_weiAmount) <= caps_[_beneficiary]);
   }
 
   /**
@@ -88,7 +89,8 @@ contract IndividuallyCappedCrowdsale is Ownable, Crowdsale {
     internal
   {
     super._updatePurchasingState(_beneficiary, _weiAmount);
-    contributions[_beneficiary] = contributions[_beneficiary].add(_weiAmount);
+    contributions_[_beneficiary] = contributions_[_beneficiary].add(
+      _weiAmount);
   }
 
 }
