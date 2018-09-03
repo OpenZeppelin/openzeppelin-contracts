@@ -21,7 +21,7 @@ contract('Bouncer', function ([_, owner, anyone, bouncerAddress, authorizedUser]
 
   context('management', function () {
     it('has a default owner of self', async function () {
-      (await this.bouncer.owner()).should.equal(owner);
+      (await this.bouncer.getOwner()).should.equal(owner);
     });
 
     it('allows the owner to add a bouncer', async function () {

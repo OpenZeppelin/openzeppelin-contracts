@@ -10,8 +10,22 @@ import "./Claimable.sol";
  */
 contract DelayedClaimable is Claimable {
 
-  uint256 public end;
-  uint256 public start;
+  uint256 private start_;
+  uint256 private end_;
+
+  /**
+   * @return the start of the claimable period.
+   */
+  function getStart() public view returns(uint256) {
+    return start_;
+  }
+
+  /**
+   * @return the end of the claimable period.
+   */
+  function getEnd() public view returns(uint256) {
+    return end_;
+  }
 
   /**
    * @dev Used to specify the time period during which a pending
@@ -21,20 +35,18 @@ contract DelayedClaimable is Claimable {
    */
   function setLimits(uint256 _start, uint256 _end) public onlyOwner {
     require(_start <= _end);
-    end = _end;
-    start = _start;
+    end_ = _end;
+    start_ = _start;
   }
 
   /**
-   * @dev Allows the pendingOwner address to finalize the transfer, as long as it is called within
+   * @dev Allows the pending owner address to finalize the transfer, as long as it is called within
    * the specified start and end time.
    */
   function claimOwnership() public onlyPendingOwner {
-    require((block.number <= end) && (block.number >= start));
-    emit OwnershipTransferred(owner, pendingOwner);
-    owner = pendingOwner;
-    pendingOwner = address(0);
-    end = 0;
+    require((block.number <= end_) && (block.number >= start_));
+    super.claimOwnership();
+    end_ = 0;
   }
 
 }

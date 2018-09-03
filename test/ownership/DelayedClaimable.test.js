@@ -17,35 +17,35 @@ contract('DelayedClaimable', function ([_, owner, newOwner]) {
     await this.delayedClaimable.transferOwnership(newOwner, { from: owner });
     await this.delayedClaimable.setLimits(0, 1000, { from: owner });
 
-    (await this.delayedClaimable.end()).should.be.bignumber.equal(1000);
+    (await this.delayedClaimable.getEnd()).should.be.bignumber.equal(1000);
 
-    (await this.delayedClaimable.start()).should.be.bignumber.equal(0);
+    (await this.delayedClaimable.getStart()).should.be.bignumber.equal(0);
   });
 
   it('changes pendingOwner after transfer successful', async function () {
     await this.delayedClaimable.transferOwnership(newOwner, { from: owner });
     await this.delayedClaimable.setLimits(0, 1000, { from: owner });
 
-    (await this.delayedClaimable.end()).should.be.bignumber.equal(1000);
+    (await this.delayedClaimable.getEnd()).should.be.bignumber.equal(1000);
 
-    (await this.delayedClaimable.start()).should.be.bignumber.equal(0);
+    (await this.delayedClaimable.getStart()).should.be.bignumber.equal(0);
 
-    (await this.delayedClaimable.pendingOwner()).should.equal(newOwner);
+    (await this.delayedClaimable.getPendingOwner()).should.equal(newOwner);
     await this.delayedClaimable.claimOwnership({ from: newOwner });
-    (await this.delayedClaimable.owner()).should.equal(newOwner);
+    (await this.delayedClaimable.getOwner()).should.equal(newOwner);
   });
 
   it('changes pendingOwner after transfer fails', async function () {
     await this.delayedClaimable.transferOwnership(newOwner, { from: owner });
     await this.delayedClaimable.setLimits(100, 110, { from: owner });
 
-    (await this.delayedClaimable.end()).should.be.bignumber.equal(110);
+    (await this.delayedClaimable.getEnd()).should.be.bignumber.equal(110);
 
-    (await this.delayedClaimable.start()).should.be.bignumber.equal(100);
+    (await this.delayedClaimable.getStart()).should.be.bignumber.equal(100);
 
-    (await this.delayedClaimable.pendingOwner()).should.equal(newOwner);
+    (await this.delayedClaimable.getPendingOwner()).should.equal(newOwner);
     await assertRevert(this.delayedClaimable.claimOwnership({ from: newOwner }));
-    (await this.delayedClaimable.owner()).should.not.equal(newOwner);
+    (await this.delayedClaimable.getOwner()).should.not.equal(newOwner);
   });
 
   it('set end and start invalid values fail', async function () {
