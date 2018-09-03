@@ -10,7 +10,7 @@ import "../payment/PullPayment.sol";
  */
 contract BreakInvariantBounty is PullPayment, Ownable {
   bool private claimed_;
-  mapping(address => address) public researchers;
+  mapping(address => address) private researchers;
 
   event TargetCreated(address createdAddress);
 
