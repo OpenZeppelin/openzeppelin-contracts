@@ -1,7 +1,7 @@
 const { ether } = require('../../helpers/ether');
 const { shouldBehaveLikeRBACMintableToken } = require('./RBACMintableToken.behavior');
-const { shouldBehaveLikeMintableToken } = require('./MintableToken.behavior');
-const { shouldBehaveLikeCappedToken } = require('./CappedToken.behavior');
+const { shouldBehaveLikeERC20Mintable } = require('./ERC20Mintable.behavior');
+const { shouldBehaveLikeERC20Capped } = require('./ERC20Capped.behavior');
 
 const RBACCappedTokenMock = artifacts.require('RBACCappedTokenMock');
 
@@ -13,7 +13,7 @@ contract('RBACCappedToken', function ([_, owner, minter, ...otherAccounts]) {
     await this.token.addMinter(minter, { from: owner });
   });
 
-  shouldBehaveLikeMintableToken(owner, minter, otherAccounts);
+  shouldBehaveLikeERC20Mintable(owner, minter, otherAccounts);
   shouldBehaveLikeRBACMintableToken(owner, otherAccounts);
-  shouldBehaveLikeCappedToken(minter, otherAccounts, cap);
+  shouldBehaveLikeERC20Capped(minter, otherAccounts, cap);
 });

@@ -1,5 +1,5 @@
 const { shouldBehaveLikeRBACMintableToken } = require('./RBACMintableToken.behavior');
-const { shouldBehaveLikeMintableToken } = require('./MintableToken.behavior');
+const { shouldBehaveLikeERC20Mintable } = require('./ERC20Mintable.behavior');
 
 const RBACMintableToken = artifacts.require('RBACMintableToken');
 
@@ -10,5 +10,5 @@ contract('RBACMintableToken', function ([_, owner, minter, ...otherAccounts]) {
   });
 
   shouldBehaveLikeRBACMintableToken(owner, otherAccounts);
-  shouldBehaveLikeMintableToken(owner, minter, otherAccounts);
+  shouldBehaveLikeERC20Mintable(owner, minter, otherAccounts);
 });

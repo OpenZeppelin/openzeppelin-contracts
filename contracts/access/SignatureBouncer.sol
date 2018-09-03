@@ -2,7 +2,7 @@ pragma solidity ^0.4.24;
 
 import "../ownership/Ownable.sol";
 import "../access/rbac/RBAC.sol";
-import "../ECRecovery.sol";
+import "../cryptography/ECDSA.sol";
 
 
 /**
@@ -30,12 +30,12 @@ import "../ECRecovery.sol";
  * much more complex. See https://ethereum.stackexchange.com/a/50616 for more details.
  */
 contract SignatureBouncer is Ownable, RBAC {
-  using ECRecovery for bytes32;
+  using ECDSA for bytes32;
 
   string public constant ROLE_BOUNCER = "bouncer";
-  uint constant METHOD_ID_SIZE = 4;
+  uint internal constant METHOD_ID_SIZE = 4;
   // signature size is 65 bytes (tightly packed v + r + s), but gets padded to 96 bytes
-  uint constant SIGNATURE_SIZE = 96;
+  uint internal constant SIGNATURE_SIZE = 96;
 
   /**
    * @dev requires that a valid signature of a bouncer was provided
