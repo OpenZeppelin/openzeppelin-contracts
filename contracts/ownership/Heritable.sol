@@ -108,7 +108,7 @@ contract Heritable is Ownable {
     // solium-disable-next-line security/no-block-members
     require(block.timestamp >= timeOfDeath_ + heartbeatTimeout_);
     emit HeirOwnershipClaimed(getOwner(), heir_);
-    transferOwnership(heir_);
+    _transferOwnership(heir_);
     timeOfDeath_ = 0;
   }
 
