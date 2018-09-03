@@ -37,7 +37,7 @@ contract TokenVesting is Ownable {
    * _beneficiary, gradually in a linear fashion until _start + _duration. By then all
    * of the balance will have vested.
    * @param _beneficiary address of the beneficiary to whom vested tokens are transferred
-   * @param _cliff duration in seconds of the cliff in which tokens will begin to vest
+   * @param _cliffDuration duration in seconds of the cliff in which tokens will begin to vest
    * @param _start the time (as Unix time) at which point vesting starts
    * @param _duration duration in seconds of the period in which the tokens will vest
    * @param _revocable whether the vesting is revocable or not
@@ -45,19 +45,19 @@ contract TokenVesting is Ownable {
   constructor(
     address _beneficiary,
     uint256 _start,
-    uint256 _cliff,
+    uint256 _cliffDuration,
     uint256 _duration,
     bool _revocable
   )
     public
   {
     require(_beneficiary != address(0));
-    require(_cliff <= _duration);
+    require(_cliffDuration <= _duration);
 
     beneficiary_ = _beneficiary;
     revocable_ = _revocable;
     duration_ = _duration;
-    cliff_ = _start.add(_cliff);
+    cliff_ = _start.add(_cliffDuration);
     start_ = _start;
   }
 
@@ -97,10 +97,10 @@ contract TokenVesting is Ownable {
   }
 
   /**
-   * @return the amount released to an account.
+   * @return the amount of the token released.
    */
-  function getReleased(address _account) public view returns(uint256) {
-    return released_[_account];
+  function getReleased(address _token) public view returns(uint256) {
+    return released_[_token];
   }
 
   /**
