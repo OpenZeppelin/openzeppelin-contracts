@@ -13,7 +13,7 @@ require('chai')
 const ERC20Mintable = artifacts.require('ERC20Mintable');
 const TokenVesting = artifacts.require('TokenVesting');
 
-contract.only('TokenVesting', function ([_, owner, beneficiary]) {
+contract('TokenVesting', function ([_, owner, beneficiary]) {
   const amount = new BigNumber(1000);
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
@@ -42,7 +42,8 @@ contract.only('TokenVesting', function ([_, owner, beneficiary]) {
 
   context('once deployed', function () {
     beforeEach(async function () {
-      this.vesting = await TokenVesting.new(beneficiary, this.start, this.cliffDuration, this.duration, true, { from: owner });
+      this.vesting = await TokenVesting.new(
+        beneficiary, this.start, this.cliffDuration, this.duration, true, { from: owner });
 
       this.token = await ERC20Mintable.new({ from: owner });
       await this.token.mint(this.vesting.address, amount, { from: owner });
