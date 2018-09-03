@@ -9,14 +9,14 @@ import "./ConditionalEscrow.sol";
  * preventing their withdrawal until the time has passed.
  */
 contract TimelockedEscrow is ConditionalEscrow {
-
+  // In seconds since unix epoch
   uint256 public releaseTime;
 
   /**
    * @dev Constructor.
    * @param _releaseTime Time when the funds will be available for withdrawal.
    */
-  constructor (uint256 _releaseTime) public {
+  constructor(uint256 _releaseTime) public {
     // solium-disable-next-line security/no-block-members
     require(_releaseTime > block.timestamp);
     releaseTime = _releaseTime;
@@ -27,7 +27,6 @@ contract TimelockedEscrow is ConditionalEscrow {
   */
   function withdrawalAllowed(address _payee) public view returns (bool) {
     // solium-disable-next-line security/no-block-members
-    require(block.timestamp >= releaseTime);
-    return true;
+    return block.timestamp >= releaseTime;
   }
 }

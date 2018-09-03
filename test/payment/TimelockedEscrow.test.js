@@ -32,35 +32,50 @@ contract('TimelockedEscrow', function ([_, owner, payee, ...otherAccounts]) {
       releaseTime.should.be.bignumber.equal(this.releaseTime);
     });
 
-    it('rejects withdrawals before release time', async function () {
-      await expectThrow(this.escrow.withdraw(payee, { from: owner }), EVMRevert);
+    context('before release time', function () {
+      it('rejects withdrawals', async function () {
+        await expectThrow(this.escrow.withdraw(payee, { from: owner }), EVMRevert);
+      });
     });
 
-    it('rejects withdrawals right before release time', async function () {
-      await increaseTimeTo(this.releaseTime - duration.seconds(5));
-      await expectThrow(this.escrow.withdraw(payee, { from: owner }), EVMRevert);
+    context('right before release time', function () {
+      beforeEach(async function () {
+        await increaseTimeTo(this.releaseTime - duration.seconds(5));
+      });
+
+      it('rejects withdrawals', async function () {
+        await expectThrow(this.escrow.withdraw(payee, { from: owner }), EVMRevert);
+      });
     });
 
-    it('allows withdrawals right after release time', async function () {
-      await increaseTimeTo(this.releaseTime + duration.seconds(5));
+    context('right after release time', function () {
+      beforeEach(async function () {
+        await increaseTimeTo(this.releaseTime + duration.seconds(5));
+      });
 
-      const payeeInitialBalance = await ethGetBalance(payee);
+      it('allows withdrawals', async function () {
+        const payeeInitialBalance = await ethGetBalance(payee);
 
-      await this.escrow.withdraw(payee, { from: owner });
+        await this.escrow.withdraw(payee, { from: owner });
 
-      const payeeFinalBalance = await ethGetBalance(payee);
-      payeeFinalBalance.sub(payeeInitialBalance).should.be.bignumber.equal(amount);
+        const payeeFinalBalance = await ethGetBalance(payee);
+        payeeFinalBalance.sub(payeeInitialBalance).should.be.bignumber.equal(amount);
+      });
     });
 
-    it('allows withdrawals after release time', async function () {
-      await increaseTimeTo(this.releaseTime + duration.years(1));
+    context('after release time', function () {
+      beforeEach(async function () {
+        await increaseTimeTo(this.releaseTime + duration.years(1));
+      });
 
-      const payeeInitialBalance = await ethGetBalance(payee);
+      it('allows withdrawals', async function () {
+        const payeeInitialBalance = await ethGetBalance(payee);
 
-      await this.escrow.withdraw(payee, { from: owner });
+        await this.escrow.withdraw(payee, { from: owner });
 
-      const payeeFinalBalance = await ethGetBalance(payee);
-      payeeFinalBalance.sub(payeeInitialBalance).should.be.bignumber.equal(amount);
+        const payeeFinalBalance = await ethGetBalance(payee);
+        payeeFinalBalance.sub(payeeInitialBalance).should.be.bignumber.equal(amount);
+      });
     });
   });
 });
