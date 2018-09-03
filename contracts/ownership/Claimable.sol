@@ -10,14 +10,21 @@ import "./Ownable.sol";
  * This allows the new owner to accept the transfer.
  */
 contract Claimable is Ownable {
-  address public pendingOwner;
+  address private pendingOwner_;
 
   /**
    * @dev Modifier throws if called by any account other than the pendingOwner.
    */
   modifier onlyPendingOwner() {
-    require(msg.sender == pendingOwner);
+    require(msg.sender == pendingOwner_);
     _;
+  }
+
+  /**
+   * @return the address of the pending owner.
+   */
+  function getPendingOwner() public view returns(address) {
+    return pendingOwner_;
   }
 
   /**
@@ -25,15 +32,15 @@ contract Claimable is Ownable {
    * @param newOwner The address to transfer ownership to.
    */
   function transferOwnership(address newOwner) public onlyOwner {
-    pendingOwner = newOwner;
+    pendingOwner_ = newOwner;
   }
 
   /**
    * @dev Allows the pendingOwner address to finalize the transfer.
    */
   function claimOwnership() public onlyPendingOwner {
-    emit OwnershipTransferred(owner, pendingOwner);
-    owner = pendingOwner;
-    pendingOwner = address(0);
+    emit OwnershipTransferred(getOwner(), pendingOwner_);
+    owner = pendingOwner_;
+    pendingOwner_ = address(0);
   }
 }

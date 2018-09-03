@@ -13,7 +13,7 @@ function shouldBehaveLikeERC20Mintable (owner, minter, [anyone]) {
   describe('as a basic mintable token', function () {
     describe('after token creation', function () {
       it('sender should be token owner', async function () {
-        (await this.token.owner({ from: owner })).should.equal(owner);
+        (await this.token.getOwner({ from: owner })).should.equal(owner);
       });
     });
 
