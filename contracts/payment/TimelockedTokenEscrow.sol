@@ -9,7 +9,7 @@ import "./ConditionalTokenEscrow.sol";
  * preventing their whithdrawal until the time has passed.
  */
 contract TimelockedTokenEscrow is ConditionalTokenEscrow {
-
+  // In seconds since unix epoch
   uint256 public releaseTime;
 
   /**
