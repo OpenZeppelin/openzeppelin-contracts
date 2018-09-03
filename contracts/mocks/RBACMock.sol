@@ -10,7 +10,7 @@ contract RBACMock is RBACWithAdmin {
   modifier onlyAdminOrAdvisor()
   {
     require(
-      hasRole(msg.sender, ROLE_ADMIN) ||
+      isAdmin(msg.sender) ||
       hasRole(msg.sender, ROLE_ADVISOR)
     );
     _;
