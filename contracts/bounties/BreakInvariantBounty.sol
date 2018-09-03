@@ -1,15 +1,15 @@
 pragma solidity ^0.4.24;
 
 
-import "./payment/PullPayment.sol";
-import "./lifecycle/Destructible.sol";
+import "../payment/PullPayment.sol";
+import "../lifecycle/Destructible.sol";
 
 
 /**
- * @title Bounty
+ * @title BreakInvariantBounty
  * @dev This bounty will pay out to a researcher if they break invariant logic of the contract.
  */
-contract Bounty is PullPayment, Destructible {
+contract BreakInvariantBounty is PullPayment, Destructible {
   bool public claimed;
   mapping(address => address) public researchers;
 

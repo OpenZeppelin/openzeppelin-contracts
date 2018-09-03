@@ -2,7 +2,7 @@ pragma solidity ^0.4.24;
 
 import "../ownership/Ownable.sol";
 import "../access/rbac/RBAC.sol";
-import "../ECRecovery.sol";
+import "../cryptography/ECDSA.sol";
 
 
 /**
@@ -30,7 +30,7 @@ import "../ECRecovery.sol";
  * much more complex. See https://ethereum.stackexchange.com/a/50616 for more details.
  */
 contract SignatureBouncer is Ownable, RBAC {
-  using ECRecovery for bytes32;
+  using ECDSA for bytes32;
 
   string public constant ROLE_BOUNCER = "bouncer";
   uint internal constant METHOD_ID_SIZE = 4;

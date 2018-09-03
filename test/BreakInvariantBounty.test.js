@@ -2,8 +2,8 @@ const { ethGetBalance, ethSendTransaction } = require('./helpers/web3');
 const expectEvent = require('./helpers/expectEvent');
 const { assertRevert } = require('./helpers/assertRevert');
 
-const SecureTargetBounty = artifacts.require('SecureTargetBounty');
-const InsecureTargetBounty = artifacts.require('InsecureTargetBounty');
+const SecureInvariantTargetBounty = artifacts.require('SecureInvariantTargetBounty');
+const InsecureInvariantTargetBounty = artifacts.require('InsecureInvariantTargetBounty');
 
 require('chai')
   .use(require('chai-bignumber')(web3.BigNumber))
@@ -17,10 +17,10 @@ const sendReward = async (from, to, value) => ethSendTransaction({
 
 const reward = new web3.BigNumber(web3.toWei(1, 'ether'));
 
-contract('Bounty', function ([_, owner, researcher, nonTarget]) {
+contract('BreakInvariantBounty', function ([_, owner, researcher, nonTarget]) {
   context('against secure contract', function () {
     beforeEach(async function () {
-      this.bounty = await SecureTargetBounty.new({ from: owner });
+      this.bounty = await SecureInvariantTargetBounty.new({ from: owner });
     });
 
     it('can set reward', async function () {
@@ -53,7 +53,7 @@ contract('Bounty', function ([_, owner, researcher, nonTarget]) {
 
   context('against broken contract', function () {
     beforeEach(async function () {
-      this.bounty = await InsecureTargetBounty.new();
+      this.bounty = await InsecureInvariantTargetBounty.new();
 
       const result = await this.bounty.createTarget({ from: researcher });
       const event = expectEvent.inLogs(result.logs, 'TargetCreated');

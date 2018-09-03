@@ -3,7 +3,7 @@ pragma solidity ^0.4.24;
 import "./IERC721Basic.sol";
 import "./IERC721Receiver.sol";
 import "../../math/SafeMath.sol";
-import "../../AddressUtils.sol";
+import "../../utils/Address.sol";
 import "../../introspection/SupportsInterfaceWithLookup.sol";
 
 
@@ -14,7 +14,7 @@ import "../../introspection/SupportsInterfaceWithLookup.sol";
 contract ERC721Basic is SupportsInterfaceWithLookup, IERC721Basic {
 
   using SafeMath for uint256;
-  using AddressUtils for address;
+  using Address for address;
 
   // Equals to `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`
   // which can be also obtained as `IERC721Receiver(0).onERC721Received.selector`
