@@ -21,16 +21,16 @@ contract TokenVesting is Ownable {
   event Revoked();
 
   // beneficiary of tokens after they are released
-  address public beneficiary;
+  address private beneficiary_;
 
-  uint256 public cliff;
-  uint256 public start;
-  uint256 public duration;
+  uint256 private cliff_;
+  uint256 private start_;
+  uint256 private duration_;
 
-  bool public revocable;
+  bool private revocable_;
 
-  mapping (address => uint256) public released;
-  mapping (address => bool) public revoked;
+  mapping (address => uint256) private released_;
+  mapping (address => bool) private revoked_;
 
   /**
    * @dev Creates a vesting contract that vests its balance of any ERC20 token to the
@@ -54,11 +54,60 @@ contract TokenVesting is Ownable {
     require(_beneficiary != address(0));
     require(_cliff <= _duration);
 
-    beneficiary = _beneficiary;
-    revocable = _revocable;
-    duration = _duration;
-    cliff = _start.add(_cliff);
-    start = _start;
+    beneficiary_ = _beneficiary;
+    revocable_ = _revocable;
+    duration_ = _duration;
+    cliff_ = _start.add(_cliff);
+    start_ = _start;
+  }
+
+  /**
+   * @return the beneficiary of the tokens.
+   */
+  function getBeneficiary() public view returns(address) {
+    return beneficiary_;
+  }
+
+  /**
+   * @return the cliff time of the token vesting.
+   */
+  function getCliff() public view returns(uint256) {
+    return cliff_;
+  }
+
+  /**
+   * @return the start time of the token vesting.
+   */
+  function getStart() public view returns(uint256) {
+    return start_;
+  }
+
+  /**
+   * @return the duration of the token vesting.
+   */
+  function getDuration() public view returns(uint256) {
+    return duration_;
+  }
+
+  /**
+   * @return true if the vesting is revocable.
+   */
+  function isRevocable() public view returns(bool) {
+    return revocable_;
+  }
+
+  /**
+   * @return the amount released to an account.
+   */
+  function getReleased(address _account) public view returns(uint256) {
+    return released_[_account];
+  }
+
+  /**
+   * @return true if the account is revoked.
+   */
+  function isRevoked(address _account) public view returns(bool) {
+    return revoked_[_account];
   }
 
   /**
@@ -70,9 +119,9 @@ contract TokenVesting is Ownable {
 
     require(unreleased > 0);
 
-    released[_token] = released[_token].add(unreleased);
+    released_[_token] = released_[_token].add(unreleased);
 
-    _token.safeTransfer(beneficiary, unreleased);
+    _token.safeTransfer(beneficiary_, unreleased);
 
     emit Released(unreleased);
   }
@@ -83,15 +132,15 @@ contract TokenVesting is Ownable {
    * @param _token ERC20 token which is being vested
    */
   function revoke(IERC20 _token) public onlyOwner {
-    require(revocable);
-    require(!revoked[_token]);
+    require(revocable_);
+    require(!revoked_[_token]);
 
     uint256 balance = _token.balanceOf(address(this));
 
     uint256 unreleased = releasableAmount(_token);
     uint256 refund = balance.sub(unreleased);
 
-    revoked[_token] = true;
+    revoked_[_token] = true;
 
     _token.safeTransfer(owner, refund);
 
@@ -103,7 +152,7 @@ contract TokenVesting is Ownable {
    * @param _token ERC20 token which is being vested
    */
   function releasableAmount(IERC20 _token) public view returns (uint256) {
-    return vestedAmount(_token).sub(released[_token]);
+    return vestedAmount(_token).sub(released_[_token]);
   }
 
   /**
@@ -112,14 +161,14 @@ contract TokenVesting is Ownable {
    */
   function vestedAmount(IERC20 _token) public view returns (uint256) {
     uint256 currentBalance = _token.balanceOf(this);
-    uint256 totalBalance = currentBalance.add(released[_token]);
+    uint256 totalBalance = currentBalance.add(released_[_token]);
 
-    if (block.timestamp < cliff) {
+    if (block.timestamp < cliff_) {
       return 0;
-    } else if (block.timestamp >= start.add(duration) || revoked[_token]) {
+    } else if (block.timestamp >= start_.add(duration_) || revoked_[_token]) {
       return totalBalance;
     } else {
-      return totalBalance.mul(block.timestamp.sub(start)).div(duration);
+      return totalBalance.mul(block.timestamp.sub(start_)).div(duration_);
     }
   }
 }

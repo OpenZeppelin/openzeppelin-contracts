@@ -18,14 +18,14 @@ contract('ERC20Detailed', function () {
   });
 
   it('has a name', async function () {
-    (await detailedERC20.name()).should.be.equal(_name);
+    (await detailedERC20.getName()).should.be.equal(_name);
   });
 
   it('has a symbol', async function () {
-    (await detailedERC20.symbol()).should.be.equal(_symbol);
+    (await detailedERC20.getSymbol()).should.be.equal(_symbol);
   });
 
   it('has an amount of decimals', async function () {
-    (await detailedERC20.decimals()).should.be.bignumber.equal(_decimals);
+    (await detailedERC20.getDecimals()).should.be.bignumber.equal(_decimals);
   });
 });
