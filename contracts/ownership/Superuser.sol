@@ -12,7 +12,7 @@ import "../access/rbac/RBAC.sol";
  * A superuser can transfer his role to a new address.
  */
 contract Superuser is Ownable, RBAC {
-  string public constant ROLE_SUPERUSER = "superuser";
+  string private constant ROLE_SUPERUSER = "superuser";
 
   constructor () public {
     _addRole(msg.sender, ROLE_SUPERUSER);

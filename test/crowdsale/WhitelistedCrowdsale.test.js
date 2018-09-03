@@ -43,8 +43,8 @@ contract('WhitelistedCrowdsale', function ([_, wallet, authorized, unauthorized,
 
     describe('reporting whitelisted', function () {
       it('should correctly report whitelisted addresses', async function () {
-        (await this.crowdsale.whitelist(authorized)).should.equal(true);
-        (await this.crowdsale.whitelist(unauthorized)).should.equal(false);
+        (await this.crowdsale.isWhitelisted(authorized)).should.equal(true);
+        (await this.crowdsale.isWhitelisted(unauthorized)).should.equal(false);
       });
     });
   });
@@ -80,9 +80,9 @@ contract('WhitelistedCrowdsale', function ([_, wallet, authorized, unauthorized,
 
     describe('reporting whitelisted', function () {
       it('should correctly report whitelisted addresses', async function () {
-        (await this.crowdsale.whitelist(authorized)).should.equal(true);
-        (await this.crowdsale.whitelist(anotherAuthorized)).should.equal(true);
-        (await this.crowdsale.whitelist(unauthorized)).should.equal(false);
+        (await this.crowdsale.isWhitelisted(authorized)).should.equal(true);
+        (await this.crowdsale.isWhitelisted(anotherAuthorized)).should.equal(true);
+        (await this.crowdsale.isWhitelisted(unauthorized)).should.equal(false);
       });
     });
   });
