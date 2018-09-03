@@ -1,11 +1,11 @@
 pragma solidity ^0.4.24;
 
 
-import "../ECRecovery.sol";
+import "../cryptography/ECDSA.sol";
 
 
-contract ECRecoveryMock {
-  using ECRecovery for bytes32;
+contract ECDSAMock {
+  using ECDSA for bytes32;
 
   function recover(bytes32 _hash, bytes _signature)
     public

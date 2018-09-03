@@ -24,6 +24,12 @@ Any exception or additions specific to our project are documented below.
     }
     ```
 
+  The exception are the parameters of events. There is no chance of ambiguity
+  with these, so they should not have underscores. Not even if they are
+  specified on an ERC with underscores; removing them doesn't change the ABI,
+  so we should be consistent with the rest of the events in this repository
+  and remove them.
+
 * Internal and private state variables should have an underscore suffix.
 
     ```

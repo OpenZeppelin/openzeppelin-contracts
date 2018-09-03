@@ -8,11 +8,11 @@ contract ERC721ReceiverMock is IERC721Receiver {
   bool internal reverts_;
 
   event Received(
-    address _operator,
-    address _from,
-    uint256 _tokenId,
-    bytes _data,
-    uint256 _gas
+    address operator,
+    address from,
+    uint256 tokenId,
+    bytes data,
+    uint256 gas
   );
 
   constructor(bytes4 _retval, bool _reverts) public {

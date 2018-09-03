@@ -92,17 +92,17 @@ function shouldBehaveLikeERC721Basic (accounts) {
           it('emit only a transfer event', async function () {
             logs.length.should.be.equal(1);
             logs[0].event.should.be.equal('Transfer');
-            logs[0].args._from.should.be.equal(owner);
-            logs[0].args._to.should.be.equal(this.to);
-            logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
+            logs[0].args.from.should.be.equal(owner);
+            logs[0].args.to.should.be.equal(this.to);
+            logs[0].args.tokenId.should.be.bignumber.equal(tokenId);
           });
         } else {
           it('emits only a transfer event', async function () {
             logs.length.should.be.equal(1);
             logs[0].event.should.be.equal('Transfer');
-            logs[0].args._from.should.be.equal(owner);
-            logs[0].args._to.should.be.equal(this.to);
-            logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
+            logs[0].args.from.should.be.equal(owner);
+            logs[0].args.to.should.be.equal(this.to);
+            logs[0].args.tokenId.should.be.bignumber.equal(tokenId);
           });
         }
 
@@ -167,9 +167,9 @@ function shouldBehaveLikeERC721Basic (accounts) {
           it('emits only a transfer event', async function () {
             logs.length.should.be.equal(1);
             logs[0].event.should.be.equal('Transfer');
-            logs[0].args._from.should.be.equal(owner);
-            logs[0].args._to.should.be.equal(owner);
-            logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
+            logs[0].args.from.should.be.equal(owner);
+            logs[0].args.to.should.be.equal(owner);
+            logs[0].args.tokenId.should.be.bignumber.equal(tokenId);
           });
 
           it('keeps the owner balance', async function () {
@@ -247,10 +247,10 @@ function shouldBehaveLikeERC721Basic (accounts) {
               result.receipt.logs.length.should.be.equal(2);
               const [log] = decodeLogs([result.receipt.logs[1]], ERC721Receiver, this.receiver.address);
               log.event.should.be.equal('Received');
-              log.args._operator.should.be.equal(owner);
-              log.args._from.should.be.equal(owner);
-              log.args._tokenId.toNumber().should.be.equal(tokenId);
-              log.args._data.should.be.equal(data);
+              log.args.operator.should.be.equal(owner);
+              log.args.from.should.be.equal(owner);
+              log.args.tokenId.toNumber().should.be.equal(tokenId);
+              log.args.data.should.be.equal(data);
             });
 
             it('should call onERC721Received from approved', async function () {
@@ -258,10 +258,10 @@ function shouldBehaveLikeERC721Basic (accounts) {
               result.receipt.logs.length.should.be.equal(2);
               const [log] = decodeLogs([result.receipt.logs[1]], ERC721Receiver, this.receiver.address);
               log.event.should.be.equal('Received');
-              log.args._operator.should.be.equal(approved);
-              log.args._from.should.be.equal(owner);
-              log.args._tokenId.toNumber().should.be.equal(tokenId);
-              log.args._data.should.be.equal(data);
+              log.args.operator.should.be.equal(approved);
+              log.args.from.should.be.equal(owner);
+              log.args.tokenId.toNumber().should.be.equal(tokenId);
+              log.args.data.should.be.equal(data);
             });
 
             describe('with an invalid token id', function () {
@@ -334,9 +334,9 @@ function shouldBehaveLikeERC721Basic (accounts) {
         it('emits an approval event', async function () {
           logs.length.should.be.equal(1);
           logs[0].event.should.be.equal('Approval');
-          logs[0].args._owner.should.be.equal(sender);
-          logs[0].args._approved.should.be.equal(address);
-          logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
+          logs[0].args.owner.should.be.equal(sender);
+          logs[0].args.approved.should.be.equal(address);
+          logs[0].args.tokenId.should.be.bignumber.equal(tokenId);
         });
       };
 
@@ -447,9 +447,9 @@ function shouldBehaveLikeERC721Basic (accounts) {
 
             logs.length.should.be.equal(1);
             logs[0].event.should.be.equal('ApprovalForAll');
-            logs[0].args._owner.should.be.equal(sender);
-            logs[0].args._operator.should.be.equal(operator);
-            logs[0].args._approved.should.equal(true);
+            logs[0].args.owner.should.be.equal(sender);
+            logs[0].args.operator.should.be.equal(operator);
+            logs[0].args.approved.should.equal(true);
           });
         });
 
@@ -469,9 +469,9 @@ function shouldBehaveLikeERC721Basic (accounts) {
 
             logs.length.should.be.equal(1);
             logs[0].event.should.be.equal('ApprovalForAll');
-            logs[0].args._owner.should.be.equal(sender);
-            logs[0].args._operator.should.be.equal(operator);
-            logs[0].args._approved.should.equal(true);
+            logs[0].args.owner.should.be.equal(sender);
+            logs[0].args.operator.should.be.equal(operator);
+            logs[0].args.approved.should.equal(true);
           });
 
           it('can unset the operator approval', async function () {
@@ -497,9 +497,9 @@ function shouldBehaveLikeERC721Basic (accounts) {
 
             logs.length.should.be.equal(1);
             logs[0].event.should.be.equal('ApprovalForAll');
-            logs[0].args._owner.should.be.equal(sender);
-            logs[0].args._operator.should.be.equal(operator);
-            logs[0].args._approved.should.equal(true);
+            logs[0].args.owner.should.be.equal(sender);
+            logs[0].args.operator.should.be.equal(operator);
+            logs[0].args.approved.should.equal(true);
           });
         });
       });
