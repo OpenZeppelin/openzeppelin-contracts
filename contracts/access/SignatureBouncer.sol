@@ -17,7 +17,7 @@ import "../cryptography/ECDSA.sol";
  * valid addresses on-chain, simply sign a grant of the form
  * keccak256(abi.encodePacked(`:contractAddress` + `:granteeAddress`)) using a valid bouncer address.
  * Then restrict access to your crowdsale/whitelist/airdrop using the
- * `onlyValidSignature` modifier (or implement your own using isValidSignature).
+ * `onlyValidSignature` modifier (or implement your own using _isValidSignature).
  * In addition to `onlyValidSignature`, `onlyValidSignatureAndMethod` and
  * `onlyValidSignatureAndData` can be used to restrict access to only a given method
  * or a given method with given parameters respectively.
@@ -42,7 +42,7 @@ contract SignatureBouncer is Ownable, RBAC {
    */
   modifier onlyValidSignature(bytes _signature)
   {
-    require(isValidSignature(msg.sender, _signature));
+    require(_isValidSignature(msg.sender, _signature));
     _;
   }
 
@@ -51,7 +51,7 @@ contract SignatureBouncer is Ownable, RBAC {
    */
   modifier onlyValidSignatureAndMethod(bytes _signature)
   {
-    require(isValidSignatureAndMethod(msg.sender, _signature));
+    require(_isValidSignatureAndMethod(msg.sender, _signature));
     _;
   }
 
@@ -60,7 +60,7 @@ contract SignatureBouncer is Ownable, RBAC {
    */
   modifier onlyValidSignatureAndData(bytes _signature)
   {
-    require(isValidSignatureAndData(msg.sender, _signature));
+    require(_isValidSignatureAndData(msg.sender, _signature));
     _;
   }
 
@@ -72,7 +72,7 @@ contract SignatureBouncer is Ownable, RBAC {
     onlyOwner
   {
     require(_bouncer != address(0));
-    addRole(_bouncer, ROLE_BOUNCER);
+    _addRole(_bouncer, ROLE_BOUNCER);
   }
 
   /**
@@ -82,19 +82,19 @@ contract SignatureBouncer is Ownable, RBAC {
     public
     onlyOwner
   {
-    removeRole(_bouncer, ROLE_BOUNCER);
+    _removeRole(_bouncer, ROLE_BOUNCER);
   }
 
   /**
    * @dev is the signature of `this + sender` from a bouncer?
    * @return bool
    */
-  function isValidSignature(address _address, bytes _signature)
+  function _isValidSignature(address _address, bytes _signature)
     internal
     view
     returns (bool)
   {
-    return isValidDataHash(
+    return _isValidDataHash(
       keccak256(abi.encodePacked(address(this), _address)),
       _signature
     );
@@ -104,7 +104,7 @@ contract SignatureBouncer is Ownable, RBAC {
    * @dev is the signature of `this + sender + methodId` from a bouncer?
    * @return bool
    */
-  function isValidSignatureAndMethod(address _address, bytes _signature)
+  function _isValidSignatureAndMethod(address _address, bytes _signature)
     internal
     view
     returns (bool)
@@ -113,7 +113,7 @@ contract SignatureBouncer is Ownable, RBAC {
     for (uint i = 0; i < data.length; i++) {
       data[i] = msg.data[i];
     }
-    return isValidDataHash(
+    return _isValidDataHash(
       keccak256(abi.encodePacked(address(this), _address, data)),
       _signature
     );
@@ -124,7 +124,7 @@ contract SignatureBouncer is Ownable, RBAC {
     * @notice the _signature parameter of the method being validated must be the "last" parameter
     * @return bool
     */
-  function isValidSignatureAndData(address _address, bytes _signature)
+  function _isValidSignatureAndData(address _address, bytes _signature)
     internal
     view
     returns (bool)
@@ -134,7 +134,7 @@ contract SignatureBouncer is Ownable, RBAC {
     for (uint i = 0; i < data.length; i++) {
       data[i] = msg.data[i];
     }
-    return isValidDataHash(
+    return _isValidDataHash(
       keccak256(abi.encodePacked(address(this), _address, data)),
       _signature
     );
@@ -145,7 +145,7 @@ contract SignatureBouncer is Ownable, RBAC {
    * and then recover the signature and check it against the bouncer role
    * @return bool
    */
-  function isValidDataHash(bytes32 _hash, bytes _signature)
+  function _isValidDataHash(bytes32 _hash, bytes _signature)
     internal
     view
     returns (bool)

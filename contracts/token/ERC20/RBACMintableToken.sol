@@ -28,7 +28,7 @@ contract RBACMintableToken is ERC20Mintable, RBAC {
    * @param _minter address
    */
   function addMinter(address _minter) public onlyOwner {
-    addRole(_minter, ROLE_MINTER);
+    _addRole(_minter, ROLE_MINTER);
   }
 
   /**
@@ -36,6 +36,6 @@ contract RBACMintableToken is ERC20Mintable, RBAC {
    * @param _minter address
    */
   function removeMinter(address _minter) public onlyOwner {
-    removeRole(_minter, ROLE_MINTER);
+    _removeRole(_minter, ROLE_MINTER);
   }
 }

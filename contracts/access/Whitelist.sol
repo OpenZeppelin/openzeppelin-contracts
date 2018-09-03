@@ -31,7 +31,7 @@ contract Whitelist is Ownable, RBAC {
     public
     onlyOwner
   {
-    addRole(_operator, ROLE_WHITELISTED);
+    _addRole(_operator, ROLE_WHITELISTED);
   }
 
   /**
@@ -70,7 +70,7 @@ contract Whitelist is Ownable, RBAC {
     public
     onlyOwner
   {
-    removeRole(_operator, ROLE_WHITELISTED);
+    _removeRole(_operator, ROLE_WHITELISTED);
   }
 
   /**

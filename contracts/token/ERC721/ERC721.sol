@@ -125,8 +125,8 @@ contract ERC721 is SupportsInterfaceWithLookup, ERC721Basic, IERC721 {
    * @param _to address representing the new owner of the given token ID
    * @param _tokenId uint256 ID of the token to be added to the tokens list of the given address
    */
-  function addTokenTo(address _to, uint256 _tokenId) internal {
-    super.addTokenTo(_to, _tokenId);
+  function _addTokenTo(address _to, uint256 _tokenId) internal {
+    super._addTokenTo(_to, _tokenId);
     uint256 length = ownedTokens[_to].length;
     ownedTokens[_to].push(_tokenId);
     ownedTokensIndex[_tokenId] = length;
@@ -137,8 +137,8 @@ contract ERC721 is SupportsInterfaceWithLookup, ERC721Basic, IERC721 {
    * @param _from address representing the previous owner of the given token ID
    * @param _tokenId uint256 ID of the token to be removed from the tokens list of the given address
    */
-  function removeTokenFrom(address _from, uint256 _tokenId) internal {
-    super.removeTokenFrom(_from, _tokenId);
+  function _removeTokenFrom(address _from, uint256 _tokenId) internal {
+    super._removeTokenFrom(_from, _tokenId);
 
     // To prevent a gap in the array, we store the last token in the index of the token to delete, and
     // then delete the last slot.

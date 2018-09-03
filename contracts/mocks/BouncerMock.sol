@@ -9,7 +9,7 @@ contract SignatureBouncerMock is SignatureBouncer {
     view
     returns (bool)
   {
-    return isValidSignature(_address, _signature);
+    return _isValidSignature(_address, _signature);
   }
 
   function onlyWithValidSignature(bytes _signature)
@@ -25,7 +25,7 @@ contract SignatureBouncerMock is SignatureBouncer {
     view
     returns (bool)
   {
-    return isValidSignatureAndMethod(_address, _signature);
+    return _isValidSignatureAndMethod(_address, _signature);
   }
 
   function onlyWithValidSignatureAndMethod(bytes _signature)
@@ -46,7 +46,7 @@ contract SignatureBouncerMock is SignatureBouncer {
     view
     returns (bool)
   {
-    return isValidSignatureAndData(_address, _signature);
+    return _isValidSignatureAndData(_address, _signature);
   }
 
   function onlyWithValidSignatureAndData(uint, bytes _signature)

@@ -51,7 +51,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
   /**
    * @dev escrow finalization task, called when owner calls finalize()
    */
-  function finalization() internal {
+  function _finalization() internal {
     if (goalReached()) {
       escrow_.close();
       escrow_.beneficiaryWithdraw();
@@ -59,7 +59,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
       escrow_.enableRefunds();
     }
 
-    super.finalization();
+    super._finalization();
   }
 
   /**

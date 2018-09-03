@@ -43,8 +43,22 @@ Any exception or additions specific to our project are documented below.
 
     ```
     function test() {
-       uint256 functionVar;
-       ...
+      uint256 functionVar;
+      ...
+    }
+    ```
+
+* Internal and private functions should have an underscore prefix.
+
+    ```
+    function _testInternal() internal {
+      ...
+    }
+    ```
+
+    ```
+    function _testPrivate() private {
+      ...
     }
     ```
 

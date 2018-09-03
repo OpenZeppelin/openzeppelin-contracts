@@ -37,7 +37,7 @@ contract RBACWithAdmin is RBAC {
   constructor()
     public
   {
-    addRole(msg.sender, ROLE_ADMIN);
+    _addRole(msg.sender, ROLE_ADMIN);
   }
 
   /**
@@ -49,7 +49,7 @@ contract RBACWithAdmin is RBAC {
     public
     onlyAdmin
   {
-    addRole(_account, _roleName);
+    _addRole(_account, _roleName);
   }
 
   /**
@@ -61,6 +61,6 @@ contract RBACWithAdmin is RBAC {
     public
     onlyAdmin
   {
-    removeRole(_account, _roleName);
+    _removeRole(_account, _roleName);
   }
 }

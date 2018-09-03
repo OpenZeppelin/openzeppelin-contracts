@@ -14,7 +14,7 @@ contract SecureInvariantTargetMock is Target {
 
 
 contract SecureInvariantTargetBounty is BreakInvariantBounty {
-  function deployContract() internal returns (address) {
+  function _deployContract() internal returns (address) {
     return new SecureInvariantTargetMock();
   }
 }

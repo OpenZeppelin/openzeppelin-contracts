@@ -27,7 +27,7 @@ contract BreakInvariantBounty is PullPayment, Ownable {
    * @return A target contract
    */
   function createTarget() public returns(Target) {
-    Target target = Target(deployContract());
+    Target target = Target(_deployContract());
     researchers[target] = msg.sender;
     emit TargetCreated(target);
     return target;
@@ -42,7 +42,7 @@ contract BreakInvariantBounty is PullPayment, Ownable {
     require(researcher != address(0));
     // Check Target contract invariants
     require(!_target.checkInvariant());
-    asyncTransfer(researcher, address(this).balance);
+    _asyncTransfer(researcher, address(this).balance);
     claimed = true;
   }
 
@@ -57,7 +57,7 @@ contract BreakInvariantBounty is PullPayment, Ownable {
    * @dev Internal function to deploy the target contract.
    * @return A target contract address
    */
-  function deployContract() internal returns(address);
+  function _deployContract() internal returns(address);
 
 }
 
