@@ -48,6 +48,14 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
       await this.token.mint(this.vesting.address, amount, { from: owner });
     });
 
+    it('can get state', async function () {
+      (await this.vesting.getBeneficiary()).should.be.equal(beneficiary);
+      (await this.vesting.getCliff()).should.be.equal(this.cliff);
+      (await this.vesting.getStart()).should.be.equal(this.start);
+      (await this.vesting.getDuration()).should.be.equal(this.duration);
+      (await this.vesting.isRevocable()).should.be.equal(true);
+    });
+
     it('cannot be released before cliff', async function () {
       await expectThrow(
         this.vesting.release(this.token.address),
@@ -67,9 +75,9 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
       const block = await ethGetBlock(receipt.blockNumber);
       const releaseTime = block.timestamp;
 
-      (await this.token.balanceOf(beneficiary)).should.bignumber.equal(
-        amount.mul(releaseTime - this.start).div(this.duration).floor()
-      );
+      const releasedAmount = amount.mul(releaseTime - this.start).div(this.duration).floor();
+      (await this.token.balanceOf(beneficiary)).should.bignumber.equal(releasedAmount);
+      (await this.vesting.getReleased(beneficiary)).should.bignumber.equal(releasedAmount);
     });
 
     it('should linearly release tokens during vesting period', async function () {
@@ -83,6 +91,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
         await this.vesting.release(this.token.address);
         const expectedVesting = amount.mul(now - this.start).div(this.duration).floor();
         (await this.token.balanceOf(beneficiary)).should.bignumber.equal(expectedVesting);
+        (await this.vesting.getReleased(beneficiary)).should.bignumber.equal(expectedVesting);
       }
     });
 
@@ -90,10 +99,12 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
       await increaseTimeTo(this.start + this.duration);
       await this.vesting.release(this.token.address);
       (await this.token.balanceOf(beneficiary)).should.bignumber.equal(amount);
+      (await this.vesting.getReleased(beneficiary)).should.bignumber.equal(amount);
     });
 
     it('should be revoked by owner if revocable is set', async function () {
       await this.vesting.revoke(this.token.address, { from: owner });
+      (await this.vesting.isRevoked(this.token.address)).should.equal(true);
     });
 
     it('should fail to be revoked by owner if revocable not set', async function () {

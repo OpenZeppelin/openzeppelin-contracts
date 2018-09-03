@@ -104,10 +104,10 @@ contract TokenVesting is Ownable {
   }
 
   /**
-   * @return true if the account is revoked.
+   * @return true if the token is revoked.
    */
-  function isRevoked(address _account) public view returns(bool) {
-    return revoked_[_account];
+  function isRevoked(address _token) public view returns(bool) {
+    return revoked_[_token];
   }
 
   /**

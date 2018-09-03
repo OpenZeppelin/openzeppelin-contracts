@@ -23,21 +23,21 @@ contract ERC20Detailed is IERC20 {
   /**
    * @return the name of the token.
    */
-  function getName() public view returns(string) {
+  function name() public view returns(string) {
     return name_;
   }
 
   /**
    * @return the symbol of the token.
    */
-  function getSymbol() public view returns(string) {
+  function symbol() public view returns(string) {
     return symbol_;
   }
 
   /**
    * @return the number of decimals of the token.
    */
-  function getDecimals() public view returns(uint8) {
+  function decimals() public view returns(uint8) {
     return decimals_;
   }
 }
