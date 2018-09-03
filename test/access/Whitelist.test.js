@@ -12,7 +12,7 @@ contract('Whitelist', function ([_, owner, whitelistedAddress1, whitelistedAddre
     this.mock = await WhitelistMock.new({ from: owner });
   });
 
-  context.only('in normal conditions', function () {
+  context('in normal conditions', function () {
     it('should add address to the whitelist', async function () {
       await this.mock.addAddressToWhitelist(whitelistedAddress1, { from: owner });
       (await this.mock.isWhitelisted(whitelistedAddress1)).should.equal(true);
