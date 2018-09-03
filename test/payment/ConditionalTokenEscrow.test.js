@@ -8,7 +8,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const ConditionalTokenEscrow = artifacts.require('ConditionalTokenEscrowMock');
+const ConditionalTokenEscrowMock = artifacts.require('ConditionalTokenEscrowMock');
 const StandardToken = artifacts.require('StandardTokenMock');
 
 contract('ConditionalTokenEscrow', function ([_, owner, payee, ...otherAccounts]) {
@@ -17,14 +17,14 @@ contract('ConditionalTokenEscrow', function ([_, owner, payee, ...otherAccounts]
 
   it('reverts when deployed with a null token address', async function () {
     await expectThrow(
-      ConditionalTokenEscrow.new(ZERO_ADDRESS, { from: owner }), EVMRevert
+      ConditionalTokenEscrowMock.new(ZERO_ADDRESS, { from: owner }), EVMRevert
     );
   });
 
   context('with token', function () {
     beforeEach(async function () {
       this.token = await StandardToken.new(owner, MAX_UINT256);
-      this.escrow = await ConditionalTokenEscrow.new(this.token.address, { from: owner });
+      this.escrow = await ConditionalTokenEscrowMock.new(this.token.address, { from: owner });
     });
 
     context('when withdrawal is allowed', function () {
