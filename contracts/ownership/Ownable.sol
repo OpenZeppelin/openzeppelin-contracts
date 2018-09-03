@@ -48,7 +48,7 @@ contract Ownable {
    */
   function renounceOwnership() public onlyOwner {
     emit OwnershipRenounced(owner_);
-    owner = address(0);
+    owner_ = address(0);
   }
 
   /**
