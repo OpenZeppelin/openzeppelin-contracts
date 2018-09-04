@@ -5,14 +5,14 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-function shouldBehaveLikeMintAndBurnERC721Token (accounts) {
+function shouldBehaveLikeMintAndBurnERC721 (accounts) {
   const firstTokenId = 1;
   const secondTokenId = 2;
   const unknownTokenId = 3;
   const creator = accounts[0];
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
-  describe('like a mintable and burnable ERC721Token', function () {
+  describe('like a mintable and burnable ERC721', function () {
     beforeEach(async function () {
       await this.token.mint(creator, firstTokenId, { from: creator });
       await this.token.mint(creator, secondTokenId, { from: creator });
@@ -40,9 +40,9 @@ function shouldBehaveLikeMintAndBurnERC721Token (accounts) {
         it('emits a transfer event', async function () {
           logs.length.should.be.equal(1);
           logs[0].event.should.be.equal('Transfer');
-          logs[0].args._from.should.be.equal(ZERO_ADDRESS);
-          logs[0].args._to.should.be.equal(to);
-          logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
+          logs[0].args.from.should.be.equal(ZERO_ADDRESS);
+          logs[0].args.to.should.be.equal(to);
+          logs[0].args.tokenId.should.be.bignumber.equal(tokenId);
         });
       });
 
@@ -78,9 +78,9 @@ function shouldBehaveLikeMintAndBurnERC721Token (accounts) {
         it('emits a burn event', async function () {
           logs.length.should.be.equal(1);
           logs[0].event.should.be.equal('Transfer');
-          logs[0].args._from.should.be.equal(sender);
-          logs[0].args._to.should.be.equal(ZERO_ADDRESS);
-          logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
+          logs[0].args.from.should.be.equal(sender);
+          logs[0].args.to.should.be.equal(ZERO_ADDRESS);
+          logs[0].args.tokenId.should.be.bignumber.equal(tokenId);
         });
       });
 
@@ -106,5 +106,5 @@ function shouldBehaveLikeMintAndBurnERC721Token (accounts) {
 }
 
 module.exports = {
-  shouldBehaveLikeMintAndBurnERC721Token,
+  shouldBehaveLikeMintAndBurnERC721,
 };

@@ -1,4 +1,5 @@
 const { assertRevert } = require('../helpers/assertRevert');
+const expectEvent = require('../helpers/expectEvent');
 const PausableMock = artifacts.require('PausableMock');
 
 const BigNumber = web3.BigNumber;
@@ -29,13 +30,13 @@ contract('Pausable', function () {
 
   it('can not take drastic measure in non-pause', async function () {
     await assertRevert(this.Pausable.drasticMeasure());
-    (await this.Pausable.drasticMeasureTaken()).should.be.false;
+    (await this.Pausable.drasticMeasureTaken()).should.equal(false);
   });
 
   it('can take a drastic measure in a pause', async function () {
     await this.Pausable.pause();
     await this.Pausable.drasticMeasure();
-    (await this.Pausable.drasticMeasureTaken()).should.be.true;
+    (await this.Pausable.drasticMeasureTaken()).should.equal(true);
   });
 
   it('should resume allowing normal process after pause is over', async function () {
@@ -51,6 +52,14 @@ contract('Pausable', function () {
 
     await assertRevert(this.Pausable.drasticMeasure());
 
-    (await this.Pausable.drasticMeasureTaken()).should.be.false;
+    (await this.Pausable.drasticMeasureTaken()).should.equal(false);
+  });
+
+  it('should log Pause and Unpause events appropriately', async function () {
+    const setPauseLogs = (await this.Pausable.pause()).logs;
+    expectEvent.inLogs(setPauseLogs, 'Paused');
+
+    const setUnPauseLogs = (await this.Pausable.unpause()).logs;
+    expectEvent.inLogs(setUnPauseLogs, 'Unpaused');
   });
 });

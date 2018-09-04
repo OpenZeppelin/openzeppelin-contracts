@@ -9,14 +9,14 @@ const { ethGetBalance } = require('../helpers/web3');
 
 const BigNumber = web3.BigNumber;
 
-require('chai')
+const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
 const SampleCrowdsale = artifacts.require('SampleCrowdsale');
 const SampleCrowdsaleToken = artifacts.require('SampleCrowdsaleToken');
 
-contract('SampleCrowdsale', function ([_, owner, wallet, investor]) {
+contract('SampleCrowdsale', function ([_, initialMinter, owner, wallet, investor]) {
   const RATE = new BigNumber(10);
   const GOAL = ether(10);
   const CAP = ether(20);
@@ -31,17 +31,17 @@ contract('SampleCrowdsale', function ([_, owner, wallet, investor]) {
     this.closingTime = this.openingTime + duration.weeks(1);
     this.afterClosingTime = this.closingTime + duration.seconds(1);
 
-    this.token = await SampleCrowdsaleToken.new({ from: owner });
+    this.token = await SampleCrowdsaleToken.new([initialMinter]);
     this.crowdsale = await SampleCrowdsale.new(
       this.openingTime, this.closingTime, RATE, wallet, CAP, this.token.address, GOAL,
       { from: owner }
     );
-    await this.token.transferOwnership(this.crowdsale.address, { from: owner });
+    await this.token.transferMinter(this.crowdsale.address, { from: initialMinter });
   });
 
   it('should create crowdsale with correct parameters', async function () {
-    this.crowdsale.should.exist;
-    this.token.should.exist;
+    should.exist(this.crowdsale);
+    should.exist(this.token);
 
     (await this.crowdsale.openingTime()).should.be.bignumber.equal(this.openingTime);
     (await this.crowdsale.closingTime()).should.be.bignumber.equal(this.closingTime);

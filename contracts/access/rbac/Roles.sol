@@ -50,14 +50,6 @@ library Roles {
 
   /**
    * @dev check if an account has this role
-   * // reverts
-   */
-  function check(Role storage _role, address _account) internal view {
-    require(has(_role, _account));
-  }
-
-  /**
-   * @dev check if an account has this role
    * @return bool
    */
   function has(Role storage _role, address _account)

@@ -8,15 +8,15 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const MintableToken = artifacts.require('MintableToken');
+const ERC20Mintable = artifacts.require('ERC20Mintable');
 const TokenTimelock = artifacts.require('TokenTimelock');
 
-contract('TokenTimelock', function ([_, owner, beneficiary]) {
+contract('TokenTimelock', function ([_, minter, beneficiary]) {
   const amount = new BigNumber(100);
 
   context('with token', function () {
     beforeEach(async function () {
-      this.token = await MintableToken.new({ from: owner });
+      this.token = await ERC20Mintable.new([minter]);
     });
 
     it('rejects a release time in the past', async function () {
@@ -30,7 +30,7 @@ contract('TokenTimelock', function ([_, owner, beneficiary]) {
       beforeEach(async function () {
         this.releaseTime = (await latestTime()) + duration.years(1);
         this.timelock = await TokenTimelock.new(this.token.address, beneficiary, this.releaseTime);
-        await this.token.mint(this.timelock.address, amount, { from: owner });
+        await this.token.mint(this.timelock.address, amount, { from: minter });
       });
 
       it('cannot be released before time limit', async function () {

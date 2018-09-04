@@ -11,7 +11,7 @@ contract PullPaymentMock is PullPayment {
 
   // test helper function to call asyncTransfer
   function callTransfer(address _dest, uint256 _amount) public {
-    asyncTransfer(_dest, _amount);
+    _asyncTransfer(_dest, _amount);
   }
 
 }

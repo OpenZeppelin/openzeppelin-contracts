@@ -30,7 +30,7 @@ contract RBAC {
     public
     view
   {
-    roles[_role].check(_operator);
+    require(roles[_role].has(_operator));
   }
 
   /**
@@ -52,7 +52,7 @@ contract RBAC {
    * @param _operator address
    * @param _role the name of the role
    */
-  function addRole(address _operator, string _role)
+  function _addRole(address _operator, string _role)
     internal
   {
     roles[_role].add(_operator);
@@ -64,7 +64,7 @@ contract RBAC {
    * @param _operator address
    * @param _role the name of the role
    */
-  function removeRole(address _operator, string _role)
+  function _removeRole(address _operator, string _role)
     internal
   {
     roles[_role].remove(_operator);
