@@ -51,7 +51,7 @@ contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
       });
 
       it('does not allow beneficiaries to withdraw tokens before crowdsale ends', async function () {
-        await expectThrow(this.crowdsale.withdrawTokens({ from: investor }), EVMRevert);
+        await expectThrow(this.crowdsale.withdrawTokens(investor), EVMRevert);
       });
 
       context('after closing time', function () {
@@ -60,13 +60,13 @@ contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
         });
 
         it('allows beneficiaries to withdraw tokens', async function () {
-          await this.crowdsale.withdrawTokens({ from: investor });
+          await this.crowdsale.withdrawTokens(investor);
           (await this.token.balanceOf(investor)).should.be.bignumber.equal(value);
         });
 
         it('rejects multiple withdrawals', async function () {
-          await this.crowdsale.withdrawTokens({ from: investor });
-          await expectThrow(this.crowdsale.withdrawTokens({ from: investor }), EVMRevert);
+          await this.crowdsale.withdrawTokens(investor);
+          await expectThrow(this.crowdsale.withdrawTokens(investor), EVMRevert);
         });
       });
     });
