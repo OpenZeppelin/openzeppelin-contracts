@@ -46,6 +46,17 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
       this.contract = await SplitPayment.new(this.payees, this.shares);
     });
 
+    it('should have total shares', async function () {
+      (await this.contract.getTotalShares()).should.be.bignumber.equal(20 + 10 + 70);
+    });
+
+    it('should have payees', async function () {
+      this.payees.forEach(async (payee, index) => {
+        (await this.getPayee(index)).should.be.equal(payee);
+        (await this.contract.getReleased(payee)).should.be.bignumber.equal(0);
+      });
+    });
+
     it('should accept payments', async function () {
       await ethSendTransaction({ from: owner, to: this.contract.address, value: amount });
 
