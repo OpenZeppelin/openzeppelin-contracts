@@ -6,7 +6,6 @@ const {
 const {
   shouldSupportInterfaces,
 } = require('../../introspection/SupportsInterface.behavior');
-const _ = require('lodash');
 
 const BigNumber = web3.BigNumber;
 const ERC721 = artifacts.require('ERC721Mock.sol');

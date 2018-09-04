@@ -1,4 +1,5 @@
 const { assertRevert } = require('../../helpers/assertRevert');
+const _ = require('lodash');
 
 const firstTokenId = 100;
 const secondTokenId = 200;

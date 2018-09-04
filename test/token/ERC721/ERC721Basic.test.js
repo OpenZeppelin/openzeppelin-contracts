@@ -1,7 +1,4 @@
 const { shouldBehaveLikeERC721Basic } = require('./ERC721Basic.behavior');
-const {
-  shouldBehaveLikeMintAndBurnERC721,
-} = require('./ERC721MintBurn.behavior');
 
 const BigNumber = web3.BigNumber;
 const ERC721Basic = artifacts.require('ERC721BasicMock.sol');
