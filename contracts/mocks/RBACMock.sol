@@ -10,7 +10,7 @@ contract RBACMock is RBACWithAdmin {
   modifier onlyAdminOrAdvisor()
   {
     require(
-      hasRole(msg.sender, ROLE_ADMIN) ||
+      isAdmin(msg.sender) ||
       hasRole(msg.sender, ROLE_ADVISOR)
     );
     _;
@@ -19,10 +19,10 @@ contract RBACMock is RBACWithAdmin {
   constructor(address[] _advisors)
     public
   {
-    addRole(msg.sender, ROLE_ADVISOR);
+    _addRole(msg.sender, ROLE_ADVISOR);
 
     for (uint256 i = 0; i < _advisors.length; i++) {
-      addRole(_advisors[i], ROLE_ADVISOR);
+      _addRole(_advisors[i], ROLE_ADVISOR);
     }
   }
 
@@ -64,6 +64,6 @@ contract RBACMock is RBACWithAdmin {
     checkRole(_account, ROLE_ADVISOR);
 
     // remove the advisor's role
-    removeRole(_account, ROLE_ADVISOR);
+    _removeRole(_account, ROLE_ADVISOR);
   }
 }

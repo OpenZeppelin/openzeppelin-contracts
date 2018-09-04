@@ -13,7 +13,7 @@ contract RBACMintableToken is ERC20Mintable, RBAC {
   /**
    * A constant role name for indicating minters.
    */
-  string public constant ROLE_MINTER = "minter";
+  string private constant ROLE_MINTER = "minter";
 
   /**
    * @dev override the Mintable token modifier to add role based logic
@@ -24,11 +24,18 @@ contract RBACMintableToken is ERC20Mintable, RBAC {
   }
 
   /**
+   * @return true if the account is a minter, false otherwise.
+   */
+  function isMinter(address _account) public view returns(bool) {
+    return hasRole(_account, ROLE_MINTER);
+  }
+
+  /**
    * @dev add a minter role to an address
    * @param _minter address
    */
   function addMinter(address _minter) public onlyOwner {
-    addRole(_minter, ROLE_MINTER);
+    _addRole(_minter, ROLE_MINTER);
   }
 
   /**
@@ -36,6 +43,6 @@ contract RBACMintableToken is ERC20Mintable, RBAC {
    * @param _minter address
    */
   function removeMinter(address _minter) public onlyOwner {
-    removeRole(_minter, ROLE_MINTER);
+    _removeRole(_minter, ROLE_MINTER);
   }
 }

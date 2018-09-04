@@ -86,7 +86,7 @@ contract Heritable is Ownable {
    * have to wait for `heartbeatTimeout` seconds.
    */
   function proclaimDeath() public onlyHeir {
-    require(ownerLives());
+    require(_ownerLives());
     emit OwnerProclaimedDead(owner, heir_, timeOfDeath_);
     // solium-disable-next-line security/no-block-members
     timeOfDeath_ = block.timestamp;
@@ -104,7 +104,7 @@ contract Heritable is Ownable {
    * @dev Allows heir to transfer ownership only if heartbeat has timed out.
    */
   function claimHeirOwnership() public onlyHeir {
-    require(!ownerLives());
+    require(!_ownerLives());
     // solium-disable-next-line security/no-block-members
     require(block.timestamp >= timeOfDeath_ + heartbeatTimeout_);
     emit OwnershipTransferred(owner, heir_);
@@ -113,7 +113,7 @@ contract Heritable is Ownable {
     timeOfDeath_ = 0;
   }
 
-  function ownerLives() internal view returns (bool) {
+  function _ownerLives() internal view returns (bool) {
     return timeOfDeath_ == 0;
   }
 }

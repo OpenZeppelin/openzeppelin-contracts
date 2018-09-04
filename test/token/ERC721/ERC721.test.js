@@ -76,13 +76,13 @@ contract('ERC721', function (accounts) {
     describe('removeTokenFrom', function () {
       it('reverts if the correct owner is not passed', async function () {
         await assertRevert(
-          this.token._removeTokenFrom(anyone, firstTokenId, { from: creator })
+          this.token.removeTokenFrom(anyone, firstTokenId, { from: creator })
         );
       });
 
       context('once removed', function () {
         beforeEach(async function () {
-          await this.token._removeTokenFrom(creator, firstTokenId, { from: creator });
+          await this.token.removeTokenFrom(creator, firstTokenId, { from: creator });
         });
 
         it('has been removed', async function () {

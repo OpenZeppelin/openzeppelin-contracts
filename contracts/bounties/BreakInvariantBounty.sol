@@ -1,15 +1,14 @@
 pragma solidity ^0.4.24;
 
 
-import "./payment/PullPayment.sol";
-import "./lifecycle/Destructible.sol";
+import "../payment/PullPayment.sol";
 
 
 /**
- * @title Bounty
+ * @title BreakInvariantBounty
  * @dev This bounty will pay out to a researcher if they break invariant logic of the contract.
  */
-contract Bounty is PullPayment, Destructible {
+contract BreakInvariantBounty is PullPayment, Ownable {
   bool public claimed;
   mapping(address => address) public researchers;
 
@@ -28,7 +27,7 @@ contract Bounty is PullPayment, Destructible {
    * @return A target contract
    */
   function createTarget() public returns(Target) {
-    Target target = Target(deployContract());
+    Target target = Target(_deployContract());
     researchers[target] = msg.sender;
     emit TargetCreated(target);
     return target;
@@ -43,15 +42,22 @@ contract Bounty is PullPayment, Destructible {
     require(researcher != address(0));
     // Check Target contract invariants
     require(!_target.checkInvariant());
-    asyncTransfer(researcher, address(this).balance);
+    _asyncTransfer(researcher, address(this).balance);
     claimed = true;
+  }
+
+  /**
+   * @dev Transfers the current balance to the owner and terminates the contract.
+   */
+  function destroy() public onlyOwner {
+    selfdestruct(owner);
   }
 
   /**
    * @dev Internal function to deploy the target contract.
    * @return A target contract address
    */
-  function deployContract() internal returns(address);
+  function _deployContract() internal returns(address);
 
 }
 
