@@ -1,4 +1,6 @@
-const { shouldBehaveLikeERC721PausedToken } = require('./ERC721PausedToken.behavior');
+const {
+  shouldBehaveLikeERC721PausedToken,
+} = require('./ERC721PausedToken.behavior');
 const { shouldBehaveLikeERC721Basic } = require('./ERC721Basic.behavior');
 
 const BigNumber = web3.BigNumber;
@@ -8,29 +10,35 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('ERC721Pausable', function ([_, owner, recipient, operator, ...otherAccounts]) {
+contract('ERC721Pausable', function ([
+  _,
+  creator,
+  owner,
+  operator,
+  ...accounts
+]) {
   beforeEach(async function () {
-    this.token = await ERC721Pausable.new({ from: owner });
+    this.token = await ERC721Pausable.new({ from: creator });
   });
 
   context('when token is paused', function () {
     beforeEach(async function () {
-      await this.token.pause({ from: owner });
+      await this.token.pause({ from: creator });
     });
 
-    shouldBehaveLikeERC721PausedToken(owner, [...otherAccounts]);
+    shouldBehaveLikeERC721PausedToken(creator, accounts);
   });
 
   context('when token is not paused yet', function () {
-    shouldBehaveLikeERC721Basic([owner, ...otherAccounts]);
+    shouldBehaveLikeERC721Basic(creator, creator, accounts);
   });
 
   context('when token is paused and then unpaused', function () {
     beforeEach(async function () {
-      await this.token.pause({ from: owner });
-      await this.token.unpause({ from: owner });
+      await this.token.pause({ from: creator });
+      await this.token.unpause({ from: creator });
     });
 
-    shouldBehaveLikeERC721Basic([owner, ...otherAccounts]);
+    shouldBehaveLikeERC721Basic(creator, creator, accounts);
   });
 });

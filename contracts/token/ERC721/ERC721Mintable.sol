@@ -1,15 +1,15 @@
 pragma solidity ^0.4.24;
 
-import "./ERC20.sol";
+import "./ERC721.sol";
 import "../../access/rbac/MinterRole.sol";
 
 
 /**
- * @title ERC20Mintable
- * @dev ERC20 minting logic
+ * @title ERC721Mintable
+ * @dev ERC721 minting logic
  */
-contract ERC20Mintable is ERC20, MinterRole {
-  event Mint(address indexed to, uint256 amount);
+contract ERC721Mintable is ERC721, MinterRole {
+  event Mint(address indexed to, uint256 tokenId);
   event MintFinished();
 
   bool public mintingFinished = false;
@@ -28,20 +28,35 @@ contract ERC20Mintable is ERC20, MinterRole {
   /**
    * @dev Function to mint tokens
    * @param _to The address that will receive the minted tokens.
-   * @param _amount The amount of tokens to mint.
+   * @param _tokenId The token id to mint.
    * @return A boolean that indicates if the operation was successful.
    */
   function mint(
     address _to,
-    uint256 _amount
+    uint256 _tokenId
   )
     public
     onlyMinter
     canMint
     returns (bool)
   {
-    _mint(_to, _amount);
-    emit Mint(_to, _amount);
+    _mint(_to, _tokenId);
+    emit Mint(_to, _tokenId);
+    return true;
+  }
+
+  function mintWithTokenURI(
+    address _to,
+    uint256 _tokenId,
+    string _tokenURI
+  )
+    public
+    onlyMinter
+    canMint
+    returns (bool)
+  {
+    mint(_to, _tokenId);
+    _setTokenURI(_tokenId, _tokenURI);
     return true;
   }
 
@@ -49,7 +64,12 @@ contract ERC20Mintable is ERC20, MinterRole {
    * @dev Function to stop minting new tokens.
    * @return True if the operation was successful.
    */
-  function finishMinting() public onlyMinter canMint returns (bool) {
+  function finishMinting()
+    public
+    onlyMinter
+    canMint
+    returns (bool)
+  {
     mintingFinished = true;
     emit MintFinished();
     return true;

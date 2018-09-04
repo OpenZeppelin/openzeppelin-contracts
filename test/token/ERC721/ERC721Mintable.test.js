@@ -1,0 +1,22 @@
+const { shouldBehaveLikeERC721Basic } = require('./ERC721Basic.behavior');
+const {
+  shouldBehaveLikeMintAndBurnERC721,
+} = require('./ERC721MintBurn.behavior');
+
+const BigNumber = web3.BigNumber;
+const ERC721Mintable = artifacts.require('ERC721MintableBurnableImpl.sol');
+
+require('chai')
+  .use(require('chai-bignumber')(BigNumber))
+  .should();
+
+contract('ERC721Mintable', function ([_, creator, minter, ...accounts]) {
+  beforeEach(async function () {
+    this.token = await ERC721Mintable.new([minter], {
+      from: creator,
+    });
+  });
+
+  shouldBehaveLikeERC721Basic(creator, minter, accounts);
+  shouldBehaveLikeMintAndBurnERC721(creator, minter, accounts);
+});
