@@ -55,7 +55,7 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
 
     context('before opening time', function () {
       it('denies refunds', async function () {
-        await expectThrow(this.crowdsale.claimRefund({ from: investor }), EVMRevert);
+        await expectThrow(this.crowdsale.claimRefund(investor), EVMRevert);
       });
     });
 
@@ -65,7 +65,7 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
       });
 
       it('denies refunds', async function () {
-        await expectThrow(this.crowdsale.claimRefund({ from: investor }), EVMRevert);
+        await expectThrow(this.crowdsale.claimRefund(investor), EVMRevert);
       });
 
       context('with unreached goal', function () {
@@ -81,7 +81,7 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
 
           it('refunds', async function () {
             const pre = await ethGetBalance(investor);
-            await this.crowdsale.claimRefund({ from: investor, gasPrice: 0 });
+            await this.crowdsale.claimRefund(investor, { gasPrice: 0 });
             const post = await ethGetBalance(investor);
             post.minus(pre).should.be.bignumber.equal(lessThanGoal);
           });
@@ -100,7 +100,7 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
           });
 
           it('denies refunds', async function () {
-            await expectThrow(this.crowdsale.claimRefund({ from: investor }), EVMRevert);
+            await expectThrow(this.crowdsale.claimRefund(investor), EVMRevert);
           });
 
           it('forwards funds to wallet', async function () {
