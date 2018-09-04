@@ -20,13 +20,11 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
 
     describe('add', function () {
       it('adds role to a new account', async function () {
-        await this.contract[`add${rolename}`](authorized);
-        (await this.contract[`is${rolename}`](authorized)).should.equal(true);
-        (await this.contract[`is${rolename}`](anyone)).should.equal(false);
+        await this.contract[`add${rolename}`](anyone);
+        (await this.contract[`is${rolename}`](anyone)).should.equal(true);
       });
 
       it('adds role to an already-assigned account', async function () {
-        await this.contract[`add${rolename}`](authorized);
         await this.contract[`add${rolename}`](authorized);
         (await this.contract[`is${rolename}`](authorized)).should.equal(true);
       });
@@ -37,7 +35,7 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
     });
 
     describe('remove', function () {
-      it('removes role from an already assgined account', async function () {
+      it('removes role from an already assigned account', async function () {
         await this.contract[`remove${rolename}`](authorized);
         (await this.contract[`is${rolename}`](authorized)).should.equal(false);
         (await this.contract[`is${rolename}`](otherAuthorized)).should.equal(true);
