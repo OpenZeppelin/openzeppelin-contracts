@@ -2,9 +2,9 @@
 
 pragma solidity ^0.4.24;
 
-import "./SafeERC20.sol";
-import "../../ownership/Ownable.sol";
-import "../../math/SafeMath.sol";
+import "../token/ERC20/SafeERC20.sol";
+import "../ownership/Ownable.sol";
+import "../math/SafeMath.sol";
 
 
 /**
