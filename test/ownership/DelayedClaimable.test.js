@@ -30,9 +30,9 @@ contract('DelayedClaimable', function ([_, owner, newOwner]) {
 
     (await this.delayedClaimable.start()).should.be.bignumber.equal(0);
 
-    (await this.delayedClaimable.pendingOwner()).should.eq(newOwner);
+    (await this.delayedClaimable.pendingOwner()).should.equal(newOwner);
     await this.delayedClaimable.claimOwnership({ from: newOwner });
-    (await this.delayedClaimable.owner()).should.eq(newOwner);
+    (await this.delayedClaimable.owner()).should.equal(newOwner);
   });
 
   it('changes pendingOwner after transfer fails', async function () {
@@ -43,9 +43,9 @@ contract('DelayedClaimable', function ([_, owner, newOwner]) {
 
     (await this.delayedClaimable.start()).should.be.bignumber.equal(100);
 
-    (await this.delayedClaimable.pendingOwner()).should.eq(newOwner);
+    (await this.delayedClaimable.pendingOwner()).should.equal(newOwner);
     await assertRevert(this.delayedClaimable.claimOwnership({ from: newOwner }));
-    (await this.delayedClaimable.owner()).should.not.eq(newOwner);
+    (await this.delayedClaimable.owner()).should.not.equal(newOwner);
   });
 
   it('set end and start invalid values fail', async function () {

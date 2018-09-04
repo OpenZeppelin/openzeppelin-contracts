@@ -18,7 +18,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
   uint256 public goal;
 
   // refund escrow used to hold funds while crowdsale is running
-  RefundEscrow private escrow;
+  RefundEscrow private escrow_;
 
   /**
    * @dev Constructor, creates RefundEscrow.
@@ -26,7 +26,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
    */
   constructor(uint256 _goal) public {
     require(_goal > 0);
-    escrow = new RefundEscrow(wallet);
+    escrow_ = new RefundEscrow(wallet);
     goal = _goal;
   }
 
@@ -37,7 +37,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
     require(isFinalized);
     require(!goalReached());
 
-    escrow.withdraw(msg.sender);
+    escrow_.withdraw(msg.sender);
   }
 
   /**
@@ -51,22 +51,22 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
   /**
    * @dev escrow finalization task, called when owner calls finalize()
    */
-  function finalization() internal {
+  function _finalization() internal {
     if (goalReached()) {
-      escrow.close();
-      escrow.beneficiaryWithdraw();
+      escrow_.close();
+      escrow_.beneficiaryWithdraw();
     } else {
-      escrow.enableRefunds();
+      escrow_.enableRefunds();
     }
 
-    super.finalization();
+    super._finalization();
   }
 
   /**
    * @dev Overrides Crowdsale fund forwarding, sending funds to escrow.
    */
   function _forwardFunds() internal {
-    escrow.deposit.value(msg.value)(msg.sender);
+    escrow_.deposit.value(msg.value)(msg.sender);
   }
 
 }

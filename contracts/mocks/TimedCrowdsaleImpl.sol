@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../token/ERC20/ERC20.sol";
+import "../token/ERC20/IERC20.sol";
 import "../crowdsale/validation/TimedCrowdsale.sol";
 
 
@@ -11,7 +11,7 @@ contract TimedCrowdsaleImpl is TimedCrowdsale {
     uint256 _closingTime,
     uint256 _rate,
     address _wallet,
-    ERC20 _token
+    IERC20 _token
   )
     public
     Crowdsale(_rate, _wallet, _token)

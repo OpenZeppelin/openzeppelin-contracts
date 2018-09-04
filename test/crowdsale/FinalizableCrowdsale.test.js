@@ -11,7 +11,7 @@ const should = require('chai')
   .should();
 
 const FinalizableCrowdsale = artifacts.require('FinalizableCrowdsaleImpl');
-const StandardToken = artifacts.require('StandardToken');
+const ERC20 = artifacts.require('ERC20');
 
 contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
   const rate = new BigNumber(1000);
@@ -26,7 +26,7 @@ contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
     this.closingTime = this.openingTime + duration.weeks(1);
     this.afterClosingTime = this.closingTime + duration.seconds(1);
 
-    this.token = await StandardToken.new();
+    this.token = await ERC20.new();
     this.crowdsale = await FinalizableCrowdsale.new(
       this.openingTime, this.closingTime, rate, wallet, this.token.address, { from: owner }
     );
@@ -55,7 +55,7 @@ contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
   it('logs finalized', async function () {
     await increaseTimeTo(this.afterClosingTime);
     const { logs } = await this.crowdsale.finalize({ from: owner });
-    const event = logs.find(e => e.event === 'Finalized');
+    const event = logs.find(e => e.event === 'CrowdsaleFinalized');
     should.exist(event);
   });
 });
