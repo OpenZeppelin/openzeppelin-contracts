@@ -2,7 +2,7 @@ pragma solidity ^0.4.24;
 
 
 import "../payment/PullPayment.sol";
-
+import "../ownership/Ownable.sol";
 
 /**
  * @title BreakInvariantBounty
