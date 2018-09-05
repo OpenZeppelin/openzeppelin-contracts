@@ -43,8 +43,7 @@ function shouldBehaveLikeERC20Mintable (minter, [anyone]) {
           it('emits a mint finished event', async function () {
             const { logs } = await this.token.finishMinting({ from });
 
-            logs.length.should.be.equal(1);
-            logs[0].event.should.equal('MintFinished');
+            await expectEvent.inLogs(logs, 'MintingFinished');
           });
         });
 
