@@ -10,13 +10,34 @@ import "./IERC20.sol";
  * just as on Ethereum all the operations are done in wei.
  */
 contract ERC20Detailed is IERC20 {
-  string public name;
-  string public symbol;
-  uint8 public decimals;
+  string private name_;
+  string private symbol_;
+  uint8 private decimals_;
 
   constructor(string _name, string _symbol, uint8 _decimals) public {
-    name = _name;
-    symbol = _symbol;
-    decimals = _decimals;
+    name_ = _name;
+    symbol_ = _symbol;
+    decimals_ = _decimals;
+  }
+
+  /**
+   * @return the name of the token.
+   */
+  function name() public view returns(string) {
+    return name_;
+  }
+
+  /**
+   * @return the symbol of the token.
+   */
+  function symbol() public view returns(string) {
+    return symbol_;
+  }
+
+  /**
+   * @return the number of decimals of the token.
+   */
+  function decimals() public view returns(uint8) {
+    return decimals_;
   }
 }
