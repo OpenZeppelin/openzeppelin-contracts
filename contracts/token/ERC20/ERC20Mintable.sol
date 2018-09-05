@@ -22,7 +22,7 @@ contract ERC20Mintable is ERC20, Ownable {
   }
 
   modifier onlyMinter() {
-    require(isOwner(msg.sender));
+    require(isOwner());
     _;
   }
 
