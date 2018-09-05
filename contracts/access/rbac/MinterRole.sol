@@ -21,7 +21,7 @@ contract MinterRole {
     return minters.has(_account);
   }
 
-  function addMinter(address _account) onlyMinter public {
+  function addMinter(address _account) public onlyMinter {
     minters.add(_account);
   }
 
