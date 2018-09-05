@@ -25,7 +25,7 @@ contract BreakInvariantBounty is PullPayment, Ownable {
    * @dev Determine if the bounty was claimed.
    * @return true if the bounty was claimed, false otherwise.
    */
-  function wasClaimed() public view returns(bool) {
+  function claimed() public view returns(bool) {
     return claimed_;
   }
 
