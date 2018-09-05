@@ -40,5 +40,6 @@ contract Claimable is Ownable {
    */
   function claimOwnership() public onlyPendingOwner {
     _transferOwnership(pendingOwner_);
+    pendingOwner = address(0);
   }
 }
