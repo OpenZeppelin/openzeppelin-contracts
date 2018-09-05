@@ -16,13 +16,13 @@ contract ERC20Mintable is ERC20, Ownable {
   bool private mintingFinished_ = false;
 
 
-  modifier canMint() {
+  modifier onlyBeforeMintingFinished() {
     require(!mintingFinished_);
     _;
   }
 
-  modifier hasMintPermission() {
-    require(msg.sender == owner());
+  modifier onlyMinter() {
+    require(isMinter());
     _;
   }
 
@@ -31,6 +31,13 @@ contract ERC20Mintable is ERC20, Ownable {
    */
   function mintingFinished() public view returns(bool) {
     return mintingFinished_;
+  }
+
+  /**
+   * @return true if `msg.sender` is the minter.
+   */
+  function isMinter() public view returns(bool) {
+    return msg.sender == owner();
   }
 
   /**
@@ -44,8 +51,8 @@ contract ERC20Mintable is ERC20, Ownable {
     uint256 _amount
   )
     public
-    hasMintPermission
-    canMint
+    onlyMinter
+    onlyBeforeMintingFinished
     returns (bool)
   {
     _mint(_to, _amount);
@@ -57,7 +64,12 @@ contract ERC20Mintable is ERC20, Ownable {
    * @dev Function to stop minting new tokens.
    * @return True if the operation was successful.
    */
-  function finishMinting() public onlyOwner canMint returns (bool) {
+  function finishMinting()
+    public
+    onlyOwner
+    onlyBeforeMintingFinished
+    returns (bool)
+  {
     mintingFinished_ = true;
     emit MintFinished();
     return true;

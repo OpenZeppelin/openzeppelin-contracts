@@ -50,8 +50,10 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
     });
 
     it('should be ended only after end', async function () {
+      (await this.crowdsale.isOpen()).should.equal(true);
       (await this.crowdsale.hasClosed()).should.equal(false);
       await increaseTimeTo(this.afterClosingTime);
+      (await this.crowdsale.isOpen()).should.equal(false);
       (await this.crowdsale.hasClosed()).should.equal(true);
     });
 
