@@ -38,35 +38,35 @@ contract SplitPayment {
   /**
    * @return the total shares of the contract.
    */
-  function getTotalShares() public view returns(uint256) {
+  function totalShares() public view returns(uint256) {
     return totalShares_;
   }
 
   /**
    * @return the total amount already released.
    */
-  function getTotalReleased() public view returns(uint256) {
+  function totalReleased() public view returns(uint256) {
     return totalReleased_;
   }
 
   /**
    * @return the shares of an account.
    */
-  function getShares(address _account) public view returns(uint256) {
+  function shares(address _account) public view returns(uint256) {
     return shares_[_account];
   }
 
   /**
    * @return the amount already released to an account.
    */
-  function getReleased(address _account) public view returns(uint256) {
+  function released(address _account) public view returns(uint256) {
     return released_[_account];
   }
 
   /**
    * @return the address of a payee.
    */
-  function getPayee(uint256 index) public view returns(address) {
+  function payee(uint256 index) public view returns(address) {
     return payees_[index];
   }
 

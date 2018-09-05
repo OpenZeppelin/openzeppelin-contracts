@@ -23,7 +23,7 @@ contract Claimable is Ownable {
   /**
    * @return the address of the pending owner.
    */
-  function getPendingOwner() public view returns(address) {
+  function pendingOwner() public view returns(address) {
     return pendingOwner_;
   }
 
