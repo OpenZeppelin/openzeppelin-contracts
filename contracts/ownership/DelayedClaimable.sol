@@ -16,14 +16,14 @@ contract DelayedClaimable is Claimable {
   /**
    * @return the start of the claimable period.
    */
-  function getStart() public view returns(uint256) {
+  function start() public view returns(uint256) {
     return start_;
   }
 
   /**
    * @return the end of the claimable period.
    */
-  function getEnd() public view returns(uint256) {
+  function end() public view returns(uint256) {
     return end_;
   }
 

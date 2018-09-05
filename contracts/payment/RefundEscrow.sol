@@ -32,14 +32,14 @@ contract RefundEscrow is Ownable, ConditionalEscrow {
   /**
    * @return the current state of the escrow.
    */
-  function getState() public view returns(State) {
+  function state() public view returns(State) {
     return state_;
   }
 
   /**
    * @return the beneficiary of the escrow.
    */
-  function getBeneficiary() public view returns(address) {
+  function beneficiary() public view returns(address) {
     return beneficiary_;
   }
 

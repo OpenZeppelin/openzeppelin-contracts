@@ -18,7 +18,7 @@ contract Pausable is Ownable {
   /**
    * @return true if the contract is paused, false otherwise.
    */
-  function isPaused() public view returns(bool) {
+  function paused() public view returns(bool) {
     return paused_;
   }
 
