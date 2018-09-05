@@ -107,7 +107,7 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
       (await ethGetBalance(this.contract.address)).should.be.bignumber.equal(0);
 
       // check correct funds released accounting
-      (await this.contract.getTotalReleased()).should.be.bignumber.equal(initBalance);
+      (await this.contract.totalReleased()).should.be.bignumber.equal(initBalance);
     });
   });
 });
