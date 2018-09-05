@@ -22,7 +22,7 @@ contract ERC20Mintable is ERC20, Ownable {
   }
 
   modifier onlyMinter() {
-    require(isMinter());
+    require(isOwner(msg.sender));
     _;
   }
 
@@ -31,13 +31,6 @@ contract ERC20Mintable is ERC20, Ownable {
    */
   function mintingFinished() public view returns(bool) {
     return mintingFinished_;
-  }
-
-  /**
-   * @return true if `msg.sender` is the minter.
-   */
-  function isMinter() public view returns(bool) {
-    return msg.sender == owner();
   }
 
   /**
