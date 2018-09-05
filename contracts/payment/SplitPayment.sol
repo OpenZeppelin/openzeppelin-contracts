@@ -5,8 +5,8 @@ import "../math/SafeMath.sol";
 
 /**
  * @title SplitPayment
- * @dev Base contract that supports multiple payees claiming funds sent to this contract
- * according to the proportion they own.
+ * @dev This contract can be used when payments need to be received by a group
+ * of people and split proportionately to some number of shares they own.
  */
 contract SplitPayment {
   using SafeMath for uint256;
@@ -71,12 +71,11 @@ contract SplitPayment {
   }
 
   /**
-   * @dev Claim your share of the balance.
+   * @dev Release one of the payee's proportional payment.
+   * @param _payee Whose payments will be released.
    */
-  function claim() public {
-    address payee = msg.sender;
-
-    require(shares_[payee] > 0);
+  function release(address _payee) public {
+    require(shares_[_payee] > 0);
 
     uint256 totalReceived = address(this).balance.add(totalReleased_);
     uint256 payment = totalReceived.mul(
@@ -91,7 +90,7 @@ contract SplitPayment {
     released_[payee] = released_[payee].add(payment);
     totalReleased_ = totalReleased_.add(payment);
 
-    payee.transfer(payment);
+    _payee.transfer(payment);
   }
 
   /**

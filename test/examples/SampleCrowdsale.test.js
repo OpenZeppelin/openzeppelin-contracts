@@ -105,7 +105,7 @@ contract('SampleCrowdsale', function ([_, owner, wallet, investor]) {
     await increaseTimeTo(this.afterClosingTime);
 
     await this.crowdsale.finalize({ from: owner });
-    await this.crowdsale.claimRefund({ from: investor, gasPrice: 0 });
+    await this.crowdsale.claimRefund(investor, { gasPrice: 0 });
 
     const balanceAfterRefund = await ethGetBalance(investor);
     balanceBeforeInvestment.should.be.bignumber.equal(balanceAfterRefund);
