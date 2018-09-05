@@ -9,8 +9,8 @@ import "../payment/PullPayment.sol";
  * @dev This bounty will pay out to a researcher if they break invariant logic of the contract.
  */
 contract BreakInvariantBounty is PullPayment, Ownable {
-  bool public claimed;
-  mapping(address => address) public researchers;
+  bool private claimed_;
+  mapping(address => address) private researchers;
 
   event TargetCreated(address createdAddress);
 
@@ -18,7 +18,15 @@ contract BreakInvariantBounty is PullPayment, Ownable {
    * @dev Fallback function allowing the contract to receive funds, if they haven't already been claimed.
    */
   function() external payable {
-    require(!claimed);
+    require(!claimed_);
+  }
+
+  /**
+   * @dev Determine if the bounty was claimed.
+   * @return true if the bounty was claimed, false otherwise.
+   */
+  function claimed() public view returns(bool) {
+    return claimed_;
   }
 
   /**
@@ -43,7 +51,7 @@ contract BreakInvariantBounty is PullPayment, Ownable {
     // Check Target contract invariants
     require(!_target.checkInvariant());
     _asyncTransfer(researcher, address(this).balance);
-    claimed = true;
+    claimed_ = true;
   }
 
   /**
