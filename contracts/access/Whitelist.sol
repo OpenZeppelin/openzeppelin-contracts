@@ -13,81 +13,81 @@ import "../access/rbac/RBAC.sol";
 contract Whitelist is Ownable, RBAC {
 
   // Name of the whitelisted role.
-  string private constant ROLE_WHITELISTED = "whitelist";
+  string private constant _ROLE_WHITELISTED = "whitelist";
 
   /**
    * @dev Throws if operator is not whitelisted.
-   * @param _operator address
+   * @param operator address
    */
-  modifier onlyIfWhitelisted(address _operator) {
-    checkRole(_operator, ROLE_WHITELISTED);
+  modifier onlyIfWhitelisted(address operator) {
+    checkRole(operator, _ROLE_WHITELISTED);
     _;
   }
 
   /**
    * @dev add an address to the whitelist
-   * @param _operator address
+   * @param operator address
    * @return true if the address was added to the whitelist, false if the address was already in the whitelist
    */
-  function addAddressToWhitelist(address _operator)
+  function addAddressToWhitelist(address operator)
     public
     onlyOwner
   {
-    _addRole(_operator, ROLE_WHITELISTED);
+    _addRole(operator, _ROLE_WHITELISTED);
   }
 
   /**
    * @dev Determine if an account is whitelisted.
    * @return true if the account is whitelisted, false otherwise.
    */
-  function isWhitelisted(address _operator)
+  function isWhitelisted(address operator)
     public
     view
     returns (bool)
   {
-    return hasRole(_operator, ROLE_WHITELISTED);
+    return hasRole(operator, _ROLE_WHITELISTED);
   }
 
   /**
    * @dev add addresses to the whitelist
-   * @param _operators addresses
+   * @param operators addresses
    * @return true if at least one address was added to the whitelist,
    * false if all addresses were already in the whitelist
    */
-  function addAddressesToWhitelist(address[] _operators)
+  function addAddressesToWhitelist(address[] operators)
     public
     onlyOwner
   {
-    for (uint256 i = 0; i < _operators.length; i++) {
-      addAddressToWhitelist(_operators[i]);
+    for (uint256 i = 0; i < operators.length; i++) {
+      addAddressToWhitelist(operators[i]);
     }
   }
 
   /**
    * @dev remove an address from the whitelist
-   * @param _operator address
+   * @param operator address
    * @return true if the address was removed from the whitelist,
    * false if the address wasn't in the whitelist in the first place
    */
-  function removeAddressFromWhitelist(address _operator)
+  function removeAddressFromWhitelist(address operator)
     public
     onlyOwner
   {
-    _removeRole(_operator, ROLE_WHITELISTED);
+    _removeRole(operator, _ROLE_WHITELISTED);
   }
 
   /**
    * @dev remove addresses from the whitelist
-   * @param _operators addresses
+   * @param operators addresses
    * @return true if at least one address was removed from the whitelist,
    * false if all addresses weren't in the whitelist in the first place
    */
-  function removeAddressesFromWhitelist(address[] _operators)
+  function removeAddressesFromWhitelist(address[] operators)
     public
     onlyOwner
   {
-    for (uint256 i = 0; i < _operators.length; i++) {
-      removeAddressFromWhitelist(_operators[i]);
+    for (uint256 i = 0; i < operators.length; i++) {
+      removeAddressFromWhitelist(operators[i]);
     }
   }
 

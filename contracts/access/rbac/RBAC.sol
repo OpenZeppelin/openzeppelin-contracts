@@ -15,82 +15,82 @@ import "./Roles.sol";
 contract RBAC {
   using Roles for Roles.Role;
 
-  mapping (string => Roles.Role) private roles;
+  mapping (string => Roles.Role) private _roles;
 
   event RoleAdded(address indexed operator, string role);
   event RoleRemoved(address indexed operator, string role);
 
   /**
    * @dev reverts if addr does not have role
-   * @param _operator address
-   * @param _role the name of the role
+   * @param operator address
+   * @param role the name of the role
    * // reverts
    */
-  function checkRole(address _operator, string _role)
+  function checkRole(address operator, string role)
     public
     view
   {
-    roles[_role].check(_operator);
+    _roles[role].check(operator);
   }
 
   /**
    * @dev determine if addr has role
-   * @param _operator address
-   * @param _role the name of the role
+   * @param operator address
+   * @param role the name of the role
    * @return bool
    */
-  function hasRole(address _operator, string _role)
+  function hasRole(address operator, string role)
     public
     view
     returns (bool)
   {
-    return roles[_role].has(_operator);
+    return _roles[role].has(operator);
   }
 
   /**
    * @dev add a role to an address
-   * @param _operator address
-   * @param _role the name of the role
+   * @param operator address
+   * @param role the name of the role
    */
-  function _addRole(address _operator, string _role)
+  function _addRole(address operator, string role)
     internal
   {
-    roles[_role].add(_operator);
-    emit RoleAdded(_operator, _role);
+    _roles[role].add(operator);
+    emit RoleAdded(operator, role);
   }
 
   /**
    * @dev remove a role from an address
-   * @param _operator address
-   * @param _role the name of the role
+   * @param operator address
+   * @param role the name of the role
    */
-  function _removeRole(address _operator, string _role)
+  function _removeRole(address operator, string role)
     internal
   {
-    roles[_role].remove(_operator);
-    emit RoleRemoved(_operator, _role);
+    _roles[role].remove(operator);
+    emit RoleRemoved(operator, role);
   }
 
   /**
    * @dev modifier to scope access to a single role (uses msg.sender as addr)
-   * @param _role the name of the role
+   * @param role the name of the role
    * // reverts
    */
-  modifier onlyRole(string _role)
+  modifier onlyRole(string role)
   {
-    checkRole(msg.sender, _role);
+    checkRole(msg.sender, role);
     _;
   }
 
   /**
    * @dev modifier to scope access to a set of roles (uses msg.sender as addr)
-   * @param _roles the names of the roles to scope access to
+   * @param roles the names of the roles to scope access to
    * // reverts
    *
    * @TODO - when solidity supports dynamic arrays as arguments to modifiers, provide this
    *  see: https://github.com/ethereum/solidity/issues/2467
    */
-  // modifier onlyRoles(string[] _roles) {
+  // modifier onlyRoles(string[] roles) {
   //     bool hasAnyRole = false;
   //     for (uint8 i = 0; i < _roles.length; i++) {
   //         if (hasRole(msg.sender, _roles[i])) {

@@ -15,41 +15,41 @@ library Roles {
   /**
    * @dev give an account access to this role
    */
-  function add(Role storage _role, address _account)
+  function add(Role storage role, address account)
     internal
   {
-    _role.bearer[_account] = true;
+    role.bearer[account] = true;
   }
 
   /**
    * @dev remove an account's access to this role
    */
-  function remove(Role storage _role, address _account)
+  function remove(Role storage role, address account)
     internal
   {
-    _role.bearer[_account] = false;
+    role.bearer[account] = false;
   }
 
   /**
    * @dev check if an account has this role
    * // reverts
    */
-  function check(Role storage _role, address _account)
+  function check(Role storage role, address account)
     internal
     view
   {
-    require(has(_role, _account));
+    require(has(role, account));
   }
 
   /**
    * @dev check if an account has this role
    * @return bool
    */
-  function has(Role storage _role, address _account)
+  function has(Role storage role, address account)
     internal
     view
     returns (bool)
   {
-    return _role.bearer[_account];
+    return role.bearer[account];
   }
 }
