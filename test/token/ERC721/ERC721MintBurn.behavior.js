@@ -41,14 +41,14 @@ function shouldBehaveLikeMintAndBurnERC721 (
           (await this.token.balanceOf(newOwner)).should.be.bignumber.equal(1);
         });
 
-        it('emits a transfer and mint event', async function () {
+        it('emits a transfer and minted event', async function () {
           await expectEvent.inLogs(logs, 'Transfer', {
             from: ZERO_ADDRESS,
             to: newOwner,
           });
           logs[0].args.tokenId.should.be.bignumber.equal(thirdTokenId);
 
-          await expectEvent.inLogs(logs, 'Mint', {
+          await expectEvent.inLogs(logs, 'Minted', {
             to: newOwner,
           });
           logs[1].args.tokenId.should.be.bignumber.equal(thirdTokenId);
@@ -116,6 +116,35 @@ function shouldBehaveLikeMintAndBurnERC721 (
         it('reverts', async function () {
           await assertRevert(
             this.token.burn(unknownTokenId, { from: creator })
+          );
+        });
+      });
+    });
+
+    describe('finishMinting', function () {
+      it('allows the minter to finish minting', async function () {
+        const { logs } = await this.token.finishMinting({ from: minter });
+        expectEvent.inLogs(logs, 'MintingFinished');
+      });
+    });
+
+    context('mintingFinished', function () {
+      beforeEach(async function () {
+        await this.token.finishMinting({ from: minter });
+      });
+
+      describe('mint', function () {
+        it('reverts', async function () {
+          await assertRevert(
+            this.token.mint(owner, thirdTokenId, { from: minter })
+          );
+        });
+      });
+
+      describe('mintWithTokenURI', function () {
+        it('reverts', async function () {
+          await assertRevert(
+            this.token.mintWithTokenURI(owner, thirdTokenId, MOCK_URI, { from: minter })
           );
         });
       });

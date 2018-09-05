@@ -9,8 +9,8 @@ import "../../access/rbac/MinterRole.sol";
  * @dev ERC20 minting logic
  */
 contract ERC20Mintable is ERC20, MinterRole {
-  event Mint(address indexed to, uint256 amount);
-  event MintFinished();
+  event Minted(address indexed to, uint256 amount);
+  event MintingFinished();
 
   bool public mintingFinished = false;
 
@@ -41,7 +41,7 @@ contract ERC20Mintable is ERC20, MinterRole {
     returns (bool)
   {
     _mint(_to, _amount);
-    emit Mint(_to, _amount);
+    emit Minted(_to, _amount);
     return true;
   }
 
@@ -51,7 +51,7 @@ contract ERC20Mintable is ERC20, MinterRole {
    */
   function finishMinting() public onlyMinter canMint returns (bool) {
     mintingFinished = true;
-    emit MintFinished();
+    emit MintingFinished();
     return true;
   }
 }
