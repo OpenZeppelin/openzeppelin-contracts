@@ -28,8 +28,6 @@ contract('MintedCrowdsale', function ([_, investor, wallet, purchaser]) {
   });
 
   describe('using RBACMintableToken', function () {
-    const ROLE_MINTER = 'minter';
-
     beforeEach(async function () {
       this.token = await RBACMintableToken.new();
       this.crowdsale = await MintedCrowdsale.new(rate, wallet, this.token.address);
@@ -37,7 +35,7 @@ contract('MintedCrowdsale', function ([_, investor, wallet, purchaser]) {
     });
 
     it('should have minter role on token', async function () {
-      (await this.token.hasRole(this.crowdsale.address, ROLE_MINTER)).should.equal(true);
+      (await this.token.isMinter(this.crowdsale.address)).should.equal(true);
     });
 
     shouldBehaveLikeMintedCrowdsale([_, investor, wallet, purchaser], rate, value);

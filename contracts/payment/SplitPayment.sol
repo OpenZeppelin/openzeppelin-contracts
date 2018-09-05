@@ -26,7 +26,7 @@ contract SplitPayment {
     require(_payees.length > 0);
 
     for (uint256 i = 0; i < _payees.length; i++) {
-      addPayee(_payees[i], _shares[i]);
+      _addPayee(_payees[i], _shares[i]);
     }
   }
 
@@ -64,7 +64,7 @@ contract SplitPayment {
    * @param _payee The address of the payee to add.
    * @param _shares The number of shares owned by the payee.
    */
-  function addPayee(address _payee, uint256 _shares) internal {
+  function _addPayee(address _payee, uint256 _shares) internal {
     require(_payee != address(0));
     require(_shares > 0);
     require(shares[_payee] == 0);

@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../AutoIncrementing.sol";
+import "../utils/AutoIncrementing.sol";
 
 
 contract AutoIncrementingImpl {

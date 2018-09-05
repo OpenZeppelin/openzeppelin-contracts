@@ -16,7 +16,6 @@ const INVALID_SIGNATURE = '0xabcd';
 contract('Bouncer', function ([_, owner, anyone, bouncerAddress, authorizedUser]) {
   beforeEach(async function () {
     this.bouncer = await Bouncer.new({ from: owner });
-    this.roleBouncer = await this.bouncer.ROLE_BOUNCER();
   });
 
   context('management', function () {
@@ -26,7 +25,7 @@ contract('Bouncer', function ([_, owner, anyone, bouncerAddress, authorizedUser]
 
     it('allows the owner to add a bouncer', async function () {
       await this.bouncer.addBouncer(bouncerAddress, { from: owner });
-      (await this.bouncer.hasRole(bouncerAddress, this.roleBouncer)).should.equal(true);
+      (await this.bouncer.isBouncer(bouncerAddress)).should.equal(true);
     });
 
     it('does not allow adding an invalid address', async function () {
@@ -39,7 +38,7 @@ contract('Bouncer', function ([_, owner, anyone, bouncerAddress, authorizedUser]
       await this.bouncer.addBouncer(bouncerAddress, { from: owner });
 
       await this.bouncer.removeBouncer(bouncerAddress, { from: owner });
-      (await this.bouncer.hasRole(bouncerAddress, this.roleBouncer)).should.equal(false);
+      (await this.bouncer.isBouncer(bouncerAddress)).should.equal(false);
     });
 
     it('does not allow anyone to add a bouncer', async function () {

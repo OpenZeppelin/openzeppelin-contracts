@@ -40,9 +40,9 @@ function shouldBehaveLikeMintAndBurnERC721 (accounts) {
         it('emits a transfer event', async function () {
           logs.length.should.be.equal(1);
           logs[0].event.should.be.equal('Transfer');
-          logs[0].args._from.should.be.equal(ZERO_ADDRESS);
-          logs[0].args._to.should.be.equal(to);
-          logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
+          logs[0].args.from.should.be.equal(ZERO_ADDRESS);
+          logs[0].args.to.should.be.equal(to);
+          logs[0].args.tokenId.should.be.bignumber.equal(tokenId);
         });
       });
 
@@ -78,9 +78,9 @@ function shouldBehaveLikeMintAndBurnERC721 (accounts) {
         it('emits a burn event', async function () {
           logs.length.should.be.equal(1);
           logs[0].event.should.be.equal('Transfer');
-          logs[0].args._from.should.be.equal(sender);
-          logs[0].args._to.should.be.equal(ZERO_ADDRESS);
-          logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
+          logs[0].args.from.should.be.equal(sender);
+          logs[0].args.to.should.be.equal(ZERO_ADDRESS);
+          logs[0].args.tokenId.should.be.bignumber.equal(tokenId);
         });
       });
 

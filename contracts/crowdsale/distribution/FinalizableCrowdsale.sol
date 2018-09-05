@@ -32,7 +32,7 @@ contract FinalizableCrowdsale is Ownable, TimedCrowdsale {
     require(!finalized_);
     require(hasClosed());
 
-    finalization();
+    _finalization();
     emit CrowdsaleFinalized();
 
     finalized_ = true;
@@ -40,10 +40,10 @@ contract FinalizableCrowdsale is Ownable, TimedCrowdsale {
 
   /**
    * @dev Can be overridden to add finalization logic. The overriding function
-   * should call super.finalization() to ensure the chain of finalization is
+   * should call super._finalization() to ensure the chain of finalization is
    * executed entirely.
    */
-  function finalization() internal {
+  function _finalization() internal {
   }
 
 }
