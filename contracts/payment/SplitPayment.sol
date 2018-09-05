@@ -79,15 +79,15 @@ contract SplitPayment {
 
     uint256 totalReceived = address(this).balance.add(totalReleased_);
     uint256 payment = totalReceived.mul(
-      shares_[payee]).div(
+      shares_[_payee]).div(
         totalShares_).sub(
-          released_[payee]
+          released_[_payee]
     );
 
     require(payment != 0);
     assert(address(this).balance >= payment);
 
-    released_[payee] = released_[payee].add(payment);
+    released_[_payee] = released_[_payee].add(payment);
     totalReleased_ = totalReleased_.add(payment);
 
     _payee.transfer(payment);
