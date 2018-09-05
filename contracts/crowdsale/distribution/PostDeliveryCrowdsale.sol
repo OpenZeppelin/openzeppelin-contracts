@@ -28,7 +28,7 @@ contract PostDeliveryCrowdsale is TimedCrowdsale {
   /**
    * @return the balance of an account.
    */
-  function getBalance(address _account) public view returns(uint256) {
+  function balanceOf(address _account) public view returns(uint256) {
     return balances_[_account];
   }
 

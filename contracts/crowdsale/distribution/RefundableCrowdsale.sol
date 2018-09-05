@@ -26,14 +26,14 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
    */
   constructor(uint256 _goal) public {
     require(_goal > 0);
-    escrow_ = new RefundEscrow(getWallet());
+    escrow_ = new RefundEscrow(wallet());
     goal_ = _goal;
   }
 
   /**
    * @return minimum amount of funds to be raised in wei.
    */
-  function getGoal() public view returns(uint256) {
+  function goal() public view returns(uint256) {
     return goal_;
   }
 
@@ -41,7 +41,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
    * @dev Investors can claim refunds here if crowdsale is unsuccessful
    */
   function claimRefund() public {
-    require(isFinalized());
+    require(finalized());
     require(!goalReached());
 
     escrow_.withdraw(msg.sender);
@@ -52,7 +52,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
    * @return Whether funding goal was reached
    */
   function goalReached() public view returns (bool) {
-    return getWeiRaised() >= goal_;
+    return weiRaised() >= goal_;
   }
 
   /**

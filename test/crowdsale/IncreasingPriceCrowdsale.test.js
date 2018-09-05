@@ -56,8 +56,8 @@ contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser])
       });
 
       it('should have initial and final rate', async function () {
-        (await this.crowdsale.getInitialRate()).should.be.bignumber.equal(initialRate);
-        (await this.crowdsale.getFinalRate()).should.be.bignumber.equal(finalRate);
+        (await this.crowdsale.initialRate()).should.be.bignumber.equal(initialRate);
+        (await this.crowdsale.finalRate()).should.be.bignumber.equal(finalRate);
       });
 
       it('at start', async function () {
