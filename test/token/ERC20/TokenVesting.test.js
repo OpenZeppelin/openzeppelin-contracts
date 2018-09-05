@@ -44,7 +44,7 @@ contract('TokenVesting', function ([_, owner, beneficiary, minter]) {
     beforeEach(async function () {
       this.vesting = await TokenVesting.new(beneficiary, this.start, this.cliff, this.duration, true, { from: owner });
 
-      this.token = await ERC20Mintable.new([minter]);
+      this.token = await ERC20Mintable.new({ from: minter });
       await this.token.mint(this.vesting.address, amount, { from: minter });
     });
 
