@@ -50,7 +50,6 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
     });
 
     it('should be ended only after end', async function () {
-      (await this.crowdsale.isOpen()).should.equal(true);
       (await this.crowdsale.hasClosed()).should.equal(false);
       await increaseTimeTo(this.afterClosingTime);
       (await this.crowdsale.isOpen()).should.equal(false);
@@ -59,12 +58,14 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
 
     describe('accepting payments', function () {
       it('should reject payments before start', async function () {
+        (await this.crowdsale.isOpen()).should.equal(false);
         await expectThrow(this.crowdsale.send(value), EVMRevert);
         await expectThrow(this.crowdsale.buyTokens(investor, { from: purchaser, value: value }), EVMRevert);
       });
 
       it('should accept payments after start', async function () {
         await increaseTimeTo(this.openingTime);
+        (await this.crowdsale.isOpen()).should.equal(true);
         await this.crowdsale.send(value);
         await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
       });
