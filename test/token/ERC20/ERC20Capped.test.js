@@ -1,7 +1,7 @@
 const { assertRevert } = require('../../helpers/assertRevert');
 const { ether } = require('../../helpers/ether');
-const { shouldBehaveLikeERC20Mintable } = require('./ERC20Mintable.behavior');
-const { shouldBehaveLikeERC20Capped } = require('./ERC20Capped.behavior');
+const { shouldBehaveLikeERC20Mintable } = require('./behaviors/ERC20Mintable.behavior');
+const { shouldBehaveLikeERC20Capped } = require('./behaviors/ERC20Capped.behavior');
 
 const ERC20Capped = artifacts.require('ERC20Capped');
 

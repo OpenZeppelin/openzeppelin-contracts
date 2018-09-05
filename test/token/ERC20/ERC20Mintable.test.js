@@ -1,4 +1,4 @@
-const { shouldBehaveLikeERC20Mintable } = require('./ERC20Mintable.behavior');
+const { shouldBehaveLikeERC20Mintable } = require('./behaviors/ERC20Mintable.behavior');
 const ERC20Mintable = artifacts.require('ERC20Mintable');
 
 contract('ERC20Mintable', function ([_, owner, ...otherAccounts]) {

@@ -1,7 +1,7 @@
 const { ether } = require('../../helpers/ether');
-const { shouldBehaveLikeRBACMintableToken } = require('./RBACMintableToken.behavior');
-const { shouldBehaveLikeERC20Mintable } = require('./ERC20Mintable.behavior');
-const { shouldBehaveLikeERC20Capped } = require('./ERC20Capped.behavior');
+const { shouldBehaveLikeRBACMintableToken } = require('./behaviors/RBACMintableToken.behavior');
+const { shouldBehaveLikeERC20Mintable } = require('./behaviors/ERC20Mintable.behavior');
+const { shouldBehaveLikeERC20Capped } = require('./behaviors/ERC20Capped.behavior');
 
 const RBACCappedTokenMock = artifacts.require('RBACCappedTokenMock');
 
