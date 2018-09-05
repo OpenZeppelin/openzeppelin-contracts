@@ -45,10 +45,10 @@ contract('SampleCrowdsale', function ([_, owner, wallet, investor]) {
 
     (await this.crowdsale.openingTime()).should.be.bignumber.equal(this.openingTime);
     (await this.crowdsale.closingTime()).should.be.bignumber.equal(this.closingTime);
-    (await this.crowdsale.getRate()).should.be.bignumber.equal(RATE);
-    (await this.crowdsale.getWallet()).should.be.equal(wallet);
-    (await this.crowdsale.getGoal()).should.be.bignumber.equal(GOAL);
-    (await this.crowdsale.getCap()).should.be.bignumber.equal(CAP);
+    (await this.crowdsale.rate()).should.be.bignumber.equal(RATE);
+    (await this.crowdsale.wallet()).should.be.equal(wallet);
+    (await this.crowdsale.goal()).should.be.bignumber.equal(GOAL);
+    (await this.crowdsale.cap()).should.be.bignumber.equal(CAP);
   });
 
   it('should not accept payments before start', async function () {

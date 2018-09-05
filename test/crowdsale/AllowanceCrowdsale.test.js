@@ -26,7 +26,7 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
 
   describe('accepting payments', function () {
     it('should have token wallet', async function () {
-      (await this.crowdsale.getTokenWallet()).should.be.equal(tokenWallet);
+      (await this.crowdsale.tokenWallet()).should.be.equal(tokenWallet);
     });
 
     it('should accept sends', async function () {

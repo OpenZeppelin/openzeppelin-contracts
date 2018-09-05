@@ -28,7 +28,7 @@ contract AllowanceCrowdsale is Crowdsale {
   /**
    * @return the address of the wallet that will hold the tokens.
    */
-  function getTokenWallet() public view returns(address) {
+  function tokenWallet() public view returns(address) {
     return tokenWallet_;
   }
 
@@ -37,7 +37,7 @@ contract AllowanceCrowdsale is Crowdsale {
    * @return Amount of tokens left in the allowance
    */
   function remainingTokens() public view returns (uint256) {
-    return getToken().allowance(tokenWallet_, this);
+    return token().allowance(tokenWallet_, this);
   }
 
   /**
@@ -51,6 +51,6 @@ contract AllowanceCrowdsale is Crowdsale {
   )
     internal
   {
-    getToken().safeTransferFrom(tokenWallet_, _beneficiary, _tokenAmount);
+    token().safeTransferFrom(tokenWallet_, _beneficiary, _tokenAmount);
   }
 }

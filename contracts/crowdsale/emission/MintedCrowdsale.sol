@@ -24,6 +24,6 @@ contract MintedCrowdsale is Crowdsale {
   {
     // Potentially dangerous assumption about the type of the token.
     require(
-      ERC20Mintable(address(getToken())).mint(_beneficiary, _tokenAmount));
+      ERC20Mintable(address(token())).mint(_beneficiary, _tokenAmount));
   }
 }
