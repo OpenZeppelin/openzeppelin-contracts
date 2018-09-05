@@ -70,16 +70,12 @@ contract('BreakInvariantBounty', function ([_, owner, researcher, nonTarget]) {
 
       const researcherPrevBalance = await ethGetBalance(researcher);
 
-      const gas = await this.bounty.withdrawPayments.estimateGas({ from: researcher });
-      const gasPrice = web3.toWei(1, 'gwei');
-      const gasCost = (new web3.BigNumber(gas)).times(gasPrice);
-
-      await this.bounty.withdrawPayments({ from: researcher, gasPrice: gasPrice });
+      await this.bounty.withdrawPayments(researcher, { gasPrice: 0 });
       const updatedBalance = await ethGetBalance(this.bounty.address);
       updatedBalance.should.be.bignumber.equal(0);
 
       const researcherCurrBalance = await ethGetBalance(researcher);
-      researcherCurrBalance.sub(researcherPrevBalance).should.be.bignumber.equal(reward.sub(gasCost));
+      researcherCurrBalance.sub(researcherPrevBalance).should.be.bignumber.equal(reward);
     });
 
     it('cannot claim reward from non-target', async function () {

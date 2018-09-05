@@ -16,13 +16,14 @@ contract PostDeliveryCrowdsale is TimedCrowdsale {
 
   /**
    * @dev Withdraw tokens only after crowdsale ends.
+   * @param _beneficiary Whose tokens will be withdrawn.
    */
-  function withdrawTokens() public {
+  function withdrawTokens(address _beneficiary) public {
     require(hasClosed());
-    uint256 amount = balances[msg.sender];
+    uint256 amount = balances[_beneficiary];
     require(amount > 0);
-    balances[msg.sender] = 0;
-    _deliverTokens(msg.sender, amount);
+    balances[_beneficiary] = 0;
+    _deliverTokens(_beneficiary, amount);
   }
 
   /**
