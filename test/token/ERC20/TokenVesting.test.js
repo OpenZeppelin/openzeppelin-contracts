@@ -50,11 +50,11 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     });
 
     it('can get state', async function () {
-      (await this.vesting.getBeneficiary()).should.be.equal(beneficiary);
-      (await this.vesting.getCliff()).should.be.bignumber.equal(this.start + this.cliffDuration);
-      (await this.vesting.getStart()).should.be.bignumber.equal(this.start);
-      (await this.vesting.getDuration()).should.be.bignumber.equal(this.duration);
-      (await this.vesting.isRevocable()).should.be.equal(true);
+      (await this.vesting.beneficiary()).should.be.equal(beneficiary);
+      (await this.vesting.cliff()).should.be.bignumber.equal(this.start + this.cliffDuration);
+      (await this.vesting.start()).should.be.bignumber.equal(this.start);
+      (await this.vesting.duration()).should.be.bignumber.equal(this.duration);
+      (await this.vesting.revocable()).should.be.equal(true);
     });
 
     it('cannot be released before cliff', async function () {
@@ -78,7 +78,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
       const releasedAmount = amount.mul(releaseTime - this.start).div(this.duration).floor();
       (await this.token.balanceOf(beneficiary)).should.bignumber.equal(releasedAmount);
-      (await this.vesting.getReleased(this.token.address)).should.bignumber.equal(releasedAmount);
+      (await this.vesting.released(this.token.address)).should.bignumber.equal(releasedAmount);
     });
 
     it('should linearly release tokens during vesting period', async function () {
@@ -92,7 +92,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
         await this.vesting.release(this.token.address);
         const expectedVesting = amount.mul(now - this.start).div(this.duration).floor();
         (await this.token.balanceOf(beneficiary)).should.bignumber.equal(expectedVesting);
-        (await this.vesting.getReleased(this.token.address)).should.bignumber.equal(expectedVesting);
+        (await this.vesting.released(this.token.address)).should.bignumber.equal(expectedVesting);
       }
     });
 
@@ -100,12 +100,12 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
       await increaseTimeTo(this.start + this.duration);
       await this.vesting.release(this.token.address);
       (await this.token.balanceOf(beneficiary)).should.bignumber.equal(amount);
-      (await this.vesting.getReleased(this.token.address)).should.bignumber.equal(amount);
+      (await this.vesting.released(this.token.address)).should.bignumber.equal(amount);
     });
 
     it('should be revoked by owner if revocable is set', async function () {
       await this.vesting.revoke(this.token.address, { from: owner });
-      (await this.vesting.isRevoked(this.token.address)).should.equal(true);
+      (await this.vesting.revoked(this.token.address)).should.equal(true);
     });
 
     it('should fail to be revoked by owner if revocable not set', async function () {

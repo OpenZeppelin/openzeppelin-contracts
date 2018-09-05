@@ -29,7 +29,7 @@ contract ERC20Mintable is ERC20, Ownable {
   /**
    * @return true if the minting is finished.
    */
-  function isMintingFinished() public view returns(bool) {
+  function mintingFinished() public view returns(bool) {
     return mintingFinished_;
   }
 

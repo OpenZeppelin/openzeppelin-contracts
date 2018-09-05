@@ -37,21 +37,21 @@ contract TokenTimelock {
   /**
    * @return the token being held.
    */
-  function getToken() public view returns(IERC20) {
+  function token() public view returns(IERC20) {
     return token_;
   }
 
   /**
    * @return the beneficiary of the tokens.
    */
-  function getBeneficiary() public view returns(address) {
+  function beneficiary() public view returns(address) {
     return beneficiary_;
   }
 
   /**
    * @return the time when the tokens are released.
    */
-  function getReleaseTime() public view returns(uint256) {
+  function releaseTime() public view returns(uint256) {
     return releaseTime_;
   }
 

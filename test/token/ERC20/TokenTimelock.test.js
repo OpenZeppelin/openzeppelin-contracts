@@ -34,9 +34,9 @@ contract('TokenTimelock', function ([_, owner, beneficiary]) {
       });
 
       it('can get state', async function () {
-        (await this.timelock.getToken()).should.be.equal(this.token.address);
-        (await this.timelock.getBeneficiary()).should.be.equal(beneficiary);
-        (await this.timelock.getReleaseTime()).should.be.bignumber.equal(this.releaseTime);
+        (await this.timelock.token()).should.be.equal(this.token.address);
+        (await this.timelock.beneficiary()).should.be.equal(beneficiary);
+        (await this.timelock.releaseTime()).should.be.bignumber.equal(this.releaseTime);
       });
 
       it('cannot be released before time limit', async function () {

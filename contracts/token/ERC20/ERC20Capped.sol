@@ -19,7 +19,7 @@ contract ERC20Capped is ERC20Mintable {
   /**
    * @return the cap for the token minting.
    */
-  function getCap() public view returns(uint256) {
+  function cap() public view returns(uint256) {
     return cap_;
   }
 

@@ -12,7 +12,7 @@ function shouldBehaveLikeERC20Capped (minter, [anyone], cap) {
     const from = minter;
 
     it('should start with the correct cap', async function () {
-      (await this.token.getCap()).should.be.bignumber.equal(cap);
+      (await this.token.cap()).should.be.bignumber.equal(cap);
     });
 
     it('should mint when amount is less than cap', async function () {

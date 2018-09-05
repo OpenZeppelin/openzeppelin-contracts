@@ -64,49 +64,49 @@ contract TokenVesting is Ownable {
   /**
    * @return the beneficiary of the tokens.
    */
-  function getBeneficiary() public view returns(address) {
+  function beneficiary() public view returns(address) {
     return beneficiary_;
   }
 
   /**
    * @return the cliff time of the token vesting.
    */
-  function getCliff() public view returns(uint256) {
+  function cliff() public view returns(uint256) {
     return cliff_;
   }
 
   /**
    * @return the start time of the token vesting.
    */
-  function getStart() public view returns(uint256) {
+  function start() public view returns(uint256) {
     return start_;
   }
 
   /**
    * @return the duration of the token vesting.
    */
-  function getDuration() public view returns(uint256) {
+  function duration() public view returns(uint256) {
     return duration_;
   }
 
   /**
    * @return true if the vesting is revocable.
    */
-  function isRevocable() public view returns(bool) {
+  function revocable() public view returns(bool) {
     return revocable_;
   }
 
   /**
    * @return the amount of the token released.
    */
-  function getReleased(address _token) public view returns(uint256) {
+  function released(address _token) public view returns(uint256) {
     return released_[_token];
   }
 
   /**
    * @return true if the token is revoked.
    */
-  function isRevoked(address _token) public view returns(bool) {
+  function revoked(address _token) public view returns(bool) {
     return revoked_[_token];
   }
 
