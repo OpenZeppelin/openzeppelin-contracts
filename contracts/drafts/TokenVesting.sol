@@ -93,7 +93,7 @@ contract TokenVesting is Ownable {
 
     revoked[_token] = true;
 
-    _token.safeTransfer(owner, refund);
+    _token.safeTransfer(owner(), refund);
 
     emit Revoked();
   }
