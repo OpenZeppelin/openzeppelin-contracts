@@ -55,6 +55,11 @@ contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser])
         await this.token.transfer(this.crowdsale.address, tokenSupply);
       });
 
+      it('should have initial and final rate', async function () {
+        (await this.crowdsale.initialRate()).should.be.bignumber.equal(initialRate);
+        (await this.crowdsale.finalRate()).should.be.bignumber.equal(finalRate);
+      });
+
       it('at start', async function () {
         await increaseTimeTo(this.startTime);
         await this.crowdsale.buyTokens(investor, { value, from: purchaser });

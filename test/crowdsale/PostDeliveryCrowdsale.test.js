@@ -47,6 +47,7 @@ contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
       });
 
       it('does not immediately assign tokens to beneficiaries', async function () {
+        (await this.crowdsale.balanceOf(investor)).should.be.bignumber.equal(value);
         (await this.token.balanceOf(investor)).should.be.bignumber.equal(0);
       });
 
@@ -61,6 +62,7 @@ contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
 
         it('allows beneficiaries to withdraw tokens', async function () {
           await this.crowdsale.withdrawTokens(investor);
+          (await this.crowdsale.balanceOf(investor)).should.be.bignumber.equal(0);
           (await this.token.balanceOf(investor)).should.be.bignumber.equal(value);
         });
 

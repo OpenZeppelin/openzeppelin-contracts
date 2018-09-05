@@ -22,19 +22,16 @@ contract Crowdsale {
   using SafeERC20 for IERC20;
 
   // The token being sold
-  IERC20 public token;
+  IERC20 private token_;
 
   // Address where funds are collected
-  address public wallet;
+  address private wallet_;
 
   // How many token units a buyer gets per wei.
-  // The rate is the conversion between wei and the smallest and indivisible token unit.
-  // So, if you are using a rate of 1 with a ERC20Detailed token with 3 decimals called TOK
-  // 1 wei will give you 1 unit, or 0.001 TOK.
-  uint256 public rate;
+  uint256 private rate_;
 
   // Amount of wei raised
-  uint256 public weiRaised;
+  uint256 private weiRaised_;
 
   /**
    * Event for token purchase logging
@@ -52,6 +49,9 @@ contract Crowdsale {
 
   /**
    * @param _rate Number of token units a buyer gets per wei
+   * @dev The rate is the conversion between wei and the smallest and indivisible
+   * token unit. So, if you are using a rate of 1 with a ERC20Detailed token
+   * with 3 decimals called TOK, 1 wei will give you 1 unit, or 0.001 TOK.
    * @param _wallet Address where collected funds will be forwarded to
    * @param _token Address of the token being sold
    */
@@ -60,9 +60,9 @@ contract Crowdsale {
     require(_wallet != address(0));
     require(_token != address(0));
 
-    rate = _rate;
-    wallet = _wallet;
-    token = _token;
+    rate_ = _rate;
+    wallet_ = _wallet;
+    token_ = _token;
   }
 
   // -----------------------------------------
@@ -74,6 +74,34 @@ contract Crowdsale {
    */
   function () external payable {
     buyTokens(msg.sender);
+  }
+
+  /**
+   * @return the token being sold.
+   */
+  function token() public view returns(IERC20) {
+    return token_;
+  }
+
+  /**
+   * @return the address where funds are collected.
+   */
+  function wallet() public view returns(address) {
+    return wallet_;
+  }
+
+  /**
+   * @return the number of token units a buyer gets per wei.
+   */
+  function rate() public view returns(uint256) {
+    return rate_;
+  }
+
+  /**
+   * @return the mount of wei raised.
+   */
+  function weiRaised() public view returns (uint256) {
+    return weiRaised_;
   }
 
   /**
@@ -89,7 +117,7 @@ contract Crowdsale {
     uint256 tokens = _getTokenAmount(weiAmount);
 
     // update state
-    weiRaised = weiRaised.add(weiAmount);
+    weiRaised_ = weiRaised_.add(weiAmount);
 
     _processPurchase(_beneficiary, tokens);
     emit TokensPurchased(
@@ -113,7 +141,7 @@ contract Crowdsale {
    * @dev Validation of an incoming purchase. Use require statements to revert state when conditions are not met. Use `super` in contracts that inherit from Crowdsale to extend their validations.
    * Example from CappedCrowdsale.sol's _preValidatePurchase method:
    *   super._preValidatePurchase(_beneficiary, _weiAmount);
-   *   require(weiRaised.add(_weiAmount) <= cap);
+   *   require(weiRaised().add(_weiAmount) <= cap);
    * @param _beneficiary Address performing the token purchase
    * @param _weiAmount Value in wei involved in the purchase
    */
@@ -152,7 +180,7 @@ contract Crowdsale {
   )
     internal
   {
-    token.safeTransfer(_beneficiary, _tokenAmount);
+    token_.safeTransfer(_beneficiary, _tokenAmount);
   }
 
   /**
@@ -191,13 +219,13 @@ contract Crowdsale {
   function _getTokenAmount(uint256 _weiAmount)
     internal view returns (uint256)
   {
-    return _weiAmount.mul(rate);
+    return _weiAmount.mul(rate_);
   }
 
   /**
    * @dev Determines how ETH is stored/forwarded on purchases.
    */
   function _forwardFunds() internal {
-    wallet.transfer(msg.value);
+    wallet_.transfer(msg.value);
   }
 }

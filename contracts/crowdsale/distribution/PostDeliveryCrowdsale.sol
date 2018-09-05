@@ -12,7 +12,7 @@ import "../../math/SafeMath.sol";
 contract PostDeliveryCrowdsale is TimedCrowdsale {
   using SafeMath for uint256;
 
-  mapping(address => uint256) public balances;
+  mapping(address => uint256) private balances_;
 
   /**
    * @dev Withdraw tokens only after crowdsale ends.
@@ -20,10 +20,17 @@ contract PostDeliveryCrowdsale is TimedCrowdsale {
    */
   function withdrawTokens(address _beneficiary) public {
     require(hasClosed());
-    uint256 amount = balances[_beneficiary];
+    uint256 amount = balances_[_beneficiary];
     require(amount > 0);
-    balances[_beneficiary] = 0;
+    balances_[_beneficiary] = 0;
     _deliverTokens(_beneficiary, amount);
+  }
+
+  /**
+   * @return the balance of an account.
+   */
+  function balanceOf(address _account) public view returns(uint256) {
+    return balances_[_account];
   }
 
   /**
@@ -37,7 +44,7 @@ contract PostDeliveryCrowdsale is TimedCrowdsale {
   )
     internal
   {
-    balances[_beneficiary] = balances[_beneficiary].add(_tokenAmount);
+    balances_[_beneficiary] = balances_[_beneficiary].add(_tokenAmount);
   }
 
 }
