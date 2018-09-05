@@ -32,10 +32,13 @@ import "../cryptography/ECDSA.sol";
 contract SignatureBouncer is Ownable, RBAC {
   using ECDSA for bytes32;
 
-  string public constant ROLE_BOUNCER = "bouncer";
-  uint internal constant METHOD_ID_SIZE = 4;
-  // signature size is 65 bytes (tightly packed v + r + s), but gets padded to 96 bytes
-  uint internal constant SIGNATURE_SIZE = 96;
+  // Name of the bouncer role.
+  string private constant ROLE_BOUNCER = "bouncer";
+  // Function selectors are 4 bytes long, as documented in
+  // https://solidity.readthedocs.io/en/v0.4.24/abi-spec.html#function-selector
+  uint256 private constant METHOD_ID_SIZE = 4;
+  // Signature size is 65 bytes (tightly packed v + r + s), but gets padded to 96 bytes
+  uint256 private constant SIGNATURE_SIZE = 96;
 
   /**
    * @dev requires that a valid signature of a bouncer was provided
@@ -62,6 +65,14 @@ contract SignatureBouncer is Ownable, RBAC {
   {
     require(_isValidSignatureAndData(msg.sender, _signature));
     _;
+  }
+
+  /**
+   * @dev Determine if an account has the bouncer role.
+   * @return true if the account is a bouncer, false otherwise.
+   */
+  function isBouncer(address _account) public view returns(bool) {
+    return hasRole(_account, ROLE_BOUNCER);
   }
 
   /**
@@ -153,6 +164,6 @@ contract SignatureBouncer is Ownable, RBAC {
     address signer = _hash
       .toEthSignedMessageHash()
       .recover(_signature);
-    return hasRole(signer, ROLE_BOUNCER);
+    return isBouncer(signer);
   }
 }
