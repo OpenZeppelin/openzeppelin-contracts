@@ -9,11 +9,18 @@ import "./ERC20Mintable.sol";
  */
 contract ERC20Capped is ERC20Mintable {
 
-  uint256 public cap;
+  uint256 private cap_;
 
   constructor(uint256 _cap) public {
     require(_cap > 0);
-    cap = _cap;
+    cap_ = _cap;
+  }
+
+  /**
+   * @return the cap for the token minting.
+   */
+  function cap() public view returns(uint256) {
+    return cap_;
   }
 
   /**
@@ -29,7 +36,7 @@ contract ERC20Capped is ERC20Mintable {
     public
     returns (bool)
   {
-    require(totalSupply().add(_amount) <= cap);
+    require(totalSupply().add(_amount) <= cap_);
 
     return super.mint(_to, _amount);
   }

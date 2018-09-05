@@ -33,6 +33,12 @@ contract('TokenTimelock', function ([_, owner, beneficiary]) {
         await this.token.mint(this.timelock.address, amount, { from: owner });
       });
 
+      it('can get state', async function () {
+        (await this.timelock.token()).should.be.equal(this.token.address);
+        (await this.timelock.beneficiary()).should.be.equal(beneficiary);
+        (await this.timelock.releaseTime()).should.be.bignumber.equal(this.releaseTime);
+      });
+
       it('cannot be released before time limit', async function () {
         await expectThrow(this.timelock.release());
       });

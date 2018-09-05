@@ -13,17 +13,24 @@ contract ERC20Mintable is ERC20, Ownable {
   event Mint(address indexed to, uint256 amount);
   event MintFinished();
 
-  bool public mintingFinished = false;
+  bool private mintingFinished_ = false;
 
 
   modifier canMint() {
-    require(!mintingFinished);
+    require(!mintingFinished_);
     _;
   }
 
   modifier hasMintPermission() {
     require(msg.sender == owner());
     _;
+  }
+
+  /**
+   * @return true if the minting is finished.
+   */
+  function mintingFinished() public view returns(bool) {
+    return mintingFinished_;
   }
 
   /**
@@ -51,7 +58,7 @@ contract ERC20Mintable is ERC20, Ownable {
    * @return True if the operation was successful.
    */
   function finishMinting() public onlyOwner canMint returns (bool) {
-    mintingFinished = true;
+    mintingFinished_ = true;
     emit MintFinished();
     return true;
   }
