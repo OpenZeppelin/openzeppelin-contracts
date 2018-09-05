@@ -47,13 +47,13 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
     });
 
     it('should have total shares', async function () {
-      (await this.contract.getTotalShares()).should.be.bignumber.equal(20 + 10 + 70);
+      (await this.contract.totalShares()).should.be.bignumber.equal(20 + 10 + 70);
     });
 
     it('should have payees', async function () {
       this.payees.forEach(async (payee, index) => {
-        (await this.getPayee(index)).should.be.equal(payee);
-        (await this.contract.getReleased(payee)).should.be.bignumber.equal(0);
+        (await this.payee(index)).should.be.equal(payee);
+        (await this.contract.released(payee)).should.be.bignumber.equal(0);
       });
     });
 
@@ -64,11 +64,11 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
     });
 
     it('should store shares if address is payee', async function () {
-      (await this.contract.getShares(payee1)).should.be.bignumber.not.equal(0);
+      (await this.contract.shares(payee1)).should.be.bignumber.not.equal(0);
     });
 
     it('should not store shares if address is not payee', async function () {
-      (await this.contract.getShares(nonpayee1)).should.be.bignumber.equal(0);
+      (await this.contract.shares(nonpayee1)).should.be.bignumber.equal(0);
     });
 
     it('should throw if no funds to claim', async function () {

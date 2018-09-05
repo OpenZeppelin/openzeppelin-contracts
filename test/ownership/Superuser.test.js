@@ -40,7 +40,7 @@ contract('Superuser', function ([_, firstOwner, newSuperuser, newOwner, anyone])
         'OwnershipTransferred'
       );
 
-      (await this.superuser.getOwner()).should.equal(newOwner);
+      (await this.superuser.owner()).should.equal(newOwner);
     });
 
     it('should change owner after the owner transfers the ownership', async function () {
@@ -49,7 +49,7 @@ contract('Superuser', function ([_, firstOwner, newSuperuser, newOwner, anyone])
         'OwnershipTransferred'
       );
 
-      (await this.superuser.getOwner()).should.equal(newOwner);
+      (await this.superuser.owner()).should.equal(newOwner);
     });
   });
 
