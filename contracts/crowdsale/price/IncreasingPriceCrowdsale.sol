@@ -31,14 +31,14 @@ contract IncreasingPriceCrowdsale is TimedCrowdsale {
   /**
    * @return the initial rate of the crowdsale.
    */
-  function getInitialRate() public view returns(uint256) {
+  function initialRate() public view returns(uint256) {
     return initialRate_;
   }
 
   /**
    * @return the final rate of the crowdsale.
    */
-  function getFinalRate() public view returns (uint256) {
+  function finalRate() public view returns (uint256) {
     return finalRate_;
   }
 

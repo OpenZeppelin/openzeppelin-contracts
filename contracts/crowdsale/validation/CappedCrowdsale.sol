@@ -25,7 +25,7 @@ contract CappedCrowdsale is Crowdsale {
   /**
    * @return the cap of the crowdsale.
    */
-  function getCap() public view returns(uint256) {
+  function cap() public view returns(uint256) {
     return cap_;
   }
 
@@ -34,7 +34,7 @@ contract CappedCrowdsale is Crowdsale {
    * @return Whether the cap was reached
    */
   function capReached() public view returns (bool) {
-    return getWeiRaised() >= cap_;
+    return weiRaised() >= cap_;
   }
 
   /**
@@ -49,7 +49,7 @@ contract CappedCrowdsale is Crowdsale {
     internal
   {
     super._preValidatePurchase(_beneficiary, _weiAmount);
-    require(getWeiRaised().add(_weiAmount) <= cap_);
+    require(weiRaised().add(_weiAmount) <= cap_);
   }
 
 }

@@ -20,7 +20,7 @@ contract FinalizableCrowdsale is Ownable, TimedCrowdsale {
   /**
    * @return true if the crowdsale is finalized, false otherwise.
    */
-  function isFinalized() public view returns(bool) {
+  function finalized() public view returns(bool) {
     return finalized_;
   }
 

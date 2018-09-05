@@ -79,28 +79,28 @@ contract Crowdsale {
   /**
    * @return the token being sold.
    */
-  function getToken() public view returns(IERC20) {
+  function token() public view returns(IERC20) {
     return token_;
   }
 
   /**
    * @return the address where funds are collected.
    */
-  function getWallet() public view returns(address) {
+  function wallet() public view returns(address) {
     return wallet_;
   }
 
   /**
    * @return the number of token units a buyer gets per wei.
    */
-  function getRate() public view returns(uint256) {
+  function rate() public view returns(uint256) {
     return rate_;
   }
 
   /**
    * @return the mount of wei raised.
    */
-  function getWeiRaised() public view returns (uint256) {
+  function weiRaised() public view returns (uint256) {
     return weiRaised_;
   }
 
@@ -141,7 +141,7 @@ contract Crowdsale {
    * @dev Validation of an incoming purchase. Use require statements to revert state when conditions are not met. Use `super` in contracts that inherit from Crowdsale to extend their validations.
    * Example from CappedCrowdsale.sol's _preValidatePurchase method:
    *   super._preValidatePurchase(_beneficiary, _weiAmount);
-   *   require(getWeiRaised().add(_weiAmount) <= cap);
+   *   require(weiRaised().add(_weiAmount) <= cap);
    * @param _beneficiary Address performing the token purchase
    * @param _weiAmount Value in wei involved in the purchase
    */
