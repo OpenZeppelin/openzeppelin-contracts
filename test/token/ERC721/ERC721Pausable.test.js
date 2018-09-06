@@ -1,6 +1,6 @@
 const { shouldBehaveLikeERC721PausedToken } = require('./ERC721PausedToken.behavior');
 const { shouldBehaveLikeERC721Basic } = require('./ERC721Basic.behavior');
-const { shouldBehaveLikePublicRole } = require('../../access/rbac/PublicRole.behavior');
+const { shouldBehaveLikePublicRole } = require('../../access/roles/PublicRole.behavior');
 
 const BigNumber = web3.BigNumber;
 const ERC721Pausable = artifacts.require('ERC721PausableMock.sol');

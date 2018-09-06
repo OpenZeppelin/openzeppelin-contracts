@@ -9,7 +9,7 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
   rolename = capitalize(rolename);
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
-  describe(`role ${rolename}`, function () {
+  describe('should behave like public role', function () {
     beforeEach('check preconditions', async function () {
       (await this.contract[`is${rolename}`](authorized)).should.equal(true);
       (await this.contract[`is${rolename}`](otherAuthorized)).should.equal(true);

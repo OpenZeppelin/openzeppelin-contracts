@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../access/rbac/Roles.sol";
+import "../access/Roles.sol";
 
 
 contract RolesMock {
