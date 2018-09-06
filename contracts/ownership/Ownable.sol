@@ -36,8 +36,15 @@ contract Ownable {
    * @dev Throws if called by any account other than the owner.
    */
   modifier onlyOwner() {
-    require(msg.sender == owner_);
+    require(isOwner());
     _;
+  }
+
+  /**
+   * @return true if `msg.sender` is the owner of the contract.
+   */
+  function isOwner() public view returns(bool) {
+    return msg.sender == owner_;
   }
 
   /**

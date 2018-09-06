@@ -18,7 +18,7 @@ contract RBACMintableToken is ERC20Mintable, RBAC {
   /**
    * @dev override the Mintable token modifier to add role based logic
    */
-  modifier hasMintPermission() {
+  modifier onlyMinter() {
     checkRole(msg.sender, ROLE_MINTER);
     _;
   }

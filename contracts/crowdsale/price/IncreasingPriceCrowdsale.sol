@@ -49,8 +49,8 @@ contract IncreasingPriceCrowdsale is TimedCrowdsale {
    */
   function getCurrentRate() public view returns (uint256) {
     // solium-disable-next-line security/no-block-members
-    uint256 elapsedTime = block.timestamp.sub(openingTime);
-    uint256 timeRange = closingTime.sub(openingTime);
+    uint256 elapsedTime = block.timestamp.sub(openingTime());
+    uint256 timeRange = closingTime.sub(openingTime());
     uint256 rateRange = _initialRate.sub(_finalRate);
     return _initialRate.sub(elapsedTime.mul(rateRange).div(timeRange));
   }
