@@ -2,14 +2,14 @@ pragma solidity ^0.4.24;
 
 import "../../math/SafeMath.sol";
 import "../Crowdsale.sol";
-import "../../ownership/Ownable.sol";
+import "../../access/rbac/CapperRole.sol";
 
 
 /**
  * @title IndividuallyCappedCrowdsale
  * @dev Crowdsale with per-user caps.
  */
-contract IndividuallyCappedCrowdsale is Ownable, Crowdsale {
+contract IndividuallyCappedCrowdsale is Crowdsale, CapperRole {
   using SafeMath for uint256;
 
   mapping(address => uint256) private contributions_;
@@ -20,7 +20,7 @@ contract IndividuallyCappedCrowdsale is Ownable, Crowdsale {
    * @param _beneficiary Address to be capped
    * @param _cap Wei limit for individual contribution
    */
-  function setUserCap(address _beneficiary, uint256 _cap) external onlyOwner {
+  function setUserCap(address _beneficiary, uint256 _cap) external onlyCapper {
     caps_[_beneficiary] = _cap;
   }
 
@@ -34,7 +34,7 @@ contract IndividuallyCappedCrowdsale is Ownable, Crowdsale {
     uint256 _cap
   )
     external
-    onlyOwner
+    onlyCapper
   {
     for (uint256 i = 0; i < _beneficiaries.length; i++) {
       caps_[_beneficiaries[i]] = _cap;
