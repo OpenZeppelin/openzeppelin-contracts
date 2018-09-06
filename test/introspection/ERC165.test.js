@@ -1,14 +1,14 @@
 const { shouldSupportInterfaces } = require('./SupportsInterface.behavior');
 const { assertRevert } = require('../helpers/assertRevert');
 
-const SupportsInterfaceWithLookup = artifacts.require('SupportsInterfaceWithLookupMock');
+const ERC165 = artifacts.require('ERC165Mock');
 
 require('chai')
   .should();
 
-contract('SupportsInterfaceWithLookup', function () {
+contract('ERC165', function () {
   beforeEach(async function () {
-    this.mock = await SupportsInterfaceWithLookup.new();
+    this.mock = await ERC165.new();
   });
 
   it('does not allow 0xffffffff', async function () {
