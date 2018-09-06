@@ -18,7 +18,6 @@ contract TimedCrowdsale is Crowdsale {
    * @dev Reverts if not in crowdsale time range.
    */
   modifier onlyWhileOpen {
-    // solium-disable-next-line security/no-block-members
     require(isOpen());
     _;
   }
@@ -57,6 +56,14 @@ contract TimedCrowdsale is Crowdsale {
   function isOpen() public view returns (bool) {
     // solium-disable-next-line security/no-block-members
     return block.timestamp >= openingTime_ && block.timestamp <= closingTime_;
+  }
+
+  /**
+   * @return true if the crowdsale is open, false otherwise.
+   */
+  function isOpen() public view returns (bool) {
+    // solium-disable-next-line security/no-block-members
+    return block.timestamp >= openingTime && block.timestamp <= closingTime;
   }
 
   /**
