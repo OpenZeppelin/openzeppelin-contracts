@@ -16,6 +16,5 @@ contract('ERC20Mintable', function ([_, minter, otherMinter, ...otherAccounts]) 
     shouldBehaveLikePublicRole(minter, otherMinter, otherAccounts, 'minter');
   });
 
-
   shouldBehaveLikeERC20Mintable(minter, otherAccounts);
 });
