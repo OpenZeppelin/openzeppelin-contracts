@@ -304,7 +304,7 @@ function shouldBehaveLikeERC721Basic (
         describe('to a receiver contract that throws', function () {
           it('reverts', async function () {
             const invalidReceiver = await ERC721Receiver.new(RECEIVER_MAGIC_VALUE, true);
-            await assertRevert(this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId,{ from: owner }));
+            await assertRevert(this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner }));
           });
         });
 
