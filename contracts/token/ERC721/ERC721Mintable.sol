@@ -14,7 +14,7 @@ contract ERC721Mintable is ERC721, MinterRole {
 
   bool public mintingFinished = false;
 
-  modifier canMint() {
+  modifier onlyBeforeMintingFinished() {
     require(!mintingFinished);
     _;
   }
@@ -31,7 +31,7 @@ contract ERC721Mintable is ERC721, MinterRole {
   )
     public
     onlyMinter
-    canMint
+    onlyBeforeMintingFinished
     returns (bool)
   {
     _mint(_to, _tokenId);
@@ -46,7 +46,7 @@ contract ERC721Mintable is ERC721, MinterRole {
   )
     public
     onlyMinter
-    canMint
+    onlyBeforeMintingFinished
     returns (bool)
   {
     mint(_to, _tokenId);
@@ -61,7 +61,7 @@ contract ERC721Mintable is ERC721, MinterRole {
   function finishMinting()
     public
     onlyMinter
-    canMint
+    onlyBeforeMintingFinished
     returns (bool)
   {
     mintingFinished = true;
