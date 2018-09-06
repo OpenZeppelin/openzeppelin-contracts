@@ -71,41 +71,6 @@ contract SplitPayment {
   }
 
   /**
-   * @dev Claim your share of the balance.
-   */
-  function totalShares() public view returns(uint256) {
-    return totalShares_;
-  }
-
-  /**
-   * @return the total amount already released.
-   */
-  function totalReleased() public view returns(uint256) {
-    return totalReleased_;
-  }
-
-  /**
-   * @return the shares of an account.
-   */
-  function shares(address _account) public view returns(uint256) {
-    return shares_[_account];
-  }
-
-  /**
-   * @return the amount already released to an account.
-   */
-  function released(address _account) public view returns(uint256) {
-    return released_[_account];
-  }
-
-  /**
-   * @return the address of a payee.
-   */
-  function payee(uint256 index) public view returns(address) {
-    return payees_[index];
-  }
-
-  /**
    * @dev Release one of the payee's proportional payment.
    * @param _payee Whose payments will be released.
    */
