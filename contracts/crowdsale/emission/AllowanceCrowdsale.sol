@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "../Crowdsale.sol";
-import "../../token/ERC20/ERC20.sol";
+import "../../token/ERC20/IERC20.sol";
 import "../../token/ERC20/SafeERC20.sol";
 import "../../math/SafeMath.sol";
 
@@ -12,9 +12,9 @@ import "../../math/SafeMath.sol";
  */
 contract AllowanceCrowdsale is Crowdsale {
   using SafeMath for uint256;
-  using SafeERC20 for ERC20;
+  using SafeERC20 for IERC20;
 
-  address public tokenWallet;
+  address private tokenWallet_;
 
   /**
    * @dev Constructor, takes token wallet address.
@@ -22,7 +22,14 @@ contract AllowanceCrowdsale is Crowdsale {
    */
   constructor(address _tokenWallet) public {
     require(_tokenWallet != address(0));
-    tokenWallet = _tokenWallet;
+    tokenWallet_ = _tokenWallet;
+  }
+
+  /**
+   * @return the address of the wallet that will hold the tokens.
+   */
+  function tokenWallet() public view returns(address) {
+    return tokenWallet_;
   }
 
   /**
@@ -30,7 +37,7 @@ contract AllowanceCrowdsale is Crowdsale {
    * @return Amount of tokens left in the allowance
    */
   function remainingTokens() public view returns (uint256) {
-    return token.allowance(tokenWallet, this);
+    return token().allowance(tokenWallet_, this);
   }
 
   /**
@@ -44,6 +51,6 @@ contract AllowanceCrowdsale is Crowdsale {
   )
     internal
   {
-    token.safeTransferFrom(tokenWallet, _beneficiary, _tokenAmount);
+    token().safeTransferFrom(tokenWallet_, _beneficiary, _tokenAmount);
   }
 }

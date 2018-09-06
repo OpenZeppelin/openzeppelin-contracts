@@ -5,17 +5,17 @@ const { assertRevert } = require('../helpers/assertRevert');
 const BigNumber = web3.BigNumber;
 
 const MintedCrowdsale = artifacts.require('MintedCrowdsaleImpl');
-const MintableToken = artifacts.require('MintableToken');
+const ERC20Mintable = artifacts.require('ERC20Mintable');
 const RBACMintableToken = artifacts.require('RBACMintableToken');
-const StandardToken = artifacts.require('StandardToken');
+const ERC20 = artifacts.require('ERC20');
 
 contract('MintedCrowdsale', function ([_, investor, wallet, purchaser]) {
   const rate = new BigNumber(1000);
   const value = ether(5);
 
-  describe('using MintableToken', function () {
+  describe('using ERC20Mintable', function () {
     beforeEach(async function () {
-      this.token = await MintableToken.new();
+      this.token = await ERC20Mintable.new();
       this.crowdsale = await MintedCrowdsale.new(rate, wallet, this.token.address);
       await this.token.transferOwnership(this.crowdsale.address);
     });
@@ -28,8 +28,6 @@ contract('MintedCrowdsale', function ([_, investor, wallet, purchaser]) {
   });
 
   describe('using RBACMintableToken', function () {
-    const ROLE_MINTER = 'minter';
-
     beforeEach(async function () {
       this.token = await RBACMintableToken.new();
       this.crowdsale = await MintedCrowdsale.new(rate, wallet, this.token.address);
@@ -37,7 +35,7 @@ contract('MintedCrowdsale', function ([_, investor, wallet, purchaser]) {
     });
 
     it('should have minter role on token', async function () {
-      (await this.token.hasRole(this.crowdsale.address, ROLE_MINTER)).should.equal(true);
+      (await this.token.isMinter(this.crowdsale.address)).should.equal(true);
     });
 
     shouldBehaveLikeMintedCrowdsale([_, investor, wallet, purchaser], rate, value);
@@ -45,7 +43,7 @@ contract('MintedCrowdsale', function ([_, investor, wallet, purchaser]) {
 
   describe('using non-mintable token', function () {
     beforeEach(async function () {
-      this.token = await StandardToken.new();
+      this.token = await ERC20.new();
       this.crowdsale = await MintedCrowdsale.new(rate, wallet, this.token.address);
     });
 

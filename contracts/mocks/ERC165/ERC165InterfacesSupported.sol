@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../../introspection/ERC165.sol";
+import "../../introspection/IERC165.sol";
 
 
 /**
@@ -11,7 +11,7 @@ import "../../introspection/ERC165.sol";
  * therefore, because this contract is staticcall'd we need to not emit events (which is how solidity-coverage works)
  * solidity-coverage ignores the /mocks folder, so we duplicate its implementation here to avoid instrumenting it
  */
-contract SupportsInterfaceWithLookupMock is ERC165 {
+contract SupportsInterfaceWithLookupMock is IERC165 {
 
   bytes4 public constant InterfaceId_ERC165 = 0x01ffc9a7;
   /**

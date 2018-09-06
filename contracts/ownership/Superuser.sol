@@ -12,10 +12,10 @@ import "../access/rbac/RBAC.sol";
  * A superuser can transfer his role to a new address.
  */
 contract Superuser is Ownable, RBAC {
-  string public constant ROLE_SUPERUSER = "superuser";
+  string private constant ROLE_SUPERUSER = "superuser";
 
   constructor () public {
-    addRole(msg.sender, ROLE_SUPERUSER);
+    _addRole(msg.sender, ROLE_SUPERUSER);
   }
 
   /**
@@ -27,7 +27,7 @@ contract Superuser is Ownable, RBAC {
   }
 
   modifier onlyOwnerOrSuperuser() {
-    require(msg.sender == owner || isSuperuser(msg.sender));
+    require(msg.sender == owner() || isSuperuser(msg.sender));
     _;
   }
 
@@ -48,8 +48,8 @@ contract Superuser is Ownable, RBAC {
    */
   function transferSuperuser(address _newSuperuser) public onlySuperuser {
     require(_newSuperuser != address(0));
-    removeRole(msg.sender, ROLE_SUPERUSER);
-    addRole(_newSuperuser, ROLE_SUPERUSER);
+    _removeRole(msg.sender, ROLE_SUPERUSER);
+    _addRole(_newSuperuser, ROLE_SUPERUSER);
   }
 
   /**

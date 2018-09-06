@@ -11,15 +11,14 @@ import "../Crowdsale.sol";
 contract TimedCrowdsale is Crowdsale {
   using SafeMath for uint256;
 
-  uint256 public openingTime;
-  uint256 public closingTime;
+  uint256 private openingTime_;
+  uint256 private closingTime_;
 
   /**
    * @dev Reverts if not in crowdsale time range.
    */
   modifier onlyWhileOpen {
-    // solium-disable-next-line security/no-block-members
-    require(block.timestamp >= openingTime && block.timestamp <= closingTime);
+    require(isOpen());
     _;
   }
 
@@ -33,8 +32,30 @@ contract TimedCrowdsale is Crowdsale {
     require(_openingTime >= block.timestamp);
     require(_closingTime >= _openingTime);
 
-    openingTime = _openingTime;
-    closingTime = _closingTime;
+    openingTime_ = _openingTime;
+    closingTime_ = _closingTime;
+  }
+
+  /**
+   * @return the crowdsale opening time.
+   */
+  function openingTime() public view returns(uint256) {
+    return openingTime_;
+  }
+
+  /**
+   * @return the crowdsale closing time.
+   */
+  function closingTime() public view returns(uint256) {
+    return closingTime_;
+  }
+
+  /**
+   * @return true if the crowdsale is open, false otherwise.
+   */
+  function isOpen() public view returns (bool) {
+    // solium-disable-next-line security/no-block-members
+    return block.timestamp >= openingTime_ && block.timestamp <= closingTime_;
   }
 
   /**
@@ -43,7 +64,7 @@ contract TimedCrowdsale is Crowdsale {
    */
   function hasClosed() public view returns (bool) {
     // solium-disable-next-line security/no-block-members
-    return block.timestamp > closingTime;
+    return block.timestamp > closingTime_;
   }
 
   /**
