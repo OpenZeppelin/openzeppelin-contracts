@@ -2,7 +2,7 @@ pragma solidity ^0.4.24;
 
 import "./IERC721.sol";
 import "./ERC721Basic.sol";
-import "../../introspection/SupportsInterfaceWithLookup.sol";
+import "../../introspection/ERC165.sol";
 
 
 /**
