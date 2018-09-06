@@ -1,22 +1,20 @@
 const { shouldBehaveLikeERC20Mintable } = require('./ERC20Mintable.behavior');
-const { shouldBehaveLikePublicRole } = require('../../access/rbac/PublicRole.behavior');
 const ERC20MintableMock = artifacts.require('ERC20MintableMock');
+const { shouldBehaveLikePublicRole } = require('../../access/rbac/PublicRole.behavior');
 
-contract('ERC20Mintable', function ([_, originalMinter, otherMinter, ...otherAccounts]) {
+contract('ERC20Mintable', function ([_, minter, otherMinter, ...otherAccounts]) {
   beforeEach(async function () {
-    this.token = await ERC20MintableMock.new([originalMinter, otherMinter]);
-  });
-
-  context('with original minter', function () {
-    shouldBehaveLikeERC20Mintable(originalMinter, otherAccounts);
+    this.token = await ERC20MintableMock.new({ from: minter });
   });
 
   describe('minter role', function () {
     beforeEach(async function () {
-      await this.token.addMinter(otherMinter);
       this.contract = this.token;
+      await this.contract.addMinter(otherMinter, { from: minter });
     });
 
-    shouldBehaveLikePublicRole(originalMinter, otherMinter, otherAccounts, 'minter');
+    shouldBehaveLikePublicRole(minter, otherMinter, otherAccounts, 'minter');
   });
+
+  shouldBehaveLikeERC20Mintable(minter, otherAccounts);
 });

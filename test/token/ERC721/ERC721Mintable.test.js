@@ -10,9 +10,11 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('ERC721Mintable', function ([_, creator, minter, ...accounts]) {
+contract('ERC721Mintable', function ([_, creator, ...accounts]) {
+  const minter = creator;
+
   beforeEach(async function () {
-    this.token = await ERC721Mintable.new([minter], {
+    this.token = await ERC721Mintable.new({
       from: creator,
     });
   });

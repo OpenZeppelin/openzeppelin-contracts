@@ -10,13 +10,13 @@ contract('ERC20Capped', function ([_, minter, ...otherAccounts]) {
 
   it('requires a non-zero cap', async function () {
     await assertRevert(
-      ERC20Capped.new(0, [minter])
+      ERC20Capped.new(0, { from: minter })
     );
   });
 
   context('once deployed', async function () {
     beforeEach(async function () {
-      this.token = await ERC20Capped.new(cap, [minter]);
+      this.token = await ERC20Capped.new(cap, { from: minter });
     });
 
     shouldBehaveLikeERC20Capped(minter, otherAccounts, cap);

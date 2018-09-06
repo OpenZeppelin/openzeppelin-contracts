@@ -11,8 +11,8 @@ import "../token/ERC721/ERC721Burnable.sol";
  * and a public setter for metadata URI
  */
 contract ERC721Mock is ERC721, ERC721Mintable, ERC721Burnable {
-  constructor(string _name, string _symbol, address[] _minters) public
-    ERC721Mintable(_minters)
+  constructor(string _name, string _symbol) public
+    ERC721Mintable()
     ERC721(_name, _symbol)
   {}
 

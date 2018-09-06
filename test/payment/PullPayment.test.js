@@ -42,7 +42,7 @@ contract('PullPayment', function ([_, payer, payee1, payee2]) {
 
     (await this.contract.payments(payee1)).should.be.bignumber.equal(amount);
 
-    await this.contract.withdrawPayments({ from: payee1 });
+    await this.contract.withdrawPayments(payee1);
     (await this.contract.payments(payee1)).should.be.bignumber.equal(0);
 
     const balance = await ethGetBalance(payee1);

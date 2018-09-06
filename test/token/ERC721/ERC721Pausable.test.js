@@ -1,5 +1,6 @@
 const { shouldBehaveLikeERC721PausedToken } = require('./ERC721PausedToken.behavior');
 const { shouldBehaveLikeERC721Basic } = require('./ERC721Basic.behavior');
+const { shouldBehaveLikePublicRole } = require('../../access/rbac/PublicRole.behavior');
 
 const BigNumber = web3.BigNumber;
 const ERC721Pausable = artifacts.require('ERC721PausableMock.sol');
@@ -13,10 +14,20 @@ contract('ERC721Pausable', function ([
   creator,
   owner,
   operator,
+  otherPauser,
   ...accounts
 ]) {
   beforeEach(async function () {
     this.token = await ERC721Pausable.new({ from: creator });
+  });
+
+  describe('pauser role', function () {
+    beforeEach(async function () {
+      this.contract = this.token;
+      await this.contract.addPauser(otherPauser, { from: creator });
+    });
+
+    shouldBehaveLikePublicRole(creator, otherPauser, accounts, 'pauser');
   });
 
   context('when token is paused', function () {

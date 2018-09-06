@@ -11,7 +11,7 @@ import "../Crowdsale.sol";
 contract CappedCrowdsale is Crowdsale {
   using SafeMath for uint256;
 
-  uint256 public cap;
+  uint256 private cap_;
 
   /**
    * @dev Constructor, takes maximum amount of wei accepted in the crowdsale.
@@ -19,7 +19,14 @@ contract CappedCrowdsale is Crowdsale {
    */
   constructor(uint256 _cap) public {
     require(_cap > 0);
-    cap = _cap;
+    cap_ = _cap;
+  }
+
+  /**
+   * @return the cap of the crowdsale.
+   */
+  function cap() public view returns(uint256) {
+    return cap_;
   }
 
   /**
@@ -27,7 +34,7 @@ contract CappedCrowdsale is Crowdsale {
    * @return Whether the cap was reached
    */
   function capReached() public view returns (bool) {
-    return weiRaised >= cap;
+    return weiRaised() >= cap_;
   }
 
   /**
@@ -42,7 +49,7 @@ contract CappedCrowdsale is Crowdsale {
     internal
   {
     super._preValidatePurchase(_beneficiary, _weiAmount);
-    require(weiRaised.add(_weiAmount) <= cap);
+    require(weiRaised().add(_weiAmount) <= cap_);
   }
 
 }

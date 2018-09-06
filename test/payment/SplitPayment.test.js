@@ -46,6 +46,17 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
       this.contract = await SplitPayment.new(this.payees, this.shares);
     });
 
+    it('should have total shares', async function () {
+      (await this.contract.totalShares()).should.be.bignumber.equal(20 + 10 + 70);
+    });
+
+    it('should have payees', async function () {
+      this.payees.forEach(async (payee, index) => {
+        (await this.payee(index)).should.be.equal(payee);
+        (await this.contract.released(payee)).should.be.bignumber.equal(0);
+      });
+    });
+
     it('should accept payments', async function () {
       await ethSendTransaction({ from: owner, to: this.contract.address, value: amount });
 
@@ -53,20 +64,20 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
     });
 
     it('should store shares if address is payee', async function () {
-      (await this.contract.shares.call(payee1)).should.be.bignumber.not.equal(0);
+      (await this.contract.shares(payee1)).should.be.bignumber.not.equal(0);
     });
 
     it('should not store shares if address is not payee', async function () {
-      (await this.contract.shares.call(nonpayee1)).should.be.bignumber.equal(0);
+      (await this.contract.shares(nonpayee1)).should.be.bignumber.equal(0);
     });
 
     it('should throw if no funds to claim', async function () {
-      await expectThrow(this.contract.claim({ from: payee1 }), EVMRevert);
+      await expectThrow(this.contract.release(payee1), EVMRevert);
     });
 
     it('should throw if non-payee want to claim', async function () {
       await ethSendTransaction({ from: payer1, to: this.contract.address, value: amount });
-      await expectThrow(this.contract.claim({ from: nonpayee1 }), EVMRevert);
+      await expectThrow(this.contract.release(nonpayee1), EVMRevert);
     });
 
     it('should distribute funds to payees', async function () {
@@ -78,17 +89,17 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
 
       // distribute to payees
       const initAmount1 = await ethGetBalance(payee1);
-      await this.contract.claim({ from: payee1 });
+      await this.contract.release(payee1);
       const profit1 = (await ethGetBalance(payee1)).sub(initAmount1);
       profit1.sub(web3.toWei(0.20, 'ether')).abs().should.be.bignumber.lt(1e16);
 
       const initAmount2 = await ethGetBalance(payee2);
-      await this.contract.claim({ from: payee2 });
+      await this.contract.release(payee2);
       const profit2 = (await ethGetBalance(payee2)).sub(initAmount2);
       profit2.sub(web3.toWei(0.10, 'ether')).abs().should.be.bignumber.lt(1e16);
 
       const initAmount3 = await ethGetBalance(payee3);
-      await this.contract.claim({ from: payee3 });
+      await this.contract.release(payee3);
       const profit3 = (await ethGetBalance(payee3)).sub(initAmount3);
       profit3.sub(web3.toWei(0.70, 'ether')).abs().should.be.bignumber.lt(1e16);
 
@@ -96,7 +107,7 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
       (await ethGetBalance(this.contract.address)).should.be.bignumber.equal(0);
 
       // check correct funds released accounting
-      (await this.contract.totalReleased.call()).should.be.bignumber.equal(initBalance);
+      (await this.contract.totalReleased()).should.be.bignumber.equal(initBalance);
     });
   });
 });

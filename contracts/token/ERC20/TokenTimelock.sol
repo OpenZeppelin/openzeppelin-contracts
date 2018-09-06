@@ -12,13 +12,13 @@ contract TokenTimelock {
   using SafeERC20 for IERC20;
 
   // ERC20 basic token contract being held
-  IERC20 public token;
+  IERC20 private token_;
 
   // beneficiary of tokens after they are released
-  address public beneficiary;
+  address private beneficiary_;
 
   // timestamp when token release is enabled
-  uint256 public releaseTime;
+  uint256 private releaseTime_;
 
   constructor(
     IERC20 _token,
@@ -29,9 +29,30 @@ contract TokenTimelock {
   {
     // solium-disable-next-line security/no-block-members
     require(_releaseTime > block.timestamp);
-    token = _token;
-    beneficiary = _beneficiary;
-    releaseTime = _releaseTime;
+    token_ = _token;
+    beneficiary_ = _beneficiary;
+    releaseTime_ = _releaseTime;
+  }
+
+  /**
+   * @return the token being held.
+   */
+  function token() public view returns(IERC20) {
+    return token_;
+  }
+
+  /**
+   * @return the beneficiary of the tokens.
+   */
+  function beneficiary() public view returns(address) {
+    return beneficiary_;
+  }
+
+  /**
+   * @return the time when the tokens are released.
+   */
+  function releaseTime() public view returns(uint256) {
+    return releaseTime_;
   }
 
   /**
@@ -39,11 +60,11 @@ contract TokenTimelock {
    */
   function release() public {
     // solium-disable-next-line security/no-block-members
-    require(block.timestamp >= releaseTime);
+    require(block.timestamp >= releaseTime_);
 
-    uint256 amount = token.balanceOf(address(this));
+    uint256 amount = token_.balanceOf(address(this));
     require(amount > 0);
 
-    token.safeTransfer(beneficiary, amount);
+    token_.safeTransfer(beneficiary_, amount);
   }
 }

@@ -20,7 +20,7 @@ contract CanReclaimToken is Ownable {
    */
   function reclaimToken(IERC20 _token) external onlyOwner {
     uint256 balance = _token.balanceOf(this);
-    _token.safeTransfer(owner, balance);
+    _token.safeTransfer(owner(), balance);
   }
 
 }

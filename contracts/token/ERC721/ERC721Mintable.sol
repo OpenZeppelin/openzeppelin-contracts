@@ -14,12 +14,6 @@ contract ERC721Mintable is ERC721, MinterRole {
 
   bool public mintingFinished = false;
 
-  constructor(address[] _minters)
-    MinterRole(_minters)
-    public
-  {
-  }
-
   modifier canMint() {
     require(!mintingFinished);
     _;

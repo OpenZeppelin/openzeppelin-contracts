@@ -16,7 +16,7 @@ contract('TokenTimelock', function ([_, minter, beneficiary]) {
 
   context('with token', function () {
     beforeEach(async function () {
-      this.token = await ERC20Mintable.new([minter]);
+      this.token = await ERC20Mintable.new({ from: minter });
     });
 
     it('rejects a release time in the past', async function () {
@@ -31,6 +31,12 @@ contract('TokenTimelock', function ([_, minter, beneficiary]) {
         this.releaseTime = (await latestTime()) + duration.years(1);
         this.timelock = await TokenTimelock.new(this.token.address, beneficiary, this.releaseTime);
         await this.token.mint(this.timelock.address, amount, { from: minter });
+      });
+
+      it('can get state', async function () {
+        (await this.timelock.token()).should.be.equal(this.token.address);
+        (await this.timelock.beneficiary()).should.be.equal(beneficiary);
+        (await this.timelock.releaseTime()).should.be.bignumber.equal(this.releaseTime);
       });
 
       it('cannot be released before time limit', async function () {

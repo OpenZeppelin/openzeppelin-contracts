@@ -21,16 +21,30 @@ contract ERC721Basic is SupportsInterfaceWithLookup, IERC721Basic {
   bytes4 private constant ERC721_RECEIVED = 0x150b7a02;
 
   // Mapping from token ID to owner
-  mapping (uint256 => address) internal tokenOwner;
+  mapping (uint256 => address) private tokenOwner_;
 
   // Mapping from token ID to approved address
-  mapping (uint256 => address) internal tokenApprovals;
+  mapping (uint256 => address) private tokenApprovals_;
 
   // Mapping from owner to number of owned token
-  mapping (address => uint256) internal ownedTokensCount;
+  mapping (address => uint256) private ownedTokensCount_;
 
   // Mapping from owner to operator approvals
-  mapping (address => mapping (address => bool)) internal operatorApprovals;
+  mapping (address => mapping (address => bool)) private operatorApprovals_;
+
+  bytes4 private constant InterfaceId_ERC721 = 0x80ac58cd;
+  /*
+   * 0x80ac58cd ===
+   *   bytes4(keccak256('balanceOf(address)')) ^
+   *   bytes4(keccak256('ownerOf(uint256)')) ^
+   *   bytes4(keccak256('approve(address,uint256)')) ^
+   *   bytes4(keccak256('getApproved(uint256)')) ^
+   *   bytes4(keccak256('setApprovalForAll(address,bool)')) ^
+   *   bytes4(keccak256('isApprovedForAll(address,address)')) ^
+   *   bytes4(keccak256('transferFrom(address,address,uint256)')) ^
+   *   bytes4(keccak256('safeTransferFrom(address,address,uint256)')) ^
+   *   bytes4(keccak256('safeTransferFrom(address,address,uint256,bytes)'))
+   */
 
   constructor()
     public
@@ -46,7 +60,7 @@ contract ERC721Basic is SupportsInterfaceWithLookup, IERC721Basic {
    */
   function balanceOf(address _owner) public view returns (uint256) {
     require(_owner != address(0));
-    return ownedTokensCount[_owner];
+    return ownedTokensCount_[_owner];
   }
 
   /**
@@ -55,7 +69,7 @@ contract ERC721Basic is SupportsInterfaceWithLookup, IERC721Basic {
    * @return owner address currently marked as the owner of the given token ID
    */
   function ownerOf(uint256 _tokenId) public view returns (address) {
-    address owner = tokenOwner[_tokenId];
+    address owner = tokenOwner_[_tokenId];
     require(owner != address(0));
     return owner;
   }
@@ -73,7 +87,7 @@ contract ERC721Basic is SupportsInterfaceWithLookup, IERC721Basic {
     require(_to != owner);
     require(msg.sender == owner || isApprovedForAll(owner, msg.sender));
 
-    tokenApprovals[_tokenId] = _to;
+    tokenApprovals_[_tokenId] = _to;
     emit Approval(owner, _to, _tokenId);
   }
 
@@ -83,7 +97,7 @@ contract ERC721Basic is SupportsInterfaceWithLookup, IERC721Basic {
    * @return address currently approved for the given token ID
    */
   function getApproved(uint256 _tokenId) public view returns (address) {
-    return tokenApprovals[_tokenId];
+    return tokenApprovals_[_tokenId];
   }
 
   /**
@@ -94,7 +108,7 @@ contract ERC721Basic is SupportsInterfaceWithLookup, IERC721Basic {
    */
   function setApprovalForAll(address _to, bool _approved) public {
     require(_to != msg.sender);
-    operatorApprovals[msg.sender][_to] = _approved;
+    operatorApprovals_[msg.sender][_to] = _approved;
     emit ApprovalForAll(msg.sender, _to, _approved);
   }
 
@@ -112,7 +126,7 @@ contract ERC721Basic is SupportsInterfaceWithLookup, IERC721Basic {
     view
     returns (bool)
   {
-    return operatorApprovals[_owner][_operator];
+    return operatorApprovals_[_owner][_operator];
   }
 
   /**
@@ -194,7 +208,7 @@ contract ERC721Basic is SupportsInterfaceWithLookup, IERC721Basic {
    * @return whether the token exists
    */
   function _exists(uint256 _tokenId) internal view returns (bool) {
-    address owner = tokenOwner[_tokenId];
+    address owner = tokenOwner_[_tokenId];
     return owner != address(0);
   }
 
@@ -255,8 +269,8 @@ contract ERC721Basic is SupportsInterfaceWithLookup, IERC721Basic {
    */
   function _clearApproval(address _owner, uint256 _tokenId) internal {
     require(ownerOf(_tokenId) == _owner);
-    if (tokenApprovals[_tokenId] != address(0)) {
-      tokenApprovals[_tokenId] = address(0);
+    if (tokenApprovals_[_tokenId] != address(0)) {
+      tokenApprovals_[_tokenId] = address(0);
     }
   }
 
@@ -266,9 +280,9 @@ contract ERC721Basic is SupportsInterfaceWithLookup, IERC721Basic {
    * @param _tokenId uint256 ID of the token to be added to the tokens list of the given address
    */
   function _addTokenTo(address _to, uint256 _tokenId) internal {
-    require(tokenOwner[_tokenId] == address(0));
-    tokenOwner[_tokenId] = _to;
-    ownedTokensCount[_to] = ownedTokensCount[_to].add(1);
+    require(tokenOwner_[_tokenId] == address(0));
+    tokenOwner_[_tokenId] = _to;
+    ownedTokensCount_[_to] = ownedTokensCount_[_to].add(1);
   }
 
   /**
@@ -278,8 +292,8 @@ contract ERC721Basic is SupportsInterfaceWithLookup, IERC721Basic {
    */
   function _removeTokenFrom(address _from, uint256 _tokenId) internal {
     require(ownerOf(_tokenId) == _from);
-    ownedTokensCount[_from] = ownedTokensCount[_from].sub(1);
-    tokenOwner[_tokenId] = address(0);
+    ownedTokensCount_[_from] = ownedTokensCount_[_from].sub(1);
+    tokenOwner_[_tokenId] = address(0);
   }
 
   /**

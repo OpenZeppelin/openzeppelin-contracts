@@ -13,7 +13,6 @@ require('chai')
 
 contract('ERC721', function ([
   creator,
-  minter,
   ...accounts
 ]) {
   const name = 'Non Fungible Token';
@@ -23,6 +22,8 @@ contract('ERC721', function ([
   const thirdTokenId = 300;
   const nonExistentTokenId = 999;
 
+  const minter = creator;
+
   const [
     owner,
     newOwner,
@@ -31,7 +32,7 @@ contract('ERC721', function ([
   ] = accounts;
 
   beforeEach(async function () {
-    this.token = await ERC721.new(name, symbol, [minter], { from: creator });
+    this.token = await ERC721.new(name, symbol, { from: creator });
   });
 
   describe('like a full ERC721', function () {

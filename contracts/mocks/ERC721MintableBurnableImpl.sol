@@ -9,8 +9,8 @@ import "../token/ERC721/ERC721Burnable.sol";
  * @title ERC721MintableBurnableImpl
  */
 contract ERC721MintableBurnableImpl is ERC721, ERC721Mintable, ERC721Burnable {
-  constructor(address[] _minters)
-    ERC721Mintable(_minters)
+  constructor()
+    ERC721Mintable()
     ERC721("Test", "TEST")
     public
   {

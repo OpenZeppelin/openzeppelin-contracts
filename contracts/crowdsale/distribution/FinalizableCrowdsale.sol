@@ -13,22 +13,29 @@ import "../validation/TimedCrowdsale.sol";
 contract FinalizableCrowdsale is Ownable, TimedCrowdsale {
   using SafeMath for uint256;
 
-  bool public isFinalized = false;
+  bool private finalized_ = false;
 
   event CrowdsaleFinalized();
+
+  /**
+   * @return true if the crowdsale is finalized, false otherwise.
+   */
+  function finalized() public view returns(bool) {
+    return finalized_;
+  }
 
   /**
    * @dev Must be called after crowdsale ends, to do some extra finalization
    * work. Calls the contract's finalization function.
    */
   function finalize() public onlyOwner {
-    require(!isFinalized);
+    require(!finalized_);
     require(hasClosed());
 
     _finalization();
     emit CrowdsaleFinalized();
 
-    isFinalized = true;
+    finalized_ = true;
   }
 
   /**

@@ -8,20 +8,8 @@ contract MinterRole {
 
   Roles.Role private minters;
 
-  constructor(address[] _minters) public {
-    minters.addMany(_minters);
-  }
-
-  function transferMinter(address _account) public {
-    minters.transfer(_account);
-  }
-
-  function renounceMinter() public {
-    minters.renounce();
-  }
-
-  function isMinter(address _account) public view returns (bool) {
-    return minters.has(_account);
+  constructor() public {
+    minters.add(msg.sender);
   }
 
   modifier onlyMinter() {
@@ -29,8 +17,16 @@ contract MinterRole {
     _;
   }
 
-  function _addMinter(address _account) internal {
+  function isMinter(address _account) public view returns (bool) {
+    return minters.has(_account);
+  }
+
+  function addMinter(address _account) public onlyMinter {
     minters.add(_account);
+  }
+
+  function renounceMinter() public {
+    minters.remove(msg.sender);
   }
 
   function _removeMinter(address _account) internal {
