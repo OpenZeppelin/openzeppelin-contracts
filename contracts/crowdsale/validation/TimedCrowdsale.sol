@@ -18,7 +18,6 @@ contract TimedCrowdsale is Crowdsale {
    * @dev Reverts if not in crowdsale time range.
    */
   modifier onlyWhileOpen {
-    // solium-disable-next-line security/no-block-members
     require(isOpen());
     _;
   }
