@@ -1,6 +1,4 @@
-const {
-  shouldBehaveLikeERC721PausedToken,
-} = require('./ERC721PausedToken.behavior');
+const { shouldBehaveLikeERC721PausedToken } = require('./ERC721PausedToken.behavior');
 const { shouldBehaveLikeERC721Basic } = require('./ERC721Basic.behavior');
 
 const BigNumber = web3.BigNumber;
