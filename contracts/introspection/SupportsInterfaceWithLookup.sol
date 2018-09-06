@@ -4,11 +4,11 @@ import "./IERC165.sol";
 
 
 /**
- * @title SupportsInterfaceWithLookup
+ * @title ERC165
  * @author Matt Condon (@shrugs)
  * @dev Implements ERC165 using a lookup table.
  */
-contract SupportsInterfaceWithLookup is IERC165 {
+contract ERC165 is IERC165 {
 
   bytes4 private constant InterfaceId_ERC165 = 0x01ffc9a7;
   /**
