@@ -9,38 +9,45 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('ERC721Pausable', function ([_, pauser, otherPauser, recipient, operator, ...otherAccounts]) {
+contract('ERC721Pausable', function ([
+  _,
+  creator,
+  owner,
+  operator,
+  otherPauser,
+  ...accounts
+]) {
   beforeEach(async function () {
-    this.token = await ERC721Pausable.new({ from: pauser });
+    this.token = await ERC721Pausable.new({ from: creator });
   });
 
   describe('pauser role', function () {
     beforeEach(async function () {
       this.contract = this.token;
-      await this.contract.addPauser(otherPauser, { from: pauser });
+      await this.contract.addPauser(otherPauser, { from: creator });
     });
 
-    shouldBehaveLikePublicRole(pauser, otherPauser, otherAccounts, 'pauser');
+    shouldBehaveLikePublicRole(creator, otherPauser, accounts, 'pauser');
   });
 
   context('when token is paused', function () {
     beforeEach(async function () {
-      await this.token.pause({ from: pauser });
+      await this.token.pause({ from: creator });
     });
 
-    shouldBehaveLikeERC721PausedToken(pauser, [...otherAccounts]);
+    shouldBehaveLikeERC721PausedToken(creator, accounts);
   });
 
   context('when token is not paused yet', function () {
-    shouldBehaveLikeERC721Basic([pauser, ...otherAccounts]);
+    shouldBehaveLikeERC721Basic(creator, creator, accounts);
   });
 
   context('when token is paused and then unpaused', function () {
     beforeEach(async function () {
-      await this.token.pause({ from: pauser });
-      await this.token.unpause({ from: pauser });
+      await this.token.pause({ from: creator });
+      await this.token.unpause({ from: creator });
     });
 
-    shouldBehaveLikeERC721Basic([pauser, ...otherAccounts]);
+    shouldBehaveLikeERC721Basic(creator, creator, accounts);
   });
 });
