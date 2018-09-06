@@ -72,7 +72,7 @@ contract('Pausable', function ([_, pauser, anyone]) {
             await assertRevert(this.Pausable.unpause({ from: anyone }));
           });
 
-          context('when paused', function () {
+          context('when unpaused', function () {
             beforeEach(async function () {
               ({ logs: this.logs } = await this.Pausable.unpause({ from: pauser }));
             });
