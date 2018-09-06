@@ -20,19 +20,35 @@ contract ERC721 is SupportsInterfaceWithLookup, ERC721Basic, IERC721 {
   string internal symbol_;
 
   // Mapping from owner to list of owned token IDs
-  mapping(address => uint256[]) internal ownedTokens;
+  mapping(address => uint256[]) private ownedTokens_;
 
   // Mapping from token ID to index of the owner tokens list
-  mapping(uint256 => uint256) internal ownedTokensIndex;
+  mapping(uint256 => uint256) private ownedTokensIndex_;
 
   // Array with all token ids, used for enumeration
-  uint256[] internal allTokens;
+  uint256[] private allTokens_;
 
   // Mapping from token id to position in the allTokens array
-  mapping(uint256 => uint256) internal allTokensIndex;
+  mapping(uint256 => uint256) private allTokensIndex_;
 
   // Optional mapping for token URIs
-  mapping(uint256 => string) internal tokenURIs;
+  mapping(uint256 => string) private tokenURIs_;
+
+  bytes4 private constant InterfaceId_ERC721Enumerable = 0x780e9d63;
+  /**
+   * 0x780e9d63 ===
+   *   bytes4(keccak256('totalSupply()')) ^
+   *   bytes4(keccak256('tokenOfOwnerByIndex(address,uint256)')) ^
+   *   bytes4(keccak256('tokenByIndex(uint256)'))
+   */
+
+  bytes4 private constant InterfaceId_ERC721Metadata = 0x5b5e139f;
+  /**
+   * 0x5b5e139f ===
+   *   bytes4(keccak256('name()')) ^
+   *   bytes4(keccak256('symbol()')) ^
+   *   bytes4(keccak256('tokenURI(uint256)'))
+   */
 
   /**
    * @dev Constructor function
@@ -69,7 +85,7 @@ contract ERC721 is SupportsInterfaceWithLookup, ERC721Basic, IERC721 {
    */
   function tokenURI(uint256 _tokenId) public view returns (string) {
     require(_exists(_tokenId));
-    return tokenURIs[_tokenId];
+    return tokenURIs_[_tokenId];
   }
 
   /**
@@ -87,7 +103,7 @@ contract ERC721 is SupportsInterfaceWithLookup, ERC721Basic, IERC721 {
     returns (uint256)
   {
     require(_index < balanceOf(_owner));
-    return ownedTokens[_owner][_index];
+    return ownedTokens_[_owner][_index];
   }
 
   /**
@@ -95,7 +111,7 @@ contract ERC721 is SupportsInterfaceWithLookup, ERC721Basic, IERC721 {
    * @return uint256 representing the total amount of tokens
    */
   function totalSupply() public view returns (uint256) {
-    return allTokens.length;
+    return allTokens_.length;
   }
 
   /**
@@ -106,7 +122,7 @@ contract ERC721 is SupportsInterfaceWithLookup, ERC721Basic, IERC721 {
    */
   function tokenByIndex(uint256 _index) public view returns (uint256) {
     require(_index < totalSupply());
-    return allTokens[_index];
+    return allTokens_[_index];
   }
 
   /**
@@ -117,7 +133,7 @@ contract ERC721 is SupportsInterfaceWithLookup, ERC721Basic, IERC721 {
    */
   function _setTokenURI(uint256 _tokenId, string _uri) internal {
     require(_exists(_tokenId));
-    tokenURIs[_tokenId] = _uri;
+    tokenURIs_[_tokenId] = _uri;
   }
 
   /**
@@ -127,9 +143,9 @@ contract ERC721 is SupportsInterfaceWithLookup, ERC721Basic, IERC721 {
    */
   function _addTokenTo(address _to, uint256 _tokenId) internal {
     super._addTokenTo(_to, _tokenId);
-    uint256 length = ownedTokens[_to].length;
-    ownedTokens[_to].push(_tokenId);
-    ownedTokensIndex[_tokenId] = length;
+    uint256 length = ownedTokens_[_to].length;
+    ownedTokens_[_to].push(_tokenId);
+    ownedTokensIndex_[_tokenId] = length;
   }
 
   /**
@@ -142,20 +158,20 @@ contract ERC721 is SupportsInterfaceWithLookup, ERC721Basic, IERC721 {
 
     // To prevent a gap in the array, we store the last token in the index of the token to delete, and
     // then delete the last slot.
-    uint256 tokenIndex = ownedTokensIndex[_tokenId];
-    uint256 lastTokenIndex = ownedTokens[_from].length.sub(1);
-    uint256 lastToken = ownedTokens[_from][lastTokenIndex];
+    uint256 tokenIndex = ownedTokensIndex_[_tokenId];
+    uint256 lastTokenIndex = ownedTokens_[_from].length.sub(1);
+    uint256 lastToken = ownedTokens_[_from][lastTokenIndex];
 
-    ownedTokens[_from][tokenIndex] = lastToken;
+    ownedTokens_[_from][tokenIndex] = lastToken;
     // This also deletes the contents at the last position of the array
-    ownedTokens[_from].length--;
+    ownedTokens_[_from].length--;
 
     // Note that this will handle single-element arrays. In that case, both tokenIndex and lastTokenIndex are going to
     // be zero. Then we can make sure that we will remove _tokenId from the ownedTokens list since we are first swapping
     // the lastToken to the first position, and then dropping the element placed in the last position of the list
 
-    ownedTokensIndex[_tokenId] = 0;
-    ownedTokensIndex[lastToken] = tokenIndex;
+    ownedTokensIndex_[_tokenId] = 0;
+    ownedTokensIndex_[lastToken] = tokenIndex;
   }
 
   /**
@@ -167,8 +183,8 @@ contract ERC721 is SupportsInterfaceWithLookup, ERC721Basic, IERC721 {
   function _mint(address _to, uint256 _tokenId) internal {
     super._mint(_to, _tokenId);
 
-    allTokensIndex[_tokenId] = allTokens.length;
-    allTokens.push(_tokenId);
+    allTokensIndex_[_tokenId] = allTokens_.length;
+    allTokens_.push(_tokenId);
   }
 
   /**
@@ -181,21 +197,21 @@ contract ERC721 is SupportsInterfaceWithLookup, ERC721Basic, IERC721 {
     super._burn(_owner, _tokenId);
 
     // Clear metadata (if any)
-    if (bytes(tokenURIs[_tokenId]).length != 0) {
-      delete tokenURIs[_tokenId];
+    if (bytes(tokenURIs_[_tokenId]).length != 0) {
+      delete tokenURIs_[_tokenId];
     }
 
     // Reorg all tokens array
-    uint256 tokenIndex = allTokensIndex[_tokenId];
-    uint256 lastTokenIndex = allTokens.length.sub(1);
-    uint256 lastToken = allTokens[lastTokenIndex];
+    uint256 tokenIndex = allTokensIndex_[_tokenId];
+    uint256 lastTokenIndex = allTokens_.length.sub(1);
+    uint256 lastToken = allTokens_[lastTokenIndex];
 
-    allTokens[tokenIndex] = lastToken;
-    allTokens[lastTokenIndex] = 0;
+    allTokens_[tokenIndex] = lastToken;
+    allTokens_[lastTokenIndex] = 0;
 
-    allTokens.length--;
-    allTokensIndex[_tokenId] = 0;
-    allTokensIndex[lastToken] = tokenIndex;
+    allTokens_.length--;
+    allTokensIndex_[_tokenId] = 0;
+    allTokensIndex_[lastToken] = tokenIndex;
   }
 
 }

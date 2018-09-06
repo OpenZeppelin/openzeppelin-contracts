@@ -27,7 +27,7 @@ contract Superuser is Ownable, RBAC {
   }
 
   modifier onlyOwnerOrSuperuser() {
-    require(msg.sender == owner || isSuperuser(msg.sender));
+    require(msg.sender == owner() || isSuperuser(msg.sender));
     _;
   }
 

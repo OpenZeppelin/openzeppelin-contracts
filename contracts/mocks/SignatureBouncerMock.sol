@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../access/SignatureBouncer.sol";
+import "../drafts/SignatureBouncer.sol";
 
 
 contract SignatureBouncerMock is SignatureBouncer {

@@ -13,8 +13,8 @@ import "../../math/SafeMath.sol";
 contract IncreasingPriceCrowdsale is TimedCrowdsale {
   using SafeMath for uint256;
 
-  uint256 public initialRate;
-  uint256 public finalRate;
+  uint256 private initialRate_;
+  uint256 private finalRate_;
 
   /**
    * @dev Constructor, takes initial and final rates of tokens received per wei contributed.
@@ -24,8 +24,22 @@ contract IncreasingPriceCrowdsale is TimedCrowdsale {
   constructor(uint256 _initialRate, uint256 _finalRate) public {
     require(_finalRate > 0);
     require(_initialRate >= _finalRate);
-    initialRate = _initialRate;
-    finalRate = _finalRate;
+    initialRate_ = _initialRate;
+    finalRate_ = _finalRate;
+  }
+
+  /**
+   * @return the initial rate of the crowdsale.
+   */
+  function initialRate() public view returns(uint256) {
+    return initialRate_;
+  }
+
+  /**
+   * @return the final rate of the crowdsale.
+   */
+  function finalRate() public view returns (uint256) {
+    return finalRate_;
   }
 
   /**
@@ -37,8 +51,8 @@ contract IncreasingPriceCrowdsale is TimedCrowdsale {
     // solium-disable-next-line security/no-block-members
     uint256 elapsedTime = block.timestamp.sub(openingTime);
     uint256 timeRange = closingTime.sub(openingTime);
-    uint256 rateRange = initialRate.sub(finalRate);
-    return initialRate.sub(elapsedTime.mul(rateRange).div(timeRange));
+    uint256 rateRange = initialRate_.sub(finalRate_);
+    return initialRate_.sub(elapsedTime.mul(rateRange).div(timeRange));
   }
 
   /**
