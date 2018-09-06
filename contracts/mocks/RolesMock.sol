@@ -12,20 +12,8 @@ contract RolesMock {
     dummyRole.add(_account);
   }
 
-  function addMany(address[] _accounts) public {
-    dummyRole.addMany(_accounts);
-  }
-
   function remove(address _account) public {
     dummyRole.remove(_account);
-  }
-
-  function renounce() public {
-    dummyRole.renounce();
-  }
-
-  function transfer(address _account) public {
-    dummyRole.transfer(_account);
   }
 
   function has(address _account) public view returns (bool) {

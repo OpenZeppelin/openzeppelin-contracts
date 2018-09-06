@@ -16,7 +16,7 @@ contract('TokenTimelock', function ([_, minter, beneficiary]) {
 
   context('with token', function () {
     beforeEach(async function () {
-      this.token = await ERC20Mintable.new([minter]);
+      this.token = await ERC20Mintable.new({ from: minter });
     });
 
     it('rejects a release time in the past', async function () {

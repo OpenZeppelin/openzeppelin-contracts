@@ -15,12 +15,6 @@ contract ERC20Mintable is ERC20, MinterRole {
 
   bool public mintingFinished = false;
 
-  constructor(address[] _minters)
-    MinterRole(_minters)
-    public
-  {
-  }
-
   modifier canMint() {
     require(!mintingFinished);
     _;

@@ -8,15 +8,17 @@ const MintedCrowdsale = artifacts.require('MintedCrowdsaleImpl');
 const ERC20Mintable = artifacts.require('ERC20Mintable');
 const ERC20 = artifacts.require('ERC20');
 
-contract('MintedCrowdsale', function ([_, initialMinter, investor, wallet, purchaser]) {
+contract('MintedCrowdsale', function ([_, deployer, investor, wallet, purchaser]) {
   const rate = new BigNumber(1000);
   const value = ether(5);
 
   describe('using ERC20Mintable', function () {
     beforeEach(async function () {
-      this.token = await ERC20Mintable.new([initialMinter]);
+      this.token = await ERC20Mintable.new({ from: deployer });
       this.crowdsale = await MintedCrowdsale.new(rate, wallet, this.token.address);
-      await this.token.transferMinter(this.crowdsale.address, { from: initialMinter });
+
+      await this.token.addMinter(this.crowdsale.address, { from: deployer });
+      await this.token.renounceMinter({ from: deployer });
     });
 
     it('crowdsale should be minter', async function () {

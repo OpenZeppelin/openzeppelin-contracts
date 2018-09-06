@@ -20,32 +20,10 @@ library Roles {
   }
 
   /**
-   * @dev give multiple accounts access to this role
-   */
-  function addMany(Role storage _role, address[] _accounts) internal {
-    for (uint256 i = 0; i < _accounts.length; ++i) {
-      add(_role, _accounts[i]);
-    }
-  }
-
-  /**
    * @dev remove an account's access to this role
    */
   function remove(Role storage _role, address _account) internal {
     _role.bearer[_account] = false;
-  }
-
-  function transfer(Role storage _role, address _account) internal {
-    require(_account != address(0));
-    require(!has(_role, _account));
-    require(has(_role, msg.sender));
-
-    remove(_role, msg.sender);
-    add(_role, _account);
-  }
-
-  function renounce(Role storage _role) internal {
-    remove(_role, msg.sender);
   }
 
   /**
