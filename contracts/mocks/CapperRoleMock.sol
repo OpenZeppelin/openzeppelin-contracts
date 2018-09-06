@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../access/rbac/CapperRole.sol";
+import "../access/roles/CapperRole.sol";
 
 
 contract CapperRoleMock is CapperRole {

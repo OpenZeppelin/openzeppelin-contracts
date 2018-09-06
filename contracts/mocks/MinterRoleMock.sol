@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../access/rbac/MinterRole.sol";
+import "../access/roles/MinterRole.sol";
 
 
 contract MinterRoleMock is MinterRole {

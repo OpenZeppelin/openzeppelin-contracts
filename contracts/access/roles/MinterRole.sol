@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "./Roles.sol";
+import "../Roles.sol";
 
 
 contract MinterRole {

@@ -2,7 +2,7 @@ pragma solidity ^0.4.24;
 
 import "../../math/SafeMath.sol";
 import "../Crowdsale.sol";
-import "../../access/rbac/CapperRole.sol";
+import "../../access/roles/CapperRole.sol";
 
 
 /**

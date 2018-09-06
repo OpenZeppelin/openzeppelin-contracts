@@ -69,8 +69,7 @@ contract MyContract is Ownable {
 ## Architecture
 The following provides visibility into how OpenZeppelin's contracts are organized:
 
-- **access** - Smart contracts that enable functionality that can be used for selective restrictions and basic authorization control functions. Includes address whitelisting and signature-based permissions management.
-	- **rbac** - A library used to manage addresses assigned to different user roles and an example Role-Based Access Control (RBAC) interface that demonstrates how to handle setters and getters for roles and addresses.
+- **access** - Smart contracts that enable functionality that can be used for selective restrictions and basic authorization control functions.
 - **crowdsale** - A collection of smart contracts used to manage token crowdsales that allow investors to purchase tokens with ETH. Includes a base contract which implements fundamental crowdsale functionality in its simplest form. The base contract can be extended in order to satisfy your crowdsale’s specific requirements.
 	- **distribution** - Includes extensions of the base crowdsale contract which can be used to customize the completion of a crowdsale.
 	- **emission** - Includes extensions of the base crowdsale contract which can be used to mint and manage how tokens are issued to purchasers.

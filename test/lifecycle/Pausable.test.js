@@ -2,7 +2,7 @@ const { assertRevert } = require('../helpers/assertRevert');
 const expectEvent = require('../helpers/expectEvent');
 
 const PausableMock = artifacts.require('PausableMock');
-const { shouldBehaveLikePublicRole } = require('../access/rbac/PublicRole.behavior');
+const { shouldBehaveLikePublicRole } = require('../access/roles/PublicRole.behavior');
 
 const BigNumber = web3.BigNumber;
 
