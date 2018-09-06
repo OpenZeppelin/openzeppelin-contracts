@@ -4,6 +4,7 @@ pragma solidity ^0.4.24;
 import "../payment/PullPayment.sol";
 import "../ownership/Ownable.sol";
 
+
 /**
  * @title BreakInvariantBounty
  * @dev This bounty will pay out to a researcher if they break invariant logic of the contract.
