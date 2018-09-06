@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "../ownership/Ownable.sol";
-import "../access/rbac/RBAC.sol";
+import "../access/roles/RBAC.sol";
 import "../cryptography/ECDSA.sol";
 
 

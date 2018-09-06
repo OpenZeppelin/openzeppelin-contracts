@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../access/rbac/PauserRole.sol";
+import "../access/roles/PauserRole.sol";
 
 
 /**

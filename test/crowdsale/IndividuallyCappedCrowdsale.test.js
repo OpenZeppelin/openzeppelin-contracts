@@ -10,7 +10,7 @@ require('chai')
 
 const IndividuallyCappedCrowdsaleImpl = artifacts.require('IndividuallyCappedCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
-const { shouldBehaveLikePublicRole } = require('../access/rbac/PublicRole.behavior');
+const { shouldBehaveLikePublicRole } = require('../access/roles/PublicRole.behavior');
 
 contract('IndividuallyCappedCrowdsale', function (
   [_, capper, otherCapper, wallet, alice, bob, charlie, anyone, ...otherAccounts]) {

@@ -1,4 +1,4 @@
-const { shouldBehaveLikePublicRole } = require('../../access/rbac/PublicRole.behavior');
+const { shouldBehaveLikePublicRole } = require('../../access/roles/PublicRole.behavior');
 const MinterRoleMock = artifacts.require('MinterRoleMock');
 
 contract('MinterRole', function ([_, minter, otherMinter, ...otherAccounts]) {
