@@ -16,11 +16,11 @@ contract CanReclaimToken is Ownable {
 
   /**
    * @dev Reclaim all ERC20 compatible tokens
-   * @param _token ERC20 The address of the token contract
+   * @param token ERC20 The address of the token contract
    */
-  function reclaimToken(IERC20 _token) external onlyOwner {
-    uint256 balance = _token.balanceOf(this);
-    _token.safeTransfer(owner(), balance);
+  function reclaimToken(IERC20 token) external onlyOwner {
+    uint256 balance = token.balanceOf(this);
+    token.safeTransfer(owner(), balance);
   }
 
 }

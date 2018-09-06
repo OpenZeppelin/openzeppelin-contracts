@@ -33,37 +33,37 @@ contract SignatureBouncer is Ownable, RBAC {
   using ECDSA for bytes32;
 
   // Name of the bouncer role.
-  string private constant ROLE_BOUNCER = "bouncer";
+  string private constant _ROLE_BOUNCER = "bouncer";
   // Function selectors are 4 bytes long, as documented in
   // https://solidity.readthedocs.io/en/v0.4.24/abi-spec.html#function-selector
-  uint256 private constant METHOD_ID_SIZE = 4;
+  uint256 private constant _METHOD_ID_SIZE = 4;
   // Signature size is 65 bytes (tightly packed v + r + s), but gets padded to 96 bytes
-  uint256 private constant SIGNATURE_SIZE = 96;
+  uint256 private constant _SIGNATURE_SIZE = 96;
 
   /**
    * @dev requires that a valid signature of a bouncer was provided
    */
-  modifier onlyValidSignature(bytes _signature)
+  modifier onlyValidSignature(bytes signature)
   {
-    require(_isValidSignature(msg.sender, _signature));
+    require(_isValidSignature(msg.sender, signature));
     _;
   }
 
   /**
    * @dev requires that a valid signature with a specifed method of a bouncer was provided
    */
-  modifier onlyValidSignatureAndMethod(bytes _signature)
+  modifier onlyValidSignatureAndMethod(bytes signature)
   {
-    require(_isValidSignatureAndMethod(msg.sender, _signature));
+    require(_isValidSignatureAndMethod(msg.sender, signature));
     _;
   }
 
   /**
    * @dev requires that a valid signature with a specifed method and params of a bouncer was provided
    */
-  modifier onlyValidSignatureAndData(bytes _signature)
+  modifier onlyValidSignatureAndData(bytes signature)
   {
-    require(_isValidSignatureAndData(msg.sender, _signature));
+    require(_isValidSignatureAndData(msg.sender, signature));
     _;
   }
 
@@ -71,43 +71,43 @@ contract SignatureBouncer is Ownable, RBAC {
    * @dev Determine if an account has the bouncer role.
    * @return true if the account is a bouncer, false otherwise.
    */
-  function isBouncer(address _account) public view returns(bool) {
-    return hasRole(_account, ROLE_BOUNCER);
+  function isBouncer(address account) public view returns(bool) {
+    return hasRole(account, _ROLE_BOUNCER);
   }
 
   /**
    * @dev allows the owner to add additional bouncer addresses
    */
-  function addBouncer(address _bouncer)
+  function addBouncer(address bouncer)
     public
     onlyOwner
   {
-    require(_bouncer != address(0));
-    _addRole(_bouncer, ROLE_BOUNCER);
+    require(bouncer != address(0));
+    _addRole(bouncer, _ROLE_BOUNCER);
   }
 
   /**
    * @dev allows the owner to remove bouncer addresses
    */
-  function removeBouncer(address _bouncer)
+  function removeBouncer(address bouncer)
     public
     onlyOwner
   {
-    _removeRole(_bouncer, ROLE_BOUNCER);
+    _removeRole(bouncer, _ROLE_BOUNCER);
   }
 
   /**
    * @dev is the signature of `this + sender` from a bouncer?
    * @return bool
    */
-  function _isValidSignature(address _address, bytes _signature)
+  function _isValidSignature(address account, bytes signature)
     internal
     view
     returns (bool)
   {
     return _isValidDataHash(
-      keccak256(abi.encodePacked(address(this), _address)),
-      _signature
+      keccak256(abi.encodePacked(address(this), account)),
+      signature
     );
   }
 
@@ -115,39 +115,39 @@ contract SignatureBouncer is Ownable, RBAC {
    * @dev is the signature of `this + sender + methodId` from a bouncer?
    * @return bool
    */
-  function _isValidSignatureAndMethod(address _address, bytes _signature)
+  function _isValidSignatureAndMethod(address account, bytes signature)
     internal
     view
     returns (bool)
   {
-    bytes memory data = new bytes(METHOD_ID_SIZE);
+    bytes memory data = new bytes(_METHOD_ID_SIZE);
     for (uint i = 0; i < data.length; i++) {
       data[i] = msg.data[i];
     }
     return _isValidDataHash(
-      keccak256(abi.encodePacked(address(this), _address, data)),
-      _signature
+      keccak256(abi.encodePacked(address(this), account, data)),
+      signature
     );
   }
 
   /**
     * @dev is the signature of `this + sender + methodId + params(s)` from a bouncer?
-    * @notice the _signature parameter of the method being validated must be the "last" parameter
+    * @notice the signature parameter of the method being validated must be the "last" parameter
     * @return bool
     */
-  function _isValidSignatureAndData(address _address, bytes _signature)
+  function _isValidSignatureAndData(address account, bytes signature)
     internal
     view
     returns (bool)
   {
-    require(msg.data.length > SIGNATURE_SIZE);
-    bytes memory data = new bytes(msg.data.length - SIGNATURE_SIZE);
+    require(msg.data.length > _SIGNATURE_SIZE);
+    bytes memory data = new bytes(msg.data.length - _SIGNATURE_SIZE);
     for (uint i = 0; i < data.length; i++) {
       data[i] = msg.data[i];
     }
     return _isValidDataHash(
-      keccak256(abi.encodePacked(address(this), _address, data)),
-      _signature
+      keccak256(abi.encodePacked(address(this), account, data)),
+      signature
     );
   }
 
@@ -156,14 +156,14 @@ contract SignatureBouncer is Ownable, RBAC {
    * and then recover the signature and check it against the bouncer role
    * @return bool
    */
-  function _isValidDataHash(bytes32 _hash, bytes _signature)
+  function _isValidDataHash(bytes32 hash, bytes signature)
     internal
     view
     returns (bool)
   {
-    address signer = _hash
+    address signer = hash
       .toEthSignedMessageHash()
-      .recover(_signature);
+      .recover(signature);
     return isBouncer(signer);
   }
 }

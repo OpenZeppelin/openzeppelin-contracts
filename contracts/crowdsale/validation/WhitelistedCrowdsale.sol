@@ -11,17 +11,17 @@ import "../../access/Whitelist.sol";
 contract WhitelistedCrowdsale is Whitelist, Crowdsale {
   /**
    * @dev Extend parent behavior requiring beneficiary to be in whitelist.
-   * @param _beneficiary Token beneficiary
-   * @param _weiAmount Amount of wei contributed
+   * @param beneficiary Token beneficiary
+   * @param weiAmount Amount of wei contributed
    */
   function _preValidatePurchase(
-    address _beneficiary,
-    uint256 _weiAmount
+    address beneficiary,
+    uint256 weiAmount
   )
     internal
-    onlyIfWhitelisted(_beneficiary)
+    onlyIfWhitelisted(beneficiary)
   {
-    super._preValidatePurchase(_beneficiary, _weiAmount);
+    super._preValidatePurchase(beneficiary, weiAmount);
   }
 
 }

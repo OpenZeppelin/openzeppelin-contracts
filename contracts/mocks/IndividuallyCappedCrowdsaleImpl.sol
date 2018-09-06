@@ -7,12 +7,12 @@ import "../crowdsale/validation/IndividuallyCappedCrowdsale.sol";
 contract IndividuallyCappedCrowdsaleImpl is IndividuallyCappedCrowdsale {
 
   constructor (
-    uint256 _rate,
-    address _wallet,
-    IERC20 _token
+    uint256 rate,
+    address wallet,
+    IERC20 token
   )
     public
-    Crowdsale(_rate, _wallet, _token)
+    Crowdsale(rate, wallet, token)
   {
   }
 

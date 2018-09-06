@@ -8,11 +8,11 @@ import "../crowdsale/Crowdsale.sol";
 contract WhitelistedCrowdsaleImpl is Crowdsale, WhitelistedCrowdsale {
 
   constructor (
-    uint256 _rate,
-    address _wallet,
-    IERC20 _token
+    uint256 rate,
+    address wallet,
+    IERC20 token
   )
-    Crowdsale(_rate, _wallet, _token)
+    Crowdsale(rate, wallet, token)
     public
   {
   }

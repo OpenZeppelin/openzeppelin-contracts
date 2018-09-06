@@ -11,12 +11,12 @@ contract ConditionalEscrow is Escrow {
   /**
   * @dev Returns whether an address is allowed to withdraw their funds. To be
   * implemented by derived contracts.
-  * @param _payee The destination address of the funds.
+  * @param payee The destination address of the funds.
   */
-  function withdrawalAllowed(address _payee) public view returns (bool);
+  function withdrawalAllowed(address payee) public view returns (bool);
 
-  function withdraw(address _payee) public {
-    require(withdrawalAllowed(_payee));
-    super.withdraw(_payee);
+  function withdraw(address payee) public {
+    require(withdrawalAllowed(payee));
+    super.withdraw(payee);
   }
 }

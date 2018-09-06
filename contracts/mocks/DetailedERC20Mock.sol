@@ -6,11 +6,11 @@ import "../token/ERC20/ERC20Detailed.sol";
 
 contract ERC20DetailedMock is ERC20, ERC20Detailed {
   constructor(
-    string _name,
-    string _symbol,
-    uint8 _decimals
+    string name,
+    string symbol,
+    uint8 decimals
   )
-    ERC20Detailed(_name, _symbol, _decimals)
+    ERC20Detailed(name, symbol, decimals)
     public
   {}
 }

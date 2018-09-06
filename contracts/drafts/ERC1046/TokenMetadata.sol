@@ -15,15 +15,15 @@ contract ERC20TokenMetadata is IERC20 {
 
 
 contract ERC20WithMetadata is ERC20TokenMetadata {
-  string private tokenURI_ = "";
+  string private _tokenURI = "";
 
-  constructor(string _tokenURI)
+  constructor(string tokenURI)
     public
   {
-    tokenURI_ = _tokenURI;
+    _tokenURI = tokenURI;
   }
 
   function tokenURI() external view returns (string) {
-    return tokenURI_;
+    return _tokenURI;
   }
 }

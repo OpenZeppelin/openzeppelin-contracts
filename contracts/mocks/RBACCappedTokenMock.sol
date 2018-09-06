@@ -5,8 +5,8 @@ import "../token/ERC20/ERC20Capped.sol";
 
 
 contract RBACCappedTokenMock is ERC20Capped, RBACMintableToken {
-  constructor(uint256 _cap)
-    ERC20Capped(_cap)
+  constructor(uint256 cap)
+    ERC20Capped(cap)
     public
   {}
 }

@@ -13,23 +13,23 @@ contract ERC721Mock is ERC721 {
     ERC721(name, symbol)
   { }
 
-  function mint(address _to, uint256 _tokenId) public {
-    _mint(_to, _tokenId);
+  function mint(address to, uint256 tokenId) public {
+    _mint(to, tokenId);
   }
 
-  function burn(uint256 _tokenId) public {
-    _burn(ownerOf(_tokenId), _tokenId);
+  function burn(uint256 tokenId) public {
+    _burn(ownerOf(tokenId), tokenId);
   }
 
-  function exists(uint256 _tokenId) public view returns (bool) {
-    return _exists(_tokenId);
+  function exists(uint256 tokenId) public view returns (bool) {
+    return _exists(tokenId);
   }
 
-  function setTokenURI(uint256 _tokenId, string _uri) public {
-    _setTokenURI(_tokenId, _uri);
+  function setTokenURI(uint256 tokenId, string uri) public {
+    _setTokenURI(tokenId, uri);
   }
 
-  function removeTokenFrom(address _from, uint256 _tokenId) public {
-    _removeTokenFrom(_from, _tokenId);
+  function removeTokenFrom(address from, uint256 tokenId) public {
+    _removeTokenFrom(from, tokenId);
   }
 }

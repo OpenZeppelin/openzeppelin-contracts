@@ -7,19 +7,19 @@ import "../cryptography/ECDSA.sol";
 contract ECDSAMock {
   using ECDSA for bytes32;
 
-  function recover(bytes32 _hash, bytes _signature)
+  function recover(bytes32 hash, bytes signature)
     public
     pure
     returns (address)
   {
-    return _hash.recover(_signature);
+    return hash.recover(signature);
   }
 
-  function toEthSignedMessageHash(bytes32 _hash)
+  function toEthSignedMessageHash(bytes32 hash)
     public
     pure
     returns (bytes32)
   {
-    return _hash.toEthSignedMessageHash();
+    return hash.toEthSignedMessageHash();
   }
 }

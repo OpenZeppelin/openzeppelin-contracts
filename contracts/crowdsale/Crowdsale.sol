@@ -180,7 +180,7 @@ contract Crowdsale {
   )
     internal
   {
-    token_.safeTransfer(beneficiary, tokenAmount);
+    _token.safeTransfer(beneficiary, tokenAmount);
   }
 
   /**

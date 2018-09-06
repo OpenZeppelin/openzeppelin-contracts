@@ -19,7 +19,7 @@ contract RBACWithAdmin is RBAC {
   /**
    * A constant role name for indicating admins.
    */
-  string private constant ROLE_ADMIN = "admin";
+  string private constant _ROLE_ADMIN = "admin";
 
   /**
    * @dev modifier to scope access to admins
@@ -27,7 +27,7 @@ contract RBACWithAdmin is RBAC {
    */
   modifier onlyAdmin()
   {
-    checkRole(msg.sender, ROLE_ADMIN);
+    checkRole(msg.sender, _ROLE_ADMIN);
     _;
   }
 
@@ -37,37 +37,37 @@ contract RBACWithAdmin is RBAC {
   constructor()
     public
   {
-    _addRole(msg.sender, ROLE_ADMIN);
+    _addRole(msg.sender, _ROLE_ADMIN);
   }
 
   /**
    * @return true if the account is admin, false otherwise.
    */
-  function isAdmin(address _account) public view returns(bool) {
-    return hasRole(_account, ROLE_ADMIN);
+  function isAdmin(address account) public view returns(bool) {
+    return hasRole(account, _ROLE_ADMIN);
   }
 
   /**
    * @dev add a role to an account
-   * @param _account the account that will have the role
-   * @param _roleName the name of the role
+   * @param account the account that will have the role
+   * @param roleName the name of the role
    */
-  function adminAddRole(address _account, string _roleName)
+  function adminAddRole(address account, string roleName)
     public
     onlyAdmin
   {
-    _addRole(_account, _roleName);
+    _addRole(account, roleName);
   }
 
   /**
    * @dev remove a role from an account
-   * @param _account the account that will no longer have the role
-   * @param _roleName the name of the role
+   * @param account the account that will no longer have the role
+   * @param roleName the name of the role
    */
-  function adminRemoveRole(address _account, string _roleName)
+  function adminRemoveRole(address account, string roleName)
     public
     onlyAdmin
   {
-    _removeRole(_account, _roleName);
+    _removeRole(account, roleName);
   }
 }

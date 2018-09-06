@@ -5,24 +5,24 @@ import "../examples/RBACWithAdmin.sol";
 
 contract RBACMock is RBACWithAdmin {
 
-  string internal constant ROLE_ADVISOR = "advisor";
+  string private constant _ROLE_ADVISOR = "advisor";
 
   modifier onlyAdminOrAdvisor()
   {
     require(
       isAdmin(msg.sender) ||
-      hasRole(msg.sender, ROLE_ADVISOR)
+      hasRole(msg.sender, _ROLE_ADVISOR)
     );
     _;
   }
 
-  constructor(address[] _advisors)
+  constructor(address[] advisors)
     public
   {
-    _addRole(msg.sender, ROLE_ADVISOR);
+    _addRole(msg.sender, _ROLE_ADVISOR);
 
-    for (uint256 i = 0; i < _advisors.length; i++) {
-      _addRole(_advisors[i], ROLE_ADVISOR);
+    for (uint256 i = 0; i < advisors.length; i++) {
+      _addRole(advisors[i], _ROLE_ADVISOR);
     }
   }
 
@@ -35,7 +35,7 @@ contract RBACMock is RBACWithAdmin {
 
   function onlyAdvisorsCanDoThis()
     external
-    onlyRole(ROLE_ADVISOR)
+    onlyRole(_ROLE_ADVISOR)
     view
   {
   }
@@ -55,15 +55,15 @@ contract RBACMock is RBACWithAdmin {
   }
 
   // admins can remove advisor's role
-  function removeAdvisor(address _account)
+  function removeAdvisor(address account)
     public
     onlyAdmin
   {
     // revert if the user isn't an advisor
     //  (perhaps you want to soft-fail here instead?)
-    checkRole(_account, ROLE_ADVISOR);
+    checkRole(account, _ROLE_ADVISOR);
 
     // remove the advisor's role
-    _removeRole(_account, ROLE_ADVISOR);
+    _removeRole(account, _ROLE_ADVISOR);
   }
 }

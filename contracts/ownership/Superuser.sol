@@ -12,17 +12,17 @@ import "../access/rbac/RBAC.sol";
  * A superuser can transfer his role to a new address.
  */
 contract Superuser is Ownable, RBAC {
-  string private constant ROLE_SUPERUSER = "superuser";
+  string private constant _ROLE_SUPERUSER = "superuser";
 
   constructor () public {
-    _addRole(msg.sender, ROLE_SUPERUSER);
+    _addRole(msg.sender, _ROLE_SUPERUSER);
   }
 
   /**
    * @dev Throws if called by any account that's not a superuser.
    */
   modifier onlySuperuser() {
-    checkRole(msg.sender, ROLE_SUPERUSER);
+    checkRole(msg.sender, _ROLE_SUPERUSER);
     _;
   }
 
@@ -34,29 +34,29 @@ contract Superuser is Ownable, RBAC {
   /**
    * @dev getter to determine if an account has superuser role
    */
-  function isSuperuser(address _account)
+  function isSuperuser(address account)
     public
     view
     returns (bool)
   {
-    return hasRole(_account, ROLE_SUPERUSER);
+    return hasRole(account, _ROLE_SUPERUSER);
   }
 
   /**
    * @dev Allows the current superuser to transfer his role to a newSuperuser.
-   * @param _newSuperuser The address to transfer ownership to.
+   * @param newSuperuser The address to transfer ownership to.
    */
-  function transferSuperuser(address _newSuperuser) public onlySuperuser {
-    require(_newSuperuser != address(0));
-    _removeRole(msg.sender, ROLE_SUPERUSER);
-    _addRole(_newSuperuser, ROLE_SUPERUSER);
+  function transferSuperuser(address newSuperuser) public onlySuperuser {
+    require(newSuperuser != address(0));
+    _removeRole(msg.sender, _ROLE_SUPERUSER);
+    _addRole(newSuperuser, _ROLE_SUPERUSER);
   }
 
   /**
    * @dev Allows the current superuser or owner to transfer control of the contract to a newOwner.
-   * @param _newOwner The address to transfer ownership to.
+   * @param newOwner The address to transfer ownership to.
    */
-  function transferOwnership(address _newOwner) public onlyOwnerOrSuperuser {
-    _transferOwnership(_newOwner);
+  function transferOwnership(address newOwner) public onlyOwnerOrSuperuser {
+    _transferOwnership(newOwner);
   }
 }
