@@ -9,7 +9,7 @@ Zeppelin requested that New Alchemy perform an audit of the contracts in their O
 
 The contracts are hosted at:
 
-https://github.com/OpenZeppelin/zeppelin-solidity
+https://github.com/OpenZeppelin/openzeppelin-solidity
 
 All the contracts in the "contracts" folder are in scope.
 
@@ -48,9 +48,9 @@ We think much more could be done here, and recommend the OpenZeppelin team keep 
 
 ## Solidity Version Updates Recommended
 
-Most of the code uses Solidity 0.4.11, but some files under `Ownership` are marked 0.4.0. These should be updated.
+Most of the code uses Solidity 0.4.24.
 
-Solidity 0.4.10 will add several features which could be useful in these contracts:
+Solidity 0.4.24 will add several features which could be useful in these contracts:
 
 - `assert(condition)`, which throws if the condition is false
 
