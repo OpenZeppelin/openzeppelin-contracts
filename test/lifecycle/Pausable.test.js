@@ -1,6 +1,8 @@
 const { assertRevert } = require('../helpers/assertRevert');
 const expectEvent = require('../helpers/expectEvent');
+
 const PausableMock = artifacts.require('PausableMock');
+const { shouldBehaveLikePublicRole } = require('../access/rbac/PublicRole.behavior');
 
 const BigNumber = web3.BigNumber;
 
@@ -8,41 +10,50 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('Pausable', function ([_, pauser, anyone]) {
+contract('Pausable', function ([_, pauser, otherPauser, anyone, ...otherAccounts]) {
   beforeEach(async function () {
-    this.Pausable = await PausableMock.new({ from: pauser });
+    this.pausable = await PausableMock.new({ from: pauser });
+  });
+
+  describe('pauser role', function () {
+    beforeEach(async function () {
+      this.contract = this.pausable;
+      await this.contract.addPauser(otherPauser, { from: pauser });
+    });
+
+    shouldBehaveLikePublicRole(pauser, otherPauser, otherAccounts, 'pauser');
   });
 
   context('when unapused', function () {
     beforeEach(async function () {
-      (await this.Pausable.paused()).should.equal(false);
+      (await this.pausable.paused()).should.equal(false);
     });
 
     it('can perform normal process in non-pause', async function () {
-      (await this.Pausable.count()).should.be.bignumber.equal(0);
+      (await this.pausable.count()).should.be.bignumber.equal(0);
 
-      await this.Pausable.normalProcess({ from: anyone });
-      (await this.Pausable.count()).should.be.bignumber.equal(1);
+      await this.pausable.normalProcess({ from: anyone });
+      (await this.pausable.count()).should.be.bignumber.equal(1);
     });
 
     it('cannot take drastic measure in non-pause', async function () {
-      await assertRevert(this.Pausable.drasticMeasure({ from: anyone }));
-      (await this.Pausable.drasticMeasureTaken()).should.equal(false);
+      await assertRevert(this.pausable.drasticMeasure({ from: anyone }));
+      (await this.pausable.drasticMeasureTaken()).should.equal(false);
     });
 
     describe('pausing', function () {
       it('is pausable by the pauser', async function () {
-        await this.Pausable.pause({ from: pauser });
-        (await this.Pausable.paused()).should.equal(true);
+        await this.pausable.pause({ from: pauser });
+        (await this.pausable.paused()).should.equal(true);
       });
 
       it('reverts when pausing from non-pauser', async function () {
-        await assertRevert(this.Pausable.pause({ from: anyone }));
+        await assertRevert(this.pausable.pause({ from: anyone }));
       });
 
       context('when paused', function () {
         beforeEach(async function () {
-          ({ logs: this.logs } = await this.Pausable.pause({ from: pauser }));
+          ({ logs: this.logs } = await this.pausable.pause({ from: pauser }));
         });
 
         it('emits a Paused event', function () {
@@ -50,31 +61,31 @@ contract('Pausable', function ([_, pauser, anyone]) {
         });
 
         it('cannot perform normal process in pause', async function () {
-          await assertRevert(this.Pausable.normalProcess({ from: anyone }));
+          await assertRevert(this.pausable.normalProcess({ from: anyone }));
         });
 
         it('can take a drastic measure in a pause', async function () {
-          await this.Pausable.drasticMeasure({ from: anyone });
-          (await this.Pausable.drasticMeasureTaken()).should.equal(true);
+          await this.pausable.drasticMeasure({ from: anyone });
+          (await this.pausable.drasticMeasureTaken()).should.equal(true);
         });
 
         it('reverts when re-pausing', async function () {
-          await assertRevert(this.Pausable.pause({ from: pauser }));
+          await assertRevert(this.pausable.pause({ from: pauser }));
         });
 
         describe('unpausing', function () {
           it('is unpausable by the pauser', async function () {
-            await this.Pausable.unpause({ from: pauser });
-            (await this.Pausable.paused()).should.equal(false);
+            await this.pausable.unpause({ from: pauser });
+            (await this.pausable.paused()).should.equal(false);
           });
 
           it('reverts when unpausing from non-pauser', async function () {
-            await assertRevert(this.Pausable.unpause({ from: anyone }));
+            await assertRevert(this.pausable.unpause({ from: anyone }));
           });
 
-          context('when paused', function () {
+          context('when unpaused', function () {
             beforeEach(async function () {
-              ({ logs: this.logs } = await this.Pausable.unpause({ from: pauser }));
+              ({ logs: this.logs } = await this.pausable.unpause({ from: pauser }));
             });
 
             it('emits an Unpaused event', function () {
@@ -82,17 +93,17 @@ contract('Pausable', function ([_, pauser, anyone]) {
             });
 
             it('should resume allowing normal process', async function () {
-              (await this.Pausable.count()).should.be.bignumber.equal(0);
-              await this.Pausable.normalProcess({ from: anyone });
-              (await this.Pausable.count()).should.be.bignumber.equal(1);
+              (await this.pausable.count()).should.be.bignumber.equal(0);
+              await this.pausable.normalProcess({ from: anyone });
+              (await this.pausable.count()).should.be.bignumber.equal(1);
             });
 
             it('should prevent drastic measure', async function () {
-              await assertRevert(this.Pausable.drasticMeasure({ from: anyone }));
+              await assertRevert(this.pausable.drasticMeasure({ from: anyone }));
             });
 
             it('reverts when re-unpausing', async function () {
-              await assertRevert(this.Pausable.unpause({ from: pauser }));
+              await assertRevert(this.pausable.unpause({ from: pauser }));
             });
           });
         });
