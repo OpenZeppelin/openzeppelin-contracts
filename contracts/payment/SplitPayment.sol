@@ -5,8 +5,8 @@ import "../math/SafeMath.sol";
 
 /**
  * @title SplitPayment
- * @dev Base contract that supports multiple payees claiming funds sent to this contract
- * according to the proportion they own.
+ * @dev This contract can be used when payments need to be received by a group
+ * of people and split proportionately to some number of shares they own.
  */
 contract SplitPayment {
   using SafeMath for uint256;
@@ -73,25 +73,59 @@ contract SplitPayment {
   /**
    * @dev Claim your share of the balance.
    */
-  function claim() public {
-    address payee = msg.sender;
+  function totalShares() public view returns(uint256) {
+    return totalShares_;
+  }
 
-    require(shares_[payee] > 0);
+  /**
+   * @return the total amount already released.
+   */
+  function totalReleased() public view returns(uint256) {
+    return totalReleased_;
+  }
+
+  /**
+   * @return the shares of an account.
+   */
+  function shares(address _account) public view returns(uint256) {
+    return shares_[_account];
+  }
+
+  /**
+   * @return the amount already released to an account.
+   */
+  function released(address _account) public view returns(uint256) {
+    return released_[_account];
+  }
+
+  /**
+   * @return the address of a payee.
+   */
+  function payee(uint256 index) public view returns(address) {
+    return payees_[index];
+  }
+
+  /**
+   * @dev Release one of the payee's proportional payment.
+   * @param _payee Whose payments will be released.
+   */
+  function release(address _payee) public {
+    require(shares_[_payee] > 0);
 
     uint256 totalReceived = address(this).balance.add(totalReleased_);
     uint256 payment = totalReceived.mul(
-      shares_[payee]).div(
+      shares_[_payee]).div(
         totalShares_).sub(
-          released_[payee]
+          released_[_payee]
     );
 
     require(payment != 0);
     assert(address(this).balance >= payment);
 
-    released_[payee] = released_[payee].add(payment);
+    released_[_payee] = released_[_payee].add(payment);
     totalReleased_ = totalReleased_.add(payment);
 
-    payee.transfer(payment);
+    _payee.transfer(payment);
   }
 
   /**
