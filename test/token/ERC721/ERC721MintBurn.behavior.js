@@ -84,15 +84,17 @@ function shouldBehaveLikeMintAndBurnERC721 (accounts) {
         });
       });
 
-      describe('when there is a previous approval', function () {
+      describe('when there is a previous approval burned', function () {
         beforeEach(async function () {
           await this.token.approve(accounts[1], tokenId, { from: sender });
           const result = await this.token.burn(tokenId, { from: sender });
           logs = result.logs;
         });
 
-        it('clears the approval', async function () {
-          (await this.token.getApproved(tokenId)).should.be.equal(ZERO_ADDRESS);
+        context('getApproved', function () {
+          it('reverts', async function () {
+            await assertRevert(this.token.getApproved(tokenId));
+          });
         });
       });
 

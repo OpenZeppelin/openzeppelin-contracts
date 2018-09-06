@@ -93,10 +93,12 @@ contract ERC721Basic is ERC165, IERC721Basic {
 
   /**
    * @dev Gets the approved address for a token ID, or zero if no address set
+   * Reverts if the token ID does not exist.
    * @param _tokenId uint256 ID of the token to query the approval of
    * @return address currently approved for the given token ID
    */
   function getApproved(uint256 _tokenId) public view returns (address) {
+    require(_exists(_tokenId));
     return tokenApprovals_[_tokenId];
   }
 
