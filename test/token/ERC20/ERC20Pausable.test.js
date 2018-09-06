@@ -1,9 +1,20 @@
 const { assertRevert } = require('../../helpers/assertRevert');
-const ERC20Pausable = artifacts.require('ERC20PausableMock');
 
-contract('ERC20Pausable', function ([_, pauser, recipient, anotherAccount]) {
+const ERC20Pausable = artifacts.require('ERC20PausableMock');
+const { shouldBehaveLikePublicRole } = require('../../access/rbac/PublicRole.behavior');
+
+contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherAccount, ...otherAccounts]) {
   beforeEach(async function () {
     this.token = await ERC20Pausable.new(pauser, 100, { from: pauser });
+  });
+
+  describe('pauser role', function () {
+    beforeEach(async function () {
+      this.contract = this.token;
+      await this.contract.addPauser(otherPauser, { from: pauser });
+    });
+
+    shouldBehaveLikePublicRole(pauser, otherPauser, otherAccounts, 'pauser');
   });
 
   describe('pause', function () {
