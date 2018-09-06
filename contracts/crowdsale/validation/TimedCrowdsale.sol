@@ -59,14 +59,6 @@ contract TimedCrowdsale is Crowdsale {
   }
 
   /**
-   * @return true if the crowdsale is open, false otherwise.
-   */
-  function isOpen() public view returns (bool) {
-    // solium-disable-next-line security/no-block-members
-    return block.timestamp >= openingTime && block.timestamp <= closingTime;
-  }
-
-  /**
    * @dev Checks whether the period in which the crowdsale is open has already elapsed.
    * @return Whether crowdsale period has elapsed
    */
