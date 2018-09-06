@@ -16,11 +16,11 @@ contract PullPayment {
   }
 
   /**
-  * @dev Withdraw accumulated balance, called by payee.
+  * @dev Withdraw accumulated balance.
+  * @param _payee Whose balance will be withdrawn.
   */
-  function withdrawPayments() public {
-    address payee = msg.sender;
-    escrow.withdraw(payee);
+  function withdrawPayments(address _payee) public {
+    escrow.withdraw(_payee);
   }
 
   /**
