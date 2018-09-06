@@ -39,7 +39,7 @@ const transformToFullName = function (json) {
  * @param methodName string
  * @param methodArgs any[]
  */
-const getBouncerSigner = (contract, signer) => (redeemer, methodName, methodArgs = []) => {
+const getSignFor = (contract, signer) => (redeemer, methodName, methodArgs = []) => {
   const parts = [
     contract.address,
     redeemer,
@@ -70,5 +70,5 @@ const getBouncerSigner = (contract, signer) => (redeemer, methodName, methodArgs
 module.exports = {
   signMessage,
   toEthSignedMessageHash,
-  getBouncerSigner,
+  getSignFor,
 };
