@@ -84,14 +84,14 @@ function shouldBehaveLikeMintAndBurnERC721 (accounts) {
         });
       });
 
-      describe('when there is a previous approval', function () {
+      describe('when there is a previous approval burned', function () {
         beforeEach(async function () {
           await this.token.approve(accounts[1], tokenId, { from: sender });
           const result = await this.token.burn(tokenId, { from: sender });
           logs = result.logs;
         });
 
-        context('when the token ID does not exist', function () {
+        context('getApproved', function () {
           it('reverts', async function () {
             await assertRevert(this.token.getApproved(tokenId));
           });
