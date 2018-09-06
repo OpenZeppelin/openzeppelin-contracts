@@ -5,9 +5,10 @@ import "../crowdsale/validation/IndividuallyCappedCrowdsale.sol";
 import "./CapperRoleMock.sol";
 
 
-contract IndividuallyCappedCrowdsaleImpl is IndividuallyCappedCrowdsale, CapperRoleMock {
+contract IndividuallyCappedCrowdsaleImpl
+  is IndividuallyCappedCrowdsale, CapperRoleMock {
 
-  constructor (
+  constructor(
     uint256 _rate,
     address _wallet,
     IERC20 _token
@@ -16,5 +17,4 @@ contract IndividuallyCappedCrowdsaleImpl is IndividuallyCappedCrowdsale, CapperR
     Crowdsale(_rate, _wallet, _token)
   {
   }
-
 }

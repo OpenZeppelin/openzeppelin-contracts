@@ -12,7 +12,8 @@ const IndividuallyCappedCrowdsaleImpl = artifacts.require('IndividuallyCappedCro
 const SimpleToken = artifacts.require('SimpleToken');
 const { shouldBehaveLikePublicRole } = require('../access/rbac/PublicRole.behavior');
 
-contract('IndividuallyCappedCrowdsale', function ([_, capper, otherCapper, wallet, alice, bob, charlie, anyone, ...otherAccounts]) {
+contract('IndividuallyCappedCrowdsale', function (
+  [_, capper, otherCapper, wallet, alice, bob, charlie, anyone, ...otherAccounts]) {
   const rate = new BigNumber(1);
   const capAlice = ether(10);
   const capBob = ether(2);
@@ -35,12 +36,12 @@ contract('IndividuallyCappedCrowdsale', function ([_, capper, otherCapper, walle
   });
 
   describe('individual caps', function () {
-    it('sets a cap when the sender is a capper',  async function () {
+    it('sets a cap when the sender is a capper', async function () {
       await this.crowdsale.setUserCap(alice, capAlice, { from: capper });
       (await this.crowdsale.getUserCap(alice)).should.be.bignumber.equal(capAlice);
     });
 
-    it('reverts when a non-capper sets a cap',  async function () {
+    it('reverts when a non-capper sets a cap', async function () {
       await expectThrow(this.crowdsale.setUserCap(alice, capAlice, { from: anyone }), EVMRevert);
     });
 
@@ -91,13 +92,13 @@ contract('IndividuallyCappedCrowdsale', function ([_, capper, otherCapper, walle
   });
 
   describe('group capping', function () {
-    it('sets caps when the sender is a capper',  async function () {
+    it('sets caps when the sender is a capper', async function () {
       await this.crowdsale.setGroupCap([bob, charlie], capBob, { from: capper });
       (await this.crowdsale.getUserCap(bob)).should.be.bignumber.equal(capBob);
       (await this.crowdsale.getUserCap(charlie)).should.be.bignumber.equal(capBob);
     });
 
-    it('reverts when a non-capper set caps',  async function () {
+    it('reverts when a non-capper set caps', async function () {
       await expectThrow(this.crowdsale.setGroupCap([bob, charlie], capBob, { from: anyone }), EVMRevert);
     });
 
