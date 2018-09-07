@@ -311,7 +311,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
       const amount = 100;
       const spender = ZERO_ADDRESS;
 
-      it('decreases the requested amount', async function () {
+      it('reverts', async function () {
         await assertRevert(this.token.decreaseAllowance(spender, amount, { from: owner }));
       });
     });
