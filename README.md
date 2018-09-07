@@ -24,7 +24,7 @@ contract MyNFT is ERC721, ERC721Mintable {
 }
 ```
 
-> You need to be using a framework like Truffle or Embark for the above import statements to work! Check out these guides.
+> You need to be using a framework like [Truffle] or [Embark] for the above import statements to work! Check out these guides.
 
 You can find the API documentation [online][API docs]. Keep in mind that it’s a work in progress, and don’t hesitate to ask questions in [our Slack][Slack].
 
@@ -49,3 +49,5 @@ OpenZeppelin is released under the [MIT License](LICENSE).
 [Slack]: https://slack.openzeppelin.org
 [Zeppelin]: https://zeppelin.solutions
 [contribution guide]: CONTRIBUTING.md
+[Truffle]: https://truffleframework.com/docs/truffle/quickstart
+[Embark]: https://embark.status.im/docs/quick_start.html
