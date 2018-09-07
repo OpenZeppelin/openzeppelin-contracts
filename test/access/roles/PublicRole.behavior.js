@@ -1,3 +1,5 @@
+const { assertRevert } = require('../../helpers/assertRevert');
+
 require('chai')
   .should();
 
@@ -14,6 +16,24 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
       (await this.contract[`is${rolename}`](authorized)).should.equal(true);
       (await this.contract[`is${rolename}`](otherAuthorized)).should.equal(true);
       (await this.contract[`is${rolename}`](anyone)).should.equal(false);
+    });
+
+    describe('access control', function () {
+      context('from authorized account', function () {
+        const from = authorized;
+
+        it('allows access', async function () {
+          await this.contract[`only${rolename}Mock`]({ from });
+        })
+      });
+
+      context('from unauthorized account', function () {
+        const from = anyone;
+
+        it('reverts', async function () {
+          await assertRevert(this.contract[`only${rolename}Mock`]({ from }));
+        })
+      });
     });
 
     describe('add', function () {
