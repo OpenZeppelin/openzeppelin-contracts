@@ -45,21 +45,21 @@ contract ERC20Migrator {
    * @param legacyToken address of the old token contract
    */
   constructor(IERC20 legacyToken) public {
-    require(legacyToken != address(0))
+    require(legacyToken != address(0));
     _legacyToken = legacyToken;
   }
 
   /**
    * @dev Returns the legacy token that is being migrated.
    */
-  function legacyToken() external returns (IERC20) {
+  function legacyToken() public view returns (IERC20) {
     return _legacyToken;
   }
 
   /**
    * @dev Returns the new token to which we are migrating.
    */
-  function newToken() external returns (IERC20) {
+  function newToken() public view returns (IERC20) {
     return _newToken;
   }
 
@@ -91,7 +91,6 @@ contract ERC20Migrator {
    * @dev Transfers all of an account's allowed balance in the old token to
    * this contract, and mints the same amount of new tokens for that account.
    * @param account whose tokens will be migrated
-   * @param amount amount of tokens to be migrated
    */
   function migrateAll(address account) public {
     uint256 balance = _legacyToken.balanceOf(account);
