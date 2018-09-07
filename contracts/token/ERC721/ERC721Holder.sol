@@ -13,6 +13,6 @@ contract ERC721Holder is IERC721Receiver {
     public
     returns(bytes4)
   {
-    return ERC721_RECEIVED;
+    return this.onERC721Received.selector;
   }
 }

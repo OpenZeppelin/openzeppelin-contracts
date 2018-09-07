@@ -1,29 +1,29 @@
 pragma solidity ^0.4.24;
 
 import "./ERC20.sol";
-import "../../ownership/Ownable.sol";
+import "../../access/roles/MinterRole.sol";
 
 
 /**
- * @title Mintable token
- * @dev Simple ERC20 Token example, with mintable token creation
- * Based on code by TokenMarketNet: https://github.com/TokenMarketNet/ico/blob/master/contracts/MintableToken.sol
+ * @title ERC20Mintable
+ * @dev ERC20 minting logic
  */
-contract ERC20Mintable is ERC20, Ownable {
-  event Mint(address indexed to, uint256 amount);
-  event MintFinished();
+contract ERC20Mintable is ERC20, MinterRole {
+  event Minted(address indexed to, uint256 amount);
+  event MintingFinished();
 
-  bool public mintingFinished = false;
+  bool private mintingFinished_ = false;
 
-
-  modifier canMint() {
-    require(!mintingFinished);
+  modifier onlyBeforeMintingFinished() {
+    require(!mintingFinished_);
     _;
   }
 
-  modifier hasMintPermission() {
-    require(msg.sender == owner);
-    _;
+  /**
+   * @return true if the minting is finished.
+   */
+  function mintingFinished() public view returns(bool) {
+    return mintingFinished_;
   }
 
   /**
@@ -37,12 +37,12 @@ contract ERC20Mintable is ERC20, Ownable {
     uint256 _amount
   )
     public
-    hasMintPermission
-    canMint
+    onlyMinter
+    onlyBeforeMintingFinished
     returns (bool)
   {
     _mint(_to, _amount);
-    emit Mint(_to, _amount);
+    emit Minted(_to, _amount);
     return true;
   }
 
@@ -50,9 +50,14 @@ contract ERC20Mintable is ERC20, Ownable {
    * @dev Function to stop minting new tokens.
    * @return True if the operation was successful.
    */
-  function finishMinting() public onlyOwner canMint returns (bool) {
-    mintingFinished = true;
-    emit MintFinished();
+  function finishMinting()
+    public
+    onlyMinter
+    onlyBeforeMintingFinished
+    returns (bool)
+  {
+    mintingFinished_ = true;
+    emit MintingFinished();
     return true;
   }
 }

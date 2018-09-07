@@ -8,19 +8,13 @@ pragma solidity ^0.4.24;
  */
 contract IERC721Receiver {
   /**
-   * @dev Magic value to be returned upon successful reception of an NFT
-   *  Equals to `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`,
-   *  which can be also obtained as `IERC721Receiver(0).onERC721Received.selector`
-   */
-  bytes4 internal constant ERC721_RECEIVED = 0x150b7a02;
-
-  /**
    * @notice Handle the receipt of an NFT
    * @dev The ERC721 smart contract calls this function on the recipient
-   * after a `safetransfer`. This function MAY throw to revert and reject the
-   * transfer. Return of other than the magic value MUST result in the
-   * transaction being reverted.
-   * Note: the contract address is always the message sender.
+   * after a `safeTransfer`. This function MUST return the function selector,
+   * otherwise the caller will revert the transaction. The selector to be
+   * returned can be obtained as `this.onERC721Received.selector`. This
+   * function MAY throw to revert and reject the transfer.
+   * Note: the ERC721 contract address is always the message sender.
    * @param _operator The address which called `safeTransferFrom` function
    * @param _from The address which previously owned the token
    * @param _tokenId The NFT identifier which is being transferred
