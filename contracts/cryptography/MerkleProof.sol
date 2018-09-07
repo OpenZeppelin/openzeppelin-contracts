@@ -14,7 +14,7 @@ library MerkleProof {
    * @param _root Merkle root
    * @param _leaf Leaf of Merkle tree
    */
-  function verifyProof(
+  function verify(
     bytes32[] _proof,
     bytes32 _root,
     bytes32 _leaf

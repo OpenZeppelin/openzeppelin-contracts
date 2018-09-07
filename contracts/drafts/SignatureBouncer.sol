@@ -1,27 +1,26 @@
 pragma solidity ^0.4.24;
 
-import "../ownership/Ownable.sol";
-import "../access/rbac/RBAC.sol";
+import "../access/roles/SignerRole.sol";
 import "../cryptography/ECDSA.sol";
 
 
 /**
  * @title SignatureBouncer
  * @author PhABC, Shrugs and aflesher
- * @dev Bouncer allows users to submit a signature as a permission to do an action.
- * If the signature is from one of the authorized bouncer addresses, the signature
- * is valid. The owner of the contract adds/removes bouncers.
- * Bouncer addresses can be individual servers signing grants or different
+ * @dev SignatureBouncer allows users to submit a signature as a permission to do an action.
+ * If the signature is from one of the authorized signer addresses, the signature
+ * is valid.
+ * Signer addresses can be individual servers signing grants or different
  * users within a decentralized club that have permission to invite other members.
  * This technique is useful for whitelists and airdrops; instead of putting all
  * valid addresses on-chain, simply sign a grant of the form
- * keccak256(abi.encodePacked(`:contractAddress` + `:granteeAddress`)) using a valid bouncer address.
+ * keccak256(abi.encodePacked(`:contractAddress` + `:granteeAddress`)) using a valid signer address.
  * Then restrict access to your crowdsale/whitelist/airdrop using the
  * `onlyValidSignature` modifier (or implement your own using _isValidSignature).
  * In addition to `onlyValidSignature`, `onlyValidSignatureAndMethod` and
  * `onlyValidSignatureAndData` can be used to restrict access to only a given method
  * or a given method with given parameters respectively.
- * See the tests Bouncer.test.js for specific usage examples.
+ * See the tests in SignatureBouncer.test.js for specific usage examples.
  * @notice A method that uses the `onlyValidSignatureAndData` modifier must make the _signature
  * parameter the "last" parameter. You cannot sign a message that has its own
  * signature in it so the last 128 bytes of msg.data (which represents the
@@ -29,11 +28,9 @@ import "../cryptography/ECDSA.sol";
  * Also non fixed sized parameters make constructing the data in the signature
  * much more complex. See https://ethereum.stackexchange.com/a/50616 for more details.
  */
-contract SignatureBouncer is Ownable, RBAC {
+contract SignatureBouncer is SignerRole {
   using ECDSA for bytes32;
 
-  // Name of the bouncer role.
-  string private constant ROLE_BOUNCER = "bouncer";
   // Function selectors are 4 bytes long, as documented in
   // https://solidity.readthedocs.io/en/v0.4.24/abi-spec.html#function-selector
   uint256 private constant METHOD_ID_SIZE = 4;
@@ -41,7 +38,7 @@ contract SignatureBouncer is Ownable, RBAC {
   uint256 private constant SIGNATURE_SIZE = 96;
 
   /**
-   * @dev requires that a valid signature of a bouncer was provided
+   * @dev requires that a valid signature of a signer was provided
    */
   modifier onlyValidSignature(bytes _signature)
   {
@@ -50,7 +47,7 @@ contract SignatureBouncer is Ownable, RBAC {
   }
 
   /**
-   * @dev requires that a valid signature with a specifed method of a bouncer was provided
+   * @dev requires that a valid signature with a specifed method of a signer was provided
    */
   modifier onlyValidSignatureAndMethod(bytes _signature)
   {
@@ -59,7 +56,7 @@ contract SignatureBouncer is Ownable, RBAC {
   }
 
   /**
-   * @dev requires that a valid signature with a specifed method and params of a bouncer was provided
+   * @dev requires that a valid signature with a specifed method and params of a signer was provided
    */
   modifier onlyValidSignatureAndData(bytes _signature)
   {
@@ -68,36 +65,7 @@ contract SignatureBouncer is Ownable, RBAC {
   }
 
   /**
-   * @dev Determine if an account has the bouncer role.
-   * @return true if the account is a bouncer, false otherwise.
-   */
-  function isBouncer(address _account) public view returns(bool) {
-    return hasRole(_account, ROLE_BOUNCER);
-  }
-
-  /**
-   * @dev allows the owner to add additional bouncer addresses
-   */
-  function addBouncer(address _bouncer)
-    public
-    onlyOwner
-  {
-    require(_bouncer != address(0));
-    _addRole(_bouncer, ROLE_BOUNCER);
-  }
-
-  /**
-   * @dev allows the owner to remove bouncer addresses
-   */
-  function removeBouncer(address _bouncer)
-    public
-    onlyOwner
-  {
-    _removeRole(_bouncer, ROLE_BOUNCER);
-  }
-
-  /**
-   * @dev is the signature of `this + sender` from a bouncer?
+   * @dev is the signature of `this + sender` from a signer?
    * @return bool
    */
   function _isValidSignature(address _address, bytes _signature)
@@ -112,7 +80,7 @@ contract SignatureBouncer is Ownable, RBAC {
   }
 
   /**
-   * @dev is the signature of `this + sender + methodId` from a bouncer?
+   * @dev is the signature of `this + sender + methodId` from a signer?
    * @return bool
    */
   function _isValidSignatureAndMethod(address _address, bytes _signature)
@@ -131,7 +99,7 @@ contract SignatureBouncer is Ownable, RBAC {
   }
 
   /**
-    * @dev is the signature of `this + sender + methodId + params(s)` from a bouncer?
+    * @dev is the signature of `this + sender + methodId + params(s)` from a signer?
     * @notice the _signature parameter of the method being validated must be the "last" parameter
     * @return bool
     */
@@ -153,7 +121,7 @@ contract SignatureBouncer is Ownable, RBAC {
 
   /**
    * @dev internal function to convert a hash to an eth signed message
-   * and then recover the signature and check it against the bouncer role
+   * and then recover the signature and check it against the signer role
    * @return bool
    */
   function _isValidDataHash(bytes32 _hash, bytes _signature)
@@ -164,6 +132,6 @@ contract SignatureBouncer is Ownable, RBAC {
     address signer = _hash
       .toEthSignedMessageHash()
       .recover(_signature);
-    return isBouncer(signer);
+    return isSigner(signer);
   }
 }
