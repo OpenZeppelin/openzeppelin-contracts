@@ -1,4 +1,4 @@
-const { assertRevert } = require('../../helpers/assertRevert');
+const { assertRevert } = require('../helpers/assertRevert');
 
 const ERC20Mock = artifacts.require('ERC20Mock');
 const ERC20Mintable = artifacts.require('ERC20Mintable');

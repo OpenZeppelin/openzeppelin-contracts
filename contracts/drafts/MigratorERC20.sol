@@ -1,9 +1,9 @@
 pragma solidity ^0.4.24;
 
-import "./IERC20.sol";
-import "./ERC20Mintable.sol";
-import "./SafeERC20.sol";
-import "../../math/Math.sol";
+import "../token/ERC20/IERC20.sol";
+import "../token/ERC20/ERC20Mintable.sol";
+import "../token/ERC20/SafeERC20.sol";
+import "../math/Math.sol";
 
 
 /**
