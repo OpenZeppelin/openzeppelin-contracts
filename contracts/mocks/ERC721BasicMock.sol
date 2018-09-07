@@ -9,10 +9,10 @@ import "../token/ERC721/ERC721Basic.sol";
  */
 contract ERC721BasicMock is ERC721Basic {
   function mint(address to, uint256 tokenId) public {
-    super._mint(to, tokenId);
+    _mint(to, tokenId);
   }
 
   function burn(uint256 tokenId) public {
-    super._burn(ownerOf(tokenId), tokenId);
+    _burn(ownerOf(tokenId), tokenId);
   }
 }

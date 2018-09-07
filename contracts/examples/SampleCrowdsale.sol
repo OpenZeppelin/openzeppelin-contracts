@@ -16,7 +16,6 @@ contract SampleCrowdsaleToken is ERC20Mintable {
   string public constant name = "Sample Crowdsale Token";
   string public constant symbol = "SCT";
   uint8 public constant decimals = 18;
-
 }
 
 

@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../token/ERC20/ERC20Mintable.sol";
+import "../token/ERC20/IERC20.sol";
 import "../crowdsale/distribution/FinalizableCrowdsale.sol";
 
 
@@ -11,7 +11,7 @@ contract FinalizableCrowdsaleImpl is FinalizableCrowdsale {
     uint256 closingTime,
     uint256 rate,
     address wallet,
-    ERC20Mintable token
+    IERC20 token
   )
     public
     Crowdsale(rate, wallet, token)

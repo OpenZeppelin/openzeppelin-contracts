@@ -5,21 +5,21 @@ const { shouldBehaveLikeERC20Capped } = require('./ERC20Capped.behavior');
 
 const ERC20Capped = artifacts.require('ERC20Capped');
 
-contract('ERC20Capped', function ([_, owner, ...otherAccounts]) {
+contract('ERC20Capped', function ([_, minter, ...otherAccounts]) {
   const cap = ether(1000);
 
   it('requires a non-zero cap', async function () {
     await assertRevert(
-      ERC20Capped.new(0, { from: owner })
+      ERC20Capped.new(0, { from: minter })
     );
   });
 
   context('once deployed', async function () {
     beforeEach(async function () {
-      this.token = await ERC20Capped.new(cap, { from: owner });
+      this.token = await ERC20Capped.new(cap, { from: minter });
     });
 
-    shouldBehaveLikeERC20Capped(owner, otherAccounts, cap);
-    shouldBehaveLikeERC20Mintable(owner, owner, otherAccounts);
+    shouldBehaveLikeERC20Capped(minter, otherAccounts, cap);
+    shouldBehaveLikeERC20Mintable(minter, otherAccounts);
   });
 });

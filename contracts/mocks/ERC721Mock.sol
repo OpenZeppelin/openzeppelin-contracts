@@ -1,6 +1,8 @@
 pragma solidity ^0.4.24;
 
 import "../token/ERC721/ERC721.sol";
+import "../token/ERC721/ERC721Mintable.sol";
+import "../token/ERC721/ERC721Burnable.sol";
 
 
 /**
@@ -8,18 +10,11 @@ import "../token/ERC721/ERC721.sol";
  * This mock just provides a public mint and burn functions for testing purposes,
  * and a public setter for metadata URI
  */
-contract ERC721Mock is ERC721 {
+contract ERC721Mock is ERC721, ERC721Mintable, ERC721Burnable {
   constructor(string name, string symbol) public
+    ERC721Mintable()
     ERC721(name, symbol)
-  { }
-
-  function mint(address to, uint256 tokenId) public {
-    _mint(to, tokenId);
-  }
-
-  function burn(uint256 tokenId) public {
-    _burn(ownerOf(tokenId), tokenId);
-  }
+  {}
 
   function exists(uint256 tokenId) public view returns (bool) {
     return _exists(tokenId);

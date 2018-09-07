@@ -57,7 +57,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
   }
 
   /**
-   * @dev escrow finalization task, called when owner calls finalize()
+   * @dev escrow finalization task, called when finalize() is called
    */
   function _finalization() internal {
     if (goalReached()) {
