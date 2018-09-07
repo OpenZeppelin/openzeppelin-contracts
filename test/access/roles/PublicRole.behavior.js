@@ -1,3 +1,6 @@
+const { assertRevert } = require('../../helpers/assertRevert');
+const expectEvent = require('../../helpers/expectEvent');
+
 require('chai')
   .should();
 
@@ -16,10 +19,33 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
       (await this.contract[`is${rolename}`](anyone)).should.equal(false);
     });
 
+    describe('access control', function () {
+      context('from authorized account', function () {
+        const from = authorized;
+
+        it('allows access', async function () {
+          await this.contract[`only${rolename}Mock`]({ from });
+        });
+      });
+
+      context('from unauthorized account', function () {
+        const from = anyone;
+
+        it('reverts', async function () {
+          await assertRevert(this.contract[`only${rolename}Mock`]({ from }));
+        });
+      });
+    });
+
     describe('add', function () {
       it('adds role to a new account', async function () {
         await this.contract[`add${rolename}`](anyone, { from: authorized });
         (await this.contract[`is${rolename}`](anyone)).should.equal(true);
+      });
+
+      it(`emits a ${rolename}Added event`, async function () {
+        const { logs } = await this.contract[`add${rolename}`](anyone, { from: authorized });
+        expectEvent.inLogs(logs, `${rolename}Added`, { account: anyone });
       });
 
       it('adds role to an already-assigned account', async function () {
@@ -37,6 +63,11 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
         await this.contract[`remove${rolename}`](authorized);
         (await this.contract[`is${rolename}`](authorized)).should.equal(false);
         (await this.contract[`is${rolename}`](otherAuthorized)).should.equal(true);
+      });
+
+      it(`emits a ${rolename}Removed event`, async function () {
+        const { logs } = await this.contract[`remove${rolename}`](authorized);
+        expectEvent.inLogs(logs, `${rolename}Removed`, { account: authorized });
       });
 
       it('doesn\'t revert when removing from an unassigned account', async function () {

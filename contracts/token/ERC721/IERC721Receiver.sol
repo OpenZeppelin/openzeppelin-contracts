@@ -15,17 +15,17 @@ contract IERC721Receiver {
    * returned can be obtained as `this.onERC721Received.selector`. This
    * function MAY throw to revert and reject the transfer.
    * Note: the ERC721 contract address is always the message sender.
-   * @param _operator The address which called `safeTransferFrom` function
-   * @param _from The address which previously owned the token
-   * @param _tokenId The NFT identifier which is being transferred
-   * @param _data Additional data with no specified format
+   * @param operator The address which called `safeTransferFrom` function
+   * @param from The address which previously owned the token
+   * @param tokenId The NFT identifier which is being transferred
+   * @param data Additional data with no specified format
    * @return `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`
    */
   function onERC721Received(
-    address _operator,
-    address _from,
-    uint256 _tokenId,
-    bytes _data
+    address operator,
+    address from,
+    uint256 tokenId,
+    bytes data
   )
     public
     returns(bytes4);

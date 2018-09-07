@@ -11,21 +11,21 @@ contract Pausable is PauserRole {
   event Paused();
   event Unpaused();
 
-  bool private paused_ = false;
+  bool private _paused = false;
 
 
   /**
    * @return true if the contract is paused, false otherwise.
    */
   function paused() public view returns(bool) {
-    return paused_;
+    return _paused;
   }
 
   /**
    * @dev Modifier to make a function callable only when the contract is not paused.
    */
   modifier whenNotPaused() {
-    require(!paused_);
+    require(!_paused);
     _;
   }
 
@@ -33,7 +33,7 @@ contract Pausable is PauserRole {
    * @dev Modifier to make a function callable only when the contract is paused.
    */
   modifier whenPaused() {
-    require(paused_);
+    require(_paused);
     _;
   }
 
@@ -41,7 +41,7 @@ contract Pausable is PauserRole {
    * @dev called by the owner to pause, triggers stopped state
    */
   function pause() public onlyPauser whenNotPaused {
-    paused_ = true;
+    _paused = true;
     emit Paused();
   }
 
@@ -49,7 +49,7 @@ contract Pausable is PauserRole {
    * @dev called by the owner to unpause, returns to normal state
    */
   function unpause() public onlyPauser whenPaused {
-    paused_ = false;
+    _paused = false;
     emit Unpaused();
   }
 }

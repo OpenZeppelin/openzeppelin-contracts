@@ -7,13 +7,13 @@ import "../../introspection/ERC165.sol";
 
 contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
   // Token name
-  string internal name_;
+  string internal _name;
 
   // Token symbol
-  string internal symbol_;
+  string internal _symbol;
 
   // Optional mapping for token URIs
-  mapping(uint256 => string) private tokenURIs_;
+  mapping(uint256 => string) private _tokenURIs;
 
   bytes4 private constant InterfaceId_ERC721Metadata = 0x5b5e139f;
   /**
@@ -26,9 +26,9 @@ contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
   /**
    * @dev Constructor function
    */
-  constructor(string _name, string _symbol) public {
-    name_ = _name;
-    symbol_ = _symbol;
+  constructor(string name, string symbol) public {
+    _name = name;
+    _symbol = symbol;
 
     // register the supported interfaces to conform to ERC721 via ERC165
     _registerInterface(InterfaceId_ERC721Metadata);
@@ -39,7 +39,7 @@ contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
    * @return string representing the token name
    */
   function name() external view returns (string) {
-    return name_;
+    return _name;
   }
 
   /**
@@ -47,42 +47,42 @@ contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
    * @return string representing the token symbol
    */
   function symbol() external view returns (string) {
-    return symbol_;
+    return _symbol;
   }
 
   /**
    * @dev Returns an URI for a given token ID
    * Throws if the token ID does not exist. May return an empty string.
-   * @param _tokenId uint256 ID of the token to query
+   * @param tokenId uint256 ID of the token to query
    */
-  function tokenURI(uint256 _tokenId) public view returns (string) {
-    require(_exists(_tokenId));
-    return tokenURIs_[_tokenId];
+  function tokenURI(uint256 tokenId) public view returns (string) {
+    require(_exists(tokenId));
+    return _tokenURIs[tokenId];
   }
 
   /**
    * @dev Internal function to set the token URI for a given token
    * Reverts if the token ID does not exist
-   * @param _tokenId uint256 ID of the token to set its URI
-   * @param _uri string URI to assign
+   * @param tokenId uint256 ID of the token to set its URI
+   * @param uri string URI to assign
    */
-  function _setTokenURI(uint256 _tokenId, string _uri) internal {
-    require(_exists(_tokenId));
-    tokenURIs_[_tokenId] = _uri;
+  function _setTokenURI(uint256 tokenId, string uri) internal {
+    require(_exists(tokenId));
+    _tokenURIs[tokenId] = uri;
   }
 
   /**
    * @dev Internal function to burn a specific token
    * Reverts if the token does not exist
-   * @param _owner owner of the token to burn
-   * @param _tokenId uint256 ID of the token being burned by the msg.sender
+   * @param owner owner of the token to burn
+   * @param tokenId uint256 ID of the token being burned by the msg.sender
    */
-  function _burn(address _owner, uint256 _tokenId) internal {
-    super._burn(_owner, _tokenId);
+  function _burn(address owner, uint256 tokenId) internal {
+    super._burn(owner, tokenId);
 
     // Clear metadata (if any)
-    if (bytes(tokenURIs_[_tokenId]).length != 0) {
-      delete tokenURIs_[_tokenId];
+    if (bytes(_tokenURIs[tokenId]).length != 0) {
+      delete _tokenURIs[tokenId];
     }
   }
 }

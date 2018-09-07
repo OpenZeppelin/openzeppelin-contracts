@@ -12,7 +12,7 @@ import "../validation/TimedCrowdsale.sol";
 contract FinalizableCrowdsale is TimedCrowdsale {
   using SafeMath for uint256;
 
-  bool private finalized_ = false;
+  bool private _finalized = false;
 
   event CrowdsaleFinalized();
 
@@ -20,7 +20,7 @@ contract FinalizableCrowdsale is TimedCrowdsale {
    * @return true if the crowdsale is finalized, false otherwise.
    */
   function finalized() public view returns (bool) {
-    return finalized_;
+    return _finalized;
   }
 
   /**
@@ -28,13 +28,13 @@ contract FinalizableCrowdsale is TimedCrowdsale {
    * work. Calls the contract's finalization function.
    */
   function finalize() public {
-    require(!finalized_);
+    require(!_finalized);
     require(hasClosed());
 
     _finalization();
     emit CrowdsaleFinalized();
 
-    finalized_ = true;
+    _finalized = true;
   }
 
   /**

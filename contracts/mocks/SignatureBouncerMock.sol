@@ -5,54 +5,54 @@ import "./SignerRoleMock.sol";
 
 
 contract SignatureBouncerMock is SignatureBouncer, SignerRoleMock {
-  function checkValidSignature(address _address, bytes _signature)
+  function checkValidSignature(address account, bytes signature)
     public
     view
     returns (bool)
   {
-    return _isValidSignature(_address, _signature);
+    return _isValidSignature(account, signature);
   }
 
-  function onlyWithValidSignature(bytes _signature)
+  function onlyWithValidSignature(bytes signature)
     public
-    onlyValidSignature(_signature)
+    onlyValidSignature(signature)
     view
   {
 
   }
 
-  function checkValidSignatureAndMethod(address _address, bytes _signature)
+  function checkValidSignatureAndMethod(address account, bytes signature)
     public
     view
     returns (bool)
   {
-    return _isValidSignatureAndMethod(_address, _signature);
+    return _isValidSignatureAndMethod(account, signature);
   }
 
-  function onlyWithValidSignatureAndMethod(bytes _signature)
+  function onlyWithValidSignatureAndMethod(bytes signature)
     public
-    onlyValidSignatureAndMethod(_signature)
+    onlyValidSignatureAndMethod(signature)
     view
   {
 
   }
 
   function checkValidSignatureAndData(
-    address _address,
+    address account,
     bytes,
     uint,
-    bytes _signature
+    bytes signature
   )
     public
     view
     returns (bool)
   {
-    return _isValidSignatureAndData(_address, _signature);
+    return _isValidSignatureAndData(account, signature);
   }
 
-  function onlyWithValidSignatureAndData(uint, bytes _signature)
+  function onlyWithValidSignatureAndData(uint, bytes signature)
     public
-    onlyValidSignatureAndData(_signature)
+    onlyValidSignatureAndData(signature)
     view
   {
 
