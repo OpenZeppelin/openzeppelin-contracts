@@ -8,7 +8,7 @@ import "../math/Math.sol";
 
 /**
  * @title ERC20Migrator
- * @dev This contract can be used to to migrate an ERC20 token from one
+ * @dev This contract can be used to migrate an ERC20 token from one
  * contract to another, where each token holder has to opt-in to the migration.
  * To opt-in, users must approve for this contract the number of tokens they
  * want to migrate. Once the allowance is set up, anyone can trigger the
@@ -20,12 +20,17 @@ import "../math/Math.sol";
  * that it is a minter for the token.
  * The balance from the legacy token will be transfered to the migrator, as it
  * is migrated, and remain there forever.
- *
  * Although this contract can be used in many different scenarios, the main
  * motivation was to provide a way to migrate ERC20 tokens into an upgradeable
  * version of it using ZeppelinOS. To read more about how this can be done
  * using this implementation, please follow the official documentation site of
  * ZeppelinOS: https://docs.zeppelinos.org/docs/erc20_onboarding.html
+ * Example of usage:
+ * ```
+ * const migrator = await ERC20Migrator.new(legacyToken.address);
+ * await newToken.addMinter(migrator.address);
+ * await migrator.beginMigration(newToken.address);
+ * ```
  */
 contract ERC20Migrator {
   using SafeERC20 for IERC20;
@@ -37,7 +42,6 @@ contract ERC20Migrator {
   ERC20Mintable private _newToken;
 
   /**
-   * @dev Constructor function. It initializes the new token contract
    * @param legacyToken address of the old token contract
    */
   constructor(IERC20 legacyToken) public {
@@ -45,6 +49,11 @@ contract ERC20Migrator {
     _legacyToken = legacyToken;
   }
 
+  /**
+   * @dev Begins the migration by setting which is the new token that will be
+   * minted. This contract must be a minter for the new token.
+   * @param newToken the token that will be minted
+   */
   function beginMigration(ERC20Mintable newToken) public {
     require(_newToken == address(0));
     require(newToken != address(0));
