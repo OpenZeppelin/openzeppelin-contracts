@@ -1,5 +1,5 @@
-const { assertRevert } = require('../../helpers/assertRevert');
-const expectEvent = require('../../helpers/expectEvent');
+const { assertRevert } = require('../../../helpers/assertRevert');
+const expectEvent = require('../../../helpers/expectEvent');
 
 const BigNumber = web3.BigNumber;
 

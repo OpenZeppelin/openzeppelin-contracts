@@ -1,5 +1,4 @@
 const { assertRevert } = require('../../helpers/assertRevert');
-const expectEvent = require('../../helpers/expectEvent');
 
 const ERC20Mock = artifacts.require('ERC20Mock');
 const ERC20Mintable = artifacts.require('ERC20Mintable');
@@ -11,7 +10,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract.only('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
+contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
   const totalSupply = 200;
@@ -20,6 +19,7 @@ contract.only('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) 
     this.legacyToken = await ERC20Mock.new(owner, totalSupply);
     this.migrator = await ERC20Migrator.new(this.legacyToken.address);
     this.newToken = await ERC20Mintable.new();
+    await this.newToken.addMinter(this.migrator.address);
     await this.migrator.beginMigration(this.newToken.address);
   });
 
@@ -34,18 +34,13 @@ contract.only('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) 
       });
 
       beforeEach('migrating token', async function () {
-        ({ logs: this.logs } = await this.migrator.migrateAll(owner));
+        const tx = await this.migrator.migrateAll(owner);
+        this.logs = tx.receipt.logs;
       });
 
       it('mints the same balance of the new token', async function () {
         const currentBalance = await this.newToken.balanceOf(owner);
         currentBalance.should.be.bignumber.equal(amount);
-
-        const event = expectEvent.inLogs(this.logs, 'Transfer', {
-          from: ZERO_ADDRESS,
-          to: owner,
-        });
-        event.args.value.should.be.bignumber.equal(amount);
       });
 
       it('burns a given amount of old tokens', async function () {
@@ -58,7 +53,7 @@ contract.only('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) 
 
       it('updates the total supply', async function () {
         const currentSupply = await this.newToken.totalSupply();
-        currentSupply.should.be.bignumbe.equal(amount);
+        currentSupply.should.be.bignumber.equal(amount);
       });
     });
 
@@ -67,10 +62,12 @@ contract.only('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) 
 
       beforeEach('approving part of the balance to the new contract', async function () {
         await this.legacyToken.approve(this.migrator.address, amount, { from: owner });
+        await this.migrator.migrateAll(owner);
       });
 
-      it('reverts', async function () {
-        await assertRevert(this.newToken.migrateAll(owner));
+      it('migrates only approved amount', async function () {
+        const currentBalance = await this.newToken.balanceOf(owner);
+        currentBalance.should.be.bignumber.equal(amount);
       });
     });
   });
@@ -86,18 +83,12 @@ contract.only('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) 
       const amount = baseAmount;
 
       beforeEach('migrate token', async function () {
-        ({ logs: this.logs } = await this.migrator.migrate(owner));
+        ({ logs: this.logs } = await this.migrator.migrate(owner, amount));
       });
 
       it('mints that amount of the new token', async function () {
         const currentBalance = await this.newToken.balanceOf(owner);
         currentBalance.should.be.bignumber.equal(amount);
-
-        const event = expectEvent.inLogs(this.logs, 'Transfer', {
-          from: ZERO_ADDRESS,
-          to: owner,
-        });
-        event.args.value.should.be.bignumber.equal(amount);
       });
 
       it('burns a given amount of old tokens', async function () {
@@ -105,12 +96,12 @@ contract.only('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) 
         currentBurnedBalance.should.be.bignumber.equal(amount);
 
         const currentLegacyTokenBalance = await this.legacyToken.balanceOf(owner);
-        currentLegacyTokenBalance.should.be.bignumber.equal(0);
+        currentLegacyTokenBalance.should.be.bignumber.equal(totalSupply - amount);
       });
 
       it('updates the total supply', async function () {
         const currentSupply = await this.newToken.totalSupply();
-        currentSupply.should.be.bignumbe.equal(amount);
+        currentSupply.should.be.bignumber.equal(amount);
       });
     });
 
@@ -118,7 +109,7 @@ contract.only('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) 
       const amount = baseAmount + 1;
 
       it('reverts', async function () {
-        await assertRevert(this.newToken.migrate(owner, amount));
+        await assertRevert(this.migrator.migrate(owner, amount));
       });
     });
   });
