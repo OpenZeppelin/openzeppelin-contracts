@@ -12,68 +12,68 @@ import "../../access/roles/CapperRole.sol";
 contract IndividuallyCappedCrowdsale is Crowdsale, CapperRole {
   using SafeMath for uint256;
 
-  mapping(address => uint256) private contributions_;
-  mapping(address => uint256) private caps_;
+  mapping(address => uint256) private _contributions;
+  mapping(address => uint256) private _caps;
 
   /**
    * @dev Sets a specific beneficiary's maximum contribution.
-   * @param _beneficiary Address to be capped
-   * @param _cap Wei limit for individual contribution
+   * @param beneficiary Address to be capped
+   * @param cap Wei limit for individual contribution
    */
-  function setCap(address _beneficiary, uint256 _cap) external onlyCapper {
-    caps_[_beneficiary] = _cap;
+  function setCap(address beneficiary, uint256 cap) external onlyCapper {
+    _caps[beneficiary] = cap;
   }
 
   /**
    * @dev Returns the cap of a specific beneficiary.
-   * @param _beneficiary Address whose cap is to be checked
+   * @param beneficiary Address whose cap is to be checked
    * @return Current cap for individual beneficiary
    */
-  function getCap(address _beneficiary) public view returns (uint256) {
-    return caps_[_beneficiary];
+  function getCap(address beneficiary) public view returns (uint256) {
+    return _caps[beneficiary];
   }
 
   /**
    * @dev Returns the amount contributed so far by a specific beneficiary.
-   * @param _beneficiary Address of contributor
+   * @param beneficiary Address of contributor
    * @return Beneficiary contribution so far
    */
-  function getContribution(address _beneficiary)
+  function getContribution(address beneficiary)
     public view returns (uint256)
   {
-    return contributions_[_beneficiary];
+    return _contributions[beneficiary];
   }
 
   /**
    * @dev Extend parent behavior requiring purchase to respect the beneficiary's funding cap.
-   * @param _beneficiary Token purchaser
-   * @param _weiAmount Amount of wei contributed
+   * @param beneficiary Token purchaser
+   * @param weiAmount Amount of wei contributed
    */
   function _preValidatePurchase(
-    address _beneficiary,
-    uint256 _weiAmount
+    address beneficiary,
+    uint256 weiAmount
   )
     internal
   {
-    super._preValidatePurchase(_beneficiary, _weiAmount);
+    super._preValidatePurchase(beneficiary, weiAmount);
     require(
-      contributions_[_beneficiary].add(_weiAmount) <= caps_[_beneficiary]);
+      _contributions[beneficiary].add(weiAmount) <= _caps[beneficiary]);
   }
 
   /**
    * @dev Extend parent behavior to update beneficiary contributions
-   * @param _beneficiary Token purchaser
-   * @param _weiAmount Amount of wei contributed
+   * @param beneficiary Token purchaser
+   * @param weiAmount Amount of wei contributed
    */
   function _updatePurchasingState(
-    address _beneficiary,
-    uint256 _weiAmount
+    address beneficiary,
+    uint256 weiAmount
   )
     internal
   {
-    super._updatePurchasingState(_beneficiary, _weiAmount);
-    contributions_[_beneficiary] = contributions_[_beneficiary].add(
-      _weiAmount);
+    super._updatePurchasingState(beneficiary, weiAmount);
+    _contributions[beneficiary] = _contributions[beneficiary].add(
+      weiAmount);
   }
 
 }

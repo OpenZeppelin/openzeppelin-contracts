@@ -6,14 +6,14 @@ import { MerkleProof } from "../cryptography/MerkleProof.sol";
 contract MerkleProofWrapper {
 
   function verify(
-    bytes32[] _proof,
-    bytes32 _root,
-    bytes32 _leaf
+    bytes32[] proof,
+    bytes32 root,
+    bytes32 leaf
   )
     public
     pure
     returns (bool)
   {
-    return MerkleProof.verify(_proof, _root, _leaf);
+    return MerkleProof.verify(proof, root, leaf);
   }
 }

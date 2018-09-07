@@ -7,14 +7,14 @@ import "../crowdsale/emission/AllowanceCrowdsale.sol";
 contract AllowanceCrowdsaleImpl is AllowanceCrowdsale {
 
   constructor (
-    uint256 _rate,
-    address _wallet,
-    IERC20 _token,
-    address _tokenWallet
+    uint256 rate,
+    address wallet,
+    IERC20 token,
+    address tokenWallet
   )
     public
-    Crowdsale(_rate, _wallet, _token)
-    AllowanceCrowdsale(_tokenWallet)
+    Crowdsale(rate, wallet, token)
+    AllowanceCrowdsale(tokenWallet)
   {
   }
 

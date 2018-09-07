@@ -6,13 +6,13 @@ import "../payment/ConditionalEscrow.sol";
 
 // mock class using ConditionalEscrow
 contract ConditionalEscrowMock is ConditionalEscrow {
-  mapping(address => bool) public allowed;
+  mapping(address => bool) private _allowed;
 
-  function setAllowed(address _payee, bool _allowed) public {
-    allowed[_payee] = _allowed;
+  function setAllowed(address payee, bool allowed) public {
+    _allowed[payee] = allowed;
   }
 
-  function withdrawalAllowed(address _payee) public view returns (bool) {
-    return allowed[_payee];
+  function withdrawalAllowed(address payee) public view returns (bool) {
+    return _allowed[payee];
   }
 }

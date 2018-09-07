@@ -11,7 +11,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-function shouldBehaveLikeERC721Basic (
+function shouldBehaveLikeERC721 (
   creator,
   minter,
   [owner, approved, anotherApproved, operator, anyone]
@@ -22,7 +22,7 @@ function shouldBehaveLikeERC721Basic (
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
   const RECEIVER_MAGIC_VALUE = '0x150b7a02';
 
-  describe('like an ERC721Basic', function () {
+  describe('like an ERC721', function () {
     beforeEach(async function () {
       await this.token.mint(owner, firstTokenId, { from: minter });
       await this.token.mint(owner, secondTokenId, { from: minter });
@@ -520,5 +520,5 @@ function shouldBehaveLikeERC721Basic (
 }
 
 module.exports = {
-  shouldBehaveLikeERC721Basic,
+  shouldBehaveLikeERC721,
 };

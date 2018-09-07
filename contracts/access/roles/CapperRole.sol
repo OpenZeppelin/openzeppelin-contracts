@@ -6,6 +6,9 @@ import "../Roles.sol";
 contract CapperRole {
   using Roles for Roles.Role;
 
+  event CapperAdded(address indexed account);
+  event CapperRemoved(address indexed account);
+
   Roles.Role private cappers;
 
   constructor() public {
@@ -17,19 +20,21 @@ contract CapperRole {
     _;
   }
 
-  function isCapper(address _account) public view returns (bool) {
-    return cappers.has(_account);
+  function isCapper(address account) public view returns (bool) {
+    return cappers.has(account);
   }
 
-  function addCapper(address _account) public onlyCapper {
-    cappers.add(_account);
+  function addCapper(address account) public onlyCapper {
+    cappers.add(account);
+    emit CapperAdded(account);
   }
 
   function renounceCapper() public {
     cappers.remove(msg.sender);
   }
 
-  function _removeCapper(address _account) internal {
-    cappers.remove(_account);
+  function _removeCapper(address account) internal {
+    cappers.remove(account);
+    emit CapperRemoved(account);
   }
 }

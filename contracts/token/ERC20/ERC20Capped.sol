@@ -9,38 +9,38 @@ import "./ERC20Mintable.sol";
  */
 contract ERC20Capped is ERC20Mintable {
 
-  uint256 private cap_;
+  uint256 private _cap;
 
-  constructor(uint256 _cap)
+  constructor(uint256 cap)
     public
   {
-    require(_cap > 0);
-    cap_ = _cap;
+    require(cap > 0);
+    _cap = cap;
   }
 
   /**
    * @return the cap for the token minting.
    */
   function cap() public view returns(uint256) {
-    return cap_;
+    return _cap;
   }
 
   /**
    * @dev Function to mint tokens
-   * @param _to The address that will receive the minted tokens.
-   * @param _amount The amount of tokens to mint.
+   * @param to The address that will receive the minted tokens.
+   * @param amount The amount of tokens to mint.
    * @return A boolean that indicates if the operation was successful.
    */
   function mint(
-    address _to,
-    uint256 _amount
+    address to,
+    uint256 amount
   )
     public
     returns (bool)
   {
-    require(totalSupply().add(_amount) <= cap_);
+    require(totalSupply().add(amount) <= _cap);
 
-    return super.mint(_to, _amount);
+    return super.mint(to, amount);
   }
 
 }

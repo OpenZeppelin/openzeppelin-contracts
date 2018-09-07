@@ -17,35 +17,35 @@ contract Escrow is Secondary {
   event Deposited(address indexed payee, uint256 weiAmount);
   event Withdrawn(address indexed payee, uint256 weiAmount);
 
-  mapping(address => uint256) private deposits_;
+  mapping(address => uint256) private _deposits;
 
-  function depositsOf(address _payee) public view returns (uint256) {
-    return deposits_[_payee];
+  function depositsOf(address payee) public view returns (uint256) {
+    return _deposits[payee];
   }
 
   /**
   * @dev Stores the sent amount as credit to be withdrawn.
-  * @param _payee The destination address of the funds.
+  * @param payee The destination address of the funds.
   */
-  function deposit(address _payee) public onlyPrimary payable {
+  function deposit(address payee) public onlyPrimary payable {
     uint256 amount = msg.value;
-    deposits_[_payee] = deposits_[_payee].add(amount);
+    _deposits[payee] = _deposits[payee].add(amount);
 
-    emit Deposited(_payee, amount);
+    emit Deposited(payee, amount);
   }
 
   /**
   * @dev Withdraw accumulated balance for a payee.
-  * @param _payee The address whose funds will be withdrawn and transferred to.
+  * @param payee The address whose funds will be withdrawn and transferred to.
   */
-  function withdraw(address _payee) public onlyPrimary {
-    uint256 payment = deposits_[_payee];
+  function withdraw(address payee) public onlyPrimary {
+    uint256 payment = _deposits[payee];
     assert(address(this).balance >= payment);
 
-    deposits_[_payee] = 0;
+    _deposits[payee] = 0;
 
-    _payee.transfer(payment);
+    payee.transfer(payment);
 
-    emit Withdrawn(_payee, payment);
+    emit Withdrawn(payee, payment);
   }
 }
