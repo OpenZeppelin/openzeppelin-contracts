@@ -6,6 +6,9 @@ import "../Roles.sol";
 contract CapperRole {
   using Roles for Roles.Role;
 
+  event CapperAdded(address indexed account);
+  event CapperRemoved(address indexed account);
+
   Roles.Role private cappers;
 
   constructor() public {
@@ -23,6 +26,7 @@ contract CapperRole {
 
   function addCapper(address _account) public onlyCapper {
     cappers.add(_account);
+    emit CapperAdded(_account);
   }
 
   function renounceCapper() public {
@@ -31,5 +35,6 @@ contract CapperRole {
 
   function _removeCapper(address _account) internal {
     cappers.remove(_account);
+    emit CapperRemoved(_account);
   }
 }
