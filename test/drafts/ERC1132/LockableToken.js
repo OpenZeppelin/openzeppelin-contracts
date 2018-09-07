@@ -12,9 +12,9 @@ const lockedAmount = 200;
 const lockPeriod = 1000;
 let blockNumber = web3.eth.blockNumber;
 const lockTimestamp = web3.eth.getBlock(blockNumber).timestamp;
-const approveAmount = 10;
-const nullAddress = 0x0000000000000000000000000000000000000000;
-const increaseTime = function(duration) {
+let token;
+
+const increaseTime = function (duration) {
   web3.currentProvider.sendAsync({
       jsonrpc: '2.0',
       method: 'evm_increaseTime',
@@ -33,10 +33,8 @@ const increaseTime = function(duration) {
     }
   );
 };
-let token;
 
 contract('LockableToken', ([owner, receiver, spender]) => {
-
   before(async () => {
     token = await LockableToken.new(supply);
   });
@@ -133,7 +131,7 @@ contract('LockableToken', ([owner, receiver, spender]) => {
     await increaseTime(
       lockValidityExtended[1].toNumber() + 60 - lockTimestamp
     );
-    unlockableToken = await token.getUnlockableTokens(owner);
+    let unlockableToken = await token.getUnlockableTokens(owner);
     assert.equal(unlockableToken.toNumber(), tokensLocked.toNumber());
     await token.unlock(owner);
     unlockableToken = await token.getUnlockableTokens(owner);
