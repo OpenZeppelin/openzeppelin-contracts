@@ -19,10 +19,14 @@ If you're interested in trying out a preview of OpenZeppelin 2.0, install `openz
 To write your custom contracts, import ours and extend them through inheritance.
 
 ```solidity
-import 'openzeppelin-solidity/contracts/token/ERC721/ERC721.sol';
+pragma solidity ^0.4.24;
+
+import 'openzeppelin-solidity/contracts/token/ERC721/ERC721Full.sol';
 import 'openzeppelin-solidity/contracts/token/ERC721/ERC721Mintable.sol';
 
-contract MyNFT is ERC721, ERC721Mintable {
+contract MyNFT is ERC721Full, ERC721Mintable {
+  constructors() ERC721Full("MyNFT", "MNFT") public {
+  }
 }
 ```
 
