@@ -34,7 +34,7 @@ contract ERC20Migrator {
 
   /**
    * @dev Constructor function. It initializes the new token contract
-   * @param _legacyToken address of the old token contract
+   * @param legacyToken address of the old token contract
    */
   constructor(IERC20 legacyToken) public {
     _legacyToken = legacyToken;
