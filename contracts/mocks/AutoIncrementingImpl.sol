@@ -9,13 +9,13 @@ contract AutoIncrementingImpl {
   uint256 public theId;
 
   // use whatever key you want to track your counters
-  mapping(string => AutoIncrementing.Counter) private counters;
+  mapping(string => AutoIncrementing.Counter) private _counters;
 
-  function doThing(string _key)
+  function doThing(string key)
     public
     returns (uint256)
   {
-    theId = counters[_key].nextId();
+    theId = _counters[key].nextId();
     return theId;
   }
 }

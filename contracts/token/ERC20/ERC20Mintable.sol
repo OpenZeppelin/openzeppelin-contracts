@@ -12,10 +12,10 @@ contract ERC20Mintable is ERC20, MinterRole {
   event Minted(address indexed to, uint256 amount);
   event MintingFinished();
 
-  bool private mintingFinished_ = false;
+  bool private _mintingFinished = false;
 
   modifier onlyBeforeMintingFinished() {
-    require(!mintingFinished_);
+    require(!_mintingFinished);
     _;
   }
 
@@ -23,26 +23,26 @@ contract ERC20Mintable is ERC20, MinterRole {
    * @return true if the minting is finished.
    */
   function mintingFinished() public view returns(bool) {
-    return mintingFinished_;
+    return _mintingFinished;
   }
 
   /**
    * @dev Function to mint tokens
-   * @param _to The address that will receive the minted tokens.
-   * @param _amount The amount of tokens to mint.
+   * @param to The address that will receive the minted tokens.
+   * @param amount The amount of tokens to mint.
    * @return A boolean that indicates if the operation was successful.
    */
   function mint(
-    address _to,
-    uint256 _amount
+    address to,
+    uint256 amount
   )
     public
     onlyMinter
     onlyBeforeMintingFinished
     returns (bool)
   {
-    _mint(_to, _amount);
-    emit Minted(_to, _amount);
+    _mint(to, amount);
+    emit Minted(to, amount);
     return true;
   }
 
@@ -56,7 +56,7 @@ contract ERC20Mintable is ERC20, MinterRole {
     onlyBeforeMintingFinished
     returns (bool)
   {
-    mintingFinished_ = true;
+    _mintingFinished = true;
     emit MintingFinished();
     return true;
   }

@@ -6,30 +6,30 @@ pragma solidity ^0.4.24;
  * @dev A Secondary contract can only be used by its primary account (the one that created it)
  */
 contract Secondary {
-  address private primary_;
+  address private _primary;
 
   /**
    * @dev Sets the primary account to the one that is creating the Secondary contract.
    */
   constructor() public {
-    primary_ = msg.sender;
+    _primary = msg.sender;
   }
 
   /**
    * @dev Reverts if called from any account other than the primary.
    */
   modifier onlyPrimary() {
-    require(msg.sender == primary_);
+    require(msg.sender == _primary);
     _;
   }
 
   function primary() public view returns (address) {
-    return primary_;
+    return _primary;
   }
 
-  function transferPrimary(address _recipient) public onlyPrimary {
-    require(_recipient != address(0));
+  function transferPrimary(address recipient) public onlyPrimary {
+    require(recipient != address(0));
 
-    primary_ = _recipient;
+    _primary = recipient;
   }
 }

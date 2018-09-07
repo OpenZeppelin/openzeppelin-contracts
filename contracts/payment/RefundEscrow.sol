@@ -16,40 +16,40 @@ contract RefundEscrow is Secondary, ConditionalEscrow {
   event Closed();
   event RefundsEnabled();
 
-  State private state_;
-  address private beneficiary_;
+  State private _state;
+  address private _beneficiary;
 
   /**
    * @dev Constructor.
-   * @param _beneficiary The beneficiary of the deposits.
+   * @param beneficiary The beneficiary of the deposits.
    */
-  constructor(address _beneficiary) public {
-    require(_beneficiary != address(0));
-    beneficiary_ = _beneficiary;
-    state_ = State.Active;
+  constructor(address beneficiary) public {
+    require(beneficiary != address(0));
+    _beneficiary = beneficiary;
+    _state = State.Active;
   }
 
   /**
    * @return the current state of the escrow.
    */
   function state() public view returns (State) {
-    return state_;
+    return _state;
   }
 
   /**
    * @return the beneficiary of the escrow.
    */
   function beneficiary() public view returns (address) {
-    return beneficiary_;
+    return _beneficiary;
   }
 
   /**
    * @dev Stores funds that may later be refunded.
-   * @param _refundee The address funds will be sent to if a refund occurs.
+   * @param refundee The address funds will be sent to if a refund occurs.
    */
-  function deposit(address _refundee) public payable {
-    require(state_ == State.Active);
-    super.deposit(_refundee);
+  function deposit(address refundee) public payable {
+    require(_state == State.Active);
+    super.deposit(refundee);
   }
 
   /**
@@ -57,8 +57,8 @@ contract RefundEscrow is Secondary, ConditionalEscrow {
    * further deposits.
    */
   function close() public onlyPrimary {
-    require(state_ == State.Active);
-    state_ = State.Closed;
+    require(_state == State.Active);
+    _state = State.Closed;
     emit Closed();
   }
 
@@ -66,8 +66,8 @@ contract RefundEscrow is Secondary, ConditionalEscrow {
    * @dev Allows for refunds to take place, rejecting further deposits.
    */
   function enableRefunds() public onlyPrimary {
-    require(state_ == State.Active);
-    state_ = State.Refunding;
+    require(_state == State.Active);
+    _state = State.Refunding;
     emit RefundsEnabled();
   }
 
@@ -75,14 +75,14 @@ contract RefundEscrow is Secondary, ConditionalEscrow {
    * @dev Withdraws the beneficiary's funds.
    */
   function beneficiaryWithdraw() public {
-    require(state_ == State.Closed);
-    beneficiary_.transfer(address(this).balance);
+    require(_state == State.Closed);
+    _beneficiary.transfer(address(this).balance);
   }
 
   /**
    * @dev Returns whether refundees can withdraw their deposits (be refunded).
    */
-  function withdrawalAllowed(address _payee) public view returns (bool) {
-    return state_ == State.Refunding;
+  function withdrawalAllowed(address payee) public view returns (bool) {
+    return _state == State.Refunding;
   }
 }

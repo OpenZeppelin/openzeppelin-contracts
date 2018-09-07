@@ -20,21 +20,21 @@ contract SignerRole {
     _;
   }
 
-  function isSigner(address _account) public view returns (bool) {
-    return signers.has(_account);
+  function isSigner(address account) public view returns (bool) {
+    return signers.has(account);
   }
 
-  function addSigner(address _account) public onlySigner {
-    signers.add(_account);
-    emit SignerAdded(_account);
+  function addSigner(address account) public onlySigner {
+    signers.add(account);
+    emit SignerAdded(account);
   }
 
   function renounceSigner() public {
     signers.remove(msg.sender);
   }
 
-  function _removeSigner(address _account) internal {
-    signers.remove(_account);
-    emit SignerRemoved(_account);
+  function _removeSigner(address account) internal {
+    signers.remove(account);
+    emit SignerRemoved(account);
   }
 }

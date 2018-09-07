@@ -33,34 +33,34 @@ contract SignatureBouncer is SignerRole {
 
   // Function selectors are 4 bytes long, as documented in
   // https://solidity.readthedocs.io/en/v0.4.24/abi-spec.html#function-selector
-  uint256 private constant METHOD_ID_SIZE = 4;
+  uint256 private constant _METHOD_ID_SIZE = 4;
   // Signature size is 65 bytes (tightly packed v + r + s), but gets padded to 96 bytes
-  uint256 private constant SIGNATURE_SIZE = 96;
+  uint256 private constant _SIGNATURE_SIZE = 96;
 
   /**
    * @dev requires that a valid signature of a signer was provided
    */
-  modifier onlyValidSignature(bytes _signature)
+  modifier onlyValidSignature(bytes signature)
   {
-    require(_isValidSignature(msg.sender, _signature));
+    require(_isValidSignature(msg.sender, signature));
     _;
   }
 
   /**
    * @dev requires that a valid signature with a specifed method of a signer was provided
    */
-  modifier onlyValidSignatureAndMethod(bytes _signature)
+  modifier onlyValidSignatureAndMethod(bytes signature)
   {
-    require(_isValidSignatureAndMethod(msg.sender, _signature));
+    require(_isValidSignatureAndMethod(msg.sender, signature));
     _;
   }
 
   /**
    * @dev requires that a valid signature with a specifed method and params of a signer was provided
    */
-  modifier onlyValidSignatureAndData(bytes _signature)
+  modifier onlyValidSignatureAndData(bytes signature)
   {
-    require(_isValidSignatureAndData(msg.sender, _signature));
+    require(_isValidSignatureAndData(msg.sender, signature));
     _;
   }
 
@@ -68,14 +68,14 @@ contract SignatureBouncer is SignerRole {
    * @dev is the signature of `this + sender` from a signer?
    * @return bool
    */
-  function _isValidSignature(address _address, bytes _signature)
+  function _isValidSignature(address account, bytes signature)
     internal
     view
     returns (bool)
   {
     return _isValidDataHash(
-      keccak256(abi.encodePacked(address(this), _address)),
-      _signature
+      keccak256(abi.encodePacked(address(this), account)),
+      signature
     );
   }
 
@@ -83,39 +83,39 @@ contract SignatureBouncer is SignerRole {
    * @dev is the signature of `this + sender + methodId` from a signer?
    * @return bool
    */
-  function _isValidSignatureAndMethod(address _address, bytes _signature)
+  function _isValidSignatureAndMethod(address account, bytes signature)
     internal
     view
     returns (bool)
   {
-    bytes memory data = new bytes(METHOD_ID_SIZE);
+    bytes memory data = new bytes(_METHOD_ID_SIZE);
     for (uint i = 0; i < data.length; i++) {
       data[i] = msg.data[i];
     }
     return _isValidDataHash(
-      keccak256(abi.encodePacked(address(this), _address, data)),
-      _signature
+      keccak256(abi.encodePacked(address(this), account, data)),
+      signature
     );
   }
 
   /**
     * @dev is the signature of `this + sender + methodId + params(s)` from a signer?
-    * @notice the _signature parameter of the method being validated must be the "last" parameter
+    * @notice the signature parameter of the method being validated must be the "last" parameter
     * @return bool
     */
-  function _isValidSignatureAndData(address _address, bytes _signature)
+  function _isValidSignatureAndData(address account, bytes signature)
     internal
     view
     returns (bool)
   {
-    require(msg.data.length > SIGNATURE_SIZE);
-    bytes memory data = new bytes(msg.data.length - SIGNATURE_SIZE);
+    require(msg.data.length > _SIGNATURE_SIZE);
+    bytes memory data = new bytes(msg.data.length - _SIGNATURE_SIZE);
     for (uint i = 0; i < data.length; i++) {
       data[i] = msg.data[i];
     }
     return _isValidDataHash(
-      keccak256(abi.encodePacked(address(this), _address, data)),
-      _signature
+      keccak256(abi.encodePacked(address(this), account, data)),
+      signature
     );
   }
 
@@ -124,14 +124,14 @@ contract SignatureBouncer is SignerRole {
    * and then recover the signature and check it against the signer role
    * @return bool
    */
-  function _isValidDataHash(bytes32 _hash, bytes _signature)
+  function _isValidDataHash(bytes32 hash, bytes signature)
     internal
     view
     returns (bool)
   {
-    address signer = _hash
+    address signer = hash
       .toEthSignedMessageHash()
-      .recover(_signature);
+      .recover(signature);
     return isSigner(signer);
   }
 }

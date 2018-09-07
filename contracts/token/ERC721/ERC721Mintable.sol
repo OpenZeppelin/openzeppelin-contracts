@@ -12,10 +12,10 @@ contract ERC721Mintable is ERC721, MinterRole {
   event Minted(address indexed to, uint256 tokenId);
   event MintingFinished();
 
-  bool private mintingFinished_ = false;
+  bool private _mintingFinished = false;
 
   modifier onlyBeforeMintingFinished() {
-    require(!mintingFinished_);
+    require(!_mintingFinished);
     _;
   }
 
@@ -23,41 +23,41 @@ contract ERC721Mintable is ERC721, MinterRole {
    * @return true if the minting is finished.
    */
   function mintingFinished() public view returns(bool) {
-    return mintingFinished_;
+    return _mintingFinished;
   }
 
   /**
    * @dev Function to mint tokens
-   * @param _to The address that will receive the minted tokens.
-   * @param _tokenId The token id to mint.
+   * @param to The address that will receive the minted tokens.
+   * @param tokenId The token id to mint.
    * @return A boolean that indicates if the operation was successful.
    */
   function mint(
-    address _to,
-    uint256 _tokenId
+    address to,
+    uint256 tokenId
   )
     public
     onlyMinter
     onlyBeforeMintingFinished
     returns (bool)
   {
-    _mint(_to, _tokenId);
-    emit Minted(_to, _tokenId);
+    _mint(to, tokenId);
+    emit Minted(to, tokenId);
     return true;
   }
 
   function mintWithTokenURI(
-    address _to,
-    uint256 _tokenId,
-    string _tokenURI
+    address to,
+    uint256 tokenId,
+    string tokenURI
   )
     public
     onlyMinter
     onlyBeforeMintingFinished
     returns (bool)
   {
-    mint(_to, _tokenId);
-    _setTokenURI(_tokenId, _tokenURI);
+    mint(to, tokenId);
+    _setTokenURI(tokenId, tokenURI);
     return true;
   }
 
@@ -71,7 +71,7 @@ contract ERC721Mintable is ERC721, MinterRole {
     onlyBeforeMintingFinished
     returns (bool)
   {
-    mintingFinished_ = true;
+    _mintingFinished = true;
     emit MintingFinished();
     return true;
   }

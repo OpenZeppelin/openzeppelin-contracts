@@ -14,57 +14,57 @@ import "../../math/SafeMath.sol";
 contract ERC20 is IERC20 {
   using SafeMath for uint256;
 
-  mapping (address => uint256) private balances_;
+  mapping (address => uint256) private _balances;
 
-  mapping (address => mapping (address => uint256)) private allowed_;
+  mapping (address => mapping (address => uint256)) private _allowed;
 
-  uint256 private totalSupply_;
+  uint256 private _totalSupply;
 
   /**
   * @dev Total number of tokens in existence
   */
   function totalSupply() public view returns (uint256) {
-    return totalSupply_;
+    return _totalSupply;
   }
 
   /**
   * @dev Gets the balance of the specified address.
-  * @param _owner The address to query the the balance of.
+  * @param owner The address to query the the balance of.
   * @return An uint256 representing the amount owned by the passed address.
   */
-  function balanceOf(address _owner) public view returns (uint256) {
-    return balances_[_owner];
+  function balanceOf(address owner) public view returns (uint256) {
+    return _balances[owner];
   }
 
   /**
    * @dev Function to check the amount of tokens that an owner allowed to a spender.
-   * @param _owner address The address which owns the funds.
-   * @param _spender address The address which will spend the funds.
+   * @param owner address The address which owns the funds.
+   * @param spender address The address which will spend the funds.
    * @return A uint256 specifying the amount of tokens still available for the spender.
    */
   function allowance(
-    address _owner,
-    address _spender
+    address owner,
+    address spender
    )
     public
     view
     returns (uint256)
   {
-    return allowed_[_owner][_spender];
+    return _allowed[owner][spender];
   }
 
   /**
   * @dev Transfer token for a specified address
-  * @param _to The address to transfer to.
-  * @param _value The amount to be transferred.
+  * @param to The address to transfer to.
+  * @param value The amount to be transferred.
   */
-  function transfer(address _to, uint256 _value) public returns (bool) {
-    require(_value <= balances_[msg.sender]);
-    require(_to != address(0));
+  function transfer(address to, uint256 value) public returns (bool) {
+    require(value <= _balances[msg.sender]);
+    require(to != address(0));
 
-    balances_[msg.sender] = balances_[msg.sender].sub(_value);
-    balances_[_to] = balances_[_to].add(_value);
-    emit Transfer(msg.sender, _to, _value);
+    _balances[msg.sender] = _balances[msg.sender].sub(value);
+    _balances[to] = _balances[to].add(value);
+    emit Transfer(msg.sender, to, value);
     return true;
   }
 
@@ -74,39 +74,39 @@ contract ERC20 is IERC20 {
    * and the new allowance by unfortunate transaction ordering. One possible solution to mitigate this
    * race condition is to first reduce the spender's allowance to 0 and set the desired value afterwards:
    * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
-   * @param _spender The address which will spend the funds.
-   * @param _value The amount of tokens to be spent.
+   * @param spender The address which will spend the funds.
+   * @param value The amount of tokens to be spent.
    */
-  function approve(address _spender, uint256 _value) public returns (bool) {
-    require(_spender != address(0));
+  function approve(address spender, uint256 value) public returns (bool) {
+    require(spender != address(0));
 
-    allowed_[msg.sender][_spender] = _value;
-    emit Approval(msg.sender, _spender, _value);
+    _allowed[msg.sender][spender] = value;
+    emit Approval(msg.sender, spender, value);
     return true;
   }
 
   /**
    * @dev Transfer tokens from one address to another
-   * @param _from address The address which you want to send tokens from
-   * @param _to address The address which you want to transfer to
-   * @param _value uint256 the amount of tokens to be transferred
+   * @param from address The address which you want to send tokens from
+   * @param to address The address which you want to transfer to
+   * @param value uint256 the amount of tokens to be transferred
    */
   function transferFrom(
-    address _from,
-    address _to,
-    uint256 _value
+    address from,
+    address to,
+    uint256 value
   )
     public
     returns (bool)
   {
-    require(_value <= balances_[_from]);
-    require(_value <= allowed_[_from][msg.sender]);
-    require(_to != address(0));
+    require(value <= _balances[from]);
+    require(value <= _allowed[from][msg.sender]);
+    require(to != address(0));
 
-    balances_[_from] = balances_[_from].sub(_value);
-    balances_[_to] = balances_[_to].add(_value);
-    allowed_[_from][msg.sender] = allowed_[_from][msg.sender].sub(_value);
-    emit Transfer(_from, _to, _value);
+    _balances[from] = _balances[from].sub(value);
+    _balances[to] = _balances[to].add(value);
+    _allowed[from][msg.sender] = _allowed[from][msg.sender].sub(value);
+    emit Transfer(from, to, value);
     return true;
   }
 
@@ -116,21 +116,21 @@ contract ERC20 is IERC20 {
    * allowed value is better to use this function to avoid 2 calls (and wait until
    * the first transaction is mined)
    * From MonolithDAO Token.sol
-   * @param _spender The address which will spend the funds.
-   * @param _addedValue The amount of tokens to increase the allowance by.
+   * @param spender The address which will spend the funds.
+   * @param addedValue The amount of tokens to increase the allowance by.
    */
   function increaseAllowance(
-    address _spender,
-    uint256 _addedValue
+    address spender,
+    uint256 addedValue
   )
     public
     returns (bool)
   {
-    require(_spender != address(0));
+    require(spender != address(0));
 
-    allowed_[msg.sender][_spender] = (
-      allowed_[msg.sender][_spender].add(_addedValue));
-    emit Approval(msg.sender, _spender, allowed_[msg.sender][_spender]);
+    _allowed[msg.sender][spender] = (
+      _allowed[msg.sender][spender].add(addedValue));
+    emit Approval(msg.sender, spender, _allowed[msg.sender][spender]);
     return true;
   }
 
@@ -140,21 +140,21 @@ contract ERC20 is IERC20 {
    * allowed value is better to use this function to avoid 2 calls (and wait until
    * the first transaction is mined)
    * From MonolithDAO Token.sol
-   * @param _spender The address which will spend the funds.
-   * @param _subtractedValue The amount of tokens to decrease the allowance by.
+   * @param spender The address which will spend the funds.
+   * @param subtractedValue The amount of tokens to decrease the allowance by.
    */
   function decreaseAllowance(
-    address _spender,
-    uint256 _subtractedValue
+    address spender,
+    uint256 subtractedValue
   )
     public
     returns (bool)
   {
-    require(_spender != address(0));
+    require(spender != address(0));
 
-    allowed_[msg.sender][_spender] = (
-      allowed_[msg.sender][_spender].sub(_subtractedValue));
-    emit Approval(msg.sender, _spender, allowed_[msg.sender][_spender]);
+    _allowed[msg.sender][spender] = (
+      _allowed[msg.sender][spender].sub(subtractedValue));
+    emit Approval(msg.sender, spender, _allowed[msg.sender][spender]);
     return true;
   }
 
@@ -162,45 +162,45 @@ contract ERC20 is IERC20 {
    * @dev Internal function that mints an amount of the token and assigns it to
    * an account. This encapsulates the modification of balances such that the
    * proper events are emitted.
-   * @param _account The account that will receive the created tokens.
-   * @param _amount The amount that will be created.
+   * @param account The account that will receive the created tokens.
+   * @param amount The amount that will be created.
    */
-  function _mint(address _account, uint256 _amount) internal {
-    require(_account != 0);
-    totalSupply_ = totalSupply_.add(_amount);
-    balances_[_account] = balances_[_account].add(_amount);
-    emit Transfer(address(0), _account, _amount);
+  function _mint(address account, uint256 amount) internal {
+    require(account != 0);
+    _totalSupply = _totalSupply.add(amount);
+    _balances[account] = _balances[account].add(amount);
+    emit Transfer(address(0), account, amount);
   }
 
   /**
    * @dev Internal function that burns an amount of the token of a given
    * account.
-   * @param _account The account whose tokens will be burnt.
-   * @param _amount The amount that will be burnt.
+   * @param account The account whose tokens will be burnt.
+   * @param amount The amount that will be burnt.
    */
-  function _burn(address _account, uint256 _amount) internal {
-    require(_account != 0);
-    require(_amount <= balances_[_account]);
+  function _burn(address account, uint256 amount) internal {
+    require(account != 0);
+    require(amount <= _balances[account]);
 
-    totalSupply_ = totalSupply_.sub(_amount);
-    balances_[_account] = balances_[_account].sub(_amount);
-    emit Transfer(_account, address(0), _amount);
+    _totalSupply = _totalSupply.sub(amount);
+    _balances[account] = _balances[account].sub(amount);
+    emit Transfer(account, address(0), amount);
   }
 
   /**
    * @dev Internal function that burns an amount of the token of a given
    * account, deducting from the sender's allowance for said account. Uses the
-   * internal _burn function.
-   * @param _account The account whose tokens will be burnt.
-   * @param _amount The amount that will be burnt.
+   * internal burn function.
+   * @param account The account whose tokens will be burnt.
+   * @param amount The amount that will be burnt.
    */
-  function _burnFrom(address _account, uint256 _amount) internal {
-    require(_amount <= allowed_[_account][msg.sender]);
+  function _burnFrom(address account, uint256 amount) internal {
+    require(amount <= _allowed[account][msg.sender]);
 
     // Should https://github.com/OpenZeppelin/zeppelin-solidity/issues/707 be accepted,
     // this function needs to emit an event with the updated approval.
-    allowed_[_account][msg.sender] = allowed_[_account][msg.sender].sub(
-      _amount);
-    _burn(_account, _amount);
+    _allowed[account][msg.sender] = _allowed[account][msg.sender].sub(
+      amount);
+    _burn(account, amount);
   }
 }

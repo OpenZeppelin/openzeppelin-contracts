@@ -7,15 +7,15 @@ import "../crowdsale/distribution/PostDeliveryCrowdsale.sol";
 contract PostDeliveryCrowdsaleImpl is PostDeliveryCrowdsale {
 
   constructor (
-    uint256 _openingTime,
-    uint256 _closingTime,
-    uint256 _rate,
-    address _wallet,
-    IERC20 _token
+    uint256 openingTime,
+    uint256 closingTime,
+    uint256 rate,
+    address wallet,
+    IERC20 token
   )
     public
-    TimedCrowdsale(_openingTime, _closingTime)
-    Crowdsale(_rate, _wallet, _token)
+    TimedCrowdsale(openingTime, closingTime)
+    Crowdsale(rate, wallet, token)
   {
   }
 

@@ -19,11 +19,11 @@ library AutoIncrementing {
     uint256 prevId; // default: 0
   }
 
-  function nextId(Counter storage _counter)
+  function nextId(Counter storage counter)
     internal
     returns (uint256)
   {
-    _counter.prevId = _counter.prevId + 1;
-    return _counter.prevId;
+    counter.prevId = counter.prevId + 1;
+    return counter.prevId;
   }
 }

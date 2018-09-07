@@ -5,15 +5,15 @@ import "../../contracts/math/Math.sol";
 
 
 contract MathMock {
-  function max(uint256 _a, uint256 _b) public pure returns (uint256) {
-    return Math.max(_a, _b);
+  function max(uint256 a, uint256 b) public pure returns (uint256) {
+    return Math.max(a, b);
   }
 
-  function min(uint256 _a, uint256 _b) public pure returns (uint256) {
-    return Math.min(_a, _b);
+  function min(uint256 a, uint256 b) public pure returns (uint256) {
+    return Math.min(a, b);
   }
 
-  function average(uint256 _a, uint256 _b) public pure returns (uint256) {
-    return Math.average(_a, _b);
+  function average(uint256 a, uint256 b) public pure returns (uint256) {
+    return Math.average(a, b);
   }
 }

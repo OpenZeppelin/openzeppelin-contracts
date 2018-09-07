@@ -4,10 +4,10 @@ import "./ERC721.sol";
 
 
 contract ERC721Burnable is ERC721 {
-  function burn(uint256 _tokenId)
+  function burn(uint256 tokenId)
     public
   {
-    require(_isApprovedOrOwner(msg.sender, _tokenId));
-    _burn(ownerOf(_tokenId), _tokenId);
+    require(_isApprovedOrOwner(msg.sender, tokenId));
+    _burn(ownerOf(tokenId), tokenId);
   }
 }

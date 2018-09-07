@@ -8,11 +8,11 @@ import "../token/ERC721/ERC721Basic.sol";
  * This mock just provides a public mint and burn functions for testing purposes
  */
 contract ERC721BasicMock is ERC721Basic {
-  function mint(address _to, uint256 _tokenId) public {
-    _mint(_to, _tokenId);
+  function mint(address to, uint256 tokenId) public {
+    _mint(to, tokenId);
   }
 
-  function burn(uint256 _tokenId) public {
-    _burn(ownerOf(_tokenId), _tokenId);
+  function burn(uint256 tokenId) public {
+    _burn(ownerOf(tokenId), tokenId);
   }
 }

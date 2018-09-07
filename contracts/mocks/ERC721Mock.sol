@@ -11,20 +11,20 @@ import "../token/ERC721/ERC721Burnable.sol";
  * and a public setter for metadata URI
  */
 contract ERC721Mock is ERC721, ERC721Mintable, ERC721Burnable {
-  constructor(string _name, string _symbol) public
+  constructor(string name, string symbol) public
     ERC721Mintable()
-    ERC721(_name, _symbol)
+    ERC721(name, symbol)
   {}
 
-  function exists(uint256 _tokenId) public view returns (bool) {
-    return _exists(_tokenId);
+  function exists(uint256 tokenId) public view returns (bool) {
+    return _exists(tokenId);
   }
 
-  function setTokenURI(uint256 _tokenId, string _uri) public {
-    _setTokenURI(_tokenId, _uri);
+  function setTokenURI(uint256 tokenId, string uri) public {
+    _setTokenURI(tokenId, uri);
   }
 
-  function removeTokenFrom(address _from, uint256 _tokenId) public {
-    _removeTokenFrom(_from, _tokenId);
+  function removeTokenFrom(address from, uint256 tokenId) public {
+    _removeTokenFrom(from, tokenId);
   }
 }

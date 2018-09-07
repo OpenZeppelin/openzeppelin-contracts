@@ -25,26 +25,26 @@ contract IERC721Basic is IERC165 {
     bool approved
   );
 
-  function balanceOf(address _owner) public view returns (uint256 _balance);
-  function ownerOf(uint256 _tokenId) public view returns (address _owner);
+  function balanceOf(address owner) public view returns (uint256 balance);
+  function ownerOf(uint256 tokenId) public view returns (address owner);
 
-  function approve(address _to, uint256 _tokenId) public;
-  function getApproved(uint256 _tokenId)
-    public view returns (address _operator);
+  function approve(address to, uint256 tokenId) public;
+  function getApproved(uint256 tokenId)
+    public view returns (address operator);
 
-  function setApprovalForAll(address _operator, bool _approved) public;
-  function isApprovedForAll(address _owner, address _operator)
+  function setApprovalForAll(address operator, bool approved) public;
+  function isApprovedForAll(address owner, address operator)
     public view returns (bool);
 
-  function transferFrom(address _from, address _to, uint256 _tokenId) public;
-  function safeTransferFrom(address _from, address _to, uint256 _tokenId)
+  function transferFrom(address from, address to, uint256 tokenId) public;
+  function safeTransferFrom(address from, address to, uint256 tokenId)
     public;
 
   function safeTransferFrom(
-    address _from,
-    address _to,
-    uint256 _tokenId,
-    bytes _data
+    address from,
+    address to,
+    uint256 tokenId,
+    bytes data
   )
     public;
 }
