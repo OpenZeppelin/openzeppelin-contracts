@@ -47,11 +47,6 @@ function shouldBehaveLikeMintAndBurnERC721 (
             to: newOwner,
           });
           logs[0].args.tokenId.should.be.bignumber.equal(thirdTokenId);
-
-          await expectEvent.inLogs(logs, 'Minted', {
-            to: newOwner,
-          });
-          logs[1].args.tokenId.should.be.bignumber.equal(thirdTokenId);
         });
       });
 

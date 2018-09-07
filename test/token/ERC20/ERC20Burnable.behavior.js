@@ -28,12 +28,6 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
           (await this.token.balanceOf(owner)).should.be.bignumber.equal(initialBalance - amount);
         });
 
-        it('emits a burn event', async function () {
-          const event = expectEvent.inLogs(this.logs, 'TokensBurned');
-          event.args.burner.should.equal(owner);
-          event.args.value.should.be.bignumber.equal(amount);
-        });
-
         it('emits a transfer event', async function () {
           const event = expectEvent.inLogs(this.logs, 'Transfer');
           event.args.from.should.equal(owner);
@@ -77,12 +71,6 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
 
         it('decrements allowance', async function () {
           (await this.token.allowance(owner, burner)).should.be.bignumber.equal(originalAllowance - amount);
-        });
-
-        it('emits a burn event', async function () {
-          const event = expectEvent.inLogs(this.logs, 'TokensBurned');
-          event.args.burner.should.equal(owner);
-          event.args.value.should.be.bignumber.equal(amount);
         });
 
         it('emits a transfer event', async function () {

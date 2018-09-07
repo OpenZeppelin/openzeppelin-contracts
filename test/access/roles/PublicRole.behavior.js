@@ -19,6 +19,10 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
       (await this.contract[`is${rolename}`](anyone)).should.equal(false);
     });
 
+    it('reverts when querying roles for the null account', async function () {
+      await assertRevert(this.contract[`is${rolename}`](ZERO_ADDRESS));
+    });
+
     describe('access control', function () {
       context('from authorized account', function () {
         const from = authorized;
@@ -53,8 +57,8 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
         (await this.contract[`is${rolename}`](authorized)).should.equal(true);
       });
 
-      it('doesn\'t revert when adding role to the null account', async function () {
-        await this.contract[`add${rolename}`](ZERO_ADDRESS, { from: authorized });
+      it('reverts when adding role to the null account', async function () {
+        await assertRevert(this.contract[`add${rolename}`](ZERO_ADDRESS, { from: authorized }));
       });
     });
 
@@ -74,8 +78,8 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
         await this.contract[`remove${rolename}`](anyone);
       });
 
-      it('doesn\'t revert when removing role from the null account', async function () {
-        await this.contract[`remove${rolename}`](ZERO_ADDRESS);
+      it('reverts when removing role from the null account', async function () {
+        await assertRevert(this.contract[`remove${rolename}`](ZERO_ADDRESS));
       });
     });
 
