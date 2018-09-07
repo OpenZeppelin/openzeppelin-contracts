@@ -24,7 +24,7 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
 
         it('allows access', async function () {
           await this.contract[`only${rolename}Mock`]({ from });
-        })
+        });
       });
 
       context('from unauthorized account', function () {
@@ -32,7 +32,7 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
 
         it('reverts', async function () {
           await assertRevert(this.contract[`only${rolename}Mock`]({ from }));
-        })
+        });
       });
     });
 
