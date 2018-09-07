@@ -1,5 +1,5 @@
 const { shouldBehaveLikeERC721PausedToken } = require('./ERC721PausedToken.behavior');
-const { shouldBehaveLikeERC721Basic } = require('./ERC721Basic.behavior');
+const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
 const { shouldBehaveLikePublicRole } = require('../../access/roles/PublicRole.behavior');
 
 const BigNumber = web3.BigNumber;
@@ -39,7 +39,7 @@ contract('ERC721Pausable', function ([
   });
 
   context('when token is not paused yet', function () {
-    shouldBehaveLikeERC721Basic(creator, creator, accounts);
+    shouldBehaveLikeERC721(creator, creator, accounts);
   });
 
   context('when token is paused and then unpaused', function () {
@@ -48,6 +48,6 @@ contract('ERC721Pausable', function ([
       await this.token.unpause({ from: creator });
     });
 
-    shouldBehaveLikeERC721Basic(creator, creator, accounts);
+    shouldBehaveLikeERC721(creator, creator, accounts);
   });
 });
