@@ -6,6 +6,9 @@ import "../Roles.sol";
 contract SignerRole {
   using Roles for Roles.Role;
 
+  event SignerAdded(address indexed account);
+  event SignerRemoved(address indexed account);
+
   Roles.Role private signers;
 
   constructor() public {
@@ -23,6 +26,7 @@ contract SignerRole {
 
   function addSigner(address _account) public onlySigner {
     signers.add(_account);
+    emit SignerAdded(_account);
   }
 
   function renounceSigner() public {
@@ -31,5 +35,6 @@ contract SignerRole {
 
   function _removeSigner(address _account) internal {
     signers.remove(_account);
+    emit SignerRemoved(_account);
   }
 }

@@ -158,20 +158,8 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
       const amount = 100;
       const spender = ZERO_ADDRESS;
 
-      it('approves the requested amount', async function () {
-        await this.token.approve(spender, amount, { from: owner });
-
-        (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount);
-      });
-
-      it('emits an approval event', async function () {
-        const { logs } = await this.token.approve(spender, amount, { from: owner });
-
-        logs.length.should.equal(1);
-        logs[0].event.should.equal('Approval');
-        logs[0].args.owner.should.equal(owner);
-        logs[0].args.spender.should.equal(spender);
-        logs[0].args.value.should.be.bignumber.equal(amount);
+      it('reverts', async function () {
+        await assertRevert(this.token.approve(spender, amount, { from: owner }));
       });
     });
   });
@@ -261,28 +249,14 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
     });
   });
 
-  describe('decrease approval', function () {
+  describe('decrease allowance', function () {
     describe('when the spender is not the zero address', function () {
       const spender = recipient;
 
-      describe('when the sender has enough balance', function () {
-        const amount = 100;
-
-        it('emits an approval event', async function () {
-          const { logs } = await this.token.decreaseApproval(spender, amount, { from: owner });
-
-          logs.length.should.equal(1);
-          logs[0].event.should.equal('Approval');
-          logs[0].args.owner.should.equal(owner);
-          logs[0].args.spender.should.equal(spender);
-          logs[0].args.value.should.be.bignumber.equal(0);
-        });
-
+      function shouldDecreaseApproval (amount) {
         describe('when there was no approved amount before', function () {
-          it('keeps the allowance to zero', async function () {
-            await this.token.decreaseApproval(spender, amount, { from: owner });
-
-            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(0);
+          it('reverts', async function () {
+            await assertRevert(this.token.decreaseAllowance(spender, amount, { from: owner }));
           });
         });
 
@@ -290,59 +264,46 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
           const approvedAmount = amount;
 
           beforeEach(async function () {
-            await this.token.approve(spender, approvedAmount, { from: owner });
+            ({ logs: this.logs } = await this.token.approve(spender, approvedAmount, { from: owner }));
+          });
+
+          it('emits an approval event', async function () {
+            const { logs } = await this.token.decreaseAllowance(spender, approvedAmount, { from: owner });
+
+            logs.length.should.equal(1);
+            logs[0].event.should.equal('Approval');
+            logs[0].args.owner.should.equal(owner);
+            logs[0].args.spender.should.equal(spender);
+            logs[0].args.value.should.be.bignumber.equal(0);
           });
 
           it('decreases the spender allowance subtracting the requested amount', async function () {
-            await this.token.decreaseApproval(spender, approvedAmount - 5, { from: owner });
+            await this.token.decreaseAllowance(spender, approvedAmount - 1, { from: owner });
 
-            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(5);
+            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(1);
           });
 
           it('sets the allowance to zero when all allowance is removed', async function () {
-            await this.token.decreaseApproval(spender, approvedAmount, { from: owner });
+            await this.token.decreaseAllowance(spender, approvedAmount, { from: owner });
             (await this.token.allowance(owner, spender)).should.be.bignumber.equal(0);
           });
 
-          it('sets the allowance to zero when more than the full allowance is removed', async function () {
-            await this.token.decreaseApproval(spender, approvedAmount + 5, { from: owner });
-            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(0);
+          it('reverts when more than the full allowance is removed', async function () {
+            await assertRevert(this.token.decreaseAllowance(spender, approvedAmount + 1, { from: owner }));
           });
         });
+      }
+
+      describe('when the sender has enough balance', function () {
+        const amount = 100;
+
+        shouldDecreaseApproval(amount);
       });
 
       describe('when the sender does not have enough balance', function () {
         const amount = 101;
 
-        it('emits an approval event', async function () {
-          const { logs } = await this.token.decreaseApproval(spender, amount, { from: owner });
-
-          logs.length.should.equal(1);
-          logs[0].event.should.equal('Approval');
-          logs[0].args.owner.should.equal(owner);
-          logs[0].args.spender.should.equal(spender);
-          logs[0].args.value.should.be.bignumber.equal(0);
-        });
-
-        describe('when there was no approved amount before', function () {
-          it('keeps the allowance to zero', async function () {
-            await this.token.decreaseApproval(spender, amount, { from: owner });
-
-            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(0);
-          });
-        });
-
-        describe('when the spender had an approved amount', function () {
-          beforeEach(async function () {
-            await this.token.approve(spender, amount + 1, { from: owner });
-          });
-
-          it('decreases the spender allowance subtracting the requested amount', async function () {
-            await this.token.decreaseApproval(spender, amount, { from: owner });
-
-            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(1);
-          });
-        });
+        shouldDecreaseApproval(amount);
       });
     });
 
@@ -350,25 +311,13 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
       const amount = 100;
       const spender = ZERO_ADDRESS;
 
-      it('decreases the requested amount', async function () {
-        await this.token.decreaseApproval(spender, amount, { from: owner });
-
-        (await this.token.allowance(owner, spender)).should.be.bignumber.equal(0);
-      });
-
-      it('emits an approval event', async function () {
-        const { logs } = await this.token.decreaseApproval(spender, amount, { from: owner });
-
-        logs.length.should.equal(1);
-        logs[0].event.should.equal('Approval');
-        logs[0].args.owner.should.equal(owner);
-        logs[0].args.spender.should.equal(spender);
-        logs[0].args.value.should.be.bignumber.equal(0);
+      it('reverts', async function () {
+        await assertRevert(this.token.decreaseAllowance(spender, amount, { from: owner }));
       });
     });
   });
 
-  describe('increase approval', function () {
+  describe('increase allowance', function () {
     const amount = 100;
 
     describe('when the spender is not the zero address', function () {
@@ -376,7 +325,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
 
       describe('when the sender has enough balance', function () {
         it('emits an approval event', async function () {
-          const { logs } = await this.token.increaseApproval(spender, amount, { from: owner });
+          const { logs } = await this.token.increaseAllowance(spender, amount, { from: owner });
 
           logs.length.should.equal(1);
           logs[0].event.should.equal('Approval');
@@ -387,7 +336,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
 
         describe('when there was no approved amount before', function () {
           it('approves the requested amount', async function () {
-            await this.token.increaseApproval(spender, amount, { from: owner });
+            await this.token.increaseAllowance(spender, amount, { from: owner });
 
             (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount);
           });
@@ -399,7 +348,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
           });
 
           it('increases the spender allowance adding the requested amount', async function () {
-            await this.token.increaseApproval(spender, amount, { from: owner });
+            await this.token.increaseAllowance(spender, amount, { from: owner });
 
             (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount + 1);
           });
@@ -410,7 +359,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
         const amount = 101;
 
         it('emits an approval event', async function () {
-          const { logs } = await this.token.increaseApproval(spender, amount, { from: owner });
+          const { logs } = await this.token.increaseAllowance(spender, amount, { from: owner });
 
           logs.length.should.equal(1);
           logs[0].event.should.equal('Approval');
@@ -421,7 +370,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
 
         describe('when there was no approved amount before', function () {
           it('approves the requested amount', async function () {
-            await this.token.increaseApproval(spender, amount, { from: owner });
+            await this.token.increaseAllowance(spender, amount, { from: owner });
 
             (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount);
           });
@@ -433,7 +382,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
           });
 
           it('increases the spender allowance adding the requested amount', async function () {
-            await this.token.increaseApproval(spender, amount, { from: owner });
+            await this.token.increaseAllowance(spender, amount, { from: owner });
 
             (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount + 1);
           });
@@ -444,20 +393,8 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
     describe('when the spender is the zero address', function () {
       const spender = ZERO_ADDRESS;
 
-      it('approves the requested amount', async function () {
-        await this.token.increaseApproval(spender, amount, { from: owner });
-
-        (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount);
-      });
-
-      it('emits an approval event', async function () {
-        const { logs } = await this.token.increaseApproval(spender, amount, { from: owner });
-
-        logs.length.should.equal(1);
-        logs[0].event.should.equal('Approval');
-        logs[0].args.owner.should.equal(owner);
-        logs[0].args.spender.should.equal(spender);
-        logs[0].args.value.should.be.bignumber.equal(amount);
+      it('reverts', async function () {
+        await assertRevert(this.token.increaseAllowance(spender, amount, { from: owner }));
       });
     });
   });

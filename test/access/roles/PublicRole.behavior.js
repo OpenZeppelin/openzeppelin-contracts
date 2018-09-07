@@ -1,4 +1,5 @@
 const { assertRevert } = require('../../helpers/assertRevert');
+const expectEvent = require('../../helpers/expectEvent');
 
 require('chai')
   .should();
@@ -28,6 +29,11 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
         (await this.contract[`is${rolename}`](anyone)).should.equal(true);
       });
 
+      it(`emits a ${rolename}Added event`, async function () {
+        const { logs } = await this.contract[`add${rolename}`](anyone, { from: authorized });
+        expectEvent.inLogs(logs, `${rolename}Added`, { account: anyone });
+      });
+
       it('adds role to an already-assigned account', async function () {
         await this.contract[`add${rolename}`](authorized, { from: authorized });
         (await this.contract[`is${rolename}`](authorized)).should.equal(true);
@@ -43,6 +49,11 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
         await this.contract[`remove${rolename}`](authorized);
         (await this.contract[`is${rolename}`](authorized)).should.equal(false);
         (await this.contract[`is${rolename}`](otherAuthorized)).should.equal(true);
+      });
+
+      it(`emits a ${rolename}Removed event`, async function () {
+        const { logs } = await this.contract[`remove${rolename}`](authorized);
+        expectEvent.inLogs(logs, `${rolename}Removed`, { account: authorized });
       });
 
       it('doesn\'t revert when removing from an unassigned account', async function () {
