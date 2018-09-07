@@ -65,5 +65,4 @@ contract('IndividuallyCappedCrowdsale', function ([_, wallet, alice, bob, charli
       });
     });
   });
-
 });
