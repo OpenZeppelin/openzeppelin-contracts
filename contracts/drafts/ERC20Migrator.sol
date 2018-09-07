@@ -41,6 +41,7 @@ contract ERC20Migrator {
    * @param legacyToken address of the old token contract
    */
   constructor(IERC20 legacyToken) public {
+    require(legacyToken != address(0))
     _legacyToken = legacyToken;
   }
 
