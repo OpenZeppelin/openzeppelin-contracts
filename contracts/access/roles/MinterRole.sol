@@ -6,6 +6,9 @@ import "../Roles.sol";
 contract MinterRole {
   using Roles for Roles.Role;
 
+  event MinterAdded(address indexed account);
+  event MinterRemoved(address indexed account);
+
   Roles.Role private minters;
 
   constructor() public {
@@ -23,6 +26,7 @@ contract MinterRole {
 
   function addMinter(address account) public onlyMinter {
     minters.add(account);
+    emit MinterAdded(account);
   }
 
   function renounceMinter() public {
@@ -31,5 +35,6 @@ contract MinterRole {
 
   function _removeMinter(address account) internal {
     minters.remove(account);
+    emit MinterRemoved(account);
   }
 }

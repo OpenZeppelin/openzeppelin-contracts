@@ -6,6 +6,9 @@ import "../Roles.sol";
 contract PauserRole {
   using Roles for Roles.Role;
 
+  event PauserAdded(address indexed account);
+  event PauserRemoved(address indexed account);
+
   Roles.Role private pausers;
 
   constructor() public {
@@ -23,6 +26,7 @@ contract PauserRole {
 
   function addPauser(address account) public onlyPauser {
     pausers.add(account);
+    emit PauserAdded(account);
   }
 
   function renouncePauser() public {
@@ -31,5 +35,6 @@ contract PauserRole {
 
   function _removePauser(address account) internal {
     pausers.remove(account);
+    emit PauserRemoved(account);
   }
 }

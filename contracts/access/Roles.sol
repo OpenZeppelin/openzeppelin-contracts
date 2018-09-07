@@ -13,26 +13,26 @@ library Roles {
   /**
    * @dev give an account access to this role
    */
-  function add(Role storage role, address account) internal {
-    role.bearer[account] = true;
+  function add(Role storage _role, address _account) internal {
+    _role.bearer[_account] = true;
   }
 
   /**
    * @dev remove an account's access to this role
    */
-  function remove(Role storage role, address account) internal {
-    role.bearer[account] = false;
+  function remove(Role storage _role, address _account) internal {
+    _role.bearer[_account] = false;
   }
 
   /**
    * @dev check if an account has this role
    * @return bool
    */
-  function has(Role storage role, address account)
+  function has(Role storage _role, address _account)
     internal
     view
     returns (bool)
   {
-    return role.bearer[account];
+    return _role.bearer[_account];
   }
 }
