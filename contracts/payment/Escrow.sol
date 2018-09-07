@@ -1,17 +1,17 @@
 pragma solidity ^0.4.24;
 
 import "../math/SafeMath.sol";
-import "../ownership/Ownable.sol";
+import "../ownership/Secondary.sol";
 
 
 /**
  * @title Escrow
  * @dev Base escrow contract, holds funds destinated to a payee until they
  * withdraw them. The contract that uses the escrow as its payment method
- * should be its owner, and provide public methods redirecting to the escrow's
+ * should be its primary, and provide public methods redirecting to the escrow's
  * deposit and withdraw.
  */
-contract Escrow is Ownable {
+contract Escrow is Secondary {
   using SafeMath for uint256;
 
   event Deposited(address indexed payee, uint256 weiAmount);
@@ -27,7 +27,7 @@ contract Escrow is Ownable {
   * @dev Stores the sent amount as credit to be withdrawn.
   * @param _payee The destination address of the funds.
   */
-  function deposit(address _payee) public onlyOwner payable {
+  function deposit(address _payee) public onlyPrimary payable {
     uint256 amount = msg.value;
     deposits_[_payee] = deposits_[_payee].add(amount);
 
@@ -38,7 +38,7 @@ contract Escrow is Ownable {
   * @dev Withdraw accumulated balance for a payee.
   * @param _payee The address whose funds will be withdrawn and transferred to.
   */
-  function withdraw(address _payee) public onlyOwner {
+  function withdraw(address _payee) public onlyPrimary {
     uint256 payment = deposits_[_payee];
     assert(address(this).balance >= payment);
 

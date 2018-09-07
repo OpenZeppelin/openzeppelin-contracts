@@ -1,16 +1,16 @@
 pragma solidity ^0.4.24;
 
 import "./ConditionalEscrow.sol";
-import "../ownership/Ownable.sol";
+import "../ownership/Secondary.sol";
 
 
 /**
  * @title RefundEscrow
  * @dev Escrow that holds funds for a beneficiary, deposited from multiple parties.
- * The contract owner may close the deposit period, and allow for either withdrawal
+ * The primary account may close the deposit period, and allow for either withdrawal
  * by the beneficiary, or refunds to the depositors.
  */
-contract RefundEscrow is Ownable, ConditionalEscrow {
+contract RefundEscrow is Secondary, ConditionalEscrow {
   enum State { Active, Refunding, Closed }
 
   event Closed();
@@ -32,14 +32,14 @@ contract RefundEscrow is Ownable, ConditionalEscrow {
   /**
    * @return the current state of the escrow.
    */
-  function state() public view returns(State) {
+  function state() public view returns (State) {
     return state_;
   }
 
   /**
    * @return the beneficiary of the escrow.
    */
-  function beneficiary() public view returns(address) {
+  function beneficiary() public view returns (address) {
     return beneficiary_;
   }
 
@@ -56,7 +56,7 @@ contract RefundEscrow is Ownable, ConditionalEscrow {
    * @dev Allows for the beneficiary to withdraw their funds, rejecting
    * further deposits.
    */
-  function close() public onlyOwner {
+  function close() public onlyPrimary {
     require(state_ == State.Active);
     state_ = State.Closed;
     emit Closed();
@@ -65,7 +65,7 @@ contract RefundEscrow is Ownable, ConditionalEscrow {
   /**
    * @dev Allows for refunds to take place, rejecting further deposits.
    */
-  function enableRefunds() public onlyOwner {
+  function enableRefunds() public onlyPrimary {
     require(state_ == State.Active);
     state_ = State.Refunding;
     emit RefundsEnabled();

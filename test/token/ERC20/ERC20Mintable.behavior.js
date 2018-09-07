@@ -7,26 +7,20 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-function shouldBehaveLikeERC20Mintable (owner, minter, [anyone]) {
+function shouldBehaveLikeERC20Mintable (minter, [anyone]) {
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
-  describe('as a basic mintable token', function () {
-    describe('after token creation', function () {
-      it('sender should be token owner', async function () {
-        (await this.token.owner({ from: owner })).should.equal(owner);
-      });
-    });
-
-    describe('minting finished', function () {
-      describe('when the token minting is not finished', function () {
+  describe('as a mintable token', function () {
+    describe('mintingFinished', function () {
+      context('when token minting is not finished', function () {
         it('returns false', async function () {
           (await this.token.mintingFinished()).should.equal(false);
         });
       });
 
-      describe('when the token is minting finished', function () {
+      context('when token minting is finished', function () {
         beforeEach(async function () {
-          await this.token.finishMinting({ from: owner });
+          await this.token.finishMinting({ from: minter });
         });
 
         it('returns true', async function () {
@@ -35,11 +29,11 @@ function shouldBehaveLikeERC20Mintable (owner, minter, [anyone]) {
       });
     });
 
-    describe('finish minting', function () {
-      describe('when the sender is the token owner', function () {
-        const from = owner;
+    describe('finishMinting', function () {
+      context('when the sender has minting permission', function () {
+        const from = minter;
 
-        describe('when the token minting was not finished', function () {
+        context('when token minting was not finished', function () {
           it('finishes token minting', async function () {
             await this.token.finishMinting({ from });
 
@@ -49,12 +43,11 @@ function shouldBehaveLikeERC20Mintable (owner, minter, [anyone]) {
           it('emits a mint finished event', async function () {
             const { logs } = await this.token.finishMinting({ from });
 
-            logs.length.should.be.equal(1);
-            logs[0].event.should.equal('MintFinished');
+            await expectEvent.inLogs(logs, 'MintingFinished');
           });
         });
 
-        describe('when the token minting was already finished', function () {
+        context('when token minting was already finished', function () {
           beforeEach(async function () {
             await this.token.finishMinting({ from });
           });
@@ -65,18 +58,18 @@ function shouldBehaveLikeERC20Mintable (owner, minter, [anyone]) {
         });
       });
 
-      describe('when the sender is not the token owner', function () {
+      context('when the sender doesn\'t have minting permission', function () {
         const from = anyone;
 
-        describe('when the token minting was not finished', function () {
+        context('when token minting was not finished', function () {
           it('reverts', async function () {
             await assertRevert(this.token.finishMinting({ from }));
           });
         });
 
-        describe('when the token minting was already finished', function () {
+        context('when token minting was already finished', function () {
           beforeEach(async function () {
-            await this.token.finishMinting({ from: owner });
+            await this.token.finishMinting({ from: minter });
           });
 
           it('reverts', async function () {
@@ -89,10 +82,10 @@ function shouldBehaveLikeERC20Mintable (owner, minter, [anyone]) {
     describe('mint', function () {
       const amount = 100;
 
-      describe('when the sender has the minting permission', function () {
+      context('when the sender has minting permission', function () {
         const from = minter;
 
-        describe('when the token minting is not finished', function () {
+        context('when token minting is not finished', function () {
           context('for a zero amount', function () {
             shouldMint(0);
           });
@@ -111,7 +104,7 @@ function shouldBehaveLikeERC20Mintable (owner, minter, [anyone]) {
             });
 
             it('emits a mint and a transfer event', async function () {
-              const mintEvent = expectEvent.inLogs(this.logs, 'Mint', {
+              const mintEvent = expectEvent.inLogs(this.logs, 'Minted', {
                 to: anyone,
               });
               mintEvent.args.amount.should.be.bignumber.equal(amount);
@@ -125,9 +118,9 @@ function shouldBehaveLikeERC20Mintable (owner, minter, [anyone]) {
           }
         });
 
-        describe('when the token minting is finished', function () {
+        context('when token minting is finished', function () {
           beforeEach(async function () {
-            await this.token.finishMinting({ from: owner });
+            await this.token.finishMinting({ from: minter });
           });
 
           it('reverts', async function () {
@@ -136,18 +129,18 @@ function shouldBehaveLikeERC20Mintable (owner, minter, [anyone]) {
         });
       });
 
-      describe('when the sender has not the minting permission', function () {
+      context('when the sender doesn\'t have minting permission', function () {
         const from = anyone;
 
-        describe('when the token minting is not finished', function () {
+        context('when token minting is not finished', function () {
           it('reverts', async function () {
             await assertRevert(this.token.mint(anyone, amount, { from }));
           });
         });
 
-        describe('when the token minting is already finished', function () {
+        context('when token minting is already finished', function () {
           beforeEach(async function () {
-            await this.token.finishMinting({ from: owner });
+            await this.token.finishMinting({ from: minter });
           });
 
           it('reverts', async function () {

@@ -11,55 +11,57 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('ERC721', function (accounts) {
+contract('ERC721', function ([
+  creator,
+  ...accounts
+]) {
   const name = 'Non Fungible Token';
   const symbol = 'NFT';
   const firstTokenId = 100;
   const secondTokenId = 200;
+  const thirdTokenId = 300;
   const nonExistentTokenId = 999;
-  const creator = accounts[0];
-  const anyone = accounts[9];
+
+  const minter = creator;
+
+  const [
+    owner,
+    newOwner,
+    another,
+    anyone,
+  ] = accounts;
 
   beforeEach(async function () {
     this.token = await ERC721.new(name, symbol, { from: creator });
   });
 
-  shouldBehaveLikeERC721Basic(accounts);
-  shouldBehaveLikeMintAndBurnERC721(accounts);
-
   describe('like a full ERC721', function () {
     beforeEach(async function () {
-      await this.token.mint(creator, firstTokenId, { from: creator });
-      await this.token.mint(creator, secondTokenId, { from: creator });
+      await this.token.mint(owner, firstTokenId, { from: minter });
+      await this.token.mint(owner, secondTokenId, { from: minter });
     });
 
     describe('mint', function () {
-      const to = accounts[1];
-      const tokenId = 3;
-
       beforeEach(async function () {
-        await this.token.mint(to, tokenId);
+        await this.token.mint(newOwner, thirdTokenId, { from: minter });
       });
 
       it('adjusts owner tokens by index', async function () {
-        (await this.token.tokenOfOwnerByIndex(to, 0)).toNumber().should.be.equal(tokenId);
+        (await this.token.tokenOfOwnerByIndex(newOwner, 0)).toNumber().should.be.equal(thirdTokenId);
       });
 
       it('adjusts all tokens list', async function () {
-        (await this.token.tokenByIndex(2)).toNumber().should.be.equal(tokenId);
+        (await this.token.tokenByIndex(2)).toNumber().should.be.equal(thirdTokenId);
       });
     });
 
     describe('burn', function () {
-      const tokenId = firstTokenId;
-      const sender = creator;
-
       beforeEach(async function () {
-        await this.token.burn(tokenId, { from: sender });
+        await this.token.burn(firstTokenId, { from: owner });
       });
 
       it('removes that token from the token list of the owner', async function () {
-        (await this.token.tokenOfOwnerByIndex(sender, 0)).toNumber().should.be.equal(secondTokenId);
+        (await this.token.tokenOfOwnerByIndex(owner, 0)).toNumber().should.be.equal(secondTokenId);
       });
 
       it('adjusts all tokens list', async function () {
@@ -67,7 +69,7 @@ contract('ERC721', function (accounts) {
       });
 
       it('burns all tokens', async function () {
-        await this.token.burn(secondTokenId, { from: sender });
+        await this.token.burn(secondTokenId, { from: owner });
         (await this.token.totalSupply()).toNumber().should.be.equal(0);
         await assertRevert(this.token.tokenByIndex(0));
       });
@@ -76,25 +78,25 @@ contract('ERC721', function (accounts) {
     describe('removeTokenFrom', function () {
       it('reverts if the correct owner is not passed', async function () {
         await assertRevert(
-          this.token.removeTokenFrom(anyone, firstTokenId, { from: creator })
+          this.token.removeTokenFrom(anyone, firstTokenId, { from: owner })
         );
       });
 
       context('once removed', function () {
         beforeEach(async function () {
-          await this.token.removeTokenFrom(creator, firstTokenId, { from: creator });
+          await this.token.removeTokenFrom(owner, firstTokenId, { from: owner });
         });
 
         it('has been removed', async function () {
-          await assertRevert(this.token.tokenOfOwnerByIndex(creator, 1));
+          await assertRevert(this.token.tokenOfOwnerByIndex(owner, 1));
         });
 
         it('adjusts token list', async function () {
-          (await this.token.tokenOfOwnerByIndex(creator, 0)).toNumber().should.be.equal(secondTokenId);
+          (await this.token.tokenOfOwnerByIndex(owner, 0)).toNumber().should.be.equal(secondTokenId);
         });
 
         it('adjusts owner count', async function () {
-          (await this.token.balanceOf(creator)).toNumber().should.be.equal(1);
+          (await this.token.balanceOf(owner)).toNumber().should.be.equal(1);
         });
 
         it('does not adjust supply', async function () {
@@ -125,7 +127,7 @@ contract('ERC721', function (accounts) {
 
       it('can burn token with metadata', async function () {
         await this.token.setTokenURI(firstTokenId, sampleUri);
-        await this.token.burn(firstTokenId);
+        await this.token.burn(firstTokenId, { from: owner });
         (await this.token.exists(firstTokenId)).should.equal(false);
       });
 
@@ -145,9 +147,6 @@ contract('ERC721', function (accounts) {
     });
 
     describe('tokenOfOwnerByIndex', function () {
-      const owner = creator;
-      const another = accounts[1];
-
       describe('when the given index is lower than the amount of tokens owned by the given address', function () {
         it('returns the token ID placed at the given index', async function () {
           (await this.token.tokenOfOwnerByIndex(owner, 0)).should.be.bignumber.equal(firstTokenId);
@@ -197,13 +196,12 @@ contract('ERC721', function (accounts) {
 
       [firstTokenId, secondTokenId].forEach(function (tokenId) {
         it(`should return all tokens after burning token ${tokenId} and minting new tokens`, async function () {
-          const owner = accounts[0];
           const newTokenId = 300;
           const anotherNewTokenId = 400;
 
           await this.token.burn(tokenId, { from: owner });
-          await this.token.mint(owner, newTokenId, { from: owner });
-          await this.token.mint(owner, anotherNewTokenId, { from: owner });
+          await this.token.mint(newOwner, newTokenId, { from: minter });
+          await this.token.mint(newOwner, anotherNewTokenId, { from: minter });
 
           (await this.token.totalSupply()).toNumber().should.be.equal(3);
 
@@ -217,6 +215,9 @@ contract('ERC721', function (accounts) {
       });
     });
   });
+
+  shouldBehaveLikeERC721Basic(creator, minter, accounts);
+  shouldBehaveLikeMintAndBurnERC721(creator, minter, accounts);
 
   shouldSupportInterfaces([
     'ERC165',

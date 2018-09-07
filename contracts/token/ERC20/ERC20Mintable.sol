@@ -1,28 +1,21 @@
 pragma solidity ^0.4.24;
 
 import "./ERC20.sol";
-import "../../ownership/Ownable.sol";
+import "../../access/roles/MinterRole.sol";
 
 
 /**
- * @title Mintable token
- * @dev Simple ERC20 Token example, with mintable token creation
- * Based on code by TokenMarketNet: https://github.com/TokenMarketNet/ico/blob/master/contracts/MintableToken.sol
+ * @title ERC20Mintable
+ * @dev ERC20 minting logic
  */
-contract ERC20Mintable is ERC20, Ownable {
-  event Mint(address indexed to, uint256 amount);
-  event MintFinished();
+contract ERC20Mintable is ERC20, MinterRole {
+  event Minted(address indexed to, uint256 amount);
+  event MintingFinished();
 
   bool private mintingFinished_ = false;
 
-
   modifier onlyBeforeMintingFinished() {
     require(!mintingFinished_);
-    _;
-  }
-
-  modifier onlyMinter() {
-    require(isOwner());
     _;
   }
 
@@ -49,7 +42,7 @@ contract ERC20Mintable is ERC20, Ownable {
     returns (bool)
   {
     _mint(_to, _amount);
-    emit Mint(_to, _amount);
+    emit Minted(_to, _amount);
     return true;
   }
 
@@ -59,12 +52,12 @@ contract ERC20Mintable is ERC20, Ownable {
    */
   function finishMinting()
     public
-    onlyOwner
+    onlyMinter
     onlyBeforeMintingFinished
     returns (bool)
   {
     mintingFinished_ = true;
-    emit MintFinished();
+    emit MintingFinished();
     return true;
   }
 }

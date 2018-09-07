@@ -1,14 +1,13 @@
 pragma solidity ^0.4.24;
 
-
-import "../ownership/Ownable.sol";
+import "../access/roles/PauserRole.sol";
 
 
 /**
  * @title Pausable
  * @dev Base contract which allows children to implement an emergency stop mechanism.
  */
-contract Pausable is Ownable {
+contract Pausable is PauserRole {
   event Paused();
   event Unpaused();
 
@@ -41,7 +40,7 @@ contract Pausable is Ownable {
   /**
    * @dev called by the owner to pause, triggers stopped state
    */
-  function pause() public onlyOwner whenNotPaused {
+  function pause() public onlyPauser whenNotPaused {
     paused_ = true;
     emit Paused();
   }
@@ -49,7 +48,7 @@ contract Pausable is Ownable {
   /**
    * @dev called by the owner to unpause, returns to normal state
    */
-  function unpause() public onlyOwner whenPaused {
+  function unpause() public onlyPauser whenPaused {
     paused_ = false;
     emit Unpaused();
   }
