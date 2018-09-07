@@ -22,7 +22,7 @@ contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
   });
 
   describe('beginMigration', function () {
-    it('rejects zero address for token', async function () {
+    it('reverts with a null new token address', async function () {
       await assertRevert(this.migrator.beginMigration(ZERO_ADDRESS));
     });
 
@@ -43,7 +43,7 @@ contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
   });
 
   describe('once migration began', function () {
-    beforeEach('', async function () {
+    beforeEach('beginning migration', async function () {
       await this.newToken.addMinter(this.migrator.address);
       await this.migrator.beginMigration(this.newToken.address);
     });
@@ -51,7 +51,7 @@ contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
     describe('migrateAll', function () {
       const baseAmount = totalSupply;
 
-      describe('when the approved balance is higher or equal to the owned balance', function () {
+      describe('when the approved balance is equal to the owned balance', function () {
         const amount = baseAmount;
 
         beforeEach('approving the whole balance to the new contract', async function () {
@@ -104,7 +104,7 @@ contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
         await this.legacyToken.approve(this.migrator.address, baseAmount, { from: owner });
       });
 
-      describe('when the amount is lower or equal to the one approved', function () {
+      describe('when the amount is equal to the one approved', function () {
         const amount = baseAmount;
 
         beforeEach('migrate token', async function () {
