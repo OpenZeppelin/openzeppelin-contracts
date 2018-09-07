@@ -98,7 +98,7 @@ contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
     });
 
     describe('migrate', function () {
-      const baseAmount = 50
+      const baseAmount = 50;
 
       beforeEach('approving tokens to the new contract', async function () {
         await this.legacyToken.approve(this.migrator.address, baseAmount, { from: owner });
