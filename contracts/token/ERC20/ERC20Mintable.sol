@@ -9,7 +9,6 @@ import "../../access/roles/MinterRole.sol";
  * @dev ERC20 minting logic
  */
 contract ERC20Mintable is ERC20, MinterRole {
-  event Minted(address indexed to, uint256 amount);
   event MintingFinished();
 
   bool private _mintingFinished = false;
@@ -42,7 +41,6 @@ contract ERC20Mintable is ERC20, MinterRole {
     returns (bool)
   {
     _mint(to, amount);
-    emit Minted(to, amount);
     return true;
   }
 
