@@ -8,20 +8,24 @@ import "../../math/Math.sol";
 
 /**
  * @title ERC20Migrator
- * @dev This contract provides a logic to migrate an ERC20 token from one contract to another.
- * The strategy provided carries out an optional migration of the token balances. This migration is performed and paid
- * for by the token holders. The new token contract starts with no initial supply and no balances. The only way to
- * "mint" the new tokens is for users to "turn in" their old ones. This is done by first approving the amount they
- * want to migrate via `ERC20.approve(newTokenAddress, amountToMigrate)` and then calling a function of the new
- * token called `migrateTokens`. The old tokens are sent to a burn address, and the holder receives an equal amount
- * in the new contract.
- * This contract does not force any custom minting logic. Thus, it has to be used in combination with a contract that
- * provides one. For instance, you can see MigratedERC20Mock.sol as an example.
+ * @dev This contract can be used to to migrate an ERC20 token from one
+ * contract to another, where each token holder has to opt-in to the migration.
+ * To opt-in, users must approve for this contract the number of tokens they
+ * want to migrate. Once the allowance is set up, anyone can trigger the
+ * migration to the new token contract. In this way, token holders "turn in"
+ * their old balance and will be minted an equal amount in the new token.
+ * The new token contract must be mintable. For the precise interface refer to
+ * OpenZeppelin's ERC20Mintable, but the only functions that are needed are
+ * `isMinter(address)` and `mint(address, amount)`. The migrator will check
+ * that it is a minter for the token.
+ * The balance from the legacy token will be transfered to the migrator, as it
+ * is migrated, and remain here forever.
  *
- * Although this contract can be used in many different scenarios, the main motivation was to provide a way of how an
- * ERC20 token can be migrated to an upgradeable version of it using ZeppelinOS. To read more about how this can be
- * done using this implementation, please follow the official documentation site of ZeppelinOS:
- * https://docs.zeppelinos.org/docs/erc20_onboarding.html
+ * Although this contract can be used in many different scenarios, the main
+ * motivation was to provide a way of how an ERC20 token can be migrated to an
+ * upgradeable version of it using ZeppelinOS. To read more about how this can
+ * be done using this implementation, please follow the official documentation
+ * site of ZeppelinOS: https://docs.zeppelinos.org/docs/erc20_onboarding.html
  */
 contract ERC20Migrator {
   using SafeERC20 for IERC20;
