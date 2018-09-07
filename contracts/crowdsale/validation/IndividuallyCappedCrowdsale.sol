@@ -21,7 +21,7 @@ contract IndividuallyCappedCrowdsale is Crowdsale, CapperRole {
    * @param cap Wei limit for individual contribution
    */
   function setCap(address beneficiary, uint256 cap) external onlyCapper {
-    _caps[beneficiary] = _cap;
+    _caps[beneficiary] = cap;
   }
 
   /**
