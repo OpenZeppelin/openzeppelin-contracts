@@ -5,7 +5,7 @@ import { MerkleProof } from "../cryptography/MerkleProof.sol";
 
 contract MerkleProofWrapper {
 
-  function verifyProof(
+  function verify(
     bytes32[] proof,
     bytes32 root,
     bytes32 leaf
@@ -14,6 +14,6 @@ contract MerkleProofWrapper {
     pure
     returns (bool)
   {
-    return MerkleProof.verifyProof(proof, root, leaf);
+    return MerkleProof.verify(proof, root, leaf);
   }
 }
