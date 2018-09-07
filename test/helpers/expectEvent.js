@@ -1,12 +1,24 @@
 const should = require('chai').should();
 
 function inLogs (logs, eventName, eventArgs = {}) {
-  const event = logs.find(e => e.event === eventName);
+  const event = logs.find(function (e) {
+    if (e.event === eventName) {
+      let matches = true;
+
+      for (const [k, v] of Object.entries(eventArgs)) {
+        if (e.args[k] !== v) {
+          matches = false;
+        }
+      }
+
+      if (matches) {
+        return true;
+      }
+    }
+  });
+
   should.exist(event);
-  for (const [k, v] of Object.entries(eventArgs)) {
-    should.exist(event.args[k]);
-    event.args[k].should.equal(v);
-  }
+
   return event;
 }
 

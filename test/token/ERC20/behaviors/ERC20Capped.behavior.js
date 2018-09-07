@@ -1,4 +1,5 @@
-const { expectThrow } = require('../../helpers/expectThrow');
+const { expectThrow } = require('../../../helpers/expectThrow');
+const expectEvent = require('../../../helpers/expectEvent');
 
 const BigNumber = web3.BigNumber;
 
