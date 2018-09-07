@@ -4,14 +4,14 @@ import "./IERC721Basic.sol";
 import "./IERC721Receiver.sol";
 import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";
-import "../../introspection/SupportsInterfaceWithLookup.sol";
+import "../../introspection/ERC165.sol";
 
 
 /**
  * @title ERC721 Non-Fungible Token Standard basic implementation
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
-contract ERC721Basic is SupportsInterfaceWithLookup, IERC721Basic {
+contract ERC721Basic is ERC165, IERC721Basic {
 
   using SafeMath for uint256;
   using Address for address;
@@ -97,6 +97,7 @@ contract ERC721Basic is SupportsInterfaceWithLookup, IERC721Basic {
    * @return address currently approved for the given token ID
    */
   function getApproved(uint256 tokenId) public view returns (address) {
+    require(_exists(tokenId));
     return _tokenApprovals[tokenId];
   }
 
