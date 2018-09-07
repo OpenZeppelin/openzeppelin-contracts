@@ -78,6 +78,8 @@ contract ERC20 is IERC20 {
    * @param _value The amount of tokens to be spent.
    */
   function approve(address _spender, uint256 _value) public returns (bool) {
+    require(_spender != address(0));
+
     allowed_[msg.sender][_spender] = _value;
     emit Approval(msg.sender, _spender, _value);
     return true;
@@ -117,13 +119,15 @@ contract ERC20 is IERC20 {
    * @param _spender The address which will spend the funds.
    * @param _addedValue The amount of tokens to increase the allowance by.
    */
-  function increaseApproval(
+  function increaseAllowance(
     address _spender,
     uint256 _addedValue
   )
     public
     returns (bool)
   {
+    require(_spender != address(0));
+
     allowed_[msg.sender][_spender] = (
       allowed_[msg.sender][_spender].add(_addedValue));
     emit Approval(msg.sender, _spender, allowed_[msg.sender][_spender]);
@@ -139,19 +143,17 @@ contract ERC20 is IERC20 {
    * @param _spender The address which will spend the funds.
    * @param _subtractedValue The amount of tokens to decrease the allowance by.
    */
-  function decreaseApproval(
+  function decreaseAllowance(
     address _spender,
     uint256 _subtractedValue
   )
     public
     returns (bool)
   {
-    uint256 oldValue = allowed_[msg.sender][_spender];
-    if (_subtractedValue >= oldValue) {
-      allowed_[msg.sender][_spender] = 0;
-    } else {
-      allowed_[msg.sender][_spender] = oldValue.sub(_subtractedValue);
-    }
+    require(_spender != address(0));
+
+    allowed_[msg.sender][_spender] = (
+      allowed_[msg.sender][_spender].sub(_subtractedValue));
     emit Approval(msg.sender, _spender, allowed_[msg.sender][_spender]);
     return true;
   }
