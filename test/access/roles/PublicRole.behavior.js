@@ -25,7 +25,7 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
       });
 
       it(`emits a ${rolename}Added event`, async function () {
-        ({ logs } = await this.contract[`add${rolename}`](anyone, { from: authorized }));
+        const { logs } = await this.contract[`add${rolename}`](anyone, { from: authorized });
         expectEvent.inLogs(logs, `${rolename}Added`, { account: anyone });
       });
 
@@ -47,7 +47,7 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
       });
 
       it(`emits a ${rolename}Removed event`, async function () {
-        ({ logs } = await this.contract[`remove${rolename}`](authorized));
+        const { logs } = await this.contract[`remove${rolename}`](authorized);
         expectEvent.inLogs(logs, `${rolename}Removed`, { account: authorized });
       });
 
