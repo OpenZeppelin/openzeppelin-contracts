@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "./ERC721.sol";
+import "./ERC721Full.sol";
 import "../../access/roles/MinterRole.sol";
 
 
@@ -8,7 +8,7 @@ import "../../access/roles/MinterRole.sol";
  * @title ERC721Mintable
  * @dev ERC721 minting logic
  */
-contract ERC721Mintable is ERC721, MinterRole {
+contract ERC721Mintable is ERC721Full, MinterRole {
   event Minted(address indexed to, uint256 tokenId);
   event MintingFinished();
 

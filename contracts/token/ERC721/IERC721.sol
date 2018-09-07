@@ -1,12 +1,50 @@
 pragma solidity ^0.4.24;
 
-import "./IERC721Basic.sol";
-import "./IERC721Enumerable.sol";
-import "./IERC721Metadata.sol";
+import "../../introspection/IERC165.sol";
+
 
 /**
- * @title ERC-721 Non-Fungible Token Standard, full implementation interface
- * @dev See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
+ * @title ERC721 Non-Fungible Token Standard basic interface
+ * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
-contract IERC721 is IERC721Basic, IERC721Enumerable, IERC721Metadata {
+contract IERC721 is IERC165 {
+
+  event Transfer(
+    address indexed from,
+    address indexed to,
+    uint256 indexed tokenId
+  );
+  event Approval(
+    address indexed owner,
+    address indexed approved,
+    uint256 indexed tokenId
+  );
+  event ApprovalForAll(
+    address indexed owner,
+    address indexed operator,
+    bool approved
+  );
+
+  function balanceOf(address _owner) public view returns (uint256 _balance);
+  function ownerOf(uint256 _tokenId) public view returns (address _owner);
+
+  function approve(address _to, uint256 _tokenId) public;
+  function getApproved(uint256 _tokenId)
+    public view returns (address _operator);
+
+  function setApprovalForAll(address _operator, bool _approved) public;
+  function isApprovedForAll(address _owner, address _operator)
+    public view returns (bool);
+
+  function transferFrom(address _from, address _to, uint256 _tokenId) public;
+  function safeTransferFrom(address _from, address _to, uint256 _tokenId)
+    public;
+
+  function safeTransferFrom(
+    address _from,
+    address _to,
+    uint256 _tokenId,
+    bytes _data
+  )
+    public;
 }

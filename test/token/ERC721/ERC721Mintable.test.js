@@ -1,4 +1,4 @@
-const { shouldBehaveLikeERC721Basic } = require('./ERC721Basic.behavior');
+const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
 const {
   shouldBehaveLikeMintAndBurnERC721,
 } = require('./ERC721MintBurn.behavior');
@@ -19,6 +19,6 @@ contract('ERC721Mintable', function ([_, creator, ...accounts]) {
     });
   });
 
-  shouldBehaveLikeERC721Basic(creator, minter, accounts);
+  shouldBehaveLikeERC721(creator, minter, accounts);
   shouldBehaveLikeMintAndBurnERC721(creator, minter, accounts);
 });

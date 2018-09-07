@@ -1,10 +1,10 @@
 pragma solidity ^0.4.24;
 
 import "./IERC721Enumerable.sol";
-import "./ERC721Basic.sol";
+import "./ERC721.sol";
 import "../../introspection/ERC165.sol";
 
-contract ERC721Enumerable is ERC165, ERC721Basic, IERC721Enumerable {
+contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
   // Mapping from owner to list of owned token IDs
   mapping(address => uint256[]) private ownedTokens_;
 
