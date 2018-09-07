@@ -12,6 +12,8 @@ import "./ERC721Metadata.sol";
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
 contract ERC721Full is ERC721, ERC721Enumerable, ERC721Metadata {
-  constructor(string _name, string _symbol) ERC721Metadata(_name, _symbol) public {
+  constructor(string _name, string _symbol) ERC721Metadata(_name, _symbol)
+    public
+  {
   }
 }
