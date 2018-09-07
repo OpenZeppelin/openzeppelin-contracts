@@ -133,6 +133,6 @@ contract SignatureBouncer is SignerRole {
       .toEthSignedMessageHash()
       .recover(_signature);
 
-    return (signer != address(0)) ? isSigner(signer) : false;
+    return signer != address(0) && isSigner(signer);
   }
 }
