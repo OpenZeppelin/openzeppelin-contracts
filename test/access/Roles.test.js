@@ -1,3 +1,5 @@
+const { assertRevert } = require('../helpers/assertRevert');
+
 const RolesMock = artifacts.require('RolesMock');
 
 require('chai')
@@ -8,6 +10,10 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
 
   beforeEach(async function () {
     this.roles = await RolesMock.new();
+  });
+
+  it('reverts when querying roles for the null account', async function () {
+    await assertRevert(this.roles.has(ZERO_ADDRESS));
   });
 
   context('initially', function () {
@@ -30,8 +36,8 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
         (await this.roles.has(authorized)).should.equal(true);
       });
 
-      it('doesn\'t revert when adding roles to the null account', async function () {
-        await this.roles.add(ZERO_ADDRESS);
+      it('reverts when adding roles to the null account', async function () {
+        await assertRevert(this.roles.add(ZERO_ADDRESS));
       });
     });
   });
@@ -53,8 +59,8 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
         await this.roles.remove(anyone);
       });
 
-      it('doesn\'t revert when removing roles from the null account', async function () {
-        await this.roles.remove(ZERO_ADDRESS);
+      it('reverts when removing roles from the null account', async function () {
+        await assertRevert(this.roles.remove(ZERO_ADDRESS));
       });
     });
   });

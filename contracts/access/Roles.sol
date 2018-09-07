@@ -14,6 +14,7 @@ library Roles {
    * @dev give an account access to this role
    */
   function add(Role storage _role, address _account) internal {
+    require(_account != address(0));
     _role.bearer[_account] = true;
   }
 
@@ -21,6 +22,7 @@ library Roles {
    * @dev remove an account's access to this role
    */
   function remove(Role storage _role, address _account) internal {
+    require(_account != address(0));
     _role.bearer[_account] = false;
   }
 
@@ -33,6 +35,7 @@ library Roles {
     view
     returns (bool)
   {
+    require(_account != address(0));
     return _role.bearer[_account];
   }
 }
