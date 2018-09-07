@@ -12,11 +12,18 @@ contract ERC721Mintable is ERC721, MinterRole {
   event Minted(address indexed to, uint256 tokenId);
   event MintingFinished();
 
-  bool public mintingFinished = false;
+  bool private mintingFinished_ = false;
 
   modifier onlyBeforeMintingFinished() {
-    require(!mintingFinished);
+    require(!mintingFinished_);
     _;
+  }
+
+  /**
+   * @return true if the minting is finished.
+   */
+  function mintingFinished() public view returns(bool) {
+    return mintingFinished_;
   }
 
   /**
@@ -64,7 +71,7 @@ contract ERC721Mintable is ERC721, MinterRole {
     onlyBeforeMintingFinished
     returns (bool)
   {
-    mintingFinished = true;
+    mintingFinished_ = true;
     emit MintingFinished();
     return true;
   }
