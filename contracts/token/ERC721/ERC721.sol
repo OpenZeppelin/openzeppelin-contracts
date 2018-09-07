@@ -2,7 +2,7 @@ pragma solidity ^0.4.24;
 
 import "./IERC721.sol";
 import "./ERC721Basic.sol";
-import "../../introspection/SupportsInterfaceWithLookup.sol";
+import "../../introspection/ERC165.sol";
 
 
 /**
@@ -11,7 +11,7 @@ import "../../introspection/SupportsInterfaceWithLookup.sol";
  * Moreover, it includes approve all functionality using operator terminology
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
-contract ERC721 is SupportsInterfaceWithLookup, ERC721Basic, IERC721 {
+contract ERC721 is ERC165, ERC721Basic, IERC721 {
 
   // Token name
   string internal name_;
