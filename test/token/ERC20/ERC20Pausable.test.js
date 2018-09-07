@@ -223,7 +223,7 @@ contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherA
       });
 
       it('allows to increase approval when unpaused', async function () {
-        await this.token.increaseAllowannce(anotherAccount, 40, { from: pauser });
+        await this.token.increaseAllowance(anotherAccount, 40, { from: pauser });
 
         (await this.token.allowance(pauser, anotherAccount)).should.be.bignumber.equal(140);
       });
