@@ -50,6 +50,20 @@ contract ERC20Migrator {
   }
 
   /**
+   * @dev Returns the legacy token that is being migrated.
+   */
+  function legacyToken() external returns (IERC20) {
+    return _legacyToken;
+  }
+
+  /**
+   * @dev Returns the new token to which we are migrating.
+   */
+  function newToken() external returns (IERC20) {
+    return _newToken;
+  }
+
+  /**
    * @dev Begins the migration by setting which is the new token that will be
    * minted. This contract must be a minter for the new token.
    * @param newToken the token that will be minted
