@@ -4,7 +4,7 @@
 [![Build Status](https://img.shields.io/travis/OpenZeppelin/openzeppelin-solidity.svg?branch=master&style=flat-square)](https://travis-ci.org/OpenZeppelin/openzeppelin-solidity)
 [![Coverage Status](https://img.shields.io/coveralls/github/OpenZeppelin/openzeppelin-solidity/master.svg?style=flat-square)](https://coveralls.io/github/OpenZeppelin/openzeppelin-solidity?branch=master)
 
-*OpenZeppelin is a library for secure smart contract development.* It provides implementations of standards like ERC20 and ERC721 which you can deploy as-is or extend to suit your needs, as well as Solidity components to build custom contracts and more complex decentralized systems.
+**OpenZeppelin is a library for secure smart contract development.** It provides implementations of standards like ERC20 and ERC721 which you can deploy as-is or extend to suit your needs, as well as Solidity components to build custom contracts and more complex decentralized systems.
 
 ## Install
 
@@ -38,7 +38,7 @@ Please report any security issues you find to security@openzeppelin.org.
 
 ## Contribute
 
-OpenZeppelin exists thanks to its contributors. There are many ways you can participate and help build high quality software. Check out the contribution guide!
+OpenZeppelin exists thanks to its contributors. There are many ways you can participate and help build high quality software. Check out the [contribution guide]!
 
 ## License
 
@@ -48,3 +48,4 @@ OpenZeppelin is released under the [MIT License](LICENSE).
 [API docs]: https://openzeppelin.org/api/docs/token_ERC721_ERC721BasicToken.html
 [Slack]: https://slack.openzeppelin.org
 [Zeppelin]: https://zeppelin.solutions
+[contribution guide]: CONTRIBUTING.md
