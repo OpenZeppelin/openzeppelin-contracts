@@ -10,14 +10,14 @@ import "./IERC721Basic.sol";
 contract IERC721Enumerable is IERC721Basic {
   function totalSupply() public view returns (uint256);
   function tokenOfOwnerByIndex(
-    address _owner,
-    uint256 _index
+    address owner,
+    uint256 index
   )
     public
     view
-    returns (uint256 _tokenId);
+    returns (uint256 tokenId);
 
-  function tokenByIndex(uint256 _index) public view returns (uint256);
+  function tokenByIndex(uint256 index) public view returns (uint256);
 }
 
 
@@ -26,9 +26,9 @@ contract IERC721Enumerable is IERC721Basic {
  * @dev See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
 contract IERC721Metadata is IERC721Basic {
-  function name() external view returns (string _name);
-  function symbol() external view returns (string _symbol);
-  function tokenURI(uint256 _tokenId) public view returns (string);
+  function name() external view returns (string);
+  function symbol() external view returns (string);
+  function tokenURI(uint256 tokenId) public view returns (string);
 }
 
 

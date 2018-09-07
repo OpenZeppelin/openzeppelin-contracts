@@ -9,15 +9,15 @@ import "./PauserRoleMock.sol";
  * This mock just provides a public mint, burn and exists functions for testing purposes
  */
 contract ERC721PausableMock is ERC721Pausable, PauserRoleMock {
-  function mint(address _to, uint256 _tokenId) public {
-    super._mint(_to, _tokenId);
+  function mint(address to, uint256 tokenId) public {
+    super._mint(to, tokenId);
   }
 
-  function burn(uint256 _tokenId) public {
-    super._burn(ownerOf(_tokenId), _tokenId);
+  function burn(uint256 tokenId) public {
+    super._burn(ownerOf(tokenId), tokenId);
   }
 
-  function exists(uint256 _tokenId) public view returns (bool) {
-    return super._exists(_tokenId);
+  function exists(uint256 tokenId) public view returns (bool) {
+    return super._exists(tokenId);
   }
 }

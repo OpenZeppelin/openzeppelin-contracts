@@ -10,8 +10,8 @@ import "../ownership/Ownable.sol";
  * @dev This bounty will pay out to a researcher if they break invariant logic of the contract.
  */
 contract BreakInvariantBounty is PullPayment, Ownable {
-  bool private claimed_;
-  mapping(address => address) private researchers;
+  bool private _claimed;
+  mapping(address => address) private _researchers;
 
   event TargetCreated(address createdAddress);
 
@@ -19,7 +19,7 @@ contract BreakInvariantBounty is PullPayment, Ownable {
    * @dev Fallback function allowing the contract to receive funds, if they haven't already been claimed.
    */
   function() external payable {
-    require(!claimed_);
+    require(!_claimed);
   }
 
   /**
@@ -27,7 +27,7 @@ contract BreakInvariantBounty is PullPayment, Ownable {
    * @return true if the bounty was claimed, false otherwise.
    */
   function claimed() public view returns(bool) {
-    return claimed_;
+    return _claimed;
   }
 
   /**
@@ -37,22 +37,22 @@ contract BreakInvariantBounty is PullPayment, Ownable {
    */
   function createTarget() public returns(Target) {
     Target target = Target(_deployContract());
-    researchers[target] = msg.sender;
+    _researchers[target] = msg.sender;
     emit TargetCreated(target);
     return target;
   }
 
   /**
    * @dev Transfers the contract funds to the researcher that proved the contract is broken.
-   * @param _target contract
+   * @param target contract
    */
-  function claim(Target _target) public {
-    address researcher = researchers[_target];
+  function claim(Target target) public {
+    address researcher = _researchers[target];
     require(researcher != address(0));
     // Check Target contract invariants
-    require(!_target.checkInvariant());
+    require(!target.checkInvariant());
     _asyncTransfer(researcher, address(this).balance);
-    claimed_ = true;
+    _claimed = true;
   }
 
   /**

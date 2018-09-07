@@ -23,6 +23,24 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
       await assertRevert(this.contract[`is${rolename}`](ZERO_ADDRESS));
     });
 
+    describe('access control', function () {
+      context('from authorized account', function () {
+        const from = authorized;
+
+        it('allows access', async function () {
+          await this.contract[`only${rolename}Mock`]({ from });
+        });
+      });
+
+      context('from unauthorized account', function () {
+        const from = anyone;
+
+        it('reverts', async function () {
+          await assertRevert(this.contract[`only${rolename}Mock`]({ from }));
+        });
+      });
+    });
+
     describe('add', function () {
       it('adds role to a new account', async function () {
         await this.contract[`add${rolename}`](anyone, { from: authorized });

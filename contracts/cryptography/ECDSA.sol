@@ -12,10 +12,10 @@ library ECDSA {
 
   /**
    * @dev Recover signer address from a message by using their signature
-   * @param _hash bytes32 message, the hash is the signed message. What is recovered is the signer address.
-   * @param _signature bytes signature, the signature is generated using web3.eth.sign()
+   * @param hash bytes32 message, the hash is the signed message. What is recovered is the signer address.
+   * @param signature bytes signature, the signature is generated using web3.eth.sign()
    */
-  function recover(bytes32 _hash, bytes _signature)
+  function recover(bytes32 hash, bytes signature)
     internal
     pure
     returns (address)
@@ -25,7 +25,7 @@ library ECDSA {
     uint8 v;
 
     // Check the signature length
-    if (_signature.length != 65) {
+    if (signature.length != 65) {
       return (address(0));
     }
 
@@ -34,9 +34,9 @@ library ECDSA {
     // currently is to use assembly.
     // solium-disable-next-line security/no-inline-assembly
     assembly {
-      r := mload(add(_signature, 32))
-      s := mload(add(_signature, 64))
-      v := byte(0, mload(add(_signature, 96)))
+      r := mload(add(signature, 32))
+      s := mload(add(signature, 64))
+      v := byte(0, mload(add(signature, 96)))
     }
 
     // Version of signature should be 27 or 28, but 0 and 1 are also possible versions
@@ -49,7 +49,7 @@ library ECDSA {
       return (address(0));
     } else {
       // solium-disable-next-line arg-overflow
-      return ecrecover(_hash, v, r, s);
+      return ecrecover(hash, v, r, s);
     }
   }
 
@@ -58,7 +58,7 @@ library ECDSA {
    * @dev prefix a bytes32 value with "\x19Ethereum Signed Message:"
    * and hash the result
    */
-  function toEthSignedMessageHash(bytes32 _hash)
+  function toEthSignedMessageHash(bytes32 hash)
     internal
     pure
     returns (bytes32)
@@ -66,7 +66,7 @@ library ECDSA {
     // 32 is the length in bytes of hash,
     // enforced by the type signature above
     return keccak256(
-      abi.encodePacked("\x19Ethereum Signed Message:\n32", _hash)
+      abi.encodePacked("\x19Ethereum Signed Message:\n32", hash)
     );
   }
 }

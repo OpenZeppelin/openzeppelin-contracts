@@ -20,21 +20,21 @@ contract MinterRole {
     _;
   }
 
-  function isMinter(address _account) public view returns (bool) {
-    return minters.has(_account);
+  function isMinter(address account) public view returns (bool) {
+    return minters.has(account);
   }
 
-  function addMinter(address _account) public onlyMinter {
-    minters.add(_account);
-    emit MinterAdded(_account);
+  function addMinter(address account) public onlyMinter {
+    minters.add(account);
+    emit MinterAdded(account);
   }
 
   function renounceMinter() public {
     minters.remove(msg.sender);
   }
 
-  function _removeMinter(address _account) internal {
-    minters.remove(_account);
-    emit MinterRemoved(_account);
+  function _removeMinter(address account) internal {
+    minters.remove(account);
+    emit MinterRemoved(account);
   }
 }

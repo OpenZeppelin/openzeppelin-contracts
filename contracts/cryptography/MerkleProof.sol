@@ -10,23 +10,23 @@ library MerkleProof {
   /**
    * @dev Verifies a Merkle proof proving the existence of a leaf in a Merkle tree. Assumes that each pair of leaves
    * and each pair of pre-images are sorted.
-   * @param _proof Merkle proof containing sibling hashes on the branch from the leaf to the root of the Merkle tree
-   * @param _root Merkle root
-   * @param _leaf Leaf of Merkle tree
+   * @param proof Merkle proof containing sibling hashes on the branch from the leaf to the root of the Merkle tree
+   * @param root Merkle root
+   * @param leaf Leaf of Merkle tree
    */
   function verify(
-    bytes32[] _proof,
-    bytes32 _root,
-    bytes32 _leaf
+    bytes32[] proof,
+    bytes32 root,
+    bytes32 leaf
   )
     internal
     pure
     returns (bool)
   {
-    bytes32 computedHash = _leaf;
+    bytes32 computedHash = leaf;
 
-    for (uint256 i = 0; i < _proof.length; i++) {
-      bytes32 proofElement = _proof[i];
+    for (uint256 i = 0; i < proof.length; i++) {
+      bytes32 proofElement = proof[i];
 
       if (computedHash < proofElement) {
         // Hash(current computed hash + current element of the proof)
@@ -38,6 +38,6 @@ library MerkleProof {
     }
 
     // Check if the computed hash (root) is equal to the provided root
-    return computedHash == _root;
+    return computedHash == root;
   }
 }
