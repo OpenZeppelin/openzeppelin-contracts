@@ -7,7 +7,7 @@ import "../../ownership/Ownable.sol";
 
 /**
  * @title IndividuallyCappedCrowdsale
- * @dev Crowdsale with per-user caps.
+ * @dev Crowdsale with per-beneficiary caps.
  */
 contract IndividuallyCappedCrowdsale is Ownable, Crowdsale {
   using SafeMath for uint256;
@@ -16,53 +16,36 @@ contract IndividuallyCappedCrowdsale is Ownable, Crowdsale {
   mapping(address => uint256) private caps_;
 
   /**
-   * @dev Sets a specific user's maximum contribution.
+   * @dev Sets a specific beneficiary's maximum contribution.
    * @param _beneficiary Address to be capped
    * @param _cap Wei limit for individual contribution
    */
-  function setUserCap(address _beneficiary, uint256 _cap) external onlyOwner {
+  function setCap(address _beneficiary, uint256 _cap) external onlyOwner {
     caps_[_beneficiary] = _cap;
   }
 
   /**
-   * @dev Sets a group of users' maximum contribution.
-   * @param _beneficiaries List of addresses to be capped
-   * @param _cap Wei limit for individual contribution
-   */
-  function setGroupCap(
-    address[] _beneficiaries,
-    uint256 _cap
-  )
-    external
-    onlyOwner
-  {
-    for (uint256 i = 0; i < _beneficiaries.length; i++) {
-      caps_[_beneficiaries[i]] = _cap;
-    }
-  }
-
-  /**
-   * @dev Returns the cap of a specific user.
+   * @dev Returns the cap of a specific beneficiary.
    * @param _beneficiary Address whose cap is to be checked
-   * @return Current cap for individual user
+   * @return Current cap for individual beneficiary
    */
-  function getUserCap(address _beneficiary) public view returns (uint256) {
+  function getCap(address _beneficiary) public view returns (uint256) {
     return caps_[_beneficiary];
   }
 
   /**
-   * @dev Returns the amount contributed so far by a sepecific user.
+   * @dev Returns the amount contributed so far by a specific beneficiary.
    * @param _beneficiary Address of contributor
-   * @return User contribution so far
+   * @return Beneficiary contribution so far
    */
-  function getUserContribution(address _beneficiary)
+  function getContribution(address _beneficiary)
     public view returns (uint256)
   {
     return contributions_[_beneficiary];
   }
 
   /**
-   * @dev Extend parent behavior requiring purchase to respect the user's funding cap.
+   * @dev Extend parent behavior requiring purchase to respect the beneficiary's funding cap.
    * @param _beneficiary Token purchaser
    * @param _weiAmount Amount of wei contributed
    */
@@ -78,7 +61,7 @@ contract IndividuallyCappedCrowdsale is Ownable, Crowdsale {
   }
 
   /**
-   * @dev Extend parent behavior to update user contributions
+   * @dev Extend parent behavior to update beneficiary contributions
    * @param _beneficiary Token purchaser
    * @param _weiAmount Amount of wei contributed
    */

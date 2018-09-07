@@ -23,8 +23,8 @@ contract('IndividuallyCappedCrowdsale', function ([_, wallet, alice, bob, charli
     beforeEach(async function () {
       this.token = await SimpleToken.new();
       this.crowdsale = await CappedCrowdsale.new(rate, wallet, this.token.address);
-      await this.crowdsale.setUserCap(alice, capAlice);
-      await this.crowdsale.setUserCap(bob, capBob);
+      await this.crowdsale.setCap(alice, capAlice);
+      await this.crowdsale.setCap(bob, capBob);
       await this.token.transfer(this.crowdsale.address, tokenSupply);
     });
 
@@ -56,47 +56,12 @@ contract('IndividuallyCappedCrowdsale', function ([_, wallet, alice, bob, charli
 
     describe('reporting state', function () {
       it('should report correct cap', async function () {
-        (await this.crowdsale.getUserCap(alice)).should.be.bignumber.equal(capAlice);
+        (await this.crowdsale.getCap(alice)).should.be.bignumber.equal(capAlice);
       });
 
       it('should report actual contribution', async function () {
         await this.crowdsale.buyTokens(alice, { value: lessThanCapAlice });
-        (await this.crowdsale.getUserContribution(alice)).should.be.bignumber.equal(lessThanCapAlice);
-      });
-    });
-  });
-
-  describe('group capping', function () {
-    beforeEach(async function () {
-      this.token = await SimpleToken.new();
-      this.crowdsale = await CappedCrowdsale.new(rate, wallet, this.token.address);
-      await this.crowdsale.setGroupCap([bob, charlie], capBob);
-      await this.token.transfer(this.crowdsale.address, tokenSupply);
-    });
-
-    describe('accepting payments', function () {
-      it('should accept payments within cap', async function () {
-        await this.crowdsale.buyTokens(bob, { value: lessThanCapBoth });
-        await this.crowdsale.buyTokens(charlie, { value: lessThanCapBoth });
-      });
-
-      it('should reject payments outside cap', async function () {
-        await this.crowdsale.buyTokens(bob, { value: capBob });
-        await expectThrow(this.crowdsale.buyTokens(bob, { value: 1 }), EVMRevert);
-        await this.crowdsale.buyTokens(charlie, { value: capBob });
-        await expectThrow(this.crowdsale.buyTokens(charlie, { value: 1 }), EVMRevert);
-      });
-
-      it('should reject payments that exceed cap', async function () {
-        await expectThrow(this.crowdsale.buyTokens(bob, { value: capBob.plus(1) }), EVMRevert);
-        await expectThrow(this.crowdsale.buyTokens(charlie, { value: capBob.plus(1) }), EVMRevert);
-      });
-    });
-
-    describe('reporting state', function () {
-      it('should report correct cap', async function () {
-        (await this.crowdsale.getUserCap(bob)).should.be.bignumber.equal(capBob);
-        (await this.crowdsale.getUserCap(charlie)).should.be.bignumber.equal(capBob);
+        (await this.crowdsale.getContribution(alice)).should.be.bignumber.equal(lessThanCapAlice);
       });
     });
   });
