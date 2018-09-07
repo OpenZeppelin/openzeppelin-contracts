@@ -19,13 +19,13 @@ import "../math/Math.sol";
  * `isMinter(address)` and `mint(address, amount)`. The migrator will check
  * that it is a minter for the token.
  * The balance from the legacy token will be transfered to the migrator, as it
- * is migrated, and remain here forever.
+ * is migrated, and remain there forever.
  *
  * Although this contract can be used in many different scenarios, the main
- * motivation was to provide a way of how an ERC20 token can be migrated to an
- * upgradeable version of it using ZeppelinOS. To read more about how this can
- * be done using this implementation, please follow the official documentation
- * site of ZeppelinOS: https://docs.zeppelinos.org/docs/erc20_onboarding.html
+ * motivation was to provide a way to migrate ERC20 tokens into an upgradeable
+ * version of it using ZeppelinOS. To read more about how this can be done
+ * using this implementation, please follow the official documentation site of
+ * ZeppelinOS: https://docs.zeppelinos.org/docs/erc20_onboarding.html
  */
 contract ERC20Migrator {
   using SafeERC20 for IERC20;
@@ -54,20 +54,21 @@ contract ERC20Migrator {
   }
 
   /**
-   * @dev Burns a given amount of the old token contract for a token holder and mints the same amount of
-   * @dev new tokens for a given recipient address
-   * @param account uint256 representing the amount of tokens to be migrated
-   * @param amount address the recipient that will receive the new minted tokens
+   * @dev Transfers part of an account's balance in the old token to this
+   * contract, and mints the same amount of new tokens for that account.
+   * @param account whose tokens will be migrated
+   * @param amount amount of tokens to be migrated
    */
   function migrate(address account, uint256 amount) public {
-    _newToken.mint(account, amount);
     _legacyToken.safeTransferFrom(account, this, amount);
+    _newToken.mint(account, amount);
   }
 
   /**
-   * @dev Migrates the total balance of the token holder to this token contract
-   * @dev This function will burn the old token balance and mint the same balance in the new token contract
-   * @param account uint256 representing the amount of tokens to be migrated
+   * @dev Transfers all of an account's allowed balance in the old token to
+   * this contract, and mints the same amount of new tokens for that account.
+   * @param account whose tokens will be migrated
+   * @param amount amount of tokens to be migrated
    */
   function migrateAll(address account) public {
     uint256 balance = _legacyToken.balanceOf(account);
