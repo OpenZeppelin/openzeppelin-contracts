@@ -44,7 +44,7 @@ contract ERC20Pausable is ERC20, Pausable {
     return super.approve(spender, value);
   }
 
-  function increaseApproval(
+  function increaseAllowance(
     address spender,
     uint addedValue
   )
