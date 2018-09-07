@@ -9,8 +9,6 @@ import "./ERC20.sol";
  */
 contract ERC20Burnable is ERC20 {
 
-  event TokensBurned(address indexed burner, uint256 value);
-
   /**
    * @dev Burns a specific amount of tokens.
    * @param value The amount of token to be burned.
@@ -34,6 +32,5 @@ contract ERC20Burnable is ERC20 {
    */
   function _burn(address who, uint256 value) internal {
     super._burn(who, value);
-    emit TokensBurned(who, value);
   }
 }
