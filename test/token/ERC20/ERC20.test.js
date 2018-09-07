@@ -253,7 +253,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
     describe('when the spender is not the zero address', function () {
       const spender = recipient;
 
-      function shouldDecreaseApproval(amount) {
+      function shouldDecreaseApproval (amount) {
         describe('when there was no approved amount before', function () {
           it('reverts', async function () {
             await assertRevert(this.token.decreaseAllowance(spender, amount, { from: owner }));
