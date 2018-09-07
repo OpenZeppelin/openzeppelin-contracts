@@ -185,7 +185,7 @@ contract('ERC20Pausable', function ([_, owner, recipient, anotherAccount]) {
       });
 
       it('allows to decrease approval when unpaused', async function () {
-        await this.token.decreaseApproval(anotherAccount, 40, { from: owner });
+        await this.token.decreaseAllowance(anotherAccount, 40, { from: owner });
 
         (await this.token.allowance(owner, anotherAccount)).should.be.bignumber.equal(60);
       });
@@ -194,7 +194,7 @@ contract('ERC20Pausable', function ([_, owner, recipient, anotherAccount]) {
         await this.token.pause({ from: owner });
         await this.token.unpause({ from: owner });
 
-        await this.token.decreaseApproval(anotherAccount, 40, { from: owner });
+        await this.token.decreaseAllowance(anotherAccount, 40, { from: owner });
 
         (await this.token.allowance(owner, anotherAccount)).should.be.bignumber.equal(60);
       });
@@ -202,7 +202,7 @@ contract('ERC20Pausable', function ([_, owner, recipient, anotherAccount]) {
       it('reverts when trying to transfer when paused', async function () {
         await this.token.pause({ from: owner });
 
-        await assertRevert(this.token.decreaseApproval(anotherAccount, 40, { from: owner }));
+        await assertRevert(this.token.decreaseAllowance(anotherAccount, 40, { from: owner }));
       });
     });
 
@@ -212,7 +212,7 @@ contract('ERC20Pausable', function ([_, owner, recipient, anotherAccount]) {
       });
 
       it('allows to increase approval when unpaused', async function () {
-        await this.token.increaseApproval(anotherAccount, 40, { from: owner });
+        await this.token.increaseAllowance(anotherAccount, 40, { from: owner });
 
         (await this.token.allowance(owner, anotherAccount)).should.be.bignumber.equal(140);
       });
@@ -221,7 +221,7 @@ contract('ERC20Pausable', function ([_, owner, recipient, anotherAccount]) {
         await this.token.pause({ from: owner });
         await this.token.unpause({ from: owner });
 
-        await this.token.increaseApproval(anotherAccount, 40, { from: owner });
+        await this.token.increaseAllowance(anotherAccount, 40, { from: owner });
 
         (await this.token.allowance(owner, anotherAccount)).should.be.bignumber.equal(140);
       });
@@ -229,7 +229,7 @@ contract('ERC20Pausable', function ([_, owner, recipient, anotherAccount]) {
       it('reverts when trying to increase approval when paused', async function () {
         await this.token.pause({ from: owner });
 
-        await assertRevert(this.token.increaseApproval(anotherAccount, 40, { from: owner }));
+        await assertRevert(this.token.increaseAllowance(anotherAccount, 40, { from: owner }));
       });
     });
   });
