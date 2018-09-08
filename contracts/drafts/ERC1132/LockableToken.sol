@@ -30,6 +30,7 @@ contract LockableToken is ERC20, ERC1132 {
     public
     returns (bool)
   {
+    // solium-disable-next-line security/no-block-members
     uint256 validUntil = now.add(_time); //solhint-disable-line
 
     // If tokens are already locked, then functions extendLock or
@@ -70,6 +71,7 @@ contract LockableToken is ERC20, ERC1132 {
     public
     returns (bool)
   {
+    // solium-disable-next-line security/no-block-members
     uint256 validUntil = now.add(_time); //solhint-disable-line
 
     require(tokensLocked(_to, _reason) == 0, ALREADY_LOCKED);
@@ -193,7 +195,7 @@ contract LockableToken is ERC20, ERC1132 {
     view
     returns (uint256 amount)
   {
-    //solhint-disable-next-line
+    // solium-disable-next-line security/no-block-members
     if (locked[_of][_reason].validity <= now && 
       !locked[_of][_reason].claimed) 
       amount = locked[_of][_reason].amount;

@@ -57,11 +57,7 @@ contract('LockableToken', ([owner, receiver, spender]) => {
     assert.equal(0, actualLockedAmount.toNumber());
 
     const transferAmount = 1;
-    const {
-      logs
-    } = await token.transfer(receiver, transferAmount, {
-      from: owner
-    });
+    const { logs } = await token.transfer(receiver, transferAmount);
     const newSenderBalance = await token.balanceOf(owner);
     const newReceiverBalance = await token.balanceOf(receiver);
     assert.equal(newReceiverBalance.toNumber(), transferAmount);
