@@ -44,7 +44,7 @@ contract LockableToken is ERC20, ERC1132 {
 
     locked[msg.sender][_reason] = LockToken(_amount, validUntil, false);
 
-    emit TokensLocked(
+    emit Locked(
       msg.sender,
       _reason, 
       _amount, 
@@ -82,7 +82,7 @@ contract LockableToken is ERC20, ERC1132 {
 
     locked[_to][_reason] = LockToken(_amount, validUntil, false);
     
-    emit TokensLocked(
+    emit Locked(
       _to, 
       _reason, 
       _amount, 
@@ -153,7 +153,7 @@ contract LockableToken is ERC20, ERC1132 {
 
     locked[msg.sender][_reason].validity += _time;
 
-    emit TokensLocked(
+    emit Locked(
       msg.sender, _reason, 
       locked[msg.sender][_reason].amount, 
       locked[msg.sender][_reason].validity
@@ -175,7 +175,7 @@ contract LockableToken is ERC20, ERC1132 {
 
     locked[msg.sender][_reason].amount += _amount;
 
-    emit TokensLocked(
+    emit Locked(
       msg.sender, _reason, 
       locked[msg.sender][_reason].amount,
       locked[msg.sender][_reason].validity
@@ -214,7 +214,7 @@ contract LockableToken is ERC20, ERC1132 {
       if (lockedTokens > 0) {
         unlockableTokens = unlockableTokens.add(lockedTokens);
         locked[_of][lockReason[_of][i]].claimed = true;
-        emit TokensUnlocked(_of, lockReason[_of][i], lockedTokens);
+        emit Unlocked(_of, lockReason[_of][i], lockedTokens);
       }
     } 
 
