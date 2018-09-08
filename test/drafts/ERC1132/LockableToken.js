@@ -1,5 +1,6 @@
 const LockableToken = artifacts.require('LockableToken');
 const { assertRevert } = require('../../helpers/assertRevert');
+const { increaseTime } = require('../../helpers/increaseTime');
 
 const supply = 1000;
 const lockReason = 'GOV';
@@ -13,25 +14,6 @@ const lockPeriod = 1000;
 let blockNumber = web3.eth.blockNumber;
 const lockTimestamp = web3.eth.getBlock(blockNumber).timestamp;
 let token;
-
-const increaseTime = function (duration) {
-  web3.currentProvider.sendAsync({
-    jsonrpc: '2.0',
-    method: 'evm_increaseTime',
-    params: [duration],
-    id: lockTimestamp
-  },
-  (err, resp) => {
-    if (!err) {
-      web3.currentProvider.send({
-        jsonrpc: '2.0',
-        method: 'evm_mine',
-        params: [],
-        id: lockTimestamp + 1
-      });
-    }
-  });
-};
 
 contract('LockableToken', ([owner, receiver, spender]) => {
   before(async () => {
