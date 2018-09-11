@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 
-import "../../contracts/math/Math.sol";
+import "../math/Math.sol";
 
 
 contract MathMock {
