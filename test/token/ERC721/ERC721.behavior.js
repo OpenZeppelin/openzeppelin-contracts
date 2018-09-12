@@ -2,7 +2,6 @@ const { shouldSupportInterfaces } = require('../../introspection/SupportsInterfa
 const { assertRevert } = require('../../helpers/assertRevert');
 const { decodeLogs } = require('../../helpers/decodeLogs');
 const { sendTransaction } = require('../../helpers/sendTransaction');
-const _ = require('lodash');
 
 const ERC721Receiver = artifacts.require('ERC721ReceiverMock.sol');
 const BigNumber = web3.BigNumber;
@@ -175,7 +174,9 @@ function shouldBehaveLikeERC721 (
 
           it('keeps same tokens by index', async function () {
             if (!this.token.tokenOfOwnerByIndex) return;
-            const tokensListed = await Promise.all(_.range(2).map(i => this.token.tokenOfOwnerByIndex(owner, i)));
+            const tokensListed = await Promise.all(
+              [0, 1].map(i => this.token.tokenOfOwnerByIndex(owner, i))
+            );
             tokensListed.map(t => t.toNumber()).should.have.members([firstTokenId, secondTokenId]);
           });
         });

@@ -1,9 +1,8 @@
-const _ = require('lodash');
 const ethjsABI = require('ethjs-abi');
 
 function findMethod (abi, name, args) {
   for (let i = 0; i < abi.length; i++) {
-    const methodArgs = _.map(abi[i].inputs, 'type').join(',');
+    const methodArgs = abi[i].inputs.map(input => input.type).join(',');
     if ((abi[i].name === name) && (methodArgs === args)) {
       return abi[i];
     }
