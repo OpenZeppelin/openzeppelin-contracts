@@ -21,8 +21,8 @@ contract ReentrancyGuard {
    * wrapper marked as `nonReentrant`.
    */
   modifier nonReentrant() {
-    _guardCounter += 1;
-    uint256 localCounter = _guardCounter;
+    uint256 localCounter = _guardCounter + 1;
+    _guardCounter = localCounter;
     _;
     require(localCounter == _guardCounter);
   }
