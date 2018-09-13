@@ -1,4 +1,5 @@
-const AutoIncrementing = artifacts.require('AutoIncrementingImpl');
+
+const Counter = artifacts.require('CounterImpl');
 
 require('chai')
   .use(require('chai-bignumber')(web3.BigNumber))
@@ -8,9 +9,9 @@ const EXPECTED = [1, 2, 3, 4];
 const KEY1 = web3.sha3('key1');
 const KEY2 = web3.sha3('key2');
 
-contract('AutoIncrementing', function ([_, owner]) {
+contract('Counter', function ([_, owner]) {
   beforeEach(async function () {
-    this.mock = await AutoIncrementing.new({ from: owner });
+    this.mock = await Counter.new({ from: owner });
   });
 
   context('custom key', async function () {
