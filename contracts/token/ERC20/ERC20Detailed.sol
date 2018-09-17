@@ -2,7 +2,6 @@ pragma solidity ^0.4.24;
 
 import "./IERC20.sol";
 
-
 /**
  * @title ERC20Detailed token
  * @dev The decimals are only for visualization purposes.

@@ -5,13 +5,11 @@ pragma solidity ^0.4.24;
 // solium-disable-next-line max-len
 import {BreakInvariantBounty, Target} from "../bounties/BreakInvariantBounty.sol";
 
-
 contract InsecureInvariantTargetMock is Target {
   function checkInvariant() public returns(bool) {
     return false;
   }
 }
-
 
 contract InsecureInvariantTargetBounty is BreakInvariantBounty {
   function _deployContract() internal returns (address) {

@@ -3,7 +3,6 @@ pragma solidity ^0.4.24;
 import "../math/SafeMath.sol";
 import "../ownership/Secondary.sol";
 
-
 /**
  * @title Escrow
  * @dev Base escrow contract, holds funds destinated to a payee until they

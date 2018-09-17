@@ -3,7 +3,6 @@ pragma solidity ^0.4.24;
 import "../../math/SafeMath.sol";
 import "../Crowdsale.sol";
 
-
 /**
  * @title TimedCrowdsale
  * @dev Crowdsale accepting contributions only within a time frame.

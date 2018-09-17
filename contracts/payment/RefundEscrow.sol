@@ -3,7 +3,6 @@ pragma solidity ^0.4.24;
 import "./ConditionalEscrow.sol";
 import "../ownership/Secondary.sol";
 
-
 /**
  * @title RefundEscrow
  * @dev Escrow that holds funds for a beneficiary, deposited from multiple parties.

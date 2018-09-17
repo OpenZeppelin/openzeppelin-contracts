@@ -2,7 +2,6 @@ pragma solidity ^0.4.24;
 
 import "../access/roles/MinterRole.sol";
 
-
 contract MinterRoleMock is MinterRole {
   function removeMinter(address account) public {
     _removeMinter(account);

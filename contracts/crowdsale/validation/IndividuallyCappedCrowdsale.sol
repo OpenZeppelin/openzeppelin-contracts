@@ -4,7 +4,6 @@ import "../../math/SafeMath.sol";
 import "../Crowdsale.sol";
 import "../../access/roles/CapperRole.sol";
 
-
 /**
  * @title IndividuallyCappedCrowdsale
  * @dev Crowdsale with per-beneficiary caps.

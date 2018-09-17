@@ -6,7 +6,6 @@ import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";
 import "../../introspection/ERC165.sol";
 
-
 /**
  * @title ERC721 Non-Fungible Token Standard basic implementation
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md

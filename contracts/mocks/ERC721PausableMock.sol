@@ -3,7 +3,6 @@ pragma solidity ^0.4.24;
 import "../token/ERC721/ERC721Pausable.sol";
 import "./PauserRoleMock.sol";
 
-
 /**
  * @title ERC721PausableMock
  * This mock just provides a public mint, burn and exists functions for testing purposes
