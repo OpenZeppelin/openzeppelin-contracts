@@ -12,7 +12,7 @@ contract SignerRole {
   Roles.Role private signers;
 
   constructor() public {
-    signers.add(msg.sender);
+    _addSigner(msg.sender);
   }
 
   modifier onlySigner() {
@@ -25,12 +25,16 @@ contract SignerRole {
   }
 
   function addSigner(address account) public onlySigner {
-    signers.add(account);
-    emit SignerAdded(account);
+    _addSigner(account);
   }
 
   function renounceSigner() public {
-    signers.remove(msg.sender);
+    _removeSigner(msg.sender);
+  }
+
+  function _addSigner(address account) internal {
+    signers.add(account);
+    emit SignerAdded(account);
   }
 
   function _removeSigner(address account) internal {
