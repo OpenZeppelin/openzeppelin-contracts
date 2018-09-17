@@ -3,6 +3,7 @@
   "version": "1.12.0",
   "description": "Secure Smart Contract library for Solidity",
   "files": [
+    "build",
     "contracts",
     "test"
   ],
