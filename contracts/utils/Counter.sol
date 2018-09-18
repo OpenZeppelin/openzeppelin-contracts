@@ -4,10 +4,10 @@ pragma solidity ^0.4.24;
 /**
  * @title Counter
  * @author Matt Condon (@shrugs)
- * @dev Provides an incrementing uint256 id acquired by the `Index#next` getter.
+ * @dev Provides an incrementing uint256 id acquired by the `Counter#next` getter.
  * Use this for issuing ERC721 ids or keeping track of request ids, anything you want, really.
  *
- * Include with `using Counter for Counter.Index;`
+ * Include with `using Counter for Counter.Counter;`
  * @notice Does not allow an Id of 0, which is popularly used to signify a null state in solidity.
  * Does not protect from overflows, but if you have 2^256 ids, you have other problems.
  * (But actually, it's generally impossible to increment a counter this many times, energy wise
@@ -15,11 +15,11 @@ pragma solidity ^0.4.24;
  */
 library Counter {
 
-  struct Index {
+  struct Counter {
     uint256 current; // default: 0
   }
 
-  function next(Index storage index)
+  function next(Counter storage index)
     internal
     returns (uint256)
   {
