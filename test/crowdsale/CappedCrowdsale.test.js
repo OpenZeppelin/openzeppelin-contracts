@@ -8,7 +8,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const CappedCrowdsale = artifacts.require('CappedCrowdsaleImpl');
+const CappedCrowdsaleImpl = artifacts.require('CappedCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
 contract('CappedCrowdsale', function ([_, wallet]) {
@@ -23,14 +23,14 @@ contract('CappedCrowdsale', function ([_, wallet]) {
 
   it('rejects a cap of zero', async function () {
     await expectThrow(
-      CappedCrowdsale.new(rate, wallet, this.token.address, 0),
+      CappedCrowdsaleImpl.new(rate, wallet, this.token.address, 0),
       EVMRevert,
     );
   });
 
   context('with crowdsale', function () {
     beforeEach(async function () {
-      this.crowdsale = await CappedCrowdsale.new(rate, wallet, this.token.address, cap);
+      this.crowdsale = await CappedCrowdsaleImpl.new(rate, wallet, this.token.address, cap);
       await this.token.transfer(this.crowdsale.address, tokenSupply);
     });
 

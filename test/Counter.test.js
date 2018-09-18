@@ -1,5 +1,5 @@
 
-const Counter = artifacts.require('CounterImpl');
+const CounterImpl = artifacts.require('CounterImpl');
 
 require('chai')
   .use(require('chai-bignumber')(web3.BigNumber))
@@ -11,7 +11,7 @@ const KEY2 = web3.sha3('key2');
 
 contract('Counter', function ([_, owner]) {
   beforeEach(async function () {
-    this.mock = await Counter.new({ from: owner });
+    this.mock = await CounterImpl.new({ from: owner });
   });
 
   context('custom key', async function () {

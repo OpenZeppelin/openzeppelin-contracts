@@ -11,7 +11,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const TimedCrowdsale = artifacts.require('TimedCrowdsaleImpl');
+const TimedCrowdsaleImpl = artifacts.require('TimedCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
 contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
@@ -32,20 +32,22 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
   });
 
   it('rejects an opening time in the past', async function () {
-    await expectThrow(TimedCrowdsale.new(
+    await expectThrow(TimedCrowdsaleImpl.new(
       (await latestTime()) - duration.days(1), this.closingTime, rate, wallet, this.token.address
     ), EVMRevert);
   });
 
   it('rejects a closing time before the opening time', async function () {
-    await expectThrow(TimedCrowdsale.new(
+    await expectThrow(TimedCrowdsaleImpl.new(
       this.openingTime, this.openingTime - duration.seconds(1), rate, wallet, this.token.address
     ), EVMRevert);
   });
 
   context('with crowdsale', function () {
     beforeEach(async function () {
-      this.crowdsale = await TimedCrowdsale.new(this.openingTime, this.closingTime, rate, wallet, this.token.address);
+      this.crowdsale = await TimedCrowdsaleImpl.new(
+        this.openingTime, this.closingTime, rate, wallet, this.token.address
+      );
       await this.token.transfer(this.crowdsale.address, tokenSupply);
     });
 

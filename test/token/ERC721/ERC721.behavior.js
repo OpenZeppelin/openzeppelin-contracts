@@ -3,7 +3,7 @@ const { assertRevert } = require('../../helpers/assertRevert');
 const { decodeLogs } = require('../../helpers/decodeLogs');
 const { sendTransaction } = require('../../helpers/sendTransaction');
 
-const ERC721Receiver = artifacts.require('ERC721ReceiverMock.sol');
+const ERC721ReceiverMock = artifacts.require('ERC721ReceiverMock.sol');
 const BigNumber = web3.BigNumber;
 
 require('chai')
@@ -237,7 +237,7 @@ function shouldBehaveLikeERC721 (
 
           describe('to a valid receiver contract', function () {
             beforeEach(async function () {
-              this.receiver = await ERC721Receiver.new(RECEIVER_MAGIC_VALUE, false);
+              this.receiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, false);
               this.toWhom = this.receiver.address;
             });
 
@@ -246,7 +246,7 @@ function shouldBehaveLikeERC721 (
             it('should call onERC721Received', async function () {
               const result = await transferFun.call(this, owner, this.receiver.address, tokenId, { from: owner });
               result.receipt.logs.length.should.be.equal(2);
-              const [log] = decodeLogs([result.receipt.logs[1]], ERC721Receiver, this.receiver.address);
+              const [log] = decodeLogs([result.receipt.logs[1]], ERC721ReceiverMock, this.receiver.address);
               log.event.should.be.equal('Received');
               log.args.operator.should.be.equal(owner);
               log.args.from.should.be.equal(owner);
@@ -261,7 +261,7 @@ function shouldBehaveLikeERC721 (
               result.receipt.logs.length.should.be.equal(2);
               const [log] = decodeLogs(
                 [result.receipt.logs[1]],
-                ERC721Receiver,
+                ERC721ReceiverMock,
                 this.receiver.address
               );
               log.event.should.be.equal('Received');
@@ -297,14 +297,14 @@ function shouldBehaveLikeERC721 (
 
         describe('to a receiver contract returning unexpected value', function () {
           it('reverts', async function () {
-            const invalidReceiver = await ERC721Receiver.new('0x42', false);
+            const invalidReceiver = await ERC721ReceiverMock.new('0x42', false);
             await assertRevert(this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner }));
           });
         });
 
         describe('to a receiver contract that throws', function () {
           it('reverts', async function () {
-            const invalidReceiver = await ERC721Receiver.new(RECEIVER_MAGIC_VALUE, true);
+            const invalidReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, true);
             await assertRevert(this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner }));
           });
         });
