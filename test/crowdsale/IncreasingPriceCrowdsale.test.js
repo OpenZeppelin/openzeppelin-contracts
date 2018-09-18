@@ -10,7 +10,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const IncreasingPriceCrowdsale = artifacts.require('IncreasingPriceCrowdsaleImpl');
+const IncreasingPriceCrowdsaleImpl = artifacts.require('IncreasingPriceCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
 contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser]) {
@@ -36,20 +36,20 @@ contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser])
     });
 
     it('rejects a final rate larger than the initial rate', async function () {
-      await assertRevert(IncreasingPriceCrowdsale.new(
+      await assertRevert(IncreasingPriceCrowdsaleImpl.new(
         this.startTime, this.closingTime, wallet, this.token.address, initialRate, initialRate.plus(1)
       ));
     });
 
     it('rejects a final rate of zero', async function () {
-      await assertRevert(IncreasingPriceCrowdsale.new(
+      await assertRevert(IncreasingPriceCrowdsaleImpl.new(
         this.startTime, this.closingTime, wallet, this.token.address, initialRate, 0
       ));
     });
 
     context('with crowdsale', function () {
       beforeEach(async function () {
-        this.crowdsale = await IncreasingPriceCrowdsale.new(
+        this.crowdsale = await IncreasingPriceCrowdsaleImpl.new(
           this.startTime, this.closingTime, wallet, this.token.address, initialRate, finalRate
         );
         await this.token.transfer(this.crowdsale.address, tokenSupply);
