@@ -2,7 +2,7 @@ const { assertRevert } = require('../../helpers/assertRevert');
 const expectEvent = require('../../helpers/expectEvent');
 const { ZERO_ADDRESS } = require('../../helpers/constants');
 
-const ERC20 = artifacts.require('ERC20Mock');
+const ERC20Mock = artifacts.require('ERC20Mock');
 
 const BigNumber = web3.BigNumber;
 
@@ -12,7 +12,7 @@ require('chai')
 
 contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
   beforeEach(async function () {
-    this.token = await ERC20.new(owner, 100);
+    this.token = await ERC20Mock.new(owner, 100);
   });
 
   describe('total supply', function () {
