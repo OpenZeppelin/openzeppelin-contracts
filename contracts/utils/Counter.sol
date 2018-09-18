@@ -23,7 +23,7 @@ library Counter {
     internal
     returns (uint256)
   {
-    index.current = index.current + 1;
+    index.current += 1;
     return index.current;
   }
 }
