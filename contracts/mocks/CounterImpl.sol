@@ -1,15 +1,15 @@
 pragma solidity ^0.4.24;
 
-import "../utils/Counter.sol";
+import "../drafts/Counter.sol";
 
 
 contract CounterImpl {
-  using Counter for Counter.Index;
+  using Counter for Counter.Counter;
 
   uint256 public theId;
 
   // use whatever key you want to track your counters
-  mapping(string => Counter.Index) private _counters;
+  mapping(string => Counter.Counter) private _counters;
 
   function doThing(string key)
     public
