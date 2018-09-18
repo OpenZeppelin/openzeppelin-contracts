@@ -1,6 +1,6 @@
-const { ethGetBalance, ethSendTransaction } = require('./helpers/web3');
-const expectEvent = require('./helpers/expectEvent');
-const { assertRevert } = require('./helpers/assertRevert');
+const { ethGetBalance, ethSendTransaction } = require('../helpers/web3');
+const expectEvent = require('../helpers/expectEvent');
+const { assertRevert } = require('../helpers/assertRevert');
 
 const SecureInvariantTargetBounty = artifacts.require('SecureInvariantTargetBounty');
 const InsecureInvariantTargetBounty = artifacts.require('InsecureInvariantTargetBounty');
