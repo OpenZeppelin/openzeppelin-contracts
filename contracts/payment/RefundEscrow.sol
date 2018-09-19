@@ -82,7 +82,7 @@ contract RefundEscrow is Secondary, ConditionalEscrow {
   /**
    * @dev Returns whether refundees can withdraw their deposits (be refunded).
    */
-  function withdrawalAllowed(address payee) public view returns (bool) {
+  function withdrawalAllowed() public view returns (bool) {
     return _state == State.Refunding;
   }
 }
