@@ -2,7 +2,6 @@ const { assertRevert } = require('../../helpers/assertRevert');
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
 const { shouldBehaveLikeMintAndBurnERC721 } = require('./ERC721MintBurn.behavior');
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
-const _ = require('lodash');
 
 const BigNumber = web3.BigNumber;
 const ERC721FullMock = artifacts.require('ERC721FullMock.sol');
@@ -173,7 +172,9 @@ contract('ERC721Full', function ([
 
         it('returns correct token IDs for target', async function () {
           (await this.token.balanceOf(another)).toNumber().should.be.equal(2);
-          const tokensListed = await Promise.all(_.range(2).map(i => this.token.tokenOfOwnerByIndex(another, i)));
+          const tokensListed = await Promise.all(
+            [0, 1].map(i => this.token.tokenOfOwnerByIndex(another, i))
+          );
           tokensListed.map(t => t.toNumber()).should.have.members([firstTokenId, secondTokenId]);
         });
 
@@ -186,7 +187,9 @@ contract('ERC721Full', function ([
 
     describe('tokenByIndex', function () {
       it('should return all tokens', async function () {
-        const tokensListed = await Promise.all(_.range(2).map(i => this.token.tokenByIndex(i)));
+        const tokensListed = await Promise.all(
+          [0, 1].map(i => this.token.tokenByIndex(i))
+        );
         tokensListed.map(t => t.toNumber()).should.have.members([firstTokenId, secondTokenId]);
       });
 
@@ -205,9 +208,10 @@ contract('ERC721Full', function ([
 
           (await this.token.totalSupply()).toNumber().should.be.equal(3);
 
-          const tokensListed = await Promise.all(_.range(3).map(i => this.token.tokenByIndex(i)));
-          const expectedTokens = _.filter(
-            [firstTokenId, secondTokenId, newTokenId, anotherNewTokenId],
+          const tokensListed = await Promise.all(
+            [0, 1, 2].map(i => this.token.tokenByIndex(i))
+          );
+          const expectedTokens = [firstTokenId, secondTokenId, newTokenId, anotherNewTokenId].filter(
             x => (x !== tokenId)
           );
           tokensListed.map(t => t.toNumber()).should.have.members(expectedTokens);

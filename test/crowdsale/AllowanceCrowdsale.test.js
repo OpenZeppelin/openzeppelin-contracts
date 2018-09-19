@@ -8,7 +8,7 @@ const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const AllowanceCrowdsale = artifacts.require('AllowanceCrowdsaleImpl');
+const AllowanceCrowdsaleImpl = artifacts.require('AllowanceCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
 contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenWallet]) {
@@ -20,7 +20,7 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
 
   beforeEach(async function () {
     this.token = await SimpleToken.new({ from: tokenWallet });
-    this.crowdsale = await AllowanceCrowdsale.new(rate, wallet, this.token.address, tokenWallet);
+    this.crowdsale = await AllowanceCrowdsaleImpl.new(rate, wallet, this.token.address, tokenWallet);
     await this.token.approve(this.crowdsale.address, tokenAllowance, { from: tokenWallet });
   });
 
@@ -73,7 +73,7 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
   describe('when token wallet is different from token address', function () {
     it('creation reverts', async function () {
       this.token = await SimpleToken.new({ from: tokenWallet });
-      await assertRevert(AllowanceCrowdsale.new(rate, wallet, this.token.address, ZERO_ADDRESS));
+      await assertRevert(AllowanceCrowdsaleImpl.new(rate, wallet, this.token.address, ZERO_ADDRESS));
     });
   });
 });

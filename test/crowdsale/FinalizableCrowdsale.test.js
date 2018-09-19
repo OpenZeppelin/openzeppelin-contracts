@@ -10,7 +10,7 @@ const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const FinalizableCrowdsale = artifacts.require('FinalizableCrowdsaleImpl');
+const FinalizableCrowdsaleImpl = artifacts.require('FinalizableCrowdsaleImpl');
 const ERC20 = artifacts.require('ERC20');
 
 contract('FinalizableCrowdsale', function ([_, wallet, anyone]) {
@@ -27,7 +27,7 @@ contract('FinalizableCrowdsale', function ([_, wallet, anyone]) {
     this.afterClosingTime = this.closingTime + duration.seconds(1);
 
     this.token = await ERC20.new();
-    this.crowdsale = await FinalizableCrowdsale.new(
+    this.crowdsale = await FinalizableCrowdsaleImpl.new(
       this.openingTime, this.closingTime, rate, wallet, this.token.address
     );
   });
