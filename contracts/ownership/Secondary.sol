@@ -1,6 +1,5 @@
 pragma solidity ^0.4.24;
 
-
 /**
  * @title Secondary
  * @dev A Secondary contract can only be used by its primary account (the one that created it)

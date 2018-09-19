@@ -2,7 +2,6 @@ pragma solidity ^0.4.24;
 
 import "../../introspection/IERC165.sol";
 
-
 /**
  * https://github.com/ethereum/EIPs/blob/master/EIPS/eip-214.md#specification
  * > Any attempts to make state-changing operations inside an execution instance with STATIC set to true will instead throw an exception.
@@ -55,8 +54,6 @@ contract SupportsInterfaceWithLookupMock is IERC165 {
     supportedInterfaces[interfaceId] = true;
   }
 }
-
-
 
 contract ERC165InterfacesSupported is SupportsInterfaceWithLookupMock {
   constructor (bytes4[] interfaceIds)

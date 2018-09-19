@@ -4,7 +4,6 @@ import "../token/ERC20/IERC20.sol";
 import "../math/SafeMath.sol";
 import "../token/ERC20/SafeERC20.sol";
 
-
 /**
  * @title Crowdsale
  * @dev Crowdsale is a base contract for managing a token crowdsale,

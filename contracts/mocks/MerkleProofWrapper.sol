@@ -2,7 +2,6 @@ pragma solidity ^0.4.24;
 
 import { MerkleProof } from "../cryptography/MerkleProof.sol";
 
-
 contract MerkleProofWrapper {
 
   function verify(

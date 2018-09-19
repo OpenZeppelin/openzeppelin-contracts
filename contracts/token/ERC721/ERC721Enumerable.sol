@@ -4,7 +4,6 @@ import "./IERC721Enumerable.sol";
 import "./ERC721.sol";
 import "../../introspection/ERC165.sol";
 
-
 contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
   // Mapping from owner to list of owned token IDs
   mapping(address => uint256[]) private _ownedTokens;

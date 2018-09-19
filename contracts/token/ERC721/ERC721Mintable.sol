@@ -3,7 +3,6 @@ pragma solidity ^0.4.24;
 import "./ERC721.sol";
 import "../../access/roles/MinterRole.sol";
 
-
 /**
  * @title ERC721Mintable
  * @dev ERC721 minting logic

@@ -1,6 +1,5 @@
 pragma solidity ^0.4.24;
 
-
 /**
  * @title IERC165
  * @dev https://github.com/ethereum/EIPs/blob/master/EIPS/eip-165.md

@@ -2,7 +2,6 @@ pragma solidity ^0.4.24;
 
 import "./Escrow.sol";
 
-
 /**
  * @title ConditionalEscrow
  * @dev Base abstract escrow to only allow withdrawal if a condition is met.

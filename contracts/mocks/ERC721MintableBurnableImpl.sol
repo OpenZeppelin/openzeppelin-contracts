@@ -5,7 +5,6 @@ import "../token/ERC721/ERC721Mintable.sol";
 import "../token/ERC721/ERC721MetadataMintable.sol";
 import "../token/ERC721/ERC721Burnable.sol";
 
-
 /**
  * @title ERC721MintableBurnableImpl
  */

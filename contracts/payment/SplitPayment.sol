@@ -2,7 +2,6 @@ pragma solidity ^0.4.24;
 
 import "../math/SafeMath.sol";
 
-
 /**
  * @title SplitPayment
  * @dev This contract can be used when payments need to be received by a group

@@ -1,8 +1,6 @@
 pragma solidity ^0.4.24;
 
-
 import "../math/Math.sol";
-
 
 contract MathMock {
   function max(uint256 a, uint256 b) public pure returns (uint256) {

@@ -2,7 +2,6 @@ pragma solidity ^0.4.24;
 
 import "../access/roles/PauserRole.sol";
 
-
 /**
  * @title Pausable
  * @dev Base contract which allows children to implement an emergency stop mechanism.
@@ -12,7 +11,6 @@ contract Pausable is PauserRole {
   event Unpaused();
 
   bool private _paused = false;
-
 
   /**
    * @return true if the contract is paused, false otherwise.

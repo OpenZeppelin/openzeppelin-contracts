@@ -2,7 +2,6 @@ pragma solidity ^0.4.24;
 
 import "./ERC20.sol";
 
-
 /**
  * @title Burnable Token
  * @dev Token that can be irreversibly burned (destroyed).

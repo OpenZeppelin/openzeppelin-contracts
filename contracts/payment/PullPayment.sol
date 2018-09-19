@@ -2,7 +2,6 @@ pragma solidity ^0.4.24;
 
 import "./Escrow.sol";
 
-
 /**
  * @title PullPayment
  * @dev Base contract supporting async send for pull payments. Inherit from this
