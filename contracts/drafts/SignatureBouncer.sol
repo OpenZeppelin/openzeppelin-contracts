@@ -3,7 +3,6 @@ pragma solidity ^0.4.24;
 import "../access/roles/SignerRole.sol";
 import "../cryptography/ECDSA.sol";
 
-
 /**
  * @title SignatureBouncer
  * @author PhABC, Shrugs and aflesher

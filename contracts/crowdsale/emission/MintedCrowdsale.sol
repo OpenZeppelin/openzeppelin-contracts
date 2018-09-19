@@ -3,7 +3,6 @@ pragma solidity ^0.4.24;
 import "../Crowdsale.sol";
 import "../../token/ERC20/ERC20Mintable.sol";
 
-
 /**
  * @title MintedCrowdsale
  * @dev Extension of Crowdsale contract whose tokens are minted in each purchase.

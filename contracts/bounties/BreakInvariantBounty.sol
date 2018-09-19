@@ -1,9 +1,7 @@
 pragma solidity ^0.4.24;
 
-
 import "../payment/PullPayment.sol";
 import "../ownership/Ownable.sol";
-
 
 /**
  * @title BreakInvariantBounty
@@ -69,7 +67,6 @@ contract BreakInvariantBounty is PullPayment, Ownable {
   function _deployContract() internal returns(address);
 
 }
-
 
 /**
  * @title Target

@@ -2,7 +2,6 @@ pragma solidity ^0.4.24;
 
 import "../access/roles/CapperRole.sol";
 
-
 contract CapperRoleMock is CapperRole {
   function removeCapper(address account) public {
     _removeCapper(account);

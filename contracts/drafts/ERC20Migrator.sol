@@ -5,7 +5,6 @@ import "../token/ERC20/ERC20Mintable.sol";
 import "../token/ERC20/SafeERC20.sol";
 import "../math/Math.sol";
 
-
 /**
  * @title ERC20Migrator
  * @dev This contract can be used to migrate an ERC20 token from one

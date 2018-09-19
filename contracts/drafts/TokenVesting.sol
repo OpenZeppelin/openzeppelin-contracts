@@ -6,7 +6,6 @@ import "../token/ERC20/SafeERC20.sol";
 import "../ownership/Ownable.sol";
 import "../math/SafeMath.sol";
 
-
 /**
  * @title TokenVesting
  * @dev A token holder contract that can release its token balance gradually like a

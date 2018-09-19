@@ -1,6 +1,5 @@
 pragma solidity ^0.4.24;
 
-
 // @title Force Ether into a contract.
 // @notice  even
 // if the contract is not payable.

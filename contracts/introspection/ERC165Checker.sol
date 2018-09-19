@@ -1,6 +1,5 @@
 pragma solidity ^0.4.24;
 
-
 /**
  * @title ERC165Checker
  * @dev Use `using ERC165Checker for address`; to include this library
@@ -15,7 +14,6 @@ library ERC165Checker {
    * 0x01ffc9a7 ===
    *   bytes4(keccak256('supportsInterface(bytes4)'))
    */
-
 
   /**
    * @notice Query if a contract supports ERC165

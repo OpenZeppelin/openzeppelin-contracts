@@ -3,7 +3,6 @@ pragma solidity ^0.4.24;
 import "../../math/SafeMath.sol";
 import "../Crowdsale.sol";
 
-
 /**
  * @title CappedCrowdsale
  * @dev Crowdsale with a limit for total contributions.

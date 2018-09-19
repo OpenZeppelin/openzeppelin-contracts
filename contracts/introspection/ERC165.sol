@@ -2,7 +2,6 @@ pragma solidity ^0.4.24;
 
 import "./IERC165.sol";
 
-
 /**
  * @title ERC165
  * @author Matt Condon (@shrugs)

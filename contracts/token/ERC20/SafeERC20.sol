@@ -3,7 +3,6 @@ pragma solidity ^0.4.24;
 import "./ERC20.sol";
 import "./IERC20.sol";
 
-
 /**
  * @title SafeERC20
  * @dev Wrappers around ERC20 operations that throw on failure.

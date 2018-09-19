@@ -2,7 +2,6 @@ pragma solidity ^0.4.24;
 
 import "../Roles.sol";
 
-
 contract PauserRole {
   using Roles for Roles.Role;
 

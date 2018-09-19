@@ -5,7 +5,6 @@ import "../crowdsale/distribution/RefundableCrowdsale.sol";
 import "../crowdsale/emission/MintedCrowdsale.sol";
 import "../token/ERC20/ERC20Mintable.sol";
 
-
 /**
  * @title SampleCrowdsaleToken
  * @dev Very simple ERC20 Token that can be minted.
@@ -17,7 +16,6 @@ contract SampleCrowdsaleToken is ERC20Mintable {
   string public constant symbol = "SCT";
   uint8 public constant decimals = 18;
 }
-
 
 /**
  * @title SampleCrowdsale

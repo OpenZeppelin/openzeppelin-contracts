@@ -2,7 +2,6 @@ pragma solidity ^0.4.24;
 
 import "../access/roles/PauserRole.sol";
 
-
 contract PauserRoleMock is PauserRole {
   function removePauser(address account) public {
     _removePauser(account);
