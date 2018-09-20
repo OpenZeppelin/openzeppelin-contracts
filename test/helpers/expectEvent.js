@@ -1,4 +1,5 @@
 const should = require('chai').should();
+const _ = require('lodash');
 
 function inLogs (logs, eventName, eventArgs = {}) {
   const event = logs.find(function (e) {
@@ -6,7 +7,7 @@ function inLogs (logs, eventName, eventArgs = {}) {
       let matches = true;
 
       for (const [k, v] of Object.entries(eventArgs)) {
-        if (e.args[k] !== v) {
+        if (!_.isEqual(e.args[k], v)) {
           matches = false;
         }
       }
