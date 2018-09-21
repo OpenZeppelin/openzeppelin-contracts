@@ -1,5 +1,4 @@
 const should = require('chai').should();
-const _ = require('lodash');
 
 function inLogs (logs, eventName, eventArgs = {}) {
   const event = logs.find(function (e) {
@@ -7,7 +6,7 @@ function inLogs (logs, eventName, eventArgs = {}) {
       let matches = true;
 
       for (const [k, v] of Object.entries(eventArgs)) {
-        if (!_.isEqual(e.args[k], v)) {
+        if (toSimpleValue(e.args[k]) !== toSimpleValue(v)) {
           matches = false;
         }
       }
@@ -26,6 +25,16 @@ function inLogs (logs, eventName, eventArgs = {}) {
 async function inTransaction (tx, eventName, eventArgs = {}) {
   const { logs } = await tx;
   return inLogs(logs, eventName, eventArgs);
+}
+
+function toSimpleValue (value) {
+  return isBigNumber(value)
+    ? value.toNumber()
+    : value;
+}
+
+function isBigNumber (value) {
+  return value.constructor.name === 'BigNumber';
 }
 
 module.exports = {
