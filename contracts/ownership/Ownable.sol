@@ -1,12 +1,13 @@
 pragma solidity ^0.4.24;
 
+import "../Initializable.sol";
 
 /**
  * @title Ownable
  * @dev The Ownable contract has an owner address, and provides basic authorization control
  * functions, this simplifies the implementation of "user permissions".
  */
-contract Ownable {
+contract Ownable is Initializable {
   address private _owner;
 
 
@@ -21,7 +22,7 @@ contract Ownable {
    * @dev The Ownable constructor sets the original `owner` of the contract to the sender
    * account.
    */
-  constructor() public {
+  function initialize() public initializer {
     _owner = msg.sender;
   }
 
