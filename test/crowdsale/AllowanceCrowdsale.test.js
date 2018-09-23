@@ -41,9 +41,9 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
 
   describe('high-level purchase', function () {
     it('should log purchase', async function () {
-      const transaction = await this.crowdsale.sendTransaction({ value: value, from: investor });
+      const { logs } = await this.crowdsale.sendTransaction({ value: value, from: investor });
       expectEvent.inLogs(
-        transaction.logs,
+        logs,
         'TokensPurchased',
         {
           purchaser: investor,
