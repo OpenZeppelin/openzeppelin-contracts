@@ -38,11 +38,6 @@ contract('ERC20Snapshot', function ([_, owner, recipient, spender]) {
         (await this.token.balanceOf(owner)).should.be.bignumber.equal(90);
         (await this.token.balanceOf(recipient)).should.be.bignumber.equal(10);
       });
-
-      it('snapshots do not exist', async function () {
-        (await this.token.snapshotsLength(owner)).should.be.bignumber.equal(0);
-        (await this.token.snapshotsLength(recipient)).should.be.bignumber.equal(0);
-      });
     });
   });
 
@@ -107,6 +102,34 @@ contract('ERC20Snapshot', function ([_, owner, recipient, spender]) {
       it('spender and recipient snapshot is stored', async function () {
         (await this.token.balanceOfAt(owner, 1)).should.be.bignumber.equal(100);
         (await this.token.balanceOfAt(recipient, 1)).should.be.bignumber.equal(0);
+      });
+    });
+
+    describe('new tokens are minted', function () {
+      beforeEach(async function () {
+        await this.token.mint(owner, 50);
+      });
+
+      it('snapshot keeps balance before mint', async function () {
+        (await this.token.balanceOfAt(owner, 1)).should.be.bignumber.equal(100);
+      });
+
+      it('current balance is greater after mint', async function () {
+        (await this.token.balanceOf(owner)).should.be.bignumber.equal(150);
+      });
+    });
+
+    describe('chunk tokens are burned', function () {
+      beforeEach(async function () {
+        await this.token.burn(owner, 30);
+      });
+
+      it('snapshot keeps balance before burn', async function () {
+        (await this.token.balanceOfAt(owner, 1)).should.be.bignumber.equal(100);
+      });
+
+      it('crrent balance is lower after burn', async function () {
+        (await this.token.balanceOf(owner)).should.be.bignumber.equal(70);
       });
     });
   });
