@@ -31,10 +31,11 @@ function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
       });
 
       it('emits a deposited event', async function () {
-        const receipt = await this.escrow.deposit(payee1, { from: primary, value: amount });
-
-        const event = expectEvent.inLogs(receipt.logs, 'Deposited', { payee: payee1 });
-        event.args.weiAmount.should.be.bignumber.equal(amount);
+        const { logs } = await this.escrow.deposit(payee1, { from: primary, value: amount });
+        expectEvent.inLogs(logs, 'Deposited', {
+          payee: payee1,
+          weiAmount: amount
+        });
       });
 
       it('can add multiple deposits on a single account', async function () {
@@ -83,10 +84,11 @@ function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
 
       it('emits a withdrawn event', async function () {
         await this.escrow.deposit(payee1, { from: primary, value: amount });
-        const receipt = await this.escrow.withdraw(payee1, { from: primary });
-
-        const event = expectEvent.inLogs(receipt.logs, 'Withdrawn', { payee: payee1 });
-        event.args.weiAmount.should.be.bignumber.equal(amount);
+        const { logs } = await this.escrow.withdraw(payee1, { from: primary });
+        expectEvent.inLogs(logs, 'Withdrawn', {
+          payee: payee1,
+          weiAmount: amount
+        });
       });
     });
   });

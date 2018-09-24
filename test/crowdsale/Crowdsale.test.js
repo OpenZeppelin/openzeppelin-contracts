@@ -1,10 +1,11 @@
+const expectEvent = require('../helpers/expectEvent');
 const { assertRevert } = require('../helpers/assertRevert');
 const { ether } = require('../helpers/ether');
 const { ethGetBalance } = require('../helpers/web3');
 
 const BigNumber = web3.BigNumber;
 
-const should = require('chai')
+require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
@@ -82,12 +83,12 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
       describe('high-level purchase', function () {
         it('should log purchase', async function () {
           const { logs } = await this.crowdsale.sendTransaction({ value: value, from: investor });
-          const event = logs.find(e => e.event === 'TokensPurchased');
-          should.exist(event);
-          event.args.purchaser.should.equal(investor);
-          event.args.beneficiary.should.equal(investor);
-          event.args.value.should.be.bignumber.equal(value);
-          event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
+          expectEvent.inLogs(logs, 'TokensPurchased', {
+            purchaser: investor,
+            beneficiary: investor,
+            value: value,
+            amount: expectedTokenAmount
+          });
         });
 
         it('should assign tokens to sender', async function () {
@@ -106,12 +107,12 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
       describe('low-level purchase', function () {
         it('should log purchase', async function () {
           const { logs } = await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
-          const event = logs.find(e => e.event === 'TokensPurchased');
-          should.exist(event);
-          event.args.purchaser.should.equal(purchaser);
-          event.args.beneficiary.should.equal(investor);
-          event.args.value.should.be.bignumber.equal(value);
-          event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
+          expectEvent.inLogs(logs, 'TokensPurchased', {
+            purchaser: purchaser,
+            beneficiary: investor,
+            value: value,
+            amount: expectedTokenAmount
+          });
         });
 
         it('should assign tokens to beneficiary', async function () {

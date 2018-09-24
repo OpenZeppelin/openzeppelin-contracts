@@ -42,8 +42,7 @@ function shouldBehaveLikeERC20Mintable (minter, [anyone]) {
 
           it('emits a mint finished event', async function () {
             const { logs } = await this.token.finishMinting({ from });
-
-            await expectEvent.inLogs(logs, 'MintingFinished');
+            expectEvent.inLogs(logs, 'MintingFinished');
           });
         });
 
@@ -104,11 +103,11 @@ function shouldBehaveLikeERC20Mintable (minter, [anyone]) {
             });
 
             it('emits a mint and a transfer event', async function () {
-              const transferEvent = expectEvent.inLogs(this.logs, 'Transfer', {
+              expectEvent.inLogs(this.logs, 'Transfer', {
                 from: ZERO_ADDRESS,
                 to: anyone,
+                value: amount
               });
-              transferEvent.args.value.should.be.bignumber.equal(amount);
             });
           }
         });

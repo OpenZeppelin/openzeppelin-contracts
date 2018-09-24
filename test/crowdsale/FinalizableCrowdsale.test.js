@@ -1,3 +1,4 @@
+const expectEvent = require('../helpers/expectEvent');
 const { advanceBlock } = require('../helpers/advanceToBlock');
 const { increaseTimeTo, duration } = require('../helpers/increaseTime');
 const { latestTime } = require('../helpers/latestTime');
@@ -6,7 +7,7 @@ const { EVMRevert } = require('../helpers/EVMRevert');
 
 const BigNumber = web3.BigNumber;
 
-const should = require('chai')
+require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
@@ -50,7 +51,6 @@ contract('FinalizableCrowdsale', function ([_, wallet, anyone]) {
   it('logs finalized', async function () {
     await increaseTimeTo(this.afterClosingTime);
     const { logs } = await this.crowdsale.finalize({ from: anyone });
-    const event = logs.find(e => e.event === 'CrowdsaleFinalized');
-    should.exist(event);
+    expectEvent.inLogs(logs, 'CrowdsaleFinalized');
   });
 });

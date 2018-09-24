@@ -42,11 +42,11 @@ function shouldBehaveLikeMintAndBurnERC721 (
         });
 
         it('emits a transfer and minted event', async function () {
-          await expectEvent.inLogs(logs, 'Transfer', {
+          expectEvent.inLogs(logs, 'Transfer', {
             from: ZERO_ADDRESS,
             to: newOwner,
+            tokenId: thirdTokenId
           });
-          logs[0].args.tokenId.should.be.bignumber.equal(thirdTokenId);
         });
       });
 
@@ -87,11 +87,11 @@ function shouldBehaveLikeMintAndBurnERC721 (
         });
 
         it('emits a burn event', async function () {
-          logs.length.should.be.equal(1);
-          logs[0].event.should.be.equal('Transfer');
-          logs[0].args.from.should.be.equal(owner);
-          logs[0].args.to.should.be.equal(ZERO_ADDRESS);
-          logs[0].args.tokenId.should.be.bignumber.equal(tokenId);
+          expectEvent.inLogs(logs, 'Transfer', {
+            from: owner,
+            to: ZERO_ADDRESS,
+            tokenId: tokenId
+          });
         });
       });
 
