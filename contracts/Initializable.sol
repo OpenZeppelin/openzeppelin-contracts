@@ -29,7 +29,7 @@ contract Initializable {
    * @dev Modifier to use in the initializer function of a contract.
    */
   modifier initializer() {
-    require(initializing || !initialized, "Contract instance has already been initialized");
+    require(initializing || isConstructor() || !initialized, "Contract instance has already been initialized");
 
     bool wasInitializing = initializing;
     initializing = true;
@@ -38,5 +38,12 @@ contract Initializable {
     _;
 
     initializing = wasInitializing;
+  }
+
+  /// @dev Returns true if and only if the function is running in the constructor
+  function isConstructor() private view returns (bool) {
+    uint cs;
+    assembly { cs := extcodesize(address) }
+    return cs == 0;
   }
 }
