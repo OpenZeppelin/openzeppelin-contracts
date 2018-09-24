@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../Initializable.sol";
 import "./IERC165.sol";
 
 
@@ -8,7 +9,7 @@ import "./IERC165.sol";
  * @author Matt Condon (@shrugs)
  * @dev Implements ERC165 using a lookup table.
  */
-contract ERC165 is IERC165 {
+contract ERC165 is Initializable, IERC165 {
 
   bytes4 private constant _InterfaceId_ERC165 = 0x01ffc9a7;
   /**
@@ -25,8 +26,9 @@ contract ERC165 is IERC165 {
    * @dev A contract implementing SupportsInterfaceWithLookup
    * implement ERC165 itself
    */
-  constructor()
+  function initialize()
     public
+    initializer
   {
     _registerInterface(_InterfaceId_ERC165);
   }
