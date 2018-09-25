@@ -1,17 +1,18 @@
 pragma solidity ^0.4.24;
 
+import "../Initializable.sol";
 
 /**
  * @title Secondary
  * @dev A Secondary contract can only be used by its primary account (the one that created it)
  */
-contract Secondary {
+contract Secondary is Initializable {
   address private _primary;
 
   /**
    * @dev Sets the primary account to the one that is creating the Secondary contract.
    */
-  constructor() public {
+  function initialize() public initializer {
     _primary = msg.sender;
   }
 
