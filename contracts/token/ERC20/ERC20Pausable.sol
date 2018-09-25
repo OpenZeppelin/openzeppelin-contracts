@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../../Initializable.sol";
 import "./ERC20.sol";
 import "../../lifecycle/Pausable.sol";
 
@@ -8,7 +9,11 @@ import "../../lifecycle/Pausable.sol";
  * @title Pausable token
  * @dev ERC20 modified with pausable transfers.
  **/
-contract ERC20Pausable is ERC20, Pausable {
+contract ERC20Pausable is Initializable, ERC20, Pausable {
+
+  function initialize() public initializer {
+    Pausable.initialize();
+  }
 
   function transfer(
     address to,
