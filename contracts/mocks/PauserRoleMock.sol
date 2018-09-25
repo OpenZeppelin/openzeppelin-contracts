@@ -1,9 +1,14 @@
 pragma solidity ^0.4.24;
 
+import "../Initializable.sol";
 import "../access/roles/PauserRole.sol";
 
 
-contract PauserRoleMock is PauserRole {
+contract PauserRoleMock is Initializable, PauserRole {
+  constructor() public {
+    PauserRole.initialize();
+  }
+
   function removePauser(address account) public {
     _removePauser(account);
   }

@@ -1,9 +1,10 @@
 pragma solidity ^0.4.24;
 
+import "../../Initializable.sol";
 import "../Roles.sol";
 
 
-contract PauserRole {
+contract PauserRole is Initializable {
   using Roles for Roles.Role;
 
   event PauserAdded(address indexed account);
@@ -11,7 +12,7 @@ contract PauserRole {
 
   Roles.Role private pausers;
 
-  constructor() public {
+  function initialize() public initializer {
     pausers.add(msg.sender);
   }
 
