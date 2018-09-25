@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../../Initializable.sol";
 import "./ERC721Full.sol";
 import "../../access/roles/MinterRole.sol";
 
@@ -8,7 +9,7 @@ import "../../access/roles/MinterRole.sol";
  * @title ERC721Mintable
  * @dev ERC721 minting logic
  */
-contract ERC721Mintable is ERC721Full, MinterRole {
+contract ERC721Mintable is Initializable, ERC721Full, MinterRole {
   event MintingFinished();
 
   bool private _mintingFinished = false;
@@ -16,6 +17,10 @@ contract ERC721Mintable is ERC721Full, MinterRole {
   modifier onlyBeforeMintingFinished() {
     require(!_mintingFinished);
     _;
+  }
+
+  function initialize() public initializer {
+    MinterRole.initialize();
   }
 
   /**
