@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../../Initializable.sol";
 import "./IERC20.sol";
 
 
@@ -9,12 +10,12 @@ import "./IERC20.sol";
  * All the operations are done using the smallest and indivisible token unit,
  * just as on Ethereum all the operations are done in wei.
  */
-contract ERC20Detailed is IERC20 {
+contract ERC20Detailed is Initializable, IERC20 {
   string private _name;
   string private _symbol;
   uint8 private _decimals;
 
-  constructor(string name, string symbol, uint8 decimals) public {
+  function initialize(string name, string symbol, uint8 decimals) public initializer {
     _name = name;
     _symbol = symbol;
     _decimals = decimals;
