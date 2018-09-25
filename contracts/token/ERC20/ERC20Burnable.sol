@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../../Initializable.sol";
 import "./ERC20.sol";
 
 
@@ -7,7 +8,7 @@ import "./ERC20.sol";
  * @title Burnable Token
  * @dev Token that can be irreversibly burned (destroyed).
  */
-contract ERC20Burnable is ERC20 {
+contract ERC20Burnable is Initializable, ERC20 {
 
   /**
    * @dev Burns a specific amount of tokens.
