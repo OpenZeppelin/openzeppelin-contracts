@@ -1,6 +1,6 @@
 const { shouldBehaveLikeEscrow } = require('./Escrow.behavior');
 
-const Escrow = artifacts.require('Escrow');
+const Escrow = artifacts.require('EscrowMock');
 
 contract('Escrow', function ([_, primary, ...otherAccounts]) {
   beforeEach(async function () {
