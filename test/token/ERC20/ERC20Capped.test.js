@@ -3,7 +3,7 @@ const { ether } = require('../../helpers/ether');
 const { shouldBehaveLikeERC20Mintable } = require('./behaviors/ERC20Mintable.behavior');
 const { shouldBehaveLikeERC20Capped } = require('./behaviors/ERC20Capped.behavior');
 
-const ERC20Capped = artifacts.require('ERC20Capped');
+const ERC20Capped = artifacts.require('ERC20CappedMock');
 
 contract('ERC20Capped', function ([_, minter, ...otherAccounts]) {
   const cap = ether(1000);
