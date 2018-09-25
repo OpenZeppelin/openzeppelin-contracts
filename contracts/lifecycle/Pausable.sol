@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../Initializable.sol";
 import "../access/roles/PauserRole.sol";
 
 
@@ -7,12 +8,15 @@ import "../access/roles/PauserRole.sol";
  * @title Pausable
  * @dev Base contract which allows children to implement an emergency stop mechanism.
  */
-contract Pausable is PauserRole {
+contract Pausable is Initializable, PauserRole {
   event Paused();
   event Unpaused();
 
   bool private _paused = false;
 
+  function initialize() public initializer {
+    PauserRole.initialize();
+  }
 
   /**
    * @return true if the contract is paused, false otherwise.
