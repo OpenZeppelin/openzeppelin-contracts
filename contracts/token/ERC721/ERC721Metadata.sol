@@ -1,11 +1,12 @@
 pragma solidity ^0.4.24;
 
+import "../../Initializable.sol";
 import "./ERC721.sol";
 import "./IERC721Metadata.sol";
 import "../../introspection/ERC165.sol";
 
 
-contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
+contract ERC721Metadata is Initializable, ERC165, ERC721, IERC721Metadata {
   // Token name
   string internal _name;
 
@@ -26,7 +27,10 @@ contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
   /**
    * @dev Constructor function
    */
-  constructor(string name, string symbol) public {
+  function initialize(string name, string symbol) public initializer {
+    ERC165.initialize();
+    ERC721.initialize();
+
     _name = name;
     _symbol = symbol;
 

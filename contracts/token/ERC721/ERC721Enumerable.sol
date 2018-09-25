@@ -1,11 +1,12 @@
 pragma solidity ^0.4.24;
 
+import "../../Initializable.sol";
 import "./IERC721Enumerable.sol";
 import "./ERC721.sol";
 import "../../introspection/ERC165.sol";
 
 
-contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
+contract ERC721Enumerable is Initializable, ERC165, ERC721, IERC721Enumerable {
   // Mapping from owner to list of owned token IDs
   mapping(address => uint256[]) private _ownedTokens;
 
@@ -29,7 +30,10 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
   /**
    * @dev Constructor function
    */
-  constructor() public {
+  function initialize() public initializer {
+    ERC165.initialize();
+    ERC721.initialize();
+
     // register the supported interface to conform to ERC721 via ERC165
     _registerInterface(_InterfaceId_ERC721Enumerable);
   }

@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../Initializable.sol";
 import "../token/ERC721/ERC721Full.sol";
 import "../token/ERC721/ERC721Mintable.sol";
 import "../token/ERC721/ERC721Burnable.sol";
@@ -10,11 +11,12 @@ import "../token/ERC721/ERC721Burnable.sol";
  * This mock just provides a public mint and burn functions for testing purposes,
  * and a public setter for metadata URI
  */
-contract ERC721FullMock is ERC721Full, ERC721Mintable, ERC721Burnable {
+contract ERC721FullMock is Initializable, ERC721Full, ERC721Mintable, ERC721Burnable {
   constructor(string name, string symbol) public
-    ERC721Mintable()
-    ERC721Full(name, symbol)
-  {}
+  {
+    ERC721Full.initialize(name, symbol);
+    ERC721Mintable.initialize();
+  }
 
   function exists(uint256 tokenId) public view returns (bool) {
     return _exists(tokenId);
