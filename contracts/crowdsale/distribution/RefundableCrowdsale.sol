@@ -15,29 +15,37 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
   using SafeMath for uint256;
 
   // minimum amount of funds to be raised in weis
-  uint256 public goal;
+  uint256 private _goal;
 
   // refund escrow used to hold funds while crowdsale is running
-  RefundEscrow private escrow;
+  RefundEscrow private _escrow;
 
   /**
    * @dev Constructor, creates RefundEscrow.
-   * @param _goal Funding goal
+   * @param goal Funding goal
    */
-  constructor(uint256 _goal) public {
-    require(_goal > 0);
-    escrow = new RefundEscrow(wallet);
-    goal = _goal;
+  constructor(uint256 goal) public {
+    require(goal > 0);
+    _escrow = new RefundEscrow(wallet());
+    _goal = goal;
+  }
+
+  /**
+   * @return minimum amount of funds to be raised in wei.
+   */
+  function goal() public view returns(uint256) {
+    return _goal;
   }
 
   /**
    * @dev Investors can claim refunds here if crowdsale is unsuccessful
+   * @param beneficiary Whose refund will be claimed.
    */
-  function claimRefund() public {
-    require(isFinalized);
+  function claimRefund(address beneficiary) public {
+    require(finalized());
     require(!goalReached());
 
-    escrow.withdraw(msg.sender);
+    _escrow.withdraw(beneficiary);
   }
 
   /**
@@ -45,28 +53,28 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
    * @return Whether funding goal was reached
    */
   function goalReached() public view returns (bool) {
-    return weiRaised >= goal;
+    return weiRaised() >= _goal;
   }
 
   /**
-   * @dev escrow finalization task, called when owner calls finalize()
+   * @dev escrow finalization task, called when finalize() is called
    */
-  function finalization() internal {
+  function _finalization() internal {
     if (goalReached()) {
-      escrow.close();
-      escrow.beneficiaryWithdraw();
+      _escrow.close();
+      _escrow.beneficiaryWithdraw();
     } else {
-      escrow.enableRefunds();
+      _escrow.enableRefunds();
     }
 
-    super.finalization();
+    super._finalization();
   }
 
   /**
    * @dev Overrides Crowdsale fund forwarding, sending funds to escrow.
    */
   function _forwardFunds() internal {
-    escrow.deposit.value(msg.value)(msg.sender);
+    _escrow.deposit.value(msg.value)(msg.sender);
   }
 
 }

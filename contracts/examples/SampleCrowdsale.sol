@@ -3,7 +3,7 @@ pragma solidity ^0.4.24;
 import "../crowdsale/validation/CappedCrowdsale.sol";
 import "../crowdsale/distribution/RefundableCrowdsale.sol";
 import "../crowdsale/emission/MintedCrowdsale.sol";
-import "../token/ERC20/MintableToken.sol";
+import "../token/ERC20/ERC20Mintable.sol";
 
 
 /**
@@ -11,12 +11,11 @@ import "../token/ERC20/MintableToken.sol";
  * @dev Very simple ERC20 Token that can be minted.
  * It is meant to be used in a crowdsale contract.
  */
-contract SampleCrowdsaleToken is MintableToken {
+contract SampleCrowdsaleToken is ERC20Mintable {
 
   string public constant name = "Sample Crowdsale Token";
   string public constant symbol = "SCT";
   uint8 public constant decimals = 18;
-
 }
 
 
@@ -39,22 +38,22 @@ contract SampleCrowdsaleToken is MintableToken {
 contract SampleCrowdsale is CappedCrowdsale, RefundableCrowdsale, MintedCrowdsale {
 
   constructor(
-    uint256 _openingTime,
-    uint256 _closingTime,
-    uint256 _rate,
-    address _wallet,
-    uint256 _cap,
-    MintableToken _token,
-    uint256 _goal
+    uint256 openingTime,
+    uint256 closingTime,
+    uint256 rate,
+    address wallet,
+    uint256 cap,
+    ERC20Mintable token,
+    uint256 goal
   )
     public
-    Crowdsale(_rate, _wallet, _token)
-    CappedCrowdsale(_cap)
-    TimedCrowdsale(_openingTime, _closingTime)
-    RefundableCrowdsale(_goal)
+    Crowdsale(rate, wallet, token)
+    CappedCrowdsale(cap)
+    TimedCrowdsale(openingTime, closingTime)
+    RefundableCrowdsale(goal)
   {
     //As goal needs to be met for a successful crowdsale
     //the value needs to less or equal than a cap which is limit for accepted funds
-    require(_goal <= _cap);
+    require(goal <= cap);
   }
 }

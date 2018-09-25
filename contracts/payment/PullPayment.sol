@@ -6,37 +6,37 @@ import "./Escrow.sol";
 /**
  * @title PullPayment
  * @dev Base contract supporting async send for pull payments. Inherit from this
- * contract and use asyncTransfer instead of send or transfer.
+ * contract and use _asyncTransfer instead of send or transfer.
  */
 contract PullPayment {
-  Escrow private escrow;
+  Escrow private _escrow;
 
   constructor() public {
-    escrow = new Escrow();
+    _escrow = new Escrow();
   }
 
   /**
-  * @dev Withdraw accumulated balance, called by payee.
+  * @dev Withdraw accumulated balance.
+  * @param payee Whose balance will be withdrawn.
   */
-  function withdrawPayments() public {
-    address payee = msg.sender;
-    escrow.withdraw(payee);
+  function withdrawPayments(address payee) public {
+    _escrow.withdraw(payee);
   }
 
   /**
   * @dev Returns the credit owed to an address.
-  * @param _dest The creditor's address.
+  * @param dest The creditor's address.
   */
-  function payments(address _dest) public view returns (uint256) {
-    return escrow.depositsOf(_dest);
+  function payments(address dest) public view returns (uint256) {
+    return _escrow.depositsOf(dest);
   }
 
   /**
   * @dev Called by the payer to store the sent amount as credit to be pulled.
-  * @param _dest The destination address of the funds.
-  * @param _amount The amount to transfer.
+  * @param dest The destination address of the funds.
+  * @param amount The amount to transfer.
   */
-  function asyncTransfer(address _dest, uint256 _amount) internal {
-    escrow.deposit.value(_amount)(_dest);
+  function _asyncTransfer(address dest, uint256 amount) internal {
+    _escrow.deposit.value(amount)(dest);
   }
 }

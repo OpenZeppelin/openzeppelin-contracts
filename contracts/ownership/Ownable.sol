@@ -7,7 +7,7 @@ pragma solidity ^0.4.24;
  * functions, this simplifies the implementation of "user permissions".
  */
 contract Ownable {
-  address public owner;
+  address private _owner;
 
 
   event OwnershipRenounced(address indexed previousOwner);
@@ -22,15 +22,29 @@ contract Ownable {
    * account.
    */
   constructor() public {
-    owner = msg.sender;
+    _owner = msg.sender;
+  }
+
+  /**
+   * @return the address of the owner.
+   */
+  function owner() public view returns(address) {
+    return _owner;
   }
 
   /**
    * @dev Throws if called by any account other than the owner.
    */
   modifier onlyOwner() {
-    require(msg.sender == owner);
+    require(isOwner());
     _;
+  }
+
+  /**
+   * @return true if `msg.sender` is the owner of the contract.
+   */
+  function isOwner() public view returns(bool) {
+    return msg.sender == _owner;
   }
 
   /**
@@ -40,25 +54,25 @@ contract Ownable {
    * modifier anymore.
    */
   function renounceOwnership() public onlyOwner {
-    emit OwnershipRenounced(owner);
-    owner = address(0);
+    emit OwnershipRenounced(_owner);
+    _owner = address(0);
   }
 
   /**
    * @dev Allows the current owner to transfer control of the contract to a newOwner.
-   * @param _newOwner The address to transfer ownership to.
+   * @param newOwner The address to transfer ownership to.
    */
-  function transferOwnership(address _newOwner) public onlyOwner {
-    _transferOwnership(_newOwner);
+  function transferOwnership(address newOwner) public onlyOwner {
+    _transferOwnership(newOwner);
   }
 
   /**
    * @dev Transfers control of the contract to a newOwner.
-   * @param _newOwner The address to transfer ownership to.
+   * @param newOwner The address to transfer ownership to.
    */
-  function _transferOwnership(address _newOwner) internal {
-    require(_newOwner != address(0));
-    emit OwnershipTransferred(owner, _newOwner);
-    owner = _newOwner;
+  function _transferOwnership(address newOwner) internal {
+    require(newOwner != address(0));
+    emit OwnershipTransferred(_owner, newOwner);
+    _owner = newOwner;
   }
 }
