@@ -1,11 +1,12 @@
 pragma solidity ^0.4.24;
 
+import "../Initializable.sol";
 import "../access/roles/MinterRole.sol";
 
 
-contract MinterRoleMock is MinterRole {
-  constructor() {
-    initialize();
+contract MinterRoleMock is Initializable, MinterRole {
+  constructor() public {
+    MinterRole.initialize();
   }
 
   function removeMinter(address account) public {
