@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../Initializable.sol";
 import "./Escrow.sol";
 
 
@@ -8,11 +9,15 @@ import "./Escrow.sol";
  * @dev Base contract supporting async send for pull payments. Inherit from this
  * contract and use _asyncTransfer instead of send or transfer.
  */
-contract PullPayment {
+contract PullPayment is Initializable {
   Escrow private _escrow;
 
-  constructor() public {
-    _escrow = new Escrow();
+  function initialize() public initializer {
+    // conditional added to make initializer idempotent in case of diamond inheritance
+    if (address(_escrow) == address(0)) {
+      _escrow = new Escrow();
+      _escrow.initialize();
+    }
   }
 
   /**
