@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../../Initializable.sol";
 import "./IERC20.sol";
 import "../../math/SafeMath.sol";
 
@@ -11,7 +12,7 @@ import "../../math/SafeMath.sol";
  * https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md
  * Originally based on code by FirstBlood: https://github.com/Firstbloodio/token/blob/master/smart_contract/FirstBloodToken.sol
  */
-contract ERC20 is IERC20 {
+contract ERC20 is Initializable, IERC20 {
   using SafeMath for uint256;
 
   mapping (address => uint256) private _balances;
