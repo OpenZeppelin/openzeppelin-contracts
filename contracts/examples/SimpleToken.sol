@@ -1,6 +1,7 @@
 pragma solidity ^0.4.24;
 
 
+import "../Initializable.sol";
 import "../token/ERC20/ERC20.sol";
 
 
@@ -10,7 +11,7 @@ import "../token/ERC20/ERC20.sol";
  * Note they can later distribute these tokens as they wish using `transfer` and other
  * `ERC20` functions.
  */
-contract SimpleToken is ERC20 {
+contract SimpleToken is Initializable, ERC20 {
 
   string public constant name = "SimpleToken";
   string public constant symbol = "SIM";
@@ -21,7 +22,7 @@ contract SimpleToken is ERC20 {
   /**
    * @dev Constructor that gives msg.sender all of existing tokens.
    */
-  constructor() public {
+  function initialize() public initializer {
     _mint(msg.sender, INITIAL_SUPPLY);
   }
 

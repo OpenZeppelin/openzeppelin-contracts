@@ -1,5 +1,5 @@
 const { decodeLogs } = require('../helpers/decodeLogs');
-const SimpleToken = artifacts.require('SimpleToken');
+const SimpleToken = artifacts.require('SimpleTokenMock');
 
 const BigNumber = web3.BigNumber;
 
