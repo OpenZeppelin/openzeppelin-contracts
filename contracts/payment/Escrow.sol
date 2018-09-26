@@ -40,7 +40,6 @@ contract Escrow is Secondary {
   */
   function withdraw(address payee) public onlyPrimary {
     uint256 payment = _deposits[payee];
-    assert(address(this).balance >= payment);
 
     _deposits[payee] = 0;
 
