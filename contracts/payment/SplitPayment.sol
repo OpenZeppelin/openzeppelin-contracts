@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../Initializable.sol";
 import "../math/SafeMath.sol";
 
 
@@ -8,7 +9,7 @@ import "../math/SafeMath.sol";
  * @dev This contract can be used when payments need to be received by a group
  * of people and split proportionately to some number of shares they own.
  */
-contract SplitPayment {
+contract SplitPayment is Initializable {
   using SafeMath for uint256;
 
   uint256 private _totalShares = 0;
@@ -21,7 +22,7 @@ contract SplitPayment {
   /**
    * @dev Constructor
    */
-  constructor(address[] payees, uint256[] shares) public payable {
+  function initialize(address[] payees, uint256[] shares) public payable initializer {
     require(payees.length == shares.length);
     require(payees.length > 0);
 

@@ -8,7 +8,7 @@ require('chai')
 
 const { expectThrow } = require('../helpers/expectThrow');
 const { EVMRevert } = require('../helpers/EVMRevert.js');
-const SplitPayment = artifacts.require('SplitPayment');
+const SplitPayment = artifacts.require('SplitPaymentMock');
 
 contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1, payer1]) {
   const amount = web3.toWei(1.0, 'ether');
