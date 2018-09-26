@@ -89,6 +89,11 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
         (await this.contract[`is${rolename}`](authorized)).should.equal(false);
       });
 
+      it(`emits a ${rolename}Removed event`, async function () {
+        const { logs } = await this.contract[`renounce${rolename}`]({ from: authorized });
+        expectEvent.inLogs(logs, `${rolename}Removed`, { account: authorized });
+      });
+
       it('doesn\'t revert when renouncing unassigned role', async function () {
         await this.contract[`renounce${rolename}`]({ from: anyone });
       });

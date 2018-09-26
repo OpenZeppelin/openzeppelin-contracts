@@ -12,7 +12,7 @@ contract CapperRole {
   Roles.Role private cappers;
 
   constructor() public {
-    cappers.add(msg.sender);
+    _addCapper(msg.sender);
   }
 
   modifier onlyCapper() {
@@ -25,12 +25,16 @@ contract CapperRole {
   }
 
   function addCapper(address account) public onlyCapper {
-    cappers.add(account);
-    emit CapperAdded(account);
+    _addCapper(account);
   }
 
   function renounceCapper() public {
-    cappers.remove(msg.sender);
+    _removeCapper(msg.sender);
+  }
+
+  function _addCapper(address account) internal {
+    cappers.add(account);
+    emit CapperAdded(account);
   }
 
   function _removeCapper(address account) internal {
