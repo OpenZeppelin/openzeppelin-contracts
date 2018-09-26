@@ -8,8 +8,6 @@ import "../../access/roles/MinterRole.sol";
  * @dev ERC20 minting logic
  */
 contract ERC20Mintable is ERC20, MinterRole {
-  event MintingFinished();
-
   /**
    * @dev Function to mint tokens
    * @param to The address that will receive the minted tokens.
