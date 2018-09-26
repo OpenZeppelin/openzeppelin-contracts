@@ -9,7 +9,7 @@ require('chai')
 const TEST_MESSAGE = web3.sha3('OpenZeppelin');
 const WRONG_MESSAGE = web3.sha3('Nope');
 
-contract('ECDSA', function ([_, anyone]) {
+contract.only('ECDSA', function ([_, anyone]) {
   beforeEach(async function () {
     this.ecdsa = await ECDSAMock.new();
   });
@@ -23,7 +23,6 @@ contract('ECDSA', function ([_, anyone]) {
 
       context('with 00 as version value', function () {
         it('works', async function () {
-          // Signature generated outside ganache with method web3.eth.sign(signer, message)
           const version = '00';
           const signature = signatureWithoutVersion + version;
           (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(signer);
@@ -35,6 +34,18 @@ contract('ECDSA', function ([_, anyone]) {
           const version = '1b'; // 27 = 1b.
           const signature = signatureWithoutVersion + version;
           (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(signer);
+        });
+      });
+
+      context('with wrong version', function () {
+        it('returns 0', async function () {
+          // The last two hex digits are the signature version.
+          // The only valid values are 0, 1, 27 and 28.
+          // eslint-disable-next-line max-len
+          const version = '02';
+          const signature = signatureWithoutVersion + version;
+          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(
+            '0x0000000000000000000000000000000000000000');
         });
       });
     });
@@ -57,6 +68,18 @@ contract('ECDSA', function ([_, anyone]) {
           const version = '1c'; // 28 = 1c.
           const signature = signatureWithoutVersion + version;
           (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(signer);
+        });
+      });
+
+      context('with wrong version', function () {
+        it('returns 0', async function () {
+          // The last two hex digits are the signature version.
+          // The only valid values are 0, 1, 27 and 28.
+          // eslint-disable-next-line max-len
+          const version = '02';
+          const signature = signatureWithoutVersion + version;
+          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(
+            '0x0000000000000000000000000000000000000000');
         });
       });
     });
@@ -87,28 +110,14 @@ contract('ECDSA', function ([_, anyone]) {
     });
   });
 
-  context('recover with invalid signature', function () {
-    context('with wrong version', function () {
-      it('returns 0', async function () {
-        // The last two hex digits are the signature version.
-        // The only valid values are 0, 1, 27 and 28.
-        // eslint-disable-next-line max-len
-        const dummySignatureWithoutVersion = '0x5d99b6f7f6d1f73d1a26497f2b1c89b24c0993913f86e9a2d02cd69887d9c94f3c880358579d811b21dd1b7fd9bb01c1d81d10e69f0384e675c32b39643be892';
-        const signature = dummySignatureWithoutVersion + '02';
-        (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(
-          '0x0000000000000000000000000000000000000000');
-      });
-    });
-
-    context('with small hash', function () {
-      // @TODO - remove `skip` once we upgrade to solc^0.5
-      it.skip('reverts', async function () {
-        // Create the signature
-        const signature = signMessage(anyone, TEST_MESSAGE);
-        await expectThrow(
-          this.ecdsa.recover(TEST_MESSAGE.substring(2), signature)
-        );
-      });
+  context('with small hash', function () {
+    // @TODO - remove `skip` once we upgrade to solc^0.5
+    it.skip('reverts', async function () {
+      // Create the signature
+      const signature = signMessage(anyone, TEST_MESSAGE);
+      await expectThrow(
+        this.ecdsa.recover(TEST_MESSAGE.substring(2), signature)
+      );
     });
   });
 
