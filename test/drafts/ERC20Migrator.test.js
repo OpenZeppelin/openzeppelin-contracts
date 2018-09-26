@@ -1,8 +1,8 @@
 const { assertRevert } = require('../helpers/assertRevert');
 
 const ERC20Mock = artifacts.require('ERC20Mock');
-const ERC20Mintable = artifacts.require('ERC20Mintable');
-const ERC20Migrator = artifacts.require('ERC20Migrator');
+const ERC20Mintable = artifacts.require('ERC20MintableMock');
+const ERC20Migrator = artifacts.require('ERC20MigratorMock');
 
 const BigNumber = web3.eth.BigNumber;
 

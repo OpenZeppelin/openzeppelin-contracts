@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../Initializable.sol";
 import "../token/ERC20/IERC20.sol";
 import "../token/ERC20/ERC20Mintable.sol";
 import "../token/ERC20/SafeERC20.sol";
@@ -32,7 +33,7 @@ import "../math/Math.sol";
  * await migrator.beginMigration(newToken.address);
  * ```
  */
-contract ERC20Migrator {
+contract ERC20Migrator is Initializable {
   using SafeERC20 for IERC20;
 
   /// Address of the old token contract
@@ -44,7 +45,7 @@ contract ERC20Migrator {
   /**
    * @param legacyToken address of the old token contract
    */
-  constructor(IERC20 legacyToken) public {
+  function initialize(IERC20 legacyToken) public initializer {
     require(legacyToken != address(0));
     _legacyToken = legacyToken;
   }
