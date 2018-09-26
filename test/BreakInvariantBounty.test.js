@@ -88,7 +88,7 @@ contract('BreakInvariantBounty', function ([_, owner, researcher, anyone, nonTar
 
           context('after claiming', async function () {
             beforeEach(async function () {
-              await this.bounty.claim(this.target.address, { from: researcher});
+              await this.bounty.claim(this.target.address, { from: researcher });
             });
 
             it('is claimed', async function () {
@@ -96,7 +96,7 @@ contract('BreakInvariantBounty', function ([_, owner, researcher, anyone, nonTar
             });
 
             it('no longer accepts rewards', async function () {
-              await assertRevert(sendReward(owner, this.bounty.address, reward))
+              await assertRevert(sendReward(owner, this.bounty.address, reward));
             });
           });
         });
