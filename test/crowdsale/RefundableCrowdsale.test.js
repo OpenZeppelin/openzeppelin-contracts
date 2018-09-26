@@ -15,7 +15,7 @@ require('chai')
 const RefundableCrowdsale = artifacts.require('RefundableCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
-contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser]) {
+contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, anyone]) {
   const rate = new BigNumber(1);
   const goal = ether(50);
   const lessThanGoal = ether(45);
@@ -38,7 +38,7 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
   it('rejects a goal of zero', async function () {
     await expectThrow(
       RefundableCrowdsale.new(
-        this.openingTime, this.closingTime, rate, wallet, this.token.address, 0, { from: owner }
+        this.openingTime, this.closingTime, rate, wallet, this.token.address, 0,
       ),
       EVMRevert,
     );
@@ -47,7 +47,7 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
   context('with crowdsale', function () {
     beforeEach(async function () {
       this.crowdsale = await RefundableCrowdsale.new(
-        this.openingTime, this.closingTime, rate, wallet, this.token.address, goal, { from: owner }
+        this.openingTime, this.closingTime, rate, wallet, this.token.address, goal
       );
 
       await this.token.transfer(this.crowdsale.address, tokenSupply);
@@ -55,7 +55,7 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
 
     context('before opening time', function () {
       it('denies refunds', async function () {
-        await expectThrow(this.crowdsale.claimRefund({ from: investor }), EVMRevert);
+        await expectThrow(this.crowdsale.claimRefund(investor), EVMRevert);
       });
     });
 
@@ -65,7 +65,7 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
       });
 
       it('denies refunds', async function () {
-        await expectThrow(this.crowdsale.claimRefund({ from: investor }), EVMRevert);
+        await expectThrow(this.crowdsale.claimRefund(investor), EVMRevert);
       });
 
       context('with unreached goal', function () {
@@ -76,12 +76,12 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
         context('after closing time and finalization', function () {
           beforeEach(async function () {
             await increaseTimeTo(this.afterClosingTime);
-            await this.crowdsale.finalize({ from: owner });
+            await this.crowdsale.finalize({ from: anyone });
           });
 
           it('refunds', async function () {
             const pre = await ethGetBalance(investor);
-            await this.crowdsale.claimRefund({ from: investor, gasPrice: 0 });
+            await this.crowdsale.claimRefund(investor, { gasPrice: 0 });
             const post = await ethGetBalance(investor);
             post.minus(pre).should.be.bignumber.equal(lessThanGoal);
           });
@@ -96,11 +96,11 @@ contract('RefundableCrowdsale', function ([_, owner, wallet, investor, purchaser
         context('after closing time and finalization', function () {
           beforeEach(async function () {
             await increaseTimeTo(this.afterClosingTime);
-            await this.crowdsale.finalize({ from: owner });
+            await this.crowdsale.finalize({ from: anyone });
           });
 
           it('denies refunds', async function () {
-            await expectThrow(this.crowdsale.claimRefund({ from: investor }), EVMRevert);
+            await expectThrow(this.crowdsale.claimRefund(investor), EVMRevert);
           });
 
           it('forwards funds to wallet', async function () {

@@ -1,59 +1,73 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 import "./ConditionalEscrow.sol";
-import "../ownership/Ownable.sol";
+import "../ownership/Secondary.sol";
 
 
 /**
  * @title RefundEscrow
  * @dev Escrow that holds funds for a beneficiary, deposited from multiple parties.
- * The contract owner may close the deposit period, and allow for either withdrawal
+ * The primary account may close the deposit period, and allow for either withdrawal
  * by the beneficiary, or refunds to the depositors.
  */
-contract RefundEscrow is Ownable, ConditionalEscrow {
+contract RefundEscrow is Secondary, ConditionalEscrow {
   enum State { Active, Refunding, Closed }
 
   event Closed();
   event RefundsEnabled();
 
-  State public state;
-  address public beneficiary;
+  State private _state;
+  address private _beneficiary;
 
   /**
    * @dev Constructor.
-   * @param _beneficiary The beneficiary of the deposits.
+   * @param beneficiary The beneficiary of the deposits.
    */
-  constructor(address _beneficiary) public {
-    require(_beneficiary != address(0));
-    beneficiary = _beneficiary;
-    state = State.Active;
+  constructor(address beneficiary) public {
+    require(beneficiary != address(0));
+    _beneficiary = beneficiary;
+    _state = State.Active;
+  }
+
+  /**
+   * @return the current state of the escrow.
+   */
+  function state() public view returns (State) {
+    return _state;
+  }
+
+  /**
+   * @return the beneficiary of the escrow.
+   */
+  function beneficiary() public view returns (address) {
+    return _beneficiary;
   }
 
   /**
    * @dev Stores funds that may later be refunded.
-   * @param _refundee The address funds will be sent to if a refund occurs.
+   * @param refundee The address funds will be sent to if a refund occurs.
    */
-  function deposit(address _refundee) public payable {
-    require(state == State.Active);
-    super.deposit(_refundee);
+  function deposit(address refundee) public payable {
+    require(_state == State.Active);
+    super.deposit(refundee);
   }
 
   /**
    * @dev Allows for the beneficiary to withdraw their funds, rejecting
    * further deposits.
    */
-  function close() public onlyOwner {
-    require(state == State.Active);
-    state = State.Closed;
+  function close() public onlyPrimary {
+    require(_state == State.Active);
+    _state = State.Closed;
     emit Closed();
   }
 
   /**
    * @dev Allows for refunds to take place, rejecting further deposits.
    */
-  function enableRefunds() public onlyOwner {
-    require(state == State.Active);
-    state = State.Refunding;
+  function enableRefunds() public onlyPrimary {
+    require(_state == State.Active);
+    _state = State.Refunding;
     emit RefundsEnabled();
   }
 
@@ -61,14 +75,14 @@ contract RefundEscrow is Ownable, ConditionalEscrow {
    * @dev Withdraws the beneficiary's funds.
    */
   function beneficiaryWithdraw() public {
-    require(state == State.Closed);
-    beneficiary.transfer(address(this).balance);
+    require(_state == State.Closed);
+    _beneficiary.transfer(address(this).balance);
   }
 
   /**
    * @dev Returns whether refundees can withdraw their deposits (be refunded).
    */
-  function withdrawalAllowed(address _payee) public view returns (bool) {
-    return state == State.Refunding;
+  function withdrawalAllowed(address payee) public view returns (bool) {
+    return _state == State.Refunding;
   }
 }

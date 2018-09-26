@@ -13,19 +13,33 @@ import "../../math/SafeMath.sol";
 contract IncreasingPriceCrowdsale is TimedCrowdsale {
   using SafeMath for uint256;
 
-  uint256 public initialRate;
-  uint256 public finalRate;
+  uint256 private _initialRate;
+  uint256 private _finalRate;
 
   /**
    * @dev Constructor, takes initial and final rates of tokens received per wei contributed.
-   * @param _initialRate Number of tokens a buyer gets per wei at the start of the crowdsale
-   * @param _finalRate Number of tokens a buyer gets per wei at the end of the crowdsale
+   * @param initialRate Number of tokens a buyer gets per wei at the start of the crowdsale
+   * @param finalRate Number of tokens a buyer gets per wei at the end of the crowdsale
    */
-  constructor(uint256 _initialRate, uint256 _finalRate) public {
-    require(_finalRate > 0);
-    require(_initialRate >= _finalRate);
-    initialRate = _initialRate;
-    finalRate = _finalRate;
+  constructor(uint256 initialRate, uint256 finalRate) public {
+    require(finalRate > 0);
+    require(initialRate >= finalRate);
+    _initialRate = initialRate;
+    _finalRate = finalRate;
+  }
+
+  /**
+   * @return the initial rate of the crowdsale.
+   */
+  function initialRate() public view returns(uint256) {
+    return _initialRate;
+  }
+
+  /**
+   * @return the final rate of the crowdsale.
+   */
+  function finalRate() public view returns (uint256) {
+    return _finalRate;
   }
 
   /**
@@ -35,22 +49,22 @@ contract IncreasingPriceCrowdsale is TimedCrowdsale {
    */
   function getCurrentRate() public view returns (uint256) {
     // solium-disable-next-line security/no-block-members
-    uint256 elapsedTime = block.timestamp.sub(openingTime);
-    uint256 timeRange = closingTime.sub(openingTime);
-    uint256 rateRange = initialRate.sub(finalRate);
-    return initialRate.sub(elapsedTime.mul(rateRange).div(timeRange));
+    uint256 elapsedTime = block.timestamp.sub(openingTime());
+    uint256 timeRange = closingTime().sub(openingTime());
+    uint256 rateRange = _initialRate.sub(_finalRate);
+    return _initialRate.sub(elapsedTime.mul(rateRange).div(timeRange));
   }
 
   /**
    * @dev Overrides parent method taking into account variable rate.
-   * @param _weiAmount The value in wei to be converted into tokens
+   * @param weiAmount The value in wei to be converted into tokens
    * @return The number of tokens _weiAmount wei will buy at present time
    */
-  function _getTokenAmount(uint256 _weiAmount)
+  function _getTokenAmount(uint256 weiAmount)
     internal view returns (uint256)
   {
     uint256 currentRate = getCurrentRate();
-    return currentRate.mul(_weiAmount);
+    return currentRate.mul(weiAmount);
   }
 
 }

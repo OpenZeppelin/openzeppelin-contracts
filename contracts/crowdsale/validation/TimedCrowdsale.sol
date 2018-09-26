@@ -11,30 +11,51 @@ import "../Crowdsale.sol";
 contract TimedCrowdsale is Crowdsale {
   using SafeMath for uint256;
 
-  uint256 public openingTime;
-  uint256 public closingTime;
+  uint256 private _openingTime;
+  uint256 private _closingTime;
 
   /**
    * @dev Reverts if not in crowdsale time range.
    */
   modifier onlyWhileOpen {
-    // solium-disable-next-line security/no-block-members
-    require(block.timestamp >= openingTime && block.timestamp <= closingTime);
+    require(isOpen());
     _;
   }
 
   /**
    * @dev Constructor, takes crowdsale opening and closing times.
-   * @param _openingTime Crowdsale opening time
-   * @param _closingTime Crowdsale closing time
+   * @param openingTime Crowdsale opening time
+   * @param closingTime Crowdsale closing time
    */
-  constructor(uint256 _openingTime, uint256 _closingTime) public {
+  constructor(uint256 openingTime, uint256 closingTime) public {
     // solium-disable-next-line security/no-block-members
-    require(_openingTime >= block.timestamp);
-    require(_closingTime >= _openingTime);
+    require(openingTime >= block.timestamp);
+    require(closingTime >= openingTime);
 
-    openingTime = _openingTime;
-    closingTime = _closingTime;
+    _openingTime = openingTime;
+    _closingTime = closingTime;
+  }
+
+  /**
+   * @return the crowdsale opening time.
+   */
+  function openingTime() public view returns(uint256) {
+    return _openingTime;
+  }
+
+  /**
+   * @return the crowdsale closing time.
+   */
+  function closingTime() public view returns(uint256) {
+    return _closingTime;
+  }
+
+  /**
+   * @return true if the crowdsale is open, false otherwise.
+   */
+  function isOpen() public view returns (bool) {
+    // solium-disable-next-line security/no-block-members
+    return block.timestamp >= _openingTime && block.timestamp <= _closingTime;
   }
 
   /**
@@ -43,22 +64,22 @@ contract TimedCrowdsale is Crowdsale {
    */
   function hasClosed() public view returns (bool) {
     // solium-disable-next-line security/no-block-members
-    return block.timestamp > closingTime;
+    return block.timestamp > _closingTime;
   }
 
   /**
    * @dev Extend parent behavior requiring to be within contributing period
-   * @param _beneficiary Token purchaser
-   * @param _weiAmount Amount of wei contributed
+   * @param beneficiary Token purchaser
+   * @param weiAmount Amount of wei contributed
    */
   function _preValidatePurchase(
-    address _beneficiary,
-    uint256 _weiAmount
+    address beneficiary,
+    uint256 weiAmount
   )
     internal
     onlyWhileOpen
   {
-    super._preValidatePurchase(_beneficiary, _weiAmount);
+    super._preValidatePurchase(beneficiary, weiAmount);
   }
 
 }

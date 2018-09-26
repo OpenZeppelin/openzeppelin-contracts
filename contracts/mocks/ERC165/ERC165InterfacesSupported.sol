@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../../introspection/ERC165.sol";
+import "../../introspection/IERC165.sol";
 
 
 /**
@@ -11,7 +11,7 @@ import "../../introspection/ERC165.sol";
  * therefore, because this contract is staticcall'd we need to not emit events (which is how solidity-coverage works)
  * solidity-coverage ignores the /mocks folder, so we duplicate its implementation here to avoid instrumenting it
  */
-contract SupportsInterfaceWithLookupMock is ERC165 {
+contract SupportsInterfaceWithLookupMock is IERC165 {
 
   bytes4 public constant InterfaceId_ERC165 = 0x01ffc9a7;
   /**
@@ -37,33 +37,33 @@ contract SupportsInterfaceWithLookupMock is ERC165 {
   /**
    * @dev implement supportsInterface(bytes4) using a lookup table
    */
-  function supportsInterface(bytes4 _interfaceId)
+  function supportsInterface(bytes4 interfaceId)
     external
     view
     returns (bool)
   {
-    return supportedInterfaces[_interfaceId];
+    return supportedInterfaces[interfaceId];
   }
 
   /**
    * @dev private method for registering an interface
    */
-  function _registerInterface(bytes4 _interfaceId)
+  function _registerInterface(bytes4 interfaceId)
     internal
   {
-    require(_interfaceId != 0xffffffff);
-    supportedInterfaces[_interfaceId] = true;
+    require(interfaceId != 0xffffffff);
+    supportedInterfaces[interfaceId] = true;
   }
 }
 
 
 
 contract ERC165InterfacesSupported is SupportsInterfaceWithLookupMock {
-  constructor (bytes4[] _interfaceIds)
+  constructor (bytes4[] interfaceIds)
     public
   {
-    for (uint256 i = 0; i < _interfaceIds.length; i++) {
-      _registerInterface(_interfaceIds[i]);
+    for (uint256 i = 0; i < interfaceIds.length; i++) {
+      _registerInterface(interfaceIds[i]);
     }
   }
 }
