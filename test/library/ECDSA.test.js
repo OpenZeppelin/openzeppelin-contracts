@@ -41,7 +41,6 @@ contract.only('ECDSA', function ([_, anyone]) {
         it('returns 0', async function () {
           // The last two hex digits are the signature version.
           // The only valid values are 0, 1, 27 and 28.
-          // eslint-disable-next-line max-len
           const version = '02';
           const signature = signatureWithoutVersion + version;
           (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(
@@ -75,7 +74,6 @@ contract.only('ECDSA', function ([_, anyone]) {
         it('returns 0', async function () {
           // The last two hex digits are the signature version.
           // The only valid values are 0, 1, 27 and 28.
-          // eslint-disable-next-line max-len
           const version = '02';
           const signature = signatureWithoutVersion + version;
           (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(
