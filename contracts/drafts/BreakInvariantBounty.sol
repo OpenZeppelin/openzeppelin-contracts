@@ -1,6 +1,7 @@
 pragma solidity ^0.4.24;
 
 
+import "../Initializable.sol";
 import "../payment/PullPayment.sol";
 import "../ownership/Ownable.sol";
 
@@ -9,11 +10,16 @@ import "../ownership/Ownable.sol";
  * @title BreakInvariantBounty
  * @dev This bounty will pay out to a researcher if they break invariant logic of the contract.
  */
-contract BreakInvariantBounty is PullPayment, Ownable {
+contract BreakInvariantBounty is Initializable, PullPayment, Ownable {
   bool private _claimed;
   mapping(address => address) private _researchers;
 
   event TargetCreated(address createdAddress);
+
+  function initialize() public initializer {
+    PullPayment.initialize();
+    Ownable.initialize();
+  }
 
   /**
    * @dev Fallback function allowing the contract to receive funds, if they haven't already been claimed.
