@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../../Initializable.sol";
 import "./SafeERC20.sol";
 
 
@@ -8,7 +9,7 @@ import "./SafeERC20.sol";
  * @dev TokenTimelock is a token holder contract that will allow a
  * beneficiary to extract the tokens after a given release time
  */
-contract TokenTimelock {
+contract TokenTimelock is Initializable {
   using SafeERC20 for IERC20;
 
   // ERC20 basic token contract being held
@@ -20,12 +21,13 @@ contract TokenTimelock {
   // timestamp when token release is enabled
   uint256 private _releaseTime;
 
-  constructor(
+  function initialize(
     IERC20 token,
     address beneficiary,
     uint256 releaseTime
   )
     public
+    initializer
   {
     // solium-disable-next-line security/no-block-members
     require(releaseTime > block.timestamp);

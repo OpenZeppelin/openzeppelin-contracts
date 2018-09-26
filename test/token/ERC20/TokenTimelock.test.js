@@ -8,8 +8,8 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const ERC20Mintable = artifacts.require('ERC20Mintable');
-const TokenTimelock = artifacts.require('TokenTimelock');
+const ERC20Mintable = artifacts.require('ERC20MintableMock');
+const TokenTimelock = artifacts.require('TokenTimelockMock');
 
 contract('TokenTimelock', function ([_, minter, beneficiary]) {
   const amount = new BigNumber(100);
