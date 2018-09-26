@@ -9,9 +9,9 @@ require('chai')
 const TEST_MESSAGE = web3.sha3('OpenZeppelin');
 const WRONG_MESSAGE = web3.sha3('Nope');
 
-contract('ECDSA', function ([_, anyone]) {
+contract.only('ECDSA', function ([_, anyone]) {
   beforeEach(async function () {
-    this.mock = await ECDSAMock.new();
+    this.ecdsa = await ECDSAMock.new();
   });
 
   context('recover with valid signature', function () {
@@ -20,12 +20,13 @@ contract('ECDSA', function ([_, anyone]) {
       const signer = '0x2cc1166f6212628a0deef2b33befb2187d35b86c';
       // eslint-disable-next-line max-len
       const signatureWithoutVersion = '0x5d99b6f7f6d1f73d1a26497f2b1c89b24c0993913f86e9a2d02cd69887d9c94f3c880358579d811b21dd1b7fd9bb01c1d81d10e69f0384e675c32b39643be892';
+
       context('with 00 as version value', function () {
         it('works', async function () {
           // Signature generated outside ganache with method web3.eth.sign(signer, message)
           const version = '00';
           const signature = signatureWithoutVersion + version;
-          (await this.mock.recover(TEST_MESSAGE, signature)).should.equal(signer);
+          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(signer);
         });
       });
 
@@ -33,7 +34,7 @@ contract('ECDSA', function ([_, anyone]) {
         it('works', async function () {
           const version = '1b'; // 27 = 1b.
           const signature = signatureWithoutVersion + version;
-          (await this.mock.recover(TEST_MESSAGE, signature)).should.equal(signer);
+          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(signer);
         });
       });
     });
@@ -47,7 +48,7 @@ contract('ECDSA', function ([_, anyone]) {
         it('works', async function () {
           const version = '01';
           const signature = signatureWithoutVersion + version;
-          (await this.mock.recover(TEST_MESSAGE, signature)).should.equal(signer);
+          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(signer);
         });
       });
 
@@ -55,7 +56,7 @@ contract('ECDSA', function ([_, anyone]) {
         it('works', async function () {
           const version = '1c'; // 28 = 1c.
           const signature = signatureWithoutVersion + version;
-          (await this.mock.recover(TEST_MESSAGE, signature)).should.equal(signer);
+          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(signer);
         });
       });
     });
@@ -67,7 +68,7 @@ contract('ECDSA', function ([_, anyone]) {
           const signature = signMessage(anyone, TEST_MESSAGE);
 
           // Recover the signer address from the generated message and signature.
-          (await this.mock.recover(
+          (await this.ecdsa.recover(
             toEthSignedMessageHash(TEST_MESSAGE),
             signature
           )).should.equal(anyone);
@@ -80,7 +81,7 @@ contract('ECDSA', function ([_, anyone]) {
           const signature = signMessage(anyone, TEST_MESSAGE);
 
           // Recover the signer address from the generated message and wrong signature.
-          (await this.mock.recover(WRONG_MESSAGE, signature)).should.not.equal(anyone);
+          (await this.ecdsa.recover(WRONG_MESSAGE, signature)).should.not.equal(anyone);
         });
       });
     });
@@ -94,7 +95,7 @@ contract('ECDSA', function ([_, anyone]) {
         // eslint-disable-next-line max-len
         const dummySignatureWithoutVersion = '0x5d99b6f7f6d1f73d1a26497f2b1c89b24c0993913f86e9a2d02cd69887d9c94f3c880358579d811b21dd1b7fd9bb01c1d81d10e69f0384e675c32b39643be892';
         const signature = dummySignatureWithoutVersion + '02';
-        (await this.mock.recover(TEST_MESSAGE, signature)).should.equal(
+        (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(
           '0x0000000000000000000000000000000000000000');
       });
     });
@@ -105,7 +106,7 @@ contract('ECDSA', function ([_, anyone]) {
         // Create the signature
         const signature = signMessage(anyone, TEST_MESSAGE);
         await expectThrow(
-          this.mock.recover(TEST_MESSAGE.substring(2), signature)
+          this.ecdsa.recover(TEST_MESSAGE.substring(2), signature)
         );
       });
     });
@@ -113,7 +114,7 @@ contract('ECDSA', function ([_, anyone]) {
 
   context('toEthSignedMessage', function () {
     it('should prefix hashes correctly', async function () {
-      (await this.mock.toEthSignedMessageHash(TEST_MESSAGE)).should.equal(toEthSignedMessageHash(TEST_MESSAGE));
+      (await this.ecdsa.toEthSignedMessageHash(TEST_MESSAGE)).should.equal(toEthSignedMessageHash(TEST_MESSAGE));
     });
   });
 });
