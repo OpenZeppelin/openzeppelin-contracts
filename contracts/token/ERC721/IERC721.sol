@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../../Initializable.sol";
 import "../../introspection/IERC165.sol";
 
 
@@ -7,7 +8,7 @@ import "../../introspection/IERC165.sol";
  * @title ERC721 Non-Fungible Token Standard basic interface
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
-contract IERC721 is IERC165 {
+contract IERC721 is Initializable, IERC165 {
 
   event Transfer(
     address indexed from,

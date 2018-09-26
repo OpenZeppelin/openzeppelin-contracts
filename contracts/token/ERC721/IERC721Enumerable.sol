@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../../Initializable.sol";
 import "./IERC721.sol";
 
 
@@ -7,7 +8,7 @@ import "./IERC721.sol";
  * @title ERC-721 Non-Fungible Token Standard, optional enumeration extension
  * @dev See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
-contract IERC721Enumerable is IERC721 {
+contract IERC721Enumerable is Initializable, IERC721 {
   function totalSupply() public view returns (uint256);
   function tokenOfOwnerByIndex(
     address owner,

@@ -1,9 +1,10 @@
 pragma solidity ^0.4.24;
 
+import "../../Initializable.sol";
 import "./IERC721Receiver.sol";
 
 
-contract ERC721Holder is IERC721Receiver {
+contract ERC721Holder is Initializable, IERC721Receiver {
   function onERC721Received(
     address,
     address,
