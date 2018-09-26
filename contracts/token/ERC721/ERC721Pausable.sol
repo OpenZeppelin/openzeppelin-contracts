@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../../Initializable.sol";
 import "./ERC721.sol";
 import "../../lifecycle/Pausable.sol";
 
@@ -8,7 +9,12 @@ import "../../lifecycle/Pausable.sol";
  * @title ERC721 Non-Fungible Pausable token
  * @dev ERC721 modified with pausable transfers.
  **/
-contract ERC721Pausable is ERC721, Pausable {
+contract ERC721Pausable is Initializable, ERC721, Pausable {
+  function initialize() public initializer {
+    ERC721.initialize();
+    Pausable.initialize();
+  }
+
   function approve(
     address to,
     uint256 tokenId
