@@ -9,7 +9,7 @@ require('chai')
 const TEST_MESSAGE = web3.sha3('OpenZeppelin');
 const WRONG_MESSAGE = web3.sha3('Nope');
 
-contract.only('ECDSA', function ([_, anyone]) {
+contract('ECDSA', function ([_, anyone]) {
   beforeEach(async function () {
     this.ecdsa = await ECDSAMock.new();
   });
