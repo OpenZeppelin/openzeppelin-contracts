@@ -17,5 +17,6 @@ contract ERC721MintableBurnableImpl
   {
     ERC721Full.initialize("Test", "TEST");
     ERC721Mintable.initialize();
+    ERC721Burnable.initialize();
   }
 }
