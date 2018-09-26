@@ -92,7 +92,7 @@ contract('ECDSA', function ([_, anyone]) {
         // The last two hex digits are the signature version.
         // The only valid values are 0, 1, 27 and 28.
         // eslint-disable-next-line max-len
-        const dummy_signature_without_version = '0x331fe75a821c982f9127538858900d87d3ec1f9f737338ad67cad133fa48feff48e6fa0c18abc62e42820f05943e47af3e9fbe306ce74d64094bdf1691ee53e0';
+        const dummy_signature_without_version = '0x5d99b6f7f6d1f73d1a26497f2b1c89b24c0993913f86e9a2d02cd69887d9c94f3c880358579d811b21dd1b7fd9bb01c1d81d10e69f0384e675c32b39643be892';
         const signature = dummy_signature_without_version + '02';
         (await this.mock.recover(TEST_MESSAGE, signature)).should.equal(
           '0x0000000000000000000000000000000000000000');
