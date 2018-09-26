@@ -117,35 +117,6 @@ function shouldBehaveLikeMintAndBurnERC721 (
         });
       });
     });
-
-    describe('finishMinting', function () {
-      it('allows the minter to finish minting', async function () {
-        const { logs } = await this.token.finishMinting({ from: minter });
-        expectEvent.inLogs(logs, 'MintingFinished');
-      });
-    });
-
-    context('mintingFinished', function () {
-      beforeEach(async function () {
-        await this.token.finishMinting({ from: minter });
-      });
-
-      describe('mint', function () {
-        it('reverts', async function () {
-          await assertRevert(
-            this.token.mint(owner, thirdTokenId, { from: minter })
-          );
-        });
-      });
-
-      describe('mintWithTokenURI', function () {
-        it('reverts', async function () {
-          await assertRevert(
-            this.token.mintWithTokenURI(owner, thirdTokenId, MOCK_URI, { from: minter })
-          );
-        });
-      });
-    });
   });
 }
 

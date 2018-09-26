@@ -84,7 +84,6 @@ contract SplitPayment {
     );
 
     require(payment != 0);
-    assert(address(this).balance >= payment);
 
     _released[account] = _released[account].add(payment);
     _totalReleased = _totalReleased.add(payment);
