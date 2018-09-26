@@ -13,7 +13,9 @@ contract MinterRole is Initializable {
   Roles.Role private minters;
 
   function initialize() public initializer {
-    _addMinter(msg.sender);
+    if (!isMinter(msg.sender)) {
+      _addMinter(msg.sender);
+    }
   }
 
   modifier onlyMinter() {

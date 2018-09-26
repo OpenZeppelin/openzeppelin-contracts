@@ -13,7 +13,9 @@ contract PauserRole is Initializable {
   Roles.Role private pausers;
 
   function initialize() public initializer {
-    _addPauser(msg.sender);
+    if (!isPauser(msg.sender)) {
+      _addPauser(msg.sender);
+    }
   }
 
   modifier onlyPauser() {
