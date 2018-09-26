@@ -1,9 +1,14 @@
 pragma solidity ^0.4.24;
 
+import "../Initializable.sol";
 import "../access/roles/SignerRole.sol";
 
 
-contract SignerRoleMock is SignerRole {
+contract SignerRoleMock is Initializable, SignerRole {
+  constructor() public {
+    SignerRole.initialize();
+  }
+
   function removeSigner(address account) public {
     _removeSigner(account);
   }

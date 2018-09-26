@@ -1,9 +1,14 @@
 pragma solidity ^0.4.24;
 
+import "../Initializable.sol";
 import "../access/roles/CapperRole.sol";
 
 
-contract CapperRoleMock is CapperRole {
+contract CapperRoleMock is Initializable, CapperRole {
+  constructor() public {
+    CapperRole.initialize();
+  }
+
   function removeCapper(address account) public {
     _removeCapper(account);
   }

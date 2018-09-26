@@ -1,9 +1,10 @@
 pragma solidity ^0.4.24;
 
+import "../../Initializable.sol";
 import "../Roles.sol";
 
 
-contract SignerRole {
+contract SignerRole is Initializable {
   using Roles for Roles.Role;
 
   event SignerAdded(address indexed account);
@@ -11,7 +12,7 @@ contract SignerRole {
 
   Roles.Role private signers;
 
-  constructor() public {
+  function initialize() public initializer {
     signers.add(msg.sender);
   }
 

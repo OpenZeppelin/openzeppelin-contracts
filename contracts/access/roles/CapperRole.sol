@@ -1,9 +1,10 @@
 pragma solidity ^0.4.24;
 
+import "../../Initializable.sol";
 import "../Roles.sol";
 
 
-contract CapperRole {
+contract CapperRole is Initializable {
   using Roles for Roles.Role;
 
   event CapperAdded(address indexed account);
@@ -11,7 +12,7 @@ contract CapperRole {
 
   Roles.Role private cappers;
 
-  constructor() public {
+  function initialize() public initializer {
     cappers.add(msg.sender);
   }
 
