@@ -1,10 +1,15 @@
 pragma solidity ^0.4.24;
 
+import "../Initializable.sol";
 import "../drafts/SignatureBouncer.sol";
 import "./SignerRoleMock.sol";
 
 
-contract SignatureBouncerMock is SignatureBouncer, SignerRoleMock {
+contract SignatureBouncerMock is Initializable, SignatureBouncer, SignerRoleMock {
+  constructor() public {
+    SignatureBouncer.initialize();
+  }
+
   function checkValidSignature(address account, bytes signature)
     public
     view

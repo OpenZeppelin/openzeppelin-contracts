@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../Initializable.sol";
 import "../access/roles/SignerRole.sol";
 import "../cryptography/ECDSA.sol";
 
@@ -28,7 +29,7 @@ import "../cryptography/ECDSA.sol";
  * Also non fixed sized parameters make constructing the data in the signature
  * much more complex. See https://ethereum.stackexchange.com/a/50616 for more details.
  */
-contract SignatureBouncer is SignerRole {
+contract SignatureBouncer is Initializable, SignerRole {
   using ECDSA for bytes32;
 
   // Function selectors are 4 bytes long, as documented in
@@ -62,6 +63,10 @@ contract SignatureBouncer is SignerRole {
   {
     require(_isValidSignatureAndData(msg.sender, signature));
     _;
+  }
+
+  function initialize() public initializer {
+    SignerRole.initialize();
   }
 
   /**
