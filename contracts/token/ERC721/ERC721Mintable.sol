@@ -10,24 +10,8 @@ import "../../access/roles/MinterRole.sol";
  * @dev ERC721 minting logic
  */
 contract ERC721Mintable is Initializable, ERC721Full, MinterRole {
-  event MintingFinished();
-
-  bool private _mintingFinished = false;
-
-  modifier onlyBeforeMintingFinished() {
-    require(!_mintingFinished);
-    _;
-  }
-
   function initialize() public initializer {
     MinterRole.initialize();
-  }
-
-  /**
-   * @return true if the minting is finished.
-   */
-  function mintingFinished() public view returns(bool) {
-    return _mintingFinished;
   }
 
   /**
@@ -42,7 +26,6 @@ contract ERC721Mintable is Initializable, ERC721Full, MinterRole {
   )
     public
     onlyMinter
-    onlyBeforeMintingFinished
     returns (bool)
   {
     _mint(to, tokenId);
@@ -56,26 +39,10 @@ contract ERC721Mintable is Initializable, ERC721Full, MinterRole {
   )
     public
     onlyMinter
-    onlyBeforeMintingFinished
     returns (bool)
   {
     mint(to, tokenId);
     _setTokenURI(tokenId, tokenURI);
-    return true;
-  }
-
-  /**
-   * @dev Function to stop minting new tokens.
-   * @return True if the operation was successful.
-   */
-  function finishMinting()
-    public
-    onlyMinter
-    onlyBeforeMintingFinished
-    returns (bool)
-  {
-    _mintingFinished = true;
-    emit MintingFinished();
     return true;
   }
 }

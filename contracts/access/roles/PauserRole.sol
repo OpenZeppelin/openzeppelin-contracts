@@ -13,7 +13,7 @@ contract PauserRole is Initializable {
   Roles.Role private pausers;
 
   function initialize() public initializer {
-    pausers.add(msg.sender);
+    _addPauser(msg.sender);
   }
 
   modifier onlyPauser() {
@@ -26,12 +26,16 @@ contract PauserRole is Initializable {
   }
 
   function addPauser(address account) public onlyPauser {
-    pausers.add(account);
-    emit PauserAdded(account);
+    _addPauser(account);
   }
 
   function renouncePauser() public {
-    pausers.remove(msg.sender);
+    _removePauser(msg.sender);
+  }
+
+  function _addPauser(address account) internal {
+    pausers.add(account);
+    emit PauserAdded(account);
   }
 
   function _removePauser(address account) internal {

@@ -13,7 +13,7 @@ contract MinterRole is Initializable {
   Roles.Role private minters;
 
   function initialize() public initializer {
-    minters.add(msg.sender);
+    _addMinter(msg.sender);
   }
 
   modifier onlyMinter() {
@@ -26,12 +26,16 @@ contract MinterRole is Initializable {
   }
 
   function addMinter(address account) public onlyMinter {
-    minters.add(account);
-    emit MinterAdded(account);
+    _addMinter(account);
   }
 
   function renounceMinter() public {
-    minters.remove(msg.sender);
+    _removeMinter(msg.sender);
+  }
+
+  function _addMinter(address account) internal {
+    minters.add(account);
+    emit MinterAdded(account);
   }
 
   function _removeMinter(address account) internal {
