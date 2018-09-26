@@ -26,7 +26,13 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
    */
   constructor(uint256 goal) public {
     require(goal > 0);
-    _escrow = new RefundEscrow(wallet());
+
+    // conditional added to make initializer idempotent in case of diamond inheritance
+    if (address(_escrow) == address(0)) {
+      _escrow = new RefundEscrow();
+      _escrow.initialize(wallet());
+    }
+
     _goal = goal;
   }
 

@@ -9,7 +9,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const RefundEscrow = artifacts.require('RefundEscrow');
+const RefundEscrow = artifacts.require('RefundEscrowMock');
 
 contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee2]) {
   const amount = web3.toWei(54.0, 'ether');
