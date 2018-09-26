@@ -6,14 +6,14 @@ pragma solidity ^0.4.24;
 import {BreakInvariantBounty, Target} from "../bounties/BreakInvariantBounty.sol";
 
 contract TargetMock is Target {
-  bool private pwned;
+  bool private exploited;
 
   function exploitVulnerability() public {
-    pwned = true;
+    exploited = true;
   }
 
   function checkInvariant() public returns (bool) {
-    if (pwned) {
+    if (exploited) {
       return false;
     }
 

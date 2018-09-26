@@ -9,12 +9,6 @@ require('chai')
   .use(require('chai-bignumber')(web3.BigNumber))
   .should();
 
-const sendReward = async (from, to, value) => ethSendTransaction({
-  from,
-  to,
-  value,
-});
-
 const reward = new web3.BigNumber(web3.toWei(1, 'ether'));
 
 contract('BreakInvariantBounty', function ([_, owner, researcher, anyone, nonTarget]) {
@@ -23,13 +17,13 @@ contract('BreakInvariantBounty', function ([_, owner, researcher, anyone, nonTar
   });
 
   it('can set reward', async function () {
-    await sendReward(owner, this.bounty.address, reward);
+    await ethSendTransaction({ from: owner, to: this.bounty.address, value: reward });
     (await ethGetBalance(this.bounty.address)).should.be.bignumber.equal(reward);
   });
 
   context('with reward', function () {
     beforeEach(async function () {
-      await sendReward(owner, this.bounty.address, reward);
+      await ethSendTransaction({ from: owner, to: this.bounty.address, value: reward });
     });
 
     describe('destroy', function () {
@@ -96,7 +90,7 @@ contract('BreakInvariantBounty', function ([_, owner, researcher, anyone, nonTar
             });
 
             it('no longer accepts rewards', async function () {
-              await assertRevert(sendReward(owner, this.bounty.address, reward));
+              await assertRevert(ethSendTransaction({ from: owner, to: this.bounty.address, value: reward }));
             });
           });
         });
