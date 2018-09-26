@@ -2,6 +2,7 @@
 
 pragma solidity ^0.4.24;
 
+import "../Initializable.sol";
 import "../token/ERC20/SafeERC20.sol";
 import "../ownership/Ownable.sol";
 import "../math/SafeMath.sol";
@@ -13,7 +14,7 @@ import "../math/SafeMath.sol";
  * typical vesting scheme, with a cliff and vesting period. Optionally revocable by the
  * owner.
  */
-contract TokenVesting is Ownable {
+contract TokenVesting is Initializable, Ownable {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
 
@@ -42,7 +43,7 @@ contract TokenVesting is Ownable {
    * @param duration duration in seconds of the period in which the tokens will vest
    * @param revocable whether the vesting is revocable or not
    */
-  constructor(
+  function initialize(
     address beneficiary,
     uint256 start,
     uint256 cliffDuration,
@@ -50,7 +51,10 @@ contract TokenVesting is Ownable {
     bool revocable
   )
     public
+    initializer
   {
+    Ownable.initialize();
+
     require(beneficiary != address(0));
     require(cliffDuration <= duration);
 
