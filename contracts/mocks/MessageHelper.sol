@@ -1,6 +1,5 @@
 pragma solidity ^0.4.24;
 
-
 contract MessageHelper {
 
   event Show(bytes32 b32, uint256 number, string text);

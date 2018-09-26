@@ -12,15 +12,21 @@
 npm install openzeppelin-solidity
 ```
 
+If you're interested in trying out a preview of OpenZeppelin 2.0, install `openzeppelin-solidity@next`, check out the [release notes](https://github.com/OpenZeppelin/openzeppelin-solidity/releases/tag/v2.0.0-rc.1), and let us know what you think!
+
 ## Usage
 
 To write your custom contracts, import ours and extend them through inheritance.
 
 ```solidity
-import 'openzeppelin-solidity/contracts/token/ERC721/ERC721.sol';
+pragma solidity ^0.4.24;
+
+import 'openzeppelin-solidity/contracts/token/ERC721/ERC721Full.sol';
 import 'openzeppelin-solidity/contracts/token/ERC721/ERC721Mintable.sol';
 
-contract MyNFT is ERC721, ERC721Mintable {
+contract MyNFT is ERC721Full, ERC721Mintable {
+  constructor() ERC721Full("MyNFT", "MNFT") public {
+  }
 }
 ```
 

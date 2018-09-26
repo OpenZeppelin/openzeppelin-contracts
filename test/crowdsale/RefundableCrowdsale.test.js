@@ -12,7 +12,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const RefundableCrowdsale = artifacts.require('RefundableCrowdsaleImpl');
+const RefundableCrowdsaleImpl = artifacts.require('RefundableCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
 contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, anyone]) {
@@ -37,7 +37,7 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, anyon
 
   it('rejects a goal of zero', async function () {
     await expectThrow(
-      RefundableCrowdsale.new(
+      RefundableCrowdsaleImpl.new(
         this.openingTime, this.closingTime, rate, wallet, this.token.address, 0,
       ),
       EVMRevert,
@@ -46,7 +46,7 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, anyon
 
   context('with crowdsale', function () {
     beforeEach(async function () {
-      this.crowdsale = await RefundableCrowdsale.new(
+      this.crowdsale = await RefundableCrowdsaleImpl.new(
         this.openingTime, this.closingTime, rate, wallet, this.token.address, goal
       );
 

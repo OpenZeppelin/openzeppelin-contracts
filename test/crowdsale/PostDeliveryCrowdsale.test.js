@@ -11,7 +11,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const PostDeliveryCrowdsale = artifacts.require('PostDeliveryCrowdsaleImpl');
+const PostDeliveryCrowdsaleImpl = artifacts.require('PostDeliveryCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
 contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
@@ -28,7 +28,7 @@ contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
     this.closingTime = this.openingTime + duration.weeks(1);
     this.afterClosingTime = this.closingTime + duration.seconds(1);
     this.token = await SimpleToken.new();
-    this.crowdsale = await PostDeliveryCrowdsale.new(
+    this.crowdsale = await PostDeliveryCrowdsaleImpl.new(
       this.openingTime, this.closingTime, rate, wallet, this.token.address
     );
     await this.token.transfer(this.crowdsale.address, tokenSupply);

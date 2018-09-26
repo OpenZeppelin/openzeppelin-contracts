@@ -1,8 +1,6 @@
 pragma solidity ^0.4.24;
 
-
 import "../payment/ConditionalEscrow.sol";
-
 
 // mock class using ConditionalEscrow
 contract ConditionalEscrowMock is ConditionalEscrow {

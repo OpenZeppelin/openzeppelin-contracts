@@ -3,7 +3,6 @@ pragma solidity ^0.4.24;
 import "./IERC20.sol";
 import "../../math/SafeMath.sol";
 
-
 /**
  * @title Standard ERC20 token
  *
@@ -29,7 +28,7 @@ contract ERC20 is IERC20 {
 
   /**
   * @dev Gets the balance of the specified address.
-  * @param owner The address to query the the balance of.
+  * @param owner The address to query the balance of.
   * @return An uint256 representing the amount owned by the passed address.
   */
   function balanceOf(address owner) public view returns (uint256) {

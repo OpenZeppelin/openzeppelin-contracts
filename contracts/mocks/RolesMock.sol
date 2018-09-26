@@ -2,7 +2,6 @@ pragma solidity ^0.4.24;
 
 import "../access/Roles.sol";
 
-
 contract RolesMock {
   using Roles for Roles.Role;
 

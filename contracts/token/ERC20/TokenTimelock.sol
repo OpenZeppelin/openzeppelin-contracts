@@ -2,7 +2,6 @@ pragma solidity ^0.4.24;
 
 import "./SafeERC20.sol";
 
-
 /**
  * @title TokenTimelock
  * @dev TokenTimelock is a token holder contract that will allow a

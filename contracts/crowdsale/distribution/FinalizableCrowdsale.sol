@@ -3,7 +3,6 @@ pragma solidity ^0.4.24;
 import "../../math/SafeMath.sol";
 import "../validation/TimedCrowdsale.sol";
 
-
 /**
  * @title FinalizableCrowdsale
  * @dev Extension of Crowdsale with a one-off finalization action, where one

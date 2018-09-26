@@ -2,7 +2,6 @@ pragma solidity ^0.4.24;
 
 import "../math/SafeMath.sol";
 
-
 /**
  * @title SplitPayment
  * @dev This contract can be used when payments need to be received by a group
@@ -85,7 +84,6 @@ contract SplitPayment {
     );
 
     require(payment != 0);
-    assert(address(this).balance >= payment);
 
     _released[account] = _released[account].add(payment);
     _totalReleased = _totalReleased.add(payment);
