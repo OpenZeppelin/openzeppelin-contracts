@@ -1,3 +1,4 @@
+const expectEvent = require('../helpers/expectEvent');
 const { ether } = require('../helpers/ether');
 const { assertRevert } = require('../helpers/assertRevert');
 const { ethGetBalance } = require('../helpers/web3');
@@ -5,7 +6,7 @@ const { ZERO_ADDRESS } = require('../helpers/constants');
 
 const BigNumber = web3.BigNumber;
 
-const should = require('chai')
+require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
@@ -41,12 +42,14 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
   describe('high-level purchase', function () {
     it('should log purchase', async function () {
       const { logs } = await this.crowdsale.sendTransaction({ value: value, from: investor });
-      const event = logs.find(e => e.event === 'TokensPurchased');
-      should.exist(event);
-      event.args.purchaser.should.equal(investor);
-      event.args.beneficiary.should.equal(investor);
-      event.args.value.should.be.bignumber.equal(value);
-      event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
+      expectEvent.inLogs(
+        logs,
+        'TokensPurchased',
+        {
+          purchaser: investor,
+          beneficiary: investor,
+          value: value,
+          amount: expectedTokenAmount });
     });
 
     it('should assign tokens to sender', async function () {
