@@ -29,10 +29,11 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
         });
 
         it('emits a transfer event', async function () {
-          const event = expectEvent.inLogs(this.logs, 'Transfer');
-          event.args.from.should.equal(owner);
-          event.args.to.should.equal(ZERO_ADDRESS);
-          event.args.value.should.be.bignumber.equal(amount);
+          expectEvent.inLogs(this.logs, 'Transfer', {
+            from: owner,
+            to: ZERO_ADDRESS,
+            value: amount
+          });
         });
       }
     });
@@ -74,10 +75,11 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
         });
 
         it('emits a transfer event', async function () {
-          const event = expectEvent.inLogs(this.logs, 'Transfer');
-          event.args.from.should.equal(owner);
-          event.args.to.should.equal(ZERO_ADDRESS);
-          event.args.value.should.be.bignumber.equal(amount);
+          expectEvent.inLogs(this.logs, 'Transfer', {
+            from: owner,
+            to: ZERO_ADDRESS,
+            value: amount
+          });
         });
       }
     });

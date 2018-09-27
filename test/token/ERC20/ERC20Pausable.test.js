@@ -1,3 +1,4 @@
+const expectEvent = require('../../helpers/expectEvent');
 const { assertRevert } = require('../../helpers/assertRevert');
 
 const ERC20PausableMock = artifacts.require('ERC20PausableMock');
@@ -30,8 +31,7 @@ contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherA
         it('emits a Pause event', async function () {
           const { logs } = await this.token.pause({ from });
 
-          logs.length.should.equal(1);
-          logs[0].event.should.equal('Paused');
+          expectEvent.inLogs(logs, 'Paused');
         });
       });
 
@@ -72,8 +72,7 @@ contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherA
         it('emits an Unpause event', async function () {
           const { logs } = await this.token.unpause({ from });
 
-          logs.length.should.equal(1);
-          logs[0].event.should.equal('Unpaused');
+          expectEvent.inLogs(logs, 'Unpaused');
         });
       });
 

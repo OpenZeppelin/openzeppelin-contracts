@@ -1,3 +1,4 @@
+const expectEvent = require('../../helpers/expectEvent');
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 const { assertRevert } = require('../../helpers/assertRevert');
 const { ZERO_ADDRESS } = require('../../helpers/constants');
@@ -88,19 +89,19 @@ function shouldBehaveLikeERC721 (
 
         if (approved) {
           it('emit only a transfer event', async function () {
-            logs.length.should.be.equal(1);
-            logs[0].event.should.be.equal('Transfer');
-            logs[0].args.from.should.be.equal(owner);
-            logs[0].args.to.should.be.equal(this.toWhom);
-            logs[0].args.tokenId.should.be.bignumber.equal(tokenId);
+            expectEvent.inLogs(logs, 'Transfer', {
+              from: owner,
+              to: this.toWhom,
+              tokenId: tokenId
+            });
           });
         } else {
           it('emits only a transfer event', async function () {
-            logs.length.should.be.equal(1);
-            logs[0].event.should.be.equal('Transfer');
-            logs[0].args.from.should.be.equal(owner);
-            logs[0].args.to.should.be.equal(this.toWhom);
-            logs[0].args.tokenId.should.be.bignumber.equal(tokenId);
+            expectEvent.inLogs(logs, 'Transfer', {
+              from: owner,
+              to: this.toWhom,
+              tokenId: tokenId
+            });
           });
         }
 
@@ -161,11 +162,11 @@ function shouldBehaveLikeERC721 (
           });
 
           it('emits only a transfer event', async function () {
-            logs.length.should.be.equal(1);
-            logs[0].event.should.be.equal('Transfer');
-            logs[0].args.from.should.be.equal(owner);
-            logs[0].args.to.should.be.equal(owner);
-            logs[0].args.tokenId.should.be.bignumber.equal(tokenId);
+            expectEvent.inLogs(logs, 'Transfer', {
+              from: owner,
+              to: owner,
+              tokenId: tokenId
+            });
           });
 
           it('keeps the owner balance', async function () {
@@ -337,11 +338,11 @@ function shouldBehaveLikeERC721 (
 
       const itEmitsApprovalEvent = function (address) {
         it('emits an approval event', async function () {
-          logs.length.should.be.equal(1);
-          logs[0].event.should.be.equal('Approval');
-          logs[0].args.owner.should.be.equal(owner);
-          logs[0].args.approved.should.be.equal(address);
-          logs[0].args.tokenId.should.be.bignumber.equal(tokenId);
+          expectEvent.inLogs(logs, 'Approval', {
+            owner: owner,
+            approved: address,
+            tokenId: tokenId
+          });
         });
       };
 
@@ -447,11 +448,11 @@ function shouldBehaveLikeERC721 (
           it('emits an approval event', async function () {
             const { logs } = await this.token.setApprovalForAll(operator, true, { from: owner });
 
-            logs.length.should.be.equal(1);
-            logs[0].event.should.be.equal('ApprovalForAll');
-            logs[0].args.owner.should.be.equal(owner);
-            logs[0].args.operator.should.be.equal(operator);
-            logs[0].args.approved.should.equal(true);
+            expectEvent.inLogs(logs, 'ApprovalForAll', {
+              owner: owner,
+              operator: operator,
+              approved: true
+            });
           });
         });
 
@@ -469,11 +470,11 @@ function shouldBehaveLikeERC721 (
           it('emits an approval event', async function () {
             const { logs } = await this.token.setApprovalForAll(operator, true, { from: owner });
 
-            logs.length.should.be.equal(1);
-            logs[0].event.should.be.equal('ApprovalForAll');
-            logs[0].args.owner.should.be.equal(owner);
-            logs[0].args.operator.should.be.equal(operator);
-            logs[0].args.approved.should.equal(true);
+            expectEvent.inLogs(logs, 'ApprovalForAll', {
+              owner: owner,
+              operator: operator,
+              approved: true
+            });
           });
 
           it('can unset the operator approval', async function () {
@@ -497,11 +498,11 @@ function shouldBehaveLikeERC721 (
           it('emits an approval event', async function () {
             const { logs } = await this.token.setApprovalForAll(operator, true, { from: owner });
 
-            logs.length.should.be.equal(1);
-            logs[0].event.should.be.equal('ApprovalForAll');
-            logs[0].args.owner.should.be.equal(owner);
-            logs[0].args.operator.should.be.equal(operator);
-            logs[0].args.approved.should.equal(true);
+            expectEvent.inLogs(logs, 'ApprovalForAll', {
+              owner: owner,
+              operator: operator,
+              approved: true
+            });
           });
         });
       });
