@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../../Initializable.sol";
 import "../../math/SafeMath.sol";
 import "../Crowdsale.sol";
 
@@ -8,16 +9,19 @@ import "../Crowdsale.sol";
  * @title CappedCrowdsale
  * @dev Crowdsale with a limit for total contributions.
  */
-contract CappedCrowdsale is Crowdsale {
+contract CappedCrowdsale is Initializable, Crowdsale {
   using SafeMath for uint256;
 
   uint256 private _cap;
+
+  constructor(uint256 cap) public {
+  }
 
   /**
    * @dev Constructor, takes maximum amount of wei accepted in the crowdsale.
    * @param cap Max amount of wei to be contributed
    */
-  constructor(uint256 cap) public {
+  function initialize(uint256 cap) public initializer {
     require(cap > 0);
     _cap = cap;
   }
