@@ -9,7 +9,7 @@ require('chai')
   .should();
 
 const IndividuallyCappedCrowdsaleImpl = artifacts.require('IndividuallyCappedCrowdsaleImpl');
-const SimpleToken = artifacts.require('SimpleToken');
+const SimpleToken = artifacts.require('SimpleTokenMock');
 const { shouldBehaveLikePublicRole } = require('../access/roles/PublicRole.behavior');
 
 contract('IndividuallyCappedCrowdsale', function (

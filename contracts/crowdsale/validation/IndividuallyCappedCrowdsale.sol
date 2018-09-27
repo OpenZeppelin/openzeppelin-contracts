@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../../Initializable.sol";
 import "../../math/SafeMath.sol";
 import "../Crowdsale.sol";
 import "../../access/roles/CapperRole.sol";
@@ -9,11 +10,15 @@ import "../../access/roles/CapperRole.sol";
  * @title IndividuallyCappedCrowdsale
  * @dev Crowdsale with per-beneficiary caps.
  */
-contract IndividuallyCappedCrowdsale is Crowdsale, CapperRole {
+contract IndividuallyCappedCrowdsale is Initializable, Crowdsale, CapperRole {
   using SafeMath for uint256;
 
   mapping(address => uint256) private _contributions;
   mapping(address => uint256) private _caps;
+
+  function initialize() public initializer {
+    CapperRole.initialize();
+  }
 
   /**
    * @dev Sets a specific beneficiary's maximum contribution.
