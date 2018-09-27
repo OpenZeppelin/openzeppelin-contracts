@@ -16,7 +16,7 @@ function shouldBehaveLikeERC20Mintable (minter, [anyone]) {
 
       context('when the sender has minting permission', function () {
         const from = minter;
-        
+
         context('for a zero amount', function () {
           shouldMint(0);
         });
@@ -33,7 +33,7 @@ function shouldBehaveLikeERC20Mintable (minter, [anyone]) {
           it('mints the requested amount', async function () {
             (await this.token.balanceOf(anyone)).should.be.bignumber.equal(amount);
           });
- 
+
           it('emits a mint and a transfer event', async function () {
             expectEvent.inLogs(this.logs, 'Transfer', {
               from: ZERO_ADDRESS,
