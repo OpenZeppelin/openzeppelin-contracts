@@ -5,7 +5,7 @@ const { assertRevert } = require('../helpers/assertRevert');
 const BigNumber = web3.BigNumber;
 
 const MintedCrowdsale = artifacts.require('MintedCrowdsaleImpl');
-const ERC20Mintable = artifacts.require('ERC20Mintable');
+const ERC20Mintable = artifacts.require('ERC20MintableMock');
 const ERC20 = artifacts.require('ERC20');
 
 contract('MintedCrowdsale', function ([_, deployer, investor, wallet, purchaser]) {

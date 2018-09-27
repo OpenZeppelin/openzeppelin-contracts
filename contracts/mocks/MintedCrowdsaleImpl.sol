@@ -1,10 +1,11 @@
 pragma solidity ^0.4.24;
 
+import "../Initializable.sol";
 import "../token/ERC20/ERC20Mintable.sol";
 import "../crowdsale/emission/MintedCrowdsale.sol";
 
 
-contract MintedCrowdsaleImpl is MintedCrowdsale {
+contract MintedCrowdsaleImpl is Initializable, MintedCrowdsale {
 
   constructor (
     uint256 rate,
@@ -14,6 +15,7 @@ contract MintedCrowdsaleImpl is MintedCrowdsale {
     public
     Crowdsale(rate, wallet, token)
   {
+    Crowdsale.initialize(rate, wallet, token);
   }
 
 }

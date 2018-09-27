@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../../Initializable.sol";
 import "../Crowdsale.sol";
 import "../../token/ERC20/ERC20Mintable.sol";
 
@@ -9,7 +10,7 @@ import "../../token/ERC20/ERC20Mintable.sol";
  * @dev Extension of Crowdsale contract whose tokens are minted in each purchase.
  * Token ownership should be transferred to MintedCrowdsale for minting.
  */
-contract MintedCrowdsale is Crowdsale {
+contract MintedCrowdsale is Initializable, Crowdsale {
 
   /**
    * @dev Overrides delivery by minting tokens upon purchase.
