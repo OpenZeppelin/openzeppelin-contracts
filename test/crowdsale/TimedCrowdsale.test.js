@@ -12,7 +12,7 @@ require('chai')
   .should();
 
 const TimedCrowdsale = artifacts.require('TimedCrowdsaleImpl');
-const SimpleToken = artifacts.require('SimpleToken');
+const SimpleToken = artifacts.require('SimpleTokenMock');
 
 contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
   const rate = new BigNumber(1);

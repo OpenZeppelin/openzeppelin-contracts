@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../../Initializable.sol";
 import "../../math/SafeMath.sol";
 import "../Crowdsale.sol";
 
@@ -8,7 +9,7 @@ import "../Crowdsale.sol";
  * @title TimedCrowdsale
  * @dev Crowdsale accepting contributions only within a time frame.
  */
-contract TimedCrowdsale is Crowdsale {
+contract TimedCrowdsale is Initializable, Crowdsale {
   using SafeMath for uint256;
 
   uint256 private _openingTime;
@@ -22,12 +23,15 @@ contract TimedCrowdsale is Crowdsale {
     _;
   }
 
+  constructor(uint256 openingTime, uint256 closingTime) public {
+  }
+
   /**
    * @dev Constructor, takes crowdsale opening and closing times.
    * @param openingTime Crowdsale opening time
    * @param closingTime Crowdsale closing time
    */
-  constructor(uint256 openingTime, uint256 closingTime) public {
+  function initialize(uint256 openingTime, uint256 closingTime) public initializer {
     // solium-disable-next-line security/no-block-members
     require(openingTime >= block.timestamp);
     require(closingTime >= openingTime);

@@ -1,10 +1,11 @@
 pragma solidity ^0.4.24;
 
+import "../Initializable.sol";
 import "../token/ERC20/IERC20.sol";
 import "../crowdsale/validation/TimedCrowdsale.sol";
 
 
-contract TimedCrowdsaleImpl is TimedCrowdsale {
+contract TimedCrowdsaleImpl is Initializable, Crowdsale, TimedCrowdsale {
 
   constructor (
     uint256 openingTime,
@@ -17,6 +18,8 @@ contract TimedCrowdsaleImpl is TimedCrowdsale {
     Crowdsale(rate, wallet, token)
     TimedCrowdsale(openingTime, closingTime)
   {
+    Crowdsale.initialize(rate, wallet, token);
+    TimedCrowdsale.initialize(openingTime, closingTime);
   }
 
 }
