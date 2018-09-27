@@ -131,7 +131,7 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
 
       it('does not allow msg.data shorter than _SIGNATURE_SIZE', async function () {
         await assertRevert(
-          this.sigBouncer.tooShortMsgData('', { from: authorizedUser })
+          this.sigBouncer.tooShortMsgData({ from: authorizedUser })
         );
       });
     });

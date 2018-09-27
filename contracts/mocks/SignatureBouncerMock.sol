@@ -64,9 +64,9 @@ contract SignatureBouncerMock is SignatureBouncer, SignerRoleMock {
 
   }
 
-  function tooShortMsgData(bytes signature)
+  function tooShortMsgData()
     public
-    onlyValidSignatureAndData(signature)
+    onlyValidSignatureAndData("")
     view
   {
   }
