@@ -53,9 +53,8 @@ contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee
     it('only the primary account can enter closed state', async function () {
       await expectThrow(this.escrow.close({ from: beneficiary }), EVMRevert);
 
-      const receipt = await this.escrow.close({ from: primary });
-
-      expectEvent.inLogs(receipt.logs, 'Closed');
+      const { logs } = await this.escrow.close({ from: primary });
+      expectEvent.inLogs(logs, 'Closed');
     });
 
     context('closed state', function () {
@@ -93,9 +92,8 @@ contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee
     it('only the primary account can enter refund state', async function () {
       await expectThrow(this.escrow.enableRefunds({ from: beneficiary }), EVMRevert);
 
-      const receipt = await this.escrow.enableRefunds({ from: primary });
-
-      expectEvent.inLogs(receipt.logs, 'RefundsEnabled');
+      const { logs } = await this.escrow.enableRefunds({ from: primary });
+      expectEvent.inLogs(logs, 'RefundsEnabled');
     });
 
     context('refund state', function () {

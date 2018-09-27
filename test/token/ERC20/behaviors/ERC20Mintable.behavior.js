@@ -35,11 +35,11 @@ function shouldBehaveLikeERC20Mintable (minter, [anyone]) {
           });
 
           it('emits a mint and a transfer event', async function () {
-            const transferEvent = expectEvent.inLogs(this.logs, 'Transfer', {
+            expectEvent.inLogs(this.logs, 'Transfer', {
               from: ZERO_ADDRESS,
               to: anyone,
+              value: amount
             });
-            transferEvent.args.value.should.be.bignumber.equal(amount);
           });
         }
       });
