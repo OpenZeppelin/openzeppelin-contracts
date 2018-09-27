@@ -9,7 +9,7 @@ const should = require('chai')
   .should();
 
 const AllowanceCrowdsale = artifacts.require('AllowanceCrowdsaleImpl');
-const SimpleToken = artifacts.require('SimpleToken');
+const SimpleToken = artifacts.require('SimpleTokenMock');
 
 contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenWallet]) {
   const rate = new BigNumber(1);

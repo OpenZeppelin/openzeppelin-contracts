@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../../Initializable.sol";
 import "../Crowdsale.sol";
 import "../../token/ERC20/IERC20.sol";
 import "../../token/ERC20/SafeERC20.sol";
@@ -10,17 +11,20 @@ import "../../math/SafeMath.sol";
  * @title AllowanceCrowdsale
  * @dev Extension of Crowdsale where tokens are held by a wallet, which approves an allowance to the crowdsale.
  */
-contract AllowanceCrowdsale is Crowdsale {
+contract AllowanceCrowdsale is Initializable, Crowdsale {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
 
   address private _tokenWallet;
 
+  constructor(address tokenWallet) public {
+  }
+
   /**
    * @dev Constructor, takes token wallet address.
    * @param tokenWallet Address holding the tokens, which has approved allowance to the crowdsale
    */
-  constructor(address tokenWallet) public {
+  function initialize(address tokenWallet) public initializer {
     require(tokenWallet != address(0));
     _tokenWallet = tokenWallet;
   }
