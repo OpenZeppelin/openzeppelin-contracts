@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../Initializable.sol";
 import "../token/ERC20/IERC20.sol";
 import "../math/SafeMath.sol";
 import "../token/ERC20/SafeERC20.sol";
@@ -17,7 +18,7 @@ import "../token/ERC20/SafeERC20.sol";
  * the methods to add functionality. Consider using 'super' where appropriate to concatenate
  * behavior.
  */
-contract Crowdsale {
+contract Crowdsale is Initializable {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
 
@@ -50,6 +51,9 @@ contract Crowdsale {
     uint256 amount
   );
 
+  constructor(uint256 rate, address wallet, IERC20 token) public {
+  }
+
   /**
    * @param rate Number of token units a buyer gets per wei
    * @dev The rate is the conversion between wei and the smallest and indivisible
@@ -58,7 +62,7 @@ contract Crowdsale {
    * @param wallet Address where collected funds will be forwarded to
    * @param token Address of the token being sold
    */
-  constructor(uint256 rate, address wallet, IERC20 token) public {
+  function initialize(uint256 rate, address wallet, IERC20 token) public initializer {
     require(rate > 0);
     require(wallet != address(0));
     require(token != address(0));

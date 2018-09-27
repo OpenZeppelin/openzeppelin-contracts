@@ -8,8 +8,8 @@ const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const Crowdsale = artifacts.require('Crowdsale');
-const SimpleToken = artifacts.require('SimpleToken');
+const Crowdsale = artifacts.require('CrowdsaleMock');
+const SimpleToken = artifacts.require('SimpleTokenMock');
 
 contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
   const rate = new BigNumber(1);
