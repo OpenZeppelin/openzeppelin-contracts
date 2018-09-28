@@ -1,5 +1,4 @@
-const { latestTime } = require('../../helpers/latestTime');
-const { increaseTimeTo, duration } = require('../../helpers/increaseTime');
+const time = require('../../helpers/time');
 const { expectThrow } = require('../../helpers/expectThrow');
 
 const BigNumber = web3.BigNumber;
@@ -20,7 +19,7 @@ contract('TokenTimelock', function ([_, minter, beneficiary]) {
     });
 
     it('rejects a release time in the past', async function () {
-      const pastReleaseTime = (await latestTime()) - duration.years(1);
+      const pastReleaseTime = (await time.latest()) - time.duration.years(1);
       await expectThrow(
         TokenTimelock.new(this.token.address, beneficiary, pastReleaseTime)
       );
@@ -28,7 +27,7 @@ contract('TokenTimelock', function ([_, minter, beneficiary]) {
 
     context('once deployed', function () {
       beforeEach(async function () {
-        this.releaseTime = (await latestTime()) + duration.years(1);
+        this.releaseTime = (await time.latest()) + time.duration.years(1);
         this.timelock = await TokenTimelock.new(this.token.address, beneficiary, this.releaseTime);
         await this.token.mint(this.timelock.address, amount, { from: minter });
       });
@@ -44,24 +43,24 @@ contract('TokenTimelock', function ([_, minter, beneficiary]) {
       });
 
       it('cannot be released just before time limit', async function () {
-        await increaseTimeTo(this.releaseTime - duration.seconds(3));
+        await time.increaseTo(this.releaseTime - time.duration.seconds(3));
         await expectThrow(this.timelock.release());
       });
 
       it('can be released just after limit', async function () {
-        await increaseTimeTo(this.releaseTime + duration.seconds(1));
+        await time.increaseTo(this.releaseTime + time.duration.seconds(1));
         await this.timelock.release();
         (await this.token.balanceOf(beneficiary)).should.be.bignumber.equal(amount);
       });
 
       it('can be released after time limit', async function () {
-        await increaseTimeTo(this.releaseTime + duration.years(1));
+        await time.increaseTo(this.releaseTime + time.duration.years(1));
         await this.timelock.release();
         (await this.token.balanceOf(beneficiary)).should.be.bignumber.equal(amount);
       });
 
       it('cannot be released twice', async function () {
-        await increaseTimeTo(this.releaseTime + duration.years(1));
+        await time.increaseTo(this.releaseTime + time.duration.years(1));
         await this.timelock.release();
         await expectThrow(this.timelock.release());
         (await this.token.balanceOf(beneficiary)).should.be.bignumber.equal(amount);
