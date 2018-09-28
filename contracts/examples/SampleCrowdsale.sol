@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../Initializable.sol";
 import "../crowdsale/validation/CappedCrowdsale.sol";
 import "../crowdsale/distribution/RefundableCrowdsale.sol";
 import "../crowdsale/emission/MintedCrowdsale.sol";
@@ -11,11 +12,19 @@ import "../token/ERC20/ERC20Mintable.sol";
  * @dev Very simple ERC20 Token that can be minted.
  * It is meant to be used in a crowdsale contract.
  */
-contract SampleCrowdsaleToken is ERC20Mintable {
+contract SampleCrowdsaleToken is Initializable, ERC20Mintable {
 
-  string public constant name = "Sample Crowdsale Token";
-  string public constant symbol = "SCT";
-  uint8 public constant decimals = 18;
+  string public name;
+  string public symbol;
+  uint8 public decimals;
+
+  function initialize() public initializer {
+    ERC20Mintable.initialize();
+
+    name = "Sample Crowdsale Token";
+    symbol = "SCT";
+    decimals = 18;
+  }
 }
 
 
@@ -35,7 +44,7 @@ contract SampleCrowdsaleToken is ERC20Mintable {
 // https://github.com/duaraghav8/Solium/issues/205
 // --elopio - 2018-05-10
 // solium-disable-next-line max-len
-contract SampleCrowdsale is CappedCrowdsale, RefundableCrowdsale, MintedCrowdsale {
+contract SampleCrowdsale is Initializable, Crowdsale, CappedCrowdsale, RefundableCrowdsale, MintedCrowdsale {
 
   constructor(
     uint256 openingTime,
@@ -52,6 +61,25 @@ contract SampleCrowdsale is CappedCrowdsale, RefundableCrowdsale, MintedCrowdsal
     TimedCrowdsale(openingTime, closingTime)
     RefundableCrowdsale(goal)
   {
+  }
+
+  function initialize(
+    uint256 openingTime,
+    uint256 closingTime,
+    uint256 rate,
+    address wallet,
+    uint256 cap,
+    ERC20Mintable token,
+    uint256 goal
+  )
+    public
+    initializer
+  {
+    Crowdsale.initialize(rate, wallet, token);
+    CappedCrowdsale.initialize(cap);
+    TimedCrowdsale.initialize(openingTime, closingTime);
+    RefundableCrowdsale.initialize(goal);
+
     //As goal needs to be met for a successful crowdsale
     //the value needs to less or equal than a cap which is limit for accepted funds
     require(goal <= cap);
