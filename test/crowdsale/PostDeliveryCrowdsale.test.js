@@ -12,7 +12,7 @@ require('chai')
   .should();
 
 const PostDeliveryCrowdsale = artifacts.require('PostDeliveryCrowdsaleImpl');
-const SimpleToken = artifacts.require('SimpleToken');
+const SimpleToken = artifacts.require('SimpleTokenMock');
 
 contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
   const rate = new BigNumber(1);

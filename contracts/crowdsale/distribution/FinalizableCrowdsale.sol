@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../../Initializable.sol";
 import "../../math/SafeMath.sol";
 import "../validation/TimedCrowdsale.sol";
 
@@ -9,7 +10,7 @@ import "../validation/TimedCrowdsale.sol";
  * @dev Extension of Crowdsale with a one-off finalization action, where one
  * can do extra work after finishing.
  */
-contract FinalizableCrowdsale is TimedCrowdsale {
+contract FinalizableCrowdsale is Initializable, TimedCrowdsale {
   using SafeMath for uint256;
 
   bool private _finalized = false;

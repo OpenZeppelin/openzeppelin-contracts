@@ -1,6 +1,7 @@
 pragma solidity ^0.4.24;
 
 
+import "../../Initializable.sol";
 import "../../math/SafeMath.sol";
 import "./FinalizableCrowdsale.sol";
 import "../../payment/RefundEscrow.sol";
@@ -11,7 +12,7 @@ import "../../payment/RefundEscrow.sol";
  * @dev Extension of Crowdsale contract that adds a funding goal, and
  * the possibility of users getting a refund if goal is not met.
  */
-contract RefundableCrowdsale is FinalizableCrowdsale {
+contract RefundableCrowdsale is Initializable, FinalizableCrowdsale {
   using SafeMath for uint256;
 
   // minimum amount of funds to be raised in weis
@@ -20,11 +21,14 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
   // refund escrow used to hold funds while crowdsale is running
   RefundEscrow private _escrow;
 
+  constructor(uint256 goal) public {
+  }
+
   /**
    * @dev Constructor, creates RefundEscrow.
    * @param goal Funding goal
    */
-  constructor(uint256 goal) public {
+  function initialize(uint256 goal) public initializer {
     require(goal > 0);
 
     // conditional added to make initializer idempotent in case of diamond inheritance

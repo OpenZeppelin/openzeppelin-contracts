@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../../Initializable.sol";
 import "../validation/TimedCrowdsale.sol";
 import "../../token/ERC20/IERC20.sol";
 import "../../math/SafeMath.sol";
@@ -9,7 +10,7 @@ import "../../math/SafeMath.sol";
  * @title PostDeliveryCrowdsale
  * @dev Crowdsale that locks tokens from withdrawal until it ends.
  */
-contract PostDeliveryCrowdsale is TimedCrowdsale {
+contract PostDeliveryCrowdsale is Initializable, TimedCrowdsale {
   using SafeMath for uint256;
 
   mapping(address => uint256) private _balances;

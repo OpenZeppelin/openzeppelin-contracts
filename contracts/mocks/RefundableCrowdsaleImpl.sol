@@ -1,10 +1,11 @@
 pragma solidity ^0.4.24;
 
+import "../Initializable.sol";
 import "../token/ERC20/ERC20Mintable.sol";
 import "../crowdsale/distribution/RefundableCrowdsale.sol";
 
 
-contract RefundableCrowdsaleImpl is RefundableCrowdsale {
+contract RefundableCrowdsaleImpl is Initializable, Crowdsale, TimedCrowdsale, RefundableCrowdsale {
 
   constructor (
     uint256 openingTime,
@@ -19,6 +20,9 @@ contract RefundableCrowdsaleImpl is RefundableCrowdsale {
     TimedCrowdsale(openingTime, closingTime)
     RefundableCrowdsale(goal)
   {
+    Crowdsale.initialize(rate, wallet, token);
+    TimedCrowdsale.initialize(openingTime, closingTime);
+    RefundableCrowdsale.initialize(goal);
   }
 
 }
