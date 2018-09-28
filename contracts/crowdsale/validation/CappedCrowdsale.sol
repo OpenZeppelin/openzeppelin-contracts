@@ -14,9 +14,6 @@ contract CappedCrowdsale is Initializable, Crowdsale {
 
   uint256 private _cap;
 
-  constructor(uint256 cap) public {
-  }
-
   /**
    * @dev Constructor, takes maximum amount of wei accepted in the crowdsale.
    * @param cap Max amount of wei to be contributed

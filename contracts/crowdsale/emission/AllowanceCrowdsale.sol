@@ -17,9 +17,6 @@ contract AllowanceCrowdsale is Initializable, Crowdsale {
 
   address private _tokenWallet;
 
-  constructor(address tokenWallet) public {
-  }
-
   /**
    * @dev Constructor, takes token wallet address.
    * @param tokenWallet Address holding the tokens, which has approved allowance to the crowdsale

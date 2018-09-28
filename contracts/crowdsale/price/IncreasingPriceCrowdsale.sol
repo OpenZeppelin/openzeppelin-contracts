@@ -17,9 +17,6 @@ contract IncreasingPriceCrowdsale is Initializable, TimedCrowdsale {
   uint256 private _initialRate;
   uint256 private _finalRate;
 
-  constructor(uint256 initialRate, uint256 finalRate) public {
-  }
-
   /**
    * @dev Constructor, takes initial and final rates of tokens received per wei contributed.
    * @param initialRate Number of tokens a buyer gets per wei at the start of the crowdsale

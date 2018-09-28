@@ -14,8 +14,6 @@ contract AllowanceCrowdsaleImpl is Initializable, Crowdsale, AllowanceCrowdsale 
     address tokenWallet
   )
     public
-    Crowdsale(rate, wallet, token)
-    AllowanceCrowdsale(tokenWallet)
   {
     Crowdsale.initialize(rate, wallet, token);
     AllowanceCrowdsale.initialize(tokenWallet);

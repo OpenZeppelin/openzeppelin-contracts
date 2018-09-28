@@ -46,23 +46,6 @@ contract SampleCrowdsaleToken is Initializable, ERC20Mintable {
 // solium-disable-next-line max-len
 contract SampleCrowdsale is Initializable, Crowdsale, CappedCrowdsale, RefundableCrowdsale, MintedCrowdsale {
 
-  constructor(
-    uint256 openingTime,
-    uint256 closingTime,
-    uint256 rate,
-    address wallet,
-    uint256 cap,
-    ERC20Mintable token,
-    uint256 goal
-  )
-    public
-    Crowdsale(rate, wallet, token)
-    CappedCrowdsale(cap)
-    TimedCrowdsale(openingTime, closingTime)
-    RefundableCrowdsale(goal)
-  {
-  }
-
   function initialize(
     uint256 openingTime,
     uint256 closingTime,

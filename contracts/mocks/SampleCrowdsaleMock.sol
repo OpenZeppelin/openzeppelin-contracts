@@ -21,7 +21,6 @@ contract SampleCrowdsaleMock is Initializable,  SampleCrowdsale {
     uint256 goal
   )
     public
-    SampleCrowdsale(openingTime, closingTime, rate, wallet, cap, token, goal)
   {
     SampleCrowdsale.initialize(openingTime, closingTime, rate, wallet, cap, token, goal);
   }

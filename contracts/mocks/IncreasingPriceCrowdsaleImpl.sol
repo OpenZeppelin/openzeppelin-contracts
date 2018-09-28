@@ -16,9 +16,6 @@ contract IncreasingPriceCrowdsaleImpl is Initializable, IncreasingPriceCrowdsale
     uint256 finalRate
   )
     public
-    Crowdsale(initialRate, wallet, token)
-    TimedCrowdsale(openingTime, closingTime)
-    IncreasingPriceCrowdsale(initialRate, finalRate)
   {
     Crowdsale.initialize(initialRate, wallet, token);
     TimedCrowdsale.initialize(openingTime, closingTime);

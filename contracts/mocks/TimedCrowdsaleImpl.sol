@@ -15,8 +15,6 @@ contract TimedCrowdsaleImpl is Initializable, Crowdsale, TimedCrowdsale {
     IERC20 token
   )
     public
-    Crowdsale(rate, wallet, token)
-    TimedCrowdsale(openingTime, closingTime)
   {
     Crowdsale.initialize(rate, wallet, token);
     TimedCrowdsale.initialize(openingTime, closingTime);

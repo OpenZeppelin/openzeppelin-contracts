@@ -51,9 +51,6 @@ contract Crowdsale is Initializable {
     uint256 amount
   );
 
-  constructor(uint256 rate, address wallet, IERC20 token) public {
-  }
-
   /**
    * @param rate Number of token units a buyer gets per wei
    * @dev The rate is the conversion between wei and the smallest and indivisible

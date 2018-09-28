@@ -23,9 +23,6 @@ contract TimedCrowdsale is Initializable, Crowdsale {
     _;
   }
 
-  constructor(uint256 openingTime, uint256 closingTime) public {
-  }
-
   /**
    * @dev Constructor, takes crowdsale opening and closing times.
    * @param openingTime Crowdsale opening time

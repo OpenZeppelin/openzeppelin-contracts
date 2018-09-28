@@ -15,8 +15,6 @@ contract PostDeliveryCrowdsaleImpl is Initializable, Crowdsale, TimedCrowdsale, 
     IERC20 token
   )
     public
-    TimedCrowdsale(openingTime, closingTime)
-    Crowdsale(rate, wallet, token)
   {
     Crowdsale.initialize(rate, wallet, token);
     TimedCrowdsale.initialize(openingTime, closingTime);

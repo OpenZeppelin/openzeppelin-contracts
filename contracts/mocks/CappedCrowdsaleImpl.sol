@@ -14,8 +14,6 @@ contract CappedCrowdsaleImpl is Initializable, Crowdsale, CappedCrowdsale {
     uint256 cap
   )
     public
-    Crowdsale(rate, wallet, token)
-    CappedCrowdsale(cap)
   {
     Crowdsale.initialize(rate, wallet, token);
     CappedCrowdsale.initialize(cap);

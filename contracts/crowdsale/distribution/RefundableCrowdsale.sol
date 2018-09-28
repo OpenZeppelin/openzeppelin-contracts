@@ -21,9 +21,6 @@ contract RefundableCrowdsale is Initializable, FinalizableCrowdsale {
   // refund escrow used to hold funds while crowdsale is running
   RefundEscrow private _escrow;
 
-  constructor(uint256 goal) public {
-  }
-
   /**
    * @dev Constructor, creates RefundEscrow.
    * @param goal Funding goal

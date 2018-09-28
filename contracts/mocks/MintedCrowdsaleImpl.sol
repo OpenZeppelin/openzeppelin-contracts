@@ -13,7 +13,6 @@ contract MintedCrowdsaleImpl is Initializable, MintedCrowdsale {
     ERC20Mintable token
   )
     public
-    Crowdsale(rate, wallet, token)
   {
     Crowdsale.initialize(rate, wallet, token);
   }

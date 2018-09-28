@@ -15,7 +15,6 @@ contract IndividuallyCappedCrowdsaleImpl
     IERC20 token
   )
     public
-    Crowdsale(rate, wallet, token)
   {
     Crowdsale.initialize(rate, wallet, token);
     IndividuallyCappedCrowdsale.initialize();
