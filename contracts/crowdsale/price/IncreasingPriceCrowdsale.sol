@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../../Initializable.sol";
 import "../validation/TimedCrowdsale.sol";
 import "../../math/SafeMath.sol";
 
@@ -10,18 +11,21 @@ import "../../math/SafeMath.sol";
  * Note that what should be provided to the constructor is the initial and final _rates_, that is,
  * the amount of tokens per wei contributed. Thus, the initial rate must be greater than the final rate.
  */
-contract IncreasingPriceCrowdsale is TimedCrowdsale {
+contract IncreasingPriceCrowdsale is Initializable, TimedCrowdsale {
   using SafeMath for uint256;
 
   uint256 private _initialRate;
   uint256 private _finalRate;
+
+  constructor(uint256 initialRate, uint256 finalRate) public {
+  }
 
   /**
    * @dev Constructor, takes initial and final rates of tokens received per wei contributed.
    * @param initialRate Number of tokens a buyer gets per wei at the start of the crowdsale
    * @param finalRate Number of tokens a buyer gets per wei at the end of the crowdsale
    */
-  constructor(uint256 initialRate, uint256 finalRate) public {
+  function initialize(uint256 initialRate, uint256 finalRate) public initializer {
     require(finalRate > 0);
     require(initialRate >= finalRate);
     _initialRate = initialRate;

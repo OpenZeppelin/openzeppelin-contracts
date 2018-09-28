@@ -11,7 +11,7 @@ require('chai')
   .should();
 
 const IncreasingPriceCrowdsale = artifacts.require('IncreasingPriceCrowdsaleImpl');
-const SimpleToken = artifacts.require('SimpleToken');
+const SimpleToken = artifacts.require('SimpleTokenMock');
 
 contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser]) {
   const value = ether(1);

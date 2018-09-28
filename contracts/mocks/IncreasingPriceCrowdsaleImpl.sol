@@ -1,10 +1,11 @@
 pragma solidity ^0.4.24;
 
+import "../Initializable.sol";
 import "../crowdsale/price/IncreasingPriceCrowdsale.sol";
 import "../math/SafeMath.sol";
 
 
-contract IncreasingPriceCrowdsaleImpl is IncreasingPriceCrowdsale {
+contract IncreasingPriceCrowdsaleImpl is Initializable, IncreasingPriceCrowdsale {
 
   constructor (
     uint256 openingTime,
@@ -19,6 +20,9 @@ contract IncreasingPriceCrowdsaleImpl is IncreasingPriceCrowdsale {
     TimedCrowdsale(openingTime, closingTime)
     IncreasingPriceCrowdsale(initialRate, finalRate)
   {
+    Crowdsale.initialize(initialRate, wallet, token);
+    TimedCrowdsale.initialize(openingTime, closingTime);
+    IncreasingPriceCrowdsale.initialize(initialRate, finalRate);
   }
 
 }
