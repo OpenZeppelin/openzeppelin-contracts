@@ -2,8 +2,7 @@ const { ether } = require('../helpers/ether');
 const { advanceBlock } = require('../helpers/advanceToBlock');
 const { increaseTimeTo, duration } = require('../helpers/increaseTime');
 const { latestTime } = require('../helpers/latestTime');
-const { expectThrow } = require('../helpers/expectThrow');
-const { EVMRevert } = require('../helpers/EVMRevert');
+const shouldFail = require('../helpers/shouldFail');
 const { ethGetBalance } = require('../helpers/web3');
 
 const BigNumber = web3.BigNumber;
@@ -36,11 +35,8 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, anyon
   });
 
   it('rejects a goal of zero', async function () {
-    await expectThrow(
-      RefundableCrowdsaleImpl.new(
-        this.openingTime, this.closingTime, rate, wallet, this.token.address, 0,
-      ),
-      EVMRevert,
+    await shouldFail.reverting(
+      RefundableCrowdsaleImpl.new(this.openingTime, this.closingTime, rate, wallet, this.token.address, 0)
     );
   });
 
@@ -55,7 +51,7 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, anyon
 
     context('before opening time', function () {
       it('denies refunds', async function () {
-        await expectThrow(this.crowdsale.claimRefund(investor), EVMRevert);
+        await shouldFail.reverting(this.crowdsale.claimRefund(investor));
       });
     });
 
@@ -65,7 +61,7 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, anyon
       });
 
       it('denies refunds', async function () {
-        await expectThrow(this.crowdsale.claimRefund(investor), EVMRevert);
+        await shouldFail.reverting(this.crowdsale.claimRefund(investor));
       });
 
       context('with unreached goal', function () {
@@ -100,7 +96,7 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, anyon
           });
 
           it('denies refunds', async function () {
-            await expectThrow(this.crowdsale.claimRefund(investor), EVMRevert);
+            await shouldFail.reverting(this.crowdsale.claimRefund(investor));
           });
 
           it('forwards funds to wallet', async function () {

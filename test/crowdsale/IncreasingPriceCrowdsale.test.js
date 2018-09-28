@@ -2,7 +2,7 @@ const { ether } = require('../helpers/ether');
 const { advanceBlock } = require('../helpers/advanceToBlock');
 const { increaseTimeTo, duration } = require('../helpers/increaseTime');
 const { latestTime } = require('../helpers/latestTime');
-const { assertRevert } = require('../helpers/assertRevert');
+const shouldFail = require('../helpers/shouldFail');
 
 const BigNumber = web3.BigNumber;
 
@@ -36,13 +36,13 @@ contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser])
     });
 
     it('rejects a final rate larger than the initial rate', async function () {
-      await assertRevert(IncreasingPriceCrowdsaleImpl.new(
+      await shouldFail.reverting(IncreasingPriceCrowdsaleImpl.new(
         this.startTime, this.closingTime, wallet, this.token.address, initialRate, initialRate.plus(1)
       ));
     });
 
     it('rejects a final rate of zero', async function () {
-      await assertRevert(IncreasingPriceCrowdsaleImpl.new(
+      await shouldFail.reverting(IncreasingPriceCrowdsaleImpl.new(
         this.startTime, this.closingTime, wallet, this.token.address, initialRate, 0
       ));
     });

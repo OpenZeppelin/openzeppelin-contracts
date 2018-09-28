@@ -1,4 +1,4 @@
-const { assertRevert } = require('../helpers/assertRevert');
+const shouldFail = require('../helpers/shouldFail');
 
 const RolesMock = artifacts.require('RolesMock');
 
@@ -13,7 +13,7 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
   });
 
   it('reverts when querying roles for the null account', async function () {
-    await assertRevert(this.roles.has(ZERO_ADDRESS));
+    await shouldFail.reverting(this.roles.has(ZERO_ADDRESS));
   });
 
   context('initially', function () {
@@ -37,7 +37,7 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
       });
 
       it('reverts when adding roles to the null account', async function () {
-        await assertRevert(this.roles.add(ZERO_ADDRESS));
+        await shouldFail.reverting(this.roles.add(ZERO_ADDRESS));
       });
     });
   });
@@ -60,7 +60,7 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
       });
 
       it('reverts when removing roles from the null account', async function () {
-        await assertRevert(this.roles.remove(ZERO_ADDRESS));
+        await shouldFail.reverting(this.roles.remove(ZERO_ADDRESS));
       });
     });
   });

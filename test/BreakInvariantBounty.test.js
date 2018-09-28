@@ -1,6 +1,6 @@
 const { ethGetBalance, ethSendTransaction } = require('./helpers/web3');
 const expectEvent = require('./helpers/expectEvent');
-const { assertRevert } = require('./helpers/assertRevert');
+const shouldFail = require('./helpers/shouldFail');
 
 const BreakInvariantBountyMock = artifacts.require('BreakInvariantBountyMock');
 const TargetMock = artifacts.require('TargetMock');
@@ -37,7 +37,7 @@ contract('BreakInvariantBounty', function ([_, owner, researcher, anyone, nonTar
       });
 
       it('reverts when called by anyone', async function () {
-        await assertRevert(this.bounty.destroy({ from: anyone }));
+        await shouldFail.reverting(this.bounty.destroy({ from: anyone }));
       });
     });
 
@@ -60,7 +60,7 @@ contract('BreakInvariantBounty', function ([_, owner, researcher, anyone, nonTar
 
         context('before exploiting vulnerability', async function () {
           it('reverts when claiming reward', async function () {
-            await assertRevert(this.bounty.claim(this.target.address, { from: researcher }));
+            await shouldFail.reverting(this.bounty.claim(this.target.address, { from: researcher }));
           });
         });
 
@@ -90,7 +90,7 @@ contract('BreakInvariantBounty', function ([_, owner, researcher, anyone, nonTar
             });
 
             it('no longer accepts rewards', async function () {
-              await assertRevert(ethSendTransaction({ from: owner, to: this.bounty.address, value: reward }));
+              await shouldFail.reverting(ethSendTransaction({ from: owner, to: this.bounty.address, value: reward }));
             });
           });
         });
@@ -98,7 +98,7 @@ contract('BreakInvariantBounty', function ([_, owner, researcher, anyone, nonTar
 
       context('with non-target', function () {
         it('reverts when claiming reward', async function () {
-          await assertRevert(this.bounty.claim(nonTarget, { from: researcher }));
+          await shouldFail.reverting(this.bounty.claim(nonTarget, { from: researcher }));
         });
       });
     });

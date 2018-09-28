@@ -1,4 +1,4 @@
-const { expectThrow } = require('./helpers/expectThrow');
+const shouldFail = require('./helpers/shouldFail');
 const ReentrancyMock = artifacts.require('ReentrancyMock');
 const ReentrancyAttack = artifacts.require('ReentrancyAttack');
 
@@ -19,7 +19,7 @@ contract('ReentrancyGuard', function () {
 
   it('should not allow remote callback', async function () {
     const attacker = await ReentrancyAttack.new();
-    await expectThrow(reentrancyMock.countAndCall(attacker.address));
+    await shouldFail.reverting(reentrancyMock.countAndCall(attacker.address));
   });
 
   // The following are more side-effects than intended behavior:
@@ -27,10 +27,10 @@ contract('ReentrancyGuard', function () {
   // in the side-effects.
 
   it('should not allow local recursion', async function () {
-    await expectThrow(reentrancyMock.countLocalRecursive(10));
+    await shouldFail.reverting(reentrancyMock.countLocalRecursive(10));
   });
 
   it('should not allow indirect local recursion', async function () {
-    await expectThrow(reentrancyMock.countThisRecursive(10));
+    await shouldFail.reverting(reentrancyMock.countThisRecursive(10));
   });
 });
