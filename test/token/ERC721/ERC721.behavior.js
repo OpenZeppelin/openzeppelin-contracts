@@ -299,21 +299,27 @@ function shouldBehaveLikeERC721 (
         describe('to a receiver contract returning unexpected value', function () {
           it('reverts', async function () {
             const invalidReceiver = await ERC721ReceiverMock.new('0x42', false);
-            await shouldFail.reverting(this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner }));
+            await shouldFail.reverting(
+              this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner })
+            );
           });
         });
 
         describe('to a receiver contract that throws', function () {
           it('reverts', async function () {
             const invalidReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, true);
-            await shouldFail.reverting(this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner }));
+            await shouldFail.reverting(
+              this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner })
+            );
           });
         });
 
         describe('to a contract that does not implement the required function', function () {
           it('reverts', async function () {
             const invalidReceiver = this.token;
-            await shouldFail.reverting(this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner }));
+            await shouldFail.reverting(
+              this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner })
+            );
           });
         });
       });
