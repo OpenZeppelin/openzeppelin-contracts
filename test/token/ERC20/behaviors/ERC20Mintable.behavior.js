@@ -38,7 +38,7 @@ function shouldBehaveLikeERC20Mintable (minter, [anyone]) {
             expectEvent.inLogs(this.logs, 'Transfer', {
               from: ZERO_ADDRESS,
               to: anyone,
-              value: amount
+              value: amount,
             });
           });
         }
