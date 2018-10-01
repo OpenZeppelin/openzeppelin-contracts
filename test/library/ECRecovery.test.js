@@ -1,5 +1,5 @@
-var ECRecoveryMock = artifacts.require('ECRecoveryMock');
-var ECRecoveryLib = artifacts.require('ECRecovery');
+const ECRecoveryMock = artifacts.require('ECRecoveryMock');
+const ECRecoveryLib = artifacts.require('ECRecovery');
 
 contract('ECRecovery', function (accounts) {
   let ecrecovery;
@@ -31,7 +31,7 @@ contract('ECRecovery', function (accounts) {
 
   it('recover should fail when a wrong hash is sent', async function () {
     // Create the signature using account[0]
-    let signature = web3.eth.sign(accounts[0], web3.sha3(TEST_MESSAGE));
+    const signature = web3.eth.sign(accounts[0], web3.sha3(TEST_MESSAGE));
 
     // Recover the signer address from the generated message and wrong signature.
     await ecrecovery.recover(web3.sha3(TEST_MESSAGE).substring(2), signature);

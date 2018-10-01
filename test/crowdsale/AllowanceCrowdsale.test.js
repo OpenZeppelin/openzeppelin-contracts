@@ -46,7 +46,7 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
         purchaser: investor,
         beneficiary: investor,
         value: value,
-        amount: expectedTokenAmount
+        amount: expectedTokenAmount,
       });
     });
 
