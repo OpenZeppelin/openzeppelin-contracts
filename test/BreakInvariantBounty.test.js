@@ -73,8 +73,8 @@ contract('BreakInvariantBounty', function ([_, owner, researcher, anyone, nonTar
 
           it('sends the reward to the researcher', async function () {
             await this.bounty.claim(this.target.address, { from: anyone });
-            const bal = await balanceDifference(researcher, () => this.bounty.withdrawPayments(researcher));
-            bal.should.be.bignumber.equal(reward);
+            (await balanceDifference(researcher, () => this.bounty.withdrawPayments(researcher)))
+              .should.be.bignumber.equal(reward);
             (await ethGetBalance(this.bounty.address)).should.be.bignumber.equal(0);
           });
 
