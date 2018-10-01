@@ -182,27 +182,27 @@ describe('expectEvent', function () {
 
       it('accepts correct values', function () {
         expectEvent.inLogs(this.logs, 'LongUintBooleanString', {
-          uintValue: this.uintValue, booleanValue: this.booleanValue, stringValue: this.stringValue
+          uintValue: this.uintValue, booleanValue: this.booleanValue, stringValue: this.stringValue,
         });
       });
 
       it('throws with correct values assigned to wrong arguments', function () {
         should.Throw(() => expectEvent.inLogs(this.logs, 'LongUintBooleanString', {
-          uintValue: this.booleanValue, booleanValue: this.uintValue, stringValue: this.stringValue
+          uintValue: this.booleanValue, booleanValue: this.uintValue, stringValue: this.stringValue,
         }));
       });
 
       it('throws when any of the values is incorrect', function () {
         should.Throw(() => expectEvent.inLogs(this.logs, 'LongUintBooleanString', {
-          uintValue: 23, booleanValue: this.booleanValue, stringValue: this.stringValue
+          uintValue: 23, booleanValue: this.booleanValue, stringValue: this.stringValue,
         }));
 
         should.Throw(() => expectEvent.inLogs(this.logs, 'LongUintBooleanString', {
-          uintValue: this.uintValue, booleanValue: false, stringValue: this.stringValue
+          uintValue: this.uintValue, booleanValue: false, stringValue: this.stringValue,
         }));
 
         should.Throw(() => expectEvent.inLogs(this.logs, 'LongUintBooleanString', {
-          uintValue: this.uintValue, booleanValue: this.booleanValue, stringValue: 'ClosedZeppelin'
+          uintValue: this.uintValue, booleanValue: this.booleanValue, stringValue: 'ClosedZeppelin',
         }));
       });
     });
