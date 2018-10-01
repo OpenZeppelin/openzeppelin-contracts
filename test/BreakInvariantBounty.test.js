@@ -1,4 +1,5 @@
 const { ethGetBalance, ethSendTransaction } = require('./helpers/web3');
+const { sendEther } = require('./helpers/sendTransaction');
 const expectEvent = require('./helpers/expectEvent');
 const { assertRevert } = require('./helpers/assertRevert');
 
@@ -17,13 +18,13 @@ contract('BreakInvariantBounty', function ([_, owner, researcher, anyone, nonTar
   });
 
   it('can set reward', async function () {
-    await ethSendTransaction({ from: owner, to: this.bounty.address, value: reward });
+    await sendEther(owner, this.bounty.address, reward);
     (await ethGetBalance(this.bounty.address)).should.be.bignumber.equal(reward);
   });
 
   context('with reward', function () {
     beforeEach(async function () {
-      await ethSendTransaction({ from: owner, to: this.bounty.address, value: reward });
+      await sendEther(owner, this.bounty.address, reward);
     });
 
     describe('destroy', function () {
