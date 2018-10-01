@@ -20,6 +20,7 @@ function sendEther (from, to, value) {
     from: from,
     to: to,
     value: value,
+    gasPrice: 0,
   });
 }
 module.exports = {
