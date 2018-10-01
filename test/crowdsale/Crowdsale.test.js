@@ -83,7 +83,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
             purchaser: investor,
             beneficiary: investor,
             value: value,
-            amount: expectedTokenAmount,
+            amount: expectedTokenAmount
           });
         });
 
@@ -106,7 +106,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
             purchaser: purchaser,
             beneficiary: investor,
             value: value,
-            amount: expectedTokenAmount,
+            amount: expectedTokenAmount
           });
         });
 

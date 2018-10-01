@@ -31,7 +31,7 @@ function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
         const { logs } = await this.escrow.deposit(payee1, { from: primary, value: amount });
         expectEvent.inLogs(logs, 'Deposited', {
           payee: payee1,
-          weiAmount: amount,
+          weiAmount: amount
         });
       });
 
@@ -80,7 +80,7 @@ function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
         const { logs } = await this.escrow.withdraw(payee1, { from: primary });
         expectEvent.inLogs(logs, 'Withdrawn', {
           payee: payee1,
-          weiAmount: amount,
+          weiAmount: amount
         });
       });
     });

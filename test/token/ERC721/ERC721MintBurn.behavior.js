@@ -41,7 +41,7 @@ function shouldBehaveLikeMintAndBurnERC721 (
           expectEvent.inLogs(logs, 'Transfer', {
             from: ZERO_ADDRESS,
             to: newOwner,
-            tokenId: thirdTokenId,
+            tokenId: thirdTokenId
           });
         });
       });
@@ -86,7 +86,7 @@ function shouldBehaveLikeMintAndBurnERC721 (
           expectEvent.inLogs(logs, 'Transfer', {
             from: owner,
             to: ZERO_ADDRESS,
-            tokenId: tokenId,
+            tokenId: tokenId
           });
         });
       });
