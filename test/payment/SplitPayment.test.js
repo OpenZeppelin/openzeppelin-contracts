@@ -1,4 +1,5 @@
-const { ethGetBalance, ethSendTransaction } = require('../helpers/web3');
+const { ethGetBalance } = require('../helpers/web3');
+const { sendEther } = require('./../helpers/sendTransaction');
 const { ether } = require('../helpers/ether');
 const { ZERO_ADDRESS } = require('./../helpers/constants');
 
@@ -59,7 +60,7 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
     });
 
     it('should accept payments', async function () {
-      await ethSendTransaction({ from: owner, to: this.contract.address, value: amount });
+      await sendEther(owner, this.contract.address, amount);
 
       (await ethGetBalance(this.contract.address)).should.be.bignumber.equal(amount);
     });
@@ -77,12 +78,12 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
     });
 
     it('should throw if non-payee want to claim', async function () {
-      await ethSendTransaction({ from: payer1, to: this.contract.address, value: amount });
+      await sendEther(payer1, this.contract.address, amount);
       await expectThrow(this.contract.release(nonpayee1), EVMRevert);
     });
 
     it('should distribute funds to payees', async function () {
-      await ethSendTransaction({ from: payer1, to: this.contract.address, value: amount });
+      await sendEther(payer1, this.contract.address, amount);
 
       // receive funds
       const initBalance = await ethGetBalance(this.contract.address);
