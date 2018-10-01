@@ -1,15 +1,14 @@
-pragma solidity ^0.4.18;
-
+pragma solidity ^0.4.24;
 
 import "../lifecycle/Pausable.sol";
-
+import "./PauserRoleMock.sol";
 
 // mock class using Pausable
-contract PausableMock is Pausable {
+contract PausableMock is Pausable, PauserRoleMock {
   bool public drasticMeasureTaken;
   uint256 public count;
 
-  function PausableMock() public {
+  constructor() public {
     drasticMeasureTaken = false;
     count = 0;
   }

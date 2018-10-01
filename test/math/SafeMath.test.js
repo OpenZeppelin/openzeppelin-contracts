@@ -1,60 +1,126 @@
-import assertRevert from '../helpers/assertRevert';
-const assertJump = require('../helpers/assertJump');
-var SafeMathMock = artifacts.require('SafeMathMock');
+const { assertRevert } = require('../helpers/assertRevert');
 
-contract('SafeMath', function (accounts) {
-  let safeMath;
+const BigNumber = web3.BigNumber;
+const SafeMathMock = artifacts.require('SafeMathMock');
 
-  before(async function () {
-    safeMath = await SafeMathMock.new();
+require('chai')
+  .use(require('chai-bignumber')(BigNumber))
+  .should();
+
+contract('SafeMath', function () {
+  const MAX_UINT = new BigNumber(2).pow(256).minus(1);
+
+  beforeEach(async function () {
+    this.safeMath = await SafeMathMock.new();
   });
 
-  it('multiplies correctly', async function () {
-    let a = 5678;
-    let b = 1234;
-    await safeMath.multiply(a, b);
-    let result = await safeMath.result();
-    assert.equal(result, a * b);
+  describe('add', function () {
+    it('adds correctly', async function () {
+      const a = new BigNumber(5678);
+      const b = new BigNumber(1234);
+
+      (await this.safeMath.add(a, b)).should.be.bignumber.equal(a.plus(b));
+    });
+
+    it('throws a revert error on addition overflow', async function () {
+      const a = MAX_UINT;
+      const b = new BigNumber(1);
+
+      await assertRevert(this.safeMath.add(a, b));
+    });
   });
 
-  it('adds correctly', async function () {
-    let a = 5678;
-    let b = 1234;
-    await safeMath.add(a, b);
-    let result = await safeMath.result();
+  describe('sub', function () {
+    it('subtracts correctly', async function () {
+      const a = new BigNumber(5678);
+      const b = new BigNumber(1234);
 
-    assert.equal(result, a + b);
+      (await this.safeMath.sub(a, b)).should.be.bignumber.equal(a.minus(b));
+    });
+
+    it('throws a revert error if subtraction result would be negative', async function () {
+      const a = new BigNumber(1234);
+      const b = new BigNumber(5678);
+
+      await assertRevert(this.safeMath.sub(a, b));
+    });
   });
 
-  it('subtracts correctly', async function () {
-    let a = 5678;
-    let b = 1234;
-    await safeMath.subtract(a, b);
-    let result = await safeMath.result();
+  describe('mul', function () {
+    it('multiplies correctly', async function () {
+      const a = new BigNumber(1234);
+      const b = new BigNumber(5678);
 
-    assert.equal(result, a - b);
+      (await this.safeMath.mul(a, b)).should.be.bignumber.equal(a.times(b));
+    });
+
+    it('handles a zero product correctly', async function () {
+      const a = new BigNumber(0);
+      const b = new BigNumber(5678);
+
+      (await this.safeMath.mul(a, b)).should.be.bignumber.equal(a.times(b));
+    });
+
+    it('throws a revert error on multiplication overflow', async function () {
+      const a = MAX_UINT;
+      const b = new BigNumber(2);
+
+      await assertRevert(this.safeMath.mul(a, b));
+    });
   });
 
-  it('should throw an error if subtraction result would be negative', async function () {
-    let a = 1234;
-    let b = 5678;
-    try {
-      await safeMath.subtract(a, b);
-      assert.fail('should have thrown before');
-    } catch (error) {
-      assertJump(error);
-    }
+  describe('div', function () {
+    it('divides correctly', async function () {
+      const a = new BigNumber(5678);
+      const b = new BigNumber(5678);
+
+      (await this.safeMath.div(a, b)).should.be.bignumber.equal(a.div(b));
+    });
+
+    it('throws a revert error on zero division', async function () {
+      const a = new BigNumber(5678);
+      const b = new BigNumber(0);
+
+      await assertRevert(this.safeMath.div(a, b));
+    });
   });
 
-  it('should throw an error on addition overflow', async function () {
-    let a = 115792089237316195423570985008687907853269984665640564039457584007913129639935;
-    let b = 1;
-    await assertRevert(safeMath.add(a, b));
-  });
+  describe('mod', function () {
+    describe('modulos correctly', async function () {
+      it('when the dividend is smaller than the divisor', async function () {
+        const a = new BigNumber(284);
+        const b = new BigNumber(5678);
 
-  it('should throw an error on multiplication overflow', async function () {
-    let a = 115792089237316195423570985008687907853269984665640564039457584007913129639933;
-    let b = 2;
-    await assertRevert(safeMath.multiply(a, b));
+        (await this.safeMath.mod(a, b)).should.be.bignumber.equal(a.mod(b));
+      });
+
+      it('when the dividend is equal to the divisor', async function () {
+        const a = new BigNumber(5678);
+        const b = new BigNumber(5678);
+
+        (await this.safeMath.mod(a, b)).should.be.bignumber.equal(a.mod(b));
+      });
+
+      it('when the dividend is larger than the divisor', async function () {
+        const a = new BigNumber(7000);
+        const b = new BigNumber(5678);
+
+        (await this.safeMath.mod(a, b)).should.be.bignumber.equal(a.mod(b));
+      });
+
+      it('when the dividend is a multiple of the divisor', async function () {
+        const a = new BigNumber(17034); // 17034 == 5678 * 3
+        const b = new BigNumber(5678);
+
+        (await this.safeMath.mod(a, b)).should.be.bignumber.equal(a.mod(b));
+      });
+    });
+
+    it('reverts with a 0 divisor', async function () {
+      const a = new BigNumber(5678);
+      const b = new BigNumber(0);
+
+      await assertRevert(this.safeMath.mod(a, b));
+    });
   });
 });

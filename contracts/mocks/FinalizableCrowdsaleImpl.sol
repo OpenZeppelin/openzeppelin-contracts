@@ -1,21 +1,20 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.24;
 
-import "../token/ERC20/MintableToken.sol";
+import "../token/ERC20/IERC20.sol";
 import "../crowdsale/distribution/FinalizableCrowdsale.sol";
-
 
 contract FinalizableCrowdsaleImpl is FinalizableCrowdsale {
 
-  function FinalizableCrowdsaleImpl (
-    uint256 _openingTime,
-    uint256 _closingTime,
-    uint256 _rate,
-    address _wallet,
-    MintableToken _token
-  ) 
+  constructor (
+    uint256 openingTime,
+    uint256 closingTime,
+    uint256 rate,
+    address wallet,
+    IERC20 token
+  )
     public
-    Crowdsale(_rate, _wallet, _token)
-    TimedCrowdsale(_openingTime, _closingTime)
+    Crowdsale(rate, wallet, token)
+    TimedCrowdsale(openingTime, closingTime)
   {
   }
 

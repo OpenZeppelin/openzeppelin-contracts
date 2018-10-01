@@ -1,34 +1,33 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.24;
 
-
-import "../math/SafeMath.sol";
-
+import "./Escrow.sol";
 
 /**
  * @title PullPayment
  * @dev Base contract supporting async send for pull payments. Inherit from this
- * contract and use asyncSend instead of send.
+ * contract and use _asyncTransfer instead of send or transfer.
  */
 contract PullPayment {
-  using SafeMath for uint256;
+  Escrow private _escrow;
 
-  mapping(address => uint256) public payments;
-  uint256 public totalPayments;
+  constructor() public {
+    _escrow = new Escrow();
+  }
 
   /**
-  * @dev withdraw accumulated balance, called by payee.
+  * @dev Withdraw accumulated balance.
+  * @param payee Whose balance will be withdrawn.
   */
-  function withdrawPayments() public {
-    address payee = msg.sender;
-    uint256 payment = payments[payee];
+  function withdrawPayments(address payee) public {
+    _escrow.withdraw(payee);
+  }
 
-    require(payment != 0);
-    require(this.balance >= payment);
-
-    totalPayments = totalPayments.sub(payment);
-    payments[payee] = 0;
-
-    assert(payee.send(payment));
+  /**
+  * @dev Returns the credit owed to an address.
+  * @param dest The creditor's address.
+  */
+  function payments(address dest) public view returns (uint256) {
+    return _escrow.depositsOf(dest);
   }
 
   /**
@@ -36,8 +35,7 @@ contract PullPayment {
   * @param dest The destination address of the funds.
   * @param amount The amount to transfer.
   */
-  function asyncSend(address dest, uint256 amount) internal {
-    payments[dest] = payments[dest].add(amount);
-    totalPayments = totalPayments.add(amount);
+  function _asyncTransfer(address dest, uint256 amount) internal {
+    _escrow.deposit.value(amount)(dest);
   }
 }

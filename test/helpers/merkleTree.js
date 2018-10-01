@@ -1,6 +1,6 @@
-import { sha3, bufferToHex } from 'ethereumjs-util';
+const { sha3, bufferToHex } = require('ethereumjs-util');
 
-export default class MerkleTree {
+class MerkleTree {
   constructor (elements) {
     // Filter empty strings and hash elements
     this.elements = elements.filter(el => el).map(el => sha3(el));
@@ -79,7 +79,7 @@ export default class MerkleTree {
   getHexProof (el) {
     const proof = this.getProof(el);
 
-    return this.bufArrToHex(proof);
+    return this.bufArrToHexArr(proof);
   }
 
   getPairElement (idx, layer) {
@@ -117,15 +117,19 @@ export default class MerkleTree {
     });
   }
 
-  bufArrToHex (arr) {
+  bufArrToHexArr (arr) {
     if (arr.some(el => !Buffer.isBuffer(el))) {
       throw new Error('Array is not an array of buffers');
     }
 
-    return '0x' + arr.map(el => el.toString('hex')).join('');
+    return arr.map(el => '0x' + el.toString('hex'));
   }
 
   sortAndConcat (...args) {
     return Buffer.concat([...args].sort(Buffer.compare));
   }
 }
+
+module.exports = {
+  MerkleTree,
+};

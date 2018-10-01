@@ -1,7 +1,7 @@
-import latestTime from './latestTime';
+const { latestTime } = require('./latestTime');
 
-// Increases testrpc time by the passed duration in seconds
-export default function increaseTime (duration) {
+// Increases ganache time by the passed duration in seconds
+function increaseTime (duration) {
   const id = Date.now();
 
   return new Promise((resolve, reject) => {
@@ -25,24 +25,31 @@ export default function increaseTime (duration) {
 }
 
 /**
- * Beware that due to the need of calling two separate testrpc methods and rpc calls overhead
+ * Beware that due to the need of calling two separate ganache methods and rpc calls overhead
  * it's hard to increase time precisely to a target point so design your test to tolerate
  * small fluctuations from time to time.
  *
  * @param target time in seconds
  */
-export function increaseTimeTo (target) {
-  let now = latestTime();
+async function increaseTimeTo (target) {
+  const now = (await latestTime());
+
   if (target < now) throw Error(`Cannot increase current time(${now}) to a moment in the past(${target})`);
-  let diff = target - now;
+  const diff = target - now;
   return increaseTime(diff);
 }
 
-export const duration = {
+const duration = {
   seconds: function (val) { return val; },
   minutes: function (val) { return val * this.seconds(60); },
   hours: function (val) { return val * this.minutes(60); },
   days: function (val) { return val * this.hours(24); },
   weeks: function (val) { return val * this.days(7); },
   years: function (val) { return val * this.days(365); },
+};
+
+module.exports = {
+  increaseTime,
+  increaseTimeTo,
+  duration,
 };

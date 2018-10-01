@@ -1,17 +1,19 @@
+const { MerkleTree } = require('../helpers/merkleTree.js');
+const { sha3, bufferToHex } = require('ethereumjs-util');
 
-import MerkleTree from '../helpers/merkleTree.js';
-import { sha3, bufferToHex } from 'ethereumjs-util';
+const MerkleProofWrapper = artifacts.require('MerkleProofWrapper');
 
-var MerkleProof = artifacts.require('MerkleProof');
+require('chai')
+  .should();
 
-contract('MerkleProof', function (accounts) {
+contract('MerkleProof', function () {
   let merkleProof;
 
-  before(async function () {
-    merkleProof = await MerkleProof.new();
+  beforeEach(async function () {
+    merkleProof = await MerkleProofWrapper.new();
   });
 
-  describe('verifyProof', function () {
+  describe('verify', function () {
     it('should return true for a valid Merkle proof', async function () {
       const elements = ['a', 'b', 'c', 'd'];
       const merkleTree = new MerkleTree(elements);
@@ -22,8 +24,7 @@ contract('MerkleProof', function (accounts) {
 
       const leaf = bufferToHex(sha3(elements[0]));
 
-      const result = await merkleProof.verifyProof(proof, root, leaf);
-      assert.isOk(result, 'verifyProof did not return true for a valid proof');
+      (await merkleProof.verify(proof, root, leaf)).should.equal(true);
     });
 
     it('should return false for an invalid Merkle proof', async function () {
@@ -39,8 +40,7 @@ contract('MerkleProof', function (accounts) {
 
       const badProof = badMerkleTree.getHexProof(badElements[0]);
 
-      const result = await merkleProof.verifyProof(badProof, correctRoot, correctLeaf);
-      assert.isNotOk(result, 'verifyProof did not return false for an invalid proof');
+      (await merkleProof.verify(badProof, correctRoot, correctLeaf)).should.equal(false);
     });
 
     it('should return false for a Merkle proof of invalid length', async function () {
@@ -54,8 +54,7 @@ contract('MerkleProof', function (accounts) {
 
       const leaf = bufferToHex(sha3(elements[0]));
 
-      const result = await merkleProof.verifyProof(badProof, root, leaf);
-      assert.isNotOk(result, 'verifyProof did not return false for proof of invalid length');
+      (await merkleProof.verify(badProof, root, leaf)).should.equal(false);
     });
   });
 });
