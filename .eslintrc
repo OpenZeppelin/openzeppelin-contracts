@@ -25,7 +25,7 @@
 
     // Code style
     "camelcase": ["error", {"properties": "always"}],
-    "comma-dangle": ["warn", "always-multiline"],
+    "comma-dangle": ["error", "always-multiline"],
     "comma-spacing": ["error", {"before": false, "after": true}],
     "dot-notation": ["error", {"allowKeywords": true, "allowPattern": ""}],
     "eol-last": ["error", "always"],

@@ -1,6 +1,6 @@
-async function balanceDifference (account, method) {
+async function balanceDifference (account, promise) {
   const balanceBefore = web3.eth.getBalance(account);
-  await method(account);
+  await promise();
   const balanceAfter = web3.eth.getBalance(account);
   return balanceAfter.minus(balanceBefore);
 }
