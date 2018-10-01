@@ -126,7 +126,9 @@ describe('expectEvent', function () {
         });
 
         it('throws if an incorrect value is passed', function () {
-          should.Throw(() => expectEvent.inLogs(this.logs, 'Address', { value: '0x21d04e022e0b52b5d5bcf90b7f1aabf406be002d' }));
+          should.Throw(() =>
+            expectEvent.inLogs(this.logs, 'Address', { value: '0x21d04e022e0b52b5d5bcf90b7f1aabf406be002d' })
+          );
         });
       });
 
@@ -145,7 +147,7 @@ describe('expectEvent', function () {
         });
 
         it('throws if an incorrect value is passed', function () {
-          should.Throw(() => expectEvent.inLogs(this.logs, 'Boolean', { value: otherAccount }));
+          should.Throw(() => expectEvent.inLogs(this.logs, 'Boolean', { value: false }));
         });
       });
 
@@ -166,6 +168,64 @@ describe('expectEvent', function () {
         it('throws if an incorrect value is passed', function () {
           should.Throw(() => expectEvent.inLogs(this.logs, 'String', { value: 'ClosedZeppelin' }));
         });
+      });
+    });
+
+    describe('with multiple arguments', function () {
+      beforeEach(async function () {
+        this.uintValue = new BigNumber('123456789012345678901234567890');
+        this.booleanValue = true;
+        this.stringValue = 'OpenZeppelin';
+        ({ logs: this.logs } =
+          await this.emitter.emitLongUintBooleanString(this.uintValue, this.booleanValue, this.stringValue));
+      });
+
+      it('accepts correct values', function () {
+        expectEvent.inLogs(this.logs, 'LongUintBooleanString', {
+          uintValue: this.uintValue, booleanValue: this.booleanValue, stringValue: this.stringValue
+        });
+      });
+
+      it('throws with correct values assigned to wrong arguments', function () {
+        should.Throw(() => expectEvent.inLogs(this.logs, 'LongUintBooleanString', {
+          uintValue: this.booleanValue, booleanValue: this.uintValue, stringValue: this.stringValue
+        }));
+      });
+
+      it('throws when any of the values is incorrect', function () {
+        should.Throw(() => expectEvent.inLogs(this.logs, 'LongUintBooleanString', {
+          uintValue: 23, booleanValue: this.booleanValue, stringValue: this.stringValue
+        }));
+
+        should.Throw(() => expectEvent.inLogs(this.logs, 'LongUintBooleanString', {
+          uintValue: this.uintValue, booleanValue: false, stringValue: this.stringValue
+        }));
+
+        should.Throw(() => expectEvent.inLogs(this.logs, 'LongUintBooleanString', {
+          uintValue: this.uintValue, booleanValue: this.booleanValue, stringValue: 'ClosedZeppelin'
+        }));
+      });
+    });
+
+    describe('with multiple events', function () {
+      beforeEach(async function () {
+        this.uintValue = 42;
+        this.booleanValue = true;
+        ({ logs: this.logs } = await this.emitter.emitLongUintAndBoolean(this.uintValue, this.booleanValue));
+      });
+
+      it('accepts all emitted events with correct values', function () {
+        expectEvent.inLogs(this.logs, 'LongUint', { value: this.uintValue });
+        expectEvent.inLogs(this.logs, 'Boolean', { value: this.booleanValue });
+      });
+
+      it('throws if an unemitted event is requested', function () {
+        should.Throw(() => expectEvent.inLogs(this.logs, 'UnemittedEvent', { value: this.uintValue }));
+      });
+
+      it('throws if incorrect values are passed', function () {
+        should.Throw(() => expectEvent.inLogs(this.logs, 'LongUint', { value: 23 }));
+        should.Throw(() => expectEvent.inLogs(this.logs, 'Boolean', { value: false }));
       });
     });
   });
