@@ -16,14 +16,14 @@ function sendTransaction (target, name, argsTypes, argsValues, opts) {
 }
 
 function sendEther (from, to, value) {
-    web3.eth.sendTransaction({
-      from: from,
-      to: to,
-      value: value
-    });
+  web3.eth.sendTransaction({
+    from: from,
+    to: to,
+    value: value,
+  });
 }
 module.exports = {
   findMethod,
   sendTransaction,
-  sendEther
+  sendEther,
 };

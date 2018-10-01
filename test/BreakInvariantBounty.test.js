@@ -24,7 +24,7 @@ contract('BreakInvariantBounty', function ([_, owner, researcher, anyone, nonTar
 
   context('with reward', function () {
     beforeEach(async function () {
-     await sendEther(owner, this.bounty.address, reward);
+      await sendEther(owner, this.bounty.address, reward);
     });
 
     describe('destroy', function () {
