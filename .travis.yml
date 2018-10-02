@@ -16,7 +16,6 @@ jobs:
   fast_finish: true
   allow_failures:
     - env: SOLIDITY_COVERAGE=true
-    - env: SOLC_NIGHTLY=true
   include:
     # Run the unit test suite three times in parallel.
     # The first one gets results faster and is the only one required to pass.
@@ -24,16 +23,13 @@ jobs:
     # The third one is to keep us informed about possible issues with the
     # upcoming solidity release.
     - stage: tests
-      name: "unit tests"
+      name: "unit tests with solc nightly"
       script: npm run test
+      env: SOLC_NIGHTLY=true
     - stage: tests
       name: "unit tests with coverage"
       script: npm run test
       env: SOLIDITY_COVERAGE=true
-    - stage: tests
-      name: "unit tests with solc nightly"
-      script: npm run test
-      env: SOLC_NIGHTLY=true
     # solidity and javascript style tests.
     - stage: tests
       name: "static tests"
