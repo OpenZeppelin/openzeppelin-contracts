@@ -1,4 +1,4 @@
-const { expectThrow } = require('./helpers/expectThrow');
+const { expectThrow } = require('../helpers/expectThrow');
 const ReentrancyMock = artifacts.require('ReentrancyMock');
 const ReentrancyAttack = artifacts.require('ReentrancyAttack');
 
