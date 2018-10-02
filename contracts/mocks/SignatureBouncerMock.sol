@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity >0.4.24;
 
 import "../drafts/SignatureBouncer.sol";
 import "./SignerRoleMock.sol";

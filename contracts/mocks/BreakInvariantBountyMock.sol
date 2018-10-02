@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity >0.4.24;
 
 // When this line is split, truffle parsing fails.
 // See: https://github.com/ethereum/solidity/issues/4871

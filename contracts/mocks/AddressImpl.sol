@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity >0.4.24;
 
 import "../utils/Address.sol";
 
@@ -8,7 +8,7 @@ contract AddressImpl {
     view
     returns (bool)
   {
-    return Address.isContract(account); 
+    return Address.isContract(account);
   }
-  
+
 }

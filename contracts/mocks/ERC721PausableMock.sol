@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity >0.4.24;
 
 import "../token/ERC721/ERC721Pausable.sol";
 import "./PauserRoleMock.sol";

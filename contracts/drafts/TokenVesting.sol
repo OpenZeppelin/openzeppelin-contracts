@@ -1,6 +1,6 @@
 /* solium-disable security/no-block-members */
 
-pragma solidity ^0.4.24;
+pragma solidity >0.4.24;
 
 import "../token/ERC20/SafeERC20.sol";
 import "../ownership/Ownable.sol";

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity >0.4.24;
 
 import "./ERC721Full.sol";
 import "../../access/roles/MinterRole.sol";
