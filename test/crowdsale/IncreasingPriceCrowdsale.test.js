@@ -1,7 +1,6 @@
 const { ether } = require('../helpers/ether');
 const { advanceBlock } = require('../helpers/advanceToBlock');
-const { increaseTimeTo, duration } = require('../helpers/increaseTime');
-const { latestTime } = require('../helpers/latestTime');
+const time = require('../helpers/time');
 const { assertRevert } = require('../helpers/assertRevert');
 
 const BigNumber = web3.BigNumber;
@@ -29,9 +28,9 @@ contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser])
 
     beforeEach(async function () {
       await advanceBlock();
-      this.startTime = (await latestTime()) + duration.weeks(1);
-      this.closingTime = this.startTime + duration.weeks(1);
-      this.afterClosingTime = this.closingTime + duration.seconds(1);
+      this.startTime = (await time.latest()) + time.duration.weeks(1);
+      this.closingTime = this.startTime + time.duration.weeks(1);
+      this.afterClosingTime = this.closingTime + time.duration.seconds(1);
       this.token = await SimpleToken.new();
     });
 
@@ -61,43 +60,43 @@ contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser])
       });
 
       it('at start', async function () {
-        await increaseTimeTo(this.startTime);
+        await time.increaseTo(this.startTime);
         await this.crowdsale.buyTokens(investor, { value, from: purchaser });
         (await this.token.balanceOf(investor)).should.be.bignumber.equal(value.mul(initialRate));
       });
 
       it('at time 150', async function () {
-        await increaseTimeTo(this.startTime + 150);
+        await time.increaseTo(this.startTime + 150);
         await this.crowdsale.buyTokens(investor, { value, from: purchaser });
         (await this.token.balanceOf(investor)).should.be.bignumber.equal(value.mul(rateAtTime150));
       });
 
       it('at time 300', async function () {
-        await increaseTimeTo(this.startTime + 300);
+        await time.increaseTo(this.startTime + 300);
         await this.crowdsale.buyTokens(investor, { value, from: purchaser });
         (await this.token.balanceOf(investor)).should.be.bignumber.equal(value.mul(rateAtTime300));
       });
 
       it('at time 1500', async function () {
-        await increaseTimeTo(this.startTime + 1500);
+        await time.increaseTo(this.startTime + 1500);
         await this.crowdsale.buyTokens(investor, { value, from: purchaser });
         (await this.token.balanceOf(investor)).should.be.bignumber.equal(value.mul(rateAtTime1500));
       });
 
       it('at time 30', async function () {
-        await increaseTimeTo(this.startTime + 30);
+        await time.increaseTo(this.startTime + 30);
         await this.crowdsale.buyTokens(investor, { value, from: purchaser });
         (await this.token.balanceOf(investor)).should.be.bignumber.equal(value.mul(rateAtTime30));
       });
 
       it('at time 150000', async function () {
-        await increaseTimeTo(this.startTime + 150000);
+        await time.increaseTo(this.startTime + 150000);
         await this.crowdsale.buyTokens(investor, { value, from: purchaser });
         (await this.token.balanceOf(investor)).should.be.bignumber.equal(value.mul(rateAtTime150000));
       });
 
       it('at time 450000', async function () {
-        await increaseTimeTo(this.startTime + 450000);
+        await time.increaseTo(this.startTime + 450000);
         await this.crowdsale.buyTokens(investor, { value, from: purchaser });
         (await this.token.balanceOf(investor)).should.be.bignumber.equal(value.mul(rateAtTime450000));
       });

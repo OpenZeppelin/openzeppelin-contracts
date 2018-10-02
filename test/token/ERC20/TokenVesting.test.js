@@ -1,7 +1,6 @@
 const { expectThrow } = require('../../helpers/expectThrow');
 const { EVMRevert } = require('../../helpers/EVMRevert');
-const { latestTime } = require('../../helpers/latestTime');
-const { increaseTimeTo, duration } = require('../../helpers/increaseTime');
+const time = require('../../helpers/time');
 const { ethGetBlock } = require('../../helpers/web3');
 const { ZERO_ADDRESS } = require('../../helpers/constants');
 
@@ -18,9 +17,10 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
   const amount = new BigNumber(1000);
 
   beforeEach(async function () {
-    this.start = (await latestTime()) + duration.minutes(1); // +1 minute so it starts after contract instantiation
-    this.cliffDuration = duration.years(1);
-    this.duration = duration.years(2);
+    // +1 minute so it starts after contract instantiation
+    this.start = (await time.latest()) + time.duration.minutes(1);
+    this.cliffDuration = time.duration.years(1);
+    this.duration = time.duration.years(2);
   });
 
   it('rejects a duration shorter than the cliff', async function () {
@@ -65,12 +65,12 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     });
 
     it('can be released after cliff', async function () {
-      await increaseTimeTo(this.start + this.cliffDuration + duration.weeks(1));
+      await time.increaseTo(this.start + this.cliffDuration + time.duration.weeks(1));
       await this.vesting.release(this.token.address);
     });
 
     it('should release proper amount after cliff', async function () {
-      await increaseTimeTo(this.start + this.cliffDuration);
+      await time.increaseTo(this.start + this.cliffDuration);
 
       const { receipt } = await this.vesting.release(this.token.address);
       const block = await ethGetBlock(receipt.blockNumber);
@@ -87,7 +87,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
       for (let i = 1; i <= checkpoints; i++) {
         const now = this.start + this.cliffDuration + i * (vestingPeriod / checkpoints);
-        await increaseTimeTo(now);
+        await time.increaseTo(now);
 
         await this.vesting.release(this.token.address);
         const expectedVesting = amount.mul(now - this.start).div(this.duration).floor();
@@ -97,7 +97,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     });
 
     it('should have released all after end', async function () {
-      await increaseTimeTo(this.start + this.duration);
+      await time.increaseTo(this.start + this.duration);
       await this.vesting.release(this.token.address);
       (await this.token.balanceOf(beneficiary)).should.bignumber.equal(amount);
       (await this.vesting.released(this.token.address)).should.bignumber.equal(amount);
@@ -120,7 +120,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     });
 
     it('should return the non-vested tokens when revoked by owner', async function () {
-      await increaseTimeTo(this.start + this.cliffDuration + duration.weeks(12));
+      await time.increaseTo(this.start + this.cliffDuration + time.duration.weeks(12));
 
       const vested = await this.vesting.vestedAmount(this.token.address);
 
@@ -130,7 +130,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     });
 
     it('should keep the vested tokens when revoked by owner', async function () {
-      await increaseTimeTo(this.start + this.cliffDuration + duration.weeks(12));
+      await time.increaseTo(this.start + this.cliffDuration + time.duration.weeks(12));
 
       const vestedPre = await this.vesting.vestedAmount(this.token.address);
 
@@ -142,7 +142,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     });
 
     it('should fail to be revoked a second time', async function () {
-      await increaseTimeTo(this.start + this.cliffDuration + duration.weeks(12));
+      await time.increaseTo(this.start + this.cliffDuration + time.duration.weeks(12));
 
       await this.vesting.vestedAmount(this.token.address);
 
