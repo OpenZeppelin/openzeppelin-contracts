@@ -59,12 +59,7 @@ contract ERC20 is IERC20 {
   * @param value The amount to be transferred.
   */
   function transfer(address to, uint256 value) public returns (bool) {
-    require(value <= _balances[msg.sender]);
-    require(to != address(0));
-
-    _balances[msg.sender] = _balances[msg.sender].sub(value);
-    _balances[to] = _balances[to].add(value);
-    emit Transfer(msg.sender, to, value);
+    _transfer(msg.sender, to, value);
     return true;
   }
 
@@ -99,14 +94,10 @@ contract ERC20 is IERC20 {
     public
     returns (bool)
   {
-    require(value <= _balances[from]);
     require(value <= _allowed[from][msg.sender]);
-    require(to != address(0));
 
-    _balances[from] = _balances[from].sub(value);
-    _balances[to] = _balances[to].add(value);
     _allowed[from][msg.sender] = _allowed[from][msg.sender].sub(value);
-    emit Transfer(from, to, value);
+    _transfer(from, to, value);
     return true;
   }
 
@@ -156,6 +147,21 @@ contract ERC20 is IERC20 {
       _allowed[msg.sender][spender].sub(subtractedValue));
     emit Approval(msg.sender, spender, _allowed[msg.sender][spender]);
     return true;
+  }
+
+  /**
+  * @dev Transfer token for a specified addresses
+  * @param from The address to transfer from.
+  * @param to The address to transfer to.
+  * @param value The amount to be transferred.
+  */
+  function _transfer(address from, address to, uint256 value) internal {
+    require(value <= _balances[from]);
+    require(to != address(0));
+
+    _balances[from] = _balances[from].sub(value);
+    _balances[to] = _balances[to].add(value);
+    emit Transfer(from, to, value);
   }
 
   /**
