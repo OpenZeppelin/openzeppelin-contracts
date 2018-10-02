@@ -9,7 +9,11 @@ contract EventEmitter {
   event Address(address value);
   event Boolean(bool value);
   event String(string value);
-  event LongUintBooleanString(uint256 uintValue, bool booleanValue, string stringValue);
+  event LongUintBooleanString(
+    uint256 uintValue,
+    bool booleanValue,
+    string stringValue
+  );
 
   function emitArgumentless() public {
     emit Argumentless();
@@ -43,7 +47,11 @@ contract EventEmitter {
     emit String(value);
   }
 
-  function emitLongUintBooleanString(uint256 uintValue, bool booleanValue, string stringValue) public {
+  function emitLongUintBooleanString(
+    uint256 uintValue,
+    bool booleanValue,
+    string stringValue)
+  public {
     emit LongUintBooleanString(uintValue, booleanValue, stringValue);
   }
 
