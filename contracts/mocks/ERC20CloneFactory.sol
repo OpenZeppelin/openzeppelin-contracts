@@ -19,15 +19,12 @@ contract ERC20CloneFactory is CloneFactory {
 
   address public masterAddress;
 
-  event CloneCreated(address cloneAddress);
-
-  constructor(address _masterAddress) public {
-    masterAddress = _masterAddress;
+  constructor() public {
+    masterAddress = new ERC20Mock(msg.sender, 0);
   }
 
   function createNew(uint256 amount) public returns (address) {
     address cloneAddress = createClone(masterAddress);
-    emit CloneCreated(cloneAddress);
     ERC20Mock(cloneAddress).mint(msg.sender, amount);
   }
 }
