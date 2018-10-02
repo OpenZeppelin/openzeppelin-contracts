@@ -1,19 +1,20 @@
 {
   "name": "openzeppelin-solidity",
-  "version": "1.11.0",
+  "version": "2.0.0-rc.1",
   "description": "Secure Smart Contract library for Solidity",
   "files": [
+    "build",
     "contracts",
     "test"
   ],
   "scripts": {
     "test": "scripts/test.sh",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint:js": "eslint .",
+    "lint:js:fix": "eslint . --fix",
     "lint:sol": "solium -d .",
     "lint:sol:fix": "solium -d . --fix",
-    "lint:all": "npm run lint && npm run lint:sol",
-    "lint:all:fix": "npm run lint:fix && npm run lint:sol:fix",
+    "lint": "npm run lint:js && npm run lint:sol",
+    "lint:fix": "npm run lint:js:fix && npm run lint:sol:fix",
     "console": "truffle console",
     "coverage": "scripts/coverage.sh",
     "version": "scripts/version.js"
@@ -30,7 +31,7 @@
     "security",
     "zeppelin"
   ],
-  "author": "Manuel Araoz <manuelaraoz@gmail.com>",
+  "author": "OpenZeppelin Community <maintainers@openzeppelin.org>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/OpenZeppelin/zeppelin-solidity/issues"
@@ -47,7 +48,6 @@
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-promise": "^3.8.0",
     "eslint-plugin-standard": "^3.1.0",
-    "ethereumjs-util": "^5.2.0",
     "ethjs-abi": "^0.2.1",
     "ganache-cli": "6.1.0",
     "solidity-coverage": "^0.5.4",

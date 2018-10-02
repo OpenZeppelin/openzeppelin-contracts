@@ -1,41 +1,45 @@
 const { decodeLogs } = require('../helpers/decodeLogs');
 const SimpleToken = artifacts.require('SimpleToken');
 
-contract('SimpleToken', accounts => {
+const BigNumber = web3.BigNumber;
+
+require('chai')
+  .use(require('chai-bignumber')(BigNumber))
+  .should();
+
+contract('SimpleToken', function ([_, creator]) {
   let token;
-  const creator = accounts[0];
+
+  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
   beforeEach(async function () {
     token = await SimpleToken.new({ from: creator });
   });
 
   it('has a name', async function () {
-    const name = await token.name();
-    assert.equal(name, 'SimpleToken');
+    (await token.name()).should.equal('SimpleToken');
   });
 
   it('has a symbol', async function () {
-    const symbol = await token.symbol();
-    assert.equal(symbol, 'SIM');
+    (await token.symbol()).should.equal('SIM');
   });
 
   it('has 18 decimals', async function () {
-    const decimals = await token.decimals();
-    assert(decimals.eq(18));
+    (await token.decimals()).should.be.bignumber.equal(18);
   });
 
   it('assigns the initial total supply to the creator', async function () {
     const totalSupply = await token.totalSupply();
     const creatorBalance = await token.balanceOf(creator);
 
-    assert(creatorBalance.eq(totalSupply));
+    creatorBalance.should.be.bignumber.equal(totalSupply);
 
     const receipt = await web3.eth.getTransactionReceipt(token.transactionHash);
     const logs = decodeLogs(receipt.logs, SimpleToken, token.address);
-    assert.equal(logs.length, 1);
-    assert.equal(logs[0].event, 'Transfer');
-    assert.equal(logs[0].args.from.valueOf(), 0x0);
-    assert.equal(logs[0].args.to.valueOf(), creator);
-    assert(logs[0].args.value.eq(totalSupply));
+    logs.length.should.equal(1);
+    logs[0].event.should.equal('Transfer');
+    logs[0].args.from.valueOf().should.equal(ZERO_ADDRESS);
+    logs[0].args.to.valueOf().should.equal(creator);
+    logs[0].args.value.should.be.bignumber.equal(totalSupply);
   });
 });

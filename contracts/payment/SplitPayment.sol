@@ -1,31 +1,31 @@
-pragma solidity ^0.4.24;
+pragma solidity >0.4.24;
 
 import "../math/SafeMath.sol";
 
-
 /**
  * @title SplitPayment
- * @dev Base contract that supports multiple payees claiming funds sent to this contract
- * according to the proportion they own.
+ * @dev This contract can be used when payments need to be received by a group
+ * of people and split proportionately to some number of shares they own.
  */
 contract SplitPayment {
   using SafeMath for uint256;
 
-  uint256 public totalShares = 0;
-  uint256 public totalReleased = 0;
+  uint256 private _totalShares = 0;
+  uint256 private _totalReleased = 0;
 
-  mapping(address => uint256) public shares;
-  mapping(address => uint256) public released;
-  address[] public payees;
+  mapping(address => uint256) private _shares;
+  mapping(address => uint256) private _released;
+  address[] private _payees;
 
   /**
    * @dev Constructor
    */
-  constructor(address[] _payees, uint256[] _shares) public payable {
-    require(_payees.length == _shares.length);
+  constructor(address[] payees, uint256[] shares) public payable {
+    require(payees.length == shares.length);
+    require(payees.length > 0);
 
-    for (uint256 i = 0; i < _payees.length; i++) {
-      addPayee(_payees[i], _shares[i]);
+    for (uint256 i = 0; i < payees.length; i++) {
+      _addPayee(payees[i], shares[i]);
     }
   }
 
@@ -35,41 +35,74 @@ contract SplitPayment {
   function () external payable {}
 
   /**
-   * @dev Claim your share of the balance.
+   * @return the total shares of the contract.
    */
-  function claim() public {
-    address payee = msg.sender;
+  function totalShares() public view returns(uint256) {
+    return _totalShares;
+  }
 
-    require(shares[payee] > 0);
+  /**
+   * @return the total amount already released.
+   */
+  function totalReleased() public view returns(uint256) {
+    return _totalReleased;
+  }
 
-    uint256 totalReceived = address(this).balance.add(totalReleased);
+  /**
+   * @return the shares of an account.
+   */
+  function shares(address account) public view returns(uint256) {
+    return _shares[account];
+  }
+
+  /**
+   * @return the amount already released to an account.
+   */
+  function released(address account) public view returns(uint256) {
+    return _released[account];
+  }
+
+  /**
+   * @return the address of a payee.
+   */
+  function payee(uint256 index) public view returns(address) {
+    return _payees[index];
+  }
+
+  /**
+   * @dev Release one of the payee's proportional payment.
+   * @param account Whose payments will be released.
+   */
+  function release(address account) public {
+    require(_shares[account] > 0);
+
+    uint256 totalReceived = address(this).balance.add(_totalReleased);
     uint256 payment = totalReceived.mul(
-      shares[payee]).div(
-        totalShares).sub(
-          released[payee]
+      _shares[account]).div(
+        _totalShares).sub(
+          _released[account]
     );
 
     require(payment != 0);
-    require(address(this).balance >= payment);
 
-    released[payee] = released[payee].add(payment);
-    totalReleased = totalReleased.add(payment);
+    _released[account] = _released[account].add(payment);
+    _totalReleased = _totalReleased.add(payment);
 
-    payee.transfer(payment);
+    account.transfer(payment);
   }
 
   /**
    * @dev Add a new payee to the contract.
-   * @param _payee The address of the payee to add.
-   * @param _shares The number of shares owned by the payee.
+   * @param account The address of the payee to add.
+   * @param shares_ The number of shares owned by the payee.
    */
-  function addPayee(address _payee, uint256 _shares) internal {
-    require(_payee != address(0));
-    require(_shares > 0);
-    require(shares[_payee] == 0);
+  function _addPayee(address account, uint256 shares_) internal {
+    require(account != address(0));
+    require(shares_ > 0);
+    require(_shares[account] == 0);
 
-    payees.push(_payee);
-    shares[_payee] = _shares;
-    totalShares = totalShares.add(_shares);
+    _payees.push(account);
+    _shares[account] = shares_;
+    _totalShares = _totalShares.add(shares_);
   }
 }

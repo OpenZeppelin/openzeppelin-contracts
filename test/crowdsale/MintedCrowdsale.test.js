@@ -1,45 +1,45 @@
-const { shouldBehaveLikeMintedCrowdsale } = require('./MintedCrowdsale.behaviour');
+const { shouldBehaveLikeMintedCrowdsale } = require('./MintedCrowdsale.behavior');
 const { ether } = require('../helpers/ether');
+const { assertRevert } = require('../helpers/assertRevert');
 
 const BigNumber = web3.BigNumber;
 
-const MintedCrowdsale = artifacts.require('MintedCrowdsaleImpl');
-const MintableToken = artifacts.require('MintableToken');
-const RBACMintableToken = artifacts.require('RBACMintableToken');
+const MintedCrowdsaleImpl = artifacts.require('MintedCrowdsaleImpl');
+const ERC20Mintable = artifacts.require('ERC20Mintable');
+const ERC20 = artifacts.require('ERC20');
 
-contract('MintedCrowdsale', function ([_, investor, wallet, purchaser]) {
+contract('MintedCrowdsale', function ([_, deployer, investor, wallet, purchaser]) {
   const rate = new BigNumber(1000);
   const value = ether(5);
 
-  describe('using MintableToken', function () {
+  describe('using ERC20Mintable', function () {
     beforeEach(async function () {
-      this.token = await MintableToken.new();
-      this.crowdsale = await MintedCrowdsale.new(rate, wallet, this.token.address);
-      await this.token.transferOwnership(this.crowdsale.address);
+      this.token = await ERC20Mintable.new({ from: deployer });
+      this.crowdsale = await MintedCrowdsaleImpl.new(rate, wallet, this.token.address);
+
+      await this.token.addMinter(this.crowdsale.address, { from: deployer });
+      await this.token.renounceMinter({ from: deployer });
     });
 
-    it('should be token owner', async function () {
-      const owner = await this.token.owner();
-      owner.should.equal(this.crowdsale.address);
+    it('crowdsale should be minter', async function () {
+      (await this.token.isMinter(this.crowdsale.address)).should.equal(true);
     });
 
     shouldBehaveLikeMintedCrowdsale([_, investor, wallet, purchaser], rate, value);
   });
 
-  describe('using RBACMintableToken', function () {
-    const ROLE_MINTER = 'minter';
-
+  describe('using non-mintable token', function () {
     beforeEach(async function () {
-      this.token = await RBACMintableToken.new();
-      this.crowdsale = await MintedCrowdsale.new(rate, wallet, this.token.address);
-      await this.token.addMinter(this.crowdsale.address);
+      this.token = await ERC20.new();
+      this.crowdsale = await MintedCrowdsaleImpl.new(rate, wallet, this.token.address);
     });
 
-    it('should have minter role on token', async function () {
-      const isMinter = await this.token.hasRole(this.crowdsale.address, ROLE_MINTER);
-      isMinter.should.equal(true);
+    it('rejects bare payments', async function () {
+      await assertRevert(this.crowdsale.send(value));
     });
 
-    shouldBehaveLikeMintedCrowdsale([_, investor, wallet, purchaser], rate, value);
+    it('rejects token purchases', async function () {
+      await assertRevert(this.crowdsale.buyTokens(investor, { value: value, from: purchaser }));
+    });
   });
 });
