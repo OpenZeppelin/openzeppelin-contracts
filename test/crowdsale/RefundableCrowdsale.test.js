@@ -1,7 +1,6 @@
 const { ether } = require('../helpers/ether');
 const { advanceBlock } = require('../helpers/advanceToBlock');
-const { increaseTimeTo, duration } = require('../helpers/increaseTime');
-const { latestTime } = require('../helpers/latestTime');
+const time = require('../helpers/time');
 const { expectThrow } = require('../helpers/expectThrow');
 const { EVMRevert } = require('../helpers/EVMRevert');
 const { ethGetBalance } = require('../helpers/web3');
@@ -27,9 +26,9 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, anyon
   });
 
   beforeEach(async function () {
-    this.openingTime = (await latestTime()) + duration.weeks(1);
-    this.closingTime = this.openingTime + duration.weeks(1);
-    this.afterClosingTime = this.closingTime + duration.seconds(1);
+    this.openingTime = (await time.latest()) + time.duration.weeks(1);
+    this.closingTime = this.openingTime + time.duration.weeks(1);
+    this.afterClosingTime = this.closingTime + time.duration.seconds(1);
     this.preWalletBalance = await ethGetBalance(wallet);
 
     this.token = await SimpleToken.new();
@@ -61,7 +60,7 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, anyon
 
     context('after opening time', function () {
       beforeEach(async function () {
-        await increaseTimeTo(this.openingTime);
+        await time.increaseTo(this.openingTime);
       });
 
       it('denies refunds', async function () {
@@ -75,7 +74,7 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, anyon
 
         context('after closing time and finalization', function () {
           beforeEach(async function () {
-            await increaseTimeTo(this.afterClosingTime);
+            await time.increaseTo(this.afterClosingTime);
             await this.crowdsale.finalize({ from: anyone });
           });
 
@@ -95,7 +94,7 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, anyon
 
         context('after closing time and finalization', function () {
           beforeEach(async function () {
-            await increaseTimeTo(this.afterClosingTime);
+            await time.increaseTo(this.afterClosingTime);
             await this.crowdsale.finalize({ from: anyone });
           });
 
