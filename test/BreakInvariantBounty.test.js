@@ -92,7 +92,7 @@ contract('BreakInvariantBounty', function ([_, owner, researcher, anyone, nonTar
             });
 
             it('reverts when reclaimed', async function () {
-              await assertRevert(this.bounty.claim(this.target.address, { from: researcher })); ;
+              await assertRevert(this.bounty.claim(this.target.address, { from: researcher }));
             });
           });
         });
