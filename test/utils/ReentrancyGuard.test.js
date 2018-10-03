@@ -1,4 +1,4 @@
-const shouldFail = require('./helpers/shouldFail');
+const shouldFail = require('../helpers/shouldFail');
 const ReentrancyMock = artifacts.require('ReentrancyMock');
 const ReentrancyAttack = artifacts.require('ReentrancyAttack');
 

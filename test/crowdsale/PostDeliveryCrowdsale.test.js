@@ -1,6 +1,5 @@
 const { advanceBlock } = require('../helpers/advanceToBlock');
-const { increaseTimeTo, duration } = require('../helpers/increaseTime');
-const { latestTime } = require('../helpers/latestTime');
+const time = require('../helpers/time');
 const shouldFail = require('../helpers/shouldFail');
 const { ether } = require('../helpers/ether');
 
@@ -23,9 +22,9 @@ contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
   });
 
   beforeEach(async function () {
-    this.openingTime = (await latestTime()) + duration.weeks(1);
-    this.closingTime = this.openingTime + duration.weeks(1);
-    this.afterClosingTime = this.closingTime + duration.seconds(1);
+    this.openingTime = (await time.latest()) + time.duration.weeks(1);
+    this.closingTime = this.openingTime + time.duration.weeks(1);
+    this.afterClosingTime = this.closingTime + time.duration.seconds(1);
     this.token = await SimpleToken.new();
     this.crowdsale = await PostDeliveryCrowdsaleImpl.new(
       this.openingTime, this.closingTime, rate, wallet, this.token.address
@@ -35,7 +34,7 @@ contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
 
   context('after opening time', function () {
     beforeEach(async function () {
-      await increaseTimeTo(this.openingTime);
+      await time.increaseTo(this.openingTime);
     });
 
     context('with bought tokens', function () {
@@ -56,7 +55,7 @@ contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
 
       context('after closing time', function () {
         beforeEach(async function () {
-          await increaseTimeTo(this.afterClosingTime);
+          await time.increaseTo(this.afterClosingTime);
         });
 
         it('allows beneficiaries to withdraw tokens', async function () {

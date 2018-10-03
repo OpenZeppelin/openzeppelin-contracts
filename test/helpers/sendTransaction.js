@@ -15,7 +15,16 @@ function sendTransaction (target, name, argsTypes, argsValues, opts) {
   return target.sendTransaction(Object.assign({ data: encodedData }, opts));
 }
 
+function sendEther (from, to, value) {
+  web3.eth.sendTransaction({
+    from: from,
+    to: to,
+    value: value,
+    gasPrice: 0,
+  });
+}
 module.exports = {
   findMethod,
   sendTransaction,
+  sendEther,
 };

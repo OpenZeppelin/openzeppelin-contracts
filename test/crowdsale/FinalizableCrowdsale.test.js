@@ -1,7 +1,6 @@
 const expectEvent = require('../helpers/expectEvent');
 const { advanceBlock } = require('../helpers/advanceToBlock');
-const { increaseTimeTo, duration } = require('../helpers/increaseTime');
-const { latestTime } = require('../helpers/latestTime');
+const time = require('../helpers/time');
 const shouldFail = require('../helpers/shouldFail');
 
 const BigNumber = web3.BigNumber;
@@ -22,9 +21,9 @@ contract('FinalizableCrowdsale', function ([_, wallet, anyone]) {
   });
 
   beforeEach(async function () {
-    this.openingTime = (await latestTime()) + duration.weeks(1);
-    this.closingTime = this.openingTime + duration.weeks(1);
-    this.afterClosingTime = this.closingTime + duration.seconds(1);
+    this.openingTime = (await time.latest()) + time.duration.weeks(1);
+    this.closingTime = this.openingTime + time.duration.weeks(1);
+    this.afterClosingTime = this.closingTime + time.duration.seconds(1);
 
     this.token = await ERC20.new();
     this.crowdsale = await FinalizableCrowdsaleImpl.new(
@@ -37,18 +36,18 @@ contract('FinalizableCrowdsale', function ([_, wallet, anyone]) {
   });
 
   it('can be finalized by anyone after ending', async function () {
-    await increaseTimeTo(this.afterClosingTime);
+    await time.increaseTo(this.afterClosingTime);
     await this.crowdsale.finalize({ from: anyone });
   });
 
   it('cannot be finalized twice', async function () {
-    await increaseTimeTo(this.afterClosingTime);
+    await time.increaseTo(this.afterClosingTime);
     await this.crowdsale.finalize({ from: anyone });
     await shouldFail.reverting(this.crowdsale.finalize({ from: anyone }));
   });
 
   it('logs finalized', async function () {
-    await increaseTimeTo(this.afterClosingTime);
+    await time.increaseTo(this.afterClosingTime);
     const { logs } = await this.crowdsale.finalize({ from: anyone });
     expectEvent.inLogs(logs, 'CrowdsaleFinalized');
   });

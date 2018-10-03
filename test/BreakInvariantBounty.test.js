@@ -1,4 +1,6 @@
 const { ethGetBalance, ethSendTransaction } = require('./helpers/web3');
+const { sendEther } = require('./helpers/sendTransaction');
+const { balanceDifference } = require('./helpers/balanceDiff');
 const expectEvent = require('./helpers/expectEvent');
 const shouldFail = require('./helpers/shouldFail');
 
@@ -17,13 +19,13 @@ contract('BreakInvariantBounty', function ([_, owner, researcher, anyone, nonTar
   });
 
   it('can set reward', async function () {
-    await ethSendTransaction({ from: owner, to: this.bounty.address, value: reward });
+    await sendEther(owner, this.bounty.address, reward);
     (await ethGetBalance(this.bounty.address)).should.be.bignumber.equal(reward);
   });
 
   context('with reward', function () {
     beforeEach(async function () {
-      await ethSendTransaction({ from: owner, to: this.bounty.address, value: reward });
+      await sendEther(owner, this.bounty.address, reward);
     });
 
     describe('destroy', function () {
@@ -71,12 +73,8 @@ contract('BreakInvariantBounty', function ([_, owner, researcher, anyone, nonTar
 
           it('sends the reward to the researcher', async function () {
             await this.bounty.claim(this.target.address, { from: anyone });
-
-            const researcherPreBalance = await ethGetBalance(researcher);
-            await this.bounty.withdrawPayments(researcher);
-            const researcherPostBalance = await ethGetBalance(researcher);
-
-            researcherPostBalance.sub(researcherPreBalance).should.be.bignumber.equal(reward);
+            (await balanceDifference(researcher, () => this.bounty.withdrawPayments(researcher)))
+              .should.be.bignumber.equal(reward);
             (await ethGetBalance(this.bounty.address)).should.be.bignumber.equal(0);
           });
 
