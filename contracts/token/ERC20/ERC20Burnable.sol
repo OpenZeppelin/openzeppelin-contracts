@@ -24,12 +24,4 @@ contract ERC20Burnable is ERC20 {
   function burnFrom(address from, uint256 value) public {
     _burnFrom(from, value);
   }
-
-  /**
-   * @dev Overrides ERC20._burn in order for burn and burnFrom to emit
-   * an additional Burn event.
-   */
-  function _burn(address who, uint256 value) internal {
-    super._burn(who, value);
-  }
 }
