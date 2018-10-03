@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../Initializable.sol";
 
 /**
  * @title Helps contracts guard against reentrancy attacks.
@@ -7,10 +8,14 @@ pragma solidity ^0.4.24;
  * @dev If you mark a function `nonReentrant`, you should also
  * mark it `external`.
  */
-contract ReentrancyGuard {
+contract ReentrancyGuard is Initializable {
 
   /// @dev counter to allow mutex lock with only one SSTORE operation
-  uint256 private _guardCounter = 1;
+  uint256 private _guardCounter;
+
+  function initialize() public initializer {
+    _guardCounter = 1;
+  }
 
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
