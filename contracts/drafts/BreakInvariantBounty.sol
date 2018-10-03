@@ -47,6 +47,7 @@ contract BreakInvariantBounty is PullPayment, Ownable {
    * @param target contract
    */
   function claim(Target target) public {
+    require(!_claimed);
     address researcher = _researchers[target];
     require(researcher != address(0));
     // Check Target contract invariants
