@@ -37,7 +37,7 @@ Draft the release notes in our [GitHub releases](https://github.com/OpenZeppelin
 Before publishing on npm you need to generate the build artifacts. This is not done automatically at the moment because of a bug in Truffle. Since some of the contracts should not be included in the package, this is a _hairy_ process that you need to do with care.
 
 1. Delete the `contracts/mocks` and `contracts/examples` directories.
-2. Run `truffle compile`.
+2. Run `truffle compile`. (Note that the Truffle process may never exit and you will have to interrupt it.)
 3. Recover the directories using `git checkout`. It doesn't matter if you do this now or later.
 
 Once the CI run for the new tag is green, publish on npm under the `next` tag.
@@ -71,7 +71,7 @@ Draft the release notes in GitHub releases. Try to be consistent with our previo
 Before publishing on npm you need to generate the build artifacts. This is not done automatically at the moment because of a bug in Truffle. Since some of the contracts should not be included in the package, this is a _hairy_ process that you need to do with care.
 
 1. Delete the `contracts/mocks` and `contracts/examples` directories.
-2. Run `truffle compile`.
+2. Run `truffle compile`. (Note that the Truffle process may never exit and you will have to interrupt it.)
 3. Recover the directories using `git checkout`. It doesn't matter if you do this now or later.
 
 Once the CI run for the new tag is green, publish on npm.
