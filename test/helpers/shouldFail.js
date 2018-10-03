@@ -9,7 +9,7 @@ async function shouldFailWithMessage (promise, message) {
     return;
   }
 
-  should.fail(`Expected '${message} failure not received`);
+  should.fail(`Expected '${message}' failure not received`);
 }
 
 function reverting (promise) {
