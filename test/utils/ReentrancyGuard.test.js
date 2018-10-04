@@ -9,17 +9,14 @@ require('chai')
   .should();
 
 contract('ReentrancyGuard', function () {
-  let reentrancyMock;
-
   beforeEach(async function () {
-    reentrancyMock = await ReentrancyMock.new();
-    const initialCounter = await reentrancyMock.counter();
-    initialCounter.should.be.bignumber.equal(0);
+    this.reentrancyMock = await ReentrancyMock.new();
+    (await this.reentrancyMock.counter()).should.be.bignumber.equal(0);
   });
 
   it('should not allow remote callback', async function () {
     const attacker = await ReentrancyAttack.new();
-    await expectThrow(reentrancyMock.countAndCall(attacker.address));
+    await expectThrow(this.reentrancyMock.countAndCall(attacker.address));
   });
 
   // The following are more side-effects than intended behavior:
@@ -27,10 +24,10 @@ contract('ReentrancyGuard', function () {
   // in the side-effects.
 
   it('should not allow local recursion', async function () {
-    await expectThrow(reentrancyMock.countLocalRecursive(10));
+    await expectThrow(this.reentrancyMock.countLocalRecursive(10));
   });
 
   it('should not allow indirect local recursion', async function () {
-    await expectThrow(reentrancyMock.countThisRecursive(10));
+    await expectThrow(this.reentrancyMock.countThisRecursive(10));
   });
 });
