@@ -12,16 +12,16 @@ async function shouldFailWithMessage (promise, message) {
   should.fail(`Expected '${message}' failure not received`);
 }
 
-function reverting (promise) {
-  return shouldFailWithMessage(promise, 'revert');
+async function reverting (promise) {
+  await shouldFailWithMessage(promise, 'revert');
 }
 
 async function throwing (promise) {
-  return shouldFailWithMessage(promise, 'invalid opcode');
+  await shouldFailWithMessage(promise, 'invalid opcode');
 }
 
 async function outOfGas (promise) {
-  return shouldFailWithMessage(promise, 'out of gas');
+  await shouldFailWithMessage(promise, 'out of gas');
 }
 
 module.exports = {
