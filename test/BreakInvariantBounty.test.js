@@ -90,6 +90,10 @@ contract('BreakInvariantBounty', function ([_, owner, researcher, anyone, nonTar
             it('no longer accepts rewards', async function () {
               await assertRevert(ethSendTransaction({ from: owner, to: this.bounty.address, value: reward }));
             });
+
+            it('reverts when reclaimed', async function () {
+              await assertRevert(this.bounty.claim(this.target.address, { from: researcher }));
+            });
           });
         });
       });
