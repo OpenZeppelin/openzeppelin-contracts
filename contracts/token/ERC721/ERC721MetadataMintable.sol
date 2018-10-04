@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "../../Initializable.sol";
 import "./ERC721Metadata.sol";
 import "../../access/roles/MinterRole.sol";
 
@@ -8,7 +9,11 @@ import "../../access/roles/MinterRole.sol";
  * @title ERC721MetadataMintable
  * @dev ERC721 minting logic with metadata
  */
-contract ERC721MetadataMintable is ERC721, ERC721Metadata, MinterRole {
+contract ERC721MetadataMintable is Initializable, ERC721, ERC721Metadata, MinterRole {
+  function initialize() public initializer {
+    MinterRole.initialize();
+  }
+
   /**
    * @dev Function to mint tokens
    * @param to The address that will receive the minted tokens.
