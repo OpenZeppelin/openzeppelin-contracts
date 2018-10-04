@@ -6,13 +6,13 @@ import "../token/ERC721/ERC721MetadataMintable.sol";
 import "../token/ERC721/ERC721Burnable.sol";
 
 /**
- * @title ERC721Mock
+ * @title ERC721FullMock
  * This mock just provides a public mint and burn functions for testing purposes,
  * and a public setter for metadata URI
  */
-contract ERC721FullMock 
+contract ERC721FullMock
   is ERC721Full, ERC721Mintable, ERC721MetadataMintable, ERC721Burnable {
-  
+
   constructor(string name, string symbol) public
     ERC721Mintable()
     ERC721Full(name, symbol)

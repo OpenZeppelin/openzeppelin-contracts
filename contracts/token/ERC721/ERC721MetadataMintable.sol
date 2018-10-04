@@ -5,8 +5,8 @@ import "../../access/roles/MinterRole.sol";
 
 
 /**
- * @title ERC721Mintable
- * @dev ERC721 minting logic
+ * @title ERC721MetadataMintable
+ * @dev ERC721 minting logic with metadata
  */
 contract ERC721MetadataMintable is ERC721, ERC721Metadata, MinterRole {
   /**
