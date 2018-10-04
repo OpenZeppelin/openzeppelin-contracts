@@ -11,18 +11,18 @@ contract ERC20Mintable is ERC20, MinterRole {
   /**
    * @dev Function to mint tokens
    * @param to The address that will receive the minted tokens.
-   * @param amount The amount of tokens to mint.
+   * @param value The amount of tokens to mint.
    * @return A boolean that indicates if the operation was successful.
    */
   function mint(
     address to,
-    uint256 amount
+    uint256 value
   )
     public
     onlyMinter
     returns (bool)
   {
-    _mint(to, amount);
+    _mint(to, value);
     return true;
   }
 }
