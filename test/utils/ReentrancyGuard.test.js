@@ -11,8 +11,7 @@ require('chai')
 contract('ReentrancyGuard', function () {
   beforeEach(async function () {
     this.reentrancyMock = await ReentrancyMock.new();
-    this.initialCounter = await this.reentrancyMock.counter();
-    this.initialCounter.should.be.bignumber.equal(0);
+    (await this.reentrancyMock.counter()).should.be.bignumber.equal(0);
   });
 
   it('should not allow remote callback', async function () {
