@@ -1,6 +1,5 @@
 const { assertRevert } = require('../../helpers/assertRevert');
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
-const { shouldBehaveLikeMintAndBurnERC721 } = require('./ERC721MintBurn.behavior');
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 const _ = require('lodash');
 
@@ -217,7 +216,6 @@ contract('ERC721Full', function ([
   });
 
   shouldBehaveLikeERC721(creator, minter, accounts);
-  shouldBehaveLikeMintAndBurnERC721(creator, minter, accounts);
 
   shouldSupportInterfaces([
     'ERC165',
