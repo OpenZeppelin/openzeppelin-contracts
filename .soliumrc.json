@@ -2,10 +2,17 @@
   "extends": "solium:all",
   "plugins": ["security"],
   "rules": {
-    "quotes": ["error", "double"],
-    "no-empty-blocks": "off",
+    "error-reason": "off",
     "indentation": ["error", 2],
-    "arg-overflow": ["warning", 3],
+    "lbrace": "off",
+    "linebreak-style": ["error", "unix"],
+    "max-len": ["error", 120],
+    "no-constant": ["error"],
+    "no-empty-blocks": "off",
+    "quotes": ["error", "double"],
+    "uppercase": "off",
+    "visibility-first": "error",
+
     "security/enforce-explicit-visibility": ["error"],
     "security/no-block-members": ["warning"],
     "security/no-inline-assembly": ["warning"]

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
 
 import "../math/SafeMath.sol";
@@ -20,5 +20,9 @@ contract SafeMathMock {
 
   function add(uint256 a, uint256 b) public pure returns (uint256) {
     return SafeMath.add(a, b);
+  }
+
+  function mod(uint256 a, uint256 b) public pure returns (uint256) {
+    return SafeMath.mod(a, b);
   }
 }

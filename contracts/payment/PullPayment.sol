@@ -1,34 +1,39 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
-
-import "../math/SafeMath.sol";
+import "../Initializable.sol";
+import "./Escrow.sol";
 
 
 /**
  * @title PullPayment
  * @dev Base contract supporting async send for pull payments. Inherit from this
- * contract and use asyncSend instead of send or transfer.
+ * contract and use _asyncTransfer instead of send or transfer.
  */
-contract PullPayment {
-  using SafeMath for uint256;
+contract PullPayment is Initializable {
+  Escrow private _escrow;
 
-  mapping(address => uint256) public payments;
-  uint256 public totalPayments;
+  function initialize() public initializer {
+    // conditional added to make initializer idempotent in case of diamond inheritance
+    if (address(_escrow) == address(0)) {
+      _escrow = new Escrow();
+      _escrow.initialize();
+    }
+  }
 
   /**
-  * @dev Withdraw accumulated balance, called by payee.
+  * @dev Withdraw accumulated balance.
+  * @param payee Whose balance will be withdrawn.
   */
-  function withdrawPayments() public {
-    address payee = msg.sender;
-    uint256 payment = payments[payee];
+  function withdrawPayments(address payee) public {
+    _escrow.withdraw(payee);
+  }
 
-    require(payment != 0);
-    require(address(this).balance >= payment);
-
-    totalPayments = totalPayments.sub(payment);
-    payments[payee] = 0;
-
-    payee.transfer(payment);
+  /**
+  * @dev Returns the credit owed to an address.
+  * @param dest The creditor's address.
+  */
+  function payments(address dest) public view returns (uint256) {
+    return _escrow.depositsOf(dest);
   }
 
   /**
@@ -36,8 +41,7 @@ contract PullPayment {
   * @param dest The destination address of the funds.
   * @param amount The amount to transfer.
   */
-  function asyncSend(address dest, uint256 amount) internal {
-    payments[dest] = payments[dest].add(amount);
-    totalPayments = totalPayments.add(amount);
+  function _asyncTransfer(address dest, uint256 amount) internal {
+    _escrow.deposit.value(amount)(dest);
   }
 }

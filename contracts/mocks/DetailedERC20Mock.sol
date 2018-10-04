@@ -1,11 +1,18 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
-import "../token/ERC20/StandardToken.sol";
-import "../token/ERC20/DetailedERC20.sol";
+import "../Initializable.sol";
+import "../token/ERC20/ERC20.sol";
+import "../token/ERC20/ERC20Detailed.sol";
 
 
-contract DetailedERC20Mock is StandardToken, DetailedERC20 {
-  function DetailedERC20Mock(string _name, string _symbol, uint8 _decimals) public {
-    DetailedERC20.initialize(_name, _symbol, _decimals);
+contract ERC20DetailedMock is Initializable, ERC20, ERC20Detailed {
+  constructor(
+    string name,
+    string symbol,
+    uint8 decimals
+  )
+    public
+  {
+    ERC20Detailed.initialize(name, symbol, decimals);
   }
 }
