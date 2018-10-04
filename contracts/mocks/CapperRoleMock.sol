@@ -1,10 +1,9 @@
 pragma solidity ^0.4.24;
 
-import "../Initializable.sol";
 import "../access/roles/CapperRole.sol";
 
 
-contract CapperRoleMock is Initializable, CapperRole {
+contract CapperRoleMock is CapperRole {
   constructor() public {
     CapperRole.initialize();
   }

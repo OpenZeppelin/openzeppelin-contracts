@@ -1,11 +1,10 @@
 pragma solidity ^0.4.24;
 
-import "../Initializable.sol";
 import "../token/ERC20/IERC20.sol";
 import "../crowdsale/emission/AllowanceCrowdsale.sol";
 
 
-contract AllowanceCrowdsaleImpl is Initializable, Crowdsale, AllowanceCrowdsale {
+contract AllowanceCrowdsaleImpl is AllowanceCrowdsale {
 
   constructor (
     uint256 rate,

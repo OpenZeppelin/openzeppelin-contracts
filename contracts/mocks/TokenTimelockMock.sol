@@ -1,9 +1,8 @@
 pragma solidity ^0.4.24;
 
-import "../Initializable.sol";
 import "../token/ERC20/TokenTimelock.sol";
 
-contract TokenTimelockMock is Initializable, TokenTimelock {
+contract TokenTimelockMock is TokenTimelock {
   constructor(
     IERC20 token,
     address beneficiary,

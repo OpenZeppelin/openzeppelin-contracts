@@ -1,12 +1,11 @@
 pragma solidity ^0.4.24;
 
 
-import "../Initializable.sol";
 import "../payment/PullPayment.sol";
 
 
 // mock class using PullPayment
-contract PullPaymentMock is Initializable, PullPayment {
+contract PullPaymentMock is PullPayment {
 
   constructor() public payable {
     PullPayment.initialize();

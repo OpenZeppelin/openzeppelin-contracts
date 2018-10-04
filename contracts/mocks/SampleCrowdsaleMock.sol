@@ -1,16 +1,15 @@
 pragma solidity ^0.4.24;
 
-import "../Initializable.sol";
 import "../examples/SampleCrowdsale.sol";
 
 
-contract SampleCrowdsaleTokenMock is Initializable, SampleCrowdsaleToken {
+contract SampleCrowdsaleTokenMock is SampleCrowdsaleToken {
   constructor() public {
     SampleCrowdsaleToken.initialize();
   }
 }
 
-contract SampleCrowdsaleMock is Initializable,  SampleCrowdsale {
+contract SampleCrowdsaleMock is SampleCrowdsale {
   constructor(
     uint256 openingTime,
     uint256 closingTime,

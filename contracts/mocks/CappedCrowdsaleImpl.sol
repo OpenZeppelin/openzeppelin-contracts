@@ -1,11 +1,10 @@
 pragma solidity ^0.4.24;
 
-import "../Initializable.sol";
 import "../token/ERC20/IERC20.sol";
 import "../crowdsale/validation/CappedCrowdsale.sol";
 
 
-contract CappedCrowdsaleImpl is Initializable, Crowdsale, CappedCrowdsale {
+contract CappedCrowdsaleImpl is CappedCrowdsale {
 
   constructor (
     uint256 rate,

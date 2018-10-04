@@ -1,10 +1,9 @@
 pragma solidity ^0.4.24;
 
-import "../Initializable.sol";
 import "../crowdsale/Crowdsale.sol";
 
 
-contract CrowdsaleMock is Initializable, Crowdsale {
+contract CrowdsaleMock is Crowdsale {
   constructor(uint256 rate, address wallet, IERC20 token) public {
     Crowdsale.initialize(rate, wallet, token);
   }

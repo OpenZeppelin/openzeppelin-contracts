@@ -4,10 +4,9 @@ pragma solidity ^0.4.24;
 // See: https://github.com/ethereum/solidity/issues/4871
 // solium-disable-next-line max-len
 import {BreakInvariantBounty, Target} from "../drafts/BreakInvariantBounty.sol";
-import "../Initializable.sol";
 
 
-contract TargetMock is Initializable, Target {
+contract TargetMock is Target {
   bool private exploited;
 
   function exploitVulnerability() public {
@@ -23,7 +22,7 @@ contract TargetMock is Initializable, Target {
   }
 }
 
-contract BreakInvariantBountyMock is Initializable, BreakInvariantBounty {
+contract BreakInvariantBountyMock is BreakInvariantBounty {
   constructor() public {
     BreakInvariantBounty.initialize();
   }

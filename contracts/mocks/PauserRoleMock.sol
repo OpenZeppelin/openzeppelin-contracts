@@ -1,10 +1,9 @@
 pragma solidity ^0.4.24;
 
-import "../Initializable.sol";
 import "../access/roles/PauserRole.sol";
 
 
-contract PauserRoleMock is Initializable, PauserRole {
+contract PauserRoleMock is PauserRole {
   constructor() public {
     PauserRole.initialize();
   }

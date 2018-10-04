@@ -1,11 +1,10 @@
 pragma solidity ^0.4.24;
 
-import "../Initializable.sol";
 import "../crowdsale/price/IncreasingPriceCrowdsale.sol";
 import "../math/SafeMath.sol";
 
 
-contract IncreasingPriceCrowdsaleImpl is Initializable, IncreasingPriceCrowdsale {
+contract IncreasingPriceCrowdsaleImpl is IncreasingPriceCrowdsale {
 
   constructor (
     uint256 openingTime,

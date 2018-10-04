@@ -1,12 +1,10 @@
 pragma solidity ^0.4.24;
 
-
-import "../Initializable.sol";
 import "../payment/ConditionalEscrow.sol";
 
 
 // mock class using ConditionalEscrow
-contract ConditionalEscrowMock is Initializable, ConditionalEscrow {
+contract ConditionalEscrowMock is ConditionalEscrow {
   mapping(address => bool) private _allowed;
 
   constructor() public {

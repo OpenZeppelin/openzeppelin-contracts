@@ -1,10 +1,9 @@
 pragma solidity ^0.4.24;
 
-import "../Initializable.sol";
 import "../ownership/Secondary.sol";
 
 
-contract SecondaryMock is Initializable, Secondary {
+contract SecondaryMock is Secondary {
   constructor() public {
     Secondary.initialize();
   }
