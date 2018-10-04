@@ -36,7 +36,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 contract CloneFactory {
 
-  event CloneCreated(address indexed masterAddress, address clonedAddress);
+  event CloneCreated(address indexed originAddress, address clonedAddress);
 
   function createClone(address target) internal returns (address result) {
     // solium-disable-next-line
