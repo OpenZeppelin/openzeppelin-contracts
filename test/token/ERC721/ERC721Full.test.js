@@ -1,6 +1,5 @@
 const { assertRevert } = require('../../helpers/assertRevert');
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
-const { shouldBehaveLikeMintAndBurnERC721 } = require('./ERC721MintBurn.behavior');
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 
 const BigNumber = web3.BigNumber;
@@ -221,7 +220,6 @@ contract('ERC721Full', function ([
   });
 
   shouldBehaveLikeERC721(creator, minter, accounts);
-  shouldBehaveLikeMintAndBurnERC721(creator, minter, accounts);
 
   shouldSupportInterfaces([
     'ERC165',
