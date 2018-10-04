@@ -92,7 +92,7 @@ function shouldBehaveLikeERC721 (
             expectEvent.inLogs(logs, 'Transfer', {
               from: owner,
               to: this.toWhom,
-              tokenId: tokenId
+              tokenId: tokenId,
             });
           });
         } else {
@@ -100,7 +100,7 @@ function shouldBehaveLikeERC721 (
             expectEvent.inLogs(logs, 'Transfer', {
               from: owner,
               to: this.toWhom,
-              tokenId: tokenId
+              tokenId: tokenId,
             });
           });
         }
@@ -165,7 +165,7 @@ function shouldBehaveLikeERC721 (
             expectEvent.inLogs(logs, 'Transfer', {
               from: owner,
               to: owner,
-              tokenId: tokenId
+              tokenId: tokenId,
             });
           });
 
@@ -341,7 +341,7 @@ function shouldBehaveLikeERC721 (
           expectEvent.inLogs(logs, 'Approval', {
             owner: owner,
             approved: address,
-            tokenId: tokenId
+            tokenId: tokenId,
           });
         });
       };
@@ -451,7 +451,7 @@ function shouldBehaveLikeERC721 (
             expectEvent.inLogs(logs, 'ApprovalForAll', {
               owner: owner,
               operator: operator,
-              approved: true
+              approved: true,
             });
           });
         });
@@ -473,7 +473,7 @@ function shouldBehaveLikeERC721 (
             expectEvent.inLogs(logs, 'ApprovalForAll', {
               owner: owner,
               operator: operator,
-              approved: true
+              approved: true,
             });
           });
 
@@ -501,7 +501,7 @@ function shouldBehaveLikeERC721 (
             expectEvent.inLogs(logs, 'ApprovalForAll', {
               owner: owner,
               operator: operator,
-              approved: true
+              approved: true,
             });
           });
         });
