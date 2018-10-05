@@ -1,11 +1,10 @@
 pragma solidity ^0.4.24;
 
-import "../Initializable.sol";
 import "../utils/ReentrancyGuard.sol";
 import "./ReentrancyAttack.sol";
 
 
-contract ReentrancyMock is Initializable, ReentrancyGuard {
+contract ReentrancyMock is ReentrancyGuard {
 
   uint256 public counter;
 

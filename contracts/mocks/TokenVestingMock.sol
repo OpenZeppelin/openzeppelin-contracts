@@ -1,9 +1,8 @@
 pragma solidity ^0.4.24;
 
-import "../Initializable.sol";
 import "../drafts/TokenVesting.sol";
 
-contract TokenVestingMock is Initializable, TokenVesting {
+contract TokenVestingMock is TokenVesting {
   constructor(
     address beneficiary,
     uint256 start,

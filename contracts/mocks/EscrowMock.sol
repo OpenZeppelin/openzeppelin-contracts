@@ -1,9 +1,8 @@
 pragma solidity ^0.4.24;
 
-import "../Initializable.sol";
 import "../payment/Escrow.sol";
 
-contract EscrowMock is Initializable, Escrow {
+contract EscrowMock is Escrow {
   constructor() public {
     Escrow.initialize();
   }

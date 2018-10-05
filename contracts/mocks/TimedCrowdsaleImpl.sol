@@ -1,11 +1,10 @@
 pragma solidity ^0.4.24;
 
-import "../Initializable.sol";
 import "../token/ERC20/IERC20.sol";
 import "../crowdsale/validation/TimedCrowdsale.sol";
 
 
-contract TimedCrowdsaleImpl is Initializable, Crowdsale, TimedCrowdsale {
+contract TimedCrowdsaleImpl is TimedCrowdsale {
 
   constructor (
     uint256 openingTime,

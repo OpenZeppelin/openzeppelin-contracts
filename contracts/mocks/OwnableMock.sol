@@ -5,7 +5,6 @@ import { Ownable } from "../ownership/Ownable.sol";
 contract OwnableMock is Ownable {
 
   constructor() {
-    initialize();
+    Ownable.initialize();
   }
-
 }

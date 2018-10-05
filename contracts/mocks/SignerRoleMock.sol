@@ -1,10 +1,9 @@
 pragma solidity ^0.4.24;
 
-import "../Initializable.sol";
 import "../access/roles/SignerRole.sol";
 
 
-contract SignerRoleMock is Initializable, SignerRole {
+contract SignerRoleMock is SignerRole {
   constructor() public {
     SignerRole.initialize();
   }
