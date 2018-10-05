@@ -12,9 +12,9 @@ contract SignerRole is Initializable {
 
   Roles.Role private signers;
 
-  function initialize() public initializer {
-    if (!isSigner(msg.sender)) {
-      _addSigner(msg.sender);
+  function initialize(address sender) public initializer {
+    if (!isSigner(sender)) {
+      _addSigner(sender);
     }
   }
 

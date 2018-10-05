@@ -23,9 +23,8 @@ contract RefundEscrow is Initializable, ConditionalEscrow {
    * @dev Constructor.
    * @param beneficiary The beneficiary of the deposits.
    */
-  function initialize(address beneficiary) public initializer {
-    Secondary.initialize();
-    ConditionalEscrow.initialize();
+  function initialize(address beneficiary, address sender) public initializer {
+    ConditionalEscrow.initialize(sender);
 
     require(beneficiary != address(0));
     _beneficiary = beneficiary;

@@ -16,6 +16,6 @@ contract IndividuallyCappedCrowdsaleImpl
     public
   {
     Crowdsale.initialize(rate, wallet, token);
-    IndividuallyCappedCrowdsale.initialize();
+    IndividuallyCappedCrowdsale.initialize(msg.sender);
   }
 }

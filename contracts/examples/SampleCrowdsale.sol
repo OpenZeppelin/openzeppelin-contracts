@@ -18,8 +18,8 @@ contract SampleCrowdsaleToken is Initializable, ERC20Mintable {
   string public symbol;
   uint8 public decimals;
 
-  function initialize() public initializer {
-    ERC20Mintable.initialize();
+  function initialize(address sender) public initializer {
+    ERC20Mintable.initialize(sender);
 
     name = "Sample Crowdsale Token";
     symbol = "SCT";

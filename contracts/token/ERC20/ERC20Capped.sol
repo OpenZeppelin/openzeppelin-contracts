@@ -12,11 +12,11 @@ contract ERC20Capped is Initializable, ERC20Mintable {
 
   uint256 private _cap;
 
-  function initialize(uint256 cap)
+  function initialize(uint256 cap, address sender)
     public
     initializer
   {
-    ERC20Mintable.initialize();
+    ERC20Mintable.initialize(sender);
 
     require(cap > 0);
     _cap = cap;

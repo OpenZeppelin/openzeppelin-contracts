@@ -65,8 +65,8 @@ contract SignatureBouncer is Initializable, SignerRole {
     _;
   }
 
-  function initialize() public initializer {
-    SignerRole.initialize();
+  function initialize(address sender) public initializer {
+    SignerRole.initialize(sender);
   }
 
   /**

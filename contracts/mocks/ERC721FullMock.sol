@@ -15,7 +15,8 @@ contract ERC721FullMock is ERC721Full, ERC721Mintable, ERC721MetadataMintable, E
   constructor(string name, string symbol) public
   {
     ERC721Full.initialize(name, symbol);
-    ERC721Mintable.initialize();
+    ERC721Mintable.initialize(msg.sender);
+    ERC721MetadataMintable.initialize(msg.sender);
     ERC721Burnable.initialize();
   }
 

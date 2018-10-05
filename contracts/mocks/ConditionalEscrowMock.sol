@@ -8,7 +8,7 @@ contract ConditionalEscrowMock is ConditionalEscrow {
   mapping(address => bool) private _allowed;
 
   constructor() public {
-    ConditionalEscrow.initialize();
+    ConditionalEscrow.initialize(msg.sender);
   }
 
   function setAllowed(address payee, bool allowed) public {

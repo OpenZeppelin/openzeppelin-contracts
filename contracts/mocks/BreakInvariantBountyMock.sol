@@ -24,7 +24,7 @@ contract TargetMock is Target {
 
 contract BreakInvariantBountyMock is BreakInvariantBounty {
   constructor() public {
-    BreakInvariantBounty.initialize();
+    BreakInvariantBounty.initialize(msg.sender);
   }
 
   function _deployContract() internal returns (address) {

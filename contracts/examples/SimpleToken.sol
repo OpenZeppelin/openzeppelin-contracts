@@ -20,10 +20,10 @@ contract SimpleToken is Initializable, ERC20 {
   uint256 public constant INITIAL_SUPPLY = 10000 * (10 ** uint256(decimals));
 
   /**
-   * @dev Constructor that gives msg.sender all of existing tokens.
+   * @dev Constructor that gives sender all of existing tokens.
    */
-  function initialize() public initializer {
-    _mint(msg.sender, INITIAL_SUPPLY);
+  function initialize(address sender) public initializer {
+    _mint(sender, INITIAL_SUPPLY);
   }
 
 }

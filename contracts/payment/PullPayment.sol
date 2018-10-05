@@ -16,7 +16,7 @@ contract PullPayment is Initializable {
     // conditional added to make initializer idempotent in case of diamond inheritance
     if (address(_escrow) == address(0)) {
       _escrow = new Escrow();
-      _escrow.initialize();
+      _escrow.initialize(address(this));
     }
   }
 

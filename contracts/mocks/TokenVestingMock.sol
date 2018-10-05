@@ -15,7 +15,8 @@ contract TokenVestingMock is TokenVesting {
       start,
       cliffDuration,
       duration,
-      revocable
+      revocable,
+      msg.sender
     );
   }
 }

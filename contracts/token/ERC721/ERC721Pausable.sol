@@ -10,9 +10,9 @@ import "../../lifecycle/Pausable.sol";
  * @dev ERC721 modified with pausable transfers.
  **/
 contract ERC721Pausable is Initializable, ERC721, Pausable {
-  function initialize() public initializer {
+  function initialize(address sender) public initializer {
     ERC721.initialize();
-    Pausable.initialize();
+    Pausable.initialize(sender);
   }
 
   function approve(

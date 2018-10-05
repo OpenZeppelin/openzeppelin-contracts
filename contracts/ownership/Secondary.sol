@@ -12,8 +12,8 @@ contract Secondary is Initializable {
   /**
    * @dev Sets the primary account to the one that is creating the Secondary contract.
    */
-  function initialize() public initializer {
-    _primary = msg.sender;
+  function initialize(address sender) public initializer {
+    _primary = sender;
   }
 
   /**

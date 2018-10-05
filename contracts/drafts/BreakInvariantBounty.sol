@@ -16,9 +16,9 @@ contract BreakInvariantBounty is Initializable, PullPayment, Ownable {
 
   event TargetCreated(address createdAddress);
 
-  function initialize() public initializer {
+  function initialize(address sender) public initializer {
     PullPayment.initialize();
-    Ownable.initialize();
+    Ownable.initialize(sender);
   }
 
   /**

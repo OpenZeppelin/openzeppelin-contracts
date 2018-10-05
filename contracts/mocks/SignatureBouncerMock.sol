@@ -6,7 +6,7 @@ import "./SignerRoleMock.sol";
 
 contract SignatureBouncerMock is SignatureBouncer, SignerRoleMock {
   constructor() public {
-    SignatureBouncer.initialize();
+    SignatureBouncer.initialize(msg.sender);
   }
 
   function checkValidSignature(address account, bytes signature)
