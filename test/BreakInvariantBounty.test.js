@@ -28,21 +28,6 @@ contract('BreakInvariantBounty', function ([_, owner, researcher, anyone, nonTar
       await sendEther(owner, this.bounty.address, reward);
     });
 
-    describe('destroy', function () {
-      it('returns all balance to the owner', async function () {
-        const ownerPreBalance = await ethGetBalance(owner);
-        await this.bounty.destroy({ from: owner, gasPrice: 0 });
-        const ownerPostBalance = await ethGetBalance(owner);
-
-        (await ethGetBalance(this.bounty.address)).should.be.bignumber.equal(0);
-        ownerPostBalance.sub(ownerPreBalance).should.be.bignumber.equal(reward);
-      });
-
-      it('reverts when called by anyone', async function () {
-        await assertRevert(this.bounty.destroy({ from: anyone }));
-      });
-    });
-
     describe('claim', function () {
       it('is initially unclaimed', async function () {
         (await this.bounty.claimed()).should.equal(false);

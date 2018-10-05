@@ -55,13 +55,6 @@ contract BreakInvariantBounty is PullPayment, Ownable {
   }
 
   /**
-   * @dev Transfers the current balance to the owner and terminates the contract.
-   */
-  function destroy() public onlyOwner {
-    selfdestruct(owner());
-  }
-
-  /**
    * @dev Internal function to deploy the target contract.
    * @return A target contract address
    */
