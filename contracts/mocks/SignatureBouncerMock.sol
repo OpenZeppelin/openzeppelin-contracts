@@ -69,4 +69,11 @@ contract SignatureBouncerMock is Initializable, SignatureBouncer, SignerRoleMock
   {
 
   }
+
+  function tooShortMsgData()
+    public
+    onlyValidSignatureAndData("")
+    view
+  {
+  }
 }

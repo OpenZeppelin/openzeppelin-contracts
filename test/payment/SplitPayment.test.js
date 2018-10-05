@@ -51,10 +51,10 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
     });
 
     it('should have payees', async function () {
-      this.payees.forEach(async (payee, index) => {
-        (await this.payee(index)).should.be.equal(payee);
+      await Promise.all(this.payees.map(async (payee, index) => {
+        (await this.contract.payee(index)).should.be.equal(payee);
         (await this.contract.released(payee)).should.be.bignumber.equal(0);
-      });
+      }));
     });
 
     it('should accept payments', async function () {
