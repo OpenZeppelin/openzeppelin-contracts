@@ -8,24 +8,25 @@ import "../ownership/Ownable.sol";
  * @dev This bounty will pay out to a researcher if they break invariant logic of the contract.
  */
 contract BreakInvariantBounty is PullPayment, Ownable {
-  bool private _claimed;
+  bool private _claimable = true;
   mapping(address => address) private _researchers;
 
   event TargetCreated(address createdAddress);
+  event BountyCanceled(address bountyAddress);
 
   /**
    * @dev Fallback function allowing the contract to receive funds, if they haven't already been claimed.
    */
   function() external payable {
-    require(!_claimed);
+    require(_claimable);
   }
 
   /**
-   * @dev Determine if the bounty was claimed.
-   * @return true if the bounty was claimed, false otherwise.
+   * @dev Determine if the bounty is claimable.
+   * @return false if the bounty was claimed, true otherwise.
    */
-  function claimed() public view returns(bool) {
-    return _claimed;
+  function isClaimable() public view returns(bool) {
+    return _claimable;
   }
 
   /**
@@ -45,13 +46,23 @@ contract BreakInvariantBounty is PullPayment, Ownable {
    * @param target contract
    */
   function claim(Target target) public {
-    require(!_claimed);
+    require(_claimable);
     address researcher = _researchers[target];
     require(researcher != address(0));
     // Check Target contract invariants
     require(!target.checkInvariant());
     _asyncTransfer(researcher, address(this).balance);
-    _claimed = true;
+    _claimable = false;
+  }
+
+  /**
+   * @dev Cancels the bounty and transfers all funds to the owner
+   */
+  function cancelBounty() public onlyOwner{
+    require(_claimable);
+    _asyncTransfer(owner(), address(this).balance);
+    _claimable = false;
+    emit BountyCanceled(address(this));
   }
 
   /**

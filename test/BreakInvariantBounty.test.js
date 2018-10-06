@@ -29,8 +29,8 @@ contract('BreakInvariantBounty', function ([_, owner, researcher, anyone, nonTar
     });
 
     describe('claim', function () {
-      it('is initially unclaimed', async function () {
-        (await this.bounty.claimed()).should.equal(false);
+      it('is initially claimable', async function () {
+        (await this.bounty.isClaimable()).should.equal(true);
       });
 
       it('can create claimable target', async function () {
@@ -68,8 +68,8 @@ contract('BreakInvariantBounty', function ([_, owner, researcher, anyone, nonTar
               await this.bounty.claim(this.target.address, { from: researcher });
             });
 
-            it('is claimed', async function () {
-              (await this.bounty.claimed()).should.equal(true);
+            it('is not claimable', async function () {
+              (await this.bounty.isClaimable()).should.equal(false);
             });
 
             it('no longer accepts rewards', async function () {
