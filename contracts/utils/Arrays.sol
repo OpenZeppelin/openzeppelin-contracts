@@ -37,6 +37,8 @@ library Arrays {
     while (low < high) {
       uint256 mid = Math.average(low, high);
 
+      // Note that mid will always be strictly less than high (i.e. it will be a valid array index) 
+      // because Math.average rounds down (it does integer division with truncation).
       if (array[mid] > element) {
         high = mid;
       } else {
