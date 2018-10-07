@@ -12,7 +12,7 @@ contract BreakInvariantBounty is PullPayment, Ownable {
   mapping(address => address) private _researchers;
 
   event TargetCreated(address createdAddress);
-  event BountyCanceled(address bountyAddress);
+  event BountyCanceled();
 
   /**
    * @dev Fallback function allowing the contract to receive funds, if they haven't already been claimed.
@@ -25,7 +25,7 @@ contract BreakInvariantBounty is PullPayment, Ownable {
    * @dev Determine if the bounty is claimable.
    * @return false if the bounty was claimed, true otherwise.
    */
-  function isClaimable() public view returns(bool) {
+  function claimable() public view returns(bool) {
     return _claimable;
   }
 
@@ -62,7 +62,7 @@ contract BreakInvariantBounty is PullPayment, Ownable {
     require(_claimable);
     _asyncTransfer(owner(), address(this).balance);
     _claimable = false;
-    emit BountyCanceled(address(this));
+    emit BountyCanceled();
   }
 
   /**

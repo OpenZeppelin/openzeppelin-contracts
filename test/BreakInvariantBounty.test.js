@@ -1,4 +1,5 @@
 const { ethGetBalance, ethSendTransaction } = require('./helpers/web3');
+const { ether } = require('./helpers/ether');
 const { sendEther } = require('./helpers/sendTransaction');
 const { balanceDifference } = require('./helpers/balanceDiff');
 const expectEvent = require('./helpers/expectEvent');
@@ -11,7 +12,7 @@ require('chai')
   .use(require('chai-bignumber')(web3.BigNumber))
   .should();
 
-const reward = new web3.BigNumber(web3.toWei(1, 'ether'));
+const reward = ether(1);
 
 contract('BreakInvariantBounty', function ([_, owner, researcher, anyone, nonTarget]) {
   beforeEach(async function () {
@@ -30,7 +31,7 @@ contract('BreakInvariantBounty', function ([_, owner, researcher, anyone, nonTar
 
     describe('claim', function () {
       it('is initially claimable', async function () {
-        (await this.bounty.isClaimable()).should.equal(true);
+        (await this.bounty.claimable()).should.equal(true);
       });
 
       it('can create claimable target', async function () {
@@ -69,7 +70,7 @@ contract('BreakInvariantBounty', function ([_, owner, researcher, anyone, nonTar
             });
 
             it('is not claimable', async function () {
-              (await this.bounty.isClaimable()).should.equal(false);
+              (await this.bounty.claimable()).should.equal(false);
             });
 
             it('no longer accepts rewards', async function () {
@@ -86,6 +87,42 @@ contract('BreakInvariantBounty', function ([_, owner, researcher, anyone, nonTar
       context('with non-target', function () {
         it('reverts when claiming reward', async function () {
           await assertRevert(this.bounty.claim(nonTarget, { from: researcher }));
+        });
+      });
+    });
+
+    describe('cancelBounty', function () {
+      it('is initially claimable', async function () {
+        (await this.bounty.claimable()).should.equal(true);
+      });
+      context('cancels bounty', function () {
+        it('canceled by owner', async function () {
+          const { logs } = await this.bounty.cancelBounty({ from: owner });
+          expectEvent.inLogs(logs, 'BountyCanceled');
+          (await balanceDifference(owner, () => this.bounty.withdrawPayments(owner)))
+            .should.be.bignumber.equal(reward);
+        });
+
+        it('reverts when canceled by anyone', async function () {
+          await assertRevert(this.bounty.cancelBounty({ from: anyone }));
+        });
+      });
+
+      context('after canceling', async function () {
+        beforeEach(async function () {
+          await this.bounty.cancelBounty({ from: owner });
+        });
+
+        it('is not claimable', async function () {
+          (await this.bounty.claimable()).should.equal(false);
+        });
+
+        it('no longer accepts rewards', async function () {
+          await assertRevert(ethSendTransaction({ from: owner, to: this.bounty.address, value: reward }));
+        });
+
+        it('reverts when recanceled', async function () {
+          await assertRevert(this.bounty.cancelBounty({ from: owner }));
         });
       });
     });
