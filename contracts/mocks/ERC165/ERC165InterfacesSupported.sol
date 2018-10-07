@@ -21,7 +21,7 @@ contract SupportsInterfaceWithLookupMock is IERC165 {
   /**
    * @dev a mapping of interface id to whether or not it's supported
    */
-  mapping(bytes4 => bool) internal _supportedInterfaces;
+  mapping(bytes4 => bool) private _supportedInterfaces;
 
   /**
    * @dev A contract implementing SupportsInterfaceWithLookup
