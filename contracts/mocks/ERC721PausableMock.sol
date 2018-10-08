@@ -10,7 +10,7 @@ import "./PauserRoleMock.sol";
  */
 contract ERC721PausableMock is ERC721Pausable, PauserRoleMock {
   constructor() {
-    ERC721Pausable.initialize();
+    ERC721Pausable.initialize(msg.sender);
   }
 
   function mint(address to, uint256 tokenId) public {

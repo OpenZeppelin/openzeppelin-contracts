@@ -10,9 +10,9 @@ import "../../access/roles/MinterRole.sol";
  * @dev ERC721 minting logic
  */
 contract ERC721Mintable is Initializable, ERC721, MinterRole {
-  function initialize() public initializer {
+  function initialize(address sender) public initializer {
     ERC721.initialize();
-    MinterRole.initialize();
+    MinterRole.initialize(sender);
   }
 
   /**

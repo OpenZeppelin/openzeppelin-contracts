@@ -9,8 +9,8 @@ import "./Escrow.sol";
  * @dev Base abstract escrow to only allow withdrawal if a condition is met.
  */
 contract ConditionalEscrow is Initializable, Escrow {
-  function initialize() public initializer {
-    Escrow.initialize();
+  function initialize(address sender) public initializer {
+    Escrow.initialize(sender);
   }
 
   /**

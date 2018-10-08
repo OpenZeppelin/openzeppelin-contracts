@@ -4,6 +4,6 @@ import "../payment/Escrow.sol";
 
 contract EscrowMock is Escrow {
   constructor() public {
-    Escrow.initialize();
+    Escrow.initialize(msg.sender);
   }
 }

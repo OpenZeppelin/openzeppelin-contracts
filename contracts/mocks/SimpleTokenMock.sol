@@ -4,6 +4,6 @@ import "../examples/SimpleToken.sol";
 
 contract SimpleTokenMock is SimpleToken {
   constructor() public {
-    SimpleToken.initialize();
+    SimpleToken.initialize(msg.sender);
   }
 }

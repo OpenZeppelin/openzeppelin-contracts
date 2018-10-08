@@ -11,8 +11,8 @@ import "../../lifecycle/Pausable.sol";
  **/
 contract ERC20Pausable is Initializable, ERC20, Pausable {
 
-  function initialize() public initializer {
-    Pausable.initialize();
+  function initialize(address sender) public initializer {
+    Pausable.initialize(sender);
   }
 
   function transfer(

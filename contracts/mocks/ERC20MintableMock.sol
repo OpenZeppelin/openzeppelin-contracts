@@ -7,7 +7,6 @@ import "./MinterRoleMock.sol";
 contract ERC20MintableMock is ERC20Mintable, MinterRoleMock {
 
   constructor() public {
-    ERC20Mintable.initialize();
+    ERC20Mintable.initialize(msg.sender);
   }
-
 }

@@ -48,12 +48,13 @@ contract TokenVesting is Initializable, Ownable {
     uint256 start,
     uint256 cliffDuration,
     uint256 duration,
-    bool revocable
+    bool revocable,
+    address sender
   )
     public
     initializer
   {
-    Ownable.initialize();
+    Ownable.initialize(sender);
 
     require(beneficiary != address(0));
     require(cliffDuration <= duration);

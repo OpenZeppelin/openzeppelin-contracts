@@ -20,8 +20,8 @@ contract Escrow is Initializable, Secondary {
 
   mapping(address => uint256) private _deposits;
 
-  function initialize() public initializer {
-    Secondary.initialize();
+  function initialize(address sender) public initializer {
+    Secondary.initialize(sender);
   }
 
   function depositsOf(address payee) public view returns (uint256) {

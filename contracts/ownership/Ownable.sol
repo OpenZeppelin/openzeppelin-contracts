@@ -22,8 +22,8 @@ contract Ownable is Initializable {
    * @dev The Ownable constructor sets the original `owner` of the contract to the sender
    * account.
    */
-  function initialize() public initializer {
-    _owner = msg.sender;
+  function initialize(address sender) public initializer {
+    _owner = sender;
   }
 
   /**

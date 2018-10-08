@@ -31,7 +31,7 @@ contract RefundableCrowdsale is Initializable, FinalizableCrowdsale {
     // conditional added to make initializer idempotent in case of diamond inheritance
     if (address(_escrow) == address(0)) {
       _escrow = new RefundEscrow();
-      _escrow.initialize(wallet());
+      _escrow.initialize(wallet(), address(this));
     }
 
     _goal = goal;
