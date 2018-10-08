@@ -29,6 +29,11 @@ contract TimedCrowdsale is Initializable, Crowdsale {
    * @param closingTime Crowdsale closing time
    */
   function initialize(uint256 openingTime, uint256 closingTime) public initializer {
+    // Make sure Crowdsale.initialize has been called before this initializer is executed
+    assert(rate() > 0);
+    assert(wallet() != address(0));
+    assert(token() != address(0));
+
     // solium-disable-next-line security/no-block-members
     require(openingTime >= block.timestamp);
     require(closingTime >= openingTime);
