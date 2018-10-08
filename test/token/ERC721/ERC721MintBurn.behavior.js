@@ -52,13 +52,13 @@ function shouldBehaveLikeMintAndBurnERC721 (
 
       describe('when the given owner address is the zero address', function () {
         it('reverts', async function () {
-          await shouldFail.reverting(this.token.mint(ZERO_ADDRESS, thirdTokenId));
+          await shouldFail.reverting(this.token.mint(ZERO_ADDRESS, thirdTokenId, { from: minter }));
         });
       });
 
       describe('when the given token ID was already tracked by this contract', function () {
         it('reverts', async function () {
-          await shouldFail.reverting(this.token.mint(owner, firstTokenId));
+          await shouldFail.reverting(this.token.mint(owner, firstTokenId, { from: minter }));
         });
       });
     });

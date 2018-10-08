@@ -27,19 +27,19 @@ contract ERC20Capped is ERC20Mintable {
   /**
    * @dev Function to mint tokens
    * @param to The address that will receive the minted tokens.
-   * @param amount The amount of tokens to mint.
+   * @param value The amount of tokens to mint.
    * @return A boolean that indicates if the operation was successful.
    */
   function mint(
     address to,
-    uint256 amount
+    uint256 value
   )
     public
     returns (bool)
   {
-    require(totalSupply().add(amount) <= _cap);
+    require(totalSupply().add(value) <= _cap);
 
-    return super.mint(to, amount);
+    return super.mint(to, value);
   }
 
 }

@@ -1,7 +1,6 @@
 pragma solidity ^0.4.24;
 
 import "./ConditionalEscrow.sol";
-import "../ownership/Secondary.sol";
 
 /**
  * @title RefundEscrow
@@ -9,7 +8,7 @@ import "../ownership/Secondary.sol";
  * The primary account may close the deposit period, and allow for either withdrawal
  * by the beneficiary, or refunds to the depositors.
  */
-contract RefundEscrow is Secondary, ConditionalEscrow {
+contract RefundEscrow is ConditionalEscrow {
   enum State { Active, Refunding, Closed }
 
   event Closed();
