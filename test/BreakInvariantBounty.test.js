@@ -92,11 +92,12 @@ contract('BreakInvariantBounty', function ([_, owner, researcher, anyone, nonTar
     });
 
     describe('cancelBounty', function () {
-      it('is initially claimable', async function () {
-        (await this.bounty.claimable()).should.equal(true);
-      });
-      context('cancels bounty', function () {
-        it('canceled by owner', async function () {
+      context('before canceling', function () {
+        it('is claimable', async function () {
+          (await this.bounty.claimable()).should.equal(true);
+        });
+
+        it('can be canceled by the owner', async function () {
           const { logs } = await this.bounty.cancelBounty({ from: owner });
           expectEvent.inLogs(logs, 'BountyCanceled');
           (await balanceDifference(owner, () => this.bounty.withdrawPayments(owner)))
