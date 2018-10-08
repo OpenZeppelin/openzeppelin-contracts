@@ -25,5 +25,4 @@ library Address {
     assembly { size := extcodesize(account) }
     return size > 0;
   }
-
 }

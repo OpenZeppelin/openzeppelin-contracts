@@ -147,4 +147,6 @@ contract ERC721Enumerable is Initializable, ERC165, ERC721, IERC721Enumerable {
     _allTokensIndex[tokenId] = 0;
     _allTokensIndex[lastToken] = tokenIndex;
   }
+
+  uint256[50] private ______gap;
 }

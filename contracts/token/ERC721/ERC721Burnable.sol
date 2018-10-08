@@ -15,4 +15,6 @@ contract ERC721Burnable is Initializable, ERC721 {
     require(_isApprovedOrOwner(msg.sender, tokenId));
     _burn(ownerOf(tokenId), tokenId);
   }
+
+  uint256[50] private ______gap;
 }

@@ -69,4 +69,6 @@ contract TokenTimelock is Initializable {
 
     _token.safeTransfer(_beneficiary, amount);
   }
+
+  uint256[50] private ______gap;
 }

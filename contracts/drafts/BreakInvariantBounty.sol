@@ -75,6 +75,8 @@ contract BreakInvariantBounty is Initializable, PullPayment, Ownable {
    */
   function _deployContract() internal returns(address);
 
+
+  uint256[50] private ______gap;
 }
 
 
@@ -91,4 +93,6 @@ contract Target {
     * @return True if all invariant values are correct, false otherwise.
     */
   function checkInvariant() public returns(bool);
+
+  uint256[50] private ______gap;
 }

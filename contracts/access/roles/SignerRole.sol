@@ -44,4 +44,6 @@ contract SignerRole is Initializable {
     signers.remove(account);
     emit SignerRemoved(account);
   }
+
+  uint256[50] private ______gap;
 }

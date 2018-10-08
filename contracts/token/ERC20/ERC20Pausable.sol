@@ -70,4 +70,6 @@ contract ERC20Pausable is Initializable, ERC20, Pausable {
   {
     return super.decreaseAllowance(spender, subtractedValue);
   }
+
+  uint256[50] private ______gap;
 }

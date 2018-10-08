@@ -46,4 +46,6 @@ contract Initializable {
     assembly { cs := extcodesize(address) }
     return cs == 0;
   }
+
+  uint256[50] private ______gap;
 }

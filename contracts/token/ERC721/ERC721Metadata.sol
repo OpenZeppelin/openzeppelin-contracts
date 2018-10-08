@@ -89,4 +89,6 @@ contract ERC721Metadata is Initializable, ERC165, ERC721, IERC721Metadata {
       delete _tokenURIs[tokenId];
     }
   }
+
+  uint256[50] private ______gap;
 }

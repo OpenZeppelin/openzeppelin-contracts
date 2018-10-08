@@ -210,4 +210,6 @@ contract ERC20 is Initializable, IERC20 {
       amount);
     _burn(account, amount);
   }
+
+  uint256[50] private ______gap;
 }
