@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../Initializable.sol";
+import "zos-lib/contracts/Initializable.sol";
 import "../access/roles/SignerRole.sol";
 import "../cryptography/ECDSA.sol";
 

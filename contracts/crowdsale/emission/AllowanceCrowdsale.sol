@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../../Initializable.sol";
+import "zos-lib/contracts/Initializable.sol";
 import "../Crowdsale.sol";
 import "../../token/ERC20/IERC20.sol";
 import "../../token/ERC20/SafeERC20.sol";

@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../Initializable.sol";
+import "zos-lib/contracts/Initializable.sol";
 import "../crowdsale/validation/CappedCrowdsale.sol";
 import "../crowdsale/distribution/RefundableCrowdsale.sol";
 import "../crowdsale/emission/MintedCrowdsale.sol";
