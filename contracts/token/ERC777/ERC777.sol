@@ -106,8 +106,8 @@ contract ERC777 is IERC777 {
     require(isOperatorFor(operator, msg.sender));
 
     if (_defaultOps[operator]) {
-      _authorizeOperator(operator);
-    } else _reAuthorizeDefaultOperator(operator);
+      _revokeDefaultOperator(operator);
+    } else _revokeOperator(operator);
   }
 
   /**
@@ -152,7 +152,7 @@ contract ERC777 is IERC777 {
    * @param operator address to revoke operator rights from
    */
   function _revokeDefaultOperator(address operator) internal {
-    _revokedDefaultOps[msg.sender][operator];
+    _revokedDefaultOps[msg.sender][operator] = true;
     emit RevokedOperator(operator, msg.sender);
   }
 

@@ -65,12 +65,16 @@ contract('ERC777', function ([_, owner, recipient, anotherAccount]) {
   });
 
   describe('authorizeOperator', function () {
+    beforeEach(async function () {
+      let op = recipient;
+      this.defaultOpsToken = await ERC777.new("Test777", "T77", 1, [op])
+    });
+
     it('authorizes operators for holders', async function () {
       let op = recipient;
       let holder = owner;
 
       const {logs} = await this.token.authorizeOperator(op, {from: holder});
-      console.log(logs);
       expectEvent.inLogs(logs, 'AuthorizedOperator', {
         operator: op,
         tokenHolder: holder
@@ -88,10 +92,75 @@ contract('ERC777', function ([_, owner, recipient, anotherAccount]) {
     it('authorizes operators only when they are not pre-authorised by default', async function () {
       let op = recipient;
       let holder = owner;
-      let token = await ERC777.new("Test777", "T77", 1, [op]);
 
-      await assertRevert(token.authorizeOperator(op, {from: holder}));
+      await assertRevert(this.defaultOpsToken.authorizeOperator(op, {from: holder}));
     });
-    //TODO more operator auth related tests
+
+    it('re-authorizes previously revoked default operators', async function () {
+      let op = recipient;
+      let holder = owner;
+
+      await assertRevert(this.defaultOpsToken.authorizeOperator(op, {from: holder}));
+    });
+
+    it('authorizes operators only when they are not pre-authorised by default', async function () {
+      let op = recipient;
+      let holder = owner;
+
+      await this.defaultOpsToken.revokeOperator(op, {from: holder});
+
+      const {logs} = await this.defaultOpsToken.authorizeOperator(op, {from: holder});
+      expectEvent.inLogs(logs, 'AuthorizedOperator', {
+        operator: op,
+        tokenHolder: holder
+      });
+    });
+  });
+
+  describe('revokeOperator', function () {
+    beforeEach(async function () {
+      let op = recipient;
+      this.defaultOpsToken = await ERC777.new("Test777", "T77", 1, [op])
+    });
+
+    it('revokes operators for holders', async function () {
+      let op = recipient;
+      let holder = owner;
+
+      await this.token.authorizeOperator(op, {from: holder});
+
+      const {logs} = await this.token.revokeOperator(op, {from: holder});
+      expectEvent.inLogs(logs, 'RevokedOperator', {
+        operator: op,
+        tokenHolder: holder
+      });
+    });
+
+    it('revokes operators only when they are authorised', async function () {
+      let op = recipient;
+      let holder = owner;
+
+      await assertRevert(this.token.revokeOperator(op, {from: holder}));
+    });
+
+    it('revokes pre-authorised default operators', async function () {
+      let op = recipient;
+      let holder = owner;
+
+      const {logs} = await this.defaultOpsToken.revokeOperator(op, {from: holder});
+      expectEvent.inLogs(logs, 'RevokedOperator', {
+        operator: op,
+        tokenHolder: holder
+      });
+    });
+
+    it('revokes pre-authorised default operators only when they were not previously revoked', async function () {
+      let op = recipient;
+      let holder = owner;
+
+      await this.defaultOpsToken.revokeOperator(op, {from: holder});
+
+      await assertRevert(this.defaultOpsToken.revokeOperator(op, {from: holder}));
+    });
   });
 });
