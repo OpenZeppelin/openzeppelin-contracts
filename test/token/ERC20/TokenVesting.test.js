@@ -1,5 +1,4 @@
-const { expectThrow } = require('../../helpers/expectThrow');
-const { EVMRevert } = require('../../helpers/EVMRevert');
+const shouldFail = require('../../helpers/shouldFail');
 const time = require('../../helpers/time');
 const { ethGetBlock } = require('../../helpers/web3');
 const { ZERO_ADDRESS } = require('../../helpers/constants');
@@ -29,13 +28,13 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
     cliffDuration.should.be.gt(duration);
 
-    await expectThrow(
+    await shouldFail.reverting(
       TokenVesting.new(beneficiary, this.start, cliffDuration, duration, true, { from: owner })
     );
   });
 
   it('requires a valid beneficiary', async function () {
-    await expectThrow(
+    await shouldFail.reverting(
       TokenVesting.new(ZERO_ADDRESS, this.start, this.cliffDuration, this.duration, true, { from: owner })
     );
   });
@@ -58,10 +57,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     });
 
     it('cannot be released before cliff', async function () {
-      await expectThrow(
-        this.vesting.release(this.token.address),
-        EVMRevert,
-      );
+      await shouldFail.reverting(this.vesting.release(this.token.address));
     });
 
     it('can be released after cliff', async function () {
@@ -113,10 +109,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
         beneficiary, this.start, this.cliffDuration, this.duration, false, { from: owner }
       );
 
-      await expectThrow(
-        vesting.revoke(this.token.address, { from: owner }),
-        EVMRevert,
-      );
+      await shouldFail.reverting(vesting.revoke(this.token.address, { from: owner }));
     });
 
     it('should return the non-vested tokens when revoked by owner', async function () {
@@ -148,10 +141,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
       await this.vesting.revoke(this.token.address, { from: owner });
 
-      await expectThrow(
-        this.vesting.revoke(this.token.address, { from: owner }),
-        EVMRevert,
-      );
+      await shouldFail.reverting(this.vesting.revoke(this.token.address, { from: owner }));
     });
   });
 });

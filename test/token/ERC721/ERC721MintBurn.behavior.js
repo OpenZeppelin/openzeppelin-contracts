@@ -1,4 +1,4 @@
-const { assertRevert } = require('../../helpers/assertRevert');
+const shouldFail = require('../../helpers/shouldFail');
 const expectEvent = require('../../helpers/expectEvent');
 const { ZERO_ADDRESS } = require('../../helpers/constants');
 const BigNumber = web3.BigNumber;
@@ -52,13 +52,13 @@ function shouldBehaveLikeMintAndBurnERC721 (
 
       describe('when the given owner address is the zero address', function () {
         it('reverts', async function () {
-          await assertRevert(this.token.mint(ZERO_ADDRESS, thirdTokenId, { from: minter }));
+          await shouldFail.reverting(this.token.mint(ZERO_ADDRESS, thirdTokenId, { from: minter }));
         });
       });
 
       describe('when the given token ID was already tracked by this contract', function () {
         it('reverts', async function () {
-          await assertRevert(this.token.mint(owner, firstTokenId, { from: minter }));
+          await shouldFail.reverting(this.token.mint(owner, firstTokenId, { from: minter }));
         });
       });
     });
@@ -82,7 +82,7 @@ function shouldBehaveLikeMintAndBurnERC721 (
         });
 
         it('burns the given token ID and adjusts the balance of the owner', async function () {
-          await assertRevert(this.token.ownerOf(tokenId));
+          await shouldFail.reverting(this.token.ownerOf(tokenId));
           (await this.token.balanceOf(owner)).should.be.bignumber.equal(1);
         });
 
@@ -104,14 +104,14 @@ function shouldBehaveLikeMintAndBurnERC721 (
 
         context('getApproved', function () {
           it('reverts', async function () {
-            await assertRevert(this.token.getApproved(tokenId));
+            await shouldFail.reverting(this.token.getApproved(tokenId));
           });
         });
       });
 
       describe('when the given token ID was not tracked by this contract', function () {
         it('reverts', async function () {
-          await assertRevert(
+          await shouldFail.reverting(
             this.token.burn(unknownTokenId, { from: creator })
           );
         });

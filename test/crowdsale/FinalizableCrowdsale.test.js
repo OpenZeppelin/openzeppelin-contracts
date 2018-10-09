@@ -1,8 +1,7 @@
 const expectEvent = require('../helpers/expectEvent');
 const { advanceBlock } = require('../helpers/advanceToBlock');
 const time = require('../helpers/time');
-const { expectThrow } = require('../helpers/expectThrow');
-const { EVMRevert } = require('../helpers/EVMRevert');
+const shouldFail = require('../helpers/shouldFail');
 
 const BigNumber = web3.BigNumber;
 
@@ -33,7 +32,7 @@ contract('FinalizableCrowdsale', function ([_, wallet, anyone]) {
   });
 
   it('cannot be finalized before ending', async function () {
-    await expectThrow(this.crowdsale.finalize({ from: anyone }), EVMRevert);
+    await shouldFail.reverting(this.crowdsale.finalize({ from: anyone }));
   });
 
   it('can be finalized by anyone after ending', async function () {
@@ -44,7 +43,7 @@ contract('FinalizableCrowdsale', function ([_, wallet, anyone]) {
   it('cannot be finalized twice', async function () {
     await time.increaseTo(this.afterClosingTime);
     await this.crowdsale.finalize({ from: anyone });
-    await expectThrow(this.crowdsale.finalize({ from: anyone }), EVMRevert);
+    await shouldFail.reverting(this.crowdsale.finalize({ from: anyone }));
   });
 
   it('logs finalized', async function () {

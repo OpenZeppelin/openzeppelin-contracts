@@ -1,6 +1,6 @@
 const expectEvent = require('../../helpers/expectEvent');
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
-const { assertRevert } = require('../../helpers/assertRevert');
+const shouldFail = require('../../helpers/shouldFail');
 const { ZERO_ADDRESS } = require('../../helpers/constants');
 const { decodeLogs } = require('../../helpers/decodeLogs');
 const { sendTransaction } = require('../../helpers/sendTransaction');
@@ -44,7 +44,7 @@ function shouldBehaveLikeERC721 (
 
       context('when querying the zero address', function () {
         it('throws', async function () {
-          await assertRevert(this.token.balanceOf(0));
+          await shouldFail.reverting(this.token.balanceOf(0));
         });
       });
     });
@@ -62,7 +62,7 @@ function shouldBehaveLikeERC721 (
         const tokenId = unknownTokenId;
 
         it('reverts', async function () {
-          await assertRevert(this.token.ownerOf(tokenId));
+          await shouldFail.reverting(this.token.ownerOf(tokenId));
         });
       });
     });
@@ -184,28 +184,28 @@ function shouldBehaveLikeERC721 (
 
         context('when the address of the previous owner is incorrect', function () {
           it('reverts', async function () {
-            await assertRevert(transferFunction.call(this, anyone, anyone, tokenId, { from: owner })
+            await shouldFail.reverting(transferFunction.call(this, anyone, anyone, tokenId, { from: owner })
             );
           });
         });
 
         context('when the sender is not authorized for the token id', function () {
           it('reverts', async function () {
-            await assertRevert(transferFunction.call(this, owner, anyone, tokenId, { from: anyone })
+            await shouldFail.reverting(transferFunction.call(this, owner, anyone, tokenId, { from: anyone })
             );
           });
         });
 
         context('when the given token ID does not exist', function () {
           it('reverts', async function () {
-            await assertRevert(transferFunction.call(this, owner, anyone, unknownTokenId, { from: owner })
+            await shouldFail.reverting(transferFunction.call(this, owner, anyone, unknownTokenId, { from: owner })
             );
           });
         });
 
         context('when the address to transfer the token to is the zero address', function () {
           it('reverts', async function () {
-            await assertRevert(transferFunction.call(this, owner, ZERO_ADDRESS, tokenId, { from: owner }));
+            await shouldFail.reverting(transferFunction.call(this, owner, ZERO_ADDRESS, tokenId, { from: owner }));
           });
         });
       };
@@ -274,7 +274,7 @@ function shouldBehaveLikeERC721 (
 
             describe('with an invalid token id', function () {
               it('reverts', async function () {
-                await assertRevert(
+                await shouldFail.reverting(
                   transferFun.call(
                     this,
                     owner,
@@ -299,21 +299,27 @@ function shouldBehaveLikeERC721 (
         describe('to a receiver contract returning unexpected value', function () {
           it('reverts', async function () {
             const invalidReceiver = await ERC721ReceiverMock.new('0x42', false);
-            await assertRevert(this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner }));
+            await shouldFail.reverting(
+              this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner })
+            );
           });
         });
 
         describe('to a receiver contract that throws', function () {
           it('reverts', async function () {
             const invalidReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, true);
-            await assertRevert(this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner }));
+            await shouldFail.reverting(
+              this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner })
+            );
           });
         });
 
         describe('to a contract that does not implement the required function', function () {
           it('reverts', async function () {
             const invalidReceiver = this.token;
-            await assertRevert(this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner }));
+            await shouldFail.reverting(
+              this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner })
+            );
           });
         });
       });
@@ -400,7 +406,7 @@ function shouldBehaveLikeERC721 (
 
       context('when the address that receives the approval is the owner', function () {
         it('reverts', async function () {
-          await assertRevert(
+          await shouldFail.reverting(
             this.token.approve(owner, tokenId, { from: owner })
           );
         });
@@ -408,14 +414,14 @@ function shouldBehaveLikeERC721 (
 
       context('when the sender does not own the given token ID', function () {
         it('reverts', async function () {
-          await assertRevert(this.token.approve(approved, tokenId, { from: anyone }));
+          await shouldFail.reverting(this.token.approve(approved, tokenId, { from: anyone }));
         });
       });
 
       context('when the sender is approved for the given token ID', function () {
         it('reverts', async function () {
           await this.token.approve(approved, tokenId, { from: owner });
-          await assertRevert(this.token.approve(anotherApproved, tokenId, { from: approved }));
+          await shouldFail.reverting(this.token.approve(anotherApproved, tokenId, { from: approved }));
         });
       });
 
@@ -431,7 +437,7 @@ function shouldBehaveLikeERC721 (
 
       context('when the given token ID does not exist', function () {
         it('reverts', async function () {
-          await assertRevert(this.token.approve(approved, unknownTokenId, { from: operator }));
+          await shouldFail.reverting(this.token.approve(approved, unknownTokenId, { from: operator }));
         });
       });
     });
@@ -509,7 +515,7 @@ function shouldBehaveLikeERC721 (
 
       context('when the operator is the owner', function () {
         it('reverts', async function () {
-          await assertRevert(this.token.setApprovalForAll(owner, true, { from: owner }));
+          await shouldFail.reverting(this.token.setApprovalForAll(owner, true, { from: owner }));
         });
       });
     });

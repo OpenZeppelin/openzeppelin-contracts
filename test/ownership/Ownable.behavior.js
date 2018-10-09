@@ -1,5 +1,4 @@
-const { expectThrow } = require('../helpers/expectThrow');
-const { EVMRevert } = require('../helpers/EVMRevert');
+const shouldFail = require('../helpers/shouldFail');
 const expectEvent = require('../helpers/expectEvent');
 const { ZERO_ADDRESS } = require('../helpers/constants');
 
@@ -22,11 +21,11 @@ function shouldBehaveLikeOwnable (owner, [anyone]) {
     });
 
     it('should prevent non-owners from transfering', async function () {
-      await expectThrow(this.ownable.transferOwnership(anyone, { from: anyone }), EVMRevert);
+      await shouldFail.reverting(this.ownable.transferOwnership(anyone, { from: anyone }));
     });
 
     it('should guard ownership against stuck state', async function () {
-      await expectThrow(this.ownable.transferOwnership(null, { from: owner }), EVMRevert);
+      await shouldFail.reverting(this.ownable.transferOwnership(null, { from: owner }));
     });
 
     it('loses owner after renouncement', async function () {
@@ -37,7 +36,7 @@ function shouldBehaveLikeOwnable (owner, [anyone]) {
     });
 
     it('should prevent non-owners from renouncement', async function () {
-      await expectThrow(this.ownable.renounceOwnership({ from: anyone }), EVMRevert);
+      await shouldFail.reverting(this.ownable.renounceOwnership({ from: anyone }));
     });
   });
 }

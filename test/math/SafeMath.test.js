@@ -1,4 +1,4 @@
-const { assertRevert } = require('../helpers/assertRevert');
+const shouldFail = require('../helpers/shouldFail');
 const { MAX_UINT256 } = require('../helpers/constants');
 
 const BigNumber = web3.BigNumber;
@@ -25,7 +25,7 @@ contract('SafeMath', function () {
       const a = MAX_UINT256;
       const b = new BigNumber(1);
 
-      await assertRevert(this.safeMath.add(a, b));
+      await shouldFail.reverting(this.safeMath.add(a, b));
     });
   });
 
@@ -41,7 +41,7 @@ contract('SafeMath', function () {
       const a = new BigNumber(1234);
       const b = new BigNumber(5678);
 
-      await assertRevert(this.safeMath.sub(a, b));
+      await shouldFail.reverting(this.safeMath.sub(a, b));
     });
   });
 
@@ -64,7 +64,7 @@ contract('SafeMath', function () {
       const a = MAX_UINT256;
       const b = new BigNumber(2);
 
-      await assertRevert(this.safeMath.mul(a, b));
+      await shouldFail.reverting(this.safeMath.mul(a, b));
     });
   });
 
@@ -80,7 +80,7 @@ contract('SafeMath', function () {
       const a = new BigNumber(5678);
       const b = new BigNumber(0);
 
-      await assertRevert(this.safeMath.div(a, b));
+      await shouldFail.reverting(this.safeMath.div(a, b));
     });
   });
 
@@ -119,7 +119,7 @@ contract('SafeMath', function () {
       const a = new BigNumber(5678);
       const b = new BigNumber(0);
 
-      await assertRevert(this.safeMath.mod(a, b));
+      await shouldFail.reverting(this.safeMath.mod(a, b));
     });
   });
 });

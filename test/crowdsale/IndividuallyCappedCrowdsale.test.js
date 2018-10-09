@@ -1,6 +1,5 @@
 const { ether } = require('../helpers/ether');
-const { expectThrow } = require('../helpers/expectThrow');
-const { EVMRevert } = require('../helpers/EVMRevert');
+const shouldFail = require('../helpers/shouldFail');
 
 const BigNumber = web3.BigNumber;
 
@@ -42,7 +41,7 @@ contract('IndividuallyCappedCrowdsale', function (
     });
 
     it('reverts when a non-capper sets a cap', async function () {
-      await expectThrow(this.crowdsale.setCap(alice, capAlice, { from: anyone }), EVMRevert);
+      await shouldFail.reverting(this.crowdsale.setCap(alice, capAlice, { from: anyone }));
     });
 
     context('with individual caps', function () {
@@ -60,21 +59,21 @@ contract('IndividuallyCappedCrowdsale', function (
 
         it('should reject payments outside cap', async function () {
           await this.crowdsale.buyTokens(alice, { value: capAlice });
-          await expectThrow(this.crowdsale.buyTokens(alice, { value: 1 }), EVMRevert);
+          await shouldFail.reverting(this.crowdsale.buyTokens(alice, { value: 1 }));
         });
 
         it('should reject payments that exceed cap', async function () {
-          await expectThrow(this.crowdsale.buyTokens(alice, { value: capAlice.plus(1) }), EVMRevert);
-          await expectThrow(this.crowdsale.buyTokens(bob, { value: capBob.plus(1) }), EVMRevert);
+          await shouldFail.reverting(this.crowdsale.buyTokens(alice, { value: capAlice.plus(1) }));
+          await shouldFail.reverting(this.crowdsale.buyTokens(bob, { value: capBob.plus(1) }));
         });
 
         it('should manage independent caps', async function () {
           await this.crowdsale.buyTokens(alice, { value: lessThanCapAlice });
-          await expectThrow(this.crowdsale.buyTokens(bob, { value: lessThanCapAlice }), EVMRevert);
+          await shouldFail.reverting(this.crowdsale.buyTokens(bob, { value: lessThanCapAlice }));
         });
 
         it('should default to a cap of zero', async function () {
-          await expectThrow(this.crowdsale.buyTokens(charlie, { value: lessThanCapBoth }), EVMRevert);
+          await shouldFail.reverting(this.crowdsale.buyTokens(charlie, { value: lessThanCapBoth }));
         });
       });
 

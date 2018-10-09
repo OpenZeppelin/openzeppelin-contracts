@@ -1,5 +1,4 @@
-const { expectThrow } = require('../../helpers/expectThrow');
-const { EVMRevert } = require('../../helpers/EVMRevert');
+const shouldFail = require('../../helpers/shouldFail');
 
 require('chai')
   .should();
@@ -12,15 +11,15 @@ contract('SafeERC20', function () {
   });
 
   it('should throw on failed transfer', async function () {
-    await expectThrow(this.helper.doFailingTransfer(), EVMRevert);
+    await shouldFail.reverting(this.helper.doFailingTransfer());
   });
 
   it('should throw on failed transferFrom', async function () {
-    await expectThrow(this.helper.doFailingTransferFrom(), EVMRevert);
+    await shouldFail.reverting(this.helper.doFailingTransferFrom());
   });
 
   it('should throw on failed approve', async function () {
-    await expectThrow(this.helper.doFailingApprove(), EVMRevert);
+    await shouldFail.reverting(this.helper.doFailingApprove());
   });
 
   it('should not throw on succeeding transfer', async function () {

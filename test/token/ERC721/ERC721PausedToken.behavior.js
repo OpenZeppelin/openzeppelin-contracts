@@ -1,4 +1,4 @@
-const { assertRevert } = require('../../helpers/assertRevert');
+const shouldFail = require('../../helpers/shouldFail');
 const { sendTransaction } = require('../../helpers/sendTransaction');
 const { ZERO_ADDRESS } = require('../../helpers/constants');
 
@@ -19,23 +19,23 @@ function shouldBehaveLikeERC721PausedToken (owner, [recipient, operator]) {
     });
 
     it('reverts when trying to approve', async function () {
-      await assertRevert(this.token.approve(recipient, firstTokenId, { from: owner }));
+      await shouldFail.reverting(this.token.approve(recipient, firstTokenId, { from: owner }));
     });
 
     it('reverts when trying to setApprovalForAll', async function () {
-      await assertRevert(this.token.setApprovalForAll(operator, true, { from: owner }));
+      await shouldFail.reverting(this.token.setApprovalForAll(operator, true, { from: owner }));
     });
 
     it('reverts when trying to transferFrom', async function () {
-      await assertRevert(this.token.transferFrom(owner, recipient, firstTokenId, { from: owner }));
+      await shouldFail.reverting(this.token.transferFrom(owner, recipient, firstTokenId, { from: owner }));
     });
 
     it('reverts when trying to safeTransferFrom', async function () {
-      await assertRevert(this.token.safeTransferFrom(owner, recipient, firstTokenId, { from: owner }));
+      await shouldFail.reverting(this.token.safeTransferFrom(owner, recipient, firstTokenId, { from: owner }));
     });
 
     it('reverts when trying to safeTransferFrom with data', async function () {
-      await assertRevert(
+      await shouldFail.reverting(
         sendTransaction(
           this.token,
           'safeTransferFrom',
