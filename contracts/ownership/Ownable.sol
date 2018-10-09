@@ -8,7 +8,6 @@ pragma solidity ^0.4.24;
 contract Ownable {
   address private _owner;
 
-  event OwnershipRenounced(address indexed previousOwner);
   event OwnershipTransferred(
     address indexed previousOwner,
     address indexed newOwner
@@ -20,6 +19,7 @@ contract Ownable {
    */
   constructor() public {
     _owner = msg.sender;
+    emit OwnershipTransferred(address(0), _owner);
   }
 
   /**
@@ -51,7 +51,7 @@ contract Ownable {
    * modifier anymore.
    */
   function renounceOwnership() public onlyOwner {
-    emit OwnershipRenounced(_owner);
+    emit OwnershipTransferred(_owner, address(0));
     _owner = address(0);
   }
 
