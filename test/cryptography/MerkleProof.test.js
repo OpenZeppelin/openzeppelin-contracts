@@ -1,10 +1,9 @@
 const { MerkleTree } = require('../helpers/merkleTree.js');
-const { sha3, bufferToHex } = require('ethereumjs-util');
+const { toBuffer, bufferToHex } = require('ethereumjs-util');
 
 const MerkleProofWrapper = artifacts.require('MerkleProofWrapper');
 
-require('chai')
-  .should();
+require('chai').should();
 
 contract('MerkleProof', function () {
   beforeEach(async function () {
@@ -20,7 +19,7 @@ contract('MerkleProof', function () {
 
       const proof = merkleTree.getHexProof(elements[0]);
 
-      const leaf = bufferToHex(sha3(elements[0]));
+      const leaf = bufferToHex(toBuffer(elements[0]));
 
       (await this.merkleProof.verify(proof, root, leaf)).should.equal(true);
     });
@@ -31,7 +30,7 @@ contract('MerkleProof', function () {
 
       const correctRoot = correctMerkleTree.getHexRoot();
 
-      const correctLeaf = bufferToHex(sha3(correctElements[0]));
+      const correctLeaf = bufferToHex(toBuffer(correctElements[0]));
 
       const badElements = ['d', 'e', 'f'];
       const badMerkleTree = new MerkleTree(badElements);
@@ -50,7 +49,7 @@ contract('MerkleProof', function () {
       const proof = merkleTree.getHexProof(elements[0]);
       const badProof = proof.slice(0, proof.length - 5);
 
-      const leaf = bufferToHex(sha3(elements[0]));
+      const leaf = bufferToHex(toBuffer(elements[0]));
 
       (await this.merkleProof.verify(badProof, root, leaf)).should.equal(false);
     });

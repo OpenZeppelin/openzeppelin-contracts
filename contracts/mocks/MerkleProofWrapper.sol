@@ -7,12 +7,12 @@ contract MerkleProofWrapper {
   function verify(
     bytes32[] proof,
     bytes32 root,
-    bytes32 leaf
+    bytes leafDataBlock
   )
     public
     pure
     returns (bool)
   {
-    return MerkleProof.verify(proof, root, leaf);
+    return MerkleProof.verify(proof, root, leafDataBlock);
   }
 }

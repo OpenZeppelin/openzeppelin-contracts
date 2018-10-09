@@ -1,5 +1,8 @@
 pragma solidity ^0.4.24;
 
+import "./LegacyMerkleTrees.sol";
+
+
 /**
  * @title MerkleProof
  * @dev Merkle proof verification based on
@@ -11,32 +14,17 @@ library MerkleProof {
    * and each pair of pre-images are sorted.
    * @param proof Merkle proof containing sibling hashes on the branch from the leaf to the root of the Merkle tree
    * @param root Merkle root
-   * @param leaf Leaf of Merkle tree
+   * @param leafDataBlock Leaf data block of Merkle tree, before hashing
    */
   function verify(
     bytes32[] proof,
     bytes32 root,
-    bytes32 leaf
+    bytes leafDataBlock
   )
     internal
     pure
     returns (bool)
   {
-    bytes32 computedHash = leaf;
-
-    for (uint256 i = 0; i < proof.length; i++) {
-      bytes32 proofElement = proof[i];
-
-      if (computedHash < proofElement) {
-        // Hash(current computed hash + current element of the proof)
-        computedHash = keccak256(abi.encodePacked(computedHash, proofElement));
-      } else {
-        // Hash(current element of the proof + current computed hash)
-        computedHash = keccak256(abi.encodePacked(proofElement, computedHash));
-      }
-    }
-
-    // Check if the computed hash (root) is equal to the provided root
-    return computedHash == root;
+    return LegacyMerkleTrees.verifyProof(root, leafDataBlock, proof);
   }
 }
