@@ -23,9 +23,7 @@ contract IncreasingPriceCrowdsale is Initializable, TimedCrowdsale {
    * @param finalRate Number of tokens a buyer gets per wei at the end of the crowdsale
    */
   function initialize(uint256 initialRate, uint256 finalRate) public initializer {
-    // Make sure TimedCrowdsale.initialize has been called before this initializer is executed
-    require(openingTime() > 0);
-    require(closingTime() > 0);
+    assert(TimedCrowdsale._hasBeenInitialized());
 
     require(finalRate > 0);
     require(initialRate >= finalRate);

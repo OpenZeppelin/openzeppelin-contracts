@@ -26,10 +26,8 @@ contract RefundableCrowdsale is Initializable, FinalizableCrowdsale {
    * @param goal Funding goal
    */
   function initialize(uint256 goal) public initializer {
-    // Make sure TimedCrowdsale.initialize (which FinalizableCrowdsale depends on) has been
-    // called before this initializer is executed
-    require(openingTime() > 0);
-    require(closingTime() > 0);
+    // FinalizableCrowdsale depends on TimedCrowdsale
+    assert(TimedCrowdsale._hasBeenInitialized());
 
     require(goal > 0);
 

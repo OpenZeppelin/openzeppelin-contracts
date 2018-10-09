@@ -22,10 +22,7 @@ contract AllowanceCrowdsale is Initializable, Crowdsale {
    * @param tokenWallet Address holding the tokens, which has approved allowance to the crowdsale
    */
   function initialize(address tokenWallet) public initializer {
-    // Make sure Crowdsale.initialize has been called before this initializer is executed
-    assert(rate() > 0);
-    assert(wallet() != address(0));
-    assert(token() != address(0));
+    assert(Crowdsale._hasBeenInitialized());
 
     require(tokenWallet != address(0));
     _tokenWallet = tokenWallet;

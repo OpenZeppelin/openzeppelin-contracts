@@ -141,6 +141,10 @@ contract Crowdsale is Initializable {
   // Internal interface (extensible)
   // -----------------------------------------
 
+  function _hasBeenInitialized() internal view returns (bool) {
+    return ((_rate > 0) && (_wallet != address(0)) && (_token != address(0)));
+  }
+
   /**
    * @dev Validation of an incoming purchase. Use require statements to revert state when conditions are not met. Use `super` in contracts that inherit from Crowdsale to extend their validations.
    * Example from CappedCrowdsale.sol's _preValidatePurchase method:

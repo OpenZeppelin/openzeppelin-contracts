@@ -19,10 +19,7 @@ contract CappedCrowdsale is Initializable, Crowdsale {
    * @param cap Max amount of wei to be contributed
    */
   function initialize(uint256 cap) public initializer {
-    // Make sure Crowdsale.initialize has been called before this initializer is executed
-    assert(rate() > 0);
-    assert(wallet() != address(0));
-    assert(token() != address(0));
+    assert(Crowdsale._hasBeenInitialized());
 
     require(cap > 0);
     _cap = cap;
