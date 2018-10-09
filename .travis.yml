@@ -18,6 +18,9 @@ jobs:
     - env: SOLIDITY_COVERAGE=true
     - env: SOLC_NIGHTLY=true
   include:
+    - stage: install
+      script: npm install
+      script: npx npm-install-peers
     # Run the unit test suite three times in parallel.
     # The first one gets results faster and is the only one required to pass.
     # The second one generates the coverage report.

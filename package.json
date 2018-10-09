@@ -50,10 +50,14 @@
     "eslint-plugin-standard": "^3.1.0",
     "ethjs-abi": "^0.2.1",
     "ganache-cli": "6.1.0",
+    "npm-install-peers": "^1.2.1",
     "solidity-coverage": "^0.5.4",
     "solium": "^1.1.8",
     "truffle": "^4.1.13",
     "truffle-hdwallet-provider": "0.0.5",
     "web3-utils": "^1.0.0-beta.34"
+  },
+  "peerDependencies": {
+    "zos-lib": "^2.0.0-alpha.3"
   }
 }
