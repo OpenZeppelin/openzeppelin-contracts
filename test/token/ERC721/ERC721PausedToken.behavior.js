@@ -1,5 +1,6 @@
 const { assertRevert } = require('../../helpers/assertRevert');
 const { sendTransaction } = require('../../helpers/sendTransaction');
+const { ZERO_ADDRESS } = require('../../helpers/constants');
 
 const BigNumber = web3.BigNumber;
 
@@ -11,7 +12,6 @@ function shouldBehaveLikeERC721PausedToken (owner, [recipient, operator]) {
   const firstTokenId = 1;
   const mintedTokens = 1;
   const mockData = '0x42';
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
   describe('like a paused ERC721', function () {
     beforeEach(async function () {

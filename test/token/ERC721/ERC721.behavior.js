@@ -1,5 +1,6 @@
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 const { assertRevert } = require('../../helpers/assertRevert');
+const { ZERO_ADDRESS } = require('../../helpers/constants');
 const { decodeLogs } = require('../../helpers/decodeLogs');
 const { sendTransaction } = require('../../helpers/sendTransaction');
 const _ = require('lodash');
@@ -19,7 +20,6 @@ function shouldBehaveLikeERC721 (
   const firstTokenId = 1;
   const secondTokenId = 2;
   const unknownTokenId = 3;
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
   const RECEIVER_MAGIC_VALUE = '0x150b7a02';
 
   describe('like an ERC721', function () {

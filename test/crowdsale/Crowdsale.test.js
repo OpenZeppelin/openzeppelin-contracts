@@ -1,6 +1,7 @@
 const { assertRevert } = require('../helpers/assertRevert');
 const { ether } = require('../helpers/ether');
 const { ethGetBalance } = require('../helpers/web3');
+const { ZERO_ADDRESS } = require('../helpers/constants');
 
 const BigNumber = web3.BigNumber;
 
@@ -16,7 +17,6 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
   const value = ether(42);
   const tokenSupply = new BigNumber('1e22');
   const expectedTokenAmount = rate.mul(value);
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
   it('requires a non-null token', async function () {
     await assertRevert(

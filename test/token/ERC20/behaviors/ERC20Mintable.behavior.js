@@ -1,5 +1,6 @@
 const { assertRevert } = require('../../../helpers/assertRevert');
 const expectEvent = require('../../../helpers/expectEvent');
+const { ZERO_ADDRESS } = require('../../../helpers/constants');
 
 const BigNumber = web3.BigNumber;
 
@@ -8,8 +9,6 @@ require('chai')
   .should();
 
 function shouldBehaveLikeERC20Mintable (minter, [anyone]) {
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-
   describe('as a mintable token', function () {
     describe('mint', function () {
       const amount = 100;

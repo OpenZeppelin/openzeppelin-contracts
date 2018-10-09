@@ -1,6 +1,7 @@
 const { ether } = require('../helpers/ether');
 const { assertRevert } = require('../helpers/assertRevert');
 const { ethGetBalance } = require('../helpers/web3');
+const { ZERO_ADDRESS } = require('../helpers/constants');
 
 const BigNumber = web3.BigNumber;
 
@@ -16,7 +17,6 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
   const value = ether(0.42);
   const expectedTokenAmount = rate.mul(value);
   const tokenAllowance = new BigNumber('1e22');
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
   beforeEach(async function () {
     this.token = await SimpleToken.new({ from: tokenWallet });

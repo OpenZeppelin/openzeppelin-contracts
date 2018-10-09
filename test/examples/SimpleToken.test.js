@@ -1,4 +1,5 @@
 const { decodeLogs } = require('../helpers/decodeLogs');
+const { ZERO_ADDRESS } = require('../helpers/constants');
 const SimpleToken = artifacts.require('SimpleToken');
 
 const BigNumber = web3.BigNumber;
@@ -9,8 +10,6 @@ require('chai')
 
 contract('SimpleToken', function ([_, creator]) {
   let token;
-
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
   beforeEach(async function () {
     token = await SimpleToken.new({ from: creator });
