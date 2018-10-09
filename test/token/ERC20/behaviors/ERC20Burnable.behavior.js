@@ -1,8 +1,8 @@
 const { assertRevert } = require('../../../helpers/assertRevert');
 const expectEvent = require('../../../helpers/expectEvent');
+const { ZERO_ADDRESS } = require('../../../helpers/constants');
 
 const BigNumber = web3.BigNumber;
-const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 require('chai')
   .use(require('chai-bignumber')(BigNumber))

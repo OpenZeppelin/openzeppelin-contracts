@@ -1,4 +1,5 @@
 const { assertRevert } = require('../../helpers/assertRevert');
+const { ZERO_ADDRESS } = require('../../helpers/constants');
 const expectEvent = require('../../helpers/expectEvent');
 
 require('chai')
@@ -10,7 +11,6 @@ function capitalize (str) {
 
 function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], rolename) {
   rolename = capitalize(rolename);
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
   describe('should behave like public role', function () {
     beforeEach('check preconditions', async function () {

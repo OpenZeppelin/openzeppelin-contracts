@@ -1,8 +1,7 @@
 const { expectThrow } = require('../helpers/expectThrow');
 const { EVMRevert } = require('../helpers/EVMRevert');
 const expectEvent = require('../helpers/expectEvent');
-
-const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+const { ZERO_ADDRESS } = require('../helpers/constants');
 
 require('chai')
   .should();

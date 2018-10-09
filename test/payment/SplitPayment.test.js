@@ -1,5 +1,7 @@
 const { ethGetBalance } = require('../helpers/web3');
 const { sendEther } = require('./../helpers/sendTransaction');
+const { ether } = require('../helpers/ether');
+const { ZERO_ADDRESS } = require('./../helpers/constants');
 
 const BigNumber = web3.BigNumber;
 
@@ -12,8 +14,7 @@ const { EVMRevert } = require('../helpers/EVMRevert.js');
 const SplitPayment = artifacts.require('SplitPayment');
 
 contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1, payer1]) {
-  const amount = web3.toWei(1.0, 'ether');
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+  const amount = ether(1.0);
 
   it('rejects an empty set of payees', async function () {
     await expectThrow(SplitPayment.new([], []), EVMRevert);
