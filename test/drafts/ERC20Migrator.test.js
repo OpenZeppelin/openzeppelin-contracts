@@ -1,5 +1,6 @@
-const { assertRevert } = require('../helpers/assertRevert');
+const shouldFail = require('../helpers/shouldFail');
 const { ZERO_ADDRESS } = require('../helpers/constants');
+
 const ERC20Mock = artifacts.require('ERC20Mock');
 const ERC20Mintable = artifacts.require('ERC20Mintable');
 const ERC20Migrator = artifacts.require('ERC20Migrator');
@@ -14,7 +15,7 @@ contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
   const totalSupply = 200;
 
   it('reverts with a null legacy token address', async function () {
-    await assertRevert(ERC20Migrator.new(ZERO_ADDRESS));
+    await shouldFail.reverting(ERC20Migrator.new(ZERO_ADDRESS));
   });
 
   describe('with tokens and migrator', function () {
@@ -30,11 +31,11 @@ contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
 
     describe('beginMigration', function () {
       it('reverts with a null new token address', async function () {
-        await assertRevert(this.migrator.beginMigration(ZERO_ADDRESS));
+        await shouldFail.reverting(this.migrator.beginMigration(ZERO_ADDRESS));
       });
 
       it('reverts if not a minter of the token', async function () {
-        await assertRevert(this.migrator.beginMigration(this.newToken.address));
+        await shouldFail.reverting(this.migrator.beginMigration(this.newToken.address));
       });
 
       it('succeeds if it is a minter of the token', async function () {
@@ -45,7 +46,7 @@ contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
       it('reverts the second time it is called', async function () {
         await this.newToken.addMinter(this.migrator.address);
         await this.migrator.beginMigration(this.newToken.address);
-        await assertRevert(this.migrator.beginMigration(this.newToken.address));
+        await shouldFail.reverting(this.migrator.beginMigration(this.newToken.address));
       });
     });
 
@@ -145,7 +146,7 @@ contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
           const amount = baseAmount + 1;
 
           it('reverts', async function () {
-            await assertRevert(this.migrator.migrate(owner, amount));
+            await shouldFail.reverting(this.migrator.migrate(owner, amount));
           });
         });
       });

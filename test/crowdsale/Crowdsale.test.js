@@ -1,5 +1,5 @@
 const expectEvent = require('../helpers/expectEvent');
-const { assertRevert } = require('../helpers/assertRevert');
+const shouldFail = require('../helpers/shouldFail');
 const { ether } = require('../helpers/ether');
 const { ethGetBalance } = require('../helpers/web3');
 const { ZERO_ADDRESS } = require('../helpers/constants');
@@ -20,7 +20,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
   const expectedTokenAmount = rate.mul(value);
 
   it('requires a non-null token', async function () {
-    await assertRevert(
+    await shouldFail.reverting(
       Crowdsale.new(rate, wallet, ZERO_ADDRESS)
     );
   });
@@ -31,13 +31,13 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
     });
 
     it('requires a non-zero rate', async function () {
-      await assertRevert(
+      await shouldFail.reverting(
         Crowdsale.new(0, wallet, this.token.address)
       );
     });
 
     it('requires a non-null wallet', async function () {
-      await assertRevert(
+      await shouldFail.reverting(
         Crowdsale.new(rate, ZERO_ADDRESS, this.token.address)
       );
     });
@@ -55,7 +55,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
           });
 
           it('reverts on zero-valued payments', async function () {
-            await assertRevert(
+            await shouldFail.reverting(
               this.crowdsale.send(0, { from: purchaser })
             );
           });
@@ -67,13 +67,13 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
           });
 
           it('reverts on zero-valued payments', async function () {
-            await assertRevert(
+            await shouldFail.reverting(
               this.crowdsale.buyTokens(investor, { value: 0, from: purchaser })
             );
           });
 
           it('requires a non-null beneficiary', async function () {
-            await assertRevert(
+            await shouldFail.reverting(
               this.crowdsale.buyTokens(ZERO_ADDRESS, { value: value, from: purchaser })
             );
           });

@@ -1,4 +1,4 @@
-const { expectThrow } = require('../../../helpers/expectThrow');
+const shouldFail = require('../../../helpers/shouldFail');
 
 const BigNumber = web3.BigNumber;
 
@@ -21,12 +21,12 @@ function shouldBehaveLikeERC20Capped (minter, [anyone], cap) {
 
     it('should fail to mint if the ammount exceeds the cap', async function () {
       await this.token.mint(anyone, cap.sub(1), { from });
-      await expectThrow(this.token.mint(anyone, 100, { from }));
+      await shouldFail.reverting(this.token.mint(anyone, 100, { from }));
     });
 
     it('should fail to mint after cap is reached', async function () {
       await this.token.mint(anyone, cap, { from });
-      await expectThrow(this.token.mint(anyone, 1, { from }));
+      await shouldFail.reverting(this.token.mint(anyone, 1, { from }));
     });
   });
 }

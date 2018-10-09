@@ -1,4 +1,4 @@
-const { assertRevert } = require('../../../helpers/assertRevert');
+const shouldFail = require('../../../helpers/shouldFail');
 const expectEvent = require('../../../helpers/expectEvent');
 const { ZERO_ADDRESS } = require('../../../helpers/constants');
 
@@ -42,7 +42,7 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
       const amount = initialBalance + 1;
 
       it('reverts', async function () {
-        await assertRevert(this.token.burn(amount, { from: owner }));
+        await shouldFail.reverting(this.token.burn(amount, { from: owner }));
       });
     });
   });
@@ -88,7 +88,7 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
       const amount = initialBalance + 1;
       it('reverts', async function () {
         await this.token.approve(burner, amount, { from: owner });
-        await assertRevert(this.token.burnFrom(owner, amount, { from: burner }));
+        await shouldFail.reverting(this.token.burnFrom(owner, amount, { from: burner }));
       });
     });
 
@@ -96,7 +96,7 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
       const amount = 100;
       it('reverts', async function () {
         await this.token.approve(burner, amount - 1, { from: owner });
-        await assertRevert(this.token.burnFrom(owner, amount, { from: burner }));
+        await shouldFail.reverting(this.token.burnFrom(owner, amount, { from: burner }));
       });
     });
   });

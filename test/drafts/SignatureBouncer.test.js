@@ -1,4 +1,4 @@
-const { assertRevert } = require('../helpers/assertRevert');
+const shouldFail = require('../helpers/shouldFail');
 const { getSignFor } = require('../helpers/sign');
 const { shouldBehaveLikePublicRole } = require('../access/roles/PublicRole.behavior');
 
@@ -36,19 +36,19 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
       });
 
       it('does not allow invalid signature for sender', async function () {
-        await assertRevert(
+        await shouldFail.reverting(
           this.sigBouncer.onlyWithValidSignature(INVALID_SIGNATURE, { from: authorizedUser })
         );
       });
 
       it('does not allow valid signature for other sender', async function () {
-        await assertRevert(
+        await shouldFail.reverting(
           this.sigBouncer.onlyWithValidSignature(this.signFor(authorizedUser), { from: anyone })
         );
       });
 
       it('does not allow valid signature for method for sender', async function () {
-        await assertRevert(
+        await shouldFail.reverting(
           this.sigBouncer.onlyWithValidSignature(this.signFor(authorizedUser, 'onlyWithValidSignature'),
             { from: authorizedUser })
         );
@@ -63,13 +63,13 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
       });
 
       it('does not allow invalid signature with correct method for sender', async function () {
-        await assertRevert(
+        await shouldFail.reverting(
           this.sigBouncer.onlyWithValidSignatureAndMethod(INVALID_SIGNATURE, { from: authorizedUser })
         );
       });
 
       it('does not allow valid signature with correct method for other sender', async function () {
-        await assertRevert(
+        await shouldFail.reverting(
           this.sigBouncer.onlyWithValidSignatureAndMethod(
             this.signFor(authorizedUser, 'onlyWithValidSignatureAndMethod'), { from: anyone }
           )
@@ -77,14 +77,14 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
       });
 
       it('does not allow valid method signature with incorrect method for sender', async function () {
-        await assertRevert(
+        await shouldFail.reverting(
           this.sigBouncer.onlyWithValidSignatureAndMethod(this.signFor(authorizedUser, 'theWrongMethod'),
             { from: authorizedUser })
         );
       });
 
       it('does not allow valid non-method signature method for sender', async function () {
-        await assertRevert(
+        await shouldFail.reverting(
           this.sigBouncer.onlyWithValidSignatureAndMethod(this.signFor(authorizedUser), { from: authorizedUser })
         );
       });
@@ -98,13 +98,13 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
       });
 
       it('does not allow invalid signature with correct method and data for sender', async function () {
-        await assertRevert(
+        await shouldFail.reverting(
           this.sigBouncer.onlyWithValidSignatureAndData(UINT_VALUE, INVALID_SIGNATURE, { from: authorizedUser })
         );
       });
 
       it('does not allow valid signature with correct method and incorrect data for sender', async function () {
-        await assertRevert(
+        await shouldFail.reverting(
           this.sigBouncer.onlyWithValidSignatureAndData(UINT_VALUE + 10,
             this.signFor(authorizedUser, 'onlyWithValidSignatureAndData', [UINT_VALUE]),
             { from: authorizedUser }
@@ -113,7 +113,7 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
       });
 
       it('does not allow valid signature with correct method and data for other sender', async function () {
-        await assertRevert(
+        await shouldFail.reverting(
           this.sigBouncer.onlyWithValidSignatureAndData(UINT_VALUE,
             this.signFor(authorizedUser, 'onlyWithValidSignatureAndData', [UINT_VALUE]),
             { from: anyone }
@@ -122,7 +122,7 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
       });
 
       it('does not allow valid non-method signature for sender', async function () {
-        await assertRevert(
+        await shouldFail.reverting(
           this.sigBouncer.onlyWithValidSignatureAndData(UINT_VALUE,
             this.signFor(authorizedUser), { from: authorizedUser }
           )
@@ -130,7 +130,7 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
       });
 
       it('does not allow msg.data shorter than SIGNATURE_SIZE', async function () {
-        await assertRevert(
+        await shouldFail.reverting(
           this.sigBouncer.tooShortMsgData({ from: authorizedUser })
         );
       });

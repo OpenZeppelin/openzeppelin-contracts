@@ -1,4 +1,4 @@
-const { assertRevert } = require('../../../helpers/assertRevert');
+const shouldFail = require('../../../helpers/shouldFail');
 const expectEvent = require('../../../helpers/expectEvent');
 const { ZERO_ADDRESS } = require('../../../helpers/constants');
 
@@ -47,7 +47,7 @@ function shouldBehaveLikeERC20Mintable (minter, [anyone]) {
         const from = anyone;
 
         it('reverts', async function () {
-          await assertRevert(this.token.mint(anyone, amount, { from }));
+          await shouldFail.reverting(this.token.mint(anyone, amount, { from }));
         });
       });
     });

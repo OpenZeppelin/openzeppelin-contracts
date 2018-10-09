@@ -1,6 +1,6 @@
 const { shouldBehaveLikeMintedCrowdsale } = require('./MintedCrowdsale.behavior');
 const { ether } = require('../helpers/ether');
-const { assertRevert } = require('../helpers/assertRevert');
+const shouldFail = require('../helpers/shouldFail');
 
 const BigNumber = web3.BigNumber;
 
@@ -35,11 +35,11 @@ contract('MintedCrowdsale', function ([_, deployer, investor, wallet, purchaser]
     });
 
     it('rejects bare payments', async function () {
-      await assertRevert(this.crowdsale.send(value));
+      await shouldFail.reverting(this.crowdsale.send(value));
     });
 
     it('rejects token purchases', async function () {
-      await assertRevert(this.crowdsale.buyTokens(investor, { value: value, from: purchaser }));
+      await shouldFail.reverting(this.crowdsale.buyTokens(investor, { value: value, from: purchaser }));
     });
   });
 });

@@ -1,4 +1,4 @@
-const { assertRevert } = require('../../helpers/assertRevert');
+const shouldFail = require('../../helpers/shouldFail');
 const expectEvent = require('../../helpers/expectEvent');
 const { ZERO_ADDRESS } = require('../../helpers/constants');
 
@@ -43,7 +43,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
         const amount = 101;
 
         it('reverts', async function () {
-          await assertRevert(this.token.transfer(to, amount, { from: owner }));
+          await shouldFail.reverting(this.token.transfer(to, amount, { from: owner }));
         });
       });
 
@@ -74,7 +74,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
       const to = ZERO_ADDRESS;
 
       it('reverts', async function () {
-        await assertRevert(this.token.transfer(to, 100, { from: owner }));
+        await shouldFail.reverting(this.token.transfer(to, 100, { from: owner }));
       });
     });
   });
@@ -157,7 +157,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
       const spender = ZERO_ADDRESS;
 
       it('reverts', async function () {
-        await assertRevert(this.token.approve(spender, amount, { from: owner }));
+        await shouldFail.reverting(this.token.approve(spender, amount, { from: owner }));
       });
     });
   });
@@ -205,7 +205,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
           const amount = 101;
 
           it('reverts', async function () {
-            await assertRevert(this.token.transferFrom(owner, to, amount, { from: spender }));
+            await shouldFail.reverting(this.token.transferFrom(owner, to, amount, { from: spender }));
           });
         });
       });
@@ -219,7 +219,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
           const amount = 100;
 
           it('reverts', async function () {
-            await assertRevert(this.token.transferFrom(owner, to, amount, { from: spender }));
+            await shouldFail.reverting(this.token.transferFrom(owner, to, amount, { from: spender }));
           });
         });
 
@@ -227,7 +227,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
           const amount = 101;
 
           it('reverts', async function () {
-            await assertRevert(this.token.transferFrom(owner, to, amount, { from: spender }));
+            await shouldFail.reverting(this.token.transferFrom(owner, to, amount, { from: spender }));
           });
         });
       });
@@ -242,7 +242,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
       });
 
       it('reverts', async function () {
-        await assertRevert(this.token.transferFrom(owner, to, amount, { from: spender }));
+        await shouldFail.reverting(this.token.transferFrom(owner, to, amount, { from: spender }));
       });
     });
   });
@@ -254,7 +254,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
       function shouldDecreaseApproval (amount) {
         describe('when there was no approved amount before', function () {
           it('reverts', async function () {
-            await assertRevert(this.token.decreaseAllowance(spender, amount, { from: owner }));
+            await shouldFail.reverting(this.token.decreaseAllowance(spender, amount, { from: owner }));
           });
         });
 
@@ -287,7 +287,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
           });
 
           it('reverts when more than the full allowance is removed', async function () {
-            await assertRevert(this.token.decreaseAllowance(spender, approvedAmount + 1, { from: owner }));
+            await shouldFail.reverting(this.token.decreaseAllowance(spender, approvedAmount + 1, { from: owner }));
           });
         });
       }
@@ -310,7 +310,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
       const spender = ZERO_ADDRESS;
 
       it('reverts', async function () {
-        await assertRevert(this.token.decreaseAllowance(spender, amount, { from: owner }));
+        await shouldFail.reverting(this.token.decreaseAllowance(spender, amount, { from: owner }));
       });
     });
   });
@@ -392,7 +392,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
       const spender = ZERO_ADDRESS;
 
       it('reverts', async function () {
-        await assertRevert(this.token.increaseAllowance(spender, amount, { from: owner }));
+        await shouldFail.reverting(this.token.increaseAllowance(spender, amount, { from: owner }));
       });
     });
   });
@@ -402,7 +402,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
     const amount = new BigNumber(50);
 
     it('rejects a null account', async function () {
-      await assertRevert(this.token.mint(ZERO_ADDRESS, amount));
+      await shouldFail.reverting(this.token.mint(ZERO_ADDRESS, amount));
     });
 
     describe('for a non null account', function () {
@@ -435,12 +435,12 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
     const initialSupply = new BigNumber(100);
 
     it('rejects a null account', async function () {
-      await assertRevert(this.token.burn(ZERO_ADDRESS, 1));
+      await shouldFail.reverting(this.token.burn(ZERO_ADDRESS, 1));
     });
 
     describe('for a non null account', function () {
       it('rejects burning more than balance', async function () {
-        await assertRevert(this.token.burn(owner, initialSupply.plus(1)));
+        await shouldFail.reverting(this.token.burn(owner, initialSupply.plus(1)));
       });
 
       const describeBurn = function (description, amount) {
@@ -487,16 +487,16 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
     });
 
     it('rejects a null account', async function () {
-      await assertRevert(this.token.burnFrom(ZERO_ADDRESS, 1));
+      await shouldFail.reverting(this.token.burnFrom(ZERO_ADDRESS, 1));
     });
 
     describe('for a non null account', function () {
       it('rejects burning more than allowance', async function () {
-        await assertRevert(this.token.burnFrom(owner, allowance.plus(1)));
+        await shouldFail.reverting(this.token.burnFrom(owner, allowance.plus(1)));
       });
 
       it('rejects burning more than balance', async function () {
-        await assertRevert(this.token.burnFrom(owner, initialSupply.plus(1)));
+        await shouldFail.reverting(this.token.burnFrom(owner, initialSupply.plus(1)));
       });
 
       const describeBurnFrom = function (description, amount) {

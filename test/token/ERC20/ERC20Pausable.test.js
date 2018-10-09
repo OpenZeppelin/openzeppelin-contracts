@@ -1,5 +1,5 @@
 const expectEvent = require('../../helpers/expectEvent');
-const { assertRevert } = require('../../helpers/assertRevert');
+const shouldFail = require('../../helpers/shouldFail');
 
 const ERC20PausableMock = artifacts.require('ERC20PausableMock');
 const { shouldBehaveLikePublicRole } = require('../../access/roles/PublicRole.behavior');
@@ -41,7 +41,7 @@ contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherA
         });
 
         it('reverts', async function () {
-          await assertRevert(this.token.pause({ from }));
+          await shouldFail.reverting(this.token.pause({ from }));
         });
       });
     });
@@ -50,7 +50,7 @@ contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherA
       const from = anotherAccount;
 
       it('reverts', async function () {
-        await assertRevert(this.token.pause({ from }));
+        await shouldFail.reverting(this.token.pause({ from }));
       });
     });
   });
@@ -78,7 +78,7 @@ contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherA
 
       describe('when the token is unpaused', function () {
         it('reverts', async function () {
-          await assertRevert(this.token.unpause({ from }));
+          await shouldFail.reverting(this.token.unpause({ from }));
         });
       });
     });
@@ -87,7 +87,7 @@ contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherA
       const from = anotherAccount;
 
       it('reverts', async function () {
-        await assertRevert(this.token.unpause({ from }));
+        await shouldFail.reverting(this.token.unpause({ from }));
       });
     });
   });
@@ -133,7 +133,7 @@ contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherA
       it('reverts when trying to transfer when paused', async function () {
         await this.token.pause({ from: pauser });
 
-        await assertRevert(this.token.transfer(recipient, 100, { from: pauser }));
+        await shouldFail.reverting(this.token.transfer(recipient, 100, { from: pauser }));
       });
     });
 
@@ -156,7 +156,7 @@ contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherA
       it('reverts when trying to transfer when paused', async function () {
         await this.token.pause({ from: pauser });
 
-        await assertRevert(this.token.approve(anotherAccount, 40, { from: pauser }));
+        await shouldFail.reverting(this.token.approve(anotherAccount, 40, { from: pauser }));
       });
     });
 
@@ -185,7 +185,7 @@ contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherA
       it('reverts when trying to transfer from when paused', async function () {
         await this.token.pause({ from: pauser });
 
-        await assertRevert(this.token.transferFrom(pauser, recipient, 40, { from: anotherAccount }));
+        await shouldFail.reverting(this.token.transferFrom(pauser, recipient, 40, { from: anotherAccount }));
       });
     });
 
@@ -212,7 +212,7 @@ contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherA
       it('reverts when trying to transfer when paused', async function () {
         await this.token.pause({ from: pauser });
 
-        await assertRevert(this.token.decreaseAllowance(anotherAccount, 40, { from: pauser }));
+        await shouldFail.reverting(this.token.decreaseAllowance(anotherAccount, 40, { from: pauser }));
       });
     });
 
@@ -239,7 +239,7 @@ contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherA
       it('reverts when trying to increase approval when paused', async function () {
         await this.token.pause({ from: pauser });
 
-        await assertRevert(this.token.increaseAllowance(anotherAccount, 40, { from: pauser }));
+        await shouldFail.reverting(this.token.increaseAllowance(anotherAccount, 40, { from: pauser }));
       });
     });
   });

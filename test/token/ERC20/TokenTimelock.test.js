@@ -1,5 +1,5 @@
+const shouldFail = require('../../helpers/shouldFail');
 const time = require('../../helpers/time');
-const { expectThrow } = require('../../helpers/expectThrow');
 
 const BigNumber = web3.BigNumber;
 
@@ -20,7 +20,7 @@ contract('TokenTimelock', function ([_, minter, beneficiary]) {
 
     it('rejects a release time in the past', async function () {
       const pastReleaseTime = (await time.latest()) - time.duration.years(1);
-      await expectThrow(
+      await shouldFail.reverting(
         TokenTimelock.new(this.token.address, beneficiary, pastReleaseTime)
       );
     });
@@ -39,12 +39,12 @@ contract('TokenTimelock', function ([_, minter, beneficiary]) {
       });
 
       it('cannot be released before time limit', async function () {
-        await expectThrow(this.timelock.release());
+        await shouldFail.reverting(this.timelock.release());
       });
 
       it('cannot be released just before time limit', async function () {
         await time.increaseTo(this.releaseTime - time.duration.seconds(3));
-        await expectThrow(this.timelock.release());
+        await shouldFail.reverting(this.timelock.release());
       });
 
       it('can be released just after limit', async function () {
@@ -62,7 +62,7 @@ contract('TokenTimelock', function ([_, minter, beneficiary]) {
       it('cannot be released twice', async function () {
         await time.increaseTo(this.releaseTime + time.duration.years(1));
         await this.timelock.release();
-        await expectThrow(this.timelock.release());
+        await shouldFail.reverting(this.timelock.release());
         (await this.token.balanceOf(beneficiary)).should.be.bignumber.equal(amount);
       });
     });

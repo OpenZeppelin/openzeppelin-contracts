@@ -9,35 +9,34 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const { expectThrow } = require('../helpers/expectThrow');
-const { EVMRevert } = require('../helpers/EVMRevert.js');
+const shouldFail = require('../helpers/shouldFail');
 const SplitPayment = artifacts.require('SplitPayment');
 
 contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1, payer1]) {
   const amount = ether(1.0);
 
   it('rejects an empty set of payees', async function () {
-    await expectThrow(SplitPayment.new([], []), EVMRevert);
+    await shouldFail.reverting(SplitPayment.new([], []));
   });
 
   it('rejects more payees than shares', async function () {
-    await expectThrow(SplitPayment.new([payee1, payee2, payee3], [20, 30]), EVMRevert);
+    await shouldFail.reverting(SplitPayment.new([payee1, payee2, payee3], [20, 30]));
   });
 
   it('rejects more shares than payees', async function () {
-    await expectThrow(SplitPayment.new([payee1, payee2], [20, 30, 40]), EVMRevert);
+    await shouldFail.reverting(SplitPayment.new([payee1, payee2], [20, 30, 40]));
   });
 
   it('rejects null payees', async function () {
-    await expectThrow(SplitPayment.new([payee1, ZERO_ADDRESS], [20, 30]), EVMRevert);
+    await shouldFail.reverting(SplitPayment.new([payee1, ZERO_ADDRESS], [20, 30]));
   });
 
   it('rejects zero-valued shares', async function () {
-    await expectThrow(SplitPayment.new([payee1, payee2], [20, 0]), EVMRevert);
+    await shouldFail.reverting(SplitPayment.new([payee1, payee2], [20, 0]));
   });
 
   it('rejects repeated payees', async function () {
-    await expectThrow(SplitPayment.new([payee1, payee1], [20, 30]), EVMRevert);
+    await shouldFail.reverting(SplitPayment.new([payee1, payee1], [20, 30]));
   });
 
   context('once deployed', function () {
@@ -74,12 +73,12 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
     });
 
     it('should throw if no funds to claim', async function () {
-      await expectThrow(this.contract.release(payee1), EVMRevert);
+      await shouldFail.reverting(this.contract.release(payee1));
     });
 
     it('should throw if non-payee want to claim', async function () {
       await sendEther(payer1, this.contract.address, amount);
-      await expectThrow(this.contract.release(nonpayee1), EVMRevert);
+      await shouldFail.reverting(this.contract.release(nonpayee1));
     });
 
     it('should distribute funds to payees', async function () {
