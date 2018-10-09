@@ -1,4 +1,5 @@
 const shouldFail = require('../helpers/shouldFail');
+const { ZERO_ADDRESS } = require('../helpers/constants');
 
 const RolesMock = artifacts.require('RolesMock');
 
@@ -6,8 +7,6 @@ require('chai')
   .should();
 
 contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-
   beforeEach(async function () {
     this.roles = await RolesMock.new();
   });

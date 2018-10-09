@@ -1,6 +1,8 @@
 const shouldFail = require('../helpers/shouldFail');
 const expectEvent = require('../helpers/expectEvent');
 const { ethGetBalance } = require('../helpers/web3');
+const { ether } = require('../helpers/ether');
+const { ZERO_ADDRESS } = require('../helpers/constants');
 
 const BigNumber = web3.BigNumber;
 
@@ -11,9 +13,8 @@ require('chai')
 const RefundEscrow = artifacts.require('RefundEscrow');
 
 contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee2]) {
-  const amount = web3.toWei(54.0, 'ether');
+  const amount = ether(54.0);
   const refundees = [refundee1, refundee2];
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
   it('requires a non-null beneficiary', async function () {
     await shouldFail.reverting(

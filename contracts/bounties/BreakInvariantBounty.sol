@@ -8,11 +8,15 @@ import "../ownership/Ownable.sol";
  * @dev This bounty will pay out to a researcher if they break invariant logic of the contract.
  */
 contract BreakInvariantBounty is PullPayment, Ownable {
-  bool private _claimable = true;
+  bool private _claimable;
   mapping(address => address) private _researchers;
 
   event TargetCreated(address createdAddress);
   event BountyCanceled();
+
+  constructor() public {
+    _claimable = true;
+  }
 
   /**
    * @dev Fallback function allowing the contract to receive funds, if they haven't already been claimed.

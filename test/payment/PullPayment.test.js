@@ -1,4 +1,5 @@
 const { ethGetBalance } = require('../helpers/web3');
+const { ether } = require('../helpers/ether');
 
 const BigNumber = web3.BigNumber;
 
@@ -9,7 +10,7 @@ require('chai')
 const PullPaymentMock = artifacts.require('PullPaymentMock');
 
 contract('PullPayment', function ([_, payer, payee1, payee2]) {
-  const amount = web3.toWei(17.0, 'ether');
+  const amount = ether(17.0);
 
   beforeEach(async function () {
     this.contract = await PullPaymentMock.new({ value: amount });

@@ -1,6 +1,7 @@
 const shouldFail = require('../../helpers/shouldFail');
 const time = require('../../helpers/time');
 const { ethGetBlock } = require('../../helpers/web3');
+const { ZERO_ADDRESS } = require('../../helpers/constants');
 
 const BigNumber = web3.BigNumber;
 
@@ -13,7 +14,6 @@ const TokenVesting = artifacts.require('TokenVesting');
 
 contract('TokenVesting', function ([_, owner, beneficiary]) {
   const amount = new BigNumber(1000);
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
   beforeEach(async function () {
     // +1 minute so it starts after contract instantiation

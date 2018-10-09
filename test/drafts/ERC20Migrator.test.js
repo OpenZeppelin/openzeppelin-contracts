@@ -1,4 +1,5 @@
 const shouldFail = require('../helpers/shouldFail');
+const { ZERO_ADDRESS } = require('../helpers/constants');
 
 const ERC20Mock = artifacts.require('ERC20Mock');
 const ERC20Mintable = artifacts.require('ERC20Mintable');
@@ -11,8 +12,6 @@ require('chai')
   .should();
 
 contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-
   const totalSupply = 200;
 
   it('reverts with a null legacy token address', async function () {
