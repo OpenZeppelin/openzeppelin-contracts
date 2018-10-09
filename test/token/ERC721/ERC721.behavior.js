@@ -1,6 +1,7 @@
 const expectEvent = require('../../helpers/expectEvent');
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 const { assertRevert } = require('../../helpers/assertRevert');
+const { ZERO_ADDRESS } = require('../../helpers/constants');
 const { decodeLogs } = require('../../helpers/decodeLogs');
 const { sendTransaction } = require('../../helpers/sendTransaction');
 
@@ -19,7 +20,6 @@ function shouldBehaveLikeERC721 (
   const firstTokenId = 1;
   const secondTokenId = 2;
   const unknownTokenId = 3;
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
   const RECEIVER_MAGIC_VALUE = '0x150b7a02';
 
   describe('like an ERC721', function () {
@@ -92,7 +92,7 @@ function shouldBehaveLikeERC721 (
             expectEvent.inLogs(logs, 'Transfer', {
               from: owner,
               to: this.toWhom,
-              tokenId: tokenId
+              tokenId: tokenId,
             });
           });
         } else {
@@ -100,7 +100,7 @@ function shouldBehaveLikeERC721 (
             expectEvent.inLogs(logs, 'Transfer', {
               from: owner,
               to: this.toWhom,
-              tokenId: tokenId
+              tokenId: tokenId,
             });
           });
         }
@@ -165,7 +165,7 @@ function shouldBehaveLikeERC721 (
             expectEvent.inLogs(logs, 'Transfer', {
               from: owner,
               to: owner,
-              tokenId: tokenId
+              tokenId: tokenId,
             });
           });
 
@@ -341,7 +341,7 @@ function shouldBehaveLikeERC721 (
           expectEvent.inLogs(logs, 'Approval', {
             owner: owner,
             approved: address,
-            tokenId: tokenId
+            tokenId: tokenId,
           });
         });
       };
@@ -451,7 +451,7 @@ function shouldBehaveLikeERC721 (
             expectEvent.inLogs(logs, 'ApprovalForAll', {
               owner: owner,
               operator: operator,
-              approved: true
+              approved: true,
             });
           });
         });
@@ -473,7 +473,7 @@ function shouldBehaveLikeERC721 (
             expectEvent.inLogs(logs, 'ApprovalForAll', {
               owner: owner,
               operator: operator,
-              approved: true
+              approved: true,
             });
           });
 
@@ -501,7 +501,7 @@ function shouldBehaveLikeERC721 (
             expectEvent.inLogs(logs, 'ApprovalForAll', {
               owner: owner,
               operator: operator,
-              approved: true
+              approved: true,
             });
           });
         });

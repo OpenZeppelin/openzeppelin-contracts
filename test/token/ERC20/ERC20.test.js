@@ -1,5 +1,6 @@
 const { assertRevert } = require('../../helpers/assertRevert');
 const expectEvent = require('../../helpers/expectEvent');
+const { ZERO_ADDRESS } = require('../../helpers/constants');
 
 const ERC20Mock = artifacts.require('ERC20Mock');
 
@@ -10,8 +11,6 @@ require('chai')
   .should();
 
 contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-
   beforeEach(async function () {
     this.token = await ERC20Mock.new(owner, 100);
   });
@@ -65,7 +64,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
           expectEvent.inLogs(logs, 'Transfer', {
             from: owner,
             to: to,
-            value: amount
+            value: amount,
           });
         });
       });
@@ -93,7 +92,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
           expectEvent.inLogs(logs, 'Approval', {
             owner: owner,
             spender: spender,
-            value: amount
+            value: amount,
           });
         });
 
@@ -127,7 +126,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
           expectEvent.inLogs(logs, 'Approval', {
             owner: owner,
             spender: spender,
-            value: amount
+            value: amount,
           });
         });
 
@@ -197,7 +196,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
             expectEvent.inLogs(logs, 'Transfer', {
               from: owner,
               to: to,
-              value: amount
+              value: amount,
             });
           });
         });
@@ -272,7 +271,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
             expectEvent.inLogs(logs, 'Approval', {
               owner: owner,
               spender: spender,
-              value: 0
+              value: 0,
             });
           });
 
@@ -329,7 +328,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
           expectEvent.inLogs(logs, 'Approval', {
             owner: owner,
             spender: spender,
-            value: amount
+            value: amount,
           });
         });
 
@@ -363,7 +362,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
           expectEvent.inLogs(logs, 'Approval', {
             owner: owner,
             spender: spender,
-            value: amount
+            value: amount,
           });
         });
 

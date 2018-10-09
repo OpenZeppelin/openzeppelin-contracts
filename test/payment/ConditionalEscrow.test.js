@@ -1,6 +1,7 @@
 const { shouldBehaveLikeEscrow } = require('./Escrow.behavior');
 const { expectThrow } = require('../helpers/expectThrow');
 const { EVMRevert } = require('../helpers/EVMRevert');
+const { ether } = require('../helpers/ether');
 
 const BigNumber = web3.BigNumber;
 
@@ -24,7 +25,7 @@ contract('ConditionalEscrow', function ([_, owner, payee, ...otherAccounts]) {
   });
 
   context('when withdrawal is disallowed', function () {
-    const amount = web3.toWei(23.0, 'ether');
+    const amount = ether(23.0);
 
     beforeEach(async function () {
       await this.escrow.setAllowed(payee, false);

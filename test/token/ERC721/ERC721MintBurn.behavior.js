@@ -1,5 +1,6 @@
 const { assertRevert } = require('../../helpers/assertRevert');
 const expectEvent = require('../../helpers/expectEvent');
+const { ZERO_ADDRESS } = require('../../helpers/constants');
 const BigNumber = web3.BigNumber;
 
 require('chai')
@@ -15,7 +16,6 @@ function shouldBehaveLikeMintAndBurnERC721 (
   const secondTokenId = 2;
   const thirdTokenId = 3;
   const unknownTokenId = 4;
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
   const MOCK_URI = 'https://example.com';
 
   describe('like a mintable and burnable ERC721', function () {
@@ -45,7 +45,7 @@ function shouldBehaveLikeMintAndBurnERC721 (
           expectEvent.inLogs(logs, 'Transfer', {
             from: ZERO_ADDRESS,
             to: newOwner,
-            tokenId: thirdTokenId
+            tokenId: thirdTokenId,
           });
         });
       });
@@ -90,7 +90,7 @@ function shouldBehaveLikeMintAndBurnERC721 (
           expectEvent.inLogs(logs, 'Transfer', {
             from: owner,
             to: ZERO_ADDRESS,
-            tokenId: tokenId
+            tokenId: tokenId,
           });
         });
       });

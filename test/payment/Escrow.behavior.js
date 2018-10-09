@@ -2,6 +2,7 @@ const expectEvent = require('../helpers/expectEvent');
 const { expectThrow } = require('../helpers/expectThrow');
 const { EVMRevert } = require('../helpers/EVMRevert');
 const { ethGetBalance } = require('../helpers/web3');
+const { ether } = require('../helpers/ether');
 
 const BigNumber = web3.BigNumber;
 
@@ -10,7 +11,7 @@ require('chai')
   .should();
 
 function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
-  const amount = web3.toWei(42.0, 'ether');
+  const amount = ether(42.0);
 
   describe('as an escrow', function () {
     describe('deposits', function () {
@@ -34,7 +35,7 @@ function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
         const { logs } = await this.escrow.deposit(payee1, { from: primary, value: amount });
         expectEvent.inLogs(logs, 'Deposited', {
           payee: payee1,
-          weiAmount: amount
+          weiAmount: amount,
         });
       });
 
@@ -87,7 +88,7 @@ function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
         const { logs } = await this.escrow.withdraw(payee1, { from: primary });
         expectEvent.inLogs(logs, 'Withdrawn', {
           payee: payee1,
-          weiAmount: amount
+          weiAmount: amount,
         });
       });
     });
