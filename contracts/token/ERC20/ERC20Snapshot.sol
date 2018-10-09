@@ -2,6 +2,7 @@ pragma solidity ^0.4.24;
 
 import "./ERC20.sol";
 import "../../utils/Arrays.sol";
+import "../../math/SafeMath.sol";
 
 
 /**
@@ -10,7 +11,7 @@ import "../../utils/Arrays.sol";
  * This can be useful to safely implement voting weighed by balance.
  */
 contract ERC20Snapshot is ERC20 {
-  
+  using SafeMath for uint256;
   using Arrays for uint256[];
 
   // The 0 id represents no snapshot was taken yet.
@@ -26,7 +27,7 @@ contract ERC20Snapshot is ERC20 {
    * @return An uint256 representing current snapshot id.
    */
   function snapshot() external returns (uint256) {
-    currentSnapshotId += 1;
+    currentSnapshotId = currentSnapshotId.add(1);
     emit Snapshot(currentSnapshotId);
     return currentSnapshotId;
   }
