@@ -10,18 +10,6 @@ function advanceBlock () {
   });
 }
 
-// Advances the block number so that the last mined block is `number`.
-async function advanceToBlock (number) {
-  if (web3.eth.blockNumber > number) {
-    throw Error(`block number ${number} is in the past (current is ${web3.eth.blockNumber})`);
-  }
-
-  while (web3.eth.blockNumber < number) {
-    await advanceBlock();
-  }
-}
-
 module.exports = {
   advanceBlock,
-  advanceToBlock,
 };
