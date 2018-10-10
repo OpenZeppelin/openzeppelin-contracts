@@ -18,6 +18,11 @@ jobs:
     - env: SOLIDITY_COVERAGE=true
     - env: SOLC_NIGHTLY=true
   include:
+    - stage: install
+      script: true
+      install:
+        - npm install
+        - npx npm-install-peers
     # Run the unit test suite three times in parallel.
     # The first one gets results faster and is the only one required to pass.
     # The second one generates the coverage report.
@@ -25,18 +30,22 @@ jobs:
     # upcoming solidity release.
     - stage: tests
       name: "unit tests"
+      install: npx npm-install-peers
       script: npm run test
     - stage: tests
       name: "unit tests with coverage"
+      install: npx npm-install-peers
       script: npm run test
       env: SOLIDITY_COVERAGE=true
     - stage: tests
       name: "unit tests with solc nightly"
+      install: npx npm-install-peers
       script: npm run test
       env: SOLC_NIGHTLY=true
     # solidity and javascript style tests.
     - stage: tests
       name: "static tests"
+      install: npx npm-install-peers
       script: npm run lint
     - stage: update docs
       if: tag =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
