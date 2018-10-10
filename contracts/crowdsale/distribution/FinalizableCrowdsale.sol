@@ -11,9 +11,13 @@ import "../validation/TimedCrowdsale.sol";
 contract FinalizableCrowdsale is TimedCrowdsale {
   using SafeMath for uint256;
 
-  bool private _finalized = false;
+  bool private _finalized;
 
   event CrowdsaleFinalized();
+
+  constructor() public {
+    _finalized = false;
+  }
 
   /**
    * @return true if the crowdsale is finalized, false otherwise.
