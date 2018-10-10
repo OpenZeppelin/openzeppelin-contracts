@@ -83,4 +83,6 @@ contract TimedCrowdsale is Initializable, Crowdsale {
     super._preValidatePurchase(beneficiary, weiAmount);
   }
 
+
+  uint256[50] private ______gap;
 }

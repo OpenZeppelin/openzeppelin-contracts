@@ -81,4 +81,6 @@ contract IndividuallyCappedCrowdsale is Initializable, Crowdsale, CapperRole {
       weiAmount);
   }
 
+
+  uint256[50] private ______gap;
 }

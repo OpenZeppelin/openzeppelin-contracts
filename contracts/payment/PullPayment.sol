@@ -44,4 +44,6 @@ contract PullPayment is Initializable {
   function _asyncTransfer(address dest, uint256 amount) internal {
     _escrow.deposit.value(amount)(dest);
   }
+
+  uint256[50] private ______gap;
 }

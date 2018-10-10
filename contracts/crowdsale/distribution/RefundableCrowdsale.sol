@@ -84,4 +84,6 @@ contract RefundableCrowdsale is Initializable, FinalizableCrowdsale {
     _escrow.deposit.value(msg.value)(msg.sender);
   }
 
+
+  uint256[50] private ______gap;
 }

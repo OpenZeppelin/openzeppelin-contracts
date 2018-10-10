@@ -140,4 +140,6 @@ contract SignatureBouncer is Initializable, SignerRole {
 
     return signer != address(0) && isSigner(signer);
   }
+
+  uint256[50] private ______gap;
 }

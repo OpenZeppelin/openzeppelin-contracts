@@ -33,4 +33,6 @@ contract Secondary is Initializable {
 
     _primary = recipient;
   }
+
+  uint256[50] private ______gap;
 }

@@ -27,4 +27,6 @@ contract MintedCrowdsale is Initializable, Crowdsale {
     require(
       ERC20Mintable(address(token())).mint(beneficiary, tokenAmount));
   }
+
+  uint256[50] private ______gap;
 }

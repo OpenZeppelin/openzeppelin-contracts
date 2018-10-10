@@ -46,4 +46,6 @@ contract FinalizableCrowdsale is Initializable, TimedCrowdsale {
   function _finalization() internal {
   }
 
+
+  uint256[50] private ______gap;
 }

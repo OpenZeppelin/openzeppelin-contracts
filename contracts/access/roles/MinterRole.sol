@@ -44,4 +44,6 @@ contract MinterRole is Initializable {
     minters.remove(account);
     emit MinterRemoved(account);
   }
+
+  uint256[50] private ______gap;
 }
