@@ -1,5 +1,5 @@
 const { shouldSupportInterfaces } = require('./SupportsInterface.behavior');
-const { assertRevert } = require('../helpers/assertRevert');
+const shouldFail = require('../helpers/shouldFail');
 
 const ERC165Mock = artifacts.require('ERC165Mock');
 
@@ -12,7 +12,7 @@ contract('ERC165', function () {
   });
 
   it('does not allow 0xffffffff', async function () {
-    await assertRevert(
+    await shouldFail.reverting(
       this.mock.registerInterface(0xffffffff)
     );
   });

@@ -1,4 +1,5 @@
-const { assertRevert } = require('../../helpers/assertRevert');
+const shouldFail = require('../../helpers/shouldFail');
+const { ZERO_ADDRESS } = require('../../helpers/constants');
 const expectEvent = require('../../helpers/expectEvent');
 
 require('chai')
@@ -10,7 +11,6 @@ function capitalize (str) {
 
 function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], rolename) {
   rolename = capitalize(rolename);
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
   describe('should behave like public role', function () {
     beforeEach('check preconditions', async function () {
@@ -20,7 +20,7 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
     });
 
     it('reverts when querying roles for the null account', async function () {
-      await assertRevert(this.contract[`is${rolename}`](ZERO_ADDRESS));
+      await shouldFail.reverting(this.contract[`is${rolename}`](ZERO_ADDRESS));
     });
 
     describe('access control', function () {
@@ -36,7 +36,7 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
         const from = anyone;
 
         it('reverts', async function () {
-          await assertRevert(this.contract[`only${rolename}Mock`]({ from }));
+          await shouldFail.reverting(this.contract[`only${rolename}Mock`]({ from }));
         });
       });
     });
@@ -58,7 +58,7 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
       });
 
       it('reverts when adding role to the null account', async function () {
-        await assertRevert(this.contract[`add${rolename}`](ZERO_ADDRESS, { from: authorized }));
+        await shouldFail.reverting(this.contract[`add${rolename}`](ZERO_ADDRESS, { from: authorized }));
       });
     });
 
@@ -79,7 +79,7 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
       });
 
       it('reverts when removing role from the null account', async function () {
-        await assertRevert(this.contract[`remove${rolename}`](ZERO_ADDRESS));
+        await shouldFail.reverting(this.contract[`remove${rolename}`](ZERO_ADDRESS));
       });
     });
 

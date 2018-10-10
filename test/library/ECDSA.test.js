@@ -1,5 +1,5 @@
 const { signMessage, toEthSignedMessageHash } = require('../helpers/sign');
-const { expectThrow } = require('../helpers/expectThrow');
+const shouldFail = require('../helpers/shouldFail');
 
 const ECDSAMock = artifacts.require('ECDSAMock');
 
@@ -113,7 +113,7 @@ contract('ECDSA', function ([_, anyone]) {
     it.skip('reverts', async function () {
       // Create the signature
       const signature = signMessage(anyone, TEST_MESSAGE);
-      await expectThrow(
+      await shouldFail.reverting(
         this.ecdsa.recover(TEST_MESSAGE.substring(2), signature)
       );
     });

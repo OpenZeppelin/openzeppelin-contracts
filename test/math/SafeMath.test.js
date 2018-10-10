@@ -1,4 +1,5 @@
-const { assertRevert } = require('../helpers/assertRevert');
+const shouldFail = require('../helpers/shouldFail');
+const { MAX_UINT256 } = require('../helpers/constants');
 
 const BigNumber = web3.BigNumber;
 const SafeMathMock = artifacts.require('SafeMathMock');
@@ -8,8 +9,6 @@ require('chai')
   .should();
 
 contract('SafeMath', function () {
-  const MAX_UINT = new BigNumber(2).pow(256).minus(1);
-
   beforeEach(async function () {
     this.safeMath = await SafeMathMock.new();
   });
@@ -23,10 +22,10 @@ contract('SafeMath', function () {
     });
 
     it('throws a revert error on addition overflow', async function () {
-      const a = MAX_UINT;
+      const a = MAX_UINT256;
       const b = new BigNumber(1);
 
-      await assertRevert(this.safeMath.add(a, b));
+      await shouldFail.reverting(this.safeMath.add(a, b));
     });
   });
 
@@ -42,7 +41,7 @@ contract('SafeMath', function () {
       const a = new BigNumber(1234);
       const b = new BigNumber(5678);
 
-      await assertRevert(this.safeMath.sub(a, b));
+      await shouldFail.reverting(this.safeMath.sub(a, b));
     });
   });
 
@@ -62,10 +61,10 @@ contract('SafeMath', function () {
     });
 
     it('throws a revert error on multiplication overflow', async function () {
-      const a = MAX_UINT;
+      const a = MAX_UINT256;
       const b = new BigNumber(2);
 
-      await assertRevert(this.safeMath.mul(a, b));
+      await shouldFail.reverting(this.safeMath.mul(a, b));
     });
   });
 
@@ -81,7 +80,7 @@ contract('SafeMath', function () {
       const a = new BigNumber(5678);
       const b = new BigNumber(0);
 
-      await assertRevert(this.safeMath.div(a, b));
+      await shouldFail.reverting(this.safeMath.div(a, b));
     });
   });
 
@@ -120,7 +119,7 @@ contract('SafeMath', function () {
       const a = new BigNumber(5678);
       const b = new BigNumber(0);
 
-      await assertRevert(this.safeMath.mod(a, b));
+      await shouldFail.reverting(this.safeMath.mod(a, b));
     });
   });
 });

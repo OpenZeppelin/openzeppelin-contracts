@@ -1,7 +1,8 @@
 const expectEvent = require('../helpers/expectEvent');
 const { ether } = require('../helpers/ether');
-const { assertRevert } = require('../helpers/assertRevert');
+const shouldFail = require('../helpers/shouldFail');
 const { ethGetBalance } = require('../helpers/web3');
+const { ZERO_ADDRESS } = require('../helpers/constants');
 
 const BigNumber = web3.BigNumber;
 
@@ -17,7 +18,6 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
   const value = ether(0.42);
   const expectedTokenAmount = rate.mul(value);
   const tokenAllowance = new BigNumber('1e22');
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
   beforeEach(async function () {
     this.token = await SimpleToken.new({ from: tokenWallet });
@@ -74,7 +74,7 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
   describe('when token wallet is different from token address', function () {
     it('creation reverts', async function () {
       this.token = await SimpleToken.new({ from: tokenWallet });
-      await assertRevert(AllowanceCrowdsaleImpl.new(rate, wallet, this.token.address, ZERO_ADDRESS));
+      await shouldFail.reverting(AllowanceCrowdsaleImpl.new(rate, wallet, this.token.address, ZERO_ADDRESS));
     });
   });
 });
