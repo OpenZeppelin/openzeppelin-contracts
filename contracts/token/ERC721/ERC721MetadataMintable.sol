@@ -35,4 +35,6 @@ contract ERC721MetadataMintable is Initializable, ERC721, ERC721Metadata, Minter
     _setTokenURI(tokenId, tokenURI);
     return true;
   }
+
+  uint256[50] private ______gap;
 }

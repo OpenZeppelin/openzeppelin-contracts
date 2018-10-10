@@ -53,4 +53,6 @@ contract ERC165 is Initializable, IERC165 {
     require(interfaceId != 0xffffffff);
     _supportedInterfaces[interfaceId] = true;
   }
+
+  uint256[50] private ______gap;
 }

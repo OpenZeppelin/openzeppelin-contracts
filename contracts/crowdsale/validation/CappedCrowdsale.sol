@@ -53,4 +53,6 @@ contract CappedCrowdsale is Initializable, Crowdsale {
     require(weiRaised().add(weiAmount) <= _cap);
   }
 
+
+  uint256[50] private ______gap;
 }

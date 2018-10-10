@@ -26,4 +26,6 @@ contract SimpleToken is Initializable, ERC20 {
     _mint(sender, INITIAL_SUPPLY);
   }
 
+
+  uint256[50] private ______gap;
 }

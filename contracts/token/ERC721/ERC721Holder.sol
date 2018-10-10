@@ -16,4 +16,6 @@ contract ERC721Holder is Initializable, IERC721Receiver {
   {
     return this.onERC721Received.selector;
   }
+
+  uint256[50] private ______gap;
 }

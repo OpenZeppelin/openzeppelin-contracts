@@ -45,4 +45,6 @@ contract ERC721Pausable is Initializable, ERC721, Pausable {
   {
     super.transferFrom(from, to, tokenId);
   }
+
+  uint256[50] private ______gap;
 }

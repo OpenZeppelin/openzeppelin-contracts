@@ -44,4 +44,6 @@ contract CapperRole is Initializable {
     cappers.remove(account);
     emit CapperRemoved(account);
   }
+
+  uint256[50] private ______gap;
 }

@@ -327,4 +327,6 @@ contract ERC721 is Initializable, ERC165, IERC721 {
       msg.sender, from, tokenId, _data);
     return (retval == _ERC721_RECEIVED);
   }
+
+  uint256[50] private ______gap;
 }

@@ -47,4 +47,6 @@ contract ERC20Capped is Initializable, ERC20Mintable {
     return super.mint(to, amount);
   }
 
+
+  uint256[50] private ______gap;
 }

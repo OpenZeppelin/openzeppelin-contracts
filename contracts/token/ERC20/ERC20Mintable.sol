@@ -31,4 +31,6 @@ contract ERC20Mintable is Initializable, ERC20, MinterRole {
     _mint(to, amount);
     return true;
   }
+
+  uint256[50] private ______gap;
 }

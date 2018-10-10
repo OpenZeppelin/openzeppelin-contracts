@@ -25,6 +25,8 @@ contract SampleCrowdsaleToken is Initializable, ERC20Mintable {
     symbol = "SCT";
     decimals = 18;
   }
+
+  uint256[50] private ______gap;
 }
 
 
@@ -67,4 +69,6 @@ contract SampleCrowdsale is Initializable, Crowdsale, CappedCrowdsale, Refundabl
     //the value needs to less or equal than a cap which is limit for accepted funds
     require(goal <= cap);
   }
+
+  uint256[50] private ______gap;
 }

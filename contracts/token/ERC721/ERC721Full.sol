@@ -21,4 +21,6 @@ contract ERC721Full is Initializable, ERC721, ERC721Enumerable, ERC721Metadata {
     ERC721Enumerable.initialize();
     ERC721Metadata.initialize(name, symbol);
   }
+
+  uint256[50] private ______gap;
 }

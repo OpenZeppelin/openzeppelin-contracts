@@ -12,6 +12,8 @@ import "../../token/ERC20/IERC20.sol";
  */
 contract ERC20TokenMetadata is Initializable, IERC20 {
   function tokenURI() external view returns (string);
+
+  uint256[50] private ______gap;
 }
 
 
@@ -28,4 +30,6 @@ contract ERC20WithMetadata is Initializable, ERC20TokenMetadata {
   function tokenURI() external view returns (string) {
     return _tokenURI;
   }
+
+  uint256[50] private ______gap;
 }

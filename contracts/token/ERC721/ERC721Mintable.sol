@@ -32,4 +32,6 @@ contract ERC721Mintable is Initializable, ERC721, MinterRole {
     _mint(to, tokenId);
     return true;
   }
+
+  uint256[50] private ______gap;
 }

@@ -68,4 +68,6 @@ contract IncreasingPriceCrowdsale is Initializable, TimedCrowdsale {
     return currentRate.mul(weiAmount);
   }
 
+
+  uint256[50] private ______gap;
 }

@@ -176,4 +176,6 @@ contract TokenVesting is Initializable, Ownable {
       return totalBalance.mul(block.timestamp.sub(_start)).div(_duration);
     }
   }
+
+  uint256[50] private ______gap;
 }

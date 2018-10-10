@@ -54,4 +54,6 @@ contract AllowanceCrowdsale is Initializable, Crowdsale {
   {
     token().safeTransferFrom(_tokenWallet, beneficiary, tokenAmount);
   }
+
+  uint256[50] private ______gap;
 }

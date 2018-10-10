@@ -107,4 +107,6 @@ contract SplitPayment is Initializable {
     _shares[account] = shares_;
     _totalShares = _totalShares.add(shares_);
   }
+
+  uint256[50] private ______gap;
 }

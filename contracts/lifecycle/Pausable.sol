@@ -56,4 +56,6 @@ contract Pausable is Initializable, PauserRole {
     _paused = false;
     emit Unpaused();
   }
+
+  uint256[50] private ______gap;
 }

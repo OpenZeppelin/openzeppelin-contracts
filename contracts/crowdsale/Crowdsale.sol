@@ -232,4 +232,6 @@ contract Crowdsale is Initializable {
   function _forwardFunds() internal {
     _wallet.transfer(msg.value);
   }
+
+  uint256[50] private ______gap;
 }

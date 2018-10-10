@@ -99,4 +99,6 @@ contract ERC20Migrator is Initializable {
     uint256 amount = Math.min(balance, allowance);
     migrate(account, amount);
   }
+
+  uint256[50] private ______gap;
 }
