@@ -10,7 +10,11 @@ contract Pausable is PauserRole {
   event Paused();
   event Unpaused();
 
-  bool private _paused = false;
+  bool private _paused;
+
+  constructor() public {
+    _paused = false;
+  }
 
   /**
    * @return true if the contract is paused, false otherwise.
