@@ -38,6 +38,27 @@ library SafeERC20 {
   )
     internal
   {
+    require((value == 0) || (token.allowance(msg.sender, spender) == 0));
     require(token.approve(spender, value));
+  }
+
+  function safeIncreaseAllowance(
+    IERC20 token,
+    address spender,
+    uint256 addedValue
+  )
+    internal
+  {
+    require(token.increaseAllowance(spender, addedValue));
+  }
+
+  function safeDecreaseAllowance(
+    IERC20 token,
+    address spender,
+    uint256 subtractedValue
+  )
+    internal
+  {
+    require(token.decreaseAllowance(spender, subtractedValue));
   }
 }

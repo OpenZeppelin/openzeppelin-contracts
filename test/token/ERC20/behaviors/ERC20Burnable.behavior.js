@@ -32,7 +32,7 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
           expectEvent.inLogs(this.logs, 'Transfer', {
             from: owner,
             to: ZERO_ADDRESS,
-            value: amount
+            value: amount,
           });
         });
       }
@@ -78,7 +78,7 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
           expectEvent.inLogs(this.logs, 'Transfer', {
             from: owner,
             to: ZERO_ADDRESS,
-            value: amount
+            value: amount,
           });
         });
       }

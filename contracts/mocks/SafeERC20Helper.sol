@@ -20,6 +20,14 @@ contract ERC20FailingMock is IERC20 {
     return false;
   }
 
+  function increaseAllowance(address, uint256) public returns (bool){
+    return false;
+  }
+
+  function decreaseAllowance(address, uint256) public returns (bool){
+    return false;
+  }
+
   function balanceOf(address) public view returns (uint256) {
     return 0;
   }
@@ -43,6 +51,14 @@ contract ERC20SucceedingMock is IERC20 {
   }
 
   function approve(address, uint256) public returns (bool) {
+    return true;
+  }
+
+  function increaseAllowance(address, uint256) public returns (bool){
+    return true;
+  }
+
+  function decreaseAllowance(address, uint256) public returns (bool){
     return true;
   }
 
@@ -78,6 +94,14 @@ contract SafeERC20Helper {
     _failing.safeApprove(address(0), 0);
   }
 
+  function doFailingIncreaseAllowance() public {
+    _failing.safeIncreaseAllowance(address(0), 0);
+  }
+
+  function doFailingDecreaseAllowance() public {
+    _failing.safeDecreaseAllowance(address(0), 0);
+  }
+
   function doSucceedingTransfer() public {
     _succeeding.safeTransfer(address(0), 0);
   }
@@ -88,5 +112,13 @@ contract SafeERC20Helper {
 
   function doSucceedingApprove() public {
     _succeeding.safeApprove(address(0), 0);
+  }
+
+  function doSucceedingIncreaseAllowance() public {
+    _succeeding.safeIncreaseAllowance(address(0), 0);
+  }
+
+  function doSucceedingDecreaseAllowance() public {
+    _succeeding.safeDecreaseAllowance(address(0), 0);
   }
 }

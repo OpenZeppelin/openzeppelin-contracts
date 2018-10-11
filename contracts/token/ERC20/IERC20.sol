@@ -20,6 +20,12 @@ interface IERC20 {
   function transferFrom(address from, address to, uint256 value)
     external returns (bool);
 
+  function increaseAllowance(address spender, uint256 addedValue) 
+    external returns (bool);
+
+  function decreaseAllowance(address spender, uint256 subtractedValue) 
+    external returns (bool);
+
   event Transfer(
     address indexed from,
     address indexed to,
