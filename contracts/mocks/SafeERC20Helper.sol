@@ -64,9 +64,9 @@ contract ERC20SucceedingMock {
     return 0;
   }
 
-    function allowance(address, address) public view returns (uint256) {
-        return _allowance;
-    }
+  function allowance(address, address) public view returns (uint256) {
+    return 10;  //non-zero allowance 
+  }
 }
 
 contract SafeERC20Helper {
@@ -138,6 +138,10 @@ contract SafeERC20Helper {
 
   function doSucceedingApprove() public {
     _succeeding.safeApprove(address(0), 0);
+  }
+
+  function doFailingApproveByValue() public {
+    _succeeding.safeApprove(address(0), 10);
   }
 
   function doSucceedingIncreaseAllowance() public {
