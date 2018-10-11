@@ -67,7 +67,7 @@ contract ERC20SucceedingMock is IERC20 {
   }
 
   function allowance(address, address) public view returns (uint256) {
-    return 0;
+    return 10;  //non-zero allowance 
   }
 }
 
@@ -112,6 +112,10 @@ contract SafeERC20Helper {
 
   function doSucceedingApprove() public {
     _succeeding.safeApprove(address(0), 0);
+  }
+
+  function doFailingApproveByValue() public {
+    _succeeding.safeApprove(address(0), 10);
   }
 
   function doSucceedingIncreaseAllowance() public {
