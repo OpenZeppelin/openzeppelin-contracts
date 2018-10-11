@@ -154,8 +154,9 @@ contract Crowdsale {
   )
     internal
   {
+    // optional override
     require(beneficiary != address(0));
-    require(weiAmount != 0);
+    require(weiAmount != uint256(0));
   }
 
   /**
@@ -170,6 +171,8 @@ contract Crowdsale {
     internal
   {
     // optional override
+    require(beneficiary != address(0));
+    require(weiAmount != uint256(0));
   }
 
   /**
@@ -212,6 +215,8 @@ contract Crowdsale {
     internal
   {
     // optional override
+    require(beneficiary != address(0));
+    require(weiAmount != uint256(0));
   }
 
   /**

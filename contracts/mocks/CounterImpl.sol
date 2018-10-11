@@ -4,12 +4,12 @@ import "../drafts/Counter.sol";
 
 
 contract CounterImpl {
-  using Counter for Counter.Counter;
+  using Counter for Counter.Index;
 
   uint256 public theId;
 
   // use whatever key you want to track your counters
-  mapping(string => Counter.Counter) private _counters;
+  mapping(string => Counter.Index) private _counters;
 
   function doThing(string key)
     public

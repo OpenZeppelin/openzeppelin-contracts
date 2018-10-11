@@ -15,6 +15,8 @@ contract RefundEscrow is ConditionalEscrow {
   event Closed();
   event RefundsEnabled();
 
+  mapping(address => uint256) private _deposits;
+
   State private _state;
   address private _beneficiary;
 
@@ -80,8 +82,10 @@ contract RefundEscrow is ConditionalEscrow {
 
   /**
    * @dev Returns whether refundees can withdraw their deposits (be refunded).
+   * @notice Throws an error if the payee has not deposited money to the contract.
    */
   function withdrawalAllowed(address payee) public view returns (bool) {
+    require(_deposits[payee] >= uint256(0));
     return _state == State.Refunding;
   }
 }

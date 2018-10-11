@@ -66,14 +66,16 @@ contract ERC20Migrator {
   /**
    * @dev Begins the migration by setting which is the new token that will be
    * minted. This contract must be a minter for the new token.
-   * @param newToken the token that will be minted
+   * @param __newToken the token that will be minted
+   * @notice two underscores are used since there is already an existing
+   * function named newToken.
    */
-  function beginMigration(ERC20Mintable newToken) public {
+  function beginMigration(ERC20Mintable __newToken) public {
     require(_newToken == address(0));
-    require(newToken != address(0));
-    require(newToken.isMinter(this));
+    require(__newToken != address(0));
+    require(__newToken.isMinter(this));
 
-    _newToken = newToken;
+    _newToken = __newToken;
   }
 
   /**
