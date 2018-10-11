@@ -12,7 +12,7 @@ The following provides visibility into how OpenZeppelin's contracts are organize
 - **introspection**  - An interface that can be used to make a contract comply with the ERC-165 standard as well as a contract that implements ERC-165 using a lookup table.
 - **lifecycle** - A collection of base contracts used to manage the existence and behavior of your contracts and their funds.
 - **math** - Libraries with safety checks on operations that throw on errors.
-- **mocks** - A collection of abstract contracts that are primarily used for unit testing. They also serve as good usage examples and demonstrate how to combine contracts with inheritence when developing your own custom applications.
+- **mocks** - A collection of abstract contracts that are primarily used for unit testing. They also serve as good usage examples and demonstrate how to combine contracts with inheritance when developing your own custom applications.
 - **ownership** - A collection of smart contracts that can be used to manage contract and token ownership
 - **payment** - A collection of smart contracts that can be used to manage payments through escrow arrangements, withdrawals, and claims. Includes support for both single payees and multiple payees.
 - **proposals** - A collection of smart contracts that reflect community Ethereum Improvement Proposals (EIPs). These contracts are under development and standardization. They are not recommended for production, but they are useful for experimentation with pending EIP standards. Go [here](https://github.com/OpenZeppelin/openzeppelin-solidity/wiki/ERC-Process) for more information.
