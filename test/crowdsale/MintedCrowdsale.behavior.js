@@ -21,7 +21,7 @@ function shouldBehaveLikeMintedCrowdsale ([_, investor, wallet, purchaser], rate
           purchaser: investor,
           beneficiary: investor,
           value: value,
-          amount: expectedTokenAmount
+          amount: expectedTokenAmount,
         });
       });
 

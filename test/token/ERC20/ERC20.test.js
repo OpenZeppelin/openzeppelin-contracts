@@ -60,7 +60,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
           expectEvent.inLogs(logs, 'Transfer', {
             from: owner,
             to: to,
-            value: amount
+            value: amount,
           });
         });
       });
@@ -88,7 +88,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
           expectEvent.inLogs(logs, 'Approval', {
             owner: owner,
             spender: spender,
-            value: amount
+            value: amount,
           });
         });
 
@@ -122,7 +122,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
           expectEvent.inLogs(logs, 'Approval', {
             owner: owner,
             spender: spender,
-            value: amount
+            value: amount,
           });
         });
 
@@ -192,7 +192,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
             expectEvent.inLogs(logs, 'Transfer', {
               from: owner,
               to: to,
-              value: amount
+              value: amount,
             });
           });
 
@@ -277,7 +277,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
             expectEvent.inLogs(logs, 'Approval', {
               owner: owner,
               spender: spender,
-              value: 0
+              value: 0,
             });
           });
 
@@ -334,7 +334,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
           expectEvent.inLogs(logs, 'Approval', {
             owner: owner,
             spender: spender,
-            value: amount
+            value: amount,
           });
         });
 
@@ -368,7 +368,7 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
           expectEvent.inLogs(logs, 'Approval', {
             owner: owner,
             spender: spender,
-            value: amount
+            value: amount,
           });
         });
 

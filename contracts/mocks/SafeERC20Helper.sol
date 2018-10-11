@@ -3,24 +3,38 @@ pragma solidity ^0.4.24;
 import "../token/ERC20/IERC20.sol";
 import "../token/ERC20/SafeERC20.sol";
 
-contract ERC20FailingMock {
-    uint256 private _allowance;
+contract ERC20FailingMock is IERC20 {
+  function totalSupply() public view returns (uint256) {
+    return 0;
+  }
 
-    function transfer(address, uint256) public returns (bool) {
-        return false;
-    }
+  function transfer(address, uint256) public returns (bool) {
+    return false;
+  }
 
-    function transferFrom(address, address, uint256) public returns (bool) {
-        return false;
-    }
+  function transferFrom(address, address, uint256) public returns (bool) {
+    return false;
+  }
 
-    function approve(address, uint256) public returns (bool) {
-        return false;
-    }
+  function approve(address, uint256) public returns (bool) {
+    return false;
+  }
 
-    function allowance(address, address) public view returns (uint256) {
-        return 0;
-    }
+  function increaseAllowance(address, uint256) public returns (bool){
+    return false;
+  }
+
+  function decreaseAllowance(address, uint256) public returns (bool){
+    return false;
+  }
+
+  function balanceOf(address) public view returns (uint256) {
+    return 0;
+  }
+
+  function allowance(address, address) public view returns (uint256) {
+    return 0;
+  }
 }
 
 contract ERC20SucceedingMock {
@@ -38,9 +52,17 @@ contract ERC20SucceedingMock {
         return true;
     }
 
-    function setAllowance(uint256 allowance_) public {
-        _allowance = allowance_;
-    }
+  function increaseAllowance(address, uint256) public returns (bool){
+    return true;
+  }
+
+  function decreaseAllowance(address, uint256) public returns (bool){
+    return true;
+  }
+
+  function balanceOf(address) public view returns (uint256) {
+    return 0;
+  }
 
     function allowance(address, address) public view returns (uint256) {
         return _allowance;
@@ -98,15 +120,31 @@ contract SafeERC20Helper {
         _succeeding.safeIncreaseAllowance(address(0), amount);
     }
 
-    function doSucceedingDecreaseAllowance(uint256 amount) public {
-        _succeeding.safeDecreaseAllowance(address(0), amount);
-    }
+  function doFailingIncreaseAllowance() public {
+    _failing.safeIncreaseAllowance(address(0), 0);
+  }
+
+  function doFailingDecreaseAllowance() public {
+    _failing.safeDecreaseAllowance(address(0), 0);
+  }
+
+  function doSucceedingTransfer() public {
+    _succeeding.safeTransfer(address(0), 0);
+  }
 
     function setAllowance(uint256 allowance_) public {
         ERC20SucceedingMock(_succeeding).setAllowance(allowance_);
     }
 
-    function allowance() public view returns (uint256) {
-        return _succeeding.allowance(address(0), address(0));
-    }
+  function doSucceedingApprove() public {
+    _succeeding.safeApprove(address(0), 0);
+  }
+
+  function doSucceedingIncreaseAllowance() public {
+    _succeeding.safeIncreaseAllowance(address(0), 0);
+  }
+
+  function doSucceedingDecreaseAllowance() public {
+    _succeeding.safeDecreaseAllowance(address(0), 0);
+  }
 }
