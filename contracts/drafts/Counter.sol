@@ -15,15 +15,15 @@ pragma solidity ^0.4.24;
  */
 library Counter {
 
-    struct Index {
-      uint256 current; // default: 0
-    }
+  struct Index {
+    uint256 current; // default: 0
+  }
 
-    function next(Index storage index)
-      internal
-      returns (uint256)
-    {
-      index.current += 1;
-      return index.current;
-    }
+  function next(Index storage index)
+    internal
+    returns (uint256)
+  {
+    index.current += 1;
+    return index.current;
+  }
 }
