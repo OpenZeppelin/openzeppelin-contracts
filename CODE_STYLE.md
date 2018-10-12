@@ -16,7 +16,9 @@ Any exception or additions specific to our project are documented below.
 
 * Try to avoid acronyms and abbreviations.
 
-* Internal and private state variables should have an underscore prefix.
+* All state variables should be private.
+
+* Private state variables should have an underscore prefix.
 
     ```
     contract TestContract {

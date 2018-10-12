@@ -1,4 +1,4 @@
-const { assertRevert } = require('../../helpers/assertRevert');
+const shouldFail = require('../../helpers/shouldFail');
 const { ether } = require('../../helpers/ether');
 const { shouldBehaveLikeERC20Mintable } = require('./behaviors/ERC20Mintable.behavior');
 const { shouldBehaveLikeERC20Capped } = require('./behaviors/ERC20Capped.behavior');
@@ -9,7 +9,7 @@ contract('ERC20Capped', function ([_, minter, ...otherAccounts]) {
   const cap = ether(1000);
 
   it('requires a non-zero cap', async function () {
-    await assertRevert(
+    await shouldFail.reverting(
       ERC20Capped.new(0, { from: minter })
     );
   });

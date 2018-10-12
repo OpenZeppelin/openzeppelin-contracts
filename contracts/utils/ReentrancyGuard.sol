@@ -9,7 +9,11 @@ pragma solidity ^0.4.24;
 contract ReentrancyGuard {
 
   /// @dev counter to allow mutex lock with only one SSTORE operation
-  uint256 private _guardCounter = 1;
+  uint256 private _guardCounter;
+
+  constructor() public {
+    _guardCounter = 1;
+  }
 
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.

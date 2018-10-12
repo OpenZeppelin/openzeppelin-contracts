@@ -1,9 +1,7 @@
 const { ether } = require('../helpers/ether');
 const { advanceBlock } = require('../helpers/advanceToBlock');
+const shouldFail = require('../helpers/shouldFail');
 const time = require('../helpers/time');
-const { expectThrow } = require('../helpers/expectThrow');
-const { EVMRevert } = require('../helpers/EVMRevert');
-const { assertRevert } = require('../helpers/assertRevert');
 const { ethGetBalance } = require('../helpers/web3');
 
 const BigNumber = web3.BigNumber;
@@ -53,14 +51,8 @@ contract('SampleCrowdsale', function ([_, deployer, owner, wallet, investor]) {
   });
 
   it('should not accept payments before start', async function () {
-    await expectThrow(
-      this.crowdsale.send(ether(1)),
-      EVMRevert,
-    );
-    await expectThrow(
-      this.crowdsale.buyTokens(investor, { from: investor, value: ether(1) }),
-      EVMRevert,
-    );
+    await shouldFail.reverting(this.crowdsale.send(ether(1)));
+    await shouldFail.reverting(this.crowdsale.buyTokens(investor, { from: investor, value: ether(1) }));
   });
 
   it('should accept payments during the sale', async function () {
@@ -76,14 +68,14 @@ contract('SampleCrowdsale', function ([_, deployer, owner, wallet, investor]) {
 
   it('should reject payments after end', async function () {
     await time.increaseTo(this.afterClosingTime);
-    await expectThrow(this.crowdsale.send(ether(1)), EVMRevert);
-    await expectThrow(this.crowdsale.buyTokens(investor, { value: ether(1), from: investor }), EVMRevert);
+    await shouldFail.reverting(this.crowdsale.send(ether(1)));
+    await shouldFail.reverting(this.crowdsale.buyTokens(investor, { value: ether(1), from: investor }));
   });
 
   it('should reject payments over cap', async function () {
     await time.increaseTo(this.openingTime);
     await this.crowdsale.send(CAP);
-    await expectThrow(this.crowdsale.send(1), EVMRevert);
+    await shouldFail.reverting(this.crowdsale.send(1));
   });
 
   it('should allow finalization and transfer funds to wallet if the goal is reached', async function () {
@@ -117,7 +109,7 @@ contract('SampleCrowdsale', function ([_, deployer, owner, wallet, investor]) {
     const HIGH_GOAL = ether(30);
 
     it('creation reverts', async function () {
-      await assertRevert(SampleCrowdsale.new(
+      await shouldFail.reverting(SampleCrowdsale.new(
         this.openingTime, this.closingTime, RATE, wallet, CAP, this.token.address, HIGH_GOAL
       ));
     });
