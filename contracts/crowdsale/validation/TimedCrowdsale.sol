@@ -29,6 +29,8 @@ contract TimedCrowdsale is Initializable, Crowdsale {
    * @param closingTime Crowdsale closing time
    */
   function initialize(uint256 openingTime, uint256 closingTime) public initializer {
+    assert(Crowdsale._hasBeenInitialized());
+
     // solium-disable-next-line security/no-block-members
     require(openingTime >= block.timestamp);
     require(closingTime >= openingTime);
@@ -66,6 +68,10 @@ contract TimedCrowdsale is Initializable, Crowdsale {
   function hasClosed() public view returns (bool) {
     // solium-disable-next-line security/no-block-members
     return block.timestamp > _closingTime;
+  }
+
+  function _hasBeenInitialized() internal view returns (bool) {
+    return ((_openingTime > 0) && (_closingTime > 0));
   }
 
   /**

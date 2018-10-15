@@ -26,6 +26,9 @@ contract RefundableCrowdsale is Initializable, FinalizableCrowdsale {
    * @param goal Funding goal
    */
   function initialize(uint256 goal) public initializer {
+    // FinalizableCrowdsale depends on TimedCrowdsale
+    assert(TimedCrowdsale._hasBeenInitialized());
+
     require(goal > 0);
 
     // conditional added to make initializer idempotent in case of diamond inheritance
