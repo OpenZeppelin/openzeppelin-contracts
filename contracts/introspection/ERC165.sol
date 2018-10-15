@@ -37,7 +37,7 @@ contract ERC165 is Initializable, IERC165 {
    * @dev implement supportsInterface(bytes4) using a lookup table
    */
   function supportsInterface(bytes4 interfaceId)
-    external
+    public
     view
     returns (bool)
   {

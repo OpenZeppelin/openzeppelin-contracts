@@ -28,14 +28,17 @@ contract ERC721Metadata is Initializable, ERC165, ERC721, IERC721Metadata {
    * @dev Constructor function
    */
   function initialize(string name, string symbol) public initializer {
-    ERC165.initialize();
-    ERC721.initialize();
+    require(ERC721._hasBeenInitialized());
 
     _name = name;
     _symbol = symbol;
 
     // register the supported interfaces to conform to ERC721 via ERC165
     _registerInterface(InterfaceId_ERC721Metadata);
+  }
+
+  function _hasBeenInitialized() internal view returns (bool) {
+    return supportsInterface(InterfaceId_ERC721Metadata);
   }
 
   /**

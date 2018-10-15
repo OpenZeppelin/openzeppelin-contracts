@@ -11,7 +11,8 @@ import "../../access/roles/MinterRole.sol";
  */
 contract ERC721MetadataMintable is Initializable, ERC721, ERC721Metadata, MinterRole {
   function initialize(address sender) public initializer {
-    ERC721.initialize();
+    require(ERC721._hasBeenInitialized());
+    require(ERC721Metadata._hasBeenInitialized());
     MinterRole.initialize(sender);
   }
 
