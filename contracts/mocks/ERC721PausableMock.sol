@@ -10,6 +10,7 @@ import "./PauserRoleMock.sol";
  */
 contract ERC721PausableMock is ERC721Pausable, PauserRoleMock {
   constructor() {
+    ERC721.initialize();
     ERC721Pausable.initialize(msg.sender);
   }
 

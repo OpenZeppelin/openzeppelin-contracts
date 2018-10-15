@@ -14,10 +14,11 @@ import "../token/ERC721/ERC721Burnable.sol";
 contract ERC721FullMock is ERC721Full, ERC721Mintable, ERC721MetadataMintable, ERC721Burnable {
   constructor(string name, string symbol) public
   {
-    ERC721Full.initialize(name, symbol);
+    ERC721.initialize();
+    ERC721Metadata.initialize(name, symbol);
+    ERC721Enumerable.initialize();
     ERC721Mintable.initialize(msg.sender);
     ERC721MetadataMintable.initialize(msg.sender);
-    ERC721Burnable.initialize();
   }
 
   function exists(uint256 tokenId) public view returns (bool) {

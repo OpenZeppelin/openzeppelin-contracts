@@ -11,7 +11,7 @@ import "../../lifecycle/Pausable.sol";
  **/
 contract ERC721Pausable is Initializable, ERC721, Pausable {
   function initialize(address sender) public initializer {
-    ERC721.initialize();
+    require(ERC721._hasBeenInitialized());
     Pausable.initialize(sender);
   }
 

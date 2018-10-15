@@ -15,9 +15,10 @@ contract ERC721MintableBurnableImpl
   constructor()
     public
   {
-    ERC721Full.initialize("Test", "TEST");
+    ERC721.initialize();
+    ERC721Metadata.initialize("Test", "TEST");
+    ERC721Enumerable.initialize();
     ERC721Mintable.initialize(msg.sender);
     ERC721MetadataMintable.initialize(msg.sender);
-    ERC721Burnable.initialize();
   }
 }

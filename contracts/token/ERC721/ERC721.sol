@@ -57,6 +57,10 @@ contract ERC721 is Initializable, ERC165, IERC721 {
     _registerInterface(_InterfaceId_ERC721);
   }
 
+  function _hasBeenInitialized() internal view returns (bool) {
+    return supportsInterface(_InterfaceId_ERC721);
+  }
+
   /**
    * @dev Gets the balance of the specified address
    * @param owner address to query the balance of

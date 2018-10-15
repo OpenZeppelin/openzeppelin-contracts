@@ -5,10 +5,6 @@ import "./ERC721.sol";
 
 
 contract ERC721Burnable is Initializable, ERC721 {
-  function initialize() public initializer {
-    ERC721.initialize();
-  }
-
   function burn(uint256 tokenId)
     public
   {
