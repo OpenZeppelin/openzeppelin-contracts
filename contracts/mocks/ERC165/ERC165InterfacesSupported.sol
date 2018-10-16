@@ -21,7 +21,7 @@ contract SupportsInterfaceWithLookupMock is IERC165 {
   /**
    * @dev a mapping of interface id to whether or not it's supported
    */
-  mapping(bytes4 => bool) internal supportedInterfaces;
+  mapping(bytes4 => bool) private _supportedInterfaces;
 
   /**
    * @dev A contract implementing SupportsInterfaceWithLookup
@@ -41,7 +41,7 @@ contract SupportsInterfaceWithLookupMock is IERC165 {
     view
     returns (bool)
   {
-    return supportedInterfaces[interfaceId];
+    return _supportedInterfaces[interfaceId];
   }
 
   /**
@@ -51,7 +51,7 @@ contract SupportsInterfaceWithLookupMock is IERC165 {
     internal
   {
     require(interfaceId != 0xffffffff);
-    supportedInterfaces[interfaceId] = true;
+    _supportedInterfaces[interfaceId] = true;
   }
 }
 

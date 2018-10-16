@@ -23,6 +23,7 @@ Any exception or additions specific to our project are documented below.
     ```
     contract TestContract {
       uint256 private _privateVar;
+      uint256 internal _internalVar;
     }
     ```
 
