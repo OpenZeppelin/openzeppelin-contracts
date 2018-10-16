@@ -1,9 +1,9 @@
 pragma solidity ^0.4.24;
 
-import "../token/ERC20/ISafeERC20.sol";
+import "../token/ERC20/IERC20.sol";
 import "../token/ERC20/SafeERC20.sol";
 
-contract ERC20FailingMock is ISafeERC20 {
+contract ERC20FailingMock is IERC20 {
   uint256 private _allowance;
   function totalSupply() public view returns (uint256) {
     return 0;
@@ -42,7 +42,7 @@ contract ERC20FailingMock is ISafeERC20 {
   }
 }
 
-contract ERC20SucceedingMock is ISafeERC20 {
+contract ERC20SucceedingMock is IERC20 {
   uint256 private _allowance;
 
   function totalSupply() public view returns (uint256) {
@@ -83,17 +83,11 @@ contract ERC20SucceedingMock is ISafeERC20 {
 }
 
 contract SafeERC20Helper {
-<<<<<<< b40c76d0b1e2fc356c63a01d0d6eb1abd0196a73
-    using SafeERC20 for IERC20;
 
-    IERC20 private _failing;
-    IERC20 private _succeeding;
-=======
-  using SafeERC20 for ISafeERC20;
+  using SafeERC20 for IERC20;
 
-  ISafeERC20 private _failing;
-  ISafeERC20 private _succeeding;
->>>>>>> suggested changes done
+  IERC20 private _failing;
+  IERC20 private _succeeding;
 
     constructor () public {
         _failing = IERC20(new ERC20FailingMock());
