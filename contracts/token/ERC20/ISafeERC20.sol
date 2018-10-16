@@ -1,10 +1,10 @@
 pragma solidity ^0.4.24;
 
 /**
- * @title ERC20 interface
- * @dev see https://github.com/ethereum/EIPs/issues/20
+ * @title SafeERC20 interface
+ * @dev ERC20 operations with allowance operations. For ERC20, see https://github.com/ethereum/EIPs/issues/20
  */
-interface IERC20 {
+interface ISafeERC20 {
   function totalSupply() external view returns (uint256);
 
   function balanceOf(address who) external view returns (uint256);
@@ -18,6 +18,15 @@ interface IERC20 {
     external returns (bool);
 
   function transferFrom(address from, address to, uint256 value)
+    external returns (bool);
+
+  function increaseAllowance(address spender, uint256 addedValue) 
+    external returns (bool);
+
+  function decreaseAllowance(address spender, uint256 subtractedValue) 
+    external returns (bool);
+
+  function setAllowance(uint256 value) 
     external returns (bool);
 
   event Transfer(

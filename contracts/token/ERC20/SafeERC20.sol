@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "./ERC20.sol";
-import "./IERC20.sol";
+import "./ISafeERC20.sol";
 
 /**
  * @title SafeERC20
@@ -11,7 +11,7 @@ import "./IERC20.sol";
  */
 library SafeERC20 {
   function safeTransfer(
-    IERC20 token,
+    ISafeERC20 token,
     address to,
     uint256 value
   )
@@ -21,7 +21,7 @@ library SafeERC20 {
   }
 
   function safeTransferFrom(
-    IERC20 token,
+    ISafeERC20 token,
     address from,
     address to,
     uint256 value
@@ -32,18 +32,21 @@ library SafeERC20 {
   }
 
   function safeApprove(
-    IERC20 token,
+    ISafeERC20 token,
     address spender,
     uint256 value
   )
     internal
   {
+    // safeApprove should only be called when setting an initial allowance, 
+    // or when resetting it to zero. To increase and decrease it, use 
+    // 'safeIncreaseAllowance' and 'safeDecreaseAllowance'
     require((value == 0) || (token.allowance(msg.sender, spender) == 0));
     require(token.approve(spender, value));
   }
 
   function safeIncreaseAllowance(
-    IERC20 token,
+    ISafeERC20 token,
     address spender,
     uint256 addedValue
   )
@@ -53,7 +56,7 @@ library SafeERC20 {
   }
 
   function safeDecreaseAllowance(
-    IERC20 token,
+    ISafeERC20 token,
     address spender,
     uint256 subtractedValue
   )

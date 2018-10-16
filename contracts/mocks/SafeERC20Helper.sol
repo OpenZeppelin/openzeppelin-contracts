@@ -1,9 +1,10 @@
 pragma solidity ^0.4.24;
 
-import "../token/ERC20/IERC20.sol";
+import "../token/ERC20/ISafeERC20.sol";
 import "../token/ERC20/SafeERC20.sol";
 
-contract ERC20FailingMock is IERC20 {
+contract ERC20FailingMock is ISafeERC20 {
+  uint256 private _allowance;
   function totalSupply() public view returns (uint256) {
     return 0;
   }
@@ -34,10 +35,16 @@ contract ERC20FailingMock is IERC20 {
 
   function allowance(address, address) public view returns (uint256) {
     return 0;
+  }
+  
+  function setAllowance(uint256 value) public {
+    _allowance = value;
   }
 }
 
-contract ERC20SucceedingMock is IERC20 {
+contract ERC20SucceedingMock is ISafeERC20 {
+  uint256 private _allowance;
+
   function totalSupply() public view returns (uint256) {
     return 0;
   }
@@ -67,15 +74,19 @@ contract ERC20SucceedingMock is IERC20 {
   }
 
   function allowance(address, address) public view returns (uint256) {
-    return 10;  //non-zero allowance 
+    return _allowance;  
+  }
+
+  function setAllowance(uint256 value) public {
+    _allowance = value;
   }
 }
 
 contract SafeERC20Helper {
-  using SafeERC20 for IERC20;
+  using SafeERC20 for ISafeERC20;
 
-  IERC20 private _failing;
-  IERC20 private _succeeding;
+  ISafeERC20 private _failing;
+  ISafeERC20 private _succeeding;
 
   constructor() public {
     _failing = new ERC20FailingMock();
@@ -115,6 +126,7 @@ contract SafeERC20Helper {
   }
 
   function doFailingApproveByValue() public {
+    _succeeding.setAllowance(10);
     _succeeding.safeApprove(address(0), 10);
   }
 
