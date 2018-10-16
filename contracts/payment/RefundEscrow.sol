@@ -11,7 +11,7 @@ import "./ConditionalEscrow.sol";
 contract RefundEscrow is ConditionalEscrow {
   enum State { Active, Refunding, Closed }
 
-  event Closed();
+  event RefundsClosed();
   event RefundsEnabled();
 
   State private _state;
@@ -57,7 +57,7 @@ contract RefundEscrow is ConditionalEscrow {
   function close() public onlyPrimary {
     require(_state == State.Active);
     _state = State.Closed;
-    emit Closed();
+    emit RefundsClosed();
   }
 
   /**

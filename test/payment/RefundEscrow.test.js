@@ -54,7 +54,7 @@ contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee
       await shouldFail.reverting(this.escrow.close({ from: beneficiary }));
 
       const { logs } = await this.escrow.close({ from: primary });
-      expectEvent.inLogs(logs, 'Closed');
+      expectEvent.inLogs(logs, 'RefundsClosed');
     });
 
     context('closed state', function () {
