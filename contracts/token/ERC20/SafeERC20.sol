@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "./ERC20.sol";
-import "./ISafeERC20.sol";
+import "./IERC20.sol";
 
 /**
  * @title SafeERC20
@@ -11,7 +11,7 @@ import "./ISafeERC20.sol";
  */
 library SafeERC20 {
   function safeTransfer(
-    ISafeERC20 token,
+    IERC20 token,
     address to,
     uint256 value
   )
@@ -21,7 +21,7 @@ library SafeERC20 {
   }
 
   function safeTransferFrom(
-    ISafeERC20 token,
+    IERC20 token,
     address from,
     address to,
     uint256 value
@@ -32,7 +32,7 @@ library SafeERC20 {
   }
 
   function safeApprove(
-    ISafeERC20 token,
+    IERC20 token,
     address spender,
     uint256 value
   )
@@ -46,7 +46,7 @@ library SafeERC20 {
   }
 
   function safeIncreaseAllowance(
-    ISafeERC20 token,
+    IERC20 token,
     address spender,
     uint256 addedValue
   )
@@ -56,7 +56,7 @@ library SafeERC20 {
   }
 
   function safeDecreaseAllowance(
-    ISafeERC20 token,
+    IERC20 token,
     address spender,
     uint256 subtractedValue
   )
