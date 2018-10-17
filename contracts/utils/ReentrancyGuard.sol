@@ -12,6 +12,8 @@ contract ReentrancyGuard {
   uint256 private _guardCounter;
 
   constructor() public {
+    // The counter starts at one to prevent changing it from zero to a non-zero
+    // value, which is a more expensive operation.
     _guardCounter = 1;
   }
 
