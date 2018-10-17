@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "./Escrow.sol";
+import "./escrow/Escrow.sol";
 
 /**
  * @title PullPayment
