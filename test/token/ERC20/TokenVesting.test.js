@@ -79,7 +79,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     it('can be released after cliff', async function () {
       await time.increaseTo(this.start + this.cliffDuration + time.duration.weeks(1));
       const { logs } = await this.vesting.release(this.token.address);
-      expectEvent.inLogs(logs, 'TokenReleased', {
+      expectEvent.inLogs(logs, 'TokensReleased', {
         token: this.token.address,
         amount: await this.token.balanceOf(beneficiary),
       });
@@ -121,7 +121,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
     it('should be revoked by owner if revocable is set', async function () {
       const { logs } = await this.vesting.revoke(this.token.address, { from: owner });
-        expectEvent.inLogs(logs, 'TokenRevoked', { token: this.token.address });
+        expectEvent.inLogs(logs, 'TokensRevoked', { token: this.token.address });
       (await this.vesting.revoked(this.token.address)).should.equal(true);
     });
 
