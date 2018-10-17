@@ -115,7 +115,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     it('should return the non-vested tokens when revoked by owner', async function () {
       await time.increaseTo(this.start + this.cliffDuration + time.duration.weeks(12));
 
-      const vested = await this.vesting.vestedAmount(this.token.address);
+      const vested = vestedAmount(amount, await time.latest(), this.start, this.cliffDuration, this.duration);
 
       await this.vesting.revoke(this.token.address, { from: owner });
 
@@ -125,23 +125,22 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     it('should keep the vested tokens when revoked by owner', async function () {
       await time.increaseTo(this.start + this.cliffDuration + time.duration.weeks(12));
 
-      const vestedPre = await this.vesting.vestedAmount(this.token.address);
+      const vestedPre = vestedAmount(amount, await time.latest(), this.start, this.cliffDuration, this.duration);
 
       await this.vesting.revoke(this.token.address, { from: owner });
 
-      const vestedPost = await this.vesting.vestedAmount(this.token.address);
+      const vestedPost = vestedAmount(amount, await time.latest(), this.start, this.cliffDuration, this.duration);
 
       vestedPre.should.bignumber.equal(vestedPost);
     });
 
     it('should fail to be revoked a second time', async function () {
-      await time.increaseTo(this.start + this.cliffDuration + time.duration.weeks(12));
-
-      await this.vesting.vestedAmount(this.token.address);
-
       await this.vesting.revoke(this.token.address, { from: owner });
-
       await shouldFail.reverting(this.vesting.revoke(this.token.address, { from: owner }));
     });
+
+    function vestedAmount (total, now, start, cliffDuration, duration) {
+      return (now < start + cliffDuration) ? 0 : Math.round(total * (now - start) / duration);
+    }
   });
 });
