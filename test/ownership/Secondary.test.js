@@ -29,7 +29,7 @@ contract('Secondary', function ([_, primary, newPrimary, anyone]) {
   describe('transferPrimary', function () {
     it('makes the recipient the new primary', async function () {
       const { logs } = await this.secondary.transferPrimary(newPrimary, { from: primary });
-      expectEvent.inLogs(logs, 'PrimarinessTransferred');
+      expectEvent.inLogs(logs, 'PrimaryTransferred');
       (await this.secondary.primary()).should.equal(newPrimary);
     });
 
