@@ -11,7 +11,7 @@ contract PaymentSplitter {
   using SafeMath for uint256;
 
   event PayeeAdded(address account, uint256 shares);
-  event PaymentReleased(address account, uint256 amount);
+  event PaymentReleased(address to, uint256 amount);
   event PaymentReceived(address from, uint256 amount);
 
   uint256 private _totalShares;
@@ -39,7 +39,7 @@ contract PaymentSplitter {
    * @dev payable fallback
    */
   function () external payable {
-	emit PaymentReceived(msg.sender, msg.value);
+	  emit PaymentReceived(msg.sender, msg.value);
   }
 
   /**

@@ -1,4 +1,5 @@
 const { ethGetBalance } = require('../helpers/web3');
+const expectEvent = require('../helpers/expectEvent');
 const { sendEther } = require('./../helpers/sendTransaction');
 const { ether } = require('../helpers/ether');
 const { ZERO_ADDRESS } = require('./../helpers/constants');
@@ -90,19 +91,22 @@ contract('PaymentSplitter', function ([_, owner, payee1, payee2, payee3, nonpaye
 
       // distribute to payees
       const initAmount1 = await ethGetBalance(payee1);
-      await this.contract.release(payee1);
+      const { logs: logs1 } = await this.contract.release(payee1);
       const profit1 = (await ethGetBalance(payee1)).sub(initAmount1);
       profit1.sub(web3.toWei(0.20, 'ether')).abs().should.be.bignumber.lt(1e16);
+      expectEvent.inLogs(logs1, 'PaymentReleased', { to: payee1, amount: profit1 });
 
       const initAmount2 = await ethGetBalance(payee2);
-      await this.contract.release(payee2);
+      const { logs: logs2 } = await this.contract.release(payee2);
       const profit2 = (await ethGetBalance(payee2)).sub(initAmount2);
       profit2.sub(web3.toWei(0.10, 'ether')).abs().should.be.bignumber.lt(1e16);
+      expectEvent.inLogs(logs2, 'PaymentReleased', { to: payee2, amount: profit2 });
 
       const initAmount3 = await ethGetBalance(payee3);
-      await this.contract.release(payee3);
+      const { logs: logs3 } = await this.contract.release(payee3);
       const profit3 = (await ethGetBalance(payee3)).sub(initAmount3);
       profit3.sub(web3.toWei(0.70, 'ether')).abs().should.be.bignumber.lt(1e16);
+      expectEvent.inLogs(logs3, 'PaymentReleased', { to: payee3, amount: profit3 });
 
       // end balance should be zero
       (await ethGetBalance(this.contract.address)).should.be.bignumber.equal(0);
