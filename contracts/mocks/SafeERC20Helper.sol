@@ -46,20 +46,12 @@ contract ERC20SucceedingMock is IERC20 {
     return true;
   }
 
-  function increaseAllowance(address, uint256) public returns (bool){
-    return true;
-  }
-
-  function decreaseAllowance(address, uint256) public returns (bool){
-    return true;
-  }
-
   function balanceOf(address) public view returns (uint256) {
     return 0;
   }
 
   function allowance(address, address) public view returns (uint256) {
-    return 0;  
+    return 0;
   }
 }
 
