@@ -139,7 +139,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
       await shouldFail.reverting(this.vesting.revoke(this.token.address, { from: owner }));
     });
 
-    function vestedAmount(total, now, start, cliffDuration, duration) {
+    function vestedAmount (total, now, start, cliffDuration, duration) {
       return (now < start + cliffDuration) ? 0 : Math.round(total * (now - start) / duration);
     }
   });
