@@ -3,10 +3,8 @@ pragma solidity ^0.4.24;
 import "../token/ERC20/IERC20.sol";
 import "../token/ERC20/SafeERC20.sol";
 
-contract ERC20FailingMock is IERC20 {
-  function totalSupply() public view returns (uint256) {
-    return 0;
-  }
+contract ERC20FailingMock {
+  uint256 private _allowance;
 
   function transfer(address, uint256) public returns (bool) {
     return false;
@@ -18,22 +16,11 @@ contract ERC20FailingMock is IERC20 {
 
   function approve(address, uint256) public returns (bool) {
     return false;
-  }
-
-  function balanceOf(address) public view returns (uint256) {
-    return 0;
-  }
-
-  function allowance(address, address) public view returns (uint256) {
-    return 0;
   }
 }
 
-contract ERC20SucceedingMock is IERC20 {
-
-  function totalSupply() public view returns (uint256) {
-    return 0;
-  }
+contract ERC20SucceedingMock {
+  uint256 private _allowance;
 
   function transfer(address, uint256) public returns (bool) {
     return true;
@@ -47,12 +34,12 @@ contract ERC20SucceedingMock is IERC20 {
     return true;
   }
 
-  function balanceOf(address) public view returns (uint256) {
-    return 0;
+  function setAllowance(uint256 allowance_) public {
+    _allowance = allowance_;
   }
 
   function allowance(address, address) public view returns (uint256) {
-    return 20; //non-zero allowance  
+    return _allowance;
   }
 }
 
@@ -61,13 +48,13 @@ contract SafeERC20Helper {
 
   IERC20 private _failing;
   IERC20 private _succeeding;
-  ERC20SucceedingMock private _esm;
 
   constructor() public {
-    _failing = new ERC20FailingMock();
-    _succeeding = new ERC20SucceedingMock();
-    _esm = new ERC20SucceedingMock();
+    _failing = IERC20(new ERC20FailingMock());
+    _succeeding = IERC20(new ERC20SucceedingMock());
   }
+
+  // Using _failing
 
   function doFailingTransfer() public {
     _failing.safeTransfer(address(0), 0);
@@ -89,6 +76,8 @@ contract SafeERC20Helper {
     _failing.safeDecreaseAllowance(address(0), 0);
   }
 
+  // Using _succeeding
+
   function doSucceedingTransfer() public {
     _succeeding.safeTransfer(address(0), 0);
   }
@@ -97,19 +86,23 @@ contract SafeERC20Helper {
     _succeeding.safeTransferFrom(address(0), address(0), 0);
   }
 
-  function doSucceedingApprove() public {
-    _succeeding.safeApprove(address(0), 0);
+  function doSucceedingApprove(uint256 amount) public {
+    _succeeding.safeApprove(address(0), amount);
   }
 
-  function doFailingApproveByValue() public {
-    _succeeding.safeApprove(address(0), 10);
+  function doSucceedingIncreaseAllowance(uint256 amount) public {
+    _succeeding.safeIncreaseAllowance(address(0), amount);
   }
 
-  function doSucceedingIncreaseAllowance() public {
-    _succeeding.safeIncreaseAllowance(address(0), 0);
+  function doSucceedingDecreaseAllowance(uint256 amount) public {
+    _succeeding.safeDecreaseAllowance(address(0), amount);
   }
 
-  function doSucceedingDecreaseAllowance() public {
-    _succeeding.safeDecreaseAllowance(address(0), 0);
+  function setAllowance(uint256 allowance_) public {
+    ERC20SucceedingMock(_succeeding).setAllowance(allowance_);
+  }
+
+  function allowance() public view returns (uint256) {
+    return _succeeding.allowance(address(0), address(0));
   }
 }
