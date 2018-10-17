@@ -41,8 +41,9 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
   });
 
   it('reverts with a null duration', async function () {
+    // cliffDuration should also be 0, since the duration must be larger than the cliff
     await shouldFail.reverting(
-      TokenVesting.new(beneficiary, this.start, this.cliffDuration, 0, true, { from: owner })
+      TokenVesting.new(beneficiary, this.start, 0, 0, true, { from: owner })
     );
   });
 
