@@ -2,7 +2,7 @@ pragma solidity ^0.4.24;
 
 import "../../math/SafeMath.sol";
 import "./FinalizableCrowdsale.sol";
-import "../../payment/RefundEscrow.sol";
+import "../../payment/escrow/RefundEscrow.sol";
 
 /**
  * @title RefundableCrowdsale
