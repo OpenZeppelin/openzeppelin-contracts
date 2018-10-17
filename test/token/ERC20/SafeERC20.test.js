@@ -5,7 +5,7 @@ require('chai')
 
 const SafeERC20Helper = artifacts.require('SafeERC20Helper');
 
-contract('SafeERC20', function () {
+contract('SafeERC20', function (accounts) {
   beforeEach(async function () {
     this.helper = await SafeERC20Helper.new();
   });

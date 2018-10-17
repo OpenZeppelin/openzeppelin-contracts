@@ -10,6 +10,9 @@ import "./IERC20.sol";
  * which allows you to call the safe operations as `token.safeTransfer(...)`, etc.
  */
 library SafeERC20 {
+
+  using SafeMath for uint256;
+
   function safeTransfer(
     IERC20 token,
     address to,
@@ -48,20 +51,22 @@ library SafeERC20 {
   function safeIncreaseAllowance(
     IERC20 token,
     address spender,
-    uint256 addedValue
+    uint256 value
   )
     internal
   {
-    require(token.increaseAllowance(spender, addedValue));
+    uint256 newAllowance = token.allowance(address(this), spender).add(value);
+    require(token.approve(spender, newAllowance));
   }
 
   function safeDecreaseAllowance(
     IERC20 token,
     address spender,
-    uint256 subtractedValue
+    uint256 value
   )
     internal
   {
-    require(token.decreaseAllowance(spender, subtractedValue));
+    uint256 newAllowance = token.allowance(address(this), spender).sub(value);
+    require(token.approve(spender, newAllowance));
   }
 }

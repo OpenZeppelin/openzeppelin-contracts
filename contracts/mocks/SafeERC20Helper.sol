@@ -4,7 +4,6 @@ import "../token/ERC20/IERC20.sol";
 import "../token/ERC20/SafeERC20.sol";
 
 contract ERC20FailingMock is IERC20 {
-  uint256 private _allowance;
   function totalSupply() public view returns (uint256) {
     return 0;
   }
@@ -21,29 +20,16 @@ contract ERC20FailingMock is IERC20 {
     return false;
   }
 
-  function increaseAllowance(address, uint256) public returns (bool){
-    return false;
-  }
-
-  function decreaseAllowance(address, uint256) public returns (bool){
-    return false;
-  }
-
   function balanceOf(address) public view returns (uint256) {
     return 0;
   }
 
   function allowance(address, address) public view returns (uint256) {
     return 0;
-  }
-  
-  function setAllowance(uint256 value) public {
-    _allowance = value;
   }
 }
 
 contract ERC20SucceedingMock is IERC20 {
-  uint256 private _allowance;
 
   function totalSupply() public view returns (uint256) {
     return 0;
@@ -61,24 +47,12 @@ contract ERC20SucceedingMock is IERC20 {
     return true;
   }
 
-  function increaseAllowance(address, uint256) public returns (bool){
-    return true;
-  }
-
-  function decreaseAllowance(address, uint256) public returns (bool){
-    return true;
-  }
-
   function balanceOf(address) public view returns (uint256) {
     return 0;
   }
 
   function allowance(address, address) public view returns (uint256) {
-    return _allowance;  
-  }
-
-  function setAllowance(uint256 value) public {
-    _allowance = value;
+    return 20; //non-zero allowance  
   }
 }
 
@@ -87,10 +61,12 @@ contract SafeERC20Helper {
 
   IERC20 private _failing;
   IERC20 private _succeeding;
+  ERC20SucceedingMock private _esm;
 
   constructor() public {
     _failing = new ERC20FailingMock();
     _succeeding = new ERC20SucceedingMock();
+    _esm = new ERC20SucceedingMock();
   }
 
   function doFailingTransfer() public {
@@ -126,7 +102,6 @@ contract SafeERC20Helper {
   }
 
   function doFailingApproveByValue() public {
-    _succeeding.setAllowance(10);
     _succeeding.safeApprove(address(0), 10);
   }
 
