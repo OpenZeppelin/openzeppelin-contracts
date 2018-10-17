@@ -23,7 +23,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     this.duration = time.duration.years(2);
   });
 
-  it('rejects a duration shorter than the cliff', async function () {
+  it('reverts with a duration shorter than the cliff', async function () {
     const cliffDuration = this.duration;
     const duration = this.cliffDuration;
 
@@ -34,9 +34,24 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     );
   });
 
-  it('requires a valid beneficiary', async function () {
+  it('reverts with a null beneficiary', async function () {
     await shouldFail.reverting(
       TokenVesting.new(ZERO_ADDRESS, this.start, this.cliffDuration, this.duration, true, { from: owner })
+    );
+  });
+
+  it('reverts with a null duration', async function () {
+    await shouldFail.reverting(
+      TokenVesting.new(beneficiary, this.start, this.cliffDuration, 0, true, { from: owner })
+    );
+  });
+
+  it('reverts if the end time is in the past', async function () {
+    const now = await time.latest();
+
+    this.start = now - this.duration - time.duration.minutes(1);
+    await shouldFail.reverting(
+      TokenVesting.new(beneficiary, this.start, this.cliffDuration, this.duration, true, { from: owner })
     );
   });
 

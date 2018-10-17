@@ -52,6 +52,8 @@ contract TokenVesting is Ownable {
   {
     require(beneficiary != address(0));
     require(cliffDuration <= duration);
+    require(duration > 0);
+    require(start.add(duration) > block.timestamp);
 
     _beneficiary = beneficiary;
     _revocable = revocable;
