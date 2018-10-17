@@ -16,10 +16,48 @@ Any exception or additions specific to our project are documented below.
 
 * Try to avoid acronyms and abbreviations.
 
-* Parameters must be prefixed with an underscore.
+* All state variables should be private.
 
-```
-function test(uint256 _testParameter1, uint256 _testParameter2) {
+* Private state variables should have an underscore prefix.
+
+    ```
+    contract TestContract {
+      uint256 private _privateVar;
+      uint256 internal _internalVar;
+    }
+    ```
+
+* Parameters must not be prefixed with an underscore.
+
+    ```
+    function test(uint256 testParameter1, uint256 testParameter2) {
     ...
-}
-```
+    }
+    ```
+
+* Internal and private functions should have an underscore prefix.
+
+    ```
+    function _testInternal() internal {
+      ...
+    }
+    ```
+
+    ```
+    function _testPrivate() private {
+      ...
+    }
+    ```
+
+* Events should be emitted immediately after the state change that they
+  represent, and consequently they should be named in past tense.
+
+    ```
+    function _burn(address _who, uint256 _value) internal {
+      super._burn(_who, _value);
+      emit TokensBurned(_who, _value);
+    }
+    ```
+
+  Some standards (e.g. ERC20) use present tense, and in those cases the
+  standard specification prevails.

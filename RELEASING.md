@@ -7,7 +7,7 @@ We release a new version of OpenZeppelin monthly. Release cycles are tracked in 
 Each release has at least one release candidate published first, intended for community review and any critical fixes that may come out of it. At the moment we leave 1 week between the first release candidate and the final release.
 
 Before starting make sure to verify the following items.
-* Your local `master` branch is in sync with your upstream remote.
+* Your local `master` branch is in sync with your `upstream` remote (it may have another name depending on your setup).
 * Your repo is clean, particularly with no untracked files in the contracts and tests directories. Verify with `git clean -n`.
 
 
@@ -34,6 +34,12 @@ git push upstream vX.Y.Z-rc.R
 
 Draft the release notes in our [GitHub releases](https://github.com/OpenZeppelin/openzeppelin-solidity/releases). Make sure to mark it as a pre-release! Try to be consistent with our previous release notes in the title and format of the text. Release candidates don't need a detailed changelog, but make sure to include a link to GitHub's compare page.
 
+Before publishing on npm you need to generate the build artifacts. This is not done automatically at the moment because of a bug in Truffle. Since some of the contracts should not be included in the package, this is a _hairy_ process that you need to do with care.
+
+1. Delete the `contracts/mocks` and `contracts/examples` directories.
+2. Run `truffle compile`. (Note that the Truffle process may never exit and you will have to interrupt it.)
+3. Recover the directories using `git checkout`. It doesn't matter if you do this now or later.
+
 Once the CI run for the new tag is green, publish on npm under the `next` tag.
 
 ```
@@ -44,8 +50,11 @@ Publish the release notes on GitHub and ask our community manager to announce th
 
 ## Creating the final release
 
+Make sure to have the latest changes from `upstream` in your local release branch.
+
 ```
 git checkout release-vX.Y.Z
+git pull upstream
 ```
 
 Change the version string in `package.json`, `package-lock.json` and `ethpm.json` removing the "-rc.R" suffix. Commit these changes and tag the commit as `vX.Y.Z`.
@@ -58,6 +67,12 @@ git push upstream vX.Y.Z
 ```
 
 Draft the release notes in GitHub releases. Try to be consistent with our previous release notes in the title and format of the text. Make sure to include a detailed changelog.
+
+Before publishing on npm you need to generate the build artifacts. This is not done automatically at the moment because of a bug in Truffle. Since some of the contracts should not be included in the package, this is a _hairy_ process that you need to do with care.
+
+1. Delete the `contracts/mocks` and `contracts/examples` directories.
+2. Run `truffle compile`. (Note that the Truffle process may never exit and you will have to interrupt it.)
+3. Recover the directories using `git checkout`. It doesn't matter if you do this now or later.
 
 Once the CI run for the new tag is green, publish on npm.
 
@@ -75,7 +90,14 @@ npm dist-tag rm --otp $2FA_CODE openzeppelin-solidity next
 
 ## Merging the release branch
 
-After the final release, the release branch should be merged back into `master`. This merge must not be squashed, because it would lose the tagged release commit, so it should be merged locally and pushed.
+After the final release, the release branch should be merged back into `master`. This merge must not be squashed because it would lose the tagged release commit. Since the GitHub repo is set up to only allow squashed merges, the merge should be done locally and pushed.
+
+Make sure to have the latest changes from `upstream` in your local release branch.
+
+```
+git checkout release-vX.Y.Z
+git pull upstream
+```
 
 ```
 git checkout master

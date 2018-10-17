@@ -40,13 +40,11 @@ function shouldSupportInterfaces (interfaces = []) {
       const interfaceId = INTERFACE_IDS[k];
       describe(k, function () {
         it('should use less than 30k gas', async function () {
-          const gasEstimate = await this.thing.supportsInterface.estimateGas(interfaceId);
-          gasEstimate.should.be.lte(30000);
+          (await this.thing.supportsInterface.estimateGas(interfaceId)).should.be.lte(30000);
         });
 
         it('is supported', async function () {
-          const isSupported = await this.thing.supportsInterface(interfaceId);
-          isSupported.should.eq(true);
+          (await this.thing.supportsInterface(interfaceId)).should.equal(true);
         });
       });
     }

@@ -1,19 +1,18 @@
+const expectEvent = require('../helpers/expectEvent');
 const { advanceBlock } = require('../helpers/advanceToBlock');
-const { increaseTimeTo, duration } = require('../helpers/increaseTime');
-const { latestTime } = require('../helpers/latestTime');
-const { expectThrow } = require('../helpers/expectThrow');
-const { EVMRevert } = require('../helpers/EVMRevert');
+const time = require('../helpers/time');
+const shouldFail = require('../helpers/shouldFail');
 
 const BigNumber = web3.BigNumber;
 
-const should = require('chai')
+require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const FinalizableCrowdsale = artifacts.require('FinalizableCrowdsaleImpl');
-const MintableToken = artifacts.require('MintableToken');
+const FinalizableCrowdsaleImpl = artifacts.require('FinalizableCrowdsaleImpl');
+const ERC20 = artifacts.require('ERC20');
 
-contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
+contract('FinalizableCrowdsale', function ([_, wallet, anyone]) {
   const rate = new BigNumber(1000);
 
   before(async function () {
@@ -22,41 +21,34 @@ contract('FinalizableCrowdsale', function ([_, owner, wallet, thirdparty]) {
   });
 
   beforeEach(async function () {
-    this.openingTime = (await latestTime()) + duration.weeks(1);
-    this.closingTime = this.openingTime + duration.weeks(1);
-    this.afterClosingTime = this.closingTime + duration.seconds(1);
+    this.openingTime = (await time.latest()) + time.duration.weeks(1);
+    this.closingTime = this.openingTime + time.duration.weeks(1);
+    this.afterClosingTime = this.closingTime + time.duration.seconds(1);
 
-    this.token = await MintableToken.new();
-    this.crowdsale = await FinalizableCrowdsale.new(
-      this.openingTime, this.closingTime, rate, wallet, this.token.address, { from: owner }
+    this.token = await ERC20.new();
+    this.crowdsale = await FinalizableCrowdsaleImpl.new(
+      this.openingTime, this.closingTime, rate, wallet, this.token.address
     );
-    await this.token.transferOwnership(this.crowdsale.address);
   });
 
   it('cannot be finalized before ending', async function () {
-    await expectThrow(this.crowdsale.finalize({ from: owner }), EVMRevert);
+    await shouldFail.reverting(this.crowdsale.finalize({ from: anyone }));
   });
 
-  it('cannot be finalized by third party after ending', async function () {
-    await increaseTimeTo(this.afterClosingTime);
-    await expectThrow(this.crowdsale.finalize({ from: thirdparty }), EVMRevert);
-  });
-
-  it('can be finalized by owner after ending', async function () {
-    await increaseTimeTo(this.afterClosingTime);
-    await this.crowdsale.finalize({ from: owner });
+  it('can be finalized by anyone after ending', async function () {
+    await time.increaseTo(this.afterClosingTime);
+    await this.crowdsale.finalize({ from: anyone });
   });
 
   it('cannot be finalized twice', async function () {
-    await increaseTimeTo(this.afterClosingTime);
-    await this.crowdsale.finalize({ from: owner });
-    await expectThrow(this.crowdsale.finalize({ from: owner }), EVMRevert);
+    await time.increaseTo(this.afterClosingTime);
+    await this.crowdsale.finalize({ from: anyone });
+    await shouldFail.reverting(this.crowdsale.finalize({ from: anyone }));
   });
 
   it('logs finalized', async function () {
-    await increaseTimeTo(this.afterClosingTime);
-    const { logs } = await this.crowdsale.finalize({ from: owner });
-    const event = logs.find(e => e.event === 'Finalized');
-    should.exist(event);
+    await time.increaseTo(this.afterClosingTime);
+    const { logs } = await this.crowdsale.finalize({ from: anyone });
+    expectEvent.inLogs(logs, 'CrowdsaleFinalized');
   });
 });
