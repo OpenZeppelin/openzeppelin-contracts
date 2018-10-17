@@ -24,8 +24,6 @@ contract SplitPayment {
     require(payees.length == shares.length);
     require(payees.length > 0);
 
-    _totalShares = 0;
-    _totalReleased = 0;
     for (uint256 i = 0; i < payees.length; i++) {
       _addPayee(payees[i], shares[i]);
     }
