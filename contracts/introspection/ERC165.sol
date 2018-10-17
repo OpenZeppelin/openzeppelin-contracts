@@ -42,7 +42,7 @@ contract ERC165 is IERC165 {
   }
 
   /**
-   * @dev private method for registering an interface
+   * @dev internal method for registering an interface
    */
   function _registerInterface(bytes4 interfaceId)
     internal

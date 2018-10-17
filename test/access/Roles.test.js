@@ -29,10 +29,9 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
         (await this.roles.has(anyone)).should.equal(false);
       });
 
-      it('adds roles to an already-assigned account', async function () {
+      it('reverts when adding roles to an already assigned account', async function () {
         await this.roles.add(authorized);
-        await this.roles.add(authorized);
-        (await this.roles.has(authorized)).should.equal(true);
+        await shouldFail.reverting(this.roles.add(authorized));
       });
 
       it('reverts when adding roles to the null account', async function () {
@@ -54,8 +53,8 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
         (await this.roles.has(otherAuthorized)).should.equal(true);
       });
 
-      it('doesn\'t revert when removing unassigned roles', async function () {
-        await this.roles.remove(anyone);
+      it('reverts when removing unassigned roles', async function () {
+        await shouldFail.reverting(this.roles.remove(anyone));
       });
 
       it('reverts when removing roles from the null account', async function () {

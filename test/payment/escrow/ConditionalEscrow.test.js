@@ -1,7 +1,7 @@
 const { shouldBehaveLikeEscrow } = require('./Escrow.behavior');
 
-const shouldFail = require('../helpers/shouldFail');
-const { ether } = require('../helpers/ether');
+const shouldFail = require('../../helpers/shouldFail');
+const { ether } = require('../../helpers/ether');
 
 const BigNumber = web3.BigNumber;
 
