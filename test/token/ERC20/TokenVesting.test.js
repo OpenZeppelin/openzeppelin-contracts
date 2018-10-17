@@ -1,4 +1,5 @@
 const shouldFail = require('../../helpers/shouldFail');
+const expectEvent = require('../../helpers/expectEvent');
 const time = require('../../helpers/time');
 const { ethGetBlock } = require('../../helpers/web3');
 const { ZERO_ADDRESS } = require('../../helpers/constants');
@@ -62,7 +63,11 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
     it('can be released after cliff', async function () {
       await time.increaseTo(this.start + this.cliffDuration + time.duration.weeks(1));
-      await this.vesting.release(this.token.address);
+      const { logs } = await this.vesting.release(this.token.address);
+      expectEvent.inLogs(logs, 'TokenReleased', {
+        token: this.token.address,
+        amount: await this.token.balanceOf(beneficiary),
+      });
     });
 
     it('should release proper amount after cliff', async function () {
@@ -100,7 +105,8 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     });
 
     it('should be revoked by owner if revocable is set', async function () {
-      await this.vesting.revoke(this.token.address, { from: owner });
+      const { logs } = await this.vesting.revoke(this.token.address, { from: owner });
+        expectEvent.inLogs(logs, 'TokenRevoked', { token: this.token.address });
       (await this.vesting.revoked(this.token.address)).should.equal(true);
     });
 
