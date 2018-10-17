@@ -7,7 +7,7 @@ pragma solidity ^0.4.24;
 contract Secondary {
   address private _primary;
 
-  event PrimarinessTransferred(
+  event PrimaryTransferred(
     address recipient
   );
 
@@ -16,7 +16,7 @@ contract Secondary {
    */
   constructor() public {
     _primary = msg.sender;
-    emit PrimarinessTransferred(_primary);
+    emit PrimaryTransferred(_primary);
   }
 
   /**
@@ -41,6 +41,6 @@ contract Secondary {
   function transferPrimary(address recipient) public onlyPrimary {
     require(recipient != address(0));
     _primary = recipient;
-    emit PrimarinessTransferred(_primary);
+    emit PrimaryTransferred(_primary);
   }
 }
