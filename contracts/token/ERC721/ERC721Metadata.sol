@@ -6,10 +6,10 @@ import "../../introspection/ERC165.sol";
 
 contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
   // Token name
-  string internal _name;
+  string private _name;
 
   // Token symbol
-  string internal _symbol;
+  string private _symbol;
 
   // Optional mapping for token URIs
   mapping(uint256 => string) private _tokenURIs;
