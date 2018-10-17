@@ -8,7 +8,7 @@ contract Secondary {
   address private _primary;
 
   event PrimarinessTransferred(
-    address indexed recipient
+    address recipient
   );
 
   /**
