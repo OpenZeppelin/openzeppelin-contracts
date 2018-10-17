@@ -52,9 +52,8 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
         expectEvent.inLogs(logs, `${rolename}Added`, { account: anyone });
       });
 
-      it('adds role to an already-assigned account', async function () {
-        await this.contract[`add${rolename}`](authorized, { from: authorized });
-        (await this.contract[`is${rolename}`](authorized)).should.equal(true);
+      it('reverts when adding role to an already assigned account', async function () {
+        await shouldFail.reverting(this.contract[`add${rolename}`](authorized, { from: authorized }));
       });
 
       it('reverts when adding role to the null account', async function () {
@@ -74,8 +73,8 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
         expectEvent.inLogs(logs, `${rolename}Removed`, { account: authorized });
       });
 
-      it('doesn\'t revert when removing from an unassigned account', async function () {
-        await this.contract[`remove${rolename}`](anyone);
+      it('reverts when removing from an unassigned account', async function () {
+        await shouldFail.reverting(this.contract[`remove${rolename}`](anyone));
       });
 
       it('reverts when removing role from the null account', async function () {
@@ -94,8 +93,8 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
         expectEvent.inLogs(logs, `${rolename}Removed`, { account: authorized });
       });
 
-      it('doesn\'t revert when renouncing unassigned role', async function () {
-        await this.contract[`renounce${rolename}`]({ from: anyone });
+      it('reverts when renouncing unassigned role', async function () {
+        await shouldFail.reverting(this.contract[`renounce${rolename}`]({ from: anyone }));
       });
     });
   });
