@@ -10,7 +10,7 @@ contract Secondary {
   /**
    * @dev Sets the primary account to the one that is creating the Secondary contract.
    */
-  constructor() public {
+  constructor() internal {
     _primary = msg.sender;
   }
 
