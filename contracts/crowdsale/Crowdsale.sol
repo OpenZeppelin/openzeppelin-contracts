@@ -73,6 +73,9 @@ contract Crowdsale {
 
   /**
    * @dev fallback function ***DO NOT OVERRIDE***
+   * Note that other contracts will transfer fund with a base gas stipend
+   * of 2300, which is not enough to call buyTokens. Consider calling
+   * buyTokens directly when purchasing tokens from a contract.
    */
   function () external payable {
     buyTokens(msg.sender);
