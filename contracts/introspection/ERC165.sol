@@ -25,7 +25,7 @@ contract ERC165 is IERC165 {
    * implement ERC165 itself
    */
   constructor()
-    public
+    internal
   {
     _registerInterface(_InterfaceId_ERC165);
   }

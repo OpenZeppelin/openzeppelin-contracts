@@ -36,6 +36,8 @@ contract SignatureBouncer is SignerRole {
   // Signature size is 65 bytes (tightly packed v + r + s), but gets padded to 96 bytes
   uint256 private constant _SIGNATURE_SIZE = 96;
 
+  constructor() internal {}
+
   /**
    * @dev requires that a valid signature of a signer was provided
    */

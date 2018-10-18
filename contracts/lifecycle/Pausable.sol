@@ -12,7 +12,7 @@ contract Pausable is PauserRole {
 
   bool private _paused;
 
-  constructor() public {
+  constructor() internal {
     _paused = false;
   }
 
