@@ -54,7 +54,7 @@ contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
    * Throws if the token ID does not exist. May return an empty string.
    * @param tokenId uint256 ID of the token to query
    */
-  function tokenURI(uint256 tokenId) public view returns (string) {
+  function tokenURI(uint256 tokenId) external view returns (string) {
     require(_exists(tokenId));
     return _tokenURIs[tokenId];
   }
