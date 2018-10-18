@@ -263,20 +263,9 @@ contract ERC721 is ERC165, IERC721 {
   }
 
   /**
-   * @dev Internal function to clear current approval of a given token ID
-   * Reverts if the given address is not indeed the owner of the token
-   * @param owner owner of the token
-   * @param tokenId uint256 ID of the token to be transferred
-   */
-  function _clearApproval(address owner, uint256 tokenId) internal {
-    require(ownerOf(tokenId) == owner);
-    if (_tokenApprovals[tokenId] != address(0)) {
-      _tokenApprovals[tokenId] = address(0);
-    }
-  }
-
-  /**
    * @dev Internal function to add a token ID to the list of a given address
+   * Note that this function is left internal to make ERC721Enumerable possible, but is not
+   * intended to be called by custom derived contracts: in particular, it emits no Transfer event.
    * @param to address representing the new owner of the given token ID
    * @param tokenId uint256 ID of the token to be added to the tokens list of the given address
    */
@@ -288,6 +277,9 @@ contract ERC721 is ERC165, IERC721 {
 
   /**
    * @dev Internal function to remove a token ID from the list of a given address
+   * Note that this function is left internal to make ERC721Enumerable possible, but is not
+   * intended to be called by custom derived contracts: in particular, it emits no Transfer event,
+   * and doesn't clear approvals.
    * @param from address representing the previous owner of the given token ID
    * @param tokenId uint256 ID of the token to be removed from the tokens list of the given address
    */
@@ -321,5 +313,18 @@ contract ERC721 is ERC165, IERC721 {
     bytes4 retval = IERC721Receiver(to).onERC721Received(
       msg.sender, from, tokenId, _data);
     return (retval == _ERC721_RECEIVED);
+  }
+
+  /**
+   * @dev Private function to clear current approval of a given token ID
+   * Reverts if the given address is not indeed the owner of the token
+   * @param owner owner of the token
+   * @param tokenId uint256 ID of the token to be transferred
+   */
+  function _clearApproval(address owner, uint256 tokenId) private {
+    require(ownerOf(tokenId) == owner);
+    if (_tokenApprovals[tokenId] != address(0)) {
+      _tokenApprovals[tokenId] = address(0);
+    }
   }
 }
