@@ -5,7 +5,9 @@
   "files": [
     "build",
     "contracts",
-    "test"
+    "test",
+    "zos.json",
+    "zos.*.json"
   ],
   "scripts": {
     "test": "scripts/test.sh",
