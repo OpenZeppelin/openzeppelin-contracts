@@ -200,7 +200,7 @@ contract ERC721 is ERC165, IERC721 {
   {
     transferFrom(from, to, tokenId);
     // solium-disable-next-line arg-overflow
-    require(_checkAndCallSafeTransfer(from, to, tokenId, _data));
+    require(_checkOnERC721Received(from, to, tokenId, _data));
   }
 
   /**
@@ -306,7 +306,7 @@ contract ERC721 is ERC165, IERC721 {
    * @param _data bytes optional data to send along with the call
    * @return whether the call correctly returned the expected magic value
    */
-  function _checkAndCallSafeTransfer(
+  function _checkOnERC721Received(
     address from,
     address to,
     uint256 tokenId,
