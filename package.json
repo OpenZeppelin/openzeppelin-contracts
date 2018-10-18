@@ -1,6 +1,6 @@
 {
-  "name": "openzeppelin-zos",
-  "version": "2.0.0-rc.3",
+  "name": "openzeppelin-eth",
+  "version": "2.0.0-rc.1",
   "description": "Secure Smart Contract library for Solidity",
   "files": [
     "build",
@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/OpenZeppelin/zeppelin-solidity.git"
+    "url": "https://github.com/OpenZeppelin/openzeppelin-eth.git"
   },
   "keywords": [
     "solidity",
@@ -34,9 +34,9 @@
   "author": "OpenZeppelin Community <maintainers@openzeppelin.org>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/OpenZeppelin/zeppelin-solidity/issues"
+    "url": "https://github.com/OpenZeppelin/openzeppelin-eth/issues"
   },
-  "homepage": "https://github.com/OpenZeppelin/zeppelin-solidity",
+  "homepage": "https://github.com/OpenZeppelin/openzeppelin-eth",
   "devDependencies": {
     "chai": "^4.1.2",
     "chai-bignumber": "^2.0.2",
