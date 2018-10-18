@@ -1,6 +1,7 @@
 {
   "zosversion": "2",
   "name": "openzeppelin-eth",
+  "publish": true,
   "version": "2.0.0",
   "contracts": {
     "StandaloneERC20": "StandaloneERC20",
