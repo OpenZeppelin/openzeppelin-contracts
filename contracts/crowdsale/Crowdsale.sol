@@ -103,7 +103,7 @@ contract Crowdsale {
   }
 
   /**
-   * @return the mount of wei raised.
+   * @return the amount of wei raised.
    */
   function weiRaised() public view returns (uint256) {
     return _weiRaised;
@@ -111,7 +111,7 @@ contract Crowdsale {
 
   /**
    * @dev low level token purchase ***DO NOT OVERRIDE***
-   * @param beneficiary Address performing the token purchase
+   * @param beneficiary Recipient of the token purchase
    */
   function buyTokens(address beneficiary) public payable {
 
@@ -189,7 +189,7 @@ contract Crowdsale {
   }
 
   /**
-   * @dev Executed when a purchase has been validated and is ready to be executed. Not necessarily emits/sends tokens.
+   * @dev Executed when a purchase has been validated and is ready to be executed. Doesn't necessarily emit/send tokens.
    * @param beneficiary Address receiving the tokens
    * @param tokenAmount Number of tokens to be purchased
    */
