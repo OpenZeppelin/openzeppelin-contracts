@@ -16,8 +16,8 @@ contract TokenVesting is Ownable {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
 
-  event Released(uint256 amount);
-  event Revoked();
+  event TokensReleased(address token, uint256 amount);
+  event TokenVestingRevoked(address token);
 
   // beneficiary of tokens after they are released
   address private _beneficiary;
@@ -52,6 +52,8 @@ contract TokenVesting is Ownable {
   {
     require(beneficiary != address(0));
     require(cliffDuration <= duration);
+    require(duration > 0);
+    require(start.add(duration) > block.timestamp);
 
     _beneficiary = beneficiary;
     _revocable = revocable;
@@ -122,7 +124,7 @@ contract TokenVesting is Ownable {
 
     token.safeTransfer(_beneficiary, unreleased);
 
-    emit Released(unreleased);
+    emit TokensReleased(token, unreleased);
   }
 
   /**
@@ -143,7 +145,7 @@ contract TokenVesting is Ownable {
 
     token.safeTransfer(owner(), refund);
 
-    emit Revoked();
+    emit TokenVestingRevoked(token);
   }
 
   /**
