@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "test": "scripts/test.sh",
+    "prepare": "rm -rf build/contracts && truffle compile",
     "lint:js": "eslint .",
     "lint:js:fix": "eslint . --fix",
     "lint:sol": "solium -d .",
