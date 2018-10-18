@@ -1,7 +1,6 @@
 pragma solidity ^0.4.24;
 
 import "../validation/TimedCrowdsale.sol";
-import "../../token/ERC20/IERC20.sol";
 import "../../math/SafeMath.sol";
 
 /**
