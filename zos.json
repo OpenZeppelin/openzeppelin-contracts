@@ -1,0 +1,11 @@
+{
+  "zosversion": "2",
+  "name": "openzeppelin-eth",
+  "version": "2.0.0",
+  "contracts": {
+    "StandaloneERC20": "StandaloneERC20",
+    "StandaloneERC721": "StandaloneERC721",
+    "TokenVesting": "TokenVesting",
+    "PaymentSplitter": "SplitPayment"
+  }
+}
