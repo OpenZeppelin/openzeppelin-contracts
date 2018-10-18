@@ -818,7 +818,7 @@
   "solidityLibs": {},
   "proxies": {},
   "zosversion": "2",
-  "frozen": false,
+  "frozen": true,
   "app": {
     "address": "0x2ba1a8c7352a5b5ea3ea3408f89e1ba7920d36ce"
   },
