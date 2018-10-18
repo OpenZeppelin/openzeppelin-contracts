@@ -57,7 +57,7 @@ contract Crowdsale {
    * @param wallet Address where collected funds will be forwarded to
    * @param token Address of the token being sold
    */
-  constructor(uint256 rate, address wallet, IERC20 token) public {
+  constructor(uint256 rate, address wallet, IERC20 token) internal {
     require(rate > 0);
     require(wallet != address(0));
     require(token != address(0));
@@ -152,6 +152,7 @@ contract Crowdsale {
     uint256 weiAmount
   )
     internal
+    view
   {
     require(beneficiary != address(0));
     require(weiAmount != 0);
@@ -167,6 +168,7 @@ contract Crowdsale {
     uint256 weiAmount
   )
     internal
+    view
   {
     // optional override
   }
