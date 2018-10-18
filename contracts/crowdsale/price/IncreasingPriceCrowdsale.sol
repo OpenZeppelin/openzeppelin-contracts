@@ -22,9 +22,13 @@ contract IncreasingPriceCrowdsale is TimedCrowdsale {
    */
   constructor(uint256 initialRate, uint256 finalRate) public {
     require(finalRate > 0);
-    require(initialRate >= finalRate);
+    require(initialRate > finalRate);
     _initialRate = initialRate;
     _finalRate = finalRate;
+  }
+
+  function rate() public view returns(uint256) {
+    revert();
   }
 
   /**
