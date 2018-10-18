@@ -56,9 +56,10 @@
     "solium": "^1.1.8",
     "truffle": "^4.1.13",
     "truffle-hdwallet-provider": "0.0.5",
-    "web3-utils": "^1.0.0-beta.34"
+    "web3-utils": "^1.0.0-beta.34",
+    "zos": "^2.0.0-rc.0"
   },
   "peerDependencies": {
-    "zos-lib": "^2.0.0-alpha.3"
+    "zos-lib": "^2.0.0-rc.0"
   }
 }
