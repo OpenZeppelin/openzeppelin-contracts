@@ -11,7 +11,10 @@ import "../token/ERC20/ERC20Pausable.sol";
  *
  */
 contract StandardToken is Initializable, ERC20Detailed, ERC20Mintable, ERC20Pausable {
-  function initialize(string name, string symbol, uint8 decimals, uint256 initialSupply, address initialHolder, address[] minters, address[] pausers) public initializer {
+  function initialize(
+    string name, string symbol, uint8 decimals, uint256 initialSupply, address initialHolder, 
+    address[] minters, address[] pausers
+  ) public initializer {
     ERC20Detailed.initialize(name, symbol, decimals);
 
     // Mint the initial supply

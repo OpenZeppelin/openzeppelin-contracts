@@ -12,7 +12,9 @@ import "../token/ERC721/ERC721Pausable.sol";
  * @title Standard ERC721 token, with minting and pause functionality.
  *
  */
-contract StandaloneERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Metadata, ERC721MetadataMintable, ERC721Pausable {
+contract StandaloneERC721 
+  is Initializable, ERC721, ERC721Enumerable, ERC721Metadata, ERC721MetadataMintable, ERC721Pausable 
+{
   function initialize(string name, string symbol, address[] minters, address[] pausers) public initializer {
     ERC721.initialize();
     ERC721Enumerable.initialize();

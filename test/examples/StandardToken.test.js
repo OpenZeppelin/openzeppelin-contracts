@@ -1,18 +1,19 @@
 const encodeCall = require('zos-lib/lib/helpers/encodeCall').default;
 const { shouldBehaveLikeERC20Mintable } = require('../token/ERC20/behaviors/ERC20Mintable.behavior');
-const { shouldBehaveLikePublicRole } = require('../access/roles/PublicRole.behavior');
 
 const BigNumber = web3.BigNumber;
 
-const should = require('chai')
+require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
 const StandardToken = artifacts.require('StandardToken');
 
-contract('StandardToken', function ([_, deployer, initialHolder, minterA, minterB, pauserA, pauserB, anyone, ...otherAccounts]) {
-  const name = "StdToken";
-  const symbol = "STDT";
+contract('StandardToken', function ([
+  _, deployer, initialHolder, minterA, minterB, pauserA, pauserB, anyone, ...otherAccounts
+]) {
+  const name = 'StdToken';
+  const symbol = 'STDT';
   const decimals = 18;
 
   const initialSupply = 300;
@@ -26,8 +27,10 @@ contract('StandardToken', function ([_, deployer, initialHolder, minterA, minter
     this.token = await StandardToken.new({ from: deployer });
   });
 
-  async function initialize(token, name, symbol, decimals, initialSupply, initialHolder, minters, pausers, from) {
-    const callData = encodeCall('initialize', ['string', 'string', 'uint8', 'uint256', 'address', 'address[]', 'address[]'], [name, symbol, decimals, initialSupply, initialHolder, minters, pausers]);
+  async function initialize (token, name, symbol, decimals, initialSupply, initialHolder, minters, pausers, from) {
+    const callData = encodeCall('initialize',
+      ['string', 'string', 'uint8', 'uint256', 'address', 'address[]', 'address[]'],
+      [name, symbol, decimals, initialSupply, initialHolder, minters, pausers]);
     await token.sendTransaction({ data: callData, from });
   }
 

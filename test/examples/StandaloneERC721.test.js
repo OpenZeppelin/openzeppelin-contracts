@@ -1,17 +1,16 @@
 const encodeCall = require('zos-lib/lib/helpers/encodeCall').default;
-const { assertRevert } = require('../helpers/assertRevert');
 
 const BigNumber = web3.BigNumber;
 
-const should = require('chai')
+require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
 const StandaloneERC721 = artifacts.require('StandaloneERC721');
 
 contract('StandaloneERC721', function ([_, deployer, minterA, minterB, pauserA, pauserB, anyone, ...otherAccounts]) {
-  const name = "StandaloneERC721";
-  const symbol = "SAERC721";
+  const name = 'StandaloneERC721';
+  const symbol = 'SAERC721';
 
   const minters = [minterA, minterB];
   const pausers = [pauserA, pauserB];
@@ -20,8 +19,10 @@ contract('StandaloneERC721', function ([_, deployer, minterA, minterB, pauserA, 
     this.token = await StandaloneERC721.new({ from: deployer });
   });
 
-  async function initialize(token, name, symbol, minters, pausers, from) {
-    const callData = encodeCall('initialize', ['string', 'string', 'address[]', 'address[]'], [name, symbol, minters, pausers]);
+  async function initialize (token, name, symbol, minters, pausers, from) {
+    const callData = encodeCall('initialize',
+      ['string', 'string', 'address[]', 'address[]'],
+      [name, symbol, minters, pausers]);
     await token.sendTransaction({ data: callData, from });
   }
 

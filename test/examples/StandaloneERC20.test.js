@@ -4,15 +4,17 @@ const { assertRevert } = require('../helpers/assertRevert');
 
 const BigNumber = web3.BigNumber;
 
-const should = require('chai')
+require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
 const StandaloneERC20 = artifacts.require('StandaloneERC20');
 
-contract('StandaloneERC20', function ([_, deployer, initialHolder, minterA, minterB, pauserA, pauserB, anyone, ...otherAccounts]) {
-  const name = "StandaloneERC20";
-  const symbol = "SAERC20";
+contract('StandaloneERC20', function ([
+  _, deployer, initialHolder, minterA, minterB, pauserA, pauserB, anyone, ...otherAccounts
+]) {
+  const name = 'StandaloneERC20';
+  const symbol = 'SAERC20';
   const decimals = 18;
 
   const initialSupply = 300;
@@ -26,19 +28,25 @@ contract('StandaloneERC20', function ([_, deployer, initialHolder, minterA, mint
     this.token = await StandaloneERC20.new({ from: deployer });
   });
 
-  async function initializeFull(token, name, symbol, decimals, initialSupply, initialHolder, minters, pausers, from) {
-    const callData = encodeCall('initialize', ['string', 'string', 'uint8', 'uint256', 'address', 'address[]', 'address[]'], [name, symbol, decimals, initialSupply, initialHolder, minters, pausers]);
+  async function initializeFull (token, name, symbol, decimals, initialSupply, initialHolder, minters, pausers, from) {
+    const callData = encodeCall('initialize',
+      ['string', 'string', 'uint8', 'uint256', 'address', 'address[]', 'address[]'],
+      [name, symbol, decimals, initialSupply, initialHolder, minters, pausers]);
     await token.sendTransaction({ data: callData, from });
   }
 
-  async function initializePartial(token, name, symbol, decimals, minters, pausers, from) {
-    const callData = encodeCall('initialize', ['string', 'string', 'uint8', 'address[]', 'address[]'], [name, symbol, decimals, minters, pausers]);
+  async function initializePartial (token, name, symbol, decimals, minters, pausers, from) {
+    const callData = encodeCall('initialize',
+      ['string', 'string', 'uint8', 'address[]', 'address[]'],
+      [name, symbol, decimals, minters, pausers]);
     await token.sendTransaction({ data: callData, from });
   }
 
   describe('with all arguments', function () {
     it('reverts if initial balance is zero', async function () {
-      await assertRevert(initializeFull(this.token, name, symbol, decimals, 0, ZERO_ADDRESS, minters, pausers, deployer));
+      await assertRevert(
+        initializeFull(this.token, name, symbol, decimals, 0, ZERO_ADDRESS, minters, pausers, deployer)
+      );
     });
 
     it('can be created with no minters', async function () {
@@ -59,7 +67,9 @@ contract('StandaloneERC20', function ([_, deployer, initialHolder, minterA, mint
 
     context('with token', async function () {
       beforeEach(async function () {
-        await initializeFull(this.token, name, symbol, decimals, initialSupply, initialHolder, minters, pausers, deployer);
+        await initializeFull(
+          this.token, name, symbol, decimals, initialSupply, initialHolder, minters, pausers, deployer
+        );
       });
 
       it('initializes metadata', async function () {

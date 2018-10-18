@@ -11,7 +11,10 @@ import "../token/ERC20/ERC20Pausable.sol";
  *
  */
 contract StandaloneERC20 is Initializable, ERC20Detailed, ERC20Mintable, ERC20Pausable {
-  function initialize(string name, string symbol, uint8 decimals, uint256 initialSupply, address initialHolder, address[] minters, address[] pausers) public initializer {
+  function initialize(
+    string name, string symbol, uint8 decimals, uint256 initialSupply, address initialHolder, 
+    address[] minters, address[] pausers
+  ) public initializer {
     require(initialSupply > 0);
 
     ERC20Detailed.initialize(name, symbol, decimals);
@@ -37,7 +40,9 @@ contract StandaloneERC20 is Initializable, ERC20Detailed, ERC20Mintable, ERC20Pa
     }
   }
 
-  function initialize(string name, string symbol, uint8 decimals, address[] minters, address[] pausers) public initializer {
+  function initialize(
+    string name, string symbol, uint8 decimals, address[] minters, address[] pausers
+  ) public initializer {
     ERC20Detailed.initialize(name, symbol, decimals);
 
     // Initialize the minter and pauser roles, and renounce them
