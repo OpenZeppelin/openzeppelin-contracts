@@ -12,8 +12,8 @@ import "../math/SafeMath.sol";
 contract SplitPayment is Initializable {
   using SafeMath for uint256;
 
-  uint256 private _totalShares = 0;
-  uint256 private _totalReleased = 0;
+  uint256 private _totalShares;
+  uint256 private _totalReleased;
 
   mapping(address => uint256) private _shares;
   mapping(address => uint256) private _released;
