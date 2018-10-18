@@ -6,26 +6,33 @@ import "../cryptography/ECDSA.sol";
 /**
  * @title SignatureBouncer
  * @author PhABC, Shrugs and aflesher
- * @dev SignatureBouncer allows users to submit a signature as a permission to do an action.
- * If the signature is from one of the authorized signer addresses, the signature
- * is valid.
+ * @dev SignatureBouncer allows users to submit a signature as a permission to
+ * do an action.
+ * If the signature is from one of the authorized signer addresses, the
+ * signature is valid.
+ * Note that SignatureBouncer offers no protection against replay attacks, users
+ * must add this themselves!
+ *
  * Signer addresses can be individual servers signing grants or different
- * users within a decentralized club that have permission to invite other members.
- * This technique is useful for whitelists and airdrops; instead of putting all
- * valid addresses on-chain, simply sign a grant of the form
- * keccak256(abi.encodePacked(`:contractAddress` + `:granteeAddress`)) using a valid signer address.
+ * users within a decentralized club that have permission to invite other
+ * members. This technique is useful for whitelists and airdrops; instead of
+ * putting all valid addresses on-chain, simply sign a grant of the form
+ * keccak256(abi.encodePacked(`:contractAddress` + `:granteeAddress`)) using a
+ * valid signer address.
  * Then restrict access to your crowdsale/whitelist/airdrop using the
  * `onlyValidSignature` modifier (or implement your own using _isValidSignature).
  * In addition to `onlyValidSignature`, `onlyValidSignatureAndMethod` and
- * `onlyValidSignatureAndData` can be used to restrict access to only a given method
- * or a given method with given parameters respectively.
+ * `onlyValidSignatureAndData` can be used to restrict access to only a given
+ * method or a given method with given parameters respectively.
  * See the tests in SignatureBouncer.test.js for specific usage examples.
- * @notice A method that uses the `onlyValidSignatureAndData` modifier must make the _signature
- * parameter the "last" parameter. You cannot sign a message that has its own
- * signature in it so the last 128 bytes of msg.data (which represents the
- * length of the _signature data and the _signaature data itself) is ignored when validating.
- * Also non fixed sized parameters make constructing the data in the signature
- * much more complex. See https://ethereum.stackexchange.com/a/50616 for more details.
+ *
+ * @notice A method that uses the `onlyValidSignatureAndData` modifier must make
+ * the _signature parameter the "last" parameter. You cannot sign a message that
+ * has its own signature in it so the last 128 bytes of msg.data (which
+ * represents the length of the _signature data and the _signaature data itself)
+ * is ignored when validating. Also non fixed sized parameters make constructing
+ * the data in the signature much more complex.
+ * See https://ethereum.stackexchange.com/a/50616 for more details.
  */
 contract SignatureBouncer is SignerRole {
   using ECDSA for bytes32;
