@@ -37,7 +37,7 @@ contract PaymentSplitter {
    * @dev payable fallback
    */
   function () external payable {
-	  emit PaymentReceived(msg.sender, msg.value);
+    emit PaymentReceived(msg.sender, msg.value);
   }
 
   /**
