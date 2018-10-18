@@ -1,4 +1,5 @@
 const shouldFail = require('../helpers/shouldFail');
+const expectEvent = require('../helpers/expectEvent');
 const time = require('../helpers/time');
 const { ethGetBlock } = require('../helpers/web3');
 const { ZERO_ADDRESS } = require('../helpers/constants');
@@ -22,7 +23,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     this.duration = time.duration.years(2);
   });
 
-  it('rejects a duration shorter than the cliff', async function () {
+  it('reverts with a duration shorter than the cliff', async function () {
     const cliffDuration = this.duration;
     const duration = this.cliffDuration;
 
@@ -33,9 +34,25 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     );
   });
 
-  it('requires a valid beneficiary', async function () {
+  it('reverts with a null beneficiary', async function () {
     await shouldFail.reverting(
       TokenVesting.new(ZERO_ADDRESS, this.start, this.cliffDuration, this.duration, true, { from: owner })
+    );
+  });
+
+  it('reverts with a null duration', async function () {
+    // cliffDuration should also be 0, since the duration must be larger than the cliff
+    await shouldFail.reverting(
+      TokenVesting.new(beneficiary, this.start, 0, 0, true, { from: owner })
+    );
+  });
+
+  it('reverts if the end time is in the past', async function () {
+    const now = await time.latest();
+
+    this.start = now - this.duration - time.duration.minutes(1);
+    await shouldFail.reverting(
+      TokenVesting.new(beneficiary, this.start, this.cliffDuration, this.duration, true, { from: owner })
     );
   });
 
@@ -62,7 +79,11 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
     it('can be released after cliff', async function () {
       await time.increaseTo(this.start + this.cliffDuration + time.duration.weeks(1));
-      await this.vesting.release(this.token.address);
+      const { logs } = await this.vesting.release(this.token.address);
+      expectEvent.inLogs(logs, 'TokensReleased', {
+        token: this.token.address,
+        amount: await this.token.balanceOf(beneficiary),
+      });
     });
 
     it('should release proper amount after cliff', async function () {
@@ -100,7 +121,8 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     });
 
     it('should be revoked by owner if revocable is set', async function () {
-      await this.vesting.revoke(this.token.address, { from: owner });
+      const { logs } = await this.vesting.revoke(this.token.address, { from: owner });
+      expectEvent.inLogs(logs, 'TokenVestingRevoked', { token: this.token.address });
       (await this.vesting.revoked(this.token.address)).should.equal(true);
     });
 
