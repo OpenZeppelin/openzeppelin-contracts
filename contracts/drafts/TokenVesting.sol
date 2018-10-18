@@ -17,7 +17,7 @@ contract TokenVesting is Ownable {
   using SafeERC20 for IERC20;
 
   event TokensReleased(address token, uint256 amount);
-  event TokensRevoked(address token);
+  event TokenVestingRevoked(address token);
 
   // beneficiary of tokens after they are released
   address private _beneficiary;
@@ -145,7 +145,7 @@ contract TokenVesting is Ownable {
 
     token.safeTransfer(owner(), refund);
 
-    emit TokensRevoked(token);
+    emit TokenVestingRevoked(token);
   }
 
   /**
