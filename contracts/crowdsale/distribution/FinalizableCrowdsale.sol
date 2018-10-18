@@ -15,7 +15,7 @@ contract FinalizableCrowdsale is TimedCrowdsale {
 
   event CrowdsaleFinalized();
 
-  constructor() public {
+  constructor() internal {
     _finalized = false;
   }
 

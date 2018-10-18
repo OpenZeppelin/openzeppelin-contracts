@@ -65,8 +65,18 @@ contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser])
         (await this.crowdsale.finalRate()).should.be.bignumber.equal(finalRate);
       });
 
+
       it('reverts when the base Crowdsale\'s rate function is called', async function () {
         await shouldFail.reverting(this.crowdsale.rate());
+      });
+
+      it('returns a rate of 0 before the crowdsale starts', async function () {
+        (await this.crowdsale.getCurrentRate()).should.be.bignumber.equal(0);
+      });
+
+      it('returns a rate of 0 after the crowdsale ends', async function () {
+        await time.increaseTo(this.afterClosingTime);
+        (await this.crowdsale.getCurrentRate()).should.be.bignumber.equal(0);
       });
 
       it('at start', async function () {
