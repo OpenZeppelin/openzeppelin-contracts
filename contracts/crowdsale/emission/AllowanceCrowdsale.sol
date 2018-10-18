@@ -37,7 +37,10 @@ contract AllowanceCrowdsale is Crowdsale {
    * @return Amount of tokens left in the allowance
    */
   function remainingTokens() public view returns (uint256) {
-    return Math.min(token().balanceOf(_tokenWallet), token().allowance(_tokenWallet, this));
+    return Math.min(
+      token().balanceOf(_tokenWallet),
+      token().allowance(_tokenWallet, this)
+    );
   }
 
   /**
