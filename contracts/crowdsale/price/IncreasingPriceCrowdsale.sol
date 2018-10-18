@@ -20,7 +20,7 @@ contract IncreasingPriceCrowdsale is TimedCrowdsale {
    * @param initialRate Number of tokens a buyer gets per wei at the start of the crowdsale
    * @param finalRate Number of tokens a buyer gets per wei at the end of the crowdsale
    */
-  constructor(uint256 initialRate, uint256 finalRate) public {
+  constructor(uint256 initialRate, uint256 finalRate) internal {
     require(finalRate > 0);
     require(initialRate >= finalRate);
     _initialRate = initialRate;

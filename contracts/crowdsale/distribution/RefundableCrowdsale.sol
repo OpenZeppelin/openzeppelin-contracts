@@ -22,7 +22,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
    * @dev Constructor, creates RefundEscrow.
    * @param goal Funding goal
    */
-  constructor(uint256 goal) public {
+  constructor(uint256 goal) internal {
     require(goal > 0);
     _escrow = new RefundEscrow(wallet());
     _goal = goal;
