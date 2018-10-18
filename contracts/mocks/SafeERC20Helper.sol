@@ -17,6 +17,10 @@ contract ERC20FailingMock {
   function approve(address, uint256) public returns (bool) {
     return false;
   }
+
+  function allowance(address, address) public view returns (uint256) {
+    return 0;
+  }
 }
 
 contract ERC20SucceedingMock {
