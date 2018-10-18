@@ -46,6 +46,7 @@ contract CappedCrowdsale is Crowdsale {
     uint256 weiAmount
   )
     internal
+    view
   {
     super._preValidatePurchase(beneficiary, weiAmount);
     require(weiRaised().add(weiAmount) <= _cap);

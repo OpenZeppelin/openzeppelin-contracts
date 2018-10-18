@@ -152,6 +152,7 @@ contract Crowdsale {
     uint256 weiAmount
   )
     internal
+    view
   {
     require(beneficiary != address(0));
     require(weiAmount != 0);
@@ -167,6 +168,7 @@ contract Crowdsale {
     uint256 weiAmount
   )
     internal
+    view
   {
     // optional override
   }

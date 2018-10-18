@@ -53,6 +53,7 @@ contract IndividuallyCappedCrowdsale is Crowdsale, CapperRole {
     uint256 weiAmount
   )
     internal
+    view
   {
     super._preValidatePurchase(beneficiary, weiAmount);
     require(

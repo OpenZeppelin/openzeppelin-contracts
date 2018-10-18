@@ -77,6 +77,7 @@ contract TimedCrowdsale is Crowdsale {
   )
     internal
     onlyWhileOpen
+    view
   {
     super._preValidatePurchase(beneficiary, weiAmount);
   }
