@@ -27,7 +27,8 @@ library SafeMath {
   * @dev Integer division of two numbers truncating the quotient, reverts on division by zero.
   */
   function div(uint256 a, uint256 b) internal pure returns (uint256) {
-    require(b > 0, "Cannot divide by zero"); // Solidity only automatically asserts when dividing by 0
+    // Solidity only automatically asserts when dividing by 0
+    require(b > 0, "Cannot divide by zero");
     uint256 c = a / b;
     // assert(a == b * c + a % b); // There is no case in which this doesn't hold
 
