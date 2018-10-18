@@ -27,6 +27,10 @@ contract IncreasingPriceCrowdsale is TimedCrowdsale {
     _finalRate = finalRate;
   }
 
+  /**
+   * The base rate function is overridden to revert, since this crowdsale doens't use it, and
+   * all calls to it are a mistake.
+   */
   function rate() public view returns(uint256) {
     revert();
   }
