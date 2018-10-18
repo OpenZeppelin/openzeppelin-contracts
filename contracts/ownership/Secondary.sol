@@ -35,8 +35,8 @@ contract Secondary {
   }
   
   /**
-   * @dev Transfers primariness to a recipient.
-   * @param recipient The address to transfer primariness. 
+   * @dev Transfers contract to a new primary.
+   * @param recipient The address of new primary. 
    */
   function transferPrimary(address recipient) public onlyPrimary {
     require(recipient != address(0));
