@@ -3,6 +3,7 @@ pragma solidity ^0.4.24;
 import "../token/ERC20/IERC20.sol";
 import "../math/SafeMath.sol";
 import "../token/ERC20/SafeERC20.sol";
+import "../utils/ReentrancyGuard.sol";
 
 /**
  * @title Crowdsale
@@ -16,7 +17,7 @@ import "../token/ERC20/SafeERC20.sol";
  * the methods to add functionality. Consider using 'super' where appropriate to concatenate
  * behavior.
  */
-contract Crowdsale {
+contract Crowdsale is ReentrancyGuard {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
 
@@ -110,7 +111,7 @@ contract Crowdsale {
    * @dev low level token purchase ***DO NOT OVERRIDE***
    * @param beneficiary Address performing the token purchase
    */
-  function buyTokens(address beneficiary) public payable {
+  function buyTokens(address beneficiary) public nonReentrant payable {
 
     uint256 weiAmount = msg.value;
     _preValidatePurchase(beneficiary, weiAmount);
