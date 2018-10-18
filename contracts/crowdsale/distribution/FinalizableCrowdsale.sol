@@ -34,10 +34,10 @@ contract FinalizableCrowdsale is TimedCrowdsale {
     require(!_finalized);
     require(hasClosed());
 
+    _finalized = true;
+
     _finalization();
     emit CrowdsaleFinalized();
-
-    _finalized = true;
   }
 
   /**
@@ -47,5 +47,4 @@ contract FinalizableCrowdsale is TimedCrowdsale {
    */
   function _finalization() internal {
   }
-
 }
