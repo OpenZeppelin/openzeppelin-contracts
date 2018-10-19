@@ -1,6 +1,6 @@
 const encodeCall = require('zos-lib/lib/helpers/encodeCall').default;
-const { shouldBehaveLikeERC20Mintable } = require('../token/ERC20/behaviors/ERC20Mintable.behavior');
-const { assertRevert } = require('../helpers/assertRevert');
+const { shouldBehaveLikeERC20Mintable } = require('./behaviors/ERC20Mintable.behavior');
+const { assertRevert } = require('../../helpers/assertRevert');
 
 const BigNumber = web3.BigNumber;
 

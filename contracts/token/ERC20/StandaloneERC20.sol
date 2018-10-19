@@ -1,9 +1,9 @@
 pragma solidity ^0.4.24;
 
 import "zos-lib/contracts/Initializable.sol";
-import "../token/ERC20/ERC20Detailed.sol";
-import "../token/ERC20/ERC20Mintable.sol";
-import "../token/ERC20/ERC20Pausable.sol";
+import "./ERC20Detailed.sol";
+import "./ERC20Mintable.sol";
+import "./ERC20Pausable.sol";
 
 
 /**
@@ -12,7 +12,7 @@ import "../token/ERC20/ERC20Pausable.sol";
  */
 contract StandaloneERC20 is Initializable, ERC20Detailed, ERC20Mintable, ERC20Pausable {
   function initialize(
-    string name, string symbol, uint8 decimals, uint256 initialSupply, address initialHolder, 
+    string name, string symbol, uint8 decimals, uint256 initialSupply, address initialHolder,
     address[] minters, address[] pausers
   ) public initializer {
     require(initialSupply > 0);
