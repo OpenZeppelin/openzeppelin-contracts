@@ -69,6 +69,17 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
       await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
       (await this.crowdsale.remainingTokens()).should.be.bignumber.equal(remainingAllowance);
     });
+
+    context('when the allowance is larger than the token amount', function () {
+      beforeEach(async function () {
+        const amount = await this.token.balanceOf(tokenWallet);
+        await this.token.approve(this.crowdsale.address, amount.plus(1), { from: tokenWallet });
+      });
+
+      it('should report the amount instead of the allowance', async function () {
+        (await this.crowdsale.remainingTokens()).should.be.bignumber.equal(await this.token.balanceOf(tokenWallet));
+      });
+    });
   });
 
   describe('when token wallet is different from token address', function () {
