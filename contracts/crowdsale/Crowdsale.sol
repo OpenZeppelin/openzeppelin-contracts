@@ -58,7 +58,7 @@ contract Crowdsale is ReentrancyGuard {
    * @param wallet Address where collected funds will be forwarded to
    * @param token Address of the token being sold
    */
-  constructor(uint256 rate, address wallet, IERC20 token) public {
+  constructor(uint256 rate, address wallet, IERC20 token) internal {
     require(rate > 0);
     require(wallet != address(0));
     require(token != address(0));
@@ -74,6 +74,9 @@ contract Crowdsale is ReentrancyGuard {
 
   /**
    * @dev fallback function ***DO NOT OVERRIDE***
+   * Note that other contracts will transfer fund with a base gas stipend
+   * of 2300, which is not enough to call buyTokens. Consider calling
+   * buyTokens directly when purchasing tokens from a contract.
    */
   function () external payable {
     buyTokens(msg.sender);
@@ -101,7 +104,7 @@ contract Crowdsale is ReentrancyGuard {
   }
 
   /**
-   * @return the mount of wei raised.
+   * @return the amount of wei raised.
    */
   function weiRaised() public view returns (uint256) {
     return _weiRaised;
@@ -111,7 +114,7 @@ contract Crowdsale is ReentrancyGuard {
    * @dev low level token purchase ***DO NOT OVERRIDE***
    * This function has a non-reentrancy guard, so it shouldn't be called by
    * another `nonReentrant` function.
-   * @param beneficiary Address performing the token purchase
+   * @param beneficiary Recipient of the token purchase
    */
   function buyTokens(address beneficiary) public nonReentrant payable {
 
@@ -155,6 +158,7 @@ contract Crowdsale is ReentrancyGuard {
     uint256 weiAmount
   )
     internal
+    view
   {
     require(beneficiary != address(0));
     require(weiAmount != 0);
@@ -170,6 +174,7 @@ contract Crowdsale is ReentrancyGuard {
     uint256 weiAmount
   )
     internal
+    view
   {
     // optional override
   }
@@ -189,7 +194,7 @@ contract Crowdsale is ReentrancyGuard {
   }
 
   /**
-   * @dev Executed when a purchase has been validated and is ready to be executed. Not necessarily emits/sends tokens.
+   * @dev Executed when a purchase has been validated and is ready to be executed. Doesn't necessarily emit/send tokens.
    * @param beneficiary Address receiving the tokens
    * @param tokenAmount Number of tokens to be purchased
    */
