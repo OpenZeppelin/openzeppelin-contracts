@@ -9,9 +9,9 @@ import "./IERC20.sol";
  * just as on Ethereum all the operations are done in wei.
  */
 contract ERC20Detailed is IERC20 {
-  string private _name;
-  string private _symbol;
-  uint8 private _decimals;
+  string public _name;
+  string public _symbol;
+  uint8 public _decimals;
 
   constructor(string name, string symbol, uint8 decimals) public {
     _name = name;
