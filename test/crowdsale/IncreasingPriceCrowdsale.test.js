@@ -34,13 +34,19 @@ contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser])
       this.token = await SimpleToken.new();
     });
 
-    it('rejects a final rate larger than the initial rate', async function () {
+    it('reverts with a final rate larger than the initial rate', async function () {
       await shouldFail.reverting(IncreasingPriceCrowdsaleImpl.new(
         this.startTime, this.closingTime, wallet, this.token.address, initialRate, initialRate.plus(1)
       ));
     });
 
-    it('rejects a final rate of zero', async function () {
+    it('reverts with a final equal to the initial rate', async function () {
+      await shouldFail.reverting(IncreasingPriceCrowdsaleImpl.new(
+        this.startTime, this.closingTime, wallet, this.token.address, initialRate, initialRate
+      ));
+    });
+
+    it('reverts with a final rate of zero', async function () {
       await shouldFail.reverting(IncreasingPriceCrowdsaleImpl.new(
         this.startTime, this.closingTime, wallet, this.token.address, initialRate, 0
       ));
@@ -57,6 +63,10 @@ contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser])
       it('should have initial and final rate', async function () {
         (await this.crowdsale.initialRate()).should.be.bignumber.equal(initialRate);
         (await this.crowdsale.finalRate()).should.be.bignumber.equal(finalRate);
+      });
+
+      it('reverts when the base Crowdsale\'s rate function is called', async function () {
+        await shouldFail.reverting(this.crowdsale.rate());
       });
 
       it('returns a rate of 0 before the crowdsale starts', async function () {
