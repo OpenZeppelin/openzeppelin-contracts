@@ -14,7 +14,7 @@ import "../../payment/escrow/RefundEscrow.sol";
  * unlikely to be met, they sell their tokens (possibly at a discount).
  * The attacker will be refunded when the crowdsale is finalized, and
  * the users that purchased from them will be left with worthless 
- * tokens. There are many possible ways ot avoid this, like making the
+ * tokens. There are many possible ways to avoid this, like making the
  * the crowdsale inherit from PostDeliveryCrowdsale, or imposing 
  * restrictions on token trading until the crowdsale is finalized.
  * This is being discussed in 
