@@ -65,7 +65,6 @@ contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser])
         (await this.crowdsale.finalRate()).should.be.bignumber.equal(finalRate);
       });
 
-
       it('reverts when the base Crowdsale\'s rate function is called', async function () {
         await shouldFail.reverting(this.crowdsale.rate());
       });
