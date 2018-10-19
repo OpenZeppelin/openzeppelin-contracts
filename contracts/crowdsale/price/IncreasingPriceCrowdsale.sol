@@ -22,9 +22,17 @@ contract IncreasingPriceCrowdsale is TimedCrowdsale {
    */
   constructor(uint256 initialRate, uint256 finalRate) internal {
     require(finalRate > 0);
-    require(initialRate >= finalRate);
+    require(initialRate > finalRate);
     _initialRate = initialRate;
     _finalRate = finalRate;
+  }
+
+  /**
+   * The base rate function is overridden to revert, since this crowdsale doens't use it, and
+   * all calls to it are a mistake.
+   */
+  function rate() public view returns(uint256) {
+    revert();
   }
 
   /**
