@@ -24,8 +24,6 @@ contract ReentrancyGuard {
    * by making the `nonReentrant` function external, and make it call a
    * `private` function that does the actual work.
    */
-   * If you mark a function `nonReentrant`, you should also
-   * mark it `external`.
   modifier nonReentrant() {
     _guardCounter += 1;
     uint256 localCounter = _guardCounter;
