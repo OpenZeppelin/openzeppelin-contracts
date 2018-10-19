@@ -109,6 +109,8 @@ contract Crowdsale is ReentrancyGuard {
 
   /**
    * @dev low level token purchase ***DO NOT OVERRIDE***
+   * This function has a non-reentrancy guard, so it shouldn't be called by
+   * another `nonReentrant` function.
    * @param beneficiary Address performing the token purchase
    */
   function buyTokens(address beneficiary) public nonReentrant payable {
