@@ -185,7 +185,6 @@ contract ERC20 is IERC20 {
    */
   function _burn(address account, uint256 value) internal {
     require(account != 0);
-    require(value <= _balances[account]);
 
     _totalSupply = _totalSupply.sub(value);
     _balances[account] = _balances[account].sub(value);
@@ -200,8 +199,6 @@ contract ERC20 is IERC20 {
    * @param value The amount that will be burnt.
    */
   function _burnFrom(address account, uint256 value) internal {
-    require(value <= _allowed[account][msg.sender]);
-
     // Should https://github.com/OpenZeppelin/zeppelin-solidity/issues/707 be accepted,
     // this function needs to emit an event with the updated approval.
     _allowed[account][msg.sender] = _allowed[account][msg.sender].sub(
