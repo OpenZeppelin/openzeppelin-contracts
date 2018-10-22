@@ -9,12 +9,16 @@ contract('Address', function ([_, anyone]) {
     this.mock = await AddressImpl.new();
   });
 
-  it('should return false for account address', async function () {
-    (await this.mock.isContract(anyone)).should.equal(false);
+  describe('with account address', function () {
+    it('should return false', async function () {
+      (await this.mock.isInitializedContract(anyone)).should.equal(false);
+    });
   });
 
-  it('should return true for contract address', async function () {
-    const contract = await SimpleToken.new();
-    (await this.mock.isContract(contract.address)).should.equal(true);
+  describe('with contract address', function () {
+    it('should return true', async function () {
+      const contract = await SimpleToken.new();
+      (await this.mock.isInitializedContract(contract.address)).should.equal(true);
+    });
   });
 });

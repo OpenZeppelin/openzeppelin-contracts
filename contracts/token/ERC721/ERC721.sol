@@ -307,7 +307,7 @@ contract ERC721 is ERC165, IERC721 {
     internal
     returns (bool)
   {
-    if (!to.isContract()) {
+    if (!to.isInitializedContract()) {
       return true;
     }
     bytes4 retval = IERC721Receiver(to).onERC721Received(
