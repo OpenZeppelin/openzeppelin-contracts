@@ -36,10 +36,6 @@ contract ERC20FailingMock is IERC20 {
   function allowance(address, address) public view returns (uint256) {
     return 0;
   }
-  
-  function setAllowance(uint256 value) public {
-    _allowance = value;
-  }
 }
 
 contract ERC20SucceedingMock is IERC20 {
@@ -152,18 +148,5 @@ contract SafeERC20Helper {
 
   function doSucceedingApprove() public {
     _succeeding.safeApprove(address(0), 0);
-  }
-
-  function doFailingApproveByValue() public {
-    _succeeding.setAllowance(10);
-    _succeeding.safeApprove(address(0), 10);
-  }
-
-  function doSucceedingIncreaseAllowance() public {
-    _succeeding.safeIncreaseAllowance(address(0), 0);
-  }
-
-  function doSucceedingDecreaseAllowance() public {
-    _succeeding.safeDecreaseAllowance(address(0), 0);
   }
 }

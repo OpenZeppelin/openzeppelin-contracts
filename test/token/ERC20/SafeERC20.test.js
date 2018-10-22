@@ -98,16 +98,4 @@ contract('SafeERC20', function () {
       });
     });
   });
-
-  it('should throw while approving with non-zero existing allowance', async function () {
-    await shouldFail.reverting(this.helper.doFailingApproveByValue());
-  });
-
-  it('should not throw on succeeding increaseAllowance', async function () {
-    await this.helper.doSucceedingIncreaseAllowance();
-  });
-
-  it('should not throw on succeeding decreaseAllowance', async function () {
-    await this.helper.doSucceedingDecreaseAllowance();
-  });
 });
