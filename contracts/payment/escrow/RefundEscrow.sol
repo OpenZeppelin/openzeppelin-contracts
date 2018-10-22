@@ -40,6 +40,14 @@ contract RefundEscrow is ConditionalEscrow {
   }
 
   /**
+   * @dev Throws if called by any state other than the expected one.
+   */
+  modifier isState(State state) {
+    require(_state == state);
+    _;
+  }
+
+  /**
    * @return the beneficiary of the escrow.
    */
   function beneficiary() public view returns (address) {
@@ -50,8 +58,7 @@ contract RefundEscrow is ConditionalEscrow {
    * @dev Stores funds that may later be refunded.
    * @param refundee The address funds will be sent to if a refund occurs.
    */
-  function deposit(address refundee) public payable {
-    require(_state == State.Active);
+  function deposit(address refundee) public payable isState(State.Active) {
     super.deposit(refundee);
   }
 
@@ -59,8 +66,7 @@ contract RefundEscrow is ConditionalEscrow {
    * @dev Allows for the beneficiary to withdraw their funds, rejecting
    * further deposits.
    */
-  function close() public onlyPrimary {
-    require(_state == State.Active);
+  function close() public onlyPrimary isState(State.Active) {
     _state = State.Closed;
     emit RefundsClosed();
   }
@@ -68,8 +74,7 @@ contract RefundEscrow is ConditionalEscrow {
   /**
    * @dev Allows for refunds to take place, rejecting further deposits.
    */
-  function enableRefunds() public onlyPrimary {
-    require(_state == State.Active);
+  function enableRefunds() public onlyPrimary isState(State.Active) {
     _state = State.Refunding;
     emit RefundsEnabled();
   }
@@ -77,8 +82,7 @@ contract RefundEscrow is ConditionalEscrow {
   /**
    * @dev Withdraws the beneficiary's funds.
    */
-  function beneficiaryWithdraw() public {
-    require(_state == State.Closed);
+  function beneficiaryWithdraw() public isState(State.Closed) {
     _beneficiary.transfer(address(this).balance);
   }
 
