@@ -3,12 +3,16 @@ pragma solidity ^0.4.24;
 import "../math/SafeMath.sol";
 
 /**
- * @title SplitPayment
+ * @title PaymentSplitter
  * @dev This contract can be used when payments need to be received by a group
  * of people and split proportionately to some number of shares they own.
  */
-contract SplitPayment {
+contract PaymentSplitter {
   using SafeMath for uint256;
+
+  event PayeeAdded(address account, uint256 shares);
+  event PaymentReleased(address to, uint256 amount);
+  event PaymentReceived(address from, uint256 amount);
 
   uint256 private _totalShares;
   uint256 private _totalReleased;
@@ -24,8 +28,6 @@ contract SplitPayment {
     require(payees.length == shares.length);
     require(payees.length > 0);
 
-    _totalShares = 0;
-    _totalReleased = 0;
     for (uint256 i = 0; i < payees.length; i++) {
       _addPayee(payees[i], shares[i]);
     }
@@ -34,7 +36,9 @@ contract SplitPayment {
   /**
    * @dev payable fallback
    */
-  function () external payable {}
+  function () external payable {
+    emit PaymentReceived(msg.sender, msg.value);
+  }
 
   /**
    * @return the total shares of the contract.
@@ -91,6 +95,7 @@ contract SplitPayment {
     _totalReleased = _totalReleased.add(payment);
 
     account.transfer(payment);
+    emit PaymentReleased(account, payment);
   }
 
   /**
@@ -98,7 +103,7 @@ contract SplitPayment {
    * @param account The address of the payee to add.
    * @param shares_ The number of shares owned by the payee.
    */
-  function _addPayee(address account, uint256 shares_) internal {
+  function _addPayee(address account, uint256 shares_) private {
     require(account != address(0));
     require(shares_ > 0);
     require(_shares[account] == 0);
@@ -106,5 +111,6 @@ contract SplitPayment {
     _payees.push(account);
     _shares[account] = shares_;
     _totalShares = _totalShares.add(shares_);
+    emit PayeeAdded(account, shares_);
   }
 }

@@ -72,6 +72,8 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
 
   /**
    * @dev Internal function to add a token ID to the list of a given address
+   * This function is internal due to language limitations, see the note in ERC721.sol.
+   * It is not intended to be called by custom derived contracts: in particular, it emits no Transfer event.
    * @param to address representing the new owner of the given token ID
    * @param tokenId uint256 ID of the token to be added to the tokens list of the given address
    */
@@ -84,6 +86,9 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
 
   /**
    * @dev Internal function to remove a token ID from the list of a given address
+   * This function is internal due to language limitations, see the note in ERC721.sol.
+   * It is not intended to be called by custom derived contracts: in particular, it emits no Transfer event,
+   * and doesn't clear approvals.
    * @param from address representing the previous owner of the given token ID
    * @param tokenId uint256 ID of the token to be removed from the tokens list of the given address
    */

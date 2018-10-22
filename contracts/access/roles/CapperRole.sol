@@ -10,7 +10,7 @@ contract CapperRole {
 
   Roles.Role private cappers;
 
-  constructor() public {
+  constructor() internal {
     _addCapper(msg.sender);
   }
 

@@ -26,10 +26,10 @@ contract TimedCrowdsale is Crowdsale {
    * @param openingTime Crowdsale opening time
    * @param closingTime Crowdsale closing time
    */
-  constructor(uint256 openingTime, uint256 closingTime) public {
+  constructor(uint256 openingTime, uint256 closingTime) internal {
     // solium-disable-next-line security/no-block-members
     require(openingTime >= block.timestamp);
-    require(closingTime >= openingTime);
+    require(closingTime > openingTime);
 
     _openingTime = openingTime;
     _closingTime = closingTime;
@@ -77,6 +77,7 @@ contract TimedCrowdsale is Crowdsale {
   )
     internal
     onlyWhileOpen
+    view
   {
     super._preValidatePurchase(beneficiary, weiAmount);
   }

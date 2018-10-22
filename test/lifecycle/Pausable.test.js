@@ -57,7 +57,7 @@ contract('Pausable', function ([_, pauser, otherPauser, anyone, ...otherAccounts
         });
 
         it('emits a Paused event', function () {
-          expectEvent.inLogs(this.logs, 'Paused');
+          expectEvent.inLogs(this.logs, 'Paused', { account: pauser });
         });
 
         it('cannot perform normal process in pause', async function () {
@@ -89,7 +89,7 @@ contract('Pausable', function ([_, pauser, otherPauser, anyone, ...otherAccounts
             });
 
             it('emits an Unpaused event', function () {
-              expectEvent.inLogs(this.logs, 'Unpaused');
+              expectEvent.inLogs(this.logs, 'Unpaused', { account: pauser });
             });
 
             it('should resume allowing normal process', async function () {

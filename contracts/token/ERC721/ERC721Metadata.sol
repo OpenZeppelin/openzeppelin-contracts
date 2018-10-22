@@ -6,10 +6,10 @@ import "../../introspection/ERC165.sol";
 
 contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
   // Token name
-  string internal _name;
+  string private _name;
 
   // Token symbol
-  string internal _symbol;
+  string private _symbol;
 
   // Optional mapping for token URIs
   mapping(uint256 => string) private _tokenURIs;
@@ -54,7 +54,7 @@ contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
    * Throws if the token ID does not exist. May return an empty string.
    * @param tokenId uint256 ID of the token to query
    */
-  function tokenURI(uint256 tokenId) public view returns (string) {
+  function tokenURI(uint256 tokenId) external view returns (string) {
     require(_exists(tokenId));
     return _tokenURIs[tokenId];
   }

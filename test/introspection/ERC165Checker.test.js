@@ -32,8 +32,8 @@ contract('ERC165Checker', function () {
       supported.should.equal(false);
     });
 
-    it('does not support mock interface via supportsInterfaces', async function () {
-      const supported = await this.mock.supportsInterfaces(this.target.address, [DUMMY_ID]);
+    it('does not support mock interface via supportsAllInterfaces', async function () {
+      const supported = await this.mock.supportsAllInterfaces(this.target.address, [DUMMY_ID]);
       supported.should.equal(false);
     });
   });
@@ -53,8 +53,8 @@ contract('ERC165Checker', function () {
       supported.should.equal(false);
     });
 
-    it('does not support mock interface via supportsInterfaces', async function () {
-      const supported = await this.mock.supportsInterfaces(this.target.address, [DUMMY_ID]);
+    it('does not support mock interface via supportsAllInterfaces', async function () {
+      const supported = await this.mock.supportsAllInterfaces(this.target.address, [DUMMY_ID]);
       supported.should.equal(false);
     });
   });
@@ -74,8 +74,8 @@ contract('ERC165Checker', function () {
       supported.should.equal(true);
     });
 
-    it('supports mock interface via supportsInterfaces', async function () {
-      const supported = await this.mock.supportsInterfaces(this.target.address, [DUMMY_ID]);
+    it('supports mock interface via supportsAllInterfaces', async function () {
+      const supported = await this.mock.supportsAllInterfaces(this.target.address, [DUMMY_ID]);
       supported.should.equal(true);
     });
   });
@@ -98,22 +98,22 @@ contract('ERC165Checker', function () {
       };
     });
 
-    it('supports all interfaceIds via supportsInterfaces', async function () {
-      const supported = await this.mock.supportsInterfaces(this.target.address, this.supportedInterfaces);
+    it('supports all interfaceIds via supportsAllInterfaces', async function () {
+      const supported = await this.mock.supportsAllInterfaces(this.target.address, this.supportedInterfaces);
       supported.should.equal(true);
     });
 
-    it('supports none of the interfaces queried via supportsInterfaces', async function () {
+    it('supports none of the interfaces queried via supportsAllInterfaces', async function () {
       const interfaceIdsToTest = [DUMMY_UNSUPPORTED_ID, DUMMY_UNSUPPORTED_ID_2];
 
-      const supported = await this.mock.supportsInterfaces(this.target.address, interfaceIdsToTest);
+      const supported = await this.mock.supportsAllInterfaces(this.target.address, interfaceIdsToTest);
       supported.should.equal(false);
     });
 
-    it('supports not all of the interfaces queried via supportsInterfaces', async function () {
+    it('supports not all of the interfaces queried via supportsAllInterfaces', async function () {
       const interfaceIdsToTest = [...this.supportedInterfaces, DUMMY_UNSUPPORTED_ID];
 
-      const supported = await this.mock.supportsInterfaces(this.target.address, interfaceIdsToTest);
+      const supported = await this.mock.supportsAllInterfaces(this.target.address, interfaceIdsToTest);
       supported.should.equal(false);
     });
   });
@@ -129,8 +129,8 @@ contract('ERC165Checker', function () {
       supported.should.equal(false);
     });
 
-    it('does not support mock interface via supportsInterfaces', async function () {
-      const supported = await this.mock.supportsInterfaces(DUMMY_ACCOUNT, [DUMMY_ID]);
+    it('does not support mock interface via supportsAllInterfaces', async function () {
+      const supported = await this.mock.supportsAllInterfaces(DUMMY_ACCOUNT, [DUMMY_ID]);
       supported.should.equal(false);
     });
   });

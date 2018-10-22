@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "./Escrow.sol";
+import "./escrow/Escrow.sol";
 
 /**
  * @title PullPayment
@@ -10,7 +10,7 @@ import "./Escrow.sol";
 contract PullPayment {
   Escrow private _escrow;
 
-  constructor() public {
+  constructor() internal {
     _escrow = new Escrow();
   }
 

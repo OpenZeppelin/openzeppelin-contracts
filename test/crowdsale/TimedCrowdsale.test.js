@@ -29,15 +29,21 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
     this.token = await SimpleToken.new();
   });
 
-  it('rejects an opening time in the past', async function () {
+  it('reverts if the opening time is in the past', async function () {
     await shouldFail.reverting(TimedCrowdsaleImpl.new(
       (await time.latest()) - time.duration.days(1), this.closingTime, rate, wallet, this.token.address
     ));
   });
 
-  it('rejects a closing time before the opening time', async function () {
+  it('reverts if the closing time is before the opening time', async function () {
     await shouldFail.reverting(TimedCrowdsaleImpl.new(
       this.openingTime, this.openingTime - time.duration.seconds(1), rate, wallet, this.token.address
+    ));
+  });
+
+  it('reverts if the closing time equals the opening time', async function () {
+    await shouldFail.reverting(TimedCrowdsaleImpl.new(
+      this.openingTime, this.openingTime, rate, wallet, this.token.address
     ));
   });
 

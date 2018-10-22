@@ -10,7 +10,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const Crowdsale = artifacts.require('Crowdsale');
+const Crowdsale = artifacts.require('CrowdsaleMock');
 const SimpleToken = artifacts.require('SimpleToken');
 
 contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
