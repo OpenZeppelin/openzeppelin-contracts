@@ -4,12 +4,6 @@ const { sendEther } = require('./../helpers/sendTransaction');
 const { ether } = require('../helpers/ether');
 const { ZERO_ADDRESS } = require('./../helpers/constants');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
-
 const shouldFail = require('../helpers/shouldFail');
 const PaymentSplitter = artifacts.require('PaymentSplitter');
 

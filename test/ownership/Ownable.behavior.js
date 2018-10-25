@@ -2,9 +2,6 @@ const shouldFail = require('../helpers/shouldFail');
 const expectEvent = require('../helpers/expectEvent');
 const { ZERO_ADDRESS } = require('../helpers/constants');
 
-require('chai')
-  .should();
-
 function shouldBehaveLikeOwnable (owner, [anyone]) {
   describe('as an ownable', function () {
     it('should have an owner', async function () {

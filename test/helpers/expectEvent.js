@@ -1,7 +1,5 @@
 const BigNumber = web3.BigNumber;
-const should = require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+const should = require('./chai').shouldWithBignumber();
 
 function inLogs (logs, eventName, eventArgs = {}) {
   const event = logs.find(function (e) {
