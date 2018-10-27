@@ -7,6 +7,9 @@ import "../../math/SafeMath.sol";
 import "../../introspection/IERC820.sol";
 
 
+@title ERC777 token implementation
+@author etsvigun <utgarda@gmail.com>, Bertrand Masius <github@catageeks.tk>
+@dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-777.md
 contract ERC777 is IERC777 {
   using SafeMath for uint256;
 
@@ -22,7 +25,7 @@ contract ERC777 is IERC777 {
 
   address[] private _defaultOpsArray;
 
-  IERC820 constant ERC820Registry = IERC820(0x820A8Cfd018b159837d50656c49d28983f18f33c);
+  IERC820 constant ERC820Registry = IERC820(0x820A8Cfd018b159837d50656c49d28983f18f33c); //TODO: move to other contract
   bytes32 constant sendHash = keccak256(abi.encodePacked('tokensToSend'));
   bytes32 constant receivedHash = keccak256(abi.encodePacked('tokensReceived'));
 
@@ -135,7 +138,36 @@ contract ERC777 is IERC777 {
     _ops[tokenHolder][operator];
   }
 
+  /**
+   * @dev Send the amount of tokens from the address msg.sender to the address to
+   * @param to address recipient address
+   * @param amount uint256 amount of tokens to transfer
+   * @param data bytes information attached to the send, and intended for the recipient (to)
+   */
+  function send(address to, uint256 amount, bytes data) external {
+    _send(msg.sender, msg.sender, to, amount, data, "");
+  }
 
+  /**
+   * @dev Send the amount of tokens on behalf of the address from to the address to
+   * @param from address token holder address. Set to 0x0 to use msg.sender as token holder
+   * @param to address recipient address
+   * @param amount uint256 amount of tokens to transfer
+   * @param data bytes information attached to the send, and intended for the recipient (to)
+   * @param operatorData bytes extra information provided by the operator (if any)
+   */
+  function operatorSend(
+    address from,
+    address to,
+    uint256 amount,
+    bytes data,
+    bytes operatorData
+  )
+    external
+  {
+    address holder = from == address(0) ? msg.sender : from;
+    _send(msg.sender, holder, to, amount, data, operatorData);
+  }
 
   /**
    * @dev Authorize an operator for the sender
@@ -173,8 +205,46 @@ contract ERC777 is IERC777 {
     emit RevokedOperator(operator, msg.sender);
   }
 
+ /**
+   * @dev Burn tokens
+   * @param operator address operator requesting the operation
+   * @param from address token holder address
+   * @param amount uint256 amount of tokens to burn
+   * @param operatorData bytes extra information provided by the operator (if any)
+   */
+  function _burn(
+    address operator,
+    address from,
+    uint256 amount,
+    bytes operatorData
+  )
+    internal
+  {
+    require(from != address(0));
+    require(isOperatorFor(msg.sender, from));
+
+    // Call from.tokensToSend(...) if it is registered
+    address implementer = ERC820Registry.getInterfaceImplementer(from, sendHash);
+    if (implementer != address(0)) {
+      IERC777TokensSender(implementer).tokensToSend(
+        operator,
+        from,
+        address(0),
+        amount,
+        "",
+        operatorData
+      );
+    }
+
+    // Update state variables
+    _balances[from] = _balances[from].sub(amount);
+    require((_balances[from] % _granularity) == 0);
+
+    emit Burned(msg.sender, from, amount, operatorData);
+  }
+
   /**
-   * @dev Send tokens without checking operator authorization
+   * @dev Send tokens
    * @param operator address operator requesting the transfer
    * @param from address token holder address
    * @param to address recipient address
@@ -192,7 +262,9 @@ contract ERC777 is IERC777 {
   )
     private
   {
-    require((amount % _granularity) == 0);
+    require(from != address(0));
+    require(to != address(0));
+    require(isOperatorFor(msg.sender, from));
 
     // Call from.tokensToSend(...) if it is registered
     address implementer = ERC820Registry.getInterfaceImplementer(from, sendHash);
@@ -210,6 +282,8 @@ contract ERC777 is IERC777 {
     // Update state variables
     _balances[from] = _balances[from].sub(amount);
     _balances[to] = _balances[to].add(amount);
+    require((_balances[from] % _granularity) == 0);
+    require((_balances[to] % _granularity) == 0);
 
     // Call to.tokensReceived(...) if it is registered
     implementer = ERC820Registry.getInterfaceImplementer(to, receivedHash);
@@ -226,42 +300,4 @@ contract ERC777 is IERC777 {
 
     emit Sent(msg.sender, from, to, amount, userData, operatorData);
   }
-
-  /**
-   * @dev Send the amount of tokens from the address msg.sender to the address to
-   * @param to address recipient address
-   * @param amount uint256 amount of tokens to transfer
-   * @param data bytes information attached to the send, and intended for the recipient (to)
-   */
-  function send(address to, uint256 amount, bytes data) external {
-    require(to != address(0));
-    _send(msg.sender, msg.sender, to, amount, data, "");
-  }
-
-  /**
-   * @dev Send the amount of tokens on behalf of the address from to the address to
-   * @param from address token holder address. Set to 0x0 to use msg.sender as token holder
-   * @param to address recipient address
-   * @param amount uint256 amount of tokens to transfer
-   * @param data bytes information attached to the send, and intended for the recipient (to)
-   * @param operatorData bytes extra information provided by the operator (if any)
-   */
-  function operatorSend(
-    address from,
-    address to,
-    uint256 amount,
-    bytes data,
-    bytes operatorData
-  )
-    external
-  {
-    require(to != address(0));
-    address holder = from == address(0) ? msg.sender : from;
-    require(isOperatorFor(msg.sender, holder));
-    _send(msg.sender, holder, to, amount, data, operatorData);
-  }
-
-  function burn(uint256 amount, bytes data) external {} //TODO
-
-  function operatorBurn(address from, uint256 amount, bytes data, bytes operatorData) external {} //TODO
 }
