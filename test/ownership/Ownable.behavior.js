@@ -12,12 +12,12 @@ function shouldBehaveLikeOwnable (owner, [anyone]) {
     });
 
     it('changes owner after transfer', async function () {
-      (await this.ownable.isOwner({ from: anyone })).should.be.equal(false);
+      (await this.ownable.isOwner(anyone)).should.be.equal(false);
       const { logs } = await this.ownable.transferOwnership(anyone, { from: owner });
       expectEvent.inLogs(logs, 'OwnershipTransferred');
 
       (await this.ownable.owner()).should.equal(anyone);
-      (await this.ownable.isOwner({ from: anyone })).should.be.equal(true);
+      (await this.ownable.isOwner(anyone)).should.be.equal(true);
     });
 
     it('should prevent non-owners from transfering', async function () {

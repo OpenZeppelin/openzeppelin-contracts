@@ -33,15 +33,15 @@ contract Ownable {
    * @dev Throws if called by any account other than the owner.
    */
   modifier onlyOwner() {
-    require(isOwner());
+    require(isOwner(msg.sender));
     _;
   }
 
   /**
    * @return true if `msg.sender` is the owner of the contract.
    */
-  function isOwner() public view returns(bool) {
-    return msg.sender == _owner;
+  function isOwner(address who) public view returns(bool) {
+    return who == _owner;
   }
 
   /**
