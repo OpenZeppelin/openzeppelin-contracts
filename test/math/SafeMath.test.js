@@ -83,14 +83,14 @@ contract('SafeMath', function () {
       (await this.safeMath.div(a, b)).should.be.bignumber.equal(a.div(b));
     });
 
-    it('handles a zero division correctly', async function () {
+    it('divides zero correctly', async function () {
       const a = new BigNumber(0);
       const b = new BigNumber(5678);
 
-      (await this.safeMath.div(a, b)).should.be.bignumber.equal(a.div(b));
+      (await this.safeMath.div(a, b)).should.be.bignumber.equal(0);
     });
 
-    it('returns complete number resultant on non-even division', async function () {
+    it('returns complete number result on non-even division', async function () {
       const a = new BigNumber(7000);
       const b = new BigNumber(5678);
 
