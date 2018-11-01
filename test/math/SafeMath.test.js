@@ -53,9 +53,16 @@ contract('SafeMath', function () {
       (await this.safeMath.mul(a, b)).should.be.bignumber.equal(a.times(b));
     });
 
-    it('handles a zero product correctly', async function () {
+    it('handles a zero product correctly (first number as zero)', async function () {
       const a = new BigNumber(0);
       const b = new BigNumber(5678);
+
+      (await this.safeMath.mul(a, b)).should.be.bignumber.equal(a.times(b));
+    });
+
+    it('handles a zero product correctly (second number as zero)', async function () {
+      const a = new BigNumber(5678);
+      const b = new BigNumber(0);
 
       (await this.safeMath.mul(a, b)).should.be.bignumber.equal(a.times(b));
     });
@@ -74,6 +81,20 @@ contract('SafeMath', function () {
       const b = new BigNumber(5678);
 
       (await this.safeMath.div(a, b)).should.be.bignumber.equal(a.div(b));
+    });
+
+    it('divides zero correctly', async function () {
+      const a = new BigNumber(0);
+      const b = new BigNumber(5678);
+
+      (await this.safeMath.div(a, b)).should.be.bignumber.equal(0);
+    });
+
+    it('returns complete number result on non-even division', async function () {
+      const a = new BigNumber(7000);
+      const b = new BigNumber(5678);
+
+      (await this.safeMath.div(a, b)).should.be.bignumber.equal(1);
     });
 
     it('throws a revert error on zero division', async function () {
