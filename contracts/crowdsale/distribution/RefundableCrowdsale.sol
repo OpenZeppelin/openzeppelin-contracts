@@ -2,12 +2,25 @@ pragma solidity ^0.4.24;
 
 import "../../math/SafeMath.sol";
 import "./FinalizableCrowdsale.sol";
-import "../../payment/RefundEscrow.sol";
+import "../../payment/escrow/RefundEscrow.sol";
 
 /**
  * @title RefundableCrowdsale
  * @dev Extension of Crowdsale contract that adds a funding goal, and
  * the possibility of users getting a refund if goal is not met.
+ * WARNING: note that if you allow tokens to be traded before the goal 
+ * is met, then an attack is possible in which the attacker purchases 
+ * tokens from the crowdsale and when they sees that the goal is 
+ * unlikely to be met, they sell their tokens (possibly at a discount).
+ * The attacker will be refunded when the crowdsale is finalized, and
+ * the users that purchased from them will be left with worthless 
+ * tokens. There are many possible ways to avoid this, like making the
+ * the crowdsale inherit from PostDeliveryCrowdsale, or imposing 
+ * restrictions on token trading until the crowdsale is finalized.
+ * This is being discussed in 
+ * https://github.com/OpenZeppelin/openzeppelin-solidity/issues/877
+ * This contract will be updated when we agree on a general solution
+ * for this problem.
  */
 contract RefundableCrowdsale is FinalizableCrowdsale {
   using SafeMath for uint256;
@@ -22,7 +35,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
    * @dev Constructor, creates RefundEscrow.
    * @param goal Funding goal
    */
-  constructor(uint256 goal) public {
+  constructor(uint256 goal) internal {
     require(goal > 0);
     _escrow = new RefundEscrow(wallet());
     _goal = goal;
@@ -37,13 +50,13 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
 
   /**
    * @dev Investors can claim refunds here if crowdsale is unsuccessful
-   * @param beneficiary Whose refund will be claimed.
+   * @param refundee Whose refund will be claimed.
    */
-  function claimRefund(address beneficiary) public {
+  function claimRefund(address refundee) public {
     require(finalized());
     require(!goalReached());
 
-    _escrow.withdraw(beneficiary);
+    _escrow.withdraw(refundee);
   }
 
   /**

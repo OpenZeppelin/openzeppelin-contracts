@@ -1,7 +1,7 @@
-const expectEvent = require('../helpers/expectEvent');
-const shouldFail = require('../helpers/shouldFail');
-const { ethGetBalance } = require('../helpers/web3');
-const { ether } = require('../helpers/ether');
+const expectEvent = require('../../helpers/expectEvent');
+const shouldFail = require('../../helpers/shouldFail');
+const { ethGetBalance } = require('../../helpers/web3');
+const { ether } = require('../../helpers/ether');
 
 const BigNumber = web3.BigNumber;
 

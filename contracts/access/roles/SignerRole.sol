@@ -10,7 +10,7 @@ contract SignerRole {
 
   Roles.Role private signers;
 
-  constructor() public {
+  constructor() internal {
     _addSigner(msg.sender);
   }
 

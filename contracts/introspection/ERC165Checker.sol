@@ -20,15 +20,15 @@ library ERC165Checker {
    * @param account The address of the contract to query for support of ERC165
    * @return true if the contract at account implements ERC165
    */
-  function supportsERC165(address account)
+  function _supportsERC165(address account)
     internal
     view
     returns (bool)
   {
     // Any contract that implements ERC165 must explicitly indicate support of
     // InterfaceId_ERC165 and explicitly indicate non-support of InterfaceId_Invalid
-    return supportsERC165Interface(account, _InterfaceId_ERC165) &&
-      !supportsERC165Interface(account, _InterfaceId_Invalid);
+    return _supportsERC165Interface(account, _InterfaceId_ERC165) &&
+      !_supportsERC165Interface(account, _InterfaceId_Invalid);
   }
 
   /**
@@ -39,14 +39,14 @@ library ERC165Checker {
    * identifier interfaceId, false otherwise
    * @dev Interface identification is specified in ERC-165.
    */
-  function supportsInterface(address account, bytes4 interfaceId)
+  function _supportsInterface(address account, bytes4 interfaceId)
     internal
     view
     returns (bool)
   {
     // query support of both ERC165 as per the spec and support of _interfaceId
-    return supportsERC165(account) &&
-      supportsERC165Interface(account, interfaceId);
+    return _supportsERC165(account) &&
+      _supportsERC165Interface(account, interfaceId);
   }
 
   /**
@@ -57,19 +57,19 @@ library ERC165Checker {
    * interfaceIds list, false otherwise
    * @dev Interface identification is specified in ERC-165.
    */
-  function supportsInterfaces(address account, bytes4[] interfaceIds)
+  function _supportsAllInterfaces(address account, bytes4[] interfaceIds)
     internal
     view
     returns (bool)
   {
     // query support of ERC165 itself
-    if (!supportsERC165(account)) {
+    if (!_supportsERC165(account)) {
       return false;
     }
 
     // query support of each interface in _interfaceIds
     for (uint256 i = 0; i < interfaceIds.length; i++) {
-      if (!supportsERC165Interface(account, interfaceIds[i])) {
+      if (!_supportsERC165Interface(account, interfaceIds[i])) {
         return false;
       }
     }
@@ -89,14 +89,14 @@ library ERC165Checker {
    * with the `supportsERC165` method in this library.
    * Interface identification is specified in ERC-165.
    */
-  function supportsERC165Interface(address account, bytes4 interfaceId)
+  function _supportsERC165Interface(address account, bytes4 interfaceId)
     private
     view
     returns (bool)
   {
     // success determines whether the staticcall succeeded and result determines
     // whether the contract at account indicates support of _interfaceId
-    (bool success, bool result) = callERC165SupportsInterface(
+    (bool success, bool result) = _callERC165SupportsInterface(
       account, interfaceId);
 
     return (success && result);
@@ -110,7 +110,7 @@ library ERC165Checker {
    * @return result true if the STATICCALL succeeded and the contract at account
    * indicates support of the interface with identifier interfaceId, false otherwise
    */
-  function callERC165SupportsInterface(
+  function _callERC165SupportsInterface(
     address account,
     bytes4 interfaceId
   )

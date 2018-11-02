@@ -1,4 +1,5 @@
 const shouldFail = require('../helpers/shouldFail');
+const expectEvent = require('../helpers/expectEvent');
 const { ZERO_ADDRESS } = require('../helpers/constants');
 
 const SecondaryMock = artifacts.require('SecondaryMock');
@@ -27,7 +28,8 @@ contract('Secondary', function ([_, primary, newPrimary, anyone]) {
 
   describe('transferPrimary', function () {
     it('makes the recipient the new primary', async function () {
-      await this.secondary.transferPrimary(newPrimary, { from: primary });
+      const { logs } = await this.secondary.transferPrimary(newPrimary, { from: primary });
+      expectEvent.inLogs(logs, 'PrimaryTransferred', { recipient: newPrimary });
       (await this.secondary.primary()).should.equal(newPrimary);
     });
 
