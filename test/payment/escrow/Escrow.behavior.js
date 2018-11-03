@@ -1,7 +1,7 @@
-const expectEvent = require('../helpers/expectEvent');
-const { expectThrow } = require('../helpers/expectThrow');
-const { EVMRevert } = require('../helpers/EVMRevert');
-const { ethGetBalance } = require('../helpers/web3');
+const expectEvent = require('../../helpers/expectEvent');
+const shouldFail = require('../../helpers/shouldFail');
+const { ethGetBalance } = require('../../helpers/web3');
+const { ether } = require('../../helpers/ether');
 
 const BigNumber = web3.BigNumber;
 
@@ -10,7 +10,7 @@ require('chai')
   .should();
 
 function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
-  const amount = web3.toWei(42.0, 'ether');
+  const amount = ether(42.0);
 
   describe('as an escrow', function () {
     describe('deposits', function () {
@@ -27,7 +27,7 @@ function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
       });
 
       it('only the primary account can deposit', async function () {
-        await expectThrow(this.escrow.deposit(payee1, { from: payee2 }), EVMRevert);
+        await shouldFail.reverting(this.escrow.deposit(payee1, { from: payee2 }));
       });
 
       it('emits a deposited event', async function () {
@@ -79,7 +79,7 @@ function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
       });
 
       it('only the primary account can withdraw', async function () {
-        await expectThrow(this.escrow.withdraw(payee1, { from: payee1 }), EVMRevert);
+        await shouldFail.reverting(this.escrow.withdraw(payee1, { from: payee1 }));
       });
 
       it('emits a withdrawn event', async function () {

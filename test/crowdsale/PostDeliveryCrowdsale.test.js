@@ -1,7 +1,6 @@
 const { advanceBlock } = require('../helpers/advanceToBlock');
 const time = require('../helpers/time');
-const { expectThrow } = require('../helpers/expectThrow');
-const { EVMRevert } = require('../helpers/EVMRevert');
+const shouldFail = require('../helpers/shouldFail');
 const { ether } = require('../helpers/ether');
 
 const BigNumber = web3.BigNumber;
@@ -51,7 +50,7 @@ contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
       });
 
       it('does not allow beneficiaries to withdraw tokens before crowdsale ends', async function () {
-        await expectThrow(this.crowdsale.withdrawTokens(investor), EVMRevert);
+        await shouldFail.reverting(this.crowdsale.withdrawTokens(investor));
       });
 
       context('after closing time', function () {
@@ -67,7 +66,7 @@ contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
 
         it('rejects multiple withdrawals', async function () {
           await this.crowdsale.withdrawTokens(investor);
-          await expectThrow(this.crowdsale.withdrawTokens(investor), EVMRevert);
+          await shouldFail.reverting(this.crowdsale.withdrawTokens(investor));
         });
       });
     });

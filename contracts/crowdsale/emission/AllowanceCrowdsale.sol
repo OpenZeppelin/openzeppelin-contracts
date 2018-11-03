@@ -4,6 +4,7 @@ import "../Crowdsale.sol";
 import "../../token/ERC20/IERC20.sol";
 import "../../token/ERC20/SafeERC20.sol";
 import "../../math/SafeMath.sol";
+import "../../math/Math.sol";
 
 /**
  * @title AllowanceCrowdsale
@@ -19,7 +20,7 @@ contract AllowanceCrowdsale is Crowdsale {
    * @dev Constructor, takes token wallet address.
    * @param tokenWallet Address holding the tokens, which has approved allowance to the crowdsale
    */
-  constructor(address tokenWallet) public {
+  constructor(address tokenWallet) internal {
     require(tokenWallet != address(0));
     _tokenWallet = tokenWallet;
   }
@@ -36,7 +37,10 @@ contract AllowanceCrowdsale is Crowdsale {
    * @return Amount of tokens left in the allowance
    */
   function remainingTokens() public view returns (uint256) {
-    return token().allowance(_tokenWallet, address(this));
+    return Math.min(
+      token().balanceOf(_tokenWallet),
+      token().allowance(_tokenWallet, address(this))
+    );
   }
 
   /**

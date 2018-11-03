@@ -4,17 +4,15 @@ import "../crowdsale/validation/CappedCrowdsale.sol";
 import "../crowdsale/distribution/RefundableCrowdsale.sol";
 import "../crowdsale/emission/MintedCrowdsale.sol";
 import "../token/ERC20/ERC20Mintable.sol";
+import "../token/ERC20/ERC20Detailed.sol";
 
 /**
  * @title SampleCrowdsaleToken
  * @dev Very simple ERC20 Token that can be minted.
  * It is meant to be used in a crowdsale contract.
  */
-contract SampleCrowdsaleToken is ERC20Mintable {
-
-  string public constant name = "Sample Crowdsale Token";
-  string public constant symbol = "SCT";
-  uint8 public constant decimals = 18;
+contract SampleCrowdsaleToken is ERC20Mintable, ERC20Detailed {
+  constructor() public ERC20Detailed("Sample Crowdsale Token", "SCT", 18) {}
 }
 
 /**
@@ -24,6 +22,8 @@ contract SampleCrowdsaleToken is ERC20Mintable {
  * In this example we are providing following extensions:
  * CappedCrowdsale - sets a max boundary for raised funds
  * RefundableCrowdsale - set a min goal to be reached and returns funds if it's not met
+ * MintedCrowdsale - assumes the token can be minted by the crowdsale, which does so
+ * when receiving purchases.
  *
  * After adding multiple features it's good practice to run integration tests
  * to ensure that subcontracts works together as intended.

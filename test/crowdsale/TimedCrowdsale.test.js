@@ -1,8 +1,7 @@
 const { ether } = require('../helpers/ether');
 const { advanceBlock } = require('../helpers/advanceToBlock');
+const shouldFail = require('../helpers/shouldFail');
 const time = require('../helpers/time');
-const { expectThrow } = require('../helpers/expectThrow');
-const { EVMRevert } = require('../helpers/EVMRevert');
 
 const BigNumber = web3.BigNumber;
 
@@ -30,16 +29,22 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
     this.token = await SimpleToken.new();
   });
 
-  it('rejects an opening time in the past', async function () {
-    await expectThrow(TimedCrowdsaleImpl.new(
+  it('reverts if the opening time is in the past', async function () {
+    await shouldFail.reverting(TimedCrowdsaleImpl.new(
       (await time.latest()) - time.duration.days(1), this.closingTime, rate, wallet, this.token.address
-    ), EVMRevert);
+    ));
   });
 
-  it('rejects a closing time before the opening time', async function () {
-    await expectThrow(TimedCrowdsaleImpl.new(
+  it('reverts if the closing time is before the opening time', async function () {
+    await shouldFail.reverting(TimedCrowdsaleImpl.new(
       this.openingTime, this.openingTime - time.duration.seconds(1), rate, wallet, this.token.address
-    ), EVMRevert);
+    ));
+  });
+
+  it('reverts if the closing time equals the opening time', async function () {
+    await shouldFail.reverting(TimedCrowdsaleImpl.new(
+      this.openingTime, this.openingTime, rate, wallet, this.token.address
+    ));
   });
 
   context('with crowdsale', function () {
@@ -60,8 +65,8 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
     describe('accepting payments', function () {
       it('should reject payments before start', async function () {
         (await this.crowdsale.isOpen()).should.equal(false);
-        await expectThrow(this.crowdsale.send(value), EVMRevert);
-        await expectThrow(this.crowdsale.buyTokens(investor, { from: purchaser, value: value }), EVMRevert);
+        await shouldFail.reverting(this.crowdsale.send(value));
+        await shouldFail.reverting(this.crowdsale.buyTokens(investor, { from: purchaser, value: value }));
       });
 
       it('should accept payments after start', async function () {
@@ -73,8 +78,8 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
 
       it('should reject payments after end', async function () {
         await time.increaseTo(this.afterClosingTime);
-        await expectThrow(this.crowdsale.send(value), EVMRevert);
-        await expectThrow(this.crowdsale.buyTokens(investor, { value: value, from: purchaser }), EVMRevert);
+        await shouldFail.reverting(this.crowdsale.send(value));
+        await shouldFail.reverting(this.crowdsale.buyTokens(investor, { value: value, from: purchaser }));
       });
     });
   });

@@ -1,5 +1,8 @@
 const { ethGetBalance } = require('../helpers/web3');
+const expectEvent = require('../helpers/expectEvent');
 const { sendEther } = require('./../helpers/sendTransaction');
+const { ether } = require('../helpers/ether');
+const { ZERO_ADDRESS } = require('./../helpers/constants');
 
 const BigNumber = web3.BigNumber;
 
@@ -7,36 +10,34 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const { expectThrow } = require('../helpers/expectThrow');
-const { EVMRevert } = require('../helpers/EVMRevert.js');
-const SplitPayment = artifacts.require('SplitPayment');
+const shouldFail = require('../helpers/shouldFail');
+const PaymentSplitter = artifacts.require('PaymentSplitter');
 
-contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1, payer1]) {
-  const amount = web3.toWei(1.0, 'ether');
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+contract('PaymentSplitter', function ([_, owner, payee1, payee2, payee3, nonpayee1, payer1]) {
+  const amount = ether(1.0);
 
   it('rejects an empty set of payees', async function () {
-    await expectThrow(SplitPayment.new([], []), EVMRevert);
+    await shouldFail.reverting(PaymentSplitter.new([], []));
   });
 
   it('rejects more payees than shares', async function () {
-    await expectThrow(SplitPayment.new([payee1, payee2, payee3], [20, 30]), EVMRevert);
+    await shouldFail.reverting(PaymentSplitter.new([payee1, payee2, payee3], [20, 30]));
   });
 
   it('rejects more shares than payees', async function () {
-    await expectThrow(SplitPayment.new([payee1, payee2], [20, 30, 40]), EVMRevert);
+    await shouldFail.reverting(PaymentSplitter.new([payee1, payee2], [20, 30, 40]));
   });
 
   it('rejects null payees', async function () {
-    await expectThrow(SplitPayment.new([payee1, ZERO_ADDRESS], [20, 30]), EVMRevert);
+    await shouldFail.reverting(PaymentSplitter.new([payee1, ZERO_ADDRESS], [20, 30]));
   });
 
   it('rejects zero-valued shares', async function () {
-    await expectThrow(SplitPayment.new([payee1, payee2], [20, 0]), EVMRevert);
+    await shouldFail.reverting(PaymentSplitter.new([payee1, payee2], [20, 0]));
   });
 
   it('rejects repeated payees', async function () {
-    await expectThrow(SplitPayment.new([payee1, payee1], [20, 30]), EVMRevert);
+    await shouldFail.reverting(PaymentSplitter.new([payee1, payee1], [20, 30]));
   });
 
   context('once deployed', function () {
@@ -44,7 +45,7 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
       this.payees = [payee1, payee2, payee3];
       this.shares = [20, 10, 70];
 
-      this.contract = await SplitPayment.new(this.payees, this.shares);
+      this.contract = await PaymentSplitter.new(this.payees, this.shares);
     });
 
     it('should have total shares', async function () {
@@ -73,12 +74,12 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
     });
 
     it('should throw if no funds to claim', async function () {
-      await expectThrow(this.contract.release(payee1), EVMRevert);
+      await shouldFail.reverting(this.contract.release(payee1));
     });
 
     it('should throw if non-payee want to claim', async function () {
       await sendEther(payer1, this.contract.address, amount);
-      await expectThrow(this.contract.release(nonpayee1), EVMRevert);
+      await shouldFail.reverting(this.contract.release(nonpayee1));
     });
 
     it('should distribute funds to payees', async function () {
@@ -90,19 +91,22 @@ contract('SplitPayment', function ([_, owner, payee1, payee2, payee3, nonpayee1,
 
       // distribute to payees
       const initAmount1 = await ethGetBalance(payee1);
-      await this.contract.release(payee1);
+      const { logs: logs1 } = await this.contract.release(payee1);
       const profit1 = (await ethGetBalance(payee1)).sub(initAmount1);
       profit1.sub(web3.toWei(0.20, 'ether')).abs().should.be.bignumber.lt(1e16);
+      expectEvent.inLogs(logs1, 'PaymentReleased', { to: payee1, amount: profit1 });
 
       const initAmount2 = await ethGetBalance(payee2);
-      await this.contract.release(payee2);
+      const { logs: logs2 } = await this.contract.release(payee2);
       const profit2 = (await ethGetBalance(payee2)).sub(initAmount2);
       profit2.sub(web3.toWei(0.10, 'ether')).abs().should.be.bignumber.lt(1e16);
+      expectEvent.inLogs(logs2, 'PaymentReleased', { to: payee2, amount: profit2 });
 
       const initAmount3 = await ethGetBalance(payee3);
-      await this.contract.release(payee3);
+      const { logs: logs3 } = await this.contract.release(payee3);
       const profit3 = (await ethGetBalance(payee3)).sub(initAmount3);
       profit3.sub(web3.toWei(0.70, 'ether')).abs().should.be.bignumber.lt(1e16);
+      expectEvent.inLogs(logs3, 'PaymentReleased', { to: payee3, amount: profit3 });
 
       // end balance should be zero
       (await ethGetBalance(this.contract.address)).should.be.bignumber.equal(0);

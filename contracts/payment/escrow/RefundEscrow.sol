@@ -1,18 +1,22 @@
 pragma solidity >0.4.24;
 
 import "./ConditionalEscrow.sol";
-import "../ownership/Secondary.sol";
 
 /**
  * @title RefundEscrow
- * @dev Escrow that holds funds for a beneficiary, deposited from multiple parties.
- * The primary account may close the deposit period, and allow for either withdrawal
- * by the beneficiary, or refunds to the depositors.
+ * @dev Escrow that holds funds for a beneficiary, deposited from multiple
+ * parties.
+ * @dev Intended usage: See Escrow.sol. Same usage guidelines apply here.
+ * @dev The primary account (that is, the contract that instantiates this
+ * contract) may deposit, close the deposit period, and allow for either
+ * withdrawal by the beneficiary, or refunds to the depositors. All interactions
+ * with RefundEscrow will be made through the primary contract. See the
+ * RefundableCrowdsale contract for an example of RefundEscrow’s use.
  */
-contract RefundEscrow is Secondary, ConditionalEscrow {
+contract RefundEscrow is ConditionalEscrow {
   enum State { Active, Refunding, Closed }
 
-  event Closed();
+  event RefundsClosed();
   event RefundsEnabled();
 
   State private _state;
@@ -58,7 +62,7 @@ contract RefundEscrow is Secondary, ConditionalEscrow {
   function close() public onlyPrimary {
     require(_state == State.Active);
     _state = State.Closed;
-    emit Closed();
+    emit RefundsClosed();
   }
 
   /**

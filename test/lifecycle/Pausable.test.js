@@ -1,4 +1,4 @@
-const { assertRevert } = require('../helpers/assertRevert');
+const shouldFail = require('../helpers/shouldFail');
 const expectEvent = require('../helpers/expectEvent');
 
 const PausableMock = artifacts.require('PausableMock');
@@ -37,7 +37,7 @@ contract('Pausable', function ([_, pauser, otherPauser, anyone, ...otherAccounts
     });
 
     it('cannot take drastic measure in non-pause', async function () {
-      await assertRevert(this.pausable.drasticMeasure({ from: anyone }));
+      await shouldFail.reverting(this.pausable.drasticMeasure({ from: anyone }));
       (await this.pausable.drasticMeasureTaken()).should.equal(false);
     });
 
@@ -48,7 +48,7 @@ contract('Pausable', function ([_, pauser, otherPauser, anyone, ...otherAccounts
       });
 
       it('reverts when pausing from non-pauser', async function () {
-        await assertRevert(this.pausable.pause({ from: anyone }));
+        await shouldFail.reverting(this.pausable.pause({ from: anyone }));
       });
 
       context('when paused', function () {
@@ -57,11 +57,11 @@ contract('Pausable', function ([_, pauser, otherPauser, anyone, ...otherAccounts
         });
 
         it('emits a Paused event', function () {
-          expectEvent.inLogs(this.logs, 'Paused');
+          expectEvent.inLogs(this.logs, 'Paused', { account: pauser });
         });
 
         it('cannot perform normal process in pause', async function () {
-          await assertRevert(this.pausable.normalProcess({ from: anyone }));
+          await shouldFail.reverting(this.pausable.normalProcess({ from: anyone }));
         });
 
         it('can take a drastic measure in a pause', async function () {
@@ -70,7 +70,7 @@ contract('Pausable', function ([_, pauser, otherPauser, anyone, ...otherAccounts
         });
 
         it('reverts when re-pausing', async function () {
-          await assertRevert(this.pausable.pause({ from: pauser }));
+          await shouldFail.reverting(this.pausable.pause({ from: pauser }));
         });
 
         describe('unpausing', function () {
@@ -80,7 +80,7 @@ contract('Pausable', function ([_, pauser, otherPauser, anyone, ...otherAccounts
           });
 
           it('reverts when unpausing from non-pauser', async function () {
-            await assertRevert(this.pausable.unpause({ from: anyone }));
+            await shouldFail.reverting(this.pausable.unpause({ from: anyone }));
           });
 
           context('when unpaused', function () {
@@ -89,7 +89,7 @@ contract('Pausable', function ([_, pauser, otherPauser, anyone, ...otherAccounts
             });
 
             it('emits an Unpaused event', function () {
-              expectEvent.inLogs(this.logs, 'Unpaused');
+              expectEvent.inLogs(this.logs, 'Unpaused', { account: pauser });
             });
 
             it('should resume allowing normal process', async function () {
@@ -99,11 +99,11 @@ contract('Pausable', function ([_, pauser, otherPauser, anyone, ...otherAccounts
             });
 
             it('should prevent drastic measure', async function () {
-              await assertRevert(this.pausable.drasticMeasure({ from: anyone }));
+              await shouldFail.reverting(this.pausable.drasticMeasure({ from: anyone }));
             });
 
             it('reverts when re-unpausing', async function () {
-              await assertRevert(this.pausable.unpause({ from: pauser }));
+              await shouldFail.reverting(this.pausable.unpause({ from: pauser }));
             });
           });
         });

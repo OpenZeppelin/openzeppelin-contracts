@@ -18,14 +18,14 @@ contract ERC165 is IERC165 {
   /**
    * @dev a mapping of interface id to whether or not it's supported
    */
-  mapping(bytes4 => bool) internal _supportedInterfaces;
+  mapping(bytes4 => bool) private _supportedInterfaces;
 
   /**
    * @dev A contract implementing SupportsInterfaceWithLookup
    * implement ERC165 itself
    */
   constructor()
-    public
+    internal
   {
     _registerInterface(_InterfaceId_ERC165);
   }
@@ -42,7 +42,7 @@ contract ERC165 is IERC165 {
   }
 
   /**
-   * @dev private method for registering an interface
+   * @dev internal method for registering an interface
    */
   function _registerInterface(bytes4 interfaceId)
     internal

@@ -33,9 +33,9 @@ library ECDSA {
     // currently is to use assembly.
     // solium-disable-next-line security/no-inline-assembly
     assembly {
-      r := mload(add(signature, 32))
-      s := mload(add(signature, 64))
-      v := byte(0, mload(add(signature, 96)))
+      r := mload(add(signature, 0x20))
+      s := mload(add(signature, 0x40))
+      v := byte(0, mload(add(signature, 0x60)))
     }
 
     // Version of signature should be 27 or 28, but 0 and 1 are also possible versions

@@ -7,10 +7,8 @@ require('chai')
   .should();
 
 contract('MerkleProof', function () {
-  let merkleProof;
-
   beforeEach(async function () {
-    merkleProof = await MerkleProofWrapper.new();
+    this.merkleProof = await MerkleProofWrapper.new();
   });
 
   describe('verify', function () {
@@ -24,7 +22,7 @@ contract('MerkleProof', function () {
 
       const leaf = bufferToHex(sha3(elements[0]));
 
-      (await merkleProof.verify(proof, root, leaf)).should.equal(true);
+      (await this.merkleProof.verify(proof, root, leaf)).should.equal(true);
     });
 
     it('should return false for an invalid Merkle proof', async function () {
@@ -40,7 +38,7 @@ contract('MerkleProof', function () {
 
       const badProof = badMerkleTree.getHexProof(badElements[0]);
 
-      (await merkleProof.verify(badProof, correctRoot, correctLeaf)).should.equal(false);
+      (await this.merkleProof.verify(badProof, correctRoot, correctLeaf)).should.equal(false);
     });
 
     it('should return false for a Merkle proof of invalid length', async function () {
@@ -54,7 +52,7 @@ contract('MerkleProof', function () {
 
       const leaf = bufferToHex(sha3(elements[0]));
 
-      (await merkleProof.verify(badProof, root, leaf)).should.equal(false);
+      (await this.merkleProof.verify(badProof, root, leaf)).should.equal(false);
     });
   });
 });

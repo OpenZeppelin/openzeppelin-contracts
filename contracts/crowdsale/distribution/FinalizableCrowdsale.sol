@@ -11,9 +11,13 @@ import "../validation/TimedCrowdsale.sol";
 contract FinalizableCrowdsale is TimedCrowdsale {
   using SafeMath for uint256;
 
-  bool private _finalized = false;
+  bool private _finalized;
 
   event CrowdsaleFinalized();
+
+  constructor() internal {
+    _finalized = false;
+  }
 
   /**
    * @return true if the crowdsale is finalized, false otherwise.
@@ -30,10 +34,10 @@ contract FinalizableCrowdsale is TimedCrowdsale {
     require(!_finalized);
     require(hasClosed());
 
+    _finalized = true;
+
     _finalization();
     emit CrowdsaleFinalized();
-
-    _finalized = true;
   }
 
   /**
@@ -43,5 +47,4 @@ contract FinalizableCrowdsale is TimedCrowdsale {
    */
   function _finalization() internal {
   }
-
 }

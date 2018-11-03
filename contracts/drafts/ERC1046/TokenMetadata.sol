@@ -13,7 +13,7 @@ contract ERC20TokenMetadata is IERC20 {
 }
 
 contract ERC20WithMetadata is ERC20TokenMetadata {
-  string private _tokenURI = "";
+  string private _tokenURI;
 
   constructor(string tokenURI)
     public
