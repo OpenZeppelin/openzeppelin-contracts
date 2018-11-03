@@ -27,6 +27,10 @@ interface IERC777 {
 
   function operatorSend(address from, address to, uint256 amount, bytes data, bytes operatorData) external;
 
+  function burn(uint256 amount) external;
+
+  function operatorBurn(address from, uint256 amount, bytes operatorData) external;
+
   event Sent(
     address indexed operator,
     address indexed from,

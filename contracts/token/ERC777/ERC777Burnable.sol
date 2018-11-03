@@ -1,12 +1,14 @@
 pragma solidity ^0.4.24;
 
-import "./ERC777.sol";
+import "./ERC777Base.sol";
 
 
-@title ERC777 burnable token implementation
-@author Bertrand Masius <github@catageeks.tk>
-@dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-777.md
-contract ERC777Burnable is ERC777 {
+/**
+ * @title ERC777 burnable token implementation
+ * @author Bertrand Masius <github@catageeks.tk>
+ * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-777.md
+ */
+contract ERC777Burnable is ERC777Base {
 
  /**
    * @dev Burn the amount of tokens from the address msg.sender
