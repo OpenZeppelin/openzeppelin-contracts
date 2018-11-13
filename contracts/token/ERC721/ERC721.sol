@@ -194,7 +194,7 @@ contract ERC721 is ERC165, IERC721 {
     address from,
     address to,
     uint256 tokenId,
-    bytes _data
+    bytes memory _data
   )
     public
   {
@@ -302,7 +302,7 @@ contract ERC721 is ERC165, IERC721 {
     address from,
     address to,
     uint256 tokenId,
-    bytes _data
+    bytes memory _data
   )
     internal
     returns (bool)

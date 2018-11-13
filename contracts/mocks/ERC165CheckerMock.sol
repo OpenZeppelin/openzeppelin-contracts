@@ -21,7 +21,7 @@ contract ERC165CheckerMock {
     return account._supportsInterface(interfaceId);
   }
 
-  function supportsAllInterfaces(address account, bytes4[] interfaceIds)
+  function supportsAllInterfaces(address account, bytes4[] memory interfaceIds)
     public
     view
     returns (bool)

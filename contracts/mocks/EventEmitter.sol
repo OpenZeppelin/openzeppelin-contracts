@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity >0.4.24;
 
 contract EventEmitter {
   event Argumentless();
@@ -43,14 +43,14 @@ contract EventEmitter {
     emit Boolean(value);
   }
 
-  function emitString(string value) public {
+  function emitString(string memory value) public {
     emit String(value);
   }
 
   function emitLongUintBooleanString(
     uint256 uintValue,
     bool booleanValue,
-    string stringValue)
+    string memory stringValue)
   public {
     emit LongUintBooleanString(uintValue, booleanValue, stringValue);
   }

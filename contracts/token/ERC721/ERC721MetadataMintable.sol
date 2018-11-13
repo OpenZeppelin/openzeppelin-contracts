@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity >0.4.24;
 
 import "./ERC721Metadata.sol";
 import "../../access/roles/MinterRole.sol";
@@ -19,7 +19,7 @@ contract ERC721MetadataMintable is ERC721, ERC721Metadata, MinterRole {
   function mintWithTokenURI(
     address to,
     uint256 tokenId,
-    string tokenURI
+    string memory tokenURI
   )
     public
     onlyMinter

@@ -4,7 +4,7 @@ import "../drafts/SignatureBouncer.sol";
 import "./SignerRoleMock.sol";
 
 contract SignatureBouncerMock is SignatureBouncer, SignerRoleMock {
-  function checkValidSignature(address account, bytes signature)
+  function checkValidSignature(address account, bytes memory signature)
     public
     view
     returns (bool)
@@ -12,7 +12,7 @@ contract SignatureBouncerMock is SignatureBouncer, SignerRoleMock {
     return _isValidSignature(account, signature);
   }
 
-  function onlyWithValidSignature(bytes signature)
+  function onlyWithValidSignature(bytes memory signature)
     public
     onlyValidSignature(signature)
     view
@@ -20,7 +20,10 @@ contract SignatureBouncerMock is SignatureBouncer, SignerRoleMock {
 
   }
 
-  function checkValidSignatureAndMethod(address account, bytes signature)
+  function checkValidSignatureAndMethod(
+    address account,
+    bytes memory signature
+  )
     public
     view
     returns (bool)
@@ -28,7 +31,7 @@ contract SignatureBouncerMock is SignatureBouncer, SignerRoleMock {
     return _isValidSignatureAndMethod(account, signature);
   }
 
-  function onlyWithValidSignatureAndMethod(bytes signature)
+  function onlyWithValidSignatureAndMethod(bytes memory signature)
     public
     onlyValidSignatureAndMethod(signature)
     view
@@ -38,9 +41,9 @@ contract SignatureBouncerMock is SignatureBouncer, SignerRoleMock {
 
   function checkValidSignatureAndData(
     address account,
-    bytes,
+    bytes memory,
     uint,
-    bytes signature
+    bytes memory signature
   )
     public
     view
@@ -49,7 +52,7 @@ contract SignatureBouncerMock is SignatureBouncer, SignerRoleMock {
     return _isValidSignatureAndData(account, signature);
   }
 
-  function onlyWithValidSignatureAndData(uint, bytes signature)
+  function onlyWithValidSignatureAndData(uint, bytes memory signature)
     public
     onlyValidSignatureAndData(signature)
     view
@@ -57,7 +60,7 @@ contract SignatureBouncerMock is SignatureBouncer, SignerRoleMock {
 
   }
 
-  function theWrongMethod(bytes)
+  function theWrongMethod(bytes memory)
     public
     pure
   {

@@ -15,7 +15,7 @@ contract ConditionalEscrow is Escrow {
   */
   function withdrawalAllowed(address payee) public view returns (bool);
 
-  function withdraw(address payee) public {
+  function withdraw(address payable payee) public {
     require(withdrawalAllowed(payee));
     super.withdraw(payee);
   }

@@ -7,7 +7,7 @@ contract CappedCrowdsaleImpl is CappedCrowdsale {
 
   constructor (
     uint256 rate,
-    address wallet,
+    address payable wallet,
     IERC20 token,
     uint256 cap
   )

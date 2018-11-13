@@ -13,7 +13,7 @@ import "../token/ERC721/ERC721Burnable.sol";
 contract ERC721FullMock
   is ERC721Full, ERC721Mintable, ERC721MetadataMintable, ERC721Burnable {
 
-  constructor(string name, string symbol) public
+  constructor(string memory name, string memory symbol) public
     ERC721Mintable()
     ERC721Full(name, symbol)
   {}
@@ -22,7 +22,7 @@ contract ERC721FullMock
     return _exists(tokenId);
   }
 
-  function setTokenURI(uint256 tokenId, string uri) public {
+  function setTokenURI(uint256 tokenId, string memory uri) public {
     _setTokenURI(tokenId, uri);
   }
 
