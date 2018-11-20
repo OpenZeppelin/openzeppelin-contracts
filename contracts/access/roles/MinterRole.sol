@@ -8,7 +8,7 @@ contract MinterRole {
   event MinterAdded(address indexed account);
   event MinterRemoved(address indexed account);
 
-  Roles.Role private minters;
+  Roles.Role private _minters;
 
   constructor() internal {
     _addMinter(msg.sender);
@@ -20,7 +20,7 @@ contract MinterRole {
   }
 
   function isMinter(address account) public view returns (bool) {
-    return minters.has(account);
+    return _minters.has(account);
   }
 
   function addMinter(address account) public onlyMinter {
@@ -32,12 +32,12 @@ contract MinterRole {
   }
 
   function _addMinter(address account) internal {
-    minters.add(account);
+    _minters.add(account);
     emit MinterAdded(account);
   }
 
   function _removeMinter(address account) internal {
-    minters.remove(account);
+    _minters.remove(account);
     emit MinterRemoved(account);
   }
 }
