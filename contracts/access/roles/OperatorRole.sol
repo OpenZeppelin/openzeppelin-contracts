@@ -8,7 +8,7 @@ contract OperatorRole {
   event OperatorAdded(address indexed account);
   event OperatorRemoved(address indexed account);
 
-  Roles.Role private operators;
+  Roles.Role private _operators;
 
   constructor() internal {
     _addOperator(msg.sender);
@@ -20,7 +20,7 @@ contract OperatorRole {
   }
 
   function isOperator(address account) public view returns (bool) {
-    return operators.has(account);
+    return _operators.has(account);
   }
 
   function addOperator(address account) public onlyOperator {
@@ -32,12 +32,12 @@ contract OperatorRole {
   }
 
   function _addOperator(address account) internal {
-    operators.add(account);
+    _operators.add(account);
     emit OperatorAdded(account);
   }
 
   function _removeOperator(address account) internal {
-    operators.remove(account);
+    _operators.remove(account);
     emit OperatorRemoved(account);
   }
 }

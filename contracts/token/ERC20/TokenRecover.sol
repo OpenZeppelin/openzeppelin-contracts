@@ -5,7 +5,7 @@ import "../../access/roles/OperatorRole.sol";
 
 /**
  * @title TokenRecover
- * @author Vittorio Minacori (@vittominacori)
+ * @author Vittorio Minacori (https://github.com/vittominacori)
  * @dev Allow to recover any ERC20 token sent into the contract for error.
  * Do not use if your contract is a token holder because of `operator` can move tokens bypassing your logic.
  */
