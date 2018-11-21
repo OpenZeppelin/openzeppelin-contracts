@@ -161,7 +161,7 @@ contract TokenVesting is Ownable {
    * @param token ERC20 token which is being vested
    */
   function _vestedAmount(IERC20 token) private view returns (uint256) {
-    uint256 currentBalance = token.balanceOf(this);
+    uint256 currentBalance = token.balanceOf(address(this));
     uint256 totalBalance = currentBalance.add(_released[token]);
 
     if (block.timestamp < _cliff) {

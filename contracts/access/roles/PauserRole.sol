@@ -8,7 +8,7 @@ contract PauserRole {
   event PauserAdded(address indexed account);
   event PauserRemoved(address indexed account);
 
-  Roles.Role private pausers;
+  Roles.Role private _pausers;
 
   constructor() internal {
     _addPauser(msg.sender);
@@ -20,7 +20,7 @@ contract PauserRole {
   }
 
   function isPauser(address account) public view returns (bool) {
-    return pausers.has(account);
+    return _pausers.has(account);
   }
 
   function addPauser(address account) public onlyPauser {
@@ -32,12 +32,12 @@ contract PauserRole {
   }
 
   function _addPauser(address account) internal {
-    pausers.add(account);
+    _pausers.add(account);
     emit PauserAdded(account);
   }
 
   function _removePauser(address account) internal {
-    pausers.remove(account);
+    _pausers.remove(account);
     emit PauserRemoved(account);
   }
 }

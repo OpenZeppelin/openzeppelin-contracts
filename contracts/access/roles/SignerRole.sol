@@ -8,7 +8,7 @@ contract SignerRole {
   event SignerAdded(address indexed account);
   event SignerRemoved(address indexed account);
 
-  Roles.Role private signers;
+  Roles.Role private _signers;
 
   constructor() internal {
     _addSigner(msg.sender);
@@ -20,7 +20,7 @@ contract SignerRole {
   }
 
   function isSigner(address account) public view returns (bool) {
-    return signers.has(account);
+    return _signers.has(account);
   }
 
   function addSigner(address account) public onlySigner {
@@ -32,12 +32,12 @@ contract SignerRole {
   }
 
   function _addSigner(address account) internal {
-    signers.add(account);
+    _signers.add(account);
     emit SignerAdded(account);
   }
 
   function _removeSigner(address account) internal {
-    signers.remove(account);
+    _signers.remove(account);
     emit SignerRemoved(account);
   }
 }

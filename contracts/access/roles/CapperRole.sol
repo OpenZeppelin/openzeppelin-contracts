@@ -8,7 +8,7 @@ contract CapperRole {
   event CapperAdded(address indexed account);
   event CapperRemoved(address indexed account);
 
-  Roles.Role private cappers;
+  Roles.Role private _cappers;
 
   constructor() internal {
     _addCapper(msg.sender);
@@ -20,7 +20,7 @@ contract CapperRole {
   }
 
   function isCapper(address account) public view returns (bool) {
-    return cappers.has(account);
+    return _cappers.has(account);
   }
 
   function addCapper(address account) public onlyCapper {
@@ -32,12 +32,12 @@ contract CapperRole {
   }
 
   function _addCapper(address account) internal {
-    cappers.add(account);
+    _cappers.add(account);
     emit CapperAdded(account);
   }
 
   function _removeCapper(address account) internal {
-    cappers.remove(account);
+    _cappers.remove(account);
     emit CapperRemoved(account);
   }
 }
