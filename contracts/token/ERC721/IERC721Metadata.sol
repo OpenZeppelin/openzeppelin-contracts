@@ -7,7 +7,7 @@ import "./IERC721.sol";
  * @dev See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
 contract IERC721Metadata is IERC721 {
-  function name() external view returns (string);
-  function symbol() external view returns (string);
-  function tokenURI(uint256 tokenId) public view returns (string);
+  function name() external view returns (string memory);
+  function symbol() external view returns (string memory);
+  function tokenURI(uint256 tokenId) public view returns (string memory);
 }
