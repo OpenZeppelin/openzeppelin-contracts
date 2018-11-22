@@ -1,4 +1,5 @@
-const { decodeLogs } = require('./decodeLogs');
+const SolidityEvent = require('web3/lib/web3/event.js');
+const _ = require('lodash');
 
 const BigNumber = web3.BigNumber;
 const should = require('chai')
@@ -18,14 +19,13 @@ function inLogs (logs, eventName, eventArgs = {}) {
   return event;
 }
 
-async function inTransaction (tx, eventName, eventArgs = {}) {
-  const { logs } = await tx;
-  return inLogs(logs, eventName, eventArgs);
+async function inConstruction (contract, eventName, eventArgs = {}) {
+  return inTransaction(contract.transactionHash, contract.constructor, eventName, eventArgs);
 }
 
-async function inConstruction (contract, eventName, eventArgs = {}) {
-  const receipt = await web3.eth.getTransactionReceipt(contract.transactionHash);
-  const logs = decodeLogs(receipt.logs, contract.constructor.events, contract.address);
+async function inTransaction (txHash, emitter, eventName, eventArgs = {}) {
+  const receipt = await web3.eth.getTransactionReceipt(txHash);
+  const logs = decodeLogs(receipt.logs, emitter.events);
 
   return inLogs(logs, eventName, eventArgs);
 }
@@ -44,8 +44,17 @@ function isBigNumber (object) {
     (object.constructor && object.constructor.name === 'BigNumber');
 }
 
+function decodeLogs (logs, events) {
+  return _.flatten(logs.map(log =>
+    log.topics.filter(topic => topic in events).map(topic => {
+      const event = new SolidityEvent(null, events[topic], 0);
+      return event.decode(log);
+    })
+  ));
+}
+
 module.exports = {
   inLogs,
-  inTransaction,
   inConstruction,
+  inTransaction,
 };

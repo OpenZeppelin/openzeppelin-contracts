@@ -7,7 +7,7 @@ const should = require('chai')
   .use(require('chai-as-promised'))
   .should();
 
-describe('expectEvent', function () {
+describe.only('expectEvent', function () {
   beforeEach(async function () {
     this.constructionValues = {
       uint: 42,
@@ -23,15 +23,15 @@ describe('expectEvent', function () {
   });
 
   describe('inConstructor', function () {
-    context('long uint value', function () {
+    context('short uint value', function () {
       it('accepts emitted events with correct number', async function () {
-        await expectEvent.inConstruction(this.emitter, 'LongUint',
+        await expectEvent.inConstruction(this.emitter, 'ShortUint',
           { value: this.constructionValues.uint }
         );
       });
 
       it('throws if an incorrect value is passed', async function () {
-        return expectEvent.inConstruction(this.emitter, 'LongUint',
+        return expectEvent.inConstruction(this.emitter, 'ShortUint',
           { value: 23 }
         ).should.be.rejected;
       });
@@ -290,9 +290,26 @@ describe('expectEvent', function () {
   });
 
   describe('inTransaction', function () {
-    it('processes the logs inside a transaction', async function () {
-      const tx = await this.emitter.emitShortUint(5);
-      expectEvent.inTransaction(tx, 'ShortInt', { value: 5 });
+    describe('when emitting from called contract', function () {
+      context('short uint value', function () {
+        beforeEach(async function () {
+          this.value = 42;
+          const receipt = await this.emitter.emitShortUint(this.value);
+          this.txHash = receipt.tx;
+        });
+
+        it('accepts emitted events with correct number', async function () {
+          await expectEvent.inTransaction(this.txHash, EventEmitter, 'ShortUint', { value: this.value });
+        });
+
+        it('throws if an unemitted event is requested', function () {
+          return expectEvent.inTransaction(this.txHash, EventEmitter, 'UnemittedEvent', { value: this.value }).should.be.rejected;
+        });
+
+        it('throws if an incorrect value is passed', function () {
+          return expectEvent.inTransaction(this.txHash, EventEmitter, 'ShortUint', { value: 23 }).should.be.rejected;
+        });
+      });
     });
   });
 });
