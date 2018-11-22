@@ -229,4 +229,11 @@ describe('expectEvent', function () {
       });
     });
   });
+
+  describe('inTransaction', function () {
+    it('processes the logs inside a transaction', async function () {
+      const tx = await this.emitter.emitShortUint(5);
+      expectEvent.inTransaction(tx, 'ShortInt', { value: 5 });
+    });
+  });
 });
