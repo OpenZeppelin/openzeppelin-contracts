@@ -1,3 +1,5 @@
+const { decodeLogs } = require('./decodeLogs');
+
 const BigNumber = web3.BigNumber;
 const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
@@ -21,6 +23,13 @@ async function inTransaction (tx, eventName, eventArgs = {}) {
   return inLogs(logs, eventName, eventArgs);
 }
 
+async function inConstruction (contract, eventName, eventArgs = {}) {
+  const receipt = await web3.eth.getTransactionReceipt(contract.transactionHash);
+  const logs = decodeLogs(receipt.logs, contract.constructor.events, contract.address);
+
+  return inLogs(logs, eventName, eventArgs);
+}
+
 function contains (args, key, value) {
   if (isBigNumber(args[key])) {
     args[key].should.be.bignumber.equal(value);
@@ -38,4 +47,5 @@ function isBigNumber (object) {
 module.exports = {
   inLogs,
   inTransaction,
+  inConstruction,
 };

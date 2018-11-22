@@ -4,11 +4,70 @@ const EventEmitter = artifacts.require('EventEmitter');
 const BigNumber = web3.BigNumber;
 const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
+  .use(require('chai-as-promised'))
   .should();
 
 describe('expectEvent', function () {
   beforeEach(async function () {
-    this.emitter = await EventEmitter.new();
+    this.constructionValues = {
+      uint: 42,
+      boolean: true,
+      string: 'OpenZeppelin',
+    };
+
+    this.emitter = await EventEmitter.new(
+      this.constructionValues.uint,
+      this.constructionValues.boolean,
+      this.constructionValues.string
+    );
+  });
+
+  describe('inConstructor', function () {
+    context('long uint value', function () {
+      it('accepts emitted events with correct number', async function () {
+        await expectEvent.inConstruction(this.emitter, 'LongUint',
+          { value: this.constructionValues.uint }
+        );
+      });
+
+      it('throws if an incorrect value is passed', async function () {
+        return expectEvent.inConstruction(this.emitter, 'LongUint',
+          { value: 23 }
+        ).should.be.rejected;
+      });
+    });
+
+    context('boolean value', function () {
+      it('accepts emitted events with correct value', async function () {
+        await expectEvent.inConstruction(this.emitter, 'Boolean',
+          { value: this.constructionValues.boolean }
+        );
+      });
+
+      it('throws if an incorrect value is passed', async function () {
+        return expectEvent.inConstruction(this.emitter, 'Boolean',
+          { value: !this.constructionValues.boolean }
+        ).should.be.rejected;
+      });
+    });
+
+    context('string value', function () {
+      it('accepts emitted events with correct string', async function () {
+        await expectEvent.inConstruction(this.emitter, 'String',
+          { value: this.constructionValues.string }
+        );
+      });
+
+      it('throws if an incorrect string is passed', async function () {
+        return expectEvent.inConstruction(this.emitter, 'String',
+          { value: 'ClosedZeppelin' }
+        ).should.be.rejected;
+      });
+    });
+
+    it('throws if an unemitted event is requested', async function () {
+      return expectEvent.inConstruction(this.emitter, 'UnemittedEvent').should.be.rejected;
+    });
   });
 
   describe('inLogs', function () {
