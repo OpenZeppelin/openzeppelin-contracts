@@ -43,7 +43,7 @@ contract IERC721 is IERC165 {
     address from,
     address to,
     uint256 tokenId,
-    bytes data
+    bytes memory data
   )
     public;
 }
