@@ -32,9 +32,9 @@ async function inTransaction (txHash, emitter, eventName, eventArgs = {}) {
 
 function contains (args, key, value) {
   if (isBigNumber(args[key])) {
-    args[key].should.be.bignumber.equal(value);
+    value.should.be.bignumber.equal(args[key]);
   } else {
-    args[key].should.be.equal(value);
+    value.should.be.equal(args[key]);
   }
 }
 
