@@ -11,8 +11,8 @@ contract EventEmitter {
     event String(string value);
     event LongUintBooleanString(uint256 uintValue, bool booleanValue, string stringValue);
 
-    constructor (uint256 uintValue, bool booleanValue, string stringValue) public {
-        emit LongUint(uintValue);
+    constructor (uint8 uintValue, bool booleanValue, string stringValue) public {
+        emit ShortUint(uintValue);
         emit Boolean(booleanValue);
         emit String(stringValue);
     }

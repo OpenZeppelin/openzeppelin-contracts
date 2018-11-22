@@ -8,7 +8,7 @@ const should = require('chai')
   .use(require('chai-as-promised'))
   .should();
 
-describe('expectEvent', function () {
+describe.only('expectEvent', function () {
   beforeEach(async function () {
     this.constructionValues = {
       uint: 42,
@@ -286,6 +286,23 @@ describe('expectEvent', function () {
       it('throws if incorrect values are passed', function () {
         should.Throw(() => expectEvent.inLogs(this.logs, 'LongUint', { value: 23 }));
         should.Throw(() => expectEvent.inLogs(this.logs, 'Boolean', { value: false }));
+      });
+    });
+
+    describe('with events emitted by an indirectly called contract', function () {
+      beforeEach(async function () {
+        this.secondEmitter = await IndirectEventEmitter.new();
+
+        this.value = 'OpenZeppelin';
+        ({ logs: this.logs } = await this.emitter.emitStringAndEmitIndirectly(this.value, this.secondEmitter.address));
+      });
+
+      it('accepts events emitted by the directly called contract', function () {
+        expectEvent.inLogs(this.logs, 'String', { value: this.value });
+      });
+
+      it('throws when passing events emitted by the indirectly called contract', function () {
+        should.Throw(() => expectEvent.inLogs(this.logs, 'IndirectString', { value: this.value }));
       });
     });
   });
