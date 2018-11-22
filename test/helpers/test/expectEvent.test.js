@@ -8,7 +8,7 @@ const should = require('chai')
   .use(require('chai-as-promised'))
   .should();
 
-describe.only('expectEvent', function () {
+describe('expectEvent', function () {
   beforeEach(async function () {
     this.constructionValues = {
       uint: 42,
