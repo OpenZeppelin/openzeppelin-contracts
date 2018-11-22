@@ -1,5 +1,6 @@
 const expectEvent = require('../expectEvent');
 const EventEmitter = artifacts.require('EventEmitter');
+const IndirectEventEmitter = artifacts.require('IndirectEventEmitter');
 
 const BigNumber = web3.BigNumber;
 const should = require('chai')
@@ -7,7 +8,7 @@ const should = require('chai')
   .use(require('chai-as-promised'))
   .should();
 
-describe.only('expectEvent', function () {
+describe('expectEvent', function () {
   beforeEach(async function () {
     this.constructionValues = {
       uint: 42,
@@ -290,24 +291,58 @@ describe.only('expectEvent', function () {
   });
 
   describe('inTransaction', function () {
-    describe('when emitting from called contract', function () {
-      context('short uint value', function () {
+    describe('when emitting from called contract and indirect calls', function () {
+      context('string value', function () {
         beforeEach(async function () {
-          this.value = 42;
-          const receipt = await this.emitter.emitShortUint(this.value);
+          this.secondEmitter = await IndirectEventEmitter.new();
+
+          this.value = 'OpenZeppelin';
+          const receipt = await this.emitter.emitStringAndEmitIndirectly(this.value, this.secondEmitter.address);
           this.txHash = receipt.tx;
         });
 
-        it('accepts emitted events with correct number', async function () {
-          await expectEvent.inTransaction(this.txHash, EventEmitter, 'ShortUint', { value: this.value });
+        context('with directly called contract', function () {
+          it('accepts emitted events with correct string', async function () {
+            await expectEvent.inTransaction(this.txHash, EventEmitter, 'String', { value: this.value });
+          });
+
+          it('throws if an unemitted event is requested', async function () {
+            await expectEvent.inTransaction(this.txHash, EventEmitter, 'UnemittedEvent', { value: this.value }).should.be.rejected;
+          });
+
+          it('throws if an incorrect string is passed', async function () {
+            await expectEvent.inTransaction(this.txHash, EventEmitter, 'String', { value: 'ClosedZeppelin' }).should.be.rejected;
+          });
+
+          it('throws if an event emitted from other contract is passed', async function () {
+            await expectEvent.inTransaction(this.txHash, EventEmitter, 'IndirectString', { value: this.value }).should.be.rejected;
+          });
+
+          it('throws if an incorrect emitter is passed', async function () {
+            await expectEvent.inTransaction(this.txHash, IndirectEventEmitter, 'String', { value: this.value }).should.be.rejected;
+          });
         });
 
-        it('throws if an unemitted event is requested', function () {
-          return expectEvent.inTransaction(this.txHash, EventEmitter, 'UnemittedEvent', { value: this.value }).should.be.rejected;
-        });
+        context('with indirectly called contract', function () {
+          it('accepts events emitted from other contracts', async function () {
+            await expectEvent.inTransaction(this.txHash, IndirectEventEmitter, 'IndirectString', { value: this.value });
+          });
 
-        it('throws if an incorrect value is passed', function () {
-          return expectEvent.inTransaction(this.txHash, EventEmitter, 'ShortUint', { value: 23 }).should.be.rejected;
+          it('throws if an unemitted event is requested', async function () {
+            await expectEvent.inTransaction(this.txHash, IndirectEventEmitter, 'UnemittedEvent', { value: this.value }).should.be.rejected;;
+          });
+
+          it('throws if an incorrect string is passed', async function () {
+            await expectEvent.inTransaction(this.txHash, IndirectEventEmitter, 'IndirectString', { value: 'ClosedZeppelin' }).should.be.rejected;;
+          });
+
+          it('throws if an event emitted from other contract is passed', async function () {
+            await expectEvent.inTransaction(this.txHash, IndirectEventEmitter, 'String', { value: this.value }).should.be.rejected;
+          });
+
+          it('throws if an incorrect emitter is passed', async function () {
+            await expectEvent.inTransaction(this.txHash, EventEmitter, 'IndirectString', { value: this.value }).should.be.rejected;
+          });
         });
       });
     });

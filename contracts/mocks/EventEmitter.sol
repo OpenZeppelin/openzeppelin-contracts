@@ -1,6 +1,7 @@
 pragma solidity ^0.4.24;
 
 contract EventEmitter {
+<<<<<<< 438c57833d997d2972a7730180a266bc3c6a87c5
     event Argumentless();
     event ShortUint(uint8 value);
     event ShortInt(int8 value);
@@ -56,5 +57,18 @@ contract EventEmitter {
     function emitLongUintAndBoolean(uint256 uintValue, bool boolValue) public {
         emit LongUint(uintValue);
         emit Boolean(boolValue);
+    }
+
+    function emitStringAndEmitIndirectly(string value, IndirectEventEmitter emitter) public {
+        emit String(value);
+        emitter.emitStringIndirectly(value);
+    }
+}
+
+contract IndirectEventEmitter {
+    event IndirectString(string value);
+
+    function emitStringIndirectly(string value) public {
+        emit IndirectString(value);
     }
 }
