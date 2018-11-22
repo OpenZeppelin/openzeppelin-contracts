@@ -23,5 +23,5 @@ contract IERC721 is IERC165 {
     function transferFrom(address from, address to, uint256 tokenId) public;
     function safeTransferFrom(address from, address to, uint256 tokenId) public;
 
-    function safeTransferFrom( address from, address to, uint256 tokenId, bytes data) public;
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes data) public;
 }
