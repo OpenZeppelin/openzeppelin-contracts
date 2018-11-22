@@ -25,7 +25,7 @@ contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
   /**
    * @dev Constructor function
    */
-  constructor(string name, string symbol) public {
+  constructor(string memory name, string memory symbol) public {
     _name = name;
     _symbol = symbol;
 
@@ -65,7 +65,7 @@ contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
    * @param tokenId uint256 ID of the token to set its URI
    * @param uri string URI to assign
    */
-  function _setTokenURI(uint256 tokenId, string uri) internal {
+  function _setTokenURI(uint256 tokenId, string memory uri) internal {
     require(_exists(tokenId));
     _tokenURIs[tokenId] = uri;
   }
