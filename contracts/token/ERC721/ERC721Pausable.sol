@@ -16,7 +16,7 @@ contract ERC721Pausable is ERC721, Pausable {
         super.setApprovalForAll(to, approved);
     }
 
-    function transferFrom( address from, address to, uint256 tokenId) public whenNotPaused {
+    function transferFrom(address from, address to, uint256 tokenId) public whenNotPaused {
         super.transferFrom(from, to, tokenId);
     }
 }
