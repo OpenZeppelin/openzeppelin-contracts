@@ -250,7 +250,7 @@ function shouldBehaveLikeERC721 (
                 operator: owner,
                 from: owner,
                 tokenId: tokenId,
-                data: data
+                data: data,
               });
             });
 

@@ -1,7 +1,6 @@
 pragma solidity ^0.4.24;
 
 contract EventEmitter {
-<<<<<<< 438c57833d997d2972a7730180a266bc3c6a87c5
     event Argumentless();
     event ShortUint(uint8 value);
     event ShortInt(int8 value);
