@@ -37,7 +37,7 @@ contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
    * @dev Gets the token name
    * @return string representing the token name
    */
-  function name() external view returns (string) {
+  function name() external view returns (string memory) {
     return _name;
   }
 
@@ -45,7 +45,7 @@ contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
    * @dev Gets the token symbol
    * @return string representing the token symbol
    */
-  function symbol() external view returns (string) {
+  function symbol() external view returns (string memory) {
     return _symbol;
   }
 
@@ -54,7 +54,7 @@ contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
    * Throws if the token ID does not exist. May return an empty string.
    * @param tokenId uint256 ID of the token to query
    */
-  function tokenURI(uint256 tokenId) public view returns (string) {
+  function tokenURI(uint256 tokenId) public view returns (string memory) {
     require(_exists(tokenId));
     return _tokenURIs[tokenId];
   }
