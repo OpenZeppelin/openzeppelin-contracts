@@ -25,6 +25,7 @@ async function outOfGas (promise) {
 }
 
 module.exports = {
+  withMessage: shouldFailWithMessage,
   reverting,
   throwing,
   outOfGas,
