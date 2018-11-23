@@ -1,5 +1,6 @@
 const { ether } = require('../helpers/ether');
 const { advanceBlock } = require('../helpers/advanceToBlock');
+const { balanceDifference } = require('../helpers/balanceDifference');
 const shouldFail = require('../helpers/shouldFail');
 const time = require('../helpers/time');
 const { ethGetBalance } = require('../helpers/web3');
@@ -75,10 +76,9 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, anyon
           });
 
           it('refunds', async function () {
-            const pre = await ethGetBalance(investor);
-            await this.crowdsale.claimRefund(investor, { gasPrice: 0 });
-            const post = await ethGetBalance(investor);
-            post.minus(pre).should.be.bignumber.equal(lessThanGoal);
+            (await balanceDifference(investor, () =>
+              this.crowdsale.claimRefund(investor, { gasPrice: 0 }))
+            ).should.be.bignumber.equal(lessThanGoal);
           });
         });
       });
