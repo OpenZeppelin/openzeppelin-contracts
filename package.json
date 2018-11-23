@@ -49,11 +49,11 @@
     "eslint-plugin-promise": "^3.8.0",
     "eslint-plugin-standard": "^3.1.0",
     "ethjs-abi": "^0.2.1",
-    "ganache-cli": "6.1.0",
+    "ganache-cli": "6.2.1",
     "solidity-coverage": "^0.5.4",
     "solium": "^1.1.8",
-    "truffle": "^4.1.13",
-    "truffle-hdwallet-provider": "0.0.5",
-    "web3-utils": "^1.0.0-beta.34"
+    "truffle": "v5.0.0-beta.2",
+    "truffle-hdwallet-provider": "^1.0.0-web3one.0",
+    "web3-utils": "^1.0.0-beta.36"
   }
 }
