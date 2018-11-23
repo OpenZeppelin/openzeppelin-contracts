@@ -1,5 +1,4 @@
 const SolidityEvent = require('web3/lib/web3/event.js');
-const _ = require('lodash');
 
 const BigNumber = web3.BigNumber;
 const should = require('chai')
@@ -45,7 +44,7 @@ function isBigNumber (object) {
 }
 
 function decodeLogs (logs, events) {
-  return _.flatten(logs.map(log =>
+  return Array.prototype.concat(...logs.map(log =>
     log.topics.filter(topic => topic in events).map(topic => {
       const event = new SolidityEvent(null, events[topic], 0);
       return event.decode(log);
