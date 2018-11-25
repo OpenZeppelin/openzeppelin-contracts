@@ -1,17 +1,17 @@
 const shouldFail = require('../shouldFail');
-const RequireWithReason = artifacts.require('Reverter');
+const Reverter = artifacts.require('Reverter');
 
 const should = require('chai').should();
 
-describe.only('shouldFail', function() {
+describe('shouldFail', function() {
     beforeEach(async function () {
         this.reverter = await Reverter.new();
     });
-    // describe('withMessage');
-    // describe('reverting');
-    // describe('throwing');
-    describe('outOfGas', function() {
 
-    });
+    describe('withMessage', function() {
+        it('Excepts VM revert message to include revert reason', function() {
+            shouldFail.withMessage(this.reverter.requiresTrue(false), 'Passed argument must be true')
+        })
+    })
 })
 
