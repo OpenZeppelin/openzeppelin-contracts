@@ -35,7 +35,7 @@ describe('shouldFail', function () {
     });
 
     it('accepts an out of gas', async function () {
-      await shouldFail(this.failer.failWithOutOfGas());
+      await shouldFail(this.failer.failWithOutOfGas({ gas: 2000000 }));
     });
   });
 
@@ -53,7 +53,7 @@ describe('shouldFail', function () {
     });
 
     it('rejects an outOfGas', async function () {
-      await assertFailure(shouldFail.reverting(this.failer.failWithOutOfGas()));
+      await assertFailure(shouldFail.reverting(this.failer.failWithOutOfGas({ gas: 2000000 })));
     });
   });
 
@@ -71,7 +71,7 @@ describe('shouldFail', function () {
     });
 
     it('rejects an outOfGas', async function () {
-      await assertFailure(shouldFail.throwing(this.failer.failWithOutOfGas()));
+      await assertFailure(shouldFail.throwing(this.failer.failWithOutOfGas({ gas: 2000000 })));
     });
   });
 
@@ -81,7 +81,7 @@ describe('shouldFail', function () {
     });
 
     it('accepts an out of gas', async function () {
-      await shouldFail.outOfGas(this.failer.failWithOutOfGas());
+      await shouldFail.outOfGas(this.failer.failWithOutOfGas({ gas: 2000000 }));
     });
 
     it('rejects a revert', async function () {
