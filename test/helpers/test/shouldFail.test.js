@@ -22,7 +22,7 @@ describe('shouldFail', function () {
   });
 
   describe('shouldFail', function () {
-    it('throws if no failure occurs', async function () {
+    it('rejects if no failure occurs', async function () {
       await assertFailure(shouldFail(this.failer.dontFail()));
     });
 
@@ -40,7 +40,7 @@ describe('shouldFail', function () {
   });
 
   describe('reverting', function () {
-    it('throws if no failure occurs', async function () {
+    it('rejects if no failure occurs', async function () {
       await assertFailure(shouldFail.reverting(this.failer.dontFail()));
     });
 
@@ -48,17 +48,17 @@ describe('shouldFail', function () {
       await shouldFail.reverting(this.failer.failWithRevert());
     });
 
-    it('throws with a throw', async function () {
+    it('rejects a throw', async function () {
       await assertFailure(shouldFail.reverting(this.failer.failWithThrow()));
     });
 
-    it('throws with an outOfGas', async function () {
+    it('rejects an outOfGas', async function () {
       await assertFailure(shouldFail.reverting(this.failer.failWithOutOfGas()));
     });
   });
 
   describe('throwing', function () {
-    it('throws if no failure occurs', async function () {
+    it('rejects if no failure occurs', async function () {
       await assertFailure(shouldFail.throwing(this.failer.dontFail()));
     });
 
@@ -66,17 +66,17 @@ describe('shouldFail', function () {
       await shouldFail.throwing(this.failer.failWithThrow());
     });
 
-    it('throws with a throw', async function () {
+    it('rejects a throw', async function () {
       await assertFailure(shouldFail.throwing(this.failer.failWithRevert()));
     });
 
-    it('throws with an outOfGas', async function () {
+    it('rejects an outOfGas', async function () {
       await assertFailure(shouldFail.throwing(this.failer.failWithOutOfGas()));
     });
   });
 
   describe('outOfGas', function () {
-    it('throws if no failure occurs', async function () {
+    it('rejects if no failure occurs', async function () {
       await assertFailure(shouldFail.outOfGas(this.failer.dontFail()));
     });
 
@@ -84,11 +84,11 @@ describe('shouldFail', function () {
       await shouldFail.outOfGas(this.failer.failWithOutOfGas());
     });
 
-    it('throws with a revert', async function () {
+    it('rejects a revert', async function () {
       await assertFailure(shouldFail.outOfGas(this.failer.failWithRevert()));
     });
 
-    it('throws with a throw', async function () {
+    it('rejects a throw', async function () {
       await assertFailure(shouldFail.outOfGas(this.failer.failWithThrow()));
     });
   });
