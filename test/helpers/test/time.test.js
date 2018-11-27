@@ -1,5 +1,6 @@
 const time = require('../time');
 const shouldFail = require('../shouldFail');
+const { advanceBlock } = require('../advanceToBlock');
 
 const BigNumber = web3.BigNumber;
 require('chai')
@@ -7,7 +8,10 @@ require('chai')
   .should();
 
 describe('time', function () {
+  const TOLERANCE_SECONDS = 1;
+
   beforeEach(async function () {
+    await advanceBlock();
     this.start = await time.latest();
   });
 
@@ -16,7 +20,7 @@ describe('time', function () {
       await time.increase(time.duration.hours(1));
 
       const end = this.start + time.duration.hours(1);
-      (await time.latest()).should.be.within(end - 20, end + 20); // +-20 sec tolerance
+      (await time.latest()).should.be.closeTo(end, TOLERANCE_SECONDS);
     });
 
     it('throws with negative durations', async function () {
@@ -26,10 +30,9 @@ describe('time', function () {
 
   describe('increaseTo', function () {
     it('increases time to a time in the future', async function () {
-      await time.increaseTo(this.start + time.duration.hours(1));
-
       const end = this.start + time.duration.hours(1);
-      (await time.latest()).should.be.within(end - 20, end + 20); // +-20 sec tolerance
+      await time.increaseTo(end);
+      (await time.latest()).should.be.closeTo(end, TOLERANCE_SECONDS);
     });
 
     it('throws with a time in the past', async function () {
