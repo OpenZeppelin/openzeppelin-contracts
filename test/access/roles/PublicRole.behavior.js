@@ -19,6 +19,12 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
       (await this.contract[`is${rolename}`](anyone)).should.equal(false);
     });
 
+    it('emits events during construction', async function () {
+      await expectEvent.inConstruction(this.contract, `${rolename}Added`, {
+        account: authorized,
+      });
+    });
+
     it('reverts when querying roles for the null account', async function () {
       await shouldFail.reverting(this.contract[`is${rolename}`](ZERO_ADDRESS));
     });
