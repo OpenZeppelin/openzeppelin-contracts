@@ -11,6 +11,8 @@ function increase (duration) {
   const id = Date.now();
 
   return new Promise((resolve, reject) => {
+    if (duration < 0) throw Error(`Cannot increase time by a negative amount (${duration})`);
+
     web3.currentProvider.sendAsync({
       jsonrpc: '2.0',
       method: 'evm_increaseTime',
@@ -40,7 +42,7 @@ function increase (duration) {
 async function increaseTo (target) {
   const now = (await latest());
 
-  if (target < now) throw Error(`Cannot increase current time(${now}) to a moment in the past(${target})`);
+  if (target < now) throw Error(`Cannot increase current time (${now}) to a moment in the past (${target})`);
   const diff = target - now;
   return increase(diff);
 }
