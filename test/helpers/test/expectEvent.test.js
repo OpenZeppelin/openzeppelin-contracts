@@ -1,11 +1,12 @@
 const expectEvent = require('../expectEvent');
+const shouldFail = require('../shouldFail');
+
 const EventEmitter = artifacts.require('EventEmitter');
 const IndirectEventEmitter = artifacts.require('IndirectEventEmitter');
 
 const BigNumber = web3.BigNumber;
 const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
-  .use(require('chai-as-promised'))
   .should();
 
 describe('expectEvent', function () {
@@ -32,42 +33,34 @@ describe('expectEvent', function () {
       });
 
       it('throws if an incorrect value is passed', async function () {
-        return expectEvent.inConstruction(this.emitter, 'ShortUint',
-          { value: 23 }
-        ).should.be.rejected;
+        await shouldFail(expectEvent.inConstruction(this.emitter, 'ShortUint', { value: 23 }));
       });
     });
 
     context('boolean value', function () {
       it('accepts emitted events with correct value', async function () {
-        await expectEvent.inConstruction(this.emitter, 'Boolean',
-          { value: this.constructionValues.boolean }
-        );
+        await expectEvent.inConstruction(this.emitter, 'Boolean', { value: this.constructionValues.boolean });
       });
 
       it('throws if an incorrect value is passed', async function () {
-        return expectEvent.inConstruction(this.emitter, 'Boolean',
+        await shouldFail(expectEvent.inConstruction(this.emitter, 'Boolean',
           { value: !this.constructionValues.boolean }
-        ).should.be.rejected;
+        ));
       });
     });
 
     context('string value', function () {
       it('accepts emitted events with correct string', async function () {
-        await expectEvent.inConstruction(this.emitter, 'String',
-          { value: this.constructionValues.string }
-        );
+        await expectEvent.inConstruction(this.emitter, 'String', { value: this.constructionValues.string });
       });
 
       it('throws if an incorrect string is passed', async function () {
-        return expectEvent.inConstruction(this.emitter, 'String',
-          { value: 'ClosedZeppelin' }
-        ).should.be.rejected;
+        await shouldFail(expectEvent.inConstruction(this.emitter, 'String', { value: 'ClosedZeppelin' }));
       });
     });
 
     it('throws if an unemitted event is requested', async function () {
-      return expectEvent.inConstruction(this.emitter, 'UnemittedEvent').should.be.rejected;
+      await shouldFail(expectEvent.inConstruction(this.emitter, 'UnemittedEvent'));
     });
   });
 
@@ -324,50 +317,59 @@ describe('expectEvent', function () {
           });
 
           it('throws if an unemitted event is requested', async function () {
-            await expectEvent.inTransaction(this.txHash, EventEmitter, 'UnemittedEvent', { value: this.value })
-              .should.be.rejected;
+            await shouldFail(expectEvent.inTransaction(this.txHash, EventEmitter, 'UnemittedEvent',
+              { value: this.value }
+            ));
           });
 
           it('throws if an incorrect string is passed', async function () {
-            await expectEvent.inTransaction(this.txHash, EventEmitter, 'String', { value: 'ClosedZeppelin' })
-              .should.be.rejected;
+            await shouldFail(expectEvent.inTransaction(this.txHash, EventEmitter, 'String',
+              { value: 'ClosedZeppelin' }
+            ));
           });
 
           it('throws if an event emitted from other contract is passed', async function () {
-            await expectEvent.inTransaction(this.txHash, EventEmitter, 'IndirectString', { value: this.value })
-              .should.be.rejected;
+            await shouldFail(expectEvent.inTransaction(this.txHash, EventEmitter, 'IndirectString',
+              { value: this.value }
+            ));
           });
 
           it('throws if an incorrect emitter is passed', async function () {
-            await expectEvent.inTransaction(this.txHash, IndirectEventEmitter, 'String', { value: this.value })
-              .should.be.rejected;
+            await shouldFail(expectEvent.inTransaction(this.txHash, IndirectEventEmitter, 'String',
+              { value: this.value }
+            ));
           });
         });
 
         context('with indirectly called contract', function () {
           it('accepts events emitted from other contracts', async function () {
-            await expectEvent.inTransaction(this.txHash, IndirectEventEmitter, 'IndirectString', { value: this.value });
+            await expectEvent.inTransaction(this.txHash, IndirectEventEmitter, 'IndirectString',
+              { value: this.value }
+            );
           });
 
           it('throws if an unemitted event is requested', async function () {
-            await expectEvent.inTransaction(this.txHash, IndirectEventEmitter, 'UnemittedEvent', { value: this.value })
-              .should.be.rejected;
+            await shouldFail(expectEvent.inTransaction(this.txHash, IndirectEventEmitter, 'UnemittedEvent',
+              { value: this.value }
+            ));
           });
 
           it('throws if an incorrect string is passed', async function () {
-            await expectEvent.inTransaction(this.txHash, IndirectEventEmitter, 'IndirectString',
+            await shouldFail(expectEvent.inTransaction(this.txHash, IndirectEventEmitter, 'IndirectString',
               { value: 'ClosedZeppelin' }
-            ).should.be.rejected;
+            ));
           });
 
           it('throws if an event emitted from other contract is passed', async function () {
-            await expectEvent.inTransaction(this.txHash, IndirectEventEmitter, 'String', { value: this.value })
-              .should.be.rejected;
+            await shouldFail(expectEvent.inTransaction(this.txHash, IndirectEventEmitter, 'String',
+              { value: this.value }
+            ));
           });
 
           it('throws if an incorrect emitter is passed', async function () {
-            await expectEvent.inTransaction(this.txHash, EventEmitter, 'IndirectString', { value: this.value })
-              .should.be.rejected;
+            await shouldFail(expectEvent.inTransaction(this.txHash, EventEmitter, 'IndirectString',
+              { value: this.value }
+            ));
           });
         });
       });
