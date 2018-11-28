@@ -46,7 +46,9 @@ describe('time', function () {
   describe('latest', function () {
     it('returns the time of the latest block', async function () {
       await time.advanceBlock();
-      (await time.latest()).should.be.closeTo(Date.now() / 1000, TOLERANCE_SECONDS); // now() returns the time in miliseconds
+      (await time.latest()).should.be.closeTo(
+        Date.now() / 1000, TOLERANCE_SECONDS // now() returns the time in miliseconds
+      );
     });
   });
 
