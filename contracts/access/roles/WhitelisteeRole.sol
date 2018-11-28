@@ -24,6 +24,10 @@ contract WhitelisteeRole is WhitelisterRole {
         _addWhitelistee(account);
     }
 
+    function removeWhitelistee(address account) public onlyWhitelister {
+        _removeWhitelistee(account);
+    }
+
     function renounceWhitelistee() public {
         _removeWhitelistee(msg.sender);
     }
