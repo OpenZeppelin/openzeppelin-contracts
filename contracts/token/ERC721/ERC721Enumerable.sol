@@ -144,4 +144,13 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
         _allTokensIndex[tokenId] = 0;
         _allTokensIndex[lastToken] = tokenIndex;
     }
+
+    /**
+     * @dev Gets the list of token IDs of the requested owner
+     * @param owner address owning the tokens 
+     * @return uint256[] List of token IDs owned by the requested address
+     */
+    function _tokensOfOwner(address owner) internal view returns (uint256[] storage) {
+        return _ownedTokens[owner];
+    }
 }
