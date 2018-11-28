@@ -1,4 +1,13 @@
 const { ethGetBlock } = require('./web3');
+const { promisify } = require('util');
+
+function advanceBlock () {
+  return promisify(web3.currentProvider.sendAsync)({
+    jsonrpc: '2.0',
+    method: 'evm_mine',
+    id: Date.now(),
+  });
+}
 
 // Returns the time of the last mined block in seconds
 async function latest () {
@@ -7,29 +16,17 @@ async function latest () {
 }
 
 // Increases ganache time by the passed duration in seconds
-function increase (duration) {
-  const id = Date.now();
+async function increase (duration) {
+  if (duration < 0) throw Error(`Cannot increase time by a negative amount (${duration})`);
 
-  return new Promise((resolve, reject) => {
-    if (duration < 0) throw Error(`Cannot increase time by a negative amount (${duration})`);
-
-    web3.currentProvider.sendAsync({
-      jsonrpc: '2.0',
-      method: 'evm_increaseTime',
-      params: [duration],
-      id: id,
-    }, err1 => {
-      if (err1) return reject(err1);
-
-      web3.currentProvider.sendAsync({
-        jsonrpc: '2.0',
-        method: 'evm_mine',
-        id: id + 1,
-      }, (err2, res) => {
-        return err2 ? reject(err2) : resolve(res);
-      });
-    });
+  await promisify(web3.currentProvider.sendAsync)({
+    jsonrpc: '2.0',
+    method: 'evm_increaseTime',
+    params: [duration],
+    id: Date.now(),
   });
+
+  await advanceBlock();
 }
 
 /**
@@ -57,6 +54,7 @@ const duration = {
 };
 
 module.exports = {
+  advanceBlock,
   latest,
   increase,
   increaseTo,
