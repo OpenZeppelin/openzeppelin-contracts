@@ -11,6 +11,12 @@ contract EventEmitter {
     event String(string value);
     event LongUintBooleanString(uint256 uintValue, bool booleanValue, string stringValue);
 
+    constructor (uint8 uintValue, bool booleanValue, string stringValue) public {
+        emit ShortUint(uintValue);
+        emit Boolean(booleanValue);
+        emit String(stringValue);
+    }
+
     function emitArgumentless() public {
         emit Argumentless();
     }
@@ -50,5 +56,18 @@ contract EventEmitter {
     function emitLongUintAndBoolean(uint256 uintValue, bool boolValue) public {
         emit LongUint(uintValue);
         emit Boolean(boolValue);
+    }
+
+    function emitStringAndEmitIndirectly(string value, IndirectEventEmitter emitter) public {
+        emit String(value);
+        emitter.emitStringIndirectly(value);
+    }
+}
+
+contract IndirectEventEmitter {
+    event IndirectString(string value);
+
+    function emitStringIndirectly(string value) public {
+        emit IndirectString(value);
     }
 }

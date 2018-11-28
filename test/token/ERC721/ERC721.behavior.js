@@ -2,7 +2,6 @@ const expectEvent = require('../../helpers/expectEvent');
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 const shouldFail = require('../../helpers/shouldFail');
 const { ZERO_ADDRESS } = require('../../helpers/constants');
-const { decodeLogs } = require('../../helpers/decodeLogs');
 const { sendTransaction } = require('../../helpers/sendTransaction');
 
 const ERC721ReceiverMock = artifacts.require('ERC721ReceiverMock.sol');
@@ -245,31 +244,25 @@ function shouldBehaveLikeERC721 (
             shouldTransferTokensByUsers(transferFun);
 
             it('should call onERC721Received', async function () {
-              const result = await transferFun.call(this, owner, this.receiver.address, tokenId, { from: owner });
-              result.receipt.logs.length.should.be.equal(2);
-              const [log] = decodeLogs([result.receipt.logs[1]], ERC721ReceiverMock, this.receiver.address);
-              log.event.should.be.equal('Received');
-              log.args.operator.should.be.equal(owner);
-              log.args.from.should.be.equal(owner);
-              log.args.tokenId.toNumber().should.be.equal(tokenId);
-              log.args.data.should.be.equal(data);
+              const receipt = await transferFun.call(this, owner, this.receiver.address, tokenId, { from: owner });
+
+              await expectEvent.inTransaction(receipt.tx, ERC721ReceiverMock, 'Received', {
+                operator: owner,
+                from: owner,
+                tokenId: tokenId,
+                data: data,
+              });
             });
 
             it('should call onERC721Received from approved', async function () {
-              const result = await transferFun.call(this, owner, this.receiver.address, tokenId, {
-                from: approved,
+              const receipt = await transferFun.call(this, owner, this.receiver.address, tokenId, { from: approved });
+
+              await expectEvent.inTransaction(receipt.tx, ERC721ReceiverMock, 'Received', {
+                operator: approved,
+                from: owner,
+                tokenId: tokenId,
+                data: data,
               });
-              result.receipt.logs.length.should.be.equal(2);
-              const [log] = decodeLogs(
-                [result.receipt.logs[1]],
-                ERC721ReceiverMock,
-                this.receiver.address
-              );
-              log.event.should.be.equal('Received');
-              log.args.operator.should.be.equal(approved);
-              log.args.from.should.be.equal(owner);
-              log.args.tokenId.toNumber().should.be.equal(tokenId);
-              log.args.data.should.be.equal(data);
             });
 
             describe('with an invalid token id', function () {
