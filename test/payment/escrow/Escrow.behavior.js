@@ -1,6 +1,7 @@
 const expectEvent = require('../../helpers/expectEvent');
 const shouldFail = require('../../helpers/shouldFail');
 const { ethGetBalance } = require('../../helpers/web3');
+const { balanceDifference } = require('../../helpers/balanceDifference');
 const { ether } = require('../../helpers/ether');
 
 const BigNumber = web3.BigNumber;
@@ -61,17 +62,13 @@ function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
 
     describe('withdrawals', async function () {
       it('can withdraw payments', async function () {
-        const payeeInitialBalance = await ethGetBalance(payee1);
-
-        await this.escrow.deposit(payee1, { from: primary, value: amount });
-        await this.escrow.withdraw(payee1, { from: primary });
+        (await balanceDifference(payee1, async () => {
+          await this.escrow.deposit(payee1, { from: primary, value: amount });
+          await this.escrow.withdraw(payee1, { from: primary });
+        })).should.be.bignumber.equal(amount);
 
         (await ethGetBalance(this.escrow.address)).should.be.bignumber.equal(0);
-
         (await this.escrow.depositsOf(payee1)).should.be.bignumber.equal(0);
-
-        const payeeFinalBalance = await ethGetBalance(payee1);
-        payeeFinalBalance.sub(payeeInitialBalance).should.be.bignumber.equal(amount);
       });
 
       it('can do an empty withdrawal', async function () {
