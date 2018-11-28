@@ -18,11 +18,7 @@ module.exports = {
       network_id: '*', // eslint-disable-line camelcase
     },
     ropsten: {
-      get provider () {
-        delete this.provider;
-        this.provider = infuraProvider('ropsten');
-        return this.provider;
-      },
+      provider: () => infuraProvider('ropsten'),
       network_id: 3, // eslint-disable-line camelcase
     },
     coverage: {
