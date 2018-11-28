@@ -1,7 +1,7 @@
 const expectEvent = require('../helpers/expectEvent');
 const { ether } = require('../helpers/ether');
 const shouldFail = require('../helpers/shouldFail');
-const { ethGetBalance } = require('../helpers/web3');
+const { balanceDifference } = require('../helpers/balanceDifference');
 const { ZERO_ADDRESS } = require('../helpers/constants');
 
 const BigNumber = web3.BigNumber;
@@ -56,10 +56,9 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
     });
 
     it('should forward funds to wallet', async function () {
-      const pre = await ethGetBalance(wallet);
-      await this.crowdsale.sendTransaction({ value, from: investor });
-      const post = await ethGetBalance(wallet);
-      post.minus(pre).should.be.bignumber.equal(value);
+      (await balanceDifference(wallet, () =>
+        this.crowdsale.sendTransaction({ value, from: investor }))
+      ).should.be.bignumber.equal(value);
     });
   });
 
