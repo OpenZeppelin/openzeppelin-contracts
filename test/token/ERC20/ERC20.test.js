@@ -199,6 +199,16 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
               value: amount,
             });
           });
+
+          it('emits an approval event', async function () {
+            const { logs } = await this.token.transferFrom(owner, to, amount, { from: spender });
+
+            expectEvent.inLogs(logs, 'Approval', {
+              owner: owner,
+              spender: spender,
+              value: await this.token.allowance(owner, spender),
+            });
+          });
         });
 
         describe('when the owner does not have enough balance', function () {
