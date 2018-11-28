@@ -531,13 +531,21 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
             (await this.token.allowance(owner, spender)).should.be.bignumber.equal(expectedAllowance);
           });
 
-          it('emits Transfer event', async function () {
+          it('emits a Transfer event', async function () {
             const event = expectEvent.inLogs(this.logs, 'Transfer', {
               from: owner,
               to: ZERO_ADDRESS,
             });
 
             event.args.value.should.be.bignumber.equal(amount);
+          });
+
+          it('emits an Approval event', async function () {
+            expectEvent.inLogs(this.logs, 'Approval', {
+              owner: owner,
+              spender: spender,
+              value: await this.token.allowance(owner, spender),
+            });
           });
         });
       };
