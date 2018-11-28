@@ -10,10 +10,6 @@ const infuraProvider = network => providerWithMnemonic(
   `https://${network}.infura.io/${process.env.INFURA_API_KEY}`
 );
 
-const ropstenProvider = process.env.SOLIDITY_COVERAGE
-  ? undefined
-  : infuraProvider('ropsten');
-
 module.exports = {
   networks: {
     development: {
@@ -22,7 +18,11 @@ module.exports = {
       network_id: '*', // eslint-disable-line camelcase
     },
     ropsten: {
-      provider: ropstenProvider,
+      get provider () {
+        delete this.provider;
+        this.provider = infuraProvider('ropsten');
+        return this.provider;
+      },
       network_id: 3, // eslint-disable-line camelcase
     },
     coverage: {
