@@ -6,7 +6,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-describe('time', function () {
+describe.only('time', function () {
   const TOLERANCE_SECONDS = 1;
 
   describe('duration', function () {
@@ -40,15 +40,6 @@ describe('time', function () {
       const startingBlock = web3.eth.blockNumber;
       await time.advanceBlock();
       web3.eth.blockNumber.should.be.bignumber.equal(startingBlock + 1);
-    });
-  });
-
-  describe('latest', function () {
-    it('returns the time of the latest block', async function () {
-      await time.advanceBlock();
-      (await time.latest()).should.be.closeTo(
-        Date.now() / 1000, TOLERANCE_SECONDS // now() returns the time in miliseconds
-      );
     });
   });
 
