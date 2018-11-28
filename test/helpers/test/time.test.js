@@ -6,7 +6,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-describe.only('time', function () {
+describe('time', function () {
   const TOLERANCE_SECONDS = 1;
 
   describe('duration', function () {
