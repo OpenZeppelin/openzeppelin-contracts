@@ -5,7 +5,6 @@ function advanceBlock () {
   return promisify(web3.currentProvider.sendAsync)({
     jsonrpc: '2.0',
     method: 'evm_mine',
-    id: Date.now(),
   });
 }
 
@@ -23,7 +22,6 @@ async function increase (duration) {
     jsonrpc: '2.0',
     method: 'evm_increaseTime',
     params: [duration],
-    id: Date.now(),
   });
 
   await advanceBlock();

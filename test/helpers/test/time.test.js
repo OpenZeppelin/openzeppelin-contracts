@@ -52,7 +52,7 @@ describe('time', function () {
 
   context('with starting time', function () {
     beforeEach(async function () {
-      await advanceBlock();
+      await time.advanceBlock();
       this.start = await time.latest();
     });
 
