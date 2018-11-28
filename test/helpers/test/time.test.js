@@ -1,6 +1,5 @@
 const time = require('../time');
 const shouldFail = require('../shouldFail');
-const { advanceBlock } = require('../advanceToBlock');
 
 const BigNumber = web3.BigNumber;
 require('chai')

@@ -1,5 +1,4 @@
 const expectEvent = require('../helpers/expectEvent');
-const { advanceBlock } = require('../helpers/advanceToBlock');
 const time = require('../helpers/time');
 const shouldFail = require('../helpers/shouldFail');
 
@@ -17,7 +16,7 @@ contract('FinalizableCrowdsale', function ([_, wallet, anyone]) {
 
   before(async function () {
     // Advance to the next block to correctly read time in the solidity "now" function interpreted by ganache
-    await advanceBlock();
+    await time.advanceBlock();
   });
 
   beforeEach(async function () {
