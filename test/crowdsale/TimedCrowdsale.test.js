@@ -1,5 +1,4 @@
 const { ether } = require('../helpers/ether');
-const { advanceBlock } = require('../helpers/advanceToBlock');
 const shouldFail = require('../helpers/shouldFail');
 const time = require('../helpers/time');
 
@@ -19,7 +18,7 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
 
   before(async function () {
     // Advance to the next block to correctly read time in the solidity "now" function interpreted by ganache
-    await advanceBlock();
+    await time.advanceBlock();
   });
 
   beforeEach(async function () {
