@@ -31,7 +31,7 @@ contract('WhitelistedCrowdsale', function ([_, wallet, whitelister, whitelistee,
   }
 
   context('with no whitelisted addresses', function () {
-    it('rejects payments from all addresses', async function () {
+    it('rejects all purchases', async function () {
       await purchaseShouldFail(this.crowdsale, anyone, value);
       await purchaseShouldFail(this.crowdsale, whitelistee, value);
     });
@@ -43,12 +43,16 @@ contract('WhitelistedCrowdsale', function ([_, wallet, whitelister, whitelistee,
       await this.crowdsale.addWhitelistee(otherWhitelistee, { from: whitelister });
     });
 
-    it('accepts payments from whitelisted addresses', async function () {
+    it('accepts purchases with whitelisted beneficiaries', async function () {
       await purchaseShouldSucceed(this.crowdsale, whitelistee, value);
       await purchaseShouldSucceed(this.crowdsale, otherWhitelistee, value);
     });
 
-    it('rejects payments from unwhitelisted addresses', async function () {
+    it('rejects purchases from whitelisted addresses with un-whitelisted beneficiaries', async function () {
+      await shouldFail(this.crowdsale.buyTokens(anyone, { from: whitelistee, value} ));
+    });
+
+    it('rejects purchases with whitelisted beneficiaries', async function () {
       await purchaseShouldFail(this.crowdsale, anyone, value);
     });
   });

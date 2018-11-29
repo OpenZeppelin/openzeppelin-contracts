@@ -9,7 +9,8 @@ import "../../access/roles/WhitelisteeRole.sol";
  */
 contract WhitelistedCrowdsale is WhitelisteeRole, Crowdsale {
     /**
-    * @dev Extend parent behavior requiring beneficiary to be whitelisted.
+    * @dev Extend parent behavior requiring beneficiary to be whitelisted. Note that no
+    * restriction is imposed on the account sending the transaction.
     * @param _beneficiary Token beneficiary
     * @param _weiAmount Amount of wei contributed
     */
