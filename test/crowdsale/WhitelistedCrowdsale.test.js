@@ -49,7 +49,7 @@ contract('WhitelistedCrowdsale', function ([_, wallet, whitelister, whitelistee,
     });
 
     it('rejects purchases from whitelisted addresses with un-whitelisted beneficiaries', async function () {
-      await shouldFail(this.crowdsale.buyTokens(anyone, { from: whitelistee, value} ));
+      await shouldFail(this.crowdsale.buyTokens(anyone, { from: whitelistee, value }));
     });
 
     it('rejects purchases with whitelisted beneficiaries', async function () {
