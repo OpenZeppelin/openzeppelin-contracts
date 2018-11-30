@@ -2,6 +2,7 @@ const send = require('../send');
 const shouldFail = require('../shouldFail');
 const expectEvent = require('../expectEvent');
 const { ether } = require('../ether');
+const { ethGetBalance } = require('../web3');
 
 const Acknowledger = artifacts.require('Acknowledger');
 
@@ -15,20 +16,20 @@ contract('send', function ([sender, receiver]) {
     it('sends ether with no gas cost', async function () {
       const value = ether(1);
 
-      const initialSenderBalance = web3.eth.getBalance(sender);
-      const initialReceiverBalance = web3.eth.getBalance(receiver);
+      const initialSenderBalance = await ethGetBalance(sender);
+      const initialReceiverBalance = await ethGetBalance(receiver);
 
       await send.ether(sender, receiver, value);
 
-      const finalSenderBalance = web3.eth.getBalance(sender);
-      const finalReceiverBalance = web3.eth.getBalance(receiver);
+      const finalSenderBalance = await ethGetBalance(sender);
+      const finalReceiverBalance = await ethGetBalance(receiver);
 
       finalSenderBalance.sub(initialSenderBalance).should.be.bignumber.equal(-value);
       finalReceiverBalance.sub(initialReceiverBalance).should.be.bignumber.equal(value);
     });
 
     it('throws if the sender balance is insufficient', async function () {
-      const value = web3.eth.getBalance(sender).plus(1);
+      const value = (await ethGetBalance(sender)).plus(1);
 
       await shouldFail(send.ether(sender, receiver, value));
     });
