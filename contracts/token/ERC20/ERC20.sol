@@ -9,6 +9,10 @@ import "../../math/SafeMath.sol";
  * @dev Implementation of the basic standard token.
  * https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md
  * Originally based on code by FirstBlood: https://github.com/Firstbloodio/token/blob/master/smart_contract/FirstBloodToken.sol
+ *
+ * This implementation emits additional Approval events, allowing applications to reconstruct the allowance status for
+ * all accounts just by listening to said events. Note that this isn't required by the specification, and other
+ * compliant implementations may not do it.
  */
 contract ERC20 is IERC20 {
     using SafeMath for uint256;
@@ -73,7 +77,9 @@ contract ERC20 is IERC20 {
     }
 
     /**
-     * @dev Transfer tokens from one address to another
+     * @dev Transfer tokens from one address to another.
+     * Note that while this function emits an Approval event, this is not required as per the specification,
+     * and other compliant implementations may not emit the event.
      * @param from address The address which you want to send tokens from
      * @param to address The address which you want to transfer to
      * @param value uint256 the amount of tokens to be transferred
@@ -81,6 +87,7 @@ contract ERC20 is IERC20 {
     function transferFrom(address from, address to, uint256 value) public returns (bool) {
         _allowed[from][msg.sender] = _allowed[from][msg.sender].sub(value);
         _transfer(from, to, value);
+        emit Approval(from, msg.sender, _allowed[from][msg.sender]);
         return true;
     }
 
@@ -90,6 +97,7 @@ contract ERC20 is IERC20 {
      * allowed value is better to use this function to avoid 2 calls (and wait until
      * the first transaction is mined)
      * From MonolithDAO Token.sol
+     * Emits an Approval event.
      * @param spender The address which will spend the funds.
      * @param addedValue The amount of tokens to increase the allowance by.
      */
@@ -107,6 +115,7 @@ contract ERC20 is IERC20 {
      * allowed value is better to use this function to avoid 2 calls (and wait until
      * the first transaction is mined)
      * From MonolithDAO Token.sol
+     * Emits an Approval event.
      * @param spender The address which will spend the funds.
      * @param subtractedValue The amount of tokens to decrease the allowance by.
      */
@@ -165,13 +174,13 @@ contract ERC20 is IERC20 {
      * @dev Internal function that burns an amount of the token of a given
      * account, deducting from the sender's allowance for said account. Uses the
      * internal burn function.
+     * Emits an Approval event (reflecting the reduced allowance).
      * @param account The account whose tokens will be burnt.
      * @param value The amount that will be burnt.
      */
     function _burnFrom(address account, uint256 value) internal {
-        // Should https://github.com/OpenZeppelin/zeppelin-solidity/issues/707 be accepted,
-        // this function needs to emit an event with the updated approval.
         _allowed[account][msg.sender] = _allowed[account][msg.sender].sub(value);
         _burn(account, value);
+        emit Approval(account, msg.sender, _allowed[account][msg.sender]);
     }
 }
