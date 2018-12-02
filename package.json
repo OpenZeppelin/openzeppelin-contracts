@@ -41,7 +41,6 @@
     "chai": "^4.1.2",
     "chai-bignumber": "^2.0.2",
     "coveralls": "^3.0.1",
-    "dotenv": "^4.0.0",
     "eslint": "^4.19.1",
     "eslint-config-standard": "^10.2.1",
     "eslint-plugin-import": "^2.13.0",
@@ -49,12 +48,12 @@
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-promise": "^3.8.0",
     "eslint-plugin-standard": "^3.1.0",
+    "ethereumjs-util": "^6.0.0",
     "ethjs-abi": "^0.2.1",
     "ganache-cli": "6.1.0",
     "solidity-coverage": "^0.5.4",
     "solium": "^1.1.8",
     "truffle": "^4.1.13",
-    "truffle-hdwallet-provider": "0.0.5",
     "web3-utils": "^1.0.0-beta.34"
   },
   "dependencies": {}
