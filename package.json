@@ -50,7 +50,7 @@
     "eslint-plugin-standard": "^3.1.0",
     "ethereumjs-util": "^6.0.0",
     "ethjs-abi": "^0.2.1",
-    "ganache-cli": "6.1.0",
+    "ganache-cli": "6.1.8",
     "solidity-coverage": "^0.5.4",
     "solium": "^1.1.8",
     "truffle": "^4.1.13",
