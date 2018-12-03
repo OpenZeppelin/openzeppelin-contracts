@@ -1,7 +1,9 @@
+const { ethGetBalance } = require('./web3');
+
 async function balanceDifference (account, promiseFunc) {
-  const balanceBefore = web3.eth.getBalance(account);
+  const balanceBefore = await ethGetBalance(account);
   await promiseFunc();
-  const balanceAfter = web3.eth.getBalance(account);
+  const balanceAfter = await ethGetBalance(account);
   return balanceAfter.minus(balanceBefore);
 }
 
