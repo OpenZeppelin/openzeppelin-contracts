@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "./IERC20.sol";
+import "./ERC20.sol";
 
 /**
  * @title ERC20Detailed token
@@ -8,7 +8,7 @@ import "./IERC20.sol";
  * All the operations are done using the smallest and indivisible token unit,
  * just as on Ethereum all the operations are done in wei.
  */
-contract ERC20Detailed is IERC20 {
+contract ERC20Detailed is ERC20 {
     string private _name;
     string private _symbol;
     uint8 private _decimals;
