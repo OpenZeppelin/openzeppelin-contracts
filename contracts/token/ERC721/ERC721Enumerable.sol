@@ -111,6 +111,35 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
     }
 
     /**
+     * @dev Internal function to transfer a token ID from the list of a given address to another one.
+     * This function is internal due to language limitations, see the note in ERC721.sol.
+     * It is not intended to be called by custom derived contracts: in particular, it emits no Transfer event,
+     * and doesn't clear approvals.
+     * @param from address representing the previous owner of the given token ID
+     * @param to address representing the new owner of the given token ID
+     * @param tokenId uint256 ID of the token to be transferred from the tokens list of the given address
+     */
+    function _transferToken(address from, address to, uint256 tokenId) internal {
+        super._transferToken(from, to, tokenId);
+
+        // To prevent a gap in from's array, we store from's last token in the index of the token to delete, and
+        // then delete the last slot (swap and pop).
+        uint256 lastTokenIndex = _ownedTokens[from].length.sub(1);
+        uint256 lastTokenId = _ownedTokens[from][lastTokenIndex];
+
+        uint256 preTokenIndex = _ownedTokensIndex[tokenId];
+        _ownedTokens[from][preTokenIndex] = lastTokenId;
+        _ownedTokensIndex[lastTokenId] = preTokenIndex;
+
+        // This also deletes the contents at the last position of the array
+        _ownedTokens[from].length--;
+
+        // Now we add the token to the recipient
+        _ownedTokens[to].push(tokenId);
+        _ownedTokensIndex[tokenId] = _ownedTokens[to].length.sub(1);
+    }
+
+    /**
      * @dev Internal function to mint a new token
      * Reverts if the given token ID already exists
      * @param to address the beneficiary that will own the minted token
