@@ -165,7 +165,7 @@ contract ERC20 is IERC20 {
    * @param amount The amount that will be created.
    */
   function _mint(address account, uint256 amount) internal {
-    require(account != 0);
+    require(account != address(0));
     _totalSupply = _totalSupply.add(amount);
     _balances[account] = _balances[account].add(amount);
     emit Transfer(address(0), account, amount);
@@ -178,7 +178,7 @@ contract ERC20 is IERC20 {
    * @param amount The amount that will be burnt.
    */
   function _burn(address account, uint256 amount) internal {
-    require(account != 0);
+    require(account != address(0));
     require(amount <= _balances[account]);
 
     _totalSupply = _totalSupply.sub(amount);

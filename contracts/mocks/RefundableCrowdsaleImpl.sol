@@ -9,7 +9,7 @@ contract RefundableCrowdsaleImpl is RefundableCrowdsale {
     uint256 openingTime,
     uint256 closingTime,
     uint256 rate,
-    address wallet,
+    address payable wallet,
     ERC20Mintable token,
     uint256 goal
   )

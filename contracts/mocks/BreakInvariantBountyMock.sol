@@ -23,6 +23,6 @@ contract TargetMock is Target {
 
 contract BreakInvariantBountyMock is BreakInvariantBounty {
   function _deployContract() internal returns (address) {
-    return new TargetMock();
+    return address(new TargetMock());
   }
 }

@@ -8,7 +8,7 @@ contract IncreasingPriceCrowdsaleImpl is IncreasingPriceCrowdsale {
   constructor (
     uint256 openingTime,
     uint256 closingTime,
-    address wallet,
+    address payable wallet,
     IERC20 token,
     uint256 initialRate,
     uint256 finalRate

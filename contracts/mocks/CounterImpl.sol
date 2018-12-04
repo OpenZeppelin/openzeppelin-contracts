@@ -10,7 +10,7 @@ contract CounterImpl {
   // use whatever key you want to track your counters
   mapping(string => Counter.Counter) private _counters;
 
-  function doThing(string key)
+  function doThing(string memory key)
     public
     returns (uint256)
   {

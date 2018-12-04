@@ -9,7 +9,7 @@ contract ForceEther {
 
   constructor() public payable { }
 
-  function destroyAndSend(address recipient) public {
+  function destroyAndSend(address payable recipient) public {
     selfdestruct(recipient);
   }
 }

@@ -26,7 +26,7 @@ contract ReentrancyMock is ReentrancyGuard {
     if (n > 0) {
       count();
       // solium-disable-next-line security/no-low-level-calls
-      bool result = address(this).call(abi.encodeWithSignature("countThisRecursive(uint256)", n - 1));
+      (bool result,) = address(this).call(abi.encodeWithSignature("countThisRecursive(uint256)", n - 1));
       require(result == true);
     }
   }

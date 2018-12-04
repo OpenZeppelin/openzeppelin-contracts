@@ -29,7 +29,7 @@ contract ERC721Mintable is ERC721Full, MinterRole {
   function mintWithTokenURI(
     address to,
     uint256 tokenId,
-    string tokenURI
+    string memory tokenURI
   )
     public
     onlyMinter

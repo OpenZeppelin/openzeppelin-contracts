@@ -24,7 +24,7 @@ contract Crowdsale {
   IERC20 private _token;
 
   // Address where funds are collected
-  address private _wallet;
+  address payable private _wallet;
 
   // How many token units a buyer gets per wei.
   // The rate is the conversion between wei and the smallest and indivisible token unit.
@@ -57,10 +57,10 @@ contract Crowdsale {
    * @param wallet Address where collected funds will be forwarded to
    * @param token Address of the token being sold
    */
-  constructor(uint256 rate, address wallet, IERC20 token) public {
+  constructor(uint256 rate, address payable wallet, IERC20 token) public {
     require(rate > 0);
     require(wallet != address(0));
-    require(token != address(0));
+    require(address(token) != address(0));
 
     _rate = rate;
     _wallet = wallet;
@@ -88,7 +88,7 @@ contract Crowdsale {
   /**
    * @return the address where funds are collected.
    */
-  function wallet() public view returns(address) {
+  function wallet() public view returns(address payable) {
     return _wallet;
   }
 
