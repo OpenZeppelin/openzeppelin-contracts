@@ -20,7 +20,7 @@ contract SplitPayment {
   /**
    * @dev Constructor
    */
-  constructor(address[] payees, uint256[] shares) public payable {
+  constructor(address[] memory payees, uint256[] memory shares) public payable {
     require(payees.length == shares.length);
     require(payees.length > 0);
 
@@ -73,7 +73,7 @@ contract SplitPayment {
    * @dev Release one of the payee's proportional payment.
    * @param account Whose payments will be released.
    */
-  function release(address account) public {
+  function release(address payable account) public {
     require(_shares[account] > 0);
 
     uint256 totalReceived = address(this).balance.add(_totalReleased);

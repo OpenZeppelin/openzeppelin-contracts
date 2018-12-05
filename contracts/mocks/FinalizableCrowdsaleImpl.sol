@@ -9,7 +9,7 @@ contract FinalizableCrowdsaleImpl is FinalizableCrowdsale {
     uint256 openingTime,
     uint256 closingTime,
     uint256 rate,
-    address wallet,
+    address payable wallet,
     IERC20 token
   )
     public

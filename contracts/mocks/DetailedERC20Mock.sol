@@ -5,8 +5,8 @@ import "../token/ERC20/ERC20Detailed.sol";
 
 contract ERC20DetailedMock is ERC20, ERC20Detailed {
   constructor(
-    string name,
-    string symbol,
+    string memory name,
+    string memory symbol,
     uint8 decimals
   )
     ERC20Detailed(name, symbol, decimals)

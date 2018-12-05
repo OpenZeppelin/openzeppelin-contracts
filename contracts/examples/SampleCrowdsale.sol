@@ -39,7 +39,7 @@ contract SampleCrowdsale is CappedCrowdsale, RefundableCrowdsale, MintedCrowdsal
     uint256 openingTime,
     uint256 closingTime,
     uint256 rate,
-    address wallet,
+    address payable wallet,
     uint256 cap,
     ERC20Mintable token,
     uint256 goal

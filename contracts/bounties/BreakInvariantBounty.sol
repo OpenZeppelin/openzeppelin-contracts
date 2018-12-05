@@ -11,7 +11,7 @@ contract BreakInvariantBounty is PullPayment, Ownable {
   bool private _claimed;
   mapping(address => address) private _researchers;
 
-  event TargetCreated(address createdAddress);
+  event TargetCreated(Target createdAddress);
 
   /**
    * @dev Fallback function allowing the contract to receive funds, if they haven't already been claimed.
@@ -35,7 +35,7 @@ contract BreakInvariantBounty is PullPayment, Ownable {
    */
   function createTarget() public returns(Target) {
     Target target = Target(_deployContract());
-    _researchers[target] = msg.sender;
+    _researchers[address(target)] = msg.sender;
     emit TargetCreated(target);
     return target;
   }
@@ -45,7 +45,7 @@ contract BreakInvariantBounty is PullPayment, Ownable {
    * @param target contract
    */
   function claim(Target target) public {
-    address researcher = _researchers[target];
+    address researcher = _researchers[address(target)];
     require(researcher != address(0));
     // Check Target contract invariants
     require(!target.checkInvariant());
@@ -57,7 +57,8 @@ contract BreakInvariantBounty is PullPayment, Ownable {
    * @dev Transfers the current balance to the owner and terminates the contract.
    */
   function destroy() public onlyOwner {
-    selfdestruct(owner());
+    // ToDo: Check this
+    selfdestruct(address(uint160(owner())));
   }
 
   /**

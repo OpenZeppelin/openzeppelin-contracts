@@ -39,7 +39,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
    * @dev Investors can claim refunds here if crowdsale is unsuccessful
    * @param beneficiary Whose refund will be claimed.
    */
-  function claimRefund(address beneficiary) public {
+  function claimRefund(address payable beneficiary) public {
     require(finalized());
     require(!goalReached());
 

@@ -5,7 +5,7 @@ import "../cryptography/ECDSA.sol";
 contract ECDSAMock {
   using ECDSA for bytes32;
 
-  function recover(bytes32 hash, bytes signature)
+  function recover(bytes32 hash, bytes memory signature)
     public
     pure
     returns (address)

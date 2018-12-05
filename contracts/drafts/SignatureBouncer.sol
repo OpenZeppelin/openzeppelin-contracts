@@ -39,7 +39,7 @@ contract SignatureBouncer is SignerRole {
   /**
    * @dev requires that a valid signature of a signer was provided
    */
-  modifier onlyValidSignature(bytes signature)
+  modifier onlyValidSignature(bytes memory signature)
   {
     require(_isValidSignature(msg.sender, signature));
     _;
@@ -48,7 +48,7 @@ contract SignatureBouncer is SignerRole {
   /**
    * @dev requires that a valid signature with a specifed method of a signer was provided
    */
-  modifier onlyValidSignatureAndMethod(bytes signature)
+  modifier onlyValidSignatureAndMethod(bytes memory signature)
   {
     require(_isValidSignatureAndMethod(msg.sender, signature));
     _;
@@ -57,7 +57,7 @@ contract SignatureBouncer is SignerRole {
   /**
    * @dev requires that a valid signature with a specifed method and params of a signer was provided
    */
-  modifier onlyValidSignatureAndData(bytes signature)
+  modifier onlyValidSignatureAndData(bytes memory signature)
   {
     require(_isValidSignatureAndData(msg.sender, signature));
     _;
@@ -67,7 +67,7 @@ contract SignatureBouncer is SignerRole {
    * @dev is the signature of `this + sender` from a signer?
    * @return bool
    */
-  function _isValidSignature(address account, bytes signature)
+  function _isValidSignature(address account, bytes memory signature)
     internal
     view
     returns (bool)
@@ -82,7 +82,7 @@ contract SignatureBouncer is SignerRole {
    * @dev is the signature of `this + sender + methodId` from a signer?
    * @return bool
    */
-  function _isValidSignatureAndMethod(address account, bytes signature)
+  function _isValidSignatureAndMethod(address account, bytes memory signature)
     internal
     view
     returns (bool)
@@ -102,7 +102,7 @@ contract SignatureBouncer is SignerRole {
     * @notice the signature parameter of the method being validated must be the "last" parameter
     * @return bool
     */
-  function _isValidSignatureAndData(address account, bytes signature)
+  function _isValidSignatureAndData(address account, bytes memory signature)
     internal
     view
     returns (bool)
@@ -123,7 +123,7 @@ contract SignatureBouncer is SignerRole {
    * and then recover the signature and check it against the signer role
    * @return bool
    */
-  function _isValidDataHash(bytes32 hash, bytes signature)
+  function _isValidDataHash(bytes32 hash, bytes memory signature)
     internal
     view
     returns (bool)

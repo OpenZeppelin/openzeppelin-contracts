@@ -16,13 +16,13 @@ contract RefundEscrow is Secondary, ConditionalEscrow {
   event RefundsEnabled();
 
   State private _state;
-  address private _beneficiary;
+  address payable private _beneficiary;
 
   /**
    * @dev Constructor.
    * @param beneficiary The beneficiary of the deposits.
    */
-  constructor(address beneficiary) public {
+  constructor(address payable beneficiary) public {
     require(beneficiary != address(0));
     _beneficiary = beneficiary;
     _state = State.Active;
@@ -38,7 +38,7 @@ contract RefundEscrow is Secondary, ConditionalEscrow {
   /**
    * @return the beneficiary of the escrow.
    */
-  function beneficiary() public view returns (address) {
+  function beneficiary() public view returns (address payable) {
     return _beneficiary;
   }
 

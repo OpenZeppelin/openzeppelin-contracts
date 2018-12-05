@@ -14,7 +14,7 @@ library ECDSA {
    * @param hash bytes32 message, the hash is the signed message. What is recovered is the signer address.
    * @param signature bytes signature, the signature is generated using web3.eth.sign()
    */
-  function recover(bytes32 hash, bytes signature)
+  function recover(bytes32 hash, bytes memory signature)
     internal
     pure
     returns (address)

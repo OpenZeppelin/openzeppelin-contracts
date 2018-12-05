@@ -57,7 +57,7 @@ library ERC165Checker {
    * interfaceIds list, false otherwise
    * @dev Interface identification is specified in ERC-165.
    */
-  function supportsInterfaces(address account, bytes4[] interfaceIds)
+  function supportsInterfaces(address account, bytes4[] memory interfaceIds)
     internal
     view
     returns (bool)

@@ -7,7 +7,7 @@ contract MintedCrowdsaleImpl is MintedCrowdsale {
 
   constructor (
     uint256 rate,
-    address wallet,
+    address payable wallet,
     ERC20Mintable token
   )
     public
