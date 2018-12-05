@@ -138,6 +138,15 @@ contract('ERC721Full', function ([
       });
     });
 
+    describe('tokensOfOwner', function () {
+      it('returns total tokens of owner', async function () {
+        const tokenIds = await this.token.tokensOfOwner(owner);
+        tokenIds.length.should.equal(2);
+        tokenIds[0].should.be.bignumber.equal(firstTokenId);
+        tokenIds[1].should.be.bignumber.equal(secondTokenId);
+      });
+    });
+
     describe('totalSupply', function () {
       it('returns total token supply', async function () {
         (await this.token.totalSupply()).should.be.bignumber.equal(2);
