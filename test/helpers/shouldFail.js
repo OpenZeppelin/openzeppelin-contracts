@@ -30,6 +30,7 @@ async function shouldFail (promise) {
 }
 
 shouldFail.reverting = reverting;
+shouldFail.reverting.withMessage = shouldFailWithMessage;
 shouldFail.throwing = throwing;
 shouldFail.outOfGas = outOfGas;
 

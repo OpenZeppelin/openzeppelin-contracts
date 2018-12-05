@@ -30,6 +30,10 @@ describe('shouldFail', function () {
       await shouldFail(this.failer.failWithRevert());
     });
 
+    it('accepts a require() revert', async function () {
+      await shouldFail(this.failer.failRequirement());
+    });
+
     it('accepts a throw', async function () {
       await shouldFail(this.failer.failWithThrow());
     });
@@ -92,4 +96,26 @@ describe('shouldFail', function () {
       await assertFailure(shouldFail.outOfGas(this.failer.failWithThrow()));
     });
   });
+
+  describe('reverting.withMessage', function () {
+    it('rejects if no failure occurs', async function () {
+      await assertFailure(shouldFail.reverting.withMessage(this.failer.dontFail()));
+    });
+
+    it('accepts a revert with an expected reason', async function () {
+      await shouldFail.reverting.withMessage(this.failer.failWithRevertVocally(), 'Doomed to fail');
+    });
+
+    it('rejects a revert with an unexpected reason', async function () {
+      await assertFailure(shouldFail.reverting.withMessage(this.failer.failWithRevertVocally(), 'Ill-fated'));
+    });
+
+    it('accepts require() revert with an expected reason', async function () {
+      await shouldFail.reverting.withMessage(this.failer.failRequirementVocally(), 'Unsatisfied');
+    });
+
+    it('rejects require() revert with an un expected reason', async function () {
+      await assertFailure(shouldFail.reverting.withMessage(this.failer.failRequirementVocally(), 'Unhappy'));
+    });
+  })
 });
