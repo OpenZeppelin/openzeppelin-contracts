@@ -1,21 +1,31 @@
 pragma solidity ^0.4.24;
 
-
 /**
  * @title Math
  * @dev Assorted math operations
  */
 library Math {
-  function max(uint256 _a, uint256 _b) internal pure returns (uint256) {
-    return _a >= _b ? _a : _b;
-  }
+    /**
+    * @dev Returns the largest of two numbers.
+    */
+    function max(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a >= b ? a : b;
+    }
 
-  function min(uint256 _a, uint256 _b) internal pure returns (uint256) {
-    return _a < _b ? _a : _b;
-  }
+    /**
+    * @dev Returns the smallest of two numbers.
+    */
+    function min(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a < b ? a : b;
+    }
 
-  function average(uint256 _a, uint256 _b) internal pure returns (uint256) {
-    // (_a + _b) / 2 can overflow, so we distribute
-    return (_a / 2) + (_b / 2) + ((_a % 2 + _b % 2) / 2);
-  }
+    /**
+    * @dev Calculates the average of two numbers. Since these are integers,
+    * averages of an even and odd number cannot be represented, and will be
+    * rounded down.
+    */
+    function average(uint256 a, uint256 b) internal pure returns (uint256) {
+        // (a + b) / 2 can overflow, so we distribute
+        return (a / 2) + (b / 2) + ((a % 2 + b % 2) / 2);
+    }
 }

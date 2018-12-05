@@ -1,12 +1,8 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
 import "../token/ERC20/ERC20.sol";
-import "../proposals/ERC1046/TokenMetadata.sol";
-
+import "../drafts/ERC1046/TokenMetadata.sol";
 
 contract ERC20WithMetadataMock is ERC20, ERC20WithMetadata {
-  constructor(string _tokenURI) public
-    ERC20WithMetadata(_tokenURI)
-  {
-  }
+    constructor (string tokenURI) public ERC20WithMetadata(tokenURI) {}
 }

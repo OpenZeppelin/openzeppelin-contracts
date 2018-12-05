@@ -1,14 +1,16 @@
+const expectEvent = require('../helpers/expectEvent');
 const { ether } = require('../helpers/ether');
-const { assertRevert } = require('../helpers/assertRevert');
-const { ethGetBalance } = require('../helpers/web3');
+const shouldFail = require('../helpers/shouldFail');
+const { balanceDifference } = require('../helpers/balanceDifference');
+const { ZERO_ADDRESS } = require('../helpers/constants');
 
 const BigNumber = web3.BigNumber;
 
-const should = require('chai')
+require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const AllowanceCrowdsale = artifacts.require('AllowanceCrowdsaleImpl');
+const AllowanceCrowdsaleImpl = artifacts.require('AllowanceCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
 contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenWallet]) {
@@ -16,15 +18,18 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
   const value = ether(0.42);
   const expectedTokenAmount = rate.mul(value);
   const tokenAllowance = new BigNumber('1e22');
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
   beforeEach(async function () {
     this.token = await SimpleToken.new({ from: tokenWallet });
-    this.crowdsale = await AllowanceCrowdsale.new(rate, wallet, this.token.address, tokenWallet);
+    this.crowdsale = await AllowanceCrowdsaleImpl.new(rate, wallet, this.token.address, tokenWallet);
     await this.token.approve(this.crowdsale.address, tokenAllowance, { from: tokenWallet });
   });
 
   describe('accepting payments', function () {
+    it('should have token wallet', async function () {
+      (await this.crowdsale.tokenWallet()).should.be.equal(tokenWallet);
+    });
+
     it('should accept sends', async function () {
       await this.crowdsale.send(value);
     });
@@ -37,12 +42,12 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
   describe('high-level purchase', function () {
     it('should log purchase', async function () {
       const { logs } = await this.crowdsale.sendTransaction({ value: value, from: investor });
-      const event = logs.find(e => e.event === 'TokensPurchased');
-      should.exist(event);
-      event.args.purchaser.should.equal(investor);
-      event.args.beneficiary.should.equal(investor);
-      event.args.value.should.be.bignumber.equal(value);
-      event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
+      expectEvent.inLogs(logs, 'TokensPurchased', {
+        purchaser: investor,
+        beneficiary: investor,
+        value: value,
+        amount: expectedTokenAmount,
+      });
     });
 
     it('should assign tokens to sender', async function () {
@@ -51,10 +56,9 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
     });
 
     it('should forward funds to wallet', async function () {
-      const pre = await ethGetBalance(wallet);
-      await this.crowdsale.sendTransaction({ value, from: investor });
-      const post = await ethGetBalance(wallet);
-      post.minus(pre).should.be.bignumber.equal(value);
+      (await balanceDifference(wallet, () =>
+        this.crowdsale.sendTransaction({ value, from: investor }))
+      ).should.be.bignumber.equal(value);
     });
   });
 
@@ -64,12 +68,23 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
       await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
       (await this.crowdsale.remainingTokens()).should.be.bignumber.equal(remainingAllowance);
     });
+
+    context('when the allowance is larger than the token amount', function () {
+      beforeEach(async function () {
+        const amount = await this.token.balanceOf(tokenWallet);
+        await this.token.approve(this.crowdsale.address, amount.plus(1), { from: tokenWallet });
+      });
+
+      it('should report the amount instead of the allowance', async function () {
+        (await this.crowdsale.remainingTokens()).should.be.bignumber.equal(await this.token.balanceOf(tokenWallet));
+      });
+    });
   });
 
   describe('when token wallet is different from token address', function () {
     it('creation reverts', async function () {
       this.token = await SimpleToken.new({ from: tokenWallet });
-      await assertRevert(AllowanceCrowdsale.new(rate, wallet, this.token.address, ZERO_ADDRESS));
+      await shouldFail.reverting(AllowanceCrowdsaleImpl.new(rate, wallet, this.token.address, ZERO_ADDRESS));
     });
   });
 });

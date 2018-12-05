@@ -2,93 +2,64 @@ pragma solidity ^0.4.24;
 
 import "../../math/SafeMath.sol";
 import "../Crowdsale.sol";
-import "../../ownership/Ownable.sol";
-
+import "../../access/roles/CapperRole.sol";
 
 /**
  * @title IndividuallyCappedCrowdsale
- * @dev Crowdsale with per-user caps.
+ * @dev Crowdsale with per-beneficiary caps.
  */
-contract IndividuallyCappedCrowdsale is Ownable, Crowdsale {
-  using SafeMath for uint256;
+contract IndividuallyCappedCrowdsale is Crowdsale, CapperRole {
+    using SafeMath for uint256;
 
-  mapping(address => uint256) public contributions;
-  mapping(address => uint256) public caps;
+    mapping(address => uint256) private _contributions;
+    mapping(address => uint256) private _caps;
 
-  /**
-   * @dev Sets a specific user's maximum contribution.
-   * @param _beneficiary Address to be capped
-   * @param _cap Wei limit for individual contribution
-   */
-  function setUserCap(address _beneficiary, uint256 _cap) external onlyOwner {
-    caps[_beneficiary] = _cap;
-  }
+    constructor () internal {}
 
-  /**
-   * @dev Sets a group of users' maximum contribution.
-   * @param _beneficiaries List of addresses to be capped
-   * @param _cap Wei limit for individual contribution
-   */
-  function setGroupCap(
-    address[] _beneficiaries,
-    uint256 _cap
-  )
-    external
-    onlyOwner
-  {
-    for (uint256 i = 0; i < _beneficiaries.length; i++) {
-      caps[_beneficiaries[i]] = _cap;
+    /**
+     * @dev Sets a specific beneficiary's maximum contribution.
+     * @param beneficiary Address to be capped
+     * @param cap Wei limit for individual contribution
+     */
+    function setCap(address beneficiary, uint256 cap) external onlyCapper {
+        _caps[beneficiary] = cap;
     }
-  }
 
-  /**
-   * @dev Returns the cap of a specific user.
-   * @param _beneficiary Address whose cap is to be checked
-   * @return Current cap for individual user
-   */
-  function getUserCap(address _beneficiary) public view returns (uint256) {
-    return caps[_beneficiary];
-  }
+    /**
+     * @dev Returns the cap of a specific beneficiary.
+     * @param beneficiary Address whose cap is to be checked
+     * @return Current cap for individual beneficiary
+     */
+    function getCap(address beneficiary) public view returns (uint256) {
+        return _caps[beneficiary];
+    }
 
-  /**
-   * @dev Returns the amount contributed so far by a sepecific user.
-   * @param _beneficiary Address of contributor
-   * @return User contribution so far
-   */
-  function getUserContribution(address _beneficiary)
-    public view returns (uint256)
-  {
-    return contributions[_beneficiary];
-  }
+    /**
+     * @dev Returns the amount contributed so far by a specific beneficiary.
+     * @param beneficiary Address of contributor
+     * @return Beneficiary contribution so far
+     */
+    function getContribution(address beneficiary) public view returns (uint256) {
+        return _contributions[beneficiary];
+    }
 
-  /**
-   * @dev Extend parent behavior requiring purchase to respect the user's funding cap.
-   * @param _beneficiary Token purchaser
-   * @param _weiAmount Amount of wei contributed
-   */
-  function _preValidatePurchase(
-    address _beneficiary,
-    uint256 _weiAmount
-  )
-    internal
-  {
-    super._preValidatePurchase(_beneficiary, _weiAmount);
-    require(contributions[_beneficiary].add(_weiAmount) <= caps[_beneficiary]);
-  }
+    /**
+     * @dev Extend parent behavior requiring purchase to respect the beneficiary's funding cap.
+     * @param beneficiary Token purchaser
+     * @param weiAmount Amount of wei contributed
+     */
+    function _preValidatePurchase(address beneficiary, uint256 weiAmount) internal view {
+        super._preValidatePurchase(beneficiary, weiAmount);
+        require(_contributions[beneficiary].add(weiAmount) <= _caps[beneficiary]);
+    }
 
-  /**
-   * @dev Extend parent behavior to update user contributions
-   * @param _beneficiary Token purchaser
-   * @param _weiAmount Amount of wei contributed
-   */
-  function _updatePurchasingState(
-    address _beneficiary,
-    uint256 _weiAmount
-  )
-    internal
-  {
-    super._updatePurchasingState(_beneficiary, _weiAmount);
-    contributions[_beneficiary] = contributions[_beneficiary].add(_weiAmount);
-  }
-
+    /**
+     * @dev Extend parent behavior to update beneficiary contributions
+     * @param beneficiary Token purchaser
+     * @param weiAmount Amount of wei contributed
+     */
+    function _updatePurchasingState(address beneficiary, uint256 weiAmount) internal {
+        super._updatePurchasingState(beneficiary, weiAmount);
+        _contributions[beneficiary] = _contributions[beneficiary].add(weiAmount);
+    }
 }

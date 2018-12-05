@@ -1,25 +1,23 @@
 pragma solidity ^0.4.24;
 
-
 import "../lifecycle/Pausable.sol";
-
+import "./PauserRoleMock.sol";
 
 // mock class using Pausable
-contract PausableMock is Pausable {
-  bool public drasticMeasureTaken;
-  uint256 public count;
+contract PausableMock is Pausable, PauserRoleMock {
+    bool public drasticMeasureTaken;
+    uint256 public count;
 
-  constructor() public {
-    drasticMeasureTaken = false;
-    count = 0;
-  }
+    constructor () public {
+        drasticMeasureTaken = false;
+        count = 0;
+    }
 
-  function normalProcess() external whenNotPaused {
-    count++;
-  }
+    function normalProcess() external whenNotPaused {
+        count++;
+    }
 
-  function drasticMeasure() external whenPaused {
-    drasticMeasureTaken = true;
-  }
-
+    function drasticMeasure() external whenPaused {
+        drasticMeasureTaken = true;
+    }
 }

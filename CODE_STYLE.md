@@ -16,29 +16,36 @@ Any exception or additions specific to our project are documented below.
 
 * Try to avoid acronyms and abbreviations.
 
-* Parameters must be prefixed with an underscore.
+* All state variables should be private.
+
+* Private state variables should have an underscore prefix.
 
     ```
-    function test(uint256 _testParameter1, uint256 _testParameter2) {
+    contract TestContract {
+      uint256 private _privateVar;
+      uint256 internal _internalVar;
+    }
+    ```
+
+* Parameters must not be prefixed with an underscore.
+
+    ```
+    function test(uint256 testParameter1, uint256 testParameter2) {
     ...
     }
     ```
 
-* Internal and private state variables should have an underscore suffix.
+* Internal and private functions should have an underscore prefix.
 
     ```
-    contract TestContract {
-      uint256 internal internalVar_;
-      uint256 private privateVar_;
+    function _testInternal() internal {
+      ...
     }
     ```
 
-  Variables declared in a function should not follow this rule.
-
     ```
-    function test() {
-       uint256 functionVar;
-       ...
+    function _testPrivate() private {
+      ...
     }
     ```
 

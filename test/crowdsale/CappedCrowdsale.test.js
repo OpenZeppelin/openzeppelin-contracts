@@ -1,6 +1,5 @@
 const { ether } = require('../helpers/ether');
-const { expectThrow } = require('../helpers/expectThrow');
-const { EVMRevert } = require('../helpers/EVMRevert');
+const shouldFail = require('../helpers/shouldFail');
 
 const BigNumber = web3.BigNumber;
 
@@ -8,7 +7,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const CappedCrowdsale = artifacts.require('CappedCrowdsaleImpl');
+const CappedCrowdsaleImpl = artifacts.require('CappedCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
 contract('CappedCrowdsale', function ([_, wallet]) {
@@ -22,15 +21,12 @@ contract('CappedCrowdsale', function ([_, wallet]) {
   });
 
   it('rejects a cap of zero', async function () {
-    await expectThrow(
-      CappedCrowdsale.new(rate, wallet, this.token.address, 0),
-      EVMRevert,
-    );
+    await shouldFail.reverting(CappedCrowdsaleImpl.new(rate, wallet, this.token.address, 0));
   });
 
   context('with crowdsale', function () {
     beforeEach(async function () {
-      this.crowdsale = await CappedCrowdsale.new(rate, wallet, this.token.address, cap);
+      this.crowdsale = await CappedCrowdsaleImpl.new(rate, wallet, this.token.address, cap);
       await this.token.transfer(this.crowdsale.address, tokenSupply);
     });
 
@@ -42,17 +38,11 @@ contract('CappedCrowdsale', function ([_, wallet]) {
 
       it('should reject payments outside cap', async function () {
         await this.crowdsale.send(cap);
-        await expectThrow(
-          this.crowdsale.send(1),
-          EVMRevert,
-        );
+        await shouldFail.reverting(this.crowdsale.send(1));
       });
 
       it('should reject payments that exceed cap', async function () {
-        await expectThrow(
-          this.crowdsale.send(cap.plus(1)),
-          EVMRevert,
-        );
+        await shouldFail.reverting(this.crowdsale.send(cap.plus(1)));
       });
     });
 

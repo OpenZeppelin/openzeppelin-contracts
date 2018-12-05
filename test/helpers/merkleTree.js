@@ -1,9 +1,9 @@
-const { sha3, bufferToHex } = require('ethereumjs-util');
+const { keccak256, bufferToHex } = require('ethereumjs-util');
 
 class MerkleTree {
   constructor (elements) {
     // Filter empty strings and hash elements
-    this.elements = elements.filter(el => el).map(el => sha3(el));
+    this.elements = elements.filter(el => el).map(el => keccak256(el));
 
     // Deduplicate elements
     this.elements = this.bufDedup(this.elements);
@@ -45,7 +45,7 @@ class MerkleTree {
     if (!first) { return second; }
     if (!second) { return first; }
 
-    return sha3(this.sortAndConcat(first, second));
+    return keccak256(this.sortAndConcat(first, second));
   }
 
   getRoot () {
@@ -97,7 +97,7 @@ class MerkleTree {
 
     // Convert element to 32 byte hash if it is not one already
     if (el.length !== 32 || !Buffer.isBuffer(el)) {
-      hash = sha3(el);
+      hash = keccak256(el);
     } else {
       hash = el;
     }
