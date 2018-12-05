@@ -130,12 +130,8 @@ contract ERC721 is ERC165, IERC721 {
     */
     function transferFrom(address from, address to, uint256 tokenId) public {
         require(_isApprovedOrOwner(msg.sender, tokenId));
-        require(to != address(0));
 
-        _clearApproval(from, tokenId);
-        _transferToken(from, to, tokenId);
-
-        emit Transfer(from, to, tokenId);
+        _transferFrom(from, to, tokenId);
     }
 
     /**
@@ -249,21 +245,24 @@ contract ERC721 is ERC165, IERC721 {
     }
 
     /**
-     * @dev Internal function to transfer a token ID from the list of a given address to another one.
-     * Note that this function is left internal to make ERC721Enumerable possible, but is not
-     * intended to be called by custom derived contracts: in particular, it emits no Transfer event,
-     * and doesn't clear approvals.
-     * @param from address representing the previous owner of the given token ID
-     * @param to address representing the new owner of the given token ID
-     * @param tokenId uint256 ID of the token to be transferred to the tokens list of the given address
-     */
-    function _transferToken(address from, address to, uint256 tokenId) internal {
+     * @dev Internal function to transfer ownership of a given token ID to another address.
+     * As opposed to transferFrom, this imposes no restrictions on msg.sender.
+     * @param from current owner of the token
+     * @param to address to receive the ownership of the given token ID
+     * @param tokenId uint256 ID of the token to be transferred
+    */
+    function _transferFrom(address from, address to, uint256 tokenId) internal {
         require(ownerOf(tokenId) == from);
+        require(to != address(0));
+
+        _clearApproval(from, tokenId);
 
         _ownedTokensCount[from] = _ownedTokensCount[from].sub(1);
         _ownedTokensCount[to] = _ownedTokensCount[to].add(1);
 
         _tokenOwner[tokenId] = to;
+
+        emit Transfer(from, to, tokenId);
     }
 
     /**
