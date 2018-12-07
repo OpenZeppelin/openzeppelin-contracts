@@ -144,7 +144,7 @@ contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherA
         (await this.token.allowance(pauser, anotherAccount)).should.be.bignumber.equal(40);
       });
 
-      it('allows to transfer when paused and then unpaused', async function () {
+      it('allows to approve when paused and then unpaused', async function () {
         await this.token.pause({ from: pauser });
         await this.token.unpause({ from: pauser });
 
@@ -153,7 +153,7 @@ contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherA
         (await this.token.allowance(pauser, anotherAccount)).should.be.bignumber.equal(40);
       });
 
-      it('reverts when trying to transfer when paused', async function () {
+      it('reverts when trying to approve when paused', async function () {
         await this.token.pause({ from: pauser });
 
         await shouldFail.reverting(this.token.approve(anotherAccount, 40, { from: pauser }));

@@ -9,42 +9,41 @@ import "../validation/TimedCrowdsale.sol";
  * can do extra work after finishing.
  */
 contract FinalizableCrowdsale is TimedCrowdsale {
-  using SafeMath for uint256;
+    using SafeMath for uint256;
 
-  bool private _finalized;
+    bool private _finalized;
 
-  event CrowdsaleFinalized();
+    event CrowdsaleFinalized();
 
-  constructor() internal {
-    _finalized = false;
-  }
+    constructor () internal {
+        _finalized = false;
+    }
 
-  /**
-   * @return true if the crowdsale is finalized, false otherwise.
-   */
-  function finalized() public view returns (bool) {
-    return _finalized;
-  }
+    /**
+     * @return true if the crowdsale is finalized, false otherwise.
+     */
+    function finalized() public view returns (bool) {
+        return _finalized;
+    }
 
-  /**
-   * @dev Must be called after crowdsale ends, to do some extra finalization
-   * work. Calls the contract's finalization function.
-   */
-  function finalize() public {
-    require(!_finalized);
-    require(hasClosed());
+    /**
+     * @dev Must be called after crowdsale ends, to do some extra finalization
+     * work. Calls the contract's finalization function.
+     */
+    function finalize() public {
+        require(!_finalized);
+        require(hasClosed());
 
-    _finalized = true;
+        _finalized = true;
 
-    _finalization();
-    emit CrowdsaleFinalized();
-  }
+        _finalization();
+        emit CrowdsaleFinalized();
+    }
 
-  /**
-   * @dev Can be overridden to add finalization logic. The overriding function
-   * should call super._finalization() to ensure the chain of finalization is
-   * executed entirely.
-   */
-  function _finalization() internal {
-  }
+    /**
+     * @dev Can be overridden to add finalization logic. The overriding function
+     * should call super._finalization() to ensure the chain of finalization is
+     * executed entirely.
+     */
+    function _finalization() internal {}
 }

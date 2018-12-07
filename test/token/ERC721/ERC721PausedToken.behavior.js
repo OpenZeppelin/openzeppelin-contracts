@@ -1,5 +1,5 @@
 const shouldFail = require('../../helpers/shouldFail');
-const { sendTransaction } = require('../../helpers/sendTransaction');
+const send = require('../../helpers/send');
 const { ZERO_ADDRESS } = require('../../helpers/constants');
 
 require('../../helpers/setup');
@@ -32,7 +32,7 @@ function shouldBehaveLikeERC721PausedToken (owner, [recipient, operator]) {
 
     it('reverts when trying to safeTransferFrom with data', async function () {
       await shouldFail.reverting(
-        sendTransaction(
+        send.transaction(
           this.token,
           'safeTransferFrom',
           'address,address,uint256,bytes',

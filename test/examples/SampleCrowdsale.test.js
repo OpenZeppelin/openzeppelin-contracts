@@ -1,8 +1,7 @@
 const { ether } = require('../helpers/ether');
-const { advanceBlock } = require('../helpers/advanceToBlock');
 const shouldFail = require('../helpers/shouldFail');
 const time = require('../helpers/time');
-const { ethGetBalance } = require('../helpers/web3');
+const { balanceDifference } = require('../helpers/balanceDifference');
 
 const { should, BigNumber } = require('../helpers/setup');
 
@@ -16,7 +15,7 @@ contract('SampleCrowdsale', function ([_, deployer, owner, wallet, investor]) {
 
   before(async function () {
     // Advance to the next block to correctly read time in the solidity "now" function interpreted by ganache
-    await advanceBlock();
+    await time.advanceBlock();
   });
 
   beforeEach(async function () {
@@ -78,26 +77,21 @@ contract('SampleCrowdsale', function ([_, deployer, owner, wallet, investor]) {
     await time.increaseTo(this.openingTime);
     await this.crowdsale.send(GOAL);
 
-    const beforeFinalization = await ethGetBalance(wallet);
-    await time.increaseTo(this.afterClosingTime);
-    await this.crowdsale.finalize({ from: owner });
-    const afterFinalization = await ethGetBalance(wallet);
-
-    afterFinalization.minus(beforeFinalization).should.be.bignumber.equal(GOAL);
+    (await balanceDifference(wallet, async () => {
+      await time.increaseTo(this.afterClosingTime);
+      await this.crowdsale.finalize({ from: owner });
+    })).should.be.bignumber.equal(GOAL);
   });
 
   it('should allow refunds if the goal is not reached', async function () {
-    const balanceBeforeInvestment = await ethGetBalance(investor);
+    (await balanceDifference(investor, async () => {
+      await time.increaseTo(this.openingTime);
+      await this.crowdsale.sendTransaction({ value: ether(1), from: investor, gasPrice: 0 });
+      await time.increaseTo(this.afterClosingTime);
 
-    await time.increaseTo(this.openingTime);
-    await this.crowdsale.sendTransaction({ value: ether(1), from: investor, gasPrice: 0 });
-    await time.increaseTo(this.afterClosingTime);
-
-    await this.crowdsale.finalize({ from: owner });
-    await this.crowdsale.claimRefund(investor, { gasPrice: 0 });
-
-    const balanceAfterRefund = await ethGetBalance(investor);
-    balanceBeforeInvestment.should.be.bignumber.equal(balanceAfterRefund);
+      await this.crowdsale.finalize({ from: owner });
+      await this.crowdsale.claimRefund(investor, { gasPrice: 0 });
+    })).should.be.bignumber.equal(0);
   });
 
   describe('when goal > cap', function () {

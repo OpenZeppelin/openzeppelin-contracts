@@ -4,11 +4,13 @@ async function shouldFailWithMessage (promise, message) {
   try {
     await promise;
   } catch (error) {
-    error.message.should.include(message, 'Wrong failure type');
+    if (message) {
+      error.message.should.include(message, `Wrong failure type, expected '${message}'`);
+    }
     return;
   }
 
-  should.fail(`Expected '${message}' failure not received`);
+  should.fail('Expected failure not received');
 }
 
 async function reverting (promise) {
@@ -23,8 +25,12 @@ async function outOfGas (promise) {
   await shouldFailWithMessage(promise, 'out of gas');
 }
 
-module.exports = {
-  reverting,
-  throwing,
-  outOfGas,
-};
+async function shouldFail (promise) {
+  await shouldFailWithMessage(promise);
+}
+
+shouldFail.reverting = reverting;
+shouldFail.throwing = throwing;
+shouldFail.outOfGas = outOfGas;
+
+module.exports = shouldFail;
