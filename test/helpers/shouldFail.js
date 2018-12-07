@@ -1,4 +1,4 @@
-const should = require('./setup').should();
+const {should} = require('./setup');
 
 async function shouldFailWithMessage (promise, message) {
   try {

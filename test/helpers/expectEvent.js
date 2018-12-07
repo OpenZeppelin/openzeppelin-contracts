@@ -1,5 +1,4 @@
-const BigNumber = web3.BigNumber;
-const should = require('./setup').shouldWithBigNumber(BigNumber);
+const { should, BigNumber } = require('../helpers/setup');
 
 function inLogs (logs, eventName, eventArgs = {}) {
   const event = logs.find(function (e) {
