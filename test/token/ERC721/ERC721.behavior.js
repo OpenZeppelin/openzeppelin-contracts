@@ -6,11 +6,7 @@ const { decodeLogs } = require('../../helpers/decodeLogs');
 const { sendTransaction } = require('../../helpers/sendTransaction');
 
 const ERC721ReceiverMock = artifacts.require('ERC721ReceiverMock.sol');
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../../helpers/setup');
 
 function shouldBehaveLikeERC721 (
   creator,

@@ -4,11 +4,7 @@ const shouldFail = require('../helpers/shouldFail');
 const time = require('../helpers/time');
 const { ethGetBalance } = require('../helpers/web3');
 
-const BigNumber = web3.BigNumber;
-
-const should = require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+const { should, BigNumber } = require('../helpers/setup');
 
 const SampleCrowdsale = artifacts.require('SampleCrowdsale');
 const SampleCrowdsaleToken = artifacts.require('SampleCrowdsaleToken');

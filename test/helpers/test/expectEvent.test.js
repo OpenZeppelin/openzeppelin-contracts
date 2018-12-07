@@ -1,10 +1,7 @@
 const expectEvent = require('../expectEvent');
 const EventEmitter = artifacts.require('EventEmitter');
 
-const BigNumber = web3.BigNumber;
-const should = require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+const { should, BigNumber } = require('../../helpers/setup');
 
 describe('expectEvent', function () {
   beforeEach(async function () {

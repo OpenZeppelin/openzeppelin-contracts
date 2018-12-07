@@ -1,9 +1,7 @@
 
 const CounterImpl = artifacts.require('CounterImpl');
 
-require('chai')
-  .use(require('chai-bignumber')(web3.BigNumber))
-  .should();
+require('../helpers/setup');
 
 const EXPECTED = [1, 2, 3, 4];
 const KEY1 = web3.sha3('key1');

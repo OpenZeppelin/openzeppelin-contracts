@@ -2,8 +2,7 @@ const shouldFail = require('../../helpers/shouldFail');
 const { ZERO_ADDRESS } = require('../../helpers/constants');
 const expectEvent = require('../../helpers/expectEvent');
 
-require('chai')
-  .should();
+require('../../helpers/setup');
 
 function capitalize (str) {
   return str.replace(/\b\w/g, l => l.toUpperCase());

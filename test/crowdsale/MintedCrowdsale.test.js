@@ -2,7 +2,7 @@ const { shouldBehaveLikeMintedCrowdsale } = require('./MintedCrowdsale.behavior'
 const { ether } = require('../helpers/ether');
 const shouldFail = require('../helpers/shouldFail');
 
-const BigNumber = web3.BigNumber;
+const { BigNumber } = require('../helpers/setup');
 
 const MintedCrowdsaleImpl = artifacts.require('MintedCrowdsaleImpl');
 const ERC20Mintable = artifacts.require('ERC20Mintable');

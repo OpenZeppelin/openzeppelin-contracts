@@ -4,11 +4,7 @@ const { shouldBehaveLikePublicRole } = require('../access/roles/PublicRole.behav
 
 const SignatureBouncerMock = artifacts.require('SignatureBouncerMock');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../helpers/setup');
 
 const UINT_VALUE = 23;
 const BYTES_VALUE = web3.toHex('test');

@@ -3,11 +3,7 @@ const { advanceBlock } = require('../helpers/advanceToBlock');
 const time = require('../helpers/time');
 const shouldFail = require('../helpers/shouldFail');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+const { BigNumber } = require('../helpers/setup');
 
 const IncreasingPriceCrowdsaleImpl = artifacts.require('IncreasingPriceCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');

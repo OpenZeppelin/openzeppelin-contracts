@@ -1,4 +1,4 @@
-const { should, BigNumber } = require('../helpers/setup');
+const { should, BigNumber } = require('./setup');
 
 function inLogs (logs, eventName, eventArgs = {}) {
   const event = logs.find(function (e) {

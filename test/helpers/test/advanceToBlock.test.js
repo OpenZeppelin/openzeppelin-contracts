@@ -1,9 +1,6 @@
 const advanceToBlock = require('../advanceToBlock');
 
-const BigNumber = web3.BigNumber;
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../../helpers/setup');
 
 describe('advanceToBlock', function () {
   beforeEach(function () {

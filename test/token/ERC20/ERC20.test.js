@@ -4,11 +4,7 @@ const { ZERO_ADDRESS } = require('../../helpers/constants');
 
 const ERC20Mock = artifacts.require('ERC20Mock');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+const { BigNumber } = require('../../helpers/setup');
 
 contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
   beforeEach(async function () {

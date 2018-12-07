@@ -3,11 +3,7 @@ const shouldFail = require('../../helpers/shouldFail');
 const { ethGetBalance } = require('../../helpers/web3');
 const { ether } = require('../../helpers/ether');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../../helpers/setup');
 
 function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
   const amount = ether(42.0);
