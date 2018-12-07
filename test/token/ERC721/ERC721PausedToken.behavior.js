@@ -2,11 +2,7 @@ const shouldFail = require('../../helpers/shouldFail');
 const send = require('../../helpers/send');
 const { ZERO_ADDRESS } = require('../../helpers/constants');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../../helpers/setup');
 
 function shouldBehaveLikeERC721PausedToken (owner, [recipient, operator]) {
   const firstTokenId = 1;

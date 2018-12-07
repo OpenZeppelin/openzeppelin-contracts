@@ -2,11 +2,7 @@ const shouldFail = require('../helpers/shouldFail');
 const ReentrancyMock = artifacts.require('ReentrancyMock');
 const ReentrancyAttack = artifacts.require('ReentrancyAttack');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../helpers/setup');
 
 contract('ReentrancyGuard', function () {
   beforeEach(async function () {

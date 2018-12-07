@@ -2,12 +2,9 @@ const shouldFail = require('../../helpers/shouldFail');
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 
-const BigNumber = web3.BigNumber;
 const ERC721FullMock = artifacts.require('ERC721FullMock.sol');
 
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../../helpers/setup');
 
 contract('ERC721Full', function ([
   creator,

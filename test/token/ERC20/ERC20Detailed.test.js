@@ -1,8 +1,4 @@
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../../helpers/setup');
 
 const ERC20DetailedMock = artifacts.require('ERC20DetailedMock');
 

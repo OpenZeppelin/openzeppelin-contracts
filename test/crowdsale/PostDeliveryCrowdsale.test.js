@@ -2,11 +2,7 @@ const time = require('../helpers/time');
 const shouldFail = require('../helpers/shouldFail');
 const { ether } = require('../helpers/ether');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+const { BigNumber } = require('../helpers/setup');
 
 const PostDeliveryCrowdsaleImpl = artifacts.require('PostDeliveryCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');

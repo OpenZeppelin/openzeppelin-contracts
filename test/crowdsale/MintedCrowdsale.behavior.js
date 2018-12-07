@@ -1,11 +1,7 @@
 const expectEvent = require('../helpers/expectEvent');
 const { balanceDifference } = require('../helpers/balanceDifference');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../helpers/setup');
 
 function shouldBehaveLikeMintedCrowdsale ([_, investor, wallet, purchaser], rate, value) {
   const expectedTokenAmount = rate.mul(value);

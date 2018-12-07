@@ -5,11 +5,7 @@ const { ZERO_ADDRESS } = require('../../helpers/constants');
 const send = require('../../helpers/send');
 
 const ERC721ReceiverMock = artifacts.require('ERC721ReceiverMock.sol');
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../../helpers/setup');
 
 function shouldBehaveLikeERC721 (
   creator,
