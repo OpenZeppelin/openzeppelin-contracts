@@ -1,4 +1,4 @@
-const should = require('./chai').shouldOnly();
+const should = require('./setup').should();
 
 async function shouldFailWithMessage (promise, message) {
   try {
