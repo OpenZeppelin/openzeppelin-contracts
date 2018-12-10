@@ -2,12 +2,9 @@ const shouldFail = require('../../helpers/shouldFail');
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 
-const BigNumber = web3.BigNumber;
 const ERC721FullMock = artifacts.require('ERC721FullMock.sol');
 
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../../helpers/setup');
 
 contract('ERC721Full', function ([
   creator,
@@ -135,6 +132,15 @@ contract('ERC721Full', function ([
 
       it('reverts when querying metadata for non existent token id', async function () {
         await shouldFail.reverting(this.token.tokenURI(nonExistentTokenId));
+      });
+    });
+
+    describe('tokensOfOwner', function () {
+      it('returns total tokens of owner', async function () {
+        const tokenIds = await this.token.tokensOfOwner(owner);
+        tokenIds.length.should.equal(2);
+        tokenIds[0].should.be.bignumber.equal(firstTokenId);
+        tokenIds[1].should.be.bignumber.equal(secondTokenId);
       });
     });
 

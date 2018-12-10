@@ -2,11 +2,7 @@ const expectEvent = require('../helpers/expectEvent');
 const { ZERO_ADDRESS } = require('../helpers/constants');
 const SimpleToken = artifacts.require('SimpleToken');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../helpers/setup');
 
 contract('SimpleToken', function ([_, creator]) {
   beforeEach(async function () {
