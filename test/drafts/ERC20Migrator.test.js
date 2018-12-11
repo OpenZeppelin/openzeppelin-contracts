@@ -5,11 +5,7 @@ const ERC20Mock = artifacts.require('ERC20Mock');
 const ERC20Mintable = artifacts.require('ERC20Mintable');
 const ERC20Migrator = artifacts.require('ERC20Migrator');
 
-const BigNumber = web3.eth.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../helpers/setup');
 
 contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
   const totalSupply = 200;

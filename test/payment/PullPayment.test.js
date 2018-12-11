@@ -1,11 +1,7 @@
 const { balanceDifference } = require('../helpers/balanceDifference');
 const { ether } = require('../helpers/ether');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../helpers/setup');
 
 const PullPaymentMock = artifacts.require('PullPaymentMock');
 

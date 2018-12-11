@@ -3,8 +3,7 @@ const shouldFail = require('../helpers/shouldFail');
 
 const ECDSAMock = artifacts.require('ECDSAMock');
 
-require('chai')
-  .should();
+require('../helpers/setup');
 
 const TEST_MESSAGE = web3.sha3('OpenZeppelin');
 const WRONG_MESSAGE = web3.sha3('Nope');

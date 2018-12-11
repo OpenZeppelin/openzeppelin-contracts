@@ -4,11 +4,7 @@ const expectEvent = require('../helpers/expectEvent');
 const PausableMock = artifacts.require('PausableMock');
 const { shouldBehaveLikePublicRole } = require('../access/roles/PublicRole.behavior');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../helpers/setup');
 
 contract('Pausable', function ([_, pauser, otherPauser, anyone, ...otherAccounts]) {
   beforeEach(async function () {

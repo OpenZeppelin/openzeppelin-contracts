@@ -4,8 +4,7 @@ const { ZERO_ADDRESS } = require('../helpers/constants');
 
 const SecondaryMock = artifacts.require('SecondaryMock');
 
-require('chai')
-  .should();
+require('../helpers/setup');
 
 contract('Secondary', function ([_, primary, newPrimary, anyone]) {
   beforeEach(async function () {

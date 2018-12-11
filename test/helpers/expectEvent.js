@@ -1,10 +1,7 @@
+const { should, BigNumber } = require('./setup');
+
 const SolidityEvent = require('web3/lib/web3/event.js');
 const { ethGetTransactionReceipt } = require('./web3');
-
-const BigNumber = web3.BigNumber;
-const should = require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
 
 function inLogs (logs, eventName, eventArgs = {}) {
   const event = logs.find(function (e) {

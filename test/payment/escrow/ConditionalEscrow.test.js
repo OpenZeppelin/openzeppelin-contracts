@@ -3,11 +3,7 @@ const { shouldBehaveLikeEscrow } = require('./Escrow.behavior');
 const shouldFail = require('../../helpers/shouldFail');
 const { ether } = require('../../helpers/ether');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../../helpers/setup');
 
 const ConditionalEscrowMock = artifacts.require('ConditionalEscrowMock');
 
