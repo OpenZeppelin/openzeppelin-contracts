@@ -1,4 +1,5 @@
 const shouldFail = require('../helpers/shouldFail');
+const expectEvent = require('../helpers/expectEvent');
 
 const PausableCrowdsale = artifacts.require('PausableCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
@@ -28,8 +29,7 @@ contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
 
         it('emits a Pause event', async function () {
           const { logs } = await this.crowdsale.pause({ from });
-          assert.equal(logs.length, 1);
-          assert.equal(logs[0].event, 'Paused');
+          expectEvent.inLogs(logs, 'Paused');
         });
       });
 
@@ -70,8 +70,7 @@ contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
 
         it('emits an Unpause event', async function () {
           const { logs } = await this.crowdsale.unpause({ from });
-          assert.equal(logs.length, 1);
-          assert.equal(logs[0].event, 'Unpaused');
+          expectEvent.inLogs(logs, 'Unpaused');
         });
       });
 
