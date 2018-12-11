@@ -21,15 +21,18 @@ contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
       const from = owner;
 
       describe('when the crowdsale is unpaused', function () {
+        beforeEach('pausing', async function () {
+          const { logs } = await this.crowdsale.pause({ from });
+          this.logs = logs;
+        });
+
         it('pauses the crowdsale', async function () {
-          await this.crowdsale.pause({ from });
           const paused = await this.crowdsale.paused();
           paused.should.equal(true);
         });
 
-        it('emits a Pause event', async function () {
-          const { logs } = await this.crowdsale.pause({ from });
-          expectEvent.inLogs(logs, 'Paused');
+        it('emits a Paused event', async function () {
+          expectEvent.inLogs(this.logs, 'Paused');
         });
       });
 
