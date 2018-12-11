@@ -24,7 +24,7 @@ contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
         it('pauses the crowdsale', async function () {
           await this.crowdsale.pause({ from });
           const paused = await this.crowdsale.paused();
-          assert.equal(paused, true);
+          paused.should.equal(true);
         });
 
         it('emits a Pause event', async function () {
@@ -65,7 +65,7 @@ contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
         it('unpauses the crowdsale', async function () {
           await this.crowdsale.unpause({ from });
           const paused = await this.crowdsale.paused();
-          assert.equal(paused, false);
+          paused.should.equal(false);
         });
 
         it('emits an Unpause event', async function () {
@@ -95,20 +95,20 @@ contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
 
     it('is not paused by default', async function () {
       const paused = await this.crowdsale.paused({ from });
-      assert.equal(paused, false);
+      paused.should.equal(false);
     });
 
     it('is paused after being paused', async function () {
       await this.crowdsale.pause({ from });
       const paused = await this.crowdsale.paused({ from });
-      assert.equal(paused, true);
+      paused.should.equal(true);
     });
 
     it('is not paused after being paused and then unpaused', async function () {
       await this.crowdsale.pause({ from });
       await this.crowdsale.unpause({ from });
       const paused = await this.crowdsale.paused({ from });
-      assert.equal(paused, false);
+      paused.should.equal(false);
     });
   });
 
