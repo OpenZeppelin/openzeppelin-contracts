@@ -147,10 +147,10 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
         _allTokensIndex[tokenId] = 0;
         _allTokensIndex[lastToken] = tokenIndex;
     }
-    
+
     /**
      * @dev Gets the list of token IDs of the requested owner
-     * @param owner address owning the tokens 
+     * @param owner address owning the tokens
      * @return uint256[] List of token IDs owned by the requested address
      */
     function _tokensOfOwner(address owner) internal view returns (uint256[] storage) {
@@ -181,16 +181,15 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
         // then delete the last slot (swap and pop).
 
         uint256 lastTokenIndex = _ownedTokens[from].length.sub(1);
-        uint256 lastTokenId = _ownedTokens[from][lastTokenIndex];
-
         uint256 tokenIndex = _ownedTokensIndex[tokenId];
 
-        _ownedTokens[from][tokenIndex] = lastTokenId; // Move the last token to the slot of the to-delete token
-        _ownedTokensIndex[lastTokenId] = tokenIndex; // Update the moved token's index
+        // When the token to delete is the last token, the swap operation is unnecessary
+        if (tokenIndex != lastTokenIndex) {
+            uint256 lastTokenId = _ownedTokens[from][lastTokenIndex];
 
-        // Note that this will handle single-element arrays. In that case, both tokenIndex and lastTokenIndex are going
-        // to be zero. The swap operation will therefore have no effect, but the token _will_ be deleted during the
-        // 'pop' operation.
+            _ownedTokens[from][tokenIndex] = lastTokenId; // Move the last token to the slot of the to-delete token
+            _ownedTokensIndex[lastTokenId] = tokenIndex; // Update the moved token's index
+        }
 
         // This also deletes the contents at the last position of the array
         _ownedTokens[from].length--;
