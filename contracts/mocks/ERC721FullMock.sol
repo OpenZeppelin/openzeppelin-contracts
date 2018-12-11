@@ -24,8 +24,4 @@ contract ERC721FullMock is ERC721Full, ERC721Mintable, ERC721MetadataMintable, E
     function setTokenURI(uint256 tokenId, string uri) public {
         _setTokenURI(tokenId, uri);
     }
-
-    //function removeTokenFrom(address from, uint256 tokenId) public {
-    //    _removeTokenFrom(from, tokenId);
-    //}
 }
