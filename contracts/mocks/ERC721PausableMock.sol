@@ -13,7 +13,7 @@ contract ERC721PausableMock is ERC721Pausable, PauserRoleMock {
     }
 
     function burn(uint256 tokenId) public {
-        super._burn(ownerOf(tokenId), tokenId);
+        super._burn(tokenId);
     }
 
     function exists(uint256 tokenId) public view returns (bool) {

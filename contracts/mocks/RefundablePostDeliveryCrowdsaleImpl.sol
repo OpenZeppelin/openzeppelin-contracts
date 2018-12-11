@@ -1,9 +1,9 @@
 pragma solidity ^0.4.24;
 
 import "../token/ERC20/IERC20.sol";
-import "../crowdsale/distribution/RefundableCrowdsale.sol";
+import "../crowdsale/distribution/RefundablePostDeliveryCrowdsale.sol";
 
-contract RefundableCrowdsaleImpl is RefundableCrowdsale {
+contract RefundablePostDeliveryCrowdsaleImpl is RefundablePostDeliveryCrowdsale {
     constructor (
         uint256 openingTime,
         uint256 closingTime,
