@@ -10,7 +10,7 @@ contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
   const rate = 1;
   const value = 1;
 
-  beforeEach(async function () {
+  beforeEach('setting up', async function () {
     this.token = await SimpleToken.new();
     this.crowdsale = await PausableCrowdsale.new(rate, wallet, this.token.address);
     await this.token.transfer(this.crowdsale.address, value);
@@ -34,7 +34,7 @@ contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
       });
 
       describe('when the crowdsale is paused', function () {
-        beforeEach(async function () {
+        beforeEach('pausing', async function () {
           await this.crowdsale.pause({ from });
         });
 
@@ -115,7 +115,7 @@ contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
   describe('when the crowdsale is paused', function () {
     const from = owner;
 
-    beforeEach(async function () {
+    beforeEach('pausing', async function () {
       await this.crowdsale.pause({ from });
     });
 
