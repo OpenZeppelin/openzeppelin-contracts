@@ -1,4 +1,4 @@
-const { assertRevert } = require('../helpers/assertRevert');
+const shouldFail = require('../helpers/shouldFail');
 
 const PausableCrowdsale = artifacts.require('PausableCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
@@ -43,7 +43,7 @@ contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
         });
 
         it('reverts', async function () {
-          await assertRevert(this.crowdsale.pause({ from }));
+          await shouldFail.reverting(this.crowdsale.pause({ from }));
         });
       });
     });
@@ -52,7 +52,7 @@ contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
       const from = stranger;
 
       it('reverts', async function () {
-        await assertRevert(this.crowdsale.pause({ from }));
+        await shouldFail.reverting(this.crowdsale.pause({ from }));
       });
     });
   });
@@ -81,7 +81,7 @@ contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
 
       describe('when the crowdsale is unpaused', function () {
         it('reverts', async function () {
-          await assertRevert(this.crowdsale.unpause({ from }));
+          await shouldFail.reverting(this.crowdsale.unpause({ from }));
         });
       });
     });
@@ -90,7 +90,7 @@ contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
       const from = stranger;
 
       it('reverts', async function () {
-        await assertRevert(this.crowdsale.unpause({ from }));
+        await shouldFail.reverting(this.crowdsale.unpause({ from }));
       });
     });
   });
@@ -126,13 +126,13 @@ contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
 
     describe('high-level purchase using fallback function', function () {
       it('reverts', async function () {
-        await assertRevert(this.crowdsale.sendTransaction({ from, value }));
+        await shouldFail.reverting(this.crowdsale.sendTransaction({ from, value }));
       });
     });
 
     describe('buyTokens()', function () {
       it('reverts', async function () {
-        await assertRevert(this.crowdsale.buyTokens(from, { from, value }));
+        await shouldFail.reverting(this.crowdsale.buyTokens(from, { from, value }));
       });
     });
   });
