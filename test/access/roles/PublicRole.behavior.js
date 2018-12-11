@@ -74,7 +74,8 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
     });
 
     describe('remove', function () {
-      const from = manager || anyone; // Non-managed roles have no restrictions on the mocked 'remove' function
+      // Non-managed roles have no restrictions on the mocked '_remove' function (exposed via 'remove').
+      const from = manager || anyone;
 
       context(`from ${manager ? 'the manager' : 'any'} account`, function () {
         it('removes role from an already assigned account', async function () {
