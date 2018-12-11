@@ -3,11 +3,7 @@ const shouldFail = require('../helpers/shouldFail');
 const PausableCrowdsale = artifacts.require('PausableCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../helpers/setup');
 
 contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
   const rate = 1;
