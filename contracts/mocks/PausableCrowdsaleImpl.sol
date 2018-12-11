@@ -6,14 +6,14 @@ import "../crowdsale/PausableCrowdsale.sol";
 
 contract PausableCrowdsaleImpl is PausableCrowdsale {
 
-  constructor (
-    uint256 _rate,
-    address _wallet,
-    ERC20 _token
-  )
-    public
-    Crowdsale(_rate, _wallet, _token)
-  {
-  }
+    constructor (
+        uint256 _rate,
+        address _wallet,
+        ERC20 _token
+    )
+        public
+        Crowdsale(_rate, _wallet, _token)
+    {
+    }
 
 }
