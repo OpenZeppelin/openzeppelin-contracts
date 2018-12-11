@@ -117,7 +117,7 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
      * @dev Internal function to mint a new token
      * Reverts if the given token ID already exists
      * @param to address the beneficiary that will own the minted token
-     * @param tokenId uint256 ID of the token to be minted by the msg.sender
+     * @param tokenId uint256 ID of the token to be minted
      */
     function _mint(address to, uint256 tokenId) internal {
         super._mint(to, tokenId);
@@ -129,8 +129,9 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
     /**
      * @dev Internal function to burn a specific token
      * Reverts if the token does not exist
+     * Deprecated, use _burn(uint256) instead
      * @param owner owner of the token to burn
-     * @param tokenId uint256 ID of the token being burned by the msg.sender
+     * @param tokenId uint256 ID of the token being burned
      */
     function _burn(address owner, uint256 tokenId) internal {
         super._burn(owner, tokenId);
@@ -147,10 +148,10 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
         _allTokensIndex[tokenId] = 0;
         _allTokensIndex[lastToken] = tokenIndex;
     }
-    
+
     /**
      * @dev Gets the list of token IDs of the requested owner
-     * @param owner address owning the tokens 
+     * @param owner address owning the tokens
      * @return uint256[] List of token IDs owned by the requested address
      */
     function _tokensOfOwner(address owner) internal view returns (uint256[] storage) {

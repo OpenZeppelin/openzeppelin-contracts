@@ -198,7 +198,7 @@ contract ERC721 is ERC165, IERC721 {
      * @dev Internal function to mint a new token
      * Reverts if the given token ID already exists
      * @param to The address that will own the minted token
-     * @param tokenId uint256 ID of the token to be minted by the msg.sender
+     * @param tokenId uint256 ID of the token to be minted
      */
     function _mint(address to, uint256 tokenId) internal {
         require(to != address(0));
@@ -209,12 +209,23 @@ contract ERC721 is ERC165, IERC721 {
     /**
      * @dev Internal function to burn a specific token
      * Reverts if the token does not exist
-     * @param tokenId uint256 ID of the token being burned by the msg.sender
+     * Deprecated, use _burn(uint256) instead.
+     * @param owner owner of the token to burn
+     * @param tokenId uint256 ID of the token being burned
      */
     function _burn(address owner, uint256 tokenId) internal {
         _clearApproval(tokenId);
         _removeTokenFrom(owner, tokenId);
         emit Transfer(owner, address(0), tokenId);
+    }
+
+    /**
+     * @dev Internal function to burn a specific token
+     * Reverts if the token does not exist
+     * @param tokenId uint256 ID of the token being burned
+     */
+    function _burn(uint256 tokenId) internal {
+        _burn(ownerOf(tokenId), tokenId);
     }
 
     /**
