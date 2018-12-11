@@ -18,7 +18,8 @@
     "console": "truffle console",
     "coverage": "scripts/coverage.sh",
     "version": "scripts/version.js",
-    "build": "scripts/build.sh"
+    "build": "scripts/build.sh",
+    "prepack": "npm run build"
   },
   "repository": {
     "type": "git",
