@@ -130,13 +130,8 @@ contract ERC721 is ERC165, IERC721 {
     */
     function transferFrom(address from, address to, uint256 tokenId) public {
         require(_isApprovedOrOwner(msg.sender, tokenId));
-        require(to != address(0));
 
-        _clearApproval(from, tokenId);
-        _removeTokenFrom(from, tokenId);
-        _addTokenTo(to, tokenId);
-
-        emit Transfer(from, to, tokenId);
+        _transferFrom(from, to, tokenId);
     }
 
     /**
@@ -217,7 +212,7 @@ contract ERC721 is ERC165, IERC721 {
      * @param tokenId uint256 ID of the token being burned by the msg.sender
      */
     function _burn(address owner, uint256 tokenId) internal {
-        _clearApproval(owner, tokenId);
+        _clearApproval(tokenId);
         _removeTokenFrom(owner, tokenId);
         emit Transfer(owner, address(0), tokenId);
     }
@@ -250,6 +245,27 @@ contract ERC721 is ERC165, IERC721 {
     }
 
     /**
+     * @dev Internal function to transfer ownership of a given token ID to another address.
+     * As opposed to transferFrom, this imposes no restrictions on msg.sender.
+     * @param from current owner of the token
+     * @param to address to receive the ownership of the given token ID
+     * @param tokenId uint256 ID of the token to be transferred
+    */
+    function _transferFrom(address from, address to, uint256 tokenId) internal {
+        require(ownerOf(tokenId) == from);
+        require(to != address(0));
+
+        _clearApproval(tokenId);
+
+        _ownedTokensCount[from] = _ownedTokensCount[from].sub(1);
+        _ownedTokensCount[to] = _ownedTokensCount[to].add(1);
+
+        _tokenOwner[tokenId] = to;
+
+        emit Transfer(from, to, tokenId);
+    }
+
+    /**
      * @dev Internal function to invoke `onERC721Received` on a target address
      * The call is not executed if the target address is not a contract
      * @param from address representing the previous owner of the given token ID
@@ -269,12 +285,9 @@ contract ERC721 is ERC165, IERC721 {
 
     /**
      * @dev Private function to clear current approval of a given token ID
-     * Reverts if the given address is not indeed the owner of the token
-     * @param owner owner of the token
      * @param tokenId uint256 ID of the token to be transferred
      */
-    function _clearApproval(address owner, uint256 tokenId) private {
-        require(ownerOf(tokenId) == owner);
+    function _clearApproval(uint256 tokenId) private {
         if (_tokenApprovals[tokenId] != address(0)) {
             _tokenApprovals[tokenId] = address(0);
         }

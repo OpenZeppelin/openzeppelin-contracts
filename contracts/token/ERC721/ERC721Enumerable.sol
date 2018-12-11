@@ -76,9 +76,8 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
      */
     function _addTokenTo(address to, uint256 tokenId) internal {
         super._addTokenTo(to, tokenId);
-        uint256 length = _ownedTokens[to].length;
-        _ownedTokens[to].push(tokenId);
-        _ownedTokensIndex[tokenId] = length;
+
+        _addTokenToOwnerEnumeration(to, tokenId);
     }
 
     /**
@@ -92,22 +91,26 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
     function _removeTokenFrom(address from, uint256 tokenId) internal {
         super._removeTokenFrom(from, tokenId);
 
-        // To prevent a gap in the array, we store the last token in the index of the token to delete, and
-        // then delete the last slot.
-        uint256 tokenIndex = _ownedTokensIndex[tokenId];
-        uint256 lastTokenIndex = _ownedTokens[from].length.sub(1);
-        uint256 lastToken = _ownedTokens[from][lastTokenIndex];
+        _removeTokenFromOwnerEnumeration(from, tokenId);
 
-        _ownedTokens[from][tokenIndex] = lastToken;
-        // This also deletes the contents at the last position of the array
-        _ownedTokens[from].length--;
-
-        // Note that this will handle single-element arrays. In that case, both tokenIndex and lastTokenIndex are going to
-        // be zero. Then we can make sure that we will remove tokenId from the ownedTokens list since we are first swapping
-        // the lastToken to the first position, and then dropping the element placed in the last position of the list
-
+        // Since the token is being destroyed, we also clear its index
+        // TODO(nventuro): 0 is still a valid index, so arguably this isnt really helpful, remove?
         _ownedTokensIndex[tokenId] = 0;
-        _ownedTokensIndex[lastToken] = tokenIndex;
+    }
+
+    /**
+     * @dev Internal function to transfer ownership of a given token ID to another address.
+     * As opposed to transferFrom, this imposes no restrictions on msg.sender.
+     * @param from current owner of the token
+     * @param to address to receive the ownership of the given token ID
+     * @param tokenId uint256 ID of the token to be transferred
+    */
+    function _transferFrom(address from, address to, uint256 tokenId) internal {
+        super._transferFrom(from, to, tokenId);
+
+        _removeTokenFromOwnerEnumeration(from, tokenId);
+
+        _addTokenToOwnerEnumeration(to, tokenId);
     }
 
     /**
@@ -144,7 +147,7 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
         _allTokensIndex[tokenId] = 0;
         _allTokensIndex[lastToken] = tokenIndex;
     }
-
+    
     /**
      * @dev Gets the list of token IDs of the requested owner
      * @param owner address owning the tokens 
@@ -152,5 +155,47 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
      */
     function _tokensOfOwner(address owner) internal view returns (uint256[] storage) {
         return _ownedTokens[owner];
+    }
+
+    /**
+     * @dev Private function to add a token to this extension's ownership-tracking data structures.
+     * @param to address representing the new owner of the given token ID
+     * @param tokenId uint256 ID of the token to be added to the tokens list of the given address
+     */
+    function _addTokenToOwnerEnumeration(address to, uint256 tokenId) private {
+        uint256 newOwnedTokensLength = _ownedTokens[to].push(tokenId);
+        // No need to use SafeMath since the length after a push cannot be zero
+        _ownedTokensIndex[tokenId] = newOwnedTokensLength - 1;
+    }
+
+    /**
+     * @dev Private function to remove a token from this extension's ownership-tracking data structures. Note that
+     * while the token is not assigned a new owner, the _ownedTokensIndex mapping is _not_ updated: this allows for
+     * gas optimizations e.g. when performing a transfer operation (avoiding double writes).
+     * This has O(1) time complexity, but alters the order of the _ownedTokens array.
+     * @param from address representing the previous owner of the given token ID
+     * @param tokenId uint256 ID of the token to be removed from the tokens list of the given address
+     */
+    function _removeTokenFromOwnerEnumeration(address from, uint256 tokenId) private {
+        // To prevent a gap in from's tokens array, we store the last token in the index of the token to delete, and
+        // then delete the last slot (swap and pop).
+
+        uint256 lastTokenIndex = _ownedTokens[from].length.sub(1);
+        uint256 lastTokenId = _ownedTokens[from][lastTokenIndex];
+
+        uint256 tokenIndex = _ownedTokensIndex[tokenId];
+
+        _ownedTokens[from][tokenIndex] = lastTokenId; // Move the last token to the slot of the to-delete token
+        _ownedTokensIndex[lastTokenId] = tokenIndex; // Update the moved token's index
+
+        // Note that this will handle single-element arrays. In that case, both tokenIndex and lastTokenIndex are going
+        // to be zero. The swap operation will therefore have no effect, but the token _will_ be deleted during the
+        // 'pop' operation.
+
+        // This also deletes the contents at the last position of the array
+        _ownedTokens[from].length--;
+
+        // Note that _ownedTokensIndex[tokenId] hasn't been cleared: it still points to the old slot (now occcupied by
+        // lasTokenId).
     }
 }
