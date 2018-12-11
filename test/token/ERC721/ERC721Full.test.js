@@ -70,7 +70,7 @@ contract('ERC721Full', function ([
       });
     });
 
-    describe('removeTokenFrom', function () {
+    describe.skip('removeTokenFrom', function () {
       it('reverts if the correct owner is not passed', async function () {
         await shouldFail.reverting(
           this.token.removeTokenFrom(anyone, firstTokenId, { from: owner })

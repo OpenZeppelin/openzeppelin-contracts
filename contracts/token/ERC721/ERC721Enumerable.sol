@@ -68,37 +68,6 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
     }
 
     /**
-     * @dev Internal function to add a token ID to the list of a given address
-     * This function is internal due to language limitations, see the note in ERC721.sol.
-     * It is not intended to be called by custom derived contracts: in particular, it emits no Transfer event.
-     * @param to address representing the new owner of the given token ID
-     * @param tokenId uint256 ID of the token to be added to the tokens list of the given address
-     */
-    function _addTokenTo(address to, uint256 tokenId) internal {
-        super._addTokenTo(to, tokenId);
-
-        _addTokenToOwnerEnumeration(to, tokenId);
-    }
-
-    /**
-     * @dev Internal function to remove a token ID from the list of a given address
-     * This function is internal due to language limitations, see the note in ERC721.sol.
-     * It is not intended to be called by custom derived contracts: in particular, it emits no Transfer event,
-     * and doesn't clear approvals.
-     * @param from address representing the previous owner of the given token ID
-     * @param tokenId uint256 ID of the token to be removed from the tokens list of the given address
-     */
-    function _removeTokenFrom(address from, uint256 tokenId) internal {
-        super._removeTokenFrom(from, tokenId);
-
-        _removeTokenFromOwnerEnumeration(from, tokenId);
-
-        // Since the token is being destroyed, we also clear its index
-        // TODO(nventuro): 0 is still a valid index, so arguably this isnt really helpful, remove?
-        _ownedTokensIndex[tokenId] = 0;
-    }
-
-    /**
      * @dev Internal function to transfer ownership of a given token ID to another address.
      * As opposed to transferFrom, this imposes no restrictions on msg.sender.
      * @param from current owner of the token
@@ -122,6 +91,8 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
     function _mint(address to, uint256 tokenId) internal {
         super._mint(to, tokenId);
 
+        _addTokenToOwnerEnumeration(to, tokenId);
+
         _allTokensIndex[tokenId] = _allTokens.length;
         _allTokens.push(tokenId);
     }
@@ -134,6 +105,10 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
      */
     function _burn(address owner, uint256 tokenId) internal {
         super._burn(owner, tokenId);
+
+        _removeTokenFromOwnerEnumeration(owner, tokenId);
+        // Since tokenId will be deleted, we can clear its slot in _ownedTokensIndex to trigger a gas refund
+        _ownedTokensIndex[tokenId] = 0;
 
         // Reorg all tokens array
         uint256 tokenIndex = _allTokensIndex[tokenId];
@@ -195,6 +170,6 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
         _ownedTokens[from].length--;
 
         // Note that _ownedTokensIndex[tokenId] hasn't been cleared: it still points to the old slot (now occcupied by
-        // lasTokenId).
+        // lasTokenId, or just over the end of the array if the token was the last one).
     }
 }
