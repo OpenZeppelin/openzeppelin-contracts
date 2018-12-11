@@ -8,10 +8,10 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-const PostDeliveryRefundableCrowdsaleImpl = artifacts.require('PostDeliveryRefundableCrowdsaleImpl');
+const RefundablePostDeliveryCrowdsaleImpl = artifacts.require('RefundablePostDeliveryCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
-contract('PostDeliveryRefundableCrowdsale', function ([_, investor, wallet, purchaser]) {
+contract('RefundablePostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
   const rate = new BigNumber(1);
   const tokenSupply = new BigNumber('1e22');
   const goal = ether(100);
@@ -26,7 +26,7 @@ contract('PostDeliveryRefundableCrowdsale', function ([_, investor, wallet, purc
     this.closingTime = this.openingTime + time.duration.weeks(1);
     this.afterClosingTime = this.closingTime + time.duration.seconds(1);
     this.token = await SimpleToken.new();
-    this.crowdsale = await PostDeliveryRefundableCrowdsaleImpl.new(
+    this.crowdsale = await RefundablePostDeliveryCrowdsaleImpl.new(
       this.openingTime, this.closingTime, rate, wallet, this.token.address, goal
     );
     await this.token.transfer(this.crowdsale.address, tokenSupply);

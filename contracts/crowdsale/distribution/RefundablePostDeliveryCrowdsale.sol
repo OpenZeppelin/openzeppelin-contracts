@@ -1,16 +1,16 @@
 pragma solidity ^0.4.24;
 
-import "./PostDeliveryCrowdsale.sol";
 import "./RefundableCrowdsale.sol";
+import "./PostDeliveryCrowdsale.sol";
 
 
 /**
- * @title PostDeliveryRefundableCrowdsale
+ * @title RefundablePostDeliveryCrowdsale
  * @dev Extension of RefundableCrowdsale contract that only delivers the tokens
  * once the crowdsale has closed and the goal met, preventing refunds to be issued
  * to token holders.
  */
-contract PostDeliveryRefundableCrowdsale is PostDeliveryCrowdsale, RefundableCrowdsale {
+contract RefundablePostDeliveryCrowdsale is RefundableCrowdsale, PostDeliveryCrowdsale {
     function withdrawTokens(address beneficiary) public {
         require(finalized());
         require(goalReached());
