@@ -19,7 +19,7 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
       (await this.contract[`is${rolename}`](anyone)).should.equal(false);
     });
 
-    if (!manager) { // Managed roles are only assigned by the manager, and none are set at construction
+    if (manager === undefined) { // Managed roles are only assigned by the manager, and none are set at construction
       it('emits events during construction', async function () {
         await expectEvent.inConstruction(this.contract, `${rolename}Added`, {
           account: authorized,
@@ -50,7 +50,7 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
     });
 
     describe('add', function () {
-      const from = manager || authorized;
+      const from = manager === undefined ? authorized : manager;
 
       context(`from ${manager ? 'the manager' : 'a role-haver'} account`, function () {
         it('adds role to a new account', async function () {
