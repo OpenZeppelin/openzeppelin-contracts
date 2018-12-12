@@ -6,7 +6,7 @@ import "../../lifecycle/Pausable.sol";
 
 /**
  * @title PausableCrowdsale
- * @dev Extension of Crowdsale contract that can be paused and unpaused by the pauser role.
+ * @dev Extension of Crowdsale contract where purchases can be paused and unpaused by the pauser role.
  */
 contract PausableCrowdsale is Crowdsale, Pausable {
 
