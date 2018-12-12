@@ -202,7 +202,11 @@ contract ERC721 is ERC165, IERC721 {
      */
     function _mint(address to, uint256 tokenId) internal {
         require(to != address(0));
-        _addTokenTo(to, tokenId);
+        require(!_exists(tokenId));
+
+        _tokenOwner[tokenId] = to;
+        _ownedTokensCount[to] = _ownedTokensCount[to].add(1);
+
         emit Transfer(address(0), to, tokenId);
     }
 
@@ -214,11 +218,16 @@ contract ERC721 is ERC165, IERC721 {
      * @param tokenId uint256 ID of the token being burned
      */
     function _burn(address owner, uint256 tokenId) internal {
+        require(ownerOf(tokenId) == owner);
+
         _clearApproval(tokenId);
-        _removeTokenFrom(owner, tokenId);
+
+        _ownedTokensCount[owner] = _ownedTokensCount[owner].sub(1);
+        _tokenOwner[tokenId] = address(0);
+
         emit Transfer(owner, address(0), tokenId);
     }
-
+    
     /**
      * @dev Internal function to burn a specific token
      * Reverts if the token does not exist
@@ -226,33 +235,6 @@ contract ERC721 is ERC165, IERC721 {
      */
     function _burn(uint256 tokenId) internal {
         _burn(ownerOf(tokenId), tokenId);
-    }
-
-    /**
-     * @dev Internal function to add a token ID to the list of a given address
-     * Note that this function is left internal to make ERC721Enumerable possible, but is not
-     * intended to be called by custom derived contracts: in particular, it emits no Transfer event.
-     * @param to address representing the new owner of the given token ID
-     * @param tokenId uint256 ID of the token to be added to the tokens list of the given address
-     */
-    function _addTokenTo(address to, uint256 tokenId) internal {
-        require(_tokenOwner[tokenId] == address(0));
-        _tokenOwner[tokenId] = to;
-        _ownedTokensCount[to] = _ownedTokensCount[to].add(1);
-    }
-
-    /**
-     * @dev Internal function to remove a token ID from the list of a given address
-     * Note that this function is left internal to make ERC721Enumerable possible, but is not
-     * intended to be called by custom derived contracts: in particular, it emits no Transfer event,
-     * and doesn't clear approvals.
-     * @param from address representing the previous owner of the given token ID
-     * @param tokenId uint256 ID of the token to be removed from the tokens list of the given address
-     */
-    function _removeTokenFrom(address from, uint256 tokenId) internal {
-        require(ownerOf(tokenId) == from);
-        _ownedTokensCount[from] = _ownedTokensCount[from].sub(1);
-        _tokenOwner[tokenId] = address(0);
     }
 
     /**

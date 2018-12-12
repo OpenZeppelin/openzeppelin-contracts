@@ -23,7 +23,6 @@ contract('ERC721Full', function ([
     owner,
     newOwner,
     another,
-    anyone,
   ] = accounts;
 
   beforeEach(async function () {
@@ -67,36 +66,6 @@ contract('ERC721Full', function ([
         await this.token.burn(secondTokenId, { from: owner });
         (await this.token.totalSupply()).toNumber().should.be.equal(0);
         await shouldFail.reverting(this.token.tokenByIndex(0));
-      });
-    });
-
-    describe('removeTokenFrom', function () {
-      it('reverts if the correct owner is not passed', async function () {
-        await shouldFail.reverting(
-          this.token.removeTokenFrom(anyone, firstTokenId, { from: owner })
-        );
-      });
-
-      context('once removed', function () {
-        beforeEach(async function () {
-          await this.token.removeTokenFrom(owner, firstTokenId, { from: owner });
-        });
-
-        it('has been removed', async function () {
-          await shouldFail.reverting(this.token.tokenOfOwnerByIndex(owner, 1));
-        });
-
-        it('adjusts token list', async function () {
-          (await this.token.tokenOfOwnerByIndex(owner, 0)).toNumber().should.be.equal(secondTokenId);
-        });
-
-        it('adjusts owner count', async function () {
-          (await this.token.balanceOf(owner)).toNumber().should.be.equal(1);
-        });
-
-        it('does not adjust supply', async function () {
-          (await this.token.totalSupply()).toNumber().should.be.equal(2);
-        });
       });
     });
 
