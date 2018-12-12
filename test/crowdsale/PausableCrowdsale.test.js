@@ -6,19 +6,21 @@ const SimpleToken = artifacts.require('SimpleToken');
 
 require('../helpers/setup');
 
-contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
+contract('PausableCrowdsale', function ([_, pauser, wallet, anyone]) {
   const rate = 1;
   const value = 1;
 
   beforeEach('setting up', async function () {
-    this.token = await SimpleToken.new();
-    this.crowdsale = await PausableCrowdsale.new(rate, wallet, this.token.address);
-    await this.token.transfer(this.crowdsale.address, value);
+    const from = pauser;
+
+    this.token = await SimpleToken.new({ from });
+    this.crowdsale = await PausableCrowdsale.new(rate, wallet, this.token.address, { from });
+    await this.token.transfer(this.crowdsale.address, value, { from });
   });
 
   describe('pause()', function () {
-    describe('when the sender is the crowdsale owner', function () {
-      const from = owner;
+    describe('when the sender is the crowdsale pauser', function () {
+      const from = pauser;
 
       describe('when the crowdsale is unpaused', function () {
         beforeEach('pausing', async function () {
@@ -47,8 +49,8 @@ contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
       });
     });
 
-    describe('when the sender is not the crowdsale owner', function () {
-      const from = stranger;
+    describe('when the sender is not the crowdsale pauser', function () {
+      const from = anyone;
 
       it('reverts', async function () {
         await shouldFail.reverting(this.crowdsale.pause({ from }));
@@ -57,8 +59,8 @@ contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
   });
 
   describe('unpause()', function () {
-    describe('when the sender is the crowdsale owner', function () {
-      const from = owner;
+    describe('when the sender is the crowdsale pauser', function () {
+      const from = pauser;
 
       describe('when the crowdsale is paused', function () {
         beforeEach(async function () {
@@ -84,8 +86,8 @@ contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
       });
     });
 
-    describe('when the sender is not the crowdsale owner', function () {
-      const from = stranger;
+    describe('when the sender is not the crowdsale pauser', function () {
+      const from = anyone;
 
       it('reverts', async function () {
         await shouldFail.reverting(this.crowdsale.unpause({ from }));
@@ -94,7 +96,7 @@ contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
   });
 
   describe('paused', function () {
-    const from = owner;
+    const from = pauser;
 
     it('is not paused by default', async function () {
       const paused = await this.crowdsale.paused({ from });
@@ -116,7 +118,7 @@ contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
   });
 
   describe('when the crowdsale is paused', function () {
-    const from = owner;
+    const from = pauser;
 
     beforeEach('pausing', async function () {
       await this.crowdsale.pause({ from });
@@ -136,7 +138,7 @@ contract('PausableCrowdsale', function ([owner, wallet, stranger]) {
   });
 
   describe('when the crowdsale is unpaused', function () {
-    const from = owner;
+    const from = pauser;
 
     describe('high-level purchase using fallback function', function () {
       it('should accept payments', async function () {
