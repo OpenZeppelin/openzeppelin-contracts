@@ -1,14 +1,9 @@
 const { ether } = require('../helpers/ether');
-const { advanceBlock } = require('../helpers/advanceToBlock');
 const shouldFail = require('../helpers/shouldFail');
 const time = require('../helpers/time');
 const { balanceDifference } = require('../helpers/balanceDifference');
 
-const BigNumber = web3.BigNumber;
-
-const should = require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+const { should, BigNumber } = require('../helpers/setup');
 
 const SampleCrowdsale = artifacts.require('SampleCrowdsale');
 const SampleCrowdsaleToken = artifacts.require('SampleCrowdsaleToken');
@@ -20,7 +15,7 @@ contract('SampleCrowdsale', function ([_, deployer, owner, wallet, investor]) {
 
   before(async function () {
     // Advance to the next block to correctly read time in the solidity "now" function interpreted by ganache
-    await advanceBlock();
+    await time.advanceBlock();
   });
 
   beforeEach(async function () {

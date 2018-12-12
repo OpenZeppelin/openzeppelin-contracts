@@ -4,11 +4,7 @@ const { ZERO_ADDRESS } = require('../../helpers/constants');
 
 const ERC20Mock = artifacts.require('ERC20Mock');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+const { BigNumber } = require('../../helpers/setup');
 
 contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
   beforeEach(async function () {
@@ -197,6 +193,16 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
               from: owner,
               to: to,
               value: amount,
+            });
+          });
+
+          it('emits an approval event', async function () {
+            const { logs } = await this.token.transferFrom(owner, to, amount, { from: spender });
+
+            expectEvent.inLogs(logs, 'Approval', {
+              owner: owner,
+              spender: spender,
+              value: await this.token.allowance(owner, spender),
             });
           });
         });
@@ -521,13 +527,21 @@ contract('ERC20', function ([_, owner, recipient, anotherAccount]) {
             (await this.token.allowance(owner, spender)).should.be.bignumber.equal(expectedAllowance);
           });
 
-          it('emits Transfer event', async function () {
+          it('emits a Transfer event', async function () {
             const event = expectEvent.inLogs(this.logs, 'Transfer', {
               from: owner,
               to: ZERO_ADDRESS,
             });
 
             event.args.value.should.be.bignumber.equal(amount);
+          });
+
+          it('emits an Approval event', async function () {
+            expectEvent.inLogs(this.logs, 'Approval', {
+              owner: owner,
+              spender: spender,
+              value: await this.token.allowance(owner, spender),
+            });
           });
         });
       };

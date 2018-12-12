@@ -1,14 +1,10 @@
 const { ethGetBalance } = require('../helpers/web3');
 const expectEvent = require('../helpers/expectEvent');
-const { sendEther } = require('./../helpers/sendTransaction');
+const send = require('./../helpers/send');
 const { ether } = require('../helpers/ether');
 const { ZERO_ADDRESS } = require('./../helpers/constants');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../helpers/setup');
 
 const shouldFail = require('../helpers/shouldFail');
 const PaymentSplitter = artifacts.require('PaymentSplitter');
@@ -60,7 +56,7 @@ contract('PaymentSplitter', function ([_, owner, payee1, payee2, payee3, nonpaye
     });
 
     it('should accept payments', async function () {
-      await sendEther(owner, this.contract.address, amount);
+      await send.ether(owner, this.contract.address, amount);
 
       (await ethGetBalance(this.contract.address)).should.be.bignumber.equal(amount);
     });
@@ -78,12 +74,12 @@ contract('PaymentSplitter', function ([_, owner, payee1, payee2, payee3, nonpaye
     });
 
     it('should throw if non-payee want to claim', async function () {
-      await sendEther(payer1, this.contract.address, amount);
+      await send.ether(payer1, this.contract.address, amount);
       await shouldFail.reverting(this.contract.release(nonpayee1));
     });
 
     it('should distribute funds to payees', async function () {
-      await sendEther(payer1, this.contract.address, amount);
+      await send.ether(payer1, this.contract.address, amount);
 
       // receive funds
       const initBalance = await ethGetBalance(this.contract.address);

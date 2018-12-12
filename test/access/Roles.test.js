@@ -3,8 +3,7 @@ const { ZERO_ADDRESS } = require('../helpers/constants');
 
 const RolesMock = artifacts.require('RolesMock');
 
-require('chai')
-  .should();
+require('./../helpers/setup');
 
 contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
   beforeEach(async function () {

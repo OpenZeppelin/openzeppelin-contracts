@@ -2,14 +2,10 @@ const expectEvent = require('../../helpers/expectEvent');
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 const shouldFail = require('../../helpers/shouldFail');
 const { ZERO_ADDRESS } = require('../../helpers/constants');
-const { sendTransaction } = require('../../helpers/sendTransaction');
+const send = require('../../helpers/send');
 
 const ERC721ReceiverMock = artifacts.require('ERC721ReceiverMock.sol');
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../../helpers/setup');
 
 function shouldBehaveLikeERC721 (
   creator,
@@ -217,7 +213,7 @@ function shouldBehaveLikeERC721 (
 
       describe('via safeTransferFrom', function () {
         const safeTransferFromWithData = function (from, to, tokenId, opts) {
-          return sendTransaction(
+          return send.transaction(
             this.token,
             'safeTransferFrom',
             'address,address,uint256,bytes',

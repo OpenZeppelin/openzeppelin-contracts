@@ -1,22 +1,23 @@
 {
   "extends" : [
     "standard",
-    "plugin:promise/recommended"
+    "plugin:promise/recommended",
   ],
   "plugins": [
-    "promise"
+    "mocha-no-only",
+    "promise",
   ],
   "env": {
     "browser" : true,
     "node"    : true,
     "mocha"   : true,
-    "jest"    : true
+    "jest"    : true,
   },
   "globals" : {
     "artifacts": false,
     "contract": false,
     "assert": false,
-    "web3": false
+    "web3": false,
   },
   "rules": {
 
@@ -48,6 +49,8 @@
     "quotes": ["error", "single"],
     "semi": ["error", "always"],
     "space-before-function-paren": ["error", "always"],
+
+    "mocha-no-only/mocha-no-only": ["error"],
 
     "promise/always-return": "off",
     "promise/avoid-new": "off",

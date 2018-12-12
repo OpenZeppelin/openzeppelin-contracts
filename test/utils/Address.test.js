@@ -1,8 +1,7 @@
 const AddressImpl = artifacts.require('AddressImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
-require('chai')
-  .should();
+require('../helpers/setup');
 
 contract('Address', function ([_, anyone]) {
   beforeEach(async function () {

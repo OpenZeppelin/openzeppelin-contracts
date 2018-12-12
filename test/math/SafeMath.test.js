@@ -1,12 +1,9 @@
 const shouldFail = require('../helpers/shouldFail');
 const { MAX_UINT256 } = require('../helpers/constants');
 
-const BigNumber = web3.BigNumber;
 const SafeMathMock = artifacts.require('SafeMathMock');
 
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+const { BigNumber } = require('../helpers/setup');
 
 contract('SafeMath', function () {
   beforeEach(async function () {

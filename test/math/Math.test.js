@@ -1,10 +1,6 @@
 const MathMock = artifacts.require('MathMock');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+const { BigNumber } = require('../helpers/setup');
 
 contract('Math', function () {
   const min = 1234;

@@ -1,7 +1,6 @@
 const ERC20WithMetadataMock = artifacts.require('ERC20WithMetadataMock');
 
-require('chai')
-  .should();
+require('../../helpers/setup');
 
 const metadataURI = 'https://example.com';
 

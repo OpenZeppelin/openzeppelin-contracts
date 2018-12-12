@@ -1,7 +1,6 @@
 const shouldFail = require('../../helpers/shouldFail');
 
-require('chai')
-  .should();
+require('../../helpers/setup');
 
 const SafeERC20Helper = artifacts.require('SafeERC20Helper');
 

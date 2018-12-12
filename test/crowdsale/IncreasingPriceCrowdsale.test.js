@@ -1,13 +1,8 @@
 const { ether } = require('../helpers/ether');
-const { advanceBlock } = require('../helpers/advanceToBlock');
 const time = require('../helpers/time');
 const shouldFail = require('../helpers/shouldFail');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+const { BigNumber } = require('../helpers/setup');
 
 const IncreasingPriceCrowdsaleImpl = artifacts.require('IncreasingPriceCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
@@ -27,7 +22,7 @@ contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser])
     const rateAtTime450000 = new BigNumber(6439);
 
     beforeEach(async function () {
-      await advanceBlock();
+      await time.advanceBlock();
       this.startTime = (await time.latest()) + time.duration.weeks(1);
       this.closingTime = this.startTime + time.duration.weeks(1);
       this.afterClosingTime = this.closingTime + time.duration.seconds(1);

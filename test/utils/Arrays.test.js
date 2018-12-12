@@ -1,10 +1,6 @@
 const ArraysImpl = artifacts.require('ArraysImpl');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../helpers/setup');
 
 contract('Arrays', function () {
   context('Even number of elements', function () {

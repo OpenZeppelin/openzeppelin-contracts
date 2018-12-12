@@ -1,11 +1,7 @@
 const shouldFail = require('../../helpers/shouldFail');
 const time = require('../../helpers/time');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+const { BigNumber } = require('../../helpers/setup');
 
 const ERC20Mintable = artifacts.require('ERC20Mintable');
 const TokenTimelock = artifacts.require('TokenTimelock');

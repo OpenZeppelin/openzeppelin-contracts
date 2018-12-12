@@ -1,9 +1,7 @@
-const SolidityEvent = require('web3/lib/web3/event.js');
+const { should, BigNumber } = require('./setup');
 
-const BigNumber = web3.BigNumber;
-const should = require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+const SolidityEvent = require('web3/lib/web3/event.js');
+const { ethGetTransactionReceipt } = require('./web3');
 
 function inLogs (logs, eventName, eventArgs = {}) {
   const event = logs.find(function (e) {
@@ -23,7 +21,7 @@ async function inConstruction (contract, eventName, eventArgs = {}) {
 }
 
 async function inTransaction (txHash, emitter, eventName, eventArgs = {}) {
-  const receipt = await web3.eth.getTransactionReceipt(txHash);
+  const receipt = await ethGetTransactionReceipt(txHash);
   const logs = decodeLogs(receipt.logs, emitter.events);
 
   return inLogs(logs, eventName, eventArgs);

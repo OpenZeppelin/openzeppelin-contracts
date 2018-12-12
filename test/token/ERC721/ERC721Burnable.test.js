@@ -3,12 +3,9 @@ const {
   shouldBehaveLikeMintAndBurnERC721,
 } = require('./ERC721MintBurn.behavior');
 
-const BigNumber = web3.BigNumber;
 const ERC721BurnableImpl = artifacts.require('ERC721MintableBurnableImpl.sol');
 
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../../helpers/setup');
 
 contract('ERC721Burnable', function ([_, creator, ...accounts]) {
   const minter = creator;
