@@ -10,7 +10,7 @@ contract('PausableCrowdsale', function ([_, pauser, wallet, anyone]) {
   const rate = 1;
   const value = 1;
 
-  beforeEach('setting up', async function () {
+  beforeEach(async function () {
     const from = pauser;
 
     this.token = await SimpleToken.new({ from });
@@ -23,7 +23,7 @@ contract('PausableCrowdsale', function ([_, pauser, wallet, anyone]) {
       const from = pauser;
 
       describe('when the crowdsale is unpaused', function () {
-        beforeEach('pausing', async function () {
+        beforeEach(async function () {
           const { logs } = await this.crowdsale.pause({ from });
           this.logs = logs;
         });
@@ -39,7 +39,7 @@ contract('PausableCrowdsale', function ([_, pauser, wallet, anyone]) {
       });
 
       describe('when the crowdsale is paused', function () {
-        beforeEach('pausing', async function () {
+        beforeEach(async function () {
           await this.crowdsale.pause({ from });
         });
 
@@ -120,7 +120,7 @@ contract('PausableCrowdsale', function ([_, pauser, wallet, anyone]) {
   describe('when the crowdsale is paused', function () {
     const from = pauser;
 
-    beforeEach('pausing', async function () {
+    beforeEach(async function () {
       await this.crowdsale.pause({ from });
     });
 
