@@ -183,13 +183,13 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
         uint256 lastTokenIndex = _allTokens.length.sub(1);
         uint256 tokenIndex = _allTokensIndex[tokenId];
 
-        // When the token to delete is the last token, the swap operation is unnecessary
-        if (tokenIndex != lastTokenIndex) {
-            uint256 lastTokenId = _allTokens[lastTokenIndex];
+        // When the token to delete is the last token, the swap operation is unnecessary. However, since this occurs so
+        // rarely (when the last minted token is burnt) that we still do the swap here to avoid the gas cost of adding
+        // an 'if' statement (like in _removeTokenFromOwnerEnumeration)
+        uint256 lastTokenId = _allTokens[lastTokenIndex];
 
-            _allTokens[tokenIndex] = lastTokenId; // Move the last token to the slot of the to-delete token
-            _allTokensIndex[lastTokenId] = tokenIndex; // Update the moved token's index
-        }
+        _allTokens[tokenIndex] = lastTokenId; // Move the last token to the slot of the to-delete token
+        _allTokensIndex[lastTokenId] = tokenIndex; // Update the moved token's index
 
         // This also deletes the contents at the last position of the array
         _allTokens.length--;
