@@ -2,6 +2,10 @@ pragma solidity ^0.4.24;
 
 import "../Roles.sol";
 
+/**
+ * @title WhitelisterRole
+ * @dev Whitelisters are responsible for assigning and removing Whitelisted accounts.
+ */
 contract WhitelisterRole {
     using Roles for Roles.Role;
 

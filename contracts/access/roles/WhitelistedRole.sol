@@ -3,6 +3,12 @@ pragma solidity ^0.4.24;
 import "../Roles.sol";
 import "./WhitelisterRole.sol";
 
+/**
+ * @title WhitelistedRole
+ * @dev Whitelisted accounts have been approved by a Whitelister to perform certain actions (e.g. participate in a
+ * crowdsale). This role is special in that the only accounts that can add it are Whitelisters (who can also remove it),
+ * and not Whitelisteds themselves.
+ */
 contract WhitelistedRole is WhitelisterRole {
     using Roles for Roles.Role;
 
