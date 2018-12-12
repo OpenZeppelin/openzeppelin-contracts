@@ -9,7 +9,7 @@ require('chai')
 const WhitelistedCrowdsale = artifacts.require('WhitelistedCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
-contract('WhitelistedCrowdsale', function ([_, wallet, whitelister, whitelistee, otherWhitelistee, anyone]) {
+contract('WhitelistedCrowdsale', function ([_, wallet, whitelister, whitelisted, otherWhitelisted, anyone]) {
   const rate = 1;
   const value = ether(42);
   const tokenSupply = new BigNumber('1e22');
@@ -33,23 +33,23 @@ contract('WhitelistedCrowdsale', function ([_, wallet, whitelister, whitelistee,
   context('with no whitelisted addresses', function () {
     it('rejects all purchases', async function () {
       await purchaseShouldFail(this.crowdsale, anyone, value);
-      await purchaseShouldFail(this.crowdsale, whitelistee, value);
+      await purchaseShouldFail(this.crowdsale, whitelisted, value);
     });
   });
 
   context('with whitelisted addresses', function () {
     beforeEach(async function () {
-      await this.crowdsale.addWhitelistee(whitelistee, { from: whitelister });
-      await this.crowdsale.addWhitelistee(otherWhitelistee, { from: whitelister });
+      await this.crowdsale.addWhitelisted(whitelisted, { from: whitelister });
+      await this.crowdsale.addWhitelisted(otherWhitelisted, { from: whitelister });
     });
 
     it('accepts purchases with whitelisted beneficiaries', async function () {
-      await purchaseShouldSucceed(this.crowdsale, whitelistee, value);
-      await purchaseShouldSucceed(this.crowdsale, otherWhitelistee, value);
+      await purchaseShouldSucceed(this.crowdsale, whitelisted, value);
+      await purchaseShouldSucceed(this.crowdsale, otherWhitelisted, value);
     });
 
     it('rejects purchases from whitelisted addresses with non-whitelisted beneficiaries', async function () {
-      await shouldFail(this.crowdsale.buyTokens(anyone, { from: whitelistee, value }));
+      await shouldFail(this.crowdsale.buyTokens(anyone, { from: whitelisted, value }));
     });
 
     it('rejects purchases with non-whitelisted beneficiaries', async function () {
