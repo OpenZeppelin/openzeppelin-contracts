@@ -16,11 +16,7 @@ contract PausableCrowdsale is Crowdsale, Pausable {
      * @param _beneficiary Address performing the token purchase
      * @param _weiAmount Value in wei involved in the purchase
      */
-    function _preValidatePurchase(address _beneficiary, uint256 _weiAmount)
-        internal
-        view
-        whenNotPaused
-    {
+    function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal view whenNotPaused {
         return super._preValidatePurchase(_beneficiary, _weiAmount);
     }
 }
