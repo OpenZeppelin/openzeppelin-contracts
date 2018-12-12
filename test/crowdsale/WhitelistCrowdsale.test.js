@@ -6,17 +6,17 @@ const BigNumber = web3.BigNumber;
 require('chai')
   .should();
 
-const WhitelistedCrowdsale = artifacts.require('WhitelistedCrowdsaleImpl');
+const WhitelistCrowdsale = artifacts.require('WhitelistCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
-contract('WhitelistedCrowdsale', function ([_, wallet, whitelister, whitelisted, otherWhitelisted, anyone]) {
+contract('WhitelistCrowdsale', function ([_, wallet, whitelister, whitelisted, otherWhitelisted, anyone]) {
   const rate = 1;
   const value = ether(42);
   const tokenSupply = new BigNumber('1e22');
 
   beforeEach(async function () {
     this.token = await SimpleToken.new({ from: whitelister });
-    this.crowdsale = await WhitelistedCrowdsale.new(rate, wallet, this.token.address, { from: whitelister });
+    this.crowdsale = await WhitelistCrowdsale.new(rate, wallet, this.token.address, { from: whitelister });
     await this.token.transfer(this.crowdsale.address, tokenSupply, { from: whitelister });
   });
 

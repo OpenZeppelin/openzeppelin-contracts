@@ -4,10 +4,10 @@ import "../../access/roles/WhitelistedRole.sol";
 
 
 /**
- * @title WhitelistedCrowdsale
+ * @title WhitelistCrowdsale
  * @dev Crowdsale in which only whitelisted users can contribute.
  */
-contract WhitelistedCrowdsale is WhitelistedRole, Crowdsale {
+contract WhitelistCrowdsale is WhitelistedRole, Crowdsale {
     /**
     * @dev Extend parent behavior requiring beneficiary to be whitelisted. Note that no
     * restriction is imposed on the account sending the transaction.
