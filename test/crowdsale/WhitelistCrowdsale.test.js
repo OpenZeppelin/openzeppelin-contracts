@@ -1,10 +1,8 @@
+require('../helpers/setup');
 const { ether } = require('../helpers/ether');
 const shouldFail = require('../helpers/shouldFail');
 
 const BigNumber = web3.BigNumber;
-
-require('chai')
-  .should();
 
 const WhitelistCrowdsale = artifacts.require('WhitelistCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
