@@ -17,4 +17,5 @@ Fixes #
   - added tests where applicable to test new functionality,
   - made sure that your contracts are well-documented, and
   - run the JS/Solidity linters and fixed any issues (`npm run lint:fix`).
+  - updated the changelog, if applicable.
 -->
