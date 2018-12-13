@@ -5,7 +5,7 @@ const SimpleToken = artifacts.require('SimpleToken');
 
 require('../helpers/setup');
 
-contract.only('PausableCrowdsale', function ([_, pauser, wallet, anyone]) {
+contract('PausableCrowdsale', function ([_, pauser, wallet, anyone]) {
   const rate = 1;
   const value = 1;
 
