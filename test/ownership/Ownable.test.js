@@ -1,11 +1,11 @@
-import shouldBehaveLikeOwnable from './Ownable.behaviour';
+const { shouldBehaveLikeOwnable } = require('./Ownable.behavior');
 
-const Ownable = artifacts.require('Ownable');
+const Ownable = artifacts.require('OwnableMock');
 
-contract('Ownable', function (accounts) {
+contract('Ownable', function ([_, owner, ...otherAccounts]) {
   beforeEach(async function () {
-    this.ownable = await Ownable.new();
+    this.ownable = await Ownable.new({ from: owner });
   });
 
-  shouldBehaveLikeOwnable(accounts);
+  shouldBehaveLikeOwnable(owner, otherAccounts);
 });

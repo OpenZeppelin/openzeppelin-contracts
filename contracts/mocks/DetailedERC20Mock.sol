@@ -1,16 +1,8 @@
 pragma solidity ^0.4.24;
 
-import "../token/ERC20/StandardToken.sol";
-import "../token/ERC20/DetailedERC20.sol";
+import "../token/ERC20/ERC20.sol";
+import "../token/ERC20/ERC20Detailed.sol";
 
-
-contract DetailedERC20Mock is StandardToken, DetailedERC20 {
-  constructor(
-    string _name,
-    string _symbol,
-    uint8 _decimals
-  )
-    DetailedERC20(_name, _symbol, _decimals)
-    public
-  {}
+contract ERC20DetailedMock is ERC20, ERC20Detailed {
+    constructor (string name, string symbol, uint8 decimals) ERC20Detailed(name, symbol, decimals) public {}
 }
