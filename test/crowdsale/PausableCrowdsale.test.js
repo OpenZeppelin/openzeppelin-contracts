@@ -5,7 +5,7 @@ const SimpleToken = artifacts.require('SimpleToken');
 
 require('../helpers/setup');
 
-contract('PausableCrowdsale', function ([_, pauser, wallet, anyone]) {
+contract.only('PausableCrowdsale', function ([_, pauser, wallet, anyone]) {
   const rate = 1;
   const value = 1;
 
@@ -18,10 +18,8 @@ contract('PausableCrowdsale', function ([_, pauser, wallet, anyone]) {
   });
 
   it('purchases work', async function () {
-    const from = anyone;
-
-    await this.crowdsale.sendTransaction({ from, value });
-    await this.crowdsale.buyTokens(from, { from, value });
+    await this.crowdsale.sendTransaction({ from: anyone, value });
+    await this.crowdsale.buyTokens(anyone, { from: anyone, value });
   });
 
   context('after pause', function () {
@@ -30,10 +28,8 @@ contract('PausableCrowdsale', function ([_, pauser, wallet, anyone]) {
     });
 
     it('purchases do not work', async function () {
-      const from = anyone;
-
-      await shouldFail.reverting(this.crowdsale.sendTransaction({ from, value }));
-      await shouldFail.reverting(this.crowdsale.buyTokens(from, { from, value }));
+      await shouldFail.reverting(this.crowdsale.sendTransaction({ from: anyone, value }));
+      await shouldFail.reverting(this.crowdsale.buyTokens(anyone, { from: anyone, value }));
     });
 
     context('after unpause', function () {
@@ -42,10 +38,8 @@ contract('PausableCrowdsale', function ([_, pauser, wallet, anyone]) {
       });
 
       it('purchases work', async function () {
-        const from = anyone;
-
-        await this.crowdsale.sendTransaction({ from, value });
-        await this.crowdsale.buyTokens(from, { from, value });
+        await this.crowdsale.sendTransaction({ from: anyone, value });
+        await this.crowdsale.buyTokens(anyone, { from: anyone, value });
       });
     });
   });
