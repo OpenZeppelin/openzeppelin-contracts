@@ -4,8 +4,8 @@ New features:
  * `WhitelistCrowdsale`: a crowdsale where only whitelisted accounts (`WhitelistedRole`) can purchase tokens. Adding or removing accounts from the whitelist is done by whitelisters (`WhitelisterRole`). Similar to the pre-2.0 `WhitelistedCrowdsale`.
  * `RefundablePostDeliveryCrowdsale`: replacement for `RefundableCrowdsale` (deprecated, see below) where tokens are only granted once the crowdsale ends (if it meets its goal).
  * `ERC20`: `transferFrom` and `_burnFrom ` now emit `Approval` events, improving dApp support.
- * `ERC721`: added `_burn(uint256 tokenId)`, replacing the (deprecated) old function.
- * `ERC721`: added `_tokensOfOwner(address owner)`, allowing for more extensive `ERC721` customization.
+ * `ERC721`: added `_burn(uint256 tokenId)`, replacing the similar deprecated function (see below).
+ * `ERC721`: added `_tokensOfOwner(address owner)`, allowing to internally retrieve the array of an account's owned tokens.
 
 Improvements:
  * All contracts now require solc v0.4.24 or higher.
