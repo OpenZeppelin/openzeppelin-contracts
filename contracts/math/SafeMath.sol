@@ -78,7 +78,7 @@ library SafeMath {
     }
 
     /**
-    * @dev Subtracts two signed integers, reverts on overflow (i.e. if subtrahend is greater than minuend).
+    * @dev Subtracts two signed integers, reverts on overflow.
     */
     function sub(int256 a, int256 b) internal pure returns (int256) {
         int256 c = a - b;
