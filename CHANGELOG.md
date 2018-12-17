@@ -1,7 +1,7 @@
 ### 2.1.0 (unreleased)
 
 New features:
- * `WhitelistCrowdsale`: a crowdsale where only whitelisted accounts (`WhitelistedRole`) can purchase tokens. This attribute is given by a series of whitelisters (`WhitelisterRole`), who can also remove them. Similar to the pre-2.0 `WhitelistedCrowdsale`.
+ * `WhitelistCrowdsale`: a crowdsale where only whitelisted accounts (`WhitelistedRole`) can purchase tokens. Adding or removing accounts from the whitelist is done by whitelisters (`WhitelisterRole`). Similar to the pre-2.0 `WhitelistedCrowdsale`.
  * `RefundablePostDeliveryCrowdsale`: replacement for the (deprecated) `RefundableCrowdsale`: tokens are only granted once the crowdsale ends (if it meets its goal).
  * `ERC20`: `transferFrom` and `_burnFrom ` now emit `Approval` events, improving dApp support.
  * `ERC721`: added `_burn(uint256 tokenId)`, replacing the (deprecated) old function.
