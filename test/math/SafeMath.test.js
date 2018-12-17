@@ -237,6 +237,13 @@ contract('SafeMath', function () {
 
         await shouldFail.reverting(this.safeMath.mulInts(a, b));
       });
+
+      it('throws a revert error on multiplication overflow, negative operands, reversed operands', async function () {
+        const a = new BigNumber(-1);
+        const b = MIN_INT256;
+
+        await shouldFail.reverting(this.safeMath.mulInts(a, b));
+      });
     });
 
     describe('div', function () {
