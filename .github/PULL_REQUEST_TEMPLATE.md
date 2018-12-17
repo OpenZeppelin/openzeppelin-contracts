@@ -16,6 +16,6 @@ Fixes #
     (https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/CONTRIBUTING.md),
   - added tests where applicable to test new functionality,
   - made sure that your contracts are well-documented, and
-  - run the JS/Solidity linters and fixed any issues (`npm run lint:fix`).
+   - run the JS/Solidity linters and fixed any issues (`npm run lint:fix`),
   - updated the changelog, if applicable.
 -->
