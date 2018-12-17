@@ -34,13 +34,6 @@ contract ERC20FundedCrowdsale is Crowdsale {
     }
 
     /**
-     * @return The number of `fundingToken`s raised (NOT WEI).
-     */
-    function weiRaised() public view returns (uint256) {
-        return fundingToken().balanceOf(address(this));
-    }
-
-    /**
      * @dev Forwards `fundingToken`s to `wallet`.
      */
     function _forwardFunds() internal {

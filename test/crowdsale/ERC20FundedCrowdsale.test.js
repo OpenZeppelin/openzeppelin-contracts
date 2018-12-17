@@ -41,6 +41,7 @@ contract('ERC20FundedCrowdsale', function ([_, investor, wallet, purchaser]) {
         describe('bare payments', function () {
           it('should accept payments', async function () {
             await this.crowdsale.sendTransaction({ from: purchaser });
+            (await this.crowdsale.weiRaised()).should.be.bignumber.equal(value);
           });
 
           it('reverts on zero-valued payments', async function () {
@@ -53,6 +54,7 @@ contract('ERC20FundedCrowdsale', function ([_, investor, wallet, purchaser]) {
         describe('buyTokens', function () {
           it('should accept payments', async function () {
             await this.crowdsale.buyTokens(investor, { from: purchaser });
+            (await this.crowdsale.weiRaised()).should.be.bignumber.equal(value);
           });
 
           it('reverts on zero-valued payments', async function () {
