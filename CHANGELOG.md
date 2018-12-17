@@ -19,5 +19,7 @@
 ### Bugfixes:
 
 ### Breaking changes:
- * `ERC721`: deprecated `_burn(address owner, uint256 tokenId)` due to the `owner` parameter being unnecessary.
- * `RefundableCrowdsale`: deprecated due to trading abuse potential on crowdsales that miss their goal.
+
+### Deprecations:
+ * `ERC721._burn(address owner, uint256 tokenId)`: due to the `owner` parameter being unnecessary.
+ * `RefundableCrowdsale`: due to trading abuse potential on crowdsales that miss their goal.
