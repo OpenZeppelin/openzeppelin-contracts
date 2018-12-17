@@ -75,7 +75,7 @@ contract('ERC20FundedCrowdsale', function ([_, investor, wallet, purchaser]) {
           expectEvent.inLogs(logs, 'TokensPurchased', {
             purchaser,
             beneficiary: purchaser,
-            value: 0,
+            value,
             amount: expectedTokenAmount,
           });
         });
@@ -99,7 +99,7 @@ contract('ERC20FundedCrowdsale', function ([_, investor, wallet, purchaser]) {
           expectEvent.inLogs(logs, 'TokensPurchased', {
             purchaser: purchaser,
             beneficiary: investor,
-            value: 0,
+            value,
             amount: expectedTokenAmount,
           });
         });

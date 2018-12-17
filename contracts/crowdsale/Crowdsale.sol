@@ -112,7 +112,7 @@ contract Crowdsale is ReentrancyGuard {
      * @param beneficiary Recipient of the token purchase
      */
     function buyTokens(address beneficiary) public nonReentrant payable {
-        uint256 weiAmount = msg.value;
+        uint256 weiAmount = _weiAmount();
         _preValidatePurchase(beneficiary, weiAmount);
 
         // calculate token amount to be created
@@ -197,5 +197,12 @@ contract Crowdsale is ReentrancyGuard {
      */
     function _forwardFunds() internal {
         _wallet.transfer(msg.value);
+    }
+
+    /**
+     * @dev Determines the value (in Wei) included with a purchase.
+     */
+    function _weiAmount() internal view returns (uint256) {
+        return msg.value;
     }
 }
