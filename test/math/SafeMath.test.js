@@ -231,14 +231,14 @@ contract('SafeMath', function () {
         await shouldFail.reverting(this.safeMath.mulInts(a, b));
       });
 
-      it('throws a revert error on multiplication overflow, negative operands', async function () {
+      it('reverts when minimum integer is multiplied by -1', async function () {
         const a = MIN_INT256;
         const b = new BigNumber(-1);
 
         await shouldFail.reverting(this.safeMath.mulInts(a, b));
       });
 
-      it('throws a revert error on multiplication overflow, negative operands, reversed operands', async function () {
+      it('reverts when -1 is multiplied by minimum integer', async function () {
         const a = new BigNumber(-1);
         const b = MIN_INT256;
 
