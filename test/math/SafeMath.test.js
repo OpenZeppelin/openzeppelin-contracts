@@ -19,7 +19,7 @@ contract('SafeMath', function () {
         (await this.safeMath.addUints(a, b)).should.be.bignumber.equal(a.plus(b));
       });
 
-      it('throws a revert error on addition overflow', async function () {
+      it('reverts on addition overflow', async function () {
         const a = MAX_UINT256;
         const b = new BigNumber(1);
 
@@ -35,7 +35,7 @@ contract('SafeMath', function () {
         (await this.safeMath.subUints(a, b)).should.be.bignumber.equal(a.minus(b));
       });
 
-      it('throws a revert error if subtraction result would be negative', async function () {
+      it('reverts if subtraction result would be negative', async function () {
         const a = new BigNumber(1234);
         const b = new BigNumber(5678);
 
@@ -65,7 +65,7 @@ contract('SafeMath', function () {
         (await this.safeMath.mulUints(a, b)).should.be.bignumber.equal(a.times(b));
       });
 
-      it('throws a revert error on multiplication overflow', async function () {
+      it('reverts on multiplication overflow', async function () {
         const a = MAX_UINT256;
         const b = new BigNumber(2);
 
@@ -95,7 +95,7 @@ contract('SafeMath', function () {
         (await this.safeMath.divUints(a, b)).should.be.bignumber.equal(1);
       });
 
-      it('throws a revert error on zero division', async function () {
+      it('reverts on zero division', async function () {
         const a = new BigNumber(5678);
         const b = new BigNumber(0);
 
@@ -160,14 +160,14 @@ contract('SafeMath', function () {
         result.should.be.bignumber.equal(a.plus(b));
       });
 
-      it('throws a revert error on positive addition overflow', async function () {
+      it('reverts on positive addition overflow', async function () {
         const a = MAX_INT256;
         const b = new BigNumber(1);
 
         await shouldFail.reverting(this.safeMath.addInts(a, b));
       });
 
-      it('throws a revert error on negative addition overflow', async function () {
+      it('reverts on negative addition overflow', async function () {
         const a = MIN_INT256;
         const b = new BigNumber(-1);
 
@@ -192,14 +192,14 @@ contract('SafeMath', function () {
         result.should.be.bignumber.equal(a.minus(b));
       });
 
-      it('throws a revert error on positive subtraction overflow', async function () {
+      it('reverts on positive subtraction overflow', async function () {
         const a = MAX_INT256;
         const b = new BigNumber(-1);
 
         await shouldFail.reverting(this.safeMath.subInts(a, b));
       });
 
-      it('throws a revert error on negative subtraction overflow', async function () {
+      it('reverts on negative subtraction overflow', async function () {
         const a = MIN_INT256;
         const b = new BigNumber(1);
 
@@ -224,7 +224,7 @@ contract('SafeMath', function () {
         result.should.be.bignumber.equal(a.times(b));
       });
 
-      it('throws a revert error on multiplication overflow, positive operands', async function () {
+      it('reverts on multiplication overflow, positive operands', async function () {
         const a = MAX_INT256;
         const b = new BigNumber(2);
 
@@ -255,14 +255,14 @@ contract('SafeMath', function () {
         result.should.be.bignumber.equal(a.div(b));
       });
 
-      it('throws a revert error on zero division', async function () {
+      it('reverts on zero division', async function () {
         const a = new BigNumber(-5678);
         const b = new BigNumber(0);
 
         await shouldFail.reverting(this.safeMath.divInts(a, b));
       });
 
-      it('throws a revert error on overflow, negative second', async function () {
+      it('reverts on overflow, negative second', async function () {
         const a = new BigNumber(MIN_INT256);
         const b = new BigNumber(-1);
 
