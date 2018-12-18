@@ -26,7 +26,7 @@ contract TimedCrowdsale is Crowdsale {
      * @param openingTime Crowdsale opening time
      * @param closingTime Crowdsale closing time
      */
-    constructor (uint256 openingTime, uint256 closingTime) internal {
+    constructor (uint256 openingTime, uint256 closingTime) public {
         // solium-disable-next-line security/no-block-members
         require(openingTime >= block.timestamp);
         require(closingTime > openingTime);

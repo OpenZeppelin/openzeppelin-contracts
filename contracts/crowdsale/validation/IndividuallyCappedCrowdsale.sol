@@ -14,8 +14,6 @@ contract IndividuallyCappedCrowdsale is Crowdsale, CapperRole {
     mapping(address => uint256) private _contributions;
     mapping(address => uint256) private _caps;
 
-    constructor () internal {}
-
     /**
      * @dev Sets a specific beneficiary's maximum contribution.
      * @param beneficiary Address to be capped
