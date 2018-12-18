@@ -53,7 +53,7 @@ contract Crowdsale is ReentrancyGuard {
      * @param wallet Address where collected funds will be forwarded to
      * @param token Address of the token being sold
      */
-    constructor (uint256 rate, address wallet, IERC20 token) internal {
+    constructor (uint256 rate, address wallet, IERC20 token) public {
         require(rate > 0);
         require(wallet != address(0));
         require(token != address(0));
