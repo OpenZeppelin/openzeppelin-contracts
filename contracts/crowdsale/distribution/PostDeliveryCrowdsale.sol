@@ -12,8 +12,6 @@ contract PostDeliveryCrowdsale is TimedCrowdsale {
 
     mapping(address => uint256) private _balances;
 
-    constructor () internal {}
-
     /**
      * @dev Withdraw tokens only after crowdsale ends.
      * @param beneficiary Whose tokens will be withdrawn.
