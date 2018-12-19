@@ -8,7 +8,6 @@
     "test"
   ],
   "scripts": {
-    "test": "scripts/test.sh",
     "lint:js": "eslint .",
     "lint:js:fix": "eslint . --fix",
     "lint:sol": "solium -d .",
@@ -16,10 +15,11 @@
     "lint": "npm run lint:js && npm run lint:sol",
     "lint:fix": "npm run lint:js:fix && npm run lint:sol:fix",
     "console": "truffle console",
+    "build": "scripts/build.sh",
     "compile": "scripts/compile.sh",
     "coverage": "scripts/coverage.sh",
     "version": "scripts/version.js",
-    "build": "scripts/build.sh",
+    "test": "npm run compile && scripts/test.sh",
     "prepack": "npm run build"
   },
   "repository": {
