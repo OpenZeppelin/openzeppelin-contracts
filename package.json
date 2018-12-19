@@ -16,6 +16,7 @@
     "lint": "npm run lint:js && npm run lint:sol",
     "lint:fix": "npm run lint:js:fix && npm run lint:sol:fix",
     "console": "truffle console",
+    "compile": "scripts/compile.sh",
     "coverage": "scripts/coverage.sh",
     "version": "scripts/version.js",
     "build": "scripts/build.sh",
