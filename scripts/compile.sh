@@ -26,7 +26,7 @@ echo "
 module.exports = {
   compilers: {
     solc: {
-      version: \"0.5.1\",
+      version: \"0.5.0\",
     },
   },
 };
