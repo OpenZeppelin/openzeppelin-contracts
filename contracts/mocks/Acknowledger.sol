@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.1;
 
 contract Acknowledger {
     event AcknowledgeFoo(uint256 a);
