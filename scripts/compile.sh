@@ -9,14 +9,14 @@ SOLC_05_DIR=solc-0.5
 rm -rf build/
 
 # Create a subproject where 0.5.x compilation will take place
-mkdir -p $SOLC_05_DIR
+mkdir -p "$SOLC_05_DIR"
 
-cd $SOLC_05_DIR
+cd "$SOLC_05_DIR"
 npm init --yes
 npm install --save-dev truffle@5.0.0
 
 rm -rf contracts
-ln -s ../contracts contracts
+ln --symbolic ../contracts contracts
 
 # Delete any previous build artifacts
 rm -rf build/
@@ -35,8 +35,8 @@ module.exports = {
 npx truffle compile
 
 # Modify the paths in the artifacts to make it look as if they were built in the root
-find build -name "*.json" -exec sed -i "s/\/$SOLC_05_DIR//g" {} +
+sed --in-place --expression "s/\/$SOLC_05_DIR//g" build/contracts/*.json
 
 # Copy them back into the root
 cd ..
-cp -r $SOLC_05_DIR/build build
+cp --recursive "$SOLC_05_DIR"/build build
