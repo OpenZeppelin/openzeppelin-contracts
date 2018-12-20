@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 contract EventEmitter {
     event Argumentless();
@@ -11,7 +11,7 @@ contract EventEmitter {
     event String(string value);
     event LongUintBooleanString(uint256 uintValue, bool booleanValue, string stringValue);
 
-    constructor (uint8 uintValue, bool booleanValue, string stringValue) public {
+    constructor (uint8 uintValue, bool booleanValue, string memory stringValue) public {
         emit ShortUint(uintValue);
         emit Boolean(booleanValue);
         emit String(stringValue);
@@ -45,11 +45,11 @@ contract EventEmitter {
         emit Boolean(value);
     }
 
-    function emitString(string value) public {
+    function emitString(string memory value) public {
         emit String(value);
     }
 
-    function emitLongUintBooleanString(uint256 uintValue, bool booleanValue, string stringValue) public {
+    function emitLongUintBooleanString(uint256 uintValue, bool booleanValue, string memory stringValue) public {
         emit LongUintBooleanString(uintValue, booleanValue, stringValue);
     }
 
@@ -58,7 +58,7 @@ contract EventEmitter {
         emit Boolean(boolValue);
     }
 
-    function emitStringAndEmitIndirectly(string value, IndirectEventEmitter emitter) public {
+    function emitStringAndEmitIndirectly(string memory value, IndirectEventEmitter emitter) public {
         emit String(value);
         emitter.emitStringIndirectly(value);
     }
@@ -67,7 +67,7 @@ contract EventEmitter {
 contract IndirectEventEmitter {
     event IndirectString(string value);
 
-    function emitStringIndirectly(string value) public {
+    function emitStringIndirectly(string memory value) public {
         emit IndirectString(value);
     }
 }

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "../token/ERC721/IERC721Receiver.sol";
 
@@ -13,7 +13,7 @@ contract ERC721ReceiverMock is IERC721Receiver {
         _reverts = reverts;
     }
 
-    function onERC721Received(address operator, address from, uint256 tokenId, bytes data) public returns (bytes4) {
+    function onERC721Received(address operator, address from, uint256 tokenId, bytes memory data) public returns (bytes4) {
         require(!_reverts);
         emit Received(operator, from, tokenId, data, gasleft());
         return _retval;
