@@ -1,5 +1,3 @@
-/* solium-disable security/no-block-members */
-
 pragma solidity ^0.5.0;
 
 import "../token/ERC20/SafeERC20.sol";
@@ -22,6 +20,8 @@ contract TokenVesting is Ownable {
     // beneficiary of tokens after they are released
     address private _beneficiary;
 
+    // Durations and timestamps are expressed in UNIX time, the same units as block.timestamp.
+    // solhint-disable not-rely-on-time
     uint256 private _cliff;
     uint256 private _start;
     uint256 private _duration;

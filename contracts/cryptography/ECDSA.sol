@@ -26,7 +26,7 @@ library ECDSA {
         // Divide the signature in r, s and v variables
         // ecrecover takes the signature parameters, and the only way to get them
         // currently is to use assembly.
-        // solium-disable-next-line security/no-inline-assembly
+        // solhint-disable-next-line no-inline-assembly
         assembly {
             r := mload(add(signature, 0x20))
             s := mload(add(signature, 0x40))
