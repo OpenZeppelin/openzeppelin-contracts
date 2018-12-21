@@ -22,17 +22,17 @@ contract('SafeERC20', function () {
       await shouldFail.reverting(this.helper.doFailingApprove());
     });
 
-  it('should throw on failed increaseAllowance', async function () {
-    await shouldFail.reverting(this.helper.doFailingIncreaseAllowance());
-  });
+    it('should throw on failed increaseAllowance', async function () {
+      await shouldFail.reverting(this.helper.doFailingIncreaseAllowance());
+    });
 
-  it('should throw on failed decreaseAllowance', async function () {
-    await shouldFail.reverting(this.helper.doFailingDecreaseAllowance());
-  });
+    it('should throw on failed decreaseAllowance', async function () {
+      await shouldFail.reverting(this.helper.doFailingDecreaseAllowance());
+    });
 
-  it('should not throw on succeeding transfer', async function () {
-    await this.helper.doSucceedingTransfer();
-  });
+    it('should not throw on succeeding transfer', async function () {
+      await this.helper.doSucceedingTransfer();
+    });
 
     it('reverts on decreaseAllowance', async function () {
       await shouldFail.reverting(this.helper.doFailingDecreaseAllowance());
