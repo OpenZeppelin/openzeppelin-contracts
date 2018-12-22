@@ -12,7 +12,7 @@ rm -rf build/
 mkdir -p "$SOLC_05_DIR"
 
 cd "$SOLC_05_DIR"
-npm init --yes
+npm init --yes > /dev/null
 npm install --save-dev truffle@5.0.0
 
 rm -rf contracts
