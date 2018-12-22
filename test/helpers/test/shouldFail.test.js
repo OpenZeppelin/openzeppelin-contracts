@@ -69,16 +69,8 @@ describe('shouldFail', function () {
         await shouldFail.reverting.withMessage(this.failer.failWithRevertVocally(), 'Doomed to fail');
       });
 
-      it('rejects a revert with an unexpected reason', async function () {
-        await assertFailure(shouldFail.reverting.withMessage(this.failer.failWithRevertVocally(), 'Ill-fated'));
-      });
-
       it('accepts require() revert with an expected reason', async function () {
         await shouldFail.reverting.withMessage(this.failer.failRequirementVocally(), 'Unsatisfied');
-      });
-
-      it('rejects require() revert with an un expected reason', async function () {
-        await assertFailure(shouldFail.reverting.withMessage(this.failer.failRequirementVocally(), 'Unhappy'));
       });
     });
   });
