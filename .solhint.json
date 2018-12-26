@@ -1,8 +1,9 @@
 {
   "extends": "default",
   "rules": {
-    "compiler-fixed": false,
     "indent": ["error", 4],
+
+    "compiler-fixed": false,
     "no-simple-event-func-name": false,
     "two-lines-top-level-separator": false
   }
