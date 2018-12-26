@@ -10,11 +10,11 @@ contract RefundableCrowdsaleImpl is RefundableCrowdsale {
         uint256 rate,
         address payable wallet,
         IERC20 token,
-        uint256 goal
-    )
-        public
-        Crowdsale(rate, wallet, token)
-        TimedCrowdsale(openingTime, closingTime)
-        RefundableCrowdsale(goal)
-    {}
+        uint256 goal)
+    public
+    Crowdsale(rate, wallet, token)
+    TimedCrowdsale(openingTime, closingTime)
+    RefundableCrowdsale(goal) {
+        // solhint-disable-previous-line no-empty-blocks
+    }
 }

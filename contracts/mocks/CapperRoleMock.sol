@@ -8,6 +8,7 @@ contract CapperRoleMock is CapperRole {
     }
 
     function onlyCapperMock() public view onlyCapper {
+        // solhint-disable-previous-line no-empty-blocks
     }
 
     // Causes a compilation error if super._removeCapper is not internal

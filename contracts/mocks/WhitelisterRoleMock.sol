@@ -8,6 +8,7 @@ contract WhitelisterRoleMock is WhitelisterRole {
     }
 
     function onlyWhitelisterMock() public view onlyWhitelister {
+        // solhint-disable-previous-line no-empty-blocks
     }
 
     // Causes a compilation error if super._removeWhitelister is not internal

@@ -5,8 +5,9 @@ import "../crowdsale/validation/TimedCrowdsale.sol";
 
 contract TimedCrowdsaleImpl is TimedCrowdsale {
     constructor (uint256 openingTime, uint256 closingTime, uint256 rate, address payable wallet, IERC20 token)
-        public
-        Crowdsale(rate, wallet, token)
-        TimedCrowdsale(openingTime, closingTime)
-    {}
+    public
+    Crowdsale(rate, wallet, token)
+    TimedCrowdsale(openingTime, closingTime) {
+        // solhint-disable-previous-line no-empty-blocks
+    }
 }

@@ -9,5 +9,7 @@ import "../token/ERC721/ERC721Burnable.sol";
  * @title ERC721MintableBurnableImpl
  */
 contract ERC721MintableBurnableImpl is ERC721Full, ERC721Mintable, ERC721MetadataMintable, ERC721Burnable {
-    constructor () ERC721Mintable() ERC721Full("Test", "TEST") public {}
+    constructor () public ERC721Mintable() ERC721Full("Test", "TEST") {
+        // solhint-disable-previous-line no-empty-blocks
+    }
 }

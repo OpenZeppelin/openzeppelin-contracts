@@ -10,11 +10,11 @@ contract IncreasingPriceCrowdsaleImpl is IncreasingPriceCrowdsale {
         address payable wallet,
         IERC20 token,
         uint256 initialRate,
-        uint256 finalRate
-    )
-        public
-        Crowdsale(initialRate, wallet, token)
-        TimedCrowdsale(openingTime, closingTime)
-        IncreasingPriceCrowdsale(initialRate, finalRate)
-    {}
+        uint256 finalRate)
+    public
+    Crowdsale(initialRate, wallet, token)
+    TimedCrowdsale(openingTime, closingTime)
+    IncreasingPriceCrowdsale(initialRate, finalRate) {
+        // solhint-disable-previous-line no-empty-blocks
+    }
 }

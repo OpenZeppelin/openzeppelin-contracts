@@ -8,6 +8,7 @@ contract PauserRoleMock is PauserRole {
     }
 
     function onlyPauserMock() public view onlyPauser {
+        // solhint-disable-previous-line no-empty-blocks
     }
 
     // Causes a compilation error if super._removePauser is not internal
