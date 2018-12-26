@@ -11,6 +11,7 @@ import "./ERC721Metadata.sol";
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
 contract ERC721Full is ERC721, ERC721Enumerable, ERC721Metadata {
-    // solhint-disable-next-line no-empty-blocks
-    constructor (string memory name, string memory symbol) public ERC721Metadata(name, symbol) {}
+    constructor (string memory name, string memory symbol) public ERC721Metadata(name, symbol) {
+        // solhint-disable-previous-line no-empty-blocks
+    }
 }

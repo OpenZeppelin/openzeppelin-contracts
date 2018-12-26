@@ -55,7 +55,7 @@
     "ethjs-abi": "^0.2.1",
     "ganache-cli": "6.1.8",
     "pify": "^4.0.1",
-    "solhint": "^1.4.1",
+    "solhint": "^1.5.0",
     "solidity-coverage": "^0.5.4",
     "solium": "^1.1.8",
     "truffle": "^4.1.13",

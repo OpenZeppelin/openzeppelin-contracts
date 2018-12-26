@@ -45,6 +45,7 @@ contract FinalizableCrowdsale is TimedCrowdsale {
      * should call super._finalization() to ensure the chain of finalization is
      * executed entirely.
      */
-    // solhint-disable-next-line no-empty-blocks
-    function _finalization() internal {}
+    function _finalization() internal {
+        // solhint-disable-previous-line no-empty-blocks
+    }
 }

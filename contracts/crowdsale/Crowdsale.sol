@@ -146,9 +146,8 @@ contract Crowdsale is ReentrancyGuard {
      * @param beneficiary Address performing the token purchase
      * @param weiAmount Value in wei involved in the purchase
      */
-    // solhint-disable-next-line no-empty-blocks
     function _postValidatePurchase(address beneficiary, uint256 weiAmount) internal view {
-        // optional override
+        // solhint-disable-previous-line no-empty-blocks
     }
 
     /**
@@ -177,9 +176,8 @@ contract Crowdsale is ReentrancyGuard {
      * @param beneficiary Address receiving the tokens
      * @param weiAmount Value in wei involved in the purchase
      */
-    // solhint-disable-next-line no-empty-blocks
     function _updatePurchasingState(address beneficiary, uint256 weiAmount) internal {
-        // optional override
+        // solhint-disable-previous-line no-empty-blocks
     }
 
     /**
