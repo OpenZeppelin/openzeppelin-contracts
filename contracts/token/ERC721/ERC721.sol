@@ -147,7 +147,6 @@ contract ERC721 is ERC165, IERC721 {
      * @param tokenId uint256 ID of the token to be transferred
     */
     function safeTransferFrom(address from, address to, uint256 tokenId) public {
-        // solium-disable-next-line arg-overflow
         safeTransferFrom(from, to, tokenId, "");
     }
 
@@ -165,7 +164,6 @@ contract ERC721 is ERC165, IERC721 {
      */
     function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory _data) public {
         transferFrom(from, to, tokenId);
-        // solium-disable-next-line arg-overflow
         require(_checkOnERC721Received(from, to, tokenId, _data));
     }
 
@@ -188,9 +186,6 @@ contract ERC721 is ERC165, IERC721 {
      */
     function _isApprovedOrOwner(address spender, uint256 tokenId) internal view returns (bool) {
         address owner = ownerOf(tokenId);
-        // Disable solium check because of
-        // https://github.com/duaraghav8/Solium/issues/175
-        // solium-disable-next-line operator-whitespace
         return (spender == owner || getApproved(tokenId) == spender || isApprovedForAll(owner, spender));
     }
 

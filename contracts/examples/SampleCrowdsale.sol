@@ -30,11 +30,6 @@ contract SampleCrowdsaleToken is ERC20Mintable, ERC20Detailed {
  * After adding multiple features it's good practice to run integration tests
  * to ensure that subcontracts works together as intended.
  */
-// XXX There doesn't seem to be a way to split this line that keeps solium
-// happy. See:
-// https://github.com/duaraghav8/Solium/issues/205
-// --elopio - 2018-05-10
-// solium-disable-next-line max-len
 contract SampleCrowdsale is CappedCrowdsale, RefundableCrowdsale, MintedCrowdsale {
     constructor (
         uint256 openingTime,
