@@ -56,8 +56,7 @@
     "pify": "^4.0.1",
     "solhint": "^1.5.0",
     "solidity-coverage": "^0.5.4",
-    "truffle": "^4.1.13",
-    "web3-utils": "^1.0.0-beta.34"
+    "truffle": "^5.0.0"
   },
   "dependencies": {}
 }
