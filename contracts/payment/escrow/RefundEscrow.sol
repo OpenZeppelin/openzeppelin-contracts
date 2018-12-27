@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "./ConditionalEscrow.sol";
 
@@ -20,13 +20,13 @@ contract RefundEscrow is ConditionalEscrow {
     event RefundsEnabled();
 
     State private _state;
-    address private _beneficiary;
+    address payable private _beneficiary;
 
     /**
      * @dev Constructor.
      * @param beneficiary The beneficiary of the deposits.
      */
-    constructor (address beneficiary) public {
+    constructor (address payable beneficiary) public {
         require(beneficiary != address(0));
         _beneficiary = beneficiary;
         _state = State.Active;

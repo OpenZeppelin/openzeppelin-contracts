@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "../token/ERC20/IERC20.sol";
 import "../crowdsale/distribution/RefundablePostDeliveryCrowdsale.sol";
@@ -8,7 +8,7 @@ contract RefundablePostDeliveryCrowdsaleImpl is RefundablePostDeliveryCrowdsale 
         uint256 openingTime,
         uint256 closingTime,
         uint256 rate,
-        address wallet,
+        address payable wallet,
         IERC20 token,
         uint256 goal
     )

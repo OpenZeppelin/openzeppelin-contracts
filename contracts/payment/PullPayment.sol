@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "./escrow/Escrow.sol";
 
@@ -18,7 +18,7 @@ contract PullPayment {
     * @dev Withdraw accumulated balance.
     * @param payee Whose balance will be withdrawn.
     */
-    function withdrawPayments(address payee) public {
+    function withdrawPayments(address payable payee) public {
         _escrow.withdraw(payee);
     }
 

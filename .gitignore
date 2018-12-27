@@ -37,3 +37,6 @@ build/
 
 # truffle
 .node-xmlhttprequest-*
+
+# Temporary directory for 0.5.x compilation
+solc-0.5

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 /**
  * @title ERC165Checker
@@ -49,7 +49,7 @@ library ERC165Checker {
      * interfaceIds list, false otherwise
      * @dev Interface identification is specified in ERC-165.
      */
-    function _supportsAllInterfaces(address account, bytes4[] interfaceIds) internal view returns (bool) {
+    function _supportsAllInterfaces(address account, bytes4[] memory interfaceIds) internal view returns (bool) {
         // query support of ERC165 itself
         if (!_supportsERC165(account)) {
             return false;
