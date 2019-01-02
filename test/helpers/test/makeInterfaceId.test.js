@@ -2,8 +2,7 @@ const { makeInterfaceId } = require('../makeInterfaceId');
 
 const OwnableInterfaceId = artifacts.require('OwnableInterfaceId');
 
-require('chai')
-  .should();
+require('../setup');
 
 describe('makeInterfaceId', function () {
   it('calculates the EIP165 interface id from function signatures', async function () {

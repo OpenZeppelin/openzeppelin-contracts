@@ -1,9 +1,6 @@
 const { ether } = require('../ether');
 
-const BigNumber = web3.BigNumber;
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+const { BigNumber } = require('../setup');
 
 describe('ether', function () {
   it('returns a BigNumber', function () {

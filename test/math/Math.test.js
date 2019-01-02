@@ -3,8 +3,8 @@ const MathMock = artifacts.require('MathMock');
 const { BigNumber } = require('../helpers/setup');
 
 contract('Math', function () {
-  const min = 1234;
-  const max = 5678;
+  const min = new BigNumber(1234);
+  const max = new BigNumber(5678);
 
   beforeEach(async function () {
     this.math = await MathMock.new();
