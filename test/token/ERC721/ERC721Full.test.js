@@ -12,10 +12,10 @@ contract('ERC721Full', function ([
 ]) {
   const name = 'Non Fungible Token';
   const symbol = 'NFT';
-  const firstTokenId = new BigNumber(100);
-  const secondTokenId = new BigNumber(200);
-  const thirdTokenId = new BigNumber(300);
-  const nonExistentTokenId = new BigNumber(999);
+  const firstTokenId = 100;
+  const secondTokenId = 200;
+  const thirdTokenId = 300;
+  const nonExistentTokenId = 999;
 
   const minter = creator;
 
@@ -149,7 +149,7 @@ contract('ERC721Full', function ([
           const tokensListed = await Promise.all(
             [0, 1].map(i => this.token.tokenOfOwnerByIndex(another, i))
           );
-          tokensListed.should.have.deep.members([firstTokenId, secondTokenId]);
+          tokensListed.map(t => t.toNumber()).should.have.members([firstTokenId, secondTokenId]);
         });
 
         it('returns empty collection for original owner', async function () {
@@ -164,7 +164,7 @@ contract('ERC721Full', function ([
         const tokensListed = await Promise.all(
           [0, 1].map(i => this.token.tokenByIndex(i))
         );
-        tokensListed.should.have.deep.members([firstTokenId, secondTokenId]);
+        tokensListed.map(t => t.toNumber()).should.have.members([firstTokenId, secondTokenId]);
       });
 
       it('should revert if index is greater than supply', async function () {
@@ -188,7 +188,7 @@ contract('ERC721Full', function ([
           const expectedTokens = [firstTokenId, secondTokenId, newTokenId, anotherNewTokenId].filter(
             x => (x !== tokenId)
           );
-          tokensListed.should.have.deep.members(expectedTokens);
+          tokensListed.map(t => t.toNumber()).should.have.members(expectedTokens);
         });
       });
     });
