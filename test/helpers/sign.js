@@ -1,21 +1,19 @@
-const { sha3, soliditySha3 } = require('web3-utils');
-
 const REAL_SIGNATURE_SIZE = 2 * 65; // 65 bytes in hexadecimal string legnth
 const PADDED_SIGNATURE_SIZE = 2 * 96; // 96 bytes in hexadecimal string length
 
-const DUMMY_SIGNATURE = `0x${web3.padLeft('', REAL_SIGNATURE_SIZE)}`;
+const DUMMY_SIGNATURE = `0x${web3.utils.padLeft('', REAL_SIGNATURE_SIZE)}`;
 
 // messageHex = '0xdeadbeef'
 function toEthSignedMessageHash (messageHex) {
   const messageBuffer = Buffer.from(messageHex.substring(2), 'hex');
   const prefix = Buffer.from(`\u0019Ethereum Signed Message:\n${messageBuffer.length}`);
-  return sha3(Buffer.concat([prefix, messageBuffer]));
+  return web3.utils.sha3(Buffer.concat([prefix, messageBuffer]));
 }
 
 // signs message in node (ganache auto-applies "Ethereum Signed Message" prefix)
 // messageHex = '0xdeadbeef'
 const signMessage = (signer, messageHex = '0x') => {
-  return web3.eth.sign(signer, messageHex); // actually personal_sign
+  return web3.eth.sign(messageHex, signer); // actually personal_sign
 };
 
 // @TODO - remove this when we migrate to web3-1.0.0
@@ -57,13 +55,13 @@ const getSignFor = (contract, signer) => (redeemer, methodName, methodArgs = [])
     } else {
       const abi = contract.abi.find(abi => abi.name === methodName);
       const name = transformToFullName(abi);
-      const signature = sha3(name).slice(0, 10);
+      const signature = web3.utils.sha3(name).slice(0, 10);
       parts.push(signature);
     }
   }
 
   // return the signature of the "Ethereum Signed Message" hash of the hash of `parts`
-  const messageHex = soliditySha3(...parts);
+  const messageHex = web3.utils.soliditySha3(...parts);
   return signMessage(signer, messageHex);
 };
 

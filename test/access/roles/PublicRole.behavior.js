@@ -1,8 +1,4 @@
-const shouldFail = require('../../helpers/shouldFail');
-const { ZERO_ADDRESS } = require('../../helpers/constants');
-const expectEvent = require('../../helpers/expectEvent');
-
-require('../../helpers/setup');
+const { shouldFail, constants, expectEvent } = require('openzeppelin-test-helpers');
 
 function capitalize (str) {
   return str.replace(/\b\w/g, l => l.toUpperCase());
@@ -27,7 +23,7 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
     }
 
     it('reverts when querying roles for the null account', async function () {
-      await shouldFail.reverting(this.contract[`is${rolename}`](ZERO_ADDRESS));
+      await shouldFail.reverting(this.contract[`is${rolename}`](constants.ZERO_ADDRESS));
     });
 
     describe('access control', function () {
@@ -67,7 +63,7 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
         });
 
         it('reverts when adding role to the null account', async function () {
-          await shouldFail.reverting(this.contract[`add${rolename}`](ZERO_ADDRESS, { from }));
+          await shouldFail.reverting(this.contract[`add${rolename}`](constants.ZERO_ADDRESS, { from }));
         });
       });
     });
@@ -93,7 +89,7 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
         });
 
         it('reverts when removing role from the null account', async function () {
-          await shouldFail.reverting(this.contract[`remove${rolename}`](ZERO_ADDRESS), { from });
+          await shouldFail.reverting(this.contract[`remove${rolename}`](constants.ZERO_ADDRESS), { from });
         });
       });
     });

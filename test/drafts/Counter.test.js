@@ -1,11 +1,10 @@
+const { BN } = require('openzeppelin-test-helpers');
 
 const CounterImpl = artifacts.require('CounterImpl');
 
-require('../helpers/setup');
-
-const EXPECTED = [1, 2, 3, 4];
-const KEY1 = web3.sha3('key1');
-const KEY2 = web3.sha3('key2');
+const EXPECTED = [new BN(1), new BN(2), new BN(3), new BN(4)];
+const KEY1 = web3.utils.sha3('key1');
+const KEY2 = web3.utils.sha3('key2');
 
 contract('Counter', function ([_, owner]) {
   beforeEach(async function () {

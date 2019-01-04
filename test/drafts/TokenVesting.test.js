@@ -1,16 +1,10 @@
-const shouldFail = require('../helpers/shouldFail');
-const expectEvent = require('../helpers/expectEvent');
-const time = require('../helpers/time');
-const { ethGetBlock } = require('../helpers/web3');
-const { ZERO_ADDRESS } = require('../helpers/constants');
-
-const { BigNumber } = require('../helpers/setup');
+const { BN, constants, expectEvent, shouldFail, time } = require('openzeppelin-test-helpers');
 
 const ERC20Mintable = artifacts.require('ERC20Mintable');
 const TokenVesting = artifacts.require('TokenVesting');
 
 contract('TokenVesting', function ([_, owner, beneficiary]) {
-  const amount = new BigNumber(1000);
+  const amount = new BN('1000');
 
   beforeEach(async function () {
     // +1 minute so it starts after contract instantiation
@@ -32,7 +26,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
   it('reverts with a null beneficiary', async function () {
     await shouldFail.reverting(
-      TokenVesting.new(ZERO_ADDRESS, this.start, this.cliffDuration, this.duration, true, { from: owner })
+      TokenVesting.new(constants.ZERO_ADDRESS, this.start, this.cliffDuration, this.duration, true, { from: owner })
     );
   });
 
@@ -86,7 +80,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
       await time.increaseTo(this.start + this.cliffDuration);
 
       const { receipt } = await this.vesting.release(this.token.address);
-      const block = await ethGetBlock(receipt.blockNumber);
+      const block = await web3.eth.getBlock(receipt.blockNumber);
       const releaseTime = block.timestamp;
 
       const releasedAmount = amount.mul(releaseTime - this.start).div(this.duration).floor();

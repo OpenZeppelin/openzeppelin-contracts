@@ -1,13 +1,11 @@
-const shouldFail = require('../helpers/shouldFail');
+const { shouldFail } = require('openzeppelin-test-helpers');
 const { getSignFor } = require('../helpers/sign');
 const { shouldBehaveLikePublicRole } = require('../access/roles/PublicRole.behavior');
 
 const SignatureBouncerMock = artifacts.require('SignatureBouncerMock');
 
-require('../helpers/setup');
-
 const UINT_VALUE = 23;
-const BYTES_VALUE = web3.toHex('test');
+const BYTES_VALUE = web3.utils.toHex('test');
 const INVALID_SIGNATURE = '0xabcd';
 
 contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authorizedUser, ...otherAccounts]) {
