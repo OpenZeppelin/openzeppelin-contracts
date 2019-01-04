@@ -1,5 +1,3 @@
-/* solium-disable security/no-block-members */
-
 pragma solidity ^0.5.0;
 
 import "../token/ERC20/SafeERC20.sol";
@@ -13,6 +11,12 @@ import "../math/SafeMath.sol";
  * owner.
  */
 contract TokenVesting is Ownable {
+    // The vesting schedule is time-based (i.e. using block timestamps as opposed to e.g. block numbers), and is
+    // therefore sensitive to timestamp manipulation (which is something miners can do, to a certain degree). Therefore,
+    // it is recommended to avoid using short time durations (less than a minute). Typical vesting schemes, with a cliff
+    // period of a year and a duration of four years, are safe to use.
+    // solhint-disable not-rely-on-time
+
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -22,6 +26,7 @@ contract TokenVesting is Ownable {
     // beneficiary of tokens after they are released
     address private _beneficiary;
 
+    // Durations and timestamps are expressed in UNIX time, the same units as block.timestamp.
     uint256 private _cliff;
     uint256 private _start;
     uint256 private _duration;

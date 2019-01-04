@@ -13,7 +13,9 @@ contract ERC721ReceiverMock is IERC721Receiver {
         _reverts = reverts;
     }
 
-    function onERC721Received(address operator, address from, uint256 tokenId, bytes memory data) public returns (bytes4) {
+    function onERC721Received(address operator, address from, uint256 tokenId, bytes memory data)
+        public returns (bytes4)
+    {
         require(!_reverts);
         emit Received(operator, from, tokenId, data, gasleft());
         return _retval;

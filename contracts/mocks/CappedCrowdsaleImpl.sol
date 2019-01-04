@@ -8,5 +8,7 @@ contract CappedCrowdsaleImpl is CappedCrowdsale {
         public
         Crowdsale(rate, wallet, token)
         CappedCrowdsale(cap)
-    {}
+    {
+        // solhint-disable-previous-line no-empty-blocks
+    }
 }

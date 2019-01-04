@@ -27,7 +27,7 @@ contract TimedCrowdsale is Crowdsale {
      * @param closingTime Crowdsale closing time
      */
     constructor (uint256 openingTime, uint256 closingTime) public {
-        // solium-disable-next-line security/no-block-members
+        // solhint-disable-next-line not-rely-on-time
         require(openingTime >= block.timestamp);
         require(closingTime > openingTime);
 
@@ -53,7 +53,7 @@ contract TimedCrowdsale is Crowdsale {
      * @return true if the crowdsale is open, false otherwise.
      */
     function isOpen() public view returns (bool) {
-        // solium-disable-next-line security/no-block-members
+        // solhint-disable-next-line not-rely-on-time
         return block.timestamp >= _openingTime && block.timestamp <= _closingTime;
     }
 
@@ -62,7 +62,7 @@ contract TimedCrowdsale is Crowdsale {
      * @return Whether crowdsale period has elapsed
      */
     function hasClosed() public view returns (bool) {
-        // solium-disable-next-line security/no-block-members
+        // solhint-disable-next-line not-rely-on-time
         return block.timestamp > _closingTime;
     }
 

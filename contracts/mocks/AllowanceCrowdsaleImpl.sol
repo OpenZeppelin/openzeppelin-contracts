@@ -8,5 +8,7 @@ contract AllowanceCrowdsaleImpl is AllowanceCrowdsale {
         public
         Crowdsale(rate, wallet, token)
         AllowanceCrowdsale(tokenWallet)
-    {}
+    {
+        // solhint-disable-previous-line no-empty-blocks
+    }
 }

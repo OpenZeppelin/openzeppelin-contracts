@@ -8,5 +8,7 @@ contract TimedCrowdsaleImpl is TimedCrowdsale {
         public
         Crowdsale(rate, wallet, token)
         TimedCrowdsale(openingTime, closingTime)
-    {}
+    {
+        // solhint-disable-previous-line no-empty-blocks
+    }
 }

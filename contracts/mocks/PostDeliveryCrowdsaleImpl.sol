@@ -8,5 +8,7 @@ contract PostDeliveryCrowdsaleImpl is PostDeliveryCrowdsale {
         public
         TimedCrowdsale(openingTime, closingTime)
         Crowdsale(rate, wallet, token)
-    {}
+    {
+        // solhint-disable-previous-line no-empty-blocks
+    }
 }

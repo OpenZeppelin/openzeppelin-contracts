@@ -13,14 +13,13 @@
     "console": "truffle console",
     "coverage": "scripts/coverage.sh",
     "lint": "npm run lint:js && npm run lint:sol",
-    "lint:fix": "npm run lint:js:fix && npm run lint:sol:fix",
+    "lint:fix": "npm run lint:js:fix",
     "lint:js": "eslint .",
     "lint:js:fix": "eslint . --fix",
-    "lint:sol": "solium -d .",
-    "lint:sol:fix": "solium -d . --fix",
+    "lint:sol": "solhint --max-warnings 0 \"contracts/**/*.sol\"",
     "prepack": "npm run build",
-    "test": "npm run compile && scripts/test.sh",
-    "version": "scripts/version.js"
+    "version": "scripts/version.js",
+    "test": "npm run compile && scripts/test.sh"
   },
   "repository": {
     "type": "git",
@@ -55,8 +54,8 @@
     "ethjs-abi": "^0.2.1",
     "ganache-cli": "6.1.8",
     "pify": "^4.0.1",
+    "solhint": "^1.5.0",
     "solidity-coverage": "^0.5.4",
-    "solium": "^1.1.8",
     "truffle": "^4.1.13",
     "web3-utils": "^1.0.0-beta.34"
   },

@@ -8,6 +8,7 @@ contract WhitelistAdminRoleMock is WhitelistAdminRole {
     }
 
     function onlyWhitelistAdminMock() public view onlyWhitelistAdmin {
+        // solhint-disable-previous-line no-empty-blocks
     }
 
     // Causes a compilation error if super._removeWhitelistAdmin is not internal

@@ -83,9 +83,10 @@ contract RefundEscrow is ConditionalEscrow {
     }
 
     /**
-     * @dev Returns whether refundees can withdraw their deposits (be refunded).
+     * @dev Returns whether refundees can withdraw their deposits (be refunded). The overriden function receives a
+     * 'payee' argument, but we ignore it here since the condition is global, not per-payee.
      */
-    function withdrawalAllowed(address payee) public view returns (bool) {
+    function withdrawalAllowed(address) public view returns (bool) {
         return _state == State.Refunding;
     }
 }

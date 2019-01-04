@@ -16,5 +16,7 @@ contract IncreasingPriceCrowdsaleImpl is IncreasingPriceCrowdsale {
         Crowdsale(initialRate, wallet, token)
         TimedCrowdsale(openingTime, closingTime)
         IncreasingPriceCrowdsale(initialRate, finalRate)
-    {}
+    {
+        // solhint-disable-previous-line no-empty-blocks
+    }
 }

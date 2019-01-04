@@ -58,8 +58,6 @@ contract SafeERC20Helper {
         _succeeding = IERC20(address(new ERC20SucceedingMock()));
     }
 
-    // Using _failing
-
     function doFailingTransfer() public {
         _failing.safeTransfer(address(0), 0);
     }
@@ -79,8 +77,6 @@ contract SafeERC20Helper {
     function doFailingDecreaseAllowance() public {
         _failing.safeDecreaseAllowance(address(0), 0);
     }
-
-    // Using _succeeding
 
     function doSucceedingTransfer() public {
         _succeeding.safeTransfer(address(0), 0);

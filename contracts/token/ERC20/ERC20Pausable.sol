@@ -12,7 +12,7 @@ contract ERC20Pausable is ERC20, Pausable {
         return super.transfer(to, value);
     }
 
-    function transferFrom(address from,address to, uint256 value) public whenNotPaused returns (bool) {
+    function transferFrom(address from, address to, uint256 value) public whenNotPaused returns (bool) {
         return super.transferFrom(from, to, value);
     }
 

@@ -63,10 +63,6 @@ contract Crowdsale is ReentrancyGuard {
         _token = token;
     }
 
-    // -----------------------------------------
-    // Crowdsale external interface
-    // -----------------------------------------
-
     /**
      * @dev fallback function ***DO NOT OVERRIDE***
      * Note that other contracts will transfer fund with a base gas stipend
@@ -130,12 +126,9 @@ contract Crowdsale is ReentrancyGuard {
         _postValidatePurchase(beneficiary, weiAmount);
     }
 
-    // -----------------------------------------
-    // Internal interface (extensible)
-    // -----------------------------------------
-
     /**
-     * @dev Validation of an incoming purchase. Use require statements to revert state when conditions are not met. Use `super` in contracts that inherit from Crowdsale to extend their validations.
+     * @dev Validation of an incoming purchase. Use require statements to revert state when conditions are not met.
+     * Use `super` in contracts that inherit from Crowdsale to extend their validations.
      * Example from CappedCrowdsale.sol's _preValidatePurchase method:
      *     super._preValidatePurchase(beneficiary, weiAmount);
      *     require(weiRaised().add(weiAmount) <= cap);
@@ -148,16 +141,18 @@ contract Crowdsale is ReentrancyGuard {
     }
 
     /**
-     * @dev Validation of an executed purchase. Observe state and use revert statements to undo rollback when valid conditions are not met.
+     * @dev Validation of an executed purchase. Observe state and use revert statements to undo rollback when valid
+     * conditions are not met.
      * @param beneficiary Address performing the token purchase
      * @param weiAmount Value in wei involved in the purchase
      */
     function _postValidatePurchase(address beneficiary, uint256 weiAmount) internal view {
-        // optional override
+        // solhint-disable-previous-line no-empty-blocks
     }
 
     /**
-     * @dev Source of tokens. Override this method to modify the way in which the crowdsale ultimately gets and sends its tokens.
+     * @dev Source of tokens. Override this method to modify the way in which the crowdsale ultimately gets and sends
+     * its tokens.
      * @param beneficiary Address performing the token purchase
      * @param tokenAmount Number of tokens to be emitted
      */
@@ -166,7 +161,8 @@ contract Crowdsale is ReentrancyGuard {
     }
 
     /**
-     * @dev Executed when a purchase has been validated and is ready to be executed. Doesn't necessarily emit/send tokens.
+     * @dev Executed when a purchase has been validated and is ready to be executed. Doesn't necessarily emit/send
+     * tokens.
      * @param beneficiary Address receiving the tokens
      * @param tokenAmount Number of tokens to be purchased
      */
@@ -175,12 +171,13 @@ contract Crowdsale is ReentrancyGuard {
     }
 
     /**
-     * @dev Override for extensions that require an internal state to check for validity (current user contributions, etc.)
+     * @dev Override for extensions that require an internal state to check for validity (current user contributions,
+     * etc.)
      * @param beneficiary Address receiving the tokens
      * @param weiAmount Value in wei involved in the purchase
      */
     function _updatePurchasingState(address beneficiary, uint256 weiAmount) internal {
-        // optional override
+        // solhint-disable-previous-line no-empty-blocks
     }
 
     /**

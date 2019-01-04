@@ -9,4 +9,5 @@ import "./IERC721Metadata.sol";
  * @dev See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
 contract IERC721Full is IERC721, IERC721Enumerable, IERC721Metadata {
+    // solhint-disable-previous-line no-empty-blocks
 }
