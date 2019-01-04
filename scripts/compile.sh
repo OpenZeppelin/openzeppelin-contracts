@@ -12,7 +12,7 @@ rm -rf build/
 mkdir -p "$SOLC_05_DIR"
 
 cd "$SOLC_05_DIR"
-npm init --yes
+echo '{ "private": true }' > package.json
 npm install --save-dev truffle@5.0.0
 
 rm -rf contracts
