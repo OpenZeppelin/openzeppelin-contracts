@@ -57,6 +57,7 @@ Change the version string in `package.json`, `package-lock.json` and `ethpm.json
 git add package.json package-lock.json ethpm.json
 git commit -m "Release vX.Y.Z"
 git tag -a vX.Y.Z
+git push upstream release-vX.Y.Z
 git push upstream vX.Y.Z
 ```
 
