@@ -5,16 +5,16 @@ const { ZERO_ADDRESS } = require('../../helpers/constants');
 const send = require('../../helpers/send');
 
 const ERC721ReceiverMock = artifacts.require('ERC721ReceiverMock.sol');
-require('../../helpers/setup');
+const { BigNumber } = require('../../helpers/setup');
 
 function shouldBehaveLikeERC721 (
   creator,
   minter,
   [owner, approved, anotherApproved, operator, anyone]
 ) {
-  const firstTokenId = 1;
-  const secondTokenId = 2;
-  const unknownTokenId = 3;
+  const firstTokenId = new BigNumber(1);
+  const secondTokenId = new BigNumber(2);
+  const unknownTokenId = new BigNumber(3);
   const RECEIVER_MAGIC_VALUE = '0x150b7a02';
 
   describe('like an ERC721', function () {
@@ -107,9 +107,9 @@ function shouldBehaveLikeERC721 (
         it('adjusts owners tokens by index', async function () {
           if (!this.token.tokenOfOwnerByIndex) return;
 
-          (await this.token.tokenOfOwnerByIndex(this.toWhom, 0)).toNumber().should.be.equal(tokenId);
+          (await this.token.tokenOfOwnerByIndex(this.toWhom, 0)).should.be.bignumber.equal(tokenId);
 
-          (await this.token.tokenOfOwnerByIndex(owner, 0)).toNumber().should.not.be.equal(tokenId);
+          (await this.token.tokenOfOwnerByIndex(owner, 0)).should.not.be.bignumber.equal(tokenId);
         });
       };
 
@@ -173,7 +173,7 @@ function shouldBehaveLikeERC721 (
             const tokensListed = await Promise.all(
               [0, 1].map(i => this.token.tokenOfOwnerByIndex(owner, i))
             );
-            tokensListed.map(t => t.toNumber()).should.have.members([firstTokenId, secondTokenId]);
+            tokensListed.should.have.deep.members([firstTokenId, secondTokenId]);
           });
         });
 

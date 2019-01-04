@@ -4,7 +4,7 @@ const shouldFail = require('../shouldFail');
 const EventEmitter = artifacts.require('EventEmitter');
 const IndirectEventEmitter = artifacts.require('IndirectEventEmitter');
 
-const { should, BigNumber } = require('../../helpers/setup');
+const { should, BigNumber } = require('../setup');
 
 describe('expectEvent', function () {
   beforeEach(async function () {

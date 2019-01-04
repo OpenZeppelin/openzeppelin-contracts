@@ -6,10 +6,7 @@ const { ethGetBalance } = require('../web3');
 
 const Acknowledger = artifacts.require('Acknowledger');
 
-const BigNumber = web3.BigNumber;
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../setup');
 
 contract('send', function ([sender, receiver]) {
   describe('ether', function () {

@@ -1,10 +1,7 @@
 const time = require('../time');
 const shouldFail = require('../shouldFail');
 
-const BigNumber = web3.BigNumber;
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../setup');
 
 describe('time', function () {
   const TOLERANCE_SECONDS = 1;

@@ -2,10 +2,7 @@ const { balanceDifference } = require('../balanceDifference');
 const send = require('../send');
 const { ether } = require('../ether');
 
-const BigNumber = web3.BigNumber;
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../setup');
 
 contract('balanceDifference', function ([sender, receiver]) {
   it('returns balance increments', async function () {
