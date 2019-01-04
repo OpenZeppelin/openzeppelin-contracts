@@ -19,8 +19,7 @@
     "lint:sol": "solhint --max-warnings 0 \"contracts/**/*.sol\"",
     "prepack": "npm run build",
     "version": "scripts/version.js",
-    "test": "npm run compile && scripts/test.sh",
-    "version": "scripts/version.js"
+    "test": "npm run compile && scripts/test.sh"
   },
   "repository": {
     "type": "git",
@@ -57,7 +56,6 @@
     "pify": "^4.0.1",
     "solhint": "^1.5.0",
     "solidity-coverage": "^0.5.4",
-    "solium": "^1.1.8",
     "truffle": "^4.1.13",
     "web3-utils": "^1.0.0-beta.34"
   },
