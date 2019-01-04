@@ -51,6 +51,8 @@ git checkout release-vX.Y.Z
 git pull upstream
 ```
 
+Before starting the release process, make one final commit to CHANGELOG.md, including the date of the release.
+
 Change the version string in `package.json`, `package-lock.json` and `ethpm.json` removing the "-rc.R" suffix. Commit these changes and tag the commit as `vX.Y.Z`.
 
 ```
