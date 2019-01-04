@@ -38,12 +38,14 @@ contract SampleCrowdsale is CappedCrowdsale, RefundableCrowdsale, MintedCrowdsal
         address payable wallet,
         uint256 cap,
         ERC20Mintable token,
-        uint256 goal)
-    public
-    Crowdsale(rate, wallet, token)
-    CappedCrowdsale(cap)
-    TimedCrowdsale(openingTime, closingTime)
-    RefundableCrowdsale(goal) {
+        uint256 goal
+    )
+        public
+        Crowdsale(rate, wallet, token)
+        CappedCrowdsale(cap)
+        TimedCrowdsale(openingTime, closingTime)
+        RefundableCrowdsale(goal)
+    {
         //As goal needs to be met for a successful crowdsale
         //the value needs to less or equal than a cap which is limit for accepted funds
         require(goal <= cap);

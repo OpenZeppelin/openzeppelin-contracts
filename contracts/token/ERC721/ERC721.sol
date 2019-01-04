@@ -263,7 +263,8 @@ contract ERC721 is ERC165, IERC721 {
      * @return whether the call correctly returned the expected magic value
      */
     function _checkOnERC721Received(address from, address to, uint256 tokenId, bytes memory _data)
-    internal returns (bool) {
+        internal returns (bool)
+    {
         if (!to.isContract()) {
             return true;
         }
