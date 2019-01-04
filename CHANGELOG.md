@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.1.0 (unreleased)
+## 2.1.0 (2019-04-01)
 
 ### New features:
  * Now targeting the 0.5.x line of Solidity compilers. For 0.4.24 support, use version 2.0 of OpenZeppelin.
