@@ -3,7 +3,6 @@ pragma solidity ^0.5.0;
 import "../Crowdsale.sol";
 import "../../lifecycle/Pausable.sol";
 
-
 /**
  * @title PausableCrowdsale
  * @dev Extension of Crowdsale contract where purchases can be paused and unpaused by the pauser role.

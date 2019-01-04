@@ -1,15 +1,15 @@
 pragma solidity ^0.5.0;
 
 import "../Roles.sol";
-import "./WhitelisterRole.sol";
+import "./WhitelistAdminRole.sol";
 
 /**
  * @title WhitelistedRole
- * @dev Whitelisted accounts have been approved by a Whitelister to perform certain actions (e.g. participate in a
- * crowdsale). This role is special in that the only accounts that can add it are Whitelisters (who can also remove it),
- * and not Whitelisteds themselves.
+ * @dev Whitelisted accounts have been approved by a WhitelistAdmin to perform certain actions (e.g. participate in a
+ * crowdsale). This role is special in that the only accounts that can add it are WhitelistAdmins (who can also remove
+ * it), and not Whitelisteds themselves.
  */
-contract WhitelistedRole is WhitelisterRole {
+contract WhitelistedRole is WhitelistAdminRole {
     using Roles for Roles.Role;
 
     event WhitelistedAdded(address indexed account);
@@ -26,11 +26,11 @@ contract WhitelistedRole is WhitelisterRole {
         return _whitelisteds.has(account);
     }
 
-    function addWhitelisted(address account) public onlyWhitelister {
+    function addWhitelisted(address account) public onlyWhitelistAdmin {
         _addWhitelisted(account);
     }
 
-    function removeWhitelisted(address account) public onlyWhitelister {
+    function removeWhitelisted(address account) public onlyWhitelistAdmin {
         _removeWhitelisted(account);
     }
 
