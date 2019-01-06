@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2.2.0 (unreleased)
+* `TimeFrame`: Adds library for specifying a start and end time frames. ([#1592](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1592))
 
 ## 2.1.1 (2019-04-01)
  * Version bump to avoid conflict in the npm registry.
