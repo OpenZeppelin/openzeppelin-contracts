@@ -1,20 +1,14 @@
-const shouldFail = require('../../helpers/shouldFail');
-const expectEvent = require('../../helpers/expectEvent');
-const { balanceDifference } = require('../../helpers/balanceDifference');
-const { ether } = require('../../helpers/ether');
-const { ZERO_ADDRESS } = require('../../helpers/constants');
-
-require('../../helpers/setup');
+const { balance, constants, ether, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
 
 const RefundEscrow = artifacts.require('RefundEscrow');
 
 contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee2]) {
-  const amount = ether(54.0);
+  const amount = ether('54', 'ether');
   const refundees = [refundee1, refundee2];
 
   it('requires a non-null beneficiary', async function () {
     await shouldFail.reverting(
-      RefundEscrow.new(ZERO_ADDRESS, { from: primary })
+      RefundEscrow.new(constants.ZERO_ADDRESS, { from: primary })
     );
   });
 
@@ -26,7 +20,7 @@ contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee
     context('active state', function () {
       it('has beneficiary and state', async function () {
         (await this.escrow.beneficiary()).should.be.equal(beneficiary);
-        (await this.escrow.state()).should.be.bignumber.equal(0);
+        (await this.escrow.state()).should.be.bignumber.equal('0');
       });
 
       it('accepts deposits', async function () {
@@ -69,9 +63,9 @@ contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee
       });
 
       it('allows beneficiary withdrawal', async function () {
-        (await balanceDifference(beneficiary, () =>
+        (await balance.difference(beneficiary, () =>
           this.escrow.beneficiaryWithdraw()
-        )).should.be.bignumber.equal(amount * refundees.length);
+        )).should.be.bignumber.equal(amount.muln(refundees.length));
       });
 
       it('prevents entering the refund state', async function () {
@@ -103,7 +97,7 @@ contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee
 
       it('refunds refundees', async function () {
         for (const refundee of [refundee1, refundee2]) {
-          (await balanceDifference(refundee, () =>
+          (await balance.difference(refundee, () =>
             this.escrow.withdraw(refundee, { from: primary }))
           ).should.be.bignumber.equal(amount);
         }
