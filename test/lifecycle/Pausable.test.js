@@ -1,7 +1,7 @@
 const { expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { shouldBehaveLikePublicRole } = require('../access/roles/PublicRole.behavior');
 
 const PausableMock = artifacts.require('PausableMock');
-const { shouldBehaveLikePublicRole } = require('../access/roles/PublicRole.behavior');
 
 contract('Pausable', function ([_, pauser, otherPauser, anyone, ...otherAccounts]) {
   beforeEach(async function () {

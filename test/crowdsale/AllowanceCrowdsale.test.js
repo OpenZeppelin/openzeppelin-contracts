@@ -7,7 +7,7 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
   const rate = new BN('1');
   const value = ether('0.42');
   const expectedTokenAmount = rate.mul(value);
-  const tokenAllowance = new BN('1e22');
+  const tokenAllowance = new BN('10').pow(new BN('22'));
 
   beforeEach(async function () {
     this.token = await SimpleToken.new({ from: tokenWallet });
@@ -54,7 +54,7 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
 
   describe('check remaining allowance', function () {
     it('should report correct allowace left', async function () {
-      const remainingAllowance = tokenAllowance - expectedTokenAmount;
+      const remainingAllowance = tokenAllowance.sub(expectedTokenAmount);
       await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
       (await this.crowdsale.remainingTokens()).should.be.bignumber.equal(remainingAllowance);
     });
@@ -62,7 +62,7 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
     context('when the allowance is larger than the token amount', function () {
       beforeEach(async function () {
         const amount = await this.token.balanceOf(tokenWallet);
-        await this.token.approve(this.crowdsale.address, amount.add(new BN(1)), { from: tokenWallet });
+        await this.token.approve(this.crowdsale.address, amount.addn(1), { from: tokenWallet });
       });
 
       it('should report the amount instead of the allowance', async function () {

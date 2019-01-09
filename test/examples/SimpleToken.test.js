@@ -1,8 +1,6 @@
-const expectEvent = require('../helpers/expectEvent');
-const { ZERO_ADDRESS } = require('../helpers/constants');
-const SimpleToken = artifacts.require('SimpleToken');
+const { constants, expectEvent } = require('openzeppelin-test-helpers');;
 
-require('../helpers/setup');
+const SimpleToken = artifacts.require('SimpleToken');
 
 contract('SimpleToken', function ([_, creator]) {
   beforeEach(async function () {
@@ -18,7 +16,7 @@ contract('SimpleToken', function ([_, creator]) {
   });
 
   it('has 18 decimals', async function () {
-    (await this.token.decimals()).should.be.bignumber.equal(18);
+    (await this.token.decimals()).should.be.bignumber.equal('18');
   });
 
   it('assigns the initial total supply to the creator', async function () {
@@ -28,7 +26,7 @@ contract('SimpleToken', function ([_, creator]) {
     creatorBalance.should.be.bignumber.equal(totalSupply);
 
     await expectEvent.inConstruction(this.token, 'Transfer', {
-      from: ZERO_ADDRESS,
+      from: constants.ZERO_ADDRESS,
       to: creator,
       value: totalSupply,
     });

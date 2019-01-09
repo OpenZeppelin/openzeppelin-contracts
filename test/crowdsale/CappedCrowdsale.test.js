@@ -7,7 +7,7 @@ contract('CappedCrowdsale', function ([_, wallet]) {
   const rate = new BN('1');
   const cap = ether('100');
   const lessThanCap = ether('60');
-  const tokenSupply = new BN('1e22');
+  const tokenSupply = new BN('10').pow(new BN('22'));
 
   beforeEach(async function () {
     this.token = await SimpleToken.new();
@@ -35,7 +35,7 @@ contract('CappedCrowdsale', function ([_, wallet]) {
       });
 
       it('should reject payments that exceed cap', async function () {
-        await shouldFail.reverting(this.crowdsale.send(cap.add(new BN(1))));
+        await shouldFail.reverting(this.crowdsale.send(cap.addn(1)));
       });
     });
 
