@@ -1,4 +1,5 @@
 const { BN, constants, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 function shouldBehaveLikeERC20Mintable (minter, [anyone]) {
   describe('as a mintable token', function () {
@@ -27,7 +28,7 @@ function shouldBehaveLikeERC20Mintable (minter, [anyone]) {
 
           it('emits a mint and a transfer event', async function () {
             expectEvent.inLogs(this.logs, 'Transfer', {
-              from: constants.ZERO_ADDRESS,
+              from: ZERO_ADDRESS,
               to: anyone,
               value: amount,
             });

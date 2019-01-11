@@ -1,4 +1,5 @@
 const { BN, constants, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 const ERC20Mock = artifacts.require('ERC20Mock');
 
@@ -64,7 +65,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
     });
 
     describe('when the recipient is the zero address', function () {
-      const to = constants.ZERO_ADDRESS;
+      const to = ZERO_ADDRESS;
 
       it('reverts', async function () {
         await shouldFail.reverting(this.token.transfer(to, initialSupply, { from: initialHolder }));
@@ -147,7 +148,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
 
     describe('when the spender is the zero address', function () {
       const amount = initialSupply;
-      const spender = constants.ZERO_ADDRESS;
+      const spender = ZERO_ADDRESS;
 
       it('reverts', async function () {
         await shouldFail.reverting(this.token.approve(spender, amount, { from: initialHolder }));
@@ -238,7 +239,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
 
     describe('when the recipient is the zero address', function () {
       const amount = initialSupply;
-      const to = constants.ZERO_ADDRESS;
+      const to = ZERO_ADDRESS;
 
       beforeEach(async function () {
         await this.token.approve(spender, amount, { from: initialHolder });
@@ -312,7 +313,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
 
     describe('when the spender is the zero address', function () {
       const amount = initialSupply;
-      const spender = constants.ZERO_ADDRESS;
+      const spender = ZERO_ADDRESS;
 
       it('reverts', async function () {
         await shouldFail.reverting(this.token.decreaseAllowance(spender, amount, { from: initialHolder }));
@@ -394,7 +395,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
     });
 
     describe('when the spender is the zero address', function () {
-      const spender = constants.ZERO_ADDRESS;
+      const spender = ZERO_ADDRESS;
 
       it('reverts', async function () {
         await shouldFail.reverting(this.token.increaseAllowance(spender, amount, { from: initialHolder }));
@@ -406,7 +407,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
     const amount = new BN(50);
 
     it('rejects a null account', async function () {
-      await shouldFail.reverting(this.token.mint(constants.ZERO_ADDRESS, amount));
+      await shouldFail.reverting(this.token.mint(ZERO_ADDRESS, amount));
     });
 
     describe('for a non null account', function () {
@@ -426,7 +427,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
 
       it('emits Transfer event', async function () {
         const event = expectEvent.inLogs(this.logs, 'Transfer', {
-          from: constants.ZERO_ADDRESS,
+          from: ZERO_ADDRESS,
           to: recipient,
         });
 
@@ -437,7 +438,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
 
   describe('_burn', function () {
     it('rejects a null account', async function () {
-      await shouldFail.reverting(this.token.burn(constants.ZERO_ADDRESS, new BN(1)));
+      await shouldFail.reverting(this.token.burn(ZERO_ADDRESS, new BN(1)));
     });
 
     describe('for a non null account', function () {
@@ -465,7 +466,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
           it('emits Transfer event', async function () {
             const event = expectEvent.inLogs(this.logs, 'Transfer', {
               from: initialHolder,
-              to: constants.ZERO_ADDRESS,
+              to: ZERO_ADDRESS,
             });
 
             event.args.value.should.be.bignumber.equal(amount);
@@ -488,7 +489,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
     });
 
     it('rejects a null account', async function () {
-      await shouldFail.reverting(this.token.burnFrom(constants.ZERO_ADDRESS, new BN(1)));
+      await shouldFail.reverting(this.token.burnFrom(ZERO_ADDRESS, new BN(1)));
     });
 
     describe('for a non null account', function () {
@@ -525,7 +526,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
           it('emits a Transfer event', async function () {
             const event = expectEvent.inLogs(this.logs, 'Transfer', {
               from: initialHolder,
-              to: constants.ZERO_ADDRESS,
+              to: ZERO_ADDRESS,
             });
 
             event.args.value.should.be.bignumber.equal(amount);

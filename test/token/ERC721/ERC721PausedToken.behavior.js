@@ -1,4 +1,5 @@
 const { BN, constants, shouldFail } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 function shouldBehaveLikeERC721PausedToken (owner, [recipient, operator]) {
   const firstTokenId = new BN(1);
@@ -35,7 +36,7 @@ function shouldBehaveLikeERC721PausedToken (owner, [recipient, operator]) {
     describe('getApproved', function () {
       it('returns approved address', async function () {
         const approvedAccount = await this.token.getApproved(firstTokenId);
-        approvedAccount.should.be.equal(constants.ZERO_ADDRESS);
+        approvedAccount.should.be.equal(ZERO_ADDRESS);
       });
     });
 

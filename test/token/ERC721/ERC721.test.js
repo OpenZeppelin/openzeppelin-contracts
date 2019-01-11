@@ -1,4 +1,5 @@
 const { BN, constants, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
 const ERC721Mock = artifacts.require('ERC721Mock.sol');
@@ -15,7 +16,7 @@ contract('ERC721', function ([_, creator, tokenOwner, anyone, ...accounts]) {
 
     describe('_mint(address, uint256)', function () {
       it('reverts with a null destination address', async function () {
-        await shouldFail.reverting(this.token.mint(constants.ZERO_ADDRESS, tokenId));
+        await shouldFail.reverting(this.token.mint(ZERO_ADDRESS, tokenId));
       });
 
       context('with minted token', async function () {
@@ -24,7 +25,7 @@ contract('ERC721', function ([_, creator, tokenOwner, anyone, ...accounts]) {
         });
 
         it('emits a Transfer event', function () {
-          expectEvent.inLogs(this.logs, 'Transfer', { from: constants.ZERO_ADDRESS, to: tokenOwner, tokenId });
+          expectEvent.inLogs(this.logs, 'Transfer', { from: ZERO_ADDRESS, to: tokenOwner, tokenId });
         });
 
         it('creates the token', async function () {
@@ -58,7 +59,7 @@ contract('ERC721', function ([_, creator, tokenOwner, anyone, ...accounts]) {
           });
 
           it('emits a Transfer event', function () {
-            expectEvent.inLogs(this.logs, 'Transfer', { from: tokenOwner, to: constants.ZERO_ADDRESS, tokenId });
+            expectEvent.inLogs(this.logs, 'Transfer', { from: tokenOwner, to: ZERO_ADDRESS, tokenId });
           });
 
           it('deletes the token', async function () {
@@ -89,7 +90,7 @@ contract('ERC721', function ([_, creator, tokenOwner, anyone, ...accounts]) {
           });
 
           it('emits a Transfer event', function () {
-            expectEvent.inLogs(this.logs, 'Transfer', { from: tokenOwner, to: constants.ZERO_ADDRESS, tokenId });
+            expectEvent.inLogs(this.logs, 'Transfer', { from: tokenOwner, to: ZERO_ADDRESS, tokenId });
           });
 
           it('deletes the token', async function () {

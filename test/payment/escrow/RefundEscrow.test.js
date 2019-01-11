@@ -1,4 +1,5 @@
 const { balance, constants, ether, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 const RefundEscrow = artifacts.require('RefundEscrow');
 
@@ -8,7 +9,7 @@ contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee
 
   it('requires a non-null beneficiary', async function () {
     await shouldFail.reverting(
-      RefundEscrow.new(constants.ZERO_ADDRESS, { from: primary })
+      RefundEscrow.new(ZERO_ADDRESS, { from: primary })
     );
   });
 

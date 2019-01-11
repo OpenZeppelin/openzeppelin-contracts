@@ -8,7 +8,7 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
   });
 
   it('reverts when querying roles for the null account', async function () {
-    await shouldFail.reverting(this.roles.has(constants.ZERO_ADDRESS));
+    await shouldFail.reverting(this.roles.has(ZERO_ADDRESS));
   });
 
   context('initially', function () {
@@ -31,7 +31,7 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
       });
 
       it('reverts when adding roles to the null account', async function () {
-        await shouldFail.reverting(this.roles.add(constants.ZERO_ADDRESS));
+        await shouldFail.reverting(this.roles.add(ZERO_ADDRESS));
       });
     });
   });
@@ -54,7 +54,7 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
       });
 
       it('reverts when removing roles from the null account', async function () {
-        await shouldFail.reverting(this.roles.remove(constants.ZERO_ADDRESS));
+        await shouldFail.reverting(this.roles.remove(ZERO_ADDRESS));
       });
     });
   });

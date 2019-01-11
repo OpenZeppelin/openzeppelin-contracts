@@ -1,4 +1,5 @@
 const { BN, constants, shouldFail } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 const SafeMathMock = artifacts.require('SafeMathMock');
 

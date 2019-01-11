@@ -1,4 +1,5 @@
 const { BN, constants, shouldFail } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 const ERC20Mock = artifacts.require('ERC20Mock');
 const ERC20Mintable = artifacts.require('ERC20Mintable');
@@ -8,7 +9,7 @@ contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
   const totalSupply = new BN('200');
 
   it('reverts with a null legacy token address', async function () {
-    await shouldFail.reverting(ERC20Migrator.new(constants.ZERO_ADDRESS));
+    await shouldFail.reverting(ERC20Migrator.new(ZERO_ADDRESS));
   });
 
   describe('with tokens and migrator', function () {
@@ -24,7 +25,7 @@ contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
 
     describe('beginMigration', function () {
       it('reverts with a null new token address', async function () {
-        await shouldFail.reverting(this.migrator.beginMigration(constants.ZERO_ADDRESS));
+        await shouldFail.reverting(this.migrator.beginMigration(ZERO_ADDRESS));
       });
 
       it('reverts if not a minter of the token', async function () {

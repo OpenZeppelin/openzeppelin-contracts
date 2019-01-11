@@ -1,4 +1,5 @@
 const { constants, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 const SecondaryMock = artifacts.require('SecondaryMock');
 
@@ -29,7 +30,7 @@ contract('Secondary', function ([_, primary, newPrimary, anyone]) {
     });
 
     it('reverts when transfering to the null address', async function () {
-      await shouldFail.reverting(this.secondary.transferPrimary(constants.ZERO_ADDRESS, { from: primary }));
+      await shouldFail.reverting(this.secondary.transferPrimary(ZERO_ADDRESS, { from: primary }));
     });
 
     it('reverts when called by anyone', async function () {

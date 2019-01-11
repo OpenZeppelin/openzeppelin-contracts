@@ -1,4 +1,5 @@
 const { balance, constants, ether, expectEvent, send, shouldFail } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 const PaymentSplitter = artifacts.require('PaymentSplitter');
 
@@ -18,7 +19,7 @@ contract('PaymentSplitter', function ([_, owner, payee1, payee2, payee3, nonpaye
   });
 
   it('rejects null payees', async function () {
-    await shouldFail.reverting(PaymentSplitter.new([payee1, constants.ZERO_ADDRESS], [20, 30]));
+    await shouldFail.reverting(PaymentSplitter.new([payee1, ZERO_ADDRESS], [20, 30]));
   });
 
   it('rejects zero-valued shares', async function () {

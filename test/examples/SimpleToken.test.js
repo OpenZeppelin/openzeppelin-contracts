@@ -1,4 +1,5 @@
 const { constants, expectEvent } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 const SimpleToken = artifacts.require('SimpleToken');
 
@@ -26,7 +27,7 @@ contract('SimpleToken', function ([_, creator]) {
     creatorBalance.should.be.bignumber.equal(totalSupply);
 
     await expectEvent.inConstruction(this.token, 'Transfer', {
-      from: constants.ZERO_ADDRESS,
+      from: ZERO_ADDRESS,
       to: creator,
       value: totalSupply,
     });

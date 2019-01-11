@@ -1,4 +1,5 @@
 const { BN, constants, expectEvent, shouldFail, time } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 const ERC20Mintable = artifacts.require('ERC20Mintable');
 const TokenVesting = artifacts.require('TokenVesting');
@@ -26,7 +27,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
   it('reverts with a null beneficiary', async function () {
     await shouldFail.reverting(
-      TokenVesting.new(constants.ZERO_ADDRESS, this.start, this.cliffDuration, this.duration, true, { from: owner })
+      TokenVesting.new(ZERO_ADDRESS, this.start, this.cliffDuration, this.duration, true, { from: owner })
     );
   });
 

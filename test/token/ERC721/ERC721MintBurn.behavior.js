@@ -1,4 +1,5 @@
 const { BN, constants, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 function shouldBehaveLikeMintAndBurnERC721 (
   creator,
@@ -36,7 +37,7 @@ function shouldBehaveLikeMintAndBurnERC721 (
 
         it('emits a transfer and minted event', async function () {
           expectEvent.inLogs(logs, 'Transfer', {
-            from: constants.ZERO_ADDRESS,
+            from: ZERO_ADDRESS,
             to: newOwner,
             tokenId: thirdTokenId,
           });
@@ -45,7 +46,7 @@ function shouldBehaveLikeMintAndBurnERC721 (
 
       describe('when the given owner address is the zero address', function () {
         it('reverts', async function () {
-          await shouldFail.reverting(this.token.mint(constants.ZERO_ADDRESS, thirdTokenId, { from: minter }));
+          await shouldFail.reverting(this.token.mint(ZERO_ADDRESS, thirdTokenId, { from: minter }));
         });
       });
 
@@ -82,7 +83,7 @@ function shouldBehaveLikeMintAndBurnERC721 (
         it('emits a burn event', async function () {
           expectEvent.inLogs(logs, 'Transfer', {
             from: owner,
-            to: constants.ZERO_ADDRESS,
+            to: ZERO_ADDRESS,
             tokenId: tokenId,
           });
         });

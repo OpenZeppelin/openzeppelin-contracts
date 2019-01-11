@@ -1,4 +1,5 @@
 const { BN, constants, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 
 const ERC721ReceiverMock = artifacts.require('ERC721ReceiverMock.sol');
@@ -35,7 +36,7 @@ function shouldBehaveLikeERC721 (
 
       context('when querying the zero address', function () {
         it('throws', async function () {
-          await shouldFail.reverting(this.token.balanceOf(constants.ZERO_ADDRESS));
+          await shouldFail.reverting(this.token.balanceOf(ZERO_ADDRESS));
         });
       });
     });
@@ -75,7 +76,7 @@ function shouldBehaveLikeERC721 (
         });
 
         it('clears the approval for the token ID', async function () {
-          (await this.token.getApproved(tokenId)).should.be.equal(constants.ZERO_ADDRESS);
+          (await this.token.getApproved(tokenId)).should.be.equal(ZERO_ADDRESS);
         });
 
         if (approved) {
@@ -133,7 +134,7 @@ function shouldBehaveLikeERC721 (
 
         context('when called by the owner without an approved user', function () {
           beforeEach(async function () {
-            await this.token.approve(constants.ZERO_ADDRESS, tokenId, { from: owner });
+            await this.token.approve(ZERO_ADDRESS, tokenId, { from: owner });
             ({ logs } = await transferFunction.call(this, owner, this.toWhom, tokenId, { from: operator }));
           });
           transferWasSuccessful({ owner, tokenId, approved: null });
@@ -149,7 +150,7 @@ function shouldBehaveLikeERC721 (
           });
 
           it('clears the approval for the token ID', async function () {
-            (await this.token.getApproved(tokenId)).should.be.equal(constants.ZERO_ADDRESS);
+            (await this.token.getApproved(tokenId)).should.be.equal(ZERO_ADDRESS);
           });
 
           it('emits only a transfer event', async function () {
@@ -199,7 +200,7 @@ function shouldBehaveLikeERC721 (
         context('when the address to transfer the token to is the zero address', function () {
           it('reverts', async function () {
             await shouldFail.reverting(
-              transferFunction.call(this, owner, constants.ZERO_ADDRESS, tokenId, { from: owner })
+              transferFunction.call(this, owner, ZERO_ADDRESS, tokenId, { from: owner })
             );
           });
         });
@@ -315,7 +316,7 @@ function shouldBehaveLikeERC721 (
 
       const itClearsApproval = function () {
         it('clears approval for the token', async function () {
-          (await this.token.getApproved(tokenId)).should.be.equal(constants.ZERO_ADDRESS);
+          (await this.token.getApproved(tokenId)).should.be.equal(ZERO_ADDRESS);
         });
       };
 
@@ -338,21 +339,21 @@ function shouldBehaveLikeERC721 (
       context('when clearing approval', function () {
         context('when there was no prior approval', function () {
           beforeEach(async function () {
-            ({ logs } = await this.token.approve(constants.ZERO_ADDRESS, tokenId, { from: owner }));
+            ({ logs } = await this.token.approve(ZERO_ADDRESS, tokenId, { from: owner }));
           });
 
           itClearsApproval();
-          itEmitsApprovalEvent(constants.ZERO_ADDRESS);
+          itEmitsApprovalEvent(ZERO_ADDRESS);
         });
 
         context('when there was a prior approval', function () {
           beforeEach(async function () {
             await this.token.approve(approved, tokenId, { from: owner });
-            ({ logs } = await this.token.approve(constants.ZERO_ADDRESS, tokenId, { from: owner }));
+            ({ logs } = await this.token.approve(ZERO_ADDRESS, tokenId, { from: owner }));
           });
 
           itClearsApproval();
-          itEmitsApprovalEvent(constants.ZERO_ADDRESS);
+          itEmitsApprovalEvent(ZERO_ADDRESS);
         });
       });
 

@@ -1,4 +1,5 @@
 const { BN, constants, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
   describe('burn', function () {
@@ -23,7 +24,7 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
         it('emits a transfer event', async function () {
           expectEvent.inLogs(this.logs, 'Transfer', {
             from: owner,
-            to: constants.ZERO_ADDRESS,
+            to: ZERO_ADDRESS,
             value: amount,
           });
         });
@@ -69,7 +70,7 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
         it('emits a transfer event', async function () {
           expectEvent.inLogs(this.logs, 'Transfer', {
             from: owner,
-            to: constants.ZERO_ADDRESS,
+            to: ZERO_ADDRESS,
             value: amount,
           });
         });
