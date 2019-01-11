@@ -19,9 +19,9 @@ contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser])
 
     beforeEach(async function () {
       await time.advanceBlock();
-      this.startTime = (await time.latest()).add(time).duration.weeks(1);
-      this.closingTime = this.startTime.add(time).duration.weeks(1);
-      this.afterClosingTime = this.closingTime.add(time).duration.seconds(1);
+      this.startTime = (await time.latest()).add(time.duration.weeks(1));
+      this.closingTime = this.startTime.add(time.duration.weeks(1));
+      this.afterClosingTime = this.closingTime.add(time.duration.seconds(1));
       this.token = await SimpleToken.new();
     });
 
@@ -66,7 +66,7 @@ contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser])
 
       it('returns a rate of 0 after the crowdsale ends', async function () {
         await time.increaseTo(this.afterClosingTime);
-        (await this.crowdsale.getCurrentRate()).should.be.bignumber.equal(0);
+        (await this.crowdsale.getCurrentRate()).should.be.bignumber.equal('0');
       });
 
       it('at start', async function () {
@@ -82,7 +82,7 @@ contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser])
       });
 
       it('at time 300', async function () {
-        await time.increaseTo(this.startTime.add(300));
+        await time.increaseTo(this.startTime.addn(300));
         await this.crowdsale.buyTokens(investor, { value, from: purchaser });
         (await this.token.balanceOf(investor)).should.be.bignumber.equal(value.mul(rateAtTime300));
       });

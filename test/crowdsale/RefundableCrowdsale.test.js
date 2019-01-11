@@ -89,7 +89,7 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, anyon
 
           it('forwards funds to wallet', async function () {
             const postWalletBalance = await balance.current(wallet);
-            postWalletBalance.minus(this.preWalletBalance).should.be.bignumber.equal(goal);
+            postWalletBalance.sub(this.preWalletBalance).should.be.bignumber.equal(goal);
           });
         });
       });

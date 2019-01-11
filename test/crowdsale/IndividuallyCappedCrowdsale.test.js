@@ -56,8 +56,8 @@ contract('IndividuallyCappedCrowdsale', function (
         });
 
         it('should reject payments that exceed cap', async function () {
-          await shouldFail.reverting(this.crowdsale.buyTokens(alice, { value: capAlice.add(1) }));
-          await shouldFail.reverting(this.crowdsale.buyTokens(bob, { value: capBob.add(1) }));
+          await shouldFail.reverting(this.crowdsale.buyTokens(alice, { value: capAlice.addn(1) }));
+          await shouldFail.reverting(this.crowdsale.buyTokens(bob, { value: capBob.addn(1) }));
         });
 
         it('should manage independent caps', async function () {

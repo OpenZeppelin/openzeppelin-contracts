@@ -46,7 +46,7 @@ contract('CappedCrowdsale', function ([_, wallet]) {
       });
 
       it('should not reach cap if sent just under cap', async function () {
-        await this.crowdsale.send(cap.sub(1));
+        await this.crowdsale.send(cap.subn(1));
         (await this.crowdsale.capReached()).should.equal(false);
       });
 
