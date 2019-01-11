@@ -12,14 +12,14 @@ contract('SignedSafeMath', function () {
       const a = new BN('1234');
       const b = new BN('5678');
 
-      (await this.safeMath.addUints(a, b)).should.be.bignumber.equal(a.add(b));
+      (await this.safeMath.add(a, b)).should.be.bignumber.equal(a.add(b));
     });
 
     it('adds correctly if it does not overflow and the result is negative', async function () {
       const a = constants.MAX_INT256;
       const b = constants.MIN_INT256;
 
-      const result = await this.safeMath.addInts(a, b);
+      const result = await this.safeMath.add(a, b);
       result.should.be.bignumber.equal(a.add(b));
     });
 
@@ -27,14 +27,14 @@ contract('SignedSafeMath', function () {
       const a = constants.MAX_INT256;
       const b = new BN('1');
 
-      await shouldFail.reverting(this.safeMath.addInts(a, b));
+      await shouldFail.reverting(this.safeMath.add(a, b));
     });
 
     it('reverts on negative addition overflow', async function () {
       const a = constants.MIN_INT256;
       const b = new BN('-1');
 
-      await shouldFail.reverting(this.safeMath.addInts(a, b));
+      await shouldFail.reverting(this.safeMath.add(a, b));
     });
   });
 
@@ -43,7 +43,7 @@ contract('SignedSafeMath', function () {
       const a = new BN('5678');
       const b = new BN('1234');
 
-      const result = await this.safeMath.subInts(a, b);
+      const result = await this.safeMath.sub(a, b);
       result.should.be.bignumber.equal(a.sub(b));
     });
 
@@ -51,7 +51,7 @@ contract('SignedSafeMath', function () {
       const a = new BN('1234');
       const b = new BN('5678');
 
-      const result = await this.safeMath.subInts(a, b);
+      const result = await this.safeMath.sub(a, b);
       result.should.be.bignumber.equal(a.sub(b));
     });
 
@@ -59,14 +59,14 @@ contract('SignedSafeMath', function () {
       const a = constants.MAX_INT256;
       const b = new BN('-1');
 
-      await shouldFail.reverting(this.safeMath.subInts(a, b));
+      await shouldFail.reverting(this.safeMath.sub(a, b));
     });
 
     it('reverts on negative subtraction overflow', async function () {
       const a = constants.MIN_INT256;
       const b = new BN('1');
 
-      await shouldFail.reverting(this.safeMath.subInts(a, b));
+      await shouldFail.reverting(this.safeMath.sub(a, b));
     });
   });
 
@@ -75,7 +75,7 @@ contract('SignedSafeMath', function () {
       const a = new BN('5678');
       const b = new BN('-1234');
 
-      const result = await this.safeMath.mulInts(a, b);
+      const result = await this.safeMath.mul(a, b);
       result.should.be.bignumber.equal(a.mul(b));
     });
 
@@ -83,7 +83,7 @@ contract('SignedSafeMath', function () {
       const a = new BN('0');
       const b = new BN('5678');
 
-      const result = await this.safeMath.mulInts(a, b);
+      const result = await this.safeMath.mul(a, b);
       result.should.be.bignumber.equal(a.mul(b));
     });
 
@@ -91,21 +91,21 @@ contract('SignedSafeMath', function () {
       const a = constants.MAX_INT256;
       const b = new BN('2');
 
-      await shouldFail.reverting(this.safeMath.mulInts(a, b));
+      await shouldFail.reverting(this.safeMath.mul(a, b));
     });
 
     it('reverts when minimum integer is multiplied by -1', async function () {
       const a = constants.MIN_INT256;
       const b = new BN('-1');
 
-      await shouldFail.reverting(this.safeMath.mulInts(a, b));
+      await shouldFail.reverting(this.safeMath.mul(a, b));
     });
 
     it('reverts when -1 is multiplied by minimum integer', async function () {
       const a = new BN('-1');
       const b = constants.MIN_INT256;
 
-      await shouldFail.reverting(this.safeMath.mulInts(a, b));
+      await shouldFail.reverting(this.safeMath.mul(a, b));
     });
   });
 
@@ -114,7 +114,7 @@ contract('SignedSafeMath', function () {
       const a = new BN('-5678');
       const b = new BN('5678');
 
-      const result = await this.safeMath.divInts(a, b);
+      const result = await this.safeMath.div(a, b);
       result.should.be.bignumber.equal(a.div(b));
     });
 
@@ -122,14 +122,14 @@ contract('SignedSafeMath', function () {
       const a = new BN('-5678');
       const b = new BN('0');
 
-      await shouldFail.reverting(this.safeMath.divInts(a, b));
+      await shouldFail.reverting(this.safeMath.div(a, b));
     });
 
     it('reverts on overflow, negative second', async function () {
       const a = new BN(constants.MIN_INT256);
       const b = new BN('-1');
 
-      await shouldFail.reverting(this.safeMath.divInts(a, b));
+      await shouldFail.reverting(this.safeMath.div(a, b));
     });
   });
 });
