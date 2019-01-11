@@ -169,7 +169,9 @@ function shouldBehaveLikeERC721 (
             const tokensListed = await Promise.all(
               [0, 1].map(i => this.token.tokenOfOwnerByIndex(owner, i))
             );
-            tokensListed.map(t => t.toNumber()).should.have.members([firstTokenId.toNumber(), secondTokenId.toNumber()]);
+            tokensListed.map(t => t.toNumber()).should.have.members(
+              [firstTokenId.toNumber(), secondTokenId.toNumber()]
+            );
           });
         });
 
@@ -196,7 +198,9 @@ function shouldBehaveLikeERC721 (
 
         context('when the address to transfer the token to is the zero address', function () {
           it('reverts', async function () {
-            await shouldFail.reverting(transferFunction.call(this, owner, constants.ZERO_ADDRESS, tokenId, { from: owner }));
+            await shouldFail.reverting(
+              transferFunction.call(this, owner, constants.ZERO_ADDRESS, tokenId, { from: owner })
+            );
           });
         });
       };

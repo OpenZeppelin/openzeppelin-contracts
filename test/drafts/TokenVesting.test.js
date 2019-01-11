@@ -79,8 +79,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     it('should release proper amount after cliff', async function () {
       await time.increaseTo(this.start.add(this.cliffDuration));
 
-      const { receipt } = await this.vesting.release(this.token.address);
-      const block = await web3.eth.getBlock(receipt.blockNumber);
+      await this.vesting.release(this.token.address);
       const releaseTime = await time.latest();
 
       const releasedAmount = amount.mul(releaseTime.sub(this.start)).div(this.duration);

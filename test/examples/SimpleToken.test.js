@@ -1,4 +1,4 @@
-const { constants, expectEvent } = require('openzeppelin-test-helpers');;
+const { constants, expectEvent } = require('openzeppelin-test-helpers');
 
 const SimpleToken = artifacts.require('SimpleToken');
 

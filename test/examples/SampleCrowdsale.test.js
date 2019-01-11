@@ -1,4 +1,4 @@
-const { BN, balance, ether, should, shouldFail, time } = require('openzeppelin-test-helpers');;
+const { BN, balance, ether, should, shouldFail, time } = require('openzeppelin-test-helpers');
 
 const SampleCrowdsale = artifacts.require('SampleCrowdsale');
 const SampleCrowdsaleToken = artifacts.require('SampleCrowdsaleToken');
@@ -72,14 +72,14 @@ contract('SampleCrowdsale', function ([_, deployer, owner, wallet, investor]) {
     await time.increaseTo(this.openingTime);
     await this.crowdsale.send(GOAL);
 
-    (await balanceDifference(wallet, async () => {
+    (await balance.difference(wallet, async () => {
       await time.increaseTo(this.afterClosingTime);
       await this.crowdsale.finalize({ from: owner });
     })).should.be.bignumber.equal(GOAL);
   });
 
   it('should allow refunds if the goal is not reached', async function () {
-    (await balanceDifference(investor, async () => {
+    (await balance.difference(investor, async () => {
       await time.increaseTo(this.openingTime);
       await this.crowdsale.sendTransaction({ value: ether('1'), from: investor, gasPrice: 0 });
       await time.increaseTo(this.afterClosingTime);

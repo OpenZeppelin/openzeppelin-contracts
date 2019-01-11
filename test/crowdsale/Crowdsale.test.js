@@ -11,7 +11,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
 
   it('requires a non-null token', async function () {
     await shouldFail.reverting(
-      Crowdsale.new(rate, wallet, ZERO_ADDRESS)
+      Crowdsale.new(rate, wallet, constants.ZERO_ADDRESS)
     );
   });
 
@@ -28,7 +28,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
 
     it('requires a non-null wallet', async function () {
       await shouldFail.reverting(
-        Crowdsale.new(rate, ZERO_ADDRESS, this.token.address)
+        Crowdsale.new(rate, constants.ZERO_ADDRESS, this.token.address)
       );
     });
 
@@ -64,7 +64,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
 
           it('requires a non-null beneficiary', async function () {
             await shouldFail.reverting(
-              this.crowdsale.buyTokens(ZERO_ADDRESS, { value: value, from: purchaser })
+              this.crowdsale.buyTokens(constants.ZERO_ADDRESS, { value: value, from: purchaser })
             );
           });
         });
