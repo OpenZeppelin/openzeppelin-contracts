@@ -1,4 +1,5 @@
 const { shouldFail, constants } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 const RolesMock = artifacts.require('RolesMock');
 

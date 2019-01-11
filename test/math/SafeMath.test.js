@@ -1,9 +1,8 @@
 const { BN, constants, shouldFail } = require('openzeppelin-test-helpers');
-const { ZERO_ADDRESS } = constants;
 
 const SafeMathMock = artifacts.require('SafeMathMock');
 
-contract.only('SafeMath', function () {
+contract('SafeMath', function () {
   beforeEach(async function () {
     this.safeMath = await SafeMathMock.new();
   });
