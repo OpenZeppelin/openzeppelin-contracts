@@ -4,9 +4,8 @@ import "../../introspection/IERC165.sol";
 
 /**
  * https://github.com/ethereum/EIPs/blob/master/EIPS/eip-214.md#specification
- * > Any attempts to make state-changing operations inside an execution instance with STATIC set to true will instead throw an exception.
- * > These operations include [...], LOG0, LOG1, LOG2, [...]
- *
+ * Any attempts to make state-changing operations inside an execution instance with STATIC set to true 
+ * will instead throw an exception.These operations include [...], LOG0, LOG1, LOG2, [...]
  * therefore, because this contract is staticcall'd we need to not emit events (which is how solidity-coverage works)
  * solidity-coverage ignores the /mocks folder, so we duplicate its implementation here to avoid instrumenting it
  */

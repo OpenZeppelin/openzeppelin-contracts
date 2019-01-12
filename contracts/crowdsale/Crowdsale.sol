@@ -135,7 +135,8 @@ contract Crowdsale is ReentrancyGuard {
     // -----------------------------------------
 
     /**
-     * @dev Validation of an incoming purchase. Use require statements to revert state when conditions are not met. Use `super` in contracts that inherit from Crowdsale to extend their validations.
+     * @dev Validation of an incoming purchase. Use require statements to revert state when conditions are not met. 
+     * Use `super` in contracts that inherit from Crowdsale to extend their validations.
      * Example from CappedCrowdsale.sol's _preValidatePurchase method:
      *     super._preValidatePurchase(beneficiary, weiAmount);
      *     require(weiRaised().add(weiAmount) <= cap);
@@ -148,7 +149,8 @@ contract Crowdsale is ReentrancyGuard {
     }
 
     /**
-     * @dev Validation of an executed purchase. Observe state and use revert statements to undo rollback when valid conditions are not met.
+     * @dev Validation of an executed purchase. Observe state and use revert statements to undo rollback
+     * when valid conditions are not met.
      * @param beneficiary Address performing the token purchase
      * @param weiAmount Value in wei involved in the purchase
      */
@@ -157,7 +159,8 @@ contract Crowdsale is ReentrancyGuard {
     }
 
     /**
-     * @dev Source of tokens. Override this method to modify the way in which the crowdsale ultimately gets and sends its tokens.
+     * @dev Source of tokens. Override this method to modify the way 
+     * in which the crowdsale ultimately gets and sends its tokens.
      * @param beneficiary Address performing the token purchase
      * @param tokenAmount Number of tokens to be emitted
      */

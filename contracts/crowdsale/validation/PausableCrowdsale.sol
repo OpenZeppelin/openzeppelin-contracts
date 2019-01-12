@@ -11,7 +11,8 @@ import "../../lifecycle/Pausable.sol";
 contract PausableCrowdsale is Crowdsale, Pausable {
 
     /**
-     * @dev Validation of an incoming purchase. Use require statements to revert state when conditions are not met. Use super to concatenate validations.
+     * @dev Validation of an incoming purchase. Use require statements to revert state 
+     * when conditions are not met. Use super to concatenate validations.
      * Adds the validation that the crowdsale must not be paused.
      * @param _beneficiary Address performing the token purchase
      * @param _weiAmount Value in wei involved in the purchase

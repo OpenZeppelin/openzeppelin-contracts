@@ -109,15 +109,15 @@ library ERC165Checker {
             mstore(output, 0x0)
 
             success := staticcall(
-                30000,                                 // 30k gas
-                account,                            // To addr
+                30000,                   // 30k gas
+                account,                 // To addr
                 encodedParams_data,
                 encodedParams_size,
                 output,
-                0x20                                     // Outputs are 32 bytes long
+                0x20                     // Outputs are 32 bytes long
             )
 
-            result := mload(output)    // Load the result
+            result := mload(output)      // Load the result
         }
     }
 }
