@@ -73,7 +73,7 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
      * @param from current owner of the token
      * @param to address to receive the ownership of the given token ID
      * @param tokenId uint256 ID of the token to be transferred
-    */
+     */
     function _transferFrom(address from, address to, uint256 tokenId) internal {
         super._transferFrom(from, to, tokenId);
 

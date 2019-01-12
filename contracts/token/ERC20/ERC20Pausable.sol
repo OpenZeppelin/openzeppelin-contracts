@@ -6,7 +6,7 @@ import "../../lifecycle/Pausable.sol";
 /**
  * @title Pausable token
  * @dev ERC20 modified with pausable transfers.
- **/
+ */
 contract ERC20Pausable is ERC20, Pausable {
     function transfer(address to, uint256 value) public whenNotPaused returns (bool) {
         return super.transfer(to, value);
