@@ -1,18 +1,13 @@
-const expectEvent = require('../helpers/expectEvent');
-const shouldFail = require('../helpers/shouldFail');
-const { balanceDifference } = require('../helpers/balanceDifference');
-const { ether } = require('../helpers/ether');
-const { ZERO_ADDRESS } = require('../helpers/constants');
-
-const { BigNumber } = require('../helpers/setup');
+const { balance, BN, constants, ether, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 const Crowdsale = artifacts.require('CrowdsaleMock');
 const SimpleToken = artifacts.require('SimpleToken');
 
 contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
-  const rate = new BigNumber(1);
-  const value = ether(42);
-  const tokenSupply = new BigNumber('1e22');
+  const rate = new BN(1);
+  const value = ether('42');
+  const tokenSupply = new BN('10').pow(new BN('22'));
   const expectedTokenAmount = rate.mul(value);
 
   it('requires a non-null token', async function () {
@@ -93,7 +88,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
         });
 
         it('should forward funds to wallet', async function () {
-          (await balanceDifference(wallet, () =>
+          (await balance.difference(wallet, () =>
             this.crowdsale.sendTransaction({ value, from: investor }))
           ).should.be.bignumber.equal(value);
         });
@@ -116,7 +111,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
         });
 
         it('should forward funds to wallet', async function () {
-          (await balanceDifference(wallet, () =>
+          (await balance.difference(wallet, () =>
             this.crowdsale.buyTokens(investor, { value, from: purchaser }))
           ).should.be.bignumber.equal(value);
         });

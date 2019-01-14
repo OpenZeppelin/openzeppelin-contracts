@@ -1,9 +1,10 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 contract Failer {
     uint256[] private array;
 
     function dontFail() public pure {
+        // solhint-disable-previous-line no-empty-blocks
     }
 
     function failWithRevert() public pure {

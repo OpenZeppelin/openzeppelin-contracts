@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "./IERC721Enumerable.sol";
 import "./ERC721.sol";
@@ -21,7 +21,7 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
     // Mapping from token id to position in the allTokens array
     mapping(uint256 => uint256) private _allTokensIndex;
 
-    bytes4 private constant _InterfaceId_ERC721Enumerable = 0x780e9d63;
+    bytes4 private constant _INTERFACE_ID_ERC721_ENUMERABLE = 0x780e9d63;
     /**
      * 0x780e9d63 ===
      *     bytes4(keccak256('totalSupply()')) ^
@@ -34,7 +34,7 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
      */
     constructor () public {
         // register the supported interface to conform to ERC721 via ERC165
-        _registerInterface(_InterfaceId_ERC721Enumerable);
+        _registerInterface(_INTERFACE_ID_ERC721_ENUMERABLE);
     }
 
     /**

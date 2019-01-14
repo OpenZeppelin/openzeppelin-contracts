@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "./SafeERC20.sol";
 
@@ -20,7 +20,7 @@ contract TokenTimelock {
     uint256 private _releaseTime;
 
     constructor (IERC20 token, address beneficiary, uint256 releaseTime) public {
-        // solium-disable-next-line security/no-block-members
+        // solhint-disable-next-line not-rely-on-time
         require(releaseTime > block.timestamp);
         _token = token;
         _beneficiary = beneficiary;
@@ -52,7 +52,7 @@ contract TokenTimelock {
      * @notice Transfers tokens held by timelock to beneficiary.
      */
     function release() public {
-        // solium-disable-next-line security/no-block-members
+        // solhint-disable-next-line not-rely-on-time
         require(block.timestamp >= _releaseTime);
 
         uint256 amount = _token.balanceOf(address(this));

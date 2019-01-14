@@ -1,13 +1,12 @@
-const shouldFail = require('../helpers/shouldFail');
+const { shouldFail } = require('openzeppelin-test-helpers');
+
 const ReentrancyMock = artifacts.require('ReentrancyMock');
 const ReentrancyAttack = artifacts.require('ReentrancyAttack');
-
-require('../helpers/setup');
 
 contract('ReentrancyGuard', function () {
   beforeEach(async function () {
     this.reentrancyMock = await ReentrancyMock.new();
-    (await this.reentrancyMock.counter()).should.be.bignumber.equal(0);
+    (await this.reentrancyMock.counter()).should.be.bignumber.equal('0');
   });
 
   it('should not allow remote callback', async function () {

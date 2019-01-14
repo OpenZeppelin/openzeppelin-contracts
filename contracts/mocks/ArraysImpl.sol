@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "../utils/Arrays.sol";
 
@@ -7,7 +7,7 @@ contract ArraysImpl {
 
     uint256[] private array;
 
-    constructor (uint256[] _array) public {
+    constructor (uint256[] memory _array) public {
         array = _array;
     }
 

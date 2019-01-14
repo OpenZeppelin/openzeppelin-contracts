@@ -1,8 +1,5 @@
-const shouldFail = require('../../helpers/shouldFail');
-const { ZERO_ADDRESS } = require('../../helpers/constants');
-const expectEvent = require('../../helpers/expectEvent');
-
-require('../../helpers/setup');
+const { shouldFail, constants, expectEvent } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 function capitalize (str) {
   return str.replace(/\b\w/g, l => l.toUpperCase());

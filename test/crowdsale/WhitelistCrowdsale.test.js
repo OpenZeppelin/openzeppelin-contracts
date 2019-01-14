@@ -1,16 +1,12 @@
-require('../helpers/setup');
-const { ether } = require('../helpers/ether');
-const shouldFail = require('../helpers/shouldFail');
-
-const BigNumber = web3.BigNumber;
+const { BN, ether, shouldFail } = require('openzeppelin-test-helpers');
 
 const WhitelistCrowdsale = artifacts.require('WhitelistCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
 contract('WhitelistCrowdsale', function ([_, wallet, whitelister, whitelisted, otherWhitelisted, anyone]) {
-  const rate = 1;
-  const value = ether(42);
-  const tokenSupply = new BigNumber('1e22');
+  const rate = new BN(1);
+  const value = ether('42');
+  const tokenSupply = new BN('10').pow(new BN('22'));
 
   beforeEach(async function () {
     this.token = await SimpleToken.new({ from: whitelister });

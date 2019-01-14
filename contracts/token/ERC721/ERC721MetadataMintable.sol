@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "./ERC721Metadata.sol";
 import "../../access/roles/MinterRole.sol";
@@ -16,7 +16,7 @@ contract ERC721MetadataMintable is ERC721, ERC721Metadata, MinterRole {
      * @param tokenURI The token URI of the minted token.
      * @return A boolean that indicates if the operation was successful.
      */
-    function mintWithTokenURI(address to, uint256 tokenId, string tokenURI) public onlyMinter returns (bool) {
+    function mintWithTokenURI(address to, uint256 tokenId, string memory tokenURI) public onlyMinter returns (bool) {
         _mint(to, tokenId);
         _setTokenURI(tokenId, tokenURI);
         return true;
