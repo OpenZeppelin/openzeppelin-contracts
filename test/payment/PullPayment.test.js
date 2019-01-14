@@ -3,7 +3,7 @@ const { balance, ether } = require('openzeppelin-test-helpers');
 const PullPaymentMock = artifacts.require('PullPaymentMock');
 
 contract('PullPayment', function ([_, payer, payee1, payee2]) {
-  const amount = ether('17', 'ether');
+  const amount = ether('17');
 
   beforeEach(async function () {
     this.contract = await PullPaymentMock.new({ value: amount });

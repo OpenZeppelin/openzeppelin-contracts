@@ -4,7 +4,7 @@ const { ZERO_ADDRESS } = constants;
 const PaymentSplitter = artifacts.require('PaymentSplitter');
 
 contract('PaymentSplitter', function ([_, owner, payee1, payee2, payee3, nonpayee1, payer1]) {
-  const amount = ether('1', 'ether');
+  const amount = ether('1');
 
   it('rejects an empty set of payees', async function () {
     await shouldFail.reverting(PaymentSplitter.new([], []));

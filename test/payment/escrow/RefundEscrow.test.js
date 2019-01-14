@@ -4,7 +4,7 @@ const { ZERO_ADDRESS } = constants;
 const RefundEscrow = artifacts.require('RefundEscrow');
 
 contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee2]) {
-  const amount = ether('54', 'ether');
+  const amount = ether('54');
   const refundees = [refundee1, refundee2];
 
   it('requires a non-null beneficiary', async function () {
