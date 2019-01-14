@@ -152,7 +152,7 @@ contract('ERC721Full', function ([
         });
 
         it('returns empty collection for original owner', async function () {
-          (await this.token.balanceOf(owner)).toNumber().should.be.equal(0);
+          (await this.token.balanceOf(owner)).should.be.equal('0');
           await shouldFail.reverting(this.token.tokenOfOwnerByIndex(owner, 0));
         });
       });
@@ -179,7 +179,7 @@ contract('ERC721Full', function ([
           await this.token.mint(newOwner, newTokenId, { from: minter });
           await this.token.mint(newOwner, anotherNewTokenId, { from: minter });
 
-          (await this.token.totalSupply()).toNumber().should.be.equal(3);
+          (await this.token.totalSupply()).should.be.equal('3');
 
           const tokensListed = await Promise.all(
             [0, 1, 2].map(i => this.token.tokenByIndex(i))
