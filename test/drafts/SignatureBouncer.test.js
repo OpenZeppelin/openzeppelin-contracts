@@ -1,13 +1,11 @@
-const shouldFail = require('../helpers/shouldFail');
+const { shouldFail } = require('openzeppelin-test-helpers');
 const { getSignFor } = require('../helpers/sign');
 const { shouldBehaveLikePublicRole } = require('../access/roles/PublicRole.behavior');
 
 const SignatureBouncerMock = artifacts.require('SignatureBouncerMock');
 
-require('../helpers/setup');
-
 const UINT_VALUE = 23;
-const BYTES_VALUE = web3.toHex('test');
+const BYTES_VALUE = web3.utils.toHex('test');
 const INVALID_SIGNATURE = '0xabcd';
 
 contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authorizedUser, ...otherAccounts]) {
@@ -28,7 +26,7 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
   describe('modifiers', function () {
     context('plain signature', function () {
       it('allows valid signature for sender', async function () {
-        await this.sigBouncer.onlyWithValidSignature(this.signFor(authorizedUser), { from: authorizedUser });
+        await this.sigBouncer.onlyWithValidSignature(await this.signFor(authorizedUser), { from: authorizedUser });
       });
 
       it('does not allow invalid signature for sender', async function () {
@@ -39,13 +37,13 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
 
       it('does not allow valid signature for other sender', async function () {
         await shouldFail.reverting(
-          this.sigBouncer.onlyWithValidSignature(this.signFor(authorizedUser), { from: anyone })
+          this.sigBouncer.onlyWithValidSignature(await this.signFor(authorizedUser), { from: anyone })
         );
       });
 
       it('does not allow valid signature for method for sender', async function () {
         await shouldFail.reverting(
-          this.sigBouncer.onlyWithValidSignature(this.signFor(authorizedUser, 'onlyWithValidSignature'),
+          this.sigBouncer.onlyWithValidSignature(await this.signFor(authorizedUser, 'onlyWithValidSignature'),
             { from: authorizedUser })
         );
       });
@@ -54,7 +52,7 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
     context('method signature', function () {
       it('allows valid signature with correct method for sender', async function () {
         await this.sigBouncer.onlyWithValidSignatureAndMethod(
-          this.signFor(authorizedUser, 'onlyWithValidSignatureAndMethod'), { from: authorizedUser }
+          await this.signFor(authorizedUser, 'onlyWithValidSignatureAndMethod'), { from: authorizedUser }
         );
       });
 
@@ -67,21 +65,21 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
       it('does not allow valid signature with correct method for other sender', async function () {
         await shouldFail.reverting(
           this.sigBouncer.onlyWithValidSignatureAndMethod(
-            this.signFor(authorizedUser, 'onlyWithValidSignatureAndMethod'), { from: anyone }
+            await this.signFor(authorizedUser, 'onlyWithValidSignatureAndMethod'), { from: anyone }
           )
         );
       });
 
       it('does not allow valid method signature with incorrect method for sender', async function () {
         await shouldFail.reverting(
-          this.sigBouncer.onlyWithValidSignatureAndMethod(this.signFor(authorizedUser, 'theWrongMethod'),
+          this.sigBouncer.onlyWithValidSignatureAndMethod(await this.signFor(authorizedUser, 'theWrongMethod'),
             { from: authorizedUser })
         );
       });
 
       it('does not allow valid non-method signature method for sender', async function () {
         await shouldFail.reverting(
-          this.sigBouncer.onlyWithValidSignatureAndMethod(this.signFor(authorizedUser), { from: authorizedUser })
+          this.sigBouncer.onlyWithValidSignatureAndMethod(await this.signFor(authorizedUser), { from: authorizedUser })
         );
       });
     });
@@ -89,7 +87,7 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
     context('method and data signature', function () {
       it('allows valid signature with correct method and data for sender', async function () {
         await this.sigBouncer.onlyWithValidSignatureAndData(UINT_VALUE,
-          this.signFor(authorizedUser, 'onlyWithValidSignatureAndData', [UINT_VALUE]), { from: authorizedUser }
+          await this.signFor(authorizedUser, 'onlyWithValidSignatureAndData', [UINT_VALUE]), { from: authorizedUser }
         );
       });
 
@@ -102,7 +100,7 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
       it('does not allow valid signature with correct method and incorrect data for sender', async function () {
         await shouldFail.reverting(
           this.sigBouncer.onlyWithValidSignatureAndData(UINT_VALUE + 10,
-            this.signFor(authorizedUser, 'onlyWithValidSignatureAndData', [UINT_VALUE]),
+            await this.signFor(authorizedUser, 'onlyWithValidSignatureAndData', [UINT_VALUE]),
             { from: authorizedUser }
           )
         );
@@ -111,7 +109,7 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
       it('does not allow valid signature with correct method and data for other sender', async function () {
         await shouldFail.reverting(
           this.sigBouncer.onlyWithValidSignatureAndData(UINT_VALUE,
-            this.signFor(authorizedUser, 'onlyWithValidSignatureAndData', [UINT_VALUE]),
+            await this.signFor(authorizedUser, 'onlyWithValidSignatureAndData', [UINT_VALUE]),
             { from: anyone }
           )
         );
@@ -120,7 +118,7 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
       it('does not allow valid non-method signature for sender', async function () {
         await shouldFail.reverting(
           this.sigBouncer.onlyWithValidSignatureAndData(UINT_VALUE,
-            this.signFor(authorizedUser), { from: authorizedUser }
+            await this.signFor(authorizedUser), { from: authorizedUser }
           )
         );
       });
@@ -136,7 +134,8 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
   context('signature validation', function () {
     context('plain signature', function () {
       it('validates valid signature for valid user', async function () {
-        (await this.sigBouncer.checkValidSignature(authorizedUser, this.signFor(authorizedUser))).should.equal(true);
+        (await this.sigBouncer.checkValidSignature(authorizedUser, await this.signFor(authorizedUser)))
+          .should.equal(true);
       });
 
       it('does not validate invalid signature for valid user', async function () {
@@ -144,11 +143,12 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
       });
 
       it('does not validate valid signature for anyone', async function () {
-        (await this.sigBouncer.checkValidSignature(anyone, this.signFor(authorizedUser))).should.equal(false);
+        (await this.sigBouncer.checkValidSignature(anyone, await this.signFor(authorizedUser))).should.equal(false);
       });
 
       it('does not validate valid signature for method for valid user', async function () {
-        (await this.sigBouncer.checkValidSignature(authorizedUser, this.signFor(authorizedUser, 'checkValidSignature'))
+        (await this.sigBouncer.checkValidSignature(
+          authorizedUser, await this.signFor(authorizedUser, 'checkValidSignature'))
         ).should.equal(false);
       });
     });
@@ -156,7 +156,7 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
     context('method signature', function () {
       it('validates valid signature with correct method for valid user', async function () {
         (await this.sigBouncer.checkValidSignatureAndMethod(authorizedUser,
-          this.signFor(authorizedUser, 'checkValidSignatureAndMethod'))
+          await this.signFor(authorizedUser, 'checkValidSignatureAndMethod'))
         ).should.equal(true);
       });
 
@@ -166,12 +166,12 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
 
       it('does not validate valid signature with correct method for anyone', async function () {
         (await this.sigBouncer.checkValidSignatureAndMethod(anyone,
-          this.signFor(authorizedUser, 'checkValidSignatureAndMethod'))
+          await this.signFor(authorizedUser, 'checkValidSignatureAndMethod'))
         ).should.equal(false);
       });
 
       it('does not validate valid non-method signature with correct method for valid user', async function () {
-        (await this.sigBouncer.checkValidSignatureAndMethod(authorizedUser, this.signFor(authorizedUser))
+        (await this.sigBouncer.checkValidSignatureAndMethod(authorizedUser, await this.signFor(authorizedUser))
         ).should.equal(false);
       });
     });
@@ -179,7 +179,7 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
     context('method and data signature', function () {
       it('validates valid signature with correct method and data for valid user', async function () {
         (await this.sigBouncer.checkValidSignatureAndData(authorizedUser, BYTES_VALUE, UINT_VALUE,
-          this.signFor(authorizedUser, 'checkValidSignatureAndData', [authorizedUser, BYTES_VALUE, UINT_VALUE]))
+          await this.signFor(authorizedUser, 'checkValidSignatureAndData', [authorizedUser, BYTES_VALUE, UINT_VALUE]))
         ).should.equal(true);
       });
 
@@ -191,21 +191,21 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
       it('does not validate valid signature with correct method and incorrect data for valid user',
         async function () {
           (await this.sigBouncer.checkValidSignatureAndData(authorizedUser, BYTES_VALUE, UINT_VALUE + 10,
-            this.signFor(authorizedUser, 'checkValidSignatureAndData', [authorizedUser, BYTES_VALUE, UINT_VALUE]))
+            await this.signFor(authorizedUser, 'checkValidSignatureAndData', [authorizedUser, BYTES_VALUE, UINT_VALUE]))
           ).should.equal(false);
         }
       );
 
       it('does not validate valid signature with correct method and data for anyone', async function () {
         (await this.sigBouncer.checkValidSignatureAndData(anyone, BYTES_VALUE, UINT_VALUE,
-          this.signFor(authorizedUser, 'checkValidSignatureAndData', [authorizedUser, BYTES_VALUE, UINT_VALUE]))
+          await this.signFor(authorizedUser, 'checkValidSignatureAndData', [authorizedUser, BYTES_VALUE, UINT_VALUE]))
         ).should.equal(false);
       });
 
       it('does not validate valid non-method-data signature with correct method and data for valid user',
         async function () {
           (await this.sigBouncer.checkValidSignatureAndData(authorizedUser, BYTES_VALUE, UINT_VALUE,
-            this.signFor(authorizedUser, 'checkValidSignatureAndData'))
+            await this.signFor(authorizedUser, 'checkValidSignatureAndData'))
           ).should.equal(false);
         }
       );

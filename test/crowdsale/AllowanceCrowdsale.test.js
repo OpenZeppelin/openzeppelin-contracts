@@ -1,19 +1,14 @@
-const expectEvent = require('../helpers/expectEvent');
-const { ether } = require('../helpers/ether');
-const shouldFail = require('../helpers/shouldFail');
-const { balanceDifference } = require('../helpers/balanceDifference');
-const { ZERO_ADDRESS } = require('../helpers/constants');
-
-const { BigNumber } = require('../helpers/setup');
+const { balance, BN, constants, ether, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 const AllowanceCrowdsaleImpl = artifacts.require('AllowanceCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
 contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenWallet]) {
-  const rate = new BigNumber(1);
-  const value = ether(0.42);
+  const rate = new BN('1');
+  const value = ether('0.42');
   const expectedTokenAmount = rate.mul(value);
-  const tokenAllowance = new BigNumber('1e22');
+  const tokenAllowance = new BN('10').pow(new BN('22'));
 
   beforeEach(async function () {
     this.token = await SimpleToken.new({ from: tokenWallet });
@@ -52,7 +47,7 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
     });
 
     it('should forward funds to wallet', async function () {
-      (await balanceDifference(wallet, () =>
+      (await balance.difference(wallet, () =>
         this.crowdsale.sendTransaction({ value, from: investor }))
       ).should.be.bignumber.equal(value);
     });
@@ -60,7 +55,7 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
 
   describe('check remaining allowance', function () {
     it('should report correct allowace left', async function () {
-      const remainingAllowance = tokenAllowance - expectedTokenAmount;
+      const remainingAllowance = tokenAllowance.sub(expectedTokenAmount);
       await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
       (await this.crowdsale.remainingTokens()).should.be.bignumber.equal(remainingAllowance);
     });
@@ -68,7 +63,7 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
     context('when the allowance is larger than the token amount', function () {
       beforeEach(async function () {
         const amount = await this.token.balanceOf(tokenWallet);
-        await this.token.approve(this.crowdsale.address, amount.plus(1), { from: tokenWallet });
+        await this.token.approve(this.crowdsale.address, amount.addn(1), { from: tokenWallet });
       });
 
       it('should report the amount instead of the allowance', async function () {

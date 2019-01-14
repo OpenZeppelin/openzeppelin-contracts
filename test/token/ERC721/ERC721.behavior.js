@@ -1,20 +1,17 @@
-const expectEvent = require('../../helpers/expectEvent');
+const { BN, constants, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
-const shouldFail = require('../../helpers/shouldFail');
-const { ZERO_ADDRESS } = require('../../helpers/constants');
-const send = require('../../helpers/send');
 
 const ERC721ReceiverMock = artifacts.require('ERC721ReceiverMock.sol');
-require('../../helpers/setup');
 
 function shouldBehaveLikeERC721 (
   creator,
   minter,
   [owner, approved, anotherApproved, operator, anyone]
 ) {
-  const firstTokenId = 1;
-  const secondTokenId = 2;
-  const unknownTokenId = 3;
+  const firstTokenId = new BN(1);
+  const secondTokenId = new BN(2);
+  const unknownTokenId = new BN(3);
   const RECEIVER_MAGIC_VALUE = '0x150b7a02';
 
   describe('like an ERC721', function () {
@@ -27,19 +24,19 @@ function shouldBehaveLikeERC721 (
     describe('balanceOf', function () {
       context('when the given address owns some tokens', function () {
         it('returns the amount of tokens owned by the given address', async function () {
-          (await this.token.balanceOf(owner)).should.be.bignumber.equal(2);
+          (await this.token.balanceOf(owner)).should.be.bignumber.equal('2');
         });
       });
 
       context('when the given address does not own any tokens', function () {
         it('returns 0', async function () {
-          (await this.token.balanceOf(anyone)).should.be.bignumber.equal(0);
+          (await this.token.balanceOf(anyone)).should.be.bignumber.equal('0');
         });
       });
 
       context('when querying the zero address', function () {
         it('throws', async function () {
-          await shouldFail.reverting(this.token.balanceOf(0));
+          await shouldFail.reverting(this.token.balanceOf(ZERO_ADDRESS));
         });
       });
     });
@@ -101,15 +98,15 @@ function shouldBehaveLikeERC721 (
         }
 
         it('adjusts owners balances', async function () {
-          (await this.token.balanceOf(owner)).should.be.bignumber.equal(1);
+          (await this.token.balanceOf(owner)).should.be.bignumber.equal('1');
         });
 
         it('adjusts owners tokens by index', async function () {
           if (!this.token.tokenOfOwnerByIndex) return;
 
-          (await this.token.tokenOfOwnerByIndex(this.toWhom, 0)).toNumber().should.be.equal(tokenId);
+          (await this.token.tokenOfOwnerByIndex(this.toWhom, 0)).should.be.bignumber.equal(tokenId);
 
-          (await this.token.tokenOfOwnerByIndex(owner, 0)).toNumber().should.not.be.equal(tokenId);
+          (await this.token.tokenOfOwnerByIndex(owner, 0)).should.be.bignumber.not.equal(tokenId);
         });
       };
 
@@ -165,7 +162,7 @@ function shouldBehaveLikeERC721 (
           });
 
           it('keeps the owner balance', async function () {
-            (await this.token.balanceOf(owner)).should.be.bignumber.equal(2);
+            (await this.token.balanceOf(owner)).should.be.bignumber.equal('2');
           });
 
           it('keeps same tokens by index', async function () {
@@ -173,7 +170,9 @@ function shouldBehaveLikeERC721 (
             const tokensListed = await Promise.all(
               [0, 1].map(i => this.token.tokenOfOwnerByIndex(owner, i))
             );
-            tokensListed.map(t => t.toNumber()).should.have.members([firstTokenId, secondTokenId]);
+            tokensListed.map(t => t.toNumber()).should.have.members(
+              [firstTokenId.toNumber(), secondTokenId.toNumber()]
+            );
           });
         });
 
@@ -200,7 +199,9 @@ function shouldBehaveLikeERC721 (
 
         context('when the address to transfer the token to is the zero address', function () {
           it('reverts', async function () {
-            await shouldFail.reverting(transferFunction.call(this, owner, ZERO_ADDRESS, tokenId, { from: owner }));
+            await shouldFail.reverting(
+              transferFunction.call(this, owner, ZERO_ADDRESS, tokenId, { from: owner })
+            );
           });
         });
       };
@@ -213,17 +214,11 @@ function shouldBehaveLikeERC721 (
 
       describe('via safeTransferFrom', function () {
         const safeTransferFromWithData = function (from, to, tokenId, opts) {
-          return send.transaction(
-            this.token,
-            'safeTransferFrom',
-            'address,address,uint256,bytes',
-            [from, to, tokenId, data],
-            opts
-          );
+          return this.token.methods['safeTransferFrom(address,address,uint256,bytes)'](from, to, tokenId, data, opts);
         };
 
         const safeTransferFromWithoutData = function (from, to, tokenId, opts) {
-          return this.token.safeTransferFrom(from, to, tokenId, opts);
+          return this.token.methods['safeTransferFrom(address,address,uint256)'](from, to, tokenId, opts);
         };
 
         const shouldTransferSafely = function (transferFun, data) {
@@ -282,7 +277,7 @@ function shouldBehaveLikeERC721 (
         });
 
         describe('without data', function () {
-          shouldTransferSafely(safeTransferFromWithoutData, '0x');
+          shouldTransferSafely(safeTransferFromWithoutData, null);
         });
 
         describe('to a receiver contract returning unexpected value', function () {

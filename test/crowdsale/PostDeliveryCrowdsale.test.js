@@ -1,15 +1,11 @@
-const time = require('../helpers/time');
-const shouldFail = require('../helpers/shouldFail');
-const { ether } = require('../helpers/ether');
-
-const { BigNumber } = require('../helpers/setup');
+const { BN, ether, shouldFail, time } = require('openzeppelin-test-helpers');
 
 const PostDeliveryCrowdsaleImpl = artifacts.require('PostDeliveryCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
 contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
-  const rate = new BigNumber(1);
-  const tokenSupply = new BigNumber('1e22');
+  const rate = new BN(1);
+  const tokenSupply = new BN('10').pow(new BN('22'));
 
   before(async function () {
     // Advance to the next block to correctly read time in the solidity "now" function interpreted by ganache
@@ -17,9 +13,9 @@ contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
   });
 
   beforeEach(async function () {
-    this.openingTime = (await time.latest()) + time.duration.weeks(1);
-    this.closingTime = this.openingTime + time.duration.weeks(1);
-    this.afterClosingTime = this.closingTime + time.duration.seconds(1);
+    this.openingTime = (await time.latest()).add(time.duration.weeks(1));
+    this.closingTime = this.openingTime.add(time.duration.weeks(1));
+    this.afterClosingTime = this.closingTime.add(time.duration.seconds(1));
     this.token = await SimpleToken.new();
     this.crowdsale = await PostDeliveryCrowdsaleImpl.new(
       this.openingTime, this.closingTime, rate, wallet, this.token.address
@@ -33,7 +29,7 @@ contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
     });
 
     context('with bought tokens', function () {
-      const value = ether(42);
+      const value = ether('42');
 
       beforeEach(async function () {
         await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
@@ -41,7 +37,7 @@ contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
 
       it('does not immediately assign tokens to beneficiaries', async function () {
         (await this.crowdsale.balanceOf(investor)).should.be.bignumber.equal(value);
-        (await this.token.balanceOf(investor)).should.be.bignumber.equal(0);
+        (await this.token.balanceOf(investor)).should.be.bignumber.equal('0');
       });
 
       it('does not allow beneficiaries to withdraw tokens before crowdsale ends', async function () {
@@ -55,7 +51,7 @@ contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
 
         it('allows beneficiaries to withdraw tokens', async function () {
           await this.crowdsale.withdrawTokens(investor);
-          (await this.crowdsale.balanceOf(investor)).should.be.bignumber.equal(0);
+          (await this.crowdsale.balanceOf(investor)).should.be.bignumber.equal('0');
           (await this.token.balanceOf(investor)).should.be.bignumber.equal(value);
         });
 

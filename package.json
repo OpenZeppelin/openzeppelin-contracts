@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "scripts/build.sh",
-    "compile": "scripts/compile.sh",
+    "compile": "truffle compile",
     "console": "truffle console",
     "coverage": "scripts/coverage.sh",
     "lint": "npm run lint:js && npm run lint:sol",
@@ -41,7 +41,6 @@
   "homepage": "https://github.com/OpenZeppelin/zeppelin-solidity",
   "devDependencies": {
     "chai": "^4.1.2",
-    "chai-bignumber": "^2.0.2",
     "coveralls": "^3.0.1",
     "eslint": "^4.19.1",
     "eslint-config-standard": "^10.2.1",
@@ -53,11 +52,11 @@
     "ethereumjs-util": "^6.0.0",
     "ethjs-abi": "^0.2.1",
     "ganache-cli": "6.1.8",
+    "openzeppelin-test-helpers": "^0.1.1",
     "pify": "^4.0.1",
     "solhint": "^1.5.0",
     "solidity-coverage": "^0.5.4",
-    "truffle": "^4.1.13",
-    "web3-utils": "^1.0.0-beta.34"
+    "truffle": "^5.0.0"
   },
   "dependencies": {}
 }

@@ -1,10 +1,7 @@
-const shouldFail = require('../helpers/shouldFail');
-const expectEvent = require('../helpers/expectEvent');
-
-const PausableMock = artifacts.require('PausableMock');
+const { expectEvent, shouldFail } = require('openzeppelin-test-helpers');
 const { shouldBehaveLikePublicRole } = require('../access/roles/PublicRole.behavior');
 
-require('../helpers/setup');
+const PausableMock = artifacts.require('PausableMock');
 
 contract('Pausable', function ([_, pauser, otherPauser, anyone, ...otherAccounts]) {
   beforeEach(async function () {
@@ -26,10 +23,10 @@ contract('Pausable', function ([_, pauser, otherPauser, anyone, ...otherAccounts
     });
 
     it('can perform normal process in non-pause', async function () {
-      (await this.pausable.count()).should.be.bignumber.equal(0);
+      (await this.pausable.count()).should.be.bignumber.equal('0');
 
       await this.pausable.normalProcess({ from: anyone });
-      (await this.pausable.count()).should.be.bignumber.equal(1);
+      (await this.pausable.count()).should.be.bignumber.equal('1');
     });
 
     it('cannot take drastic measure in non-pause', async function () {
@@ -89,9 +86,9 @@ contract('Pausable', function ([_, pauser, otherPauser, anyone, ...otherAccounts
             });
 
             it('should resume allowing normal process', async function () {
-              (await this.pausable.count()).should.be.bignumber.equal(0);
+              (await this.pausable.count()).should.be.bignumber.equal('0');
               await this.pausable.normalProcess({ from: anyone });
-              (await this.pausable.count()).should.be.bignumber.equal(1);
+              (await this.pausable.count()).should.be.bignumber.equal('1');
             });
 
             it('should prevent drastic measure', async function () {

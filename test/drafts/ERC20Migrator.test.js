@@ -1,14 +1,12 @@
-const shouldFail = require('../helpers/shouldFail');
-const { ZERO_ADDRESS } = require('../helpers/constants');
+const { BN, constants, shouldFail } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 const ERC20Mock = artifacts.require('ERC20Mock');
 const ERC20Mintable = artifacts.require('ERC20Mintable');
 const ERC20Migrator = artifacts.require('ERC20Migrator');
 
-require('../helpers/setup');
-
 contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
-  const totalSupply = 200;
+  const totalSupply = new BN('200');
 
   it('reverts with a null legacy token address', async function () {
     await shouldFail.reverting(ERC20Migrator.new(ZERO_ADDRESS));
@@ -81,7 +79,7 @@ contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
             currentBurnedBalance.should.be.bignumber.equal(amount);
 
             const currentLegacyTokenBalance = await this.legacyToken.balanceOf(owner);
-            currentLegacyTokenBalance.should.be.bignumber.equal(0);
+            currentLegacyTokenBalance.should.be.bignumber.equal('0');
           });
 
           it('updates the total supply', async function () {
@@ -91,7 +89,7 @@ contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
         });
 
         describe('when the approved balance is lower than the owned balance', function () {
-          const amount = baseAmount - 1;
+          const amount = baseAmount.subn(1);
 
           beforeEach('approving part of the balance to the new contract', async function () {
             await this.legacyToken.approve(this.migrator.address, amount, { from: owner });
@@ -106,7 +104,7 @@ contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
       });
 
       describe('migrate', function () {
-        const baseAmount = 50;
+        const baseAmount = new BN(50);
 
         beforeEach('approving tokens to the new contract', async function () {
           await this.legacyToken.approve(this.migrator.address, baseAmount, { from: owner });
@@ -129,7 +127,7 @@ contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
             currentBurnedBalance.should.be.bignumber.equal(amount);
 
             const currentLegacyTokenBalance = await this.legacyToken.balanceOf(owner);
-            currentLegacyTokenBalance.should.be.bignumber.equal(totalSupply - amount);
+            currentLegacyTokenBalance.should.be.bignumber.equal(totalSupply.sub(amount));
           });
 
           it('updates the total supply', async function () {
@@ -139,7 +137,7 @@ contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
         });
 
         describe('when the given amount is higher than the one approved', function () {
-          const amount = baseAmount + 1;
+          const amount = baseAmount.addn(1);
 
           it('reverts', async function () {
             await shouldFail.reverting(this.migrator.migrate(owner, amount));
