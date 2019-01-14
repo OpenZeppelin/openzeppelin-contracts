@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "scripts/build.sh",
-    "compile": "scripts/compile.sh",
+    "compile": "truffle compile",
     "console": "truffle console",
     "coverage": "scripts/coverage.sh",
     "lint": "npm run lint:js && npm run lint:sol",
