@@ -1,7 +1,7 @@
 const { balance, ether, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
 
 function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
-  const amount = ether('4.2');
+  const amount = ether('42');
 
   describe('as an escrow', function () {
     describe('deposits', function () {
