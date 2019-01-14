@@ -1,4 +1,5 @@
 const { BN, constants, shouldFail } = require('openzeppelin-test-helpers');
+const { MAX_UINT256 } = constants;
 
 const SafeMathMock = artifacts.require('SafeMathMock');
 
@@ -16,7 +17,7 @@ contract('SafeMath', function () {
     });
 
     it('reverts on addition overflow', async function () {
-      const a = constants.MAX_UINT256;
+      const a = MAX_UINT256;
       const b = new BN('1');
 
       await shouldFail.reverting(this.safeMath.add(a, b));
@@ -62,7 +63,7 @@ contract('SafeMath', function () {
     });
 
     it('reverts on multiplication overflow', async function () {
-      const a = constants.MAX_UINT256;
+      const a = MAX_UINT256;
       const b = new BN('2');
 
       await shouldFail.reverting(this.safeMath.mul(a, b));
