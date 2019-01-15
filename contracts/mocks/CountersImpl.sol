@@ -2,7 +2,7 @@ pragma solidity ^0.5.2;
 
 import "../drafts/Counters.sol";
 
-contract CounterImpl {
+contract CountersImpl {
     using Counters for Counters.Counter;
 
     uint256 public theId;
