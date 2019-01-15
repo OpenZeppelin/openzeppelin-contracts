@@ -2,6 +2,10 @@
 
 ## 2.2.0 (unreleased)
 
+### New features:
+ * `ERC20`: added internal `_approve(address owner, address spender, uint256 value)`, allowing derived contracts to set the allowance of arbitrary accounts.
+
+
 ## 2.1.1 (2019-04-01)
  * Version bump to avoid conflict in the npm registry.
 
