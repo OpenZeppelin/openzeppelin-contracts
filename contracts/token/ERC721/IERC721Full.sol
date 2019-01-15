@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 import "./IERC721.sol";
 import "./IERC721Enumerable.sol";
