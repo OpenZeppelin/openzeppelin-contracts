@@ -2,6 +2,9 @@
 
 ## 2.2.0 (unreleased)
 
+### New features:
+ * `Counter`'s API has been stabilized, and therefore moved out of the `drafts` directory into `utils`.
+
 ## 2.1.1 (2019-04-01)
  * Version bump to avoid conflict in the npm registry.
 
