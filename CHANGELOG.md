@@ -3,7 +3,8 @@
 ## 2.2.0 (unreleased)
 
 ### Improvements:
- * Silenced most Solidity warnings.
+ * Upgraded the minimum compiler version to v0.5.2: this removes many Solidity warnings that were false positives.
+ * Fixed variable shadowing issues.
 
 ### Bugfixes:
 
