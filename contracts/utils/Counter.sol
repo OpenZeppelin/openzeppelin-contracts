@@ -5,19 +5,21 @@ import "../math/SafeMath.sol";
 /**
  * @title Counter
  * @author Matt Condon (@shrugs)
- * @dev Provides an incrementing uint256 id acquired by the `Counter#next` getter.
- * Use this for issuing ERC721 ids or keeping track of request ids, anything you want, really.
+ * @dev Provides counters that can only be incremented or decremented by one. This can be used e.g. to track the number
+ * of elements in a mapping, issuing ERC721 ids, or counting request ids
  *
  * Include with `using Counter for Counter.Counter;`
- * @notice Does not allow an Id of 0, which is popularly used to signify a null state in solidity.
- * Does not protect from overflows, but if you have 2^256 ids, you have other problems.
- * (But actually, it's generally impossible to increment a counter this many times, energy wise
- * so it's not something you have to worry about.)
+ * Since it is not possible to overflow a 256 bit integer with increments of one, `increment` can skip the SafeMath
+ * overflow check, thereby saving gas. This does assume however correct usage, in that the underlying `_value` is never
+ * directly accessed.
  */
 library Counter {
     using SafeMath for uint256;
 
     struct Counter {
+        // This variable should never be directly accessed by users of the library: interactions must be restricted to
+        // the library's function. As of Solidity v0.5.2, this cannot be enforced, though there is a proposal to add
+        // this feature: see https://github.com/ethereum/solidity/issues/4637
         uint256 _value; // default: 0
     }
 
