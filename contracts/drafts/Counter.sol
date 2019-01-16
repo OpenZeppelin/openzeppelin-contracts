@@ -1,5 +1,7 @@
 pragma solidity ^0.5.0;
 
+import "../math/SafeMath.sol";
+
 /**
  * @title Counter
  * @author Matt Condon (@shrugs)
@@ -13,12 +15,23 @@ pragma solidity ^0.5.0;
  * so it's not something you have to worry about.)
  */
 library Counter {
+    using SafeMath for uint256;
+
     struct Counter {
-        uint256 current; // default: 0
+        uint256 _value; // default: 0
     }
 
-    function next(Counter storage index) internal returns (uint256) {
-        index.current += 1;
-        return index.current;
+    function current(Counter storage counter) internal view returns (uint256) {
+        return counter._value;
+    }
+
+    function increment(Counter storage counter) internal returns (uint256) {
+        counter._value += 1;
+        return counter._value;
+    }
+
+    function decrement(Counter storage counter) internal returns (uint256) {
+        counter._value = counter._value.sub(1);
+        return counter._value;
     }
 }

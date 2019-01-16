@@ -5,13 +5,18 @@ import "../drafts/Counter.sol";
 contract CounterImpl {
     using Counter for Counter.Counter;
 
-    uint256 public theId;
+    Counter.Counter private _counter;
+    event ValueChange(uint256 current);
 
-    // use whatever key you want to track your counters
-    mapping(string => Counter.Counter) private _counters;
+    function current() public view returns (uint256) {
+        return _counter.current();
+    }
 
-    function doThing(string memory key) public returns (uint256) {
-        theId = _counters[key].next();
-        return theId;
+    function increment() public {
+        emit ValueChange(_counter.increment());
+    }
+
+    function decrement() public {
+        emit ValueChange(_counter.decrement());
     }
 }
