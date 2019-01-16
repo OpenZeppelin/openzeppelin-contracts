@@ -476,7 +476,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
     });
   });
 
-  function testApprove(owner, spender, supply, approve) {
+  function testApprove (owner, spender, supply, approve) {
     describe('when the spender is not the zero address', function () {
       describe('when the sender has enough balance', function () {
         const amount = supply;
