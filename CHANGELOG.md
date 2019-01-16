@@ -5,6 +5,9 @@
 ### New features:
  * `Counter`'s API has been stabilized, and therefore moved out of the `drafts` directory into `utils`.
 
+### Improvements::
+ * `ERC721`'s transfers are now more gas efficient due to removal of unnecessary `SafeMath` calls.
+
 ## 2.1.1 (2019-04-01)
  * Version bump to avoid conflict in the npm registry.
 
