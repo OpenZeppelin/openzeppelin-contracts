@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "../token/ERC20/IERC20.sol";
 import "../token/ERC20/SafeERC20.sol";
@@ -54,11 +54,9 @@ contract SafeERC20Helper {
     IERC20 private _succeeding;
 
     constructor () public {
-        _failing = IERC20(new ERC20FailingMock());
-        _succeeding = IERC20(new ERC20SucceedingMock());
+        _failing = IERC20(address(new ERC20FailingMock()));
+        _succeeding = IERC20(address(new ERC20SucceedingMock()));
     }
-
-    // Using _failing
 
     function doFailingTransfer() public {
         _failing.safeTransfer(address(0), 0);
@@ -79,8 +77,6 @@ contract SafeERC20Helper {
     function doFailingDecreaseAllowance() public {
         _failing.safeDecreaseAllowance(address(0), 0);
     }
-
-    // Using _succeeding
 
     function doSucceedingTransfer() public {
         _succeeding.safeTransfer(address(0), 0);
@@ -103,7 +99,7 @@ contract SafeERC20Helper {
     }
 
     function setAllowance(uint256 allowance_) public {
-        ERC20SucceedingMock(_succeeding).setAllowance(allowance_);
+        ERC20SucceedingMock(address(_succeeding)).setAllowance(allowance_);
     }
 
     function allowance() public view returns (uint256) {

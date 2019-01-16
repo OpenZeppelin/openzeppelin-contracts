@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "../../math/SafeMath.sol";
 import "../validation/TimedCrowdsale.sol";
@@ -45,5 +45,7 @@ contract FinalizableCrowdsale is TimedCrowdsale {
      * should call super._finalization() to ensure the chain of finalization is
      * executed entirely.
      */
-    function _finalization() internal {}
+    function _finalization() internal {
+        // solhint-disable-previous-line no-empty-blocks
+    }
 }

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "../math/SafeMath.sol";
 
@@ -24,7 +24,7 @@ contract PaymentSplitter {
     /**
      * @dev Constructor
      */
-    constructor (address[] payees, uint256[] shares) public payable {
+    constructor (address[] memory payees, uint256[] memory shares) public payable {
         require(payees.length == shares.length);
         require(payees.length > 0);
 
@@ -79,7 +79,7 @@ contract PaymentSplitter {
      * @dev Release one of the payee's proportional payment.
      * @param account Whose payments will be released.
      */
-    function release(address account) public {
+    function release(address payable account) public {
         require(_shares[account] > 0);
 
         uint256 totalReceived = address(this).balance.add(_totalReleased);

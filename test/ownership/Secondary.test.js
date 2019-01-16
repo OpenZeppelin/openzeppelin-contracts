@@ -1,10 +1,7 @@
-const shouldFail = require('../helpers/shouldFail');
-const expectEvent = require('../helpers/expectEvent');
-const { ZERO_ADDRESS } = require('../helpers/constants');
+const { constants, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 const SecondaryMock = artifacts.require('SecondaryMock');
-
-require('../helpers/setup');
 
 contract('Secondary', function ([_, primary, newPrimary, anyone]) {
   beforeEach(async function () {

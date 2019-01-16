@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "./IERC165.sol";
 
@@ -8,7 +8,7 @@ import "./IERC165.sol";
  * @dev Implements ERC165 using a lookup table.
  */
 contract ERC165 is IERC165 {
-    bytes4 private constant _InterfaceId_ERC165 = 0x01ffc9a7;
+    bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
     /**
      * 0x01ffc9a7 ===
      *     bytes4(keccak256('supportsInterface(bytes4)'))
@@ -24,7 +24,7 @@ contract ERC165 is IERC165 {
      * implement ERC165 itself
      */
     constructor () internal {
-        _registerInterface(_InterfaceId_ERC165);
+        _registerInterface(_INTERFACE_ID_ERC165);
     }
 
     /**

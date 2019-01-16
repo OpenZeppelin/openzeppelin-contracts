@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "../introspection/ERC165Checker.sol";
 
@@ -13,7 +13,7 @@ contract ERC165CheckerMock {
         return account._supportsInterface(interfaceId);
     }
 
-    function supportsAllInterfaces(address account, bytes4[] interfaceIds) public view returns (bool) {
+    function supportsAllInterfaces(address account, bytes4[] memory interfaceIds) public view returns (bool) {
         return account._supportsAllInterfaces(interfaceIds);
     }
 }

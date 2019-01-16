@@ -1,12 +1,13 @@
-const expectEvent = require('../../helpers/expectEvent');
-const shouldFail = require('../../helpers/shouldFail');
+const { BN, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
 
 const ERC20PausableMock = artifacts.require('ERC20PausableMock');
 const { shouldBehaveLikePublicRole } = require('../../access/roles/PublicRole.behavior');
 
 contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherAccount, ...otherAccounts]) {
+  const initialSupply = new BN(100);
+
   beforeEach(async function () {
-    this.token = await ERC20PausableMock.new(pauser, 100, { from: pauser });
+    this.token = await ERC20PausableMock.new(pauser, initialSupply, { from: pauser });
   });
 
   describe('pauser role', function () {
@@ -114,132 +115,142 @@ contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherA
 
     describe('transfer', function () {
       it('allows to transfer when unpaused', async function () {
-        await this.token.transfer(recipient, 100, { from: pauser });
+        await this.token.transfer(recipient, initialSupply, { from: pauser });
 
-        (await this.token.balanceOf(pauser)).should.be.bignumber.equal(0);
-        (await this.token.balanceOf(recipient)).should.be.bignumber.equal(100);
+        (await this.token.balanceOf(pauser)).should.be.bignumber.equal('0');
+        (await this.token.balanceOf(recipient)).should.be.bignumber.equal(initialSupply);
       });
 
       it('allows to transfer when paused and then unpaused', async function () {
         await this.token.pause({ from: pauser });
         await this.token.unpause({ from: pauser });
 
-        await this.token.transfer(recipient, 100, { from: pauser });
+        await this.token.transfer(recipient, initialSupply, { from: pauser });
 
-        (await this.token.balanceOf(pauser)).should.be.bignumber.equal(0);
-        (await this.token.balanceOf(recipient)).should.be.bignumber.equal(100);
+        (await this.token.balanceOf(pauser)).should.be.bignumber.equal('0');
+        (await this.token.balanceOf(recipient)).should.be.bignumber.equal(initialSupply);
       });
 
       it('reverts when trying to transfer when paused', async function () {
         await this.token.pause({ from: pauser });
 
-        await shouldFail.reverting(this.token.transfer(recipient, 100, { from: pauser }));
+        await shouldFail.reverting(this.token.transfer(recipient, initialSupply, { from: pauser }));
       });
     });
 
     describe('approve', function () {
-      it('allows to approve when unpaused', async function () {
-        await this.token.approve(anotherAccount, 40, { from: pauser });
+      const allowance = new BN(40);
 
-        (await this.token.allowance(pauser, anotherAccount)).should.be.bignumber.equal(40);
+      it('allows to approve when unpaused', async function () {
+        await this.token.approve(anotherAccount, allowance, { from: pauser });
+
+        (await this.token.allowance(pauser, anotherAccount)).should.be.bignumber.equal(allowance);
       });
 
       it('allows to approve when paused and then unpaused', async function () {
         await this.token.pause({ from: pauser });
         await this.token.unpause({ from: pauser });
 
-        await this.token.approve(anotherAccount, 40, { from: pauser });
+        await this.token.approve(anotherAccount, allowance, { from: pauser });
 
-        (await this.token.allowance(pauser, anotherAccount)).should.be.bignumber.equal(40);
+        (await this.token.allowance(pauser, anotherAccount)).should.be.bignumber.equal(allowance);
       });
 
       it('reverts when trying to approve when paused', async function () {
         await this.token.pause({ from: pauser });
 
-        await shouldFail.reverting(this.token.approve(anotherAccount, 40, { from: pauser }));
+        await shouldFail.reverting(this.token.approve(anotherAccount, allowance, { from: pauser }));
       });
     });
 
     describe('transfer from', function () {
+      const allowance = new BN(40);
+
       beforeEach(async function () {
-        await this.token.approve(anotherAccount, 50, { from: pauser });
+        await this.token.approve(anotherAccount, allowance, { from: pauser });
       });
 
       it('allows to transfer from when unpaused', async function () {
-        await this.token.transferFrom(pauser, recipient, 40, { from: anotherAccount });
+        await this.token.transferFrom(pauser, recipient, allowance, { from: anotherAccount });
 
-        (await this.token.balanceOf(pauser)).should.be.bignumber.equal(60);
-        (await this.token.balanceOf(recipient)).should.be.bignumber.equal(40);
+        (await this.token.balanceOf(recipient)).should.be.bignumber.equal(allowance);
+        (await this.token.balanceOf(pauser)).should.be.bignumber.equal(initialSupply.sub(allowance));
       });
 
       it('allows to transfer when paused and then unpaused', async function () {
         await this.token.pause({ from: pauser });
         await this.token.unpause({ from: pauser });
 
-        await this.token.transferFrom(pauser, recipient, 40, { from: anotherAccount });
+        await this.token.transferFrom(pauser, recipient, allowance, { from: anotherAccount });
 
-        (await this.token.balanceOf(pauser)).should.be.bignumber.equal(60);
-        (await this.token.balanceOf(recipient)).should.be.bignumber.equal(40);
+        (await this.token.balanceOf(recipient)).should.be.bignumber.equal(allowance);
+        (await this.token.balanceOf(pauser)).should.be.bignumber.equal(initialSupply.sub(allowance));
       });
 
       it('reverts when trying to transfer from when paused', async function () {
         await this.token.pause({ from: pauser });
 
-        await shouldFail.reverting(this.token.transferFrom(pauser, recipient, 40, { from: anotherAccount }));
+        await shouldFail.reverting(this.token.transferFrom(pauser, recipient, allowance, { from: anotherAccount }));
       });
     });
 
     describe('decrease approval', function () {
+      const allowance = new BN(40);
+      const decrement = new BN(10);
+
       beforeEach(async function () {
-        await this.token.approve(anotherAccount, 100, { from: pauser });
+        await this.token.approve(anotherAccount, allowance, { from: pauser });
       });
 
       it('allows to decrease approval when unpaused', async function () {
-        await this.token.decreaseAllowance(anotherAccount, 40, { from: pauser });
+        await this.token.decreaseAllowance(anotherAccount, decrement, { from: pauser });
 
-        (await this.token.allowance(pauser, anotherAccount)).should.be.bignumber.equal(60);
+        (await this.token.allowance(pauser, anotherAccount)).should.be.bignumber.equal(allowance.sub(decrement));
       });
 
       it('allows to decrease approval when paused and then unpaused', async function () {
         await this.token.pause({ from: pauser });
         await this.token.unpause({ from: pauser });
 
-        await this.token.decreaseAllowance(anotherAccount, 40, { from: pauser });
+        await this.token.decreaseAllowance(anotherAccount, decrement, { from: pauser });
 
-        (await this.token.allowance(pauser, anotherAccount)).should.be.bignumber.equal(60);
+        (await this.token.allowance(pauser, anotherAccount)).should.be.bignumber.equal(allowance.sub(decrement));
       });
 
       it('reverts when trying to transfer when paused', async function () {
         await this.token.pause({ from: pauser });
 
-        await shouldFail.reverting(this.token.decreaseAllowance(anotherAccount, 40, { from: pauser }));
+        await shouldFail.reverting(this.token.decreaseAllowance(anotherAccount, decrement, { from: pauser }));
       });
     });
 
     describe('increase approval', function () {
+      const allowance = new BN(40);
+      const increment = new BN(30);
+
       beforeEach(async function () {
-        await this.token.approve(anotherAccount, 100, { from: pauser });
+        await this.token.approve(anotherAccount, allowance, { from: pauser });
       });
 
       it('allows to increase approval when unpaused', async function () {
-        await this.token.increaseAllowance(anotherAccount, 40, { from: pauser });
+        await this.token.increaseAllowance(anotherAccount, increment, { from: pauser });
 
-        (await this.token.allowance(pauser, anotherAccount)).should.be.bignumber.equal(140);
+        (await this.token.allowance(pauser, anotherAccount)).should.be.bignumber.equal(allowance.add(increment));
       });
 
       it('allows to increase approval when paused and then unpaused', async function () {
         await this.token.pause({ from: pauser });
         await this.token.unpause({ from: pauser });
 
-        await this.token.increaseAllowance(anotherAccount, 40, { from: pauser });
+        await this.token.increaseAllowance(anotherAccount, increment, { from: pauser });
 
-        (await this.token.allowance(pauser, anotherAccount)).should.be.bignumber.equal(140);
+        (await this.token.allowance(pauser, anotherAccount)).should.be.bignumber.equal(allowance.add(increment));
       });
 
       it('reverts when trying to increase approval when paused', async function () {
         await this.token.pause({ from: pauser });
 
-        await shouldFail.reverting(this.token.increaseAllowance(anotherAccount, 40, { from: pauser }));
+        await shouldFail.reverting(this.token.increaseAllowance(anotherAccount, increment, { from: pauser }));
       });
     });
   });

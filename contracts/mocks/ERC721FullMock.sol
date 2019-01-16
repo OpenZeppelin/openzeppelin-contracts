@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "../token/ERC721/ERC721Full.sol";
 import "../token/ERC721/ERC721Mintable.sol";
@@ -11,7 +11,9 @@ import "../token/ERC721/ERC721Burnable.sol";
  * checking token existence, removal of a token from an address
  */
 contract ERC721FullMock is ERC721Full, ERC721Mintable, ERC721MetadataMintable, ERC721Burnable {
-    constructor (string name, string symbol) public ERC721Mintable() ERC721Full(name, symbol) {}
+    constructor (string memory name, string memory symbol) public ERC721Mintable() ERC721Full(name, symbol) {
+        // solhint-disable-previous-line no-empty-blocks
+    }
 
     function exists(uint256 tokenId) public view returns (bool) {
         return _exists(tokenId);
@@ -21,7 +23,7 @@ contract ERC721FullMock is ERC721Full, ERC721Mintable, ERC721MetadataMintable, E
         return _tokensOfOwner(owner);
     }
 
-    function setTokenURI(uint256 tokenId, string uri) public {
+    function setTokenURI(uint256 tokenId, string memory uri) public {
         _setTokenURI(tokenId, uri);
     }
 }

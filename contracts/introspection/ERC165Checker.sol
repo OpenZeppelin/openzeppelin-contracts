@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 /**
  * @title ERC165Checker
@@ -7,9 +7,9 @@ pragma solidity ^0.4.24;
  */
 library ERC165Checker {
     // As per the EIP-165 spec, no interface should ever match 0xffffffff
-    bytes4 private constant _InterfaceId_Invalid = 0xffffffff;
+    bytes4 private constant _INTERFACE_ID_INVALID = 0xffffffff;
 
-    bytes4 private constant _InterfaceId_ERC165 = 0x01ffc9a7;
+    bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
     /**
      * 0x01ffc9a7 ===
      *     bytes4(keccak256('supportsInterface(bytes4)'))
@@ -23,8 +23,8 @@ library ERC165Checker {
     function _supportsERC165(address account) internal view returns (bool) {
         // Any contract that implements ERC165 must explicitly indicate support of
         // InterfaceId_ERC165 and explicitly indicate non-support of InterfaceId_Invalid
-        return _supportsERC165Interface(account, _InterfaceId_ERC165) &&
-            !_supportsERC165Interface(account, _InterfaceId_Invalid);
+        return _supportsERC165Interface(account, _INTERFACE_ID_ERC165) &&
+            !_supportsERC165Interface(account, _INTERFACE_ID_INVALID);
     }
 
     /**
@@ -49,7 +49,7 @@ library ERC165Checker {
      * interfaceIds list, false otherwise
      * @dev Interface identification is specified in ERC-165.
      */
-    function _supportsAllInterfaces(address account, bytes4[] interfaceIds) internal view returns (bool) {
+    function _supportsAllInterfaces(address account, bytes4[] memory interfaceIds) internal view returns (bool) {
         // query support of ERC165 itself
         if (!_supportsERC165(account)) {
             return false;
@@ -94,13 +94,13 @@ library ERC165Checker {
      * indicates support of the interface with identifier interfaceId, false otherwise
      */
     function _callERC165SupportsInterface(address account, bytes4 interfaceId)
-      private
-      view
-      returns (bool success, bool result)
+        private
+        view
+        returns (bool success, bool result)
     {
-        bytes memory encodedParams = abi.encodeWithSelector(_InterfaceId_ERC165,interfaceId);
+        bytes memory encodedParams = abi.encodeWithSelector(_INTERFACE_ID_ERC165, interfaceId);
 
-        // solium-disable-next-line security/no-inline-assembly
+        // solhint-disable-next-line no-inline-assembly
         assembly {
             let encodedParams_data := add(0x20, encodedParams)
             let encodedParams_size := mload(encodedParams)

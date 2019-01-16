@@ -1,3 +1,4 @@
+require('openzeppelin-test-helpers');
 const { shouldBehaveLikeOwnable } = require('./Ownable.behavior');
 
 const Ownable = artifacts.require('OwnableMock');

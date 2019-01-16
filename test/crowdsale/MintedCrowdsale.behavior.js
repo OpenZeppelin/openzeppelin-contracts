@@ -1,7 +1,4 @@
-const expectEvent = require('../helpers/expectEvent');
-const { balanceDifference } = require('../helpers/balanceDifference');
-
-require('../helpers/setup');
+const { balance, expectEvent } = require('openzeppelin-test-helpers');
 
 function shouldBehaveLikeMintedCrowdsale ([_, investor, wallet, purchaser], rate, value) {
   const expectedTokenAmount = rate.mul(value);
@@ -31,7 +28,7 @@ function shouldBehaveLikeMintedCrowdsale ([_, investor, wallet, purchaser], rate
       });
 
       it('should forward funds to wallet', async function () {
-        (await balanceDifference(wallet, () =>
+        (await balance.difference(wallet, () =>
           this.crowdsale.sendTransaction({ value, from: investor }))
         ).should.be.bignumber.equal(value);
       });

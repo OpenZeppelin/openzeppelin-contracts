@@ -1,6 +1,4 @@
-const shouldFail = require('../../helpers/shouldFail');
-
-require('../../helpers/setup');
+const { shouldFail } = require('openzeppelin-test-helpers');
 
 const SafeERC20Helper = artifacts.require('SafeERC20Helper');
 

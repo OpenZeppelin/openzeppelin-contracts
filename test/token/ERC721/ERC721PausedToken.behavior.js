@@ -1,12 +1,9 @@
-const shouldFail = require('../../helpers/shouldFail');
-const send = require('../../helpers/send');
-const { ZERO_ADDRESS } = require('../../helpers/constants');
-
-require('../../helpers/setup');
+const { BN, constants, shouldFail } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 function shouldBehaveLikeERC721PausedToken (owner, [recipient, operator]) {
-  const firstTokenId = 1;
-  const mintedTokens = 1;
+  const firstTokenId = new BN(1);
+  const mintedTokens = new BN(1);
   const mockData = '0x42';
 
   describe('like a paused ERC721', function () {
@@ -31,14 +28,8 @@ function shouldBehaveLikeERC721PausedToken (owner, [recipient, operator]) {
     });
 
     it('reverts when trying to safeTransferFrom with data', async function () {
-      await shouldFail.reverting(
-        send.transaction(
-          this.token,
-          'safeTransferFrom',
-          'address,address,uint256,bytes',
-          [owner, recipient, firstTokenId, mockData],
-          { from: owner }
-        )
+      await shouldFail.reverting(this.token.methods['safeTransferFrom(address,address,uint256,bytes)'](
+        owner, recipient, firstTokenId, mockData, { from: owner })
       );
     });
 
@@ -65,15 +56,13 @@ function shouldBehaveLikeERC721PausedToken (owner, [recipient, operator]) {
 
     describe('exists', function () {
       it('should return token existance', async function () {
-        const result = await this.token.exists(firstTokenId);
-        result.should.eq(true);
+        (await this.token.exists(firstTokenId)).should.equal(true);
       });
     });
 
     describe('isApprovedForAll', function () {
       it('returns the approval of the operator', async function () {
-        const isApproved = await this.token.isApprovedForAll(owner, operator);
-        isApproved.should.eq(false);
+        (await this.token.isApprovedForAll(owner, operator)).should.equal(false);
       });
     });
   });
