@@ -25,13 +25,11 @@ library Counter {
         return counter._value;
     }
 
-    function increment(Counter storage counter) internal returns (uint256) {
+    function increment(Counter storage counter) internal {
         counter._value += 1;
-        return counter._value;
     }
 
-    function decrement(Counter storage counter) internal returns (uint256) {
+    function decrement(Counter storage counter) internal {
         counter._value = counter._value.sub(1);
-        return counter._value;
     }
 }

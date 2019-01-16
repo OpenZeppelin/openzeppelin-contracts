@@ -1,4 +1,4 @@
-const { expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { shouldFail } = require('openzeppelin-test-helpers');
 
 const CounterImpl = artifacts.require('CounterImpl');
 
@@ -15,11 +15,6 @@ contract('Counter', function () {
     it('increments the current value by one', async function () {
       await this.counter.increment();
       (await this.counter.current()).should.be.bignumber.equal('1');
-    });
-
-    it('returns the new value', async function () {
-      const { logs } = await this.counter.increment();
-      expectEvent.inLogs(logs, 'ValueChange', { current: '1' });
     });
 
     it('can be called multipl etimes', async function () {
@@ -40,11 +35,6 @@ contract('Counter', function () {
     it('decrements the current value by one', async function () {
       await this.counter.decrement();
       (await this.counter.current()).should.be.bignumber.equal('0');
-    });
-
-    it('returns the new value', async function () {
-      const { logs } = await this.counter.decrement();
-      expectEvent.inLogs(logs, 'ValueChange', { current: '0' });
     });
 
     it('reverts if the current value is 0', async function () {
