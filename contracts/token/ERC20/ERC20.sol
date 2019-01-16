@@ -70,10 +70,7 @@ contract ERC20 is IERC20 {
      * @param value The amount of tokens to be spent.
      */
     function approve(address spender, uint256 value) public returns (bool) {
-        require(spender != address(0));
-
-        _allowed[msg.sender][spender] = value;
-        emit Approval(msg.sender, spender, value);
+        _approve(spender, value);
         return true;
     }
 
@@ -103,10 +100,7 @@ contract ERC20 is IERC20 {
      * @param addedValue The amount of tokens to increase the allowance by.
      */
     function increaseAllowance(address spender, uint256 addedValue) public returns (bool) {
-        require(spender != address(0));
-
-        _allowed[msg.sender][spender] = _allowed[msg.sender][spender].add(addedValue);
-        emit Approval(msg.sender, spender, _allowed[msg.sender][spender]);
+        _approve(spender,  _allowed[msg.sender][spender].add(addedValue));
         return true;
     }
 
@@ -121,10 +115,7 @@ contract ERC20 is IERC20 {
      * @param subtractedValue The amount of tokens to decrease the allowance by.
      */
     function decreaseAllowance(address spender, uint256 subtractedValue) public returns (bool) {
-        require(spender != address(0));
-
-        _allowed[msg.sender][spender] = _allowed[msg.sender][spender].sub(subtractedValue);
-        emit Approval(msg.sender, spender, _allowed[msg.sender][spender]);
+        _approve(spender,  _allowed[msg.sender][spender].sub(subtractedValue));
         return true;
     }
 
@@ -140,6 +131,18 @@ contract ERC20 is IERC20 {
         _balances[from] = _balances[from].sub(value);
         _balances[to] = _balances[to].add(value);
         emit Transfer(from, to, value);
+    }
+
+    /**
+    * @dev Approve token for a specified addresses
+    * @param spender The address which will spend the funds.
+    * @param value The amount to be spent.
+    */
+    function _approve(address spender, uint256 value) internal {
+        require(spender != address(0));
+
+        _allowed[msg.sender][spender] = value;
+        emit Approval(msg.sender, spender, value);
     }
 
     /**
