@@ -1,15 +1,11 @@
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+const { BN } = require('openzeppelin-test-helpers');
 
 const ERC20DetailedMock = artifacts.require('ERC20DetailedMock');
 
 contract('ERC20Detailed', function () {
   const _name = 'My Detailed ERC20';
   const _symbol = 'MDT';
-  const _decimals = 18;
+  const _decimals = new BN(18);
 
   beforeEach(async function () {
     this.detailedERC20 = await ERC20DetailedMock.new(_name, _symbol, _decimals);

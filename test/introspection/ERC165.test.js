@@ -1,10 +1,7 @@
+const { shouldFail } = require('openzeppelin-test-helpers');
 const { shouldSupportInterfaces } = require('./SupportsInterface.behavior');
-const shouldFail = require('../helpers/shouldFail');
 
 const ERC165Mock = artifacts.require('ERC165Mock');
-
-require('chai')
-  .should();
 
 contract('ERC165', function () {
   beforeEach(async function () {
@@ -12,9 +9,7 @@ contract('ERC165', function () {
   });
 
   it('does not allow 0xffffffff', async function () {
-    await shouldFail.reverting(
-      this.mock.registerInterface(0xffffffff)
-    );
+    await shouldFail.reverting(this.mock.registerInterface('0xffffffff'));
   });
 
   shouldSupportInterfaces([

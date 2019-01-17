@@ -1,62 +1,73 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.2;
 
 contract EventEmitter {
-  event Argumentless();
-  event ShortUint(uint8 value);
-  event ShortInt(int8 value);
-  event LongUint(uint256 value);
-  event LongInt(int256 value);
-  event Address(address value);
-  event Boolean(bool value);
-  event String(string value);
-  event LongUintBooleanString(
-    uint256 uintValue,
-    bool booleanValue,
-    string stringValue
-  );
+    event Argumentless();
+    event ShortUint(uint8 value);
+    event ShortInt(int8 value);
+    event LongUint(uint256 value);
+    event LongInt(int256 value);
+    event Address(address value);
+    event Boolean(bool value);
+    event String(string value);
+    event LongUintBooleanString(uint256 uintValue, bool booleanValue, string stringValue);
 
-  function emitArgumentless() public {
-    emit Argumentless();
-  }
+    constructor (uint8 uintValue, bool booleanValue, string memory stringValue) public {
+        emit ShortUint(uintValue);
+        emit Boolean(booleanValue);
+        emit String(stringValue);
+    }
 
-  function emitShortUint(uint8 value) public {
-    emit ShortUint(value);
-  }
+    function emitArgumentless() public {
+        emit Argumentless();
+    }
 
-  function emitShortInt(int8 value) public {
-    emit ShortInt(value);
-  }
+    function emitShortUint(uint8 value) public {
+        emit ShortUint(value);
+    }
 
-  function emitLongUint(uint256 value) public {
-    emit LongUint(value);
-  }
+    function emitShortInt(int8 value) public {
+        emit ShortInt(value);
+    }
 
-  function emitLongInt(int256 value) public {
-    emit LongInt(value);
-  }
+    function emitLongUint(uint256 value) public {
+        emit LongUint(value);
+    }
 
-  function emitAddress(address value) public {
-    emit Address(value);
-  }
+    function emitLongInt(int256 value) public {
+        emit LongInt(value);
+    }
 
-  function emitBoolean(bool value) public {
-    emit Boolean(value);
-  }
+    function emitAddress(address value) public {
+        emit Address(value);
+    }
 
-  function emitString(string value) public {
-    emit String(value);
-  }
+    function emitBoolean(bool value) public {
+        emit Boolean(value);
+    }
 
-  function emitLongUintBooleanString(
-    uint256 uintValue,
-    bool booleanValue,
-    string stringValue)
-  public {
-    emit LongUintBooleanString(uintValue, booleanValue, stringValue);
-  }
+    function emitString(string memory value) public {
+        emit String(value);
+    }
 
-  function emitLongUintAndBoolean(uint256 uintValue, bool boolValue) public {
-    emit LongUint(uintValue);
-    emit Boolean(boolValue);
-  }
+    function emitLongUintBooleanString(uint256 uintValue, bool booleanValue, string memory stringValue) public {
+        emit LongUintBooleanString(uintValue, booleanValue, stringValue);
+    }
+
+    function emitLongUintAndBoolean(uint256 uintValue, bool boolValue) public {
+        emit LongUint(uintValue);
+        emit Boolean(boolValue);
+    }
+
+    function emitStringAndEmitIndirectly(string memory value, IndirectEventEmitter emitter) public {
+        emit String(value);
+        emitter.emitStringIndirectly(value);
+    }
+}
+
+contract IndirectEventEmitter {
+    event IndirectString(string value);
+
+    function emitStringIndirectly(string memory value) public {
+        emit IndirectString(value);
+    }
 }

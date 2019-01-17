@@ -1,19 +1,10 @@
-const shouldFail = require('../../helpers/shouldFail');
-const expectEvent = require('../../helpers/expectEvent');
-const { ethGetBalance } = require('../../helpers/web3');
-const { ether } = require('../../helpers/ether');
-const { ZERO_ADDRESS } = require('../../helpers/constants');
-
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+const { balance, constants, ether, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 const RefundEscrow = artifacts.require('RefundEscrow');
 
 contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee2]) {
-  const amount = ether(54.0);
+  const amount = ether('54');
   const refundees = [refundee1, refundee2];
 
   it('requires a non-null beneficiary', async function () {
@@ -30,7 +21,7 @@ contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee
     context('active state', function () {
       it('has beneficiary and state', async function () {
         (await this.escrow.beneficiary()).should.be.equal(beneficiary);
-        (await this.escrow.state()).should.be.bignumber.equal(0);
+        (await this.escrow.state()).should.be.bignumber.equal('0');
       });
 
       it('accepts deposits', async function () {
@@ -73,11 +64,9 @@ contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee
       });
 
       it('allows beneficiary withdrawal', async function () {
-        const beneficiaryInitialBalance = await ethGetBalance(beneficiary);
-        await this.escrow.beneficiaryWithdraw();
-        const beneficiaryFinalBalance = await ethGetBalance(beneficiary);
-
-        beneficiaryFinalBalance.sub(beneficiaryInitialBalance).should.be.bignumber.equal(amount * refundees.length);
+        (await balance.difference(beneficiary, () =>
+          this.escrow.beneficiaryWithdraw()
+        )).should.be.bignumber.equal(amount.muln(refundees.length));
       });
 
       it('prevents entering the refund state', async function () {
@@ -109,11 +98,9 @@ contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee
 
       it('refunds refundees', async function () {
         for (const refundee of [refundee1, refundee2]) {
-          const refundeeInitialBalance = await ethGetBalance(refundee);
-          await this.escrow.withdraw(refundee, { from: primary });
-          const refundeeFinalBalance = await ethGetBalance(refundee);
-
-          refundeeFinalBalance.sub(refundeeInitialBalance).should.be.bignumber.equal(amount);
+          (await balance.difference(refundee, () =>
+            this.escrow.withdraw(refundee, { from: primary }))
+          ).should.be.bignumber.equal(amount);
         }
       });
 

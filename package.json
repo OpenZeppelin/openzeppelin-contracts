@@ -1,6 +1,6 @@
 {
   "name": "openzeppelin-solidity",
-  "version": "2.0.0-rc.1",
+  "version": "2.1.1",
   "description": "Secure Smart Contract library for Solidity",
   "files": [
     "build",
@@ -8,16 +8,18 @@
     "test"
   ],
   "scripts": {
-    "test": "scripts/test.sh",
-    "lint:js": "eslint .",
-    "lint:js:fix": "eslint . --fix",
-    "lint:sol": "solium -d .",
-    "lint:sol:fix": "solium -d . --fix",
-    "lint": "npm run lint:js && npm run lint:sol",
-    "lint:fix": "npm run lint:js:fix && npm run lint:sol:fix",
+    "build": "scripts/build.sh",
+    "compile": "truffle compile",
     "console": "truffle console",
     "coverage": "scripts/coverage.sh",
-    "version": "scripts/version.js"
+    "lint": "npm run lint:js && npm run lint:sol",
+    "lint:fix": "npm run lint:js:fix",
+    "lint:js": "eslint .",
+    "lint:js:fix": "eslint . --fix",
+    "lint:sol": "solhint --max-warnings 0 \"contracts/**/*.sol\"",
+    "prepack": "npm run build",
+    "version": "scripts/version.js",
+    "test": "npm run compile && scripts/test.sh"
   },
   "repository": {
     "type": "git",
@@ -39,21 +41,22 @@
   "homepage": "https://github.com/OpenZeppelin/zeppelin-solidity",
   "devDependencies": {
     "chai": "^4.1.2",
-    "chai-bignumber": "^2.0.2",
     "coveralls": "^3.0.1",
-    "dotenv": "^4.0.0",
     "eslint": "^4.19.1",
     "eslint-config-standard": "^10.2.1",
     "eslint-plugin-import": "^2.13.0",
+    "eslint-plugin-mocha-no-only": "^1.1.0",
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-promise": "^3.8.0",
     "eslint-plugin-standard": "^3.1.0",
+    "ethereumjs-util": "^6.0.0",
     "ethjs-abi": "^0.2.1",
-    "ganache-cli": "6.1.0",
+    "ganache-cli": "6.1.8",
+    "openzeppelin-test-helpers": "^0.1.1",
+    "pify": "^4.0.1",
+    "solhint": "^1.5.0",
     "solidity-coverage": "^0.5.4",
-    "solium": "^1.1.8",
-    "truffle": "^4.1.13",
-    "truffle-hdwallet-provider": "0.0.5",
-    "web3-utils": "^1.0.0-beta.34"
-  }
+    "truffle": "^5.0.0"
+  },
+  "dependencies": {}
 }

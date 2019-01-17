@@ -1,10 +1,7 @@
-const shouldFail = require('../helpers/shouldFail');
-const { ZERO_ADDRESS } = require('../helpers/constants');
+const { shouldFail, constants } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 const RolesMock = artifacts.require('RolesMock');
-
-require('chai')
-  .should();
 
 contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
   beforeEach(async function () {

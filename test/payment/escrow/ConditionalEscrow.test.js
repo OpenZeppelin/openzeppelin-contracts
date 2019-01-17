@@ -1,13 +1,5 @@
+const { ether, shouldFail } = require('openzeppelin-test-helpers');
 const { shouldBehaveLikeEscrow } = require('./Escrow.behavior');
-
-const shouldFail = require('../../helpers/shouldFail');
-const { ether } = require('../../helpers/ether');
-
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
 
 const ConditionalEscrowMock = artifacts.require('ConditionalEscrowMock');
 
@@ -25,7 +17,7 @@ contract('ConditionalEscrow', function ([_, owner, payee, ...otherAccounts]) {
   });
 
   context('when withdrawal is disallowed', function () {
-    const amount = ether(23.0);
+    const amount = ether('23');
 
     beforeEach(async function () {
       await this.escrow.setAllowed(payee, false);

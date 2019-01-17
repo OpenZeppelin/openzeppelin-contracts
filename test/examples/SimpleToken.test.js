@@ -1,12 +1,7 @@
-const { decodeLogs } = require('../helpers/decodeLogs');
-const { ZERO_ADDRESS } = require('../helpers/constants');
+const { constants, expectEvent } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
+
 const SimpleToken = artifacts.require('SimpleToken');
-
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
 
 contract('SimpleToken', function ([_, creator]) {
   beforeEach(async function () {
@@ -22,7 +17,7 @@ contract('SimpleToken', function ([_, creator]) {
   });
 
   it('has 18 decimals', async function () {
-    (await this.token.decimals()).should.be.bignumber.equal(18);
+    (await this.token.decimals()).should.be.bignumber.equal('18');
   });
 
   it('assigns the initial total supply to the creator', async function () {
@@ -31,12 +26,10 @@ contract('SimpleToken', function ([_, creator]) {
 
     creatorBalance.should.be.bignumber.equal(totalSupply);
 
-    const receipt = await web3.eth.getTransactionReceipt(this.token.transactionHash);
-    const logs = decodeLogs(receipt.logs, SimpleToken, this.token.address);
-    logs.length.should.equal(1);
-    logs[0].event.should.equal('Transfer');
-    logs[0].args.from.valueOf().should.equal(ZERO_ADDRESS);
-    logs[0].args.to.valueOf().should.equal(creator);
-    logs[0].args.value.should.be.bignumber.equal(totalSupply);
+    await expectEvent.inConstruction(this.token, 'Transfer', {
+      from: ZERO_ADDRESS,
+      to: creator,
+      value: totalSupply,
+    });
   });
 });

@@ -1,43 +1,43 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.2;
 
 import "../Roles.sol";
 
 contract SignerRole {
-  using Roles for Roles.Role;
+    using Roles for Roles.Role;
 
-  event SignerAdded(address indexed account);
-  event SignerRemoved(address indexed account);
+    event SignerAdded(address indexed account);
+    event SignerRemoved(address indexed account);
 
-  Roles.Role private signers;
+    Roles.Role private _signers;
 
-  constructor() internal {
-    _addSigner(msg.sender);
-  }
+    constructor () internal {
+        _addSigner(msg.sender);
+    }
 
-  modifier onlySigner() {
-    require(isSigner(msg.sender));
-    _;
-  }
+    modifier onlySigner() {
+        require(isSigner(msg.sender));
+        _;
+    }
 
-  function isSigner(address account) public view returns (bool) {
-    return signers.has(account);
-  }
+    function isSigner(address account) public view returns (bool) {
+        return _signers.has(account);
+    }
 
-  function addSigner(address account) public onlySigner {
-    _addSigner(account);
-  }
+    function addSigner(address account) public onlySigner {
+        _addSigner(account);
+    }
 
-  function renounceSigner() public {
-    _removeSigner(msg.sender);
-  }
+    function renounceSigner() public {
+        _removeSigner(msg.sender);
+    }
 
-  function _addSigner(address account) internal {
-    signers.add(account);
-    emit SignerAdded(account);
-  }
+    function _addSigner(address account) internal {
+        _signers.add(account);
+        emit SignerAdded(account);
+    }
 
-  function _removeSigner(address account) internal {
-    signers.remove(account);
-    emit SignerRemoved(account);
-  }
+    function _removeSigner(address account) internal {
+        _signers.remove(account);
+        emit SignerRemoved(account);
+    }
 }
