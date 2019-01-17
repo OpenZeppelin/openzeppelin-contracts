@@ -2,6 +2,9 @@
 
 ## 2.2.0 (unreleased)
 
+## 2.1.2 (2019-17-01)
+ * Removed most of the test suite from the npm package, except `PublicRole.behavior.js`, which may be useful to users testing their own `Roles`.
+
 ## 2.1.1 (2019-04-01)
  * Version bump to avoid conflict in the npm registry.
 
