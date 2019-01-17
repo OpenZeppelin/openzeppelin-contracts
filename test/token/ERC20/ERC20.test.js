@@ -474,6 +474,12 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
     testApprove(initialHolder, recipient, initialSupply, function (owner, spender, amount) {
       return this.token.approveInternal(owner, spender, amount);
     });
+
+    describe('when the owner is the zero address', function () {
+      it('reverts', async function () {
+        await shouldFail.reverting(this.token.approveInternal(ZERO_ADDRESS, recipient, initialSupply));
+      });
+    });
   });
 
   function testApprove (owner, spender, supply, approve) {
