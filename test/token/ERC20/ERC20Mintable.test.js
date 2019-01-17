@@ -1,6 +1,6 @@
 const { shouldBehaveLikeERC20Mintable } = require('./behaviors/ERC20Mintable.behavior');
 const ERC20MintableMock = artifacts.require('ERC20MintableMock');
-const { shouldBehaveLikePublicRole } = require('../../access/roles/PublicRole.behavior');
+const { shouldBehaveLikePublicRole } = require('../../behavior/access/roles/PublicRole.behavior');
 
 contract('ERC20Mintable', function ([_, minter, otherMinter, ...otherAccounts]) {
   beforeEach(async function () {

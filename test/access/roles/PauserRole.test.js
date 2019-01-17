@@ -1,4 +1,4 @@
-const { shouldBehaveLikePublicRole } = require('../../access/roles/PublicRole.behavior');
+const { shouldBehaveLikePublicRole } = require('../../behavior/access/roles/PublicRole.behavior');
 const PauserRoleMock = artifacts.require('PauserRoleMock');
 
 contract('PauserRole', function ([_, pauser, otherPauser, ...otherAccounts]) {

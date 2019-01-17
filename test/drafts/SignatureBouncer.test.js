@@ -1,6 +1,6 @@
 const { shouldFail } = require('openzeppelin-test-helpers');
 const { getSignFor } = require('../helpers/sign');
-const { shouldBehaveLikePublicRole } = require('../access/roles/PublicRole.behavior');
+const { shouldBehaveLikePublicRole } = require('../behavior/access/roles/PublicRole.behavior');
 
 const SignatureBouncerMock = artifacts.require('SignatureBouncerMock');
 
