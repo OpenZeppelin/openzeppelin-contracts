@@ -5,7 +5,7 @@
   "files": [
     "build",
     "contracts",
-    "test"
+    "test/behavior"
   ],
   "scripts": {
     "build": "scripts/build.sh",
