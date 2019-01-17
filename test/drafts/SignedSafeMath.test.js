@@ -8,14 +8,14 @@ contract('SignedSafeMath', function () {
     this.safeMath = await SignedSafeMathMock.new();
   });
 
-  async function testCommutative (fun, lhs, rhs, expected) {
-    if (expected !== undefined) {
-      (await fun(lhs, rhs)).should.be.bignumber.equal(expected);
-      (await fun(rhs, lhs)).should.be.bignumber.equal(expected);
-    } else {
-      await shouldFail.reverting(fun(lhs, rhs));
-      await shouldFail.reverting(fun(rhs, lhs));
-    }
+  async function testCommutative (fn, lhs, rhs, expected) {
+    (await fn(lhs, rhs)).should.be.bignumber.equal(expected);
+    (await fn(rhs, lhs)).should.be.bignumber.equal(expected);
+  }
+
+  async function testFailsCommutative (fn, lhs, rhs) {
+    await shouldFail.reverting(fn(lhs, rhs));
+    await shouldFail.reverting(fn(rhs, lhs));
   }
 
   describe('add', function () {
@@ -37,14 +37,14 @@ contract('SignedSafeMath', function () {
       const a = MAX_INT256;
       const b = new BN('1');
 
-      await testCommutative(this.safeMath.add, a, b);
+      await testFailsCommutative(this.safeMath.add, a, b);
     });
 
     it('reverts on negative addition overflow', async function () {
       const a = MIN_INT256;
       const b = new BN('-1');
 
-      await testCommutative(this.safeMath.add, a, b);
+      await testFailsCommutative(this.safeMath.add, a, b);
     });
   });
 
@@ -99,14 +99,14 @@ contract('SignedSafeMath', function () {
       const a = MAX_INT256;
       const b = new BN('2');
 
-      await testCommutative(this.safeMath.mul, a, b);
+      await testFailsCommutative(this.safeMath.mul, a, b);
     });
 
     it('reverts when minimum integer is multiplied by -1', async function () {
       const a = MIN_INT256;
       const b = new BN('-1');
 
-      await testCommutative(this.safeMath.mul, a, b);
+      await testFailsCommutative(this.safeMath.mul, a, b);
     });
   });
 

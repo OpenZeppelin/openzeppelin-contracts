@@ -8,14 +8,14 @@ contract('SafeMath', function () {
     this.safeMath = await SafeMathMock.new();
   });
 
-  async function testCommutative (fun, lhs, rhs, expected) {
-    if (expected !== undefined) {
-      (await fun(lhs, rhs)).should.be.bignumber.equal(expected);
-      (await fun(rhs, lhs)).should.be.bignumber.equal(expected);
-    } else {
-      await shouldFail.reverting(fun(lhs, rhs));
-      await shouldFail.reverting(fun(rhs, lhs));
-    }
+  async function testCommutative (fn, lhs, rhs, expected) {
+    (await fn(lhs, rhs)).should.be.bignumber.equal(expected);
+    (await fn(rhs, lhs)).should.be.bignumber.equal(expected);
+  }
+
+  async function testFailsCommutative (fn, lhs, rhs) {
+    await shouldFail.reverting(fn(lhs, rhs));
+    await shouldFail.reverting(fn(rhs, lhs));
   }
 
   describe('add', function () {
@@ -30,7 +30,7 @@ contract('SafeMath', function () {
       const a = MAX_UINT256;
       const b = new BN('1');
 
-      await testCommutative(this.safeMath.add, a, b);
+      await testFailsCommutative(this.safeMath.add, a, b);
     });
   });
 
@@ -69,7 +69,7 @@ contract('SafeMath', function () {
       const a = MAX_UINT256;
       const b = new BN('2');
 
-      await testCommutative(this.safeMath.mul, a, b);
+      await testFailsCommutative(this.safeMath.mul, a, b);
     });
   });
 
