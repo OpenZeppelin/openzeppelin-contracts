@@ -3,9 +3,9 @@
 ## 2.2.0 (unreleased)
 
 ### New features:
- * `Counter`'s API has been stabilized, and therefore moved out of the `drafts` directory into `utils`.
 
 ### Improvements::
+ * `Counter`'s API has been improved, and is now used by `ERC721` (though it is still in `drafts`).
  * `ERC721`'s transfers are now more gas efficient due to removal of unnecessary `SafeMath` calls.
 
 ## 2.1.1 (2019-04-01)

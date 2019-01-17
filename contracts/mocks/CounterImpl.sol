@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
 
-import "../utils/Counter.sol";
+import "../drafts/Counter.sol";
 
 contract CounterImpl {
     using Counter for Counter.Counter;

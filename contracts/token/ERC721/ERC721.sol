@@ -4,7 +4,7 @@ import "./IERC721.sol";
 import "./IERC721Receiver.sol";
 import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";
-import "../../utils/Counter.sol";
+import "../../drafts/Counter.sol";
 import "../../introspection/ERC165.sol";
 
 /**
