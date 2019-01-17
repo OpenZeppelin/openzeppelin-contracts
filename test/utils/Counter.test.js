@@ -17,7 +17,7 @@ contract('Counter', function () {
       (await this.counter.current()).should.be.bignumber.equal('1');
     });
 
-    it('can be called multipl etimes', async function () {
+    it('can be called multiple times', async function () {
       await this.counter.increment();
       await this.counter.increment();
       await this.counter.increment();
