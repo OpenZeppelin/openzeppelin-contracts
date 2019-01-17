@@ -2,6 +2,14 @@
 
 ## 2.2.0 (unreleased)
 
+### Improvements:
+ * Upgraded the minimum compiler version to v0.5.2: this removes many Solidity warnings that were false positives.
+ * Fixed variable shadowing issues.
+
+### Bugfixes:
+
+### Breaking changes:
+
 ## 2.1.2 (2019-17-01)
  * Removed most of the test suite from the npm package, except `PublicRole.behavior.js`, which may be useful to users testing their own `Roles`.
 
