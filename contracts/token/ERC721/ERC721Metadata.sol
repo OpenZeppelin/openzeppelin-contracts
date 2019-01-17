@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 import "./ERC721.sol";
 import "./IERC721Metadata.sol";

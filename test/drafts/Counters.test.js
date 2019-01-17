@@ -1,10 +1,10 @@
 const { shouldFail } = require('openzeppelin-test-helpers');
 
-const CounterImpl = artifacts.require('CounterImpl');
+const CountersImpl = artifacts.require('CountersImpl');
 
-contract('Counter', function () {
+contract('Counters', function () {
   beforeEach(async function () {
-    this.counter = await CounterImpl.new();
+    this.counter = await CountersImpl.new();
   });
 
   it('starts at zero', async function () {

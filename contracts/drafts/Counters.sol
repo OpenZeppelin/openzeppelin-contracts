@@ -1,9 +1,9 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 import "../math/SafeMath.sol";
 
 /**
- * @title Counter
+ * @title Counters
  * @author Matt Condon (@shrugs)
  * @dev Provides counters that can only be incremented or decremented by one. This can be used e.g. to track the number
  * of elements in a mapping, issuing ERC721 ids, or counting request ids
@@ -13,7 +13,7 @@ import "../math/SafeMath.sol";
  * overflow check, thereby saving gas. This does assume however correct usage, in that the underlying `_value` is never
  * directly accessed.
  */
-library Counter {
+library Counters {
     using SafeMath for uint256;
 
     struct Counter {

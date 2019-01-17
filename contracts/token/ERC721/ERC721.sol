@@ -1,10 +1,10 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 import "./IERC721.sol";
 import "./IERC721Receiver.sol";
 import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";
-import "../../drafts/Counter.sol";
+import "../../drafts/Counters.sol";
 import "../../introspection/ERC165.sol";
 
 /**
@@ -14,7 +14,7 @@ import "../../introspection/ERC165.sol";
 contract ERC721 is ERC165, IERC721 {
     using SafeMath for uint256;
     using Address for address;
-    using Counter for Counter.Counter;
+    using Counters for Counters.Counter;
 
     // Equals to `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`
     // which can be also obtained as `IERC721Receiver(0).onERC721Received.selector`
@@ -27,7 +27,7 @@ contract ERC721 is ERC165, IERC721 {
     mapping (uint256 => address) private _tokenApprovals;
 
     // Mapping from owner to number of owned token
-    mapping (address => Counter.Counter) private _ownedTokensCount;
+    mapping (address => Counters.Counter) private _ownedTokensCount;
 
     // Mapping from owner to operator approvals
     mapping (address => mapping (address => bool)) private _operatorApprovals;

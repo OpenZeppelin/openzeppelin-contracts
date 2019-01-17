@@ -1,11 +1,11 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
-import "../drafts/Counter.sol";
+import "../drafts/Counters.sol";
 
-contract CounterImpl {
-    using Counter for Counter.Counter;
+contract CountersImpl {
+    using Counters for Counters.Counter;
 
-    Counter.Counter private _counter;
+    Counters.Counter private _counter;
 
     function current() public view returns (uint256) {
         return _counter.current();
