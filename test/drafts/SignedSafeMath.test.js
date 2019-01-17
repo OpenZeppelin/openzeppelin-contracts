@@ -8,7 +8,7 @@ contract('SignedSafeMath', function () {
     this.safeMath = await SignedSafeMathMock.new();
   });
 
-  async function testCommutative(fun, lhs, rhs, expected) {
+  async function testCommutative (fun, lhs, rhs, expected) {
     if (expected !== undefined) {
       (await fun(lhs, rhs)).should.be.bignumber.equal(expected);
       (await fun(rhs, lhs)).should.be.bignumber.equal(expected);
