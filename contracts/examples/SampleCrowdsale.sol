@@ -14,19 +14,19 @@ import "../token/ERC20/ERC20Mintable.sol";
  */
 contract SampleCrowdsaleToken is Initializable, ERC20Mintable {
 
-  string public name;
-  string public symbol;
-  uint8 public decimals;
+    string public name;
+    string public symbol;
+    uint8 public decimals;
 
-  function initialize(address sender) public initializer {
-    ERC20Mintable.initialize(sender);
+    function initialize(address sender) public initializer {
+        ERC20Mintable.initialize(sender);
 
-    name = "Sample Crowdsale Token";
-    symbol = "SCT";
-    decimals = 18;
-  }
+        name = "Sample Crowdsale Token";
+        symbol = "SCT";
+        decimals = 18;
+    }
 
-  uint256[50] private ______gap;
+    uint256[50] private ______gap;
 }
 
 
@@ -48,27 +48,27 @@ contract SampleCrowdsaleToken is Initializable, ERC20Mintable {
 // solium-disable-next-line max-len
 contract SampleCrowdsale is Initializable, Crowdsale, CappedCrowdsale, RefundableCrowdsale, MintedCrowdsale {
 
-  function initialize(
-    uint256 openingTime,
-    uint256 closingTime,
-    uint256 rate,
-    address wallet,
-    uint256 cap,
-    ERC20Mintable token,
-    uint256 goal
-  )
-    public
-    initializer
-  {
-    Crowdsale.initialize(rate, wallet, token);
-    CappedCrowdsale.initialize(cap);
-    TimedCrowdsale.initialize(openingTime, closingTime);
-    RefundableCrowdsale.initialize(goal);
+    function initialize(
+        uint256 openingTime,
+        uint256 closingTime,
+        uint256 rate,
+        address wallet,
+        uint256 cap,
+        ERC20Mintable token,
+        uint256 goal
+    )
+        public
+        initializer
+    {
+        Crowdsale.initialize(rate, wallet, token);
+        CappedCrowdsale.initialize(cap);
+        TimedCrowdsale.initialize(openingTime, closingTime);
+        RefundableCrowdsale.initialize(goal);
 
-    //As goal needs to be met for a successful crowdsale
-    //the value needs to less or equal than a cap which is limit for accepted funds
-    require(goal <= cap);
-  }
+        //As goal needs to be met for a successful crowdsale
+        //the value needs to less or equal than a cap which is limit for accepted funds
+        require(goal <= cap);
+    }
 
-  uint256[50] private ______gap;
+    uint256[50] private ______gap;
 }

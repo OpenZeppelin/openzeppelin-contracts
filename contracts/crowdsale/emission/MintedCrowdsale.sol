@@ -12,21 +12,21 @@ import "../../token/ERC20/ERC20Mintable.sol";
  */
 contract MintedCrowdsale is Initializable, Crowdsale {
 
-  /**
-   * @dev Overrides delivery by minting tokens upon purchase.
-   * @param beneficiary Token purchaser
-   * @param tokenAmount Number of tokens to be minted
-   */
-  function _deliverTokens(
-    address beneficiary,
-    uint256 tokenAmount
-  )
-    internal
-  {
-    // Potentially dangerous assumption about the type of the token.
-    require(
-      ERC20Mintable(address(token())).mint(beneficiary, tokenAmount));
-  }
+    /**
+     * @dev Overrides delivery by minting tokens upon purchase.
+     * @param beneficiary Token purchaser
+     * @param tokenAmount Number of tokens to be minted
+     */
+    function _deliverTokens(
+        address beneficiary,
+        uint256 tokenAmount
+    )
+        internal
+    {
+        // Potentially dangerous assumption about the type of the token.
+        require(
+            ERC20Mintable(address(token())).mint(beneficiary, tokenAmount));
+    }
 
-  uint256[50] private ______gap;
+    uint256[50] private ______gap;
 }

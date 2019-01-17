@@ -4,7 +4,7 @@ import "../crowdsale/Crowdsale.sol";
 
 
 contract CrowdsaleMock is Crowdsale {
-  constructor(uint256 rate, address wallet, IERC20 token) public {
-    Crowdsale.initialize(rate, wallet, token);
-  }
+    constructor(uint256 rate, address wallet, IERC20 token) public {
+        Crowdsale.initialize(rate, wallet, token);
+    }
 }

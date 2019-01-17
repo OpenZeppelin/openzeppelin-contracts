@@ -13,5 +13,5 @@ import "./ERC721Metadata.sol";
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
 contract ERC721Full is Initializable, ERC721, ERC721Enumerable, ERC721Metadata {
-  uint256[50] private ______gap;
+    uint256[50] private ______gap;
 }

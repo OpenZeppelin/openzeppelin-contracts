@@ -5,13 +5,13 @@ import "../token/ERC20/ERC20Detailed.sol";
 
 
 contract ERC20DetailedMock is ERC20, ERC20Detailed {
-  constructor(
-    string name,
-    string symbol,
-    uint8 decimals
-  )
-    public
-  {
-    ERC20Detailed.initialize(name, symbol, decimals);
-  }
+    constructor(
+        string name,
+        string symbol,
+        uint8 decimals
+    )
+        public
+    {
+        ERC20Detailed.initialize(name, symbol, decimals);
+    }
 }

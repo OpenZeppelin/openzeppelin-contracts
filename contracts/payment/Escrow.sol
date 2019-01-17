@@ -13,45 +13,45 @@ import "../ownership/Secondary.sol";
  * deposit and withdraw.
  */
 contract Escrow is Initializable, Secondary {
-  using SafeMath for uint256;
+    using SafeMath for uint256;
 
-  event Deposited(address indexed payee, uint256 weiAmount);
-  event Withdrawn(address indexed payee, uint256 weiAmount);
+    event Deposited(address indexed payee, uint256 weiAmount);
+    event Withdrawn(address indexed payee, uint256 weiAmount);
 
-  mapping(address => uint256) private _deposits;
+    mapping(address => uint256) private _deposits;
 
-  function initialize(address sender) public initializer {
-    Secondary.initialize(sender);
-  }
+    function initialize(address sender) public initializer {
+        Secondary.initialize(sender);
+    }
 
-  function depositsOf(address payee) public view returns (uint256) {
-    return _deposits[payee];
-  }
+    function depositsOf(address payee) public view returns (uint256) {
+        return _deposits[payee];
+    }
 
-  /**
-  * @dev Stores the sent amount as credit to be withdrawn.
-  * @param payee The destination address of the funds.
-  */
-  function deposit(address payee) public onlyPrimary payable {
-    uint256 amount = msg.value;
-    _deposits[payee] = _deposits[payee].add(amount);
+    /**
+    * @dev Stores the sent amount as credit to be withdrawn.
+    * @param payee The destination address of the funds.
+    */
+    function deposit(address payee) public onlyPrimary payable {
+        uint256 amount = msg.value;
+        _deposits[payee] = _deposits[payee].add(amount);
 
-    emit Deposited(payee, amount);
-  }
+        emit Deposited(payee, amount);
+    }
 
-  /**
-  * @dev Withdraw accumulated balance for a payee.
-  * @param payee The address whose funds will be withdrawn and transferred to.
-  */
-  function withdraw(address payee) public onlyPrimary {
-    uint256 payment = _deposits[payee];
+    /**
+    * @dev Withdraw accumulated balance for a payee.
+    * @param payee The address whose funds will be withdrawn and transferred to.
+    */
+    function withdraw(address payee) public onlyPrimary {
+        uint256 payment = _deposits[payee];
 
-    _deposits[payee] = 0;
+        _deposits[payee] = 0;
 
-    payee.transfer(payment);
+        payee.transfer(payment);
 
-    emit Withdrawn(payee, payment);
-  }
+        emit Withdrawn(payee, payment);
+    }
 
-  uint256[50] private ______gap;
+    uint256[50] private ______gap;
 }

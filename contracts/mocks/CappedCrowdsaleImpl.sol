@@ -6,16 +6,16 @@ import "../crowdsale/validation/CappedCrowdsale.sol";
 
 contract CappedCrowdsaleImpl is CappedCrowdsale {
 
-  constructor (
-    uint256 rate,
-    address wallet,
-    IERC20 token,
-    uint256 cap
-  )
-    public
-  {
-    Crowdsale.initialize(rate, wallet, token);
-    CappedCrowdsale.initialize(cap);
-  }
+    constructor (
+        uint256 rate,
+        address wallet,
+        IERC20 token,
+        uint256 cap
+    )
+        public
+    {
+        Crowdsale.initialize(rate, wallet, token);
+        CappedCrowdsale.initialize(cap);
+    }
 
 }

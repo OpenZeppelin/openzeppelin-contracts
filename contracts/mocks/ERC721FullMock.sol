@@ -12,24 +12,24 @@ import "../token/ERC721/ERC721Burnable.sol";
  * and a public setter for metadata URI
  */
 contract ERC721FullMock is ERC721Full, ERC721Mintable, ERC721MetadataMintable, ERC721Burnable {
-  constructor(string name, string symbol) public
-  {
-    ERC721.initialize();
-    ERC721Metadata.initialize(name, symbol);
-    ERC721Enumerable.initialize();
-    ERC721Mintable.initialize(msg.sender);
-    ERC721MetadataMintable.initialize(msg.sender);
-  }
+    constructor(string name, string symbol) public
+    {
+        ERC721.initialize();
+        ERC721Metadata.initialize(name, symbol);
+        ERC721Enumerable.initialize();
+        ERC721Mintable.initialize(msg.sender);
+        ERC721MetadataMintable.initialize(msg.sender);
+    }
 
-  function exists(uint256 tokenId) public view returns (bool) {
-    return _exists(tokenId);
-  }
+    function exists(uint256 tokenId) public view returns (bool) {
+        return _exists(tokenId);
+    }
 
-  function setTokenURI(uint256 tokenId, string uri) public {
-    _setTokenURI(tokenId, uri);
-  }
+    function setTokenURI(uint256 tokenId, string uri) public {
+        _setTokenURI(tokenId, uri);
+    }
 
-  function removeTokenFrom(address from, uint256 tokenId) public {
-    _removeTokenFrom(from, tokenId);
-  }
+    function removeTokenFrom(address from, uint256 tokenId) public {
+        _removeTokenFrom(from, tokenId);
+    }
 }

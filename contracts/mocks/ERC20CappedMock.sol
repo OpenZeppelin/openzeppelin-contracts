@@ -6,8 +6,8 @@ import "./MinterRoleMock.sol";
 
 contract ERC20CappedMock is ERC20Capped, MinterRoleMock {
 
-  constructor(uint256 cap) public {
-    ERC20Capped.initialize(cap, msg.sender);
-  }
+    constructor(uint256 cap) public {
+        ERC20Capped.initialize(cap, msg.sender);
+    }
 
 }

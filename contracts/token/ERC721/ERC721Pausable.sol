@@ -10,41 +10,41 @@ import "../../lifecycle/Pausable.sol";
  * @dev ERC721 modified with pausable transfers.
  **/
 contract ERC721Pausable is Initializable, ERC721, Pausable {
-  function initialize(address sender) public initializer {
-    require(ERC721._hasBeenInitialized());
-    Pausable.initialize(sender);
-  }
+    function initialize(address sender) public initializer {
+        require(ERC721._hasBeenInitialized());
+        Pausable.initialize(sender);
+    }
 
-  function approve(
-    address to,
-    uint256 tokenId
-  )
-    public
-    whenNotPaused
-  {
-    super.approve(to, tokenId);
-  }
+    function approve(
+        address to,
+        uint256 tokenId
+    )
+        public
+        whenNotPaused
+    {
+        super.approve(to, tokenId);
+    }
 
-  function setApprovalForAll(
-    address to,
-    bool approved
-  )
-    public
-    whenNotPaused
-  {
-    super.setApprovalForAll(to, approved);
-  }
+    function setApprovalForAll(
+        address to,
+        bool approved
+    )
+        public
+        whenNotPaused
+    {
+        super.setApprovalForAll(to, approved);
+    }
 
-  function transferFrom(
-    address from,
-    address to,
-    uint256 tokenId
-  )
-    public
-    whenNotPaused
-  {
-    super.transferFrom(from, to, tokenId);
-  }
+    function transferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    )
+        public
+        whenNotPaused
+    {
+        super.transferFrom(from, to, tokenId);
+    }
 
-  uint256[50] private ______gap;
+    uint256[50] private ______gap;
 }

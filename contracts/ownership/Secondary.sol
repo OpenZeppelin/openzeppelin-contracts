@@ -7,32 +7,32 @@ import "zos-lib/contracts/Initializable.sol";
  * @dev A Secondary contract can only be used by its primary account (the one that created it)
  */
 contract Secondary is Initializable {
-  address private _primary;
+    address private _primary;
 
-  /**
-   * @dev Sets the primary account to the one that is creating the Secondary contract.
-   */
-  function initialize(address sender) public initializer {
-    _primary = sender;
-  }
+    /**
+     * @dev Sets the primary account to the one that is creating the Secondary contract.
+     */
+    function initialize(address sender) public initializer {
+        _primary = sender;
+    }
 
-  /**
-   * @dev Reverts if called from any account other than the primary.
-   */
-  modifier onlyPrimary() {
-    require(msg.sender == _primary);
-    _;
-  }
+    /**
+     * @dev Reverts if called from any account other than the primary.
+     */
+    modifier onlyPrimary() {
+        require(msg.sender == _primary);
+        _;
+    }
 
-  function primary() public view returns (address) {
-    return _primary;
-  }
+    function primary() public view returns (address) {
+        return _primary;
+    }
 
-  function transferPrimary(address recipient) public onlyPrimary {
-    require(recipient != address(0));
+    function transferPrimary(address recipient) public onlyPrimary {
+        require(recipient != address(0));
 
-    _primary = recipient;
-  }
+        _primary = recipient;
+    }
 
-  uint256[50] private ______gap;
+    uint256[50] private ______gap;
 }

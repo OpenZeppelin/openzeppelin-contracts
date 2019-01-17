@@ -5,17 +5,17 @@ import "../payment/ConditionalEscrow.sol";
 
 // mock class using ConditionalEscrow
 contract ConditionalEscrowMock is ConditionalEscrow {
-  mapping(address => bool) private _allowed;
+    mapping(address => bool) private _allowed;
 
-  constructor() public {
-    ConditionalEscrow.initialize(msg.sender);
-  }
+    constructor() public {
+        ConditionalEscrow.initialize(msg.sender);
+    }
 
-  function setAllowed(address payee, bool allowed) public {
-    _allowed[payee] = allowed;
-  }
+    function setAllowed(address payee, bool allowed) public {
+        _allowed[payee] = allowed;
+    }
 
-  function withdrawalAllowed(address payee) public view returns (bool) {
-    return _allowed[payee];
-  }
+    function withdrawalAllowed(address payee) public view returns (bool) {
+        return _allowed[payee];
+    }
 }

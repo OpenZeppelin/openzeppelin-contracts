@@ -10,15 +10,15 @@ import "../token/ERC721/ERC721Burnable.sol";
  * @title ERC721MintableBurnableImpl
  */
 contract ERC721MintableBurnableImpl
-  is ERC721Full, ERC721Mintable, ERC721MetadataMintable, ERC721Burnable {
+    is ERC721Full, ERC721Mintable, ERC721MetadataMintable, ERC721Burnable {
 
-  constructor()
-    public
-  {
-    ERC721.initialize();
-    ERC721Metadata.initialize("Test", "TEST");
-    ERC721Enumerable.initialize();
-    ERC721Mintable.initialize(msg.sender);
-    ERC721MetadataMintable.initialize(msg.sender);
-  }
+    constructor()
+        public
+    {
+        ERC721.initialize();
+        ERC721Metadata.initialize("Test", "TEST");
+        ERC721Enumerable.initialize();
+        ERC721Mintable.initialize(msg.sender);
+        ERC721MetadataMintable.initialize(msg.sender);
+    }
 }

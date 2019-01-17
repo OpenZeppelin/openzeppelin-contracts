@@ -5,7 +5,7 @@ import "../drafts/ERC1046/TokenMetadata.sol";
 
 
 contract ERC20WithMetadataMock is ERC20, ERC20WithMetadata {
-  constructor(string tokenURI) public {
-    ERC20WithMetadata.initialize(tokenURI);
-  }
+    constructor(string tokenURI) public {
+        ERC20WithMetadata.initialize(tokenURI);
+    }
 }

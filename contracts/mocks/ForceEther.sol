@@ -8,9 +8,9 @@ pragma solidity ^0.4.24;
 // @author Remco Bloemen <remco@neufund.org>
 contract ForceEther {
 
-  constructor() public payable { }
+    constructor() public payable { }
 
-  function destroyAndSend(address recipient) public {
-    selfdestruct(recipient);
-  }
+    function destroyAndSend(address recipient) public {
+        selfdestruct(recipient);
+    }
 }
