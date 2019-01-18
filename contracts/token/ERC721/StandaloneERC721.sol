@@ -21,10 +21,10 @@ contract StandaloneERC721
         ERC721Metadata.initialize(name, symbol);
 
         // Initialize the minter and pauser roles, and renounce them
-        ERC721MetadataMintable.initialize(address(this));
+        ERC721MetadataMintable.initialize(msg.sender);
         renounceMinter();
 
-        ERC721Pausable.initialize(address(this));
+        ERC721Pausable.initialize(msg.sender);
         renouncePauser();
 
         // Add the requested minters and pausers (this can be done after renouncing since

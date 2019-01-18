@@ -23,10 +23,10 @@ contract StandardToken is Initializable, ERC20Detailed, ERC20Mintable, ERC20Paus
         }
 
         // Initialize the minter and pauser roles, and renounce them
-        ERC20Mintable.initialize(address(this));
+        ERC20Mintable.initialize(msg.sender);
         renounceMinter();
 
-        ERC20Pausable.initialize(address(this));
+        ERC20Pausable.initialize(msg.sender);
         renouncePauser();
 
         // Add the requested minters and pausers (this can be done after renouncing since
