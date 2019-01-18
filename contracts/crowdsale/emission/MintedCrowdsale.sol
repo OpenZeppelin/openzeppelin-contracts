@@ -1,9 +1,8 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "../Crowdsale.sol";
 import "../../token/ERC20/ERC20Mintable.sol";
-
 
 /**
  * @title MintedCrowdsale
@@ -11,21 +10,14 @@ import "../../token/ERC20/ERC20Mintable.sol";
  * Token ownership should be transferred to MintedCrowdsale for minting.
  */
 contract MintedCrowdsale is Initializable, Crowdsale {
-
     /**
      * @dev Overrides delivery by minting tokens upon purchase.
      * @param beneficiary Token purchaser
      * @param tokenAmount Number of tokens to be minted
      */
-    function _deliverTokens(
-        address beneficiary,
-        uint256 tokenAmount
-    )
-        internal
-    {
+    function _deliverTokens(address beneficiary, uint256 tokenAmount) internal {
         // Potentially dangerous assumption about the type of the token.
-        require(
-            ERC20Mintable(address(token())).mint(beneficiary, tokenAmount));
+        require(ERC20Mintable(address(token())).mint(beneficiary, tokenAmount));
     }
 
     uint256[50] private ______gap;

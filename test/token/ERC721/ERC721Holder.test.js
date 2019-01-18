@@ -1,8 +1,7 @@
 const ERC721Holder = artifacts.require('ERC721Holder.sol');
 const ERC721Mintable = artifacts.require('ERC721MintableBurnableImpl.sol');
 
-require('chai')
-  .should();
+require('../../helpers/setup');
 
 contract('ERC721Holder', function ([creator]) {
   it('receives an ERC721 token', async function () {

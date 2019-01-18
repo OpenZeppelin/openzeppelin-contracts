@@ -1,12 +1,8 @@
-const { assertRevert } = require('../../../helpers/assertRevert');
+const shouldFail = require('../../../helpers/shouldFail');
 const expectEvent = require('../../../helpers/expectEvent');
+const { ZERO_ADDRESS } = require('../../../helpers/constants');
 
-const BigNumber = web3.BigNumber;
-const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../../../helpers/setup');
 
 function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
   describe('burn', function () {
@@ -29,10 +25,11 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
         });
 
         it('emits a transfer event', async function () {
-          const event = expectEvent.inLogs(this.logs, 'Transfer');
-          event.args.from.should.equal(owner);
-          event.args.to.should.equal(ZERO_ADDRESS);
-          event.args.value.should.be.bignumber.equal(amount);
+          expectEvent.inLogs(this.logs, 'Transfer', {
+            from: owner,
+            to: ZERO_ADDRESS,
+            value: amount,
+          });
         });
       }
     });
@@ -41,7 +38,7 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
       const amount = initialBalance + 1;
 
       it('reverts', async function () {
-        await assertRevert(this.token.burn(amount, { from: owner }));
+        await shouldFail.reverting(this.token.burn(amount, { from: owner }));
       });
     });
   });
@@ -74,10 +71,11 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
         });
 
         it('emits a transfer event', async function () {
-          const event = expectEvent.inLogs(this.logs, 'Transfer');
-          event.args.from.should.equal(owner);
-          event.args.to.should.equal(ZERO_ADDRESS);
-          event.args.value.should.be.bignumber.equal(amount);
+          expectEvent.inLogs(this.logs, 'Transfer', {
+            from: owner,
+            to: ZERO_ADDRESS,
+            value: amount,
+          });
         });
       }
     });
@@ -86,7 +84,7 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
       const amount = initialBalance + 1;
       it('reverts', async function () {
         await this.token.approve(burner, amount, { from: owner });
-        await assertRevert(this.token.burnFrom(owner, amount, { from: burner }));
+        await shouldFail.reverting(this.token.burnFrom(owner, amount, { from: burner }));
       });
     });
 
@@ -94,7 +92,7 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
       const amount = 100;
       it('reverts', async function () {
         await this.token.approve(burner, amount - 1, { from: owner });
-        await assertRevert(this.token.burnFrom(owner, amount, { from: burner }));
+        await shouldFail.reverting(this.token.burnFrom(owner, amount, { from: burner }));
       });
     });
   });

@@ -1,9 +1,8 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "../../math/SafeMath.sol";
 import "../Crowdsale.sol";
-
 
 /**
  * @title TimedCrowdsale
@@ -31,9 +30,9 @@ contract TimedCrowdsale is Initializable, Crowdsale {
     function initialize(uint256 openingTime, uint256 closingTime) public initializer {
         assert(Crowdsale._hasBeenInitialized());
 
-        // solium-disable-next-line security/no-block-members
+        // solhint-disable-next-line not-rely-on-time
         require(openingTime >= block.timestamp);
-        require(closingTime >= openingTime);
+        require(closingTime > openingTime);
 
         _openingTime = openingTime;
         _closingTime = closingTime;
@@ -42,14 +41,14 @@ contract TimedCrowdsale is Initializable, Crowdsale {
     /**
      * @return the crowdsale opening time.
      */
-    function openingTime() public view returns(uint256) {
+    function openingTime() public view returns (uint256) {
         return _openingTime;
     }
 
     /**
      * @return the crowdsale closing time.
      */
-    function closingTime() public view returns(uint256) {
+    function closingTime() public view returns (uint256) {
         return _closingTime;
     }
 
@@ -57,7 +56,7 @@ contract TimedCrowdsale is Initializable, Crowdsale {
      * @return true if the crowdsale is open, false otherwise.
      */
     function isOpen() public view returns (bool) {
-        // solium-disable-next-line security/no-block-members
+        // solhint-disable-next-line not-rely-on-time
         return block.timestamp >= _openingTime && block.timestamp <= _closingTime;
     }
 
@@ -66,7 +65,7 @@ contract TimedCrowdsale is Initializable, Crowdsale {
      * @return Whether crowdsale period has elapsed
      */
     function hasClosed() public view returns (bool) {
-        // solium-disable-next-line security/no-block-members
+        // solhint-disable-next-line not-rely-on-time
         return block.timestamp > _closingTime;
     }
 
@@ -79,16 +78,9 @@ contract TimedCrowdsale is Initializable, Crowdsale {
      * @param beneficiary Token purchaser
      * @param weiAmount Amount of wei contributed
      */
-    function _preValidatePurchase(
-        address beneficiary,
-        uint256 weiAmount
-    )
-        internal
-        onlyWhileOpen
-    {
+    function _preValidatePurchase(address beneficiary, uint256 weiAmount) internal onlyWhileOpen view {
         super._preValidatePurchase(beneficiary, weiAmount);
     }
-
 
     uint256[50] private ______gap;
 }

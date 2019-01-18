@@ -1,9 +1,8 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "../validation/TimedCrowdsale.sol";
 import "../../math/SafeMath.sol";
-
 
 /**
  * @title IncreasingPriceCrowdsale
@@ -26,15 +25,23 @@ contract IncreasingPriceCrowdsale is Initializable, TimedCrowdsale {
         assert(TimedCrowdsale._hasBeenInitialized());
 
         require(finalRate > 0);
-        require(initialRate >= finalRate);
+        require(initialRate > finalRate);
         _initialRate = initialRate;
         _finalRate = finalRate;
     }
 
     /**
+     * The base rate function is overridden to revert, since this crowdsale doens't use it, and
+     * all calls to it are a mistake.
+     */
+    function rate() public view returns (uint256) {
+        revert();
+    }
+
+    /**
      * @return the initial rate of the crowdsale.
      */
-    function initialRate() public view returns(uint256) {
+    function initialRate() public view returns (uint256) {
         return _initialRate;
     }
 
@@ -51,7 +58,11 @@ contract IncreasingPriceCrowdsale is Initializable, TimedCrowdsale {
      * @return The number of tokens a buyer gets per wei at a given time
      */
     function getCurrentRate() public view returns (uint256) {
-        // solium-disable-next-line security/no-block-members
+        if (!isOpen()) {
+            return 0;
+        }
+
+        // solhint-disable-next-line not-rely-on-time
         uint256 elapsedTime = block.timestamp.sub(openingTime());
         uint256 timeRange = closingTime().sub(openingTime());
         uint256 rateRange = _initialRate.sub(_finalRate);
@@ -63,13 +74,10 @@ contract IncreasingPriceCrowdsale is Initializable, TimedCrowdsale {
      * @param weiAmount The value in wei to be converted into tokens
      * @return The number of tokens _weiAmount wei will buy at present time
      */
-    function _getTokenAmount(uint256 weiAmount)
-        internal view returns (uint256)
-    {
+    function _getTokenAmount(uint256 weiAmount) internal view returns (uint256) {
         uint256 currentRate = getCurrentRate();
         return currentRate.mul(weiAmount);
     }
-
 
     uint256[50] private ______gap;
 }

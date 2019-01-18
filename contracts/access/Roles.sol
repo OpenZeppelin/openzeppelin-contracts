@@ -1,5 +1,4 @@
-pragma solidity ^0.4.24;
-
+pragma solidity ^0.5.0;
 
 /**
  * @title Roles
@@ -15,6 +14,8 @@ library Roles {
      */
     function add(Role storage role, address account) internal {
         require(account != address(0));
+        require(!has(role, account));
+
         role.bearer[account] = true;
     }
 
@@ -23,6 +24,8 @@ library Roles {
      */
     function remove(Role storage role, address account) internal {
         require(account != address(0));
+        require(has(role, account));
+
         role.bearer[account] = false;
     }
 
@@ -30,11 +33,7 @@ library Roles {
      * @dev check if an account has this role
      * @return bool
      */
-    function has(Role storage role, address account)
-        internal
-        view
-        returns (bool)
-    {
+    function has(Role storage role, address account) internal view returns (bool) {
         require(account != address(0));
         return role.bearer[account];
     }

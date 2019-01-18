@@ -1,9 +1,8 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "../../math/SafeMath.sol";
 import "../validation/TimedCrowdsale.sol";
-
 
 /**
  * @title FinalizableCrowdsale
@@ -13,7 +12,7 @@ import "../validation/TimedCrowdsale.sol";
 contract FinalizableCrowdsale is Initializable, TimedCrowdsale {
     using SafeMath for uint256;
 
-    bool private _finalized = false;
+    bool private _finalized;
 
     event CrowdsaleFinalized();
 
@@ -32,10 +31,10 @@ contract FinalizableCrowdsale is Initializable, TimedCrowdsale {
         require(!_finalized);
         require(hasClosed());
 
+        _finalized = true;
+
         _finalization();
         emit CrowdsaleFinalized();
-
-        _finalized = true;
     }
 
     /**
@@ -44,8 +43,8 @@ contract FinalizableCrowdsale is Initializable, TimedCrowdsale {
      * executed entirely.
      */
     function _finalization() internal {
+        // solhint-disable-previous-line no-empty-blocks
     }
-
 
     uint256[50] private ______gap;
 }

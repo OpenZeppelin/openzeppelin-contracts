@@ -1,8 +1,8 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
-import "./Escrow.sol";
 
+import "./escrow/Escrow.sol";
 
 /**
  * @title PullPayment
@@ -12,7 +12,7 @@ import "./Escrow.sol";
 contract PullPayment is Initializable {
     Escrow private _escrow;
 
-    function initialize() public initializer {
+    function initialize() internal initializer {
         // conditional added to make initializer idempotent in case of diamond inheritance
         if (address(_escrow) == address(0)) {
             _escrow = new Escrow();
@@ -24,7 +24,7 @@ contract PullPayment is Initializable {
     * @dev Withdraw accumulated balance.
     * @param payee Whose balance will be withdrawn.
     */
-    function withdrawPayments(address payee) public {
+    function withdrawPayments(address payable payee) public {
         _escrow.withdraw(payee);
     }
 

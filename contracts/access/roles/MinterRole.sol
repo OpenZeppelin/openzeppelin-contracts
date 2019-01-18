@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "../Roles.sol";
@@ -10,7 +10,7 @@ contract MinterRole is Initializable {
     event MinterAdded(address indexed account);
     event MinterRemoved(address indexed account);
 
-    Roles.Role private minters;
+    Roles.Role private _minters;
 
     function initialize(address sender) public initializer {
         if (!isMinter(sender)) {
@@ -24,7 +24,7 @@ contract MinterRole is Initializable {
     }
 
     function isMinter(address account) public view returns (bool) {
-        return minters.has(account);
+        return _minters.has(account);
     }
 
     function addMinter(address account) public onlyMinter {
@@ -36,12 +36,12 @@ contract MinterRole is Initializable {
     }
 
     function _addMinter(address account) internal {
-        minters.add(account);
+        _minters.add(account);
         emit MinterAdded(account);
     }
 
     function _removeMinter(address account) internal {
-        minters.remove(account);
+        _minters.remove(account);
         emit MinterRemoved(account);
     }
 

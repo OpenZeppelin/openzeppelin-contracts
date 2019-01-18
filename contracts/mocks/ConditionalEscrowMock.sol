@@ -1,7 +1,6 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
-import "../payment/ConditionalEscrow.sol";
-
+import "../payment/escrow/ConditionalEscrow.sol";
 
 // mock class using ConditionalEscrow
 contract ConditionalEscrowMock is ConditionalEscrow {

@@ -1,15 +1,10 @@
-const { assertRevert } = require('../../../helpers/assertRevert');
+const shouldFail = require('../../../helpers/shouldFail');
 const expectEvent = require('../../../helpers/expectEvent');
+const { ZERO_ADDRESS } = require('../../../helpers/constants');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../../../helpers/setup');
 
 function shouldBehaveLikeERC20Mintable (minter, [anyone]) {
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-
   describe('as a mintable token', function () {
     describe('mint', function () {
       const amount = 100;
@@ -35,11 +30,11 @@ function shouldBehaveLikeERC20Mintable (minter, [anyone]) {
           });
 
           it('emits a mint and a transfer event', async function () {
-            const transferEvent = expectEvent.inLogs(this.logs, 'Transfer', {
+            expectEvent.inLogs(this.logs, 'Transfer', {
               from: ZERO_ADDRESS,
               to: anyone,
+              value: amount,
             });
-            transferEvent.args.value.should.be.bignumber.equal(amount);
           });
         }
       });
@@ -48,7 +43,7 @@ function shouldBehaveLikeERC20Mintable (minter, [anyone]) {
         const from = anyone;
 
         it('reverts', async function () {
-          await assertRevert(this.token.mint(anyone, amount, { from }));
+          await shouldFail.reverting(this.token.mint(anyone, amount, { from }));
         });
       });
     });

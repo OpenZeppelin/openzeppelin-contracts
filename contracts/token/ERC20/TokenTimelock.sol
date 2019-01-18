@@ -1,8 +1,7 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "./SafeERC20.sol";
-
 
 /**
  * @title TokenTimelock
@@ -21,15 +20,7 @@ contract TokenTimelock is Initializable {
     // timestamp when token release is enabled
     uint256 private _releaseTime;
 
-    function initialize(
-        IERC20 token,
-        address beneficiary,
-        uint256 releaseTime
-    )
-        public
-        initializer
-    {
-        // solium-disable-next-line security/no-block-members
+    function initialize (IERC20 token, address beneficiary, uint256 releaseTime) public initializer {
         require(releaseTime > block.timestamp);
         _token = token;
         _beneficiary = beneficiary;
@@ -39,21 +30,21 @@ contract TokenTimelock is Initializable {
     /**
      * @return the token being held.
      */
-    function token() public view returns(IERC20) {
+    function token() public view returns (IERC20) {
         return _token;
     }
 
     /**
      * @return the beneficiary of the tokens.
      */
-    function beneficiary() public view returns(address) {
+    function beneficiary() public view returns (address) {
         return _beneficiary;
     }
 
     /**
      * @return the time when the tokens are released.
      */
-    function releaseTime() public view returns(uint256) {
+    function releaseTime() public view returns (uint256) {
         return _releaseTime;
     }
 
@@ -61,7 +52,7 @@ contract TokenTimelock is Initializable {
      * @notice Transfers tokens held by timelock to beneficiary.
      */
     function release() public {
-        // solium-disable-next-line security/no-block-members
+        // solhint-disable-next-line not-rely-on-time
         require(block.timestamp >= _releaseTime);
 
         uint256 amount = _token.balanceOf(address(this));

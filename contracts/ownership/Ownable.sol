@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 
@@ -10,13 +10,7 @@ import "zos-lib/contracts/Initializable.sol";
 contract Ownable is Initializable {
     address private _owner;
 
-
-    event OwnershipRenounced(address indexed previousOwner);
-    event OwnershipTransferred(
-        address indexed previousOwner,
-        address indexed newOwner
-    );
-
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
     /**
      * @dev The Ownable constructor sets the original `owner` of the contract to the sender
@@ -24,12 +18,13 @@ contract Ownable is Initializable {
      */
     function initialize(address sender) public initializer {
         _owner = sender;
+        emit OwnershipTransferred(address(0), _owner);
     }
 
     /**
      * @return the address of the owner.
      */
-    function owner() public view returns(address) {
+    function owner() public view returns (address) {
         return _owner;
     }
 
@@ -44,7 +39,7 @@ contract Ownable is Initializable {
     /**
      * @return true if `msg.sender` is the owner of the contract.
      */
-    function isOwner() public view returns(bool) {
+    function isOwner() public view returns (bool) {
         return msg.sender == _owner;
     }
 
@@ -55,7 +50,7 @@ contract Ownable is Initializable {
      * modifier anymore.
      */
     function renounceOwnership() public onlyOwner {
-        emit OwnershipRenounced(_owner);
+        emit OwnershipTransferred(_owner, address(0));
         _owner = address(0);
     }
 

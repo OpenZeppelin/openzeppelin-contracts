@@ -1,11 +1,8 @@
-pragma solidity ^0.4.24;
-
+pragma solidity ^0.5.0;
 
 import "../math/SafeMath.sol";
 
-
 contract SafeMathMock {
-
     function mul(uint256 a, uint256 b) public pure returns (uint256) {
         return SafeMath.mul(a, b);
     }

@@ -1,9 +1,8 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "./ERC721.sol";
 import "../../access/roles/MinterRole.sol";
-
 
 /**
  * @title ERC721Mintable
@@ -21,14 +20,7 @@ contract ERC721Mintable is Initializable, ERC721, MinterRole {
      * @param tokenId The token id to mint.
      * @return A boolean that indicates if the operation was successful.
      */
-    function mint(
-        address to,
-        uint256 tokenId
-    )
-        public
-        onlyMinter
-        returns (bool)
-    {
+    function mint(address to, uint256 tokenId) public onlyMinter returns (bool) {
         _mint(to, tokenId);
         return true;
     }

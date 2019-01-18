@@ -1,8 +1,7 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "../token/ERC721/ERC721Pausable.sol";
 import "./PauserRoleMock.sol";
-
 
 /**
  * @title ERC721PausableMock
@@ -19,7 +18,7 @@ contract ERC721PausableMock is ERC721Pausable, PauserRoleMock {
     }
 
     function burn(uint256 tokenId) public {
-        super._burn(ownerOf(tokenId), tokenId);
+        super._burn(tokenId);
     }
 
     function exists(uint256 tokenId) public view returns (bool) {

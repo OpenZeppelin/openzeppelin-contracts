@@ -1,9 +1,8 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "./ERC20.sol";
 import "../../access/roles/MinterRole.sol";
-
 
 /**
  * @title ERC20Mintable
@@ -17,18 +16,11 @@ contract ERC20Mintable is Initializable, ERC20, MinterRole {
     /**
      * @dev Function to mint tokens
      * @param to The address that will receive the minted tokens.
-     * @param amount The amount of tokens to mint.
+     * @param value The amount of tokens to mint.
      * @return A boolean that indicates if the operation was successful.
      */
-    function mint(
-        address to,
-        uint256 amount
-    )
-        public
-        onlyMinter
-        returns (bool)
-    {
-        _mint(to, amount);
+    function mint(address to, uint256 value) public onlyMinter returns (bool) {
+        _mint(to, value);
         return true;
     }
 

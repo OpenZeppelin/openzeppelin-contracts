@@ -1,16 +1,19 @@
-pragma solidity ^0.4.24;
-
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "../../math/SafeMath.sol";
 import "./FinalizableCrowdsale.sol";
-import "../../payment/RefundEscrow.sol";
-
+import "../../payment/escrow/RefundEscrow.sol";
 
 /**
  * @title RefundableCrowdsale
- * @dev Extension of Crowdsale contract that adds a funding goal, and
- * the possibility of users getting a refund if goal is not met.
+ * @dev Extension of Crowdsale contract that adds a funding goal, and the possibility of users getting a refund if goal
+ * is not met.
+ *
+ * Deprecated, use RefundablePostDeliveryCrowdsale instead. Note that if you allow tokens to be traded before the goal
+ * is met, then an attack is possible in which the attacker purchases tokens from the crowdsale and when they sees that
+ * the goal is unlikely to be met, they sell their tokens (possibly at a discount). The attacker will be refunded when
+ * the crowdsale is finalized, and the users that purchased from them will be left with worthless tokens.
  */
 contract RefundableCrowdsale is Initializable, FinalizableCrowdsale {
     using SafeMath for uint256;
@@ -30,32 +33,30 @@ contract RefundableCrowdsale is Initializable, FinalizableCrowdsale {
         assert(TimedCrowdsale._hasBeenInitialized());
 
         require(goal > 0);
-
         // conditional added to make initializer idempotent in case of diamond inheritance
         if (address(_escrow) == address(0)) {
             _escrow = new RefundEscrow();
             _escrow.initialize(wallet(), address(this));
         }
-
         _goal = goal;
     }
 
     /**
      * @return minimum amount of funds to be raised in wei.
      */
-    function goal() public view returns(uint256) {
+    function goal() public view returns (uint256) {
         return _goal;
     }
 
     /**
      * @dev Investors can claim refunds here if crowdsale is unsuccessful
-     * @param beneficiary Whose refund will be claimed.
+     * @param refundee Whose refund will be claimed.
      */
-    function claimRefund(address beneficiary) public {
+    function claimRefund(address payable refundee) public {
         require(finalized());
         require(!goalReached());
 
-        _escrow.withdraw(beneficiary);
+        _escrow.withdraw(refundee);
     }
 
     /**
@@ -86,7 +87,6 @@ contract RefundableCrowdsale is Initializable, FinalizableCrowdsale {
     function _forwardFunds() internal {
         _escrow.deposit.value(msg.value)(msg.sender);
     }
-
 
     uint256[50] private ______gap;
 }

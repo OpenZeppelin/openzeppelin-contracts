@@ -1,27 +1,26 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "../access/roles/PauserRole.sol";
-
 
 /**
  * @title Pausable
  * @dev Base contract which allows children to implement an emergency stop mechanism.
  */
 contract Pausable is Initializable, PauserRole {
-    event Paused();
-    event Unpaused();
+    event Paused(address account);
+    event Unpaused(address account);
 
-    bool private _paused = false;
+    bool private _paused;
 
     function initialize(address sender) public initializer {
-        PauserRole.initialize(sender);
+        _paused = false;
     }
 
     /**
      * @return true if the contract is paused, false otherwise.
      */
-    function paused() public view returns(bool) {
+    function paused() public view returns (bool) {
         return _paused;
     }
 
@@ -46,7 +45,7 @@ contract Pausable is Initializable, PauserRole {
      */
     function pause() public onlyPauser whenNotPaused {
         _paused = true;
-        emit Paused();
+        emit Paused(msg.sender);
     }
 
     /**
@@ -54,7 +53,7 @@ contract Pausable is Initializable, PauserRole {
      */
     function unpause() public onlyPauser whenPaused {
         _paused = false;
-        emit Unpaused();
+        emit Unpaused(msg.sender);
     }
 
     uint256[50] private ______gap;

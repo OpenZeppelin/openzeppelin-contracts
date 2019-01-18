@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "../Roles.sol";
@@ -10,7 +10,7 @@ contract PauserRole is Initializable {
     event PauserAdded(address indexed account);
     event PauserRemoved(address indexed account);
 
-    Roles.Role private pausers;
+    Roles.Role private _pausers;
 
     function initialize(address sender) public initializer {
         if (!isPauser(sender)) {
@@ -24,7 +24,7 @@ contract PauserRole is Initializable {
     }
 
     function isPauser(address account) public view returns (bool) {
-        return pausers.has(account);
+        return _pausers.has(account);
     }
 
     function addPauser(address account) public onlyPauser {
@@ -36,12 +36,12 @@ contract PauserRole is Initializable {
     }
 
     function _addPauser(address account) internal {
-        pausers.add(account);
+        _pausers.add(account);
         emit PauserAdded(account);
     }
 
     function _removePauser(address account) internal {
-        pausers.remove(account);
+        _pausers.remove(account);
         emit PauserRemoved(account);
     }
 

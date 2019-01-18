@@ -1,11 +1,11 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "../Crowdsale.sol";
 import "../../token/ERC20/IERC20.sol";
 import "../../token/ERC20/SafeERC20.sol";
 import "../../math/SafeMath.sol";
-
+import "../../math/Math.sol";
 
 /**
  * @title AllowanceCrowdsale
@@ -31,7 +31,7 @@ contract AllowanceCrowdsale is Initializable, Crowdsale {
     /**
      * @return the address of the wallet that will hold the tokens.
      */
-    function tokenWallet() public view returns(address) {
+    function tokenWallet() public view returns (address) {
         return _tokenWallet;
     }
 
@@ -40,7 +40,7 @@ contract AllowanceCrowdsale is Initializable, Crowdsale {
      * @return Amount of tokens left in the allowance
      */
     function remainingTokens() public view returns (uint256) {
-        return token().allowance(_tokenWallet, this);
+        return Math.min(token().balanceOf(_tokenWallet), token().allowance(_tokenWallet, address(this)));
     }
 
     /**
@@ -48,12 +48,7 @@ contract AllowanceCrowdsale is Initializable, Crowdsale {
      * @param beneficiary Token purchaser
      * @param tokenAmount Amount of tokens purchased
      */
-    function _deliverTokens(
-        address beneficiary,
-        uint256 tokenAmount
-    )
-        internal
-    {
+    function _deliverTokens(address beneficiary, uint256 tokenAmount) internal {
         token().safeTransferFrom(_tokenWallet, beneficiary, tokenAmount);
     }
 

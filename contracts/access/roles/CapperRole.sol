@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "../Roles.sol";
@@ -10,7 +10,7 @@ contract CapperRole is Initializable {
     event CapperAdded(address indexed account);
     event CapperRemoved(address indexed account);
 
-    Roles.Role private cappers;
+    Roles.Role private _cappers;
 
     function initialize(address sender) public initializer {
         if (!isCapper(sender)) {
@@ -24,7 +24,7 @@ contract CapperRole is Initializable {
     }
 
     function isCapper(address account) public view returns (bool) {
-        return cappers.has(account);
+        return _cappers.has(account);
     }
 
     function addCapper(address account) public onlyCapper {
@@ -36,12 +36,12 @@ contract CapperRole is Initializable {
     }
 
     function _addCapper(address account) internal {
-        cappers.add(account);
+        _cappers.add(account);
         emit CapperAdded(account);
     }
 
     function _removeCapper(address account) internal {
-        cappers.remove(account);
+        _cappers.remove(account);
         emit CapperRemoved(account);
     }
 

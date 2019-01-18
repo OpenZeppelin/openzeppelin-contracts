@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 
@@ -9,11 +9,16 @@ import "zos-lib/contracts/Initializable.sol";
 contract Secondary is Initializable {
     address private _primary;
 
+    event PrimaryTransferred(
+        address recipient
+    );
+
     /**
      * @dev Sets the primary account to the one that is creating the Secondary contract.
      */
     function initialize(address sender) public initializer {
         _primary = sender;
+        emit PrimaryTransferred(_primary);
     }
 
     /**
@@ -24,14 +29,21 @@ contract Secondary is Initializable {
         _;
     }
 
+    /**
+     * @return the address of the primary.
+     */
     function primary() public view returns (address) {
         return _primary;
     }
 
+    /**
+     * @dev Transfers contract to a new primary.
+     * @param recipient The address of new primary.
+     */
     function transferPrimary(address recipient) public onlyPrimary {
         require(recipient != address(0));
-
         _primary = recipient;
+        emit PrimaryTransferred(_primary);
     }
 
     uint256[50] private ______gap;

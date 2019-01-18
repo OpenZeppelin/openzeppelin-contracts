@@ -1,14 +1,12 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "../utils/ReentrancyGuard.sol";
 import "./ReentrancyAttack.sol";
 
-
 contract ReentrancyMock is ReentrancyGuard {
-
     uint256 public counter;
 
-    constructor() public {
+    constructor () public {
         ReentrancyGuard.initialize();
         counter = 0;
     }
@@ -27,9 +25,9 @@ contract ReentrancyMock is ReentrancyGuard {
     function countThisRecursive(uint256 n) public nonReentrant {
         if (n > 0) {
             count();
-            // solium-disable-next-line security/no-low-level-calls
-            bool result = address(this).call(abi.encodeWithSignature("countThisRecursive(uint256)", n - 1));
-            require(result == true);
+            // solhint-disable-next-line avoid-low-level-calls
+            (bool success,) = address(this).call(abi.encodeWithSignature("countThisRecursive(uint256)", n - 1));
+            require(success);
         }
     }
 
@@ -42,5 +40,4 @@ contract ReentrancyMock is ReentrancyGuard {
     function count() private {
         counter += 1;
     }
-
 }

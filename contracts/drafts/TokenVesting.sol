@@ -1,12 +1,9 @@
-/* solium-disable security/no-block-members */
-
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "../token/ERC20/SafeERC20.sol";
 import "../ownership/Ownable.sol";
 import "../math/SafeMath.sol";
-
 
 /**
  * @title TokenVesting
@@ -15,15 +12,22 @@ import "../math/SafeMath.sol";
  * owner.
  */
 contract TokenVesting is Initializable, Ownable {
+    // The vesting schedule is time-based (i.e. using block timestamps as opposed to e.g. block numbers), and is
+    // therefore sensitive to timestamp manipulation (which is something miners can do, to a certain degree). Therefore,
+    // it is recommended to avoid using short time durations (less than a minute). Typical vesting schemes, with a cliff
+    // period of a year and a duration of four years, are safe to use.
+    // solhint-disable not-rely-on-time
+
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
-    event Released(uint256 amount);
-    event Revoked();
+    event TokensReleased(address token, uint256 amount);
+    event TokenVestingRevoked(address token);
 
     // beneficiary of tokens after they are released
     address private _beneficiary;
 
+    // Durations and timestamps are expressed in UNIX time, the same units as block.timestamp.
     uint256 private _cliff;
     uint256 private _start;
     uint256 private _duration;
@@ -43,21 +47,13 @@ contract TokenVesting is Initializable, Ownable {
      * @param duration duration in seconds of the period in which the tokens will vest
      * @param revocable whether the vesting is revocable or not
      */
-    function initialize(
-        address beneficiary,
-        uint256 start,
-        uint256 cliffDuration,
-        uint256 duration,
-        bool revocable,
-        address sender
-    )
-        public
-        initializer
-    {
+    constructor (address beneficiary, uint256 start, uint256 cliffDuration, uint256 duration, bool revocable, address sender) public initializer {
         Ownable.initialize(sender);
 
         require(beneficiary != address(0));
         require(cliffDuration <= duration);
+        require(duration > 0);
+        require(start.add(duration) > block.timestamp);
 
         _beneficiary = beneficiary;
         _revocable = revocable;
@@ -69,49 +65,49 @@ contract TokenVesting is Initializable, Ownable {
     /**
      * @return the beneficiary of the tokens.
      */
-    function beneficiary() public view returns(address) {
+    function beneficiary() public view returns (address) {
         return _beneficiary;
     }
 
     /**
      * @return the cliff time of the token vesting.
      */
-    function cliff() public view returns(uint256) {
+    function cliff() public view returns (uint256) {
         return _cliff;
     }
 
     /**
      * @return the start time of the token vesting.
      */
-    function start() public view returns(uint256) {
+    function start() public view returns (uint256) {
         return _start;
     }
 
     /**
      * @return the duration of the token vesting.
      */
-    function duration() public view returns(uint256) {
+    function duration() public view returns (uint256) {
         return _duration;
     }
 
     /**
      * @return true if the vesting is revocable.
      */
-    function revocable() public view returns(bool) {
+    function revocable() public view returns (bool) {
         return _revocable;
     }
 
     /**
      * @return the amount of the token released.
      */
-    function released(address token) public view returns(uint256) {
+    function released(address token) public view returns (uint256) {
         return _released[token];
     }
 
     /**
      * @return true if the token is revoked.
      */
-    function revoked(address token) public view returns(bool) {
+    function revoked(address token) public view returns (bool) {
         return _revoked[token];
     }
 
@@ -120,15 +116,15 @@ contract TokenVesting is Initializable, Ownable {
      * @param token ERC20 token which is being vested
      */
     function release(IERC20 token) public {
-        uint256 unreleased = releasableAmount(token);
+        uint256 unreleased = _releasableAmount(token);
 
         require(unreleased > 0);
 
-        _released[token] = _released[token].add(unreleased);
+        _released[address(token)] = _released[address(token)].add(unreleased);
 
         token.safeTransfer(_beneficiary, unreleased);
 
-        emit Released(unreleased);
+        emit TokensReleased(address(token), unreleased);
     }
 
     /**
@@ -138,39 +134,39 @@ contract TokenVesting is Initializable, Ownable {
      */
     function revoke(IERC20 token) public onlyOwner {
         require(_revocable);
-        require(!_revoked[token]);
+        require(!_revoked[address(token)]);
 
         uint256 balance = token.balanceOf(address(this));
 
-        uint256 unreleased = releasableAmount(token);
+        uint256 unreleased = _releasableAmount(token);
         uint256 refund = balance.sub(unreleased);
 
-        _revoked[token] = true;
+        _revoked[address(token)] = true;
 
         token.safeTransfer(owner(), refund);
 
-        emit Revoked();
+        emit TokenVestingRevoked(address(token));
     }
 
     /**
      * @dev Calculates the amount that has already vested but hasn't been released yet.
      * @param token ERC20 token which is being vested
      */
-    function releasableAmount(IERC20 token) public view returns (uint256) {
-        return vestedAmount(token).sub(_released[token]);
+    function _releasableAmount(IERC20 token) private view returns (uint256) {
+        return _vestedAmount(token).sub(_released[address(token)]);
     }
 
     /**
      * @dev Calculates the amount that has already vested.
      * @param token ERC20 token which is being vested
      */
-    function vestedAmount(IERC20 token) public view returns (uint256) {
-        uint256 currentBalance = token.balanceOf(this);
-        uint256 totalBalance = currentBalance.add(_released[token]);
+    function _vestedAmount(IERC20 token) private view returns (uint256) {
+        uint256 currentBalance = token.balanceOf(address(this));
+        uint256 totalBalance = currentBalance.add(_released[address(token)]);
 
         if (block.timestamp < _cliff) {
             return 0;
-        } else if (block.timestamp >= _start.add(_duration) || _revoked[token]) {
+        } else if (block.timestamp >= _start.add(_duration) || _revoked[address(token)]) {
             return totalBalance;
         } else {
             return totalBalance.mul(block.timestamp.sub(_start)).div(_duration);

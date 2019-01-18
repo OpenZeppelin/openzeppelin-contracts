@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "../Roles.sol";
@@ -10,7 +10,7 @@ contract SignerRole is Initializable {
     event SignerAdded(address indexed account);
     event SignerRemoved(address indexed account);
 
-    Roles.Role private signers;
+    Roles.Role private _signers;
 
     function initialize(address sender) public initializer {
         if (!isSigner(sender)) {
@@ -24,7 +24,7 @@ contract SignerRole is Initializable {
     }
 
     function isSigner(address account) public view returns (bool) {
-        return signers.has(account);
+        return _signers.has(account);
     }
 
     function addSigner(address account) public onlySigner {
@@ -36,12 +36,12 @@ contract SignerRole is Initializable {
     }
 
     function _addSigner(address account) internal {
-        signers.add(account);
+        _signers.add(account);
         emit SignerAdded(account);
     }
 
     function _removeSigner(address account) internal {
-        signers.remove(account);
+        _signers.remove(account);
         emit SignerRemoved(account);
     }
 

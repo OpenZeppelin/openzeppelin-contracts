@@ -1,10 +1,9 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "../access/roles/PauserRole.sol";
 
-
 contract PauserRoleMock is PauserRole {
-    constructor() public {
+    constructor () public {
         PauserRole.initialize(msg.sender);
     }
 
@@ -13,6 +12,7 @@ contract PauserRoleMock is PauserRole {
     }
 
     function onlyPauserMock() public view onlyPauser {
+        // solhint-disable-previous-line no-empty-blocks
     }
 
     // Causes a compilation error if super._removePauser is not internal

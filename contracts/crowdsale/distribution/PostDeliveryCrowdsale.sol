@@ -1,10 +1,8 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "../validation/TimedCrowdsale.sol";
-import "../../token/ERC20/IERC20.sol";
 import "../../math/SafeMath.sol";
-
 
 /**
  * @title PostDeliveryCrowdsale
@@ -30,7 +28,7 @@ contract PostDeliveryCrowdsale is Initializable, TimedCrowdsale {
     /**
      * @return the balance of an account.
      */
-    function balanceOf(address account) public view returns(uint256) {
+    function balanceOf(address account) public view returns (uint256) {
         return _balances[account];
     }
 
@@ -39,12 +37,7 @@ contract PostDeliveryCrowdsale is Initializable, TimedCrowdsale {
      * @param beneficiary Token purchaser
      * @param tokenAmount Amount of tokens purchased
      */
-    function _processPurchase(
-        address beneficiary,
-        uint256 tokenAmount
-    )
-        internal
-    {
+    function _processPurchase(address beneficiary, uint256 tokenAmount) internal {
         _balances[beneficiary] = _balances[beneficiary].add(tokenAmount);
     }
 

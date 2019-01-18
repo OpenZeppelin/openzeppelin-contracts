@@ -1,17 +1,13 @@
-const { assertRevert } = require('../../helpers/assertRevert');
-const { sendTransaction } = require('../../helpers/sendTransaction');
+const shouldFail = require('../../helpers/shouldFail');
+const send = require('../../helpers/send');
+const { ZERO_ADDRESS } = require('../../helpers/constants');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../../helpers/setup');
 
 function shouldBehaveLikeERC721PausedToken (owner, [recipient, operator]) {
   const firstTokenId = 1;
   const mintedTokens = 1;
   const mockData = '0x42';
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
   describe('like a paused ERC721', function () {
     beforeEach(async function () {
@@ -19,24 +15,24 @@ function shouldBehaveLikeERC721PausedToken (owner, [recipient, operator]) {
     });
 
     it('reverts when trying to approve', async function () {
-      await assertRevert(this.token.approve(recipient, firstTokenId, { from: owner }));
+      await shouldFail.reverting(this.token.approve(recipient, firstTokenId, { from: owner }));
     });
 
     it('reverts when trying to setApprovalForAll', async function () {
-      await assertRevert(this.token.setApprovalForAll(operator, true, { from: owner }));
+      await shouldFail.reverting(this.token.setApprovalForAll(operator, true, { from: owner }));
     });
 
     it('reverts when trying to transferFrom', async function () {
-      await assertRevert(this.token.transferFrom(owner, recipient, firstTokenId, { from: owner }));
+      await shouldFail.reverting(this.token.transferFrom(owner, recipient, firstTokenId, { from: owner }));
     });
 
     it('reverts when trying to safeTransferFrom', async function () {
-      await assertRevert(this.token.safeTransferFrom(owner, recipient, firstTokenId, { from: owner }));
+      await shouldFail.reverting(this.token.safeTransferFrom(owner, recipient, firstTokenId, { from: owner }));
     });
 
     it('reverts when trying to safeTransferFrom with data', async function () {
-      await assertRevert(
-        sendTransaction(
+      await shouldFail.reverting(
+        send.transaction(
           this.token,
           'safeTransferFrom',
           'address,address,uint256,bytes',

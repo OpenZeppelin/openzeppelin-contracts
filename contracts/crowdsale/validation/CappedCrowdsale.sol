@@ -1,9 +1,8 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "../../math/SafeMath.sol";
 import "../Crowdsale.sol";
-
 
 /**
  * @title CappedCrowdsale
@@ -28,7 +27,7 @@ contract CappedCrowdsale is Initializable, Crowdsale {
     /**
      * @return the cap of the crowdsale.
      */
-    function cap() public view returns(uint256) {
+    function cap() public view returns (uint256) {
         return _cap;
     }
 
@@ -45,16 +44,10 @@ contract CappedCrowdsale is Initializable, Crowdsale {
      * @param beneficiary Token purchaser
      * @param weiAmount Amount of wei contributed
      */
-    function _preValidatePurchase(
-        address beneficiary,
-        uint256 weiAmount
-    )
-        internal
-    {
+    function _preValidatePurchase(address beneficiary, uint256 weiAmount) internal view {
         super._preValidatePurchase(beneficiary, weiAmount);
         require(weiRaised().add(weiAmount) <= _cap);
     }
-
 
     uint256[50] private ______gap;
 }

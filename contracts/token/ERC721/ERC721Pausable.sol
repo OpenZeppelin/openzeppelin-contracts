@@ -1,9 +1,8 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "./ERC721.sol";
 import "../../lifecycle/Pausable.sol";
-
 
 /**
  * @title ERC721 Non-Fungible Pausable token
@@ -15,34 +14,15 @@ contract ERC721Pausable is Initializable, ERC721, Pausable {
         Pausable.initialize(sender);
     }
 
-    function approve(
-        address to,
-        uint256 tokenId
-    )
-        public
-        whenNotPaused
-    {
+    function approve(address to, uint256 tokenId) public whenNotPaused {
         super.approve(to, tokenId);
     }
 
-    function setApprovalForAll(
-        address to,
-        bool approved
-    )
-        public
-        whenNotPaused
-    {
+    function setApprovalForAll(address to, bool approved) public whenNotPaused {
         super.setApprovalForAll(to, approved);
     }
 
-    function transferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    )
-        public
-        whenNotPaused
-    {
+    function transferFrom(address from, address to, uint256 tokenId) public whenNotPaused {
         super.transferFrom(from, to, tokenId);
     }
 

@@ -15,6 +15,24 @@ This fork of OpenZeppelin is set up as a **reusable EVM Package**. It is deploye
 npm install openzeppelin-eth
 ```
 
+## Usage
+
+To write your custom contracts, import ours and extend them through inheritance.
+
+```solidity
+pragma solidity ^0.5.0;
+
+import 'zos-lib/contracts/Initializable.sol';
+import 'openzeppelin-solidity/contracts/token/ERC721/ERC721Full.sol';
+import 'openzeppelin-solidity/contracts/token/ERC721/ERC721Mintable.sol';
+
+contract MyNFT is Initializable, ERC721Full, ERC721Mintable {
+  function initialize() public initializer {
+    ERC721Full.initialize("MyNFT", "MNFT");
+  }
+}
+```
+
 ## Pre-deployed contracts
 
 - StandaloneERC20

@@ -1,34 +1,25 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "../crowdsale/validation/CappedCrowdsale.sol";
 import "../crowdsale/distribution/RefundableCrowdsale.sol";
 import "../crowdsale/emission/MintedCrowdsale.sol";
 import "../token/ERC20/ERC20Mintable.sol";
-
+import "../token/ERC20/ERC20Detailed.sol";
 
 /**
  * @title SampleCrowdsaleToken
  * @dev Very simple ERC20 Token that can be minted.
  * It is meant to be used in a crowdsale contract.
  */
-contract SampleCrowdsaleToken is Initializable, ERC20Mintable {
-
-    string public name;
-    string public symbol;
-    uint8 public decimals;
-
+contract SampleCrowdsaleToken is Initializable, ERC20Mintable, ERC20Detailed {
     function initialize(address sender) public initializer {
         ERC20Mintable.initialize(sender);
-
-        name = "Sample Crowdsale Token";
-        symbol = "SCT";
-        decimals = 18;
+        ERC20Detailed.initialize("Sample Crowdsale Token", "SCT", 18);
     }
 
     uint256[50] private ______gap;
 }
-
 
 /**
  * @title SampleCrowdsale
@@ -37,22 +28,19 @@ contract SampleCrowdsaleToken is Initializable, ERC20Mintable {
  * In this example we are providing following extensions:
  * CappedCrowdsale - sets a max boundary for raised funds
  * RefundableCrowdsale - set a min goal to be reached and returns funds if it's not met
+ * MintedCrowdsale - assumes the token can be minted by the crowdsale, which does so
+ * when receiving purchases.
  *
  * After adding multiple features it's good practice to run integration tests
  * to ensure that subcontracts works together as intended.
  */
-// XXX There doesn't seem to be a way to split this line that keeps solium
-// happy. See:
-// https://github.com/duaraghav8/Solium/issues/205
-// --elopio - 2018-05-10
-// solium-disable-next-line max-len
 contract SampleCrowdsale is Initializable, Crowdsale, CappedCrowdsale, RefundableCrowdsale, MintedCrowdsale {
 
     function initialize(
         uint256 openingTime,
         uint256 closingTime,
         uint256 rate,
-        address wallet,
+        address payable wallet,
         uint256 cap,
         ERC20Mintable token,
         uint256 goal

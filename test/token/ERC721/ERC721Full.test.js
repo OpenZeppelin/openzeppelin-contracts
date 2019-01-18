@@ -1,14 +1,10 @@
-const { assertRevert } = require('../../helpers/assertRevert');
+const shouldFail = require('../../helpers/shouldFail');
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
-const _ = require('lodash');
 
-const BigNumber = web3.BigNumber;
 const ERC721FullMock = artifacts.require('ERC721FullMock.sol');
 
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../../helpers/setup');
 
 contract('ERC721Full', function ([
   creator,
@@ -27,7 +23,6 @@ contract('ERC721Full', function ([
     owner,
     newOwner,
     another,
-    anyone,
   ] = accounts;
 
   beforeEach(async function () {
@@ -70,37 +65,7 @@ contract('ERC721Full', function ([
       it('burns all tokens', async function () {
         await this.token.burn(secondTokenId, { from: owner });
         (await this.token.totalSupply()).toNumber().should.be.equal(0);
-        await assertRevert(this.token.tokenByIndex(0));
-      });
-    });
-
-    describe('removeTokenFrom', function () {
-      it('reverts if the correct owner is not passed', async function () {
-        await assertRevert(
-          this.token.removeTokenFrom(anyone, firstTokenId, { from: owner })
-        );
-      });
-
-      context('once removed', function () {
-        beforeEach(async function () {
-          await this.token.removeTokenFrom(owner, firstTokenId, { from: owner });
-        });
-
-        it('has been removed', async function () {
-          await assertRevert(this.token.tokenOfOwnerByIndex(owner, 1));
-        });
-
-        it('adjusts token list', async function () {
-          (await this.token.tokenOfOwnerByIndex(owner, 0)).toNumber().should.be.equal(secondTokenId);
-        });
-
-        it('adjusts owner count', async function () {
-          (await this.token.balanceOf(owner)).toNumber().should.be.equal(1);
-        });
-
-        it('does not adjust supply', async function () {
-          (await this.token.totalSupply()).toNumber().should.be.equal(2);
-        });
+        await shouldFail.reverting(this.token.tokenByIndex(0));
       });
     });
 
@@ -121,7 +86,7 @@ contract('ERC721Full', function ([
       });
 
       it('reverts when setting metadata for non existent token id', async function () {
-        await assertRevert(this.token.setTokenURI(nonExistentTokenId, sampleUri));
+        await shouldFail.reverting(this.token.setTokenURI(nonExistentTokenId, sampleUri));
       });
 
       it('can burn token with metadata', async function () {
@@ -135,7 +100,16 @@ contract('ERC721Full', function ([
       });
 
       it('reverts when querying metadata for non existent token id', async function () {
-        await assertRevert(this.token.tokenURI(nonExistentTokenId));
+        await shouldFail.reverting(this.token.tokenURI(nonExistentTokenId));
+      });
+    });
+
+    describe('tokensOfOwner', function () {
+      it('returns total tokens of owner', async function () {
+        const tokenIds = await this.token.tokensOfOwner(owner);
+        tokenIds.length.should.equal(2);
+        tokenIds[0].should.be.bignumber.equal(firstTokenId);
+        tokenIds[1].should.be.bignumber.equal(secondTokenId);
       });
     });
 
@@ -154,13 +128,13 @@ contract('ERC721Full', function ([
 
       describe('when the index is greater than or equal to the total tokens owned by the given address', function () {
         it('reverts', async function () {
-          await assertRevert(this.token.tokenOfOwnerByIndex(owner, 2));
+          await shouldFail.reverting(this.token.tokenOfOwnerByIndex(owner, 2));
         });
       });
 
       describe('when the given address does not own any token', function () {
         it('reverts', async function () {
-          await assertRevert(this.token.tokenOfOwnerByIndex(another, 0));
+          await shouldFail.reverting(this.token.tokenOfOwnerByIndex(another, 0));
         });
       });
 
@@ -172,25 +146,29 @@ contract('ERC721Full', function ([
 
         it('returns correct token IDs for target', async function () {
           (await this.token.balanceOf(another)).toNumber().should.be.equal(2);
-          const tokensListed = await Promise.all(_.range(2).map(i => this.token.tokenOfOwnerByIndex(another, i)));
+          const tokensListed = await Promise.all(
+            [0, 1].map(i => this.token.tokenOfOwnerByIndex(another, i))
+          );
           tokensListed.map(t => t.toNumber()).should.have.members([firstTokenId, secondTokenId]);
         });
 
         it('returns empty collection for original owner', async function () {
           (await this.token.balanceOf(owner)).toNumber().should.be.equal(0);
-          await assertRevert(this.token.tokenOfOwnerByIndex(owner, 0));
+          await shouldFail.reverting(this.token.tokenOfOwnerByIndex(owner, 0));
         });
       });
     });
 
     describe('tokenByIndex', function () {
       it('should return all tokens', async function () {
-        const tokensListed = await Promise.all(_.range(2).map(i => this.token.tokenByIndex(i)));
+        const tokensListed = await Promise.all(
+          [0, 1].map(i => this.token.tokenByIndex(i))
+        );
         tokensListed.map(t => t.toNumber()).should.have.members([firstTokenId, secondTokenId]);
       });
 
       it('should revert if index is greater than supply', async function () {
-        await assertRevert(this.token.tokenByIndex(2));
+        await shouldFail.reverting(this.token.tokenByIndex(2));
       });
 
       [firstTokenId, secondTokenId].forEach(function (tokenId) {
@@ -204,9 +182,10 @@ contract('ERC721Full', function ([
 
           (await this.token.totalSupply()).toNumber().should.be.equal(3);
 
-          const tokensListed = await Promise.all(_.range(3).map(i => this.token.tokenByIndex(i)));
-          const expectedTokens = _.filter(
-            [firstTokenId, secondTokenId, newTokenId, anotherNewTokenId],
+          const tokensListed = await Promise.all(
+            [0, 1, 2].map(i => this.token.tokenByIndex(i))
+          );
+          const expectedTokens = [firstTokenId, secondTokenId, newTokenId, anotherNewTokenId].filter(
             x => (x !== tokenId)
           );
           tokensListed.map(t => t.toNumber()).should.have.members(expectedTokens);

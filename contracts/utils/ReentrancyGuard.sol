@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 
@@ -9,21 +9,21 @@ import "zos-lib/contracts/Initializable.sol";
  * mark it `external`.
  */
 contract ReentrancyGuard is Initializable {
-
     /// @dev counter to allow mutex lock with only one SSTORE operation
     uint256 private _guardCounter;
 
     function initialize() public initializer {
+        // The counter starts at one to prevent changing it from zero to a non-zero
+        // value, which is a more expensive operation.
         _guardCounter = 1;
     }
 
     /**
      * @dev Prevents a contract from calling itself, directly or indirectly.
-     * If you mark a function `nonReentrant`, you should also
-     * mark it `external`. Calling one `nonReentrant` function from
-     * another is not supported. Instead, you can implement a
-     * `private` function doing the actual work, and an `external`
-     * wrapper marked as `nonReentrant`.
+     * Calling a `nonReentrant` function from another `nonReentrant`
+     * function is not supported. It is possible to prevent this from happening
+     * by making the `nonReentrant` function external, and make it call a
+     * `private` function that does the actual work.
      */
     modifier nonReentrant() {
         _guardCounter += 1;

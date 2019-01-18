@@ -1,8 +1,7 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "./IERC20.sol";
-
 
 /**
  * @title ERC20Detailed token
@@ -15,7 +14,7 @@ contract ERC20Detailed is Initializable, IERC20 {
     string private _symbol;
     uint8 private _decimals;
 
-    function initialize(string name, string symbol, uint8 decimals) public initializer {
+    function initialize(string memory name, string memory symbol, uint8 decimals) public initializer {
         _name = name;
         _symbol = symbol;
         _decimals = decimals;
@@ -24,21 +23,21 @@ contract ERC20Detailed is Initializable, IERC20 {
     /**
      * @return the name of the token.
      */
-    function name() public view returns(string) {
+    function name() public view returns (string memory) {
         return _name;
     }
 
     /**
      * @return the symbol of the token.
      */
-    function symbol() public view returns(string) {
+    function symbol() public view returns (string memory) {
         return _symbol;
     }
 
     /**
      * @return the number of decimals of the token.
      */
-    function decimals() public view returns(uint8) {
+    function decimals() public view returns (uint8) {
         return _decimals;
     }
 

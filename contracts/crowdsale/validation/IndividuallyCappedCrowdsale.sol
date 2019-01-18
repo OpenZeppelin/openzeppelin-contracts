@@ -1,10 +1,9 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "../../math/SafeMath.sol";
 import "../Crowdsale.sol";
 import "../../access/roles/CapperRole.sol";
-
 
 /**
  * @title IndividuallyCappedCrowdsale
@@ -45,9 +44,7 @@ contract IndividuallyCappedCrowdsale is Initializable, Crowdsale, CapperRole {
      * @param beneficiary Address of contributor
      * @return Beneficiary contribution so far
      */
-    function getContribution(address beneficiary)
-        public view returns (uint256)
-    {
+    function getContribution(address beneficiary) public view returns (uint256) {
         return _contributions[beneficiary];
     }
 
@@ -56,15 +53,9 @@ contract IndividuallyCappedCrowdsale is Initializable, Crowdsale, CapperRole {
      * @param beneficiary Token purchaser
      * @param weiAmount Amount of wei contributed
      */
-    function _preValidatePurchase(
-        address beneficiary,
-        uint256 weiAmount
-    )
-        internal
-    {
+    function _preValidatePurchase(address beneficiary, uint256 weiAmount) internal view {
         super._preValidatePurchase(beneficiary, weiAmount);
-        require(
-            _contributions[beneficiary].add(weiAmount) <= _caps[beneficiary]);
+        require(_contributions[beneficiary].add(weiAmount) <= _caps[beneficiary]);
     }
 
     /**
@@ -72,17 +63,10 @@ contract IndividuallyCappedCrowdsale is Initializable, Crowdsale, CapperRole {
      * @param beneficiary Token purchaser
      * @param weiAmount Amount of wei contributed
      */
-    function _updatePurchasingState(
-        address beneficiary,
-        uint256 weiAmount
-    )
-        internal
-    {
+    function _updatePurchasingState(address beneficiary, uint256 weiAmount) internal {
         super._updatePurchasingState(beneficiary, weiAmount);
-        _contributions[beneficiary] = _contributions[beneficiary].add(
-            weiAmount);
+        _contributions[beneficiary] = _contributions[beneficiary].add(weiAmount);
     }
-
 
     uint256[50] private ______gap;
 }

@@ -1,12 +1,10 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "../token/ERC20/ERC20.sol";
 
-
 // mock class using ERC20
 contract ERC20Mock is ERC20 {
-
-    constructor(address initialAccount, uint256 initialBalance) public {
+    constructor (address initialAccount, uint256 initialBalance) public {
         _mint(initialAccount, initialBalance);
     }
 
@@ -21,5 +19,4 @@ contract ERC20Mock is ERC20 {
     function burnFrom(address account, uint256 amount) public {
         _burnFrom(account, amount);
     }
-
 }

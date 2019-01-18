@@ -1,11 +1,10 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "../token/ERC20/IERC20.sol";
 import "../token/ERC20/ERC20Mintable.sol";
 import "../token/ERC20/SafeERC20.sol";
 import "../math/Math.sol";
-
 
 /**
  * @title ERC20Migrator
@@ -46,7 +45,7 @@ contract ERC20Migrator is Initializable {
      * @param legacyToken address of the old token contract
      */
     function initialize(IERC20 legacyToken) public initializer {
-        require(legacyToken != address(0));
+        require(address(legacyToken) != address(0));
         _legacyToken = legacyToken;
     }
 
@@ -70,9 +69,9 @@ contract ERC20Migrator is Initializable {
      * @param newToken the token that will be minted
      */
     function beginMigration(ERC20Mintable newToken) public {
-        require(_newToken == address(0));
-        require(newToken != address(0));
-        require(newToken.isMinter(this));
+        require(address(_newToken) == address(0));
+        require(address(newToken) != address(0));
+        require(newToken.isMinter(address(this)));
 
         _newToken = newToken;
     }
@@ -84,7 +83,7 @@ contract ERC20Migrator is Initializable {
      * @param amount amount of tokens to be migrated
      */
     function migrate(address account, uint256 amount) public {
-        _legacyToken.safeTransferFrom(account, this, amount);
+        _legacyToken.safeTransferFrom(account, address(this), amount);
         _newToken.mint(account, amount);
     }
 
@@ -95,7 +94,7 @@ contract ERC20Migrator is Initializable {
      */
     function migrateAll(address account) public {
         uint256 balance = _legacyToken.balanceOf(account);
-        uint256 allowance = _legacyToken.allowance(account, this);
+        uint256 allowance = _legacyToken.allowance(account, address(this));
         uint256 amount = Math.min(balance, allowance);
         migrate(account, amount);
     }

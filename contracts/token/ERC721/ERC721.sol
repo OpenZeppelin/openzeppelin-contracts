@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "./IERC721.sol";
@@ -7,13 +7,11 @@ import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";
 import "../../introspection/ERC165.sol";
 
-
 /**
  * @title ERC721 Non-Fungible Token Standard basic implementation
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
 contract ERC721 is Initializable, ERC165, IERC721 {
-
     using SafeMath for uint256;
     using Address for address;
 
@@ -33,32 +31,29 @@ contract ERC721 is Initializable, ERC165, IERC721 {
     // Mapping from owner to operator approvals
     mapping (address => mapping (address => bool)) private _operatorApprovals;
 
-    bytes4 private constant _InterfaceId_ERC721 = 0x80ac58cd;
+    bytes4 private constant _INTERFACE_ID_ERC721 = 0x80ac58cd;
     /*
      * 0x80ac58cd ===
-     *   bytes4(keccak256('balanceOf(address)')) ^
-     *   bytes4(keccak256('ownerOf(uint256)')) ^
-     *   bytes4(keccak256('approve(address,uint256)')) ^
-     *   bytes4(keccak256('getApproved(uint256)')) ^
-     *   bytes4(keccak256('setApprovalForAll(address,bool)')) ^
-     *   bytes4(keccak256('isApprovedForAll(address,address)')) ^
-     *   bytes4(keccak256('transferFrom(address,address,uint256)')) ^
-     *   bytes4(keccak256('safeTransferFrom(address,address,uint256)')) ^
-     *   bytes4(keccak256('safeTransferFrom(address,address,uint256,bytes)'))
+     *     bytes4(keccak256('balanceOf(address)')) ^
+     *     bytes4(keccak256('ownerOf(uint256)')) ^
+     *     bytes4(keccak256('approve(address,uint256)')) ^
+     *     bytes4(keccak256('getApproved(uint256)')) ^
+     *     bytes4(keccak256('setApprovalForAll(address,bool)')) ^
+     *     bytes4(keccak256('isApprovedForAll(address,address)')) ^
+     *     bytes4(keccak256('transferFrom(address,address,uint256)')) ^
+     *     bytes4(keccak256('safeTransferFrom(address,address,uint256)')) ^
+     *     bytes4(keccak256('safeTransferFrom(address,address,uint256,bytes)'))
      */
 
-    function initialize()
-        public
-        initializer
-    {
+    function initialize() public initializer {
         ERC165.initialize();
 
         // register the supported interfaces to conform to ERC721 via ERC165
-        _registerInterface(_InterfaceId_ERC721);
+        _registerInterface(_INTERFACE_ID_ERC721);
     }
 
     function _hasBeenInitialized() internal view returns (bool) {
-        return supportsInterface(_InterfaceId_ERC721);
+        return supportsInterface(_INTERFACE_ID_ERC721);
     }
 
     /**
@@ -128,14 +123,7 @@ contract ERC721 is Initializable, ERC165, IERC721 {
      * @param operator operator address which you want to query the approval of
      * @return bool whether the given operator is approved by the given owner
      */
-    function isApprovedForAll(
-        address owner,
-        address operator
-    )
-        public
-        view
-        returns (bool)
-    {
+    function isApprovedForAll(address owner, address operator) public view returns (bool) {
         return _operatorApprovals[owner][operator];
     }
 
@@ -147,21 +135,10 @@ contract ERC721 is Initializable, ERC165, IERC721 {
      * @param to address to receive the ownership of the given token ID
      * @param tokenId uint256 ID of the token to be transferred
     */
-    function transferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    )
-        public
-    {
+    function transferFrom(address from, address to, uint256 tokenId) public {
         require(_isApprovedOrOwner(msg.sender, tokenId));
-        require(to != address(0));
 
-        _clearApproval(from, tokenId);
-        _removeTokenFrom(from, tokenId);
-        _addTokenTo(to, tokenId);
-
-        emit Transfer(from, to, tokenId);
+        _transferFrom(from, to, tokenId);
     }
 
     /**
@@ -176,14 +153,7 @@ contract ERC721 is Initializable, ERC165, IERC721 {
      * @param to address to receive the ownership of the given token ID
      * @param tokenId uint256 ID of the token to be transferred
     */
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    )
-        public
-    {
-        // solium-disable-next-line arg-overflow
+    function safeTransferFrom(address from, address to, uint256 tokenId) public {
         safeTransferFrom(from, to, tokenId, "");
     }
 
@@ -199,17 +169,9 @@ contract ERC721 is Initializable, ERC165, IERC721 {
      * @param tokenId uint256 ID of the token to be transferred
      * @param _data bytes data to send along with a safe transfer check
      */
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes _data
-    )
-        public
-    {
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory _data) public {
         transferFrom(from, to, tokenId);
-        // solium-disable-next-line arg-overflow
-        require(_checkAndCallSafeTransfer(from, to, tokenId, _data));
+        require(_checkOnERC721Received(from, to, tokenId, _data));
     }
 
     /**
@@ -227,83 +189,75 @@ contract ERC721 is Initializable, ERC165, IERC721 {
      * @param spender address of the spender to query
      * @param tokenId uint256 ID of the token to be transferred
      * @return bool whether the msg.sender is approved for the given token ID,
-     *  is an operator of the owner, or is the owner of the token
+     *    is an operator of the owner, or is the owner of the token
      */
-    function _isApprovedOrOwner(
-        address spender,
-        uint256 tokenId
-    )
-        internal
-        view
-        returns (bool)
-    {
+    function _isApprovedOrOwner(address spender, uint256 tokenId) internal view returns (bool) {
         address owner = ownerOf(tokenId);
-        // Disable solium check because of
-        // https://github.com/duaraghav8/Solium/issues/175
-        // solium-disable-next-line operator-whitespace
-        return (
-            spender == owner ||
-            getApproved(tokenId) == spender ||
-            isApprovedForAll(owner, spender)
-        );
+        return (spender == owner || getApproved(tokenId) == spender || isApprovedForAll(owner, spender));
     }
 
     /**
      * @dev Internal function to mint a new token
      * Reverts if the given token ID already exists
      * @param to The address that will own the minted token
-     * @param tokenId uint256 ID of the token to be minted by the msg.sender
+     * @param tokenId uint256 ID of the token to be minted
      */
     function _mint(address to, uint256 tokenId) internal {
         require(to != address(0));
-        _addTokenTo(to, tokenId);
+        require(!_exists(tokenId));
+
+        _tokenOwner[tokenId] = to;
+        _ownedTokensCount[to] = _ownedTokensCount[to].add(1);
+
         emit Transfer(address(0), to, tokenId);
     }
 
     /**
      * @dev Internal function to burn a specific token
      * Reverts if the token does not exist
-     * @param tokenId uint256 ID of the token being burned by the msg.sender
+     * Deprecated, use _burn(uint256) instead.
+     * @param owner owner of the token to burn
+     * @param tokenId uint256 ID of the token being burned
      */
     function _burn(address owner, uint256 tokenId) internal {
-        _clearApproval(owner, tokenId);
-        _removeTokenFrom(owner, tokenId);
+        require(ownerOf(tokenId) == owner);
+
+        _clearApproval(tokenId);
+
+        _ownedTokensCount[owner] = _ownedTokensCount[owner].sub(1);
+        _tokenOwner[tokenId] = address(0);
+
         emit Transfer(owner, address(0), tokenId);
     }
 
     /**
-     * @dev Internal function to clear current approval of a given token ID
-     * Reverts if the given address is not indeed the owner of the token
-     * @param owner owner of the token
+     * @dev Internal function to burn a specific token
+     * Reverts if the token does not exist
+     * @param tokenId uint256 ID of the token being burned
+     */
+    function _burn(uint256 tokenId) internal {
+        _burn(ownerOf(tokenId), tokenId);
+    }
+
+    /**
+     * @dev Internal function to transfer ownership of a given token ID to another address.
+     * As opposed to transferFrom, this imposes no restrictions on msg.sender.
+     * @param from current owner of the token
+     * @param to address to receive the ownership of the given token ID
      * @param tokenId uint256 ID of the token to be transferred
-     */
-    function _clearApproval(address owner, uint256 tokenId) internal {
-        require(ownerOf(tokenId) == owner);
-        if (_tokenApprovals[tokenId] != address(0)) {
-            _tokenApprovals[tokenId] = address(0);
-        }
-    }
-
-    /**
-     * @dev Internal function to add a token ID to the list of a given address
-     * @param to address representing the new owner of the given token ID
-     * @param tokenId uint256 ID of the token to be added to the tokens list of the given address
-     */
-    function _addTokenTo(address to, uint256 tokenId) internal {
-        require(_tokenOwner[tokenId] == address(0));
-        _tokenOwner[tokenId] = to;
-        _ownedTokensCount[to] = _ownedTokensCount[to].add(1);
-    }
-
-    /**
-     * @dev Internal function to remove a token ID from the list of a given address
-     * @param from address representing the previous owner of the given token ID
-     * @param tokenId uint256 ID of the token to be removed from the tokens list of the given address
-     */
-    function _removeTokenFrom(address from, uint256 tokenId) internal {
+    */
+    function _transferFrom(address from, address to, uint256 tokenId) internal {
         require(ownerOf(tokenId) == from);
+        require(to != address(0));
+
+        _clearApproval(tokenId);
+
         _ownedTokensCount[from] = _ownedTokensCount[from].sub(1);
-        _tokenOwner[tokenId] = address(0);
+        _ownedTokensCount[to] = _ownedTokensCount[to].add(1);
+
+        _tokenOwner[tokenId] = to;
+
+        emit Transfer(from, to, tokenId);
     }
 
     /**
@@ -315,21 +269,25 @@ contract ERC721 is Initializable, ERC165, IERC721 {
      * @param _data bytes optional data to send along with the call
      * @return whether the call correctly returned the expected magic value
      */
-    function _checkAndCallSafeTransfer(
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes _data
-    )
-        internal
-        returns (bool)
+    function _checkOnERC721Received(address from, address to, uint256 tokenId, bytes memory _data)
+        internal returns (bool)
     {
         if (!to.isContract()) {
             return true;
         }
-        bytes4 retval = IERC721Receiver(to).onERC721Received(
-            msg.sender, from, tokenId, _data);
+
+        bytes4 retval = IERC721Receiver(to).onERC721Received(msg.sender, from, tokenId, _data);
         return (retval == _ERC721_RECEIVED);
+    }
+
+    /**
+     * @dev Private function to clear current approval of a given token ID
+     * @param tokenId uint256 ID of the token to be transferred
+     */
+    function _clearApproval(uint256 tokenId) private {
+        if (_tokenApprovals[tokenId] != address(0)) {
+            _tokenApprovals[tokenId] = address(0);
+        }
     }
 
     uint256[50] private ______gap;
