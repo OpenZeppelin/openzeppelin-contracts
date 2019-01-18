@@ -12,7 +12,7 @@ import "./escrow/Escrow.sol";
 contract PullPayment is Initializable {
     Escrow private _escrow;
 
-    function initialize() internal initializer {
+    function _initialize() internal initializer {
         // conditional added to make initializer idempotent in case of diamond inheritance
         if (address(_escrow) == address(0)) {
             _escrow = new Escrow();

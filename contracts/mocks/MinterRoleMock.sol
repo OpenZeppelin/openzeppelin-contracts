@@ -4,7 +4,7 @@ import "../access/roles/MinterRole.sol";
 
 contract MinterRoleMock is MinterRole {
     constructor() public {
-        MinterRole.initialize(msg.sender);
+        MinterRole._initialize(msg.sender);
     }
 
     function removeMinter(address account) public {

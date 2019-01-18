@@ -12,7 +12,7 @@ contract CapperRole is Initializable {
 
     Roles.Role private _cappers;
 
-    function initialize(address sender) public initializer {
+    function _initialize(address sender) internal initializer {
         if (!isCapper(sender)) {
             _addCapper(sender);
         }

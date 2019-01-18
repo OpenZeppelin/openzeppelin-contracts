@@ -12,7 +12,7 @@ contract MinterRole is Initializable {
 
     Roles.Role private _minters;
 
-    function initialize(address sender) public initializer {
+    function _initialize(address sender) internal initializer {
         if (!isMinter(sender)) {
             _addMinter(sender);
         }

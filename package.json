@@ -61,10 +61,10 @@
     "solidity-coverage": "^0.5.4",
     "truffle": "^4.1.13",
     "web3-utils": "^1.0.0-beta.34",
-    "zos": "^2.0.0"
+    "zos": "^2.0.0",
+    "zos-lib": "^2.1.0"
   },
   "peerDependencies": {
-    "zos-lib": "^2.0.0"
-  },
-  "dependencies": {}
+    "zos-lib": "^2.1.0"
+  }
 }

@@ -10,7 +10,7 @@ import "../../access/roles/MinterRole.sol";
  */
 contract ERC20Mintable is Initializable, ERC20, MinterRole {
     function initialize(address sender) public initializer {
-        MinterRole.initialize(sender);
+        MinterRole._initialize(sender);
     }
 
     /**
