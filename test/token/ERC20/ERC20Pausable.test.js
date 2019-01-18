@@ -1,7 +1,7 @@
 const { BN, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
 
 const ERC20PausableMock = artifacts.require('ERC20PausableMock');
-const { shouldBehaveLikePublicRole } = require('../../access/roles/PublicRole.behavior');
+const { shouldBehaveLikePublicRole } = require('../../behaviors/access/roles/PublicRole.behavior');
 
 contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherAccount, ...otherAccounts]) {
   const initialSupply = new BN(100);
