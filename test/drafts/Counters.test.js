@@ -1,14 +1,14 @@
 const { BN } = require('openzeppelin-test-helpers');
 
-const CounterImpl = artifacts.require('CounterImpl');
+const CountersImpl = artifacts.require('CountersImpl');
 
 const EXPECTED = [new BN(1), new BN(2), new BN(3), new BN(4)];
 const KEY1 = web3.utils.sha3('key1');
 const KEY2 = web3.utils.sha3('key2');
 
-contract('Counter', function ([_, owner]) {
+contract('Counters', function ([_, owner]) {
   beforeEach(async function () {
-    this.mock = await CounterImpl.new({ from: owner });
+    this.mock = await CountersImpl.new({ from: owner });
   });
 
   context('custom key', async function () {

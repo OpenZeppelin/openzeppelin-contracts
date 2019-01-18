@@ -2,6 +2,14 @@
 
 ## 2.2.0 (unreleased)
 
+### Improvements:
+ * Upgraded the minimum compiler version to v0.5.2: this removes many Solidity warnings that were false positives.
+ * Fixed variable shadowing issues.
+
+### Bugfixes:
+
+### Breaking changes:
+
 ## 2.1.1 (2019-04-01)
  * Version bump to avoid conflict in the npm registry.
 
