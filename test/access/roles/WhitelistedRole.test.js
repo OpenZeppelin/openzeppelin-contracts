@@ -1,4 +1,4 @@
-const { shouldBehaveLikePublicRole } = require('../../behavior/access/roles/PublicRole.behavior');
+const { shouldBehaveLikePublicRole } = require('../../behaviors/access/roles/PublicRole.behavior');
 const WhitelistedRoleMock = artifacts.require('WhitelistedRoleMock');
 
 contract('WhitelistedRole', function ([_, whitelisted, otherWhitelisted, whitelistAdmin, ...otherAccounts]) {

@@ -1,5 +1,5 @@
 const { expectEvent, shouldFail } = require('openzeppelin-test-helpers');
-const { shouldBehaveLikePublicRole } = require('../behavior/access/roles/PublicRole.behavior');
+const { shouldBehaveLikePublicRole } = require('../behaviors/access/roles/PublicRole.behavior');
 
 const PausableMock = artifacts.require('PausableMock');
 
