@@ -1,10 +1,10 @@
+const { BN } = require('openzeppelin-test-helpers');
+
 const MathMock = artifacts.require('MathMock');
 
-const { BigNumber } = require('../helpers/setup');
-
 contract('Math', function () {
-  const min = new BigNumber(1234);
-  const max = new BigNumber(5678);
+  const min = new BN('1234');
+  const max = new BN('5678');
 
   beforeEach(async function () {
     this.math = await MathMock.new();
@@ -32,24 +32,24 @@ contract('Math', function () {
 
   describe('average', function () {
     function bnAverage (a, b) {
-      return a.plus(b).div(2).truncated();
+      return a.add(b).divn(2);
     }
 
     it('is correctly calculated with two odd numbers', async function () {
-      const a = new BigNumber(57417);
-      const b = new BigNumber(95431);
+      const a = new BN('57417');
+      const b = new BN('95431');
       (await this.math.average(a, b)).should.be.bignumber.equal(bnAverage(a, b));
     });
 
     it('is correctly calculated with two even numbers', async function () {
-      const a = new BigNumber(42304);
-      const b = new BigNumber(84346);
+      const a = new BN('42304');
+      const b = new BN('84346');
       (await this.math.average(a, b)).should.be.bignumber.equal(bnAverage(a, b));
     });
 
     it('is correctly calculated with one even and one odd number', async function () {
-      const a = new BigNumber(57417);
-      const b = new BigNumber(84346);
+      const a = new BN('57417');
+      const b = new BN('84346');
       (await this.math.average(a, b)).should.be.bignumber.equal(bnAverage(a, b));
     });
   });

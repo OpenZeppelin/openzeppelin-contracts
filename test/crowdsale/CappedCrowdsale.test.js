@@ -1,16 +1,13 @@
-const { ether } = require('../helpers/ether');
-const shouldFail = require('../helpers/shouldFail');
-
-const { BigNumber } = require('../helpers/setup');
+const { BN, ether, shouldFail } = require('openzeppelin-test-helpers');
 
 const CappedCrowdsaleImpl = artifacts.require('CappedCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
 contract('CappedCrowdsale', function ([_, wallet]) {
-  const rate = new BigNumber(1);
-  const cap = ether(100);
-  const lessThanCap = ether(60);
-  const tokenSupply = new BigNumber('1e22');
+  const rate = new BN('1');
+  const cap = ether('100');
+  const lessThanCap = ether('60');
+  const tokenSupply = new BN('10').pow(new BN('22'));
 
   beforeEach(async function () {
     this.token = await SimpleToken.new();
@@ -28,7 +25,7 @@ contract('CappedCrowdsale', function ([_, wallet]) {
 
     describe('accepting payments', function () {
       it('should accept payments within cap', async function () {
-        await this.crowdsale.send(cap.minus(lessThanCap));
+        await this.crowdsale.send(cap.sub(lessThanCap));
         await this.crowdsale.send(lessThanCap);
       });
 
@@ -38,7 +35,7 @@ contract('CappedCrowdsale', function ([_, wallet]) {
       });
 
       it('should reject payments that exceed cap', async function () {
-        await shouldFail.reverting(this.crowdsale.send(cap.plus(1)));
+        await shouldFail.reverting(this.crowdsale.send(cap.addn(1)));
       });
     });
 
@@ -49,7 +46,7 @@ contract('CappedCrowdsale', function ([_, wallet]) {
       });
 
       it('should not reach cap if sent just under cap', async function () {
-        await this.crowdsale.send(cap.minus(1));
+        await this.crowdsale.send(cap.subn(1));
         (await this.crowdsale.capReached()).should.equal(false);
       });
 

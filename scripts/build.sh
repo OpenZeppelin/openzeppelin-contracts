@@ -17,7 +17,7 @@ do
 done < contracts/.npmignore
 
 # Compile everything else.
-node_modules/.bin/truffle compile
+npm run compile
 
 # Return ignored files to their place.
 mv "$tmp_dir/"* contracts/

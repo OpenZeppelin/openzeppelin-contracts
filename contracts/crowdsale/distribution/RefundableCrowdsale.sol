@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "../../math/SafeMath.sol";
 import "./FinalizableCrowdsale.sol";
@@ -44,7 +44,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
      * @dev Investors can claim refunds here if crowdsale is unsuccessful
      * @param refundee Whose refund will be claimed.
      */
-    function claimRefund(address refundee) public {
+    function claimRefund(address payable refundee) public {
         require(finalized());
         require(!goalReached());
 

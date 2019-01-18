@@ -1,7 +1,4 @@
-const { ether } = require('../helpers/ether');
-const shouldFail = require('../helpers/shouldFail');
-
-const { BigNumber } = require('../helpers/setup');
+const { BN, ether, shouldFail } = require('openzeppelin-test-helpers');
 
 const IndividuallyCappedCrowdsaleImpl = artifacts.require('IndividuallyCappedCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
@@ -9,12 +6,12 @@ const { shouldBehaveLikePublicRole } = require('../access/roles/PublicRole.behav
 
 contract('IndividuallyCappedCrowdsale', function (
   [_, capper, otherCapper, wallet, alice, bob, charlie, anyone, ...otherAccounts]) {
-  const rate = new BigNumber(1);
-  const capAlice = ether(10);
-  const capBob = ether(2);
-  const lessThanCapAlice = ether(6);
-  const lessThanCapBoth = ether(1);
-  const tokenSupply = new BigNumber('1e22');
+  const rate = new BN(1);
+  const capAlice = ether('10');
+  const capBob = ether('2');
+  const lessThanCapAlice = ether('6');
+  const lessThanCapBoth = ether('1');
+  const tokenSupply = new BN('10').pow(new BN('22'));
 
   beforeEach(async function () {
     this.token = await SimpleToken.new();
@@ -59,8 +56,8 @@ contract('IndividuallyCappedCrowdsale', function (
         });
 
         it('should reject payments that exceed cap', async function () {
-          await shouldFail.reverting(this.crowdsale.buyTokens(alice, { value: capAlice.plus(1) }));
-          await shouldFail.reverting(this.crowdsale.buyTokens(bob, { value: capBob.plus(1) }));
+          await shouldFail.reverting(this.crowdsale.buyTokens(alice, { value: capAlice.addn(1) }));
+          await shouldFail.reverting(this.crowdsale.buyTokens(bob, { value: capBob.addn(1) }));
         });
 
         it('should manage independent caps', async function () {

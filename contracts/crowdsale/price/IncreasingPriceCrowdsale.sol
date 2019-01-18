@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "../validation/TimedCrowdsale.sol";
 import "../../math/SafeMath.sol";
@@ -59,7 +59,7 @@ contract IncreasingPriceCrowdsale is TimedCrowdsale {
             return 0;
         }
 
-        // solium-disable-next-line security/no-block-members
+        // solhint-disable-next-line not-rely-on-time
         uint256 elapsedTime = block.timestamp.sub(openingTime());
         uint256 timeRange = closingTime().sub(openingTime());
         uint256 rateRange = _initialRate.sub(_finalRate);

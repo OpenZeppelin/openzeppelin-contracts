@@ -1,16 +1,12 @@
-const { ether } = require('../helpers/ether');
-const shouldFail = require('../helpers/shouldFail');
-const time = require('../helpers/time');
-
-const { BigNumber } = require('../helpers/setup');
+const { BN, ether, shouldFail, time } = require('openzeppelin-test-helpers');
 
 const TimedCrowdsaleImpl = artifacts.require('TimedCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
 contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
-  const rate = new BigNumber(1);
-  const value = ether(42);
-  const tokenSupply = new BigNumber('1e22');
+  const rate = new BN(1);
+  const value = ether('42');
+  const tokenSupply = new BN('10').pow(new BN('22'));
 
   before(async function () {
     // Advance to the next block to correctly read time in the solidity "now" function interpreted by ganache
@@ -18,21 +14,21 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
   });
 
   beforeEach(async function () {
-    this.openingTime = (await time.latest()) + time.duration.weeks(1);
-    this.closingTime = this.openingTime + time.duration.weeks(1);
-    this.afterClosingTime = this.closingTime + time.duration.seconds(1);
+    this.openingTime = (await time.latest()).add(time.duration.weeks(1));
+    this.closingTime = this.openingTime.add(time.duration.weeks(1));
+    this.afterClosingTime = this.closingTime.add(time.duration.seconds(1));
     this.token = await SimpleToken.new();
   });
 
   it('reverts if the opening time is in the past', async function () {
     await shouldFail.reverting(TimedCrowdsaleImpl.new(
-      (await time.latest()) - time.duration.days(1), this.closingTime, rate, wallet, this.token.address
+      (await time.latest()).sub(time.duration.days(1)), this.closingTime, rate, wallet, this.token.address
     ));
   });
 
   it('reverts if the closing time is before the opening time', async function () {
     await shouldFail.reverting(TimedCrowdsaleImpl.new(
-      this.openingTime, this.openingTime - time.duration.seconds(1), rate, wallet, this.token.address
+      this.openingTime, this.openingTime.sub(time.duration.seconds(1)), rate, wallet, this.token.address
     ));
   });
 

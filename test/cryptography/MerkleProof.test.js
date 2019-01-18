@@ -1,9 +1,9 @@
+require('openzeppelin-test-helpers');
+
 const { MerkleTree } = require('../helpers/merkleTree.js');
 const { keccak256, bufferToHex } = require('ethereumjs-util');
 
 const MerkleProofWrapper = artifacts.require('MerkleProofWrapper');
-
-require('../helpers/setup');
 
 contract('MerkleProof', function () {
   beforeEach(async function () {

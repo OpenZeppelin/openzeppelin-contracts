@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "../../introspection/IERC165.sol";
 
@@ -23,5 +23,5 @@ contract IERC721 is IERC165 {
     function transferFrom(address from, address to, uint256 tokenId) public;
     function safeTransferFrom(address from, address to, uint256 tokenId) public;
 
-    function safeTransferFrom(address from, address to, uint256 tokenId, bytes data) public;
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public;
 }

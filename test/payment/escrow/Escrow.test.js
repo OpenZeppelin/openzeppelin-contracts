@@ -1,3 +1,4 @@
+require('openzeppelin-test-helpers');
 const { shouldBehaveLikeEscrow } = require('./Escrow.behavior');
 
 const Escrow = artifacts.require('Escrow');
