@@ -5,7 +5,7 @@ import "../payment/PullPayment.sol";
 // mock class using PullPayment
 contract PullPaymentMock is PullPayment {
     constructor () public payable {
-        PullPayment.initialize();
+        PullPayment._initialize();
     }
 
     // test helper function to call asyncTransfer

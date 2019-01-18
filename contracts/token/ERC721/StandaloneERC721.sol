@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "./ERC721.sol";
@@ -15,7 +15,7 @@ import "./ERC721Pausable.sol";
 contract StandaloneERC721
     is Initializable, ERC721, ERC721Enumerable, ERC721Metadata, ERC721MetadataMintable, ERC721Pausable
 {
-    function initialize(string name, string symbol, address[] minters, address[] pausers) public initializer {
+    function initialize(string memory name, string memory symbol, address[] memory minters, address[] memory pausers) public initializer {
         ERC721.initialize();
         ERC721Enumerable.initialize();
         ERC721Metadata.initialize(name, symbol);
@@ -33,7 +33,7 @@ contract StandaloneERC721
             _addMinter(minters[i]);
         }
 
-        for (i = 0; i < pausers.length; ++i) {
+        for (uint256 i = 0; i < pausers.length; ++i) {
             _addPauser(pausers[i]);
         }
     }

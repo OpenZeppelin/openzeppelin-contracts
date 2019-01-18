@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 
 // @title Force Ether into a contract.
@@ -10,7 +10,7 @@ contract ForceEther {
 
     constructor() public payable { }
 
-    function destroyAndSend(address recipient) public {
+    function destroyAndSend(address payable recipient) public {
         selfdestruct(recipient);
     }
 }

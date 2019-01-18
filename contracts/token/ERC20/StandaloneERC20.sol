@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "./ERC20Detailed.sol";
@@ -12,11 +12,9 @@ import "./ERC20Pausable.sol";
  */
 contract StandaloneERC20 is Initializable, ERC20Detailed, ERC20Mintable, ERC20Pausable {
     function initialize(
-        string name, string symbol, uint8 decimals, uint256 initialSupply, address initialHolder,
-        address[] minters, address[] pausers
+        string memory name, string memory symbol, uint8 decimals, uint256 initialSupply, address initialHolder,
+        address[] memory minters, address[] memory pausers
     ) public initializer {
-        require(initialSupply > 0);
-
         ERC20Detailed.initialize(name, symbol, decimals);
 
         // Mint the initial supply
@@ -35,13 +33,13 @@ contract StandaloneERC20 is Initializable, ERC20Detailed, ERC20Mintable, ERC20Pa
             _addMinter(minters[i]);
         }
 
-        for (i = 0; i < pausers.length; ++i) {
+        for (uint256 i = 0; i < pausers.length; ++i) {
             _addPauser(pausers[i]);
         }
     }
 
     function initialize(
-        string name, string symbol, uint8 decimals, address[] minters, address[] pausers
+        string memory name, string memory symbol, uint8 decimals, address[] memory minters, address[] memory pausers
     ) public initializer {
         ERC20Detailed.initialize(name, symbol, decimals);
 
@@ -58,7 +56,7 @@ contract StandaloneERC20 is Initializable, ERC20Detailed, ERC20Mintable, ERC20Pa
             _addMinter(minters[i]);
         }
 
-        for (i = 0; i < pausers.length; ++i) {
+        for (uint256 i = 0; i < pausers.length; ++i) {
             _addPauser(pausers[i]);
         }
     }

@@ -1,6 +1,6 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
-import "../payment/Escrow.sol";
+import "../payment/escrow/Escrow.sol";
 
 contract EscrowMock is Escrow {
     constructor() public {

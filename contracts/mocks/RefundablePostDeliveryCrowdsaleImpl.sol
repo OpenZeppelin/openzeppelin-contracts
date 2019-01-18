@@ -13,10 +13,9 @@ contract RefundablePostDeliveryCrowdsaleImpl is RefundablePostDeliveryCrowdsale 
         uint256 goal
     )
         public
-        Crowdsale(rate, wallet, token)
-        TimedCrowdsale(openingTime, closingTime)
-        RefundableCrowdsale(goal)
     {
-        // solhint-disable-previous-line no-empty-blocks
+        Crowdsale.initialize(rate, wallet, token);
+        TimedCrowdsale.initialize(openingTime, closingTime);
+        RefundableCrowdsale.initialize(goal);
     }
 }

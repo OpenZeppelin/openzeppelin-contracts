@@ -8,7 +8,7 @@ import "./PauserRoleMock.sol";
  * This mock just provides a public mint, burn and exists functions for testing purposes
  */
 contract ERC721PausableMock is ERC721Pausable, PauserRoleMock {
-    constructor() {
+    constructor() public {
         ERC721.initialize();
         ERC721Pausable.initialize(msg.sender);
     }

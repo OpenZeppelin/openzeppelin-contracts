@@ -6,7 +6,8 @@ import "../crowdsale/Crowdsale.sol";
 
 
 contract WhitelistCrowdsaleImpl is Crowdsale, WhitelistCrowdsale {
-    constructor (uint256 _rate, address payable _wallet, IERC20 _token) public Crowdsale(_rate, _wallet, _token) {
-        // solhint-disable-previous-line no-empty-blocks
+    constructor (uint256 _rate, address payable _wallet, IERC20 _token) public {
+        Crowdsale.initialize(_rate, _wallet, _token);
+        WhitelistCrowdsale.initialize(msg.sender);
     }
 }

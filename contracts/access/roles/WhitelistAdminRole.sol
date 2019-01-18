@@ -1,12 +1,14 @@
 pragma solidity ^0.5.0;
 
+import "zos-lib/contracts/Initializable.sol";
+
 import "../Roles.sol";
 
 /**
  * @title WhitelistAdminRole
  * @dev WhitelistAdmins are responsible for assigning and removing Whitelisted accounts.
  */
-contract WhitelistAdminRole {
+contract WhitelistAdminRole is Initializable {
     using Roles for Roles.Role;
 
     event WhitelistAdminAdded(address indexed account);
@@ -14,8 +16,10 @@ contract WhitelistAdminRole {
 
     Roles.Role private _whitelistAdmins;
 
-    constructor () internal {
-        _addWhitelistAdmin(msg.sender);
+    function _initialize(address sender) internal initializer {
+        if (!isWhitelistAdmin(sender)) {
+            _addWhitelistAdmin(sender);
+        }
     }
 
     modifier onlyWhitelistAdmin() {

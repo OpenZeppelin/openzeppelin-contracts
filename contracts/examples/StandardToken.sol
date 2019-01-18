@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "../token/ERC20/ERC20Detailed.sol";
@@ -12,8 +12,8 @@ import "../token/ERC20/ERC20Pausable.sol";
  */
 contract StandardToken is Initializable, ERC20Detailed, ERC20Mintable, ERC20Pausable {
     function initialize(
-        string name, string symbol, uint8 decimals, uint256 initialSupply, address initialHolder, 
-        address[] minters, address[] pausers
+        string memory name, string memory symbol, uint8 decimals, uint256 initialSupply, address initialHolder, 
+        address[] memory minters, address[] memory pausers
     ) public initializer {
         ERC20Detailed.initialize(name, symbol, decimals);
 
@@ -35,7 +35,7 @@ contract StandardToken is Initializable, ERC20Detailed, ERC20Mintable, ERC20Paus
             _addMinter(minters[i]);
         }
 
-        for (i = 0; i < pausers.length; ++i) {
+        for (uint256 i = 0; i < pausers.length; ++i) {
             _addPauser(pausers[i]);
         }
     }

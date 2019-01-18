@@ -1,5 +1,7 @@
 pragma solidity ^0.5.0;
 
+import "zos-lib/contracts/Initializable.sol";
+
 import "../Roles.sol";
 import "./WhitelistAdminRole.sol";
 
@@ -9,7 +11,7 @@ import "./WhitelistAdminRole.sol";
  * crowdsale). This role is special in that the only accounts that can add it are WhitelistAdmins (who can also remove
  * it), and not Whitelisteds themselves.
  */
-contract WhitelistedRole is WhitelistAdminRole {
+contract WhitelistedRole is Initializable, WhitelistAdminRole {
     using Roles for Roles.Role;
 
     event WhitelistedAdded(address indexed account);
@@ -20,6 +22,10 @@ contract WhitelistedRole is WhitelistAdminRole {
     modifier onlyWhitelisted() {
         require(isWhitelisted(msg.sender));
         _;
+    }
+
+    function _initialize(address sender) internal initializer {
+        WhitelistAdminRole._initialize(sender);
     }
 
     function isWhitelisted(address account) public view returns (bool) {

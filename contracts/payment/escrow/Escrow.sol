@@ -15,13 +15,17 @@ import "../../ownership/Secondary.sol";
  * payment method should be its primary, and provide public methods redirecting
  * to the escrow's deposit and withdraw.
  */
-contract Escrow is Secondary {
+contract Escrow is Initializable, Secondary {
     using SafeMath for uint256;
 
     event Deposited(address indexed payee, uint256 weiAmount);
     event Withdrawn(address indexed payee, uint256 weiAmount);
 
     mapping(address => uint256) private _deposits;
+
+    function initialize(address sender) public initializer {
+        Secondary.initialize(sender);
+    }
 
     function depositsOf(address payee) public view returns (uint256) {
         return _deposits[payee];

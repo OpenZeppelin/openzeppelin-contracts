@@ -25,13 +25,13 @@ contract ERC165 is Initializable, IERC165 {
      * implement ERC165 itself
      */
     function initialize() public initializer {
-        _registerInterface(_InterfaceId_ERC165);
+        _registerInterface(_INTERFACE_ID_ERC165);
     }
 
     /**
      * @dev implement supportsInterface(bytes4) using a lookup table
      */
-    function supportsInterface(bytes4 interfaceId) external view returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view returns (bool) {
         return _supportedInterfaces[interfaceId];
     }
 

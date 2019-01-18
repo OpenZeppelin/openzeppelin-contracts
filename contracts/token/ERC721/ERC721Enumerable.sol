@@ -37,11 +37,11 @@ contract ERC721Enumerable is Initializable, ERC165, ERC721, IERC721Enumerable {
         require(ERC721._hasBeenInitialized());
 
         // register the supported interface to conform to ERC721 via ERC165
-        _registerInterface(_InterfaceId_ERC721Enumerable);
+        _registerInterface(_INTERFACE_ID_ERC721_ENUMERABLE);
     }
 
     function _hasBeenInitialized() internal view returns (bool) {
-        return supportsInterface(_InterfaceId_ERC721Enumerable);
+        return supportsInterface(_INTERFACE_ID_ERC721_ENUMERABLE);
     }
 
     /**

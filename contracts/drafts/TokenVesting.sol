@@ -47,7 +47,7 @@ contract TokenVesting is Initializable, Ownable {
      * @param duration duration in seconds of the period in which the tokens will vest
      * @param revocable whether the vesting is revocable or not
      */
-    constructor (address beneficiary, uint256 start, uint256 cliffDuration, uint256 duration, bool revocable, address sender) public initializer {
+    function initialize(address beneficiary, uint256 start, uint256 cliffDuration, uint256 duration, bool revocable, address sender) public initializer {
         Ownable.initialize(sender);
 
         require(beneficiary != address(0));

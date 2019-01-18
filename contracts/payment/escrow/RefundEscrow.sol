@@ -1,5 +1,7 @@
 pragma solidity ^0.5.0;
 
+import 'zos-lib/contracts/Initializable.sol';
+
 import "./ConditionalEscrow.sol";
 
 /**
@@ -13,7 +15,7 @@ import "./ConditionalEscrow.sol";
  * with RefundEscrow will be made through the primary contract. See the
  * RefundableCrowdsale contract for an example of RefundEscrow’s use.
  */
-contract RefundEscrow is ConditionalEscrow {
+contract RefundEscrow is Initializable, ConditionalEscrow {
     enum State { Active, Refunding, Closed }
 
     event RefundsClosed();
@@ -26,7 +28,9 @@ contract RefundEscrow is ConditionalEscrow {
      * @dev Constructor.
      * @param beneficiary The beneficiary of the deposits.
      */
-    constructor (address payable beneficiary) public {
+    function initialize(address payable beneficiary, address sender) public initializer {
+        ConditionalEscrow.initialize(sender);
+
         require(beneficiary != address(0));
         _beneficiary = beneficiary;
         _state = State.Active;

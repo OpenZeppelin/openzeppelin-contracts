@@ -1,5 +1,7 @@
 pragma solidity ^0.5.0;
 
+import "zos-lib/contracts/Initializable.sol";
+
 import "../math/SafeMath.sol";
 
 /**
@@ -7,7 +9,7 @@ import "../math/SafeMath.sol";
  * @dev This contract can be used when payments need to be received by a group
  * of people and split proportionately to some number of shares they own.
  */
-contract PaymentSplitter {
+contract PaymentSplitter is Initializable {
     using SafeMath for uint256;
 
     event PayeeAdded(address account, uint256 shares);
@@ -24,7 +26,7 @@ contract PaymentSplitter {
     /**
      * @dev Constructor
      */
-    constructor (address[] memory payees, uint256[] memory shares) public payable {
+    function initialize(address[] memory payees, uint256[] memory shares) public payable initializer {
         require(payees.length == shares.length);
         require(payees.length > 0);
 

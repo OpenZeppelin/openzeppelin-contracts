@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "../examples/SampleCrowdsale.sol";
 
@@ -14,7 +14,7 @@ contract SampleCrowdsaleMock is SampleCrowdsale {
         uint256 openingTime,
         uint256 closingTime,
         uint256 rate,
-        address wallet,
+        address payable wallet,
         uint256 cap,
         ERC20Mintable token,
         uint256 goal

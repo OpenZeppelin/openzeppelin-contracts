@@ -3,6 +3,10 @@ pragma solidity ^0.5.0;
 import "../access/roles/WhitelistAdminRole.sol";
 
 contract WhitelistAdminRoleMock is WhitelistAdminRole {
+    constructor () public {
+        WhitelistAdminRole._initialize(msg.sender);
+    }
+
     function removeWhitelistAdmin(address account) public {
         _removeWhitelistAdmin(account);
     }

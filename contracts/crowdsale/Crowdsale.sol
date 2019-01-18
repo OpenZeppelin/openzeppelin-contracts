@@ -54,7 +54,7 @@ contract Crowdsale is Initializable, ReentrancyGuard {
      * @param wallet Address where collected funds will be forwarded to
      * @param token Address of the token being sold
      */
-    function initialize(uint256 rate, address wallet, IERC20 token) public initializer {
+    function initialize(uint256 rate, address payable wallet, IERC20 token) public initializer {
         require(rate > 0);
         require(wallet != address(0));
         require(address(token) != address(0));
@@ -128,7 +128,7 @@ contract Crowdsale is Initializable, ReentrancyGuard {
     }
 
     function _hasBeenInitialized() internal view returns (bool) {
-        return ((_rate > 0) && (_wallet != address(0)) && (_token != address(0)));
+        return ((_rate > 0) && (_wallet != address(0)) && (address(_token) != address(0)));
     }
 
     /**

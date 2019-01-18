@@ -7,7 +7,11 @@ import "../../access/roles/WhitelistedRole.sol";
  * @title WhitelistCrowdsale
  * @dev Crowdsale in which only whitelisted users can contribute.
  */
-contract WhitelistCrowdsale is WhitelistedRole, Crowdsale {
+contract WhitelistCrowdsale is Initializable, WhitelistedRole, Crowdsale {
+    function initialize(address sender) public initializer {
+        WhitelistedRole._initialize(sender);
+    }
+
     /**
     * @dev Extend parent behavior requiring beneficiary to be whitelisted. Note that no
     * restriction is imposed on the account sending the transaction.

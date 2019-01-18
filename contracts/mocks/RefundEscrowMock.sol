@@ -1,9 +1,9 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
-import "../payment/RefundEscrow.sol";
+import "../payment/escrow/RefundEscrow.sol";
 
 contract RefundEscrowMock is RefundEscrow {
-    constructor(address beneficiary) public {
+    constructor(address payable beneficiary) public {
         RefundEscrow.initialize(beneficiary, msg.sender);
     }
 }
