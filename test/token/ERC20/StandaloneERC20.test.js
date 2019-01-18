@@ -1,6 +1,6 @@
 const encodeCall = require('zos-lib/lib/helpers/encodeCall').default;
 const { shouldBehaveLikeERC20Mintable } = require('./behaviors/ERC20Mintable.behavior');
-const { assertRevert } = require('../../helpers/assertRevert');
+const { shouldFail } = require('../../helpers/shouldFail');
 
 const BigNumber = web3.BigNumber;
 
@@ -44,7 +44,7 @@ contract('StandaloneERC20', function ([
 
   describe('with all arguments', function () {
     it('reverts if initial balance is zero', async function () {
-      await assertRevert(
+      await shouldFail.reverting(
         initializeFull(this.token, name, symbol, decimals, 0, ZERO_ADDRESS, minters, pausers, deployer)
       );
     });

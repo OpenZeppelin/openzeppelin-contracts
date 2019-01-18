@@ -1,5 +1,6 @@
-const { EVMRevert } = require('../helpers/EVMRevert');
-const { expectThrow } = require('../helpers/expectThrow');
+const { shouldFail } = require('../helpers/shouldFail');
+
+require('../helpers/setup');
 
 const { shouldBehaveLikeOwnable } = require('./Ownable.behavior');
 
@@ -11,7 +12,7 @@ contract('Ownable', function ([_, owner, anyone, ...otherAccounts]) {
   });
 
   it('cannot be reinitialized', async function () {
-    await expectThrow(this.ownable.initialize(anyone), EVMRevert);
+    await shouldFail.reverting(this.ownable.initialize(anyone));
   });
 
   shouldBehaveLikeOwnable(owner, otherAccounts);
