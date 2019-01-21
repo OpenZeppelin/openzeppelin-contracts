@@ -1,20 +1,14 @@
-const expectEvent = require('../../helpers/expectEvent');
-const shouldFail = require('../../helpers/shouldFail');
-const { ethGetBalance } = require('../../helpers/web3');
-const { balanceDifference } = require('../../helpers/balanceDifference');
-const { ether } = require('../../helpers/ether');
-
-require('../../helpers/setup');
+const { balance, ether, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
 
 function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
-  const amount = ether(42.0);
+  const amount = ether('42');
 
   describe('as an escrow', function () {
     describe('deposits', function () {
       it('can accept a single deposit', async function () {
         await this.escrow.deposit(payee1, { from: primary, value: amount });
 
-        (await ethGetBalance(this.escrow.address)).should.be.bignumber.equal(amount);
+        (await balance.current(this.escrow.address)).should.be.bignumber.equal(amount);
 
         (await this.escrow.depositsOf(payee1)).should.be.bignumber.equal(amount);
       });
@@ -37,34 +31,34 @@ function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
 
       it('can add multiple deposits on a single account', async function () {
         await this.escrow.deposit(payee1, { from: primary, value: amount });
-        await this.escrow.deposit(payee1, { from: primary, value: amount * 2 });
+        await this.escrow.deposit(payee1, { from: primary, value: amount.muln(2) });
 
-        (await ethGetBalance(this.escrow.address)).should.be.bignumber.equal(amount * 3);
+        (await balance.current(this.escrow.address)).should.be.bignumber.equal(amount.muln(3));
 
-        (await this.escrow.depositsOf(payee1)).should.be.bignumber.equal(amount * 3);
+        (await this.escrow.depositsOf(payee1)).should.be.bignumber.equal(amount.muln(3));
       });
 
       it('can track deposits to multiple accounts', async function () {
         await this.escrow.deposit(payee1, { from: primary, value: amount });
-        await this.escrow.deposit(payee2, { from: primary, value: amount * 2 });
+        await this.escrow.deposit(payee2, { from: primary, value: amount.muln(2) });
 
-        (await ethGetBalance(this.escrow.address)).should.be.bignumber.equal(amount * 3);
+        (await balance.current(this.escrow.address)).should.be.bignumber.equal(amount.muln(3));
 
         (await this.escrow.depositsOf(payee1)).should.be.bignumber.equal(amount);
 
-        (await this.escrow.depositsOf(payee2)).should.be.bignumber.equal(amount * 2);
+        (await this.escrow.depositsOf(payee2)).should.be.bignumber.equal(amount.muln(2));
       });
     });
 
     describe('withdrawals', async function () {
       it('can withdraw payments', async function () {
-        (await balanceDifference(payee1, async () => {
+        (await balance.difference(payee1, async () => {
           await this.escrow.deposit(payee1, { from: primary, value: amount });
           await this.escrow.withdraw(payee1, { from: primary });
         })).should.be.bignumber.equal(amount);
 
-        (await ethGetBalance(this.escrow.address)).should.be.bignumber.equal(0);
-        (await this.escrow.depositsOf(payee1)).should.be.bignumber.equal(0);
+        (await balance.current(this.escrow.address)).should.be.bignumber.equal('0');
+        (await this.escrow.depositsOf(payee1)).should.be.bignumber.equal('0');
       });
 
       it('can do an empty withdrawal', async function () {

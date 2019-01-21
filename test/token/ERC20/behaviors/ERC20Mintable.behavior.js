@@ -1,19 +1,16 @@
-const shouldFail = require('../../../helpers/shouldFail');
-const expectEvent = require('../../../helpers/expectEvent');
-const { ZERO_ADDRESS } = require('../../../helpers/constants');
-
-require('../../../helpers/setup');
+const { BN, constants, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 function shouldBehaveLikeERC20Mintable (minter, [anyone]) {
   describe('as a mintable token', function () {
     describe('mint', function () {
-      const amount = 100;
+      const amount = new BN(100);
 
       context('when the sender has minting permission', function () {
         const from = minter;
 
         context('for a zero amount', function () {
-          shouldMint(0);
+          shouldMint(new BN(0));
         });
 
         context('for a non-zero amount', function () {

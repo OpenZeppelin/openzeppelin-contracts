@@ -1,7 +1,4 @@
-const shouldFail = require('../helpers/shouldFail');
-
-require('../helpers/setup');
-
+require('openzeppelin-test-helpers');
 const { shouldBehaveLikeOwnable } = require('./Ownable.behavior');
 
 const Ownable = artifacts.require('OwnableMock');

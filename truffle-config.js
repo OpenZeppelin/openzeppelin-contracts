@@ -13,4 +13,10 @@ module.exports = {
       gasPrice: 0x01,
     },
   },
+
+  compilers: {
+    solc: {
+      version: '0.5.0',
+    },
+  },
 };

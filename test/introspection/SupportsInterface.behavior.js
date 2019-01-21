@@ -1,4 +1,4 @@
-const { makeInterfaceId } = require('../helpers/makeInterfaceId');
+const { makeInterfaceId } = require('openzeppelin-test-helpers');
 
 const INTERFACE_IDS = {
   ERC165: makeInterfaceId([
