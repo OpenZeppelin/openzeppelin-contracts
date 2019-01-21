@@ -7,6 +7,8 @@
 
 ### Improvements:
  * Upgraded the minimum compiler version to v0.5.2: this removes many Solidity warnings that were false positives.
+ * `Counter`'s API has been improved, and is now used by `ERC721` (though it is still in `drafts`).
+ * `ERC721`'s transfers are now more gas efficient due to removal of unnecessary `SafeMath` calls.
  * Fixed variable shadowing issues.
 
 ### Bugfixes:
