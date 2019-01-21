@@ -70,10 +70,7 @@ contract ERC20 is IERC20 {
      * @param value The amount of tokens to be spent.
      */
     function approve(address spender, uint256 value) public returns (bool) {
-        require(spender != address(0));
-
-        _allowed[msg.sender][spender] = value;
-        emit Approval(msg.sender, spender, value);
+        _approve(msg.sender, spender, value);
         return true;
     }
 
@@ -86,9 +83,8 @@ contract ERC20 is IERC20 {
      * @param value uint256 the amount of tokens to be transferred
      */
     function transferFrom(address from, address to, uint256 value) public returns (bool) {
-        _allowed[from][msg.sender] = _allowed[from][msg.sender].sub(value);
         _transfer(from, to, value);
-        emit Approval(from, msg.sender, _allowed[from][msg.sender]);
+        _approve(from, msg.sender, _allowed[from][msg.sender].sub(value));
         return true;
     }
 
@@ -103,10 +99,7 @@ contract ERC20 is IERC20 {
      * @param addedValue The amount of tokens to increase the allowance by.
      */
     function increaseAllowance(address spender, uint256 addedValue) public returns (bool) {
-        require(spender != address(0));
-
-        _allowed[msg.sender][spender] = _allowed[msg.sender][spender].add(addedValue);
-        emit Approval(msg.sender, spender, _allowed[msg.sender][spender]);
+        _approve(msg.sender, spender, _allowed[msg.sender][spender].add(addedValue));
         return true;
     }
 
@@ -121,10 +114,7 @@ contract ERC20 is IERC20 {
      * @param subtractedValue The amount of tokens to decrease the allowance by.
      */
     function decreaseAllowance(address spender, uint256 subtractedValue) public returns (bool) {
-        require(spender != address(0));
-
-        _allowed[msg.sender][spender] = _allowed[msg.sender][spender].sub(subtractedValue);
-        emit Approval(msg.sender, spender, _allowed[msg.sender][spender]);
+        _approve(msg.sender, spender, _allowed[msg.sender][spender].sub(subtractedValue));
         return true;
     }
 
@@ -172,6 +162,20 @@ contract ERC20 is IERC20 {
     }
 
     /**
+     * @dev Approve an address to spend another addresses' tokens.
+     * @param owner The address that owns the tokens.
+     * @param spender The address that will spend the tokens.
+     * @param value The number of tokens that can be spent.
+     */
+    function _approve(address owner, address spender, uint256 value) internal {
+        require(spender != address(0));
+        require(owner != address(0));
+
+        _allowed[owner][spender] = value;
+        emit Approval(owner, spender, value);
+    }
+
+    /**
      * @dev Internal function that burns an amount of the token of a given
      * account, deducting from the sender's allowance for said account. Uses the
      * internal burn function.
@@ -180,8 +184,7 @@ contract ERC20 is IERC20 {
      * @param value The amount that will be burnt.
      */
     function _burnFrom(address account, uint256 value) internal {
-        _allowed[account][msg.sender] = _allowed[account][msg.sender].sub(value);
         _burn(account, value);
-        emit Approval(account, msg.sender, _allowed[account][msg.sender]);
+        _approve(account, msg.sender, _allowed[account][msg.sender].sub(value));
     }
 }

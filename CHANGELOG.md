@@ -2,6 +2,9 @@
 
 ## 2.2.0 (unreleased)
 
+### New features:
+ * `ERC20`: added internal `_approve(address owner, address spender, uint256 value)`, allowing derived contracts to set the allowance of arbitrary accounts.
+
 ### Improvements:
  * Upgraded the minimum compiler version to v0.5.2: this removes many Solidity warnings that were false positives.
  * Fixed variable shadowing issues.
