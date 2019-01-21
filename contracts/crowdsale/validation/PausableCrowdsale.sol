@@ -1,5 +1,7 @@
 pragma solidity ^0.5.0;
 
+import "zos-lib/contracts/Initializable.sol";
+
 import "../Crowdsale.sol";
 import "../../lifecycle/Pausable.sol";
 
@@ -7,7 +9,13 @@ import "../../lifecycle/Pausable.sol";
  * @title PausableCrowdsale
  * @dev Extension of Crowdsale contract where purchases can be paused and unpaused by the pauser role.
  */
-contract PausableCrowdsale is Crowdsale, Pausable {
+contract PausableCrowdsale is Initializable, Crowdsale, Pausable {
+    function initialize(address sender) public initializer {
+        assert(Crowdsale._hasBeenInitialized());
+
+        Pausable.initialize(sender);
+    }
+
     /**
      * @dev Validation of an incoming purchase. Use require statements to revert state when conditions are not met.
      * Use super to concatenate validations.

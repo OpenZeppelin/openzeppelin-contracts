@@ -1,4 +1,4 @@
-const { shouldFail } = require('../helpers/shouldFail');
+const shouldFail = require('../helpers/shouldFail');
 
 require('../helpers/setup');
 
