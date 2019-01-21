@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 import "../token/ERC20/IERC20.sol";
 import "../token/ERC20/ERC20Mintable.sol";
@@ -65,14 +65,14 @@ contract ERC20Migrator {
     /**
      * @dev Begins the migration by setting which is the new token that will be
      * minted. This contract must be a minter for the new token.
-     * @param newToken the token that will be minted
+     * @param newToken_ the token that will be minted
      */
-    function beginMigration(ERC20Mintable newToken) public {
+    function beginMigration(ERC20Mintable newToken_) public {
         require(address(_newToken) == address(0));
-        require(address(newToken) != address(0));
-        require(newToken.isMinter(address(this)));
+        require(address(newToken_) != address(0));
+        require(newToken_.isMinter(address(this)));
 
-        _newToken = newToken;
+        _newToken = newToken_;
     }
 
     /**

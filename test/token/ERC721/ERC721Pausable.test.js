@@ -1,7 +1,7 @@
 require('openzeppelin-test-helpers');
 const { shouldBehaveLikeERC721PausedToken } = require('./ERC721PausedToken.behavior');
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
-const { shouldBehaveLikePublicRole } = require('../../access/roles/PublicRole.behavior');
+const { shouldBehaveLikePublicRole } = require('../../behaviors/access/roles/PublicRole.behavior');
 
 const ERC721PausableMock = artifacts.require('ERC721PausableMock.sol');
 
