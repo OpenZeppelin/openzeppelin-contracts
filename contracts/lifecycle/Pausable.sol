@@ -14,6 +14,8 @@ contract Pausable is Initializable, PauserRole {
     bool private _paused;
 
     function initialize(address sender) public initializer {
+        PauserRole._initialize(sender);
+
         _paused = false;
     }
 

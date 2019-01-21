@@ -1,6 +1,6 @@
 const encodeCall = require('zos-lib/lib/helpers/encodeCall').default;
 const { shouldBehaveLikeERC20Mintable } = require('./behaviors/ERC20Mintable.behavior');
-const { shouldFail } = require('../../helpers/shouldFail');
+const shouldFail = require('../../helpers/shouldFail');
 
 const BigNumber = web3.BigNumber;
 
