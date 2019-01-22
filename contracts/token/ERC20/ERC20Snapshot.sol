@@ -1,192 +1,129 @@
-/**
- * @title ERC20 Snapshot Token
- * inspired by Jordi Baylina's MiniMeToken to record historical balances
- * @author Validity Labs AG <info@validitylabs.org>
- */
-
 pragma solidity ^0.5.2;
 
 import "../../math/SafeMath.sol";
+import "../../utils/Arrays.sol";
 import "./ERC20.sol";
-import "./IERC20Snapshot.sol";
 
-contract ERC20Snapshot is ERC20, IERC20Snapshot {
+/**
+ * @title ERC20 token with snapshots.
+ * inspired by Jordi Baylina's MiniMeToken to record historical balances
+ * @author Validity Labs AG <info@validitylabs.org>
+ */
+contract ERC20Snapshot is ERC20 {
     using SafeMath for uint256;
+    using Arrays for uint256[];
 
-    /**
-    * @dev `Snapshot` is the structure that attaches a block number to a
-    * given value. The block number attached is the one that last changed the value
-    */
-    struct Snapshot {
-        uint128 fromBlock;  // `fromBlock` block.number
-        uint128 value;  // `value` is the amount of tokens
+    // Snapshots store a value at the time a snapshot is taken (and a new snapshot id created), and the corresponding
+    // snapshot id. Each account has individual snapshots taken on demand, as does the token's total supply.
+
+    // These two fields (value and id) belong together, but are not part of a struct so that functions that work on
+    // arrays can be called on them.
+
+    mapping (address => uint256[]) private _accountSnapshotIds;
+    mapping (address => uint256[]) private _accountSnapshotValues;
+
+    uint256[] private _totalSupplySnapshotIds;
+    uint256[] private _totalSupplySnapshotValues;
+
+    // Snapshot ids increase monotonically, with the first value being 1. An id of 0 is invalid.
+    uint256 private _currentSnapshotId;
+
+    event Snapshot(uint256 id);
+
+    // Creates a new snapshot id. Balances are only stored in snapshots on demand: unless a snapshot was taken, a
+    // balance change will not be recorded. This means the extra added cost of storing snapshotted balances is only paid
+    // when required, but is also flexible enough that it allows for e.g. daily snapshots.
+    function snapshot() public returns (uint256) {
+        _currentSnapshotId += 1;
+        emit Snapshot(_currentSnapshotId);
+        return _currentSnapshotId;
     }
 
-    /**
-    * @dev `_snapshotBalances` is the map that tracks the balance of each address, in this
-    * contract when the balance changes the block number that the change
-    * occurred is also included in the map
-    */
-    mapping (address => Snapshot[]) private _snapshotBalances;
+    function balanceOfAt(address account, uint256 snapshotId) public view returns (uint256) {
+        (bool snapshotted, uint256 value) =
+            _valueAt(snapshotId, _accountSnapshotValues[account], _accountSnapshotIds[account]);
 
-    // Tracks the history of the `totalSupply` of the token
-    Snapshot[] private _snapshotTotalSupply;
-
-    /*** FUNCTIONS ***/
-    /** OVERRIDE
-    * @dev Send `value` tokens to `to` from `msg.sender`
-    * @param to The address of the recipient
-    * @param value The amount of tokens to be transferred
-    * @return Whether the transfer was successful or not
-    */
-    function transfer(address to, uint256 value) public returns (bool result) {
-        result = super.transfer(to, value);
-        createSnapshot(msg.sender, to);
+        return snapshotted ? value : balanceOf(account);
     }
 
-    /** OVERRIDE
-    * @dev Send `value` tokens to `to` from `from` on the condition it is approved by `from`
-    * @param from The address holding the tokens being transferred
-    * @param to The address of the recipient
-    * @param value The amount of tokens to be transferred
-    * @return True if the transfer was successful
-    */
-    function transferFrom(
-        address from,
-        address to,
-        uint256 value
-    ) public returns (bool result)
+    function totalSupplyAt(uint256 snapshotId) public view returns(uint256) {
+        (bool snapshotted, uint256 value) = _valueAt(snapshotId, _totalSupplySnapshotValues, _totalSupplySnapshotIds);
+
+        return snapshotted ? value : totalSupply();
+    }
+
+    // _transfer, _mint and _burn are the only functions where the balances are modified, so it is there that the
+    // snapshots are updated. Note that the update happens _before_ the balance change, with the pre-modified value.
+    // The same is true for the total supply and _mint and _burn.
+    function _transfer(address from, address to, uint256 value) internal {
+        _updateAccountSnapshot(from);
+        _updateAccountSnapshot(to);
+
+        super._transfer(from, to, value);
+    }
+
+    function _mint(address account, uint256 value) internal {
+        _updateAccountSnapshot(account);
+        _updateTotalSupplySnapshot();
+
+        super._mint(account, value);
+    }
+
+    function _burn(address account, uint256 value) internal {
+        _updateAccountSnapshot(account);
+        _updateTotalSupplySnapshot();
+
+        super._burn(account, value);
+    }
+
+    // When a valid snapshot is queried, there are three possibilities:
+    //  a) The queried value was not modified after the snapshot was taken. Therefore, a snapshot entry was never
+    //  created for this id, and all stored snapshot ids are smaller than the requested one. The value that corresponds
+    //  to this id is the current one.
+    //  b) The queried value was modified after the snapshot was taken. Therefore, there will be an entry with the
+    //  requested id, and its value is the one to return.
+    //  c) More snapshots were created after the requested one, and the queried value was later modified. There will be
+    //  no entry for the requested id: the value that corresponds to it is that of the smallest snapshot id that is
+    //  larger than the requested one.
+    //
+    // In summary, we need to find an element in an array, returning the index of the smallest value that is larger if
+    // it is not found, unless said value doesn't exist (e.g. when all values are smaller). Arrays.findUpperBound does
+    // exactly this.
+    function _valueAt(uint256 snapshotId, uint256[] storage values, uint256[] storage ids)
+        private view returns (bool, uint256)
     {
-        result = super.transferFrom(from, to, value);
-        createSnapshot(from, to);
-    }
+        require(snapshotId > 0);
+        require(snapshotId <= _currentSnapshotId);
 
-    /**
-    * @dev Queries the balance of `owner` AFTER a specific `blockNumber`
-    * @param owner The address from which the balance will be retrieved
-    * @param blockNumber The block number when the balance is queried
-    * @return The balance AFTER `blockNumber`
-    */
-    function balanceOfAt(
-        address owner,
-        uint blockNumber) public view returns (uint256)
-    {
-        return getValueAt(_snapshotBalances[owner], blockNumber);
-    }
+        uint256 index = ids.findUpperBound(snapshotId);
 
-    /**
-    * @dev Total amount of tokens AFTER a specific `blockNumber`.
-    * @param blockNumber The block number when the totalSupply is queried
-    * @return The total amount of tokens AFTER `blockNumber`
-    */
-    function totalSupplyAt(uint blockNumber) public view returns(uint256) {
-        return getValueAt(_snapshotTotalSupply, blockNumber);
-    }
-
-    /*** Internal functions ***/
-    /**
-    * @dev Updates snapshot mappings for from and to and emit an event
-    * @param from The address holding the tokens being transferred
-    * @param to The address of the recipient
-    * @return True if the transfer was successful
-    */
-    function createSnapshot(address from, address to) internal {
-        updateValueAtNow(_snapshotBalances[from], balanceOf(from));
-        updateValueAtNow(_snapshotBalances[to], balanceOf(to));
-    }
-
-    /**
-    * @dev `getValueAt` retrieves the number of tokens at a given block number
-    * @param checkpoints The history of values being queried
-    * @param blockNumber The block number to retrieve the value at
-    * @return The number of tokens being queried
-    */
-    function getValueAt(
-        Snapshot[] storage checkpoints,
-        uint blockNumber) internal view returns (uint)
-    {
-        if (checkpoints.length == 0) return 0;
-
-        // Shortcut for the actual value
-        if (blockNumber >= checkpoints[checkpoints.length.sub(1)].fromBlock) {
-            return checkpoints[checkpoints.length.sub(1)].value;
-        }
-
-        if (blockNumber < checkpoints[0].fromBlock) {
-            return 0;
-        }
-
-        // Binary search of the value in the array
-        uint min;
-        uint max = checkpoints.length.sub(1);
-
-        while (max > min) {
-            uint mid = (max.add(min).add(1)).div(2);
-            if (checkpoints[mid].fromBlock <= blockNumber) {
-                min = mid;
-            } else {
-                max = mid.sub(1);
-            }
-        }
-        return checkpoints[min].value;
-    }
-
-    /**
-    * @dev `updateValueAtNow` used to update the `_snapshotBalances`
-    * map and the `_snapshotTotalSupply`
-    * @param checkpoints The history of data being updated
-    * @param value The new number of tokens
-    */
-    function updateValueAtNow(
-        Snapshot[] storage checkpoints,
-        uint value) 
-        internal 
-    {
-        if (
-            (checkpoints.length == 0) ||
-            (checkpoints[checkpoints.length.sub(1)].fromBlock < block.number)
-        ) {
-            checkpoints.push(Snapshot(uint128(block.number), uint128(value)));
+        if (index == ids.length) {
+            return (false, 0);
         } else {
-            checkpoints[checkpoints.length.sub(1)].value = uint128(value);
+            return (true, values[index]);
         }
     }
 
-    /** OVERRIDE
-    * @dev Internal function that mints an amount of the token and assigns it to
-    * an account. This encapsulates the modification of balances such that the
-    * proper events are emitted.
-    * @param account The account that will receive the created tokens.
-    * @param amount The amount that will be created.
-    */
-    function _mint(address account, uint256 amount) internal {
-        super._mint(account, amount);
-        updateValueAtNow(_snapshotTotalSupply, totalSupply());
-        updateValueAtNow(_snapshotBalances[account], balanceOf(account));
+    function _updateAccountSnapshot(address account) private {
+        _updateSnapshot(_accountSnapshotValues[account], _accountSnapshotIds[account], balanceOf(account));
     }
 
-    /** OVERRIDE
-    * @dev Internal function that burns an amount of the token of a given
-    * account.
-    * @param account The account whose tokens will be burnt.
-    * @param amount The amount that will be burnt.
-    */
-    function _burn(address account, uint256 amount) internal {
-        super._burn(account, amount);
-        updateValueAtNow(_snapshotTotalSupply, totalSupply());
-        updateValueAtNow(_snapshotBalances[account], balanceOf(account));
+    function _updateTotalSupplySnapshot() private {
+        _updateSnapshot(_totalSupplySnapshotValues, _totalSupplySnapshotIds, totalSupply());
     }
 
-    /** OVERRIDE
-    * @dev Internal function that burns an amount of the token of a given
-    * account, deducting from the sender's allowance for said account. Uses the
-    * internal burn function.
-    * @param account The account whose tokens will be burnt.
-    * @param amount The amount that will be burnt.
-    */
-    function _burnFrom(address account, uint256 amount) internal {
-        super._burnFrom(account, amount);
-        updateValueAtNow(_snapshotTotalSupply, totalSupply());
-        updateValueAtNow(_snapshotBalances[account], balanceOf(account));
+    function _updateSnapshot(uint256[] storage values, uint256[] storage ids, uint256 currentValue) private {
+        if (_lastSnapshotId(ids) < _currentSnapshotId) {
+            ids.push(_currentSnapshotId);
+            values.push(currentValue);
+        }
+    }
+
+    function _lastSnapshotId(uint256[] storage ids) private view returns (uint256) {
+        if (ids.length == 0) {
+            return 0;
+        } else {
+            return ids[ids.length - 1];
+        }
     }
 }

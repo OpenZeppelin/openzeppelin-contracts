@@ -1,634 +1,197 @@
-const { BN, shouldFail, constants, expectEvent } = require('openzeppelin-test-helpers');
-const { ZERO_ADDRESS } = constants;
-
+const { BN, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
 const ERC20SnapshotMock = artifacts.require('ERC20SnapshotMock');
 
-contract('ERC20Snapshot', function ([_, owner, recipient, anotherAccount]) {
+contract('ERC20Snapshot', function ([_, initialHolder, recipient, anyone]) {
   const initialSupply = new BN(100);
 
   beforeEach(async function () {
-    this.token = await ERC20SnapshotMock.new(owner, initialSupply);
+    this.token = await ERC20SnapshotMock.new(initialHolder, initialSupply);
   });
 
-  describe('total supply', function () {
-    let blockNum;
-
-    it('returns the total amount of tokens', async function () {
-      (await this.token.totalSupply()).should.be.bignumber.equal(initialSupply);
+  describe('snapshot', function () {
+    it('emits a snapshot event', async function () {
+      const { logs } = await this.token.snapshot();
+      expectEvent.inLogs(logs, 'Snapshot');
     });
 
-    it('returns the total amount of tokens via snapshot', async function () {
-      blockNum = await web3.eth.getBlockNumber();
-      (await this.token.totalSupplyAt(blockNum)).should.be.bignumber.equal(initialSupply);
-    });
-
-    it('verifies balances of accounts via snapshot', async function () {
-      blockNum = await web3.eth.getBlockNumber();
-      (await this.token.balanceOfAt(recipient, blockNum)).should.be.bignumber.equal('0');
-      (await this.token.balanceOfAt(anotherAccount, blockNum)).should.be.bignumber.equal('0');
-      (await this.token.balanceOfAt(owner, blockNum)).should.be.bignumber.equal(initialSupply);
-    });
-  });
-
-  describe('balanceOf', function () {
-    describe('when the requested account has no tokens', function () {
-      it('returns zero', async function () {
-        (await this.token.balanceOf(anotherAccount)).should.be.bignumber.equal('0');
-      });
-    });
-
-    describe('when the requested account has some tokens', function () {
-      it('returns the total amount of tokens', async function () {
-        (await this.token.balanceOf(owner)).should.be.bignumber.equal(initialSupply);
-      });
-    });
-  });
-
-  describe('transfer', function () {
-    describe('when the recipient is not the zero address', function () {
-      const to = recipient;
-
-      describe('when the sender does not have enough balance', function () {
-        const amount = new BN('101');
-
-        it('reverts', async function () {
-          await shouldFail.reverting(this.token.transfer(to, amount, { from: owner }));
-        });
-      });
-
-      describe('when the sender has enough balance', function () {
-        const amount = new BN('100');
-
-        it('transfers the requested amount', async function () {
-          await this.token.transfer(to, amount, { from: owner });
-
-          (await this.token.balanceOf(owner)).should.be.bignumber.equal('0');
-
-          (await this.token.balanceOf(to)).should.be.bignumber.equal(amount);
-        });
-
-        it('verifies snapshot history', async function () {
-          await this.token.transfer(to, amount, { from: owner });
-
-          const blockNum = await web3.eth.getBlockNumber();
-
-          (await this.token.balanceOfAt(owner, blockNum)).should.be.bignumber.equal('0');
-          (await this.token.balanceOfAt(owner, blockNum - 1)).should.be.bignumber.equal(amount);
-
-          (await this.token.balanceOfAt(to, blockNum)).should.be.bignumber.equal(amount);
-          (await this.token.balanceOfAt(to, blockNum - 1)).should.be.bignumber.equal('0');
-        });
-
-        it('emits a transfer event', async function () {
-          const { logs } = await this.token.transfer(to, amount, { from: owner });
-
-          expectEvent.inLogs(logs, 'Transfer', {
-            from: owner,
-            to: to,
-            value: amount,
-          });
-        });
-      });
-
-      describe('multiple transfers', function () {
-        const amount = new BN('100');
-
-        it('transfers the requested amounts and verifies history', async function () {
-          await this.token.transfer(to, (amount.divn(2)), { from: owner });
-          const blockNum = await web3.eth.getBlockNumber();
-          await this.token.transfer(anotherAccount, (amount.divn(4)), { from: owner });
-          const blockNum2 = await web3.eth.getBlockNumber();
-          await this.token.transfer(anotherAccount, (amount.divn(4)), { from: to });
-          const blockNum3 = await web3.eth.getBlockNumber();
-
-          (await this.token.balanceOfAt(owner, blockNum3)).should.be.bignumber.equal((amount.divn(4)));
-          (await this.token.balanceOfAt(owner, blockNum2)).should.be.bignumber.equal((amount.divn(4)));
-          (await this.token.balanceOfAt(owner, blockNum)).should.be.bignumber.equal((amount.divn(2)));
-          (await this.token.balanceOfAt(owner, blockNum - 1)).should.be.bignumber.equal(amount);
-
-          (await this.token.balanceOfAt(to, blockNum3)).should.be.bignumber.equal((amount.divn(4)));
-          (await this.token.balanceOfAt(to, blockNum2)).should.be.bignumber.equal((amount.divn(2)));
-          (await this.token.balanceOfAt(to, blockNum)).should.be.bignumber.equal((amount.divn(2)));
-          (await this.token.balanceOfAt(to, blockNum - 1)).should.be.bignumber.equal('0');
-
-          (await this.token.balanceOfAt(anotherAccount, blockNum3)).should.be.bignumber.equal((amount.divn(2)));
-          (await this.token.balanceOfAt(anotherAccount, blockNum2)).should.be.bignumber.equal((amount.divn(4)));
-          (await this.token.balanceOfAt(anotherAccount, blockNum)).should.be.bignumber.equal('0');
-          (await this.token.balanceOfAt(anotherAccount, blockNum - 1)).should.be.bignumber.equal('0');
-
-          (await this.token.totalSupplyAt(blockNum3)).should.be.bignumber.equal(initialSupply);
-          (await this.token.totalSupplyAt(blockNum2)).should.be.bignumber.equal(initialSupply);
-          (await this.token.totalSupplyAt(blockNum)).should.be.bignumber.equal(initialSupply);
-          (await this.token.totalSupplyAt(blockNum - 1)).should.be.bignumber.equal(initialSupply);
-        });
-      });
-    });
-
-    describe('when the recipient is the zero address', function () {
-      const to = ZERO_ADDRESS;
-
-      it('reverts', async function () {
-        await shouldFail.reverting(this.token.transfer(to, 100, { from: owner }));
-      });
-    });
-  });
-
-  describe('approve', function () {
-    describe('when the spender is not the zero address', function () {
-      const spender = recipient;
-
-      describe('when the sender has enough balance', function () {
-        const amount = new BN('100');
-
-        it('emits an approval event', async function () {
-          const { logs } = await this.token.approve(spender, amount, { from: owner });
-
-          expectEvent.inLogs(logs, 'Approval', {
-            owner: owner,
-            spender: spender,
-            value: amount,
-          });
-        });
-
-        describe('when there was no approved amount before', function () {
-          it('approves the requested amount', async function () {
-            await this.token.approve(spender, amount, { from: owner });
-
-            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount);
-          });
-        });
-
-        describe('when the spender had an approved amount', function () {
-          beforeEach(async function () {
-            await this.token.approve(spender, 1, { from: owner });
-          });
-
-          it('approves the requested amount and replaces the previous one', async function () {
-            await this.token.approve(spender, amount, { from: owner });
-
-            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount);
-          });
-        });
-      });
-
-      describe('when the sender does not have enough balance', function () {
-        const amount = new BN('101');
-
-        it('emits an approval event', async function () {
-          const { logs } = await this.token.approve(spender, amount, { from: owner });
-
-          expectEvent.inLogs(logs, 'Approval', {
-            owner: owner,
-            spender: spender,
-            value: amount,
-          });
-        });
-
-        describe('when there was no approved amount before', function () {
-          it('approves the requested amount', async function () {
-            await this.token.approve(spender, amount, { from: owner });
-
-            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount);
-          });
-        });
-
-        describe('when the spender had an approved amount', function () {
-          beforeEach(async function () {
-            await this.token.approve(spender, 1, { from: owner });
-          });
-
-          it('approves the requested amount and replaces the previous one', async function () {
-            await this.token.approve(spender, amount, { from: owner });
-
-            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount);
-          });
-        });
-      });
-    });
-
-    describe('when the spender is the zero address', function () {
-      const amount = new BN('100');
-      const spender = ZERO_ADDRESS;
-
-      it('reverts', async function () {
-        await shouldFail.reverting(this.token.approve(spender, amount, { from: owner }));
-      });
-    });
-  });
-
-  describe('transfer from', function () {
-    const spender = recipient;
-
-    describe('when the recipient is not the zero address', function () {
-      const to = anotherAccount;
-
-      describe('when the spender has enough approved balance', function () {
-        beforeEach(async function () {
-          await this.token.approve(spender, 100, { from: owner });
-        });
-
-        describe('when the owner has enough balance', function () {
-          const amount = new BN('100');
-
-          it('transfers the requested amount', async function () {
-            await this.token.transferFrom(owner, to, amount, { from: spender });
-
-            (await this.token.balanceOf(owner)).should.be.bignumber.equal('0');
-
-            (await this.token.balanceOf(to)).should.be.bignumber.equal(amount);
-          });
-
-          it('decreases the spender allowance', async function () {
-            await this.token.transferFrom(owner, to, amount, { from: spender });
-
-            (await this.token.allowance(owner, spender)).should.be.bignumber.equal('0');
-          });
-
-          it('verifies snapshot history', async function () {
-            await this.token.transferFrom(owner, to, amount, { from: spender });
-
-            const blockNum = await web3.eth.getBlockNumber();
-
-            (await this.token.balanceOfAt(owner, blockNum)).should.be.bignumber.equal('0');
-            (await this.token.balanceOfAt(owner, blockNum - 1)).should.be.bignumber.equal(amount);
-
-            (await this.token.balanceOfAt(to, blockNum)).should.be.bignumber.equal(amount);
-            (await this.token.balanceOfAt(to, blockNum - 1)).should.be.bignumber.equal('0');
-          });
-
-          it('emits a transfer event', async function () {
-            const { logs } = await this.token.transferFrom(owner, to, amount, { from: spender });
-
-            expectEvent.inLogs(logs, 'Transfer', {
-              from: owner,
-              to: to,
-              value: amount,
-            });
-          });
-        });
-
-        describe('when the owner does not have enough balance', function () {
-          const amount = new BN('101');
-
-          it('reverts', async function () {
-            await shouldFail.reverting(this.token.transferFrom(owner, to, amount, { from: spender }));
-          });
-        });
-      });
-
-      describe('when the spender does not have enough approved balance', function () {
-        beforeEach(async function () {
-          await this.token.approve(spender, 99, { from: owner });
-        });
-
-        describe('when the owner has enough balance', function () {
-          const amount = new BN('100');
-
-          it('reverts', async function () {
-            await shouldFail.reverting(this.token.transferFrom(owner, to, amount, { from: spender }));
-          });
-        });
-
-        describe('when the owner does not have enough balance', function () {
-          const amount = new BN('101');
-
-          it('reverts', async function () {
-            await shouldFail.reverting(this.token.transferFrom(owner, to, amount, { from: spender }));
-          });
-        });
-      });
-    });
-
-    describe('when the recipient is the zero address', function () {
-      const amount = new BN('100');
-      const to = ZERO_ADDRESS;
-
-      beforeEach(async function () {
-        await this.token.approve(spender, amount, { from: owner });
-      });
-
-      it('reverts', async function () {
-        await shouldFail.reverting(this.token.transferFrom(owner, to, amount, { from: spender }));
-      });
-    });
-  });
-
-  describe('decrease allowance', function () {
-    describe('when the spender is not the zero address', function () {
-      const spender = recipient;
-
-      function shouldDecreaseApproval (amount) {
-        describe('when there was no approved amount before', function () {
-          it('reverts', async function () {
-            await shouldFail.reverting(this.token.decreaseAllowance(spender, amount, { from: owner }));
-          });
-        });
-
-        describe('when the spender had an approved amount', function () {
-          const approvedAmount = amount;
-
-          beforeEach(async function () {
-            ({ logs: this.logs } = await this.token.approve(spender, approvedAmount, { from: owner }));
-          });
-
-          it('emits an approval event', async function () {
-            const { logs } = await this.token.decreaseAllowance(spender, approvedAmount, { from: owner });
-
-            expectEvent.inLogs(logs, 'Approval', {
-              owner: owner,
-              spender: spender,
-              value: '0',
-            });
-          });
-
-          it('decreases the spender allowance subtracting the requested amount', async function () {
-            await this.token.decreaseAllowance(spender, approvedAmount - 1, { from: owner });
-
-            (await this.token.allowance(owner, spender)).should.be.bignumber.equal('1');
-          });
-
-          it('sets the allowance to zero when all allowance is removed', async function () {
-            await this.token.decreaseAllowance(spender, approvedAmount, { from: owner });
-            (await this.token.allowance(owner, spender)).should.be.bignumber.equal('0');
-          });
-
-          it('reverts when more than the full allowance is removed', async function () {
-            await shouldFail.reverting(this.token.decreaseAllowance(spender, approvedAmount + 1, { from: owner }));
-          });
-        });
+    it('creates increasing snapshots ids, starting from 1', async function () {
+      for (const id of ['1', '2', '3', '4', '5']) {
+        const { logs } = await this.token.snapshot();
+        expectEvent.inLogs(logs, 'Snapshot', { id });
       }
-
-      describe('when the sender has enough balance', function () {
-        const amount = new BN('100');
-
-        shouldDecreaseApproval(amount);
-      });
-
-      describe('when the sender does not have enough balance', function () {
-        const amount = new BN('101');
-
-        shouldDecreaseApproval(amount);
-      });
-    });
-
-    describe('when the spender is the zero address', function () {
-      const amount = new BN('100');
-      const spender = ZERO_ADDRESS;
-
-      it('reverts', async function () {
-        await shouldFail.reverting(this.token.decreaseAllowance(spender, amount, { from: owner }));
-      });
     });
   });
 
-  describe('increase allowance', function () {
-    const amount = new BN('100');
+  describe('totalSupplyAt', function () {
+    it('reverts with a snapshot id of 0', async function () {
+      await shouldFail.reverting(this.token.totalSupplyAt(0));
+    });
 
-    describe('when the spender is not the zero address', function () {
-      const spender = recipient;
+    it('reverts with a not-yet-created snapshot id', async function () {
+      await shouldFail.reverting(this.token.totalSupplyAt(1));
+    });
 
-      describe('when the sender has enough balance', function () {
-        it('emits an approval event', async function () {
-          const { logs } = await this.token.increaseAllowance(spender, amount, { from: owner });
+    context('with initial snapshot', function () {
+      beforeEach(async function () {
+        this.initialSnapshotId = new BN('1');
 
-          expectEvent.inLogs(logs, 'Approval', {
-            owner: owner,
-            spender: spender,
-            value: amount,
-          });
+        const { logs } = await this.token.snapshot();
+        expectEvent.inLogs(logs, 'Snapshot', { id: this.initialSnapshotId });
+      });
+
+      context('with no supply changes after the snapshot', function () {
+        it('returns the current total supply', async function () {
+          (await this.token.totalSupplyAt(this.initialSnapshotId)).should.be.bignumber.equal(initialSupply);
+        });
+      });
+
+      context('with supply changes after the snapshot', function () {
+        beforeEach(async function () {
+          await this.token.mint(anyone, new BN('50'));
+          await this.token.burn(initialHolder, new BN('20'));
         });
 
-        describe('when there was no approved amount before', function () {
-          it('approves the requested amount', async function () {
-            await this.token.increaseAllowance(spender, amount, { from: owner });
-
-            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount);
-          });
+        it('returns the total supply before the changes', async function () {
+          (await this.token.totalSupplyAt(this.initialSnapshotId)).should.be.bignumber.equal(initialSupply);
         });
 
-        describe('when the spender had an approved amount', function () {
+        context('with a second snapshot after supply changes', function () {
           beforeEach(async function () {
-            await this.token.approve(spender, 1, { from: owner });
+            this.secondSnapshotId = new BN('2');
+
+            const { logs } = await this.token.snapshot();
+            expectEvent.inLogs(logs, 'Snapshot', { id: this.secondSnapshotId });
           });
 
-          it('increases the spender allowance adding the requested amount', async function () {
-            await this.token.increaseAllowance(spender, amount, { from: owner });
+          it('snapshots return the supply before and after the changes', async function () {
+            (await this.token.totalSupplyAt(this.initialSnapshotId)).should.be.bignumber.equal(initialSupply);
 
-            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount.addn(1));
-          });
-        });
-      });
-
-      describe('when the sender does not have enough balance', function () {
-        const amount = new BN('101');
-
-        it('emits an approval event', async function () {
-          const { logs } = await this.token.increaseAllowance(spender, amount, { from: owner });
-
-          expectEvent.inLogs(logs, 'Approval', {
-            owner: owner,
-            spender: spender,
-            value: amount,
+            (await this.token.totalSupplyAt(this.secondSnapshotId)).should.be.bignumber.equal(
+              await this.token.totalSupply()
+            );
           });
         });
 
-        describe('when there was no approved amount before', function () {
-          it('approves the requested amount', async function () {
-            await this.token.increaseAllowance(spender, amount, { from: owner });
-
-            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount);
-          });
-        });
-
-        describe('when the spender had an approved amount', function () {
+        context('with multiple snapshots after supply changes', function () {
           beforeEach(async function () {
-            await this.token.approve(spender, 1, { from: owner });
+            this.secondSnapshotIds = [2, 3, 4].map(n => new BN(n));
+
+            for (const id of this.secondSnapshotIds) {
+              const { logs } = await this.token.snapshot();
+              expectEvent.inLogs(logs, 'Snapshot', { id });
+            }
           });
 
-          it('increases the spender allowance adding the requested amount', async function () {
-            await this.token.increaseAllowance(spender, amount, { from: owner });
+          it('all posterior snapshots return the supply after the changes', async function () {
+            (await this.token.totalSupplyAt(this.initialSnapshotId)).should.be.bignumber.equal(initialSupply);
 
-            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount.addn(1));
+            const currentSupply = await this.token.totalSupply();
+
+            for (const id of this.secondSnapshotIds) {
+              (await this.token.totalSupplyAt(id)).should.be.bignumber.equal(currentSupply);
+            }
           });
         });
-      });
-    });
-
-    describe('when the spender is the zero address', function () {
-      const spender = ZERO_ADDRESS;
-
-      it('reverts', async function () {
-        await shouldFail.reverting(this.token.increaseAllowance(spender, amount, { from: owner }));
       });
     });
   });
 
-  describe('_mint', function () {
-    const initialSupply = new BN('100');
-    const amount = new BN('50');
-
-    it('rejects a zero account', async function () {
-      await shouldFail.reverting(this.token.mint(ZERO_ADDRESS, amount));
+  describe('balanceOfAt', function () {
+    it('reverts with a snapshot id of 0', async function () {
+      await shouldFail.reverting(this.token.balanceOfAt(anyone, 0));
     });
 
-    describe('for a non zero account', function () {
-      beforeEach('minting', async function () {
-        const { logs } = await this.token.mint(recipient, amount);
-        this.blockNum = await web3.eth.getBlockNumber();
-        this.logs = logs;
+    it('reverts with a not-yet-created snapshot id', async function () {
+      await shouldFail.reverting(this.token.balanceOfAt(anyone, 1));
+    });
+
+    context('with initial snapshot', function () {
+      beforeEach(async function () {
+        this.initialSnapshotId = new BN('1');
+
+        const { logs } = await this.token.snapshot();
+        expectEvent.inLogs(logs, 'Snapshot', { id: this.initialSnapshotId });
       });
 
-      it('increments totalSupply', async function () {
-        const expectedSupply = initialSupply.add(amount);
-        (await this.token.totalSupply()).should.be.bignumber.equal(expectedSupply);
+      context('with no balance changes after the snapshot', function () {
+        it('returns the current balance for all accounts', async function () {
+          (await this.token.balanceOfAt(initialHolder, this.initialSnapshotId))
+            .should.be.bignumber.equal(initialSupply);
+          (await this.token.balanceOfAt(recipient, this.initialSnapshotId)).should.be.bignumber.equal('0');
+          (await this.token.balanceOfAt(anyone, this.initialSnapshotId)).should.be.bignumber.equal('0');
+        });
       });
 
-      it('increments totalSupply - verify snapshots', async function () {
-        const expectedSupply = initialSupply.add(amount);
-
-        (await this.token.totalSupplyAt(this.blockNum)).should.be.bignumber.equal(expectedSupply);
-        (await this.token.totalSupplyAt(this.blockNum - 1)).should.be.bignumber.equal(initialSupply);
-      });
-
-      it('increments recipient balance', async function () {
-        (await this.token.balanceOf(recipient)).should.be.bignumber.equal(amount);
-      });
-
-      it('verifies snapshot history', async function () {
-        const blockNum = await web3.eth.getBlockNumber();
-
-        (await this.token.balanceOfAt(recipient, blockNum)).should.be.bignumber.equal(amount);
-        (await this.token.balanceOfAt(recipient, blockNum - 1)).should.be.bignumber.equal('0');
-      });
-
-      it('emits Transfer event', async function () {
-        const event = expectEvent.inLogs(this.logs, 'Transfer', {
-          from: ZERO_ADDRESS,
-          to: recipient,
+      context('with balance changes after the snapshot', function () {
+        beforeEach(async function () {
+          await this.token.transfer(recipient, new BN('10'), { from: initialHolder });
+          await this.token.mint(recipient, new BN('50'));
+          await this.token.burn(initialHolder, new BN('20'));
         });
 
-        event.args.value.should.be.bignumber.equal(amount);
-      });
-    });
-  });
+        it('returns the balances before the changes', async function () {
+          (await this.token.balanceOfAt(initialHolder, this.initialSnapshotId))
+            .should.be.bignumber.equal(initialSupply);
+          (await this.token.balanceOfAt(recipient, this.initialSnapshotId)).should.be.bignumber.equal('0');
+          (await this.token.balanceOfAt(anyone, this.initialSnapshotId)).should.be.bignumber.equal('0');
+        });
 
-  describe('_burn', function () {
-    const initialSupply = new BN('100');
+        context('with a second snapshot after supply changes', function () {
+          beforeEach(async function () {
+            this.secondSnapshotId = new BN('2');
 
-    it('rejects a zero account', async function () {
-      await shouldFail.reverting(this.token.burn(ZERO_ADDRESS, 1));
-    });
-
-    describe('for a non zero account', function () {
-      it('rejects burning more than balance', async function () {
-        await shouldFail.reverting(this.token.burn(owner, initialSupply.addn(1)));
-      });
-
-      const describeBurn = function (description, amount) {
-        describe(description, function () {
-          beforeEach('burning', async function () {
-            const { logs } = await this.token.burn(owner, amount);
-            this.logs = logs;
+            const { logs } = await this.token.snapshot();
+            expectEvent.inLogs(logs, 'Snapshot', { id: this.secondSnapshotId });
           });
 
-          it('decrements totalSupply', async function () {
-            const expectedSupply = initialSupply.sub(amount);
-            (await this.token.totalSupply()).should.be.bignumber.equal(expectedSupply);
-          });
+          it('snapshots return the balances before and after the changes', async function () {
+            (await this.token.balanceOfAt(initialHolder, this.initialSnapshotId))
+              .should.be.bignumber.equal(initialSupply);
+            (await this.token.balanceOfAt(recipient, this.initialSnapshotId)).should.be.bignumber.equal('0');
+            (await this.token.balanceOfAt(anyone, this.initialSnapshotId)).should.be.bignumber.equal('0');
 
-          it('decrements owner balance', async function () {
-            const expectedBalance = initialSupply.sub(amount);
-            (await this.token.balanceOf(owner)).should.be.bignumber.equal(expectedBalance);
-          });
-
-          it('verifies snapshot history', async function () {
-            const blockNum = await web3.eth.getBlockNumber();
-
-            (await this.token.balanceOfAt(owner, blockNum)).should.be.bignumber.equal(initialSupply.sub(amount));
-            (await this.token.balanceOfAt(owner, blockNum - 1)).should.be.bignumber.equal(initialSupply);
-          });
-
-          it('emits Transfer event', async function () {
-            const event = expectEvent.inLogs(this.logs, 'Transfer', {
-              from: owner,
-              to: ZERO_ADDRESS,
-            });
-
-            event.args.value.should.be.bignumber.equal(amount);
+            (await this.token.balanceOfAt(initialHolder, this.secondSnapshotId)).should.be.bignumber.equal(
+              await this.token.balanceOf(initialHolder)
+            );
+            (await this.token.balanceOfAt(recipient, this.secondSnapshotId)).should.be.bignumber.equal(
+              await this.token.balanceOf(recipient)
+            );
+            (await this.token.balanceOfAt(anyone, this.secondSnapshotId)).should.be.bignumber.equal(
+              await this.token.balanceOf(anyone)
+            );
           });
         });
-      };
 
-      describeBurn('for entire balance', initialSupply);
-      describeBurn('for less amount than balance', initialSupply.subn(1));
-    });
-  });
+        context('with multiple snapshots after supply changes', function () {
+          beforeEach(async function () {
+            this.secondSnapshotIds = [2, 3, 4].map(n => new BN(n));
 
-  describe('_burnFrom', function () {
-    const initialSupply = new BN('100');
-    const allowance = new BN('70');
-
-    const spender = anotherAccount;
-
-    beforeEach('approving', async function () {
-      await this.token.approve(spender, allowance, { from: owner });
-    });
-
-    it('rejects a null account', async function () {
-      await shouldFail.reverting(this.token.burnFrom(ZERO_ADDRESS, 1));
-    });
-
-    describe('for a non null account', function () {
-      it('rejects burning more than allowance', async function () {
-        await shouldFail.reverting(this.token.burnFrom(owner, allowance.addn(1)));
-      });
-
-      it('rejects burning more than balance', async function () {
-        await shouldFail.reverting(this.token.burnFrom(owner, initialSupply.addn(1)));
-      });
-
-      const describeBurnFrom = function (description, amount) {
-        describe(description, function () {
-          beforeEach('burning', async function () {
-            const { logs } = await this.token.burnFrom(owner, amount, { from: spender });
-            this.logs = logs;
+            for (const id of this.secondSnapshotIds) {
+              const { logs } = await this.token.snapshot();
+              expectEvent.inLogs(logs, 'Snapshot', { id });
+            }
           });
 
-          it('decrements totalSupply', async function () {
-            const expectedSupply = initialSupply.sub(amount);
-            (await this.token.totalSupply()).should.be.bignumber.equal(expectedSupply);
-          });
+          it('all posterior snapshots return the supply after the changes', async function () {
+            (await this.token.balanceOfAt(initialHolder, this.initialSnapshotId))
+              .should.be.bignumber.equal(initialSupply);
+            (await this.token.balanceOfAt(recipient, this.initialSnapshotId)).should.be.bignumber.equal('0');
+            (await this.token.balanceOfAt(anyone, this.initialSnapshotId)).should.be.bignumber.equal('0');
 
-          it('decrements owner balance', async function () {
-            const expectedBalance = initialSupply.sub(amount);
-            (await this.token.balanceOf(owner)).should.be.bignumber.equal(expectedBalance);
-          });
-
-          it('decrements spender allowance', async function () {
-            const expectedAllowance = allowance.sub(amount);
-            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(expectedAllowance);
-          });
-
-          it('verifies snapshot history', async function () {
-            const blockNum = await web3.eth.getBlockNumber();
-
-            (await this.token.balanceOfAt(owner, blockNum)).should.be.bignumber.equal(initialSupply.sub(amount));
-            (await this.token.balanceOfAt(owner, blockNum - 1)).should.be.bignumber.equal(initialSupply);
-          });
-
-          it('emits Transfer event', async function () {
-            const event = expectEvent.inLogs(this.logs, 'Transfer', {
-              from: owner,
-              to: ZERO_ADDRESS,
-            });
-
-            event.args.value.should.be.bignumber.equal(amount);
+            for (const id of this.secondSnapshotIds) {
+              (await this.token.balanceOfAt(initialHolder, id)).should.be.bignumber.equal(
+                await this.token.balanceOf(initialHolder)
+              );
+              (await this.token.balanceOfAt(recipient, id)).should.be.bignumber.equal(
+                await this.token.balanceOf(recipient)
+              );
+              (await this.token.balanceOfAt(anyone, id)).should.be.bignumber.equal(
+                await this.token.balanceOf(anyone)
+              );
+            }
           });
         });
-      };
-
-      describeBurnFrom('for entire allowance', allowance);
-      describeBurnFrom('for less amount than allowance', allowance.subn(1));
+      });
     });
   });
 });
