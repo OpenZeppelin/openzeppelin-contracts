@@ -1,10 +1,10 @@
 pragma solidity ^0.5.2;
 
 import "../token/ERC20/ERC20.sol";
-import "../drafts/ERC1046/TokenMetadata.sol";
+import "../drafts/ERC1046/ERC20Metadata.sol";
 
-contract ERC20WithMetadataMock is ERC20, ERC20WithMetadata {
-    constructor (string memory tokenURI) public ERC20WithMetadata(tokenURI) {
+contract ERC20MetadataMock is ERC20, ERC20Metadata {
+    constructor (string memory tokenURI) public ERC20Metadata(tokenURI) {
         // solhint-disable-previous-line no-empty-blocks
     }
 

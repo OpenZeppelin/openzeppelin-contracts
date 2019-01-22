@@ -1,10 +1,10 @@
 require('openzeppelin-test-helpers');
 
-const ERC20WithMetadataMock = artifacts.require('ERC20WithMetadataMock');
+const ERC20MetadataMock = artifacts.require('ERC20MetadataMock');
 
 const metadataURI = 'https://example.com';
 
-describe('ERC20WithMetadata', function () {
+describe('ERC20Metadata', function () {
   beforeEach(async function () {
     this.token = await ERC20WithMetadataMock.new(metadataURI);
   });
