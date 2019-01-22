@@ -1,10 +1,6 @@
 const encodeCall = require('zos-lib/lib/helpers/encodeCall').default;
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('openzeppelin-test-helpers');
 
 const StandaloneERC721 = artifacts.require('StandaloneERC721');
 
@@ -20,10 +16,9 @@ contract('StandaloneERC721', function ([_, deployer, minterA, minterB, pauserA, 
   });
 
   async function initialize (token, name, symbol, minters, pausers, from) {
-    const callData = encodeCall('initialize',
-      ['string', 'string', 'address[]', 'address[]'],
-      [name, symbol, minters, pausers]);
-    await token.sendTransaction({ data: callData, from });
+    const signature = 'initialize(string,string,address[],address[],address)';
+    const arguments = [name, symbol, minters, pausers, from];
+    await token.methods[signature](...arguments, { from });
   }
 
   it('can be created with no minters', async function () {

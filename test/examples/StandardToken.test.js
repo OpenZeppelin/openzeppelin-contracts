@@ -1,11 +1,7 @@
 const encodeCall = require('zos-lib/lib/helpers/encodeCall').default;
 const { shouldBehaveLikeERC20Mintable } = require('../token/ERC20/behaviors/ERC20Mintable.behavior');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+const { BN } = require('openzeppelin-test-helpers');
 
 const StandardToken = artifacts.require('StandardToken');
 
@@ -14,9 +10,9 @@ contract('StandardToken', function ([
 ]) {
   const name = 'StdToken';
   const symbol = 'STDT';
-  const decimals = 18;
+  const decimals = new BN('18');
 
-  const initialSupply = 300;
+  const initialSupply = new BN('300');
 
   const minters = [minterA, minterB];
   const pausers = [pauserA, pauserB];
@@ -28,10 +24,9 @@ contract('StandardToken', function ([
   });
 
   async function initialize (token, name, symbol, decimals, initialSupply, initialHolder, minters, pausers, from) {
-    const callData = encodeCall('initialize',
-      ['string', 'string', 'uint8', 'uint256', 'address', 'address[]', 'address[]'],
-      [name, symbol, decimals, initialSupply, initialHolder, minters, pausers]);
-    await token.sendTransaction({ data: callData, from });
+    const signature = 'initialize(string,string,uint8,uint256,address,address[],address[],address)';
+    const arguments = [name, symbol, decimals, initialSupply, initialHolder, minters, pausers, from];
+    await token.methods[signature](...arguments, { from });
   }
 
   context('with all arguments', function () {
@@ -77,8 +72,8 @@ contract('StandardToken', function ([
   });
 
   it('can be created with zero initial balance', async function () {
-    await initialize(this.token, name, symbol, decimals, 0, ZERO_ADDRESS, minters, pausers, deployer);
-    (await this.token.balanceOf(initialHolder)).should.be.bignumber.equal(0);
+    await initialize(this.token, name, symbol, decimals, new BN(0), ZERO_ADDRESS, minters, pausers, deployer);
+    (await this.token.balanceOf(initialHolder)).should.be.bignumber.equal('0');
   });
 
   it('can be created with no minters', async function () {

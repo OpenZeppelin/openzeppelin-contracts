@@ -1,12 +1,7 @@
 const encodeCall = require('zos-lib/lib/helpers/encodeCall').default;
 const { shouldBehaveLikeERC20Mintable } = require('./behaviors/ERC20Mintable.behavior');
-const shouldFail = require('../../helpers/shouldFail');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+const { shouldFail, BN } = require('openzeppelin-test-helpers');
 
 const StandaloneERC20 = artifacts.require('StandaloneERC20');
 
@@ -15,9 +10,9 @@ contract('StandaloneERC20', function ([
 ]) {
   const name = 'StandaloneERC20';
   const symbol = 'SAERC20';
-  const decimals = 18;
+  const decimals = new BN(18);
 
-  const initialSupply = 300;
+  const initialSupply = new BN(300);
 
   const minters = [minterA, minterB];
   const pausers = [pauserA, pauserB];
@@ -29,17 +24,15 @@ contract('StandaloneERC20', function ([
   });
 
   async function initializeFull (token, name, symbol, decimals, initialSupply, initialHolder, minters, pausers, from) {
-    const callData = encodeCall('initialize',
-      ['string', 'string', 'uint8', 'uint256', 'address', 'address[]', 'address[]'],
-      [name, symbol, decimals, initialSupply, initialHolder, minters, pausers]);
-    await token.sendTransaction({ data: callData, from });
+    const signature = 'initialize(string,string,uint8,uint256,address,address[],address[],address)';
+    const arguments = [name, symbol, decimals, initialSupply, initialHolder, minters, pausers, from];
+    await token.methods[signature](...arguments, { from });
   }
 
   async function initializePartial (token, name, symbol, decimals, minters, pausers, from) {
-    const callData = encodeCall('initialize',
-      ['string', 'string', 'uint8', 'address[]', 'address[]'],
-      [name, symbol, decimals, minters, pausers]);
-    await token.sendTransaction({ data: callData, from });
+    const signature = 'initialize(string,string,uint8,address[],address[],address)';
+    const arguments = [name, symbol, decimals, minters, pausers, from];
+    await token.methods[signature](...arguments, { from });
   }
 
   describe('with all arguments', function () {

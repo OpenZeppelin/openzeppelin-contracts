@@ -1,7 +1,7 @@
 const { constants, expectEvent } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
-const SimpleToken = artifacts.require('SimpleToken');
+const SimpleToken = artifacts.require('SimpleTokenMock');
 
 contract('SimpleToken', function ([_, creator]) {
   beforeEach(async function () {

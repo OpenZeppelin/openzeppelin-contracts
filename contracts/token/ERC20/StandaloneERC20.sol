@@ -13,7 +13,7 @@ import "./ERC20Pausable.sol";
 contract StandaloneERC20 is Initializable, ERC20Detailed, ERC20Mintable, ERC20Pausable {
     function initialize(
         string memory name, string memory symbol, uint8 decimals, uint256 initialSupply, address initialHolder,
-        address[] memory minters, address[] memory pausers
+        address[] memory minters, address[] memory pausers, address sender
     ) public initializer {
         ERC20Detailed.initialize(name, symbol, decimals);
 
@@ -21,11 +21,11 @@ contract StandaloneERC20 is Initializable, ERC20Detailed, ERC20Mintable, ERC20Pa
         _mint(initialHolder, initialSupply);
 
         // Initialize the minter and pauser roles, and renounce them
-        ERC20Mintable.initialize(msg.sender);
-        renounceMinter();
+        ERC20Mintable.initialize(sender);
+        _removeMinter(sender);
 
-        ERC20Pausable.initialize(msg.sender);
-        renouncePauser();
+        ERC20Pausable.initialize(sender);
+        _removePauser(sender);
 
         // Add the requested minters and pausers (this can be done after renouncing since
         // these are the internal calls)
@@ -39,16 +39,16 @@ contract StandaloneERC20 is Initializable, ERC20Detailed, ERC20Mintable, ERC20Pa
     }
 
     function initialize(
-        string memory name, string memory symbol, uint8 decimals, address[] memory minters, address[] memory pausers
+        string memory name, string memory symbol, uint8 decimals, address[] memory minters, address[] memory pausers, address sender
     ) public initializer {
         ERC20Detailed.initialize(name, symbol, decimals);
 
         // Initialize the minter and pauser roles, and renounce them
-        ERC20Mintable.initialize(msg.sender);
-        renounceMinter();
+        ERC20Mintable.initialize(sender);
+        _removeMinter(sender);
 
-        ERC20Pausable.initialize(msg.sender);
-        renouncePauser();
+        ERC20Pausable.initialize(sender);
+        _removePauser(sender);
 
         // Add the requested minters and pausers (this can be done after renouncing since
         // these are the internal calls)
