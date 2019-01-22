@@ -15,6 +15,10 @@ contract ERC20WithMetadata is ERC20TokenMetadata {
     string private _tokenURI;
 
     constructor (string memory tokenURI) public {
+        _setTokenURI(tokenURI)
+    }
+
+    function _setTokenURI(string memory tokenURI) internal {
         _tokenURI = tokenURI;
     }
 

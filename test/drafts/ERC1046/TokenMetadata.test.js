@@ -12,4 +12,12 @@ describe('ERC20WithMetadata', function () {
   it('responds with the metadata', async function () {
     (await this.token.tokenURI()).should.equal(metadataURI);
   });
+
+  describe('setTokenURI', function () {
+    it('changes the original URI', async function () {
+      const newMetadataURI = 'https://betterexample.com';
+      await this.token.setTokenURI(newMetadataURI);
+      (await this.token.tokenURI()).should.equal(newMetadataURI);
+    });
+  });
 });
