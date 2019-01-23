@@ -8,15 +8,14 @@ import "../token/ERC20/ERC20.sol";
 /**
  * @title ERC20 token with snapshots.
  * inspired by Jordi Baylina's MiniMeToken to record historical balances
+ * Snapshots store a value at the time a snapshot is taken (and a new snapshot id created), and the corresponding
+ * snapshot id. Each account has individual snapshots taken on demand, as does the token's total supply.
  * @author Validity Labs AG <info@validitylabs.org>
  */
 contract ERC20Snapshot is ERC20 {
     using SafeMath for uint256;
     using Arrays for uint256[];
     using Counters for Counters.Counter;
-
-    // Snapshots store a value at the time a snapshot is taken (and a new snapshot id created), and the corresponding
-    // snapshot id. Each account has individual snapshots taken on demand, as does the token's total supply.
 
     // Snapshoted values have arrays of ids and the value corresponding to that id. These could be an array of a
     // Snapshot struct, but that would impede usage of functions that work on an array.
