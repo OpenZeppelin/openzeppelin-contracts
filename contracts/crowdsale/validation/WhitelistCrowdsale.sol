@@ -10,6 +10,8 @@ import "../../access/roles/WhitelistedRole.sol";
 contract WhitelistCrowdsale is Initializable, WhitelistedRole, Crowdsale {
     function initialize(address sender) public initializer {
         WhitelistedRole._initialize(sender);
+
+        assert(Crowdsale._hasBeenInitialized());
     }
 
     /**
@@ -22,4 +24,6 @@ contract WhitelistCrowdsale is Initializable, WhitelistedRole, Crowdsale {
         require(isWhitelisted(_beneficiary));
         super._preValidatePurchase(_beneficiary, _weiAmount);
     }
+
+    uint256[50] private ______gap;
 }

@@ -55,4 +55,6 @@ contract Escrow is Initializable, Secondary {
 
         emit Withdrawn(payee, payment);
     }
+
+    uint256[50] private ______gap;
 }

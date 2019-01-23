@@ -53,4 +53,7 @@ contract WhitelistedRole is Initializable, WhitelistAdminRole {
         _whitelisteds.remove(account);
         emit WhitelistedRemoved(account);
     }
+
+    uint256[50] private ______gap;
+}
 }

@@ -26,4 +26,6 @@ contract PausableCrowdsale is Initializable, Crowdsale, Pausable {
     function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal view whenNotPaused {
         return super._preValidatePurchase(_beneficiary, _weiAmount);
     }
+
+    uint256[50] private ______gap;
 }

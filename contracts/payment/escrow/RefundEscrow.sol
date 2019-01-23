@@ -93,4 +93,6 @@ contract RefundEscrow is Initializable, ConditionalEscrow {
     function withdrawalAllowed(address) public view returns (bool) {
         return _state == State.Refunding;
     }
+
+    uint256[50] private ______gap;
 }

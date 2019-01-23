@@ -23,4 +23,6 @@ contract ConditionalEscrow is Initializable, Escrow {
         require(withdrawalAllowed(payee));
         super.withdraw(payee);
     }
+
+    uint256[50] private ______gap;
 }
