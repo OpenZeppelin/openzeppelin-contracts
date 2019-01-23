@@ -74,7 +74,7 @@ contract('ERC20Snapshot', function ([_, initialHolder, recipient, anyone]) {
 
         context('with multiple snapshots after supply changes', function () {
           beforeEach(async function () {
-            this.secondSnapshotIds = [2, 3, 4].map(n => new BN(n));
+            this.secondSnapshotIds = ['2', '3', '4'];
 
             for (const id of this.secondSnapshotIds) {
               const { logs } = await this.token.snapshot();
@@ -164,7 +164,7 @@ contract('ERC20Snapshot', function ([_, initialHolder, recipient, anyone]) {
 
         context('with multiple snapshots after supply changes', function () {
           beforeEach(async function () {
-            this.secondSnapshotIds = [2, 3, 4].map(n => new BN(n));
+            this.secondSnapshotIds = ['2', '3', '4'];
 
             for (const id of this.secondSnapshotIds) {
               const { logs } = await this.token.snapshot();
