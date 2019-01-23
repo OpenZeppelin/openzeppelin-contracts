@@ -1,8 +1,8 @@
 pragma solidity ^0.5.2;
 
-import "../../math/SafeMath.sol";
-import "../../utils/Arrays.sol";
-import "./ERC20.sol";
+import "../math/SafeMath.sol";
+import "../utils/Arrays.sol";
+import "../token/ERC20/ERC20.sol";
 
 /**
  * @title ERC20 token with snapshots.

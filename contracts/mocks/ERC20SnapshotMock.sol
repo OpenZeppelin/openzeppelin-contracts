@@ -1,6 +1,6 @@
 pragma solidity ^0.5.2;
 
-import "../token/ERC20/ERC20Snapshot.sol";
+import "../drafts/ERC20Snapshot.sol";
 
 
 contract ERC20SnapshotMock is ERC20Snapshot {
