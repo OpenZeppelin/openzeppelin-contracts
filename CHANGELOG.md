@@ -15,6 +15,7 @@
 ### Bugfixes:
 
 ### Breaking changes:
+ * `TokenMetadata` (in drafts) has been renamed to `ERC20Metadata`.
 
 ## 2.1.2 (2019-17-01)
  * Removed most of the test suite from the npm package, except `PublicRole.behavior.js`, which may be useful to users testing their own `Roles`.
