@@ -33,11 +33,6 @@ library ECDSA {
             v := byte(0, mload(add(signature, 0x60)))
         }
 
-        // Version of signature should be 27 or 28, but 0 and 1 are also possible versions
-        if (v < 27) {
-            v += 27;
-        }
-
         // If the version is correct return the signer address
         if (v != 27 && v != 28) {
             return (address(0));

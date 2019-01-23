@@ -1,5 +1,5 @@
 const { shouldFail } = require('openzeppelin-test-helpers');
-const { signMessage, toEthSignedMessageHash } = require('../helpers/sign');
+const { signMessage, toEthSignedMessageHash, fixSignature } = require('../helpers/sign');
 
 const ECDSAMock = artifacts.require('ECDSAMock');
 
@@ -18,11 +18,12 @@ contract('ECDSA', function ([_, anyone]) {
       // eslint-disable-next-line max-len
       const signatureWithoutVersion = '0x5d99b6f7f6d1f73d1a26497f2b1c89b24c0993913f86e9a2d02cd69887d9c94f3c880358579d811b21dd1b7fd9bb01c1d81d10e69f0384e675c32b39643be892';
 
-      context('with 00 as version value', function () {
+      context('with 00 as version value (wrong)', function () {
         it('works', async function () {
           const version = '00';
           const signature = signatureWithoutVersion + version;
-          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(signer);
+          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(
+            '0x0000000000000000000000000000000000000000');
         });
       });
 
@@ -51,11 +52,12 @@ contract('ECDSA', function ([_, anyone]) {
       // eslint-disable-next-line max-len
       const signatureWithoutVersion = '0x331fe75a821c982f9127538858900d87d3ec1f9f737338ad67cad133fa48feff48e6fa0c18abc62e42820f05943e47af3e9fbe306ce74d64094bdf1691ee53e0';
 
-      context('with 01 as version value', function () {
+      context('with 01 as version value (wrong)', function () {
         it('works', async function () {
           const version = '01';
           const signature = signatureWithoutVersion + version;
-          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(signer);
+          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(
+            '0x0000000000000000000000000000000000000000');
         });
       });
 
@@ -83,7 +85,7 @@ contract('ECDSA', function ([_, anyone]) {
       context('with correct signature', function () {
         it('returns signer address', async function () {
           // Create the signature
-          const signature = await signMessage(anyone, TEST_MESSAGE);
+          const signature = fixSignature(await signMessage(anyone, TEST_MESSAGE));
 
           // Recover the signer address from the generated message and signature.
           (await this.ecdsa.recover(
