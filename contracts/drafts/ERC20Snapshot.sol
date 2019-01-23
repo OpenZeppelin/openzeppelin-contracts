@@ -2,6 +2,7 @@ pragma solidity ^0.5.2;
 
 import "../math/SafeMath.sol";
 import "../utils/Arrays.sol";
+import "../drafts/Counters.sol";
 import "../token/ERC20/ERC20.sol";
 
 /**
@@ -12,6 +13,7 @@ import "../token/ERC20/ERC20.sol";
 contract ERC20Snapshot is ERC20 {
     using SafeMath for uint256;
     using Arrays for uint256[];
+    using Counters for Counters.Counter;
 
     // Snapshots store a value at the time a snapshot is taken (and a new snapshot id created), and the corresponding
     // snapshot id. Each account has individual snapshots taken on demand, as does the token's total supply.
@@ -26,7 +28,7 @@ contract ERC20Snapshot is ERC20 {
     uint256[] private _totalSupplySnapshotValues;
 
     // Snapshot ids increase monotonically, with the first value being 1. An id of 0 is invalid.
-    uint256 private _currentSnapshotId;
+    Counters.Counter private _currentSnapshotId;
 
     event Snapshot(uint256 id);
 
@@ -34,9 +36,11 @@ contract ERC20Snapshot is ERC20 {
     // balance change will not be recorded. This means the extra added cost of storing snapshotted balances is only paid
     // when required, but is also flexible enough that it allows for e.g. daily snapshots.
     function snapshot() public returns (uint256) {
-        _currentSnapshotId += 1;
-        emit Snapshot(_currentSnapshotId);
-        return _currentSnapshotId;
+        _currentSnapshotId.increment();
+
+        uint256 currentId = _currentSnapshotId.current();
+        emit Snapshot(currentId);
+        return currentId;
     }
 
     function balanceOfAt(address account, uint256 snapshotId) public view returns (uint256) {
@@ -93,7 +97,7 @@ contract ERC20Snapshot is ERC20 {
         private view returns (bool, uint256)
     {
         require(snapshotId > 0);
-        require(snapshotId <= _currentSnapshotId);
+        require(snapshotId <= _currentSnapshotId.current());
 
         uint256 index = ids.findUpperBound(snapshotId);
 
@@ -113,8 +117,9 @@ contract ERC20Snapshot is ERC20 {
     }
 
     function _updateSnapshot(uint256[] storage values, uint256[] storage ids, uint256 currentValue) private {
-        if (_lastSnapshotId(ids) < _currentSnapshotId) {
-            ids.push(_currentSnapshotId);
+        uint256 currentId = _currentSnapshotId.current();
+        if (_lastSnapshotId(ids) < currentId) {
+            ids.push(currentId);
             values.push(currentValue);
         }
     }
