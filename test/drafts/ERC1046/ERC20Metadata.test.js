@@ -6,7 +6,7 @@ const metadataURI = 'https://example.com';
 
 describe('ERC20Metadata', function () {
   beforeEach(async function () {
-    this.token = await ERC20WithMetadataMock.new(metadataURI);
+    this.token = await ERC20MetadataMock.new(metadataURI);
   });
 
   it('responds with the metadata', async function () {
