@@ -60,6 +60,4 @@ contract StandaloneERC20 is Initializable, ERC20Detailed, ERC20Mintable, ERC20Pa
             _addPauser(pausers[i]);
         }
     }
-
-    uint256[50] private ______gap;
 }
