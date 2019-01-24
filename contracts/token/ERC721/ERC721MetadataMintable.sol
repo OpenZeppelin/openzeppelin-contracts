@@ -13,7 +13,7 @@ contract ERC721MetadataMintable is Initializable, ERC721, ERC721Metadata, Minter
     function initialize(address sender) public initializer {
         require(ERC721._hasBeenInitialized());
         require(ERC721Metadata._hasBeenInitialized());
-        MinterRole._initialize(sender);
+        MinterRole.initialize(sender);
     }
 
     /**

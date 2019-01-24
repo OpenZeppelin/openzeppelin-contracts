@@ -16,7 +16,7 @@ contract WhitelistAdminRole is Initializable {
 
     Roles.Role private _whitelistAdmins;
 
-    function _initialize(address sender) internal initializer {
+    function initialize(address sender) public initializer {
         if (!isWhitelistAdmin(sender)) {
             _addWhitelistAdmin(sender);
         }

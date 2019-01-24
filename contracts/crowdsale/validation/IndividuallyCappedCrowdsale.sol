@@ -18,7 +18,7 @@ contract IndividuallyCappedCrowdsale is Initializable, Crowdsale, CapperRole {
     function initialize(address sender) public initializer {
         assert(Crowdsale._hasBeenInitialized());
 
-        CapperRole._initialize(sender);
+        CapperRole.initialize(sender);
     }
 
     /**

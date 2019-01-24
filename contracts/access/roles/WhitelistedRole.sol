@@ -24,8 +24,8 @@ contract WhitelistedRole is Initializable, WhitelistAdminRole {
         _;
     }
 
-    function _initialize(address sender) internal initializer {
-        WhitelistAdminRole._initialize(sender);
+    function initialize(address sender) public initializer {
+        WhitelistAdminRole.initialize(sender);
     }
 
     function isWhitelisted(address account) public view returns (bool) {
@@ -55,5 +55,4 @@ contract WhitelistedRole is Initializable, WhitelistAdminRole {
     }
 
     uint256[50] private ______gap;
-}
 }

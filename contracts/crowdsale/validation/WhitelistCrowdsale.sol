@@ -9,7 +9,7 @@ import "../../access/roles/WhitelistedRole.sol";
  */
 contract WhitelistCrowdsale is Initializable, WhitelistedRole, Crowdsale {
     function initialize(address sender) public initializer {
-        WhitelistedRole._initialize(sender);
+        WhitelistedRole.initialize(sender);
 
         assert(Crowdsale._hasBeenInitialized());
     }

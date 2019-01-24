@@ -1,4 +1,3 @@
-const encodeCall = require('zos-lib/lib/helpers/encodeCall').default;
 const { shouldBehaveLikeERC20Mintable } = require('./behaviors/ERC20Mintable.behavior');
 
 const { shouldFail, BN } = require('openzeppelin-test-helpers');
@@ -25,14 +24,14 @@ contract('StandaloneERC20', function ([
 
   async function initializeFull (token, name, symbol, decimals, initialSupply, initialHolder, minters, pausers, from) {
     const signature = 'initialize(string,string,uint8,uint256,address,address[],address[],address)';
-    const arguments = [name, symbol, decimals, initialSupply, initialHolder, minters, pausers, from];
-    await token.methods[signature](...arguments, { from });
+    const args = [name, symbol, decimals, initialSupply, initialHolder, minters, pausers, from];
+    await token.methods[signature](...args, { from });
   }
 
   async function initializePartial (token, name, symbol, decimals, minters, pausers, from) {
     const signature = 'initialize(string,string,uint8,address[],address[],address)';
-    const arguments = [name, symbol, decimals, minters, pausers, from];
-    await token.methods[signature](...arguments, { from });
+    const args = [name, symbol, decimals, minters, pausers, from];
+    await token.methods[signature](...args, { from });
   }
 
   describe('with all arguments', function () {

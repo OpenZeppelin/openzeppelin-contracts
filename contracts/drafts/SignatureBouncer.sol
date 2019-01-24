@@ -44,8 +44,8 @@ contract SignatureBouncer is Initializable, SignerRole {
     // Signature size is 65 bytes (tightly packed v + r + s), but gets padded to 96 bytes
     uint256 private constant _SIGNATURE_SIZE = 96;
 
-    function _initialize(address sender) internal initializer {
-        SignerRole._initialize(sender);
+    function initialize(address sender) public initializer {
+        SignerRole.initialize(sender);
     }
 
     /**
