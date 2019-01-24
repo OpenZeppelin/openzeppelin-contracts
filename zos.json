@@ -7,6 +7,6 @@
     "StandaloneERC20": "StandaloneERC20",
     "StandaloneERC721": "StandaloneERC721",
     "TokenVesting": "TokenVesting",
-    "PaymentSplitter": "SplitPayment"
+    "PaymentSplitter": "PaymentSplitter"
   }
 }
