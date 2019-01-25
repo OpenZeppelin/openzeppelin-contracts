@@ -15,7 +15,7 @@ contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
     mapping(uint256 => string) private _tokenURIs;
 
     bytes4 private constant _INTERFACE_ID_ERC721_METADATA = 0x5b5e139f;
-    /**
+    /*
      * 0x5b5e139f ===
      *     bytes4(keccak256('name()')) ^
      *     bytes4(keccak256('symbol()')) ^
