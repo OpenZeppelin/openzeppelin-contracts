@@ -30,7 +30,7 @@ contract MyNFT is ERC721Full, ERC721Mintable {
 
 > You need an ethereum development framework for the above import statements to work! Check out these guides for [Truffle] or [Embark].
 
-On our site you will find a few [guides] to learn about the diferent parts of OpenZeppelin, as well as [documentation for the API][API docs]. Keep in mind that the API docs are work in progress, and don’t hesitate to ask questions in [our Slack][Slack].
+On our site you will find a few [guides] to learn about the different parts of OpenZeppelin, as well as [documentation for the API][API docs]. Keep in mind that the API docs are work in progress, and don’t hesitate to ask questions in [our Slack][Slack].
 
 ## Security
 
