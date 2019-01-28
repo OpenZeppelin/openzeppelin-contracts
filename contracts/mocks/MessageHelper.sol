@@ -40,7 +40,7 @@ contract MessageHelper {
     }
 
     function call(address _to, bytes memory _data) public returns (bool) {
-        // solium-disable-next-line security/no-low-level-calls
+        // solhint-disable-next-line security/avoid-low-level-calls
         (bool success,) = _to.call(_data);
         if (success)
             return true;

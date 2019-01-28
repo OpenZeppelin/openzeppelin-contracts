@@ -13,7 +13,7 @@ import "./ERC721Metadata.sol";
  */
 contract ERC721Full is Initializable, ERC721, ERC721Enumerable, ERC721Metadata {
     function initialize(string memory name, string memory symbol) public initializer {
-      ERC721Metadata.initialize(name, symbol);
+        ERC721Metadata.initialize(name, symbol);
     }
 
     uint256[50] private ______gap;

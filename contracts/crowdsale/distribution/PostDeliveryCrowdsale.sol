@@ -41,6 +41,5 @@ contract PostDeliveryCrowdsale is Initializable, TimedCrowdsale {
         _balances[beneficiary] = _balances[beneficiary].add(tokenAmount);
     }
 
-
     uint256[50] private ______gap;
 }

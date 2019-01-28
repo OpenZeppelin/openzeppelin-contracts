@@ -21,6 +21,7 @@ contract TokenTimelock is Initializable {
     uint256 private _releaseTime;
 
     function initialize (IERC20 token, address beneficiary, uint256 releaseTime) public initializer {
+        // solhint-disable-next-line not-rely-on-time
         require(releaseTime > block.timestamp);
         _token = token;
         _beneficiary = beneficiary;
