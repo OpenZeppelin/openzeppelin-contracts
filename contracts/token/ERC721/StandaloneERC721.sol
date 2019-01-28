@@ -15,17 +15,17 @@ import "./ERC721Pausable.sol";
 contract StandaloneERC721
     is Initializable, ERC721, ERC721Enumerable, ERC721Metadata, ERC721MetadataMintable, ERC721Pausable
 {
-    function initialize(string memory name, string memory symbol, address[] memory minters, address[] memory pausers, address sender) public initializer {
+    function initialize(string memory name, string memory symbol, address[] memory minters, address[] memory pausers) public initializer {
         ERC721.initialize();
         ERC721Enumerable.initialize();
         ERC721Metadata.initialize(name, symbol);
 
         // Initialize the minter and pauser roles, and renounce them
-        ERC721MetadataMintable.initialize(sender);
-        _removeMinter(sender);
+        ERC721MetadataMintable.initialize(address(this));
+        _removeMinter(address(this));
 
-        ERC721Pausable.initialize(sender);
-        _removePauser(sender);
+        ERC721Pausable.initialize(address(this));
+        _removePauser(address(this));
 
         // Add the requested minters and pausers (this can be done after renouncing since
         // these are the internal calls)
