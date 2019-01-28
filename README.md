@@ -23,12 +23,15 @@ To write your custom contracts, import ours and extend them through inheritance.
 pragma solidity ^0.5.0;
 
 import 'zos-lib/contracts/Initializable.sol';
-import 'openzeppelin-solidity/contracts/token/ERC721/ERC721Full.sol';
-import 'openzeppelin-solidity/contracts/token/ERC721/ERC721Mintable.sol';
+import 'openzeppelin-eth/contracts/token/ERC721/ERC721Full.sol';
+import 'openzeppelin-eth/contracts/token/ERC721/ERC721Mintable.sol';
 
 contract MyNFT is Initializable, ERC721Full, ERC721Mintable {
   function initialize() public initializer {
-    ERC721Full.initialize("MyNFT", "MNFT");
+    ERC721.initialize();
+    ERC721Enumerable.initialize();
+    ERC721Metadata.initialize("MyNFT", "MNFT");
+    ERC721Mintable.initialize(msg.sender);
   }
 }
 ```
