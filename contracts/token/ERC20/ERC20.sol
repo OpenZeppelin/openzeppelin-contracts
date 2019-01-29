@@ -2,6 +2,7 @@ pragma solidity ^0.5.2;
 
 import "./IERC20.sol";
 import "../../math/SafeMath.sol";
+import "../../introspection/ERC165.sol";
 
 /**
  * @title Standard ERC20 token
@@ -15,7 +16,7 @@ import "../../math/SafeMath.sol";
  * all accounts just by listening to said events. Note that this isn't required by the specification, and other
  * compliant implementations may not do it.
  */
-contract ERC20 is IERC20 {
+contract ERC20 is ERC165, IERC20 {
     using SafeMath for uint256;
 
     mapping (address => uint256) private _balances;
@@ -24,9 +25,26 @@ contract ERC20 is IERC20 {
 
     uint256 private _totalSupply;
 
-    /**
-     * @dev Total number of tokens in existence
-     */
+  bytes4 private constant _INTERFACE_ID_ERC20 = 0x36372b07;
+  /*
+   * 0x80ac58cd ===
+   *     bytes4(keccak256('transfer(address,uint256)')) ^
+   *     bytes4(keccak256('approve(address,uint256)')) ^
+   *     bytes4(keccak256('transferFrom(address,address,uint256)')) ^
+   *     bytes4(keccak256('totalSupply()')) ^
+   *     bytes4(keccak256('balanceOf(address)')) ^
+   *     bytes4(keccak256('allowance(address,address)'))
+   */
+
+  constructor()
+  public
+  {
+    _registerInterface(_INTERFACE_ID_ERC20);
+  }
+
+  /**
+   * @dev Total number of tokens in existence
+   */
     function totalSupply() public view returns (uint256) {
         return _totalSupply;
     }

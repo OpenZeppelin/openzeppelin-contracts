@@ -4,6 +4,15 @@ const INTERFACE_IDS = {
   ERC165: makeInterfaceId([
     'supportsInterface(bytes4)',
   ]),
+  ERC20: makeInterfaceId([
+    'transfer(address,uint256)',
+    'approve(address,uint256)',
+    'transferFrom(address,address,uint256)',
+    'totalSupply()',
+    'balanceOf(address)',
+    'allowance(address,address)'
+  ]),
+  // TODO ERC20 burnable, mintable etc.
   ERC721: makeInterfaceId([
     'balanceOf(address)',
     'ownerOf(uint256)',
