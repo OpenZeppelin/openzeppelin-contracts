@@ -12,7 +12,12 @@ const INTERFACE_IDS = {
     'balanceOf(address)',
     'allowance(address,address)'
   ]),
-  // TODO ERC20 burnable, mintable etc.
+  ERC20Detailed: makeInterfaceId([
+    'name()',
+    'symbol()',
+    'decimals()'
+  ]),
+  // TODO ERC20 ERC20Burnable, SafeERC20
   ERC721: makeInterfaceId([
     'balanceOf(address)',
     'ownerOf(uint256)',

@@ -25,26 +25,26 @@ contract ERC20 is ERC165, IERC20 {
 
     uint256 private _totalSupply;
 
-  bytes4 private constant _INTERFACE_ID_ERC20 = 0x36372b07;
-  /*
-   * 0x80ac58cd ===
-   *     bytes4(keccak256('transfer(address,uint256)')) ^
-   *     bytes4(keccak256('approve(address,uint256)')) ^
-   *     bytes4(keccak256('transferFrom(address,address,uint256)')) ^
-   *     bytes4(keccak256('totalSupply()')) ^
-   *     bytes4(keccak256('balanceOf(address)')) ^
-   *     bytes4(keccak256('allowance(address,address)'))
-   */
+    bytes4 private constant _INTERFACE_ID_ERC20 = 0x36372b07;
+    /*
+     * 0x36372b07 ===
+     *     bytes4(keccak256('transfer(address,uint256)')) ^
+     *     bytes4(keccak256('approve(address,uint256)')) ^
+     *     bytes4(keccak256('transferFrom(address,address,uint256)')) ^
+     *     bytes4(keccak256('totalSupply()')) ^
+     *     bytes4(keccak256('balanceOf(address)')) ^
+     *     bytes4(keccak256('allowance(address,address)'))
+     */
 
-  constructor()
-  public
-  {
-    _registerInterface(_INTERFACE_ID_ERC20);
-  }
+    constructor()
+    public
+    {
+      _registerInterface(_INTERFACE_ID_ERC20);
+    }
 
-  /**
-   * @dev Total number of tokens in existence
-   */
+    /**
+     * @dev Total number of tokens in existence
+     */
     function totalSupply() public view returns (uint256) {
         return _totalSupply;
     }
