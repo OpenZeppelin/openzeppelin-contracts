@@ -3,10 +3,12 @@
 ## 2.2.0 (unreleased)
 
 ### New features:
+ * `ERC20`, `ERC20Burnable`, `ERC20Detailed`: added ERC165 implementations
  * `ERC20`: added internal `_approve(address owner, address spender, uint256 value)`, allowing derived contracts to set the allowance of arbitrary accounts.
  * `ERC20Metadata`: added internal `_setTokenURI(string memory tokenURI)`.
 
 ### Improvements:
+ * `ERC20`: `name()`, `symbol()`, `decimals()` made external instead of public
  * Upgraded the minimum compiler version to v0.5.2: this removes many Solidity warnings that were false positives.
  * `Counter`'s API has been improved, and is now used by `ERC721` (though it is still in `drafts`).
  * `ERC721`'s transfers are now more gas efficient due to removal of unnecessary `SafeMath` calls.
