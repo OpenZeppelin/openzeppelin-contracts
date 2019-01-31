@@ -10,18 +10,17 @@ const INTERFACE_IDS = {
     'transferFrom(address,address,uint256)',
     'totalSupply()',
     'balanceOf(address)',
-    'allowance(address,address)'
+    'allowance(address,address)',
   ]),
   ERC20Burnable: makeInterfaceId([
     'burn(uint256)',
-    'burnFrom(address,uint256)'
-    ]),
+    'burnFrom(address,uint256)',
+  ]),
   ERC20Detailed: makeInterfaceId([
     'name()',
     'symbol()',
-    'decimals()'
+    'decimals()',
   ]),
-  // TODO ERC20 ERC20Burnable, SafeERC20
   ERC721: makeInterfaceId([
     'balanceOf(address)',
     'ownerOf(uint256)',

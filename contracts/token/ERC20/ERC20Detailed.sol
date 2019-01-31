@@ -19,7 +19,7 @@ contract ERC20Detailed is ERC165, IERC20 {
      * 0xa219a025 ===
      *     bytes4(keccak256('name()') ^
      *     bytes4(keccak256('symbol()')) ^
-     *     bytes4(keccak256('decimals)'))
+     *     bytes4(keccak256('decimals()'))
      */
 
     constructor (string memory name, string memory symbol, uint8 decimals) public {

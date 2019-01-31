@@ -39,7 +39,7 @@ contract ERC20 is ERC165, IERC20 {
     constructor()
     public
     {
-      _registerInterface(_INTERFACE_ID_ERC20);
+        _registerInterface(_INTERFACE_ID_ERC20);
     }
 
     /**

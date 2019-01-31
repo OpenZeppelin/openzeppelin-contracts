@@ -10,13 +10,13 @@ import "../../introspection/ERC165.sol";
 contract ERC20Burnable is ERC165, ERC20 {
     bytes4 private constant _INTERFACE_ID_ERC20_BURNABLE = 0x3b5a0bf8;
     /*
-     * 0xa219a025 ===
+     * 0x3b5a0bf8 ===
      *     bytes4(keccak256('burn(uint256)') ^
      *     bytes4(keccak256('burnFrom(address,uint256)'))
      */
 
     constructor () public {
-      _registerInterface(_INTERFACE_ID_ERC20_BURNABLE);
+        _registerInterface(_INTERFACE_ID_ERC20_BURNABLE);
     }
 
     /**

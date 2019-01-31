@@ -26,6 +26,6 @@ contract('ERC20Detailed', function () {
 
   shouldSupportInterfaces([
     'ERC165',
-    'ERC20Detailed'
-  ])
+    'ERC20Detailed',
+  ]);
 });

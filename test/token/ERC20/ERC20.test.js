@@ -4,7 +4,6 @@ const { ZERO_ADDRESS } = constants;
 const ERC20Mock = artifacts.require('ERC20Mock');
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 
-
 contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
   const initialSupply = new BN(100);
   beforeEach(async function () {
@@ -564,6 +563,6 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
 
   shouldSupportInterfaces([
     'ERC165',
-    'ERC20'
-  ])
+    'ERC20',
+  ]);
 });
