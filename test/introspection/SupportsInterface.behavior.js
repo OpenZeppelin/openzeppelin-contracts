@@ -12,6 +12,10 @@ const INTERFACE_IDS = {
     'balanceOf(address)',
     'allowance(address,address)'
   ]),
+  ERC20Burnable: makeInterfaceId([
+    'burn(uint256)',
+    'burnFrom(address,uint256)'
+    ]),
   ERC20Detailed: makeInterfaceId([
     'name()',
     'symbol()',

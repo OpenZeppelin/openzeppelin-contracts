@@ -17,7 +17,7 @@ contract ERC20Detailed is ERC165, IERC20 {
     bytes4 private constant _INTERFACE_ID_ERC20_DETAILED = 0xa219a025;
     /*
      * 0xa219a025 ===
-     *     bytes4(keccak256('name()) ^
+     *     bytes4(keccak256('name()') ^
      *     bytes4(keccak256('symbol()')) ^
      *     bytes4(keccak256('decimals)'))
      */
