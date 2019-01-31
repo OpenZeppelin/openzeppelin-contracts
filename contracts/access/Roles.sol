@@ -43,7 +43,7 @@ library Roles {
 
     /**
      * @dev check if an account has this role
-     * @return bool
+     * @return uint
      */
 
     function count(Role storage role) internal view returns (uint256) {
