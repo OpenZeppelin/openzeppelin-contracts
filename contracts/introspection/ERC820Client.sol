@@ -9,7 +9,7 @@ import "./IERC820.sol";
  */
 contract ERC820Client {
 
-  IERC820 private _erc820 = IERC820(0x820A8Cfd018b159837d50656c49d28983f18f33c);
+  IERC820 private _erc820 = IERC820(0x820b586C8C28125366C998641B09DCbE7d4cBF06);
 
   function getInterfaceImplementer(address addr, bytes32 hash) internal view returns(address) {
     return _erc820.getInterfaceImplementer(addr, hash);

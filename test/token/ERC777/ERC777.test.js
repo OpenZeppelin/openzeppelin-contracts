@@ -15,7 +15,7 @@ require('chai')
 
 contract('ERC777', function ([_, holder, operator, anotherAccount]) {
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-  const ERC820_ADDRESS = "0x820A8Cfd018b159837d50656c49d28983f18f33c";
+  const ERC820_ADDRESS = "0x820b586C8C28125366C998641B09DCbE7d4cBF06";
   const INITIAL_SUPPLY = "10000";
   const USER_DATA = "0xabcd";
   const OPERATOR_DATA = "0x0a0b0c0d";
