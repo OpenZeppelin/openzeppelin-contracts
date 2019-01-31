@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
-import "../token/ERC777/IERC777.sol";
-import "../token/ERC777/IERC777TokensSender.sol";
+import "../drafts/ERC777/IERC777.sol";
+import "../drafts/ERC777/IERC777TokensSender.sol";
 import "../introspection/ERC820Client.sol";
 
 /**
