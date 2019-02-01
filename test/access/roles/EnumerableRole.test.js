@@ -7,5 +7,5 @@ contract('EnumerableRole', function ([_, authorized, otherAuthorized, ...otherAc
     await this.contract.addRole(otherAuthorized, { from: authorized });
   });
 
-  shouldBehaveLikePublicRole(authorized, otherAuthorized, otherAccounts, 'enumerable role');
+  shouldBehaveLikePublicRole(authorized, otherAuthorized, otherAccounts, 'enumerable');
 });
