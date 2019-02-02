@@ -3,16 +3,16 @@ pragma solidity ^0.5.2;
 import "../access/roles/EnumerableRole.sol";
 
 contract EnumerableRoleMock is EnumerableRole {
-    function removeRole(address account) public {
-        _removeRole(account);
+    function removeEnumerable(address account) public {
+        _removeEnumerable(account);
     }
 
-    function onlyRoleMock() public view onlyRole {
+    function onlyEnumerableMock() public view onlyEnumerable {
         // solhint-disable-previous-line no-empty-blocks
     }
 
     // Causes a compilation error if super._removeRole is not internal
-    function _removeRole(address account) internal {
-        super._removeRole(account);
+    function _removeEnumerable(address account) internal {
+        super._removeEnumerable(account);
     }
 }

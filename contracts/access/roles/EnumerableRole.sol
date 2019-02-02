@@ -5,62 +5,57 @@ import "../Roles.sol";
 contract EnumerableRole {
     using Roles for Roles.Role;
 
-    event RoleAdded(address indexed account);
-    event RoleRemoved(address indexed account);
+    event EnumerableAdded(address indexed account);
+    event EnumerableRemoved(address indexed account);
 
     address[] private users;
     mapping (address => uint256) userIndex;
 
-    Roles.Role private _enumerable;
+    Roles.Role private _enumerables;
 
     constructor () internal {
-        _addRole(msg.sender);
+        _addEnumerable(msg.sender);
     }
 
-    modifier onlyRole() {
-        require(isRole(msg.sender));
+    modifier onlyEnumerable() {
+        require(isEnumerable(msg.sender));
         _;
     }
 
-    function isRole(address account) public view returns (bool) {
-        return _enumerable.has(account);
+    function isEnumerable(address account) public view returns (bool) {
+        return _enumerables.has(account);
     }
 
-    function addRole(address account) public onlyRole {
-        _addRole(account);
+    function addEnumerable(address account) public onlyEnumerable {
+        _addEnumerable(account);
     }
 
-    function renounceRole() public {
-        _removeRole(msg.sender);
+    function renounceEnumerable() public {
+        _removeEnumerable(msg.sender);
     }
 
-    function _addRole(address account) internal {
-        _enumerable.add(account);
-        addRoleToList(account);
-        emit RoleAdded(account);
+    function _addEnumerable(address account) internal {
+        _enumerables.add(account);
+        emit EnumerableAdded(account);
+        addToList(account);
     }
 
-    function _removeRole(address account) internal {
-        _enumerable.remove(account);
-        removeRoleFromList(account);
-        emit RoleRemoved(account);
+    function _removeEnumerable(address account) internal {
+        _enumerables.remove(account);
+        emit EnumerableRemoved(account);
+        removeFromList(account);
     }
 
-    function addRoleToList(address account) internal {
-        require(account != address(0));
-        require(!_enumerable.has(account));
+    function addToList(address account) internal {
         users.push(account);
         userIndex[account] = users.length;
     }
 
-    function removeRoleFromList(address account) internal {
-        require(account != address(0));
-        require(_enumerable.has(account));
+    function removeFromList(address account) internal {
         uint index = userIndex[account];
         users[index - 1] = users[users.length - 1];
         userIndex[users[index - 1]] = index;
         userIndex[account] = 0;
         users.pop();
-
     }
 }
