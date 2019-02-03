@@ -26,8 +26,8 @@ contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
      * @dev Constructor function
      */
     constructor (string memory name, string memory symbol) public {
-        _name = name;
-        _symbol = symbol;
+        _setName(name);
+        _setSymbol(symbol);
 
         // register the supported interfaces to conform to ERC721 via ERC165
         _registerInterface(_INTERFACE_ID_ERC721_METADATA);
@@ -57,6 +57,22 @@ contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
     function tokenURI(uint256 tokenId) external view returns (string memory) {
         require(_exists(tokenId));
         return _tokenURIs[tokenId];
+    }
+
+    /**
+     * @dev Internal function to set the name
+     * @param name string name to assign
+     */
+    function _setName(string memory name) internal {
+        _name = name;
+    }
+
+    /**
+     * @dev Internal function to set the symbol
+     * @param symbol string symbol to assign
+     */
+    function _setSymbol(string memory symbol) internal {
+        _symbol = symbol;
     }
 
     /**
