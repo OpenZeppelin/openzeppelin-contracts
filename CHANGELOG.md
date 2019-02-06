@@ -5,6 +5,7 @@
 ### New features:
  * `ERC20`: added internal `_approve(address owner, address spender, uint256 value)`, allowing derived contracts to set the allowance of arbitrary accounts.
  * `ERC20Metadata`: added internal `_setTokenURI(string memory tokenURI)`.
+ * `ERC20Snapshot`: create snapshots on demand of the token balances and total supply, to later retrieve and e.g. calculate dividends at a past time.
 
 ### Improvements:
  * Upgraded the minimum compiler version to v0.5.2: this removes many Solidity warnings that were false positives.
