@@ -10,7 +10,7 @@ library ERC165Checker {
     bytes4 private constant _INTERFACE_ID_INVALID = 0xffffffff;
 
     bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
-    /**
+    /*
      * 0x01ffc9a7 ===
      *     bytes4(keccak256('supportsInterface(bytes4)'))
      */
@@ -109,15 +109,15 @@ library ERC165Checker {
             mstore(output, 0x0)
 
             success := staticcall(
-                30000,                                 // 30k gas
-                account,                            // To addr
+                30000,                   // 30k gas
+                account,                 // To addr
                 encodedParams_data,
                 encodedParams_size,
                 output,
-                0x20                                     // Outputs are 32 bytes long
+                0x20                     // Outputs are 32 bytes long
             )
 
-            result := mload(output)    // Load the result
+            result := mload(output)      // Load the result
         }
     }
 }

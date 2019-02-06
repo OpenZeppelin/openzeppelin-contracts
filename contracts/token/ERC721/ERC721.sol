@@ -64,7 +64,7 @@ contract ERC721 is ERC165, IERC721 {
     /**
      * @dev Gets the owner of the specified token ID
      * @param tokenId uint256 ID of the token to query the owner of
-     * @return owner address currently marked as the owner of the given token ID
+     * @return address currently marked as the owner of the given token ID
      */
     function ownerOf(uint256 tokenId) public view returns (address) {
         address owner = _tokenOwner[tokenId];
@@ -125,11 +125,11 @@ contract ERC721 is ERC165, IERC721 {
     /**
      * @dev Transfers the ownership of a given token ID to another address
      * Usage of this method is discouraged, use `safeTransferFrom` whenever possible
-     * Requires the msg sender to be the owner, approved, or operator
+     * Requires the msg.sender to be the owner, approved, or operator
      * @param from current owner of the token
      * @param to address to receive the ownership of the given token ID
      * @param tokenId uint256 ID of the token to be transferred
-    */
+     */
     function transferFrom(address from, address to, uint256 tokenId) public {
         require(_isApprovedOrOwner(msg.sender, tokenId));
 
@@ -142,12 +142,11 @@ contract ERC721 is ERC165, IERC721 {
      * which is called upon a safe transfer, and return the magic value
      * `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`; otherwise,
      * the transfer is reverted.
-     *
-     * Requires the msg sender to be the owner, approved, or operator
+     * Requires the msg.sender to be the owner, approved, or operator
      * @param from current owner of the token
      * @param to address to receive the ownership of the given token ID
      * @param tokenId uint256 ID of the token to be transferred
-    */
+     */
     function safeTransferFrom(address from, address to, uint256 tokenId) public {
         safeTransferFrom(from, to, tokenId, "");
     }
@@ -158,7 +157,7 @@ contract ERC721 is ERC165, IERC721 {
      * which is called upon a safe transfer, and return the magic value
      * `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`; otherwise,
      * the transfer is reverted.
-     * Requires the msg sender to be the owner, approved, or operator
+     * Requires the msg.sender to be the owner, approved, or operator
      * @param from current owner of the token
      * @param to address to receive the ownership of the given token ID
      * @param tokenId uint256 ID of the token to be transferred
@@ -172,7 +171,7 @@ contract ERC721 is ERC165, IERC721 {
     /**
      * @dev Returns whether the specified token exists
      * @param tokenId uint256 ID of the token to query the existence of
-     * @return whether the token exists
+     * @return bool whether the token exists
      */
     function _exists(uint256 tokenId) internal view returns (bool) {
         address owner = _tokenOwner[tokenId];
@@ -184,7 +183,7 @@ contract ERC721 is ERC165, IERC721 {
      * @param spender address of the spender to query
      * @param tokenId uint256 ID of the token to be transferred
      * @return bool whether the msg.sender is approved for the given token ID,
-     *    is an operator of the owner, or is the owner of the token
+     * is an operator of the owner, or is the owner of the token
      */
     function _isApprovedOrOwner(address spender, uint256 tokenId) internal view returns (bool) {
         address owner = ownerOf(tokenId);
@@ -240,7 +239,7 @@ contract ERC721 is ERC165, IERC721 {
      * @param from current owner of the token
      * @param to address to receive the ownership of the given token ID
      * @param tokenId uint256 ID of the token to be transferred
-    */
+     */
     function _transferFrom(address from, address to, uint256 tokenId) internal {
         require(ownerOf(tokenId) == from);
         require(to != address(0));
@@ -262,7 +261,7 @@ contract ERC721 is ERC165, IERC721 {
      * @param to target address that will receive the tokens
      * @param tokenId uint256 ID of the token to be transferred
      * @param _data bytes optional data to send along with the call
-     * @return whether the call correctly returned the expected magic value
+     * @return bool whether the call correctly returned the expected magic value
      */
     function _checkOnERC721Received(address from, address to, uint256 tokenId, bytes memory _data)
         internal returns (bool)

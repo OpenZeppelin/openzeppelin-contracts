@@ -4,6 +4,7 @@
 
 ### New features:
  * `ERC20`: added internal `_approve(address owner, address spender, uint256 value)`, allowing derived contracts to set the allowance of arbitrary accounts.
+ * `ERC20Metadata`: added internal `_setTokenURI(string memory tokenURI)`.
  * `ERC20Snapshot`: create snapshots on demand of the token balances and total supply, to later retrieve and e.g. calculate dividends at a past time.
 
 ### Improvements:
@@ -15,6 +16,7 @@
 ### Bugfixes:
 
 ### Breaking changes:
+ * `TokenMetadata` (in drafts) has been renamed to `ERC20Metadata`.
 
 ## 2.1.2 (2019-17-01)
  * Removed most of the test suite from the npm package, except `PublicRole.behavior.js`, which may be useful to users testing their own `Roles`.

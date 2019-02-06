@@ -92,10 +92,10 @@ contract SignatureBouncer is SignerRole {
     }
 
     /**
-        * @dev is the signature of `this + sender + methodId + params(s)` from a signer?
-        * @notice the signature parameter of the method being validated must be the "last" parameter
-        * @return bool
-        */
+     * @dev is the signature of `this + sender + methodId + params(s)` from a signer?
+     * @notice the signature parameter of the method being validated must be the "last" parameter
+     * @return bool
+     */
     function _isValidSignatureAndData(address account, bytes memory signature) internal view returns (bool) {
         require(msg.data.length > _SIGNATURE_SIZE);
 
