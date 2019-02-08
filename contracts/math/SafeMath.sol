@@ -12,7 +12,8 @@ library SafeMath {
         // solhint-disable-next-line no-inline-assembly
         assembly {
             if iszero(a) {
-                return(a, 32)
+                r := 0
+                return(r, 32)
             }
             r := mul(a, b)
             if iszero(eq(div(r, a), b)) { revert(0, 0) }
