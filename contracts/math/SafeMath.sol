@@ -9,6 +9,7 @@ library SafeMath {
      * @dev Multiplies two unsigned integers, reverts on overflow.
      */
     function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+        // solhint-disable-next-line no-inline-assembly
         assembly {
             switch a
             case 0 {
@@ -25,6 +26,7 @@ library SafeMath {
      * @dev Integer division of two unsigned integers truncating the quotient, reverts on division by zero.
      */
     function div(uint256 a, uint256 b) internal pure returns (uint256) {
+        // solhint-disable-next-line no-inline-assembly
         assembly {
             if iszero(b) { revert(0, 0) }
             r := div(a, b)
@@ -35,6 +37,7 @@ library SafeMath {
      * @dev Subtracts two unsigned integers, reverts on overflow (i.e. if subtrahend is greater than minuend).
      */
     function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+        // solhint-disable-next-line no-inline-assembly
         assembly {
             if lt(a, b) { revert(0, 0) }
             r := sub(a, b)
@@ -45,8 +48,9 @@ library SafeMath {
      * @dev Adds two unsigned integers, reverts on overflow.
      */
     function add(uint256 a, uint256 b) internal pure returns (uint256) {
+        // solhint-disable-next-line no-inline-assembly
         assembly {
-            r := add(a,b)
+            r := add(a, b)
             if lt(r, a) { revert(0, 0) }
         }
     }
@@ -56,6 +60,7 @@ library SafeMath {
      * reverts when dividing by zero.
      */
     function mod(uint256 a, uint256 b) internal pure returns (uint256) {
+        // solhint-disable-next-line no-inline-assembly
         assembly {
             if iszero(b) { revert(0, 0) }
             r := mod(a, b)
