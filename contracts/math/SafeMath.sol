@@ -8,24 +8,21 @@ library SafeMath {
     /**
      * @dev Multiplies two unsigned integers, reverts on overflow.
      */
-    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+    function mul(uint256 a, uint256 b) internal pure returns (uint256 r) {
         // solhint-disable-next-line no-inline-assembly
         assembly {
-            switch a
-            case 0 {
-                r := 0
+            if iszero(a) {
+                return(a, 32)
             }
-            default {
-                r := mul(a, b)
-                if iszero(eq(div(r, a), b)) { revert(0, 0) }
-            }
+            r := mul(a, b)
+            if iszero(eq(div(r, a), b)) { revert(0, 0) }
         }
     }
 
     /**
      * @dev Integer division of two unsigned integers truncating the quotient, reverts on division by zero.
      */
-    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+    function div(uint256 a, uint256 b) internal pure returns (uint256 r) {
         // solhint-disable-next-line no-inline-assembly
         assembly {
             if iszero(b) { revert(0, 0) }
@@ -36,7 +33,7 @@ library SafeMath {
     /**
      * @dev Subtracts two unsigned integers, reverts on overflow (i.e. if subtrahend is greater than minuend).
      */
-    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+    function sub(uint256 a, uint256 b) internal pure returns (uint256 r) {
         // solhint-disable-next-line no-inline-assembly
         assembly {
             if lt(a, b) { revert(0, 0) }
@@ -47,7 +44,7 @@ library SafeMath {
     /**
      * @dev Adds two unsigned integers, reverts on overflow.
      */
-    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+    function add(uint256 a, uint256 b) internal pure returns (uint256 r) {
         // solhint-disable-next-line no-inline-assembly
         assembly {
             r := add(a, b)
@@ -59,7 +56,7 @@ library SafeMath {
      * @dev Divides two unsigned integers and returns the remainder (unsigned integer modulo),
      * reverts when dividing by zero.
      */
-    function mod(uint256 a, uint256 b) internal pure returns (uint256) {
+    function mod(uint256 a, uint256 b) internal pure returns (uint256 r) {
         // solhint-disable-next-line no-inline-assembly
         assembly {
             if iszero(b) { revert(0, 0) }
