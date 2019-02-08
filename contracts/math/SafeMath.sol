@@ -16,7 +16,7 @@ library SafeMath {
             }
             default {
                 r := mul(a, b)
-                if not(eq(div(r, a), b)) { revert(0, 0) }
+                if iszero(eq(div(r, a), b)) { revert(0, 0) }
             }
         }
     }
