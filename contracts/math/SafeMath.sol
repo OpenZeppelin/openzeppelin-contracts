@@ -36,7 +36,7 @@ library SafeMath {
      */
     function sub(uint256 a, uint256 b) internal pure returns (uint256) {
         assembly {
-            if gt(a, b) { revert(0, 0) }
+            if lt(a, b) { revert(0, 0) }
             r := sub(a, b)
         }
     }
