@@ -11,12 +11,10 @@ library SafeMath {
     function mul(uint256 a, uint256 b) internal pure returns (uint256 r) {
         // solhint-disable-next-line no-inline-assembly
         assembly {
-            if iszero(a) {
-                r := 0
-                return(r, 32)
+            if a {
+              r := mul(a, b)
+              if iszero(eq(div(r, a), b)) { revert(0, 0) }
             }
-            r := mul(a, b)
-            if iszero(eq(div(r, a), b)) { revert(0, 0) }
         }
     }
 
