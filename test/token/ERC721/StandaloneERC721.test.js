@@ -14,8 +14,8 @@ contract('StandaloneERC721', function ([_, deployer, minterA, minterB, pauserA, 
   });
 
   async function initialize (token, name, symbol, minters, pausers, from) {
-    const signature = 'initialize(string,string,address[],address[],address)';
-    const args = [name, symbol, minters, pausers, from];
+    const signature = 'initialize(string,string,address[],address[])';
+    const args = [name, symbol, minters, pausers];
     await token.methods[signature](...args, { from });
   }
 

@@ -23,14 +23,14 @@ contract('StandaloneERC20', function ([
   });
 
   async function initializeFull (token, name, symbol, decimals, initialSupply, initialHolder, minters, pausers, from) {
-    const signature = 'initialize(string,string,uint8,uint256,address,address[],address[],address)';
-    const args = [name, symbol, decimals, initialSupply, initialHolder, minters, pausers, from];
+    const signature = 'initialize(string,string,uint8,uint256,address,address[],address[])';
+    const args = [name, symbol, decimals, initialSupply, initialHolder, minters, pausers];
     await token.methods[signature](...args, { from });
   }
 
   async function initializePartial (token, name, symbol, decimals, minters, pausers, from) {
-    const signature = 'initialize(string,string,uint8,address[],address[],address)';
-    const args = [name, symbol, decimals, minters, pausers, from];
+    const signature = 'initialize(string,string,uint8,address[],address[])';
+    const args = [name, symbol, decimals, minters, pausers];
     await token.methods[signature](...args, { from });
   }
 
