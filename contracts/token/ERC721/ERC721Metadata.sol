@@ -36,9 +36,10 @@ contract ERC721Metadata is Initializable, ERC165, ERC721, IERC721Metadata {
         _registerInterface(_INTERFACE_ID_ERC721_METADATA);
     }
 
-  function _hasBeenInitialized() internal view returns (bool) {
-    return supportsInterface(_INTERFACE_ID_ERC721_METADATA);
-}
+    function _hasBeenInitialized() internal view returns (bool) {
+        return supportsInterface(_INTERFACE_ID_ERC721_METADATA);
+    }
+
     /**
      * @dev Gets the token name
      * @return string representing the token name

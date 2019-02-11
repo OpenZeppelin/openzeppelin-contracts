@@ -8,7 +8,9 @@ pragma solidity ^0.5.0;
 // @author Remco Bloemen <remco@neufund.org>
 contract ForceEther {
 
-    constructor() public payable { }
+    constructor() public payable {
+        // solhint-disable-previous-line no-empty-blocks
+    }
 
     function destroyAndSend(address payable recipient) public {
         selfdestruct(recipient);
