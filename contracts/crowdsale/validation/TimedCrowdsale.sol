@@ -74,4 +74,13 @@ contract TimedCrowdsale is Crowdsale {
     function _preValidatePurchase(address beneficiary, uint256 weiAmount) internal onlyWhileOpen view {
         super._preValidatePurchase(beneficiary, weiAmount);
     }
+    
+    /**
+     * @dev Extend closing time
+     * @param closingTime Crowdsale closing time
+     */
+    function _extendTime(uint256 closingTime) internal {
+        require(closingTime > _closingTime);
+        _closingTime = closingTime;
+    }
 }
