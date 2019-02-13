@@ -14,6 +14,13 @@ contract TimedCrowdsale is Crowdsale {
     uint256 private _closingTime;
 
     /**
+     * Event for crowdsale extending
+     * @param newClosingTime new closing time
+     * @param prevClosingTime old closing time
+     */
+    event TimedCrowdsaleExtended(uint256 newClosingTime, uint256 prevClosingTime);
+
+    /**
      * @dev Reverts if not in crowdsale time range.
      */
     modifier onlyWhileOpen {
@@ -76,11 +83,13 @@ contract TimedCrowdsale is Crowdsale {
     }
     
     /**
-     * @dev Extend closing time
+     * @dev Extend crowdsale
      * @param closingTime Crowdsale closing time
      */
     function _extendTime(uint256 closingTime) internal {
         require(closingTime > _closingTime);
+
+        emit TimedCrowdsaleExtended(closingTime, _closingTime);
         _closingTime = closingTime;
     }
 }

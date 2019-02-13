@@ -1,4 +1,4 @@
-const { BN, ether, shouldFail, time } = require('openzeppelin-test-helpers');
+const { BN, ether, expectEvent, shouldFail, time } = require('openzeppelin-test-helpers');
 
 const TimedCrowdsaleImpl = artifacts.require('TimedCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
@@ -71,6 +71,63 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
         await time.increaseTo(this.afterClosingTime);
         await shouldFail.reverting(this.crowdsale.send(value));
         await shouldFail.reverting(this.crowdsale.buyTokens(investor, { value: value, from: purchaser }));
+      });
+    });
+
+    describe('extending closing time', function () {
+      it('should not reduce duration', async function () {
+        (await this.crowdsale.isOpen()).should.equal(false);
+        await shouldFail.reverting(this.crowdsale.send(value));
+
+        // Same date
+        await shouldFail.reverting(this.crowdsale.extendTime(this.closingTime));
+
+        // Prescending date
+        const newClosingTime = this.closingTime.sub(time.duration.seconds(1));
+        await shouldFail.reverting(this.crowdsale.extendTime(newClosingTime));
+      });
+
+      it('should extend before start', async function () {
+        (await this.crowdsale.isOpen()).should.equal(false);
+        await shouldFail.reverting(this.crowdsale.send(value));
+
+        const newClosingTime = this.closingTime.add(time.duration.days(1));
+        const { logs } = await this.crowdsale.extendTime(newClosingTime);
+        expectEvent.inLogs(logs, 'TimedCrowdsaleExtended', {
+          newClosingTime: newClosingTime,
+          prevClosingTime: this.closingTime,
+        });
+        (await this.crowdsale.closingTime.call()).should.be.bignumber.equal(newClosingTime);
+      });
+
+      it('should extend after start', async function () {
+        await time.increaseTo(this.openingTime);
+        (await this.crowdsale.isOpen()).should.equal(true);
+        await this.crowdsale.send(value);
+
+        const newClosingTime = this.closingTime.add(time.duration.days(1));
+        const { logs } = await this.crowdsale.extendTime(newClosingTime);
+        expectEvent.inLogs(logs, 'TimedCrowdsaleExtended', {
+          newClosingTime: newClosingTime,
+          prevClosingTime: this.closingTime,
+        });
+        (await this.crowdsale.closingTime.call()).should.be.bignumber.equal(newClosingTime);
+      });
+
+      it('should extend after end', async function () {
+        await time.increaseTo(this.afterClosingTime);
+        await shouldFail.reverting(this.crowdsale.send(value));
+
+        const newClosingTime = this.closingTime.add(time.duration.days(1));
+        const { logs } = await this.crowdsale.extendTime(newClosingTime);
+        expectEvent.inLogs(logs, 'TimedCrowdsaleExtended', {
+          newClosingTime: newClosingTime,
+          prevClosingTime: this.closingTime,
+        });
+        (await this.crowdsale.closingTime.call()).should.be.bignumber.equal(newClosingTime);
+
+        // Crowdsale should be reopened
+        await this.crowdsale.send(value);
       });
     });
   });
