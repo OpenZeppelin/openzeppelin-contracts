@@ -7,7 +7,7 @@ import "../token/ERC20/ERC20.sol";
 
 /**
  * @title ERC20 token with snapshots.
- * Inspired by Jordi Baylina's MiniMeToken to record historical balances:
+ * @dev Inspired by Jordi Baylina's MiniMeToken to record historical balances:
  * https://github.com/Giveth/minime/blob/ea04d950eea153a04c51fa510b068b9dded390cb/contracts/MiniMeToken.sol
  * Snapshots store a value at the time a snapshot is taken (and a new snapshot id created), and the corresponding
  * snapshot id. Each account has individual snapshots taken on demand, as does the token's total supply.
