@@ -8,8 +8,8 @@ import "../token/ERC20/ERC20.sol";
 /**
  * @title ERC20 token with snapshots.
  * inspired by Jordi Baylina's MiniMeToken to record historical balances
- * Snapshots store a value at the time a snapshot is taken (and a new snapshot id created), and the corresponding
- * snapshot id. Each account has individual snapshots taken on demand, as does the token's total supply.
+ * When a snapshot is made, the balances and totalSupply at the time of the snapshot are recorded for later
+ * access.
  * @author Validity Labs AG <info@validitylabs.org>
  */
 contract ERC20Snapshot is ERC20 {
