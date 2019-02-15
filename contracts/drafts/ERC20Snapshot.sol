@@ -17,7 +17,7 @@ contract ERC20Snapshot is ERC20 {
     using Arrays for uint256[];
     using Counters for Counters.Counter;
 
-    // Snapshoted values have arrays of ids and the value corresponding to that id. These could be an array of a
+    // Snapshotted values have arrays of ids and the value corresponding to that id. These could be an array of a
     // Snapshot struct, but that would impede usage of functions that work on an array.
     struct Snapshots {
         uint256[] ids;
