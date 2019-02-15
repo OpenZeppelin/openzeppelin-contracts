@@ -10,6 +10,11 @@ import "../token/ERC20/ERC20.sol";
  * inspired by Jordi Baylina's MiniMeToken to record historical balances
  * Snapshots store a value at the time a snapshot is taken (and a new snapshot id created), and the corresponding
  * snapshot id. Each account has individual snapshots taken on demand, as does the token's total supply.
+ *
+ * To make a snapshot, call the `snapshot` function, which will emit the `Snapshot` event and return a snapshot id.
+ * To get the total supply from a snapshot, call the function `totalSupplyAt` with the snapshot id.
+ * To get the balance of an account from a snapshot, call the `balanceOfAt` function with the snapshot id and the
+ * account address.
  * @author Validity Labs AG <info@validitylabs.org>
  */
 contract ERC20Snapshot is ERC20 {
