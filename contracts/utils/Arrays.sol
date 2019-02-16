@@ -11,7 +11,7 @@ library Arrays {
     /**
      * @dev Upper bound search function which is kind of binary search algoritm. It searches sorted
      * array to find index of the element value. If element is found then returns it's index otherwise
-     * it returns index of first element which is grater than searched value. If searched element is
+     * it returns index of first element which is greater than searched value. If searched element is
      * bigger than any array element function then returns first index after last element (i.e. all
      * values inside the array are smaller than the target). Complexity O(log n).
      * @param array The array sorted in ascending order.
