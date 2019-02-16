@@ -15,7 +15,7 @@ library Arrays {
      * bigger than any array element function then returns first index after last element (i.e. all
      * values inside the array are smaller than the target). Complexity O(log n).
      * @param array The array sorted in ascending order.
-     * @param element The element's value to be find.
+     * @param element The element's value to be found.
      * @return The calculated index value. Returns 0 for empty array.
      */
     function findUpperBound(uint256[] storage array, uint256 element) internal view returns (uint256) {
