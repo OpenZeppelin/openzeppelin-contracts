@@ -32,21 +32,21 @@ contract ERC20Detailed is ERC165, IERC20 {
     /**
      * @return the name of the token.
      */
-    function name() external view returns (string memory) {
+    function name() public view returns (string memory) {
         return _name;
     }
 
     /**
      * @return the symbol of the token.
      */
-    function symbol() external view returns (string memory) {
+    function symbol() public view returns (string memory) {
         return _symbol;
     }
 
     /**
      * @return the number of decimals of the token.
      */
-    function decimals() external view returns (uint8) {
+    function decimals() public view returns (uint8) {
         return _decimals;
     }
 }
