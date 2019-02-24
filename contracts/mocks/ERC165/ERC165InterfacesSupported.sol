@@ -3,7 +3,7 @@ pragma solidity ^0.5.2;
 import "../../introspection/IERC165.sol";
 
 /**
- * https://github.com/ethereum/EIPs/blob/master/EIPS/eip-214.md#specification
+ * https://eips.ethereum.org/EIPS/eip-214#specification
  * From the specification:
  * > Any attempts to make state-changing operations inside an execution instance with STATIC set to true will instead
  * throw an exception.
