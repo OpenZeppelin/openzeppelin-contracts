@@ -4,7 +4,7 @@ import "../../introspection/IERC165.sol";
 
 /**
  * @title ERC721 Non-Fungible Token Standard basic interface
- * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
+ * @dev see https://eips.ethereum.org/EIPS/eip-721
  */
 contract IERC721 is IERC165 {
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
