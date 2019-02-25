@@ -94,8 +94,8 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
         const newClosingTime = this.closingTime.add(time.duration.days(1));
         const { logs } = await this.crowdsale.extendTime(newClosingTime);
         expectEvent.inLogs(logs, 'TimedCrowdsaleExtended', {
-          newClosingTime: newClosingTime,
           prevClosingTime: this.closingTime,
+          newClosingTime: newClosingTime,
         });
         (await this.crowdsale.closingTime.call()).should.be.bignumber.equal(newClosingTime);
       });
@@ -108,8 +108,8 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
         const newClosingTime = this.closingTime.add(time.duration.days(1));
         const { logs } = await this.crowdsale.extendTime(newClosingTime);
         expectEvent.inLogs(logs, 'TimedCrowdsaleExtended', {
-          newClosingTime: newClosingTime,
           prevClosingTime: this.closingTime,
+          newClosingTime: newClosingTime,
         });
         (await this.crowdsale.closingTime.call()).should.be.bignumber.equal(newClosingTime);
       });
@@ -121,8 +121,8 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
         const newClosingTime = this.closingTime.add(time.duration.days(1));
         const { logs } = await this.crowdsale.extendTime(newClosingTime);
         expectEvent.inLogs(logs, 'TimedCrowdsaleExtended', {
-          newClosingTime: newClosingTime,
           prevClosingTime: this.closingTime,
+          newClosingTime: newClosingTime,
         });
         (await this.crowdsale.closingTime.call()).should.be.bignumber.equal(newClosingTime);
 

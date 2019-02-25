@@ -18,7 +18,7 @@ contract TimedCrowdsale is Crowdsale {
      * @param newClosingTime new closing time
      * @param prevClosingTime old closing time
      */
-    event TimedCrowdsaleExtended(uint256 newClosingTime, uint256 prevClosingTime);
+    event TimedCrowdsaleExtended(uint256 prevClosingTime, uint256 newClosingTime);
 
     /**
      * @dev Reverts if not in crowdsale time range.
@@ -81,7 +81,7 @@ contract TimedCrowdsale is Crowdsale {
     function _preValidatePurchase(address beneficiary, uint256 weiAmount) internal onlyWhileOpen view {
         super._preValidatePurchase(beneficiary, weiAmount);
     }
-    
+
     /**
      * @dev Extend crowdsale
      * @param closingTime Crowdsale closing time
@@ -89,7 +89,7 @@ contract TimedCrowdsale is Crowdsale {
     function _extendTime(uint256 closingTime) internal {
         require(closingTime > _closingTime);
 
-        emit TimedCrowdsaleExtended(closingTime, _closingTime);
+        emit TimedCrowdsaleExtended(_closingTime, closingTime);
         _closingTime = closingTime;
     }
 }
