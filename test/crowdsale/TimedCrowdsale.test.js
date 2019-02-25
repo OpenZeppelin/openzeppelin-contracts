@@ -87,47 +87,60 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
         await shouldFail.reverting(this.crowdsale.extendTime(newClosingTime));
       });
 
-      it('should extend before start', async function () {
-        (await this.crowdsale.isOpen()).should.equal(false);
-        await shouldFail.reverting(this.crowdsale.send(value));
-
-        const newClosingTime = this.closingTime.add(time.duration.days(1));
-        const { logs } = await this.crowdsale.extendTime(newClosingTime);
-        expectEvent.inLogs(logs, 'TimedCrowdsaleExtended', {
-          prevClosingTime: this.closingTime,
-          newClosingTime: newClosingTime,
+      context('before crowdsale start', function () {
+        beforeEach(async function () {
+          (await this.crowdsale.isOpen()).should.equal(false);
+          await shouldFail.reverting(this.crowdsale.send(value));
         });
-        (await this.crowdsale.closingTime.call()).should.be.bignumber.equal(newClosingTime);
+
+        it('it extends end time', async function () {
+          const newClosingTime = this.closingTime.add(time.duration.days(1));
+          const { logs } = await this.crowdsale.extendTime(newClosingTime);
+          expectEvent.inLogs(logs, 'TimedCrowdsaleExtended', {
+            prevClosingTime: this.closingTime,
+            newClosingTime: newClosingTime,
+          });
+          (await this.crowdsale.closingTime.call()).should.be.bignumber.equal(newClosingTime);
+        });
       });
 
-      it('should extend after start', async function () {
-        await time.increaseTo(this.openingTime);
-        (await this.crowdsale.isOpen()).should.equal(true);
-        await this.crowdsale.send(value);
-
-        const newClosingTime = this.closingTime.add(time.duration.days(1));
-        const { logs } = await this.crowdsale.extendTime(newClosingTime);
-        expectEvent.inLogs(logs, 'TimedCrowdsaleExtended', {
-          prevClosingTime: this.closingTime,
-          newClosingTime: newClosingTime,
+      context('after crowdsale start', function () {
+        beforeEach(async function () {
+          await time.increaseTo(this.openingTime);
+          (await this.crowdsale.isOpen()).should.equal(true);
+          await this.crowdsale.send(value);
         });
-        (await this.crowdsale.closingTime.call()).should.be.bignumber.equal(newClosingTime);
+
+        it('it extends end time', async function () {
+          const newClosingTime = this.closingTime.add(time.duration.days(1));
+          const { logs } = await this.crowdsale.extendTime(newClosingTime);
+          expectEvent.inLogs(logs, 'TimedCrowdsaleExtended', {
+            prevClosingTime: this.closingTime,
+            newClosingTime: newClosingTime,
+          });
+          (await this.crowdsale.closingTime.call()).should.be.bignumber.equal(newClosingTime);
+        });
       });
 
-      it('should extend after end', async function () {
-        await time.increaseTo(this.afterClosingTime);
-        await shouldFail.reverting(this.crowdsale.send(value));
-
-        const newClosingTime = this.closingTime.add(time.duration.days(1));
-        const { logs } = await this.crowdsale.extendTime(newClosingTime);
-        expectEvent.inLogs(logs, 'TimedCrowdsaleExtended', {
-          prevClosingTime: this.closingTime,
-          newClosingTime: newClosingTime,
+      context('after crowdsale end', function () {
+        beforeEach(async function () {
+          await time.increaseTo(this.afterClosingTime);
+          (await this.crowdsale.isOpen()).should.equal(false);
+          await shouldFail.reverting(this.crowdsale.send(value));
         });
-        (await this.crowdsale.closingTime.call()).should.be.bignumber.equal(newClosingTime);
 
-        // Crowdsale should be reopened
-        await this.crowdsale.send(value);
+        it('it re-opens and extends end time', async function () {
+          const newClosingTime = this.closingTime.add(time.duration.days(1));
+          const { logs } = await this.crowdsale.extendTime(newClosingTime);
+          expectEvent.inLogs(logs, 'TimedCrowdsaleExtended', {
+            prevClosingTime: this.closingTime,
+            newClosingTime: newClosingTime,
+          });
+          (await this.crowdsale.closingTime.call()).should.be.bignumber.equal(newClosingTime);
+
+          // Crowdsale should be reopened
+          await this.crowdsale.send(value);
+        });
       });
     });
   });
