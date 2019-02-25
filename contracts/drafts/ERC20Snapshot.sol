@@ -7,9 +7,10 @@ import "../token/ERC20/ERC20.sol";
 
 /**
  * @title ERC20 token with snapshots.
- * inspired by Jordi Baylina's MiniMeToken to record historical balances
- * Snapshots store a value at the time a snapshot is taken (and a new snapshot id created), and the corresponding
- * snapshot id. Each account has individual snapshots taken on demand, as does the token's total supply.
+ * @dev Inspired by Jordi Baylina's MiniMeToken to record historical balances:
+ * https://github.com/Giveth/minime/blob/ea04d950eea153a04c51fa510b068b9dded390cb/contracts/MiniMeToken.sol
+ * When a snapshot is made, the balances and totalSupply at the time of the snapshot are recorded for later
+ * access.
  *
  * To make a snapshot, call the `snapshot` function, which will emit the `Snapshot` event and return a snapshot id.
  * To get the total supply from a snapshot, call the function `totalSupplyAt` with the snapshot id.
@@ -22,7 +23,7 @@ contract ERC20Snapshot is ERC20 {
     using Arrays for uint256[];
     using Counters for Counters.Counter;
 
-    // Snapshoted values have arrays of ids and the value corresponding to that id. These could be an array of a
+    // Snapshotted values have arrays of ids and the value corresponding to that id. These could be an array of a
     // Snapshot struct, but that would impede usage of functions that work on an array.
     struct Snapshots {
         uint256[] ids;
