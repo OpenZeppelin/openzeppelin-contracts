@@ -84,12 +84,12 @@ contract TimedCrowdsale is Crowdsale {
 
     /**
      * @dev Extend crowdsale
-     * @param closingTime Crowdsale closing time
+     * @param newClosingTime Crowdsale closing time
      */
-    function _extendTime(uint256 closingTime) internal {
-        require(closingTime > _closingTime);
+    function _extendTime(uint256 newClosingTime) internal {
+        require(newClosingTime > _closingTime);
 
-        emit TimedCrowdsaleExtended(_closingTime, closingTime);
-        _closingTime = closingTime;
+        emit TimedCrowdsaleExtended(_closingTime, newClosingTime);
+        _closingTime = newClosingTime;
     }
 }
