@@ -32,7 +32,7 @@ contract ERC20FailingMock {
 }
 
 contract ERC20SucceedingMock {
-    uint256 private _allowance;
+    mapping (address => uint256) private _allowances;
 
     // IERC20's functions are not pure, but these mock implementations are: to prevent Solidity from issuing warnings,
     // we write to a dummy state variable.
@@ -54,11 +54,11 @@ contract ERC20SucceedingMock {
     }
 
     function setAllowance(uint256 allowance_) public {
-        _allowance = allowance_;
+        _allowances[msg.sender] = allowance_;
     }
 
-    function allowance(address, address) public view returns (uint256) {
-        return _allowance;
+    function allowance(address owner, address) public view returns (uint256) {
+        return _allowances[owner];
     }
 }
 
