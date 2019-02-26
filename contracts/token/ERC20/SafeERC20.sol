@@ -44,7 +44,7 @@ library SafeERC20 {
     // safeApprove should only be called when setting an initial allowance, 
     // or when resetting it to zero. To increase and decrease it, use 
     // 'safeIncreaseAllowance' and 'safeDecreaseAllowance'
-    require((value == 0) || (token.allowance(msg.sender, spender) == 0));
+    require((value == 0) || (token.allowance(address(this), spender) == 0));
     require(token.approve(spender, value));
   }
 

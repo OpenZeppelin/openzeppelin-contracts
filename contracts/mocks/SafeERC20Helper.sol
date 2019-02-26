@@ -24,7 +24,7 @@ contract ERC20FailingMock {
 }
 
 contract ERC20SucceedingMock {
-  uint256 private _allowance;
+  mapping (address => uint256) private _allowances;
 
   function transfer(address, uint256) public returns (bool) {
     return true;
@@ -39,11 +39,11 @@ contract ERC20SucceedingMock {
   }
 
   function setAllowance(uint256 allowance_) public {
-    _allowance = allowance_;
+    _allowances[msg.sender] = allowance_;
   }
 
-  function allowance(address, address) public view returns (uint256) {
-    return _allowance;
+  function allowance(address owner, address) public view returns (uint256) {
+    return _allowances[owner];
   }
 }
 
