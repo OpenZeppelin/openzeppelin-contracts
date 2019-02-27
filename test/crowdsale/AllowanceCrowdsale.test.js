@@ -72,7 +72,7 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
     });
   });
 
-  describe('when token wallet is different from token address', function () {
+  describe('when token wallet is the zero address', function () {
     it('creation reverts', async function () {
       this.token = await SimpleToken.new({ from: tokenWallet });
       await shouldFail.reverting(AllowanceCrowdsaleImpl.new(rate, wallet, this.token.address, ZERO_ADDRESS));
