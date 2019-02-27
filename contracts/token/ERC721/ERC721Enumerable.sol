@@ -33,7 +33,7 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
      * @dev Constructor function
      */
     constructor () public {
-        // register the supported interface to conform to ERC721 via ERC165
+        // register the supported interface to conform to ERC721Enumerable via ERC165
         _registerInterface(_INTERFACE_ID_ERC721_ENUMERABLE);
     }
 
