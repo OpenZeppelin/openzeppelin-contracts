@@ -54,7 +54,7 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
   });
 
   describe('check remaining allowance', function () {
-    it('should report correct allowace left', async function () {
+    it('should report correct allowance left', async function () {
       const remainingAllowance = tokenAllowance.sub(expectedTokenAmount);
       await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
       (await this.crowdsale.remainingTokens()).should.be.bignumber.equal(remainingAllowance);
