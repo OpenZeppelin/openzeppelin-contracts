@@ -65,7 +65,7 @@ contract Crowdsale is ReentrancyGuard {
 
     /**
      * @dev fallback function ***DO NOT OVERRIDE***
-     * Note that other contracts will transfer fund with a base gas stipend
+     * Note that other contracts will transfer funds with a base gas stipend
      * of 2300, which is not enough to call buyTokens. Consider calling
      * buyTokens directly when purchasing tokens from a contract.
      */
