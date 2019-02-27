@@ -75,20 +75,20 @@ contract SignatureBouncer is SignerRole {
      * @dev is the signature of `this + sender` from a signer?
      * @return bool
      */
-    function _isValidSignature(address account, bytes memory signature) internal view returns (bool) {
-        return _isValidDataHash(keccak256(abi.encodePacked(address(this), account)), signature);
+    function _isValidSignature(address sender, bytes memory signature) internal view returns (bool) {
+        return _isValidDataHash(keccak256(abi.encodePacked(address(this), sender)), signature);
     }
 
     /**
      * @dev is the signature of `this + sender + methodId` from a signer?
      * @return bool
      */
-    function _isValidSignatureAndMethod(address account, bytes memory signature) internal view returns (bool) {
+    function _isValidSignatureAndMethod(address sender, bytes memory signature) internal view returns (bool) {
         bytes memory data = new bytes(_METHOD_ID_SIZE);
         for (uint i = 0; i < data.length; i++) {
             data[i] = msg.data[i];
         }
-        return _isValidDataHash(keccak256(abi.encodePacked(address(this), account, data)), signature);
+        return _isValidDataHash(keccak256(abi.encodePacked(address(this), sender, data)), signature);
     }
 
     /**
@@ -96,7 +96,7 @@ contract SignatureBouncer is SignerRole {
      * @notice the signature parameter of the method being validated must be the "last" parameter
      * @return bool
      */
-    function _isValidSignatureAndData(address account, bytes memory signature) internal view returns (bool) {
+    function _isValidSignatureAndData(address sender, bytes memory signature) internal view returns (bool) {
         require(msg.data.length > _SIGNATURE_SIZE);
 
         bytes memory data = new bytes(msg.data.length - _SIGNATURE_SIZE);
@@ -104,7 +104,7 @@ contract SignatureBouncer is SignerRole {
             data[i] = msg.data[i];
         }
 
-        return _isValidDataHash(keccak256(abi.encodePacked(address(this), account, data)), signature);
+        return _isValidDataHash(keccak256(abi.encodePacked(address(this), sender, data)), signature);
     }
 
     /**
