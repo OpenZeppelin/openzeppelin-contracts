@@ -16,11 +16,11 @@ library SafeERC20 {
     using SafeMath for uint256;
 
     function safeTransfer(IERC20 token, address to, uint256 value) internal {
-        callAndAssertSuccess(token, abi.encodeWithSignature("transfer(address,uint256)", to, value));
+        callAndAssertSuccess(token, abi.encodeWithSelector(token.transfer.selector, to, value));
     }
 
     function safeTransferFrom(IERC20 token, address from, address to, uint256 value) internal {
-        callAndAssertSuccess(token, abi.encodeWithSignature("transferFrom(address,address,uint256)", from, to, value));
+        callAndAssertSuccess(token, abi.encodeWithSelector(token.transferFrom.selector, from, to, value));
     }
 
     function safeApprove(IERC20 token, address spender, uint256 value) internal {
@@ -28,17 +28,17 @@ library SafeERC20 {
         // or when resetting it to zero. To increase and decrease it, use
         // 'safeIncreaseAllowance' and 'safeDecreaseAllowance'
         require((value == 0) || (token.allowance(address(this), spender) == 0));
-        callAndAssertSuccess(token, abi.encodeWithSignature("approve(address,uint256)", spender, value));
+        callAndAssertSuccess(token, abi.encodeWithSelector(token.approve.selector, spender, value));
     }
 
     function safeIncreaseAllowance(IERC20 token, address spender, uint256 value) internal {
         uint256 newAllowance = token.allowance(address(this), spender).add(value);
-        callAndAssertSuccess(token, abi.encodeWithSignature("approve(address,uint256)", spender, newAllowance));
+        callAndAssertSuccess(token, abi.encodeWithSelector(token.approve.selector, spender, newAllowance));
     }
 
     function safeDecreaseAllowance(IERC20 token, address spender, uint256 value) internal {
         uint256 newAllowance = token.allowance(address(this), spender).sub(value);
-        callAndAssertSuccess(token, abi.encodeWithSignature("approve(address,uint256)", spender, newAllowance));
+        callAndAssertSuccess(token, abi.encodeWithSelector(token.approve.selector, spender, newAllowance));
     }
 
     /**
