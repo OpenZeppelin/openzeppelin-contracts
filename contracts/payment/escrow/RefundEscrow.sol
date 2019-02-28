@@ -66,7 +66,7 @@ contract RefundEscrow is ConditionalEscrow {
      * @dev Allows for the beneficiary to withdraw their funds, rejecting
      * further deposits.
      */
-    function close() public onlyPrimary isState(State.Active) {
+    function close() public onlyPrimary onlyInState(State.Active) {
         _state = State.Closed;
         emit RefundsClosed();
     }
