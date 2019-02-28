@@ -5,7 +5,7 @@ const ERC20ReturnTrueMock = artifacts.require('ERC20ReturnTrueMock');
 const ERC20NoReturnMock = artifacts.require('ERC20NoReturnMock');
 const SafeERC20Wrapper = artifacts.require('SafeERC20Wrapper');
 
-contract.only('SafeERC20', function () {
+contract('SafeERC20', function () {
   describe('with token that returns false on all calls', function () {
     beforeEach(async function () {
       this.wrapper = await SafeERC20Wrapper.new((await ERC20ReturnFalseMock.new()).address);
@@ -49,8 +49,7 @@ contract.only('SafeERC20', function () {
   });
 });
 
-
-function shouldOnlyRevertOnErrors() {
+function shouldOnlyRevertOnErrors () {
   it('doesn\'t revert on transfer', async function () {
     await this.wrapper.transfer();
   });
