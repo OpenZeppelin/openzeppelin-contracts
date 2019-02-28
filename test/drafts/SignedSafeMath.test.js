@@ -19,7 +19,7 @@ contract('SignedSafeMath', function () {
   }
 
   describe('add', function () {
-    it('adds correctly if it does not overflow and the result is positve', async function () {
+    it('adds correctly if it does not overflow and the result is positive', async function () {
       const a = new BN('1234');
       const b = new BN('5678');
 

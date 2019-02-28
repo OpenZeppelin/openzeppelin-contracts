@@ -17,7 +17,7 @@ import "../math/Math.sol";
  * OpenZeppelin's ERC20Mintable, but the only functions that are needed are
  * `isMinter(address)` and `mint(address, amount)`. The migrator will check
  * that it is a minter for the token.
- * The balance from the legacy token will be transfered to the migrator, as it
+ * The balance from the legacy token will be transferred to the migrator, as it
  * is migrated, and remain there forever.
  * Although this contract can be used in many different scenarios, the main
  * motivation was to provide a way to migrate ERC20 tokens into an upgradeable
