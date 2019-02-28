@@ -74,7 +74,7 @@ contract RefundEscrow is ConditionalEscrow {
     /**
      * @dev Allows for refunds to take place, rejecting further deposits.
      */
-    function enableRefunds() public onlyPrimary isState(State.Active) {
+    function enableRefunds() public onlyPrimary onlyInState(State.Active) {
         _state = State.Refunding;
         emit RefundsEnabled();
     }
