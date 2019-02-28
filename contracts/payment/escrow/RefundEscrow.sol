@@ -82,7 +82,7 @@ contract RefundEscrow is ConditionalEscrow {
     /**
      * @dev Withdraws the beneficiary's funds.
      */
-    function beneficiaryWithdraw() public isState(State.Closed) {
+    function beneficiaryWithdraw() public onlyInState(State.Closed) {
         _beneficiary.transfer(address(this).balance);
     }
 
