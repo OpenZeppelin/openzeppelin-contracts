@@ -35,7 +35,7 @@ contract RefundEscrow is ConditionalEscrow {
     /**
      * @dev Throws if called by any state other than the expected one.
      */
-    modifier isState(State expectedState) {
+    modifier onlyInState(State expectedState) {
         require(_state == expectedState);
         _;
     }
