@@ -58,7 +58,7 @@ contract RefundEscrow is ConditionalEscrow {
      * @dev Stores funds that may later be refunded.
      * @param refundee The address funds will be sent to if a refund occurs.
      */
-    function deposit(address refundee) public payable isState(State.Active) {
+    function deposit(address refundee) public payable onlyInState(State.Active) {
         super.deposit(refundee);
     }
 
