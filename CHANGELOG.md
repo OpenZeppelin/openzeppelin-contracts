@@ -20,16 +20,16 @@
 ### Breaking changes:
  * `TokenMetadata` (in drafts) has been renamed to `ERC20Metadata`. ([#1618](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1618))
 
-## 2.1.3 (2019-26-02)
+## 2.1.3 (2019-02-26)
  * Backported `SafeERC20.safeApprove` bugfix. ([#1647](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1647))
 
-## 2.1.2 (2019-17-01)
+## 2.1.2 (2019-01-17)
  * Removed most of the test suite from the npm package, except `PublicRole.behavior.js`, which may be useful to users testing their own `Roles`.
 
-## 2.1.1 (2019-04-01)
+## 2.1.1 (2019-01-04)
  * Version bump to avoid conflict in the npm registry.
 
-## 2.1.0 (2019-04-01)
+## 2.1.0 (2019-01-04)
 
 ### New features:
  * Now targeting the 0.5.x line of Solidity compilers. For 0.4.24 support, use version 2.0 of OpenZeppelin.
