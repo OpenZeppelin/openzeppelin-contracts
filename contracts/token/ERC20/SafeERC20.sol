@@ -2,6 +2,7 @@ pragma solidity ^0.5.2;
 
 import "./IERC20.sol";
 import "../../math/SafeMath.sol";
+import "../../utils/Address.sol";
 
 /**
  * @title SafeERC20
@@ -14,6 +15,7 @@ import "../../math/SafeMath.sol";
  */
 library SafeERC20 {
     using SafeMath for uint256;
+    using Address for address;
 
     function safeTransfer(IERC20 token, address to, uint256 value) internal {
         callOptionalReturn(token, abi.encodeWithSelector(token.transfer.selector, to, value));
@@ -56,12 +58,7 @@ library SafeERC20 {
         //  2. The call itself is made, and success asserted
         //  3. The return value is decoded, which in turn checks the size of the returned data.
 
-        uint256 tokenCodeSize;
-        // solhint-disable-next-line no-inline-assembly
-        assembly {
-            tokenCodeSize := extcodesize(token)
-        }
-        require(tokenCodeSize > 0);
+        require(address(token).isContract());
 
         // solhint-disable-next-line avoid-low-level-calls
         (bool success, bytes memory returndata) = address(token).call(data);
