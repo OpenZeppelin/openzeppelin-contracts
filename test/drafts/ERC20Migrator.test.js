@@ -44,6 +44,40 @@ contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
       });
     });
 
+    context('before starting the migration', function () {
+      it('returns the zero address for the new token', async function () {
+        (await this.migrator.newToken()).should.be.equal(ZERO_ADDRESS);
+      });
+
+      describe('migrateAll', function () {
+        const amount = totalSupply;
+
+        describe('when the approved balance is equal to the owned balance', function () {
+          beforeEach('approving the whole balance to the new contract', async function () {
+            await this.legacyToken.approve(this.migrator.address, amount, { from: owner });
+          });
+
+          it('reverts', async function () {
+            await shouldFail.reverting(this.migrator.migrateAll(owner));
+          });
+        });
+      });
+
+      describe('migrate', function () {
+        const amount = new BN(50);
+
+        describe('when the amount is equal to the approved value', function () {
+          beforeEach('approving tokens to the new contract', async function () {
+            await this.legacyToken.approve(this.migrator.address, amount, { from: owner });
+          });
+
+          it('reverts', async function () {
+            await shouldFail.reverting(this.migrator.migrate(owner, amount));
+          });
+        });
+      });
+    });
+
     describe('once migration began', function () {
       beforeEach('beginning migration', async function () {
         await this.newToken.addMinter(this.migrator.address);
