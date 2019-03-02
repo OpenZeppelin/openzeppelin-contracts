@@ -44,7 +44,7 @@ contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
       });
     });
 
-    describe('before migration', function () {
+    context('before starting the migration', function () {
       it('returns the zero address for the new token', async function () {
         (await this.migrator.newToken()).should.be.equal(ZERO_ADDRESS);
       });
