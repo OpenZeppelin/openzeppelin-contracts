@@ -17,7 +17,7 @@ contract('Pausable', function ([_, pauser, otherPauser, anyone, ...otherAccounts
     shouldBehaveLikePublicRole(pauser, otherPauser, otherAccounts, 'pauser');
   });
 
-  context('when unapused', function () {
+  context('when unpaused', function () {
     beforeEach(async function () {
       (await this.pausable.paused()).should.equal(false);
     });

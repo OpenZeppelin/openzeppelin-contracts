@@ -3,7 +3,7 @@ pragma solidity ^0.5.2;
 /**
  * @title ERC165Checker
  * @dev Use `using ERC165Checker for address`; to include this library
- * https://github.com/ethereum/EIPs/blob/master/EIPS/eip-165.md
+ * https://eips.ethereum.org/EIPS/eip-165
  */
 library ERC165Checker {
     // As per the EIP-165 spec, no interface should ever match 0xffffffff

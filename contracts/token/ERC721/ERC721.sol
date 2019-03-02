@@ -9,7 +9,7 @@ import "../../introspection/ERC165.sol";
 
 /**
  * @title ERC721 Non-Fungible Token Standard basic implementation
- * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
+ * @dev see https://eips.ethereum.org/EIPS/eip-721
  */
 contract ERC721 is ERC165, IERC721 {
     using SafeMath for uint256;

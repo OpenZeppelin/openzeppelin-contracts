@@ -29,7 +29,7 @@ contract('Secondary', function ([_, primary, newPrimary, anyone]) {
       (await this.secondary.primary()).should.equal(newPrimary);
     });
 
-    it('reverts when transfering to the null address', async function () {
+    it('reverts when transferring to the null address', async function () {
       await shouldFail.reverting(this.secondary.transferPrimary(ZERO_ADDRESS, { from: primary }));
     });
 

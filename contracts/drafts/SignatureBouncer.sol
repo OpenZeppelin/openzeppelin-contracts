@@ -29,7 +29,7 @@ import "../cryptography/ECDSA.sol";
  * @notice A method that uses the `onlyValidSignatureAndData` modifier must make
  * the _signature parameter the "last" parameter. You cannot sign a message that
  * has its own signature in it so the last 128 bytes of msg.data (which
- * represents the length of the _signature data and the _signaature data itself)
+ * represents the length of the _signature data and the _signature data itself)
  * is ignored when validating. Also non fixed sized parameters make constructing
  * the data in the signature much more complex.
  * See https://ethereum.stackexchange.com/a/50616 for more details.
@@ -56,7 +56,7 @@ contract SignatureBouncer is SignerRole {
     }
 
     /**
-     * @dev requires that a valid signature with a specifed method of a signer was provided
+     * @dev requires that a valid signature with a specified method of a signer was provided
      */
     modifier onlyValidSignatureAndMethod(bytes memory signature) {
         require(_isValidSignatureAndMethod(msg.sender, signature));
@@ -64,7 +64,7 @@ contract SignatureBouncer is SignerRole {
     }
 
     /**
-     * @dev requires that a valid signature with a specifed method and params of a signer was provided
+     * @dev requires that a valid signature with a specified method and params of a signer was provided
      */
     modifier onlyValidSignatureAndData(bytes memory signature) {
         require(_isValidSignatureAndData(msg.sender, signature));
@@ -72,7 +72,7 @@ contract SignatureBouncer is SignerRole {
     }
 
     /**
-     * @dev is the signature of `this + sender` from a signer?
+     * @dev is the signature of `this + account` from a signer?
      * @return bool
      */
     function _isValidSignature(address account, bytes memory signature) internal view returns (bool) {
@@ -80,7 +80,7 @@ contract SignatureBouncer is SignerRole {
     }
 
     /**
-     * @dev is the signature of `this + sender + methodId` from a signer?
+     * @dev is the signature of `this + account + methodId` from a signer?
      * @return bool
      */
     function _isValidSignatureAndMethod(address account, bytes memory signature) internal view returns (bool) {
@@ -92,7 +92,7 @@ contract SignatureBouncer is SignerRole {
     }
 
     /**
-     * @dev is the signature of `this + sender + methodId + params(s)` from a signer?
+     * @dev is the signature of `this + account + methodId + params(s)` from a signer?
      * @notice the signature parameter of the method being validated must be the "last" parameter
      * @return bool
      */

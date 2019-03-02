@@ -37,3 +37,6 @@ build/
 
 # truffle
 .node-xmlhttprequest-*
+
+# IntelliJ IDE
+.idea

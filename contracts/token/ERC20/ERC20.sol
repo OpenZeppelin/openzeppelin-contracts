@@ -7,7 +7,7 @@ import "../../math/SafeMath.sol";
  * @title Standard ERC20 token
  *
  * @dev Implementation of the basic standard token.
- * https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md
+ * https://eips.ethereum.org/EIPS/eip-20
  * Originally based on code by FirstBlood:
  * https://github.com/Firstbloodio/token/blob/master/smart_contract/FirstBloodToken.sol
  *
@@ -34,7 +34,7 @@ contract ERC20 is IERC20 {
     /**
      * @dev Gets the balance of the specified address.
      * @param owner The address to query the balance of.
-     * @return An uint256 representing the amount owned by the passed address.
+     * @return A uint256 representing the amount owned by the passed address.
      */
     function balanceOf(address owner) public view returns (uint256) {
         return _balances[owner];
@@ -51,7 +51,7 @@ contract ERC20 is IERC20 {
     }
 
     /**
-     * @dev Transfer token for a specified address
+     * @dev Transfer token to a specified address
      * @param to The address to transfer to.
      * @param value The amount to be transferred.
      */
@@ -90,7 +90,7 @@ contract ERC20 is IERC20 {
 
     /**
      * @dev Increase the amount of tokens that an owner allowed to a spender.
-     * approve should be called when allowed_[_spender] == 0. To increment
+     * approve should be called when _allowed[msg.sender][spender] == 0. To increment
      * allowed value is better to use this function to avoid 2 calls (and wait until
      * the first transaction is mined)
      * From MonolithDAO Token.sol
@@ -105,7 +105,7 @@ contract ERC20 is IERC20 {
 
     /**
      * @dev Decrease the amount of tokens that an owner allowed to a spender.
-     * approve should be called when allowed_[_spender] == 0. To decrement
+     * approve should be called when _allowed[msg.sender][spender] == 0. To decrement
      * allowed value is better to use this function to avoid 2 calls (and wait until
      * the first transaction is mined)
      * From MonolithDAO Token.sol

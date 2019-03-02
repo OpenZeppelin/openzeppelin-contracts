@@ -55,7 +55,7 @@ function shouldBehaveLikeERC721PausedToken (owner, [recipient, operator]) {
     });
 
     describe('exists', function () {
-      it('should return token existance', async function () {
+      it('should return token existence', async function () {
         (await this.token.exists(firstTokenId)).should.equal(true);
       });
     });
