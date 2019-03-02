@@ -129,17 +129,9 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
           await shouldFail.reverting(this.crowdsale.send(value));
         });
 
-        it('it re-opens and extends end time', async function () {
+        it('it reverts', async function () {
           const newClosingTime = this.closingTime.add(time.duration.days(1));
-          const { logs } = await this.crowdsale.extendTime(newClosingTime);
-          expectEvent.inLogs(logs, 'TimedCrowdsaleExtended', {
-            prevClosingTime: this.closingTime,
-            newClosingTime: newClosingTime,
-          });
-          (await this.crowdsale.closingTime.call()).should.be.bignumber.equal(newClosingTime);
-
-          // Crowdsale should be reopened
-          await this.crowdsale.send(value);
+          await shouldFail.reverting(this.crowdsale.extendTime(newClosingTime));
         });
       });
     });
