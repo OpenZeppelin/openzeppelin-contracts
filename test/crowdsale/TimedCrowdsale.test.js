@@ -76,9 +76,6 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
 
     describe('extending closing time', function () {
       it('should not reduce duration', async function () {
-        (await this.crowdsale.isOpen()).should.equal(false);
-        await shouldFail.reverting(this.crowdsale.send(value));
-
         // Same date
         await shouldFail.reverting(this.crowdsale.extendTime(this.closingTime));
 
@@ -100,7 +97,7 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
             prevClosingTime: this.closingTime,
             newClosingTime: newClosingTime,
           });
-          (await this.crowdsale.closingTime.call()).should.be.bignumber.equal(newClosingTime);
+          (await this.crowdsale.closingTime()).should.be.bignumber.equal(newClosingTime);
         });
       });
 
@@ -118,19 +115,17 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
             prevClosingTime: this.closingTime,
             newClosingTime: newClosingTime,
           });
-          (await this.crowdsale.closingTime.call()).should.be.bignumber.equal(newClosingTime);
+          (await this.crowdsale.closingTime()).should.be.bignumber.equal(newClosingTime);
         });
       });
 
       context('after crowdsale end', function () {
         beforeEach(async function () {
           await time.increaseTo(this.afterClosingTime);
-          (await this.crowdsale.isOpen()).should.equal(false);
-          await shouldFail.reverting(this.crowdsale.send(value));
         });
 
         it('it reverts', async function () {
-          const newClosingTime = this.closingTime.add(time.duration.days(1));
+          const newClosingTime = await time.latest();
           await shouldFail.reverting(this.crowdsale.extendTime(newClosingTime));
         });
       });
