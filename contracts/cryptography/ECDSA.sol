@@ -33,11 +33,15 @@ library ECDSA {
             v := byte(0, mload(add(signature, 0x60)))
         }
 
-        //EIP-2 still allows signature malleabality for ecrecover(), remove this possibility and make
-        //the signature unique. Most signatures from current libraries are generate a unique signature with
-        //an s-value in the lower half order. If not, calculate a new s-value with
-        //0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141 - s1 and flip v from 27 to 28 or
-        //vice versa. It could also happen that a signature uses 0/1 instead 27/28 for v. In that case add 27.
+        //EIP-2 still allows signature malleability for ecrecover(). Remove this possibility and make the signature
+        //unique. Appendix F in the Ethereum Yellow paper (https://ethereum.github.io/yellowpaper/paper.pdf), defines
+        //the valid range for s in (281): 0 < s < secp256k1n ÷ 2 + 1. Most signatures from current libraries generate
+        //a unique signature with an s-value in the lower half order.
+        //
+        //If your library generates malleable signatures, such as s-values in the upper range, calculate a new s-value
+        //with 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141 - s1 and flip v from 27 to 28 or
+        //vice versa. If your library also generates signatures with 0/1 for v instead 27/28, add 27 to v to accept
+        //these malleable signatures as well.
         if(uint256(s) > uint256(0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0)) {
             return address(0);
         }
