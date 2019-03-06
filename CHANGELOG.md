@@ -9,6 +9,7 @@
  * Upgraded the minimum compiler version to v0.5.2: this removes many Solidity warnings that were false positives.
  * `Counter`'s API has been improved, and is now used by `ERC721` (though it is still in `drafts`).
  * `ERC721`'s transfers are now more gas efficient due to removal of unnecessary `SafeMath` calls.
+ * `ECDSA`: `recover` no longer accepts malleable signatures (those using upper-range values for `s`, or 0/1 for `v`). ([#1622](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1622))
  * Fixed variable shadowing issues.
 
 ### Bugfixes:
