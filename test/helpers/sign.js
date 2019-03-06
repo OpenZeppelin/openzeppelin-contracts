@@ -22,8 +22,8 @@ function fixSignature (signature) {
 }
 
 // signs message in node (ganache auto-applies "Ethereum Signed Message" prefix)
-const signMessage = (signer, messageHex = '0x') => {
-  return web3.eth.sign(messageHex, signer);
+async function signMessage (signer, messageHex = '0x') {
+  return fixSignature(await web3.eth.sign(messageHex, signer));
 };
 
 /**

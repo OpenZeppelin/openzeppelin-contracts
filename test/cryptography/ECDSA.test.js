@@ -1,5 +1,6 @@
-const { shouldFail } = require('openzeppelin-test-helpers');
-const { signMessage, toEthSignedMessageHash, fixSignature } = require('../helpers/sign');
+const { constants, shouldFail } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
+const { toEthSignedMessageHash, fixSignature } = require('../helpers/sign');
 
 const ECDSAMock = artifacts.require('ECDSAMock');
 
@@ -22,8 +23,7 @@ contract('ECDSA', function ([_, anyone]) {
         it('returns 0', async function () {
           const version = '00';
           const signature = signatureWithoutVersion + version;
-          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(
-            '0x0000000000000000000000000000000000000000');
+          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(ZERO_ADDRESS);
         });
       });
 
@@ -41,8 +41,7 @@ contract('ECDSA', function ([_, anyone]) {
           // The only valid values are 0, 1, 27 and 28.
           const version = '02';
           const signature = signatureWithoutVersion + version;
-          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(
-            '0x0000000000000000000000000000000000000000');
+          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(ZERO_ADDRESS);
         });
       });
     });
@@ -52,16 +51,15 @@ contract('ECDSA', function ([_, anyone]) {
       // eslint-disable-next-line max-len
       const signatureWithoutVersion = '0x331fe75a821c982f9127538858900d87d3ec1f9f737338ad67cad133fa48feff48e6fa0c18abc62e42820f05943e47af3e9fbe306ce74d64094bdf1691ee53e0';
 
-      context('with 01 as version value (wrong)', function () {
-        it('works', async function () {
+      context('with 01 as version value', function () {
+        it('returns 0', async function () {
           const version = '01';
           const signature = signatureWithoutVersion + version;
-          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(
-            '0x0000000000000000000000000000000000000000');
+          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(ZERO_ADDRESS);
         });
       });
 
-      context('with 28 signature', function () {
+      context('with 28 as version value', function () {
         it('works', async function () {
           const version = '1c'; // 28 = 1c.
           const signature = signatureWithoutVersion + version;
@@ -75,8 +73,7 @@ contract('ECDSA', function ([_, anyone]) {
           // The only valid values are 0, 1, 27 and 28.
           const version = '02';
           const signature = signatureWithoutVersion + version;
-          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(
-            '0x0000000000000000000000000000000000000000');
+          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(ZERO_ADDRESS);
         });
       });
     });
@@ -85,7 +82,7 @@ contract('ECDSA', function ([_, anyone]) {
       context('with correct signature', function () {
         it('returns signer address', async function () {
           // Create the signature
-          const signature = fixSignature(await signMessage(anyone, TEST_MESSAGE));
+          const signature = fixSignature(await web3.eth.sign(TEST_MESSAGE, anyone));
 
           // Recover the signer address from the generated message and signature.
           (await this.ecdsa.recover(
@@ -98,23 +95,23 @@ contract('ECDSA', function ([_, anyone]) {
       context('with wrong signature', function () {
         it('does not return signer address', async function () {
           // Create the signature
-          const signature = await signMessage(anyone, TEST_MESSAGE);
+          const signature = await web3.eth.sign(TEST_MESSAGE, anyone);
 
           // Recover the signer address from the generated message and wrong signature.
           (await this.ecdsa.recover(WRONG_MESSAGE, signature)).should.not.equal(anyone);
         });
       });
     });
-  });
 
-  context('with small hash', function () {
-    // @TODO - remove `skip` once we upgrade to solc^0.5
-    it.skip('reverts', async function () {
-      // Create the signature
-      const signature = await signMessage(anyone, TEST_MESSAGE);
-      await shouldFail.reverting(
-        this.ecdsa.recover(TEST_MESSAGE.substring(2), signature)
-      );
+    context('with small hash', function () {
+      // @TODO - remove `skip` once we upgrade to solc^0.5
+      it.skip('reverts', async function () {
+        // Create the signature
+        const signature = await web3.eth.sign(TEST_MESSAGE, anyone);
+        await shouldFail.reverting(
+          this.ecdsa.recover(TEST_MESSAGE.substring(2), signature)
+        );
+      });
     });
   });
 
