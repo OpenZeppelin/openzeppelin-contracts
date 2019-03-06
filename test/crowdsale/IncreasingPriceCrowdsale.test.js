@@ -31,7 +31,7 @@ contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser])
       ));
     });
 
-    it('reverts with a final equal to the initial rate', async function () {
+    it('reverts with a final rate equal to the initial rate', async function () {
       await shouldFail.reverting(IncreasingPriceCrowdsaleImpl.new(
         this.startTime, this.closingTime, wallet, this.token.address, initialRate, initialRate
       ));

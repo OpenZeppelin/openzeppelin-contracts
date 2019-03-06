@@ -25,11 +25,10 @@ jobs:
       name: "Unit tests"
       script: npm run test
 
-# solidity-coverage fails at parsing 0.5.x code
-#    - stage: tests
-#      name: "Unit tests with coverage report"
-#      script: npm run test
-#      env: SOLIDITY_COVERAGE=true
+    - stage: tests
+      name: "Unit tests with coverage report"
+      script: npm run test
+      env: SOLIDITY_COVERAGE=true
 
     - stage: tests
       name: "Unit tests using solc nightly"

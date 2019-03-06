@@ -54,7 +54,7 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
   });
 
   describe('check remaining allowance', function () {
-    it('should report correct allowace left', async function () {
+    it('should report correct allowance left', async function () {
       const remainingAllowance = tokenAllowance.sub(expectedTokenAmount);
       await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
       (await this.crowdsale.remainingTokens()).should.be.bignumber.equal(remainingAllowance);
@@ -72,7 +72,7 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
     });
   });
 
-  describe('when token wallet is different from token address', function () {
+  describe('when token wallet is the zero address', function () {
     it('creation reverts', async function () {
       this.token = await SimpleToken.new({ from: tokenWallet });
       await shouldFail.reverting(AllowanceCrowdsaleImpl.new(rate, wallet, this.token.address, ZERO_ADDRESS));

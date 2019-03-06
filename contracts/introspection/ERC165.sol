@@ -9,7 +9,7 @@ import "./IERC165.sol";
  */
 contract ERC165 is IERC165 {
     bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
-    /**
+    /*
      * 0x01ffc9a7 ===
      *     bytes4(keccak256('supportsInterface(bytes4)'))
      */

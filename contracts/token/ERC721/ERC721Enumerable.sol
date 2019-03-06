@@ -6,7 +6,7 @@ import "../../introspection/ERC165.sol";
 
 /**
  * @title ERC-721 Non-Fungible Token with optional enumeration extension logic
- * @dev See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
+ * @dev See https://eips.ethereum.org/EIPS/eip-721
  */
 contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
     // Mapping from owner to list of owned token IDs
@@ -22,7 +22,7 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
     mapping(uint256 => uint256) private _allTokensIndex;
 
     bytes4 private constant _INTERFACE_ID_ERC721_ENUMERABLE = 0x780e9d63;
-    /**
+    /*
      * 0x780e9d63 ===
      *     bytes4(keccak256('totalSupply()')) ^
      *     bytes4(keccak256('tokenOfOwnerByIndex(address,uint256)')) ^
@@ -33,7 +33,7 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
      * @dev Constructor function
      */
     constructor () public {
-        // register the supported interface to conform to ERC721 via ERC165
+        // register the supported interface to conform to ERC721Enumerable via ERC165
         _registerInterface(_INTERFACE_ID_ERC721_ENUMERABLE);
     }
 
@@ -73,7 +73,7 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
      * @param from current owner of the token
      * @param to address to receive the ownership of the given token ID
      * @param tokenId uint256 ID of the token to be transferred
-    */
+     */
     function _transferFrom(address from, address to, uint256 tokenId) internal {
         super._transferFrom(from, to, tokenId);
 
@@ -167,8 +167,8 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
         // This also deletes the contents at the last position of the array
         _ownedTokens[from].length--;
 
-        // Note that _ownedTokensIndex[tokenId] hasn't been cleared: it still points to the old slot (now occcupied by
-        // lasTokenId, or just over the end of the array if the token was the last one).
+        // Note that _ownedTokensIndex[tokenId] hasn't been cleared: it still points to the old slot (now occupied by
+        // lastTokenId, or just over the end of the array if the token was the last one).
     }
 
     /**
