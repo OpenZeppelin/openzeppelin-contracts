@@ -33,18 +33,18 @@ const INTERFACE_IDS = {
 function shouldSupportInterfaces (interfaces = []) {
   describe('ERC165\'s supportsInterface(bytes4)', function () {
     beforeEach(function () {
-      this.thing = this.mock || this.token;
+      this.contractUnderTest = this.mock || this.token;
     });
 
     for (const k of interfaces) {
       const interfaceId = INTERFACE_IDS[k];
       describe(k, function () {
         it('should use less than 30k gas', async function () {
-          (await this.thing.supportsInterface.estimateGas(interfaceId)).should.be.lte(30000);
+          (await this.contractUnderTest.supportsInterface.estimateGas(interfaceId)).should.be.lte(30000);
         });
 
         it('is supported', async function () {
-          (await this.thing.supportsInterface(interfaceId)).should.equal(true);
+          (await this.contractUnderTest.supportsInterface(interfaceId)).should.equal(true);
         });
       });
     }
