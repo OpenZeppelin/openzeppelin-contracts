@@ -78,6 +78,16 @@ contract('ECDSA', function ([_, anyone]) {
       });
     });
 
+    context('with high-s value signature', function () {
+      it('returns 0', async function () {
+        const message = '0xb94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9';
+        // eslint-disable-next-line max-len
+        const highSSignature = '0xe742ff452d41413616a5bf43fe15dd88294e983d3d36206c2712f39083d638bde0a0fc89be718fbc1033e1d30d78be1c68081562ed2e97af876f286f3453231d1b';
+
+        (await this.ecdsa.recover(message, highSSignature)).should.equal(ZERO_ADDRESS);
+      });
+    });
+
     context('using web3.eth.sign', function () {
       context('with correct signature', function () {
         it('returns signer address', async function () {
