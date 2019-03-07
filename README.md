@@ -12,6 +12,8 @@
 npm install openzeppelin-solidity
 ```
 
+OpenZeppelin features a stable API, which means your contracts won't break unexpectedly when upgrading to newer versions. You can read more about our stability guarantees [here](https://forum.zeppelin.solutions/t/api-stability/138).
+
 ## Usage
 
 To write your custom contracts, import ours and extend them through inheritance.
