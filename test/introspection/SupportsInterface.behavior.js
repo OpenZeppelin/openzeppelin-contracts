@@ -25,9 +25,6 @@ const INTERFACES = {
     'symbol()',
     'tokenURI(uint256)',
   ],
-  ERC721Exists: [
-    'exists(uint256)',
-  ],
 };
 
 const INTERFACE_IDS = {};
