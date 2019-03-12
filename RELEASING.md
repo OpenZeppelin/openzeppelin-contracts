@@ -40,7 +40,7 @@ Once the CI run for the new tag is green, publish on npm under the `next` tag. Y
 npm publish --tag next
 ```
 
-Publish the release notes on GitHub and ask our community manager to announce the release candidate on at least Slack and Twitter.
+Publish the release notes on GitHub and the forum, and ask our community manager to announce the release candidate on at least Twitter.
 
 ## Creating the final release
 

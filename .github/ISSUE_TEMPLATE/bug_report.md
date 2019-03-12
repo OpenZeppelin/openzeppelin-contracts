@@ -6,7 +6,7 @@ about: Report a bug in OpenZeppelin
 
 <!-- Briefly describe the issue you're experiencing. Tell us what you were trying to do and what happened instead. -->
 
-<!-- Remember, this is not a place to ask for help debugging code. For that, we welcome you in the OpenZeppelin Slack channel: https://slack.openzeppelin.org/. -->
+<!-- Remember, this is not a place to ask for help debugging code. For that, we welcome you in the Zeppelin Forum: https://forum.zeppelin.solutions/. -->
 
 **💻 Environment**
 
