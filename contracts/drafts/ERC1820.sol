@@ -2,6 +2,10 @@ pragma solidity ^0.5.2;
 
 import "./IERC1820.sol";
 
+/**
+ * Inherit from this contract and call _registerInterfaceForAddress to allow for contracts to be registered in the
+ * ERC1820 registry.
+ */
 contract ERC1820 is IERC1820 {
     bytes32 constant private ERC1820_ACCEPT_MAGIC = keccak256(abi.encodePacked("ERC1820_ACCEPT_MAGIC"));
 
