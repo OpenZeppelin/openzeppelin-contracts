@@ -65,9 +65,9 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, anyon
           });
 
           it('refunds', async function () {
-            (await balance.difference(investor, () =>
-              this.crowdsale.claimRefund(investor, { gasPrice: 0 }))
-            ).should.be.bignumber.equal(lessThanGoal);
+            const balanceTracker = await balance.tracker(investor);
+            await this.crowdsale.claimRefund(investor, { gasPrice: 0 });
+            (await balanceTracker.delta()).should.be.bignumber.equal(lessThanGoal);
           });
         });
       });
