@@ -13,11 +13,7 @@ contract ERC1820Implementer is IERC1820Implementer {
     mapping(bytes32 => mapping(address => bool)) private _supportedInterfaces;
 
     function canImplementInterfaceForAddress(bytes32 interfaceHash, address account) external view returns (bytes32) {
-        return _implementsInterfaceForAddress(interfaceHash, account) ? ERC1820_ACCEPT_MAGIC : bytes32(0x00);
-    }
-
-    function _implementsInterfaceForAddress(bytes32 interfaceHash, address account) internal view returns (bool) {
-        return _supportedInterfaces[interfaceHash][account];
+        return _supportedInterfaces[interfaceHash][account] ? ERC1820_ACCEPT_MAGIC : bytes32(0x00);
     }
 
     function _registerInterfaceForAddress(bytes32 interfaceHash, address account) internal {
