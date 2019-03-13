@@ -3,8 +3,9 @@ pragma solidity ^0.5.2;
 import "./IERC1820Implementer.sol";
 
 /**
- * Inherit from this contract and call _registerInterfaceForAddress to allow for contracts to be registered in the
- * ERC1820 registry.
+ * @dev ERC1820Implementer allows your contract to implement an interface for another account in the sense of ERC1820.
+ * That account or one of its ERC1820 managers can register the implementer in the ERC1820 registry, but the registry
+ * will first check with the implementer if it agrees to it, and only allow it if it does.
  */
 contract ERC1820Implementer is IERC1820Implementer {
     bytes32 constant private ERC1820_ACCEPT_MAGIC = keccak256(abi.encodePacked("ERC1820_ACCEPT_MAGIC"));
