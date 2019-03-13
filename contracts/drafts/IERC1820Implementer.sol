@@ -1,11 +1,11 @@
 pragma solidity ^0.5.2;
 
 /**
- * @title IERC1820
+ * @title IERC1820Implementer
  * Interface for contracts that will be registered as implementers in the ERC1820 registry.
  * @notice For more details, see https://eips.ethereum.org/EIPS/eip-1820
  */
-interface IERC1820 {
+interface IERC1820Implementer {
     /**
      * @notice Indicates whether the contract implements the interface `interfaceHash` for the address `account` or
      * not.
