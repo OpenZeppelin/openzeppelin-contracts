@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.2.0 (unreleased)
+## 2.2.0 (2019-03-14)
 
 ### New features:
  * `ERC20Snapshot`: create snapshots on demand of the token balances and total supply, to later retrieve and e.g. calculate dividends at a past time. ([#1617](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1617))
