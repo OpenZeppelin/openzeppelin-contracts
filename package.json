@@ -13,6 +13,7 @@
     "console": "truffle console",
     "coverage": "scripts/coverage.sh",
     "docsite": "scripts/docsite.sh",
+    "docgen": "solidity-docgen -o docs/api",
     "lint": "npm run lint:js && npm run lint:sol",
     "lint:fix": "npm run lint:js:fix",
     "lint:js": "eslint .",
@@ -57,6 +58,7 @@
     "pify": "^4.0.1",
     "solhint": "^1.5.0",
     "solidity-coverage": "https://github.com:rotcivegaf/solidity-coverage.git#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
+    "solidity-docgen": "OpenZeppelin/solidity-docgen#next",
     "truffle": "^5.0.0"
   },
   "dependencies": {}

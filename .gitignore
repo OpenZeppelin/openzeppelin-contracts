@@ -41,5 +41,6 @@ build/
 # IntelliJ IDE
 .idea
 
-# docsite build directory
+# docsite artifacts
 docsite
+docs/api
