@@ -5,7 +5,9 @@ import "./IERC1820Implementer.sol";
 /**
  * @dev ERC1820Implementer allows your contract to implement an interface for another account in the sense of ERC1820.
  * That account or one of its ERC1820 managers can register the implementer in the ERC1820 registry, but the registry
- * will first check with the implementer if it agrees to it, and only allow it if it does.
+ * will first check with the implementer if it agrees to it, and only allow it if it does. Using the internal
+ * function _registerInterfaceForAddress provided by this contract, you are expressing this agreement,
+ * and you will be able to register the contract as an implementer in the registry for that account.
  */
 contract ERC1820Implementer is IERC1820Implementer {
     bytes32 constant private ERC1820_ACCEPT_MAGIC = keccak256(abi.encodePacked("ERC1820_ACCEPT_MAGIC"));
