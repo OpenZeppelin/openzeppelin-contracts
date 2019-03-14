@@ -21,6 +21,6 @@ cd docsite
 
 npm install
 
-export DOCS_PATH=../docs
+export DOCS_PATH=../docs # path relative to the docsite directory
 
 npm run "$cmd"
