@@ -4,15 +4,15 @@ set -o errexit
 
 cmd="$1"
 
-docsite="${DOCSITE:-https://github.com/OpenZeppelin/openzeppelin-docsite.git}"
+docsite_repo="${DOCSITE_REPO:-https://github.com/OpenZeppelin/openzeppelin-docsite.git}"
 
 if [ -d docsite ]; then
   cd docsite
   git checkout next
-  git pull --ff-only "$docsite" next
+  git pull --ff-only "$docsite_repo" next
   cd ..
 else
-  git clone --branch next "$docsite" docsite
+  git clone --branch next "$docsite_repo" docsite
 fi
 
 npm run docgen
