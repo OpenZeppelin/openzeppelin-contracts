@@ -6,6 +6,8 @@ cmd="$1"
 
 docsite_repo="${DOCSITE_REPO:-https://github.com/OpenZeppelin/openzeppelin-docsite.git}"
 
+docs_path="$(realpath docs)"
+
 if [ -d docsite ]; then
   cd docsite
   git checkout next
@@ -21,6 +23,4 @@ cd docsite
 
 npm install
 
-export DOCS_PATH=../docs # path relative to the docsite directory
-
-npm run "$cmd"
+env DOCS_PATH="$docs_path" npm run "$cmd"
