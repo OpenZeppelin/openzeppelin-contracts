@@ -8,10 +8,11 @@ docsite="${DOCSITE:-https://github.com/OpenZeppelin/openzeppelin-docsite.git}"
 
 if [ -d docsite ]; then
   cd docsite
-  git pull --ff-only "$docsite"
+  git checkout next
+  git pull --ff-only "$docsite" next
   cd ..
 else
-  git clone "$docsite" docsite
+  git clone --branch next "$docsite" docsite
 fi
 
 npm run docgen
