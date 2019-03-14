@@ -40,3 +40,6 @@ build/
 
 # IntelliJ IDE
 .idea
+
+# docsite build directory
+docsite
