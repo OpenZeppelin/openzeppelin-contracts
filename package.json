@@ -52,7 +52,7 @@
     "ethereumjs-util": "^6.0.0",
     "ethjs-abi": "^0.2.1",
     "ganache-cli": "6.1.8",
-    "openzeppelin-test-helpers": "^0.1.4",
+    "openzeppelin-test-helpers": "^0.2.0",
     "pify": "^4.0.1",
     "solhint": "^1.5.0",
     "solidity-coverage": "https://github.com:rotcivegaf/solidity-coverage.git#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
