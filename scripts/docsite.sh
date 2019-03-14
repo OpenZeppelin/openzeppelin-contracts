@@ -7,11 +7,11 @@ cmd="$1"
 docsite="${DOCSITE:-https://github.com/OpenZeppelin/openzeppelin-docsite.git}"
 
 if [ -d docsite ]; then
-  pushd docsite
+  cd docsite
   git pull --ff-only "$docsite"
 else
   git clone "$docsite" docsite
-  pushd docsite
+  cd docsite
 fi
 
 npm install
