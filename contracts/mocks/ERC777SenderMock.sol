@@ -2,14 +2,14 @@ pragma solidity ^0.4.24;
 
 import "../drafts/ERC777/IERC777.sol";
 import "../drafts/ERC777/IERC777TokensSender.sol";
-import "../introspection/ERC820Client.sol";
+import "../introspection/ERC1820Client.sol";
 
 /**
  * @title ERC777TokensSenderMock a contract that implements tokensToSend() hook
  * @author Bertrand Masius <github@catageeks.tk>
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-777.md
  */
-contract ERC777SenderMock is IERC777TokensSender, ERC820Client {
+contract ERC777SenderMock is IERC777TokensSender, ERC1820Client {
  
   address private _erc777;
 

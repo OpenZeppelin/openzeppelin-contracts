@@ -1,9 +1,9 @@
 const {assertRevert} = require('../../helpers/assertRevert');
 const expectEvent = require('../../helpers/expectEvent');
-const {ERC820Deploy} = require('../../introspection/ERC820Deploy');
+const {ERC1820Deploy} = require('../../introspection/ERC1820Deploy');
 
 const ERC777 = artifacts.require('ERC777');
-const ERC820 = artifacts.require('IERC820');
+const ERC1820 = artifacts.require('IERC1820');
 const ERC777TokensRecipient = artifacts.require('ERC777ReceiverMock');
 const ERC777TokensSender = artifacts.require('ERC777SenderMock');
 
@@ -15,18 +15,18 @@ require('chai')
 
 contract('ERC777', function ([_, holder, operator, anotherAccount]) {
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-  const ERC820_ADDRESS = "0x820b586C8C28125366C998641B09DCbE7d4cBF06";
+  const ERC1820_ADDRESS = "0x1820b744B33945482C17Dc37218C01D858EBc714";
   const INITIAL_SUPPLY = "10000";
   const USER_DATA = "0xabcd";
   const OPERATOR_DATA = "0x0a0b0c0d";
   const GRANULARITY = "1";
 
-  before('Deploy ERC820', async function () {
+  before('Deploy ERC1820', async function () {
     try {
-      this.ERC820Registry = await ERC820.at(ERC820_ADDRESS);
+      this.ERC1820Registry = await ERC1820.at(ERC1820_ADDRESS);
     } catch(error) {
-      let address = await ERC820Deploy(holder);
-      this.ERC820Registry = await ERC820.at(address);
+      let address = await ERC1820Deploy(holder);
+      this.ERC1820Registry = await ERC1820.at(address);
     }
   });
 
@@ -50,10 +50,10 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
     this.token = await ERC777.at(instance.options.address);
   });
 
-  describe('ERC820 Registry', function () {
+  describe('ERC1820 Registry', function () {
     it('hardcoded address in ERC777 contract is correct', async function () {
-      let erc820 = await this.token.getERC820Registry();
-      erc820.should.be.equal(this.ERC820Registry.address);
+      let erc1820 = await this.token.getERC1820Registry();
+      erc1820.should.be.equal(this.ERC1820Registry.address);
     });
   });
 
