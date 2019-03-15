@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.6;
 
 contract Failer {
     uint256[] private array;
