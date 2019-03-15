@@ -1,10 +1,11 @@
 # Changelog
 
 ## 2.3.0 (unreleased)
+
 ### New features:
  * `ERC1820`: added support for interacting with the [ERC1820](https://eips.ethereum.org/EIPS/eip-1820) registry contract (`IERC1820Registry`), as well as base contracts that can be registered as implementers there. ([#1677](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1677))
 
-## 2.2.0 (unreleased)
+## 2.2.0 (2019-03-14)
 
 ### New features:
  * `ERC20Snapshot`: create snapshots on demand of the token balances and total supply, to later retrieve and e.g. calculate dividends at a past time. ([#1617](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1617))
