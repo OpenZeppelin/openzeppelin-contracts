@@ -36,11 +36,12 @@ interface IERC777 {
         bytes operatorData
     ) external;
 
-    function burn(uint256 amount) external;
+    function burn(uint256 amount, bytes data) external;
 
     function operatorBurn(
         address from,
         uint256 amount,
+        bytes data,
         bytes operatorData
     ) external;
 
@@ -65,6 +66,7 @@ interface IERC777 {
         address indexed operator,
         address indexed from,
         uint256 amount,
+        bytes data,
         bytes operatorData
     );
 

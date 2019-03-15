@@ -35,5 +35,5 @@ interface IERC1820 {
     function implementsERC165Interface(
         address _contract,
         bytes4 _interfaceId
-    ) public view returns (bool);
+    ) external view returns (bool);
 }

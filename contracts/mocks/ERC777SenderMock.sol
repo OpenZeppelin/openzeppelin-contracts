@@ -43,9 +43,10 @@ contract ERC777SenderMock is IERC777TokensSender, ERC1820Client {
   /**
    * @dev Burn an amount of tokens from this contract
    * @param amount uint256 amount of tokens to transfer
+   * @param data bytes extra information provided by the token holder (if any)
    */
-  function burnTokens(uint amount) public {
-    IERC777(_erc777).burn(amount);
+  function burnTokens(uint amount, bytes data) public {
+    IERC777(_erc777).burn(amount, data);
   }
 
   /**

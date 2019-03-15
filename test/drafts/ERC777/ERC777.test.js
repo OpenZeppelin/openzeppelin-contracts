@@ -564,33 +564,36 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
   });
 
   describe('burn()',function () {
+    let userData = "0xdeadbeef";
   
     before('Deploy ERC777', async function () {
       this.token = await ERC777.new("Test777", "T77", 1, [], INITIAL_SUPPLY, USER_DATA, OPERATOR_DATA, {from: holder});
     });
 
     it('Burned event is emitted when burning 0 token', async function () {
-      const {events} = await this.token.contract.methods.burn("0").send({from: holder});
+      const {events} = await this.token.contract.methods.burn("0", userData).send({from: holder});
       expectEvent.inEvents(events, 'Burned', {
         operator: holder,
         from: holder,
         amount: "0",
+        data: userData
       });
     });
 
     it('revert when burning an amount of token from an account with insufficient balance', async function () {
       let amount = parseInt(INITIAL_SUPPLY, 10) + 100;
-      await assertRevert(this.token.contract.methods.burn(amount.toString()).send({from: holder}));
+      await assertRevert(this.token.contract.methods.burn(amount.toString(), userData).send({from: holder}));
     });
 
     describe('burning an amount of token from an account with sufficient balance', function () {
       it('Burned event is emitted', async function () {
 
-        const {events} = await this.token.contract.methods.burn("100").send({from: holder});
+        const {events} = await this.token.contract.methods.burn("100", userData).send({from: holder});
         expectEvent.inEvents(events, 'Burned', {
           operator: holder,
           from: holder,
           amount: "100",
+          data: userData
         });
       });
 
@@ -614,13 +617,13 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
           let sender = await ERC777TokensSender.new(true, this.token.address);
           await this.token.contract.methods.send(sender.address, "100", web3.utils.asciiToHex("")).send({from: holder});
 
-          const {events} = await sender.contract.methods.burnTokens("100").send({from: holder});
+          const {events} = await sender.contract.methods.burnTokens("100", userData).send({from: holder});
           expectEvent.inEvents(events, 'TokensToSend', {
             operator: sender.address,
             from: sender.address,
             to: ZERO_ADDRESS,
             amount: "100",
-            data: "0x00",
+            data: userData,
           });
         });
 
@@ -629,14 +632,14 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
           let sender = await ERC777TokensSender.new(false, this.token.address);
           await this.token.contract.methods.send(sender.address, "100", web3.utils.asciiToHex("")).send({from: holder});
 
-          const {events} = await sender.contract.methods.burnTokens("100").send({from: holder});
+          const {events} = await sender.contract.methods.burnTokens("100", userData).send({from: holder});
           expect(events["tokensToSend"]).to.not.exist;
         });
       });
 
       it('revert when sending an amount which is not a multiple of granularity', async function () {
         let tempToken = await ERC777.new("Test777", "T77", 10, [], INITIAL_SUPPLY, USER_DATA, OPERATOR_DATA, {from: holder});
-        await assertRevert(tempToken.contract.methods.burn("15").send({from: holder}));
+        await assertRevert(tempToken.contract.methods.burn("15", userData).send({from: holder}));
       });
     });
   });
@@ -695,7 +698,8 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
     it('revert when msg.sender is not an operator', async function () {
       let tempToken = await ERC777.new("Test777", "T77", 1, [operator], INITIAL_SUPPLY, USER_DATA, OPERATOR_DATA, {from: holder});
       let opData = "0xbabecafe";
-      await assertRevert(tempToken.contract.methods.operatorBurn(holder, "100", opData).send({from: anotherAccount}));
+      let userData = "0xdeadbeef";
+      await assertRevert(tempToken.contract.methods.operatorBurn(holder, "100", userData, opData).send({from: anotherAccount}));
     });
 
     for (let test in operatorTests) {
@@ -708,12 +712,14 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
 
         it('Burned event is emitted when burning 0 token', async function () {
           let opData = "0xbabecafe";
+          let userData = "0xdeadbeef";
 
-          const {events} = await this.token.contract.methods.operatorBurn(holder, "0", opData).send({from: operator});
+          const {events} = await this.token.contract.methods.operatorBurn(holder, "0", userData, opData).send({from: operator});
           expectEvent.inEvents(events, 'Burned', {
             operator: operator,
             from: holder,
             amount: "0",
+            data: userData,
             operatorData: opData,
           });
         });
@@ -721,18 +727,21 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
         it('revert when burning an amount of token from an account with insufficient balance', async function () {
           let amount = parseInt(INITIAL_SUPPLY, 10) + 100;
           let opData = "0xbabecafe";
-          await assertRevert(this.token.contract.methods.operatorBurn(holder, amount.toString(), opData).send({from: operator}));
+          let userData = "0xdeadbeef";
+          await assertRevert(this.token.contract.methods.operatorBurn(holder, amount.toString(), userData, opData).send({from: operator}));
         });
 
         describe('burning an amount of token from an account with sufficient balance', function () {
           it('Burned event is emitted', async function () {
             let opData = "0xbabecafe";
+            let userData = "0xdeadbeef";
 
-            const {events} = await this.token.contract.methods.operatorBurn(holder, "100", opData).send({from: operator});
+            const {events} = await this.token.contract.methods.operatorBurn(holder, "100", userData, opData).send({from: operator});
             expectEvent.inEvents(events, 'Burned', {
               operator: operator,
               from: holder,
               amount: "100",
+              data: userData,
               operatorData: opData,
             });
           });
@@ -753,19 +762,22 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
 
           it('revert when burning an amount which is not a multiple of granularity', async function () {
             let opData = "0xbabecafe";
+            let userData = "0xdeadbeef";
             let tempToken = await ERC777.new("Test777", "T77", 10, [operator], INITIAL_SUPPLY, USER_DATA, OPERATOR_DATA, {from: holder});
-            await assertRevert(tempToken.contract.methods.operatorBurn(holder, "15", opData).send({from: operator}));
+            await assertRevert(tempToken.contract.methods.operatorBurn(holder, "15", userData, opData).send({from: operator}));
           });
 
           it('operator is the holder when from is address(0)', async function () {
             let opData = "0xbabecafe";
+            let userData = "0xdeadbeef";
 
             await this.token.contract.methods.send(operator, "100", web3.utils.asciiToHex("")).send({from: holder});
-            const {events} = await this.token.contract.methods.operatorBurn(ZERO_ADDRESS, "100", opData).send({from: operator});
+            const {events} = await this.token.contract.methods.operatorBurn(ZERO_ADDRESS, "100", userData, opData).send({from: operator});
             expectEvent.inEvents(events, 'Burned', {
               operator: operator,
               from: operator,
               amount: "100",
+              data: userData,
               operatorData: opData,
             });
           });
@@ -774,29 +786,31 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
 
             it('tokensToSend() hook is called when declared', async function () {
               let opData = "0xbabecafe";
+              let userData = "0xdeadbeef";
 
               // deploy sender contract, declare operator and give tokens
               await operatorTests[test].deploy_sender.call(this, holder, operator, true);
 
-              await this.token.contract.methods.operatorBurn(this.sender.address, "100", opData).send({from: operator});
+              await this.token.contract.methods.operatorBurn(this.sender.address, "100", userData, opData).send({from: operator});
               let events = await this.sender.getPastEvents("TokensToSend");
               events.length.should.be.not.equal(0);
               let event = events[0].returnValues;
               event.operator.should.be.equal(operator);
               event.from.should.be.equal(this.sender.address);
               event.amount.toString().should.be.equal("100");
-              expect(event.data).to.not.exist;
+              event.data.should.be.equal(userData);
               event.operatorData.should.be.equal(opData);
             });
 
             it('tokensToSend() hook is not called when not declared', async function () {
 
               let opData = "0xbabecafe";
+              let userData = "0xdeadbeef";
 
               // deploy sender contract, declare operator and give tokens
               await operatorTests[test].deploy_sender.call(this, holder, operator, false);
 
-              await this.token.contract.methods.operatorBurn(this.sender.address, "100", opData).send({from: operator});
+              await this.token.contract.methods.operatorBurn(this.sender.address, "100", userData, opData).send({from: operator});
               let events = await this.sender.getPastEvents("TokensToSend");
               expect(events["tokensToSend"]).to.not.exist;
             });
