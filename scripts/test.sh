@@ -46,7 +46,13 @@ start_ganache() {
 
   ganache_pid=$!
 
-  sleep 1
+  echo "Waiting for ganache to launch on port "$ganache_port"..."
+
+  while ! ganache_running; do
+    sleep 0.1 # wait for 1/10 of the second before check again
+  done
+
+  echo "Ganache launched!"
 }
 
 if ganache_running; then
