@@ -1,10 +1,8 @@
-const BigNumber = web3.utils.BN;
-const should = require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+const { BN, should } = require('openzeppelin-test-helpers');
+const BigNumber = BN;
 
 function inEvents (events, eventName, eventArgs = {}) {
-  const _event = Object.values(events).find(function (e) {
+  const event = Object.values(events).find(function (e) {
     if (e.event === eventName) {
       for (const [k, v] of Object.entries(eventArgs)) {
         contains(e.returnValues, k, v);
@@ -12,8 +10,8 @@ function inEvents (events, eventName, eventArgs = {}) {
       return true;
     }
   });
-  should.exist(_event);
-  return _event;
+  should.exist(event);
+  return event;
 }
 
 function inLogs (logs, eventName, eventArgs = {}) {

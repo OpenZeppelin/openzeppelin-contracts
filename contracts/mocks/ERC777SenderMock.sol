@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.2;
 
 import "../drafts/ERC777/IERC777.sol";
 import "../drafts/ERC777/IERC777TokensSender.sol";
@@ -26,7 +26,11 @@ contract ERC777SenderMock is IERC777TokensSender, ERC1820Client {
         _erc777 = erc777;
         // register interface
         if (setInterface) {
-            setInterfaceImplementer(address(this), keccak256("ERC777TokensSender"), address(this));
+            setInterfaceImplementer(
+                address(this),
+                keccak256("ERC777TokensSender"),
+                address(this)
+            );
         }
     }
 
@@ -36,7 +40,11 @@ contract ERC777SenderMock is IERC777TokensSender, ERC1820Client {
      * @param amount uint256 amount of tokens to transfer
      * @param data bytes extra information provided by the token holder (if any)
      */
-    function sendTokens(address to, uint amount, bytes data) external {
+    function sendTokens(
+        address to,
+        uint amount,
+        bytes calldata data
+    ) external {
         IERC777(_erc777).send(to, amount, data);
     }
 
@@ -45,7 +53,7 @@ contract ERC777SenderMock is IERC777TokensSender, ERC1820Client {
      * @param amount uint256 amount of tokens to transfer
      * @param data bytes extra information provided by the token holder (if any)
      */
-    function burnTokens(uint amount, bytes data) external {
+    function burnTokens(uint amount, bytes calldata data) external {
         IERC777(_erc777).burn(amount, data);
     }
 
@@ -71,8 +79,8 @@ contract ERC777SenderMock is IERC777TokensSender, ERC1820Client {
         address from,
         address to,
         uint256 amount,
-        bytes userData,
-        bytes operatorData
+        bytes calldata userData,
+        bytes calldata operatorData
     )
     external
     {

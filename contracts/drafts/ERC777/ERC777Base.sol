@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.2;
 
 import "./IERC777.sol";
 import "./IERC777TokensRecipient.sol";
@@ -37,10 +37,10 @@ contract ERC777Base is IERC777, ERC1820Client {
     mapping(address => mapping(address => bool)) private _ops;
 
     constructor(
-        string name,
-        string symbol,
+        string memory name,
+        string memory symbol,
         uint256 granularity,
-        address[] defaultOperators
+        address[] memory defaultOperators
     ) internal {
         require(granularity > 0);
         _name = name;
@@ -67,7 +67,7 @@ contract ERC777Base is IERC777, ERC1820Client {
     function send(
         address to,
         uint256 amount,
-        bytes data
+        bytes calldata data
     ) external {
         _send(
             msg.sender,
@@ -91,8 +91,8 @@ contract ERC777Base is IERC777, ERC1820Client {
         address from,
         address to,
         uint256 amount,
-        bytes data,
-        bytes operatorData
+        bytes calldata data,
+        bytes calldata operatorData
     )
     external
     {
@@ -112,7 +112,7 @@ contract ERC777Base is IERC777, ERC1820Client {
     * @param amount uint256 amount of tokens to transfer
     * @param data bytes extra information provided by the token holder
      */
-    function burn(uint256 amount, bytes data) external {
+    function burn(uint256 amount, bytes calldata data) external {
         _burn(
             msg.sender, 
             msg.sender,
@@ -132,8 +132,8 @@ contract ERC777Base is IERC777, ERC1820Client {
     function operatorBurn(
         address from,
         uint256 amount,
-        bytes data,
-        bytes operatorData
+        bytes calldata data,
+        bytes calldata operatorData
     )
     external
     {
@@ -150,14 +150,14 @@ contract ERC777Base is IERC777, ERC1820Client {
     /**
     * @return the name of the token.
     */
-    function name() public view returns (string) {
+    function name() public view returns (string memory) {
         return _name;
     }
 
     /**
     * @return the symbol of the token.
     */
-    function symbol() public view returns (string) {
+    function symbol() public view returns (string memory) {
         return _symbol;
     }
 
@@ -191,7 +191,7 @@ contract ERC777Base is IERC777, ERC1820Client {
     * @dev Get the list of default operators as defined by the token contract.
     * @return address[] default operators
     */
-    function defaultOperators() public view returns (address[]) {
+    function defaultOperators() public view returns (address[] memory) {
         return _defaultOpsArray;
     }
 
@@ -246,8 +246,8 @@ contract ERC777Base is IERC777, ERC1820Client {
         address operator,
         address from,
         uint256 amount,
-        bytes data,
-        bytes operatorData
+        bytes memory data,
+        bytes memory operatorData
     )
     internal
     {
@@ -290,8 +290,8 @@ contract ERC777Base is IERC777, ERC1820Client {
         address operator,
         address to,
         uint256 amount,
-        bytes userData,
-        bytes operatorData
+        bytes memory userData,
+        bytes memory operatorData
     )
     internal
     {
@@ -373,8 +373,8 @@ contract ERC777Base is IERC777, ERC1820Client {
         address from,
         address to,
         uint256 amount,
-        bytes userData,
-        bytes operatorData
+        bytes memory userData,
+        bytes memory operatorData
     )
     private
     {
@@ -430,8 +430,8 @@ contract ERC777Base is IERC777, ERC1820Client {
         address from,
         address to,
         uint256 amount,
-        bytes userData,
-        bytes operatorData
+        bytes memory userData,
+        bytes memory operatorData
     )
     private
     {
@@ -464,8 +464,8 @@ contract ERC777Base is IERC777, ERC1820Client {
         address from,
         address to,
         uint256 amount,
-        bytes userData,
-        bytes operatorData
+        bytes memory userData,
+        bytes memory operatorData
     )
     private
     returns(bool)

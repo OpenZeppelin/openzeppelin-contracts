@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.2;
 
 import "./ERC777Base.sol";
 
@@ -15,7 +15,7 @@ contract ERC777Burnable is ERC777Base {
      * @param amount uint256 amount of tokens to transfer
      * @param data bytes data provided by the token holder
      */
-    function burn(uint256 amount, bytes data) external {
+    function burn(uint256 amount, bytes calldata data) external {
         _burn(
             msg.sender,
             msg.sender,
@@ -35,8 +35,8 @@ contract ERC777Burnable is ERC777Base {
     function operatorBurn(
         address from,
         uint256 amount,
-        bytes data,
-        bytes operatorData
+        bytes calldata data,
+        bytes calldata operatorData
     ) external {
         address holder = from == address(0) ? msg.sender : from;
         _burn(

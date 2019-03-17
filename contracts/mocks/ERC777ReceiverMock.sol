@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.2;
 
 import "../drafts/ERC777/IERC777TokensRecipient.sol";
 import "../introspection/ERC1820Client.sol";
@@ -44,8 +44,8 @@ contract ERC777ReceiverMock is IERC777TokensRecipient, ERC1820Client {
         address from,
         address to,
         uint256 amount,
-        bytes userData,
-        bytes operatorData
+        bytes calldata userData,
+        bytes calldata operatorData
     )
     external
     {

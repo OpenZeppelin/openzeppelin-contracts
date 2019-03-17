@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.2;
 
 /**
  * @title IERC1820
@@ -24,7 +24,7 @@ interface IERC1820 {
     function getManager(address _addr) external view returns(address);
 
     function interfaceHash(
-        string _interfaceName
+        string calldata _interfaceName
     ) external pure returns(bytes32);
 
     function updateERC165Cache(

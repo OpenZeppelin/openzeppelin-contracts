@@ -1,4 +1,4 @@
-const { assertRevert } = require('../../helpers/assertRevert');
+const { BN, constants, should, shouldFail } = require('openzeppelin-test-helpers');
 const expectEvent = require('../../helpers/expectEvent');
 const { ERC1820Deploy } = require('../../introspection/ERC1820Deploy');
 
@@ -7,11 +7,7 @@ const ERC1820 = artifacts.require('IERC1820');
 const ERC777TokensRecipient = artifacts.require('ERC777ReceiverMock');
 const ERC777TokensSender = artifacts.require('ERC777SenderMock');
 
-const BigNumber = web3.utils.BN;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+const BigNumber = BN;
 
 contract('ERC777', function ([_, holder, operator, anotherAccount]) {
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
@@ -91,11 +87,11 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
     });
 
     it('value is checked to be greater or equal to 1', async function () {
-      await assertRevert(ERC777.new('Test777', 'T77', 0, [], INITIAL_SUPPLY, USER_DATA, OPERATOR_DATA));
+      await shouldFail.reverting(ERC777.new('Test777', 'T77', 0, [], INITIAL_SUPPLY, USER_DATA, OPERATOR_DATA));
     });
 
     it('initialSupply is a multiple of granularity', async function () {
-      await assertRevert(ERC777.new('Test777', 'T77', '7', [], '11', USER_DATA, OPERATOR_DATA));
+      await shouldFail.reverting(ERC777.new('Test777', 'T77', '7', [], '11', USER_DATA, OPERATOR_DATA));
     });
   });
 
@@ -130,7 +126,7 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
       });
 
       it('revert when token holder authorizes itself as operator', async function () {
-        await assertRevert(this.token.authorizeOperator(holder, { from: holder }));
+        await shouldFail.reverting(this.token.authorizeOperator(holder, { from: holder }));
       });
     });
 
@@ -157,7 +153,7 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
       });
 
       it('revert when token holder revoke itself as operator', async function () {
-        await assertRevert(this.token.revokeOperator(holder, { from: holder }));
+        await shouldFail.reverting(this.token.revokeOperator(holder, { from: holder }));
       });
     });
   });
@@ -255,7 +251,7 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
     it('revert when sending an amount of token from an account with insufficient balance', async function () {
       const amount = parseInt(INITIAL_SUPPLY, 10) + 100;
       const userData = '0xdeadbeef';
-      await assertRevert(
+      await shouldFail.reverting(
         this.token.contract.methods.send(operator, amount.toString(), userData).send({ from: holder })
       );
     });
@@ -340,7 +336,9 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
 
       it('revert when sending an amount of token to address(0)', async function () {
         const userData = '0xdeadbeef';
-        await assertRevert(this.token.contract.methods.send(ZERO_ADDRESS, '100', userData).send({ from: holder }));
+        await shouldFail.reverting(
+          this.token.contract.methods.send(ZERO_ADDRESS, '100', userData).send({ from: holder })
+        );
       });
 
       it('revert when sending an amount which is not a multiple of granularity', async function () {
@@ -348,7 +346,9 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
         const tempToken = await ERC777.new(
           'Test777', 'T77', 10, [], INITIAL_SUPPLY, USER_DATA, OPERATOR_DATA, { from: holder }
         );
-        await assertRevert(tempToken.contract.methods.send(anotherAccount, '15', userData).send({ from: holder }));
+        await shouldFail.reverting(
+          tempToken.contract.methods.send(anotherAccount, '15', userData).send({ from: holder })
+        );
       });
     });
   });
@@ -418,7 +418,7 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
       );
       const userData = '0xdeadbeef';
       const opData = '0xbabecafe';
-      await assertRevert(
+      await shouldFail.reverting(
         tempToken.contract.methods.operatorSend(
           holder,
           anotherAccount,
@@ -462,7 +462,7 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
           const userData = '0xdeadbeef';
           const opData = '0xbabecafe';
 
-          await assertRevert(
+          await shouldFail.reverting(
             this.token.contract.methods.operatorSend(
               holder,
               anotherAccount,
@@ -508,7 +508,7 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
           it('revert when recipient is address(0)', async function () {
             const userData = '0xdeadbeef';
             const opData = '0xbabecafe';
-            await assertRevert(
+            await shouldFail.reverting(
               this.token.contract.methods.operatorSend(
                 holder,
                 ZERO_ADDRESS,
@@ -532,7 +532,7 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
               OPERATOR_DATA,
               { from: holder }
             );
-            await assertRevert(
+            await shouldFail.reverting(
               tempToken.contract.methods.operatorSend(
                 holder,
                 anotherAccount,
@@ -688,7 +688,7 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
 
     it('revert when burning an amount of token from an account with insufficient balance', async function () {
       const amount = parseInt(INITIAL_SUPPLY, 10) + 100;
-      await assertRevert(this.token.contract.methods.burn(amount.toString(), userData).send({ from: holder }));
+      await shouldFail.reverting(this.token.contract.methods.burn(amount.toString(), userData).send({ from: holder }));
     });
 
     describe('burning an amount of token from an account with sufficient balance', function () {
@@ -762,7 +762,7 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
           OPERATOR_DATA,
           { from: holder }
         );
-        await assertRevert(tempToken.contract.methods.burn('15', userData).send({ from: holder }));
+        await shouldFail.reverting(tempToken.contract.methods.burn('15', userData).send({ from: holder }));
       });
     });
   });
@@ -841,7 +841,7 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
       );
       const opData = '0xbabecafe';
       const userData = '0xdeadbeef';
-      await assertRevert(
+      await shouldFail.reverting(
         tempToken.contract.methods.operatorBurn(holder, '100', userData, opData).send({ from: anotherAccount })
       );
     });
@@ -876,7 +876,7 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
           const amount = parseInt(INITIAL_SUPPLY, 10) + 100;
           const opData = '0xbabecafe';
           const userData = '0xdeadbeef';
-          await assertRevert(
+          await shouldFail.reverting(
             this.token.contract.methods.operatorBurn(
               holder,
               amount.toString(),
@@ -934,7 +934,7 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
               OPERATOR_DATA,
               { from: holder }
             );
-            await assertRevert(
+            await shouldFail.reverting(
               tempToken.contract.methods.operatorBurn(holder, '15', userData, opData).send({ from: operator })
             );
           });

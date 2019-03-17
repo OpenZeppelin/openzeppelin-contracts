@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.2;
 
 import "./ERC777Base.sol";
 
@@ -21,13 +21,13 @@ contract ERC777 is ERC777Base {
      * @param operatorData bytes extra information provided by the operator (if any)
      */
     constructor(
-        string name,
-        string symbol,
+        string memory name,
+        string memory symbol,
         uint256 granularity,
-        address[] defaultOperators,
+        address[] memory defaultOperators,
         uint256 initialSupply,
-        bytes data,
-        bytes operatorData
+        bytes memory data,
+        bytes memory operatorData
     )
     ERC777Base(
         name,
