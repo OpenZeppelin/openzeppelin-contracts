@@ -4,7 +4,7 @@ const should = require('chai')
   .should();
 
 function inEvents (events, eventName, eventArgs = {}) {
-  event = Object.values(events).find(function (e) {
+  const _event = Object.values(events).find(function (e) {
     if (e.event === eventName) {
       for (const [k, v] of Object.entries(eventArgs)) {
         contains(e.returnValues, k, v);
@@ -12,8 +12,8 @@ function inEvents (events, eventName, eventArgs = {}) {
       return true;
     }
   });
-  should.exist(event);
-  return event;
+  should.exist(_event);
+  return _event;
 }
 
 function inLogs (logs, eventName, eventArgs = {}) {
@@ -36,9 +36,8 @@ async function inTransaction (tx, eventName, eventArgs = {}) {
 
 function contains (args, key, value) {
   if (args[key] == null) {
-    value.should.be.equal("0x00");
-  }
-  else if (isBigNumber(args[key])) {
+    value.should.be.equal('0x00');
+  } else if (isBigNumber(args[key])) {
     args[key].toString().should.be.equal(value);
   } else {
     args[key].should.be.equal(value);

@@ -16,7 +16,13 @@ contract ERC777Burnable is ERC777Base {
      * @param data bytes data provided by the token holder
      */
     function burn(uint256 amount, bytes data) external {
-        _burn(msg.sender, msg.sender, amount, data, "");
+        _burn(
+            msg.sender,
+            msg.sender,
+            amount,
+            data,
+            ""
+        );
     }
 
     /**
@@ -33,6 +39,12 @@ contract ERC777Burnable is ERC777Base {
         bytes operatorData
     ) external {
         address holder = from == address(0) ? msg.sender : from;
-        _burn(msg.sender, holder, amount, data, operatorData);
+        _burn(
+            msg.sender,
+            holder,
+            amount,
+            data,
+            operatorData
+        );
     }
 }

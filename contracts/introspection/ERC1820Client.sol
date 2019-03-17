@@ -9,8 +9,13 @@ import "./IERC1820.sol";
  */
 contract ERC1820Client {
 
-    IERC1820 private _erc1820 =
-        IERC1820(0x1820b744B33945482C17Dc37218C01D858EBc714);
+    IERC1820 private _erc1820 = IERC1820(
+        0x1820b744B33945482C17Dc37218C01D858EBc714
+    );
+
+    function getERC1820Registry() external view returns(address) {
+        return address(_erc1820);
+    }
 
     function getInterfaceImplementer(
         address addr,
@@ -27,7 +32,10 @@ contract ERC1820Client {
         _erc1820.setInterfaceImplementer(addr, hash, implementer);
     }
 
-    function updateERC165Cache(address _contract, bytes4 _interfaceId) internal {
+    function updateERC165Cache(
+        address _contract,
+        bytes4 _interfaceId
+    ) internal {
         _erc1820.updateERC165Cache(_contract, _interfaceId);
     }
 
@@ -36,9 +44,5 @@ contract ERC1820Client {
         bytes4 _interfaceId
     ) internal view returns (bool) {
         return _erc1820.implementsERC165Interface(_contract, _interfaceId);
-    }
-
-    function getERC1820Registry() public view returns(address) {
-        return address(_erc1820);
     }
 }

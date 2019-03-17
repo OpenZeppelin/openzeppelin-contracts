@@ -268,7 +268,13 @@ contract ERC777Base is IERC777, ERC1820Client {
         _balances[from] = _balances[from].sub(amount);
         require((_balances[from] % _granularity) == 0);
 
-        emit Burned(operator, from, amount, data, operatorData);
+        emit Burned(
+            operator,
+            from,
+            amount,
+            data,
+            operatorData
+        );
     }
 
     /**
@@ -308,7 +314,13 @@ contract ERC777Base is IERC777, ERC1820Client {
         _balances[to] = _balances[to].add(amount);
         require((_balances[to] % _granularity) == 0);
 
-        emit Minted(operator, to, amount, userData, operatorData);
+        emit Minted(
+            operator,
+            to,
+            amount,
+            userData,
+            operatorData
+        );
     }
 
     /**
@@ -394,7 +406,14 @@ contract ERC777Base is IERC777, ERC1820Client {
             operatorData
         );
 
-        emit Sent(msg.sender, from, to, amount, userData, operatorData);
+        emit Sent(
+            msg.sender,
+            from,
+            to,
+            amount,
+            userData,
+            operatorData
+        );
     }
 
     /**
