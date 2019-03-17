@@ -1,25 +1,17 @@
-const { ether } = require('../helpers/ether');
-const { expectThrow } = require('../helpers/expectThrow');
-const { EVMRevert } = require('../helpers/EVMRevert');
-
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+const { BN, ether, shouldFail } = require('openzeppelin-test-helpers');
 
 const IndividuallyCappedCrowdsaleImpl = artifacts.require('IndividuallyCappedCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
-const { shouldBehaveLikePublicRole } = require('../access/roles/PublicRole.behavior');
+const { shouldBehaveLikePublicRole } = require('../behaviors/access/roles/PublicRole.behavior');
 
 contract('IndividuallyCappedCrowdsale', function (
   [_, capper, otherCapper, wallet, alice, bob, charlie, anyone, ...otherAccounts]) {
-  const rate = new BigNumber(1);
-  const capAlice = ether(10);
-  const capBob = ether(2);
-  const lessThanCapAlice = ether(6);
-  const lessThanCapBoth = ether(1);
-  const tokenSupply = new BigNumber('1e22');
+  const rate = new BN(1);
+  const capAlice = ether('10');
+  const capBob = ether('2');
+  const lessThanCapAlice = ether('6');
+  const lessThanCapBoth = ether('1');
+  const tokenSupply = new BN('10').pow(new BN('22'));
 
   beforeEach(async function () {
     this.token = await SimpleToken.new();
@@ -42,7 +34,7 @@ contract('IndividuallyCappedCrowdsale', function (
     });
 
     it('reverts when a non-capper sets a cap', async function () {
-      await expectThrow(this.crowdsale.setCap(alice, capAlice, { from: anyone }), EVMRevert);
+      await shouldFail.reverting(this.crowdsale.setCap(alice, capAlice, { from: anyone }));
     });
 
     context('with individual caps', function () {
@@ -60,21 +52,21 @@ contract('IndividuallyCappedCrowdsale', function (
 
         it('should reject payments outside cap', async function () {
           await this.crowdsale.buyTokens(alice, { value: capAlice });
-          await expectThrow(this.crowdsale.buyTokens(alice, { value: 1 }), EVMRevert);
+          await shouldFail.reverting(this.crowdsale.buyTokens(alice, { value: 1 }));
         });
 
         it('should reject payments that exceed cap', async function () {
-          await expectThrow(this.crowdsale.buyTokens(alice, { value: capAlice.plus(1) }), EVMRevert);
-          await expectThrow(this.crowdsale.buyTokens(bob, { value: capBob.plus(1) }), EVMRevert);
+          await shouldFail.reverting(this.crowdsale.buyTokens(alice, { value: capAlice.addn(1) }));
+          await shouldFail.reverting(this.crowdsale.buyTokens(bob, { value: capBob.addn(1) }));
         });
 
         it('should manage independent caps', async function () {
           await this.crowdsale.buyTokens(alice, { value: lessThanCapAlice });
-          await expectThrow(this.crowdsale.buyTokens(bob, { value: lessThanCapAlice }), EVMRevert);
+          await shouldFail.reverting(this.crowdsale.buyTokens(bob, { value: lessThanCapAlice }));
         });
 
         it('should default to a cap of zero', async function () {
-          await expectThrow(this.crowdsale.buyTokens(charlie, { value: lessThanCapBoth }), EVMRevert);
+          await shouldFail.reverting(this.crowdsale.buyTokens(charlie, { value: lessThanCapBoth }));
         });
       });
 

@@ -1,8 +1,7 @@
+require('openzeppelin-test-helpers');
+
 const AddressImpl = artifacts.require('AddressImpl');
 const SimpleToken = artifacts.require('SimpleToken');
-
-require('chai')
-  .should();
 
 contract('Address', function ([_, anyone]) {
   beforeEach(async function () {

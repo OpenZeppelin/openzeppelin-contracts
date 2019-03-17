@@ -15,29 +15,26 @@ jobs:
   # --elopio - 20180531
   fast_finish: true
   allow_failures:
-    - env: SOLIDITY_COVERAGE=true
     - env: SOLC_NIGHTLY=true
   include:
-    # Run the unit test suite three times in parallel.
-    # The first one gets results faster and is the only one required to pass.
-    # The second one generates the coverage report.
-    # The third one is to keep us informed about possible issues with the
-    # upcoming solidity release.
     - stage: tests
-      name: "unit tests"
+      name: "Linter"
+      script: npm run lint
+
+    - stage: tests
+      name: "Unit tests"
       script: npm run test
+
     - stage: tests
-      name: "unit tests with coverage"
+      name: "Unit tests with coverage report"
       script: npm run test
       env: SOLIDITY_COVERAGE=true
+
     - stage: tests
-      name: "unit tests with solc nightly"
+      name: "Unit tests using solc nightly"
       script: npm run test
       env: SOLC_NIGHTLY=true
-    # solidity and javascript style tests.
-    - stage: tests
-      name: "static tests"
-      script: npm run lint
+
     - stage: update docs
       if: tag =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
       addons:

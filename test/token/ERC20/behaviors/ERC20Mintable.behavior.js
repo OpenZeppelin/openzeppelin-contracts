@@ -1,24 +1,16 @@
-const { assertRevert } = require('../../../helpers/assertRevert');
-const expectEvent = require('../../../helpers/expectEvent');
-
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+const { BN, constants, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 function shouldBehaveLikeERC20Mintable (minter, [anyone]) {
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-
   describe('as a mintable token', function () {
     describe('mint', function () {
-      const amount = 100;
+      const amount = new BN(100);
 
       context('when the sender has minting permission', function () {
         const from = minter;
 
         context('for a zero amount', function () {
-          shouldMint(0);
+          shouldMint(new BN(0));
         });
 
         context('for a non-zero amount', function () {
@@ -48,7 +40,7 @@ function shouldBehaveLikeERC20Mintable (minter, [anyone]) {
         const from = anyone;
 
         it('reverts', async function () {
-          await assertRevert(this.token.mint(anyone, amount, { from }));
+          await shouldFail.reverting(this.token.mint(anyone, amount, { from }));
         });
       });
     });

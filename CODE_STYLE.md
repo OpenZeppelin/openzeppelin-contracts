@@ -16,11 +16,14 @@ Any exception or additions specific to our project are documented below.
 
 * Try to avoid acronyms and abbreviations.
 
+* All state variables should be private.
+
 * Private state variables should have an underscore prefix.
 
     ```
     contract TestContract {
       uint256 private _privateVar;
+      uint256 internal _internalVar;
     }
     ```
 

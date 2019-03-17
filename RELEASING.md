@@ -34,19 +34,13 @@ git push upstream vX.Y.Z-rc.R
 
 Draft the release notes in our [GitHub releases](https://github.com/OpenZeppelin/openzeppelin-solidity/releases). Make sure to mark it as a pre-release! Try to be consistent with our previous release notes in the title and format of the text. Release candidates don't need a detailed changelog, but make sure to include a link to GitHub's compare page.
 
-Before publishing on npm you need to generate the build artifacts. This is not done automatically at the moment because of a bug in Truffle. Since some of the contracts should not be included in the package, this is a _hairy_ process that you need to do with care.
-
-1. Delete the `contracts/mocks` and `contracts/examples` directories.
-2. Run `truffle compile`. (Note that the Truffle process may never exit and you will have to interrupt it.)
-3. Recover the directories using `git checkout`. It doesn't matter if you do this now or later.
-
-Once the CI run for the new tag is green, publish on npm under the `next` tag.
+Once the CI run for the new tag is green, publish on npm under the `next` tag. You should see the contracts compile automatically.
 
 ```
 npm publish --tag next
 ```
 
-Publish the release notes on GitHub and ask our community manager to announce the release candidate on at least Slack and Twitter.
+Publish the release notes on GitHub and the forum, and ask our community manager to announce the release candidate on at least Twitter.
 
 ## Creating the final release
 
@@ -57,24 +51,21 @@ git checkout release-vX.Y.Z
 git pull upstream
 ```
 
+Before starting the release process, make one final commit to CHANGELOG.md, including the date of the release.
+
 Change the version string in `package.json`, `package-lock.json` and `ethpm.json` removing the "-rc.R" suffix. Commit these changes and tag the commit as `vX.Y.Z`.
 
 ```
 git add package.json package-lock.json ethpm.json
 git commit -m "Release vX.Y.Z"
 git tag -a vX.Y.Z
+git push upstream release-vX.Y.Z
 git push upstream vX.Y.Z
 ```
 
 Draft the release notes in GitHub releases. Try to be consistent with our previous release notes in the title and format of the text. Make sure to include a detailed changelog.
 
-Before publishing on npm you need to generate the build artifacts. This is not done automatically at the moment because of a bug in Truffle. Since some of the contracts should not be included in the package, this is a _hairy_ process that you need to do with care.
-
-1. Delete the `contracts/mocks` and `contracts/examples` directories.
-2. Run `truffle compile`. (Note that the Truffle process may never exit and you will have to interrupt it.)
-3. Recover the directories using `git checkout`. It doesn't matter if you do this now or later.
-
-Once the CI run for the new tag is green, publish on npm.
+Once the CI run for the new tag is green, publish on npm. You should see the contracts compile automatically.
 
 ```
 npm publish

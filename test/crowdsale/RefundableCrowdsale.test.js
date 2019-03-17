@@ -1,45 +1,31 @@
-const { ether } = require('../helpers/ether');
-const { advanceBlock } = require('../helpers/advanceToBlock');
-const time = require('../helpers/time');
-const { expectThrow } = require('../helpers/expectThrow');
-const { EVMRevert } = require('../helpers/EVMRevert');
-const { ethGetBalance } = require('../helpers/web3');
-
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+const { balance, BN, ether, shouldFail, time } = require('openzeppelin-test-helpers');
 
 const RefundableCrowdsaleImpl = artifacts.require('RefundableCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
 contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, anyone]) {
-  const rate = new BigNumber(1);
-  const goal = ether(50);
-  const lessThanGoal = ether(45);
-  const tokenSupply = new BigNumber('1e22');
+  const rate = new BN(1);
+  const goal = ether('50');
+  const lessThanGoal = ether('45');
+  const tokenSupply = new BN('10').pow(new BN('22'));
 
   before(async function () {
     // Advance to the next block to correctly read time in the solidity "now" function interpreted by ganache
-    await advanceBlock();
+    await time.advanceBlock();
   });
 
   beforeEach(async function () {
-    this.openingTime = (await time.latest()) + time.duration.weeks(1);
-    this.closingTime = this.openingTime + time.duration.weeks(1);
-    this.afterClosingTime = this.closingTime + time.duration.seconds(1);
-    this.preWalletBalance = await ethGetBalance(wallet);
+    this.openingTime = (await time.latest()).add(time.duration.weeks(1));
+    this.closingTime = this.openingTime.add(time.duration.weeks(1));
+    this.afterClosingTime = this.closingTime.add(time.duration.seconds(1));
+    this.preWalletBalance = await balance.current(wallet);
 
     this.token = await SimpleToken.new();
   });
 
   it('rejects a goal of zero', async function () {
-    await expectThrow(
-      RefundableCrowdsaleImpl.new(
-        this.openingTime, this.closingTime, rate, wallet, this.token.address, 0,
-      ),
-      EVMRevert,
+    await shouldFail.reverting(
+      RefundableCrowdsaleImpl.new(this.openingTime, this.closingTime, rate, wallet, this.token.address, 0)
     );
   });
 
@@ -54,7 +40,7 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, anyon
 
     context('before opening time', function () {
       it('denies refunds', async function () {
-        await expectThrow(this.crowdsale.claimRefund(investor), EVMRevert);
+        await shouldFail.reverting(this.crowdsale.claimRefund(investor));
       });
     });
 
@@ -64,7 +50,7 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, anyon
       });
 
       it('denies refunds', async function () {
-        await expectThrow(this.crowdsale.claimRefund(investor), EVMRevert);
+        await shouldFail.reverting(this.crowdsale.claimRefund(investor));
       });
 
       context('with unreached goal', function () {
@@ -79,10 +65,9 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, anyon
           });
 
           it('refunds', async function () {
-            const pre = await ethGetBalance(investor);
-            await this.crowdsale.claimRefund(investor, { gasPrice: 0 });
-            const post = await ethGetBalance(investor);
-            post.minus(pre).should.be.bignumber.equal(lessThanGoal);
+            (await balance.difference(investor, () =>
+              this.crowdsale.claimRefund(investor, { gasPrice: 0 }))
+            ).should.be.bignumber.equal(lessThanGoal);
           });
         });
       });
@@ -99,12 +84,12 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, anyon
           });
 
           it('denies refunds', async function () {
-            await expectThrow(this.crowdsale.claimRefund(investor), EVMRevert);
+            await shouldFail.reverting(this.crowdsale.claimRefund(investor));
           });
 
           it('forwards funds to wallet', async function () {
-            const postWalletBalance = await ethGetBalance(wallet);
-            postWalletBalance.minus(this.preWalletBalance).should.be.bignumber.equal(goal);
+            const postWalletBalance = await balance.current(wallet);
+            postWalletBalance.sub(this.preWalletBalance).should.be.bignumber.equal(goal);
           });
         });
       });

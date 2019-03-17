@@ -1,10 +1,4 @@
-const { expectThrow } = require('../../../helpers/expectThrow');
-
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+const { shouldFail } = require('openzeppelin-test-helpers');
 
 function shouldBehaveLikeERC20Capped (minter, [anyone], cap) {
   describe('capped token', function () {
@@ -15,18 +9,18 @@ function shouldBehaveLikeERC20Capped (minter, [anyone], cap) {
     });
 
     it('should mint when amount is less than cap', async function () {
-      await this.token.mint(anyone, cap.sub(1), { from });
-      (await this.token.totalSupply()).should.be.bignumber.equal(cap.sub(1));
+      await this.token.mint(anyone, cap.subn(1), { from });
+      (await this.token.totalSupply()).should.be.bignumber.equal(cap.subn(1));
     });
 
-    it('should fail to mint if the ammount exceeds the cap', async function () {
-      await this.token.mint(anyone, cap.sub(1), { from });
-      await expectThrow(this.token.mint(anyone, 100, { from }));
+    it('should fail to mint if the amount exceeds the cap', async function () {
+      await this.token.mint(anyone, cap.subn(1), { from });
+      await shouldFail.reverting(this.token.mint(anyone, 2, { from }));
     });
 
     it('should fail to mint after cap is reached', async function () {
       await this.token.mint(anyone, cap, { from });
-      await expectThrow(this.token.mint(anyone, 1, { from }));
+      await shouldFail.reverting(this.token.mint(anyone, 1, { from }));
     });
   });
 }
