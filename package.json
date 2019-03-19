@@ -51,11 +51,12 @@
     "eslint-plugin-standard": "^3.1.0",
     "ethereumjs-util": "^6.0.0",
     "ethjs-abi": "^0.2.1",
-    "ganache-cli": "6.1.8",
-    "openzeppelin-test-helpers": "^0.1.1",
+    "ganache-cli": "^6.4.1",
+    "ganache-cli-coverage": "github:Agusx1211/ganache-cli#c462b3fc48fe9b16756f7799885c0741114d9ed3",
+    "openzeppelin-test-helpers": "^0.2.0",
     "pify": "^4.0.1",
     "solhint": "^1.5.0",
-    "solidity-coverage": "https://github.com:rotcivegaf/solidity-coverage.git#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
+    "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
     "truffle": "^5.0.0"
   },
   "dependencies": {}

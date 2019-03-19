@@ -64,9 +64,9 @@ contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee
       });
 
       it('allows beneficiary withdrawal', async function () {
-        (await balance.difference(beneficiary, () =>
-          this.escrow.beneficiaryWithdraw()
-        )).should.be.bignumber.equal(amount.muln(refundees.length));
+        const balanceTracker = await balance.tracker(beneficiary);
+        await this.escrow.beneficiaryWithdraw();
+        (await balanceTracker.delta()).should.be.bignumber.equal(amount.muln(refundees.length));
       });
 
       it('prevents entering the refund state', async function () {
@@ -98,9 +98,9 @@ contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee
 
       it('refunds refundees', async function () {
         for (const refundee of [refundee1, refundee2]) {
-          (await balance.difference(refundee, () =>
-            this.escrow.withdraw(refundee, { from: primary }))
-          ).should.be.bignumber.equal(amount);
+          const balanceTracker = await balance.tracker(refundee);
+          await this.escrow.withdraw(refundee, { from: primary });
+          (await balanceTracker.delta()).should.be.bignumber.equal(amount);
         }
       });
 

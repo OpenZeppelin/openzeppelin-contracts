@@ -72,21 +72,23 @@ contract('SampleCrowdsale', function ([_, deployer, owner, wallet, investor]) {
     await time.increaseTo(this.openingTime);
     await this.crowdsale.send(GOAL);
 
-    (await balance.difference(wallet, async () => {
-      await time.increaseTo(this.afterClosingTime);
-      await this.crowdsale.finalize({ from: owner });
-    })).should.be.bignumber.equal(GOAL);
+    const balanceTracker = await balance.tracker(wallet);
+    await time.increaseTo(this.afterClosingTime);
+    await this.crowdsale.finalize({ from: owner });
+    (await balanceTracker.delta()).should.be.bignumber.equal(GOAL);
   });
 
   it('should allow refunds if the goal is not reached', async function () {
-    (await balance.difference(investor, async () => {
-      await time.increaseTo(this.openingTime);
-      await this.crowdsale.sendTransaction({ value: ether('1'), from: investor, gasPrice: 0 });
-      await time.increaseTo(this.afterClosingTime);
+    const balanceTracker = await balance.tracker(investor);
 
-      await this.crowdsale.finalize({ from: owner });
-      await this.crowdsale.claimRefund(investor, { gasPrice: 0 });
-    })).should.be.bignumber.equal('0');
+    await time.increaseTo(this.openingTime);
+    await this.crowdsale.sendTransaction({ value: ether('1'), from: investor, gasPrice: 0 });
+    await time.increaseTo(this.afterClosingTime);
+
+    await this.crowdsale.finalize({ from: owner });
+    await this.crowdsale.claimRefund(investor, { gasPrice: 0 });
+
+    (await balanceTracker.delta()).should.be.bignumber.equal('0');
   });
 
   describe('when goal > cap', function () {
