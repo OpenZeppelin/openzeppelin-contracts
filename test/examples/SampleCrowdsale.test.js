@@ -1,4 +1,4 @@
-const { BN, balance, ether, should, shouldFail, time } = require('openzeppelin-test-helpers');
+const { BN, balance, ether, shouldFail, time } = require('openzeppelin-test-helpers');
 
 const SampleCrowdsale = artifacts.require('SampleCrowdsale');
 const SampleCrowdsaleToken = artifacts.require('SampleCrowdsaleToken');
@@ -29,9 +29,6 @@ contract('SampleCrowdsale', function ([_, deployer, owner, wallet, investor]) {
   });
 
   it('should create crowdsale with correct parameters', async function () {
-    should.exist(this.crowdsale);
-    should.exist(this.token);
-
     (await this.crowdsale.openingTime()).should.be.bignumber.equal(this.openingTime);
     (await this.crowdsale.closingTime()).should.be.bignumber.equal(this.closingTime);
     (await this.crowdsale.rate()).should.be.bignumber.equal(RATE);
