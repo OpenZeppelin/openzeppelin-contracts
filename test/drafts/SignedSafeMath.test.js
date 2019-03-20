@@ -8,34 +8,43 @@ contract('SignedSafeMath', function () {
     this.safeMath = await SignedSafeMathMock.new();
   });
 
+  async function testCommutative (fn, lhs, rhs, expected) {
+    (await fn(lhs, rhs)).should.be.bignumber.equal(expected);
+    (await fn(rhs, lhs)).should.be.bignumber.equal(expected);
+  }
+
+  async function testFailsCommutative (fn, lhs, rhs) {
+    await shouldFail.reverting(fn(lhs, rhs));
+    await shouldFail.reverting(fn(rhs, lhs));
+  }
+
   describe('add', function () {
-    it('adds correctly if it does not overflow and the result is positve', async function () {
+    it('adds correctly if it does not overflow and the result is positive', async function () {
       const a = new BN('1234');
       const b = new BN('5678');
 
-      (await this.safeMath.add(a, b)).should.be.bignumber.equal(a.add(b));
+      await testCommutative(this.safeMath.add, a, b, a.add(b));
     });
 
     it('adds correctly if it does not overflow and the result is negative', async function () {
       const a = MAX_INT256;
       const b = MIN_INT256;
 
-      const result = await this.safeMath.add(a, b);
-      result.should.be.bignumber.equal(a.add(b));
+      await testCommutative(this.safeMath.add, a, b, a.add(b));
     });
 
     it('reverts on positive addition overflow', async function () {
       const a = MAX_INT256;
       const b = new BN('1');
 
-      await shouldFail.reverting(this.safeMath.add(a, b));
+      await testFailsCommutative(this.safeMath.add, a, b);
     });
 
     it('reverts on negative addition overflow', async function () {
       const a = MIN_INT256;
       const b = new BN('-1');
 
-      await shouldFail.reverting(this.safeMath.add(a, b));
+      await testFailsCommutative(this.safeMath.add, a, b);
     });
   });
 
@@ -76,37 +85,28 @@ contract('SignedSafeMath', function () {
       const a = new BN('5678');
       const b = new BN('-1234');
 
-      const result = await this.safeMath.mul(a, b);
-      result.should.be.bignumber.equal(a.mul(b));
+      await testCommutative(this.safeMath.mul, a, b, a.mul(b));
     });
 
-    it('handles a zero product correctly', async function () {
+    it('multiplies by zero correctly', async function () {
       const a = new BN('0');
       const b = new BN('5678');
 
-      const result = await this.safeMath.mul(a, b);
-      result.should.be.bignumber.equal(a.mul(b));
+      await testCommutative(this.safeMath.mul, a, b, '0');
     });
 
     it('reverts on multiplication overflow, positive operands', async function () {
       const a = MAX_INT256;
       const b = new BN('2');
 
-      await shouldFail.reverting(this.safeMath.mul(a, b));
+      await testFailsCommutative(this.safeMath.mul, a, b);
     });
 
     it('reverts when minimum integer is multiplied by -1', async function () {
       const a = MIN_INT256;
       const b = new BN('-1');
 
-      await shouldFail.reverting(this.safeMath.mul(a, b));
-    });
-
-    it('reverts when -1 is multiplied by minimum integer', async function () {
-      const a = new BN('-1');
-      const b = MIN_INT256;
-
-      await shouldFail.reverting(this.safeMath.mul(a, b));
+      await testFailsCommutative(this.safeMath.mul, a, b);
     });
   });
 
@@ -119,7 +119,21 @@ contract('SignedSafeMath', function () {
       result.should.be.bignumber.equal(a.div(b));
     });
 
-    it('reverts on zero division', async function () {
+    it('divides zero correctly', async function () {
+      const a = new BN('0');
+      const b = new BN('5678');
+
+      (await this.safeMath.div(a, b)).should.be.bignumber.equal('0');
+    });
+
+    it('returns complete number result on non-even division', async function () {
+      const a = new BN('7000');
+      const b = new BN('5678');
+
+      (await this.safeMath.div(a, b)).should.be.bignumber.equal('1');
+    });
+
+    it('reverts on division by zero', async function () {
       const a = new BN('-5678');
       const b = new BN('0');
 

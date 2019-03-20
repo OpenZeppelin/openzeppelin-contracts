@@ -2,7 +2,7 @@ const { BN, ether, shouldFail } = require('openzeppelin-test-helpers');
 
 const IndividuallyCappedCrowdsaleImpl = artifacts.require('IndividuallyCappedCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
-const { shouldBehaveLikePublicRole } = require('../access/roles/PublicRole.behavior');
+const { shouldBehaveLikePublicRole } = require('../behaviors/access/roles/PublicRole.behavior');
 
 contract('IndividuallyCappedCrowdsale', function (
   [_, capper, otherCapper, wallet, alice, bob, charlie, anyone, ...otherAccounts]) {

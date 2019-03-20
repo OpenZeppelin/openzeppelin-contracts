@@ -1,37 +1,58 @@
-const { BN } = require('openzeppelin-test-helpers');
+const { shouldFail } = require('openzeppelin-test-helpers');
 
 const CountersImpl = artifacts.require('CountersImpl');
 
-const EXPECTED = [new BN(1), new BN(2), new BN(3), new BN(4)];
-const KEY1 = web3.utils.sha3('key1');
-const KEY2 = web3.utils.sha3('key2');
-
-contract('Counters', function ([_, owner]) {
+contract('Counters', function () {
   beforeEach(async function () {
-    this.mock = await CountersImpl.new({ from: owner });
+    this.counter = await CountersImpl.new();
   });
 
-  context('custom key', async function () {
-    it('should return expected values', async function () {
-      for (const expectedId of EXPECTED) {
-        await this.mock.doThing(KEY1, { from: owner });
-        const actualId = await this.mock.theId();
-        actualId.should.be.bignumber.equal(expectedId);
-      }
+  it('starts at zero', async function () {
+    (await this.counter.current()).should.be.bignumber.equal('0');
+  });
+
+  describe('increment', function () {
+    it('increments the current value by one', async function () {
+      await this.counter.increment();
+      (await this.counter.current()).should.be.bignumber.equal('1');
+    });
+
+    it('can be called multiple times', async function () {
+      await this.counter.increment();
+      await this.counter.increment();
+      await this.counter.increment();
+
+      (await this.counter.current()).should.be.bignumber.equal('3');
     });
   });
 
-  context('parallel keys', async function () {
-    it('should return expected values for each counter', async function () {
-      for (const expectedId of EXPECTED) {
-        await this.mock.doThing(KEY1, { from: owner });
-        let actualId = await this.mock.theId();
-        actualId.should.be.bignumber.equal(expectedId);
+  describe('decrement', function () {
+    beforeEach(async function () {
+      await this.counter.increment();
+      (await this.counter.current()).should.be.bignumber.equal('1');
+    });
 
-        await this.mock.doThing(KEY2, { from: owner });
-        actualId = await this.mock.theId();
-        actualId.should.be.bignumber.equal(expectedId);
-      }
+    it('decrements the current value by one', async function () {
+      await this.counter.decrement();
+      (await this.counter.current()).should.be.bignumber.equal('0');
+    });
+
+    it('reverts if the current value is 0', async function () {
+      await this.counter.decrement();
+      await shouldFail.reverting(this.counter.decrement());
+    });
+
+    it('can be called multiple times', async function () {
+      await this.counter.increment();
+      await this.counter.increment();
+
+      (await this.counter.current()).should.be.bignumber.equal('3');
+
+      await this.counter.decrement();
+      await this.counter.decrement();
+      await this.counter.decrement();
+
+      (await this.counter.current()).should.be.bignumber.equal('0');
     });
   });
 });

@@ -12,6 +12,8 @@
 npm install openzeppelin-solidity
 ```
 
+OpenZeppelin features a stable API, which means your contracts won't break unexpectedly when upgrading to a newer minor version. You can read ṫhe details in our [API Stability](https://forum.zeppelin.solutions/t/api-stability/138) document.
+
 ## Usage
 
 To write your custom contracts, import ours and extend them through inheritance.
@@ -30,13 +32,15 @@ contract MyNFT is ERC721Full, ERC721Mintable {
 
 > You need an ethereum development framework for the above import statements to work! Check out these guides for [Truffle] or [Embark].
 
-On our site you will find a few [guides] to learn about the diferent parts of OpenZeppelin, as well as [documentation for the API][API docs]. Keep in mind that the API docs are work in progress, and don’t hesitate to ask questions in [our Slack][Slack].
+On our site you will find a few [guides] to learn about the different parts of OpenZeppelin, as well as [documentation for the API][API docs]. Keep in mind that the API docs are work in progress, and don’t hesitate to ask questions in [our forum][forum].
 
 ## Security
 
 OpenZeppelin the project is maintained by [Zeppelin] the company, and developed following our high standards for code quality and security. OpenZeppelin is meant to provide tested and community-audited code, but please use common sense when doing anything that deals with real money! We take no responsibility for your implementation decisions and any security problems you might experience.
 
 The core development principles and strategies that OpenZeppelin is based on include: security in depth, simple and modular code, clarity-driven naming conventions, comprehensive unit testing, pre-and-post-condition sanity checks, code consistency, and regular audits.
+
+The latest audit was done on October 2018 on version 2.0.0.
 
 Please report any security issues you find to security@openzeppelin.org.
 
@@ -51,7 +55,7 @@ OpenZeppelin is released under the [MIT License](LICENSE).
 
 [API docs]: https://openzeppelin.org/api/docs/token_ERC721_ERC721BasicToken.html
 [guides]: https://openzeppelin.org/api/docs/get-started.html
-[Slack]: https://slack.openzeppelin.org
+[forum]: https://forum.zeppelin.solutions
 [Zeppelin]: https://zeppelin.solutions
 [contribution guide]: CONTRIBUTING.md
 [Truffle]: https://truffleframework.com/docs/truffle/quickstart

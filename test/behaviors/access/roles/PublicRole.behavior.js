@@ -5,6 +5,21 @@ function capitalize (str) {
   return str.replace(/\b\w/g, l => l.toUpperCase());
 }
 
+// Tests that a role complies with the standard role interface, that is:
+//  * an onlyRole modifier
+//  * an isRole function
+//  * an addRole function, accessible to role havers
+//  * a renounceRole function
+//  * roleAdded and roleRemoved events
+// Both the modifier and an additional internal remove function are tested through a mock contract that exposes them.
+// This mock contract should be stored in this.contract.
+//
+// @param authorized an account that has the role
+// @param otherAuthorized another account that also has the role
+// @param anyone an account that doesn't have the role, passed inside an array for ergonomics
+// @param rolename a string with the name of the role
+// @param manager undefined for regular roles, or a manager account for managed roles. In these, only the manager
+// account can create and remove new role bearers.
 function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], rolename, manager) {
   rolename = capitalize(rolename);
 
