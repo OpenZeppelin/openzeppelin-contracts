@@ -34,11 +34,7 @@ contract ERC20 is IERC20 {
     /**
      * @dev Gets the balance of the specified address.
      * @param owner The address to query the balance of.
-<<<<<<< HEAD
-     * @return An uint256 representing the amount owned by the passed address.
-=======
      * @return A uint256 representing the amount owned by the passed address.
->>>>>>> original-master
      */
     function balanceOf(address owner) public view returns (uint256) {
         return _balances[owner];
@@ -55,11 +51,7 @@ contract ERC20 is IERC20 {
     }
 
     /**
-<<<<<<< HEAD
-     * @dev Transfer token for a specified address
-=======
      * @dev Transfer token to a specified address
->>>>>>> original-master
      * @param to The address to transfer to.
      * @param value The amount to be transferred.
      */

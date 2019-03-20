@@ -92,11 +92,7 @@ contract SignatureBouncer is SignerRole {
     }
 
     /**
-<<<<<<< HEAD
-     * @dev is the signature of `this + sender + methodId + params(s)` from a signer?
-=======
      * @dev is the signature of `this + account + methodId + params(s)` from a signer?
->>>>>>> original-master
      * @notice the signature parameter of the method being validated must be the "last" parameter
      * @return bool
      */
