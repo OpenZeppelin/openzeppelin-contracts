@@ -11,15 +11,25 @@ interface IERC1820 {
         address _implementer
     ) external;
 
+    function setManager(
+        address _addr,
+        address _newManager
+    ) external;
+
+    function updateERC165Cache(
+        address _contract,
+        bytes4 _interfaceId
+    ) external;
+
     function getInterfaceImplementer(
         address _addr,
         bytes32 _interfaceHash
     ) external view returns (address);
 
-    function setManager(
-        address _addr,
-        address _newManager
-    ) external;
+    function implementsERC165Interface(
+        address _contract,
+        bytes4 _interfaceId
+    ) external view returns (bool);
 
     function getManager(address _addr) external view returns(address);
 
@@ -27,13 +37,4 @@ interface IERC1820 {
         string calldata _interfaceName
     ) external pure returns(bytes32);
 
-    function updateERC165Cache(
-        address _contract,
-        bytes4 _interfaceId
-    ) external;
-
-    function implementsERC165Interface(
-        address _contract,
-        bytes4 _interfaceId
-    ) external view returns (bool);
 }

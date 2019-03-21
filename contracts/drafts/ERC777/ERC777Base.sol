@@ -29,8 +29,8 @@ contract ERC777Base is IERC777, ERC1820Client {
 
     address[] private _defaultOpsArray;
 
-    bytes32 constant sendHash = keccak256("ERC777TokensSender");
-    bytes32 constant receivedHash = keccak256("ERC777TokensRecipient");
+    bytes32 constant private SENDHASH = keccak256("ERC777TokensSender");
+    bytes32 constant private RECEIVEDHASH = keccak256("ERC777TokensRecipient");
 
     mapping(address => bool) private _defaultOps;
     mapping(address => mapping(address => bool)) private _revokedDefaultOps;
@@ -203,7 +203,9 @@ contract ERC777Base is IERC777, ERC1820Client {
         require(msg.sender != operator);
         if (_defaultOps[operator]) {
             _reAuthorizeDefaultOperator(operator);
-        } else _authorizeOperator(operator);
+        } else {
+            _authorizeOperator(operator);
+        }
     }
 
     /**
@@ -214,7 +216,9 @@ contract ERC777Base is IERC777, ERC1820Client {
         require(operator != msg.sender);
         if (_defaultOps[operator]) {
             _revokeDefaultOperator(operator);
-        } else _revokeOperator(operator);
+        } else {
+            _revokeOperator(operator);
+        }
     }
 
     /**
@@ -435,7 +439,7 @@ contract ERC777Base is IERC777, ERC1820Client {
     )
     private
     {
-        address implementer = getInterfaceImplementer(from, sendHash);
+        address implementer = getInterfaceImplementer(from, SENDHASH);
         if (implementer != address(0)) {
             IERC777TokensSender(implementer).tokensToSend(
                 operator,
@@ -470,9 +474,9 @@ contract ERC777Base is IERC777, ERC1820Client {
     private
     returns(bool)
     {
-        address implementer = getInterfaceImplementer(to, receivedHash);
+        address implementer = getInterfaceImplementer(to, RECEIVEDHASH);
         if (implementer == address(0)) {
-            return(! to.isContract());
+            return(!to.isContract());
         }
         IERC777TokensRecipient(implementer).tokensReceived(
             operator,

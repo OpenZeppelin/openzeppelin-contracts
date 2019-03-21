@@ -29,12 +29,13 @@ contract ERC777 is ERC777Base {
         bytes memory data,
         bytes memory operatorData
     )
+    public
     ERC777Base(
         name,
         symbol,
         granularity,
         defaultOperators
-    ) public {
+    ) {
         _mint(
             msg.sender,
             msg.sender,

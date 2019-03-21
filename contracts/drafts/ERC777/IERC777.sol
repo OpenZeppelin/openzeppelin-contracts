@@ -5,26 +5,9 @@ pragma solidity ^0.5.2;
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-777.md
  */
 interface IERC777 {
-    function name() external view returns (string memory);
-
-    function symbol() external view returns (string memory);
-
-    function totalSupply() external view returns (uint256);
-
-    function balanceOf(address owner) external view returns (uint256);
-
-    function granularity() external view returns (uint256);
-
-    function defaultOperators() external view returns (address[] memory);
-
     function authorizeOperator(address operator) external;
 
     function revokeOperator(address operator) external;
-
-    function isOperatorFor(
-        address operator,
-        address tokenHolder
-    ) external view returns (bool);
 
     function send(address to, uint256 amount, bytes calldata data) external;
 
@@ -44,6 +27,23 @@ interface IERC777 {
         bytes calldata data,
         bytes calldata operatorData
     ) external;
+
+    function name() external view returns (string memory);
+
+    function symbol() external view returns (string memory);
+
+    function totalSupply() external view returns (uint256);
+
+    function balanceOf(address owner) external view returns (uint256);
+
+    function granularity() external view returns (uint256);
+
+    function defaultOperators() external view returns (address[] memory);
+
+    function isOperatorFor(
+        address operator,
+        address tokenHolder
+    ) external view returns (bool);
 
     event Sent(
         address indexed operator,

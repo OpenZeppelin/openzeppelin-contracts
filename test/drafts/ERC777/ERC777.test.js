@@ -14,15 +14,16 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
   const USER_DATA = '0xabcd';
   const OPERATOR_DATA = '0x0a0b0c0d';
   const GRANULARITY = '1';
-  var ERC1820Registry;
+  let ERC1820Registry;
 
   before('Deploy ERC1820', function (done) {
+    // eslint-disable-next-line promise/catch-or-return
     ERC1820.at(ERC1820_ADDRESS).then(
-      function(contract) {
+      function (contract) {
         ERC1820Registry = contract.address;
         done();
       },
-      async function(reject) {
+      async function (reject) {
         const address = await ERC1820Deploy(holder);
         ERC1820Registry = (await ERC1820.at(address)).address;
         done();

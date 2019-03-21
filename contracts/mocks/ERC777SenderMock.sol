@@ -45,6 +45,7 @@ contract ERC777SenderMock is IERC777TokensSender, ERC1820Client {
         uint amount,
         bytes calldata data
     ) external {
+        // solhint-disable-next-line check-send-result
         IERC777(_erc777).send(to, amount, data);
     }
 
