@@ -24,9 +24,10 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
         done();
       },
       async function (reject) {
-        const address = await ERC1820Deploy(holder);
-        ERC1820Registry = (await ERC1820.at(address)).address;
-        done();
+        ERC1820Deploy(holder).then(async function (address) {
+          ERC1820Registry = (await ERC1820.at(address)).address;
+          done();
+        }).catch(done);
       }
     );
   });
