@@ -1,4 +1,4 @@
-const { BN, constants, should, shouldFail } = require('openzeppelin-test-helpers');
+const { shouldFail } = require('openzeppelin-test-helpers');
 const expectEvent = require('../../helpers/expectEvent');
 const { ERC1820Deploy } = require('../../introspection/ERC1820Deploy');
 
@@ -7,8 +7,6 @@ const ERC1820 = artifacts.require('IERC1820');
 const ERC777TokensRecipient = artifacts.require('ERC777ReceiverMock');
 const ERC777TokensSender = artifacts.require('ERC777SenderMock');
 
-const BigNumber = BN;
-
 contract('ERC777', function ([_, holder, operator, anotherAccount]) {
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
   const ERC1820_ADDRESS = '0x1820b744B33945482C17Dc37218C01D858EBc714';
@@ -16,14 +14,20 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
   const USER_DATA = '0xabcd';
   const OPERATOR_DATA = '0x0a0b0c0d';
   const GRANULARITY = '1';
+  var ERC1820Registry;
 
-  before('Deploy ERC1820', async function () {
-    try {
-      this.ERC1820Registry = await ERC1820.at(ERC1820_ADDRESS);
-    } catch (error) {
-      const address = await ERC1820Deploy(holder);
-      this.ERC1820Registry = await ERC1820.at(address);
-    }
+  before('Deploy ERC1820', function (done) {
+    ERC1820.at(ERC1820_ADDRESS).then(
+      function(contract) {
+        ERC1820Registry = contract.address;
+        done();
+      },
+      async function(reject) {
+        const address = await ERC1820Deploy(holder);
+        ERC1820Registry = (await ERC1820.at(address)).address;
+        done();
+      }
+    );
   });
 
   it('Minted event is emitted', async function () {
@@ -51,7 +55,7 @@ contract('ERC777', function ([_, holder, operator, anotherAccount]) {
   describe('ERC1820 Registry', function () {
     it('hardcoded address in ERC777 contract is correct', async function () {
       const erc1820 = await this.token.getERC1820Registry();
-      erc1820.should.be.equal(this.ERC1820Registry.address);
+      erc1820.should.be.equal(ERC1820Registry);
     });
   });
 
