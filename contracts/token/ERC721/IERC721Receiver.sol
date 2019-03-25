@@ -5,7 +5,7 @@ pragma solidity ^0.5.2;
  * @dev Interface for any contract that wants to support safeTransfers
  * from ERC721 asset contracts.
  */
-contract IERC721Receiver {
+interface IERC721Receiver {
     /**
      * @notice Handle the receipt of an NFT
      * @dev The ERC721 smart contract calls this function on the recipient
@@ -20,6 +20,6 @@ contract IERC721Receiver {
      * @param data Additional data with no specified format
      * @return bytes4 `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`
      */
-    function onERC721Received(address operator, address from, uint256 tokenId, bytes memory data)
-    public returns (bytes4);
+    function onERC721Received(address operator, address from, uint256 tokenId, bytes calldata data)
+    external returns (bytes4);
 }
