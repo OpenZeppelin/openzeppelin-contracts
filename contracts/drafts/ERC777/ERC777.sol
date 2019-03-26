@@ -26,14 +26,14 @@ contract ERC777 is IERC777, ERC1820Client {
 
     uint256 private _granularity;
 
-    address[] private _defaultOpsArray;
+    address[] private _defaultOperatorsArray;
 
     bytes32 constant private SENDHASH = keccak256("ERC777TokensSender");
     bytes32 constant private RECEIVEDHASH = keccak256("ERC777TokensRecipient");
 
-    mapping(address => bool) private _defaultOps;
-    mapping(address => mapping(address => bool)) private _revokedDefaultOps;
-    mapping(address => mapping(address => bool)) private _ops;
+    mapping(address => bool) private _defaultOperators;
+    mapping(address => mapping(address => bool)) private _revokedDefaultOperators;
+    mapping(address => mapping(address => bool)) private _operators;
 
     constructor(
         string memory name,
@@ -46,10 +46,10 @@ contract ERC777 is IERC777, ERC1820Client {
         _name = name;
         _symbol = symbol;
         _granularity = granularity;
-        _defaultOpsArray = defaultOperators;
+        _defaultOperatorsArray = defaultOperators;
 
         for (uint i = 0; i < defaultOperators.length; i++) {
-            _defaultOps[defaultOperators[i]] = true;
+            _defaultOperators[defaultOperators[i]] = true;
         }
 
         // register interface
@@ -153,7 +153,7 @@ contract ERC777 is IERC777, ERC1820Client {
     * @return address[] default operators
     */
     function defaultOperators() public view returns (address[] memory) {
-        return _defaultOpsArray;
+        return _defaultOperatorsArray;
     }
 
     /**
@@ -162,7 +162,7 @@ contract ERC777 is IERC777, ERC1820Client {
      */
     function authorizeOperator(address operator) public {
         require(msg.sender != operator);
-        if (_defaultOps[operator]) {
+        if (_defaultOperators[operator]) {
             _reAuthorizeDefaultOperator(operator);
         } else {
             _authorizeOperator(operator);
@@ -175,7 +175,7 @@ contract ERC777 is IERC777, ERC1820Client {
      */
     function revokeOperator(address operator) public {
         require(operator != msg.sender);
-        if (_defaultOps[operator]) {
+        if (_defaultOperators[operator]) {
             _revokeDefaultOperator(operator);
         } else {
             _revokeOperator(operator);
@@ -194,8 +194,8 @@ contract ERC777 is IERC777, ERC1820Client {
         address tokenHolder
     ) public view returns (bool) {
         return operator == tokenHolder ||
-            _defaultOps[operator] && !_revokedDefaultOps[tokenHolder][operator] ||
-            _ops[tokenHolder][operator];
+            _defaultOperators[operator] && !_revokedDefaultOperators[tokenHolder][operator] ||
+            _operators[tokenHolder][operator];
     }
 
     /**
@@ -264,7 +264,7 @@ contract ERC777 is IERC777, ERC1820Client {
     * @param operator address to be authorized as operator
      */
     function _authorizeOperator(address operator) private {
-        _ops[msg.sender][operator] = true;
+        _operators[msg.sender][operator] = true;
         emit AuthorizedOperator(operator, msg.sender);
     }
 
@@ -273,7 +273,7 @@ contract ERC777 is IERC777, ERC1820Client {
     * @param operator address to be re-authorized as operator
      */
     function _reAuthorizeDefaultOperator(address operator) private {
-        delete _revokedDefaultOps[msg.sender][operator];
+        delete _revokedDefaultOperators[msg.sender][operator];
         emit AuthorizedOperator(operator, msg.sender);
     }
 
@@ -282,7 +282,7 @@ contract ERC777 is IERC777, ERC1820Client {
     * @param operator address to revoke operator rights from
     */
     function _revokeDefaultOperator(address operator) private {
-        _revokedDefaultOps[msg.sender][operator] = true;
+        _revokedDefaultOperators[msg.sender][operator] = true;
         emit RevokedOperator(operator, msg.sender);
     }
 
@@ -291,7 +291,7 @@ contract ERC777 is IERC777, ERC1820Client {
     * @param operator address to revoke operator rights from
     */
     function _revokeOperator(address operator) private {
-        delete _ops[msg.sender][operator];
+        delete _operators[msg.sender][operator];
         emit RevokedOperator(operator, msg.sender);
     }
 
