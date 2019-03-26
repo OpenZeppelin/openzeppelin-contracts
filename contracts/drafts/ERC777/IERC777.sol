@@ -1,8 +1,8 @@
 pragma solidity ^0.5.2;
 
 /**
- * @title ERC777 interface
- * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-777.md
+ * @title ERC777 token interface
+ * @dev See https://eips.ethereum.org/EIPS/eip-777
  */
 interface IERC777 {
     function authorizeOperator(address operator) external;
@@ -40,10 +40,7 @@ interface IERC777 {
 
     function defaultOperators() external view returns (address[] memory);
 
-    function isOperatorFor(
-        address operator,
-        address tokenHolder
-    ) external view returns (bool);
+    function isOperatorFor(address operator, address tokenHolder) external view returns (bool);
 
     event Sent(
         address indexed operator,
@@ -54,29 +51,11 @@ interface IERC777 {
         bytes operatorData
     );
 
-    event Minted(
-        address indexed operator,
-        address indexed to,
-        uint256 amount,
-        bytes data,
-        bytes operatorData
-    );
+    event Minted(address indexed operator, address indexed to, uint256 amount, bytes data, bytes operatorData);
 
-    event Burned(
-        address indexed operator,
-        address indexed from,
-        uint256 amount,
-        bytes data,
-        bytes operatorData
-    );
+    event Burned(address indexed operator, address indexed from, uint256 amount, bytes data, bytes operatorData);
 
-    event AuthorizedOperator(
-        address indexed operator,
-        address indexed tokenHolder
-    );
+    event AuthorizedOperator(address indexed operator, address indexed tokenHolder);
 
-    event RevokedOperator(
-        address indexed operator,
-        address indexed tokenHolder
-    );
+    event RevokedOperator(address indexed operator, address indexed tokenHolder);
 }

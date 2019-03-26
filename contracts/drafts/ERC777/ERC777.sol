@@ -10,7 +10,6 @@ import "../IERC1820Registry.sol";
 /**
  * @title ERC777 token implementation
  * @author etsvigun <utgarda@gmail.com>, Bertrand Masius <github@catageeks.tk>
- * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-777.md
  */
 contract ERC777 is IERC777 {
     using SafeMath for uint256;
@@ -28,14 +27,18 @@ contract ERC777 is IERC777 {
 
     uint256 private _granularity;
 
+    bytes32 constant private TOKENS_SENDER_INTEFACE_HASH = keccak256("ERC777TokensSender");
+    bytes32 constant private TOKENS_RECIPIENT_INTERFACE_HASH = keccak256("ERC777TokensRecipient");
+
+    // This isn't ever read from - it's only used to respond to the defaultOperators query.
     address[] private _defaultOperatorsArray;
 
-    bytes32 constant private SENDHASH = keccak256("ERC777TokensSender");
-    bytes32 constant private RECEIVEDHASH = keccak256("ERC777TokensRecipient");
-
+    // Immutable, but accounts may revoke them (tracked in __revokedDefaultOperators).
     mapping(address => bool) private _defaultOperators;
-    mapping(address => mapping(address => bool)) private _revokedDefaultOperators;
+
+    // For each account, a mapping of its operators and revoked default operators.
     mapping(address => mapping(address => bool)) private _operators;
+    mapping(address => mapping(address => bool)) private _revokedDefaultOperators;
 
     constructor(
         string memory name,
@@ -48,10 +51,10 @@ contract ERC777 is IERC777 {
         _name = name;
         _symbol = symbol;
         _granularity = granularity;
-        _defaultOperatorsArray = defaultOperators;
 
-        for (uint i = 0; i < defaultOperators.length; i++) {
-            _defaultOperators[defaultOperators[i]] = true;
+        _defaultOperatorsArray = defaultOperators;
+        for (uint256 i = 0; i < _defaultOperatorsArray.length; i++) {
+            _defaultOperators[_defaultOperatorsArray[i]] = true;
         }
 
         // register interface
@@ -102,7 +105,7 @@ contract ERC777 is IERC777 {
     * @param data bytes extra information provided by the token holder
      */
     function burn(uint256 amount, bytes calldata data) external {
-        _burn(msg.sender,  msg.sender, amount, data, "");
+        _burn(msg.sender, msg.sender, amount, data, "");
     }
 
     /**
@@ -226,13 +229,14 @@ contract ERC777 is IERC777 {
     {
         require(from != address(0));
         require(isOperatorFor(msg.sender, from));
+        require((amount % _granularity) == 0);
 
         _callTokensToSend(operator, from, address(0), amount, data, operatorData);
 
         // Update state variables
         _totalSupply = _totalSupply.sub(amount);
         _balances[from] = _balances[from].sub(amount);
-        require((_balances[from] % _granularity) == 0);
+        assert((_balances[from] % _granularity) == 0);
 
         emit Burned(operator, from, amount, data, operatorData);
     }
@@ -256,6 +260,7 @@ contract ERC777 is IERC777 {
     internal
     {
         require(to != address(0));
+        require((amount % _granularity) == 0);
 
         // revert if 'to' is a contract not implementing tokensReceived()
         require(_callTokensReceived(operator, address(0), to, amount, userData, operatorData));
@@ -263,7 +268,7 @@ contract ERC777 is IERC777 {
         // Update state variables
         _totalSupply = _totalSupply.add(amount);
         _balances[to] = _balances[to].add(amount);
-        require((_balances[to] % _granularity) == 0);
+        assert((_balances[to] % _granularity) == 0);
 
         emit Minted(operator, to, amount, userData, operatorData);
     }
@@ -325,14 +330,15 @@ contract ERC777 is IERC777 {
     {
         require(from != address(0));
         require(to != address(0));
+        require((amount % _granularity) == 0);
 
         _callTokensToSend(operator, from, to, amount, userData, operatorData);
 
         // Update state variables
         _balances[from] = _balances[from].sub(amount);
         _balances[to] = _balances[to].add(amount);
-        require((_balances[from] % _granularity) == 0);
-        require((_balances[to] % _granularity) == 0);
+        assert((_balances[from] % _granularity) == 0);
+        assert((_balances[to] % _granularity) == 0);
 
         _callTokensReceived(operator, from, to, amount, userData, operatorData);
 
@@ -358,7 +364,7 @@ contract ERC777 is IERC777 {
     )
     private
     {
-        address implementer = _erc1820.getInterfaceImplementer(from, SENDHASH);
+        address implementer = _erc1820.getInterfaceImplementer(from, TOKENS_SENDER_INTEFACE_HASH);
         if (implementer != address(0)) {
             IERC777Sender(implementer).tokensToSend(operator, from, to, amount, userData, operatorData);
         }
@@ -386,7 +392,7 @@ contract ERC777 is IERC777 {
     private
     returns(bool)
     {
-        address implementer = _erc1820.getInterfaceImplementer(to, RECEIVEDHASH);
+        address implementer = _erc1820.getInterfaceImplementer(to, TOKENS_RECIPIENT_INTERFACE_HASH);
         if (implementer == address(0)) {
             return(!to.isContract());
         }
