@@ -43,19 +43,18 @@ contract ERC777Base is IERC777, ERC1820Client {
         address[] memory defaultOperators
     ) internal {
         require(granularity > 0);
+
         _name = name;
         _symbol = symbol;
         _granularity = granularity;
         _defaultOpsArray = defaultOperators;
+
         for (uint i = 0; i < defaultOperators.length; i++) {
             _defaultOps[defaultOperators[i]] = true;
         }
+
         // register interface
-        setInterfaceImplementer(
-            address(this),
-            keccak256("ERC777Token"),
-            address(this)
-        );
+        setInterfaceImplementer(address(this), keccak256("ERC777Token"), address(this));
     }
 
     /**
@@ -64,19 +63,8 @@ contract ERC777Base is IERC777, ERC1820Client {
     * @param amount uint256 amount of tokens to transfer
     * @param data bytes information attached to the send, and intended for the recipient (to)
      */
-    function send(
-        address to,
-        uint256 amount,
-        bytes calldata data
-    ) external {
-        _send(
-            msg.sender,
-            msg.sender,
-            to,
-            amount,
-            data,
-            ""
-        );
+    function send(address to, uint256 amount, bytes calldata data) external {
+        _send(msg.sender, msg.sender, to, amount, data, "");
     }
 
     /**
@@ -97,14 +85,7 @@ contract ERC777Base is IERC777, ERC1820Client {
     external
     {
         address holder = from == address(0) ? msg.sender : from;
-        _send(
-            msg.sender,
-            holder,
-            to,
-            amount,
-            data,
-            operatorData
-        );
+        _send(msg.sender, holder, to, amount, data, operatorData);
     }
 
     /**
@@ -113,13 +94,7 @@ contract ERC777Base is IERC777, ERC1820Client {
     * @param data bytes extra information provided by the token holder
      */
     function burn(uint256 amount, bytes calldata data) external {
-        _burn(
-            msg.sender, 
-            msg.sender,
-            amount,
-            data,
-            ""
-        );
+        _burn(msg.sender,  msg.sender, amount, data, "");
     }
 
     /**
@@ -129,22 +104,9 @@ contract ERC777Base is IERC777, ERC1820Client {
     * @param data bytes extra information provided by the token holder
     * @param operatorData bytes extra information provided by the operator (if any)
      */
-    function operatorBurn(
-        address from,
-        uint256 amount,
-        bytes calldata data,
-        bytes calldata operatorData
-    )
-    external
-    {
+    function operatorBurn(address from, uint256 amount, bytes calldata data, bytes calldata operatorData) external {
         address holder = from == address(0) ? msg.sender : from;
-        _burn(
-            msg.sender,
-            holder,
-            amount,
-            data,
-            operatorData
-        );
+        _burn(msg.sender, holder, amount, data, operatorData);
     }
 
     /**
@@ -232,8 +194,7 @@ contract ERC777Base is IERC777, ERC1820Client {
         address operator,
         address tokenHolder
     ) public view returns (bool) {
-        return
-        operator == tokenHolder ||
+        return operator == tokenHolder ||
             _defaultOps[operator] && !_revokedDefaultOps[tokenHolder][operator] ||
             _ops[tokenHolder][operator];
     }
@@ -258,27 +219,14 @@ contract ERC777Base is IERC777, ERC1820Client {
         require(from != address(0));
         require(isOperatorFor(msg.sender, from));
 
-        _callTokensToSend(
-            operator,
-            from,
-            address(0),
-            amount,
-            data,
-            operatorData
-        );
+        _callTokensToSend(operator, from, address(0), amount, data, operatorData);
 
         // Update state variables
         _totalSupply = _totalSupply.sub(amount);
         _balances[from] = _balances[from].sub(amount);
         require((_balances[from] % _granularity) == 0);
 
-        emit Burned(
-            operator,
-            from,
-            amount,
-            data,
-            operatorData
-        );
+        emit Burned(operator, from, amount, data, operatorData);
     }
 
     /**
@@ -302,29 +250,14 @@ contract ERC777Base is IERC777, ERC1820Client {
         require(to != address(0));
 
         // revert if 'to' is a contract not implementing tokensReceived()
-        require(
-            _callTokensReceived(
-                operator,
-                address(0),
-                to,
-                amount,
-                userData,
-                operatorData
-        )
-        );
+        require(_callTokensReceived(operator, address(0), to, amount, userData, operatorData));
 
         // Update state variables
         _totalSupply = _totalSupply.add(amount);
         _balances[to] = _balances[to].add(amount);
         require((_balances[to] % _granularity) == 0);
 
-        emit Minted(
-            operator,
-            to,
-            amount,
-            userData,
-            operatorData
-        );
+        emit Minted(operator, to, amount, userData, operatorData);
     }
 
     /**
@@ -386,14 +319,7 @@ contract ERC777Base is IERC777, ERC1820Client {
         require(to != address(0));
         require(isOperatorFor(msg.sender, from));
 
-        _callTokensToSend(
-            operator,
-            from,
-            to,
-            amount,
-            userData,
-            operatorData
-        );
+        _callTokensToSend(operator, from, to, amount, userData, operatorData);
 
         // Update state variables
         _balances[from] = _balances[from].sub(amount);
@@ -401,23 +327,9 @@ contract ERC777Base is IERC777, ERC1820Client {
         require((_balances[from] % _granularity) == 0);
         require((_balances[to] % _granularity) == 0);
 
-        _callTokensReceived(
-            operator,
-            from,
-            to,
-            amount,
-            userData,
-            operatorData
-        );
+        _callTokensReceived(operator, from, to, amount, userData, operatorData);
 
-        emit Sent(
-            msg.sender,
-            from,
-            to,
-            amount,
-            userData,
-            operatorData
-        );
+        emit Sent(msg.sender, from, to, amount, userData, operatorData);
     }
 
     /**
@@ -441,14 +353,7 @@ contract ERC777Base is IERC777, ERC1820Client {
     {
         address implementer = getInterfaceImplementer(from, SENDHASH);
         if (implementer != address(0)) {
-            IERC777TokensSender(implementer).tokensToSend(
-                operator,
-                from,
-                to,
-                amount,
-                userData,
-                operatorData
-            );
+            IERC777TokensSender(implementer).tokensToSend(operator, from, to, amount, userData, operatorData);
         }
     }
 
@@ -478,14 +383,7 @@ contract ERC777Base is IERC777, ERC1820Client {
         if (implementer == address(0)) {
             return(!to.isContract());
         }
-        IERC777TokensRecipient(implementer).tokensReceived(
-            operator,
-            from,
-            to,
-            amount,
-            userData,
-            operatorData
-        );
+        IERC777TokensRecipient(implementer).tokensReceived(operator, from, to, amount, userData, operatorData);
         return true;
     }
 }
