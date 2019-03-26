@@ -39,14 +39,20 @@ start_ganache() {
   )
 
   if [ "$SOLIDITY_COVERAGE" = true ]; then
-    node_modules/.bin/testrpc-sc --gasLimit 0xfffffffffff --port "$ganache_port" "${accounts[@]}" > /dev/null &
+    node_modules/.bin/ganache-cli-coverage --emitFreeLogs true --allowUnlimitedContractSize true --gasLimit 0xfffffffffff --port "$ganache_port" "${accounts[@]}" > /dev/null &
   else
     node_modules/.bin/ganache-cli --gasLimit 0xfffffffffff --port "$ganache_port" "${accounts[@]}" > /dev/null &
   fi
 
   ganache_pid=$!
 
-  sleep 1
+  echo "Waiting for ganache to launch on port "$ganache_port"..."
+
+  while ! ganache_running; do
+    sleep 0.1 # wait for 1/10 of the second before check again
+  done
+
+  echo "Ganache launched!"
 }
 
 if ganache_running; then

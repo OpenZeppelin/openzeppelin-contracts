@@ -52,10 +52,12 @@ function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
 
     describe('withdrawals', async function () {
       it('can withdraw payments', async function () {
-        (await balance.difference(payee1, async () => {
-          await this.escrow.deposit(payee1, { from: primary, value: amount });
-          await this.escrow.withdraw(payee1, { from: primary });
-        })).should.be.bignumber.equal(amount);
+        const balanceTracker = await balance.tracker(payee1);
+
+        await this.escrow.deposit(payee1, { from: primary, value: amount });
+        await this.escrow.withdraw(payee1, { from: primary });
+
+        (await balanceTracker.delta()).should.be.bignumber.equal(amount);
 
         (await balance.current(this.escrow.address)).should.be.bignumber.equal('0');
         (await this.escrow.depositsOf(payee1)).should.be.bignumber.equal('0');
