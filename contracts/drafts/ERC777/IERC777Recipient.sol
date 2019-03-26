@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 pragma solidity ^0.5.2;
 
-interface IERC777TokensRecipient {
+interface IERC777Recipient {
     function tokensReceived(
         address operator,
         address from,

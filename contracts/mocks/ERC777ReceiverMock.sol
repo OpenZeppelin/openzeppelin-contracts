@@ -1,6 +1,6 @@
 pragma solidity ^0.5.2;
 
-import "../drafts/ERC777/IERC777TokensRecipient.sol";
+import "../drafts/ERC777/IERC777Recipient.sol";
 import "../introspection/ERC1820Client.sol";
 
 /**
@@ -8,7 +8,7 @@ import "../introspection/ERC1820Client.sol";
  * @author Bertrand Masius <github@catageeks.tk>
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-777.md
  */
-contract ERC777ReceiverMock is IERC777TokensRecipient, ERC1820Client {
+contract ERC777ReceiverMock is IERC777Recipient, ERC1820Client {
 
     event TokensReceived(
         address indexed operator,

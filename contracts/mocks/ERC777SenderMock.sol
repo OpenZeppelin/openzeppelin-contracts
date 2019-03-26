@@ -1,7 +1,7 @@
 pragma solidity ^0.5.2;
 
 import "../drafts/ERC777/IERC777.sol";
-import "../drafts/ERC777/IERC777TokensSender.sol";
+import "../drafts/ERC777/IERC777Sender.sol";
 import "../introspection/ERC1820Client.sol";
 
 /**
@@ -9,7 +9,7 @@ import "../introspection/ERC1820Client.sol";
  * @author Bertrand Masius <github@catageeks.tk>
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-777.md
  */
-contract ERC777SenderMock is IERC777TokensSender, ERC1820Client {
+contract ERC777SenderMock is IERC777Sender, ERC1820Client {
 
     address private _erc777;
 

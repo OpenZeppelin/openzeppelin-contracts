@@ -1,8 +1,8 @@
 pragma solidity ^0.5.2;
 
 import "./IERC777.sol";
-import "./IERC777TokensRecipient.sol";
-import "./IERC777TokensSender.sol";
+import "./IERC777Recipient.sol";
+import "./IERC777Sender.sol";
 import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";
 import "../../introspection/ERC1820Client.sol";
@@ -352,7 +352,7 @@ contract ERC777 is IERC777, ERC1820Client {
     {
         address implementer = getInterfaceImplementer(from, SENDHASH);
         if (implementer != address(0)) {
-            IERC777TokensSender(implementer).tokensToSend(operator, from, to, amount, userData, operatorData);
+            IERC777Sender(implementer).tokensToSend(operator, from, to, amount, userData, operatorData);
         }
     }
 
@@ -382,7 +382,7 @@ contract ERC777 is IERC777, ERC1820Client {
         if (implementer == address(0)) {
             return(!to.isContract());
         }
-        IERC777TokensRecipient(implementer).tokensReceived(operator, from, to, amount, userData, operatorData);
+        IERC777Recipient(implementer).tokensReceived(operator, from, to, amount, userData, operatorData);
         return true;
     }
 }
