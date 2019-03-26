@@ -83,7 +83,14 @@ contract ERC777 is IERC777, ERC1820Client {
     )
     external
     {
-        address holder = from == address(0) ? msg.sender : from;
+        address holder;
+        if (from == address(0)) {
+            holder = msg.sender;
+        } else {
+            holder = from;
+            require(isOperatorFor(msg.sender, holder));
+        }
+
         _send(msg.sender, holder, to, amount, data, operatorData);
     }
 
@@ -316,7 +323,6 @@ contract ERC777 is IERC777, ERC1820Client {
     {
         require(from != address(0));
         require(to != address(0));
-        require(isOperatorFor(msg.sender, from));
 
         _callTokensToSend(operator, from, to, amount, userData, operatorData);
 
@@ -328,7 +334,7 @@ contract ERC777 is IERC777, ERC1820Client {
 
         _callTokensReceived(operator, from, to, amount, userData, operatorData);
 
-        emit Sent(msg.sender, from, to, amount, userData, operatorData);
+        emit Sent(operator, from, to, amount, userData, operatorData);
     }
 
     /**
