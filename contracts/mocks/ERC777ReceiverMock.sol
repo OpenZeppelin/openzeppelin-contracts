@@ -1,14 +1,16 @@
 pragma solidity ^0.5.2;
 
 import "../drafts/ERC777/IERC777Recipient.sol";
-import "../introspection/ERC1820Client.sol";
+import "../drafts/IERC1820Registry.sol";
 
 /**
  * @title ERC777TokensRecipientMock a contract that implements tokensReceived() hook
  * @author Bertrand Masius <github@catageeks.tk>
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-777.md
  */
-contract ERC777ReceiverMock is IERC777Recipient, ERC1820Client {
+contract ERC777ReceiverMock is IERC777Recipient {
+
+    IERC1820Registry private _erc1820 = IERC1820Registry(0x1820b744B33945482C17Dc37218C01D858EBc714);
 
     event TokensReceived(
         address indexed operator,
@@ -22,7 +24,7 @@ contract ERC777ReceiverMock is IERC777Recipient, ERC1820Client {
     constructor(bool setInterface) public {
         // register interface
         if (setInterface) {
-            setInterfaceImplementer(
+            _erc1820.setInterfaceImplementer(
                 address(this),
                 keccak256("ERC777TokensRecipient"),
                 address(this)

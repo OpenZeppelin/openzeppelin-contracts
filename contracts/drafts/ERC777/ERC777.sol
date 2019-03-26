@@ -5,16 +5,18 @@ import "./IERC777Recipient.sol";
 import "./IERC777Sender.sol";
 import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";
-import "../../introspection/ERC1820Client.sol";
+import "../IERC1820Registry.sol";
 
 /**
  * @title ERC777 token implementation
  * @author etsvigun <utgarda@gmail.com>, Bertrand Masius <github@catageeks.tk>
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-777.md
  */
-contract ERC777 is IERC777, ERC1820Client {
+contract ERC777 is IERC777 {
     using SafeMath for uint256;
     using Address for address;
+
+    IERC1820Registry private _erc1820 = IERC1820Registry(0x1820b744B33945482C17Dc37218C01D858EBc714);
 
     string private _name;
 
@@ -53,7 +55,7 @@ contract ERC777 is IERC777, ERC1820Client {
         }
 
         // register interface
-        setInterfaceImplementer(address(this), keccak256("ERC777Token"), address(this));
+        _erc1820.setInterfaceImplementer(address(this), keccak256("ERC777Token"), address(this));
     }
 
     /**
@@ -356,7 +358,7 @@ contract ERC777 is IERC777, ERC1820Client {
     )
     private
     {
-        address implementer = getInterfaceImplementer(from, SENDHASH);
+        address implementer = _erc1820.getInterfaceImplementer(from, SENDHASH);
         if (implementer != address(0)) {
             IERC777Sender(implementer).tokensToSend(operator, from, to, amount, userData, operatorData);
         }
@@ -384,7 +386,7 @@ contract ERC777 is IERC777, ERC1820Client {
     private
     returns(bool)
     {
-        address implementer = getInterfaceImplementer(to, RECEIVEDHASH);
+        address implementer = _erc1820.getInterfaceImplementer(to, RECEIVEDHASH);
         if (implementer == address(0)) {
             return(!to.isContract());
         }

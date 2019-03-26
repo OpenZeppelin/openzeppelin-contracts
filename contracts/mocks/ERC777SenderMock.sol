@@ -2,16 +2,17 @@ pragma solidity ^0.5.2;
 
 import "../drafts/ERC777/IERC777.sol";
 import "../drafts/ERC777/IERC777Sender.sol";
-import "../introspection/ERC1820Client.sol";
+import "../drafts/IERC1820Registry.sol";
 
 /**
  * @title ERC777TokensSenderMock a contract that implements tokensToSend() hook
  * @author Bertrand Masius <github@catageeks.tk>
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-777.md
  */
-contract ERC777SenderMock is IERC777Sender, ERC1820Client {
+contract ERC777SenderMock is IERC777Sender {
 
-    address private _erc777;
+    IERC1820Registry private _erc1820 = IERC1820Registry(0x1820b744B33945482C17Dc37218C01D858EBc714);
+    IERC777 private _erc777;
 
     event TokensToSend(
         address indexed operator,
@@ -22,11 +23,11 @@ contract ERC777SenderMock is IERC777Sender, ERC1820Client {
         bytes operatorData
     );
 
-    constructor(bool setInterface, address erc777) public {
+    constructor(bool setInterface, IERC777 erc777) public {
         _erc777 = erc777;
         // register interface
         if (setInterface) {
-            setInterfaceImplementer(
+            _erc1820.setInterfaceImplementer(
                 address(this),
                 keccak256("ERC777TokensSender"),
                 address(this)
@@ -46,7 +47,7 @@ contract ERC777SenderMock is IERC777Sender, ERC1820Client {
         bytes calldata data
     ) external {
         // solhint-disable-next-line check-send-result
-        IERC777(_erc777).send(to, amount, data);
+        _erc777.send(to, amount, data);
     }
 
     /**
@@ -55,7 +56,7 @@ contract ERC777SenderMock is IERC777Sender, ERC1820Client {
      * @param data bytes extra information provided by the token holder (if any)
      */
     function burnTokens(uint amount, bytes calldata data) external {
-        IERC777(_erc777).burn(amount, data);
+        _erc777.burn(amount, data);
     }
 
     /**
@@ -63,7 +64,7 @@ contract ERC777SenderMock is IERC777Sender, ERC1820Client {
      * @param operator address of operator
      */
     function authorizeOperator(address operator) external {
-        IERC777(_erc777).authorizeOperator(operator);
+        _erc777.authorizeOperator(operator);
     }
 
     /**
