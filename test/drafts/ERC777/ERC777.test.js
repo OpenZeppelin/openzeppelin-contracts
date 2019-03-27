@@ -11,6 +11,29 @@ contract.only('ERC777', function ([_, registryFunder, initialHolder, defaultOper
 
   const defaultOperators = [defaultOperatorA, defaultOperatorB];
 
+  function assertSendSuccess(from, to, amount, data) {
+    it(`can send an amount of ${amount}`, async function () {
+      const initialFromBalance = await this.token.balanceOf(from);
+      const initialToBalance = await this.token.balanceOf(to);
+
+      const { logs } = await this.token.send(to, amount, data, { from });
+      expectEvent.inLogs(logs, 'Sent', {
+        operator: from,
+        from,
+        to,
+        amount,
+        data,
+        operatorData: null,
+      });
+
+      const finalFromBalance = await this.token.balanceOf(from);
+      const finalToBalance = await this.token.balanceOf(to);
+
+      finalToBalance.sub(initialToBalance).should.be.bignumber.equal(amount);
+      finalFromBalance.sub(initialFromBalance).should.be.bignumber.equal(amount.neg());
+    });
+  }
+
   before(async function () {
     this.erc1820 = await singletons.ERC1820Registry(registryFunder);
   });
@@ -56,29 +79,6 @@ contract.only('ERC777', function ([_, registryFunder, initialHolder, defaultOper
           .should.equal(this.token.address);
       });
     });
-
-    function assertSendSuccess(from, to, amount, data) {
-      it(`can send an amount of ${amount}`, async function () {
-        const initialFromBalance = await this.token.balanceOf(from);
-        const initialToBalance = await this.token.balanceOf(to);
-
-        const { logs } = await this.token.send(to, amount, data, { from });
-        expectEvent.inLogs(logs, 'Sent', {
-          operator: from,
-          from,
-          to,
-          amount,
-          data,
-          operatorData: null,
-        });
-
-        const finalFromBalance = await this.token.balanceOf(from);
-        const finalToBalance = await this.token.balanceOf(to);
-
-        finalToBalance.sub(initialToBalance).should.be.bignumber.equal(amount);
-        finalFromBalance.sub(initialFromBalance).should.be.bignumber.equal(amount.neg());
-      });
-    }
 
     describe('balanceOf', function () {
       context('for an account with no tokens', function () {
@@ -126,6 +126,28 @@ contract.only('ERC777', function ([_, registryFunder, initialHolder, defaultOper
   context('with no default operators', function () {
     beforeEach(async function () {
       await shouldFail.reverting(ERC777.new(initialHolder, initialSupply, name, symbol, 1, []));
+    });
+  });
+
+  context('with granularity larger than 1', function () {
+    const granularity = new BN('4');
+
+    beforeEach(async function () {
+      initialSupply.mod(granularity).should.be.bignumber.equal('0');
+
+      this.token = await ERC777.new(initialHolder, initialSupply, name, symbol, granularity, defaultOperators);
+    });
+
+    context('when the sender has tokens', function () {
+      const from = initialHolder;
+
+      assertSendSuccess(from, anyone, new BN('0'), data);
+      assertSendSuccess(from, anyone, granularity, data);
+      assertSendSuccess(from, anyone, granularity.muln(2), data);
+
+      it('reverts when sending an amount non-multiple of the granularity', async function () {
+        await shouldFail.reverting(this.token.send(anyone, granularity.subn(1), data, { from }));
+      });
     });
   });
 });
