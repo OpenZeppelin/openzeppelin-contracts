@@ -5,7 +5,7 @@ const {
   shouldBehaveLikeERC777OperatorSend,
   shouldBehaveLikeERC777DirectBurn,
   shouldBehaveLikeERC777OperatorBurn,
-  shouldSendTokens,
+  shouldDirectSendTokens,
 } = require('./ERC777.behavior');
 
 const ERC777 = artifacts.require('ERC777Mock');
@@ -124,9 +124,9 @@ contract('ERC777', function ([
     context('when the sender has tokens', function () {
       const from = initialHolder;
 
-      shouldSendTokens(from, anyone, new BN('0'), data);
-      shouldSendTokens(from, anyone, granularity, data);
-      shouldSendTokens(from, anyone, granularity.muln(2), data);
+      shouldDirectSendTokens(from, anyone, new BN('0'), data);
+      shouldDirectSendTokens(from, anyone, granularity, data);
+      shouldDirectSendTokens(from, anyone, granularity.muln(2), data);
 
       it('reverts when sending an amount non-multiple of the granularity', async function () {
         await shouldFail.reverting(this.token.send(anyone, granularity.subn(1), data, { from }));
