@@ -10,7 +10,7 @@ contract ERC777Mock is ERC777 {
         string memory symbol,
         uint256 granularity,
         address[] memory defaultOperators
-    ) ERC777(name, symbol, granularity, defaultOperators) public {
+    ) public ERC777(name, symbol, granularity, defaultOperators) {
         _mint(msg.sender, initialHolder, initialBalance, "", "");
     }
 }
