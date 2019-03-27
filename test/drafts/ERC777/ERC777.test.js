@@ -3,7 +3,7 @@ const { ZERO_ADDRESS } = constants;
 
 const ERC777 = artifacts.require('ERC777Mock');
 
-contract.only('ERC777', function ([_, registryFunder, initialHolder, defaultOperatorA, defaultOperatorB, operator, anyone]) {
+contract.only('ERC777', function ([_, registryFunder, initialHolder, defaultOperatorA, defaultOperatorB, newOperator, anyone]) {
   const initialSupply = new BN('10000');
   const name = 'ERC777Test';
   const symbol = '777T';
@@ -12,8 +12,9 @@ contract.only('ERC777', function ([_, registryFunder, initialHolder, defaultOper
 
   const defaultOperators = [defaultOperatorA, defaultOperatorB];
 
-  function assertSendSuccess(from, to, amount, data) {
+  function assertSendSuccess (from, to, amount, data) {
     it(`can send an amount of ${amount}`, async function () {
+      const initialTotalSupply = await this.token.totalSupply();
       const initialFromBalance = await this.token.balanceOf(from);
       const initialToBalance = await this.token.balanceOf(to);
 
@@ -27,16 +28,19 @@ contract.only('ERC777', function ([_, registryFunder, initialHolder, defaultOper
         operatorData: null,
       });
 
+      const finalTotalSupply = await this.token.totalSupply();
       const finalFromBalance = await this.token.balanceOf(from);
       const finalToBalance = await this.token.balanceOf(to);
 
+      finalTotalSupply.should.be.bignumber.equal(initialTotalSupply);
       finalToBalance.sub(initialToBalance).should.be.bignumber.equal(amount);
       finalFromBalance.sub(initialFromBalance).should.be.bignumber.equal(amount.neg());
     });
   }
 
-  function assertOperatorSendSuccess(from, operator, to, amount, data, operatorData) {
+  function assertOperatorSendSuccess (from, operator, to, amount, data, operatorData) {
     it(`operator can send an amount of ${amount}`, async function () {
+      const initialTotalSupply = await this.token.totalSupply();
       const initialFromBalance = await this.token.balanceOf(from);
       const initialToBalance = await this.token.balanceOf(to);
 
@@ -50,10 +54,56 @@ contract.only('ERC777', function ([_, registryFunder, initialHolder, defaultOper
         operatorData,
       });
 
+      const finalTotalSupply = await this.token.totalSupply();
       const finalFromBalance = await this.token.balanceOf(from);
       const finalToBalance = await this.token.balanceOf(to);
 
+      finalTotalSupply.should.be.bignumber.equal(initialTotalSupply);
       finalToBalance.sub(initialToBalance).should.be.bignumber.equal(amount);
+      finalFromBalance.sub(initialFromBalance).should.be.bignumber.equal(amount.neg());
+    });
+  }
+
+  function assertBurnSuccess (from, amount, data) {
+    it(`can burn an amount of ${amount}`, async function () {
+      const initialTotalSupply = await this.token.totalSupply();
+      const initialFromBalance = await this.token.balanceOf(from);
+
+      const { logs } = await this.token.burn(amount, data, { from });
+      expectEvent.inLogs(logs, 'Burned', {
+        operator: from,
+        from,
+        amount,
+        data,
+        operatorData: null,
+      });
+
+      const finalTotalSupply = await this.token.totalSupply();
+      const finalFromBalance = await this.token.balanceOf(from);
+
+      finalTotalSupply.sub(initialTotalSupply).should.be.bignumber.equal(amount.neg());
+      finalFromBalance.sub(initialFromBalance).should.be.bignumber.equal(amount.neg());
+    });
+  }
+
+  function assertOperatorBurnSuccess (from, operator, amount, data, operatorData) {
+    it(`operator can burn an amount of ${amount}`, async function () {
+      const initialTotalSupply = await this.token.totalSupply();
+      const initialFromBalance = await this.token.balanceOf(from);
+
+      const { logs } = await this.token.operatorBurn(from, amount, data, operatorData, { from: operator });
+      expectEvent.inLogs(logs, 'Burned', {
+        operator,
+        from,
+        amount,
+        data,
+        operatorData,
+      });
+
+      const finalTotalSupply = await this.token.totalSupply();
+      const finalFromBalance = await this.token.balanceOf(from);
+
+      finalTotalSupply.sub(initialTotalSupply).should.be.bignumber.equal(amount.neg());
       finalFromBalance.sub(initialFromBalance).should.be.bignumber.equal(amount.neg());
     });
   }
@@ -89,7 +139,7 @@ contract.only('ERC777', function ([_, registryFunder, initialHolder, defaultOper
       });
 
       it('default operators are operators for all accounts', async function () {
-        for (let operator of defaultOperators) {
+        for (const operator of defaultOperators) {
           (await this.token.isOperatorFor(operator, anyone)).should.equal(true);
         }
       });
@@ -135,7 +185,7 @@ contract.only('ERC777', function ([_, registryFunder, initialHolder, defaultOper
 
           it('reverts when sending a non-zero amount', async function () {
             await shouldFail.reverting(
-              this.token.operatorSend(from, initialHolder, new BN('1'), data, operatorData, { from: operator })
+              this.token.operatorSend(from, initialHolder, new BN('1'), data, operatorData, { from: defaultOperatorA })
             );
           });
         });
@@ -174,6 +224,56 @@ contract.only('ERC777', function ([_, registryFunder, initialHolder, defaultOper
               this.token.operatorSend(
                 from, ZERO_ADDRESS, new BN('1'), data, operatorData, { from: defaultOperatorA }
               )
+            );
+          });
+        });
+      });
+    });
+
+    describe('burn', function () {
+      context('when the sender has no tokens', async function () {
+        const from = anyone;
+
+        describe('direct burn', function () {
+          assertBurnSuccess(from, new BN('0'), data);
+
+          it('reverts when burning a non-zero amount', async function () {
+            await shouldFail.reverting(this.token.burn(new BN('1'), data, { from }));
+          });
+        });
+
+        describe('operator burn', function () {
+          assertOperatorBurnSuccess(from, defaultOperatorA, new BN('0'), data, operatorData);
+
+          it('reverts when burning a non-zero amount', async function () {
+            await shouldFail.reverting(
+              this.token.operatorBurn(from, new BN('1'), data, operatorData, { from: defaultOperatorA })
+            );
+          });
+        });
+      });
+
+      context('when the sender has tokens', async function () {
+        const from = initialHolder;
+
+        describe('direct burn', function () {
+          assertBurnSuccess(from, new BN('0'), data);
+          assertBurnSuccess(from, new BN('1'), data);
+
+          it('reverts when burning more than the balance', async function () {
+            const balance = await this.token.balanceOf(from);
+            await shouldFail.reverting(this.token.burn(balance.addn(1), data, { from }));
+          });
+        });
+
+        describe('operator burn', function () {
+          assertOperatorBurnSuccess(from, defaultOperatorA, new BN('0'), data, operatorData);
+          assertOperatorBurnSuccess(from, defaultOperatorB, new BN('1'), data, operatorData);
+
+          it('reverts when burning more than the balance', async function () {
+            const balance = await this.token.balanceOf(from);
+            await shouldFail.reverting(
+              this.token.operatorBurn(from, balance.addn(1), data, operatorData, { from: defaultOperatorA })
             );
           });
         });
