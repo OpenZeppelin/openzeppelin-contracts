@@ -11,7 +11,7 @@ const {
 const ERC777 = artifacts.require('ERC777Mock');
 
 contract('ERC777', function ([
-  _, registryFunder, initialHolder, nonHolder, defaultOperatorA, defaultOperatorB, newOperator, anyone,
+  _, registryFunder, holder, defaultOperatorA, defaultOperatorB, newOperator, anyone,
 ]) {
   const initialSupply = new BN('10000');
   const name = 'ERC777Test';
@@ -26,12 +26,12 @@ contract('ERC777', function ([
   });
 
   it('reverts with a granularity of zero', async function () {
-    await shouldFail.reverting(ERC777.new(initialHolder, initialSupply, name, symbol, 0, []));
+    await shouldFail.reverting(ERC777.new(holder, initialSupply, name, symbol, 0, []));
   });
 
   context('with default operators', function () {
     beforeEach(async function () {
-      this.token = await ERC777.new(initialHolder, initialSupply, name, symbol, 1, defaultOperators);
+      this.token = await ERC777.new(holder, initialSupply, name, symbol, 1, defaultOperators);
     });
 
     describe('basic information', function () {
@@ -76,39 +76,47 @@ contract('ERC777', function ([
 
       context('for an account with tokens', function () {
         it('returns their balance', async function () {
-          (await this.token.balanceOf(initialHolder)).should.be.bignumber.equal(initialSupply);
+          (await this.token.balanceOf(holder)).should.be.bignumber.equal(initialSupply);
         });
       });
     });
 
     describe('send', function () {
-      shouldBehaveLikeERC777DirectSend(initialHolder, nonHolder, anyone, data);
+      shouldBehaveLikeERC777DirectSend(holder, anyone, data);
+
+      context('with self operator', function () {
+        shouldBehaveLikeERC777OperatorSend(holder, anyone, holder, data, operatorData);
+      });
 
       context('with first default operator', function () {
-        shouldBehaveLikeERC777OperatorSend(initialHolder, nonHolder, anyone, defaultOperatorA, data, operatorData);
+        shouldBehaveLikeERC777OperatorSend(holder, anyone, defaultOperatorA, data, operatorData);
       });
 
       context('with second default operator', function () {
-        shouldBehaveLikeERC777OperatorSend(initialHolder, nonHolder, anyone, defaultOperatorB, data, operatorData);
+        shouldBehaveLikeERC777OperatorSend(holder, anyone, defaultOperatorB, data, operatorData);
       });
     });
 
     describe('burn', function () {
-      shouldBehaveLikeERC777DirectBurn(initialHolder, nonHolder, data);
+      shouldBehaveLikeERC777DirectBurn(holder, data);
+
+      context('with self operator', function () {
+        shouldBehaveLikeERC777OperatorBurn(holder, holder, data, operatorData);
+      });
 
       context('with first default operator', function () {
-        shouldBehaveLikeERC777OperatorBurn(initialHolder, nonHolder, defaultOperatorA, data, operatorData);
+        shouldBehaveLikeERC777OperatorBurn(holder, defaultOperatorA, data, operatorData);
       });
 
       context('with second default operator', function () {
-        shouldBehaveLikeERC777OperatorBurn(initialHolder, nonHolder, defaultOperatorB, data, operatorData);
+        shouldBehaveLikeERC777OperatorBurn(holder, defaultOperatorB, data, operatorData);
       });
     });
   });
 
   context('with no default operators', function () {
     beforeEach(async function () {
-      await shouldFail.reverting(ERC777.new(initialHolder, initialSupply, name, symbol, 1, []));
+      await shouldFail.reverting(ERC777.new(holder, initialSupply, name, symbol, 1, []));
     });
   });
 
@@ -118,11 +126,11 @@ contract('ERC777', function ([
     beforeEach(async function () {
       initialSupply.mod(granularity).should.be.bignumber.equal('0');
 
-      this.token = await ERC777.new(initialHolder, initialSupply, name, symbol, granularity, defaultOperators);
+      this.token = await ERC777.new(holder, initialSupply, name, symbol, granularity, defaultOperators);
     });
 
     context('when the sender has tokens', function () {
-      const from = initialHolder;
+      const from = holder;
 
       shouldDirectSendTokens(from, anyone, new BN('0'), data);
       shouldDirectSendTokens(from, anyone, granularity, data);

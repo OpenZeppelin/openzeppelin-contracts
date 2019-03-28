@@ -1,124 +1,117 @@
 const { BN, constants, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
+const OWNERLESS_ADDRESS = '0x0000000000000000000000000000000000000001';
 
-function shouldBehaveLikeERC777DirectSend (holder, nonHolder, recipient, data) {
+function shouldBehaveLikeERC777DirectSend (holder, recipient, data) {
   describe('direct send', function () {
-    context('when the sender has no tokens', function () {
-      const from = nonHolder;
-
-      shouldDirectSendTokens(from, recipient, new BN('0'), data);
-
-      it('reverts when sending a non-zero amount', async function () {
-        await shouldFail.reverting(this.token.send(recipient, new BN('1'), data, { from }));
-      });
-    });
-
     context('when the sender has tokens', function () {
-      const from = holder;
-
-      shouldDirectSendTokens(from, recipient, new BN('0'), data);
-      shouldDirectSendTokens(from, recipient, new BN('1'), data);
+      shouldDirectSendTokens(holder, recipient, new BN('0'), data);
+      shouldDirectSendTokens(holder, recipient, new BN('1'), data);
 
       it('reverts when sending more than the balance', async function () {
-        const balance = await this.token.balanceOf(from);
-        await shouldFail.reverting(this.token.send(recipient, balance.addn(1), data, { from }));
+        const balance = await this.token.balanceOf(holder);
+        await shouldFail.reverting(this.token.send(recipient, balance.addn(1), data, { from: holder }));
       });
 
       it('reverts when sending to the zero address', async function () {
-        await shouldFail.reverting(this.token.send(ZERO_ADDRESS, new BN('1'), data, { from }));
+        await shouldFail.reverting(this.token.send(ZERO_ADDRESS, new BN('1'), data, { from: holder }));
+      });
+    });
+
+    context('when the sender has no tokens', function () {
+      removeBalance(holder);
+
+      shouldDirectSendTokens(holder, recipient, new BN('0'), data);
+
+      it('reverts when sending a non-zero amount', async function () {
+        await shouldFail.reverting(this.token.send(recipient, new BN('1'), data, { from: holder }));
       });
     });
   });
 }
 
-function shouldBehaveLikeERC777OperatorSend (holder, nonHolder, recipient, operator, data, operatorData) {
+function shouldBehaveLikeERC777OperatorSend (holder, recipient, operator, data, operatorData) {
   describe('operator send', function () {
-    context('when the sender has no tokens', function () {
-      const from = nonHolder;
-
-      shouldOperatorSendTokens(from, operator, recipient, new BN('0'), data, operatorData);
-
-      it('reverts when sending a non-zero amount', async function () {
-        await shouldFail.reverting(
-          this.token.operatorSend(from, recipient, new BN('1'), data, operatorData, { from: operator })
-        );
-      });
-    });
-
     context('when the sender has tokens', async function () {
-      const from = holder;
-
-      shouldOperatorSendTokens(from, operator, recipient, new BN('0'), data, operatorData);
-      shouldOperatorSendTokens(from, operator, recipient, new BN('1'), data, operatorData);
+      shouldOperatorSendTokens(holder, operator, recipient, new BN('0'), data, operatorData);
+      shouldOperatorSendTokens(holder, operator, recipient, new BN('1'), data, operatorData);
 
       it('reverts when sending more than the balance', async function () {
-        const balance = await this.token.balanceOf(from);
+        const balance = await this.token.balanceOf(holder);
         await shouldFail.reverting(
-          this.token.operatorSend(from, recipient, balance.addn(1), data, operatorData, { from: operator })
+          this.token.operatorSend(holder, recipient, balance.addn(1), data, operatorData, { from: operator })
         );
       });
 
       it('reverts when sending to the zero address', async function () {
         await shouldFail.reverting(
           this.token.operatorSend(
-            from, ZERO_ADDRESS, new BN('1'), data, operatorData, { from: operator }
+            holder, ZERO_ADDRESS, new BN('1'), data, operatorData, { from: operator }
           )
         );
       });
     });
+
+    context('when the sender has no tokens', function () {
+      removeBalance(holder);
+
+      shouldOperatorSendTokens(holder, operator, recipient, new BN('0'), data, operatorData);
+
+      it('reverts when sending a non-zero amount', async function () {
+        await shouldFail.reverting(
+          this.token.operatorSend(holder, recipient, new BN('1'), data, operatorData, { from: operator })
+        );
+      });
+    });
   });
 }
 
-function shouldBehaveLikeERC777DirectBurn (holder, nonHolder, data) {
+function shouldBehaveLikeERC777DirectBurn (holder, data) {
   describe('direct burn', function () {
-    context('when the sender has no tokens', function () {
-      const from = nonHolder;
-
-      shouldDirectBurnTokens(from, new BN('0'), data);
-
-      it('reverts when burning a non-zero amount', async function () {
-        await shouldFail.reverting(this.token.burn(new BN('1'), data, { from }));
-      });
-    });
-
     context('when the sender has tokens', function () {
-      const from = holder;
-
-      shouldDirectBurnTokens(from, new BN('0'), data);
-      shouldDirectBurnTokens(from, new BN('1'), data);
+      shouldDirectBurnTokens(holder, new BN('0'), data);
+      shouldDirectBurnTokens(holder, new BN('1'), data);
 
       it('reverts when burning more than the balance', async function () {
-        const balance = await this.token.balanceOf(from);
-        await shouldFail.reverting(this.token.burn(balance.addn(1), data, { from }));
+        const balance = await this.token.balanceOf(holder);
+        await shouldFail.reverting(this.token.burn(balance.addn(1), data, { from: holder }));
+      });
+    });
+
+    context('when the sender has no tokens', function () {
+      removeBalance(holder);
+
+      shouldDirectBurnTokens(holder, new BN('0'), data);
+
+      it('reverts when burning a non-zero amount', async function () {
+        await shouldFail.reverting(this.token.burn(new BN('1'), data, { from: holder }));
       });
     });
   });
 }
 
-function shouldBehaveLikeERC777OperatorBurn (holder, nonHolder, operator, data, operatorData) {
+function shouldBehaveLikeERC777OperatorBurn (holder, operator, data, operatorData) {
   describe('operator burn', function () {
-    context('when the sender has no tokens', function () {
-      const from = nonHolder;
+    context('when the sender has tokens', async function () {
+      shouldOperatorBurnTokens(holder, operator, new BN('0'), data, operatorData);
+      shouldOperatorBurnTokens(holder, operator, new BN('1'), data, operatorData);
 
-      shouldOperatorBurnTokens(from, operator, new BN('0'), data, operatorData);
-
-      it('reverts when burning a non-zero amount', async function () {
+      it('reverts when burning more than the balance', async function () {
+        const balance = await this.token.balanceOf(holder);
         await shouldFail.reverting(
-          this.token.operatorBurn(from, new BN('1'), data, operatorData, { from: operator })
+          this.token.operatorBurn(holder, balance.addn(1), data, operatorData, { from: operator })
         );
       });
     });
 
-    context('when the sender has tokens', async function () {
-      const from = holder;
+    context('when the sender has no tokens', function () {
+      removeBalance(holder);
 
-      shouldOperatorBurnTokens(from, operator, new BN('0'), data, operatorData);
-      shouldOperatorBurnTokens(from, operator, new BN('1'), data, operatorData);
+      shouldOperatorBurnTokens(holder, operator, new BN('0'), data, operatorData);
 
-      it('reverts when burning more than the balance', async function () {
-        const balance = await this.token.balanceOf(from);
+      it('reverts when burning a non-zero amount', async function () {
         await shouldFail.reverting(
-          this.token.operatorBurn(from, balance.addn(1), data, operatorData, { from: operator })
+          this.token.operatorBurn(holder, new BN('1'), data, operatorData, { from: operator })
         );
       });
     });
@@ -213,6 +206,13 @@ function shouldBurnTokens (from, operator, amount, data, operatorData) {
 
     finalTotalSupply.sub(initialTotalSupply).should.be.bignumber.equal(amount.neg());
     finalFromBalance.sub(initialFromBalance).should.be.bignumber.equal(amount.neg());
+  });
+}
+
+function removeBalance (holder) {
+  beforeEach(async function () {
+    await this.token.send(OWNERLESS_ADDRESS, await this.token.balanceOf(holder), '0x', { from: holder });
+    (await this.token.balanceOf(holder)).should.be.bignumber.equal('0');
   });
 }
 
