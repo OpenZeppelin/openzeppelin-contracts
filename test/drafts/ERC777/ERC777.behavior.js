@@ -1,6 +1,21 @@
 const { BN, constants, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
+function shouldBehaveLikeERC777DirectSendBurn (holder, recipient, data) {
+  shouldBehaveLikeERC777DirectSend(holder, recipient, data);
+  shouldBehaveLikeERC777DirectBurn(holder, data);
+}
+
+function shouldBehaveLikeERC777OperatorSendBurn (holder, recipient, operator, data, operatorData) {
+  shouldBehaveLikeERC777OperatorSend(holder, recipient, operator, data, operatorData);
+  shouldBehaveLikeERC777OperatorBurn(holder, operator, data, operatorData);
+}
+
+function shouldBehaveLikeERC777UnauthorizedOperatorSendBurn (holder, recipient, operator, data, operatorData) {
+  shouldBehaveLikeERC777UnauthorizedOperatorSend(holder, recipient, operator, data, operatorData);
+  shouldBehaveLikeERC777UnauthorizedOperatorBurn(holder, operator, data, operatorData);
+}
+
 function shouldBehaveLikeERC777DirectSend (holder, recipient, data) {
   describe('direct send', function () {
     context('when the sender has tokens', function () {
@@ -125,6 +140,14 @@ function shouldBehaveLikeERC777OperatorBurn (holder, operator, data, operatorDat
   });
 }
 
+function shouldBehaveLikeERC777UnauthorizedOperatorBurn (holder, operator, data, operatorData) {
+  describe('operator burn', function () {
+    it('reverts', async function () {
+      await shouldFail.reverting(this.token.operatorBurn(holder, new BN('0'), data, operatorData));
+    });
+  });
+}
+
 function shouldDirectSendTokens (from, to, amount, data) {
   shouldSendTokens(from, null, to, amount, data, null);
 }
@@ -224,10 +247,8 @@ function removeBalance (holder) {
 }
 
 module.exports = {
-  shouldBehaveLikeERC777DirectSend,
-  shouldBehaveLikeERC777OperatorSend,
-  shouldBehaveLikeERC777UnauthorizedOperatorSend,
-  shouldBehaveLikeERC777DirectBurn,
-  shouldBehaveLikeERC777OperatorBurn,
+  shouldBehaveLikeERC777DirectSendBurn,
+  shouldBehaveLikeERC777OperatorSendBurn,
+  shouldBehaveLikeERC777UnauthorizedOperatorSendBurn,
   shouldDirectSendTokens,
 };

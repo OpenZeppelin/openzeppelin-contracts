@@ -1,11 +1,9 @@
 const { BN, expectEvent, shouldFail, singletons } = require('openzeppelin-test-helpers');
 
 const {
-  shouldBehaveLikeERC777DirectSend,
-  shouldBehaveLikeERC777OperatorSend,
-  shouldBehaveLikeERC777UnauthorizedOperatorSend,
-  shouldBehaveLikeERC777DirectBurn,
-  shouldBehaveLikeERC777OperatorBurn,
+  shouldBehaveLikeERC777DirectSendBurn,
+  shouldBehaveLikeERC777OperatorSendBurn,
+  shouldBehaveLikeERC777UnauthorizedOperatorSendBurn,
   shouldDirectSendTokens,
 } = require('./ERC777.behavior');
 
@@ -35,7 +33,7 @@ contract('ERC777', function ([
 
     context('with default operators', function () {
       beforeEach(async function () {
-        this.token = await ERC777.new(holder, initialSupply, name, symbol, 1, defaultOperators);
+        this.token = await ERC777.new(holder, initialSupply, name, symbol, granularity, defaultOperators);
       });
 
       describe('basic information', function () {
@@ -85,23 +83,23 @@ contract('ERC777', function ([
         });
       });
 
-      describe('send', function () {
-        shouldBehaveLikeERC777DirectSend(holder, anyone, data);
+      describe('send/burn', function () {
+        shouldBehaveLikeERC777DirectSendBurn(holder, anyone, data);
 
         context('with self operator', function () {
-          shouldBehaveLikeERC777OperatorSend(holder, anyone, holder, data, operatorData);
+          shouldBehaveLikeERC777OperatorSendBurn(holder, anyone, holder, data, operatorData);
         });
 
         context('with first default operator', function () {
-          shouldBehaveLikeERC777OperatorSend(holder, anyone, defaultOperatorA, data, operatorData);
+          shouldBehaveLikeERC777OperatorSendBurn(holder, anyone, defaultOperatorA, data, operatorData);
         });
 
         context('with second default operator', function () {
-          shouldBehaveLikeERC777OperatorSend(holder, anyone, defaultOperatorB, data, operatorData);
+          shouldBehaveLikeERC777OperatorSendBurn(holder, anyone, defaultOperatorB, data, operatorData);
         });
 
         context('before authorizing a new operator', function () {
-          shouldBehaveLikeERC777UnauthorizedOperatorSend(holder, anyone, newOperator, data, operatorData);
+          shouldBehaveLikeERC777UnauthorizedOperatorSendBurn(holder, anyone, newOperator, data, operatorData);
         });
 
         context('with new authorized operator', function () {
@@ -109,31 +107,15 @@ contract('ERC777', function ([
             await this.token.authorizeOperator(newOperator, { from: holder });
           });
 
-          shouldBehaveLikeERC777OperatorSend(holder, anyone, newOperator, data, operatorData);
+          shouldBehaveLikeERC777OperatorSendBurn(holder, anyone, newOperator, data, operatorData);
 
           context('with revoked operator', function () {
             beforeEach(async function () {
               await this.token.revokeOperator(newOperator, { from: holder });
             });
 
-            shouldBehaveLikeERC777UnauthorizedOperatorSend(holder, anyone, newOperator, data, operatorData);
+            shouldBehaveLikeERC777UnauthorizedOperatorSendBurn(holder, anyone, newOperator, data, operatorData);
           });
-        });
-      });
-
-      describe('burn', function () {
-        shouldBehaveLikeERC777DirectBurn(holder, data);
-
-        context('with self operator', function () {
-          shouldBehaveLikeERC777OperatorBurn(holder, holder, data, operatorData);
-        });
-
-        context('with first default operator', function () {
-          shouldBehaveLikeERC777OperatorBurn(holder, defaultOperatorA, data, operatorData);
-        });
-
-        context('with second default operator', function () {
-          shouldBehaveLikeERC777OperatorBurn(holder, defaultOperatorB, data, operatorData);
         });
       });
 
