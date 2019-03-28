@@ -65,6 +65,14 @@ function shouldBehaveLikeERC777OperatorSend (holder, recipient, operator, data, 
   });
 }
 
+function shouldBehaveLikeERC777UnauthorizedOperatorSend (holder, recipient, operator, data, operatorData) {
+  describe('operator send', function () {
+    it('reverts', async function () {
+      await shouldFail.reverting(this.token.operatorSend(holder, recipient, new BN('0'), data, operatorData));
+    });
+  });
+}
+
 function shouldBehaveLikeERC777DirectBurn (holder, data) {
   describe('direct burn', function () {
     context('when the sender has tokens', function () {
@@ -218,6 +226,7 @@ function removeBalance (holder) {
 module.exports = {
   shouldBehaveLikeERC777DirectSend,
   shouldBehaveLikeERC777OperatorSend,
+  shouldBehaveLikeERC777UnauthorizedOperatorSend,
   shouldBehaveLikeERC777DirectBurn,
   shouldBehaveLikeERC777OperatorBurn,
   shouldDirectSendTokens,

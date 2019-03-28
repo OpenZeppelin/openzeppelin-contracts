@@ -1,8 +1,9 @@
-const { BN, shouldFail, singletons } = require('openzeppelin-test-helpers');
+const { BN, expectEvent, shouldFail, singletons } = require('openzeppelin-test-helpers');
 
 const {
   shouldBehaveLikeERC777DirectSend,
   shouldBehaveLikeERC777OperatorSend,
+  shouldBehaveLikeERC777UnauthorizedOperatorSend,
   shouldBehaveLikeERC777DirectBurn,
   shouldBehaveLikeERC777OperatorBurn,
   shouldDirectSendTokens,
@@ -95,6 +96,20 @@ contract('ERC777', function ([
       context('with second default operator', function () {
         shouldBehaveLikeERC777OperatorSend(holder, anyone, defaultOperatorB, data, operatorData);
       });
+
+      describe('changing operators', function () {
+        context('before authorizing', function () {
+          shouldBehaveLikeERC777UnauthorizedOperatorSend(holder, anyone, newOperator, data, operatorData);
+        });
+
+        context('with authorization', function () {
+          beforeEach(async function () {
+            await this.token.authorizeOperator(newOperator, { from: holder });
+          });
+
+          shouldBehaveLikeERC777OperatorSend(holder, anyone, newOperator, data, operatorData);
+        });
+      });
     });
 
     describe('burn', function () {
@@ -112,11 +127,103 @@ contract('ERC777', function ([
         shouldBehaveLikeERC777OperatorBurn(holder, defaultOperatorB, data, operatorData);
       });
     });
+
+    describe('operator management', function () {
+      it('accounts are their own operator', async function () {
+        (await this.token.isOperatorFor(holder, holder)).should.equal(true);
+      });
+
+      it('reverts when self-authorizing', async function () {
+        await shouldFail.reverting(this.token.authorizeOperator(holder, { from: holder }));
+      });
+
+      it('reverts when self-revoking', async function () {
+        await shouldFail.reverting(this.token.revokeOperator(holder, { from: holder }));
+      });
+
+      it('non-operators can be authorized', async function () {
+        (await this.token.isOperatorFor(newOperator, holder)).should.equal(false);
+
+        const { logs } = await this.token.authorizeOperator(newOperator, { from: holder });
+        expectEvent.inLogs(logs, 'AuthorizedOperator', { operator: newOperator, tokenHolder: holder });
+
+        (await this.token.isOperatorFor(newOperator, holder)).should.equal(true);
+      });
+
+      describe('new operators', function () {
+        beforeEach(async function () {
+          await this.token.authorizeOperator(newOperator, { from: holder });
+        });
+
+        it('are not added to the default operators list', async function () {
+          (await this.token.defaultOperators()).should.deep.equal(defaultOperators);
+        });
+
+        it('can be re-authorized', async function () {
+          const { logs } = await this.token.authorizeOperator(newOperator, { from: holder });
+          expectEvent.inLogs(logs, 'AuthorizedOperator', { operator: newOperator, tokenHolder: holder });
+
+          (await this.token.isOperatorFor(newOperator, holder)).should.equal(true);
+        });
+
+        it('can be revoked', async function () {
+          const { logs } = await this.token.revokeOperator(newOperator, { from: holder });
+          expectEvent.inLogs(logs, 'RevokedOperator', { operator: newOperator, tokenHolder: holder });
+
+          (await this.token.isOperatorFor(newOperator, holder)).should.equal(false);
+        });
+      });
+
+      describe('default operators', function () {
+        it('can be re-authorized', async function () {
+          const { logs } = await this.token.authorizeOperator(defaultOperatorA, { from: holder });
+          expectEvent.inLogs(logs, 'AuthorizedOperator', { operator: defaultOperatorA, tokenHolder: holder });
+
+          (await this.token.isOperatorFor(defaultOperatorA, holder)).should.equal(true);
+        });
+
+        it('can be revoked', async function () {
+          const { logs } = await this.token.revokeOperator(defaultOperatorA, { from: holder });
+          expectEvent.inLogs(logs, 'RevokedOperator', { operator: defaultOperatorA, tokenHolder: holder });
+
+          (await this.token.isOperatorFor(defaultOperatorA, holder)).should.equal(false);
+        });
+
+        context('with revoked default operator', function () {
+          beforeEach(async function () {
+            await this.token.revokeOperator(defaultOperatorA, { from: holder });
+          });
+
+          it('default operator is not revoked for other holders', async function () {
+            (await this.token.isOperatorFor(defaultOperatorA, anyone)).should.equal(true);
+          });
+
+          it('other default operators are not revoked', async function () {
+            (await this.token.isOperatorFor(defaultOperatorB, holder)).should.equal(true);
+          });
+
+          it('default operators list is not modified', async function () {
+            (await this.token.defaultOperators()).should.deep.equal(defaultOperators);
+          });
+
+          it('revoked default operator can be re-authorized', async function () {
+            const { logs } = await this.token.authorizeOperator(defaultOperatorA, { from: holder });
+            expectEvent.inLogs(logs, 'AuthorizedOperator', { operator: defaultOperatorA, tokenHolder: holder });
+
+            (await this.token.isOperatorFor(defaultOperatorA, holder)).should.equal(true);
+          });
+        });
+      });
+    });
   });
 
   context('with no default operators', function () {
     beforeEach(async function () {
-      await shouldFail.reverting(ERC777.new(holder, initialSupply, name, symbol, 1, []));
+      this.token = await ERC777.new(holder, initialSupply, name, symbol, 1, []);
+    });
+
+    it('default operators list is empty', async function () {
+      (await this.token.defaultOperators()).should.deep.equal([]);
     });
   });
 
