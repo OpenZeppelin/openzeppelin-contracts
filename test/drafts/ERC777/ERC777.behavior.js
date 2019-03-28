@@ -1,6 +1,5 @@
 const { BN, constants, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
-const OWNERLESS_ADDRESS = '0x0000000000000000000000000000000000000001';
 
 function shouldBehaveLikeERC777DirectSend (holder, recipient, data) {
   describe('direct send', function () {
@@ -211,7 +210,7 @@ function shouldBurnTokens (from, operator, amount, data, operatorData) {
 
 function removeBalance (holder) {
   beforeEach(async function () {
-    await this.token.send(OWNERLESS_ADDRESS, await this.token.balanceOf(holder), '0x', { from: holder });
+    await this.token.burn(await this.token.balanceOf(holder), '0x', { from: holder });
     (await this.token.balanceOf(holder)).should.be.bignumber.equal('0');
   });
 }
