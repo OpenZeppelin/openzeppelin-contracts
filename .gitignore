@@ -40,3 +40,6 @@ build/
 
 # IntelliJ IDE
 .idea
+
+# 0x artifacts
+.0x-artifacts/*

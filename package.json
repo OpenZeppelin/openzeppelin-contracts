@@ -19,7 +19,7 @@
     "lint:sol": "solhint --max-warnings 0 \"contracts/**/*.sol\"",
     "prepack": "npm run build",
     "version": "scripts/version.js",
-    "test": "npm run compile && scripts/test.sh"
+    "test": "truffle compile && SOLIDITY_TEST=true truffle test"
   },
   "repository": {
     "type": "git",
@@ -40,6 +40,8 @@
   },
   "homepage": "https://github.com/OpenZeppelin/zeppelin-solidity",
   "devDependencies": {
+    "@0x/sol-coverage": "^3.0.2",
+    "@0x/sol-trace": "^2.0.10",
     "chai": "^4.1.2",
     "coveralls": "^3.0.1",
     "eslint": "^4.19.1",
@@ -51,7 +53,6 @@
     "eslint-plugin-standard": "^3.1.0",
     "ethereumjs-util": "^6.0.0",
     "ethjs-abi": "^0.2.1",
-    "ganache-cli": "^6.4.1",
     "openzeppelin-test-helpers": "^0.3.0",
     "pify": "^4.0.1",
     "solhint": "^1.5.0",
