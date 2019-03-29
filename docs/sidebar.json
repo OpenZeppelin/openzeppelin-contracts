@@ -1,0 +1,17 @@
+{
+  "Overview": [
+    "get-started"
+  ],
+  "Guides": [
+    "learn-about-access-control",
+    "learn-about-crowdsales",
+    "learn-about-tokens",
+    "learn-about-utilities"
+  ],
+  "API Reference": [
+    {
+      "type": "directory",
+      "directory": "api"
+    }
+  ]
+}
