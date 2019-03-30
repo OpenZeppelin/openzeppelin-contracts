@@ -22,7 +22,7 @@ contract PaymentSplitter {
     address[] private _payees;
 
     /**
-     * @dev Constructor
+     * @dev Constructor.
      */
     constructor (address[] memory payees, uint256[] memory shares) public payable {
         require(payees.length == shares.length);
@@ -34,7 +34,7 @@ contract PaymentSplitter {
     }
 
     /**
-     * @dev payable fallback
+     * @dev Payable fallback.
      */
     function () external payable {
         emit PaymentReceived(msg.sender, msg.value);

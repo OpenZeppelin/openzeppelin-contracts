@@ -30,7 +30,7 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
      */
 
     /**
-     * @dev Constructor function
+     * @dev Constructor function.
      */
     constructor () public {
         // register the supported interface to conform to ERC721Enumerable via ERC165
@@ -38,7 +38,7 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
     }
 
     /**
-     * @dev Gets the token ID at a given index of the tokens list of the requested owner
+     * @dev Gets the token ID at a given index of the tokens list of the requested owner.
      * @param owner address owning the tokens list to be accessed
      * @param index uint256 representing the index to be accessed of the requested tokens list
      * @return uint256 token ID at the given index of the tokens list owned by the requested address
@@ -49,7 +49,7 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
     }
 
     /**
-     * @dev Gets the total amount of tokens stored by the contract
+     * @dev Gets the total amount of tokens stored by the contract.
      * @return uint256 representing the total amount of tokens
      */
     function totalSupply() public view returns (uint256) {
@@ -58,7 +58,7 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
 
     /**
      * @dev Gets the token ID at a given index of all the tokens in this contract
-     * Reverts if the index is greater or equal to the total number of tokens
+     * Reverts if the index is greater or equal to the total number of tokens.
      * @param index uint256 representing the index to be accessed of the tokens list
      * @return uint256 token ID at the given index of the tokens list
      */
@@ -83,8 +83,8 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
     }
 
     /**
-     * @dev Internal function to mint a new token
-     * Reverts if the given token ID already exists
+     * @dev Internal function to mint a new token.
+     * Reverts if the given token ID already exists.
      * @param to address the beneficiary that will own the minted token
      * @param tokenId uint256 ID of the token to be minted
      */
@@ -97,9 +97,9 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
     }
 
     /**
-     * @dev Internal function to burn a specific token
-     * Reverts if the token does not exist
-     * Deprecated, use _burn(uint256) instead
+     * @dev Internal function to burn a specific token.
+     * Reverts if the token does not exist.
+     * Deprecated, use _burn(uint256) instead.
      * @param owner owner of the token to burn
      * @param tokenId uint256 ID of the token being burned
      */
@@ -114,7 +114,7 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
     }
 
     /**
-     * @dev Gets the list of token IDs of the requested owner
+     * @dev Gets the list of token IDs of the requested owner.
      * @param owner address owning the tokens
      * @return uint256[] List of token IDs owned by the requested address
      */

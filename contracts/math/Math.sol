@@ -2,7 +2,7 @@ pragma solidity ^0.5.2;
 
 /**
  * @title Math
- * @dev Assorted math operations
+ * @dev Assorted math operations.
  */
 library Math {
     /**

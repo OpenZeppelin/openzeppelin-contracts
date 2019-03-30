@@ -5,7 +5,7 @@ import "./SafeERC20.sol";
 /**
  * @title TokenTimelock
  * @dev TokenTimelock is a token holder contract that will allow a
- * beneficiary to extract the tokens after a given release time
+ * beneficiary to extract the tokens after a given release time.
  */
 contract TokenTimelock {
     using SafeERC20 for IERC20;

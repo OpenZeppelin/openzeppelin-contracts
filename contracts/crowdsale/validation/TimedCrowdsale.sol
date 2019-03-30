@@ -74,7 +74,7 @@ contract TimedCrowdsale is Crowdsale {
     }
 
     /**
-     * @dev Extend parent behavior requiring to be within contributing period
+     * @dev Extend parent behavior requiring to be within contributing period.
      * @param beneficiary Token purchaser
      * @param weiAmount Amount of wei contributed
      */
@@ -83,7 +83,7 @@ contract TimedCrowdsale is Crowdsale {
     }
 
     /**
-     * @dev Extend crowdsale
+     * @dev Extend crowdsale.
      * @param newClosingTime Crowdsale closing time
      */
     function _extendTime(uint256 newClosingTime) internal {
