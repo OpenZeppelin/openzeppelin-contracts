@@ -17,7 +17,7 @@ contract Pausable is PauserRole {
     }
 
     /**
-     * @return true if the contract is paused, false otherwise.
+     * @return True if the contract is paused, false otherwise.
      */
     function paused() public view returns (bool) {
         return _paused;
@@ -40,7 +40,7 @@ contract Pausable is PauserRole {
     }
 
     /**
-     * @dev called by the owner to pause, triggers stopped state
+     * @dev Called by a pauser to pause, triggers stopped state.
      */
     function pause() public onlyPauser whenNotPaused {
         _paused = true;
@@ -48,7 +48,7 @@ contract Pausable is PauserRole {
     }
 
     /**
-     * @dev called by the owner to unpause, returns to normal state
+     * @dev Called by a pauser to unpause, returns to normal state.
      */
     function unpause() public onlyPauser whenPaused {
         _paused = false;
