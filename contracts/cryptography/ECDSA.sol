@@ -56,7 +56,7 @@ library ECDSA {
 
     /**
      * toEthSignedMessageHash
-     * @dev prefix a bytes32 value with "\x19Ethereum Signed Message:"
+     * @dev Prefix a bytes32 value with "\x19Ethereum Signed Message:"
      * and hash the result.
      */
     function toEthSignedMessageHash(bytes32 hash) internal pure returns (bytes32) {
