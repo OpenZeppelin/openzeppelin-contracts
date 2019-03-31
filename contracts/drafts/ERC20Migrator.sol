@@ -82,6 +82,7 @@ contract ERC20Migrator {
      * @param amount amount of tokens to be migrated
      */
     function migrate(address account, uint256 amount) public {
+        require(address(_newToken) != address(0));
         _legacyToken.safeTransferFrom(account, address(this), amount);
         _newToken.mint(account, amount);
     }

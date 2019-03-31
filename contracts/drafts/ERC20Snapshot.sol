@@ -31,7 +31,7 @@ contract ERC20Snapshot is ERC20 {
     }
 
     mapping (address => Snapshots) private _accountBalanceSnapshots;
-    Snapshots private _totalSupplySnaphots;
+    Snapshots private _totalSupplySnapshots;
 
     // Snapshot ids increase monotonically, with the first value being 1. An id of 0 is invalid.
     Counters.Counter private _currentSnapshotId;
@@ -56,7 +56,7 @@ contract ERC20Snapshot is ERC20 {
     }
 
     function totalSupplyAt(uint256 snapshotId) public view returns(uint256) {
-        (bool snapshotted, uint256 value) = _valueAt(snapshotId, _totalSupplySnaphots);
+        (bool snapshotted, uint256 value) = _valueAt(snapshotId, _totalSupplySnapshots);
 
         return snapshotted ? value : totalSupply();
     }
@@ -118,7 +118,7 @@ contract ERC20Snapshot is ERC20 {
     }
 
     function _updateTotalSupplySnapshot() private {
-        _updateSnapshot(_totalSupplySnaphots, totalSupply());
+        _updateSnapshot(_totalSupplySnapshots, totalSupply());
     }
 
     function _updateSnapshot(Snapshots storage snapshots, uint256 currentValue) private {

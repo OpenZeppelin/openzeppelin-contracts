@@ -1,3 +1,5 @@
+require('chai/register-should');
+
 module.exports = {
   networks: {
     development: {

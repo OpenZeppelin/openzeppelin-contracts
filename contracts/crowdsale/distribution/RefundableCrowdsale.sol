@@ -41,7 +41,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
     }
 
     /**
-     * @dev Investors can claim refunds here if crowdsale is unsuccessful
+     * @dev Investors can claim refunds here if crowdsale is unsuccessful.
      * @param refundee Whose refund will be claimed.
      */
     function claimRefund(address payable refundee) public {
@@ -60,7 +60,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
     }
 
     /**
-     * @dev escrow finalization task, called when finalize() is called
+     * @dev Escrow finalization task, called when finalize() is called.
      */
     function _finalization() internal {
         if (goalReached()) {

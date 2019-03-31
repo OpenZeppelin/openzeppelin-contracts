@@ -88,9 +88,9 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
         });
 
         it('should forward funds to wallet', async function () {
-          (await balance.difference(wallet, () =>
-            this.crowdsale.sendTransaction({ value, from: investor }))
-          ).should.be.bignumber.equal(value);
+          const balanceTracker = await balance.tracker(wallet);
+          await this.crowdsale.sendTransaction({ value, from: investor });
+          (await balanceTracker.delta()).should.be.bignumber.equal(value);
         });
       });
 
@@ -111,9 +111,9 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
         });
 
         it('should forward funds to wallet', async function () {
-          (await balance.difference(wallet, () =>
-            this.crowdsale.buyTokens(investor, { value, from: purchaser }))
-          ).should.be.bignumber.equal(value);
+          const balanceTracker = await balance.tracker(wallet);
+          await this.crowdsale.buyTokens(investor, { value, from: purchaser });
+          (await balanceTracker.delta()).should.be.bignumber.equal(value);
         });
       });
     });

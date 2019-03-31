@@ -2,6 +2,7 @@ pragma solidity ^0.5.2;
 
 import "./IERC20.sol";
 import "../../math/SafeMath.sol";
+import "../../utils/Address.sol";
 
 /**
  * @title SafeERC20
@@ -14,6 +15,7 @@ import "../../math/SafeMath.sol";
  */
 library SafeERC20 {
     using SafeMath for uint256;
+    using Address for address;
 
     function safeTransfer(IERC20 token, address to, uint256 value) internal {
         callOptionalReturn(token, abi.encodeWithSelector(token.transfer.selector, to, value));
@@ -43,7 +45,7 @@ library SafeERC20 {
 
     /**
      * @dev Imitates a Solidity high-level call (i.e. a regular function call to a contract), relaxing the requirement
-     * on the return value: the return value is optional (but if data is returned, it must equal true).
+     * on the return value: the return value is optional (but if data is returned, it must not be false).
      * @param token The token targeted by the call.
      * @param data The call data (encoded using abi.encode or one of its variants).
      */
@@ -51,11 +53,18 @@ library SafeERC20 {
         // We need to perform a low level call here, to bypass Solidity's return data size checking mechanism, since
         // we're implementing it ourselves.
 
+        // A Solidity high level call has three parts:
+        //  1. The target address is checked to verify it contains contract code
+        //  2. The call itself is made, and success asserted
+        //  3. The return value is decoded, which in turn checks the size of the returned data.
+
+        require(address(token).isContract());
+
         // solhint-disable-next-line avoid-low-level-calls
         (bool success, bytes memory returndata) = address(token).call(data);
         require(success);
 
-        if (returndata.length > 0) {
+        if (returndata.length > 0) { // Return data is optional
             require(abi.decode(returndata, (bool)));
         }
     }

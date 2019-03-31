@@ -1,17 +1,24 @@
 # Changelog
 
-## 2.2.0 (unreleased)
+## 2.3.0 (unreleased)
 
 ### New features:
+ * `ERC1820`: added support for interacting with the [ERC1820](https://eips.ethereum.org/EIPS/eip-1820) registry contract (`IERC1820Registry`), as well as base contracts that can be registered as implementers there. ([#1677](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1677))
+
+## 2.2.0 (2019-03-14)
+
+### New features:
+ * `ERC20Snapshot`: create snapshots on demand of the token balances and total supply, to later retrieve and e.g. calculate dividends at a past time. ([#1617](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1617))
+ * `SafeERC20`: `ERC20` contracts with no return value (i.e. that revert on failure) are now supported. ([#1655](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1655))
  * `ERC20`: added internal `_approve(address owner, address spender, uint256 value)`, allowing derived contracts to set the allowance of arbitrary accounts. ([#1609](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1609))
  * `ERC20Metadata`: added internal `_setTokenURI(string memory tokenURI)`. ([#1618](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1618))
- * `ERC20Snapshot`: create snapshots on demand of the token balances and total supply, to later retrieve and e.g. calculate dividends at a past time. ([#1617](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1617))
- * `SafeERC20`: `ERC20` contracts with no return value (i.e. that revert on failure) are now supported. ([#1655](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/))
+ * `TimedCrowdsale`: added internal `_extendTime(uint256 newClosingTime)` as well as `TimedCrowdsaleExtended(uint256 prevClosingTime, uint256 newClosingTime)` event allowing to extend the crowdsale, as long as it hasn't already closed.
 
 ### Improvements:
  * Upgraded the minimum compiler version to v0.5.2: this removes many Solidity warnings that were false positives. ([#1606](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1606))
- * `Counter`'s API has been improved, and is now used by `ERC721` (though it is still in `drafts`). ([#1610](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1610))
+ * `ECDSA`: `recover` no longer accepts malleable signatures (those using upper-range values for `s`, or 0/1 for `v`). ([#1622](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1622))
  * `ERC721`'s transfers are now more gas efficient due to removal of unnecessary `SafeMath` calls. ([#1610](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1610))
+ * `Counter`'s API has been improved, and is now used by `ERC721` (though it is still in `drafts`). ([#1610](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1610))
  * Fixed variable shadowing issues. ([#1606](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1606))
 
 ### Bugfixes:

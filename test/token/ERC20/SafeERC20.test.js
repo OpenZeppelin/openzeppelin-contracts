@@ -5,31 +5,21 @@ const ERC20ReturnTrueMock = artifacts.require('ERC20ReturnTrueMock');
 const ERC20NoReturnMock = artifacts.require('ERC20NoReturnMock');
 const SafeERC20Wrapper = artifacts.require('SafeERC20Wrapper');
 
-contract('SafeERC20', function () {
+contract('SafeERC20', function ([_, hasNoCode]) {
+  describe('with address that has no contract code', function () {
+    beforeEach(async function () {
+      this.wrapper = await SafeERC20Wrapper.new(hasNoCode);
+    });
+
+    shouldRevertOnAllCalls();
+  });
+
   describe('with token that returns false on all calls', function () {
     beforeEach(async function () {
       this.wrapper = await SafeERC20Wrapper.new((await ERC20ReturnFalseMock.new()).address);
     });
 
-    it('reverts on transfer', async function () {
-      await shouldFail.reverting(this.wrapper.transfer());
-    });
-
-    it('reverts on transferFrom', async function () {
-      await shouldFail.reverting(this.wrapper.transferFrom());
-    });
-
-    it('reverts on approve', async function () {
-      await shouldFail.reverting(this.wrapper.approve(0));
-    });
-
-    it('reverts on increaseAllowance', async function () {
-      await shouldFail.reverting(this.wrapper.increaseAllowance(0));
-    });
-
-    it('reverts on decreaseAllowance', async function () {
-      await shouldFail.reverting(this.wrapper.decreaseAllowance(0));
-    });
+    shouldRevertOnAllCalls();
   });
 
   describe('with token that returns true on all calls', function () {
@@ -48,6 +38,28 @@ contract('SafeERC20', function () {
     shouldOnlyRevertOnErrors();
   });
 });
+
+function shouldRevertOnAllCalls () {
+  it('reverts on transfer', async function () {
+    await shouldFail.reverting(this.wrapper.transfer());
+  });
+
+  it('reverts on transferFrom', async function () {
+    await shouldFail.reverting(this.wrapper.transferFrom());
+  });
+
+  it('reverts on approve', async function () {
+    await shouldFail.reverting(this.wrapper.approve(0));
+  });
+
+  it('reverts on increaseAllowance', async function () {
+    await shouldFail.reverting(this.wrapper.increaseAllowance(0));
+  });
+
+  it('reverts on decreaseAllowance', async function () {
+    await shouldFail.reverting(this.wrapper.decreaseAllowance(0));
+  });
+}
 
 function shouldOnlyRevertOnErrors () {
   it('doesn\'t revert on transfer', async function () {
