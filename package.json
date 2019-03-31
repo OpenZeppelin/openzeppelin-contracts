@@ -54,6 +54,7 @@
     "ethereumjs-util": "^6.0.0",
     "ethjs-abi": "^0.2.1",
     "ganache-cli": "6.1.8",
+    "openzeppelin-docsite": "github:OpenZeppelin/openzeppelin-docsite#next",
     "openzeppelin-test-helpers": "^0.1.1",
     "pify": "^4.0.1",
     "solhint": "^1.5.0",
