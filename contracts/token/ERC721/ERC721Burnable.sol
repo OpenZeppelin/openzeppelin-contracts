@@ -12,7 +12,7 @@ contract ERC721Burnable is ERC721 {
      * @param tokenId uint256 id of the ERC721 token to be burned.
      */
     function burn(uint256 tokenId) public {
-        require(_isApprovedOrOwner(msg.sender, tokenId));
+        require(_isApprovedOrOwner(msg.sender, tokenId), "You must be either Owner or Approved by Owner !!");
         _burn(tokenId);
     }
 }
