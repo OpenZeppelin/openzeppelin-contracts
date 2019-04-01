@@ -24,7 +24,7 @@ contract TimedCrowdsale is Crowdsale {
      * @dev Reverts if not in crowdsale time range.
      */
     modifier onlyWhileOpen {
-        require(isOpen());
+        require(isOpen(), "from OpenZeppelin's:TimedCrowdsale.sol:onlyWhileOpen().");
         _;
     }
 
@@ -35,8 +35,8 @@ contract TimedCrowdsale is Crowdsale {
      */
     constructor (uint256 openingTime, uint256 closingTime) public {
         // solhint-disable-next-line not-rely-on-time
-        require(openingTime >= block.timestamp);
-        require(closingTime > openingTime);
+        require(openingTime >= block.timestamp, "from OpenZeppelin's:TimedCrowdsale.sol:constructor(). openingTime < block.timestamp.");
+        require(closingTime > openingTime, "from OpenZeppelin's:TimedCrowdsale.sol:constructor(). closingTime <= openingTime.");
 
         _openingTime = openingTime;
         _closingTime = closingTime;
@@ -87,8 +87,8 @@ contract TimedCrowdsale is Crowdsale {
      * @param newClosingTime Crowdsale closing time
      */
     function _extendTime(uint256 newClosingTime) internal {
-        require(!hasClosed());
-        require(newClosingTime > _closingTime);
+        require(!hasClosed(), "from OpenZeppelin's:TimedCrowdsale.sol:_extendTime(). Crowdsale has already closed.");
+        require(newClosingTime > _closingTime, "from OpenZeppelin's:TimedCrowdsale.sol:_extendTime(). New closing time is < previous closing time.");
 
         emit TimedCrowdsaleExtended(_closingTime, newClosingTime);
         _closingTime = newClosingTime;

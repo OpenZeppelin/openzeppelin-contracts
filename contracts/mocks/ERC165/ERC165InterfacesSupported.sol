@@ -43,7 +43,7 @@ contract SupportsInterfaceWithLookupMock is IERC165 {
      * @dev private method for registering an interface
      */
     function _registerInterface(bytes4 interfaceId) internal {
-        require(interfaceId != 0xffffffff);
+        require(interfaceId != 0xffffffff, "from OpenZeppelin's:ERC165InterfacesSupported.sol:_registerInterface().");
         _supportedInterfaces[interfaceId] = true;
     }
 }

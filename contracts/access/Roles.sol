@@ -13,8 +13,8 @@ library Roles {
      * @dev give an account access to this role
      */
     function add(Role storage role, address account) internal {
-        require(account != address(0));
-        require(!has(role, account));
+        require(account != address(0), "from OpenZeppelin's:Roles.sol:add(). account cannot be address(0)");
+        require(!has(role, account), "from OpenZeppelin's:Roles.sol:add() . account already has this role.");
 
         role.bearer[account] = true;
     }
@@ -23,8 +23,8 @@ library Roles {
      * @dev remove an account's access to this role
      */
     function remove(Role storage role, address account) internal {
-        require(account != address(0));
-        require(has(role, account));
+        require(account != address(0), "from OpenZeppelin's:Roles.sol:remove(). account cannot be address(0)");
+        require(has(role, account), "from OpenZeppelin's:Roles.sol:remove(). account doesn't have this role.");
 
         role.bearer[account] = false;
     }
@@ -34,7 +34,7 @@ library Roles {
      * @return bool
      */
     function has(Role storage role, address account) internal view returns (bool) {
-        require(account != address(0));
+        require(account != address(0), "from OpenZeppelin's:Roles.sol:has(). account cannot be address(0)");
         return role.bearer[account];
     }
 }

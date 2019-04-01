@@ -30,7 +30,7 @@ contract Ownable {
      * @dev Throws if called by any account other than the owner.
      */
     modifier onlyOwner() {
-        require(isOwner());
+        require(isOwner(), "from OpenZeppelin's:Ownable.sol:onlyOwner().");
         _;
     }
 
@@ -66,7 +66,7 @@ contract Ownable {
      * @param newOwner The address to transfer ownership to.
      */
     function _transferOwnership(address newOwner) internal {
-        require(newOwner != address(0));
+        require(newOwner != address(0), "from OpenZeppelin's:Ownable.sol:_transferOwnership().");
         emit OwnershipTransferred(_owner, newOwner);
         _owner = newOwner;
     }

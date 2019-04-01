@@ -27,7 +27,7 @@ contract RefundEscrow is ConditionalEscrow {
      * @param beneficiary The beneficiary of the deposits.
      */
     constructor (address payable beneficiary) public {
-        require(beneficiary != address(0));
+        require(beneficiary != address(0), "from OpenZeppelin's:RefundEscrow.sol:constructor().");
         _beneficiary = beneficiary;
         _state = State.Active;
     }
@@ -51,7 +51,7 @@ contract RefundEscrow is ConditionalEscrow {
      * @param refundee The address funds will be sent to if a refund occurs.
      */
     function deposit(address refundee) public payable {
-        require(_state == State.Active);
+        require(_state == State.Active, "from OpenZeppelin's:RefundEscrow.sol:deposit().");
         super.deposit(refundee);
     }
 
@@ -60,7 +60,7 @@ contract RefundEscrow is ConditionalEscrow {
      * further deposits.
      */
     function close() public onlyPrimary {
-        require(_state == State.Active);
+        require(_state == State.Active, "from OpenZeppelin's:RefundEscrow.sol:close().");
         _state = State.Closed;
         emit RefundsClosed();
     }
@@ -69,7 +69,7 @@ contract RefundEscrow is ConditionalEscrow {
      * @dev Allows for refunds to take place, rejecting further deposits.
      */
     function enableRefunds() public onlyPrimary {
-        require(_state == State.Active);
+        require(_state == State.Active, "from OpenZeppelin's:RefundEscrow.sol:enableRefunds().");
         _state = State.Refunding;
         emit RefundsEnabled();
     }
@@ -78,7 +78,7 @@ contract RefundEscrow is ConditionalEscrow {
      * @dev Withdraws the beneficiary's funds.
      */
     function beneficiaryWithdraw() public {
-        require(_state == State.Closed);
+        require(_state == State.Closed, "from OpenZeppelin's:RefundEscrow.sol:beneficiaryWithdraw().");
         _beneficiary.transfer(address(this).balance);
     }
 

@@ -21,8 +21,8 @@ contract IncreasingPriceCrowdsale is TimedCrowdsale {
      * @param finalRate Number of tokens a buyer gets per wei at the end of the crowdsale
      */
     constructor (uint256 initialRate, uint256 finalRate) public {
-        require(finalRate > 0);
-        require(initialRate > finalRate);
+        require(finalRate > 0, "from OpenZeppelin's:IncreasingPriceCrowdsale.sol:constructor(). finalRate = 0.");
+        require(initialRate > finalRate, "from OpenZeppelin's:IncreasingPriceCrowdsale.sol:constructor(). initialRate < finalRate.");
         _initialRate = initialRate;
         _finalRate = finalRate;
     }

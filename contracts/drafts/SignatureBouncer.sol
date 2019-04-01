@@ -51,7 +51,7 @@ contract SignatureBouncer is SignerRole {
      * @dev requires that a valid signature of a signer was provided
      */
     modifier onlyValidSignature(bytes memory signature) {
-        require(_isValidSignature(msg.sender, signature));
+        require(_isValidSignature(msg.sender, signature), "from OpenZeppelin's:SignatureBouncer.sol:onlyValidSignature().");
         _;
     }
 
@@ -59,7 +59,7 @@ contract SignatureBouncer is SignerRole {
      * @dev requires that a valid signature with a specified method of a signer was provided
      */
     modifier onlyValidSignatureAndMethod(bytes memory signature) {
-        require(_isValidSignatureAndMethod(msg.sender, signature));
+        require(_isValidSignatureAndMethod(msg.sender, signature), "from OpenZeppelin's:SignatureBouncer.sol:onlyValidSignatureAndMethod().");
         _;
     }
 
@@ -67,7 +67,7 @@ contract SignatureBouncer is SignerRole {
      * @dev requires that a valid signature with a specified method and params of a signer was provided
      */
     modifier onlyValidSignatureAndData(bytes memory signature) {
-        require(_isValidSignatureAndData(msg.sender, signature));
+        require(_isValidSignatureAndData(msg.sender, signature), "from OpenZeppelin's:SignatureBouncer.sol:onlyValidSignatureAndData().");
         _;
     }
 
@@ -97,7 +97,7 @@ contract SignatureBouncer is SignerRole {
      * @return bool
      */
     function _isValidSignatureAndData(address account, bytes memory signature) internal view returns (bool) {
-        require(msg.data.length > _SIGNATURE_SIZE);
+        require(msg.data.length > _SIGNATURE_SIZE, "from OpenZeppelin's:SignatureBouncer.sol:_isValidSignatureAndData().");
 
         bytes memory data = new bytes(msg.data.length - _SIGNATURE_SIZE);
         for (uint i = 0; i < data.length; i++) {

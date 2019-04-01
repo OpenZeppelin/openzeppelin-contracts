@@ -44,7 +44,7 @@ contract ERC20Migrator {
      * @param legacyToken address of the old token contract
      */
     constructor (IERC20 legacyToken) public {
-        require(address(legacyToken) != address(0));
+        require(address(legacyToken) != address(0), "from OpenZeppelin's:ERC20Migrator.sol:constructor().");
         _legacyToken = legacyToken;
     }
 
@@ -68,9 +68,9 @@ contract ERC20Migrator {
      * @param newToken_ the token that will be minted
      */
     function beginMigration(ERC20Mintable newToken_) public {
-        require(address(_newToken) == address(0));
-        require(address(newToken_) != address(0));
-        require(newToken_.isMinter(address(this)));
+        require(address(_newToken) == address(0), "from OpenZeppelin's:ERC20Migrator.sol:beginMigration(). _newToken != address(0)");
+        require(address(newToken_) != address(0), "from OpenZeppelin's:ERC20Migrator.sol:beginMigration(). newToken_ cannot be address(0)");
+        require(newToken_.isMinter(address(this)), "from OpenZeppelin's:ERC20Migrator.sol:beginMigration(). address(this) is not a minter for newToken_.");
 
         _newToken = newToken_;
     }
@@ -82,7 +82,7 @@ contract ERC20Migrator {
      * @param amount amount of tokens to be migrated
      */
     function migrate(address account, uint256 amount) public {
-        require(address(_newToken) != address(0));
+        require(address(_newToken) != address(0), "from OpenZeppelin's:ERC20Migrator.sol:migrate().");
         _legacyToken.safeTransferFrom(account, address(this), amount);
         _newToken.mint(account, amount);
     }

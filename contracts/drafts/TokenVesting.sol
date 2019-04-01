@@ -47,10 +47,10 @@ contract TokenVesting is Ownable {
      * @param revocable whether the vesting is revocable or not
      */
     constructor (address beneficiary, uint256 start, uint256 cliffDuration, uint256 duration, bool revocable) public {
-        require(beneficiary != address(0));
-        require(cliffDuration <= duration);
-        require(duration > 0);
-        require(start.add(duration) > block.timestamp);
+        require(beneficiary != address(0), "from OpenZeppelin's:TokenVesting.sol:constructor(). beneficiary is address(0).");
+        require(cliffDuration <= duration, "from OpenZeppelin's:TokenVesting.sol:constructor(). cliffDuration > duration.");
+        require(duration > 0, "from OpenZeppelin's:TokenVesting.sol:constructor(). duration <= 0.");
+        require(start.add(duration) > block.timestamp, "from OpenZeppelin's:TokenVesting.sol:constructor(). start.add(duration) < block.timestamp.");
 
         _beneficiary = beneficiary;
         _revocable = revocable;
@@ -115,7 +115,7 @@ contract TokenVesting is Ownable {
     function release(IERC20 token) public {
         uint256 unreleased = _releasableAmount(token);
 
-        require(unreleased > 0);
+        require(unreleased > 0, "from OpenZeppelin's:TokenVesting.sol:release().");
 
         _released[address(token)] = _released[address(token)].add(unreleased);
 
@@ -130,8 +130,8 @@ contract TokenVesting is Ownable {
      * @param token ERC20 token which is being vested
      */
     function revoke(IERC20 token) public onlyOwner {
-        require(_revocable);
-        require(!_revoked[address(token)]);
+        require(_revocable, "from OpenZeppelin's:TokenVesting.sol:revoke(). _revocable is false.");
+        require(!_revoked[address(token)], "from OpenZeppelin's:TokenVesting.sol:revoke(). Token vesting already revoked.");
 
         uint256 balance = token.balanceOf(address(this));
 

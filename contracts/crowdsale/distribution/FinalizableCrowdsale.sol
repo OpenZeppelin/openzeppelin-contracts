@@ -31,8 +31,8 @@ contract FinalizableCrowdsale is TimedCrowdsale {
      * work. Calls the contract's finalization function.
      */
     function finalize() public {
-        require(!_finalized);
-        require(hasClosed());
+        require(!_finalized, "from OpenZeppelin's:FinalizableCrowdsale.sol:finalize(). _finalized is true.");
+        require(hasClosed(), "from OpenZeppelin's:FinalizableCrowdsale.sol:finalize(). hasClosed() is false.");
 
         _finalized = true;
 

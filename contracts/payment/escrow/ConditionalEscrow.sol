@@ -16,7 +16,7 @@ contract ConditionalEscrow is Escrow {
     function withdrawalAllowed(address payee) public view returns (bool);
 
     function withdraw(address payable payee) public {
-        require(withdrawalAllowed(payee));
+        require(withdrawalAllowed(payee), "from OpenZeppelin's:ConditionalEscrow.sol:withdraw().");
         super.withdraw(payee);
     }
 }

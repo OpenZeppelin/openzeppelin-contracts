@@ -28,7 +28,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
      * @param goal Funding goal
      */
     constructor (uint256 goal) public {
-        require(goal > 0);
+        require(goal > 0, "from OpenZeppelin's:RefundableCrowdsale.sol:constructor().");
         _escrow = new RefundEscrow(wallet());
         _goal = goal;
     }
@@ -45,8 +45,8 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
      * @param refundee Whose refund will be claimed.
      */
     function claimRefund(address payable refundee) public {
-        require(finalized());
-        require(!goalReached());
+        require(finalized(), "from OpenZeppelin's:RefundableCrowdsale.sol:claimRefund(). Call to finalized() returned false.");
+        require(!goalReached(), "from OpenZeppelin's:RefundableCrowdsale.sol:claimRefund(). Call to goalReached() returned true.");
 
         _escrow.withdraw(refundee);
     }

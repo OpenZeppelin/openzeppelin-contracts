@@ -25,8 +25,8 @@ contract PaymentSplitter {
      * @dev Constructor
      */
     constructor (address[] memory payees, uint256[] memory shares) public payable {
-        require(payees.length == shares.length);
-        require(payees.length > 0);
+        require(payees.length == shares.length, "from OpenZeppelin's:PaymentSplitter.sol:constructor(). payees.length != shares.length.");
+        require(payees.length > 0, "from OpenZeppelin's:PaymentSplitter.sol:constructor(). payees.length <= 0.");
 
         for (uint256 i = 0; i < payees.length; i++) {
             _addPayee(payees[i], shares[i]);
@@ -80,12 +80,12 @@ contract PaymentSplitter {
      * @param account Whose payments will be released.
      */
     function release(address payable account) public {
-        require(_shares[account] > 0);
+        require(_shares[account] > 0, "from OpenZeppelin's:PaymentSplitter.sol:release(). _shares[account] <= 0.");
 
         uint256 totalReceived = address(this).balance.add(_totalReleased);
         uint256 payment = totalReceived.mul(_shares[account]).div(_totalShares).sub(_released[account]);
 
-        require(payment != 0);
+        require(payment != 0, "from OpenZeppelin's:PaymentSplitter.sol:release(). payment is 0.");
 
         _released[account] = _released[account].add(payment);
         _totalReleased = _totalReleased.add(payment);
@@ -100,9 +100,9 @@ contract PaymentSplitter {
      * @param shares_ The number of shares owned by the payee.
      */
     function _addPayee(address account, uint256 shares_) private {
-        require(account != address(0));
-        require(shares_ > 0);
-        require(_shares[account] == 0);
+        require(account != address(0), "from OpenZeppelin's:PaymentSplitter.sol:_addPayee(). account is address(0).");
+        require(shares_ > 0, "from OpenZeppelin's:PaymentSplitter.sol:_addPayee(). shares_ <= 0.");
+        require(_shares[account] == 0, "from OpenZeppelin's:PaymentSplitter.sol:_addPayee(). _shares[account] != 0.");
 
         _payees.push(account);
         _shares[account] = shares_;

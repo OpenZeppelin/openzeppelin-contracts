@@ -21,7 +21,7 @@ contract TokenTimelock {
 
     constructor (IERC20 token, address beneficiary, uint256 releaseTime) public {
         // solhint-disable-next-line not-rely-on-time
-        require(releaseTime > block.timestamp);
+        require(releaseTime > block.timestamp, "from OpenZeppelin's:TokenTimelock.sol:constructor().");
         _token = token;
         _beneficiary = beneficiary;
         _releaseTime = releaseTime;
@@ -53,10 +53,10 @@ contract TokenTimelock {
      */
     function release() public {
         // solhint-disable-next-line not-rely-on-time
-        require(block.timestamp >= _releaseTime);
+        require(block.timestamp >= _releaseTime, "from OpenZeppelin's:TokenTimelock.sol:release(). block.timestamp < _releaseTime.");
 
         uint256 amount = _token.balanceOf(address(this));
-        require(amount > 0);
+        require(amount > 0, "from OpenZeppelin's:TokenTimelock.sol:release(). amount <= 0.");
 
         _token.safeTransfer(_beneficiary, amount);
     }

@@ -48,7 +48,7 @@ contract IndividuallyCappedCrowdsale is Crowdsale, CapperRole {
      */
     function _preValidatePurchase(address beneficiary, uint256 weiAmount) internal view {
         super._preValidatePurchase(beneficiary, weiAmount);
-        require(_contributions[beneficiary].add(weiAmount) <= _caps[beneficiary]);
+        require(_contributions[beneficiary].add(weiAmount) <= _caps[beneficiary], "from OpenZeppelin's:IndividuallyCappedCrowdsale.sol:_preValidatePurchase().");
     }
 
     /**

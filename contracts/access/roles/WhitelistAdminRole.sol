@@ -19,7 +19,7 @@ contract WhitelistAdminRole {
     }
 
     modifier onlyWhitelistAdmin() {
-        require(isWhitelistAdmin(msg.sender));
+        require(isWhitelistAdmin(msg.sender), "from OpenZeppelin's:WhitelistAdminRole.sol:onlyWhitelistAdmin().");
         _;
     }
 

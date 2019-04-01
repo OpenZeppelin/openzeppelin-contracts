@@ -15,7 +15,7 @@ contract WhitelistCrowdsale is WhitelistedRole, Crowdsale {
      * @param _weiAmount Amount of wei contributed
      */
     function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal view {
-        require(isWhitelisted(_beneficiary));
+        require(isWhitelisted(_beneficiary), "from OpenZeppelin's:WhitelistCrowdsale.sol:_preValidatePurchase().");
         super._preValidatePurchase(_beneficiary, _weiAmount);
     }
 }

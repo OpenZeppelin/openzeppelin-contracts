@@ -29,7 +29,7 @@ library SafeERC20 {
         // safeApprove should only be called when setting an initial allowance,
         // or when resetting it to zero. To increase and decrease it, use
         // 'safeIncreaseAllowance' and 'safeDecreaseAllowance'
-        require((value == 0) || (token.allowance(address(this), spender) == 0));
+        require((value == 0) || (token.allowance(address(this), spender) == 0), "from OpenZeppelin's:SafeERC20.sol:safeApprove().");
         callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, value));
     }
 
@@ -58,14 +58,14 @@ library SafeERC20 {
         //  2. The call itself is made, and success asserted
         //  3. The return value is decoded, which in turn checks the size of the returned data.
 
-        require(address(token).isContract());
+        require(address(token).isContract(), "from OpenZeppelin's:SafeERC20.sol:callOptionalReturn(). token address is not a contract address.");
 
         // solhint-disable-next-line avoid-low-level-calls
         (bool success, bytes memory returndata) = address(token).call(data);
-        require(success);
+        require(success, "from OpenZeppelin's:SafeERC20.sol:callOptionalReturn(). Low-level call() returned false.");
 
         if (returndata.length > 0) { // Return data is optional
-            require(abi.decode(returndata, (bool)));
+            require(abi.decode(returndata, (bool)), "from OpenZeppelin's:SafeERC20.sol:callOptionalReturn(). abi.decode()");
         }
     }
 }
