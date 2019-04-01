@@ -2,7 +2,7 @@
 title: Crowdsales
 sections:
   - title: Core
-    include:
+    contracts:
       - Crowdsale
   - subdirectory: emission
   - subdirectory: price
