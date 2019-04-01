@@ -68,8 +68,11 @@ contract ERC20Migrator {
      * @param newToken_ the token that will be minted
      */
     function beginMigration(ERC20Mintable newToken_) public {
+        // solhint-disable-next-line max-line-length
         require(address(_newToken) == address(0), "from OpenZeppelin's:ERC20Migrator.sol:beginMigration(). _newToken != address(0)");
+        // solhint-disable-next-line max-line-length
         require(address(newToken_) != address(0), "from OpenZeppelin's:ERC20Migrator.sol:beginMigration(). newToken_ cannot be address(0)");
+        // solhint-disable-next-line max-line-length
         require(newToken_.isMinter(address(this)), "from OpenZeppelin's:ERC20Migrator.sol:beginMigration(). address(this) is not a minter for newToken_.");
 
         _newToken = newToken_;

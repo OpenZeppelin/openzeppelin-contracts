@@ -83,6 +83,7 @@ contract ERC721 is ERC165, IERC721 {
     function approve(address to, uint256 tokenId) public {
         address owner = ownerOf(tokenId);
         require(to != owner, "from OpenZeppelin's:ERC721.sol:approve(). to == owner.");
+        // solhint-disable-next-line max-line-length
         require(msg.sender == owner || isApprovedForAll(owner, msg.sender), "from OpenZeppelin's:ERC721.sol:approve(). msg.sender is neither the owner nor an approved account.");
 
         _tokenApprovals[tokenId] = to;

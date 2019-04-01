@@ -47,9 +47,12 @@ contract TokenVesting is Ownable {
      * @param revocable whether the vesting is revocable or not
      */
     constructor (address beneficiary, uint256 start, uint256 cliffDuration, uint256 duration, bool revocable) public {
+        // solhint-disable-next-line max-line-length
         require(beneficiary != address(0), "from OpenZeppelin's:TokenVesting.sol:constructor(). beneficiary is address(0).");
+        // solhint-disable-next-line max-line-length
         require(cliffDuration <= duration, "from OpenZeppelin's:TokenVesting.sol:constructor(). cliffDuration > duration.");
         require(duration > 0, "from OpenZeppelin's:TokenVesting.sol:constructor(). duration <= 0.");
+        // solhint-disable-next-line max-line-length
         require(start.add(duration) > block.timestamp, "from OpenZeppelin's:TokenVesting.sol:constructor(). start.add(duration) < block.timestamp.");
 
         _beneficiary = beneficiary;
@@ -131,6 +134,7 @@ contract TokenVesting is Ownable {
      */
     function revoke(IERC20 token) public onlyOwner {
         require(_revocable, "from OpenZeppelin's:TokenVesting.sol:revoke(). _revocable is false.");
+        // solhint-disable-next-line max-line-length
         require(!_revoked[address(token)], "from OpenZeppelin's:TokenVesting.sol:revoke(). Token vesting already revoked.");
 
         uint256 balance = token.balanceOf(address(this));

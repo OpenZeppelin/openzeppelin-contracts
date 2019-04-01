@@ -53,7 +53,8 @@ contract TokenTimelock {
      */
     function release() public {
         // solhint-disable-next-line not-rely-on-time
-        require(block.timestamp >= _releaseTime, "from OpenZeppelin's:TokenTimelock.sol:release(). block.timestamp < _releaseTime.");
+        // solhint-disable-next-line max-line-length
+        require(block.timestamp >= _releaseTime, "from OpenZeppelin's:TokenTimelock.sol:release(). block.timestamp < _releaseTime."); 
 
         uint256 amount = _token.balanceOf(address(this));
         require(amount > 0, "from OpenZeppelin's:TokenTimelock.sol:release(). amount <= 0.");

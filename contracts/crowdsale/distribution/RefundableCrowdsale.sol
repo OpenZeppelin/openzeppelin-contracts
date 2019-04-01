@@ -45,7 +45,9 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
      * @param refundee Whose refund will be claimed.
      */
     function claimRefund(address payable refundee) public {
+        // solhint-disable-next-line max-line-length
         require(finalized(), "from OpenZeppelin's:RefundableCrowdsale.sol:claimRefund(). Call to finalized() returned false.");
+        // solhint-disable-next-line max-line-length
         require(!goalReached(), "from OpenZeppelin's:RefundableCrowdsale.sol:claimRefund(). Call to goalReached() returned true.");
 
         _escrow.withdraw(refundee);

@@ -12,7 +12,9 @@ import "./PostDeliveryCrowdsale.sol";
  */
 contract RefundablePostDeliveryCrowdsale is RefundableCrowdsale, PostDeliveryCrowdsale {
     function withdrawTokens(address beneficiary) public {
+        // solhint-disable-next-line max-line-length
         require(finalized(), "from OpenZeppelin's:RefundablePostDeliveryCrowdsale.sol:withdrawTokens(). Call to finalized() returned false.");
+        // solhint-disable-next-line max-line-length
         require(goalReached(), "from OpenZeppelin's:RefundablePostDeliveryCrowdsale.sol:withdrawTokens(). Call to goalReached() returned false.");
 
         super.withdrawTokens(beneficiary);

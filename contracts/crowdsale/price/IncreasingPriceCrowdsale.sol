@@ -22,6 +22,7 @@ contract IncreasingPriceCrowdsale is TimedCrowdsale {
      */
     constructor (uint256 initialRate, uint256 finalRate) public {
         require(finalRate > 0, "from OpenZeppelin's:IncreasingPriceCrowdsale.sol:constructor(). finalRate = 0.");
+        // solhint-disable-next-line max-line-length
         require(initialRate > finalRate, "from OpenZeppelin's:IncreasingPriceCrowdsale.sol:constructor(). initialRate < finalRate.");
         _initialRate = initialRate;
         _finalRate = finalRate;

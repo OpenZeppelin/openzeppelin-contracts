@@ -25,6 +25,7 @@ contract PaymentSplitter {
      * @dev Constructor
      */
     constructor (address[] memory payees, uint256[] memory shares) public payable {
+        // solhint-disable-next-line max-line-length
         require(payees.length == shares.length, "from OpenZeppelin's:PaymentSplitter.sol:constructor(). payees.length != shares.length.");
         require(payees.length > 0, "from OpenZeppelin's:PaymentSplitter.sol:constructor(). payees.length <= 0.");
 

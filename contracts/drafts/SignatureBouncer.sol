@@ -51,6 +51,7 @@ contract SignatureBouncer is SignerRole {
      * @dev requires that a valid signature of a signer was provided
      */
     modifier onlyValidSignature(bytes memory signature) {
+        // solhint-disable-next-line max-line-length
         require(_isValidSignature(msg.sender, signature), "from OpenZeppelin's:SignatureBouncer.sol:onlyValidSignature().");
         _;
     }
@@ -59,6 +60,7 @@ contract SignatureBouncer is SignerRole {
      * @dev requires that a valid signature with a specified method of a signer was provided
      */
     modifier onlyValidSignatureAndMethod(bytes memory signature) {
+        // solhint-disable-next-line max-line-length
         require(_isValidSignatureAndMethod(msg.sender, signature), "from OpenZeppelin's:SignatureBouncer.sol:onlyValidSignatureAndMethod().");
         _;
     }
@@ -67,6 +69,7 @@ contract SignatureBouncer is SignerRole {
      * @dev requires that a valid signature with a specified method and params of a signer was provided
      */
     modifier onlyValidSignatureAndData(bytes memory signature) {
+        // solhint-disable-next-line max-line-length
         require(_isValidSignatureAndData(msg.sender, signature), "from OpenZeppelin's:SignatureBouncer.sol:onlyValidSignatureAndData().");
         _;
     }
@@ -97,6 +100,7 @@ contract SignatureBouncer is SignerRole {
      * @return bool
      */
     function _isValidSignatureAndData(address account, bytes memory signature) internal view returns (bool) {
+        // solhint-disable-next-line max-line-length
         require(msg.data.length > _SIGNATURE_SIZE, "from OpenZeppelin's:SignatureBouncer.sol:_isValidSignatureAndData().");
 
         bytes memory data = new bytes(msg.data.length - _SIGNATURE_SIZE);
