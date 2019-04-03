@@ -11,8 +11,7 @@ library ERC165Checker {
 
     bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
     /*
-     * 0x01ffc9a7 ===
-     *     bytes4(keccak256('supportsInterface(bytes4)'))
+     * bytes4(keccak256('supportsInterface(bytes4)')) == 0x01ffc9a7
      */
 
     /**

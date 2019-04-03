@@ -15,8 +15,7 @@ import "../../introspection/IERC165.sol";
 contract SupportsInterfaceWithLookupMock is IERC165 {
     bytes4 public constant INTERFACE_ID_ERC165 = 0x01ffc9a7;
     /*
-     * 0x01ffc9a7 ===
-     *     bytes4(keccak256('supportsInterface(bytes4)'))
+     * bytes4(keccak256('supportsInterface(bytes4)')) == 0x01ffc9a7
      */
 
     /**
