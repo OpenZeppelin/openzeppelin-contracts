@@ -48,8 +48,8 @@ Here's what a good DOGGO token might look like.
 contract DoggoToken is ERC20, ERC20Detailed, ERC20Mintable, ERC20Burnable {
 
     constructor(
-        string name,
-        string symbol,
+        string memory name,
+        string memory symbol,
         uint8 decimals
     )
         ERC20Burnable()
@@ -92,30 +92,30 @@ Here's what tokenized dogsitter timeframes might look like:
 
 ```solidity
 contract DoggoTime is ERC721Full {
-    using Counter for Counter.Index;
-    Counter.Index private tokenId;
+    using Counters for Counters.Counter;
+    Counters.Counter private tokenId;
 
     constructor(
-        string name,
-        string symbol,
+        string memory name,
+        string memory symbol
     )
         ERC721Full(name, symbol)
         public
     {}
 
     function createDoggoTimeframe(
-        string tokenURI
+        string memory tokenURI
     )
         public
         returns (bool)
     {
-        uint256 doggoTokenId = tokenId.next();
+        tokenId.increment();
+        uint256 doggoTokenId = tokenId.current();
         _mint(msg.sender, doggoTokenId);
         _setTokenURI(doggoTokenId, tokenURI);
         return true;
     }
-}
-```
+}```
 
 Now anyone who wants to sell their time in exchange for DOGGO tokens can call:
 
