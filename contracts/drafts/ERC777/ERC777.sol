@@ -27,7 +27,7 @@ contract ERC777 is IERC777 {
 
     uint256 private _granularity;
 
-    bytes32 constant private TOKENS_SENDER_INTEFACE_HASH = keccak256("ERC777TokensSender");
+    bytes32 constant private TOKENS_SENDER_INTERFACE_HASH = keccak256("ERC777TokensSender");
     bytes32 constant private TOKENS_RECIPIENT_INTERFACE_HASH = keccak256("ERC777TokensRecipient");
 
     // This isn't ever read from - it's only used to respond to the defaultOperators query.
@@ -364,7 +364,7 @@ contract ERC777 is IERC777 {
     )
     private
     {
-        address implementer = _erc1820.getInterfaceImplementer(from, TOKENS_SENDER_INTEFACE_HASH);
+        address implementer = _erc1820.getInterfaceImplementer(from, TOKENS_SENDER_INTERFACE_HASH);
         if (implementer != address(0)) {
             IERC777Sender(implementer).tokensToSend(operator, from, to, amount, userData, operatorData);
         }
