@@ -76,6 +76,15 @@ function shouldBehaveLikeERC777OperatorSend (holder, recipient, operator, data, 
           this.token.operatorSend(holder, recipient, new BN('1'), data, operatorData, { from: operator })
         );
       });
+
+      it.skip('reverts when sending from the zero address', async function () {
+        // This is not yet reflected in the spec
+        await shouldFail.reverting(
+          this.token.operatorSend(
+            ZERO_ADDRESS, recipient, new BN('0'), data, operatorData, { from: operator }
+          )
+        );
+      });
     });
   });
 }
@@ -134,6 +143,15 @@ function shouldBehaveLikeERC777OperatorBurn (holder, operator, data, operatorDat
       it('reverts when burning a non-zero amount', async function () {
         await shouldFail.reverting(
           this.token.operatorBurn(holder, new BN('1'), data, operatorData, { from: operator })
+        );
+      });
+
+      it.skip('reverts when burning from the zero address', async function () {
+        // This is not yet reflected in the spec
+        await shouldFail.reverting(
+          this.token.operatorBurn(
+            ZERO_ADDRESS, new BN('0'), data, operatorData, { from: operator }
+          )
         );
       });
     });

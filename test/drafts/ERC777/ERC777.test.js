@@ -36,6 +36,10 @@ contract('ERC777', function ([
         this.token = await ERC777.new(holder, initialSupply, name, symbol, granularity, defaultOperators);
       });
 
+      it.skip('does not emit AuthorizedOperator events for default operators', async function () {
+        expectEvent.not.inConstructor(this.token, 'AuthorizedOperator'); // This helper needs to be implemented
+      });
+
       describe('basic information', function () {
         it('returns the name', async function () {
           (await this.token.name()).should.equal(name);
@@ -132,6 +136,15 @@ contract('ERC777', function ([
           await shouldFail.reverting(this.token.revokeOperator(holder, { from: holder }));
         });
 
+        it('non-operators can be revoked', async function () {
+          (await this.token.isOperatorFor(newOperator, holder)).should.equal(false);
+
+          const { logs } = await this.token.revokeOperator(newOperator, { from: holder });
+          expectEvent.inLogs(logs, 'RevokedOperator', { operator: newOperator, tokenHolder: holder });
+
+          (await this.token.isOperatorFor(newOperator, holder)).should.equal(false);
+        });
+
         it('non-operators can be authorized', async function () {
           (await this.token.isOperatorFor(newOperator, holder)).should.equal(false);
 
@@ -180,6 +193,10 @@ contract('ERC777', function ([
             (await this.token.isOperatorFor(defaultOperatorA, holder)).should.equal(false);
           });
 
+          it('cannot be revoked for themselves', async function () {
+            await shouldFail.reverting(this.token.revokeOperator(defaultOperatorA, { from: defaultOperatorA }));
+          });
+
           context('with revoked default operator', function () {
             beforeEach(async function () {
               await this.token.revokeOperator(defaultOperatorA, { from: holder });
@@ -210,7 +227,7 @@ contract('ERC777', function ([
 
     context('with no default operators', function () {
       beforeEach(async function () {
-        this.token = await ERC777.new(holder, initialSupply, name, symbol, 1, []);
+        this.token = await ERC777.new(holder, initialSupply, name, symbol, granularity, []);
       });
 
       it('default operators list is empty', async function () {
