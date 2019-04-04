@@ -211,37 +211,6 @@ contract ERC777 is IERC777 {
     }
 
     /**
-     * @dev Burn tokens
-     * @param operator address operator requesting the operation
-     * @param from address token holder address
-     * @param amount uint256 amount of tokens to burn
-     * @param data bytes extra information provided by the token holder
-     * @param operatorData bytes extra information provided by the operator (if any)
-     */
-    function _burn(
-        address operator,
-        address from,
-        uint256 amount,
-        bytes memory data,
-        bytes memory operatorData
-    )
-    internal
-    {
-        require(from != address(0));
-        require(isOperatorFor(msg.sender, from));
-        require((amount % _granularity) == 0);
-
-        _callTokensToSend(operator, from, address(0), amount, data, operatorData);
-
-        // Update state variables
-        _totalSupply = _totalSupply.sub(amount);
-        _balances[from] = _balances[from].sub(amount);
-        assert((_balances[from] % _granularity) == 0);
-
-        emit Burned(operator, from, amount, data, operatorData);
-    }
-
-    /**
      * @dev Mint tokens. Does not check authorization of operator
      * @dev the caller may ckeck that operator is authorized before calling
      * @param operator address operator requesting the operation
@@ -343,6 +312,37 @@ contract ERC777 is IERC777 {
         _callTokensReceived(operator, from, to, amount, userData, operatorData);
 
         emit Sent(operator, from, to, amount, userData, operatorData);
+    }
+
+    /**
+     * @dev Burn tokens
+     * @param operator address operator requesting the operation
+     * @param from address token holder address
+     * @param amount uint256 amount of tokens to burn
+     * @param data bytes extra information provided by the token holder
+     * @param operatorData bytes extra information provided by the operator (if any)
+     */
+    function _burn(
+        address operator,
+        address from,
+        uint256 amount,
+        bytes memory data,
+        bytes memory operatorData
+    )
+    private
+    {
+        require(from != address(0));
+        require(isOperatorFor(msg.sender, from));
+        require((amount % _granularity) == 0);
+
+        _callTokensToSend(operator, from, address(0), amount, data, operatorData);
+
+        // Update state variables
+        _totalSupply = _totalSupply.sub(amount);
+        _balances[from] = _balances[from].sub(amount);
+        assert((_balances[from] % _granularity) == 0);
+
+        emit Burned(operator, from, amount, data, operatorData);
     }
 
     /**
