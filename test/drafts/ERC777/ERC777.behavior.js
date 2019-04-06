@@ -1,6 +1,8 @@
 const { BN, constants, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
+const ERC777SenderMock = artifacts.require('ERC777SenderMock');
+
 function shouldBehaveLikeERC777DirectSendBurn (holder, recipient, data) {
   shouldBehaveLikeERC777DirectSend(holder, recipient, data);
   shouldBehaveLikeERC777DirectBurn(holder, data);
@@ -257,6 +259,82 @@ function shouldBurnTokens (from, operator, amount, data, operatorData) {
   });
 }
 
+function shouldBehaveLikeERC777SendBurnWithHook (sender, recipient, operator, amount, data, operatorData) {
+  context('when TokensSender reverts', function () {
+    beforeEach(async function () {
+      await this.tokensSenderImplementer.setShouldRevert(true);
+    });
+
+    it('send reverts', async function () {
+      await shouldFail.reverting(sendFromHolder(this.token, sender, recipient, amount, data));
+    });
+
+    it('operatorSend reverts', async function () {
+      await shouldFail.reverting(
+        this.token.operatorSend(sender, recipient, amount, data, operatorData, { from: operator })
+      );
+    });
+
+    it('burn reverts', async function () {
+      await shouldFail.reverting(burnFromHolder(this.token, sender, amount, data));
+    });
+
+    it('operatorBurn reverts', async function () {
+      await shouldFail.reverting(
+        this.token.operatorBurn(sender, amount, data, operatorData, { from: operator })
+      );
+    });
+  });
+
+  context('when TokensSender does not revert', function () {
+    beforeEach(async function () {
+      await this.tokensSenderImplementer.setShouldRevert(false);
+    });
+
+    it('TokensSender receives send data and is called before state mutation', async function () {
+      const preHolderBalance = await this.token.balanceOf(sender);
+      const preRecipientBalance = await this.token.balanceOf(recipient);
+
+      const { tx } = await sendFromHolder(this.token, sender, recipient, amount, data);
+
+      await assertTokensToSendCalled(
+        this.token, tx, sender, sender, recipient, amount, data, null, preHolderBalance, preRecipientBalance
+      );
+    });
+
+    it('TokensSender receives operatorSend data and is called before state mutation', async function () {
+      const preHolderBalance = await this.token.balanceOf(sender);
+      const preRecipientBalance = await this.token.balanceOf(recipient);
+
+      const { tx } = await this.token.operatorSend(sender, recipient, amount, data, operatorData, { from: operator });
+
+      await assertTokensToSendCalled(
+        this.token, tx, operator, sender, recipient, amount, data, operatorData, preHolderBalance, preRecipientBalance
+      );
+    });
+
+    it('TokensSender receives burn data and is called before state mutation', async function () {
+      const preHolderBalance = await this.token.balanceOf(sender);
+
+      const { tx } = await burnFromHolder(this.token, sender, amount, data, { from: sender });
+
+      await assertTokensToSendCalled(
+        this.token, tx, sender, sender, ZERO_ADDRESS, amount, data, null, preHolderBalance
+      );
+    });
+
+    it('TokensSender receives operatorBurn data and is called before state mutation', async function () {
+      const preHolderBalance = await this.token.balanceOf(sender);
+
+      const { tx } = await this.token.operatorBurn(sender, amount, data, operatorData, { from: operator });
+
+      await assertTokensToSendCalled(
+        this.token, tx, operator, sender, ZERO_ADDRESS, amount, data, operatorData, preHolderBalance
+      );
+    });
+  });
+}
+
 function removeBalance (holder) {
   beforeEach(async function () {
     await this.token.burn(await this.token.balanceOf(holder), '0x', { from: holder });
@@ -264,9 +342,36 @@ function removeBalance (holder) {
   });
 }
 
+async function assertTokensToSendCalled (token, txHash, operator, from, to, amount, data, operatorData, fromBalance, toBalance='0') {
+  await expectEvent.inTransaction(txHash, ERC777SenderMock, 'TokensToSendCalled', {
+    operator, from, to, amount, data, operatorData, token: token.address, fromBalance, toBalance
+  });
+}
+
+async function sendFromHolder(token, holder, to, amount, data) {
+  if ((await web3.eth.getCode(holder)).length <= '0x'.length) {
+    return token.send(to, amount, data, { from: holder });
+
+  } else {
+    // assume holder is ERC777SenderMock contract
+    return (await ERC777SenderMock.at(holder)).send(token.address, to, amount, data);
+  }
+}
+
+async function burnFromHolder(token, holder, amount, data) {
+  if ((await web3.eth.getCode(holder)).length <= '0x'.length) {
+    return token.burn(amount, data, { from: holder });
+
+  } else {
+    // assume holder is ERC777SenderMock contract
+    return (await ERC777SenderMock.at(holder)).burn(token.address, amount, data);
+  }
+}
+
 module.exports = {
   shouldBehaveLikeERC777DirectSendBurn,
   shouldBehaveLikeERC777OperatorSendBurn,
   shouldBehaveLikeERC777UnauthorizedOperatorSendBurn,
   shouldDirectSendTokens,
+  shouldBehaveLikeERC777SendBurnWithHook,
 };
