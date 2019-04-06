@@ -27,7 +27,7 @@ contract Pausable is PauserRole {
      * @dev Modifier to make a function callable only when the contract is not paused.
      */
     modifier whenNotPaused() {
-        require(!_paused, "from OpenZeppelin's:Pausable.sol:whenNotPaused().");
+        require(!_paused, "Pausable: !_paused.");
         _;
     }
 
@@ -35,7 +35,7 @@ contract Pausable is PauserRole {
      * @dev Modifier to make a function callable only when the contract is paused.
      */
     modifier whenPaused() {
-        require(_paused, "from OpenZeppelin's:Pausable.sol:whenPaused().");
+        require(_paused, "Pausable: _paused.");
         _;
     }
 

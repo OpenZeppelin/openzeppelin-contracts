@@ -17,9 +17,9 @@ contract PostDeliveryCrowdsale is TimedCrowdsale {
      * @param beneficiary Whose tokens will be withdrawn.
      */
     function withdrawTokens(address beneficiary) public {
-        require(hasClosed(), "from OpenZeppelin's:PostDeliveryCrowdsale.sol:withdrawTokens(). hasClosed() is false.");
+        require(hasClosed(), "PostDeliveryCrowdsale: crowdsale has not been closed yet.");
         uint256 amount = _balances[beneficiary];
-        require(amount > 0, "from OpenZeppelin's:PostDeliveryCrowdsale.sol:withdrawTokens(). amount is <= 0.");
+        require(amount > 0, "PostDeliveryCrowdsale: withdrawal amount is 0.");
         _balances[beneficiary] = 0;
         _deliverTokens(beneficiary, amount);
     }

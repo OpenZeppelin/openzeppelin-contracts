@@ -38,7 +38,7 @@ contract ERC165 is IERC165 {
      * @dev internal method for registering an interface
      */
     function _registerInterface(bytes4 interfaceId) internal {
-        require(interfaceId != 0xffffffff, "from OpenZeppelin's:ERC165.sol:_registerInterface().");
+        require(interfaceId != 0xffffffff, "ERC165: invalid interface id.");
         _supportedInterfaces[interfaceId] = true;
     }
 }

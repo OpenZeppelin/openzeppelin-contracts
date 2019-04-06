@@ -101,9 +101,9 @@ contract ERC20Snapshot is ERC20 {
     function _valueAt(uint256 snapshotId, Snapshots storage snapshots)
         private view returns (bool, uint256)
     {
-        require(snapshotId > 0, "from OpenZeppelin's:ERC20Snapshot.sol:_valueAt(). snapshotId < = 0.");
+        require(snapshotId > 0, "ERC20Snapshot: the snapshot id is 0.");
         // solhint-disable-next-line max-line-length
-        require(snapshotId <= _currentSnapshotId.current(), "from OpenZeppelin's:ERC20Snapshot.sol:_valueAt(). snapshotId > current snapshotId.");
+        require(snapshotId <= _currentSnapshotId.current(), "ERC20Snapshot: the provided snapshot id > current snapshot id.");
 
         uint256 index = snapshots.ids.findUpperBound(snapshotId);
 

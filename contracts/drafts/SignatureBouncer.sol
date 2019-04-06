@@ -51,8 +51,7 @@ contract SignatureBouncer is SignerRole {
      * @dev requires that a valid signature of a signer was provided
      */
     modifier onlyValidSignature(bytes memory signature) {
-        // solhint-disable-next-line max-line-length
-        require(_isValidSignature(msg.sender, signature), "from OpenZeppelin's:SignatureBouncer.sol:onlyValidSignature().");
+        require(_isValidSignature(msg.sender, signature), "SignatureBouncer: invalid caller signature.");
         _;
     }
 
@@ -61,16 +60,16 @@ contract SignatureBouncer is SignerRole {
      */
     modifier onlyValidSignatureAndMethod(bytes memory signature) {
         // solhint-disable-next-line max-line-length
-        require(_isValidSignatureAndMethod(msg.sender, signature), "from OpenZeppelin's:SignatureBouncer.sol:onlyValidSignatureAndMethod().");
+        require(_isValidSignatureAndMethod(msg.sender, signature), "SignatureBouncer: invalid caller signature for method.");
         _;
     }
 
     /**
-     * @dev requires that a valid signature with a specified method and params of a signer was provided
+.     * @dev requires that a valid signature with a specified method and params of a signer was provided
      */
     modifier onlyValidSignatureAndData(bytes memory signature) {
         // solhint-disable-next-line max-line-length
-        require(_isValidSignatureAndData(msg.sender, signature), "from OpenZeppelin's:SignatureBouncer.sol:onlyValidSignatureAndData().");
+        require(_isValidSignatureAndData(msg.sender, signature), "SignatureBouncer: invalid caller signature for data.");
         _;
     }
 
@@ -100,8 +99,7 @@ contract SignatureBouncer is SignerRole {
      * @return bool
      */
     function _isValidSignatureAndData(address account, bytes memory signature) internal view returns (bool) {
-        // solhint-disable-next-line max-line-length
-        require(msg.data.length > _SIGNATURE_SIZE, "from OpenZeppelin's:SignatureBouncer.sol:_isValidSignatureAndData().");
+        require(msg.data.length > _SIGNATURE_SIZE, "SignatureBouncer: length of caller data is < 96.");
 
         bytes memory data = new bytes(msg.data.length - _SIGNATURE_SIZE);
         for (uint i = 0; i < data.length; i++) {

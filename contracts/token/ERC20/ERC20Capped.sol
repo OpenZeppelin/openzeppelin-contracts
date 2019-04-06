@@ -10,7 +10,7 @@ contract ERC20Capped is ERC20Mintable {
     uint256 private _cap;
 
     constructor (uint256 cap) public {
-        require(cap > 0, "from OpenZeppelin's:ERC20Capped.sol:constructor().");
+        require(cap > 0, "ERC20Capped: capacity must be > 0.");
         _cap = cap;
     }
 
@@ -22,7 +22,7 @@ contract ERC20Capped is ERC20Mintable {
     }
 
     function _mint(address account, uint256 value) internal {
-        require(totalSupply().add(value) <= _cap, "from OpenZeppelin's:ERC20Capped.sol:_mint().");
+        require(totalSupply().add(value) <= _cap, "ERC20Capped: totalSupply().add(value) <= _cap.");
         super._mint(account, value);
     }
 }

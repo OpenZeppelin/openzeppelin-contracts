@@ -15,7 +15,7 @@ contract SignerRole {
     }
 
     modifier onlySigner() {
-        require(isSigner(msg.sender), "from OpenZeppelin's:SignerRole.sol:onlySigner().");
+        require(isSigner(msg.sender), "SignerRole: caller doesn't have the Signer role.");
         _;
     }
 

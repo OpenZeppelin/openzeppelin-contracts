@@ -16,7 +16,9 @@ contract MintedCrowdsale is Crowdsale {
      */
     function _deliverTokens(address beneficiary, uint256 tokenAmount) internal {
         // Potentially dangerous assumption about the type of the token.
-        // solhint-disable-next-line max-line-length
-        require(ERC20Mintable(address(token())).mint(beneficiary, tokenAmount), "from OpenZeppelin's:MintedCrowdsale.sol:_deliverTokens().");
+        require(
+            ERC20Mintable(address(token())).mint(beneficiary, tokenAmount),
+                "MintedCrowdsale: assumption about the type of the token failed."
+        );
     }
 }

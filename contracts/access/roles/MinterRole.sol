@@ -15,7 +15,7 @@ contract MinterRole {
     }
 
     modifier onlyMinter() {
-        require(isMinter(msg.sender), "from OpenZeppelin's:MinterRole.sol:onlyMinter().");
+        require(isMinter(msg.sender), "MinterRole: caller doesn't have the Minter role.");
         _;
     }
 

@@ -23,7 +23,7 @@ contract Secondary {
      * @dev Reverts if called from any account other than the primary.
      */
     modifier onlyPrimary() {
-        require(msg.sender == _primary, "from OpenZeppelin's:Secondary.sol:onlyPrimary().");
+        require(msg.sender == _primary, "Secondary: ");
         _;
     }
 
@@ -39,7 +39,7 @@ contract Secondary {
      * @param recipient The address of new primary.
      */
     function transferPrimary(address recipient) public onlyPrimary {
-        require(recipient != address(0), "from OpenZeppelin's:Secondary.sol:transferPrimary().");
+        require(recipient != address(0), "Secondary: recipient address can only be non-zero address.");
         _primary = recipient;
         emit PrimaryTransferred(_primary);
     }

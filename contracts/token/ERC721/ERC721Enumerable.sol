@@ -44,7 +44,7 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
      * @return uint256 token ID at the given index of the tokens list owned by the requested address
      */
     function tokenOfOwnerByIndex(address owner, uint256 index) public view returns (uint256) {
-        require(index < balanceOf(owner), "from OpenZeppelin's:ERC721Enumerable.sol:tokenOfOwnerByIndex().");
+        require(index < balanceOf(owner), "ERC721Enumerable: index < balanceOf(owner)");
         return _ownedTokens[owner][index];
     }
 
@@ -63,7 +63,7 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
      * @return uint256 token ID at the given index of the tokens list
      */
     function tokenByIndex(uint256 index) public view returns (uint256) {
-        require(index < totalSupply(), "from OpenZeppelin's:ERC721Enumerable.sol:tokenByIndex().");
+        require(index < totalSupply(), "ERC721Enumerable: index < totalSupply()");
         return _allTokens[index];
     }
 

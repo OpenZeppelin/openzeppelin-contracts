@@ -15,7 +15,7 @@ contract PauserRole {
     }
 
     modifier onlyPauser() {
-        require(isPauser(msg.sender), "from OpenZeppelin's:PauserRole.sol:onlyPauser().");
+        require(isPauser(msg.sender), "PauserRole: caller doesn't have the Pauser role.");
         _;
     }
 

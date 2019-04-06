@@ -18,11 +18,10 @@ library SignedSafeMath {
             return 0;
         }
 
-        // solhint-disable-next-line max-line-length
-        require(!(a == -1 && b == INT256_MIN), "from OpenZeppelin's:SignedSafeMath.sol:mul(). Detected overflow."); // This is the only case of overflow not detected by the check below
+        require(!(a == -1 && b == INT256_MIN), "SignedSafeMath: (a == -1 && b == -2**255)");
 
         int256 c = a * b;
-        require(c / a == b, "from OpenZeppelin's:SignedSafeMath.sol:mul(). c/a != b. ");
+        require(c / a == b, "SignedSafeMath: c / a == b");
 
         return c;
     }
@@ -31,10 +30,8 @@ library SignedSafeMath {
      * @dev Integer division of two signed integers truncating the quotient, reverts on division by zero.
      */
     function div(int256 a, int256 b) internal pure returns (int256) {
-        // solhint-disable-next-line max-line-length
-        require(b != 0, "from OpenZeppelin's:SignedSafeMath.sol:div(). Divide by zero error."); // Solidity only automatically asserts when dividing by 0
-        // solhint-disable-next-line max-line-length
-        require(!(b == -1 && a == INT256_MIN), "from OpenZeppelin's:SignedSafeMath.sol:div(). Detected overflow."); // This is the only case of overflow
+        require(b != 0, "SignedSafeMath: division by zero.");
+        require(!(b == -1 && a == INT256_MIN), "SignedSafeMath: (b == -1 && a == -2**255)");
 
         int256 c = a / b;
 
@@ -46,7 +43,7 @@ library SignedSafeMath {
      */
     function sub(int256 a, int256 b) internal pure returns (int256) {
         int256 c = a - b;
-        require((b >= 0 && c <= a) || (b < 0 && c > a), "from OpenZeppelin's:SignedSafeMath.sol:sub().");
+        require((b >= 0 && c <= a) || (b < 0 && c > a), "SignedSafeMath: (b >= 0 && c <= a) || (b < 0 && c > a)");
 
         return c;
     }
@@ -56,7 +53,7 @@ library SignedSafeMath {
      */
     function add(int256 a, int256 b) internal pure returns (int256) {
         int256 c = a + b;
-        require((b >= 0 && c >= a) || (b < 0 && c < a), "from OpenZeppelin's:SignedSafeMath.sol:add().");
+        require((b >= 0 && c >= a) || (b < 0 && c < a), "SignedSafeMath: (b >= 0 && c >= a) || (b < 0 && c < a)");
 
         return c;
     }

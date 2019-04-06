@@ -15,7 +15,7 @@ contract CapperRole {
     }
 
     modifier onlyCapper() {
-        require(isCapper(msg.sender), "from OpenZeppelin's:CapperRole.sol:onlyCapper().");
+        require(isCapper(msg.sender), "CapperRole: caller doesn't have the Capper role.");
         _;
     }
 

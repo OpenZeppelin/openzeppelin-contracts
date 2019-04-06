@@ -17,7 +17,7 @@ contract CappedCrowdsale is Crowdsale {
      * @param cap Max amount of wei to be contributed
      */
     constructor (uint256 cap) public {
-        require(cap > 0, "from OpenZeppelin's:CappedCrowdsale.sol:constructor().");
+        require(cap > 0, "CappedCrowdsale: max amount of wei to be contributed is 0.");
         _cap = cap;
     }
 
@@ -43,6 +43,6 @@ contract CappedCrowdsale is Crowdsale {
      */
     function _preValidatePurchase(address beneficiary, uint256 weiAmount) internal view {
         super._preValidatePurchase(beneficiary, weiAmount);
-        require(weiRaised().add(weiAmount) <= _cap, "from OpenZeppelin's:CappedCrowdsale.sol:_preValidatePurchase().");
+        require(weiRaised().add(weiAmount) <= _cap, "CappedCrowdsale: invalid purchase.");
     }
 }

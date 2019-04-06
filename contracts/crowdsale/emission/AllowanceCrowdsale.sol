@@ -21,7 +21,7 @@ contract AllowanceCrowdsale is Crowdsale {
      * @param tokenWallet Address holding the tokens, which has approved allowance to the crowdsale
      */
     constructor (address tokenWallet) public {
-        require(tokenWallet != address(0), "from OpenZeppelin's:AllowanceCrowdsale.sol:constructor().");
+        require(tokenWallet != address(0), "AllowanceCrowdsale: token wallet address can only be non-zero address.");
         _tokenWallet = tokenWallet;
     }
 

@@ -18,7 +18,7 @@ contract WhitelistedRole is WhitelistAdminRole {
     Roles.Role private _whitelisteds;
 
     modifier onlyWhitelisted() {
-        require(isWhitelisted(msg.sender), "from OpenZeppelin's:WhitelistedRole.sol:onlyWhitelisted().");
+        require(isWhitelisted(msg.sender), "WhitelistedRole: caller doesn't have the Whitelist role.");
         _;
     }
 
