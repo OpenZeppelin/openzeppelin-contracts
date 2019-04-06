@@ -33,14 +33,14 @@ contract RefundEscrow is ConditionalEscrow {
     }
 
     /**
-     * @return the current state of the escrow.
+     * @return The current state of the escrow.
      */
     function state() public view returns (State) {
         return _state;
     }
 
     /**
-     * @return the beneficiary of the escrow.
+     * @return The beneficiary of the escrow.
      */
     function beneficiary() public view returns (address) {
         return _beneficiary;
