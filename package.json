@@ -52,7 +52,7 @@
     "ethereumjs-util": "^6.0.0",
     "ethjs-abi": "^0.2.1",
     "ganache-cli": "^6.4.1",
-    "ganache-cli-coverage": "github:Agusx1211/ganache-cli#c462b3fc48fe9b16756f7799885c0741114d9ed3",
+    "ganache-cli-coverage": "github:frangio/ganache-cli#coverage",
     "openzeppelin-test-helpers": "^0.3.2",
     "pify": "^4.0.1",
     "solhint": "^1.5.0",
