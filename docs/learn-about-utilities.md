@@ -33,7 +33,7 @@ keccack256(
 
 ## Introspection
 
-In solidity, it's frequently helpful to know whether or not a contract supports an interface you'd like to use. ERC165 is a standard that helps do runtime interface detection. OpenZeppelin provides some helpers, both for implementing ERC165 in your contracts and querying other contracts:
+In Solidity, it's frequently helpful to know whether or not a contract supports an interface you'd like to use. ERC165 is a standard that helps do runtime interface detection. OpenZeppelin provides some helpers, both for implementing ERC165 in your contracts and querying other contracts:
 
 - [IERC165](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/introspection/IERC165.sol) — this is the ERC165 interface that defines `supportsInterface(...)`. When implementing ERC165, you'll conform to this interface.
 - [ERC165](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/introspection/ERC165.sol) — inherit this contract if you'd like to support interface detection using a lookup table in contract storage. You can register interfaces using `_registerInterface(bytes4)`: check out example usage as part of the ERC721 implementation.
