@@ -41,6 +41,10 @@ contract PaymentSplitter {
      * @dev The ether received will be logged with `PaymentReceived` events. Note that these events are not fully
      * reliable: it's possible for a contract to receive ether without triggering this function. This only affects the
      * reliability of the events, and not the actual splitting of ether.
+     *
+     * To learn more about this see the Solidity documentation for [fallback functions].
+     *
+     * [fallback functions]: https://solidity.readthedocs.io/en/latest/contracts.html#fallback-function
      */
     function () external payable {
         emit PaymentReceived(msg.sender, msg.value);
@@ -100,6 +104,11 @@ contract PaymentSplitter {
         emit PaymentReleased(account, payment);
     }
 
+    /**
+     * @dev Add a new payee to the contract.
+     * @param account The address of the payee to add.
+     * @param shares_ The number of shares owned by the payee.
+     */
     function _addPayee(address account, uint256 shares_) private {
         require(account != address(0));
         require(shares_ > 0);
