@@ -48,7 +48,7 @@ contract SignatureBouncer is SignerRole {
     }
 
     /**
-     * @dev requires that a valid signature of a signer was provided
+     * @dev Requires that a valid signature of a signer was provided.
      */
     modifier onlyValidSignature(bytes memory signature) {
         require(_isValidSignature(msg.sender, signature));
@@ -56,7 +56,7 @@ contract SignatureBouncer is SignerRole {
     }
 
     /**
-     * @dev requires that a valid signature with a specified method of a signer was provided
+     * @dev Requires that a valid signature with a specified method of a signer was provided.
      */
     modifier onlyValidSignatureAndMethod(bytes memory signature) {
         require(_isValidSignatureAndMethod(msg.sender, signature));
@@ -64,7 +64,7 @@ contract SignatureBouncer is SignerRole {
     }
 
     /**
-     * @dev requires that a valid signature with a specified method and params of a signer was provided
+     * @dev Requires that a valid signature with a specified method and params of a signer was provided.
      */
     modifier onlyValidSignatureAndData(bytes memory signature) {
         require(_isValidSignatureAndData(msg.sender, signature));
@@ -108,8 +108,8 @@ contract SignatureBouncer is SignerRole {
     }
 
     /**
-     * @dev internal function to convert a hash to an eth signed message
-     * and then recover the signature and check it against the signer role
+     * @dev Internal function to convert a hash to an eth signed message
+     * and then recover the signature and check it against the signer role.
      * @return bool
      */
     function _isValidDataHash(bytes32 hash, bytes memory signature) internal view returns (bool) {

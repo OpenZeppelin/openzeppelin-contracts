@@ -52,7 +52,7 @@ contract IndividuallyCappedCrowdsale is Crowdsale, CapperRole {
     }
 
     /**
-     * @dev Extend parent behavior to update beneficiary contributions
+     * @dev Extend parent behavior to update beneficiary contributions.
      * @param beneficiary Token purchaser
      * @param weiAmount Amount of wei contributed
      */
