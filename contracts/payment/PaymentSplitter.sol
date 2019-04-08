@@ -26,7 +26,8 @@ contract PaymentSplitter {
      * the matching position in the `shares` array. Each account will then receive payments proportional to the
      * percentage of the shares that they were assigned.
      *
-     * Both arrays must have the same non-zero length, and there must be no duplicates in `payees`.
+     * All addresses in `payees` must be non-zero. Both arrays must have the same non-zero length, and there must be no
+     * duplicates in `payees`.
      */
     constructor (address[] memory payees, uint256[] memory shares) public payable {
         require(payees.length == shares.length);
