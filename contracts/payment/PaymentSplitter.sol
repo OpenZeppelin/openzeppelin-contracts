@@ -22,7 +22,11 @@ contract PaymentSplitter {
     address[] private _payees;
 
     /**
-     * @dev Constructor.
+     * @dev Creates an instance of `PaymentSplitter` where each account in `payees` is assigned the number of shares at
+     * the matching position in the `shares` array. Each account will then receive payments proportional to the
+     * percentage of the shares that they were assigned.
+     *
+     * Both arrays must have the same non-zero length, and there must be no duplicates in `payees`.
      */
     constructor (address[] memory payees, uint256[] memory shares) public payable {
         require(payees.length == shares.length);
@@ -34,50 +38,52 @@ contract PaymentSplitter {
     }
 
     /**
-     * @dev Payable fallback.
+     * @dev The ether received will be logged with `PaymentReceived` events. Note that these events are not fully
+     * reliable: it's possible for a contract to receive ether without triggering this function. This only affects the
+     * reliability of the events, and not the actual splitting of ether.
      */
     function () external payable {
         emit PaymentReceived(msg.sender, msg.value);
     }
 
     /**
-     * @return the total shares of the contract.
+     * @dev Getter for the total shares held by payees.
      */
     function totalShares() public view returns (uint256) {
         return _totalShares;
     }
 
     /**
-     * @return the total amount already released.
+     * @dev Getter for the total amount of ether already released.
      */
     function totalReleased() public view returns (uint256) {
         return _totalReleased;
     }
 
     /**
-     * @return the shares of an account.
+     * @dev Getter for the amount of shares held by an account.
      */
     function shares(address account) public view returns (uint256) {
         return _shares[account];
     }
 
     /**
-     * @return the amount already released to an account.
+     * @dev Getter for the amount of ether already released to a payee.
      */
     function released(address account) public view returns (uint256) {
         return _released[account];
     }
 
     /**
-     * @return the address of a payee.
+     * @dev Getter for the address of the payee number `index`.
      */
     function payee(uint256 index) public view returns (address) {
         return _payees[index];
     }
 
     /**
-     * @dev Release one of the payee's proportional payment.
-     * @param account Whose payments will be released.
+     * @dev Triggers a transfer to `account` of the amount of ether they are owed, according to their percentage of the
+     * total shares and their previous withdrawals.
      */
     function release(address payable account) public {
         require(_shares[account] > 0);
@@ -94,11 +100,6 @@ contract PaymentSplitter {
         emit PaymentReleased(account, payment);
     }
 
-    /**
-     * @dev Add a new payee to the contract.
-     * @param account The address of the payee to add.
-     * @param shares_ The number of shares owned by the payee.
-     */
     function _addPayee(address account, uint256 shares_) private {
         require(account != address(0));
         require(shares_ > 0);
