@@ -42,8 +42,7 @@ contract RoundedDivMathMock {
         return RoundedDivMath.roundedDiv(a, b);
     }
 
-    function bankersRoundedDiv(uint256 a, uint256 b) internal pure returns (uint256) {
+    function bankersRoundedDiv(uint256 a, uint256 b) public pure returns (uint256) {
         return RoundedDivMath.bankersRoundedDiv(a, b);
     }
-
 }

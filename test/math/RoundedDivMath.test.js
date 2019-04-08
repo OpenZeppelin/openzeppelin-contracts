@@ -5,6 +5,52 @@ contract('RoundedDivMath', function () {
     this.math = await RoundedDivMathMock.new();
   });
 
+  describe('roundedDiv', function () {
+    it('should return correct results', async function () {
+      assert.equal(await this.math.roundedDiv(49, 100), 0);
+      assert.equal(await this.math.roundedDiv(50, 100), 1);
+      assert.equal(await this.math.roundedDiv(51, 100), 1);
+
+      assert.equal(await this.math.roundedDiv(149, 100), 1);
+      assert.equal(await this.math.roundedDiv(150, 100), 2);
+      assert.equal(await this.math.roundedDiv(151, 100), 2);
+
+      assert.equal(await this.math.roundedDiv(249, 100), 2);
+      assert.equal(await this.math.roundedDiv(250, 100), 2);
+      assert.equal(await this.math.roundedDiv(251, 100), 3);
+
+      // divide by odd number
+      assert.equal(await this.math.bankersRoundedDiv(49, 101), 0);
+    });
+
+    it('should throw if divided by null', async function () {
+      await this.math.roundedDiv(49, 0).should.be.rejectedWith('revert');
+    });
+  });
+
+  describe('bankersRoundedDiv', function () {
+    it('should return correct results', async function () {
+      assert.equal(await this.math.bankersRoundedDiv(49, 100), 0);
+      assert.equal(await this.math.bankersRoundedDiv(50, 100), 0);
+      assert.equal(await this.math.bankersRoundedDiv(51, 100), 1);
+
+      assert.equal(await this.math.bankersRoundedDiv(149, 100), 1);
+      assert.equal(await this.math.bankersRoundedDiv(150, 100), 2);
+      assert.equal(await this.math.bankersRoundedDiv(151, 100), 2);
+
+      assert.equal(await this.math.bankersRoundedDiv(249, 100), 2);
+      assert.equal(await this.math.bankersRoundedDiv(250, 100), 2);
+      assert.equal(await this.math.bankersRoundedDiv(251, 100), 3);
+
+      // divide by odd number
+      assert.equal(await this.math.bankersRoundedDiv(49, 101), 0);
+    });
+
+    it('should throw if divided by null', async function () {
+      await this.math.roundedDiv(49, 0).should.be.rejectedWith('revert');
+    });
+  });
+
   describe('unitsToCentsRounded (roundedDiv)', function () {
     it('should return correct results', async function () {
       // 0.49 cents -> 0 cents

@@ -51,6 +51,8 @@ library RoundedDivMath {
      * @param b Divide by this number
      */
     function bankersRoundedDiv(uint256 a, uint256 b) internal pure returns (uint256) {
+        require(b > 0, "div by 0"); 
+
         uint256 halfB = 0;
         if ((b % 2) == 1) {
             halfB = (b / 2) + 1;
