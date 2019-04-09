@@ -4,8 +4,16 @@ import "../math/SafeMath.sol";
 
 /**
  * @title PaymentSplitter
- * @dev This contract can be used when payments need to be received by a group
- * of people and split proportionately to some number of shares they own.
+ * @dev This contract allows to split ether payments among a group of accounts. The sender does not need to be aware
+ * that the ether will be split in this way, since it is handled purely by the contract.
+ *
+ * The split can be in equal parts or in any other arbitrary proportion. The way this is specified is by assigning each
+ * account to a number of shares. Of all the ether that this contract receives, each account will then be able to claim
+ * an amount proportional to the percentage of total shares they were assigned.
+ *
+ * `PaymentSplitter` follows a _pull payment_ model. This means that payments are not automatically forwarded to the
+ * accounts but kept in this contract, and the actual transfer is triggered as a separate step by calling the `release`
+ * function.
  */
 contract PaymentSplitter {
     using SafeMath for uint256;
@@ -23,8 +31,7 @@ contract PaymentSplitter {
 
     /**
      * @dev Creates an instance of `PaymentSplitter` where each account in `payees` is assigned the number of shares at
-     * the matching position in the `shares` array. Each account will then receive payments proportional to the
-     * percentage of the shares that they were assigned.
+     * the matching position in the `shares` array.
      *
      * All addresses in `payees` must be non-zero. Both arrays must have the same non-zero length, and there must be no
      * duplicates in `payees`.
