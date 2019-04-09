@@ -69,7 +69,8 @@ contract ERC777SenderMock is IERC777Sender, ERC1820Implementer {
     }
 
     function send(IERC777 token, address to, uint256 amount, bytes memory data) public {
-        token.send(to, amount, data);
+        // This is 777's send function, not the Solidity send function
+        token.send(to, amount, data); // solhint-disable-line check-send-result
     }
 
     function burn(IERC777 token, uint256 amount, bytes memory data) public {

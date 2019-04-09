@@ -234,28 +234,31 @@ contract('ERC777', function ([
           const amount = new BN('1');
           const recipient = anyone;
           const operator = defaultOperatorA;
-          let sender;
+          // sender is stored inside 'this', since for some tests its address is determined dynamically
 
           context('with a contract as implementer for an externally owned account', function () {
-            sender = holder;
-
             beforeEach(async function () {
-              this.tokensSenderImplementer = await ERC777SenderMock.new(holder);
-              await this.erc1820.setInterfaceImplementer(holder, web3.utils.soliditySha3('ERC777TokensSender'), this.tokensSenderImplementer.address, { from: holder });
+              this.sender = holder;
+              this.tokensSenderImplementer = await ERC777SenderMock.new(this.sender);
+              await this.erc1820.setInterfaceImplementer(
+                this.sender,
+                web3.utils.soliditySha3('ERC777TokensSender'), this.tokensSenderImplementer.address,
+                { from: this.sender },
+              );
             });
 
-            shouldBehaveLikeERC777SendBurnWithHook(sender, recipient, operator, amount, data, operatorData);
+            shouldBehaveLikeERC777SendBurnWithHook(recipient, operator, amount, data, operatorData);
           });
 
           context('with a contract as implementer for itself', function () {
             beforeEach(async function () {
               this.tokensSenderImplementer = await ERC777SenderMock.new(ZERO_ADDRESS);
 
-              sender = this.tokensSenderImplementer.address;
-              await this.token.send(sender, amount, data, { from: holder });
+              this.sender = this.tokensSenderImplementer.address;
+              await this.token.send(this.sender, amount, data, { from: holder });
             });
 
-            shouldBehaveLikeERC777SendBurnWithHook(sender, recipient, operator, amount, data, operatorData);
+            shouldBehaveLikeERC777SendBurnWithHook(recipient, operator, amount, data, operatorData);
           });
         });
       });
