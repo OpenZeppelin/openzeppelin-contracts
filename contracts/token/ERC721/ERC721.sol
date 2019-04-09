@@ -57,7 +57,7 @@ contract ERC721 is ERC165, IERC721 {
      * @return uint256 representing the amount owned by the passed address
      */
     function balanceOf(address owner) public view returns (uint256) {
-        require(owner != address(0), "Address (to) can't be null !!");
+        require(owner != address(0), "empty or zero transaction recipient");
         return _ownedTokensCount[owner].current();
     }
 
@@ -67,9 +67,8 @@ contract ERC721 is ERC165, IERC721 {
      * @return address currently marked as the owner of the given token ID
      */
     function ownerOf(uint256 tokenId) public view returns (address) {
-        require(_exists(tokenId), "TokenId doesn't exist !!");
         address owner = _tokenOwner[tokenId];
-        require(owner != address(0), "Address (to) can't be null !!");
+        require(owner != address(0), "empty or zero transaction recipient");
         return owner;
     }
 
@@ -82,10 +81,10 @@ contract ERC721 is ERC165, IERC721 {
      * @param tokenId uint256 ID of the token to be approved
      */
     function approve(address to, uint256 tokenId) public {
-        require(_exists(tokenId), "TokenId doesn't exist !!");
+        require(_exists(tokenId), "tokenId to approve doesn't exist");
         address owner = ownerOf(tokenId);
-        require(to != owner, "You can't approve yourself !!");
-        require(msg.sender == owner || isApprovedForAll(owner, msg.sender), "Only owner of the token can approve !!");
+        require(to != owner, "transfer recipient must not be current owner");
+        require(msg.sender == owner || isApprovedForAll(owner, msg.sender), "sender is not owner nor is approved");
 
         _tokenApprovals[tokenId] = to;
         emit Approval(owner, to, tokenId);
@@ -98,7 +97,7 @@ contract ERC721 is ERC165, IERC721 {
      * @return address currently approved for the given token ID
      */
     function getApproved(uint256 tokenId) public view returns (address) {
-        require(_exists(tokenId), "TokenId doesn't exists !!");
+        require(_exists(tokenId), "tokenId to aprove doesn't exists");
         return _tokenApprovals[tokenId];
     }
 
@@ -109,7 +108,7 @@ contract ERC721 is ERC165, IERC721 {
      * @param approved representing the status of the approval to be set
      */
     function setApprovalForAll(address to, bool approved) public {
-        require(to != msg.sender, "You can't approve yourself !!");
+        require(to != msg.sender, "sender can't be receipent");
         _operatorApprovals[msg.sender][to] = approved;
         emit ApprovalForAll(msg.sender, to, approved);
     }
@@ -133,7 +132,7 @@ contract ERC721 is ERC165, IERC721 {
      * @param tokenId uint256 ID of the token to be transferred
      */
     function transferFrom(address from, address to, uint256 tokenId) public {
-        require(_isApprovedOrOwner(msg.sender, tokenId), "You must be either Owner or Approved by Owner !!");
+        require(_isApprovedOrOwner(msg.sender, tokenId),"sender is not owner nor is approved");
 
         _transferFrom(from, to, tokenId);
     }
@@ -150,7 +149,7 @@ contract ERC721 is ERC165, IERC721 {
      * @param tokenId uint256 ID of the token to be transferred
      */
     function safeTransferFrom(address from, address to, uint256 tokenId) public {
-        safeTransferFrom(from, to, tokenId, "");
+        safeTransferFrom(from, to, tokenId);
     }
 
     /**
@@ -188,7 +187,7 @@ contract ERC721 is ERC165, IERC721 {
      * is an operator of the owner, or is the owner of the token
      */
     function _isApprovedOrOwner(address spender, uint256 tokenId) internal view returns (bool) {
-        require(_exists(tokenId), "TokenId doesn't exist !!");
+        require(_exists(tokenId), "tokenId doesn't exist");
         address owner = ownerOf(tokenId);
         return (spender == owner || getApproved(tokenId) == spender || isApprovedForAll(owner, spender));
     }
@@ -200,8 +199,8 @@ contract ERC721 is ERC165, IERC721 {
      * @param tokenId uint256 ID of the token to be minted
      */
     function _mint(address to, uint256 tokenId) internal {
-        require(to != address(0), "Address (to) can't be null !!");
-        require(!_exists(tokenId), "TokenId already exist !!");
+        require(to != address(0), "empty or zero transaction recipient");
+        require(!_exists(tokenId), "tokenId to mint already exist");
 
         _tokenOwner[tokenId] = to;
         _ownedTokensCount[to].increment();
@@ -217,8 +216,8 @@ contract ERC721 is ERC165, IERC721 {
      * @param tokenId uint256 ID of the token being burned
      */
     function _burn(address owner, uint256 tokenId) internal {
-        require(_exists(tokenId), "TokenId doesn't exist !!");
-        require(ownerOf(tokenId) == owner, "You are not the owner of this token !!");
+        require(_exists(tokenId), "tokenId to burn doesn't exist");
+        require(ownerOf(tokenId) == owner, "can only performed by owner");
 
         _clearApproval(tokenId);
 
@@ -245,9 +244,9 @@ contract ERC721 is ERC165, IERC721 {
      * @param tokenId uint256 ID of the token to be transferred
      */
     function _transferFrom(address from, address to, uint256 tokenId) internal {
-        require(_exists(tokenId), "TokenId doesn't exist !!");
-        require(ownerOf(tokenId) == from, "You are not the owner of this token !!");
-        require(to != address(0), "Address (to) can't be null !!");
+        require(_exists(tokenId), "tokenId to transfer doesn't exist");
+        require(ownerOf(tokenId) == from, "can only performed by owner");
+        require(to != address(0), "empty or zero transaction recipient");
 
         _clearApproval(tokenId);
 
