@@ -4,11 +4,11 @@ import "../math/SafeMath.sol";
 
 /**
  * @title PaymentSplitter
- * @dev This contract allows to split ether payments among a group of accounts. The sender does not need to be aware
- * that the ether will be split in this way, since it is handled purely by the contract.
+ * @dev This contract allows to split Ether payments among a group of accounts. The sender does not need to be aware
+ * that the Ether will be split in this way, since it is handled purely by the contract.
  *
  * The split can be in equal parts or in any other arbitrary proportion. The way this is specified is by assigning each
- * account to a number of shares. Of all the ether that this contract receives, each account will then be able to claim
+ * account to a number of shares. Of all the Ether that this contract receives, each account will then be able to claim
  * an amount proportional to the percentage of total shares they were assigned.
  *
  * `PaymentSplitter` follows a _pull payment_ model. This means that payments are not automatically forwarded to the
@@ -46,9 +46,9 @@ contract PaymentSplitter {
     }
 
     /**
-     * @dev The ether received will be logged with `PaymentReceived` events. Note that these events are not fully
-     * reliable: it's possible for a contract to receive ether without triggering this function. This only affects the
-     * reliability of the events, and not the actual splitting of ether.
+     * @dev The Ether received will be logged with `PaymentReceived` events. Note that these events are not fully
+     * reliable: it's possible for a contract to receive Ether without triggering this function. This only affects the
+     * reliability of the events, and not the actual splitting of Ether.
      *
      * To learn more about this see the Solidity documentation for [fallback functions].
      *
@@ -66,7 +66,7 @@ contract PaymentSplitter {
     }
 
     /**
-     * @dev Getter for the total amount of ether already released.
+     * @dev Getter for the total amount of Ether already released.
      */
     function totalReleased() public view returns (uint256) {
         return _totalReleased;
@@ -80,7 +80,7 @@ contract PaymentSplitter {
     }
 
     /**
-     * @dev Getter for the amount of ether already released to a payee.
+     * @dev Getter for the amount of Ether already released to a payee.
      */
     function released(address account) public view returns (uint256) {
         return _released[account];
@@ -94,7 +94,7 @@ contract PaymentSplitter {
     }
 
     /**
-     * @dev Triggers a transfer to `account` of the amount of ether they are owed, according to their percentage of the
+     * @dev Triggers a transfer to `account` of the amount of Ether they are owed, according to their percentage of the
      * total shares and their previous withdrawals.
      */
     function release(address payable account) public {
