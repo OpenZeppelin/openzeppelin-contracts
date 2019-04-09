@@ -1,6 +1,7 @@
 pragma solidity ^0.5.2;
 
 import "./ConditionalEscrow.sol";
+import "../../utils/Address.sol";
 
 /**
  * @title RefundEscrow
@@ -14,6 +15,8 @@ import "./ConditionalEscrow.sol";
  * RefundableCrowdsale contract for an example of RefundEscrow’s use.
  */
 contract RefundEscrow is ConditionalEscrow {
+    using Address for address payable;
+
     enum State { Active, Refunding, Closed }
 
     event RefundsClosed();
@@ -79,7 +82,7 @@ contract RefundEscrow is ConditionalEscrow {
      */
     function beneficiaryWithdraw() public {
         require(_state == State.Closed);
-        _beneficiary.transfer(address(this).balance);
+        _beneficiary.transferWithGas(address(this).balance);
     }
 
     /**

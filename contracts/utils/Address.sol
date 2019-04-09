@@ -23,4 +23,9 @@ library Address {
         assembly { size := extcodesize(account) }
         return size > 0;
     }
+
+    function transferWithGas(address payable account, uint256 amount) internal {
+        (bool success,) = account.call.value(amount)(""); // solhint-disable-line avoid-call-value
+        require(success);
+    }
 }

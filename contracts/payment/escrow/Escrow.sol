@@ -1,6 +1,7 @@
 pragma solidity ^0.5.2;
 
 import "../../math/SafeMath.sol";
+import "../../utils/Address.sol";
 import "../../ownership/Secondary.sol";
 
  /**
@@ -17,6 +18,7 @@ import "../../ownership/Secondary.sol";
   */
 contract Escrow is Secondary {
     using SafeMath for uint256;
+    using Address for address payable;
 
     event Deposited(address indexed payee, uint256 weiAmount);
     event Withdrawn(address indexed payee, uint256 weiAmount);
@@ -47,7 +49,7 @@ contract Escrow is Secondary {
 
         _deposits[payee] = 0;
 
-        payee.transfer(payment);
+        payee.transferWithGas(payment);
 
         emit Withdrawn(payee, payment);
     }

@@ -1,5 +1,7 @@
 const { balance, ether, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
 
+const FallbackGasReporter = artifacts.require('FallbackGasReporter');
+
 function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
   const amount = ether('42');
 
@@ -65,6 +67,16 @@ function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
 
       it('can do an empty withdrawal', async function () {
         await this.escrow.withdraw(payee1, { from: primary });
+      });
+
+      it('forwards all gas', async function () {
+        const gasReporter = await FallbackGasReporter.new();
+
+        const { tx } = await this.escrow.withdraw(gasReporter.address, { from: primary });
+        const event = await expectEvent.inTransaction(tx, FallbackGasReporter, 'RemainingGas');
+
+        // This doesn't really test that _all_ gas is forwarded, but it does test that `transfer` wasn't used
+        event.args.amount.should.be.bignumber.greaterThan('2300');
       });
 
       it('only the primary account can withdraw', async function () {
