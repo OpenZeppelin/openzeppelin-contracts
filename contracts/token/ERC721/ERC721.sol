@@ -198,7 +198,7 @@ contract ERC721 is ERC165, IERC721 {
      * @param tokenId uint256 ID of the token to be minted
      */
     function _mint(address to, uint256 tokenId) internal {
-        require(to != address(0), "empty or zero transaction recipient");
+        require(to != address(0), "mint recipient is zero");
         require(!_exists(tokenId), "tokenId to mint already exist");
 
         _tokenOwner[tokenId] = to;
@@ -245,7 +245,7 @@ contract ERC721 is ERC165, IERC721 {
     function _transferFrom(address from, address to, uint256 tokenId) internal {
         require(_exists(tokenId), "tokenId to transfer doesn't exist");
         require(ownerOf(tokenId) == from, "can only performed by owner");
-        require(to != address(0), "empty or zero transaction recipient");
+        require(to != address(0), "transfer recipient is zero");
 
         _clearApproval(tokenId);
 
