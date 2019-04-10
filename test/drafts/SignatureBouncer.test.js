@@ -37,7 +37,7 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
 
       it('does not allow valid signature for other sender', async function () {
         await shouldFail.reverting(
-          this.sigBouncer.onlyWithValidSignature(await this.signFor(authorizedUser), { from: anyone })
+          this.sigBouncer.onlyWithValidSignature(await this.signFor(authorizedUser), { from: other })
         );
       });
 
@@ -65,7 +65,7 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
       it('does not allow valid signature with correct method for other sender', async function () {
         await shouldFail.reverting(
           this.sigBouncer.onlyWithValidSignatureAndMethod(
-            await this.signFor(authorizedUser, 'onlyWithValidSignatureAndMethod'), { from: anyone }
+            await this.signFor(authorizedUser, 'onlyWithValidSignatureAndMethod'), { from: other }
           )
         );
       });
@@ -110,7 +110,7 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
         await shouldFail.reverting(
           this.sigBouncer.onlyWithValidSignatureAndData(UINT_VALUE,
             await this.signFor(authorizedUser, 'onlyWithValidSignatureAndData', [UINT_VALUE]),
-            { from: anyone }
+            { from: other }
           )
         );
       });

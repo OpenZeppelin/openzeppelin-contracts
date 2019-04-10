@@ -23,23 +23,23 @@ contract('FinalizableCrowdsale', function ([_, wallet, anyone]) {
   });
 
   it('cannot be finalized before ending', async function () {
-    await shouldFail.reverting(this.crowdsale.finalize({ from: anyone }));
+    await shouldFail.reverting(this.crowdsale.finalize({ from: other }));
   });
 
   it('can be finalized by anyone after ending', async function () {
     await time.increaseTo(this.afterClosingTime);
-    await this.crowdsale.finalize({ from: anyone });
+    await this.crowdsale.finalize({ from: other });
   });
 
   it('cannot be finalized twice', async function () {
     await time.increaseTo(this.afterClosingTime);
-    await this.crowdsale.finalize({ from: anyone });
-    await shouldFail.reverting(this.crowdsale.finalize({ from: anyone }));
+    await this.crowdsale.finalize({ from: other });
+    await shouldFail.reverting(this.crowdsale.finalize({ from: other }));
   });
 
   it('logs finalized', async function () {
     await time.increaseTo(this.afterClosingTime);
-    const { logs } = await this.crowdsale.finalize({ from: anyone });
+    const { logs } = await this.crowdsale.finalize({ from: other });
     expectEvent.inLogs(logs, 'CrowdsaleFinalized');
   });
 });

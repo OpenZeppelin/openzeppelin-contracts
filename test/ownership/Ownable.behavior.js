@@ -8,16 +8,16 @@ function shouldBehaveLikeOwnable (owner, [anyone]) {
     });
 
     it('changes owner after transfer', async function () {
-      (await this.ownable.isOwner({ from: anyone })).should.be.equal(false);
+      (await this.ownable.isOwner({ from: other })).should.be.equal(false);
       const { logs } = await this.ownable.transferOwnership(anyone, { from: owner });
       expectEvent.inLogs(logs, 'OwnershipTransferred');
 
       (await this.ownable.owner()).should.equal(anyone);
-      (await this.ownable.isOwner({ from: anyone })).should.be.equal(true);
+      (await this.ownable.isOwner({ from: other })).should.be.equal(true);
     });
 
     it('should prevent non-owners from transferring', async function () {
-      await shouldFail.reverting(this.ownable.transferOwnership(anyone, { from: anyone }));
+      await shouldFail.reverting(this.ownable.transferOwnership(anyone, { from: other }));
     });
 
     it('should guard ownership against stuck state', async function () {
@@ -32,7 +32,7 @@ function shouldBehaveLikeOwnable (owner, [anyone]) {
     });
 
     it('should prevent non-owners from renouncement', async function () {
-      await shouldFail.reverting(this.ownable.renounceOwnership({ from: anyone }));
+      await shouldFail.reverting(this.ownable.renounceOwnership({ from: other }));
     });
   });
 }

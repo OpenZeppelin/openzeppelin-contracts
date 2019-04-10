@@ -18,7 +18,7 @@ contract('Secondary', function ([_, primary, newPrimary, anyone]) {
     });
 
     it('reverts when anyone calls onlyPrimary functions', async function () {
-      await shouldFail.reverting(this.secondary.onlyPrimaryMock({ from: anyone }));
+      await shouldFail.reverting(this.secondary.onlyPrimaryMock({ from: other }));
     });
   });
 
@@ -34,7 +34,7 @@ contract('Secondary', function ([_, primary, newPrimary, anyone]) {
     });
 
     it('reverts when called by anyone', async function () {
-      await shouldFail.reverting(this.secondary.transferPrimary(newPrimary, { from: anyone }));
+      await shouldFail.reverting(this.secondary.transferPrimary(newPrimary, { from: other }));
     });
 
     context('with new primary', function () {

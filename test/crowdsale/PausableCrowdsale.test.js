@@ -16,8 +16,8 @@ contract('PausableCrowdsale', function ([_, pauser, wallet, anyone]) {
   });
 
   it('purchases work', async function () {
-    await this.crowdsale.sendTransaction({ from: anyone, value });
-    await this.crowdsale.buyTokens(anyone, { from: anyone, value });
+    await this.crowdsale.sendTransaction({ from: other, value });
+    await this.crowdsale.buyTokens(anyone, { from: other, value });
   });
 
   context('after pause', function () {
@@ -26,8 +26,8 @@ contract('PausableCrowdsale', function ([_, pauser, wallet, anyone]) {
     });
 
     it('purchases do not work', async function () {
-      await shouldFail.reverting(this.crowdsale.sendTransaction({ from: anyone, value }));
-      await shouldFail.reverting(this.crowdsale.buyTokens(anyone, { from: anyone, value }));
+      await shouldFail.reverting(this.crowdsale.sendTransaction({ from: other, value }));
+      await shouldFail.reverting(this.crowdsale.buyTokens(anyone, { from: other, value }));
     });
 
     context('after unpause', function () {
@@ -36,8 +36,8 @@ contract('PausableCrowdsale', function ([_, pauser, wallet, anyone]) {
       });
 
       it('purchases work', async function () {
-        await this.crowdsale.sendTransaction({ from: anyone, value });
-        await this.crowdsale.buyTokens(anyone, { from: anyone, value });
+        await this.crowdsale.sendTransaction({ from: other, value });
+        await this.crowdsale.buyTokens(anyone, { from: other, value });
       });
     });
   });
