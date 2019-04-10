@@ -57,7 +57,7 @@ contract ERC721 is ERC165, IERC721 {
      * @return uint256 representing the amount owned by the passed address
      */
     function balanceOf(address owner) public view returns (uint256) {
-        require(owner != address(0), "empty or zero transaction recipient");
+        require(owner != address(0), "balance query for zero address");
         return _ownedTokensCount[owner].current();
     }
 
@@ -68,7 +68,7 @@ contract ERC721 is ERC165, IERC721 {
      */
     function ownerOf(uint256 tokenId) public view returns (address) {
         address owner = _tokenOwner[tokenId];
-        require(owner != address(0), "empty or zero transaction recipient");
+        require(owner != address(0), "owner doesn't exist");
         return owner;
     }
 
@@ -81,7 +81,6 @@ contract ERC721 is ERC165, IERC721 {
      * @param tokenId uint256 ID of the token to be approved
      */
     function approve(address to, uint256 tokenId) public {
-        require(_exists(tokenId), "tokenId to approve doesn't exist");
         address owner = ownerOf(tokenId);
         require(to != owner, "transfer recipient must not be current owner");
         require(msg.sender == owner || isApprovedForAll(owner, msg.sender), "sender is not owner nor is approved");
@@ -149,7 +148,7 @@ contract ERC721 is ERC165, IERC721 {
      * @param tokenId uint256 ID of the token to be transferred
      */
     function safeTransferFrom(address from, address to, uint256 tokenId) public {
-        safeTransferFrom(from, to, tokenId);
+        safeTransferFrom(from, to, tokenId, "");
     }
 
     /**
