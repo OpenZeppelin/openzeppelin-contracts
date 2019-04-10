@@ -185,7 +185,7 @@ function shouldBehaveLikeERC721 (
 
         context('when the sender is not authorized for the token id', function () {
           it('reverts', async function () {
-            await shouldFail.reverting(transferFunction.call(this, owner, anyone, tokenId, { from: anyone })
+            await shouldFail.reverting(transferFunction.call(this, owner, anyone, tokenId, { from: other })
             );
           });
         });
@@ -398,7 +398,7 @@ function shouldBehaveLikeERC721 (
 
       context('when the sender does not own the given token ID', function () {
         it('reverts', async function () {
-          await shouldFail.reverting(this.token.approve(approved, tokenId, { from: anyone }));
+          await shouldFail.reverting(this.token.approve(approved, tokenId, { from: other }));
         });
       });
 

@@ -61,7 +61,7 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, anyon
         context('after closing time and finalization', function () {
           beforeEach(async function () {
             await time.increaseTo(this.afterClosingTime);
-            await this.crowdsale.finalize({ from: anyone });
+            await this.crowdsale.finalize({ from: other });
           });
 
           it('refunds', async function () {
@@ -80,7 +80,7 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, anyon
         context('after closing time and finalization', function () {
           beforeEach(async function () {
             await time.increaseTo(this.afterClosingTime);
-            await this.crowdsale.finalize({ from: anyone });
+            await this.crowdsale.finalize({ from: other });
           });
 
           it('denies refunds', async function () {

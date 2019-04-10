@@ -34,7 +34,7 @@ contract('IndividuallyCappedCrowdsale', function (
     });
 
     it('reverts when a non-capper sets a cap', async function () {
-      await shouldFail.reverting(this.crowdsale.setCap(alice, capAlice, { from: anyone }));
+      await shouldFail.reverting(this.crowdsale.setCap(alice, capAlice, { from: other }));
     });
 
     context('with individual caps', function () {
