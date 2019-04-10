@@ -122,7 +122,7 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
       });
 
       it('reverts when renouncing unassigned role', async function () {
-        await shouldFail.reverting(this.contract[`renounce${rolename}`]({ from: anyone }));
+        await shouldFail.reverting(this.contract[`renounce${rolename}`]({ from: other }));
       });
     });
   });
