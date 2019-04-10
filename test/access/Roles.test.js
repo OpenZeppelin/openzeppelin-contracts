@@ -8,7 +8,7 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
     this.roles = await RolesMock.new();
   });
 
-  it('reverts when querying roles for the null account', async function () {
+  it('reverts when querying roles for the zero account', async function () {
     await shouldFail.reverting(this.roles.has(ZERO_ADDRESS));
   });
 
@@ -31,7 +31,7 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
         await shouldFail.reverting(this.roles.add(authorized));
       });
 
-      it('reverts when adding roles to the null account', async function () {
+      it('reverts when adding roles to the zero account', async function () {
         await shouldFail.reverting(this.roles.add(ZERO_ADDRESS));
       });
     });
@@ -54,7 +54,7 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
         await shouldFail.reverting(this.roles.remove(anyone));
       });
 
-      it('reverts when removing roles from the null account', async function () {
+      it('reverts when removing roles from the zero account', async function () {
         await shouldFail.reverting(this.roles.remove(ZERO_ADDRESS));
       });
     });
