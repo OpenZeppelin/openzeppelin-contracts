@@ -131,7 +131,7 @@ contract ERC721 is ERC165, IERC721 {
      * @param tokenId uint256 ID of the token to be transferred
      */
     function transferFrom(address from, address to, uint256 tokenId) public {
-        require(_isApprovedOrOwner(msg.sender, tokenId),"sender is not owner nor is approved");
+        require(_isApprovedOrOwner(msg.sender, tokenId), "sender is not owner nor is approved");
 
         _transferFrom(from, to, tokenId);
     }
