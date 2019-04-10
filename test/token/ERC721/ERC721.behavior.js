@@ -49,6 +49,14 @@ function shouldBehaveLikeERC721 (
           (await this.token.ownerOf(tokenId)).should.be.equal(owner);
         });
       });
+
+      context('when the given token ID was not tracked by this token', function () {
+        const tokenId = unknownTokenId;
+
+        it('reverts', async function () {
+          await shouldFail.reverting(this.token.ownerOf(tokenId));
+        });
+      });
     });
 
     describe('transfers', function () {
