@@ -79,7 +79,7 @@ function shouldBehaveLikeERC777OperatorSend (holder, recipient, operator, data, 
         );
       });
 
-      it.skip('reverts when sending from the zero address', async function () {
+      it('reverts when sending from the zero address', async function () {
         // This is not yet reflected in the spec
         await shouldFail.reverting(
           this.token.operatorSend(
@@ -148,7 +148,7 @@ function shouldBehaveLikeERC777OperatorBurn (holder, operator, data, operatorDat
         );
       });
 
-      it.skip('reverts when burning from the zero address', async function () {
+      it('reverts when burning from the zero address', async function () {
         // This is not yet reflected in the spec
         await shouldFail.reverting(
           this.token.operatorBurn(

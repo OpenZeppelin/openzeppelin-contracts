@@ -73,7 +73,7 @@ contract ERC777 is IERC777 {
 
     /**
      * @dev Send the amount of tokens on behalf of the address from to the address to
-     * @param from address token holder address. Set to 0x0 to use msg.sender as token holder
+     * @param from address token holder address.
      * @param to address recipient address
      * @param amount uint256 amount of tokens to transfer
      * @param data bytes information attached to the send, and intended for the recipient (to)
@@ -88,15 +88,8 @@ contract ERC777 is IERC777 {
     )
     external
     {
-        address holder;
-        if (from == address(0)) {
-            holder = msg.sender;
-        } else {
-            holder = from;
-            require(isOperatorFor(msg.sender, holder));
-        }
-
-        _send(msg.sender, holder, to, amount, data, operatorData);
+        require(isOperatorFor(msg.sender, from));
+        _send(msg.sender, from, to, amount, data, operatorData);
     }
 
     /**
@@ -110,14 +103,14 @@ contract ERC777 is IERC777 {
 
     /**
      * @dev Burn the amount of tokens on behalf of the address from
-     * @param from address token holder address. Set to 0x0 to use msg.sender as token holder
+     * @param from address token holder address.
      * @param amount uint256 amount of tokens to transfer
      * @param data bytes extra information provided by the token holder
      * @param operatorData bytes extra information provided by the operator (if any)
      */
     function operatorBurn(address from, uint256 amount, bytes calldata data, bytes calldata operatorData) external {
-        address holder = from == address(0) ? msg.sender : from;
-        _burn(msg.sender, holder, amount, data, operatorData);
+        require(isOperatorFor(msg.sender, from));
+        _burn(msg.sender, from, amount, data, operatorData);
     }
 
     /**
@@ -298,7 +291,6 @@ contract ERC777 is IERC777 {
     private
     {
         require(from != address(0));
-        require(isOperatorFor(msg.sender, from));
         require((amount % _granularity) == 0);
 
         _callTokensToSend(operator, from, address(0), amount, data, operatorData);
