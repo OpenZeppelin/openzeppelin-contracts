@@ -237,12 +237,12 @@ contract ERC777 is IERC777 {
         require(to != address(0));
         require((amount % _granularity) == 0);
 
-        // revert if 'to' is a contract not implementing tokensReceived()
-        require(_callTokensReceived(operator, address(0), to, amount, userData, operatorData));
-
         // Update state variables
         _totalSupply = _totalSupply.add(amount);
         _balances[to] = _balances[to].add(amount);
+
+        // revert if 'to' is a contract not implementing tokensReceived()
+        require(_callTokensReceived(operator, address(0), to, amount, userData, operatorData));
 
         emit Minted(operator, to, amount, userData, operatorData);
     }
