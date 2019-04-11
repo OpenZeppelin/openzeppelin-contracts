@@ -6,7 +6,8 @@ const {
   shouldBehaveLikeERC777OperatorSendBurn,
   shouldBehaveLikeERC777UnauthorizedOperatorSendBurn,
   shouldDirectSendTokens,
-  shouldBehaveLikeERC777SendBurnWithHook,
+  shouldBehaveLikeERC777SendBurnWithReceiveHook,
+  shouldBehaveLikeERC777SendBurnWithSendHook,
 } = require('./ERC777.behavior');
 
 const ERC777 = artifacts.require('ERC777Mock');
@@ -229,17 +230,91 @@ contract('ERC777', function ([
         });
       });
 
-      describe('tokensToSend hook', function () {
-        context('with ERC777TokensSender implementer', function () {
-          const amount = new BN('1');
-          const recipient = anyone;
-          const operator = defaultOperatorA;
-          // sender is stored inside 'this', since for some tests its address is determined dynamically
+      describe('send and receive hooks', function () {
+        const amount = new BN('1');
+        const operator = defaultOperatorA;
+        // sender and recipient are stored inside 'this', since for some tests their addresses are determined dynamically
+
+        describe('tokensReceived', function () {
+          beforeEach(async function () {
+            this.sender = holder;
+          });
+
+          context('with no ERC777TokensRecipient implementer', function () {
+            context('with contract recipient', function () {
+              beforeEach(async function () {
+                this.tokensRecipientImplementer = await ERC777SenderRecipientMock.new();
+                this.recipient = this.tokensRecipientImplementer.address;
+
+                // Note that tokensRecipientImplementer doesn't implement the recipient interface for the recipient
+              });
+
+              it('send reverts', async function () {
+                await shouldFail.reverting(this.token.send(this.recipient, amount, data));
+              });
+
+              it('operatorSend reverts', async function () {
+                await shouldFail.reverting(
+                  this.token.operatorSend(this.sender, this.recipient, amount, data, operatorData, { from: operator })
+                );
+              });
+            });
+          });
+
+          context('with ERC777TokensRecipient implementer', function () {
+            context('with contract as implementer for an externally owned account', function () {
+              beforeEach(async function () {
+                this.tokensRecipientImplementer = await ERC777SenderRecipientMock.new();
+                this.recipient = anyone;
+
+                await this.tokensRecipientImplementer.recipientFor(this.recipient);
+
+                await this.erc1820.setInterfaceImplementer(
+                  this.recipient,
+                  web3.utils.soliditySha3('ERC777TokensRecipient'), this.tokensRecipientImplementer.address,
+                  { from: this.recipient },
+                );
+              });
+
+              shouldBehaveLikeERC777SendBurnWithReceiveHook(operator, amount, data, operatorData);
+            });
+
+            context('with contract as implementer for another contract', function () {
+              beforeEach(async function () {
+                this.recipientContract = await ERC777SenderRecipientMock.new();
+                this.recipient = this.recipientContract.address;
+
+                this.tokensRecipientImplementer = await ERC777SenderRecipientMock.new();
+                await this.tokensRecipientImplementer.recipientFor(this.recipient);
+                await this.recipientContract.registerRecipient(this.tokensRecipientImplementer.address);
+              });
+
+              shouldBehaveLikeERC777SendBurnWithReceiveHook(operator, amount, data, operatorData);
+            });
+
+            context('with contract as implementer for itself', function () {
+              beforeEach(async function () {
+                this.tokensRecipientImplementer = await ERC777SenderRecipientMock.new();
+                this.recipient = this.tokensRecipientImplementer.address;
+
+                await this.tokensRecipientImplementer.recipientFor(this.recipient);
+              });
+
+              shouldBehaveLikeERC777SendBurnWithReceiveHook(operator, amount, data, operatorData);
+            });
+          });
+        });
+
+        describe('tokensToSend', function () {
+          beforeEach(async function () {
+            this.recipient = anyone;
+          });
 
           context('with a contract as implementer for an externally owned account', function () {
             beforeEach(async function () {
-              this.sender = holder;
               this.tokensSenderImplementer = await ERC777SenderRecipientMock.new();
+              this.sender = holder;
+
               await this.tokensSenderImplementer.senderFor(this.sender);
 
               await this.erc1820.setInterfaceImplementer(
@@ -249,19 +324,43 @@ contract('ERC777', function ([
               );
             });
 
-            shouldBehaveLikeERC777SendBurnWithHook(recipient, operator, amount, data, operatorData);
+            shouldBehaveLikeERC777SendBurnWithSendHook(operator, amount, data, operatorData);
+          });
+
+          context('with contract as implementer for another contract', function () {
+            beforeEach(async function () {
+              this.senderContract = await ERC777SenderRecipientMock.new();
+              this.sender = this.senderContract.address;
+
+              this.tokensSenderImplementer = await ERC777SenderRecipientMock.new();
+              await this.tokensSenderImplementer.senderFor(this.sender);
+              await this.senderContract.registerSender(this.tokensSenderImplementer.address);
+
+              // For the contract to be able to receive tokens (that it can later send), it must also implement the
+              // recipient interface.
+
+              await this.senderContract.recipientFor(this.sender);
+              await this.token.send(this.sender, amount, data, { from: holder });
+            });
+
+            shouldBehaveLikeERC777SendBurnWithSendHook(operator, amount, data, operatorData);
           });
 
           context('with a contract as implementer for itself', function () {
             beforeEach(async function () {
               this.tokensSenderImplementer = await ERC777SenderRecipientMock.new();
-              await this.tokensSenderImplementer.senderFor(ZERO_ADDRESS);
-
               this.sender = this.tokensSenderImplementer.address;
+
+              await this.tokensSenderImplementer.senderFor(this.sender);
+
+              // For the contract to be able to receive tokens (that it can later send), it must also implement the
+              // recipient interface.
+
+              await this.tokensSenderImplementer.recipientFor(this.sender);
               await this.token.send(this.sender, amount, data, { from: holder });
             });
 
-            shouldBehaveLikeERC777SendBurnWithHook(recipient, operator, amount, data, operatorData);
+            shouldBehaveLikeERC777SendBurnWithSendHook(operator, amount, data, operatorData);
           });
         });
       });

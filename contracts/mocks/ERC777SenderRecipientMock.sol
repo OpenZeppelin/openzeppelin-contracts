@@ -40,23 +40,29 @@ contract ERC777SenderRecipientMock is IERC777Sender, IERC777Recipient, ERC1820Im
     bytes32 constant private TOKENS_RECIPIENT_INTERFACE_HASH = keccak256("ERC777TokensRecipient");
 
     function senderFor(address account) public {
-        if (account != address(0)) {
-            _registerInterfaceForAddress(TOKENS_SENDER_INTERFACE_HASH, account);
-        } else {
-            address self = address(this);
-            _registerInterfaceForAddress(TOKENS_SENDER_INTERFACE_HASH, self);
-            _erc1820.setInterfaceImplementer(self, TOKENS_SENDER_INTERFACE_HASH, self);
+        _registerInterfaceForAddress(TOKENS_SENDER_INTERFACE_HASH, account);
+
+        address self = address(this);
+        if (account == self) {
+            registerSender(self);
         }
     }
 
+    function registerSender(address sender) public {
+        _erc1820.setInterfaceImplementer(address(this), TOKENS_SENDER_INTERFACE_HASH, sender);
+    }
+
     function recipientFor(address account) public {
-        if (account != address(0)) {
-            _registerInterfaceForAddress(TOKENS_RECIPIENT_INTERFACE_HASH, account);
-        } else {
-            address self = address(this);
-            _registerInterfaceForAddress(TOKENS_RECIPIENT_INTERFACE_HASH, self);
-            _erc1820.setInterfaceImplementer(self, TOKENS_RECIPIENT_INTERFACE_HASH, self);
+        _registerInterfaceForAddress(TOKENS_RECIPIENT_INTERFACE_HASH, account);
+
+        address self = address(this);
+        if (account == self) {
+            registerRecipient(self);
         }
+    }
+
+    function registerRecipient(address recipient) public {
+        _erc1820.setInterfaceImplementer(address(this), TOKENS_RECIPIENT_INTERFACE_HASH, recipient);
     }
 
     function tokensToSend(
