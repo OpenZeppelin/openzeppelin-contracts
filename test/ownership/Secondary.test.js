@@ -3,7 +3,7 @@ const { ZERO_ADDRESS } = constants;
 
 const SecondaryMock = artifacts.require('SecondaryMock');
 
-contract('Secondary', function ([_, primary, newPrimary, anyone]) {
+contract('Secondary', function ([_, primary, newPrimary, other]) {
   beforeEach(async function () {
     this.secondary = await SecondaryMock.new({ from: primary });
   });

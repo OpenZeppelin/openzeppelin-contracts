@@ -3,7 +3,7 @@ const { shouldBehaveLikePublicRole } = require('../behaviors/access/roles/Public
 
 const PausableMock = artifacts.require('PausableMock');
 
-contract('Pausable', function ([_, pauser, otherPauser, anyone, ...otherAccounts]) {
+contract('Pausable', function ([_, pauser, otherPauser, other, ...otherAccounts]) {
   beforeEach(async function () {
     this.pausable = await PausableMock.new({ from: pauser });
   });

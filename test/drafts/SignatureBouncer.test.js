@@ -8,7 +8,7 @@ const UINT_VALUE = 23;
 const BYTES_VALUE = web3.utils.toHex('test');
 const INVALID_SIGNATURE = '0xabcd';
 
-contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authorizedUser, ...otherAccounts]) {
+contract('SignatureBouncer', function ([_, signer, otherSigner, other, authorizedUser, ...otherAccounts]) {
   beforeEach(async function () {
     this.sigBouncer = await SignatureBouncerMock.new({ from: signer });
     this.signFor = getSignFor(this.sigBouncer, signer);
@@ -143,7 +143,7 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
       });
 
       it('does not validate valid signature for anyone', async function () {
-        (await this.sigBouncer.checkValidSignature(anyone, await this.signFor(authorizedUser))).should.equal(false);
+        (await this.sigBouncer.checkValidSignature(other, await this.signFor(authorizedUser))).should.equal(false);
       });
 
       it('does not validate valid signature for method for valid user', async function () {
@@ -165,7 +165,7 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
       });
 
       it('does not validate valid signature with correct method for anyone', async function () {
-        (await this.sigBouncer.checkValidSignatureAndMethod(anyone,
+        (await this.sigBouncer.checkValidSignatureAndMethod(other,
           await this.signFor(authorizedUser, 'checkValidSignatureAndMethod'))
         ).should.equal(false);
       });
@@ -197,7 +197,7 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, anyone, authoriz
       );
 
       it('does not validate valid signature with correct method and data for anyone', async function () {
-        (await this.sigBouncer.checkValidSignatureAndData(anyone, BYTES_VALUE, UINT_VALUE,
+        (await this.sigBouncer.checkValidSignatureAndData(other, BYTES_VALUE, UINT_VALUE,
           await this.signFor(authorizedUser, 'checkValidSignatureAndData', [authorizedUser, BYTES_VALUE, UINT_VALUE]))
         ).should.equal(false);
       });

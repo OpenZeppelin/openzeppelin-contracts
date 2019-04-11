@@ -1,7 +1,7 @@
 const { constants, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
-function shouldBehaveLikeOwnable (owner, [anyone]) {
+function shouldBehaveLikeOwnable (owner, [other]) {
   describe('as an ownable', function () {
     it('should have an owner', async function () {
       (await this.ownable.owner()).should.equal(owner);
@@ -9,15 +9,15 @@ function shouldBehaveLikeOwnable (owner, [anyone]) {
 
     it('changes owner after transfer', async function () {
       (await this.ownable.isOwner({ from: other })).should.be.equal(false);
-      const { logs } = await this.ownable.transferOwnership(anyone, { from: owner });
+      const { logs } = await this.ownable.transferOwnership(other, { from: owner });
       expectEvent.inLogs(logs, 'OwnershipTransferred');
 
-      (await this.ownable.owner()).should.equal(anyone);
+      (await this.ownable.owner()).should.equal(other);
       (await this.ownable.isOwner({ from: other })).should.be.equal(true);
     });
 
     it('should prevent non-owners from transferring', async function () {
-      await shouldFail.reverting(this.ownable.transferOwnership(anyone, { from: other }));
+      await shouldFail.reverting(this.ownable.transferOwnership(other, { from: other }));
     });
 
     it('should guard ownership against stuck state', async function () {

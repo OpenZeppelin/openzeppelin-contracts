@@ -3,7 +3,7 @@ const { balance, BN, ether, shouldFail, time } = require('openzeppelin-test-help
 const RefundableCrowdsaleImpl = artifacts.require('RefundableCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
-contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, anyone]) {
+contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, other]) {
   const rate = new BN(1);
   const goal = ether('50');
   const lessThanGoal = ether('45');
