@@ -12,7 +12,7 @@ const {
 const ERC777 = artifacts.require('ERC777Mock');
 const ERC777SenderMock = artifacts.require('ERC777SenderMock');
 
-contract.only('ERC777', function ([
+contract('ERC777', function ([
   _, registryFunder, holder, defaultOperatorA, defaultOperatorB, newOperator, anyone,
 ]) {
   const initialSupply = new BN('10000');
@@ -53,7 +53,7 @@ contract.only('ERC777', function ([
         });
 
         it('returns the granularity', async function () {
-          (await this.token.granularity()).should.be.bignumber.equal('1');
+          (await this.token.granularity()).should.be.bignumber.equal(granularity);
         });
 
         it('returns the default operators', async function () {
@@ -282,6 +282,10 @@ contract.only('ERC777', function ([
       initialSupply.mod(granularity).should.be.bignumber.equal('0');
 
       this.token = await ERC777.new(holder, initialSupply, name, symbol, granularity, defaultOperators);
+    });
+
+    it('returns the granularity', async function () {
+      (await this.token.granularity()).should.be.bignumber.equal(granularity);
     });
 
     context('when the sender has tokens', function () {
