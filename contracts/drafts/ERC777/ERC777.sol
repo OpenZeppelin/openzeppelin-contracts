@@ -212,7 +212,7 @@ contract ERC777 is IERC777 {
         address tokenHolder
     ) public view returns (bool) {
         return operator == tokenHolder ||
-            _defaultOperators[operator] && !_revokedDefaultOperators[tokenHolder][operator] ||
+            (_defaultOperators[operator] && !_revokedDefaultOperators[tokenHolder][operator]) ||
             _operators[tokenHolder][operator];
     }
 

@@ -12,7 +12,7 @@ const {
 const ERC777 = artifacts.require('ERC777Mock');
 const ERC777SenderMock = artifacts.require('ERC777SenderMock');
 
-contract('ERC777', function ([
+contract.only('ERC777', function ([
   _, registryFunder, holder, defaultOperatorA, defaultOperatorB, newOperator, anyone,
 ]) {
   const initialSupply = new BN('10000');
