@@ -10,7 +10,7 @@ import "../drafts/IERC1820Registry.sol";
  */
 contract ERC777ReceiverMock is IERC777Recipient {
 
-    IERC1820Registry private _erc1820 = IERC1820Registry(0x1820b744B33945482C17Dc37218C01D858EBc714);
+    IERC1820Registry private _erc1820 = IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
 
     event TokensReceived(
         address indexed operator,
