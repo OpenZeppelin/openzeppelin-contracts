@@ -243,7 +243,6 @@ contract ERC777 is IERC777 {
         // Update state variables
         _totalSupply = _totalSupply.add(amount);
         _balances[to] = _balances[to].add(amount);
-        assert((_balances[to] % _granularity) == 0);
 
         emit Minted(operator, to, amount, userData, operatorData);
     }
@@ -276,8 +275,6 @@ contract ERC777 is IERC777 {
         // Update state variables
         _balances[from] = _balances[from].sub(amount);
         _balances[to] = _balances[to].add(amount);
-        assert((_balances[from] % _granularity) == 0);
-        assert((_balances[to] % _granularity) == 0);
 
         _callTokensReceived(operator, from, to, amount, userData, operatorData);
 
@@ -310,7 +307,6 @@ contract ERC777 is IERC777 {
         // Update state variables
         _totalSupply = _totalSupply.sub(amount);
         _balances[from] = _balances[from].sub(amount);
-        assert((_balances[from] % _granularity) == 0);
 
         emit Burned(operator, from, amount, data, operatorData);
     }
