@@ -62,22 +62,22 @@ contract ERC777 is IERC777 {
     }
 
     /**
-    * @dev Send the amount of tokens from the address msg.sender to the address to
-    * @param to address recipient address
-    * @param amount uint256 amount of tokens to transfer
-    * @param data bytes information attached to the send, and intended for the recipient (to)
+     * @dev Send the amount of tokens from the address msg.sender to the address to
+     * @param to address recipient address
+     * @param amount uint256 amount of tokens to transfer
+     * @param data bytes information attached to the send, and intended for the recipient (to)
      */
     function send(address to, uint256 amount, bytes calldata data) external {
         _send(msg.sender, msg.sender, to, amount, data, "");
     }
 
     /**
-    * @dev Send the amount of tokens on behalf of the address from to the address to
-    * @param from address token holder address. Set to 0x0 to use msg.sender as token holder
-    * @param to address recipient address
-    * @param amount uint256 amount of tokens to transfer
-    * @param data bytes information attached to the send, and intended for the recipient (to)
-    * @param operatorData bytes extra information provided by the operator (if any)
+     * @dev Send the amount of tokens on behalf of the address from to the address to
+     * @param from address token holder address. Set to 0x0 to use msg.sender as token holder
+     * @param to address recipient address
+     * @param amount uint256 amount of tokens to transfer
+     * @param data bytes information attached to the send, and intended for the recipient (to)
+     * @param operatorData bytes extra information provided by the operator (if any)
      */
     function operatorSend(
         address from,
@@ -100,20 +100,20 @@ contract ERC777 is IERC777 {
     }
 
     /**
-    * @dev Burn the amount of tokens from the address msg.sender
-    * @param amount uint256 amount of tokens to transfer
-    * @param data bytes extra information provided by the token holder
+     * @dev Burn the amount of tokens from the address msg.sender
+     * @param amount uint256 amount of tokens to transfer
+     * @param data bytes extra information provided by the token holder
      */
     function burn(uint256 amount, bytes calldata data) external {
         _burn(msg.sender, msg.sender, amount, data, "");
     }
 
     /**
-    * @dev Burn the amount of tokens on behalf of the address from
-    * @param from address token holder address. Set to 0x0 to use msg.sender as token holder
-    * @param amount uint256 amount of tokens to transfer
-    * @param data bytes extra information provided by the token holder
-    * @param operatorData bytes extra information provided by the operator (if any)
+     * @dev Burn the amount of tokens on behalf of the address from
+     * @param from address token holder address. Set to 0x0 to use msg.sender as token holder
+     * @param amount uint256 amount of tokens to transfer
+     * @param data bytes extra information provided by the token holder
+     * @param operatorData bytes extra information provided by the operator (if any)
      */
     function operatorBurn(address from, uint256 amount, bytes calldata data, bytes calldata operatorData) external {
         address holder = from == address(0) ? msg.sender : from;
@@ -121,15 +121,15 @@ contract ERC777 is IERC777 {
     }
 
     /**
-    * @return the name of the token.
-    */
+     * @return the name of the token.
+    * /
     function name() public view returns (string memory) {
         return _name;
     }
 
     /**
-    * @return the symbol of the token.
-    */
+     * @return the symbol of the token.
+    * /
     function symbol() public view returns (string memory) {
         return _symbol;
     }
@@ -142,8 +142,8 @@ contract ERC777 is IERC777 {
     }
 
     /**
-    * @dev Gets the balance of the specified address.
-    * @param tokenHolder The address to query the balance of.
+     * @dev Gets the balance of the specified address.
+     * @param tokenHolder The address to query the balance of.
         * @return uint256 representing the amount owned by the specified address.
      */
     function balanceOf(address tokenHolder) public view returns (uint256) {
@@ -151,26 +151,26 @@ contract ERC777 is IERC777 {
     }
 
     /**
-    * @dev Gets the token's granularity,
-    * i.e. the smallest number of tokens (in the basic unit)
-    * which may be minted, sent or burned at any time
-    * @return uint256 granularity
+     * @dev Gets the token's granularity,
+     * i.e. the smallest number of tokens (in the basic unit)
+     * which may be minted, sent or burned at any time
+     * @return uint256 granularity
      */
     function granularity() public view returns (uint256) {
         return _granularity;
     }
 
     /**
-    * @dev Get the list of default operators as defined by the token contract.
-    * @return address[] default operators
-    */
+     * @dev Get the list of default operators as defined by the token contract.
+     * @return address[] default operators
+    * /
     function defaultOperators() public view returns (address[] memory) {
         return _defaultOperatorsArray;
     }
 
     /**
-    * @dev Authorize an operator for the sender
-    * @param operator address to be authorized as operator
+     * @dev Authorize an operator for the sender
+     * @param operator address to be authorized as operator
      */
     function authorizeOperator(address operator) public {
         require(msg.sender != operator);
@@ -195,11 +195,11 @@ contract ERC777 is IERC777 {
     }
 
     /**
-    * @dev Indicate whether an address
-    * is an operator of the tokenHolder address
-    * @param operator address which may be an operator of tokenHolder
-    * @param tokenHolder address of a token holder which may have the operator
-    * address as an operator.
+     * @dev Indicate whether an address
+     * is an operator of the tokenHolder address
+     * @param operator address which may be an operator of tokenHolder
+     * @param tokenHolder address of a token holder which may have the operator
+     * address as an operator.
      */
     function isOperatorFor(
         address operator,
@@ -243,8 +243,8 @@ contract ERC777 is IERC777 {
     }
 
     /**
-    * @dev Authorize an operator for the sender
-    * @param operator address to be authorized as operator
+     * @dev Authorize an operator for the sender
+     * @param operator address to be authorized as operator
      */
     function _authorizeOperator(address operator) private {
         _operators[msg.sender][operator] = true;
@@ -252,8 +252,8 @@ contract ERC777 is IERC777 {
     }
 
     /**
-    * @dev Re-authorize a previously revoked default operator
-    * @param operator address to be re-authorized as operator
+     * @dev Re-authorize a previously revoked default operator
+     * @param operator address to be re-authorized as operator
      */
     function _reAuthorizeDefaultOperator(address operator) private {
         delete _revokedDefaultOperators[msg.sender][operator];
@@ -261,18 +261,18 @@ contract ERC777 is IERC777 {
     }
 
     /**
-    * @dev Revoke operator rights from one of the default operators
-    * @param operator address to revoke operator rights from
-    */
+     * @dev Revoke operator rights from one of the default operators
+     * @param operator address to revoke operator rights from
+     */
     function _revokeDefaultOperator(address operator) private {
         _revokedDefaultOperators[msg.sender][operator] = true;
         emit RevokedOperator(operator, msg.sender);
     }
 
     /**
-    * @dev Revoke an operator for the sender
-    * @param operator address to revoke operator rights from
-    */
+     * @dev Revoke an operator for the sender
+     * @param operator address to revoke operator rights from
+     */
     function _revokeOperator(address operator) private {
         delete _operators[msg.sender][operator];
         emit RevokedOperator(operator, msg.sender);
@@ -371,16 +371,16 @@ contract ERC777 is IERC777 {
     }
 
     /**
-    * @dev Call to.tokensReceived() if the interface is registered
-    * @param operator address operator requesting the transfer
-    * @param from address token holder address
-    * @param to address recipient address
-    * @param amount uint256 amount of tokens to transfer
-    * @param userData bytes extra information provided by the token holder (if any)
-        * @param operatorData bytes extra information provided by the operator (if any)
-            * @return false if the recipient is a contract but tokensReceived() was not
-                *         registered for the recipient
-                    */
+     * @dev Call to.tokensReceived() if the interface is registered
+     * @param operator address operator requesting the transfer
+     * @param from address token holder address
+     * @param to address recipient address
+     * @param amount uint256 amount of tokens to transfer
+     * @param userData bytes extra information provided by the token holder (if any)
+     * @param operatorData bytes extra information provided by the operator (if any)
+     * @return false if the recipient is a contract but tokensReceived() was not
+     * registered for the recipient
+     */
     function _callTokensReceived(
         address operator,
         address from,
