@@ -121,15 +121,41 @@ contract ERC777 is IERC777 {
     }
 
     /**
+     * @dev Authorize an operator for the sender
+     * @param operator address to be authorized as operator
+     */
+    function authorizeOperator(address operator) external {
+        require(msg.sender != operator);
+        if (_defaultOperators[operator]) {
+            _reAuthorizeDefaultOperator(operator);
+        } else {
+            _authorizeOperator(operator);
+        }
+    }
+
+    /**
+     * @dev Revoke operator rights from one of the default operators
+     * @param operator address to revoke operator rights from
+     */
+    function revokeOperator(address operator) external {
+        require(operator != msg.sender);
+        if (_defaultOperators[operator]) {
+            _revokeDefaultOperator(operator);
+        } else {
+            _revokeOperator(operator);
+        }
+    }
+
+    /**
      * @return the name of the token.
-    * /
+     */
     function name() public view returns (string memory) {
         return _name;
     }
 
     /**
      * @return the symbol of the token.
-    * /
+     */
     function symbol() public view returns (string memory) {
         return _symbol;
     }
@@ -163,35 +189,9 @@ contract ERC777 is IERC777 {
     /**
      * @dev Get the list of default operators as defined by the token contract.
      * @return address[] default operators
-    * /
+     */
     function defaultOperators() public view returns (address[] memory) {
         return _defaultOperatorsArray;
-    }
-
-    /**
-     * @dev Authorize an operator for the sender
-     * @param operator address to be authorized as operator
-     */
-    function authorizeOperator(address operator) public {
-        require(msg.sender != operator);
-        if (_defaultOperators[operator]) {
-            _reAuthorizeDefaultOperator(operator);
-        } else {
-            _authorizeOperator(operator);
-        }
-    }
-
-    /**
-     * @dev Revoke operator rights from one of the default operators
-     * @param operator address to revoke operator rights from
-     */
-    function revokeOperator(address operator) public {
-        require(operator != msg.sender);
-        if (_defaultOperators[operator]) {
-            _revokeDefaultOperator(operator);
-        } else {
-            _revokeOperator(operator);
-        }
     }
 
     /**
