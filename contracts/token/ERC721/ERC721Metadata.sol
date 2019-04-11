@@ -34,7 +34,7 @@ contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
     }
 
     /**
-     * @dev Gets the token name
+     * @dev Gets the token name.
      * @return string representing the token name
      */
     function name() external view returns (string memory) {
@@ -42,7 +42,7 @@ contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
     }
 
     /**
-     * @dev Gets the token symbol
+     * @dev Gets the token symbol.
      * @return string representing the token symbol
      */
     function symbol() external view returns (string memory) {
@@ -50,7 +50,7 @@ contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
     }
 
     /**
-     * @dev Returns an URI for a given token ID
+     * @dev Returns an URI for a given token ID.
      * Throws if the token ID does not exist. May return an empty string.
      * @param tokenId uint256 ID of the token to query
      */
@@ -60,8 +60,8 @@ contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
     }
 
     /**
-     * @dev Internal function to set the token URI for a given token
-     * Reverts if the token ID does not exist
+     * @dev Internal function to set the token URI for a given token.
+     * Reverts if the token ID does not exist.
      * @param tokenId uint256 ID of the token to set its URI
      * @param uri string URI to assign
      */
@@ -71,9 +71,9 @@ contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
     }
 
     /**
-     * @dev Internal function to burn a specific token
-     * Reverts if the token does not exist
-     * Deprecated, use _burn(uint256) instead
+     * @dev Internal function to burn a specific token.
+     * Reverts if the token does not exist.
+     * Deprecated, use _burn(uint256) instead.
      * @param owner owner of the token to burn
      * @param tokenId uint256 ID of the token being burned by the msg.sender
      */

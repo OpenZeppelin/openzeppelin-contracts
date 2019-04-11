@@ -3,7 +3,7 @@ const { BN, ether, shouldFail } = require('openzeppelin-test-helpers');
 const WhitelistCrowdsale = artifacts.require('WhitelistCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
-contract('WhitelistCrowdsale', function ([_, wallet, whitelister, whitelisted, otherWhitelisted, anyone]) {
+contract('WhitelistCrowdsale', function ([_, wallet, whitelister, whitelisted, otherWhitelisted, other]) {
   const rate = new BN(1);
   const value = ether('42');
   const tokenSupply = new BN('10').pow(new BN('22'));
@@ -26,7 +26,7 @@ contract('WhitelistCrowdsale', function ([_, wallet, whitelister, whitelisted, o
 
   context('with no whitelisted addresses', function () {
     it('rejects all purchases', async function () {
-      await purchaseShouldFail(this.crowdsale, anyone, value);
+      await purchaseShouldFail(this.crowdsale, other, value);
       await purchaseShouldFail(this.crowdsale, whitelisted, value);
     });
   });
@@ -43,11 +43,11 @@ contract('WhitelistCrowdsale', function ([_, wallet, whitelister, whitelisted, o
     });
 
     it('rejects purchases from whitelisted addresses with non-whitelisted beneficiaries', async function () {
-      await shouldFail(this.crowdsale.buyTokens(anyone, { from: whitelisted, value }));
+      await shouldFail(this.crowdsale.buyTokens(other, { from: whitelisted, value }));
     });
 
     it('rejects purchases with non-whitelisted beneficiaries', async function () {
-      await purchaseShouldFail(this.crowdsale, anyone, value);
+      await purchaseShouldFail(this.crowdsale, other, value);
     });
   });
 });

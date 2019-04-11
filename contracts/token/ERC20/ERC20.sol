@@ -25,7 +25,7 @@ contract ERC20 is IERC20 {
     uint256 private _totalSupply;
 
     /**
-     * @dev Total number of tokens in existence
+     * @dev Total number of tokens in existence.
      */
     function totalSupply() public view returns (uint256) {
         return _totalSupply;
@@ -51,7 +51,7 @@ contract ERC20 is IERC20 {
     }
 
     /**
-     * @dev Transfer token to a specified address
+     * @dev Transfer token to a specified address.
      * @param to The address to transfer to.
      * @param value The amount to be transferred.
      */
@@ -119,7 +119,7 @@ contract ERC20 is IERC20 {
     }
 
     /**
-     * @dev Transfer token for a specified addresses
+     * @dev Transfer token for a specified addresses.
      * @param from The address to transfer from.
      * @param to The address to transfer to.
      * @param value The amount to be transferred.
