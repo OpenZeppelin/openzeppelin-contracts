@@ -126,11 +126,14 @@ contract ERC777 is IERC777 {
      */
     function authorizeOperator(address operator) external {
         require(msg.sender != operator);
+
         if (_defaultOperators[operator]) {
-            _reAuthorizeDefaultOperator(operator);
+            delete _revokedDefaultOperators[msg.sender][operator];
         } else {
-            _authorizeOperator(operator);
+            _operators[msg.sender][operator] = true;
         }
+
+        emit AuthorizedOperator(operator, msg.sender);
     }
 
     /**
@@ -139,11 +142,14 @@ contract ERC777 is IERC777 {
      */
     function revokeOperator(address operator) external {
         require(operator != msg.sender);
+
         if (_defaultOperators[operator]) {
-            _revokeDefaultOperator(operator);
+            _revokedDefaultOperators[msg.sender][operator] = true;
         } else {
-            _revokeOperator(operator);
+            delete _operators[msg.sender][operator];
         }
+
+        emit RevokedOperator(operator, msg.sender);
     }
 
     /**
@@ -240,42 +246,6 @@ contract ERC777 is IERC777 {
         assert((_balances[to] % _granularity) == 0);
 
         emit Minted(operator, to, amount, userData, operatorData);
-    }
-
-    /**
-     * @dev Authorize an operator for the sender
-     * @param operator address to be authorized as operator
-     */
-    function _authorizeOperator(address operator) private {
-        _operators[msg.sender][operator] = true;
-        emit AuthorizedOperator(operator, msg.sender);
-    }
-
-    /**
-     * @dev Re-authorize a previously revoked default operator
-     * @param operator address to be re-authorized as operator
-     */
-    function _reAuthorizeDefaultOperator(address operator) private {
-        delete _revokedDefaultOperators[msg.sender][operator];
-        emit AuthorizedOperator(operator, msg.sender);
-    }
-
-    /**
-     * @dev Revoke operator rights from one of the default operators
-     * @param operator address to revoke operator rights from
-     */
-    function _revokeDefaultOperator(address operator) private {
-        _revokedDefaultOperators[msg.sender][operator] = true;
-        emit RevokedOperator(operator, msg.sender);
-    }
-
-    /**
-     * @dev Revoke an operator for the sender
-     * @param operator address to revoke operator rights from
-     */
-    function _revokeOperator(address operator) private {
-        delete _operators[msg.sender][operator];
-        emit RevokedOperator(operator, msg.sender);
     }
 
     /**
