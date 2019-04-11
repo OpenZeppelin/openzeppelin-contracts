@@ -1,7 +1,7 @@
 const { BN, constants, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
-const ERC777SenderMock = artifacts.require('ERC777SenderMock');
+const ERC777SenderRecipientMock = artifacts.require('ERC777SenderRecipientMock');
 
 function shouldBehaveLikeERC777DirectSendBurn (holder, recipient, data) {
   shouldBehaveLikeERC777DirectSend(holder, recipient, data);
@@ -262,7 +262,7 @@ function shouldBurnTokens (from, operator, amount, data, operatorData) {
 function shouldBehaveLikeERC777SendBurnWithHook (recipient, operator, amount, data, operatorData) {
   context('when TokensSender reverts', function () {
     beforeEach(async function () {
-      await this.tokensSenderImplementer.setShouldRevert(true);
+      await this.tokensSenderImplementer.setShouldRevertSend(true);
     });
 
     it('send reverts', async function () {
@@ -288,7 +288,7 @@ function shouldBehaveLikeERC777SendBurnWithHook (recipient, operator, amount, da
 
   context('when TokensSender does not revert', function () {
     beforeEach(async function () {
-      await this.tokensSenderImplementer.setShouldRevert(false);
+      await this.tokensSenderImplementer.setShouldRevertSend(false);
     });
 
     it('TokensSender receives send data and is called before state mutation', async function () {
@@ -356,7 +356,7 @@ function removeBalance (holder) {
 
 async function assertTokensToSendCalled (token, txHash, operator, from, to, amount, data, operatorData, fromBalance,
   toBalance = '0') {
-  await expectEvent.inTransaction(txHash, ERC777SenderMock, 'TokensToSendCalled', {
+  await expectEvent.inTransaction(txHash, ERC777SenderRecipientMock, 'TokensToSendCalled', {
     operator, from, to, amount, data, operatorData, token: token.address, fromBalance, toBalance,
   });
 }
@@ -365,8 +365,8 @@ async function sendFromHolder (token, holder, to, amount, data) {
   if ((await web3.eth.getCode(holder)).length <= '0x'.length) {
     return token.send(to, amount, data, { from: holder });
   } else {
-    // assume holder is ERC777SenderMock contract
-    return (await ERC777SenderMock.at(holder)).send(token.address, to, amount, data);
+    // assume holder is ERC777SenderRecipientMock contract
+    return (await ERC777SenderRecipientMock.at(holder)).send(token.address, to, amount, data);
   }
 }
 
@@ -374,8 +374,8 @@ async function burnFromHolder (token, holder, amount, data) {
   if ((await web3.eth.getCode(holder)).length <= '0x'.length) {
     return token.burn(amount, data, { from: holder });
   } else {
-    // assume holder is ERC777SenderMock contract
-    return (await ERC777SenderMock.at(holder)).burn(token.address, amount, data);
+    // assume holder is ERC777SenderRecipientMock contract
+    return (await ERC777SenderRecipientMock.at(holder)).burn(token.address, amount, data);
   }
 }
 

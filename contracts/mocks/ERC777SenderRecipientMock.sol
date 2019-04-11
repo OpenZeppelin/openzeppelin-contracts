@@ -2,10 +2,11 @@ pragma solidity ^0.5.2;
 
 import "../drafts/ERC777/IERC777.sol";
 import "../drafts/ERC777/IERC777Sender.sol";
+import "../drafts/ERC777/IERC777Recipient.sol";
 import "../drafts/IERC1820Registry.sol";
 import "../drafts/ERC1820Implementer.sol";
 
-contract ERC777SenderMock is IERC777Sender, ERC1820Implementer {
+contract ERC777SenderRecipientMock is IERC777Sender, IERC777Recipient, ERC1820Implementer {
     event TokensToSendCalled(
         address operator,
         address from,
@@ -18,18 +19,43 @@ contract ERC777SenderMock is IERC777Sender, ERC1820Implementer {
         uint256 toBalance
     );
 
-    bool private _shouldRevert;
+    event TokensReceivedCalled(
+        address operator,
+        address from,
+        address to,
+        uint256 amount,
+        bytes data,
+        bytes operatorData,
+        address token,
+        uint256 fromBalance,
+        uint256 toBalance
+    );
+
+    bool private _shouldRevertSend;
+    bool private _shouldRevertReceive;
+
     IERC1820Registry private _erc1820 = IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
 
     bytes32 constant private TOKENS_SENDER_INTERFACE_HASH = keccak256("ERC777TokensSender");
+    bytes32 constant private TOKENS_RECIPIENT_INTERFACE_HASH = keccak256("ERC777TokensRecipient");
 
-    constructor(address account) public {
+    function senderFor(address account) public {
         if (account != address(0)) {
             _registerInterfaceForAddress(TOKENS_SENDER_INTERFACE_HASH, account);
         } else {
             address self = address(this);
             _registerInterfaceForAddress(TOKENS_SENDER_INTERFACE_HASH, self);
             _erc1820.setInterfaceImplementer(self, TOKENS_SENDER_INTERFACE_HASH, self);
+        }
+    }
+
+    function recipientFor(address account) public {
+        if (account != address(0)) {
+            _registerInterfaceForAddress(TOKENS_RECIPIENT_INTERFACE_HASH, account);
+        } else {
+            address self = address(this);
+            _registerInterfaceForAddress(TOKENS_RECIPIENT_INTERFACE_HASH, self);
+            _erc1820.setInterfaceImplementer(self, TOKENS_RECIPIENT_INTERFACE_HASH, self);
         }
     }
 
@@ -41,7 +67,7 @@ contract ERC777SenderMock is IERC777Sender, ERC1820Implementer {
         bytes calldata userData,
         bytes calldata operatorData
     ) external {
-        if (_shouldRevert) {
+        if (_shouldRevertSend) {
             revert();
         }
 
@@ -64,8 +90,43 @@ contract ERC777SenderMock is IERC777Sender, ERC1820Implementer {
         );
     }
 
-    function setShouldRevert(bool shouldRevert) public {
-        _shouldRevert = shouldRevert;
+    function tokensReceived(
+        address operator,
+        address from,
+        address to,
+        uint amount,
+        bytes calldata userData,
+        bytes calldata operatorData
+    ) external{
+        if (_shouldRevertReceive) {
+            revert();
+        }
+
+        IERC777 token = IERC777(msg.sender);
+
+        uint256 fromBalance = token.balanceOf(from);
+        // when called due to burn, to will be the zero address, which will have a balance of 0
+        uint256 toBalance = token.balanceOf(to);
+
+        emit TokensReceivedCalled(
+            operator,
+            from,
+            to,
+            amount,
+            userData,
+            operatorData,
+            address(token),
+            fromBalance,
+            toBalance
+        );
+    }
+
+    function setShouldRevertSend(bool shouldRevert) public {
+        _shouldRevertSend = shouldRevert;
+    }
+
+    function setShouldRevertReceive(bool shouldRevert) public {
+        _shouldRevertReceive = shouldRevert;
     }
 
     function send(IERC777 token, address to, uint256 amount, bytes memory data) public {

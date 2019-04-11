@@ -10,7 +10,7 @@ const {
 } = require('./ERC777.behavior');
 
 const ERC777 = artifacts.require('ERC777Mock');
-const ERC777SenderMock = artifacts.require('ERC777SenderMock');
+const ERC777SenderRecipientMock = artifacts.require('ERC777SenderRecipientMock');
 
 contract('ERC777', function ([
   _, registryFunder, holder, defaultOperatorA, defaultOperatorB, newOperator, anyone,
@@ -239,7 +239,9 @@ contract('ERC777', function ([
           context('with a contract as implementer for an externally owned account', function () {
             beforeEach(async function () {
               this.sender = holder;
-              this.tokensSenderImplementer = await ERC777SenderMock.new(this.sender);
+              this.tokensSenderImplementer = await ERC777SenderRecipientMock.new();
+              await this.tokensSenderImplementer.senderFor(this.sender);
+
               await this.erc1820.setInterfaceImplementer(
                 this.sender,
                 web3.utils.soliditySha3('ERC777TokensSender'), this.tokensSenderImplementer.address,
@@ -252,7 +254,8 @@ contract('ERC777', function ([
 
           context('with a contract as implementer for itself', function () {
             beforeEach(async function () {
-              this.tokensSenderImplementer = await ERC777SenderMock.new(ZERO_ADDRESS);
+              this.tokensSenderImplementer = await ERC777SenderRecipientMock.new();
+              await this.tokensSenderImplementer.senderFor(ZERO_ADDRESS);
 
               this.sender = this.tokensSenderImplementer.address;
               await this.token.send(this.sender, amount, data, { from: holder });
