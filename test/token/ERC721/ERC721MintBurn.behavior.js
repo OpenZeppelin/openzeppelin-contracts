@@ -4,7 +4,7 @@ const { ZERO_ADDRESS } = constants;
 function shouldBehaveLikeMintAndBurnERC721 (
   creator,
   minter,
-  [owner, newOwner, approved, anyone]
+  [owner, newOwner, approved, other]
 ) {
   const firstTokenId = new BN(1);
   const secondTokenId = new BN(2);

@@ -5,7 +5,7 @@ const SimpleToken = artifacts.require('SimpleToken');
 const { shouldBehaveLikePublicRole } = require('../behaviors/access/roles/PublicRole.behavior');
 
 contract('IndividuallyCappedCrowdsale', function (
-  [_, capper, otherCapper, wallet, alice, bob, charlie, anyone, ...otherAccounts]) {
+  [_, capper, otherCapper, wallet, alice, bob, charlie, other, ...otherAccounts]) {
   const rate = new BN(1);
   const capAlice = ether('10');
   const capBob = ether('2');
@@ -34,7 +34,7 @@ contract('IndividuallyCappedCrowdsale', function (
     });
 
     it('reverts when a non-capper sets a cap', async function () {
-      await shouldFail.reverting(this.crowdsale.setCap(alice, capAlice, { from: anyone }));
+      await shouldFail.reverting(this.crowdsale.setCap(alice, capAlice, { from: other }));
     });
 
     context('with individual caps', function () {

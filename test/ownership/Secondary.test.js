@@ -3,7 +3,7 @@ const { ZERO_ADDRESS } = constants;
 
 const SecondaryMock = artifacts.require('SecondaryMock');
 
-contract('Secondary', function ([_, primary, newPrimary, anyone]) {
+contract('Secondary', function ([_, primary, newPrimary, other]) {
   beforeEach(async function () {
     this.secondary = await SecondaryMock.new({ from: primary });
   });
@@ -18,7 +18,7 @@ contract('Secondary', function ([_, primary, newPrimary, anyone]) {
     });
 
     it('reverts when anyone calls onlyPrimary functions', async function () {
-      await shouldFail.reverting(this.secondary.onlyPrimaryMock({ from: anyone }));
+      await shouldFail.reverting(this.secondary.onlyPrimaryMock({ from: other }));
     });
   });
 
@@ -34,7 +34,7 @@ contract('Secondary', function ([_, primary, newPrimary, anyone]) {
     });
 
     it('reverts when called by anyone', async function () {
-      await shouldFail.reverting(this.secondary.transferPrimary(newPrimary, { from: anyone }));
+      await shouldFail.reverting(this.secondary.transferPrimary(newPrimary, { from: other }));
     });
 
     context('with new primary', function () {
