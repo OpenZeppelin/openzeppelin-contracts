@@ -6,11 +6,11 @@ import "../../access/roles/MinterRole.sol";
 
 /**
  * @title ERC721MetadataMintable
- * @dev ERC721 minting logic with metadata
+ * @dev ERC721 minting logic with metadata.
  */
 contract ERC721MetadataMintable is ERC721, ERC721Metadata, MinterRole {
     /**
-     * @dev Function to mint tokens
+     * @dev Function to mint tokens.
      * @param to The address that will receive the minted tokens.
      * @param tokenId The token id to mint.
      * @param tokenURI The token URI of the minted token.

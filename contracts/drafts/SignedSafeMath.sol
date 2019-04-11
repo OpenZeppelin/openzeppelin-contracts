@@ -2,7 +2,7 @@ pragma solidity ^0.5.2;
 
 /**
  * @title SignedSafeMath
- * @dev Signed math operations with safety checks that revert on error
+ * @dev Signed math operations with safety checks that revert on error.
  */
 library SignedSafeMath {
     int256 constant private INT256_MIN = -2**255;
