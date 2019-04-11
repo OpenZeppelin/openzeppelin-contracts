@@ -365,7 +365,16 @@ function shouldBehaveLikeERC777SendBurnWithSendHook (operator, amount, data, ope
       const { tx } = await sendFromHolder(this.token, this.sender, this.recipient, amount, data);
 
       await assertTokensToSendCalled(
-        this.token, tx, this.sender, this.sender, this.recipient, amount, data, null, preSenderBalance, preRecipientBalance
+        this.token,
+        tx,
+        this.sender,
+        this.sender,
+        this.recipient,
+        amount,
+        data,
+        null,
+        preSenderBalance,
+        preRecipientBalance,
       );
     });
 

@@ -1,5 +1,4 @@
-const { BN, constants, expectEvent, shouldFail, singletons } = require('openzeppelin-test-helpers');
-const { ZERO_ADDRESS } = constants;
+const { BN, expectEvent, shouldFail, singletons } = require('openzeppelin-test-helpers');
 
 const {
   shouldBehaveLikeERC777DirectSendBurn,
@@ -233,7 +232,7 @@ contract('ERC777', function ([
       describe('send and receive hooks', function () {
         const amount = new BN('1');
         const operator = defaultOperatorA;
-        // sender and recipient are stored inside 'this', since for some tests their addresses are determined dynamically
+        // sender and recipient are stored inside 'this', since in some tests their addresses are determined dynamically
 
         describe('tokensReceived', function () {
           beforeEach(async function () {

@@ -39,32 +39,6 @@ contract ERC777SenderRecipientMock is IERC777Sender, IERC777Recipient, ERC1820Im
     bytes32 constant private TOKENS_SENDER_INTERFACE_HASH = keccak256("ERC777TokensSender");
     bytes32 constant private TOKENS_RECIPIENT_INTERFACE_HASH = keccak256("ERC777TokensRecipient");
 
-    function senderFor(address account) public {
-        _registerInterfaceForAddress(TOKENS_SENDER_INTERFACE_HASH, account);
-
-        address self = address(this);
-        if (account == self) {
-            registerSender(self);
-        }
-    }
-
-    function registerSender(address sender) public {
-        _erc1820.setInterfaceImplementer(address(this), TOKENS_SENDER_INTERFACE_HASH, sender);
-    }
-
-    function recipientFor(address account) public {
-        _registerInterfaceForAddress(TOKENS_RECIPIENT_INTERFACE_HASH, account);
-
-        address self = address(this);
-        if (account == self) {
-            registerRecipient(self);
-        }
-    }
-
-    function registerRecipient(address recipient) public {
-        _erc1820.setInterfaceImplementer(address(this), TOKENS_RECIPIENT_INTERFACE_HASH, recipient);
-    }
-
     function tokensToSend(
         address operator,
         address from,
@@ -125,6 +99,32 @@ contract ERC777SenderRecipientMock is IERC777Sender, IERC777Recipient, ERC1820Im
             fromBalance,
             toBalance
         );
+    }
+
+    function senderFor(address account) public {
+        _registerInterfaceForAddress(TOKENS_SENDER_INTERFACE_HASH, account);
+
+        address self = address(this);
+        if (account == self) {
+            registerSender(self);
+        }
+    }
+
+    function registerSender(address sender) public {
+        _erc1820.setInterfaceImplementer(address(this), TOKENS_SENDER_INTERFACE_HASH, sender);
+    }
+
+    function recipientFor(address account) public {
+        _registerInterfaceForAddress(TOKENS_RECIPIENT_INTERFACE_HASH, account);
+
+        address self = address(this);
+        if (account == self) {
+            registerRecipient(self);
+        }
+    }
+
+    function registerRecipient(address recipient) public {
+        _erc1820.setInterfaceImplementer(address(this), TOKENS_RECIPIENT_INTERFACE_HASH, recipient);
     }
 
     function setShouldRevertSend(bool shouldRevert) public {
