@@ -241,8 +241,7 @@ contract ERC777 is IERC777 {
         _totalSupply = _totalSupply.add(amount);
         _balances[to] = _balances[to].add(amount);
 
-        // revert if 'to' is a contract not implementing tokensReceived()
-        require(_callTokensReceived(operator, address(0), to, amount, userData, operatorData));
+        _callTokensReceived(operator, address(0), to, amount, userData, operatorData);
 
         emit Minted(operator, to, amount, userData, operatorData);
     }
@@ -337,15 +336,14 @@ contract ERC777 is IERC777 {
     }
 
     /**
-     * @dev Call to.tokensReceived() if the interface is registered
+     * @dev Call to.tokensReceived() if the interface is registered. Reverts if the recipient is a contract but
+     * tokensReceived() was not registered for the recipient
      * @param operator address operator requesting the transfer
      * @param from address token holder address
      * @param to address recipient address
      * @param amount uint256 amount of tokens to transfer
      * @param userData bytes extra information provided by the token holder (if any)
      * @param operatorData bytes extra information provided by the operator (if any)
-     * @return false if the recipient is a contract but tokensReceived() was not
-     * registered for the recipient
      */
     function _callTokensReceived(
         address operator,
@@ -356,13 +354,12 @@ contract ERC777 is IERC777 {
         bytes memory operatorData
     )
     private
-    returns(bool)
     {
         address implementer = _erc1820.getInterfaceImplementer(to, TOKENS_RECIPIENT_INTERFACE_HASH);
-        if (implementer == address(0)) {
-            return(!to.isContract());
+        if (implementer != address(0)) {
+            IERC777Recipient(implementer).tokensReceived(operator, from, to, amount, userData, operatorData);
+        } else {
+            require(!to.isContract());
         }
-        IERC777Recipient(implementer).tokensReceived(operator, from, to, amount, userData, operatorData);
-        return true;
     }
 }
