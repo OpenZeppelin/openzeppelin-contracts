@@ -440,7 +440,9 @@ contract('ERC777', function ([
     shouldInternalMintTokens(anyone, defaultOperatorA, granularity.muln(2), data, operatorData);
 
     it('reverts when sending an amount non-multiple of the granularity', async function () {
-      await shouldFail.reverting(this.token.mintInternal(anyone, defaultOperatorA, granularity.subn(1), data, operatorData));
+      await shouldFail.reverting(
+        this.token.mintInternal(anyone, defaultOperatorA, granularity.subn(1), data, operatorData)
+      );
     });
   });
 });

@@ -377,7 +377,7 @@ function shouldBehaveLikeERC777SendBurnMintInternalWithReceiveHook (operator, am
         amount,
         data,
         operatorData,
-        postSenderBalance,
+        new BN('0'),
         postRecipientBalance,
       );
     });
