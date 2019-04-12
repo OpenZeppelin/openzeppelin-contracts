@@ -5,7 +5,10 @@ const {
   shouldBehaveLikeERC777OperatorSendBurn,
   shouldBehaveLikeERC777UnauthorizedOperatorSendBurn,
   shouldDirectSendTokens,
-  shouldBehaveLikeERC777SendBurnWithReceiveHook,
+  shouldDirectBurnTokens,
+  shouldBehaveLikeERC777InternalMint,
+  shouldInternalMintTokens,
+  shouldBehaveLikeERC777SendBurnMintInternalWithReceiveHook,
   shouldBehaveLikeERC777SendBurnWithSendHook,
 } = require('./ERC777.behavior');
 
@@ -90,8 +93,8 @@ contract('ERC777', function ([
         });
       });
 
-      describe('send/burn', function () {
-        context('with no ERC777TokensSender and no ERC777TokensRecipient implementers', function () {
+      context('with no ERC777TokensSender and no ERC777TokensRecipient implementers', function () {
+        describe('send/burn', function () {
           shouldBehaveLikeERC777DirectSendBurn(holder, anyone, data);
 
           context('with self operator', function () {
@@ -124,6 +127,23 @@ contract('ERC777', function ([
 
               shouldBehaveLikeERC777UnauthorizedOperatorSendBurn(holder, anyone, newOperator, data, operatorData);
             });
+          });
+        });
+
+        describe('mint (internal)', function () {
+          const to = anyone;
+          const amount = new BN('5');
+
+          context('with default operator', async function () {
+            const operator = defaultOperatorA;
+
+            shouldBehaveLikeERC777InternalMint(to, operator, amount, data, operatorData);
+          });
+
+          context('with non operator', async function () {
+            const operator = newOperator;
+
+            shouldBehaveLikeERC777InternalMint(to, operator, amount, data, operatorData);
           });
         });
       });
@@ -257,6 +277,12 @@ contract('ERC777', function ([
                   this.token.operatorSend(this.sender, this.recipient, amount, data, operatorData, { from: operator })
                 );
               });
+
+              it('mint (internal) reverts', async function () {
+                await shouldFail.reverting(
+                  this.token.mintInternal(this.recipient, operator, amount, data, operatorData)
+                );
+              });
             });
           });
 
@@ -275,7 +301,7 @@ contract('ERC777', function ([
                 );
               });
 
-              shouldBehaveLikeERC777SendBurnWithReceiveHook(operator, amount, data, operatorData);
+              shouldBehaveLikeERC777SendBurnMintInternalWithReceiveHook(operator, amount, data, operatorData);
             });
 
             context('with contract as implementer for another contract', function () {
@@ -288,7 +314,7 @@ contract('ERC777', function ([
                 await this.recipientContract.registerRecipient(this.tokensRecipientImplementer.address);
               });
 
-              shouldBehaveLikeERC777SendBurnWithReceiveHook(operator, amount, data, operatorData);
+              shouldBehaveLikeERC777SendBurnMintInternalWithReceiveHook(operator, amount, data, operatorData);
             });
 
             context('with contract as implementer for itself', function () {
@@ -299,7 +325,7 @@ contract('ERC777', function ([
                 await this.tokensRecipientImplementer.recipientFor(this.recipient);
               });
 
-              shouldBehaveLikeERC777SendBurnWithReceiveHook(operator, amount, data, operatorData);
+              shouldBehaveLikeERC777SendBurnMintInternalWithReceiveHook(operator, amount, data, operatorData);
             });
           });
         });
@@ -399,6 +425,22 @@ contract('ERC777', function ([
       it('reverts when sending an amount non-multiple of the granularity', async function () {
         await shouldFail.reverting(this.token.send(anyone, granularity.subn(1), data, { from }));
       });
+
+      shouldDirectBurnTokens(from, new BN('0'), data);
+      shouldDirectBurnTokens(from, granularity, data);
+      shouldDirectBurnTokens(from, granularity.muln(2), data);
+
+      it('reverts when burning an amount non-multiple of the granularity', async function () {
+        await shouldFail.reverting(this.token.burn(granularity.subn(1), data, { from }));
+      });
+    });
+
+    shouldInternalMintTokens(anyone, defaultOperatorA, new BN('0'), data, operatorData);
+    shouldInternalMintTokens(anyone, defaultOperatorA, granularity, data, operatorData);
+    shouldInternalMintTokens(anyone, defaultOperatorA, granularity.muln(2), data, operatorData);
+
+    it('reverts when sending an amount non-multiple of the granularity', async function () {
+      await shouldFail.reverting(this.token.mintInternal(anyone, defaultOperatorA, granularity.subn(1), data, operatorData));
     });
   });
 });
