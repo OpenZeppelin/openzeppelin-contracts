@@ -8,8 +8,6 @@ const ERC721PausableMock = artifacts.require('ERC721PausableMock.sol');
 contract('ERC721Pausable', function ([
   _,
   creator,
-  owner,
-  operator,
   otherPauser,
   ...accounts
 ]) {
