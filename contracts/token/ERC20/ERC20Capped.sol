@@ -10,7 +10,7 @@ contract ERC20Capped is ERC20Mintable {
     uint256 private _cap;
 
     constructor (uint256 cap) public {
-        require(cap > 0, "ERC20Capped: capacity must be > 0.");
+        require(cap > 0, "ERC20Capped: token cap is 0.");
         _cap = cap;
     }
 

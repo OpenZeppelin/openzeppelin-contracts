@@ -27,7 +27,7 @@ contract RefundEscrow is ConditionalEscrow {
      * @param beneficiary The beneficiary of the deposits.
      */
     constructor (address payable beneficiary) public {
-        require(beneficiary != address(0), "RefundEscrow: beneficiary can only be non-zero address.");
+        require(beneficiary != address(0), "RefundEscrow: beneficiary address is address(0).");
         _beneficiary = beneficiary;
         _state = State.Active;
     }
@@ -78,7 +78,7 @@ contract RefundEscrow is ConditionalEscrow {
      * @dev Withdraws the beneficiary's funds.
      */
     function beneficiaryWithdraw() public {
-        require(_state == State.Closed, "RefundEscrow: _state == State.Closed.");
+        require(_state == State.Closed, "RefundEscrow: _state == State.Closed in beneficiaryWithdraw().");
         _beneficiary.transfer(address(this).balance);
     }
 

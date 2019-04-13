@@ -13,7 +13,7 @@ contract ERC721Burnable is ERC721 {
      */
     function burn(uint256 tokenId) public {
         //solhint-disable-next-line max-line-length
-        require(_isApprovedOrOwner(msg.sender, tokenId), "ERC721Burnable: caller can either be the owner or an approved address.");
+        require(_isApprovedOrOwner(msg.sender, tokenId), "ERC721Burnable: caller is neither the owner nor an approved address.");
         _burn(tokenId);
     }
 }

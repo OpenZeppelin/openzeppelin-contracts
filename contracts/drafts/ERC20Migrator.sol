@@ -44,7 +44,7 @@ contract ERC20Migrator {
      * @param legacyToken address of the old token contract
      */
     constructor (IERC20 legacyToken) public {
-        require(address(legacyToken) != address(0), "ERC20Migrator: ");
+        require(address(legacyToken) != address(0), "ERC20Migrator: legacy token address is address(0).");
         _legacyToken = legacyToken;
     }
 
@@ -68,12 +68,10 @@ contract ERC20Migrator {
      * @param newToken_ the token that will be minted
      */
     function beginMigration(ERC20Mintable newToken_) public {
-        // solhint-disable-next-line max-line-length
-        require(address(_newToken) == address(0), "ERC20Migrator: ");
-        // solhint-disable-next-line max-line-length
-        require(address(newToken_) != address(0), "ERC20Migrator: ");
-        // solhint-disable-next-line max-line-length
-        require(newToken_.isMinter(address(this)), "ERC20Migrator: ");
+        require(address(_newToken) == address(0), "ERC20Migrator: previous new token address is address(0).");
+        require(address(newToken_) != address(0), "ERC20Migrator: current new token address is address(0).");
+        //solhint-disable-next-line max-line-length
+        require(newToken_.isMinter(address(this)), "ERC20Migrator: this contract is not a minter for current new token.");
 
         _newToken = newToken_;
     }
@@ -85,7 +83,7 @@ contract ERC20Migrator {
      * @param amount amount of tokens to be migrated
      */
     function migrate(address account, uint256 amount) public {
-        require(address(_newToken) != address(0), "ERC20Migrator: new token address can only be non-zero address.");
+        require(address(_newToken) != address(0), "ERC20Migrator: current new token address is address(0).");
         _legacyToken.safeTransferFrom(account, address(this), amount);
         _newToken.mint(account, amount);
     }

@@ -99,7 +99,7 @@ contract SignatureBouncer is SignerRole {
      * @return bool
      */
     function _isValidSignatureAndData(address account, bytes memory signature) internal view returns (bool) {
-        require(msg.data.length > _SIGNATURE_SIZE, "SignatureBouncer: length of caller data is < 96.");
+        require(msg.data.length > _SIGNATURE_SIZE, "SignatureBouncer: length of caller data is less than 96.");
 
         bytes memory data = new bytes(msg.data.length - _SIGNATURE_SIZE);
         for (uint i = 0; i < data.length; i++) {

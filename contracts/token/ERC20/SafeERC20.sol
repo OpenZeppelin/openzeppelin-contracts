@@ -63,7 +63,7 @@ library SafeERC20 {
 
         // solhint-disable-next-line avoid-low-level-calls
         (bool success, bytes memory returndata) = address(token).call(data);
-        require(success, "SafeERC20: the previous call should have succeeded.");
+        require(success, "SafeERC20: the previous low-level call returned false.");
 
         if (returndata.length > 0) { // Return data is optional
             // solhint-disable-next-line max-line-length

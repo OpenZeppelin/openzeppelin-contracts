@@ -30,7 +30,7 @@ library Roles {
      * @return bool
      */
     function has(Role storage role, address account) internal view returns (bool) {
-        require(account != address(0), "Roles: if an account has this role can be checked for non zero-account.");
+        require(account != address(0), "Roles: account address is address(0).");
         return role.bearer[account];
     }
 }

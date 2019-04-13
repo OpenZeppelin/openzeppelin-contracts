@@ -26,7 +26,7 @@ contract ERC20ReturnFalseMock {
     }
 
     function allowance(address, address) public view returns (uint256) {
-        require(_dummy == 0, "from OpenZeppelin's:SafeERC20Helper.sol:allowance().");
+        require(_dummy == 0, "SafeERC20Helper: _dummy == 0.");
         return 0;
     }
 }

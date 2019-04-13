@@ -55,7 +55,7 @@ contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
      * @param tokenId uint256 ID of the token to query
      */
     function tokenURI(uint256 tokenId) external view returns (string memory) {
-        require(_exists(tokenId), "ERC721Metadata: the tokenId should be in existence in tokenURI().");
+        require(_exists(tokenId), "ERC721Metadata: the tokenId does not exist in tokenURI().");
         return _tokenURIs[tokenId];
     }
 
@@ -66,7 +66,7 @@ contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
      * @param uri string URI to assign
      */
     function _setTokenURI(uint256 tokenId, string memory uri) internal {
-        require(_exists(tokenId), "ERC721Metadata: the tokenId should be in existence in _setTokenURI()");
+        require(_exists(tokenId), "ERC721Metadata: the tokenId does not exist in _setTokenURI()");
         _tokenURIs[tokenId] = uri;
     }
 

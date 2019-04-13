@@ -55,9 +55,8 @@ contract Crowdsale is ReentrancyGuard {
      */
     constructor (uint256 rate, address payable wallet, IERC20 token) public {
         require(rate > 0, "Crowdsale: rate is 0.");
-        require(wallet != address(0), "Crowdsale: wallet address can only be non-zero address.");
-        // solhint-disable-next-line max-line-length
-        require(address(token) != address(0), "Crowdsale: token address can only be non-zero address.");
+        require(wallet != address(0), "Crowdsale: wallet address is address(0).");
+        require(address(token) != address(0), "Crowdsale: token address is address(0).");
 
         _rate = rate;
         _wallet = wallet;
@@ -137,8 +136,7 @@ contract Crowdsale is ReentrancyGuard {
      * @param weiAmount Value in wei involved in the purchase
      */
     function _preValidatePurchase(address beneficiary, uint256 weiAmount) internal view {
-        // solhint-disable-next-line max-line-length
-        require(beneficiary != address(0), "Crowdsale: beneficiary address can only be non-zero address.");
+        require(beneficiary != address(0), "Crowdsale: beneficiary address is address(0).");
         require(weiAmount != 0, "Crowdsale: weiAmount is 0.");
     }
 

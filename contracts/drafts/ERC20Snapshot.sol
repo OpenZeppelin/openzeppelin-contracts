@@ -101,9 +101,9 @@ contract ERC20Snapshot is ERC20 {
     function _valueAt(uint256 snapshotId, Snapshots storage snapshots)
         private view returns (bool, uint256)
     {
-        require(snapshotId > 0, "ERC20Snapshot: the snapshot id is 0.");
+        require(snapshotId > 0, "ERC20Snapshot: snapshot id is 0.");
         // solhint-disable-next-line max-line-length
-        require(snapshotId <= _currentSnapshotId.current(), "ERC20Snapshot: the provided snapshot id > current snapshot id.");
+        require(snapshotId <= _currentSnapshotId.current(), "ERC20Snapshot: provided snapshot id is greater than current snapshot id.");
 
         uint256 index = snapshots.ids.findUpperBound(snapshotId);
 

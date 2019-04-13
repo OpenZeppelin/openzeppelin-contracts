@@ -12,9 +12,8 @@ import "./PostDeliveryCrowdsale.sol";
  */
 contract RefundablePostDeliveryCrowdsale is RefundableCrowdsale, PostDeliveryCrowdsale {
     function withdrawTokens(address beneficiary) public {
-        require(finalized(), "RefundablePostDeliveryCrowdsale: crowdsale has not been finalized yet.");
-        //solhint-disable-next-line max-line-length
-        require(goalReached(), "RefundablePostDeliveryCrowdsale: funding goal has not reached, cannot withdraw tokens.");
+        require(finalized(), "RefundablePostDeliveryCrowdsale: crowdsale is not finalized.");
+        require(goalReached(), "RefundablePostDeliveryCrowdsale: funding goal not reached, cannot withdraw tokens.");
 
         super.withdrawTokens(beneficiary);
     }

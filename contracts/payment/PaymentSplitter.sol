@@ -38,8 +38,8 @@ contract PaymentSplitter {
      */
     constructor (address[] memory payees, uint256[] memory shares) public payable {
         // solhint-disable-next-line max-line-length
-        require(payees.length == shares.length, "PaymentSplitter: ");
-        require(payees.length > 0, "PaymentSplitter: ");
+        require(payees.length == shares.length, "PaymentSplitter: payees length is not equal to shares length.");
+        require(payees.length > 0, "PaymentSplitter: payees length is 0.");
 
         for (uint256 i = 0; i < payees.length; i++) {
             _addPayee(payees[i], shares[i]);
@@ -99,12 +99,12 @@ contract PaymentSplitter {
      * total shares and their previous withdrawals.
      */
     function release(address payable account) public {
-        require(_shares[account] > 0, "PaymentSplitter: ");
+        require(_shares[account] > 0, "PaymentSplitter: shares of account is 0.");
 
         uint256 totalReceived = address(this).balance.add(_totalReleased);
         uint256 payment = totalReceived.mul(_shares[account]).div(_totalShares).sub(_released[account]);
 
-        require(payment != 0, "PaymentSplitter: ");
+        require(payment != 0, "PaymentSplitter: payment is 0.");
 
         _released[account] = _released[account].add(payment);
         _totalReleased = _totalReleased.add(payment);
@@ -119,9 +119,9 @@ contract PaymentSplitter {
      * @param shares_ The number of shares owned by the payee.
      */
     function _addPayee(address account, uint256 shares_) private {
-        require(account != address(0), "PaymentSplitter: account can only be non-zero address.");
-        require(shares_ > 0, "PaymentSplitter: the shares must be > 0.");
-        require(_shares[account] == 0, "PaymentSplitter: _shares[account] == 0.");
+        require(account != address(0), "PaymentSplitter: account address is address(0).");
+        require(shares_ > 0, "PaymentSplitter: shares are 0.");
+        require(_shares[account] == 0, "PaymentSplitter: shares of account is greater than 0.");
 
         _payees.push(account);
         _shares[account] = shares_;

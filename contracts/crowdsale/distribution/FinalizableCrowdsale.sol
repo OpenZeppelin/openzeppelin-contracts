@@ -31,8 +31,8 @@ contract FinalizableCrowdsale is TimedCrowdsale {
      * work. Calls the contract's finalization function.
      */
     function finalize() public {
-        require(!_finalized, "FinalizableCrowdsale: crowdsale is already finalized.");
-        require(hasClosed(), "FinalizableCrowdsale: crowdsale has not been closed yet.");
+        require(!_finalized, "FinalizableCrowdsale: crowdsale is finalized.");
+        require(hasClosed(), "FinalizableCrowdsale: crowdsale is not closed.");
 
         _finalized = true;
 

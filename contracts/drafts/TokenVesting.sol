@@ -47,12 +47,12 @@ contract TokenVesting is Ownable {
      * @param revocable whether the vesting is revocable or not
      */
     constructor (address beneficiary, uint256 start, uint256 cliffDuration, uint256 duration, bool revocable) public {
-        require(beneficiary != address(0), "TokenVesting: beneficiary can only be non-zero address.");
+        require(beneficiary != address(0), "TokenVesting: beneficiary address is address(0).");
         // solhint-disable-next-line max-line-length
-        require(cliffDuration <= duration, "TokenVesting: duration when tokens begin to vest > duration in which tokens will vest.");
+        require(cliffDuration <= duration, "TokenVesting: duration when tokens begin to vest is greater than duration in which tokens will vest.");
         require(duration > 0, "TokenVesting: duration in which tokens will vest is 0.");
         // solhint-disable-next-line max-line-length
-        require(start.add(duration) > block.timestamp, "TokenVesting: time at which vesting starts must be < current block timestamp.");
+        require(start.add(duration) > block.timestamp, "TokenVesting: time at which vesting starts must be less than current block timestamp.");
 
         _beneficiary = beneficiary;
         _revocable = revocable;
@@ -132,8 +132,8 @@ contract TokenVesting is Ownable {
      * @param token ERC20 token which is being vested
      */
     function revoke(IERC20 token) public onlyOwner {
-        require(_revocable, "TokenVesting: can only revoke if revoking is allowed.");
-        require(!_revoked[address(token)], "TokenVesting: revoked for a token address is set to true.");
+        require(_revocable, "TokenVesting: revoking is not allowed.");
+        require(!_revoked[address(token)], "TokenVesting: revoked for token address is true.");
 
         uint256 balance = token.balanceOf(address(this));
 

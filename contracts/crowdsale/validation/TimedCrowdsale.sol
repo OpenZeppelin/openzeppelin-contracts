@@ -24,7 +24,7 @@ contract TimedCrowdsale is Crowdsale {
      * @dev Reverts if not in crowdsale time range.
      */
     modifier onlyWhileOpen {
-        require(isOpen(), "TimedCrowdsale: ");
+        require(isOpen(), "TimedCrowdsale: crowdsale is closed.");
         _;
     }
 
@@ -35,9 +35,9 @@ contract TimedCrowdsale is Crowdsale {
      */
     constructor (uint256 openingTime, uint256 closingTime) public {
         // solhint-disable-next-line not-rely-on-time
-        require(openingTime >= block.timestamp, "TimedCrowdsale: crowdsale opening time is < current time.");
+        require(openingTime >= block.timestamp, "TimedCrowdsale: crowdsale opening time is less than current time.");
         // solhint-disable-next-line max-line-length
-        require(closingTime > openingTime, "TimedCrowdsale: crowdsale closing time is <= crowdsale opening time.");
+        require(closingTime > openingTime, "TimedCrowdsale: crowdsale closing time is less than or equal to crowdsale opening time.");
 
         _openingTime = openingTime;
         _closingTime = closingTime;
@@ -88,9 +88,9 @@ contract TimedCrowdsale is Crowdsale {
      * @param newClosingTime Crowdsale closing time
      */
     function _extendTime(uint256 newClosingTime) internal {
-        require(!hasClosed(), "TimedCrowdsale: ");
+        require(!hasClosed(), "TimedCrowdsale: crowdsale period has elapsed.");
         // solhint-disable-next-line max-line-length
-        require(newClosingTime > _closingTime, "TimedCrowdsale: ");
+        require(newClosingTime > _closingTime, "TimedCrowdsale: crowdsale new closing time is less than or equal to older closing time.");
 
         emit TimedCrowdsaleExtended(_closingTime, newClosingTime);
         _closingTime = newClosingTime;
