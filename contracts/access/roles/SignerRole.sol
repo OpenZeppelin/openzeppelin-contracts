@@ -15,7 +15,7 @@ contract SignerRole {
     }
 
     modifier onlySigner() {
-        require(isSigner(msg.sender), "SignerRole: caller doesn't have the Signer role.");
+        require(isSigner(msg.sender), "SignerRole: caller does not have the Signer role");
         _;
     }
 

@@ -47,12 +47,12 @@ contract TokenVesting is Ownable {
      * @param revocable whether the vesting is revocable or not
      */
     constructor (address beneficiary, uint256 start, uint256 cliffDuration, uint256 duration, bool revocable) public {
-        require(beneficiary != address(0), "TokenVesting: beneficiary address is address(0).");
+        require(beneficiary != address(0), "TokenVesting: beneficiary is the zero address");
         // solhint-disable-next-line max-line-length
-        require(cliffDuration <= duration, "TokenVesting: duration when tokens begin to vest is greater than duration in which tokens will vest.");
-        require(duration > 0, "TokenVesting: duration in which tokens will vest is 0.");
+        require(cliffDuration <= duration, "TokenVesting: cliff is longer than duration");
+        require(duration > 0, "TokenVesting: duration is 0");
         // solhint-disable-next-line max-line-length
-        require(start.add(duration) > block.timestamp, "TokenVesting: time at which vesting starts must be less than current block timestamp.");
+        require(start.add(duration) > block.timestamp, "TokenVesting: starting time is before current time");
 
         _beneficiary = beneficiary;
         _revocable = revocable;
@@ -117,7 +117,7 @@ contract TokenVesting is Ownable {
     function release(IERC20 token) public {
         uint256 unreleased = _releasableAmount(token);
 
-        require(unreleased > 0, "TokenVesting: number of vested tokens is 0.");
+        require(unreleased > 0, "TokenVesting: no tokens are due");
 
         _released[address(token)] = _released[address(token)].add(unreleased);
 
@@ -132,8 +132,8 @@ contract TokenVesting is Ownable {
      * @param token ERC20 token which is being vested
      */
     function revoke(IERC20 token) public onlyOwner {
-        require(_revocable, "TokenVesting: revoking is not allowed.");
-        require(!_revoked[address(token)], "TokenVesting: revoked for token address is true.");
+        require(_revocable, "TokenVesting: cannot revoke");
+        require(!_revoked[address(token)], "TokenVesting: token already revoked");
 
         uint256 balance = token.balanceOf(address(this));
 

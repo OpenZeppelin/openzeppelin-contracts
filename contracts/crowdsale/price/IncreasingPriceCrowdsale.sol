@@ -21,9 +21,9 @@ contract IncreasingPriceCrowdsale is TimedCrowdsale {
      * @param finalRate Number of tokens a buyer gets per wei at the end of the crowdsale
      */
     constructor (uint256 initialRate, uint256 finalRate) public {
-        require(finalRate > 0, "IncreasingPriceCrowdsale: final rate of token is 0.");
+        require(finalRate > 0, "IncreasingPriceCrowdsale: final rate is 0");
         // solhint-disable-next-line max-line-length
-        require(initialRate > finalRate, "IncreasingPriceCrowdsale: initial rate of token is less than final rate of token.");
+        require(initialRate > finalRate, "IncreasingPriceCrowdsale: initial rate is less than final rate");
         _initialRate = initialRate;
         _finalRate = finalRate;
     }

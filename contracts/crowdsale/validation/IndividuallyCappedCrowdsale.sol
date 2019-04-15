@@ -49,7 +49,7 @@ contract IndividuallyCappedCrowdsale is Crowdsale, CapperRole {
     function _preValidatePurchase(address beneficiary, uint256 weiAmount) internal view {
         super._preValidatePurchase(beneficiary, weiAmount);
         // solhint-disable-next-line max-line-length
-        require(_contributions[beneficiary].add(weiAmount) <= _caps[beneficiary], "IndividuallyCappedCrowdsale: beneficiary's funding cap exceeded.");
+        require(_contributions[beneficiary].add(weiAmount) <= _caps[beneficiary], "IndividuallyCappedCrowdsale: beneficiary's cap exceeded");
     }
 
     /**

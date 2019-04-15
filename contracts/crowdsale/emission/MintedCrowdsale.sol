@@ -18,7 +18,7 @@ contract MintedCrowdsale is Crowdsale {
         // Potentially dangerous assumption about the type of the token.
         require(
             ERC20Mintable(address(token())).mint(beneficiary, tokenAmount),
-                "MintedCrowdsale: assumption about the type of the token failed."
+                "MintedCrowdsale: minting failed"
         );
     }
 }

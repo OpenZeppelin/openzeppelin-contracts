@@ -51,7 +51,7 @@ contract SignatureBouncer is SignerRole {
      * @dev Requires that a valid signature of a signer was provided.
      */
     modifier onlyValidSignature(bytes memory signature) {
-        require(_isValidSignature(msg.sender, signature), "SignatureBouncer: invalid caller signature.");
+        require(_isValidSignature(msg.sender, signature), "SignatureBouncer: invalid signature for caller");
         _;
     }
 
@@ -60,7 +60,7 @@ contract SignatureBouncer is SignerRole {
      */
     modifier onlyValidSignatureAndMethod(bytes memory signature) {
         // solhint-disable-next-line max-line-length
-        require(_isValidSignatureAndMethod(msg.sender, signature), "SignatureBouncer: invalid caller signature for method.");
+        require(_isValidSignatureAndMethod(msg.sender, signature), "SignatureBouncer: invalid signature for caller and method");
         _;
     }
 
@@ -69,7 +69,7 @@ contract SignatureBouncer is SignerRole {
      */
     modifier onlyValidSignatureAndData(bytes memory signature) {
         // solhint-disable-next-line max-line-length
-        require(_isValidSignatureAndData(msg.sender, signature), "SignatureBouncer: invalid caller signature for data.");
+        require(_isValidSignatureAndData(msg.sender, signature), "SignatureBouncer: invalid signature for caller and data");
         _;
     }
 
@@ -99,7 +99,7 @@ contract SignatureBouncer is SignerRole {
      * @return bool
      */
     function _isValidSignatureAndData(address account, bytes memory signature) internal view returns (bool) {
-        require(msg.data.length > _SIGNATURE_SIZE, "SignatureBouncer: length of caller data is less than 96.");
+        require(msg.data.length > _SIGNATURE_SIZE, "SignatureBouncer: data is too short");
 
         bytes memory data = new bytes(msg.data.length - _SIGNATURE_SIZE);
         for (uint i = 0; i < data.length; i++) {
