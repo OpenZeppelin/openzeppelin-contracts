@@ -323,11 +323,11 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
   describe('_mint', function () {
     const amount = new BN(50);
 
-    it('rejects a null account', async function () {
+    it('rejects a zero account', async function () {
       await shouldFail.reverting(this.token.mint(ZERO_ADDRESS, amount));
     });
 
-    describe('for a non null account', function () {
+    describe('for a non zero account', function () {
       beforeEach('minting', async function () {
         const { logs } = await this.token.mint(recipient, amount);
         this.logs = logs;
@@ -354,11 +354,11 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
   });
 
   describe('_burn', function () {
-    it('rejects a null account', async function () {
+    it('rejects a zero account', async function () {
       await shouldFail.reverting(this.token.burn(ZERO_ADDRESS, new BN(1)));
     });
 
-    describe('for a non null account', function () {
+    describe('for a non zero account', function () {
       it('rejects burning more than balance', async function () {
         await shouldFail.reverting(this.token.burn(initialHolder, initialSupply.addn(1)));
       });
@@ -405,11 +405,11 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
       await this.token.approve(spender, allowance, { from: initialHolder });
     });
 
-    it('rejects a null account', async function () {
+    it('rejects a zero account', async function () {
       await shouldFail.reverting(this.token.burnFrom(ZERO_ADDRESS, new BN(1)));
     });
 
-    describe('for a non null account', function () {
+    describe('for a non zero account', function () {
       it('rejects burning more than allowance', async function () {
         await shouldFail.reverting(this.token.burnFrom(initialHolder, allowance.addn(1)));
       });

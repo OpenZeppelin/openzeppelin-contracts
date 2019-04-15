@@ -15,7 +15,7 @@ contract('ERC721', function ([_, creator, tokenOwner, other, ...accounts]) {
     const tokenId = new BN('5042');
 
     describe('_mint(address, uint256)', function () {
-      it('reverts with a null destination address', async function () {
+      it('reverts with a zero destination address', async function () {
         await shouldFail.reverting(this.token.mint(ZERO_ADDRESS, tokenId));
       });
 
