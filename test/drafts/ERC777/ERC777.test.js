@@ -134,13 +134,13 @@ contract('ERC777', function ([
           const to = anyone;
           const amount = new BN('5');
 
-          context('with default operator', async function () {
+          context('with default operator', function () {
             const operator = defaultOperatorA;
 
             shouldBehaveLikeERC777InternalMint(to, operator, amount, data, operatorData);
           });
 
-          context('with non operator', async function () {
+          context('with non operator', function () {
             const operator = newOperator;
 
             shouldBehaveLikeERC777InternalMint(to, operator, amount, data, operatorData);
@@ -255,7 +255,7 @@ contract('ERC777', function ([
         // sender and recipient are stored inside 'this', since in some tests their addresses are determined dynamically
 
         describe('tokensReceived', function () {
-          beforeEach(async function () {
+          beforeEach(function () {
             this.sender = holder;
           });
 
@@ -280,7 +280,7 @@ contract('ERC777', function ([
 
               it('mint (internal) reverts', async function () {
                 await shouldFail.reverting(
-                  this.token.mintInternal(this.recipient, operator, amount, data, operatorData)
+                  this.token.mintInternal(operator, this.recipient, amount, data, operatorData)
                 );
               });
             });
@@ -331,7 +331,7 @@ contract('ERC777', function ([
         });
 
         describe('tokensToSend', function () {
-          beforeEach(async function () {
+          beforeEach(function () {
             this.recipient = anyone;
           });
 
@@ -441,7 +441,7 @@ contract('ERC777', function ([
 
     it('reverts when sending an amount non-multiple of the granularity', async function () {
       await shouldFail.reverting(
-        this.token.mintInternal(anyone, defaultOperatorA, granularity.subn(1), data, operatorData)
+        this.token.mintInternal(defaultOperatorA, anyone, granularity.subn(1), data, operatorData)
       );
     });
   });
