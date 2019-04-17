@@ -4,7 +4,7 @@ const { ZERO_ADDRESS } = constants;
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
 const ERC721Mock = artifacts.require('ERC721Mock.sol');
 
-contract('ERC721', function ([_, creator, tokenOwner, anyone, ...accounts]) {
+contract('ERC721', function ([_, creator, tokenOwner, other, ...accounts]) {
   beforeEach(async function () {
     this.token = await ERC721Mock.new({ from: creator });
   });
@@ -15,7 +15,7 @@ contract('ERC721', function ([_, creator, tokenOwner, anyone, ...accounts]) {
     const tokenId = new BN('5042');
 
     describe('_mint(address, uint256)', function () {
-      it('reverts with a null destination address', async function () {
+      it('reverts with a zero destination address', async function () {
         await shouldFail.reverting(this.token.mint(ZERO_ADDRESS, tokenId));
       });
 
@@ -50,7 +50,7 @@ contract('ERC721', function ([_, creator, tokenOwner, anyone, ...accounts]) {
         });
 
         it('reverts when the account is not the owner', async function () {
-          await shouldFail.reverting(this.token.methods['burn(address,uint256)'](anyone, tokenId));
+          await shouldFail.reverting(this.token.methods['burn(address,uint256)'](other, tokenId));
         });
 
         context('with burnt token', function () {
