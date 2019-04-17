@@ -8,6 +8,10 @@ const cp = require('child_process');
 const moment = require('moment');
 
 const pkg = require('../../package.json');
+if (pkg.version.indexOf('-rc') !== -1) {
+  process.exit(0);
+}
+
 const version = pkg.version.replace(/-.*/, ''); // Remove the rc suffix
 
 const changelog = fs.readFileSync('CHANGELOG.md').toString();

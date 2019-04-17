@@ -9,7 +9,7 @@ log() {
 }
 
 current_version() {
-  node --print --eval "require('./package.json').version"
+  echo v$(node --print --eval "require('./package.json').version")
 }
 
 current_release_branch() {
@@ -33,8 +33,10 @@ push_release_branch_and_tag() {
 push_and_publish() {
   dist_tag=$1
 
+  log "Pushing release branch and tags to upstream"
   push_release_branch_and_tag
 
+  log "Publishing package on npm"
   npm publish --tag $dist_tag --otp $(prompt_otp)
 
   if [[ "$dist_tag" == "latest" ]]; then
@@ -47,6 +49,22 @@ prompt_otp() {
   read otp
   echo $otp
 }
+
+environment_check() {
+  if [[ "upstream" != *"$(git remote)"* ]]; then
+    log "No 'upstream' remote found"
+    exit 1
+  fi
+
+  if npm whoami &> /dev/null; then
+    log "Will publish as '$(npm whoami)'"
+  else
+    log "Not logged in into npm, run 'npm login' first"
+    exit 1
+  fi
+}
+
+environment_check
 
 if [[ "$@" == "start minor" ]]; then
   log "Creating new minor pre-release"
