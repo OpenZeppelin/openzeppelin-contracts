@@ -7,6 +7,10 @@
  implementers there. ([#1677](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1677))
  * `ERC777`: initial support for the [ERC777 token](https://eips.ethereum.org/EIPS/eip-777), which has multiple improvements over `ERC20` such as built-in burning, a more  straightforward permission system, and optional sender and receiver hooks on transfer (mandatory for contracts!). ([#1684](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1684))
 
+### Bugfixes:
+ * `PostDeliveryCrowdsale`: some validations where skipped when paired with other crowdsale flavors, such as `AllowanceCrowdsale`, or `MintableCrowdsale` and `ERC20Capped`, which could cause buyers to not be able to claim their purchased tokens. ([#1721](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1721))
+
+
 ## 2.2.0 (2019-03-14)
 
 ### New features:
