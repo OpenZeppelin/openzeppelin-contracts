@@ -315,7 +315,7 @@ contract.only('ERC20', function ([_, initialHolder, recipient, anotherAccount]) 
       const spender = ZERO_ADDRESS;
 
       it('reverts', async function () {
-        await shouldFail.reverting.withMessage(this.token.increaseAllowance(spender, amount, { from: initialHolder }), "ERC20: approve from the zero address");
+        await shouldFail.reverting.withMessage(this.token.increaseAllowance(spender, amount, { from: initialHolder }), "ERC20: approve to the zero address");
       });
     });
   });
