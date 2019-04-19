@@ -5,7 +5,7 @@ const MintedCrowdsaleImpl = artifacts.require('MintedCrowdsaleImpl');
 const ERC20Mintable = artifacts.require('ERC20Mintable');
 const ERC20 = artifacts.require('ERC20');
 
-contract('MintedCrowdsale', function ([_, deployer, investor, wallet, purchaser]) {
+contract.only('MintedCrowdsale', function ([_, deployer, investor, wallet, purchaser]) {
   const rate = new BN('1000');
   const value = ether('5');
 
@@ -32,11 +32,11 @@ contract('MintedCrowdsale', function ([_, deployer, investor, wallet, purchaser]
     });
 
     it('rejects bare payments', async function () {
-      await shouldFail.reverting(this.crowdsale.send(value));
+      await shouldFail.reverting.withMessage(this.crowdsale.send(value), "VM Exception while processing transaction: revert");
     });
 
     it('rejects token purchases', async function () {
-      await shouldFail.reverting(this.crowdsale.buyTokens(investor, { value: value, from: purchaser }));
+      await shouldFail.reverting.withMessage(this.crowdsale.buyTokens(investor, { value: value, from: purchaser }), "VM Exception while processing transaction: revert");
     });
   });
 });

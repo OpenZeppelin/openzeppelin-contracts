@@ -46,13 +46,13 @@ function shouldBehaveLikeMintAndBurnERC721 (
 
       describe('when the given owner address is the zero address', function () {
         it('reverts', async function () {
-          await shouldFail.reverting(this.token.mint(ZERO_ADDRESS, thirdTokenId, { from: minter }));
+          await shouldFail.reverting.withMessage(this.token.mint(ZERO_ADDRESS, thirdTokenId, { from: minter }));
         });
       });
 
       describe('when the given token ID was already tracked by this contract', function () {
         it('reverts', async function () {
-          await shouldFail.reverting(this.token.mint(owner, firstTokenId, { from: minter }));
+          await shouldFail.reverting.withMessage(this.token.mint(owner, firstTokenId, { from: minter }));
         });
       });
     });
@@ -76,7 +76,7 @@ function shouldBehaveLikeMintAndBurnERC721 (
         });
 
         it('burns the given token ID and adjusts the balance of the owner', async function () {
-          await shouldFail.reverting(this.token.ownerOf(tokenId));
+          await shouldFail.reverting.withMessage(this.token.ownerOf(tokenId));
           (await this.token.balanceOf(owner)).should.be.bignumber.equal('1');
         });
 
@@ -98,14 +98,14 @@ function shouldBehaveLikeMintAndBurnERC721 (
 
         context('getApproved', function () {
           it('reverts', async function () {
-            await shouldFail.reverting(this.token.getApproved(tokenId));
+            await shouldFail.reverting.withMessage(this.token.getApproved(tokenId));
           });
         });
       });
 
       describe('when the given token ID was not tracked by this contract', function () {
         it('reverts', async function () {
-          await shouldFail.reverting(
+          await shouldFail.reverting.withMessage(
             this.token.burn(unknownTokenId, { from: creator })
           );
         });

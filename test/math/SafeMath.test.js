@@ -3,7 +3,7 @@ const { MAX_UINT256 } = constants;
 
 const SafeMathMock = artifacts.require('SafeMathMock');
 
-contract('SafeMath', function () {
+contract.only('SafeMath', function () {
   beforeEach(async function () {
     this.safeMath = await SafeMathMock.new();
   });
@@ -14,8 +14,9 @@ contract('SafeMath', function () {
   }
 
   async function testFailsCommutative (fn, lhs, rhs) {
-    await shouldFail.reverting(fn(lhs, rhs));
-    await shouldFail.reverting(fn(rhs, lhs));
+    //TODO @nventuro How to distinguish between add() & mul() calls s.t. to show the appropriate messages
+    await shouldFail.reverting.withMessage(fn(lhs, rhs));
+    await shouldFail.reverting.withMessage(fn(rhs, lhs));
   }
 
   describe('add', function () {
@@ -46,7 +47,7 @@ contract('SafeMath', function () {
       const a = new BN('1234');
       const b = new BN('5678');
 
-      await shouldFail.reverting(this.safeMath.sub(a, b));
+      await shouldFail.reverting.withMessage(this.safeMath.sub(a, b), "SafeMath: subtraction overflow");
     });
   });
 
@@ -99,7 +100,7 @@ contract('SafeMath', function () {
       const a = new BN('5678');
       const b = new BN('0');
 
-      await shouldFail.reverting(this.safeMath.div(a, b));
+      await shouldFail.reverting.withMessage(this.safeMath.div(a, b), "SafeMath: division by zero");
     });
   });
 
@@ -138,7 +139,7 @@ contract('SafeMath', function () {
       const a = new BN('5678');
       const b = new BN('0');
 
-      await shouldFail.reverting(this.safeMath.mod(a, b));
+      await shouldFail.reverting.withMessage(this.safeMath.mod(a, b), "SafeMath: modulo by zero");
     });
   });
 });

@@ -3,7 +3,7 @@ const { MAX_INT256, MIN_INT256 } = constants;
 
 const SignedSafeMathMock = artifacts.require('SignedSafeMathMock');
 
-contract('SignedSafeMath', function () {
+contract.only('SignedSafeMath', function () {
   beforeEach(async function () {
     this.safeMath = await SignedSafeMathMock.new();
   });
@@ -14,8 +14,9 @@ contract('SignedSafeMath', function () {
   }
 
   async function testFailsCommutative (fn, lhs, rhs) {
-    await shouldFail.reverting(fn(lhs, rhs));
-    await shouldFail.reverting(fn(rhs, lhs));
+    //TODO @nventuro How to distinguish between add() & mul() calls s.t. to show the appropriate messages
+    await shouldFail.reverting.withMessage(fn(lhs, rhs));
+    await shouldFail.reverting.withMessage(fn(rhs, lhs));
   }
 
   describe('add', function () {
@@ -69,14 +70,14 @@ contract('SignedSafeMath', function () {
       const a = MAX_INT256;
       const b = new BN('-1');
 
-      await shouldFail.reverting(this.safeMath.sub(a, b));
+      await shouldFail.reverting.withMessage(this.safeMath.sub(a, b), "SignedSafeMath: subtraction overflow");
     });
 
     it('reverts on negative subtraction overflow', async function () {
       const a = MIN_INT256;
       const b = new BN('1');
 
-      await shouldFail.reverting(this.safeMath.sub(a, b));
+      await shouldFail.reverting.withMessage(this.safeMath.sub(a, b), "SignedSafeMath: subtraction overflow");
     });
   });
 
@@ -137,14 +138,14 @@ contract('SignedSafeMath', function () {
       const a = new BN('-5678');
       const b = new BN('0');
 
-      await shouldFail.reverting(this.safeMath.div(a, b));
+      await shouldFail.reverting.withMessage(this.safeMath.div(a, b), "SignedSafeMath: division by zero");
     });
 
     it('reverts on overflow, negative second', async function () {
       const a = new BN(MIN_INT256);
       const b = new BN('-1');
 
-      await shouldFail.reverting(this.safeMath.div(a, b));
+      await shouldFail.reverting.withMessage(this.safeMath.div(a, b), "SignedSafeMath: division overflow");
     });
   });
 });

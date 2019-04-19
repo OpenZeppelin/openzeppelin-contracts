@@ -41,23 +41,23 @@ contract('SafeERC20', function ([_, hasNoCode]) {
 
 function shouldRevertOnAllCalls () {
   it('reverts on transfer', async function () {
-    await shouldFail.reverting(this.wrapper.transfer());
+    await shouldFail.reverting.withMessage(this.wrapper.transfer());
   });
 
   it('reverts on transferFrom', async function () {
-    await shouldFail.reverting(this.wrapper.transferFrom());
+    await shouldFail.reverting.withMessage(this.wrapper.transferFrom());
   });
 
   it('reverts on approve', async function () {
-    await shouldFail.reverting(this.wrapper.approve(0));
+    await shouldFail.reverting.withMessage(this.wrapper.approve(0));
   });
 
   it('reverts on increaseAllowance', async function () {
-    await shouldFail.reverting(this.wrapper.increaseAllowance(0));
+    await shouldFail.reverting.withMessage(this.wrapper.increaseAllowance(0));
   });
 
   it('reverts on decreaseAllowance', async function () {
-    await shouldFail.reverting(this.wrapper.decreaseAllowance(0));
+    await shouldFail.reverting.withMessage(this.wrapper.decreaseAllowance(0));
   });
 }
 
@@ -89,7 +89,7 @@ function shouldOnlyRevertOnErrors () {
       });
 
       it('reverts when decreasing the allowance', async function () {
-        await shouldFail.reverting(this.wrapper.decreaseAllowance(10));
+        await shouldFail.reverting.withMessage(this.wrapper.decreaseAllowance(10));
       });
     });
 
@@ -99,7 +99,7 @@ function shouldOnlyRevertOnErrors () {
       });
 
       it('reverts when approving a non-zero allowance', async function () {
-        await shouldFail.reverting(this.wrapper.approve(20));
+        await shouldFail.reverting.withMessage(this.wrapper.approve(20));
       });
 
       it('doesn\'t revert when approving a zero allowance', async function () {
@@ -115,7 +115,7 @@ function shouldOnlyRevertOnErrors () {
       });
 
       it('reverts when decreasing the allowance to a negative value', async function () {
-        await shouldFail.reverting(this.wrapper.decreaseAllowance(200));
+        await shouldFail.reverting.withMessage(this.wrapper.decreaseAllowance(200));
       });
     });
   });

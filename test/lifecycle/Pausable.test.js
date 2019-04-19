@@ -3,7 +3,7 @@ const { shouldBehaveLikePublicRole } = require('../behaviors/access/roles/Public
 
 const PausableMock = artifacts.require('PausableMock');
 
-contract('Pausable', function ([_, pauser, otherPauser, other, ...otherAccounts]) {
+contract.only('Pausable', function ([_, pauser, otherPauser, other, ...otherAccounts]) {
   beforeEach(async function () {
     this.pausable = await PausableMock.new({ from: pauser });
   });
@@ -30,7 +30,7 @@ contract('Pausable', function ([_, pauser, otherPauser, other, ...otherAccounts]
     });
 
     it('cannot take drastic measure in non-pause', async function () {
-      await shouldFail.reverting(this.pausable.drasticMeasure({ from: other }));
+      await shouldFail.reverting.withMessage(this.pausable.drasticMeasure({ from: other }), "Pausable: not paused");
       (await this.pausable.drasticMeasureTaken()).should.equal(false);
     });
 
@@ -41,7 +41,7 @@ contract('Pausable', function ([_, pauser, otherPauser, other, ...otherAccounts]
       });
 
       it('reverts when pausing from non-pauser', async function () {
-        await shouldFail.reverting(this.pausable.pause({ from: other }));
+        await shouldFail.reverting.withMessage(this.pausable.pause({ from: other }), "PauserRole: caller does not have the Pauser role");
       });
 
       context('when paused', function () {
@@ -54,7 +54,7 @@ contract('Pausable', function ([_, pauser, otherPauser, other, ...otherAccounts]
         });
 
         it('cannot perform normal process in pause', async function () {
-          await shouldFail.reverting(this.pausable.normalProcess({ from: other }));
+          await shouldFail.reverting.withMessage(this.pausable.normalProcess({ from: other }), "Pausable: paused");
         });
 
         it('can take a drastic measure in a pause', async function () {
@@ -63,7 +63,7 @@ contract('Pausable', function ([_, pauser, otherPauser, other, ...otherAccounts]
         });
 
         it('reverts when re-pausing', async function () {
-          await shouldFail.reverting(this.pausable.pause({ from: pauser }));
+          await shouldFail.reverting.withMessage(this.pausable.pause({ from: pauser }), "Pausable: paused");
         });
 
         describe('unpausing', function () {
@@ -73,7 +73,7 @@ contract('Pausable', function ([_, pauser, otherPauser, other, ...otherAccounts]
           });
 
           it('reverts when unpausing from non-pauser', async function () {
-            await shouldFail.reverting(this.pausable.unpause({ from: other }));
+            await shouldFail.reverting.withMessage(this.pausable.unpause({ from: other }), "PauserRole: caller does not have the Pauser role");
           });
 
           context('when unpaused', function () {
@@ -92,11 +92,11 @@ contract('Pausable', function ([_, pauser, otherPauser, other, ...otherAccounts]
             });
 
             it('should prevent drastic measure', async function () {
-              await shouldFail.reverting(this.pausable.drasticMeasure({ from: other }));
+              await shouldFail.reverting.withMessage(this.pausable.drasticMeasure({ from: other }), "Pausable: not paused");
             });
 
             it('reverts when re-unpausing', async function () {
-              await shouldFail.reverting(this.pausable.unpause({ from: pauser }));
+              await shouldFail.reverting.withMessage(this.pausable.unpause({ from: pauser }), "Pausable: not paused");
             });
           });
         });

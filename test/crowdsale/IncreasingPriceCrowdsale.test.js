@@ -3,7 +3,7 @@ const { BN, ether, shouldFail, time } = require('openzeppelin-test-helpers');
 const IncreasingPriceCrowdsaleImpl = artifacts.require('IncreasingPriceCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
-contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser]) {
+contract.only('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser]) {
   const value = ether('1');
   const tokenSupply = new BN('10').pow(new BN('22'));
 
@@ -26,21 +26,21 @@ contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser])
     });
 
     it('reverts with a final rate larger than the initial rate', async function () {
-      await shouldFail.reverting(IncreasingPriceCrowdsaleImpl.new(
+      await shouldFail.reverting.withMessage(IncreasingPriceCrowdsaleImpl.new(
         this.startTime, this.closingTime, wallet, this.token.address, initialRate, initialRate.addn(1)
-      ));
+      ), "IncreasingPriceCrowdsale: initial rate is less than final rate");
     });
 
     it('reverts with a final rate equal to the initial rate', async function () {
-      await shouldFail.reverting(IncreasingPriceCrowdsaleImpl.new(
+      await shouldFail.reverting.withMessage(IncreasingPriceCrowdsaleImpl.new(
         this.startTime, this.closingTime, wallet, this.token.address, initialRate, initialRate
-      ));
+      ), "IncreasingPriceCrowdsale: initial rate is less than final rate");
     });
 
     it('reverts with a final rate of zero', async function () {
-      await shouldFail.reverting(IncreasingPriceCrowdsaleImpl.new(
+      await shouldFail.reverting.withMessage(IncreasingPriceCrowdsaleImpl.new(
         this.startTime, this.closingTime, wallet, this.token.address, initialRate, 0
-      ));
+      ), "IncreasingPriceCrowdsale: final rate is 0");
     });
 
     context('with crowdsale', function () {
@@ -57,7 +57,7 @@ contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser])
       });
 
       it('reverts when the base Crowdsale\'s rate function is called', async function () {
-        await shouldFail.reverting(this.crowdsale.rate());
+        await shouldFail.reverting.withMessage(this.crowdsale.rate(), "VM Exception while processing transaction: revert");
       });
 
       it('returns a rate of 0 before the crowdsale starts', async function () {

@@ -4,7 +4,7 @@ const { ZERO_ADDRESS } = constants;
 const AllowanceCrowdsaleImpl = artifacts.require('AllowanceCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
-contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenWallet]) {
+contract.only('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenWallet]) {
   const rate = new BN('1');
   const value = ether('0.42');
   const expectedTokenAmount = rate.mul(value);
@@ -75,7 +75,7 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
   describe('when token wallet is the zero address', function () {
     it('creation reverts', async function () {
       this.token = await SimpleToken.new({ from: tokenWallet });
-      await shouldFail.reverting(AllowanceCrowdsaleImpl.new(rate, wallet, this.token.address, ZERO_ADDRESS));
+      await shouldFail.reverting.withMessage(AllowanceCrowdsaleImpl.new(rate, wallet, this.token.address, ZERO_ADDRESS), "AllowanceCrowdsale: token wallet is the zero address");
     });
   });
 });

@@ -3,7 +3,7 @@ const { shouldFail } = require('openzeppelin-test-helpers');
 const ReentrancyMock = artifacts.require('ReentrancyMock');
 const ReentrancyAttack = artifacts.require('ReentrancyAttack');
 
-contract('ReentrancyGuard', function () {
+contract.only('ReentrancyGuard', function () {
   beforeEach(async function () {
     this.reentrancyMock = await ReentrancyMock.new();
     (await this.reentrancyMock.counter()).should.be.bignumber.equal('0');
@@ -11,7 +11,7 @@ contract('ReentrancyGuard', function () {
 
   it('should not allow remote callback', async function () {
     const attacker = await ReentrancyAttack.new();
-    await shouldFail.reverting(this.reentrancyMock.countAndCall(attacker.address));
+    await shouldFail.reverting.withMessage(this.reentrancyMock.countAndCall(attacker.address), "ReentrancyGuard: reentrant call");
   });
 
   // The following are more side-effects than intended behavior:
@@ -19,10 +19,10 @@ contract('ReentrancyGuard', function () {
   // in the side-effects.
 
   it('should not allow local recursion', async function () {
-    await shouldFail.reverting(this.reentrancyMock.countLocalRecursive(10));
+    await shouldFail.reverting.withMessage(this.reentrancyMock.countLocalRecursive(10), "ReentrancyGuard: reentrant call");
   });
 
   it('should not allow indirect local recursion', async function () {
-    await shouldFail.reverting(this.reentrancyMock.countThisRecursive(10));
+    await shouldFail.reverting.withMessage(this.reentrancyMock.countThisRecursive(10), "ReentrancyMock: failed call");
   });
 });

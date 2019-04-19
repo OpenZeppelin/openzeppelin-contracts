@@ -3,7 +3,7 @@ const { BN, ether, shouldFail, time } = require('openzeppelin-test-helpers');
 const RefundablePostDeliveryCrowdsaleImpl = artifacts.require('RefundablePostDeliveryCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
-contract('RefundablePostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
+contract.only('RefundablePostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
   const rate = new BN(1);
   const tokenSupply = new BN('10').pow(new BN('22'));
   const goal = ether('100');
@@ -42,7 +42,7 @@ contract('RefundablePostDeliveryCrowdsale', function ([_, investor, wallet, purc
       });
 
       it('does not allow beneficiaries to withdraw tokens before crowdsale ends', async function () {
-        await shouldFail.reverting(this.crowdsale.withdrawTokens(investor));
+        await shouldFail.reverting.withMessage(this.crowdsale.withdrawTokens(investor), "RefundablePostDeliveryCrowdsale: not finalized");
       });
 
       context('after closing time and finalization', function () {
@@ -52,7 +52,7 @@ contract('RefundablePostDeliveryCrowdsale', function ([_, investor, wallet, purc
         });
 
         it('rejects token withdrawals', async function () {
-          await shouldFail.reverting(this.crowdsale.withdrawTokens(investor));
+          await shouldFail.reverting.withMessage(this.crowdsale.withdrawTokens(investor), "RefundablePostDeliveryCrowdsale: goal not reached");
         });
       });
     });
@@ -70,7 +70,7 @@ contract('RefundablePostDeliveryCrowdsale', function ([_, investor, wallet, purc
       });
 
       it('does not allow beneficiaries to withdraw tokens before crowdsale ends', async function () {
-        await shouldFail.reverting(this.crowdsale.withdrawTokens(investor));
+        await shouldFail.reverting.withMessage(this.crowdsale.withdrawTokens(investor), "RefundablePostDeliveryCrowdsale: not finalized");
       });
 
       context('after closing time and finalization', function () {
@@ -87,7 +87,7 @@ contract('RefundablePostDeliveryCrowdsale', function ([_, investor, wallet, purc
 
         it('rejects multiple withdrawals', async function () {
           await this.crowdsale.withdrawTokens(investor);
-          await shouldFail.reverting(this.crowdsale.withdrawTokens(investor));
+          await shouldFail.reverting.withMessage(this.crowdsale.withdrawTokens(investor), "PostDeliveryCrowdsale: beneficiary is not due any tokens");
         });
       });
     });

@@ -16,7 +16,7 @@ contract('ERC721', function ([_, creator, tokenOwner, other, ...accounts]) {
 
     describe('_mint(address, uint256)', function () {
       it('reverts with a null destination address', async function () {
-        await shouldFail.reverting(this.token.mint(ZERO_ADDRESS, tokenId));
+        await shouldFail.reverting.withMessage(this.token.mint(ZERO_ADDRESS, tokenId));
       });
 
       context('with minted token', async function () {
@@ -34,14 +34,14 @@ contract('ERC721', function ([_, creator, tokenOwner, other, ...accounts]) {
         });
 
         it('reverts when adding a token id that already exists', async function () {
-          await shouldFail.reverting(this.token.mint(tokenOwner, tokenId));
+          await shouldFail.reverting.withMessage(this.token.mint(tokenOwner, tokenId));
         });
       });
     });
 
     describe('_burn(address, uint256)', function () {
       it('reverts when burning a non-existent token id', async function () {
-        await shouldFail.reverting(this.token.methods['burn(address,uint256)'](tokenOwner, tokenId));
+        await shouldFail.reverting.withMessage(this.token.methods['burn(address,uint256)'](tokenOwner, tokenId));
       });
 
       context('with minted token', function () {
@@ -50,7 +50,7 @@ contract('ERC721', function ([_, creator, tokenOwner, other, ...accounts]) {
         });
 
         it('reverts when the account is not the owner', async function () {
-          await shouldFail.reverting(this.token.methods['burn(address,uint256)'](other, tokenId));
+          await shouldFail.reverting.withMessage(this.token.methods['burn(address,uint256)'](other, tokenId));
         });
 
         context('with burnt token', function () {
@@ -64,11 +64,11 @@ contract('ERC721', function ([_, creator, tokenOwner, other, ...accounts]) {
 
           it('deletes the token', async function () {
             (await this.token.balanceOf(tokenOwner)).should.be.bignumber.equal('0');
-            await shouldFail.reverting(this.token.ownerOf(tokenId));
+            await shouldFail.reverting.withMessage(this.token.ownerOf(tokenId));
           });
 
           it('reverts when burning a token id that has been deleted', async function () {
-            await shouldFail.reverting(this.token.methods['burn(address,uint256)'](tokenOwner, tokenId));
+            await shouldFail.reverting.withMessage(this.token.methods['burn(address,uint256)'](tokenOwner, tokenId));
           });
         });
       });
@@ -76,7 +76,7 @@ contract('ERC721', function ([_, creator, tokenOwner, other, ...accounts]) {
 
     describe('_burn(uint256)', function () {
       it('reverts when burning a non-existent token id', async function () {
-        await shouldFail.reverting(this.token.methods['burn(uint256)'](tokenId));
+        await shouldFail.reverting.withMessage(this.token.methods['burn(uint256)'](tokenId));
       });
 
       context('with minted token', function () {
@@ -95,11 +95,11 @@ contract('ERC721', function ([_, creator, tokenOwner, other, ...accounts]) {
 
           it('deletes the token', async function () {
             (await this.token.balanceOf(tokenOwner)).should.be.bignumber.equal('0');
-            await shouldFail.reverting(this.token.ownerOf(tokenId));
+            await shouldFail.reverting.withMessage(this.token.ownerOf(tokenId));
           });
 
           it('reverts when burning a token id that has been deleted', async function () {
-            await shouldFail.reverting(this.token.methods['burn(uint256)'](tokenId));
+            await shouldFail.reverting.withMessage(this.token.methods['burn(uint256)'](tokenId));
           });
         });
       });
