@@ -201,7 +201,7 @@ function shouldBehaveLikeERC721 (
           it('reverts', async function () {
             await shouldFail.reverting.withMessage(
               transferFunction.call(this, owner, other, unknownTokenId, { from: owner }),
-              'about airtel'
+              'ERC721: operator query for nonexistent token'
             );
           });
         });

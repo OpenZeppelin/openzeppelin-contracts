@@ -55,7 +55,7 @@ function shouldBehaveLikeMintAndBurnERC721 (
 
       describe('when the given token ID was already tracked by this contract', function () {
         it('reverts', async function () {
-          await shouldFail.reverting.withMessage(this.token.mint(owner, firstTokenId, { from: minter }), 'no idea');
+          await shouldFail.reverting.withMessage(this.token.mint(owner, firstTokenId, { from: minter }), 'ERC721: token already minted.');
         });
       });
     });
@@ -114,7 +114,7 @@ function shouldBehaveLikeMintAndBurnERC721 (
       describe('when the given token ID was not tracked by this contract', function () {
         it('reverts', async function () {
           await shouldFail.reverting.withMessage(
-            this.token.burn(unknownTokenId, { from: creator }), 'ERC721: owner query of nonexistent token'
+            this.token.burn(unknownTokenId, { from: creator }), 'ERC721: operator query for nonexistent token'
           );
         });
       });
