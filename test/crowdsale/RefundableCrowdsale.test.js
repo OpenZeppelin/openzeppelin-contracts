@@ -3,7 +3,7 @@ const { balance, BN, ether, shouldFail, time } = require('openzeppelin-test-help
 const RefundableCrowdsaleImpl = artifacts.require('RefundableCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
-contract.only('RefundableCrowdsale', function ([_, wallet, investor, purchaser, other]) {
+contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, other]) {
   const rate = new BN(1);
   const goal = ether('50');
   const lessThanGoal = ether('45');
@@ -25,7 +25,8 @@ contract.only('RefundableCrowdsale', function ([_, wallet, investor, purchaser, 
 
   it('rejects a goal of zero', async function () {
     await shouldFail.reverting.withMessage(
-      RefundableCrowdsaleImpl.new(this.openingTime, this.closingTime, rate, wallet, this.token.address, 0), "RefundableCrowdsale: goal is 0"
+      RefundableCrowdsaleImpl.new(this.openingTime, this.closingTime, rate, wallet, this.token.address, 0),
+      'RefundableCrowdsale: goal is 0'
     );
   });
 
@@ -40,7 +41,9 @@ contract.only('RefundableCrowdsale', function ([_, wallet, investor, purchaser, 
 
     context('before opening time', function () {
       it('denies refunds', async function () {
-        await shouldFail.reverting.withMessage(this.crowdsale.claimRefund(investor), "RefundableCrowdsale: not finalized");
+        await shouldFail.reverting.withMessage(this.crowdsale.claimRefund(investor),
+          'RefundableCrowdsale: not finalized'
+        );
       });
     });
 
@@ -50,7 +53,9 @@ contract.only('RefundableCrowdsale', function ([_, wallet, investor, purchaser, 
       });
 
       it('denies refunds', async function () {
-        await shouldFail.reverting.withMessage(this.crowdsale.claimRefund(investor), "RefundableCrowdsale: not finalized");
+        await shouldFail.reverting.withMessage(this.crowdsale.claimRefund(investor),
+          'RefundableCrowdsale: not finalized'
+        );
       });
 
       context('with unreached goal', function () {
@@ -84,7 +89,9 @@ contract.only('RefundableCrowdsale', function ([_, wallet, investor, purchaser, 
           });
 
           it('denies refunds', async function () {
-            await shouldFail.reverting.withMessage(this.crowdsale.claimRefund(investor), "RefundableCrowdsale: goal reached");
+            await shouldFail.reverting.withMessage(this.crowdsale.claimRefund(investor),
+              'RefundableCrowdsale: goal reached'
+            );
           });
 
           it('forwards funds to wallet', async function () {

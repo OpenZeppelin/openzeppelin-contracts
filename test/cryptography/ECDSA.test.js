@@ -7,7 +7,7 @@ const ECDSAMock = artifacts.require('ECDSAMock');
 const TEST_MESSAGE = web3.utils.sha3('OpenZeppelin');
 const WRONG_MESSAGE = web3.utils.sha3('Nope');
 
-contract.only('ECDSA', function ([_, other]) {
+contract('ECDSA', function ([_, other]) {
   beforeEach(async function () {
     this.ecdsa = await ECDSAMock.new();
   });
@@ -120,7 +120,7 @@ contract.only('ECDSA', function ([_, other]) {
         const signature = await web3.eth.sign(TEST_MESSAGE, other);
         await shouldFail.reverting.withMessage(
           this.ecdsa.recover(TEST_MESSAGE.substring(2), signature),
-          "Failure message"
+          'Failure message'
         );
       });
     });

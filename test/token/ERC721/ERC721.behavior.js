@@ -36,7 +36,9 @@ function shouldBehaveLikeERC721 (
 
       context('when querying the zero address', function () {
         it('throws', async function () {
-          await shouldFail.reverting.withMessage(this.token.balanceOf(ZERO_ADDRESS));
+          await shouldFail.reverting.withMessage(
+            this.token.balanceOf(ZERO_ADDRESS), 'ERC721: balance query for the zero address'
+          );
         });
       });
     });
@@ -54,7 +56,9 @@ function shouldBehaveLikeERC721 (
         const tokenId = unknownTokenId;
 
         it('reverts', async function () {
-          await shouldFail.reverting.withMessage(this.token.ownerOf(tokenId));
+          await shouldFail.reverting.withMessage(
+            this.token.ownerOf(tokenId), 'ERC721: owner query of nonexistent token'
+          );
         });
       });
     });
@@ -178,21 +182,26 @@ function shouldBehaveLikeERC721 (
 
         context('when the address of the previous owner is incorrect', function () {
           it('reverts', async function () {
-            await shouldFail.reverting.withMessage(transferFunction.call(this, other, other, tokenId, { from: owner })
+            await shouldFail.reverting.withMessage(
+              transferFunction.call(this, other, other, tokenId, { from: owner }), 'ERC721: transfer of unowned token'
             );
           });
         });
 
         context('when the sender is not authorized for the token id', function () {
           it('reverts', async function () {
-            await shouldFail.reverting.withMessage(transferFunction.call(this, owner, other, tokenId, { from: other })
+            await shouldFail.reverting.withMessage(
+              transferFunction.call(this, owner, other, tokenId, { from: other }),
+              'ERC721: transfer caller is not owner nor approved'
             );
           });
         });
 
         context('when the given token ID does not exist', function () {
           it('reverts', async function () {
-            await shouldFail.reverting.withMessage(transferFunction.call(this, owner, other, unknownTokenId, { from: owner })
+            await shouldFail.reverting.withMessage(
+              transferFunction.call(this, owner, other, unknownTokenId, { from: owner }),
+              'about airtel'
             );
           });
         });
@@ -200,7 +209,8 @@ function shouldBehaveLikeERC721 (
         context('when the address to transfer the token to is the zero address', function () {
           it('reverts', async function () {
             await shouldFail.reverting.withMessage(
-              transferFunction.call(this, owner, ZERO_ADDRESS, tokenId, { from: owner })
+              transferFunction.call(this, owner, ZERO_ADDRESS, tokenId, { from: owner }),
+              'ERC721: transfer to the zero address'
             );
           });
         });
@@ -265,7 +275,8 @@ function shouldBehaveLikeERC721 (
                     this.receiver.address,
                     unknownTokenId,
                     { from: owner },
-                  )
+                  ),
+                  'ERC721: operator query for nonexistent token'
                 );
               });
             });
@@ -284,7 +295,8 @@ function shouldBehaveLikeERC721 (
           it('reverts', async function () {
             const invalidReceiver = await ERC721ReceiverMock.new('0x42', false);
             await shouldFail.reverting.withMessage(
-              this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner })
+              this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner }),
+              'ERC721: transfer to non ERC721Receiver implementer'
             );
           });
         });
@@ -293,7 +305,8 @@ function shouldBehaveLikeERC721 (
           it('reverts', async function () {
             const invalidReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, true);
             await shouldFail.reverting.withMessage(
-              this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner })
+              this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner }),
+              'ERC721ReceiverMock: reverting'
             );
           });
         });
@@ -302,7 +315,8 @@ function shouldBehaveLikeERC721 (
           it('reverts', async function () {
             const invalidReceiver = this.token;
             await shouldFail.reverting.withMessage(
-              this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner })
+              this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner }),
+              'VM Exception while processing transaction: revert'
             );
           });
         });
@@ -391,21 +405,23 @@ function shouldBehaveLikeERC721 (
       context('when the address that receives the approval is the owner', function () {
         it('reverts', async function () {
           await shouldFail.reverting.withMessage(
-            this.token.approve(owner, tokenId, { from: owner })
+            this.token.approve(owner, tokenId, { from: owner }), 'ERC721: transfer to current owner'
           );
         });
       });
 
       context('when the sender does not own the given token ID', function () {
         it('reverts', async function () {
-          await shouldFail.reverting.withMessage(this.token.approve(approved, tokenId, { from: other }));
+          await shouldFail.reverting.withMessage(this.token.approve(approved, tokenId, { from: other }),
+            'ERC721: approve caller is not owner nor approved');
         });
       });
 
       context('when the sender is approved for the given token ID', function () {
         it('reverts', async function () {
           await this.token.approve(approved, tokenId, { from: owner });
-          await shouldFail.reverting.withMessage(this.token.approve(anotherApproved, tokenId, { from: approved }));
+          await shouldFail.reverting.withMessage(this.token.approve(anotherApproved, tokenId, { from: approved }),
+            'ERC721: approve caller is not owner nor approved');
         });
       });
 
@@ -421,7 +437,8 @@ function shouldBehaveLikeERC721 (
 
       context('when the given token ID does not exist', function () {
         it('reverts', async function () {
-          await shouldFail.reverting.withMessage(this.token.approve(approved, unknownTokenId, { from: operator }));
+          await shouldFail.reverting.withMessage(this.token.approve(approved, unknownTokenId, { from: operator }),
+            'ERC721: owner query of nonexistent token');
         });
       });
     });
@@ -499,7 +516,8 @@ function shouldBehaveLikeERC721 (
 
       context('when the operator is the owner', function () {
         it('reverts', async function () {
-          await shouldFail.reverting.withMessage(this.token.setApprovalForAll(owner, true, { from: owner }));
+          await shouldFail.reverting.withMessage(this.token.setApprovalForAll(owner, true, { from: owner }),
+            'ERC721: approve to caller');
         });
       });
     });

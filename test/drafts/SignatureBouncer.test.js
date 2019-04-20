@@ -8,7 +8,7 @@ const UINT_VALUE = 23;
 const BYTES_VALUE = web3.utils.toHex('test');
 const INVALID_SIGNATURE = '0xabcd';
 
-contract.only('SignatureBouncer', function ([_, signer, otherSigner, other, authorizedUser, ...otherAccounts]) {
+contract('SignatureBouncer', function ([_, signer, otherSigner, other, authorizedUser, ...otherAccounts]) {
   beforeEach(async function () {
     this.sigBouncer = await SignatureBouncerMock.new({ from: signer });
     this.signFor = getSignFor(this.sigBouncer, signer);
@@ -31,20 +31,22 @@ contract.only('SignatureBouncer', function ([_, signer, otherSigner, other, auth
 
       it('does not allow invalid signature for sender', async function () {
         await shouldFail.reverting.withMessage(
-          this.sigBouncer.onlyWithValidSignature(INVALID_SIGNATURE, { from: authorizedUser }), "SignatureBouncer: invalid signature for caller"
+          this.sigBouncer.onlyWithValidSignature(INVALID_SIGNATURE, { from: authorizedUser }),
+          'SignatureBouncer: invalid signature for caller'
         );
       });
 
       it('does not allow valid signature for other sender', async function () {
         await shouldFail.reverting.withMessage(
-          this.sigBouncer.onlyWithValidSignature(await this.signFor(authorizedUser), { from: other }), "SignatureBouncer: invalid signature for caller"
+          this.sigBouncer.onlyWithValidSignature(await this.signFor(authorizedUser), { from: other }),
+          'SignatureBouncer: invalid signature for caller'
         );
       });
 
       it('does not allow valid signature for method for sender', async function () {
         await shouldFail.reverting.withMessage(
           this.sigBouncer.onlyWithValidSignature(await this.signFor(authorizedUser, 'onlyWithValidSignature'),
-            { from: authorizedUser }), "SignatureBouncer: invalid signature for caller"
+            { from: authorizedUser }), 'SignatureBouncer: invalid signature for caller'
         );
       });
     });
@@ -58,7 +60,8 @@ contract.only('SignatureBouncer', function ([_, signer, otherSigner, other, auth
 
       it('does not allow invalid signature with correct method for sender', async function () {
         await shouldFail.reverting.withMessage(
-          this.sigBouncer.onlyWithValidSignatureAndMethod(INVALID_SIGNATURE, { from: authorizedUser }), "SignatureBouncer: invalid signature for caller and method"
+          this.sigBouncer.onlyWithValidSignatureAndMethod(INVALID_SIGNATURE, { from: authorizedUser }),
+          'SignatureBouncer: invalid signature for caller and method'
         );
       });
 
@@ -66,20 +69,22 @@ contract.only('SignatureBouncer', function ([_, signer, otherSigner, other, auth
         await shouldFail.reverting.withMessage(
           this.sigBouncer.onlyWithValidSignatureAndMethod(
             await this.signFor(authorizedUser, 'onlyWithValidSignatureAndMethod'), { from: other }
-          ), "SignatureBouncer: invalid signature for caller and method"
+          ),
+          'SignatureBouncer: invalid signature for caller and method'
         );
       });
 
       it('does not allow valid method signature with incorrect method for sender', async function () {
         await shouldFail.reverting.withMessage(
           this.sigBouncer.onlyWithValidSignatureAndMethod(await this.signFor(authorizedUser, 'theWrongMethod'),
-            { from: authorizedUser }), "SignatureBouncer: invalid signature for caller and method"
+            { from: authorizedUser }), 'SignatureBouncer: invalid signature for caller and method'
         );
       });
 
       it('does not allow valid non-method signature method for sender', async function () {
         await shouldFail.reverting.withMessage(
-          this.sigBouncer.onlyWithValidSignatureAndMethod(await this.signFor(authorizedUser), { from: authorizedUser }), "SignatureBouncer: invalid signature for caller and method"
+          this.sigBouncer.onlyWithValidSignatureAndMethod(await this.signFor(authorizedUser), { from: authorizedUser }),
+          'SignatureBouncer: invalid signature for caller and method'
         );
       });
     });
@@ -93,7 +98,8 @@ contract.only('SignatureBouncer', function ([_, signer, otherSigner, other, auth
 
       it('does not allow invalid signature with correct method and data for sender', async function () {
         await shouldFail.reverting.withMessage(
-          this.sigBouncer.onlyWithValidSignatureAndData(UINT_VALUE, INVALID_SIGNATURE, { from: authorizedUser }), "SignatureBouncer: invalid signature for caller and data"
+          this.sigBouncer.onlyWithValidSignatureAndData(UINT_VALUE, INVALID_SIGNATURE, { from: authorizedUser }),
+          'SignatureBouncer: invalid signature for caller and data'
         );
       });
 
@@ -102,7 +108,7 @@ contract.only('SignatureBouncer', function ([_, signer, otherSigner, other, auth
           this.sigBouncer.onlyWithValidSignatureAndData(UINT_VALUE + 10,
             await this.signFor(authorizedUser, 'onlyWithValidSignatureAndData', [UINT_VALUE]),
             { from: authorizedUser }
-          ), "SignatureBouncer: invalid signature for caller and data"
+          ), 'SignatureBouncer: invalid signature for caller and data'
         );
       });
 
@@ -111,7 +117,7 @@ contract.only('SignatureBouncer', function ([_, signer, otherSigner, other, auth
           this.sigBouncer.onlyWithValidSignatureAndData(UINT_VALUE,
             await this.signFor(authorizedUser, 'onlyWithValidSignatureAndData', [UINT_VALUE]),
             { from: other }
-          ), "SignatureBouncer: invalid signature for caller and data"
+          ), 'SignatureBouncer: invalid signature for caller and data'
         );
       });
 
@@ -119,13 +125,13 @@ contract.only('SignatureBouncer', function ([_, signer, otherSigner, other, auth
         await shouldFail.reverting.withMessage(
           this.sigBouncer.onlyWithValidSignatureAndData(UINT_VALUE,
             await this.signFor(authorizedUser), { from: authorizedUser }
-          ), "SignatureBouncer: invalid signature for caller and data"
+          ), 'SignatureBouncer: invalid signature for caller and data'
         );
       });
 
       it('does not allow msg.data shorter than SIGNATURE_SIZE', async function () {
         await shouldFail.reverting.withMessage(
-          this.sigBouncer.tooShortMsgData({ from: authorizedUser }), "SignatureBouncer: data is too short"
+          this.sigBouncer.tooShortMsgData({ from: authorizedUser }), 'SignatureBouncer: data is too short'
         );
       });
     });

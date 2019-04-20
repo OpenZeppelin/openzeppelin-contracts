@@ -2,7 +2,7 @@ const { shouldFail } = require('openzeppelin-test-helpers');
 
 const CountersImpl = artifacts.require('CountersImpl');
 
-contract.only('Counters', function () {
+contract('Counters', function () {
   beforeEach(async function () {
     this.counter = await CountersImpl.new();
   });
@@ -39,7 +39,7 @@ contract.only('Counters', function () {
 
     it('reverts if the current value is 0', async function () {
       await this.counter.decrement();
-      await shouldFail.reverting.withMessage(this.counter.decrement(), "SafeMath: subtraction overflow");
+      await shouldFail.reverting.withMessage(this.counter.decrement(), 'SafeMath: subtraction overflow');
     });
 
     it('can be called multiple times', async function () {

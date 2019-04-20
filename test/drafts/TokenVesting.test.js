@@ -4,7 +4,7 @@ const { ZERO_ADDRESS } = constants;
 const ERC20Mintable = artifacts.require('ERC20Mintable');
 const TokenVesting = artifacts.require('TokenVesting');
 
-contract.only('TokenVesting', function ([_, owner, beneficiary]) {
+contract('TokenVesting', function ([_, owner, beneficiary]) {
   const amount = new BN('1000');
 
   beforeEach(async function () {
@@ -21,20 +21,22 @@ contract.only('TokenVesting', function ([_, owner, beneficiary]) {
     cliffDuration.should.be.bignumber.that.is.at.least(duration);
 
     await shouldFail.reverting.withMessage(
-      TokenVesting.new(beneficiary, this.start, cliffDuration, duration, true, { from: owner }), "TokenVesting: cliff is longer than duration"
+      TokenVesting.new(beneficiary, this.start, cliffDuration, duration, true, { from: owner }),
+      'TokenVesting: cliff is longer than duration'
     );
   });
 
   it('reverts with a null beneficiary', async function () {
     await shouldFail.reverting.withMessage(
-      TokenVesting.new(ZERO_ADDRESS, this.start, this.cliffDuration, this.duration, true, { from: owner }), "TokenVesting: beneficiary is the zero address"
+      TokenVesting.new(ZERO_ADDRESS, this.start, this.cliffDuration, this.duration, true, { from: owner }),
+      'TokenVesting: beneficiary is the zero address'
     );
   });
 
   it('reverts with a null duration', async function () {
     // cliffDuration should also be 0, since the duration must be larger than the cliff
     await shouldFail.reverting.withMessage(
-      TokenVesting.new(beneficiary, this.start, 0, 0, true, { from: owner }), "TokenVesting: duration is 0"
+      TokenVesting.new(beneficiary, this.start, 0, 0, true, { from: owner }), 'TokenVesting: duration is 0'
     );
   });
 
@@ -43,7 +45,8 @@ contract.only('TokenVesting', function ([_, owner, beneficiary]) {
 
     this.start = now.sub(this.duration).sub(time.duration.minutes(1));
     await shouldFail.reverting.withMessage(
-      TokenVesting.new(beneficiary, this.start, this.cliffDuration, this.duration, true, { from: owner }), "TokenVesting: starting time is before current time"
+      TokenVesting.new(beneficiary, this.start, this.cliffDuration, this.duration, true, { from: owner }),
+      'TokenVesting: starting time is before current time'
     );
   });
 
@@ -65,7 +68,9 @@ contract.only('TokenVesting', function ([_, owner, beneficiary]) {
     });
 
     it('cannot be released before cliff', async function () {
-      await shouldFail.reverting.withMessage(this.vesting.release(this.token.address), "TokenVesting: no tokens are due");
+      await shouldFail.reverting.withMessage(this.vesting.release(this.token.address),
+        'TokenVesting: no tokens are due'
+      );
     });
 
     it('can be released after cliff', async function () {
@@ -121,7 +126,9 @@ contract.only('TokenVesting', function ([_, owner, beneficiary]) {
         beneficiary, this.start, this.cliffDuration, this.duration, false, { from: owner }
       );
 
-      await shouldFail.reverting.withMessage(vesting.revoke(this.token.address, { from: owner }), "TokenVesting: cannot revoke");
+      await shouldFail.reverting.withMessage(vesting.revoke(this.token.address, { from: owner }),
+        'TokenVesting: cannot revoke'
+      );
     });
 
     it('should return the non-vested tokens when revoked by owner', async function () {
@@ -148,7 +155,9 @@ contract.only('TokenVesting', function ([_, owner, beneficiary]) {
 
     it('should fail to be revoked a second time', async function () {
       await this.vesting.revoke(this.token.address, { from: owner });
-      await shouldFail.reverting.withMessage(this.vesting.revoke(this.token.address, { from: owner }), "TokenVesting: token already revoked");
+      await shouldFail.reverting.withMessage(this.vesting.revoke(this.token.address, { from: owner }),
+        'TokenVesting: token already revoked'
+      );
     });
 
     function vestedAmount (total, now, start, cliffDuration, duration) {

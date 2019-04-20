@@ -3,7 +3,7 @@ const { bufferToHex, keccak256 } = require('ethereumjs-util');
 
 const ERC1820ImplementerMock = artifacts.require('ERC1820ImplementerMock');
 
-contract.only('ERC1820Implementer', function ([_, registryFunder, implementee, other]) {
+contract('ERC1820Implementer', function ([_, registryFunder, implementee, other]) {
   const ERC1820_ACCEPT_MAGIC = bufferToHex(keccak256('ERC1820_ACCEPT_MAGIC'));
 
   beforeEach(async function () {
@@ -25,7 +25,7 @@ contract.only('ERC1820Implementer', function ([_, registryFunder, implementee, o
         this.registry.setInterfaceImplementer(
           implementee, this.interfaceA, this.implementer.address, { from: implementee }
         ),
-        "Does not implement the interface"
+        'Does not implement the interface'
       );
     });
   });

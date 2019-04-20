@@ -4,12 +4,12 @@ const { shouldBehaveLikeERC20Capped } = require('./behaviors/ERC20Capped.behavio
 
 const ERC20Capped = artifacts.require('ERC20Capped');
 
-contract.only('ERC20Capped', function ([_, minter, ...otherAccounts]) {
+contract('ERC20Capped', function ([_, minter, ...otherAccounts]) {
   const cap = ether('1000');
 
   it('requires a non-zero cap', async function () {
     await shouldFail.reverting.withMessage(
-      ERC20Capped.new(new BN(0), { from: minter }), "ERC20Capped: cap is 0"
+      ERC20Capped.new(new BN(0), { from: minter }), 'ERC20Capped: cap is 0'
     );
   });
 

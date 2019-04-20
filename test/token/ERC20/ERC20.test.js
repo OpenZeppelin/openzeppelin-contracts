@@ -3,7 +3,7 @@ const { ZERO_ADDRESS } = constants;
 
 const ERC20Mock = artifacts.require('ERC20Mock');
 
-contract.only('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
+contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
   const initialSupply = new BN(100);
   beforeEach(async function () {
     this.token = await ERC20Mock.new(initialHolder, initialSupply);
@@ -37,7 +37,9 @@ contract.only('ERC20', function ([_, initialHolder, recipient, anotherAccount]) 
         const amount = initialSupply.addn(1);
 
         it('reverts', async function () {
-          await shouldFail.reverting.withMessage(this.token.transfer(to, amount, { from: initialHolder }),"SafeMath: subtraction overflow");
+          await shouldFail.reverting.withMessage(this.token.transfer(to, amount, { from: initialHolder }),
+            'SafeMath: subtraction overflow'
+          );
         });
       });
 
@@ -68,7 +70,9 @@ contract.only('ERC20', function ([_, initialHolder, recipient, anotherAccount]) 
       const to = ZERO_ADDRESS;
 
       it('reverts', async function () {
-        await shouldFail.reverting.withMessage(this.token.transfer(to, initialSupply, { from: initialHolder }), "ERC20: transfer to the zero address");
+        await shouldFail.reverting.withMessage(this.token.transfer(to, initialSupply, { from: initialHolder }),
+          'ERC20: transfer to the zero address'
+        );
       });
     });
   });
@@ -126,7 +130,9 @@ contract.only('ERC20', function ([_, initialHolder, recipient, anotherAccount]) 
           const amount = initialSupply.addn(1);
 
           it('reverts', async function () {
-            await shouldFail.reverting.withMessage(this.token.transferFrom(initialHolder, to, amount, { from: spender }), "SafeMath: subtraction overflow");
+            await shouldFail.reverting.withMessage(this.token.transferFrom(
+              initialHolder, to, amount, { from: spender }), 'SafeMath: subtraction overflow'
+            );
           });
         });
       });
@@ -140,7 +146,9 @@ contract.only('ERC20', function ([_, initialHolder, recipient, anotherAccount]) 
           const amount = initialSupply;
 
           it('reverts', async function () {
-            await shouldFail.reverting.withMessage(this.token.transferFrom(initialHolder, to, amount, { from: spender }), "SafeMath: subtraction overflow");
+            await shouldFail.reverting.withMessage(this.token.transferFrom(
+              initialHolder, to, amount, { from: spender }), 'SafeMath: subtraction overflow'
+            );
           });
         });
 
@@ -148,7 +156,9 @@ contract.only('ERC20', function ([_, initialHolder, recipient, anotherAccount]) 
           const amount = initialSupply.addn(1);
 
           it('reverts', async function () {
-            await shouldFail.reverting.withMessage(this.token.transferFrom(initialHolder, to, amount, { from: spender }), "SafeMath: subtraction overflow");
+            await shouldFail.reverting.withMessage(this.token.transferFrom(
+              initialHolder, to, amount, { from: spender }), 'SafeMath: subtraction overflow'
+            );
           });
         });
       });
@@ -163,7 +173,9 @@ contract.only('ERC20', function ([_, initialHolder, recipient, anotherAccount]) 
       });
 
       it('reverts', async function () {
-        await shouldFail.reverting.withMessage(this.token.transferFrom(initialHolder, to, amount, { from: spender }, "ERC20: transfer to the zero address"));
+        await shouldFail.reverting.withMessage(this.token.transferFrom(
+          initialHolder, to, amount, { from: spender }), 'ERC20: transfer to the zero address'
+        );
       });
     });
   });
@@ -175,7 +187,9 @@ contract.only('ERC20', function ([_, initialHolder, recipient, anotherAccount]) 
       function shouldDecreaseApproval (amount) {
         describe('when there was no approved amount before', function () {
           it('reverts', async function () {
-            await shouldFail.reverting.withMessage(this.token.decreaseAllowance(spender, amount, { from: initialHolder }), "SafeMath: subtraction overflow");
+            await shouldFail.reverting.withMessage(this.token.decreaseAllowance(
+              spender, amount, { from: initialHolder }), 'SafeMath: subtraction overflow'
+            );
           });
         });
 
@@ -209,7 +223,7 @@ contract.only('ERC20', function ([_, initialHolder, recipient, anotherAccount]) 
 
           it('reverts when more than the full allowance is removed', async function () {
             await shouldFail.reverting.withMessage(
-              this.token.decreaseAllowance(spender, approvedAmount.addn(1), { from: initialHolder }, "no idea")
+              this.token.decreaseAllowance(spender, approvedAmount.addn(1), { from: initialHolder }, 'no idea')
             );
           });
         });
@@ -233,7 +247,9 @@ contract.only('ERC20', function ([_, initialHolder, recipient, anotherAccount]) 
       const spender = ZERO_ADDRESS;
 
       it('reverts', async function () {
-        await shouldFail.reverting.withMessage(this.token.decreaseAllowance(spender, amount, { from: initialHolder }, "ERC20: approve to the zero address"));
+        await shouldFail.reverting.withMessage(this.token.decreaseAllowance(
+          spender, amount, { from: initialHolder }, 'ERC20: approve to the zero address')
+        );
       });
     });
   });
@@ -315,7 +331,9 @@ contract.only('ERC20', function ([_, initialHolder, recipient, anotherAccount]) 
       const spender = ZERO_ADDRESS;
 
       it('reverts', async function () {
-        await shouldFail.reverting.withMessage(this.token.increaseAllowance(spender, amount, { from: initialHolder }), "ERC20: approve to the zero address");
+        await shouldFail.reverting.withMessage(
+          this.token.increaseAllowance(spender, amount, { from: initialHolder }), 'ERC20: approve to the zero address'
+        );
       });
     });
   });
@@ -324,7 +342,9 @@ contract.only('ERC20', function ([_, initialHolder, recipient, anotherAccount]) 
     const amount = new BN(50);
 
     it('rejects a null account', async function () {
-      await shouldFail.reverting.withMessage(this.token.mint(ZERO_ADDRESS, amount), "ERC20: mint to the zero address");
+      await shouldFail.reverting.withMessage(
+        this.token.mint(ZERO_ADDRESS, amount), 'ERC20: mint to the zero address'
+      );
     });
 
     describe('for a non null account', function () {
@@ -355,12 +375,15 @@ contract.only('ERC20', function ([_, initialHolder, recipient, anotherAccount]) 
 
   describe('_burn', function () {
     it('rejects a null account', async function () {
-      await shouldFail.reverting.withMessage(this.token.burn(ZERO_ADDRESS, new BN(1)), "ERC20: burn from the zero address");
+      await shouldFail.reverting.withMessage(this.token.burn(ZERO_ADDRESS, new BN(1)),
+        'ERC20: burn from the zero address');
     });
 
     describe('for a non null account', function () {
       it('rejects burning more than balance', async function () {
-        await shouldFail.reverting.withMessage(this.token.burn(initialHolder, initialSupply.addn(1)), "SafeMath: subtraction overflow");
+        await shouldFail.reverting.withMessage(this.token.burn(
+          initialHolder, initialSupply.addn(1)), 'SafeMath: subtraction overflow'
+        );
       });
 
       const describeBurn = function (description, amount) {
@@ -406,16 +429,22 @@ contract.only('ERC20', function ([_, initialHolder, recipient, anotherAccount]) 
     });
 
     it('rejects a null account', async function () {
-      await shouldFail.reverting.withMessage(this.token.burnFrom(ZERO_ADDRESS, new BN(1)), "ERC20: burn from the zero address");
+      await shouldFail.reverting.withMessage(this.token.burnFrom(ZERO_ADDRESS, new BN(1)),
+        'ERC20: burn from the zero address'
+      );
     });
 
     describe('for a non null account', function () {
       it('rejects burning more than allowance', async function () {
-        await shouldFail.reverting.withMessage(this.token.burnFrom(initialHolder, allowance.addn(1)), "SafeMath: subtraction overflow");
+        await shouldFail.reverting.withMessage(this.token.burnFrom(initialHolder, allowance.addn(1)),
+          'SafeMath: subtraction overflow'
+        );
       });
 
       it('rejects burning more than balance', async function () {
-        await shouldFail.reverting.withMessage(this.token.burnFrom(initialHolder, initialSupply.addn(1)), "SafeMath: subtraction overflow");
+        await shouldFail.reverting.withMessage(this.token.burnFrom(initialHolder, initialSupply.addn(1)),
+          'SafeMath: subtraction overflow'
+        );
       });
 
       const describeBurnFrom = function (description, amount) {
@@ -477,7 +506,9 @@ contract.only('ERC20', function ([_, initialHolder, recipient, anotherAccount]) 
 
     describe('when the owner is the zero address', function () {
       it('reverts', async function () {
-        await shouldFail.reverting.withMessage(this.token.approveInternal(ZERO_ADDRESS, recipient, initialSupply), "ERC20: approve from the zero address");
+        await shouldFail.reverting.withMessage(this.token.approveInternal(ZERO_ADDRESS, recipient, initialSupply),
+          'ERC20: approve from the zero address'
+        );
       });
     });
   });
@@ -555,7 +586,9 @@ contract.only('ERC20', function ([_, initialHolder, recipient, anotherAccount]) 
 
     describe('when the spender is the zero address', function () {
       it('reverts', async function () {
-        await shouldFail.reverting.withMessage(approve.call(this, owner, ZERO_ADDRESS, supply), "ERC20: approve to the zero address");
+        await shouldFail.reverting.withMessage(approve.call(this, owner, ZERO_ADDRESS, supply),
+          'ERC20: approve to the zero address'
+        );
       });
     });
   }

@@ -4,7 +4,7 @@ const { ZERO_ADDRESS } = constants;
 const Crowdsale = artifacts.require('CrowdsaleMock');
 const SimpleToken = artifacts.require('SimpleToken');
 
-contract.only('Crowdsale', function ([_, investor, wallet, purchaser]) {
+contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
   const rate = new BN(1);
   const value = ether('42');
   const tokenSupply = new BN('10').pow(new BN('22'));
@@ -13,7 +13,7 @@ contract.only('Crowdsale', function ([_, investor, wallet, purchaser]) {
   it('requires a non-null token', async function () {
     await shouldFail.reverting.withMessage(
       Crowdsale.new(rate, wallet, ZERO_ADDRESS),
-      "Crowdsale: token is the zero address"
+      'Crowdsale: token is the zero address'
     );
   });
 
@@ -24,13 +24,13 @@ contract.only('Crowdsale', function ([_, investor, wallet, purchaser]) {
 
     it('requires a non-zero rate', async function () {
       await shouldFail.reverting.withMessage(
-        Crowdsale.new(0, wallet, this.token.address), "Crowdsale: rate is 0"
+        Crowdsale.new(0, wallet, this.token.address), 'Crowdsale: rate is 0'
       );
     });
 
     it('requires a non-null wallet', async function () {
       await shouldFail.reverting.withMessage(
-        Crowdsale.new(rate, ZERO_ADDRESS, this.token.address), "Crowdsale: wallet is the zero address"
+        Crowdsale.new(rate, ZERO_ADDRESS, this.token.address), 'Crowdsale: wallet is the zero address'
       );
     });
 
@@ -48,7 +48,7 @@ contract.only('Crowdsale', function ([_, investor, wallet, purchaser]) {
 
           it('reverts on zero-valued payments', async function () {
             await shouldFail.reverting.withMessage(
-              this.crowdsale.send(0, { from: purchaser }), "Crowdsale: weiAmount is 0"
+              this.crowdsale.send(0, { from: purchaser }), 'Crowdsale: weiAmount is 0'
             );
           });
         });
@@ -60,13 +60,14 @@ contract.only('Crowdsale', function ([_, investor, wallet, purchaser]) {
 
           it('reverts on zero-valued payments', async function () {
             await shouldFail.reverting.withMessage(
-              this.crowdsale.buyTokens(investor, { value: 0, from: purchaser }), "Crowdsale: weiAmount is 0"
+              this.crowdsale.buyTokens(investor, { value: 0, from: purchaser }), 'Crowdsale: weiAmount is 0'
             );
           });
 
           it('requires a non-null beneficiary', async function () {
             await shouldFail.reverting.withMessage(
-              this.crowdsale.buyTokens(ZERO_ADDRESS, { value: value, from: purchaser }), "Crowdsale: beneficiary is the zero address"
+              this.crowdsale.buyTokens(ZERO_ADDRESS, { value: value, from: purchaser }),
+              'Crowdsale: beneficiary is the zero address'
             );
           });
         });

@@ -3,7 +3,7 @@ const { BN, balance, ether, shouldFail, time } = require('openzeppelin-test-help
 const SampleCrowdsale = artifacts.require('SampleCrowdsale');
 const SampleCrowdsaleToken = artifacts.require('SampleCrowdsaleToken');
 
-contract.only('SampleCrowdsale', function ([_, deployer, owner, wallet, investor]) {
+contract('SampleCrowdsale', function ([_, deployer, owner, wallet, investor]) {
   const RATE = new BN(10);
   const GOAL = ether('10');
   const CAP = ether('20');
@@ -38,8 +38,10 @@ contract.only('SampleCrowdsale', function ([_, deployer, owner, wallet, investor
   });
 
   it('should not accept payments before start', async function () {
-    await shouldFail.reverting.withMessage(this.crowdsale.send(ether('1')), "TimedCrowdsale: not open");
-    await shouldFail.reverting.withMessage(this.crowdsale.buyTokens(investor, { from: investor, value: ether('1') }), "TimedCrowdsale: not open");
+    await shouldFail.reverting.withMessage(this.crowdsale.send(ether('1')), 'TimedCrowdsale: not open');
+    await shouldFail.reverting.withMessage(this.crowdsale.buyTokens(investor, { from: investor, value: ether('1') }),
+      'TimedCrowdsale: not open'
+    );
   });
 
   it('should accept payments during the sale', async function () {
@@ -55,14 +57,16 @@ contract.only('SampleCrowdsale', function ([_, deployer, owner, wallet, investor
 
   it('should reject payments after end', async function () {
     await time.increaseTo(this.afterClosingTime);
-    await shouldFail.reverting.withMessage(this.crowdsale.send(ether('1')), "TimedCrowdsale: not open");
-    await shouldFail.reverting.withMessage(this.crowdsale.buyTokens(investor, { value: ether('1'), from: investor }),"TimedCrowdsale: not open");
+    await shouldFail.reverting.withMessage(this.crowdsale.send(ether('1')), 'TimedCrowdsale: not open');
+    await shouldFail.reverting.withMessage(this.crowdsale.buyTokens(investor, { value: ether('1'), from: investor }),
+      'TimedCrowdsale: not open'
+    );
   });
 
   it('should reject payments over cap', async function () {
     await time.increaseTo(this.openingTime);
     await this.crowdsale.send(CAP);
-    await shouldFail.reverting.withMessage(this.crowdsale.send(1),"CappedCrowdsale: cap exceeded");
+    await shouldFail.reverting.withMessage(this.crowdsale.send(1), 'CappedCrowdsale: cap exceeded');
   });
 
   it('should allow finalization and transfer funds to wallet if the goal is reached', async function () {
@@ -95,7 +99,7 @@ contract.only('SampleCrowdsale', function ([_, deployer, owner, wallet, investor
     it('creation reverts', async function () {
       await shouldFail.reverting.withMessage(SampleCrowdsale.new(
         this.openingTime, this.closingTime, RATE, wallet, CAP, this.token.address, HIGH_GOAL
-      ), "SampleCrowdSale: goal is greater than cap");
+      ), 'SampleCrowdSale: goal is greater than cap');
     });
   });
 });

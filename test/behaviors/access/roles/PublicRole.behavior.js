@@ -39,7 +39,9 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [other], rolen
     }
 
     it('reverts when querying roles for the null account', async function () {
-      await shouldFail.reverting.withMessage(this.contract[`is${rolename}`](ZERO_ADDRESS), "Roles: account is the zero address");
+      await shouldFail.reverting.withMessage(this.contract[`is${rolename}`](ZERO_ADDRESS),
+        'Roles: account is the zero address'
+      );
     });
 
     describe('access control', function () {
@@ -56,7 +58,9 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [other], rolen
 
         //, "CapperRole: caller does not have the Capper role"
         it('reverts', async function () {
-          await shouldFail.reverting.withMessage(this.contract[`only${rolename}Mock`]({ from }), `${rolename}Role: caller does not have the ${rolename} role`);
+          await shouldFail.reverting.withMessage(this.contract[`only${rolename}Mock`]({ from }),
+            `${rolename}Role: caller does not have the ${rolename} role`
+          );
         });
       });
     });
@@ -76,11 +80,15 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [other], rolen
         });
 
         it('reverts when adding role to an already assigned account', async function () {
-          await shouldFail.reverting.withMessage(this.contract[`add${rolename}`](authorized, { from }), "Roles: account already has role");
+          await shouldFail.reverting.withMessage(this.contract[`add${rolename}`](authorized, { from }),
+            'Roles: account already has role'
+          );
         });
 
         it('reverts when adding role to the null account', async function () {
-          await shouldFail.reverting.withMessage(this.contract[`add${rolename}`](ZERO_ADDRESS, { from }), "Roles: account is the zero address");
+          await shouldFail.reverting.withMessage(this.contract[`add${rolename}`](ZERO_ADDRESS, { from }),
+            'Roles: account is the zero address'
+          );
         });
       });
     });
@@ -102,11 +110,15 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [other], rolen
         });
 
         it('reverts when removing from an unassigned account', async function () {
-          await shouldFail.reverting.withMessage(this.contract[`remove${rolename}`](other, { from }), "Roles: account does not have role");
+          await shouldFail.reverting.withMessage(this.contract[`remove${rolename}`](other, { from }),
+            'Roles: account does not have role'
+          );
         });
 
         it('reverts when removing role from the null account', async function () {
-          await shouldFail.reverting.withMessage(this.contract[`remove${rolename}`](ZERO_ADDRESS, { from }), "Roles: account is the zero address");
+          await shouldFail.reverting.withMessage(this.contract[`remove${rolename}`](ZERO_ADDRESS, { from }),
+            'Roles: account is the zero address'
+          );
         });
       });
     });
@@ -123,7 +135,9 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [other], rolen
       });
 
       it('reverts when renouncing unassigned role', async function () {
-        await shouldFail.reverting.withMessage(this.contract[`renounce${rolename}`]({ from: other }), "Roles: account does not have role");
+        await shouldFail.reverting.withMessage(this.contract[`renounce${rolename}`]({ from: other }),
+          'Roles: account does not have role'
+        );
       });
     });
   });

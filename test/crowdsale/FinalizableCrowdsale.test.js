@@ -3,7 +3,7 @@ const { BN, expectEvent, shouldFail, time } = require('openzeppelin-test-helpers
 const FinalizableCrowdsaleImpl = artifacts.require('FinalizableCrowdsaleImpl');
 const ERC20 = artifacts.require('ERC20');
 
-contract.only('FinalizableCrowdsale', function ([_, wallet, other]) {
+contract('FinalizableCrowdsale', function ([_, wallet, other]) {
   const rate = new BN('1000');
 
   before(async function () {
@@ -23,7 +23,9 @@ contract.only('FinalizableCrowdsale', function ([_, wallet, other]) {
   });
 
   it('cannot be finalized before ending', async function () {
-    await shouldFail.reverting.withMessage(this.crowdsale.finalize({ from: other }), "FinalizableCrowdsale: not closed");
+    await shouldFail.reverting.withMessage(this.crowdsale.finalize({ from: other }),
+      'FinalizableCrowdsale: not closed'
+    );
   });
 
   it('can be finalized by anyone after ending', async function () {
@@ -34,7 +36,9 @@ contract.only('FinalizableCrowdsale', function ([_, wallet, other]) {
   it('cannot be finalized twice', async function () {
     await time.increaseTo(this.afterClosingTime);
     await this.crowdsale.finalize({ from: other });
-    await shouldFail.reverting.withMessage(this.crowdsale.finalize({ from: other }), "FinalizableCrowdsale: already finalized");
+    await shouldFail.reverting.withMessage(this.crowdsale.finalize({ from: other }),
+      'FinalizableCrowdsale: already finalized'
+    );
   });
 
   it('logs finalized', async function () {

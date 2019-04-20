@@ -26,7 +26,7 @@ contract('ConditionalEscrow', function ([_, owner, payee, ...otherAccounts]) {
     it('reverts on withdrawals', async function () {
       await this.escrow.deposit(payee, { from: owner, value: amount });
 
-      await shouldFail.reverting.withMessage(this.escrow.withdraw(payee, { from: owner }), "Failure message");
+      await shouldFail.reverting.withMessage(this.escrow.withdraw(payee, { from: owner }), 'Failure message');
     });
   });
 });

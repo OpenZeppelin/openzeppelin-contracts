@@ -3,7 +3,7 @@ const { BN, ether, shouldFail } = require('openzeppelin-test-helpers');
 const WhitelistCrowdsale = artifacts.require('WhitelistCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
-contract.only('WhitelistCrowdsale', function ([_, wallet, whitelister, whitelisted, otherWhitelisted, other]) {
+contract('WhitelistCrowdsale', function ([_, wallet, whitelister, whitelisted, otherWhitelisted, other]) {
   const rate = new BN(1);
   const value = ether('42');
   const tokenSupply = new BN('10').pow(new BN('22'));
@@ -20,8 +20,12 @@ contract.only('WhitelistCrowdsale', function ([_, wallet, whitelister, whitelist
   }
 
   async function purchaseShouldFail (crowdsale, beneficiary, value) {
-    await shouldFail.reverting.withMessage(crowdsale.buyTokens(beneficiary, { from: beneficiary, value }), "WhitelistCrowdsale: beneficiary doesn't have the Whitelisted role");
-    await shouldFail.reverting.withMessage(crowdsale.sendTransaction({ from: beneficiary, value }), "WhitelistCrowdsale: beneficiary doesn't have the Whitelisted role");
+    await shouldFail.reverting.withMessage(crowdsale.buyTokens(beneficiary, { from: beneficiary, value }),
+      'WhitelistCrowdsale: beneficiary doesn\'t have the Whitelisted role'
+    );
+    await shouldFail.reverting.withMessage(crowdsale.sendTransaction({ from: beneficiary, value }),
+      'WhitelistCrowdsale: beneficiary doesn\'t have the Whitelisted role'
+    );
   }
 
   context('with no whitelisted addresses', function () {
