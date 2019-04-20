@@ -21,13 +21,14 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
     // Mapping from token id to position in the allTokens array
     mapping(uint256 => uint256) private _allTokensIndex;
 
-    bytes4 private constant _INTERFACE_ID_ERC721_ENUMERABLE = 0x780e9d63;
-    /*
-     * 0x780e9d63 ===
-     *     bytes4(keccak256('totalSupply()')) ^
-     *     bytes4(keccak256('tokenOfOwnerByIndex(address,uint256)')) ^
-     *     bytes4(keccak256('tokenByIndex(uint256)'))
+    /* 
+     *     bytes4(keccak256('totalSupply()')) == 0x18160ddd
+     *     bytes4(keccak256('tokenOfOwnerByIndex(address,uint256)')) == 0x2f745c59
+     *     bytes4(keccak256('tokenByIndex(uint256)')) == 0x4f6ccce7
+     *      
+     *     => 0x18160ddd ^ 0x2f745c59 ^ 0x4f6ccce7 == 0x780e9d63  
      */
+    bytes4 private constant _INTERFACE_ID_ERC721_ENUMERABLE = 0x780e9d63;
 
     /**
      * @dev Constructor function.
