@@ -9,17 +9,17 @@ log() {
 }
 
 current_version() {
-  echo v$(node --print --eval "require('./package.json').version")
+  echo "v$(node --print --eval "require('./package.json').version")"
 }
 
 current_release_branch() {
-  v=$(current_version)
+  v="$(current_version)"
   echo "release-${v%%-rc.*}"
 }
 
 assert_current_branch() {
-  current_branch=$(git symbolic-ref --short HEAD)
-  expected_branch=$1
+  current_branch="$(git symbolic-ref --short HEAD)"
+  expected_branch="$1"
   if [[ "$current_branch" != "$expected_branch" ]]; then
     log "Current branch '$current_branch' is not '$expected_branch'"
     exit 1
@@ -27,17 +27,17 @@ assert_current_branch() {
 }
 
 push_release_branch_and_tag() {
-  git push upstream $(current_release_branch) $(current_version)
+  git push upstream "$(current_release_branch)" "$(current_version)"
 }
 
 push_and_publish() {
-  dist_tag=$1
+  dist_tag="$1"
 
   log "Pushing release branch and tags to upstream"
   push_release_branch_and_tag
 
   log "Publishing package on npm"
-  npm publish --tag $dist_tag --otp $(prompt_otp)
+  npm publish --tag "$dist_tag" --otp "$(prompt_otp)"
 
   if [[ "$dist_tag" == "latest" ]]; then
     npm dist-tag rm --otp $(prompt_otp) openzeppelin-solidity next
