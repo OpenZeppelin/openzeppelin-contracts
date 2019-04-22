@@ -40,18 +40,18 @@ push_and_publish() {
   npm publish --tag "$dist_tag" --otp "$(prompt_otp)"
 
   if [[ "$dist_tag" == "latest" ]]; then
-    npm dist-tag rm --otp $(prompt_otp) openzeppelin-solidity next
+    npm dist-tag rm --otp "$(prompt_otp)" openzeppelin-solidity next
   fi
 }
 
 prompt_otp() {
   log -n "Enter npm 2FA token: "
-  read otp
-  echo $otp
+  read -r otp
+  echo "$otp"
 }
 
 environment_check() {
-  if [[ "upstream" != *"$(git remote)"* ]]; then
+  if ! git remote get-url upstream &> /dev/null; then
     log "No 'upstream' remote found"
     exit 1
   fi
@@ -66,7 +66,7 @@ environment_check() {
 
 environment_check
 
-if [[ "$@" == "start minor" ]]; then
+if [[ "$*" == "start minor" ]]; then
   log "Creating new minor pre-release"
 
   assert_current_branch master
@@ -78,25 +78,25 @@ if [[ "$@" == "start minor" ]]; then
   npm version preminor --preid=rc
 
   # Rename the release branch
-  git branch --move $(current_release_branch)
+  git branch --move "$(current_release_branch)"
 
   push_and_publish next
 
-elif [[ "$@" == "rc" ]]; then
+elif [[ "$*" == "rc" ]]; then
   log "Bumping pre-release"
 
-  assert_current_branch $(current_release_branch)
+  assert_current_branch "$(current_release_branch)"
 
   # Bumps rc number, commits and tags
   npm version prelease
 
   push_and_publish next
 
-elif [[ "$@" == "final" ]]; then
+elif [[ "$*" == "final" ]]; then
   # Update changelog release date, remove rc suffix, tag, push to git, publish in npm, remove next dist-tag
   log "Creating final release"
 
-  assert_current_branch $(current_release_branch)
+  assert_current_branch "$(current_release_branch)"
 
   # This will remove the -rc suffix from the version
   npm version patch
@@ -108,6 +108,6 @@ elif [[ "$@" == "final" ]]; then
   log "Remember to merge the release branch into master and push upstream"
 
 else
-  log "Unknown command: '$@'"
+  log "Unknown command: '$*'"
   exit 1
 fi

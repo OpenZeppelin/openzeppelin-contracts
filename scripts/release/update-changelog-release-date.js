@@ -14,7 +14,7 @@ if (pkg.version.indexOf('-rc') !== -1) {
 
 const version = pkg.version.replace(/-.*/, ''); // Remove the rc suffix
 
-const changelog = fs.readFileSync('CHANGELOG.md').toString();
+const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
 
 // The changelog entry to be updated looks like this:
 // ## 2.5.3 (unreleased)
@@ -27,7 +27,7 @@ if (changelog.indexOf(`## ${version} (unreleased)`) === -1) {
 
 fs.writeFileSync('CHANGELOG.md', changelog.replace(
   `## ${version} (unreleased)`,
-  `## ${version} (${moment().format('YYYY-MM-DD')})`)
+  `## ${version} (${new Date().toISOString().split('T')[0]})`)
 );
 
-cp.execSync('git add CHANGELOG.md');
+cp.execSync('git add CHANGELOG.md', { stdio: 'inherit' });
