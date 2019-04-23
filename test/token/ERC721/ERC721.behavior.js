@@ -422,7 +422,7 @@ function shouldBehaveLikeERC721 (
         it('reverts', async function () {
           await this.token.approve(approved, tokenId, { from: owner });
           await shouldFail.reverting.withMessage(this.token.approve(anotherApproved, tokenId, { from: approved }),
-            'ERC721: approve caller is not owner nor approved');
+            'ERC721: approve caller is not owner nor approved for all');
         });
       });
 
