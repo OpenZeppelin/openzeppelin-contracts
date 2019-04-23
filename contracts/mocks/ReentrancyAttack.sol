@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.7;
 
 contract ReentrancyAttack {
     function callSender(bytes4 data) public {
