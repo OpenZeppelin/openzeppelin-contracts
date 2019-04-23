@@ -13,10 +13,10 @@ contract PostDeliveryCrowdsale is TimedCrowdsale {
     using SafeMath for uint256;
 
     mapping(address => uint256) private _balances;
-    TokenVault private _vault;
+    __unstable__TokenVault private _vault;
 
     constructor() public {
-        _vault = new TokenVault();
+        _vault = new __unstable__TokenVault();
     }
 
     /**
@@ -53,10 +53,11 @@ contract PostDeliveryCrowdsale is TimedCrowdsale {
 }
 
 /**
- * @title TokenVault
+ * @title __unstable__TokenVault
  * @dev Similar to an Escrow for tokens, this contract allows its primary account to spend its tokens as it sees fit.
+ * This contract is an internal helper for PostDeliveryCrowdsale, and should not be used outside of this context.
  */
-contract TokenVault is Secondary {
+contract __unstable__TokenVault is Secondary {
     function transfer(IERC20 token, address to, uint256 amount) public onlyPrimary {
         token.transfer(to, amount);
     }
