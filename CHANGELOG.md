@@ -10,6 +10,9 @@
 ### Improvements:
  * Upgraded the minimum compiler version to v0.5.7: this prevents users from encountering compiler bugs that were fixed in this version. ([#1724](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1724))
 
+### Bugfixes:
+ * `PostDeliveryCrowdsale`: some validations where skipped when paired with other crowdsale flavors, such as `AllowanceCrowdsale`, or `MintableCrowdsale` and `ERC20Capped`, which could cause buyers to not be able to claim their purchased tokens. ([#1721](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1721))
+
 ## 2.2.0 (2019-03-14)
 
 ### New features:
