@@ -69,7 +69,7 @@ contract('SafeMath', function () {
       const a = MAX_UINT256;
       const b = new BN('2');
 
-      await testFailsCommutative(this.safeMath.mul, a, b, "SafeMath: multiplication overflow");
+      await testFailsCommutative(this.safeMath.mul, a, b, 'SafeMath: multiplication overflow');
     });
   });
 

@@ -183,7 +183,8 @@ function shouldBehaveLikeERC721 (
         context('when the address of the previous owner is incorrect', function () {
           it('reverts', async function () {
             await shouldFail.reverting.withMessage(
-              transferFunction.call(this, other, other, tokenId, { from: owner }), 'ERC721: transfer of token that is not own'
+              transferFunction.call(this, other, other, tokenId, { from: owner }),
+              'ERC721: transfer of token that is not own'
             );
           });
         });

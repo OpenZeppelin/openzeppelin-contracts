@@ -427,7 +427,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
     beforeEach('approving', async function () {
       await this.token.approve(spender, allowance, { from: initialHolder });
     });
-    
+
     it('rejects a null account', async function () {
       await shouldFail.reverting.withMessage(this.token.burnFrom(ZERO_ADDRESS, new BN(1)),
         'ERC20: burn from the zero address'
