@@ -13,10 +13,9 @@ contract('SafeMath', function () {
     (await fn(rhs, lhs)).should.be.bignumber.equal(expected);
   }
 
-  async function testFailsCommutative (fn, lhs, rhs) {
-    // TODO @nventuro How to distinguish between add() & mul() calls s.t. to show the appropriate messages
-    await shouldFail.reverting.withMessage(fn(lhs, rhs));
-    await shouldFail.reverting.withMessage(fn(rhs, lhs));
+  async function testFailsCommutative (fn, lhs, rhs, reason) {
+    await shouldFail.reverting.withMessage(fn(lhs, rhs), reason);
+    await shouldFail.reverting.withMessage(fn(rhs, lhs), reason);
   }
 
   describe('add', function () {
@@ -31,7 +30,7 @@ contract('SafeMath', function () {
       const a = MAX_UINT256;
       const b = new BN('1');
 
-      await testFailsCommutative(this.safeMath.add, a, b);
+      await testFailsCommutative(this.safeMath.add, a, b, 'SafeMath: addition overflow');
     });
   });
 
@@ -70,7 +69,7 @@ contract('SafeMath', function () {
       const a = MAX_UINT256;
       const b = new BN('2');
 
-      await testFailsCommutative(this.safeMath.mul, a, b);
+      await testFailsCommutative(this.safeMath.mul, a, b, "SafeMath: multiplication overflow");
     });
   });
 

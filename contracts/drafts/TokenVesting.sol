@@ -52,7 +52,7 @@ contract TokenVesting is Ownable {
         require(cliffDuration <= duration, "TokenVesting: cliff is longer than duration");
         require(duration > 0, "TokenVesting: duration is 0");
         // solhint-disable-next-line max-line-length
-        require(start.add(duration) > block.timestamp, "TokenVesting: starting time is before current time");
+        require(start.add(duration) > block.timestamp, "TokenVesting: final time is before current time");
 
         _beneficiary = beneficiary;
         _revocable = revocable;

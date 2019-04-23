@@ -104,7 +104,7 @@ contract('ERC721Full', function ([
 
       it('reverts when querying metadata for non existent token id', async function () {
         await shouldFail.reverting.withMessage(
-          this.token.tokenURI(nonExistentTokenId), 'ERC721Metadata: query of nonexistent token'
+          this.token.tokenURI(nonExistentTokenId), 'ERC721Metadata: URI query for nonexistent token'
         );
       });
     });

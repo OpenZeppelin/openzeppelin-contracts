@@ -32,15 +32,11 @@ contract('MintedCrowdsale', function ([_, deployer, investor, wallet, purchaser]
     });
 
     it('rejects bare payments', async function () {
-      await shouldFail.reverting.withMessage(this.crowdsale.send(value),
-        'VM Exception while processing transaction: revert'
-      );
+      await shouldFail.reverting(this.crowdsale.send(value));
     });
 
     it('rejects token purchases', async function () {
-      await shouldFail.reverting.withMessage(this.crowdsale.buyTokens(investor, { value: value, from: purchaser }),
-        'VM Exception while processing transaction: revert'
-      );
+      await shouldFail.reverting(this.crowdsale.buyTokens(investor, { value: value, from: purchaser }));
     });
   });
 });

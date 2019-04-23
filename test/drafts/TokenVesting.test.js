@@ -46,7 +46,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     this.start = now.sub(this.duration).sub(time.duration.minutes(1));
     await shouldFail.reverting.withMessage(
       TokenVesting.new(beneficiary, this.start, this.cliffDuration, this.duration, true, { from: owner }),
-      'TokenVesting: starting time is before current time'
+      'TokenVesting: final time is before current time'
     );
   });
 

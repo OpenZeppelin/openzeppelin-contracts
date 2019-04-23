@@ -29,13 +29,13 @@ contract('TimedCrowdsale', function ([_, investor, wallet, purchaser]) {
   it('reverts if the closing time is before the opening time', async function () {
     await shouldFail.reverting.withMessage(TimedCrowdsaleImpl.new(
       this.openingTime, this.openingTime.sub(time.duration.seconds(1)), rate, wallet, this.token.address
-    ), 'TimedCrowdsale: closing time is before opening time');
+    ), 'TimedCrowdsale: opening time is not before closing time');
   });
 
   it('reverts if the closing time equals the opening time', async function () {
     await shouldFail.reverting.withMessage(TimedCrowdsaleImpl.new(
       this.openingTime, this.openingTime, rate, wallet, this.token.address
-    ), 'TimedCrowdsale: closing time is before opening time');
+    ), 'TimedCrowdsale: opening time is not before closing time');
   });
 
   context('with crowdsale', function () {

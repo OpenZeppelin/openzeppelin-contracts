@@ -57,7 +57,7 @@ function shouldBehaveLikeERC721 (
 
         it('reverts', async function () {
           await shouldFail.reverting.withMessage(
-            this.token.ownerOf(tokenId), 'ERC721: owner query of nonexistent token'
+            this.token.ownerOf(tokenId), 'ERC721: owner query for nonexistent token'
           );
         });
       });
@@ -183,7 +183,7 @@ function shouldBehaveLikeERC721 (
         context('when the address of the previous owner is incorrect', function () {
           it('reverts', async function () {
             await shouldFail.reverting.withMessage(
-              transferFunction.call(this, other, other, tokenId, { from: owner }), 'ERC721: transfer of unowned token'
+              transferFunction.call(this, other, other, tokenId, { from: owner }), 'ERC721: transfer of token that is not own'
             );
           });
         });
@@ -438,7 +438,7 @@ function shouldBehaveLikeERC721 (
       context('when the given token ID does not exist', function () {
         it('reverts', async function () {
           await shouldFail.reverting.withMessage(this.token.approve(approved, unknownTokenId, { from: operator }),
-            'ERC721: owner query of nonexistent token');
+            'ERC721: owner query for nonexistent token');
         });
       });
     });

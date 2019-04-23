@@ -83,7 +83,7 @@ function shouldBehaveLikeMintAndBurnERC721 (
         it('burns the given token ID and adjusts the balance of the owner', async function () {
           await shouldFail.reverting.withMessage(
             this.token.ownerOf(tokenId),
-            'ERC721: owner query of nonexistent token'
+            'ERC721: owner query for nonexistent token'
           );
           (await this.token.balanceOf(owner)).should.be.bignumber.equal('1');
         });
@@ -107,7 +107,7 @@ function shouldBehaveLikeMintAndBurnERC721 (
         context('getApproved', function () {
           it('reverts', async function () {
             await shouldFail.reverting.withMessage(
-              this.token.getApproved(tokenId), 'ERC721: approved query of nonexistent token'
+              this.token.getApproved(tokenId), 'ERC721: approved query for nonexistent token'
             );
           });
         });

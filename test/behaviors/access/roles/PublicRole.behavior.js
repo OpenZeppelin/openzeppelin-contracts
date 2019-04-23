@@ -56,7 +56,6 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [other], rolen
       context('from unauthorized account', function () {
         const from = other;
 
-        //, "CapperRole: caller does not have the Capper role"
         it('reverts', async function () {
           await shouldFail.reverting.withMessage(this.contract[`only${rolename}Mock`]({ from }),
             `${rolename}Role: caller does not have the ${rolename} role`

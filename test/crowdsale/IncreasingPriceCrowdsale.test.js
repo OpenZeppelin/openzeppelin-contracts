@@ -28,13 +28,13 @@ contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser])
     it('reverts with a final rate larger than the initial rate', async function () {
       await shouldFail.reverting.withMessage(IncreasingPriceCrowdsaleImpl.new(
         this.startTime, this.closingTime, wallet, this.token.address, initialRate, initialRate.addn(1)
-      ), 'IncreasingPriceCrowdsale: initial rate is less than final rate');
+      ), 'IncreasingPriceCrowdsale: initial rate is not greater than final rate');
     });
 
     it('reverts with a final rate equal to the initial rate', async function () {
       await shouldFail.reverting.withMessage(IncreasingPriceCrowdsaleImpl.new(
         this.startTime, this.closingTime, wallet, this.token.address, initialRate, initialRate
-      ), 'IncreasingPriceCrowdsale: initial rate is less than final rate');
+      ), 'IncreasingPriceCrowdsale: initial rate is not greater than final rate');
     });
 
     it('reverts with a final rate of zero', async function () {
@@ -58,7 +58,7 @@ contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser])
 
       it('reverts when the base Crowdsale\'s rate function is called', async function () {
         await shouldFail.reverting.withMessage(this.crowdsale.rate(),
-          'VM Exception while processing transaction: revert'
+          'IncreasingPriceCrowdsale: rate() called'
         );
       });
 

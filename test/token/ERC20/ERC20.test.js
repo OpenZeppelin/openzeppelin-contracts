@@ -223,7 +223,8 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
 
           it('reverts when more than the full allowance is removed', async function () {
             await shouldFail.reverting.withMessage(
-              this.token.decreaseAllowance(spender, approvedAmount.addn(1), { from: initialHolder }, 'no idea')
+              this.token.decreaseAllowance(spender, approvedAmount.addn(1), { from: initialHolder }),
+              'SafeMath: subtraction overflow'
             );
           });
         });
