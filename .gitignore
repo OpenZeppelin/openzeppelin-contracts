@@ -40,3 +40,7 @@ build/
 
 # IntelliJ IDE
 .idea
+
+# docsite artifacts
+docsite-build
+docs/api
