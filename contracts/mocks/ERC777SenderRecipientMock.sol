@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.7;
 
 import "../drafts/ERC777/IERC777.sol";
 import "../drafts/ERC777/IERC777Sender.sol";
