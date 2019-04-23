@@ -41,8 +41,8 @@ contract PostDeliveryCrowdsale is TimedCrowdsale {
 
     /**
      * @dev Overrides parent by storing due balances, and delivering tokens to the vault instead of the end user. This
-     * ensures that the tokens will be available by the time they are withdraw (which may not be the case if
-     * _deliverTokens was called later).
+     * ensures that the tokens will be available by the time they are withdrawn (which may not be the case if
+     * `_deliverTokens` was called later).
      * @param beneficiary Token purchaser
      * @param tokenAmount Amount of tokens purchased
      */
