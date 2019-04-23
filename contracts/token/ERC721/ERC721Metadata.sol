@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.7;
 
 import "./ERC721.sol";
 import "./IERC721Metadata.sol";
@@ -18,7 +18,7 @@ contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
      *     bytes4(keccak256('name()')) == 0x06fdde03
      *     bytes4(keccak256('symbol()')) == 0x95d89b41
      *     bytes4(keccak256('tokenURI(uint256)')) == 0xc87b56dd
-     *     
+     *
      *     => 0x06fdde03 ^ 0x95d89b41 ^ 0xc87b56dd == 0x5b5e139f
      */
     bytes4 private constant _INTERFACE_ID_ERC721_METADATA = 0x5b5e139f;

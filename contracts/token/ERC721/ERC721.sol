@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.7;
 
 import "./IERC721.sol";
 import "./IERC721Receiver.sol";
@@ -42,7 +42,7 @@ contract ERC721 is ERC165, IERC721 {
      *     bytes4(keccak256('transferFrom(address,address,uint256)')) == 0x23b872dd
      *     bytes4(keccak256('safeTransferFrom(address,address,uint256)')) == 0x42842e0e
      *     bytes4(keccak256('safeTransferFrom(address,address,uint256,bytes)')) == 0xb88d4fde
-     *    
+     *
      *     => 0x70a08231 ^ 0x6352211e ^ 0x095ea7b3 ^ 0x081812fc ^
      *        0xa22cb465 ^ 0xe985e9c ^ 0x23b872dd ^ 0x42842e0e ^ 0xb88d4fde == 0x80ac58cd
      */
