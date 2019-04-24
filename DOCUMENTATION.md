@@ -6,10 +6,10 @@ All of the content for the site is in this repository. The guides are in the
 the source code. If you want to help improve the content, this is the
 repository you should be contributing to.
 
-[`solidity-docgen`](https://github.com/OpenZeppelin/solidity-docgen/tree/next) is the
+[`solidity-docgen`](https://github.com/OpenZeppelin/solidity-docgen) is the
 program that extracts the API Reference from source code.
 
-The [`openzeppelin-docsite`](https://github.com/OpenZeppelin/openzeppelin-docsite/tree/next)
+The [`openzeppelin-docsite`](https://github.com/OpenZeppelin/openzeppelin-docsite)
 repository hosts the configuration for Docusaurus, the static site generator
 that we use.
 
