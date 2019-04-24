@@ -88,7 +88,7 @@ elif [[ "$*" == "rc" ]]; then
   assert_current_branch "$(current_release_branch)"
 
   # Bumps rc number, commits and tags
-  npm version prelease
+  npm version prerelease
 
   push_and_publish next
 
