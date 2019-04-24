@@ -3,9 +3,9 @@
 ## 2.3.0 (unreleased)
 
 ### New features:
- * `ERC1820`: added support for interacting with the [ERC1820](https://eips.ethereum.org/EIPS/eip-1820) registry contract (`IERC1820Registry`), as well as base contracts that can be registered as
- implementers there. ([#1677](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1677))
+ * `ERC1820`: added support for interacting with the [ERC1820](https://eips.ethereum.org/EIPS/eip-1820) registry contract (`IERC1820Registry`), as well as base contracts that can be registered as implementers there. ([#1677](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1677))
  * `ERC777`: initial support for the [ERC777 token](https://eips.ethereum.org/EIPS/eip-777), which has multiple improvements over `ERC20` such as built-in burning, a more  straightforward permission system, and optional sender and receiver hooks on transfer (mandatory for contracts!). ([#1684](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1684))
+ * All contracts now have revert reason strings, which give insight into error conditions, and help debug failing transactions. ([#1704](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1704))
 
 ### Improvements:
  * Upgraded the minimum compiler version to v0.5.7: this prevents users from encountering compiler bugs that were fixed in this version. ([#1724](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1724))
