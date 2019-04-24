@@ -1,4 +1,4 @@
-pragma solidity ^0.5.7;
+pragma solidity ^0.5.0;
 
 import "./IERC777.sol";
 import "./IERC777Recipient.sol";
