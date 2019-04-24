@@ -315,9 +315,8 @@ function shouldBehaveLikeERC721 (
         describe('to a contract that does not implement the required function', function () {
           it('reverts', async function () {
             const invalidReceiver = this.token;
-            await shouldFail.reverting.withMessage(
-              this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner }),
-              'VM Exception while processing transaction: revert'
+            await shouldFail.reverting(
+              this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner })
             );
           });
         });
@@ -406,7 +405,7 @@ function shouldBehaveLikeERC721 (
       context('when the address that receives the approval is the owner', function () {
         it('reverts', async function () {
           await shouldFail.reverting.withMessage(
-            this.token.approve(owner, tokenId, { from: owner }), 'ERC721: transfer to current owner'
+            this.token.approve(owner, tokenId, { from: owner }), 'ERC721: approval to current owner'
           );
         });
       });
