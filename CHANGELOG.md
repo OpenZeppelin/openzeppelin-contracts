@@ -8,7 +8,7 @@
  * All contracts now have revert reason strings, which give insight into error conditions, and help debug failing transactions. ([#1704](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1704))
 
 ### Improvements:
- * Upgraded the minimum compiler version to v0.5.7: this prevents users from encountering compiler bugs that were fixed in this version. ([#1724](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1724))
+ * Reverted the Solidity version bump done in v2.2.0, setting the minimum compiler version to v0.5.0, to prevent unexpected build breakage. Users are encouraged however to stay on top of new compiler releases, which usually include bugfixes. ([#1728](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1728))
 
 ### Bugfixes:
  * `PostDeliveryCrowdsale`: some validations where skipped when paired with other crowdsale flavors, such as `AllowanceCrowdsale`, or `MintableCrowdsale` and `ERC20Capped`, which could cause buyers to not be able to claim their purchased tokens. ([#1721](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1721))
