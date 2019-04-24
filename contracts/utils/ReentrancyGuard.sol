@@ -27,6 +27,6 @@ contract ReentrancyGuard {
         _guardCounter += 1;
         uint256 localCounter = _guardCounter;
         _;
-        require(localCounter == _guardCounter);
+        require(localCounter == _guardCounter, "ReentrancyGuard: reentrant call");
     }
 }

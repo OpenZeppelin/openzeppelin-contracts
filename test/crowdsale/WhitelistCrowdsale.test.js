@@ -20,8 +20,12 @@ contract('WhitelistCrowdsale', function ([_, wallet, whitelister, whitelisted, o
   }
 
   async function purchaseShouldFail (crowdsale, beneficiary, value) {
-    await shouldFail.reverting(crowdsale.buyTokens(beneficiary, { from: beneficiary, value }));
-    await shouldFail.reverting(crowdsale.sendTransaction({ from: beneficiary, value }));
+    await shouldFail.reverting.withMessage(crowdsale.buyTokens(beneficiary, { from: beneficiary, value }),
+      'WhitelistCrowdsale: beneficiary doesn\'t have the Whitelisted role'
+    );
+    await shouldFail.reverting.withMessage(crowdsale.sendTransaction({ from: beneficiary, value }),
+      'WhitelistCrowdsale: beneficiary doesn\'t have the Whitelisted role'
+    );
   }
 
   context('with no whitelisted addresses', function () {

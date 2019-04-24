@@ -118,8 +118,9 @@ contract('ECDSA', function ([_, other]) {
       it.skip('reverts', async function () {
         // Create the signature
         const signature = await web3.eth.sign(TEST_MESSAGE, other);
-        await shouldFail.reverting(
-          this.ecdsa.recover(TEST_MESSAGE.substring(2), signature)
+        await shouldFail.reverting.withMessage(
+          this.ecdsa.recover(TEST_MESSAGE.substring(2), signature),
+          'Failure message'
         );
       });
     });

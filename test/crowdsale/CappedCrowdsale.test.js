@@ -14,7 +14,9 @@ contract('CappedCrowdsale', function ([_, wallet]) {
   });
 
   it('rejects a cap of zero', async function () {
-    await shouldFail.reverting(CappedCrowdsaleImpl.new(rate, wallet, this.token.address, 0));
+    await shouldFail.reverting.withMessage(CappedCrowdsaleImpl.new(rate, wallet, this.token.address, 0),
+      'CappedCrowdsale: cap is 0'
+    );
   });
 
   context('with crowdsale', function () {
@@ -31,11 +33,11 @@ contract('CappedCrowdsale', function ([_, wallet]) {
 
       it('should reject payments outside cap', async function () {
         await this.crowdsale.send(cap);
-        await shouldFail.reverting(this.crowdsale.send(1));
+        await shouldFail.reverting.withMessage(this.crowdsale.send(1), 'CappedCrowdsale: cap exceeded');
       });
 
       it('should reject payments that exceed cap', async function () {
-        await shouldFail.reverting(this.crowdsale.send(cap.addn(1)));
+        await shouldFail.reverting.withMessage(this.crowdsale.send(cap.addn(1)), 'CappedCrowdsale: cap exceeded');
       });
     });
 

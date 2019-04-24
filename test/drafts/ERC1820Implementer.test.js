@@ -21,10 +21,11 @@ contract('ERC1820Implementer', function ([_, registryFunder, implementee, other]
     });
 
     it('reverts when attempting to set as implementer in the registry', async function () {
-      await shouldFail.reverting(
+      await shouldFail.reverting.withMessage(
         this.registry.setInterfaceImplementer(
           implementee, this.interfaceA, this.implementer.address, { from: implementee }
-        )
+        ),
+        'Does not implement the interface'
       );
     });
   });

@@ -37,8 +37,9 @@ contract PaymentSplitter {
      * duplicates in `payees`.
      */
     constructor (address[] memory payees, uint256[] memory shares) public payable {
-        require(payees.length == shares.length);
-        require(payees.length > 0);
+        // solhint-disable-next-line max-line-length
+        require(payees.length == shares.length, "PaymentSplitter: payees and shares length mismatch");
+        require(payees.length > 0, "PaymentSplitter: no payees");
 
         for (uint256 i = 0; i < payees.length; i++) {
             _addPayee(payees[i], shares[i]);
@@ -98,12 +99,12 @@ contract PaymentSplitter {
      * total shares and their previous withdrawals.
      */
     function release(address payable account) public {
-        require(_shares[account] > 0);
+        require(_shares[account] > 0, "PaymentSplitter: account has no shares");
 
         uint256 totalReceived = address(this).balance.add(_totalReleased);
         uint256 payment = totalReceived.mul(_shares[account]).div(_totalShares).sub(_released[account]);
 
-        require(payment != 0);
+        require(payment != 0, "PaymentSplitter: account is not due payment");
 
         _released[account] = _released[account].add(payment);
         _totalReleased = _totalReleased.add(payment);
@@ -118,9 +119,9 @@ contract PaymentSplitter {
      * @param shares_ The number of shares owned by the payee.
      */
     function _addPayee(address account, uint256 shares_) private {
-        require(account != address(0));
-        require(shares_ > 0);
-        require(_shares[account] == 0);
+        require(account != address(0), "PaymentSplitter: account is the zero address");
+        require(shares_ > 0, "PaymentSplitter: shares are 0");
+        require(_shares[account] == 0, "PaymentSplitter: account already has shares");
 
         _payees.push(account);
         _shares[account] = shares_;

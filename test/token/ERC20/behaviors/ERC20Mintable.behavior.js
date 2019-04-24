@@ -40,7 +40,9 @@ function shouldBehaveLikeERC20Mintable (minter, [other]) {
         const from = other;
 
         it('reverts', async function () {
-          await shouldFail.reverting(this.token.mint(other, amount, { from }));
+          await shouldFail.reverting.withMessage(this.token.mint(other, amount, { from }),
+            'MinterRole: caller does not have the Minter role'
+          );
         });
       });
     });

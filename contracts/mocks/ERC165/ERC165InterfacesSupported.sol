@@ -42,7 +42,7 @@ contract SupportsInterfaceWithLookupMock is IERC165 {
      * @dev Private method for registering an interface.
      */
     function _registerInterface(bytes4 interfaceId) internal {
-        require(interfaceId != 0xffffffff);
+        require(interfaceId != 0xffffffff, "ERC165InterfacesSupported: invalid interface id");
         _supportedInterfaces[interfaceId] = true;
     }
 }

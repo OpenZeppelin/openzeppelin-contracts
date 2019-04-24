@@ -42,7 +42,7 @@ contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherA
         });
 
         it('reverts', async function () {
-          await shouldFail.reverting(this.token.pause({ from }));
+          await shouldFail.reverting.withMessage(this.token.pause({ from }), 'Pausable: paused');
         });
       });
     });
@@ -51,7 +51,9 @@ contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherA
       const from = anotherAccount;
 
       it('reverts', async function () {
-        await shouldFail.reverting(this.token.pause({ from }));
+        await shouldFail.reverting.withMessage(this.token.pause({ from }),
+          'PauserRole: caller does not have the Pauser role'
+        );
       });
     });
   });
@@ -79,7 +81,7 @@ contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherA
 
       describe('when the token is unpaused', function () {
         it('reverts', async function () {
-          await shouldFail.reverting(this.token.unpause({ from }));
+          await shouldFail.reverting.withMessage(this.token.unpause({ from }), 'Pausable: not paused');
         });
       });
     });
@@ -88,7 +90,9 @@ contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherA
       const from = anotherAccount;
 
       it('reverts', async function () {
-        await shouldFail.reverting(this.token.unpause({ from }));
+        await shouldFail.reverting.withMessage(this.token.unpause({ from }),
+          'PauserRole: caller does not have the Pauser role'
+        );
       });
     });
   });
@@ -134,7 +138,9 @@ contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherA
       it('reverts when trying to transfer when paused', async function () {
         await this.token.pause({ from: pauser });
 
-        await shouldFail.reverting(this.token.transfer(recipient, initialSupply, { from: pauser }));
+        await shouldFail.reverting.withMessage(this.token.transfer(recipient, initialSupply, { from: pauser }),
+          'Pausable: paused'
+        );
       });
     });
 
@@ -159,7 +165,9 @@ contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherA
       it('reverts when trying to approve when paused', async function () {
         await this.token.pause({ from: pauser });
 
-        await shouldFail.reverting(this.token.approve(anotherAccount, allowance, { from: pauser }));
+        await shouldFail.reverting.withMessage(this.token.approve(anotherAccount, allowance, { from: pauser }),
+          'Pausable: paused'
+        );
       });
     });
 
@@ -190,7 +198,9 @@ contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherA
       it('reverts when trying to transfer from when paused', async function () {
         await this.token.pause({ from: pauser });
 
-        await shouldFail.reverting(this.token.transferFrom(pauser, recipient, allowance, { from: anotherAccount }));
+        await shouldFail.reverting.withMessage(this.token.transferFrom(
+          pauser, recipient, allowance, { from: anotherAccount }), 'Pausable: paused'
+        );
       });
     });
 
@@ -220,7 +230,9 @@ contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherA
       it('reverts when trying to transfer when paused', async function () {
         await this.token.pause({ from: pauser });
 
-        await shouldFail.reverting(this.token.decreaseAllowance(anotherAccount, decrement, { from: pauser }));
+        await shouldFail.reverting.withMessage(this.token.decreaseAllowance(
+          anotherAccount, decrement, { from: pauser }), 'Pausable: paused'
+        );
       });
     });
 
@@ -250,7 +262,9 @@ contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherA
       it('reverts when trying to increase approval when paused', async function () {
         await this.token.pause({ from: pauser });
 
-        await shouldFail.reverting(this.token.increaseAllowance(anotherAccount, increment, { from: pauser }));
+        await shouldFail.reverting.withMessage(this.token.increaseAllowance(
+          anotherAccount, increment, { from: pauser }), 'Pausable: paused'
+        );
       });
     });
   });

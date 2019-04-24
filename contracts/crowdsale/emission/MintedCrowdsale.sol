@@ -16,6 +16,9 @@ contract MintedCrowdsale is Crowdsale {
      */
     function _deliverTokens(address beneficiary, uint256 tokenAmount) internal {
         // Potentially dangerous assumption about the type of the token.
-        require(ERC20Mintable(address(token())).mint(beneficiary, tokenAmount));
+        require(
+            ERC20Mintable(address(token())).mint(beneficiary, tokenAmount),
+                "MintedCrowdsale: minting failed"
+        );
     }
 }

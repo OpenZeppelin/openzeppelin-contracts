@@ -64,7 +64,9 @@ contract('ERC721Full', function ([
       it('burns all tokens', async function () {
         await this.token.burn(secondTokenId, { from: owner });
         (await this.token.totalSupply()).should.be.bignumber.equal('0');
-        await shouldFail.reverting(this.token.tokenByIndex(0));
+        await shouldFail.reverting.withMessage(
+          this.token.tokenByIndex(0), 'ERC721Enumerable: global index out of bounds'
+        );
       });
     });
 
@@ -85,7 +87,9 @@ contract('ERC721Full', function ([
       });
 
       it('reverts when setting metadata for non existent token id', async function () {
-        await shouldFail.reverting(this.token.setTokenURI(nonExistentTokenId, sampleUri));
+        await shouldFail.reverting.withMessage(
+          this.token.setTokenURI(nonExistentTokenId, sampleUri), 'ERC721Metadata: URI set of nonexistent token'
+        );
       });
 
       it('can burn token with metadata', async function () {
@@ -99,7 +103,9 @@ contract('ERC721Full', function ([
       });
 
       it('reverts when querying metadata for non existent token id', async function () {
-        await shouldFail.reverting(this.token.tokenURI(nonExistentTokenId));
+        await shouldFail.reverting.withMessage(
+          this.token.tokenURI(nonExistentTokenId), 'ERC721Metadata: URI query for nonexistent token'
+        );
       });
     });
 
@@ -127,13 +133,17 @@ contract('ERC721Full', function ([
 
       describe('when the index is greater than or equal to the total tokens owned by the given address', function () {
         it('reverts', async function () {
-          await shouldFail.reverting(this.token.tokenOfOwnerByIndex(owner, 2));
+          await shouldFail.reverting.withMessage(
+            this.token.tokenOfOwnerByIndex(owner, 2), 'ERC721Enumerable: owner index out of bounds'
+          );
         });
       });
 
       describe('when the given address does not own any token', function () {
         it('reverts', async function () {
-          await shouldFail.reverting(this.token.tokenOfOwnerByIndex(another, 0));
+          await shouldFail.reverting.withMessage(
+            this.token.tokenOfOwnerByIndex(another, 0), 'ERC721Enumerable: owner index out of bounds'
+          );
         });
       });
 
@@ -153,7 +163,9 @@ contract('ERC721Full', function ([
 
         it('returns empty collection for original owner', async function () {
           (await this.token.balanceOf(owner)).should.be.bignumber.equal('0');
-          await shouldFail.reverting(this.token.tokenOfOwnerByIndex(owner, 0));
+          await shouldFail.reverting.withMessage(
+            this.token.tokenOfOwnerByIndex(owner, 0), 'ERC721Enumerable: owner index out of bounds'
+          );
         });
       });
     });
@@ -167,7 +179,9 @@ contract('ERC721Full', function ([
       });
 
       it('should revert if index is greater than supply', async function () {
-        await shouldFail.reverting(this.token.tokenByIndex(2));
+        await shouldFail.reverting.withMessage(
+          this.token.tokenByIndex(2), 'ERC721Enumerable: global index out of bounds'
+        );
       });
 
       [firstTokenId, secondTokenId].forEach(function (tokenId) {

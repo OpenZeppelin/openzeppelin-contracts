@@ -12,24 +12,34 @@ function shouldBehaveLikeERC721PausedToken (owner, [recipient, operator]) {
     });
 
     it('reverts when trying to approve', async function () {
-      await shouldFail.reverting(this.token.approve(recipient, firstTokenId, { from: owner }));
+      await shouldFail.reverting.withMessage(
+        this.token.approve(recipient, firstTokenId, { from: owner }), 'Pausable: paused'
+      );
     });
 
     it('reverts when trying to setApprovalForAll', async function () {
-      await shouldFail.reverting(this.token.setApprovalForAll(operator, true, { from: owner }));
+      await shouldFail.reverting.withMessage(
+        this.token.setApprovalForAll(operator, true, { from: owner }), 'Pausable: paused'
+      );
     });
 
     it('reverts when trying to transferFrom', async function () {
-      await shouldFail.reverting(this.token.transferFrom(owner, recipient, firstTokenId, { from: owner }));
+      await shouldFail.reverting.withMessage(
+        this.token.transferFrom(owner, recipient, firstTokenId, { from: owner }), 'Pausable: paused'
+      );
     });
 
     it('reverts when trying to safeTransferFrom', async function () {
-      await shouldFail.reverting(this.token.safeTransferFrom(owner, recipient, firstTokenId, { from: owner }));
+      await shouldFail.reverting.withMessage(
+        this.token.safeTransferFrom(owner, recipient, firstTokenId, { from: owner }), 'Pausable: paused'
+      );
     });
 
     it('reverts when trying to safeTransferFrom with data', async function () {
-      await shouldFail.reverting(this.token.methods['safeTransferFrom(address,address,uint256,bytes)'](
-        owner, recipient, firstTokenId, mockData, { from: owner })
+      await shouldFail.reverting.withMessage(
+        this.token.methods['safeTransferFrom(address,address,uint256,bytes)'](
+          owner, recipient, firstTokenId, mockData, { from: owner }
+        ), 'Pausable: paused'
       );
     });
 

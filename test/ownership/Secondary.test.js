@@ -18,7 +18,9 @@ contract('Secondary', function ([_, primary, newPrimary, other]) {
     });
 
     it('reverts when anyone calls onlyPrimary functions', async function () {
-      await shouldFail.reverting(this.secondary.onlyPrimaryMock({ from: other }));
+      await shouldFail.reverting.withMessage(this.secondary.onlyPrimaryMock({ from: other }),
+        'Secondary: caller is not the primary account'
+      );
     });
   });
 
@@ -30,11 +32,15 @@ contract('Secondary', function ([_, primary, newPrimary, other]) {
     });
 
     it('reverts when transferring to the null address', async function () {
-      await shouldFail.reverting(this.secondary.transferPrimary(ZERO_ADDRESS, { from: primary }));
+      await shouldFail.reverting.withMessage(this.secondary.transferPrimary(ZERO_ADDRESS, { from: primary }),
+        'Secondary: new primary is the zero address'
+      );
     });
 
     it('reverts when called by anyone', async function () {
-      await shouldFail.reverting(this.secondary.transferPrimary(newPrimary, { from: other }));
+      await shouldFail.reverting.withMessage(this.secondary.transferPrimary(newPrimary, { from: other }),
+        'Secondary: caller is not the primary account'
+      );
     });
 
     context('with new primary', function () {
@@ -47,7 +53,9 @@ contract('Secondary', function ([_, primary, newPrimary, other]) {
       });
 
       it('reverts when the old primary account calls onlyPrimary functions', async function () {
-        await shouldFail.reverting(this.secondary.onlyPrimaryMock({ from: primary }));
+        await shouldFail.reverting.withMessage(this.secondary.onlyPrimaryMock({ from: primary }),
+          'Secondary: caller is not the primary account'
+        );
       });
     });
   });

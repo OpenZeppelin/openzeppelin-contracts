@@ -7,27 +7,37 @@ contract('PaymentSplitter', function ([_, owner, payee1, payee2, payee3, nonpaye
   const amount = ether('1');
 
   it('rejects an empty set of payees', async function () {
-    await shouldFail.reverting(PaymentSplitter.new([], []));
+    await shouldFail.reverting.withMessage(PaymentSplitter.new([], []), 'PaymentSplitter: no payees');
   });
 
   it('rejects more payees than shares', async function () {
-    await shouldFail.reverting(PaymentSplitter.new([payee1, payee2, payee3], [20, 30]));
+    await shouldFail.reverting.withMessage(PaymentSplitter.new([payee1, payee2, payee3], [20, 30]),
+      'PaymentSplitter: payees and shares length mismatch'
+    );
   });
 
   it('rejects more shares than payees', async function () {
-    await shouldFail.reverting(PaymentSplitter.new([payee1, payee2], [20, 30, 40]));
+    await shouldFail.reverting.withMessage(PaymentSplitter.new([payee1, payee2], [20, 30, 40]),
+      'PaymentSplitter: payees and shares length mismatch'
+    );
   });
 
   it('rejects null payees', async function () {
-    await shouldFail.reverting(PaymentSplitter.new([payee1, ZERO_ADDRESS], [20, 30]));
+    await shouldFail.reverting.withMessage(PaymentSplitter.new([payee1, ZERO_ADDRESS], [20, 30]),
+      'PaymentSplitter: account is the zero address'
+    );
   });
 
   it('rejects zero-valued shares', async function () {
-    await shouldFail.reverting(PaymentSplitter.new([payee1, payee2], [20, 0]));
+    await shouldFail.reverting.withMessage(PaymentSplitter.new([payee1, payee2], [20, 0]),
+      'PaymentSplitter: shares are 0'
+    );
   });
 
   it('rejects repeated payees', async function () {
-    await shouldFail.reverting(PaymentSplitter.new([payee1, payee1], [20, 30]));
+    await shouldFail.reverting.withMessage(PaymentSplitter.new([payee1, payee1], [20, 30]),
+      'PaymentSplitter: account already has shares'
+    );
   });
 
   context('once deployed', function () {
@@ -64,12 +74,16 @@ contract('PaymentSplitter', function ([_, owner, payee1, payee2, payee3, nonpaye
     });
 
     it('should throw if no funds to claim', async function () {
-      await shouldFail.reverting(this.contract.release(payee1));
+      await shouldFail.reverting.withMessage(this.contract.release(payee1),
+        'PaymentSplitter: account is not due payment'
+      );
     });
 
     it('should throw if non-payee want to claim', async function () {
       await send.ether(payer1, this.contract.address, amount);
-      await shouldFail.reverting(this.contract.release(nonpayee1));
+      await shouldFail.reverting.withMessage(this.contract.release(nonpayee1),
+        'PaymentSplitter: account has no shares'
+      );
     });
 
     it('should distribute funds to payees', async function () {

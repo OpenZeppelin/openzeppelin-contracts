@@ -28,7 +28,7 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
      * @param goal Funding goal
      */
     constructor (uint256 goal) public {
-        require(goal > 0);
+        require(goal > 0, "RefundableCrowdsale: goal is 0");
         _escrow = new RefundEscrow(wallet());
         _goal = goal;
     }
@@ -45,8 +45,8 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
      * @param refundee Whose refund will be claimed.
      */
     function claimRefund(address payable refundee) public {
-        require(finalized());
-        require(!goalReached());
+        require(finalized(), "RefundableCrowdsale: not finalized");
+        require(!goalReached(), "RefundableCrowdsale: goal reached");
 
         _escrow.withdraw(refundee);
     }

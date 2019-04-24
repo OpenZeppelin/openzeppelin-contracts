@@ -42,7 +42,9 @@ contract('RefundablePostDeliveryCrowdsale', function ([_, investor, wallet, purc
       });
 
       it('does not allow beneficiaries to withdraw tokens before crowdsale ends', async function () {
-        await shouldFail.reverting(this.crowdsale.withdrawTokens(investor));
+        await shouldFail.reverting.withMessage(this.crowdsale.withdrawTokens(investor),
+          'RefundablePostDeliveryCrowdsale: not finalized'
+        );
       });
 
       context('after closing time and finalization', function () {
@@ -52,7 +54,9 @@ contract('RefundablePostDeliveryCrowdsale', function ([_, investor, wallet, purc
         });
 
         it('rejects token withdrawals', async function () {
-          await shouldFail.reverting(this.crowdsale.withdrawTokens(investor));
+          await shouldFail.reverting.withMessage(this.crowdsale.withdrawTokens(investor),
+            'RefundablePostDeliveryCrowdsale: goal not reached'
+          );
         });
       });
     });
@@ -70,7 +74,9 @@ contract('RefundablePostDeliveryCrowdsale', function ([_, investor, wallet, purc
       });
 
       it('does not allow beneficiaries to withdraw tokens before crowdsale ends', async function () {
-        await shouldFail.reverting(this.crowdsale.withdrawTokens(investor));
+        await shouldFail.reverting.withMessage(this.crowdsale.withdrawTokens(investor),
+          'RefundablePostDeliveryCrowdsale: not finalized'
+        );
       });
 
       context('after closing time and finalization', function () {
@@ -87,7 +93,9 @@ contract('RefundablePostDeliveryCrowdsale', function ([_, investor, wallet, purc
 
         it('rejects multiple withdrawals', async function () {
           await this.crowdsale.withdrawTokens(investor);
-          await shouldFail.reverting(this.crowdsale.withdrawTokens(investor));
+          await shouldFail.reverting.withMessage(this.crowdsale.withdrawTokens(investor),
+            'PostDeliveryCrowdsale: beneficiary is not due any tokens'
+          );
         });
       });
     });

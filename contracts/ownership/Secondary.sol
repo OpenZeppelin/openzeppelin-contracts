@@ -23,7 +23,7 @@ contract Secondary {
      * @dev Reverts if called from any account other than the primary.
      */
     modifier onlyPrimary() {
-        require(msg.sender == _primary);
+        require(msg.sender == _primary, "Secondary: caller is not the primary account");
         _;
     }
 
@@ -39,7 +39,7 @@ contract Secondary {
      * @param recipient The address of new primary.
      */
     function transferPrimary(address recipient) public onlyPrimary {
-        require(recipient != address(0));
+        require(recipient != address(0), "Secondary: new primary is the zero address");
         _primary = recipient;
         emit PrimaryTransferred(_primary);
     }

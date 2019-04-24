@@ -24,9 +24,9 @@ contract PostDeliveryCrowdsale is TimedCrowdsale {
      * @param beneficiary Whose tokens will be withdrawn.
      */
     function withdrawTokens(address beneficiary) public {
-        require(hasClosed());
+        require(hasClosed(), "PostDeliveryCrowdsale: not closed");
         uint256 amount = _balances[beneficiary];
-        require(amount > 0);
+        require(amount > 0, "PostDeliveryCrowdsale: beneficiary is not due any tokens");
 
         _balances[beneficiary] = 0;
         _vault.transfer(token(), beneficiary, amount);

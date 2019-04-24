@@ -24,8 +24,9 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, other
   });
 
   it('rejects a goal of zero', async function () {
-    await shouldFail.reverting(
-      RefundableCrowdsaleImpl.new(this.openingTime, this.closingTime, rate, wallet, this.token.address, 0)
+    await shouldFail.reverting.withMessage(
+      RefundableCrowdsaleImpl.new(this.openingTime, this.closingTime, rate, wallet, this.token.address, 0),
+      'RefundableCrowdsale: goal is 0'
     );
   });
 
@@ -40,7 +41,9 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, other
 
     context('before opening time', function () {
       it('denies refunds', async function () {
-        await shouldFail.reverting(this.crowdsale.claimRefund(investor));
+        await shouldFail.reverting.withMessage(this.crowdsale.claimRefund(investor),
+          'RefundableCrowdsale: not finalized'
+        );
       });
     });
 
@@ -50,7 +53,9 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, other
       });
 
       it('denies refunds', async function () {
-        await shouldFail.reverting(this.crowdsale.claimRefund(investor));
+        await shouldFail.reverting.withMessage(this.crowdsale.claimRefund(investor),
+          'RefundableCrowdsale: not finalized'
+        );
       });
 
       context('with unreached goal', function () {
@@ -84,7 +89,9 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, other
           });
 
           it('denies refunds', async function () {
-            await shouldFail.reverting(this.crowdsale.claimRefund(investor));
+            await shouldFail.reverting.withMessage(this.crowdsale.claimRefund(investor),
+              'RefundableCrowdsale: goal reached'
+            );
           });
 
           it('forwards funds to wallet', async function () {

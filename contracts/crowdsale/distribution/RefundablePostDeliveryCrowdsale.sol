@@ -12,8 +12,8 @@ import "./PostDeliveryCrowdsale.sol";
  */
 contract RefundablePostDeliveryCrowdsale is RefundableCrowdsale, PostDeliveryCrowdsale {
     function withdrawTokens(address beneficiary) public {
-        require(finalized());
-        require(goalReached());
+        require(finalized(), "RefundablePostDeliveryCrowdsale: not finalized");
+        require(goalReached(), "RefundablePostDeliveryCrowdsale: goal not reached");
 
         super.withdrawTokens(beneficiary);
     }

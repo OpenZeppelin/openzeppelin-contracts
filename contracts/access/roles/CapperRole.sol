@@ -15,7 +15,7 @@ contract CapperRole {
     }
 
     modifier onlyCapper() {
-        require(isCapper(msg.sender));
+        require(isCapper(msg.sender), "CapperRole: caller does not have the Capper role");
         _;
     }
 
