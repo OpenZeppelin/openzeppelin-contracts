@@ -63,8 +63,7 @@ else
 fi
 
 if [ "$SOLC_NIGHTLY" = true ]; then
-  echo "Downloading solc nightly"
-  wget -q https://raw.githubusercontent.com/ethereum/solc-bin/gh-pages/bin/soljson-nightly.js -O /tmp/soljson.js && find . -name soljson.js -exec cp /tmp/soljson.js {} \;
+  docker pull ethereum/solc:nightly
 fi
 
 truffle version

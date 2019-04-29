@@ -22,7 +22,7 @@
     "prepack": "npm run build",
     "release": "scripts/release/release.sh",
     "version": "scripts/release/update-changelog-release-date.js && scripts/release/update-ethpm-version.js",
-    "test": "npm run compile && scripts/test.sh"
+    "test": "scripts/test.sh"
   },
   "repository": {
     "type": "git",
