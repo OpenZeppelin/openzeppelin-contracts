@@ -9,7 +9,7 @@ const solcNightly = {
   docker: true,
 };
 
-const useSolcNightly = process.env['SOLC_NIGHTLY'] === 'true';
+const useSolcNightly = process.env.SOLC_NIGHTLY === 'true';
 
 module.exports = {
   networks: {
