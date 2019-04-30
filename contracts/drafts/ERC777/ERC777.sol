@@ -3,6 +3,7 @@ pragma solidity ^0.5.0;
 import "./IERC777.sol";
 import "./IERC777Recipient.sol";
 import "./IERC777Sender.sol";
+import "../../token/ERC20/ERC20Detailed.sol";
 import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";
 import "../IERC1820Registry.sol";
@@ -11,15 +12,11 @@ import "../IERC1820Registry.sol";
  * @title ERC777 token implementation
  * @author etsvigun <utgarda@gmail.com>, Bertrand Masius <github@catageeks.tk>
  */
-contract ERC777 is IERC777 {
+contract ERC777 is IERC777, ERC20Detailed {
     using SafeMath for uint256;
     using Address for address;
 
     IERC1820Registry private _erc1820 = IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
-
-    string private _name;
-
-    string private _symbol;
 
     mapping(address => uint256) private _balances;
 
@@ -40,16 +37,17 @@ contract ERC777 is IERC777 {
     mapping(address => mapping(address => bool)) private _operators;
     mapping(address => mapping(address => bool)) private _revokedDefaultOperators;
 
+    // ERC20-allowances
+    mapping (address => mapping (address => uint256)) private _allowances;
+
     constructor(
         string memory name,
         string memory symbol,
         uint256 granularity,
         address[] memory defaultOperators
-    ) public {
+    ) public ERC20Detailed(name, symbol, 18) { // The spec requires that decimals be 18
         require(granularity > 0);
 
-        _name = name;
-        _symbol = symbol;
         _granularity = granularity;
 
         _defaultOperatorsArray = defaultOperators;
@@ -90,6 +88,17 @@ contract ERC777 is IERC777 {
     {
         require(isOperatorFor(msg.sender, from));
         _send(msg.sender, from, to, amount, data, operatorData);
+    }
+
+    function transfer(address to, uint256 value) external returns (bool) {
+        _send(msg.sender, msg.sender, to, value, "", "");
+        return true;
+    }
+
+    function transferFrom(address from, address to, uint256 value) external returns (bool) {
+        _send(msg.sender, from, to, value, "", "");
+        _approve(from, msg.sender, _allowances[from][msg.sender].sub(value));
+        return true;
     }
 
     /**
@@ -145,18 +154,9 @@ contract ERC777 is IERC777 {
         emit RevokedOperator(operator, msg.sender);
     }
 
-    /**
-     * @return the name of the token.
-     */
-    function name() public view returns (string memory) {
-        return _name;
-    }
-
-    /**
-     * @return the symbol of the token.
-     */
-    function symbol() public view returns (string memory) {
-        return _symbol;
+    function approve(address spender, uint256 value) external returns (bool) {
+        _approve(msg.sender, spender, value);
+        return true;
     }
 
     /**
@@ -209,6 +209,10 @@ contract ERC777 is IERC777 {
             _operators[tokenHolder][operator];
     }
 
+    function allowance(address owner, address spender) public view returns (uint256) {
+        return _allowances[owner][spender];
+    }
+
     /**
      * @dev Mint tokens. Does not check authorization of operator
      * @dev the caller may ckeck that operator is authorized before calling
@@ -237,6 +241,7 @@ contract ERC777 is IERC777 {
         _callTokensReceived(operator, address(0), to, amount, userData, operatorData);
 
         emit Minted(operator, to, amount, userData, operatorData);
+        emit Transfer(address(0), to, amount);
     }
 
     /**
@@ -271,6 +276,7 @@ contract ERC777 is IERC777 {
         _callTokensReceived(operator, from, to, amount, userData, operatorData);
 
         emit Sent(operator, from, to, amount, userData, operatorData);
+        emit Transfer(from, to, amount);
     }
 
     /**
@@ -300,6 +306,15 @@ contract ERC777 is IERC777 {
         _balances[from] = _balances[from].sub(amount);
 
         emit Burned(operator, from, amount, data, operatorData);
+        emit Transfer(from, address(0), amount);
+    }
+
+    function _approve(address owner, address spender, uint256 value) private {
+        require(owner != address(0));
+        require(spender != address(0));
+
+        _allowances[owner][spender] = value;
+        emit Approval(owner, spender, value);
     }
 
     /**

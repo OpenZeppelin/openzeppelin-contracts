@@ -69,8 +69,12 @@ contract('ERC777', function ([
           }
         });
 
-        it('returns thte total supply', async function () {
+        it('returns the total supply', async function () {
           (await this.token.totalSupply()).should.be.bignumber.equal(initialSupply);
+        });
+
+        it('returns 18 when decimals is called', async function () {
+          (await this.token.decimals()).should.be.bignumber.equal('18');
         });
 
         it('is registered in the registry', async function () {
