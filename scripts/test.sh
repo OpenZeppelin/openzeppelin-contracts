@@ -62,10 +62,6 @@ else
   start_ganache
 fi
 
-if [ "$SOLC_NIGHTLY" = true ]; then
-  docker pull ethereum/solc:nightly
-fi
-
 npx truffle version
 
 if [ "$SOLIDITY_COVERAGE" = true ]; then

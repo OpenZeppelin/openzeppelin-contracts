@@ -8,7 +8,7 @@
     "test/behaviors"
   ],
   "scripts": {
-    "compile": "truffle compile",
+    "compile": "scripts/compile.sh",
     "console": "truffle console",
     "coverage": "scripts/coverage.sh",
     "docsite": "scripts/docsite.sh",
@@ -21,7 +21,7 @@
     "prepack": "npm run prepack",
     "release": "scripts/release/release.sh",
     "version": "scripts/release/update-changelog-release-date.js && scripts/release/update-ethpm-version.js",
-    "test": "scripts/test.sh"
+    "test": "npm run compile && scripts/test.sh"
   },
   "repository": {
     "type": "git",
