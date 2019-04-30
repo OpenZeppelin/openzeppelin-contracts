@@ -35,7 +35,9 @@ contract('ERC777', function ([
   });
 
   it('reverts with a granularity of zero', async function () {
-    await shouldFail.reverting(ERC777.new(holder, initialSupply, name, symbol, 0, []));
+    await shouldFail.reverting.withMessage(
+      ERC777.new(holder, initialSupply, name, symbol, 0, []), 'ERC777: granularity is 0'
+    );
   });
 
   context('with a granularity of one', function () {
@@ -164,11 +166,15 @@ contract('ERC777', function ([
         });
 
         it('reverts when self-authorizing', async function () {
-          await shouldFail.reverting(this.token.authorizeOperator(holder, { from: holder }));
+          await shouldFail.reverting.withMessage(
+            this.token.authorizeOperator(holder, { from: holder }), 'ERC777: operator authorization to self'
+          );
         });
 
         it('reverts when self-revoking', async function () {
-          await shouldFail.reverting(this.token.revokeOperator(holder, { from: holder }));
+          await shouldFail.reverting.withMessage(
+            this.token.revokeOperator(holder, { from: holder }), 'ERC777: operator revocation of self'
+          );
         });
 
         it('non-operators can be revoked', async function () {
@@ -229,7 +235,10 @@ contract('ERC777', function ([
           });
 
           it('cannot be revoked for themselves', async function () {
-            await shouldFail.reverting(this.token.revokeOperator(defaultOperatorA, { from: defaultOperatorA }));
+            await shouldFail.reverting.withMessage(
+              this.token.revokeOperator(defaultOperatorA, { from: defaultOperatorA }),
+              'ERC777: operator revocation of self'
+            );
           });
 
           context('with revoked default operator', function () {
@@ -279,18 +288,23 @@ contract('ERC777', function ([
               });
 
               it('send reverts', async function () {
-                await shouldFail.reverting(this.token.send(this.recipient, amount, data));
+                await shouldFail.reverting.withMessage(
+                  this.token.send(this.recipient, amount, data, { from: holder }),
+                  'ERC777: token recipient contract has no implementer for ERC777TokensRecipient',
+                );
               });
 
               it('operatorSend reverts', async function () {
-                await shouldFail.reverting(
-                  this.token.operatorSend(this.sender, this.recipient, amount, data, operatorData, { from: operator })
+                await shouldFail.reverting.withMessage(
+                  this.token.operatorSend(this.sender, this.recipient, amount, data, operatorData, { from: operator }),
+                   'ERC777: token recipient contract has no implementer for ERC777TokensRecipient',
                 );
               });
 
               it('mint (internal) reverts', async function () {
-                await shouldFail.reverting(
-                  this.token.mintInternal(operator, this.recipient, amount, data, operatorData)
+                await shouldFail.reverting.withMessage(
+                  this.token.mintInternal(operator, this.recipient, amount, data, operatorData),
+                  'ERC777: token recipient contract has no implementer for ERC777TokensRecipient',
                 );
               });
             });
@@ -433,7 +447,10 @@ contract('ERC777', function ([
       shouldDirectSendTokens(from, anyone, granularity.muln(2), data);
 
       it('reverts when sending an amount non-multiple of the granularity', async function () {
-        await shouldFail.reverting(this.token.send(anyone, granularity.subn(1), data, { from }));
+        await shouldFail.reverting.withMessage(
+          this.token.send(anyone, granularity.subn(1), data, { from }),
+          'ERC777: transfer of non-multiple amount',
+        );
       });
 
       shouldDirectBurnTokens(from, new BN('0'), data);
@@ -441,7 +458,10 @@ contract('ERC777', function ([
       shouldDirectBurnTokens(from, granularity.muln(2), data);
 
       it('reverts when burning an amount non-multiple of the granularity', async function () {
-        await shouldFail.reverting(this.token.burn(granularity.subn(1), data, { from }));
+        await shouldFail.reverting.withMessage(
+          this.token.burn(granularity.subn(1), data, { from }),
+          'ERC777: burn of non-multiple amount',
+        );
       });
     });
 
@@ -450,8 +470,9 @@ contract('ERC777', function ([
     shouldInternalMintTokens(anyone, defaultOperatorA, granularity.muln(2), data, operatorData);
 
     it('reverts when minting an amount non-multiple of the granularity', async function () {
-      await shouldFail.reverting(
-        this.token.mintInternal(defaultOperatorA, anyone, granularity.subn(1), data, operatorData)
+      await shouldFail.reverting.withMessage(
+        this.token.mintInternal(defaultOperatorA, anyone, granularity.subn(1), data, operatorData),
+        'ERC777: mint of non-multiple amount',
       );
     });
   });

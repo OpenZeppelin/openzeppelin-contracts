@@ -46,7 +46,7 @@ contract ERC777 is IERC777, ERC20Detailed {
         uint256 granularity,
         address[] memory defaultOperators
     ) public ERC20Detailed(name, symbol, 18) { // The spec requires that decimals be 18
-        require(granularity > 0);
+        require(granularity > 0, "ERC777: granularity is 0");
 
         _granularity = granularity;
 
@@ -86,7 +86,7 @@ contract ERC777 is IERC777, ERC20Detailed {
     )
     external
     {
-        require(isOperatorFor(msg.sender, from));
+        require(isOperatorFor(msg.sender, from), "ERC777: caller is not an operator for holder");
         _send(msg.sender, from, to, amount, data, operatorData);
     }
 
@@ -135,7 +135,7 @@ contract ERC777 is IERC777, ERC20Detailed {
      * @param operatorData bytes extra information provided by the operator (if any)
      */
     function operatorBurn(address from, uint256 amount, bytes calldata data, bytes calldata operatorData) external {
-        require(isOperatorFor(msg.sender, from));
+        require(isOperatorFor(msg.sender, from), "ERC777: caller is not an operator for holder");
         _burn(msg.sender, from, amount, data, operatorData);
     }
 
@@ -144,7 +144,7 @@ contract ERC777 is IERC777, ERC20Detailed {
      * @param operator address to be authorized as operator
      */
     function authorizeOperator(address operator) external {
-        require(msg.sender != operator);
+        require(msg.sender != operator, "ERC777: operator authorization to self");
 
         if (_defaultOperators[operator]) {
             delete _revokedDefaultOperators[msg.sender][operator];
@@ -160,7 +160,7 @@ contract ERC777 is IERC777, ERC20Detailed {
      * @param operator address to revoke operator rights from
      */
     function revokeOperator(address operator) external {
-        require(operator != msg.sender);
+        require(operator != msg.sender, "ERC777: operator revocation of self");
 
         if (_defaultOperators[operator]) {
             _revokedDefaultOperators[msg.sender][operator] = true;
@@ -265,8 +265,8 @@ contract ERC777 is IERC777, ERC20Detailed {
     )
     internal
     {
-        require(to != address(0));
-        require((amount % _granularity) == 0);
+        require(to != address(0), "ERC777: mint to the zero address");
+        require((amount % _granularity) == 0, "ERC777: mint of non-multiple amount");
 
         // Update state variables
         _totalSupply = _totalSupply.add(amount);
@@ -297,9 +297,9 @@ contract ERC777 is IERC777, ERC20Detailed {
     )
     private
     {
-        require(from != address(0));
-        require(to != address(0));
-        require((amount % _granularity) == 0);
+        require(from != address(0), "ERC777: transfer from the zero address");
+        require(to != address(0), "ERC777: transfer to the zero address");
+        require((amount % _granularity) == 0, "ERC777: transfer of non-multiple amount");
 
         _callTokensToSend(operator, from, to, amount, userData, operatorData);
 
@@ -330,8 +330,8 @@ contract ERC777 is IERC777, ERC20Detailed {
     )
     private
     {
-        require(from != address(0));
-        require((amount % _granularity) == 0);
+        require(from != address(0), "ERC777: burn from the zero address");
+        require((amount % _granularity) == 0, "ERC777: burn of non-multiple amount");
 
         _callTokensToSend(operator, from, address(0), amount, data, operatorData);
 
@@ -344,8 +344,8 @@ contract ERC777 is IERC777, ERC20Detailed {
     }
 
     function _approve(address owner, address spender, uint256 value) private {
-        require(owner != address(0));
-        require(spender != address(0));
+        require(owner != address(0), "ERC777: approve from the zero address");
+        require(spender != address(0), "ERC777: approve to the zero address");
 
         _allowances[owner][spender] = value;
         emit Approval(owner, spender, value);
@@ -400,7 +400,7 @@ contract ERC777 is IERC777, ERC20Detailed {
         if (implementer != address(0)) {
             IERC777Recipient(implementer).tokensReceived(operator, from, to, amount, userData, operatorData);
         } else {
-            require(!to.isContract());
+            require(!to.isContract(), "ERC777: token recipient contract has no implementer for ERC777TokensRecipient");
         }
     }
 }
