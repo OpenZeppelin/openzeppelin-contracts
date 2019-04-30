@@ -46,7 +46,7 @@ contract('ERC777', function ([
         this.token = await ERC777.new(holder, initialSupply, name, symbol, granularity, defaultOperators);
       });
 
-      shouldBehaveLikeERC20(initialSupply, holder, anyone, defaultOperatorA);
+      shouldBehaveLikeERC20('ERC777', initialSupply, holder, anyone, defaultOperatorA);
 
       it.skip('does not emit AuthorizedOperator events for default operators', async function () {
         expectEvent.not.inConstructor(this.token, 'AuthorizedOperator'); // This helper needs to be implemented

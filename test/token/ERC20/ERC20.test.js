@@ -10,11 +10,12 @@ const ERC20Mock = artifacts.require('ERC20Mock');
 
 contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
   const initialSupply = new BN(100);
+
   beforeEach(async function () {
     this.token = await ERC20Mock.new(initialHolder, initialSupply);
   });
 
-  shouldBehaveLikeERC20(initialSupply, initialHolder, recipient, anotherAccount);
+  shouldBehaveLikeERC20('ERC20', initialSupply, initialHolder, recipient, anotherAccount);
 
   describe('decrease allowance', function () {
     describe('when the spender is not the zero address', function () {
@@ -330,7 +331,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
   });
 
   describe('_approve', function () {
-    shouldBehaveLikeERC20Approve(initialHolder, recipient, initialSupply, function (owner, spender, amount) {
+    shouldBehaveLikeERC20Approve('ERC20', initialHolder, recipient, initialSupply, function (owner, spender, amount) {
       return this.token.approveInternal(owner, spender, amount);
     });
 

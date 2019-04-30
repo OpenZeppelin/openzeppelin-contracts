@@ -1,7 +1,7 @@
 const { BN, constants, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
-function shouldBehaveLikeERC20 (initialSupply, initialHolder, recipient, anotherAccount) {
+function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recipient, anotherAccount) {
   describe('total supply', function () {
     it('returns the total amount of tokens', async function () {
       (await this.token.totalSupply()).should.be.bignumber.equal(initialSupply);
@@ -64,7 +64,7 @@ function shouldBehaveLikeERC20 (initialSupply, initialHolder, recipient, another
 
       it('reverts', async function () {
         await shouldFail.reverting.withMessage(this.token.transfer(to, initialSupply, { from: initialHolder }),
-          'ERC20: transfer to the zero address'
+          `${errorPrefix}: transfer to the zero address`
         );
       });
     });
@@ -167,20 +167,22 @@ function shouldBehaveLikeERC20 (initialSupply, initialHolder, recipient, another
 
       it('reverts', async function () {
         await shouldFail.reverting.withMessage(this.token.transferFrom(
-          initialHolder, to, amount, { from: spender }), 'ERC20: transfer to the zero address'
+          initialHolder, to, amount, { from: spender }), `${errorPrefix}: transfer to the zero address`
         );
       });
     });
   });
 
   describe('approve', function () {
-    shouldBehaveLikeERC20Approve(initialHolder, recipient, initialSupply, function (owner, spender, amount) {
-      return this.token.approve(spender, amount, { from: owner });
-    });
+    shouldBehaveLikeERC20Approve(errorPrefix, initialHolder, recipient, initialSupply,
+      function (owner, spender, amount) {
+        return this.token.approve(spender, amount, { from: owner });
+      }
+    );
   });
 }
 
-function shouldBehaveLikeERC20Approve (owner, spender, supply, approve) {
+function shouldBehaveLikeERC20Approve (errorPrefix, owner, spender, supply, approve) {
   describe('when the spender is not the zero address', function () {
     describe('when the sender has enough balance', function () {
       const amount = supply;
@@ -254,7 +256,7 @@ function shouldBehaveLikeERC20Approve (owner, spender, supply, approve) {
   describe('when the spender is the zero address', function () {
     it('reverts', async function () {
       await shouldFail.reverting.withMessage(approve.call(this, owner, ZERO_ADDRESS, supply),
-        'ERC20: approve to the zero address'
+        `${errorPrefix}: approve to the zero address`
       );
     });
   });
