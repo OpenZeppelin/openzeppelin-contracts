@@ -184,8 +184,9 @@ function shouldSendTokens (from, operator, to, amount, data, operatorData) {
     const initialFromBalance = await this.token.balanceOf(from);
     const initialToBalance = await this.token.balanceOf(to);
 
+    let logs;
     if (!operatorCall) {
-      const { logs } = await this.token.send(to, amount, data, { from });
+      ({ logs } = await this.token.send(to, amount, data, { from }));
       expectEvent.inLogs(logs, 'Sent', {
         operator: from,
         from,
@@ -195,7 +196,7 @@ function shouldSendTokens (from, operator, to, amount, data, operatorData) {
         operatorData: null,
       });
     } else {
-      const { logs } = await this.token.operatorSend(from, to, amount, data, operatorData, { from: operator });
+      ({ logs } = await this.token.operatorSend(from, to, amount, data, operatorData, { from: operator }));
       expectEvent.inLogs(logs, 'Sent', {
         operator,
         from,
@@ -205,6 +206,12 @@ function shouldSendTokens (from, operator, to, amount, data, operatorData) {
         operatorData,
       });
     }
+
+    expectEvent.inLogs(logs, 'Transfer', {
+      from,
+      to,
+      value: amount,
+    });
 
     const finalTotalSupply = await this.token.totalSupply();
     const finalFromBalance = await this.token.balanceOf(from);
@@ -231,8 +238,9 @@ function shouldBurnTokens (from, operator, amount, data, operatorData) {
     const initialTotalSupply = await this.token.totalSupply();
     const initialFromBalance = await this.token.balanceOf(from);
 
+    let logs;
     if (!operatorCall) {
-      const { logs } = await this.token.burn(amount, data, { from });
+      ({ logs } = await this.token.burn(amount, data, { from }));
       expectEvent.inLogs(logs, 'Burned', {
         operator: from,
         from,
@@ -241,7 +249,7 @@ function shouldBurnTokens (from, operator, amount, data, operatorData) {
         operatorData: null,
       });
     } else {
-      const { logs } = await this.token.operatorBurn(from, amount, data, operatorData, { from: operator });
+      ({ logs } = await this.token.operatorBurn(from, amount, data, operatorData, { from: operator }));
       expectEvent.inLogs(logs, 'Burned', {
         operator,
         from,
@@ -250,6 +258,12 @@ function shouldBurnTokens (from, operator, amount, data, operatorData) {
         operatorData,
       });
     }
+
+    expectEvent.inLogs(logs, 'Transfer', {
+      from,
+      to: ZERO_ADDRESS,
+      value: amount,
+    });
 
     const finalTotalSupply = await this.token.totalSupply();
     const finalFromBalance = await this.token.balanceOf(from);
@@ -274,12 +288,19 @@ function shouldInternalMintTokens (operator, to, amount, data, operatorData) {
     const initialToBalance = await this.token.balanceOf(to);
 
     const { logs } = await this.token.mintInternal(operator, to, amount, data, operatorData);
+
     expectEvent.inLogs(logs, 'Minted', {
       operator,
       to,
       amount,
       data,
       operatorData,
+    });
+
+    expectEvent.inLogs(logs, 'Transfer', {
+      from: ZERO_ADDRESS,
+      to,
+      value: amount,
     });
 
     const finalTotalSupply = await this.token.totalSupply();

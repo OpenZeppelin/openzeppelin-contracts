@@ -66,7 +66,7 @@ contract ERC777 is IERC777, ERC20Detailed {
      * @param data bytes information attached to the send, and intended for the recipient (to)
      */
     function send(address to, uint256 amount, bytes calldata data) external {
-        _send(msg.sender, msg.sender, to, amount, data, "");
+        _send(msg.sender, msg.sender, to, amount, data, "", true);
     }
 
     /**
@@ -87,7 +87,7 @@ contract ERC777 is IERC777, ERC20Detailed {
     external
     {
         require(isOperatorFor(msg.sender, from), "ERC777: caller is not an operator for holder");
-        _send(msg.sender, from, to, amount, data, operatorData);
+        _send(msg.sender, from, to, amount, data, operatorData, true);
     }
 
     /**
@@ -98,7 +98,7 @@ contract ERC777 is IERC777, ERC20Detailed {
      * @param value The amount to be transferred.
      */
     function transfer(address to, uint256 value) external returns (bool) {
-        _send(msg.sender, msg.sender, to, value, "", "");
+        _send(msg.sender, msg.sender, to, value, "", "", false);
         return true;
     }
 
@@ -113,7 +113,7 @@ contract ERC777 is IERC777, ERC20Detailed {
      * @param value uint256 the amount of tokens to be transferred
      */
     function transferFrom(address from, address to, uint256 value) external returns (bool) {
-        _send(msg.sender, from, to, value, "", "");
+        _send(msg.sender, from, to, value, "", "", false);
         _approve(from, msg.sender, _allowances[from][msg.sender].sub(value));
         return true;
     }
@@ -272,7 +272,7 @@ contract ERC777 is IERC777, ERC20Detailed {
         _totalSupply = _totalSupply.add(amount);
         _balances[to] = _balances[to].add(amount);
 
-        _callTokensReceived(operator, address(0), to, amount, userData, operatorData);
+        _callTokensReceived(operator, address(0), to, amount, userData, operatorData, true);
 
         emit Minted(operator, to, amount, userData, operatorData);
         emit Transfer(address(0), to, amount);
@@ -293,7 +293,8 @@ contract ERC777 is IERC777, ERC20Detailed {
         address to,
         uint256 amount,
         bytes memory userData,
-        bytes memory operatorData
+        bytes memory operatorData,
+        bool avoidLockingTokens
     )
     private
     {
@@ -307,7 +308,7 @@ contract ERC777 is IERC777, ERC20Detailed {
         _balances[from] = _balances[from].sub(amount);
         _balances[to] = _balances[to].add(amount);
 
-        _callTokensReceived(operator, from, to, amount, userData, operatorData);
+        _callTokensReceived(operator, from, to, amount, userData, operatorData, avoidLockingTokens);
 
         emit Sent(operator, from, to, amount, userData, operatorData);
         emit Transfer(from, to, amount);
@@ -392,14 +393,15 @@ contract ERC777 is IERC777, ERC20Detailed {
         address to,
         uint256 amount,
         bytes memory userData,
-        bytes memory operatorData
+        bytes memory operatorData,
+        bool avoidLockingTokens
     )
     private
     {
         address implementer = _erc1820.getInterfaceImplementer(to, TOKENS_RECIPIENT_INTERFACE_HASH);
         if (implementer != address(0)) {
             IERC777Recipient(implementer).tokensReceived(operator, from, to, amount, userData, operatorData);
-        } else {
+        } else if (avoidLockingTokens) {
             require(!to.isContract(), "ERC777: token recipient contract has no implementer for ERC777TokensRecipient");
         }
     }

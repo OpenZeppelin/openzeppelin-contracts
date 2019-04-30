@@ -297,7 +297,7 @@ contract('ERC777', function ([
               it('operatorSend reverts', async function () {
                 await shouldFail.reverting.withMessage(
                   this.token.operatorSend(this.sender, this.recipient, amount, data, operatorData, { from: operator }),
-                   'ERC777: token recipient contract has no implementer for ERC777TokensRecipient',
+                  'ERC777: token recipient contract has no implementer for ERC777TokensRecipient',
                 );
               });
 
@@ -306,6 +306,16 @@ contract('ERC777', function ([
                   this.token.mintInternal(operator, this.recipient, amount, data, operatorData),
                   'ERC777: token recipient contract has no implementer for ERC777TokensRecipient',
                 );
+              });
+
+              it('(ERC20) transfer succeeds', async function () {
+                await this.token.transfer(this.recipient, amount, { from: holder });
+              });
+
+              it('(ERC20) transferFrom succeeds', async function () {
+                const approved = anyone;
+                await this.token.approve(approved, amount, { from: this.sender });
+                await this.token.transferFrom(this.sender, this.recipient, amount, { from: approved });
               });
             });
           });
