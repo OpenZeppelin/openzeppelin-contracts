@@ -8,8 +8,7 @@
     "test/behaviors"
   ],
   "scripts": {
-    "build": "scripts/build.sh",
-    "compile": "truffle compile",
+    "compile": "scripts/compile.sh",
     "console": "truffle console",
     "coverage": "scripts/coverage.sh",
     "docsite": "scripts/docsite.sh",
@@ -19,7 +18,7 @@
     "lint:js": "eslint .",
     "lint:js:fix": "eslint . --fix",
     "lint:sol": "solhint --max-warnings 0 \"contracts/**/*.sol\"",
-    "prepack": "npm run build",
+    "prepack": "npm run prepack",
     "release": "scripts/release/release.sh",
     "version": "scripts/release/update-changelog-release-date.js && scripts/release/update-ethpm-version.js",
     "test": "npm run compile && scripts/test.sh"
@@ -60,6 +59,6 @@
     "solhint": "^1.5.0",
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
     "solidity-docgen": "^0.2.0-alpha.0",
-    "truffle": "^5.0.0"
+    "truffle": "^5.0.14"
   }
 }
