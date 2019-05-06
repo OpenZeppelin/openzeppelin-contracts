@@ -85,8 +85,13 @@ contract('ERC777', function ([
           (await this.token.decimals()).should.be.bignumber.equal('18');
         });
 
-        it('is registered in the registry', async function () {
+        it('the ERC777Token interface is registered in the registry', async function () {
           (await this.erc1820.getInterfaceImplementer(this.token.address, web3.utils.soliditySha3('ERC777Token')))
+            .should.equal(this.token.address);
+        });
+
+        it('the ERC20Token interface is registered in the registry', async function () {
+          (await this.erc1820.getInterfaceImplementer(this.token.address, web3.utils.soliditySha3('ERC20Token')))
             .should.equal(this.token.address);
         });
       });
