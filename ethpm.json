@@ -1,0 +1,17 @@
+{
+  "package_name": "zeppelin",
+  "version": "2.2.0",
+  "description": "Secure Smart Contract library for Solidity",
+  "authors": [
+    "OpenZeppelin Community <maintainers@openzeppelin.org>"
+  ],
+  "keywords": [
+    "solidity",
+    "ethereum",
+    "smart",
+    "contracts",
+    "security",
+    "zeppelin"
+  ],
+  "license": "MIT"
+}
