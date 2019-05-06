@@ -287,6 +287,7 @@ contract ERC777 is IERC777, ERC20Detailed {
      * @param amount uint256 amount of tokens to transfer
      * @param userData bytes extra information provided by the token holder (if any)
      * @param operatorData bytes extra information provided by the operator (if any)
+     * @param avoidLockingTokens if true, contract recipients are required to implement ERC777TokensRecipient
      */
     function _send(
         address operator,
@@ -387,6 +388,7 @@ contract ERC777 is IERC777, ERC20Detailed {
      * @param amount uint256 amount of tokens to transfer
      * @param userData bytes extra information provided by the token holder (if any)
      * @param operatorData bytes extra information provided by the operator (if any)
+     * @param avoidLockingTokens if true, contract recipients are required to implement ERC777TokensRecipient
      */
     function _callTokensReceived(
         address operator,
