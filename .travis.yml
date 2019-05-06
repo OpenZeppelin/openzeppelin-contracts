@@ -34,6 +34,7 @@ jobs:
       name: "Unit tests using solc nightly"
       script: npm run test
       env: SOLC_NIGHTLY=true
+      if: branch = master and type != pull_request
 
 notifications:
   slack:
