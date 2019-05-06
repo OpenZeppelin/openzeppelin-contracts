@@ -3,7 +3,7 @@ pragma solidity ^0.5.0;
 import "./IERC777.sol";
 import "./IERC777Recipient.sol";
 import "./IERC777Sender.sol";
-import "../../token/ERC20/ERC20Detailed.sol";
+import "../../token/ERC20/IERC20.sol";
 import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";
 import "../IERC1820Registry.sol";
@@ -12,7 +12,7 @@ import "../IERC1820Registry.sol";
  * @title ERC777 token implementation
  * @author etsvigun <utgarda@gmail.com>, Bertrand Masius <github@catageeks.tk>
  */
-contract ERC777 is IERC777, ERC20Detailed {
+contract ERC777 is IERC777, IERC20 {
     using SafeMath for uint256;
     using Address for address;
 
@@ -22,6 +22,8 @@ contract ERC777 is IERC777, ERC20Detailed {
 
     uint256 private _totalSupply;
 
+    string private _name;
+    string private _symbol;
     uint256 private _granularity;
 
     bytes32 constant private TOKENS_SENDER_INTERFACE_HASH = keccak256("ERC777TokensSender");
@@ -45,9 +47,11 @@ contract ERC777 is IERC777, ERC20Detailed {
         string memory symbol,
         uint256 granularity,
         address[] memory defaultOperators
-    ) public ERC20Detailed(name, symbol, 18) { // The spec requires that decimals be 18
+    ) public {
         require(granularity > 0, "ERC777: granularity is 0");
 
+        _name = name;
+        _symbol = symbol;
         _granularity = granularity;
 
         _defaultOperatorsArray = defaultOperators;
@@ -201,6 +205,27 @@ contract ERC777 is IERC777, ERC20Detailed {
      */
     function balanceOf(address tokenHolder) public view returns (uint256) {
         return _balances[tokenHolder];
+    }
+
+    /**
+     * @return the name of the token.
+     */
+    function name() public view returns (string memory) {
+        return _name;
+    }
+
+    /**
+     * @return the symbol of the token.
+     */
+    function symbol() public view returns (string memory) {
+        return _symbol;
+    }
+
+    /**
+     * @return the number of decimals of the token.
+     */
+    function decimals() public pure returns (uint8) {
+        return 18; // The spec requires that decimals be 18
     }
 
     /**
