@@ -172,13 +172,13 @@ contract('ERC777', function ([
 
         it('reverts when self-authorizing', async function () {
           await shouldFail.reverting.withMessage(
-            this.token.authorizeOperator(holder, { from: holder }), 'ERC777: operator authorization to self'
+            this.token.authorizeOperator(holder, { from: holder }), 'ERC777: authorizing self as operator'
           );
         });
 
         it('reverts when self-revoking', async function () {
           await shouldFail.reverting.withMessage(
-            this.token.revokeOperator(holder, { from: holder }), 'ERC777: operator revocation of self'
+            this.token.revokeOperator(holder, { from: holder }), 'ERC777: revoking self as operators'
           );
         });
 

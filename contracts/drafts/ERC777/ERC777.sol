@@ -145,7 +145,7 @@ contract ERC777 is IERC777, ERC20Detailed {
      * @param operator address to be authorized as operator
      */
     function authorizeOperator(address operator) external {
-        require(msg.sender != operator, "ERC777: operator authorization to self");
+        require(msg.sender != operator, "ERC777: authorizing self as operator");
 
         if (_defaultOperators[operator]) {
             delete _revokedDefaultOperators[msg.sender][operator];
@@ -161,7 +161,7 @@ contract ERC777 is IERC777, ERC20Detailed {
      * @param operator address to revoke operator rights from
      */
     function revokeOperator(address operator) external {
-        require(operator != msg.sender, "ERC777: operator revocation of self");
+        require(operator != msg.sender, "ERC777: revoking self as operator");
 
         if (_defaultOperators[operator]) {
             _revokedDefaultOperators[msg.sender][operator] = true;
