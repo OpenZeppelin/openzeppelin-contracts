@@ -8,7 +8,7 @@ import "../../utils/Address.sol";
 import "../IERC1820Registry.sol";
 
 /**
- * @title ERC777 token implementation
+ * @title ERC777 token implementation, with granularity harcoded to 1.
  * @author etsvigun <utgarda@gmail.com>, Bertrand Masius <github@catageeks.tk>
  */
 contract ERC777 is IERC777 {
