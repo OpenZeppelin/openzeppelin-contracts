@@ -1,5 +1,16 @@
 require('chai/register-should');
 
+const solcStable = {
+  version: '0.5.7',
+};
+
+const solcNightly = {
+  version: 'nightly',
+  docker: true,
+};
+
+const useSolcNightly = process.env.SOLC_NIGHTLY === 'true';
+
 module.exports = {
   networks: {
     development: {
@@ -17,8 +28,6 @@ module.exports = {
   },
 
   compilers: {
-    solc: {
-      version: '0.5.7',
-    },
+    solc: useSolcNightly ? solcNightly : solcStable,
   },
 };

@@ -9,7 +9,7 @@ import "../../utils/Address.sol";
 import "../IERC1820Registry.sol";
 
 /**
- * @title ERC777 token implementation
+ * @title ERC777 token implementation, with granularity harcoded to 1.
  * @author etsvigun <utgarda@gmail.com>, Bertrand Masius <github@catageeks.tk>
  */
 contract ERC777 is IERC777, IERC20 {
@@ -24,7 +24,6 @@ contract ERC777 is IERC777, IERC20 {
 
     string private _name;
     string private _symbol;
-    uint256 private _granularity;
 
     bytes32 constant private TOKENS_SENDER_INTERFACE_HASH = keccak256("ERC777TokensSender");
     bytes32 constant private TOKENS_RECIPIENT_INTERFACE_HASH = keccak256("ERC777TokensRecipient");
@@ -45,14 +44,10 @@ contract ERC777 is IERC777, IERC20 {
     constructor(
         string memory name,
         string memory symbol,
-        uint256 granularity,
         address[] memory defaultOperators
     ) public {
-        require(granularity > 0, "ERC777: granularity is 0");
-
         _name = name;
         _symbol = symbol;
-        _granularity = granularity;
 
         _defaultOperatorsArray = defaultOperators;
         for (uint256 i = 0; i < _defaultOperatorsArray.length; i++) {
@@ -235,7 +230,7 @@ contract ERC777 is IERC777, IERC20 {
      * @return uint256 granularity
      */
     function granularity() public view returns (uint256) {
-        return _granularity;
+        return 1;
     }
 
     /**
@@ -292,7 +287,6 @@ contract ERC777 is IERC777, IERC20 {
     internal
     {
         require(to != address(0), "ERC777: mint to the zero address");
-        require((amount % _granularity) == 0, "ERC777: mint of non-multiple amount");
 
         // Update state variables
         _totalSupply = _totalSupply.add(amount);
@@ -327,7 +321,6 @@ contract ERC777 is IERC777, IERC20 {
     {
         require(from != address(0), "ERC777: transfer from the zero address");
         require(to != address(0), "ERC777: transfer to the zero address");
-        require((amount % _granularity) == 0, "ERC777: transfer of non-multiple amount");
 
         _callTokensToSend(operator, from, to, amount, userData, operatorData);
 
@@ -359,7 +352,6 @@ contract ERC777 is IERC777, IERC20 {
     private
     {
         require(from != address(0), "ERC777: burn from the zero address");
-        require((amount % _granularity) == 0, "ERC777: burn of non-multiple amount");
 
         _callTokensToSend(operator, from, address(0), amount, data, operatorData);
 
