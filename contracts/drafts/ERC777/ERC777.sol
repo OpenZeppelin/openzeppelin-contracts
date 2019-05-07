@@ -66,7 +66,7 @@ contract ERC777 is IERC777, IERC20 {
      * @param data bytes information attached to the send, and intended for the recipient (to)
      */
     function send(address to, uint256 amount, bytes calldata data) external {
-        _send(msg.sender, msg.sender, to, amount, data, "", true);
+        _sendRequireReceptionAck(msg.sender, msg.sender, to, amount, data, "");
     }
 
     /**
@@ -98,7 +98,7 @@ contract ERC777 is IERC777, IERC20 {
      * @param value The amount to be transferred.
      */
     function transfer(address to, uint256 value) external returns (bool) {
-        _send(msg.sender, msg.sender, to, value, "", "", false);
+        _transfer(msg.sender, msg.sender, to, value);
         return true;
     }
 
@@ -113,7 +113,7 @@ contract ERC777 is IERC777, IERC20 {
      * @param value uint256 the amount of tokens to be transferred
      */
     function transferFrom(address from, address to, uint256 value) external returns (bool) {
-        _send(msg.sender, from, to, value, "", "", false);
+        _transfer(msg.sender, from, to, value);
         _approve(from, msg.sender, _allowances[from][msg.sender].sub(value));
         return true;
     }
@@ -298,6 +298,32 @@ contract ERC777 is IERC777, IERC20 {
         emit Transfer(address(0), to, amount);
     }
 
+    function _transfer(address operator, address from, address to, uint256 amount) private {
+        _sendWithoutMandatoryReceptionAck(operator, from, to, amount, "", "");
+    }
+
+    function _sendRequireReceptionAck(
+        address operator,
+        address from,
+        address to,
+        uint256 amount,
+        bytes memory userData,
+        bytes memory operatorData
+    ) private {
+        _send(operator, from, to, amount, userData, operatorData, true);
+    }
+
+    function _sendWithoutMandatoryReceptionAck(
+        address operator,
+        address from,
+        address to,
+        uint256 amount,
+        bytes memory userData,
+        bytes memory operatorData
+    ) private {
+        _send(operator, from, to, amount, userData, operatorData, false);
+    }
+
     /**
      * @dev Send tokens
      * @param operator address operator requesting the transfer
@@ -306,7 +332,7 @@ contract ERC777 is IERC777, IERC20 {
      * @param amount uint256 amount of tokens to transfer
      * @param userData bytes extra information provided by the token holder (if any)
      * @param operatorData bytes extra information provided by the operator (if any)
-     * @param avoidLockingTokens if true, contract recipients are required to implement ERC777TokensRecipient
+     * @param requireReceptionAck if true, contract recipients are required to implement ERC777TokensRecipient
      */
     function _send(
         address operator,
@@ -315,7 +341,7 @@ contract ERC777 is IERC777, IERC20 {
         uint256 amount,
         bytes memory userData,
         bytes memory operatorData,
-        bool avoidLockingTokens
+        bool requireReceptionAck
     )
     private
     {
@@ -328,7 +354,7 @@ contract ERC777 is IERC777, IERC20 {
         _balances[from] = _balances[from].sub(amount);
         _balances[to] = _balances[to].add(amount);
 
-        _callTokensReceived(operator, from, to, amount, userData, operatorData, avoidLockingTokens);
+        _callTokensReceived(operator, from, to, amount, userData, operatorData, requireReceptionAck);
 
         emit Sent(operator, from, to, amount, userData, operatorData);
         emit Transfer(from, to, amount);
@@ -407,7 +433,7 @@ contract ERC777 is IERC777, IERC20 {
      * @param amount uint256 amount of tokens to transfer
      * @param userData bytes extra information provided by the token holder (if any)
      * @param operatorData bytes extra information provided by the operator (if any)
-     * @param avoidLockingTokens if true, contract recipients are required to implement ERC777TokensRecipient
+     * @param requireReceptionAck if true, contract recipients are required to implement ERC777TokensRecipient
      */
     function _callTokensReceived(
         address operator,
@@ -416,14 +442,14 @@ contract ERC777 is IERC777, IERC20 {
         uint256 amount,
         bytes memory userData,
         bytes memory operatorData,
-        bool avoidLockingTokens
+        bool requireReceptionAck
     )
     private
     {
         address implementer = _erc1820.getInterfaceImplementer(to, TOKENS_RECIPIENT_INTERFACE_HASH);
         if (implementer != address(0)) {
             IERC777Recipient(implementer).tokensReceived(operator, from, to, amount, userData, operatorData);
-        } else if (avoidLockingTokens) {
+        } else if (requireReceptionAck) {
             require(!to.isContract(), "ERC777: token recipient contract has no implementer for ERC777TokensRecipient");
         }
     }
