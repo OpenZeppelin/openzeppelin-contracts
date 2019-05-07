@@ -8,7 +8,7 @@ import "../../utils/Address.sol";
 import "../IERC1820Registry.sol";
 
 /**
- * @title ERC777 token implementation
+ * @title ERC777 token implementation, with granularity harcoded to 1.
  * @author etsvigun <utgarda@gmail.com>, Bertrand Masius <github@catageeks.tk>
  */
 contract ERC777 is IERC777 {
@@ -24,8 +24,6 @@ contract ERC777 is IERC777 {
     mapping(address => uint256) private _balances;
 
     uint256 private _totalSupply;
-
-    uint256 private _granularity;
 
     bytes32 constant private TOKENS_SENDER_INTERFACE_HASH = keccak256("ERC777TokensSender");
     bytes32 constant private TOKENS_RECIPIENT_INTERFACE_HASH = keccak256("ERC777TokensRecipient");
@@ -43,14 +41,10 @@ contract ERC777 is IERC777 {
     constructor(
         string memory name,
         string memory symbol,
-        uint256 granularity,
         address[] memory defaultOperators
     ) public {
-        require(granularity > 0);
-
         _name = name;
         _symbol = symbol;
-        _granularity = granularity;
 
         _defaultOperatorsArray = defaultOperators;
         for (uint256 i = 0; i < _defaultOperatorsArray.length; i++) {
@@ -182,7 +176,7 @@ contract ERC777 is IERC777 {
      * @return uint256 granularity
      */
     function granularity() public view returns (uint256) {
-        return _granularity;
+        return 1;
     }
 
     /**
@@ -228,7 +222,6 @@ contract ERC777 is IERC777 {
     internal
     {
         require(to != address(0));
-        require((amount % _granularity) == 0);
 
         // Update state variables
         _totalSupply = _totalSupply.add(amount);
@@ -260,7 +253,6 @@ contract ERC777 is IERC777 {
     {
         require(from != address(0));
         require(to != address(0));
-        require((amount % _granularity) == 0);
 
         _callTokensToSend(operator, from, to, amount, userData, operatorData);
 
@@ -291,7 +283,6 @@ contract ERC777 is IERC777 {
     private
     {
         require(from != address(0));
-        require((amount % _granularity) == 0);
 
         _callTokensToSend(operator, from, address(0), amount, data, operatorData);
 
