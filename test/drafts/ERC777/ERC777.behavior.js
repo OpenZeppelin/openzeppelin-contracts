@@ -524,10 +524,7 @@ module.exports = {
   shouldBehaveLikeERC777DirectSendBurn,
   shouldBehaveLikeERC777OperatorSendBurn,
   shouldBehaveLikeERC777UnauthorizedOperatorSendBurn,
-  shouldDirectSendTokens,
-  shouldDirectBurnTokens,
   shouldBehaveLikeERC777InternalMint,
-  shouldInternalMintTokens,
   shouldBehaveLikeERC777SendBurnMintInternalWithReceiveHook,
   shouldBehaveLikeERC777SendBurnWithSendHook,
 };
