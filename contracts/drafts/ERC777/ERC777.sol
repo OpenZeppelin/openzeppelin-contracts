@@ -372,7 +372,9 @@ contract ERC777 is IERC777, IERC20 {
     }
 
     function _approve(address owner, address spender, uint256 value) private {
-        require(owner != address(0), "ERC777: approve from the zero address");
+        // TODO: restore this require statement if this function becomes internal, or is called at a new callsite. It is
+        // currently unnecessary.
+        //require(owner != address(0), "ERC777: approve from the zero address");
         require(spender != address(0), "ERC777: approve to the zero address");
 
         _allowances[owner][spender] = value;
