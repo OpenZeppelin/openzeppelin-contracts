@@ -25,16 +25,15 @@ contract ERC777 is IERC777, IERC20 {
     string private _name;
     string private _symbol;
 
-    // We inline the result of these hashes because Solidity does not calculate them in compile time.
+    // We inline the result of the following hashes because Solidity doesn't resolve them at compile time.
     // See https://github.com/ethereum/solidity/issues/4024.
     //
-    // keccak256("ERC777TokensSender")
-    bytes32 constant private TOKENS_SENDER_INTERFACE_HASH = 
-        hex"29ddb589b1fb5fc7cf394961c1adf5f8c6454761adf795e67fe149f658abe895";
-    
-    // keccak256("ERC777TokensRecipient")
-    bytes32 constant private TOKENS_RECIPIENT_INTERFACE_HASH = 
-        hex"b281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b";
+    // keccak256("TOKENS_SENDER_INTERFACE_HASH")
+    bytes32 constant private TOKENS_SENDER_INTERFACE_HASH =
+      0x29ddb589b1fb5fc7cf394961c1adf5f8c6454761adf795e67fe149f658abe895;
+    // keccak256("TOKENS_RECIPIENT_INTERFACE_HASH")
+    bytes32 constant private TOKENS_RECIPIENT_INTERFACE_HASH =
+      0xb281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b;
 
     // This isn't ever read from - it's only used to respond to the defaultOperators query.
     address[] private _defaultOperatorsArray;
