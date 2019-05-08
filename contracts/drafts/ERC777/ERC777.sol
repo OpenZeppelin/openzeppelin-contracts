@@ -3,6 +3,7 @@ pragma solidity ^0.5.0;
 import "./IERC777.sol";
 import "./IERC777Recipient.sol";
 import "./IERC777Sender.sol";
+import "../../token/ERC20/IERC20.sol";
 import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";
 import "../IERC1820Registry.sol";
@@ -11,19 +12,18 @@ import "../IERC1820Registry.sol";
  * @title ERC777 token implementation, with granularity harcoded to 1.
  * @author etsvigun <utgarda@gmail.com>, Bertrand Masius <github@catageeks.tk>
  */
-contract ERC777 is IERC777 {
+contract ERC777 is IERC777, IERC20 {
     using SafeMath for uint256;
     using Address for address;
 
     IERC1820Registry private _erc1820 = IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
 
-    string private _name;
-
-    string private _symbol;
-
     mapping(address => uint256) private _balances;
 
     uint256 private _totalSupply;
+
+    string private _name;
+    string private _symbol;
 
     // We inline the result of these hashes because Solidity does not calculate them in compile time.
     // See https://github.com/ethereum/solidity/issues/4024.
@@ -43,6 +43,9 @@ contract ERC777 is IERC777 {
     mapping(address => mapping(address => bool)) private _operators;
     mapping(address => mapping(address => bool)) private _revokedDefaultOperators;
 
+    // ERC20-allowances
+    mapping (address => mapping (address => uint256)) private _allowances;
+
     constructor(
         string memory name,
         string memory symbol,
@@ -56,8 +59,9 @@ contract ERC777 is IERC777 {
             _defaultOperators[_defaultOperatorsArray[i]] = true;
         }
 
-        // register interface
+        // register interfaces
         _erc1820.setInterfaceImplementer(address(this), keccak256("ERC777Token"), address(this));
+        _erc1820.setInterfaceImplementer(address(this), keccak256("ERC20Token"), address(this));
     }
 
     /**
@@ -67,7 +71,7 @@ contract ERC777 is IERC777 {
      * @param data bytes information attached to the send, and intended for the recipient (to)
      */
     function send(address to, uint256 amount, bytes calldata data) external {
-        _send(msg.sender, msg.sender, to, amount, data, "");
+        _sendRequiringReceptionAck(msg.sender, msg.sender, to, amount, data, "");
     }
 
     /**
@@ -87,8 +91,36 @@ contract ERC777 is IERC777 {
     )
     external
     {
-        require(isOperatorFor(msg.sender, from));
-        _send(msg.sender, from, to, amount, data, operatorData);
+        require(isOperatorFor(msg.sender, from), "ERC777: caller is not an operator for holder");
+        _sendRequiringReceptionAck(msg.sender, from, to, amount, data, operatorData);
+    }
+
+    /**
+     * @dev Transfer token to a specified address.
+     * Required for ERC20 compatiblity. Note that transferring tokens this way may result in locked tokens (i.e. tokens
+     * can be sent to a contract that does not implement the ERC777TokensRecipient interface).
+     * @param to The address to transfer to.
+     * @param value The amount to be transferred.
+     */
+    function transfer(address to, uint256 value) external returns (bool) {
+        _transfer(msg.sender, msg.sender, to, value);
+        return true;
+    }
+
+    /**
+     * @dev Transfer tokens from one address to another.
+     * Note that while this function emits an Approval event, this is not required as per the specification,
+     * and other compliant implementations may not emit the event.
+     * Required for ERC20 compatiblity. Note that transferring tokens this way may result in locked tokens (i.e. tokens
+     * can be sent to a contract that does not implement the ERC777TokensRecipient interface).
+     * @param from address The address which you want to send tokens from
+     * @param to address The address which you want to transfer to
+     * @param value uint256 the amount of tokens to be transferred
+     */
+    function transferFrom(address from, address to, uint256 value) external returns (bool) {
+        _transfer(msg.sender, from, to, value);
+        _approve(from, msg.sender, _allowances[from][msg.sender].sub(value));
+        return true;
     }
 
     /**
@@ -108,7 +140,7 @@ contract ERC777 is IERC777 {
      * @param operatorData bytes extra information provided by the operator (if any)
      */
     function operatorBurn(address from, uint256 amount, bytes calldata data, bytes calldata operatorData) external {
-        require(isOperatorFor(msg.sender, from));
+        require(isOperatorFor(msg.sender, from), "ERC777: caller is not an operator for holder");
         _burn(msg.sender, from, amount, data, operatorData);
     }
 
@@ -117,7 +149,7 @@ contract ERC777 is IERC777 {
      * @param operator address to be authorized as operator
      */
     function authorizeOperator(address operator) external {
-        require(msg.sender != operator);
+        require(msg.sender != operator, "ERC777: authorizing self as operator");
 
         if (_defaultOperators[operator]) {
             delete _revokedDefaultOperators[msg.sender][operator];
@@ -133,7 +165,7 @@ contract ERC777 is IERC777 {
      * @param operator address to revoke operator rights from
      */
     function revokeOperator(address operator) external {
-        require(operator != msg.sender);
+        require(operator != msg.sender, "ERC777: revoking self as operator");
 
         if (_defaultOperators[operator]) {
             _revokedDefaultOperators[msg.sender][operator] = true;
@@ -142,6 +174,37 @@ contract ERC777 is IERC777 {
         }
 
         emit RevokedOperator(operator, msg.sender);
+    }
+
+    /**
+     * @dev Approve the passed address to spend the specified amount of tokens on behalf of msg.sender.
+     * Beware that changing an allowance with this method brings the risk that someone may use both the old
+     * and the new allowance by unfortunate transaction ordering. One possible solution to mitigate this
+     * race condition is to first reduce the spender's allowance to 0 and set the desired value afterwards:
+     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
+     * Required for ERC20 compatilibity.
+     * @param spender The address which will spend the funds.
+     * @param value The amount of tokens to be spent.
+     */
+    function approve(address spender, uint256 value) external returns (bool) {
+        _approve(msg.sender, spender, value);
+        return true;
+    }
+
+    /**
+     * @dev Total number of tokens in existence
+     */
+    function totalSupply() public view returns (uint256) {
+        return _totalSupply;
+    }
+
+    /**
+     * @dev Gets the balance of the specified address.
+     * @param tokenHolder The address to query the balance of.
+        * @return uint256 representing the amount owned by the specified address.
+     */
+    function balanceOf(address tokenHolder) public view returns (uint256) {
+        return _balances[tokenHolder];
     }
 
     /**
@@ -159,19 +222,10 @@ contract ERC777 is IERC777 {
     }
 
     /**
-     * @dev Total number of tokens in existence
+     * @return the number of decimals of the token.
      */
-    function totalSupply() public view returns (uint256) {
-        return _totalSupply;
-    }
-
-    /**
-     * @dev Gets the balance of the specified address.
-     * @param tokenHolder The address to query the balance of.
-        * @return uint256 representing the amount owned by the specified address.
-     */
-    function balanceOf(address tokenHolder) public view returns (uint256) {
-        return _balances[tokenHolder];
+    function decimals() public pure returns (uint8) {
+        return 18; // The spec requires that decimals be 18
     }
 
     /**
@@ -209,6 +263,17 @@ contract ERC777 is IERC777 {
     }
 
     /**
+     * @dev Function to check the amount of tokens that an owner allowed to a spender.
+     * Required for ERC20 compatibility.
+     * @param owner address The address which owns the funds.
+     * @param spender address The address which will spend the funds.
+     * @return A uint256 specifying the amount of tokens still available for the spender.
+     */
+    function allowance(address owner, address spender) public view returns (uint256) {
+        return _allowances[owner][spender];
+    }
+
+    /**
      * @dev Mint tokens. Does not check authorization of operator
      * @dev the caller may ckeck that operator is authorized before calling
      * @param operator address operator requesting the operation
@@ -226,15 +291,42 @@ contract ERC777 is IERC777 {
     )
     internal
     {
-        require(to != address(0));
+        require(to != address(0), "ERC777: mint to the zero address");
 
         // Update state variables
         _totalSupply = _totalSupply.add(amount);
         _balances[to] = _balances[to].add(amount);
 
-        _callTokensReceived(operator, address(0), to, amount, userData, operatorData);
+        _callTokensReceived(operator, address(0), to, amount, userData, operatorData, true);
 
         emit Minted(operator, to, amount, userData, operatorData);
+        emit Transfer(address(0), to, amount);
+    }
+
+    function _transfer(address operator, address from, address to, uint256 amount) private {
+        _sendAllowingNoReceptionAck(operator, from, to, amount, "", "");
+    }
+
+    function _sendRequiringReceptionAck(
+        address operator,
+        address from,
+        address to,
+        uint256 amount,
+        bytes memory userData,
+        bytes memory operatorData
+    ) private {
+        _send(operator, from, to, amount, userData, operatorData, true);
+    }
+
+    function _sendAllowingNoReceptionAck(
+        address operator,
+        address from,
+        address to,
+        uint256 amount,
+        bytes memory userData,
+        bytes memory operatorData
+    ) private {
+        _send(operator, from, to, amount, userData, operatorData, false);
     }
 
     /**
@@ -245,6 +337,7 @@ contract ERC777 is IERC777 {
      * @param amount uint256 amount of tokens to transfer
      * @param userData bytes extra information provided by the token holder (if any)
      * @param operatorData bytes extra information provided by the operator (if any)
+     * @param requireReceptionAck if true, contract recipients are required to implement ERC777TokensRecipient
      */
     function _send(
         address operator,
@@ -252,12 +345,13 @@ contract ERC777 is IERC777 {
         address to,
         uint256 amount,
         bytes memory userData,
-        bytes memory operatorData
+        bytes memory operatorData,
+        bool requireReceptionAck
     )
     private
     {
-        require(from != address(0));
-        require(to != address(0));
+        require(from != address(0), "ERC777: transfer from the zero address");
+        require(to != address(0), "ERC777: transfer to the zero address");
 
         _callTokensToSend(operator, from, to, amount, userData, operatorData);
 
@@ -265,9 +359,10 @@ contract ERC777 is IERC777 {
         _balances[from] = _balances[from].sub(amount);
         _balances[to] = _balances[to].add(amount);
 
-        _callTokensReceived(operator, from, to, amount, userData, operatorData);
+        _callTokensReceived(operator, from, to, amount, userData, operatorData, requireReceptionAck);
 
         emit Sent(operator, from, to, amount, userData, operatorData);
+        emit Transfer(from, to, amount);
     }
 
     /**
@@ -287,7 +382,7 @@ contract ERC777 is IERC777 {
     )
     private
     {
-        require(from != address(0));
+        require(from != address(0), "ERC777: burn from the zero address");
 
         _callTokensToSend(operator, from, address(0), amount, data, operatorData);
 
@@ -296,6 +391,17 @@ contract ERC777 is IERC777 {
         _balances[from] = _balances[from].sub(amount);
 
         emit Burned(operator, from, amount, data, operatorData);
+        emit Transfer(from, address(0), amount);
+    }
+
+    function _approve(address owner, address spender, uint256 value) private {
+        // TODO: restore this require statement if this function becomes internal, or is called at a new callsite. It is
+        // currently unnecessary.
+        //require(owner != address(0), "ERC777: approve from the zero address");
+        require(spender != address(0), "ERC777: approve to the zero address");
+
+        _allowances[owner][spender] = value;
+        emit Approval(owner, spender, value);
     }
 
     /**
@@ -332,6 +438,7 @@ contract ERC777 is IERC777 {
      * @param amount uint256 amount of tokens to transfer
      * @param userData bytes extra information provided by the token holder (if any)
      * @param operatorData bytes extra information provided by the operator (if any)
+     * @param requireReceptionAck if true, contract recipients are required to implement ERC777TokensRecipient
      */
     function _callTokensReceived(
         address operator,
@@ -339,15 +446,16 @@ contract ERC777 is IERC777 {
         address to,
         uint256 amount,
         bytes memory userData,
-        bytes memory operatorData
+        bytes memory operatorData,
+        bool requireReceptionAck
     )
     private
     {
         address implementer = _erc1820.getInterfaceImplementer(to, TOKENS_RECIPIENT_INTERFACE_HASH);
         if (implementer != address(0)) {
             IERC777Recipient(implementer).tokensReceived(operator, from, to, amount, userData, operatorData);
-        } else {
-            require(!to.isContract());
+        } else if (requireReceptionAck) {
+            require(!to.isContract(), "ERC777: token recipient contract has no implementer for ERC777TokensRecipient");
         }
     }
 }
