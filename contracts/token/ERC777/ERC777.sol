@@ -6,7 +6,7 @@ import "./IERC777Sender.sol";
 import "../../token/ERC20/IERC20.sol";
 import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";
-import "../IERC1820Registry.sol";
+import "../../introspection/IERC1820Registry.sol";
 
 /**
  * @title ERC777 token implementation, with granularity harcoded to 1.

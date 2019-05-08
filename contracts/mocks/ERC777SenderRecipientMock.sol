@@ -1,10 +1,10 @@
 pragma solidity ^0.5.0;
 
-import "../drafts/ERC777/IERC777.sol";
-import "../drafts/ERC777/IERC777Sender.sol";
-import "../drafts/ERC777/IERC777Recipient.sol";
-import "../drafts/IERC1820Registry.sol";
-import "../drafts/ERC1820Implementer.sol";
+import "../token/ERC777/IERC777.sol";
+import "../token/ERC777/IERC777Sender.sol";
+import "../token/ERC777/IERC777Recipient.sol";
+import "../introspection/IERC1820Registry.sol";
+import "../introspection/ERC1820Implementer.sol";
 
 contract ERC777SenderRecipientMock is IERC777Sender, IERC777Recipient, ERC1820Implementer {
     event TokensToSendCalled(
