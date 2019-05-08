@@ -9,6 +9,10 @@ const {
   shouldBehaveLikeERC777SendBurnWithSendHook,
 } = require('./ERC777.behavior');
 
+const {
+  shouldBehaveLikeERC20,
+} = require('../../token/ERC20/ERC20.behavior');
+
 const ERC777 = artifacts.require('ERC777Mock');
 const ERC777SenderRecipientMock = artifacts.require('ERC777SenderRecipientMock');
 
@@ -32,6 +36,8 @@ contract('ERC777', function ([
       this.token = await ERC777.new(holder, initialSupply, name, symbol, defaultOperators);
     });
 
+    shouldBehaveLikeERC20('ERC777', initialSupply, holder, anyone, defaultOperatorA);
+
     it.skip('does not emit AuthorizedOperator events for default operators', async function () {
       expectEvent.not.inConstructor(this.token, 'AuthorizedOperator'); // This helper needs to be implemented
     });
@@ -45,7 +51,7 @@ contract('ERC777', function ([
         (await this.token.symbol()).should.equal(symbol);
       });
 
-      it('has a granularity of 1', async function () {
+      it('returns a granularity of 1', async function () {
         (await this.token.granularity()).should.be.bignumber.equal('1');
       });
 
@@ -59,12 +65,21 @@ contract('ERC777', function ([
         }
       });
 
-      it('returns thte total supply', async function () {
+      it('returns the total supply', async function () {
         (await this.token.totalSupply()).should.be.bignumber.equal(initialSupply);
       });
 
-      it('is registered in the registry', async function () {
+      it('returns 18 when decimals is called', async function () {
+        (await this.token.decimals()).should.be.bignumber.equal('18');
+      });
+
+      it('the ERC777Token interface is registered in the registry', async function () {
         (await this.erc1820.getInterfaceImplementer(this.token.address, web3.utils.soliditySha3('ERC777Token')))
+          .should.equal(this.token.address);
+      });
+
+      it('the ERC20Token interface is registered in the registry', async function () {
+        (await this.erc1820.getInterfaceImplementer(this.token.address, web3.utils.soliditySha3('ERC20Token')))
           .should.equal(this.token.address);
       });
     });
@@ -144,11 +159,15 @@ contract('ERC777', function ([
       });
 
       it('reverts when self-authorizing', async function () {
-        await shouldFail.reverting(this.token.authorizeOperator(holder, { from: holder }));
+        await shouldFail.reverting.withMessage(
+          this.token.authorizeOperator(holder, { from: holder }), 'ERC777: authorizing self as operator'
+        );
       });
 
       it('reverts when self-revoking', async function () {
-        await shouldFail.reverting(this.token.revokeOperator(holder, { from: holder }));
+        await shouldFail.reverting.withMessage(
+          this.token.revokeOperator(holder, { from: holder }), 'ERC777: revoking self as operator'
+        );
       });
 
       it('non-operators can be revoked', async function () {
@@ -209,7 +228,10 @@ contract('ERC777', function ([
         });
 
         it('cannot be revoked for themselves', async function () {
-          await shouldFail.reverting(this.token.revokeOperator(defaultOperatorA, { from: defaultOperatorA }));
+          await shouldFail.reverting.withMessage(
+            this.token.revokeOperator(defaultOperatorA, { from: defaultOperatorA }),
+            'ERC777: revoking self as operator'
+          );
         });
 
         context('with revoked default operator', function () {
@@ -259,19 +281,34 @@ contract('ERC777', function ([
             });
 
             it('send reverts', async function () {
-              await shouldFail.reverting(this.token.send(this.recipient, amount, data));
+              await shouldFail.reverting.withMessage(
+                this.token.send(this.recipient, amount, data, { from: holder }),
+                'ERC777: token recipient contract has no implementer for ERC777TokensRecipient',
+              );
             });
 
             it('operatorSend reverts', async function () {
-              await shouldFail.reverting(
-                this.token.operatorSend(this.sender, this.recipient, amount, data, operatorData, { from: operator })
+              await shouldFail.reverting.withMessage(
+                this.token.operatorSend(this.sender, this.recipient, amount, data, operatorData, { from: operator }),
+                'ERC777: token recipient contract has no implementer for ERC777TokensRecipient',
               );
             });
 
             it('mint (internal) reverts', async function () {
-              await shouldFail.reverting(
-                this.token.mintInternal(operator, this.recipient, amount, data, operatorData)
+              await shouldFail.reverting.withMessage(
+                this.token.mintInternal(operator, this.recipient, amount, data, operatorData),
+                'ERC777: token recipient contract has no implementer for ERC777TokensRecipient',
               );
+            });
+
+            it('(ERC20) transfer succeeds', async function () {
+              await this.token.transfer(this.recipient, amount, { from: holder });
+            });
+
+            it('(ERC20) transferFrom succeeds', async function () {
+              const approved = anyone;
+              await this.token.approve(approved, amount, { from: this.sender });
+              await this.token.transferFrom(this.sender, this.recipient, amount, { from: approved });
             });
           });
         });
