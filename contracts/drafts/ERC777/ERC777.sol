@@ -66,7 +66,7 @@ contract ERC777 is IERC777, IERC20 {
      * @param data bytes information attached to the send, and intended for the recipient (to)
      */
     function send(address to, uint256 amount, bytes calldata data) external {
-        _sendRequireReceptionAck(msg.sender, msg.sender, to, amount, data, "");
+        _sendRequiringReceptionAck(msg.sender, msg.sender, to, amount, data, "");
     }
 
     /**
@@ -87,7 +87,7 @@ contract ERC777 is IERC777, IERC20 {
     external
     {
         require(isOperatorFor(msg.sender, from), "ERC777: caller is not an operator for holder");
-        _sendRequireReceptionAck(msg.sender, from, to, amount, data, operatorData);
+        _sendRequiringReceptionAck(msg.sender, from, to, amount, data, operatorData);
     }
 
     /**
@@ -299,10 +299,10 @@ contract ERC777 is IERC777, IERC20 {
     }
 
     function _transfer(address operator, address from, address to, uint256 amount) private {
-        _sendWithoutMandatoryReceptionAck(operator, from, to, amount, "", "");
+        _sendAllowingNoReceptionAck(operator, from, to, amount, "", "");
     }
 
-    function _sendRequireReceptionAck(
+    function _sendRequiringReceptionAck(
         address operator,
         address from,
         address to,
@@ -313,7 +313,7 @@ contract ERC777 is IERC777, IERC20 {
         _send(operator, from, to, amount, userData, operatorData, true);
     }
 
-    function _sendWithoutMandatoryReceptionAck(
+    function _sendAllowingNoReceptionAck(
         address operator,
         address from,
         address to,
