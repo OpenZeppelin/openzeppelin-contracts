@@ -11,7 +11,7 @@ const {
 
 const {
   shouldBehaveLikeERC20,
-} = require('../../token/ERC20/ERC20.behavior');
+} = require('../ERC20/ERC20.behavior');
 
 const ERC777 = artifacts.require('ERC777Mock');
 const ERC777SenderRecipientMock = artifacts.require('ERC777SenderRecipientMock');
