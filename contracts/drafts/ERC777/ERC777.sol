@@ -87,7 +87,7 @@ contract ERC777 is IERC777, IERC20 {
     external
     {
         require(isOperatorFor(msg.sender, from), "ERC777: caller is not an operator for holder");
-        _send(msg.sender, from, to, amount, data, operatorData, true);
+        _sendRequireReceptionAck(msg.sender, from, to, amount, data, operatorData);
     }
 
     /**
