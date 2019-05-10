@@ -22,7 +22,7 @@ library Strings {
     for (index = 0; index < bytesB.length; index++) {
       bytesAB[concatendatedIndex++] = bytesB[index];
     }
- 
+
     return string(bytesAB);
   }
 
@@ -31,7 +31,7 @@ library Strings {
    */
   function UintToString(uint value) public pure returns (string memory uintAsString) {
     uint tempValue = value;
- 
+
     if (tempValue == 0) {
       return "0";
     }
