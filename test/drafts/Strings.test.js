@@ -1,38 +1,38 @@
-const Strings = artifacts.require('Strings')
+const Strings = artifacts.require('Strings');
 
-contract('Strings', function([owner, anotherAccount]) {
+contract('Strings', function ([owner, anotherAccount]) {
   let strings;
-  let a = "AZ@#://12345";
-  let b = "$#%#!";
-  let c = "";
-  let ab = a + b;
-  let ac = a + c;
-  let ca = c + a;
-  let zero = "0";
-  let one = "1";
-  let onetrillion = "1000000000000"
+  const a = 'AZ@#://12345';
+  const b = '$#%#!';
+  const c = '';
+  const ab = a + b;
+  const ac = a + c;
+  const ca = c + a;
+  const zero = '0';
+  const one = '1';
+  const onetrillion = '1000000000000';
 
-  beforeEach(async function() {
-    strings = await Strings.new({ from: owner })
+  beforeEach(async function () {
+    strings = await Strings.new({ from: owner });
   });
 
-  describe('String functions', function() {
-    it('concatenates', async function() {
-      const _ab = await strings.Concatenate(a, b);
+  describe('String functions', function () {
+    it('concatenates', async function () {
+      const _ab = await strings.concatenate(a, b);
       assert.equal(ab, _ab);
-      const _ac = await strings.Concatenate(a, c);
+      const _ac = await strings.concatenate(a, c);
       assert.equal(ac, _ac);
-      const _ca = await strings.Concatenate(c, a);
+      const _ca = await strings.concatenate(c, a);
       assert.equal(ca, _ca);
-    })
+    });
 
-    it('converts to a string', async function() {
-      const _zero = await strings.UintToString(0);
+    it('converts to a string', async function () {
+      const _zero = await strings.uintToString(0);
       assert.equal(zero, _zero);
-      const _one = await strings.UintToString(1);
+      const _one = await strings.uintToString(1);
       assert.equal(one, _one);
-      const _onetrillion = await strings.UintToString(1000000000000);
+      const _onetrillion = await strings.uintToString(1000000000000);
       assert.equal(onetrillion, _onetrillion);
-    })
+    });
   });
 });
