@@ -165,7 +165,7 @@ contract ERC721 is ERC165, IERC721 {
      */
     function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory _data) public {
         transferFrom(from, to, tokenId);
-        require(_checkOnERC721Received(from, to, tokenId, _data));
+        _safeTransferFrom(from, to, tokenId, _data);
     }
 
     /**
@@ -197,6 +197,7 @@ contract ERC721 is ERC165, IERC721 {
      * @param tokenId uint256 ID of the token to be minted
      */
     function _mint(address to, uint256 tokenId) internal {
+        _safeMint(address(0), to, tokenId, "");
         require(to != address(0));
         require(!_exists(tokenId));
 
@@ -272,6 +273,26 @@ contract ERC721 is ERC165, IERC721 {
 
         bytes4 retval = IERC721Receiver(to).onERC721Received(msg.sender, from, tokenId, _data);
         return (retval == _ERC721_RECEIVED);
+    }
+    /**
+     * @dev Private function to clear current approval of a given token ID		     * @dev Internal function that safely transfers the ownership of a given token ID to another address
+     * @param from current owner of the token
+     * @param to address to receive the ownership of the given token ID
+     * @param tokenId uint256 ID of the token to be transferred
+     * @param _data bytes data to send along with a safe transfer check
+     */
+    function _safeTransferFrom(address from, address to, uint256 tokenId, bytes memory _data) internal {
+        require(_checkOnERC721Received(from, to, tokenId, _data));
+    }
+    /**
+     * @dev Internal function that does safe minting of tokens
+     * @param from current owner of the token (address(0), since token has to be minted)
+     * @param to address to receive the minted tokens
+     * @param tokenId uint256 ID of the token to be minted
+     * @param _data bytes data to send along with token minting
+     */
+    function _safeMint(address from, address to, uint256 tokenId, bytes memory _data) internal {
+        require(_checkOnERC721Received(from, to, tokenId, _data));
     }
 
     /**
