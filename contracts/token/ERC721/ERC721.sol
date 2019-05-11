@@ -132,8 +132,7 @@ contract ERC721 is ERC165, IERC721 {
      */
     function transferFrom(address from, address to, uint256 tokenId) public {
         require(_isApprovedOrOwner(msg.sender, tokenId));
-
-        _transferFrom(from, to, tokenId);
+        _safeTransferFrom(from, to, tokenId, "");
     }
 
     /**
@@ -164,7 +163,7 @@ contract ERC721 is ERC165, IERC721 {
      * @param _data bytes data to send along with a safe transfer check
      */
     function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory _data) public {
-        transferFrom(from, to, tokenId);
+        require(_isApprovedOrOwner(msg.sender, tokenId));
         _safeTransferFrom(from, to, tokenId, _data);
     }
 
@@ -283,6 +282,7 @@ contract ERC721 is ERC165, IERC721 {
      */
     function _safeTransferFrom(address from, address to, uint256 tokenId, bytes memory _data) internal {
         require(_checkOnERC721Received(from, to, tokenId, _data));
+        _transferFrom(from, to, tokenId);
     }
     /**
      * @dev Internal function that does safe minting of tokens
@@ -293,6 +293,7 @@ contract ERC721 is ERC165, IERC721 {
      */
     function _safeMint(address from, address to, uint256 tokenId, bytes memory _data) internal {
         require(_checkOnERC721Received(from, to, tokenId, _data));
+//        _transferFrom(from, to, tokenId);
     }
 
     /**
