@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 
 import "../token/ERC20/SafeERC20.sol";
 import "../ownership/Ownable.sol";
@@ -47,10 +47,12 @@ contract TokenVesting is Ownable {
      * @param revocable whether the vesting is revocable or not
      */
     constructor (address beneficiary, uint256 start, uint256 cliffDuration, uint256 duration, bool revocable) public {
-        require(beneficiary != address(0));
-        require(cliffDuration <= duration);
-        require(duration > 0);
-        require(start.add(duration) > block.timestamp);
+        require(beneficiary != address(0), "TokenVesting: beneficiary is the zero address");
+        // solhint-disable-next-line max-line-length
+        require(cliffDuration <= duration, "TokenVesting: cliff is longer than duration");
+        require(duration > 0, "TokenVesting: duration is 0");
+        // solhint-disable-next-line max-line-length
+        require(start.add(duration) > block.timestamp, "TokenVesting: final time is before current time");
 
         _beneficiary = beneficiary;
         _revocable = revocable;
@@ -115,7 +117,7 @@ contract TokenVesting is Ownable {
     function release(IERC20 token) public {
         uint256 unreleased = _releasableAmount(token);
 
-        require(unreleased > 0);
+        require(unreleased > 0, "TokenVesting: no tokens are due");
 
         _released[address(token)] = _released[address(token)].add(unreleased);
 
@@ -130,8 +132,8 @@ contract TokenVesting is Ownable {
      * @param token ERC20 token which is being vested
      */
     function revoke(IERC20 token) public onlyOwner {
-        require(_revocable);
-        require(!_revoked[address(token)]);
+        require(_revocable, "TokenVesting: cannot revoke");
+        require(!_revoked[address(token)], "TokenVesting: token already revoked");
 
         uint256 balance = token.balanceOf(address(this));
 

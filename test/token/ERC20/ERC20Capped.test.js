@@ -8,8 +8,8 @@ contract('ERC20Capped', function ([_, minter, ...otherAccounts]) {
   const cap = ether('1000');
 
   it('requires a non-zero cap', async function () {
-    await shouldFail.reverting(
-      ERC20Capped.new(new BN(0), { from: minter })
+    await shouldFail.reverting.withMessage(
+      ERC20Capped.new(new BN(0), { from: minter }), 'ERC20Capped: cap is 0'
     );
   });
 

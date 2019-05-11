@@ -1,8 +1,8 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 
 /**
  * @title Secondary
- * @dev A Secondary contract can only be used by its primary account (the one that created it)
+ * @dev A Secondary contract can only be used by its primary account (the one that created it).
  */
 contract Secondary {
     address private _primary;
@@ -23,7 +23,7 @@ contract Secondary {
      * @dev Reverts if called from any account other than the primary.
      */
     modifier onlyPrimary() {
-        require(msg.sender == _primary);
+        require(msg.sender == _primary, "Secondary: caller is not the primary account");
         _;
     }
 
@@ -39,7 +39,7 @@ contract Secondary {
      * @param recipient The address of new primary.
      */
     function transferPrimary(address recipient) public onlyPrimary {
-        require(recipient != address(0));
+        require(recipient != address(0), "Secondary: new primary is the zero address");
         _primary = recipient;
         emit PrimaryTransferred(_primary);
     }

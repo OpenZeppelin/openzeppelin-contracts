@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 
 /**
  * @title ERC165Checker
@@ -9,11 +9,10 @@ library ERC165Checker {
     // As per the EIP-165 spec, no interface should ever match 0xffffffff
     bytes4 private constant _INTERFACE_ID_INVALID = 0xffffffff;
 
-    bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
     /*
-     * 0x01ffc9a7 ===
-     *     bytes4(keccak256('supportsInterface(bytes4)'))
+     * bytes4(keccak256('supportsInterface(bytes4)')) == 0x01ffc9a7
      */
+    bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
 
     /**
      * @notice Query if a contract supports ERC165

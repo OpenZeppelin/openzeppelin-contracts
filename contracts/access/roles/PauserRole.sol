@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 
 import "../Roles.sol";
 
@@ -15,7 +15,7 @@ contract PauserRole {
     }
 
     modifier onlyPauser() {
-        require(isPauser(msg.sender));
+        require(isPauser(msg.sender), "PauserRole: caller does not have the Pauser role");
         _;
     }
 

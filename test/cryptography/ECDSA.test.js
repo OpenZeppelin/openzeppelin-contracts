@@ -7,7 +7,7 @@ const ECDSAMock = artifacts.require('ECDSAMock');
 const TEST_MESSAGE = web3.utils.sha3('OpenZeppelin');
 const WRONG_MESSAGE = web3.utils.sha3('Nope');
 
-contract('ECDSA', function ([_, anyone]) {
+contract('ECDSA', function ([_, other]) {
   beforeEach(async function () {
     this.ecdsa = await ECDSAMock.new();
   });
@@ -92,23 +92,23 @@ contract('ECDSA', function ([_, anyone]) {
       context('with correct signature', function () {
         it('returns signer address', async function () {
           // Create the signature
-          const signature = fixSignature(await web3.eth.sign(TEST_MESSAGE, anyone));
+          const signature = fixSignature(await web3.eth.sign(TEST_MESSAGE, other));
 
           // Recover the signer address from the generated message and signature.
           (await this.ecdsa.recover(
             toEthSignedMessageHash(TEST_MESSAGE),
             signature
-          )).should.equal(anyone);
+          )).should.equal(other);
         });
       });
 
       context('with wrong signature', function () {
         it('does not return signer address', async function () {
           // Create the signature
-          const signature = await web3.eth.sign(TEST_MESSAGE, anyone);
+          const signature = await web3.eth.sign(TEST_MESSAGE, other);
 
           // Recover the signer address from the generated message and wrong signature.
-          (await this.ecdsa.recover(WRONG_MESSAGE, signature)).should.not.equal(anyone);
+          (await this.ecdsa.recover(WRONG_MESSAGE, signature)).should.not.equal(other);
         });
       });
     });
@@ -117,9 +117,10 @@ contract('ECDSA', function ([_, anyone]) {
       // @TODO - remove `skip` once we upgrade to solc^0.5
       it.skip('reverts', async function () {
         // Create the signature
-        const signature = await web3.eth.sign(TEST_MESSAGE, anyone);
-        await shouldFail.reverting(
-          this.ecdsa.recover(TEST_MESSAGE.substring(2), signature)
+        const signature = await web3.eth.sign(TEST_MESSAGE, other);
+        await shouldFail.reverting.withMessage(
+          this.ecdsa.recover(TEST_MESSAGE.substring(2), signature),
+          'Failure message'
         );
       });
     });

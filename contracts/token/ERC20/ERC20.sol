@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 
 import "./IERC20.sol";
 import "../../math/SafeMath.sol";
@@ -20,12 +20,12 @@ contract ERC20 is IERC20 {
 
     mapping (address => uint256) private _balances;
 
-    mapping (address => mapping (address => uint256)) private _allowed;
+    mapping (address => mapping (address => uint256)) private _allowances;
 
     uint256 private _totalSupply;
 
     /**
-     * @dev Total number of tokens in existence
+     * @dev Total number of tokens in existence.
      */
     function totalSupply() public view returns (uint256) {
         return _totalSupply;
@@ -47,11 +47,11 @@ contract ERC20 is IERC20 {
      * @return A uint256 specifying the amount of tokens still available for the spender.
      */
     function allowance(address owner, address spender) public view returns (uint256) {
-        return _allowed[owner][spender];
+        return _allowances[owner][spender];
     }
 
     /**
-     * @dev Transfer token to a specified address
+     * @dev Transfer token to a specified address.
      * @param to The address to transfer to.
      * @param value The amount to be transferred.
      */
@@ -84,13 +84,13 @@ contract ERC20 is IERC20 {
      */
     function transferFrom(address from, address to, uint256 value) public returns (bool) {
         _transfer(from, to, value);
-        _approve(from, msg.sender, _allowed[from][msg.sender].sub(value));
+        _approve(from, msg.sender, _allowances[from][msg.sender].sub(value));
         return true;
     }
 
     /**
      * @dev Increase the amount of tokens that an owner allowed to a spender.
-     * approve should be called when _allowed[msg.sender][spender] == 0. To increment
+     * approve should be called when _allowances[msg.sender][spender] == 0. To increment
      * allowed value is better to use this function to avoid 2 calls (and wait until
      * the first transaction is mined)
      * From MonolithDAO Token.sol
@@ -99,13 +99,13 @@ contract ERC20 is IERC20 {
      * @param addedValue The amount of tokens to increase the allowance by.
      */
     function increaseAllowance(address spender, uint256 addedValue) public returns (bool) {
-        _approve(msg.sender, spender, _allowed[msg.sender][spender].add(addedValue));
+        _approve(msg.sender, spender, _allowances[msg.sender][spender].add(addedValue));
         return true;
     }
 
     /**
      * @dev Decrease the amount of tokens that an owner allowed to a spender.
-     * approve should be called when _allowed[msg.sender][spender] == 0. To decrement
+     * approve should be called when _allowances[msg.sender][spender] == 0. To decrement
      * allowed value is better to use this function to avoid 2 calls (and wait until
      * the first transaction is mined)
      * From MonolithDAO Token.sol
@@ -114,18 +114,18 @@ contract ERC20 is IERC20 {
      * @param subtractedValue The amount of tokens to decrease the allowance by.
      */
     function decreaseAllowance(address spender, uint256 subtractedValue) public returns (bool) {
-        _approve(msg.sender, spender, _allowed[msg.sender][spender].sub(subtractedValue));
+        _approve(msg.sender, spender, _allowances[msg.sender][spender].sub(subtractedValue));
         return true;
     }
 
     /**
-     * @dev Transfer token for a specified addresses
+     * @dev Transfer token for a specified addresses.
      * @param from The address to transfer from.
      * @param to The address to transfer to.
      * @param value The amount to be transferred.
      */
     function _transfer(address from, address to, uint256 value) internal {
-        require(to != address(0));
+        require(to != address(0), "ERC20: transfer to the zero address");
 
         _balances[from] = _balances[from].sub(value);
         _balances[to] = _balances[to].add(value);
@@ -140,7 +140,7 @@ contract ERC20 is IERC20 {
      * @param value The amount that will be created.
      */
     function _mint(address account, uint256 value) internal {
-        require(account != address(0));
+        require(account != address(0), "ERC20: mint to the zero address");
 
         _totalSupply = _totalSupply.add(value);
         _balances[account] = _balances[account].add(value);
@@ -154,7 +154,7 @@ contract ERC20 is IERC20 {
      * @param value The amount that will be burnt.
      */
     function _burn(address account, uint256 value) internal {
-        require(account != address(0));
+        require(account != address(0), "ERC20: burn from the zero address");
 
         _totalSupply = _totalSupply.sub(value);
         _balances[account] = _balances[account].sub(value);
@@ -168,10 +168,10 @@ contract ERC20 is IERC20 {
      * @param value The number of tokens that can be spent.
      */
     function _approve(address owner, address spender, uint256 value) internal {
-        require(spender != address(0));
-        require(owner != address(0));
+        require(owner != address(0), "ERC20: approve from the zero address");
+        require(spender != address(0), "ERC20: approve to the zero address");
 
-        _allowed[owner][spender] = value;
+        _allowances[owner][spender] = value;
         emit Approval(owner, spender, value);
     }
 
@@ -185,6 +185,6 @@ contract ERC20 is IERC20 {
      */
     function _burnFrom(address account, uint256 value) internal {
         _burn(account, value);
-        _approve(account, msg.sender, _allowed[account][msg.sender].sub(value));
+        _approve(account, msg.sender, _allowances[account][msg.sender].sub(value));
     }
 }

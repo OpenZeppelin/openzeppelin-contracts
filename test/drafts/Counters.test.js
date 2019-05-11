@@ -39,7 +39,7 @@ contract('Counters', function () {
 
     it('reverts if the current value is 0', async function () {
       await this.counter.decrement();
-      await shouldFail.reverting(this.counter.decrement());
+      await shouldFail.reverting.withMessage(this.counter.decrement(), 'SafeMath: subtraction overflow');
     });
 
     it('can be called multiple times', async function () {

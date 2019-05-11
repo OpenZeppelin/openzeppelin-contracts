@@ -5,7 +5,7 @@ const SimpleToken = artifacts.require('SimpleToken');
 const { shouldBehaveLikePublicRole } = require('../behaviors/access/roles/PublicRole.behavior');
 
 contract('IndividuallyCappedCrowdsale', function (
-  [_, capper, otherCapper, wallet, alice, bob, charlie, anyone, ...otherAccounts]) {
+  [_, capper, otherCapper, wallet, alice, bob, charlie, other, ...otherAccounts]) {
   const rate = new BN(1);
   const capAlice = ether('10');
   const capBob = ether('2');
@@ -34,7 +34,9 @@ contract('IndividuallyCappedCrowdsale', function (
     });
 
     it('reverts when a non-capper sets a cap', async function () {
-      await shouldFail.reverting(this.crowdsale.setCap(alice, capAlice, { from: anyone }));
+      await shouldFail.reverting.withMessage(this.crowdsale.setCap(alice, capAlice, { from: other }),
+        'CapperRole: caller does not have the Capper role'
+      );
     });
 
     context('with individual caps', function () {
@@ -52,21 +54,31 @@ contract('IndividuallyCappedCrowdsale', function (
 
         it('should reject payments outside cap', async function () {
           await this.crowdsale.buyTokens(alice, { value: capAlice });
-          await shouldFail.reverting(this.crowdsale.buyTokens(alice, { value: 1 }));
+          await shouldFail.reverting.withMessage(this.crowdsale.buyTokens(alice, { value: 1 }),
+            'IndividuallyCappedCrowdsale: beneficiary\'s cap exceeded'
+          );
         });
 
         it('should reject payments that exceed cap', async function () {
-          await shouldFail.reverting(this.crowdsale.buyTokens(alice, { value: capAlice.addn(1) }));
-          await shouldFail.reverting(this.crowdsale.buyTokens(bob, { value: capBob.addn(1) }));
+          await shouldFail.reverting.withMessage(this.crowdsale.buyTokens(alice, { value: capAlice.addn(1) }),
+            'IndividuallyCappedCrowdsale: beneficiary\'s cap exceeded'
+          );
+          await shouldFail.reverting.withMessage(this.crowdsale.buyTokens(bob, { value: capBob.addn(1) }),
+            'IndividuallyCappedCrowdsale: beneficiary\'s cap exceeded'
+          );
         });
 
         it('should manage independent caps', async function () {
           await this.crowdsale.buyTokens(alice, { value: lessThanCapAlice });
-          await shouldFail.reverting(this.crowdsale.buyTokens(bob, { value: lessThanCapAlice }));
+          await shouldFail.reverting.withMessage(this.crowdsale.buyTokens(bob, { value: lessThanCapAlice }),
+            'IndividuallyCappedCrowdsale: beneficiary\'s cap exceeded'
+          );
         });
 
         it('should default to a cap of zero', async function () {
-          await shouldFail.reverting(this.crowdsale.buyTokens(charlie, { value: lessThanCapBoth }));
+          await shouldFail.reverting.withMessage(this.crowdsale.buyTokens(charlie, { value: lessThanCapBoth }),
+            'IndividuallyCappedCrowdsale: beneficiary\'s cap exceeded'
+          );
         });
       });
 

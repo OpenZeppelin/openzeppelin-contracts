@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 
 import "../access/roles/SignerRole.sol";
 import "../cryptography/ECDSA.sol";
@@ -48,26 +48,28 @@ contract SignatureBouncer is SignerRole {
     }
 
     /**
-     * @dev requires that a valid signature of a signer was provided
+     * @dev Requires that a valid signature of a signer was provided.
      */
     modifier onlyValidSignature(bytes memory signature) {
-        require(_isValidSignature(msg.sender, signature));
+        require(_isValidSignature(msg.sender, signature), "SignatureBouncer: invalid signature for caller");
         _;
     }
 
     /**
-     * @dev requires that a valid signature with a specified method of a signer was provided
+     * @dev Requires that a valid signature with a specified method of a signer was provided.
      */
     modifier onlyValidSignatureAndMethod(bytes memory signature) {
-        require(_isValidSignatureAndMethod(msg.sender, signature));
+        // solhint-disable-next-line max-line-length
+        require(_isValidSignatureAndMethod(msg.sender, signature), "SignatureBouncer: invalid signature for caller and method");
         _;
     }
 
     /**
-     * @dev requires that a valid signature with a specified method and params of a signer was provided
+     * @dev Requires that a valid signature with a specified method and params of a signer was provided.
      */
     modifier onlyValidSignatureAndData(bytes memory signature) {
-        require(_isValidSignatureAndData(msg.sender, signature));
+        // solhint-disable-next-line max-line-length
+        require(_isValidSignatureAndData(msg.sender, signature), "SignatureBouncer: invalid signature for caller and data");
         _;
     }
 
@@ -97,7 +99,7 @@ contract SignatureBouncer is SignerRole {
      * @return bool
      */
     function _isValidSignatureAndData(address account, bytes memory signature) internal view returns (bool) {
-        require(msg.data.length > _SIGNATURE_SIZE);
+        require(msg.data.length > _SIGNATURE_SIZE, "SignatureBouncer: data is too short");
 
         bytes memory data = new bytes(msg.data.length - _SIGNATURE_SIZE);
         for (uint i = 0; i < data.length; i++) {
@@ -108,8 +110,8 @@ contract SignatureBouncer is SignerRole {
     }
 
     /**
-     * @dev internal function to convert a hash to an eth signed message
-     * and then recover the signature and check it against the signer role
+     * @dev Internal function to convert a hash to an eth signed message
+     * and then recover the signature and check it against the signer role.
      * @return bool
      */
     function _isValidDataHash(bytes32 hash, bytes memory signature) internal view returns (bool) {

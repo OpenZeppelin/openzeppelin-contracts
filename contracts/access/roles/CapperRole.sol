@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 
 import "../Roles.sol";
 
@@ -15,7 +15,7 @@ contract CapperRole {
     }
 
     modifier onlyCapper() {
-        require(isCapper(msg.sender));
+        require(isCapper(msg.sender), "CapperRole: caller does not have the Capper role");
         _;
     }
 

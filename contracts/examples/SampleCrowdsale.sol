@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 
 import "../crowdsale/validation/CappedCrowdsale.sol";
 import "../crowdsale/distribution/RefundableCrowdsale.sol";
@@ -48,6 +48,6 @@ contract SampleCrowdsale is CappedCrowdsale, RefundableCrowdsale, MintedCrowdsal
     {
         //As goal needs to be met for a successful crowdsale
         //the value needs to less or equal than a cap which is limit for accepted funds
-        require(goal <= cap);
+        require(goal <= cap, "SampleCrowdSale: goal is greater than cap");
     }
 }

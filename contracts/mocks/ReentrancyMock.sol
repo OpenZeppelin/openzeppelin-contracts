@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 
 import "../utils/ReentrancyGuard.sol";
 import "./ReentrancyAttack.sol";
@@ -26,7 +26,7 @@ contract ReentrancyMock is ReentrancyGuard {
             count();
             // solhint-disable-next-line avoid-low-level-calls
             (bool success,) = address(this).call(abi.encodeWithSignature("countThisRecursive(uint256)", n - 1));
-            require(success);
+            require(success, "ReentrancyMock: failed call");
         }
     }
 

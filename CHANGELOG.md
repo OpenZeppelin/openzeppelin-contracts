@@ -4,6 +4,14 @@
 
 ### New features:
  * `ERC1820`: added support for interacting with the [ERC1820](https://eips.ethereum.org/EIPS/eip-1820) registry contract (`IERC1820Registry`), as well as base contracts that can be registered as implementers there. ([#1677](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1677))
+ * `ERC777`: support for the [ERC777 token](https://eips.ethereum.org/EIPS/eip-777), which has multiple improvements over `ERC20` (but is backwards compatible with it) such as built-in burning, a more  straightforward permission system, and optional sender and receiver hooks on transfer (mandatory for contracts!). ([#1684](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1684))
+ * All contracts now have revert reason strings, which give insight into error conditions, and help debug failing transactions. ([#1704](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1704))
+
+### Improvements:
+ * Reverted the Solidity version bump done in v2.2.0, setting the minimum compiler version to v0.5.0, to prevent unexpected build breakage. Users are encouraged however to stay on top of new compiler releases, which usually include bugfixes. ([#1729](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1729))
+
+### Bugfixes:
+ * `PostDeliveryCrowdsale`: some validations where skipped when paired with other crowdsale flavors, such as `AllowanceCrowdsale`, or `MintableCrowdsale` and `ERC20Capped`, which could cause buyers to not be able to claim their purchased tokens. ([#1721](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1721))
 
 ## 2.2.0 (2019-03-14)
 
@@ -18,14 +26,14 @@
  * Upgraded the minimum compiler version to v0.5.2: this removes many Solidity warnings that were false positives. ([#1606](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1606))
  * `ECDSA`: `recover` no longer accepts malleable signatures (those using upper-range values for `s`, or 0/1 for `v`). ([#1622](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1622))
  * `ERC721`'s transfers are now more gas efficient due to removal of unnecessary `SafeMath` calls. ([#1610](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1610))
- * `Counter`'s API has been improved, and is now used by `ERC721` (though it is still in `drafts`). ([#1610](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1610))
  * Fixed variable shadowing issues. ([#1606](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1606))
 
 ### Bugfixes:
  * (minor) `SafeERC20`: `safeApprove` wasn't properly checking for a zero allowance when attempting to set a non-zero allowance. ([#1647](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1647))
 
-### Breaking changes:
- * `TokenMetadata` (in drafts) has been renamed to `ERC20Metadata`. ([#1618](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1618))
+### Breaking changes in drafts:
+ * `TokenMetadata` has been renamed to `ERC20Metadata`. ([#1618](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1618))
+ * The library `Counter` has been renamed to `Counters` and its API has been improved. See an example in `ERC721`, lines [17](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/3cb4a00fce1da76196ac0ac3a0ae9702b99642b5/contracts/token/ERC721/ERC721.sol#L17) and [204](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/3cb4a00fce1da76196ac0ac3a0ae9702b99642b5/contracts/token/ERC721/ERC721.sol#L204). ([#1610](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1610))
 
 ## 2.1.3 (2019-02-26)
  * Backported `SafeERC20.safeApprove` bugfix. ([#1647](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1647))

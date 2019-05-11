@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 
 /**
  * @title Elliptic curve signature operations
@@ -9,7 +9,7 @@ pragma solidity ^0.5.2;
 
 library ECDSA {
     /**
-     * @dev Recover signer address from a message by using their signature
+     * @dev Recover signer address from a message by using their signature.
      * @param hash bytes32 message, the hash is the signed message. What is recovered is the signer address.
      * @param signature bytes signature, the signature is generated using web3.eth.sign()
      */
@@ -56,8 +56,8 @@ library ECDSA {
 
     /**
      * toEthSignedMessageHash
-     * @dev prefix a bytes32 value with "\x19Ethereum Signed Message:"
-     * and hash the result
+     * @dev Prefix a bytes32 value with "\x19Ethereum Signed Message:"
+     * and hash the result.
      */
     function toEthSignedMessageHash(bytes32 hash) internal pure returns (bytes32) {
         // 32 is the length in bytes of hash,

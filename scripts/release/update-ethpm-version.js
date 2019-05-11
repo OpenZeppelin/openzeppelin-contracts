@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
 // Synchronizes ethpm.json version number with package.json.
-// Useful to run as an npm script alogn with `npm version`.
+// This is run automatically when npm version is run.
 
 const fs = require('fs');
 const cp = require('child_process');
 
-const pkg = require('../package.json');
-const ethpm = require('../ethpm.json');
+const pkg = require('../../package.json');
+const ethpm = require('../../ethpm.json');
 
 ethpm.version = pkg.version;
 

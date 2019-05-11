@@ -9,7 +9,7 @@ contract('ERC165', function () {
   });
 
   it('does not allow 0xffffffff', async function () {
-    await shouldFail.reverting(this.mock.registerInterface('0xffffffff'));
+    await shouldFail.reverting.withMessage(this.mock.registerInterface('0xffffffff'), 'ERC165: invalid interface id');
   });
 
   shouldSupportInterfaces([
