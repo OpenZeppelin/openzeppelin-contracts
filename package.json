@@ -8,7 +8,6 @@
     "test/behaviors"
   ],
   "scripts": {
-    "build": "scripts/build.sh",
     "compile": "truffle compile",
     "console": "truffle console",
     "coverage": "scripts/coverage.sh",
@@ -19,7 +18,7 @@
     "lint:js": "eslint .",
     "lint:js:fix": "eslint . --fix",
     "lint:sol": "solhint --max-warnings 0 \"contracts/**/*.sol\"",
-    "prepack": "npm run build",
+    "prepack": "scripts/prepack.sh",
     "release": "scripts/release/release.sh",
     "version": "scripts/release/update-changelog-release-date.js && scripts/release/update-ethpm-version.js",
     "test": "npm run compile && scripts/test.sh"
