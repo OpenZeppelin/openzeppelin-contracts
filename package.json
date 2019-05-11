@@ -5,6 +5,8 @@
   "files": [
     "build",
     "contracts",
+    "!contracts/mocks",
+    "!contracts/examples",
     "test/behaviors"
   ],
   "scripts": {
