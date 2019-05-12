@@ -293,7 +293,6 @@ contract ERC721 is ERC165, IERC721 {
      */
     function _safeMint(address from, address to, uint256 tokenId, bytes memory _data) internal {
         require(_checkOnERC721Received(from, to, tokenId, _data));
-//        _transferFrom(from, to, tokenId);
     }
 
     /**
