@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 import "../Crowdsale.sol";
 import "../../access/roles/WhitelistedRole.sol";
 
@@ -15,7 +15,7 @@ contract WhitelistCrowdsale is WhitelistedRole, Crowdsale {
      * @param _weiAmount Amount of wei contributed
      */
     function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal view {
-        require(isWhitelisted(_beneficiary));
+        require(isWhitelisted(_beneficiary), "WhitelistCrowdsale: beneficiary doesn't have the Whitelisted role");
         super._preValidatePurchase(_beneficiary, _weiAmount);
     }
 }

@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 
 import "../token/ERC20/IERC20.sol";
 import "../math/SafeMath.sol";
@@ -54,9 +54,9 @@ contract Crowdsale is ReentrancyGuard {
      * @param token Address of the token being sold
      */
     constructor (uint256 rate, address payable wallet, IERC20 token) public {
-        require(rate > 0);
-        require(wallet != address(0));
-        require(address(token) != address(0));
+        require(rate > 0, "Crowdsale: rate is 0");
+        require(wallet != address(0), "Crowdsale: wallet is the zero address");
+        require(address(token) != address(0), "Crowdsale: token is the zero address");
 
         _rate = rate;
         _wallet = wallet;
@@ -136,8 +136,8 @@ contract Crowdsale is ReentrancyGuard {
      * @param weiAmount Value in wei involved in the purchase
      */
     function _preValidatePurchase(address beneficiary, uint256 weiAmount) internal view {
-        require(beneficiary != address(0));
-        require(weiAmount != 0);
+        require(beneficiary != address(0), "Crowdsale: beneficiary is the zero address");
+        require(weiAmount != 0, "Crowdsale: weiAmount is 0");
     }
 
     /**

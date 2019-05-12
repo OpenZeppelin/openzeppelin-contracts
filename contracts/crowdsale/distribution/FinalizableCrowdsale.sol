@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 
 import "../../math/SafeMath.sol";
 import "../validation/TimedCrowdsale.sol";
@@ -31,8 +31,8 @@ contract FinalizableCrowdsale is TimedCrowdsale {
      * work. Calls the contract's finalization function.
      */
     function finalize() public {
-        require(!_finalized);
-        require(hasClosed());
+        require(!_finalized, "FinalizableCrowdsale: already finalized");
+        require(hasClosed(), "FinalizableCrowdsale: not closed");
 
         _finalized = true;
 

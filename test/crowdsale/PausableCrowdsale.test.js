@@ -3,7 +3,7 @@ const { BN, shouldFail } = require('openzeppelin-test-helpers');
 const PausableCrowdsale = artifacts.require('PausableCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
-contract('PausableCrowdsale', function ([_, pauser, wallet, anyone]) {
+contract('PausableCrowdsale', function ([_, pauser, wallet, other]) {
   const rate = new BN(1);
   const value = new BN(1);
 
@@ -16,8 +16,8 @@ contract('PausableCrowdsale', function ([_, pauser, wallet, anyone]) {
   });
 
   it('purchases work', async function () {
-    await this.crowdsale.sendTransaction({ from: anyone, value });
-    await this.crowdsale.buyTokens(anyone, { from: anyone, value });
+    await this.crowdsale.sendTransaction({ from: other, value });
+    await this.crowdsale.buyTokens(other, { from: other, value });
   });
 
   context('after pause', function () {
@@ -26,8 +26,12 @@ contract('PausableCrowdsale', function ([_, pauser, wallet, anyone]) {
     });
 
     it('purchases do not work', async function () {
-      await shouldFail.reverting(this.crowdsale.sendTransaction({ from: anyone, value }));
-      await shouldFail.reverting(this.crowdsale.buyTokens(anyone, { from: anyone, value }));
+      await shouldFail.reverting.withMessage(this.crowdsale.sendTransaction({ from: other, value }),
+        'Pausable: paused'
+      );
+      await shouldFail.reverting.withMessage(this.crowdsale.buyTokens(other, { from: other, value }),
+        'Pausable: paused'
+      );
     });
 
     context('after unpause', function () {
@@ -36,8 +40,8 @@ contract('PausableCrowdsale', function ([_, pauser, wallet, anyone]) {
       });
 
       it('purchases work', async function () {
-        await this.crowdsale.sendTransaction({ from: anyone, value });
-        await this.crowdsale.buyTokens(anyone, { from: anyone, value });
+        await this.crowdsale.sendTransaction({ from: other, value });
+        await this.crowdsale.buyTokens(other, { from: other, value });
       });
     });
   });

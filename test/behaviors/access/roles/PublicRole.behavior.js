@@ -16,18 +16,18 @@ function capitalize (str) {
 //
 // @param authorized an account that has the role
 // @param otherAuthorized another account that also has the role
-// @param anyone an account that doesn't have the role, passed inside an array for ergonomics
+// @param other an account that doesn't have the role, passed inside an array for ergonomics
 // @param rolename a string with the name of the role
 // @param manager undefined for regular roles, or a manager account for managed roles. In these, only the manager
 // account can create and remove new role bearers.
-function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], rolename, manager) {
+function shouldBehaveLikePublicRole (authorized, otherAuthorized, [other], rolename, manager) {
   rolename = capitalize(rolename);
 
   describe('should behave like public role', function () {
     beforeEach('check preconditions', async function () {
       (await this.contract[`is${rolename}`](authorized)).should.equal(true);
       (await this.contract[`is${rolename}`](otherAuthorized)).should.equal(true);
-      (await this.contract[`is${rolename}`](anyone)).should.equal(false);
+      (await this.contract[`is${rolename}`](other)).should.equal(false);
     });
 
     if (manager === undefined) { // Managed roles are only assigned by the manager, and none are set at construction
@@ -39,7 +39,9 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
     }
 
     it('reverts when querying roles for the null account', async function () {
-      await shouldFail.reverting(this.contract[`is${rolename}`](ZERO_ADDRESS));
+      await shouldFail.reverting.withMessage(this.contract[`is${rolename}`](ZERO_ADDRESS),
+        'Roles: account is the zero address'
+      );
     });
 
     describe('access control', function () {
@@ -52,10 +54,12 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
       });
 
       context('from unauthorized account', function () {
-        const from = anyone;
+        const from = other;
 
         it('reverts', async function () {
-          await shouldFail.reverting(this.contract[`only${rolename}Mock`]({ from }));
+          await shouldFail.reverting.withMessage(this.contract[`only${rolename}Mock`]({ from }),
+            `${rolename}Role: caller does not have the ${rolename} role`
+          );
         });
       });
     });
@@ -65,28 +69,32 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
 
       context(`from ${manager ? 'the manager' : 'a role-haver'} account`, function () {
         it('adds role to a new account', async function () {
-          await this.contract[`add${rolename}`](anyone, { from });
-          (await this.contract[`is${rolename}`](anyone)).should.equal(true);
+          await this.contract[`add${rolename}`](other, { from });
+          (await this.contract[`is${rolename}`](other)).should.equal(true);
         });
 
         it(`emits a ${rolename}Added event`, async function () {
-          const { logs } = await this.contract[`add${rolename}`](anyone, { from });
-          expectEvent.inLogs(logs, `${rolename}Added`, { account: anyone });
+          const { logs } = await this.contract[`add${rolename}`](other, { from });
+          expectEvent.inLogs(logs, `${rolename}Added`, { account: other });
         });
 
         it('reverts when adding role to an already assigned account', async function () {
-          await shouldFail.reverting(this.contract[`add${rolename}`](authorized, { from }));
+          await shouldFail.reverting.withMessage(this.contract[`add${rolename}`](authorized, { from }),
+            'Roles: account already has role'
+          );
         });
 
         it('reverts when adding role to the null account', async function () {
-          await shouldFail.reverting(this.contract[`add${rolename}`](ZERO_ADDRESS, { from }));
+          await shouldFail.reverting.withMessage(this.contract[`add${rolename}`](ZERO_ADDRESS, { from }),
+            'Roles: account is the zero address'
+          );
         });
       });
     });
 
     describe('remove', function () {
       // Non-managed roles have no restrictions on the mocked '_remove' function (exposed via 'remove').
-      const from = manager || anyone;
+      const from = manager || other;
 
       context(`from ${manager ? 'the manager' : 'any'} account`, function () {
         it('removes role from an already assigned account', async function () {
@@ -101,11 +109,15 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
         });
 
         it('reverts when removing from an unassigned account', async function () {
-          await shouldFail.reverting(this.contract[`remove${rolename}`](anyone), { from });
+          await shouldFail.reverting.withMessage(this.contract[`remove${rolename}`](other, { from }),
+            'Roles: account does not have role'
+          );
         });
 
         it('reverts when removing role from the null account', async function () {
-          await shouldFail.reverting(this.contract[`remove${rolename}`](ZERO_ADDRESS), { from });
+          await shouldFail.reverting.withMessage(this.contract[`remove${rolename}`](ZERO_ADDRESS, { from }),
+            'Roles: account is the zero address'
+          );
         });
       });
     });
@@ -122,7 +134,9 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [anyone], role
       });
 
       it('reverts when renouncing unassigned role', async function () {
-        await shouldFail.reverting(this.contract[`renounce${rolename}`]({ from: anyone }));
+        await shouldFail.reverting.withMessage(this.contract[`renounce${rolename}`]({ from: other }),
+          'Roles: account does not have role'
+        );
       });
     });
   });

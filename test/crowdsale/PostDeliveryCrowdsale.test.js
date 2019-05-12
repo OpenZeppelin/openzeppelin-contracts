@@ -41,7 +41,9 @@ contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
       });
 
       it('does not allow beneficiaries to withdraw tokens before crowdsale ends', async function () {
-        await shouldFail.reverting(this.crowdsale.withdrawTokens(investor));
+        await shouldFail.reverting.withMessage(this.crowdsale.withdrawTokens(investor),
+          'PostDeliveryCrowdsale: not closed'
+        );
       });
 
       context('after closing time', function () {
@@ -57,7 +59,9 @@ contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
 
         it('rejects multiple withdrawals', async function () {
           await this.crowdsale.withdrawTokens(investor);
-          await shouldFail.reverting(this.crowdsale.withdrawTokens(investor));
+          await shouldFail.reverting.withMessage(this.crowdsale.withdrawTokens(investor),
+            'PostDeliveryCrowdsale: beneficiary is not due any tokens'
+          );
         });
       });
     });

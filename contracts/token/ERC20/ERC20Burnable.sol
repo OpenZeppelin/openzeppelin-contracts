@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 
 import "./ERC20.sol";
 
@@ -16,7 +16,7 @@ contract ERC20Burnable is ERC20 {
     }
 
     /**
-     * @dev Burns a specific amount of tokens from the target address and decrements allowance
+     * @dev Burns a specific amount of tokens from the target address and decrements allowance.
      * @param from address The account whose tokens will be burned.
      * @param value uint256 The amount of token to be burned.
      */

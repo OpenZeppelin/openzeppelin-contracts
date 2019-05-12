@@ -3,36 +3,36 @@ const { ZERO_ADDRESS } = constants;
 
 const RolesMock = artifacts.require('RolesMock');
 
-contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
+contract('Roles', function ([_, authorized, otherAuthorized, other]) {
   beforeEach(async function () {
     this.roles = await RolesMock.new();
   });
 
-  it('reverts when querying roles for the null account', async function () {
-    await shouldFail.reverting(this.roles.has(ZERO_ADDRESS));
+  it('reverts when querying roles for the zero account', async function () {
+    await shouldFail.reverting.withMessage(this.roles.has(ZERO_ADDRESS), 'Roles: account is the zero address');
   });
 
   context('initially', function () {
     it('doesn\'t pre-assign roles', async function () {
       (await this.roles.has(authorized)).should.equal(false);
       (await this.roles.has(otherAuthorized)).should.equal(false);
-      (await this.roles.has(anyone)).should.equal(false);
+      (await this.roles.has(other)).should.equal(false);
     });
 
     describe('adding roles', function () {
       it('adds roles to a single account', async function () {
         await this.roles.add(authorized);
         (await this.roles.has(authorized)).should.equal(true);
-        (await this.roles.has(anyone)).should.equal(false);
+        (await this.roles.has(other)).should.equal(false);
       });
 
       it('reverts when adding roles to an already assigned account', async function () {
         await this.roles.add(authorized);
-        await shouldFail.reverting(this.roles.add(authorized));
+        await shouldFail.reverting.withMessage(this.roles.add(authorized), 'Roles: account already has role');
       });
 
-      it('reverts when adding roles to the null account', async function () {
-        await shouldFail.reverting(this.roles.add(ZERO_ADDRESS));
+      it('reverts when adding roles to the zero account', async function () {
+        await shouldFail.reverting.withMessage(this.roles.add(ZERO_ADDRESS), 'Roles: account is the zero address');
       });
     });
   });
@@ -51,11 +51,11 @@ contract('Roles', function ([_, authorized, otherAuthorized, anyone]) {
       });
 
       it('reverts when removing unassigned roles', async function () {
-        await shouldFail.reverting(this.roles.remove(anyone));
+        await shouldFail.reverting.withMessage(this.roles.remove(other), 'Roles: account does not have role');
       });
 
-      it('reverts when removing roles from the null account', async function () {
-        await shouldFail.reverting(this.roles.remove(ZERO_ADDRESS));
+      it('reverts when removing roles from the zero account', async function () {
+        await shouldFail.reverting.withMessage(this.roles.remove(ZERO_ADDRESS), 'Roles: account is the zero address');
       });
     });
   });

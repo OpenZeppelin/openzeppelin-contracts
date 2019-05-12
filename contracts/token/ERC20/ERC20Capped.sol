@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 
 import "./ERC20Mintable.sol";
 
@@ -10,7 +10,7 @@ contract ERC20Capped is ERC20Mintable {
     uint256 private _cap;
 
     constructor (uint256 cap) public {
-        require(cap > 0);
+        require(cap > 0, "ERC20Capped: cap is 0");
         _cap = cap;
     }
 
@@ -22,7 +22,7 @@ contract ERC20Capped is ERC20Mintable {
     }
 
     function _mint(address account, uint256 value) internal {
-        require(totalSupply().add(value) <= _cap);
+        require(totalSupply().add(value) <= _cap, "ERC20Capped: cap exceeded");
         super._mint(account, value);
     }
 }

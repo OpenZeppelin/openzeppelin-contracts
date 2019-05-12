@@ -18,7 +18,9 @@ function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
       });
 
       it('only the primary account can deposit', async function () {
-        await shouldFail.reverting(this.escrow.deposit(payee1, { from: payee2 }));
+        await shouldFail.reverting.withMessage(this.escrow.deposit(payee1, { from: payee2 }),
+          'Secondary: caller is not the primary account'
+        );
       });
 
       it('emits a deposited event', async function () {
@@ -68,7 +70,9 @@ function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
       });
 
       it('only the primary account can withdraw', async function () {
-        await shouldFail.reverting(this.escrow.withdraw(payee1, { from: payee1 }));
+        await shouldFail.reverting.withMessage(this.escrow.withdraw(payee1, { from: payee1 }),
+          'Secondary: caller is not the primary account'
+        );
       });
 
       it('emits a withdrawn event', async function () {

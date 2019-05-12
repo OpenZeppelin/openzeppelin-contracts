@@ -9,7 +9,9 @@ contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
   const totalSupply = new BN('200');
 
   it('reverts with a null legacy token address', async function () {
-    await shouldFail.reverting(ERC20Migrator.new(ZERO_ADDRESS));
+    await shouldFail.reverting.withMessage(ERC20Migrator.new(ZERO_ADDRESS),
+      'ERC20Migrator: legacy token is the zero address'
+    );
   });
 
   describe('with tokens and migrator', function () {
@@ -25,11 +27,15 @@ contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
 
     describe('beginMigration', function () {
       it('reverts with a null new token address', async function () {
-        await shouldFail.reverting(this.migrator.beginMigration(ZERO_ADDRESS));
+        await shouldFail.reverting.withMessage(this.migrator.beginMigration(ZERO_ADDRESS),
+          'ERC20Migrator: new token is the zero address'
+        );
       });
 
       it('reverts if not a minter of the token', async function () {
-        await shouldFail.reverting(this.migrator.beginMigration(this.newToken.address));
+        await shouldFail.reverting.withMessage(this.migrator.beginMigration(this.newToken.address),
+          'ERC20Migrator: not a minter for new token'
+        );
       });
 
       it('succeeds if it is a minter of the token', async function () {
@@ -40,7 +46,9 @@ contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
       it('reverts the second time it is called', async function () {
         await this.newToken.addMinter(this.migrator.address);
         await this.migrator.beginMigration(this.newToken.address);
-        await shouldFail.reverting(this.migrator.beginMigration(this.newToken.address));
+        await shouldFail.reverting.withMessage(this.migrator.beginMigration(this.newToken.address),
+          'ERC20Migrator: migration already started'
+        );
       });
     });
 
@@ -58,7 +66,9 @@ contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
           });
 
           it('reverts', async function () {
-            await shouldFail.reverting(this.migrator.migrateAll(owner));
+            await shouldFail.reverting.withMessage(this.migrator.migrateAll(owner),
+              'ERC20Migrator: migration not started'
+            );
           });
         });
       });
@@ -72,7 +82,9 @@ contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
           });
 
           it('reverts', async function () {
-            await shouldFail.reverting(this.migrator.migrate(owner, amount));
+            await shouldFail.reverting.withMessage(this.migrator.migrate(owner, amount),
+              'ERC20Migrator: migration not started'
+            );
           });
         });
       });
@@ -174,7 +186,9 @@ contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
           const amount = baseAmount.addn(1);
 
           it('reverts', async function () {
-            await shouldFail.reverting(this.migrator.migrate(owner, amount));
+            await shouldFail.reverting.withMessage(this.migrator.migrate(owner, amount),
+              'SafeERC20: low-level call failed'
+            );
           });
         });
       });

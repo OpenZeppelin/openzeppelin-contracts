@@ -1,8 +1,8 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 
 /**
  * @title SignedSafeMath
- * @dev Signed math operations with safety checks that revert on error
+ * @dev Signed math operations with safety checks that revert on error.
  */
 library SignedSafeMath {
     int256 constant private INT256_MIN = -2**255;
@@ -18,10 +18,10 @@ library SignedSafeMath {
             return 0;
         }
 
-        require(!(a == -1 && b == INT256_MIN)); // This is the only case of overflow not detected by the check below
+        require(!(a == -1 && b == INT256_MIN), "SignedSafeMath: multiplication overflow");
 
         int256 c = a * b;
-        require(c / a == b);
+        require(c / a == b, "SignedSafeMath: multiplication overflow");
 
         return c;
     }
@@ -30,8 +30,8 @@ library SignedSafeMath {
      * @dev Integer division of two signed integers truncating the quotient, reverts on division by zero.
      */
     function div(int256 a, int256 b) internal pure returns (int256) {
-        require(b != 0); // Solidity only automatically asserts when dividing by 0
-        require(!(b == -1 && a == INT256_MIN)); // This is the only case of overflow
+        require(b != 0, "SignedSafeMath: division by zero");
+        require(!(b == -1 && a == INT256_MIN), "SignedSafeMath: division overflow");
 
         int256 c = a / b;
 
@@ -43,7 +43,7 @@ library SignedSafeMath {
      */
     function sub(int256 a, int256 b) internal pure returns (int256) {
         int256 c = a - b;
-        require((b >= 0 && c <= a) || (b < 0 && c > a));
+        require((b >= 0 && c <= a) || (b < 0 && c > a), "SignedSafeMath: subtraction overflow");
 
         return c;
     }
@@ -53,7 +53,7 @@ library SignedSafeMath {
      */
     function add(int256 a, int256 b) internal pure returns (int256) {
         int256 c = a + b;
-        require((b >= 0 && c >= a) || (b < 0 && c < a));
+        require((b >= 0 && c >= a) || (b < 0 && c < a), "SignedSafeMath: addition overflow");
 
         return c;
     }
