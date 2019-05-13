@@ -1,38 +1,49 @@
-const Strings = artifacts.require('Strings');
+const { constants } = require('openzeppelin-test-helpers');
 
-contract('Strings', function ([owner, anotherAccount]) {
-  let strings;
-  const a = 'AZ@#://12345';
-  const b = '$#%#!';
-  const c = '';
+const StringsMock = artifacts.require('StringsMock');
+
+contract('Strings', function () {
+  const a = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+  const b = 'BBBBBBBBBBBBBBBBBBBBBBB';
   const ab = a + b;
-  const ac = a + c;
-  const ca = c + a;
-  const zero = '0';
-  const one = '1';
-  const onetrillion = '1000000000000';
+  const aa = a + a;
+  const empty = '';
+  const zero = 0;
+  const positiveNumber = 3195;
 
   beforeEach(async function () {
-    strings = await Strings.new({ from: owner });
+    this.strings = await StringsMock.new();
   });
 
-  describe('String functions', function () {
-    it('concatenates', async function () {
-      const _ab = await strings.concatenate(a, b);
-      assert.equal(ab, _ab);
-      const _ac = await strings.concatenate(a, c);
-      assert.equal(ac, _ac);
-      const _ca = await strings.concatenate(c, a);
-      assert.equal(ca, _ca);
+  describe('concatenate', function () {
+    it('concatenates strings', async function () {
+      (await this.strings.concatenate(a, b)).should.equal(ab);
     });
 
-    it('converts to a string', async function () {
-      const _zero = await strings.uintToString(0);
-      assert.equal(zero, _zero);
-      const _one = await strings.uintToString(1);
-      assert.equal(one, _one);
-      const _onetrillion = await strings.uintToString(1000000000000);
-      assert.equal(onetrillion, _onetrillion);
+    it('concatenates a string with itself', async function () {
+      (await this.strings.concatenate(a, a)).should.equal(aa);
+    });
+
+    it('concatenates with the empty string', async function () {
+      (await this.strings.concatenate(a, empty)).should.equal(a);
+    });
+
+    it('concatenates two empty strings', async function () {
+      (await this.strings.concatenate(empty, empty)).should.equal(empty);
+    });
+  });
+
+  describe('from uint256', function () {
+    it('converts 0', async function () {
+      (await this.strings.uint256ToString(zero)).should.equal(zero.toString());
+    });
+
+    it('converts a positive number', async function () {
+      (await this.strings.uint256ToString(positiveNumber)).should.equal(positiveNumber.toString());
+    });
+
+    it('converts MAX_UINT256', async function () {
+      (await this.strings.uint256ToString(constants.MAX_UINT256)).should.equal(constants.MAX_UINT256.toString());
     });
   });
 });
