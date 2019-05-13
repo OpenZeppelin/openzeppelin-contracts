@@ -29,7 +29,7 @@ library Strings {
     /**
      * @dev Converts a uint to a string.
      */
-    function uintToString(uint value) public pure returns (string memory uintAsString) {
+    function uintToString(uint256 value) public pure returns (string memory uintAsString) {
         uint tempValue = value;
 
         if (tempValue == 0) {
