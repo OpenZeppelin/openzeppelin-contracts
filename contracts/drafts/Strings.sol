@@ -3,7 +3,7 @@ pragma solidity ^0.5.0;
 /**
  * @title Strings
  * @dev String operations.
- * via https://github.com/oraclize/ethereum-api/blob/master/oraclizeAPI_0.5.sol MIT licence
+ * via https://github.com/oraclize/ethereum-api/blob/b42146b063c7d6ee1358846c198246239e9360e8/oraclizeAPI_0.4.25.sol MIT licence
  */
 library Strings {
     /**
