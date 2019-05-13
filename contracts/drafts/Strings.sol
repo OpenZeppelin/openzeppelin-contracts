@@ -9,7 +9,7 @@ library Strings {
     /**
      * @dev Concatenates two strings.
      */
-    function concatenate(string memory a, string memory b) public pure returns (string memory concatenatedString) {
+    function concatenate(string memory a, string memory b) public pure returns (string memory) {
         bytes memory bytesA = bytes(a);
         bytes memory bytesB = bytes(b);
         string memory concatenatedAB = new string(bytesA.length + bytesB.length);
