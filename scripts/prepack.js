@@ -4,15 +4,14 @@
 
 const fs = require('fs');
 const path = require('path');
-const process = require('process');
 const cp = require('child_process');
 const match = require('micromatch');
 
-function exec(cmd, ...args) {
+function exec (cmd, ...args) {
   cp.execFileSync(cmd, args, { stdio: 'inherit' });
 }
 
-function readJSON(path) {
+function readJSON (path) {
   return JSON.parse(fs.readFileSync(path));
 }
 
