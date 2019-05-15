@@ -23,51 +23,11 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
   });
 
   describe('transfer', function () {
-    describe('when the recipient is not the zero address', function () {
-      const to = recipient;
-
-      describe('when the sender does not have enough balance', function () {
-        const amount = initialSupply.addn(1);
-
-        it('reverts', async function () {
-          await shouldFail.reverting.withMessage(this.token.transfer(to, amount, { from: initialHolder }),
-            'SafeMath: subtraction overflow'
-          );
-        });
-      });
-
-      describe('when the sender has enough balance', function () {
-        const amount = initialSupply;
-
-        it('transfers the requested amount', async function () {
-          await this.token.transfer(to, amount, { from: initialHolder });
-
-          (await this.token.balanceOf(initialHolder)).should.be.bignumber.equal('0');
-
-          (await this.token.balanceOf(to)).should.be.bignumber.equal(amount);
-        });
-
-        it('emits a transfer event', async function () {
-          const { logs } = await this.token.transfer(to, amount, { from: initialHolder });
-
-          expectEvent.inLogs(logs, 'Transfer', {
-            from: initialHolder,
-            to: to,
-            value: amount,
-          });
-        });
-      });
-    });
-
-    describe('when the recipient is the zero address', function () {
-      const to = ZERO_ADDRESS;
-
-      it('reverts', async function () {
-        await shouldFail.reverting.withMessage(this.token.transfer(to, initialSupply, { from: initialHolder }),
-          `${errorPrefix}: transfer to the zero address`
-        );
-      });
-    });
+    shouldBehaveLikeERC20Transfer('ERC20', initialHolder, recipient, initialSupply,
+      function(from, to, value) {
+        return this.token.transfer(to, value, { from });
+      }
+    );
   });
 
   describe('transfer from', function () {
@@ -194,6 +154,50 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
         return this.token.approve(spender, amount, { from: owner });
       }
     );
+  });
+}
+
+function shouldBehaveLikeERC20Transfer (errorPrefix, from, to, balance, transfer) {
+  describe('when the recipient is not the zero address', function () {
+    describe('when the sender does not have enough balance', function () {
+      const amount = balance.addn(1);
+
+      it('reverts', async function () {
+        await shouldFail.reverting.withMessage(transfer.call(this, from, to, amount),
+          'SafeMath: subtraction overflow'
+        );
+      });
+    });
+
+    describe('when the sender transfers all balance', function () {
+      const amount = balance;
+
+      it('transfers the requested amount', async function () {
+        await transfer.call(this, from, to, amount);
+
+        (await this.token.balanceOf(from)).should.be.bignumber.equal('0');
+
+        (await this.token.balanceOf(to)).should.be.bignumber.equal(amount);
+      });
+
+      it('emits a transfer event', async function () {
+        const { logs } = await transfer.call(this, from, to, amount);
+
+        expectEvent.inLogs(logs, 'Transfer', {
+          from,
+          to,
+          value: amount,
+        });
+      });
+    });
+  });
+
+  describe('when the recipient is the zero address', function () {
+    it('reverts', async function () {
+      await shouldFail.reverting.withMessage(transfer.call(this, from, ZERO_ADDRESS, balance),
+        `${errorPrefix}: transfer to the zero address`
+      );
+    });
   });
 }
 
