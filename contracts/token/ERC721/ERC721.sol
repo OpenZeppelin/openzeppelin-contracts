@@ -206,6 +206,7 @@ contract ERC721 is ERC165, IERC721 {
      * @param tokenId uint256 ID of the token to be minted
      */
     function _mint(address to, uint256 tokenId) internal {
+        _safeMint(address(0), to, tokenId, "");
         require(to != address(0));
         require(!_exists(tokenId));
 
@@ -302,7 +303,6 @@ contract ERC721 is ERC165, IERC721 {
      */
     function _safeMint(address from, address to, uint256 tokenId, bytes memory _data) internal {
         require(_checkOnERC721Received(from, to, tokenId, _data));
-        _mint(to, tokenId);
     }
 
     /**
