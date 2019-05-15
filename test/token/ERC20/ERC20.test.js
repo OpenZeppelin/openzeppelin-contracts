@@ -3,6 +3,7 @@ const { ZERO_ADDRESS } = constants;
 
 const {
   shouldBehaveLikeERC20,
+  shouldBehaveLikeERC20Transfer,
   shouldBehaveLikeERC20Approve,
 } = require('./ERC20.behavior');
 
@@ -327,6 +328,34 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
 
       describeBurnFrom('for entire allowance', allowance);
       describeBurnFrom('for less amount than allowance', allowance.subn(1));
+    });
+  });
+
+  describe('_transfer', function () {
+    shouldBehaveLikeERC20Approve('ERC20', initialHolder, recipient, initialSupply, function (owner, spender, amount) {
+      return this.token.approveInternal(owner, spender, amount);
+    });
+
+    describe('when the owner is the zero address', function () {
+      it('reverts', async function () {
+        await shouldFail.reverting.withMessage(this.token.approveInternal(ZERO_ADDRESS, recipient, initialSupply),
+          'ERC20: approve from the zero address'
+        );
+      });
+    });
+  });
+
+  describe('_transfer', function () {
+    shouldBehaveLikeERC20Transfer('ERC20', initialHolder, recipient, initialSupply, function (from, to, amount) {
+      return this.token.transferInternal(from, to, amount);
+    });
+
+    describe('when the sender is the zero address', function () {
+      it('reverts', async function () {
+        await shouldFail.reverting.withMessage(this.token.transferInternal(ZERO_ADDRESS, recipient, initialSupply),
+          'ERC20: transfer from the zero address'
+        );
+      });
     });
   });
 

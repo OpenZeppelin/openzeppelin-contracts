@@ -190,6 +190,28 @@ function shouldBehaveLikeERC20Transfer (errorPrefix, from, to, balance, transfer
         });
       });
     });
+
+    describe('when the sender transfers zero tokens', function () {
+      const amount = new BN('0');
+
+      it('transfers the requested amount', async function () {
+        await transfer.call(this, from, to, amount);
+
+        (await this.token.balanceOf(from)).should.be.bignumber.equal(balance);
+
+        (await this.token.balanceOf(to)).should.be.bignumber.equal('0');
+      });
+
+      it('emits a transfer event', async function () {
+        const { logs } = await transfer.call(this, from, to, amount);
+
+        expectEvent.inLogs(logs, 'Transfer', {
+          from,
+          to,
+          value: amount,
+        });
+      });
+    });
   });
 
   describe('when the recipient is the zero address', function () {
@@ -283,5 +305,6 @@ function shouldBehaveLikeERC20Approve (errorPrefix, owner, spender, supply, appr
 
 module.exports = {
   shouldBehaveLikeERC20,
+  shouldBehaveLikeERC20Transfer,
   shouldBehaveLikeERC20Approve,
 };
