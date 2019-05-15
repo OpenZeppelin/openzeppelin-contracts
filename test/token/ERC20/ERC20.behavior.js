@@ -24,7 +24,7 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
 
   describe('transfer', function () {
     shouldBehaveLikeERC20Transfer('ERC20', initialHolder, recipient, initialSupply,
-      function(from, to, value) {
+      function (from, to, value) {
         return this.token.transfer(to, value, { from });
       }
     );
