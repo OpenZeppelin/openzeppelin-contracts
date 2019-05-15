@@ -29,6 +29,8 @@ const ignorePatterns = pkgFiles
 
 const artifactsDir = 'build/contracts';
 
+let n = 0;
+
 for (const artifact of fs.readdirSync(artifactsDir)) {
   const fullArtifactPath = path.join(artifactsDir, artifact);
   const { sourcePath: fullSourcePath } = readJSON(fullArtifactPath);
@@ -38,5 +40,8 @@ for (const artifact of fs.readdirSync(artifactsDir)) {
 
   if (ignore) {
     fs.unlinkSync(fullArtifactPath);
+    n += 1;
   }
 }
+
+console.error(`Removed ${n} mock artifacts`);
