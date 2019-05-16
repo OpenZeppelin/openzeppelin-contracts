@@ -136,3 +136,7 @@ where the tokenURI should resolve to a json document that might look something l
 For more information about tokenURI metadata, check out the [finalized ERC721 spec](https://eips.ethereum.org/EIPS/eip-721).
 
 _Note: you'll also notice that the date information is included in the metadata, but that information isn't on-chain! So Alex the dogsitter could change the time and scam some people out of their money! If you'd like to put the dates of the dogsitting hours on-chain, you can extend ERC721 to do so. You could also leverage IPFS to pin the tokenURI information, which lets viewers know if Alex has changed the metadata associated with her tokens, but these techniques are out of the scope of this overview guide._
+
+## ERC777
+
+🔧 Under construction

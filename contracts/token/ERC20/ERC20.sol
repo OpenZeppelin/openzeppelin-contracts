@@ -16,12 +16,12 @@ import "../../math/SafeMath.sol";
  * We have followed general OpenZeppelin guidelines: functions revert instead
  * of returning `false` on failure. This behavior is nonetheless conventional
  * and does not conflict with the expectations of ERC20 applications.
- * 
+ *
  * Additionally, an `Approval` event is emitted on calls to `transferFrom`.
  * This allows applications to reconstruct the allowance for all accounts just
  * by listening to said events. Other implementations of the EIP may not emit
  * these events, as it isn't required by the specification.
- * 
+ *
  * Finally, the non-standard `decreaseAllowance` and `increaseAllowance`
  * functions have been added to mitigate the well-known issues around setting
  * allowances. See `IERC20.approve`.
@@ -34,6 +34,15 @@ contract ERC20 is IERC20 {
     mapping (address => mapping (address => uint256)) private _allowances;
 
     uint256 private _totalSupply;
+
+    /**
+     * @dev Returns the amount of tokens in existence.
+     *
+     * See `IERC20.totalSupply`.
+     */
+    function totalSupply() public view returns (uint256) {
+        return _totalSupply;
+    }
 
     /**
      * @dev Returns the amount of tokens owned by an account (`owner`). See `IERC20.balanceOf`.
@@ -122,15 +131,6 @@ contract ERC20 is IERC20 {
     function decreaseAllowance(address spender, uint256 subtractedValue) public returns (bool) {
         _approve(msg.sender, spender, _allowances[msg.sender][spender].sub(subtractedValue));
         return true;
-    }
-
-    /**
-     * @dev Returns the amount of tokens in existence.
-     *
-     * See `IERC20.totalSupply`.
-     */
-    function totalSupply() public view returns (uint256) {
-        return _totalSupply;
     }
 
     /**

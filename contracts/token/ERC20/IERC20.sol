@@ -6,6 +6,11 @@ pragma solidity ^0.5.0;
  */
 interface IERC20 {
     /**
+     * @dev Returns the amount of tokens in existence.
+     */
+    function totalSupply() external view returns (uint256);
+
+    /**
      * @dev Returns the amount of tokens owned by an account (`who`).
      */
     function balanceOf(address who) external view returns (uint256);
@@ -57,11 +62,6 @@ interface IERC20 {
      * Emits a `Transfer` event.
      */
     function transferFrom(address from, address to, uint256 value) external returns (bool);
-
-    /**
-     * @dev Returns the amount of tokens in existence.
-     */
-    function totalSupply() external view returns (uint256);
 
     /**
      * @dev Emitted when tokens are moved from one account (`from`) to anoter (`to`).
