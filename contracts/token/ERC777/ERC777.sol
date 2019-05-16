@@ -140,7 +140,7 @@ contract ERC777 is IERC777, IERC20 {
         _move(operator, from, to, value, "", "");
         _approve(from, operator, _allowances[from][operator].sub(value));
 
-        _callTokensReceived(from, from, to, value, "", "", false);
+        _callTokensReceived(operator, from, to, value, "", "", false);
 
         return true;
     }
