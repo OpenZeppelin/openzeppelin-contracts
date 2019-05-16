@@ -4,16 +4,27 @@ import "./IERC20.sol";
 import "../../math/SafeMath.sol";
 
 /**
- * @title Standard ERC20 token
+ * @dev Implementation of the `IERC20` interface.
  *
- * @dev Implementation of the basic standard token.
- * https://eips.ethereum.org/EIPS/eip-20
- * Originally based on code by FirstBlood:
- * https://github.com/Firstbloodio/token/blob/master/smart_contract/FirstBloodToken.sol
+ * This implementation is agnostic to the way tokens are created. This means
+ * that a supply mechanism has to be added in a derived contract using `_mint`.
+ * For a generic mechanism see `ERC20Mintable`.
  *
- * This implementation emits additional Approval events, allowing applications to reconstruct the allowance status for
- * all accounts just by listening to said events. Note that this isn't required by the specification, and other
- * compliant implementations may not do it.
+ * *For a detailed writeup see our guide [How to implement supply
+ * mechanisms](https://forum.zeppelin.solutions/t/how-to-implement-erc20-supply-mechanisms/226).*
+ *
+ * We have followed general OpenZeppelin guidelines: functions revert instead
+ * of returning `false` on failure. This behavior is nonetheless conventional
+ * and does not conflict with the expectations of ERC20 applications.
+ * 
+ * Additionally, an `Approval` event is emitted on calls to `transferFrom`.
+ * This allows applications to reconstruct the allowance for all accounts just
+ * by listening to said events. Other implementations of the EIP may not emit
+ * these events, as it isn't required by the specification.
+ * 
+ * Finally, the non-standard `decreaseAllowance` and `increaseAllowance`
+ * functions have been added to mitigate the well-known issues around setting
+ * allowances. See `IERC20.approve`.
  */
 contract ERC20 is IERC20 {
     using SafeMath for uint256;
@@ -25,19 +36,38 @@ contract ERC20 is IERC20 {
     uint256 private _totalSupply;
 
     /**
-     * @dev Total number of tokens in existence.
-     */
-    function totalSupply() public view returns (uint256) {
-        return _totalSupply;
-    }
-
-    /**
-     * @dev Gets the balance of the specified address.
-     * @param owner The address to query the balance of.
-     * @return A uint256 representing the amount owned by the passed address.
+     * @dev Returns the amount of tokens owned by an account (`owner`). See `IERC20.balanceOf`.
      */
     function balanceOf(address owner) public view returns (uint256) {
         return _balances[owner];
+    }
+
+    /**
+     * @dev Moves tokens from the caller's account to a specified recipient
+     * (`to`). See `IERC20.transfer`.
+     *
+     * Requirements
+     *
+     * - `to` cannot be the zero address.
+     */
+    function transfer(address to, uint256 value) public returns (bool) {
+        _transfer(msg.sender, to, value);
+        return true;
+    }
+
+    /**
+     * @dev Configures the amount that a `spender` account is able to spend on
+     * behalf of the caller. See `IERC20.approve`.
+     *
+     * > `approve` can be abused by an untrusted spender.
+     *
+     * Requirements
+     *
+     * - `spender` cannot be the zero address.
+     */
+    function approve(address spender, uint256 value) public returns (bool) {
+        _approve(msg.sender, spender, value);
+        return true;
     }
 
     /**
@@ -48,30 +78,6 @@ contract ERC20 is IERC20 {
      */
     function allowance(address owner, address spender) public view returns (uint256) {
         return _allowances[owner][spender];
-    }
-
-    /**
-     * @dev Transfer token to a specified address.
-     * @param to The address to transfer to.
-     * @param value The amount to be transferred.
-     */
-    function transfer(address to, uint256 value) public returns (bool) {
-        _transfer(msg.sender, to, value);
-        return true;
-    }
-
-    /**
-     * @dev Approve the passed address to spend the specified amount of tokens on behalf of msg.sender.
-     * Beware that changing an allowance with this method brings the risk that someone may use both the old
-     * and the new allowance by unfortunate transaction ordering. One possible solution to mitigate this
-     * race condition is to first reduce the spender's allowance to 0 and set the desired value afterwards:
-     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
-     * @param spender The address which will spend the funds.
-     * @param value The amount of tokens to be spent.
-     */
-    function approve(address spender, uint256 value) public returns (bool) {
-        _approve(msg.sender, spender, value);
-        return true;
     }
 
     /**
@@ -116,6 +122,15 @@ contract ERC20 is IERC20 {
     function decreaseAllowance(address spender, uint256 subtractedValue) public returns (bool) {
         _approve(msg.sender, spender, _allowances[msg.sender][spender].sub(subtractedValue));
         return true;
+    }
+
+    /**
+     * @dev Returns the amount of tokens in existence.
+     *
+     * See `IERC20.totalSupply`.
+     */
+    function totalSupply() public view returns (uint256) {
+        return _totalSupply;
     }
 
     /**

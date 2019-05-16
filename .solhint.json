@@ -2,7 +2,7 @@
   "extends": "default",
   "rules": {
     "indent": ["error", 4],
-
+    "func-order": false,
     "bracket-align": false,
     "compiler-fixed": false,
     "no-simple-event-func-name": false,
