@@ -12,7 +12,7 @@
 
 ### Bugfixes:
  * `PostDeliveryCrowdsale`: some validations where skipped when paired with other crowdsale flavors, such as `AllowanceCrowdsale`, or `MintableCrowdsale` and `ERC20Capped`, which could cause buyers to not be able to claim their purchased tokens. ([#1721](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1721))
- * (minor): `ERC20._transfer` allowed the `from` parameter to be the zero address, so it was possible to trigger a transfer of 0 tokens from it to any other address. The zero address is not a valid destinatary of transfers, not can it emit or receive allowance, so this behavior was inconsistent. It now reverts. ([#1752](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1752))
+ * `ERC20._transfer`: the `from` argument was allowed to be the zero address, so it was possible to internally trigger a transfer of 0 tokens from the zero address. This address is not a valid destinatary of transfers, nor can it give or receive allowance, so this behavior was inconsistent. It now reverts. ([#1752](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1752))
 
 ## 2.2.0 (2019-03-14)
 
