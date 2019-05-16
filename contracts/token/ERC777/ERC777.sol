@@ -74,7 +74,7 @@ contract ERC777 is IERC777, IERC20 {
      * @param data bytes information attached to the send, and intended for the recipient (to)
      */
     function send(address to, uint256 amount, bytes calldata data) external {
-        _sendRequiringReceptionAck(msg.sender, msg.sender, to, amount, data, "");
+        _send(msg.sender, msg.sender, to, amount, data, "", true);
     }
 
     /**
@@ -95,7 +95,7 @@ contract ERC777 is IERC777, IERC20 {
     external
     {
         require(isOperatorFor(msg.sender, from), "ERC777: caller is not an operator for holder");
-        _sendRequiringReceptionAck(msg.sender, from, to, amount, data, operatorData);
+        _send(msg.sender, from, to, amount, data, operatorData, true);
     }
 
     /**
@@ -106,7 +106,16 @@ contract ERC777 is IERC777, IERC20 {
      * @param value The amount to be transferred.
      */
     function transfer(address to, uint256 value) external returns (bool) {
-        _transfer(msg.sender, msg.sender, to, value);
+        require(to != address(0), "ERC777: transfer to the zero address");
+
+        address from = msg.sender;
+
+        _callTokensToSend(from, from, to, value, "", "");
+
+        _move(from, from, to, value, "", "");
+
+        _callTokensReceived(from, from, to, value, "", "", false);
+
         return true;
     }
 
@@ -121,8 +130,18 @@ contract ERC777 is IERC777, IERC20 {
      * @param value uint256 the amount of tokens to be transferred
      */
     function transferFrom(address from, address to, uint256 value) external returns (bool) {
-        _transfer(msg.sender, from, to, value);
-        _approve(from, msg.sender, _allowances[from][msg.sender].sub(value));
+        require(to != address(0), "ERC777: transfer to the zero address");
+        require(from != address(0), "ERC777: transfer from the zero address");
+
+        address operator = msg.sender;
+
+        _callTokensToSend(operator, from, to, value, "", "");
+
+        _move(operator, from, to, value, "", "");
+        _approve(from, operator, _allowances[from][operator].sub(value));
+
+        _callTokensReceived(from, from, to, value, "", "", false);
+
         return true;
     }
 
@@ -306,32 +325,6 @@ contract ERC777 is IERC777, IERC20 {
         emit Transfer(address(0), to, amount);
     }
 
-    function _transfer(address operator, address from, address to, uint256 amount) private {
-        _sendAllowingNoReceptionAck(operator, from, to, amount, "", "");
-    }
-
-    function _sendRequiringReceptionAck(
-        address operator,
-        address from,
-        address to,
-        uint256 amount,
-        bytes memory userData,
-        bytes memory operatorData
-    ) private {
-        _send(operator, from, to, amount, userData, operatorData, true);
-    }
-
-    function _sendAllowingNoReceptionAck(
-        address operator,
-        address from,
-        address to,
-        uint256 amount,
-        bytes memory userData,
-        bytes memory operatorData
-    ) private {
-        _send(operator, from, to, amount, userData, operatorData, false);
-    }
-
     /**
      * @dev Send tokens
      * @param operator address operator requesting the transfer
@@ -353,19 +346,14 @@ contract ERC777 is IERC777, IERC20 {
     )
     private
     {
-        require(from != address(0), "ERC777: transfer from the zero address");
-        require(to != address(0), "ERC777: transfer to the zero address");
+        require(from != address(0), "ERC777: send from the zero address");
+        require(to != address(0), "ERC777: send to the zero address");
 
         _callTokensToSend(operator, from, to, amount, userData, operatorData);
 
-        // Update state variables
-        _balances[from] = _balances[from].sub(amount);
-        _balances[to] = _balances[to].add(amount);
+        _move(operator, from, to, amount, userData, operatorData);
 
         _callTokensReceived(operator, from, to, amount, userData, operatorData, requireReceptionAck);
-
-        emit Sent(operator, from, to, amount, userData, operatorData);
-        emit Transfer(from, to, amount);
     }
 
     /**
@@ -395,6 +383,23 @@ contract ERC777 is IERC777, IERC20 {
 
         emit Burned(operator, from, amount, data, operatorData);
         emit Transfer(from, address(0), amount);
+    }
+
+    function _move(
+        address operator,
+        address from,
+        address to,
+        uint256 amount,
+        bytes memory userData,
+        bytes memory operatorData
+    )
+        private
+    {
+        _balances[from] = _balances[from].sub(amount);
+        _balances[to] = _balances[to].add(amount);
+
+        emit Sent(operator, from, to, amount, userData, operatorData);
+        emit Transfer(from, to, amount);
     }
 
     function _approve(address owner, address spender, uint256 value) private {
