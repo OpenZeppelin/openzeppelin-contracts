@@ -58,7 +58,7 @@ interface IERC777 {
     function burn(uint256 amount, bytes calldata data) external;
 
     /**
-     * @devs Returns true if an account is an operator of `tokenHolder`.
+     * @dev Returns true if an account is an operator of `tokenHolder`.
      * Operators can send and burn tokens on behalf of their owners. All
      * accounts are their own operator.
      *
