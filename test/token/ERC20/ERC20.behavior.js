@@ -138,11 +138,12 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
 
     describe('when the token owner is the zero address', function () {
       const amount = 0;
+      const tokenOwner = ZERO_ADDRESS;
       const to = recipient;
 
       it('reverts', async function () {
         await shouldFail.reverting.withMessage(this.token.transferFrom(
-          ZERO_ADDRESS, to, amount, { from: to }), `${errorPrefix}: transfer from the zero address`
+          tokenOwner, to, amount, { from: spender }), `${errorPrefix}: transfer from the zero address`
         );
       });
     });
