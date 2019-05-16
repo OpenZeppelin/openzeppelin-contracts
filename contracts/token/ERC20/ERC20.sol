@@ -125,6 +125,7 @@ contract ERC20 is IERC20 {
      * @param value The amount to be transferred.
      */
     function _transfer(address from, address to, uint256 value) internal {
+        require(from != address(0), "ERC20: transfer from the zero address");
         require(to != address(0), "ERC20: transfer to the zero address");
 
         _balances[from] = _balances[from].sub(value);
