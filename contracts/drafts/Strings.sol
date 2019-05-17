@@ -14,17 +14,17 @@ library Strings {
         bytes memory bytesA = bytes(a);
         bytes memory bytesB = bytes(b);
         string memory concatenatedAB = new string(bytesA.length + bytesB.length);
-        bytes memory bytesAB = bytes(concatenatedAB);
+        bytes memory buffer = bytes(concatenatedAB);
         uint concatendatedIndex = 0;
         uint index = 0;
         for (index = 0; index < bytesA.length; index++) {
-            bytesAB[concatendatedIndex++] = bytesA[index];
+            buffer[concatendatedIndex++] = bytesA[index];
         }
         for (index = 0; index < bytesB.length; index++) {
-            bytesAB[concatendatedIndex++] = bytesB[index];
+            buffer[concatendatedIndex++] = bytesB[index];
         }
 
-        return string(bytesAB);
+        return string(buffer);
     }
 
     /**
@@ -40,13 +40,13 @@ library Strings {
             digits++;
             temp /= 10;
         }
-        bytes memory byteString = new bytes(digits);
+        bytes memory buffer = new bytes(digits);
         uint256 index = digits - 1;
         temp = value;
         while (temp != 0) {
-            byteString[index--] = byte(uint8(48 + temp % 10));
+            buffer[index--] = byte(uint8(48 + temp % 10));
             temp /= 10;
         }
-        return string(byteString);
+        return string(buffer);
     }
 }
