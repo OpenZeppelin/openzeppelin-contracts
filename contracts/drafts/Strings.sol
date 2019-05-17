@@ -30,7 +30,7 @@ library Strings {
     /**
      * @dev Converts a uint256 to a string.
      */
-    function uint256ToString(uint256 value) internal pure returns (string memory uint256AsString) {
+    function uint256ToString(uint256 value) internal pure returns (string memory) {
         uint256 tempValue = value;
 
         if (tempValue == 0) {
