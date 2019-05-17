@@ -31,22 +31,21 @@ library Strings {
      * @dev Converts a uint256 to a string.
      */
     function uint256ToString(uint256 value) internal pure returns (string memory) {
-        uint256 tempValue = value;
-
-        if (tempValue == 0) {
+        if (value == 0) {
             return "0";
         }
-        uint256 j = tempValue;
+        uint256 temp = value;
         uint256 digits;
-        while (j != 0) {
+        while (temp != 0) {
             digits++;
-            j /= 10;
+            temp /= 10;
         }
         bytes memory byteString = new bytes(digits);
         uint256 index = digits - 1;
-        while (tempValue != 0) {
-            byteString[index--] = byte(uint8(48 + tempValue % 10));
-            tempValue /= 10;
+        temp = value;
+        while (temp != 0) {
+            byteString[index--] = byte(uint8(48 + temp % 10));
+            temp /= 10;
         }
         return string(byteString);
     }
