@@ -11,20 +11,7 @@ library Strings {
      * @dev Concatenates two strings.
      */
     function concatenate(string memory a, string memory b) internal pure returns (string memory concatenatedString) {
-        bytes memory bytesA = bytes(a);
-        bytes memory bytesB = bytes(b);
-        string memory concatenatedAB = new string(bytesA.length + bytesB.length);
-        bytes memory buffer = bytes(concatenatedAB);
-        uint concatendatedIndex = 0;
-        uint index = 0;
-        for (index = 0; index < bytesA.length; index++) {
-            buffer[concatendatedIndex++] = bytesA[index];
-        }
-        for (index = 0; index < bytesB.length; index++) {
-            buffer[concatendatedIndex++] = bytesB[index];
-        }
-
-        return string(buffer);
+        return string(abi.encodePacked(a, b));
     }
 
     /**
