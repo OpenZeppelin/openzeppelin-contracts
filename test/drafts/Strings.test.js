@@ -3,43 +3,36 @@ const { constants } = require('openzeppelin-test-helpers');
 const StringsMock = artifacts.require('StringsMock');
 
 contract('Strings', function () {
-  const a = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
-  const b = 'BBBBBBBBBBBBBBBBBBBBBBB';
-  const ab = a + b;
-  const aa = a + a;
-  const empty = '';
-  const zero = 0;
-  const positiveNumber = 3195;
-
   beforeEach(async function () {
     this.strings = await StringsMock.new();
   });
 
   describe('concatenate', function () {
     it('concatenates strings', async function () {
-      (await this.strings.concatenate(a, b)).should.equal(ab);
+      (await this.strings.concatenate('OpenZeppelin', 'Ethernaut')).should.equal('OpenZeppelinEthernaut');
     });
 
     it('concatenates a string with itself', async function () {
-      (await this.strings.concatenate(a, a)).should.equal(aa);
+      (await this.strings.concatenate('OpenZeppelin', 'OpenZeppelin')).should.equal('OpenZeppelinOpenZeppelin');
     });
 
     it('concatenates with the empty string', async function () {
-      (await this.strings.concatenate(a, empty)).should.equal(a);
+      (await this.strings.concatenate('OpenZeppelin', '')).should.equal('OpenZeppelin');
+      (await this.strings.concatenate('', 'OpenZeppelin')).should.equal('OpenZeppelin');
     });
 
     it('concatenates two empty strings', async function () {
-      (await this.strings.concatenate(empty, empty)).should.equal(empty);
+      (await this.strings.concatenate('', '')).should.equal('');
     });
   });
 
   describe('from uint256', function () {
     it('converts 0', async function () {
-      (await this.strings.uint256ToString(zero)).should.equal(zero.toString());
+      (await this.strings.uint256ToString(0)).should.equal('0');
     });
 
     it('converts a positive number', async function () {
-      (await this.strings.uint256ToString(positiveNumber)).should.equal(positiveNumber.toString());
+      (await this.strings.uint256ToString(4132)).should.equal('4132');
     });
 
     it('converts MAX_UINT256', async function () {
