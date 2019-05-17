@@ -37,13 +37,13 @@ library Strings {
             return "0";
         }
         uint256 j = tempValue;
-        uint256 length;
+        uint256 digits;
         while (j != 0) {
-            length++;
+            digits++;
             j /= 10;
         }
-        bytes memory byteString = new bytes(length);
-        uint256 index = length - 1;
+        bytes memory byteString = new bytes(digits);
+        uint256 index = digits - 1;
         while (tempValue != 0) {
             byteString[index--] = byte(uint8(48 + tempValue % 10));
             tempValue /= 10;
