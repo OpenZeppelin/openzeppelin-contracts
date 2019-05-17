@@ -24,6 +24,10 @@ contract('Strings', function () {
     it('concatenates two empty strings', async function () {
       (await this.strings.concatenate('', '')).should.equal('');
     });
+
+    it('concatenates two emoji strings', async function () {
+      (await this.strings.concatenate('😀', '❤️‍')).should.equal('😀❤️‍');
+    });
   });
 
   describe('from uint256', function () {
