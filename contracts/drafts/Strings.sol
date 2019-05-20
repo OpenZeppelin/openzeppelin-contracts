@@ -6,11 +6,9 @@ pragma solidity ^0.5.0;
  */
 library Strings {
     /**
-     * @dev Concatenates two strings.
+     * Concatenates two strings.
+     * string(abi.encodePacked(a, b))
      */
-    function concatenate(string memory a, string memory b) internal pure returns (string memory concatenatedString) {
-        return string(abi.encodePacked(a, b));
-    }
 
     /**
      * @dev Converts a uint256 to a string.

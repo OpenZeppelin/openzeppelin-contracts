@@ -4,7 +4,7 @@ import "../drafts/Strings.sol";
 
 contract StringsMock {
     function concatenate(string memory a, string memory b) public pure returns (string memory) {
-        return Strings.concatenate(a, b);
+        return string(abi.encodePacked(a, b));
     }
 
     function uint256ToString(uint256 value) public pure returns (string memory) {
