@@ -22,10 +22,12 @@ const pkgFiles = readJSON('package.json').files;
 // Get only negated patterns.
 const ignorePatterns = pkgFiles
   .filter(pat => pat.startsWith('!'))
-// Add **/* to ignore all files contained in the directories.
-  .flatMap(pat => [pat, path.join(pat, '**/*')])
 // Remove the negation part. Makes micromatch usage more intuitive.
   .map(pat => pat.slice(1));
+
+const ignorePatternsSubtrees = ignorePatterns
+// Add **/* to ignore all files contained in the directories.
+  .concat(ignorePatterns.map(pat => path.join(pat, '**/*')));
 
 const artifactsDir = 'build/contracts';
 
@@ -36,7 +38,7 @@ for (const artifact of fs.readdirSync(artifactsDir)) {
   const { sourcePath: fullSourcePath } = readJSON(fullArtifactPath);
   const sourcePath = path.relative('.', fullSourcePath);
 
-  const ignore = match.any(sourcePath, ignorePatterns);
+  const ignore = match.any(sourcePath, ignorePatternsSubtrees);
 
   if (ignore) {
     fs.unlinkSync(fullArtifactPath);
