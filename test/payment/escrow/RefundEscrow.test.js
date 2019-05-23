@@ -1,4 +1,4 @@
-const { balance, constants, ether, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { balance, constants, ether, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 const RefundEscrow = artifacts.require('RefundEscrow');
@@ -8,7 +8,7 @@ contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee
   const refundees = [refundee1, refundee2];
 
   it('requires a non-null beneficiary', async function () {
-    await shouldFail.reverting.withMessage(
+    await expectRevert(
       RefundEscrow.new(ZERO_ADDRESS, { from: primary }), 'RefundEscrow: beneficiary is the zero address'
     );
   });
@@ -32,21 +32,21 @@ contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee
 
       it('does not refund refundees', async function () {
         await this.escrow.deposit(refundee1, { from: primary, value: amount });
-        await shouldFail.reverting.withMessage(this.escrow.withdraw(refundee1),
+        await expectRevert(this.escrow.withdraw(refundee1),
           'ConditionalEscrow: payee is not allowed to withdraw'
         );
       });
 
       it('does not allow beneficiary withdrawal', async function () {
         await this.escrow.deposit(refundee1, { from: primary, value: amount });
-        await shouldFail.reverting.withMessage(this.escrow.beneficiaryWithdraw(),
+        await expectRevert(this.escrow.beneficiaryWithdraw(),
           'RefundEscrow: beneficiary can only withdraw while closed'
         );
       });
     });
 
     it('only the primary account can enter closed state', async function () {
-      await shouldFail.reverting.withMessage(this.escrow.close({ from: beneficiary }),
+      await expectRevert(this.escrow.close({ from: beneficiary }),
         'Secondary: caller is not the primary account'
       );
 
@@ -62,13 +62,13 @@ contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee
       });
 
       it('rejects deposits', async function () {
-        await shouldFail.reverting.withMessage(this.escrow.deposit(refundee1, { from: primary, value: amount }),
+        await expectRevert(this.escrow.deposit(refundee1, { from: primary, value: amount }),
           'RefundEscrow: can only deposit while active'
         );
       });
 
       it('does not refund refundees', async function () {
-        await shouldFail.reverting.withMessage(this.escrow.withdraw(refundee1),
+        await expectRevert(this.escrow.withdraw(refundee1),
           'ConditionalEscrow: payee is not allowed to withdraw'
         );
       });
@@ -80,20 +80,20 @@ contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee
       });
 
       it('prevents entering the refund state', async function () {
-        await shouldFail.reverting.withMessage(this.escrow.enableRefunds({ from: primary }),
+        await expectRevert(this.escrow.enableRefunds({ from: primary }),
           'RefundEscrow: can only enable refunds while active'
         );
       });
 
       it('prevents re-entering the closed state', async function () {
-        await shouldFail.reverting.withMessage(this.escrow.close({ from: primary }),
+        await expectRevert(this.escrow.close({ from: primary }),
           'RefundEscrow: can only close while active'
         );
       });
     });
 
     it('only the primary account can enter refund state', async function () {
-      await shouldFail.reverting.withMessage(this.escrow.enableRefunds({ from: beneficiary }),
+      await expectRevert(this.escrow.enableRefunds({ from: beneficiary }),
         'Secondary: caller is not the primary account'
       );
 
@@ -109,7 +109,7 @@ contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee
       });
 
       it('rejects deposits', async function () {
-        await shouldFail.reverting.withMessage(this.escrow.deposit(refundee1, { from: primary, value: amount }),
+        await expectRevert(this.escrow.deposit(refundee1, { from: primary, value: amount }),
           'RefundEscrow: can only deposit while active'
         );
       });
@@ -123,19 +123,19 @@ contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee
       });
 
       it('does not allow beneficiary withdrawal', async function () {
-        await shouldFail.reverting.withMessage(this.escrow.beneficiaryWithdraw(),
+        await expectRevert(this.escrow.beneficiaryWithdraw(),
           'RefundEscrow: beneficiary can only withdraw while closed'
         );
       });
 
       it('prevents entering the closed state', async function () {
-        await shouldFail.reverting.withMessage(this.escrow.close({ from: primary }),
+        await expectRevert(this.escrow.close({ from: primary }),
           'RefundEscrow: can only close while active'
         );
       });
 
       it('prevents re-entering the refund state', async function () {
-        await shouldFail.reverting.withMessage(this.escrow.enableRefunds({ from: primary }),
+        await expectRevert(this.escrow.enableRefunds({ from: primary }),
           'RefundEscrow: can only enable refunds while active'
         );
       });

@@ -1,4 +1,4 @@
-const { balance, BN, constants, ether, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { balance, BN, constants, ether, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 const AllowanceCrowdsaleImpl = artifacts.require('AllowanceCrowdsaleImpl');
@@ -75,7 +75,7 @@ contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenW
   describe('when token wallet is the zero address', function () {
     it('creation reverts', async function () {
       this.token = await SimpleToken.new({ from: tokenWallet });
-      await shouldFail.reverting.withMessage(AllowanceCrowdsaleImpl.new(rate, wallet, this.token.address, ZERO_ADDRESS),
+      await expectRevert(AllowanceCrowdsaleImpl.new(rate, wallet, this.token.address, ZERO_ADDRESS),
         'AllowanceCrowdsale: token wallet is the zero address'
       );
     });

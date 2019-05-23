@@ -1,4 +1,4 @@
-const { shouldFail, constants } = require('openzeppelin-test-helpers');
+const { expectRevert, constants } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 const RolesMock = artifacts.require('RolesMock');
@@ -9,7 +9,7 @@ contract('Roles', function ([_, authorized, otherAuthorized, other]) {
   });
 
   it('reverts when querying roles for the zero account', async function () {
-    await shouldFail.reverting.withMessage(this.roles.has(ZERO_ADDRESS), 'Roles: account is the zero address');
+    await expectRevert(this.roles.has(ZERO_ADDRESS), 'Roles: account is the zero address');
   });
 
   context('initially', function () {
@@ -28,11 +28,11 @@ contract('Roles', function ([_, authorized, otherAuthorized, other]) {
 
       it('reverts when adding roles to an already assigned account', async function () {
         await this.roles.add(authorized);
-        await shouldFail.reverting.withMessage(this.roles.add(authorized), 'Roles: account already has role');
+        await expectRevert(this.roles.add(authorized), 'Roles: account already has role');
       });
 
       it('reverts when adding roles to the zero account', async function () {
-        await shouldFail.reverting.withMessage(this.roles.add(ZERO_ADDRESS), 'Roles: account is the zero address');
+        await expectRevert(this.roles.add(ZERO_ADDRESS), 'Roles: account is the zero address');
       });
     });
   });
@@ -51,11 +51,11 @@ contract('Roles', function ([_, authorized, otherAuthorized, other]) {
       });
 
       it('reverts when removing unassigned roles', async function () {
-        await shouldFail.reverting.withMessage(this.roles.remove(other), 'Roles: account does not have role');
+        await expectRevert(this.roles.remove(other), 'Roles: account does not have role');
       });
 
       it('reverts when removing roles from the zero account', async function () {
-        await shouldFail.reverting.withMessage(this.roles.remove(ZERO_ADDRESS), 'Roles: account is the zero address');
+        await expectRevert(this.roles.remove(ZERO_ADDRESS), 'Roles: account is the zero address');
       });
     });
   });

@@ -1,4 +1,4 @@
-const { BN, ether, shouldFail } = require('openzeppelin-test-helpers');
+const { BN, ether, expectRevert } = require('openzeppelin-test-helpers');
 
 const WhitelistCrowdsale = artifacts.require('WhitelistCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
@@ -19,19 +19,19 @@ contract('WhitelistCrowdsale', function ([_, wallet, whitelister, whitelisted, o
     await crowdsale.sendTransaction({ from: beneficiary, value });
   }
 
-  async function purchaseShouldFail (crowdsale, beneficiary, value) {
-    await shouldFail.reverting.withMessage(crowdsale.buyTokens(beneficiary, { from: beneficiary, value }),
+  async function purchaseExpectRevert (crowdsale, beneficiary, value) {
+    await expectRevert(crowdsale.buyTokens(beneficiary, { from: beneficiary, value }),
       'WhitelistCrowdsale: beneficiary doesn\'t have the Whitelisted role'
     );
-    await shouldFail.reverting.withMessage(crowdsale.sendTransaction({ from: beneficiary, value }),
+    await expectRevert(crowdsale.sendTransaction({ from: beneficiary, value }),
       'WhitelistCrowdsale: beneficiary doesn\'t have the Whitelisted role'
     );
   }
 
   context('with no whitelisted addresses', function () {
     it('rejects all purchases', async function () {
-      await purchaseShouldFail(this.crowdsale, other, value);
-      await purchaseShouldFail(this.crowdsale, whitelisted, value);
+      await purchaseExpectRevert(this.crowdsale, other, value);
+      await purchaseExpectRevert(this.crowdsale, whitelisted, value);
     });
   });
 
@@ -47,11 +47,11 @@ contract('WhitelistCrowdsale', function ([_, wallet, whitelister, whitelisted, o
     });
 
     it('rejects purchases from whitelisted addresses with non-whitelisted beneficiaries', async function () {
-      await shouldFail(this.crowdsale.buyTokens(other, { from: whitelisted, value }));
+      await expectRevert.unspecified(this.crowdsale.buyTokens(other, { from: whitelisted, value }));
     });
 
     it('rejects purchases with non-whitelisted beneficiaries', async function () {
-      await purchaseShouldFail(this.crowdsale, other, value);
+      await purchaseExpectRevert(this.crowdsale, other, value);
     });
   });
 });

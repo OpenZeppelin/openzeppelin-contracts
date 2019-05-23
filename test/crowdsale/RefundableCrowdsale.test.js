@@ -1,4 +1,4 @@
-const { balance, BN, ether, shouldFail, time } = require('openzeppelin-test-helpers');
+const { balance, BN, ether, expectRevert, time } = require('openzeppelin-test-helpers');
 
 const RefundableCrowdsaleImpl = artifacts.require('RefundableCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
@@ -24,7 +24,7 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, other
   });
 
   it('rejects a goal of zero', async function () {
-    await shouldFail.reverting.withMessage(
+    await expectRevert(
       RefundableCrowdsaleImpl.new(this.openingTime, this.closingTime, rate, wallet, this.token.address, 0),
       'RefundableCrowdsale: goal is 0'
     );
@@ -41,7 +41,7 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, other
 
     context('before opening time', function () {
       it('denies refunds', async function () {
-        await shouldFail.reverting.withMessage(this.crowdsale.claimRefund(investor),
+        await expectRevert(this.crowdsale.claimRefund(investor),
           'RefundableCrowdsale: not finalized'
         );
       });
@@ -53,7 +53,7 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, other
       });
 
       it('denies refunds', async function () {
-        await shouldFail.reverting.withMessage(this.crowdsale.claimRefund(investor),
+        await expectRevert(this.crowdsale.claimRefund(investor),
           'RefundableCrowdsale: not finalized'
         );
       });
@@ -89,7 +89,7 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, other
           });
 
           it('denies refunds', async function () {
-            await shouldFail.reverting.withMessage(this.crowdsale.claimRefund(investor),
+            await expectRevert(this.crowdsale.claimRefund(investor),
               'RefundableCrowdsale: goal reached'
             );
           });

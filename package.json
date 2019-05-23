@@ -60,7 +60,7 @@
     "micromatch": "^4.0.2",
     "nodemon": "^1.19.0",
     "openzeppelin-docsite": "github:OpenZeppelin/openzeppelin-docsite#22388b7a891a6fcdd333efef9e4f7f584ae5b826",
-    "openzeppelin-test-helpers": "^0.3.2",
+    "openzeppelin-test-helpers": "^0.4",
     "solhint": "^1.5.0",
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
     "solidity-docgen": "github:OpenZeppelin/solidity-docgen#03f42b5e271b1e1c1d0b814b921ecdc086055255",

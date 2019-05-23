@@ -30,10 +30,10 @@ const INTERFACES = {
 const INTERFACE_IDS = {};
 const FN_SIGNATURES = {};
 for (const k of Object.getOwnPropertyNames(INTERFACES)) {
-  INTERFACE_IDS[k] = makeInterfaceId(INTERFACES[k]);
+  INTERFACE_IDS[k] = makeInterfaceId.ERC165(INTERFACES[k]);
   for (const fnName of INTERFACES[k]) {
     // the interface id of a single function is equivalent to its function signature
-    FN_SIGNATURES[fnName] = makeInterfaceId([fnName]);
+    FN_SIGNATURES[fnName] = makeInterfaceId.ERC165([fnName]);
   }
 }
 

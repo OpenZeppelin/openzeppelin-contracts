@@ -1,4 +1,4 @@
-const { BN, balance, ether, shouldFail, time } = require('openzeppelin-test-helpers');
+const { BN, balance, ether, expectRevert, time } = require('openzeppelin-test-helpers');
 
 const SampleCrowdsale = artifacts.require('SampleCrowdsale');
 const SampleCrowdsaleToken = artifacts.require('SampleCrowdsaleToken');
@@ -38,8 +38,8 @@ contract('SampleCrowdsale', function ([_, deployer, owner, wallet, investor]) {
   });
 
   it('should not accept payments before start', async function () {
-    await shouldFail.reverting.withMessage(this.crowdsale.send(ether('1')), 'TimedCrowdsale: not open');
-    await shouldFail.reverting.withMessage(this.crowdsale.buyTokens(investor, { from: investor, value: ether('1') }),
+    await expectRevert(this.crowdsale.send(ether('1')), 'TimedCrowdsale: not open');
+    await expectRevert(this.crowdsale.buyTokens(investor, { from: investor, value: ether('1') }),
       'TimedCrowdsale: not open'
     );
   });
@@ -57,8 +57,8 @@ contract('SampleCrowdsale', function ([_, deployer, owner, wallet, investor]) {
 
   it('should reject payments after end', async function () {
     await time.increaseTo(this.afterClosingTime);
-    await shouldFail.reverting.withMessage(this.crowdsale.send(ether('1')), 'TimedCrowdsale: not open');
-    await shouldFail.reverting.withMessage(this.crowdsale.buyTokens(investor, { value: ether('1'), from: investor }),
+    await expectRevert(this.crowdsale.send(ether('1')), 'TimedCrowdsale: not open');
+    await expectRevert(this.crowdsale.buyTokens(investor, { value: ether('1'), from: investor }),
       'TimedCrowdsale: not open'
     );
   });
@@ -66,7 +66,7 @@ contract('SampleCrowdsale', function ([_, deployer, owner, wallet, investor]) {
   it('should reject payments over cap', async function () {
     await time.increaseTo(this.openingTime);
     await this.crowdsale.send(CAP);
-    await shouldFail.reverting.withMessage(this.crowdsale.send(1), 'CappedCrowdsale: cap exceeded');
+    await expectRevert(this.crowdsale.send(1), 'CappedCrowdsale: cap exceeded');
   });
 
   it('should allow finalization and transfer funds to wallet if the goal is reached', async function () {
@@ -97,7 +97,7 @@ contract('SampleCrowdsale', function ([_, deployer, owner, wallet, investor]) {
     const HIGH_GOAL = ether('30');
 
     it('creation reverts', async function () {
-      await shouldFail.reverting.withMessage(SampleCrowdsale.new(
+      await expectRevert(SampleCrowdsale.new(
         this.openingTime, this.closingTime, RATE, wallet, CAP, this.token.address, HIGH_GOAL
       ), 'SampleCrowdSale: goal is greater than cap');
     });

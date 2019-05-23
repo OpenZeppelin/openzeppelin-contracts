@@ -1,4 +1,4 @@
-const { BN, constants, shouldFail } = require('openzeppelin-test-helpers');
+const { BN, constants, expectRevert } = require('openzeppelin-test-helpers');
 const { MAX_INT256, MIN_INT256 } = constants;
 
 const SignedSafeMathMock = artifacts.require('SignedSafeMathMock');
@@ -14,8 +14,8 @@ contract('SignedSafeMath', function () {
   }
 
   async function testFailsCommutative (fn, lhs, rhs, reason) {
-    await shouldFail.reverting.withMessage(fn(lhs, rhs), reason);
-    await shouldFail.reverting.withMessage(fn(rhs, lhs), reason);
+    await expectRevert(fn(lhs, rhs), reason);
+    await expectRevert(fn(rhs, lhs), reason);
   }
 
   describe('add', function () {
@@ -69,14 +69,14 @@ contract('SignedSafeMath', function () {
       const a = MAX_INT256;
       const b = new BN('-1');
 
-      await shouldFail.reverting.withMessage(this.safeMath.sub(a, b), 'SignedSafeMath: subtraction overflow');
+      await expectRevert(this.safeMath.sub(a, b), 'SignedSafeMath: subtraction overflow');
     });
 
     it('reverts on negative subtraction overflow', async function () {
       const a = MIN_INT256;
       const b = new BN('1');
 
-      await shouldFail.reverting.withMessage(this.safeMath.sub(a, b), 'SignedSafeMath: subtraction overflow');
+      await expectRevert(this.safeMath.sub(a, b), 'SignedSafeMath: subtraction overflow');
     });
   });
 
@@ -137,14 +137,14 @@ contract('SignedSafeMath', function () {
       const a = new BN('-5678');
       const b = new BN('0');
 
-      await shouldFail.reverting.withMessage(this.safeMath.div(a, b), 'SignedSafeMath: division by zero');
+      await expectRevert(this.safeMath.div(a, b), 'SignedSafeMath: division by zero');
     });
 
     it('reverts on overflow, negative second', async function () {
       const a = new BN(MIN_INT256);
       const b = new BN('-1');
 
-      await shouldFail.reverting.withMessage(this.safeMath.div(a, b), 'SignedSafeMath: division overflow');
+      await expectRevert(this.safeMath.div(a, b), 'SignedSafeMath: division overflow');
     });
   });
 });

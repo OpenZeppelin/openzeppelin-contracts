@@ -1,4 +1,4 @@
-const { BN, expectEvent, shouldFail, singletons } = require('openzeppelin-test-helpers');
+const { BN, expectEvent, expectRevert, singletons } = require('openzeppelin-test-helpers');
 
 const {
   shouldBehaveLikeERC777DirectSendBurn,
@@ -159,13 +159,13 @@ contract('ERC777', function ([
       });
 
       it('reverts when self-authorizing', async function () {
-        await shouldFail.reverting.withMessage(
+        await expectRevert(
           this.token.authorizeOperator(holder, { from: holder }), 'ERC777: authorizing self as operator'
         );
       });
 
       it('reverts when self-revoking', async function () {
-        await shouldFail.reverting.withMessage(
+        await expectRevert(
           this.token.revokeOperator(holder, { from: holder }), 'ERC777: revoking self as operator'
         );
       });
@@ -228,7 +228,7 @@ contract('ERC777', function ([
         });
 
         it('cannot be revoked for themselves', async function () {
-          await shouldFail.reverting.withMessage(
+          await expectRevert(
             this.token.revokeOperator(defaultOperatorA, { from: defaultOperatorA }),
             'ERC777: revoking self as operator'
           );
@@ -281,21 +281,21 @@ contract('ERC777', function ([
             });
 
             it('send reverts', async function () {
-              await shouldFail.reverting.withMessage(
+              await expectRevert(
                 this.token.send(this.recipient, amount, data, { from: holder }),
                 'ERC777: token recipient contract has no implementer for ERC777TokensRecipient',
               );
             });
 
             it('operatorSend reverts', async function () {
-              await shouldFail.reverting.withMessage(
+              await expectRevert(
                 this.token.operatorSend(this.sender, this.recipient, amount, data, operatorData, { from: operator }),
                 'ERC777: token recipient contract has no implementer for ERC777TokensRecipient',
               );
             });
 
             it('mint (internal) reverts', async function () {
-              await shouldFail.reverting.withMessage(
+              await expectRevert(
                 this.token.mintInternal(operator, this.recipient, amount, data, operatorData),
                 'ERC777: token recipient contract has no implementer for ERC777TokensRecipient',
               );

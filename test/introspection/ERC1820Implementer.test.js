@@ -1,4 +1,4 @@
-const { shouldFail, singletons } = require('openzeppelin-test-helpers');
+const { expectRevert, singletons } = require('openzeppelin-test-helpers');
 const { bufferToHex, keccak256 } = require('ethereumjs-util');
 
 const ERC1820ImplementerMock = artifacts.require('ERC1820ImplementerMock');
@@ -21,7 +21,7 @@ contract('ERC1820Implementer', function ([_, registryFunder, implementee, other]
     });
 
     it('reverts when attempting to set as implementer in the registry', async function () {
-      await shouldFail.reverting.withMessage(
+      await expectRevert(
         this.registry.setInterfaceImplementer(
           implementee, this.interfaceA, this.implementer.address, { from: implementee }
         ),

@@ -1,4 +1,4 @@
-const { shouldFail } = require('openzeppelin-test-helpers');
+const { expectRevert } = require('openzeppelin-test-helpers');
 
 function shouldBehaveLikeERC20Capped (minter, [other], cap) {
   describe('capped token', function () {
@@ -15,12 +15,12 @@ function shouldBehaveLikeERC20Capped (minter, [other], cap) {
 
     it('should fail to mint if the amount exceeds the cap', async function () {
       await this.token.mint(other, cap.subn(1), { from });
-      await shouldFail.reverting.withMessage(this.token.mint(other, 2, { from }), 'ERC20Capped: cap exceeded');
+      await expectRevert(this.token.mint(other, 2, { from }), 'ERC20Capped: cap exceeded');
     });
 
     it('should fail to mint after cap is reached', async function () {
       await this.token.mint(other, cap, { from });
-      await shouldFail.reverting.withMessage(this.token.mint(other, 1, { from }), 'ERC20Capped: cap exceeded');
+      await expectRevert(this.token.mint(other, 1, { from }), 'ERC20Capped: cap exceeded');
     });
   });
 }

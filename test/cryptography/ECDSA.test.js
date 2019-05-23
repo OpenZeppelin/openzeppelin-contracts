@@ -1,4 +1,4 @@
-const { constants, shouldFail } = require('openzeppelin-test-helpers');
+const { constants, expectRevert } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 const { toEthSignedMessageHash, fixSignature } = require('../helpers/sign');
 
@@ -118,7 +118,7 @@ contract('ECDSA', function ([_, other]) {
       it.skip('reverts', async function () {
         // Create the signature
         const signature = await web3.eth.sign(TEST_MESSAGE, other);
-        await shouldFail.reverting.withMessage(
+        await expectRevert(
           this.ecdsa.recover(TEST_MESSAGE.substring(2), signature),
           'Failure message'
         );
