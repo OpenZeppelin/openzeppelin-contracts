@@ -1,6 +1,6 @@
 ---
-id: learn-about-tokens
-title: Learn About Tokens
+id: tokens
+title: Tokens
 ---
 
 Ah, the "token": the world's most powerful and most misused tool. In this section we'll learn to harness the power of native units of account for good and world peace!
@@ -21,22 +21,22 @@ An ERC20 token is a contract that keeps track of a `mapping(address => uint256)`
 
 OpenZeppelin provides a few different ERC20-related contracts. Here are the core contracts you'll almost definitely be using:
 
-- [IERC20](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/token/ERC20/IERC20.sol) — defines the interface that all ERC20 token implementations should conform to
-- [ERC20](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/token/ERC20/ERC20.sol) — the base implementation of the ERC20 interface
-- [ERC20Detailed](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/token/ERC20/ERC20Detailed.sol) — the `name()`, `symbol()`, and `decimals()` getters are optional in the original standard, so `ERC20Detailed` adds that information to your token.
+- [`IERC20`](api/token/ERC20#ierc20) — defines the interface that all ERC20 token implementations should conform to
+- [`ERC20`](api/token/ERC20#erc20) — the base implementation of the ERC20 interface
+- [`ERC20Detailed`](api/token/ERC20#erc20detailed) — the [`name()`](api/token/ERC20#ERC20Detailed.name()), [`symbol()`](api/token/ERC20#ERC20Detailed.symbol()), and [`decimals()`](api/token/ERC20#ERC20Detailed.decimals()) getters are optional in the original standard, so `ERC20Detailed` adds that information to your token.
 
 
 After that, OpenZeppelin provides a few extra properties that you may want depending on your use-case:
 
-- [ERC20Mintable](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/token/ERC20/ERC20Mintable.sol) — `ERC20Mintable` allows users with the [`MinterRole`](/api/docs/learn-about-access-control.html) to call the `mint()` function and mint tokens to users. Minting can also be finished, locking the `mint()` function's behavior.
-- [ERC20Burnable](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/token/ERC20/ERC20Burnable.sol) — if your token can be burned (aka, it can be destroyed), include this one
-- [ERC20Capped](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/token/ERC20/ERC20Capped.sol) — `ERC20Capped` is a type of `ERC20Mintable` that enforces a maximum cap on tokens; this is really useful if you want to ensure network participants that there will always be a maximum number of tokens, and is useful for making sure that multiple different minting methods don't accidentally create more tokens than you expected.
-- [ERC20Pausable](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/token/ERC20/ERC20Pausable.sol) — `ERC20Pausable` allows anyone with the Pauser role to pause the token, freezing transfers to and from users. This is useful if you want to stop trades until the end of a crowdsale, or if you want to have an emergency switch for freezing your tokens in the event of a large bug. Note that there are inherent decentralization tradeoffs when using a pausable token; users may not expect that their unstoppable money can be frozen by a single address!
+- [`ERC20Mintable`](api/token/ERC20#erc20mintable) — `ERC20Mintable` allows users with the [`MinterRole`](access-control) to call the [`mint()`](api/token/ERC20#ERC20Mintable.mint(address,uint256)) function and mint tokens to users.
+- [`ERC20Burnable`](api/token/ERC20#erc20burnable) — if your token can be burned (aka, it can be destroyed), include this one.
+- [`ERC20Capped`](api/token/ERC20#erc20capped) — `ERC20Capped` is a type of `ERC20Mintable` that enforces a maximum cap on tokens; this is really useful if you want to ensure network participants that there will always be a maximum number of tokens, and is useful for making sure that multiple different minting methods don't accidentally create more tokens than you expected.
+- [`ERC20Pausable`](api/token/ERC20#erc20pausable) — `ERC20Pausable` allows anyone with the Pauser role to pause the token, freezing transfers to and from users. This is useful if you want to stop trades until the end of a crowdsale, or if you want to have an emergency switch for freezing your tokens in the event of a large bug. Note that there are inherent decentralization tradeoffs when using a pausable token; users may not expect that their unstoppable money can be frozen by a single address!
 
 Finally, if you're working with ERC20 tokens, OpenZeppelin provides some utility contracts:
 
-- [SafeERC20](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/token/ERC20/SafeERC20.sol) — provides `safeTransfer`, `safeTransferFrom`, and `safeApprove` that are helpful wrappers around the normal ERC20 functions. Using `SafeERC20` forces transfers and approvals to succeed, or the entire transaction is reverted.
-- [TokenTimelock](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/token/ERC20/TokenTimelock.sol) — is an escrow contract for ERC20 tokens that will release some tokens after a specified timeout. This is useful for simple vesting schedules like "advisors get all of their tokens after 1 year". For a better vesting schedule, though, see [`TokenVesting`](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/drafts/TokenVesting.sol)
+- [`SafeERC20`](api/token/ERC20#safeerc20) — provides [`safeTransfer`](api/token/ERC20#SafeERC20.safeTransfer(contract%20IERC20,address,uint256)), [`safeTransferFrom`](api/token/ERC20#SafeERC20.safeTransferFrom(contract%20IERC20,address,address,uint256)), and [`safeApprove`](api/token/ERC20#SafeERC20.safeApprove(contract%20IERC20,address,uint256)) that are helpful wrappers around the normal ERC20 functions. Using `SafeERC20` forces transfers and approvals to succeed, or the entire transaction is reverted.
+- [`TokenTimelock`](api/token/ERC20#tokentimelock) — is an escrow contract for ERC20 tokens that will release some tokens after a specified timeout. This is useful for simple vesting schedules like "advisors get all of their tokens after 1 year". For a better vesting schedule, though, see [`TokenVesting`](api/drafts#tokenvesting)
 
 ### Constructing a Nice ERC20 Token
 
@@ -79,11 +79,11 @@ We've discussed how you can make a _fungible_ token using ERC20, but what if not
 
 Let's see what contracts OpenZeppelin provides for helping us work with ERC721:
 
-- The `IERC721`, `IERC721Metadata`, `IERC721Enumerable` interfaces are part of the [IERC721.sol](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/token/ERC721/IERC721.sol) file, which document the interfaces.
-- [ERC721](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/token/ERC721/ERC721.sol) — is the full implementation of ERC721, and the contract you'll most likely be inheriting from.
-- [IERC721Receiver](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/token/ERC721/IERC721Receiver.sol) — in some cases, it's beneficial to be 100% certain that a contract knows how to handle ERC721 tokens (imagine sending an in-game item to an exchange address that can't send it back!). When using `safeTransferFrom()`, the contract checks to see that the receiver is an `IERC721Receiver`, which implies that it knows how to handle ERC721 tokens. If you're writing a contract that accepts 721 tokens, you'll want to implement this interface.
-- [ERC721Mintable](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/token/ERC721/ERC721Mintable.sol) — like the ERC20 version, ERC721Mintable allows addresses with the `Minter` role to mint tokens.
-- [ERC721Pausable](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/token/ERC721/ERC721Pausable.sol) — like the ERC20 version, ERC721Pausable allows addresses with the `Pauser` role to freeze transfers of tokens.
+- The [`IERC721`](api/token/ERC721#ierc721), [`IERC721Metadata`](api/token/ERC721#ierc721metadata), [`IERC721Enumerable`](api/token/ERC721#ierc721enumerable) contracts document the interfaces.
+- [`ERC721`](api/token/ERC721#erc721) — is the full implementation of ERC721, and the contract you'll most likely be inheriting from.
+- [`IERC721Receiver`](api/token/ERC721#ierc721receiver) — in some cases, it's beneficial to be 100% certain that a contract knows how to handle ERC721 tokens (imagine sending an in-game item to an exchange address that can't send it back!). When using [`safeTransferFrom()`](api/token/ERC721#ERC721.safeTransferFrom(address,address,uint256)), the contract checks to see that the receiver is an `IERC721Receiver`, which implies that it knows how to handle ERC721 tokens. If you're writing a contract that accepts ERC721 tokens, you'll want to implement this interface.
+- [`ERC721Mintable`](api/token/ERC721#erc721mintable) — like the ERC20 version, `ERC721Mintable` allows addresses with the `Minter` role to mint tokens.
+- [`ERC721Pausable`](api/token/ERC721#erc721pausable) — like the ERC20 version, `ERC721Pausable` allows addresses with the `Pauser` role to freeze transfers of tokens.
 
 
 We'll use these contracts to tokenize the time of our dogsitters: when a dogsitter wants to sell an hour of their time to watch a dog, they can mint an ERC721 token that represents that hour slot and then sell this token on an exchange. Then they'll go to the owner's house at the right time to watch their doggos.

@@ -4,18 +4,21 @@ import "./ERC20.sol";
 import "../../access/roles/MinterRole.sol";
 
 /**
- * @title ERC20Mintable
- * @dev ERC20 minting logic.
+ * @dev Extension of `ERC20` that adds a set of accounts with the `MinterRole`,
+ * which have permission to mint (create) new tokens as they see fit.
+ *
+ * At construction, the deployer of the contract is the only minter.
  */
 contract ERC20Mintable is ERC20, MinterRole {
     /**
-     * @dev Function to mint tokens
-     * @param to The address that will receive the minted tokens.
-     * @param value The amount of tokens to mint.
-     * @return A boolean that indicates if the operation was successful.
+     * @dev See `ERC20._mint`.
+     *
+     * Requirements:
+     *
+     * - the caller must have the `MinterRole`.
      */
-    function mint(address to, uint256 value) public onlyMinter returns (bool) {
-        _mint(to, value);
+    function mint(address account, uint256 amount) public onlyMinter returns (bool) {
+        _mint(account, amount);
         return true;
     }
 }

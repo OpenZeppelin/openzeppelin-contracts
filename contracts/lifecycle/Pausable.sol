@@ -3,21 +3,37 @@ pragma solidity ^0.5.0;
 import "../access/roles/PauserRole.sol";
 
 /**
- * @title Pausable
- * @dev Base contract which allows children to implement an emergency stop mechanism.
+ * @dev Contract module which allows children to implement an emergency stop
+ * mechanism that can be triggered by an authorized account.
+ *
+ * This module is used through inheritance. It will make available the
+ * modifiers `whenNotPaused` and `whenPaused`, which can be applied to
+ * the functions of your contract. Note that they will not be pausable by
+ * simply including this module, only once the modifiers are put in place.
  */
 contract Pausable is PauserRole {
+    /**
+     * @dev Emitted when the pause is triggered by a pauser (`account`).
+     */
     event Paused(address account);
+
+    /**
+     * @dev Emitted when the pause is lifted by a pauser (`account`).
+     */
     event Unpaused(address account);
 
     bool private _paused;
 
+    /**
+     * @dev Initializes the contract in unpaused state. Assigns the Pauser role
+     * to the deployer.
+     */
     constructor () internal {
         _paused = false;
     }
 
     /**
-     * @return True if the contract is paused, false otherwise.
+     * @dev Returns true if the contract is paused, and false otherwise.
      */
     function paused() public view returns (bool) {
         return _paused;

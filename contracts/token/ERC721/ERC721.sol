@@ -268,6 +268,8 @@ contract ERC721 is ERC165, IERC721 {
     /**
      * @dev Internal function to invoke `onERC721Received` on a target address.
      * The call is not executed if the target address is not a contract.
+     *
+     * This function is deprecated.
      * @param from address representing the previous owner of the given token ID
      * @param to target address that will receive the tokens
      * @param tokenId uint256 ID of the token to be transferred

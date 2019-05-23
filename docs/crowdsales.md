@@ -1,6 +1,6 @@
 ---
-id: learn-about-crowdsales
-title: Learn About Crowdsales
+id: crowdsales
+title: Crowdsales
 ---
 
 Crowdsales are a popular use for Ethereum; they let you allocate tokens to network participants in various ways, mostly in exchange for Ether. They come in a variety of shapes and flavors, so let's go over the various types available in OpenZeppelin and how to use them.
@@ -20,7 +20,7 @@ Crowdsales have a bunch of different properties, but here are some important one
   - Does distribution of funds happen in real-time or after the crowdsale?
   - Can participants receive a refund if the goal is not met?
 
-To manage all of the different combinations and flavors of crowdsales, OpenZeppelin provides a highly configurable [`Crowdsale.sol`](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/crowdsale/Crowdsale.sol) base contract that can be combined with various other functionalities to construct a bespoke crowdsale.
+To manage all of the different combinations and flavors of crowdsales, OpenZeppelin provides a highly configurable [`Crowdsale`](api/crowdsale#crowdsale) base contract that can be combined with various other functionalities to construct a bespoke crowdsale.
 
 ## Crowdsale Rate
 
@@ -60,9 +60,9 @@ One more for practice: if I want to issue "1 TKN for every dollar (USD) in Ether
 
 One of the first decisions you have to make is "how do I get these tokens to users?". This is usually done in one of three ways:
 
-- (default) — The Crowdsale contract owns tokens and simply transfers tokens from its own ownership to users that purchase them.
-- [MintedCrowdsale](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/crowdsale/emission/MintedCrowdsale.sol) — The Crowdsale mints tokens when a purchase is made.
-- [AllowanceCrowdsale](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/crowdsale/emission/AllowanceCrowdsale.sol) — The Crowdsale is granted an allowance to another wallet (like a Multisig) that already owns the tokens to be sold in the crowdsale.
+- (default) — The `Crowdsale` contract owns tokens and simply transfers tokens from its own ownership to users that purchase them.
+- [`MintedCrowdsale`](api/crowdsale#mintedcrowdsale) — The `Crowdsale` mints tokens when a purchase is made.
+- [`AllowanceCrowdsale`](api/crowdsale#allowancecrowdsale) — The `Crowdsale` is granted an allowance to another wallet (like a Multisig) that already owns the tokens to be sold in the crowdsale.
 
 ### Default Emission
 
@@ -84,7 +84,7 @@ new Crowdsale(
 
 ### Minted Crowdsale
 
-To use a `MintedCrowdsale`, your token must also be a `ERC20Mintable` token that the crowdsale has permission to mint from. This can look like:
+To use a [`MintedCrowdsale`](api/crowdsale#mintedcrowdsale), your token must also be a [`ERC20Mintable`](api/token/ERC20#erc20mintable) token that the crowdsale has permission to mint from. This can look like:
 
 ```solidity
 contract MyToken is ERC20, ERC20Mintable {
@@ -128,7 +128,7 @@ contract MyCrowdsaleDeployer {
 
 ### AllowanceCrowdsale
 
-Use an `AllowanceCrowdsale` to send tokens from another wallet to the participants of the crowdsale. In order for this to work, the source wallet must give the crowdsale an allowance via the ERC20 `approve(...)` method.
+Use an [`AllowanceCrowdsale`](api/crowdsale#allowancecrowdsale) to send tokens from another wallet to the participants of the crowdsale. In order for this to work, the source wallet must give the crowdsale an allowance via the ERC20 [`approve`](api/token/ERC20#IERC20.approve(address,uint256)) method.
 
 ```solidity
 contract MyCrowdsale is AllowanceCrowdsale, Crowdsale {
@@ -157,10 +157,10 @@ IERC20(tokenAddress).approve(CROWDALE_ADDRESS, SOME_TOKEN_AMOUNT);
 
 There are a bunch of different validation requirements that your crowdsale might be a part of:
 
-- [CappedCrowdsale](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/crowdsale/validation/CappedCrowdsale.sol) — adds a cap to your crowdsale, invalidating any purchases that would exceed that cap
-- [IndividuallyCappedCrowdsale](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/crowdsale/validation/IndividuallyCappedCrowdsale.sol) — caps an individual's contributions.
-- [WhitelistedCrowdsale](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/crowdsale/validation/WhitelistedCrowdsale.sol) — only allow whitelisted participants to purchase tokens. this is useful for putting your KYC / AML whitelist on-chain!
-- [TimedCrowdsale](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/crowdsale/validation/TimedCrowdsale.sol) — adds an `openingTime` and `closingTime` to your crowdsale
+- [`CappedCrowdsale`](api/crowdsale#cappedcrowdsale) — adds a cap to your crowdsale, invalidating any purchases that would exceed that cap
+- [`IndividuallyCappedCrowdsale`](api/crowdsale#individuallycappedcrowdsale) — caps an individual's contributions.
+- [`WhitelistCrowdsale`](api/crowdsale#whitelistcrowdsale) — only allow whitelisted participants to purchase tokens. this is useful for putting your KYC / AML whitelist on-chain!
+- [`TimedCrowdsale`](api/crowdsale#timedcrowdsale) — adds an [`openingTime`](api/crowdsale#TimedCrowdsale.openingTime()) and [`closingTime`](api/crowdsale#TimedCrowdsale.closingTime()) to your crowdsale
 
 Simply mix and match these crowdsale flavors to your heart's content:
 
@@ -197,7 +197,7 @@ OpenZeppelin is here to make that easy!
 
 ### PostDeliveryCrowdsale
 
-The [PostDeliveryCrowdsale](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/crowdsale/distribution/PostDeliveryCrowdsale.sol), as its name implies, distributes tokens after the crowdsale has finished, letting users call `withdrawTokens()` in order to claim the tokens they've purchased.
+The [`PostDeliveryCrowdsale`](api/crowdsale#postdeliverycrowdsale), as its name implies, distributes tokens after the crowdsale has finished, letting users call [`withdrawTokens`](api/crowdsale#PostDeliveryCrowdsale.withdrawTokens(address)) in order to claim the tokens they've purchased.
 
 ```solidity
 contract MyCrowdsale is PostDeliveryCrowdsale, TimedCrowdsale, Crowdsale {
@@ -222,7 +222,7 @@ contract MyCrowdsale is PostDeliveryCrowdsale, TimedCrowdsale, Crowdsale {
 
 ### RefundableCrowdsale
 
-The [RefundableCrowdsale](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/crowdsale/distribution/RefundableCrowdsale.sol) offers to refund users if a minimum goal is not reached. If the goal is not reached, the users can `claimRefund()` to get their Ether back.
+The [`RefundableCrowdsale`](api/crowdsale#refundablecrowdsale) offers to refund users if a minimum goal is not reached. If the goal is not reached, the users can [`claimRefund`](api/crowdsale#RefundableCrowdsale.claimRefund(address%20payable)) to get their Ether back.
 
 
 ```solidity
