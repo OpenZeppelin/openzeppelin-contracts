@@ -9,7 +9,7 @@ import "./ERC20.sol";
  */
 contract ERC20Burnable is ERC20 {
     /**
-     * @dev Destoys `amount` tokens from the caller.
+     * @dev Destroys `amount` tokens from the caller.
      *
      * See `ERC20._burn`.
      */
