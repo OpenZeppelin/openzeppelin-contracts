@@ -6,10 +6,10 @@ import "../../payment/escrow/RefundEscrow.sol";
 
 /**
  * @title RefundableCrowdsale
- * @dev Extension of FinalizableCrowdsale contract that adds a funding goal, and the possibility of users
+ * @dev Extension of `FinalizableCrowdsale` contract that adds a funding goal, and the possibility of users
  * getting a refund if goal is not met.
  *
- * Deprecated, use RefundablePostDeliveryCrowdsale instead. Note that if you allow tokens to be traded before the goal
+ * Deprecated, use `RefundablePostDeliveryCrowdsale` instead. Note that if you allow tokens to be traded before the goal
  * is met, then an attack is possible in which the attacker purchases tokens from the crowdsale and when they sees that
  * the goal is unlikely to be met, they sell their tokens (possibly at a discount). The attacker will be refunded when
  * the crowdsale is finalized, and the users that purchased from them will be left with worthless tokens.

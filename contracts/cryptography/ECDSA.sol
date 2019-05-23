@@ -1,17 +1,29 @@
 pragma solidity ^0.5.0;
 
 /**
- * @title Elliptic curve signature operations
- * @dev Based on https://gist.github.com/axic/5b33912c6f61ae6fd96d6c4a47afde6d
- * TODO Remove this library once solidity supports passing a signature to ecrecover.
- * See https://github.com/ethereum/solidity/issues/864
+ * @dev Elliptic Curve Digital Signature Algorithm (ECDSA) operations.
+ *
+ * These functions can be used to verify that a message was signed by the holder
+ * of the private keys of a given address.
  */
-
 library ECDSA {
     /**
-     * @dev Recover signer address from a message by using their signature.
-     * @param hash bytes32 message, the hash is the signed message. What is recovered is the signer address.
-     * @param signature bytes signature, the signature is generated using web3.eth.sign()
+     * @dev Returns the address that signed a hashed message (`hash`) with
+     * `signature`. This address can then be used for verification purposes.
+     *
+     * The `ecrecover` EVM opcode allows for malleable (non-unique) signatures:
+     * this function rejects them by requiring the `s` value to be in the lower
+     * half order, and the `v` value to be either 27 or 28.
+     *
+     * (.note) This call _does not revert_ if the signature is invalid, or
+     * if the signer is otherwise unable to be retrieved. In those scenarios,
+     * the zero address is returned.
+     *
+     * (.warning) `hash` _must_ be the result of a hash operation for the
+     * verification to be secure: it is possible to craft signatures that
+     * recover to arbitrary addresses for non-hashed data. A safe way to ensure
+     * this is by receiving a hash of the original message (which may otherwise)
+     * be too long), and then calling `toEthSignedMessageHash` on it.
      */
     function recover(bytes32 hash, bytes memory signature) internal pure returns (address) {
         // Check the signature length
@@ -55,9 +67,12 @@ library ECDSA {
     }
 
     /**
-     * toEthSignedMessageHash
-     * @dev Prefix a bytes32 value with "\x19Ethereum Signed Message:"
-     * and hash the result.
+     * @dev Returns an Ethereum Signed Message, created from a `hash`. This
+     * replicates the behavior of the
+     * [`eth_sign`](https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_sign)
+     * JSON-RPC method.
+     *
+     * See `recover`.
      */
     function toEthSignedMessageHash(bytes32 hash) internal pure returns (bytes32) {
         // 32 is the length in bytes of hash,

@@ -45,6 +45,7 @@
   "homepage": "https://github.com/OpenZeppelin/zeppelin-solidity",
   "devDependencies": {
     "chai": "^4.2.0",
+    "concurrently": "^4.1.0",
     "coveralls": "^3.0.1",
     "eslint": "^4.19.1",
     "eslint-config-standard": "^10.2.1",
@@ -57,11 +58,12 @@
     "ganache-cli": "^6.4.1",
     "ganache-cli-coverage": "https://github.com/frangio/ganache-cli/releases/download/v6.4.1-coverage/ganache-cli-coverage-6.4.1.tgz",
     "micromatch": "^4.0.2",
-    "openzeppelin-docsite": "github:OpenZeppelin/openzeppelin-docsite",
+    "nodemon": "^1.19.0",
+    "openzeppelin-docsite": "github:OpenZeppelin/openzeppelin-docsite#22388b7a891a6fcdd333efef9e4f7f584ae5b826",
     "openzeppelin-test-helpers": "^0.3.2",
     "solhint": "^1.5.0",
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
-    "solidity-docgen": "^0.2.0-alpha.0",
+    "solidity-docgen": "github:OpenZeppelin/solidity-docgen#03f42b5e271b1e1c1d0b814b921ecdc086055255",
     "truffle": "^5.0.18"
   }
 }

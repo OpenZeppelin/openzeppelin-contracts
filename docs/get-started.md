@@ -3,7 +3,7 @@ id: get-started
 title: Get Started
 ---
 
-OpenZeppelin can be installed directly into your existing node.js project with `npm install openzeppelin-solidity`. We will use [Truffle](https://github.com/ConsenSys/truffle), an Ethereum development environment, to get started.
+OpenZeppelin can be installed directly into your existing node.js project with `npm install openzeppelin-solidity`. We will use [Truffle](https://github.com/trufflesuite/truffle), an Ethereum development environment, to get started.
 
 Please install Truffle and initialize your project:
 
@@ -33,10 +33,10 @@ contract MyContract is Ownable {
 
 After installing OpenZeppelin, check out the rest of the guides in the sidebar to learn about the different contracts that OpenZeppelin provides and how to use them.
 
-- [Learn About Access Control](learn-about-access-control)
-- [Learn About Crowdsales](learn-about-crowdsales)
-- [Learn About Tokens](learn-about-tokens)
-- [Learn About Utilities](learn-about-utilities)
+- [Learn About Access Control](access-control)
+- [Learn About Crowdsales](crowdsales)
+- [Learn About Tokens](tokens)
+- [Learn About Utilities](utilities)
 
 You may also want to take a look at the guides on our blog, which cover several common use cases and good practices: https://blog.zeppelin.solutions/guides/home.
 
