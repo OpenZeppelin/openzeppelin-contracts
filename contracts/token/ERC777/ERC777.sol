@@ -348,7 +348,7 @@ contract ERC777 is IERC777, IERC20 {
         bytes memory operatorData,
         bool requireReceptionAck
     )
-    private
+        private
     {
         require(from != address(0), "ERC777: send from the zero address");
         require(to != address(0), "ERC777: send to the zero address");
@@ -375,7 +375,7 @@ contract ERC777 is IERC777, IERC20 {
         bytes memory data,
         bytes memory operatorData
     )
-    private
+        private
     {
         require(from != address(0), "ERC777: burn from the zero address");
 
@@ -433,7 +433,7 @@ contract ERC777 is IERC777, IERC20 {
         bytes memory userData,
         bytes memory operatorData
     )
-    private
+        private
     {
         address implementer = _erc1820.getInterfaceImplementer(from, TOKENS_SENDER_INTERFACE_HASH);
         if (implementer != address(0)) {
@@ -461,7 +461,7 @@ contract ERC777 is IERC777, IERC20 {
         bytes memory operatorData,
         bool requireReceptionAck
     )
-    private
+        private
     {
         address implementer = _erc1820.getInterfaceImplementer(to, TOKENS_RECIPIENT_INTERFACE_HASH);
         if (implementer != address(0)) {
