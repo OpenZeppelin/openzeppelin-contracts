@@ -11,7 +11,7 @@ import "./IERC20.sol";
 contract ERC20Detailed is IERC20 {
     string private _name;
     string private _symbol;
-    uint8 internal _decimals;
+    uint8 private _decimals;
 
     constructor (string memory name, string memory symbol, uint8 decimals) public {
         _name = name;
