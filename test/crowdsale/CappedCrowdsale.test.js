@@ -1,4 +1,4 @@
-const { BN, ether, shouldFail } = require('openzeppelin-test-helpers');
+const { BN, ether, expectRevert } = require('openzeppelin-test-helpers');
 
 const CappedCrowdsaleImpl = artifacts.require('CappedCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
@@ -14,7 +14,7 @@ contract('CappedCrowdsale', function ([_, wallet]) {
   });
 
   it('rejects a cap of zero', async function () {
-    await shouldFail.reverting.withMessage(CappedCrowdsaleImpl.new(rate, wallet, this.token.address, 0),
+    await expectRevert(CappedCrowdsaleImpl.new(rate, wallet, this.token.address, 0),
       'CappedCrowdsale: cap is 0'
     );
   });
@@ -33,11 +33,11 @@ contract('CappedCrowdsale', function ([_, wallet]) {
 
       it('should reject payments outside cap', async function () {
         await this.crowdsale.send(cap);
-        await shouldFail.reverting.withMessage(this.crowdsale.send(1), 'CappedCrowdsale: cap exceeded');
+        await expectRevert(this.crowdsale.send(1), 'CappedCrowdsale: cap exceeded');
       });
 
       it('should reject payments that exceed cap', async function () {
-        await shouldFail.reverting.withMessage(this.crowdsale.send(cap.addn(1)), 'CappedCrowdsale: cap exceeded');
+        await expectRevert(this.crowdsale.send(cap.addn(1)), 'CappedCrowdsale: cap exceeded');
       });
     });
 

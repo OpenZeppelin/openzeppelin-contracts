@@ -1,4 +1,4 @@
-const { BN, ether, shouldFail } = require('openzeppelin-test-helpers');
+const { BN, ether, expectRevert } = require('openzeppelin-test-helpers');
 const { shouldBehaveLikeMintedCrowdsale } = require('./MintedCrowdsale.behavior');
 
 const MintedCrowdsaleImpl = artifacts.require('MintedCrowdsaleImpl');
@@ -32,11 +32,11 @@ contract('MintedCrowdsale', function ([_, deployer, investor, wallet, purchaser]
     });
 
     it('rejects bare payments', async function () {
-      await shouldFail.reverting(this.crowdsale.send(value));
+      await expectRevert.unspecified(this.crowdsale.send(value));
     });
 
     it('rejects token purchases', async function () {
-      await shouldFail.reverting(this.crowdsale.buyTokens(investor, { value: value, from: purchaser }));
+      await expectRevert.unspecified(this.crowdsale.buyTokens(investor, { value: value, from: purchaser }));
     });
   });
 });

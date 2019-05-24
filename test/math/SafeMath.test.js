@@ -1,4 +1,4 @@
-const { BN, constants, shouldFail } = require('openzeppelin-test-helpers');
+const { BN, constants, expectRevert } = require('openzeppelin-test-helpers');
 const { MAX_UINT256 } = constants;
 
 const SafeMathMock = artifacts.require('SafeMathMock');
@@ -14,8 +14,8 @@ contract('SafeMath', function () {
   }
 
   async function testFailsCommutative (fn, lhs, rhs, reason) {
-    await shouldFail.reverting.withMessage(fn(lhs, rhs), reason);
-    await shouldFail.reverting.withMessage(fn(rhs, lhs), reason);
+    await expectRevert(fn(lhs, rhs), reason);
+    await expectRevert(fn(rhs, lhs), reason);
   }
 
   describe('add', function () {
@@ -46,7 +46,7 @@ contract('SafeMath', function () {
       const a = new BN('1234');
       const b = new BN('5678');
 
-      await shouldFail.reverting.withMessage(this.safeMath.sub(a, b), 'SafeMath: subtraction overflow');
+      await expectRevert(this.safeMath.sub(a, b), 'SafeMath: subtraction overflow');
     });
   });
 
@@ -99,7 +99,7 @@ contract('SafeMath', function () {
       const a = new BN('5678');
       const b = new BN('0');
 
-      await shouldFail.reverting.withMessage(this.safeMath.div(a, b), 'SafeMath: division by zero');
+      await expectRevert(this.safeMath.div(a, b), 'SafeMath: division by zero');
     });
   });
 
@@ -138,7 +138,7 @@ contract('SafeMath', function () {
       const a = new BN('5678');
       const b = new BN('0');
 
-      await shouldFail.reverting.withMessage(this.safeMath.mod(a, b), 'SafeMath: modulo by zero');
+      await expectRevert(this.safeMath.mod(a, b), 'SafeMath: modulo by zero');
     });
   });
 });

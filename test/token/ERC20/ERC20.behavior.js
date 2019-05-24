@@ -1,4 +1,4 @@
-const { BN, constants, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { BN, constants, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recipient, anotherAccount) {
@@ -86,7 +86,7 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
             const amount = initialSupply.addn(1);
 
             it('reverts', async function () {
-              await shouldFail.reverting.withMessage(this.token.transferFrom(
+              await expectRevert(this.token.transferFrom(
                 tokenOwner, to, amount, { from: spender }), 'SafeMath: subtraction overflow'
               );
             });
@@ -102,7 +102,7 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
             const amount = initialSupply;
 
             it('reverts', async function () {
-              await shouldFail.reverting.withMessage(this.token.transferFrom(
+              await expectRevert(this.token.transferFrom(
                 tokenOwner, to, amount, { from: spender }), 'SafeMath: subtraction overflow'
               );
             });
@@ -112,7 +112,7 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
             const amount = initialSupply.addn(1);
 
             it('reverts', async function () {
-              await shouldFail.reverting.withMessage(this.token.transferFrom(
+              await expectRevert(this.token.transferFrom(
                 tokenOwner, to, amount, { from: spender }), 'SafeMath: subtraction overflow'
               );
             });
@@ -129,7 +129,7 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
         });
 
         it('reverts', async function () {
-          await shouldFail.reverting.withMessage(this.token.transferFrom(
+          await expectRevert(this.token.transferFrom(
             tokenOwner, to, amount, { from: spender }), `${errorPrefix}: transfer to the zero address`
           );
         });
@@ -142,7 +142,7 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
       const to = recipient;
 
       it('reverts', async function () {
-        await shouldFail.reverting.withMessage(this.token.transferFrom(
+        await expectRevert(this.token.transferFrom(
           tokenOwner, to, amount, { from: spender }), `${errorPrefix}: transfer from the zero address`
         );
       });
@@ -164,7 +164,7 @@ function shouldBehaveLikeERC20Transfer (errorPrefix, from, to, balance, transfer
       const amount = balance.addn(1);
 
       it('reverts', async function () {
-        await shouldFail.reverting.withMessage(transfer.call(this, from, to, amount),
+        await expectRevert(transfer.call(this, from, to, amount),
           'SafeMath: subtraction overflow'
         );
       });
@@ -217,7 +217,7 @@ function shouldBehaveLikeERC20Transfer (errorPrefix, from, to, balance, transfer
 
   describe('when the recipient is the zero address', function () {
     it('reverts', async function () {
-      await shouldFail.reverting.withMessage(transfer.call(this, from, ZERO_ADDRESS, balance),
+      await expectRevert(transfer.call(this, from, ZERO_ADDRESS, balance),
         `${errorPrefix}: transfer to the zero address`
       );
     });
@@ -297,7 +297,7 @@ function shouldBehaveLikeERC20Approve (errorPrefix, owner, spender, supply, appr
 
   describe('when the spender is the zero address', function () {
     it('reverts', async function () {
-      await shouldFail.reverting.withMessage(approve.call(this, owner, ZERO_ADDRESS, supply),
+      await expectRevert(approve.call(this, owner, ZERO_ADDRESS, supply),
         `${errorPrefix}: approve to the zero address`
       );
     });

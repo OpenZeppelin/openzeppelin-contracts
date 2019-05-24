@@ -1,4 +1,4 @@
-const { BN, ether, shouldFail, time } = require('openzeppelin-test-helpers');
+const { BN, ether, expectRevert, time } = require('openzeppelin-test-helpers');
 
 const RefundablePostDeliveryCrowdsaleImpl = artifacts.require('RefundablePostDeliveryCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
@@ -42,7 +42,7 @@ contract('RefundablePostDeliveryCrowdsale', function ([_, investor, wallet, purc
       });
 
       it('does not allow beneficiaries to withdraw tokens before crowdsale ends', async function () {
-        await shouldFail.reverting.withMessage(this.crowdsale.withdrawTokens(investor),
+        await expectRevert(this.crowdsale.withdrawTokens(investor),
           'RefundablePostDeliveryCrowdsale: not finalized'
         );
       });
@@ -54,7 +54,7 @@ contract('RefundablePostDeliveryCrowdsale', function ([_, investor, wallet, purc
         });
 
         it('rejects token withdrawals', async function () {
-          await shouldFail.reverting.withMessage(this.crowdsale.withdrawTokens(investor),
+          await expectRevert(this.crowdsale.withdrawTokens(investor),
             'RefundablePostDeliveryCrowdsale: goal not reached'
           );
         });
@@ -74,7 +74,7 @@ contract('RefundablePostDeliveryCrowdsale', function ([_, investor, wallet, purc
       });
 
       it('does not allow beneficiaries to withdraw tokens before crowdsale ends', async function () {
-        await shouldFail.reverting.withMessage(this.crowdsale.withdrawTokens(investor),
+        await expectRevert(this.crowdsale.withdrawTokens(investor),
           'RefundablePostDeliveryCrowdsale: not finalized'
         );
       });
@@ -93,7 +93,7 @@ contract('RefundablePostDeliveryCrowdsale', function ([_, investor, wallet, purc
 
         it('rejects multiple withdrawals', async function () {
           await this.crowdsale.withdrawTokens(investor);
-          await shouldFail.reverting.withMessage(this.crowdsale.withdrawTokens(investor),
+          await expectRevert(this.crowdsale.withdrawTokens(investor),
             'PostDeliveryCrowdsale: beneficiary is not due any tokens'
           );
         });

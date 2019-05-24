@@ -1,4 +1,4 @@
-const { BN, shouldFail } = require('openzeppelin-test-helpers');
+const { BN, expectRevert } = require('openzeppelin-test-helpers');
 
 const PausableCrowdsale = artifacts.require('PausableCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
@@ -26,10 +26,10 @@ contract('PausableCrowdsale', function ([_, pauser, wallet, other]) {
     });
 
     it('purchases do not work', async function () {
-      await shouldFail.reverting.withMessage(this.crowdsale.sendTransaction({ from: other, value }),
+      await expectRevert(this.crowdsale.sendTransaction({ from: other, value }),
         'Pausable: paused'
       );
-      await shouldFail.reverting.withMessage(this.crowdsale.buyTokens(other, { from: other, value }),
+      await expectRevert(this.crowdsale.buyTokens(other, { from: other, value }),
         'Pausable: paused'
       );
     });

@@ -1,4 +1,4 @@
-const { BN, ether, shouldFail } = require('openzeppelin-test-helpers');
+const { BN, ether, expectRevert } = require('openzeppelin-test-helpers');
 const { shouldBehaveLikeERC20Mintable } = require('./behaviors/ERC20Mintable.behavior');
 const { shouldBehaveLikeERC20Capped } = require('./behaviors/ERC20Capped.behavior');
 
@@ -8,7 +8,7 @@ contract('ERC20Capped', function ([_, minter, ...otherAccounts]) {
   const cap = ether('1000');
 
   it('requires a non-zero cap', async function () {
-    await shouldFail.reverting.withMessage(
+    await expectRevert(
       ERC20Capped.new(new BN(0), { from: minter }), 'ERC20Capped: cap is 0'
     );
   });

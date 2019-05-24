@@ -1,4 +1,4 @@
-const { BN, constants, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { BN, constants, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
@@ -35,7 +35,7 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
       const amount = initialBalance.addn(1);
 
       it('reverts', async function () {
-        await shouldFail.reverting.withMessage(this.token.burn(amount, { from: owner }),
+        await expectRevert(this.token.burn(amount, { from: owner }),
           'SafeMath: subtraction overflow'
         );
       });
@@ -84,7 +84,7 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
 
       it('reverts', async function () {
         await this.token.approve(burner, amount, { from: owner });
-        await shouldFail.reverting.withMessage(this.token.burnFrom(owner, amount, { from: burner }),
+        await expectRevert(this.token.burnFrom(owner, amount, { from: burner }),
           'SafeMath: subtraction overflow'
         );
       });
@@ -95,7 +95,7 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
 
       it('reverts', async function () {
         await this.token.approve(burner, allowance, { from: owner });
-        await shouldFail.reverting.withMessage(this.token.burnFrom(owner, allowance.addn(1), { from: burner }),
+        await expectRevert(this.token.burnFrom(owner, allowance.addn(1), { from: burner }),
           'SafeMath: subtraction overflow'
         );
       });

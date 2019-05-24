@@ -1,4 +1,4 @@
-const { balance, ether, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { balance, ether, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
 
 function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
   const amount = ether('42');
@@ -18,7 +18,7 @@ function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
       });
 
       it('only the primary account can deposit', async function () {
-        await shouldFail.reverting.withMessage(this.escrow.deposit(payee1, { from: payee2 }),
+        await expectRevert(this.escrow.deposit(payee1, { from: payee2 }),
           'Secondary: caller is not the primary account'
         );
       });
@@ -70,7 +70,7 @@ function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
       });
 
       it('only the primary account can withdraw', async function () {
-        await shouldFail.reverting.withMessage(this.escrow.withdraw(payee1, { from: payee1 }),
+        await expectRevert(this.escrow.withdraw(payee1, { from: payee1 }),
           'Secondary: caller is not the primary account'
         );
       });
