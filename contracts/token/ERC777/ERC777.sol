@@ -122,7 +122,7 @@ contract ERC777 is IERC777, IERC20 {
     }
 
     /**
-     * @dev Returns the amount of tokens owned by an account (`owner`).
+     * @dev Returns the amount of tokens owned by an account (`tokenHolder`).
      */
     function balanceOf(address tokenHolder) public view returns (uint256) {
         return _balances[tokenHolder];
@@ -252,8 +252,8 @@ contract ERC777 is IERC777, IERC20 {
      * not have allowance, and accounts with allowance may not be operators
      * themselves.
      */
-    function allowance(address owner, address spender) public view returns (uint256) {
-        return _allowances[owner][spender];
+    function allowance(address holder, address spender) public view returns (uint256) {
+        return _allowances[holder][spender];
     }
 
     /**
@@ -262,7 +262,8 @@ contract ERC777 is IERC777, IERC20 {
      * Note that accounts cannot have allowance issued by their operators.
      */
     function approve(address spender, uint256 value) external returns (bool) {
-        _approve(msg.sender, spender, value);
+        address holder = msg.sender;
+        _approve(holder, spender, value);
         return true;
     }
 
@@ -275,18 +276,18 @@ contract ERC777 is IERC777, IERC20 {
     *
     * Emits `Sent` and `Transfer` events.
     */
-    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool) {
+    function transferFrom(address holder, address recipient, uint256 amount) external returns (bool) {
         require(recipient != address(0), "ERC777: transfer to the zero address");
-        require(sender != address(0), "ERC777: transfer from the zero address");
+        require(holder != address(0), "ERC777: transfer from the zero address");
 
-        address operator = msg.sender;
+        address spender = msg.sender;
 
-        _callTokensToSend(operator, sender, recipient, amount, "", "");
+        _callTokensToSend(spender, holder, recipient, amount, "", "");
 
-        _move(operator, sender, recipient, amount, "", "");
-        _approve(sender, operator, _allowances[sender][operator].sub(amount));
+        _move(spender, holder, recipient, amount, "", "");
+        _approve(holder, spender, _allowances[holder][spender].sub(amount));
 
-        _callTokensReceived(operator, sender, recipient, amount, "", "", false);
+        _callTokensReceived(spender, holder, recipient, amount, "", "", false);
 
         return true;
     }
@@ -406,14 +407,14 @@ contract ERC777 is IERC777, IERC20 {
         emit Transfer(from, to, amount);
     }
 
-    function _approve(address owner, address spender, uint256 value) private {
+    function _approve(address holder, address spender, uint256 value) private {
         // TODO: restore this require statement if this function becomes internal, or is called at a new callsite. It is
         // currently unnecessary.
-        //require(owner != address(0), "ERC777: approve from the zero address");
+        //require(holder != address(0), "ERC777: approve from the zero address");
         require(spender != address(0), "ERC777: approve to the zero address");
 
-        _allowances[owner][spender] = value;
-        emit Approval(owner, spender, value);
+        _allowances[holder][spender] = value;
+        emit Approval(holder, spender, value);
     }
 
     /**
