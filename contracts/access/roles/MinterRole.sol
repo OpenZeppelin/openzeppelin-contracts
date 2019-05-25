@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 
 import "../Roles.sol";
 
@@ -15,7 +15,7 @@ contract MinterRole {
     }
 
     modifier onlyMinter() {
-        require(isMinter(msg.sender));
+        require(isMinter(msg.sender), "MinterRole: caller does not have the Minter role");
         _;
     }
 

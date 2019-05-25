@@ -34,15 +34,7 @@ jobs:
       name: "Unit tests using solc nightly"
       script: npm run test
       env: SOLC_NIGHTLY=true
-
-    - stage: update docs
-      if: tag =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
-      addons:
-        apt:
-          packages:
-            - curl
-      script:
-        - ./scripts/ci/trigger_docs_update "${TRAVIS_TAG}"
+      if: branch = master and type != pull_request
 
 notifications:
   slack:

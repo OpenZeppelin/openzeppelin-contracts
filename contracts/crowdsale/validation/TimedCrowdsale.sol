@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 
 import "../../math/SafeMath.sol";
 import "../Crowdsale.sol";
@@ -24,7 +24,7 @@ contract TimedCrowdsale is Crowdsale {
      * @dev Reverts if not in crowdsale time range.
      */
     modifier onlyWhileOpen {
-        require(isOpen());
+        require(isOpen(), "TimedCrowdsale: not open");
         _;
     }
 
@@ -35,8 +35,9 @@ contract TimedCrowdsale is Crowdsale {
      */
     constructor (uint256 openingTime, uint256 closingTime) public {
         // solhint-disable-next-line not-rely-on-time
-        require(openingTime >= block.timestamp);
-        require(closingTime > openingTime);
+        require(openingTime >= block.timestamp, "TimedCrowdsale: opening time is before current time");
+        // solhint-disable-next-line max-line-length
+        require(closingTime > openingTime, "TimedCrowdsale: opening time is not before closing time");
 
         _openingTime = openingTime;
         _closingTime = closingTime;
@@ -74,7 +75,7 @@ contract TimedCrowdsale is Crowdsale {
     }
 
     /**
-     * @dev Extend parent behavior requiring to be within contributing period
+     * @dev Extend parent behavior requiring to be within contributing period.
      * @param beneficiary Token purchaser
      * @param weiAmount Amount of wei contributed
      */
@@ -83,12 +84,13 @@ contract TimedCrowdsale is Crowdsale {
     }
 
     /**
-     * @dev Extend crowdsale
+     * @dev Extend crowdsale.
      * @param newClosingTime Crowdsale closing time
      */
     function _extendTime(uint256 newClosingTime) internal {
-        require(!hasClosed());
-        require(newClosingTime > _closingTime);
+        require(!hasClosed(), "TimedCrowdsale: already closed");
+        // solhint-disable-next-line max-line-length
+        require(newClosingTime > _closingTime, "TimedCrowdsale: new closing time is before current closing time");
 
         emit TimedCrowdsaleExtended(_closingTime, newClosingTime);
         _closingTime = newClosingTime;

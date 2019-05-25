@@ -1,9 +1,9 @@
-const { shouldFail, singletons } = require('openzeppelin-test-helpers');
+const { expectRevert, singletons } = require('openzeppelin-test-helpers');
 const { bufferToHex, keccak256 } = require('ethereumjs-util');
 
 const ERC1820ImplementerMock = artifacts.require('ERC1820ImplementerMock');
 
-contract('ERC1820Implementer', function ([_, registryFunder, implementee, anyone]) {
+contract('ERC1820Implementer', function ([_, registryFunder, implementee, other]) {
   const ERC1820_ACCEPT_MAGIC = bufferToHex(keccak256('ERC1820_ACCEPT_MAGIC'));
 
   beforeEach(async function () {
@@ -21,10 +21,11 @@ contract('ERC1820Implementer', function ([_, registryFunder, implementee, anyone
     });
 
     it('reverts when attempting to set as implementer in the registry', async function () {
-      await shouldFail.reverting(
+      await expectRevert(
         this.registry.setInterfaceImplementer(
           implementee, this.interfaceA, this.implementer.address, { from: implementee }
-        )
+        ),
+        'Does not implement the interface'
       );
     });
   });
@@ -45,7 +46,7 @@ contract('ERC1820Implementer', function ([_, registryFunder, implementee, anyone
     });
 
     it('returns false when interface implementation for non-supported addresses is queried', async function () {
-      (await this.implementer.canImplementInterfaceForAddress(this.interfaceA, anyone))
+      (await this.implementer.canImplementInterfaceForAddress(this.interfaceA, other))
         .should.not.equal(ERC1820_ACCEPT_MAGIC);
     });
 

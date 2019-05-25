@@ -1,24 +1,23 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 
 /**
- * @title ERC165Checker
- * @dev Use `using ERC165Checker for address`; to include this library
- * https://eips.ethereum.org/EIPS/eip-165
+ * @dev Library used to query support of an interface declared via `IERC165`.
+ *
+ * Note that these functions return the actual result of the query: they do not
+ * `revert` if an interface is not supported. It is up to the caller to decide
+ * what to do in these cases.
  */
 library ERC165Checker {
     // As per the EIP-165 spec, no interface should ever match 0xffffffff
     bytes4 private constant _INTERFACE_ID_INVALID = 0xffffffff;
 
-    bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
     /*
-     * 0x01ffc9a7 ===
-     *     bytes4(keccak256('supportsInterface(bytes4)'))
+     * bytes4(keccak256('supportsInterface(bytes4)')) == 0x01ffc9a7
      */
+    bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
 
     /**
-     * @notice Query if a contract supports ERC165
-     * @param account The address of the contract to query for support of ERC165
-     * @return true if the contract at account implements ERC165
+     * @dev Returns true if `account` supports the `IERC165` interface,
      */
     function _supportsERC165(address account) internal view returns (bool) {
         // Any contract that implements ERC165 must explicitly indicate support of
@@ -28,12 +27,10 @@ library ERC165Checker {
     }
 
     /**
-     * @notice Query if a contract implements an interface, also checks support of ERC165
-     * @param account The address of the contract to query for support of an interface
-     * @param interfaceId The interface identifier, as specified in ERC-165
-     * @return true if the contract at account indicates support of the interface with
-     * identifier interfaceId, false otherwise
-     * @dev Interface identification is specified in ERC-165.
+     * @dev Returns true if `account` supports the interface defined by
+     * `interfaceId`. Support for `IERC165` itself is queried automatically.
+     *
+     * See `IERC165.supportsInterface`.
      */
     function _supportsInterface(address account, bytes4 interfaceId) internal view returns (bool) {
         // query support of both ERC165 as per the spec and support of _interfaceId
@@ -42,12 +39,13 @@ library ERC165Checker {
     }
 
     /**
-     * @notice Query if a contract implements interfaces, also checks support of ERC165
-     * @param account The address of the contract to query for support of an interface
-     * @param interfaceIds A list of interface identifiers, as specified in ERC-165
-     * @return true if the contract at account indicates support all interfaces in the
-     * interfaceIds list, false otherwise
-     * @dev Interface identification is specified in ERC-165.
+     * @dev Returns true if `account` supports all the interfaces defined in
+     * `interfaceIds`. Support for `IERC165` itself is queried automatically.
+     *
+     * Batch-querying can lead to gas savings by skipping repeated checks for
+     * `IERC165` support.
+     *
+     * See `IERC165.supportsInterface`.
      */
     function _supportsAllInterfaces(address account, bytes4[] memory interfaceIds) internal view returns (bool) {
         // query support of ERC165 itself

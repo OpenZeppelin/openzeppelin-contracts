@@ -1,4 +1,4 @@
-const { shouldFail } = require('openzeppelin-test-helpers');
+const { expectRevert } = require('openzeppelin-test-helpers');
 
 const ERC20ReturnFalseMock = artifacts.require('ERC20ReturnFalseMock');
 const ERC20ReturnTrueMock = artifacts.require('ERC20ReturnTrueMock');
@@ -11,7 +11,7 @@ contract('SafeERC20', function ([_, hasNoCode]) {
       this.wrapper = await SafeERC20Wrapper.new(hasNoCode);
     });
 
-    shouldRevertOnAllCalls();
+    shouldRevertOnAllCalls('SafeERC20: call to non-contract');
   });
 
   describe('with token that returns false on all calls', function () {
@@ -19,7 +19,7 @@ contract('SafeERC20', function ([_, hasNoCode]) {
       this.wrapper = await SafeERC20Wrapper.new((await ERC20ReturnFalseMock.new()).address);
     });
 
-    shouldRevertOnAllCalls();
+    shouldRevertOnAllCalls('SafeERC20: ERC20 operation did not succeed');
   });
 
   describe('with token that returns true on all calls', function () {
@@ -39,25 +39,27 @@ contract('SafeERC20', function ([_, hasNoCode]) {
   });
 });
 
-function shouldRevertOnAllCalls () {
+function shouldRevertOnAllCalls (reason) {
   it('reverts on transfer', async function () {
-    await shouldFail.reverting(this.wrapper.transfer());
+    await expectRevert(this.wrapper.transfer(), reason);
   });
 
   it('reverts on transferFrom', async function () {
-    await shouldFail.reverting(this.wrapper.transferFrom());
+    await expectRevert(this.wrapper.transferFrom(), reason);
   });
 
   it('reverts on approve', async function () {
-    await shouldFail.reverting(this.wrapper.approve(0));
+    await expectRevert(this.wrapper.approve(0), reason);
   });
 
   it('reverts on increaseAllowance', async function () {
-    await shouldFail.reverting(this.wrapper.increaseAllowance(0));
+    // [TODO] make sure it's reverting for the right reason
+    await expectRevert.unspecified(this.wrapper.increaseAllowance(0));
   });
 
   it('reverts on decreaseAllowance', async function () {
-    await shouldFail.reverting(this.wrapper.decreaseAllowance(0));
+    // [TODO] make sure it's reverting for the right reason
+    await expectRevert.unspecified(this.wrapper.decreaseAllowance(0));
   });
 }
 
@@ -89,7 +91,10 @@ function shouldOnlyRevertOnErrors () {
       });
 
       it('reverts when decreasing the allowance', async function () {
-        await shouldFail.reverting(this.wrapper.decreaseAllowance(10));
+        await expectRevert(
+          this.wrapper.decreaseAllowance(10),
+          'SafeMath: subtraction overflow'
+        );
       });
     });
 
@@ -99,7 +104,10 @@ function shouldOnlyRevertOnErrors () {
       });
 
       it('reverts when approving a non-zero allowance', async function () {
-        await shouldFail.reverting(this.wrapper.approve(20));
+        await expectRevert(
+          this.wrapper.approve(20),
+          'SafeERC20: approve from non-zero to non-zero allowance'
+        );
       });
 
       it('doesn\'t revert when approving a zero allowance', async function () {
@@ -115,7 +123,10 @@ function shouldOnlyRevertOnErrors () {
       });
 
       it('reverts when decreasing the allowance to a negative value', async function () {
-        await shouldFail.reverting(this.wrapper.decreaseAllowance(200));
+        await expectRevert(
+          this.wrapper.decreaseAllowance(200),
+          'SafeMath: subtraction overflow'
+        );
       });
     });
   });

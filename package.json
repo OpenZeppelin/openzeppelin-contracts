@@ -5,21 +5,25 @@
   "files": [
     "build",
     "contracts",
+    "!contracts/mocks",
+    "!contracts/examples",
     "test/behaviors"
   ],
   "scripts": {
-    "build": "scripts/build.sh",
-    "compile": "truffle compile",
+    "compile": "scripts/compile.sh",
     "console": "truffle console",
     "coverage": "scripts/coverage.sh",
+    "docsite": "scripts/docsite.sh",
+    "docgen": "scripts/docgen.sh",
     "lint": "npm run lint:js && npm run lint:sol",
     "lint:fix": "npm run lint:js:fix",
     "lint:js": "eslint .",
     "lint:js:fix": "eslint . --fix",
     "lint:sol": "solhint --max-warnings 0 \"contracts/**/*.sol\"",
-    "prepack": "npm run build",
-    "version": "scripts/version.js",
-    "test": "npm run compile && scripts/test.sh"
+    "prepare": "node scripts/prepare.js",
+    "release": "scripts/release/release.sh",
+    "version": "scripts/release/update-changelog-release-date.js && scripts/release/update-ethpm-version.js",
+    "test": "scripts/test.sh"
   },
   "repository": {
     "type": "git",
@@ -40,7 +44,8 @@
   },
   "homepage": "https://github.com/OpenZeppelin/zeppelin-solidity",
   "devDependencies": {
-    "chai": "^4.1.2",
+    "chai": "^4.2.0",
+    "concurrently": "^4.1.0",
     "coveralls": "^3.0.1",
     "eslint": "^4.19.1",
     "eslint-config-standard": "^10.2.1",
@@ -50,14 +55,15 @@
     "eslint-plugin-promise": "^3.8.0",
     "eslint-plugin-standard": "^3.1.0",
     "ethereumjs-util": "^6.0.0",
-    "ethjs-abi": "^0.2.1",
     "ganache-cli": "^6.4.1",
-    "ganache-cli-coverage": "github:Agusx1211/ganache-cli#c462b3fc48fe9b16756f7799885c0741114d9ed3",
-    "openzeppelin-test-helpers": "^0.3.0",
-    "pify": "^4.0.1",
+    "ganache-cli-coverage": "https://github.com/frangio/ganache-cli/releases/download/v6.4.1-coverage/ganache-cli-coverage-6.4.1.tgz",
+    "micromatch": "^4.0.2",
+    "nodemon": "^1.19.0",
+    "openzeppelin-docsite": "github:OpenZeppelin/openzeppelin-docsite#22388b7a891a6fcdd333efef9e4f7f584ae5b826",
+    "openzeppelin-test-helpers": "^0.4",
     "solhint": "^1.5.0",
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
-    "truffle": "^5.0.0"
-  },
-  "dependencies": {}
+    "solidity-docgen": "github:OpenZeppelin/solidity-docgen#03f42b5e271b1e1c1d0b814b921ecdc086055255",
+    "truffle": "^5.0.18"
+  }
 }

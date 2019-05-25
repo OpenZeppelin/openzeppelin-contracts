@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 
 import "./Escrow.sol";
 
@@ -16,7 +16,7 @@ contract ConditionalEscrow is Escrow {
     function withdrawalAllowed(address payee) public view returns (bool);
 
     function withdraw(address payable payee) public {
-        require(withdrawalAllowed(payee));
+        require(withdrawalAllowed(payee), "ConditionalEscrow: payee is not allowed to withdraw");
         super.withdraw(payee);
     }
 }

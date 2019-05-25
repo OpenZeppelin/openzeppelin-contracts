@@ -1,4 +1,4 @@
-const { BN, constants, expectEvent, shouldFail, time } = require('openzeppelin-test-helpers');
+const { BN, constants, expectEvent, expectRevert, time } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 const ERC20Mintable = artifacts.require('ERC20Mintable');
@@ -20,21 +20,23 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
     cliffDuration.should.be.bignumber.that.is.at.least(duration);
 
-    await shouldFail.reverting(
-      TokenVesting.new(beneficiary, this.start, cliffDuration, duration, true, { from: owner })
+    await expectRevert(
+      TokenVesting.new(beneficiary, this.start, cliffDuration, duration, true, { from: owner }),
+      'TokenVesting: cliff is longer than duration'
     );
   });
 
   it('reverts with a null beneficiary', async function () {
-    await shouldFail.reverting(
-      TokenVesting.new(ZERO_ADDRESS, this.start, this.cliffDuration, this.duration, true, { from: owner })
+    await expectRevert(
+      TokenVesting.new(ZERO_ADDRESS, this.start, this.cliffDuration, this.duration, true, { from: owner }),
+      'TokenVesting: beneficiary is the zero address'
     );
   });
 
   it('reverts with a null duration', async function () {
     // cliffDuration should also be 0, since the duration must be larger than the cliff
-    await shouldFail.reverting(
-      TokenVesting.new(beneficiary, this.start, 0, 0, true, { from: owner })
+    await expectRevert(
+      TokenVesting.new(beneficiary, this.start, 0, 0, true, { from: owner }), 'TokenVesting: duration is 0'
     );
   });
 
@@ -42,8 +44,9 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     const now = await time.latest();
 
     this.start = now.sub(this.duration).sub(time.duration.minutes(1));
-    await shouldFail.reverting(
-      TokenVesting.new(beneficiary, this.start, this.cliffDuration, this.duration, true, { from: owner })
+    await expectRevert(
+      TokenVesting.new(beneficiary, this.start, this.cliffDuration, this.duration, true, { from: owner }),
+      'TokenVesting: final time is before current time'
     );
   });
 
@@ -65,7 +68,9 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     });
 
     it('cannot be released before cliff', async function () {
-      await shouldFail.reverting(this.vesting.release(this.token.address));
+      await expectRevert(this.vesting.release(this.token.address),
+        'TokenVesting: no tokens are due'
+      );
     });
 
     it('can be released after cliff', async function () {
@@ -121,7 +126,9 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
         beneficiary, this.start, this.cliffDuration, this.duration, false, { from: owner }
       );
 
-      await shouldFail.reverting(vesting.revoke(this.token.address, { from: owner }));
+      await expectRevert(vesting.revoke(this.token.address, { from: owner }),
+        'TokenVesting: cannot revoke'
+      );
     });
 
     it('should return the non-vested tokens when revoked by owner', async function () {
@@ -148,7 +155,9 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
     it('should fail to be revoked a second time', async function () {
       await this.vesting.revoke(this.token.address, { from: owner });
-      await shouldFail.reverting(this.vesting.revoke(this.token.address, { from: owner }));
+      await expectRevert(this.vesting.revoke(this.token.address, { from: owner }),
+        'TokenVesting: token already revoked'
+      );
     });
 
     function vestedAmount (total, now, start, cliffDuration, duration) {

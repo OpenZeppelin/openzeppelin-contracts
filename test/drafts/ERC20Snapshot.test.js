@@ -1,7 +1,7 @@
-const { BN, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { BN, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
 const ERC20SnapshotMock = artifacts.require('ERC20SnapshotMock');
 
-contract('ERC20Snapshot', function ([_, initialHolder, recipient, anyone]) {
+contract('ERC20Snapshot', function ([_, initialHolder, recipient, other]) {
   const initialSupply = new BN(100);
 
   beforeEach(async function () {
@@ -24,11 +24,11 @@ contract('ERC20Snapshot', function ([_, initialHolder, recipient, anyone]) {
 
   describe('totalSupplyAt', function () {
     it('reverts with a snapshot id of 0', async function () {
-      await shouldFail.reverting(this.token.totalSupplyAt(0));
+      await expectRevert(this.token.totalSupplyAt(0), 'ERC20Snapshot: id is 0');
     });
 
     it('reverts with a not-yet-created snapshot id', async function () {
-      await shouldFail.reverting(this.token.totalSupplyAt(1));
+      await expectRevert(this.token.totalSupplyAt(1), 'ERC20Snapshot: nonexistent id');
     });
 
     context('with initial snapshot', function () {
@@ -47,7 +47,7 @@ contract('ERC20Snapshot', function ([_, initialHolder, recipient, anyone]) {
 
       context('with supply changes after the snapshot', function () {
         beforeEach(async function () {
-          await this.token.mint(anyone, new BN('50'));
+          await this.token.mint(other, new BN('50'));
           await this.token.burn(initialHolder, new BN('20'));
         });
 
@@ -98,11 +98,11 @@ contract('ERC20Snapshot', function ([_, initialHolder, recipient, anyone]) {
 
   describe('balanceOfAt', function () {
     it('reverts with a snapshot id of 0', async function () {
-      await shouldFail.reverting(this.token.balanceOfAt(anyone, 0));
+      await expectRevert(this.token.balanceOfAt(other, 0), 'ERC20Snapshot: id is 0');
     });
 
     it('reverts with a not-yet-created snapshot id', async function () {
-      await shouldFail.reverting(this.token.balanceOfAt(anyone, 1));
+      await expectRevert(this.token.balanceOfAt(other, 1), 'ERC20Snapshot: nonexistent id');
     });
 
     context('with initial snapshot', function () {
@@ -118,7 +118,7 @@ contract('ERC20Snapshot', function ([_, initialHolder, recipient, anyone]) {
           (await this.token.balanceOfAt(initialHolder, this.initialSnapshotId))
             .should.be.bignumber.equal(initialSupply);
           (await this.token.balanceOfAt(recipient, this.initialSnapshotId)).should.be.bignumber.equal('0');
-          (await this.token.balanceOfAt(anyone, this.initialSnapshotId)).should.be.bignumber.equal('0');
+          (await this.token.balanceOfAt(other, this.initialSnapshotId)).should.be.bignumber.equal('0');
         });
       });
 
@@ -133,7 +133,7 @@ contract('ERC20Snapshot', function ([_, initialHolder, recipient, anyone]) {
           (await this.token.balanceOfAt(initialHolder, this.initialSnapshotId))
             .should.be.bignumber.equal(initialSupply);
           (await this.token.balanceOfAt(recipient, this.initialSnapshotId)).should.be.bignumber.equal('0');
-          (await this.token.balanceOfAt(anyone, this.initialSnapshotId)).should.be.bignumber.equal('0');
+          (await this.token.balanceOfAt(other, this.initialSnapshotId)).should.be.bignumber.equal('0');
         });
 
         context('with a second snapshot after supply changes', function () {
@@ -148,7 +148,7 @@ contract('ERC20Snapshot', function ([_, initialHolder, recipient, anyone]) {
             (await this.token.balanceOfAt(initialHolder, this.initialSnapshotId))
               .should.be.bignumber.equal(initialSupply);
             (await this.token.balanceOfAt(recipient, this.initialSnapshotId)).should.be.bignumber.equal('0');
-            (await this.token.balanceOfAt(anyone, this.initialSnapshotId)).should.be.bignumber.equal('0');
+            (await this.token.balanceOfAt(other, this.initialSnapshotId)).should.be.bignumber.equal('0');
 
             (await this.token.balanceOfAt(initialHolder, this.secondSnapshotId)).should.be.bignumber.equal(
               await this.token.balanceOf(initialHolder)
@@ -156,8 +156,8 @@ contract('ERC20Snapshot', function ([_, initialHolder, recipient, anyone]) {
             (await this.token.balanceOfAt(recipient, this.secondSnapshotId)).should.be.bignumber.equal(
               await this.token.balanceOf(recipient)
             );
-            (await this.token.balanceOfAt(anyone, this.secondSnapshotId)).should.be.bignumber.equal(
-              await this.token.balanceOf(anyone)
+            (await this.token.balanceOfAt(other, this.secondSnapshotId)).should.be.bignumber.equal(
+              await this.token.balanceOf(other)
             );
           });
         });
@@ -176,7 +176,7 @@ contract('ERC20Snapshot', function ([_, initialHolder, recipient, anyone]) {
             (await this.token.balanceOfAt(initialHolder, this.initialSnapshotId))
               .should.be.bignumber.equal(initialSupply);
             (await this.token.balanceOfAt(recipient, this.initialSnapshotId)).should.be.bignumber.equal('0');
-            (await this.token.balanceOfAt(anyone, this.initialSnapshotId)).should.be.bignumber.equal('0');
+            (await this.token.balanceOfAt(other, this.initialSnapshotId)).should.be.bignumber.equal('0');
 
             for (const id of this.secondSnapshotIds) {
               (await this.token.balanceOfAt(initialHolder, id)).should.be.bignumber.equal(
@@ -185,8 +185,8 @@ contract('ERC20Snapshot', function ([_, initialHolder, recipient, anyone]) {
               (await this.token.balanceOfAt(recipient, id)).should.be.bignumber.equal(
                 await this.token.balanceOf(recipient)
               );
-              (await this.token.balanceOfAt(anyone, id)).should.be.bignumber.equal(
-                await this.token.balanceOf(anyone)
+              (await this.token.balanceOfAt(other, id)).should.be.bignumber.equal(
+                await this.token.balanceOf(other)
               );
             }
           });

@@ -1,73 +1,80 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 
 import "./IERC20.sol";
 import "../../math/SafeMath.sol";
 
 /**
- * @title Standard ERC20 token
+ * @dev Implementation of the `IERC20` interface.
  *
- * @dev Implementation of the basic standard token.
- * https://eips.ethereum.org/EIPS/eip-20
- * Originally based on code by FirstBlood:
- * https://github.com/Firstbloodio/token/blob/master/smart_contract/FirstBloodToken.sol
+ * This implementation is agnostic to the way tokens are created. This means
+ * that a supply mechanism has to be added in a derived contract using `_mint`.
+ * For a generic mechanism see `ERC20Mintable`.
  *
- * This implementation emits additional Approval events, allowing applications to reconstruct the allowance status for
- * all accounts just by listening to said events. Note that this isn't required by the specification, and other
- * compliant implementations may not do it.
+ * *For a detailed writeup see our guide [How to implement supply
+ * mechanisms](https://forum.zeppelin.solutions/t/how-to-implement-erc20-supply-mechanisms/226).*
+ *
+ * We have followed general OpenZeppelin guidelines: functions revert instead
+ * of returning `false` on failure. This behavior is nonetheless conventional
+ * and does not conflict with the expectations of ERC20 applications.
+ *
+ * Additionally, an `Approval` event is emitted on calls to `transferFrom`.
+ * This allows applications to reconstruct the allowance for all accounts just
+ * by listening to said events. Other implementations of the EIP may not emit
+ * these events, as it isn't required by the specification.
+ *
+ * Finally, the non-standard `decreaseAllowance` and `increaseAllowance`
+ * functions have been added to mitigate the well-known issues around setting
+ * allowances. See `IERC20.approve`.
  */
 contract ERC20 is IERC20 {
     using SafeMath for uint256;
 
     mapping (address => uint256) private _balances;
 
-    mapping (address => mapping (address => uint256)) private _allowed;
+    mapping (address => mapping (address => uint256)) private _allowances;
 
     uint256 private _totalSupply;
 
     /**
-     * @dev Total number of tokens in existence
+     * @dev See `IERC20.totalSupply`.
      */
     function totalSupply() public view returns (uint256) {
         return _totalSupply;
     }
 
     /**
-     * @dev Gets the balance of the specified address.
-     * @param owner The address to query the balance of.
-     * @return A uint256 representing the amount owned by the passed address.
+     * @dev See `IERC20.balanceOf`.
      */
-    function balanceOf(address owner) public view returns (uint256) {
-        return _balances[owner];
+    function balanceOf(address account) public view returns (uint256) {
+        return _balances[account];
     }
 
     /**
-     * @dev Function to check the amount of tokens that an owner allowed to a spender.
-     * @param owner address The address which owns the funds.
-     * @param spender address The address which will spend the funds.
-     * @return A uint256 specifying the amount of tokens still available for the spender.
+     * @dev See `IERC20.transfer`.
+     *
+     * Requirements:
+     *
+     * - `recipient` cannot be the zero address.
+     * - the caller must have a balance of at least `amount`.
      */
-    function allowance(address owner, address spender) public view returns (uint256) {
-        return _allowed[owner][spender];
-    }
-
-    /**
-     * @dev Transfer token to a specified address
-     * @param to The address to transfer to.
-     * @param value The amount to be transferred.
-     */
-    function transfer(address to, uint256 value) public returns (bool) {
-        _transfer(msg.sender, to, value);
+    function transfer(address recipient, uint256 amount) public returns (bool) {
+        _transfer(msg.sender, recipient, amount);
         return true;
     }
 
     /**
-     * @dev Approve the passed address to spend the specified amount of tokens on behalf of msg.sender.
-     * Beware that changing an allowance with this method brings the risk that someone may use both the old
-     * and the new allowance by unfortunate transaction ordering. One possible solution to mitigate this
-     * race condition is to first reduce the spender's allowance to 0 and set the desired value afterwards:
-     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
-     * @param spender The address which will spend the funds.
-     * @param value The amount of tokens to be spent.
+     * @dev See `IERC20.allowance`.
+     */
+    function allowance(address owner, address spender) public view returns (uint256) {
+        return _allowances[owner][spender];
+    }
+
+    /**
+     * @dev See `IERC20.approve`.
+     *
+     * Requirements:
+     *
+     * - `spender` cannot be the zero address.
      */
     function approve(address spender, uint256 value) public returns (bool) {
         _approve(msg.sender, spender, value);
@@ -75,86 +82,112 @@ contract ERC20 is IERC20 {
     }
 
     /**
-     * @dev Transfer tokens from one address to another.
-     * Note that while this function emits an Approval event, this is not required as per the specification,
-     * and other compliant implementations may not emit the event.
-     * @param from address The address which you want to send tokens from
-     * @param to address The address which you want to transfer to
-     * @param value uint256 the amount of tokens to be transferred
+     * @dev See `IERC20.transferFrom`.
+     *
+     * Emits an `Approval` event indicating the updated allowance. This is not
+     * required by the EIP. See the note at the beginning of `ERC20`;
+     *
+     * Requirements:
+     * - `sender` and `recipient` cannot be the zero address.
+     * - `sender` must have a balance of at least `value`.
+     * - the caller must have allowance for `sender`'s tokens of at least
+     * `amount`.
      */
-    function transferFrom(address from, address to, uint256 value) public returns (bool) {
-        _transfer(from, to, value);
-        _approve(from, msg.sender, _allowed[from][msg.sender].sub(value));
+    function transferFrom(address sender, address recipient, uint256 amount) public returns (bool) {
+        _transfer(sender, recipient, amount);
+        _approve(sender, msg.sender, _allowances[sender][msg.sender].sub(amount));
         return true;
     }
 
     /**
-     * @dev Increase the amount of tokens that an owner allowed to a spender.
-     * approve should be called when _allowed[msg.sender][spender] == 0. To increment
-     * allowed value is better to use this function to avoid 2 calls (and wait until
-     * the first transaction is mined)
-     * From MonolithDAO Token.sol
-     * Emits an Approval event.
-     * @param spender The address which will spend the funds.
-     * @param addedValue The amount of tokens to increase the allowance by.
+     * @dev Atomically increases the allowance granted to `spender` by the caller.
+     *
+     * This is an alternative to `approve` that can be used as a mitigation for
+     * problems described in `IERC20.approve`.
+     *
+     * Emits an `Approval` event indicating the updated allowance.
+     *
+     * Requirements:
+     *
+     * - `spender` cannot be the zero address.
      */
     function increaseAllowance(address spender, uint256 addedValue) public returns (bool) {
-        _approve(msg.sender, spender, _allowed[msg.sender][spender].add(addedValue));
+        _approve(msg.sender, spender, _allowances[msg.sender][spender].add(addedValue));
         return true;
     }
 
     /**
-     * @dev Decrease the amount of tokens that an owner allowed to a spender.
-     * approve should be called when _allowed[msg.sender][spender] == 0. To decrement
-     * allowed value is better to use this function to avoid 2 calls (and wait until
-     * the first transaction is mined)
-     * From MonolithDAO Token.sol
-     * Emits an Approval event.
-     * @param spender The address which will spend the funds.
-     * @param subtractedValue The amount of tokens to decrease the allowance by.
+     * @dev Atomically decreases the allowance granted to `spender` by the caller.
+     *
+     * This is an alternative to `approve` that can be used as a mitigation for
+     * problems described in `IERC20.approve`.
+     *
+     * Emits an `Approval` event indicating the updated allowance.
+     *
+     * Requirements:
+     *
+     * - `spender` cannot be the zero address.
+     * - `spender` must have allowance for the caller of at least
+     * `subtractedValue`.
      */
     function decreaseAllowance(address spender, uint256 subtractedValue) public returns (bool) {
-        _approve(msg.sender, spender, _allowed[msg.sender][spender].sub(subtractedValue));
+        _approve(msg.sender, spender, _allowances[msg.sender][spender].sub(subtractedValue));
         return true;
     }
 
     /**
-     * @dev Transfer token for a specified addresses
-     * @param from The address to transfer from.
-     * @param to The address to transfer to.
-     * @param value The amount to be transferred.
+     * @dev Moves tokens `amount` from `sender` to `recipient`.
+     *
+     * This is internal function is equivalent to `transfer`, and can be used to
+     * e.g. implement automatic token fees, slashing mechanisms, etc.
+     *
+     * Emits a `Transfer` event.
+     *
+     * Requirements:
+     *
+     * - `sender` cannot be the zero address.
+     * - `recipient` cannot be the zero address.
+     * - `sender` must have a balance of at least `amount`.
      */
-    function _transfer(address from, address to, uint256 value) internal {
-        require(to != address(0));
+    function _transfer(address sender, address recipient, uint256 amount) internal {
+        require(sender != address(0), "ERC20: transfer from the zero address");
+        require(recipient != address(0), "ERC20: transfer to the zero address");
 
-        _balances[from] = _balances[from].sub(value);
-        _balances[to] = _balances[to].add(value);
-        emit Transfer(from, to, value);
+        _balances[sender] = _balances[sender].sub(amount);
+        _balances[recipient] = _balances[recipient].add(amount);
+        emit Transfer(sender, recipient, amount);
     }
 
-    /**
-     * @dev Internal function that mints an amount of the token and assigns it to
-     * an account. This encapsulates the modification of balances such that the
-     * proper events are emitted.
-     * @param account The account that will receive the created tokens.
-     * @param value The amount that will be created.
+    /** @dev Creates `amount` tokens and assigns them to `account`, increasing
+     * the total supply.
+     *
+     * Emits a `Transfer` event with `from` set to the zero address.
+     *
+     * Requirements
+     *
+     * - `to` cannot be the zero address.
      */
-    function _mint(address account, uint256 value) internal {
-        require(account != address(0));
+    function _mint(address account, uint256 amount) internal {
+        require(account != address(0), "ERC20: mint to the zero address");
 
-        _totalSupply = _totalSupply.add(value);
-        _balances[account] = _balances[account].add(value);
-        emit Transfer(address(0), account, value);
+        _totalSupply = _totalSupply.add(amount);
+        _balances[account] = _balances[account].add(amount);
+        emit Transfer(address(0), account, amount);
     }
 
-    /**
-     * @dev Internal function that burns an amount of the token of a given
-     * account.
-     * @param account The account whose tokens will be burnt.
-     * @param value The amount that will be burnt.
+     /**
+     * @dev Destoys `amount` tokens from `account`, reducing the
+     * total supply.
+     *
+     * Emits a `Transfer` event with `to` set to the zero address.
+     *
+     * Requirements
+     *
+     * - `account` cannot be the zero address.
+     * - `account` must have at least `amount` tokens.
      */
     function _burn(address account, uint256 value) internal {
-        require(account != address(0));
+        require(account != address(0), "ERC20: burn from the zero address");
 
         _totalSupply = _totalSupply.sub(value);
         _balances[account] = _balances[account].sub(value);
@@ -162,29 +195,34 @@ contract ERC20 is IERC20 {
     }
 
     /**
-     * @dev Approve an address to spend another addresses' tokens.
-     * @param owner The address that owns the tokens.
-     * @param spender The address that will spend the tokens.
-     * @param value The number of tokens that can be spent.
+     * @dev Sets `amount` as the allowance of `spender` over the `owner`s tokens.
+     *
+     * This is internal function is equivalent to `approve`, and can be used to
+     * e.g. set automatic allowances for certain subsystems, etc.
+     *
+     * Emits an `Approval` event.
+     *
+     * Requirements:
+     *
+     * - `owner` cannot be the zero address.
+     * - `spender` cannot be the zero address.
      */
     function _approve(address owner, address spender, uint256 value) internal {
-        require(spender != address(0));
-        require(owner != address(0));
+        require(owner != address(0), "ERC20: approve from the zero address");
+        require(spender != address(0), "ERC20: approve to the zero address");
 
-        _allowed[owner][spender] = value;
+        _allowances[owner][spender] = value;
         emit Approval(owner, spender, value);
     }
 
     /**
-     * @dev Internal function that burns an amount of the token of a given
-     * account, deducting from the sender's allowance for said account. Uses the
-     * internal burn function.
-     * Emits an Approval event (reflecting the reduced allowance).
-     * @param account The account whose tokens will be burnt.
-     * @param value The amount that will be burnt.
+     * @dev Destoys `amount` tokens from `account`.`amount` is then deducted
+     * from the caller's allowance.
+     *
+     * See `_burn` and `_approve`.
      */
-    function _burnFrom(address account, uint256 value) internal {
-        _burn(account, value);
-        _approve(account, msg.sender, _allowed[account][msg.sender].sub(value));
+    function _burnFrom(address account, uint256 amount) internal {
+        _burn(account, amount);
+        _approve(account, msg.sender, _allowances[account][msg.sender].sub(amount));
     }
 }

@@ -1,7 +1,7 @@
-const { BN, constants, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { BN, constants, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
-function shouldBehaveLikeERC20Mintable (minter, [anyone]) {
+function shouldBehaveLikeERC20Mintable (minter, [other]) {
   describe('as a mintable token', function () {
     describe('mint', function () {
       const amount = new BN(100);
@@ -19,17 +19,17 @@ function shouldBehaveLikeERC20Mintable (minter, [anyone]) {
 
         function shouldMint (amount) {
           beforeEach(async function () {
-            ({ logs: this.logs } = await this.token.mint(anyone, amount, { from }));
+            ({ logs: this.logs } = await this.token.mint(other, amount, { from }));
           });
 
           it('mints the requested amount', async function () {
-            (await this.token.balanceOf(anyone)).should.be.bignumber.equal(amount);
+            (await this.token.balanceOf(other)).should.be.bignumber.equal(amount);
           });
 
           it('emits a mint and a transfer event', async function () {
             expectEvent.inLogs(this.logs, 'Transfer', {
               from: ZERO_ADDRESS,
-              to: anyone,
+              to: other,
               value: amount,
             });
           });
@@ -37,10 +37,12 @@ function shouldBehaveLikeERC20Mintable (minter, [anyone]) {
       });
 
       context('when the sender doesn\'t have minting permission', function () {
-        const from = anyone;
+        const from = other;
 
         it('reverts', async function () {
-          await shouldFail.reverting(this.token.mint(anyone, amount, { from }));
+          await expectRevert(this.token.mint(other, amount, { from }),
+            'MinterRole: caller does not have the Minter role'
+          );
         });
       });
     });

@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 
 import "../math/SafeMath.sol";
 import "../utils/Arrays.sol";
@@ -101,8 +101,9 @@ contract ERC20Snapshot is ERC20 {
     function _valueAt(uint256 snapshotId, Snapshots storage snapshots)
         private view returns (bool, uint256)
     {
-        require(snapshotId > 0);
-        require(snapshotId <= _currentSnapshotId.current());
+        require(snapshotId > 0, "ERC20Snapshot: id is 0");
+        // solhint-disable-next-line max-line-length
+        require(snapshotId <= _currentSnapshotId.current(), "ERC20Snapshot: nonexistent id");
 
         uint256 index = snapshots.ids.findUpperBound(snapshotId);
 

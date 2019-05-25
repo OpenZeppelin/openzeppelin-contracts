@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 
 import "../Crowdsale.sol";
 import "../../token/ERC20/ERC20Mintable.sol";
@@ -16,6 +16,9 @@ contract MintedCrowdsale is Crowdsale {
      */
     function _deliverTokens(address beneficiary, uint256 tokenAmount) internal {
         // Potentially dangerous assumption about the type of the token.
-        require(ERC20Mintable(address(token())).mint(beneficiary, tokenAmount));
+        require(
+            ERC20Mintable(address(token())).mint(beneficiary, tokenAmount),
+                "MintedCrowdsale: minting failed"
+        );
     }
 }

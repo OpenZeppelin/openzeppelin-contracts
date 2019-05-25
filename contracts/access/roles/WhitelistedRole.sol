@@ -1,4 +1,4 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.5.0;
 
 import "../Roles.sol";
 import "./WhitelistAdminRole.sol";
@@ -18,7 +18,7 @@ contract WhitelistedRole is WhitelistAdminRole {
     Roles.Role private _whitelisteds;
 
     modifier onlyWhitelisted() {
-        require(isWhitelisted(msg.sender));
+        require(isWhitelisted(msg.sender), "WhitelistedRole: caller does not have the Whitelisted role");
         _;
     }
 
