@@ -24,4 +24,14 @@ library Address {
         assembly { size := extcodesize(account) }
         return size > 0;
     }
+
+    /**
+     * @dev Changes the type of `address` to `address payable`.
+     * 
+     * This is one of Breaking Changes in solidity 0.5, so at here,
+     * we provide a simple wrapper to meet this change.
+     */
+    function toPayable(address account) internal pure returns (address payable) {
+        return address(uint160(account));
+    }
 }
