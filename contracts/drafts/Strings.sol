@@ -16,7 +16,7 @@ library Strings {
      * via OraclizeAPI - MIT licence
      * https://github.com/oraclize/ethereum-api/blob/b42146b063c7d6ee1358846c198246239e9360e8/oraclizeAPI_0.4.25.sol
      */
-    function uint256ToString(uint256 value) internal pure returns (string memory) {
+    function fromUint256(uint256 value) internal pure returns (string memory) {
         if (value == 0) {
             return "0";
         }

@@ -9,15 +9,15 @@ contract('Strings', function () {
 
   describe('from uint256', function () {
     it('converts 0', async function () {
-      (await this.strings.uint256ToString(0)).should.equal('0');
+      (await this.strings.fromUint256(0)).should.equal('0');
     });
 
     it('converts a positive number', async function () {
-      (await this.strings.uint256ToString(4132)).should.equal('4132');
+      (await this.strings.fromUint256(4132)).should.equal('4132');
     });
 
     it('converts MAX_UINT256', async function () {
-      (await this.strings.uint256ToString(constants.MAX_UINT256)).should.equal(constants.MAX_UINT256.toString());
+      (await this.strings.fromUint256(constants.MAX_UINT256)).should.equal(constants.MAX_UINT256.toString());
     });
   });
 });
