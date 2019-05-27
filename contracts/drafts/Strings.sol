@@ -8,6 +8,7 @@ library Strings {
     /**
      * Concatenates two strings.
      * string(abi.encodePacked(a, b))
+     * https://solidity.readthedocs.io/en/latest/types.html?highlight=concatenate
      */
 
     /**
