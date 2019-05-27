@@ -59,7 +59,7 @@ interface IERC777 {
     function send(address recipient, uint256 amount, bytes calldata data) external;
 
     /**
-     * @dev Destoys `amount` tokens from the caller's account, reducing the
+     * @dev Destroys `amount` tokens from the caller's account, reducing the
      * total supply.
      *
      * If a send hook is registered for the caller, the corresponding function
@@ -114,7 +114,7 @@ interface IERC777 {
      * them.
      *
      * This list is immutable, but individual holders may revoke these via
-     *`revokeOperator`, in which case `isOperatorFor` will return false.
+     * `revokeOperator`, in which case `isOperatorFor` will return false.
      */
     function defaultOperators() external view returns (address[] memory);
 
