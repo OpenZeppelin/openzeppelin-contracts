@@ -137,4 +137,6 @@ contract ERC20Snapshot is Initializable, ERC20 {
             return ids[ids.length - 1];
         }
     }
+
+    uint256[50] private ______gap;
 }
