@@ -19,7 +19,7 @@ contract SimpleToken is Initializable, ERC20, ERC20Detailed {
      */
     function initialize(address sender) public initializer {
         ERC20Detailed.initialize("SimpleToken", "SIM", DECIMALS);
-        _mint(msg.sender, INITIAL_SUPPLY);
+        _mint(sender, INITIAL_SUPPLY);
     }
 
     uint256[50] private ______gap;
