@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 import "zos-lib/contracts/Initializable.sol";
 import "../../math/SafeMath.sol";
@@ -6,7 +6,7 @@ import "../validation/TimedCrowdsale.sol";
 
 /**
  * @title FinalizableCrowdsale
- * @dev Extension of Crowdsale with a one-off finalization action, where one
+ * @dev Extension of TimedCrowdsale with a one-off finalization action, where one
  * can do extra work after finishing.
  */
 contract FinalizableCrowdsale is Initializable, TimedCrowdsale {

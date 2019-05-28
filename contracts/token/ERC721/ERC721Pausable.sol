@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 import "zos-lib/contracts/Initializable.sol";
 import "./ERC721.sol";
@@ -7,7 +7,7 @@ import "../../lifecycle/Pausable.sol";
 /**
  * @title ERC721 Non-Fungible Pausable token
  * @dev ERC721 modified with pausable transfers.
- **/
+ */
 contract ERC721Pausable is Initializable, ERC721, Pausable {
     function initialize(address sender) public initializer {
         require(ERC721._hasBeenInitialized());

@@ -16,7 +16,7 @@ function shouldBehaveLikeOwnable (owner, [anyone]) {
       (await this.ownable.isOwner({ from: anyone })).should.be.equal(true);
     });
 
-    it('should prevent non-owners from transfering', async function () {
+    it('should prevent non-owners from transferring', async function () {
       await shouldFail.reverting(this.ownable.transferOwnership(anyone, { from: anyone }));
     });
 

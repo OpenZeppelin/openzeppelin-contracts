@@ -1,11 +1,11 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 import "zos-lib/contracts/Initializable.sol";
 import "../../introspection/IERC165.sol";
 
 /**
  * @title ERC721 Non-Fungible Token Standard basic interface
- * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
+ * @dev see https://eips.ethereum.org/EIPS/eip-721
  */
 contract IERC721 is Initializable, IERC165 {
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);

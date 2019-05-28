@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 import "zos-lib/contracts/Initializable.sol";
 import "../token/ERC20/IERC20.sol";
@@ -18,7 +18,7 @@ import "../math/Math.sol";
  * OpenZeppelin's ERC20Mintable, but the only functions that are needed are
  * `isMinter(address)` and `mint(address, amount)`. The migrator will check
  * that it is a minter for the token.
- * The balance from the legacy token will be transfered to the migrator, as it
+ * The balance from the legacy token will be transferred to the migrator, as it
  * is migrated, and remain there forever.
  * Although this contract can be used in many different scenarios, the main
  * motivation was to provide a way to migrate ERC20 tokens into an upgradeable
@@ -66,14 +66,14 @@ contract ERC20Migrator is Initializable {
     /**
      * @dev Begins the migration by setting which is the new token that will be
      * minted. This contract must be a minter for the new token.
-     * @param newToken the token that will be minted
+     * @param newToken_ the token that will be minted
      */
-    function beginMigration(ERC20Mintable newToken) public {
+    function beginMigration(ERC20Mintable newToken_) public {
         require(address(_newToken) == address(0));
-        require(address(newToken) != address(0));
-        require(newToken.isMinter(address(this)));
+        require(address(newToken_) != address(0));
+        require(newToken_.isMinter(address(this)));
 
-        _newToken = newToken;
+        _newToken = newToken_;
     }
 
     /**
@@ -83,6 +83,7 @@ contract ERC20Migrator is Initializable {
      * @param amount amount of tokens to be migrated
      */
     function migrate(address account, uint256 amount) public {
+        require(address(_newToken) != address(0));
         _legacyToken.safeTransferFrom(account, address(this), amount);
         _newToken.mint(account, amount);
     }

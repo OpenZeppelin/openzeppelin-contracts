@@ -1,9 +1,10 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 import "../../introspection/IERC165.sol";
 
 /**
- * https://github.com/ethereum/EIPs/blob/master/EIPS/eip-214.md#specification
+ * https://eips.ethereum.org/EIPS/eip-214#specification
+ * From the specification:
  * > Any attempts to make state-changing operations inside an execution instance with STATIC set to true will instead
  * throw an exception.
  * > These operations include [...], LOG0, LOG1, LOG2, [...]
@@ -13,7 +14,7 @@ import "../../introspection/IERC165.sol";
  */
 contract SupportsInterfaceWithLookupMock is IERC165 {
     bytes4 public constant INTERFACE_ID_ERC165 = 0x01ffc9a7;
-    /**
+    /*
      * 0x01ffc9a7 ===
      *     bytes4(keccak256('supportsInterface(bytes4)'))
      */

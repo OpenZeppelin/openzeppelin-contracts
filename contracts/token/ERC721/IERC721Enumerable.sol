@@ -1,11 +1,11 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 import "zos-lib/contracts/Initializable.sol";
 import "./IERC721.sol";
 
 /**
  * @title ERC-721 Non-Fungible Token Standard, optional enumeration extension
- * @dev See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
+ * @dev See https://eips.ethereum.org/EIPS/eip-721
  */
 contract IERC721Enumerable is Initializable, IERC721 {
     function totalSupply() public view returns (uint256);

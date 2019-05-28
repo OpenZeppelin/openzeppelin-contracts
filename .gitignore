@@ -32,10 +32,13 @@ npm-debug.log
 # truffle build directory
 build/
 
-# lol macs
-.DS_Store/
+# macOS
+.DS_Store
 
 # truffle
 .node-xmlhttprequest-*
 
 .zos.session
+
+# IntelliJ IDE
+.idea

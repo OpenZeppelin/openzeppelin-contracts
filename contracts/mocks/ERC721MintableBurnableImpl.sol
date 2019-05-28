@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 import "../token/ERC721/ERC721Full.sol";
 import "../token/ERC721/ERC721Mintable.sol";

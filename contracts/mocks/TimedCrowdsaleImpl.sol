@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 import "../token/ERC20/IERC20.sol";
 import "../crowdsale/validation/TimedCrowdsale.sol";
@@ -9,5 +9,9 @@ contract TimedCrowdsaleImpl is TimedCrowdsale {
     {
         Crowdsale.initialize(rate, wallet, token);
         TimedCrowdsale.initialize(openingTime, closingTime);
+    }
+
+    function extendTime(uint256 closingTime) public {
+        _extendTime(closingTime);
     }
 }

@@ -1,16 +1,16 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 /**
  * @title ERC165Checker
  * @dev Use `using ERC165Checker for address`; to include this library
- * https://github.com/ethereum/EIPs/blob/master/EIPS/eip-165.md
+ * https://eips.ethereum.org/EIPS/eip-165
  */
 library ERC165Checker {
     // As per the EIP-165 spec, no interface should ever match 0xffffffff
     bytes4 private constant _INTERFACE_ID_INVALID = 0xffffffff;
 
     bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
-    /**
+    /*
      * 0x01ffc9a7 ===
      *     bytes4(keccak256('supportsInterface(bytes4)'))
      */
@@ -109,15 +109,15 @@ library ERC165Checker {
             mstore(output, 0x0)
 
             success := staticcall(
-                30000,                                 // 30k gas
-                account,                            // To addr
+                30000,                   // 30k gas
+                account,                 // To addr
                 encodedParams_data,
                 encodedParams_size,
                 output,
-                0x20                                     // Outputs are 32 bytes long
+                0x20                     // Outputs are 32 bytes long
             )
 
-            result := mload(output)    // Load the result
+            result := mload(output)      // Load the result
         }
     }
 }

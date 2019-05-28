@@ -1,8 +1,8 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 /**
  * @title IERC165
- * @dev https://github.com/ethereum/EIPs/blob/master/EIPS/eip-165.md
+ * @dev https://eips.ethereum.org/EIPS/eip-165
  */
 interface IERC165 {
     /**

@@ -94,6 +94,24 @@ contract MyNFT is Initializable, ERC721Full, ERC721Mintable {
 }
 ```
 
+> You need an ethereum development framework for the above import statements to work! Check out these guides for [Truffle] or [Embark].
+
+On our site you will find a few [guides] to learn about the different parts of OpenZeppelin, as well as [documentation for the API][API docs]. Keep in mind that the API docs are work in progress, and don’t hesitate to ask questions in [our Slack][Slack].
+
+## Security
+
+OpenZeppelin the project is maintained by [Zeppelin] the company, and developed following our high standards for code quality and security. OpenZeppelin is meant to provide tested and community-audited code, but please use common sense when doing anything that deals with real money! We take no responsibility for your implementation decisions and any security problems you might experience.
+
+The core development principles and strategies that OpenZeppelin is based on include: security in depth, simple and modular code, clarity-driven naming conventions, comprehensive unit testing, pre-and-post-condition sanity checks, code consistency, and regular audits.
+
+The latest audit was done on October 2018 on version 2.0.0.
+
+Please report any security issues you find to security@openzeppelin.org.
+
+## Contribute
+
+OpenZeppelin exists thanks to its contributors. There are many ways you can participate and help build high quality software. Check out the [contribution guide]!
+
 ## License
 
 OpenZeppelin is released under the [MIT License](LICENSE).

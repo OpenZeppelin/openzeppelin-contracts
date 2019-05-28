@@ -73,89 +73,6 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
     });
   });
 
-  describe('approve', function () {
-    describe('when the spender is not the zero address', function () {
-      const spender = recipient;
-
-      describe('when the sender has enough balance', function () {
-        const amount = initialSupply;
-
-        it('emits an approval event', async function () {
-          const { logs } = await this.token.approve(spender, amount, { from: initialHolder });
-
-          expectEvent.inLogs(logs, 'Approval', {
-            owner: initialHolder,
-            spender: spender,
-            value: amount,
-          });
-        });
-
-        describe('when there was no approved amount before', function () {
-          it('approves the requested amount', async function () {
-            await this.token.approve(spender, amount, { from: initialHolder });
-
-            (await this.token.allowance(initialHolder, spender)).should.be.bignumber.equal(amount);
-          });
-        });
-
-        describe('when the spender had an approved amount', function () {
-          beforeEach(async function () {
-            await this.token.approve(spender, new BN(1), { from: initialHolder });
-          });
-
-          it('approves the requested amount and replaces the previous one', async function () {
-            await this.token.approve(spender, amount, { from: initialHolder });
-
-            (await this.token.allowance(initialHolder, spender)).should.be.bignumber.equal(amount);
-          });
-        });
-      });
-
-      describe('when the sender does not have enough balance', function () {
-        const amount = initialSupply.addn(1);
-
-        it('emits an approval event', async function () {
-          const { logs } = await this.token.approve(spender, amount, { from: initialHolder });
-
-          expectEvent.inLogs(logs, 'Approval', {
-            owner: initialHolder,
-            spender: spender,
-            value: amount,
-          });
-        });
-
-        describe('when there was no approved amount before', function () {
-          it('approves the requested amount', async function () {
-            await this.token.approve(spender, amount, { from: initialHolder });
-
-            (await this.token.allowance(initialHolder, spender)).should.be.bignumber.equal(amount);
-          });
-        });
-
-        describe('when the spender had an approved amount', function () {
-          beforeEach(async function () {
-            await this.token.approve(spender, new BN(1), { from: initialHolder });
-          });
-
-          it('approves the requested amount and replaces the previous one', async function () {
-            await this.token.approve(spender, amount, { from: initialHolder });
-
-            (await this.token.allowance(initialHolder, spender)).should.be.bignumber.equal(amount);
-          });
-        });
-      });
-    });
-
-    describe('when the spender is the zero address', function () {
-      const amount = initialSupply;
-      const spender = ZERO_ADDRESS;
-
-      it('reverts', async function () {
-        await shouldFail.reverting(this.token.approve(spender, amount, { from: initialHolder }));
-      });
-    });
-  });
-
   describe('transfer from', function () {
     const spender = recipient;
 
@@ -546,4 +463,100 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
       describeBurnFrom('for less amount than allowance', allowance.subn(1));
     });
   });
+
+  describe('approve', function () {
+    testApprove(initialHolder, recipient, initialSupply, function (owner, spender, amount) {
+      return this.token.approve(spender, amount, { from: owner });
+    });
+  });
+
+  describe('_approve', function () {
+    testApprove(initialHolder, recipient, initialSupply, function (owner, spender, amount) {
+      return this.token.approveInternal(owner, spender, amount);
+    });
+
+    describe('when the owner is the zero address', function () {
+      it('reverts', async function () {
+        await shouldFail.reverting(this.token.approveInternal(ZERO_ADDRESS, recipient, initialSupply));
+      });
+    });
+  });
+
+  function testApprove (owner, spender, supply, approve) {
+    describe('when the spender is not the zero address', function () {
+      describe('when the sender has enough balance', function () {
+        const amount = supply;
+
+        it('emits an approval event', async function () {
+          const { logs } = await approve.call(this, owner, spender, amount);
+
+          expectEvent.inLogs(logs, 'Approval', {
+            owner: owner,
+            spender: spender,
+            value: amount,
+          });
+        });
+
+        describe('when there was no approved amount before', function () {
+          it('approves the requested amount', async function () {
+            await approve.call(this, owner, spender, amount);
+
+            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount);
+          });
+        });
+
+        describe('when the spender had an approved amount', function () {
+          beforeEach(async function () {
+            await approve.call(this, owner, spender, new BN(1));
+          });
+
+          it('approves the requested amount and replaces the previous one', async function () {
+            await approve.call(this, owner, spender, amount);
+
+            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount);
+          });
+        });
+      });
+
+      describe('when the sender does not have enough balance', function () {
+        const amount = supply.addn(1);
+
+        it('emits an approval event', async function () {
+          const { logs } = await approve.call(this, owner, spender, amount);
+
+          expectEvent.inLogs(logs, 'Approval', {
+            owner: owner,
+            spender: spender,
+            value: amount,
+          });
+        });
+
+        describe('when there was no approved amount before', function () {
+          it('approves the requested amount', async function () {
+            await approve.call(this, owner, spender, amount);
+
+            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount);
+          });
+        });
+
+        describe('when the spender had an approved amount', function () {
+          beforeEach(async function () {
+            await approve.call(this, owner, spender, new BN(1));
+          });
+
+          it('approves the requested amount and replaces the previous one', async function () {
+            await approve.call(this, owner, spender, amount);
+
+            (await this.token.allowance(owner, spender)).should.be.bignumber.equal(amount);
+          });
+        });
+      });
+    });
+
+    describe('when the spender is the zero address', function () {
+      it('reverts', async function () {
+        await shouldFail.reverting(approve.call(this, owner, ZERO_ADDRESS, supply));
+      });
+    });
+  }
 });

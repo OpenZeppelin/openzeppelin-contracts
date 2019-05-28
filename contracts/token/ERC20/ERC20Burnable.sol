@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 import "zos-lib/contracts/Initializable.sol";
 import "./ERC20.sol";
@@ -18,8 +18,8 @@ contract ERC20Burnable is Initializable, ERC20 {
 
     /**
      * @dev Burns a specific amount of tokens from the target address and decrements allowance
-     * @param from address The address which you want to send tokens from
-     * @param value uint256 The amount of token to be burned
+     * @param from address The account whose tokens will be burned.
+     * @param value uint256 The amount of token to be burned.
      */
     function burnFrom(address from, uint256 value) public {
         _burnFrom(from, value);

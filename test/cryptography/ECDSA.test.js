@@ -1,5 +1,6 @@
-const { shouldFail } = require('openzeppelin-test-helpers');
-const { signMessage, toEthSignedMessageHash } = require('../helpers/sign');
+const { constants, shouldFail } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
+const { toEthSignedMessageHash, fixSignature } = require('../helpers/sign');
 
 const ECDSAMock = artifacts.require('ECDSAMock');
 
@@ -19,10 +20,10 @@ contract('ECDSA', function ([_, anyone]) {
       const signatureWithoutVersion = '0x5d99b6f7f6d1f73d1a26497f2b1c89b24c0993913f86e9a2d02cd69887d9c94f3c880358579d811b21dd1b7fd9bb01c1d81d10e69f0384e675c32b39643be892';
 
       context('with 00 as version value', function () {
-        it('works', async function () {
+        it('returns 0', async function () {
           const version = '00';
           const signature = signatureWithoutVersion + version;
-          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(signer);
+          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(ZERO_ADDRESS);
         });
       });
 
@@ -40,8 +41,7 @@ contract('ECDSA', function ([_, anyone]) {
           // The only valid values are 0, 1, 27 and 28.
           const version = '02';
           const signature = signatureWithoutVersion + version;
-          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(
-            '0x0000000000000000000000000000000000000000');
+          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(ZERO_ADDRESS);
         });
       });
     });
@@ -52,14 +52,14 @@ contract('ECDSA', function ([_, anyone]) {
       const signatureWithoutVersion = '0x331fe75a821c982f9127538858900d87d3ec1f9f737338ad67cad133fa48feff48e6fa0c18abc62e42820f05943e47af3e9fbe306ce74d64094bdf1691ee53e0';
 
       context('with 01 as version value', function () {
-        it('works', async function () {
+        it('returns 0', async function () {
           const version = '01';
           const signature = signatureWithoutVersion + version;
-          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(signer);
+          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(ZERO_ADDRESS);
         });
       });
 
-      context('with 28 signature', function () {
+      context('with 28 as version value', function () {
         it('works', async function () {
           const version = '1c'; // 28 = 1c.
           const signature = signatureWithoutVersion + version;
@@ -73,9 +73,18 @@ contract('ECDSA', function ([_, anyone]) {
           // The only valid values are 0, 1, 27 and 28.
           const version = '02';
           const signature = signatureWithoutVersion + version;
-          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(
-            '0x0000000000000000000000000000000000000000');
+          (await this.ecdsa.recover(TEST_MESSAGE, signature)).should.equal(ZERO_ADDRESS);
         });
+      });
+    });
+
+    context('with high-s value signature', function () {
+      it('returns 0', async function () {
+        const message = '0xb94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9';
+        // eslint-disable-next-line max-len
+        const highSSignature = '0xe742ff452d41413616a5bf43fe15dd88294e983d3d36206c2712f39083d638bde0a0fc89be718fbc1033e1d30d78be1c68081562ed2e97af876f286f3453231d1b';
+
+        (await this.ecdsa.recover(message, highSSignature)).should.equal(ZERO_ADDRESS);
       });
     });
 
@@ -83,7 +92,7 @@ contract('ECDSA', function ([_, anyone]) {
       context('with correct signature', function () {
         it('returns signer address', async function () {
           // Create the signature
-          const signature = await signMessage(anyone, TEST_MESSAGE);
+          const signature = fixSignature(await web3.eth.sign(TEST_MESSAGE, anyone));
 
           // Recover the signer address from the generated message and signature.
           (await this.ecdsa.recover(
@@ -96,23 +105,23 @@ contract('ECDSA', function ([_, anyone]) {
       context('with wrong signature', function () {
         it('does not return signer address', async function () {
           // Create the signature
-          const signature = await signMessage(anyone, TEST_MESSAGE);
+          const signature = await web3.eth.sign(TEST_MESSAGE, anyone);
 
           // Recover the signer address from the generated message and wrong signature.
           (await this.ecdsa.recover(WRONG_MESSAGE, signature)).should.not.equal(anyone);
         });
       });
     });
-  });
 
-  context('with small hash', function () {
-    // @TODO - remove `skip` once we upgrade to solc^0.5
-    it.skip('reverts', async function () {
-      // Create the signature
-      const signature = await signMessage(anyone, TEST_MESSAGE);
-      await shouldFail.reverting(
-        this.ecdsa.recover(TEST_MESSAGE.substring(2), signature)
-      );
+    context('with small hash', function () {
+      // @TODO - remove `skip` once we upgrade to solc^0.5
+      it.skip('reverts', async function () {
+        // Create the signature
+        const signature = await web3.eth.sign(TEST_MESSAGE, anyone);
+        await shouldFail.reverting(
+          this.ecdsa.recover(TEST_MESSAGE.substring(2), signature)
+        );
+      });
     });
   });
 

@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 import "zos-lib/contracts/Initializable.sol";
 import "../validation/TimedCrowdsale.sol";
@@ -31,7 +31,7 @@ contract IncreasingPriceCrowdsale is Initializable, TimedCrowdsale {
     }
 
     /**
-     * The base rate function is overridden to revert, since this crowdsale doens't use it, and
+     * The base rate function is overridden to revert, since this crowdsale doesn't use it, and
      * all calls to it are a mistake.
      */
     function rate() public view returns (uint256) {

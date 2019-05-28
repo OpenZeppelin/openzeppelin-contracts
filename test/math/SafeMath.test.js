@@ -8,19 +8,29 @@ contract('SafeMath', function () {
     this.safeMath = await SafeMathMock.new();
   });
 
+  async function testCommutative (fn, lhs, rhs, expected) {
+    (await fn(lhs, rhs)).should.be.bignumber.equal(expected);
+    (await fn(rhs, lhs)).should.be.bignumber.equal(expected);
+  }
+
+  async function testFailsCommutative (fn, lhs, rhs) {
+    await shouldFail.reverting(fn(lhs, rhs));
+    await shouldFail.reverting(fn(rhs, lhs));
+  }
+
   describe('add', function () {
     it('adds correctly', async function () {
       const a = new BN('5678');
       const b = new BN('1234');
 
-      (await this.safeMath.add(a, b)).should.be.bignumber.equal(a.add(b));
+      await testCommutative(this.safeMath.add, a, b, a.add(b));
     });
 
     it('reverts on addition overflow', async function () {
       const a = MAX_UINT256;
       const b = new BN('1');
 
-      await shouldFail.reverting(this.safeMath.add(a, b));
+      await testFailsCommutative(this.safeMath.add, a, b);
     });
   });
 
@@ -45,28 +55,21 @@ contract('SafeMath', function () {
       const a = new BN('1234');
       const b = new BN('5678');
 
-      (await this.safeMath.mul(a, b)).should.be.bignumber.equal(a.mul(b));
+      await testCommutative(this.safeMath.mul, a, b, a.mul(b));
     });
 
-    it('handles a zero product correctly (first number as zero)', async function () {
+    it('multiplies by zero correctly', async function () {
       const a = new BN('0');
       const b = new BN('5678');
 
-      (await this.safeMath.mul(a, b)).should.be.bignumber.equal(a.mul(b));
-    });
-
-    it('handles a zero product correctly (second number as zero)', async function () {
-      const a = new BN('5678');
-      const b = new BN('0');
-
-      (await this.safeMath.mul(a, b)).should.be.bignumber.equal(a.mul(b));
+      await testCommutative(this.safeMath.mul, a, b, '0');
     });
 
     it('reverts on multiplication overflow', async function () {
       const a = MAX_UINT256;
       const b = new BN('2');
 
-      await shouldFail.reverting(this.safeMath.mul(a, b));
+      await testFailsCommutative(this.safeMath.mul, a, b);
     });
   });
 
@@ -92,7 +95,7 @@ contract('SafeMath', function () {
       (await this.safeMath.div(a, b)).should.be.bignumber.equal('1');
     });
 
-    it('reverts on zero division', async function () {
+    it('reverts on divison by zero', async function () {
       const a = new BN('5678');
       const b = new BN('0');
 

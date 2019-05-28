@@ -1,19 +1,21 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 import "zos-lib/contracts/Initializable.sol";
 import "./IERC721.sol";
 import "./IERC721Receiver.sol";
 import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";
+import "../../drafts/Counters.sol";
 import "../../introspection/ERC165.sol";
 
 /**
  * @title ERC721 Non-Fungible Token Standard basic implementation
- * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
+ * @dev see https://eips.ethereum.org/EIPS/eip-721
  */
 contract ERC721 is Initializable, ERC165, IERC721 {
     using SafeMath for uint256;
     using Address for address;
+    using Counters for Counters.Counter;
 
     // Equals to `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`
     // which can be also obtained as `IERC721Receiver(0).onERC721Received.selector`
@@ -26,7 +28,7 @@ contract ERC721 is Initializable, ERC165, IERC721 {
     mapping (uint256 => address) private _tokenApprovals;
 
     // Mapping from owner to number of owned token
-    mapping (address => uint256) private _ownedTokensCount;
+    mapping (address => Counters.Counter) private _ownedTokensCount;
 
     // Mapping from owner to operator approvals
     mapping (address => mapping (address => bool)) private _operatorApprovals;
@@ -63,13 +65,13 @@ contract ERC721 is Initializable, ERC165, IERC721 {
      */
     function balanceOf(address owner) public view returns (uint256) {
         require(owner != address(0));
-        return _ownedTokensCount[owner];
+        return _ownedTokensCount[owner].current();
     }
 
     /**
      * @dev Gets the owner of the specified token ID
      * @param tokenId uint256 ID of the token to query the owner of
-     * @return owner address currently marked as the owner of the given token ID
+     * @return address currently marked as the owner of the given token ID
      */
     function ownerOf(uint256 tokenId) public view returns (address) {
         address owner = _tokenOwner[tokenId];
@@ -130,11 +132,11 @@ contract ERC721 is Initializable, ERC165, IERC721 {
     /**
      * @dev Transfers the ownership of a given token ID to another address
      * Usage of this method is discouraged, use `safeTransferFrom` whenever possible
-     * Requires the msg sender to be the owner, approved, or operator
+     * Requires the msg.sender to be the owner, approved, or operator
      * @param from current owner of the token
      * @param to address to receive the ownership of the given token ID
      * @param tokenId uint256 ID of the token to be transferred
-    */
+     */
     function transferFrom(address from, address to, uint256 tokenId) public {
         require(_isApprovedOrOwner(msg.sender, tokenId));
 
@@ -147,12 +149,11 @@ contract ERC721 is Initializable, ERC165, IERC721 {
      * which is called upon a safe transfer, and return the magic value
      * `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`; otherwise,
      * the transfer is reverted.
-     *
-     * Requires the msg sender to be the owner, approved, or operator
+     * Requires the msg.sender to be the owner, approved, or operator
      * @param from current owner of the token
      * @param to address to receive the ownership of the given token ID
      * @param tokenId uint256 ID of the token to be transferred
-    */
+     */
     function safeTransferFrom(address from, address to, uint256 tokenId) public {
         safeTransferFrom(from, to, tokenId, "");
     }
@@ -163,7 +164,7 @@ contract ERC721 is Initializable, ERC165, IERC721 {
      * which is called upon a safe transfer, and return the magic value
      * `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`; otherwise,
      * the transfer is reverted.
-     * Requires the msg sender to be the owner, approved, or operator
+     * Requires the msg.sender to be the owner, approved, or operator
      * @param from current owner of the token
      * @param to address to receive the ownership of the given token ID
      * @param tokenId uint256 ID of the token to be transferred
@@ -177,7 +178,7 @@ contract ERC721 is Initializable, ERC165, IERC721 {
     /**
      * @dev Returns whether the specified token exists
      * @param tokenId uint256 ID of the token to query the existence of
-     * @return whether the token exists
+     * @return bool whether the token exists
      */
     function _exists(uint256 tokenId) internal view returns (bool) {
         address owner = _tokenOwner[tokenId];
@@ -189,7 +190,7 @@ contract ERC721 is Initializable, ERC165, IERC721 {
      * @param spender address of the spender to query
      * @param tokenId uint256 ID of the token to be transferred
      * @return bool whether the msg.sender is approved for the given token ID,
-     *    is an operator of the owner, or is the owner of the token
+     * is an operator of the owner, or is the owner of the token
      */
     function _isApprovedOrOwner(address spender, uint256 tokenId) internal view returns (bool) {
         address owner = ownerOf(tokenId);
@@ -207,7 +208,7 @@ contract ERC721 is Initializable, ERC165, IERC721 {
         require(!_exists(tokenId));
 
         _tokenOwner[tokenId] = to;
-        _ownedTokensCount[to] = _ownedTokensCount[to].add(1);
+        _ownedTokensCount[to].increment();
 
         emit Transfer(address(0), to, tokenId);
     }
@@ -224,7 +225,7 @@ contract ERC721 is Initializable, ERC165, IERC721 {
 
         _clearApproval(tokenId);
 
-        _ownedTokensCount[owner] = _ownedTokensCount[owner].sub(1);
+        _ownedTokensCount[owner].decrement();
         _tokenOwner[tokenId] = address(0);
 
         emit Transfer(owner, address(0), tokenId);
@@ -245,15 +246,15 @@ contract ERC721 is Initializable, ERC165, IERC721 {
      * @param from current owner of the token
      * @param to address to receive the ownership of the given token ID
      * @param tokenId uint256 ID of the token to be transferred
-    */
+     */
     function _transferFrom(address from, address to, uint256 tokenId) internal {
         require(ownerOf(tokenId) == from);
         require(to != address(0));
 
         _clearApproval(tokenId);
 
-        _ownedTokensCount[from] = _ownedTokensCount[from].sub(1);
-        _ownedTokensCount[to] = _ownedTokensCount[to].add(1);
+        _ownedTokensCount[from].decrement();
+        _ownedTokensCount[to].increment();
 
         _tokenOwner[tokenId] = to;
 
@@ -267,7 +268,7 @@ contract ERC721 is Initializable, ERC165, IERC721 {
      * @param to target address that will receive the tokens
      * @param tokenId uint256 ID of the token to be transferred
      * @param _data bytes optional data to send along with the call
-     * @return whether the call correctly returned the expected magic value
+     * @return bool whether the call correctly returned the expected magic value
      */
     function _checkOnERC721Received(address from, address to, uint256 tokenId, bytes memory _data)
         internal returns (bool)

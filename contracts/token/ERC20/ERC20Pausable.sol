@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 import "zos-lib/contracts/Initializable.sol";
 import "./ERC20.sol";
@@ -7,7 +7,7 @@ import "../../lifecycle/Pausable.sol";
 /**
  * @title Pausable token
  * @dev ERC20 modified with pausable transfers.
- **/
+ */
 contract ERC20Pausable is Initializable, ERC20, Pausable {
     function initialize(address sender) public initializer {
         Pausable.initialize(sender);

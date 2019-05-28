@@ -1,11 +1,11 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 import "../ownership/Ownable.sol";
 
 /**
  * @title Ownable interface id calculator.
  * @dev See the EIP165 specification for more information:
- * https://github.com/ethereum/EIPs/blob/master/EIPS/eip-165.md#specification
+ * https://eips.ethereum.org/EIPS/eip-165#specification
  */
 contract OwnableInterfaceId {
     function getInterfaceId() public pure returns (bytes4) {

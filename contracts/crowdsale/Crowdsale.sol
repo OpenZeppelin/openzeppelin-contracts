@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 import "zos-lib/contracts/Initializable.sol";
 import "../token/ERC20/IERC20.sol";
@@ -12,8 +12,8 @@ import "../utils/ReentrancyGuard.sol";
  * allowing investors to purchase tokens with ether. This contract implements
  * such functionality in its most fundamental form and can be extended to provide additional
  * functionality and/or custom behavior.
- * The external interface represents the basic interface for purchasing tokens, and conform
- * the base architecture for crowdsales. They are *not* intended to be modified / overridden.
+ * The external interface represents the basic interface for purchasing tokens, and conforms
+ * the base architecture for crowdsales. It is *not* intended to be modified / overridden.
  * The internal interface conforms the extensible and modifiable surface of crowdsales. Override
  * the methods to add functionality. Consider using 'super' where appropriate to concatenate
  * behavior.
@@ -66,7 +66,7 @@ contract Crowdsale is Initializable, ReentrancyGuard {
 
     /**
      * @dev fallback function ***DO NOT OVERRIDE***
-     * Note that other contracts will transfer fund with a base gas stipend
+     * Note that other contracts will transfer funds with a base gas stipend
      * of 2300, which is not enough to call buyTokens. Consider calling
      * buyTokens directly when purchasing tokens from a contract.
      */

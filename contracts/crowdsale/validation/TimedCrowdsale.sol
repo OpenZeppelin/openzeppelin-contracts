@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 import "zos-lib/contracts/Initializable.sol";
 import "../../math/SafeMath.sol";
@@ -13,6 +13,13 @@ contract TimedCrowdsale is Initializable, Crowdsale {
 
     uint256 private _openingTime;
     uint256 private _closingTime;
+
+    /**
+     * Event for crowdsale extending
+     * @param newClosingTime new closing time
+     * @param prevClosingTime old closing time
+     */
+    event TimedCrowdsaleExtended(uint256 prevClosingTime, uint256 newClosingTime);
 
     /**
      * @dev Reverts if not in crowdsale time range.
@@ -80,6 +87,18 @@ contract TimedCrowdsale is Initializable, Crowdsale {
      */
     function _preValidatePurchase(address beneficiary, uint256 weiAmount) internal onlyWhileOpen view {
         super._preValidatePurchase(beneficiary, weiAmount);
+    }
+
+    /**
+     * @dev Extend crowdsale
+     * @param newClosingTime Crowdsale closing time
+     */
+    function _extendTime(uint256 newClosingTime) internal {
+        require(!hasClosed());
+        require(newClosingTime > _closingTime);
+
+        emit TimedCrowdsaleExtended(_closingTime, newClosingTime);
+        _closingTime = newClosingTime;
     }
 
     uint256[50] private ______gap;
