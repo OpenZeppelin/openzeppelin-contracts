@@ -47,7 +47,7 @@
     "chai": "^4.2.0",
     "concurrently": "^4.1.0",
     "coveralls": "^3.0.1",
-    "eslint": "^4.19.1",
+    "eslint": "^5.16.0",
     "eslint-config-standard": "^10.2.1",
     "eslint-plugin-import": "^2.13.0",
     "eslint-plugin-mocha-no-only": "^1.1.0",
