@@ -61,7 +61,7 @@
     "nodemon": "^1.19.0",
     "openzeppelin-docsite": "github:OpenZeppelin/openzeppelin-docsite#ee1df82d52ad3df4337b20392627975091f8d5b3",
     "openzeppelin-test-helpers": "^0.4",
-    "solhint": "^1.5.0",
+    "solhint": "2.1.0",
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
     "solidity-docgen": "github:OpenZeppelin/solidity-docgen#03f42b5e271b1e1c1d0b814b921ecdc086055255",
     "truffle": "^5.0.18"
