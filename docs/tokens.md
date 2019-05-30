@@ -115,7 +115,8 @@ contract DoggoTime is ERC721Full {
         _setTokenURI(doggoTokenId, tokenURI);
         return true;
     }
-}```
+}
+```
 
 Now anyone who wants to sell their time in exchange for DOGGO tokens can call:
 
