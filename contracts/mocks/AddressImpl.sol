@@ -7,7 +7,7 @@ contract AddressImpl {
         return Address.isContract(account);
     }
 
-    function toPayable(address account) internal pure returns (address payable) {
-        return address(uint160(account));
+    function toPayable(address account) external pure returns (address payable) {
+        return Address.toPayable(account);
     }
 }
