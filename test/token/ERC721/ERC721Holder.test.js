@@ -1,5 +1,7 @@
 const { BN } = require('openzeppelin-test-helpers');
 
+const { expect } = require('chai');
+
 const ERC721Holder = artifacts.require('ERC721Holder.sol');
 const ERC721Mintable = artifacts.require('ERC721MintableBurnableImpl.sol');
 
@@ -13,6 +15,6 @@ contract('ERC721Holder', function ([creator]) {
     await token.approve(receiver.address, tokenId, { from: creator });
     await token.safeTransferFrom(creator, receiver.address, tokenId);
 
-    (await token.ownerOf(tokenId)).should.be.equal(receiver.address);
+    expect(await token.ownerOf(tokenId)).to.be.equal(receiver.address);
   });
 });

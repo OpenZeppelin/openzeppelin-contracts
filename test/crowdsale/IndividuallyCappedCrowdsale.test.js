@@ -1,5 +1,7 @@
 const { BN, ether, expectRevert } = require('openzeppelin-test-helpers');
 
+const { expect } = require('chai');
+
 const IndividuallyCappedCrowdsaleImpl = artifacts.require('IndividuallyCappedCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 const { shouldBehaveLikePublicRole } = require('../behaviors/access/roles/PublicRole.behavior');
@@ -30,7 +32,7 @@ contract('IndividuallyCappedCrowdsale', function (
   describe('individual caps', function () {
     it('sets a cap when the sender is a capper', async function () {
       await this.crowdsale.setCap(alice, capAlice, { from: capper });
-      (await this.crowdsale.getCap(alice)).should.be.bignumber.equal(capAlice);
+      expect(await this.crowdsale.getCap(alice)).to.be.bignumber.equal(capAlice);
     });
 
     it('reverts when a non-capper sets a cap', async function () {
@@ -84,12 +86,12 @@ contract('IndividuallyCappedCrowdsale', function (
 
       describe('reporting state', function () {
         it('should report correct cap', async function () {
-          (await this.crowdsale.getCap(alice)).should.be.bignumber.equal(capAlice);
+          expect(await this.crowdsale.getCap(alice)).to.be.bignumber.equal(capAlice);
         });
 
         it('should report actual contribution', async function () {
           await this.crowdsale.buyTokens(alice, { value: lessThanCapAlice });
-          (await this.crowdsale.getContribution(alice)).should.be.bignumber.equal(lessThanCapAlice);
+          expect(await this.crowdsale.getContribution(alice)).to.be.bignumber.equal(lessThanCapAlice);
         });
       });
     });

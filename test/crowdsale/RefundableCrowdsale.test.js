@@ -1,5 +1,7 @@
 const { balance, BN, ether, expectRevert, time } = require('openzeppelin-test-helpers');
 
+const { expect } = require('chai');
+
 const RefundableCrowdsaleImpl = artifacts.require('RefundableCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
@@ -72,7 +74,7 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, other
           it('refunds', async function () {
             const balanceTracker = await balance.tracker(investor);
             await this.crowdsale.claimRefund(investor, { gasPrice: 0 });
-            (await balanceTracker.delta()).should.be.bignumber.equal(lessThanGoal);
+            expect(await balanceTracker.delta()).to.be.bignumber.equal(lessThanGoal);
           });
         });
       });
@@ -96,7 +98,7 @@ contract('RefundableCrowdsale', function ([_, wallet, investor, purchaser, other
 
           it('forwards funds to wallet', async function () {
             const postWalletBalance = await balance.current(wallet);
-            postWalletBalance.sub(this.preWalletBalance).should.be.bignumber.equal(goal);
+            expect(postWalletBalance.sub(this.preWalletBalance)).to.be.bignumber.equal(goal);
           });
         });
       });

@@ -1,6 +1,8 @@
 const { BN, constants, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
+const { expect } = require('chai');
+
 const {
   shouldBehaveLikeERC20,
   shouldBehaveLikeERC20Transfer,
@@ -51,12 +53,12 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
           it('decreases the spender allowance subtracting the requested amount', async function () {
             await this.token.decreaseAllowance(spender, approvedAmount.subn(1), { from: initialHolder });
 
-            (await this.token.allowance(initialHolder, spender)).should.be.bignumber.equal('1');
+            expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal('1');
           });
 
           it('sets the allowance to zero when all allowance is removed', async function () {
             await this.token.decreaseAllowance(spender, approvedAmount, { from: initialHolder });
-            (await this.token.allowance(initialHolder, spender)).should.be.bignumber.equal('0');
+            expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal('1');
           });
 
           it('reverts when more than the full allowance is removed', async function () {
@@ -114,7 +116,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
           it('approves the requested amount', async function () {
             await this.token.increaseAllowance(spender, amount, { from: initialHolder });
 
-            (await this.token.allowance(initialHolder, spender)).should.be.bignumber.equal(amount);
+            expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal(amount);
           });
         });
 
@@ -126,7 +128,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
           it('increases the spender allowance adding the requested amount', async function () {
             await this.token.increaseAllowance(spender, amount, { from: initialHolder });
 
-            (await this.token.allowance(initialHolder, spender)).should.be.bignumber.equal(amount.addn(1));
+            expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal(amount.addn(1));
           });
         });
       });
@@ -148,7 +150,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
           it('approves the requested amount', async function () {
             await this.token.increaseAllowance(spender, amount, { from: initialHolder });
 
-            (await this.token.allowance(initialHolder, spender)).should.be.bignumber.equal(amount);
+            expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal(amount);
           });
         });
 
@@ -160,7 +162,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
           it('increases the spender allowance adding the requested amount', async function () {
             await this.token.increaseAllowance(spender, amount, { from: initialHolder });
 
-            (await this.token.allowance(initialHolder, spender)).should.be.bignumber.equal(amount.addn(1));
+            expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal(amount.addn(1));
           });
         });
       });
@@ -193,11 +195,11 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
 
       it('increments totalSupply', async function () {
         const expectedSupply = initialSupply.add(amount);
-        (await this.token.totalSupply()).should.be.bignumber.equal(expectedSupply);
+        expect(await this.token.totalSupply()).to.be.bignumber.equal(expectedSupply);
       });
 
       it('increments recipient balance', async function () {
-        (await this.token.balanceOf(recipient)).should.be.bignumber.equal(amount);
+        expect(await this.token.balanceOf(recipient)).to.be.bignumber.equal(amount);
       });
 
       it('emits Transfer event', async function () {
@@ -206,7 +208,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
           to: recipient,
         });
 
-        event.args.value.should.be.bignumber.equal(amount);
+        expect(event.args.value).to.be.bignumber.equal(amount);
       });
     });
   });
@@ -233,12 +235,12 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
 
           it('decrements totalSupply', async function () {
             const expectedSupply = initialSupply.sub(amount);
-            (await this.token.totalSupply()).should.be.bignumber.equal(expectedSupply);
+            expect(await this.token.totalSupply()).to.be.bignumber.equal(expectedSupply);
           });
 
           it('decrements initialHolder balance', async function () {
             const expectedBalance = initialSupply.sub(amount);
-            (await this.token.balanceOf(initialHolder)).should.be.bignumber.equal(expectedBalance);
+            expect(await this.token.balanceOf(initialHolder)).to.be.bignumber.equal(expectedBalance);
           });
 
           it('emits Transfer event', async function () {
@@ -247,7 +249,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
               to: ZERO_ADDRESS,
             });
 
-            event.args.value.should.be.bignumber.equal(amount);
+            expect(event.args.value).to.be.bignumber.equal(amount);
           });
         });
       };
@@ -294,17 +296,17 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
 
           it('decrements totalSupply', async function () {
             const expectedSupply = initialSupply.sub(amount);
-            (await this.token.totalSupply()).should.be.bignumber.equal(expectedSupply);
+            expect(await this.token.totalSupply()).to.be.bignumber.equal(expectedSupply);
           });
 
           it('decrements initialHolder balance', async function () {
             const expectedBalance = initialSupply.sub(amount);
-            (await this.token.balanceOf(initialHolder)).should.be.bignumber.equal(expectedBalance);
+            expect(await this.token.balanceOf(initialHolder)).to.be.bignumber.equal(expectedBalance);
           });
 
           it('decrements spender allowance', async function () {
             const expectedAllowance = allowance.sub(amount);
-            (await this.token.allowance(initialHolder, spender)).should.be.bignumber.equal(expectedAllowance);
+            expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal(expectedAllowance);
           });
 
           it('emits a Transfer event', async function () {
@@ -313,7 +315,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
               to: ZERO_ADDRESS,
             });
 
-            event.args.value.should.be.bignumber.equal(amount);
+            expect(event.args.value).to.be.bignumber.equal(amount);
           });
 
           it('emits an Approval event', async function () {

@@ -3,6 +3,8 @@ require('openzeppelin-test-helpers');
 const { MerkleTree } = require('../helpers/merkleTree.js');
 const { keccak256, bufferToHex } = require('ethereumjs-util');
 
+const { expect } = require('chai');
+
 const MerkleProofWrapper = artifacts.require('MerkleProofWrapper');
 
 contract('MerkleProof', function () {
@@ -21,7 +23,7 @@ contract('MerkleProof', function () {
 
       const leaf = bufferToHex(keccak256(elements[0]));
 
-      (await this.merkleProof.verify(proof, root, leaf)).should.equal(true);
+      expect(await this.merkleProof.verify(proof, root, leaf)).to.equal(true);
     });
 
     it('should return false for an invalid Merkle proof', async function () {
@@ -37,7 +39,7 @@ contract('MerkleProof', function () {
 
       const badProof = badMerkleTree.getHexProof(badElements[0]);
 
-      (await this.merkleProof.verify(badProof, correctRoot, correctLeaf)).should.equal(false);
+      expect(await this.merkleProof.verify(badProof, correctRoot, correctLeaf)).to.equal(false);
     });
 
     it('should return false for a Merkle proof of invalid length', async function () {
@@ -51,7 +53,7 @@ contract('MerkleProof', function () {
 
       const leaf = bufferToHex(keccak256(elements[0]));
 
-      (await this.merkleProof.verify(badProof, root, leaf)).should.equal(false);
+      expect(await this.merkleProof.verify(badProof, root, leaf)).to.equal(false);
     });
   });
 });

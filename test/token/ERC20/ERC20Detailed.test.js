@@ -1,5 +1,7 @@
 const { BN } = require('openzeppelin-test-helpers');
 
+const { expect } = require('chai');
+
 const ERC20DetailedMock = artifacts.require('ERC20DetailedMock');
 
 contract('ERC20Detailed', function () {
@@ -12,14 +14,14 @@ contract('ERC20Detailed', function () {
   });
 
   it('has a name', async function () {
-    (await this.detailedERC20.name()).should.be.equal(_name);
+    expect(await this.detailedERC20.name()).to.equal(_name);
   });
 
   it('has a symbol', async function () {
-    (await this.detailedERC20.symbol()).should.be.equal(_symbol);
+    expect(await this.detailedERC20.symbol()).to.equal(_symbol);
   });
 
   it('has an amount of decimals', async function () {
-    (await this.detailedERC20.decimals()).should.be.bignumber.equal(_decimals);
+    expect(await this.detailedERC20.decimals()).to.be.bignumber.equal(_decimals);
   });
 });

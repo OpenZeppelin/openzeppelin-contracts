@@ -1,6 +1,8 @@
 const { BN, constants, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
+const { expect } = require('chai');
+
 function shouldBehaveLikeERC20Mintable (minter, [other]) {
   describe('as a mintable token', function () {
     describe('mint', function () {
@@ -23,7 +25,7 @@ function shouldBehaveLikeERC20Mintable (minter, [other]) {
           });
 
           it('mints the requested amount', async function () {
-            (await this.token.balanceOf(other)).should.be.bignumber.equal(amount);
+            expect(await this.token.balanceOf(other)).to.be.bignumber.equal(amount);
           });
 
           it('emits a mint and a transfer event', async function () {

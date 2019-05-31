@@ -1,6 +1,8 @@
 const { expectRevert, singletons } = require('openzeppelin-test-helpers');
 const { bufferToHex, keccak256 } = require('ethereumjs-util');
 
+const { expect } = require('chai');
+
 const ERC1820ImplementerMock = artifacts.require('ERC1820ImplementerMock');
 
 contract('ERC1820Implementer', function ([_, registryFunder, implementee, other]) {
@@ -16,8 +18,8 @@ contract('ERC1820Implementer', function ([_, registryFunder, implementee, other]
 
   context('with no registered interfaces', function () {
     it('returns false when interface implementation is queried', async function () {
-      (await this.implementer.canImplementInterfaceForAddress(this.interfaceA, implementee))
-        .should.not.equal(ERC1820_ACCEPT_MAGIC);
+      expect(await this.implementer.canImplementInterfaceForAddress(this.interfaceA, implementee))
+        .to.not.equal(ERC1820_ACCEPT_MAGIC);
     });
 
     it('reverts when attempting to set as implementer in the registry', async function () {
@@ -36,18 +38,18 @@ contract('ERC1820Implementer', function ([_, registryFunder, implementee, other]
     });
 
     it('returns true when interface implementation is queried', async function () {
-      (await this.implementer.canImplementInterfaceForAddress(this.interfaceA, implementee))
-        .should.equal(ERC1820_ACCEPT_MAGIC);
+      expect(await this.implementer.canImplementInterfaceForAddress(this.interfaceA, implementee))
+        .to.equal(ERC1820_ACCEPT_MAGIC);
     });
 
     it('returns false when interface implementation for non-supported interfaces is queried', async function () {
-      (await this.implementer.canImplementInterfaceForAddress(this.interfaceB, implementee))
-        .should.not.equal(ERC1820_ACCEPT_MAGIC);
+      expect(await this.implementer.canImplementInterfaceForAddress(this.interfaceB, implementee))
+        .to.not.equal(ERC1820_ACCEPT_MAGIC);
     });
 
     it('returns false when interface implementation for non-supported addresses is queried', async function () {
-      (await this.implementer.canImplementInterfaceForAddress(this.interfaceA, other))
-        .should.not.equal(ERC1820_ACCEPT_MAGIC);
+      expect(await this.implementer.canImplementInterfaceForAddress(this.interfaceA, other))
+        .to.not.equal(ERC1820_ACCEPT_MAGIC);
     });
 
     it('can be set as an implementer for supported interfaces in the registry', async function () {
@@ -55,8 +57,8 @@ contract('ERC1820Implementer', function ([_, registryFunder, implementee, other]
         implementee, this.interfaceA, this.implementer.address, { from: implementee }
       );
 
-      (await this.registry.getInterfaceImplementer(implementee, this.interfaceA))
-        .should.equal(this.implementer.address);
+      expect(await this.registry.getInterfaceImplementer(implementee, this.interfaceA))
+        .to.equal(this.implementer.address);
     });
   });
 });
