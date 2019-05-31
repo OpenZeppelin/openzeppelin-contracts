@@ -26,10 +26,8 @@ library Address {
     }
 
     /**
-     * @dev Changes the type of `address` to `address payable`.
-     * 
-     * This is one of Breaking Changes in solidity 0.5, so at here,
-     * we provide a simple wrapper to meet this change.
+     * @dev Converts an `address` into `address payable`. Note that this is
+     * simply a type cast: the actual underlying value is not changed.
      */
     function toPayable(address account) internal pure returns (address payable) {
         return address(uint160(account));
