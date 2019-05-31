@@ -24,4 +24,12 @@ library Address {
         assembly { size := extcodesize(account) }
         return size > 0;
     }
+
+    /**
+     * @dev Converts an `address` into `address payable`. Note that this is
+     * simply a type cast: the actual underlying value is not changed.
+     */
+    function toPayable(address account) internal pure returns (address payable) {
+        return address(uint160(account));
+    }
 }
