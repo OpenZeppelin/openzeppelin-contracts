@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.4.0 (unreleased)
+
+### New features:
+ * `Address.toPayable`: added a helper to convert between address types without having to resort to low-level casting. ([#1773](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1773))
+
 ## 2.3.0 (2019-05-27)
 
 ### New features:
