@@ -89,6 +89,6 @@ If you want to Escrow some funds, check out [`Escrow`](api/payment#escrow) and [
 
 ### Misc
 
-Want to check if an address is a contract? Use [`Address`](api/utils#address) and [`Address#isContract()`](api/utils#Address.isContract(address)).
+Want to check if an address is a contract? Use [`Address`](api/utils#address) and [`Address.isContract()`](api/utils#Address.isContract(address)).
 
 Want to keep track of some numbers that increment by 1 every time you want another one? Check out [`Counter`](api/drafts#counter). This is especially useful for creating incremental ERC721 `tokenId`s like we did in the last section.
