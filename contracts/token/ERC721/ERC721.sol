@@ -283,7 +283,7 @@ contract ERC721 is ERC165, IERC721 {
         return (retval == _ERC721_RECEIVED);
     }
     /**
-    * @dev Internal function that safely transfers the ownership of a given token ID to another address
+     * @dev Internal function that safely transfers the ownership of a given token ID to another address
      * @param from current owner of the token
      * @param to address to receive the ownership of the given token ID
      * @param tokenId uint256 ID of the token to be transferred
