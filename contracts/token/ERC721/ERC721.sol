@@ -140,7 +140,7 @@ contract ERC721 is ERC165, IERC721 {
      * @param tokenId uint256 ID of the token to be transferred
      */
     function transferFrom(address from, address to, uint256 tokenId) public {
-        require(_isApprovedOrOwner(msg.sender, tokenId));
+        require(_isApprovedOrOwner(msg.sender, tokenId), "ERC721: transfer caller is not owner nor approved");
         _safeTransferFrom(from, to, tokenId, "");
     }
 
@@ -172,7 +172,7 @@ contract ERC721 is ERC165, IERC721 {
      * @param _data bytes data to send along with a safe transfer check
      */
     function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory _data) public {
-        require(_isApprovedOrOwner(msg.sender, tokenId));
+        require(_isApprovedOrOwner(msg.sender, tokenId), "ERC721: safeTransferFrom caller is not owner nor approved");
         _safeTransferFrom(from, to, tokenId, _data);
     }
 
@@ -206,8 +206,8 @@ contract ERC721 is ERC165, IERC721 {
      * @param tokenId uint256 ID of the token to be minted
      */
     function _mint(address to, uint256 tokenId) internal {
-        require(to != address(0));
-        require(!_exists(tokenId));
+        require(to != address(0), "ERC721: mint to the zero address");
+        require(!_exists(tokenId), "ERC721: token already minted");
 
         _tokenOwner[tokenId] = to;
         _ownedTokensCount[to].increment();
@@ -290,7 +290,10 @@ contract ERC721 is ERC165, IERC721 {
      * @param _data bytes data to send along with a safe transfer check
      */
     function _safeTransferFrom(address from, address to, uint256 tokenId, bytes memory _data) internal {
-        require(_checkOnERC721Received(from, to, tokenId, _data));
+        require(
+            _checkOnERC721Received(from, to, tokenId, _data),
+                "ERC721: _safeTransferFrom recipient does not implement IERC721Receiver"
+        );
         _transferFrom(from, to, tokenId);
     }
     /**
@@ -301,7 +304,10 @@ contract ERC721 is ERC165, IERC721 {
      * @param _data bytes data to send along with token minting
      */
     function _safeMint(address from, address to, uint256 tokenId, bytes memory _data) internal {
-        require(_checkOnERC721Received(from, to, tokenId, _data));
+        require(
+            _checkOnERC721Received(from, to, tokenId, _data),
+                "ERC721: _safeMint recipient does not implement IERC721Receiver"
+        );
         _mint(to, tokenId);
     }
 
