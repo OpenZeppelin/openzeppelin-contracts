@@ -7,133 +7,226 @@ Ah, the "token": the world's most powerful and most misused tool. In this sectio
 
 ## But First, ~~Coffee~~ a Primer on Tokens
 
-Simply put, a token _isn't anything special_. In Ethereum, pretty much _everything_ is a contract, and that includes what we call tokens. "Sending a token" is the same as "calling a method on a smart contract that someone wrote and deployed". And, at the end of the day, a token is just a mapping of addresses to balances and some nice methods to add and subtract from those balances.
+Much of the confusion sorrounding tokens comes from two concepts getting mixed up: _token contracts_ and the actual _tokens_.
 
-That's it! These balances could be considered money, or they could be voting rights or they could be experience points in your game.
+Simply put, a _token contract_ isn't anything special. In Ethereum, pretty much _everything_ is a contract, and that includes these token contracts. "Sending tokens" actually means "calling a method on a smart contract that someone wrote and deployed". At the end of the day, a token contract is simply a mapping of addresses to balances, plus some methods to add and subtract from those balances.
+
+It is these balances that represent the _tokens_ themselves. Someone "has tokens" when their balance in the token contract is non-zero. That's it! These balances could be considered money, experience points in a game, deeds of ownership, voting rights, etc., and each of these tokens would be stored in different token contracts.
+
+### Different kinds of tokens
+
+Note that there's a big difference between having two voting rights and two deeds of ownership: each vote is equal to all others, but houses usually are not! This is called [fungibility](https://en.wikipedia.org/wiki/Fungibility). _Fungible goods_  are equivalent and interchangeable, like Ether, fiat currencies, and voting rights. _Non-fungible_ goods are unique and distinct (like deeds of ownership, or collectibles).
+
+In a nutshell, when dealing with non-fungibles (like your house) you care about _which ones_ you have, while in fungible assets (like your bank account statement) what matters is _how much_ you have.
+
+### Standards
 
 Even though the concept of a token is simple, they have a variety of complexities in the implementation. Because everything in Ethereum is just a smart contract, and there are no rules about what smart contracts have to do, the community has developed a variety of **standards** (called EIPs or ERCs) for documenting how a contract can interoperate with other contracts.
 
-You've probably heard of the **ERC20** standard, and that's why you're here.
+You've probably heard of the [ERC20](#erc20) or [ERC721](#erc721) token standards, and that's why you're here.
+
+---
 
 ## ERC20
 
-An ERC20 token is a contract that keeps track of a `mapping(address => uint256)` that represents a user's balance. These tokens are _fungible_ in that any one token is exactly equal to any other token; no tokens have special rights or behavior associated with them. This makes ERC20 useful for things like a medium of exchange currency, general voting rights, staking, and more.
+An ERC20 token contract keeps track of [_fungible_ tokens](#different-kinds-of-tokens): any one token is exactly equal to any other token; no tokens have special rights or behavior associated with them. This makes ERC20 tokens useful for things like a **medium of exchange currency**, **voting rights**, **staking**, and more.
 
-OpenZeppelin provides a few different ERC20-related contracts. Here are the core contracts you'll almost definitely be using:
+OpenZeppelin provides many ERC20-related contracts. On the [`API reference`](api/token/ERC20) you'll find detailed information on their properties and usage.
 
-- [`IERC20`](api/token/ERC20#ierc20) — defines the interface that all ERC20 token implementations should conform to
-- [`ERC20`](api/token/ERC20#erc20) — the base implementation of the ERC20 interface
-- [`ERC20Detailed`](api/token/ERC20#erc20detailed) — the [`name()`](api/token/ERC20#ERC20Detailed.name()), [`symbol()`](api/token/ERC20#ERC20Detailed.symbol()), and [`decimals()`](api/token/ERC20#ERC20Detailed.decimals()) getters are optional in the original standard, so `ERC20Detailed` adds that information to your token.
+### Constructing an ERC20 Token Contract
 
+Using OpenZeppelin, we can easily create our own ERC20 token contract, which will be used to track _Gold_ (GLD), an internal currency in a hypothetical game.
 
-After that, OpenZeppelin provides a few extra properties that you may want depending on your use-case:
-
-- [`ERC20Mintable`](api/token/ERC20#erc20mintable) — `ERC20Mintable` allows users with the [`MinterRole`](access-control) to call the [`mint()`](api/token/ERC20#ERC20Mintable.mint(address,uint256)) function and mint tokens to users.
-- [`ERC20Burnable`](api/token/ERC20#erc20burnable) — if your token can be burned (aka, it can be destroyed), include this one.
-- [`ERC20Capped`](api/token/ERC20#erc20capped) — `ERC20Capped` is a type of `ERC20Mintable` that enforces a maximum cap on tokens; this is really useful if you want to ensure network participants that there will always be a maximum number of tokens, and is useful for making sure that multiple different minting methods don't accidentally create more tokens than you expected.
-- [`ERC20Pausable`](api/token/ERC20#erc20pausable) — `ERC20Pausable` allows anyone with the Pauser role to pause the token, freezing transfers to and from users. This is useful if you want to stop trades until the end of a crowdsale, or if you want to have an emergency switch for freezing your tokens in the event of a large bug. Note that there are inherent decentralization tradeoffs when using a pausable token; users may not expect that their unstoppable money can be frozen by a single address!
-
-Finally, if you're working with ERC20 tokens, OpenZeppelin provides some utility contracts:
-
-- [`SafeERC20`](api/token/ERC20#safeerc20) — provides [`safeTransfer`](api/token/ERC20#SafeERC20.safeTransfer(contract%20IERC20,address,uint256)), [`safeTransferFrom`](api/token/ERC20#SafeERC20.safeTransferFrom(contract%20IERC20,address,address,uint256)), and [`safeApprove`](api/token/ERC20#SafeERC20.safeApprove(contract%20IERC20,address,uint256)) that are helpful wrappers around the normal ERC20 functions. Using `SafeERC20` forces transfers and approvals to succeed, or the entire transaction is reverted.
-- [`TokenTimelock`](api/token/ERC20#tokentimelock) — is an escrow contract for ERC20 tokens that will release some tokens after a specified timeout. This is useful for simple vesting schedules like "advisors get all of their tokens after 1 year". For a better vesting schedule, though, see [`TokenVesting`](api/drafts#tokenvesting)
-
-### Constructing a Nice ERC20 Token
-
-Now that we know what all of the contracts do (you should read the code! It's open source!), we can make our ERC20 token that will revolutionize dogsitting by reducing human beings to organic machines that act entirely based on rational monetary incentives, fueled by the DOGGO token.
-
-Here's what a good DOGGO token might look like.
+Here's what our GLD token might look like.
 
 ```solidity
-contract DoggoToken is ERC20, ERC20Detailed, ERC20Mintable, ERC20Burnable {
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
 
-    constructor(
-        string memory name,
-        string memory symbol,
-        uint8 decimals
-    )
-        ERC20Burnable()
-        ERC20Mintable()
-        ERC20Detailed(name, symbol, decimals)
-        ERC20()
-        public
-    {}
-}
-```
-
-`ERC20Mintable` allows to add minters via `addMinter(addr)`, so they (like the DOGGO Network multisig) can mint tokens to the dogsitters in exchange for watching the nice doggos while their owners leave for vacation. The token is `ERC20Burnable` we want to have the ability to stake DOGGO tokens on our reputation—if the dogsitter does a bad job, their tokens get burned!
-
-### A Note on `decimals`
-
-You might remember from the previous chapter about crowdsales about how math is performed in financial situations: **all currency math is done in the smallest unit of that currency**.
-
-That means that the `totalSupply` of a token is actually in what we call `TKNbits`, not what you see as `TKN`. So if my total supply is `1` and we have `5` decimals in the token, that's actually `1 TKNbit` and will be displayed as `0.00001 TKN`.
-
-You probably want to use a decimals of `18`, just like Ether, unless you have a special reason not to, so when you're minting tokens to people or transferring them around, you're actually sending the number `numTKN * 10^(decimals)`. So if I'm sending you `5` tokens using a token contract with 18 decimals, the method I'm executing actually looks like `transfer(yourAddress, 5 * 10^18)`.
-
-## ERC721
-
-We've discussed how you can make a _fungible_ token using ERC20, but what if not all tokens are alike? This comes up in situations like company stock; some stock is common stock and some stock is investor shares, etc. It also comes up in a bunch of other places like in-game items, time, property, and so on.
-
-[ERC721](https://eips.ethereum.org/EIPS/eip-721) is a standard for representing ownership that is **non-fungible** aka, each token has unique properties.
-
-Let's see what contracts OpenZeppelin provides for helping us work with ERC721:
-
-- The [`IERC721`](api/token/ERC721#ierc721), [`IERC721Metadata`](api/token/ERC721#ierc721metadata), [`IERC721Enumerable`](api/token/ERC721#ierc721enumerable) contracts document the interfaces.
-- [`ERC721`](api/token/ERC721#erc721) — is the full implementation of ERC721, and the contract you'll most likely be inheriting from.
-- [`IERC721Receiver`](api/token/ERC721#ierc721receiver) — in some cases, it's beneficial to be 100% certain that a contract knows how to handle ERC721 tokens (imagine sending an in-game item to an exchange address that can't send it back!). When using [`safeTransferFrom()`](api/token/ERC721#ERC721.safeTransferFrom(address,address,uint256)), the contract checks to see that the receiver is an `IERC721Receiver`, which implies that it knows how to handle ERC721 tokens. If you're writing a contract that accepts ERC721 tokens, you'll want to implement this interface.
-- [`ERC721Mintable`](api/token/ERC721#erc721mintable) — like the ERC20 version, `ERC721Mintable` allows addresses with the `Minter` role to mint tokens.
-- [`ERC721Pausable`](api/token/ERC721#erc721pausable) — like the ERC20 version, `ERC721Pausable` allows addresses with the `Pauser` role to freeze transfers of tokens.
-
-
-We'll use these contracts to tokenize the time of our dogsitters: when a dogsitter wants to sell an hour of their time to watch a dog, they can mint an ERC721 token that represents that hour slot and then sell this token on an exchange. Then they'll go to the owner's house at the right time to watch their doggos.
-
-Here's what tokenized dogsitter timeframes might look like:
-
-```solidity
-contract DoggoTime is ERC721Full {
-    using Counters for Counters.Counter;
-    Counters.Counter private tokenId;
-
-    constructor(
-        string memory name,
-        string memory symbol
-    )
-        ERC721Full(name, symbol)
-        public
-    {}
-
-    function createDoggoTimeframe(
-        string memory tokenURI
-    )
-        public
-        returns (bool)
-    {
-        tokenId.increment();
-        uint256 doggoTokenId = tokenId.current();
-        _mint(msg.sender, doggoTokenId);
-        _setTokenURI(doggoTokenId, tokenURI);
-        return true;
+contract GLDToken is ERC20, ERC20Detailed {
+    constructor(uint256 initialSupply) ERC20Detailed("Gold", "GLD", 18) public {
+        _mint(msg.sender, initialSupply);
     }
 }
 ```
 
-Now anyone who wants to sell their time in exchange for DOGGO tokens can call:
+OpenZeppelin contracts are often used via [inheritance](https://solidity.readthedocs.io/en/latest/contracts.html#inheritance), and here we're reusing the [`ERC20`](api/token/ERC20#erc20) (for the basic standard implementation) and [`ERC20Detailed`](api/token/ERC20#erc20detailed) (to get the [`name`](api/token/ERC20#ERC20Detailed.name()), [`symbol`](api/token/ERC20#ERC20Detailed.symbol()) and [`decimals`](api/token/ERC20#ERC20Detailed.decimals()) properties) contracts. Additionally, we're creating an `initialSupply` of tokens, which will be assigned to the address that deploys the contract.
 
-```solidity
-DoggoTime(doggoTimeAddress).createDoggoTimeframe("https://example.com/doggo.json")
+_For a more complete discussion of ERC20 supply mechanisms, see [our advanced guide](https://forum.zeppelin.solutions/t/how-to-implement-erc20-supply-mechanisms/226/)_.
+
+That's it! Once deployed, we will be able to query the deployer's balance:
+
+```javascript
+> GLDToken.balanceOf(deployerAddress)
+1000
 ```
 
-where the tokenURI should resolve to a json document that might look something like:
+We can also [transfer](api/token/ERC20#IERC20.transfer(address,uint256)) these tokens to other accounts:
 
-```json
-{
-    "name": "Alex's DOGGO Dogsitting Time — 1 Hour on Thursday the 5th at 6pm",
-    "description": "Alex agrees to dog sit for 1 hour of her time on Thursday the 5th at 6pm.",
-    "image": "https://example.com/doggo-network.png"
+```javascript
+> GLDToken.transfer(otherAccount, 300)
+> GLDToken.balanceOf(otherAccount)
+300
+> GLDToken.balanceOf(deployerAddress)
+700
+```
+
+### A note on `decimals`
+
+Often, you'll want to be able to divide your tokens into arbitrary amounts: say, if you own `5 GLD`, you may want to send `1.5 GLD` to a friend, and keep `3.5 GLD` to yourself. Unfortunately, Solidity and the EVM do not support this behavior: only integer (whole) numbers can be used, which poses an issue. You may send `1` or `2` tokens, but not `1.5`.
+
+To work around this, [`ERC20Detailed`](api/token/ERC20#erc20detailed) provides a [`decimals`](api/token/ERC20#ERC20Detailed.decimals()) field, which is used to specify how many decimal places a token has. To be able to transfer `1.5 GLD`, `decimals` must be at least `1`, since that number has a single decimal place.
+
+How can this be achieved? It's actually very simple: a token contract can use larger integer values, so that a balance of `50` will represent `5 GLD`, a transfer of `15` will correspond to `1.5 GLD` being sent, and so on.
+
+It is important to understand that `decimals` is _only used for display purposes_. All arithmetic inside the contract is still performed on integers, and it is the different user interfaces (wallets, exchanges, etc.) that must adjust the displayed values according to `decimals`. The total token supply and balance of each account are not specified in `GLD`: you need to divide by `10^decimals` to get the actual `GLD` amount.
+
+You'll probably want to use a `decimals` value of `18`, just like Ether and most ERC20 token contracts in use, unless you have a very special reason not to. When minting tokens or transferring them around, you will be actually sending the number `num GLD * 10^decimals`. So if you want to send `5` tokens using a token contract with 18 decimals, the the method to call will actually be `transfer(recipient, 5 * 10^18)`.
+
+---
+
+## ERC721
+
+We've discussed how you can make a _fungible_ token using [ERC20](#erc20), but what if not all tokens are alike? This comes up in situations like **real estate** or **collectibles**, where some items are valued more than others, due to their usefulness, rarity, etc. ERC721 is a standard for representing ownership of [_non-fungible_ tokens](#different-kinds-of-tokens), that is, each token is unique.
+
+ERC721 is a more complex standard than ERC20, with multiple optional extensions, and is split accross a number of contracts. OpenZeppelin provides flexibility regarding how these are combined, along with custom useful extensions. Check out the [`API reference`](api/token/ERC721) to learn more about these.
+
+### Constructing an ERC721 Token Contract
+
+We'll use ERC721 to track items in our game, which will each have their own unique attributes. Whenever one is to be awarded to a player, it will be minted and sent to them. Players are free to keep their token or trade it with other people as they see fit, as they would any other asset on the blockchain!
+
+Here's what a contract for tokenized items might look like:
+
+```solidity
+import "openzeppelin-solidity/contracts/token/ERC721/ERC721.sol";
+
+contract GameItem is ERC721Full {
+    using Counters for Counters.Counter;
+    Counters.Counter private _tokenIds;
+
+    constructor() ERC721Full("GameItem", "ITM") public {
+    }
+
+    function awardItem(address player, string memory tokenURI) public returs (uint256) {
+        _tokenIds.increment();
+
+        uint256 newItemId = _tokenIds.current()
+        _mint(player, newItemId);
+        _setTokenURI(newItemId, tokenURI);
+
+        return newItemId;
+    }
 }
 ```
 
-For more information about tokenURI metadata, check out the [finalized ERC721 spec](https://eips.ethereum.org/EIPS/eip-721).
+The [`ERC721Full`](api/token/ERC721#erc721full) contract includes all standard extensions, and is probably the one you want to use. In particular, it includes [`ERC721Metadata`](api/token/ERC721#erc721metadata), which provides the [`_setTokenURI`](api/token/ERC721#ERC721Metadata._setTokenURI(uint256,string)) method we use to store an item's metadata.
 
-_Note: you'll also notice that the date information is included in the metadata, but that information isn't on-chain! So Alex the dogsitter could change the time and scam some people out of their money! If you'd like to put the dates of the dogsitting hours on-chain, you can extend ERC721 to do so. You could also leverage IPFS to pin the tokenURI information, which lets viewers know if Alex has changed the metadata associated with her tokens, but these techniques are out of the scope of this overview guide._
+Also note that, unlike ERC20, ERC721 lacks a `decimals` field, since each token is distinct and cannot be partitioned.
+
+New items can not be created:
+
+```javascript
+> GameItem.awardItem(playerAddress, "https://game.com/item-id-8u5h2m.json")
+7
+```
+
+And the owner and metadata of each item queried:
+```javascript
+> GameItem.ownerOf(7)
+playerAddress
+> GameItem.tokenURI(7)
+"https://game.com/item-id-8u5h2m.json"
+```
+
+This `tokenURI` should resolve to a JSON document that might look something like:
+
+```json
+{
+    "name": "Thor's hammer",
+    "description": "Mjölnir, the legendary hammer of the Norse god of thunder.",
+    "image": "https://game.com/item-id-8u5h2m.png",
+    "strength": 20
+}
+```
+
+For more information about the `tokenURI` metadata JSON Schema, check out the [ERC721 specification](https://eips.ethereum.org/EIPS/eip-721).
+
+_Note: you'll notice that the item's information is included in the metadata, but that information isn't on-chain! So a game developer could change the underlying metadata, changing the rules of the game! If you'd like to put all item information on-chain, you can extend ERC721 to do so (though it will be rather costly). You could also leverage IPFS to pin the tokenURI information, but these techniques are out of the scope of this overview guide._
+
+---
+
+# Advanced standards
+
+[ERC20](#erc20) and [ERC721](#erc721) (fungible and non-fungible assets, respectively) are the first two token contract standards to enjoy widespread use and adoption, but over time, multiple weak points of these standards were identified, as more advanced use cases came up.
+
+As a result, a multitude of new token standards were and are still being developed, with different tradeoffs between complexity, compatibility and ease of use. We'll explore some of those here.
+
+## ERC777
+
+Like ERC20, ERC777 is a standard for [_fungible_ tokens](#different-kinds-of-tokens), and is focused around allowing more complex interactions when trading tokens, such as payment.
+
+The standard also bring multiple quality-of-life improvements, such as getting rid of the confusion around `decimals`, minting and burning with proper events, among others, but its killer feature are **send hooks**. A hook is simply a function in a contract that is called when tokens are sent, meaning **accounts and contracts can react to receiving tokens**.
+
+This enables a lot of interesting use cases, including atomic purchases using tokens (no need to do `approve` and `transferFrom` in two separate transactions), rejecting reception of tokens (by reverting on the hook call), and more generally brings tokens and Ether closer together by providing the equivalent of a `msg.value` field, but for tokens.
+
+Furthermore, since contracts are required to implement these hooks in order to receive tokens, _no tokens can get stuck in a contract that is unaware of the ERC777 protocol_, as has happened countless times when using ERC20s.
+
+### What if I already use ERC20?
+The standard has you covered! The ERC777 standard is **backwards compatible with ERC20**, meaning you can interact with these tokens as if they were ERC20, using the standard functions, while still getting all of the niceties, including send hooks. See the [EIP's Backwards Compatibility section](https://eips.ethereum.org/EIPS/eip-777#backward-compatibility) to learn more.
+
+### Constructing an ERC777 Token Contract
+
+We will replicate the `GLD` example of the [ERC20 guide](#constructing-an-erc20-token-contract), this time using ERC777. As always, check out the [`API reference`](api/token/ERC777) to learn more about the details of each function.
+
+```solidity
+import "openzeppelin-solidity/contracts/token/ERC777/ERC777.sol";
+
+contract GLDToken is ERC777 {
+    constructor(
+        uint256 initialSupply,
+        address[] memory defaultOperators
+    )
+        ERC777("Gold", "GLD", defaultOperators)
+        public
+    {
+        _mint(msg.sender, msg.sender, initialSupply, "", "");
+    }
+}
+```
+
+In this case, we'll be extending from the [`ERC777`](api/token/ERC777#erc777) contract, which provides an implementation with compatibility support for ERC20. The API is quite similar to that of [`ERC777`](api/token/ERC777#erc777), and we'll once again make use of [`_mint`](api/token/ERC777#ERC777._mint(address,address,uint256,bytes,bytes)) to assign the `initialSupply` to the deployer account. Unlike [ERC20's `_mint`](api/token/ERC20#ERC20._mint(address,uint256)), this one includes some extra parameters, but you can safely ignore those for now.
+
+You'll notice both [`name`](api/token/ERC777#IERC777.name()) and [`symbol`](api/token/ERC777#IERC777.symbol()) are assigned, but not [`decimals`](api/token/ERC777#ERC777.decimals()). The ERC777 specification makes it mandatory to include support for these functions (unlike ERC20, where it is optional and we had to include [`ERC20Detailed`](api/token/ERC20#erc20detailed)), but also mandates that `decimals` always returns a fixed value of `18`, so there's no need to set it ourselves. For a review of `decimals`'s role and importance, refer back to our [ERC20 guide](tokens#a-note-on-decimals).
+
+Finally, we'll need to set the [`defaultOperators`](api/token/ERC777#IERC777.defaultOperators()): special accounts (usually other smart contracts) that will be able to transfer tokens on behalf of their holders. If you're not planning on using operators in your token, you can simply pass an empty array. _Stay tuned for an upcoming in-depth guide on ERC777 operators!_
+
+That's it for a basic token contract! We can now deploy it, and use the same [`balanceOf`](api/token/ERC777#IERC777.balanceOf(address)) method to query the deployer's balance:
+
+```javascript
+> GLDToken.balanceOf(deployerAddress)
+1000
+```
+
+To move tokens from one account to another, we can use both [`ERC20`'s `transfer`](api/token/ERC777#ERC777.transfer(address,uint256)) method, or the new [`ERC777`'s `send`](api/token/ERC777#ERC777.send(address,uint256,bytes)), which fulfills a very similar role, but adds an optional `data` field:
+
+```javascript
+> GLDToken.transfer(otherAccount, 300)
+> GLDToken.send(otherAccount, 300, "")
+> GLDToken.balanceOf(otherAccount)
+600
+> GLDToken.balanceOf(deployerAddress)
+400
+```
+
+
+### Contract recipients
+
+A key difference when using [`send`](api/token/ERC777#ERC777.send(address,uint256,bytes)) is that token transfers to other contracts may revert with the following message:
+
+```text
+ERC777: token recipient contract has no implementer for ERC777TokensRecipient
+```
+
+This is a good thing! It means that the recipient contract has not registered itself as aware of the ERC777 protocol, so transfers to it are disabled to **prevent tokens from being locked forever**. As an example, [the Golem contract currently holds over 350k `GNT` tokens](https://etherscan.io/token/0xa74476443119A942dE498590Fe1f2454d7D4aC0d?a=0xa74476443119A942dE498590Fe1f2454d7D4aC0d), worth multiple tens of thousands of dollars, and lacks methods to get them out of there. This has happened to virtually every ERC20-backed project, usually due to user error.
+
+_An upcoming guide will cover how a contract can register itself as a recipient, send and receive hooks, and other advanced features of ERC777!_
