@@ -7,7 +7,7 @@ Ah, the "token": the world's most powerful and most misused tool. In this sectio
 
 ## But First, ~~Coffee~~ a Primer on Tokens
 
-Much of the confusion sorrounding tokens comes from two concepts getting mixed up: _token contracts_ and the actual _tokens_.
+Much of the confusion surrounding tokens comes from two concepts getting mixed up: _token contracts_ and the actual _tokens_.
 
 Simply put, a _token contract_ isn't anything special. In Ethereum, pretty much _everything_ is a contract, and that includes these token contracts. "Sending tokens" actually means "calling a method on a smart contract that someone wrote and deployed". At the end of the day, a token contract is simply a mapping of addresses to balances, plus some methods to add and subtract from those balances.
 
