@@ -13,5 +13,9 @@
       "type": "directory",
       "directory": "api"
     }
+  ],
+  "FAQ": [
+    "api-stability",
+    "release-schedule"
   ]
 }
