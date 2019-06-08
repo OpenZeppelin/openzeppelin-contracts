@@ -40,6 +40,8 @@ Using OpenZeppelin, we can easily create our own ERC20 token contract, which wil
 Here's what our GLD token might look like.
 
 ```solidity
+pragma solidity ^0.5.0;
+
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
 
@@ -98,7 +100,9 @@ We'll use ERC721 to track items in our game, which will each have their own uniq
 Here's what a contract for tokenized items might look like:
 
 ```solidity
-import "openzeppelin-solidity/contracts/token/ERC721/ERC721.sol";
+pragma solidity ^0.5.0;
+
+import "openzeppelin-solidity/contracts/token/ERC721/ERC721Full.sol";
 
 contract GameItem is ERC721Full {
     using Counters for Counters.Counter;
@@ -179,6 +183,8 @@ The standard has you covered! The ERC777 standard is **backwards compatible with
 We will replicate the `GLD` example of the [ERC20 guide](#constructing-an-erc20-token-contract), this time using ERC777. As always, check out the [`API reference`](api/token/ERC777) to learn more about the details of each function.
 
 ```solidity
+pragma solidity ^0.5.0;
+
 import "openzeppelin-solidity/contracts/token/ERC777/ERC777.sol";
 
 contract GLDToken is ERC777 {
