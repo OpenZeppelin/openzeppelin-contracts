@@ -2,103 +2,106 @@
 id: access-control
 title: Access Control
 ---
+Access control — that is, "who is allowed to do this thing" — is incredibly important in the world of smart contracts. The access control of your contract may govern who can mint tokens, vote on proposals, freeze transfers, and many others. It is therefore critical to understand how you implement it, lest someone else [steals your whole system](https://blog.zeppelin.solutions/on-the-parity-wallet-multisig-hack-405a8c12e8f7).
 
-Access control—that is, "who is allowed to do this thing"—is incredibly important in the world of smart contracts. The access control of your contract governs who can mint tokens, who can vote on proposals, who can [`selfdestruct()`](https://blog.zeppelin.solutions/on-the-parity-wallet-multisig-hack-405a8c12e8f7) the contract, and more, so it's very important to understand how you implement it.
+## Ownership and `Ownable`
 
-## Ownership & Ownable.sol
-
-The most common and basic form of access control is the concept of _ownership_: there's one account that is the `owner` and can do administrative tasks on contracts. This approach is perfectly reasonable for contracts that only have a single administrative user.
+The most common and basic form of access control is the concept of _ownership_: there's an account that is the `owner` of a contract and can do administrative tasks on it. This approach is perfectly reasonable for contracts that have a single administrative user.
 
 OpenZeppelin provides [`Ownable`](api/ownership#ownable) for implementing ownership in your contracts.
 
 ```solidity
+pragma solidity ^0.5.0;
+
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 contract MyContract is Ownable {
-
-    function normalThing()
-        public
-    {
+    function normalThing() public {
         // anyone can call this normalThing()
     }
 
-    function specialThing()
-        public
-        onlyOwner
-    {
+    function specialThing() public onlyOwner {
         // only the owner can call specialThing()!
     }
 }
 ```
 
-By default, the [`owner`](api/ownership#Ownable.owner()) of an `Ownable` contract is the `msg.sender` of the contract creation transaction, which is usually exactly what you want.
+By default, the [`owner`](api/ownership#Ownable.owner()) of an `Ownable` contract is the account that deployed it, which is usually exactly what you want.
 
 Ownable also lets you:
-+ [`transferOwnership`](api/ownership#Ownable.transferOwnership(address)) to transfer ownership from one account to another
-+ [`renounceOwnership`](api/ownership#Ownable.renounceOwnership()) to remove the owner altogether, useful for decentralizing control of your contract. **⚠ Warning!** Removing the owner altogether will mean that administrative tasks that are protected by `onlyOwner` will no longer be callable!
+- [`transferOwnership`](api/ownership#Ownable.transferOwnership(address)) from the owner account to a new one
+- [`renounceOwnership`](api/ownership#Ownable.renounceOwnership()) for the owner to lose this administrative privilege, a common pattern after an initial stage with centralized administration is over
+  - **⚠ Warning! ⚠** Removing the owner altogether will mean that administrative tasks that are protected by `onlyOwner` will no longer be callable!
 
+Note that **a contract can also be the owner of another one**! This opens the door to using e.g. a [Gnosis Multisig](https://github.com/gnosis/MultiSigWallet) or [Gnosis Safe](https://safe.gnosis.io), an [Aragon DAO](https://aragon.org), an [ERC725/uPort](https://www.uport.me) identity contract, or a totally custom contract that _you_ create.
 
-Note that any contract that supports sending transactions can also be the owner of a contract; the only requirement is that the owner has an Ethereum address, so it could be a Gnosis Multisig or Gnosis Safe, an Aragon DAO, an ERC725/uPort identity contract, or a totally custom contract that _you_ create.
+In this way you can use _composability_ to add additional layers of access control complexity to your contracts. Instead of having a single regular Ethereum account (Externally Owned Account, or EOA) as the owner, you could use a 2/3 multisig run by your project leads, for example. Prominent projects in the space, such as [MakerDAO](https://makerdao.com), use systems similar to this one.
 
-In this way you can use _composability_ to add additional layers of access control complexity to your contracts. Instead of having a single Ethereum Off-Chain Account (EOA) as the owner, you can replace them with a 2/3 multisig run by your project leads, for example.
+## Role-Based Access Control
 
-### Examples in OpenZeppelin
+While the simplicity of _ownership_ can be useful for simple systems or quick prototyping, different levels of authorization are often needed. An account may be able to ban users from a system, but not create new tokens, etc. _Role-Based Access Control (RBAC)_ offers flexibility in this regard.
 
-You'll notice that none of the OpenZeppelin contracts use `Ownable`, though! This is because there are more flexible ways of providing access control that are more in-line with our reusable contract philosophy. For most contracts, We'll use `Roles` to govern who can do what. There are some cases, though—like with [`Escrow`](localhost:3000/api/payment#escrow)—where there's a direct relationship between contracts. In those cases, we'll use [`Secondary`](api/ownership#secondary) to create a "secondary" contract that allows a "primary" contract to manage it.
+In essence, we will be defining multiple _roles_, each with their own specific permissions (so instead of _roles_onlyOwner_ you can implement _onlyAdminRole_, _onlyModeratorRole_, etc.) and rules for how accounts can be assignned the role, transfer it, and more.
 
-Let's learn about Role-Based Access Control!
+Most of software development uses access control systems that are role-based: some users are regular users, some may be supervisors or managers, and a few will often have administrative privileges.
 
-## Roles & Role-Based Access Control
+### Using `Roles`
 
-An alternative to single-concern `Ownable` is role based access control (RBAC), which, instead of keeping track of a single entity with "admin" level privileges, keeps track of multiple different entities with a variety of roles that inform the contract about what they can do.
+OpenZeppelin provides [`Roles`](api/access#roles) for implementing role-based access control. Its usage is straightforward: for each role (often associated with permissions) that you want to define, you'll store a  variable of type `Role`, which will hold the list of accounts with that role.
 
-For example, a [`MintableToken`](api/token/ERC20#erc20mintable) could have a `minter` role that decides who can mint tokens (which could be assigned to a [`Crowdsale`](api/crowdsale#crowdsale)). It could also have a `namer` role that allows changing the name or symbol of the token (for whatever reason). RBAC gives you much more flexibility over who can do what and is generally recommended for applications that need more configurability. If you're experienced with web development, the vast majority of access control systems are role-based: some users are normal users, some are moderators, and some can be company employee admins.
-
-OpenZeppelin provides [`Roles`](api/access#roles) for implementing role-based access control.
-
-Here's an example of using `Roles` in our token example above, we'll use it to implement a token that can be minted by `Minters` and renamed by `Namers`:
+Here's an simple example of using `Roles` in an [`ERC20` token](tokens#erc20): we'll define two roles, `namers` and `minters`, that will be able to change the name of the token contract, and mint new tokens, respectively.
 
 ```solidity
-import "openzeppelin-solidity/contracts/access/Roles.sol";
+pragma solidity ^0.5.0;
 
-contract MyToken is DetailedERC20, StandardToken {
+import "openzeppelin-solidity/contracts/access/Roles.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
+
+contract MyToken is ERC20, ERC20Detailed {
     using Roles for Roles.Role;
 
-    Roles.Role private minters;
-    Roles.Role private namers;
+    Roles.Role private _minters;
+    Roles.Role private _namers;
 
-    constructor(
-        string name,
-        string symbol,
-        uint8 decimals,
-        address[] minters,
-        address[] namers,
-    )
-        DetailedERC20(name, symbol, decimals)
-        Standardtoken()
+    constructor(address[] memory minters, address[] memory namers)
+        DetailedERC20("MyToken", "MTKN", 18)
         public
     {
-        namers.addMany(namers);
-        minters.addMany(minters);
+        for (uint256 i = 0; i < minters.length; ++i) {
+            _minters.add(minters[i]);
+        }
+
+        for (uint256 i = 0; i < namers.length; ++i) {
+            _namers.add(namers[i]);
+        }
     }
 
-    function mint(address to, uint256 amount)
-        public
-    {
-        // only allow minters to mint
+    function mint(address to, uint256 amount) public {
+        // Only minters can mint
         require(minters.has(msg.sender), "DOES_NOT_HAVE_MINTER_ROLE");
+
         _mint(to, amount);
     }
 
-    function rename(string name, string symbol)
-        public
-    {
-        // only allow namers to name
+    function rename(string memory name, string memory symbol) public {
+        // Only namers can change the name and symbol
         require(namers.has(msg.sender), "DOES_NOT_HAVE_NAMER_ROLE");
+
         name = name;
         symbol = symbol;
     }
 }
 ```
 
-So clean! You'll notice that the role associations are always the last arguments in the constructor; this is a good pattern to follow to keep your code more organized.
+So clean! By splitting concerns this way, we can define more granular levels of permission, which was lacking in the _ownership_ approach to access control. Note that an account may have more than one role, if desired.
+
+OpenZeppelin uses `Roles` extensively with predefined contracts that encode rules for each specific role: [`ERC20Mintable`](api/token/ERC20#erc20mintable) uses the [`MinterRole`](api/access#minterrole) to determine who can mint tokens, [`WhitelistCrowdsale`](api/crowdsale#whitelistcrowdsale) uses both [`WhitelistAdminRole`](api/access#whitelistadminrole) and [`WhitelistedRole`](api/access#whitelistedrole) to create a set of accounts that can purchase tokens, etc.
+
+This flexibility allows for interesting setups: for example, a [`MintedCrowdsale`](api/crowdsale#mintedcrowdsale) expects to be given the `MinterRole` of an `ERC20Mintable` in order to work, but the token contract could also extend [`ERC20Pausable`](api/token/ERC20#erc20pausable) and assign the [`PauserRole`](api/access#pauserrole) to a DAO that serves as a contingency mechanism in case e.g. a vulnerability is discovered in the contract code. Limiting what each component of a system is able to do is usually a good idea.
+
+## Usage in OpenZeppelin
+
+You'll notice that none of the OpenZeppelin contracts use `Ownable` - `Roles` is a prefferred solution, because it provides the user of the library with enough flexibility to adapt the provided contracts to their needs.
+
+There are some cases, though, where there's a direct relationship between contracts. For example, [`RefundableCrowdsale`](api/crowdsale#refundablecrowdsale) deploys a [`RefundEscrow`](api/payment#refundescrow) on construction, to hold its funds. For those cases, we'll use [`Secondary`](api/ownership#secondary) to create a _secondary_ contract that allows a _primary_ contract to manage it. You could also think of these as _auxiliary_ contracts.
