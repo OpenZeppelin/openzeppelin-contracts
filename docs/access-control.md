@@ -39,7 +39,7 @@ In this way you can use _composability_ to add additional layers of access contr
 
 ## Role-Based Access Control
 
-While the simplicity of _ownership_ can be useful for simple systems or quick prototyping, different levels of authorization are often needed. An account may be able to ban users from a system, but not create new tokens, etc. _Role-Based Access Control (RBAC)_ offers flexibility in this regard.
+While the simplicity of _ownership_ can be useful for simple systems or quick prototyping, different levels of authorization are often needed. An account may be able to ban users from a system, but not create new tokens. _Role-Based Access Control (RBAC)_ offers flexibility in this regard.
 
 In essence, we will be defining multiple _roles_, each with their own specific permissions (so instead of _roles_onlyOwner_ you can implement _onlyAdminRole_, _onlyModeratorRole_, etc.) and rules for how accounts can be assignned the role, transfer it, and more.
 
