@@ -113,7 +113,7 @@ class MerkleTree {
 
   bufDedup (elements) {
     return elements.filter((el, idx) => {
-      return idx > 0 && !elements[idx - 1].equals(el);
+      return idx === 0 || !elements[idx - 1].equals(el);
     });
   }
 
