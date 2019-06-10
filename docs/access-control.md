@@ -33,7 +33,7 @@ Ownable also lets you:
 - [`renounceOwnership`](api/ownership#Ownable.renounceOwnership()) for the owner to lose this administrative privilege, a common pattern after an initial stage with centralized administration is over
   - **⚠ Warning! ⚠** Removing the owner altogether will mean that administrative tasks that are protected by `onlyOwner` will no longer be callable!
 
-Note that **a contract can also be the owner of another one**! This opens the door to using e.g. a [Gnosis Multisig](https://github.com/gnosis/MultiSigWallet) or [Gnosis Safe](https://safe.gnosis.io), an [Aragon DAO](https://aragon.org), an [ERC725/uPort](https://www.uport.me) identity contract, or a totally custom contract that _you_ create.
+Note that **a contract can also be the owner of another one**! This opens the door to using, for example, a [Gnosis Multisig](https://github.com/gnosis/MultiSigWallet) or [Gnosis Safe](https://safe.gnosis.io), an [Aragon DAO](https://aragon.org), an [ERC725/uPort](https://www.uport.me) identity contract, or a totally custom contract that _you_ create.
 
 In this way you can use _composability_ to add additional layers of access control complexity to your contracts. Instead of having a single regular Ethereum account (Externally Owned Account, or EOA) as the owner, you could use a 2/3 multisig run by your project leads, for example. Prominent projects in the space, such as [MakerDAO](https://makerdao.com), use systems similar to this one.
 
