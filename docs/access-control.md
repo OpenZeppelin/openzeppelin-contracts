@@ -41,7 +41,7 @@ In this way you can use _composability_ to add additional layers of access contr
 
 While the simplicity of _ownership_ can be useful for simple systems or quick prototyping, different levels of authorization are often needed. An account may be able to ban users from a system, but not create new tokens. _Role-Based Access Control (RBAC)_ offers flexibility in this regard.
 
-In essence, we will be defining multiple _roles_, each with their own specific permissions (so instead of _roles_onlyOwner_ you can implement _onlyAdminRole_, _onlyModeratorRole_, etc.) and rules for how accounts can be assignned the role, transfer it, and more.
+In essence, we will be defining multiple _roles_, each allowed to perform different sets of actions. Instead of `onlyOwner` everywhere you will use, for example, `onlyAdminRole` in some places, and `onlyModeratorRole` in others. Separately you will be able to define rules for how accounts can be assignned a role, transfer it, and more.
 
 Most of software development uses access control systems that are role-based: some users are regular users, some may be supervisors or managers, and a few will often have administrative privileges.
 
@@ -96,12 +96,12 @@ contract MyToken is ERC20, ERC20Detailed {
 
 So clean! By splitting concerns this way, we can define more granular levels of permission, which was lacking in the _ownership_ approach to access control. Note that an account may have more than one role, if desired.
 
-OpenZeppelin uses `Roles` extensively with predefined contracts that encode rules for each specific role: [`ERC20Mintable`](api/token/ERC20#erc20mintable) uses the [`MinterRole`](api/access#minterrole) to determine who can mint tokens, [`WhitelistCrowdsale`](api/crowdsale#whitelistcrowdsale) uses both [`WhitelistAdminRole`](api/access#whitelistadminrole) and [`WhitelistedRole`](api/access#whitelistedrole) to create a set of accounts that can purchase tokens, etc.
+OpenZeppelin uses `Roles` extensively with predefined contracts that encode rules for each specific role. A few examples are: [`ERC20Mintable`](api/token/ERC20#erc20mintable) which uses the [`MinterRole`](api/access#minterrole) to determine who can mint tokens, and [`WhitelistCrowdsale`](api/crowdsale#whitelistcrowdsale) which uses both [`WhitelistAdminRole`](api/access#whitelistadminrole) and [`WhitelistedRole`](api/access#whitelistedrole) to create a set of accounts that can purchase tokens.
 
-This flexibility allows for interesting setups: for example, a [`MintedCrowdsale`](api/crowdsale#mintedcrowdsale) expects to be given the `MinterRole` of an `ERC20Mintable` in order to work, but the token contract could also extend [`ERC20Pausable`](api/token/ERC20#erc20pausable) and assign the [`PauserRole`](api/access#pauserrole) to a DAO that serves as a contingency mechanism in case e.g. a vulnerability is discovered in the contract code. Limiting what each component of a system is able to do is usually a good idea.
+This flexibility allows for interesting setups: for example, a [`MintedCrowdsale`](api/crowdsale#mintedcrowdsale) expects to be given the `MinterRole` of an `ERC20Mintable` in order to work, but the token contract could also extend [`ERC20Pausable`](api/token/ERC20#erc20pausable) and assign the [`PauserRole`](api/access#pauserrole) to a DAO that serves as a contingency mechanism in case a vulnerability is discovered in the contract code. Limiting what each component of a system is able to do is known as the [principle of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege), and is a good security practice.
 
 ## Usage in OpenZeppelin
 
-You'll notice that none of the OpenZeppelin contracts use `Ownable` - `Roles` is a prefferred solution, because it provides the user of the library with enough flexibility to adapt the provided contracts to their needs.
+You'll notice that none of the OpenZeppelin contracts use `Ownable`. `Roles` is a prefferred solution, because it provides the user of the library with enough flexibility to adapt the provided contracts to their needs.
 
 There are some cases, though, where there's a direct relationship between contracts. For example, [`RefundableCrowdsale`](api/crowdsale#refundablecrowdsale) deploys a [`RefundEscrow`](api/payment#refundescrow) on construction, to hold its funds. For those cases, we'll use [`Secondary`](api/ownership#secondary) to create a _secondary_ contract that allows a _primary_ contract to manage it. You could also think of these as _auxiliary_ contracts.
