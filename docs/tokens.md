@@ -3,9 +3,11 @@ id: tokens
 title: Tokens
 ---
 
-Ah, the "token": the world's most powerful and most misused tool. In this section we'll learn to harness the power of native units of account for good and world peace!
+Ah, the "token": the world's most powerful and most misunderstood tool.
 
-## But First, ~~Coffee~~ a Primer on Tokens
+A token is a _representation of something in the blockchain_. This something can be money, time, services, shares in a company, a virtual pet, anything. By representing things as tokens, we can allow smart contracts to interact with them, exchange them, create or destroy them.
+
+## But First, ~~Coffee~~ a Primer on Token Contracts
 
 Much of the confusion surrounding tokens comes from two concepts getting mixed up: _token contracts_ and the actual _tokens_.
 
@@ -103,6 +105,7 @@ Here's what a contract for tokenized items might look like:
 pragma solidity ^0.5.0;
 
 import "openzeppelin-solidity/contracts/token/ERC721/ERC721Full.sol";
+import "openzeppelin-solidity/contracts/drafts/Counters.sol";
 
 contract GameItem is ERC721Full {
     using Counters for Counters.Counter;
