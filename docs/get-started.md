@@ -57,7 +57,7 @@ OpenZeppelin's [full API](api/token/ERC20) is also thoroughly documented, and se
 
 Additionally, you can also ask for help or follow OpenZeppelin's development in the [community forum](https://forum.zeppelin.solutions).
 
-Finally, you may want to take a look at the guides on our blog, which cover several common use cases and good practices: https://blog.zeppelin.solutions/guides/home. Among others,
+Finally, you may want to take a look at the guides on our blog, which cover several common use cases and good practices: https://blog.zeppelin.solutions/guides/home. The following articles provide great background reading, though please note, some of the referenced tools have changed as the tooling in the ecosystem continues to rapidly evolve.
 
  * [The Hitchhiker’s Guide to Smart Contracts in Ethereum](https://blog.zeppelin.solutions/the-hitchhikers-guide-to-smart-contracts-in-ethereum-848f08001f05) will help you get an overview of the various tools available for smart contract development, and help you set up your environment
 
