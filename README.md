@@ -96,7 +96,7 @@ contract MyNFT is Initializable, ERC721Full, ERC721Mintable {
 
 > You need an ethereum development framework for the above import statements to work! Check out these guides for [Truffle] or [Embark].
 
-On our site you will find a few [guides] to learn about the different parts of OpenZeppelin, as well as [documentation for the API][API docs]. Keep in mind that the API docs are work in progress, and don’t hesitate to ask questions in [our Slack][Slack].
+On our site you will find a few [guides] to learn about the different parts of OpenZeppelin, as well as [documentation for the API][API docs]. Keep in mind that the API docs are work in progress, and don’t hesitate to ask questions in [our forum][forum].
 
 ## Security
 
@@ -115,3 +115,11 @@ OpenZeppelin exists thanks to its contributors. There are many ways you can part
 ## License
 
 OpenZeppelin is released under the [MIT License](LICENSE).
+
+[API docs]: https://docs.openzeppelin.org/v2.2.0/api/token/erc721
+[guides]: https://docs.openzeppelin.org/v2.2.0/get-started
+[forum]: https://forum.zeppelin.solutions
+[Zeppelin]: https://zeppelin.solutions
+[contribution guide]: CONTRIBUTING.md
+[Truffle]: https://truffleframework.com/docs/truffle/quickstart
+[Embark]: https://embark.status.im/docs/quick_start.html
