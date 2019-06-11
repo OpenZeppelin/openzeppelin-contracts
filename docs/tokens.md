@@ -13,11 +13,11 @@ Much of the confusion surrounding tokens comes from two concepts getting mixed u
 
 Simply put, a _token contract_ isn't anything special. In Ethereum, pretty much _everything_ is a contract, and that includes these token contracts. "Sending tokens" actually means "calling a method on a smart contract that someone wrote and deployed". At the end of the day, a token contract is simply a mapping of addresses to balances, plus some methods to add and subtract from those balances.
 
-It is these balances that represent the _tokens_ themselves. Someone "has tokens" when their balance in the token contract is non-zero. That's it! These balances could be considered money, experience points in a game, deeds of ownership, voting rights, etc., and each of these tokens would be stored in different token contracts.
+It is these balances that represent the _tokens_ themselves. Someone "has tokens" when their balance in the token contract is non-zero. That's it! These balances could be considered money, experience points in a game, deeds of ownership, or voting rights, and each of these tokens would be stored in different token contracts.
 
 ### Different kinds of tokens
 
-Note that there's a big difference between having two voting rights and two deeds of ownership: each vote is equal to all others, but houses usually are not! This is called [fungibility](https://en.wikipedia.org/wiki/Fungibility). _Fungible goods_  are equivalent and interchangeable, like Ether, fiat currencies, and voting rights. _Non-fungible_ goods are unique and distinct (like deeds of ownership, or collectibles).
+Note that there's a big difference between having two voting rights and two deeds of ownership: each vote is equal to all others, but houses usually are not! This is called [fungibility](https://en.wikipedia.org/wiki/Fungibility). _Fungible goods_  are equivalent and interchangeable, like Ether, fiat currencies, and voting rights. _Non-fungible_ goods are unique and distinct, like deeds of ownership, or collectibles.
 
 In a nutshell, when dealing with non-fungibles (like your house) you care about _which ones_ you have, while in fungible assets (like your bank account statement) what matters is _how much_ you have.
 
@@ -27,7 +27,6 @@ Even though the concept of a token is simple, they have a variety of complexitie
 
 You've probably heard of the [ERC20](#erc20) or [ERC721](#erc721) token standards, and that's why you're here.
 
----
 
 ## ERC20
 
@@ -54,7 +53,7 @@ contract GLDToken is ERC20, ERC20Detailed {
 }
 ```
 
-OpenZeppelin contracts are often used via [inheritance](https://solidity.readthedocs.io/en/latest/contracts.html#inheritance), and here we're reusing the [`ERC20`](api/token/ERC20#erc20) (for the basic standard implementation) and [`ERC20Detailed`](api/token/ERC20#erc20detailed) (to get the [`name`](api/token/ERC20#ERC20Detailed.name()), [`symbol`](api/token/ERC20#ERC20Detailed.symbol()) and [`decimals`](api/token/ERC20#ERC20Detailed.decimals()) properties) contracts. Additionally, we're creating an `initialSupply` of tokens, which will be assigned to the address that deploys the contract.
+OpenZeppelin contracts are often used via [inheritance](https://solidity.readthedocs.io/en/latest/contracts.html#inheritance), and here we're reusing [`ERC20`](api/token/ERC20#erc20) for the basic standard implementation and [`ERC20Detailed`](api/token/ERC20#erc20detailed) to get the [`name`](api/token/ERC20#ERC20Detailed.name()), [`symbol`](api/token/ERC20#ERC20Detailed.symbol()), and [`decimals`](api/token/ERC20#ERC20Detailed.decimals()) properties. Additionally, we're creating an `initialSupply` of tokens, which will be assigned to the address that deploys the contract.
 
 _For a more complete discussion of ERC20 supply mechanisms, see [our advanced guide](https://forum.zeppelin.solutions/t/how-to-implement-erc20-supply-mechanisms/226/)_.
 
@@ -87,11 +86,10 @@ It is important to understand that `decimals` is _only used for display purposes
 
 You'll probably want to use a `decimals` value of `18`, just like Ether and most ERC20 token contracts in use, unless you have a very special reason not to. When minting tokens or transferring them around, you will be actually sending the number `num GLD * 10^decimals`. So if you want to send `5` tokens using a token contract with 18 decimals, the the method to call will actually be `transfer(recipient, 5 * 10^18)`.
 
----
 
 ## ERC721
 
-We've discussed how you can make a _fungible_ token using [ERC20](#erc20), but what if not all tokens are alike? This comes up in situations like **real estate** or **collectibles**, where some items are valued more than others, due to their usefulness, rarity, etc. ERC721 is a standard for representing ownership of [_non-fungible_ tokens](#different-kinds-of-tokens), that is, each token is unique.
+We've discussed how you can make a _fungible_ token using [ERC20](#erc20), but what if not all tokens are alike? This comes up in situations like **real estate** or **collectibles**, where some items are valued more than others, due to their usefulness, rarity, etc. ERC721 is a standard for representing ownership of [_non-fungible_ tokens](#different-kinds-of-tokens), that is, where each token is unique.
 
 ERC721 is a more complex standard than ERC20, with multiple optional extensions, and is split accross a number of contracts. OpenZeppelin provides flexibility regarding how these are combined, along with custom useful extensions. Check out the [`API reference`](api/token/ERC721) to learn more about these.
 
@@ -130,7 +128,7 @@ The [`ERC721Full`](api/token/ERC721#erc721full) contract includes all standard e
 
 Also note that, unlike ERC20, ERC721 lacks a `decimals` field, since each token is distinct and cannot be partitioned.
 
-New items can not be created:
+New items can be created:
 
 ```javascript
 > GameItem.awardItem(playerAddress, "https://game.com/item-id-8u5h2m.json")
@@ -160,7 +158,6 @@ For more information about the `tokenURI` metadata JSON Schema, check out the [E
 
 _Note: you'll notice that the item's information is included in the metadata, but that information isn't on-chain! So a game developer could change the underlying metadata, changing the rules of the game! If you'd like to put all item information on-chain, you can extend ERC721 to do so (though it will be rather costly). You could also leverage IPFS to pin the tokenURI information, but these techniques are out of the scope of this overview guide._
 
----
 
 # Advanced standards
 
