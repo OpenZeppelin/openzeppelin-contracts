@@ -14,6 +14,7 @@ Please install Truffle and initialize your project:
 ```sh
 $ mkdir myproject
 $ cd myproject
+$ npm init -y
 $ npm install truffle
 $ npx truffle init
 ```
