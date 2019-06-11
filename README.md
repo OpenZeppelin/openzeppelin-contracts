@@ -116,8 +116,8 @@ OpenZeppelin exists thanks to its contributors. There are many ways you can part
 
 OpenZeppelin is released under the [MIT License](LICENSE).
 
-[API docs]: https://docs.openzeppelin.org/v2.2.0/api/token/erc721
-[guides]: https://docs.openzeppelin.org/v2.2.0/get-started
+[API docs]: https://docs.openzeppelin.org/v2.3.0/api/token/erc721
+[guides]: https://docs.openzeppelin.org/v2.3.0/get-started
 [forum]: https://forum.zeppelin.solutions
 [Zeppelin]: https://zeppelin.solutions
 [contribution guide]: CONTRIBUTING.md
