@@ -112,10 +112,10 @@ contract GameItem is ERC721Full {
     constructor() ERC721Full("GameItem", "ITM") public {
     }
 
-    function awardItem(address player, string memory tokenURI) public returs (uint256) {
+    function awardItem(address player, string memory tokenURI) public returns (uint256) {
         _tokenIds.increment();
 
-        uint256 newItemId = _tokenIds.current()
+        uint256 newItemId = _tokenIds.current();
         _mint(player, newItemId);
         _setTokenURI(newItemId, tokenURI);
 
