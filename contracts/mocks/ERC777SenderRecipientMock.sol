@@ -43,7 +43,7 @@ contract ERC777SenderRecipientMock is IERC777Sender, IERC777Recipient, ERC1820Im
         address operator,
         address from,
         address to,
-        uint amount,
+        uint256 amount,
         bytes calldata userData,
         bytes calldata operatorData
     ) external {
@@ -74,7 +74,7 @@ contract ERC777SenderRecipientMock is IERC777Sender, IERC777Recipient, ERC1820Im
         address operator,
         address from,
         address to,
-        uint amount,
+        uint256 amount,
         bytes calldata userData,
         bytes calldata operatorData
     ) external{
