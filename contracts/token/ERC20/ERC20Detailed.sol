@@ -51,4 +51,22 @@ contract ERC20Detailed is IERC20 {
     function decimals() public view returns (uint8) {
         return _decimals;
     }
+    
+    function _setName(string memory name_) internal {
+        require(bytes(_name).length == 0);
+        require(bytes(name_).length != 0);
+        _name = name_;
+    }
+
+    function _setSymbol(string memory symbol_) internal {
+        require(bytes(_symbol).length == 0);
+        require(bytes(symbol_).length != 0);
+        _symbol = symbol_;
+    }
+
+    function _setDecimals(uint8 decimals_) internal {
+        require(_decimals == 0);
+        require(decimals_ != 0);
+        _decimals = decimals_;
+    }
 }
