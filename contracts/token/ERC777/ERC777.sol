@@ -238,7 +238,7 @@ contract ERC777 is IERC777, IERC20 {
     /**
      * @dev See `IERC777.operatorBurn`.
      *
-     * Emits `Sent` and `Transfer` events.
+     * Emits `Burned` and `Transfer` events.
      */
     function operatorBurn(address account, uint256 amount, bytes calldata data, bytes calldata operatorData) external {
         require(isOperatorFor(msg.sender, account), "ERC777: caller is not an operator for holder");
@@ -274,7 +274,7 @@ contract ERC777 is IERC777, IERC20 {
     * call `transferFrom` (unless they have allowance), and accounts with
     * allowance cannot call `operatorSend` (unless they are operators).
     *
-    * Emits `Sent` and `Transfer` events.
+    * Emits `Sent`, `Transfer` and `Approval` events.
     */
     function transferFrom(address holder, address recipient, uint256 amount) external returns (bool) {
         require(recipient != address(0), "ERC777: transfer to the zero address");
@@ -296,12 +296,12 @@ contract ERC777 is IERC777, IERC20 {
      * @dev Creates `amount` tokens and assigns them to `account`, increasing
      * the total supply.
      *
-     * If a send hook is registered for `raccount`, the corresponding function
+     * If a send hook is registered for `account`, the corresponding function
      * will be called with `operator`, `data` and `operatorData`.
      *
      * See `IERC777Sender` and `IERC777Recipient`.
      *
-     * Emits `Sent` and `Transfer` events.
+     * Emits `Minted` and `Transfer` events.
      *
      * Requirements
      *
