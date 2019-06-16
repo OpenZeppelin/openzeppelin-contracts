@@ -75,8 +75,9 @@ contract RefundableCrowdsale is FinalizableCrowdsale {
 
     /**
      * @dev Overrides Crowdsale fund forwarding, sending funds to escrow.
+     * @param weiAmount Value in wei to forward.
      */
-    function _forwardFunds() internal {
-        _escrow.deposit.value(msg.value)(msg.sender);
+    function _forwardFunds(uint256 weiAmount) internal {
+        _escrow.deposit.value(weiAmount)(msg.sender);
     }
 }

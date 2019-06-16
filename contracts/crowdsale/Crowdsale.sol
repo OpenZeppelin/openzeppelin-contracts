@@ -108,7 +108,7 @@ contract Crowdsale is ReentrancyGuard {
      * @param beneficiary Recipient of the token purchase
      */
     function buyTokens(address beneficiary) public nonReentrant payable {
-        uint256 weiAmount = msg.value;
+        uint256 weiAmount = _updatePurchasingAmount(beneficiary, msg.value);
         _preValidatePurchase(beneficiary, weiAmount);
 
         // calculate token amount to be created
@@ -122,8 +122,23 @@ contract Crowdsale is ReentrancyGuard {
 
         _updatePurchasingState(beneficiary, weiAmount);
 
-        _forwardFunds();
+        _forwardFunds(weiAmount);
         _postValidatePurchase(beneficiary, weiAmount);
+    }
+
+    /**
+     * @dev Update of an incoming purchasing amount.
+     * Use `super` in contracts that inherit from Crowdsale to extend.
+     * Example from OverPurchaseCrowdsale.sol's _updatePurchasingAmount method:
+     *     uint amount = super._updatePurchasingAmount(beneficiary, weiAmount);
+     *     if (weiRaised().add(amount) > cap()) {
+     *         amount = cap().sub(weiRaised());
+     *     }
+     * @param beneficiary Address performing the token purchase
+     * @param weiAmount Value in wei involved in the purchase
+     */
+    function _updatePurchasingAmount(address beneficiary, uint256 weiAmount) internal returns (uint256) {
+        return weiAmount;
     }
 
     /**
@@ -191,8 +206,9 @@ contract Crowdsale is ReentrancyGuard {
 
     /**
      * @dev Determines how ETH is stored/forwarded on purchases.
+     * @param weiAmount Value in wei to forward to the wallet.
      */
-    function _forwardFunds() internal {
-        _wallet.transfer(msg.value);
+    function _forwardFunds(uint256 weiAmount) internal {
+        _wallet.transfer(weiAmount);
     }
 }
