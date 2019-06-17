@@ -19,7 +19,7 @@ sections:
 
 This set of interfaces, contracts, and utilities are all related to the [ERC20 Token Standard](https://eips.ethereum.org/EIPS/eip-20).
 
-*For a walkthrough on how to create an ERC20 token read our [ERC20 guide](../../tokens.md#constructing-a-nice-erc20-token).*
+*For a walkthrough on how to create an ERC20 token read our [ERC20 guide](../../../docs/tokens.md#constructing-a-nice-erc20-token).*
 
 There a few core contracts that implement the behavior specified in the EIP: `IERC20`, `ERC20`, `ERC20Detailed`.
 
