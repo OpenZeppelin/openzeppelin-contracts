@@ -27,6 +27,14 @@ const INTERFACES = {
     'symbol()',
     'tokenURI(uint256)',
   ],
+  ERC1155: [
+    'balanceOf(address,uint256)',
+    'balanceOfBatch(address[],uint256[])',
+    'setApprovalForAll(address,bool)',
+    'isApprovedForAll(address,address)',
+    'safeTransferFrom(address,address,uint256,uint256,bytes)',
+    'safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)',
+  ],
 };
 
 const INTERFACE_IDS = {};
