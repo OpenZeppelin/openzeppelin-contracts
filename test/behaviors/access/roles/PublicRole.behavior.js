@@ -1,4 +1,5 @@
 const { expectRevert, constants, expectEvent } = require('openzeppelin-test-helpers');
+const { expect } = require('chai');
 const { ZERO_ADDRESS } = constants;
 
 function capitalize (str) {
@@ -25,9 +26,9 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [other], rolen
 
   describe('should behave like public role', function () {
     beforeEach('check preconditions', async function () {
-      (await this.contract[`is${rolename}`](authorized)).should.equal(true);
-      (await this.contract[`is${rolename}`](otherAuthorized)).should.equal(true);
-      (await this.contract[`is${rolename}`](other)).should.equal(false);
+      expect(await this.contract[`is${rolename}`](authorized)).to.equal(true);
+      expect(await this.contract[`is${rolename}`](otherAuthorized)).to.equal(true);
+      expect(await this.contract[`is${rolename}`](other)).to.equal(false);
     });
 
     if (manager === undefined) { // Managed roles are only assigned by the manager, and none are set at construction
@@ -70,7 +71,7 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [other], rolen
       context(`from ${manager ? 'the manager' : 'a role-haver'} account`, function () {
         it('adds role to a new account', async function () {
           await this.contract[`add${rolename}`](other, { from });
-          (await this.contract[`is${rolename}`](other)).should.equal(true);
+          expect(await this.contract[`is${rolename}`](other)).to.equal(true);
         });
 
         it(`emits a ${rolename}Added event`, async function () {
@@ -99,8 +100,8 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [other], rolen
       context(`from ${manager ? 'the manager' : 'any'} account`, function () {
         it('removes role from an already assigned account', async function () {
           await this.contract[`remove${rolename}`](authorized, { from });
-          (await this.contract[`is${rolename}`](authorized)).should.equal(false);
-          (await this.contract[`is${rolename}`](otherAuthorized)).should.equal(true);
+          expect(await this.contract[`is${rolename}`](authorized)).to.equal(false);
+          expect(await this.contract[`is${rolename}`](otherAuthorized)).to.equal(true);
         });
 
         it(`emits a ${rolename}Removed event`, async function () {
@@ -125,7 +126,7 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [other], rolen
     describe('renouncing roles', function () {
       it('renounces an assigned role', async function () {
         await this.contract[`renounce${rolename}`]({ from: authorized });
-        (await this.contract[`is${rolename}`](authorized)).should.equal(false);
+        expect(await this.contract[`is${rolename}`](authorized)).to.equal(false);
       });
 
       it(`emits a ${rolename}Removed event`, async function () {
