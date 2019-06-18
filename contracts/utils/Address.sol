@@ -19,10 +19,11 @@ library Address {
         // construction, since the code is only stored at the end of the
         // constructor execution.
 
-        uint256 size;
+            zbytes32 codehash;
+        bytes32 accountHash = 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470;
         // solhint-disable-next-line no-inline-assembly
-        assembly { size := extcodesize(account) }
-        return size > 0;
+        assembly { codehash := extcodehash(account) }
+        return (codehash != 0x0 && codehash != accountHash);
     }
 
     /**
