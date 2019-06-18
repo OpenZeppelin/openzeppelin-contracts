@@ -1,4 +1,5 @@
 const { BN, constants, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
+const { expect } = require('chai');
 const { ZERO_ADDRESS } = constants;
 
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
@@ -31,8 +32,8 @@ contract('ERC721', function ([_, creator, tokenOwner, other, ...accounts]) {
         });
 
         it('creates the token', async function () {
-          (await this.token.balanceOf(tokenOwner)).should.be.bignumber.equal('1');
-          (await this.token.ownerOf(tokenId)).should.equal(tokenOwner);
+          expect(await this.token.balanceOf(tokenOwner)).to.be.bignumber.equal('1');
+          expect(await this.token.ownerOf(tokenId)).to.equal(tokenOwner);
         });
 
         it('reverts when adding a token id that already exists', async function () {
@@ -69,7 +70,7 @@ contract('ERC721', function ([_, creator, tokenOwner, other, ...accounts]) {
           });
 
           it('deletes the token', async function () {
-            (await this.token.balanceOf(tokenOwner)).should.be.bignumber.equal('0');
+            expect(await this.token.balanceOf(tokenOwner)).to.be.bignumber.equal('0');
             await expectRevert(
               this.token.ownerOf(tokenId), 'ERC721: owner query for nonexistent token'
             );
@@ -107,7 +108,7 @@ contract('ERC721', function ([_, creator, tokenOwner, other, ...accounts]) {
           });
 
           it('deletes the token', async function () {
-            (await this.token.balanceOf(tokenOwner)).should.be.bignumber.equal('0');
+            expect(await this.token.balanceOf(tokenOwner)).to.be.bignumber.equal('0');
             await expectRevert(
               this.token.ownerOf(tokenId), 'ERC721: owner query for nonexistent token'
             );

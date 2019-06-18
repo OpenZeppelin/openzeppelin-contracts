@@ -1,4 +1,5 @@
 const { BN, constants, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
+const { expect } = require('chai');
 const { ZERO_ADDRESS } = constants;
 
 const ERC777SenderRecipientMock = artifacts.require('ERC777SenderRecipientMock');
@@ -217,9 +218,9 @@ function shouldSendTokens (from, operator, to, amount, data, operatorData) {
     const finalFromBalance = await this.token.balanceOf(from);
     const finalToBalance = await this.token.balanceOf(to);
 
-    finalTotalSupply.should.be.bignumber.equal(initialTotalSupply);
-    finalToBalance.sub(initialToBalance).should.be.bignumber.equal(amount);
-    finalFromBalance.sub(initialFromBalance).should.be.bignumber.equal(amount.neg());
+    expect(finalTotalSupply).to.be.bignumber.equal(initialTotalSupply);
+    expect(finalToBalance.sub(initialToBalance)).to.be.bignumber.equal(amount);
+    expect(finalFromBalance.sub(initialFromBalance)).to.be.bignumber.equal(amount.neg());
   });
 }
 
@@ -268,8 +269,8 @@ function shouldBurnTokens (from, operator, amount, data, operatorData) {
     const finalTotalSupply = await this.token.totalSupply();
     const finalFromBalance = await this.token.balanceOf(from);
 
-    finalTotalSupply.sub(initialTotalSupply).should.be.bignumber.equal(amount.neg());
-    finalFromBalance.sub(initialFromBalance).should.be.bignumber.equal(amount.neg());
+    expect(finalTotalSupply.sub(initialTotalSupply)).to.be.bignumber.equal(amount.neg());
+    expect(finalFromBalance.sub(initialFromBalance)).to.be.bignumber.equal(amount.neg());
   });
 }
 
@@ -306,8 +307,8 @@ function shouldInternalMintTokens (operator, to, amount, data, operatorData) {
     const finalTotalSupply = await this.token.totalSupply();
     const finalToBalance = await this.token.balanceOf(to);
 
-    finalTotalSupply.sub(initialTotalSupply).should.be.bignumber.equal(amount);
-    finalToBalance.sub(initialToBalance).should.be.bignumber.equal(amount);
+    expect(finalTotalSupply.sub(initialTotalSupply)).to.be.bignumber.equal(amount);
+    expect(finalToBalance.sub(initialToBalance)).to.be.bignumber.equal(amount);
   });
 }
 
@@ -505,7 +506,7 @@ function shouldBehaveLikeERC777SendBurnWithSendHook (operator, amount, data, ope
 function removeBalance (holder) {
   beforeEach(async function () {
     await this.token.burn(await this.token.balanceOf(holder), '0x', { from: holder });
-    (await this.token.balanceOf(holder)).should.be.bignumber.equal('0');
+    expect(await this.token.balanceOf(holder)).to.be.bignumber.equal('0');
   });
 }
 

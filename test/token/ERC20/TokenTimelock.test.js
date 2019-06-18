@@ -1,4 +1,5 @@
 const { BN, expectRevert, time } = require('openzeppelin-test-helpers');
+const { expect } = require('chai');
 
 const ERC20Mintable = artifacts.require('ERC20Mintable');
 const TokenTimelock = artifacts.require('TokenTimelock');
@@ -27,9 +28,9 @@ contract('TokenTimelock', function ([_, minter, beneficiary]) {
       });
 
       it('can get state', async function () {
-        (await this.timelock.token()).should.be.equal(this.token.address);
-        (await this.timelock.beneficiary()).should.be.equal(beneficiary);
-        (await this.timelock.releaseTime()).should.be.bignumber.equal(this.releaseTime);
+        expect(await this.timelock.token()).to.be.equal(this.token.address);
+        expect(await this.timelock.beneficiary()).to.be.equal(beneficiary);
+        expect(await this.timelock.releaseTime()).to.be.bignumber.equal(this.releaseTime);
       });
 
       it('cannot be released before time limit', async function () {
@@ -44,20 +45,20 @@ contract('TokenTimelock', function ([_, minter, beneficiary]) {
       it('can be released just after limit', async function () {
         await time.increaseTo(this.releaseTime.add(time.duration.seconds(1)));
         await this.timelock.release();
-        (await this.token.balanceOf(beneficiary)).should.be.bignumber.equal(amount);
+        expect(await this.token.balanceOf(beneficiary)).to.be.bignumber.equal(amount);
       });
 
       it('can be released after time limit', async function () {
         await time.increaseTo(this.releaseTime.add(time.duration.years(1)));
         await this.timelock.release();
-        (await this.token.balanceOf(beneficiary)).should.be.bignumber.equal(amount);
+        expect(await this.token.balanceOf(beneficiary)).to.be.bignumber.equal(amount);
       });
 
       it('cannot be released twice', async function () {
         await time.increaseTo(this.releaseTime.add(time.duration.years(1)));
         await this.timelock.release();
         await expectRevert(this.timelock.release(), 'TokenTimelock: no tokens to release');
-        (await this.token.balanceOf(beneficiary)).should.be.bignumber.equal(amount);
+        expect(await this.token.balanceOf(beneficiary)).to.be.bignumber.equal(amount);
       });
     });
   });
