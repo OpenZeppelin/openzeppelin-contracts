@@ -1,4 +1,5 @@
 const { expectRevert } = require('openzeppelin-test-helpers');
+const { expect } = require('chai');
 const { getSignFor } = require('../helpers/sign');
 const { shouldBehaveLikePublicRole } = require('../behaviors/access/roles/PublicRole.behavior');
 
@@ -140,79 +141,80 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, other, authorize
   context('signature validation', function () {
     context('plain signature', function () {
       it('validates valid signature for valid user', async function () {
-        (await this.sigBouncer.checkValidSignature(authorizedUser, await this.signFor(authorizedUser)))
-          .should.equal(true);
+        expect(await this.sigBouncer.checkValidSignature(authorizedUser, await this.signFor(authorizedUser)))
+          .to.equal(true);
       });
 
       it('does not validate invalid signature for valid user', async function () {
-        (await this.sigBouncer.checkValidSignature(authorizedUser, INVALID_SIGNATURE)).should.equal(false);
+        expect(await this.sigBouncer.checkValidSignature(authorizedUser, INVALID_SIGNATURE)).to.equal(false);
       });
 
       it('does not validate valid signature for anyone', async function () {
-        (await this.sigBouncer.checkValidSignature(other, await this.signFor(authorizedUser))).should.equal(false);
+        expect(await this.sigBouncer.checkValidSignature(other, await this.signFor(authorizedUser))).to.equal(false);
       });
 
       it('does not validate valid signature for method for valid user', async function () {
-        (await this.sigBouncer.checkValidSignature(
+        expect(await this.sigBouncer.checkValidSignature(
           authorizedUser, await this.signFor(authorizedUser, 'checkValidSignature'))
-        ).should.equal(false);
+        ).to.equal(false);
       });
     });
 
     context('method signature', function () {
       it('validates valid signature with correct method for valid user', async function () {
-        (await this.sigBouncer.checkValidSignatureAndMethod(authorizedUser,
+        expect(await this.sigBouncer.checkValidSignatureAndMethod(authorizedUser,
           await this.signFor(authorizedUser, 'checkValidSignatureAndMethod'))
-        ).should.equal(true);
+        ).to.equal(true);
       });
 
       it('does not validate invalid signature with correct method for valid user', async function () {
-        (await this.sigBouncer.checkValidSignatureAndMethod(authorizedUser, INVALID_SIGNATURE)).should.equal(false);
+        expect(await this.sigBouncer.checkValidSignatureAndMethod(authorizedUser, INVALID_SIGNATURE)).to.equal(false);
       });
 
       it('does not validate valid signature with correct method for anyone', async function () {
-        (await this.sigBouncer.checkValidSignatureAndMethod(other,
+        expect(await this.sigBouncer.checkValidSignatureAndMethod(other,
           await this.signFor(authorizedUser, 'checkValidSignatureAndMethod'))
-        ).should.equal(false);
+        ).to.equal(false);
       });
 
       it('does not validate valid non-method signature with correct method for valid user', async function () {
-        (await this.sigBouncer.checkValidSignatureAndMethod(authorizedUser, await this.signFor(authorizedUser))
-        ).should.equal(false);
+        expect(await this.sigBouncer.checkValidSignatureAndMethod(authorizedUser, await this.signFor(authorizedUser))
+        ).to.equal(false);
       });
     });
 
     context('method and data signature', function () {
       it('validates valid signature with correct method and data for valid user', async function () {
-        (await this.sigBouncer.checkValidSignatureAndData(authorizedUser, BYTES_VALUE, UINT_VALUE,
+        expect(await this.sigBouncer.checkValidSignatureAndData(authorizedUser, BYTES_VALUE, UINT_VALUE,
           await this.signFor(authorizedUser, 'checkValidSignatureAndData', [authorizedUser, BYTES_VALUE, UINT_VALUE]))
-        ).should.equal(true);
+        ).to.equal(true);
       });
 
       it('does not validate invalid signature with correct method and data for valid user', async function () {
-        (await this.sigBouncer.checkValidSignatureAndData(authorizedUser, BYTES_VALUE, UINT_VALUE, INVALID_SIGNATURE)
-        ).should.equal(false);
+        expect(await this.sigBouncer.checkValidSignatureAndData(authorizedUser, BYTES_VALUE, UINT_VALUE,
+          INVALID_SIGNATURE)
+        ).to.equal(false);
       });
 
       it('does not validate valid signature with correct method and incorrect data for valid user',
         async function () {
-          (await this.sigBouncer.checkValidSignatureAndData(authorizedUser, BYTES_VALUE, UINT_VALUE + 10,
+          expect(await this.sigBouncer.checkValidSignatureAndData(authorizedUser, BYTES_VALUE, UINT_VALUE + 10,
             await this.signFor(authorizedUser, 'checkValidSignatureAndData', [authorizedUser, BYTES_VALUE, UINT_VALUE]))
-          ).should.equal(false);
+          ).to.equal(false);
         }
       );
 
       it('does not validate valid signature with correct method and data for anyone', async function () {
-        (await this.sigBouncer.checkValidSignatureAndData(other, BYTES_VALUE, UINT_VALUE,
+        expect(await this.sigBouncer.checkValidSignatureAndData(other, BYTES_VALUE, UINT_VALUE,
           await this.signFor(authorizedUser, 'checkValidSignatureAndData', [authorizedUser, BYTES_VALUE, UINT_VALUE]))
-        ).should.equal(false);
+        ).to.equal(false);
       });
 
       it('does not validate valid non-method-data signature with correct method and data for valid user',
         async function () {
-          (await this.sigBouncer.checkValidSignatureAndData(authorizedUser, BYTES_VALUE, UINT_VALUE,
+          expect(await this.sigBouncer.checkValidSignatureAndData(authorizedUser, BYTES_VALUE, UINT_VALUE,
             await this.signFor(authorizedUser, 'checkValidSignatureAndData'))
-          ).should.equal(false);
+          ).to.equal(false);
         }
       );
     });

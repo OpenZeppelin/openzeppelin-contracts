@@ -1,4 +1,5 @@
 const { expectRevert } = require('openzeppelin-test-helpers');
+const { expect } = require('chai');
 
 const CountersImpl = artifacts.require('CountersImpl');
 
@@ -8,13 +9,13 @@ contract('Counters', function () {
   });
 
   it('starts at zero', async function () {
-    (await this.counter.current()).should.be.bignumber.equal('0');
+    expect(await this.counter.current()).to.be.bignumber.equal('0');
   });
 
   describe('increment', function () {
     it('increments the current value by one', async function () {
       await this.counter.increment();
-      (await this.counter.current()).should.be.bignumber.equal('1');
+      expect(await this.counter.current()).to.be.bignumber.equal('1');
     });
 
     it('can be called multiple times', async function () {
@@ -22,19 +23,19 @@ contract('Counters', function () {
       await this.counter.increment();
       await this.counter.increment();
 
-      (await this.counter.current()).should.be.bignumber.equal('3');
+      expect(await this.counter.current()).to.be.bignumber.equal('3');
     });
   });
 
   describe('decrement', function () {
     beforeEach(async function () {
       await this.counter.increment();
-      (await this.counter.current()).should.be.bignumber.equal('1');
+      expect(await this.counter.current()).to.be.bignumber.equal('1');
     });
 
     it('decrements the current value by one', async function () {
       await this.counter.decrement();
-      (await this.counter.current()).should.be.bignumber.equal('0');
+      expect(await this.counter.current()).to.be.bignumber.equal('0');
     });
 
     it('reverts if the current value is 0', async function () {
@@ -46,13 +47,13 @@ contract('Counters', function () {
       await this.counter.increment();
       await this.counter.increment();
 
-      (await this.counter.current()).should.be.bignumber.equal('3');
+      expect(await this.counter.current()).to.be.bignumber.equal('3');
 
       await this.counter.decrement();
       await this.counter.decrement();
       await this.counter.decrement();
 
-      (await this.counter.current()).should.be.bignumber.equal('0');
+      expect(await this.counter.current()).to.be.bignumber.equal('0');
     });
   });
 });

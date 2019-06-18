@@ -1,4 +1,5 @@
 const { BN, constants, expectEvent, expectRevert, time } = require('openzeppelin-test-helpers');
+const { expect } = require('chai');
 const { ZERO_ADDRESS } = constants;
 
 const ERC20Mintable = artifacts.require('ERC20Mintable');
@@ -18,7 +19,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     const cliffDuration = this.duration;
     const duration = this.cliffDuration;
 
-    cliffDuration.should.be.bignumber.that.is.at.least(duration);
+    expect(cliffDuration).to.be.bignumber.that.is.at.least(duration);
 
     await expectRevert(
       TokenVesting.new(beneficiary, this.start, cliffDuration, duration, true, { from: owner }),
@@ -60,11 +61,11 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     });
 
     it('can get state', async function () {
-      (await this.vesting.beneficiary()).should.be.equal(beneficiary);
-      (await this.vesting.cliff()).should.be.bignumber.equal(this.start.add(this.cliffDuration));
-      (await this.vesting.start()).should.be.bignumber.equal(this.start);
-      (await this.vesting.duration()).should.be.bignumber.equal(this.duration);
-      (await this.vesting.revocable()).should.be.equal(true);
+      expect(await this.vesting.beneficiary()).to.be.equal(beneficiary);
+      expect(await this.vesting.cliff()).to.be.bignumber.equal(this.start.add(this.cliffDuration));
+      expect(await this.vesting.start()).to.be.bignumber.equal(this.start);
+      expect(await this.vesting.duration()).to.be.bignumber.equal(this.duration);
+      expect(await this.vesting.revocable()).to.be.equal(true);
     });
 
     it('cannot be released before cliff', async function () {
@@ -89,8 +90,8 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
       const releaseTime = await time.latest();
 
       const releasedAmount = amount.mul(releaseTime.sub(this.start)).div(this.duration);
-      (await this.token.balanceOf(beneficiary)).should.bignumber.equal(releasedAmount);
-      (await this.vesting.released(this.token.address)).should.bignumber.equal(releasedAmount);
+      expect(await this.token.balanceOf(beneficiary)).to.bignumber.equal(releasedAmount);
+      expect(await this.vesting.released(this.token.address)).to.bignumber.equal(releasedAmount);
     });
 
     it('should linearly release tokens during vesting period', async function () {
@@ -103,22 +104,22 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
         await this.vesting.release(this.token.address);
         const expectedVesting = amount.mul(now.sub(this.start)).div(this.duration);
-        (await this.token.balanceOf(beneficiary)).should.bignumber.equal(expectedVesting);
-        (await this.vesting.released(this.token.address)).should.bignumber.equal(expectedVesting);
+        expect(await this.token.balanceOf(beneficiary)).to.bignumber.equal(expectedVesting);
+        expect(await this.vesting.released(this.token.address)).to.bignumber.equal(expectedVesting);
       }
     });
 
     it('should have released all after end', async function () {
       await time.increaseTo(this.start.add(this.duration));
       await this.vesting.release(this.token.address);
-      (await this.token.balanceOf(beneficiary)).should.bignumber.equal(amount);
-      (await this.vesting.released(this.token.address)).should.bignumber.equal(amount);
+      expect(await this.token.balanceOf(beneficiary)).to.bignumber.equal(amount);
+      expect(await this.vesting.released(this.token.address)).to.bignumber.equal(amount);
     });
 
     it('should be revoked by owner if revocable is set', async function () {
       const { logs } = await this.vesting.revoke(this.token.address, { from: owner });
       expectEvent.inLogs(logs, 'TokenVestingRevoked', { token: this.token.address });
-      (await this.vesting.revoked(this.token.address)).should.equal(true);
+      expect(await this.vesting.revoked(this.token.address)).to.equal(true);
     });
 
     it('should fail to be revoked by owner if revocable not set', async function () {
@@ -138,7 +139,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
       await this.vesting.revoke(this.token.address, { from: owner });
 
-      (await this.token.balanceOf(owner)).should.bignumber.equal(amount.sub(vested));
+      expect(await this.token.balanceOf(owner)).to.bignumber.equal(amount.sub(vested));
     });
 
     it('should keep the vested tokens when revoked by owner', async function () {
@@ -150,7 +151,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
       const vestedPost = vestedAmount(amount, await time.latest(), this.start, this.cliffDuration, this.duration);
 
-      vestedPre.should.bignumber.equal(vestedPost);
+      expect(vestedPre).to.bignumber.equal(vestedPost);
     });
 
     it('should fail to be revoked a second time', async function () {
