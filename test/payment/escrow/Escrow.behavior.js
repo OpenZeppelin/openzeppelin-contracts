@@ -1,4 +1,5 @@
 const { balance, ether, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
+const { expect } = require('chai');
 
 function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
   const amount = ether('42');
@@ -8,9 +9,9 @@ function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
       it('can accept a single deposit', async function () {
         await this.escrow.deposit(payee1, { from: primary, value: amount });
 
-        (await balance.current(this.escrow.address)).should.be.bignumber.equal(amount);
+        expect(await balance.current(this.escrow.address)).to.be.bignumber.equal(amount);
 
-        (await this.escrow.depositsOf(payee1)).should.be.bignumber.equal(amount);
+        expect(await this.escrow.depositsOf(payee1)).to.be.bignumber.equal(amount);
       });
 
       it('can accept an empty deposit', async function () {
@@ -35,20 +36,20 @@ function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
         await this.escrow.deposit(payee1, { from: primary, value: amount });
         await this.escrow.deposit(payee1, { from: primary, value: amount.muln(2) });
 
-        (await balance.current(this.escrow.address)).should.be.bignumber.equal(amount.muln(3));
+        expect(await balance.current(this.escrow.address)).to.be.bignumber.equal(amount.muln(3));
 
-        (await this.escrow.depositsOf(payee1)).should.be.bignumber.equal(amount.muln(3));
+        expect(await this.escrow.depositsOf(payee1)).to.be.bignumber.equal(amount.muln(3));
       });
 
       it('can track deposits to multiple accounts', async function () {
         await this.escrow.deposit(payee1, { from: primary, value: amount });
         await this.escrow.deposit(payee2, { from: primary, value: amount.muln(2) });
 
-        (await balance.current(this.escrow.address)).should.be.bignumber.equal(amount.muln(3));
+        expect(await balance.current(this.escrow.address)).to.be.bignumber.equal(amount.muln(3));
 
-        (await this.escrow.depositsOf(payee1)).should.be.bignumber.equal(amount);
+        expect(await this.escrow.depositsOf(payee1)).to.be.bignumber.equal(amount);
 
-        (await this.escrow.depositsOf(payee2)).should.be.bignumber.equal(amount.muln(2));
+        expect(await this.escrow.depositsOf(payee2)).to.be.bignumber.equal(amount.muln(2));
       });
     });
 
@@ -59,10 +60,10 @@ function shouldBehaveLikeEscrow (primary, [payee1, payee2]) {
         await this.escrow.deposit(payee1, { from: primary, value: amount });
         await this.escrow.withdraw(payee1, { from: primary });
 
-        (await balanceTracker.delta()).should.be.bignumber.equal(amount);
+        expect(await balanceTracker.delta()).to.be.bignumber.equal(amount);
 
-        (await balance.current(this.escrow.address)).should.be.bignumber.equal('0');
-        (await this.escrow.depositsOf(payee1)).should.be.bignumber.equal('0');
+        expect(await balance.current(this.escrow.address)).to.be.bignumber.equal('0');
+        expect(await this.escrow.depositsOf(payee1)).to.be.bignumber.equal('0');
       });
 
       it('can do an empty withdrawal', async function () {

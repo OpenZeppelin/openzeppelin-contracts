@@ -1,4 +1,5 @@
 const { balance, constants, ether, expectEvent, send, expectRevert } = require('openzeppelin-test-helpers');
+const { expect } = require('chai');
 const { ZERO_ADDRESS } = constants;
 
 const PaymentSplitter = artifacts.require('PaymentSplitter');
@@ -49,28 +50,28 @@ contract('PaymentSplitter', function ([_, owner, payee1, payee2, payee3, nonpaye
     });
 
     it('should have total shares', async function () {
-      (await this.contract.totalShares()).should.be.bignumber.equal('100');
+      expect(await this.contract.totalShares()).to.be.bignumber.equal('100');
     });
 
     it('should have payees', async function () {
       await Promise.all(this.payees.map(async (payee, index) => {
-        (await this.contract.payee(index)).should.be.equal(payee);
-        (await this.contract.released(payee)).should.be.bignumber.equal('0');
+        expect(await this.contract.payee(index)).to.be.equal(payee);
+        expect(await this.contract.released(payee)).to.be.bignumber.equal('0');
       }));
     });
 
     it('should accept payments', async function () {
       await send.ether(owner, this.contract.address, amount);
 
-      (await balance.current(this.contract.address)).should.be.bignumber.equal(amount);
+      expect(await balance.current(this.contract.address)).to.be.bignumber.equal(amount);
     });
 
     it('should store shares if address is payee', async function () {
-      (await this.contract.shares(payee1)).should.be.bignumber.not.equal('0');
+      expect(await this.contract.shares(payee1)).to.be.bignumber.not.equal('0');
     });
 
     it('should not store shares if address is not payee', async function () {
-      (await this.contract.shares(nonpayee1)).should.be.bignumber.equal('0');
+      expect(await this.contract.shares(nonpayee1)).to.be.bignumber.equal('0');
     });
 
     it('should throw if no funds to claim', async function () {
@@ -91,33 +92,33 @@ contract('PaymentSplitter', function ([_, owner, payee1, payee2, payee3, nonpaye
 
       // receive funds
       const initBalance = await balance.current(this.contract.address);
-      initBalance.should.be.bignumber.equal(amount);
+      expect(initBalance).to.be.bignumber.equal(amount);
 
       // distribute to payees
 
       const initAmount1 = await balance.current(payee1);
       const { logs: logs1 } = await this.contract.release(payee1, { gasPrice: 0 });
       const profit1 = (await balance.current(payee1)).sub(initAmount1);
-      profit1.should.be.bignumber.equal(ether('0.20'));
+      expect(profit1).to.be.bignumber.equal(ether('0.20'));
       expectEvent.inLogs(logs1, 'PaymentReleased', { to: payee1, amount: profit1 });
 
       const initAmount2 = await balance.current(payee2);
       const { logs: logs2 } = await this.contract.release(payee2, { gasPrice: 0 });
       const profit2 = (await balance.current(payee2)).sub(initAmount2);
-      profit2.should.be.bignumber.equal(ether('0.10'));
+      expect(profit2).to.be.bignumber.equal(ether('0.10'));
       expectEvent.inLogs(logs2, 'PaymentReleased', { to: payee2, amount: profit2 });
 
       const initAmount3 = await balance.current(payee3);
       const { logs: logs3 } = await this.contract.release(payee3, { gasPrice: 0 });
       const profit3 = (await balance.current(payee3)).sub(initAmount3);
-      profit3.should.be.bignumber.equal(ether('0.70'));
+      expect(profit3).to.be.bignumber.equal(ether('0.70'));
       expectEvent.inLogs(logs3, 'PaymentReleased', { to: payee3, amount: profit3 });
 
       // end balance should be zero
-      (await balance.current(this.contract.address)).should.be.bignumber.equal('0');
+      expect(await balance.current(this.contract.address)).to.be.bignumber.equal('0');
 
       // check correct funds released accounting
-      (await this.contract.totalReleased()).should.be.bignumber.equal(initBalance);
+      expect(await this.contract.totalReleased()).to.be.bignumber.equal(initBalance);
     });
   });
 });

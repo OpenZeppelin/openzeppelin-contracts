@@ -1,4 +1,5 @@
 const { balance, constants, ether, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
+const { expect } = require('chai');
 const { ZERO_ADDRESS } = constants;
 
 const RefundEscrow = artifacts.require('RefundEscrow');
@@ -20,14 +21,14 @@ contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee
 
     context('active state', function () {
       it('has beneficiary and state', async function () {
-        (await this.escrow.beneficiary()).should.be.equal(beneficiary);
-        (await this.escrow.state()).should.be.bignumber.equal('0');
+        expect(await this.escrow.beneficiary()).to.be.equal(beneficiary);
+        expect(await this.escrow.state()).to.be.bignumber.equal('0');
       });
 
       it('accepts deposits', async function () {
         await this.escrow.deposit(refundee1, { from: primary, value: amount });
 
-        (await this.escrow.depositsOf(refundee1)).should.be.bignumber.equal(amount);
+        expect(await this.escrow.depositsOf(refundee1)).to.be.bignumber.equal(amount);
       });
 
       it('does not refund refundees', async function () {
@@ -76,7 +77,7 @@ contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee
       it('allows beneficiary withdrawal', async function () {
         const balanceTracker = await balance.tracker(beneficiary);
         await this.escrow.beneficiaryWithdraw();
-        (await balanceTracker.delta()).should.be.bignumber.equal(amount.muln(refundees.length));
+        expect(await balanceTracker.delta()).to.be.bignumber.equal(amount.muln(refundees.length));
       });
 
       it('prevents entering the refund state', async function () {
@@ -118,7 +119,7 @@ contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee
         for (const refundee of [refundee1, refundee2]) {
           const balanceTracker = await balance.tracker(refundee);
           await this.escrow.withdraw(refundee, { from: primary });
-          (await balanceTracker.delta()).should.be.bignumber.equal(amount);
+          expect(await balanceTracker.delta()).to.be.bignumber.equal(amount);
         }
       });
 

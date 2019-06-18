@@ -1,4 +1,5 @@
 const { constants, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
+const { expect } = require('chai');
 const { ZERO_ADDRESS } = constants;
 
 const SecondaryMock = artifacts.require('SecondaryMock');
@@ -9,7 +10,7 @@ contract('Secondary', function ([_, primary, newPrimary, other]) {
   });
 
   it('stores the primary\'s address', async function () {
-    (await this.secondary.primary()).should.equal(primary);
+    expect(await this.secondary.primary()).to.equal(primary);
   });
 
   describe('onlyPrimary', function () {
@@ -28,7 +29,7 @@ contract('Secondary', function ([_, primary, newPrimary, other]) {
     it('makes the recipient the new primary', async function () {
       const { logs } = await this.secondary.transferPrimary(newPrimary, { from: primary });
       expectEvent.inLogs(logs, 'PrimaryTransferred', { recipient: newPrimary });
-      (await this.secondary.primary()).should.equal(newPrimary);
+      expect(await this.secondary.primary()).to.equal(newPrimary);
     });
 
     it('reverts when transferring to the null address', async function () {

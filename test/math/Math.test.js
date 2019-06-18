@@ -1,4 +1,5 @@
 const { BN } = require('openzeppelin-test-helpers');
+const { expect } = require('chai');
 
 const MathMock = artifacts.require('MathMock');
 
@@ -12,21 +13,21 @@ contract('Math', function () {
 
   describe('max', function () {
     it('is correctly detected in first argument position', async function () {
-      (await this.math.max(max, min)).should.be.bignumber.equal(max);
+      expect(await this.math.max(max, min)).to.be.bignumber.equal(max);
     });
 
     it('is correctly detected in second argument position', async function () {
-      (await this.math.max(min, max)).should.be.bignumber.equal(max);
+      expect(await this.math.max(min, max)).to.be.bignumber.equal(max);
     });
   });
 
   describe('min', function () {
     it('is correctly detected in first argument position', async function () {
-      (await this.math.min(min, max)).should.be.bignumber.equal(min);
+      expect(await this.math.min(min, max)).to.be.bignumber.equal(min);
     });
 
     it('is correctly detected in second argument position', async function () {
-      (await this.math.min(max, min)).should.be.bignumber.equal(min);
+      expect(await this.math.min(max, min)).to.be.bignumber.equal(min);
     });
   });
 
@@ -38,19 +39,19 @@ contract('Math', function () {
     it('is correctly calculated with two odd numbers', async function () {
       const a = new BN('57417');
       const b = new BN('95431');
-      (await this.math.average(a, b)).should.be.bignumber.equal(bnAverage(a, b));
+      expect(await this.math.average(a, b)).to.be.bignumber.equal(bnAverage(a, b));
     });
 
     it('is correctly calculated with two even numbers', async function () {
       const a = new BN('42304');
       const b = new BN('84346');
-      (await this.math.average(a, b)).should.be.bignumber.equal(bnAverage(a, b));
+      expect(await this.math.average(a, b)).to.be.bignumber.equal(bnAverage(a, b));
     });
 
     it('is correctly calculated with one even and one odd number', async function () {
       const a = new BN('57417');
       const b = new BN('84346');
-      (await this.math.average(a, b)).should.be.bignumber.equal(bnAverage(a, b));
+      expect(await this.math.average(a, b)).to.be.bignumber.equal(bnAverage(a, b));
     });
   });
 });
