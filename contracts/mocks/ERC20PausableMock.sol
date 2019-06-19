@@ -5,7 +5,7 @@ import "./PauserRoleMock.sol";
 
 // mock class using ERC20Pausable
 contract ERC20PausableMock is ERC20Pausable, PauserRoleMock {
-    constructor (address initialAccount, uint initialBalance) public {
+    constructor (address initialAccount, uint256 initialBalance) public {
         _mint(initialAccount, initialBalance);
     }
 }
