@@ -11,7 +11,7 @@ A token is a _representation of something in the blockchain_. This something can
 
 Much of the confusion surrounding tokens comes from two concepts getting mixed up: _token contracts_ and the actual _tokens_.
 
-Simply put, a _token contract_ isn't anything special. In Ethereum, pretty much _everything_ is a contract, and that includes these token contracts. "Sending tokens" actually means "calling a method on a smart contract that someone wrote and deployed". At the end of the day, a token contract is simply a mapping of addresses to balances, plus some methods to add and subtract from those balances.
+A _token contract_ is simply an Ethereum smart contract. "Sending tokens" actually means "calling a method on a smart contract that someone wrote and deployed". At the end of the day, a token contract is not much more a mapping of addresses to balances, plus some methods to add and subtract from those balances.
 
 It is these balances that represent the _tokens_ themselves. Someone "has tokens" when their balance in the token contract is non-zero. That's it! These balances could be considered money, experience points in a game, deeds of ownership, or voting rights, and each of these tokens would be stored in different token contracts.
 
@@ -55,7 +55,7 @@ contract GLDToken is ERC20, ERC20Detailed {
 
 OpenZeppelin contracts are often used via [inheritance](https://solidity.readthedocs.io/en/latest/contracts.html#inheritance), and here we're reusing [`ERC20`](api/token/ERC20#erc20) for the basic standard implementation and [`ERC20Detailed`](api/token/ERC20#erc20detailed) to get the [`name`](api/token/ERC20#ERC20Detailed.name()), [`symbol`](api/token/ERC20#ERC20Detailed.symbol()), and [`decimals`](api/token/ERC20#ERC20Detailed.decimals()) properties. Additionally, we're creating an `initialSupply` of tokens, which will be assigned to the address that deploys the contract.
 
-_For a more complete discussion of ERC20 supply mechanisms, see [our advanced guide](https://forum.zeppelin.solutions/t/how-to-implement-erc20-supply-mechanisms/226/)_.
+_For a more complete discussion of ERC20 supply mechanisms, see [our advanced guide](erc20-supply)_.
 
 That's it! Once deployed, we will be able to query the deployer's balance:
 
@@ -67,8 +67,8 @@ That's it! Once deployed, we will be able to query the deployer's balance:
 We can also [transfer](api/token/ERC20#IERC20.transfer(address,uint256)) these tokens to other accounts:
 
 ```javascript
-> GLDToken.transfer(otherAccount, 300)
-> GLDToken.balanceOf(otherAccount)
+> GLDToken.transfer(otherAddress, 300)
+> GLDToken.balanceOf(otherAddress)
 300
 > GLDToken.balanceOf(deployerAddress)
 700
@@ -82,9 +82,9 @@ To work around this, [`ERC20Detailed`](api/token/ERC20#erc20detailed) provides a
 
 How can this be achieved? It's actually very simple: a token contract can use larger integer values, so that a balance of `50` will represent `5 GLD`, a transfer of `15` will correspond to `1.5 GLD` being sent, and so on.
 
-It is important to understand that `decimals` is _only used for display purposes_. All arithmetic inside the contract is still performed on integers, and it is the different user interfaces (wallets, exchanges, etc.) that must adjust the displayed values according to `decimals`. The total token supply and balance of each account are not specified in `GLD`: you need to divide by `10^decimals` to get the actual `GLD` amount.
+It is important to understand that `decimals` is _only used for display purposes_. All arithmetic inside the contract is still performed on integers, and it is the different user interfaces (wallets, exchanges, etc.) that must adjust the displayed values according to `decimals`. The total token supply and balance of each account are not specified in `GLD`: you need to divide by `10**decimals` to get the actual `GLD` amount.
 
-You'll probably want to use a `decimals` value of `18`, just like Ether and most ERC20 token contracts in use, unless you have a very special reason not to. When minting tokens or transferring them around, you will be actually sending the number `num GLD * 10^decimals`. So if you want to send `5` tokens using a token contract with 18 decimals, the the method to call will actually be `transfer(recipient, 5 * 10^18)`.
+You'll probably want to use a `decimals` value of `18`, just like Ether and most ERC20 token contracts in use, unless you have a very special reason not to. When minting tokens or transferring them around, you will be actually sending the number `num GLD * 10**decimals`. So if you want to send `5` tokens using a token contract with 18 decimals, the the method to call will actually be `transfer(recipient, 5 * 10**18)`.
 
 
 ## ERC721
@@ -131,16 +131,16 @@ Also note that, unlike ERC20, ERC721 lacks a `decimals` field, since each token 
 New items can be created:
 
 ```javascript
-> GameItem.awardItem(playerAddress, "https://game.com/item-id-8u5h2m.json")
+> gameItem.awardItem(playerAddress, "https://game.example/item-id-8u5h2m.json")
 7
 ```
 
 And the owner and metadata of each item queried:
 ```javascript
-> GameItem.ownerOf(7)
+> gameItem.ownerOf(7)
 playerAddress
-> GameItem.tokenURI(7)
-"https://game.com/item-id-8u5h2m.json"
+> gameItem.tokenURI(7)
+"https://game.example/item-id-8u5h2m.json"
 ```
 
 This `tokenURI` should resolve to a JSON document that might look something like:
@@ -149,14 +149,14 @@ This `tokenURI` should resolve to a JSON document that might look something like
 {
     "name": "Thor's hammer",
     "description": "Mjölnir, the legendary hammer of the Norse god of thunder.",
-    "image": "https://game.com/item-id-8u5h2m.png",
+    "image": "https://game.example/item-id-8u5h2m.png",
     "strength": 20
 }
 ```
 
 For more information about the `tokenURI` metadata JSON Schema, check out the [ERC721 specification](https://eips.ethereum.org/EIPS/eip-721).
 
-_Note: you'll notice that the item's information is included in the metadata, but that information isn't on-chain! So a game developer could change the underlying metadata, changing the rules of the game! If you'd like to put all item information on-chain, you can extend ERC721 to do so (though it will be rather costly). You could also leverage IPFS to pin the tokenURI information, but these techniques are out of the scope of this overview guide._
+_Note: you'll notice that the item's information is included in the metadata, but that information isn't on-chain! So a game developer could change the underlying metadata, changing the rules of the game! If you'd like to put all item information on-chain, you can extend ERC721 to do so (though it will be rather costly). You could also leverage IPFS to store the tokenURI information, but these techniques are out of the scope of this overview guide._
 
 
 # Advanced standards
@@ -167,11 +167,11 @@ As a result, a multitude of new token standards were and are still being develop
 
 ## ERC777
 
-Like ERC20, ERC777 is a standard for [_fungible_ tokens](#different-kinds-of-tokens), and is focused around allowing more complex interactions when trading tokens, such as payment.
+Like ERC20, ERC777 is a standard for [_fungible_ tokens](#different-kinds-of-tokens), and is focused around allowing more complex interactions when trading tokens. More generally, it brings tokens and Ether closer together by providing the equivalent of a `msg.value` field, but for tokens.
 
-The standard also bring multiple quality-of-life improvements, such as getting rid of the confusion around `decimals`, minting and burning with proper events, among others, but its killer feature are **send hooks**. A hook is simply a function in a contract that is called when tokens are sent, meaning **accounts and contracts can react to receiving tokens**.
+The standard also bring multiple quality-of-life improvements, such as getting rid of the confusion around `decimals`, minting and burning with proper events, among others, but its killer feature are **receive hooks**. A hook is simply a function in a contract that is called when tokens are sent to it, meaning **accounts and contracts can react to receiving tokens**.
 
-This enables a lot of interesting use cases, including atomic purchases using tokens (no need to do `approve` and `transferFrom` in two separate transactions), rejecting reception of tokens (by reverting on the hook call), and more generally brings tokens and Ether closer together by providing the equivalent of a `msg.value` field, but for tokens.
+This enables a lot of interesting use cases, including atomic purchases using tokens (no need to do `approve` and `transferFrom` in two separate transactions), rejecting reception of tokens (by reverting on the hook call), redirecting the received tokens to other addresses (similarly to how [`PaymentSplitter`](api/payment#paymentsplitter) does it), among many others.
 
 Furthermore, since contracts are required to implement these hooks in order to receive tokens, _no tokens can get stuck in a contract that is unaware of the ERC777 protocol_, as has happened countless times when using ERC20s.
 
@@ -216,9 +216,9 @@ That's it for a basic token contract! We can now deploy it, and use the same [`b
 To move tokens from one account to another, we can use both [`ERC20`'s `transfer`](api/token/ERC777#ERC777.transfer(address,uint256)) method, or the new [`ERC777`'s `send`](api/token/ERC777#ERC777.send(address,uint256,bytes)), which fulfills a very similar role, but adds an optional `data` field:
 
 ```javascript
-> GLDToken.transfer(otherAccount, 300)
-> GLDToken.send(otherAccount, 300, "")
-> GLDToken.balanceOf(otherAccount)
+> GLDToken.transfer(otherAddress, 300)
+> GLDToken.send(otherAddress, 300, "")
+> GLDToken.balanceOf(otherAddress)
 600
 > GLDToken.balanceOf(deployerAddress)
 400

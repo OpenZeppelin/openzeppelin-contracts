@@ -2,7 +2,7 @@
 id: access-control
 title: Access Control
 ---
-Access control — that is, "who is allowed to do this thing" — is incredibly important in the world of smart contracts. The access control of your contract may govern who can mint tokens, vote on proposals, freeze transfers, and many others. It is therefore critical to understand how you implement it, lest someone else [steals your whole system](https://blog.zeppelin.solutions/on-the-parity-wallet-multisig-hack-405a8c12e8f7).
+Access control—that is, "who is allowed to do this thing"—is incredibly important in the world of smart contracts. The access control of your contract may govern who can mint tokens, vote on proposals, freeze transfers, and many others. It is therefore critical to understand how you implement it, lest someone else [steals your whole system](https://blog.zeppelin.solutions/on-the-parity-wallet-multisig-hack-405a8c12e8f7).
 
 ## Ownership and `Ownable`
 
@@ -47,7 +47,7 @@ Most of software development uses access control systems that are role-based: so
 
 ### Using `Roles`
 
-OpenZeppelin provides [`Roles`](api/access#roles) for implementing role-based access control. Its usage is straightforward: for each role (often associated with permissions) that you want to define, you'll store a  variable of type `Role`, which will hold the list of accounts with that role.
+OpenZeppelin provides [`Roles`](api/access#roles) for implementing role-based access control. Its usage is straightforward: for each role that you want to define, you'll store a  variable of type `Role`, which will hold the list of accounts with that role.
 
 Here's an simple example of using `Roles` in an [`ERC20` token](tokens#erc20): we'll define two roles, `namers` and `minters`, that will be able to change the name of the token contract, and mint new tokens, respectively.
 
