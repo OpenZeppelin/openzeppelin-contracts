@@ -1,5 +1,4 @@
 const { BN, expectRevert } = require('openzeppelin-test-helpers');
-
 const { expect } = require('chai');
 
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
@@ -76,16 +75,16 @@ contract('ERC721Full', function ([
       const sampleUri = 'mock://mytoken';
 
       it('has a name', async function () {
-        expect(await this.token.name()).to.equal(name);
+        expect(await this.token.name()).to.be.equal(name);
       });
 
       it('has a symbol', async function () {
-        expect(await this.token.symbol()).to.equal(symbol);
+        expect(await this.token.symbol()).to.be.equal(symbol);
       });
 
       it('sets and returns metadata for a token id', async function () {
         await this.token.setTokenURI(firstTokenId, sampleUri);
-        expect(await this.token.tokenURI(firstTokenId)).to.equal(sampleUri);
+        expect(await this.token.tokenURI(firstTokenId)).to.be.equal(sampleUri);
       });
 
       it('reverts when setting metadata for non existent token id', async function () {
@@ -101,7 +100,7 @@ contract('ERC721Full', function ([
       });
 
       it('returns empty metadata for token', async function () {
-        expect(await this.token.tokenURI(firstTokenId)).to.equal('');
+        expect(await this.token.tokenURI(firstTokenId)).to.be.equal('');
       });
 
       it('reverts when querying metadata for non existent token id', async function () {
@@ -160,7 +159,8 @@ contract('ERC721Full', function ([
           const tokensListed = await Promise.all(
             [0, 1].map(i => this.token.tokenOfOwnerByIndex(another, i))
           );
-          expect(tokensListed.map(t => t.toNumber())).to.have.members([firstTokenId.toNumber(), secondTokenId.toNumber()]);
+          expect(tokensListed.map(t => t.toNumber())).to.have.members([firstTokenId.toNumber(),
+            secondTokenId.toNumber()]);
         });
 
         it('returns empty collection for original owner', async function () {
@@ -177,7 +177,8 @@ contract('ERC721Full', function ([
         const tokensListed = await Promise.all(
           [0, 1].map(i => this.token.tokenByIndex(i))
         );
-        expect(tokensListed.map(t => t.toNumber())).to.have.members([firstTokenId.toNumber(), secondTokenId.toNumber()]);
+        expect(tokensListed.map(t => t.toNumber())).to.have.members([firstTokenId.toNumber(),
+          secondTokenId.toNumber()]);
       });
 
       it('should revert if index is greater than supply', async function () {

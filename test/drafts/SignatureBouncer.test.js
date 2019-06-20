@@ -192,7 +192,8 @@ contract('SignatureBouncer', function ([_, signer, otherSigner, other, authorize
       });
 
       it('does not validate invalid signature with correct method and data for valid user', async function () {
-        expect(await this.sigBouncer.checkValidSignatureAndData(authorizedUser, BYTES_VALUE, UINT_VALUE, INVALID_SIGNATURE)
+        expect(
+          await this.sigBouncer.checkValidSignatureAndData(authorizedUser, BYTES_VALUE, UINT_VALUE, INVALID_SIGNATURE)
         ).to.equal(false);
       });
 
