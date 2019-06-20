@@ -1,7 +1,6 @@
 const { BN, constants, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
-const { ZERO_ADDRESS } = constants;
-
 const { expect } = require('chai');
+const { ZERO_ADDRESS } = constants;
 
 function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recipient, anotherAccount) {
   describe('total supply', function () {

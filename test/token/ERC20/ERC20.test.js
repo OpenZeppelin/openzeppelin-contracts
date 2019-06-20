@@ -1,7 +1,6 @@
 const { BN, constants, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
-const { ZERO_ADDRESS } = constants;
-
 const { expect } = require('chai');
+const { ZERO_ADDRESS } = constants;
 
 const {
   shouldBehaveLikeERC20,
@@ -58,7 +57,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
 
           it('sets the allowance to zero when all allowance is removed', async function () {
             await this.token.decreaseAllowance(spender, approvedAmount, { from: initialHolder });
-            expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal('1');
+            expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal('0');
           });
 
           it('reverts when more than the full allowance is removed', async function () {
