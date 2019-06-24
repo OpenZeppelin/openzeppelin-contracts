@@ -1,6 +1,8 @@
 const { expectEvent, expectRevert } = require('openzeppelin-test-helpers');
 const { shouldBehaveLikePublicRole } = require('../behaviors/access/roles/PublicRole.behavior');
 
+const { expect } = require('chai');
+
 const PausableMock = artifacts.require('PausableMock');
 
 contract('Pausable', function ([_, pauser, otherPauser, other, ...otherAccounts]) {
@@ -19,27 +21,27 @@ contract('Pausable', function ([_, pauser, otherPauser, other, ...otherAccounts]
 
   context('when unpaused', function () {
     beforeEach(async function () {
-      (await this.pausable.paused()).should.equal(false);
+      expect(await this.pausable.paused()).to.equal(false);
     });
 
     it('can perform normal process in non-pause', async function () {
-      (await this.pausable.count()).should.be.bignumber.equal('0');
+      expect(await this.pausable.count()).to.be.bignumber.equal('0');
 
       await this.pausable.normalProcess({ from: other });
-      (await this.pausable.count()).should.be.bignumber.equal('1');
+      expect(await this.pausable.count()).to.be.bignumber.equal('1');
     });
 
     it('cannot take drastic measure in non-pause', async function () {
       await expectRevert(this.pausable.drasticMeasure({ from: other }),
         'Pausable: not paused'
       );
-      (await this.pausable.drasticMeasureTaken()).should.equal(false);
+      expect(await this.pausable.drasticMeasureTaken()).to.equal(false);
     });
 
     describe('pausing', function () {
       it('is pausable by the pauser', async function () {
         await this.pausable.pause({ from: pauser });
-        (await this.pausable.paused()).should.equal(true);
+        expect(await this.pausable.paused()).to.equal(true);
       });
 
       it('reverts when pausing from non-pauser', async function () {
@@ -63,7 +65,7 @@ contract('Pausable', function ([_, pauser, otherPauser, other, ...otherAccounts]
 
         it('can take a drastic measure in a pause', async function () {
           await this.pausable.drasticMeasure({ from: other });
-          (await this.pausable.drasticMeasureTaken()).should.equal(true);
+          expect(await this.pausable.drasticMeasureTaken()).to.equal(true);
         });
 
         it('reverts when re-pausing', async function () {
@@ -73,7 +75,7 @@ contract('Pausable', function ([_, pauser, otherPauser, other, ...otherAccounts]
         describe('unpausing', function () {
           it('is unpausable by the pauser', async function () {
             await this.pausable.unpause({ from: pauser });
-            (await this.pausable.paused()).should.equal(false);
+            expect(await this.pausable.paused()).to.equal(false);
           });
 
           it('reverts when unpausing from non-pauser', async function () {
@@ -92,9 +94,9 @@ contract('Pausable', function ([_, pauser, otherPauser, other, ...otherAccounts]
             });
 
             it('should resume allowing normal process', async function () {
-              (await this.pausable.count()).should.be.bignumber.equal('0');
+              expect(await this.pausable.count()).to.be.bignumber.equal('0');
               await this.pausable.normalProcess({ from: other });
-              (await this.pausable.count()).should.be.bignumber.equal('1');
+              expect(await this.pausable.count()).to.be.bignumber.equal('1');
             });
 
             it('should prevent drastic measure', async function () {

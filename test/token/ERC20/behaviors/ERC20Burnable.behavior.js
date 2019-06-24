@@ -1,6 +1,8 @@
 const { BN, constants, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
+const { expect } = require('chai');
+
 function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
   describe('burn', function () {
     describe('when the given amount is not greater than balance of the sender', function () {
@@ -18,7 +20,7 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
         });
 
         it('burns the requested amount', async function () {
-          (await this.token.balanceOf(owner)).should.be.bignumber.equal(initialBalance.sub(amount));
+          expect(await this.token.balanceOf(owner)).to.be.bignumber.equal(initialBalance.sub(amount));
         });
 
         it('emits a transfer event', async function () {
@@ -62,11 +64,11 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
         });
 
         it('burns the requested amount', async function () {
-          (await this.token.balanceOf(owner)).should.be.bignumber.equal(initialBalance.sub(amount));
+          expect(await this.token.balanceOf(owner)).to.be.bignumber.equal(initialBalance.sub(amount));
         });
 
         it('decrements allowance', async function () {
-          (await this.token.allowance(owner, burner)).should.be.bignumber.equal(originalAllowance.sub(amount));
+          expect(await this.token.allowance(owner, burner)).to.be.bignumber.equal(originalAllowance.sub(amount));
         });
 
         it('emits a transfer event', async function () {

@@ -1,6 +1,8 @@
 const { BN, constants, expectRevert } = require('openzeppelin-test-helpers');
 const { MAX_INT256, MIN_INT256 } = constants;
 
+const { expect } = require('chai');
+
 const SignedSafeMathMock = artifacts.require('SignedSafeMathMock');
 
 contract('SignedSafeMath', function () {
@@ -9,8 +11,8 @@ contract('SignedSafeMath', function () {
   });
 
   async function testCommutative (fn, lhs, rhs, expected) {
-    (await fn(lhs, rhs)).should.be.bignumber.equal(expected);
-    (await fn(rhs, lhs)).should.be.bignumber.equal(expected);
+    expect(await fn(lhs, rhs)).to.be.bignumber.equal(expected);
+    expect(await fn(rhs, lhs)).to.be.bignumber.equal(expected);
   }
 
   async function testFailsCommutative (fn, lhs, rhs, reason) {
@@ -54,7 +56,7 @@ contract('SignedSafeMath', function () {
       const b = new BN('1234');
 
       const result = await this.safeMath.sub(a, b);
-      result.should.be.bignumber.equal(a.sub(b));
+      expect(result).to.be.bignumber.equal(a.sub(b));
     });
 
     it('subtracts correctly if it does not overflow and the result is negative', async function () {
@@ -62,7 +64,7 @@ contract('SignedSafeMath', function () {
       const b = new BN('5678');
 
       const result = await this.safeMath.sub(a, b);
-      result.should.be.bignumber.equal(a.sub(b));
+      expect(result).to.be.bignumber.equal(a.sub(b));
     });
 
     it('reverts on positive subtraction overflow', async function () {
@@ -116,21 +118,21 @@ contract('SignedSafeMath', function () {
       const b = new BN('5678');
 
       const result = await this.safeMath.div(a, b);
-      result.should.be.bignumber.equal(a.div(b));
+      expect(result).to.be.bignumber.equal(a.div(b));
     });
 
     it('divides zero correctly', async function () {
       const a = new BN('0');
       const b = new BN('5678');
 
-      (await this.safeMath.div(a, b)).should.be.bignumber.equal('0');
+      expect(await this.safeMath.div(a, b)).to.be.bignumber.equal('0');
     });
 
     it('returns complete number result on non-even division', async function () {
       const a = new BN('7000');
       const b = new BN('5678');
 
-      (await this.safeMath.div(a, b)).should.be.bignumber.equal('1');
+      expect(await this.safeMath.div(a, b)).to.be.bignumber.equal('1');
     });
 
     it('reverts on division by zero', async function () {

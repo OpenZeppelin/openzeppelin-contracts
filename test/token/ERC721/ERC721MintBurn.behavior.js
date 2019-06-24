@@ -1,6 +1,8 @@
 const { BN, constants, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
+const { expect } = require('chai');
+
 function shouldBehaveLikeMintAndBurnERC721 (
   creator,
   minter,
@@ -28,11 +30,11 @@ function shouldBehaveLikeMintAndBurnERC721 (
         });
 
         it('assigns the token to the new owner', async function () {
-          (await this.token.ownerOf(thirdTokenId)).should.be.equal(newOwner);
+          expect(await this.token.ownerOf(thirdTokenId)).to.equal(newOwner);
         });
 
         it('increases the balance of its owner', async function () {
-          (await this.token.balanceOf(newOwner)).should.be.bignumber.equal('1');
+          expect(await this.token.balanceOf(newOwner)).to.be.bignumber.equal('1');
         });
 
         it('emits a transfer and minted event', async function () {
@@ -85,7 +87,7 @@ function shouldBehaveLikeMintAndBurnERC721 (
             this.token.ownerOf(tokenId),
             'ERC721: owner query for nonexistent token'
           );
-          (await this.token.balanceOf(owner)).should.be.bignumber.equal('1');
+          expect(await this.token.balanceOf(owner)).to.be.bignumber.equal('1');
         });
 
         it('emits a burn event', async function () {

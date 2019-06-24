@@ -1,5 +1,7 @@
 const { BN, ether, expectRevert, time } = require('openzeppelin-test-helpers');
 
+const { expect } = require('chai');
+
 const IncreasingPriceCrowdsaleImpl = artifacts.require('IncreasingPriceCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
@@ -52,8 +54,8 @@ contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser])
       });
 
       it('should have initial and final rate', async function () {
-        (await this.crowdsale.initialRate()).should.be.bignumber.equal(initialRate);
-        (await this.crowdsale.finalRate()).should.be.bignumber.equal(finalRate);
+        expect(await this.crowdsale.initialRate()).to.be.bignumber.equal(initialRate);
+        expect(await this.crowdsale.finalRate()).to.be.bignumber.equal(finalRate);
       });
 
       it('reverts when the base Crowdsale\'s rate function is called', async function () {
@@ -63,54 +65,54 @@ contract('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser])
       });
 
       it('returns a rate of 0 before the crowdsale starts', async function () {
-        (await this.crowdsale.getCurrentRate()).should.be.bignumber.equal('0');
+        expect(await this.crowdsale.getCurrentRate()).to.be.bignumber.equal('0');
       });
 
       it('returns a rate of 0 after the crowdsale ends', async function () {
         await time.increaseTo(this.afterClosingTime);
-        (await this.crowdsale.getCurrentRate()).should.be.bignumber.equal('0');
+        expect(await this.crowdsale.getCurrentRate()).to.be.bignumber.equal('0');
       });
 
       it('at start', async function () {
         await time.increaseTo(this.startTime);
         await this.crowdsale.buyTokens(investor, { value, from: purchaser });
-        (await this.token.balanceOf(investor)).should.be.bignumber.equal(value.mul(initialRate));
+        expect(await this.token.balanceOf(investor)).to.be.bignumber.equal(value.mul(initialRate));
       });
 
       it('at time 150', async function () {
         await time.increaseTo(this.startTime.addn(150));
         await this.crowdsale.buyTokens(investor, { value, from: purchaser });
-        (await this.token.balanceOf(investor)).should.be.bignumber.equal(value.mul(rateAtTime150));
+        expect(await this.token.balanceOf(investor)).to.be.bignumber.equal(value.mul(rateAtTime150));
       });
 
       it('at time 300', async function () {
         await time.increaseTo(this.startTime.addn(300));
         await this.crowdsale.buyTokens(investor, { value, from: purchaser });
-        (await this.token.balanceOf(investor)).should.be.bignumber.equal(value.mul(rateAtTime300));
+        expect(await this.token.balanceOf(investor)).to.be.bignumber.equal(value.mul(rateAtTime300));
       });
 
       it('at time 1500', async function () {
         await time.increaseTo(this.startTime.addn(1500));
         await this.crowdsale.buyTokens(investor, { value, from: purchaser });
-        (await this.token.balanceOf(investor)).should.be.bignumber.equal(value.mul(rateAtTime1500));
+        expect(await this.token.balanceOf(investor)).to.be.bignumber.equal(value.mul(rateAtTime1500));
       });
 
       it('at time 30', async function () {
         await time.increaseTo(this.startTime.addn(30));
         await this.crowdsale.buyTokens(investor, { value, from: purchaser });
-        (await this.token.balanceOf(investor)).should.be.bignumber.equal(value.mul(rateAtTime30));
+        expect(await this.token.balanceOf(investor)).to.be.bignumber.equal(value.mul(rateAtTime30));
       });
 
       it('at time 150000', async function () {
         await time.increaseTo(this.startTime.addn(150000));
         await this.crowdsale.buyTokens(investor, { value, from: purchaser });
-        (await this.token.balanceOf(investor)).should.be.bignumber.equal(value.mul(rateAtTime150000));
+        expect(await this.token.balanceOf(investor)).to.be.bignumber.equal(value.mul(rateAtTime150000));
       });
 
       it('at time 450000', async function () {
         await time.increaseTo(this.startTime.addn(450000));
         await this.crowdsale.buyTokens(investor, { value, from: purchaser });
-        (await this.token.balanceOf(investor)).should.be.bignumber.equal(value.mul(rateAtTime450000));
+        expect(await this.token.balanceOf(investor)).to.be.bignumber.equal(value.mul(rateAtTime450000));
       });
     });
   });

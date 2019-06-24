@@ -1,4 +1,5 @@
 const { BN, constants, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
+const { expect } = require('chai');
 const { ZERO_ADDRESS } = constants;
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 
@@ -24,13 +25,13 @@ function shouldBehaveLikeERC721 (
     describe('balanceOf', function () {
       context('when the given address owns some tokens', function () {
         it('returns the amount of tokens owned by the given address', async function () {
-          (await this.token.balanceOf(owner)).should.be.bignumber.equal('2');
+          expect(await this.token.balanceOf(owner)).to.be.bignumber.equal('2');
         });
       });
 
       context('when the given address does not own any tokens', function () {
         it('returns 0', async function () {
-          (await this.token.balanceOf(other)).should.be.bignumber.equal('0');
+          expect(await this.token.balanceOf(other)).to.be.bignumber.equal('0');
         });
       });
 
@@ -48,7 +49,7 @@ function shouldBehaveLikeERC721 (
         const tokenId = firstTokenId;
 
         it('returns the owner of the given token ID', async function () {
-          (await this.token.ownerOf(tokenId)).should.be.equal(owner);
+          expect(await this.token.ownerOf(tokenId)).to.be.equal(owner);
         });
       });
 
@@ -76,11 +77,11 @@ function shouldBehaveLikeERC721 (
 
       const transferWasSuccessful = function ({ owner, tokenId, approved }) {
         it('transfers the ownership of the given token ID to the given address', async function () {
-          (await this.token.ownerOf(tokenId)).should.be.equal(this.toWhom);
+          expect(await this.token.ownerOf(tokenId)).to.be.equal(this.toWhom);
         });
 
         it('clears the approval for the token ID', async function () {
-          (await this.token.getApproved(tokenId)).should.be.equal(ZERO_ADDRESS);
+          expect(await this.token.getApproved(tokenId)).to.be.equal(ZERO_ADDRESS);
         });
 
         if (approved) {
@@ -102,15 +103,15 @@ function shouldBehaveLikeERC721 (
         }
 
         it('adjusts owners balances', async function () {
-          (await this.token.balanceOf(owner)).should.be.bignumber.equal('1');
+          expect(await this.token.balanceOf(owner)).to.be.bignumber.equal('1');
         });
 
         it('adjusts owners tokens by index', async function () {
           if (!this.token.tokenOfOwnerByIndex) return;
 
-          (await this.token.tokenOfOwnerByIndex(this.toWhom, 0)).should.be.bignumber.equal(tokenId);
+          expect(await this.token.tokenOfOwnerByIndex(this.toWhom, 0)).to.be.bignumber.equal(tokenId);
 
-          (await this.token.tokenOfOwnerByIndex(owner, 0)).should.be.bignumber.not.equal(tokenId);
+          expect(await this.token.tokenOfOwnerByIndex(owner, 0)).to.be.bignumber.not.equal(tokenId);
         });
       };
 
@@ -150,11 +151,11 @@ function shouldBehaveLikeERC721 (
           });
 
           it('keeps ownership of the token', async function () {
-            (await this.token.ownerOf(tokenId)).should.be.equal(owner);
+            expect(await this.token.ownerOf(tokenId)).to.be.equal(owner);
           });
 
           it('clears the approval for the token ID', async function () {
-            (await this.token.getApproved(tokenId)).should.be.equal(ZERO_ADDRESS);
+            expect(await this.token.getApproved(tokenId)).to.be.equal(ZERO_ADDRESS);
           });
 
           it('emits only a transfer event', async function () {
@@ -166,7 +167,7 @@ function shouldBehaveLikeERC721 (
           });
 
           it('keeps the owner balance', async function () {
-            (await this.token.balanceOf(owner)).should.be.bignumber.equal('2');
+            expect(await this.token.balanceOf(owner)).to.be.bignumber.equal('2');
           });
 
           it('keeps same tokens by index', async function () {
@@ -174,7 +175,7 @@ function shouldBehaveLikeERC721 (
             const tokensListed = await Promise.all(
               [0, 1].map(i => this.token.tokenOfOwnerByIndex(owner, i))
             );
-            tokensListed.map(t => t.toNumber()).should.have.members(
+            expect(tokensListed.map(t => t.toNumber())).to.have.members(
               [firstTokenId.toNumber(), secondTokenId.toNumber()]
             );
           });
@@ -330,13 +331,13 @@ function shouldBehaveLikeERC721 (
 
       const itClearsApproval = function () {
         it('clears approval for the token', async function () {
-          (await this.token.getApproved(tokenId)).should.be.equal(ZERO_ADDRESS);
+          expect(await this.token.getApproved(tokenId)).to.be.equal(ZERO_ADDRESS);
         });
       };
 
       const itApproves = function (address) {
         it('sets the approval for the target address', async function () {
-          (await this.token.getApproved(tokenId)).should.be.equal(address);
+          expect(await this.token.getApproved(tokenId)).to.be.equal(address);
         });
       };
 
@@ -449,7 +450,7 @@ function shouldBehaveLikeERC721 (
           it('approves the operator', async function () {
             await this.token.setApprovalForAll(operator, true, { from: owner });
 
-            (await this.token.isApprovedForAll(owner, operator)).should.equal(true);
+            expect(await this.token.isApprovedForAll(owner, operator)).to.equal(true);
           });
 
           it('emits an approval event', async function () {
@@ -471,7 +472,7 @@ function shouldBehaveLikeERC721 (
           it('approves the operator', async function () {
             await this.token.setApprovalForAll(operator, true, { from: owner });
 
-            (await this.token.isApprovedForAll(owner, operator)).should.equal(true);
+            expect(await this.token.isApprovedForAll(owner, operator)).to.equal(true);
           });
 
           it('emits an approval event', async function () {
@@ -487,7 +488,7 @@ function shouldBehaveLikeERC721 (
           it('can unset the operator approval', async function () {
             await this.token.setApprovalForAll(operator, false, { from: owner });
 
-            (await this.token.isApprovedForAll(owner, operator)).should.equal(false);
+            expect(await this.token.isApprovedForAll(owner, operator)).to.equal(false);
           });
         });
 
@@ -499,7 +500,7 @@ function shouldBehaveLikeERC721 (
           it('keeps the approval to the given address', async function () {
             await this.token.setApprovalForAll(operator, true, { from: owner });
 
-            (await this.token.isApprovedForAll(owner, operator)).should.equal(true);
+            expect(await this.token.isApprovedForAll(owner, operator)).to.equal(true);
           });
 
           it('emits an approval event', async function () {

@@ -1,4 +1,5 @@
 const { constants } = require('openzeppelin-test-helpers');
+const { expect } = require('chai');
 
 const AddressImpl = artifacts.require('AddressImpl');
 const SimpleToken = artifacts.require('SimpleToken');
@@ -12,26 +13,26 @@ contract('Address', function ([_, other]) {
 
   describe('isContract', function () {
     it('should return false for account address', async function () {
-      (await this.mock.isContract(other)).should.equal(false);
+      expect(await this.mock.isContract(other)).to.equal(false);
     });
 
     it('should return true for contract address', async function () {
       const contract = await SimpleToken.new();
-      (await this.mock.isContract(contract.address)).should.equal(true);
+      expect(await this.mock.isContract(contract.address)).to.equal(true);
     });
   });
 
   describe('toPayable', function () {
     it('should return a payable address when the account is the zero address', async function () {
-      (await this.mock.toPayable(constants.ZERO_ADDRESS)).should.equal(constants.ZERO_ADDRESS);
+      expect(await this.mock.toPayable(constants.ZERO_ADDRESS)).to.equal(constants.ZERO_ADDRESS);
     });
 
     it('should return a payable address when the account is an arbitrary address', async function () {
-      (await this.mock.toPayable(other)).should.equal(other);
+      expect(await this.mock.toPayable(other)).to.equal(other);
     });
 
     it('should return a payable address when the account is the all ones address', async function () {
-      (await this.mock.toPayable(ALL_ONES_ADDRESS)).should.equal(ALL_ONES_ADDRESS);
+      expect(await this.mock.toPayable(ALL_ONES_ADDRESS)).to.equal(ALL_ONES_ADDRESS);
     });
   });
 });

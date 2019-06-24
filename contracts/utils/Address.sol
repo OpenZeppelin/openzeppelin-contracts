@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 
 /**
- * @dev Collection of functions related to the address type,
+ * @dev Collection of functions related to the address type
  */
 library Address {
     /**

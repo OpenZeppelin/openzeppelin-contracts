@@ -1,6 +1,8 @@
 const { BN, constants, expectRevert } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
+const { expect } = require('chai');
+
 function shouldBehaveLikeERC721PausedToken (owner, [recipient, operator]) {
   const firstTokenId = new BN(1);
   const mintedTokens = new BN(1);
@@ -46,33 +48,33 @@ function shouldBehaveLikeERC721PausedToken (owner, [recipient, operator]) {
     describe('getApproved', function () {
       it('returns approved address', async function () {
         const approvedAccount = await this.token.getApproved(firstTokenId);
-        approvedAccount.should.be.equal(ZERO_ADDRESS);
+        expect(approvedAccount).to.equal(ZERO_ADDRESS);
       });
     });
 
     describe('balanceOf', function () {
       it('returns the amount of tokens owned by the given address', async function () {
         const balance = await this.token.balanceOf(owner);
-        balance.should.be.bignumber.equal(mintedTokens);
+        expect(balance).to.be.bignumber.equal(mintedTokens);
       });
     });
 
     describe('ownerOf', function () {
       it('returns the amount of tokens owned by the given address', async function () {
         const ownerOfToken = await this.token.ownerOf(firstTokenId);
-        ownerOfToken.should.be.equal(owner);
+        expect(ownerOfToken).to.equal(owner);
       });
     });
 
     describe('exists', function () {
       it('should return token existence', async function () {
-        (await this.token.exists(firstTokenId)).should.equal(true);
+        expect(await this.token.exists(firstTokenId)).to.equal(true);
       });
     });
 
     describe('isApprovedForAll', function () {
       it('returns the approval of the operator', async function () {
-        (await this.token.isApprovedForAll(owner, operator)).should.equal(false);
+        expect(await this.token.isApprovedForAll(owner, operator)).to.equal(false);
       });
     });
   });

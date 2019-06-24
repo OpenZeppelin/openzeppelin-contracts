@@ -1,5 +1,7 @@
 const { BN, ether, expectRevert } = require('openzeppelin-test-helpers');
 
+const { expect } = require('chai');
+
 const CappedCrowdsaleImpl = artifacts.require('CappedCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
 
@@ -44,17 +46,17 @@ contract('CappedCrowdsale', function ([_, wallet]) {
     describe('ending', function () {
       it('should not reach cap if sent under cap', async function () {
         await this.crowdsale.send(lessThanCap);
-        (await this.crowdsale.capReached()).should.equal(false);
+        expect(await this.crowdsale.capReached()).to.equal(false);
       });
 
       it('should not reach cap if sent just under cap', async function () {
         await this.crowdsale.send(cap.subn(1));
-        (await this.crowdsale.capReached()).should.equal(false);
+        expect(await this.crowdsale.capReached()).to.equal(false);
       });
 
       it('should reach cap if cap sent', async function () {
         await this.crowdsale.send(cap);
-        (await this.crowdsale.capReached()).should.equal(true);
+        expect(await this.crowdsale.capReached()).to.equal(true);
       });
     });
   });
