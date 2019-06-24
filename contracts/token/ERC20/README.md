@@ -19,13 +19,16 @@ sections:
 
 This set of interfaces, contracts, and utilities are all related to the [ERC20 Token Standard](https://eips.ethereum.org/EIPS/eip-20).
 
-*For a walkthrough on how to create an ERC20 token read our [ERC20 guide](../../tokens.md#constructing-a-nice-erc20-token).*
+*For an overview of ERC20 tokens and a walkthrough on how to create a token contract read our [ERC20 guide](../../tokens#erc20).*
 
-There a few core contracts that implement the behavior specified in the EIP: `IERC20`, `ERC20`, `ERC20Detailed`.
+There a few core contracts that implement the behavior specified in the EIP:
+ - `IERC20`: the interface all ERC20 implementations should conform to
+ - `ERC20`: the base implementation of the ERC20 interface
+ - `ERC20Detailed`: includes the `name()`, `symbol()` and `decimals()` optional standard extension to the base interface
 
-Additionally there are multiple extensions, including:
-- designation of addresses that can create token supply (`ERC20Mintable`), with an optional maximum cap (`ERC20Capped`),
-- destruction of own tokens (`ERC20Burnable`),
+Additionally there are multiple custom extensions, including:
+- designation of addresses that can create token supply (`ERC20Mintable`), with an optional maximum cap (`ERC20Capped`)
+- destruction of own tokens (`ERC20Burnable`)
 - designation of addresses that can pause token operations for all users (`ERC20Pausable`).
 
 Finally, there are some utilities to interact with ERC20 contracts in various ways.

@@ -2,16 +2,23 @@
   "Overview": [
     "get-started"
   ],
-  "Guides": [
+  "Basics": [
     "access-control",
     "crowdsales",
     "tokens",
     "utilities"
+  ],
+  "In Depth": [
+    "erc20-supply"
   ],
   "API Reference": [
     {
       "type": "directory",
       "directory": "api"
     }
+  ],
+  "FAQ": [
+    "api-stability",
+    "release-schedule"
   ]
 }
