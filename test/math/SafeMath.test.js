@@ -97,7 +97,7 @@ contract('SafeMath', function () {
       expect(await this.safeMath.div(a, b)).to.be.bignumber.equal('1');
     });
 
-    it('reverts on divison by zero', async function () {
+    it('reverts on division by zero', async function () {
       const a = new BN('5678');
       const b = new BN('0');
 
