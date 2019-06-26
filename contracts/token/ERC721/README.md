@@ -24,7 +24,7 @@ sections:
 
 This set of interfaces, contracts, and utilities are all related to the [ERC721 Non-Fungible Token Standard](https://eips.ethereum.org/EIPS/eip-721).
 
-*For a walkthrough on how to create an ERC721 token read our [ERC721 guide](../../tokens.md#erc721).*
+*For a walkthrough on how to create an ERC721 token read our [ERC721 guide](../../../docs/tokens.md#erc721).*
 
 The EIP consists of three interfaces, found here as `IERC721`, `IERC721Metadata`, and `IERC721Enumerable`. Only the first one is required in a contract to be ERC721 compliant.
 
