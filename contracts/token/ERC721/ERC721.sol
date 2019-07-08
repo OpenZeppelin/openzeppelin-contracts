@@ -38,7 +38,7 @@ contract ERC721 is ERC165, IERC721 {
      *     bytes4(keccak256('approve(address,uint256)')) == 0x095ea7b3
      *     bytes4(keccak256('getApproved(uint256)')) == 0x081812fc
      *     bytes4(keccak256('setApprovalForAll(address,bool)')) == 0xa22cb465
-     *     bytes4(keccak256('isApprovedForAll(address,address)')) == 0xe985e9c
+     *     bytes4(keccak256('isApprovedForAll(address,address)')) == 0xe985e9c5
      *     bytes4(keccak256('transferFrom(address,address,uint256)')) == 0x23b872dd
      *     bytes4(keccak256('safeTransferFrom(address,address,uint256)')) == 0x42842e0e
      *     bytes4(keccak256('safeTransferFrom(address,address,uint256,bytes)')) == 0xb88d4fde
