@@ -7,6 +7,7 @@
 
 ### Improvements:
  * `Address.isContract`: switched from `extcodesize` to `extcodehash` for less gas usage. ([#1802](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1802))
+ * `ERC721`:  ERC721 test suite was missing getApproved function test. Added that.([#1148](https://github.com/OpenZeppelin/openzeppelin-solidity/issues/1148))
 
 ### Bugfixes
 
