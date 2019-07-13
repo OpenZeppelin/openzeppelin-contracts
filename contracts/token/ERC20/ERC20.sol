@@ -176,7 +176,7 @@ contract ERC20 is IERC20 {
     }
 
      /**
-     * @dev Destoys `amount` tokens from `account`, reducing the
+     * @dev Destroys `amount` tokens from `account`, reducing the
      * total supply.
      *
      * Emits a `Transfer` event with `to` set to the zero address.
