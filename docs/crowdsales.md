@@ -39,7 +39,7 @@ In Ether, the smallest unit of the currency is wei, and `1 ETH === 10^18 wei`. I
 
 What people usually call "one token" is actually a bunch of TKNbits, displayed to look like `1 TKN`. This is the same relationship that Ether and wei have. And what you're _always_ doing calculations in is **TKNbits and wei**.
 
-So, if you want to issue someone "one token for every 2 wei" and your decimals are 18, your rate is `0.5e17`. Then, when I send you `2 wei`, your crowdsale issues me `2 * 0.5e17 TKNbits`, which is exactly equal to `10^18 TKNbits` and is displayed as `1 TKN`.
+So, if you want to issue someone "one token for every 2 wei" and your decimals are 18, your rate is `0.5e18`. Then, when I send you `2 wei`, your crowdsale issues me `2 * 0.5e18 TKNbits`, which is exactly equal to `10^18 TKNbits` and is displayed as `1 TKN`.
 
 If you want to issue someone "`1 TKN` for every `1 ETH`", and your decimals are 18, your rate is `1`. This is because what's actually happening with the math is that the contract sees a user send `10^18 wei`, not `1 ETH`. Then it uses your rate of 1 to calculate `TKNbits = rate * wei`, or `1 * 10^18`, which is still `10^18`. And because your decimals are 18, this is displayed as `1 TKN`.
 
