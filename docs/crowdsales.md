@@ -88,14 +88,14 @@ To use a [`MintedCrowdsale`](api/crowdsale#mintedcrowdsale), your token must als
 
 ```solidity
 contract MyToken is ERC20, ERC20Mintable {
-    // ... see "Learn About Tokens" for more info
+    // ... see "Tokens" for more info
 }
 
 contract MyCrowdsale is Crowdsale, MintedCrowdsale {
     constructor(
         uint256 rate,    // rate in TKNbits
-        address wallet,
-        ERC20 token
+        address payable wallet,
+        IERC20 token
     )
         MintedCrowdsale()
         Crowdsale(rate, wallet, token)
@@ -131,11 +131,11 @@ contract MyCrowdsaleDeployer {
 Use an [`AllowanceCrowdsale`](api/crowdsale#allowancecrowdsale) to send tokens from another wallet to the participants of the crowdsale. In order for this to work, the source wallet must give the crowdsale an allowance via the ERC20 [`approve`](api/token/ERC20#IERC20.approve(address,uint256)) method.
 
 ```solidity
-contract MyCrowdsale is AllowanceCrowdsale, Crowdsale {
+contract MyCrowdsale is Crowdsale, AllowanceCrowdsale {
     constructor(
         uint256 rate,
-        address wallet,
-        ERC20 token,
+        address payable wallet,
+        IERC20 token,
         address tokenWallet  // <- new argument
     )
         AllowanceCrowdsale(tokenWallet)  // <- used here
@@ -150,7 +150,7 @@ contract MyCrowdsale is AllowanceCrowdsale, Crowdsale {
 Then after the crowdsale is created, don't forget to approve it to use your tokens!
 
 ```solidity
-IERC20(tokenAddress).approve(CROWDALE_ADDRESS, SOME_TOKEN_AMOUNT);
+IERC20(tokenAddress).approve(CROWDSALE_ADDRESS, SOME_TOKEN_AMOUNT);
 ```
 
 ## Validation
@@ -165,15 +165,15 @@ There are a bunch of different validation requirements that your crowdsale might
 Simply mix and match these crowdsale flavors to your heart's content:
 
 ```solidity
-contract MyCrowdsale is CappedCrowdsale, TimedCrowdsale, Crowdsale {
+contract MyCrowdsale is Crowdsale, CappedCrowdsale, TimedCrowdsale {
 
     constructor(
-        uint256 rate,         // rate, in TKNbits
-        address wallet,       // wallet to send Ether
-        ERC20 token,          // the token
-        uint256 cap,          // total cap, in wei
-        uint256 openingTime,  // opening time in unix epoch seconds
-        uint256 closingTime   // closing time in unix epoch seconds
+        uint256 rate,            // rate, in TKNbits
+        address payable wallet,  // wallet to send Ether
+        IERC20 token,            // the token
+        uint256 cap,             // total cap, in wei
+        uint256 openingTime,     // opening time in unix epoch seconds
+        uint256 closingTime      // closing time in unix epoch seconds
     )
         CappedCrowdsale(cap)
         TimedCrowdsale(openingTime, closingTime)
@@ -200,17 +200,17 @@ OpenZeppelin is here to make that easy!
 The [`PostDeliveryCrowdsale`](api/crowdsale#postdeliverycrowdsale), as its name implies, distributes tokens after the crowdsale has finished, letting users call [`withdrawTokens`](api/crowdsale#PostDeliveryCrowdsale.withdrawTokens(address)) in order to claim the tokens they've purchased.
 
 ```solidity
-contract MyCrowdsale is PostDeliveryCrowdsale, TimedCrowdsale, Crowdsale {
+contract MyCrowdsale is Crowdsale, TimedCrowdsale, PostDeliveryCrowdsale {
 
     constructor(
-        uint256 rate,         // rate, in TKNbits
-        address wallet,       // wallet to send Ether
-        ERC20 token,          // the token
-        uint256 openingTime,  // opening time in unix epoch seconds
-        uint256 closingTime   // closing time in unix epoch seconds
+        uint256 rate,            // rate, in TKNbits
+        address payable wallet,  // wallet to send Ether
+        IERC20 token,            // the token
+        uint256 openingTime,     // opening time in unix epoch seconds
+        uint256 closingTime      // closing time in unix epoch seconds
     )
         PostDeliveryCrowdsale()
-        TimedCrowdsale(startTime, closingTime)
+        TimedCrowdsale(openingTime, closingTime)
         Crowdsale(rate, wallet, token)
         public
     {
@@ -226,13 +226,13 @@ The [`RefundableCrowdsale`](api/crowdsale#refundablecrowdsale) offers to refund 
 
 
 ```solidity
-contract MyCrowdsale is RefundableCrowdsale, Crowdsale {
+contract MyCrowdsale is Crowdsale, RefundableCrowdsale {
 
     constructor(
-        uint256 rate,         // rate, in TKNbits
-        address wallet,       // wallet to send Ether
-        ERC20 token,          // the token
-        uint256 goal          // the minimum goal, in wei
+        uint256 rate,            // rate, in TKNbits
+        address payable wallet,  // wallet to send Ether
+        IERC20 token,            // the token
+        uint256 goal             // the minimum goal, in wei
     )
         RefundableCrowdsale(goal)
         Crowdsale(rate, wallet, token)
