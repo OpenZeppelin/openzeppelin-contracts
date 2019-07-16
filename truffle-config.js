@@ -2,11 +2,17 @@ require('chai/register-should');
 
 const solcStable = {
   version: '0.5.7',
+  settings: {
+    evmVersion: 'constantinople',
+  },
 };
 
 const solcNightly = {
   version: 'nightly',
   docker: true,
+  settings: {
+    evmVersion: 'constantinople',
+  },
 };
 
 const useSolcNightly = process.env.SOLC_NIGHTLY === 'true';
