@@ -324,6 +324,79 @@ function shouldBehaveLikeERC721 (
       });
     });
 
+    describe('safe mint', function () {
+      const fourthTokenId = new BN(4);
+      const tokenId = fourthTokenId;
+      data = '0x42'
+
+      describe('via safeMint', function() {     // regular minting is tested in ERC721Mintable.test.js and others
+        const safeMintWithData = function (to, tokenId, opts) {
+          return this.token.methods['safeMint(address,uint256,bytes)'](to, tokenId, data, opts);
+        };
+
+        const safeMintWithoutData = function (to, tokenId, opts) {
+          return this.token.methods['safeMint(address,uint256)'](to, tokenId, opts);
+        };
+
+        const shouldMintSafely = function (mintFun, data) {
+          describe('to a valid receiver contract', function () {
+            beforeEach(async function () {
+              this.receiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, false);
+              this.toWhom = this.receiver.address;
+            });
+
+            it('should call onERC721Received', async function () {
+              const receipt = await mintFun.call(this, this.receiver.address, tokenId, { from: owner });
+
+              await expectEvent.inTransaction(receipt.tx, ERC721ReceiverMock, 'Received', {
+                operator: owner,
+                from: ZERO_ADDRESS,
+                tokenId: tokenId,
+                data: data,
+              });
+            });
+          });
+        };
+
+        describe('with data', function () {
+          shouldMintSafely(safeMintWithData, data);
+        });
+
+        describe('without data', function () {
+          shouldMintSafely(safeMintWithoutData, null);
+        });
+
+        describe('to a receiver contract returning unexpected value', function () {
+          it('reverts', async function () {
+            const invalidReceiver = await ERC721ReceiverMock.new('0x42', false);
+            await expectRevert(
+              this.token.safeMint(invalidReceiver.address, tokenId),
+              'ERC721: transfer to non ERC721Receiver implementer'
+            );
+          });
+        });
+
+        describe('to a receiver contract that throws', function () {
+          it('reverts', async function () {
+            const invalidReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, true);
+            await expectRevert(
+              this.token.safeMint(invalidReceiver.address, tokenId),
+              'ERC721ReceiverMock: reverting'
+            );
+          });
+        });
+
+        describe('to a contract that does not implement the required function', function () {
+          it('reverts', async function () {
+            const invalidReceiver = this.token;
+            await expectRevert.unspecified(
+              this.token.safeMint(invalidReceiver.address, tokenId)
+            );
+          });
+        });
+      })
+    })
+
     describe('approve', function () {
       const tokenId = firstTokenId;
 
