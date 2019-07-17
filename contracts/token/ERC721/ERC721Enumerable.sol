@@ -100,7 +100,7 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
     /**
      * @dev Internal function to burn a specific token.
      * Reverts if the token does not exist.
-     * Deprecated, use _burn(uint256) instead.
+     * Deprecated, use {ERC721-_burn} instead.
      * @param owner owner of the token to burn
      * @param tokenId uint256 ID of the token being burned
      */
@@ -144,7 +144,7 @@ contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
 
     /**
      * @dev Private function to remove a token from this extension's ownership-tracking data structures. Note that
-     * while the token is not assigned a new owner, the _ownedTokensIndex mapping is _not_ updated: this allows for
+     * while the token is not assigned a new owner, the `_ownedTokensIndex` mapping is _not_ updated: this allows for
      * gas optimizations e.g. when performing a transfer operation (avoiding double writes).
      * This has O(1) time complexity, but alters the order of the _ownedTokens array.
      * @param from address representing the previous owner of the given token ID

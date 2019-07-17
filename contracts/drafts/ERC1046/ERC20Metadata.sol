@@ -5,7 +5,7 @@ import "../../token/ERC20/IERC20.sol";
 /**
  * @title ERC-1047 Token Metadata
  * @dev See https://eips.ethereum.org/EIPS/eip-1046
- * @dev tokenURI must respond with a URI that implements https://eips.ethereum.org/EIPS/eip-1047
+ * @dev {tokenURI} must respond with a URI that implements https://eips.ethereum.org/EIPS/eip-1047
  */
 contract ERC20Metadata {
     string private _tokenURI;

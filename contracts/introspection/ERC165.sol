@@ -3,9 +3,9 @@ pragma solidity ^0.5.0;
 import "./IERC165.sol";
 
 /**
- * @dev Implementation of the `IERC165` interface.
+ * @dev Implementation of the {IERC165} interface.
  *
- * Contracts may inherit from this and call `_registerInterface` to declare
+ * Contracts may inherit from this and call {_registerInterface} to declare
  * their support of an interface.
  */
 contract ERC165 is IERC165 {
@@ -26,7 +26,7 @@ contract ERC165 is IERC165 {
     }
 
     /**
-     * @dev See `IERC165.supportsInterface`.
+     * @dev See {IERC165-supportsInterface}.
      *
      * Time complexity O(1), guaranteed to always use less than 30 000 gas.
      */
@@ -39,7 +39,7 @@ contract ERC165 is IERC165 {
      * `interfaceId`. Support of the actual ERC165 interface is automatic and
      * registering its interface id is not required.
      *
-     * See `IERC165.supportsInterface`.
+     * See {IERC165-supportsInterface}.
      *
      * Requirements:
      *

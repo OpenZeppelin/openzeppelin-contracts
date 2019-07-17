@@ -15,15 +15,15 @@ library ECDSA {
      * this function rejects them by requiring the `s` value to be in the lower
      * half order, and the `v` value to be either 27 or 28.
      *
-     * (.note) This call _does not revert_ if the signature is invalid, or
+     * NOTE: This call _does not revert_ if the signature is invalid, or
      * if the signer is otherwise unable to be retrieved. In those scenarios,
      * the zero address is returned.
      *
-     * (.warning) `hash` _must_ be the result of a hash operation for the
+     * IMPORTANT: `hash` _must_ be the result of a hash operation for the
      * verification to be secure: it is possible to craft signatures that
      * recover to arbitrary addresses for non-hashed data. A safe way to ensure
      * this is by receiving a hash of the original message (which may otherwise)
-     * be too long), and then calling `toEthSignedMessageHash` on it.
+     * be too long), and then calling {toEthSignedMessageHash} on it.
      */
     function recover(bytes32 hash, bytes memory signature) internal pure returns (address) {
         // Check the signature length
@@ -69,10 +69,10 @@ library ECDSA {
     /**
      * @dev Returns an Ethereum Signed Message, created from a `hash`. This
      * replicates the behavior of the
-     * [`eth_sign`](https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_sign)
+     * https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_sign[`eth_sign`]
      * JSON-RPC method.
      *
-     * See `recover`.
+     * See {recover}.
      */
     function toEthSignedMessageHash(bytes32 hash) internal pure returns (bytes32) {
         // 32 is the length in bytes of hash,

@@ -14,7 +14,7 @@
     "console": "truffle console",
     "coverage": "scripts/coverage.sh",
     "docsite": "scripts/docsite.sh",
-    "docgen": "scripts/docgen.sh",
+    "prepare-docs": "scripts/prepare-docs.sh",
     "lint": "npm run lint:js && npm run lint:sol",
     "lint:fix": "npm run lint:js:fix",
     "lint:js": "eslint .",
@@ -59,11 +59,10 @@
     "ganache-cli-coverage": "https://github.com/frangio/ganache-cli/releases/download/v6.4.1-coverage/ganache-cli-coverage-6.4.1.tgz",
     "micromatch": "^4.0.2",
     "nodemon": "^1.19.0",
-    "openzeppelin-docsite": "github:OpenZeppelin/openzeppelin-docsite#ee1df82d52ad3df4337b20392627975091f8d5b3",
     "openzeppelin-test-helpers": "^0.4",
     "solhint": "2.1.0",
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
-    "solidity-docgen": "github:OpenZeppelin/solidity-docgen#03f42b5e271b1e1c1d0b814b921ecdc086055255",
+    "solidity-docgen": "^0.3.0-beta.2",
     "truffle": "^5.0.18"
   }
 }

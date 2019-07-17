@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 
 /**
- * @dev Library used to query support of an interface declared via `IERC165`.
+ * @dev Library used to query support of an interface declared via {IERC165}.
  *
  * Note that these functions return the actual result of the query: they do not
  * `revert` if an interface is not supported. It is up to the caller to decide
@@ -17,7 +17,7 @@ library ERC165Checker {
     bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
 
     /**
-     * @dev Returns true if `account` supports the `IERC165` interface,
+     * @dev Returns true if `account` supports the {IERC165} interface,
      */
     function _supportsERC165(address account) internal view returns (bool) {
         // Any contract that implements ERC165 must explicitly indicate support of
@@ -28,9 +28,9 @@ library ERC165Checker {
 
     /**
      * @dev Returns true if `account` supports the interface defined by
-     * `interfaceId`. Support for `IERC165` itself is queried automatically.
+     * `interfaceId`. Support for {IERC165} itself is queried automatically.
      *
-     * See `IERC165.supportsInterface`.
+     * See {IERC165-supportsInterface}.
      */
     function _supportsInterface(address account, bytes4 interfaceId) internal view returns (bool) {
         // query support of both ERC165 as per the spec and support of _interfaceId
@@ -40,12 +40,12 @@ library ERC165Checker {
 
     /**
      * @dev Returns true if `account` supports all the interfaces defined in
-     * `interfaceIds`. Support for `IERC165` itself is queried automatically.
+     * `interfaceIds`. Support for {IERC165} itself is queried automatically.
      *
      * Batch-querying can lead to gas savings by skipping repeated checks for
-     * `IERC165` support.
+     * {IERC165} support.
      *
-     * See `IERC165.supportsInterface`.
+     * See {IERC165-supportsInterface}.
      */
     function _supportsAllInterfaces(address account, bytes4[] memory interfaceIds) internal view returns (bool) {
         // query support of ERC165 itself

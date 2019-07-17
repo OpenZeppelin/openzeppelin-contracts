@@ -3,7 +3,7 @@ pragma solidity ^0.5.0;
 /**
  * @dev Contract module that helps prevent reentrant calls to a function.
  *
- * Inheriting from `ReentrancyGuard` will make the `nonReentrant` modifier
+ * Inheriting from `ReentrancyGuard` will make the {nonReentrant} modifier
  * available, which can be aplied to functions to make sure there are no nested
  * (reentrant) calls to them.
  *
@@ -13,7 +13,7 @@ pragma solidity ^0.5.0;
  * points to them.
  */
 contract ReentrancyGuard {
-    /// @dev counter to allow mutex lock with only one SSTORE operation
+    // counter to allow mutex lock with only one SSTORE operation
     uint256 private _guardCounter;
 
     constructor () internal {

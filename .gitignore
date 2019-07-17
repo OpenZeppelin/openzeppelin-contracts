@@ -41,6 +41,6 @@ build/
 # IntelliJ IDE
 .idea
 
-# docsite artifacts
-docsite-build
-docs/api
+# docs artifacts
+docs/modules/api
+openzeppelin-docs

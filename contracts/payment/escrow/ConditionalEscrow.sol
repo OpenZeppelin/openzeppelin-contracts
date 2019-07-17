@@ -5,7 +5,7 @@ import "./Escrow.sol";
 /**
  * @title ConditionalEscrow
  * @dev Base abstract escrow to only allow withdrawal if a condition is met.
- * @dev Intended usage: See Escrow.sol. Same usage guidelines apply here.
+ * @dev Intended usage: See {Escrow}. Same usage guidelines apply here.
  */
 contract ConditionalEscrow is Escrow {
     /**

@@ -11,8 +11,9 @@ library Address {
      * execution of a contract's constructor, its address will be reported as
      * not containing a contract.
      *
-     * > It is unsafe to assume that an address for which this function returns
-     * false is an externally-owned account (EOA) and not a contract.
+     * IMPORTANT: It is unsafe to assume that an address for which this
+     * function returns false is an externally-owned account (EOA) and not a
+     * contract.
      */
     function isContract(address account) internal view returns (bool) {
         // This method relies in extcodesize, which returns 0 for contracts in

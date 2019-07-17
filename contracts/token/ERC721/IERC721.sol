@@ -24,13 +24,13 @@ contract IERC721 is IERC165 {
      * @dev Transfers a specific NFT (`tokenId`) from one account (`from`) to
      * another (`to`).
      *
-     * 
+     *
      *
      * Requirements:
      * - `from`, `to` cannot be zero.
      * - `tokenId` must be owned by `from`.
      * - If the caller is not `from`, it must be have been allowed to move this
-     * NFT by either `approve` or `setApproveForAll`.
+     * NFT by either {approve} or {setApproveForAll}.
      */
     function safeTransferFrom(address from, address to, uint256 tokenId) public;
     /**
@@ -39,7 +39,7 @@ contract IERC721 is IERC165 {
      *
      * Requirements:
      * - If the caller is not `from`, it must be approved to move this NFT by
-     * either `approve` or `setApproveForAll`.
+     * either {approve} or {setApproveForAll}.
      */
     function transferFrom(address from, address to, uint256 tokenId) public;
     function approve(address to, uint256 tokenId) public;

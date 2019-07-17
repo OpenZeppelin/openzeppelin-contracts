@@ -133,7 +133,7 @@ contract ERC721 is ERC165, IERC721 {
 
     /**
      * @dev Transfers the ownership of a given token ID to another address.
-     * Usage of this method is discouraged, use `safeTransferFrom` whenever possible.
+     * Usage of this method is discouraged, use {safeTransferFrom} whenever possible.
      * Requires the msg.sender to be the owner, approved, or operator.
      * @param from current owner of the token
      * @param to address to receive the ownership of the given token ID
@@ -148,7 +148,7 @@ contract ERC721 is ERC165, IERC721 {
 
     /**
      * @dev Safely transfers the ownership of a given token ID to another address
-     * If the target address is a contract, it must implement `onERC721Received`,
+     * If the target address is a contract, it must implement {IERC721Receiver-onERC721Received},
      * which is called upon a safe transfer, and return the magic value
      * `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`; otherwise,
      * the transfer is reverted.
@@ -163,7 +163,7 @@ contract ERC721 is ERC165, IERC721 {
 
     /**
      * @dev Safely transfers the ownership of a given token ID to another address
-     * If the target address is a contract, it must implement `onERC721Received`,
+     * If the target address is a contract, it must implement {IERC721Receiver-onERC721Received},
      * which is called upon a safe transfer, and return the magic value
      * `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`; otherwise,
      * the transfer is reverted.
@@ -220,7 +220,7 @@ contract ERC721 is ERC165, IERC721 {
     /**
      * @dev Internal function to burn a specific token.
      * Reverts if the token does not exist.
-     * Deprecated, use _burn(uint256) instead.
+     * Deprecated, use {_burn} instead.
      * @param owner owner of the token to burn
      * @param tokenId uint256 ID of the token being burned
      */
@@ -246,7 +246,7 @@ contract ERC721 is ERC165, IERC721 {
 
     /**
      * @dev Internal function to transfer ownership of a given token ID to another address.
-     * As opposed to transferFrom, this imposes no restrictions on msg.sender.
+     * As opposed to {transferFrom}, this imposes no restrictions on msg.sender.
      * @param from current owner of the token
      * @param to address to receive the ownership of the given token ID
      * @param tokenId uint256 ID of the token to be transferred
@@ -266,7 +266,7 @@ contract ERC721 is ERC165, IERC721 {
     }
 
     /**
-     * @dev Internal function to invoke `onERC721Received` on a target address.
+     * @dev Internal function to invoke {IERC721Receiver-onERC721Received} on a target address.
      * The call is not executed if the target address is not a contract.
      *
      * This function is deprecated.

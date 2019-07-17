@@ -4,27 +4,28 @@ import "./IERC20.sol";
 import "../../math/SafeMath.sol";
 
 /**
- * @dev Implementation of the `IERC20` interface.
+ * @dev Implementation of the {IERC20} interface.
  *
  * This implementation is agnostic to the way tokens are created. This means
- * that a supply mechanism has to be added in a derived contract using `_mint`.
- * For a generic mechanism see `ERC20Mintable`.
+ * that a supply mechanism has to be added in a derived contract using {_mint}.
+ * For a generic mechanism see {ERC20Mintable}.
  *
- * *For a detailed writeup see our guide [How to implement supply
- * mechanisms](https://forum.zeppelin.solutions/t/how-to-implement-erc20-supply-mechanisms/226).*
+ * TIP: For a detailed writeup see our guide
+ * https://forum.zeppelin.solutions/t/how-to-implement-erc20-supply-mechanisms/226[How
+ * to implement supply mechanisms].
  *
  * We have followed general OpenZeppelin guidelines: functions revert instead
  * of returning `false` on failure. This behavior is nonetheless conventional
  * and does not conflict with the expectations of ERC20 applications.
  *
- * Additionally, an `Approval` event is emitted on calls to `transferFrom`.
+ * Additionally, an {Approval} event is emitted on calls to {transferFrom}.
  * This allows applications to reconstruct the allowance for all accounts just
  * by listening to said events. Other implementations of the EIP may not emit
  * these events, as it isn't required by the specification.
  *
- * Finally, the non-standard `decreaseAllowance` and `increaseAllowance`
+ * Finally, the non-standard {decreaseAllowance} and {increaseAllowance}
  * functions have been added to mitigate the well-known issues around setting
- * allowances. See `IERC20.approve`.
+ * allowances. See {IERC20-approve}.
  */
 contract ERC20 is IERC20 {
     using SafeMath for uint256;
@@ -36,21 +37,21 @@ contract ERC20 is IERC20 {
     uint256 private _totalSupply;
 
     /**
-     * @dev See `IERC20.totalSupply`.
+     * @dev See {IERC20-totalSupply}.
      */
     function totalSupply() public view returns (uint256) {
         return _totalSupply;
     }
 
     /**
-     * @dev See `IERC20.balanceOf`.
+     * @dev See {IERC20-balanceOf}.
      */
     function balanceOf(address account) public view returns (uint256) {
         return _balances[account];
     }
 
     /**
-     * @dev See `IERC20.transfer`.
+     * @dev See {IERC20-transfer}.
      *
      * Requirements:
      *
@@ -63,14 +64,14 @@ contract ERC20 is IERC20 {
     }
 
     /**
-     * @dev See `IERC20.allowance`.
+     * @dev See {IERC20-allowance}.
      */
     function allowance(address owner, address spender) public view returns (uint256) {
         return _allowances[owner][spender];
     }
 
     /**
-     * @dev See `IERC20.approve`.
+     * @dev See {IERC20-approve}.
      *
      * Requirements:
      *
@@ -82,10 +83,10 @@ contract ERC20 is IERC20 {
     }
 
     /**
-     * @dev See `IERC20.transferFrom`.
+     * @dev See {IERC20-transferFrom}.
      *
-     * Emits an `Approval` event indicating the updated allowance. This is not
-     * required by the EIP. See the note at the beginning of `ERC20`;
+     * Emits an {Approval} event indicating the updated allowance. This is not
+     * required by the EIP. See the note at the beginning of {ERC20};
      *
      * Requirements:
      * - `sender` and `recipient` cannot be the zero address.
@@ -102,10 +103,10 @@ contract ERC20 is IERC20 {
     /**
      * @dev Atomically increases the allowance granted to `spender` by the caller.
      *
-     * This is an alternative to `approve` that can be used as a mitigation for
-     * problems described in `IERC20.approve`.
+     * This is an alternative to {approve} that can be used as a mitigation for
+     * problems described in {IERC20-approve}.
      *
-     * Emits an `Approval` event indicating the updated allowance.
+     * Emits an {Approval} event indicating the updated allowance.
      *
      * Requirements:
      *
@@ -119,10 +120,10 @@ contract ERC20 is IERC20 {
     /**
      * @dev Atomically decreases the allowance granted to `spender` by the caller.
      *
-     * This is an alternative to `approve` that can be used as a mitigation for
-     * problems described in `IERC20.approve`.
+     * This is an alternative to {approve} that can be used as a mitigation for
+     * problems described in {IERC20-approve}.
      *
-     * Emits an `Approval` event indicating the updated allowance.
+     * Emits an {Approval} event indicating the updated allowance.
      *
      * Requirements:
      *
@@ -138,10 +139,10 @@ contract ERC20 is IERC20 {
     /**
      * @dev Moves tokens `amount` from `sender` to `recipient`.
      *
-     * This is internal function is equivalent to `transfer`, and can be used to
+     * This is internal function is equivalent to {transfer}, and can be used to
      * e.g. implement automatic token fees, slashing mechanisms, etc.
      *
-     * Emits a `Transfer` event.
+     * Emits a {Transfer} event.
      *
      * Requirements:
      *
@@ -161,7 +162,7 @@ contract ERC20 is IERC20 {
     /** @dev Creates `amount` tokens and assigns them to `account`, increasing
      * the total supply.
      *
-     * Emits a `Transfer` event with `from` set to the zero address.
+     * Emits a {Transfer} event with `from` set to the zero address.
      *
      * Requirements
      *
@@ -179,7 +180,7 @@ contract ERC20 is IERC20 {
      * @dev Destroys `amount` tokens from `account`, reducing the
      * total supply.
      *
-     * Emits a `Transfer` event with `to` set to the zero address.
+     * Emits a {Transfer} event with `to` set to the zero address.
      *
      * Requirements
      *
@@ -200,7 +201,7 @@ contract ERC20 is IERC20 {
      * This is internal function is equivalent to `approve`, and can be used to
      * e.g. set automatic allowances for certain subsystems, etc.
      *
-     * Emits an `Approval` event.
+     * Emits an {Approval} event.
      *
      * Requirements:
      *
@@ -219,7 +220,7 @@ contract ERC20 is IERC20 {
      * @dev Destoys `amount` tokens from `account`.`amount` is then deducted
      * from the caller's allowance.
      *
-     * See `_burn` and `_approve`.
+     * See {_burn} and {_approve}.
      */
     function _burnFrom(address account, uint256 amount) internal {
         _burn(account, amount);

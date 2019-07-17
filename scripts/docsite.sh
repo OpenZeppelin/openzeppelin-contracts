@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 
-# usage: npm run docsite [build|start]
+# usage: npm run docsite
 
 set -o errexit
 
-npm run docgen
-
-if [ "$1" = start ]; then
-  npx concurrently -n docgen,docsite --no-color \
-    'nodemon -C -w contracts -e sol,md -x npm run docgen' \
-    'openzeppelin-docsite-run start'
-else
-  npx openzeppelin-docsite-run "$1"
+if [ ! -d openzeppelin-docs ]; then
+  git clone https://github.com/frangio/openzeppelin-docs.git
 fi
+
+git -C openzeppelin-docs pull
+
+npx concurrently \
+  'nodemon --delay 1 -e "*" -w contracts -w "docs/*.hbs" -x npm run prepare-docs' \
+  'cd docs; env DISABLE_PREPARE_DOCS= nodemon --delay 1 -e adoc,yml ../openzeppelin-docs/build-local.js' \
+  'http-server -c-1 openzeppelin-docs/build/site'
