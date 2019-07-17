@@ -29,12 +29,4 @@ library Address {
         assembly { codehash := extcodehash(account) }
         return (codehash != 0x0 && codehash != accountHash);
     }
-
-    /**
-     * @dev Converts an `address` into `address payable`. Note that this is
-     * simply a type cast: the actual underlying value is not changed.
-     */
-    function toPayable(address account) internal pure returns (address payable) {
-        return address(uint160(account));
-    }
 }

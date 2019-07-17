@@ -1,15 +1,5 @@
 # Changelog
 
-## 2.4.0 (unreleased)
-
-### New features:
- * `Address.toPayable`: added a helper to convert between address types without having to resort to low-level casting. ([#1773](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1773))
-
-### Improvements:
- * `Address.isContract`: switched from `extcodesize` to `extcodehash` for less gas usage. ([#1802](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1802))
-
-### Bugfixes
-
 ## 2.3.0 (2019-05-27)
 
 ### New features:
