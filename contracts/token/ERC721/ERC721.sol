@@ -241,6 +241,7 @@ contract ERC721 is ERC165, IERC721 {
      * the transfer is reverted.
      * @param to The address that will own the minted token
      * @param tokenId uint256 ID of the token to be minted
+     * @param _data bytes data to send along with a safe transfer check
      */
     function _safeMint(address to, uint256 tokenId, bytes memory _data) internal {
         _mint(to, tokenId);

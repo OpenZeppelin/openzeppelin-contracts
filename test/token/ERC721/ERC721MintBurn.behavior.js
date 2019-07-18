@@ -13,6 +13,7 @@ function shouldBehaveLikeMintAndBurnERC721 (
   const thirdTokenId = new BN(3);
   const unknownTokenId = new BN(4);
   const MOCK_URI = 'https://example.com';
+  const data = '0x42';
 
   describe('like a mintable and burnable ERC721', function () {
     beforeEach(async function () {
@@ -69,6 +70,18 @@ function shouldBehaveLikeMintAndBurnERC721 (
         await this.token.mintWithTokenURI(newOwner, thirdTokenId, MOCK_URI, {
           from: minter,
         });
+      });
+    });
+
+    describe('safeMint', function () {
+      it('it can safely mint with data', async function () {
+        await this.token.methods['safeMint(address,uint256,bytes)'](...[newOwner, thirdTokenId, data],
+          { from: minter });
+      });
+
+      it('it can safely mint without data', async function () {
+        await this.token.methods['safeMint(address,uint256)'](...[newOwner, thirdTokenId],
+          { from: minter });
       });
     });
 
