@@ -6,12 +6,12 @@ import "./ConditionalEscrow.sol";
  * @title RefundEscrow
  * @dev Escrow that holds funds for a beneficiary, deposited from multiple
  * parties.
- * @dev Intended usage: See Escrow.sol. Same usage guidelines apply here.
+ * @dev Intended usage: See {Escrow}. Same usage guidelines apply here.
  * @dev The primary account (that is, the contract that instantiates this
  * contract) may deposit, close the deposit period, and allow for either
  * withdrawal by the beneficiary, or refunds to the depositors. All interactions
- * with RefundEscrow will be made through the primary contract. See the
- * RefundableCrowdsale contract for an example of RefundEscrow’s use.
+ * with `RefundEscrow` will be made through the primary contract. See the
+ * `RefundableCrowdsale` contract for an example of `RefundEscrow`’s use.
  */
 contract RefundEscrow is ConditionalEscrow {
     enum State { Active, Refunding, Closed }

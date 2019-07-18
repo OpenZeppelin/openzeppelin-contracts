@@ -3,7 +3,7 @@ pragma solidity ^0.5.0;
 import "./ERC20Mintable.sol";
 
 /**
- * @dev Extension of `ERC20Mintable` that adds a cap to the supply of tokens.
+ * @dev Extension of {ERC20Mintable} that adds a cap to the supply of tokens.
  */
 contract ERC20Capped is ERC20Mintable {
     uint256 private _cap;
@@ -25,7 +25,7 @@ contract ERC20Capped is ERC20Mintable {
     }
 
     /**
-     * @dev See `ERC20Mintable.mint`.
+     * @dev See {ERC20Mintable-mint}.
      *
      * Requirements:
      *

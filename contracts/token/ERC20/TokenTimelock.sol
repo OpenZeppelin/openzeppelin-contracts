@@ -9,8 +9,7 @@ import "./SafeERC20.sol";
  * Useful for simple vesting schedules like "advisors get all of their tokens
  * after 1 year".
  *
- * For a more complete vesting schedule, see
- * [`TokenVesting`](api/drafts#tokenvesting).
+ * For a more complete vesting schedule, see {TokenVesting}.
  */
 contract TokenTimelock {
     using SafeERC20 for IERC20;

@@ -44,9 +44,9 @@ contract ERC20Detailed is IERC20 {
      * Tokens usually opt for a value of 18, imitating the relationship between
      * Ether and Wei.
      *
-     * > Note that this information is only used for _display_ purposes: it in
+     * NOTE: This information is only used for _display_ purposes: it in
      * no way affects any of the arithmetic of the contract, including
-     * `IERC20.balanceOf` and `IERC20.transfer`.
+     * {IERC20-balanceOf} and {IERC20-transfer}.
      */
     function decimals() public view returns (uint8) {
         return _decimals;

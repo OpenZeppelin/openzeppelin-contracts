@@ -14,8 +14,8 @@ import "../math/Math.sol";
  * migration to the new token contract. In this way, token holders "turn in"
  * their old balance and will be minted an equal amount in the new token.
  * The new token contract must be mintable. For the precise interface refer to
- * OpenZeppelin's ERC20Mintable, but the only functions that are needed are
- * `isMinter(address)` and `mint(address, amount)`. The migrator will check
+ * OpenZeppelin's {ERC20Mintable}, but the only functions that are needed are
+ * {MinterRole-isMinter} and {ERC20Mintable-mint}. The migrator will check
  * that it is a minter for the token.
  * The balance from the legacy token will be transferred to the migrator, as it
  * is migrated, and remain there forever.
@@ -24,6 +24,7 @@ import "../math/Math.sol";
  * version of it using ZeppelinOS. To read more about how this can be done
  * using this implementation, please follow the official documentation site of
  * ZeppelinOS: https://docs.zeppelinos.org/docs/erc20_onboarding.html
+ *
  * Example of usage:
  * ```
  * const migrator = await ERC20Migrator.new(legacyToken.address);

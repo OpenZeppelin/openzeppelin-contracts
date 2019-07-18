@@ -1,16 +1,4 @@
----
-sections:
-  - title: Local
-    contracts:
-      - IERC165
-      - ERC165
-      - ERC165Checker
-  - title: Global
-    contracts:
-      - IERC1820Registry
-      - IERC1820Implementer
-      - ERC1820Implementer
----
+= Introspection
 
 This set of interfaces and contracts deal with [type introspection](https://en.wikipedia.org/wiki/Type_introspection) of contracts, that is, examining which functions can be called on them. This is usually referred to as a contract's _interface_.
 
@@ -21,3 +9,19 @@ There are two main ways to approach this.
  - Globally, where a global and unique registry (`IERC1820Registry`) is used to register implementers of a certain interface (`IERC1820Implementer`). It is then the registry that is queried, which allows for more complex setups, like contracts implementing interfaces for externally-owned accounts.
 
 Note that, in all cases, accounts simply _declare_ their interfaces, but they are not required to actually implement them. This mechanism can therefore be used to both prevent errors and allow for complex interactions (see `ERC777`), but it must not be relied on for security.
+
+== Local
+
+{{IERC165}}
+
+{{ERC165}}
+
+{{ERC165Checker}}
+
+== Global
+
+{{IERC1820Registry}}
+
+{{IERC1820Implementer}}
+
+{{ERC1820Implementer}}

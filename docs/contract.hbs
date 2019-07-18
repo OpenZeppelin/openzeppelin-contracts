@@ -1,0 +1,48 @@
+{{#linkable}}
+:{{name}}: pass:normal[xref:#{{anchor}}[`{{name}}`]]
+{{/linkable}}
+
+[[{{anchor}}]]
+== `{{name}}`
+
+{{natspec.devdoc}}
+
+{{#inheritance}}
+{{#ownModifiers}}
+- xref:#{{anchor}}[{{signature}}]
+{{/ownModifiers}}
+{{/inheritance}}
+
+{{#inheritance}}
+{{#ownFunctions}}
+- xref:#{{anchor}}[{{signature}}]
+{{/ownFunctions}}
+{{/inheritance}}
+
+{{#inheritance}}
+{{#ownEvents}}
+- xref:#{{anchor}}[{{signature}}]
+{{/ownEvents}}
+{{/inheritance}}
+
+{{#ownModifiers}}
+[[{{anchor}}]]
+=== {{name}}({{args}})
+
+{{natspec.devdoc}}
+
+{{/ownModifiers}}
+{{#ownFunctions}}
+[[{{anchor}}]]
+=== {{name}}({{args}}){{#if outputs}} → {{outputs}}{{/if}}
+
+{{natspec.devdoc}}
+
+{{/ownFunctions}}
+{{#ownEvents}}
+[[{{anchor}}]]
+=== {{name}}({{args}})
+
+{{natspec.devdoc}}
+
+{{/ownEvents}}
