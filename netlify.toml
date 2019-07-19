@@ -3,6 +3,6 @@ command = "npm run docsite build"
 publish = "docsite-build"
 
 [[redirects]]
-  from = "/*"
-  to = "https://docs.openzeppelin.com/contracts"
+  from = "/v2.3.0/*"
+  to = "https://docs.openzeppelin.com/contracts/v2.x/:slug"
   status = 301
