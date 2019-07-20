@@ -2,7 +2,21 @@
 
 Crowdsales are a popular use for Ethereum; they let you allocate tokens to network participants in various ways, mostly in exchange for Ether. They come in a variety of shapes and flavors, so let's go over the various types available in OpenZeppelin and how to use them.
 
-Crowdsales have a bunch of different properties, but here are some important ones: - Price & Rate Configuration - Does your crowdsale sell tokens at a fixed price? - Does the price change over time or as a function of demand? - Emission - How is this token actually sent to participants? - Validation — Who is allowed to purchase tokens? - Are there KYC / AML checks? - Is there a max cap on tokens? - What if that cap is per-participant? - Is there a starting and ending time frame? - Distribution - Does distribution of funds happen in real-time or after the crowdsale? - Can participants receive a refund if the goal is not met?
+Crowdsales have a bunch of different properties, but here are some important ones:
+
+* Price & Rate Configuration
+* Does your crowdsale sell tokens at a fixed price?
+* Does the price change over time or as a function of demand?
+* Emission
+* How is this token actually sent to participants?
+* Validation — Who is allowed to purchase tokens?
+* Are there KYC / AML checks?
+* Is there a max cap on tokens?
+* What if that cap is per-participant?
+* Is there a starting and ending time frame?
+* Distribution
+* Does distribution of funds happen in real-time or after the crowdsale?
+* Can participants receive a refund if the goal is not met?
 
 To manage all of the different combinations and flavors of crowdsales, OpenZeppelin provides a highly configurable xref:api:crowdsale.adoc#Crowdsale[`Crowdsale`] base contract that can be combined with various other functionalities to construct a bespoke crowdsale.
 
