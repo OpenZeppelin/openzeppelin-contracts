@@ -4,7 +4,7 @@ Crowdsales are a popular use for Ethereum; they let you allocate tokens to netwo
 
 Crowdsales have a bunch of different properties, but here are some important ones: - Price & Rate Configuration - Does your crowdsale sell tokens at a fixed price? - Does the price change over time or as a function of demand? - Emission - How is this token actually sent to participants? - Validation — Who is allowed to purchase tokens? - Are there KYC / AML checks? - Is there a max cap on tokens? - What if that cap is per-participant? - Is there a starting and ending time frame? - Distribution - Does distribution of funds happen in real-time or after the crowdsale? - Can participants receive a refund if the goal is not met?
 
-To manage all of the different combinations and flavors of crowdsales, OpenZeppelin provides a highly configurable link:api/crowdsale#crowdsale[`Crowdsale`] base contract that can be combined with various other functionalities to construct a bespoke crowdsale.
+To manage all of the different combinations and flavors of crowdsales, OpenZeppelin provides a highly configurable xref:api:crowdsale.adoc#Crowdsale[`Crowdsale`] base contract that can be combined with various other functionalities to construct a bespoke crowdsale.
 
 [[crowdsale-rate]]
 == Crowdsale Rate
@@ -46,8 +46,8 @@ One more for practice: if I want to issue "1 TKN for every dollar (USD) in Ether
 One of the first decisions you have to make is "how do I get these tokens to users?". This is usually done in one of three ways:
 
 * (default) — The `Crowdsale` contract owns tokens and simply transfers tokens from its own ownership to users that purchase them.
-* link:api/crowdsale#mintedcrowdsale[`MintedCrowdsale`] — The `Crowdsale` mints tokens when a purchase is made.
-* link:api/crowdsale#allowancecrowdsale[`AllowanceCrowdsale`] — The `Crowdsale` is granted an allowance to another wallet (like a Multisig) that already owns the tokens to be sold in the crowdsale.
+* xref:api:crowdsale.adoc#MintedCrowdsale[`MintedCrowdsale`] — The `Crowdsale` mints tokens when a purchase is made.
+* xref:api:crowdsale.adoc#AllowanceCrowdsale[`AllowanceCrowdsale`] — The `Crowdsale` is granted an allowance to another wallet (like a Multisig) that already owns the tokens to be sold in the crowdsale.
 
 [[default-emission]]
 === Default Emission
@@ -73,7 +73,7 @@ new Crowdsale(
 [[minted-crowdsale]]
 === Minted Crowdsale
 
-To use a link:api/crowdsale#mintedcrowdsale[`MintedCrowdsale`], your token must also be a link:api/token/ERC20#erc20mintable[`ERC20Mintable`] token that the crowdsale has permission to mint from. This can look like:
+To use a xref:api:crowdsale.adoc#MintedCrowdsale[`MintedCrowdsale`], your token must also be a xref:api:token/ERC20.adoc#ERC20Mintable[`ERC20Mintable`] token that the crowdsale has permission to mint from. This can look like:
 
 [source,solidity]
 ----
@@ -119,7 +119,7 @@ contract MyCrowdsaleDeployer {
 [[allowancecrowdsale]]
 === AllowanceCrowdsale
 
-Use an link:api/crowdsale#allowancecrowdsale[`AllowanceCrowdsale`] to send tokens from another wallet to the participants of the crowdsale. In order for this to work, the source wallet must give the crowdsale an allowance via the ERC20 link:api/token/ERC20#IERC20.approve(address,uint256)[`approve`] method.
+Use an xref:api:crowdsale.adoc#AllowanceCrowdsale[`AllowanceCrowdsale`] to send tokens from another wallet to the participants of the crowdsale. In order for this to work, the source wallet must give the crowdsale an allowance via the ERC20 xref:api:token/ERC20.adoc#IERC20-approve-address-uint256-[`approve`] method.
 
 [source,solidity]
 ----
@@ -151,10 +151,10 @@ IERC20(tokenAddress).approve(CROWDSALE_ADDRESS, SOME_TOKEN_AMOUNT);
 
 There are a bunch of different validation requirements that your crowdsale might be a part of:
 
-* link:api/crowdsale#cappedcrowdsale[`CappedCrowdsale`] — adds a cap to your crowdsale, invalidating any purchases that would exceed that cap
-* link:api/crowdsale#individuallycappedcrowdsale[`IndividuallyCappedCrowdsale`] — caps an individual's contributions.
-* link:api/crowdsale#whitelistcrowdsale[`WhitelistCrowdsale`] — only allow whitelisted participants to purchase tokens. this is useful for putting your KYC / AML whitelist on-chain!
-* link:api/crowdsale#timedcrowdsale[`TimedCrowdsale`] — adds an link:api/crowdsale#TimedCrowdsale.openingTime()[`openingTime`] and link:api/crowdsale#TimedCrowdsale.closingTime()[`closingTime`] to your crowdsale
+* xref:api:crowdsale.adoc#CappedCrowdsale[`CappedCrowdsale`] — adds a cap to your crowdsale, invalidating any purchases that would exceed that cap
+* xref:api:crowdsale.adoc#IndividuallyCappedCrowdsale[`IndividuallyCappedCrowdsale`] — caps an individual's contributions.
+* xref:api:crowdsale.adoc#WhitelistCrowdsale[`WhitelistCrowdsale`] — only allow whitelisted participants to purchase tokens. this is useful for putting your KYC / AML whitelist on-chain!
+* xref:api:crowdsale.adoc#TimedCrowdsale[`TimedCrowdsale`] — adds an xref:api:crowdsale.adoc#TimedCrowdsale-openingTime--[`openingTime`] and xref:api:Crowdsale.adoc#TimedCrowdsale-closingTime--[`closingTime`] to your crowdsale
 
 Simply mix and match these crowdsale flavors to your heart's content:
 
@@ -194,7 +194,7 @@ OpenZeppelin is here to make that easy!
 [[postdeliverycrowdsale]]
 === PostDeliveryCrowdsale
 
-The link:api/crowdsale#postdeliverycrowdsale[`PostDeliveryCrowdsale`], as its name implies, distributes tokens after the crowdsale has finished, letting users call link:api/crowdsale#PostDeliveryCrowdsale.withdrawTokens(address)[`withdrawTokens`] in order to claim the tokens they've purchased.
+The xref:api:crowdsale.adoc#PostDeliveryCrowdsale[`PostDeliveryCrowdsale`], as its name implies, distributes tokens after the crowdsale has finished, letting users call xref:api:crowdsale.adoc#PostDeliveryCrowdsale-withdrawTokens_address-[`withdrawTokens`] in order to claim the tokens they've purchased.
 
 [source,solidity]
 ----
@@ -221,7 +221,7 @@ contract MyCrowdsale is Crowdsale, TimedCrowdsale, PostDeliveryCrowdsale {
 [[refundablecrowdsale]]
 === RefundableCrowdsale
 
-The link:api/crowdsale#refundablecrowdsale[`RefundableCrowdsale`] offers to refund users if a minimum goal is not reached. If the goal is not reached, the users can link:api/crowdsale#RefundableCrowdsale.claimRefund(address%20payable)[`claimRefund`] to get their Ether back.
+The xref:api:crowdsale.adoc#RefundableCrowdsale[`RefundableCrowdsale`] offers to refund users if a minimum goal is not reached. If the goal is not reached, the users can xref:api:crowdsale.adoc#RefundableCrowdsale-claimRefund-address-payable-[`claimRefund`] to get their Ether back.
 
 [source,solidity]
 ----

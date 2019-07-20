@@ -1,6 +1,6 @@
 = Release Schedule
 
-OpenZeppelin follows a link:api-stability[semantic versioning scheme].
+OpenZeppelin follows a xref:api-stability.adoc[semantic versioning scheme].
 
 [[minor-releases]]
 == Minor releases
