@@ -1,6 +1,6 @@
 pragma solidity ^0.5.2;
 
-import "zos-lib/contracts/Initializable.sol";
+import "@openzeppelin/upgrades/contracts/Initializable.sol";
 import "../../math/SafeMath.sol";
 import "./FinalizableCrowdsale.sol";
 import "../../payment/escrow/RefundEscrow.sol";

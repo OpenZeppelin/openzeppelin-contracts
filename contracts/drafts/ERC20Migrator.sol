@@ -1,6 +1,6 @@
 pragma solidity ^0.5.2;
 
-import "zos-lib/contracts/Initializable.sol";
+import "@openzeppelin/upgrades/contracts/Initializable.sol";
 import "../token/ERC20/IERC20.sol";
 import "../token/ERC20/ERC20Mintable.sol";
 import "../token/ERC20/SafeERC20.sol";
@@ -22,9 +22,9 @@ import "../math/Math.sol";
  * is migrated, and remain there forever.
  * Although this contract can be used in many different scenarios, the main
  * motivation was to provide a way to migrate ERC20 tokens into an upgradeable
- * version of it using ZeppelinOS. To read more about how this can be done
+ * version of it using the OpenZeppelin SDK. To read more about how this can be done
  * using this implementation, please follow the official documentation site of
- * ZeppelinOS: https://docs.zeppelinos.org/docs/erc20_onboarding.html
+ * the OpenZeppelinSDK: https://docs.zeppelinos.org/docs/erc20_onboarding.html
  * Example of usage:
  * ```
  * const migrator = await ERC20Migrator.new(legacyToken.address);

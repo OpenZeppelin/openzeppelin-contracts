@@ -107,7 +107,7 @@
       "storage": [
         {
           "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initialized",
           "astId": 11836,
           "type": "t_bool",
@@ -115,7 +115,7 @@
         },
         {
           "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initializing",
           "astId": 11838,
           "type": "t_bool",
@@ -123,7 +123,7 @@
         },
         {
           "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "______gap",
           "astId": 11887,
           "type": "t_array:50<t_uint256>",
@@ -393,7 +393,7 @@
       "storage": [
         {
           "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initialized",
           "astId": 11836,
           "type": "t_bool",
@@ -401,7 +401,7 @@
         },
         {
           "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initializing",
           "astId": 11838,
           "type": "t_bool",
@@ -409,7 +409,7 @@
         },
         {
           "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "______gap",
           "astId": 11887,
           "type": "t_array:50<t_uint256>",
@@ -598,7 +598,7 @@
       "storage": [
         {
           "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initialized",
           "astId": 11836,
           "type": "t_bool",
@@ -606,7 +606,7 @@
         },
         {
           "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initializing",
           "astId": 11838,
           "type": "t_bool",
@@ -614,7 +614,7 @@
         },
         {
           "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "______gap",
           "astId": 11887,
           "type": "t_array:50<t_uint256>",
@@ -722,7 +722,7 @@
       "storage": [
         {
           "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initialized",
           "astId": 11836,
           "type": "t_bool",
@@ -730,7 +730,7 @@
         },
         {
           "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initializing",
           "astId": 11838,
           "type": "t_bool",
@@ -738,7 +738,7 @@
         },
         {
           "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "______gap",
           "astId": 11887,
           "type": "t_array:50<t_uint256>",
@@ -836,7 +836,7 @@
   },
   "solidityLibs": {},
   "proxies": {},
-  "zosversion": "2",
+  "manifestVersion": "2.2",
   "frozen": true,
   "app": {
     "address": "0x2Ba1a8C7352a5B5Ea3ea3408F89e1bA7920d36CE"

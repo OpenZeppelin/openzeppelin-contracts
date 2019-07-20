@@ -1,6 +1,6 @@
 {
-  "zosversion": "2",
-  "name": "openzeppelin-eth",
+  "manifestVersion": "2.2",
+  "name": "@openzeppelin/contracts-ethereum-package",
   "publish": true,
   "version": "2.2.0",
   "contracts": {

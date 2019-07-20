@@ -1,13 +1,12 @@
 {
-  "name": "openzeppelin-eth",
-  "version": "2.2.0",
+  "name": "@openzeppelin/contracts-ethereum-package",
+  "version": "2.2.1-rc.0",
   "description": "Secure Smart Contract library for Solidity",
   "files": [
     "build",
     "contracts",
     "test/behaviors",
-    "zos.json",
-    "zos.*.json"
+    ".openzeppelin"
   ],
   "scripts": {
     "build": "scripts/build.sh",
@@ -25,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/OpenZeppelin/openzeppelin-eth.git"
+    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts-ethereum-package.git"
   },
   "keywords": [
     "solidity",
@@ -38,9 +37,9 @@
   "author": "OpenZeppelin Community <maintainers@openzeppelin.org>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/OpenZeppelin/openzeppelin-eth/issues"
+    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts-ethereum-package/issues"
   },
-  "homepage": "https://github.com/OpenZeppelin/openzeppelin-eth",
+  "homepage": "https://github.com/OpenZeppelin/openzeppelin-contracts-ethereum-package",
   "devDependencies": {
     "chai": "^4.1.2",
     "coveralls": "^3.0.1",
@@ -60,10 +59,10 @@
     "solhint": "^1.5.0",
     "solidity-coverage": "https://github.com:rotcivegaf/solidity-coverage.git#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
     "truffle": "^5.0.0",
-    "zos": "^2.0.0",
-    "zos-lib": "^2.1.0"
+    "@openzeppelin/cli": "2.5.0",
+    "@openzeppelin/upgrades": "2.5.0"
   },
   "peerDependencies": {
-    "zos-lib": "^2.1.0"
+    "@openzeppelin/upgrades": "2.5.0"
   }
 }

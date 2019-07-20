@@ -1,7 +1,7 @@
 {
   "contracts": {
     "TokenVesting": {
-      "address": "0x37b52342e1e8eca924c69e49797e8b1a80251a88",
+      "address": "0x17d2e73611a9ec10ab4751c514a539ec820b953c",
       "constructorCode": "608060405234801561001057600080fd5b50611c6c806100206000396000f3fe",
       "bodyBytecodeHash": "ba0eade6a19e4b485aca3478c8755d2a6041a2b39a7aa1a0a73253a782c4a065",
       "localBytecodeHash": "94b5eed89a6bab268326a5010e52000ff74d40d96c83811c9d455d7c8b54f447",
@@ -45,7 +45,7 @@
       "storage": [
         {
           "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initialized",
           "astId": 13503,
           "type": "t_bool",
@@ -53,7 +53,7 @@
         },
         {
           "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initializing",
           "astId": 13505,
           "type": "t_bool",
@@ -61,7 +61,7 @@
         },
         {
           "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "______gap",
           "astId": 13554,
           "type": "t_array:50<t_uint256>",
@@ -153,11 +153,13 @@
         "hasSelfDestruct": false,
         "hasDelegateCall": false,
         "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": []
+        "uninitializedBaseContracts": [],
+        "storageUncheckedVars": [],
+        "storageDiff": []
       }
     },
     "PaymentSplitter": {
-      "address": "0xee1ff7edb4d1dee795497dc715a8173c9ddda440",
+      "address": "0xf1e274980871d7c4aaab8d646c17728ed263e747",
       "constructorCode": "608060405234801561001057600080fd5b506110a4806100206000396000f3fe",
       "bodyBytecodeHash": "fe0f9da480efb9ef366284126f8d9dccff6f19f8ee0183449035b37c1f5103d8",
       "localBytecodeHash": "d9901040952d3add936b2939fb694875bdfd7b513c877bc1942d36a5e4190873",
@@ -202,7 +204,7 @@
       "storage": [
         {
           "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initialized",
           "astId": 13503,
           "type": "t_bool",
@@ -210,7 +212,7 @@
         },
         {
           "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initializing",
           "astId": 13505,
           "type": "t_bool",
@@ -218,7 +220,7 @@
         },
         {
           "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "______gap",
           "astId": 13554,
           "type": "t_array:50<t_uint256>",
@@ -278,11 +280,13 @@
         "hasSelfDestruct": false,
         "hasDelegateCall": false,
         "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": []
+        "uninitializedBaseContracts": [],
+        "storageUncheckedVars": [],
+        "storageDiff": []
       }
     },
     "StandaloneERC20": {
-      "address": "0x2ed7f08736297d10dfa04a9b272dffc03615644f",
+      "address": "0x2a79d89665d22ee56cc0efd102169fa41f27b065",
       "constructorCode": "608060405234801561001057600080fd5b50613153806100206000396000f3fe",
       "bodyBytecodeHash": "ad8d45945d6a4f088a61fd605c38cdf2f40171624bca2a7c3b2d4e95b068eb3d",
       "localBytecodeHash": "bca15bc1a7aa87c603c9b185aab38e0d72b8adc6347426bb66954cef39e88a74",
@@ -344,7 +348,7 @@
       "storage": [
         {
           "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initialized",
           "astId": 13503,
           "type": "t_bool",
@@ -352,7 +356,7 @@
         },
         {
           "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initializing",
           "astId": 13505,
           "type": "t_bool",
@@ -360,7 +364,7 @@
         },
         {
           "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "______gap",
           "astId": 13554,
           "type": "t_array:50<t_uint256>",
@@ -500,11 +504,52 @@
         "hasSelfDestruct": false,
         "hasDelegateCall": false,
         "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": []
+        "uninitializedBaseContracts": [],
+        "storageUncheckedVars": [
+          {
+            "contract": "MinterRole",
+            "path": "contracts/access/roles/MinterRole.sol",
+            "label": "_minters",
+            "astId": 219,
+            "type": "t_struct<Roles.Role>",
+            "src": "271:27:2"
+          },
+          {
+            "contract": "PauserRole",
+            "path": "contracts/access/roles/PauserRole.sol",
+            "label": "_pausers",
+            "astId": 339,
+            "type": "t_struct<Roles.Role>",
+            "src": "271:27:3"
+          }
+        ],
+        "storageDiff": [
+          {
+            "action": "rename",
+            "updated": {
+              "index": 8,
+              "contract": "ERC20",
+              "path": "contracts/token/ERC20/ERC20.sol",
+              "label": "_allowances",
+              "astId": 9135,
+              "type": "t_mapping<t_uint256>",
+              "src": "1410:69:115"
+            },
+            "original": {
+              "index": 8,
+              "contract": "ERC20",
+              "path": "contracts/token/ERC20/ERC20.sol",
+              "label": "_allowed",
+              "astId": 8173,
+              "type": "t_mapping<t_uint256>",
+              "src": "827:66:110"
+            }
+          }
+        ]
       }
     },
     "StandaloneERC721": {
-      "address": "0xf43fe8b882b9821b3d648fb9f4d99d2fd736368c",
+      "address": "0x61e5b805911ba82de487e13de1e375a6130004f0",
       "constructorCode": "608060405234801561001057600080fd5b50614299806100206000396000f3fe",
       "bodyBytecodeHash": "9113153cb4b2b62f720cb12960ba3b4a7b9a5f3329e34a4a3ece0212d130ae53",
       "localBytecodeHash": "5dca693db1fee9a4ce973e49d6665a8770b823c36ba2c7e64f37d81046672074",
@@ -610,7 +655,7 @@
       "storage": [
         {
           "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initialized",
           "astId": 13503,
           "type": "t_bool",
@@ -618,7 +663,7 @@
         },
         {
           "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initializing",
           "astId": 13505,
           "type": "t_bool",
@@ -626,7 +671,7 @@
         },
         {
           "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "______gap",
           "astId": 13554,
           "type": "t_array:50<t_uint256>",
@@ -830,22 +875,71 @@
         "hasSelfDestruct": false,
         "hasDelegateCall": false,
         "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": []
+        "uninitializedBaseContracts": [],
+        "storageUncheckedVars": [
+          {
+            "contract": "ERC721",
+            "path": "contracts/token/ERC721/ERC721.sol",
+            "label": "_ownedTokensCount",
+            "astId": 10516,
+            "type": "t_mapping<t_struct<Counters.Counter>>",
+            "src": "1043:63:125"
+          },
+          {
+            "contract": "MinterRole",
+            "path": "contracts/access/roles/MinterRole.sol",
+            "label": "_minters",
+            "astId": 219,
+            "type": "t_struct<Roles.Role>",
+            "src": "271:27:2"
+          },
+          {
+            "contract": "PauserRole",
+            "path": "contracts/access/roles/PauserRole.sol",
+            "label": "_pausers",
+            "astId": 339,
+            "type": "t_struct<Roles.Role>",
+            "src": "271:27:3"
+          }
+        ],
+        "storageDiff": [
+          {
+            "action": "typechange",
+            "updated": {
+              "index": 7,
+              "contract": "ERC721",
+              "path": "contracts/token/ERC721/ERC721.sol",
+              "label": "_ownedTokensCount",
+              "astId": 10516,
+              "type": "t_mapping<t_struct<Counters.Counter>>",
+              "src": "1043:63:125"
+            },
+            "original": {
+              "index": 7,
+              "contract": "ERC721",
+              "path": "contracts/token/ERC721/ERC721.sol",
+              "label": "_ownedTokensCount",
+              "astId": 9505,
+              "type": "t_mapping<t_uint256>",
+              "src": "988:54:120"
+            }
+          }
+        ]
       }
     }
   },
   "solidityLibs": {},
   "proxies": {},
-  "zosversion": "2",
+  "manifestVersion": "2.2",
   "frozen": true,
   "app": {
-    "address": "0x27a09abca2c4d9f914dbc7bea164b0e6b74ce7a9"
+    "address": "0xf5829d56998ccc1405b7eabccac78164af270d39"
   },
   "package": {
-    "address": "0x2a9e7b63514438906a83a1e320dbbd814d417002"
+    "address": "0xb6f8f11b166d526932ee04ffe4d25b810f619e34"
   },
   "provider": {
-    "address": "0xb818f726ea886a73dc4105252f0e7c10b6309cae"
+    "address": "0x200194fd3013c88ab2b3c84e2c885aba42a3df5d"
   },
   "version": "2.2.0"
 }

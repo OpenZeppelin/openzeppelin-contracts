@@ -1,6 +1,6 @@
 pragma solidity ^0.5.2;
 
-import "zos-lib/contracts/Initializable.sol";
+import "@openzeppelin/upgrades/contracts/Initializable.sol";
 import "./IERC721.sol";
 import "./IERC721Receiver.sol";
 import "../../math/SafeMath.sol";

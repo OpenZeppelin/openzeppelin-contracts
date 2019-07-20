@@ -38,7 +38,7 @@ build/
 # truffle
 .node-xmlhttprequest-*
 
-.zos.session
+.openzeppelin/.session
 
 # IntelliJ IDE
 .idea
