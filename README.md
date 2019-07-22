@@ -1,4 +1,4 @@
-# <img src="logo.png" alt="OpenZeppelin" width="400px">
+# <img src="logo.png" alt="OpenZeppelin" height="40px">
 
 [![NPM Package](https://img.shields.io/npm/v/openzeppelin-solidity.svg?style=flat-square)](https://www.npmjs.org/package/openzeppelin-solidity)
 [![Build Status](https://travis-ci.com/OpenZeppelin/openzeppelin-solidity.svg?branch=master)](https://travis-ci.com/OpenZeppelin/openzeppelin-solidity)
