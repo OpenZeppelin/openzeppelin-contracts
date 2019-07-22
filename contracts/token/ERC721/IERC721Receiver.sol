@@ -9,7 +9,7 @@ contract IERC721Receiver {
     /**
      * @notice Handle the receipt of an NFT
      * @dev The ERC721 smart contract calls this function on the recipient
-     * after a {IERC721-safeTransfer}. This function MUST return the function selector,
+     * after a {IERC721-safeTransferFrom}. This function MUST return the function selector,
      * otherwise the caller will revert the transaction. The selector to be
      * returned can be obtained as `this.onERC721Received.selector`. This
      * function MAY throw to revert and reject the transfer.
