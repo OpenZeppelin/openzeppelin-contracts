@@ -8,35 +8,35 @@
 
 {{natspec.devdoc}}
 
-{{#inheritance}}
-{{#if ownModifiers}}
+{{#if modifiers}}
 [.contract-index]
 .Modifiers
+{{#inheritance}}
 {{#ownModifiers}}
 * xref:#{{anchor}}[`{{signature}}`]
 {{/ownModifiers}}
-{{/if}}
 {{/inheritance}}
+{{/if}}
 
-{{#inheritance}}
-{{#if ownFunctions}}
+{{#if functions}}
 [.contract-index]
 .Functions
+{{#inheritance}}
 {{#ownFunctions}}
 * xref:#{{anchor}}[`{{signature}}`]
 {{/ownFunctions}}
-{{/if}}
 {{/inheritance}}
+{{/if}}
 
-{{#inheritance}}
-{{#if ownEvents}}
+{{#if events}}
 [.contract-index]
 .Events
+{{#inheritance}}
 {{#ownEvents}}
 * xref:#{{anchor}}[`{{signature}}`]
 {{/ownEvents}}
-{{/if}}
 {{/inheritance}}
+{{/if}}
 
 {{#ownModifiers}}
 [.contract-item]
