@@ -1,6 +1,6 @@
 = Access Control
 
-Access control—that is, "who is allowed to do this thing"—is incredibly important in the world of smart contracts. The access control of your contract may govern who can mint tokens, vote on proposals, freeze transfers, and many others. It is therefore critical to understand how you implement it, lest someone else https://blog.zeppelin.solutions/on-the-parity-wallet-multisig-hack-405a8c12e8f7[steals your whole system].
+Access control—that is, "who is allowed to do this thing"—is incredibly important in the world of smart contracts. The access control of your contract may govern who can mint tokens, vote on proposals, freeze transfers, and many other things. It is therefore *critical* to understand how you implement it, lest someone else https://blog.openzeppelin.com/on-the-parity-wallet-multisig-hack-405a8c12e8f7/[steals your whole system].
 
 [[ownership-and-ownable]]
 == Ownership and `Ownable`
@@ -28,7 +28,7 @@ contract MyContract is Ownable {
 
 By default, the link:api/ownership#Ownable.owner()[`owner`] of an `Ownable` contract is the account that deployed it, which is usually exactly what you want.
 
-Ownable also lets you: - link:api/ownership#Ownable.transferOwnership(address)[`transferOwnership`] from the owner account to a new one - link:api/ownership#Ownable.renounceOwnership()[`renounceOwnership`] for the owner to lose this administrative privilege, a common pattern after an initial stage with centralized administration is over - *⚠ Warning! ⚠* Removing the owner altogether will mean that administrative tasks that are protected by `onlyOwner` will no longer be callable!
+Ownable also lets you: - link:api/ownership#Ownable.transferOwnership(address)[`transferOwnership`] from the owner account to a new one - link:api/ownership#Ownable.renounceOwnership()[`renounceOwnership`] for the owner to relinquish this administrative privilege, a common pattern after an initial stage with centralized administration is over - *⚠ Warning! ⚠* Removing the owner altogether will mean that administrative tasks that are protected by `onlyOwner` will no longer be callable!
 
 Note that *a contract can also be the owner of another one*! This opens the door to using, for example, a https://github.com/gnosis/MultiSigWallet[Gnosis Multisig] or https://safe.gnosis.io[Gnosis Safe], an https://aragon.org[Aragon DAO], an https://www.uport.me[ERC725/uPort] identity contract, or a totally custom contract that _you_ create.
 
@@ -39,7 +39,7 @@ In this way you can use _composability_ to add additional layers of access contr
 
 While the simplicity of _ownership_ can be useful for simple systems or quick prototyping, different levels of authorization are often needed. An account may be able to ban users from a system, but not create new tokens. _Role-Based Access Control (RBAC)_ offers flexibility in this regard.
 
-In essence, we will be defining multiple _roles_, each allowed to perform different sets of actions. Instead of `onlyOwner` everywhere you will use, for example, `onlyAdminRole` in some places, and `onlyModeratorRole` in others. Separately you will be able to define rules for how accounts can be assignned a role, transfer it, and more.
+In essence, we will be defining multiple _roles_, each allowed to perform different sets of actions. Instead of `onlyOwner` everywhere - you will use, for example, `onlyAdminRole` in some places, and `onlyModeratorRole` in others. Separately, you will be able to define rules for how accounts can be assignned a role, transfer it, and more.
 
 Most of software development uses access control systems that are role-based: some users are regular users, some may be supervisors or managers, and a few will often have administrative privileges.
 
@@ -48,7 +48,7 @@ Most of software development uses access control systems that are role-based: so
 
 OpenZeppelin provides link:api/access#roles[`Roles`] for implementing role-based access control. Its usage is straightforward: for each role that you want to define, you'll store a variable of type `Role`, which will hold the list of accounts with that role.
 
-Here's an simple example of using `Roles` in an link:tokens#erc20[`ERC20` token]: we'll define two roles, `namers` and `minters`, that will be able to change the name of the token contract, and mint new tokens, respectively.
+Here's a simple example of using `Roles` in an link:tokens#erc20[`ERC20` token]: we'll define two roles, `namers` and `minters`, that will be able to change the name of the token contract and mint new tokens, respectively.
 
 [source,solidity]
 ----
@@ -94,7 +94,7 @@ contract MyToken is ERC20, ERC20Detailed {
 }
 ----
 
-So clean! By splitting concerns this way, we can define more granular levels of permission, which was lacking in the _ownership_ approach to access control. Note that an account may have more than one role, if desired.
+So clean! By splitting concerns this way, much more granular levels of permission may be implemented than were possible with the simpler _ownership_ approach to access control. Note that an account may have more than one role, if desired.
 
 OpenZeppelin uses `Roles` extensively with predefined contracts that encode rules for each specific role. A few examples are: link:api/token/ERC20#erc20mintable[`ERC20Mintable`] which uses the link:api/access#minterrole[`MinterRole`] to determine who can mint tokens, and link:api/crowdsale#whitelistcrowdsale[`WhitelistCrowdsale`] which uses both link:api/access#whitelistadminrole[`WhitelistAdminRole`] and link:api/access#whitelistedrole[`WhitelistedRole`] to create a set of accounts that can purchase tokens.
 
@@ -105,4 +105,4 @@ This flexibility allows for interesting setups: for example, a link:api/crowdsal
 
 You'll notice that none of the OpenZeppelin contracts use `Ownable`. `Roles` is a prefferred solution, because it provides the user of the library with enough flexibility to adapt the provided contracts to their needs.
 
-There are some cases, though, where there's a direct relationship between contracts. For example, link:api/crowdsale#refundablecrowdsale[`RefundableCrowdsale`] deploys a link:api/payment#refundescrow[`RefundEscrow`] on construction, to hold its funds. For those cases, we'll use link:api/ownership#secondary[`Secondary`] to create a _secondary_ contract that allows a _primary_ contract to manage it. You could also think of these as _auxiliary_ contracts.
+There are some cases, however, where there's a direct relationship between contracts. For example, link:api/crowdsale#refundablecrowdsale[`RefundableCrowdsale`] deploys a link:api/payment#refundescrow[`RefundEscrow`] on construction to hold its funds. For those cases, we'll use link:api/ownership#secondary[`Secondary`] to create a _secondary_ contract that allows a _primary_ contract to manage it. You could also think of these as _auxiliary_ contracts.
