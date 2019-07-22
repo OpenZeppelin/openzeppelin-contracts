@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.1 (2019-07-22)
+
+### Changes:
+* Renamed package to `@openzeppelin/contracts-ethereum-package`. ([#54](https://github.com/OpenZeppelin/openzeppelin-contracts-ethereum-package/pull/54))
+
 ## 2.2.0 (2019-03-14)
 
 ### New features:
