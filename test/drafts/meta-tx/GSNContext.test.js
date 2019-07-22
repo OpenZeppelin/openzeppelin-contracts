@@ -1,15 +1,17 @@
 require('openzeppelin-test-helpers');
 
-const ContextMock = artifacts.require('ContextMock');
+const GSNContextMock = artifacts.require('GSNContextMock');
 const ContextMockCaller = artifacts.require('ContextMockCaller');
 
 const { shouldBehaveLikeRegularContext } = require('./Context.behavior');
 
-contract('Context', function ([_, sender]) {
+contract('GSNContext', function ([_, sender, rhub]) {
   beforeEach(async function () {
-    this.context = await ContextMock.new();
+    this.context = await GSNContextMock.new(rhub);
     this.caller = await ContextMockCaller.new();
   });
 
-  shouldBehaveLikeRegularContext(sender);
+  context('when called directly', function () {
+    shouldBehaveLikeRegularContext(sender);
+  });
 });
