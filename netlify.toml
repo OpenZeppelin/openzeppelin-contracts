@@ -7,9 +7,9 @@ publish = "docsite-build"
   to = "https://docs.openzeppelin.com/contracts"
   status = 301
   force = true
-  
+
 [[redirects]]
   from = "/v2.3.0/*"
-  to = "https://docs.openzeppelin.com/contracts/v2.x/:splat"
+  to = "https://docs.openzeppelin.com/contracts/2.x/:splat"
   status = 301
   force = true
