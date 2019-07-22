@@ -2,44 +2,62 @@
 :{{name}}: pass:normal[xref:#{{anchor}}[`{{name}}`]]
 {{/linkable}}
 
+[.contract]
 [[{{anchor}}]]
 === `{{name}}`
 
 {{natspec.devdoc}}
 
 {{#inheritance}}
+{{#if ownModifiers}}
+[.contract-index]
+.Modifiers
 {{#ownModifiers}}
-- xref:#{{anchor}}[{{signature}}]
+* xref:#{{anchor}}[`{{signature}}`]
 {{/ownModifiers}}
+{{/if}}
 {{/inheritance}}
 
 {{#inheritance}}
+{{#if ownFunctions}}
+[.contract-index]
+.Functions
 {{#ownFunctions}}
-- xref:#{{anchor}}[{{signature}}]
+* xref:#{{anchor}}[`{{signature}}`]
 {{/ownFunctions}}
+{{/if}}
 {{/inheritance}}
 
 {{#inheritance}}
+{{#if ownEvents}}
+[.contract-index]
+.Events
 {{#ownEvents}}
-- xref:#{{anchor}}[{{signature}}]
+* xref:#{{anchor}}[`{{signature}}`]
 {{/ownEvents}}
+{{/if}}
 {{/inheritance}}
 
 {{#ownModifiers}}
+[.contract-item]
 [[{{anchor}}]]
 ==== `{{name}}({{args}})`
 
 {{natspec.devdoc}}
 
 {{/ownModifiers}}
+
 {{#ownFunctions}}
+[.contract-item]
 [[{{anchor}}]]
 ==== `{{name}}({{args}}){{#if outputs}} → {{outputs}}{{/if}}`
 
 {{natspec.devdoc}}
 
 {{/ownFunctions}}
+
 {{#ownEvents}}
+[.contract-item]
 [[{{anchor}}]]
 ==== `{{name}}({{args}})`
 
