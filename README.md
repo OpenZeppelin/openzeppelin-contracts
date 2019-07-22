@@ -12,7 +12,7 @@
 npm install openzeppelin-solidity
 ```
 
-OpenZeppelin Contracts features a stable API, which means your contracts won't break unexpectedly when upgrading to a newer minor version. You can read ṫhe details in our [API Stability](https://forum.zeppelin.solutions/t/api-stability/138) document.
+OpenZeppelin Contracts features a stable API, which means your contracts won't break unexpectedly when upgrading to a newer minor version. You can read ṫhe details in our [API Stability] document.
 
 ## Usage
 
@@ -55,6 +55,7 @@ OpenZeppelin is released under the [MIT License](LICENSE).
 
 [API docs]: https://docs.openzeppelin.com/contracts/api/token/erc20
 [guides]: https://docs.openzeppelin.com/contracts
+[API Stability]: https://docs.openzeppelin.com/contracts/api-stability
 [forum]: https://forum.openzeppelin.com
 [OpenZeppelin]: https://openzeppelin.com
 [contribution guide]: CONTRIBUTING.md
