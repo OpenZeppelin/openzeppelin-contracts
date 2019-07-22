@@ -63,6 +63,6 @@
     "@openzeppelin/upgrades": "2.5.0"
   },
   "peerDependencies": {
-    "@openzeppelin/upgrades": "2.5.0"
+    "@openzeppelin/upgrades": "^2.5.0"
   }
 }
