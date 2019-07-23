@@ -7,7 +7,7 @@ In a nutshell, the API being stable means _if your project is working today, it 
 [[versioning-scheme]]
 == Versioning scheme
 
-We follow https://semver.org/[SemVer], which means API breakage may occur between major releases. Read more about the link:release-schedule[release schedule] to know how often this happens (not very).
+We follow https://semver.org/[SemVer], which means API breakage may occur between major releases. Read more about the xref:release-schedule.adoc[release schedule] to know how often this happens (not very).
 
 [[solidity-functions]]
 == Solidity functions
