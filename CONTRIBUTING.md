@@ -44,7 +44,7 @@ npm test
 npm linter
 ```
 
-or you can simply run circleci locally
+or you can simply run CircleCI locally
 ```bash
 circleci local execute build 
 ```
