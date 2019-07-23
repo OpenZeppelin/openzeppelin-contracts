@@ -1,8 +1,8 @@
-const { BN, constants, expectRevert } = require('openzeppelin-test-helpers');
+const { BN, constants, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 
-function shouldBehaveLikeERC1155 ([minter, firstOwner, secondOwner]) {
+function shouldBehaveLikeERC1155 ([minter, firstOwner, secondOwner, owner, recipient, proxy]) {
   const firstTokenId = new BN(1);
   const secondTokenId = new BN(2);
   const unknownTokenId = new BN(3);
@@ -132,6 +132,144 @@ function shouldBehaveLikeERC1155 ([minter, firstOwner, secondOwner]) {
           result[0].should.be.a.bignumber.equal(secondAmount);
           result[1].should.be.a.bignumber.equal(firstAmount);
           result[2].should.be.a.bignumber.equal('0');
+        });
+      });
+    });
+
+    describe('setApprovalForAll', function () {
+      let logs;
+      beforeEach(async function () {
+        ({ logs } = await this.token.setApprovalForAll(proxy, true, { from: owner }));
+      });
+
+      it('sets approval status which can be queried via isApprovedForAll', async function () {
+        (await this.token.isApprovedForAll(owner, proxy)).should.be.equal(true);
+      });
+
+      it('emits an ApprovalForAll log', function () {
+        expectEvent.inLogs(logs, 'ApprovalForAll', { owner, operator: proxy, approved: true });
+      });
+
+      it('can unset approval for an operator', async function () {
+        await this.token.setApprovalForAll(proxy, false, { from: owner });
+        (await this.token.isApprovedForAll(owner, proxy)).should.be.equal(false);
+      });
+    });
+
+    describe('safeTransferFrom', function () {
+      beforeEach(async function () {
+        await this.token.mint(owner, firstTokenId, firstAmount, '0x', {
+          from: minter,
+        });
+        await this.token.mint(
+          owner,
+          secondTokenId,
+          secondAmount,
+          '0x',
+          {
+            from: minter,
+          }
+        );
+      });
+
+      it('reverts when transferring more than balance', async function () {
+        await expectRevert(
+          this.token.safeTransferFrom(owner, recipient, firstTokenId, firstAmount.addn(1), '0x', { from: owner }),
+          'SafeMath: subtraction overflow'
+        );
+      });
+
+      it('reverts when transferring to zero address', async function () {
+        await expectRevert(
+          this.token.safeTransferFrom(owner, ZERO_ADDRESS, firstTokenId, firstAmount, '0x', { from: owner }),
+          'ERC1155: target address must be non-zero'
+        );
+      });
+
+      function transferWasSuccessful ({ operator, from, to, id, value }) {
+        it('debits transferred balance from sender', async function () {
+          const newBalance = await this.token.balanceOf(from, id);
+          newBalance.should.be.a.bignumber.equal('0');
+        });
+
+        it('credits transferred balance to receiver', async function () {
+          const newBalance = await this.token.balanceOf(to, id);
+          newBalance.should.be.a.bignumber.equal(value);
+        });
+
+        it('emits a TransferSingle log', function () {
+          expectEvent.inLogs(this.transferLogs, 'TransferSingle', {
+            operator,
+            from,
+            to,
+            id,
+            value,
+          });
+        });
+      }
+
+      context('when called by the owner', async function () {
+        beforeEach(async function () {
+          ({ logs: this.transferLogs } =
+            await this.token.safeTransferFrom(owner, recipient, firstTokenId, firstAmount, '0x', {
+              from: owner,
+            }));
+        });
+
+        transferWasSuccessful.call(this, {
+          operator: owner,
+          from: owner,
+          to: recipient,
+          id: firstTokenId,
+          value: firstAmount,
+        });
+
+        it('preserves existing balances which are not transferred by owner', async function () {
+          const balance1 = await this.token.balanceOf(owner, secondTokenId);
+          balance1.should.be.a.bignumber.equal(secondAmount);
+
+          const balance2 = await this.token.balanceOf(recipient, secondTokenId);
+          balance2.should.be.a.bignumber.equal('0');
+        });
+      });
+
+      context('when called by an operator on behalf of the owner', function () {
+        context('when operator is not approved by owner', function () {
+          beforeEach(async function () {
+            await this.token.setApprovalForAll(proxy, false, { from: owner });
+          });
+
+          it('reverts', async function () {
+            await expectRevert(
+              this.token.safeTransferFrom(owner, recipient, firstTokenId, firstAmount, '0x', {
+                from: proxy,
+              }),
+              'ERC1155: need operator approval for 3rd party transfers'
+            );
+          });
+        });
+
+        context('when operator is approved by owner', function () {
+          beforeEach(async function () {
+            await this.token.setApprovalForAll(proxy, true, { from: owner });
+            ({ logs: this.transferLogs } =
+              await this.token.safeTransferFrom(owner, recipient, firstTokenId, firstAmount, '0x', {
+                from: proxy,
+              }));
+          });
+
+          transferWasSuccessful.call(this, {
+            operator: proxy,
+            from: owner,
+            to: recipient,
+            id: firstTokenId,
+            value: firstAmount,
+          });
+
+          it('preserves operator\'s balances not involved in the transfer', async function () {
+            const balance = await this.token.balanceOf(proxy, firstTokenId);
+            balance.should.be.a.bignumber.equal('0');
+          });
         });
       });
     });
