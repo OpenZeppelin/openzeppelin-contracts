@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea for OpenZeppelin
+about: Suggest an idea for OpenZeppelin Contracts
 
 ---
 
@@ -11,4 +11,4 @@ about: Suggest an idea for OpenZeppelin
 <!-- Please describe your feature request in detail. -->
 
 <!-- Make sure that you have reviewed the OpenZeppelin Contributor Guidelines. -->
-<!-- https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/CONTRIBUTING.md -->
+<!-- https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CONTRIBUTING.md -->

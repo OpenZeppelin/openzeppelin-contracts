@@ -40,7 +40,7 @@ push_and_publish() {
   npm publish --tag "$dist_tag" --otp "$(prompt_otp)"
 
   if [[ "$dist_tag" == "latest" ]]; then
-    npm dist-tag rm --otp "$(prompt_otp)" openzeppelin-solidity next
+    npm dist-tag rm --otp "$(prompt_otp)" @openzeppelin/contracts next
   fi
 }
 

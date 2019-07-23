@@ -41,8 +41,8 @@ Here's what our GLD token might look like.
 ----
 pragma solidity ^0.5.0;
 
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
 
 contract GLDToken is ERC20, ERC20Detailed {
     constructor(uint256 initialSupply) ERC20Detailed("Gold", "GLD", 18) public {
@@ -104,8 +104,8 @@ Here's what a contract for tokenized items might look like:
 ----
 pragma solidity ^0.5.0;
 
-import "openzeppelin-solidity/contracts/token/ERC721/ERC721Full.sol";
-import "openzeppelin-solidity/contracts/drafts/Counters.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721Full.sol";
+import "@openzeppelin/contracts/drafts/Counters.sol";
 
 contract GameItem is ERC721Full {
     using Counters for Counters.Counter;
@@ -193,7 +193,7 @@ We will replicate the `GLD` example of the <<constructing-an-erc20-token-contrac
 ----
 pragma solidity ^0.5.0;
 
-import "openzeppelin-solidity/contracts/token/ERC777/ERC777.sol";
+import "@openzeppelin/contracts/token/ERC777/ERC777.sol";
 
 contract GLDToken is ERC777 {
     constructor(

@@ -5,7 +5,7 @@
 [[install]]
 == Install
 
-OpenZeppelin should be installed directly into your existing node.js project with `npm install openzeppelin-solidity`. We will use https://truffleframework.com/truffle[Truffle], an Ethereum development environment, to get started.
+OpenZeppelin should be installed directly into your existing node.js project with `npm install @openzeppelin/contracts`. We will use https://truffleframework.com/truffle[Truffle], an Ethereum development environment, to get started.
 
 Please install Truffle and initialize your project:
 
@@ -22,7 +22,7 @@ To install the OpenZeppelin library, run the following in your Solidity project 
 
 [source,sh]
 ----
-$ npm install openzeppelin-solidity
+$ npm install @openzeppelin/contracts
 ----
 
 NOTE: OpenZeppelin features a stable API, which means your contracts won't break unexpectedly when upgrading to a newer minor version. You can read ṫhe details in our xref:api-stability.adoc[API Stability] document.
@@ -36,7 +36,7 @@ Once installed, you can start using the contracts in the library by importing th
 ----
 pragma solidity ^0.5.0;
 
-import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
+import "@openzeppelin/contracts/ownership/Ownable.sol";
 
 contract MyContract is Ownable {
   ...

@@ -1,5 +1,5 @@
 {
-  "name": "openzeppelin-solidity",
+  "name": "@openzeppelin/contracts",
   "version": "2.3.0",
   "description": "Secure Smart Contract library for Solidity",
   "files": [
@@ -27,7 +27,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/OpenZeppelin/zeppelin-solidity.git"
+    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts.git"
   },
   "keywords": [
     "solidity",
@@ -40,9 +40,9 @@
   "author": "OpenZeppelin Community <maintainers@openzeppelin.org>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/OpenZeppelin/zeppelin-solidity/issues"
+    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts/issues"
   },
-  "homepage": "https://github.com/OpenZeppelin/zeppelin-solidity",
+  "homepage": "https://github.com/OpenZeppelin/openzeppelin-contracts",
   "devDependencies": {
     "chai": "^4.2.0",
     "concurrently": "^4.1.0",
