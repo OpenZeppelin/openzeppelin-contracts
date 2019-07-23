@@ -117,7 +117,7 @@ contract ERC1155 is ERC165, IERC1155
         require(to != address(0), "ERC1155: target address must be non-zero");
         require(
             from == msg.sender || _operatorApprovals[from][msg.sender] == true,
-            "ERC1155: need operator approval for 3rd party transfers."
+            "ERC1155: need operator approval for 3rd party transfers"
         );
 
         _balances[id][from] = _balances[id][from].sub(value);
@@ -152,7 +152,7 @@ contract ERC1155 is ERC165, IERC1155
         require(to != address(0), "ERC1155: target address must be non-zero");
         require(
             from == msg.sender || _operatorApprovals[from][msg.sender] == true,
-            "ERC1155: need operator approval for 3rd party transfers."
+            "ERC1155: need operator approval for 3rd party transfers"
         );
 
         for (uint256 i = 0; i < ids.length; ++i) {
