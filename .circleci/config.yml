@@ -1,13 +1,12 @@
 version: 2
+# 2.1 does not yet support local run
+# unless with workaround. For simplicity just use it.
+# https://github.com/CircleCI-Public/circleci-cli/issues/79
 
 jobs:
   build:
     docker:
-      - image: circleci/node:8
-      - image: trufflesuite/ganache-cli
-        command: ganache-cli -i 5777 -p 8545  # for networks['development'] in `truffle-config.js`
-      - image: trufflesuite/ganache-cli
-        command: ganache-cli -i 5777 -p 8555  # for networks['coverage'] in `truffle-config.js`
+      - image: circleci/node:10.16  # matches openzeppelin-sdk
     steps:
       - checkout
       - run:
