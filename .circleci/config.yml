@@ -1,15 +1,18 @@
 version: 2
+
+orbs:
+  slack: circleci/slack@3.2.0
+
 jobs:
   build:
     docker:
-      - image: circleci/node:10.16.0
+      - image: circleci/node:8
       - image: trufflesuite/ganache-cli
-        command: ganache-cli -i 5777 -p 8545  # for test in `truffle-config.js`
+        command: ganache-cli -i 5777 -p 8545  # for networks['development'] in `truffle-config.js`
       - image: trufflesuite/ganache-cli
-        command: ganache-cli -i 5777 -p 8555  # for coverage
+        command: ganache-cli -i 5777 -p 8555  # for networks['coverage'] in `truffle-config.js`
     steps:
-      - checkout:
-          path: "~/repo"
+      - checkout
       - run:
           name: Update npm
           command: 'sudo npm install -g npm@latest'
@@ -39,20 +42,10 @@ jobs:
           command: npm run test
           environment:
             SOLIDITY_COVERAGE: true
-      - run:
-          name: Unit tests using solc nightly
-          command: npm run test
-          environment:
-            SOLC_NIGHTLY: true
-          # TODO(xinbenlv): apply the following filter, but I think it wouldn't be much of hurt if this filter is not
-          # applied, maybe we can remove it?
-          #
-          # if: branch = master and type != pull_request
-    #
-    #notifications:
-    #  slack:
-    #    rooms:
-    #      - secure: uEhwUkuwJp5pBNh+VTEytPHz3FDKsnPrKO+8MTAKv5hKi4PCRoVhLv6pklr82HUpL6pvSvJbUPA0HVebOXA+MMSxdny/BHZTh2mtw5Y78l2Ad0svDTWuV2Lus2pmhYigRhT0Wo00/SRX9+pxm0kg4EIFJSTS+uR9G76x0l9NljpEGXrqxlDxjxoHBgk8Ciru2LHaLzX/utE3jlABts4Sb1F3wc2BwFkjd6BDCRTGAPhVJwwFk41ZfnmLVbgSNUyk46Cb38oG5oXHb0FI3d3jV/k1OUhRyFfmA2fLXRk0wavibW8TG1gGJJWZ7xTCKzw/Cvup6mpehSAeQef8eekMdjpWEhF9hYRq1BvOs0384UU8NQ0O+BtdXU+X3Nyr84TMJN/iIfgN7gYX7AsvXH3jC0JfNUcIkWlJvyXdE6l2GV1hMmhL09GFEBbSpuSXRIWlOXTcYBlp5NbvE8xO8PUW+T6N5RG2XXjv1g8wCpr6Wwk1+LmRkX5trv8MFBZ2pM8p4H5da5++Ov8egLonNGK2jbx6aBLBX3tPf+g70LZEkiQ4eBfZw8VIgXIvKreisicppNuCD27gNmSEPNt0NkwiEBcTCJ9GSVAO0CU2g4ggvHDX2A+RW5XPET9bGkBXKLfFyV7Qe+MSQjXkCnW3bIRh7Wo1V31XiUiYOLuZPIiH3EQ=
-    #    on_success: change
-    #    on_failure: always
-    #    on_pull_requests: false
+
+      # TODO(xinbenlv, #1839): run SOLC_NIGHTLY to be run but allow it to fail.
+      # TODO(xinbenlv, #1839): requires SLACK WEBHOOK to be setup by repo owner
+      - slack/status:
+          fail_only: true # Optional: if set to `true` then only failure messages will occur.
+          only_for_branch: "master" # Optional: If set, a specific branch for which status updates will be sent. In this case, only for pushes to master branch.
+
