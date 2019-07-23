@@ -1,8 +1,5 @@
 version: 2
 
-orbs:
-  slack: circleci/slack@3.2.0
-
 jobs:
   build:
     docker:
@@ -44,8 +41,4 @@ jobs:
             SOLIDITY_COVERAGE: true
 
       # TODO(xinbenlv, #1839): run SOLC_NIGHTLY to be run but allow it to fail.
-      # TODO(xinbenlv, #1839): requires SLACK WEBHOOK to be setup by repo owner
-      - slack/status:
-          fail_only: true # Optional: if set to `true` then only failure messages will occur.
-          only_for_branch: "master" # Optional: If set, a specific branch for which status updates will be sent. In this case, only for pushes to master branch.
-
+      # TODO(xinbenlv, #1839): requires SLACK WEBHOOK to be setup by repo owner.
