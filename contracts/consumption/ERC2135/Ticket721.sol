@@ -13,8 +13,7 @@ contract Ticket721 is IERC2135, ERC721Mintable {
     mapping(uint256 => bool) private tickets;
 
     function issueTicket(address holder, uint256 ticketId) public {
-        require(!tickets[ticketId]);
-        // ticket needs to be not issued yet;
+        require(!tickets[ticketId], "Ticket needs to be not issued yet");
         require(isMinter(msg.sender), "Only minter can issue ticket.");
         _mint(holder, ticketId);
         tickets[ticketId] = true;

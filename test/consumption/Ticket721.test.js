@@ -1,5 +1,5 @@
 const Ticket721 = artifacts.require('Ticket721');
-const { BN, expectRevert, expectEvent } = require('openzeppelin-test-helpers');
+const { BN, expectRevert, expectEvent, time } = require('openzeppelin-test-helpers');
 
 const { expect } = require('chai');
 
@@ -12,6 +12,16 @@ contract('Ticket721', accounts => {
     await ticket721.issueTicket(account1, 1001/* ticketId */, { from: ownerAccount });
     await ticket721.issueTicket(account1, 1002/* ticketId */, { from: ownerAccount });
     await ticket721.issueTicket(account1, 1003/* ticketId */, { from: ownerAccount });
+  });
+
+  it('should NOT allow to issue a ticket if already issued', async () => {
+    const ticketId = new BN('2002');
+    // Issue the first time
+    ticket721.issueTicket(account1, ticketId, { from: ownerAccount });
+    await expectRevert(
+      ticket721.issueTicket(account2, ticketId, { from: ownerAccount }),
+      'Ticket needs to be not issued yet',
+    );
   });
 
   it('should set an minter', async () => {
