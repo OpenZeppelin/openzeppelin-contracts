@@ -25,7 +25,7 @@ To install the OpenZeppelin library, run the following in your Solidity project 
 $ npm install openzeppelin-solidity
 ----
 
-_OpenZeppelin features a stable API, which means your contracts won't break unexpectedly when upgrading to a newer minor version. You can read ṫhe details in our link:api-stability[API Stability] document._
+NOTE: OpenZeppelin features a stable API, which means your contracts won't break unexpectedly when upgrading to a newer minor version. You can read ṫhe details in our xref:api-stability.adoc[API Stability] document.
 
 [[usage]]
 == Usage
@@ -45,21 +45,19 @@ contract MyContract is Ownable {
 
 Truffle and other Ethereum development toolkits will automatically detect the installed library, and compile the imported contracts.
 
-______________________________________________________________________________________________________________________
-You should always use the installed code as-is, and neither copy-paste it from online sources, nor modify it yourself.
-______________________________________________________________________________________________________________________
+IMPORTANT: You should always use the installed code as-is, and neither copy-paste it from online sources, nor modify it yourself.
 
 [[next-steps]]
 == Next Steps
 
 Check out the the guides in the sidebar to learn about different concepts, and how to use the contracts that OpenZeppelin provides.
 
-* link:access-control[Learn about Access Control]
-* link:crowdsales[Learn about Crowdsales]
-* link:tokens[Learn about Tokens]
-* link:utilities[Learn about our Utilities]
+* xref:access-control.adoc[Learn about Access Control]
+* xref:crowdsales.adoc[Learn about Crowdsales]
+* xref:tokens.adoc[Learn about Tokens]
+* xref:utilities.adoc[Learn about our Utilities]
 
-OpenZeppelin's link:api/token/ERC20[full API] is also thoroughly documented, and serves as a great reference when developing your smart contract application.
+OpenZeppelin's xref:api:token/ERC20.adoc[full API] is also thoroughly documented, and serves as a great reference when developing your smart contract application.
 
 Additionally, you can also ask for help or follow OpenZeppelin's development in the https://forum.openzeppelin.com[community forum].
 
