@@ -1,8 +1,8 @@
 # <img src="logo.png" alt="OpenZeppelin" height="40px">
 
 [![NPM Package](https://img.shields.io/npm/v/openzeppelin-solidity.svg)](https://www.npmjs.org/package/openzeppelin-solidity)
-[![Build Status](https://travis-ci.com/OpenZeppelin/openzeppelin-solidity.svg?branch=master)](https://travis-ci.com/OpenZeppelin/openzeppelin-solidity)
-[![Coverage Status](https://coveralls.io/repos/github/OpenZeppelin/openzeppelin-solidity/badge.svg?branch=master)](https://coveralls.io/github/OpenZeppelin/openzeppelin-solidity?branch=master)
+[![Build Status](https://travis-ci.com/OpenZeppelin/openzeppelin-contracts.svg?branch=master)](https://travis-ci.com/OpenZeppelin/openzeppelin-contracts)
+[![Coverage Status](https://coveralls.io/repos/github/OpenZeppelin/openzeppelin-contracts/badge.svg?branch=master)](https://coveralls.io/github/OpenZeppelin/openzeppelin-contracts?branch=master)
 
 **OpenZeppelin Contracts is a library for secure smart contract development.** It provides implementations of standards like ERC20 and ERC721 which you can deploy as-is or extend to suit your needs, as well as Solidity components to build custom contracts and more complex decentralized systems.
 
