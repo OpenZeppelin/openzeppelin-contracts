@@ -16,8 +16,9 @@ contract('Ticket721', accounts => {
 
   it('should NOT allow to issue a ticket if already issued', async () => {
     const ticketId = new BN('2002');
-    // Issue the first time
+    // Issue the first time, should be good.
     ticket721.issueTicket(account1, ticketId, { from: ownerAccount });
+    await time.advanceBlock();
     await expectRevert(
       ticket721.issueTicket(account2, ticketId, { from: ownerAccount }),
       'Ticket needs to be not issued yet',
