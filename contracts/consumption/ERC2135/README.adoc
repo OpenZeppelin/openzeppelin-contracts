@@ -1,0 +1,8 @@
+= ERC 2135
+
+This consumable standard.
+
+== Core
+
+- {IERC2135}: the interface all ERC2135 implementations should conform to
+- {Ticket721}: An implementation that combines ERC2135 and ERC721 to create a transferable and consumable ticket.
