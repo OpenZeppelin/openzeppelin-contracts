@@ -9,9 +9,6 @@ jobs:
       - image: circleci/node:8
     steps:
       - checkout
-      - run:
-          name: Update npm
-          command: 'sudo npm install -g npm@latest'
       # Download and cache dependencies
       - restore_cache:
           keys:
