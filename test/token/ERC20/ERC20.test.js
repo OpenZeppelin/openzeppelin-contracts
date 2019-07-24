@@ -27,7 +27,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
         describe('when there was no approved amount before', function () {
           it('reverts', async function () {
             await expectRevert(this.token.decreaseAllowance(
-              spender, amount, { from: initialHolder }), 'SafeMath: subtraction overflow'
+              spender, amount, { from: initialHolder }), 'ERC20: decrease of higher allowance than granted'
             );
           });
         });
@@ -63,7 +63,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
           it('reverts when more than the full allowance is removed', async function () {
             await expectRevert(
               this.token.decreaseAllowance(spender, approvedAmount.addn(1), { from: initialHolder }),
-              'SafeMath: subtraction overflow'
+              'ERC20: decrease of higher allowance than granted'
             );
           });
         });
@@ -88,7 +88,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
 
       it('reverts', async function () {
         await expectRevert(this.token.decreaseAllowance(
-          spender, amount, { from: initialHolder }), 'SafeMath: subtraction overflow'
+          spender, amount, { from: initialHolder }), 'ERC20: decrease of higher allowance than granted'
         );
       });
     });
@@ -221,7 +221,7 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
     describe('for a non zero account', function () {
       it('rejects burning more than balance', async function () {
         await expectRevert(this.token.burn(
-          initialHolder, initialSupply.addn(1)), 'SafeMath: subtraction overflow'
+          initialHolder, initialSupply.addn(1)), 'ERC20: burn of tokens exceeding balance'
         );
       });
 
@@ -276,13 +276,13 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
     describe('for a non zero account', function () {
       it('rejects burning more than allowance', async function () {
         await expectRevert(this.token.burnFrom(initialHolder, allowance.addn(1)),
-          'SafeMath: subtraction overflow'
+          'ERC20: burn of tokens exceeding allowance'
         );
       });
 
       it('rejects burning more than balance', async function () {
         await expectRevert(this.token.burnFrom(initialHolder, initialSupply.addn(1)),
-          'SafeMath: subtraction overflow'
+          'ERC20: burn of tokens exceeding balance'
         );
       });
 

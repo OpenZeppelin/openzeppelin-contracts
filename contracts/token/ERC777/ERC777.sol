@@ -285,7 +285,7 @@ contract ERC777 is IERC777, IERC20 {
         _callTokensToSend(spender, holder, recipient, amount, "", "");
 
         _move(spender, holder, recipient, amount, "", "");
-        _approve(holder, spender, _allowances[holder][spender].sub(amount));
+        _approve(holder, spender, _allowances[holder][spender].sub(amount, "ERC777: transfer of tokens exceeding allowance"));
 
         _callTokensReceived(spender, holder, recipient, amount, "", "", false);
 
@@ -383,8 +383,8 @@ contract ERC777 is IERC777, IERC20 {
         _callTokensToSend(operator, from, address(0), amount, data, operatorData);
 
         // Update state variables
-        _totalSupply = _totalSupply.sub(amount);
-        _balances[from] = _balances[from].sub(amount);
+        _totalSupply = _totalSupply.sub(amount, "ERC777: burn of tokens exceeding balance");
+        _balances[from] = _balances[from].sub(amount, "ERC777: burn of tokens exceeding balance");
 
         emit Burned(operator, from, amount, data, operatorData);
         emit Transfer(from, address(0), amount);
@@ -400,7 +400,7 @@ contract ERC777 is IERC777, IERC20 {
     )
         private
     {
-        _balances[from] = _balances[from].sub(amount);
+        _balances[from] = _balances[from].sub(amount, "ERC777: transfer of tokens exceeding balance");
         _balances[to] = _balances[to].add(amount);
 
         emit Sent(operator, from, to, amount, userData, operatorData);

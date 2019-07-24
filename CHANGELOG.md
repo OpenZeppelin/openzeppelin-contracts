@@ -8,6 +8,8 @@
 ### Improvements:
  * `Address.isContract`: switched from `extcodesize` to `extcodehash` for less gas usage. ([#1802](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1802))
 
+ * `SafeMath`: added support for custom error messages. `ERC20`, `ERC721` and `ERC777` updated to throw custom errors on subtraction overflows. ([#1828](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1828)) 
+
 ### Bugfixes
 
 ## 2.3.0 (2019-05-27)

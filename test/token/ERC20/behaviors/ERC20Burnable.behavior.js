@@ -38,7 +38,7 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
 
       it('reverts', async function () {
         await expectRevert(this.token.burn(amount, { from: owner }),
-          'SafeMath: subtraction overflow'
+          'ERC20: burn of tokens exceeding balance'
         );
       });
     });
@@ -87,7 +87,7 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
       it('reverts', async function () {
         await this.token.approve(burner, amount, { from: owner });
         await expectRevert(this.token.burnFrom(owner, amount, { from: burner }),
-          'SafeMath: subtraction overflow'
+          'ERC20: burn of tokens exceeding balance'
         );
       });
     });
@@ -98,7 +98,7 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
       it('reverts', async function () {
         await this.token.approve(burner, allowance, { from: owner });
         await expectRevert(this.token.burnFrom(owner, allowance.addn(1), { from: burner }),
-          'SafeMath: subtraction overflow'
+          'ERC20: burn of tokens exceeding allowance'
         );
       });
     });

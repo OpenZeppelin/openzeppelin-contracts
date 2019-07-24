@@ -42,7 +42,7 @@ library SafeERC20 {
     }
 
     function safeDecreaseAllowance(IERC20 token, address spender, uint256 value) internal {
-        uint256 newAllowance = token.allowance(address(this), spender).sub(value);
+        uint256 newAllowance = token.allowance(address(this), spender).sub(value, "SafeERC20: decrease of higher allowance than granted");
         callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, newAllowance));
     }
 
