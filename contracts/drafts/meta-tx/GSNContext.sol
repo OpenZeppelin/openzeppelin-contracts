@@ -17,6 +17,11 @@ contract GSNContext is Context {
         _relayHub = relayHub;
     }
 
+    // Currently required by the RelayProvider
+    function getHubAddr() public view returns (address) {
+        return _relayHub;
+    }
+
     // Overrides for Context's functions: when called from RelayHub, sender and
     // data require some pre-processing: the actual sender is stored at the end
     // of the call data, which in turns means it needs to be removed from it
