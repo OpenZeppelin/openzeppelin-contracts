@@ -24,21 +24,8 @@ library SafeMath {
      * - Addition cannot overflow.
      */
     function add(uint256 a, uint256 b) internal pure returns (uint256) {
-        return add(a, b, "SafeMath: addition overflow");
-    }
-
-    /**
-     * @dev Returns the addition of two unsigned integers, reverting with custom message on
-     * overflow.
-     *
-     * Counterpart to Solidity's `+` operator.
-     *
-     * Requirements:
-     * - Addition cannot overflow.
-     */
-    function add(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
         uint256 c = a + b;
-        require(c >= a, errorMessage);
+        require(c >= a, "SafeMath: addition overflow");
 
         return c;
     }
@@ -82,19 +69,6 @@ library SafeMath {
      * - Multiplication cannot overflow.
      */
     function mul(uint256 a, uint256 b) internal pure returns (uint256) {
-        return mul(a, b, "SafeMath: multiplication overflow");
-    }
-
-    /**
-     * @dev Returns the multiplication of two unsigned integers, reverting with custom message on
-     * overflow.
-     *
-     * Counterpart to Solidity's `*` operator.
-     *
-     * Requirements:
-     * - Multiplication cannot overflow.
-     */
-    function mul(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
         // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
         // benefit is lost if 'b' is also tested.
         // See: https://github.com/OpenZeppelin/openzeppelin-solidity/pull/522
@@ -103,7 +77,7 @@ library SafeMath {
         }
 
         uint256 c = a * b;
-        require(c / a == b, errorMessage);
+        require(c / a == b, "SafeMath: multiplication overflow");
 
         return c;
     }
