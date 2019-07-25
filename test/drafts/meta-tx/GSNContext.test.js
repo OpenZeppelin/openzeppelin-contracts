@@ -1,5 +1,4 @@
 const { BN, ether, expectEvent, singletons } = require('openzeppelin-test-helpers');
-const convertToGSN = require('../../helpers/convertToGSN');
 
 const GSNContextMock = artifacts.require('GSNContextMock');
 const ContextMockCaller = artifacts.require('ContextMockCaller');
@@ -7,11 +6,9 @@ const ContextMockCaller = artifacts.require('ContextMockCaller');
 const { shouldBehaveLikeRegularContext } = require('./Context.behavior');
 
 contract('GSNContext', function ([_, deployer, sender]) {
-  before(async function () {
-    this.relayHub = await singletons.RelayHub(deployer);
-  });
-
   beforeEach(async function () {
+    this.relayHub = await singletons.RelayHub(deployer);
+
     this.context = await GSNContextMock.new(this.relayHub.address);
     this.caller = await ContextMockCaller.new();
   });
@@ -22,13 +19,12 @@ contract('GSNContext', function ([_, deployer, sender]) {
 
   context('when receiving a relayed call', function () {
     beforeEach(async function () {
-      this.context = await convertToGSN(this.context);
       await this.relayHub.depositFor(this.context.address, { from: deployer, value: ether('1') });
     });
 
     describe('msgSender', function () {
       it('returns the relayed transaction original sender', async function () {
-        const { tx } = await this.context.msgSender({ from: sender });
+        const { tx } = await this.context.msgSender({ from: sender, useGSN: true });
         await expectEvent.inTransaction(tx, GSNContextMock, 'Sender', { sender });
       });
     });
@@ -40,7 +36,7 @@ contract('GSNContext', function ([_, deployer, sender]) {
         const callData = this.context.contract.methods.msgData(integerValue.toString(), stringValue).encodeABI();
 
         // The provider doesn't properly estimate gas for a relayed call, so we need to manually set a higher value
-        const { tx } = await this.context.msgData(integerValue, stringValue, { gas: 100000 });
+        const { tx } = await this.context.msgData(integerValue, stringValue, { gas: 100000, useGSN: true });
         await expectEvent.inTransaction(tx, GSNContextMock, 'Data', { data: callData, integerValue, stringValue });
       });
     });

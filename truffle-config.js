@@ -1,4 +1,5 @@
 require('chai/register-should');
+const { GSNProvider } = require('openzeppelin-gsn-provider');
 
 const solcStable = {
   version: '0.5.7',
@@ -14,8 +15,7 @@ const useSolcNightly = process.env.SOLC_NIGHTLY === 'true';
 module.exports = {
   networks: {
     development: {
-      host: 'localhost',
-      port: 8545,
+      provider: () => new GSNProvider('http://localhost:8545', { useGSN: false }),
       network_id: '*', // eslint-disable-line camelcase
     },
     coverage: {
