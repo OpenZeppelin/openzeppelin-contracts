@@ -4,7 +4,7 @@ version: 2
 # https://github.com/CircleCI-Public/circleci-cli/issues/79
 
 jobs:
-  test:
+  build:
     docker:
       - image: circleci/node:8
     steps:
