@@ -22,7 +22,7 @@
     "lint:sol": "solhint --max-warnings 0 \"contracts/**/*.sol\"",
     "prepare": "node scripts/prepare.js",
     "release": "scripts/release/release.sh",
-    "version": "scripts/release/update-changelog-release-date.js && scripts/release/update-ethpm-version.js",
+    "version": "scripts/release/version.sh",
     "test": "scripts/test.sh"
   },
   "repository": {
