@@ -1,0 +1,45 @@
+dist: trusty
+sudo: false
+group: beta
+language: node_js
+node_js:
+  - "8"
+
+cache:
+  directories:
+    - node_modules
+
+jobs:
+  # XXX fast_finish doesn't work with stages yet. See
+  # https://github.com/travis-ci/travis-ci/issues/8425
+  # --elopio - 20180531
+  fast_finish: true
+  allow_failures:
+    - env: SOLC_NIGHTLY=true
+  include:
+    - stage: tests
+      name: "Linter"
+      script: npm run lint
+
+    - stage: tests
+      name: "Unit tests"
+      script: npm run test
+
+    - stage: tests
+      name: "Unit tests with coverage report"
+      script: npm run test
+      env: SOLIDITY_COVERAGE=true
+
+    - stage: tests
+      name: "Unit tests using solc nightly"
+      script: npm run test
+      env: SOLC_NIGHTLY=true
+      if: branch = master and type != pull_request
+
+notifications:
+  slack:
+    rooms:
+      - secure: uEhwUkuwJp5pBNh+VTEytPHz3FDKsnPrKO+8MTAKv5hKi4PCRoVhLv6pklr82HUpL6pvSvJbUPA0HVebOXA+MMSxdny/BHZTh2mtw5Y78l2Ad0svDTWuV2Lus2pmhYigRhT0Wo00/SRX9+pxm0kg4EIFJSTS+uR9G76x0l9NljpEGXrqxlDxjxoHBgk8Ciru2LHaLzX/utE3jlABts4Sb1F3wc2BwFkjd6BDCRTGAPhVJwwFk41ZfnmLVbgSNUyk46Cb38oG5oXHb0FI3d3jV/k1OUhRyFfmA2fLXRk0wavibW8TG1gGJJWZ7xTCKzw/Cvup6mpehSAeQef8eekMdjpWEhF9hYRq1BvOs0384UU8NQ0O+BtdXU+X3Nyr84TMJN/iIfgN7gYX7AsvXH3jC0JfNUcIkWlJvyXdE6l2GV1hMmhL09GFEBbSpuSXRIWlOXTcYBlp5NbvE8xO8PUW+T6N5RG2XXjv1g8wCpr6Wwk1+LmRkX5trv8MFBZ2pM8p4H5da5++Ov8egLonNGK2jbx6aBLBX3tPf+g70LZEkiQ4eBfZw8VIgXIvKreisicppNuCD27gNmSEPNt0NkwiEBcTCJ9GSVAO0CU2g4ggvHDX2A+RW5XPET9bGkBXKLfFyV7Qe+MSQjXkCnW3bIRh7Wo1V31XiUiYOLuZPIiH3EQ=
+    on_success: change
+    on_failure: always
+    on_pull_requests: false
