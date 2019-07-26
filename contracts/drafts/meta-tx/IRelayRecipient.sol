@@ -12,7 +12,7 @@ interface IRelayRecipient {
         uint256 gasPrice,
         uint256 gasLimit,
         uint256 nonce,
-        bytes calldata approval,
+        bytes calldata approvalData,
         uint256 maxPossibleCharge
     )
         external
