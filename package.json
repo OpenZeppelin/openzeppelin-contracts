@@ -3,11 +3,11 @@
   "version": "2.3.0",
   "description": "Secure Smart Contract library for Solidity",
   "files": [
-    "contracts/**/*.sol",
-    "build/contracts/*.json",
-    "!contracts/mocks",
-    "!contracts/examples",
-    "test/behaviors"
+    "/contracts/**/*.sol",
+    "/build/contracts/*.json",
+    "!/contracts/mocks",
+    "!/contracts/examples",
+    "/test/behaviors"
   ],
   "scripts": {
     "compile": "scripts/compile.sh",

@@ -4,7 +4,7 @@
   "description": "Secure Smart Contract library for Solidity",
   "files": [
     "**/*.sol",
-    "build/*.json",
+    "/build/*.json",
     "!/mocks",
     "!/examples"
   ],
