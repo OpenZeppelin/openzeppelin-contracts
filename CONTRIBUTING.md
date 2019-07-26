@@ -46,7 +46,7 @@ npm linter
 
 or you can simply run CircleCI locally
 ```bash
-circleci local execute build 
+circleci local execute --job build_and_test
 ```
 *Note*: requires installing CircleCI and docker locally on your machine.
 
