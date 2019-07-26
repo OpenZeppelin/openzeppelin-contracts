@@ -44,3 +44,7 @@ build/
 # docsite artifacts
 docsite-build
 docs/api
+
+# only used to package @openzeppelin/contracts
+contracts/build/
+contracts/README.md

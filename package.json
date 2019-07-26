@@ -3,11 +3,11 @@
   "version": "2.3.0",
   "description": "Secure Smart Contract library for Solidity",
   "files": [
-    "build",
-    "contracts",
-    "!contracts/mocks",
-    "!contracts/examples",
-    "test/behaviors"
+    "/contracts/**/*.sol",
+    "/build/contracts/*.json",
+    "!/contracts/mocks",
+    "!/contracts/examples",
+    "/test/behaviors"
   ],
   "scripts": {
     "compile": "truffle compile",
@@ -22,12 +22,12 @@
     "lint:sol": "solhint --max-warnings 0 \"contracts/**/*.sol\"",
     "prepare": "node scripts/prepare.js",
     "release": "scripts/release/release.sh",
-    "version": "scripts/release/update-changelog-release-date.js && scripts/release/update-ethpm-version.js",
+    "version": "scripts/release/version.sh",
     "test": "scripts/test.sh"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/OpenZeppelin/zeppelin-solidity.git"
+    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts.git"
   },
   "keywords": [
     "solidity",
@@ -40,9 +40,9 @@
   "author": "OpenZeppelin Community <maintainers@openzeppelin.org>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/OpenZeppelin/zeppelin-solidity/issues"
+    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts/issues"
   },
-  "homepage": "https://github.com/OpenZeppelin/zeppelin-solidity",
+  "homepage": "https://github.com/OpenZeppelin/openzeppelin-contracts",
   "devDependencies": {
     "chai": "^4.2.0",
     "concurrently": "^4.1.0",
