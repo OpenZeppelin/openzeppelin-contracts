@@ -15,7 +15,7 @@ const useSolcNightly = process.env.SOLC_NIGHTLY === 'true';
 module.exports = {
   networks: {
     development: {
-      provider: () => new GSNProvider('http://localhost:8545', { useGSN: false }),
+      provider: () => new GSNProvider('http://localhost:8545', { txfee: 70, useGSN: false }),
       network_id: '*', // eslint-disable-line camelcase
     },
     coverage: {
