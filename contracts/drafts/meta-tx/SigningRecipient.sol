@@ -31,7 +31,17 @@ contract SigningRecipient is GSNRecipient {
         view
         returns (uint256, bytes memory)
     {
-        bytes memory blob = abi.encodePacked(relay, from, encodedFunction, transactionFee, gasPrice, gasLimit, nonce);
+        bytes memory blob = abi.encodePacked(
+            relay,
+            from,
+            encodedFunction,
+            transactionFee,
+            gasPrice,
+            gasLimit,
+            nonce, // Prevents replays on RelayHub
+            getHubAddr(), // Prevents replays in multiple RelayHubs
+            address(this) // Prevents replays in multiple recipients
+        );
         if (keccak256(blob).toEthSignedMessageHash().recover(approvalData) == _trustedSigner) {
             return (_acceptRelayedCall(), "");
         } else {

@@ -50,7 +50,7 @@ contract('SigningRecipient', function ([_, deployer, signer, other]) {
           fixSignature(
             await web3.eth.sign(
               web3.utils.soliditySha3(
-                data.relay_address, data.from, data.encodedFunctionCall, data.txfee, data.gas_price, data.gas_limit, data.nonce
+                data.relay_address, data.from, data.encodedFunctionCall, data.txfee, data.gas_price, data.gas_limit, data.nonce, data.relay_hub_address, this.recipient.address
               ), signer
             )
           )
