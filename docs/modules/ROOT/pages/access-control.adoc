@@ -13,7 +13,7 @@ OpenZeppelin provides xref:api:ownership.adoc#Ownable[`Ownable`] for implementin
 ----
 pragma solidity ^0.5.0;
 
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "@openzeppelin/contracts/ownership/Ownable.sol";
 
 contract MyContract is Ownable {
     function normalThing() public {
@@ -58,9 +58,9 @@ Here's a simple example of using `Roles` in an xref:tokens.adoc#ERC20[`ERC20` to
 ----
 pragma solidity ^0.5.0;
 
-import "openzeppelin-solidity/contracts/access/Roles.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
+import "@openzeppelin/contracts/access/Roles.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
 
 contract MyToken is ERC20, ERC20Detailed {
     using Roles for Roles.Role;

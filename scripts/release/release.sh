@@ -30,18 +30,30 @@ push_release_branch_and_tag() {
   git push upstream "$(current_release_branch)" "$(current_version)"
 }
 
+publish() {
+  dist_tag="$1"
+
+  log "Publishing openzeppelin-solidity on npm"
+  npm publish --tag "$dist_tag" --otp "$(prompt_otp)"
+
+  log "Publishing @openzeppelin/contracts on npm"
+  env ALREADY_COMPILED= \ # avoid re-compiling
+    npm publish contracts --tag "$dist_tag" --otp "$(prompt_otp)"
+
+  if [[ "$dist_tag" == "latest" ]]; then
+    otp="$(prompt_otp)"
+    npm dist-tag rm --otp "$otp" openzeppelin-solidity next
+    npm dist-tag rm --otp "$otp" @openzeppelin/contracts next
+  fi
+}
+
 push_and_publish() {
   dist_tag="$1"
 
   log "Pushing release branch and tags to upstream"
   push_release_branch_and_tag
 
-  log "Publishing package on npm"
-  npm publish --tag "$dist_tag" --otp "$(prompt_otp)"
-
-  if [[ "$dist_tag" == "latest" ]]; then
-    npm dist-tag rm --otp "$(prompt_otp)" openzeppelin-solidity next
-  fi
+  publish "$dist_tag"
 }
 
 prompt_otp() {
