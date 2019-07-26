@@ -1,6 +1,6 @@
 # <img src="logo.png" alt="OpenZeppelin" height="40px">
 
-[![NPM Package](https://img.shields.io/npm/v/openzeppelin-solidity.svg)](https://www.npmjs.org/package/openzeppelin-solidity)
+[![NPM Package](https://img.shields.io/npm/v/@openzeppelin/contracts.svg)](https://www.npmjs.org/package/@openzeppelin/contracts)
 [![Build Status](https://travis-ci.com/OpenZeppelin/openzeppelin-contracts.svg?branch=master)](https://travis-ci.com/OpenZeppelin/openzeppelin-contracts)
 [![Coverage Status](https://coveralls.io/repos/github/OpenZeppelin/openzeppelin-contracts/badge.svg?branch=master)](https://coveralls.io/github/OpenZeppelin/openzeppelin-contracts?branch=master)
 
@@ -9,7 +9,7 @@
 ## Install
 
 ```
-npm install openzeppelin-solidity
+npm install @openzeppelin/contracts
 ```
 
 OpenZeppelin Contracts features a stable API, which means your contracts won't break unexpectedly when upgrading to a newer minor version. You can read ṫhe details in our [API Stability] document.
@@ -21,8 +21,8 @@ To write your custom contracts, import ours and extend them through inheritance.
 ```solidity
 pragma solidity ^0.5.0;
 
-import 'openzeppelin-solidity/contracts/token/ERC721/ERC721Full.sol';
-import 'openzeppelin-solidity/contracts/token/ERC721/ERC721Mintable.sol';
+import "@openzeppelin/contracts/token/ERC721/ERC721Full.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721Mintable.sol";
 
 contract MyNFT is ERC721Full, ERC721Mintable {
   constructor() ERC721Full("MyNFT", "MNFT") public {
