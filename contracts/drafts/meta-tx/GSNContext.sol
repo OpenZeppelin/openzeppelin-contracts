@@ -64,6 +64,9 @@ contract GSNContext is Context {
     }
 
     function _getRelayedCallData() private pure returns (bytes memory) {
+        // RelayHub appends the sender address at the end of the calldata, so in order to retrieve the actual msg.data,
+        // we must strip the last 20 bytes (length of an address type) from it.
+
         uint256 actualDataLength = msg.data.length - 20;
         bytes memory actualData = new bytes(actualDataLength);
 
