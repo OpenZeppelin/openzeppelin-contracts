@@ -4,7 +4,7 @@ In this guide you will learn how to create an ERC20 token with a custom supply m
 
 '''''
 
-The standard interface implemented by tokens built on Ethereum is called ERC20, and OpenZeppelin includes a widely used implementation of it: the aptly named https://github.com/OpenZeppelin/openzeppelin-solidity/blob/v2.1.2/contracts/token/ERC20/ERC20.sol[`ERC20`] contract. This contract, like the standard itself, is quite simple and bare-bones. In fact, if you try deploy an instance of `ERC20` as-is it will be quite literally useless... it will have no supply! What use is a token with no supply?
+The standard interface implemented by tokens built on Ethereum is called ERC20, and OpenZeppelin includes a widely used implementation of it: the aptly named https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v2.1.2/contracts/token/ERC20/ERC20.sol[`ERC20`] contract. This contract, like the standard itself, is quite simple and bare-bones. In fact, if you try deploy an instance of `ERC20` as-is it will be quite literally useless... it will have no supply! What use is a token with no supply?
 
 The way that supply is created is not defined in the ERC20 document. Every token is free to experiment with their own mechanisms, ranging from the most decentralized to the most centralized, from the most naive to the most researched, and more.
 
@@ -57,7 +57,7 @@ As we can see, `_mint` makes it super easy to do this correctly.
 [[modularizing-the-mechanism]]
 == Modularizing the mechanism
 
-There is one supply mechanism already included in OpenZeppelin: https://github.com/OpenZeppelin/openzeppelin-solidity/blob/v2.1.2/contracts/token/ERC20/ERC20Mintable.sol[`ERC20Mintable`]. This is a generic mechanism in which a set of accounts is assigned the `minter` role, granting them the permission to call a `mint` function, an external version of `_mint`.
+There is one supply mechanism already included in OpenZeppelin: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v2.1.2/contracts/token/ERC20/ERC20Mintable.sol[`ERC20Mintable`]. This is a generic mechanism in which a set of accounts is assigned the `minter` role, granting them the permission to call a `mint` function, an external version of `_mint`.
 
 This can be used for centralized minting, where an externally owned account (i.e. someone with a pair of cryptographic keys) decides how much supply to create and to whom. There are very legitimate use cases for this mechanism, such as https://medium.com/reserve-currency/why-another-stablecoin-866f774afede#3aea[traditional asset-backed stablecoins].
 

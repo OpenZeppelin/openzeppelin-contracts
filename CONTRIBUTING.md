@@ -1,7 +1,7 @@
-Contributing to OpenZeppelin
+Contributing to OpenZeppelin Contracts
 =======
 
-We really appreciate and value contributions to OpenZeppelin. Please take 5' to review the items listed below to make sure that your contributions are merged as soon as possible.
+We really appreciate and value contributions to OpenZeppelin Contracts. Please take 5' to review the items listed below to make sure that your contributions are merged as soon as possible.
 
 ## Contribution guidelines
 
@@ -16,12 +16,12 @@ As a contributor, you are expected to fork this repository, work on your own for
 1) Make sure your fork is up to date with the main repository:
 
 ```
-cd openzeppelin-solidity
-git remote add upstream https://github.com/OpenZeppelin/openzeppelin-solidity.git
+cd openzeppelin-contracts
+git remote add upstream https://github.com/OpenZeppelin/openzeppelin-contracts.git
 git fetch upstream
 git pull --rebase upstream master
 ```
-NOTE: The directory `openzeppelin-solidity` represents your fork's local copy.
+NOTE: The directory `openzeppelin-contracts` represents your fork's local copy.
 
 2) Branch out from `master` into `fix/some-bug-#123`:
 (Postfixing #123 will associate your PR with the issue #123 and make everyone's life easier =D)
@@ -50,7 +50,7 @@ circleci local execute --job build_and_test
 ```
 *Note*: requires installing CircleCI and docker locally on your machine.
 
-5) Go to [github.com/OpenZeppelin/openzeppelin-solidity](https://github.com/OpenZeppelin/openzeppelin-solidity) in your web browser and issue a new pull request.
+5) Go to [github.com/OpenZeppelin/openzeppelin-contracts](https://github.com/OpenZeppelin/openzeppelin-contracts) in your web browser and issue a new pull request.
 
 *IMPORTANT* Read the PR template very carefully and make sure to follow all the instructions. These instructions
 refer to some very important conditions that your PR must meet in order to be accepted, such as making sure that all tests pass, JS linting tests pass, solidity linting tests pass, etc.
@@ -61,9 +61,9 @@ refer to some very important conditions that your PR must meet in order to be ac
 
 ## All set!
 
-If you have any questions feel free to post them to github.com/OpenZeppelin/openzeppelin-solidity/issues.
+If you have any questions feel free to post them to github.com/OpenZeppelin/openzeppelin-contracts/issues.
 
-Finally, if you're looking to collaborate and want to find easy tasks to start, look at the issues we marked as ["Good first issue"](https://github.com/OpenZeppelin/openzeppelin-solidity/labels/good%20first%20issue).
+Finally, if you're looking to collaborate and want to find easy tasks to start, look at the issues we marked as ["Good first issue"](https://github.com/OpenZeppelin/openzeppelin-contracts/labels/good%20first%20issue).
 
 Thanks for your time and code!
 
