@@ -9,7 +9,7 @@ import "./Context.sol";
 contract GSNContext is Context {
     address private _relayHub;
 
-    constructor(address relayHub) public {
+    constructor(address relayHub) internal {
         _setRelayHub(relayHub);
     }
 

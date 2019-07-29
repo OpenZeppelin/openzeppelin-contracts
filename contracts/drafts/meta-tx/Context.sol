@@ -9,6 +9,11 @@ pragma solidity ^0.5.0;
  * is concerned).
  */
 contract Context {
+    // Empty internal constructor, to prevent people from mistakenly deploying
+    // an instance of this contract, with should be used via inheritance.
+    constructor () internal { }
+    // solhint-disable-previous-line no-empty-blocks
+
     function _msgSender() internal view returns (address) {
         return msg.sender;
     }
