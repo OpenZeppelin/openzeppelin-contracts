@@ -1,13 +1,13 @@
 const { ether, expectEvent, expectRevert, singletons } = require('openzeppelin-test-helpers');
 const { fixSignature } = require('../../helpers/sign');
 
-const SigningRecipientMock = artifacts.require('SigningRecipientMock');
+const GSNRecipientSignedDataMock = artifacts.require('GSNRecipientSignedDataMock');
 
-contract('SigningRecipient', function ([_, deployer, signer, other]) {
+contract('GSNRecipientSignedData', function ([_, deployer, signer, other]) {
   beforeEach(async function () {
     this.relayHub = await singletons.RelayHub(deployer);
 
-    this.recipient = await SigningRecipientMock.new(signer, this.relayHub.address);
+    this.recipient = await GSNRecipientSignedDataMock.new(signer, this.relayHub.address);
   });
 
   context('when called directly', function () {
@@ -56,7 +56,7 @@ contract('SigningRecipient', function ([_, deployer, signer, other]) {
           )
       });
 
-      await expectEvent.inTransaction(tx, SigningRecipientMock, 'MockFunctionCalled');
+      await expectEvent.inTransaction(tx, GSNRecipientSignedDataMock, 'MockFunctionCalled');
     });
   });
 });

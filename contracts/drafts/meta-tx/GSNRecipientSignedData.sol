@@ -3,12 +3,12 @@ pragma solidity ^0.5.0;
 import "./GSNRecipient.sol";
 import "../../cryptography/ECDSA.sol";
 
-contract SigningRecipient is GSNRecipient {
+contract GSNRecipientSignedData is GSNRecipient {
     using ECDSA for bytes32;
 
     address private _trustedSigner;
 
-    enum SigningRecipientErrorCodes {
+    enum GSNRecipientSignedDataErrorCodes {
         INVALID_SIGNER
     }
 
@@ -45,7 +45,7 @@ contract SigningRecipient is GSNRecipient {
         if (keccak256(blob).toEthSignedMessageHash().recover(approvalData) == _trustedSigner) {
             return (_acceptRelayedCall(), "");
         } else {
-            return (_declineRelayedCall(uint256(SigningRecipientErrorCodes.INVALID_SIGNER)), "");
+            return (_declineRelayedCall(uint256(GSNRecipientSignedDataErrorCodes.INVALID_SIGNER)), "");
         }
     }
 
