@@ -82,9 +82,9 @@ postRelayedCall will give you an accurate estimate of the transaction cost, maki
 
 == Payment
 
-By now you may be wondering how exactly relayers charge their recipients for gas costs and service fee. The answer is simple: the recipient must deposit funds on RelayHub in advance, and payment is automatically handled on each relayed call.
+By now you may be wondering how exactly relayers charge their recipients for gas costs and service fee. The answer is simple: each recipient must have funds deposited on RelayHub in advance, and payment is automatically handled on each relayed call.
 
-You can head to the [GSN dashboard](deltacamp.website) to check and top-up your contracts' balance, view previous charges, or you can do this programatically by calling IRelayHub.depositFor and IRelayHub.balanceOf.
+You can head to the [GSN dashboard](deltacamp.website) to check and top-up your contracts' balance, view previous charges, or do all of this programatically by calling IRelayHub.depositFor and IRelayHub.balanceOf.
 
 Recipients may withdraw their balance from the system at any point, but remember that they will not be able to receive any further relayed calls!
 
