@@ -34,7 +34,7 @@ One of RelayHub's tasks is relayer-coordination: all relayers will advertise the
 
 The contract you will be inheriting from is GSNRecipient. It includes the IRelayRecipient interface, plus a number of useful utilities that handle the low-level details of the GSN, so you can focus on your dApp.
 
-Unlike regular contract function calls, each relayed call has an additional number of steps it must go through. Most of writing a recipient involves handling these, which are designed to provide enough flexibility to cater to all possible use cases. Basic recipients can however safely ignore most of them, while still being secure and sound.
+Unlike regular contract function calls, each relayed call has an additional number of steps it must go through. Most of writing a recipient involves handling these, which are designed to provide flexibility. Basic recipients can however safely ignore most of them, while still being secure and sound.
 
 The OpenZeppelin Contracts provide a number of [tried-and-tested approaches]() for you to use out of the box, but you should still have a basic idea of what's going on under the hood.
 
@@ -58,7 +58,7 @@ After a relayed call is accepted, RelayHub will give your contract two opportuni
 
 preRelayedCall will inform you of the maximum cost the call may have, and is used to charge the user in advance. This is only required in scenarios where your users may run off with their tokens before you're able to charge them, and not all applications need this function.
 
-postRelayedCall will give you an accurate estimate of the transaction cost, making it a natural place to charge users. It will also let you know if the relayed call reverted or not, which allows for more sophisticated interactions, like not charging users for reverted calls.
+postRelayedCall will give you an accurate estimate of the transaction cost, making it a natural place to charge users. It will also let you know if the relayed call reverted or not, which allows for more sophisticated interactions, like not charging users for reverted calls (but remember that your recipient contract will be charged by the relayer nonetheless!).
 
 == msg.sender and msg.data
 
