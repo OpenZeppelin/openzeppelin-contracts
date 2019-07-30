@@ -16,8 +16,8 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
       - run:
-          name: Install npm from lock
-          command: npm ci
+          name: Install npm
+          command: npm install
 
       - save_cache:
           paths:
