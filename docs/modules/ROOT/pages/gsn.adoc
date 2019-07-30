@@ -8,27 +8,27 @@ If you're already up to speed with the workings of the GSN, feel free to skip to
 
 All Ethereum transactions use gas, and the sender of each transaction must have enough Ether to pay for the gas spent. Even though these gas costs are low for basic transactions (a couple cents), getting this Ether is no easy task: dApp users often need to go through Know Your Customer and Anti Money-Laundering processes (KYC & AML), which not only take time but often involve sending a selfie holding their passport over the Internet (!). Only the most hardcore users will put up with this hassle, and dApp adoption greatly suffers when Ether is required. We can do better.
 
-**Enter meta-transactions**. This is a fancy name for a simple idea: a third-party can send another user's transactions and pay themselves for the gas cost. That's it! There's some tricky technical details, but those can be safely ignored when interacting with the GSN. This way, instead of your users calling into your contract (called the _recipient_) directly, someone else (we'll call them a _relay_) will send their transaction and pay for the cost.
+**Enter meta-transactions**. This is a fancy name for a simple idea: a third-party can send another user's transactions and pay themselves for the gas cost. That's it! There's some tricky technical details, but those can be safely ignored when interacting with the GSN. This way, instead of your users calling into your contract (called the _recipient_) directly, someone else (we'll call them a _relayer_) will send their transaction and pay for the cost.
 
 But why would they do such a thing?
 
 == Incentives
 
-Relays are not running a charity: they're running a bussiness. The reason why they'll gladly pay for your users' gas costs is because they will in turn charge your contract, the recipient. That way relays get their money back, plus a bit extra as a _fee_ for their services.
+Relayers are not running a charity: they're running a bussiness. The reason why they'll gladly pay for your users' gas costs is because they will in turn charge your contract, the recipient. That way relayers get their money back, plus a bit extra as a _fee_ for their services.
 
 This may sound strange at first, but paying for user onboarding is a very common bussiness practice. Lots of money are spent on advertising, free trials, new user discounts, etc., all with the [goal of user acquisition](https://en.wikipedia.org/wiki/Customer_acquisition_cost). And compared to those, the cost of a couple Ethereum transactions is actually very small.
 
 Additionally, you can leverage the GSN in scenarios where your users pay you off-chain in advance (e.g. via credit card), with each GSN-call deducting from their balance on your system. The possibilities are endless!
 
-=== Should I trust these relays?
+=== Should I trust these relayers?
 
-You don't need to! The GSN is set up in such a way where it's in the relays' best interest to serve your requests, and there are measures in place to penalize them if they misbeheave. All of this happens automatically, so you can safely start using their services worry-free.
+You don't need to! The GSN is set up in such a way where it's in the relayers' best interest to serve your requests, and there are measures in place to penalize them if they misbeheave. All of this happens automatically, so you can safely start using their services worry-free.
 
 == One contract to coordinate them all
 
-There are many meta-transaction implementations out there, but the GSN has a unique detail that makes it special. Sitting in the middle of the system, a smart contract is charged with keeping track of relays, handling relayed transactions, charging their recipients, and generally ensuring all parties stay honest. This contract is called RelayHub, and there is a _single_ instance of it in the whole network (you don't need to deploy your own!). Think of it as a piece of public infrastructure, for all Ethereum users to benefit from.
+There are many meta-transaction implementations out there, but the GSN has a unique detail that makes it special. Sitting in the middle of the system, a smart contract is charged with keeping track of relayers, handling relayed transactions, charging their recipients, and generally ensuring all parties stay honest. This contract is called RelayHub, and there is a _single_ instance of it in the whole network (you don't need to deploy your own!). Think of it as a piece of public infrastructure, for all Ethereum users to benefit from.
 
-One of RelayHub's tasks is relay-coordination: all relays will advertise their services on this contract, and your users will query it to find the relay that best suits their purposes. This is out of scope for this guide however, and is not something you need to worry about when writing a recipient contract. If you want to learn more about sending transactions via relays, head to our [GSNProvider guide]().
+One of RelayHub's tasks is relayer-coordination: all relayers will advertise their services on this contract, and your users will query it to find the relayer that best suits their purposes. This is out of scope for this guide however, and is not something you need to worry about when writing a recipient contract. If you want to learn more about sending transactions via relayers, head to our [GSNProvider guide]().
 
 == Receiving a relayed call
 
@@ -40,7 +40,7 @@ The OpenZeppelin Contracts provide a number of [tried-and-tested approaches]() f
 
 ==== acceptRelayedCall
 
-First, RelayHub will ask your recipient contract if it wants to receive a relayed call. Recall that you will be charged for incurred gas costs by the relay, so you should only accept calls that you're willing to pay for!
+First, RelayHub will ask your recipient contract if it wants to receive a relayed call. Recall that you will be charged for incurred gas costs by the relayer, so you should only accept calls that you're willing to pay for!
 
 There are multiple ways to make this work, including:
  * having a whitelist of trusted users
@@ -66,7 +66,7 @@ There's only one extra care you should take when working with GSN recipient cont
 
 == Payment
 
-By now you may be wondering how exactly relays charge their recipients for gas costs and service fee. The answer is simple: the recipient must deposit funds on RelayHub in advance, and payment is automatically handled on each relayed call.
+By now you may be wondering how exactly relayers charge their recipients for gas costs and service fee. The answer is simple: the recipient must deposit funds on RelayHub in advance, and payment is automatically handled on each relayed call.
 
 You can head to the [GSN dashboard](deltacamp.website) to check and top-up your contracts' balance, view previous charges, or you can do this programatically by calling IRelayHub.depositFor and IRelayHub.balanceOf.
 
@@ -74,4 +74,4 @@ Recipients may withdraw their balance from the system at any point, but remember
 
 == Further reading
 
-The [GSN announcement post]() provides a good overview of the system, along with some use cases to take inspiration from. If you want to learn how to use OpenZeppelin Contract's pre-made accept and charge strategies, visit our [advanced GSN recipients guide](). If instead you wish to know more about interacting with relays and performing relayed calls, head to the [OpenZeppelin GSN provider guides]. For information on how to test GSN-enabled contracts, go to the [OpenZeppelin test helpers documentation].
+The [GSN announcement post]() provides a good overview of the system, along with some use cases to take inspiration from. If you want to learn how to use OpenZeppelin Contract's pre-made accept and charge strategies, visit our [advanced GSN recipients guide](). If instead you wish to know more about interacting with relayers and performing relayed calls, head to the [OpenZeppelin GSN provider guides]. For information on how to test GSN-enabled contracts, go to the [OpenZeppelin test helpers documentation].
