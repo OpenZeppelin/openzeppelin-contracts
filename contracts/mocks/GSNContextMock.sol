@@ -6,9 +6,6 @@ import "../drafts/meta-tx/IRelayRecipient.sol";
 
 // By inheriting from GSNContext, the internal functions are overridden automatically
 contract GSNContextMock is ContextMock, GSNContext, IRelayRecipient {
-    constructor(address relayHub) public GSNContext(relayHub) {
-    }
-
     function acceptRelayedCall(
         address,
         address,

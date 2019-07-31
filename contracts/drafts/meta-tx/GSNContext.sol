@@ -7,15 +7,7 @@ import "./Context.sol";
  * the actual sender and call data from the received values.
  */
 contract GSNContext is Context {
-    address private _relayHub;
-
-    constructor(address relayHub) internal {
-        _setRelayHub(relayHub);
-    }
-
-    function _setRelayHub(address relayHub) internal {
-        _relayHub = relayHub;
-    }
+    address private _relayHub = 0x537F27a04470242ff6b2c3ad247A05248d0d27CE;
 
     // Currently required by the RelayProvider
     function getHubAddr() public view returns (address) {
