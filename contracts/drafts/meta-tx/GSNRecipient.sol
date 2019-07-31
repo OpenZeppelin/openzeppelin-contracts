@@ -8,14 +8,14 @@ import "./GSNContext.sol";
  * GSN support. Derived contracts must implement all interface methods.
  */
 contract GSNRecipient is IRelayRecipient, GSNContext {
-    uint256 constant private RelayedCallAccepted = 0;
-    uint256 constant private RelayedCallRejected = 11;
+    uint256 constant private RELAYED_CALL_ACCEPTED = 0;
+    uint256 constant private RELAYED_CALL_REJECTED = 11;
 
     function _acceptRelayedCall() internal pure returns (uint256) {
-        return RelayedCallAccepted;
+        return RELAYED_CALL_ACCEPTED;
     }
 
     function _declineRelayedCall(uint256 errorCode) internal pure returns (uint256) {
-        return RelayedCallRejected + errorCode;
+        return RELAYED_CALL_REJECTED + errorCode;
     }
 }
