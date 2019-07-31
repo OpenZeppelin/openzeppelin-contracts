@@ -7,8 +7,11 @@ jobs:
   build:
     docker:
       - image: circleci/node:8
+    working_directory: ~/project
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/project
       # Download and cache dependencies
       - restore_cache:
           keys:
@@ -27,21 +30,33 @@ jobs:
   lint:
     docker:
       - image: circleci/node:8
+    working_directory: ~/project
     steps:
+      - checkout
+      - attach_workspace:
+          at: ~/project
       - run:
           name: Linter
           command: npm run lint
   test:
     docker:
       - image: circleci/node:8
+    working_directory: ~/project
     steps:
+      - checkout
+      - attach_workspace:
+          at: ~/project
       - run:
           name: Unit tests
           command: npm run test
   coverage:
     docker:
       - image: circleci/node:8
+    working_directory: ~/project
     steps:
+      - checkout
+      - attach_workspace:
+          at: ~/project
       - run:
           name: Unit tests with coverage report
           command: npm run test
