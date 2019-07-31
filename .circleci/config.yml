@@ -4,7 +4,7 @@ version: 2
 # https://github.com/CircleCI-Public/circleci-cli/issues/79
 
 jobs:
-  build_and_test:
+  build:
     docker:
       - image: circleci/node:8
     steps:
@@ -24,12 +24,24 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package-lock.json" }}
 
+  lint:
+    docker:
+      - image: circleci/node:8
+    steps:
       - run:
           name: Linter
           command: npm run lint
+  test:
+    docker:
+      - image: circleci/node:8
+    steps:
       - run:
           name: Unit tests
           command: npm run test
+  coverage:
+    docker:
+      - image: circleci/node:8
+    steps:
       - run:
           name: Unit tests with coverage report
           command: npm run test
@@ -43,4 +55,13 @@ workflows:
   version: 2
   everything:
     jobs:
-      - build_and_test
+      - build
+      - lint:
+          requires:
+            - build
+      - test:
+          requires:
+            - build
+      - coverage:
+          requires:
+            - build
