@@ -35,6 +35,11 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/project
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package-lock.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
       - run:
           name: Linter
           command: npm run lint
@@ -46,6 +51,11 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/project
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package-lock.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
       - run:
           name: Unit tests
           command: npm run test
@@ -57,6 +67,11 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/project
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package-lock.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
       - run:
           name: Unit tests with coverage report
           command: npm run test
