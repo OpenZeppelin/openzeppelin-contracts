@@ -1,12 +1,12 @@
 = The Gas Station Network
 
-User onboarding is one of the hottest topics in Ethereum, and meta-transactions the de-facto solution to this important problem. Here you'll learn all about the Gas Station Network (GSN) and how to write contracts that don't require their users to hold Ether to pay for gas.
+User onboarding is one of the hottest topics in Ethereum, and meta-transactions is the de-facto solution to this important problem. Here you'll learn all about the Gas Station Network (GSN) and how to write contracts that don't require their users to hold Ether to pay for gas.
 
 If you're already up to speed with the workings of the GSN, feel free to skip to <<Receiving a relayed call>>, where we'll go over how to use the OpenZeppelin Contracts to easily write a GSNRecipient contract. Otherwise, strap in!
 
 == Sending gas-less transactions
 
-All Ethereum transactions use gas, and the sender of each transaction must have enough Ether to pay for the gas spent. Even though these gas costs are low for basic transactions (a couple cents), getting this Ether is no easy task: dApp users often need to go through Know Your Customer and Anti Money-Laundering processes (KYC & AML), which not only take time but often involve sending a selfie holding their passport over the Internet (!). Only the most hardcore users will put up with this hassle, and dApp adoption greatly suffers when Ether is required. We can do better.
+All Ethereum transactions use gas, and the sender of each transaction must have enough Ether to pay for the gas spent. Even though these gas costs are low for basic transactions (a couple of cents), getting this Ether is no easy task: dApp users often need to go through Know Your Customer and Anti Money-Laundering processes (KYC & AML), which not only takes time but often involves sending a selfie holding their passport over the Internet (!). Only the most hardcore users will put up with this hassle, and dApp adoption greatly suffers when Ether is required. We can do better.
 
 **Enter meta-transactions**. This is a fancy name for a simple idea: a third-party can send another user's transactions and pay themselves for the gas cost. That's it! There's some tricky technical details, but those can be safely ignored when interacting with the GSN. This way, instead of your users calling into your contract (called the _recipient_) directly, someone else (we'll call them a _relayer_) will send their transaction and pay for the cost.
 
@@ -14,7 +14,7 @@ But why would they do such a thing?
 
 == Incentives
 
-Relayers are not running a charity: they're running a bussiness. The reason why they'll gladly pay for your users' gas costs is because they will in turn charge your contract, the recipient. That way relayers get their money back, plus a bit extra as a _fee_ for their services.
+Relayers are not running a charity: they're running a business. The reason why they'll gladly pay for your users' gas costs is because they will in turn charge your contract, the recipient. That way relayers get their money back, plus a bit extra as a _fee_ for their services.
 
 This may sound strange at first, but paying for user onboarding is a very common bussiness practice. Lots of money are spent on advertising, free trials, new user discounts, etc., all with the https://en.wikipedia.org/wiki/Customer_acquisition_cost[goal of user acquisition]. And compared to those, the cost of a couple Ethereum transactions is actually very small.
 
@@ -22,7 +22,7 @@ Additionally, you can leverage the GSN in scenarios where your users pay you off
 
 === Should I trust these relayers?
 
-You don't need to! The GSN is set up in such a way where it's in the relayers' best interest to serve your requests, and there are measures in place to penalize them if they misbeheave. All of this happens automatically, so you can safely start using their services worry-free.
+You don't need to! The GSN is set up in such a way where it's in the relayers' best interest to serve your requests, and there are measures in place to penalize them if they misbehave. All of this happens automatically, so you can safely start using their services worry-free.
 
 == One contract to coordinate them all
 
@@ -34,7 +34,7 @@ The other key task RelayHub carries out is the actual _relaying of transactions_
 
 == Receiving a relayed call
 
-We've mentioned how it is RelayHub, not your user, that actually ends up calling a function in your contract. We will refer to this as the _relayed call_. OpenZeppelin Contracts includes a number of utilities to make receiving relayed calls as easy as developing a regular Solidiy contract, without needing to worry about the low level details.
+We've mentioned how it is RelayHub, not your user, that actually ends up calling a function in your contract. We will refer to this as the _relayed call_. OpenZeppelin Contracts includes a number of utilities to make receiving relayed calls as easy as developing a regular Solidity contract, without needing to worry about the low level details.
 
 The first step to writing a recipient is to inherit from our GSNRecipient contract. If you're also inheriting from other OpenZeppelin contracts, such as ERC20 or Crowdsale, this will work just fine: by adding GSNRecipient all of your token or crowdsale functions will also be GSN-callable.
 
@@ -48,7 +48,7 @@ contract MyContract is GSNRecipient, ... {
 
 === msg.sender and msg.data
 
-There's only one extra care you should take when working with GSN recipient contracts: _you must never use `msg.sender` or `msg.data` directly_. On relayed calls, `msg.sender` will be `RelayHub` instead of your user! This doesn't mean however you won't be able to retrieve your users' addresses: `GSNRecipient` provides two functions, `_msgSender()` and `_msgData()`, which are drop-in replacements for `msg.sender` and `msg.data` while taking care of the low-level details. As long as you use these two functions instead of the original getters, you're good to go!
+There's only one extra detail you need to take care of when working with GSN recipient contracts: _you must never use `msg.sender` or `msg.data` directly_. On relayed calls, `msg.sender` will be `RelayHub` instead of your user! This doesn't mean however you won't be able to retrieve your users' addresses: `GSNRecipient` provides two functions, `_msgSender()` and `_msgData()`, which are drop-in replacements for `msg.sender` and `msg.data` while taking care of the low-level details. As long as you use these two functions instead of the original getters, you're good to go!
 
 WARNING: Third-party contracts you inherit from may not use these replacement functions, making them unsafe to use when mixed with `GSNRecipient`. If in doubt, head on over to our https://forum.openzeppelin.com/c/support[support forum].
 
@@ -82,7 +82,7 @@ postRelayedCall will give you an accurate estimate of the transaction cost, maki
 
 == Payment
 
-By now you may be wondering how exactly relayers charge their recipients for gas costs and service fee. The answer is simple: each recipient must have funds deposited on RelayHub in advance, and payment is automatically handled on each relayed call.
+By now you may be wondering how exactly relayers charge their recipients for gas costs and service fees. The answer is simple: each recipient must have funds deposited on RelayHub in advance, and payment is automatically handled on each relayed call.
 
 You can head to the [GSN dashboard](deltacamp.website) to check and top-up your contracts' balance, view previous charges, or do all of this programatically by calling IRelayHub.depositFor and IRelayHub.balanceOf.
 
