@@ -16,7 +16,7 @@ But why would they do such a thing?
 
 Relayers are not running a charity: they're running a business. The reason why they'll gladly pay for your users' gas costs is because they will in turn charge your contract, the recipient. That way relayers get their money back, plus a bit extra as a _fee_ for their services.
 
-This may sound strange at first, but paying for user onboarding is a very common bussiness practice. Lots of money are spent on advertising, free trials, new user discounts, etc., all with the https://en.wikipedia.org/wiki/Customer_acquisition_cost[goal of user acquisition]. And compared to those, the cost of a couple Ethereum transactions is actually very small.
+This may sound strange at first, but paying for user onboarding is a very common bussiness practice. Lots of money is spent on advertising, free trials, new user discounts, etc., all with the https://en.wikipedia.org/wiki/Customer_acquisition_cost[goal of user acquisition]. Compared to those, the cost of a couple of Ethereum transactions is actually very small.
 
 Additionally, you can leverage the GSN in scenarios where your users pay you off-chain in advance (e.g. via credit card), with each GSN-call deducting from their balance on your system. The possibilities are endless!
 
