@@ -11,6 +11,11 @@ cleanup() {
   if [ -n "$ganache_pid" ] && ps -p $ganache_pid > /dev/null; then
     kill -9 $ganache_pid
   fi
+
+  # Kill the GSN relay server that we started (if we started one and if it's still running).
+  if [ -n "$gsn_relay_server_pid" ] && ps -p $gsn_relay_server_pid > /dev/null; then
+    kill -9 $gsn_relay_server_pid
+  fi
 }
 
 if [ "$SOLIDITY_COVERAGE" = true ]; then
@@ -18,6 +23,8 @@ if [ "$SOLIDITY_COVERAGE" = true ]; then
 else
   ganache_port=8545
 fi
+
+node_url="http://localhost:$ganache_port"
 
 ganache_running() {
   nc -z localhost "$ganache_port"
@@ -55,12 +62,28 @@ start_ganache() {
   echo "Ganache launched!"
 }
 
+setup_gsn_relay() {
+  node node_modules/openzeppelin-gsn-helpers/oz-gsn.js deploy-relay-hub --ethereumNodeURL $node_url # Replace this with npx once the package is out
+
+  echo "Launching GSN relay server"
+
+  server_url="http://localhost:8090"
+  ./scripts/gsnRelayServer -DevMode -ShortSleep -RelayHubAddress "0x537F27a04470242ff6b2c3ad247A05248d0d27CE" -GasPricePercent -99 -EthereumNodeUrl $node_url -Url $server_url &> /dev/null &
+  gsn_relay_server_pid=$!
+
+  echo "GSN relay server launched!"
+
+  node node_modules/openzeppelin-gsn-helpers/oz-gsn.js register-relayer --ethereumNodeURL $node_url --relayUrl $server_url # Replace this with npx once the package is out
+}
+
 if ganache_running; then
   echo "Using existing ganache instance"
 else
   echo "Starting our own ganache instance"
   start_ganache
 fi
+
+setup_gsn_relay
 
 npx truffle version
 

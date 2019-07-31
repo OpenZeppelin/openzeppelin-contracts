@@ -1,4 +1,5 @@
-const { BN, ether, expectEvent, singletons } = require('openzeppelin-test-helpers');
+const { BN, expectEvent } = require('openzeppelin-test-helpers');
+const gsn = require('openzeppelin-gsn-helpers');
 
 const GSNContextMock = artifacts.require('GSNContextMock');
 const ContextMockCaller = artifacts.require('ContextMockCaller');
@@ -7,9 +8,7 @@ const { shouldBehaveLikeRegularContext } = require('./Context.behavior');
 
 contract('GSNContext', function ([_, deployer, sender]) {
   beforeEach(async function () {
-    this.relayHub = await singletons.RelayHub(deployer);
-
-    this.context = await GSNContextMock.new(this.relayHub.address);
+    this.context = await GSNContextMock.new();
     this.caller = await ContextMockCaller.new();
   });
 
@@ -19,7 +18,7 @@ contract('GSNContext', function ([_, deployer, sender]) {
 
   context('when receiving a relayed call', function () {
     beforeEach(async function () {
-      await this.relayHub.depositFor(this.context.address, { from: deployer, value: ether('1') });
+      await gsn.fundRecipient(web3, { recipient: this.context.address });
     });
 
     describe('msgSender', function () {
