@@ -63,7 +63,7 @@ start_ganache() {
 }
 
 setup_gsn_relay() {
-  node node_modules/openzeppelin-gsn-helpers/oz-gsn.js deploy-relay-hub --ethereumNodeURL $node_url # Replace this with npx once the package is out
+  npx oz-gsn deploy-relay-hub --ethereumNodeURL $node_url
 
   echo "Launching GSN relay server"
 
@@ -73,7 +73,7 @@ setup_gsn_relay() {
 
   echo "GSN relay server launched!"
 
-  node node_modules/openzeppelin-gsn-helpers/oz-gsn.js register-relayer --ethereumNodeURL $node_url --relayUrl $server_url # Replace this with npx once the package is out
+  npx oz-gsn register-relayer --ethereumNodeURL $node_url --relayUrl $server_url
 }
 
 if ganache_running; then

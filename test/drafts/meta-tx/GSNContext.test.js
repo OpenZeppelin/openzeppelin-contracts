@@ -1,5 +1,5 @@
 const { BN, expectEvent } = require('openzeppelin-test-helpers');
-const gsn = require('openzeppelin-gsn-helpers');
+const gsn = require('@openzeppelin/gsn-helpers');
 
 const GSNContextMock = artifacts.require('GSNContextMock');
 const ContextMockCaller = artifacts.require('ContextMockCaller');
