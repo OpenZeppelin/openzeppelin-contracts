@@ -1,4 +1,4 @@
-const { expectEvent, expectRevert } = require('openzeppelin-test-helpers');
+const { expectEvent } = require('openzeppelin-test-helpers');
 const gsn = require('@openzeppelin/gsn-helpers');
 const { fixSignature } = require('../../helpers/sign');
 
@@ -22,7 +22,7 @@ contract('GSNRecipientSignedData', function ([_, deployer, signer, other]) {
     });
 
     it('rejects unsigned relay requests', async function () {
-      await expectRevert.unspecified(this.recipient.mockFunction({ value: 0, useGSN: true }));
+      await gsn.expectGSNError(this.recipient.mockFunction({ value: 0, useGSN: true }));
     });
 
     it('rejects relay requests where some parameters are signed', async function () {
@@ -36,7 +36,7 @@ contract('GSNRecipientSignedData', function ([_, deployer, signer, other]) {
           )
         );
 
-      await expectRevert.unspecified(this.recipient.mockFunction({ value: 0, useGSN: true, approveFunction }));
+      await gsn.expectGSNError(this.recipient.mockFunction({ value: 0, useGSN: true, approveFunction }));
     });
 
     it('accepts relay requests where all parameters are signed', async function () {
