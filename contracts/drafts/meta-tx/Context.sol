@@ -18,8 +18,8 @@ contract Context {
         return msg.sender;
     }
 
-    // This can be pure, but overrides will need to read msg.sender, which is view
     function _msgData() internal view returns (bytes memory) {
+        this; // silence state mutability warning without generating bytecode - see https://github.com/ethereum/solidity/issues/2691
         return msg.data;
     }
 }
