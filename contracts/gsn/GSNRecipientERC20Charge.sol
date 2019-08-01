@@ -1,9 +1,9 @@
 pragma solidity ^0.5.0;
 
 import "./GSNRecipient.sol";
-import "../../math/SafeMath.sol";
-import "../../token/ERC20/IERC20.sol";
-import "../../token/ERC20/SafeERC20.sol";
+import "../math/SafeMath.sol";
+import "../token/ERC20/IERC20.sol";
+import "../token/ERC20/SafeERC20.sol";
 
 contract GSNRecipientERC20Charge is GSNRecipient {
     using SafeERC20 for IERC20;

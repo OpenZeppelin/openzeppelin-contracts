@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
 
-import "../drafts/meta-tx/Context.sol";
+import "../gsn/Context.sol";
 
 contract ContextMock is Context {
     event Sender(address sender);

@@ -1,6 +1,6 @@
 const { expectEvent } = require('openzeppelin-test-helpers');
 const gsn = require('@openzeppelin/gsn-helpers');
-const { fixSignature } = require('../../helpers/sign');
+const { fixSignature } = require('../helpers/sign');
 
 const GSNRecipientSignedDataMock = artifacts.require('GSNRecipientSignedDataMock');
 

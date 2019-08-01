@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
 
-import "../drafts/meta-tx/GSNRecipientSignedData.sol";
+import "../gsn/GSNRecipientSignedData.sol";
 
 contract GSNRecipientSignedDataMock is GSNRecipientSignedData {
     constructor(address trustedSigner) public GSNRecipientSignedData(trustedSigner) {

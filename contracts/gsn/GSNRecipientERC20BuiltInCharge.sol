@@ -1,9 +1,9 @@
 pragma solidity ^0.5.0;
 
 import "./GSNRecipientERC20Charge.sol";
-import "../../token/ERC20/ERC20.sol";
-import "../../token/ERC20/ERC20Detailed.sol";
-import "../../ownership/Secondary.sol";
+import "../token/ERC20/ERC20.sol";
+import "../token/ERC20/ERC20Detailed.sol";
+import "../ownership/Secondary.sol";
 
 contract GSNRecipientERC20BuiltInCharge is GSNRecipientERC20Charge {
     constructor(string memory name, string memory symbol, uint8 decimals) public {
