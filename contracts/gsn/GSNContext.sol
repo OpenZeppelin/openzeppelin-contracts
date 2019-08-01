@@ -13,8 +13,19 @@ import "./Context.sol";
 contract GSNContext is Context {
     address private _relayHub = 0x537F27a04470242ff6b2c3ad247A05248d0d27CE;
 
+    event RelayHubUpgraded(address indexed oldRelayHub, address indexed newRelayHub);
+
     function _getRelayHub() internal view returns (address) {
         return _relayHub;
+    }
+
+    function _upgradeRelayHub(address newRelayHub) internal {
+        require(newRelayHub != address(0), "GSNContext: new RelayHub is the zero address");
+        require(newRelayHub != _relayHub, "GSNContext: new RelayHub is the current one");
+
+        emit RelayHubUpgraded(_relayHub, newRelayHub);
+
+        _relayHub = newRelayHub;
     }
 
     // Overrides for Context's functions: when called from RelayHub, sender and

@@ -35,4 +35,12 @@ contract GSNContextMock is ContextMock, GSNContext, IRelayRecipient {
     function postRelayedCall(bytes calldata, bool, uint256, bytes32) external {
         // solhint-disable-previous-line no-empty-blocks
     }
+
+    function getRelayHub() public view returns (address) {
+        return _getRelayHub();
+    }
+
+    function upgradeRelayHub(address newRelayHub) public {
+        return _upgradeRelayHub(newRelayHub);
+    }
 }

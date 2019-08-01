@@ -1,4 +1,5 @@
-const { BN, expectEvent } = require('openzeppelin-test-helpers');
+const { BN, constants, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 const gsn = require('@openzeppelin/gsn-helpers');
 
 const GSNContextMock = artifacts.require('GSNContextMock');
@@ -6,10 +7,44 @@ const ContextMockCaller = artifacts.require('ContextMockCaller');
 
 const { shouldBehaveLikeRegularContext } = require('./Context.behavior');
 
-contract('GSNContext', function ([_, deployer, sender]) {
+contract('GSNContext', function ([_, deployer, sender, newRelayHub]) {
   beforeEach(async function () {
     this.context = await GSNContextMock.new();
     this.caller = await ContextMockCaller.new();
+  });
+
+  describe('get/set RelayHub', function () {
+    const singletonRelayHub = '0x537F27a04470242ff6b2c3ad247A05248d0d27CE';
+
+    it('initially returns the singleton instance address', async function () {
+      expect(await this.context.getRelayHub()).to.equal(singletonRelayHub);
+    });
+
+    it('can be upgraded to a new RelayHub', async function () {
+      const { logs } = await this.context.upgradeRelayHub(newRelayHub);
+      expectEvent.inLogs(logs, 'RelayHubUpgraded', { oldRelayHub: singletonRelayHub, newRelayHub });
+    });
+
+    it('cannot upgrade to the same RelayHub', async function () {
+      await expectRevert(
+        this.context.upgradeRelayHub(singletonRelayHub),
+        'GSNContext: new RelayHub is the current one'
+      );
+    });
+
+    it('cannot upgrade to the zero address', async function () {
+      await expectRevert(this.context.upgradeRelayHub(ZERO_ADDRESS), 'GSNContext: new RelayHub is the zero address');
+    });
+
+    context('with new RelayHub', function () {
+      beforeEach(async function () {
+        await this.context.upgradeRelayHub(newRelayHub);
+      });
+
+      it('returns the new instance address', async function () {
+        expect(await this.context.getRelayHub()).to.equal(newRelayHub);
+      });
+    });
   });
 
   context('when called directly', function () {
