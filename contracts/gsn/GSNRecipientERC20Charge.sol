@@ -2,31 +2,32 @@ pragma solidity ^0.5.0;
 
 import "./GSNRecipient.sol";
 import "../math/SafeMath.sol";
-import "../token/ERC20/IERC20.sol";
+import "../ownership/Secondary.sol";
 import "../token/ERC20/SafeERC20.sol";
+import "../token/ERC20/ERC20.sol";
+import "../token/ERC20/ERC20Detailed.sol";
 
 contract GSNRecipientERC20Charge is GSNRecipient {
-    using SafeERC20 for IERC20;
+    using SafeERC20 for __unstable__ERC20PrimaryAdmin;
     using SafeMath for uint256;
-
-    IERC20 private _token;
 
     enum GSNRecipientERC20ChargeErrorCodes {
         INSUFFICIENT_BALANCE,
         INSUFFICIENT_ALLOWANCE
     }
 
-    function token() public view returns (IERC20) {
-        return _token;
+    __unstable__ERC20PrimaryAdmin private _token;
+
+    constructor(string memory name, string memory symbol, uint8 decimals) public {
+        _token = new __unstable__ERC20PrimaryAdmin(name, symbol, decimals);
     }
 
-    // We provide this as a function instead of a constructor to give more flexibility to derived contracts, which may
-    // not receive the token address as an argument, or even deploy it themselves.
-    function _setToken(IERC20 token_) internal {
-        require(address(_token) == address(0), "ERC20Migrator: token already set");
-        require(address(token_) != address(0), "ERC20Migrator: token is the zero address");
+    function token() public view returns (IERC20) {
+        return IERC20(_token);
+    }
 
-        _token = token_;
+    function _mintBuiltIn(address account, uint256 amount) internal {
+        _token.mint(account, amount);
     }
 
     function acceptRelayedCall(
@@ -44,34 +45,64 @@ contract GSNRecipientERC20Charge is GSNRecipient {
         view
         returns (uint256, bytes memory)
     {
-        uint256 maxTokenCharge = _getEquivalentTokens(maxPossibleCharge);
-
-        if (_token.balanceOf(from) < maxTokenCharge) {
+        if (_token.balanceOf(from) < maxPossibleCharge) {
             return (_declineRelayedCall(uint256(GSNRecipientERC20ChargeErrorCodes.INSUFFICIENT_BALANCE)), "");
-        } else if (_token.allowance(from, address(this)) < maxTokenCharge) {
+        } else if (_token.allowance(from, address(this)) < maxPossibleCharge) {
             return (_declineRelayedCall(uint256(GSNRecipientERC20ChargeErrorCodes.INSUFFICIENT_ALLOWANCE)), "");
         }
 
-        return (_acceptRelayedCall(), abi.encode(from, maxTokenCharge));
+        return (_acceptRelayedCall(), abi.encode(from, maxPossibleCharge));
     }
 
     function preRelayedCall(bytes calldata context) external returns (bytes32) {
-        (address from, uint256 maxTokenCharge) = abi.decode(context, (address, uint256));
+        (address from, uint256 maxPossibleCharge) = abi.decode(context, (address, uint256));
 
         // The maximum token charge is pre-charged from the user
-        _token.safeTransferFrom(from, address(this), maxTokenCharge);
+        _token.safeTransferFrom(from, address(this), maxPossibleCharge);
     }
 
     function postRelayedCall(bytes calldata context, bool, uint256 actualCharge, bytes32) external {
-        (address from, uint256 maxTokenCharge) = abi.decode(context, (address, uint256));
+        (address from, uint256 maxPossibleCharge) = abi.decode(context, (address, uint256));
 
         // After the relayed call has been executed and the actual charge estimated, the excess pre-charge is returned
-        _token.safeTransfer(from, maxTokenCharge.sub(actualCharge));
+        _token.safeTransfer(from, maxPossibleCharge.sub(actualCharge));
+    }
+}
+
+/**
+ * @title __unstable__ERC20PrimaryAdmin
+ * @dev An ERC20 token owned by another contract, which has minting permissions and can use transferFrom to receive
+ * anyone's tokens. This contract is an internal helper for GSNRecipientERC20Charge, and should not be used
+ * outside of this context.
+ */
+// solhint-disable-next-line contract-name-camelcase
+contract __unstable__ERC20PrimaryAdmin is ERC20, ERC20Detailed, Secondary {
+    uint256 private constant UINT256_MAX = 2**256 - 1;
+
+    constructor(string memory name, string memory symbol, uint8 decimals) public ERC20Detailed(name, symbol, decimals) {
+        // solhint-disable-previous-line no-empty-blocks
     }
 
-    /**
-     * @dev Converts an amount in wei to the equivalent number of tokens. This fucntion must be implemented by derived
-     * contracts by specifying an exchange rate, which may e.g. be consulted from an oracle.
-     */
-    function _getEquivalentTokens(uint256 weiAmount) internal view returns (uint256);
+    // The primary account (GSNRecipientERC20Charge) can mint tokens
+    function mint(address account, uint256 amount) public onlyPrimary {
+        _mint(account, amount);
+    }
+
+    // The primary account has 'infinite' allowance for all token holders
+    function allowance(address owner, address spender) public view returns (uint256) {
+        if (spender == primary()) {
+            return UINT256_MAX;
+        } else {
+            return super.allowance(owner, spender);
+        }
+    }
+
+    // Allowance for the primary account cannot be changed (it is always 'infinite')
+    function _approve(address owner, address spender, uint256 value) internal {
+        if (spender == primary()) {
+            return;
+        } else {
+            super._approve(owner, spender, value);
+        }
+    }
 }
