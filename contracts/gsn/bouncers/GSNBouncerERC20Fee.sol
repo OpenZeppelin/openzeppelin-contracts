@@ -1,13 +1,14 @@
 pragma solidity ^0.5.0;
 
-import "../GSNRecipient.sol";
+import "../IRelayRecipient.sol";
+import "./GSNBouncerUtils.sol";
 import "../../math/SafeMath.sol";
 import "../../ownership/Secondary.sol";
 import "../../token/ERC20/SafeERC20.sol";
 import "../../token/ERC20/ERC20.sol";
 import "../../token/ERC20/ERC20Detailed.sol";
 
-contract GSNBouncerERC20Fee is GSNRecipient {
+contract GSNBouncerERC20Fee is IRelayRecipient, GSNBouncerUtils {
     using SafeERC20 for __unstable__ERC20PrimaryAdmin;
     using SafeMath for uint256;
 

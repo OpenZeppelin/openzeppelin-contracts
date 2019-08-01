@@ -3,7 +3,12 @@ pragma solidity ^0.5.0;
 /*
  * @dev Interface for a contract that will be called via the GSN from RelayHub.
  */
-interface IRelayRecipient {
+contract IRelayRecipient {
+    /**
+     * @dev Returns the address of the RelayHub instance this recipient interacts with.
+     */
+    function getHubAddr() public view returns (address);
+
     function acceptRelayedCall(
         address relay,
         address from,

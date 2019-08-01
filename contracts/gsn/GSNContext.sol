@@ -13,8 +13,7 @@ import "./Context.sol";
 contract GSNContext is Context {
     address private _relayHub = 0x537F27a04470242ff6b2c3ad247A05248d0d27CE;
 
-    // Currently required by the RelayProvider
-    function getHubAddr() public view returns (address) {
+    function _getRelayHub() internal view returns (address) {
         return _relayHub;
     }
 
