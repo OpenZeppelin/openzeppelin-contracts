@@ -2,11 +2,11 @@ const { expectEvent } = require('openzeppelin-test-helpers');
 const gsn = require('@openzeppelin/gsn-helpers');
 const { fixSignature } = require('../helpers/sign');
 
-const GSNRecipientSignedDataMock = artifacts.require('GSNRecipientSignedDataMock');
+const GSNBouncerSignatureMock = artifacts.require('GSNBouncerSignatureMock');
 
-contract('GSNRecipientSignedData', function ([_, deployer, signer, other]) {
+contract('GSNBouncerSignature', function ([_, deployer, signer, other]) {
   beforeEach(async function () {
-    this.recipient = await GSNRecipientSignedDataMock.new(signer);
+    this.recipient = await GSNBouncerSignatureMock.new(signer);
   });
 
   context('when called directly', function () {
@@ -52,7 +52,7 @@ contract('GSNRecipientSignedData', function ([_, deployer, signer, other]) {
 
       const { tx } = await this.recipient.mockFunction({ value: 0, useGSN: true, approveFunction });
 
-      await expectEvent.inTransaction(tx, GSNRecipientSignedDataMock, 'MockFunctionCalled');
+      await expectEvent.inTransaction(tx, GSNBouncerSignatureMock, 'MockFunctionCalled');
     });
   });
 });

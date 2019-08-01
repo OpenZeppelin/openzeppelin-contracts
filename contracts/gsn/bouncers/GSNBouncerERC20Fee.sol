@@ -1,13 +1,13 @@
 pragma solidity ^0.5.0;
 
-import "./GSNRecipient.sol";
-import "../math/SafeMath.sol";
-import "../ownership/Secondary.sol";
-import "../token/ERC20/SafeERC20.sol";
-import "../token/ERC20/ERC20.sol";
-import "../token/ERC20/ERC20Detailed.sol";
+import "../GSNRecipient.sol";
+import "../../math/SafeMath.sol";
+import "../../ownership/Secondary.sol";
+import "../../token/ERC20/SafeERC20.sol";
+import "../../token/ERC20/ERC20.sol";
+import "../../token/ERC20/ERC20Detailed.sol";
 
-contract GSNRecipientERC20Charge is GSNRecipient {
+contract GSNBouncerERC20Fee is GSNRecipient {
     using SafeERC20 for __unstable__ERC20PrimaryAdmin;
     using SafeMath for uint256;
 
@@ -72,7 +72,7 @@ contract GSNRecipientERC20Charge is GSNRecipient {
 /**
  * @title __unstable__ERC20PrimaryAdmin
  * @dev An ERC20 token owned by another contract, which has minting permissions and can use transferFrom to receive
- * anyone's tokens. This contract is an internal helper for GSNRecipientERC20Charge, and should not be used
+ * anyone's tokens. This contract is an internal helper for GSNRecipientERC20Fee, and should not be used
  * outside of this context.
  */
 // solhint-disable-next-line contract-name-camelcase
@@ -83,7 +83,7 @@ contract __unstable__ERC20PrimaryAdmin is ERC20, ERC20Detailed, Secondary {
         // solhint-disable-previous-line no-empty-blocks
     }
 
-    // The primary account (GSNRecipientERC20Charge) can mint tokens
+    // The primary account (GSNRecipientERC20Fee) can mint tokens
     function mint(address account, uint256 amount) public onlyPrimary {
         _mint(account, amount);
     }

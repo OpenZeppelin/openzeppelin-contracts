@@ -1,9 +1,9 @@
 pragma solidity ^0.5.0;
 
-import "../gsn/GSNRecipientSignedData.sol";
+import "../gsn/bouncers/GSNBouncerSignature.sol";
 
-contract GSNRecipientSignedDataMock is GSNRecipientSignedData {
-    constructor(address trustedSigner) public GSNRecipientSignedData(trustedSigner) {
+contract GSNBouncerSignatureMock is GSNBouncerSignature {
+    constructor(address trustedSigner) public GSNBouncerSignature(trustedSigner) {
         // solhint-disable-previous-line no-empty-blocks
     }
 

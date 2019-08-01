@@ -1,9 +1,9 @@
 pragma solidity ^0.5.0;
 
-import "./GSNRecipient.sol";
-import "../cryptography/ECDSA.sol";
+import "../GSNRecipient.sol";
+import "../../cryptography/ECDSA.sol";
 
-contract GSNRecipientSignedData is GSNRecipient {
+contract GSNBouncerSignature is GSNRecipient {
     using ECDSA for bytes32;
 
     address private _trustedSigner;
