@@ -4,7 +4,7 @@ const { fixSignature } = require('../helpers/sign');
 
 const GSNBouncerSignatureMock = artifacts.require('GSNBouncerSignatureMock');
 
-contract('GSNBouncerSignature', function ([_, deployer, signer, other]) {
+contract('GSNBouncerSignature', function ([_, signer, other]) {
   beforeEach(async function () {
     this.recipient = await GSNBouncerSignatureMock.new(signer);
   });
@@ -53,6 +53,20 @@ contract('GSNBouncerSignature', function ([_, deployer, signer, other]) {
       const { tx } = await this.recipient.mockFunction({ value: 0, useGSN: true, approveFunction });
 
       await expectEvent.inTransaction(tx, GSNBouncerSignatureMock, 'MockFunctionCalled');
+    });
+
+    it('rejects relay requests where all parameters are signed by an invalid signer', async function () {
+      const approveFunction = async (data) =>
+        fixSignature(
+          await web3.eth.sign(
+            web3.utils.soliditySha3(
+              // eslint-disable-next-line max-len
+              data.relay_address, data.from, data.encodedFunctionCall, data.txfee, data.gas_price, data.gas_limit, data.nonce, data.relay_hub_address, this.recipient.address
+            ), other
+          )
+        );
+
+      await gsn.expectGSNError(this.recipient.mockFunction({ value: 0, useGSN: true, approveFunction }));
     });
   });
 });
