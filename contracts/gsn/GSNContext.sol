@@ -12,8 +12,8 @@ import "./Context.sol";
  */
 contract GSNContext is Context {
     // We use a random storage slot to allow proxy contracts to enable GSN support in an upgrade without changing their
-    // storage layout. This value is calculated as: keccak256('gsn.relayhub.address')
-    bytes32 private constant RELAY_HUB_ADDRESS_STORAGE_SLOT = 0x06b7792c761dcc05af1761f0315ce8b01ac39c16cc934eb0b2f7a8e71414f263;
+    // storage layout. This value is calculated as: keccak256('gsn.relayhub.address'), minus 1.
+    bytes32 private constant RELAY_HUB_ADDRESS_STORAGE_SLOT = 0x06b7792c761dcc05af1761f0315ce8b01ac39c16cc934eb0b2f7a8e71414f262;
 
     event RelayHubUpgraded(address indexed oldRelayHub, address indexed newRelayHub);
 
