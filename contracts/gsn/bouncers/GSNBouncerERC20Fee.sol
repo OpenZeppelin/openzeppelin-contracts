@@ -51,17 +51,17 @@ contract GSNBouncerERC20Fee is GSNBouncerBase {
             return _declineRelayedCall(uint256(GSNRecipientERC20ChargeErrorCodes.INSUFFICIENT_ALLOWANCE));
         }
 
-        return _acceptRelayedCall(abi.encode(from, maxPossibleCharge));
+        return _confirmRelayedCall(abi.encode(from, maxPossibleCharge));
     }
 
-    function preRelayedCall(bytes calldata context) external returns (bytes32) {
+    function _preRelayedCall(bytes memory context) internal returns (bytes32) {
         (address from, uint256 maxPossibleCharge) = abi.decode(context, (address, uint256));
 
         // The maximum token charge is pre-charged from the user
         _token.safeTransferFrom(from, address(this), maxPossibleCharge);
     }
 
-    function postRelayedCall(bytes calldata context, bool, uint256 actualCharge, bytes32) external {
+    function _postRelayedCall(bytes memory context, bool, uint256 actualCharge, bytes32) internal {
         (address from, uint256 maxPossibleCharge) = abi.decode(context, (address, uint256));
 
         // After the relayed call has been executed and the actual charge estimated, the excess pre-charge is returned

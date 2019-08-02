@@ -43,17 +43,9 @@ contract GSNBouncerSignature is GSNBouncerBase {
             address(this) // Prevents replays in multiple recipients
         );
         if (keccak256(blob).toEthSignedMessageHash().recover(approvalData) == _trustedSigner) {
-            return _acceptRelayedCall();
+            return _confirmRelayedCall();
         } else {
             return _declineRelayedCall(uint256(GSNRecipientSignedDataErrorCodes.INVALID_SIGNER));
         }
-    }
-
-    function preRelayedCall(bytes calldata) external returns (bytes32) {
-        // solhint-disable-previous-line no-empty-blocks
-    }
-
-    function postRelayedCall(bytes calldata, bool, uint256, bytes32) external {
-        // solhint-disable-previous-line no-empty-blocks
     }
 }
