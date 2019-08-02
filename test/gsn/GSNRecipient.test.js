@@ -14,6 +14,10 @@ contract('GSNContext', function ([_, payee]) {
     expect(await this.recipient.getHubAddr()).to.equal('0x537F27a04470242ff6b2c3ad247A05248d0d27CE');
   });
 
+  it('returns the compatible RelayHub version', async function () {
+    expect(await this.recipient.relayHubVersion()).to.equal('1.0.0');
+  });
+
   context('with deposited funds', async function () {
     const amount = ether('1');
 
