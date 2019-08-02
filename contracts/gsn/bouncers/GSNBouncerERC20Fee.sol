@@ -112,4 +112,13 @@ contract __unstable__ERC20PrimaryAdmin is ERC20, ERC20Detailed, Secondary {
             super._approve(owner, spender, value);
         }
     }
+
+    function transferFrom(address sender, address recipient, uint256 amount) public returns (bool) {
+        if (recipient == primary()) {
+            _transfer(sender, recipient, amount);
+            return true;
+        } else {
+            return super.transferFrom(sender, recipient, amount);
+        }
+    }
 }
