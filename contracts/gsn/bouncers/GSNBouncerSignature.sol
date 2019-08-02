@@ -44,9 +44,9 @@ contract GSNBouncerSignature is IRelayRecipient, GSNBouncerUtils {
             address(this) // Prevents replays in multiple recipients
         );
         if (keccak256(blob).toEthSignedMessageHash().recover(approvalData) == _trustedSigner) {
-            return (_acceptRelayedCall(), "");
+            return _acceptRelayedCall();
         } else {
-            return (_declineRelayedCall(uint256(GSNRecipientSignedDataErrorCodes.INVALID_SIGNER)), "");
+            return _declineRelayedCall(uint256(GSNRecipientSignedDataErrorCodes.INVALID_SIGNER));
         }
     }
 
