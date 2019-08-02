@@ -1,10 +1,9 @@
 pragma solidity ^0.5.0;
 
-import "../IRelayRecipient.sol";
-import "./GSNBouncerUtils.sol";
+import "./GSNBouncerBase.sol";
 import "../../cryptography/ECDSA.sol";
 
-contract GSNBouncerSignature is IRelayRecipient, GSNBouncerUtils {
+contract GSNBouncerSignature is GSNBouncerBase {
     using ECDSA for bytes32;
 
     address private _trustedSigner;

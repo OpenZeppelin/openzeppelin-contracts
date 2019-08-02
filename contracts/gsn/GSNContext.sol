@@ -7,7 +7,7 @@ import "./Context.sol";
  * RelayHub and extracting the actual sender and call data from the received
  * calldata.
  *
- * This contract does not perform all required tasks to implement a GSN
+ * > This contract does not perform all required tasks to implement a GSN
  * recipient contract: end users should use `GSNRecipient` instead.
  */
 contract GSNContext is Context {
