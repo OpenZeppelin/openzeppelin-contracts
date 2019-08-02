@@ -26,8 +26,15 @@ fi
 
 node_url="http://localhost:$ganache_port"
 
+relayer_port=8099
+relayer_url="http://localhost:${relayer_port}"
+
 ganache_running() {
   nc -z localhost "$ganache_port"
+}
+
+relayer_running() {
+  nc -z localhost "$relayer_port"
 }
 
 start_ganache() {
@@ -67,13 +74,16 @@ setup_gsn_relay() {
 
   echo "Launching GSN relay server"
 
-  server_url="http://localhost:8090"
-  ./scripts/gsnRelayServer -DevMode -ShortSleep -RelayHubAddress "0x537F27a04470242ff6b2c3ad247A05248d0d27CE" -GasPricePercent -99 -EthereumNodeUrl $node_url -Url $server_url &> /dev/null &
+  ./scripts/gsnRelayServer -DevMode -RelayHubAddress "0x537F27a04470242ff6b2c3ad247A05248d0d27CE" -GasPricePercent -99 -EthereumNodeUrl $node_url -Url $relayer_url &> /dev/null &
   gsn_relay_server_pid=$!
+
+  while ! relayer_running; do
+    sleep 0.1 # wait for 1/10 of the second before check again
+  done
 
   echo "GSN relay server launched!"
 
-  npx oz-gsn register-relayer --ethereumNodeURL $node_url --relayUrl $server_url
+  npx oz-gsn register-relayer --ethereumNodeURL $node_url --relayUrl $relayer_url
 }
 
 if ganache_running; then
