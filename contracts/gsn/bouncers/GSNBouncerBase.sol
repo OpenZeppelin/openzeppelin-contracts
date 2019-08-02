@@ -12,6 +12,9 @@ contract GSNBouncerBase is IRelayRecipient {
     uint256 constant private RELAYED_CALL_ACCEPTED = 0;
     uint256 constant private RELAYED_CALL_REJECTED = 11;
 
+    // How much gas is forwarded to postRelayedCall
+    uint256 constant internal POST_RELAYED_CALL_MAX_GAS = 100000;
+
     modifier onlyRelayHub() {
         require(msg.sender == getHubAddr(), "GSNBouncerBase: caller is not RelayHub");
         _;
@@ -78,5 +81,15 @@ contract GSNBouncerBase is IRelayRecipient {
 
     function _postRelayedCall(bytes memory, bool, uint256, bytes32) internal {
         // solhint-disable-previous-line no-empty-blocks
+    }
+
+    /*
+     * @dev Calculates how much RelaHub will charge a recipient for using `gas` at a `gasPrice`, given a relayer's
+     * `serviceFee`.
+     */
+    function _computeCharge(uint256 gas, uint256 gasPrice, uint256 serviceFee) internal pure returns (uint256) {
+        // The fee is expressed as a percentage. E.g. a value of 40 stands for a 40% fee, so the recipient will be
+        // charged for 1.4 times the spent amount.
+        return (gas * gasPrice * (100 + serviceFee)) / 100;
     }
 }

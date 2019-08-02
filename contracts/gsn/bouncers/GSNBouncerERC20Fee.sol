@@ -26,7 +26,7 @@ contract GSNBouncerERC20Fee is GSNBouncerBase {
         return IERC20(_token);
     }
 
-    function _mintBuiltIn(address account, uint256 amount) internal {
+    function _mint(address account, uint256 amount) internal {
         _token.mint(account, amount);
     }
 
@@ -34,8 +34,8 @@ contract GSNBouncerERC20Fee is GSNBouncerBase {
         address,
         address from,
         bytes calldata,
-        uint256,
-        uint256,
+        uint256 transactionFee,
+        uint256 gasPrice,
         uint256,
         uint256,
         bytes calldata,
@@ -51,7 +51,7 @@ contract GSNBouncerERC20Fee is GSNBouncerBase {
             return _declineRelayedCall(uint256(GSNRecipientERC20ChargeErrorCodes.INSUFFICIENT_ALLOWANCE));
         }
 
-        return _confirmRelayedCall(abi.encode(from, maxPossibleCharge));
+        return _confirmRelayedCall(abi.encode(from, maxPossibleCharge, transactionFee, gasPrice));
     }
 
     function _preRelayedCall(bytes memory context) internal returns (bytes32) {
@@ -62,7 +62,14 @@ contract GSNBouncerERC20Fee is GSNBouncerBase {
     }
 
     function _postRelayedCall(bytes memory context, bool, uint256 actualCharge, bytes32) internal {
-        (address from, uint256 maxPossibleCharge) = abi.decode(context, (address, uint256));
+        (address from, uint256 maxPossibleCharge, uint256 transactionFee, uint256 gasPrice) =
+            abi.decode(context, (address, uint256, uint256, uint256));
+
+        // actualCharge is an _estimated_ charge, which assumes postRelayedCall will use all available gas.
+        // This implementation's gas cost can be roughly estimated as 10k gas, for the two SSTORE operations in an
+        // ERC20 transfer.
+        uint256 overestimation = _computeCharge(POST_RELAYED_CALL_MAX_GAS.sub(10000), gasPrice, transactionFee);
+        actualCharge = actualCharge.sub(overestimation);
 
         // After the relayed call has been executed and the actual charge estimated, the excess pre-charge is returned
         _token.safeTransfer(from, maxPossibleCharge.sub(actualCharge));
