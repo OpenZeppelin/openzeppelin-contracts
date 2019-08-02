@@ -307,8 +307,8 @@ function shouldBehaveLikeERC1155 ([minter, firstOwner, secondOwner, owner, recip
             value: firstAmount,
           });
 
-          it('should call onERC1155Received', function () {
-            expectEvent.inTransaction(this.transferReceipt.tx, ERC1155TokenReceiverMock, 'Received', {
+          it('should call onERC1155Received', async function () {
+            await expectEvent.inTransaction(this.transferReceipt.tx, ERC1155TokenReceiverMock, 'Received', {
               operator: owner,
               from: owner,
               id: firstTokenId,
@@ -340,8 +340,8 @@ function shouldBehaveLikeERC1155 ([minter, firstOwner, secondOwner, owner, recip
             value: firstAmount,
           });
 
-          it('should call onERC1155Received', function () {
-            expectEvent.inTransaction(this.transferReceipt.tx, ERC1155TokenReceiverMock, 'Received', {
+          it('should call onERC1155Received', async function () {
+            await expectEvent.inTransaction(this.transferReceipt.tx, ERC1155TokenReceiverMock, 'Received', {
               operator: owner,
               from: owner,
               id: firstTokenId,
@@ -573,8 +573,8 @@ function shouldBehaveLikeERC1155 ([minter, firstOwner, secondOwner, owner, recip
             values: [firstAmount, secondAmount],
           });
 
-          it('should call onERC1155BatchReceived', function () {
-            expectEvent.inTransaction(this.transferReceipt.tx, ERC1155TokenReceiverMock, 'BatchReceived', {
+          it('should call onERC1155BatchReceived', async function () {
+            await expectEvent.inTransaction(this.transferReceipt.tx, ERC1155TokenReceiverMock, 'BatchReceived', {
               operator: owner,
               from: owner,
               // ids: [firstTokenId, secondTokenId],
@@ -604,8 +604,8 @@ function shouldBehaveLikeERC1155 ([minter, firstOwner, secondOwner, owner, recip
             values: [firstAmount, secondAmount],
           });
 
-          it('should call onERC1155Received', function () {
-            expectEvent.inTransaction(this.transferReceipt.tx, ERC1155TokenReceiverMock, 'BatchReceived', {
+          it('should call onERC1155Received', async function () {
+            await expectEvent.inTransaction(this.transferReceipt.tx, ERC1155TokenReceiverMock, 'BatchReceived', {
               operator: owner,
               from: owner,
               // ids: [firstTokenId, secondTokenId],
