@@ -15,7 +15,7 @@ contract GSNContext is Context {
     // storage layout. This value is calculated as: keccak256('gsn.relayhub.address'), minus 1.
     bytes32 private constant RELAY_HUB_ADDRESS_STORAGE_SLOT = 0x06b7792c761dcc05af1761f0315ce8b01ac39c16cc934eb0b2f7a8e71414f262;
 
-    event RelayHubUpgraded(address indexed oldRelayHub, address indexed newRelayHub);
+    event RelayHubChanged(address indexed oldRelayHub, address indexed newRelayHub);
 
     constructor() internal {
         _upgradeRelayHub(0x537F27a04470242ff6b2c3ad247A05248d0d27CE);
@@ -34,7 +34,7 @@ contract GSNContext is Context {
         require(newRelayHub != address(0), "GSNContext: new RelayHub is the zero address");
         require(newRelayHub != currentRelayHub, "GSNContext: new RelayHub is the current one");
 
-        emit RelayHubUpgraded(currentRelayHub, newRelayHub);
+        emit RelayHubChanged(currentRelayHub, newRelayHub);
 
         bytes32 slot = RELAY_HUB_ADDRESS_STORAGE_SLOT;
         // solhint-disable-next-line no-inline-assembly

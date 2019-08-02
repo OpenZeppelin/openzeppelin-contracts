@@ -22,7 +22,7 @@ contract('GSNContext', function ([_, deployer, sender, newRelayHub]) {
 
     it('can be upgraded to a new RelayHub', async function () {
       const { logs } = await this.context.upgradeRelayHub(newRelayHub);
-      expectEvent.inLogs(logs, 'RelayHubUpgraded', { oldRelayHub: singletonRelayHub, newRelayHub });
+      expectEvent.inLogs(logs, 'RelayHubChanged', { oldRelayHub: singletonRelayHub, newRelayHub });
     });
 
     it('cannot upgrade to the same RelayHub', async function () {
