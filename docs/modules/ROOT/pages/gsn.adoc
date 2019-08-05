@@ -62,29 +62,65 @@ The OpenZeppelin Contracts provide a number of [tried-and-tested approaches]() f
 
 First, RelayHub will ask your recipient contract if it wants to receive a relayed call. Recall that you will be charged for incurred gas costs by the relayer, so you should only accept calls that you're willing to pay for!
 
+[source,solidity]
+----
+function acceptRelayedCall(
+  address relay,
+  address from,
+  bytes calldata encodedFunction,
+  uint256 transactionFee,
+  uint256 gasPrice,
+  uint256 gasLimit,
+  uint256 nonce,
+  bytes calldata approvalData,
+  uint256 maxPossibleCharge
+) external view returns (uint256, bytes memory);
+----
+
 There are multiple ways to make this work, including:
- * having a whitelist of trusted users
- * only accepting calls to an onboarding function
- * charging users in tokens (possibly issued by you)
- * delegating the acceptance logic off-chain
+
+. having a whitelist of trusted users
+. only accepting calls to an onboarding function
+. charging users in tokens (possibly issued by you)
+. delegating the acceptance logic off-chain
 
 All relayed call requests can be rejected at no cost to the recipient.
 
+In this function, you return a number indicating whether you accept the call (0) or not (any other number). You can also return some arbitrary data that will get passed along to the following two functions (pre and post) as an execution context.
+
 === pre and postRelayedCall
 
-You may have noticed one of the suggested acceptance flows involves charging a user in tokens. You may, for example, setup a system where users spend a special token to pay for relayed calls, and then either gift these to new users, or sell them off-chain. The GSN will let you easily implement these designs.
+After a relayed call is accepted, RelayHub will give your contract two opportunities to charge your user for their call, perform some bookeeping, etc.: _before_ and _after_ the actual relayed call is made. These functions are aptly named `preRelayedCall` and `postRelayedCall`.
 
-After a relayed call is accepted, RelayHub will give your contract two opportunities to charge your user for their call, perform some bookeeping, etc.: _before_ and _after_ the actual relayed call is made. These functions are aptly named preRelayedCall and postRelayedCall.
+[source,solidity]
+----
 
-preRelayedCall will inform you of the maximum cost the call may have, and is used to charge the user in advance. This is only required in scenarios where your users may run off with their tokens before you're able to charge them, and not all applications need this function.
+function preRelayedCall(bytes calldata context) external returns (bytes32);
+----
 
-postRelayedCall will give you an accurate estimate of the transaction cost, making it a natural place to charge users. It will also let you know if the relayed call reverted or not, which allows for more sophisticated interactions, like not charging users for reverted calls (but remember that your recipient contract will be charged by the relayer nonetheless!).
+`preRelayedCall` will inform you of the maximum cost the call may have, and can be used to charge the user in advance. This is useful if the user may spend their allowance as part of the call, so you can lock some funds here.
+
+[source,solidity]
+----
+
+function postRelayedCall(
+  bytes calldata context, 
+  bool success, 
+  uint actualCharge, 
+  bytes32 preRetVal
+) external;
+----
+
+`postRelayedCall` will give you an accurate estimate of the transaction cost, making it a natural place to charge users. It will also let you know if the relayed call reverted or not. This allows you, for instance, to not charge users for reverted calls - but remember that you will be charged by the relayer nonetheless.
+
+These functions allow you to implement, for instance, a flow where you charge your users for the relayed transactions in a custom token. You can lock some of their tokens in `pre`, and execute the actual charge in `post`. This is similar to how gas fees work in Ethereum: the network first locks enough ETH to pay for the transaction's gas limit at its gas price, and then pays for what it actually spent.
+
 
 == Payment
 
 By now you may be wondering how exactly relayers charge their recipients for gas costs and service fees. The answer is simple: each recipient must have funds deposited on RelayHub in advance, and payment is automatically handled on each relayed call.
 
-You can head to the [GSN dashboard](deltacamp.website) to check and top-up your contracts' balance, view previous charges, or do all of this programatically by calling IRelayHub.depositFor and IRelayHub.balanceOf.
+You can head to the [GSN dashboard](gsn.ethereum.org) to check and top-up your contracts' balance, view previous charges, or do all of this programatically by calling `IRelayHub.depositFor` and `IRelayHub.balanceOf`.
 
 Recipients may withdraw their balance from the system at any point, but remember that they will not be able to receive any further relayed calls!
 
