@@ -2,6 +2,8 @@
 
 User onboarding is one of the hottest topics in Ethereum, and meta-transactions is the de-facto solution to this important problem. Here you'll learn all about the Gas Station Network (GSN) and how to write contracts that don't require their users to hold Ether to pay for gas.
 
+WARNING: This feature is under development, and will be released in the next version of `@openzeppelin/contracts`.
+
 If you're already up to speed with the workings of the GSN, feel free to skip to <<Receiving a relayed call>>, where we'll go over how to use the OpenZeppelin Contracts to easily write a GSNRecipient contract. Otherwise, strap in!
 
 == Sending gas-less transactions
