@@ -128,7 +128,7 @@ Recipients may withdraw their balance from the system at any point, but remember
 
 == Further reading
 
-The (https://medium.com/@rrecuero/eth-onboarding-solution-90607fb81380[GSN announcement post] provides a good overview of the system, along with some use cases to take inspiration from.
+The https://medium.com/@rrecuero/eth-onboarding-solution-90607fb81380[GSN announcement post] provides a good overview of the system, along with some use cases to take inspiration from.
 
 If you want to learn how to use OpenZeppelin Contract's pre-made accept and charge strategies, we'll release an advanced guide in the upcoming days.
 If instead you wish to know more about interacting with relayers and performing relayed calls, head to the sample dapp code https://github.com/OpenZeppelin/gsn-sample-chat_app[Sample Chat APP].
