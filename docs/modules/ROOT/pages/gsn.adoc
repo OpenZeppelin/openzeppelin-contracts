@@ -18,7 +18,7 @@ But why would they do such a thing?
 
 Relayers are not running a charity: they're running a business. The reason why they'll gladly pay for your users' gas costs is because they will in turn charge your contract, the recipient. That way relayers get their money back, plus a bit extra as a _fee_ for their services.
 
-This may sound strange at first, but paying for user onboarding is a very common bussiness practice. Lots of money is spent on advertising, free trials, new user discounts, etc., all with the https://en.wikipedia.org/wiki/Customer_acquisition_cost[goal of user acquisition]. Compared to those, the cost of a couple of Ethereum transactions is actually very small.
+This may sound strange at first, but paying for user onboarding is a very common business practice. Lots of money is spent on advertising, free trials, new user discounts, etc., all with the https://en.wikipedia.org/wiki/Customer_acquisition_cost[goal of user acquisition]. Compared to those, the cost of a couple of Ethereum transactions is actually very small.
 
 Additionally, you can leverage the GSN in scenarios where your users pay you off-chain in advance (e.g. via credit card), with each GSN-call deducting from their balance on your system. The possibilities are endless!
 
@@ -28,9 +28,9 @@ You don't need to! The GSN is set up in such a way where it's in the relayers' b
 
 == One contract to coordinate them all
 
-There are many meta-transaction implementations out there, but the GSN has a unique detail that makes it special. Sitting in the middle of the system, a smart contract is charged with keeping track of relayers, handling relayed transactions, charging their recipients, and generally ensuring all parties stay honest. This contract is called RelayHub, and there is a _single_ instance of it in the whole network (you don't need to deploy your own!). Think of it as a piece of public infrastructure, for all Ethereum users to benefit from.
+There are many meta-transaction implementations out there, but the GSN has a unique detail that makes it special. Inside its core, a smart contract is charged with keeping track of relayers, handling relayed transactions, charging their recipients, and generally ensuring all parties stay honest. This contract is called RelayHub, and there is a _single_ instance of it in the whole network (you don't need to deploy your own!). Think of it as a piece of public infrastructure, for all Ethereum users to benefit from.
 
-One of RelayHub's jobs is to act as a, well, _hub_ for all relayers: they will advertise their services on this contract, and your users will query it to find the relayer that best suits their purposes. This is out of scope for this guide however, and is not something you need to worry about when writing a recipient contract. If you want to learn more about sending transactions via relayers, head to our [GSNProvider guide]().
+One of RelayHub's jobs is to act as a, well, _hub_ for all relayers: they will advertise their services on this contract, and your users will query it to find the relayer that best suits their purposes. This is out of scope for this guide however, and is not something you need to worry about when writing a recipient contract. If you want to learn more about sending transactions via relayers, we'll publish more documentation soon.
 
 The other key task RelayHub carries out is the actual _relaying of transactions_, the sole purpose behind this whole system. Instead of calling a function in your contract directly, your users will request a relayer to do it for them, who will then execute RelayHub's relayCall function. RelayHub will verify that the transaction is legitimate (protecting both users and recipients from dishonest relayers), and then call into your contract as originally requested by your user. This requires your recipient trusting RelayHub to do the right thing, but since it is a smart contract, this is as simple as reading its source code!
 
@@ -106,9 +106,9 @@ function preRelayedCall(bytes calldata context) external returns (bytes32);
 ----
 
 function postRelayedCall(
-  bytes calldata context, 
-  bool success, 
-  uint actualCharge, 
+  bytes calldata context,
+  bool success,
+  uint actualCharge,
   bytes32 preRetVal
 ) external;
 ----
@@ -122,10 +122,15 @@ These functions allow you to implement, for instance, a flow where you charge yo
 
 By now you may be wondering how exactly relayers charge their recipients for gas costs and service fees. The answer is simple: each recipient must have funds deposited on RelayHub in advance, and payment is automatically handled on each relayed call.
 
-You can head to the [GSN dashboard](gsn.ethereum.org) to check and top-up your contracts' balance, view previous charges, or do all of this programatically by calling `IRelayHub.depositFor` and `IRelayHub.balanceOf`.
+You can head to the https://gsn.ethereum.org[GSN dashboard] to check and top-up your contracts' balance, view previous charges, or do all of this programatically by calling `IRelayHub.depositFor` and `IRelayHub.balanceOf`.
 
 Recipients may withdraw their balance from the system at any point, but remember that they will not be able to receive any further relayed calls!
 
 == Further reading
 
-The [GSN announcement post]() provides a good overview of the system, along with some use cases to take inspiration from. If you want to learn how to use OpenZeppelin Contract's pre-made accept and charge strategies, visit our [advanced GSN recipients guide](). If instead you wish to know more about interacting with relayers and performing relayed calls, head to the [OpenZeppelin GSN provider guides]. For information on how to test GSN-enabled contracts, go to the [OpenZeppelin test helpers documentation].
+The https://medium.com/@rrecuero/eth-onboarding-solution-90607fb81380[GSN announcement post] provides a good overview of the system, along with some use cases to take inspiration from.
+
+If you want to learn how to use OpenZeppelin Contract's pre-made accept and charge strategies, we'll release an advanced guide in the upcoming days.
+If instead you wish to know more about interacting with relayers and performing relayed calls, head to the sample dapp code https://github.com/OpenZeppelin/gsn-sample-chat_app[Sample Chat APP].
+
+https://gsn-chat-app.openzeppelin.com/[View the Sample Chat Application in action]
