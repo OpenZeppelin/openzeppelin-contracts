@@ -66,10 +66,6 @@ npx truffle version
 
 if [ "$SOLIDITY_COVERAGE" = true ]; then
   npx solidity-coverage
-
-  if [ "$CI" = true ]; then
-    curl -s https://codecov.io/bash | bash -s
-  fi
 else
   npx truffle test "$@"
 fi

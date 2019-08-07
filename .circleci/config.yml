@@ -62,9 +62,7 @@ jobs:
       - *npm_install_if_necessary
       - run:
           name: Unit tests with coverage report
-          command: npm run test
-          environment:
-            SOLIDITY_COVERAGE: true
+          command: npm run coverage
 
       # TODO(xinbenlv, #1839): run SOLC_NIGHTLY to be run but allow it to fail.
 
