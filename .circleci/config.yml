@@ -79,7 +79,6 @@ jobs:
             SOLIDITY_COVERAGE: true
 
       # TODO(xinbenlv, #1839): run SOLC_NIGHTLY to be run but allow it to fail.
-      # TODO(xinbenlv, #1839): requires SLACK WEBHOOK to be setup by repo owner.
 
 workflows:
   version: 2
