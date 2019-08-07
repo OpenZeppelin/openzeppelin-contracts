@@ -12,7 +12,7 @@ aliases:
     key: v1-node_modules-{{ checksum "package-lock.json" }}
 
 jobs:
-  build:
+  dependencies:
     <<: *defaults
     steps:
       - checkout
@@ -67,13 +67,13 @@ workflows:
   version: 2
   everything:
     jobs:
-      - build
+      - dependencies
       - lint:
           requires:
-            - build
+            - dependencies
       - test:
           requires:
-            - build
+            - dependencies
       - coverage:
           requires:
-            - build
+            - dependencies
