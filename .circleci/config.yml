@@ -1,0 +1,97 @@
+version: 2
+# 2.1 does not yet support local run
+# unless with workaround. For simplicity just use it.
+# https://github.com/CircleCI-Public/circleci-cli/issues/79
+
+jobs:
+  build:
+    docker:
+      - image: circleci/node:8
+    working_directory: ~/project
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/project
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package-lock.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run:
+          name: Install npm dependencies
+          command: npm install
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package-lock.json" }}
+
+  lint:
+    docker:
+      - image: circleci/node:8
+    working_directory: ~/project
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/project
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package-lock.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run:
+          name: Linter
+          command: npm run lint
+  test:
+    docker:
+      - image: circleci/node:8
+    working_directory: ~/project
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/project
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package-lock.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run:
+          name: Unit tests
+          command: npm run test
+  coverage:
+    docker:
+      - image: circleci/node:8
+    working_directory: ~/project
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/project
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package-lock.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run:
+          name: Unit tests with coverage report
+          command: npm run test
+          environment:
+            SOLIDITY_COVERAGE: true
+
+      # TODO(xinbenlv, #1839): run SOLC_NIGHTLY to be run but allow it to fail.
+      # TODO(xinbenlv, #1839): requires SLACK WEBHOOK to be setup by repo owner.
+
+workflows:
+  version: 2
+  everything:
+    jobs:
+      - build
+      - lint:
+          requires:
+            - build
+      - test:
+          requires:
+            - build
+      - coverage:
+          requires:
+            - build

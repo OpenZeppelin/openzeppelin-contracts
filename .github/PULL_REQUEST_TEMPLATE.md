@@ -13,7 +13,7 @@ Fixes #
 
 <!-- 3. Before submitting, please make sure that you have:
   - reviewed the OpenZeppelin Contributor Guidelines
-    (https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/CONTRIBUTING.md),
+    (https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CONTRIBUTING.md),
   - added tests where applicable to test new functionality,
   - made sure that your contracts are well-documented,
   - run the Solidity linter (`npm run lint:sol`) and fixed any issues,

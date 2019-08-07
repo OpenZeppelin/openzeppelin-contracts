@@ -1,16 +1,16 @@
 ---
 name: Bug report
-about: Report a bug in OpenZeppelin
+about: Report a bug in OpenZeppelin Contracts
 
 ---
 
 <!-- Briefly describe the issue you're experiencing. Tell us what you were trying to do and what happened instead. -->
 
-<!-- Remember, this is not a place to ask for help debugging code. For that, we welcome you in the Zeppelin Forum: https://forum.zeppelin.solutions/. -->
+<!-- Remember, this is not a place to ask for help debugging code. For that, we welcome you in the OpenZeppelin Community Forum: https://forum.openzeppelin.com/. -->
 
 **💻 Environment**
 
-<!-- Tell us what version of OpenZeppelin you're using, and how you're using it: Truffle, Remix, etc. -->
+<!-- Tell us what version of OpenZeppelin Contracts you're using, and how you're using it: Truffle, Remix, etc. -->
 
 **📝 Details**
 

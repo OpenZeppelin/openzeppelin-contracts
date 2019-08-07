@@ -8,7 +8,7 @@ fi
 set -o errexit
 
 if [ ! -d openzeppelin-docs ]; then
-  git clone https://github.com/frangio/openzeppelin-docs.git
+  git clone https://github.com/frangio/openzeppelin-docs.git openzeppelin-docs
 fi
 
 git -C openzeppelin-docs pull -q

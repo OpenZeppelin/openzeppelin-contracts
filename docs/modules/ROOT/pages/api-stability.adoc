@@ -1,20 +1,20 @@
 = API Stability
 
-On the https://github.com/OpenZeppelin/openzeppelin-solidity/releases/tag/v2.0.0[OpenZeppelin 2.0 release], we committed ourselves to keeping a stable API. We aim to more precisely define what we understand by _stable_ and _API_ here, so users of the library can understand these guarantees and be confident their project won't break unexpectedly.
+On the https://github.com/OpenZeppelin/openzeppelin-contracts/releases/tag/v2.0.0[OpenZeppelin 2.0 release], we committed ourselves to keeping a stable API. We aim to more precisely define what we understand by _stable_ and _API_ here, so users of the library can understand these guarantees and be confident their project won't break unexpectedly.
 
 In a nutshell, the API being stable means _if your project is working today, it will continue to do so_. New contracts and features will be added in minor releases, but only in a backwards compatible way.
 
 [[versioning-scheme]]
 == Versioning scheme
 
-We follow https://semver.org/[SemVer], which means API breakage may occur between major releases. Read more about the link:release-schedule[release schedule] to know how often this happens (not very).
+We follow https://semver.org/[SemVer], which means API breakage may occur between major releases. Read more about the xref:release-schedule.adoc[release schedule] to know how often this happens (not very).
 
 [[solidity-functions]]
 == Solidity functions
 
 While the internal implementation of functions may change, their semantics and signature will remain the same. The domain of their arguments will not be less restrictive (e.g. if transferring a value of 0 is disallowed, it will remain disallowed), nor will general state restrictions be lifted (e.g. `whenPaused` modifiers).
 
-If new functions are added to a contract, it will be in a backwards-compatible way: their usage won't be mandatory, and they won't extend functionality in ways that may foreseeable break an application (e.g. https://github.com/OpenZeppelin/openzeppelin-solidity/issues/1512[an `internal` method may be added to make it easier to retrieve information that was already available]).
+If new functions are added to a contract, it will be in a backwards-compatible way: their usage won't be mandatory, and they won't extend functionality in ways that may foreseeable break an application (e.g. https://github.com/OpenZeppelin/openzeppelin-contracts/issues/1512[an `internal` method may be added to make it easier to retrieve information that was already available]).
 
 [[internal]]
 === `internal`
@@ -33,7 +33,7 @@ Some of our Solidity libraries use `struct`s to handle internal data that should
 [[events]]
 == Events
 
-No events will be removed, and their arguments won't be changed in any way. New events may be added in later versions, and existing events may be emitted under new, reasonable circumstances (e.g. https://github.com/OpenZeppelin/openzeppelin-solidity/issues/707[from 2.1 on, `ERC20` also emits `Approval` on `transferFrom` calls]).
+No events will be removed, and their arguments won't be changed in any way. New events may be added in later versions, and existing events may be emitted under new, reasonable circumstances (e.g. https://github.com/OpenZeppelin/openzeppelin-contracts/issues/707[from 2.1 on, `ERC20` also emits `Approval` on `transferFrom` calls]).
 
 [[gas-costs]]
 == Gas costs
@@ -43,7 +43,7 @@ While attempts will generally be made to lower the gas costs of working with Ope
 [[bugfixes]]
 == Bugfixes
 
-The API stability guarantees may need to be broken in order to fix a bug, and we will do so. This decision won't be made lightly however, and all options will be explored to make the change as non-disruptive as possible. When sufficient, contracts or functions which may result in unsafe behaviour will be deprecated instead of removed (e.g. https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1543[#1543] and https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1550[#1550]).
+The API stability guarantees may need to be broken in order to fix a bug, and we will do so. This decision won't be made lightly however, and all options will be explored to make the change as non-disruptive as possible. When sufficient, contracts or functions which may result in unsafe behaviour will be deprecated instead of removed (e.g. https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1543[#1543] and https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1550[#1550]).
 
 [[solidity-compiler-version]]
 == Solidity compiler version
@@ -52,4 +52,4 @@ Starting on version 0.5.0, the Solidity team switched to a faster release cycle,
 
 Because of this, *the minimum required Solidity compiler version is not part of the stability guarantees*, and users may be required to upgrade their compiler when using newer versions of OpenZeppelin. Bugfixes will still be backported to older library releases so that all versions currently in use receive these updates.
 
-You can read more about the rationale behind this, the other options we considered and why we went down this path https://github.com/OpenZeppelin/openzeppelin-solidity/issues/1498#issuecomment-449191611[here].
+You can read more about the rationale behind this, the other options we considered and why we went down this path https://github.com/OpenZeppelin/openzeppelin-contracts/issues/1498#issuecomment-449191611[here].
