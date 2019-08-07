@@ -3,50 +3,47 @@ version: 2
 # unless with workaround. For simplicity just use it.
 # https://github.com/CircleCI-Public/circleci-cli/issues/79
 
-jobs:
-  build:
+aliases:
+  - &defaults
     docker:
       - image: circleci/node:8
+
+  - &cache_key_node_modules
+    key: v1-node_modules-{{ checksum "package-lock.json" }}
+
+jobs:
+  build:
+    <<: *defaults
     steps:
       - checkout
-      # Download and cache dependencies
       - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "package-lock.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
+          <<: *cache_key_node_modules
       - run:
           name: Install npm dependencies
-          command: npm install
-
+          command: |
+            if [ ! -d node_modules ]; then
+              npm ci
+            fi
       - save_cache:
           paths:
             - node_modules
-          key: v1-dependencies-{{ checksum "package-lock.json" }}
+          <<: *cache_key_node_modules
 
   lint:
-    docker:
-      - image: circleci/node:8
+    <<: *defaults
     steps:
       - checkout
       - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "package-lock.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
+          <<: *cache_key_node_modules
       - run:
           name: Linter
           command: npm run lint
   test:
-    docker:
-      - image: circleci/node:8
+    <<: *defaults
     steps:
       - checkout
       - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "package-lock.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
+          <<: *cache_key_node_modules
       - run:
           name: Unit tests
           command: npm run test
@@ -56,10 +53,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "package-lock.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
+          <<: *cache_key_node_modules
       - run:
           name: Unit tests with coverage report
           command: npm run test
