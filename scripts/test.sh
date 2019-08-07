@@ -67,8 +67,8 @@ npx truffle version
 if [ "$SOLIDITY_COVERAGE" = true ]; then
   npx solidity-coverage
 
-  if [ "$CONTINUOUS_INTEGRATION" = true ]; then
-    cat coverage/lcov.info | npx coveralls
+  if [ "$CI" = true ]; then
+    curl -s https://codecov.io/bash | bash -s
   fi
 else
   npx truffle test "$@"
