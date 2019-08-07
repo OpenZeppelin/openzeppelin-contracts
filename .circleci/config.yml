@@ -7,7 +7,6 @@ jobs:
   build:
     docker:
       - image: circleci/node:8
-    working_directory: ~/project
     steps:
       - checkout
       # Download and cache dependencies
@@ -28,7 +27,6 @@ jobs:
   lint:
     docker:
       - image: circleci/node:8
-    working_directory: ~/project
     steps:
       - checkout
       - restore_cache:
@@ -42,7 +40,6 @@ jobs:
   test:
     docker:
       - image: circleci/node:8
-    working_directory: ~/project
     steps:
       - checkout
       - restore_cache:
@@ -56,7 +53,6 @@ jobs:
   coverage:
     docker:
       - image: circleci/node:8
-    working_directory: ~/project
     steps:
       - checkout
       - restore_cache:
