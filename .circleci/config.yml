@@ -8,6 +8,14 @@ aliases:
     docker:
       - image: circleci/node:8
 
+  - &npm_install_if_necessary
+    run:
+      name: Install npm dependencies
+      command: |
+        if [ ! -d node_modules ]; then
+          npm ci
+        fi
+
   - &cache_key_node_modules
     key: v1-node_modules-{{ checksum "package-lock.json" }}
 
@@ -18,12 +26,7 @@ jobs:
       - checkout
       - restore_cache:
           <<: *cache_key_node_modules
-      - run:
-          name: Install npm dependencies
-          command: |
-            if [ ! -d node_modules ]; then
-              npm ci
-            fi
+      - *npm_install_if_necessary
       - save_cache:
           paths:
             - node_modules
@@ -35,6 +38,7 @@ jobs:
       - checkout
       - restore_cache:
           <<: *cache_key_node_modules
+      - *npm_install_if_necessary
       - run:
           name: Linter
           command: npm run lint
@@ -44,6 +48,7 @@ jobs:
       - checkout
       - restore_cache:
           <<: *cache_key_node_modules
+      - *npm_install_if_necessary
       - run:
           name: Unit tests
           command: npm run test
@@ -54,6 +59,7 @@ jobs:
       - checkout
       - restore_cache:
           <<: *cache_key_node_modules
+      - *npm_install_if_necessary
       - run:
           name: Unit tests with coverage report
           command: npm run test
