@@ -138,6 +138,7 @@ contract Crowdsale is ReentrancyGuard {
     function _preValidatePurchase(address beneficiary, uint256 weiAmount) internal view {
         require(beneficiary != address(0), "Crowdsale: beneficiary is the zero address");
         require(weiAmount != 0, "Crowdsale: weiAmount is 0");
+        this; // silence state mutability warning without generating bytecode - see https://github.com/ethereum/solidity/issues/2691
     }
 
     /**
