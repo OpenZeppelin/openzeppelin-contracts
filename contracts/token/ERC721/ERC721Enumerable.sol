@@ -8,7 +8,7 @@ import "../../introspection/ERC165.sol";
  * @title ERC-721 Non-Fungible Token with optional enumeration extension logic
  * @dev See https://eips.ethereum.org/EIPS/eip-721
  */
-contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
+contract ERC721Enumerable is Context, ERC165, ERC721, IERC721Enumerable {
     // Mapping from owner to list of owned token IDs
     mapping(address => uint256[]) private _ownedTokens;
 

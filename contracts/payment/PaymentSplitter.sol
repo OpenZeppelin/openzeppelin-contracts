@@ -15,7 +15,7 @@ import "../math/SafeMath.sol";
  * accounts but kept in this contract, and the actual transfer is triggered as a separate step by calling the {release}
  * function.
  */
-contract PaymentSplitter {
+contract PaymentSplitter is Context {
     using SafeMath for uint256;
 
     event PayeeAdded(address account, uint256 shares);
@@ -56,7 +56,7 @@ contract PaymentSplitter {
      * functions].
      */
     function () external payable {
-        emit PaymentReceived(msg.sender, msg.value);
+        emit PaymentReceived(_msgSender(), msg.value);
     }
 
     /**

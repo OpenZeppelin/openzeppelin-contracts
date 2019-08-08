@@ -3,7 +3,7 @@ pragma solidity ^0.5.0;
 import "../token/ERC20/IERC20.sol";
 import "../token/ERC20/SafeERC20.sol";
 
-contract ERC20ReturnFalseMock {
+contract ERC20ReturnFalseMock is Context {
     uint256 private _allowance;
 
     // IERC20's functions are not pure, but these mock implementations are: to prevent Solidity from issuing warnings,
@@ -31,7 +31,7 @@ contract ERC20ReturnFalseMock {
     }
 }
 
-contract ERC20ReturnTrueMock {
+contract ERC20ReturnTrueMock is Context {
     mapping (address => uint256) private _allowances;
 
     // IERC20's functions are not pure, but these mock implementations are: to prevent Solidity from issuing warnings,
@@ -54,7 +54,7 @@ contract ERC20ReturnTrueMock {
     }
 
     function setAllowance(uint256 allowance_) public {
-        _allowances[msg.sender] = allowance_;
+        _allowances[_msgSender()] = allowance_;
     }
 
     function allowance(address owner, address) public view returns (uint256) {
@@ -62,7 +62,7 @@ contract ERC20ReturnTrueMock {
     }
 }
 
-contract ERC20NoReturnMock {
+contract ERC20NoReturnMock is Context {
     mapping (address => uint256) private _allowances;
 
     // IERC20's functions are not pure, but these mock implementations are: to prevent Solidity from issuing warnings,
@@ -82,7 +82,7 @@ contract ERC20NoReturnMock {
     }
 
     function setAllowance(uint256 allowance_) public {
-        _allowances[msg.sender] = allowance_;
+        _allowances[_msgSender()] = allowance_;
     }
 
     function allowance(address owner, address) public view returns (uint256) {
@@ -90,7 +90,7 @@ contract ERC20NoReturnMock {
     }
 }
 
-contract SafeERC20Wrapper {
+contract SafeERC20Wrapper is Context {
     using SafeERC20 for IERC20;
 
     IERC20 private _token;

@@ -2,7 +2,7 @@ pragma solidity ^0.5.0;
 
 import "../Roles.sol";
 
-contract MinterRole {
+contract MinterRole is Context {
     using Roles for Roles.Role;
 
     event MinterAdded(address indexed account);
@@ -11,11 +11,11 @@ contract MinterRole {
     Roles.Role private _minters;
 
     constructor () internal {
-        _addMinter(msg.sender);
+        _addMinter(_msgSender());
     }
 
     modifier onlyMinter() {
-        require(isMinter(msg.sender), "MinterRole: caller does not have the Minter role");
+        require(isMinter(_msgSender()), "MinterRole: caller does not have the Minter role");
         _;
     }
 
@@ -28,7 +28,7 @@ contract MinterRole {
     }
 
     function renounceMinter() public {
-        _removeMinter(msg.sender);
+        _removeMinter(_msgSender());
     }
 
     function _addMinter(address account) internal {

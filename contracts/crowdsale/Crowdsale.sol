@@ -17,7 +17,7 @@ import "../utils/ReentrancyGuard.sol";
  * the methods to add functionality. Consider using 'super' where appropriate to concatenate
  * behavior.
  */
-contract Crowdsale is ReentrancyGuard {
+contract Crowdsale is Context, ReentrancyGuard {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -70,7 +70,7 @@ contract Crowdsale is ReentrancyGuard {
      * buyTokens directly when purchasing tokens from a contract.
      */
     function () external payable {
-        buyTokens(msg.sender);
+        buyTokens(_msgSender());
     }
 
     /**
@@ -118,7 +118,7 @@ contract Crowdsale is ReentrancyGuard {
         _weiRaised = _weiRaised.add(weiAmount);
 
         _processPurchase(beneficiary, tokens);
-        emit TokensPurchased(msg.sender, beneficiary, weiAmount, tokens);
+        emit TokensPurchased(_msgSender(), beneficiary, weiAmount, tokens);
 
         _updatePurchasingState(beneficiary, weiAmount);
 
