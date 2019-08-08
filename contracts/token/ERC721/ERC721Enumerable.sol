@@ -1,5 +1,6 @@
 pragma solidity ^0.5.0;
 
+import "../../GSN/Context.sol";
 import "./IERC721Enumerable.sol";
 import "./ERC721.sol";
 import "../../introspection/ERC165.sol";

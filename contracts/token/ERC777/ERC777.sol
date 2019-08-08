@@ -1,5 +1,6 @@
 pragma solidity ^0.5.0;
 
+import "../../GSN/Context.sol";
 import "./IERC777.sol";
 import "./IERC777Recipient.sol";
 import "./IERC777Sender.sol";

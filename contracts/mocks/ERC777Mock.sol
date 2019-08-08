@@ -1,5 +1,6 @@
 pragma solidity ^0.5.0;
 
+import "../GSN/Context.sol";
 import "../token/ERC777/ERC777.sol";
 
 contract ERC777Mock is Context, ERC777 {
