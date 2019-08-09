@@ -24,11 +24,6 @@ else
   ganache_port=8545
 fi
 
-node_url="http://localhost:$ganache_port"
-
-relayer_port=8099
-relayer_url="http://localhost:${relayer_port}"
-
 ganache_running() {
   nc -z localhost "$ganache_port"
 }
@@ -38,8 +33,8 @@ relayer_running() {
 }
 
 start_ganache() {
-  # We define 10 accounts with balance 1M ether, needed for high-value tests.
   local accounts=(
+    # 10 accounts with balance 1M ether, needed for high-value tests.
     --account="0x2bdd21761a483f71054e14f5b827213567971c676928d9a1808cbfa4b7501200,1000000000000000000000000"
     --account="0x2bdd21761a483f71054e14f5b827213567971c676928d9a1808cbfa4b7501201,1000000000000000000000000"
     --account="0x2bdd21761a483f71054e14f5b827213567971c676928d9a1808cbfa4b7501202,1000000000000000000000000"
@@ -50,6 +45,10 @@ start_ganache() {
     --account="0x2bdd21761a483f71054e14f5b827213567971c676928d9a1808cbfa4b7501207,1000000000000000000000000"
     --account="0x2bdd21761a483f71054e14f5b827213567971c676928d9a1808cbfa4b7501208,1000000000000000000000000"
     --account="0x2bdd21761a483f71054e14f5b827213567971c676928d9a1808cbfa4b7501209,1000000000000000000000000"
+    # 3 accounts to be used for GSN matters.
+    --account="0x956b91cb2344d7863ea89e6945b753ca32f6d74bb97a59e59e04903ded14ad00,1000000000000000000000000"
+    --account="0x956b91cb2344d7863ea89e6945b753ca32f6d74bb97a59e59e04903ded14ad01,1000000000000000000000000"
+    --account="0x956b91cb2344d7863ea89e6945b753ca32f6d74bb97a59e59e04903ded14ad02,1000000000000000000000000"
   )
 
   if [ "$SOLIDITY_COVERAGE" = true ]; then
@@ -69,21 +68,10 @@ start_ganache() {
   echo "Ganache launched!"
 }
 
-setup_gsn_relay() {
-  npx oz-gsn deploy-relay-hub --ethereumNodeURL $node_url
-
-  echo "Launching GSN relay server"
-
-  ./scripts/gsnRelayServer -DevMode -RelayHubAddress "0x537F27a04470242ff6b2c3ad247A05248d0d27CE" -GasPricePercent -99 -EthereumNodeUrl $node_url -Url $relayer_url &> /dev/null &
-  gsn_relay_server_pid=$!
-
-  while ! relayer_running; do
-    sleep 0.1 # wait for 1/10 of the second before check again
-  done
-
-  echo "GSN relay server launched!"
-
-  npx oz-gsn register-relayer --ethereumNodeURL $node_url --relayUrl $relayer_url
+setup_relayhub() {
+  npx oz-gsn deploy-relay-hub \
+    --ethereumNodeURL "http://localhost:$ganache_port" \
+    --from "0xbb49ad04422f9fa6a217f3ed82261b942f6981f7"
 }
 
 if ganache_running; then
@@ -93,9 +81,9 @@ else
   start_ganache
 fi
 
-setup_gsn_relay
-
 npx truffle version
+
+setup_relayhub
 
 if [ "$SOLIDITY_COVERAGE" = true ]; then
   npx solidity-coverage
