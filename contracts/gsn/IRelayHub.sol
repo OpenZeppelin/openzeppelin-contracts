@@ -69,10 +69,10 @@ contract IRelayHub {
     // Withdraws from an account's balance, sending it back to it. Relay owners call this to retrieve their revenue, and
     // contracts can also use it to reduce their funding.
     // Emits a Withdrawn event.
-    function withdraw(uint256 amount) public;
+    function withdraw(uint256 amount, address payable dest) public;
 
     // Emitted when an account withdraws funds from RelayHub.
-    event Withdrawn(address indexed dest, uint256 amount);
+    event Withdrawn(address indexed account, address indexed dest, uint256 amount);
 
     // Relaying
 

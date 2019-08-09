@@ -22,8 +22,4 @@ contract GSNRecipientMock is GSNRecipient {
     function postRelayedCall(bytes calldata, bool, uint256, bytes32) external {
         // solhint-disable-previous-line no-empty-blocks
     }
-
-    function () external payable {
-        // solhint-disable-previous-line no-empty-blocks
-    }
 }
