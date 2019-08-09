@@ -23,7 +23,7 @@ contract('GSNBouncerSignature', function ([_, signer, other]) {
     });
 
     it('rejects unsigned relay requests', async function () {
-      await gsn.expectGSNError(this.recipient.mockFunction({ value: 0, useGSN: true }));
+      await gsn.expectError(this.recipient.mockFunction({ value: 0, useGSN: true }));
     });
 
     it('rejects relay requests where some parameters are signed', async function () {
@@ -37,7 +37,7 @@ contract('GSNBouncerSignature', function ([_, signer, other]) {
           )
         );
 
-      await gsn.expectGSNError(this.recipient.mockFunction({ value: 0, useGSN: true, approveFunction }));
+      await gsn.expectError(this.recipient.mockFunction({ value: 0, useGSN: true, approveFunction }));
     });
 
     it('accepts relay requests where all parameters are signed', async function () {
@@ -67,7 +67,7 @@ contract('GSNBouncerSignature', function ([_, signer, other]) {
           )
         );
 
-      await gsn.expectGSNError(this.recipient.mockFunction({ value: 0, useGSN: true, approveFunction }));
+      await gsn.expectError(this.recipient.mockFunction({ value: 0, useGSN: true, approveFunction }));
     });
   });
 });
