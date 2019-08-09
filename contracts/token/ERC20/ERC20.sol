@@ -217,7 +217,7 @@ contract ERC20 is IERC20 {
     }
 
     /**
-     * @dev Destoys `amount` tokens from `account`.`amount` is then deducted
+     * @dev Destroys `amount` tokens from `account`.`amount` is then deducted
      * from the caller's allowance.
      *
      * See {_burn} and {_approve}.
