@@ -1,6 +1,7 @@
 const { expectEvent } = require('openzeppelin-test-helpers');
 const gsn = require('@openzeppelin/gsn-helpers');
 const { fixSignature } = require('../helpers/sign');
+const { utils: { toBN } } = require('web3');
 
 const GSNBouncerSignatureMock = artifacts.require('GSNBouncerSignatureMock');
 
@@ -45,7 +46,7 @@ contract('GSNBouncerSignature', function ([_, signer, other]) {
           await web3.eth.sign(
             web3.utils.soliditySha3(
               // eslint-disable-next-line max-len
-              data.relayerAddress, data.from, data.encodedFunctionCall, data.txFee, data.gasPrice, data.gas, data.nonce, data.relayHubAddress, data.to
+              data.relayerAddress, data.from, data.encodedFunctionCall, toBN(data.txFee), toBN(data.gasPrice), toBN(data.gas), toBN(data.nonce), data.relayHubAddress, data.to
             ), signer
           )
         );
