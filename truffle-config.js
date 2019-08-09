@@ -15,7 +15,7 @@ const useSolcNightly = process.env.SOLC_NIGHTLY === 'true';
 module.exports = {
   networks: {
     development: {
-      provider: () => new GSNDevProvider('http://localhost:8545', {
+      provider: new GSNDevProvider('http://localhost:8545', {
         txfee: 70,
         useGSN: false,
         // The last two accounts defined in test.sh
