@@ -23,11 +23,8 @@ contract GSNRecipient is GSNContext, GSNBouncerBase {
         return "1.0.0";
     }
 
-    // This requires derived contracts to implement a payable fallback function
     function _withdrawDeposits(uint256 amount, address payable payee) internal {
-        IRelayHub(_getRelayHub()).withdraw(amount);
-        payee.transfer(amount);
-
+        IRelayHub(_getRelayHub()).withdraw(amount, payee);
         emit GSNDepositsWithdrawn(amount, payee);
     }
 }
