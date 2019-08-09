@@ -11,7 +11,7 @@ contract('GSNContext', function ([_, payee]) {
   });
 
   it('returns the RelayHub address address', async function () {
-    expect(await this.recipient.getHubAddr()).to.equal('0x537F27a04470242ff6b2c3ad247A05248d0d27CE');
+    expect(await this.recipient.getHubAddr()).to.equal('0xD216153c06E857cD7f72665E0aF1d7D82172F494');
   });
 
   it('returns the compatible RelayHub version', async function () {

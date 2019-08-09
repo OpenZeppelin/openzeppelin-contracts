@@ -18,7 +18,7 @@ contract GSNContext is Context {
     event RelayHubChanged(address indexed oldRelayHub, address indexed newRelayHub);
 
     constructor() internal {
-        _upgradeRelayHub(0x537F27a04470242ff6b2c3ad247A05248d0d27CE);
+        _upgradeRelayHub(0xD216153c06E857cD7f72665E0aF1d7D82172F494);
     }
 
     function _getRelayHub() internal view returns (address relayHub) {
