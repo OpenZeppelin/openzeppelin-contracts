@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -o errexit
+
 SOLIDITY_COVERAGE=true scripts/test.sh
 
 if [ "$CI" = true ]; then
