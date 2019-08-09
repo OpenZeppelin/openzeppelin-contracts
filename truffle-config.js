@@ -12,7 +12,7 @@ const solcNightly = {
 
 const useSolcNightly = process.env.SOLC_NIGHTLY === 'true';
 
-function getProvider(url, options) {
+function getProvider (url, options) {
   return new GSNDevProvider('http://localhost:8545', Object.assign({
     txfee: 70,
     useGSN: false,
