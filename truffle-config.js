@@ -16,7 +16,7 @@ module.exports = {
   networks: {
     development: {
       provider: () => new GSNDevProvider('http://localhost:8545', {
-        txfee: 0,
+        txfee: 70,
         useGSN: false,
         // The last two accounts defined in test.sh
         ownerAddress: '0x26be9c03ca7f61ad3d716253ee1edcae22734698',
