@@ -28,13 +28,13 @@ contract SignatureBouncerMock is SignatureBouncer, SignerRoleMock {
         // solhint-disable-previous-line no-empty-blocks
     }
 
-    function checkValidSignatureAndData(address account, bytes memory, uint, bytes memory signature)
+    function checkValidSignatureAndData(address account, bytes memory, uint256, bytes memory signature)
         public view returns (bool)
     {
         return _isValidSignatureAndData(account, signature);
     }
 
-    function onlyWithValidSignatureAndData(uint, bytes memory signature)
+    function onlyWithValidSignatureAndData(uint256, bytes memory signature)
         public onlyValidSignatureAndData(signature) view
     {
         // solhint-disable-previous-line no-empty-blocks
