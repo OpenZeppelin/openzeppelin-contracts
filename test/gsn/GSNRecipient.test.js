@@ -1,4 +1,4 @@
-const { balance, ether, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
+const { balance, ether, expectRevert } = require('openzeppelin-test-helpers');
 const gsn = require('@openzeppelin/gsn-helpers');
 
 const { expect } = require('chai');
@@ -29,16 +29,12 @@ contract('GSNRecipient', function ([_, payee]) {
       const balanceTracker = await balance.tracker(payee);
       const { logs } = await this.recipient.withdrawDeposits(amount, payee);
       expect(await balanceTracker.delta()).to.be.bignumber.equal(amount);
-
-      expectEvent.inLogs(logs, 'GSNDepositsWithdrawn', { amount, payee });
     });
 
     it('partial funds can be withdrawn', async function () {
       const balanceTracker = await balance.tracker(payee);
       const { logs } = await this.recipient.withdrawDeposits(amount.divn(2), payee);
       expect(await balanceTracker.delta()).to.be.bignumber.equal(amount.divn(2));
-
-      expectEvent.inLogs(logs, 'GSNDepositsWithdrawn', { amount: amount.divn(2), payee });
     });
 
     it('reverts on overwithdrawals', async function () {

@@ -11,8 +11,6 @@ import "./IRelayHub.sol";
  * must do so themselves.
  */
 contract GSNRecipient is IRelayRecipient, GSNContext, GSNBouncerBase {
-    event GSNDepositsWithdrawn(uint256 amount, address indexed payee);
-
     function getHubAddr() public view returns (address) {
         return _getRelayHub();
     }
@@ -26,6 +24,5 @@ contract GSNRecipient is IRelayRecipient, GSNContext, GSNBouncerBase {
 
     function _withdrawDeposits(uint256 amount, address payable payee) internal {
         IRelayHub(_getRelayHub()).withdraw(amount, payee);
-        emit GSNDepositsWithdrawn(amount, payee);
     }
 }
