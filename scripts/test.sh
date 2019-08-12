@@ -39,12 +39,20 @@ start_ganache() {
   )
 
   if [ "$SOLIDITY_COVERAGE" = true ]; then
-    node_modules/.bin/testrpc-sc --gasLimit 0xfffffffffff --port "$ganache_port" "${accounts[@]}" > /dev/null &
+    npx ganache-cli-coverage --emitFreeLogs true --allowUnlimitedContractSize true --gasLimit 0xfffffffffff --port "$ganache_port" "${accounts[@]}" > /dev/null &
   else
-    node_modules/.bin/ganache-cli --gasLimit 0xfffffffffff "${accounts[@]}" > /dev/null &
+    npx ganache-cli --gasLimit 0xfffffffffff --port "$ganache_port" "${accounts[@]}" > /dev/null &
   fi
 
   ganache_pid=$!
+
+  echo "Waiting for ganache to launch on port "$ganache_port"..."
+
+  while ! ganache_running; do
+    sleep 0.1 # wait for 1/10 of the second before check again
+  done
+
+  echo "Ganache launched!"
 }
 
 if ganache_running; then
@@ -54,19 +62,10 @@ else
   start_ganache
 fi
 
-if [ "$SOLC_NIGHTLY" = true ]; then
-  echo "Downloading solc nightly"
-  wget -q https://raw.githubusercontent.com/ethereum/solc-bin/gh-pages/bin/soljson-nightly.js -O /tmp/soljson.js && find . -name soljson.js -exec cp /tmp/soljson.js {} \;
-fi
-
-truffle version
+npx truffle version
 
 if [ "$SOLIDITY_COVERAGE" = true ]; then
-  node_modules/.bin/solidity-coverage
-
-  if [ "$CONTINUOUS_INTEGRATION" = true ]; then
-    cat coverage/lcov.info | node_modules/.bin/coveralls
-  fi
+  npx solidity-coverage
 else
-  node_modules/.bin/truffle test "$@"
+  npx truffle test "$@"
 fi
