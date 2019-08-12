@@ -20,7 +20,7 @@ contract('ERC721GSNRecipient (integration)', function ([_, signer, sender]) {
 
   context('when called directly', function () {
     it('sender can mint tokens', async function () {
-      testMintToken(this.token, sender, tokenId);
+      await testMintToken(this.token, sender, tokenId);
     });
   });
 
@@ -40,7 +40,7 @@ contract('ERC721GSNRecipient (integration)', function ([_, signer, sender]) {
           )
         );
 
-      testMintToken(this.token, sender, tokenId, { useGSN: true, approveFunction });
+      await testMintToken(this.token, sender, tokenId, { useGSN: true, approveFunction });
     });
   });
 });
