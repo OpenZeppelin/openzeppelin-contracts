@@ -27,13 +27,13 @@ contract('GSNRecipient', function ([_, payee]) {
 
     it('funds can be withdrawn', async function () {
       const balanceTracker = await balance.tracker(payee);
-      const { logs } = await this.recipient.withdrawDeposits(amount, payee);
+      await this.recipient.withdrawDeposits(amount, payee);
       expect(await balanceTracker.delta()).to.be.bignumber.equal(amount);
     });
 
     it('partial funds can be withdrawn', async function () {
       const balanceTracker = await balance.tracker(payee);
-      const { logs } = await this.recipient.withdrawDeposits(amount.divn(2), payee);
+      await this.recipient.withdrawDeposits(amount.divn(2), payee);
       expect(await balanceTracker.delta()).to.be.bignumber.equal(amount.divn(2));
     });
 
