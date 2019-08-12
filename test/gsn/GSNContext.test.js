@@ -70,7 +70,7 @@ contract('GSNContext', function ([_, deployer, sender, newRelayHub]) {
         const callData = this.context.contract.methods.msgData(integerValue.toString(), stringValue).encodeABI();
 
         // The provider doesn't properly estimate gas for a relayed call, so we need to manually set a higher value
-        const { tx } = await this.context.msgData(integerValue, stringValue, { gas: 100000, useGSN: true });
+        const { tx } = await this.context.msgData(integerValue, stringValue, { gas: 1000000, useGSN: true });
         await expectEvent.inTransaction(tx, GSNContextMock, 'Data', { data: callData, integerValue, stringValue });
       });
     });
