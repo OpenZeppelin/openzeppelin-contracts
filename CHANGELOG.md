@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.2.2 (unreleased)
+## 2.2.2 (2019-08-12)
 
 ### New features:
  * Facilities to make metatransaction-enabled contracts through the Gas Station Network. Backported from [#1844](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1844).

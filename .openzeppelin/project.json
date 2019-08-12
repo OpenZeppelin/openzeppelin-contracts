@@ -2,11 +2,18 @@
   "manifestVersion": "2.2",
   "name": "@openzeppelin/contracts-ethereum-package",
   "publish": true,
-  "version": "2.2.0",
+  "version": "2.2.2",
   "contracts": {
     "StandaloneERC20": "StandaloneERC20",
     "StandaloneERC721": "StandaloneERC721",
     "TokenVesting": "TokenVesting",
     "PaymentSplitter": "PaymentSplitter"
+  },
+  "dependencies": {},
+  "compiler": {
+    "manager": "truffle",
+    "compilerSettings": {
+      "optimizer": {}
+    }
   }
 }
