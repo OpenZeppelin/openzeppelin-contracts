@@ -19,7 +19,6 @@
     "lint:js:fix": "eslint . --fix",
     "lint:sol": "solhint --max-warnings 0 \"contracts/**/*.sol\"",
     "prepack": "npm run build",
-    "version": "scripts/version.js",
     "test": "npm run compile && scripts/test.sh"
   },
   "repository": {
