@@ -41,6 +41,8 @@
   },
   "homepage": "https://github.com/OpenZeppelin/openzeppelin-contracts-ethereum-package",
   "devDependencies": {
+    "@openzeppelin/cli": "2.5.0",
+    "@openzeppelin/upgrades": "2.5.0",
     "chai": "^4.1.2",
     "coveralls": "^3.0.1",
     "eslint": "^4.19.1",
@@ -52,15 +54,14 @@
     "eslint-plugin-standard": "^3.1.0",
     "ethereumjs-util": "^6.0.0",
     "ethjs-abi": "^0.2.1",
-    "ganache-cli": "6.1.8",
+    "ganache-cli": "^6.5.1",
+    "ganache-cli-coverage": "https://github.com/frangio/ganache-cli/releases/download/v6.4.1-coverage/ganache-cli-coverage-6.4.1.tgz",
     "npm-install-peers": "^1.2.1",
     "openzeppelin-test-helpers": "^0.1.1",
     "pify": "^4.0.1",
     "solhint": "^1.5.0",
     "solidity-coverage": "https://github.com:rotcivegaf/solidity-coverage.git#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
-    "truffle": "^5.0.0",
-    "@openzeppelin/cli": "2.5.0",
-    "@openzeppelin/upgrades": "2.5.0"
+    "truffle": "^5.0.0"
   },
   "peerDependencies": {
     "@openzeppelin/upgrades": "^2.5.0"
