@@ -45,10 +45,10 @@ contract GSNBouncerERC20Fee is GSNBouncerBase {
         returns (uint256, bytes memory)
     {
         if (_token.balanceOf(from) < maxPossibleCharge) {
-            return _declineRelayedCall(uint256(GSNRecipientERC20ChargeErrorCodes.INSUFFICIENT_BALANCE));
+            return _rejectRelayedCall(uint256(GSNRecipientERC20ChargeErrorCodes.INSUFFICIENT_BALANCE));
         }
 
-        return _confirmRelayedCall(abi.encode(from, maxPossibleCharge, transactionFee, gasPrice));
+        return _approveRelayedCall(abi.encode(from, maxPossibleCharge, transactionFee, gasPrice));
     }
 
     function _preRelayedCall(bytes memory context) internal returns (bytes32) {
