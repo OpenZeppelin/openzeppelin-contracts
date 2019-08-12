@@ -15,12 +15,7 @@ contract GSNBouncerBase is IRelayRecipient {
     // How much gas is forwarded to postRelayedCall
     uint256 constant internal POST_RELAYED_CALL_MAX_GAS = 100000;
 
-    modifier onlyRelayHub() {
-        require(msg.sender == getHubAddr(), "GSNBouncerBase: caller is not RelayHub");
-        _;
-    }
-
-    // Base implementations for pre and post relayedCall: the onlyRelayHub modifier is added, and data forwarded to the
+    // Base implementations for pre and post relayedCall: only RelayHub can invoke them, and data is forwarded to the
     // internal hook.
 
     /**
@@ -32,7 +27,8 @@ contract GSNBouncerBase is IRelayRecipient {
      *
      * - the caller must be the `RelayHub` contract.
      */
-    function preRelayedCall(bytes calldata context) external onlyRelayHub returns (bytes32) {
+    function preRelayedCall(bytes calldata context) external returns (bytes32) {
+        require(msg.sender == getHubAddr(), "GSNBouncerBase: caller is not RelayHub");
         return _preRelayedCall(context);
     }
 
@@ -45,7 +41,8 @@ contract GSNBouncerBase is IRelayRecipient {
      *
      * - the caller must be the `RelayHub` contract.
      */
-    function postRelayedCall(bytes calldata context, bool success, uint256 actualCharge, bytes32 preRetVal) external onlyRelayHub {
+    function postRelayedCall(bytes calldata context, bool success, uint256 actualCharge, bytes32 preRetVal) external {
+        require(msg.sender == getHubAddr(), "GSNBouncerBase: caller is not RelayHub");
         _postRelayedCall(context, success, actualCharge, preRetVal);
     }
 
