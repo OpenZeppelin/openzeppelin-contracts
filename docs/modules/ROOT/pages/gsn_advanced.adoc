@@ -17,14 +17,14 @@ As we have seen in the Basic Guide, in order to use GSN, your contracts need to 
 A GSN recipient contract needs the following to work:
 
 * It needs to have funds deposited on its RelayHub.
-* It needs to handle msg.sender and msg.data differently
-* It needs to do accept/pre/post
+* It needs to handle `msg.sender` and `msg.data` differently
+* It needs to decide how to approve and reject transactions.
 
 The first can be done via the https://gsn.openzeppelin.com/recipients[GSN Tools] or programatically with our SDK.
 
 The sender and data can be used safely when using `GSNRecipient` and _msgSender & _msgData.
 
-The third is a bit more complex.  The GSN Recipient, by default, will accept and pay for all transactions. Chances are you probably want to choose which users can use your contracts via the GSN, and potentially charge them for it, like a bouncer at a nightclub. We call these contracts _GSNBOuncers_.
+The third is a bit more complex. The GSN Recipient, by default, will accept and pay for all transactions. Chances are you probably want to choose which users can use your contracts via the GSN, and potentially charge them for it, like a bouncer at a nightclub. We call these contracts _GSNBouncers_.
 
 We include two of them below, ready to use out of the box.
 
@@ -212,7 +212,7 @@ This is required to protect the contract from exploits (this is really similar t
 
 Please not how the gas cost estimation is not 100% accurate, we may tweak it further down the road.
 
-NOTE: _preRelayedCall and _postRelayedCall are used instead of preRelayedCall and postRelayedCall. This prevents them from being called by non-relayhub. Always use _pre and _post methods.
+NOTE: `_preRelayedCall` and `_postRelayedCall` are used instead of preRelayedCall and postRelayedCall. This prevents them from being called by non-relayhub. Always use _pre and _post methods.
 
 === How to use it?
 
@@ -235,4 +235,4 @@ You can use 'GSNBouncerBase' as an example to guide your Bouncer implementation.
 
 The only thing you must do is to extend from `GSNRecipient` and implement the accept method.
 
-Depending on your logic, you may need to implement _postRelayedCall and _preRelayedCall.
+Depending on your logic, you may need to implement `_postRelayedCall` and `_preRelayedCall`.
