@@ -2,7 +2,7 @@
 
 ## OpenZeppelin Contracts Ethereum Package
 
-[![NPM Package](https://img.shields.io/npm/v/openzeppelin-contracts-ethereum-package.svg)](https://www.npmjs.org/package/@openzeppelin/contracts-ethereum-package)
+[![NPM Package](https://img.shields.io/npm/v/@openzeppelin/contracts-ethereum-package.svg)](https://www.npmjs.org/package/@openzeppelin/contracts-ethereum-package)
 [![Build Status](https://circleci.com/gh/OpenZeppelin/openzeppelin-contracts-ethereum-package.svg?style=shield)](https://circleci.com/gh/OpenZeppelin/openzeppelin-contracts-ethereum-package)
 
 **OpenZeppelin Contracts is a library for secure smart contract development.** It provides implementations of standards like ERC20 and ERC721 which you can deploy as-is or extend to suit your needs, as well as Solidity components to build custom contracts and more complex decentralized systems.
