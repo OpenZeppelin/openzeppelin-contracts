@@ -1,9 +1,9 @@
-# <img src="logo.png" alt="OpenZeppelin" width="400px">
+# <img src="logo.png" alt="OpenZeppelin" height="40px">
 
-# OpenZeppelin Contracts Ethereum Package
+## OpenZeppelin Contracts Ethereum Package
 
-[![NPM Package](https://img.shields.io/npm/v/openzeppelin-contracts-ethereum-package.svg?style=flat-square)](https://www.npmjs.org/package/@openzeppelin/contracts-ethereum-package)
-[![Build Status](https://img.shields.io/travis/OpenZeppelin/openzeppelin-contracts-ethereum-package.svg?branch=master&style=flat-square)](https://travis-ci.org/OpenZeppelin/openzeppelin-contracts-ethereum-package)
+[![NPM Package](https://img.shields.io/npm/v/openzeppelin-contracts-ethereum-package.svg)](https://www.npmjs.org/package/@openzeppelin/contracts-ethereum-package)
+[![Build Status](https://circleci.com/gh/OpenZeppelin/openzeppelin-contracts-ethereum-package.svg?style=shield)](https://circleci.com/gh/OpenZeppelin/openzeppelin-contracts-ethereum-package)
 
 **OpenZeppelin Contracts is a library for secure smart contract development.** It provides implementations of standards like ERC20 and ERC721 which you can deploy as-is or extend to suit your needs, as well as Solidity components to build custom contracts and more complex decentralized systems.
 
@@ -55,8 +55,8 @@ $ openzeppelin create
 ? decimals (uint8): 18
 ? initialSupply (uint256): 100e18
 ? initialHolder (address): 0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1
-? minters (address[]): 
-? pausers (address[]): 
+? minters (address[]):
+? pausers (address[]):
 ✓ Setting everything up to create contract instances
 ✓ Instance created at 0x2612Af3A521c2df9EAF28422Ca335b04AdF3ac66
 ```
