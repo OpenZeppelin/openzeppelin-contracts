@@ -10,7 +10,7 @@ If you're still learning about the basics of the Gas Station Network, you should
 
 == GSN Bouncers
 
-A *GSN Bouncer* decides which transaction get approved and which transaction get rejected. Bouncers are a key concept within GSN. Dapps need Bouncers to prevent malicious users to spend the transactions subsidy.
+A *GSN Bouncer* decides which transaction gets approved and which transaction gets rejected. Bouncers are a key concept within GSN. Dapps need Bouncers to prevent malicious users to spend the transactions subsidy.
 
 As we have seen in the Basic Guide, in order to use GSN, your contracts need to extend from GSN Recipient.
 
@@ -32,7 +32,7 @@ We include two of them below, ready to use out of the box.
 
 This bouncer lets users call into your recipient contract via the GSN (charging you for it) if they can prove that an account you trust approved them to do so. The way they do this is via a _signature_.
 
-The signature used to create the transaction must be added to the contract as a trusted signer. If it is no the same, this bouncer will not accept the transaction.
+The signature used to create the transaction must be added to the contract as a trusted signer. If it is not the same, this bouncer will not accept the transaction.
 
 This means that you need to set up a system where your trusted account signs call requests, if they are valid users.
 
