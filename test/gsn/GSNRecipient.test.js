@@ -5,7 +5,7 @@ const { expect } = require('chai');
 
 const GSNRecipientMock = artifacts.require('GSNRecipientMock');
 
-contract('GSNContext', function ([_, payee]) {
+contract('GSNRecipient', function ([_, payee]) {
   beforeEach(async function () {
     this.recipient = await GSNRecipientMock.new();
   });
