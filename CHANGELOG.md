@@ -10,7 +10,8 @@
  * `Address.isContract`: switched from `extcodesize` to `extcodehash` for less gas usage. ([#1802](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1802))
  * `SafeMath`: added custom error messages support for `sub`, `div` and `mod` functions. `ERC20` and `ERC777` updated to throw custom errors on subtraction overflows. ([#1828](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1828))
 
-### Bugfixes
+### Breaking changes in drafts:
+ * `SignatureBouncer` has been removed from the library, to avoid confusions with the GSN Bouncers and `GSNBouncerSignature`. ([#1879](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1879))
 
 ## 2.3.0 (2019-05-27)
 
