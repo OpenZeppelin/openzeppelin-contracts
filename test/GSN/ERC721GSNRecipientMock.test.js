@@ -6,7 +6,7 @@ const { utils: { toBN } } = require('web3');
 
 const ERC721GSNRecipientMock = artifacts.require('ERC721GSNRecipientMock');
 
-contract('ERC721GSNRecipient', function ([_, signer, sender]) {
+contract('ERC721GSNRecipient (integration)', function ([_, signer, sender]) {
   const tokenId = '42';
 
   beforeEach(async function () {
