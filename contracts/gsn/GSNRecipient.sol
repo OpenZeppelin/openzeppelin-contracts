@@ -1,5 +1,6 @@
 pragma solidity ^0.5.0;
 
+import "./IRelayRecipient.sol";
 import "./GSNContext.sol";
 import "./bouncers/GSNBouncerBase.sol";
 import "./IRelayHub.sol";
@@ -9,7 +10,7 @@ import "./IRelayHub.sol";
  * GSN support. Not all interface methods are implemented, derived contracts
  * must do so themselves.
  */
-contract GSNRecipient is GSNContext, GSNBouncerBase {
+contract GSNRecipient is IRelayRecipient, GSNContext, GSNBouncerBase {
     event GSNDepositsWithdrawn(uint256 amount, address indexed payee);
 
     function getHubAddr() public view returns (address) {
