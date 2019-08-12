@@ -1,8 +1,8 @@
 pragma solidity ^0.5.0;
 
 import "./ContextMock.sol";
-import "../gsn/GSNContext.sol";
-import "../gsn/IRelayRecipient.sol";
+import "../GSN/GSNContext.sol";
+import "../GSN/IRelayRecipient.sol";
 
 // By inheriting from GSNContext, Context's internal functions are overridden automatically
 contract GSNContextMock is ContextMock, GSNContext, IRelayRecipient {
