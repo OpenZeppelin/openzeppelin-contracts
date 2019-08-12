@@ -11,7 +11,7 @@ contract GSNBouncerERC20Fee is GSNBouncerBase {
     using SafeERC20 for __unstable__ERC20PrimaryAdmin;
     using SafeMath for uint256;
 
-    enum GSNRecipientERC20ChargeErrorCodes {
+    enum GSNBouncerERC20FeeErrorCodes {
         INSUFFICIENT_BALANCE
     }
 
@@ -45,7 +45,7 @@ contract GSNBouncerERC20Fee is GSNBouncerBase {
         returns (uint256, bytes memory)
     {
         if (_token.balanceOf(from) < maxPossibleCharge) {
-            return _rejectRelayedCall(uint256(GSNRecipientERC20ChargeErrorCodes.INSUFFICIENT_BALANCE));
+            return _rejectRelayedCall(uint256(GSNBouncerERC20FeeErrorCodes.INSUFFICIENT_BALANCE));
         }
 
         return _approveRelayedCall(abi.encode(from, maxPossibleCharge, transactionFee, gasPrice));

@@ -8,7 +8,7 @@ contract GSNBouncerSignature is GSNBouncerBase {
 
     address private _trustedSigner;
 
-    enum GSNRecipientSignedDataErrorCodes {
+    enum GSNBouncerSignatureErrorCodes {
         INVALID_SIGNER
     }
 
@@ -45,7 +45,7 @@ contract GSNBouncerSignature is GSNBouncerBase {
         if (keccak256(blob).toEthSignedMessageHash().recover(approvalData) == _trustedSigner) {
             return _approveRelayedCall();
         } else {
-            return _rejectRelayedCall(uint256(GSNRecipientSignedDataErrorCodes.INVALID_SIGNER));
+            return _rejectRelayedCall(uint256(GSNBouncerSignatureErrorCodes.INVALID_SIGNER));
         }
     }
 }
