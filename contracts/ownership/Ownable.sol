@@ -2,12 +2,14 @@ pragma solidity ^0.5.2;
 
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
+import "../GSN/Context.sol";
+
 /**
  * @title Ownable
  * @dev The Ownable contract has an owner address, and provides basic authorization control
  * functions, this simplifies the implementation of "user permissions".
  */
-contract Ownable is Initializable {
+contract Ownable is Initializable, Context {
     address private _owner;
 
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
@@ -40,7 +42,7 @@ contract Ownable is Initializable {
      * @return true if `msg.sender` is the owner of the contract.
      */
     function isOwner() public view returns (bool) {
-        return msg.sender == _owner;
+        return _msgSender() == _owner;
     }
 
     /**

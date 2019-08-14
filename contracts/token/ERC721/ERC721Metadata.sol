@@ -1,11 +1,13 @@
 pragma solidity ^0.5.2;
 
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
+
+import "../../GSN/Context.sol";
 import "./ERC721.sol";
 import "./IERC721Metadata.sol";
 import "../../introspection/ERC165.sol";
 
-contract ERC721Metadata is Initializable, ERC165, ERC721, IERC721Metadata {
+contract ERC721Metadata is Initializable, Context, ERC165, ERC721, IERC721Metadata {
     // Token name
     string private _name;
 

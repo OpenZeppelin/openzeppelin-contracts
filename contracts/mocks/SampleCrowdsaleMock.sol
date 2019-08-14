@@ -5,7 +5,7 @@ import "../examples/SampleCrowdsale.sol";
 
 contract SampleCrowdsaleTokenMock is SampleCrowdsaleToken {
     constructor() public {
-        SampleCrowdsaleToken.initialize(msg.sender);
+        SampleCrowdsaleToken.initialize(_msgSender());
     }
 }
 

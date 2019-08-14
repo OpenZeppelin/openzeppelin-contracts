@@ -1,10 +1,11 @@
 pragma solidity ^0.5.2;
 
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
+
+import "../../GSN/Context.sol";
 import "../Roles.sol";
 
-
-contract MinterRole is Initializable {
+contract MinterRole is Initializable, Context {
     using Roles for Roles.Role;
 
     event MinterAdded(address indexed account);
@@ -19,7 +20,7 @@ contract MinterRole is Initializable {
     }
 
     modifier onlyMinter() {
-        require(isMinter(msg.sender));
+        require(isMinter(_msgSender()), "MinterRole: caller does not have the Minter role");
         _;
     }
 
@@ -32,7 +33,7 @@ contract MinterRole is Initializable {
     }
 
     function renounceMinter() public {
-        _removeMinter(msg.sender);
+        _removeMinter(_msgSender());
     }
 
     function _addMinter(address account) internal {

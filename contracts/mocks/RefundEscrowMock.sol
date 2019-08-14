@@ -4,6 +4,6 @@ import "../payment/escrow/RefundEscrow.sol";
 
 contract RefundEscrowMock is RefundEscrow {
     constructor(address payable beneficiary) public {
-        RefundEscrow.initialize(beneficiary, msg.sender);
+        RefundEscrow.initialize(beneficiary, _msgSender());
     }
 }

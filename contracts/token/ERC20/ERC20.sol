@@ -1,6 +1,8 @@
 pragma solidity ^0.5.2;
 
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
+
+import "../../GSN/Context.sol";
 import "./IERC20.sol";
 import "../../math/SafeMath.sol";
 
@@ -16,12 +18,12 @@ import "../../math/SafeMath.sol";
  * all accounts just by listening to said events. Note that this isn't required by the specification, and other
  * compliant implementations may not do it.
  */
-contract ERC20 is Initializable, IERC20 {
+contract ERC20 is Initializable, Context, IERC20 {
     using SafeMath for uint256;
 
     mapping (address => uint256) private _balances;
 
-    mapping (address => mapping (address => uint256)) private _allowed;
+    mapping (address => mapping (address => uint256)) private _allowances;
 
     uint256 private _totalSupply;
 
@@ -48,7 +50,7 @@ contract ERC20 is Initializable, IERC20 {
      * @return A uint256 specifying the amount of tokens still available for the spender.
      */
     function allowance(address owner, address spender) public view returns (uint256) {
-        return _allowed[owner][spender];
+        return _allowances[owner][spender];
     }
 
     /**
@@ -57,7 +59,7 @@ contract ERC20 is Initializable, IERC20 {
      * @param value The amount to be transferred.
      */
     function transfer(address to, uint256 value) public returns (bool) {
-        _transfer(msg.sender, to, value);
+        _transfer(_msgSender(), to, value);
         return true;
     }
 
@@ -71,7 +73,7 @@ contract ERC20 is Initializable, IERC20 {
      * @param value The amount of tokens to be spent.
      */
     function approve(address spender, uint256 value) public returns (bool) {
-        _approve(msg.sender, spender, value);
+        _approve(_msgSender(), spender, value);
         return true;
     }
 
@@ -85,13 +87,13 @@ contract ERC20 is Initializable, IERC20 {
      */
     function transferFrom(address from, address to, uint256 value) public returns (bool) {
         _transfer(from, to, value);
-        _approve(from, msg.sender, _allowed[from][msg.sender].sub(value));
+        _approve(from, _msgSender(), _allowances[from][_msgSender()].sub(value));
         return true;
     }
 
     /**
      * @dev Increase the amount of tokens that an owner allowed to a spender.
-     * approve should be called when _allowed[msg.sender][spender] == 0. To increment
+     * approve should be called when _allowances[msg.sender][spender] == 0. To increment
      * allowed value is better to use this function to avoid 2 calls (and wait until
      * the first transaction is mined)
      * From MonolithDAO Token.sol
@@ -100,13 +102,13 @@ contract ERC20 is Initializable, IERC20 {
      * @param addedValue The amount of tokens to increase the allowance by.
      */
     function increaseAllowance(address spender, uint256 addedValue) public returns (bool) {
-        _approve(msg.sender, spender, _allowed[msg.sender][spender].add(addedValue));
+        _approve(_msgSender(), spender, _allowances[_msgSender()][spender].add(addedValue));
         return true;
     }
 
     /**
      * @dev Decrease the amount of tokens that an owner allowed to a spender.
-     * approve should be called when _allowed[msg.sender][spender] == 0. To decrement
+     * approve should be called when _allowances[msg.sender][spender] == 0. To decrement
      * allowed value is better to use this function to avoid 2 calls (and wait until
      * the first transaction is mined)
      * From MonolithDAO Token.sol
@@ -115,7 +117,7 @@ contract ERC20 is Initializable, IERC20 {
      * @param subtractedValue The amount of tokens to decrease the allowance by.
      */
     function decreaseAllowance(address spender, uint256 subtractedValue) public returns (bool) {
-        _approve(msg.sender, spender, _allowed[msg.sender][spender].sub(subtractedValue));
+        _approve(_msgSender(), spender, _allowances[_msgSender()][spender].sub(subtractedValue));
         return true;
     }
 
@@ -172,7 +174,7 @@ contract ERC20 is Initializable, IERC20 {
         require(spender != address(0));
         require(owner != address(0));
 
-        _allowed[owner][spender] = value;
+        _allowances[owner][spender] = value;
         emit Approval(owner, spender, value);
     }
 
@@ -182,11 +184,11 @@ contract ERC20 is Initializable, IERC20 {
      * internal burn function.
      * Emits an Approval event (reflecting the reduced allowance).
      * @param account The account whose tokens will be burnt.
-     * @param value The amount that will be burnt.
+     * @param amount The amount that will be burnt.
      */
-    function _burnFrom(address account, uint256 value) internal {
-        _burn(account, value);
-        _approve(account, msg.sender, _allowed[account][msg.sender].sub(value));
+    function _burnFrom(address account, uint256 amount) internal {
+        _burn(account, amount);
+        _approve(account, _msgSender(), _allowances[account][_msgSender()].sub(amount));
     }
 
     uint256[50] private ______gap;

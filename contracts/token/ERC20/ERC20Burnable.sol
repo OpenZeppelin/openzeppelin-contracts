@@ -1,19 +1,21 @@
 pragma solidity ^0.5.2;
 
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
+
+import "../../GSN/Context.sol";
 import "./ERC20.sol";
 
 /**
  * @title Burnable Token
  * @dev Token that can be irreversibly burned (destroyed).
  */
-contract ERC20Burnable is Initializable, ERC20 {
+contract ERC20Burnable is Initializable, Context, ERC20 {
     /**
      * @dev Burns a specific amount of tokens.
-     * @param value The amount of token to be burned.
+     * @param amount The amount of token to be burned.
      */
-    function burn(uint256 value) public {
-        _burn(msg.sender, value);
+    function burn(uint256 amount) public {
+        _burn(_msgSender(), amount);
     }
 
     /**

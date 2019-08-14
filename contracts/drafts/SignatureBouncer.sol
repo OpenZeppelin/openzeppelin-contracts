@@ -1,6 +1,8 @@
 pragma solidity ^0.5.2;
 
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
+
+import "../GSN/Context.sol";
 import "../access/roles/SignerRole.sol";
 import "../cryptography/ECDSA.sol";
 
@@ -35,7 +37,7 @@ import "../cryptography/ECDSA.sol";
  * the data in the signature much more complex.
  * See https://ethereum.stackexchange.com/a/50616 for more details.
  */
-contract SignatureBouncer is Initializable, SignerRole {
+contract SignatureBouncer is Initializable, Context, SignerRole {
     using ECDSA for bytes32;
 
     // Function selectors are 4 bytes long, as documented in
@@ -52,7 +54,7 @@ contract SignatureBouncer is Initializable, SignerRole {
      * @dev requires that a valid signature of a signer was provided
      */
     modifier onlyValidSignature(bytes memory signature) {
-        require(_isValidSignature(msg.sender, signature));
+        require(_isValidSignature(_msgSender(), signature), "SignatureBouncer: invalid signature for caller");
         _;
     }
 
@@ -60,7 +62,8 @@ contract SignatureBouncer is Initializable, SignerRole {
      * @dev requires that a valid signature with a specified method of a signer was provided
      */
     modifier onlyValidSignatureAndMethod(bytes memory signature) {
-        require(_isValidSignatureAndMethod(msg.sender, signature));
+        // solhint-disable-next-line max-line-length
+        require(_isValidSignatureAndMethod(_msgSender(), signature), "SignatureBouncer: invalid signature for caller and method");
         _;
     }
 
@@ -68,7 +71,8 @@ contract SignatureBouncer is Initializable, SignerRole {
      * @dev requires that a valid signature with a specified method and params of a signer was provided
      */
     modifier onlyValidSignatureAndData(bytes memory signature) {
-        require(_isValidSignatureAndData(msg.sender, signature));
+        // solhint-disable-next-line max-line-length
+        require(_isValidSignatureAndData(_msgSender(), signature), "SignatureBouncer: invalid signature for caller and data");
         _;
     }
 
@@ -85,9 +89,10 @@ contract SignatureBouncer is Initializable, SignerRole {
      * @return bool
      */
     function _isValidSignatureAndMethod(address account, bytes memory signature) internal view returns (bool) {
+        bytes memory msgData = _msgData();
         bytes memory data = new bytes(_METHOD_ID_SIZE);
-        for (uint i = 0; i < data.length; i++) {
-            data[i] = msg.data[i];
+        for (uint256 i = 0; i < data.length; i++) {
+            data[i] = msgData[i];
         }
         return _isValidDataHash(keccak256(abi.encodePacked(address(this), account, data)), signature);
     }
@@ -98,11 +103,12 @@ contract SignatureBouncer is Initializable, SignerRole {
      * @return bool
      */
     function _isValidSignatureAndData(address account, bytes memory signature) internal view returns (bool) {
-        require(msg.data.length > _SIGNATURE_SIZE);
+        bytes memory msgData = _msgData();
+        require(msgData.length > _SIGNATURE_SIZE, "SignatureBouncer: data is too short");
 
-        bytes memory data = new bytes(msg.data.length - _SIGNATURE_SIZE);
-        for (uint i = 0; i < data.length; i++) {
-            data[i] = msg.data[i];
+        bytes memory data = new bytes(msgData.length - _SIGNATURE_SIZE);
+        for (uint256 i = 0; i < data.length; i++) {
+            data[i] = msgData[i];
         }
 
         return _isValidDataHash(keccak256(abi.encodePacked(address(this), account, data)), signature);

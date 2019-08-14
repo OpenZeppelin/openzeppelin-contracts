@@ -1,10 +1,11 @@
 pragma solidity ^0.5.2;
 
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
+
+import "../../GSN/Context.sol";
 import "../Roles.sol";
 
-
-contract SignerRole is Initializable {
+contract SignerRole is Initializable, Context {
     using Roles for Roles.Role;
 
     event SignerAdded(address indexed account);
@@ -19,7 +20,7 @@ contract SignerRole is Initializable {
     }
 
     modifier onlySigner() {
-        require(isSigner(msg.sender));
+        require(isSigner(_msgSender()), "SignerRole: caller does not have the Signer role");
         _;
     }
 
@@ -32,7 +33,7 @@ contract SignerRole is Initializable {
     }
 
     function renounceSigner() public {
-        _removeSigner(msg.sender);
+        _removeSigner(_msgSender());
     }
 
     function _addSigner(address account) internal {

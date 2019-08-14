@@ -4,7 +4,7 @@ import "../access/roles/CapperRole.sol";
 
 contract CapperRoleMock is CapperRole {
     constructor() public {
-        CapperRole.initialize(msg.sender);
+        CapperRole.initialize(_msgSender());
     }
 
     function removeCapper(address account) public {

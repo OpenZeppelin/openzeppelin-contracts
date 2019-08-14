@@ -20,7 +20,7 @@ contract GSNBouncerERC20Fee is Initializable, GSNBouncerBase {
     // storage layout. This value is calculated as: keccak256('gsn.bouncer.signature.token'), minus 1.
     bytes32 constant private TOKEN_STORAGE_SLOT = 0xd918b70a5a5c95a8c0cac8acbdd59e1b4acd0645f53c0461d64b41f8825c8828;
 
-    function initialize(string memory name, string memory symbol, uint8 decimals) initializer public {
+    function initialize(string memory name, string memory symbol, uint8 decimals) public initializer {
         // TODO: Should we inject this token, instead of creating it, in order to make it upgradeable?
         // However, that would mean removing it from unstable and making in an official contract
         _setToken(new __unstable__ERC20PrimaryAdmin(name, symbol, decimals));

@@ -15,8 +15,8 @@ contract ERC721FullMock is ERC721Full, ERC721Mintable, ERC721MetadataMintable, E
         ERC721.initialize();
         ERC721Metadata.initialize(name, symbol);
         ERC721Enumerable.initialize();
-        ERC721Mintable.initialize(msg.sender);
-        ERC721MetadataMintable.initialize(msg.sender);
+        ERC721Mintable.initialize(_msgSender());
+        ERC721MetadataMintable.initialize(_msgSender());
     }
 
     function exists(uint256 tokenId) public view returns (bool) {

@@ -4,7 +4,7 @@ import "../access/roles/SignerRole.sol";
 
 contract SignerRoleMock is SignerRole {
     constructor() public {
-        SignerRole.initialize(msg.sender);
+        SignerRole.initialize(_msgSender());
     }
 
     function removeSigner(address account) public {

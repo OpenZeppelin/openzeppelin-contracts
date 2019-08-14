@@ -2,6 +2,7 @@ pragma solidity ^0.5.2;
 
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
+import "../GSN/Context.sol";
 import "../math/SafeMath.sol";
 
 /**
@@ -9,7 +10,7 @@ import "../math/SafeMath.sol";
  * @dev This contract can be used when payments need to be received by a group
  * of people and split proportionately to some number of shares they own.
  */
-contract PaymentSplitter is Initializable {
+contract PaymentSplitter is Initializable, Context {
     using SafeMath for uint256;
 
     event PayeeAdded(address account, uint256 shares);
@@ -39,7 +40,7 @@ contract PaymentSplitter is Initializable {
      * @dev payable fallback
      */
     function () external payable {
-        emit PaymentReceived(msg.sender, msg.value);
+        emit PaymentReceived(_msgSender(), msg.value);
     }
 
     /**

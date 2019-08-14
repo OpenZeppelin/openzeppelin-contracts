@@ -2,6 +2,7 @@ pragma solidity ^0.5.2;
 
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
+import "../../GSN/Context.sol";
 import "../Roles.sol";
 import "./WhitelistAdminRole.sol";
 
@@ -11,7 +12,7 @@ import "./WhitelistAdminRole.sol";
  * crowdsale). This role is special in that the only accounts that can add it are WhitelistAdmins (who can also remove
  * it), and not Whitelisteds themselves.
  */
-contract WhitelistedRole is Initializable, WhitelistAdminRole {
+contract WhitelistedRole is Initializable, Context, WhitelistAdminRole {
     using Roles for Roles.Role;
 
     event WhitelistedAdded(address indexed account);
@@ -20,7 +21,7 @@ contract WhitelistedRole is Initializable, WhitelistAdminRole {
     Roles.Role private _whitelisteds;
 
     modifier onlyWhitelisted() {
-        require(isWhitelisted(msg.sender));
+        require(isWhitelisted(_msgSender()), "WhitelistedRole: caller does not have the Whitelisted role");
         _;
     }
 
@@ -41,7 +42,7 @@ contract WhitelistedRole is Initializable, WhitelistAdminRole {
     }
 
     function renounceWhitelisted() public {
-        _removeWhitelisted(msg.sender);
+        _removeWhitelisted(_msgSender());
     }
 
     function _addWhitelisted(address account) internal {

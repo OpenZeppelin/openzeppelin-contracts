@@ -4,7 +4,7 @@ import "../ownership/Secondary.sol";
 
 contract SecondaryMock is Secondary {
     constructor() public {
-        Secondary.initialize(msg.sender);
+        Secondary.initialize(_msgSender());
     }
 
     function onlyPrimaryMock() public view onlyPrimary {

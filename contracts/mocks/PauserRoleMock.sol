@@ -4,7 +4,7 @@ import "../access/roles/PauserRole.sol";
 
 contract PauserRoleMock is PauserRole {
     constructor () public {
-        PauserRole.initialize(msg.sender);
+        PauserRole.initialize(_msgSender());
     }
 
     function removePauser(address account) public {

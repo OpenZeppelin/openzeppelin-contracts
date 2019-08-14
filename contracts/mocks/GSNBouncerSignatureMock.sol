@@ -6,8 +6,8 @@ import "../GSN/bouncers/GSNBouncerSignature.sol";
 
 contract GSNBouncerSignatureMock is GSNRecipient, GSNBouncerSignature {
     constructor(address trustedSigner) public {
-        GSNBouncerSignature.initialize(trustedSigner);
         GSNRecipient.initialize();
+        GSNBouncerSignature.initialize(trustedSigner);
     }
 
     event MockFunctionCalled();

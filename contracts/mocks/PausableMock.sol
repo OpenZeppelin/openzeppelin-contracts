@@ -9,7 +9,7 @@ contract PausableMock is Pausable, PauserRoleMock {
     uint256 public count;
 
     constructor () public {
-        Pausable.initialize(msg.sender);
+        Pausable.initialize(_msgSender());
 
         drasticMeasureTaken = false;
         count = 0;

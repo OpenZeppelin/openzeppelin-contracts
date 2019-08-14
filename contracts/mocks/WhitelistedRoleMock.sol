@@ -4,7 +4,7 @@ import "../access/roles/WhitelistedRole.sol";
 
 contract WhitelistedRoleMock is WhitelistedRole {
     constructor() public {
-        WhitelistedRole.initialize(msg.sender);
+        WhitelistedRole.initialize(_msgSender());
     }
 
     function onlyWhitelistedMock() public view onlyWhitelisted {

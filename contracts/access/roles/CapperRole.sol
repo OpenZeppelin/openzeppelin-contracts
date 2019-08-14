@@ -1,10 +1,11 @@
 pragma solidity ^0.5.2;
 
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
+
+import "../../GSN/Context.sol";
 import "../Roles.sol";
 
-
-contract CapperRole is Initializable {
+contract CapperRole is Initializable, Context {
     using Roles for Roles.Role;
 
     event CapperAdded(address indexed account);
@@ -19,7 +20,7 @@ contract CapperRole is Initializable {
     }
 
     modifier onlyCapper() {
-        require(isCapper(msg.sender));
+        require(isCapper(_msgSender()), "CapperRole: caller does not have the Capper role");
         _;
     }
 
@@ -32,7 +33,7 @@ contract CapperRole is Initializable {
     }
 
     function renounceCapper() public {
-        _removeCapper(msg.sender);
+        _removeCapper(_msgSender());
     }
 
     function _addCapper(address account) internal {

@@ -1,6 +1,8 @@
 pragma solidity ^0.5.2;
 
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
+
+import "../../GSN/Context.sol";
 import "./IERC721.sol";
 import "./IERC721Receiver.sol";
 import "../../math/SafeMath.sol";
@@ -12,7 +14,7 @@ import "../../introspection/ERC165.sol";
  * @title ERC721 Non-Fungible Token Standard basic implementation
  * @dev see https://eips.ethereum.org/EIPS/eip-721
  */
-contract ERC721 is Initializable, ERC165, IERC721 {
+contract ERC721 is Initializable, Context, ERC165, IERC721 {
     using SafeMath for uint256;
     using Address for address;
     using Counters for Counters.Counter;
@@ -89,8 +91,11 @@ contract ERC721 is Initializable, ERC165, IERC721 {
      */
     function approve(address to, uint256 tokenId) public {
         address owner = ownerOf(tokenId);
-        require(to != owner);
-        require(msg.sender == owner || isApprovedForAll(owner, msg.sender));
+        require(to != owner, "ERC721: approval to current owner");
+
+        require(_msgSender() == owner || isApprovedForAll(owner, _msgSender()),
+            "ERC721: approve caller is not owner nor approved for all"
+        );
 
         _tokenApprovals[tokenId] = to;
         emit Approval(owner, to, tokenId);
@@ -114,9 +119,10 @@ contract ERC721 is Initializable, ERC165, IERC721 {
      * @param approved representing the status of the approval to be set
      */
     function setApprovalForAll(address to, bool approved) public {
-        require(to != msg.sender);
-        _operatorApprovals[msg.sender][to] = approved;
-        emit ApprovalForAll(msg.sender, to, approved);
+        require(to != _msgSender(), "ERC721: approve to caller");
+
+        _operatorApprovals[_msgSender()][to] = approved;
+        emit ApprovalForAll(_msgSender(), to, approved);
     }
 
     /**
@@ -138,7 +144,8 @@ contract ERC721 is Initializable, ERC165, IERC721 {
      * @param tokenId uint256 ID of the token to be transferred
      */
     function transferFrom(address from, address to, uint256 tokenId) public {
-        require(_isApprovedOrOwner(msg.sender, tokenId));
+        //solhint-disable-next-line max-line-length
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: transfer caller is not owner nor approved");
 
         _transferFrom(from, to, tokenId);
     }
@@ -164,7 +171,7 @@ contract ERC721 is Initializable, ERC165, IERC721 {
      * which is called upon a safe transfer, and return the magic value
      * `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`; otherwise,
      * the transfer is reverted.
-     * Requires the msg.sender to be the owner, approved, or operator
+     * Requires the _msgSender() to be the owner, approved, or operator
      * @param from current owner of the token
      * @param to address to receive the ownership of the given token ID
      * @param tokenId uint256 ID of the token to be transferred
@@ -277,7 +284,7 @@ contract ERC721 is Initializable, ERC165, IERC721 {
             return true;
         }
 
-        bytes4 retval = IERC721Receiver(to).onERC721Received(msg.sender, from, tokenId, _data);
+        bytes4 retval = IERC721Receiver(to).onERC721Received(_msgSender(), from, tokenId, _data);
         return (retval == _ERC721_RECEIVED);
     }
 

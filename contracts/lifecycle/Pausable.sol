@@ -1,13 +1,15 @@
 pragma solidity ^0.5.2;
 
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
+
+import "../GSN/Context.sol";
 import "../access/roles/PauserRole.sol";
 
 /**
  * @title Pausable
  * @dev Base contract which allows children to implement an emergency stop mechanism.
  */
-contract Pausable is Initializable, PauserRole {
+contract Pausable is Initializable, Context, PauserRole {
     event Paused(address account);
     event Unpaused(address account);
 
@@ -47,7 +49,7 @@ contract Pausable is Initializable, PauserRole {
      */
     function pause() public onlyPauser whenNotPaused {
         _paused = true;
-        emit Paused(msg.sender);
+        emit Paused(_msgSender());
     }
 
     /**
@@ -55,7 +57,7 @@ contract Pausable is Initializable, PauserRole {
      */
     function unpause() public onlyPauser whenPaused {
         _paused = false;
-        emit Unpaused(msg.sender);
+        emit Unpaused(_msgSender());
     }
 
     uint256[50] private ______gap;

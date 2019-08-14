@@ -1,6 +1,8 @@
 pragma solidity ^0.5.2;
 
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
+
+import "../GSN/Context.sol";
 import "../token/ERC20/IERC20.sol";
 import "../math/SafeMath.sol";
 import "../token/ERC20/SafeERC20.sol";
@@ -18,7 +20,7 @@ import "../utils/ReentrancyGuard.sol";
  * the methods to add functionality. Consider using 'super' where appropriate to concatenate
  * behavior.
  */
-contract Crowdsale is Initializable, ReentrancyGuard {
+contract Crowdsale is Initializable, Context, ReentrancyGuard {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -71,7 +73,7 @@ contract Crowdsale is Initializable, ReentrancyGuard {
      * buyTokens directly when purchasing tokens from a contract.
      */
     function () external payable {
-        buyTokens(msg.sender);
+        buyTokens(_msgSender());
     }
 
     /**
@@ -119,7 +121,7 @@ contract Crowdsale is Initializable, ReentrancyGuard {
         _weiRaised = _weiRaised.add(weiAmount);
 
         _processPurchase(beneficiary, tokens);
-        emit TokensPurchased(msg.sender, beneficiary, weiAmount, tokens);
+        emit TokensPurchased(_msgSender(), beneficiary, weiAmount, tokens);
 
         _updatePurchasingState(beneficiary, weiAmount);
 

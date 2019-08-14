@@ -1,10 +1,11 @@
 pragma solidity ^0.5.2;
 
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
+
+import "../../GSN/Context.sol";
 import "../Roles.sol";
 
-
-contract PauserRole is Initializable {
+contract PauserRole is Initializable, Context {
     using Roles for Roles.Role;
 
     event PauserAdded(address indexed account);
@@ -19,7 +20,7 @@ contract PauserRole is Initializable {
     }
 
     modifier onlyPauser() {
-        require(isPauser(msg.sender));
+        require(isPauser(_msgSender()), "PauserRole: caller does not have the Pauser role");
         _;
     }
 
@@ -32,7 +33,7 @@ contract PauserRole is Initializable {
     }
 
     function renouncePauser() public {
-        _removePauser(msg.sender);
+        _removePauser(_msgSender());
     }
 
     function _addPauser(address account) internal {

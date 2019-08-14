@@ -4,7 +4,7 @@ import "../access/roles/WhitelistAdminRole.sol";
 
 contract WhitelistAdminRoleMock is WhitelistAdminRole {
     constructor () public {
-        WhitelistAdminRole.initialize(msg.sender);
+        WhitelistAdminRole.initialize(_msgSender());
     }
 
     function removeWhitelistAdmin(address account) public {

@@ -2,11 +2,13 @@ pragma solidity ^0.5.2;
 
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
+import "../GSN/Context.sol";
+
 /**
  * @title Secondary
  * @dev A Secondary contract can only be used by its primary account (the one that created it)
  */
-contract Secondary is Initializable {
+contract Secondary is Initializable, Context {
     address private _primary;
 
     event PrimaryTransferred(
@@ -25,7 +27,7 @@ contract Secondary is Initializable {
      * @dev Reverts if called from any account other than the primary.
      */
     modifier onlyPrimary() {
-        require(msg.sender == _primary);
+        require(_msgSender() == _primary, "Secondary: caller is not the primary account");
         _;
     }
 

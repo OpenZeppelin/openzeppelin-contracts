@@ -1,6 +1,8 @@
 pragma solidity ^0.5.2;
 
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
+
+import "../GSN/Context.sol";
 import "../token/ERC20/ERC20.sol";
 import "../token/ERC20/ERC20Detailed.sol";
 
@@ -10,16 +12,14 @@ import "../token/ERC20/ERC20Detailed.sol";
  * Note they can later distribute these tokens as they wish using `transfer` and other
  * `ERC20` functions.
  */
-contract SimpleToken is Initializable, ERC20, ERC20Detailed {
-    uint8 public constant DECIMALS = 18;
-    uint256 public constant INITIAL_SUPPLY = 10000 * (10 ** uint256(DECIMALS));
+contract SimpleToken is Initializable, Context,  ERC20, ERC20Detailed {
 
     /**
-     * @dev Constructor that gives msg.sender all of existing tokens.
+     * @dev Constructor that gives _msgSender() all of existing tokens.
      */
     function initialize(address sender) public initializer {
-        ERC20Detailed.initialize("SimpleToken", "SIM", DECIMALS);
-        _mint(sender, INITIAL_SUPPLY);
+        ERC20Detailed.initialize("SimpleToken", "SIM", 18);
+        _mint(sender, 10000 * (10 ** uint256(decimals())));
     }
 
     uint256[50] private ______gap;

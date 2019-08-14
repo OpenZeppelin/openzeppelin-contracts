@@ -2,13 +2,14 @@ pragma solidity ^0.5.2;
 
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
+import "../../GSN/Context.sol";
 import "../Roles.sol";
 
 /**
  * @title WhitelistAdminRole
  * @dev WhitelistAdmins are responsible for assigning and removing Whitelisted accounts.
  */
-contract WhitelistAdminRole is Initializable {
+contract WhitelistAdminRole is Initializable, Context {
     using Roles for Roles.Role;
 
     event WhitelistAdminAdded(address indexed account);
@@ -23,7 +24,7 @@ contract WhitelistAdminRole is Initializable {
     }
 
     modifier onlyWhitelistAdmin() {
-        require(isWhitelistAdmin(msg.sender));
+        require(isWhitelistAdmin(_msgSender()), "WhitelistAdminRole: caller does not have the WhitelistAdmin role");
         _;
     }
 
@@ -36,7 +37,7 @@ contract WhitelistAdminRole is Initializable {
     }
 
     function renounceWhitelistAdmin() public {
-        _removeWhitelistAdmin(msg.sender);
+        _removeWhitelistAdmin(_msgSender());
     }
 
     function _addWhitelistAdmin(address account) internal {

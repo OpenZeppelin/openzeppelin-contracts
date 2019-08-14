@@ -13,7 +13,7 @@ contract ERC721MintableBurnableImpl is ERC721Full, ERC721Mintable, ERC721Metadat
         ERC721.initialize();
         ERC721Metadata.initialize("Test", "TEST");
         ERC721Enumerable.initialize();
-        ERC721Mintable.initialize(msg.sender);
-        ERC721MetadataMintable.initialize(msg.sender);
+        ERC721Mintable.initialize(_msgSender());
+        ERC721MetadataMintable.initialize(_msgSender());
     }
 }
