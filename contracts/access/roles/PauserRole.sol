@@ -1,8 +1,9 @@
 pragma solidity ^0.5.0;
 
+import "../../GSN/Context.sol";
 import "../Roles.sol";
 
-contract PauserRole {
+contract PauserRole is Context {
     using Roles for Roles.Role;
 
     event PauserAdded(address indexed account);
@@ -11,11 +12,11 @@ contract PauserRole {
     Roles.Role private _pausers;
 
     constructor () internal {
-        _addPauser(msg.sender);
+        _addPauser(_msgSender());
     }
 
     modifier onlyPauser() {
-        require(isPauser(msg.sender), "PauserRole: caller does not have the Pauser role");
+        require(isPauser(_msgSender()), "PauserRole: caller does not have the Pauser role");
         _;
     }
 
@@ -28,7 +29,7 @@ contract PauserRole {
     }
 
     function renouncePauser() public {
-        _removePauser(msg.sender);
+        _removePauser(_msgSender());
     }
 
     function _addPauser(address account) internal {

@@ -1,5 +1,6 @@
 pragma solidity ^0.5.0;
 
+import "../GSN/Context.sol";
 import "../access/roles/PauserRole.sol";
 
 /**
@@ -11,7 +12,7 @@ import "../access/roles/PauserRole.sol";
  * the functions of your contract. Note that they will not be pausable by
  * simply including this module, only once the modifiers are put in place.
  */
-contract Pausable is PauserRole {
+contract Pausable is Context, PauserRole {
     /**
      * @dev Emitted when the pause is triggered by a pauser (`account`).
      */
@@ -60,7 +61,7 @@ contract Pausable is PauserRole {
      */
     function pause() public onlyPauser whenNotPaused {
         _paused = true;
-        emit Paused(msg.sender);
+        emit Paused(_msgSender());
     }
 
     /**
@@ -68,6 +69,6 @@ contract Pausable is PauserRole {
      */
     function unpause() public onlyPauser whenPaused {
         _paused = false;
-        emit Unpaused(msg.sender);
+        emit Unpaused(_msgSender());
     }
 }
