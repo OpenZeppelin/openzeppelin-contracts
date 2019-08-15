@@ -40,8 +40,8 @@ publish() {
   npm publish --tag "$dist_tag" --otp "$(prompt_otp)"
 
   log "Publishing @openzeppelin/contracts on npm"
-  env ALREADY_COMPILED= \ # avoid re-compiling
-    npm publish contracts --tag "$dist_tag" --otp "$(prompt_otp)"
+  env ALREADY_COMPILED= \
+      npm publish contracts --tag "$dist_tag" --otp "$(prompt_otp)"
 
   if [[ "$dist_tag" == "latest" ]]; then
     otp="$(prompt_otp)"
