@@ -3,6 +3,9 @@
 # Exit script as soon as a command fails.
 set -o errexit
 
+# Default the prerelease version suffix to rc
+: ${PRERELEASE_SUFFIX:=rc}
+
 log() {
   # Print to stderr to prevent this from being 'returned'
   echo "$@" > /dev/stderr
@@ -14,7 +17,7 @@ current_version() {
 
 current_release_branch() {
   v="$(current_version)"
-  echo "release-${v%%-rc.*}"
+  echo "release-${v%%-"$PRERELEASE_SUFFIX".*}"
 }
 
 assert_current_branch() {
@@ -86,8 +89,8 @@ if [[ "$*" == "start minor" ]]; then
   # Create temporary release branch
   git checkout -b release-temp
 
-  # This bumps minor and adds rc suffix, commits the changes, and tags the commit
-  npm version preminor --preid=rc
+  # This bumps minor and adds prerelease suffix, commits the changes, and tags the commit
+  npm version preminor --preid="$PRERELEASE_SUFFIX"
 
   # Rename the release branch
   git branch --move "$(current_release_branch)"
@@ -99,18 +102,18 @@ elif [[ "$*" == "rc" ]]; then
 
   assert_current_branch "$(current_release_branch)"
 
-  # Bumps rc number, commits and tags
+  # Bumps prerelease number, commits and tags
   npm version prerelease
 
   push_and_publish next
 
 elif [[ "$*" == "final" ]]; then
-  # Update changelog release date, remove rc suffix, tag, push to git, publish in npm, remove next dist-tag
+  # Update changelog release date, remove prerelease suffix, tag, push to git, publish in npm, remove next dist-tag
   log "Creating final release"
 
   assert_current_branch "$(current_release_branch)"
 
-  # This will remove the -rc suffix from the version
+  # This will remove the prerelease suffix from the version
   npm version patch
 
   push_release_branch_and_tag
