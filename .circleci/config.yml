@@ -19,14 +19,17 @@ aliases:
   - &cache_key_node_modules
     key: v1-node_modules-{{ checksum "package-lock.json" }}
 
+  - &setup
+    - checkout
+    - restore_cache:
+        <<: *cache_key_node_modules
+    - *npm_install_if_necessary
+
 jobs:
   dependencies:
     <<: *defaults
     steps:
-      - checkout
-      - restore_cache:
-          <<: *cache_key_node_modules
-      - *npm_install_if_necessary
+      <<: *setup
       - save_cache:
           paths:
             - node_modules
@@ -35,30 +38,21 @@ jobs:
   lint:
     <<: *defaults
     steps:
-      - checkout
-      - restore_cache:
-          <<: *cache_key_node_modules
-      - *npm_install_if_necessary
+      <<: *setup
       - run:
           name: Linter
           command: npm run lint
   test:
     <<: *defaults
     steps:
-      - checkout
-      - restore_cache:
-          <<: *cache_key_node_modules
-      - *npm_install_if_necessary
+      <<: *setup
       - run:
           name: Unit tests
           command: npm run test
   coverage:
     <<: *defaults
     steps:
-      - checkout
-      - restore_cache:
-          <<: *cache_key_node_modules
-      - *npm_install_if_necessary
+      <<: *setup
       - run:
           name: Unit tests with coverage report
           command: npm run coverage
