@@ -2,7 +2,7 @@
   "manifestVersion": "2.2",
   "name": "@openzeppelin/contracts-ethereum-package",
   "publish": true,
-  "version": "2.2.2",
+  "version": "2.2.3",
   "contracts": {
     "StandaloneERC20": "StandaloneERC20",
     "StandaloneERC721": "StandaloneERC721",
