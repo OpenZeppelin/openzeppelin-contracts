@@ -133,6 +133,6 @@ Recipients may withdraw their balance from the system at any point, but remember
 == Further reading
 
 * The https://medium.com/@rrecuero/eth-onboarding-solution-90607fb81380[GSN announcement post] provides a good *overview of the system*, along with some use cases to take inspiration from.
-* If you want to learn how to use *OpenZeppelin Contract's pre-made accept and charge strategies*, head to the xref:gsn_advanced.adoc[Advanced GSN Guide].
+* If you want to learn how to use *OpenZeppelin Contract's pre-made accept and charge strategies*, head to the xref:gsn-advanced.adoc[Advanced GSN Guide].
 * If instead you wish to know more about how to *use GSN from your application*, head to the https://github.com/OpenZeppelin/openzeppelin-gsn-provider[OpenZeppelin GSN provider guides].
 * For information on how to *test GSN-enabled contracts*, go to the https://github.com/OpenZeppelin/openzeppelin-gsn-helpers[OpenZeppelin test helpers documentation].
