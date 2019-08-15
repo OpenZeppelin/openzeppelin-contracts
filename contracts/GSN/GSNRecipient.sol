@@ -12,7 +12,7 @@ import "./IRelayHub.sol";
  */
 contract GSNRecipient is IRelayRecipient, GSNContext, GSNBouncerBase {
     function getHubAddr() public view returns (address) {
-        return _getRelayHub();
+        return _relayHub;
     }
 
     // This function is view for future-proofing, it may require reading from
@@ -23,6 +23,6 @@ contract GSNRecipient is IRelayRecipient, GSNContext, GSNBouncerBase {
     }
 
     function _withdrawDeposits(uint256 amount, address payable payee) internal {
-        IRelayHub(_getRelayHub()).withdraw(amount, payee);
+        IRelayHub(_relayHub).withdraw(amount, payee);
     }
 }

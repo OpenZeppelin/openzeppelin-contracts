@@ -7,7 +7,7 @@ import "../GSN/IRelayRecipient.sol";
 // By inheriting from GSNContext, Context's internal functions are overridden automatically
 contract GSNContextMock is ContextMock, GSNContext, IRelayRecipient {
     function getHubAddr() public view returns (address) {
-        return _getRelayHub();
+        return _relayHub;
     }
 
     function acceptRelayedCall(
@@ -37,7 +37,7 @@ contract GSNContextMock is ContextMock, GSNContext, IRelayRecipient {
     }
 
     function getRelayHub() public view returns (address) {
-        return _getRelayHub();
+        return _relayHub;
     }
 
     function upgradeRelayHub(address newRelayHub) public {

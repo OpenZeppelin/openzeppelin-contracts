@@ -11,36 +11,22 @@ import "./Context.sol";
  * recipient contract: end users should use `GSNRecipient` instead.
  */
 contract GSNContext is Context {
-    // We use a random storage slot to allow proxy contracts to enable GSN support in an upgrade without changing their
-    // storage layout. This value is calculated as: keccak256('gsn.relayhub.address'), minus 1.
-    bytes32 private constant RELAY_HUB_ADDRESS_STORAGE_SLOT = 0x06b7792c761dcc05af1761f0315ce8b01ac39c16cc934eb0b2f7a8e71414f262;
+    address internal _relayHub = 0xD216153c06E857cD7f72665E0aF1d7D82172F494;
 
     event RelayHubChanged(address indexed oldRelayHub, address indexed newRelayHub);
 
     constructor() internal {
-        _upgradeRelayHub(0xD216153c06E857cD7f72665E0aF1d7D82172F494);
-    }
-
-    function _getRelayHub() internal view returns (address relayHub) {
-        bytes32 slot = RELAY_HUB_ADDRESS_STORAGE_SLOT;
-        // solhint-disable-next-line no-inline-assembly
-        assembly {
-            relayHub := sload(slot)
-        }
+        // solhint-disable-previous-line no-empty-blocks
     }
 
     function _upgradeRelayHub(address newRelayHub) internal {
-        address currentRelayHub = _getRelayHub();
+        address currentRelayHub = _relayHub;
         require(newRelayHub != address(0), "GSNContext: new RelayHub is the zero address");
         require(newRelayHub != currentRelayHub, "GSNContext: new RelayHub is the current one");
 
         emit RelayHubChanged(currentRelayHub, newRelayHub);
 
-        bytes32 slot = RELAY_HUB_ADDRESS_STORAGE_SLOT;
-        // solhint-disable-next-line no-inline-assembly
-        assembly {
-            sstore(slot, newRelayHub)
-        }
+        _relayHub = newRelayHub;
     }
 
     // Overrides for Context's functions: when called from RelayHub, sender and
@@ -49,7 +35,7 @@ contract GSNContext is Context {
     // when handling said data.
 
     function _msgSender() internal view returns (address) {
-        if (msg.sender != _getRelayHub()) {
+        if (msg.sender != _relayHub) {
             return msg.sender;
         } else {
             return _getRelayedCallSender();
@@ -57,7 +43,7 @@ contract GSNContext is Context {
     }
 
     function _msgData() internal view returns (bytes memory) {
-        if (msg.sender != _getRelayHub()) {
+        if (msg.sender != _relayHub) {
             return msg.data;
         } else {
             return _getRelayedCallData();
