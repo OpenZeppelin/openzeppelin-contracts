@@ -7,7 +7,7 @@ Here you'll learn all about the Gas Station Network (GSN) and how to write contr
 
 If you're already up to speed with the workings of the GSN, feel free to skip to <<Receiving a relayed call>>, where we'll go over how to use the OpenZeppelin Contracts to easily write a GSNRecipient contract. Otherwise, strap in!
 
-WARNING: This feature is under development, and will be released in the next version of `@openzeppelin/contracts`.
+NOTE: This feature is being released in the next version of `@openzeppelin/contracts`, available right now through `npm install @openzeppelin/contracts@next`.
 
 == Sending gas-less transactions
 
