@@ -1,9 +1,7 @@
 = The Gas Station Network
 
-*https://gsn.openzeppelin.com[Website]*
-
 User onboarding is one of the hottest topics in Ethereum. UI/UX along with scalability have been identified as the main problems that prevent adoption. Meta-transactions are a key component to improve the user experience.
-Here you'll learn all about the Gas Station Network (GSN) and how to write contracts that don't require their users to hold Ether to pay for gas.
+Here you'll learn all about the https://gsn.openzeppelin.com[Gas Station Network (GSN)] and how to write contracts that don't require their users to hold Ether to pay for gas.
 
 If you're already up to speed with the workings of the GSN, feel free to skip to <<Receiving a relayed call>>, where we'll go over how to use the OpenZeppelin Contracts to easily write a GSNRecipient contract. Otherwise, strap in!
 
