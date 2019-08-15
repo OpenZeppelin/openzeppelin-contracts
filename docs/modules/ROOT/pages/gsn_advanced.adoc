@@ -10,7 +10,7 @@ If you're still learning about the basics of the Gas Station Network, you should
 
 == GSN Bouncers
 
-A *GSN Bouncer* decides which transaction gets approved and which transaction gets rejected. Bouncers are a key concept within GSN. Dapps need Bouncers to prevent malicious users from spending the transactions subsidy.
+A *GSN Bouncer* decides which transaction gets approved and which transaction gets rejected. Bouncers are a key concept within GSN. Dapps need Bouncers to prevent malicious users from spending the subsidies for the transactions.
 
 As we have seen in the Basic Guide, in order to use GSN, your contracts need to extend from GSN Recipient.
 
@@ -173,7 +173,7 @@ function acceptRelayedCall(
 }
 ----
 
-The bouncer rejects the tx if the real sender doesn't have enough tokens or it is not allowed to spend that amount.
+The bouncer rejects the tx if the real sender doesn't have enough tokens or they are not allowed to spend that amount.
 If the sender can spend the tokens, the bouncers approve the transaction and overrides _confirmRelayedCall to make that data available to pre and post.
 
 Now, let's see how we perform the token transfer inside the _preRelayedCall method.
@@ -210,7 +210,7 @@ function _postRelayedCall(bytes memory context, bool, uint256 actualCharge, byte
 
 This is required to protect the contract from exploits (this is really similar to how ether is locked in Ethereum transactions).
 
-Please not how the gas cost estimation is not 100% accurate, we may tweak it further down the road.
+Please note how the gas cost estimation is not 100% accurate, we may tweak it further down the road.
 
 NOTE: `_preRelayedCall` and `_postRelayedCall` are used instead of preRelayedCall and postRelayedCall. This prevents them from being called by non-relayhub. Always use _pre and _post methods.
 
