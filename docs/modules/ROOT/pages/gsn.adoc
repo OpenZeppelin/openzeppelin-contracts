@@ -87,5 +87,5 @@ These functions allow you to implement, for instance, a flow where you charge yo
 
 == Further reading
 
-Read our xref:gsn-advanced.adoc[guide on the payment strategies] (called _bouncers_) pre-built and shipped in OpenZeppelin Contracts, or check out https://docs.openzeppelin.com/contracts/2.x/api/gsn
+Read our xref:gsn-advanced.adoc[guide on the payment strategies] (called _bouncers_) pre-built and shipped in OpenZeppelin Contracts, or check out xref:api:gsn.adoc
 [the API reference of the GSN base contracts].
