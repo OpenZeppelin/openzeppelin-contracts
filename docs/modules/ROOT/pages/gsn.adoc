@@ -1,47 +1,10 @@
-= The Gas Station Network
+= Writing GSN-capable contracts
 
-User onboarding is one of the hottest topics in Ethereum. UI/UX along with scalability have been identified as the main problems that prevent adoption. Meta-transactions are a key component to improve the user experience.
-Here you'll learn all about the https://gsn.openzeppelin.com[Gas Station Network (GSN)] and how to write contracts that don't require their users to hold Ether to pay for gas.
+The https://gsn.ethereum.org[Gas Station Network] allows you to build apps where you pay for your users transactions, so they do not need to hold Ether to pay for gas, easing their onboarding process. In this guide, we will learn how to write smart contracts that can receive transactions from the GSN, by using OpenZeppelin Contracts.
 
-If you're already up to speed with the workings of the GSN, feel free to skip to <<Receiving a relayed call>>, where we'll go over how to use the OpenZeppelin Contracts to easily write a GSNRecipient contract. Otherwise, strap in!
-
-NOTE: This feature is being released in the next version of `@openzeppelin/contracts`, available right now through `npm install @openzeppelin/contracts@next`.
-
-== Sending gas-less transactions
-
-All Ethereum transactions use gas, and the sender of each transaction must have enough Ether to pay for the gas spent. Even though these gas costs are low for basic transactions (a couple of cents), getting this Ether is no easy task: dApp users often need to go through Know Your Customer and Anti Money-Laundering processes (KYC & AML), which not only takes time but often involves sending a selfie holding their passport over the Internet (!).
-On top of that, they also need to provide financial information to be able to purchase Ether through an exchange.
-Only the most hardcore users will put up with this hassle, and dApp adoption greatly suffers when Ether is required. We can do better.
-
-**Enter meta-transactions**. This is a fancy name for a simple idea: a third-party can send another user's transactions and pay themselves for the gas cost. That's it! There's some tricky technical details, but those can be safely ignored when interacting with the GSN. This way, instead of your users calling into your contract (called the _recipient_) directly, someone else (we'll call them a _relayer_) will send their transaction and pay for the cost.
-
-But why would they do such a thing?
-
-== Incentives
-
-Relayers are not running a charity: they're running a business. The reason why they'll gladly pay for your users' gas costs is because they will in turn charge your contract, the recipient. That way relayers get their money back, plus a bit extra as a _fee_ for their services.
-
-This may sound strange at first, but paying for user onboarding is a very common business practice. Lots of money is spent on advertising, free trials, new user discounts, etc., all with the https://en.wikipedia.org/wiki/Customer_acquisition_cost[goal of user acquisition]. Compared to those, the cost of a couple of Ethereum transactions is actually very small.
-
-Additionally, you can leverage the GSN in scenarios where your users pay you off-chain in advance (e.g. via credit card), with each GSN-call deducting from their balance on your system. The possibilities are endless!
-
-=== Should I trust these relayers?
-
-You don't need to! The GSN is set up in such a way where it's in the relayers' best interest to serve your requests, and there are measures in place to penalize them if they misbehave. All of this happens automatically, so you can safely start using their services worry-free.
-
-== One contract to coordinate them all
-
-There are many meta-transaction implementations out there, but the GSN has a unique detail that makes it special. Inside its core, a smart contract is responsible for keeping track of relayers, handling relayed transactions, charging their recipients, and generally ensuring all parties stay honest. This contract is called RelayHub, and there is a _single_ instance of it in the whole network (you don't need to deploy your own!). Think of it as a piece of public infrastructure, for all Ethereum users to benefit from.
-
-One of RelayHub's jobs is to act as a, well, _hub_ for all relayers: they will advertise their services on this contract, and your users will query it to find the relayer that best suits their purposes. This is out of scope for this guide however, and is not something you need to worry about when writing a recipient contract. If you want to learn more about sending transactions via relayers, head to our https://github.com/OpenZeppelin/openzeppelin-gsn-provider[GSNProvider guide].
-
-The other key task RelayHub carries out is the actual _relaying of transactions_, the sole purpose behind this whole system. Instead of calling a function in your contract directly, your users will request a relayer to do it for them, who will then execute RelayHub's relayCall function. RelayHub will verify that the transaction is legitimate (protecting both users and recipients from dishonest relayers), and then call into your contract as originally requested by your user. This requires your recipient trusting RelayHub to do the right thing, but since it is a smart contract, this is as simple as reading its source code!
-
-NOTE: The RelayHub address will be the same in each network. Right now, the latest relay hub is live with this address `0xD216153c06E857cD7f72665E0aF1d7D82172F494`.
+NOTE: This feature is being released in the next version of `@openzeppelin/contracts`, available right now through `npm install @openzeppelin/contracts@next`. It is also available on the `@openzeppelin/contracts-ethereum-package` variant.
 
 == Receiving a relayed call
-
-We've mentioned how the RelayHub, and not your user, the one that actually ends up calling a function in your contract. We will refer to this as the _relayed call_. OpenZeppelin Contracts includes a number of utilities to make receiving relayed calls as easy as developing a regular Solidity contract, without needing to worry about the low level details.
 
 The first step to writing a recipient is to inherit from our GSNRecipient contract. If you're also inheriting from other OpenZeppelin contracts, such as ERC20 or Crowdsale, this will work just fine: adding GSNRecipient to all of your token or crowdsale functions will make them GSN-callable.
 
@@ -122,17 +85,6 @@ function postRelayedCall(
 
 These functions allow you to implement, for instance, a flow where you charge your users for the relayed transactions in a custom token. You can lock some of their tokens in `pre`, and execute the actual charge in `post`. This is similar to how gas fees work in Ethereum: the network first locks enough ETH to pay for the transaction's gas limit at its gas price, and then pays for what it actually spent.
 
-== Payment
-
-By now you may be wondering how exactly relayers charge their recipients for gas costs and service fees. The answer is simple: each recipient must have funds deposited on RelayHub in advance, and payment is automatically handled on each relayed call.
-
-You can head to the https://gsn.openzeppelin.com/recipients[GSN Recipient Tool] to check and top-up your contracts' balance, view previous charges, or do all of this programatically by calling `IRelayHub.depositFor` and `IRelayHub.balanceOf`.
-
-Recipients may withdraw their balance from the system at any point, but remember that they will not be able to receive any further relayed calls!
-
 == Further reading
 
-* The https://blog.openzeppelin.com/gsn-the-ultimate-ethereum-onboarding-solution[GSN announcement post] provides a good *overview of the system*, along with some use cases to take inspiration from.
-* If you want to learn how to use *OpenZeppelin Contract's pre-made accept and charge strategies*, head to the xref:gsn-advanced.adoc[Advanced GSN Guide].
-* If instead you wish to know more about how to *use GSN from your application*, head to the https://github.com/OpenZeppelin/openzeppelin-gsn-provider[OpenZeppelin GSN provider guides].
-* For information on how to *test GSN-enabled contracts*, go to the https://github.com/OpenZeppelin/openzeppelin-gsn-helpers[OpenZeppelin test helpers documentation].
+Read our xref:gsn-advanced.adoc[guide on the payment strategies] (called _bouncers_) pre-built and shipped in OpenZeppelin Contracts, or check out xref:api:gsn.adoc[the API reference of the GSN base contracts].

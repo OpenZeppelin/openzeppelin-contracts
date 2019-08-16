@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [ "$1" != "build" -a "$1" != "start" ];then
-  echo "usage: npm run docsite (build|start)" >&2
+  echo "usage: npm run docs (build|start)" >&2
   exit 1
 fi
 
