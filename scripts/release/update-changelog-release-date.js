@@ -7,7 +7,7 @@ const fs = require('fs');
 const cp = require('child_process');
 
 const pkg = require('../../package.json');
-const suffix = process.env.PRERELEASE_SUFFIX || "rc";
+const suffix = process.env.PRERELEASE_SUFFIX || 'rc';
 if (pkg.version.indexOf('-' + suffix) !== -1) {
   process.exit(0);
 }
