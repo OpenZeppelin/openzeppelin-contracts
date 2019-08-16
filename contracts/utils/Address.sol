@@ -33,6 +33,9 @@ library Address {
     /**
      * @dev Converts an `address` into `address payable`. Note that this is
      * simply a type cast: the actual underlying value is not changed.
+     *
+     * NOTE: This is a feature of the next version of OpenZeppelin Contracts.
+     * @dev Get it via `npm install @openzeppelin/contracts@next`.
      */
     function toPayable(address account) internal pure returns (address payable) {
         return address(uint160(account));
