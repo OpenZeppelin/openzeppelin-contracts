@@ -14,6 +14,18 @@ contract('ECDSA', function ([_, other]) {
     this.ecdsa = await ECDSAMock.new();
   });
 
+  context('recover with invalid signature', function () {
+    it('with short signature', async function () {
+      expect(await this.ecdsa.recover(TEST_MESSAGE, '0x1234')).to.equal(ZERO_ADDRESS);
+    });
+
+    it('with long signature', async function () {
+      // eslint-disable-next-line max-len
+      expect(await this.ecdsa.recover(TEST_MESSAGE, '0x01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789'))
+        .to.equal(ZERO_ADDRESS);
+    });
+  });
+
   context('recover with valid signature', function () {
     context('with v0 signature', function () {
       // Signature generated outside ganache with method web3.eth.sign(signer, message)
