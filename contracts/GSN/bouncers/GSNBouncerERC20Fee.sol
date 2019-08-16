@@ -42,7 +42,7 @@ contract GSNBouncerERC20Fee is GSNBouncerBase {
     }
 
     /**
-     * @dev Internal function that mints the gas payment token.
+     * @dev Internal function that mints the gas payment token. Derived contracts should expose this function in their public API, with proper access control mechanisms.
      */
     function _mint(address account, uint256 amount) internal {
         _token.mint(account, amount);
