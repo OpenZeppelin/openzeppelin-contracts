@@ -22,7 +22,7 @@ contract('ERC721Full', function ([
   const [
     owner,
     newOwner,
-    another,
+    other,
   ] = accounts;
 
   beforeEach(async function () {
@@ -143,21 +143,21 @@ contract('ERC721Full', function ([
       describe('when the given address does not own any token', function () {
         it('reverts', async function () {
           await expectRevert(
-            this.token.tokenOfOwnerByIndex(another, 0), 'ERC721Enumerable: owner index out of bounds'
+            this.token.tokenOfOwnerByIndex(other, 0), 'ERC721Enumerable: owner index out of bounds'
           );
         });
       });
 
-      describe('after transferring all tokens to another user', function () {
+      describe('after transferring all tokens to other user', function () {
         beforeEach(async function () {
-          await this.token.transferFrom(owner, another, firstTokenId, { from: owner });
-          await this.token.transferFrom(owner, another, secondTokenId, { from: owner });
+          await this.token.transferFrom(owner, other, firstTokenId, { from: owner });
+          await this.token.transferFrom(owner, other, secondTokenId, { from: owner });
         });
 
         it('returns correct token IDs for target', async function () {
-          expect(await this.token.balanceOf(another)).to.be.bignumber.equal('2');
+          expect(await this.token.balanceOf(other)).to.be.bignumber.equal('2');
           const tokensListed = await Promise.all(
-            [0, 1].map(i => this.token.tokenOfOwnerByIndex(another, i))
+            [0, 1].map(i => this.token.tokenOfOwnerByIndex(other, i))
           );
           expect(tokensListed.map(t => t.toNumber())).to.have.members([firstTokenId.toNumber(),
             secondTokenId.toNumber()]);
