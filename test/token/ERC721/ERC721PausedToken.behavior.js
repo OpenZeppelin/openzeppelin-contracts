@@ -3,7 +3,7 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-function shouldBehaveLikeERC721PausedToken (owner, [recipient, operator]) {
+function shouldBehaveLikeERC721PausedToken (owner, [receiver, operator]) {
   const firstTokenId = new BN(1);
   const mintedTokens = new BN(1);
   const mockData = '0x42';
@@ -15,7 +15,7 @@ function shouldBehaveLikeERC721PausedToken (owner, [recipient, operator]) {
 
     it('reverts when trying to approve', async function () {
       await expectRevert(
-        this.token.approve(recipient, firstTokenId, { from: owner }), 'Pausable: paused'
+        this.token.approve(receiver, firstTokenId, { from: owner }), 'Pausable: paused'
       );
     });
 
@@ -27,20 +27,20 @@ function shouldBehaveLikeERC721PausedToken (owner, [recipient, operator]) {
 
     it('reverts when trying to transferFrom', async function () {
       await expectRevert(
-        this.token.transferFrom(owner, recipient, firstTokenId, { from: owner }), 'Pausable: paused'
+        this.token.transferFrom(owner, receiver, firstTokenId, { from: owner }), 'Pausable: paused'
       );
     });
 
     it('reverts when trying to safeTransferFrom', async function () {
       await expectRevert(
-        this.token.safeTransferFrom(owner, recipient, firstTokenId, { from: owner }), 'Pausable: paused'
+        this.token.safeTransferFrom(owner, receiver, firstTokenId, { from: owner }), 'Pausable: paused'
       );
     });
 
     it('reverts when trying to safeTransferFrom with data', async function () {
       await expectRevert(
         this.token.methods['safeTransferFrom(address,address,uint256,bytes)'](
-          owner, recipient, firstTokenId, mockData, { from: owner }
+          owner, receiver, firstTokenId, mockData, { from: owner }
         ), 'Pausable: paused'
       );
     });
