@@ -15,7 +15,7 @@ contract RoleChecker {
     using Counters for Counters.Counter;
 
     mapping (uint256 => Roles.Role) private roles;
-    Counters.Counter counter;
+    Counters.Counter private counter;
 
     event RoleAdded(address indexed account, uint256 roleId);
     event RoleRemoved(address indexed account, uint256 roleId);

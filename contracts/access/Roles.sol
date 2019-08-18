@@ -32,7 +32,7 @@ library Roles {
      */
     function has(Role storage role, address account) internal view returns (bool) {
         require(account != address(0), "Roles: account is the zero address");
-        require(role.exists, "Roles: does not exists");
+        // require(role.exists, "Roles: role does not exists");git
         return role.bearer[account];
     }
 }
