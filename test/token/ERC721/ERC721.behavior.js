@@ -548,12 +548,6 @@ function shouldBehaveLikeERC721 (
           it('should return correct approved address after approvals are done', async function () {
             expect(await this.token.getApproved(firstTokenId)).to.be.equal(approved);
           });
-
-          it('owner should not be approved', async function () {
-            expect(
-              await this.token.getApproved(firstTokenId)
-            ).to.not.equal(owner);
-          });
         });
       });
     });
