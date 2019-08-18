@@ -41,6 +41,10 @@ build/
 # IntelliJ IDE
 .idea
 
-# docsite artifacts
-docsite-build
-docs/api
+# docs artifacts
+docs/modules/api
+openzeppelin-docs
+
+# only used to package @openzeppelin/contracts
+contracts/build/
+contracts/README.md

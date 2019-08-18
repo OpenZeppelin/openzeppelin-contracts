@@ -1,0 +1,14 @@
+= Gas Station Network
+
+NOTE: This feature is being released in the next version of OpenZeppelin Contracts, available right now through `npm install @openzeppelin/contracts@next`.
+
+TIP: Check out our guide on the xref:ROOT:gsn.adoc[basics of the GSN] as well as the xref:ROOT:gsn-advanced.adoc[more advanced topics].
+
+== Recipient
+
+{{GSNRecipient}}
+
+== Bouncers
+
+{{GSNBouncerERC20Fee}}
+{{GSNBouncerSignature}}

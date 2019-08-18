@@ -11,8 +11,9 @@ library Address {
      * execution of a contract's constructor, its address will be reported as
      * not containing a contract.
      *
-     * > It is unsafe to assume that an address for which this function returns
-     * false is an externally-owned account (EOA) and not a contract.
+     * IMPORTANT: It is unsafe to assume that an address for which this
+     * function returns false is an externally-owned account (EOA) and not a
+     * contract.
      */
     function isContract(address account) internal view returns (bool) {
         // This method relies in extcodesize, which returns 0 for contracts in
@@ -32,6 +33,9 @@ library Address {
     /**
      * @dev Converts an `address` into `address payable`. Note that this is
      * simply a type cast: the actual underlying value is not changed.
+     *
+     * NOTE: This is a feature of the next version of OpenZeppelin Contracts.
+     * @dev Get it via `npm install @openzeppelin/contracts@next`.
      */
     function toPayable(address account) internal pure returns (address payable) {
         return address(uint160(account));

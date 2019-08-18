@@ -6,13 +6,7 @@ pragma solidity ^0.5.0;
  */
 library Strings {
     /**
-     * Concatenates two strings.
-     * string(abi.encodePacked(a, b))
-     * https://solidity.readthedocs.io/en/latest/types.html?highlight=concatenate
-     */
-
-    /**
-     * @dev Converts a uint256 to a string.
+     * @dev Converts a `uint256` to a `string`.
      * via OraclizeAPI - MIT licence
      * https://github.com/oraclize/ethereum-api/blob/b42146b063c7d6ee1358846c198246239e9360e8/oraclizeAPI_0.4.25.sol
      */

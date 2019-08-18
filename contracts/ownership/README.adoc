@@ -1,0 +1,11 @@
+= Ownership
+
+Contract modules for simple authorization and access control mechanisms.
+
+TIP: For more complex needs see xref:access.adoc.
+
+== Contracts
+
+{{Ownable}}
+
+{{Secondary}}

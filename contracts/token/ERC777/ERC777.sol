@@ -1,5 +1,6 @@
 pragma solidity ^0.5.0;
 
+import "../../GSN/Context.sol";
 import "./IERC777.sol";
 import "./IERC777Recipient.sol";
 import "./IERC777Sender.sol";
@@ -9,21 +10,21 @@ import "../../utils/Address.sol";
 import "../../introspection/IERC1820Registry.sol";
 
 /**
- * @dev Implementation of the `IERC777` interface.
+ * @dev Implementation of the {IERC777} interface.
  *
  * This implementation is agnostic to the way tokens are created. This means
- * that a supply mechanism has to be added in a derived contract using `_mint`.
+ * that a supply mechanism has to be added in a derived contract using {_mint}.
  *
  * Support for ERC20 is included in this contract, as specified by the EIP: both
  * the ERC777 and ERC20 interfaces can be safely used when interacting with it.
- * Both `IERC777.Sent` and `IERC20.Transfer` events are emitted on token
+ * Both {IERC777-Sent} and {IERC20-Transfer} events are emitted on token
  * movements.
  *
- * Additionally, the `granularity` value is hard-coded to `1`, meaning that there
+ * Additionally, the {IERC777-granularity} value is hard-coded to `1`, meaning that there
  * are no special restrictions in the amount of tokens that created, moved, or
  * destroyed. This makes integration with ERC20 applications seamless.
  */
-contract ERC777 is IERC777, IERC20 {
+contract ERC777 is Context, IERC777, IERC20 {
     using SafeMath for uint256;
     using Address for address;
 
@@ -82,21 +83,21 @@ contract ERC777 is IERC777, IERC20 {
     }
 
     /**
-     * @dev See `IERC777.name`.
+     * @dev See {IERC777-name}.
      */
     function name() public view returns (string memory) {
         return _name;
     }
 
     /**
-     * @dev See `IERC777.symbol`.
+     * @dev See {IERC777-symbol}.
      */
     function symbol() public view returns (string memory) {
         return _symbol;
     }
 
     /**
-     * @dev See `ERC20Detailed.decimals`.
+     * @dev See {ERC20Detailed-decimals}.
      *
      * Always returns 18, as per the
      * [ERC777 EIP](https://eips.ethereum.org/EIPS/eip-777#backward-compatibility).
@@ -106,7 +107,7 @@ contract ERC777 is IERC777, IERC20 {
     }
 
     /**
-     * @dev See `IERC777.granularity`.
+     * @dev See {IERC777-granularity}.
      *
      * This implementation always returns `1`.
      */
@@ -115,7 +116,7 @@ contract ERC777 is IERC777, IERC20 {
     }
 
     /**
-     * @dev See `IERC777.totalSupply`.
+     * @dev See {IERC777-totalSupply}.
      */
     function totalSupply() public view returns (uint256) {
         return _totalSupply;
@@ -129,26 +130,26 @@ contract ERC777 is IERC777, IERC20 {
     }
 
     /**
-     * @dev See `IERC777.send`.
+     * @dev See {IERC777-send}.
      *
-     * Also emits a `Transfer` event for ERC20 compatibility.
+     * Also emits a {Transfer} event for ERC20 compatibility.
      */
     function send(address recipient, uint256 amount, bytes calldata data) external {
-        _send(msg.sender, msg.sender, recipient, amount, data, "", true);
+        _send(_msgSender(), _msgSender(), recipient, amount, data, "", true);
     }
 
     /**
-     * @dev See `IERC20.transfer`.
+     * @dev See {IERC20-transfer}.
      *
-     * Unlike `send`, `recipient` is _not_ required to implement the `tokensReceived`
+     * Unlike `send`, `recipient` is _not_ required to implement the {IERC777Recipient}
      * interface if it is a contract.
      *
-     * Also emits a `Sent` event.
+     * Also emits a {Sent} event.
      */
     function transfer(address recipient, uint256 amount) external returns (bool) {
         require(recipient != address(0), "ERC777: transfer to the zero address");
 
-        address from = msg.sender;
+        address from = _msgSender();
 
         _callTokensToSend(from, from, recipient, amount, "", "");
 
@@ -160,16 +161,16 @@ contract ERC777 is IERC777, IERC20 {
     }
 
     /**
-     * @dev See `IERC777.burn`.
+     * @dev See {IERC777-burn}.
      *
-     * Also emits a `Transfer` event for ERC20 compatibility.
+     * Also emits a {Transfer} event for ERC20 compatibility.
      */
     function burn(uint256 amount, bytes calldata data) external {
-        _burn(msg.sender, msg.sender, amount, data, "");
+        _burn(_msgSender(), _msgSender(), amount, data, "");
     }
 
     /**
-     * @dev See `IERC777.isOperatorFor`.
+     * @dev See {IERC777-isOperatorFor}.
      */
     function isOperatorFor(
         address operator,
@@ -181,46 +182,46 @@ contract ERC777 is IERC777, IERC20 {
     }
 
     /**
-     * @dev See `IERC777.authorizeOperator`.
+     * @dev See {IERC777-authorizeOperator}.
      */
     function authorizeOperator(address operator) external {
-        require(msg.sender != operator, "ERC777: authorizing self as operator");
+        require(_msgSender() != operator, "ERC777: authorizing self as operator");
 
         if (_defaultOperators[operator]) {
-            delete _revokedDefaultOperators[msg.sender][operator];
+            delete _revokedDefaultOperators[_msgSender()][operator];
         } else {
-            _operators[msg.sender][operator] = true;
+            _operators[_msgSender()][operator] = true;
         }
 
-        emit AuthorizedOperator(operator, msg.sender);
+        emit AuthorizedOperator(operator, _msgSender());
     }
 
     /**
-     * @dev See `IERC777.revokeOperator`.
+     * @dev See {IERC777-revokeOperator}.
      */
     function revokeOperator(address operator) external {
-        require(operator != msg.sender, "ERC777: revoking self as operator");
+        require(operator != _msgSender(), "ERC777: revoking self as operator");
 
         if (_defaultOperators[operator]) {
-            _revokedDefaultOperators[msg.sender][operator] = true;
+            _revokedDefaultOperators[_msgSender()][operator] = true;
         } else {
-            delete _operators[msg.sender][operator];
+            delete _operators[_msgSender()][operator];
         }
 
-        emit RevokedOperator(operator, msg.sender);
+        emit RevokedOperator(operator, _msgSender());
     }
 
     /**
-     * @dev See `IERC777.defaultOperators`.
+     * @dev See {IERC777-defaultOperators}.
      */
     function defaultOperators() public view returns (address[] memory) {
         return _defaultOperatorsArray;
     }
 
     /**
-     * @dev See `IERC777.operatorSend`.
+     * @dev See {IERC777-operatorSend}.
      *
-     * Emits `Sent` and `Transfer` events.
+     * Emits {Sent} and {Transfer} events.
      */
     function operatorSend(
         address sender,
@@ -231,22 +232,22 @@ contract ERC777 is IERC777, IERC20 {
     )
     external
     {
-        require(isOperatorFor(msg.sender, sender), "ERC777: caller is not an operator for holder");
-        _send(msg.sender, sender, recipient, amount, data, operatorData, true);
+        require(isOperatorFor(_msgSender(), sender), "ERC777: caller is not an operator for holder");
+        _send(_msgSender(), sender, recipient, amount, data, operatorData, true);
     }
 
     /**
-     * @dev See `IERC777.operatorBurn`.
+     * @dev See {IERC777-operatorBurn}.
      *
-     * Emits `Burned` and `Transfer` events.
+     * Emits {Burned} and {Transfer} events.
      */
     function operatorBurn(address account, uint256 amount, bytes calldata data, bytes calldata operatorData) external {
-        require(isOperatorFor(msg.sender, account), "ERC777: caller is not an operator for holder");
-        _burn(msg.sender, account, amount, data, operatorData);
+        require(isOperatorFor(_msgSender(), account), "ERC777: caller is not an operator for holder");
+        _burn(_msgSender(), account, amount, data, operatorData);
     }
 
     /**
-     * @dev See `IERC20.allowance`.
+     * @dev See {IERC20-allowance}.
      *
      * Note that operator and allowance concepts are orthogonal: operators may
      * not have allowance, and accounts with allowance may not be operators
@@ -257,35 +258,35 @@ contract ERC777 is IERC777, IERC20 {
     }
 
     /**
-     * @dev See `IERC20.approve`.
+     * @dev See {IERC20-approve}.
      *
      * Note that accounts cannot have allowance issued by their operators.
      */
     function approve(address spender, uint256 value) external returns (bool) {
-        address holder = msg.sender;
+        address holder = _msgSender();
         _approve(holder, spender, value);
         return true;
     }
 
    /**
-    * @dev See `IERC20.transferFrom`.
+    * @dev See {IERC20-transferFrom}.
     *
     * Note that operator and allowance concepts are orthogonal: operators cannot
     * call `transferFrom` (unless they have allowance), and accounts with
     * allowance cannot call `operatorSend` (unless they are operators).
     *
-    * Emits `Sent`, `Transfer` and `Approval` events.
+    * Emits {Sent}, {Transfer} and {Approval} events.
     */
     function transferFrom(address holder, address recipient, uint256 amount) external returns (bool) {
         require(recipient != address(0), "ERC777: transfer to the zero address");
         require(holder != address(0), "ERC777: transfer from the zero address");
 
-        address spender = msg.sender;
+        address spender = _msgSender();
 
         _callTokensToSend(spender, holder, recipient, amount, "", "");
 
         _move(spender, holder, recipient, amount, "", "");
-        _approve(holder, spender, _allowances[holder][spender].sub(amount));
+        _approve(holder, spender, _allowances[holder][spender].sub(amount, "ERC777: transfer amount exceeds allowance"));
 
         _callTokensReceived(spender, holder, recipient, amount, "", "", false);
 
@@ -299,14 +300,14 @@ contract ERC777 is IERC777, IERC20 {
      * If a send hook is registered for `account`, the corresponding function
      * will be called with `operator`, `data` and `operatorData`.
      *
-     * See `IERC777Sender` and `IERC777Recipient`.
+     * See {IERC777Sender} and {IERC777Recipient}.
      *
-     * Emits `Minted` and `Transfer` events.
+     * Emits {Minted} and {Transfer} events.
      *
      * Requirements
      *
      * - `account` cannot be the zero address.
-     * - if `account` is a contract, it must implement the `tokensReceived`
+     * - if `account` is a contract, it must implement the {IERC777Recipient}
      * interface.
      */
     function _mint(
@@ -383,8 +384,8 @@ contract ERC777 is IERC777, IERC20 {
         _callTokensToSend(operator, from, address(0), amount, data, operatorData);
 
         // Update state variables
+        _balances[from] = _balances[from].sub(amount, "ERC777: burn amount exceeds balance");
         _totalSupply = _totalSupply.sub(amount);
-        _balances[from] = _balances[from].sub(amount);
 
         emit Burned(operator, from, amount, data, operatorData);
         emit Transfer(from, address(0), amount);
@@ -400,7 +401,7 @@ contract ERC777 is IERC777, IERC20 {
     )
         private
     {
-        _balances[from] = _balances[from].sub(amount);
+        _balances[from] = _balances[from].sub(amount, "ERC777: transfer amount exceeds balance");
         _balances[to] = _balances[to].add(amount);
 
         emit Sent(operator, from, to, amount, userData, operatorData);

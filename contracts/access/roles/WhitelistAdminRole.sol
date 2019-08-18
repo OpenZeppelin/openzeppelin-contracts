@@ -1,12 +1,13 @@
 pragma solidity ^0.5.0;
 
+import "../../GSN/Context.sol";
 import "../Roles.sol";
 
 /**
  * @title WhitelistAdminRole
  * @dev WhitelistAdmins are responsible for assigning and removing Whitelisted accounts.
  */
-contract WhitelistAdminRole {
+contract WhitelistAdminRole is Context {
     using Roles for Roles.Role;
 
     event WhitelistAdminAdded(address indexed account);
@@ -15,11 +16,11 @@ contract WhitelistAdminRole {
     Roles.Role private _whitelistAdmins;
 
     constructor () internal {
-        _addWhitelistAdmin(msg.sender);
+        _addWhitelistAdmin(_msgSender());
     }
 
     modifier onlyWhitelistAdmin() {
-        require(isWhitelistAdmin(msg.sender), "WhitelistAdminRole: caller does not have the WhitelistAdmin role");
+        require(isWhitelistAdmin(_msgSender()), "WhitelistAdminRole: caller does not have the WhitelistAdmin role");
         _;
     }
 
@@ -32,7 +33,7 @@ contract WhitelistAdminRole {
     }
 
     function renounceWhitelistAdmin() public {
-        _removeWhitelistAdmin(msg.sender);
+        _removeWhitelistAdmin(_msgSender());
     }
 
     function _addWhitelistAdmin(address account) internal {

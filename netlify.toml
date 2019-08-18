@@ -1,3 +1,3 @@
 [build]
-command = "npm run docsite build"
-publish = "docsite-build"
+command = "npm run docs build"
+publish = "openzeppelin-docs/build/site"

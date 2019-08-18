@@ -1,10 +1,11 @@
 pragma solidity ^0.5.0;
 
+import "../../GSN/Context.sol";
 import "./ERC721.sol";
 import "./IERC721Metadata.sol";
 import "../../introspection/ERC165.sol";
 
-contract ERC721Metadata is ERC165, ERC721, IERC721Metadata {
+contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
     // Token name
     string private _name;
 

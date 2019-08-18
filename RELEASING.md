@@ -2,7 +2,7 @@
 
 This document describes our release process, and contains the steps to be followed by an OpenZeppelin maintainer at the several stages of a release.
 
-We release a new version of OpenZeppelin monthly. Release cycles are tracked in the [issue milestones](https://github.com/OpenZeppelin/openzeppelin-solidity/milestones).
+We release a new version of OpenZeppelin monthly. Release cycles are tracked in the [issue milestones](https://github.com/OpenZeppelin/openzeppelin-contracts/milestones).
 
 Each release has at least one release candidate published first, intended for community review and any critical fixes that may come out of it. At the moment we leave 1 week between the first release candidate and the final release.
 
@@ -32,7 +32,7 @@ git push upstream release-vX.Y.Z
 git push upstream vX.Y.Z-rc.R
 ```
 
-Draft the release notes in our [GitHub releases](https://github.com/OpenZeppelin/openzeppelin-solidity/releases). Make sure to mark it as a pre-release! Try to be consistent with our previous release notes in the title and format of the text. Release candidates don't need a detailed changelog, but make sure to include a link to GitHub's compare page.
+Draft the release notes in our [GitHub releases](https://github.com/OpenZeppelin/openzeppelin-contracts/releases). Make sure to mark it as a pre-release! Try to be consistent with our previous release notes in the title and format of the text. Release candidates don't need a detailed changelog, but make sure to include a link to GitHub's compare page.
 
 Once the CI run for the new tag is green, publish on npm under the `next` tag. You should see the contracts compile automatically.
 
@@ -76,7 +76,7 @@ Publish the release notes on GitHub and ask our community manager to announce th
 Delete the `next` tag in the npm package as there is no longer a release candidate.
 
 ```
-npm dist-tag rm --otp $2FA_CODE openzeppelin-solidity next
+npm dist-tag rm --otp $2FA_CODE @openzeppelin/contracts next
 ```
 
 ## Merging the release branch

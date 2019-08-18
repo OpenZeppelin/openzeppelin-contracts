@@ -1,5 +1,6 @@
 pragma solidity ^0.5.0;
 
+import "../../GSN/Context.sol";
 import "./IERC721.sol";
 import "./IERC721Receiver.sol";
 import "../../math/SafeMath.sol";
@@ -11,7 +12,7 @@ import "../../introspection/ERC165.sol";
  * @title ERC721 Non-Fungible Token Standard basic implementation
  * @dev see https://eips.ethereum.org/EIPS/eip-721
  */
-contract ERC721 is ERC165, IERC721 {
+contract ERC721 is Context, ERC165, IERC721 {
     using SafeMath for uint256;
     using Address for address;
     using Counters for Counters.Counter;
@@ -88,7 +89,7 @@ contract ERC721 is ERC165, IERC721 {
         address owner = ownerOf(tokenId);
         require(to != owner, "ERC721: approval to current owner");
 
-        require(msg.sender == owner || isApprovedForAll(owner, msg.sender),
+        require(_msgSender() == owner || isApprovedForAll(owner, _msgSender()),
             "ERC721: approve caller is not owner nor approved for all"
         );
 
@@ -115,10 +116,10 @@ contract ERC721 is ERC165, IERC721 {
      * @param approved representing the status of the approval to be set
      */
     function setApprovalForAll(address to, bool approved) public {
-        require(to != msg.sender, "ERC721: approve to caller");
+        require(to != _msgSender(), "ERC721: approve to caller");
 
-        _operatorApprovals[msg.sender][to] = approved;
-        emit ApprovalForAll(msg.sender, to, approved);
+        _operatorApprovals[_msgSender()][to] = approved;
+        emit ApprovalForAll(_msgSender(), to, approved);
     }
 
     /**
@@ -133,7 +134,7 @@ contract ERC721 is ERC165, IERC721 {
 
     /**
      * @dev Transfers the ownership of a given token ID to another address.
-     * Usage of this method is discouraged, use `safeTransferFrom` whenever possible.
+     * Usage of this method is discouraged, use {safeTransferFrom} whenever possible.
      * Requires the msg.sender to be the owner, approved, or operator.
      * @param from current owner of the token
      * @param to address to receive the ownership of the given token ID
@@ -141,14 +142,14 @@ contract ERC721 is ERC165, IERC721 {
      */
     function transferFrom(address from, address to, uint256 tokenId) public {
         //solhint-disable-next-line max-line-length
-        require(_isApprovedOrOwner(msg.sender, tokenId), "ERC721: transfer caller is not owner nor approved");
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: transfer caller is not owner nor approved");
 
         _transferFrom(from, to, tokenId);
     }
 
     /**
      * @dev Safely transfers the ownership of a given token ID to another address
-     * If the target address is a contract, it must implement `onERC721Received`,
+     * If the target address is a contract, it must implement {IERC721Receiver-onERC721Received},
      * which is called upon a safe transfer, and return the magic value
      * `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`; otherwise,
      * the transfer is reverted.
@@ -163,6 +164,23 @@ contract ERC721 is ERC165, IERC721 {
 
     /**
      * @dev Safely transfers the ownership of a given token ID to another address
+     * If the target address is a contract, it must implement {IERC721Receiver-onERC721Received},
+     * which is called upon a safe transfer, and return the magic value
+     * `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`; otherwise,
+     * the transfer is reverted.
+     * Requires the _msgSender() to be the owner, approved, or operator
+     * @param from current owner of the token
+     * @param to address to receive the ownership of the given token ID
+     * @param tokenId uint256 ID of the token to be transferred
+     * @param _data bytes data to send along with a safe transfer check
+     */
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory _data) public {
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: transfer caller is not owner nor approved");
+        _safeTransferFrom(from, to, tokenId, _data);
+    }
+
+    /**
+     * @dev Safely transfers the ownership of a given token ID to another address
      * If the target address is a contract, it must implement `onERC721Received`,
      * which is called upon a safe transfer, and return the magic value
      * `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`; otherwise,
@@ -173,8 +191,8 @@ contract ERC721 is ERC165, IERC721 {
      * @param tokenId uint256 ID of the token to be transferred
      * @param _data bytes data to send along with a safe transfer check
      */
-    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory _data) public {
-        transferFrom(from, to, tokenId);
+    function _safeTransferFrom(address from, address to, uint256 tokenId, bytes memory _data) internal {
+        _transferFrom(from, to, tokenId);
         require(_checkOnERC721Received(from, to, tokenId, _data), "ERC721: transfer to non ERC721Receiver implementer");
     }
 
@@ -202,6 +220,36 @@ contract ERC721 is ERC165, IERC721 {
     }
 
     /**
+     * @dev Internal function to safely mint a new token.
+     * Reverts if the given token ID already exists.
+     * If the target address is a contract, it must implement `onERC721Received`,
+     * which is called upon a safe transfer, and return the magic value
+     * `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`; otherwise,
+     * the transfer is reverted.
+     * @param to The address that will own the minted token
+     * @param tokenId uint256 ID of the token to be minted
+     */
+    function _safeMint(address to, uint256 tokenId) internal {
+        _safeMint(to, tokenId, "");
+    }
+
+    /**
+     * @dev Internal function to safely mint a new token.
+     * Reverts if the given token ID already exists.
+     * If the target address is a contract, it must implement `onERC721Received`,
+     * which is called upon a safe transfer, and return the magic value
+     * `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`; otherwise,
+     * the transfer is reverted.
+     * @param to The address that will own the minted token
+     * @param tokenId uint256 ID of the token to be minted
+     * @param _data bytes data to send along with a safe transfer check
+     */
+    function _safeMint(address to, uint256 tokenId, bytes memory _data) internal {
+        _mint(to, tokenId);
+        require(_checkOnERC721Received(address(0), to, tokenId, _data), "ERC721: transfer to non ERC721Receiver implementer");
+    }
+
+    /**
      * @dev Internal function to mint a new token.
      * Reverts if the given token ID already exists.
      * @param to The address that will own the minted token
@@ -220,7 +268,7 @@ contract ERC721 is ERC165, IERC721 {
     /**
      * @dev Internal function to burn a specific token.
      * Reverts if the token does not exist.
-     * Deprecated, use _burn(uint256) instead.
+     * Deprecated, use {_burn} instead.
      * @param owner owner of the token to burn
      * @param tokenId uint256 ID of the token being burned
      */
@@ -246,7 +294,7 @@ contract ERC721 is ERC165, IERC721 {
 
     /**
      * @dev Internal function to transfer ownership of a given token ID to another address.
-     * As opposed to transferFrom, this imposes no restrictions on msg.sender.
+     * As opposed to {transferFrom}, this imposes no restrictions on msg.sender.
      * @param from current owner of the token
      * @param to address to receive the ownership of the given token ID
      * @param tokenId uint256 ID of the token to be transferred
@@ -266,7 +314,7 @@ contract ERC721 is ERC165, IERC721 {
     }
 
     /**
-     * @dev Internal function to invoke `onERC721Received` on a target address.
+     * @dev Internal function to invoke {IERC721Receiver-onERC721Received} on a target address.
      * The call is not executed if the target address is not a contract.
      *
      * This function is deprecated.
@@ -283,7 +331,7 @@ contract ERC721 is ERC165, IERC721 {
             return true;
         }
 
-        bytes4 retval = IERC721Receiver(to).onERC721Received(msg.sender, from, tokenId, _data);
+        bytes4 retval = IERC721Receiver(to).onERC721Received(_msgSender(), from, tokenId, _data);
         return (retval == _ERC721_RECEIVED);
     }
 
