@@ -7,6 +7,15 @@ import "../../token/ERC20/SafeERC20.sol";
 import "../../token/ERC20/ERC20.sol";
 import "../../token/ERC20/ERC20Detailed.sol";
 
+/**
+ * @dev A xref:ROOT:gsn-bouncers.adoc#gsn-bouncers[GSN Bouncer] that charges transaction fees in a special purpose ERC20
+ * token, which we refer to as the gas payment token. The amount charged is exactly the amount of Ether charged to the
+ * recipient. This means that the token is essentially pegged to the value of Ether.
+ *
+ * The distribution strategy of the gas payment token to users is not defined by this contract. It's a mintable token
+ * whose only minter is the recipient, so the strategy must be implemented in a derived contract, making use of the
+ * internal {_mint} function.
+ */
 contract GSNBouncerERC20Fee is GSNBouncerBase {
     using SafeERC20 for __unstable__ERC20PrimaryAdmin;
     using SafeMath for uint256;
@@ -17,18 +26,31 @@ contract GSNBouncerERC20Fee is GSNBouncerBase {
 
     __unstable__ERC20PrimaryAdmin private _token;
 
+    /**
+     * @dev The arguments to the constructor are the details that the gas payment token will have: `name`, `symbol`, and
+     * `decimals`.
+     */
     constructor(string memory name, string memory symbol, uint8 decimals) public {
         _token = new __unstable__ERC20PrimaryAdmin(name, symbol, decimals);
     }
 
+    /**
+     * @dev Returns the gas payment token.
+     */
     function token() public view returns (IERC20) {
         return IERC20(_token);
     }
 
+    /**
+     * @dev Internal function that mints the gas payment token. Derived contracts should expose this function in their public API, with proper access control mechanisms.
+     */
     function _mint(address account, uint256 amount) internal {
         _token.mint(account, amount);
     }
 
+    /**
+     * @dev Ensures that only users with enough gas payment token balance can have transactions relayed through the GSN.
+     */
     function acceptRelayedCall(
         address,
         address from,
@@ -51,6 +73,12 @@ contract GSNBouncerERC20Fee is GSNBouncerBase {
         return _approveRelayedCall(abi.encode(from, maxPossibleCharge, transactionFee, gasPrice));
     }
 
+    /**
+     * @dev Implements the precharge to the user. The maximum possible charge (depending on gas limit, gas price, and
+     * fee) will be deducted from the user balance of gas payment token. Note that this is an overestimation of the
+     * actual charge, necessary because we cannot predict how much gas the execution will actually need. The remainder
+     * is returned to the user in {_postRelayedCall}.
+     */
     function _preRelayedCall(bytes memory context) internal returns (bytes32) {
         (address from, uint256 maxPossibleCharge) = abi.decode(context, (address, uint256));
 
@@ -58,6 +86,9 @@ contract GSNBouncerERC20Fee is GSNBouncerBase {
         _token.safeTransferFrom(from, address(this), maxPossibleCharge);
     }
 
+    /**
+     * @dev Returns to the user the extra amount that was previously charged, once the actual execution cost is known.
+     */
     function _postRelayedCall(bytes memory context, bool, uint256 actualCharge, bytes32) internal {
         (address from, uint256 maxPossibleCharge, uint256 transactionFee, uint256 gasPrice) =
             abi.decode(context, (address, uint256, uint256, uint256));
