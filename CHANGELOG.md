@@ -4,12 +4,14 @@
 
 ### New features:
  * `Address.toPayable`: added a helper to convert between address types without having to resort to low-level casting. ([#1773](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1773))
+ * Facilities to make metatransaction-enabled contracts through the Gas Station Network. ([#1844](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1844))
 
 ### Improvements:
  * `Address.isContract`: switched from `extcodesize` to `extcodehash` for less gas usage. ([#1802](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1802))
- * `SafeMath`: added custom error messages support for `sub`, `div` and `mod` functions. `ERC20` and `ERC777` updated to throw custom errors on subtraction overflows. ([#1828](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1828)) 
+ * `SafeMath`: added custom error messages support for `sub`, `div` and `mod` functions. `ERC20` and `ERC777` updated to throw custom errors on subtraction overflows. ([#1828](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1828))
 
-### Bugfixes
+### Breaking changes in drafts:
+ * `SignatureBouncer` has been removed from the library, both to avoid confusions with the GSN Bouncers and `GSNBouncerSignature` and because the API was not very clear. ([#1879](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1879))
 
 ## 2.3.0 (2019-05-27)
 

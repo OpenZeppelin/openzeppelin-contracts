@@ -3,95 +3,80 @@ version: 2
 # unless with workaround. For simplicity just use it.
 # https://github.com/CircleCI-Public/circleci-cli/issues/79
 
-jobs:
-  build:
+aliases:
+  - &defaults
     docker:
       - image: circleci/node:8
-    working_directory: ~/project
+
+  - &npm_install_if_necessary
+    run:
+      name: Install npm dependencies
+      command: |
+        if [ ! -d node_modules ]; then
+          npm ci
+        fi
+
+  - &cache_key_node_modules
+    key: v1-node_modules-{{ checksum "package-lock.json" }}
+
+jobs:
+  dependencies:
+    <<: *defaults
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/project
-      # Download and cache dependencies
       - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "package-lock.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
-      - run:
-          name: Install npm dependencies
-          command: npm install
-
+          <<: *cache_key_node_modules
+      - *npm_install_if_necessary
       - save_cache:
           paths:
             - node_modules
-          key: v1-dependencies-{{ checksum "package-lock.json" }}
+          <<: *cache_key_node_modules
 
   lint:
-    docker:
-      - image: circleci/node:8
-    working_directory: ~/project
+    <<: *defaults
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/project
       - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "package-lock.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
+          <<: *cache_key_node_modules
+      - *npm_install_if_necessary
       - run:
           name: Linter
           command: npm run lint
   test:
-    docker:
-      - image: circleci/node:8
-    working_directory: ~/project
+    <<: *defaults
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/project
       - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "package-lock.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
+          <<: *cache_key_node_modules
+      - *npm_install_if_necessary
       - run:
           name: Unit tests
           command: npm run test
   coverage:
-    docker:
-      - image: circleci/node:8
-    working_directory: ~/project
+    <<: *defaults
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/project
       - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "package-lock.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
+          <<: *cache_key_node_modules
+      - *npm_install_if_necessary
       - run:
           name: Unit tests with coverage report
-          command: npm run test
-          environment:
-            SOLIDITY_COVERAGE: true
+          command: npm run coverage
 
       # TODO(xinbenlv, #1839): run SOLC_NIGHTLY to be run but allow it to fail.
-      # TODO(xinbenlv, #1839): requires SLACK WEBHOOK to be setup by repo owner.
 
 workflows:
   version: 2
   everything:
     jobs:
-      - build
+      - dependencies
       - lint:
           requires:
-            - build
+            - dependencies
       - test:
           requires:
-            - build
+            - dependencies
       - coverage:
           requires:
-            - build
+            - dependencies
+

@@ -9,7 +9,7 @@ library Arrays {
    /**
      * @dev Searches a sorted `array` and returns the first index that contains
      * a value greater or equal to `element`. If no such index exists (i.e. all
-     * values in the array are stictly less than `element`), the array length is
+     * values in the array are strictly less than `element`), the array length is
      * returned. Time complexity O(log n).
      *
      * `array` is expected to be sorted in ascending order, and to contain no

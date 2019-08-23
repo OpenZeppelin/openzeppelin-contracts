@@ -1,8 +1,9 @@
 pragma solidity ^0.5.0;
 
+import "../../GSN/Context.sol";
 import "../Roles.sol";
 
-contract CapperRole {
+contract CapperRole is Context {
     using Roles for Roles.Role;
 
     event CapperAdded(address indexed account);
@@ -11,11 +12,11 @@ contract CapperRole {
     Roles.Role private _cappers;
 
     constructor () internal {
-        _addCapper(msg.sender);
+        _addCapper(_msgSender());
     }
 
     modifier onlyCapper() {
-        require(isCapper(msg.sender), "CapperRole: caller does not have the Capper role");
+        require(isCapper(_msgSender()), "CapperRole: caller does not have the Capper role");
         _;
     }
 
@@ -28,7 +29,7 @@ contract CapperRole {
     }
 
     function renounceCapper() public {
-        _removeCapper(msg.sender);
+        _removeCapper(_msgSender());
     }
 
     function _addCapper(address account) internal {
