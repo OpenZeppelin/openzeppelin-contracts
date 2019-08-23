@@ -53,8 +53,7 @@ jobs:
           name: Unit tests
           command: npm run test
   coverage:
-    docker:
-      - image: circleci/node:8
+    <<: *defaults
     steps:
       - checkout
       - restore_cache:
@@ -80,3 +79,4 @@ workflows:
       - coverage:
           requires:
             - dependencies
+
