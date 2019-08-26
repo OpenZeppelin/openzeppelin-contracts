@@ -586,6 +586,35 @@ function shouldBehaveLikeERC721 (
       });
     });
 
+    describe('getApproved', async function () {
+      context('when token is not minted', async function () {
+        it('reverts', async function () {
+          await expectRevert(
+            this.token.getApproved(unknownTokenId, { from: minter }),
+            'ERC721: approved query for nonexistent token'
+          );
+        });
+      });
+
+      context('when token has been minted ', async function () {
+        it('should return the zero address', async function () {
+          expect(await this.token.getApproved(firstTokenId)).to.be.equal(
+            ZERO_ADDRESS
+          );
+        });
+
+        context('when account has been approved', async function () {
+          beforeEach(async function () {
+            await this.token.approve(approved, firstTokenId, { from: owner });
+          });
+
+          it('should return approved account', async function () {
+            expect(await this.token.getApproved(firstTokenId)).to.be.equal(approved);
+          });
+        });
+      });
+    });
+
     shouldSupportInterfaces([
       'ERC165',
       'ERC721',
