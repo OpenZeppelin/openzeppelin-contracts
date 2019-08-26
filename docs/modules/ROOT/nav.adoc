@@ -10,6 +10,7 @@
 
 .In Depth
 * xref:erc20-supply.adoc[ERC20 Supply]
+* xref:gsn-bouncers.adoc[GSN Bouncers]
 
 .FAQ
 * xref:api-stability.adoc[API Stability]
