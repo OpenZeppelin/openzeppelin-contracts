@@ -2,7 +2,7 @@
 
 The https://gsn.ethereum.org[Gas Station Network] allows you to build apps where you pay for your users transactions, so they do not need to hold Ether to pay for gas, easing their onboarding process. In this guide, we will learn how to write smart contracts that can receive transactions from the GSN, by using OpenZeppelin Contracts.
 
-If you're new to the GSN, you probably want to first take a look at the xref:ROOT:gsn/what-is-the-gsn.adoc[light overview of the system], to get a clearer picture of how gasless transactions are achieved. Otherwise, strap in!
+If you're new to the GSN, you probably want to first take a look at the xref:openzeppelin::gsn/what-is-the-gsn.adoc[light overview of the system], to get a clearer picture of how gasless transactions are achieved. Otherwise, strap in!
 
 NOTE: This feature is being released in the next version of `@openzeppelin/contracts`, available right now through `npm install @openzeppelin/contracts@next`. It is also available on the `@openzeppelin/contracts-ethereum-package` variant.
 
@@ -89,4 +89,4 @@ These functions allow you to implement, for instance, a flow where you charge yo
 
 == Further reading
 
-Read our xref:gsn-advanced.adoc[guide on the payment strategies] (called _bouncers_) pre-built and shipped in OpenZeppelin Contracts, or check out xref:api:GSN.adoc[the API reference of the GSN base contracts].
+Read our xref:gsn-bouncers.adoc[guide on the payment strategies] (called _bouncers_) pre-built and shipped in OpenZeppelin Contracts, or check out xref:api:GSN.adoc[the API reference of the GSN base contracts].

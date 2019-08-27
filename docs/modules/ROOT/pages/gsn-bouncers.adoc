@@ -6,7 +6,7 @@ First, we will explain the Bouncer concept, and then we will showcase how to use
 
 Finally, we will cover how to create your own custom Bouncer.
 
-If you're still learning about the basics of the Gas Station Network, you should head over to our xref:api:gsn.adoc[GSN Guide], which will help you get started from scratch.
+If you're still learning about the basics of the Gas Station Network, you should head over to our xref:gsn.adoc[GSN Guide], which will help you get started from scratch.
 
 [[gsn-bouncers]]
 == GSN Bouncers
