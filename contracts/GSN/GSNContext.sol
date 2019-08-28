@@ -2,7 +2,7 @@ pragma solidity ^0.5.0;
 
 import "./Context.sol";
 
-/*
+/**
  * @dev Enables GSN support on `Context` contracts by recognizing calls from
  * RelayHub and extracting the actual sender and call data from the received
  * calldata.
