@@ -83,7 +83,7 @@ function acceptRelayedCall(
       if (keccak256(blob).toEthSignedMessageHash().recover(approvalData) == _trustedSigner) {
           return _approveRelayedCall();
       } else {
-          return _declineRelayedCall(uint256(GSNRecipientSignedDataErrorCodes.INVALID_SIGNER));
+          return _rejectRelayedCall(uint256(GSNRecipientSignedDataErrorCodes.INVALID_SIGNER));
       }
   }
 ----
@@ -109,11 +109,11 @@ On the other hand, when the signatures don't match, the call gets rejected with 
 [source,solidity]
 ----
 
-  return _declineRelayedCall(uint256(GSNRecipientSignedDataErrorCodes.INVALID_SIGNER));
+  return _rejectRelayedCall(uint256(GSNRecipientSignedDataErrorCodes.INVALID_SIGNER));
 
   // Defined on base class GSNBouncerBase
   // uint256 constant private RELAYED_CALL_REJECTED = 11;
-  // function _declineRelayedCall(uint256 errorCode) internal pure returns (uint256, bytes memory) {
+  // function _rejectRelayedCall(uint256 errorCode) internal pure returns (uint256, bytes memory) {
   //    return (RELAYED_CALL_REJECTED + errorCode, "");
   // }
 ----
@@ -165,12 +165,12 @@ function acceptRelayedCall(
     returns (uint256, bytes memory)
 {
     if (_token.balanceOf(from) < maxPossibleCharge) {
-        return _declineRelayedCall(uint256(GSNRecipientERC20ChargeErrorCodes.INSUFFICIENT_BALANCE));
+        return _rejectRelayedCall(uint256(GSNRecipientERC20ChargeErrorCodes.INSUFFICIENT_BALANCE));
     } else if (_token.allowance(from, address(this)) < maxPossibleCharge) {
-        return _declineRelayedCall(uint256(GSNRecipientERC20ChargeErrorCodes.INSUFFICIENT_ALLOWANCE));
+        return _rejectRelayedCall(uint256(GSNRecipientERC20ChargeErrorCodes.INSUFFICIENT_ALLOWANCE));
     }
 
-    return _confirmRelayedCall(abi.encode(from, maxPossibleCharge, transactionFee, gasPrice));
+    return _approveRelayedCall(abi.encode(from, maxPossibleCharge, transactionFee, gasPrice));
 }
 ----
 
