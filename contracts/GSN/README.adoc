@@ -1,8 +1,19 @@
-= Gas Station Network
+= Gas Station Network (GSN)
+
+This set of contracts provide all the tools required to make a contract callable via the https://gsn.openzeppelin.com[Gas Station Network].
+
+TIP: If you're new to the GSN, head over to our xref:openzeppelin::gsn/what-is-the-gsn.adoc[overview of the system] and basic guide to xref:ROOT:gsn.adoc[creating a GSN-capable contract].
+
+The core contract a recipient must inherit from is {GSNRecipient}: it includes all necessary interfaces, as well as some helper methods to make interacting with the GSN easier.
+
+Utilities to make writing xref:ROOT:gsn-bouncers.adoc[GSN Bouncers] easy are available in {GSNBouncerBase}, or you can simply use one of our pre-made bouncers:
+
+* {GSNBouncerERC20Fee} charges the end user for gas costs in an application-specific xref:ROOT:tokens.adoc#ERC20[ERC20 token]
+* {GSNBouncerSignature} accepts all relayed calls that have been signed by a trusted third party (e.g. a private key in a backend)
+
+You can also take a look at the two contract interfaces that make up the GSN protocol: {IRelayRecipient} and {IRelayHub}, but won't need to use those directly.
 
 NOTE: This feature is being released in the next version of OpenZeppelin Contracts, available right now through `npm install @openzeppelin/contracts@next`.
-
-TIP: Check out our guide on the xref:ROOT:gsn.adoc[basics of the GSN] as well as the xref:ROOT:gsn-bouncers.adoc[more advanced topics].
 
 == Recipient
 
@@ -10,5 +21,11 @@ TIP: Check out our guide on the xref:ROOT:gsn.adoc[basics of the GSN] as well as
 
 == Bouncers
 
+{{GSNBouncerBase}}
 {{GSNBouncerERC20Fee}}
 {{GSNBouncerSignature}}
+
+== Protocol
+
+{{IRelayRecipient}}
+{{IRelayHub}}
