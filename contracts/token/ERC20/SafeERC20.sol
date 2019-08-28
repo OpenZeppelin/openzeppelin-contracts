@@ -4,6 +4,11 @@ import "./IERC20.sol";
 import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";
 
+interface IERC20WithNonViewMethods {
+    function balanceOf(address account) external returns (uint256);
+    function allowance(address owner, address spender) external returns (uint256);
+}
+
 /**
  * @title SafeERC20
  * @dev Wrappers around ERC20 operations that throw on failure (when the token
@@ -16,6 +21,14 @@ import "../../utils/Address.sol";
 library SafeERC20 {
     using SafeMath for uint256;
     using Address for address;
+
+    function safeBalanceOf(IERC20 token, address account) external returns (uint256) {
+        return IERC20WithNonViewMethods(address(token)).balanceOf(account);
+    }
+
+    function safeAllowance(IERC20 token, address owner, address spender) external returns (uint256) {
+        return IERC20WithNonViewMethods(address(token)).allowance(owner, spender);
+    }
 
     function safeTransfer(IERC20 token, address to, uint256 value) internal {
         callOptionalReturn(token, abi.encodeWithSelector(token.transfer.selector, to, value));
