@@ -81,7 +81,7 @@ function acceptRelayedCall(
           address(this) // Prevents replays in multiple recipients
       );
       if (keccak256(blob).toEthSignedMessageHash().recover(approvalData) == _trustedSigner) {
-          return _confirmRelayedCall();
+          return _approveRelayedCall();
       } else {
           return _declineRelayedCall(uint256(GSNRecipientSignedDataErrorCodes.INVALID_SIGNER));
       }
@@ -95,11 +95,11 @@ When the signatures match, the function returns the following:
 [source,solidity]
 ----
 
-  return _confirmRelayedCall();
+  return _approveRelayedCall();
 
   // Defined on base class GSNBouncerBase
   // uint256 constant private RELAYED_CALL_ACCEPTED = 0;
-  // function _confirmRelayedCall(bytes memory context) internal pure returns (uint256, bytes memory) {
+  // function _approveRelayedCall(bytes memory context) internal pure returns (uint256, bytes memory) {
   //    return (RELAYED_CALL_ACCEPTED, context);
   // }
 ----
