@@ -213,7 +213,7 @@ contract IRelayHub {
      * Note that the actual encoded function might be reverted: this is indicated in the `status` field.
      *
      * `charge` is the ether value deducted from the recipient's balance, paid to the relay's owner.
-     *//
+     */
     event TransactionRelayed(address indexed relay, address indexed from, address indexed to, bytes4 selector, RelayCallStatus status, uint256 charge);
 
     // Reason error codes for the TransactionRelayed event
