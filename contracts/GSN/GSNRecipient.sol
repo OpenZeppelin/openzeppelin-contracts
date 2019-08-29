@@ -5,23 +5,22 @@ import "./GSNContext.sol";
 import "./bouncers/GSNBouncerBase.sol";
 import "./IRelayHub.sol";
 
-/*
- * @dev Base GSN recipient contract, adding the recipient interface and enabling
- * GSN support. Not all interface methods are implemented, derived contracts
- * must do so themselves.
+/**
+ * @dev Base GSN recipient contract: includes the {IRelayRecipient} interface and enables GSN support on all contracts
+ * in the inheritance tree.
+ *
+ * Not all interface methods are implemented (e.g. {acceptRelayedCall}, derived contracts must provide one themselves.
  */
 contract GSNRecipient is IRelayRecipient, GSNContext, GSNBouncerBase {
     /**
-     * @dev Returns the RelayHub address for this recipient contract.
+     * @dev Returns the `RelayHub` address for this recipient contract.
      */
     function getHubAddr() public view returns (address) {
         return _relayHub;
     }
 
     /**
-     * @dev This function returns the version string of the RelayHub for which
-     * this recipient implementation was built. It's not currently used, but
-     * may be used by tooling.
+     * @dev Returns the version string of the `RelayHub` for which this recipient implementation was built.
      */
     // This function is view for future-proofing, it may require reading from
     // storage in the future.
@@ -31,9 +30,9 @@ contract GSNRecipient is IRelayRecipient, GSNContext, GSNBouncerBase {
     }
 
     /**
-     * @dev Triggers a withdraw of the recipient's deposits in RelayHub. Can
-     * be used by derived contracts to expose the functionality in an external
-     * interface.
+     * @dev Withdraws the recipient's deposits in `RelayHub`.
+     *
+     * Derived contracts should expose this in an external interface with proper access control.
      */
     function _withdrawDeposits(uint256 amount, address payable payee) internal {
         IRelayHub(_relayHub).withdraw(amount, payee);
