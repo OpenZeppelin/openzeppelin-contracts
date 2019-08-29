@@ -17,14 +17,14 @@ contract IRelayRecipient {
      * The relay request was originated by `from` and will be served by `relay`. `encodedFunction` is the relayed call
      * calldata, so its first four bytes are the function selector. The relayed call will be forwarded `gasLimit` gas,
      * and the transaction executed with a gas price of at least `gasPrice`. `relay`'s fee is `transactionFee`, and the
-     * recipient will be charged at most `maxPossibleCharged` (in wei). `nonce` is the sender's (`from`) nonce for
-     * replay attack protection in {IRelayHub}, and `approvalData` is a optional field that can be used to hold a signature
+     * recipient will be charged at most `maxPossibleCharge` (in wei). `nonce` is the sender's (`from`) nonce for
+     * replay attack protection in {IRelayHub}, and `approvalData` is a optional parameter that can be used to hold a signature
      * over all or some of the previous values.
      *
-     * Retuns a tuple, where the first value is used to indicate approval (0) or rejection (custom non-zero error code,
+     * Returns a tuple, where the first value is used to indicate approval (0) or rejection (custom non-zero error code,
      * values 1 to 10 are reserved) and the second one is data to be passed to the other {IRelayRecipient} functions.
      *
-     * {acceptRelayedCall} is called with 50k gas: if it runs out during exection, the request will be considered
+     * {acceptRelayedCall} is called with 50k gas: if it runs out during execution, the request will be considered
      * rejected. A regular revert will also trigger a rejection.
      */
     function acceptRelayedCall(
@@ -58,14 +58,14 @@ contract IRelayRecipient {
     /**
      * @dev Called by {IRelayHub} on approved relay call requests, after the relayed call is executed. This allows to e.g.
      * charge the user for the relayed call costs, return any overcharges from {preRelayedCall}, or perform
-     * contract-specific bookeeping.
+     * contract-specific bookkeeping.
      *
-     * `context` is the second value returned in the tuple by {acceptRelayedCall`. `success` is the execution status }f
+     * `context` is the second value returned in the tuple by {acceptRelayedCall}. `success` is the execution status of
      * the relayed call. `actualCharge` is an estimate of how much the recipient will be charged for the transaction,
      * not including any gas used by {postRelayedCall} itself. `preRetVal` is {preRelayedCall}'s return value.
      *
      *
-     * {postRelayedCall} is called with 100k gas: if it runs out during exection or otherwise reverts, the relayed call
+     * {postRelayedCall} is called with 100k gas: if it runs out during execution or otherwise reverts, the relayed call
      * and the call to {preRelayedCall} will be reverted retroactively, but the recipient will still be charged for the
      * transaction's cost.
      */
