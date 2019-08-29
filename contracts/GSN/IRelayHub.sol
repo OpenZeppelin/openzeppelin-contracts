@@ -5,7 +5,7 @@ pragma solidity ^0.5.0;
  * directly.
  *
  * See the https://github.com/OpenZeppelin/openzeppelin-gsn-helpers[OpenZeppelin GSN helpers] for more information on
- * how to deploy an instance of `RelayHub` on your local testing network.
+ * how to deploy an instance of `RelayHub` on your local test network.
  */
 contract IRelayHub {
     // Relay management
@@ -89,7 +89,7 @@ contract IRelayHub {
     // Balance management
 
     /**
-     * @dev Deposits ether for a contract, so that it can receive (and pay for) relayed transactions.
+     * @dev Deposits Ether for a contract, so that it can receive (and pay for) relayed transactions.
      *
      * Unused balance can only be withdrawn by the contract itself, by calling {withdraw}.
      *
@@ -169,7 +169,7 @@ contract IRelayHub {
      * If all conditions are met, the call will be relayed and the recipient charged. {preRelayedCall}, the encoded
      * function and {postRelayedCall} will be called in that order.
      *
-     * Arguments:
+     * Parameters:
      *  - `from`: the client originating the request
      *  - `recipient`: the target {IRelayRecipient} contract
      *  - `encodedFunction`: the function call to relay, including data
@@ -201,18 +201,18 @@ contract IRelayHub {
      * This can happen due to incorrect {relayCall} arguments, or the recipient not accepting the relayed call. The
      * actual relayed call was not executed, and the recipient not charged.
      *
-     * The `reason` field contains an error code: values 1-10 correspond to `PreconditionCheck` entries, and values
+     * The `reason` parameter contains an error code: values 1-10 correspond to `PreconditionCheck` entries, and values
      * over 10 are custom recipient error codes returned from {acceptRelayedCall}.
      */
     event CanRelayFailed(address indexed relay, address indexed from, address indexed to, bytes4 selector, uint256 reason);
 
     /**
-     * @dev Emitted when a transaction is relayed. * Useful when monitoring a relay's operation and relayed calls to a
-     * contract.
+     * @dev Emitted when a transaction is relayed. 
+     * Useful when monitoring a relay's operation and relayed calls to a contract
      *
-     * Note that the actual encoded function might be reverted: this is indicated in the `status` field.
+     * Note that the actual encoded function might be reverted: this is indicated in the `status` parameter.
      *
-     * `charge` is the ether value deducted from the recipient's balance, paid to the relay's owner.
+     * `charge` is the Ether value deducted from the recipient's balance, paid to the relay's owner.
      */
     event TransactionRelayed(address indexed relay, address indexed from, address indexed to, bytes4 selector, RelayCallStatus status, uint256 charge);
 
@@ -236,7 +236,8 @@ contract IRelayHub {
      */
     function maxPossibleCharge(uint256 relayedCallStipend, uint256 gasPrice, uint256 transactionFee) public view returns (uint256);
 
-    // Relay penalization. Any account can penalize relays, removing them from the system immediately, and rewarding the
+     // Relay penalization. 
+     // Any account can penalize relays, removing them from the system immediately, and rewarding the
     // reporter with half of the relay's stake. The other half is burned so that, even if the relay penalizes itself, it
     // still loses half of its stake.
 
