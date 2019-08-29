@@ -109,7 +109,7 @@ On the other hand, when the signatures don't match, the call gets rejected with 
 [source,solidity]
 ----
 
-  return _rejectRelayedCall(uint256(GSNRecipientSignedDataErrorCodes.INVALID_SIGNER));
+  return _rejectRelayedCall(uint256(GSNBouncerSignatureErrorCodes.INVALID_SIGNER));
 
   // Defined on base class GSNBouncerBase
   // uint256 constant private RELAYED_CALL_REJECTED = 11;
@@ -165,9 +165,9 @@ function acceptRelayedCall(
     returns (uint256, bytes memory)
 {
     if (_token.balanceOf(from) < maxPossibleCharge) {
-        return _rejectRelayedCall(uint256(GSNRecipientERC20ChargeErrorCodes.INSUFFICIENT_BALANCE));
+        return _rejectRelayedCall(uint256(GSNBouncerERC20FeeErrorCodes.INSUFFICIENT_BALANCE));
     } else if (_token.allowance(from, address(this)) < maxPossibleCharge) {
-        return _rejectRelayedCall(uint256(GSNRecipientERC20ChargeErrorCodes.INSUFFICIENT_ALLOWANCE));
+        return _rejectRelayedCall(uint256(GSNBouncerERC20FeeErrorCodes.INSUFFICIENT_ALLOWANCE));
     }
 
     return _approveRelayedCall(abi.encode(from, maxPossibleCharge, transactionFee, gasPrice));
