@@ -171,7 +171,7 @@ contract IRelayHub {
      *
      * Parameters:
      *  - `from`: the client originating the request
-     *  - `recipient`: the target {IRelayRecipient} contract
+     *  - `to`: the target {IRelayRecipient} contract
      *  - `encodedFunction`: the function call to relay, including data
      *  - `transactionFee`: fee (%) the relay takes over actual gas cost
      *  - `gasPrice`: gas price the client is willing to pay
