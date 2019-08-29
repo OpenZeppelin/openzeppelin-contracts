@@ -1,6 +1,6 @@
 = Writing GSN-capable contracts
 
-The https://gsn.ethereum.org[Gas Station Network] allows you to build apps where you pay for your users transactions, so they do not need to hold Ether to pay for gas, easing their onboarding process. In this guide, we will learn how to write smart contracts that can receive transactions from the GSN, by using OpenZeppelin Contracts.
+The https://gsn.openzeppelin.com[Gas Station Network] allows you to build apps where you pay for your users transactions, so they do not need to hold Ether to pay for gas, easing their onboarding process. In this guide, we will learn how to write smart contracts that can receive transactions from the GSN, by using OpenZeppelin Contracts.
 
 If you're new to the GSN, you probably want to first take a look at the xref:openzeppelin::gsn/what-is-the-gsn.adoc[light overview of the system], to get a clearer picture of how gasless transactions are achieved. Otherwise, strap in!
 
