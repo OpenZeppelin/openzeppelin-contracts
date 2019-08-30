@@ -39,7 +39,9 @@ contract('GSNRecipient', function ([_, payee, sender, newRelayHub]) {
     });
 
     it('cannot upgrade to the zero address', async function () {
-      await expectRevert(this.recipient.upgradeRelayHub(ZERO_ADDRESS), 'GSNRecipient: new RelayHub is the zero address');
+      await expectRevert(
+        this.recipient.upgradeRelayHub(ZERO_ADDRESS), 'GSNRecipient: new RelayHub is the zero address'
+      );
     });
 
     context('with new RelayHub', function () {
