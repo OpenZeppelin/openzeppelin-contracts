@@ -31,7 +31,7 @@ contract GSNRecipient is IRelayRecipient, GSNBouncerBase {
      * @dev Switches to a new {IRelayHub} instance. This method is added for future-proofing: there's no reason to not
      * use the default instance.
      *
-     * IMPORTANT: after upgrading, the {GSNRecipient} will no longer be able to receive relayed calls from the old
+     * IMPORTANT: After upgrading, the {GSNRecipient} will no longer be able to receive relayed calls from the old
      * {IRelayHub} instance. Additionally, all funds should be previously withdrawn via {_withdrawDeposits}.
      */
     function _upgradeRelayHub(address newRelayHub) internal {
@@ -73,7 +73,7 @@ contract GSNRecipient is IRelayRecipient, GSNBouncerBase {
      * @dev Replacement for msg.sender. Returns the actual sender of a transaction: msg.sender for regular transactions,
      * and the end-user for GSN relayed calls (where msg.sender is actually `RelayHub`).
      *
-     * IMPORTANT: Contracts derived from {GSNRecipient} should never use msg.sender, and use {_msgSender} instead.
+     * IMPORTANT: Contracts derived from {GSNRecipient} should never use `msg.sender`, and use {_msgSender} instead.
      */
     function _msgSender() internal view returns (address) {
         if (msg.sender != _relayHub) {
@@ -87,7 +87,7 @@ contract GSNRecipient is IRelayRecipient, GSNBouncerBase {
      * @dev Replacement for msg.data. Returns the actual calldata of a transaction: msg.data for regular transactions,
      * and a reduced version for GSN relayed calls (where msg.data contains additional information).
      *
-     * IMPORTANT: Contracts derived from {GSNRecipient} should never use msg.data, and use {_msgData} instead.
+     * IMPORTANT: Contracts derived from {GSNRecipient} should never use `msg.data`, and use {_msgData} instead.
      */
     function _msgData() internal view returns (bytes memory) {
         if (msg.sender != _relayHub) {
