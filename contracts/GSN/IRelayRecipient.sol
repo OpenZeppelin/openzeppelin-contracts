@@ -1,8 +1,9 @@
 pragma solidity ^0.5.0;
 
 /**
- * @dev Base interface for a contract that will be called via the GSN from {IRelayHub}. Do not use directly, inherit from
- * {GSNRecipient} instead.
+ * @dev Base interface for a contract that will be called via the GSN from {IRelayHub}.
+ *
+ * TIP: You don't need to write an implementation yourself! Inherit from {GSNRecipient} instead.
  */
 contract IRelayRecipient {
     /**
