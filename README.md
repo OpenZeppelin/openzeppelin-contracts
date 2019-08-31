@@ -40,8 +40,6 @@ This project is maintained by [OpenZeppelin], and developed following our high s
 
 The core development principles and strategies that OpenZeppelin is based on include: security in depth, simple and modular code, clarity-driven naming conventions, comprehensive unit testing, pre-and-post-condition sanity checks, code consistency, and regular audits.
 
-The latest audit was done on October 2018 on version 2.0.0.
-
 Please report any security issues you find to security@openzeppelin.org.
 
 ## Contribute
