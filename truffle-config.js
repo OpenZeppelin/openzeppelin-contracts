@@ -3,7 +3,7 @@ const { GSNDevProvider } = require('@openzeppelin/gsn-provider');
 
 const solcStable = {
   version: '0.5.11',
-  };
+};
 
 const solcNightly = {
   version: 'nightly',
