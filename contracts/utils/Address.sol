@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.5;
 
 /**
  * @dev Collection of functions related to the address type
@@ -19,7 +19,7 @@ library Address {
         // This method relies in extcodesize, which returns 0 for contracts in
         // construction, since the code is only stored at the end of the
         // constructor execution.
-        
+
         // According to EIP-1052, 0x0 is the value returned for not-yet created accounts
         // and 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470 is returned
         // for accounts without code, i.e. `keccak256('')`
@@ -33,6 +33,9 @@ library Address {
     /**
      * @dev Converts an `address` into `address payable`. Note that this is
      * simply a type cast: the actual underlying value is not changed.
+     *
+     * NOTE: This is a feature of the next version of OpenZeppelin Contracts.
+     * @dev Get it via `npm install @openzeppelin/contracts@next`.
      */
     function toPayable(address account) internal pure returns (address payable) {
         return address(uint160(account));
