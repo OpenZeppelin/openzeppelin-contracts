@@ -6,7 +6,7 @@ version: 2
 aliases:
   - &defaults
     docker:
-      - image: circleci/node:8
+      - image: circleci/node:10
 
   - &npm_install_if_necessary
     run:

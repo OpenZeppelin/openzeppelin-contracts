@@ -2,7 +2,7 @@ pragma solidity ^0.5.0;
 
 import "../IRelayRecipient.sol";
 
-/*
+/**
  * @dev Base contract used to implement GSNBouncers.
  *
  * > This contract does not perform all required tasks to implement a GSN

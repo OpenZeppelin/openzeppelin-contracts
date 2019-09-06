@@ -177,7 +177,7 @@ contract ERC20 is Context, IERC20 {
         emit Transfer(address(0), account, amount);
     }
 
-     /**
+    /**
      * @dev Destroys `amount` tokens from `account`, reducing the
      * total supply.
      *

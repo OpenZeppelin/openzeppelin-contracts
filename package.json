@@ -44,8 +44,8 @@
   },
   "homepage": "https://github.com/OpenZeppelin/openzeppelin-contracts",
   "devDependencies": {
-    "@openzeppelin/gsn-helpers": "^0.1.5",
-    "@openzeppelin/gsn-provider": "^0.1.4",
+    "@openzeppelin/gsn-helpers": "^0.1.9",
+    "@openzeppelin/gsn-provider": "^0.1.6",
     "chai": "^4.2.0",
     "concurrently": "^4.1.0",
     "eslint": "^4.19.1",
@@ -62,10 +62,10 @@
     "lodash.startcase": "^4.4.0",
     "micromatch": "^4.0.2",
     "nodemon": "^1.19.0",
-    "openzeppelin-test-helpers": "^0.4",
+    "openzeppelin-test-helpers": "^0.4.3",
     "solhint": "2.1.0",
     "solidity-coverage": "^0.6.5",
     "solidity-docgen": "^0.3.0-beta.4",
-    "truffle": "^5.0.18"
+    "truffle": "^5.0.35"
   }
 }

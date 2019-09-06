@@ -1,45 +1,75 @@
 pragma solidity ^0.5.0;
 
+/**
+ * @dev Interface for `RelayHub`, the core contract of the GSN. Users should not need to interact with this contract
+ * directly.
+ *
+ * See the https://github.com/OpenZeppelin/openzeppelin-gsn-helpers[OpenZeppelin GSN helpers] for more information on
+ * how to deploy an instance of `RelayHub` on your local test network.
+ */
 contract IRelayHub {
     // Relay management
 
-    // Add stake to a relay and sets its unstakeDelay.
-    // If the relay does not exist, it is created, and the caller
-    // of this function becomes its owner. If the relay already exists, only the owner can call this function. A relay
-    // cannot be its own owner.
-    // All Ether in this function call will be added to the relay's stake.
-    // Its unstake delay will be assigned to unstakeDelay, but the new value must be greater or equal to the current one.
-    // Emits a Staked event.
+    /**
+     * @dev Adds stake to a relay and sets its `unstakeDelay`. If the relay does not exist, it is created, and the caller
+     * of this function becomes its owner. If the relay already exists, only the owner can call this function. A relay
+     * cannot be its own owner.
+     *
+     * All Ether in this function call will be added to the relay's stake.
+     * Its unstake delay will be assigned to `unstakeDelay`, but the new value must be greater or equal to the current one.
+     *
+     * Emits a {Staked} event.
+     */
     function stake(address relayaddr, uint256 unstakeDelay) external payable;
 
-    // Emited when a relay's stake or unstakeDelay are increased
+    /**
+     * @dev Emitted when a relay's stake or unstakeDelay are increased
+     */
     event Staked(address indexed relay, uint256 stake, uint256 unstakeDelay);
 
-    // Registers the caller as a relay.
-    // The relay must be staked for, and not be a contract (i.e. this function must be called directly from an EOA).
-    // Emits a RelayAdded event.
-    // This function can be called multiple times, emitting new RelayAdded events. Note that the received transactionFee
-    // is not enforced by relayCall.
+    /**
+     * @dev Registers the caller as a relay.
+     * The relay must be staked for, and not be a contract (i.e. this function must be called directly from an EOA).
+     *
+     * This function can be called multiple times, emitting new {RelayAdded} events. Note that the received
+     * `transactionFee` is not enforced by {relayCall}.
+     *
+     * Emits a {RelayAdded} event.
+     */
     function registerRelay(uint256 transactionFee, string memory url) public;
 
-    // Emitted when a relay is registered or re-registerd. Looking at these events (and filtering out RelayRemoved
-    // events) lets a client discover the list of available relays.
+    /**
+     * @dev Emitted when a relay is registered or re-registerd. Looking at these events (and filtering out
+     * {RelayRemoved} events) lets a client discover the list of available relays.
+     */
     event RelayAdded(address indexed relay, address indexed owner, uint256 transactionFee, uint256 stake, uint256 unstakeDelay, string url);
 
-    // Removes (deregisters) a relay. Unregistered (but staked for) relays can also be removed. Can only be called by
-    // the owner of the relay. After the relay's unstakeDelay has elapsed, unstake will be callable.
-    // Emits a RelayRemoved event.
+    /**
+     * @dev Removes (deregisters) a relay. Unregistered (but staked for) relays can also be removed.
+     *
+     * Can only be called by the owner of the relay. After the relay's `unstakeDelay` has elapsed, {unstake} will be
+     * callable.
+     *
+     * Emits a {RelayRemoved} event.
+     */
     function removeRelayByOwner(address relay) public;
 
-    // Emitted when a relay is removed (deregistered). unstakeTime is the time when unstake will be callable.
+    /**
+     * @dev Emitted when a relay is removed (deregistered). `unstakeTime` is the time when unstake will be callable.
+     */
     event RelayRemoved(address indexed relay, uint256 unstakeTime);
 
-    // Deletes the relay from the system, and gives back its stake to the owner. Can only be called by the relay owner,
-    // after unstakeDelay has elapsed since removeRelayByOwner was called.
-    // Emits an Unstaked event.
+    /** Deletes the relay from the system, and gives back its stake to the owner.
+     *
+     * Can only be called by the relay owner, after `unstakeDelay` has elapsed since {removeRelayByOwner} was called.
+     *
+     * Emits an {Unstaked} event.
+     */
     function unstake(address relay) public;
 
-    // Emitted when a relay is unstaked for, including the returned stake.
+    /**
+     * @dev Emitted when a relay is unstaked for, including the returned stake.
+     */
     event Unstaked(address indexed relay, uint256 stake);
 
     // States a relay can be in
@@ -50,38 +80,58 @@ contract IRelayHub {
         Removed    // The relay has been removed by its owner and can no longer relay calls. It must wait for its unstakeDelay to elapse before it can unstake
     }
 
-    // Returns a relay's status. Note that relays can be deleted when unstaked or penalized.
+    /**
+     * @dev Returns a relay's status. Note that relays can be deleted when unstaked or penalized, causing this function
+     * to return an empty entry.
+     */
     function getRelay(address relay) external view returns (uint256 totalStake, uint256 unstakeDelay, uint256 unstakeTime, address payable owner, RelayState state);
 
     // Balance management
 
-    // Deposits ether for a contract, so that it can receive (and pay for) relayed transactions. Unused balance can only
-    // be withdrawn by the contract itself, by callingn withdraw.
-    // Emits a Deposited event.
+    /**
+     * @dev Deposits Ether for a contract, so that it can receive (and pay for) relayed transactions.
+     *
+     * Unused balance can only be withdrawn by the contract itself, by calling {withdraw}.
+     *
+     * Emits a {Deposited} event.
+     */
     function depositFor(address target) public payable;
 
-    // Emitted when depositFor is called, including the amount and account that was funded.
+    /**
+     * @dev Emitted when {depositFor} is called, including the amount and account that was funded.
+     */
     event Deposited(address indexed recipient, address indexed from, uint256 amount);
 
-    // Returns an account's deposits. These can be either a contnract's funds, or a relay owner's revenue.
+    /**
+     * @dev Returns an account's deposits. These can be either a contracts's funds, or a relay owner's revenue.
+     */
     function balanceOf(address target) external view returns (uint256);
 
-    // Withdraws from an account's balance, sending it back to it. Relay owners call this to retrieve their revenue, and
-    // contracts can also use it to reduce their funding.
-    // Emits a Withdrawn event.
+    /**
+     * Withdraws from an account's balance, sending it back to it. Relay owners call this to retrieve their revenue, and
+     * contracts can use it to reduce their funding.
+     *
+     * Emits a {Withdrawn} event.
+     */
     function withdraw(uint256 amount, address payable dest) public;
 
-    // Emitted when an account withdraws funds from RelayHub.
+    /**
+     * @dev Emitted when an account withdraws funds from `RelayHub`.
+     */
     event Withdrawn(address indexed account, address indexed dest, uint256 amount);
 
     // Relaying
 
-    // Check if the RelayHub will accept a relayed operation. Multiple things must be true for this to happen:
-    //  - all arguments must be signed for by the sender (from)
-    //  - the sender's nonce must be the current one
-    //  - the recipient must accept this transaction (via acceptRelayedCall)
-    // Returns a PreconditionCheck value (OK when the transaction can be relayed), or a recipient-specific error code if
-    // it returns one in acceptRelayedCall.
+    /**
+     * @dev Checks if the `RelayHub` will accept a relayed operation.
+     * Multiple things must be true for this to happen:
+     *  - all arguments must be signed for by the sender (`from`)
+     *  - the sender's nonce must be the current one
+     *  - the recipient must accept this transaction (via {acceptRelayedCall})
+     *
+     * Returns a `PreconditionCheck` value (`OK` when the transaction can be relayed), or a recipient-specific error
+     * code if it returns one in {acceptRelayedCall}.
+     */
     function canRelay(
         address relay,
         address from,
@@ -104,31 +154,35 @@ contract IRelayHub {
         InvalidRecipientStatusCode  // The recipient returned an invalid (reserved) status code
     }
 
-    // Relays a transaction. For this to suceed, multiple conditions must be met:
-    //  - canRelay must return PreconditionCheck.OK
-    //  - the sender must be a registered relay
-    //  - the transaction's gas price must be larger or equal to the one that was requested by the sender
-    //  - the transaction must have enough gas to not run out of gas if all internal transactions (calls to the
-    // recipient) use all gas available to them
-    //  - the recipient must have enough balance to pay the relay for the worst-case scenario (i.e. when all gas is
-    // spent)
-    //
-    // If all conditions are met, the call will be relayed and the recipient charged. preRelayedCall, the encoded
-    // function and postRelayedCall will be called in order.
-    //
-    // Arguments:
-    //  - from: the client originating the request
-    //  - recipient: the target IRelayRecipient contract
-    //  - encodedFunction: the function call to relay, including data
-    //  - transactionFee: fee (%) the relay takes over actual gas cost
-    //  - gasPrice: gas price the client is willing to pay
-    //  - gasLimit: gas to forward when calling the encoded function
-    //  - nonce: client's nonce
-    //  - signature: client's signature over all previous params, plus the relay and RelayHub addresses
-    //  - approvalData: dapp-specific data forwared to acceptRelayedCall. This value is *not* verified by the Hub, but
-    //    it still can be used for e.g. a signature.
-    //
-    // Emits a TransactionRelayed event.
+    /**
+     * @dev Relays a transaction.
+     *
+     * For this to succeed, multiple conditions must be met:
+     *  - {canRelay} must `return PreconditionCheck.OK`
+     *  - the sender must be a registered relay
+     *  - the transaction's gas price must be larger or equal to the one that was requested by the sender
+     *  - the transaction must have enough gas to not run out of gas if all internal transactions (calls to the
+     * recipient) use all gas available to them
+     *  - the recipient must have enough balance to pay the relay for the worst-case scenario (i.e. when all gas is
+     * spent)
+     *
+     * If all conditions are met, the call will be relayed and the recipient charged. {preRelayedCall}, the encoded
+     * function and {postRelayedCall} will be called in that order.
+     *
+     * Parameters:
+     *  - `from`: the client originating the request
+     *  - `to`: the target {IRelayRecipient} contract
+     *  - `encodedFunction`: the function call to relay, including data
+     *  - `transactionFee`: fee (%) the relay takes over actual gas cost
+     *  - `gasPrice`: gas price the client is willing to pay
+     *  - `gasLimit`: gas to forward when calling the encoded function
+     *  - `nonce`: client's nonce
+     *  - `signature`: client's signature over all previous params, plus the relay and RelayHub addresses
+     *  - `approvalData`: dapp-specific data forwared to {acceptRelayedCall}. This value is *not* verified by the
+     * `RelayHub`, but it still can be used for e.g. a signature.
+     *
+     * Emits a {TransactionRelayed} event.
+     */
     function relayCall(
         address from,
         address to,
@@ -141,16 +195,25 @@ contract IRelayHub {
         bytes memory approvalData
     ) public;
 
-    // Emitted when an attempt to relay a call failed. This can happen due to incorrect relayCall arguments, or the
-    // recipient not accepting the relayed call. The actual relayed call was not executed, and the recipient not charged.
-    // The reason field contains an error code: values 1-10 correspond to PreconditionCheck entries, and values over 10
-    // are custom recipient error codes returned from acceptRelayedCall.
+    /**
+     * @dev Emitted when an attempt to relay a call failed.
+     *
+     * This can happen due to incorrect {relayCall} arguments, or the recipient not accepting the relayed call. The
+     * actual relayed call was not executed, and the recipient not charged.
+     *
+     * The `reason` parameter contains an error code: values 1-10 correspond to `PreconditionCheck` entries, and values
+     * over 10 are custom recipient error codes returned from {acceptRelayedCall}.
+     */
     event CanRelayFailed(address indexed relay, address indexed from, address indexed to, bytes4 selector, uint256 reason);
 
-    // Emitted when a transaction is relayed. Note that the actual encoded function might be reverted: this will be
-    // indicated in the status field.
-    // Useful when monitoring a relay's operation and relayed calls to a contract.
-    // Charge is the ether value deducted from the recipient's balance, paid to the relay's owner.
+    /**
+     * @dev Emitted when a transaction is relayed. 
+     * Useful when monitoring a relay's operation and relayed calls to a contract
+     *
+     * Note that the actual encoded function might be reverted: this is indicated in the `status` parameter.
+     *
+     * `charge` is the Ether value deducted from the recipient's balance, paid to the relay's owner.
+     */
     event TransactionRelayed(address indexed relay, address indexed from, address indexed to, bytes4 selector, RelayCallStatus status, uint256 charge);
 
     // Reason error codes for the TransactionRelayed event
@@ -162,27 +225,43 @@ contract IRelayHub {
         RecipientBalanceChanged  // The transaction was relayed and reverted due to the recipient's balance changing
     }
 
-    // Returns how much gas should be forwarded to a call to relayCall, in order to relay a transaction that will spend
-    // up to relayedCallStipend gas.
+    /**
+     * @dev Returns how much gas should be forwarded to a call to {relayCall}, in order to relay a transaction that will
+     * spend up to `relayedCallStipend` gas.
+     */
     function requiredGas(uint256 relayedCallStipend) public view returns (uint256);
 
-    // Returns the maximum recipient charge, given the amount of gas forwarded, gas price and relay fee.
+    /**
+     * @dev Returns the maximum recipient charge, given the amount of gas forwarded, gas price and relay fee.
+     */
     function maxPossibleCharge(uint256 relayedCallStipend, uint256 gasPrice, uint256 transactionFee) public view returns (uint256);
 
-    // Relay penalization. Any account can penalize relays, removing them from the system immediately, and rewarding the
+     // Relay penalization. 
+     // Any account can penalize relays, removing them from the system immediately, and rewarding the
     // reporter with half of the relay's stake. The other half is burned so that, even if the relay penalizes itself, it
     // still loses half of its stake.
 
-    // Penalize a relay that signed two transactions using the same nonce (making only the first one valid) and
-    // different data (gas price, gas limit, etc. may be different). The (unsigned) transaction data and signature for
-    // both transactions must be provided.
+    /**
+     * @dev Penalize a relay that signed two transactions using the same nonce (making only the first one valid) and
+     * different data (gas price, gas limit, etc. may be different).
+     *
+     * The (unsigned) transaction data and signature for both transactions must be provided.
+     */
     function penalizeRepeatedNonce(bytes memory unsignedTx1, bytes memory signature1, bytes memory unsignedTx2, bytes memory signature2) public;
 
-    // Penalize a relay that sent a transaction that didn't target RelayHub's registerRelay or relayCall.
+    /**
+     * @dev Penalize a relay that sent a transaction that didn't target `RelayHub`'s {registerRelay} or {relayCall}.
+     */
     function penalizeIllegalTransaction(bytes memory unsignedTx, bytes memory signature) public;
 
+    /**
+     * @dev Emitted when a relay is penalized.
+     */
     event Penalized(address indexed relay, address sender, uint256 amount);
 
+    /**
+     * @dev Returns an account's nonce in `RelayHub`.
+     */
     function getNonce(address from) external view returns (uint256);
 }
 
