@@ -6,14 +6,12 @@ contract Create2Impl {
     function deploy(bytes32 salt, bytes memory code) public {
         Create2.deploy(salt, code);
     }
-    function computeAddress(
-        bytes32 salt, bytes memory code
-    ) public view returns (address) {
+
+    function computeAddress(bytes32 salt, bytes memory code) public view returns (address) {
         return Create2.computeAddress(salt, code);
     }
-    function computeAddress(
-        bytes32 salt, bytes memory code, address deployer
-    ) public view returns (address) {
+
+    function computeAddress(bytes32 salt, bytes memory code, address deployer) public pure returns (address) {
         return Create2.computeAddress(salt, code, deployer);
     }
 }
