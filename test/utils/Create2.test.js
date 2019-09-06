@@ -47,7 +47,7 @@ contract('Create2', function ([_, deployerAccount, notCreator]) {
   });
 });
 
-function computeCreate2Address(saltHex, bytecode, deployer) {
+function computeCreate2Address (saltHex, bytecode, deployer) {
   return web3.utils.toChecksumAddress(`0x${web3.utils.sha3(`0x${[
     'ff',
     deployer,
