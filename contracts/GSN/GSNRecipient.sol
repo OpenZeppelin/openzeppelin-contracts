@@ -75,7 +75,7 @@ contract GSNRecipient is IRelayRecipient, Context, GSNBouncerBase {
      *
      * IMPORTANT: Contracts derived from {GSNRecipient} should never use `msg.sender`, and use {_msgSender} instead.
      */
-    function _msgSender() internal view returns (address) {
+    function _msgSender() internal view returns (address payable) {
         if (msg.sender != _relayHub) {
             return msg.sender;
         } else {
@@ -97,7 +97,7 @@ contract GSNRecipient is IRelayRecipient, Context, GSNBouncerBase {
         }
     }
 
-    function _getRelayedCallSender() private pure returns (address result) {
+    function _getRelayedCallSender() private pure returns (address payable result) {
         // We need to read 20 bytes (an address) located at array index msg.data.length - 20. In memory, the array
         // is prefixed with a 32-byte length value, so we first add 32 to get the memory read index. However, doing
         // so would leave the address in the upper 20 bytes of the 32-byte word, which is inconvenient and would
