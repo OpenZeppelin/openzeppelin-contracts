@@ -18,8 +18,9 @@ contract Secondary is Context {
      * @dev Sets the primary account to the one that is creating the Secondary contract.
      */
     constructor () internal {
-        _primary = _msgSender();
-        emit PrimaryTransferred(_primary);
+        address msgSender = _msgSender();
+        _primary = msgSender;
+        emit PrimaryTransferred(msgSender);
     }
 
     /**
@@ -44,6 +45,6 @@ contract Secondary is Context {
     function transferPrimary(address recipient) public onlyPrimary {
         require(recipient != address(0), "Secondary: new primary is the zero address");
         _primary = recipient;
-        emit PrimaryTransferred(_primary);
+        emit PrimaryTransferred(recipient);
     }
 }
