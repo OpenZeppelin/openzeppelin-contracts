@@ -28,7 +28,7 @@ library Counters {
     }
 
     function increment(Counter storage counter) internal {
-        counter._value += 1;
+        counter._value = counter._value.add(1);
     }
 
     function decrement(Counter storage counter) internal {
