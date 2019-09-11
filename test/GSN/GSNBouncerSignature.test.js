@@ -32,6 +32,7 @@ contract('GSNBouncerSignature', function ([_, signer, other]) {
           await web3.eth.sign(
             web3.utils.soliditySha3(
               // the nonce is not signed
+              // eslint-disable-next-line max-len
               data.relayerAddress, data.from, data.encodedFunctionCall, toBN(data.txFee), toBN(data.gasPrice), toBN(data.gas)
             ), signer
           )
