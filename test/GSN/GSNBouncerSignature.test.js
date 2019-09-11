@@ -32,7 +32,7 @@ contract('GSNBouncerSignature', function ([_, signer, other]) {
           await web3.eth.sign(
             web3.utils.soliditySha3(
               // the nonce is not signed
-              data.relayerAddress, data.from, data.encodedFunctionCall, data.txFee, data.gasPrice, data.gas
+              data.relayerAddress, data.from, data.encodedFunctionCall, toBN(data.txFee), toBN(data.gasPrice), toBN(data.gas)
             ), signer
           )
         );
@@ -62,7 +62,7 @@ contract('GSNBouncerSignature', function ([_, signer, other]) {
           await web3.eth.sign(
             web3.utils.soliditySha3(
               // eslint-disable-next-line max-len
-              data.relay_address, data.from, data.encodedFunctionCall, data.txfee, data.gasPrice, data.gas, data.nonce, data.relayHubAddress, data.to
+              data.relayerAddress, data.from, data.encodedFunctionCall, toBN(data.txFee), toBN(data.gasPrice), toBN(data.gas), toBN(data.nonce), data.relayHubAddress, data.to
             ), other
           )
         );
