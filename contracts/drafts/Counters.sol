@@ -28,6 +28,8 @@ library Counters {
     }
 
     function increment(Counter storage counter) internal {
+        // it is not possible to overflow a 256 bit integer with increments of one, `increment` can skip the {SafeMath}
+        // overflow check, thereby saving gas.
         counter._value += 1;
     }
 
