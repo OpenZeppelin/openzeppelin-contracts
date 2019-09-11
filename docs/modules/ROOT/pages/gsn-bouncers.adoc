@@ -21,7 +21,7 @@ A GSN recipient contract needs the following to work:
 * It needs to handle `msg.sender` and `msg.data` differently
 * It needs to decide how to approve and reject transactions.
 
-The first can be done via the https://gsn.openzeppelin.com/recipients[GSN Tools] or programatically with our SDK.
+The first can be done via the https://gsn.openzeppelin.com/recipients[GSN Tools] or programmatically with our SDK.
 
 The sender and data can be used safely when using `GSNRecipient` and _msgSender & _msgData.
 
