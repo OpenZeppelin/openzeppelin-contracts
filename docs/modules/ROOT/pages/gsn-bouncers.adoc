@@ -125,9 +125,11 @@ Create your contract using the following:
 
 [source,solidity]
 ----
-  mycontract is GSNRecipient, GSNBouncerSignature {
-    constructor(trusted_address) // that's it
-  }
+contract MyContract is GSNRecipient, GSNBouncerSignature {
+    constructor(address trustedSigner) public GSNBouncerSignature(trustedSigner) {
+        // solhint-disable-previous-line no-empty-blocks
+    }
+}  
 ----
 
 == GSNBouncerERC20Fee
@@ -221,13 +223,15 @@ Create your contract using the following:
 
 [source,solidity]
 ----
-  mycontract is GSNRecipient, GSNBouncerERC20Fee {
-    constructor(name symbol decimals)
-
-    mint() {
-      _mint()
+contract MyContract is GSNRecipient, GSNBouncerERC20Fee, MinterRole {
+    constructor() public GSNBouncerERC20Fee("FeeToken", "FEE", 18) {
+        // solhint-disable-previous-line no-empty-blocks
     }
-  }
+
+    function mint(address account, uint256 amount) public onlyMinter {
+        _mint(account, amount);
+    }
+}
 ----
 
 == Create your custom Bouncer [optional, for power users]
