@@ -50,37 +50,37 @@ The `GSNBouncerSignature` decides whether or not to accept the transaction based
 [source,solidity]
 ----
 function acceptRelayedCall(
-      address relay,
-      address from,
-      bytes calldata encodedFunction,
-      uint256 transactionFee,
-      uint256 gasPrice,
-      uint256 gasLimit,
-      uint256 nonce,
-      bytes calldata approvalData,
-      uint256
-  )
-      external
-      view
-      returns (uint256, bytes memory)
-  {
-      bytes memory blob = abi.encodePacked(
-          relay,
-          from,
-          encodedFunction,
-          transactionFee,
-          gasPrice,
-          gasLimit,
-          nonce, // Prevents replays on RelayHub
-          getHubAddr(), // Prevents replays in multiple RelayHubs
-          address(this) // Prevents replays in multiple recipients
-      );
-      if (keccak256(blob).toEthSignedMessageHash().recover(approvalData) == _trustedSigner) {
-          return _approveRelayedCall();
-      } else {
-          return _rejectRelayedCall(uint256(GSNRecipientSignedDataErrorCodes.INVALID_SIGNER));
-      }
-  }
+    address relay,
+    address from,
+    bytes calldata encodedFunction,
+    uint256 transactionFee,
+    uint256 gasPrice,
+    uint256 gasLimit,
+    uint256 nonce,
+    bytes calldata approvalData,
+    uint256
+)
+    external
+    view
+    returns (uint256, bytes memory)
+{
+    bytes memory blob = abi.encodePacked(
+        relay,
+        from,
+        encodedFunction,
+        transactionFee,
+        gasPrice,
+        gasLimit,
+        nonce, // Prevents replays on RelayHub
+        getHubAddr(), // Prevents replays in multiple RelayHubs
+        address(this) // Prevents replays in multiple recipients
+    );
+    if (keccak256(blob).toEthSignedMessageHash().recover(approvalData) == _trustedSigner) {
+        return _approveRelayedCall();
+    } else {
+        return _rejectRelayedCall(uint256(GSNBouncerSignatureErrorCodes.INVALID_SIGNER));
+    }
+}
 ----
 
 ==== Approve/Reject
@@ -89,30 +89,27 @@ When the signature matches the trusted signer, the function returns the followin
 
 [source,solidity]
 ----
+return _approveRelayedCall();
 
-  return _approveRelayedCall();
-
-  // Defined on base class GSNBouncerBase
-  // uint256 constant private RELAYED_CALL_ACCEPTED = 0;
-  // function _approveRelayedCall(bytes memory context) internal pure returns (uint256, bytes memory) {
-  //    return (RELAYED_CALL_ACCEPTED, context);
-  // }
+// Defined on base class GSNBouncerBase
+// uint256 constant private RELAYED_CALL_ACCEPTED = 0;
+// function _approveRelayedCall(bytes memory context) internal pure returns (uint256, bytes memory) {
+//     return (RELAYED_CALL_ACCEPTED, context);
+// }
 ----
 
 On the other hand, when the signature doesn't match the trusted signer, the call gets rejected with the following:
 
 [source,solidity]
 ----
+return _rejectRelayedCall(uint256(GSNBouncerSignatureErrorCodes.INVALID_SIGNER));
 
-  return _rejectRelayedCall(uint256(GSNBouncerSignatureErrorCodes.INVALID_SIGNER));
-
-  // Defined on base class GSNBouncerBase
-  // uint256 constant private RELAYED_CALL_REJECTED = 11;
-  // function _rejectRelayedCall(uint256 errorCode) internal pure returns (uint256, bytes memory) {
-  //    return (RELAYED_CALL_REJECTED + errorCode, "");
-  // }
+// Defined on base class GSNBouncerBase
+// uint256 constant private RELAYED_CALL_REJECTED = 11;
+// function _rejectRelayedCall(uint256 errorCode) internal pure returns (uint256, bytes memory) {
+//     return (RELAYED_CALL_REJECTED + errorCode, "");
+// }
 ----
-
 
 === How to use GSNBouncerSignature
 
@@ -136,14 +133,14 @@ Any user that has enough tokens is automatically approved and the recipient cont
 
 This bouncer charges users for the ether cost your recipient contract will incur. Each recipient contract has their own unique token, with a baked-in exchange rate of 1:1 to ether, since they act as an ether replacement when using the GSN.
 
-The `GSNBouncerSignature` has an internal https://docs.openzeppelin.com/contracts/2.x/api/gsn#GSNBouncerERC20Fee-_mint-address-uint256-[`_mint`] function. Firstly, you need to setup a way to call it (e.g. add a public function with some form of xref:access-control.adoc[access control] such as https://docs.openzeppelin.com/contracts/2.x/api/access#MinterRole-onlyMinter--[`onlyMinter`]).
+The `GSNBouncerERC20Fee` has an internal https://docs.openzeppelin.com/contracts/2.x/api/gsn#GSNBouncerERC20Fee-_mint-address-uint256-[`_mint`] function. Firstly, you need to setup a way to call it (e.g. add a public function with some form of xref:access-control.adoc[access control] such as https://docs.openzeppelin.com/contracts/2.x/api/access#MinterRole-onlyMinter--[`onlyMinter`]).
 Then, issue tokens to users based on your business logic. For example, you could mint a limited amount of tokens to new users, mint tokens when users buy them off-chain, give tokens based on a users subscription, etc.
 
 NOTE: *Users do not need to call approve* on their tokens for your recipient contract to use them. They are a modified ERC20 variant that lets the recipient contract retrieve them.
 
 === How does GSNBouncerERC20Fee work?
 
-The `GSNBouncerERC20Fee` decides to approve or reject transactions based on the balance and allowance of the users tokens.  The definition of `acceptRelayedCall` function from `GSNBouncerERC20Fee` is below: 
+The `GSNBouncerERC20Fee` decides to approve or reject transactions based on the balance of the users tokens.  The definition of `acceptRelayedCall` function from `GSNBouncerERC20Fee` is below: 
 
 [source,solidity]
 ----
@@ -164,8 +161,6 @@ function acceptRelayedCall(
 {
     if (_token.balanceOf(from) < maxPossibleCharge) {
         return _rejectRelayedCall(uint256(GSNBouncerERC20FeeErrorCodes.INSUFFICIENT_BALANCE));
-    } else if (_token.allowance(from, address(this)) < maxPossibleCharge) {
-        return _rejectRelayedCall(uint256(GSNBouncerERC20FeeErrorCodes.INSUFFICIENT_ALLOWANCE));
     }
 
     return _approveRelayedCall(abi.encode(from, maxPossibleCharge, transactionFee, gasPrice));
@@ -174,8 +169,8 @@ function acceptRelayedCall(
 
 ==== Approve/Reject
 
-The `GSNBouncerERC20Fee` rejects the transaction if the user doesn't have enough tokens or the recipient contract doesn't have a high enough allowance to cover the required amount of tokens.
-If the recipient contract can spend the required amount of tokens, `GSNBouncerERC20Fee` approves the transaction and returns `_approveRelayedCall` to make that data available to `_preRelayedCall` and `_postRelayedCall`.
+The `GSNBouncerERC20Fee` rejects the transaction if the user doesn't have enough tokens.
+If the user has the required amount of tokens, `GSNBouncerERC20Fee` approves the transaction and returns `_approveRelayedCall` to make that data available to `_preRelayedCall` and `_postRelayedCall`.
 
 ==== Token transfer
 
