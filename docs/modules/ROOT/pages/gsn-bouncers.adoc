@@ -3,7 +3,7 @@
 This guide shows you different strategies to accept transactions via the Gas Station Network (GSN) using GSN Bouncers.
 
 First, we will explain the Bouncer concept, and then we will showcase how to use the two most common strategies.
-Finally, we will cover how to create your own custom Bouncer.
+Finally, we will cover how to create your own Custom Bouncer.
 
 If you're still learning about the basics of the Gas Station Network, you should first head over to the xref:gsn.adoc[GSN Guide].
 
@@ -26,7 +26,7 @@ The actual user's `msg.sender` and `msg.data` can be obtained safely via `_msgSe
 
 Deciding how to approve and reject transactions is a bit more complex. The GSN recipient contract, by default, will accept and pay for all transactions. Chances are you probably want to choose which users can use your contracts via the GSN and potentially charge them for it, like a bouncer at a nightclub. We call these contracts _GSN Bouncers_.
 
-We include `GSNBouncerSignature` and `GSNBouncerERC20Fee`, ready to use out of the box, along with how to create your own custom Bouncer.
+We include `GSNBouncerSignature` and `GSNBouncerERC20Fee`, ready to use out of the box, along with how to create your own Custom Bouncer.
 
 == GSNBouncerSignature
 
@@ -233,7 +233,7 @@ contract MyContract is GSNRecipient, GSNBouncerERC20Fee, MinterRole {
 
 == Custom Bouncer
 
-You can create your own Custom Bouncer!  For example, your Custom Bouncer could use a specified token to pay for transactions with a custom exchange rate to ether.  Alternatively you could issue users who subscribe to your dapp ERC721 tokens and accounts holding the subscription token could use your contract for free as part of the subscription.  There are lots of potential options for your custom Bouncer.
+You can create your own Custom Bouncer!  For example, your Custom Bouncer could use a specified token to pay for transactions with a custom exchange rate to ether.  Alternatively you could issue users who subscribe to your dapp ERC721 tokens and accounts holding the subscription token could use your contract for free as part of the subscription.  There are lots of potential options for your Custom Bouncer.
 
 Your Custom Bouncer can inherit from `GSNBouncerBase` and must implement the `acceptRelayedCall` function.
 
