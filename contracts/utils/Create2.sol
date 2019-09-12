@@ -20,7 +20,7 @@ library Create2 {
         // solhint-disable-next-line no-inline-assembly
         assembly {
             addr := create2(0, add(bytecode, 0x20), mload(bytecode), salt)
-            if iszero(extcodesize(addr)) {
+            if iszero(addr) {
                 revert(0, 0)
             }
         }
