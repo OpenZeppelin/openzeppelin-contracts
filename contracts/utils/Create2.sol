@@ -16,7 +16,15 @@ library Create2 {
      * a contract cannot be deployed twice using the same salt.
      */
     function deploy(bytes32 salt, bytes memory bytecode) internal returns (address) {
-        return _deploy(salt, bytecode);
+        address addr;
+        // solhint-disable-next-line no-inline-assembly
+        assembly {
+            addr := create2(0, add(bytecode, 0x20), mload(bytecode), salt)
+            if iszero(extcodesize(addr)) {
+                revert(0, 0)
+            }
+        }
+        return addr;
     }
 
     /**
@@ -37,17 +45,5 @@ library Create2 {
             abi.encodePacked(bytes1(0xff), deployer, salt, bytecodeHashHash)
         );
         return address(bytes20(_data << 96));
-    }
-
-    function _deploy(bytes32 salt, bytes memory bytecode) private returns (address) {
-        address addr;
-        // solhint-disable-next-line no-inline-assembly
-        assembly {
-            addr := create2(0, add(bytecode, 0x20), mload(bytecode), salt)
-            if iszero(extcodesize(addr)) {
-                revert(0, 0)
-            }
-        }
-        return addr;
     }
 }
