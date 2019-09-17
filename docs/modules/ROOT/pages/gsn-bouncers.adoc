@@ -12,7 +12,7 @@ If you're still learning about the basics of the Gas Station Network, you should
 
 A *GSN Bouncer* decides which transaction gets approved and which transaction gets rejected. Bouncers are a key concept within the GSN. Dapps need Bouncers to prevent malicious users from spending the dapp's funds for transaction fees.
 
-As we have seen in the xref:gsn.adoc[GSN Guide], in order to be GSN enabled, your contracts need to extend from https://docs.openzeppelin.com/contracts/2.x/api/gsn#GSNRecipient[`GSNRecipient`].
+As we have seen in the xref:gsn.adoc[GSN Guide], in order to be GSN enabled, your contracts need to extend from xref:api:gsn.adoc#GSNRecipient[`GSNRecipient`].
 
 A GSN recipient contract needs the following to work:
 
