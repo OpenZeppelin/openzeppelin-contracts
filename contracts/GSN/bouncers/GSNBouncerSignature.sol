@@ -22,6 +22,7 @@ contract GSNBouncerSignature is GSNBouncerBase {
      * @dev Sets the trusted signer that is going to be producing signatures to approve relayed calls.
      */
     constructor(address trustedSigner) public {
+        require(trustedSigner != address(0), "Trusted Signer can not be a Zero Address");
         _trustedSigner = trustedSigner;
     }
 
