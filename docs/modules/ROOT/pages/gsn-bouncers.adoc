@@ -247,3 +247,4 @@ contract MyContract is GSNRecipient, MyCustomBouncer {
     constructor() public MyCustomBouncer() {
     }
 }
+----
