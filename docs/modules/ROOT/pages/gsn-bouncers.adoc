@@ -17,7 +17,7 @@ As we have seen in the xref:gsn.adoc[GSN Guide], in order to be GSN enabled, you
 A GSN recipient contract needs the following to work:
 
 1. It needs to have funds deposited on its RelayHub.
-2. It needs to use the actual user's `msg.sender` and `msg.data`
+2. It needs to handle `msg.sender` and `msg.data` differently
 3. It needs to decide how to approve and reject transactions.
 
 Depositing funds for the GSN recipient contract can be done via the https://gsn.openzeppelin.com/recipients[GSN Dapp tool] or programmatically with https://github.com/OpenZeppelin/openzeppelin-gsn-helpers#usage-from-code[OpenZeppelin GSN Helpers].
