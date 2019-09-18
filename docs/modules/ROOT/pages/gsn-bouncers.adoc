@@ -68,10 +68,10 @@ contract MyContract is GSNRecipient, GSNBouncerSignature {
 == GSNBouncerERC20Fee
 
 xref:api:gsn.adoc#GSNBouncerERC20Fee[`GSNBouncerERC20Fee`] is a bit more complex (but don't worry, it has already been written for you!). Unlike `GSNBouncerSignature`, `GSNBouncerERC20Fee` doesn't require any off-chain services.
-Instead of off-chain approving each transaction, you will give contract specific ERC20 tokens to your users. These tokens are then used as payment for GSN transactions to your recipient contract.
+Instead of off-chain approving each transaction, you will give special-purpose ERC20 tokens to your users. These tokens are then used as payment for GSN transactions to your recipient contract.
 Any user that has enough tokens is automatically approved and the recipient contract will cover their transaction costs!
 
-This bouncer charges users for the ether cost your recipient contract will incur. Each recipient contract has their own unique token, with a baked-in exchange rate of 1:1 to ether, since they act as an ether replacement when using the GSN.
+Each recipient contract has their own unique special-purpose token.  The exchange rate to ether is 1:1, as the tokens are used to pay your contract to cover the gas fees when using the GSN.
 
 `GSNBouncerERC20Fee` has an internal xref:api:gsn.adoc#GSNBouncerERC20Fee-_mint-address-uint256-[`_mint`] function. Firstly, you need to setup a way to call it (e.g. add a public function with some form of xref:access-control.adoc[access control] such as xref:api:access.adoc#MinterRole-onlyMinter--[`onlyMinter`]).
 Then, issue tokens to users based on your business logic. For example, you could mint a limited amount of tokens to new users, mint tokens when users buy them off-chain, give tokens based on a users subscription, etc.
