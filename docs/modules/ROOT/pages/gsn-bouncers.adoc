@@ -30,9 +30,9 @@ In this guide we describe how to use the included bouncers xref:api:gsn.adoc#GSN
 
 == GSNBouncerSignature
 
-The https://docs.openzeppelin.com/contracts/2.x/api/gsn#GSNBouncerSignature[`GSNBouncerSignature`] lets users call your recipient contract via the GSN (charging you for it) if they can prove that an account you trust approved them to do so. The way they do this is via a _signature_.
+https://docs.openzeppelin.com/contracts/2.x/api/gsn#GSNBouncerSignature[`GSNBouncerSignature`] lets users call your recipient contract via the GSN (charging you for it) if they can prove that an account you trust approved them to do so. The way they do this is via a _signature_.
 
-The transaction request must include a signature by the same account that was added to the contract as a trusted signer. If it is not the same, the `GSNBouncerSignature` will not accept the transaction.
+The transaction request must include a signature by the same account that was added to the contract as a trusted signer. If it is not the same, `GSNBouncerSignature` will not accept the transaction.
 
 This means that you need to set up a system where your trusted account includes their signature with transaction requests, as long as they are valid users (according to your business logic).
 
@@ -45,7 +45,7 @@ On the other hand, you need to have a backend server, microservice, or lambda fu
 
 === How does GSNBouncerSignature work?
 
-The `GSNBouncerSignature` decides whether or not to accept the transaction based on the included signature. No further GSN actions need to be taken.  The `acceptRelayedCall` function only relies on the `approvalData`.  The definition of `acceptRelayedCall` function from `GSNBouncerSignature` is below:  
+`GSNBouncerSignature` decides whether or not to accept the transaction based on the included signature. No further GSN actions need to be taken.  The `acceptRelayedCall` function only relies on the `approvalData`.  The definition of `acceptRelayedCall` function from `GSNBouncerSignature` is below:  
 
 [source,solidity]
 ----
@@ -127,20 +127,20 @@ contract MyContract is GSNRecipient, GSNBouncerSignature {
 
 == GSNBouncerERC20Fee
 
-The https://docs.openzeppelin.com/contracts/2.x/api/gsn#GSNBouncerERC20Fee[`GSNBouncerERC20Fee`] is a bit more complex (but don't worry, it has already been written for you!). Unlike `GSNBouncerSignature`, the `GSNBouncerERC20Fee` doesn't require any off-chain services.
+https://docs.openzeppelin.com/contracts/2.x/api/gsn#GSNBouncerERC20Fee[`GSNBouncerERC20Fee`] is a bit more complex (but don't worry, it has already been written for you!). Unlike `GSNBouncerSignature`, `GSNBouncerERC20Fee` doesn't require any off-chain services.
 Instead of off-chain approving each transaction, you will give contract specific ERC20 tokens to your users. These tokens are then used as payment for GSN transactions to your recipient contract.
 Any user that has enough tokens is automatically approved and the recipient contract will cover their transaction costs!
 
 This bouncer charges users for the ether cost your recipient contract will incur. Each recipient contract has their own unique token, with a baked-in exchange rate of 1:1 to ether, since they act as an ether replacement when using the GSN.
 
-The `GSNBouncerERC20Fee` has an internal https://docs.openzeppelin.com/contracts/2.x/api/gsn#GSNBouncerERC20Fee-_mint-address-uint256-[`_mint`] function. Firstly, you need to setup a way to call it (e.g. add a public function with some form of xref:access-control.adoc[access control] such as https://docs.openzeppelin.com/contracts/2.x/api/access#MinterRole-onlyMinter--[`onlyMinter`]).
+`GSNBouncerERC20Fee` has an internal https://docs.openzeppelin.com/contracts/2.x/api/gsn#GSNBouncerERC20Fee-_mint-address-uint256-[`_mint`] function. Firstly, you need to setup a way to call it (e.g. add a public function with some form of xref:access-control.adoc[access control] such as https://docs.openzeppelin.com/contracts/2.x/api/access#MinterRole-onlyMinter--[`onlyMinter`]).
 Then, issue tokens to users based on your business logic. For example, you could mint a limited amount of tokens to new users, mint tokens when users buy them off-chain, give tokens based on a users subscription, etc.
 
 NOTE: *Users do not need to call approve* on their tokens for your recipient contract to use them. They are a modified ERC20 variant that lets the recipient contract retrieve them.
 
 === How does GSNBouncerERC20Fee work?
 
-The `GSNBouncerERC20Fee` decides to approve or reject transactions based on the balance of the users tokens.  The definition of `acceptRelayedCall` function from `GSNBouncerERC20Fee` is below: 
+`GSNBouncerERC20Fee` decides to approve or reject transactions based on the balance of the users tokens.  The definition of `acceptRelayedCall` function from `GSNBouncerERC20Fee` is below: 
 
 [source,solidity]
 ----
@@ -169,7 +169,7 @@ function acceptRelayedCall(
 
 ==== Approve/Reject
 
-The `GSNBouncerERC20Fee` rejects the transaction if the user doesn't have enough tokens.
+`GSNBouncerERC20Fee` rejects the transaction if the user doesn't have enough tokens.
 If the user has the required amount of tokens, `GSNBouncerERC20Fee` approves the transaction and returns `_approveRelayedCall` to make that data available to `_preRelayedCall` and `_postRelayedCall`.
 
 ==== Token transfer
