@@ -24,7 +24,7 @@ Depositing funds for the GSN recipient contract can be done via the https://gsn.
 
 The actual user's `msg.sender` and `msg.data` can be obtained safely via `_msgSender()` and `_msgData()` of https://docs.openzeppelin.com/contracts/2.x/api/gsn#GSNRecipient[`GSNRecipient`].
 
-Deciding how to approve and reject transactions is a bit more complex. The GSN recipient contract, by default, will accept and pay for all transactions. Chances are you probably want to choose which users can use your contracts via the GSN and potentially charge them for it, like a bouncer at a nightclub. We call these contracts _GSN Bouncers_.
+Deciding how to approve and reject transactions is a bit more complex. The GSN recipient contract, with the simplest implementation, will accept and pay for all transactions. Chances are you probably want to choose which users can use your contracts via the GSN and potentially charge them for it, like a bouncer at a nightclub. We call these contracts _GSN Bouncers_.
 
 We include `GSNBouncerSignature` and `GSNBouncerERC20Fee`, ready to use out of the box, along with how to create your own Custom Bouncer.
 
