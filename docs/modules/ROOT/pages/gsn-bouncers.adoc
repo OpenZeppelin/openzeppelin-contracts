@@ -26,7 +26,7 @@ The actual user's `msg.sender` and `msg.data` can be obtained safely via `_msgSe
 
 Deciding how to approve and reject transactions is a bit more complex. The GSN recipient contract, with the simplest implementation, will accept and pay for all transactions. Chances are you probably want to choose which users can use your contracts via the GSN and potentially charge them for it, like a bouncer at a nightclub. We call these contracts _GSN Bouncers_.
 
-We include `GSNBouncerSignature` and `GSNBouncerERC20Fee`, ready to use out of the box, along with how to create your own Custom Bouncer.
+In this guide we describe how to use the included bouncers xref:api:gsn.adoc#GSNBouncerSignature[`GSNBouncerSignature`] and xref:api:gsn.adoc#GSNBouncerERC20Fee[`GSNBouncerERC20Fee`], along with how to create your own Custom Bouncer.
 
 == GSNBouncerSignature
 
