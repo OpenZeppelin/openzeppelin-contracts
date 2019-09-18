@@ -45,71 +45,11 @@ On the other hand, you need to have a backend server, microservice, or lambda fu
 
 === How does GSNBouncerSignature work?
 
-`GSNBouncerSignature` decides whether or not to accept the transaction based on the included signature. No further GSN actions need to be taken.  The `acceptRelayedCall` function only relies on the `approvalData`.  The definition of `acceptRelayedCall` function from `GSNBouncerSignature` is below:  
+`GSNBouncerSignature` decides whether or not to accept the transaction request based on the included signature. 
 
-[source,solidity]
-----
-function acceptRelayedCall(
-    address relay,
-    address from,
-    bytes calldata encodedFunction,
-    uint256 transactionFee,
-    uint256 gasPrice,
-    uint256 gasLimit,
-    uint256 nonce,
-    bytes calldata approvalData,
-    uint256
-)
-    external
-    view
-    returns (uint256, bytes memory)
-{
-    bytes memory blob = abi.encodePacked(
-        relay,
-        from,
-        encodedFunction,
-        transactionFee,
-        gasPrice,
-        gasLimit,
-        nonce, // Prevents replays on RelayHub
-        getHubAddr(), // Prevents replays in multiple RelayHubs
-        address(this) // Prevents replays in multiple recipients
-    );
-    if (keccak256(blob).toEthSignedMessageHash().recover(approvalData) == _trustedSigner) {
-        return _approveRelayedCall();
-    } else {
-        return _rejectRelayedCall(uint256(GSNBouncerSignatureErrorCodes.INVALID_SIGNER));
-    }
-}
-----
-
-==== Approve/Reject
-
-When the included signature matches the trusted signer, the function returns the following:
-
-[source,solidity]
-----
-return _approveRelayedCall();
-
-// Defined on base class GSNBouncerBase
-// uint256 constant private RELAYED_CALL_ACCEPTED = 0;
-// function _approveRelayedCall(bytes memory context) internal pure returns (uint256, bytes memory) {
-//     return (RELAYED_CALL_ACCEPTED, context);
-// }
-----
-
-On the other hand, when the included signature doesn't match the trusted signer, the call gets rejected with the following:
-
-[source,solidity]
-----
-return _rejectRelayedCall(uint256(GSNBouncerSignatureErrorCodes.INVALID_SIGNER));
-
-// Defined on base class GSNBouncerBase
-// uint256 constant private RELAYED_CALL_REJECTED = 11;
-// function _rejectRelayedCall(uint256 errorCode) internal pure returns (uint256, bytes memory) {
-//     return (RELAYED_CALL_REJECTED + errorCode, "");
-// }
-----
+The `acceptRelayedCall` implementation recovers the address from the signature in `approvalData` and compares to the trusted signer.
+If the included signature matches the trusted signer, the transaction request is approved.
+On the other hand, when the included signature doesn't match the trusted signer, the transaction request gets rejected with an error code of `INVALID_SIGNER`.
 
 === How to use GSNBouncerSignature
 
@@ -140,71 +80,15 @@ NOTE: *Users do not need to call approve* on their tokens for your recipient con
 
 === How does GSNBouncerERC20Fee work?
 
-`GSNBouncerERC20Fee` decides to approve or reject transactions based on the balance of the users tokens.  The definition of `acceptRelayedCall` function from `GSNBouncerERC20Fee` is below: 
+`GSNBouncerERC20Fee` decides to approve or reject transactions based on the balance of the users tokens.  
 
-[source,solidity]
-----
-function acceptRelayedCall(
-    address,
-    address from,
-    bytes calldata,
-    uint256 transactionFee,
-    uint256 gasPrice,
-    uint256,
-    uint256,
-    bytes calldata,
-    uint256 maxPossibleCharge
-)
-    external
-    view
-    returns (uint256, bytes memory)
-{
-    if (_token.balanceOf(from) < maxPossibleCharge) {
-        return _rejectRelayedCall(uint256(GSNBouncerERC20FeeErrorCodes.INSUFFICIENT_BALANCE));
-    }
+The `acceptRelayedCall` function implementation checks the users token balance.
+if the user doesn't have enough tokens the transaction request gets rejected with an error of `INSUFFICIENT_BALANCE`.
+If there are enough tokens, the transaction request is approved with the users address, `maxPossibleCharge`, `transactionFee` and `gasPrice` data being returned so it can be used in `_preRelayedCall` and `_postRelayedCall`.
 
-    return _approveRelayedCall(abi.encode(from, maxPossibleCharge, transactionFee, gasPrice));
-}
-----
-
-==== Approve/Reject
-
-`GSNBouncerERC20Fee` rejects the transaction if the user doesn't have enough tokens.
-If the user has the required amount of tokens, `GSNBouncerERC20Fee` approves the transaction and returns `_approveRelayedCall` to make that data available to `_preRelayedCall` and `_postRelayedCall`.
-
-==== Token transfer
-
-Now, let's see how the token transfer is performed inside the `_preRelayedCall` function.
-
-[source,solidity]
-----
-function _preRelayedCall(bytes memory context) internal returns (bytes32) {
-    (address from, uint256 maxPossibleCharge) = abi.decode(context, (address, uint256));
-
-    // The maximum token charge is pre-charged from the user
-    _token.safeTransferFrom(from, address(this), maxPossibleCharge);
-}
-----
-
+In `_preRelayedCall` function the `maxPossibleCharge` amount of tokens is transferred to the recipient contract.
 The maximum amount of tokens required is transferred assuming that the call will use all the gas available.
-Then, in the `_postRelayedCall` function, the actual amount is calculated - including the recipient contract implementation and ERC20 token transfers - and refund the difference.
-
-[source,solidity]
-----
-function _postRelayedCall(bytes memory context, bool, uint256 actualCharge, bytes32) internal {
-    (address from, uint256 maxPossibleCharge, uint256 transactionFee, uint256 gasPrice) =
-        abi.decode(context, (address, uint256, uint256, uint256));
-
-    // actualCharge is an _estimated_ charge, which assumes postRelayedCall will use all available gas.
-    // This implementation's gas cost can be roughly estimated as 10k gas, for the two SSTORE operations in an
-    // ERC20 transfer.
-    uint256 overestimation = _computeCharge(POST_RELAYED_CALL_MAX_GAS.sub(10000), gasPrice, transactionFee);
-    actualCharge = actualCharge.sub(overestimation);
-
-    // After the relayed call has been executed and the actual charge estimated, the excess pre-charge is returned
-    _token.safeTransfer(from, maxPossibleCharge.sub(actualCharge));
-}
-----
+Then, in the `_postRelayedCall` function, the actual amount is calculated, including the recipient contract implementation and ERC20 token transfers, and refund the difference.
 
 The maximum amount of tokens required is transferred to protect the contract from exploits (this is really similar to how ether is locked in Ethereum transactions).
 
