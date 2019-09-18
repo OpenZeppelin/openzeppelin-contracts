@@ -25,7 +25,7 @@ contract('GSNBouncerSignature', function ([_, signer, other]) {
         GSNBouncerSignatureMock.new(
           '0x0000000000000000000000000000000000000000'
         ),
-        'Trusted Signer can not be a Zero Address'
+        'GSNBouncerSignature: trusted signer is the zero address'
       );
     });
   });
