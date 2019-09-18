@@ -22,7 +22,7 @@ A GSN recipient contract needs the following to work:
 
 Depositing funds for the GSN recipient contract can be done via the https://gsn.openzeppelin.com/recipients[GSN Dapp tool] or programmatically with https://github.com/OpenZeppelin/openzeppelin-gsn-helpers#usage-from-code[OpenZeppelin GSN Helpers].
 
-The actual user's `msg.sender` and `msg.data` can be obtained safely via `_msgSender()` and `_msgData()` of https://docs.openzeppelin.com/contracts/2.x/api/gsn#GSNRecipient[`GSNRecipient`].
+The actual user's `msg.sender` and `msg.data` can be obtained safely via `_msgSender()` and `_msgData()` of xref:api:gsn.adoc#GSNRecipient[`GSNRecipient`].
 
 Deciding how to approve and reject transactions is a bit more complex. The GSN recipient contract, with the simplest implementation, will accept and pay for all transactions. Chances are you probably want to choose which users can use your contracts via the GSN and potentially charge them for it, like a bouncer at a nightclub. We call these contracts _GSN Bouncers_.
 
@@ -30,7 +30,7 @@ In this guide we describe how to use the included bouncers xref:api:gsn.adoc#GSN
 
 == GSNBouncerSignature
 
-https://docs.openzeppelin.com/contracts/2.x/api/gsn#GSNBouncerSignature[`GSNBouncerSignature`] lets users call your recipient contract via the GSN (charging you for it) if they can prove that an account you trust approved them to do so. The way they do this is via a _signature_.
+xref:api:gsn.adoc#GSNBouncerSignature[`GSNBouncerSignature`] lets users call your recipient contract via the GSN (charging you for it) if they can prove that an account you trust approved them to do so. The way they do this is via a _signature_.
 
 The transaction request must include a signature by the same account that was added to the contract as a trusted signer. If it is not the same, `GSNBouncerSignature` will not accept the transaction.
 
@@ -127,13 +127,13 @@ contract MyContract is GSNRecipient, GSNBouncerSignature {
 
 == GSNBouncerERC20Fee
 
-https://docs.openzeppelin.com/contracts/2.x/api/gsn#GSNBouncerERC20Fee[`GSNBouncerERC20Fee`] is a bit more complex (but don't worry, it has already been written for you!). Unlike `GSNBouncerSignature`, `GSNBouncerERC20Fee` doesn't require any off-chain services.
+xref:api:gsn.adoc#GSNBouncerERC20Fee[`GSNBouncerERC20Fee`] is a bit more complex (but don't worry, it has already been written for you!). Unlike `GSNBouncerSignature`, `GSNBouncerERC20Fee` doesn't require any off-chain services.
 Instead of off-chain approving each transaction, you will give contract specific ERC20 tokens to your users. These tokens are then used as payment for GSN transactions to your recipient contract.
 Any user that has enough tokens is automatically approved and the recipient contract will cover their transaction costs!
 
 This bouncer charges users for the ether cost your recipient contract will incur. Each recipient contract has their own unique token, with a baked-in exchange rate of 1:1 to ether, since they act as an ether replacement when using the GSN.
 
-`GSNBouncerERC20Fee` has an internal https://docs.openzeppelin.com/contracts/2.x/api/gsn#GSNBouncerERC20Fee-_mint-address-uint256-[`_mint`] function. Firstly, you need to setup a way to call it (e.g. add a public function with some form of xref:access-control.adoc[access control] such as https://docs.openzeppelin.com/contracts/2.x/api/access#MinterRole-onlyMinter--[`onlyMinter`]).
+`GSNBouncerERC20Fee` has an internal xref:api:gsn.adoc#GSNBouncerERC20Fee-_mint-address-uint256-[`_mint`] function. Firstly, you need to setup a way to call it (e.g. add a public function with some form of xref:access-control.adoc[access control] such as xref:api:access.adoc#MinterRole-onlyMinter--[`onlyMinter`]).
 Then, issue tokens to users based on your business logic. For example, you could mint a limited amount of tokens to new users, mint tokens when users buy them off-chain, give tokens based on a users subscription, etc.
 
 NOTE: *Users do not need to call approve* on their tokens for your recipient contract to use them. They are a modified ERC20 variant that lets the recipient contract retrieve them.
@@ -215,7 +215,7 @@ Always use `_preRelayedCall` and `_postRelayedCall` functions.
 
 === How to use GSNBouncerERC20Fee
 
-Your GSN recipient contract needs to inherit from `GSNRecipient` and `GSNBouncerERC20Fee` along with appropriate xref:access-control.adoc[access control] (for token minting), set the token details in the constructor of `GSNBouncerERC20Fee` and create a public `mint` function suitably protected by your chosen access control as per the following sample code (which uses the https://docs.openzeppelin.com/contracts/2.x/api/access#MinterRole[MinterRole]):
+Your GSN recipient contract needs to inherit from `GSNRecipient` and `GSNBouncerERC20Fee` along with appropriate xref:access-control.adoc[access control] (for token minting), set the token details in the constructor of `GSNBouncerERC20Fee` and create a public `mint` function suitably protected by your chosen access control as per the following sample code (which uses the xref:api:access.adoc#MinterRole[MinterRole]):
 
 NOTE: The token must have decimals of 18 to match that of ether, due to the baked-in exchange rate of 1:1.
 
