@@ -22,7 +22,7 @@ A GSN recipient contract needs the following to work:
 
 Depositing funds for the GSN recipient contract can be done via the https://gsn.openzeppelin.com/recipients[GSN Dapp tool] or programmatically with https://github.com/OpenZeppelin/openzeppelin-gsn-helpers#usage-from-code[OpenZeppelin GSN Helpers].
 
-The actual user's `msg.sender` and `msg.data` can be obtained safely via `_msgSender()` and `_msgData()` of xref:api:gsn.adoc#GSNRecipient[`GSNRecipient`].
+The actual user's `msg.sender` and `msg.data` can be obtained safely via xref:api:gsn.adoc#GSNRecipient-_msgSender--[`_msgSender()`] and xref:api:gsn.adoc#GSNRecipient-_msgData--[`_msgData()`] of xref:api:gsn.adoc#GSNRecipient[`GSNRecipient`].
 
 Deciding how to approve and reject relayed calls is a bit more complex. The GSN recipient contract, with the simplest implementation, will accept and pay for all relayed calls. Chances are you probably want to choose which users can use your contracts via the GSN and potentially charge them for it, like a bouncer at a nightclub. We call these contracts _GSN Bouncers_.
 
@@ -38,7 +38,7 @@ This means that you need to set up a system where your trusted account includes 
 
 The definition of a valid user depends on your system, but an example is users that have completed their sign up via some kind of https://en.wikipedia.org/wiki/OAuth[OAuth] and validation, e.g. gone through a captcha or validated their email address.
 You could restrict it further and let new users send a specific number of relayed calls (e.g. limit to 5 relayed calls via the GSN, at which point the user needs to create a wallet).
-Alternatively, you could charge the user off-chain (e.g. via credit card) for credit on your system and let them create GSN transactions until their credit runs out.
+Alternatively, you could charge the user off-chain (e.g. via credit card) for credit on your system and let them create relayed calls until their credit runs out.
 
 The great thing about this setup is that *your contract doesn't need to change* if you want to change the business rules. All you are doing is changing the backend logic conditions under which users use your contract for free.
 On the other hand, you need to have a backend server, microservice, or lambda function to accomplish this.
@@ -53,7 +53,7 @@ On the other hand, when the included signature doesn't match the trusted signer,
 
 === How to use GSNBouncerSignature
 
-You will need to create an off-chain service (e.g. backend server, microservice, or lambda function) that your dapp calls when requesting a GSN transaction, which includes (or doesn't include) their signature with each relayed call based on your business logic.
+You will need to create an off-chain service (e.g. backend server, microservice, or lambda function) that your dapp calls when requesting a relayed call, which includes (or doesn't include) their signature with each relayed call based on your business logic.
 
 Your GSN recipient contract needs to inherit from `GSNRecipient` and `GSNBouncerSignature`, as well as setting the trusted signer in the constructor of `GSNBouncerSignature` as per the following sample code below:
 
@@ -68,10 +68,10 @@ contract MyContract is GSNRecipient, GSNBouncerSignature {
 == GSNBouncerERC20Fee
 
 xref:api:gsn.adoc#GSNBouncerERC20Fee[`GSNBouncerERC20Fee`] is a bit more complex (but don't worry, it has already been written for you!). Unlike `GSNBouncerSignature`, `GSNBouncerERC20Fee` doesn't require any off-chain services.
-Instead of off-chain approving each relayed call, you will give special-purpose ERC20 tokens to your users. These tokens are then used as payment for GSN transactions to your recipient contract.
-Any user that has enough tokens has their relayed calls automatically approved and the recipient contract will cover their transaction costs!
+Instead of off-chain approving each relayed call, you will give special-purpose ERC20 tokens to your users. These tokens are then used as payment for relayed calls to your recipient contract.
+Any user that has enough tokens to pay has their relayed calls automatically approved and the recipient contract will cover their transaction costs!
 
-Each recipient contract has their own unique special-purpose token.  The exchange rate to ether is 1:1, as the tokens are used to pay your contract to cover the gas fees when using the GSN.
+Each recipient contract has their own special-purpose token.  The exchange rate from token to ether is 1:1, as the tokens are used to pay your contract to cover the gas fees when using the GSN.
 
 `GSNBouncerERC20Fee` has an internal xref:api:gsn.adoc#GSNBouncerERC20Fee-_mint-address-uint256-[`_mint`] function. Firstly, you need to setup a way to call it (e.g. add a public function with some form of xref:access-control.adoc[access control] such as xref:api:access.adoc#MinterRole-onlyMinter--[`onlyMinter`]).
 Then, issue tokens to users based on your business logic. For example, you could mint a limited amount of tokens to new users, mint tokens when users buy them off-chain, give tokens based on a users subscription, etc.
