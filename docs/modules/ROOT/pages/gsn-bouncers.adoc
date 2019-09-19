@@ -83,14 +83,14 @@ NOTE: *Users do not need to call approve* on their tokens for your recipient con
 `GSNBouncerERC20Fee` decides to approve or reject relayed calls based on the balance of the users tokens.  
 
 The `acceptRelayedCall` function implementation checks the users token balance.
-if the user doesn't have enough tokens the relayed call gets rejected with an error of `INSUFFICIENT_BALANCE`.
+Iif the user doesn't have enough tokens the relayed call gets rejected with an error of `INSUFFICIENT_BALANCE`.
 If there are enough tokens, the relayed call is approved with the users address, `maxPossibleCharge`, `transactionFee` and `gasPrice` data being returned so it can be used in `_preRelayedCall` and `_postRelayedCall`.
 
 In `_preRelayedCall` function the `maxPossibleCharge` amount of tokens is transferred to the recipient contract.
-The maximum amount of tokens required is transferred assuming that the call will use all the gas available.
+The maximum amount of tokens required is transferred assuming that the relayed call will use all the gas available.
 Then, in the `_postRelayedCall` function, the actual amount is calculated, including the recipient contract implementation and ERC20 token transfers, and refund the difference.
 
-The maximum amount of tokens required is transferred to protect the contract from exploits (this is really similar to how ether is locked in Ethereum transactions).
+The maximum amount of tokens required is transferred in `_preRelayedCall` to protect the contract from exploits (this is really similar to how ether is locked in Ethereum transactions).
 
 NOTE: The gas cost estimation is not 100% accurate, we may tweak it further down the road.
 
