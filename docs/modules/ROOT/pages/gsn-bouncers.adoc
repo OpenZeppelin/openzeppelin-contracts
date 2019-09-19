@@ -84,7 +84,7 @@ NOTE: *Users do not need to call approve* on their tokens for your recipient con
 
 The `acceptRelayedCall` function implementation checks the users token balance.
 Iif the user doesn't have enough tokens the relayed call gets rejected with an error of `INSUFFICIENT_BALANCE`.
-If there are enough tokens, the relayed call is approved with the users address, `maxPossibleCharge`, `transactionFee` and `gasPrice` data being returned so it can be used in `_preRelayedCall` and `_postRelayedCall`.
+If there are enough tokens, the relayed call is approved with the end users address, `maxPossibleCharge`, `transactionFee` and `gasPrice` data being returned so it can be used in `_preRelayedCall` and `_postRelayedCall`.
 
 In `_preRelayedCall` function the `maxPossibleCharge` amount of tokens is transferred to the recipient contract.
 The maximum amount of tokens required is transferred assuming that the relayed call will use all the gas available.
@@ -94,8 +94,7 @@ The maximum amount of tokens required is transferred in `_preRelayedCall` to pro
 
 NOTE: The gas cost estimation is not 100% accurate, we may tweak it further down the road.
 
-NOTE: Internal `_preRelayedCall` and `_postRelayedCall` functions are used instead of public `preRelayedCall` and `postRelayedCall` functions. This prevents them from being called by non-RelayHub contracts. 
-Always use `_preRelayedCall` and `_postRelayedCall` functions.
+NOTE: Always use `_preRelayedCall` and `_postRelayedCall` functions.  Internal `_preRelayedCall` and `_postRelayedCall` functions are used instead of public `preRelayedCall` and `postRelayedCall` functions, as the public functions are prevented from being called by non-RelayHub contracts. 
 
 === How to use GSNBouncerERC20Fee
 
@@ -121,7 +120,15 @@ You can create your own Custom Bouncer!  For example, your Custom Bouncer could 
 
 Your Custom Bouncer can inherit from `GSNBouncerBase` and must implement the `acceptRelayedCall` function.
 
-Depending on the logic for your Custom Bouncer, you may need to implement `_postRelayedCall` and `_preRelayedCall`.
+Your `acceptRelayedCall` implementation decides whether or not to accept the relayed call.  
+If your logic accepts the relayed call then you should return `_approveRelayedCall`.  
+If your logic rejects the relayed call then you should return `_rejectRelayedCall` with an error code.
+See https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/GSN/bouncers/GSNBouncerSignature.sol[GSNBouncerSignature.sol] as an example implementation.
+
+For Custom Bouncers charging end users, `_postRelayedCall` and `_preRelayedCall` should be implemented to handle the charging.  
+Your `_preRelayedCall` implementation should take the maximum possible charge, with your `_postRelayedCall` implementation refunding any difference from the actual charge once the relayed call has been made.  
+When returning `_approveRelayedCall` to approve the relayed call, the end users address, `maxPossibleCharge`, `transactionFee` and `gasPrice` data can also be returned so that the data can be used in `_preRelayedCall` and `_postRelayedCall`.
+See https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v2.4.0/contracts/GSN/bouncers/GSNBouncerERC20Fee.sol[GSNBouncerERC20Fee.sol] as an example implementation.
 
 Your GSN recipient contract needs to inherit from `GSNRecipient` and your Custom Bouncer as per the following sample code:
 
