@@ -1,9 +1,13 @@
+const ganache = require('ganache-cli');
+const shared = require('./scripts/shared');
+
 module.exports = {
-    norpc: true,
-    testCommand: 'node --max-old-space-size=4096 ../node_modules/.bin/truffle test --network coverage',
-    compileCommand: 'node --max-old-space-size=4096 ../node_modules/.bin/truffle compile --network coverage',
-    skipFiles: [
-        'lifecycle/Migrations.sol',
-        'mocks'
-    ]
+  skipFiles: [
+    'lifecycle/Migrations.sol',
+    'mocks'
+  ],
+  port: 8545,
+  client: ganache,
+  onServerReady: shared.setupGSNRelayHub,
+  providerOptions: { accounts: shared.getAccounts() }
 }
