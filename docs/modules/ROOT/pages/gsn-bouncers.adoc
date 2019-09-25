@@ -88,7 +88,7 @@ If there are enough tokens, the relayed call is approved with the end users addr
 
 In `_preRelayedCall` function the `maxPossibleCharge` amount of tokens is transferred to the recipient contract.
 The maximum amount of tokens required is transferred assuming that the relayed call will use all the gas available.
-Then, in the `_postRelayedCall` function, the actual amount is calculated, including the recipient contract implementation and ERC20 token transfers, and refund the difference.
+Then, in the `_postRelayedCall` function, the actual amount is calculated, including the recipient contract implementation and ERC20 token transfers, and the difference is refunded.
 
 The maximum amount of tokens required is transferred in `_preRelayedCall` to protect the contract from exploits (this is really similar to how ether is locked in Ethereum transactions).
 
