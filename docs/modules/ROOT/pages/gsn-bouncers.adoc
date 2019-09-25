@@ -32,9 +32,9 @@ In this guide we describe how to use the included bouncers xref:api:gsn.adoc#GSN
 
 xref:api:gsn.adoc#GSNBouncerSignature[`GSNBouncerSignature`] lets users relay calls via the GSN to your recipient contract (charging you for it) if they can prove that an account you trust approved them to do so. The way they do this is via a _signature_.
 
-The relayed call must include a signature by the same account that was added to the contract as a trusted signer. If it is not the same, `GSNBouncerSignature` will not accept the relayed call.
+The relayed call must include a signature of the relayed call parameters by the same account that was added to the contract as a trusted signer. If it is not the same, `GSNBouncerSignature` will not accept the relayed call.
 
-This means that you need to set up a system where your trusted account includes their signature with the relayed call, as long as they are valid users (according to your business logic).
+This means that you need to set up a system where your trusted account signs the relayed call parameters to then include in the relayed call, as long as they are valid users (according to your business logic).
 
 The definition of a valid user depends on your system, but an example is users that have completed their sign up via some kind of https://en.wikipedia.org/wiki/OAuth[OAuth] and validation, e.g. gone through a captcha or validated their email address.
 You could restrict it further and let new users send a specific number of relayed calls (e.g. limit to 5 relayed calls via the GSN, at which point the user needs to create a wallet).
@@ -47,13 +47,13 @@ On the other hand, you need to have a backend server, microservice, or lambda fu
 
 `GSNBouncerSignature` decides whether or not to accept the relayed call based on the included signature. 
 
-The `acceptRelayedCall` implementation recovers the address from the signature in `approvalData` and compares to the trusted signer.
+The `acceptRelayedCall` implementation recovers the address from the signature of the relayed call parameters in `approvalData` and compares to the trusted signer.
 If the included signature matches the trusted signer, the relayed call is approved.
 On the other hand, when the included signature doesn't match the trusted signer, the relayed call gets rejected with an error code of `INVALID_SIGNER`.
 
 === How to use GSNBouncerSignature
 
-You will need to create an off-chain service (e.g. backend server, microservice, or lambda function) that your dapp calls when requesting a relayed call, which includes (or doesn't include) their signature with each relayed call based on your business logic.
+You will need to create an off-chain service (e.g. backend server, microservice, or lambda function) that your dapp calls to sign (or not sign, based on your business logic) the relayed call parameters with your trusted signer account.  The signature is then included as the `approvalData` in the relayed call.
 
 Your GSN recipient contract needs to inherit from `GSNRecipient` and `GSNBouncerSignature`, as well as setting the trusted signer in the constructor of `GSNBouncerSignature` as per the following sample code below:
 
