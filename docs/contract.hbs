@@ -11,31 +11,43 @@
 {{#if modifiers}}
 [.contract-index]
 .Modifiers
+--
 {{#inheritance}}
+{{#unless @first}}.{{name}}{{/unless}}
 {{#ownModifiers}}
 * xref:#{{anchor}}[`{{name}}({{args.names}})`]
 {{/ownModifiers}}
+
 {{/inheritance}}
+--
 {{/if}}
 
 {{#if functions}}
 [.contract-index]
 .Functions
+--
 {{#inheritance}}
+{{#unless @first}}.{{name}}{{/unless}}
 {{#ownFunctions}}
 * xref:#{{anchor}}[`{{name}}({{args.names}})`]
 {{/ownFunctions}}
+
 {{/inheritance}}
+--
 {{/if}}
 
 {{#if events}}
 [.contract-index]
 .Events
+--
 {{#inheritance}}
+{{#unless @first}}.{{name}}{{/unless}}
 {{#ownEvents}}
 * xref:#{{anchor}}[`{{name}}({{args.names}})`]
 {{/ownEvents}}
+
 {{/inheritance}}
+--
 {{/if}}
 
 {{#ownModifiers}}
