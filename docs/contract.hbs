@@ -1,3 +1,7 @@
+{{~#*inline "typed-variable-array"~}}
+{{#each .}}[.var-type\]#{{typeName}}#{{#if name}} [.var-name\]#{{name}}#{{/if}}{{#unless @last}}, {{/unless}}{{/each}}
+{{~/inline~}}
+
 {{#linkable}}
 :{{name}}: pass:normal[xref:#{{anchor}}[`{{name}}`]]
 {{/linkable}}
@@ -53,7 +57,7 @@
 {{#ownModifiers}}
 [.contract-item]
 [[{{anchor}}]]
-==== `{{name}}({{args}})`
+==== `pass:normal[{{name}}({{> typed-variable-array args}})]`
 
 {{natspec.devdoc}}
 
@@ -62,7 +66,7 @@
 {{#ownFunctions}}
 [.contract-item]
 [[{{anchor}}]]
-==== `{{name}}({{args}}){{#if outputs}} → {{outputs}}{{/if}}`
+==== `pass:normal[{{name}}({{> typed-variable-array args}}){{#if outputs}} → {{> typed-variable-array outputs}}{{/if}}]`
 
 {{natspec.devdoc}}
 
@@ -71,7 +75,7 @@
 {{#ownEvents}}
 [.contract-item]
 [[{{anchor}}]]
-==== `{{name}}({{args}})`
+==== `pass:normal[{{name}}({{> typed-variable-array args}})]`
 
 {{natspec.devdoc}}
 
