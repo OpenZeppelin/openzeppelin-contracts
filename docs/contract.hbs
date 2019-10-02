@@ -17,7 +17,10 @@
 .Modifiers
 --
 {{#inheritance}}
-{{#unless @first}}.{{name}}{{/unless}}
+{{#unless @first}}
+[.contract-subindex-inherited]
+.{{name}}
+{{/unless}}
 {{#ownModifiers}}
 * xref:#{{anchor}}[`{{name}}({{args.names}})`]
 {{/ownModifiers}}
@@ -31,7 +34,10 @@
 .Functions
 --
 {{#inheritance}}
-{{#unless @first}}.{{name}}{{/unless}}
+{{#unless @first}}
+[.contract-subindex-inherited]
+.{{name}}
+{{/unless}}
 {{#ownFunctions}}
 * xref:#{{anchor}}[`{{name}}({{args.names}})`]
 {{/ownFunctions}}
@@ -45,7 +51,10 @@
 .Events
 --
 {{#inheritance}}
-{{#unless @first}}.{{name}}{{/unless}}
+{{#unless @first}}
+[.contract-subindex-inherited]
+.{{name}}
+{{/unless}}
 {{#ownEvents}}
 * xref:#{{anchor}}[`{{name}}({{args.names}})`]
 {{/ownEvents}}
