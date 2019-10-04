@@ -24,7 +24,7 @@ library SafeCast {
      * Requirements:
      * - input cannot overflow.
      */
-    function castU128(uint a) internal pure returns (uint128) {
+    function toUint128(uint a) internal pure returns (uint128) {
         require(a < 2**128, "SafeCast: downcast overflow");
         return uint128(a);
     }
@@ -38,7 +38,7 @@ library SafeCast {
      * Requirements:
      * - input cannot overflow.
      */
-    function castU64(uint a) internal pure returns (uint64) {
+    function toUint64(uint a) internal pure returns (uint64) {
         require(a < 2**64, "SafeCast: downcast overflow");
         return uint64(a);
     }
@@ -52,7 +52,7 @@ library SafeCast {
      * Requirements:
      * - input cannot overflow.
      */
-    function castU32(uint a) internal pure returns (uint32) {
+    function toUint32(uint a) internal pure returns (uint32) {
         require(a < 2**32, "SafeCast: downcast overflow");
         return uint32(a);
     }
@@ -66,7 +66,7 @@ library SafeCast {
      * Requirements:
      * - input cannot overflow.
      */
-    function castU16(uint a) internal pure returns (uint16) {
+    function toUint16(uint a) internal pure returns (uint16) {
         require(a < 2**16, "SafeCast: downcast overflow");
         return uint16(a);
     }
@@ -80,7 +80,7 @@ library SafeCast {
      * Requirements:
      * - input cannot overflow.
      */
-    function castU8(uint a) internal pure returns (uint8) {
+    function toUint8(uint a) internal pure returns (uint8) {
 
         require(a < 2**8, "SafeCast: downcast overflow");
         return uint8(a);
