@@ -39,6 +39,9 @@ contract ERC1155 is ERC165, IERC1155
 
     /**
         @dev Get the specified address' balance for token with specified ID.
+
+        Attempting to query the zero account for a balance will result in a revert.
+
         @param account The address of the token holder
         @param id ID of the token
         @return The account's balance of the token type requested
@@ -49,7 +52,10 @@ contract ERC1155 is ERC165, IERC1155
     }
 
     /**
-        @dev Get the balance of multiple account/token pairs
+        @dev Get the balance of multiple account/token pairs.
+
+        If any of the query accounts is the zero account, this query will revert.
+
         @param accounts The addresses of the token holders
         @param ids IDs of the tokens
         @return Balances for each account and token id pair
