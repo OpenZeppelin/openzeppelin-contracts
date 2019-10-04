@@ -206,6 +206,8 @@ contract ERC1155 is ERC165, IERC1155
      * @param value Amount of the token to be burnt
      */
     function _burn(address account, uint256 id, uint256 value) internal {
+        require(account != address(0), "ERC1155: attempting to burn tokens on zero account");
+
         _balances[id][account] = _balances[id][account].sub(
             value,
             "ERC1155: attempting to burn more than balance"

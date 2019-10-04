@@ -61,6 +61,13 @@ contract('ERC1155', function ([, creator, tokenHolder, ...accounts]) {
     });
 
     describe('_burn(address, uint256, uint256)', function () {
+      it('reverts when burning the zero account\'s tokens', async function () {
+        await expectRevert(
+          this.token.burn(ZERO_ADDRESS, tokenId, mintAmount),
+          'ERC1155: attempting to burn tokens on zero account'
+        );
+      });
+
       it('reverts when burning a non-existent token id', async function () {
         await expectRevert(
           this.token.burn(tokenHolder, tokenId, mintAmount),
