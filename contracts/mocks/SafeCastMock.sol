@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
 
-import "../util/SafeCast.sol";
+import "../utils/SafeCast.sol";
 
 contract SafeCastMock {
     using SafeCast for uint;

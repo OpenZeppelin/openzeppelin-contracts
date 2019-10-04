@@ -1,5 +1,4 @@
 const SafeCastMock = artifacts.require('SafeCastMock');
-
 const { expectRevert } = require('openzeppelin-test-helpers');
 
 contract('SafeCast', async (accounts) => {
