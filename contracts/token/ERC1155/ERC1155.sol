@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 
 import "./IERC1155.sol";
-import "./IERC1155TokenReceiver.sol";
+import "./IERC1155Receiver.sol";
 import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";
 import "../../introspection/ERC165.sol";
@@ -267,8 +267,8 @@ contract ERC1155 is ERC165, IERC1155
     {
         if(to.isContract()) {
             require(
-                IERC1155TokenReceiver(to).onERC1155Received(operator, from, id, value, data) ==
-                    IERC1155TokenReceiver(to).onERC1155Received.selector,
+                IERC1155Receiver(to).onERC1155Received(operator, from, id, value, data) ==
+                    IERC1155Receiver(to).onERC1155Received.selector,
                 "ERC1155: got unknown value from onERC1155Received"
             );
         }
@@ -286,7 +286,8 @@ contract ERC1155 is ERC165, IERC1155
     {
         if(to.isContract()) {
             require(
-                IERC1155TokenReceiver(to).onERC1155BatchReceived(operator, from, ids, values, data) == IERC1155TokenReceiver(to).onERC1155BatchReceived.selector,
+                IERC1155Receiver(to).onERC1155BatchReceived(operator, from, ids, values, data) ==
+                    IERC1155Receiver(to).onERC1155BatchReceived.selector,
                 "ERC1155: got unknown value from onERC1155BatchReceived"
             );
         }

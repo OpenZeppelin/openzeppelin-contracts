@@ -1,9 +1,9 @@
 pragma solidity ^0.5.0;
 
-import "../token/ERC1155/IERC1155TokenReceiver.sol";
+import "../token/ERC1155/IERC1155Receiver.sol";
 import "./ERC165Mock.sol";
 
-contract ERC1155TokenReceiverMock is IERC1155TokenReceiver, ERC165Mock {
+contract ERC1155ReceiverMock is IERC1155Receiver, ERC165Mock {
     bytes4 private _recRetval;
     bool private _recReverts;
     bytes4 private _batRetval;
@@ -36,7 +36,7 @@ contract ERC1155TokenReceiverMock is IERC1155TokenReceiver, ERC165Mock {
         external
         returns(bytes4)
     {
-        require(!_recReverts, "ERC1155TokenReceiverMock: reverting on receive");
+        require(!_recReverts, "ERC1155ReceiverMock: reverting on receive");
         emit Received(operator, from, id, value, data, gasleft());
         return _recRetval;
     }
@@ -51,7 +51,7 @@ contract ERC1155TokenReceiverMock is IERC1155TokenReceiver, ERC165Mock {
         external
         returns(bytes4)
     {
-        require(!_batReverts, "ERC1155TokenReceiverMock: reverting on batch receive");
+        require(!_batReverts, "ERC1155ReceiverMock: reverting on batch receive");
         emit BatchReceived(operator, from, ids, values, data, gasleft());
         return _batRetval;
     }

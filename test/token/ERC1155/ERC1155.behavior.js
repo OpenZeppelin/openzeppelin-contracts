@@ -2,7 +2,7 @@ const { BN, constants, expectEvent, expectRevert } = require('openzeppelin-test-
 const { ZERO_ADDRESS } = constants;
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 
-const ERC1155TokenReceiverMock = artifacts.require('ERC1155TokenReceiverMock');
+const ERC1155ReceiverMock = artifacts.require('ERC1155ReceiverMock');
 
 function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, multiTokenHolder, recipient, proxy]) {
   const firstTokenId = new BN(1);
@@ -287,7 +287,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
 
       context('when sending to a valid receiver', function () {
         beforeEach(async function () {
-          this.receiver = await ERC1155TokenReceiverMock.new(
+          this.receiver = await ERC1155ReceiverMock.new(
             RECEIVER_SINGLE_MAGIC_VALUE, false,
             RECEIVER_BATCH_MAGIC_VALUE, false,
           );
@@ -315,7 +315,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
           });
 
           it('should call onERC1155Received', async function () {
-            await expectEvent.inTransaction(this.transferReceipt.tx, ERC1155TokenReceiverMock, 'Received', {
+            await expectEvent.inTransaction(this.transferReceipt.tx, ERC1155ReceiverMock, 'Received', {
               operator: multiTokenHolder,
               from: multiTokenHolder,
               id: firstTokenId,
@@ -348,7 +348,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
           });
 
           it('should call onERC1155Received', async function () {
-            await expectEvent.inTransaction(this.transferReceipt.tx, ERC1155TokenReceiverMock, 'Received', {
+            await expectEvent.inTransaction(this.transferReceipt.tx, ERC1155ReceiverMock, 'Received', {
               operator: multiTokenHolder,
               from: multiTokenHolder,
               id: firstTokenId,
@@ -361,7 +361,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
 
       context('to a receiver contract returning unexpected value', function () {
         beforeEach(async function () {
-          this.receiver = await ERC1155TokenReceiverMock.new(
+          this.receiver = await ERC1155ReceiverMock.new(
             '0x00c0ffee', false,
             RECEIVER_BATCH_MAGIC_VALUE, false,
           );
@@ -379,7 +379,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
 
       context('to a receiver contract that reverts', function () {
         beforeEach(async function () {
-          this.receiver = await ERC1155TokenReceiverMock.new(
+          this.receiver = await ERC1155ReceiverMock.new(
             RECEIVER_SINGLE_MAGIC_VALUE, true,
             RECEIVER_BATCH_MAGIC_VALUE, false,
           );
@@ -390,7 +390,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             this.token.safeTransferFrom(multiTokenHolder, this.receiver.address, firstTokenId, firstAmount, '0x', {
               from: multiTokenHolder,
             }),
-            'ERC1155TokenReceiverMock: reverting on receive'
+            'ERC1155ReceiverMock: reverting on receive'
           );
         });
       });
@@ -555,7 +555,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
 
       context('when sending to a valid receiver', function () {
         beforeEach(async function () {
-          this.receiver = await ERC1155TokenReceiverMock.new(
+          this.receiver = await ERC1155ReceiverMock.new(
             RECEIVER_SINGLE_MAGIC_VALUE, false,
             RECEIVER_BATCH_MAGIC_VALUE, false,
           );
@@ -581,7 +581,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
           });
 
           it('should call onERC1155BatchReceived', async function () {
-            await expectEvent.inTransaction(this.transferReceipt.tx, ERC1155TokenReceiverMock, 'BatchReceived', {
+            await expectEvent.inTransaction(this.transferReceipt.tx, ERC1155ReceiverMock, 'BatchReceived', {
               operator: multiTokenHolder,
               from: multiTokenHolder,
               // ids: [firstTokenId, secondTokenId],
@@ -612,7 +612,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
           });
 
           it('should call onERC1155Received', async function () {
-            await expectEvent.inTransaction(this.transferReceipt.tx, ERC1155TokenReceiverMock, 'BatchReceived', {
+            await expectEvent.inTransaction(this.transferReceipt.tx, ERC1155ReceiverMock, 'BatchReceived', {
               operator: multiTokenHolder,
               from: multiTokenHolder,
               // ids: [firstTokenId, secondTokenId],
@@ -625,7 +625,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
 
       context('to a receiver contract returning unexpected value', function () {
         beforeEach(async function () {
-          this.receiver = await ERC1155TokenReceiverMock.new(
+          this.receiver = await ERC1155ReceiverMock.new(
             RECEIVER_SINGLE_MAGIC_VALUE, false,
             RECEIVER_SINGLE_MAGIC_VALUE, false,
           );
@@ -646,7 +646,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
 
       context('to a receiver contract that reverts', function () {
         beforeEach(async function () {
-          this.receiver = await ERC1155TokenReceiverMock.new(
+          this.receiver = await ERC1155ReceiverMock.new(
             RECEIVER_SINGLE_MAGIC_VALUE, false,
             RECEIVER_BATCH_MAGIC_VALUE, true,
           );
@@ -660,7 +660,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
               [firstAmount, secondAmount],
               '0x', { from: multiTokenHolder },
             ),
-            'ERC1155TokenReceiverMock: reverting on batch receive'
+            'ERC1155ReceiverMock: reverting on batch receive'
           );
         });
       });
