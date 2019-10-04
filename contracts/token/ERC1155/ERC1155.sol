@@ -18,10 +18,10 @@ contract ERC1155 is ERC165, IERC1155
     using SafeMath for uint256;
     using Address for address;
 
-    // Mapping from token ID to owner balances
+    // Mapping from token ID to account balances
     mapping (uint256 => mapping(address => uint256)) private _balances;
 
-    // Mapping from owner to operator approvals
+    // Mapping from account to operator approvals
     mapping (address => mapping(address => bool)) private _operatorApprovals;
 
     constructor()
@@ -39,36 +39,36 @@ contract ERC1155 is ERC165, IERC1155
 
     /**
         @dev Get the specified address' balance for token with specified ID.
-        @param owner The address of the token holder
+        @param account The address of the token holder
         @param id ID of the token
-        @return The owner's balance of the token type requested
+        @return The account's balance of the token type requested
      */
-    function balanceOf(address owner, uint256 id) public view returns (uint256) {
-        require(owner != address(0), "ERC1155: balance query for the zero address");
-        return _balances[id][owner];
+    function balanceOf(address account, uint256 id) public view returns (uint256) {
+        require(account != address(0), "ERC1155: balance query for the zero address");
+        return _balances[id][account];
     }
 
     /**
         @dev Get the balance of multiple account/token pairs
-        @param owners The addresses of the token holders
+        @param accounts The addresses of the token holders
         @param ids IDs of the tokens
-        @return Balances for each owner and token id pair
+        @return Balances for each account and token id pair
      */
     function balanceOfBatch(
-        address[] memory owners,
+        address[] memory accounts,
         uint256[] memory ids
     )
         public
         view
         returns (uint256[] memory)
     {
-        require(owners.length == ids.length, "ERC1155: owners and IDs must have same lengths");
+        require(accounts.length == ids.length, "ERC1155: accounts and IDs must have same lengths");
 
-        uint256[] memory batchBalances = new uint256[](owners.length);
+        uint256[] memory batchBalances = new uint256[](accounts.length);
 
-        for (uint256 i = 0; i < owners.length; ++i) {
-            require(owners[i] != address(0), "ERC1155: some address in batch balance query is zero");
-            batchBalances[i] = _balances[ids[i]][owners[i]];
+        for (uint256 i = 0; i < accounts.length; ++i) {
+            require(accounts[i] != address(0), "ERC1155: some address in batch balance query is zero");
+            batchBalances[i] = _balances[ids[i]][accounts[i]];
         }
 
         return batchBalances;
@@ -86,13 +86,13 @@ contract ERC1155 is ERC165, IERC1155
     }
 
     /**
-        @notice Queries the approval status of an operator for a given owner.
-        @param owner     The owner of the Tokens
+        @notice Queries the approval status of an operator for a given account.
+        @param account   The account of the Tokens
         @param operator  Address of authorized operator
         @return           True if the operator is approved, false if not
     */
-    function isApprovedForAll(address owner, address operator) external view returns (bool) {
-        return _operatorApprovals[owner][operator];
+    function isApprovedForAll(address account, address operator) external view returns (bool) {
+        return _operatorApprovals[account][operator];
     }
 
     /**
@@ -186,13 +186,13 @@ contract ERC1155 is ERC165, IERC1155
 
     /**
      * @dev Internal function to burn an amount of a token with the given ID
-     * @param owner Account which owns the token to be burnt
+     * @param account Account which owns the token to be burnt
      * @param id ID of the token to be burnt
      * @param value Amount of the token to be burnt
      */
-    function _burn(address owner, uint256 id, uint256 value) internal {
-        _balances[id][owner] = _balances[id][owner].sub(value);
-        emit TransferSingle(msg.sender, owner, address(0), id, value);
+    function _burn(address account, uint256 id, uint256 value) internal {
+        _balances[id][account] = _balances[id][account].sub(value);
+        emit TransferSingle(msg.sender, account, address(0), id, value);
     }
 
     function _doSafeTransferAcceptanceCheck(

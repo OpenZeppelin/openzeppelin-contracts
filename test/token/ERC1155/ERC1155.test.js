@@ -9,7 +9,7 @@ const { ZERO_ADDRESS } = constants;
 const { shouldBehaveLikeERC1155 } = require('./ERC1155.behavior');
 const ERC1155Mock = artifacts.require('ERC1155Mock');
 
-contract('ERC1155', function ([, creator, tokenOwner, ...accounts]) {
+contract('ERC1155', function ([, creator, tokenHolder, ...accounts]) {
   beforeEach(async function () {
     this.token = await ERC1155Mock.new({ from: creator });
   });
@@ -33,7 +33,7 @@ contract('ERC1155', function ([, creator, tokenOwner, ...accounts]) {
       context('with minted tokens', function () {
         beforeEach(async function () {
           ({ logs: this.logs } = await this.token.mint(
-            tokenOwner,
+            tokenHolder,
             tokenId,
             mintAmount,
             data,
@@ -45,7 +45,7 @@ contract('ERC1155', function ([, creator, tokenOwner, ...accounts]) {
           expectEvent.inLogs(this.logs, 'TransferSingle', {
             operator: creator,
             from: ZERO_ADDRESS,
-            to: tokenOwner,
+            to: tokenHolder,
             id: tokenId,
             value: mintAmount,
           });
@@ -53,7 +53,7 @@ contract('ERC1155', function ([, creator, tokenOwner, ...accounts]) {
 
         it('credits the minted amount of tokens', async function () {
           (await this.token.balanceOf(
-            tokenOwner,
+            tokenHolder,
             tokenId
           )).should.be.bignumber.equal(mintAmount);
         });
@@ -63,16 +63,16 @@ contract('ERC1155', function ([, creator, tokenOwner, ...accounts]) {
     describe('_burn(address, uint256, uint256)', function () {
       it('reverts when burning a non-existent token id', async function () {
         await expectRevert(
-          this.token.burn(tokenOwner, tokenId, mintAmount),
+          this.token.burn(tokenHolder, tokenId, mintAmount),
           'SafeMath: subtraction overflow'
         );
       });
 
       context('with minted-then-burnt tokens', function () {
         beforeEach(async function () {
-          await this.token.mint(tokenOwner, tokenId, mintAmount, data);
+          await this.token.mint(tokenHolder, tokenId, mintAmount, data);
           ({ logs: this.logs } = await this.token.burn(
-            tokenOwner,
+            tokenHolder,
             tokenId,
             burnAmount,
             { from: creator }
@@ -82,7 +82,7 @@ contract('ERC1155', function ([, creator, tokenOwner, ...accounts]) {
         it('emits a TransferSingle event', function () {
           expectEvent.inLogs(this.logs, 'TransferSingle', {
             operator: creator,
-            from: tokenOwner,
+            from: tokenHolder,
             to: ZERO_ADDRESS,
             id: tokenId,
             value: burnAmount,
@@ -91,7 +91,7 @@ contract('ERC1155', function ([, creator, tokenOwner, ...accounts]) {
 
         it('accounts for both minting and burning', async function () {
           (await this.token.balanceOf(
-            tokenOwner,
+            tokenHolder,
             tokenId
           )).should.be.bignumber.equal(mintAmount.sub(burnAmount));
         });

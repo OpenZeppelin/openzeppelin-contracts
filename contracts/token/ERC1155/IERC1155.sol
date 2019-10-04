@@ -11,17 +11,17 @@ contract IERC1155 is IERC165 {
 
     event TransferBatch(address indexed operator, address indexed from, address indexed to, uint256[] ids, uint256[] values);
 
-    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
+    event ApprovalForAll(address indexed account, address indexed operator, bool approved);
 
     event URI(string value, uint256 indexed id);
 
-    function balanceOf(address owner, uint256 id) public view returns (uint256);
+    function balanceOf(address account, uint256 id) public view returns (uint256);
 
-    function balanceOfBatch(address[] memory owners, uint256[] memory ids) public view returns (uint256[] memory);
+    function balanceOfBatch(address[] memory accounts, uint256[] memory ids) public view returns (uint256[] memory);
 
     function setApprovalForAll(address operator, bool approved) external;
 
-    function isApprovedForAll(address owner, address operator) external view returns (bool);
+    function isApprovedForAll(address account, address operator) external view returns (bool);
 
     function safeTransferFrom(address from, address to, uint256 id, uint256 value, bytes calldata data) external;
 
