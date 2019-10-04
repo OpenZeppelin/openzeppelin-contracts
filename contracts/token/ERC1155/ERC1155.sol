@@ -81,12 +81,18 @@ contract ERC1155 is ERC165, IERC1155
     }
 
     /**
-     * @dev Sets or unsets the approval of a given operator
-     * An operator is allowed to transfer all tokens of the sender on their behalf
+     * @dev Sets or unsets the approval of a given operator.
+     *
+     * An operator is allowed to transfer all tokens of the sender on their behalf.
+     *
+     * Because an account already has operator privileges for itself, this function will revert
+     * if the account attempts to set the approval status for itself.
+     *
      * @param operator address to set the approval
      * @param approved representing the status of the approval to be set
      */
     function setApprovalForAll(address operator, bool approved) external {
+        require(msg.sender != operator, "ERC1155: cannot set approval status for self");
         _operatorApprovals[msg.sender][operator] = approved;
         emit ApprovalForAll(msg.sender, operator, approved);
     }

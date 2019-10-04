@@ -159,6 +159,13 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
         await this.token.setApprovalForAll(proxy, false, { from: multiTokenHolder });
         (await this.token.isApprovedForAll(multiTokenHolder, proxy)).should.be.equal(false);
       });
+
+      it('reverts if attempting to approve self as an operator', async function () {
+        await expectRevert(
+          this.token.setApprovalForAll(multiTokenHolder, true, { from: multiTokenHolder }),
+          'ERC1155: cannot set approval status for self'
+        );
+      });
     });
 
     describe('safeTransferFrom', function () {
