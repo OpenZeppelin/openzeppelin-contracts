@@ -5,6 +5,7 @@
 ### New features:
  * `Address.toPayable`: added a helper to convert between address types without having to resort to low-level casting. ([#1773](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1773))
  * Facilities to make metatransaction-enabled contracts through the Gas Station Network. ([#1844](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1844))
+ * `Create2`: simple library to make usage of the `CREATE2` opcode easier. ([#1744](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1744))
 
 ### Improvements:
  * `Address.isContract`: switched from `extcodesize` to `extcodehash` for less gas usage. ([#1802](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1802))

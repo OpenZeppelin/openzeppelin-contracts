@@ -8,6 +8,9 @@ const solcStable = {
 const solcNightly = {
   version: 'nightly',
   docker: true,
+  settings: {
+    evmVersion: 'constantinople',
+  },
 };
 
 const useSolcNightly = process.env.SOLC_NIGHTLY === 'true';
