@@ -187,7 +187,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
       it('reverts when transferring more than balance', async function () {
         await expectRevert(
           this.token.safeTransferFrom(multiTokenHolder, recipient, firstTokenId, firstAmount.addn(1), '0x', { from: multiTokenHolder }),
-          'SafeMath: subtraction overflow'
+          'ERC1155: insufficient balance for transfer'
         );
       });
 
@@ -431,7 +431,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             [firstAmount, secondAmount.addn(1)],
             '0x', { from: multiTokenHolder }
           ),
-          'SafeMath: subtraction overflow'
+          'ERC1155: insufficient balance of some token type for transfer'
         );
       });
 

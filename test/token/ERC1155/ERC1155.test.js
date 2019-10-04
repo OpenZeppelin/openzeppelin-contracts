@@ -64,7 +64,7 @@ contract('ERC1155', function ([, creator, tokenHolder, ...accounts]) {
       it('reverts when burning a non-existent token id', async function () {
         await expectRevert(
           this.token.burn(tokenHolder, tokenId, mintAmount),
-          'SafeMath: subtraction overflow'
+          'ERC1155: attempting to burn more than balance'
         );
       });
 

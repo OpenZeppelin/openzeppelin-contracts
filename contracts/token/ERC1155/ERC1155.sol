@@ -132,7 +132,7 @@ contract ERC1155 is ERC165, IERC1155
             "ERC1155: need operator approval for 3rd party transfers"
         );
 
-        _balances[id][from] = _balances[id][from].sub(value);
+        _balances[id][from] = _balances[id][from].sub(value, "ERC1155: insufficient balance for transfer");
         _balances[id][to] = value.add(_balances[id][to]);
 
         emit TransferSingle(msg.sender, from, to, id, value);
@@ -171,7 +171,10 @@ contract ERC1155 is ERC165, IERC1155
             uint256 id = ids[i];
             uint256 value = values[i];
 
-            _balances[id][from] = _balances[id][from].sub(value);
+            _balances[id][from] = _balances[id][from].sub(
+                value,
+                "ERC1155: insufficient balance of some token type for transfer"
+            );
             _balances[id][to] = value.add(_balances[id][to]);
         }
 
@@ -203,7 +206,10 @@ contract ERC1155 is ERC165, IERC1155
      * @param value Amount of the token to be burnt
      */
     function _burn(address account, uint256 id, uint256 value) internal {
-        _balances[id][account] = _balances[id][account].sub(value);
+        _balances[id][account] = _balances[id][account].sub(
+            value,
+            "ERC1155: attempting to burn more than balance"
+        );
         emit TransferSingle(msg.sender, account, address(0), id, value);
     }
 
