@@ -133,7 +133,7 @@ contract ERC1155 is ERC165, IERC1155
         );
 
         _balances[id][from] = _balances[id][from].sub(value, "ERC1155: insufficient balance for transfer");
-        _balances[id][to] = value.add(_balances[id][to]);
+        _balances[id][to] = _balances[id][to].add(value);
 
         emit TransferSingle(msg.sender, from, to, id, value);
 
@@ -175,7 +175,7 @@ contract ERC1155 is ERC165, IERC1155
                 value,
                 "ERC1155: insufficient balance of some token type for transfer"
             );
-            _balances[id][to] = value.add(_balances[id][to]);
+            _balances[id][to] = _balances[id][to].add(value);
         }
 
         emit TransferBatch(msg.sender, from, to, ids, values);
@@ -193,7 +193,7 @@ contract ERC1155 is ERC165, IERC1155
     function _mint(address to, uint256 id, uint256 value, bytes memory data) internal {
         require(to != address(0), "ERC1155: mint to the zero address");
 
-        _balances[id][to] = value.add(_balances[id][to]);
+        _balances[id][to] = _balances[id][to].add(value);
         emit TransferSingle(msg.sender, address(0), to, id, value);
 
         _doSafeTransferAcceptanceCheck(msg.sender, address(0), to, id, value, data);
