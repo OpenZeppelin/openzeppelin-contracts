@@ -103,7 +103,7 @@ contract ERC1155 is ERC165, IERC1155
         @param operator  Address of authorized operator
         @return           True if the operator is approved, false if not
     */
-    function isApprovedForAll(address account, address operator) external view returns (bool) {
+    function isApprovedForAll(address account, address operator) public view returns (bool) {
         return _operatorApprovals[account][operator];
     }
 
@@ -128,7 +128,7 @@ contract ERC1155 is ERC165, IERC1155
     {
         require(to != address(0), "ERC1155: target address must be non-zero");
         require(
-            from == msg.sender || _operatorApprovals[from][msg.sender] == true,
+            from == msg.sender || isApprovedForAll(from, msg.sender) == true,
             "ERC1155: need operator approval for 3rd party transfers"
         );
 
@@ -163,7 +163,7 @@ contract ERC1155 is ERC165, IERC1155
         require(ids.length == values.length, "ERC1155: IDs and values must have same lengths");
         require(to != address(0), "ERC1155: target address must be non-zero");
         require(
-            from == msg.sender || _operatorApprovals[from][msg.sender] == true,
+            from == msg.sender || isApprovedForAll(from, msg.sender) == true,
             "ERC1155: need operator approval for 3rd party transfers"
         );
 
