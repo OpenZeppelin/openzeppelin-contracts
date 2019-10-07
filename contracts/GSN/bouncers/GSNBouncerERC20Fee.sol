@@ -30,7 +30,7 @@ contract GSNBouncerERC20Fee is GSNBouncerBase {
      * @dev The arguments to the constructor are the details that the gas payment token will have: `name` and `symbol`. `decimals` is hard-coded to 18.
      */
     constructor(string memory name, string memory symbol) public {
-        _token = new __unstable__ERC20PrimaryAdmin(name, symbol);
+        _token = new __unstable__ERC20PrimaryAdmin(name, symbol, 18);
     }
 
     /**
@@ -113,7 +113,7 @@ contract GSNBouncerERC20Fee is GSNBouncerBase {
 contract __unstable__ERC20PrimaryAdmin is ERC20, ERC20Detailed, Secondary {
     uint256 private constant UINT256_MAX = 2**256 - 1;
 
-    constructor(string memory name, string memory symbol) public ERC20Detailed(name, symbol, 18) {
+    constructor(string memory name, string memory symbol, uint8 decimals) public ERC20Detailed(name, symbol, decimals) {
         // solhint-disable-previous-line no-empty-blocks
     }
 
