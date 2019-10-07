@@ -81,7 +81,7 @@ library SafeCast {
      * - input must fit into 8 bits.
      */
     function toUint8(uint256 value) internal pure returns (uint8) {
-        require(value < 2**8, "SafeCast: value doesn\'t fit in 16 bits");
+        require(value < 2**8, "SafeCast: value doesn\'t fit in 8 bits");
         return uint8(value);
     }
 }
