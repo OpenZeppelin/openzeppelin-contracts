@@ -1,7 +1,8 @@
-const { expectEvent } = require('openzeppelin-test-helpers');
+const { expectEvent, expectRevert, constants } = require('openzeppelin-test-helpers');
 const gsn = require('@openzeppelin/gsn-helpers');
 const { fixSignature } = require('../helpers/sign');
 const { utils: { toBN } } = require('web3');
+const { ZERO_ADDRESS } = constants;
 
 const GSNBouncerSignatureMock = artifacts.require('GSNBouncerSignatureMock');
 
@@ -14,6 +15,17 @@ contract('GSNBouncerSignature', function ([_, signer, other]) {
     it('mock function can be called', async function () {
       const { logs } = await this.recipient.mockFunction();
       expectEvent.inLogs(logs, 'MockFunctionCalled');
+    });
+  });
+
+  context('when constructor is called with a zero address', function () {
+    it('fails when constructor called with a zero address', async function () {
+      await expectRevert(
+        GSNBouncerSignatureMock.new(
+          ZERO_ADDRESS
+        ),
+        'GSNBouncerSignature: trusted signer is the zero address'
+      );
     });
   });
 
