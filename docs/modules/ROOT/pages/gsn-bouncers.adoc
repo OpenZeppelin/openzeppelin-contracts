@@ -100,12 +100,10 @@ NOTE: Always use `_preRelayedCall` and `_postRelayedCall` functions.  Internal `
 
 Your GSN recipient contract needs to inherit from `GSNRecipient` and `GSNBouncerERC20Fee` along with appropriate xref:access-control.adoc[access control] (for token minting), set the token details in the constructor of `GSNBouncerERC20Fee` and create a public `mint` function suitably protected by your chosen access control as per the following sample code (which uses the xref:api:access.adoc#MinterRole[MinterRole]):
 
-NOTE: The token must have decimals of 18 to match that of ether, due to the baked-in exchange rate of 1:1.
-
 [source,solidity]
 ----
 contract MyContract is GSNRecipient, GSNBouncerERC20Fee, MinterRole {
-    constructor() public GSNBouncerERC20Fee("FeeToken", "FEE", 18) {
+    constructor() public GSNBouncerERC20Fee("FeeToken", "FEE") {
     }
 
     function mint(address account, uint256 amount) public onlyMinter {
