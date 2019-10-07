@@ -7,11 +7,11 @@ contract('SafeCast', async (accounts) => {
       const contract = await SafeCastMock.new();
       await expectRevert(
         contract.toUint128('340282366920938463463374607431768211456'),
-        'SafeCast: downcast overflow'
+        'SafeCast: value doesn\'t fit in 128 bits'
       );
       await expectRevert(
         contract.toUint128('999340282366920938463463374607431768211455'),
-        'SafeCast: downcast overflow'
+        'SafeCast: value doesn\'t fit in 128 bits'
       );
     });
     it('passes where appropriate (i.e. 0 <= input < 2^128)', async () => {
@@ -27,8 +27,8 @@ contract('SafeCast', async (accounts) => {
   describe('toUint64()', () => {
     it('reverts on overflow (i.e. input >= 2^64)', async () => {
       const contract = await SafeCastMock.new();
-      await expectRevert(contract.toUint64('18446744073709551616'), 'SafeCast: downcast overflow');
-      await expectRevert(contract.toUint64('18446744073709551617'), 'SafeCast: downcast overflow');
+      await expectRevert(contract.toUint64('18446744073709551616'), 'SafeCast: value doesn\'t fit in 64 bits');
+      await expectRevert(contract.toUint64('18446744073709551617'), 'SafeCast: value doesn\'t fit in 64 bits');
     });
     it('passes where appropriate (i.e. 0 <= input < 2^64)', async () => {
       const contract = await SafeCastMock.new();
@@ -40,8 +40,8 @@ contract('SafeCast', async (accounts) => {
   describe('toUint32()', () => {
     it('reverts on overflow (i.e. input >= 2^32)', async () => {
       const contract = await SafeCastMock.new();
-      await expectRevert(contract.toUint32('4294967296'), 'SafeCast: downcast overflow');
-      await expectRevert(contract.toUint32('4294967297'), 'SafeCast: downcast overflow');
+      await expectRevert(contract.toUint32('4294967296'), 'SafeCast: value doesn\'t fit in 32 bits');
+      await expectRevert(contract.toUint32('4294967297'), 'SafeCast: value doesn\'t fit in 32 bits');
     });
     it('passes where appropriate (i.e. 0 <= input < 2^32)', async () => {
       const contract = await SafeCastMock.new();
@@ -53,8 +53,8 @@ contract('SafeCast', async (accounts) => {
   describe('toUint16()', () => {
     it('reverts on overflow (i.e. input >= 2^16)', async () => {
       const contract = await SafeCastMock.new();
-      await expectRevert(contract.toUint16('65536'), 'SafeCast: downcast overflow');
-      await expectRevert(contract.toUint16('65537'), 'SafeCast: downcast overflow');
+      await expectRevert(contract.toUint16('65536'), 'SafeCast: value doesn\'t fit in 16 bits');
+      await expectRevert(contract.toUint16('65537'), 'SafeCast: value doesn\'t fit in 16 bits');
     });
 
     it('passes where appropriate (i.e. 0 <= input < 2^16)', async () => {
@@ -67,8 +67,8 @@ contract('SafeCast', async (accounts) => {
   describe('toUint8()', () => {
     it('reverts on overflow (i.e. input >= 2^8)', async () => {
       const contract = await SafeCastMock.new();
-      await expectRevert(contract.toUint8(256), 'SafeCast: downcast overflow');
-      await expectRevert(contract.toUint8(257), 'SafeCast: downcast overflow');
+      await expectRevert(contract.toUint8(256), 'SafeCast: value doesn\'t fit in 8 bits');
+      await expectRevert(contract.toUint8(257), 'SafeCast: value doesn\'t fit in 8 bits');
     });
     it('passes where appropriate (i.e. 0 <= input < 2^8)', async () => {
       const contract = await SafeCastMock.new();

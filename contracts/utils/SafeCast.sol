@@ -5,7 +5,7 @@ pragma solidity ^0.5.0;
  * @dev Wrappers over Solidity's uintXX casting operators with added overflow
  * checks.
  *
- * Downcasting from uint256 in Solidity does not revert by default on overflow. 
+ * Downcasting from uint256 in Solidity does not revert by default on overflow.
  * This can easily result in undesired exploitation or bugs, since developers
  * usually assume that overflows raise errors. `SafeCast` restores this intuition
  * by reverting the transaction when such an operation overflows.
@@ -22,11 +22,11 @@ library SafeCast {
      * Counterpart to Solidity's `uint128` operator.
      *
      * Requirements:
-     * - input cannot overflow.
+     * - input must fit into 128 bits
      */
-    function toUint128(uint a) internal pure returns (uint128) {
-        require(a < 2**128, "SafeCast: downcast overflow");
-        return uint128(a);
+    function toUint128(uint256 value) internal pure returns (uint128) {
+        require(value < 2**128, "SafeCast: value doesn\'t fit in 128 bits");
+        return uint128(value);
     }
 
     /**
@@ -36,11 +36,11 @@ library SafeCast {
      * Counterpart to Solidity's `uint64` operator.
      *
      * Requirements:
-     * - input cannot overflow.
+     * - input must fit into 64 bits
      */
-    function toUint64(uint a) internal pure returns (uint64) {
-        require(a < 2**64, "SafeCast: downcast overflow");
-        return uint64(a);
+    function toUint64(uint256 value) internal pure returns (uint64) {
+        require(value < 2**64, "SafeCast: value doesn\'t fit in 64 bits");
+        return uint64(value);
     }
 
     /**
@@ -50,11 +50,11 @@ library SafeCast {
      * Counterpart to Solidity's `uint32` operator.
      *
      * Requirements:
-     * - input cannot overflow.
+     * - input must fit into 32 bits
      */
-    function toUint32(uint a) internal pure returns (uint32) {
-        require(a < 2**32, "SafeCast: downcast overflow");
-        return uint32(a);
+    function toUint32(uint256 value) internal pure returns (uint32) {
+        require(value < 2**32, "SafeCast: value doesn\'t fit in 32 bits");
+        return uint32(value);
     }
 
     /**
@@ -64,11 +64,11 @@ library SafeCast {
      * Counterpart to Solidity's `uint16` operator.
      *
      * Requirements:
-     * - input cannot overflow.
+     * - input must fit into 16 bits
      */
-    function toUint16(uint a) internal pure returns (uint16) {
-        require(a < 2**16, "SafeCast: downcast overflow");
-        return uint16(a);
+    function toUint16(uint256 value) internal pure returns (uint16) {
+        require(value < 2**16, "SafeCast: value doesn\'t fit in 16 bits");
+        return uint16(value);
     }
 
     /**
@@ -78,11 +78,10 @@ library SafeCast {
      * Counterpart to Solidity's `uint8` operator.
      *
      * Requirements:
-     * - input cannot overflow.
+     * - input must fit into 8 bits.
      */
-    function toUint8(uint a) internal pure returns (uint8) {
-
-        require(a < 2**8, "SafeCast: downcast overflow");
-        return uint8(a);
+    function toUint8(uint256 value) internal pure returns (uint8) {
+        require(value < 2**8, "SafeCast: value doesn\'t fit in 16 bits");
+        return uint8(value);
     }
 }
