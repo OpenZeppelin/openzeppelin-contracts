@@ -44,7 +44,7 @@
   },
   "homepage": "https://github.com/OpenZeppelin/openzeppelin-contracts",
   "devDependencies": {
-    "@openzeppelin/gsn-helpers": "^0.1.9",
+    "@openzeppelin/gsn-helpers": "^0.2.0",
     "@openzeppelin/gsn-provider": "^0.1.8",
     "chai": "^4.2.0",
     "concurrently": "^4.1.2",
