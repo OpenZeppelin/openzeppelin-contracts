@@ -27,11 +27,10 @@ contract GSNBouncerERC20Fee is GSNBouncerBase {
     __unstable__ERC20PrimaryAdmin private _token;
 
     /**
-     * @dev The arguments to the constructor are the details that the gas payment token will have: `name`, `symbol`, and
-     * `decimals`.
+     * @dev The arguments to the constructor are the details that the gas payment token will have: `name` and `symbol`. `decimals` is hard-coded to 18.
      */
-    constructor(string memory name, string memory symbol, uint8 decimals) public {
-        _token = new __unstable__ERC20PrimaryAdmin(name, symbol, decimals);
+    constructor(string memory name, string memory symbol) public {
+        _token = new __unstable__ERC20PrimaryAdmin(name, symbol, 18);
     }
 
     /**
