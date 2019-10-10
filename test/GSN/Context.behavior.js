@@ -1,4 +1,4 @@
-const { BN, expectEvent } = require('openzeppelin-test-helpers');
+const { BN, expectEvent } = require('@openzeppelin/test-helpers');
 
 const ContextMock = artifacts.require('ContextMock');
 

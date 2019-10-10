@@ -1,4 +1,4 @@
-const { BN, expectEvent, expectRevert, singletons } = require('openzeppelin-test-helpers');
+const { BN, expectEvent, expectRevert, singletons } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 

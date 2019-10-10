@@ -1,4 +1,4 @@
-const { balance, expectEvent } = require('openzeppelin-test-helpers');
+const { balance, expectEvent } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 

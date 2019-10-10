@@ -1,4 +1,4 @@
-const { BN, expectRevert } = require('openzeppelin-test-helpers');
+const { BN, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');

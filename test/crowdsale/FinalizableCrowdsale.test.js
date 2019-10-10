@@ -1,4 +1,4 @@
-const { BN, expectEvent, expectRevert, time } = require('openzeppelin-test-helpers');
+const { BN, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 
 const FinalizableCrowdsaleImpl = artifacts.require('FinalizableCrowdsaleImpl');
 const ERC20 = artifacts.require('ERC20');

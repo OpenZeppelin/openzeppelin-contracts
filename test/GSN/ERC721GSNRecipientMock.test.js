@@ -1,4 +1,4 @@
-const { constants, expectEvent } = require('openzeppelin-test-helpers');
+const { constants, expectEvent } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 const gsn = require('@openzeppelin/gsn-helpers');
 const { fixSignature } = require('../helpers/sign');

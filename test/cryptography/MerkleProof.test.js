@@ -1,4 +1,4 @@
-require('openzeppelin-test-helpers');
+require('@openzeppelin/test-helpers');
 
 const { MerkleTree } = require('../helpers/merkleTree.js');
 const { keccak256, bufferToHex } = require('ethereumjs-util');
