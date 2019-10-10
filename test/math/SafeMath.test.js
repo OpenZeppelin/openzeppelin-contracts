@@ -1,4 +1,4 @@
-const { BN, constants, expectRevert } = require('openzeppelin-test-helpers');
+const { BN, constants, expectRevert } = require('@openzeppelin/test-helpers');
 const { MAX_UINT256 } = constants;
 
 const { expect } = require('chai');

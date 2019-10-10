@@ -1,4 +1,4 @@
-const { BN, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
+const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const ERC20SnapshotMock = artifacts.require('ERC20SnapshotMock');
 
 const { expect } = require('chai');

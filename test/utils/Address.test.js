@@ -1,4 +1,4 @@
-const { constants } = require('openzeppelin-test-helpers');
+const { constants } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const AddressImpl = artifacts.require('AddressImpl');

@@ -1,4 +1,4 @@
-const { BN } = require('openzeppelin-test-helpers');
+const { BN } = require('@openzeppelin/test-helpers');
 
 const { shouldBehaveLikeERC20Burnable } = require('./behaviors/ERC20Burnable.behavior');
 const ERC20BurnableMock = artifacts.require('ERC20BurnableMock');
