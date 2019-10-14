@@ -338,6 +338,8 @@ contract ERC721 is Context, ERC165, IERC721 {
             tokenId,
             _data
             );
+
+            //solhint-disable-next-line avoid-low-level-calls
         (bool success, bytes memory returndata) = to.call(payload);
         if (!success) {
             if (returndata.length > 0){
