@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 
 
- contract  ERC721ReceiverNotImplementedMock{
+contract ERC721ReceiverNotImplementedMock{
     bytes4 private _retval;
     bool private _reverts;
 
@@ -11,5 +11,4 @@ pragma solidity ^0.5.0;
         _retval = retval;
         _reverts = reverts;
     }
-
-  }
+}

@@ -338,19 +338,13 @@ contract ERC721 is Context, ERC165, IERC721 {
             tokenId,
             _data
             );
-            
-            (bool success, bytes memory returndata) = to.call(payload);
-
-            if (!success) {
-                if(returndata.length > 0){
-                    revert(string (returndata));
-                }
-                else
-                    revert("ERC721: to address does not implement ERC721Received interface");
-            } else {
-                    return true;
-            }
-
+        (bool success, bytes memory returndata) = to.call(payload);
+        if (!success) {
+            if (returndata.length > 0){
+                revert(string(returndata));
+            }else 
+                revert("ERC721: to address does not implement ERC721Received interface");
+        } else {return true;} 
         // bytes4 retval = IERC721Receiver(to).onERC721Received(_msgSender(), from, tokenId, _data);
         // return (retval == _ERC721_RECEIVED);
     }

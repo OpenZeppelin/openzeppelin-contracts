@@ -6,9 +6,9 @@ const { shouldSupportInterfaces } = require('../../introspection/SupportsInterfa
 const ERC721ReceiverMock = artifacts.require('ERC721ReceiverMock.sol');
 const ERC721Mock = artifacts.require('ERC721Mock.sol');
 
-//Required mock contracts
-var ERC721NoReceiverMock = artifacts.require("./ERC721ReceiverNotImplementedMock.sol");
-var ERC721ReceiverRevertMock = artifacts.require("./ERC721ReceiverRevertsMock.sol");
+//  Required mock contracts
+const ERC721NoReceiverMock = artifacts.require('./ERC721ReceiverNotImplementedMock.sol');
+const ERC721ReceiverRevertMock = artifacts.require('./ERC721ReceiverRevertsMock.sol');
 
 function shouldBehaveLikeERC721 (
   creator,
@@ -374,7 +374,7 @@ function shouldBehaveLikeERC721 (
               this.ERC721Mock.safeMint(noReceiverImplemented.address, tokenId),
               'ERC721: to address does not implement ERC721Received interface'
             );
-          })
+          });
         });
 
         context('to a receiver contract that throws', function () {
