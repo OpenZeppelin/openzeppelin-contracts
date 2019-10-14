@@ -53,7 +53,7 @@
     "eslint-config-standard": "^11.0.0",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-mocha-no-only": "^1.1.0",
-    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-node": "^8.0.1",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^3.1.0",
     "ethereumjs-util": "^6.1.0",
