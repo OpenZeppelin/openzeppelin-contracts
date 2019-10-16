@@ -49,10 +49,10 @@ contract ERC777 is Context, IERC777, IERC20 {
         0xb281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b;
 
     // This isn't ever read from - it's only used to respond to the defaultOperators query.
-    address[] private _defaultOperatorsArray;
+    address[] internal _defaultOperatorsArray;
 
     // Immutable, but accounts may revoke them (tracked in __revokedDefaultOperators).
-    mapping(address => bool) private _defaultOperators;
+    mapping(address => bool) internal _defaultOperators;
 
     // For each account, a mapping of its operators and revoked default operators.
     mapping(address => mapping(address => bool)) private _operators;
