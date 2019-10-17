@@ -2,9 +2,9 @@
 {{#each .}}[.var-type\]#{{typeName}}#{{#if name}} [.var-name\]#{{name}}#{{/if}}{{#unless @last}}, {{/unless}}{{/each}}
 {{~/inline~}}
 
-{{#linkable}}
+{{#each linkable}}
 :{{name}}: pass:normal[xref:#{{anchor}}[`{{name}}`]]
-{{/linkable}}
+{{/each}}
 
 [.contract]
 [[{{anchor}}]]
@@ -16,16 +16,16 @@
 [.contract-index]
 .Modifiers
 --
-{{#inheritedItems}}
+{{#each inheritedItems}}
 {{#unless @first}}
 [.contract-subindex-inherited]
 .{{contract.name}}
 {{/unless}}
-{{#modifiers}}
+{{#each modifiers}}
 * xref:#{{anchor}}[`{{name}}({{args.names}})`]
-{{/modifiers}}
+{{/each}}
 
-{{/inheritedItems}}
+{{/each}}
 --
 {{/if}}
 
@@ -33,16 +33,16 @@
 [.contract-index]
 .Functions
 --
-{{#inheritedItems}}
+{{#each inheritedItems}}
 {{#unless @first}}
 [.contract-subindex-inherited]
 .{{contract.name}}
 {{/unless}}
-{{#functions}}
+{{#each functions}}
 * xref:#{{anchor}}[`{{name}}({{args.names}})`]
-{{/functions}}
+{{/each}}
 
-{{/inheritedItems}}
+{{/each}}
 --
 {{/if}}
 
@@ -50,42 +50,42 @@
 [.contract-index]
 .Events
 --
-{{#inheritedItems}}
+{{#each inheritedItems}}
 {{#unless @first}}
 [.contract-subindex-inherited]
 .{{contract.name}}
 {{/unless}}
-{{#events}}
+{{#each events}}
 * xref:#{{anchor}}[`{{name}}({{args.names}})`]
-{{/events}}
+{{/each}}
 
-{{/inheritedItems}}
+{{/each}}
 --
 {{/if}}
 
-{{#modifiers}}
+{{#each modifiers}}
 [.contract-item]
 [[{{anchor}}]]
 ==== `pass:normal[{{name}}({{> typed-variable-array args}})]`
 
 {{natspec.devdoc}}
 
-{{/modifiers}}
+{{/each}}
 
-{{#functions}}
+{{#each functions}}
 [.contract-item]
 [[{{anchor}}]]
 ==== `pass:normal[{{name}}({{> typed-variable-array args}}){{#if outputs}} → {{> typed-variable-array outputs}}{{/if}}]` [.visibility]#{{visibility}}#
 
 {{natspec.devdoc}}
 
-{{/functions}}
+{{/each}}
 
-{{#events}}
+{{#each events}}
 [.contract-item]
 [[{{anchor}}]]
 ==== `pass:normal[{{name}}({{> typed-variable-array args}})]`
 
 {{natspec.devdoc}}
 
-{{/events}}
+{{/each}}
