@@ -16,16 +16,16 @@
 [.contract-index]
 .Modifiers
 --
-{{#inheritance}}
+{{#inheritedItems}}
 {{#unless @first}}
 [.contract-subindex-inherited]
-.{{name}}
+.{{contract.name}}
 {{/unless}}
-{{#ownModifiers}}
+{{#modifiers}}
 * xref:#{{anchor}}[`{{name}}({{args.names}})`]
-{{/ownModifiers}}
+{{/modifiers}}
 
-{{/inheritance}}
+{{/inheritedItems}}
 --
 {{/if}}
 
@@ -33,16 +33,16 @@
 [.contract-index]
 .Functions
 --
-{{#inheritance}}
+{{#inheritedItems}}
 {{#unless @first}}
 [.contract-subindex-inherited]
-.{{name}}
+.{{contract.name}}
 {{/unless}}
-{{#ownFunctions}}
+{{#functions}}
 * xref:#{{anchor}}[`{{name}}({{args.names}})`]
-{{/ownFunctions}}
+{{/functions}}
 
-{{/inheritance}}
+{{/inheritedItems}}
 --
 {{/if}}
 
@@ -50,42 +50,42 @@
 [.contract-index]
 .Events
 --
-{{#inheritance}}
+{{#inheritedItems}}
 {{#unless @first}}
 [.contract-subindex-inherited]
-.{{name}}
+.{{contract.name}}
 {{/unless}}
-{{#ownEvents}}
+{{#events}}
 * xref:#{{anchor}}[`{{name}}({{args.names}})`]
-{{/ownEvents}}
+{{/events}}
 
-{{/inheritance}}
+{{/inheritedItems}}
 --
 {{/if}}
 
-{{#ownModifiers}}
+{{#modifiers}}
 [.contract-item]
 [[{{anchor}}]]
 ==== `pass:normal[{{name}}({{> typed-variable-array args}})]`
 
 {{natspec.devdoc}}
 
-{{/ownModifiers}}
+{{/modifiers}}
 
-{{#ownFunctions}}
+{{#functions}}
 [.contract-item]
 [[{{anchor}}]]
 ==== `pass:normal[{{name}}({{> typed-variable-array args}}){{#if outputs}} → {{> typed-variable-array outputs}}{{/if}}]` [.visibility]#{{visibility}}#
 
 {{natspec.devdoc}}
 
-{{/ownFunctions}}
+{{/functions}}
 
-{{#ownEvents}}
+{{#events}}
 [.contract-item]
 [[{{anchor}}]]
 ==== `pass:normal[{{name}}({{> typed-variable-array args}})]`
 
 {{natspec.devdoc}}
 
-{{/ownEvents}}
+{{/events}}
