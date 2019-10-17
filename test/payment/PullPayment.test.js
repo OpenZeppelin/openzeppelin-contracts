@@ -1,4 +1,4 @@
-const { balance, ether } = require('openzeppelin-test-helpers');
+const { balance, ether } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 

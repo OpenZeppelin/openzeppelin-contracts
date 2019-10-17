@@ -1,4 +1,4 @@
-require('openzeppelin-test-helpers');
+require('@openzeppelin/test-helpers');
 const { shouldBehaveLikeERC721PausedToken } = require('./ERC721PausedToken.behavior');
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
 const { shouldBehaveLikePublicRole } = require('../../behaviors/access/roles/PublicRole.behavior');

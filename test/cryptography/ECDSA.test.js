@@ -1,4 +1,4 @@
-const { constants, expectRevert } = require('openzeppelin-test-helpers');
+const { constants, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 const { toEthSignedMessageHash, fixSignature } = require('../helpers/sign');
 

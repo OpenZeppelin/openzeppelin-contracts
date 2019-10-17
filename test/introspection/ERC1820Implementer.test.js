@@ -1,4 +1,4 @@
-const { expectRevert, singletons } = require('openzeppelin-test-helpers');
+const { expectRevert, singletons } = require('@openzeppelin/test-helpers');
 const { bufferToHex, keccak256 } = require('ethereumjs-util');
 
 const { expect } = require('chai');

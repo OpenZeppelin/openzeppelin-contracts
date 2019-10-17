@@ -17,8 +17,8 @@
     "prepare-docs": "scripts/prepare-docs.sh",
     "lint": "npm run lint:js && npm run lint:sol",
     "lint:fix": "npm run lint:js:fix",
-    "lint:js": "eslint .",
-    "lint:js:fix": "eslint . --fix",
+    "lint:js": "eslint --ignore-path .gitignore .",
+    "lint:js:fix": "eslint --ignore-path .gitignore . --fix",
     "lint:sol": "solhint --max-warnings 0 \"contracts/**/*.sol\"",
     "prepare": "node scripts/prepare.js",
     "release": "scripts/release/release.sh",
@@ -46,13 +46,14 @@
   "devDependencies": {
     "@openzeppelin/gsn-helpers": "^0.2.0",
     "@openzeppelin/gsn-provider": "^0.1.8",
+    "@openzeppelin/test-helpers": "^0.5.1",
     "chai": "^4.2.0",
     "concurrently": "^5.0.0",
-    "eslint": "^4.19.1",
+    "eslint": "^6.5.1",
     "eslint-config-standard": "^11.0.0",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-mocha-no-only": "^1.1.0",
-    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-node": "^8.0.1",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^3.1.0",
     "ethereumjs-util": "^6.1.0",
@@ -62,10 +63,9 @@
     "lodash.startcase": "^4.4.0",
     "micromatch": "^4.0.2",
     "nodemon": "^1.19.3",
-    "openzeppelin-test-helpers": "^0.4.3",
     "solhint": "2.3.0",
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
-    "solidity-docgen": "^0.3.4",
-    "truffle": "^5.0.39"
+    "solidity-docgen": "^0.3.5",
+    "truffle": "^5.0.41"
   }
 }
