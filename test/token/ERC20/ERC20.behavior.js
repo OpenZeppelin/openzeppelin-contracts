@@ -71,16 +71,6 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
                 value: amount,
               });
             });
-
-            it('emits an approval event', async function () {
-              const { logs } = await this.token.transferFrom(tokenOwner, to, amount, { from: spender });
-
-              expectEvent.inLogs(logs, 'Approval', {
-                owner: tokenOwner,
-                spender: spender,
-                value: await this.token.allowance(tokenOwner, spender),
-              });
-            });
           });
 
           describe('when the token owner does not have enough balance', function () {

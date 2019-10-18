@@ -316,14 +316,6 @@ contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
 
             expect(event.args.value).to.be.bignumber.equal(amount);
           });
-
-          it('emits an Approval event', async function () {
-            expectEvent.inLogs(this.logs, 'Approval', {
-              owner: initialHolder,
-              spender: spender,
-              value: await this.token.allowance(initialHolder, spender),
-            });
-          });
         });
       };
 

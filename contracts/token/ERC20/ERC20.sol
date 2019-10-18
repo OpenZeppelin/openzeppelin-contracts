@@ -97,7 +97,7 @@ contract ERC20 is Context, IERC20 {
      */
     function transferFrom(address sender, address recipient, uint256 amount) public returns (bool) {
         _transfer(sender, recipient, amount);
-        _approve(sender, _msgSender(), _allowances[sender][_msgSender()].sub(amount, "ERC20: transfer amount exceeds allowance"));
+        _approveSilent(sender, _msgSender(), _allowances[sender][_msgSender()].sub(amount, "ERC20: transfer amount exceeds allowance"));
         return true;
     }
 
@@ -197,6 +197,17 @@ contract ERC20 is Context, IERC20 {
     }
 
     /**
+     * @dev This is private method for `transfer` and `transferFrom`,
+     * behaves similar to `_approve` but not emits `Approval` event
+     */
+    function _approveSilent(address owner, address spender, uint256 amount) private {
+        require(owner != address(0), "ERC20: approve from the zero address");
+        require(spender != address(0), "ERC20: approve to the zero address");
+
+        _allowances[owner][spender] = amount;
+    }
+
+    /**
      * @dev Sets `amount` as the allowance of `spender` over the `owner`s tokens.
      *
      * This is internal function is equivalent to `approve`, and can be used to
@@ -210,10 +221,7 @@ contract ERC20 is Context, IERC20 {
      * - `spender` cannot be the zero address.
      */
     function _approve(address owner, address spender, uint256 amount) internal {
-        require(owner != address(0), "ERC20: approve from the zero address");
-        require(spender != address(0), "ERC20: approve to the zero address");
-
-        _allowances[owner][spender] = amount;
+        _approveSilent(owner, spender, amount);
         emit Approval(owner, spender, amount);
     }
 
@@ -221,10 +229,10 @@ contract ERC20 is Context, IERC20 {
      * @dev Destroys `amount` tokens from `account`.`amount` is then deducted
      * from the caller's allowance.
      *
-     * See {_burn} and {_approve}.
+     * See {_burn} and {_approveSilent}.
      */
     function _burnFrom(address account, uint256 amount) internal {
         _burn(account, amount);
-        _approve(account, _msgSender(), _allowances[account][_msgSender()].sub(amount, "ERC20: burn amount exceeds allowance"));
+        _approveSilent(account, _msgSender(), _allowances[account][_msgSender()].sub(amount, "ERC20: burn amount exceeds allowance"));
     }
 }
