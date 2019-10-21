@@ -1,4 +1,4 @@
-require('openzeppelin-test-helpers');
+require('@openzeppelin/test-helpers');
 
 const ContextMock = artifacts.require('ContextMock');
 const ContextMockCaller = artifacts.require('ContextMockCaller');

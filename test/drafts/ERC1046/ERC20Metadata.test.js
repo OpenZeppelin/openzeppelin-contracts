@@ -1,4 +1,4 @@
-require('openzeppelin-test-helpers');
+require('@openzeppelin/test-helpers');
 
 const ERC20MetadataMock = artifacts.require('ERC20MetadataMock');
 

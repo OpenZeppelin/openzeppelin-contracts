@@ -12,7 +12,7 @@ If you're still learning about the basics of the Gas Station Network, you should
 
 A *GSN Bouncer* decides which relayed call gets approved and which relayed call gets rejected. Bouncers are a key concept within the GSN. Dapps need Bouncers to prevent malicious users from spending the dapp's funds for relayed call fees.
 
-As we have seen in the xref:gsn.adoc[GSN Guide], in order to be GSN enabled, your contracts need to extend from xref:api:gsn.adoc#GSNRecipient[`GSNRecipient`].
+As we have seen in the xref:gsn.adoc[GSN Guide], in order to be GSN enabled, your contracts need to extend from xref:api:GSN.adoc#GSNRecipient[`GSNRecipient`].
 
 A GSN recipient contract needs the following to work:
 
@@ -22,15 +22,15 @@ A GSN recipient contract needs the following to work:
 
 Depositing funds for the GSN recipient contract can be done via the https://gsn.openzeppelin.com/recipients[GSN Dapp tool] or programmatically with https://github.com/OpenZeppelin/openzeppelin-gsn-helpers#usage-from-code[OpenZeppelin GSN Helpers].
 
-The actual user's `msg.sender` and `msg.data` can be obtained safely via xref:api:gsn.adoc#GSNRecipient-_msgSender--[`_msgSender()`] and xref:api:gsn.adoc#GSNRecipient-_msgData--[`_msgData()`] of xref:api:gsn.adoc#GSNRecipient[`GSNRecipient`].
+The actual user's `msg.sender` and `msg.data` can be obtained safely via xref:api:GSN.adoc#GSNRecipient-_msgSender--[`_msgSender()`] and xref:api:GSN.adoc#GSNRecipient-_msgData--[`_msgData()`] of xref:api:GSN.adoc#GSNRecipient[`GSNRecipient`].
 
 Deciding how to approve and reject relayed calls is a bit more complex. The GSN recipient contract, with the simplest implementation, will accept and pay for all relayed calls. Chances are you probably want to choose which users can use your contracts via the GSN and potentially charge them for it, like a bouncer at a nightclub. We call these contracts _GSN Bouncers_.
 
-In this guide we describe how to use the included bouncers xref:api:gsn.adoc#GSNBouncerSignature[`GSNBouncerSignature`] and xref:api:gsn.adoc#GSNBouncerERC20Fee[`GSNBouncerERC20Fee`], along with how to create your own Custom Bouncer.
+In this guide we describe how to use the included bouncers xref:api:GSN.adoc#GSNBouncerSignature[`GSNBouncerSignature`] and xref:api:GSN.adoc#GSNBouncerERC20Fee[`GSNBouncerERC20Fee`], along with how to create your own Custom Bouncer.
 
 == GSNBouncerSignature
 
-xref:api:gsn.adoc#GSNBouncerSignature[`GSNBouncerSignature`] lets users relay calls via the GSN to your recipient contract (charging you for it) if they can prove that an account you trust approved them to do so. The way they do this is via a _signature_.
+xref:api:GSN.adoc#GSNBouncerSignature[`GSNBouncerSignature`] lets users relay calls via the GSN to your recipient contract (charging you for it) if they can prove that an account you trust approved them to do so. The way they do this is via a _signature_.
 
 The relayed call must include a signature of the relayed call parameters by the same account that was added to the contract as a trusted signer. If it is not the same, `GSNBouncerSignature` will not accept the relayed call.
 
@@ -67,13 +67,13 @@ contract MyContract is GSNRecipient, GSNBouncerSignature {
 
 == GSNBouncerERC20Fee
 
-xref:api:gsn.adoc#GSNBouncerERC20Fee[`GSNBouncerERC20Fee`] is a bit more complex (but don't worry, it has already been written for you!). Unlike `GSNBouncerSignature`, `GSNBouncerERC20Fee` doesn't require any off-chain services.
+xref:api:GSN.adoc#GSNBouncerERC20Fee[`GSNBouncerERC20Fee`] is a bit more complex (but don't worry, it has already been written for you!). Unlike `GSNBouncerSignature`, `GSNBouncerERC20Fee` doesn't require any off-chain services.
 Instead of off-chain approving each relayed call, you will give special-purpose ERC20 tokens to your users. These tokens are then used as payment for relayed calls to your recipient contract.
 Any user that has enough tokens to pay has their relayed calls automatically approved and the recipient contract will cover their transaction costs!
 
 Each recipient contract has their own special-purpose token.  The exchange rate from token to ether is 1:1, as the tokens are used to pay your contract to cover the gas fees when using the GSN.
 
-`GSNBouncerERC20Fee` has an internal xref:api:gsn.adoc#GSNBouncerERC20Fee-_mint-address-uint256-[`_mint`] function. Firstly, you need to setup a way to call it (e.g. add a public function with some form of xref:access-control.adoc[access control] such as xref:api:access.adoc#MinterRole-onlyMinter--[`onlyMinter`]).
+`GSNBouncerERC20Fee` has an internal xref:api:GSN.adoc#GSNBouncerERC20Fee-_mint-address-uint256-[`_mint`] function. Firstly, you need to setup a way to call it (e.g. add a public function with some form of xref:access-control.adoc[access control] such as xref:api:access.adoc#MinterRole-onlyMinter--[`onlyMinter`]).
 Then, issue tokens to users based on your business logic. For example, you could mint a limited amount of tokens to new users, mint tokens when users buy them off-chain, give tokens based on a users subscription, etc.
 
 NOTE: *Users do not need to call approve* on their tokens for your recipient contract to use them. They are a modified ERC20 variant that lets the recipient contract retrieve them.

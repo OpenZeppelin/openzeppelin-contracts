@@ -1,4 +1,4 @@
-const { expectEvent, expectRevert, constants } = require('openzeppelin-test-helpers');
+const { expectEvent, expectRevert, constants } = require('@openzeppelin/test-helpers');
 const gsn = require('@openzeppelin/gsn-helpers');
 const { fixSignature } = require('../helpers/sign');
 const { utils: { toBN } } = require('web3');

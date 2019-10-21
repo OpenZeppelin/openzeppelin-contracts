@@ -1,4 +1,4 @@
-const { ether, expectEvent } = require('openzeppelin-test-helpers');
+const { ether, expectEvent } = require('@openzeppelin/test-helpers');
 const gsn = require('@openzeppelin/gsn-helpers');
 
 const { expect } = require('chai');
