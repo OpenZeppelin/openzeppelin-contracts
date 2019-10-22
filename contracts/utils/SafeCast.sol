@@ -5,13 +5,16 @@ pragma solidity ^0.5.0;
  * @dev Wrappers over Solidity's uintXX casting operators with added overflow
  * checks.
  *
- * Downcasting from uint256 in Solidity does not revert by default on overflow.
- * This can easily result in undesired exploitation or bugs, since developers
- * usually assume that overflows raise errors. `SafeCast` restores this intuition
- * by reverting the transaction when such an operation overflows.
+ * Downcasting from uint256 in Solidity does not revert on overflow. This can 
+ * easily result in undesired exploitation or bugs, since developers usually
+ * assume that overflows raise errors. `SafeCast` restores this intuition by 
+ * reverting the transaction when such an operation overflows.
  *
  * Using this library instead of the unchecked operations eliminates an entire
  * class of bugs, so it's recommended to use it always.
+ *
+ * Can be combined with {SafeMath} to extend it to smaller types, by performing
+ * all math on `uint256` and then downcasting.
  */
 library SafeCast {
 
@@ -22,6 +25,7 @@ library SafeCast {
      * Counterpart to Solidity's `uint128` operator.
      *
      * Requirements:
+     *
      * - input must fit into 128 bits
      */
     function toUint128(uint256 value) internal pure returns (uint128) {
@@ -36,6 +40,7 @@ library SafeCast {
      * Counterpart to Solidity's `uint64` operator.
      *
      * Requirements:
+     *
      * - input must fit into 64 bits
      */
     function toUint64(uint256 value) internal pure returns (uint64) {
@@ -50,6 +55,7 @@ library SafeCast {
      * Counterpart to Solidity's `uint32` operator.
      *
      * Requirements:
+     *
      * - input must fit into 32 bits
      */
     function toUint32(uint256 value) internal pure returns (uint32) {
@@ -64,6 +70,7 @@ library SafeCast {
      * Counterpart to Solidity's `uint16` operator.
      *
      * Requirements:
+     *
      * - input must fit into 16 bits
      */
     function toUint16(uint256 value) internal pure returns (uint16) {
@@ -78,6 +85,7 @@ library SafeCast {
      * Counterpart to Solidity's `uint8` operator.
      *
      * Requirements:
+     *
      * - input must fit into 8 bits.
      */
     function toUint8(uint256 value) internal pure returns (uint8) {
