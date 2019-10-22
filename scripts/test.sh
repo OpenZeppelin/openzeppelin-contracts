@@ -23,10 +23,6 @@ ganache_running() {
   nc -z localhost "$ganache_port"
 }
 
-relayer_running() {
-  nc -z localhost "$relayer_port"
-}
-
 start_ganache() {
   local accounts=(
     # 10 accounts with balance 1M ether, needed for high-value tests.
