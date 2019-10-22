@@ -40,4 +40,12 @@ library Address {
     function toPayable(address account) internal pure returns (address payable) {
         return address(uint160(account));
     }
+
+    function sendEther(address payable recipient, uint256 amount) internal {
+        require(address(this).balance >= amount, "Address: not enough ether to send");
+
+        // solhint-disable-next-line avoid-call-value
+        (bool success, ) = recipient.call.value(amount)("");
+        require(success, "Address: unable to send ether");
+    }
 }

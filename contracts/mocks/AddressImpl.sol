@@ -10,4 +10,10 @@ contract AddressImpl {
     function toPayable(address account) external pure returns (address payable) {
         return Address.toPayable(account);
     }
+
+    function sendEther(address payable receiver, uint256 amount) external {
+        Address.sendEther(receiver, amount);
+    }
+
+    function () external payable { } // sendEther's tests require the contract to hold Ether
 }
