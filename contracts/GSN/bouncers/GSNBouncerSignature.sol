@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
 
-import "./GSNBouncerBase.sol";
+import "../GSNRecipient.sol";
 import "../../cryptography/ECDSA.sol";
 
 /**
@@ -9,7 +9,7 @@ import "../../cryptography/ECDSA.sol";
  * performs validations off-chain. Note that nothing is charged to the user in this scheme. Thus, the server should make
  * sure to account for this in their economic and threat model.
  */
-contract GSNBouncerSignature is GSNBouncerBase {
+contract GSNBouncerSignature is GSNRecipient {
     using ECDSA for bytes32;
 
     address private _trustedSigner;

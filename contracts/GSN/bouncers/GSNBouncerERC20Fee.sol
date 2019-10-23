@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
 
-import "./GSNBouncerBase.sol";
+import "../GSNRecipient.sol";
 import "../../math/SafeMath.sol";
 import "../../ownership/Secondary.sol";
 import "../../token/ERC20/SafeERC20.sol";
@@ -16,7 +16,7 @@ import "../../token/ERC20/ERC20Detailed.sol";
  * whose only minter is the recipient, so the strategy must be implemented in a derived contract, making use of the
  * internal {_mint} function.
  */
-contract GSNBouncerERC20Fee is GSNBouncerBase {
+contract GSNBouncerERC20Fee is GSNRecipient {
     using SafeERC20 for __unstable__ERC20PrimaryAdmin;
     using SafeMath for uint256;
 
