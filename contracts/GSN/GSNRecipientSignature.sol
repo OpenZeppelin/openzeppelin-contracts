@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 
-import "../GSNRecipient.sol";
-import "../../cryptography/ECDSA.sol";
+import "./GSNRecipient.sol";
+import "../cryptography/ECDSA.sol";
 
 /**
  * @dev A xref:ROOT:gsn-bouncers.adoc#gsn-bouncers[GSN Bouncer] that allows relayed transactions through when they are
@@ -9,12 +9,12 @@ import "../../cryptography/ECDSA.sol";
  * performs validations off-chain. Note that nothing is charged to the user in this scheme. Thus, the server should make
  * sure to account for this in their economic and threat model.
  */
-contract GSNBouncerSignature is GSNRecipient {
+contract GSNRecipientSignature is GSNRecipient {
     using ECDSA for bytes32;
 
     address private _trustedSigner;
 
-    enum GSNBouncerSignatureErrorCodes {
+    enum GSNRecipientSignatureErrorCodes {
         INVALID_SIGNER
     }
 
@@ -22,7 +22,7 @@ contract GSNBouncerSignature is GSNRecipient {
      * @dev Sets the trusted signer that is going to be producing signatures to approve relayed calls.
      */
     constructor(address trustedSigner) public {
-        require(trustedSigner != address(0), "GSNBouncerSignature: trusted signer is the zero address");
+        require(trustedSigner != address(0), "GSNRecipientSignature: trusted signer is the zero address");
         _trustedSigner = trustedSigner;
     }
 
@@ -58,7 +58,7 @@ contract GSNBouncerSignature is GSNRecipient {
         if (keccak256(blob).toEthSignedMessageHash().recover(approvalData) == _trustedSigner) {
             return _approveRelayedCall();
         } else {
-            return _rejectRelayedCall(uint256(GSNBouncerSignatureErrorCodes.INVALID_SIGNER));
+            return _rejectRelayedCall(uint256(GSNRecipientSignatureErrorCodes.INVALID_SIGNER));
         }
     }
 

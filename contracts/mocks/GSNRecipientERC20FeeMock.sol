@@ -1,10 +1,10 @@
 pragma solidity ^0.5.0;
 
 import "../GSN/GSNRecipient.sol";
-import "../GSN/bouncers/GSNBouncerERC20Fee.sol";
+import "../GSN/GSNRecipientERC20Fee.sol";
 
-contract GSNBouncerERC20FeeMock is GSNRecipient, GSNBouncerERC20Fee {
-    constructor(string memory name, string memory symbol) public GSNBouncerERC20Fee(name, symbol) {
+contract GSNRecipientERC20FeeMock is GSNRecipient, GSNRecipientERC20Fee {
+    constructor(string memory name, string memory symbol) public GSNRecipientERC20Fee(name, symbol) {
         // solhint-disable-previous-line no-empty-blocks
     }
 

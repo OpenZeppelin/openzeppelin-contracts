@@ -1,11 +1,11 @@
 pragma solidity ^0.5.0;
 
-import "../GSNRecipient.sol";
-import "../../math/SafeMath.sol";
-import "../../ownership/Secondary.sol";
-import "../../token/ERC20/SafeERC20.sol";
-import "../../token/ERC20/ERC20.sol";
-import "../../token/ERC20/ERC20Detailed.sol";
+import "./GSNRecipient.sol";
+import "../math/SafeMath.sol";
+import "../ownership/Secondary.sol";
+import "../token/ERC20/SafeERC20.sol";
+import "../token/ERC20/ERC20.sol";
+import "../token/ERC20/ERC20Detailed.sol";
 
 /**
  * @dev A xref:ROOT:gsn-bouncers.adoc#gsn-bouncers[GSN Bouncer] that charges transaction fees in a special purpose ERC20
@@ -16,11 +16,11 @@ import "../../token/ERC20/ERC20Detailed.sol";
  * whose only minter is the recipient, so the strategy must be implemented in a derived contract, making use of the
  * internal {_mint} function.
  */
-contract GSNBouncerERC20Fee is GSNRecipient {
+contract GSNRecipientERC20Fee is GSNRecipient {
     using SafeERC20 for __unstable__ERC20PrimaryAdmin;
     using SafeMath for uint256;
 
-    enum GSNBouncerERC20FeeErrorCodes {
+    enum GSNRecipientERC20FeeErrorCodes {
         INSUFFICIENT_BALANCE
     }
 
@@ -66,7 +66,7 @@ contract GSNBouncerERC20Fee is GSNRecipient {
         returns (uint256, bytes memory)
     {
         if (_token.balanceOf(from) < maxPossibleCharge) {
-            return _rejectRelayedCall(uint256(GSNBouncerERC20FeeErrorCodes.INSUFFICIENT_BALANCE));
+            return _rejectRelayedCall(uint256(GSNRecipientERC20FeeErrorCodes.INSUFFICIENT_BALANCE));
         }
 
         return _approveRelayedCall(abi.encode(from, maxPossibleCharge, transactionFee, gasPrice));
