@@ -120,6 +120,15 @@ contract GSNRecipient is IRelayRecipient, Context {
     }
 
     /**
+     * @dev See `IRelayRecipient.preRelayedCall`.
+     *
+     * Called by `GSNRecipient.preRelayedCall`, which asserts the caller is the `RelayHub` contract. Derived contracts
+     * must implement this function with any relayed-call preprocessing they may wish to do.
+     *
+     */
+    function _preRelayedCall(bytes memory context) internal returns (bytes32);
+
+    /**
      * @dev See `IRelayRecipient.postRelayedCall`.
      *
      * This function should not be overriden directly, use `_postRelayedCall` instead.
@@ -132,6 +141,15 @@ contract GSNRecipient is IRelayRecipient, Context {
         require(msg.sender == getHubAddr(), "GSNRecipient: caller is not RelayHub");
         _postRelayedCall(context, success, actualCharge, preRetVal);
     }
+
+    /**
+     * @dev See `IRelayRecipient.postRelayedCall`.
+     *
+     * Called by `GSNRecipient.postRelayedCall`, which asserts the caller is the `RelayHub` contract. Derived contracts
+     * must implement this function with any relayed-call postprocessing they may wish to do.
+     *
+     */
+    function _postRelayedCall(bytes memory context, bool success, uint256 actualCharge, bytes32 preRetVal) internal;
 
     /**
      * @dev Return this in acceptRelayedCall to proceed with the execution of a relayed call. Note that this contract
@@ -155,16 +173,6 @@ contract GSNRecipient is IRelayRecipient, Context {
      */
     function _rejectRelayedCall(uint256 errorCode) internal pure returns (uint256, bytes memory) {
         return (RELAYED_CALL_REJECTED + errorCode, "");
-    }
-
-    // Empty hooks for pre and post relayed call: users only have to define these if they actually use them.
-
-    function _preRelayedCall(bytes memory) internal returns (bytes32) {
-        // solhint-disable-previous-line no-empty-blocks
-    }
-
-    function _postRelayedCall(bytes memory, bool, uint256, bytes32) internal {
-        // solhint-disable-previous-line no-empty-blocks
     }
 
     /*

@@ -61,4 +61,12 @@ contract GSNBouncerSignature is GSNRecipient {
             return _rejectRelayedCall(uint256(GSNBouncerSignatureErrorCodes.INVALID_SIGNER));
         }
     }
+
+    function _preRelayedCall(bytes memory) internal returns (bytes32) {
+        // solhint-disable-previous-line no-empty-blocks
+    }
+
+    function _postRelayedCall(bytes memory, bool, uint256, bytes32) internal {
+        // solhint-disable-previous-line no-empty-blocks
+    }
 }
