@@ -1,38 +1,38 @@
-= GSN Bouncers
+= GSN Strategies
 
-This guide shows you different strategies to accept relayed calls via the Gas Station Network (GSN) using GSN Bouncers.
+This guide shows you different strategies to accept relayed calls via the Gas Station Network (GSN) using OpenZeppelin Contracts.
 
-First, we will explain the Bouncer concept, and then we will showcase how to use the two most common strategies.
-Finally, we will cover how to create your own Custom Bouncer.
+First, we will go over what a 'GSN strategy' is, and then showcase how to use the two most common strategies.
+Finally, we will cover how to create your own custom strategies.
 
 If you're still learning about the basics of the Gas Station Network, you should first head over to the xref:gsn.adoc[GSN Guide].
 
-[[gsn-bouncers]]
-== GSN Bouncers explained
+[[gsn-strategies]]
+== GSN strategies explained
 
-A *GSN Bouncer* decides which relayed call gets approved and which relayed call gets rejected. Bouncers are a key concept within the GSN. Dapps need Bouncers to prevent malicious users from spending the dapp's funds for relayed call fees.
+A *GSN strategy* decides which relayed call gets approved and which relayed call gets rejected. Strategies are a key concept within the GSN. Dapps need a strategy to prevent malicious users from spending the dapp's funds for relayed call fees.
 
 As we have seen in the xref:gsn.adoc[GSN Guide], in order to be GSN enabled, your contracts need to extend from xref:api:GSN.adoc#GSNRecipient[`GSNRecipient`].
 
 A GSN recipient contract needs the following to work:
 
 1. It needs to have funds deposited on its RelayHub.
-2. It needs to handle `msg.sender` and `msg.data` differently
+2. It needs to handle `msg.sender` and `msg.data` differently.
 3. It needs to decide how to approve and reject relayed calls.
 
 Depositing funds for the GSN recipient contract can be done via the https://gsn.openzeppelin.com/recipients[GSN Dapp tool] or programmatically with https://github.com/OpenZeppelin/openzeppelin-gsn-helpers#usage-from-code[OpenZeppelin GSN Helpers].
 
 The actual user's `msg.sender` and `msg.data` can be obtained safely via xref:api:GSN.adoc#GSNRecipient-_msgSender--[`_msgSender()`] and xref:api:GSN.adoc#GSNRecipient-_msgData--[`_msgData()`] of xref:api:GSN.adoc#GSNRecipient[`GSNRecipient`].
 
-Deciding how to approve and reject relayed calls is a bit more complex. The GSN recipient contract, with the simplest implementation, will accept and pay for all relayed calls. Chances are you probably want to choose which users can use your contracts via the GSN and potentially charge them for it, like a bouncer at a nightclub. We call these contracts _GSN Bouncers_.
+Deciding how to approve and reject relayed calls is a bit more complex. Chances are you probably want to choose which users can use your contracts via the GSN and potentially charge them for it, like a bouncer at a nightclub. We call these _GSN strategies_.
 
-In this guide we describe how to use the included bouncers xref:api:GSN.adoc#GSNBouncerSignature[`GSNBouncerSignature`] and xref:api:GSN.adoc#GSNBouncerERC20Fee[`GSNBouncerERC20Fee`], along with how to create your own Custom Bouncer.
+The base xref:api:GSN.adoc#GSNRecipient[`GSNRecipient`] contract doesn't include a strategy, so you must either use one of the pre-built ones or write your own. We will first go over using the included strategies: xref:api:GSN.adoc#GSNRecipientSignature[`GSNRecipientSignature`] and xref:api:GSN.adoc#GSNRecipientERC20Fee[`GSNRecipientERC20Fee`].
 
-== GSNBouncerSignature
+== GSNRecipientSignature
 
-xref:api:GSN.adoc#GSNBouncerSignature[`GSNBouncerSignature`] lets users relay calls via the GSN to your recipient contract (charging you for it) if they can prove that an account you trust approved them to do so. The way they do this is via a _signature_.
+xref:api:GSN.adoc#GSNRecipientSignature[`GSNRecipientSignature`] lets users relay calls via the GSN to your recipient contract (charging you for it) if they can prove that an account you trust approved them to do so. The way they do this is via a _signature_.
 
-The relayed call must include a signature of the relayed call parameters by the same account that was added to the contract as a trusted signer. If it is not the same, `GSNBouncerSignature` will not accept the relayed call.
+The relayed call must include a signature of the relayed call parameters by the same account that was added to the contract as a trusted signer. If it is not the same, `GSNRecipientSignature` will not accept the relayed call.
 
 This means that you need to set up a system where your trusted account signs the relayed call parameters to then include in the relayed call, as long as they are valid users (according to your business logic).
 
@@ -43,44 +43,48 @@ Alternatively, you could charge the user off-chain (e.g. via credit card) for cr
 The great thing about this setup is that *your contract doesn't need to change* if you want to change the business rules. All you are doing is changing the backend logic conditions under which users use your contract for free.
 On the other hand, you need to have a backend server, microservice, or lambda function to accomplish this.
 
-=== How does GSNBouncerSignature work?
+=== How does GSNRecipientSignature work?
 
-`GSNBouncerSignature` decides whether or not to accept the relayed call based on the included signature.
+`GSNRecipientSignature` decides whether or not to accept the relayed call based on the included signature.
 
 The `acceptRelayedCall` implementation recovers the address from the signature of the relayed call parameters in `approvalData` and compares to the trusted signer.
 If the included signature matches the trusted signer, the relayed call is approved.
 On the other hand, when the included signature doesn't match the trusted signer, the relayed call gets rejected with an error code of `INVALID_SIGNER`.
 
-=== How to use GSNBouncerSignature
+=== How to use GSNRecipientSignature
 
 You will need to create an off-chain service (e.g. backend server, microservice, or lambda function) that your dapp calls to sign (or not sign, based on your business logic) the relayed call parameters with your trusted signer account.  The signature is then included as the `approvalData` in the relayed call.
 
-Your GSN recipient contract needs to inherit from `GSNRecipient` and `GSNBouncerSignature`, as well as setting the trusted signer in the constructor of `GSNBouncerSignature` as per the following sample code below:
+Instead of using `GSNRecipient` directly, your GSN recipient contract will instead inherit from `GSNRecipientSignature`, as well as setting the trusted signer in the constructor of `GSNRecipientSignature` as per the following sample code below:
 
 [source,solidity]
 ----
-contract MyContract is GSNRecipient, GSNBouncerSignature {
-    constructor(address trustedSigner) public GSNBouncerSignature(trustedSigner) {
+import "@openzeppelin/contracts/GSN/GSNRecipientSignature";
+
+contract MyContract is GSNRecipientSignature {
+    constructor(address trustedSigner) public GSNRecipientSignature(trustedSigner) {
     }
 }
 ----
 
-== GSNBouncerERC20Fee
+TIP: We wrote in-depth guide on how to setup a signing server that works with `GSNRecipientSignature`, https://forum.openzeppelin.com/t/advanced-gsn-gsnrecipientsignature-sol/1414[check it out!]
 
-xref:api:GSN.adoc#GSNBouncerERC20Fee[`GSNBouncerERC20Fee`] is a bit more complex (but don't worry, it has already been written for you!). Unlike `GSNBouncerSignature`, `GSNBouncerERC20Fee` doesn't require any off-chain services.
+== GSNRecipientERC20Fee
+
+xref:api:GSN.adoc#GSNRecipientERC20Fee[`GSNRecipientERC20Fee`] is a bit more complex (but don't worry, it has already been written for you!). Unlike `GSNRecipientSignature`, `GSNRecipientERC20Fee` doesn't require any off-chain services.
 Instead of off-chain approving each relayed call, you will give special-purpose ERC20 tokens to your users. These tokens are then used as payment for relayed calls to your recipient contract.
 Any user that has enough tokens to pay has their relayed calls automatically approved and the recipient contract will cover their transaction costs!
 
 Each recipient contract has their own special-purpose token.  The exchange rate from token to ether is 1:1, as the tokens are used to pay your contract to cover the gas fees when using the GSN.
 
-`GSNBouncerERC20Fee` has an internal xref:api:GSN.adoc#GSNBouncerERC20Fee-_mint-address-uint256-[`_mint`] function. Firstly, you need to setup a way to call it (e.g. add a public function with some form of xref:access-control.adoc[access control] such as xref:api:access.adoc#MinterRole-onlyMinter--[`onlyMinter`]).
+`GSNRecipientERC20Fee` has an internal xref:api:GSN.adoc#GSNRecipientERC20Fee-_mint-address-uint256-[`_mint`] function. Firstly, you need to setup a way to call it (e.g. add a public function with some form of xref:access-control.adoc[access control] such as xref:api:access.adoc#MinterRole-onlyMinter--[`onlyMinter`]).
 Then, issue tokens to users based on your business logic. For example, you could mint a limited amount of tokens to new users, mint tokens when users buy them off-chain, give tokens based on a users subscription, etc.
 
 NOTE: *Users do not need to call approve* on their tokens for your recipient contract to use them. They are a modified ERC20 variant that lets the recipient contract retrieve them.
 
-=== How does GSNBouncerERC20Fee work?
+=== How does GSNRecipientERC20Fee work?
 
-`GSNBouncerERC20Fee` decides to approve or reject relayed calls based on the balance of the users tokens.
+`GSNRecipientERC20Fee` decides to approve or reject relayed calls based on the balance of the users tokens.
 
 The `acceptRelayedCall` function implementation checks the users token balance.
 If the user doesn't have enough tokens the relayed call gets rejected with an error of `INSUFFICIENT_BALANCE`.
@@ -96,14 +100,16 @@ NOTE: The gas cost estimation is not 100% accurate, we may tweak it further down
 
 NOTE: Always use `_preRelayedCall` and `_postRelayedCall` functions.  Internal `_preRelayedCall` and `_postRelayedCall` functions are used instead of public `preRelayedCall` and `postRelayedCall` functions, as the public functions are prevented from being called by non-RelayHub contracts.
 
-=== How to use GSNBouncerERC20Fee
+=== How to use GSNRecipientERC20Fee
 
-Your GSN recipient contract needs to inherit from `GSNRecipient` and `GSNBouncerERC20Fee` along with appropriate xref:access-control.adoc[access control] (for token minting), set the token details in the constructor of `GSNBouncerERC20Fee` and create a public `mint` function suitably protected by your chosen access control as per the following sample code (which uses the xref:api:access.adoc#MinterRole[MinterRole]):
+Your GSN recipient contract needs to inherit from `GSNRecipientERC20Fee` along with appropriate xref:access-control.adoc[access control] (for token minting), set the token details in the constructor of `GSNRecipientERC20Fee` and create a public `mint` function suitably protected by your chosen access control as per the following sample code (which uses the xref:api:access.adoc#MinterRole[MinterRole]):
 
 [source,solidity]
 ----
-contract MyContract is GSNRecipient, GSNBouncerERC20Fee, MinterRole {
-    constructor() public GSNBouncerERC20Fee("FeeToken", "FEE") {
+import "@openzeppelin/contracts/GSN/GSNRecipientERC20Fee";
+
+contract MyContract is GSNRecipientERC20Fee, MinterRole {
+    constructor() public GSNRecipientERC20Fee("FeeToken", "FEE") {
     }
 
     function mint(address account, uint256 amount) public onlyMinter {
@@ -112,28 +118,26 @@ contract MyContract is GSNRecipient, GSNBouncerERC20Fee, MinterRole {
 }
 ----
 
-== Custom Bouncer
+== Custom strategies
 
-You can create your own Custom Bouncer!  For example, your Custom Bouncer could use a specified token to pay for relayed calls with a custom exchange rate to ether.  Alternatively you could issue users who subscribe to your dapp ERC721 tokens and accounts holding the subscription token could use your contract for free as part of the subscription.  There are lots of potential options for your Custom Bouncer.
+If the included strategies don't quite fit your business needs, you can also write your own one!  For example, your custom strategy could use a specified token to pay for relayed calls with a custom exchange rate to ether.  Alternatively you could issue users who subscribe to your dApp ERC721 tokens, and accounts holding the subscription token could use your contract for free as part of the subscription. There are lots of potential options!
 
-Your Custom Bouncer can inherit from `GSNBouncerBase` and must implement the `acceptRelayedCall` function.
+To write a custom strategy, simply inherit from `GSNRecipient` and implement the `acceptRelayedCall`, `_preRelayedCall` and `_postRelayedCall` functions.
 
-Your `acceptRelayedCall` implementation decides whether or not to accept the relayed call.
-If your logic accepts the relayed call then you should return `_approveRelayedCall`.
-If your logic rejects the relayed call then you should return `_rejectRelayedCall` with an error code.
-See https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/GSN/bouncers/GSNBouncerSignature.sol[GSNBouncerSignature.sol] as an example implementation.
+Your `acceptRelayedCall` implementation decides whether or not to accept the relayed call: return `_approveRelayedCall` to accept, and return `_rejectRelayedCall` with an error code to reject.
 
-For Custom Bouncers charging end users, `_postRelayedCall` and `_preRelayedCall` should be implemented to handle the charging.
-Your `_preRelayedCall` implementation should take the maximum possible charge, with your `_postRelayedCall` implementation refunding any difference from the actual charge once the relayed call has been made.
+`_preRelayedCall` and `_postRelayedCall` are not required for all GSN strategies (`GSNRecipientSignature` leaves them empty), but are useful when your strategy involves charging end users.
+
+`_preRelayedCall` should take the maximum possible charge, with `_postRelayedCall` refunding any difference from the actual charge once the relayed call has been made.
 When returning `_approveRelayedCall` to approve the relayed call, the end users address, `maxPossibleCharge`, `transactionFee` and `gasPrice` data can also be returned so that the data can be used in `_preRelayedCall` and `_postRelayedCall`.
-See https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v2.4.0/contracts/GSN/bouncers/GSNBouncerERC20Fee.sol[GSNBouncerERC20Fee.sol] as an example implementation.
+See https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v2.4.0/contracts/GSN/GSNRecipientERC20Fee.sol[the code for `GSNRecipientERC20Fee`] as an example implementation.
 
-Your GSN recipient contract needs to inherit from `GSNRecipient` and your Custom Bouncer as per the following sample code:
+Once your strategy is ready, all your GSN recipient needs to do is inherit from it:
 
 [source,solidity]
 ----
-contract MyContract is GSNRecipient, MyCustomBouncer {
-    constructor() public MyCustomBouncer() {
+contract MyContract is MyCustomGSNStrategy {
+    constructor() public MyCustomGSNStrategy() {
     }
 }
 ----

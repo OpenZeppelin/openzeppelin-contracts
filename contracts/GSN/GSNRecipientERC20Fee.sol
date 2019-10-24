@@ -8,7 +8,7 @@ import "../token/ERC20/ERC20.sol";
 import "../token/ERC20/ERC20Detailed.sol";
 
 /**
- * @dev A xref:ROOT:gsn-bouncers.adoc#gsn-bouncers[GSN Bouncer] that charges transaction fees in a special purpose ERC20
+ * @dev A xref:ROOT:gsn-strategies.adoc#gsn-strategies[GSN strategy] that charges transaction fees in a special purpose ERC20
  * token, which we refer to as the gas payment token. The amount charged is exactly the amount of Ether charged to the
  * recipient. This means that the token is essentially pegged to the value of Ether.
  *
