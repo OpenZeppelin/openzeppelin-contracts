@@ -126,7 +126,7 @@ To write a custom strategy, simply inherit from `GSNRecipient` and implement the
 
 Your `acceptRelayedCall` implementation decides whether or not to accept the relayed call: return `_approveRelayedCall` to accept, and return `_rejectRelayedCall` with an error code to reject.
 
-`_preRelayedCall` and `_postRelayedCall` are not required for all GSN strategies (`GSNRecipientSignature` leaves them empty), but are useful when your strategy involves charging end users.
+Not all GSN strategies use `_preRelayedCall` and `_postRelayedCall` (though they must still be implemented, e.g. `GSNRecipientSignature` leaves them empty), but are useful when your strategy involves charging end users.
 
 `_preRelayedCall` should take the maximum possible charge, with `_postRelayedCall` refunding any difference from the actual charge once the relayed call has been made.
 When returning `_approveRelayedCall` to approve the relayed call, the end users address, `maxPossibleCharge`, `transactionFee` and `gasPrice` data can also be returned so that the data can be used in `_preRelayedCall` and `_postRelayedCall`.

@@ -5,10 +5,15 @@ import "./IRelayHub.sol";
 import "./Context.sol";
 
 /**
- * @dev Base GSN recipient contract: includes the {IRelayRecipient} interface and enables GSN support on all contracts
- * in the inheritance tree.
+ * @dev Base GSN recipient contract: includes the {IRelayRecipient} interface
+ * and enables GSN support on all contracts in the inheritance tree.
  *
- * Not all interface methods are implemented (e.g. {acceptRelayedCall}, derived contracts must provide one themselves.
+ * TIP: This constract is abstract: not all methods are implemented (
+ * {acceptRelayedCall}, {_preRelayedCall} and {_postRelayedCall}), derived
+ * contracts must provide these themselves. See the
+ * xref:ROOT:gsn-strategies.adoc#gsn-strategies[GSN strategies] for more
+ * information on how to use the pre-built {GSNRecipientSignature} and
+ * {GSNRecipientERC20Fee}, or how to write your own.
  */
 contract GSNRecipient is IRelayRecipient, Context {
     // Default RelayHub address, deployed on mainnet and all testnets at the same address
