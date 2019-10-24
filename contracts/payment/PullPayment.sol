@@ -49,7 +49,7 @@ contract PullPayment {
      * @param dest The destination address of the funds.
      * @param amount The amount to transfer.
      *
-     * Funds sent this way are stored in an intermediate {Escrow} contract, so
+     * Funds sent in this way are stored in an intermediate {Escrow} contract, so
      * there is no danger of them being spent before withdrawal.
      */
     function _asyncTransfer(address dest, uint256 amount) internal {
