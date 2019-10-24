@@ -14,8 +14,6 @@ NOTE: This page is incomplete. We're working to improve it for the next release.
 
 {{Counters}}
 
-{{SignatureBouncer}}
-
 {{SignedSafeMath}}
 
 == ERC 1046
