@@ -67,7 +67,7 @@ contract MyContract is GSNRecipientSignature {
 }
 ----
 
-TIP: We wrote in-depth guide on how to setup a signing server that works with `GSNRecipientSignature`, https://forum.openzeppelin.com/t/advanced-gsn-gsnrecipientsignature-sol/1414[check it out!]
+TIP: We wrote an in-depth guide on how to setup a signing server that works with `GSNRecipientSignature`, https://forum.openzeppelin.com/t/advanced-gsn-gsnrecipientsignature-sol/1414[check it out!]
 
 == GSNRecipientERC20Fee
 
@@ -120,7 +120,7 @@ contract MyContract is GSNRecipientERC20Fee, MinterRole {
 
 == Custom strategies
 
-If the included strategies don't quite fit your business needs, you can also write your own one!  For example, your custom strategy could use a specified token to pay for relayed calls with a custom exchange rate to ether.  Alternatively you could issue users who subscribe to your dApp ERC721 tokens, and accounts holding the subscription token could use your contract for free as part of the subscription. There are lots of potential options!
+If the included strategies don't quite fit your business needs, you can also write your own! For example, your custom strategy could use a specified token to pay for relayed calls with a custom exchange rate to ether.  Alternatively you could issue users who subscribe to your dapp ERC721 tokens, and accounts holding the subscription token could use your contract for free as part of the subscription. There are lots of potential options!
 
 To write a custom strategy, simply inherit from `GSNRecipient` and implement the `acceptRelayedCall`, `_preRelayedCall` and `_postRelayedCall` functions.
 

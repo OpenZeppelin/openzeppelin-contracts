@@ -181,7 +181,7 @@ contract GSNRecipient is IRelayRecipient, Context {
     }
 
     /*
-     * @dev Calculates how much RelaHub will charge a recipient for using `gas` at a `gasPrice`, given a relayer's
+     * @dev Calculates how much RelayHub will charge a recipient for using `gas` at a `gasPrice`, given a relayer's
      * `serviceFee`.
      */
     function _computeCharge(uint256 gas, uint256 gasPrice, uint256 serviceFee) internal pure returns (uint256) {
