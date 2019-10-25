@@ -4,11 +4,11 @@ const { fixSignature } = require('../helpers/sign');
 const { utils: { toBN } } = require('web3');
 const { ZERO_ADDRESS } = constants;
 
-const GSNBouncerSignatureMock = artifacts.require('GSNBouncerSignatureMock');
+const GSNRecipientSignatureMock = artifacts.require('GSNRecipientSignatureMock');
 
-contract('GSNBouncerSignature', function ([_, signer, other]) {
+contract('GSNRecipientSignature', function ([_, signer, other]) {
   beforeEach(async function () {
-    this.recipient = await GSNBouncerSignatureMock.new(signer);
+    this.recipient = await GSNRecipientSignatureMock.new(signer);
   });
 
   context('when called directly', function () {
@@ -21,10 +21,10 @@ contract('GSNBouncerSignature', function ([_, signer, other]) {
   context('when constructor is called with a zero address', function () {
     it('fails when constructor called with a zero address', async function () {
       await expectRevert(
-        GSNBouncerSignatureMock.new(
+        GSNRecipientSignatureMock.new(
           ZERO_ADDRESS
         ),
-        'GSNBouncerSignature: trusted signer is the zero address'
+        'GSNRecipientSignature: trusted signer is the zero address'
       );
     });
   });
@@ -66,7 +66,7 @@ contract('GSNBouncerSignature', function ([_, signer, other]) {
 
       const { tx } = await this.recipient.mockFunction({ value: 0, useGSN: true, approveFunction });
 
-      await expectEvent.inTransaction(tx, GSNBouncerSignatureMock, 'MockFunctionCalled');
+      await expectEvent.inTransaction(tx, GSNRecipientSignatureMock, 'MockFunctionCalled');
     });
 
     it('rejects relay requests where all parameters are signed by an invalid signer', async function () {

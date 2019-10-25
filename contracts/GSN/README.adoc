@@ -6,10 +6,10 @@ TIP: If you're new to the GSN, head over to our xref:openzeppelin::gsn/what-is-t
 
 The core contract a recipient must inherit from is {GSNRecipient}: it includes all necessary interfaces, as well as some helper methods to make interacting with the GSN easier.
 
-Utilities to make writing xref:ROOT:gsn-bouncers.adoc[GSN Bouncers] easy are available in {GSNBouncerBase}, or you can simply use one of our pre-made bouncers:
+Utilities to make writing xref:ROOT:gsn-strategies.adoc[GSN strategies] easy are available in {GSNRecipient}, or you can simply use one of our pre-made strategies:
 
-* {GSNBouncerERC20Fee} charges the end user for gas costs in an application-specific xref:ROOT:tokens.adoc#ERC20[ERC20 token]
-* {GSNBouncerSignature} accepts all relayed calls that have been signed by a trusted third party (e.g. a private key in a backend)
+* {GSNRecipientERC20Fee} charges the end user for gas costs in an application-specific xref:ROOT:tokens.adoc#ERC20[ERC20 token]
+* {GSNRecipientSignature} accepts all relayed calls that have been signed by a trusted third party (e.g. a private key in a backend)
 
 You can also take a look at the two contract interfaces that make up the GSN protocol: {IRelayRecipient} and {IRelayHub}, but you won't need to use those directly.
 
@@ -19,11 +19,10 @@ NOTE: This feature is being released in the next version of OpenZeppelin Contrac
 
 {{GSNRecipient}}
 
-== Bouncers
+== Strategies
 
-{{GSNBouncerBase}}
-{{GSNBouncerERC20Fee}}
-{{GSNBouncerSignature}}
+{{GSNRecipientSignature}}
+{{GSNRecipientERC20Fee}}
 
 == Protocol
 
