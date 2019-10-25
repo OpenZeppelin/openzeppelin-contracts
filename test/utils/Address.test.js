@@ -37,20 +37,20 @@ contract('Address', function ([_, recipient, other]) {
     });
   });
 
-  describe('sendEther', function () {
+  describe('sendValue', function () {
     beforeEach(async function () {
       this.recipientTracker = await balance.tracker(recipient);
     });
 
     context('when sender contract has no funds', function () {
       it('sends 0 wei', async function () {
-        await this.mock.sendEther(other, 0);
+        await this.mock.sendValue(other, 0);
 
         expect(await this.recipientTracker.delta()).to.be.bignumber.equal('0');
       });
 
       it('reverts when sending non-zero amounts', async function () {
-        await expectRevert(this.mock.sendEther(other, 1), 'Address: not enough ether to send');
+        await expectRevert(this.mock.sendValue(other, 1), 'Address: insufficient balance');
       });
     });
 
@@ -61,23 +61,23 @@ contract('Address', function ([_, recipient, other]) {
       });
 
       it('sends 0 wei', async function () {
-        await this.mock.sendEther(recipient, 0);
+        await this.mock.sendValue(recipient, 0);
         expect(await this.recipientTracker.delta()).to.be.bignumber.equal('0');
       });
 
       it('sends non-zero amounts', async function () {
-        await this.mock.sendEther(recipient, funds.subn(1));
+        await this.mock.sendValue(recipient, funds.subn(1));
         expect(await this.recipientTracker.delta()).to.be.bignumber.equal(funds.subn(1));
       });
 
       it('sends the whole balance', async function () {
-        await this.mock.sendEther(recipient, funds);
+        await this.mock.sendValue(recipient, funds);
         expect(await this.recipientTracker.delta()).to.be.bignumber.equal(funds);
         expect(await balance.current(this.mock.address)).to.be.bignumber.equal('0');
       });
 
       it('reverts when sending more than the balance', async function () {
-        await expectRevert(this.mock.sendEther(recipient, funds.addn(1)), 'Address: not enough ether to send');
+        await expectRevert(this.mock.sendValue(recipient, funds.addn(1)), 'Address: insufficient balance');
       });
 
       context('with contract recipient', function () {
@@ -89,14 +89,15 @@ contract('Address', function ([_, recipient, other]) {
           const tracker = await balance.tracker(this.contractRecipient.address);
 
           await this.contractRecipient.setAcceptEther(true);
-          await this.mock.sendEther(this.contractRecipient.address, funds);
+          await this.mock.sendValue(this.contractRecipient.address, funds);
           expect(await tracker.delta()).to.be.bignumber.equal(funds);
         });
 
         it('reverts on recipient revert', async function () {
           await this.contractRecipient.setAcceptEther(false);
           await expectRevert(
-            this.mock.sendEther(this.contractRecipient.address, funds), 'Address: unable to send ether'
+            this.mock.sendValue(this.contractRecipient.address, funds),
+            'Address: unable to send value, recipient may have reverted'
           );
         });
       });

@@ -11,9 +11,9 @@ contract AddressImpl {
         return Address.toPayable(account);
     }
 
-    function sendEther(address payable receiver, uint256 amount) external {
-        Address.sendEther(receiver, amount);
+    function sendValue(address payable receiver, uint256 amount) external {
+        Address.sendValue(receiver, amount);
     }
 
-    function () external payable { } // sendEther's tests require the contract to hold Ether
+    function () external payable { } // sendValue's tests require the contract to hold Ether
 }

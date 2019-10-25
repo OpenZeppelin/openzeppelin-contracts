@@ -48,7 +48,7 @@ library Address {
      * https://eips.ethereum.org/EIPS/eip-1884[EIP1884] increases the gas cost
      * of certain opcodes, possibly making contracts go over the 2300 gas limit
      * imposed by `transfer`, making them unable to receive funds via
-     * `transfer`. {sendEther} removes this limitation.
+     * `transfer`. {sendValue} removes this limitation.
      *
      * https://diligence.consensys.net/posts/2019/09/stop-using-soliditys-transfer-now/[Learn more].
      *
@@ -57,11 +57,11 @@ library Address {
      * {ReentrancyGuard} or the
      * https://solidity.readthedocs.io/en/v0.5.11/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].
      */
-    function sendEther(address payable recipient, uint256 amount) internal {
-        require(address(this).balance >= amount, "Address: not enough ether to send");
+    function sendValue(address payable recipient, uint256 amount) internal {
+        require(address(this).balance >= amount, "Address: insufficient balance");
 
         // solhint-disable-next-line avoid-call-value
         (bool success, ) = recipient.call.value(amount)("");
-        require(success, "Address: unable to send ether");
+        require(success, "Address: unable to send value, recipient may have reverted");
     }
 }
