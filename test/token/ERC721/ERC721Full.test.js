@@ -72,8 +72,8 @@ contract('ERC721Full', function ([
     });
 
     describe('metadata', function () {
+      const baseURI = 'https://api.com/v1/';
       const sampleUri = 'mock://mytoken';
-
       it('has a name', async function () {
         expect(await this.token.name()).to.be.equal(name);
       });
@@ -82,9 +82,30 @@ contract('ERC721Full', function ([
         expect(await this.token.symbol()).to.be.equal(symbol);
       });
 
+      it('sets and returns the base token URI', async function () {
+        await this.token.setBaseTokenURI(baseURI);
+        expect(await this.token.baseTokenURI()).to.be.equal(baseURI);
+      });
+
       it('sets and returns metadata for a token id', async function () {
         await this.token.setTokenURI(firstTokenId, sampleUri);
         expect(await this.token.tokenURI(firstTokenId)).to.be.equal(sampleUri);
+      });
+
+      it('sets and returns metadata for a token id with base token URI set', async function () {
+        await this.token.setBaseTokenURI(baseURI);
+        await this.token.setTokenURI(firstTokenId, sampleUri);
+        expect(await this.token.tokenURI(firstTokenId)).to.be.equal(baseURI + sampleUri);
+      });
+
+      it('changes base token URI set', async function () {
+        await this.token.setBaseTokenURI(baseURI);
+        await this.token.setTokenURI(firstTokenId, sampleUri);
+        expect(await this.token.tokenURI(firstTokenId)).to.be.equal(baseURI + sampleUri);
+
+        const newBaseURI = 'https://api.com/v2/';
+        await this.token.setBaseTokenURI(baseURI);
+        expect(await this.token.tokenURI(firstTokenId)).to.be.equal(newBaseURI + sampleUri);
       });
 
       it('reverts when setting metadata for non existent token id', async function () {
