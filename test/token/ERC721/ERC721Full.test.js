@@ -104,7 +104,7 @@ contract('ERC721Full', function ([
         expect(await this.token.tokenURI(firstTokenId)).to.be.equal(baseURI + sampleUri);
 
         const newBaseURI = 'https://api.com/v2/';
-        await this.token.setBaseTokenURI(baseURI);
+        await this.token.setBaseTokenURI(newBaseURI);
         expect(await this.token.tokenURI(firstTokenId)).to.be.equal(newBaseURI + sampleUri);
       });
 
