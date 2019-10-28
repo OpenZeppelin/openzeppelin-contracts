@@ -25,7 +25,6 @@ contract PullPayment {
 
     /**
      * @dev Withdraw accumulated payments.
-     * @param payee Whose payments will be withdrawn.
      *
      * Note that _any_ account can call this function, not just the `payee`.
      * This means that contracts unaware of the `PullPayment` protocol can still
@@ -36,6 +35,8 @@ contract PullPayment {
      * instead. Calling contracts with fixed gas limits is an anti-pattern and
      * may break contract interactions in network upgrades (hardforks).
      * https://diligence.consensys.net/blog/2019/09/stop-using-soliditys-transfer-now/[Learn more.]
+     *
+     * @param payee Whose payments will be withdrawn.
      */
     function withdrawPayments(address payable payee) public {
         _escrow.withdraw(payee);
@@ -62,11 +63,11 @@ contract PullPayment {
 
     /**
      * @dev Called by the payer to store the sent amount as credit to be pulled.
-     * @param dest The destination address of the funds.
-     * @param amount The amount to transfer.
-     *
      * Funds sent in this way are stored in an intermediate {Escrow} contract, so
      * there is no danger of them being spent before withdrawal.
+     *
+     * @param dest The destination address of the funds.
+     * @param amount The amount to transfer.
      */
     function _asyncTransfer(address dest, uint256 amount) internal {
         _escrow.deposit.value(amount)(dest);

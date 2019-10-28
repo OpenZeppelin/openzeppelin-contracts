@@ -45,12 +45,12 @@ contract Escrow is Secondary {
      * @dev Withdraw accumulated balance for a payee, forwarding 2300 gas (a
      * Solidity `transfer`).
      *
-     * @param payee The address whose funds will be withdrawn and transferred to.
-     *
      * NOTE: This function has been deprecated, use {withdrawWithGas} instead.
      * Calling contracts with fixed-gas limits is an anti-pattern and may break
      * contract interactions in network upgrades (hardforks).
      * https://diligence.consensys.net/blog/2019/09/stop-using-soliditys-transfer-now/[Learn more.]
+     *
+     * @param payee The address whose funds will be withdrawn and transferred to.
      */
     function withdraw(address payable payee) public onlyPrimary {
         uint256 payment = _deposits[payee];
