@@ -2,6 +2,7 @@ pragma solidity ^0.5.0;
 
 import "../../math/SafeMath.sol";
 import "../../ownership/Secondary.sol";
+import "../../utils/Address.sol";
 
  /**
   * @title Escrow
@@ -18,6 +19,7 @@ import "../../ownership/Secondary.sol";
   */
 contract Escrow is Secondary {
     using SafeMath for uint256;
+    using Address for address payable;
 
     event Deposited(address indexed payee, uint256 weiAmount);
     event Withdrawn(address indexed payee, uint256 weiAmount);
@@ -49,6 +51,23 @@ contract Escrow is Secondary {
         _deposits[payee] = 0;
 
         payee.transfer(payment);
+
+        emit Withdrawn(payee, payment);
+    }
+
+    /**
+     * @dev Same as {withdraw}, but forwarding all gas to the recipient.
+     *
+     * WARNING: Forwarding all gas opens the door to reentrancy vulnerabilities.
+     * Make sure you trust the recipient, or are either following the
+     * checks-effects-interactions pattern or using {ReentrancyGuard}.
+     */
+    function withdrawWithGas(address payable payee) public onlyPrimary {
+        uint256 payment = _deposits[payee];
+
+        _deposits[payee] = 0;
+
+        payee.sendValue(payment);
 
         emit Withdrawn(payee, payment);
     }

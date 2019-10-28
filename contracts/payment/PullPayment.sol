@@ -37,6 +37,17 @@ contract PullPayment {
     }
 
     /**
+     * @dev Same as {withdrawPayments}, but forwarding all gas to the recipient.
+     *
+     * WARNING: Forwarding all gas opens the door to reentrancy vulnerabilities.
+     * Make sure you trust the recipient, or are either following the
+     * checks-effects-interactions pattern or using {ReentrancyGuard}.
+     */
+    function withdrawPaymentsWithGas(address payable payee) public {
+        _escrow.withdrawWithGas(payee);
+    }
+
+    /**
      * @dev Returns the payments owed to an address.
      * @param dest The creditor's address.
      */
