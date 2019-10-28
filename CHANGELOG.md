@@ -11,16 +11,18 @@
  * `Address.toPayable`: added a helper to convert between address types without having to resort to low-level casting. ([#1773](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1773))
  * Facilities to make metatransaction-enabled contracts through the Gas Station Network. ([#1844](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1844))
  * `Address.sendValue`: added a replacement to Solidity's `transfer`, removing the fixed gas stipend. ([#1962](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1962))
- * `PullPayment.withdrawPaymentsWithGas(address payable payee)`: replacement for the deprecated version (see below), forwarding all available gas. ([#1976](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1976))
- * `Escrow.withdrawWithGas(address payable payee)`: replacement for the deprecated version (see below), forwarding all available gas. ([#1976](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1976))
+ * Added replacement for functions that don't forward all gas (which have been deprecated): ([#1976](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1976))
+  ** `PullPayment.withdrawPaymentsWithGas(address payable payee)`
+  ** `Escrow.withdrawWithGas(address payable payee)`
 
 ### Improvements:
  * `Address.isContract`: switched from `extcodesize` to `extcodehash` for less gas usage. ([#1802](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1802))
  * `SafeMath`: added custom error messages support for `sub`, `div` and `mod` functions. `ERC20` and `ERC777` updated to throw custom errors on subtraction overflows. ([#1828](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1828))
 
 ### Deprecations:
- * `PullPayment.withdrawPayments(address payable payee)`: due to the payee being forwarded a fixed gas allowance (2300 gas). ([#1976](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1976))
- * `Escrow.withdraw(address payable payee)`: due to the payee being forwarded a fixed gas allowance (2300 gas). ([#1976](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1976))
+ * Deprecated functions that don't forward all gas: ([#1976](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1976))
+  ** `PullPayment.withdrawPayments(address payable payee)`
+  ** `Escrow.withdraw(address payable payee)`
 
 ### Breaking changes in drafts:
  * `SignatureBouncer` has been removed from the library, both to avoid confusions with the GSN Bouncers and `GSNBouncerSignature` and because the API was not very clear. ([#1879](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1879))
