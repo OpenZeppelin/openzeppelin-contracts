@@ -33,7 +33,7 @@ contract PullPayment {
      * {withdrawPayments}.
      *
      * NOTE: This function has been deprecated, use {withdrawPaymentsWithGas}
-     * instead. Calling contracts with fixed-gas limits is an anti-pattern and
+     * instead. Calling contracts with fixed gas limits is an anti-pattern and
      * may break contract interactions in network upgrades (hardforks).
      * https://diligence.consensys.net/blog/2019/09/stop-using-soliditys-transfer-now/[Learn more.]
      */
