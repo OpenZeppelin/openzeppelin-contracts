@@ -5,6 +5,9 @@
 ### New features:
  * `SafeCast.toUintXX`: new library for integer downcasting, which allows for safe operation on smaller types (e.g. `uint32`) when combined with `SafeMath`. ([#1926](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1926))
 
+### Breaking changes:
+ * `ERC165Checker` now requires a minimum Solidity compiler version of 0.5.10. ([#1829](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1829))
+
 ## 2.4.0 (unreleased)
 
 ### New features:
@@ -25,8 +28,9 @@
    * `PullPayment.withdrawPayments(address payable payee)`
    * `Escrow.withdraw(address payable payee)`
 
-### Breaking changes in drafts:
- * `SignatureBouncer` has been removed from the library, both to avoid confusions with the GSN Bouncers and `GSNBouncerSignature` and because the API was not very clear. ([#1879](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1879))
+### Breaking changes:
+ * `Address` now requires a minimum Solidity compiler version of 0.5.5. ([#1802](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1802))
+ * `SignatureBouncer` has been removed from drafts, both to avoid confusions with the GSN and `GSNRecipientSignature` (previously called `GSNBouncerSignature`) and because the API was not very clear. ([#1879](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1879))
 
 ## 2.3.0 (2019-05-27)
 
