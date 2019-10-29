@@ -68,6 +68,8 @@ contract Escrow is Secondary {
      * WARNING: Forwarding all gas opens the door to reentrancy vulnerabilities.
      * Make sure you trust the recipient, or are either following the
      * checks-effects-interactions pattern or using {ReentrancyGuard}.
+     *
+     * _Available since v2.4.0._
      */
     function withdrawWithGas(address payable payee) public onlyPrimary {
         uint256 payment = _deposits[payee];

@@ -54,6 +54,8 @@ library SafeMath {
      *
      * NOTE: This is a feature of the next version of OpenZeppelin Contracts.
      * @dev Get it via `npm install @openzeppelin/contracts@next`.
+     *
+     * _Available since v2.4.0._
      */
     function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
         require(b <= a, errorMessage);
@@ -113,6 +115,8 @@ library SafeMath {
 
      * NOTE: This is a feature of the next version of OpenZeppelin Contracts.
      * @dev Get it via `npm install @openzeppelin/contracts@next`.
+     *
+     * _Available since v2.4.0._
      */
     function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
         // Solidity only automatically asserts when dividing by 0
@@ -151,6 +155,8 @@ library SafeMath {
      *
      * NOTE: This is a feature of the next version of OpenZeppelin Contracts.
      * @dev Get it via `npm install @openzeppelin/contracts@next`.
+     *
+     * _Available since v2.4.0._
      */
     function mod(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
         require(b != 0, errorMessage);
