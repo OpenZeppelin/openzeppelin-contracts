@@ -49,7 +49,7 @@ contract PullPayment {
      * Make sure you trust the recipient, or are either following the
      * checks-effects-interactions pattern or using {ReentrancyGuard}.
      */
-    function withdrawPaymentsWithGas(address payable payee) public {
+    function withdrawPaymentsWithGas(address payable payee) external {
         _escrow.withdrawWithGas(payee);
     }
 
