@@ -15,8 +15,6 @@ Utilities to make writing xref:ROOT:gsn-strategies.adoc[GSN strategies] easy are
 
 You can also take a look at the two contract interfaces that make up the GSN protocol: {IRelayRecipient} and {IRelayHub}, but you won't need to use those directly.
 
-NOTE: This feature is being released in the next version of OpenZeppelin Contracts, available right now through `npm install @openzeppelin/contracts@next`.
-
 == Recipient
 
 {{GSNRecipient}}

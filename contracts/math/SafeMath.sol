@@ -52,9 +52,6 @@ library SafeMath {
      * Requirements:
      * - Subtraction cannot overflow.
      *
-     * NOTE: This is a feature of the next version of OpenZeppelin Contracts.
-     * @dev Get it via `npm install @openzeppelin/contracts@next`.
-     *
      * _Available since v2.4.0._
      */
     function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
@@ -112,9 +109,6 @@ library SafeMath {
      *
      * Requirements:
      * - The divisor cannot be zero.
-
-     * NOTE: This is a feature of the next version of OpenZeppelin Contracts.
-     * @dev Get it via `npm install @openzeppelin/contracts@next`.
      *
      * _Available since v2.4.0._
      */
@@ -152,9 +146,6 @@ library SafeMath {
      *
      * Requirements:
      * - The divisor cannot be zero.
-     *
-     * NOTE: This is a feature of the next version of OpenZeppelin Contracts.
-     * @dev Get it via `npm install @openzeppelin/contracts@next`.
      *
      * _Available since v2.4.0._
      */

@@ -8,7 +8,7 @@
 ### Breaking changes:
  * `ERC165Checker` now requires a minimum Solidity compiler version of 0.5.10. ([#1829](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1829))
 
-## 2.4.0 (unreleased)
+## 2.4.0 (2019-10-29)
 
 ### New features:
  * `Address.toPayable`: added a helper to convert between address types without having to resort to low-level casting. ([#1773](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1773))
