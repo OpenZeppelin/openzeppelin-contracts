@@ -65,7 +65,7 @@
     "nodemon": "^1.19.4",
     "solhint": "2.3.0",
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
-    "solidity-docgen": "^0.3.5",
+    "solidity-docgen": "^0.3.7",
     "truffle": "^5.0.42"
   }
 }
