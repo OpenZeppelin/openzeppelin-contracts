@@ -55,8 +55,9 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
     }
 
     /**
-     * @dev Returns an URI for a given token ID.
+     * @dev Returns the concatenation of the base token URI with the URI for a given token ID.
      * Throws if the token ID does not exist. May return an empty string.
+     * The usage of concatenation here reduces gas costs when setting a token URI.
      * @param tokenId uint256 ID of the token to query
      */
     function tokenURI(uint256 tokenId) public view returns (string memory) {
@@ -86,6 +87,7 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
 
     /**
      * @dev Internal function to get the base token URI.
+     * @notice that each token URI will be concatenated to this value when calling tokenURI.
      * @return string representing the base token URI
      */
     function _baseTokenURI() internal view returns (string memory) {
