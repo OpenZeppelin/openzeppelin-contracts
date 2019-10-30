@@ -4,6 +4,10 @@
 
 ### New features:
  * `SafeCast.toUintXX`: new library for integer downcasting, which allows for safe operation on smaller types (e.g. `uint32`) when combined with `SafeMath`. ([#1926](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1926))
+ * Add flexbility and save gass when setting a token URI by adding a base token URI to the ERC721Metadata.sol implementation.
+
+### Improvements:
+ * `tokenURI` from `external` to `public` making possible calling it with `super`.
 
 ## 2.4.0 (unreleased)
 
