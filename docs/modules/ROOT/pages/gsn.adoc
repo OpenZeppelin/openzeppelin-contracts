@@ -4,8 +4,6 @@ The https://gsn.openzeppelin.com[Gas Station Network] allows you to build apps w
 
 If you're new to the GSN, you probably want to first take a look at the xref:openzeppelin::gsn/what-is-the-gsn.adoc[light overview of the system], to get a clearer picture of how gasless transactions are achieved. Otherwise, strap in!
 
-NOTE: This feature is being released in the next version of `@openzeppelin/contracts`, available right now through `npm install @openzeppelin/contracts@next`. It is also available on the `@openzeppelin/contracts-ethereum-package` variant.
-
 == Receiving a relayed call
 
 The first step to writing a recipient is to inherit from our GSNRecipient contract. If you're also inheriting from other OpenZeppelin contracts, such as ERC20 or Crowdsale, this will work just fine: adding GSNRecipient to all of your token or crowdsale functions will make them GSN-callable.

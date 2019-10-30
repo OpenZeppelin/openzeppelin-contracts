@@ -9,19 +9,32 @@
 ### Improvements:
  * `tokenURI` from `external` to `public` making possible calling it with `super`.
 
-## 2.4.0 (unreleased)
+### Breaking changes:
+ * `ERC165Checker` now requires a minimum Solidity compiler version of 0.5.10. ([#1829](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1829))
+
+## 2.4.0 (2019-10-29)
 
 ### New features:
  * `Address.toPayable`: added a helper to convert between address types without having to resort to low-level casting. ([#1773](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1773))
  * Facilities to make metatransaction-enabled contracts through the Gas Station Network. ([#1844](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1844))
- * `Address.sendValue`: added a replacement to Solidity's `transfer`, removing the fixed gas stipend. ([#1961](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1961))
+ * `Address.sendValue`: added a replacement to Solidity's `transfer`, removing the fixed gas stipend. ([#1962](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1962))
+ * Added replacement for functions that don't forward all gas (which have been deprecated): ([#1976](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1976))
+   * `PullPayment.withdrawPaymentsWithGas(address payable payee)`
+   * `Escrow.withdrawWithGas(address payable payee)`
+ * `SafeMath`: added support for custom error messages to `sub`, `div` and `mod` functions. ([#1828](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1828))
 
 ### Improvements:
  * `Address.isContract`: switched from `extcodesize` to `extcodehash` for less gas usage. ([#1802](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1802))
- * `SafeMath`: added custom error messages support for `sub`, `div` and `mod` functions. `ERC20` and `ERC777` updated to throw custom errors on subtraction overflows. ([#1828](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1828))
+ * `ERC20` and `ERC777` updated to throw custom errors on subtraction overflows. ([#1828](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1828))
 
-### Breaking changes in drafts:
- * `SignatureBouncer` has been removed from the library, both to avoid confusions with the GSN Bouncers and `GSNBouncerSignature` and because the API was not very clear. ([#1879](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1879))
+### Deprecations:
+ * Deprecated functions that don't forward all gas: ([#1976](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1976))
+   * `PullPayment.withdrawPayments(address payable payee)`
+   * `Escrow.withdraw(address payable payee)`
+
+### Breaking changes:
+ * `Address` now requires a minimum Solidity compiler version of 0.5.5. ([#1802](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1802))
+ * `SignatureBouncer` has been removed from drafts, both to avoid confusions with the GSN and `GSNRecipientSignature` (previously called `GSNBouncerSignature`) and because the API was not very clear. ([#1879](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1879))
 
 ## 2.3.0 (2019-05-27)
 
