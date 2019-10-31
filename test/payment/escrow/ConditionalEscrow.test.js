@@ -1,4 +1,4 @@
-const { ether, expectRevert } = require('openzeppelin-test-helpers');
+const { ether, expectRevert } = require('@openzeppelin/test-helpers');
 const { shouldBehaveLikeEscrow } = require('./Escrow.behavior');
 
 const ConditionalEscrowMock = artifacts.require('ConditionalEscrowMock');

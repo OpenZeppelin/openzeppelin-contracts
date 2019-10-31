@@ -9,4 +9,5 @@ if [[ ! -v ALREADY_COMPILED ]]; then
 fi
 
 cp README.md contracts/
-cp -Tr build/contracts contracts/build
+mkdir contracts/build contracts/build/contracts
+cp -r build/contracts/*.json contracts/build/contracts

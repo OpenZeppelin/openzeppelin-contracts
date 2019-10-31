@@ -1,6 +1,10 @@
-{{#linkable}}
+{{~#*inline "typed-variable-array"~}}
+{{#each .}}[.var-type\]#{{typeName}}#{{#if name}} [.var-name\]#{{name}}#{{/if}}{{#unless @last}}, {{/unless}}{{/each}}
+{{~/inline~}}
+
+{{#each linkable}}
 :{{name}}: pass:normal[xref:#{{anchor}}[`{{name}}`]]
-{{/linkable}}
+{{/each}}
 
 [.contract]
 [[{{anchor}}]]
@@ -11,56 +15,77 @@
 {{#if modifiers}}
 [.contract-index]
 .Modifiers
-{{#inheritance}}
-{{#ownModifiers}}
-* xref:#{{anchor}}[`{{signature}}`]
-{{/ownModifiers}}
-{{/inheritance}}
+--
+{{#each inheritedItems}}
+{{#unless @first}}
+[.contract-subindex-inherited]
+.{{contract.name}}
+{{/unless}}
+{{#each modifiers}}
+* xref:#{{anchor}}[`{{name}}({{args.names}})`]
+{{/each}}
+
+{{/each}}
+--
 {{/if}}
 
 {{#if functions}}
 [.contract-index]
 .Functions
-{{#inheritance}}
-{{#ownFunctions}}
-* xref:#{{anchor}}[`{{signature}}`]
-{{/ownFunctions}}
-{{/inheritance}}
+--
+{{#each inheritedItems}}
+{{#unless @first}}
+[.contract-subindex-inherited]
+.{{contract.name}}
+{{/unless}}
+{{#each functions}}
+* xref:#{{anchor}}[`{{name}}({{args.names}})`]
+{{/each}}
+
+{{/each}}
+--
 {{/if}}
 
 {{#if events}}
 [.contract-index]
 .Events
-{{#inheritance}}
-{{#ownEvents}}
-* xref:#{{anchor}}[`{{signature}}`]
-{{/ownEvents}}
-{{/inheritance}}
+--
+{{#each inheritedItems}}
+{{#unless @first}}
+[.contract-subindex-inherited]
+.{{contract.name}}
+{{/unless}}
+{{#each events}}
+* xref:#{{anchor}}[`{{name}}({{args.names}})`]
+{{/each}}
+
+{{/each}}
+--
 {{/if}}
 
-{{#ownModifiers}}
+{{#each modifiers}}
 [.contract-item]
 [[{{anchor}}]]
-==== `{{name}}({{args}})`
+==== `pass:normal[{{name}}({{> typed-variable-array args}})]` [.item-kind]#modifier#
 
 {{natspec.devdoc}}
 
-{{/ownModifiers}}
+{{/each}}
 
-{{#ownFunctions}}
+{{#each functions}}
 [.contract-item]
 [[{{anchor}}]]
-==== `{{name}}({{args}}){{#if outputs}} → {{outputs}}{{/if}}`
+==== `pass:normal[{{name}}({{> typed-variable-array args}}){{#if outputs}} → {{> typed-variable-array outputs}}{{/if}}]` [.item-kind]#{{visibility}}#
 
 {{natspec.devdoc}}
 
-{{/ownFunctions}}
+{{/each}}
 
-{{#ownEvents}}
+{{#each events}}
 [.contract-item]
 [[{{anchor}}]]
-==== `{{name}}({{args}})`
+==== `pass:normal[{{name}}({{> typed-variable-array args}})]` [.item-kind]#event#
 
 {{natspec.devdoc}}
 
-{{/ownEvents}}
+{{/each}}

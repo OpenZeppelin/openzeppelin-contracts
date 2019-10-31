@@ -1,5 +1,7 @@
 = Drafts
 
+Contracts in this category should be considered unstable. They are as thoroughly reviewed as everything else in OpenZeppelin Contracts, but we have doubts about their API so we don't commit to backwards compatibility. This means these contracts can receive breaking changes in a minor version, so you should pay special attention to the changelog when upgrading. For anything that is outside of this category you can read more about xref:ROOT:api-stability.adoc[API Stability].
+
 NOTE: This page is incomplete. We're working to improve it for the next release. Stay tuned!
 
 == ERC 20
@@ -13,8 +15,6 @@ NOTE: This page is incomplete. We're working to improve it for the next release.
 == Miscellaneous
 
 {{Counters}}
-
-{{SignatureBouncer}}
 
 {{SignedSafeMath}}
 

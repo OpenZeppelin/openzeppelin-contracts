@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.10;
 
 /**
  * @dev Library used to query support of an interface declared via {IERC165}.
@@ -94,28 +94,11 @@ library ERC165Checker {
     function _callERC165SupportsInterface(address account, bytes4 interfaceId)
         private
         view
-        returns (bool success, bool result)
+        returns (bool, bool)
     {
         bytes memory encodedParams = abi.encodeWithSelector(_INTERFACE_ID_ERC165, interfaceId);
-
-        // solhint-disable-next-line no-inline-assembly
-        assembly {
-            let encodedParams_data := add(0x20, encodedParams)
-            let encodedParams_size := mload(encodedParams)
-
-            let output := mload(0x40)    // Find empty storage location using "free memory pointer"
-            mstore(output, 0x0)
-
-            success := staticcall(
-                30000,                   // 30k gas
-                account,                 // To addr
-                encodedParams_data,
-                encodedParams_size,
-                output,
-                0x20                     // Outputs are 32 bytes long
-            )
-
-            result := mload(output)      // Load the result
-        }
+        (bool success, bytes memory result) = account.staticcall.gas(30000)(encodedParams);
+        if (result.length < 32) return (false, false);
+        return (success, abi.decode(result, (bool)));
     }
 }

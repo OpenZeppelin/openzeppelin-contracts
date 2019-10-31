@@ -1,4 +1,4 @@
-const { balance, ether } = require('openzeppelin-test-helpers');
+const { balance, ether } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
@@ -38,6 +38,18 @@ contract('PullPayment', function ([_, payer, payee1, payee2]) {
     (await this.contract.payments(payee1)).should.be.bignumber.equal(amount);
 
     await this.contract.withdrawPayments(payee1);
+
+    (await balanceTracker.delta()).should.be.bignumber.equal(amount);
+    (await this.contract.payments(payee1)).should.be.bignumber.equal('0');
+  });
+
+  it('can withdraw payment forwarding all gas', async function () {
+    const balanceTracker = await balance.tracker(payee1);
+
+    await this.contract.callTransfer(payee1, amount, { from: payer });
+    (await this.contract.payments(payee1)).should.be.bignumber.equal(amount);
+
+    await this.contract.withdrawPaymentsWithGas(payee1);
 
     (await balanceTracker.delta()).should.be.bignumber.equal(amount);
     (await this.contract.payments(payee1)).should.be.bignumber.equal('0');

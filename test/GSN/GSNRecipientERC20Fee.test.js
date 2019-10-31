@@ -1,19 +1,18 @@
-const { BN, ether, expectEvent } = require('openzeppelin-test-helpers');
+const { ether, expectEvent } = require('@openzeppelin/test-helpers');
 const gsn = require('@openzeppelin/gsn-helpers');
 
 const { expect } = require('chai');
 
-const GSNBouncerERC20FeeMock = artifacts.require('GSNBouncerERC20FeeMock');
+const GSNRecipientERC20FeeMock = artifacts.require('GSNRecipientERC20FeeMock');
 const ERC20Detailed = artifacts.require('ERC20Detailed');
 const IRelayHub = artifacts.require('IRelayHub');
 
-contract('GSNBouncerERC20Fee', function ([_, sender, other]) {
+contract('GSNRecipientERC20Fee', function ([_, sender, other]) {
   const name = 'FeeToken';
   const symbol = 'FTKN';
-  const decimals = new BN('18');
 
   beforeEach(async function () {
-    this.recipient = await GSNBouncerERC20FeeMock.new(name, symbol, decimals);
+    this.recipient = await GSNRecipientERC20FeeMock.new(name, symbol);
     this.token = await ERC20Detailed.at(await this.recipient.token());
   });
 
@@ -26,8 +25,8 @@ contract('GSNBouncerERC20Fee', function ([_, sender, other]) {
       expect(await this.token.symbol()).to.equal(symbol);
     });
 
-    it('has decimals', async function () {
-      expect(await this.token.decimals()).to.be.bignumber.equal(decimals);
+    it('has 18 decimals', async function () {
+      expect(await this.token.decimals()).to.be.bignumber.equal('18');
     });
   });
 

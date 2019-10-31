@@ -1,4 +1,4 @@
-const { expectRevert } = require('openzeppelin-test-helpers');
+const { expectRevert } = require('@openzeppelin/test-helpers');
 
 const ERC20ReturnFalseMock = artifacts.require('ERC20ReturnFalseMock');
 const ERC20ReturnTrueMock = artifacts.require('ERC20ReturnTrueMock');

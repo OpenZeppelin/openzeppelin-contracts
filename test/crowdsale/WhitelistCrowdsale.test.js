@@ -1,4 +1,4 @@
-const { BN, ether, expectRevert } = require('openzeppelin-test-helpers');
+const { BN, ether, expectRevert } = require('@openzeppelin/test-helpers');
 
 const WhitelistCrowdsale = artifacts.require('WhitelistCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');

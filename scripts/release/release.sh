@@ -81,7 +81,10 @@ environment_check() {
 
 environment_check
 
-if [[ "$*" == "start minor" ]]; then
+if [[ "$*" == "push" ]]; then
+  push_and_publish next
+
+elif [[ "$*" == "start minor" ]]; then
   log "Creating new minor pre-release"
 
   assert_current_branch master
