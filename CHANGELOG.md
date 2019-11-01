@@ -40,13 +40,21 @@ The final 2.4.0 release includes a refactor of the GSN contracts that will be a 
  * `GSNRecipient`, `GSNBouncerBase`, and `GSNContext` were all merged into `GSNRecipient`.
  * `GSNBouncerSignature` and `GSNBouncerERC20Fee` were renamed to `GSNRecipientSignature` and `GSNRecipientERC20Fee`. 
  * It is no longer necessary to inherit from `GSNRecipient` when using `GSNRecipientSignature` and `GSNRecipientERC20Fee`.
- 
-Refer to the table below to adjust your import statements.
+
+For example, a contract using `GSNBouncerSignature` would have to be changed in the following way.
+
+```diff
+-contract MyDapp is GSNRecipient, GSNBouncerSignature {
++contract MyDapp is GSNRecipientSignature {
+```
+
+Refer to the table below to adjust your inheritance list.
  
 | 2.4.0-beta                         | 2.4.0                        |
 | ---------------------------------- | ---------------------------- |
 | `GSNRecipient, GSNBouncerSignature`| `GSNRecipientSignature`      |
 | `GSNRecipient, GSNBouncerERC20Fee` | `GSNRecipientERC20Fee`       |
+| `GSNBouncerBase`                   | `GSNRecipient`               |
  
 ## 2.3.0 (2019-05-27)
 
