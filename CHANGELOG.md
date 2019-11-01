@@ -36,11 +36,17 @@
 
 The final 2.4.0 release includes a refactor of the GSN contracts that will be a breaking change for 2.4.0-beta users.
 
+ * The default empty implementations of `_preRelayedCall` and `_postRelayedCall` were removed and must now be explicitly implemented always in custom recipients. If your custom recipient didn't include an implementation, you can provide an empty one.
  * `GSNRecipient`, `GSNBouncerBase`, and `GSNContext` were all merged into `GSNRecipient`.
  * `GSNBouncerSignature` and `GSNBouncerERC20Fee` were renamed to `GSNRecipientSignature` and `GSNRecipientERC20Fee`. 
- * The default empty implementations of `_preRelayedCall` and `_postRelayedCall` were removed and must now be explicitly implemented always.
-
-To upgrade, any contracts that inherit `GSNBouncerBase` or `GSNContext` should be changed to inherit `GSNRecipient`, any use of the `GSNBouncer*` contracts should be renamed to `GSNRecipient*`, and any custom recipients should make sure to have implementations of `_pre` and `_postRelayedCall`.
+ * It is no longer necessary to inherit from `GSNRecipient` when using `GSNRecipientSignature` and `GSNRecipientERC20Fee`.
+ 
+Refer to the table below to adjust your import statements.
+ 
+| 2.4.0-beta                         | 2.4.0                        |
+| ---------------------------------- | ---------------------------- |
+| `GSNRecipient, GSNBouncerSignature`| `GSNRecipientSignature`      |
+| `GSNRecipient, GSNBouncerERC20Fee` | `GSNRecipientERC20Fee`       |
  
 ## 2.3.0 (2019-05-27)
 
