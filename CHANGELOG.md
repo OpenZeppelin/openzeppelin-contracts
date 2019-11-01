@@ -32,6 +32,22 @@
  * `Address` now requires a minimum Solidity compiler version of 0.5.5. ([#1802](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1802))
  * `SignatureBouncer` has been removed from drafts, both to avoid confusions with the GSN and `GSNRecipientSignature` (previously called `GSNBouncerSignature`) and because the API was not very clear. ([#1879](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1879))
 
+### How to upgrade from 2.4.0-beta
+
+The final 2.4.0 release includes a refactor of the GSN contracts that will be a breaking change for 2.4.0-beta users.
+
+ * The default empty implementations of `_preRelayedCall` and `_postRelayedCall` were removed and must now be explicitly implemented always in custom recipients. If your custom recipient didn't include an implementation, you can provide an empty one.
+ * `GSNRecipient`, `GSNBouncerBase`, and `GSNContext` were all merged into `GSNRecipient`.
+ * `GSNBouncerSignature` and `GSNBouncerERC20Fee` were renamed to `GSNRecipientSignature` and `GSNRecipientERC20Fee`. 
+ * It is no longer necessary to inherit from `GSNRecipient` when using `GSNRecipientSignature` and `GSNRecipientERC20Fee`.
+ 
+Refer to the table below to adjust your import statements.
+ 
+| 2.4.0-beta                         | 2.4.0                        |
+| ---------------------------------- | ---------------------------- |
+| `GSNRecipient, GSNBouncerSignature`| `GSNRecipientSignature`      |
+| `GSNRecipient, GSNBouncerERC20Fee` | `GSNRecipientERC20Fee`       |
+ 
 ## 2.3.0 (2019-05-27)
 
 ### New features:
