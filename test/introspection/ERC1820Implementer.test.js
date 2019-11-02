@@ -3,9 +3,9 @@ const { bufferToHex, keccak256 } = require('ethereumjs-util');
 
 const { expect } = require('chai');
 
-const ERC1820ImplementerMock = artifacts.require('ERC1820ImplementerMock');
+const ERC1820ImplementerMock = load.truffle('ERC1820ImplementerMock');
 
-contract('ERC1820Implementer', function ([_, registryFunder, implementee, other]) {
+describe('ERC1820Implementer', function ([_, registryFunder, implementee, other]) {
   const ERC1820_ACCEPT_MAGIC = bufferToHex(keccak256('ERC1820_ACCEPT_MAGIC'));
 
   beforeEach(async function () {

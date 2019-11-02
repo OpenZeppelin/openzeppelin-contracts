@@ -1,15 +1,18 @@
+const { accounts, load, web3 } = require('@openzeppelin/test-env');
+const [ other ] = accounts;
+
 const { constants, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 const { toEthSignedMessageHash, fixSignature } = require('../helpers/sign');
 
 const { expect } = require('chai');
 
-const ECDSAMock = artifacts.require('ECDSAMock');
+const ECDSAMock = load.truffle('ECDSAMock');
 
 const TEST_MESSAGE = web3.utils.sha3('OpenZeppelin');
 const WRONG_MESSAGE = web3.utils.sha3('Nope');
 
-contract('ECDSA', function ([_, other]) {
+describe('ECDSA', function () {
   beforeEach(async function () {
     this.ecdsa = await ECDSAMock.new();
   });

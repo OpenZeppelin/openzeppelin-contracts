@@ -2,9 +2,9 @@ const { expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const CountersImpl = artifacts.require('CountersImpl');
+const CountersImpl = load.truffle('CountersImpl');
 
-contract('Counters', function () {
+describe('Counters', function () {
   beforeEach(async function () {
     this.counter = await CountersImpl.new();
   });

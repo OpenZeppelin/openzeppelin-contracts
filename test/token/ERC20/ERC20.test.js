@@ -8,9 +8,9 @@ const {
   shouldBehaveLikeERC20Approve,
 } = require('./ERC20.behavior');
 
-const ERC20Mock = artifacts.require('ERC20Mock');
+const ERC20Mock = load.truffle('ERC20Mock');
 
-contract('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
+describe('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
   const initialSupply = new BN(100);
 
   beforeEach(async function () {

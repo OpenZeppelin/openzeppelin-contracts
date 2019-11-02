@@ -1,9 +1,9 @@
 const { ether, expectRevert } = require('@openzeppelin/test-helpers');
 const { shouldBehaveLikeEscrow } = require('./Escrow.behavior');
 
-const ConditionalEscrowMock = artifacts.require('ConditionalEscrowMock');
+const ConditionalEscrowMock = load.truffle('ConditionalEscrowMock');
 
-contract('ConditionalEscrow', function ([_, owner, payee, ...otherAccounts]) {
+describe('ConditionalEscrow', function ([_, owner, payee, ...otherAccounts]) {
   beforeEach(async function () {
     this.escrow = await ConditionalEscrowMock.new({ from: owner });
   });

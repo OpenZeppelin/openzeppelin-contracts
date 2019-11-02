@@ -3,11 +3,11 @@ const { shouldBehaveLikeMintedCrowdsale } = require('./MintedCrowdsale.behavior'
 
 const { expect } = require('chai');
 
-const MintedCrowdsaleImpl = artifacts.require('MintedCrowdsaleImpl');
-const ERC20Mintable = artifacts.require('ERC20Mintable');
-const ERC20 = artifacts.require('ERC20');
+const MintedCrowdsaleImpl = load.truffle('MintedCrowdsaleImpl');
+const ERC20Mintable = load.truffle('ERC20Mintable');
+const ERC20 = load.truffle('ERC20');
 
-contract('MintedCrowdsale', function ([_, deployer, investor, wallet, purchaser]) {
+describe('MintedCrowdsale', function ([_, deployer, investor, wallet, purchaser]) {
   const rate = new BN('1000');
   const value = ether('5');
 

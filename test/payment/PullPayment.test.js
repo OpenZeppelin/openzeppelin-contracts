@@ -2,9 +2,9 @@ const { balance, ether } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const PullPaymentMock = artifacts.require('PullPaymentMock');
+const PullPaymentMock = load.truffle('PullPaymentMock');
 
-contract('PullPayment', function ([_, payer, payee1, payee2]) {
+describe('PullPayment', function ([_, payer, payee1, payee2]) {
   const amount = ether('17');
 
   beforeEach(async function () {

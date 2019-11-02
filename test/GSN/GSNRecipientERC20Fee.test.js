@@ -3,11 +3,11 @@ const gsn = require('@openzeppelin/gsn-helpers');
 
 const { expect } = require('chai');
 
-const GSNRecipientERC20FeeMock = artifacts.require('GSNRecipientERC20FeeMock');
-const ERC20Detailed = artifacts.require('ERC20Detailed');
-const IRelayHub = artifacts.require('IRelayHub');
+const GSNRecipientERC20FeeMock = load.truffle('GSNRecipientERC20FeeMock');
+const ERC20Detailed = load.truffle('ERC20Detailed');
+const IRelayHub = load.truffle('IRelayHub');
 
-contract('GSNRecipientERC20Fee', function ([_, sender, other]) {
+describe('GSNRecipientERC20Fee', function ([_, sender, other]) {
   const name = 'FeeToken';
   const symbol = 'FTKN';
 

@@ -3,9 +3,9 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const PaymentSplitter = artifacts.require('PaymentSplitter');
+const PaymentSplitter = load.truffle('PaymentSplitter');
 
-contract('PaymentSplitter', function ([_, owner, payee1, payee2, payee3, nonpayee1, payer1]) {
+describe('PaymentSplitter', function ([_, owner, payee1, payee2, payee3, nonpayee1, payer1]) {
   const amount = ether('1');
 
   it('rejects an empty set of payees', async function () {

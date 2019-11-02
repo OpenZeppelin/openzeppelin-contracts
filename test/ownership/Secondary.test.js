@@ -3,9 +3,9 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const SecondaryMock = artifacts.require('SecondaryMock');
+const SecondaryMock = load.truffle('SecondaryMock');
 
-contract('Secondary', function ([_, primary, newPrimary, other]) {
+describe('Secondary', function ([_, primary, newPrimary, other]) {
   beforeEach(async function () {
     this.secondary = await SecondaryMock.new({ from: primary });
   });

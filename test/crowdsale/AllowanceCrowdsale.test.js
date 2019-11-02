@@ -1,12 +1,15 @@
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ investor, wallet, purchaser, tokenWallet ] = accounts;
+
 const { balance, BN, constants, ether, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const AllowanceCrowdsaleImpl = artifacts.require('AllowanceCrowdsaleImpl');
-const SimpleToken = artifacts.require('SimpleToken');
+const AllowanceCrowdsaleImpl = load.truffle('AllowanceCrowdsaleImpl');
+const SimpleToken = load.truffle('SimpleToken');
 
-contract('AllowanceCrowdsale', function ([_, investor, wallet, purchaser, tokenWallet]) {
+describe('AllowanceCrowdsale', function () {
   const rate = new BN('1');
   const value = ether('0.42');
   const expectedTokenAmount = rate.mul(value);

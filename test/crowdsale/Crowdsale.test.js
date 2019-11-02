@@ -3,10 +3,10 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const Crowdsale = artifacts.require('CrowdsaleMock');
-const SimpleToken = artifacts.require('SimpleToken');
+const Crowdsale = load.truffle('CrowdsaleMock');
+const SimpleToken = load.truffle('SimpleToken');
 
-contract('Crowdsale', function ([_, investor, wallet, purchaser]) {
+describe('Crowdsale', function ([_, investor, wallet, purchaser]) {
   const rate = new BN(1);
   const value = ether('42');
   const tokenSupply = new BN('10').pow(new BN('22'));

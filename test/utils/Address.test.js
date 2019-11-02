@@ -1,11 +1,11 @@
 const { balance, constants, ether, expectRevert, send } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
-const AddressImpl = artifacts.require('AddressImpl');
-const SimpleToken = artifacts.require('SimpleToken');
-const EtherReceiver = artifacts.require('EtherReceiverMock');
+const AddressImpl = load.truffle('AddressImpl');
+const SimpleToken = load.truffle('SimpleToken');
+const EtherReceiver = load.truffle('EtherReceiverMock');
 
-contract('Address', function ([_, recipient, other]) {
+describe('Address', function ([_, recipient, other]) {
   const ALL_ONES_ADDRESS = '0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF';
 
   beforeEach(async function () {

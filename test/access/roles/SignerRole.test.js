@@ -1,7 +1,10 @@
-const { shouldBehaveLikePublicRole } = require('../../behaviors/access/roles/PublicRole.behavior');
-const SignerRoleMock = artifacts.require('SignerRoleMock');
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ signer, otherSigner, ...otherAccounts ] = accounts;
 
-contract('SignerRole', function ([_, signer, otherSigner, ...otherAccounts]) {
+const { shouldBehaveLikePublicRole } = require('../../behaviors/access/roles/PublicRole.behavior');
+const SignerRoleMock = load.truffle('SignerRoleMock');
+
+describe('SignerRole', function () {
   beforeEach(async function () {
     this.contract = await SignerRoleMock.new({ from: signer });
     await this.contract.addSigner(otherSigner, { from: signer });

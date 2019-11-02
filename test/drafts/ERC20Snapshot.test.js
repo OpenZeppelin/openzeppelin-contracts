@@ -1,9 +1,9 @@
 const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
-const ERC20SnapshotMock = artifacts.require('ERC20SnapshotMock');
+const ERC20SnapshotMock = load.truffle('ERC20SnapshotMock');
 
 const { expect } = require('chai');
 
-contract('ERC20Snapshot', function ([_, initialHolder, recipient, other]) {
+describe('ERC20Snapshot', function ([_, initialHolder, recipient, other]) {
   const initialSupply = new BN(100);
 
   beforeEach(async function () {

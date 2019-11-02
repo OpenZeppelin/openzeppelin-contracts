@@ -4,4 +4,4 @@ if [ "$SOLC_NIGHTLY" = true ]; then
   docker pull ethereum/solc:nightly
 fi
 
-npx truffle compile
+npx oz compile

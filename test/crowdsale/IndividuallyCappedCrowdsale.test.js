@@ -2,11 +2,11 @@ const { BN, ether, expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const IndividuallyCappedCrowdsaleImpl = artifacts.require('IndividuallyCappedCrowdsaleImpl');
-const SimpleToken = artifacts.require('SimpleToken');
+const IndividuallyCappedCrowdsaleImpl = load.truffle('IndividuallyCappedCrowdsaleImpl');
+const SimpleToken = load.truffle('SimpleToken');
 const { shouldBehaveLikePublicRole } = require('../behaviors/access/roles/PublicRole.behavior');
 
-contract('IndividuallyCappedCrowdsale', function (
+describe('IndividuallyCappedCrowdsale', function (
   [_, capper, otherCapper, wallet, alice, bob, charlie, other, ...otherAccounts]) {
   const rate = new BN(1);
   const capAlice = ether('10');

@@ -1,11 +1,14 @@
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ authorized, otherAuthorized, other ] = accounts;
+
 const { expectRevert, constants } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const RolesMock = artifacts.require('RolesMock');
+const RolesMock = load.truffle('RolesMock');
 
-contract('Roles', function ([_, authorized, otherAuthorized, other]) {
+describe('Roles', function () {
   beforeEach(async function () {
     this.roles = await RolesMock.new();
   });

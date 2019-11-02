@@ -3,9 +3,9 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const RefundEscrow = artifacts.require('RefundEscrow');
+const RefundEscrow = load.truffle('RefundEscrow');
 
-contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee2]) {
+describe('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee2]) {
   const amount = ether('54');
   const refundees = [refundee1, refundee2];
 

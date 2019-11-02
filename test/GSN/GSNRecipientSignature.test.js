@@ -4,9 +4,9 @@ const { fixSignature } = require('../helpers/sign');
 const { utils: { toBN } } = require('web3');
 const { ZERO_ADDRESS } = constants;
 
-const GSNRecipientSignatureMock = artifacts.require('GSNRecipientSignatureMock');
+const GSNRecipientSignatureMock = load.truffle('GSNRecipientSignatureMock');
 
-contract('GSNRecipientSignature', function ([_, signer, other]) {
+describe('GSNRecipientSignature', function ([_, signer, other]) {
   beforeEach(async function () {
     this.recipient = await GSNRecipientSignatureMock.new(signer);
   });

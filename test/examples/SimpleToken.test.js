@@ -3,9 +3,9 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const SimpleToken = artifacts.require('SimpleToken');
+const SimpleToken = load.truffle('SimpleToken');
 
-contract('SimpleToken', function ([_, creator]) {
+describe('SimpleToken', function ([_, creator]) {
   beforeEach(async function () {
     this.token = await SimpleToken.new({ from: creator });
   });

@@ -3,9 +3,9 @@ const { shouldBehaveLikeERC721PausedToken } = require('./ERC721PausedToken.behav
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
 const { shouldBehaveLikePublicRole } = require('../../behaviors/access/roles/PublicRole.behavior');
 
-const ERC721PausableMock = artifacts.require('ERC721PausableMock.sol');
+const ERC721PausableMock = load.truffle('ERC721PausableMock.sol');
 
-contract('ERC721Pausable', function ([
+describe('ERC721Pausable', function ([
   _,
   creator,
   otherPauser,

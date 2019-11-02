@@ -1,12 +1,12 @@
-const { BN, expectRevert } = require('@openzeppelin/test-helpers');
+wconst { BN, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 
-const ERC721FullMock = artifacts.require('ERC721FullMock.sol');
+const ERC721FullMock = load.truffle('ERC721FullMock.sol');
 
-contract('ERC721Full', function ([
+describe('ERC721Full', function ([
   creator,
   ...accounts
 ]) {

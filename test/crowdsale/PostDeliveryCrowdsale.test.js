@@ -2,10 +2,10 @@ const { BN, ether, expectRevert, time } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const PostDeliveryCrowdsaleImpl = artifacts.require('PostDeliveryCrowdsaleImpl');
-const SimpleToken = artifacts.require('SimpleToken');
+const PostDeliveryCrowdsaleImpl = load.truffle('PostDeliveryCrowdsaleImpl');
+const SimpleToken = load.truffle('SimpleToken');
 
-contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
+describe('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
   const rate = new BN(1);
   const tokenSupply = new BN('10').pow(new BN('22'));
 

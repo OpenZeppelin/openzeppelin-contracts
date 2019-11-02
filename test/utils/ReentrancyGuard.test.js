@@ -2,10 +2,10 @@ const { expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ReentrancyMock = artifacts.require('ReentrancyMock');
-const ReentrancyAttack = artifacts.require('ReentrancyAttack');
+const ReentrancyMock = load.truffle('ReentrancyMock');
+const ReentrancyAttack = load.truffle('ReentrancyAttack');
 
-contract('ReentrancyGuard', function () {
+describe('ReentrancyGuard', function () {
   beforeEach(async function () {
     this.reentrancyMock = await ReentrancyMock.new();
     expect(await this.reentrancyMock.counter()).to.be.bignumber.equal('0');

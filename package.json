@@ -11,7 +11,6 @@
   ],
   "scripts": {
     "compile": "scripts/compile.sh",
-    "console": "truffle console",
     "coverage": "scripts/coverage.sh",
     "docs": "scripts/docs.sh",
     "prepare-docs": "scripts/prepare-docs.sh",
@@ -44,9 +43,12 @@
   },
   "homepage": "https://github.com/OpenZeppelin/openzeppelin-contracts",
   "devDependencies": {
+    "@openzeppelin/cli": "^2.5.3",
     "@openzeppelin/gsn-helpers": "^0.2.1",
     "@openzeppelin/gsn-provider": "^0.1.9",
+    "@openzeppelin/test-env": "^0.1.0",
     "@openzeppelin/test-helpers": "^0.5.3",
+    "@truffle/contract": "^4.0.38",
     "chai": "^4.2.0",
     "concurrently": "^5.0.0",
     "eslint": "^6.5.1",
@@ -62,10 +64,13 @@
     "http-server": "^0.11.1",
     "lodash.startcase": "^4.4.0",
     "micromatch": "^4.0.2",
+    "mocha": "^6.2.2",
     "nodemon": "^1.19.4",
     "solhint": "2.3.0",
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
-    "solidity-docgen": "^0.3.9",
-    "truffle": "^5.0.42"
+    "solidity-docgen": "^0.3.9"
+  },
+  "dependencies": {
+    "why-is-node-running": "^2.1.0"
   }
 }

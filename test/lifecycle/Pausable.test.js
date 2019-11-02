@@ -3,9 +3,9 @@ const { shouldBehaveLikePublicRole } = require('../behaviors/access/roles/Public
 
 const { expect } = require('chai');
 
-const PausableMock = artifacts.require('PausableMock');
+const PausableMock = load.truffle('PausableMock');
 
-contract('Pausable', function ([_, pauser, otherPauser, other, ...otherAccounts]) {
+describe('Pausable', function ([_, pauser, otherPauser, other, ...otherAccounts]) {
   beforeEach(async function () {
     this.pausable = await PausableMock.new({ from: pauser });
   });

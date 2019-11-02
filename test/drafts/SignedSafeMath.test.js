@@ -3,9 +3,9 @@ const { MAX_INT256, MIN_INT256 } = constants;
 
 const { expect } = require('chai');
 
-const SignedSafeMathMock = artifacts.require('SignedSafeMathMock');
+const SignedSafeMathMock = load.truffle('SignedSafeMathMock');
 
-contract('SignedSafeMath', function () {
+describe('SignedSafeMath', function () {
   beforeEach(async function () {
     this.safeMath = await SignedSafeMathMock.new();
   });

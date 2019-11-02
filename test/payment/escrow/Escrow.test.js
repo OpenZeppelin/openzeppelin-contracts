@@ -1,9 +1,9 @@
 require('@openzeppelin/test-helpers');
 const { shouldBehaveLikeEscrow } = require('./Escrow.behavior');
 
-const Escrow = artifacts.require('Escrow');
+const Escrow = load.truffle('Escrow');
 
-contract('Escrow', function ([_, primary, ...otherAccounts]) {
+describe('Escrow', function ([_, primary, ...otherAccounts]) {
   beforeEach(async function () {
     this.escrow = await Escrow.new({ from: primary });
   });

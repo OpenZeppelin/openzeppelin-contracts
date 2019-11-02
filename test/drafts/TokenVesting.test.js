@@ -3,10 +3,10 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const ERC20Mintable = artifacts.require('ERC20Mintable');
-const TokenVesting = artifacts.require('TokenVesting');
+const ERC20Mintable = load.truffle('ERC20Mintable');
+const TokenVesting = load.truffle('TokenVesting');
 
-contract('TokenVesting', function ([_, owner, beneficiary]) {
+describe('TokenVesting', function ([_, owner, beneficiary]) {
   const amount = new BN('1000');
 
   beforeEach(async function () {

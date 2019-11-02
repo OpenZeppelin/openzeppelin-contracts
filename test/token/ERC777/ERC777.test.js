@@ -15,10 +15,10 @@ const {
   shouldBehaveLikeERC20,
 } = require('../ERC20/ERC20.behavior');
 
-const ERC777 = artifacts.require('ERC777Mock');
-const ERC777SenderRecipientMock = artifacts.require('ERC777SenderRecipientMock');
+const ERC777 = load.truffle('ERC777Mock');
+const ERC777SenderRecipientMock = load.truffle('ERC777SenderRecipientMock');
 
-contract('ERC777', function ([
+describe('ERC777', function ([
   _, registryFunder, holder, defaultOperatorA, defaultOperatorB, newOperator, anyone,
 ]) {
   const initialSupply = new BN('10000');

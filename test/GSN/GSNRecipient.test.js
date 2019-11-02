@@ -5,12 +5,12 @@ const gsn = require('@openzeppelin/gsn-helpers');
 
 const { expect } = require('chai');
 
-const GSNRecipientMock = artifacts.require('GSNRecipientMock');
-const ContextMockCaller = artifacts.require('ContextMockCaller');
+const GSNRecipientMock = load.truffle('GSNRecipientMock');
+const ContextMockCaller = load.truffle('ContextMockCaller');
 
 const { shouldBehaveLikeRegularContext } = require('./Context.behavior');
 
-contract('GSNRecipient', function ([_, payee, sender, newRelayHub]) {
+describe('GSNRecipient', function ([_, payee, sender, newRelayHub]) {
   beforeEach(async function () {
     this.recipient = await GSNRecipientMock.new();
   });

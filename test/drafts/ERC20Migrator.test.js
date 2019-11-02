@@ -3,11 +3,11 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const ERC20Mock = artifacts.require('ERC20Mock');
-const ERC20Mintable = artifacts.require('ERC20Mintable');
-const ERC20Migrator = artifacts.require('ERC20Migrator');
+const ERC20Mock = load.truffle('ERC20Mock');
+const ERC20Mintable = load.truffle('ERC20Mintable');
+const ERC20Migrator = load.truffle('ERC20Migrator');
 
-contract('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
+describe('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
   const totalSupply = new BN('200');
 
   it('reverts with a null legacy token address', async function () {

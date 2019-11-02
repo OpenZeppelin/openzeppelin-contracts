@@ -1,7 +1,10 @@
-const { shouldBehaveLikePublicRole } = require('../../behaviors/access/roles/PublicRole.behavior');
-const WhitelistedRoleMock = artifacts.require('WhitelistedRoleMock');
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ whitelisted, otherWhitelisted, whitelistAdmin, ...otherAccounts ] = accounts;
 
-contract('WhitelistedRole', function ([_, whitelisted, otherWhitelisted, whitelistAdmin, ...otherAccounts]) {
+const { shouldBehaveLikePublicRole } = require('../../behaviors/access/roles/PublicRole.behavior');
+const WhitelistedRoleMock = load.truffle('WhitelistedRoleMock');
+
+describe('WhitelistedRole', function () {
   beforeEach(async function () {
     this.contract = await WhitelistedRoleMock.new({ from: whitelistAdmin });
     await this.contract.addWhitelisted(whitelisted, { from: whitelistAdmin });

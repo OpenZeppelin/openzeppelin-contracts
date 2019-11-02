@@ -4,9 +4,9 @@ const { ZERO_ADDRESS } = constants;
 const { expect } = require('chai');
 
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
-const ERC721Mock = artifacts.require('ERC721Mock.sol');
+const ERC721Mock = load.truffle('ERC721Mock.sol');
 
-contract('ERC721', function ([_, creator, owner, other, ...accounts]) {
+describe('ERC721', function ([_, creator, owner, other, ...accounts]) {
   beforeEach(async function () {
     this.token = await ERC721Mock.new({ from: creator });
   });

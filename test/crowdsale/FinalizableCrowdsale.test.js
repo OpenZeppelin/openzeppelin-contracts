@@ -1,9 +1,9 @@
 const { BN, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 
-const FinalizableCrowdsaleImpl = artifacts.require('FinalizableCrowdsaleImpl');
-const ERC20 = artifacts.require('ERC20');
+const FinalizableCrowdsaleImpl = load.truffle('FinalizableCrowdsaleImpl');
+const ERC20 = load.truffle('ERC20');
 
-contract('FinalizableCrowdsale', function ([_, wallet, other]) {
+describe('FinalizableCrowdsale', function ([_, wallet, other]) {
   const rate = new BN('1000');
 
   before(async function () {

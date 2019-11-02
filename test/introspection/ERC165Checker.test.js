@@ -2,9 +2,9 @@ require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ERC165CheckerMock = artifacts.require('ERC165CheckerMock');
-const ERC165NotSupported = artifacts.require('ERC165NotSupported');
-const ERC165InterfacesSupported = artifacts.require('ERC165InterfacesSupported');
+const ERC165CheckerMock = load.truffle('ERC165CheckerMock');
+const ERC165NotSupported = load.truffle('ERC165NotSupported');
+const ERC165InterfacesSupported = load.truffle('ERC165InterfacesSupported');
 
 const DUMMY_ID = '0xdeadbeef';
 const DUMMY_ID_2 = '0xcafebabe';
@@ -13,7 +13,7 @@ const DUMMY_UNSUPPORTED_ID = '0xbaddcafe';
 const DUMMY_UNSUPPORTED_ID_2 = '0xbaadcafe';
 const DUMMY_ACCOUNT = '0x1111111111111111111111111111111111111111';
 
-contract('ERC165Checker', function () {
+describe('ERC165Checker', function () {
   beforeEach(async function () {
     this.mock = await ERC165CheckerMock.new();
   });

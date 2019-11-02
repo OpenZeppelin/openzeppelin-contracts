@@ -1,9 +1,9 @@
 const { BN, ether, expectRevert } = require('@openzeppelin/test-helpers');
 
-const WhitelistCrowdsale = artifacts.require('WhitelistCrowdsaleImpl');
-const SimpleToken = artifacts.require('SimpleToken');
+const WhitelistCrowdsale = load.truffle('WhitelistCrowdsaleImpl');
+const SimpleToken = load.truffle('SimpleToken');
 
-contract('WhitelistCrowdsale', function ([_, wallet, whitelister, whitelisted, otherWhitelisted, other]) {
+describe('WhitelistCrowdsale', function ([_, wallet, whitelister, whitelisted, otherWhitelisted, other]) {
   const rate = new BN(1);
   const value = ether('42');
   const tokenSupply = new BN('10').pow(new BN('22'));
