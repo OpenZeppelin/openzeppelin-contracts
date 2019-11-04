@@ -1,3 +1,6 @@
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ creator ] = accounts;
+
 const { constants, expectEvent } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
@@ -5,7 +8,7 @@ const { expect } = require('chai');
 
 const SimpleToken = load.truffle('SimpleToken');
 
-describe('SimpleToken', function ([_, creator]) {
+describe('SimpleToken', function () {
   beforeEach(async function () {
     this.token = await SimpleToken.new({ from: creator });
   });

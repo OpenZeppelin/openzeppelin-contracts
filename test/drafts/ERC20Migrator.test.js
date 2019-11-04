@@ -1,3 +1,6 @@
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ owner, recipient, anotherAccount ] = accounts;
+
 const { BN, constants, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
@@ -7,7 +10,7 @@ const ERC20Mock = load.truffle('ERC20Mock');
 const ERC20Mintable = load.truffle('ERC20Mintable');
 const ERC20Migrator = load.truffle('ERC20Migrator');
 
-describe('ERC20Migrator', function ([_, owner, recipient, anotherAccount]) {
+describe('ERC20Migrator', function () {
   const totalSupply = new BN('200');
 
   it('reverts with a null legacy token address', async function () {

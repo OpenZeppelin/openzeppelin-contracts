@@ -1,3 +1,6 @@
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ owner, beneficiary ] = accounts;
+
 const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
@@ -6,7 +9,7 @@ const { expect } = require('chai');
 const ERC20Mintable = load.truffle('ERC20Mintable');
 const TokenVesting = load.truffle('TokenVesting');
 
-describe('TokenVesting', function ([_, owner, beneficiary]) {
+describe('TokenVesting', function () {
   const amount = new BN('1000');
 
   beforeEach(async function () {

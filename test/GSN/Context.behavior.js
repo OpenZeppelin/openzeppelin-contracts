@@ -1,3 +1,5 @@
+const { load } = require('@openzeppelin/test-env');
+
 const { BN, expectEvent } = require('@openzeppelin/test-helpers');
 
 const ContextMock = load.truffle('ContextMock');

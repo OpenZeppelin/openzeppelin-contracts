@@ -1,10 +1,13 @@
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ payer, payee1, payee2 ] = accounts;
+
 const { balance, ether } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
 const PullPaymentMock = load.truffle('PullPaymentMock');
 
-describe('PullPayment', function ([_, payer, payee1, payee2]) {
+describe('PullPayment', function () {
   const amount = ether('17');
 
   beforeEach(async function () {

@@ -1,3 +1,6 @@
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ pauser, otherPauser, other, ...otherAccounts ] = accounts;
+
 const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { shouldBehaveLikePublicRole } = require('../behaviors/access/roles/PublicRole.behavior');
 
@@ -5,7 +8,7 @@ const { expect } = require('chai');
 
 const PausableMock = load.truffle('PausableMock');
 
-describe('Pausable', function ([_, pauser, otherPauser, other, ...otherAccounts]) {
+describe('Pausable', function () {
   beforeEach(async function () {
     this.pausable = await PausableMock.new({ from: pauser });
   });

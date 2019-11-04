@@ -1,3 +1,6 @@
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ primary, newPrimary, other ] = accounts;
+
 const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
@@ -5,7 +8,7 @@ const { expect } = require('chai');
 
 const SecondaryMock = load.truffle('SecondaryMock');
 
-describe('Secondary', function ([_, primary, newPrimary, other]) {
+describe('Secondary', function () {
   beforeEach(async function () {
     this.secondary = await SecondaryMock.new({ from: primary });
   });

@@ -1,4 +1,6 @@
+const { load } = require('@openzeppelin/test-env');
 const { expectRevert } = require('@openzeppelin/test-helpers');
+
 const { shouldSupportInterfaces } = require('./SupportsInterface.behavior');
 
 const ERC165Mock = load.truffle('ERC165Mock');

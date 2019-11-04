@@ -1,3 +1,6 @@
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ registryFunder, holder, defaultOperatorA, defaultOperatorB, newOperator, anyone ] = accounts;
+
 const { BN, expectEvent, expectRevert, singletons } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
@@ -18,9 +21,7 @@ const {
 const ERC777 = load.truffle('ERC777Mock');
 const ERC777SenderRecipientMock = load.truffle('ERC777SenderRecipientMock');
 
-describe('ERC777', function ([
-  _, registryFunder, holder, defaultOperatorA, defaultOperatorB, newOperator, anyone,
-]) {
+describe('ERC777', function () {
   const initialSupply = new BN('10000');
   const name = 'ERC777Test';
   const symbol = '777T';

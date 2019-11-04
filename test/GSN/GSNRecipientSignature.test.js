@@ -1,12 +1,15 @@
+const { accounts, load, web3 } = require('@openzeppelin/test-env');
+const [ signer, other ] = accounts;
+
 const { expectEvent, expectRevert, constants } = require('@openzeppelin/test-helpers');
 const gsn = require('@openzeppelin/gsn-helpers');
-const { fixSignature } = require('../helpers/sign');
+const { fixSignature } = require('../helpers/sign')(web3);
 const { utils: { toBN } } = require('web3');
 const { ZERO_ADDRESS } = constants;
 
 const GSNRecipientSignatureMock = load.truffle('GSNRecipientSignatureMock');
 
-describe('GSNRecipientSignature', function ([_, signer, other]) {
+describe('GSNRecipientSignature', function () {
   beforeEach(async function () {
     this.recipient = await GSNRecipientSignatureMock.new(signer);
   });

@@ -1,9 +1,12 @@
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ pauser, wallet, other ] = accounts;
+
 const { BN, expectRevert } = require('@openzeppelin/test-helpers');
 
 const PausableCrowdsale = load.truffle('PausableCrowdsaleImpl');
 const SimpleToken = load.truffle('SimpleToken');
 
-describe('PausableCrowdsale', function ([_, pauser, wallet, other]) {
+describe('PausableCrowdsale', function () {
   const rate = new BN(1);
   const value = new BN(1);
 

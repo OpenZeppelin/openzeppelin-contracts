@@ -3,7 +3,7 @@ const [ other ] = accounts;
 
 const { constants, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
-const { toEthSignedMessageHash, fixSignature } = require('../helpers/sign');
+const { toEthSignedMessageHash, fixSignature } = require('../helpers/sign')(web3);
 
 const { expect } = require('chai');
 

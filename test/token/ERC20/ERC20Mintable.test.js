@@ -1,8 +1,11 @@
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ minter, otherMinter, ...otherAccounts ] = accounts;
+
 const { shouldBehaveLikeERC20Mintable } = require('./behaviors/ERC20Mintable.behavior');
 const ERC20MintableMock = load.truffle('ERC20MintableMock');
 const { shouldBehaveLikePublicRole } = require('../../behaviors/access/roles/PublicRole.behavior');
 
-describe('ERC20Mintable', function ([_, minter, otherMinter, ...otherAccounts]) {
+describe('ERC20Mintable', function () {
   beforeEach(async function () {
     this.token = await ERC20MintableMock.new({ from: minter });
   });

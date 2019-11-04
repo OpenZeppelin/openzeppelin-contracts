@@ -1,3 +1,6 @@
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ investor, wallet, purchaser ] = accounts;
+
 const { BN, ether, expectRevert, time } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
@@ -5,7 +8,7 @@ const { expect } = require('chai');
 const IncreasingPriceCrowdsaleImpl = load.truffle('IncreasingPriceCrowdsaleImpl');
 const SimpleToken = load.truffle('SimpleToken');
 
-describe('IncreasingPriceCrowdsale', function ([_, investor, wallet, purchaser]) {
+describe('IncreasingPriceCrowdsale', function () {
   const value = ether('1');
   const tokenSupply = new BN('10').pow(new BN('22'));
 

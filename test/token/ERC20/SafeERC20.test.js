@@ -1,3 +1,6 @@
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ hasNoCode ] = accounts;
+
 const { expectRevert } = require('@openzeppelin/test-helpers');
 
 const ERC20ReturnFalseMock = load.truffle('ERC20ReturnFalseMock');
@@ -5,7 +8,7 @@ const ERC20ReturnTrueMock = load.truffle('ERC20ReturnTrueMock');
 const ERC20NoReturnMock = load.truffle('ERC20NoReturnMock');
 const SafeERC20Wrapper = load.truffle('SafeERC20Wrapper');
 
-describe('SafeERC20', function ([_, hasNoCode]) {
+describe('SafeERC20', function () {
   describe('with address that has no contract code', function () {
     beforeEach(async function () {
       this.wrapper = await SafeERC20Wrapper.new(hasNoCode);

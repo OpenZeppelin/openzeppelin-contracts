@@ -1,3 +1,6 @@
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ recipient, other ] = accounts;
+
 const { balance, constants, ether, expectRevert, send } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
@@ -5,7 +8,7 @@ const AddressImpl = load.truffle('AddressImpl');
 const SimpleToken = load.truffle('SimpleToken');
 const EtherReceiver = load.truffle('EtherReceiverMock');
 
-describe('Address', function ([_, recipient, other]) {
+describe('Address', function () {
   const ALL_ONES_ADDRESS = '0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF';
 
   beforeEach(async function () {

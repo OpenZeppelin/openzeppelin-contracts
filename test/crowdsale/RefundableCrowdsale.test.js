@@ -1,3 +1,6 @@
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ wallet, investor, purchaser, other ] = accounts;
+
 const { balance, BN, ether, expectRevert, time } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
@@ -5,7 +8,7 @@ const { expect } = require('chai');
 const RefundableCrowdsaleImpl = load.truffle('RefundableCrowdsaleImpl');
 const SimpleToken = load.truffle('SimpleToken');
 
-describe('RefundableCrowdsale', function ([_, wallet, investor, purchaser, other]) {
+describe('RefundableCrowdsale', function () {
   const rate = new BN(1);
   const goal = ether('50');
   const lessThanGoal = ether('45');

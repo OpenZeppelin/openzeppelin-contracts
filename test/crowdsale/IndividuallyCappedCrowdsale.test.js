@@ -1,3 +1,6 @@
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ capper, otherCapper, wallet, alice, bob, charlie, other, ...otherAccounts ] = accounts;
+
 const { BN, ether, expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
@@ -6,8 +9,7 @@ const IndividuallyCappedCrowdsaleImpl = load.truffle('IndividuallyCappedCrowdsal
 const SimpleToken = load.truffle('SimpleToken');
 const { shouldBehaveLikePublicRole } = require('../behaviors/access/roles/PublicRole.behavior');
 
-describe('IndividuallyCappedCrowdsale', function (
-  [_, capper, otherCapper, wallet, alice, bob, charlie, other, ...otherAccounts]) {
+describe('IndividuallyCappedCrowdsale', function () {
   const rate = new BN(1);
   const capAlice = ether('10');
   const capBob = ether('2');

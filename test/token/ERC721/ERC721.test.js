@@ -1,3 +1,6 @@
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ creator, owner, other, ...accounts ] = accounts;
+
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
@@ -6,7 +9,7 @@ const { expect } = require('chai');
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
 const ERC721Mock = load.truffle('ERC721Mock.sol');
 
-describe('ERC721', function ([_, creator, owner, other, ...accounts]) {
+describe('ERC721', function () {
   beforeEach(async function () {
     this.token = await ERC721Mock.new({ from: creator });
   });

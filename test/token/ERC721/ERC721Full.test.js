@@ -1,4 +1,7 @@
-wconst { BN, expectRevert } = require('@openzeppelin/test-helpers');
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ creator, ...accounts ] = accounts;
+
+const { BN, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
@@ -6,10 +9,7 @@ const { shouldSupportInterfaces } = require('../../introspection/SupportsInterfa
 
 const ERC721FullMock = load.truffle('ERC721FullMock.sol');
 
-describe('ERC721Full', function ([
-  creator,
-  ...accounts
-]) {
+describe('ERC721Full', function () {
   const name = 'Non Fungible Token';
   const symbol = 'NFT';
   const firstTokenId = new BN(100);

@@ -11,8 +11,8 @@ function shouldBehaveLikeOwnable (owner, [other]) {
 
     it('changes owner after transfer', async function () {
       expect(await this.ownable.isOwner({ from: other })).to.equal(false);
-      const { logs } = await this.ownable.transferOwnership(other, { from: owner });
-      expectEvent.inLogs(logs, 'OwnershipTransferred');
+      const receipt = await this.ownable.transferOwnership(other, { from: owner });
+      expectEvent(receipt, 'OwnershipTransferred');
 
       expect(await this.ownable.owner()).to.equal(other);
       expect(await this.ownable.isOwner({ from: other })).to.equal(true);
@@ -33,8 +33,8 @@ function shouldBehaveLikeOwnable (owner, [other]) {
     });
 
     it('loses owner after renouncement', async function () {
-      const { logs } = await this.ownable.renounceOwnership({ from: owner });
-      expectEvent.inLogs(logs, 'OwnershipTransferred');
+      const receipt = await this.ownable.renounceOwnership({ from: owner });
+      expectEvent(receipt, 'OwnershipTransferred');
 
       expect(await this.ownable.owner()).to.equal(ZERO_ADDRESS);
     });

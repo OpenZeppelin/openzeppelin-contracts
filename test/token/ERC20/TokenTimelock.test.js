@@ -1,3 +1,6 @@
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ minter, beneficiary ] = accounts;
+
 const { BN, expectRevert, time } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
@@ -5,7 +8,7 @@ const { expect } = require('chai');
 const ERC20Mintable = load.truffle('ERC20Mintable');
 const TokenTimelock = load.truffle('TokenTimelock');
 
-describe('TokenTimelock', function ([_, minter, beneficiary]) {
+describe('TokenTimelock', function () {
   const amount = new BN(100);
 
   context('with token', function () {

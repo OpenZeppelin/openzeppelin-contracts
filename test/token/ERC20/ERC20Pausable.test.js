@@ -1,3 +1,6 @@
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ pauser, otherPauser, recipient, anotherAccount, ...otherAccounts ] = accounts;
+
 const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
@@ -5,7 +8,7 @@ const { expect } = require('chai');
 const ERC20PausableMock = load.truffle('ERC20PausableMock');
 const { shouldBehaveLikePublicRole } = require('../../behaviors/access/roles/PublicRole.behavior');
 
-describe('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherAccount, ...otherAccounts]) {
+describe('ERC20Pausable', function () {
   const initialSupply = new BN(100);
 
   beforeEach(async function () {

@@ -1,3 +1,4 @@
+const { load } = require('@openzeppelin/test-env');
 require('@openzeppelin/test-helpers');
 
 const ERC20MetadataMock = load.truffle('ERC20MetadataMock');

@@ -1,3 +1,6 @@
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ initialHolder, recipient, anotherAccount ] = accounts;
+
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const { ZERO_ADDRESS } = constants;
@@ -10,7 +13,7 @@ const {
 
 const ERC20Mock = load.truffle('ERC20Mock');
 
-describe('ERC20', function ([_, initialHolder, recipient, anotherAccount]) {
+describe('ERC20', function () {
   const initialSupply = new BN(100);
 
   beforeEach(async function () {

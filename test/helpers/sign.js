@@ -1,7 +1,4 @@
-const REAL_SIGNATURE_SIZE = 2 * 65; // 65 bytes in hexadecimal string legnth
-const PADDED_SIGNATURE_SIZE = 2 * 96; // 96 bytes in hexadecimal string length
-
-const DUMMY_SIGNATURE = `0x${web3.utils.padLeft('', REAL_SIGNATURE_SIZE)}`;
+let web3;
 
 function toEthSignedMessageHash (messageHex) {
   const messageBuffer = Buffer.from(messageHex.substring(2), 'hex');
@@ -41,6 +38,10 @@ const getSignFor = (contract, signer) => (redeemer, methodName, methodArgs = [])
     redeemer,
   ];
 
+  const REAL_SIGNATURE_SIZE = 2 * 65; // 65 bytes in hexadecimal string legnth
+  const PADDED_SIGNATURE_SIZE = 2 * 96; // 96 bytes in hexadecimal string length
+  const DUMMY_SIGNATURE = `0x${web3.utils.padLeft('', REAL_SIGNATURE_SIZE)}`;
+
   // if we have a method, add it to the parts that we're signing
   if (methodName) {
     if (methodArgs.length > 0) {
@@ -59,9 +60,12 @@ const getSignFor = (contract, signer) => (redeemer, methodName, methodArgs = [])
   return signMessage(signer, messageHex);
 };
 
-module.exports = {
-  signMessage,
-  toEthSignedMessageHash,
-  fixSignature,
-  getSignFor,
+module.exports = (_web) => {
+  web3 = _web;
+  return {
+    signMessage,
+    toEthSignedMessageHash,
+    fixSignature,
+    getSignFor,
+  };
 };

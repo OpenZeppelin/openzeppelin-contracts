@@ -1,3 +1,6 @@
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ sender, other ] = accounts;
+
 const { ether, expectEvent } = require('@openzeppelin/test-helpers');
 const gsn = require('@openzeppelin/gsn-helpers');
 
@@ -7,7 +10,7 @@ const GSNRecipientERC20FeeMock = load.truffle('GSNRecipientERC20FeeMock');
 const ERC20Detailed = load.truffle('ERC20Detailed');
 const IRelayHub = load.truffle('IRelayHub');
 
-describe('GSNRecipientERC20Fee', function ([_, sender, other]) {
+describe('GSNRecipientERC20Fee', function () {
   const name = 'FeeToken';
   const symbol = 'FTKN';
 

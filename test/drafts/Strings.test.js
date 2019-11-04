@@ -1,3 +1,4 @@
+const { load } = require('@openzeppelin/test-env');
 const { constants } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');

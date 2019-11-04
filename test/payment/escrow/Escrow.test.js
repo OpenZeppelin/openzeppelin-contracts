@@ -1,9 +1,12 @@
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ primary, ...otherAccounts ] = accounts;
+
 require('@openzeppelin/test-helpers');
 const { shouldBehaveLikeEscrow } = require('./Escrow.behavior');
 
 const Escrow = load.truffle('Escrow');
 
-describe('Escrow', function ([_, primary, ...otherAccounts]) {
+describe('Escrow', function () {
   beforeEach(async function () {
     this.escrow = await Escrow.new({ from: primary });
   });

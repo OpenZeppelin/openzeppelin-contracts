@@ -1,9 +1,12 @@
+const { accounts, load } = require('@openzeppelin/test-env');
+const [ wallet, other ] = accounts;
+
 const { BN, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 
 const FinalizableCrowdsaleImpl = load.truffle('FinalizableCrowdsaleImpl');
 const ERC20 = load.truffle('ERC20');
 
-describe('FinalizableCrowdsale', function ([_, wallet, other]) {
+describe('FinalizableCrowdsale', function () {
   const rate = new BN('1000');
 
   before(async function () {
