@@ -5,8 +5,8 @@ const { BN } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ERC721Holder = load.truffle('ERC721Holder.sol');
-const ERC721Mintable = load.truffle('ERC721MintableBurnableImpl.sol');
+const ERC721Holder = load.truffle('ERC721Holder');
+const ERC721Mintable = load.truffle('ERC721MintableBurnableImpl');
 
 describe('ERC721Holder', function () {
   it('receives an ERC721 token', async function () {

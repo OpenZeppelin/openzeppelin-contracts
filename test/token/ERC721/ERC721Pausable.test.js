@@ -1,12 +1,12 @@
 const { accounts, load } = require('@openzeppelin/test-env');
-const [ creator, otherPauser, ...accounts ] = accounts;
+const [ creator, otherPauser, ...otherAccounts ] = accounts;
 
 require('@openzeppelin/test-helpers');
 const { shouldBehaveLikeERC721PausedToken } = require('./ERC721PausedToken.behavior');
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
 const { shouldBehaveLikePublicRole } = require('../../behaviors/access/roles/PublicRole.behavior');
 
-const ERC721PausableMock = load.truffle('ERC721PausableMock.sol');
+const ERC721PausableMock = load.truffle('ERC721PausableMock');
 
 describe('ERC721Pausable', function () {
   beforeEach(async function () {
@@ -19,7 +19,7 @@ describe('ERC721Pausable', function () {
       await this.contract.addPauser(otherPauser, { from: creator });
     });
 
-    shouldBehaveLikePublicRole(creator, otherPauser, accounts, 'pauser');
+    shouldBehaveLikePublicRole(creator, otherPauser, otherAccounts, 'pauser');
   });
 
   context('when token is paused', function () {
@@ -27,11 +27,11 @@ describe('ERC721Pausable', function () {
       await this.token.pause({ from: creator });
     });
 
-    shouldBehaveLikeERC721PausedToken(creator, accounts);
+    shouldBehaveLikeERC721PausedToken(creator, otherAccounts);
   });
 
   context('when token is not paused yet', function () {
-    shouldBehaveLikeERC721(creator, creator, accounts);
+    shouldBehaveLikeERC721(creator, creator, otherAccounts);
   });
 
   context('when token is paused and then unpaused', function () {
@@ -40,6 +40,6 @@ describe('ERC721Pausable', function () {
       await this.token.unpause({ from: creator });
     });
 
-    shouldBehaveLikeERC721(creator, creator, accounts);
+    shouldBehaveLikeERC721(creator, creator, otherAccounts);
   });
 });

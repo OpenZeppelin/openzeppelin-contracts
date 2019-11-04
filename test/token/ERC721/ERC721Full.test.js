@@ -1,5 +1,5 @@
 const { accounts, load } = require('@openzeppelin/test-env');
-const [ creator, ...accounts ] = accounts;
+const [ creator, ...otherAccounts ] = accounts;
 
 const { BN, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
@@ -7,7 +7,7 @@ const { expect } = require('chai');
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 
-const ERC721FullMock = load.truffle('ERC721FullMock.sol');
+const ERC721FullMock = load.truffle('ERC721FullMock');
 
 describe('ERC721Full', function () {
   const name = 'Non Fungible Token';
@@ -23,7 +23,7 @@ describe('ERC721Full', function () {
     owner,
     newOwner,
     other,
-  ] = accounts;
+  ] = otherAccounts;
 
   beforeEach(async function () {
     this.token = await ERC721FullMock.new(name, symbol, { from: creator });
@@ -210,7 +210,7 @@ describe('ERC721Full', function () {
     });
   });
 
-  shouldBehaveLikeERC721(creator, minter, accounts);
+  shouldBehaveLikeERC721(creator, minter, otherAccounts);
 
   shouldSupportInterfaces([
     'ERC165',

@@ -1,4 +1,4 @@
-const { accounts, load } = require('@openzeppelin/test-env');
+const { accounts, load, web3 } = require('@openzeppelin/test-env');
 const [ registryFunder, holder, defaultOperatorA, defaultOperatorB, newOperator, anyone ] = accounts;
 
 const { BN, expectEvent, expectRevert, singletons } = require('@openzeppelin/test-helpers');

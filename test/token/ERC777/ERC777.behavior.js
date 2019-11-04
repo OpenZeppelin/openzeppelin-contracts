@@ -1,3 +1,4 @@
+const { load, web3 } = require('@openzeppelin/test-env');
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
