@@ -52,7 +52,7 @@ Most of software development uses access control systems that are role-based: so
 
 OpenZeppelin provides xref:api:access.adoc#Roles[`Roles`] for implementing role-based access control. Its usage is straightforward: for each role that you want to define, you'll store a variable of type `Role`, which will hold the list of accounts with that role.
 
-Here's a simple example of using `Roles` in an xref:tokens.adoc#ERC20[`ERC20` token]: we'll define two roles, `namers` and `minters`, that will be able to change the name of the token contract, and mint new tokens, respectively.
+Here's a simple example of using `Roles` in an xref:tokens.adoc#ERC20[`ERC20` token]: we'll define two roles, `minters` and `burners`, that will be able to mint new tokens, and burn them, respectively.
 
 [source,solidity]
 ----
@@ -66,34 +66,33 @@ contract MyToken is ERC20, ERC20Detailed {
     using Roles for Roles.Role;
 
     Roles.Role private _minters;
-    Roles.Role private _namers;
+    Roles.Role private _burners;
 
-    constructor(address[] memory minters, address[] memory namers)
-        DetailedERC20("MyToken", "MTKN", 18)
+    constructor(address[] memory minters, address[] memory burners)
+        ERC20Detailed("MyToken", "MTKN", 18)
         public
     {
         for (uint256 i = 0; i < minters.length; ++i) {
             _minters.add(minters[i]);
         }
 
-        for (uint256 i = 0; i < namers.length; ++i) {
-            _namers.add(namers[i]);
+        for (uint256 i = 0; i < burners.length; ++i) {
+            _burners.add(burners[i]);
         }
     }
 
     function mint(address to, uint256 amount) public {
         // Only minters can mint
-        require(minters.has(msg.sender), "DOES_NOT_HAVE_MINTER_ROLE");
+        require(_minters.has(msg.sender), "DOES_NOT_HAVE_MINTER_ROLE");
 
         _mint(to, amount);
     }
 
-    function rename(string memory name, string memory symbol) public {
-        // Only namers can change the name and symbol
-        require(namers.has(msg.sender), "DOES_NOT_HAVE_NAMER_ROLE");
+    function burn(address from, uint256 amount) public {
+        // Only burners can burn
+        require(_burners.has(msg.sender), "DOES_NOT_HAVE_BURNER_ROLE");
 
-        name = name;
-        symbol = symbol;
+       _burn(from, amount);
     }
 }
 ----

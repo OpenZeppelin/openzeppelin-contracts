@@ -1,6 +1,6 @@
 {
   "name": "openzeppelin-solidity",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "Secure Smart Contract library for Solidity",
   "files": [
     "/contracts/**/*.sol",
@@ -44,28 +44,28 @@
   },
   "homepage": "https://github.com/OpenZeppelin/openzeppelin-contracts",
   "devDependencies": {
-    "@openzeppelin/gsn-helpers": "^0.2.0",
-    "@openzeppelin/gsn-provider": "^0.1.8",
-    "@openzeppelin/test-helpers": "^0.5.1",
+    "@openzeppelin/gsn-helpers": "^0.2.1",
+    "@openzeppelin/gsn-provider": "^0.1.9",
+    "@openzeppelin/test-helpers": "^0.5.3",
     "chai": "^4.2.0",
     "concurrently": "^5.0.0",
     "eslint": "^6.5.1",
-    "eslint-config-standard": "^11.0.0",
+    "eslint-config-standard": "^14.1.0",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-mocha-no-only": "^1.1.0",
-    "eslint-plugin-node": "^8.0.1",
+    "eslint-plugin-node": "^10.0.0",
     "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^3.1.0",
+    "eslint-plugin-standard": "^4.0.1",
     "ethereumjs-util": "^6.1.0",
     "ganache-cli": "^6.7.0",
     "ganache-cli-coverage": "https://github.com/frangio/ganache-cli/releases/download/v6.4.1-coverage/ganache-cli-coverage-6.4.1.tgz",
     "http-server": "^0.11.1",
     "lodash.startcase": "^4.4.0",
     "micromatch": "^4.0.2",
-    "nodemon": "^1.19.3",
+    "nodemon": "^1.19.4",
     "solhint": "2.3.0",
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
-    "solidity-docgen": "^0.3.5",
-    "truffle": "^5.0.41"
+    "solidity-docgen": "^0.3.9",
+    "truffle": "^5.0.42"
   }
 }

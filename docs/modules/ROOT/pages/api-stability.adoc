@@ -2,7 +2,7 @@
 
 On the https://github.com/OpenZeppelin/openzeppelin-contracts/releases/tag/v2.0.0[OpenZeppelin 2.0 release], we committed ourselves to keeping a stable API. We aim to more precisely define what we understand by _stable_ and _API_ here, so users of the library can understand these guarantees and be confident their project won't break unexpectedly.
 
-In a nutshell, the API being stable means _if your project is working today, it will continue to do so_. New contracts and features will be added in minor releases, but only in a backwards compatible way.
+In a nutshell, the API being stable means _if your project is working today, it will continue to do so_. New contracts and features will be added in minor releases, but only in a backwards compatible way. The exception to this rule are contracts in the xref:api:drafts.adoc[Drafts] category, which should be considered unstable.
 
 [[versioning-scheme]]
 == Versioning scheme
