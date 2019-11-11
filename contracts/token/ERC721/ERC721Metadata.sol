@@ -55,10 +55,12 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
     }
 
     /**
-     * @dev Returns the concatenation of the base token URI with the URI for a given token ID.
-     * Throws if the token ID does not exist. May return an empty string.
-     * The usage of concatenation here reduces gas costs when setting a token URI.
-     * @param tokenId uint256 ID of the token to query
+     * @dev Returns the URI for a given token ID. May return an empty string.
+     *
+     * If the token's URI is non-empty and a base URI was set (via
+     * {_setBaseTokenURI}), it will be added to the token ID's URI as a prefix.
+     *
+     * Reverts if the token ID does not exist.
      */
     function tokenURI(uint256 tokenId) public view returns (string memory) {
         require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
@@ -75,9 +77,12 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
 
     /**
      * @dev Internal function to set the token URI for a given token.
+     *
      * Reverts if the token ID does not exist.
-     * @param tokenId uint256 ID of the token to set its URI
-     * @param uri string URI to assign
+     *
+     * TIP: if all token IDs share a prefix (e.g. if your URIs look like
+     * `http://api.myproject.com/token/<id>`), use {_setBaseTokenURI} to store
+     * it and save gas.
      */
     function _setTokenURI(uint256 tokenId, string memory uri) internal {
         require(_exists(tokenId), "ERC721Metadata: URI set of nonexistent token");
@@ -85,8 +90,8 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
     }
 
     /**
-     * @dev Internal function to set the base token URI.
-     * @param uri string base URI to assign
+     * @dev Internal function to set the base URI for all token IDs. It is
+     * automatically added as a prefix to the value returned in {tokenURI}.
      */
     function _setBaseTokenURI(string memory uri) internal {
         _baseURI = uri;
