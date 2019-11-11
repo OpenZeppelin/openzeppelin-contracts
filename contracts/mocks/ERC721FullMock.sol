@@ -30,8 +30,4 @@ contract ERC721FullMock is ERC721Full, ERC721Mintable, ERC721MetadataMintable, E
     function setBaseTokenURI(string memory baseURI) public {
         _setBaseTokenURI(baseURI);
     }
-
-    function baseTokenURI() public view returns (string memory) {
-        return _baseTokenURI();
-    }
 }

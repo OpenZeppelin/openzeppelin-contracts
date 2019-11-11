@@ -72,8 +72,6 @@ contract('ERC721Full', function ([
     });
 
     describe('metadata', function () {
-      const baseURI = 'https://api.com/v1/';
-      const sampleUri = 'mock://mytoken';
       it('has a name', async function () {
         expect(await this.token.name()).to.be.equal(name);
       });
@@ -82,52 +80,63 @@ contract('ERC721Full', function ([
         expect(await this.token.symbol()).to.be.equal(symbol);
       });
 
-      it('sets and returns the base token URI', async function () {
-        await this.token.setBaseTokenURI(baseURI);
-        expect(await this.token.baseTokenURI()).to.be.equal(baseURI);
-      });
+      describe('token URI', function () {
+        const baseURI = 'https://api.com/v1/';
+        const sampleUri = 'mock://mytoken';
 
-      it('sets and returns metadata for a token id', async function () {
-        await this.token.setTokenURI(firstTokenId, sampleUri);
-        expect(await this.token.tokenURI(firstTokenId)).to.be.equal(sampleUri);
-      });
+        it('it is empty by default', async function () {
+          expect(await this.token.tokenURI(firstTokenId)).to.be.equal('');
+        });
 
-      it('sets and returns metadata for a token id with base token URI set', async function () {
-        await this.token.setBaseTokenURI(baseURI);
-        await this.token.setTokenURI(firstTokenId, sampleUri);
-        expect(await this.token.tokenURI(firstTokenId)).to.be.equal(baseURI + sampleUri);
-      });
+        it('reverts when queried for non existent token id', async function () {
+          await expectRevert(
+            this.token.tokenURI(nonExistentTokenId), 'ERC721Metadata: URI query for nonexistent token'
+          );
+        });
 
-      it('changes base token URI set', async function () {
-        await this.token.setBaseTokenURI(baseURI);
-        await this.token.setTokenURI(firstTokenId, sampleUri);
-        expect(await this.token.tokenURI(firstTokenId)).to.be.equal(baseURI + sampleUri);
+        it('can be set for a token id', async function () {
+          await this.token.setTokenURI(firstTokenId, sampleUri);
+          expect(await this.token.tokenURI(firstTokenId)).to.be.equal(sampleUri);
+        });
 
-        const newBaseURI = 'https://api.com/v2/';
-        await this.token.setBaseTokenURI(newBaseURI);
-        expect(await this.token.tokenURI(firstTokenId)).to.be.equal(newBaseURI + sampleUri);
-      });
+        it('reverts when setting for non existent token id', async function () {
+          await expectRevert(
+            this.token.setTokenURI(nonExistentTokenId, sampleUri), 'ERC721Metadata: URI set of nonexistent token'
+          );
+        });
 
-      it('reverts when setting metadata for non existent token id', async function () {
-        await expectRevert(
-          this.token.setTokenURI(nonExistentTokenId, sampleUri), 'ERC721Metadata: URI set of nonexistent token'
-        );
-      });
+        it('base URI is added as a prefix to the token URI', async function () {
+          await this.token.setBaseTokenURI(baseURI);
+          await this.token.setTokenURI(firstTokenId, sampleUri);
 
-      it('can burn token with metadata', async function () {
-        await this.token.setTokenURI(firstTokenId, sampleUri);
-        await this.token.burn(firstTokenId, { from: owner });
-        expect(await this.token.exists(firstTokenId)).to.equal(false);
-      });
+          expect(await this.token.tokenURI(firstTokenId)).to.be.equal(baseURI + sampleUri);
+        });
 
-      it('returns empty metadata for token', async function () {
-        expect(await this.token.tokenURI(firstTokenId)).to.be.equal('');
-      });
+        it('token URI can be changed by changing the base URI', async function () {
+          await this.token.setBaseTokenURI(baseURI);
+          await this.token.setTokenURI(firstTokenId, sampleUri);
 
-      it('reverts when querying metadata for non existent token id', async function () {
-        await expectRevert(
-          this.token.tokenURI(nonExistentTokenId), 'ERC721Metadata: URI query for nonexistent token'
-        );
+          const newBaseURI = 'https://api.com/v2/';
+          await this.token.setBaseTokenURI(newBaseURI);
+          expect(await this.token.tokenURI(firstTokenId)).to.be.equal(newBaseURI + sampleUri);
+        });
+
+        it('token URI is empty for tokens with no URI but with base URI', async function () {
+          await this.token.setBaseTokenURI(baseURI);
+
+          expect(await this.token.tokenURI(firstTokenId)).to.be.equal('');
+        });
+
+        it('tokens with URI can be burnt ', async function () {
+          await this.token.setTokenURI(firstTokenId, sampleUri);
+
+          await this.token.burn(firstTokenId, { from: owner });
+
+          expect(await this.token.exists(firstTokenId)).to.equal(false);
+          await expectRevert(
+            this.token.tokenURI(firstTokenId), 'ERC721Metadata: URI query for nonexistent token'
+          );
+        });
       });
     });
 

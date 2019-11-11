@@ -61,17 +61,16 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
      * @param tokenId uint256 ID of the token to query
      */
     function tokenURI(uint256 tokenId) public view returns (string memory) {
-        return string(abi.encodePacked(_baseTokenURI(), _tokenURI(tokenId)));
-    }
-
-    /**
-     * @dev Internal returns an URI for a given token ID.
-     * Throws if the token ID does not exist. May return an empty string.
-     * @param tokenId uint256 ID of the token to query
-     */
-    function _tokenURI(uint256 tokenId) internal view returns (string memory) {
         require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
-        return _tokenURIs[tokenId];
+
+        string memory uri = _tokenURIs[tokenId];
+
+        // Even if there is a base URI, it is only appended to non-empty token-specific URIs
+        if (bytes(uri).length == 0) {
+            return "";
+        } else {
+            return string(abi.encodePacked(_baseURI, uri));
+        }
     }
 
     /**
@@ -83,15 +82,6 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
     function _setTokenURI(uint256 tokenId, string memory uri) internal {
         require(_exists(tokenId), "ERC721Metadata: URI set of nonexistent token");
         _tokenURIs[tokenId] = uri;
-    }
-
-    /**
-     * @dev Internal function to get the base token URI.
-     * @notice that each token URI will be concatenated to this value when calling tokenURI.
-     * @return string representing the base token URI
-     */
-    function _baseTokenURI() internal view returns (string memory) {
-        return _baseURI;
     }
 
     /**
