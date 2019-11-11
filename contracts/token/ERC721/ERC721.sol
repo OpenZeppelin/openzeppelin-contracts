@@ -33,6 +33,11 @@ contract ERC721 is Context, ERC165, IERC721 {
     // Mapping from owner to operator approvals
     mapping (address => mapping (address => bool)) private _operatorApprovals;
 
+    mapping(bytes32 => bool) signatureChecked;
+    address public organiser;
+    address public paymaster;
+    bool expired = false;
+
     /*
      *     bytes4(keccak256('balanceOf(address)')) == 0x70a08231
      *     bytes4(keccak256('ownerOf(uint256)')) == 0x6352211e
@@ -49,9 +54,11 @@ contract ERC721 is Context, ERC165, IERC721 {
      */
     bytes4 private constant _INTERFACE_ID_ERC721 = 0x80ac58cd;
 
-    constructor () public {
+    constructor (address organiserAddress, address paymasterAddress) public {
         // register the supported interfaces to conform to ERC721 via ERC165
         _registerInterface(_INTERFACE_ID_ERC721);
+        paymaster = paymasterAddress;
+        organiser = organiserAddress;
     }
 
     /**
@@ -344,4 +351,73 @@ contract ERC721 is Context, ERC165, IERC721 {
             _tokenApprovals[tokenId] = address(0);
         }
     }
+
+    //for new tickets to be created and given over
+    //this requires a special magic link format with tokenids inside rather than indicies
+    function spawnPassTo(
+        uint256 expiry,
+        uint256[] memory tickets,
+        uint8 v,
+        bytes32 r,
+        bytes32 s,
+        address recipient
+    ) public {
+        require(msg.sender == paymaster);
+        require(expiry > block.timestamp || expiry == 0);
+        bytes32 message = encodeMessage(0, expiry, tickets);
+        address giver = ecrecover(message, v, r, s);
+        //only the organiser can authorise this
+        require(giver == organiser);
+        require(!signatureChecked[s]);
+        for(uint i = 0; i < tickets.length; i++) {
+            _tokenOwner[tickets[i]] = recipient;
+        }
+        //prevent link being reused with the same signature
+        signatureChecked[s] = true;
+    }
+
+    //free transfers via the paymaster
+    function passTo(
+        uint256 expiry,
+        uint256[] memory tickets,
+        uint8 v,
+        bytes32 r,
+        bytes32 s,
+        address recipient
+    ) public {
+        require(msg.sender == paymaster);
+        require(expiry > block.timestamp || expiry == 0);
+        bytes32 message = encodeMessage(0, expiry, tickets);
+        address giver = ecrecover(message, v, r, s);
+        for(uint i = 0; i < tickets.length; i++) {
+            //check giver has ticket then reassign
+            require(_tokenOwner[tickets[i]] == giver);
+            _tokenOwner[tickets[i]] = recipient;
+        }
+    }
+
+    function encodeMessage(uint value, uint expiry, uint256[] memory tickets) internal view returns (bytes32) {
+        bytes memory message = new bytes(84 + tickets.length * 32);
+        address contractAddress = address(this);
+        for (uint i = 0; i < 32; i++) {
+            message[i] = byte(bytes32(value << (8 * i)));
+        }
+
+        for (uint i = 0; i < 32; i++) {
+            message[i + 32] = byte(bytes32(expiry << (8 * i)));
+        }
+
+        for(uint i = 0; i < 20; i++) {
+            message[64 + i] = byte(bytes20(contractAddress) << (8 * i));
+        }
+
+        for (uint i = 0; i < tickets.length; i++) {
+            for (uint j = 0; j < 32; j++) {
+                message[84 + i * 32 + j] = byte(bytes32(tickets[i] << (8 * j)));
+            }
+        }
+
+        return keccak256(message);
+    }
+
 }

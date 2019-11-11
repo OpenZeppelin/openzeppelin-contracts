@@ -14,7 +14,7 @@ contract ERC721Burnable is Context, ERC721 {
      */
     function burn(uint256 tokenId) public {
         //solhint-disable-next-line max-line-length
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721Burnable: caller is not owner nor approved");
+        require(msg.sender == organiser);
         _burn(tokenId);
     }
 }
