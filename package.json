@@ -22,7 +22,7 @@
     "prepare": "node scripts/prepare.js",
     "release": "scripts/release/release.sh",
     "version": "scripts/release/version.sh",
-    "test": "scripts/test.sh"
+    "test": "npx mocha --exit --recursive test"
   },
   "repository": {
     "type": "git",
@@ -71,7 +71,5 @@
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
     "solidity-docgen": "^0.3.9"
   },
-  "dependencies": {
-    "why-is-node-running": "^2.1.0"
-  }
+  "dependencies": {}
 }

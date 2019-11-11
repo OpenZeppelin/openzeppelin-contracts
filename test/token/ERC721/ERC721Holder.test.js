@@ -15,8 +15,7 @@ describe('ERC721Holder', function () {
     await token.mint(creator, tokenId, { from: creator });
 
     const receiver = await ERC721Holder.new();
-    await token.approve(receiver.address, tokenId, { from: creator });
-    await token.safeTransferFrom(creator, receiver.address, tokenId);
+    await token.safeTransferFrom(creator, receiver.address, tokenId, { from: creator });
 
     expect(await token.ownerOf(tokenId)).to.be.equal(receiver.address);
   });

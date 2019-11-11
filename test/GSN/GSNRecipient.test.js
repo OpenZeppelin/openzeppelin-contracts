@@ -1,4 +1,4 @@
-const { accounts, load } = require('@openzeppelin/test-env');
+const { accounts, load, web3 } = require('@openzeppelin/test-env');
 const [ payee, sender, newRelayHub ] = accounts;
 
 const { balance, BN, constants, ether, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');

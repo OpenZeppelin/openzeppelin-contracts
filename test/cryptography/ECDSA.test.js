@@ -145,7 +145,7 @@ describe('ECDSA', function () {
 
   context('toEthSignedMessage', function () {
     it('should prefix hashes correctly', async function () {
-      (await this.ecdsa.toEthSignedMessageHash(TEST_MESSAGE)).should.equal(toEthSignedMessageHash(TEST_MESSAGE));
+      expect(await this.ecdsa.toEthSignedMessageHash(TEST_MESSAGE)).to.equal(toEthSignedMessageHash(TEST_MESSAGE));
       expect(await this.ecdsa.toEthSignedMessageHash(TEST_MESSAGE)).to.equal(toEthSignedMessageHash(TEST_MESSAGE));
     });
   });

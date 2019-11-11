@@ -118,7 +118,7 @@ describe('ERC20', function () {
           it('approves the requested amount', async function () {
             await this.token.increaseAllowance(spender, amount, { from: initialHolder });
 
-            expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal(amount);
+            expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal('0');
           });
         });
 

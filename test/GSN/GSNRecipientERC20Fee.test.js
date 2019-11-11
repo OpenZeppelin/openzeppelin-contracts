@@ -1,4 +1,4 @@
-const { accounts, load } = require('@openzeppelin/test-env');
+const { accounts, load, web3 } = require('@openzeppelin/test-env');
 const [ sender, other ] = accounts;
 
 const { ether, expectEvent } = require('@openzeppelin/test-helpers');
