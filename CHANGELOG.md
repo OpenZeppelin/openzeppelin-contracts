@@ -7,6 +7,7 @@
 
 ### Improvements
  * `ERC777`: `_burn` is now internal, providing more flexibility and making it easier to create tokens that deflate. ([#1908](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1908))
+ * `ReentrancyGuard`: `_guardCounter` is now reset to `0` after `require` statement in `modifier nonReentrant`. ([#1992](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1992))
 
 ### Breaking changes
  * `ERC165Checker` now requires a minimum Solidity compiler version of 0.5.10. ([#1829](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1829))
