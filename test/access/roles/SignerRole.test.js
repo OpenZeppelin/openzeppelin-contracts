@@ -2,7 +2,7 @@ const { accounts, load } = require('@openzeppelin/test-env');
 const [ signer, otherSigner, ...otherAccounts ] = accounts;
 
 const { shouldBehaveLikePublicRole } = require('../../behaviors/access/roles/PublicRole.behavior');
-const SignerRoleMock = load.truffle('SignerRoleMock');
+const SignerRoleMock = load.truffle.fromArtifacts('SignerRoleMock');
 
 describe('SignerRole', function () {
   beforeEach(async function () {

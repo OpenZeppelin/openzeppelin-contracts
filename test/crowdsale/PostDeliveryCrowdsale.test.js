@@ -5,8 +5,8 @@ const { BN, ether, expectRevert, time } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const PostDeliveryCrowdsaleImpl = load.truffle('PostDeliveryCrowdsaleImpl');
-const SimpleToken = load.truffle('SimpleToken');
+const PostDeliveryCrowdsaleImpl = load.truffle.fromArtifacts('PostDeliveryCrowdsaleImpl');
+const SimpleToken = load.truffle.fromArtifacts('SimpleToken');
 
 describe('PostDeliveryCrowdsale', function () {
   const rate = new BN(1);

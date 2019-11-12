@@ -6,9 +6,9 @@ const { bufferToHex, keccak256 } = require('ethereumjs-util');
 
 const { expect } = require('chai');
 
-const ERC1820ImplementerMock = load.truffle('ERC1820ImplementerMock');
+const ERC1820ImplementerMock = load.truffle.fromArtifacts('ERC1820ImplementerMock');
 
-describe.skip('ERC1820Implementer', function () {
+describe('ERC1820Implementer', function () {
   const ERC1820_ACCEPT_MAGIC = bufferToHex(keccak256('ERC1820_ACCEPT_MAGIC'));
 
   beforeEach(async function () {
@@ -26,7 +26,6 @@ describe.skip('ERC1820Implementer', function () {
     });
 
     it('reverts when attempting to set as implementer in the registry', async function () {
-      console.log(this.registry.methods)
       await expectRevert(
         this.registry.setInterfaceImplementer(
           implementee, this.interfaceA, this.implementer.address, { from: implementee }

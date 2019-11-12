@@ -8,7 +8,7 @@ const {
   shouldBehaveLikeMintAndBurnERC721,
 } = require('./ERC721MintBurn.behavior');
 
-const ERC721BurnableImpl = load.truffle('ERC721MintableBurnableImpl');
+const ERC721BurnableImpl = load.truffle.fromArtifacts('ERC721MintableBurnableImpl');
 
 describe('ERC721Burnable', function () {
   const minter = creator;

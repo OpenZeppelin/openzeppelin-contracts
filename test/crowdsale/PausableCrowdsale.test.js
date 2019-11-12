@@ -3,8 +3,8 @@ const [ pauser, wallet, other ] = accounts;
 
 const { BN, expectRevert } = require('@openzeppelin/test-helpers');
 
-const PausableCrowdsale = load.truffle('PausableCrowdsaleImpl');
-const SimpleToken = load.truffle('SimpleToken');
+const PausableCrowdsale = load.truffle.fromArtifacts('PausableCrowdsaleImpl');
+const SimpleToken = load.truffle.fromArtifacts('SimpleToken');
 
 describe('PausableCrowdsale', function () {
   const rate = new BN(1);

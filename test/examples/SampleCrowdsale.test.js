@@ -5,8 +5,8 @@ const { BN, balance, ether, expectRevert, time } = require('@openzeppelin/test-h
 
 const { expect } = require('chai');
 
-const SampleCrowdsale = load.truffle('SampleCrowdsale');
-const SampleCrowdsaleToken = load.truffle('SampleCrowdsaleToken');
+const SampleCrowdsale = load.truffle.fromArtifacts('SampleCrowdsale');
+const SampleCrowdsaleToken = load.truffle.fromArtifacts('SampleCrowdsaleToken');
 
 describe('SampleCrowdsale', function () {
   const RATE = new BN(10);

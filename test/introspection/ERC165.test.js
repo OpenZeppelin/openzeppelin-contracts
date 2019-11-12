@@ -3,7 +3,7 @@ const { expectRevert } = require('@openzeppelin/test-helpers');
 
 const { shouldSupportInterfaces } = require('./SupportsInterface.behavior');
 
-const ERC165Mock = load.truffle('ERC165Mock');
+const ERC165Mock = load.truffle.fromArtifacts('ERC165Mock');
 
 describe('ERC165', function () {
   beforeEach(async function () {

@@ -4,7 +4,7 @@ const [ owner, payee, ...otherAccounts ] = accounts;
 const { ether, expectRevert } = require('@openzeppelin/test-helpers');
 const { shouldBehaveLikeEscrow } = require('./Escrow.behavior');
 
-const ConditionalEscrowMock = load.truffle('ConditionalEscrowMock');
+const ConditionalEscrowMock = load.truffle.fromArtifacts('ConditionalEscrowMock');
 
 describe('ConditionalEscrow', function () {
   beforeEach(async function () {

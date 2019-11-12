@@ -6,8 +6,8 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const ERC20Mintable = load.truffle('ERC20Mintable');
-const TokenVesting = load.truffle('TokenVesting');
+const ERC20Mintable = load.truffle.fromArtifacts('ERC20Mintable');
+const TokenVesting = load.truffle.fromArtifacts('TokenVesting');
 
 describe('TokenVesting', function () {
   const amount = new BN('1000');

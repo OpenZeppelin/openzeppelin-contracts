@@ -6,7 +6,7 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const SecondaryMock = load.truffle('SecondaryMock');
+const SecondaryMock = load.truffle.fromArtifacts('SecondaryMock');
 
 describe('Secondary', function () {
   beforeEach(async function () {

@@ -7,7 +7,7 @@ const { toEthSignedMessageHash, fixSignature } = require('../helpers/sign')(web3
 
 const { expect } = require('chai');
 
-const ECDSAMock = load.truffle('ECDSAMock');
+const ECDSAMock = load.truffle.fromArtifacts('ECDSAMock');
 
 const TEST_MESSAGE = web3.utils.sha3('OpenZeppelin');
 const WRONG_MESSAGE = web3.utils.sha3('Nope');

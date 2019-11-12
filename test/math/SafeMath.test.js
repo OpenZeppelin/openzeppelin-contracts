@@ -4,7 +4,7 @@ const { MAX_UINT256 } = constants;
 
 const { expect } = require('chai');
 
-const SafeMathMock = load.truffle('SafeMathMock');
+const SafeMathMock = load.truffle.fromArtifacts('SafeMathMock');
 
 describe('SafeMath', function () {
   beforeEach(async function () {

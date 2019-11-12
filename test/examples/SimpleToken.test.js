@@ -6,7 +6,7 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const SimpleToken = load.truffle('SimpleToken');
+const SimpleToken = load.truffle.fromArtifacts('SimpleToken');
 
 describe('SimpleToken', function () {
   beforeEach(async function () {

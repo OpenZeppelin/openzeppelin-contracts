@@ -3,7 +3,7 @@ const { BN } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const MathMock = load.truffle('MathMock');
+const MathMock = load.truffle.fromArtifacts('MathMock');
 
 describe('Math', function () {
   const min = new BN('1234');

@@ -5,8 +5,8 @@ const { BN, ether, expectEvent, expectRevert, time } = require('@openzeppelin/te
 
 const { expect } = require('chai');
 
-const TimedCrowdsaleImpl = load.truffle('TimedCrowdsaleImpl');
-const SimpleToken = load.truffle('SimpleToken');
+const TimedCrowdsaleImpl = load.truffle.fromArtifacts('TimedCrowdsaleImpl');
+const SimpleToken = load.truffle.fromArtifacts('SimpleToken');
 
 describe('TimedCrowdsale', function () {
   const rate = new BN(1);

@@ -46,7 +46,7 @@
     "@openzeppelin/cli": "^2.5.3",
     "@openzeppelin/gsn-helpers": "^0.2.1",
     "@openzeppelin/gsn-provider": "^0.1.9",
-    "@openzeppelin/test-env": "^0.2.1",
+    "@openzeppelin/test-env": "file:../test-env/openzeppelin-test-env-0.2.1.tgz",
     "@openzeppelin/test-helpers": "^0.5.3",
     "@truffle/contract": "^4.0.38",
     "chai": "^4.2.0",

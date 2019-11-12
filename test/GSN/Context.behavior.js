@@ -2,7 +2,7 @@ const { load } = require('@openzeppelin/test-env');
 
 const { BN, expectEvent } = require('@openzeppelin/test-helpers');
 
-const ContextMock = load.truffle('ContextMock');
+const ContextMock = load.truffle.fromArtifacts('ContextMock');
 
 function shouldBehaveLikeRegularContext (sender) {
   describe('msgSender', function () {

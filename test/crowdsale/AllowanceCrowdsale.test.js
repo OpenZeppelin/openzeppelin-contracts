@@ -6,8 +6,8 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const AllowanceCrowdsaleImpl = load.truffle('AllowanceCrowdsaleImpl');
-const SimpleToken = load.truffle('SimpleToken');
+const AllowanceCrowdsaleImpl = load.truffle.fromArtifacts('AllowanceCrowdsaleImpl');
+const SimpleToken = load.truffle.fromArtifacts('SimpleToken');
 
 describe('AllowanceCrowdsale', function () {
   const rate = new BN('1');

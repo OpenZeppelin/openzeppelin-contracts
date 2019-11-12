@@ -5,7 +5,7 @@ const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ERC20PausableMock = load.truffle('ERC20PausableMock');
+const ERC20PausableMock = load.truffle.fromArtifacts('ERC20PausableMock');
 const { shouldBehaveLikePublicRole } = require('../../behaviors/access/roles/PublicRole.behavior');
 
 describe('ERC20Pausable', function () {

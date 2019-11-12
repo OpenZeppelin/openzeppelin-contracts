@@ -3,7 +3,7 @@ const { BN } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ERC20DetailedMock = load.truffle('ERC20DetailedMock');
+const ERC20DetailedMock = load.truffle.fromArtifacts('ERC20DetailedMock');
 
 describe('ERC20Detailed', function () {
   const _name = 'My Detailed ERC20';

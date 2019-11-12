@@ -7,7 +7,7 @@ const { expect } = require('chai');
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 
-const ERC721FullMock = load.truffle('ERC721FullMock');
+const ERC721FullMock = load.truffle.fromArtifacts('ERC721FullMock');
 
 describe('ERC721Full', function () {
   const name = 'Non Fungible Token';

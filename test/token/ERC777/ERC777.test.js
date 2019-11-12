@@ -18,8 +18,8 @@ const {
   shouldBehaveLikeERC20,
 } = require('../ERC20/ERC20.behavior');
 
-const ERC777 = load.truffle('ERC777Mock');
-const ERC777SenderRecipientMock = load.truffle('ERC777SenderRecipientMock');
+const ERC777 = load.truffle.fromArtifacts('ERC777Mock');
+const ERC777SenderRecipientMock = load.truffle.fromArtifacts('ERC777SenderRecipientMock');
 
 describe('ERC777', function () {
   const initialSupply = new BN('10000');

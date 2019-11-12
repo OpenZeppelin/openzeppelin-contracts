@@ -11,7 +11,7 @@ const {
   shouldBehaveLikeERC20Approve,
 } = require('./ERC20.behavior');
 
-const ERC20Mock = load.truffle('ERC20Mock');
+const ERC20Mock = load.truffle.fromArtifacts('ERC20Mock');
 
 describe('ERC20', function () {
   const initialSupply = new BN(100);
@@ -118,7 +118,7 @@ describe('ERC20', function () {
           it('approves the requested amount', async function () {
             await this.token.increaseAllowance(spender, amount, { from: initialHolder });
 
-            expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal('0');
+            expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal(amount);
           });
         });
 

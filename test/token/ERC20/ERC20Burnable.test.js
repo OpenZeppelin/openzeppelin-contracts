@@ -4,7 +4,7 @@ const [ owner, ...otherAccounts ] = accounts;
 const { BN } = require('@openzeppelin/test-helpers');
 
 const { shouldBehaveLikeERC20Burnable } = require('./behaviors/ERC20Burnable.behavior');
-const ERC20BurnableMock = load.truffle('ERC20BurnableMock');
+const ERC20BurnableMock = load.truffle.fromArtifacts('ERC20BurnableMock');
 
 describe('ERC20Burnable', function () {
   const initialBalance = new BN(1000);

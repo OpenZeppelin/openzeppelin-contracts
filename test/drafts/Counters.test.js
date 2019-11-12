@@ -3,7 +3,7 @@ const { expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const CountersImpl = load.truffle('CountersImpl');
+const CountersImpl = load.truffle.fromArtifacts('CountersImpl');
 
 describe('Counters', function () {
   beforeEach(async function () {
