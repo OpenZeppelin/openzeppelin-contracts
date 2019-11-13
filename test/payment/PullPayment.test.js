@@ -5,7 +5,7 @@ const { balance, ether } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const PullPaymentMock = load.truffle.fromArtifacts('PullPaymentMock');
+const PullPaymentMock = load.fromArtifacts('PullPaymentMock');
 
 describe('PullPayment', function () {
   const amount = ether('17');

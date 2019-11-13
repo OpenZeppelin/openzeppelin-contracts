@@ -3,8 +3,8 @@ const [ sender ] = accounts;
 
 require('@openzeppelin/test-helpers');
 
-const ContextMock = load.truffle.fromArtifacts('ContextMock');
-const ContextMockCaller = load.truffle.fromArtifacts('ContextMockCaller');
+const ContextMock = load.fromArtifacts('ContextMock');
+const ContextMockCaller = load.fromArtifacts('ContextMockCaller');
 
 const { shouldBehaveLikeRegularContext } = require('./Context.behavior');
 

@@ -6,7 +6,7 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const PaymentSplitter = load.truffle.fromArtifacts('PaymentSplitter');
+const PaymentSplitter = load.fromArtifacts('PaymentSplitter');
 
 describe('PaymentSplitter', function () {
   const amount = ether('1');

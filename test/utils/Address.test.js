@@ -4,9 +4,9 @@ const [ recipient, other ] = accounts;
 const { balance, constants, ether, expectRevert, send } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
-const AddressImpl = load.truffle.fromArtifacts('AddressImpl');
-const SimpleToken = load.truffle.fromArtifacts('SimpleToken');
-const EtherReceiver = load.truffle.fromArtifacts('EtherReceiverMock');
+const AddressImpl = load.fromArtifacts('AddressImpl');
+const SimpleToken = load.fromArtifacts('SimpleToken');
+const EtherReceiver = load.fromArtifacts('EtherReceiverMock');
 
 describe('Address', function () {
   const ALL_ONES_ADDRESS = '0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF';

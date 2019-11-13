@@ -5,7 +5,9 @@ module.exports = {
     ether: 1e6,
   },
 
-  gasLimit: 8e6,
+  contracts: {
+    type: 'truffle',
+  },
 
   setupProvider: (baseProvider) => {
     const { accounts } = require('@openzeppelin/test-env');

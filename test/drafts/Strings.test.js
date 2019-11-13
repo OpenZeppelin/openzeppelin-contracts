@@ -3,7 +3,7 @@ const { constants } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const StringsMock = load.truffle.fromArtifacts('StringsMock');
+const StringsMock = load.fromArtifacts('StringsMock');
 
 describe('Strings', function () {
   beforeEach(async function () {

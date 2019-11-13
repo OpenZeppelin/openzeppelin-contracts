@@ -5,8 +5,8 @@ const { balance, BN, ether, expectRevert, time } = require('@openzeppelin/test-h
 
 const { expect } = require('chai');
 
-const RefundableCrowdsaleImpl = load.truffle.fromArtifacts('RefundableCrowdsaleImpl');
-const SimpleToken = load.truffle.fromArtifacts('SimpleToken');
+const RefundableCrowdsaleImpl = load.fromArtifacts('RefundableCrowdsaleImpl');
+const SimpleToken = load.fromArtifacts('SimpleToken');
 
 describe('RefundableCrowdsale', function () {
   const rate = new BN(1);

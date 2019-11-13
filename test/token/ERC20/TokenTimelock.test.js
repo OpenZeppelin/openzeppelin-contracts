@@ -5,8 +5,8 @@ const { BN, expectRevert, time } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ERC20Mintable = load.truffle.fromArtifacts('ERC20Mintable');
-const TokenTimelock = load.truffle.fromArtifacts('TokenTimelock');
+const ERC20Mintable = load.fromArtifacts('ERC20Mintable');
+const TokenTimelock = load.fromArtifacts('TokenTimelock');
 
 describe('TokenTimelock', function () {
   const amount = new BN(100);

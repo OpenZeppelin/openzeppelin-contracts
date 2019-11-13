@@ -6,7 +6,7 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const RolesMock = load.truffle.fromArtifacts('RolesMock');
+const RolesMock = load.fromArtifacts('RolesMock');
 
 describe('Roles', function () {
   beforeEach(async function () {

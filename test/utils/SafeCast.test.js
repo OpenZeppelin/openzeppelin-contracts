@@ -3,7 +3,7 @@ const { BN, expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const SafeCastMock = load.truffle.fromArtifacts('SafeCastMock');
+const SafeCastMock = load.fromArtifacts('SafeCastMock');
 
 describe('SafeCast', async () => {
   beforeEach(async function () {

@@ -2,7 +2,7 @@ const { accounts, load } = require('@openzeppelin/test-env');
 const [ minter, otherMinter, ...otherAccounts ] = accounts;
 
 const { shouldBehaveLikeERC20Mintable } = require('./behaviors/ERC20Mintable.behavior');
-const ERC20MintableMock = load.truffle.fromArtifacts('ERC20MintableMock');
+const ERC20MintableMock = load.fromArtifacts('ERC20MintableMock');
 const { shouldBehaveLikePublicRole } = require('../../behaviors/access/roles/PublicRole.behavior');
 
 describe('ERC20Mintable', function () {

@@ -5,8 +5,8 @@ const { BN, ether, expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const IndividuallyCappedCrowdsaleImpl = load.truffle.fromArtifacts('IndividuallyCappedCrowdsaleImpl');
-const SimpleToken = load.truffle.fromArtifacts('SimpleToken');
+const IndividuallyCappedCrowdsaleImpl = load.fromArtifacts('IndividuallyCappedCrowdsaleImpl');
+const SimpleToken = load.fromArtifacts('SimpleToken');
 const { shouldBehaveLikePublicRole } = require('../behaviors/access/roles/PublicRole.behavior');
 
 describe('IndividuallyCappedCrowdsale', function () {

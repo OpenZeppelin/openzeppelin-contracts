@@ -7,7 +7,7 @@ const { keccak256, bufferToHex } = require('ethereumjs-util');
 
 const { expect } = require('chai');
 
-const MerkleProofWrapper = load.truffle.fromArtifacts('MerkleProofWrapper');
+const MerkleProofWrapper = load.fromArtifacts('MerkleProofWrapper');
 
 describe('MerkleProof', function () {
   beforeEach(async function () {

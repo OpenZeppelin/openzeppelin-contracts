@@ -4,7 +4,7 @@ const [ primary, ...otherAccounts ] = accounts;
 require('@openzeppelin/test-helpers');
 const { shouldBehaveLikeEscrow } = require('./Escrow.behavior');
 
-const Escrow = load.truffle.fromArtifacts('Escrow');
+const Escrow = load.fromArtifacts('Escrow');
 
 describe('Escrow', function () {
   beforeEach(async function () {

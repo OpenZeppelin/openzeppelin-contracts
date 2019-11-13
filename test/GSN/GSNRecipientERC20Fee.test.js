@@ -6,9 +6,9 @@ const gsn = require('@openzeppelin/gsn-helpers');
 
 const { expect } = require('chai');
 
-const GSNRecipientERC20FeeMock = load.truffle.fromArtifacts('GSNRecipientERC20FeeMock');
-const ERC20Detailed = load.truffle.fromArtifacts('ERC20Detailed');
-const IRelayHub = load.truffle.fromArtifacts('IRelayHub');
+const GSNRecipientERC20FeeMock = load.fromArtifacts('GSNRecipientERC20FeeMock');
+const ERC20Detailed = load.fromArtifacts('ERC20Detailed');
+const IRelayHub = load.fromArtifacts('IRelayHub');
 
 describe('GSNRecipientERC20Fee', function () {
   const name = 'FeeToken';

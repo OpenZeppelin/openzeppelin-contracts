@@ -4,8 +4,8 @@ const { expect } = require('chai');
 const { ZERO_ADDRESS } = constants;
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 
-const ERC721ReceiverMock = load.truffle.fromArtifacts('ERC721ReceiverMock');
-const ERC721Mock = load.truffle.fromArtifacts('ERC721Mock');
+const ERC721ReceiverMock = load.fromArtifacts('ERC721ReceiverMock');
+const ERC721Mock = load.fromArtifacts('ERC721Mock');
 
 function shouldBehaveLikeERC721 (
   creator,

@@ -8,8 +8,8 @@ const gsn = require('@openzeppelin/gsn-helpers');
 
 const { expect } = require('chai');
 
-const GSNRecipientMock = load.truffle.fromArtifacts('GSNRecipientMock');
-const ContextMockCaller = load.truffle.fromArtifacts('ContextMockCaller');
+const GSNRecipientMock = load.fromArtifacts('GSNRecipientMock');
+const ContextMockCaller = load.fromArtifacts('ContextMockCaller');
 
 const { shouldBehaveLikeRegularContext } = require('./Context.behavior');
 

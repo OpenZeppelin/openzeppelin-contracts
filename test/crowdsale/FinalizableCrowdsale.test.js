@@ -3,8 +3,8 @@ const [ wallet, other ] = accounts;
 
 const { BN, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 
-const FinalizableCrowdsaleImpl = load.truffle.fromArtifacts('FinalizableCrowdsaleImpl');
-const ERC20 = load.truffle.fromArtifacts('ERC20');
+const FinalizableCrowdsaleImpl = load.fromArtifacts('FinalizableCrowdsaleImpl');
+const ERC20 = load.fromArtifacts('ERC20');
 
 describe('FinalizableCrowdsale', function () {
   const rate = new BN('1000');

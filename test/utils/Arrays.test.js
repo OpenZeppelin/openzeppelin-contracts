@@ -3,7 +3,7 @@ require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ArraysImpl = load.truffle.fromArtifacts('ArraysImpl');
+const ArraysImpl = load.fromArtifacts('ArraysImpl');
 
 describe('Arrays', function () {
   context('Even number of elements', function () {

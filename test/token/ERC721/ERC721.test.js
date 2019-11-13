@@ -7,7 +7,7 @@ const { ZERO_ADDRESS } = constants;
 const { expect } = require('chai');
 
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
-const ERC721Mock = load.truffle.fromArtifacts('ERC721Mock');
+const ERC721Mock = load.fromArtifacts('ERC721Mock');
 
 describe('ERC721', function () {
   beforeEach(async function () {

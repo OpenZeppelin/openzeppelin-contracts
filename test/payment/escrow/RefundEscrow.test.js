@@ -6,7 +6,7 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const RefundEscrow = load.truffle.fromArtifacts('RefundEscrow');
+const RefundEscrow = load.fromArtifacts('RefundEscrow');
 
 describe('RefundEscrow', function () {
   const amount = ether('54');

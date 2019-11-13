@@ -5,7 +5,7 @@ const { MAX_INT256, MIN_INT256 } = constants;
 
 const { expect } = require('chai');
 
-const SignedSafeMathMock = load.truffle.fromArtifacts('SignedSafeMathMock');
+const SignedSafeMathMock = load.fromArtifacts('SignedSafeMathMock');
 
 describe('SignedSafeMath', function () {
   beforeEach(async function () {

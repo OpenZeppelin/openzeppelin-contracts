@@ -11,7 +11,7 @@ const {
   shouldBehaveLikeERC20Approve,
 } = require('./ERC20.behavior');
 
-const ERC20Mock = load.truffle.fromArtifacts('ERC20Mock');
+const ERC20Mock = load.fromArtifacts('ERC20Mock');
 
 describe('ERC20', function () {
   const initialSupply = new BN(100);

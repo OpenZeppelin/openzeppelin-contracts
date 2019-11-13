@@ -3,8 +3,8 @@ const { expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ReentrancyMock = load.truffle.fromArtifacts('ReentrancyMock');
-const ReentrancyAttack = load.truffle.fromArtifacts('ReentrancyAttack');
+const ReentrancyMock = load.fromArtifacts('ReentrancyMock');
+const ReentrancyAttack = load.fromArtifacts('ReentrancyAttack');
 
 describe('ReentrancyGuard', function () {
   beforeEach(async function () {

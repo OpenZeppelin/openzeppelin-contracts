@@ -6,9 +6,9 @@ const { shouldBehaveLikeMintedCrowdsale } = require('./MintedCrowdsale.behavior'
 
 const { expect } = require('chai');
 
-const MintedCrowdsaleImpl = load.truffle.fromArtifacts('MintedCrowdsaleImpl');
-const ERC20Mintable = load.truffle.fromArtifacts('ERC20Mintable');
-const ERC20 = load.truffle.fromArtifacts('ERC20');
+const MintedCrowdsaleImpl = load.fromArtifacts('MintedCrowdsaleImpl');
+const ERC20Mintable = load.fromArtifacts('ERC20Mintable');
+const ERC20 = load.fromArtifacts('ERC20');
 
 describe('MintedCrowdsale', function () {
   const rate = new BN('1000');

@@ -4,7 +4,7 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const ERC777SenderRecipientMock = load.truffle.fromArtifacts('ERC777SenderRecipientMock');
+const ERC777SenderRecipientMock = load.fromArtifacts('ERC777SenderRecipientMock');
 
 function shouldBehaveLikeERC777DirectSendBurn (holder, recipient, data) {
   shouldBehaveLikeERC777DirectSend(holder, recipient, data);

@@ -3,8 +3,8 @@ const [ wallet, whitelister, whitelisted, otherWhitelisted, other ] = accounts;
 
 const { BN, ether, expectRevert } = require('@openzeppelin/test-helpers');
 
-const WhitelistCrowdsale = load.truffle.fromArtifacts('WhitelistCrowdsaleImpl');
-const SimpleToken = load.truffle.fromArtifacts('SimpleToken');
+const WhitelistCrowdsale = load.fromArtifacts('WhitelistCrowdsaleImpl');
+const SimpleToken = load.fromArtifacts('SimpleToken');
 
 describe('WhitelistCrowdsale', function () {
   const rate = new BN(1);

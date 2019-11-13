@@ -6,9 +6,9 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const ERC20Mock = load.truffle.fromArtifacts('ERC20Mock');
-const ERC20Mintable = load.truffle.fromArtifacts('ERC20Mintable');
-const ERC20Migrator = load.truffle.fromArtifacts('ERC20Migrator');
+const ERC20Mock = load.fromArtifacts('ERC20Mock');
+const ERC20Mintable = load.fromArtifacts('ERC20Mintable');
+const ERC20Migrator = load.fromArtifacts('ERC20Migrator');
 
 describe('ERC20Migrator', function () {
   const totalSupply = new BN('200');

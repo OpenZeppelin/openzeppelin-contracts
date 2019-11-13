@@ -5,8 +5,8 @@ const { BN, ether, expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const CappedCrowdsaleImpl = load.truffle.fromArtifacts('CappedCrowdsaleImpl');
-const SimpleToken = load.truffle.fromArtifacts('SimpleToken');
+const CappedCrowdsaleImpl = load.fromArtifacts('CappedCrowdsaleImpl');
+const SimpleToken = load.fromArtifacts('SimpleToken');
 
 describe('CappedCrowdsale', function () {
   const rate = new BN('1');

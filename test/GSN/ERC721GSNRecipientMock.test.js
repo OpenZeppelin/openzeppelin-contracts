@@ -7,7 +7,7 @@ const gsn = require('@openzeppelin/gsn-helpers');
 const { fixSignature } = require('../helpers/sign')(web3);
 const { utils: { toBN } } = require('web3');
 
-const ERC721GSNRecipientMock = load.truffle.fromArtifacts('ERC721GSNRecipientMock');
+const ERC721GSNRecipientMock = load.fromArtifacts('ERC721GSNRecipientMock');
 
 describe('ERC721GSNRecipient (integration)', function () {
   const tokenId = '42';
