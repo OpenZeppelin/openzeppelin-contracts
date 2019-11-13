@@ -62,7 +62,7 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
      *
      * Reverts if the token ID does not exist.
      */
-    function tokenURI(uint256 tokenId) public view returns (string memory) {
+    function tokenURI(uint256 tokenId) external view returns (string memory) {
         require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
 
         string memory uri = _tokenURIs[tokenId];
