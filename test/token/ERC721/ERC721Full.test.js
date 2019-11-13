@@ -106,23 +106,23 @@ contract('ERC721Full', function ([
         });
 
         it('base URI is added as a prefix to the token URI', async function () {
-          await this.token.setBaseTokenURI(baseURI);
+          await this.token.setBaseURI(baseURI);
           await this.token.setTokenURI(firstTokenId, sampleUri);
 
           expect(await this.token.tokenURI(firstTokenId)).to.be.equal(baseURI + sampleUri);
         });
 
         it('token URI can be changed by changing the base URI', async function () {
-          await this.token.setBaseTokenURI(baseURI);
+          await this.token.setBaseURI(baseURI);
           await this.token.setTokenURI(firstTokenId, sampleUri);
 
           const newBaseURI = 'https://api.com/v2/';
-          await this.token.setBaseTokenURI(newBaseURI);
+          await this.token.setBaseURI(newBaseURI);
           expect(await this.token.tokenURI(firstTokenId)).to.be.equal(newBaseURI + sampleUri);
         });
 
         it('token URI is empty for tokens with no URI but with base URI', async function () {
-          await this.token.setBaseTokenURI(baseURI);
+          await this.token.setBaseURI(baseURI);
 
           expect(await this.token.tokenURI(firstTokenId)).to.be.equal('');
         });

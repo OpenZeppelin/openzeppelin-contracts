@@ -65,14 +65,14 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
     function tokenURI(uint256 tokenId) external view returns (string memory) {
         require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
 
-        string memory tokenURI = _tokenURIs[tokenId];
+        string memory _tokenURI = _tokenURIs[tokenId];
 
         // Even if there is a base URI, it is only appended to non-empty token-specific URIs
-        if (bytes(tokenURI).length == 0) {
+        if (bytes(_tokenURI).length == 0) {
             return "";
         } else {
             // abi.encodePacked is being used to concatenate strings
-            return string(abi.encodePacked(_baseURI, tokenURI));
+            return string(abi.encodePacked(_baseURI, _tokenURI));
         }
     }
 
@@ -85,9 +85,9 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
      * `http://api.myproject.com/token/<id>`), use {_setBaseURI} to store
      * it and save gas.
      */
-    function _setTokenURI(uint256 tokenId, string memory tokenURI) internal {
+    function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal {
         require(_exists(tokenId), "ERC721Metadata: URI set of nonexistent token");
-        _tokenURIs[tokenId] = tokenURI;
+        _tokenURIs[tokenId] = _tokenURI;
     }
 
     /**
