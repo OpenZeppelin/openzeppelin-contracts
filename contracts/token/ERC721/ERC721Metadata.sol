@@ -58,7 +58,7 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
      * @dev Returns the URI for a given token ID. May return an empty string.
      *
      * If the token's URI is non-empty and a base URI was set (via
-     * {_setBaseTokenURI}), it will be added to the token ID's URI as a prefix.
+     * {_setBaseURI}), it will be added to the token ID's URI as a prefix.
      *
      * Reverts if the token ID does not exist.
      */
@@ -81,7 +81,7 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
      * Reverts if the token ID does not exist.
      *
      * TIP: if all token IDs share a prefix (e.g. if your URIs look like
-     * `http://api.myproject.com/token/<id>`), use {_setBaseTokenURI} to store
+     * `http://api.myproject.com/token/<id>`), use {_setBaseURI} to store
      * it and save gas.
      */
     function _setTokenURI(uint256 tokenId, string memory uri) internal {
@@ -93,7 +93,7 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
      * @dev Internal function to set the base URI for all token IDs. It is
      * automatically added as a prefix to the value returned in {tokenURI}.
      */
-    function _setBaseTokenURI(string memory uri) internal {
+    function _setBaseURI(string memory uri) internal {
         _baseURI = uri;
     }
 
