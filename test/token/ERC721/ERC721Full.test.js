@@ -105,6 +105,11 @@ contract('ERC721Full', function ([
           );
         });
 
+        it('base URI can be set', async function () {
+          await this.token.setBaseURI(baseURI);
+          expect(await this.token.baseURI()).to.equal(baseURI);
+        });
+
         it('base URI is added as a prefix to the token URI', async function () {
           await this.token.setBaseURI(baseURI);
           await this.token.setTokenURI(firstTokenId, sampleUri);
