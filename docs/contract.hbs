@@ -63,7 +63,7 @@
 --
 {{/if}}
 
-{{#each modifiers}}
+{{#each ownModifiers}}
 [.contract-item]
 [[{{anchor}}]]
 ==== `pass:normal[{{name}}({{> typed-variable-array args}})]` [.item-kind]#modifier#
@@ -72,7 +72,7 @@
 
 {{/each}}
 
-{{#each functions}}
+{{#each ownFunctions}}
 [.contract-item]
 [[{{anchor}}]]
 ==== `pass:normal[{{name}}({{> typed-variable-array args}}){{#if outputs}} → {{> typed-variable-array outputs}}{{/if}}]` [.item-kind]#{{visibility}}#
@@ -81,7 +81,7 @@
 
 {{/each}}
 
-{{#each events}}
+{{#each ownEvents}}
 [.contract-item]
 [[{{anchor}}]]
 ==== `pass:normal[{{name}}({{> typed-variable-array args}})]` [.item-kind]#event#
