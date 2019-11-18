@@ -165,7 +165,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * Also emits a {Transfer} event for ERC20 compatibility.
      */
-    function burn(uint256 amount, bytes calldata data) external {
+    function burn(uint256 amount, bytes memory data) public {
         _burn(_msgSender(), _msgSender(), amount, data, "");
     }
 
