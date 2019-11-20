@@ -8,7 +8,7 @@ import "./Context.sol";
  * @dev Base GSN recipient contract: includes the {IRelayRecipient} interface
  * and enables GSN support on all contracts in the inheritance tree.
  *
- * TIP: This contract is abstract. The functions {acceptRelayedCall},
+ * TIP: This contract is abstract. The functions {IRelayRecipient-acceptRelayedCall},
  *  {_preRelayedCall}, and {_postRelayedCall} are not implemented and must be
  * provided by derived contracts. See the
  * xref:ROOT:gsn-strategies.adoc#gsn-strategies[GSN strategies] for more

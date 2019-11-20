@@ -11,6 +11,9 @@ pragma solidity ^0.5.0;
  * `nonReentrant` may not call one another. This can be worked around by making
  * those functions `private`, and then adding `external` `nonReentrant` entry
  * points to them.
+ *
+ * _Since v2.5.0:_ this module is now much more gas efficient, given net gas 
+ * metering changes introduced in the Istanbul hardfork.
  */
 contract ReentrancyGuard {
     // counter to allow mutex lock with only one SSTORE operation
@@ -34,5 +37,6 @@ contract ReentrancyGuard {
         uint256 localCounter = _guardCounter;
         _;
         require(localCounter == _guardCounter, "ReentrancyGuard: reentrant call");
+        _guardCounter = 1;
     }
 }
