@@ -68,6 +68,5 @@
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
     "solidity-docgen": "^0.3.13"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }
