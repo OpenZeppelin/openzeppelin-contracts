@@ -1,5 +1,5 @@
 const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
-const [ sender, other ] = accounts;
+const [ sender ] = accounts;
 
 const { ether, expectEvent } = require('@openzeppelin/test-helpers');
 const gsn = require('@openzeppelin/gsn-helpers');

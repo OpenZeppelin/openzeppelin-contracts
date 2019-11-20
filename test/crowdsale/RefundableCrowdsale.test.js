@@ -1,5 +1,5 @@
 const { accounts, contract } = require('@openzeppelin/test-environment');
-const [ wallet, investor, purchaser, other ] = accounts;
+const [ wallet, investor, other ] = accounts;
 
 const { balance, BN, ether, expectRevert, time } = require('@openzeppelin/test-helpers');
 
