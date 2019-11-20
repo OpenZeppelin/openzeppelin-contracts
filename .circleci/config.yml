@@ -51,7 +51,7 @@ jobs:
       - *npm_install_if_necessary
       - run:
           name: Unit tests
-          command: npm run test
+          command: npm run compile && npm run test
   coverage:
     <<: *defaults
     steps:
