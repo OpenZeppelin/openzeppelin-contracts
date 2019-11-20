@@ -1,12 +1,12 @@
-const { accounts, load } = require('@openzeppelin/test-env');
+const { accounts, contract } = require('@openzeppelin/test-environment');
 const [ wallet ] = accounts;
 
 const { BN, ether, expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const CappedCrowdsaleImpl = load.fromArtifacts('CappedCrowdsaleImpl');
-const SimpleToken = load.fromArtifacts('SimpleToken');
+const CappedCrowdsaleImpl = contract.fromArtifact('CappedCrowdsaleImpl');
+const SimpleToken = contract.fromArtifact('SimpleToken');
 
 describe('CappedCrowdsale', function () {
   const rate = new BN('1');

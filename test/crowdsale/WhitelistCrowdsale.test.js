@@ -1,10 +1,10 @@
-const { accounts, load } = require('@openzeppelin/test-env');
+const { accounts, contract } = require('@openzeppelin/test-environment');
 const [ wallet, whitelister, whitelisted, otherWhitelisted, other ] = accounts;
 
 const { BN, ether, expectRevert } = require('@openzeppelin/test-helpers');
 
-const WhitelistCrowdsale = load.fromArtifacts('WhitelistCrowdsaleImpl');
-const SimpleToken = load.fromArtifacts('SimpleToken');
+const WhitelistCrowdsale = contract.fromArtifact('WhitelistCrowdsaleImpl');
+const SimpleToken = contract.fromArtifact('SimpleToken');
 
 describe('WhitelistCrowdsale', function () {
   const rate = new BN(1);

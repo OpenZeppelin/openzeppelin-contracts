@@ -1,4 +1,4 @@
-const { accounts, load } = require('@openzeppelin/test-env');
+const { accounts, contract } = require('@openzeppelin/test-environment');
 const [ creator, ...otherAccounts ] = accounts;
 
 const { BN, expectRevert } = require('@openzeppelin/test-helpers');
@@ -7,7 +7,7 @@ const { expect } = require('chai');
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 
-const ERC721FullMock = load.fromArtifacts('ERC721FullMock');
+const ERC721FullMock = contract.fromArtifact('ERC721FullMock');
 
 describe('ERC721Full', function () {
   const name = 'Non Fungible Token';

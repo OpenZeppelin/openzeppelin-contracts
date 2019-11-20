@@ -1,12 +1,12 @@
-const { accounts, load } = require('@openzeppelin/test-env');
+const { accounts, contract } = require('@openzeppelin/test-environment');
 const [ creator ] = accounts;
 
 const { BN } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ERC721Holder = load.fromArtifacts('ERC721Holder');
-const ERC721Mintable = load.fromArtifacts('ERC721MintableBurnableImpl');
+const ERC721Holder = contract.fromArtifact('ERC721Holder');
+const ERC721Mintable = contract.fromArtifact('ERC721MintableBurnableImpl');
 
 describe('ERC721Holder', function () {
   it('receives an ERC721 token', async function () {

@@ -1,4 +1,4 @@
-const { load } = require('@openzeppelin/test-env');
+const { contract } = require('@openzeppelin/test-environment');
 
 require('@openzeppelin/test-helpers');
 
@@ -7,7 +7,7 @@ const { keccak256, bufferToHex } = require('ethereumjs-util');
 
 const { expect } = require('chai');
 
-const MerkleProofWrapper = load.fromArtifacts('MerkleProofWrapper');
+const MerkleProofWrapper = contract.fromArtifact('MerkleProofWrapper');
 
 describe('MerkleProof', function () {
   beforeEach(async function () {

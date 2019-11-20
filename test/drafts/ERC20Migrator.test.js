@@ -1,4 +1,4 @@
-const { accounts, load } = require('@openzeppelin/test-env');
+const { accounts, contract } = require('@openzeppelin/test-environment');
 const [ owner, recipient, anotherAccount ] = accounts;
 
 const { BN, constants, expectRevert } = require('@openzeppelin/test-helpers');
@@ -6,9 +6,9 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const ERC20Mock = load.fromArtifacts('ERC20Mock');
-const ERC20Mintable = load.fromArtifacts('ERC20Mintable');
-const ERC20Migrator = load.fromArtifacts('ERC20Migrator');
+const ERC20Mock = contract.fromArtifact('ERC20Mock');
+const ERC20Mintable = contract.fromArtifact('ERC20Mintable');
+const ERC20Migrator = contract.fromArtifact('ERC20Migrator');
 
 describe('ERC20Migrator', function () {
   const totalSupply = new BN('200');

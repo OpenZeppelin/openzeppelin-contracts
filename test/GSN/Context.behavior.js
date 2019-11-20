@@ -1,8 +1,8 @@
-const { load } = require('@openzeppelin/test-env');
+const { contract } = require('@openzeppelin/test-environment');
 
 const { BN, expectEvent } = require('@openzeppelin/test-helpers');
 
-const ContextMock = load.fromArtifacts('ContextMock');
+const ContextMock = contract.fromArtifact('ContextMock');
 
 function shouldBehaveLikeRegularContext (sender) {
   describe('msgSender', function () {

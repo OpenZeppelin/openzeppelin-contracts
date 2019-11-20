@@ -1,4 +1,4 @@
-const { accounts, load } = require('@openzeppelin/test-env');
+const { accounts, contract } = require('@openzeppelin/test-environment');
 const [ creator, ...otherAccounts ] = accounts;
 
 require('@openzeppelin/test-helpers');
@@ -8,7 +8,7 @@ const {
   shouldBehaveLikeMintAndBurnERC721,
 } = require('./ERC721MintBurn.behavior');
 
-const ERC721BurnableImpl = load.fromArtifacts('ERC721MintableBurnableImpl');
+const ERC721BurnableImpl = contract.fromArtifact('ERC721MintableBurnableImpl');
 
 describe('ERC721Burnable', function () {
   const minter = creator;

@@ -1,4 +1,4 @@
-const { accounts, load } = require('@openzeppelin/test-env');
+const { accounts, contract } = require('@openzeppelin/test-environment');
 const [ creator, otherPauser, ...otherAccounts ] = accounts;
 
 require('@openzeppelin/test-helpers');
@@ -6,7 +6,7 @@ const { shouldBehaveLikeERC721PausedToken } = require('./ERC721PausedToken.behav
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
 const { shouldBehaveLikePublicRole } = require('../../behaviors/access/roles/PublicRole.behavior');
 
-const ERC721PausableMock = load.fromArtifacts('ERC721PausableMock');
+const ERC721PausableMock = contract.fromArtifact('ERC721PausableMock');
 
 describe('ERC721Pausable', function () {
   beforeEach(async function () {

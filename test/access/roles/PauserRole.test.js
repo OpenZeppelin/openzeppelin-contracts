@@ -1,8 +1,8 @@
-const { accounts, load } = require('@openzeppelin/test-env');
+const { accounts, contract } = require('@openzeppelin/test-environment');
 const [ pauser, otherPauser, ...otherAccounts ] = accounts;
 
 const { shouldBehaveLikePublicRole } = require('../../behaviors/access/roles/PublicRole.behavior');
-const PauserRoleMock = load.fromArtifacts('PauserRoleMock');
+const PauserRoleMock = contract.fromArtifact('PauserRoleMock');
 
 describe('PauserRole', function () {
   beforeEach(async function () {

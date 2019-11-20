@@ -1,10 +1,10 @@
-const { accounts, load } = require('@openzeppelin/test-env');
+const { accounts, contract } = require('@openzeppelin/test-environment');
 const [ sender ] = accounts;
 
 require('@openzeppelin/test-helpers');
 
-const ContextMock = load.fromArtifacts('ContextMock');
-const ContextMockCaller = load.fromArtifacts('ContextMockCaller');
+const ContextMock = contract.fromArtifact('ContextMock');
+const ContextMockCaller = contract.fromArtifact('ContextMockCaller');
 
 const { shouldBehaveLikeRegularContext } = require('./Context.behavior');
 

@@ -10,7 +10,7 @@ module.exports = {
   },
 
   setupProvider: (baseProvider) => {
-    const { accounts } = require('@openzeppelin/test-env');
+    const { accounts } = require('@openzeppelin/test-environment');
 
     return new GSNDevProvider(baseProvider, {
       txfee: 70,

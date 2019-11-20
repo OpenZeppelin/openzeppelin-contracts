@@ -1,4 +1,4 @@
-const { defaultSender, web3 } = require('@openzeppelin/test-env');
+const { defaultSender, web3 } = require('@openzeppelin/test-environment');
 const { deployRelayHub } = require('@openzeppelin/gsn-helpers');
 
 before('deploy GSN RelayHub', async function () {

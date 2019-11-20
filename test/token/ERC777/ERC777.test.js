@@ -1,4 +1,4 @@
-const { accounts, load, web3 } = require('@openzeppelin/test-env');
+const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
 const [ registryFunder, holder, defaultOperatorA, defaultOperatorB, newOperator, anyone ] = accounts;
 
 const { BN, expectEvent, expectRevert, singletons } = require('@openzeppelin/test-helpers');
@@ -18,8 +18,8 @@ const {
   shouldBehaveLikeERC20,
 } = require('../ERC20/ERC20.behavior');
 
-const ERC777 = load.fromArtifacts('ERC777Mock');
-const ERC777SenderRecipientMock = load.fromArtifacts('ERC777SenderRecipientMock');
+const ERC777 = contract.fromArtifact('ERC777Mock');
+const ERC777SenderRecipientMock = contract.fromArtifact('ERC777SenderRecipientMock');
 
 describe('ERC777', function () {
   const initialSupply = new BN('10000');

@@ -1,8 +1,8 @@
-const { accounts, load } = require('@openzeppelin/test-env');
+const { accounts, contract } = require('@openzeppelin/test-environment');
 const [ minter, otherMinter, ...otherAccounts ] = accounts;
 
 const { shouldBehaveLikePublicRole } = require('../../behaviors/access/roles/PublicRole.behavior');
-const MinterRoleMock = load.fromArtifacts('MinterRoleMock');
+const MinterRoleMock = contract.fromArtifact('MinterRoleMock');
 
 describe('MinterRole', function () {
   beforeEach(async function () {

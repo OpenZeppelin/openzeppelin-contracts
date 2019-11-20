@@ -1,9 +1,9 @@
-const { load } = require('@openzeppelin/test-env');
+const { contract } = require('@openzeppelin/test-environment');
 const { BN } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const MathMock = load.fromArtifacts('MathMock');
+const MathMock = contract.fromArtifact('MathMock');
 
 describe('Math', function () {
   const min = new BN('1234');

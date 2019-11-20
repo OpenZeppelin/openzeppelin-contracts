@@ -1,12 +1,12 @@
-const { accounts, load } = require('@openzeppelin/test-env');
+const { accounts, contract } = require('@openzeppelin/test-environment');
 const [ recipient, other ] = accounts;
 
 const { balance, constants, ether, expectRevert, send } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
-const AddressImpl = load.fromArtifacts('AddressImpl');
-const SimpleToken = load.fromArtifacts('SimpleToken');
-const EtherReceiver = load.fromArtifacts('EtherReceiverMock');
+const AddressImpl = contract.fromArtifact('AddressImpl');
+const SimpleToken = contract.fromArtifact('SimpleToken');
+const EtherReceiver = contract.fromArtifact('EtherReceiverMock');
 
 describe('Address', function () {
   const ALL_ONES_ADDRESS = '0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF';

@@ -1,4 +1,4 @@
-const { accounts, load } = require('@openzeppelin/test-env');
+const { accounts, contract } = require('@openzeppelin/test-environment');
 const [ investor, wallet, purchaser ] = accounts;
 
 const { balance, BN, constants, ether, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
@@ -6,8 +6,8 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const Crowdsale = load.fromArtifacts('CrowdsaleMock');
-const SimpleToken = load.fromArtifacts('SimpleToken');
+const Crowdsale = contract.fromArtifact('CrowdsaleMock');
+const SimpleToken = contract.fromArtifact('SimpleToken');
 
 describe('Crowdsale', function () {
   const rate = new BN(1);

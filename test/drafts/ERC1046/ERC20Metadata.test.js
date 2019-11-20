@@ -1,7 +1,7 @@
-const { load } = require('@openzeppelin/test-env');
+const { contract } = require('@openzeppelin/test-environment');
 require('@openzeppelin/test-helpers');
 
-const ERC20MetadataMock = load.fromArtifacts('ERC20MetadataMock');
+const ERC20MetadataMock = contract.fromArtifact('ERC20MetadataMock');
 
 const { expect } = require('chai');
 

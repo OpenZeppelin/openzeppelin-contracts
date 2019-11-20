@@ -1,12 +1,12 @@
-const { accounts, load } = require('@openzeppelin/test-env');
+const { accounts, contract } = require('@openzeppelin/test-environment');
 const [ hasNoCode ] = accounts;
 
 const { expectRevert } = require('@openzeppelin/test-helpers');
 
-const ERC20ReturnFalseMock = load.fromArtifacts('ERC20ReturnFalseMock');
-const ERC20ReturnTrueMock = load.fromArtifacts('ERC20ReturnTrueMock');
-const ERC20NoReturnMock = load.fromArtifacts('ERC20NoReturnMock');
-const SafeERC20Wrapper = load.fromArtifacts('SafeERC20Wrapper');
+const ERC20ReturnFalseMock = contract.fromArtifact('ERC20ReturnFalseMock');
+const ERC20ReturnTrueMock = contract.fromArtifact('ERC20ReturnTrueMock');
+const ERC20NoReturnMock = contract.fromArtifact('ERC20NoReturnMock');
+const SafeERC20Wrapper = contract.fromArtifact('SafeERC20Wrapper');
 
 describe('SafeERC20', function () {
   describe('with address that has no contract code', function () {

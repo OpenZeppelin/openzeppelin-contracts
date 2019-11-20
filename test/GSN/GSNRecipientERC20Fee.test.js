@@ -1,4 +1,4 @@
-const { accounts, load, web3 } = require('@openzeppelin/test-env');
+const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
 const [ sender, other ] = accounts;
 
 const { ether, expectEvent } = require('@openzeppelin/test-helpers');
@@ -6,9 +6,9 @@ const gsn = require('@openzeppelin/gsn-helpers');
 
 const { expect } = require('chai');
 
-const GSNRecipientERC20FeeMock = load.fromArtifacts('GSNRecipientERC20FeeMock');
-const ERC20Detailed = load.fromArtifacts('ERC20Detailed');
-const IRelayHub = load.fromArtifacts('IRelayHub');
+const GSNRecipientERC20FeeMock = contract.fromArtifact('GSNRecipientERC20FeeMock');
+const ERC20Detailed = contract.fromArtifact('ERC20Detailed');
+const IRelayHub = contract.fromArtifact('IRelayHub');
 
 describe('GSNRecipientERC20Fee', function () {
   const name = 'FeeToken';

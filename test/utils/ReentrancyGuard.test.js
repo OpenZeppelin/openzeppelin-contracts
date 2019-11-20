@@ -1,10 +1,10 @@
-const { load } = require('@openzeppelin/test-env');
+const { contract } = require('@openzeppelin/test-environment');
 const { expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ReentrancyMock = load.fromArtifacts('ReentrancyMock');
-const ReentrancyAttack = load.fromArtifacts('ReentrancyAttack');
+const ReentrancyMock = contract.fromArtifact('ReentrancyMock');
+const ReentrancyAttack = contract.fromArtifact('ReentrancyAttack');
 
 describe('ReentrancyGuard', function () {
   beforeEach(async function () {

@@ -1,9 +1,9 @@
-const { load } = require('@openzeppelin/test-env');
+const { contract } = require('@openzeppelin/test-environment');
 require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ArraysImpl = load.fromArtifacts('ArraysImpl');
+const ArraysImpl = contract.fromArtifact('ArraysImpl');
 
 describe('Arrays', function () {
   context('Even number of elements', function () {

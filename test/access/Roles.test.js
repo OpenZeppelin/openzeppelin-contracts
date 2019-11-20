@@ -1,4 +1,4 @@
-const { accounts, load } = require('@openzeppelin/test-env');
+const { accounts, contract } = require('@openzeppelin/test-environment');
 const [ authorized, otherAuthorized, other ] = accounts;
 
 const { expectRevert, constants } = require('@openzeppelin/test-helpers');
@@ -6,7 +6,7 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const RolesMock = load.fromArtifacts('RolesMock');
+const RolesMock = contract.fromArtifact('RolesMock');
 
 describe('Roles', function () {
   beforeEach(async function () {

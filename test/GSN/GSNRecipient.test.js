@@ -1,4 +1,4 @@
-const { accounts, load, web3 } = require('@openzeppelin/test-env');
+const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
 const [ payee, sender, newRelayHub ] = accounts;
 
 const { balance, BN, constants, ether, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
@@ -8,8 +8,8 @@ const gsn = require('@openzeppelin/gsn-helpers');
 
 const { expect } = require('chai');
 
-const GSNRecipientMock = load.fromArtifacts('GSNRecipientMock');
-const ContextMockCaller = load.fromArtifacts('ContextMockCaller');
+const GSNRecipientMock = contract.fromArtifact('GSNRecipientMock');
+const ContextMockCaller = contract.fromArtifact('ContextMockCaller');
 
 const { shouldBehaveLikeRegularContext } = require('./Context.behavior');
 

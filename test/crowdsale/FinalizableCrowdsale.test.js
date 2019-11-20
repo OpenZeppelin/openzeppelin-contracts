@@ -1,10 +1,10 @@
-const { accounts, load } = require('@openzeppelin/test-env');
+const { accounts, contract } = require('@openzeppelin/test-environment');
 const [ wallet, other ] = accounts;
 
 const { BN, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 
-const FinalizableCrowdsaleImpl = load.fromArtifacts('FinalizableCrowdsaleImpl');
-const ERC20 = load.fromArtifacts('ERC20');
+const FinalizableCrowdsaleImpl = contract.fromArtifact('FinalizableCrowdsaleImpl');
+const ERC20 = contract.fromArtifact('ERC20');
 
 describe('FinalizableCrowdsale', function () {
   const rate = new BN('1000');
