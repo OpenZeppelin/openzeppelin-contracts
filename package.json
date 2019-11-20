@@ -46,7 +46,7 @@
   "devDependencies": {
     "@openzeppelin/gsn-helpers": "^0.2.1",
     "@openzeppelin/gsn-provider": "^0.1.9",
-    "@openzeppelin/test-helpers": "^0.5.3",
+    "@openzeppelin/test-helpers": "^0.5.4",
     "chai": "^4.2.0",
     "concurrently": "^5.0.0",
     "eslint": "^6.5.1",
