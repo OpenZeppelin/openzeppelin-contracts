@@ -132,7 +132,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     /**
      * @dev See {IERC777-send}.
      *
-     * Also emits a {Transfer} event for ERC20 compatibility.
+     * Also emits a {IERC20-Transfer} event for ERC20 compatibility.
      */
     function send(address recipient, uint256 amount, bytes memory data) public {
         _send(_msgSender(), _msgSender(), recipient, amount, data, "", true);
@@ -163,7 +163,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     /**
      * @dev See {IERC777-burn}.
      *
-     * Also emits a {Transfer} event for ERC20 compatibility.
+     * Also emits a {IERC20-Transfer} event for ERC20 compatibility.
      */
     function burn(uint256 amount, bytes memory data) public {
         _burn(_msgSender(), _msgSender(), amount, data, "");
@@ -221,7 +221,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     /**
      * @dev See {IERC777-operatorSend}.
      *
-     * Emits {Sent} and {Transfer} events.
+     * Emits {Sent} and {IERC20-Transfer} events.
      */
     function operatorSend(
         address sender,
@@ -239,7 +239,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     /**
      * @dev See {IERC777-operatorBurn}.
      *
-     * Emits {Burned} and {Transfer} events.
+     * Emits {Burned} and {IERC20-Transfer} events.
      */
     function operatorBurn(address account, uint256 amount, bytes memory data, bytes memory operatorData) public {
         require(isOperatorFor(_msgSender(), account), "ERC777: caller is not an operator for holder");
@@ -275,7 +275,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     * call `transferFrom` (unless they have allowance), and accounts with
     * allowance cannot call `operatorSend` (unless they are operators).
     *
-    * Emits {Sent}, {Transfer} and {Approval} events.
+    * Emits {Sent}, {IERC20-Transfer} and {IERC20-Approval} events.
     */
     function transferFrom(address holder, address recipient, uint256 amount) public returns (bool) {
         require(recipient != address(0), "ERC777: transfer to the zero address");
@@ -302,7 +302,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * See {IERC777Sender} and {IERC777Recipient}.
      *
-     * Emits {Minted} and {Transfer} events.
+     * Emits {Minted} and {IERC20-Transfer} events.
      *
      * Requirements
      *
