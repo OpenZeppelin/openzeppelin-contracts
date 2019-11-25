@@ -4,7 +4,7 @@ const [ signer, sender ] = accounts;
 const { constants, expectEvent } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 const gsn = require('@openzeppelin/gsn-helpers');
-const { fixSignature } = require('../helpers/sign')(web3);
+const { fixSignature } = require('../helpers/sign');
 const { utils: { toBN } } = require('web3');
 
 const ERC721GSNRecipientMock = contract.fromArtifact('ERC721GSNRecipientMock');

@@ -3,7 +3,7 @@ const [ signer, other ] = accounts;
 
 const { expectEvent, expectRevert, constants } = require('@openzeppelin/test-helpers');
 const gsn = require('@openzeppelin/gsn-helpers');
-const { fixSignature } = require('../helpers/sign')(web3);
+const { fixSignature } = require('../helpers/sign');
 const { utils: { toBN } } = require('web3');
 const { ZERO_ADDRESS } = constants;
 
