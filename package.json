@@ -66,6 +66,6 @@
     "solhint": "2.3.0",
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
     "solidity-docgen": "^0.3.13",
-    "truffle": "^5.0.44"
+    "truffle": "^5.1.1"
   }
 }
