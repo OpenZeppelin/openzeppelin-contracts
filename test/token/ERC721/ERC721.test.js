@@ -1,5 +1,4 @@
 const { accounts, contract } = require('@openzeppelin/test-environment');
-const [ creator, owner, other, ...otherAccounts ] = accounts;
 
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
@@ -10,6 +9,8 @@ const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
 const ERC721Mock = contract.fromArtifact('ERC721Mock');
 
 describe('ERC721', function () {
+  const [ creator, owner, other, ...otherAccounts ] = accounts;
+
   beforeEach(async function () {
     this.token = await ERC721Mock.new({ from: creator });
   });

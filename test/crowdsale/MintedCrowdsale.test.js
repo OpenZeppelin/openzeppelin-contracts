@@ -1,5 +1,4 @@
 const { accounts, contract } = require('@openzeppelin/test-environment');
-const [ deployer, investor, wallet, purchaser ] = accounts;
 
 const { BN, ether, expectRevert } = require('@openzeppelin/test-helpers');
 const { shouldBehaveLikeMintedCrowdsale } = require('./MintedCrowdsale.behavior');
@@ -11,6 +10,8 @@ const ERC20Mintable = contract.fromArtifact('ERC20Mintable');
 const ERC20 = contract.fromArtifact('ERC20');
 
 describe('MintedCrowdsale', function () {
+  const [ deployer, investor, wallet, purchaser ] = accounts;
+
   const rate = new BN('1000');
   const value = ether('5');
 

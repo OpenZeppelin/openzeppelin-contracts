@@ -1,5 +1,4 @@
 const { accounts, contract } = require('@openzeppelin/test-environment');
-const [ initialHolder, recipient, anotherAccount ] = accounts;
 
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
@@ -14,6 +13,8 @@ const {
 const ERC20Mock = contract.fromArtifact('ERC20Mock');
 
 describe('ERC20', function () {
+  const [ initialHolder, recipient, anotherAccount ] = accounts;
+
   const initialSupply = new BN(100);
 
   beforeEach(async function () {

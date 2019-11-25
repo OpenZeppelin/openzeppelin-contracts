@@ -1,5 +1,4 @@
 const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
-const [ sender ] = accounts;
 
 const { ether, expectEvent } = require('@openzeppelin/test-helpers');
 const gsn = require('@openzeppelin/gsn-helpers');
@@ -11,6 +10,8 @@ const ERC20Detailed = contract.fromArtifact('ERC20Detailed');
 const IRelayHub = contract.fromArtifact('IRelayHub');
 
 describe('GSNRecipientERC20Fee', function () {
+  const [ sender ] = accounts;
+
   const name = 'FeeToken';
   const symbol = 'FTKN';
 

@@ -1,5 +1,4 @@
 const { accounts, contract } = require('@openzeppelin/test-environment');
-const [ wallet, investor, other ] = accounts;
 
 const { balance, BN, ether, expectRevert, time } = require('@openzeppelin/test-helpers');
 
@@ -9,6 +8,8 @@ const RefundableCrowdsaleImpl = contract.fromArtifact('RefundableCrowdsaleImpl')
 const SimpleToken = contract.fromArtifact('SimpleToken');
 
 describe('RefundableCrowdsale', function () {
+  const [ wallet, investor, other ] = accounts;
+
   const rate = new BN(1);
   const goal = ether('50');
   const lessThanGoal = ether('45');

@@ -1,5 +1,4 @@
 const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
-const [ payee, sender, newRelayHub ] = accounts;
 
 const { balance, BN, constants, ether, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
@@ -14,6 +13,8 @@ const ContextMockCaller = contract.fromArtifact('ContextMockCaller');
 const { shouldBehaveLikeRegularContext } = require('./Context.behavior');
 
 describe('GSNRecipient', function () {
+  const [ payee, sender, newRelayHub ] = accounts;
+
   beforeEach(async function () {
     this.recipient = await GSNRecipientMock.new();
   });
