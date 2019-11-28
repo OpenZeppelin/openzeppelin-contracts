@@ -46,7 +46,7 @@
     "@openzeppelin/cli": "^2.5.3",
     "@openzeppelin/gsn-helpers": "^0.2.1",
     "@openzeppelin/gsn-provider": "^0.1.9",
-    "@openzeppelin/test-environment": "0.1.0-rc.1",
+    "@openzeppelin/test-environment": "^0.1.1",
     "@openzeppelin/test-helpers": "^0.5.4",
     "chai": "^4.2.0",
     "concurrently": "^5.0.0",
