@@ -1,11 +1,15 @@
+const { accounts, contract } = require('@openzeppelin/test-environment');
+
 const { constants, expectEvent } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const SimpleToken = artifacts.require('SimpleToken');
+const SimpleToken = contract.fromArtifact('SimpleToken');
 
-contract('SimpleToken', function ([_, creator]) {
+describe('SimpleToken', function () {
+  const [ creator ] = accounts;
+
   beforeEach(async function () {
     this.token = await SimpleToken.new({ from: creator });
   });

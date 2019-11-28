@@ -1,10 +1,11 @@
+const { contract } = require('@openzeppelin/test-environment');
 const { BN } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ERC20DetailedMock = artifacts.require('ERC20DetailedMock');
+const ERC20DetailedMock = contract.fromArtifact('ERC20DetailedMock');
 
-contract('ERC20Detailed', function () {
+describe('ERC20Detailed', function () {
   const _name = 'My Detailed ERC20';
   const _symbol = 'MDT';
   const _decimals = new BN(18);

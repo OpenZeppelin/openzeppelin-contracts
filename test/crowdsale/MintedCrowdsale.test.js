@@ -1,13 +1,17 @@
+const { accounts, contract } = require('@openzeppelin/test-environment');
+
 const { BN, ether, expectRevert } = require('@openzeppelin/test-helpers');
 const { shouldBehaveLikeMintedCrowdsale } = require('./MintedCrowdsale.behavior');
 
 const { expect } = require('chai');
 
-const MintedCrowdsaleImpl = artifacts.require('MintedCrowdsaleImpl');
-const ERC20Mintable = artifacts.require('ERC20Mintable');
-const ERC20 = artifacts.require('ERC20');
+const MintedCrowdsaleImpl = contract.fromArtifact('MintedCrowdsaleImpl');
+const ERC20Mintable = contract.fromArtifact('ERC20Mintable');
+const ERC20 = contract.fromArtifact('ERC20');
 
-contract('MintedCrowdsale', function ([_, deployer, investor, wallet, purchaser]) {
+describe('MintedCrowdsale', function () {
+  const [ deployer, investor, wallet, purchaser ] = accounts;
+
   const rate = new BN('1000');
   const value = ether('5');
 
@@ -24,7 +28,7 @@ contract('MintedCrowdsale', function ([_, deployer, investor, wallet, purchaser]
       expect(await this.token.isMinter(this.crowdsale.address)).to.equal(true);
     });
 
-    shouldBehaveLikeMintedCrowdsale([_, investor, wallet, purchaser], rate, value);
+    shouldBehaveLikeMintedCrowdsale([investor, wallet, purchaser], rate, value);
   });
 
   describe('using non-mintable token', function () {

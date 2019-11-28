@@ -11,7 +11,6 @@
   ],
   "scripts": {
     "compile": "scripts/compile.sh",
-    "console": "truffle console",
     "coverage": "scripts/coverage.sh",
     "docs": "scripts/docs.sh",
     "prepare-docs": "scripts/prepare-docs.sh",
@@ -23,7 +22,7 @@
     "prepare": "node scripts/prepare.js",
     "release": "scripts/release/release.sh",
     "version": "scripts/release/version.sh",
-    "test": "scripts/test.sh"
+    "test": "mocha --exit --recursive test"
   },
   "repository": {
     "type": "git",
@@ -44,8 +43,10 @@
   },
   "homepage": "https://github.com/OpenZeppelin/openzeppelin-contracts",
   "devDependencies": {
+    "@openzeppelin/cli": "^2.5.3",
     "@openzeppelin/gsn-helpers": "^0.2.1",
     "@openzeppelin/gsn-provider": "^0.1.9",
+    "@openzeppelin/test-environment": "^0.1.1",
     "@openzeppelin/test-helpers": "^0.5.4",
     "chai": "^4.2.0",
     "concurrently": "^5.0.0",
@@ -57,15 +58,15 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
     "ethereumjs-util": "^6.2.0",
-    "ganache-cli": "^6.7.0",
-    "ganache-cli-coverage": "https://github.com/frangio/ganache-cli/releases/download/v6.4.1-coverage/ganache-cli-coverage-6.4.1.tgz",
+    "ganache-core-coverage": "https://github.com/OpenZeppelin/ganache-core-coverage/releases/download/2.5.3-coverage/ganache-core-coverage-2.5.3.tgz",
     "http-server": "^0.11.1",
     "lodash.startcase": "^4.4.0",
     "micromatch": "^4.0.2",
+    "mocha": "^6.2.2",
     "nodemon": "^2.0.1",
     "solhint": "2.3.0",
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
-    "solidity-docgen": "^0.3.13",
-    "truffle": "^5.0.44"
-  }
+    "solidity-docgen": "^0.3.13"
+  },
+  "dependencies": {}
 }

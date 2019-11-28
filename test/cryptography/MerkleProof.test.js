@@ -1,3 +1,5 @@
+const { contract } = require('@openzeppelin/test-environment');
+
 require('@openzeppelin/test-helpers');
 
 const { MerkleTree } = require('../helpers/merkleTree.js');
@@ -5,9 +7,9 @@ const { keccak256, bufferToHex } = require('ethereumjs-util');
 
 const { expect } = require('chai');
 
-const MerkleProofWrapper = artifacts.require('MerkleProofWrapper');
+const MerkleProofWrapper = contract.fromArtifact('MerkleProofWrapper');
 
-contract('MerkleProof', function () {
+describe('MerkleProof', function () {
   beforeEach(async function () {
     this.merkleProof = await MerkleProofWrapper.new();
   });
