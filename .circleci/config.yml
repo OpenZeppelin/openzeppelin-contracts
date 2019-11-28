@@ -27,7 +27,7 @@ jobs:
               npm run prepare
             fi
       - persist_to_workspace:
-          root: ~/project
+          root: .
           paths:
             - node_modules
             - build
@@ -50,7 +50,7 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: ~/project
+          at: .
       - run:
           name: Unit tests
           command: npm run test
