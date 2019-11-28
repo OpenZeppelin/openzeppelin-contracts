@@ -1,5 +1,4 @@
 const { accounts, contract } = require('@openzeppelin/test-environment');
-const [ creator, ...otherAccounts ] = accounts;
 
 const { BN, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
@@ -10,13 +9,7 @@ const { shouldSupportInterfaces } = require('../../introspection/SupportsInterfa
 const ERC721FullMock = contract.fromArtifact('ERC721FullMock');
 
 describe('ERC721Full', function () {
-  const name = 'Non Fungible Token';
-  const symbol = 'NFT';
-  const firstTokenId = new BN(100);
-  const secondTokenId = new BN(200);
-  const thirdTokenId = new BN(300);
-  const nonExistentTokenId = new BN(999);
-
+  const [ creator, ...otherAccounts ] = accounts;
   const minter = creator;
 
   const [
@@ -24,6 +17,13 @@ describe('ERC721Full', function () {
     newOwner,
     other,
   ] = otherAccounts;
+
+  const name = 'Non Fungible Token';
+  const symbol = 'NFT';
+  const firstTokenId = new BN(100);
+  const secondTokenId = new BN(200);
+  const thirdTokenId = new BN(300);
+  const nonExistentTokenId = new BN(999);
 
   beforeEach(async function () {
     this.token = await ERC721FullMock.new(name, symbol, { from: creator });

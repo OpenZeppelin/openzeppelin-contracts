@@ -1,9 +1,8 @@
 const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
-const [ other ] = accounts;
 
 const { constants, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
-const { toEthSignedMessageHash, fixSignature } = require('../helpers/sign')(web3);
+const { toEthSignedMessageHash, fixSignature } = require('../helpers/sign');
 
 const { expect } = require('chai');
 
@@ -13,6 +12,8 @@ const TEST_MESSAGE = web3.utils.sha3('OpenZeppelin');
 const WRONG_MESSAGE = web3.utils.sha3('Nope');
 
 describe('ECDSA', function () {
+  const [ other ] = accounts;
+
   beforeEach(async function () {
     this.ecdsa = await ECDSAMock.new();
   });

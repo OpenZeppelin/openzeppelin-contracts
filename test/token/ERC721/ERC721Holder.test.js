@@ -1,5 +1,4 @@
 const { accounts, contract } = require('@openzeppelin/test-environment');
-const [ creator ] = accounts;
 
 const { BN } = require('@openzeppelin/test-helpers');
 
@@ -9,6 +8,8 @@ const ERC721Holder = contract.fromArtifact('ERC721Holder');
 const ERC721Mintable = contract.fromArtifact('ERC721MintableBurnableImpl');
 
 describe('ERC721Holder', function () {
+  const [ creator ] = accounts;
+
   it('receives an ERC721 token', async function () {
     const token = await ERC721Mintable.new({ from: creator });
     const tokenId = new BN(1);

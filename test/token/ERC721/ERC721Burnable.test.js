@@ -1,5 +1,4 @@
 const { accounts, contract } = require('@openzeppelin/test-environment');
-const [ creator, ...otherAccounts ] = accounts;
 
 require('@openzeppelin/test-helpers');
 
@@ -11,6 +10,7 @@ const {
 const ERC721BurnableImpl = contract.fromArtifact('ERC721MintableBurnableImpl');
 
 describe('ERC721Burnable', function () {
+  const [ creator, ...otherAccounts ] = accounts;
   const minter = creator;
 
   beforeEach(async function () {

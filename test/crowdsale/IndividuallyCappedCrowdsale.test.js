@@ -1,5 +1,4 @@
 const { accounts, contract } = require('@openzeppelin/test-environment');
-const [ capper, otherCapper, wallet, alice, bob, charlie, other, ...otherAccounts ] = accounts;
 
 const { BN, ether, expectRevert } = require('@openzeppelin/test-helpers');
 
@@ -10,6 +9,8 @@ const SimpleToken = contract.fromArtifact('SimpleToken');
 const { shouldBehaveLikePublicRole } = require('../behaviors/access/roles/PublicRole.behavior');
 
 describe('IndividuallyCappedCrowdsale', function () {
+  const [ capper, otherCapper, wallet, alice, bob, charlie, other, ...otherAccounts ] = accounts;
+
   const rate = new BN(1);
   const capAlice = ether('10');
   const capBob = ether('2');

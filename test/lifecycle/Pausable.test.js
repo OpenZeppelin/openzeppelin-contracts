@@ -1,5 +1,4 @@
 const { accounts, contract } = require('@openzeppelin/test-environment');
-const [ pauser, otherPauser, other, ...otherAccounts ] = accounts;
 
 const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { shouldBehaveLikePublicRole } = require('../behaviors/access/roles/PublicRole.behavior');
@@ -9,6 +8,8 @@ const { expect } = require('chai');
 const PausableMock = contract.fromArtifact('PausableMock');
 
 describe('Pausable', function () {
+  const [ pauser, otherPauser, other, ...otherAccounts ] = accounts;
+
   beforeEach(async function () {
     this.pausable = await PausableMock.new({ from: pauser });
   });

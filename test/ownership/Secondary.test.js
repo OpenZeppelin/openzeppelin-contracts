@@ -1,5 +1,4 @@
 const { accounts, contract } = require('@openzeppelin/test-environment');
-const [ primary, newPrimary, other ] = accounts;
 
 const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
@@ -9,6 +8,8 @@ const { expect } = require('chai');
 const SecondaryMock = contract.fromArtifact('SecondaryMock');
 
 describe('Secondary', function () {
+  const [ primary, newPrimary, other ] = accounts;
+
   beforeEach(async function () {
     this.secondary = await SecondaryMock.new({ from: primary });
   });

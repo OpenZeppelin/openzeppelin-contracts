@@ -1,5 +1,4 @@
 const { accounts, contract } = require('@openzeppelin/test-environment');
-const [ owner, payee1, payee2, payee3, nonpayee1, payer1 ] = accounts;
 
 const { balance, constants, ether, expectEvent, send, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
@@ -9,6 +8,8 @@ const { expect } = require('chai');
 const PaymentSplitter = contract.fromArtifact('PaymentSplitter');
 
 describe('PaymentSplitter', function () {
+  const [ owner, payee1, payee2, payee3, nonpayee1, payer1 ] = accounts;
+
   const amount = ether('1');
 
   it('rejects an empty set of payees', async function () {

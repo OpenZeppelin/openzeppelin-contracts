@@ -1,4 +1,4 @@
-let web3;
+const { web3 } = require('@openzeppelin/test-environment');
 
 function toEthSignedMessageHash (messageHex) {
   const messageBuffer = Buffer.from(messageHex.substring(2), 'hex');
@@ -60,12 +60,9 @@ const getSignFor = (contract, signer) => (redeemer, methodName, methodArgs = [])
   return signMessage(signer, messageHex);
 };
 
-module.exports = (_web) => {
-  web3 = _web;
-  return {
-    signMessage,
-    toEthSignedMessageHash,
-    fixSignature,
-    getSignFor,
-  };
+module.exports = {
+  signMessage,
+  toEthSignedMessageHash,
+  fixSignature,
+  getSignFor,
 };
