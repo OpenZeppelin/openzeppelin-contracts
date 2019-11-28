@@ -15,7 +15,7 @@ describe('ReentrancyGuard', function () {
   it('should not allow remote callback', async function () {
     const attacker = await ReentrancyAttack.new();
     await expectRevert(
-      this.reentrancyMock.countAndCall(attacker.address), 'ReentrancyGuard: reentrant call');
+      this.reentrancyMock.countAndCall(attacker.address), 'ReentrancyAttack: failed call');
   });
 
   // The following are more side-effects than intended behavior:
