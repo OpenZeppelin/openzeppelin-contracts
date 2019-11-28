@@ -19,10 +19,12 @@ jobs:
       - restore_cache:
           <<: *cache_key_node_modules
       - run:
-          name: Install npm dependencies
+          name: Install npm dependencies and prepare
           command: |
             if [ ! -d node_modules ]; then
-            npm ci
+              npm ci
+            else
+              npm run prepare
             fi
       - persist_to_workspace:
           root: .
