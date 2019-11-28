@@ -22,7 +22,7 @@
     "prepare": "node scripts/prepare.js",
     "release": "scripts/release/release.sh",
     "version": "scripts/release/version.sh",
-    "test": "npx mocha --exit --recursive test"
+    "test": "mocha --exit --recursive test"
   },
   "repository": {
     "type": "git",
