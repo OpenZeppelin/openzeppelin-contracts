@@ -59,7 +59,7 @@
     "eslint-plugin-standard": "^4.0.1",
     "ethereumjs-util": "^6.2.0",
     "ganache-core-coverage": "https://github.com/OpenZeppelin/ganache-core-coverage/releases/download/2.5.3-coverage/ganache-core-coverage-2.5.3.tgz",
-    "http-server": "^0.11.1",
+    "http-server": "^0.12.0",
     "lodash.startcase": "^4.4.0",
     "micromatch": "^4.0.2",
     "mocha": "^6.2.2",
