@@ -61,8 +61,8 @@
     "ganache-core-coverage": "https://github.com/OpenZeppelin/ganache-core-coverage/releases/download/2.5.3-coverage/ganache-core-coverage-2.5.3.tgz",
     "lodash.startcase": "^4.4.0",
     "micromatch": "^4.0.2",
-    "openzeppelin-docs-preview": "github:OpenZeppelin/docs-preview-script",
     "mocha": "^6.2.2",
+    "openzeppelin-docs-preview": "github:OpenZeppelin/docs-preview-script",
     "solhint": "2.3.0",
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
     "solidity-docgen": "^0.3.13"
