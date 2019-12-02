@@ -43,7 +43,6 @@ build/
 
 # docs artifacts
 docs/modules/api
-openzeppelin-docs
 
 # only used to package @openzeppelin/contracts
 contracts/build/
