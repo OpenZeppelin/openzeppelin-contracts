@@ -134,7 +134,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * Also emits a {IERC20-Transfer} event for ERC20 compatibility.
      */
-    function send(address recipient, uint256 amount, bytes calldata data) external {
+    function send(address recipient, uint256 amount, bytes memory data) public {
         _send(_msgSender(), _msgSender(), recipient, amount, data, "", true);
     }
 
@@ -146,7 +146,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * Also emits a {Sent} event.
      */
-    function transfer(address recipient, uint256 amount) external returns (bool) {
+    function transfer(address recipient, uint256 amount) public returns (bool) {
         require(recipient != address(0), "ERC777: transfer to the zero address");
 
         address from = _msgSender();
@@ -165,7 +165,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * Also emits a {IERC20-Transfer} event for ERC20 compatibility.
      */
-    function burn(uint256 amount, bytes calldata data) external {
+    function burn(uint256 amount, bytes memory data) public {
         _burn(_msgSender(), _msgSender(), amount, data, "");
     }
 
@@ -184,7 +184,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     /**
      * @dev See {IERC777-authorizeOperator}.
      */
-    function authorizeOperator(address operator) external {
+    function authorizeOperator(address operator) public {
         require(_msgSender() != operator, "ERC777: authorizing self as operator");
 
         if (_defaultOperators[operator]) {
@@ -199,7 +199,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     /**
      * @dev See {IERC777-revokeOperator}.
      */
-    function revokeOperator(address operator) external {
+    function revokeOperator(address operator) public {
         require(operator != _msgSender(), "ERC777: revoking self as operator");
 
         if (_defaultOperators[operator]) {
@@ -227,10 +227,10 @@ contract ERC777 is Context, IERC777, IERC20 {
         address sender,
         address recipient,
         uint256 amount,
-        bytes calldata data,
-        bytes calldata operatorData
+        bytes memory data,
+        bytes memory operatorData
     )
-    external
+    public
     {
         require(isOperatorFor(_msgSender(), sender), "ERC777: caller is not an operator for holder");
         _send(_msgSender(), sender, recipient, amount, data, operatorData, true);
@@ -241,7 +241,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * Emits {Burned} and {IERC20-Transfer} events.
      */
-    function operatorBurn(address account, uint256 amount, bytes calldata data, bytes calldata operatorData) external {
+    function operatorBurn(address account, uint256 amount, bytes memory data, bytes memory operatorData) public {
         require(isOperatorFor(_msgSender(), account), "ERC777: caller is not an operator for holder");
         _burn(_msgSender(), account, amount, data, operatorData);
     }
@@ -262,7 +262,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * Note that accounts cannot have allowance issued by their operators.
      */
-    function approve(address spender, uint256 value) external returns (bool) {
+    function approve(address spender, uint256 value) public returns (bool) {
         address holder = _msgSender();
         _approve(holder, spender, value);
         return true;
@@ -277,7 +277,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     *
     * Emits {Sent}, {IERC20-Transfer} and {IERC20-Approval} events.
     */
-    function transferFrom(address holder, address recipient, uint256 amount) external returns (bool) {
+    function transferFrom(address holder, address recipient, uint256 amount) public returns (bool) {
         require(recipient != address(0), "ERC777: transfer to the zero address");
         require(holder != address(0), "ERC777: transfer from the zero address");
 

@@ -1,11 +1,15 @@
+const { accounts, contract } = require('@openzeppelin/test-environment');
+
 const { BN, balance, ether, expectRevert, time } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const SampleCrowdsale = artifacts.require('SampleCrowdsale');
-const SampleCrowdsaleToken = artifacts.require('SampleCrowdsaleToken');
+const SampleCrowdsale = contract.fromArtifact('SampleCrowdsale');
+const SampleCrowdsaleToken = contract.fromArtifact('SampleCrowdsaleToken');
 
-contract('SampleCrowdsale', function ([_, deployer, owner, wallet, investor]) {
+describe('SampleCrowdsale', function () {
+  const [ deployer, owner, wallet, investor ] = accounts;
+
   const RATE = new BN(10);
   const GOAL = ether('10');
   const CAP = ether('20');

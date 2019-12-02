@@ -1,10 +1,11 @@
+const { contract } = require('@openzeppelin/test-environment');
 const { BN, expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const SafeCastMock = artifacts.require('SafeCastMock');
+const SafeCastMock = contract.fromArtifact('SafeCastMock');
 
-contract('SafeCast', async () => {
+describe('SafeCast', async () => {
   beforeEach(async function () {
     this.safeCast = await SafeCastMock.new();
   });

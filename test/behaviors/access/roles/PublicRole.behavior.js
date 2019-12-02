@@ -76,8 +76,8 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [other], rolen
         });
 
         it(`emits a ${rolename}Added event`, async function () {
-          const { logs } = await this.contract[`add${rolename}`](other, { from });
-          expectEvent.inLogs(logs, `${rolename}Added`, { account: other });
+          const receipt = await this.contract[`add${rolename}`](other, { from });
+          expectEvent(receipt, `${rolename}Added`, { account: other });
         });
 
         it('reverts when adding role to an already assigned account', async function () {
@@ -106,8 +106,8 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [other], rolen
         });
 
         it(`emits a ${rolename}Removed event`, async function () {
-          const { logs } = await this.contract[`remove${rolename}`](authorized, { from });
-          expectEvent.inLogs(logs, `${rolename}Removed`, { account: authorized });
+          const receipt = await this.contract[`remove${rolename}`](authorized, { from });
+          expectEvent(receipt, `${rolename}Removed`, { account: authorized });
         });
 
         it('reverts when removing from an unassigned account', async function () {
@@ -131,8 +131,8 @@ function shouldBehaveLikePublicRole (authorized, otherAuthorized, [other], rolen
       });
 
       it(`emits a ${rolename}Removed event`, async function () {
-        const { logs } = await this.contract[`renounce${rolename}`]({ from: authorized });
-        expectEvent.inLogs(logs, `${rolename}Removed`, { account: authorized });
+        const receipt = await this.contract[`renounce${rolename}`]({ from: authorized });
+        expectEvent(receipt, `${rolename}Removed`, { account: authorized });
       });
 
       it('reverts when renouncing unassigned role', async function () {

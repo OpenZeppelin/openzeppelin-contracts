@@ -1,29 +1,29 @@
+const { accounts, contract } = require('@openzeppelin/test-environment');
+
 const { BN, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 
-const ERC721FullMock = artifacts.require('ERC721FullMock.sol');
+const ERC721FullMock = contract.fromArtifact('ERC721FullMock');
 
-contract('ERC721Full', function ([
-  creator,
-  ...accounts
-]) {
-  const name = 'Non Fungible Token';
-  const symbol = 'NFT';
-  const firstTokenId = new BN(100);
-  const secondTokenId = new BN(200);
-  const thirdTokenId = new BN(300);
-  const nonExistentTokenId = new BN(999);
-
+describe('ERC721Full', function () {
+  const [ creator, ...otherAccounts ] = accounts;
   const minter = creator;
 
   const [
     owner,
     newOwner,
     other,
-  ] = accounts;
+  ] = otherAccounts;
+
+  const name = 'Non Fungible Token';
+  const symbol = 'NFT';
+  const firstTokenId = new BN(100);
+  const secondTokenId = new BN(200);
+  const thirdTokenId = new BN(300);
+  const nonExistentTokenId = new BN(999);
 
   beforeEach(async function () {
     this.token = await ERC721FullMock.new(name, symbol, { from: creator });
@@ -245,7 +245,7 @@ contract('ERC721Full', function ([
     });
   });
 
-  shouldBehaveLikeERC721(creator, minter, accounts);
+  shouldBehaveLikeERC721(creator, minter, otherAccounts);
 
   shouldSupportInterfaces([
     'ERC165',

@@ -47,3 +47,6 @@ docs/modules/api
 # only used to package @openzeppelin/contracts
 contracts/build/
 contracts/README.md
+
+# temporary artifact from solidity-coverage
+allFiredEvents

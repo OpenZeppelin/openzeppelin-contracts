@@ -1,12 +1,16 @@
+const { accounts, contract } = require('@openzeppelin/test-environment');
+
 const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const ERC20Mintable = artifacts.require('ERC20Mintable');
-const TokenVesting = artifacts.require('TokenVesting');
+const ERC20Mintable = contract.fromArtifact('ERC20Mintable');
+const TokenVesting = contract.fromArtifact('TokenVesting');
 
-contract('TokenVesting', function ([_, owner, beneficiary]) {
+describe('TokenVesting', function () {
+  const [ owner, beneficiary ] = accounts;
+
   const amount = new BN('1000');
 
   beforeEach(async function () {
