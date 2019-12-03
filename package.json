@@ -62,7 +62,7 @@
     "lodash.startcase": "^4.4.0",
     "micromatch": "^4.0.2",
     "mocha": "^6.2.2",
-    "openzeppelin-docs-preview": "github:OpenZeppelin/docs-preview-script",
+    "openzeppelin-docs-utils": "github:OpenZeppelin/docs-utils",
     "solhint": "2.3.0",
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
     "solidity-docgen": "^0.3.13"
