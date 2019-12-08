@@ -330,9 +330,32 @@ contract ERC721 is Context, ERC165, IERC721 {
         if (!to.isContract()) {
             return true;
         }
-
-        bytes4 retval = IERC721Receiver(to).onERC721Received(_msgSender(), from, tokenId, _data);
-        return (retval == _ERC721_RECEIVED);
+        bytes memory payload = abi.encodeWithSelector(
+            IERC721Receiver(to).onERC721Received.selector,
+            "onERC721Received(address,address,uint256,bytes)",
+            msg.sender,
+            from,
+            tokenId,
+            _data
+        );
+        //solhint-disable-next-line security/no-low-level-calls
+        (bool success, bytes memory returndata) = to.call(payload);
+        if (!success) {
+            if (returndata.length > 0) {
+                uint memOffset;
+                //solhint-disable-next-line security/no-inline-assembly
+                assembly {
+                    memOffset := msize() // Get the highest available block of memory
+                    mstore(add(memOffset, 0x00), returndata) // Set value
+                    mstore(0x40, add(memOffset, 0x20)) // Update the msize offset to be our memory reference plus the amount of bytes we're using
+                    revert(memOffset, 0x20) // revert returning 1 byte
+                }
+            } else {
+                revert("ERC721: to address does not implement ERC721Received interface");
+            }
+        } else {
+            return true;
+        }
     }
 
     /**
