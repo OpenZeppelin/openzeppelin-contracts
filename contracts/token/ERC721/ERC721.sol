@@ -338,12 +338,12 @@ contract ERC721 is Context, ERC165, IERC721 {
             tokenId,
             _data
         );
-        //solhint-disable-next-line security/no-low-level-calls
+        // solhint-disable-next-line avoid-low-level-calls
         (bool success, bytes memory returndata) = to.call(payload);
         if (!success) {
             if (returndata.length > 0) {
                 uint memOffset;
-                //solhint-disable-next-line security/no-inline-assembly
+                // solhint-disable-next-line no-inline-assembly
                 assembly {
                     memOffset := msize() // Get the highest available block of memory
                     mstore(add(memOffset, 0x00), returndata) // Set value
