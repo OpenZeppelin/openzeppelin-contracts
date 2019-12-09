@@ -7,14 +7,18 @@ library Address {
     /**
      * @dev Returns true if `account` is a contract.
      *
-     * IMPORTANT: It is unsafe to assume that an address for which this
-     * function returns false is an externally-owned account (EOA) and not a
-     * contract.
+     * [IMPORTANT]
+     * ====
+     * It is unsafe to assume that an address for which this function returns
+     * false is an externally-owned account (EOA) and not a contract.
      *
-     * NOTE: An account may not be a contract now, but might be later
-     * (contract deployed) and an account that is a contract now might not be
-     * later (contract SELFDESTRUCTed). With EIP-1014 it is also possible that
-     * a destroyed contract is recreated.
+     * Among others, `isContract` will return false for the following 
+     * types of addresses:
+     *  - an externally-owned account
+     *  - a contract in construction
+     *  - an address where a contract will be created
+     *  - an address where a contract lived, but was destroyed
+     * ===
      */
     function isContract(address account) internal view returns (bool) {
         // According to EIP-1052, 0x0 is the value returned for not-yet created accounts
