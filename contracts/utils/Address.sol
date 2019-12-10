@@ -14,6 +14,7 @@ library Address {
      *
      * Among others, `isContract` will return false for the following 
      * types of addresses:
+     *
      *  - an externally-owned account
      *  - a contract in construction
      *  - an address where a contract will be created
