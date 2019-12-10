@@ -332,7 +332,6 @@ contract ERC721 is Context, ERC165, IERC721 {
         }
         bytes memory payload = abi.encodeWithSelector(
             IERC721Receiver(to).onERC721Received.selector,
-            "onERC721Received(address,address,uint256,bytes)",
             msg.sender,
             from,
             tokenId,
@@ -351,7 +350,7 @@ contract ERC721 is Context, ERC165, IERC721 {
                     revert(memOffset, 0x20) // revert returning 1 byte
                 }
             } else {
-                revert("ERC721: to address does not implement ERC721Received interface");
+                revert("ERC721: transfer to non ERC721Receiver implementer");
             }
         } else {
             return true;
