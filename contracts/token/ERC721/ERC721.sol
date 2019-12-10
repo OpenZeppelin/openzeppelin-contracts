@@ -341,13 +341,13 @@ contract ERC721 is Context, ERC165, IERC721 {
         (bool success, bytes memory returndata) = to.call(payload);
         if (!success) {
             if (returndata.length > 0) {
-                uint memOffset;
                 // solhint-disable-next-line no-inline-assembly
                 assembly {
-                    memOffset := msize() // Get the highest available block of memory
-                    mstore(add(memOffset, 0x00), returndata) // Set value
-                    mstore(0x40, add(memOffset, 0x20)) // Update the msize offset to be our memory reference plus the amount of bytes we're using
-                    revert(memOffset, 0x20) // revert returning 1 byte
+                    let returndata_data := add(0x24, returndata)
+                    let returndata_size := sub(mload(returndata), 4)
+                    let output := mload(0x40)    // Find empty storage location using "free memory pointer"
+                    mstore(output, returndata_data)
+                    revert(output, returndata_size)
                 }
             } else {
                 revert("ERC721: transfer to non ERC721Receiver implementer");
