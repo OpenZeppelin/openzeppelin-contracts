@@ -343,11 +343,8 @@ contract ERC721 is Context, ERC165, IERC721 {
             if (returndata.length > 0) {
                 // solhint-disable-next-line no-inline-assembly
                 assembly {
-                    let returndata_data := add(0x24, returndata)
-                    let returndata_size := sub(mload(returndata), 4)
-                    let output := mload(0x40)    // Find empty storage location using "free memory pointer"
-                    mstore(output, returndata_data)
-                    revert(output, returndata_size)
+                    let returndata_size := mload(returndata)
+                    revert(returndata, add(0x20, returndata_size))
                 }
             } else {
                 revert("ERC721: transfer to non ERC721Receiver implementer");
