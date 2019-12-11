@@ -302,7 +302,7 @@ function shouldBehaveLikeERC721 (
             const noReceiverImplemented = await ERC721NoReceiverMock.new(RECEIVER_MAGIC_VALUE, true);
             await expectRevert(
               this.token.safeTransferFrom(owner, noReceiverImplemented.address, tokenId, { from: owner }),
-              'ERC721: to address does not implement ERC721Received interface'
+              'ERC721: transfer to non ERC721Receiver implementer'
             );
           });
         });
@@ -322,7 +322,7 @@ function shouldBehaveLikeERC721 (
             const noReceiverImplemented = await ERC721NoReceiverMock.new(RECEIVER_MAGIC_VALUE, true);
             await expectRevert(
               this.token.safeTransferFrom(owner, noReceiverImplemented.address, tokenId, { from: owner }),
-              'ERC721: to address does not implement ERC721Received interface'
+              'ERC721: transfer to non ERC721Receiver implementer'
             );
           });
           it('reverts', async function () {
@@ -371,7 +371,7 @@ function shouldBehaveLikeERC721 (
             const noReceiverImplemented = await ERC721NoReceiverMock.new(RECEIVER_MAGIC_VALUE, true);
             await expectRevert(
               this.ERC721Mock.safeMint(noReceiverImplemented.address, tokenId),
-              'ERC721: to address does not implement ERC721Received interface'
+              'ERC721: transfer to non ERC721Receiver implementer'
             );
           });
         });
