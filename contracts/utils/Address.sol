@@ -7,19 +7,21 @@ library Address {
     /**
      * @dev Returns true if `account` is a contract.
      *
-     * This test is non-exhaustive, and there may be false-negatives: during the
-     * execution of a contract's constructor, its address will be reported as
-     * not containing a contract.
+     * [IMPORTANT]
+     * ====
+     * It is unsafe to assume that an address for which this function returns
+     * false is an externally-owned account (EOA) and not a contract.
      *
-     * IMPORTANT: It is unsafe to assume that an address for which this
-     * function returns false is an externally-owned account (EOA) and not a
-     * contract.
+     * Among others, `isContract` will return false for the following 
+     * types of addresses:
+     *
+     *  - an externally-owned account
+     *  - a contract in construction
+     *  - an address where a contract will be created
+     *  - an address where a contract lived, but was destroyed
+     * ====
      */
     function isContract(address account) internal view returns (bool) {
-        // This method relies in extcodesize, which returns 0 for contracts in
-        // construction, since the code is only stored at the end of the
-        // constructor execution.
-
         // According to EIP-1052, 0x0 is the value returned for not-yet created accounts
         // and 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470 is returned
         // for accounts without code, i.e. `keccak256('')`
