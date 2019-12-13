@@ -332,7 +332,7 @@ contract ERC721 is Context, ERC165, IERC721 {
         }
         bytes memory payload = abi.encodeWithSelector(
             IERC721Receiver(to).onERC721Received.selector,
-            msg.sender,
+            _msgSender(),
             from,
             tokenId,
             _data
