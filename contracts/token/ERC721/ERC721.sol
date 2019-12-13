@@ -350,7 +350,8 @@ contract ERC721 is Context, ERC165, IERC721 {
                 revert("ERC721: transfer to non ERC721Receiver implementer");
             }
         } else {
-            return true;
+            bytes4 retval = abi.decode(returndata, (bytes4));
+            return (retval == _ERC721_RECEIVED);
         }
     }
 
