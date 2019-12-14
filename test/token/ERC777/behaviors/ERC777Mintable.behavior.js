@@ -21,7 +21,7 @@ function shouldBehaveLikeERC777Mintable (minter, [other]) {
 
         function shouldMint (amount) {
           beforeEach(async function () {
-            ({ logs: this.logs } = await this.token.mintInternal(other, other, amount, '', '', { from }));
+            ({ logs: this.logs } = await this.token.mint(other, other, amount, '', '', { from }));
           });
 
           it('mints the requested amount', async function () {
@@ -42,7 +42,7 @@ function shouldBehaveLikeERC777Mintable (minter, [other]) {
         const from = other;
 
         it('reverts', async function () {
-          await expectRevert(this.token.mintInternal(other, other, amount, '', '', { from }),
+          await expectRevert(this.token.mint(other, other, amount, '', '', { from }),
             'MinterRole: caller does not have the Minter role'
           );
         });
