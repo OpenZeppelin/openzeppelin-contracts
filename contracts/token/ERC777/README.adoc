@@ -18,3 +18,7 @@ Additionally there are interfaces used to develop contracts that react to token 
 {{IERC777Sender}}
 
 {{IERC777Recipient}}
+
+== Extensions
+
+{{ERC777Mintable}}
