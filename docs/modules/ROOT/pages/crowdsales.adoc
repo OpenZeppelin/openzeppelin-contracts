@@ -120,7 +120,7 @@ contract MyCrowdsaleDeployer {
         Crowdsale crowdsale = new MyCrowdsale(
             1,               // rate, still in TKNbits
             msg.sender,      // send Ether to the deployer
-            address(token)   // the token
+            token            // the token
         );
         // transfer the minter role from this contract (the default)
         // to the crowdsale, so it can mint tokens
