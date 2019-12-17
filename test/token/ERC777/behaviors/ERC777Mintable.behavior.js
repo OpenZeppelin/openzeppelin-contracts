@@ -3,7 +3,7 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-function shouldBehaveLikeERC777Mintable (minter, [other]) {
+function shouldBehaveLikeERC777Mintable (minter, data, operatorData, [other]) {
   describe('as a mintable token', function () {
     describe('mintInternal', function () {
       const amount = new BN(100);
@@ -21,7 +21,7 @@ function shouldBehaveLikeERC777Mintable (minter, [other]) {
 
         function shouldMint (amount) {
           beforeEach(async function () {
-            ({ logs: this.logs } = await this.token.mint(other, other, amount, '', '', { from }));
+            ({ logs: this.logs } = await this.token.mint(other, other, amount, data, operatorData, { from }));
           });
 
           it('mints the requested amount', async function () {
@@ -42,7 +42,7 @@ function shouldBehaveLikeERC777Mintable (minter, [other]) {
         const from = other;
 
         it('reverts', async function () {
-          await expectRevert(this.token.mint(other, other, amount, '', '', { from }),
+          await expectRevert(this.token.mint(other, other, amount, data, operatorData, { from }),
             'MinterRole: caller does not have the Minter role'
           );
         });
