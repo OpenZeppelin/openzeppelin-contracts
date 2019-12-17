@@ -4,8 +4,8 @@ import "../GSN/Context.sol";
 import "../access/roles/PauserRole.sol";
 
 /**
- * @dev Contract module which allows children to implement an emergency stop
- * mechanism that can be triggered by an authorized account.
+ * @dev Contract module which allows children to implement an emergency pause
+ * mechanism that can be triggered and undone by an authorized account.
  *
  * This module is used through inheritance. It will make available the
  * modifiers `whenNotPaused` and `whenPaused`, which can be applied to

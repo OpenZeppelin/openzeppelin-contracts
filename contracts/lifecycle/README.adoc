@@ -3,3 +3,7 @@
 == Pausable
 
 {{Pausable}}
+
+== Revokable
+
+{{Revokable}}
