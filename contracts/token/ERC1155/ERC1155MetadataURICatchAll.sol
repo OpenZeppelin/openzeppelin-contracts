@@ -17,8 +17,7 @@ contract ERC1155MetadataURICatchAll is ERC165, ERC1155, IERC1155MetadataURI {
      * @dev Constructor function
      */
     constructor (string memory uri) public {
-        _uri = uri;
-        emit URI(_uri, 0);
+        _setURI(uri);
 
         // register the supported interfaces to conform to ERC1155 via ERC165
         _registerInterface(_INTERFACE_ID_ERC1155_METADATA_URI);
@@ -34,5 +33,14 @@ contract ERC1155MetadataURICatchAll is ERC165, ERC1155, IERC1155MetadataURI {
     */
     function uri(uint256 /*id*/) external view returns (string memory) {
         return _uri;
+    }
+
+    /**
+     * @dev Internal function to set a new URI
+     * @param newuri New URI to be set
+     */
+    function _setURI(string memory newuri) internal {
+        _uri = newuri;
+        emit URI(_uri, 0);
     }
 }
