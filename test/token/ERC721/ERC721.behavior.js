@@ -344,7 +344,7 @@ function shouldBehaveLikeERC721 (
         this.ERC721Mock = await ERC721Mock.new();
       });
 
-      describe.only('via safeMint', function () { // regular minting is tested in ERC721Mintable.test.js and others
+      describe('via safeMint', function () { // regular minting is tested in ERC721Mintable.test.js and others
         it('should call onERC721Received — with data', async function () {
           this.receiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, false);
           const receipt = await this.ERC721Mock.safeMint(this.receiver.address, tokenId, data);
@@ -379,9 +379,8 @@ function shouldBehaveLikeERC721 (
         context('to a receiver contract that throws', function () {
           it('reverts', async function () {
             const invalidReceiver = await ERC721ReceiverRevertMock.new(RECEIVER_MAGIC_VALUE, true);
-            await expectRevert(
-              this.ERC721Mock.safeMint(invalidReceiver.address, tokenId),
-              'ERC721ReceiverRevertsMock: Transaction rejected by receiver'
+            await expectRevert.unspecified(
+              this.ERC721Mock.safeMint(invalidReceiver.address, tokenId)
             );
           });
         });
