@@ -5,13 +5,13 @@ const { shouldBehaveLikePublicRole } = require('../behaviors/access/roles/Public
 
 const { expect } = require('chai');
 
-const RevoableMock = contract.fromArtifact('RevoableMock');
+const RevokableMock = contract.fromArtifact('RevokableMock');
 
 describe('Revokable', function () {
   const [ revoker, otherRevoker, other, ...otherAccounts ] = accounts;
 
   beforeEach(async function () {
-    this.revokable = await RevoableMock.new({ from: revoker });
+    this.revokable = await RevokableMock.new({ from: revoker });
   });
 
   describe('revoker role', function () {
