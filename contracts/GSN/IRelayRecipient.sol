@@ -9,7 +9,7 @@ interface IRelayRecipient {
     /**
      * @dev Returns the address of the {IRelayHub} instance this recipient interacts with.
      */
-    function getHubAddr() public view returns (address);
+    function getHubAddr() external view returns (address);
 
     /**
      * @dev Called by {IRelayHub} to validate if this recipient accepts being charged for a relayed call. Note that the
