@@ -300,7 +300,7 @@ contract ERC721 is Context, ERC165, IERC721 {
      * @param tokenId uint256 ID of the token to be transferred
      */
     function _transferFrom(address from, address to, uint256 tokenId) internal {
-        require(ownerOf(tokenId) == from, "ERC721: transfer of token that is not own");
+        require(_isApprovedOrOwner(from, tokenId), "ERC721: transfer caller is not owner nor approved");
         require(to != address(0), "ERC721: transfer to the zero address");
 
         _clearApproval(tokenId);
