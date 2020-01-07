@@ -310,9 +310,8 @@ function shouldBehaveLikeERC721 (
         describe('to a receiver contract that throws', function () {
           it('reverts', async function () {
             const invalidReceiver = await ERC721ReceiverRevertMock.new(RECEIVER_MAGIC_VALUE, true);
-            await expectRevert(
-              this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner }),
-              'ERC721ReceiverRevertsMock: Transaction rejected by receiver'
+            await expectRevert.unspecified(
+              this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner })
             );
           });
         });
