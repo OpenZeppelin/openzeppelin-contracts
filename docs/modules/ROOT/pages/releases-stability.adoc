@@ -1,3 +1,23 @@
+[[release-schedule]]
+= Release Schedule
+
+OpenZeppelin Contracts follows a <<versioning-scheme, semantic versioning scheme>>.
+
+[[minor-releases]]
+== Minor releases
+
+OpenZeppelin Contracts has a *5 week release cycle*. This means that every five weeks a new release is published.
+
+At the beginning of the release cycle we decide which issues we want to prioritize, and assign them to https://github.com/OpenZeppelin/openzeppelin-contracts/milestones[a milestone on GitHub]. During the next five weeks, they are worked on and fixed.
+
+Once the milestone is complete, we publish a feature-frozen release candidate. The purpose of the release candidate is to have a period where the community can review the new code before the actual release. If important problems are discovered, several more release candidates may be required. After a week of no more changes to the release candidate, the new version is published.
+
+[[major-releases]]
+== Major releases
+
+Every several months a new major release may come out. These are not scheduled, but will be based on the need to release breaking changes such as a redesign of a core feature of the library (e.g. https://github.com/OpenZeppelin/openzeppelin-contracts/issues/1146[roles] in 2.0). Since we value stability, we aim for these to happen infrequently (expect no less than six months between majors). However, we may be forced to release one when there are big changes to the Solidity language.
+
+
 = API Stability
 
 On the https://github.com/OpenZeppelin/openzeppelin-contracts/releases/tag/v2.0.0[OpenZeppelin 2.0 release], we committed ourselves to keeping a stable API. We aim to more precisely define what we understand by _stable_ and _API_ here, so users of the library can understand these guarantees and be confident their project won't break unexpectedly.
@@ -7,7 +27,7 @@ In a nutshell, the API being stable means _if your project is working today, it 
 [[versioning-scheme]]
 == Versioning scheme
 
-We follow https://semver.org/[SemVer], which means API breakage may occur between major releases. Read more about the xref:release-schedule.adoc[release schedule] to know how often this happens (not very).
+We follow https://semver.org/[SemVer], which means API breakage may occur between major releases (which <<release-schedule, don't happen very often>>).
 
 [[solidity-functions]]
 == Solidity functions
@@ -19,7 +39,7 @@ If new functions are added to a contract, it will be in a backwards-compatible w
 [[internal]]
 === `internal`
 
-This extends not only to `external` and `public` functions, but also `internal` ones: many OpenZeppelin contracts are meant to be used by inheriting them (e.g. `Pausable`, `PullPayment`, the different `Roles` contracts), and are therefore used by calling these functions. Similarly, since all OpenZeppelin state variables are `private`, they can only be accessed this way (e.g. to create new `ERC20` tokens, instead of manually modifying `totalSupply` and `balances`, `_mint` should be called).
+This extends not only to `external` and `public` functions, but also `internal` ones: many OpenZeppelin contracts are meant to be used by inheriting them (e.g. `Pausable`, `PullPayment`, the different `Roles` contracts), and are therefore used by calling these functions. Similarly, since all OpenZeppelin state variables are `private`, they can only be accessed this way (e.g. to create new `ERC20` tokens, instead of manually modifying `totalSupply` and `balances`, `\_mint` should be called).
 
 `private` functions have no guarantees on their behavior, usage, or existence.
 
@@ -28,7 +48,7 @@ Finally, sometimes language limitations will force us to e.g. make `internal` a 
 [[libraries]]
 == Libraries
 
-Some of our Solidity libraries use `struct`s to handle internal data that should not be accessed directly (e.g. `Roles`). There's an https://github.com/ethereum/solidity/issues/4637[open issue] in the Solidity repository requesting a language feature to prevent said access, but it looks like it won't be implemented any time soon. Because of this, we will use leading underscores and mark said `struct`s to make it clear to the user that its contents and layout are _not_ part of the API.
+Some of our Solidity libraries use `struct`s to handle internal data that should not be accessed directly (e.g. `Roles`). There's an https://github.com/ethereum/solidity/issues/4637[open issue] in the Solidity repository requesting a language feature to prevent said access, but it looks like it won't be implemented any time soon. Because of this, we will use leading underscores and mark said `struct` s to make it clear to the user that its contents and layout are _not_ part of the API.
 
 [[events]]
 == Events
