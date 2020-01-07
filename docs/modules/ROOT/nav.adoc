@@ -17,4 +17,3 @@
 '''
 
 * xref:releases-stability.adoc[Releases & Stability]
-* xref:release-schedule.adoc[Release Schedule]
