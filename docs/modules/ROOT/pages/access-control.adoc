@@ -29,8 +29,8 @@ contract MyContract is Ownable {
 By default, the xref:api:ownership.adoc#Ownable-owner--[`owner`] of an `Ownable` contract is the account that deployed it, which is usually exactly what you want.
 
 Ownable also lets you:
-* xref:api:ownership.adoc#Ownable-transferOwnership-address-[`transferOwnership`] from the owner account to a new one, and
-* xref:api:ownership.adoc#Ownable-renounceOwnership--[`renounceOwnership`] for the owner to relinquish this administrative privilege, a common pattern after an initial stage with centralized administration is over.
+ * xref:api:ownership.adoc#Ownable-transferOwnership-address-[`transferOwnership`] from the owner account to a new one, and
+ * xref:api:ownership.adoc#Ownable-renounceOwnership--[`renounceOwnership`] for the owner to relinquish this administrative privilege, a common pattern after an initial stage with centralized administration is over.
 
 WARNING: Removing the owner altogether will mean that administrative tasks that are protected by `onlyOwner` will no longer be callable!
 
