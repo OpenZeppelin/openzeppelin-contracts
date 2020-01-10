@@ -1,6 +1,6 @@
 = Contracts
 
-*A library for secure smart contract development.* Build on the shoulders of giants.
+*A library for secure smart contract development.* Build on a solid foundation of community-vetted code.
 
  * Implementations of standards like xref:erc20.adoc[ERC20] and xref:erc721.adoc[ERC721].
  * Flexible xref:access-control.adoc[role-based permissioning] scheme.
