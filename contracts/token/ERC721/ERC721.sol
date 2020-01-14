@@ -330,15 +330,14 @@ contract ERC721 is Context, ERC165, IERC721 {
         if (!to.isContract()) {
             return true;
         }
-        bytes memory payload = abi.encodeWithSelector(
+        // solhint-disable-next-line avoid-low-level-calls
+        (bool success, bytes memory returndata) = to.call(abi.encodeWithSelector(
             IERC721Receiver(to).onERC721Received.selector,
             _msgSender(),
             from,
             tokenId,
             _data
-        );
-        // solhint-disable-next-line avoid-low-level-calls
-        (bool success, bytes memory returndata) = to.call(payload);
+        ));
         if (!success) {
             if (returndata.length > 0) {
                 // solhint-disable-next-line no-inline-assembly
