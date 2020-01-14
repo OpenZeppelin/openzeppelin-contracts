@@ -8,7 +8,7 @@ Finally, we will cover how to create your own custom strategies.
 If you're still learning about the basics of the Gas Station Network, you should first head over to the xref:gsn.adoc[GSN Guide].
 
 [[gsn-strategies]]
-== GSN strategies explained
+== GSN Strategies Explained
 
 A *GSN strategy* decides which relayed call gets approved and which relayed call gets rejected. Strategies are a key concept within the GSN. Dapps need a strategy to prevent malicious users from spending the dapp's funds for relayed call fees.
 
@@ -20,7 +20,7 @@ A GSN recipient contract needs the following to work:
 2. It needs to handle `msg.sender` and `msg.data` differently.
 3. It needs to decide how to approve and reject relayed calls.
 
-Depositing funds for the GSN recipient contract can be done via the https://gsn.openzeppelin.com/recipients[GSN Dapp tool] or programmatically with https://github.com/OpenZeppelin/openzeppelin-gsn-helpers#usage-from-code[OpenZeppelin GSN Helpers].
+Depositing funds for the GSN recipient contract can be done via the https://gsn.openzeppelin.com/recipients[GSN Dapp tool] or programmatically with xref:gsn-helpers::api.adoc#javascript_interface[*OpenZeppelin GSN Helpers*].
 
 The actual user's `msg.sender` and `msg.data` can be obtained safely via xref:api:GSN.adoc#GSNRecipient-_msgSender--[`_msgSender()`] and xref:api:GSN.adoc#GSNRecipient-_msgData--[`_msgData()`] of xref:api:GSN.adoc#GSNRecipient[`GSNRecipient`].
 
@@ -28,7 +28,7 @@ Deciding how to approve and reject relayed calls is a bit more complex. Chances 
 
 The base xref:api:GSN.adoc#GSNRecipient[`GSNRecipient`] contract doesn't include a strategy, so you must either use one of the pre-built ones or write your own. We will first go over using the included strategies: xref:api:GSN.adoc#GSNRecipientSignature[`GSNRecipientSignature`] and xref:api:GSN.adoc#GSNRecipientERC20Fee[`GSNRecipientERC20Fee`].
 
-== GSNRecipientSignature
+== `GSNRecipientSignature`
 
 xref:api:GSN.adoc#GSNRecipientSignature[`GSNRecipientSignature`] lets users relay calls via the GSN to your recipient contract (charging you for it) if they can prove that an account you trust approved them to do so. The way they do this is via a _signature_.
 
@@ -43,7 +43,7 @@ Alternatively, you could charge the user off-chain (e.g. via credit card) for cr
 The great thing about this setup is that *your contract doesn't need to change* if you want to change the business rules. All you are doing is changing the backend logic conditions under which users use your contract for free.
 On the other hand, you need to have a backend server, microservice, or lambda function to accomplish this.
 
-=== How does GSNRecipientSignature work?
+=== How Does `GSNRecipientSignature` Work?
 
 `GSNRecipientSignature` decides whether or not to accept the relayed call based on the included signature.
 
@@ -51,7 +51,7 @@ The `acceptRelayedCall` implementation recovers the address from the signature o
 If the included signature matches the trusted signer, the relayed call is approved.
 On the other hand, when the included signature doesn't match the trusted signer, the relayed call gets rejected with an error code of `INVALID_SIGNER`.
 
-=== How to use GSNRecipientSignature
+=== How to Use `GSNRecipientSignature`
 
 You will need to create an off-chain service (e.g. backend server, microservice, or lambda function) that your dapp calls to sign (or not sign, based on your business logic) the relayed call parameters with your trusted signer account.  The signature is then included as the `approvalData` in the relayed call.
 
@@ -69,7 +69,7 @@ contract MyContract is GSNRecipientSignature {
 
 TIP: We wrote an in-depth guide on how to setup a signing server that works with `GSNRecipientSignature`, https://forum.openzeppelin.com/t/advanced-gsn-gsnrecipientsignature-sol/1414[check it out!]
 
-== GSNRecipientERC20Fee
+== `GSNRecipientERC20Fee`
 
 xref:api:GSN.adoc#GSNRecipientERC20Fee[`GSNRecipientERC20Fee`] is a bit more complex (but don't worry, it has already been written for you!). Unlike `GSNRecipientSignature`, `GSNRecipientERC20Fee` doesn't require any off-chain services.
 Instead of off-chain approving each relayed call, you will give special-purpose ERC20 tokens to your users. These tokens are then used as payment for relayed calls to your recipient contract.
@@ -82,7 +82,7 @@ Then, issue tokens to users based on your business logic. For example, you could
 
 NOTE: *Users do not need to call approve* on their tokens for your recipient contract to use them. They are a modified ERC20 variant that lets the recipient contract retrieve them.
 
-=== How does GSNRecipientERC20Fee work?
+=== How Does `GSNRecipientERC20Fee` Work?
 
 `GSNRecipientERC20Fee` decides to approve or reject relayed calls based on the balance of the users tokens.
 
@@ -100,7 +100,7 @@ NOTE: The gas cost estimation is not 100% accurate, we may tweak it further down
 
 NOTE: Always use `_preRelayedCall` and `_postRelayedCall` functions.  Internal `_preRelayedCall` and `_postRelayedCall` functions are used instead of public `preRelayedCall` and `postRelayedCall` functions, as the public functions are prevented from being called by non-RelayHub contracts.
 
-=== How to use GSNRecipientERC20Fee
+=== How to Use `GSNRecipientERC20Fee`
 
 Your GSN recipient contract needs to inherit from `GSNRecipientERC20Fee` along with appropriate xref:access-control.adoc[access control] (for token minting), set the token details in the constructor of `GSNRecipientERC20Fee` and create a public `mint` function suitably protected by your chosen access control as per the following sample code (which uses the xref:api:access.adoc#MinterRole[MinterRole]):
 
@@ -118,7 +118,7 @@ contract MyContract is GSNRecipientERC20Fee, MinterRole {
 }
 ----
 
-== Custom strategies
+== Custom Strategies
 
 If the included strategies don't quite fit your business needs, you can also write your own! For example, your custom strategy could use a specified token to pay for relayed calls with a custom exchange rate to ether.  Alternatively you could issue users who subscribe to your dapp ERC721 tokens, and accounts holding the subscription token could use your contract for free as part of the subscription. There are lots of potential options!
 
