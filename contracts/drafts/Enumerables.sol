@@ -1,8 +1,8 @@
-pragma solidity ^0.5.10;
+pragma solidity ^0.5.0;
 
 
 /**
- * @title Enumerable
+ * @title Enumerables
  * @dev This contract implements an enumerable address set as a doubly linked list.
  * @author Alberto Cuesta Cañada
  */
@@ -45,7 +45,6 @@ library Enumerables {
      */
     function append(Enumerable storage enumerable, address data)
         public
-        returns (bool)
     {
         uint256 objectId = _createObject(enumerable, data);
         if (enumerable.head == 0) {
@@ -182,11 +181,11 @@ library Enumerables {
     /**
      * @dev Internal function to link an Object to another.
      */
-    function _link(Enumerable storage enumerable, uint256 _prevId, uint256 _nextId)
+    function _link(Enumerable storage enumerable, uint256 prevId, uint256 nextId)
         internal
     {
-        enumerable.objects[_prevId].next = _nextId;
-        enumerable.objects[_nextId].prev = _prevId;
-        emit ObjectsLinked(_prevId, _nextId);
+        enumerable.objects[prevId].next = nextId;
+        enumerable.objects[nextId].prev = prevId;
+        emit ObjectsLinked(prevId, nextId);
     }
 }
