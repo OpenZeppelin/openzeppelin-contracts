@@ -7,7 +7,6 @@ const { shouldSupportInterfaces } = require('../../introspection/SupportsInterfa
 const ERC721ReceiverMock = contract.fromArtifact('ERC721ReceiverMock');
 const ERC721Mock = contract.fromArtifact('ERC721Mock');
 const ERC721NoReceiverMock = contract.fromArtifact('ERC721ReceiverNotImplementedMock');
-const ERC721ReceiverRevertMock = contract.fromArtifact('ERC721ReceiverRevertsMock');
 
 function shouldBehaveLikeERC721 (
   creator,
@@ -309,7 +308,7 @@ function shouldBehaveLikeERC721 (
 
         describe('to a receiver contract that throws', function () {
           it('reverts', async function () {
-            const invalidReceiver = await ERC721ReceiverRevertMock.new(RECEIVER_MAGIC_VALUE, true);
+            const invalidReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, true);
             await expectRevert.unspecified(
               this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner })
             );
@@ -377,7 +376,7 @@ function shouldBehaveLikeERC721 (
 
         context('to a receiver contract that throws', function () {
           it('reverts', async function () {
-            const invalidReceiver = await ERC721ReceiverRevertMock.new(RECEIVER_MAGIC_VALUE, true);
+            const invalidReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, true);
             await expectRevert.unspecified(
               this.ERC721Mock.safeMint(invalidReceiver.address, tokenId)
             );
