@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "../../GSN/Context.sol";
 import "../Roles.sol";
@@ -24,20 +24,20 @@ contract MinterRole is Context {
         return _minters.has(account);
     }
 
-    function addMinter(address account) public onlyMinter {
+    function addMinter(address account) public virtual onlyMinter {
         _addMinter(account);
     }
 
-    function renounceMinter() public {
+    function renounceMinter() public virtual {
         _removeMinter(_msgSender());
     }
 
-    function _addMinter(address account) internal {
+    function _addMinter(address account) internal virtual {
         _minters.add(account);
         emit MinterAdded(account);
     }
 
-    function _removeMinter(address account) internal {
+    function _removeMinter(address account) internal virtual {
         _minters.remove(account);
         emit MinterRemoved(account);
     }

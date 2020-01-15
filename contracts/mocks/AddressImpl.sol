@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "../utils/Address.sol";
 
@@ -15,5 +15,5 @@ contract AddressImpl {
         Address.sendValue(receiver, amount);
     }
 
-    function () external payable { } // sendValue's tests require the contract to hold Ether
+    receive () external payable { } // sendValue's tests require the contract to hold Ether
 }

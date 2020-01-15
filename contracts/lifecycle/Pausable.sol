@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "../GSN/Context.sol";
 import "../access/roles/PauserRole.sol";
@@ -59,7 +59,7 @@ contract Pausable is Context, PauserRole {
     /**
      * @dev Called by a pauser to pause, triggers stopped state.
      */
-    function pause() public onlyPauser whenNotPaused {
+    function pause() public virtual onlyPauser whenNotPaused {
         _paused = true;
         emit Paused(_msgSender());
     }
@@ -67,7 +67,7 @@ contract Pausable is Context, PauserRole {
     /**
      * @dev Called by a pauser to unpause, returns to normal state.
      */
-    function unpause() public onlyPauser whenPaused {
+    function unpause() public virtual onlyPauser whenPaused {
         _paused = false;
         emit Unpaused(_msgSender());
     }

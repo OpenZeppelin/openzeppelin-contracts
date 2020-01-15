@@ -1,4 +1,4 @@
-pragma solidity ^0.5.10;
+pragma solidity ^0.6.0;
 
 /**
  * @dev Library used to query support of an interface declared via {IERC165}.

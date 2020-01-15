@@ -145,7 +145,7 @@ describe('ERC20Pausable', function () {
         await this.token.pause({ from: pauser });
 
         await expectRevert(this.token.transfer(recipient, initialSupply, { from: pauser }),
-          'Pausable: paused'
+          'ERC20Pausable: token movement while paused'
         );
       });
     });
@@ -172,7 +172,7 @@ describe('ERC20Pausable', function () {
         await this.token.pause({ from: pauser });
 
         await expectRevert(this.token.approve(anotherAccount, allowance, { from: pauser }),
-          'Pausable: paused'
+          'ERC20Pausable: token approval while paused'
         );
       });
     });
@@ -205,7 +205,7 @@ describe('ERC20Pausable', function () {
         await this.token.pause({ from: pauser });
 
         await expectRevert(this.token.transferFrom(
-          pauser, recipient, allowance, { from: anotherAccount }), 'Pausable: paused'
+          pauser, recipient, allowance, { from: anotherAccount }), 'ERC20Pausable: token movement while paused'
         );
       });
     });
@@ -237,7 +237,7 @@ describe('ERC20Pausable', function () {
         await this.token.pause({ from: pauser });
 
         await expectRevert(this.token.decreaseAllowance(
-          anotherAccount, decrement, { from: pauser }), 'Pausable: paused'
+          anotherAccount, decrement, { from: pauser }), 'ERC20Pausable: token approval while paused'
         );
       });
     });
@@ -269,7 +269,7 @@ describe('ERC20Pausable', function () {
         await this.token.pause({ from: pauser });
 
         await expectRevert(this.token.increaseAllowance(
-          anotherAccount, increment, { from: pauser }), 'Pausable: paused'
+          anotherAccount, increment, { from: pauser }), 'ERC20Pausable: token approval while paused'
         );
       });
     });

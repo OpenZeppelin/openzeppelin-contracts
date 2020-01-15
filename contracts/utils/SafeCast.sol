@@ -1,13 +1,13 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 
 /**
  * @dev Wrappers over Solidity's uintXX casting operators with added overflow
  * checks.
  *
- * Downcasting from uint256 in Solidity does not revert on overflow. This can 
+ * Downcasting from uint256 in Solidity does not revert on overflow. This can
  * easily result in undesired exploitation or bugs, since developers usually
- * assume that overflows raise errors. `SafeCast` restores this intuition by 
+ * assume that overflows raise errors. `SafeCast` restores this intuition by
  * reverting the transaction when such an operation overflows.
  *
  * Using this library instead of the unchecked operations eliminates an entire

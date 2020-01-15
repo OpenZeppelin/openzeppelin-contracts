@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "./ERC20.sol";
 import "../../lifecycle/Pausable.sol";
@@ -12,23 +12,13 @@ import "../../lifecycle/Pausable.sol";
  * bug.
  */
 contract ERC20Pausable is ERC20, Pausable {
-    function transfer(address to, uint256 value) public whenNotPaused returns (bool) {
-        return super.transfer(to, value);
+    function _afterTokensMoved(address from, address to, uint256 amount) internal virtual override {
+        require(!paused(), "ERC20Pausable: token movement while paused");
+        super._afterTokensMoved(from, to, amount);
     }
 
-    function transferFrom(address from, address to, uint256 value) public whenNotPaused returns (bool) {
-        return super.transferFrom(from, to, value);
-    }
-
-    function approve(address spender, uint256 value) public whenNotPaused returns (bool) {
-        return super.approve(spender, value);
-    }
-
-    function increaseAllowance(address spender, uint256 addedValue) public whenNotPaused returns (bool) {
-        return super.increaseAllowance(spender, addedValue);
-    }
-
-    function decreaseAllowance(address spender, uint256 subtractedValue) public whenNotPaused returns (bool) {
-        return super.decreaseAllowance(spender, subtractedValue);
+    function _afterTokensApproved(address from, address to, uint256 amount) internal virtual override {
+        require(!paused(), "ERC20Pausable: token approval while paused");
+        super._afterTokensApproved(from, to, amount);
     }
 }
