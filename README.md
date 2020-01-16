@@ -30,7 +30,7 @@ contract MyNFT is ERC721Full, ERC721Mintable {
 }
 ```
 
-> You need an ethereum development framework for the above import statements to work! Check out these guides for [Truffle], [Embark] or [Buidler].
+> You need an ethereum development framework for the above import statements to work! Check out these guides for [OpenZeppelin CLI], [Truffle], [Embark] or [Buidler].
 
 On our site you will find a few [guides] to learn about the different parts of OpenZeppelin, as well as [documentation for the API][API docs]. Keep in mind that the API docs are work in progress, and don’t hesitate to ask questions in [our forum][forum].
 
@@ -55,10 +55,11 @@ OpenZeppelin is released under the [MIT License](LICENSE).
 
 [API docs]: https://docs.openzeppelin.com/contracts/api/token/erc20
 [guides]: https://docs.openzeppelin.com/contracts
-[API Stability]: https://docs.openzeppelin.com/contracts/releases-stability
+[API Stability]: https://docs.openzeppelin.com/contracts/api-stability
 [forum]: https://forum.openzeppelin.com
 [OpenZeppelin]: https://openzeppelin.com
 [contribution guide]: CONTRIBUTING.md
+[OpenZeppelin CLI]: https://docs.openzeppelin.com/cli
 [Truffle]: https://truffleframework.com/docs/truffle/quickstart
 [Embark]: https://embark.status.im/docs/quick_start.html
 [Buidler]: https://buidler.dev/getting-started/#overview
