@@ -4,7 +4,7 @@ publish = "docsite-build"
 
 [[redirects]]
   from = "/"
-  to = "https://docs.openzeppelin.com/contracts"
+  to = "https://docs.openzeppelin.com/"
   status = 301
   force = true
 
