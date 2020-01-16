@@ -55,7 +55,7 @@ OpenZeppelin is released under the [MIT License](LICENSE).
 
 [API docs]: https://docs.openzeppelin.com/contracts/api/token/erc20
 [guides]: https://docs.openzeppelin.com/contracts
-[API Stability]: https://docs.openzeppelin.com/contracts/api-stability
+[API Stability]: https://docs.openzeppelin.com/contracts/releases-stability
 [forum]: https://forum.openzeppelin.com
 [OpenZeppelin]: https://openzeppelin.com
 [contribution guide]: CONTRIBUTING.md
