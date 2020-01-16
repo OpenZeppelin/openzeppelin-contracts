@@ -1,11 +1,12 @@
-const { expectRevert } = require('openzeppelin-test-helpers');
+const { contract } = require('@openzeppelin/test-environment');
+const { expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ReentrancyMock = artifacts.require('ReentrancyMock');
-const ReentrancyAttack = artifacts.require('ReentrancyAttack');
+const ReentrancyMock = contract.fromArtifact('ReentrancyMock');
+const ReentrancyAttack = contract.fromArtifact('ReentrancyAttack');
 
-contract('ReentrancyGuard', function () {
+describe('ReentrancyGuard', function () {
   beforeEach(async function () {
     this.reentrancyMock = await ReentrancyMock.new();
     expect(await this.reentrancyMock.counter()).to.be.bignumber.equal('0');
@@ -14,7 +15,7 @@ contract('ReentrancyGuard', function () {
   it('should not allow remote callback', async function () {
     const attacker = await ReentrancyAttack.new();
     await expectRevert(
-      this.reentrancyMock.countAndCall(attacker.address), 'ReentrancyGuard: reentrant call');
+      this.reentrancyMock.countAndCall(attacker.address), 'ReentrancyAttack: failed call');
   });
 
   // The following are more side-effects than intended behavior:

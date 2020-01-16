@@ -25,6 +25,7 @@
     "strict": ["error", "global"],
 
     // Code style
+    "array-bracket-spacing": ["off"],
     "camelcase": ["error", {"properties": "always"}],
     "comma-dangle": ["error", "always-multiline"],
     "comma-spacing": ["error", {"before": false, "after": true}],
@@ -54,5 +55,8 @@
 
     "promise/always-return": "off",
     "promise/avoid-new": "off",
+  },
+  "parserOptions": {
+    "ecmaVersion": 2018
   }
 }

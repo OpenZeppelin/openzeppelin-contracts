@@ -1,6 +1,6 @@
 = Crowdsales
 
-Crowdsales are a popular use for Ethereum; they let you allocate tokens to network participants in various ways, mostly in exchange for Ether. They come in a variety of shapes and flavors, so let's go over the various types available in OpenZeppelin and how to use them.
+Crowdsales are a popular use for Ethereum; they let you allocate tokens to network participants in various ways, mostly in exchange for Ether. They come in a variety of shapes and flavors, so let's go over the various types available in OpenZeppelin Contracts and how to use them.
 
 Crowdsales have a bunch of different properties, but here are some important ones:
 
@@ -18,7 +18,7 @@ Crowdsales have a bunch of different properties, but here are some important one
 * Does distribution of funds happen in real-time or after the crowdsale?
 * Can participants receive a refund if the goal is not met?
 
-To manage all of the different combinations and flavors of crowdsales, OpenZeppelin provides a highly configurable xref:api:crowdsale.adoc#Crowdsale[`Crowdsale`] base contract that can be combined with various other functionalities to construct a bespoke crowdsale.
+To manage all of the different combinations and flavors of crowdsales, Contracts provides a highly configurable xref:api:crowdsale.adoc#Crowdsale[`Crowdsale`] base contract that can be combined with various other functionalities to construct a bespoke crowdsale.
 
 [[crowdsale-rate]]
 == Crowdsale Rate
@@ -120,7 +120,7 @@ contract MyCrowdsaleDeployer {
         Crowdsale crowdsale = new MyCrowdsale(
             1,               // rate, still in TKNbits
             msg.sender,      // send Ether to the deployer
-            address(token)   // the token
+            token            // the token
         );
         // transfer the minter role from this contract (the default)
         // to the crowdsale, so it can mint tokens
@@ -203,7 +203,7 @@ There comes a time in every crowdsale's life where it must relinquish the tokens
 
 The default behavior is to release tokens as participants purchase them, but sometimes that may not be desirable. For example, what if we want to give users a refund if we don't hit a minimum raised in the sale? Or, maybe we want to wait until after the sale is over before users can claim their tokens and start trading them, perhaps for compliance reasons?
 
-OpenZeppelin is here to make that easy!
+OpenZeppelin Contracts is here to make that easy!
 
 [[postdeliverycrowdsale]]
 === PostDeliveryCrowdsale

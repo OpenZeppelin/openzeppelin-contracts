@@ -1,10 +1,11 @@
-require('openzeppelin-test-helpers');
+const { contract } = require('@openzeppelin/test-environment');
+require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ArraysImpl = artifacts.require('ArraysImpl');
+const ArraysImpl = contract.fromArtifact('ArraysImpl');
 
-contract('Arrays', function () {
+describe('Arrays', function () {
   context('Even number of elements', function () {
     const EVEN_ELEMENTS_ARRAY = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 
