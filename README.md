@@ -4,7 +4,7 @@
 [![Build Status](https://circleci.com/gh/OpenZeppelin/openzeppelin-contracts.svg?style=shield)](https://circleci.com/gh/OpenZeppelin/openzeppelin-contracts)
 [![Coverage Status](https://codecov.io/gh/OpenZeppelin/openzeppelin-contracts/graph/badge.svg)](https://codecov.io/gh/OpenZeppelin/openzeppelin-contracts)
 
-*A library for secure smart contract development.* Build on a solid foundation of community-vetted code.
+**A library for secure smart contract development.** Build on a solid foundation of community-vetted code.
 
  * Implementations of standards like [ERC20](https://docs.openzeppelin.com/contracts/erc20) and [ERC721](https://docs.openzeppelin.com/contracts/erc721).
  * Flexible [role-based permissioning](https://docs.openzeppelin.com/contracts/access-control) scheme.
@@ -45,7 +45,7 @@ To keep your system secure, you should **always** use the installed code as-is, 
 The guides in the sidebar will teach about different concepts, and how to use the related contracts that OpenZeppelin Contracts provides:
 
 * [Access Control](https://docs.openzeppelin.com/contracts/access-control): decide who can perform each of the actions on your system.
-* [Tokens](https://docs.openzeppelin.com/contracts/tokens): create tradeable assets or collectives, and distribute them via https://docs.openzeppelin.com/contracts/crowdsales[Crowdsales].
+* [Tokens](https://docs.openzeppelin.com/contracts/tokens): create tradeable assets or collectives, and distribute them via [Crowdsales](https://docs.openzeppelin.com/contracts/crowdsales).
 * [Gas Station Network](https://docs.openzeppelin.com/contracts/gsn): let your users interact with your contracts without having to pay for gas themselves.
 * [Utilities](https://docs.openzeppelin.com/contracts/utilities): generic useful tools, including non-overflowing math, signature verification, and trustless paying systems.
 
