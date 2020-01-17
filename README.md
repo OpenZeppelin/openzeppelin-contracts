@@ -26,8 +26,7 @@ OpenZeppelin Contracts features a [stable API](https://docs.openzeppelin.com/con
 
 Once installed, you can use the contracts in the library by importing them:
 
-[source,solidity]
-----
+```solidity
 pragma solidity ^0.5.0;
 
 import "@openzeppelin/contracts/ownership/Ownable.sol";
@@ -35,7 +34,7 @@ import "@openzeppelin/contracts/ownership/Ownable.sol";
 contract MyContract is Ownable {
   ...
 }
-----
+```
 
 _If you're new to smart contract development, head to [Developing Smart Contracts](https://docs.openzeppelin.com/contracts/learn::developing-smart-contracts) to learn about creating a new project and compiling your contracts._
 
