@@ -15,30 +15,30 @@ describe('EnumerableSet', function () {
   });
 
   it('contains can return false.', async function () {
-    expect(await this.set.testContains(a)).to.be.false;
+    expect(await this.set.testContains(a)).to.equal(false);
   });
 
   it('adds an value.', async function () {
     await this.set.testAdd(a);
-    expect(await this.set.testContains(a)).to.be.true;
+    expect(await this.set.testContains(a)).to.equal(true);
   });
 
   it('adds several values.', async function () {
     await this.set.testAdd(a);
     await this.set.testAdd(b);
-    expect(await this.set.testContains(a)).to.be.true;
-    expect(await this.set.testContains(b)).to.be.true;
-    expect(await this.set.testContains(c)).to.be.false;
+    expect(await this.set.testContains(a)).to.equal(true);
+    expect(await this.set.testContains(b)).to.equal(true);
+    expect(await this.set.testContains(c)).to.equal(false);
   });
 
   it('removes values.', async function () {
     await this.set.testAdd(a);
     await this.set.testRemove(a);
-    expect(await this.set.testContains(a)).to.be.false;
+    expect(await this.set.testContains(a)).to.equal(false);
   });
 
   it('Retrieve an empty array', async function () {
-    expect(await this.set.testEnumerate()).to.be.empty;
+    expect(await this.set.testEnumerate()).to.eql([]);
   });
 
   it('Retrieve an array of values', async function () {
