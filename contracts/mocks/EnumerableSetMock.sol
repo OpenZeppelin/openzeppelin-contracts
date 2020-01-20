@@ -1,5 +1,5 @@
 pragma solidity ^0.5.10;
-import "../drafts/EnumerableSet.sol";
+import "../utils/EnumerableSet.sol";
 
 
 /**
