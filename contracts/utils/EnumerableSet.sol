@@ -5,9 +5,13 @@ pragma solidity ^0.5.10;
  * @title EnumerableSet
  * @dev Data structure - https://en.wikipedia.org/wiki/Set_(abstract_data_type)
  *
- * EnumerableSet is a data structure that can contain an arbitrary number of unique addresses.
- * The contents of the set can be retrieved as an array, but two separate calls to `enumerate`
- * are not guaranteed to return values in the same order.
+ * An address EnumerableSet is a data structure containing a number of unique addresses.
+ *
+ *  - It is possible to add and remove addresses in O(1).
+ *  - It is also possible to query if the Set contains an address in O(1).
+ *  - It is possible to retrieve an array with all the addresses in the Set using enumerate.
+ *    This operation is O(N) where N is the number of addresses in the Set. The order in
+ *    which the addresses are retrieved is not guaranteed.
  *
  * Initialization of a set must include an empty array:
  * `EnumerableSet.Set set = EnumerableSet.Set({values: new address[](0)});`
