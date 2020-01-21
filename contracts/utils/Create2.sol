@@ -20,10 +20,8 @@ library Create2 {
         // solhint-disable-next-line no-inline-assembly
         assembly {
             addr := create2(0, add(bytecode, 0x20), mload(bytecode), salt)
-            if iszero(addr) {
-                revert(0, 0)
-            }
         }
+        require(addr != address(0), "Create2: Failed on deploy");
         return addr;
     }
 

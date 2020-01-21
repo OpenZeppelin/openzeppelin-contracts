@@ -50,8 +50,8 @@ contract('Create2', function ([_, deployerAccount, notCreator]) {
 
   it('should failed deploying a contract in an existent address', async function () {
     await this.factory.deploy(saltHex, constructorByteCode, { from: deployerAccount });
-    await expectRevert.unspecified(
-      this.factory.deploy(saltHex, constructorByteCode, { from: deployerAccount })
+    await expectRevert(
+      this.factory.deploy(saltHex, constructorByteCode, { from: deployerAccount }), 'Create2: Failed on deploy'
     );
   });
 });
