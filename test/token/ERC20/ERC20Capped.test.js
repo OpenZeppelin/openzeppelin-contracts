@@ -1,10 +1,14 @@
-const { BN, ether, expectRevert } = require('openzeppelin-test-helpers');
+const { accounts, contract } = require('@openzeppelin/test-environment');
+
+const { BN, ether, expectRevert } = require('@openzeppelin/test-helpers');
 const { shouldBehaveLikeERC20Mintable } = require('./behaviors/ERC20Mintable.behavior');
 const { shouldBehaveLikeERC20Capped } = require('./behaviors/ERC20Capped.behavior');
 
-const ERC20Capped = artifacts.require('ERC20Capped');
+const ERC20Capped = contract.fromArtifact('ERC20Capped');
 
-contract('ERC20Capped', function ([_, minter, ...otherAccounts]) {
+describe('ERC20Capped', function () {
+  const [ minter, ...otherAccounts ] = accounts;
+
   const cap = ether('1000');
 
   it('requires a non-zero cap', async function () {

@@ -6,6 +6,8 @@ Miscellaneous contracts containing utility functions, often related to working w
 
 {{Address}}
 
+{{SafeCast}}
+
 {{Arrays}}
 
 {{Create2}}

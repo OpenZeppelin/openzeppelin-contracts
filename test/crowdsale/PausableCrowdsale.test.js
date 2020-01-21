@@ -1,9 +1,13 @@
-const { BN, expectRevert } = require('openzeppelin-test-helpers');
+const { accounts, contract } = require('@openzeppelin/test-environment');
 
-const PausableCrowdsale = artifacts.require('PausableCrowdsaleImpl');
-const SimpleToken = artifacts.require('SimpleToken');
+const { BN, expectRevert } = require('@openzeppelin/test-helpers');
 
-contract('PausableCrowdsale', function ([_, pauser, wallet, other]) {
+const PausableCrowdsale = contract.fromArtifact('PausableCrowdsaleImpl');
+const SimpleToken = contract.fromArtifact('SimpleToken');
+
+describe('PausableCrowdsale', function () {
+  const [ pauser, wallet, other ] = accounts;
+
   const rate = new BN(1);
   const value = new BN(1);
 

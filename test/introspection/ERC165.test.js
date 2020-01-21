@@ -1,9 +1,11 @@
-const { expectRevert } = require('openzeppelin-test-helpers');
+const { contract } = require('@openzeppelin/test-environment');
+const { expectRevert } = require('@openzeppelin/test-helpers');
+
 const { shouldSupportInterfaces } = require('./SupportsInterface.behavior');
 
-const ERC165Mock = artifacts.require('ERC165Mock');
+const ERC165Mock = contract.fromArtifact('ERC165Mock');
 
-contract('ERC165', function () {
+describe('ERC165', function () {
   beforeEach(async function () {
     this.mock = await ERC165Mock.new();
   });

@@ -1,8 +1,8 @@
-const { balance, expectEvent } = require('openzeppelin-test-helpers');
+const { balance, expectEvent } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-function shouldBehaveLikeMintedCrowdsale ([_, investor, wallet, purchaser], rate, value) {
+function shouldBehaveLikeMintedCrowdsale ([ investor, wallet, purchaser ], rate, value) {
   const expectedTokenAmount = rate.mul(value);
 
   describe('as a minted crowdsale', function () {

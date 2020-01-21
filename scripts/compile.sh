@@ -4,4 +4,6 @@ if [ "$SOLC_NIGHTLY" = true ]; then
   docker pull ethereum/solc:nightly
 fi
 
-npx truffle compile
+export OPENZEPPELIN_NON_INTERACTIVE=true
+
+npx oz compile
