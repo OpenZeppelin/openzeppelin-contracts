@@ -1,10 +1,15 @@
-const { BN, expectRevert } = require('openzeppelin-test-helpers');
+const { contract, accounts, web3 } = require('@openzeppelin/test-environment');
+const { BN, expectRevert } = require('@openzeppelin/test-helpers');
 
-const Create2Impl = artifacts.require('Create2Impl');
-const ERC20Mock = artifacts.require('ERC20Mock');
-const ERC20 = artifacts.require('ERC20');
+const { expect } = require('chai');
 
-contract('Create2', function ([_, deployerAccount, notCreator]) {
+const Create2Impl = contract.fromArtifact('Create2Impl');
+const ERC20Mock = contract.fromArtifact('ERC20Mock');
+const ERC20 = contract.fromArtifact('ERC20');
+
+describe('Create2', function () {
+  const [deployerAccount] = accounts;
+
   const salt = 'salt message';
   const saltHex = web3.utils.soliditySha3(salt);
   const constructorByteCode = `${ERC20Mock.bytecode}${web3.eth.abi
@@ -20,7 +25,7 @@ contract('Create2', function ([_, deployerAccount, notCreator]) {
       .computeAddress(saltHex, constructorByteCode);
     const offChainComputed =
       computeCreate2Address(saltHex, constructorByteCode, this.factory.address);
-    onChainComputed.should.equal(offChainComputed);
+    expect(onChainComputed).to.equal(offChainComputed);
   });
 
   it('should compute the correct contract address with deployer', async function () {
@@ -28,7 +33,7 @@ contract('Create2', function ([_, deployerAccount, notCreator]) {
       .computeAddress(saltHex, constructorByteCode, deployerAccount);
     const offChainComputed =
       computeCreate2Address(saltHex, constructorByteCode, deployerAccount);
-    onChainComputed.should.equal(offChainComputed);
+    expect(onChainComputed).to.equal(offChainComputed);
   });
 
   it('should deploy a ERC20 from inline assembly code', async function () {
@@ -36,7 +41,7 @@ contract('Create2', function ([_, deployerAccount, notCreator]) {
       computeCreate2Address(saltHex, ERC20.bytecode, this.factory.address);
     await this.factory
       .deploy(saltHex, ERC20.bytecode, { from: deployerAccount });
-    (await web3.eth.getCode(offChainComputed)).should.equal(ERC20.deployedBytecode);
+    expect(await web3.eth.getCode(offChainComputed)).to.equal(ERC20.deployedBytecode);
   });
 
   it('should deploy a ERC20Mock with correct balances', async function () {
@@ -45,7 +50,7 @@ contract('Create2', function ([_, deployerAccount, notCreator]) {
     await this.factory
       .deploy(saltHex, constructorByteCode, { from: deployerAccount });
     const erc20 = await ERC20Mock.at(offChainComputed);
-    (await erc20.balanceOf(deployerAccount)).should.be.bignumber.equal(new BN(100));
+    expect(await erc20.balanceOf(deployerAccount)).to.be.bignumber.equal(new BN(100));
   });
 
   it('should failed deploying a contract in an existent address', async function () {
