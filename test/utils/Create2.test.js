@@ -41,7 +41,7 @@ describe('Create2', function () {
       computeCreate2Address(saltHex, ERC20.bytecode, this.factory.address);
     await this.factory
       .deploy(saltHex, ERC20.bytecode, { from: deployerAccount });
-    expect(await web3.eth.getCode(offChainComputed)).to.equal(ERC20.deployedBytecode);
+    expect(ERC20.bytecode).to.include((await web3.eth.getCode(offChainComputed)).slice(2));
   });
 
   it('should deploy a ERC20Mock with correct balances', async function () {
