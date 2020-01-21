@@ -18,7 +18,7 @@ describe('EnumerableSet', function () {
     expect(await this.set.testContains(a)).to.equal(false);
   });
 
-  it('adds an value.', async function () {
+  it('adds a value.', async function () {
     await this.set.testAdd(a);
     expect(await this.set.testContains(a)).to.equal(true);
   });
@@ -37,11 +37,11 @@ describe('EnumerableSet', function () {
     expect(await this.set.testContains(a)).to.equal(false);
   });
 
-  it('Retrieve an empty array', async function () {
+  it('enumerates values as an empty array', async function () {
     expect(await this.set.testEnumerate()).to.eql([]);
   });
 
-  it('Retrieve an array of values', async function () {
+  it('enumerates an array of values', async function () {
     await this.set.testAdd(a);
     await this.set.testAdd(b);
     await this.set.testAdd(c);

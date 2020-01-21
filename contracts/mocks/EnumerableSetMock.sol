@@ -4,7 +4,7 @@ import "../utils/EnumerableSet.sol";
 
 /**
  * @title EnumerableSetMock
- * @dev Data structure
+ * @dev Data structure - https://en.wikipedia.org/wiki/Set_(abstract_data_type)
  * @author Alberto Cuesta Cañada
  */
 contract EnumerableSetMock{

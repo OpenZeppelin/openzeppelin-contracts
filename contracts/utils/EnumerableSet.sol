@@ -3,7 +3,15 @@ pragma solidity ^0.5.10;
 
 /**
  * @title EnumerableSet
- * @dev Data structure
+ * @dev Data structure - https://en.wikipedia.org/wiki/Set_(abstract_data_type)
+ *
+ * EnumerableSet is a data structure that can contain an arbitrary number of unique addresses.
+ * The contents of the set can be retrieved as an array, but two separate calls to `enumerate`
+ * are not guaranteed to return values in the same order.
+ *
+ * Initialization of a set must include an empty array:
+ * `EnumerableSet.Set set = EnumerableSet.Set({values: new address[](0)});`
+ *
  * @author Alberto Cuesta Cañada
  */
 library EnumerableSet {
@@ -19,7 +27,7 @@ library EnumerableSet {
     }
 
     /**
-     * @dev Add a value.
+     * @dev Add a value. O(1).
      */
     function add(Set storage set, address value)
         internal
@@ -31,7 +39,7 @@ library EnumerableSet {
     }
 
     /**
-     * @dev Remove a value.
+     * @dev Remove a value. O(1).
      */
     function remove(Set storage set, address value)
         internal
@@ -45,7 +53,7 @@ library EnumerableSet {
     }
 
     /**
-     * @dev Returns true if the value is in the set.
+     * @dev Returns true if the value is in the set. O(1).
      */
     function contains(Set storage set, address value)
         internal
@@ -56,7 +64,7 @@ library EnumerableSet {
     }
 
     /**
-     * @dev Return an array with all values in the set.
+     * @dev Return an array with all values in the set. O(N).
      */
     function enumerate(Set storage set)
         internal
