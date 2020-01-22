@@ -9,12 +9,12 @@ import "../utils/EnumerableSet.sol";
  */
 contract EnumerableSetMock{
 
-    using EnumerableSet for EnumerableSet.Set;
+    using EnumerableSet for EnumerableSet.AddressSet;
 
-    EnumerableSet.Set private set;
+    EnumerableSet.AddressSet private set;
 
     constructor() public {
-        set = EnumerableSet.Set({values: new address[](0)});
+        set = EnumerableSet.AddressSet({values: new address[](0)});
     }
 
     /**

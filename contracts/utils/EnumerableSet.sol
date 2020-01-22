@@ -5,16 +5,16 @@ pragma solidity ^0.5.10;
  * @title EnumerableSet
  * @dev Data structure - https://en.wikipedia.org/wiki/Set_(abstract_data_type)
  *
- * An address EnumerableSet is a data structure containing a number of unique addresses.
+ * An EnumerableSet.AddressSet is a data structure containing a number of unique addresses.
  *
  *  - It is possible to add and remove addresses in O(1).
- *  - It is also possible to query if the Set contains an address in O(1).
- *  - It is possible to retrieve an array with all the addresses in the Set using enumerate.
- *    This operation is O(N) where N is the number of addresses in the Set. The order in
+ *  - It is also possible to query if the AddressSet contains an address in O(1).
+ *  - It is possible to retrieve an array with all the addresses in the AddressSet using enumerate.
+ *    This operation is O(N) where N is the number of addresses in the AddressSet. The order in
  *    which the addresses are retrieved is not guaranteed.
  *
  * Initialization of a set must include an empty array:
- * `EnumerableSet.Set set = EnumerableSet.Set({values: new address[](0)});`
+ * `EnumerableSet.AddressSet set = EnumerableSet.AddressSet({values: new address[](0)});`
  *
  * @author Alberto Cuesta Cañada
  */
@@ -23,7 +23,7 @@ library EnumerableSet {
     event ValueAdded(address value);
     event ValueRemoved(address value);
 
-    struct Set {
+    struct AddressSet {
         // Position of the value in the `values` array, plus 1 because index 0
         // means a value is not in the set.
         mapping (address => uint256) index;
@@ -33,7 +33,7 @@ library EnumerableSet {
     /**
      * @dev Add a value. O(1).
      */
-    function add(Set storage set, address value)
+    function add(AddressSet storage set, address value)
         internal
     {
         if (!contains(set, value)){
@@ -45,7 +45,7 @@ library EnumerableSet {
     /**
      * @dev Remove a value. O(1).
      */
-    function remove(Set storage set, address value)
+    function remove(AddressSet storage set, address value)
         internal
     {
         if (contains(set, value)) {
@@ -59,7 +59,7 @@ library EnumerableSet {
     /**
      * @dev Returns true if the value is in the set. O(1).
      */
-    function contains(Set storage set, address value)
+    function contains(AddressSet storage set, address value)
         internal
         view
         returns (bool)
@@ -70,7 +70,7 @@ library EnumerableSet {
     /**
      * @dev Return an array with all values in the set. O(N).
      */
-    function enumerate(Set storage set)
+    function enumerate(AddressSet storage set)
         internal
         view
         returns (address[] memory)
