@@ -44,6 +44,7 @@ library EnumerableSet {
         internal
     {
         require(contains(set, value), "EnumerableSet: value not in set");
+        // Replaced the value to remove with the last one in the array. O(1)
         set.values[set.index[value] - 1] = set.values[set.values.length - 1];
         set.values.pop();
         delete set.index[value];
