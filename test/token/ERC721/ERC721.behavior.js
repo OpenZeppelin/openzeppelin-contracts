@@ -4,9 +4,8 @@ const { expect } = require('chai');
 const { ZERO_ADDRESS } = constants;
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 
-const ERC721ReceiverMock = contract.fromArtifact('ERC721ReceiverMock');
 const ERC721Mock = contract.fromArtifact('ERC721Mock');
-const ERC721NoReceiverMock = contract.fromArtifact('ERC721ReceiverNotImplementedMock');
+const ERC721ReceiverMock = contract.fromArtifact('ERC721ReceiverMock');
 
 function shouldBehaveLikeERC721 (
   creator,
@@ -298,9 +297,9 @@ function shouldBehaveLikeERC721 (
 
         describe('to a receiver contract returning unexpected value', function () {
           it('reverts', async function () {
-            const noReceiverImplemented = await ERC721NoReceiverMock.new(RECEIVER_MAGIC_VALUE, true);
+            const invalidReceiver = await ERC721ReceiverMock.new('0x42', false);
             await expectRevert(
-              this.token.safeTransferFrom(owner, noReceiverImplemented.address, tokenId, { from: owner }),
+              this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner }),
               'ERC721: transfer to non ERC721Receiver implementer'
             );
           });
@@ -308,25 +307,20 @@ function shouldBehaveLikeERC721 (
 
         describe('to a receiver contract that throws', function () {
           it('reverts', async function () {
-            const invalidReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, true);
-            await expectRevert.unspecified(
-              this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner })
+            const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, true);
+            await expectRevert(
+              this.token.safeTransferFrom(owner, revertingReceiver.address, tokenId, { from: owner }),
+              'ERC721ReceiverMock: reverting'
             );
           });
         });
 
         describe('to a contract that does not implement the required function', function () {
           it('reverts', async function () {
-            const noReceiverImplemented = await ERC721NoReceiverMock.new(RECEIVER_MAGIC_VALUE, true);
-            await expectRevert(
-              this.token.safeTransferFrom(owner, noReceiverImplemented.address, tokenId, { from: owner }),
-              'ERC721: transfer to non ERC721Receiver implementer'
-            );
-          });
-          it('reverts', async function () {
             const invalidReceiver = this.token;
-            await expectRevert.unspecified(
-              this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner })
+            await expectRevert(
+              this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner }),
+              'ERC721: transfer to non ERC721Receiver implementer'
             );
           });
         });
@@ -366,7 +360,7 @@ function shouldBehaveLikeERC721 (
 
         context('to a receiver contract returning unexpected value', function () {
           it('reverts', async function () {
-            const noReceiverImplemented = await ERC721NoReceiverMock.new(RECEIVER_MAGIC_VALUE, true);
+            const noReceiverImplemented = await ERC721ReceiverMock.new('0x42', false);
             await expectRevert(
               this.ERC721Mock.safeMint(noReceiverImplemented.address, tokenId),
               'ERC721: transfer to non ERC721Receiver implementer'
@@ -377,8 +371,9 @@ function shouldBehaveLikeERC721 (
         context('to a receiver contract that throws', function () {
           it('reverts', async function () {
             const invalidReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, true);
-            await expectRevert.unspecified(
-              this.ERC721Mock.safeMint(invalidReceiver.address, tokenId)
+            await expectRevert(
+              this.ERC721Mock.safeMint(invalidReceiver.address, tokenId),
+              'ERC721ReceiverMock: reverting'
             );
           });
         });
@@ -386,8 +381,9 @@ function shouldBehaveLikeERC721 (
         context('to a contract that does not implement the required function', function () {
           it('reverts', async function () {
             const invalidReceiver = this.token;
-            await expectRevert.unspecified(
-              this.ERC721Mock.safeMint(invalidReceiver.address, tokenId)
+            await expectRevert(
+              this.ERC721Mock.safeMint(invalidReceiver.address, tokenId),
+              'ERC721: transfer to non ERC721Receiver implementer'
             );
           });
         });
