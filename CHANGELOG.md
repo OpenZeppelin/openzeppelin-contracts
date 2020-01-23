@@ -5,6 +5,7 @@
 ### New features
  * `SafeCast.toUintXX`: new library for integer downcasting, which allows for safe operation on smaller types (e.g. `uint32`) when combined with `SafeMath`. ([#1926](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1926))
  * `ERC721Metadata`: added `baseURI`, which can be used for dramatic gas savings when all token URIs share a prefix (e.g. `http://api.myapp.com/tokens/<id>`). ([#1970](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1970))
+ * `Create2`: simple library to make usage of the `CREATE2` opcode easier. ([#1744](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1744))
 
 ### Improvements
  * `ERC777`: `_burn` is now internal, providing more flexibility and making it easier to create tokens that deflate. ([#1908](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1908))
