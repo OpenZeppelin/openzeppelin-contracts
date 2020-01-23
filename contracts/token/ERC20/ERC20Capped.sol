@@ -25,16 +25,17 @@ contract ERC20Capped is ERC20Mintable {
     }
 
     /**
-     * @dev See {ERC20Mintable-mint}.
+     * @dev See {ERC20-_beforeTokenTransfer}.
      *
      * Requirements:
      *
-     * - `value` must not cause the total supply to go over the cap.
+     * - minted tokens must not cause the total supply to go over the cap.
      */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
-        if (from == address(0)) {
+        super._beforeTokenTransfer(from, to, amount);
+
+        if (from == address(0)) { // When minting tokens
             require(totalSupply().add(amount) <= _cap, "ERC20Capped: cap exceeded");
         }
-        super._beforeTokenTransfer(from, to, amount);
     }
 }

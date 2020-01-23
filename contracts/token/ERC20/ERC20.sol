@@ -244,9 +244,60 @@ contract ERC20 is Context, IERC20 {
         _approve(account, _msgSender(), _allowances[account][_msgSender()].sub(amount, "ERC20: burn amount exceeds allowance"));
     }
 
+
+    /**
+     * @dev Hook that is called before any transfer of tokens. This includes
+     * minting and burning.
+     *
+     * Calling conditions:
+     *
+     * - when `from` and `to` are both non-zero, `from` will transfer `amount`
+     * tokens to `to`.
+     * - when `from` is zero, `amount` tokens will be minted for `to`.
+     * - when `to` is zero, `from` will burn `amount` tokens.
+     * - `from` and `to` are never both zero.
+     *
+     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
+     */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual { }
+
+    /**
+     * @dev Hook that is called after any transfer of tokens. This includes
+     * minting and burning.
+     *
+     * Calling conditions:
+     *
+     * - when `from` and `to` are both non-zero, `from` has transferred `amount`
+     * tokens to `to`.
+     * - when `from` is zero, `amount` tokens were minted for `to`.
+     * - when `to` is zero, `from` burned `amount` tokens.
+     * - `from` and `to` are never both zero.
+     *
+     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
+     */
     function _afterTokenTransfer(address from, address to, uint256 amount) internal virtual { }
 
+    /**
+     * @dev Hook that is called before any allowance change. This includes calls
+     * to {approve} and {transferFrom}.
+     *
+     * Calling conditions:
+     *
+     * - `from` and `to` are never zero.
+     *
+     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
+     */
     function _beforeTokenApproval(address from, address to, uint256 amount) internal virtual { }
+
+    /**
+     * @dev Hook that is called after any allowance change. This includes calls
+     * to {approve} and {transferFrom}.
+     *
+     * Calling conditions:
+     *
+     * - `from` and `to` are never zero.
+     *
+     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
+     */
     function _afterTokenApproval(address from, address to, uint256 amount) internal virtual { }
 }

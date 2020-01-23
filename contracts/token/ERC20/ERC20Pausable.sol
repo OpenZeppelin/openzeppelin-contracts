@@ -12,13 +12,29 @@ import "../../lifecycle/Pausable.sol";
  * bug.
  */
 contract ERC20Pausable is ERC20, Pausable {
+    /**
+     * @dev See {ERC20-_beforeTokenTransfer}.
+     *
+     * Requirements:
+     *
+     * - the contract must not be paused.
+     */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
-        require(!paused(), "ERC20Pausable: token transfer while paused");
         super._beforeTokenTransfer(from, to, amount);
+
+        require(!paused(), "ERC20Pausable: token transfer while paused");
     }
 
+    /**
+     * @dev See {ERC20-_beforeTokenApproval}.
+     *
+     * Requirements:
+     *
+     * - the contract must not be paused.
+     */
     function _beforeTokenApproval(address from, address to, uint256 amount) internal virtual override {
-        require(!paused(), "ERC20Pausable: token approval while paused");
         super._beforeTokenApproval(from, to, amount);
+
+        require(!paused(), "ERC20Pausable: token approval while paused");
     }
 }
