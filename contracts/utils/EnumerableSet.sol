@@ -43,9 +43,13 @@ library EnumerableSet {
      */
     function add(AddressSet storage set, address value)
         internal
+        returns (bool)
     {
-        require(!contains(set, value), "EnumerableSet: value already in set");
-        set.index[value] = set.values.push(value);
+        if (!contains(set, value)){
+            set.index[value] = set.values.push(value);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -53,12 +57,16 @@ library EnumerableSet {
      */
     function remove(AddressSet storage set, address value)
         internal
+        returns (bool)
     {
-        require(contains(set, value), "EnumerableSet: value not in set");
-        // Replaced the value to remove with the last one in the array. O(1)
-        set.values[set.index[value] - 1] = set.values[set.values.length - 1];
-        set.values.pop();
-        delete set.index[value];
+        if (contains(set, value)){
+            // Replaced the value to remove with the last one in the array. O(1)
+            set.values[set.index[value] - 1] = set.values[set.values.length - 1];
+            set.values.pop();
+            delete set.index[value];
+        } else {
+            return false;
+        }
     }
 
     /**
