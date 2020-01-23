@@ -20,9 +20,6 @@ pragma solidity ^0.5.0;
  */
 library EnumerableSet {
 
-    event ValueAdded(address value);
-    event ValueRemoved(address value);
-
     struct AddressSet {
         // Position of the value in the `values` array, plus 1 because index 0
         // means a value is not in the set.
@@ -38,7 +35,6 @@ library EnumerableSet {
     {
         if (!contains(set, value)){
             set.index[value] = set.values.push(value);
-            emit ValueAdded(value);
         }
     }
 
@@ -52,7 +48,6 @@ library EnumerableSet {
             set.values[set.index[value] - 1] = set.values[set.values.length - 1];
             set.values.pop();
             delete set.index[value];
-            emit ValueRemoved(value);
         }
     }
 
