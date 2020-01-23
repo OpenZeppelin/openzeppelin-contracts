@@ -31,8 +31,10 @@ contract ERC20Capped is ERC20Mintable {
      *
      * - `value` must not cause the total supply to go over the cap.
      */
-    function _afterTokensMoved(address from, address to, uint256 amount) internal virtual override {
-        require(totalSupply() <= _cap, "ERC20Capped: cap exceeded");
-        super._afterTokensMoved(from, to, amount);
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
+        if (from == address(0)) {
+            require(totalSupply().add(amount) <= _cap, "ERC20Capped: cap exceeded");
+        }
+        super._beforeTokenTransfer(from, to, amount);
     }
 }
