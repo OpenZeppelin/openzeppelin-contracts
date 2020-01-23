@@ -1,68 +1,60 @@
-= Getting Started
+= Contracts
 
-*OpenZeppelin is a library for secure smart contract development.* It provides implementations of standards like ERC20 and ERC721 which you can deploy as-is or extend to suit your needs, as well as Solidity components to build custom contracts and more complex decentralized systems.
+*A library for secure smart contract development.* Build on a solid foundation of community-vetted code.
+
+ * Implementations of standards like xref:erc20.adoc[ERC20] and xref:erc721.adoc[ERC721].
+ * Flexible xref:access-control.adoc[role-based permissioning] scheme.
+ * Reusable xref:utilities.adoc[Solidity components] to build custom contracts and complex decentralized systems.
+ * First-class integration with the xref:gsn.adoc[Gas Station Network] for systems with no gas fees!
+ * Audited by leading security firms.
+
+== Overview
 
 [[install]]
-== Install
+=== Installation
 
-OpenZeppelin should be installed directly into your existing node.js project with `npm install @openzeppelin/contracts`. We will use https://truffleframework.com/truffle[Truffle], an Ethereum development environment, to get started.
-
-Please install Truffle and initialize your project:
-
-[source,sh]
-----
-$ mkdir myproject
-$ cd myproject
-$ npm init -y
-$ npm install truffle
-$ npx truffle init
-----
-
-To install the OpenZeppelin library, run the following in your Solidity project root directory:
-
-[source,sh]
-----
+```console
 $ npm install @openzeppelin/contracts
-----
+```
 
-NOTE: OpenZeppelin features a stable API, which means your contracts won't break unexpectedly when upgrading to a newer minor version. You can read ṫhe details in our xref:api-stability.adoc[API Stability] document.
+OpenZeppelin Contracts features a xref:releases-stability.adoc#api-stability[stable API], which means your contracts won't break unexpectedly when upgrading to a newer minor version.
 
 [[usage]]
-== Usage
+=== Usage
 
-Once installed, you can start using the contracts in the library by importing them:
+Once installed, you can use the contracts in the library by importing them:
 
 [source,solidity]
 ----
 pragma solidity ^0.5.0;
 
-import "@openzeppelin/contracts/ownership/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721Full.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721Mintable.sol";
 
-contract MyContract is Ownable {
-  ...
+contract MyNFT is ERC721Full, ERC721Mintable {
+    constructor() ERC721Full("MyNFT", "MNFT") public {
+    }
 }
 ----
 
-Truffle and other Ethereum development toolkits will automatically detect the installed library, and compile the imported contracts.
+TIP: If you're new to smart contract development, head to xref:learn::developing-smart-contracts.adoc[Developing Smart Contracts] to learn about creating a new project and compiling your contracts.
 
-IMPORTANT: You should always use the installed code as-is, and neither copy-paste it from online sources, nor modify it yourself.
+To keep your system secure, you should **always** use the installed code as-is, and neither copy-paste it from online sources, nor modify it yourself.
 
 [[next-steps]]
-== Next Steps
+== Learn More
 
-Check out the the guides in the sidebar to learn about different concepts, and how to use the contracts that OpenZeppelin provides.
+The guides in the sidebar will teach about different concepts, and how to use the related contracts that OpenZeppelin Contracts provides:
 
-* xref:access-control.adoc[Learn about Access Control]
-* xref:crowdsales.adoc[Learn about Crowdsales]
-* xref:tokens.adoc[Learn about Tokens]
-* xref:utilities.adoc[Learn about our Utilities]
+* xref:access-control.adoc[Access Control]: decide who can perform each of the actions on your system.
+* xref:tokens.adoc[Tokens]: create tradeable assets or collectives, and distribute them via xref:crowdsales.adoc[Crowdsales].
+* xref:gsn.adoc[Gas Station Network]: let your users interact with your contracts without having to pay for gas themselves.
+* xref:utilities.adoc[Utilities]: generic useful tools, including non-overflowing math, signature verification, and trustless paying systems.
 
-OpenZeppelin's xref:api:token/ERC20.adoc[full API] is also thoroughly documented, and serves as a great reference when developing your smart contract application.
+The xref:api:token/ERC20.adoc[full API] is also thoroughly documented, and serves as a great reference when developing your smart contract application. You can also ask for help or follow Contracts's development in the https://forum.openzeppelin.com[community forum].
 
-Additionally, you can also ask for help or follow OpenZeppelin's development in the https://forum.openzeppelin.com[community forum].
+Finally, you may want to take a look at the https://blog.openzeppelin.com/guides/[guides on our blog], which cover several common use cases and good practices.. The following articles provide great background reading, though please note, some of the referenced tools have changed as the tooling in the ecosystem continues to rapidly evolve.
 
-Finally, you may want to take a look at the guides on our blog, which cover several common use cases and good practices: https://blog.openzeppelin.com/guides. The following articles provide great background reading, though please note, some of the referenced tools have changed as the tooling in the ecosystem continues to rapidly evolve.
-
-* https://blog.openzeppelin.com/the-hitchhikers-guide-to-smart-contracts-in-ethereum-848f08001f05[The Hitchhiker’s Guide to Smart Contracts in Ethereum] will help you get an overview of the various tools available for smart contract development, and help you set up your environment
-* https://blog.openzeppelin.com/a-gentle-introduction-to-ethereum-programming-part-1-783cc7796094[A Gentle Introduction to Ethereum Programming, Part 1] provides very useful information on an introductory level, including many basic concepts from the Ethereum platform
-* For a more in-depth dive, you may read the guide https://blog.openzeppelin.com/designing-the-architecture-for-your-ethereum-application-9cec086f8317[Designing the architecture for your Ethereum application], which discusses how to better structure your application and its relationship to the real world
+* https://blog.openzeppelin.com/the-hitchhikers-guide-to-smart-contracts-in-ethereum-848f08001f05[The Hitchhiker’s Guide to Smart Contracts in Ethereum] will help you get an overview of the various tools available for smart contract development, and help you set up your environment.
+* https://blog.openzeppelin.com/a-gentle-introduction-to-ethereum-programming-part-1-783cc7796094[A Gentle Introduction to Ethereum Programming, Part 1] provides very useful information on an introductory level, including many basic concepts from the Ethereum platform.
+* For a more in-depth dive, you may read the guide https://blog.openzeppelin.com/designing-the-architecture-for-your-ethereum-application-9cec086f8317[Designing the architecture for your Ethereum application], which discusses how to better structure your application and its relationship to the real world.
