@@ -1,70 +1,89 @@
-const { contract } = require('@openzeppelin/test-environment');
+const { accounts, contract } = require('@openzeppelin/test-environment');
+const { expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const EnumerableSetMock = contract.fromArtifact('EnumerableSetMock');
 
-const a = '0x0000000000000000000000000000000000000001';
-const b = '0x0000000000000000000000000000000000000002';
-const c = '0x0000000000000000000000000000000000000003';
-
-/** @test {EnumerableSet} contract */
 describe('EnumerableSet', function () {
+  const [ accountA, accountB, accountC ] = accounts;
+
   beforeEach(async function () {
     this.set = await EnumerableSetMock.new();
   });
 
-  it('contains can return false.', async function () {
-    expect(await this.set.testContains(a)).to.equal(false);
+  it('starts empty', async function () {
+    expect(await this.set.contains(accountA)).to.equal(false);
+    expect(await this.set.enumerate()).to.have.same.members([]);
   });
 
-  it('adds a value.', async function () {
-    const transaction = await this.set.testAdd(a);
-    expect(transaction.logs[0].event).to.equal('TransactionResult');
-    expect(transaction.logs[0].args.result).to.equal(true);
-    expect(await this.set.testContains(a)).to.equal(true);
+  it('adds a value', async function () {
+    const receipt = await this.set.add(accountA);
+    expectEvent(receipt, 'TransactionResult', { result: true });
+
+    expect(await this.set.contains(accountA)).to.equal(true);
+    expect(await this.set.enumerate()).to.have.same.members([ accountA ]);
   });
 
-  it('adds several values.', async function () {
-    await this.set.testAdd(a);
-    await this.set.testAdd(b);
-    expect(await this.set.testContains(a)).to.equal(true);
-    expect(await this.set.testContains(b)).to.equal(true);
-    expect(await this.set.testContains(c)).to.equal(false);
+  it('adds several values', async function () {
+    await this.set.add(accountA);
+    await this.set.add(accountB);
+
+    expect(await this.set.contains(accountA)).to.equal(true);
+    expect(await this.set.contains(accountB)).to.equal(true);
+
+    expect(await this.set.contains(accountC)).to.equal(false);
+
+    expect(await this.set.enumerate()).to.have.same.members([ accountA, accountB ]);
   });
 
-  it('adding same value twice returns false.', async function () {
-    await this.set.testAdd(a);
-    const transaction = (await this.set.testAdd(a));
-    expect(transaction.logs[0].event).to.equal('TransactionResult');
-    expect(transaction.logs[0].args.result).to.equal(false);
+  it('returns false when adding elements already in the set', async function () {
+    await this.set.add(accountA);
+
+    const receipt = (await this.set.add(accountA));
+    expectEvent(receipt, 'TransactionResult', { result: false });
+
+    expect(await this.set.enumerate()).to.have.same.members([ accountA ]);
   });
 
-  it('removes values.', async function () {
-    await this.set.testAdd(a);
-    const transaction = await this.set.testRemove(a);
-    expect(transaction.logs[0].event).to.equal('TransactionResult');
-    expect(transaction.logs[0].args.result).to.equal(true);
-    expect(await this.set.testContains(a)).to.equal(false);
+  it('removes added values', async function () {
+    await this.set.add(accountA);
+
+    const receipt = await this.set.remove(accountA);
+    expectEvent(receipt, 'TransactionResult', { result: true });
+
+    expect(await this.set.contains(accountA)).to.equal(false);
+    expect(await this.set.enumerate()).to.have.same.members([]);
   });
 
-  it('removing values that are not in the set returns false.', async function () {
-    const transaction = await this.set.testRemove(a);
-    expect(transaction.logs[0].event).to.equal('TransactionResult');
-    expect(transaction.logs[0].args.result).to.equal(false);
+  it('returns false when removing elements not in the set', async function () {
+    const receipt = await this.set.remove(accountA);
+    expectEvent(receipt, 'TransactionResult', { result: false });
+
+    expect(await this.set.contains(accountA)).to.equal(false);
   });
 
-  it('enumerates values as an empty array', async function () {
-    expect(await this.set.testEnumerate()).to.eql([]);
-  });
+  it('adds and removes multiple values', async function () {
+    // []
+    await this.set.add(accountA);
+    await this.set.add(accountC);
 
-  it('enumerates an array of values', async function () {
-    await this.set.testAdd(a);
-    await this.set.testAdd(b);
-    await this.set.testAdd(c);
-    const result = (await this.set.testEnumerate());
-    expect(result.length).to.be.equal(3);
-    expect(result[0]).to.be.equal(a);
-    expect(result[1]).to.be.equal(b);
-    expect(result[2]).to.be.equal(c);
+    // [A, C]
+    await this.set.remove(accountA);
+    await this.set.remove(accountB);
+
+    // [C]
+    await this.set.add(accountB);
+
+    // [C, B]
+    await this.set.add(accountA);
+    await this.set.remove(accountC);
+
+    // [A, B]
+
+    expect(await this.set.contains(accountA)).to.equal(true);
+    expect(await this.set.contains(accountB)).to.equal(true);
+    expect(await this.set.contains(accountC)).to.equal(false);
+
+    expect(await this.set.enumerate()).to.have.same.members([ accountA, accountB ]);
   });
 });
