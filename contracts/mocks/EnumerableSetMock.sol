@@ -14,7 +14,7 @@ contract EnumerableSetMock{
     EnumerableSet.AddressSet private set;
 
     constructor() public {
-        set = EnumerableSet.AddressSet({values: new address[](0)});
+        set = EnumerableSet.newAddressSet();
     }
 
     /**

@@ -30,6 +30,17 @@ library EnumerableSet {
     /**
      * @dev Add a value. O(1).
      */
+    function newAddressSet()
+        internal
+        pure
+        returns (AddressSet memory)
+    {
+        return AddressSet({values: new address[](0)});
+    }
+
+    /**
+     * @dev Add a value. O(1).
+     */
     function add(AddressSet storage set, address value)
         internal
     {
