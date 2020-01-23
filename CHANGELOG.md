@@ -10,6 +10,7 @@
 ### Improvements
  * `ERC777`: `_burn` is now internal, providing more flexibility and making it easier to create tokens that deflate. ([#1908](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1908))
  * `ReentrancyGuard`: greatly improved gas efficiency by using the net gas metering mechanism introduced in the Istanbul hardfork. ([#1992](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1992), [#1996](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1996))
+ * `ERC777`: improve extensibility by making `_send` and related functions `internal`. ([#2027](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2027))
  * `ERC721`: improved revert reason when transferring tokens to a non-recipient contract. ([#2018](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2018))
 
 ### Breaking changes
