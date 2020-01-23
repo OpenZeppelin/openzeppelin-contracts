@@ -1,5 +1,5 @@
 const { contract } = require('@openzeppelin/test-environment');
-
+const { expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const EnumerableSetMock = contract.fromArtifact('EnumerableSetMock');
@@ -31,10 +31,25 @@ describe('EnumerableSet', function () {
     expect(await this.set.testContains(c)).to.equal(false);
   });
 
+  it('can\'t add same value twice.', async function () {
+    await this.set.testAdd(a);
+    await expectRevert(
+      this.set.testAdd(a),
+      'EnumerableSet: value already in set',
+    );
+  });
+
   it('removes values.', async function () {
     await this.set.testAdd(a);
     await this.set.testRemove(a);
     expect(await this.set.testContains(a)).to.equal(false);
+  });
+
+  it('can\'t remove values that are not in the set.', async function () {
+    await expectRevert(
+      this.set.testRemove(a),
+      'EnumerableSet: value not in set',
+    );
   });
 
   it('enumerates values as an empty array', async function () {
