@@ -39,7 +39,7 @@ library EnumerableSet {
     }
 
     /**
-     * @dev Add a value. O(1).
+     * @dev Add a value. O(1). Returns false if the value was already in the set.
      */
     function add(AddressSet storage set, address value)
         internal
@@ -47,13 +47,14 @@ library EnumerableSet {
     {
         if (!contains(set, value)){
             set.index[value] = set.values.push(value);
+            return true;
         } else {
             return false;
         }
     }
 
     /**
-     * @dev Remove a value. O(1).
+     * @dev Remove a value. O(1). Returns false if the calue was not present in the set.
      */
     function remove(AddressSet storage set, address value)
         internal
@@ -64,6 +65,7 @@ library EnumerableSet {
             set.values[set.index[value] - 1] = set.values[set.values.length - 1];
             set.values.pop();
             delete set.index[value];
+            return true;
         } else {
             return false;
         }

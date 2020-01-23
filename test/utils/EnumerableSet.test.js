@@ -18,7 +18,9 @@ describe('EnumerableSet', function () {
   });
 
   it('adds a value.', async function () {
-    await this.set.testAdd(a);
+    const transaction = await this.set.testAdd(a);
+    expect(transaction.logs[0].event).to.equal('TransactionResult');
+    expect(transaction.logs[0].args.result).to.equal(true);
     expect(await this.set.testContains(a)).to.equal(true);
   });
 
@@ -30,20 +32,26 @@ describe('EnumerableSet', function () {
     expect(await this.set.testContains(c)).to.equal(false);
   });
 
-  /* it('adding same value twice returns false.', async function () {
+  it('adding same value twice returns false.', async function () {
     await this.set.testAdd(a);
-    expect(await this.set.testAdd(a)).to.equal(false);
-  }); */
+    const transaction = (await this.set.testAdd(a));
+    expect(transaction.logs[0].event).to.equal('TransactionResult');
+    expect(transaction.logs[0].args.result).to.equal(false);
+  });
 
   it('removes values.', async function () {
     await this.set.testAdd(a);
-    await this.set.testRemove(a);
+    const transaction = await this.set.testRemove(a);
+    expect(transaction.logs[0].event).to.equal('TransactionResult');
+    expect(transaction.logs[0].args.result).to.equal(true);
     expect(await this.set.testContains(a)).to.equal(false);
   });
 
-  /* it('removing values that are not in the set returns false.', async function () {
-    expect(await this.set.testRemove(a)).to.equal(false);
-  }); */
+  it('removing values that are not in the set returns false.', async function () {
+    const transaction = await this.set.testRemove(a);
+    expect(transaction.logs[0].event).to.equal('TransactionResult');
+    expect(transaction.logs[0].args.result).to.equal(false);
+  });
 
   it('enumerates values as an empty array', async function () {
     expect(await this.set.testEnumerate()).to.eql([]);

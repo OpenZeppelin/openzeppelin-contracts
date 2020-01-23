@@ -8,8 +8,9 @@ import "../utils/EnumerableSet.sol";
  * @author Alberto Cuesta Cañada
  */
 contract EnumerableSetMock{
-
     using EnumerableSet for EnumerableSet.AddressSet;
+
+    event TransactionResult(bool result);
 
     EnumerableSet.AddressSet private set;
 
@@ -34,7 +35,8 @@ contract EnumerableSetMock{
     function testAdd(address value)
         public
     {
-        EnumerableSet.add(set, value);
+        bool result = EnumerableSet.add(set, value);
+        emit TransactionResult(result);
     }
 
     /**
@@ -43,7 +45,8 @@ contract EnumerableSetMock{
     function testRemove(address remove)
         public
     {
-        EnumerableSet.remove(set, remove);
+        bool result = EnumerableSet.remove(set, remove);
+        emit TransactionResult(result);
     }
 
     /**
