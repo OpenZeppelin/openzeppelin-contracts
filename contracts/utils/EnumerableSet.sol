@@ -66,12 +66,15 @@ library EnumerableSet {
             uint256 toDeleteIndex = set.index[value] - 1;
             uint256 lastIndex = set.values.length - 1;
 
-            address lastValue = set.values[lastIndex];
+            // If the element we're deleting is the last one, we can just remove it without doing a swap
+            if (lastIndex != toDeleteIndex) {
+                address lastValue = set.values[lastIndex];
 
-            // Move the last value to the index where the deleted value is
-            set.values[toDeleteIndex] = lastValue;
-            // Update the index for the moved value
-            set.index[lastValue] = toDeleteIndex + 1; // All indexes are 1-based
+                // Move the last value to the index where the deleted value is
+                set.values[toDeleteIndex] = lastValue;
+                // Update the index for the moved value
+                set.index[lastValue] = toDeleteIndex + 1; // All indexes are 1-based
+            }
 
             // Delete the index entry for the deleted value
             delete set.index[value];
