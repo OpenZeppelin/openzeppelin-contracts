@@ -9,7 +9,7 @@ pragma solidity ^0.5.0;
  *
  * - Elements are added, removed, and checked for existence in constant time
  * (O(1)).
- * - Elements are enumerated in O(n). The ordering in this list may change.
+ * - Elements are enumerated in O(n). No guarantees are made on the ordering.
  *
  * As of v2.5.0, only `address` sets are supported.
  *
@@ -30,7 +30,7 @@ library EnumerableSet {
     }
 
     /**
-     * @dev Add a value. O(1).
+     * @dev Creates a new empty address set.
      */
     function newAddressSet()
         internal
@@ -41,7 +41,8 @@ library EnumerableSet {
     }
 
     /**
-     * @dev Add a value. O(1). Returns false if the value was already in the set.
+     * @dev Add a value to a set. O(1).
+     * Returns false if the value was already in the set.
      */
     function add(AddressSet storage set, address value)
         internal
@@ -56,7 +57,8 @@ library EnumerableSet {
     }
 
     /**
-     * @dev Remove a value. O(1). Returns false if the calue was not present in the set.
+     * @dev Removes a value from a set. O(1).
+     * Returns false if the value was not present in the set.
      */
     function remove(AddressSet storage set, address value)
         internal
@@ -100,7 +102,9 @@ library EnumerableSet {
     }
 
     /**
-     * @dev Return an array with all values in the set. O(N).
+     * @dev Returns an array with all values in the set. O(N).
+     * Note that there are no guarantees on the ordering of values inside the
+     * array, and it may change when more values are added or removed.
      */
     function enumerate(AddressSet storage set)
         internal
