@@ -1,20 +1,22 @@
 pragma solidity ^0.5.0;
 
-
 /**
- * @title EnumerableSet
- * @dev Data structure - https://en.wikipedia.org/wiki/Set_(abstract_data_type)
+ * @dev Library for managing
+ * https://en.wikipedia.org/wiki/Set_(abstract_data_type)[sets] of primitive
+ * types.
  *
- * An EnumerableSet.AddressSet is a data structure containing a number of unique addresses.
+ * Sets have the following properties:
  *
- *  - It is possible to add and remove addresses in O(1).
- *  - It is also possible to query if the AddressSet contains an address in O(1).
- *  - It is possible to retrieve an array with all the addresses in the AddressSet using enumerate.
- *    This operation is O(N) where N is the number of addresses in the AddressSet. The order in
- *    which the addresses are retrieved is not guaranteed.
+ * - Elements are added, removed, and checked for existence in constant time
+ * (O(1)).
+ * - Elements are enumerated in O(n). The ordering in this list may change.
  *
- * Initialization of a set must include an empty array:
- * `EnumerableSet.AddressSet set = EnumerableSet.AddressSet({values: new address[](0)});`
+ * As of v2.5.0, only `address` sets are supported.
+ *
+ * Include with `using EnumerableSet for EnumerableSet.AddressSet;`, and use
+ * {newAddressSet} to create a new `AddressSet`.
+ *
+ * _Available since v2.5.0._
  *
  * @author Alberto Cuesta Cañada
  */
@@ -61,10 +63,22 @@ library EnumerableSet {
         returns (bool)
     {
         if (contains(set, value)){
-            // Replaced the value to remove with the last one in the array. O(1)
-            set.values[set.index[value] - 1] = set.values[set.values.length - 1];
-            set.values.pop();
+            uint256 toDeleteIndex = set.index[value] - 1;
+            uint256 lastIndex = set.values.length - 1;
+
+            address lastValue = set.values[lastIndex];
+
+            // Move the last value to the index where the deleted value is
+            set.values[toDeleteIndex] = lastValue;
+            // Update the index for the moved value
+            set.index[lastValue] = toDeleteIndex + 1; // All indexes are 1-based
+
+            // Delete the index entry for the deleted value
             delete set.index[value];
+
+            // Delete the old entry for the moved value
+            set.values.pop();
+
             return true;
         } else {
             return false;
