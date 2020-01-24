@@ -6,10 +6,13 @@
  * `SafeCast.toUintXX`: new library for integer downcasting, which allows for safe operation on smaller types (e.g. `uint32`) when combined with `SafeMath`. ([#1926](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1926))
  * `ERC721Metadata`: added `baseURI`, which can be used for dramatic gas savings when all token URIs share a prefix (e.g. `http://api.myapp.com/tokens/<id>`). ([#1970](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1970))
  * `EnumerableSet`: new library for storing enumerable sets of values. Only `AddressSet` is supported in this release. ([#2061](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/2061))
+ * `Create2`: simple library to make usage of the `CREATE2` opcode easier. ([#1744](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1744))
 
 ### Improvements
  * `ERC777`: `_burn` is now internal, providing more flexibility and making it easier to create tokens that deflate. ([#1908](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1908))
  * `ReentrancyGuard`: greatly improved gas efficiency by using the net gas metering mechanism introduced in the Istanbul hardfork. ([#1992](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1992), [#1996](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1996))
+ * `ERC777`: improve extensibility by making `_send` and related functions `internal`. ([#2027](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2027))
+ * `ERC721`: improved revert reason when transferring tokens to a non-recipient contract. ([#2018](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2018))
 
 ### Breaking changes
  * `ERC165Checker` now requires a minimum Solidity compiler version of 0.5.10. ([#1829](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1829))

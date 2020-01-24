@@ -3,7 +3,6 @@ module.exports = {
     testCommand: 'npm test',
     compileCommand: 'npm run compile',
     skipFiles: [
-        'lifecycle/Migrations.sol',
-        'mocks'
+        'mocks',
     ]
 }
