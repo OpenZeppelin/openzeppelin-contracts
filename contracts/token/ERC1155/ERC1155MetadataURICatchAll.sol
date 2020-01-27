@@ -1,4 +1,4 @@
-pragma solidity ^0.5.9;
+pragma solidity ^0.5.0;
 
 import "./ERC1155.sol";
 import "./IERC1155MetadataURI.sol";
