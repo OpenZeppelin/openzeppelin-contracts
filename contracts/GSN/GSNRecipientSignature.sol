@@ -42,6 +42,7 @@ contract GSNRecipientSignature is GSNRecipient {
     )
         external
         view
+        virtual
         override
         returns (uint256, bytes memory)
     {
@@ -63,11 +64,11 @@ contract GSNRecipientSignature is GSNRecipient {
         }
     }
 
-    function _preRelayedCall(bytes memory) internal override returns (bytes32) {
+    function _preRelayedCall(bytes memory) internal virtual override returns (bytes32) {
         // solhint-disable-previous-line no-empty-blocks
     }
 
-    function _postRelayedCall(bytes memory, bool, uint256, bytes32) internal override {
+    function _postRelayedCall(bytes memory, bool, uint256, bytes32) internal virtual override {
         // solhint-disable-previous-line no-empty-blocks
     }
 }

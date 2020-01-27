@@ -43,7 +43,7 @@ contract GSNRecipientERC20Fee is GSNRecipient {
     /**
      * @dev Internal function that mints the gas payment token. Derived contracts should expose this function in their public API, with proper access control mechanisms.
      */
-    function _mint(address account, uint256 amount) internal {
+    function _mint(address account, uint256 amount) internal virtual {
         _token.mint(account, amount);
     }
 
@@ -63,6 +63,7 @@ contract GSNRecipientERC20Fee is GSNRecipient {
     )
         external
         view
+        virtual
         override
         returns (uint256, bytes memory)
     {
@@ -79,7 +80,7 @@ contract GSNRecipientERC20Fee is GSNRecipient {
      * actual charge, necessary because we cannot predict how much gas the execution will actually need. The remainder
      * is returned to the user in {_postRelayedCall}.
      */
-    function _preRelayedCall(bytes memory context) internal override returns (bytes32) {
+    function _preRelayedCall(bytes memory context) internal virtual override returns (bytes32) {
         (address from, uint256 maxPossibleCharge) = abi.decode(context, (address, uint256));
 
         // The maximum token charge is pre-charged from the user
@@ -89,7 +90,7 @@ contract GSNRecipientERC20Fee is GSNRecipient {
     /**
      * @dev Returns to the user the extra amount that was previously charged, once the actual execution cost is known.
      */
-    function _postRelayedCall(bytes memory context, bool, uint256 actualCharge, bytes32) internal override {
+    function _postRelayedCall(bytes memory context, bool, uint256 actualCharge, bytes32) internal virtual override {
         (address from, uint256 maxPossibleCharge, uint256 transactionFee, uint256 gasPrice) =
             abi.decode(context, (address, uint256, uint256, uint256));
 
