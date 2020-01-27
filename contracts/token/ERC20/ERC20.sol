@@ -244,17 +244,16 @@ contract ERC20 is Context, IERC20 {
         _approve(account, _msgSender(), _allowances[account][_msgSender()].sub(amount, "ERC20: burn amount exceeds allowance"));
     }
 
-
     /**
      * @dev Hook that is called before any transfer of tokens. This includes
      * minting and burning.
      *
      * Calling conditions:
      *
-     * - when `from` and `to` are both non-zero, `from` will transfer `amount`
-     * tokens to `to`.
+     * - when `from` and `to` are both non-zero, `amount` of `from`'s tokens
+     * will be to transferred to `to`.
      * - when `from` is zero, `amount` tokens will be minted for `to`.
-     * - when `to` is zero, `from` will burn `amount` tokens.
+     * - when `to` is zero, `amount` of `from`'s tokens will be burned.
      * - `from` and `to` are never both zero.
      *
      * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
@@ -267,10 +266,10 @@ contract ERC20 is Context, IERC20 {
      *
      * Calling conditions:
      *
-     * - when `from` and `to` are both non-zero, `from` has transferred `amount`
-     * tokens to `to`.
+     * - when `from` and `to` are both non-zero, `amount` of `from`'s tokens
+     * were transferred to `to`.
      * - when `from` is zero, `amount` tokens were minted for `to`.
-     * - when `to` is zero, `from` burned `amount` tokens.
+     * - when `to` is zero, `amount` of `from`'s tokens were burned.
      * - `from` and `to` are never both zero.
      *
      * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
