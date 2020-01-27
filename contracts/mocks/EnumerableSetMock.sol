@@ -14,20 +14,20 @@ contract EnumerableSetMock{
     }
 
     function contains(address value) public view returns (bool) {
-        return EnumerableSet.contains(set, value);
+        return set.contains(value);
     }
 
     function add(address value) public {
-        bool result = EnumerableSet.add(set, value);
+        bool result = set.add(value);
         emit TransactionResult(result);
     }
 
     function remove(address value) public {
-        bool result = EnumerableSet.remove(set, value);
+        bool result = set.remove(value);
         emit TransactionResult(result);
     }
 
     function enumerate() public view returns (address[] memory) {
-        return EnumerableSet.enumerate(set);
+        return set.enumerate();
     }
 }
