@@ -1,3 +1,7 @@
 # Using Hooks
 
 is a good idea.
+
+using hooks:
+  super.hook() must _always_ be called
+  if you want to cancel the process, revert. works both in before and after
