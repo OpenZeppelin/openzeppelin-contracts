@@ -104,7 +104,7 @@ library EnumerableSet {
     /**
      * @dev Returns an array with all values in the set. O(N).
      * Note that there are no guarantees on the ordering of values inside the
-     * array, and it may change when more values are added or removed.
+     * array, and it may change when values are removed.
      */
     function enumerate(AddressSet storage set)
         internal
