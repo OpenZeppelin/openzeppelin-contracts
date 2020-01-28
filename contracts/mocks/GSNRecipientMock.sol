@@ -31,10 +31,10 @@ contract GSNRecipientMock is ContextMock, GSNRecipient {
     }
 
     function _msgSender() internal override(Context, GSNRecipient) view virtual returns (address payable) {
-        return super._msgSender();
+        return GSNRecipient._msgSender();
     }
 
     function _msgData() internal override(Context, GSNRecipient) view virtual returns (bytes memory) {
-        return super._msgData();
+        return GSNRecipient._msgData();
     }
 }
