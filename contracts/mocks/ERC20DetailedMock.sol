@@ -8,6 +8,6 @@ contract ERC20DetailedMock is ERC20, ERC20Detailed {
         public
         ERC20Detailed(name, symbol, decimals)
     {
-        // solhint-disable-previous-line no-empty-blocks
+
     }
 }

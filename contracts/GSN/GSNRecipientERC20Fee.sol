@@ -115,9 +115,7 @@ contract GSNRecipientERC20Fee is GSNRecipient {
 contract __unstable__ERC20PrimaryAdmin is ERC20, ERC20Detailed, Secondary {
     uint256 private constant UINT256_MAX = 2**256 - 1;
 
-    constructor(string memory name, string memory symbol, uint8 decimals) public ERC20Detailed(name, symbol, decimals) {
-        // solhint-disable-previous-line no-empty-blocks
-    }
+    constructor(string memory name, string memory symbol, uint8 decimals) public ERC20Detailed(name, symbol, decimals) { }
 
     // The primary account (GSNRecipientERC20Fee) can mint tokens
     function mint(address account, uint256 amount) public onlyPrimary {

@@ -11,9 +11,7 @@ import "../token/ERC721/ERC721Burnable.sol";
  * checking token existence, removal of a token from an address
  */
 contract ERC721FullMock is ERC721Full, ERC721Mintable, ERC721MetadataMintable, ERC721Burnable {
-    constructor (string memory name, string memory symbol) public ERC721Mintable() ERC721Full(name, symbol) {
-        // solhint-disable-previous-line no-empty-blocks
-    }
+    constructor (string memory name, string memory symbol) public ERC721Mintable() ERC721Full(name, symbol) { }
 
     function exists(uint256 tokenId) public view returns (bool) {
         return _exists(tokenId);

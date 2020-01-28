@@ -15,5 +15,6 @@ contract AddressImpl {
         Address.sendValue(receiver, amount);
     }
 
-    receive () external payable { } // sendValue's tests require the contract to hold Ether
+    // sendValue's tests require the contract to hold Ether
+    receive () external payable { }
 }

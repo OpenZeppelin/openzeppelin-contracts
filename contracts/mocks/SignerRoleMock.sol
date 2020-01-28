@@ -7,7 +7,5 @@ contract SignerRoleMock is SignerRole {
         _removeSigner(account);
     }
 
-    function onlySignerMock() public view onlySigner {
-        // solhint-disable-previous-line no-empty-blocks
-    }
+    function onlySignerMock() public view onlySigner { }
 }

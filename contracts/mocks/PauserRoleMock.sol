@@ -7,7 +7,5 @@ contract PauserRoleMock is PauserRole {
         _removePauser(account);
     }
 
-    function onlyPauserMock() public view onlyPauser {
-        // solhint-disable-previous-line no-empty-blocks
-    }
+    function onlyPauserMock() public view onlyPauser { }
 }

@@ -7,7 +7,5 @@ contract WhitelistAdminRoleMock is WhitelistAdminRole {
         _removeWhitelistAdmin(account);
     }
 
-    function onlyWhitelistAdminMock() public view onlyWhitelistAdmin {
-        // solhint-disable-previous-line no-empty-blocks
-    }
+    function onlyWhitelistAdminMock() public view onlyWhitelistAdmin { }
 }

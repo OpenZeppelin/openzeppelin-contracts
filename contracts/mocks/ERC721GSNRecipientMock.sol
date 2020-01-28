@@ -10,7 +10,6 @@ import "../GSN/GSNRecipientSignature.sol";
  */
 contract ERC721GSNRecipientMock is ERC721, GSNRecipient, GSNRecipientSignature {
     constructor(address trustedSigner) public GSNRecipientSignature(trustedSigner) { }
-    // solhint-disable-previous-line no-empty-blocks
 
     function mint(uint256 tokenId) public {
         _mint(_msgSender(), tokenId);

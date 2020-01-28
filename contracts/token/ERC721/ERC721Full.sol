@@ -11,9 +11,7 @@ import "./ERC721Metadata.sol";
  * See https://eips.ethereum.org/EIPS/eip-721
  */
 contract ERC721Full is ERC721Enumerable, ERC721Metadata {
-    constructor (string memory name, string memory symbol) public ERC721Metadata(name, symbol) {
-        // solhint-disable-previous-line no-empty-blocks
-    }
+    constructor (string memory name, string memory symbol) public ERC721Metadata(name, symbol) { }
 
     function _afterTokenTransfer(address from, address to, uint256 tokenId)
         virtual

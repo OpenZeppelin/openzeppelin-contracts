@@ -7,7 +7,5 @@ contract CapperRoleMock is CapperRole {
         _removeCapper(account);
     }
 
-    function onlyCapperMock() public view onlyCapper {
-        // solhint-disable-previous-line no-empty-blocks
-    }
+    function onlyCapperMock() public view onlyCapper { }
 }
