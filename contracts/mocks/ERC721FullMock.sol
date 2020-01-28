@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "../token/ERC721/ERC721Full.sol";
 import "../token/ERC721/ERC721Mintable.sol";
@@ -11,9 +11,7 @@ import "../token/ERC721/ERC721Burnable.sol";
  * checking token existence, removal of a token from an address
  */
 contract ERC721FullMock is ERC721Full, ERC721Mintable, ERC721MetadataMintable, ERC721Burnable {
-    constructor (string memory name, string memory symbol) public ERC721Mintable() ERC721Full(name, symbol) {
-        // solhint-disable-previous-line no-empty-blocks
-    }
+    constructor (string memory name, string memory symbol) public ERC721Mintable() ERC721Full(name, symbol) { }
 
     function exists(uint256 tokenId) public view returns (bool) {
         return _exists(tokenId);
@@ -29,5 +27,9 @@ contract ERC721FullMock is ERC721Full, ERC721Mintable, ERC721MetadataMintable, E
 
     function setBaseURI(string memory baseURI) public {
         _setBaseURI(baseURI);
+    }
+
+    function _afterTokenTransfer(address from, address to, uint256 tokenId) internal virtual override(ERC721, ERC721Full, ERC721Metadata) {
+        super._afterTokenTransfer(from, to, tokenId);
     }
 }

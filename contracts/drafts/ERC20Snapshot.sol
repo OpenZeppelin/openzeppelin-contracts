@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "../math/SafeMath.sol";
 import "../utils/Arrays.sol";
@@ -43,7 +43,7 @@ contract ERC20Snapshot is ERC20 {
     // Creates a new snapshot id. Balances are only stored in snapshots on demand: unless a snapshot was taken, a
     // balance change will not be recorded. This means the extra added cost of storing snapshotted balances is only paid
     // when required, but is also flexible enough that it allows for e.g. daily snapshots.
-    function snapshot() public returns (uint256) {
+    function snapshot() public virtual returns (uint256) {
         _currentSnapshotId.increment();
 
         uint256 currentId = _currentSnapshotId.current();
@@ -66,21 +66,21 @@ contract ERC20Snapshot is ERC20 {
     // _transfer, _mint and _burn are the only functions where the balances are modified, so it is there that the
     // snapshots are updated. Note that the update happens _before_ the balance change, with the pre-modified value.
     // The same is true for the total supply and _mint and _burn.
-    function _transfer(address from, address to, uint256 value) internal {
+    function _transfer(address from, address to, uint256 value) internal virtual override {
         _updateAccountSnapshot(from);
         _updateAccountSnapshot(to);
 
         super._transfer(from, to, value);
     }
 
-    function _mint(address account, uint256 value) internal {
+    function _mint(address account, uint256 value) internal virtual override {
         _updateAccountSnapshot(account);
         _updateTotalSupplySnapshot();
 
         super._mint(account, value);
     }
 
-    function _burn(address account, uint256 value) internal {
+    function _burn(address account, uint256 value) internal virtual override {
         _updateAccountSnapshot(account);
         _updateTotalSupplySnapshot();
 

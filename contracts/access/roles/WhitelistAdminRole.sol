@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "../../GSN/Context.sol";
 import "../Roles.sol";
@@ -28,20 +28,20 @@ contract WhitelistAdminRole is Context {
         return _whitelistAdmins.has(account);
     }
 
-    function addWhitelistAdmin(address account) public onlyWhitelistAdmin {
+    function addWhitelistAdmin(address account) public virtual onlyWhitelistAdmin {
         _addWhitelistAdmin(account);
     }
 
-    function renounceWhitelistAdmin() public {
+    function renounceWhitelistAdmin() public virtual {
         _removeWhitelistAdmin(_msgSender());
     }
 
-    function _addWhitelistAdmin(address account) internal {
+    function _addWhitelistAdmin(address account) internal virtual {
         _whitelistAdmins.add(account);
         emit WhitelistAdminAdded(account);
     }
 
-    function _removeWhitelistAdmin(address account) internal {
+    function _removeWhitelistAdmin(address account) internal virtual {
         _whitelistAdmins.remove(account);
         emit WhitelistAdminRemoved(account);
     }

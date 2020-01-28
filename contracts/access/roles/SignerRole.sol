@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "../../GSN/Context.sol";
 import "../Roles.sol";
@@ -24,20 +24,20 @@ contract SignerRole is Context {
         return _signers.has(account);
     }
 
-    function addSigner(address account) public onlySigner {
+    function addSigner(address account) public virtual onlySigner {
         _addSigner(account);
     }
 
-    function renounceSigner() public {
+    function renounceSigner() public virtual {
         _removeSigner(_msgSender());
     }
 
-    function _addSigner(address account) internal {
+    function _addSigner(address account) internal virtual {
         _signers.add(account);
         emit SignerAdded(account);
     }
 
-    function _removeSigner(address account) internal {
+    function _removeSigner(address account) internal virtual {
         _signers.remove(account);
         emit SignerRemoved(account);
     }

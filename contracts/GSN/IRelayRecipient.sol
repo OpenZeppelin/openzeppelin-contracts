@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 /**
  * @dev Base interface for a contract that will be called via the GSN from {IRelayHub}.

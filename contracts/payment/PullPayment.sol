@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "./escrow/Escrow.sol";
 
@@ -42,7 +42,7 @@ contract PullPayment {
      *
      * @param payee Whose payments will be withdrawn.
      */
-    function withdrawPayments(address payable payee) public {
+    function withdrawPayments(address payable payee) public virtual {
         _escrow.withdraw(payee);
     }
 
@@ -55,7 +55,7 @@ contract PullPayment {
      *
      * _Available since v2.4.0._
      */
-    function withdrawPaymentsWithGas(address payable payee) external {
+    function withdrawPaymentsWithGas(address payable payee) external virtual {
         _escrow.withdrawWithGas(payee);
     }
 
@@ -75,7 +75,7 @@ contract PullPayment {
      * @param dest The destination address of the funds.
      * @param amount The amount to transfer.
      */
-    function _asyncTransfer(address dest, uint256 amount) internal {
+    function _asyncTransfer(address dest, uint256 amount) internal virtual {
         _escrow.deposit.value(amount)(dest);
     }
 }

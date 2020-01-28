@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "./ERC20Mintable.sol";
 
@@ -25,14 +25,17 @@ contract ERC20Capped is ERC20Mintable {
     }
 
     /**
-     * @dev See {ERC20Mintable-mint}.
+     * @dev See {ERC20-_beforeTokenTransfer}.
      *
      * Requirements:
      *
-     * - `value` must not cause the total supply to go over the cap.
+     * - minted tokens must not cause the total supply to go over the cap.
      */
-    function _mint(address account, uint256 value) internal {
-        require(totalSupply().add(value) <= _cap, "ERC20Capped: cap exceeded");
-        super._mint(account, value);
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
+        super._beforeTokenTransfer(from, to, amount);
+
+        if (from == address(0)) { // When minting tokens
+            require(totalSupply().add(amount) <= _cap, "ERC20Capped: cap exceeded");
+        }
     }
 }

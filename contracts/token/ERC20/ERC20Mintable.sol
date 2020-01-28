@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "./ERC20.sol";
 import "../../access/roles/MinterRole.sol";
@@ -17,7 +17,7 @@ contract ERC20Mintable is ERC20, MinterRole {
      *
      * - the caller must have the {MinterRole}.
      */
-    function mint(address account, uint256 amount) public onlyMinter returns (bool) {
+    function mint(address account, uint256 amount) public onlyMinter virtual returns (bool) {
         _mint(account, amount);
         return true;
     }

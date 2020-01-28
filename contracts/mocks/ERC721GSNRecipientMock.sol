@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "../token/ERC721/ERC721.sol";
 import "../GSN/GSNRecipient.sol";
@@ -10,9 +10,16 @@ import "../GSN/GSNRecipientSignature.sol";
  */
 contract ERC721GSNRecipientMock is ERC721, GSNRecipient, GSNRecipientSignature {
     constructor(address trustedSigner) public GSNRecipientSignature(trustedSigner) { }
-    // solhint-disable-previous-line no-empty-blocks
 
     function mint(uint256 tokenId) public {
         _mint(_msgSender(), tokenId);
+    }
+
+    function _msgSender() internal override(Context, GSNRecipient) view virtual returns (address payable) {
+        return GSNRecipient._msgSender();
+    }
+
+    function _msgData() internal override(Context, GSNRecipient) view virtual returns (bytes memory) {
+        return GSNRecipient._msgData();
     }
 }

@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "../GSN/Context.sol";
 import "../token/ERC777/IERC777.sol";
@@ -47,7 +47,7 @@ contract ERC777SenderRecipientMock is Context, IERC777Sender, IERC777Recipient, 
         uint256 amount,
         bytes calldata userData,
         bytes calldata operatorData
-    ) external {
+    ) external override {
         if (_shouldRevertSend) {
             revert();
         }
@@ -78,7 +78,7 @@ contract ERC777SenderRecipientMock is Context, IERC777Sender, IERC777Recipient, 
         uint256 amount,
         bytes calldata userData,
         bytes calldata operatorData
-    ) external{
+    ) external override {
         if (_shouldRevertReceive) {
             revert();
         }

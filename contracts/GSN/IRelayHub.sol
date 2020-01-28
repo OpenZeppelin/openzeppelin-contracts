@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 /**
  * @dev Interface for `RelayHub`, the core contract of the GSN. Users should not need to interact with this contract
@@ -207,7 +207,7 @@ interface IRelayHub {
     event CanRelayFailed(address indexed relay, address indexed from, address indexed to, bytes4 selector, uint256 reason);
 
     /**
-     * @dev Emitted when a transaction is relayed. 
+     * @dev Emitted when a transaction is relayed.
      * Useful when monitoring a relay's operation and relayed calls to a contract
      *
      * Note that the actual encoded function might be reverted: this is indicated in the `status` parameter.
@@ -236,7 +236,7 @@ interface IRelayHub {
      */
     function maxPossibleCharge(uint256 relayedCallStipend, uint256 gasPrice, uint256 transactionFee) external view returns (uint256);
 
-     // Relay penalization. 
+     // Relay penalization.
      // Any account can penalize relays, removing them from the system immediately, and rewarding the
     // reporter with half of the relay's stake. The other half is burned so that, even if the relay penalizes itself, it
     // still loses half of its stake.
