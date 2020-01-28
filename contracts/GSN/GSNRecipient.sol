@@ -160,7 +160,7 @@ abstract contract GSNRecipient is IRelayRecipient, Context {
      * @dev Return this in acceptRelayedCall to proceed with the execution of a relayed call. Note that this contract
      * will be charged a fee by RelayHub
      */
-    function _approveRelayedCall() internal virtual pure returns (uint256, bytes memory) {
+    function _approveRelayedCall() internal pure returns (uint256, bytes memory) {
         return _approveRelayedCall("");
     }
 
@@ -169,14 +169,14 @@ abstract contract GSNRecipient is IRelayRecipient, Context {
      *
      * This overload forwards `context` to _preRelayedCall and _postRelayedCall.
      */
-    function _approveRelayedCall(bytes memory context) internal virtual pure returns (uint256, bytes memory) {
+    function _approveRelayedCall(bytes memory context) internal pure returns (uint256, bytes memory) {
         return (RELAYED_CALL_ACCEPTED, context);
     }
 
     /**
      * @dev Return this in acceptRelayedCall to impede execution of a relayed call. No fees will be charged.
      */
-    function _rejectRelayedCall(uint256 errorCode) internal virtual pure returns (uint256, bytes memory) {
+    function _rejectRelayedCall(uint256 errorCode) internal pure returns (uint256, bytes memory) {
         return (RELAYED_CALL_REJECTED + errorCode, "");
     }
 
@@ -184,7 +184,7 @@ abstract contract GSNRecipient is IRelayRecipient, Context {
      * @dev Calculates how much RelayHub will charge a recipient for using `gas` at a `gasPrice`, given a relayer's
      * `serviceFee`.
      */
-    function _computeCharge(uint256 gas, uint256 gasPrice, uint256 serviceFee) internal virtual pure returns (uint256) {
+    function _computeCharge(uint256 gas, uint256 gasPrice, uint256 serviceFee) internal pure returns (uint256) {
         // The fee is expressed as a percentage. E.g. a value of 40 stands for a 40% fee, so the recipient will be
         // charged for 1.4 times the spent amount.
         return (gas * gasPrice * (100 + serviceFee)) / 100;
