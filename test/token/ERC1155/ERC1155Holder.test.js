@@ -1,9 +1,14 @@
-const { BN } = require('openzeppelin-test-helpers');
+const { accounts, contract } = require('@openzeppelin/test-environment');
+const { BN } = require('@openzeppelin/test-helpers');
 
-const ERC1155Holder = artifacts.require('ERC1155Holder');
-const ERC1155Mock = artifacts.require('ERC1155Mock');
+const ERC1155Holder = contract.fromArtifact('ERC1155Holder');
+const ERC1155Mock = contract.fromArtifact('ERC1155Mock');
 
-contract('ERC1155Holder', function ([creator]) {
+const { expect } = require('chai');
+
+describe('ERC1155Holder', function () {
+  const [creator] = accounts;
+
   it('receives ERC1155 tokens', async function () {
     const multiToken = await ERC1155Mock.new({ from: creator });
     const multiTokenIds = [new BN(1), new BN(2), new BN(3)];
@@ -23,7 +28,7 @@ contract('ERC1155Holder', function ([creator]) {
       { from: creator },
     );
 
-    (await multiToken.balanceOf(holder.address, multiTokenIds[0])).should.be.bignumber.equal(multiTokenAmounts[0]);
+    expect(await multiToken.balanceOf(holder.address, multiTokenIds[0])).to.be.bignumber.equal(multiTokenAmounts[0]);
 
     await multiToken.safeBatchTransferFrom(
       creator,
@@ -35,7 +40,7 @@ contract('ERC1155Holder', function ([creator]) {
     );
 
     for (let i = 1; i < multiTokenIds.length; i++) {
-      (await multiToken.balanceOf(holder.address, multiTokenIds[i])).should.be.bignumber.equal(multiTokenAmounts[i]);
+      expect(await multiToken.balanceOf(holder.address, multiTokenIds[i])).to.be.bignumber.equal(multiTokenAmounts[i]);
     }
   });
 });

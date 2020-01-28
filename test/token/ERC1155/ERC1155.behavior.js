@@ -1,8 +1,13 @@
-const { BN, constants, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
+const { contract } = require('@openzeppelin/test-environment');
+
+const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
+
+const { expect } = require('chai');
+
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 
-const ERC1155ReceiverMock = artifacts.require('ERC1155ReceiverMock');
+const ERC1155ReceiverMock = contract.fromArtifact('ERC1155ReceiverMock');
 
 function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, multiTokenHolder, recipient, proxy]) {
   const firstTokenId = new BN(1);
@@ -26,20 +31,20 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
 
       context('when accounts don\'t own tokens', function () {
         it('returns zero for given addresses', async function () {
-          (await this.token.balanceOf(
+          expect(await this.token.balanceOf(
             firstTokenHolder,
             firstTokenId
-          )).should.be.bignumber.equal('0');
+          )).to.be.bignumber.equal('0');
 
-          (await this.token.balanceOf(
+          expect(await this.token.balanceOf(
             secondTokenHolder,
             secondTokenId
-          )).should.be.bignumber.equal('0');
+          )).to.be.bignumber.equal('0');
 
-          (await this.token.balanceOf(
+          expect(await this.token.balanceOf(
             firstTokenHolder,
             unknownTokenId
-          )).should.be.bignumber.equal('0');
+          )).to.be.bignumber.equal('0');
         });
       });
 
@@ -60,20 +65,20 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
         });
 
         it('returns the amount of tokens owned by the given addresses', async function () {
-          (await this.token.balanceOf(
+          expect(await this.token.balanceOf(
             firstTokenHolder,
             firstTokenId
-          )).should.be.bignumber.equal(firstAmount);
+          )).to.be.bignumber.equal(firstAmount);
 
-          (await this.token.balanceOf(
+          expect(await this.token.balanceOf(
             secondTokenHolder,
             secondTokenId
-          )).should.be.bignumber.equal(secondAmount);
+          )).to.be.bignumber.equal(secondAmount);
 
-          (await this.token.balanceOf(
+          expect(await this.token.balanceOf(
             firstTokenHolder,
             unknownTokenId
-          )).should.be.bignumber.equal('0');
+          )).to.be.bignumber.equal('0');
         });
       });
     });
@@ -105,10 +110,10 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             [firstTokenHolder, secondTokenHolder, firstTokenHolder],
             [firstTokenId, secondTokenId, unknownTokenId]
           );
-          result.should.be.an('array');
-          result[0].should.be.a.bignumber.equal('0');
-          result[1].should.be.a.bignumber.equal('0');
-          result[2].should.be.a.bignumber.equal('0');
+          expect(result).to.be.an('array');
+          expect(result[0]).to.be.a.bignumber.equal('0');
+          expect(result[1]).to.be.a.bignumber.equal('0');
+          expect(result[2]).to.be.a.bignumber.equal('0');
         });
       });
 
@@ -133,10 +138,10 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             [secondTokenHolder, firstTokenHolder, firstTokenHolder],
             [secondTokenId, firstTokenId, unknownTokenId]
           );
-          result.should.be.an('array');
-          result[0].should.be.a.bignumber.equal(secondAmount);
-          result[1].should.be.a.bignumber.equal(firstAmount);
-          result[2].should.be.a.bignumber.equal('0');
+          expect(result).to.be.an('array');
+          expect(result[0]).to.be.a.bignumber.equal(secondAmount);
+          expect(result[1]).to.be.a.bignumber.equal(firstAmount);
+          expect(result[2]).to.be.a.bignumber.equal('0');
         });
       });
     });
@@ -148,7 +153,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
       });
 
       it('sets approval status which can be queried via isApprovedForAll', async function () {
-        (await this.token.isApprovedForAll(multiTokenHolder, proxy)).should.be.equal(true);
+        expect(await this.token.isApprovedForAll(multiTokenHolder, proxy)).to.be.equal(true);
       });
 
       it('emits an ApprovalForAll log', function () {
@@ -157,7 +162,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
 
       it('can unset approval for an operator', async function () {
         await this.token.setApprovalForAll(proxy, false, { from: multiTokenHolder });
-        (await this.token.isApprovedForAll(multiTokenHolder, proxy)).should.be.equal(false);
+        expect(await this.token.isApprovedForAll(multiTokenHolder, proxy)).to.be.equal(false);
       });
 
       it('reverts if attempting to approve self as an operator', async function () {
@@ -215,12 +220,12 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
       function transferWasSuccessful ({ operator, from, id, value }) {
         it('debits transferred balance from sender', async function () {
           const newBalance = await this.token.balanceOf(from, id);
-          newBalance.should.be.a.bignumber.equal('0');
+          expect(newBalance).to.be.a.bignumber.equal('0');
         });
 
         it('credits transferred balance to receiver', async function () {
           const newBalance = await this.token.balanceOf(this.toWhom, id);
-          newBalance.should.be.a.bignumber.equal(value);
+          expect(newBalance).to.be.a.bignumber.equal(value);
         });
 
         it('emits a TransferSingle log', function () {
@@ -252,10 +257,10 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
 
         it('preserves existing balances which are not transferred by multiTokenHolder', async function () {
           const balance1 = await this.token.balanceOf(multiTokenHolder, secondTokenId);
-          balance1.should.be.a.bignumber.equal(secondAmount);
+          expect(balance1).to.be.a.bignumber.equal(secondAmount);
 
           const balance2 = await this.token.balanceOf(recipient, secondTokenId);
-          balance2.should.be.a.bignumber.equal('0');
+          expect(balance2).to.be.a.bignumber.equal('0');
         });
       });
 
@@ -294,7 +299,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
 
           it('preserves operator\'s balances not involved in the transfer', async function () {
             const balance = await this.token.balanceOf(proxy, firstTokenId);
-            balance.should.be.a.bignumber.equal('0');
+            expect(balance).to.be.a.bignumber.equal('0');
           });
         });
       });
@@ -477,14 +482,14 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
         it('debits transferred balances from sender', async function () {
           const newBalances = await this.token.balanceOfBatch(new Array(ids.length).fill(from), ids);
           for (const newBalance of newBalances) {
-            newBalance.should.be.a.bignumber.equal('0');
+            expect(newBalance).to.be.a.bignumber.equal('0');
           }
         });
 
         it('credits transferred balances to receiver', async function () {
           const newBalances = await this.token.balanceOfBatch(new Array(ids.length).fill(this.toWhom), ids);
           for (let i = 0; i < newBalances.length; i++) {
-            newBalances[i].should.be.a.bignumber.equal(values[i]);
+            expect(newBalances[i]).to.be.a.bignumber.equal(values[i]);
           }
         });
 
@@ -560,9 +565,9 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
 
           it('preserves operator\'s balances not involved in the transfer', async function () {
             const balance1 = await this.token.balanceOf(proxy, firstTokenId);
-            balance1.should.be.a.bignumber.equal('0');
+            expect(balance1).to.be.a.bignumber.equal('0');
             const balance2 = await this.token.balanceOf(proxy, secondTokenId);
-            balance2.should.be.a.bignumber.equal('0');
+            expect(balance2).to.be.a.bignumber.equal('0');
           });
         });
       });

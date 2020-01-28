@@ -1,20 +1,21 @@
-const {
-  BN,
-  constants,
-  expectEvent,
-  expectRevert,
-} = require('openzeppelin-test-helpers');
+const { accounts, contract } = require('@openzeppelin/test-environment');
+
+const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
-const { shouldBehaveLikeERC1155 } = require('./ERC1155.behavior');
-const ERC1155Mock = artifacts.require('ERC1155Mock');
+const { expect } = require('chai');
 
-contract('ERC1155', function ([, creator, tokenHolder, tokenBatchHolder, ...accounts]) {
+const { shouldBehaveLikeERC1155 } = require('./ERC1155.behavior');
+const ERC1155Mock = contract.fromArtifact('ERC1155Mock');
+
+describe('ERC1155', function () {
+  const [creator, tokenHolder, tokenBatchHolder, ...otherAccounts] = accounts;
+
   beforeEach(async function () {
     this.token = await ERC1155Mock.new({ from: creator });
   });
 
-  shouldBehaveLikeERC1155(accounts);
+  shouldBehaveLikeERC1155(otherAccounts);
 
   describe('internal functions', function () {
     const tokenId = new BN(1990);
@@ -57,10 +58,10 @@ contract('ERC1155', function ([, creator, tokenHolder, tokenBatchHolder, ...acco
         });
 
         it('credits the minted amount of tokens', async function () {
-          (await this.token.balanceOf(
+          expect(await this.token.balanceOf(
             tokenHolder,
             tokenId
-          )).should.be.bignumber.equal(mintAmount);
+          )).to.be.bignumber.equal(mintAmount);
         });
       });
     });
@@ -108,7 +109,7 @@ contract('ERC1155', function ([, creator, tokenHolder, tokenBatchHolder, ...acco
           );
 
           for (let i = 0; i < holderBatchBalances.length; i++) {
-            holderBatchBalances[i].should.be.bignumber.equal(mintAmounts[i]);
+            expect(holderBatchBalances[i]).to.be.bignumber.equal(mintAmounts[i]);
           }
         });
       });
@@ -151,10 +152,10 @@ contract('ERC1155', function ([, creator, tokenHolder, tokenBatchHolder, ...acco
         });
 
         it('accounts for both minting and burning', async function () {
-          (await this.token.balanceOf(
+          expect(await this.token.balanceOf(
             tokenHolder,
             tokenId
-          )).should.be.bignumber.equal(mintAmount.sub(burnAmount));
+          )).to.be.bignumber.equal(mintAmount.sub(burnAmount));
         });
       });
     });
@@ -209,7 +210,7 @@ contract('ERC1155', function ([, creator, tokenHolder, tokenBatchHolder, ...acco
           );
 
           for (let i = 0; i < holderBatchBalances.length; i++) {
-            holderBatchBalances[i].should.be.bignumber.equal(mintAmounts[i].sub(burnAmounts[i]));
+            expect(holderBatchBalances[i]).to.be.bignumber.equal(mintAmounts[i].sub(burnAmounts[i]));
           }
         });
       });
