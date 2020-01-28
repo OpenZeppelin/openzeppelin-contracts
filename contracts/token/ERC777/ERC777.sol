@@ -28,7 +28,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     using SafeMath for uint256;
     using Address for address;
 
-    IERC1820Registry constant private ERC1820_REGISTRY = IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
+    IERC1820Registry constant internal ERC1820_REGISTRY = IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
 
     mapping(address => uint256) private _balances;
 
@@ -132,9 +132,9 @@ contract ERC777 is Context, IERC777, IERC20 {
     /**
      * @dev See {IERC777-send}.
      *
-     * Also emits a {Transfer} event for ERC20 compatibility.
+     * Also emits a {IERC20-Transfer} event for ERC20 compatibility.
      */
-    function send(address recipient, uint256 amount, bytes calldata data) external {
+    function send(address recipient, uint256 amount, bytes memory data) public {
         _send(_msgSender(), _msgSender(), recipient, amount, data, "", true);
     }
 
@@ -146,7 +146,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * Also emits a {Sent} event.
      */
-    function transfer(address recipient, uint256 amount) external returns (bool) {
+    function transfer(address recipient, uint256 amount) public returns (bool) {
         require(recipient != address(0), "ERC777: transfer to the zero address");
 
         address from = _msgSender();
@@ -163,9 +163,9 @@ contract ERC777 is Context, IERC777, IERC20 {
     /**
      * @dev See {IERC777-burn}.
      *
-     * Also emits a {Transfer} event for ERC20 compatibility.
+     * Also emits a {IERC20-Transfer} event for ERC20 compatibility.
      */
-    function burn(uint256 amount, bytes calldata data) external {
+    function burn(uint256 amount, bytes memory data) public {
         _burn(_msgSender(), _msgSender(), amount, data, "");
     }
 
@@ -184,7 +184,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     /**
      * @dev See {IERC777-authorizeOperator}.
      */
-    function authorizeOperator(address operator) external {
+    function authorizeOperator(address operator) public {
         require(_msgSender() != operator, "ERC777: authorizing self as operator");
 
         if (_defaultOperators[operator]) {
@@ -199,7 +199,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     /**
      * @dev See {IERC777-revokeOperator}.
      */
-    function revokeOperator(address operator) external {
+    function revokeOperator(address operator) public {
         require(operator != _msgSender(), "ERC777: revoking self as operator");
 
         if (_defaultOperators[operator]) {
@@ -221,16 +221,16 @@ contract ERC777 is Context, IERC777, IERC20 {
     /**
      * @dev See {IERC777-operatorSend}.
      *
-     * Emits {Sent} and {Transfer} events.
+     * Emits {Sent} and {IERC20-Transfer} events.
      */
     function operatorSend(
         address sender,
         address recipient,
         uint256 amount,
-        bytes calldata data,
-        bytes calldata operatorData
+        bytes memory data,
+        bytes memory operatorData
     )
-    external
+    public
     {
         require(isOperatorFor(_msgSender(), sender), "ERC777: caller is not an operator for holder");
         _send(_msgSender(), sender, recipient, amount, data, operatorData, true);
@@ -239,9 +239,9 @@ contract ERC777 is Context, IERC777, IERC20 {
     /**
      * @dev See {IERC777-operatorBurn}.
      *
-     * Emits {Burned} and {Transfer} events.
+     * Emits {Burned} and {IERC20-Transfer} events.
      */
-    function operatorBurn(address account, uint256 amount, bytes calldata data, bytes calldata operatorData) external {
+    function operatorBurn(address account, uint256 amount, bytes memory data, bytes memory operatorData) public {
         require(isOperatorFor(_msgSender(), account), "ERC777: caller is not an operator for holder");
         _burn(_msgSender(), account, amount, data, operatorData);
     }
@@ -262,7 +262,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * Note that accounts cannot have allowance issued by their operators.
      */
-    function approve(address spender, uint256 value) external returns (bool) {
+    function approve(address spender, uint256 value) public returns (bool) {
         address holder = _msgSender();
         _approve(holder, spender, value);
         return true;
@@ -275,9 +275,9 @@ contract ERC777 is Context, IERC777, IERC20 {
     * call `transferFrom` (unless they have allowance), and accounts with
     * allowance cannot call `operatorSend` (unless they are operators).
     *
-    * Emits {Sent}, {Transfer} and {Approval} events.
+    * Emits {Sent}, {IERC20-Transfer} and {IERC20-Approval} events.
     */
-    function transferFrom(address holder, address recipient, uint256 amount) external returns (bool) {
+    function transferFrom(address holder, address recipient, uint256 amount) public returns (bool) {
         require(recipient != address(0), "ERC777: transfer to the zero address");
         require(holder != address(0), "ERC777: transfer from the zero address");
 
@@ -302,7 +302,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * See {IERC777Sender} and {IERC777Recipient}.
      *
-     * Emits {Minted} and {Transfer} events.
+     * Emits {Minted} and {IERC20-Transfer} events.
      *
      * Requirements
      *
@@ -350,7 +350,7 @@ contract ERC777 is Context, IERC777, IERC20 {
         bytes memory operatorData,
         bool requireReceptionAck
     )
-        private
+        internal
     {
         require(from != address(0), "ERC777: send from the zero address");
         require(to != address(0), "ERC777: send to the zero address");
@@ -377,7 +377,7 @@ contract ERC777 is Context, IERC777, IERC20 {
         bytes memory data,
         bytes memory operatorData
     )
-        private
+        internal
     {
         require(from != address(0), "ERC777: burn from the zero address");
 
@@ -408,7 +408,7 @@ contract ERC777 is Context, IERC777, IERC20 {
         emit Transfer(from, to, amount);
     }
 
-    function _approve(address holder, address spender, uint256 value) private {
+    function _approve(address holder, address spender, uint256 value) internal {
         // TODO: restore this require statement if this function becomes internal, or is called at a new callsite. It is
         // currently unnecessary.
         //require(holder != address(0), "ERC777: approve from the zero address");
@@ -435,7 +435,7 @@ contract ERC777 is Context, IERC777, IERC20 {
         bytes memory userData,
         bytes memory operatorData
     )
-        private
+        internal
     {
         address implementer = ERC1820_REGISTRY.getInterfaceImplementer(from, TOKENS_SENDER_INTERFACE_HASH);
         if (implementer != address(0)) {
@@ -463,7 +463,7 @@ contract ERC777 is Context, IERC777, IERC20 {
         bytes memory operatorData,
         bool requireReceptionAck
     )
-        private
+        internal
     {
         address implementer = ERC1820_REGISTRY.getInterfaceImplementer(to, TOKENS_RECIPIENT_INTERFACE_HASH);
         if (implementer != address(0)) {

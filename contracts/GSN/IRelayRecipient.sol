@@ -5,11 +5,11 @@ pragma solidity ^0.5.0;
  *
  * TIP: You don't need to write an implementation yourself! Inherit from {GSNRecipient} instead.
  */
-contract IRelayRecipient {
+interface IRelayRecipient {
     /**
      * @dev Returns the address of the {IRelayHub} instance this recipient interacts with.
      */
-    function getHubAddr() public view returns (address);
+    function getHubAddr() external view returns (address);
 
     /**
      * @dev Called by {IRelayHub} to validate if this recipient accepts being charged for a relayed call. Note that the

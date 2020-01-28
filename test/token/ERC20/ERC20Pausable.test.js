@@ -1,11 +1,15 @@
+const { accounts, contract } = require('@openzeppelin/test-environment');
+
 const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ERC20PausableMock = artifacts.require('ERC20PausableMock');
+const ERC20PausableMock = contract.fromArtifact('ERC20PausableMock');
 const { shouldBehaveLikePublicRole } = require('../../behaviors/access/roles/PublicRole.behavior');
 
-contract('ERC20Pausable', function ([_, pauser, otherPauser, recipient, anotherAccount, ...otherAccounts]) {
+describe('ERC20Pausable', function () {
+  const [ pauser, otherPauser, recipient, anotherAccount, ...otherAccounts ] = accounts;
+
   const initialSupply = new BN(100);
 
   beforeEach(async function () {

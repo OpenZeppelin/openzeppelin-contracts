@@ -1,9 +1,13 @@
+const { accounts, contract } = require('@openzeppelin/test-environment');
+
 const { BN } = require('@openzeppelin/test-helpers');
 
 const { shouldBehaveLikeERC20Burnable } = require('./behaviors/ERC20Burnable.behavior');
-const ERC20BurnableMock = artifacts.require('ERC20BurnableMock');
+const ERC20BurnableMock = contract.fromArtifact('ERC20BurnableMock');
 
-contract('ERC20Burnable', function ([_, owner, ...otherAccounts]) {
+describe('ERC20Burnable', function () {
+  const [ owner, ...otherAccounts ] = accounts;
+
   const initialBalance = new BN(1000);
 
   beforeEach(async function () {
