@@ -7,7 +7,7 @@ const { shouldBehaveLikeERC1155 } = require('./ERC1155.behavior');
 const ERC1155MetadataURICatchAllMock = contract.fromArtifact('ERC1155MetadataURICatchAllMock');
 
 describe('ERC1155MetadataURICatchAll', function () {
-  const [creator, tokenHolder, tokenBatchHolder, ...otherAccounts] = accounts;
+  const [creator, ...otherAccounts] = accounts;
 
   const uriInit = 'https://example.com/{id}.json';
   const tokenId = new BN(0); // catch-all always uses id 0 in event
@@ -35,11 +35,12 @@ describe('ERC1155MetadataURICatchAll', function () {
     const uriNew = 'https://example.com/{locale}/{id}.json';
 
     describe('_setURI(string memory newuri)', function () {
+      let receipt;
       beforeEach(async function () {
-        (receipt = await this.token.setURI(
+        receipt = await this.token.setURI(
           uriNew,
           { from: creator }
-        ));
+        );
       });
 
       it('emits a URI event', function () {
