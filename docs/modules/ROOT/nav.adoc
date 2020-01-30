@@ -1,17 +1,18 @@
-.Overview
-* xref:index.adoc[Getting Started]
+* xref:index.adoc[Overview]
 
-.Basics
 * xref:access-control.adoc[Access Control]
+
 * xref:tokens.adoc[Tokens]
+** xref:erc20.adoc[ERC20]
+*** xref:erc20-supply.adoc[Creating Supply]
+*** xref:crowdsales.adoc[Crowdsales]
+** xref:erc721.adoc[ERC721]
+** xref:erc777.adoc[ERC777]
+
 * xref:gsn.adoc[Gas Station Network]
-* xref:crowdsales.adoc[Crowdsales]
+** xref:gsn-strategies.adoc[Strategies]
+
 * xref:utilities.adoc[Utilities]
 
-.In Depth
-* xref:erc20-supply.adoc[ERC20 Supply]
-* xref:gsn-strategies.adoc[GSN Strategies]
 
-.FAQ
-* xref:api-stability.adoc[API Stability]
-* xref:release-schedule.adoc[Release Schedule]
+* xref:releases-stability.adoc[Releases & Stability]

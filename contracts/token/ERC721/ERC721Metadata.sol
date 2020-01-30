@@ -77,15 +77,6 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
     }
 
     /**
-    * @dev Returns the base URI set via {_setBaseURI}. This will be
-    * automatically added as a preffix in {tokenURI} to each token's URI, when
-    * they are non-empty.
-    */
-    function baseURI() external view returns (string memory) {
-        return _baseURI;
-    }
-
-    /**
      * @dev Internal function to set the token URI for a given token.
      *
      * Reverts if the token ID does not exist.
@@ -107,6 +98,17 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
      */
     function _setBaseURI(string memory baseURI) internal {
         _baseURI = baseURI;
+    }
+
+    /**
+    * @dev Returns the base URI set via {_setBaseURI}. This will be
+    * automatically added as a preffix in {tokenURI} to each token's URI, when
+    * they are non-empty.
+    *
+    * _Available since v2.5.0._
+    */
+    function baseURI() external view returns (string memory) {
+        return _baseURI;
     }
 
     /**
