@@ -60,6 +60,10 @@ library EnumerableMap {
 		require(map.entries[index].key != key, "Removed key still exists in the array at original index.");
 	}
 
+	function get(Map storage map, address key) internal view returns (uint8) {
+		return map.entries[map.index[key]].value;
+	}
+
 	function enumerate(Map storage map) internal view returns (Entry[] memory) {
 		Entry[] memory output = new Entry[](map.entries.length - 1);
 
