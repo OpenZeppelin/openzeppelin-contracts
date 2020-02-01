@@ -61,7 +61,15 @@ library EnumerableMap {
 	}
 
 	function get(Map storage map, address key) internal view returns (uint8) {
-		return map.entries[map.index[key]].value;
+		uint256 index = map.index[key];
+		require(index != 0, "Provided key was not in the map.");
+		return map.entries[index].value;
+	}
+
+	function tryGet(Map storage map, address key) internal view returns (uint256) {
+		uint256 index = map.index[key];
+		if (index == 0) return 0;
+		return map.entries[index].value;
 	}
 
 	function enumerate(Map storage map) internal view returns (Entry[] memory) {
