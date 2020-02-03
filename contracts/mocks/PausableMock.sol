@@ -1,10 +1,8 @@
 pragma solidity ^0.6.0;
 
 import "../lifecycle/Pausable.sol";
-import "./PauserRoleMock.sol";
 
-// mock class using Pausable
-contract PausableMock is Pausable, PauserRoleMock {
+contract PausableMock is Pausable {
     bool public drasticMeasureTaken;
     uint256 public count;
 

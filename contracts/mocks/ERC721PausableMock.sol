@@ -1,13 +1,12 @@
 pragma solidity ^0.6.0;
 
 import "../token/ERC721/ERC721Pausable.sol";
-import "./PauserRoleMock.sol";
 
 /**
  * @title ERC721PausableMock
  * This mock just provides a public mint, burn and exists functions for testing purposes
  */
-contract ERC721PausableMock is ERC721Pausable, PauserRoleMock {
+contract ERC721PausableMock is ERC721Pausable {
     function mint(address to, uint256 tokenId) public {
         super._mint(to, tokenId);
     }
@@ -18,5 +17,13 @@ contract ERC721PausableMock is ERC721Pausable, PauserRoleMock {
 
     function exists(uint256 tokenId) public view returns (bool) {
         return super._exists(tokenId);
+    }
+
+    function pause() external {
+        _pause();
+    }
+
+    function unpause() external {
+        _unpause();
     }
 }

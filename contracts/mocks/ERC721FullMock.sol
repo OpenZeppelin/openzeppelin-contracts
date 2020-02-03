@@ -1,8 +1,6 @@
 pragma solidity ^0.6.0;
 
 import "../token/ERC721/ERC721Full.sol";
-import "../token/ERC721/ERC721Mintable.sol";
-import "../token/ERC721/ERC721MetadataMintable.sol";
 import "../token/ERC721/ERC721Burnable.sol";
 
 /**
@@ -10,8 +8,8 @@ import "../token/ERC721/ERC721Burnable.sol";
  * This mock just provides public functions for setting metadata URI, getting all tokens of an owner,
  * checking token existence, removal of a token from an address
  */
-contract ERC721FullMock is ERC721Full, ERC721Mintable, ERC721MetadataMintable, ERC721Burnable {
-    constructor (string memory name, string memory symbol) public ERC721Mintable() ERC721Full(name, symbol) { }
+contract ERC721FullMock is ERC721Full, ERC721Burnable {
+    constructor (string memory name, string memory symbol) public ERC721Full(name, symbol) { }
 
     function exists(uint256 tokenId) public view returns (bool) {
         return _exists(tokenId);
@@ -29,7 +27,7 @@ contract ERC721FullMock is ERC721Full, ERC721Mintable, ERC721MetadataMintable, E
         _setBaseURI(baseURI);
     }
 
-    function _afterTokenTransfer(address from, address to, uint256 tokenId) internal virtual override(ERC721, ERC721Full, ERC721Metadata) {
+    function _afterTokenTransfer(address from, address to, uint256 tokenId) internal virtual override(ERC721, ERC721Full) {
         super._afterTokenTransfer(from, to, tokenId);
     }
 }

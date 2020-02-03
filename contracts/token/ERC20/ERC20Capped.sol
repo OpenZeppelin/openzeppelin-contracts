@@ -1,11 +1,11 @@
 pragma solidity ^0.6.0;
 
-import "./ERC20Mintable.sol";
+import "./ERC20.sol";
 
 /**
- * @dev Extension of {ERC20Mintable} that adds a cap to the supply of tokens.
+ * @dev Extension of {ERC20} that adds a cap to the supply of tokens.
  */
-contract ERC20Capped is ERC20Mintable {
+contract ERC20Capped is ERC20 {
     uint256 private _cap;
 
     /**
