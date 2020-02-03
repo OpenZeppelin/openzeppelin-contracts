@@ -34,10 +34,13 @@ library StringSet {
      */  
     function remove(Set storage self, string memory key) internal {
         require(exists(self, key), "StringSet: key does not exist in the set.");
-        string memory keyToMove = self.keyList[count(self)-1];
+        uint last = count(self) - 1;
+        string memory keyToMove = self.keyList[last];
         uint rowToReplace = self.keyPointers[_toBytes32(key)];
-        self.keyPointers[_toBytes32(keyToMove)] = rowToReplace;
-        self.keyList[rowToReplace] = keyToMove;
+        if(rowToReplace != last) {
+            self.keyPointers[_toBytes32(keyToMove)] = rowToReplace;
+            self.keyList[rowToReplace] = keyToMove;
+        }
         delete self.keyPointers[_toBytes32(key)];
         self.keyList.length--;
     }

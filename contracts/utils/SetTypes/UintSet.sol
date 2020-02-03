@@ -33,10 +33,13 @@ library UintSet {
      */  
     function remove(Set storage self, uint key) internal {
         require(exists(self, key), "UintSet: key does not exist in the set.");
-        uint keyToMove = self.keyList[count(self)-1];
+        uint last = count(self) - 1;
+        uint keyToMove = self.keyList[last];
         uint rowToReplace = self.keyPointers[key];
-        self.keyPointers[keyToMove] = rowToReplace;
-        self.keyList[rowToReplace] = keyToMove;
+        if(rowToReplace != last) {
+            self.keyPointers[keyToMove] = rowToReplace;
+            self.keyList[rowToReplace] = keyToMove;
+        }
         delete self.keyPointers[key];
         self.keyList.length--;
     }

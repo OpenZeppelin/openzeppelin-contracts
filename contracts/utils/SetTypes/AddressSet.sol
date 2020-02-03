@@ -33,10 +33,13 @@ library AddressSet {
      */    
     function remove(Set storage self, address key) internal {
         require(exists(self, key), "AddressSet: key does not exist in the set.");
-        address keyToMove = self.keyList[count(self)-1];
+        uint last = count(self) - 1;
+        address keyToMove = self.keyList[last];
         uint rowToReplace = self.keyPointers[key];
-        self.keyPointers[keyToMove] = rowToReplace;
-        self.keyList[rowToReplace] = keyToMove;
+        if(rowToReplace != last) {
+            self.keyPointers[keyToMove] = rowToReplace;
+            self.keyList[rowToReplace] = keyToMove;
+        }
         delete self.keyPointers[key];
         self.keyList.length--;
     }

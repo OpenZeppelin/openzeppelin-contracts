@@ -33,10 +33,13 @@ library Bytes32Set {
      */
     function remove(Set storage self, bytes32 key) internal {
         require(exists(self, key), "Bytes32Set: key does not exist in the set.");
-        bytes32 keyToMove = self.keyList[count(self)-1];
+        uint last = count(self) - 1;
+        bytes32 keyToMove = self.keyList[last];
         uint rowToReplace = self.keyPointers[key];
-        self.keyPointers[keyToMove] = rowToReplace;
-        self.keyList[rowToReplace] = keyToMove;
+        if(rowToReplace != last) {
+            self.keyPointers[keyToMove] = rowToReplace;
+            self.keyList[rowToReplace] = keyToMove;
+        }
         delete self.keyPointers[key];
         self.keyList.length--;
     }
