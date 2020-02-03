@@ -20,4 +20,12 @@ contract PausableMock is Pausable, PauserRoleMock {
     function drasticMeasure() external whenPaused {
         drasticMeasureTaken = true;
     }
+
+    function pause() external {
+        _pause();
+    }
+
+    function unpause() external {
+        _unpause();
+    }
 }
