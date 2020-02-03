@@ -23,7 +23,7 @@ library StringSet {
      */ 
     function insert(Set storage self, string memory key) internal {
         require(!exists(self, key), "StringSet: key already exists in the set.");
-        self.keyPointers[toBytes32(key)] = self.keyList.push(key)-1;
+        self.keyPointers[_toBytes32(key)] = self.keyList.push(key)-1;
     }
 
     /**
@@ -35,10 +35,10 @@ library StringSet {
     function remove(Set storage self, string memory key) internal {
         require(exists(self, key), "StringSet: key does not exist in the set.");
         string memory keyToMove = self.keyList[count(self)-1];
-        uint rowToReplace = self.keyPointers[toBytes32(key)];
-        self.keyPointers[toBytes32(keyToMove)] = rowToReplace;
+        uint rowToReplace = self.keyPointers[_toBytes32(key)];
+        self.keyPointers[_toBytes32(keyToMove)] = rowToReplace;
         self.keyList[rowToReplace] = keyToMove;
-        delete self.keyPointers[toBytes32(key)];
+        delete self.keyPointers[_toBytes32(key)];
         self.keyList.length--;
     }
     
@@ -54,7 +54,7 @@ library StringSet {
      */ 
     function exists(Set storage self, string memory key) internal view returns (bool) {
         if(self.keyList.length == 0) return false;
-        return toBytes32(self.keyList[self.keyPointers[toBytes32(key)]]) == toBytes32(key);
+        return _toBytes32(self.keyList[self.keyPointers[_toBytes32(key)]]) == _toBytes32(key);
     }
 
     /**
@@ -77,7 +77,7 @@ library StringSet {
         delete self.keyList;
     }
     
-    function toBytes32(string memory s) private pure returns (bytes32) {
+    function _toBytes32(string memory s) private pure returns (bytes32) {
         return(keccak256(bytes(s)));
     }
 }
