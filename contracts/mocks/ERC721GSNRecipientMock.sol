@@ -15,11 +15,11 @@ contract ERC721GSNRecipientMock is ERC721, GSNRecipient, GSNRecipientSignature {
         _mint(_msgSender(), tokenId);
     }
 
-    function _msgSender() internal override(Context, GSNRecipient) view virtual returns (address payable) {
+    function _msgSender() internal view override(Context, GSNRecipient) returns (address payable) {
         return GSNRecipient._msgSender();
     }
 
-    function _msgData() internal override(Context, GSNRecipient) view virtual returns (bytes memory) {
+    function _msgData() internal view override(Context, GSNRecipient) returns (bytes memory) {
         return GSNRecipient._msgData();
     }
 }
