@@ -9,10 +9,6 @@ contract EnumerableSetMock{
 
     EnumerableSet.AddressSet private set;
 
-    constructor() public {
-        set = EnumerableSet.newAddressSet();
-    }
-
     function contains(address value) public view returns (bool) {
         return set.contains(value);
     }
@@ -29,5 +25,13 @@ contract EnumerableSetMock{
 
     function enumerate() public view returns (address[] memory) {
         return set.enumerate();
+    }
+
+    function length() public view returns (uint256) {
+        return set.length();
+    }
+
+    function get(uint256 index) public view returns (address) {
+        return set.get(index);
     }
 }
