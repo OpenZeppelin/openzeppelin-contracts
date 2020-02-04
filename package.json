@@ -1,6 +1,6 @@
 {
   "name": "openzeppelin-solidity",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "Secure Smart Contract library for Solidity",
   "files": [
     "/contracts/**/*.sol",
@@ -42,7 +42,7 @@
   "bugs": {
     "url": "https://github.com/OpenZeppelin/openzeppelin-contracts/issues"
   },
-  "homepage": "https://github.com/OpenZeppelin/openzeppelin-contracts",
+  "homepage": "https://openzeppelin.com/contracts/",
   "devDependencies": {
     "@openzeppelin/cli": "^2.5.3",
     "@openzeppelin/gsn-helpers": "^0.2.3",

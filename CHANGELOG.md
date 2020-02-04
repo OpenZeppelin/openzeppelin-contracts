@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.5.0 (unreleased)
+## 2.5.0 (2020-02-04)
 
 ### New features
  * `SafeCast.toUintXX`: new library for integer downcasting, which allows for safe operation on smaller types (e.g. `uint32`) when combined with `SafeMath`. ([#1926](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1926))

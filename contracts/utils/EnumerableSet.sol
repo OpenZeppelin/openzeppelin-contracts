@@ -13,8 +13,7 @@ pragma solidity ^0.5.0;
  *
  * As of v2.5.0, only `address` sets are supported.
  *
- * Include with `using EnumerableSet for EnumerableSet.AddressSet;`, and use
- * {newAddressSet} to create a new `AddressSet`.
+ * Include with `using EnumerableSet for EnumerableSet.AddressSet;`.
  *
  * _Available since v2.5.0._
  *
@@ -112,8 +111,6 @@ library EnumerableSet {
 
     /**
      * @dev Returns the number of elements on the set. O(1).
-     * Note that there are no guarantees on the ordering of values inside the
-     * array, and it may change when more values are added or removed.
      */
     function length(AddressSet storage set)
         internal
@@ -128,8 +125,8 @@ library EnumerableSet {
     * array, and it may change when more values are added or removed.
     *
     * Requirements:
-     *
-     * - `index` must be strictly less than {length}.
+    *
+    * - `index` must be strictly less than {length}.
     */
     function get(AddressSet storage set, uint256 index)
         internal
