@@ -9,10 +9,6 @@ contract EnumerableSetMock{
 
     EnumerableSet.AddressSet private set;
 
-    constructor() public {
-        set = EnumerableSet.newAddressSet();
-    }
-
     function contains(address value) public view returns (bool) {
         return set.contains(value);
     }

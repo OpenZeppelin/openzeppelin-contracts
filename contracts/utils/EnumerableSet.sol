@@ -30,17 +30,6 @@ library EnumerableSet {
     }
 
     /**
-     * @dev Creates a new empty address set.
-     */
-    function newAddressSet()
-        internal
-        pure
-        returns (AddressSet memory)
-    {
-        return AddressSet({values: new address[](0)});
-    }
-
-    /**
      * @dev Add a value to a set. O(1).
      * Returns false if the value was already in the set.
      */
