@@ -11,7 +11,7 @@ describe('EnumerableSet', function () {
     this.set = await EnumerableSetMock.new();
   });
 
-  async function expectMembersMatch(set, members) {
+  async function expectMembersMatch (set, members) {
     await Promise.all(members.map(async account =>
       expect(await set.contains(account)).to.equal(true)
     ));
