@@ -94,6 +94,9 @@ library EnumerableSet {
      * @dev Returns an array with all values in the set. O(N).
      * Note that there are no guarantees on the ordering of values inside the
      * array, and it may change when more values are added or removed.
+
+     * WARNING: This function may run out of gas on large sets: use {length} and
+     * {get} instead in these cases.
      */
     function enumerate(AddressSet storage set)
         internal
@@ -105,5 +108,34 @@ library EnumerableSet {
             output[i] = set.values[i];
         }
         return output;
+    }
+
+    /**
+     * @dev Returns the number of elements on the set. O(1).
+     * Note that there are no guarantees on the ordering of values inside the
+     * array, and it may change when more values are added or removed.
+     */
+    function length(AddressSet storage set)
+        internal
+        view
+        returns (uint256)
+    {
+        return set.values.length;
+    }
+
+   /** @dev Returns the element stored at position `index` in the set. O(1).
+    * Note that there are no guarantees on the ordering of values inside the
+    * array, and it may change when more values are added or removed.
+    *
+    * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+    */
+    function get(AddressSet storage set, uint256 index)
+        internal
+        view
+        returns (address)
+    {
+        return set.values[index];
     }
 }
