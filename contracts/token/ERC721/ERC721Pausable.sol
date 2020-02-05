@@ -8,15 +8,21 @@ import "../../lifecycle/Pausable.sol";
  * @dev ERC721 modified with pausable transfers.
  */
 contract ERC721Pausable is ERC721, Pausable {
-    function approve(address to, uint256 tokenId) public whenNotPaused virtual override {
-        super.approve(to, tokenId);
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal virtual override {
+        super._beforeTokenTransfer(from, to, tokenId);
+
+        require(!paused(), "ERC721Pausable: token transfer while paused");
     }
 
-    function setApprovalForAll(address to, bool approved) public whenNotPaused virtual override {
-        super.setApprovalForAll(to, approved);
+    function _beforeTokenApproval(address to, uint256 tokenId) internal virtual override {
+        super._beforeTokenApproval(to, tokenId);
+
+        require(!paused(), "ERC721Pausable: token approval while paused");
     }
 
-    function _transferFrom(address from, address to, uint256 tokenId) internal whenNotPaused virtual override {
-        super._transferFrom(from, to, tokenId);
+    function _beforeOperatorApproval(address holder, address operator, bool approved) internal virtual override {
+        super._beforeOperatorApproval(holder, operator, approved);
+
+        require(!paused(), "ERC721Pausable: operator approval while paused");
     }
 }

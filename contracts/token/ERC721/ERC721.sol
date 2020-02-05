@@ -93,8 +93,7 @@ contract ERC721 is Context, ERC165, IERC721 {
             "ERC721: approve caller is not owner nor approved for all"
         );
 
-        _tokenApprovals[tokenId] = to;
-        emit Approval(owner, to, tokenId);
+        _approve(to, tokenId);
     }
 
     /**
@@ -112,14 +111,18 @@ contract ERC721 is Context, ERC165, IERC721 {
     /**
      * @dev Sets or unsets the approval of a given operator
      * An operator is allowed to transfer all tokens of the sender on their behalf.
-     * @param to operator address to set the approval
+     * @param operator operator address to set the approval
      * @param approved representing the status of the approval to be set
      */
-    function setApprovalForAll(address to, bool approved) public virtual override {
-        require(to != _msgSender(), "ERC721: approve to caller");
+    function setApprovalForAll(address operator, bool approved) public virtual override {
+        require(operator != _msgSender(), "ERC721: approve to caller");
 
-        _operatorApprovals[_msgSender()][to] = approved;
-        emit ApprovalForAll(_msgSender(), to, approved);
+        _beforeOperatorApproval(_msgSender(), operator, approved);
+
+        _operatorApprovals[_msgSender()][operator] = approved;
+        emit ApprovalForAll(_msgSender(), operator, approved);
+
+        _afterOperatorApproval(_msgSender(), operator, approved);
     }
 
     /**
@@ -281,7 +284,8 @@ contract ERC721 is Context, ERC165, IERC721 {
 
         _beforeTokenTransfer(owner, address(0), tokenId);
 
-        _clearApproval(tokenId);
+        // Clear approvals
+        _approve(address(0), tokenId);
 
         _ownedTokensCount[owner].decrement();
         _tokenOwner[tokenId] = address(0);
@@ -313,7 +317,8 @@ contract ERC721 is Context, ERC165, IERC721 {
 
         _beforeTokenTransfer(from, to, tokenId);
 
-        _clearApproval(tokenId);
+        // Clear approvals
+        _approve(address(0), tokenId);
 
         _ownedTokensCount[from].decrement();
         _ownedTokensCount[to].increment();
@@ -347,14 +352,13 @@ contract ERC721 is Context, ERC165, IERC721 {
         return (retval == _ERC721_RECEIVED);
     }
 
-    /**
-     * @dev Private function to clear current approval of a given token ID.
-     * @param tokenId uint256 ID of the token to be transferred
-     */
-    function _clearApproval(uint256 tokenId) private {
-        if (_tokenApprovals[tokenId] != address(0)) {
-            _tokenApprovals[tokenId] = address(0);
-        }
+    function _approve(address to, uint256 tokenId) private {
+        _beforeTokenApproval(to, tokenId);
+
+        _tokenApprovals[tokenId] = to;
+        emit Approval(ownerOf(tokenId), to, tokenId);
+
+        _afterTokenApproval(to, tokenId);
     }
 
     /**
@@ -388,4 +392,38 @@ contract ERC721 is Context, ERC165, IERC721 {
      * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
      */
     function _afterTokenTransfer(address from, address to, uint256 tokenId) internal virtual { }
+
+    /**
+     * @dev Hook that is called before the account approved to transfer
+     * `tokenId` changes. This includes calls to {approve} and automatic
+     * approval clears caused by {safeTransferFrom}, {transferFrom} and {_burn}.
+     *
+     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
+     */
+    function _beforeTokenApproval(address to, uint256 tokenId) internal virtual { }
+
+    /**
+     * @dev Hook that is called after the account approved to transfer
+     * `tokenId` changes. This includes calls to {approve} and automatic
+     * approval clears caused by {safeTransferFrom}, {transferFrom} and {_burn}.
+     *
+     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
+     */
+    function _afterTokenApproval(address to, uint256 tokenId) internal virtual { }
+
+    /**
+     * @dev Hook that is called before the approval status for `holder`'s
+     * `operator` changes (via {setApprovalForAll}).
+     *
+     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
+     */
+    function _beforeOperatorApproval(address holder, address operator, bool approved) internal virtual { }
+
+    /**
+     * @dev Hook that is called after the approval status for `holder`'s
+     * `operator` changes (via {setApprovalForAll}).
+     *
+     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
+     */
+    function _afterOperatorApproval(address holder, address operator, bool approved) internal virtual { }
 }
