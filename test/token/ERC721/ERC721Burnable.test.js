@@ -8,14 +8,11 @@ const { expect } = require('chai');
 const ERC721BurnableMock = contract.fromArtifact('ERC721BurnableMock');
 
 describe('ERC721Burnable', function () {
-  const [owner, newOwner, approved] = accounts;
+  const [owner, approved] = accounts;
 
   const firstTokenId = new BN(1);
   const secondTokenId = new BN(2);
-  const thirdTokenId = new BN(3);
-  const unknownTokenId = new BN(4);
-  const MOCK_URI = 'https://example.com';
-  const data = '0x42';
+  const unknownTokenId = new BN(3);
 
   beforeEach(async function () {
     this.token = await ERC721BurnableMock.new();

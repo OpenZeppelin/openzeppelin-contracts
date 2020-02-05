@@ -4,7 +4,6 @@ const { balance, constants, ether, expectRevert, send } = require('@openzeppelin
 const { expect } = require('chai');
 
 const AddressImpl = contract.fromArtifact('AddressImpl');
-const SimpleToken = contract.fromArtifact('SimpleToken');
 const EtherReceiver = contract.fromArtifact('EtherReceiverMock');
 
 describe('Address', function () {
@@ -22,7 +21,7 @@ describe('Address', function () {
     });
 
     it('should return true for contract address', async function () {
-      const contract = await SimpleToken.new();
+      const contract = await AddressImpl.new();
       expect(await this.mock.isContract(contract.address)).to.equal(true);
     });
   });
