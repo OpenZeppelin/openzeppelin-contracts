@@ -1,46 +1,103 @@
 const { accounts, contract } = require('@openzeppelin/test-environment');
 
-require('@openzeppelin/test-helpers');
-const { shouldBehaveLikeERC721PausedToken } = require('./ERC721PausedToken.behavior');
+const { BN, constants, expectRevert } = require('@openzeppelin/test-helpers');
+const { ZERO_ADDRESS } = constants;
+
+const { expect } = require('chai');
+
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
-const { shouldBehaveLikePublicRole } = require('../../behaviors/access/roles/PublicRole.behavior');
 
 const ERC721PausableMock = contract.fromArtifact('ERC721PausableMock');
 
 describe('ERC721Pausable', function () {
-  const [ creator, otherPauser, ...otherAccounts ] = accounts;
+  const [ owner, receiver, operator ] = accounts;
 
   beforeEach(async function () {
-    this.token = await ERC721PausableMock.new({ from: creator });
+    this.token = await ERC721PausableMock.new();
   });
 
-  describe('pauser role', function () {
-    beforeEach(async function () {
-      this.contract = this.token;
-      await this.contract.addPauser(otherPauser, { from: creator });
-    });
-
-    shouldBehaveLikePublicRole(creator, otherPauser, otherAccounts, 'pauser');
+  context('when token is not paused yet', function () {
+    shouldBehaveLikeERC721(accounts);
   });
 
   context('when token is paused', function () {
     beforeEach(async function () {
-      await this.token.pause({ from: creator });
+      await this.token.pause();
     });
 
-    shouldBehaveLikeERC721PausedToken(creator, otherAccounts);
-  });
+    const firstTokenId = new BN(1);
+    const mintedTokens = new BN(1);
+    const mockData = '0x42';
 
-  context('when token is not paused yet', function () {
-    shouldBehaveLikeERC721(creator, creator, otherAccounts);
-  });
+    describe('like a paused ERC721', function () {
+      beforeEach(async function () {
+        await this.token.mint(owner, firstTokenId, { from: owner });
+      });
 
-  context('when token is paused and then unpaused', function () {
-    beforeEach(async function () {
-      await this.token.pause({ from: creator });
-      await this.token.unpause({ from: creator });
+      it('reverts when trying to approve', async function () {
+        await expectRevert(
+          this.token.approve(receiver, firstTokenId, { from: owner }), 'Pausable: paused'
+        );
+      });
+
+      it('reverts when trying to setApprovalForAll', async function () {
+        await expectRevert(
+          this.token.setApprovalForAll(operator, true, { from: owner }), 'Pausable: paused'
+        );
+      });
+
+      it('reverts when trying to transferFrom', async function () {
+        await expectRevert(
+          this.token.transferFrom(owner, receiver, firstTokenId, { from: owner }), 'Pausable: paused'
+        );
+      });
+
+      it('reverts when trying to safeTransferFrom', async function () {
+        await expectRevert(
+          this.token.safeTransferFrom(owner, receiver, firstTokenId, { from: owner }), 'Pausable: paused'
+        );
+      });
+
+      it('reverts when trying to safeTransferFrom with data', async function () {
+        await expectRevert(
+          this.token.methods['safeTransferFrom(address,address,uint256,bytes)'](
+            owner, receiver, firstTokenId, mockData, { from: owner }
+          ), 'Pausable: paused'
+        );
+      });
+
+      describe('getApproved', function () {
+        it('returns approved address', async function () {
+          const approvedAccount = await this.token.getApproved(firstTokenId);
+          expect(approvedAccount).to.equal(ZERO_ADDRESS);
+        });
+      });
+
+      describe('balanceOf', function () {
+        it('returns the amount of tokens owned by the given address', async function () {
+          const balance = await this.token.balanceOf(owner);
+          expect(balance).to.be.bignumber.equal(mintedTokens);
+        });
+      });
+
+      describe('ownerOf', function () {
+        it('returns the amount of tokens owned by the given address', async function () {
+          const ownerOfToken = await this.token.ownerOf(firstTokenId);
+          expect(ownerOfToken).to.equal(owner);
+        });
+      });
+
+      describe('exists', function () {
+        it('should return token existence', async function () {
+          expect(await this.token.exists(firstTokenId)).to.equal(true);
+        });
+      });
+
+      describe('isApprovedForAll', function () {
+        it('returns the approval of the operator', async function () {
+          expect(await this.token.isApprovedForAll(owner, operator)).to.equal(false);
+        });
+      });
     });
-
-    shouldBehaveLikeERC721(creator, creator, otherAccounts);
   });
 });
