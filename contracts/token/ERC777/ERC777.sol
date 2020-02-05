@@ -187,6 +187,8 @@ contract ERC777 is Context, IERC777, IERC20 {
     function authorizeOperator(address operator) public override  {
         require(_msgSender() != operator, "ERC777: authorizing self as operator");
 
+        _beforeOperatorApproval(_msgSender(), operator, true);
+
         if (_defaultOperators[operator]) {
             delete _revokedDefaultOperators[_msgSender()][operator];
         } else {
@@ -194,6 +196,8 @@ contract ERC777 is Context, IERC777, IERC20 {
         }
 
         emit AuthorizedOperator(operator, _msgSender());
+
+        _afterOperatorApproval(_msgSender(), operator, true);
     }
 
     /**
@@ -202,6 +206,8 @@ contract ERC777 is Context, IERC777, IERC20 {
     function revokeOperator(address operator) public override  {
         require(operator != _msgSender(), "ERC777: revoking self as operator");
 
+        _beforeOperatorApproval(_msgSender(), operator, false);
+
         if (_defaultOperators[operator]) {
             _revokedDefaultOperators[_msgSender()][operator] = true;
         } else {
@@ -209,6 +215,8 @@ contract ERC777 is Context, IERC777, IERC20 {
         }
 
         emit RevokedOperator(operator, _msgSender());
+
+        _afterOperatorApproval(_msgSender(), operator, false);
     }
 
     /**
@@ -401,11 +409,15 @@ contract ERC777 is Context, IERC777, IERC20 {
     )
         private
     {
+        _beforeTokenTransfer(operator, from, to, amount);
+
         _balances[from] = _balances[from].sub(amount, "ERC777: transfer amount exceeds balance");
         _balances[to] = _balances[to].add(amount);
 
         emit Sent(operator, from, to, amount, userData, operatorData);
         emit Transfer(from, to, amount);
+
+        _afterTokenTransfer(operator, from, to, amount);
     }
 
     function _approve(address holder, address spender, uint256 value) private {
@@ -414,8 +426,12 @@ contract ERC777 is Context, IERC777, IERC20 {
         //require(holder != address(0), "ERC777: approve from the zero address");
         require(spender != address(0), "ERC777: approve to the zero address");
 
+        _beforeTokenApproval(holder, spender, value);
+
         _allowances[holder][spender] = value;
         emit Approval(holder, spender, value);
+
+        _afterTokenApproval(holder, spender, value);
     }
 
     /**
@@ -472,4 +488,76 @@ contract ERC777 is Context, IERC777, IERC20 {
             require(!to.isContract(), "ERC777: token recipient contract has no implementer for ERC777TokensRecipient");
         }
     }
+
+    /**
+     * @dev Hook that is called before any token transfer. This includes
+     * calls to {send}, {transfer}, {operatorSend}, minting and burning.
+     *
+     * Calling conditions:
+     *
+     * - when `from` and `to` are both non-zero, `from`'s `tokenId` will be
+     * transferred to `to`.
+     * - when `from` is zero, `tokenId` will be minted for `to`.
+     * - when `to` is zero, `from`'s `tokenId` will be burned.
+     * - `from` and `to` are never both zero.
+     *
+     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
+     */
+    function _beforeTokenTransfer(address operator, address from, address to, uint256 tokenId) internal virtual { }
+
+    /**
+     * @dev Hook that is called after any transfer of tokens. This includes
+     * calls to {send}, {transfer}, {operatorSend}, minting and burning.
+     *
+     * Calling conditions:
+     *
+     * - when `from` and `to` are both non-zero, `from`'s `tokenId` will be
+     * transferred to `to`.
+     * - when `from` is zero, `tokenId` was minted for `to`.
+     * - when `to` is zero, `from`'s `tokenId` was burned.
+     * - `from` and `to` are never both zero.
+     *
+     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
+     */
+    function _afterTokenTransfer(address operator, address from, address to, uint256 tokenId) internal virtual { }
+
+    /**
+     * @dev Hook that is called before any allowance change. This includes calls
+     * to {approve} and {transferFrom}.
+     *
+     * Calling conditions:
+     *
+     * - `from` and `to` are never zero.
+     *
+     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
+     */
+    function _beforeTokenApproval(address from, address to, uint256 amount) internal virtual { }
+
+    /**
+     * @dev Hook that is called after any allowance change. This includes calls
+     * to {approve} and {transferFrom}.
+     *
+     * Calling conditions:
+     *
+     * - `from` and `to` are never zero.
+     *
+     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
+     */
+    function _afterTokenApproval(address from, address to, uint256 amount) internal virtual { }
+
+    /**
+     * @dev Hook that is called before the approval status for `holder`'s
+     * `operator` changes (via {authorizeOperator}).
+     *
+     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
+     */
+    function _beforeOperatorApproval(address holder, address operator, bool approved) internal virtual { }
+
+    /**
+     * @dev Hook that is called after the approval status for `holder`'s
+     * `operator` changes (via {revokeOperator}).
+     *
+     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
+     */
+    function _afterOperatorApproval(address holder, address operator, bool approved) internal virtual { }
 }
