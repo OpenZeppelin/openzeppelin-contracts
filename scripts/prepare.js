@@ -18,8 +18,8 @@ const pkgFiles = readJSON('package.json').files;
 // Get only negated patterns.
 const ignorePatterns = pkgFiles
   .filter(pat => pat.startsWith('!'))
-// Remove the negation part and initial slash. Makes micromatch usage more intuitive.
-  .map(pat => pat.slice(1).replace(/^\//, ''));
+// Remove the negation part. Makes micromatch usage more intuitive.
+  .map(pat => pat.slice(1));
 
 const ignorePatternsSubtrees = ignorePatterns
 // Add **/* to ignore all files contained in the directories.
