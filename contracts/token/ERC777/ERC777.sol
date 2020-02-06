@@ -196,8 +196,6 @@ contract ERC777 is Context, IERC777, IERC20 {
         }
 
         emit AuthorizedOperator(operator, _msgSender());
-
-        _afterOperatorApproval(_msgSender(), operator, true);
     }
 
     /**
@@ -215,8 +213,6 @@ contract ERC777 is Context, IERC777, IERC20 {
         }
 
         emit RevokedOperator(operator, _msgSender());
-
-        _afterOperatorApproval(_msgSender(), operator, false);
     }
 
     /**
@@ -416,8 +412,6 @@ contract ERC777 is Context, IERC777, IERC20 {
 
         emit Sent(operator, from, to, amount, userData, operatorData);
         emit Transfer(from, to, amount);
-
-        _afterTokenTransfer(operator, from, to, amount);
     }
 
     function _approve(address holder, address spender, uint256 value) private {
@@ -430,8 +424,6 @@ contract ERC777 is Context, IERC777, IERC20 {
 
         _allowances[holder][spender] = value;
         emit Approval(holder, spender, value);
-
-        _afterTokenApproval(holder, spender, value);
     }
 
     /**
@@ -506,22 +498,6 @@ contract ERC777 is Context, IERC777, IERC20 {
     function _beforeTokenTransfer(address operator, address from, address to, uint256 tokenId) internal virtual { }
 
     /**
-     * @dev Hook that is called after any transfer of tokens. This includes
-     * calls to {send}, {transfer}, {operatorSend}, minting and burning.
-     *
-     * Calling conditions:
-     *
-     * - when `from` and `to` are both non-zero, `from`'s `tokenId` will be
-     * transferred to `to`.
-     * - when `from` is zero, `tokenId` was minted for `to`.
-     * - when `to` is zero, `from`'s `tokenId` was burned.
-     * - `from` and `to` are never both zero.
-     *
-     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
-     */
-    function _afterTokenTransfer(address operator, address from, address to, uint256 tokenId) internal virtual { }
-
-    /**
      * @dev Hook that is called before any allowance change. This includes calls
      * to {approve} and {transferFrom}.
      *
@@ -534,30 +510,10 @@ contract ERC777 is Context, IERC777, IERC20 {
     function _beforeTokenApproval(address from, address to, uint256 amount) internal virtual { }
 
     /**
-     * @dev Hook that is called after any allowance change. This includes calls
-     * to {approve} and {transferFrom}.
-     *
-     * Calling conditions:
-     *
-     * - `from` and `to` are never zero.
-     *
-     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
-     */
-    function _afterTokenApproval(address from, address to, uint256 amount) internal virtual { }
-
-    /**
      * @dev Hook that is called before the approval status for `holder`'s
      * `operator` changes (via {authorizeOperator}).
      *
      * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
      */
     function _beforeOperatorApproval(address holder, address operator, bool approved) internal virtual { }
-
-    /**
-     * @dev Hook that is called after the approval status for `holder`'s
-     * `operator` changes (via {revokeOperator}).
-     *
-     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
-     */
-    function _afterOperatorApproval(address holder, address operator, bool approved) internal virtual { }
 }

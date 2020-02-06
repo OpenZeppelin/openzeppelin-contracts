@@ -160,8 +160,6 @@ contract ERC20 is Context, IERC20 {
         _balances[sender] = _balances[sender].sub(amount, "ERC20: transfer amount exceeds balance");
         _balances[recipient] = _balances[recipient].add(amount);
         emit Transfer(sender, recipient, amount);
-
-        _afterTokenTransfer(sender, recipient, amount);
     }
 
     /** @dev Creates `amount` tokens and assigns them to `account`, increasing
@@ -181,8 +179,6 @@ contract ERC20 is Context, IERC20 {
         _totalSupply = _totalSupply.add(amount);
         _balances[account] = _balances[account].add(amount);
         emit Transfer(address(0), account, amount);
-
-        _afterTokenTransfer(address(0), account, amount);
     }
 
     /**
@@ -204,8 +200,6 @@ contract ERC20 is Context, IERC20 {
         _balances[account] = _balances[account].sub(amount, "ERC20: burn amount exceeds balance");
         _totalSupply = _totalSupply.sub(amount);
         emit Transfer(account, address(0), amount);
-
-        _afterTokenTransfer(account, address(0), amount);
     }
 
     /**
@@ -229,8 +223,6 @@ contract ERC20 is Context, IERC20 {
 
         _allowances[owner][spender] = amount;
         emit Approval(owner, spender, amount);
-
-        _afterTokenApproval(owner, spender, amount);
     }
 
     /**
@@ -261,22 +253,6 @@ contract ERC20 is Context, IERC20 {
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual { }
 
     /**
-     * @dev Hook that is called after any transfer of tokens. This includes
-     * minting and burning.
-     *
-     * Calling conditions:
-     *
-     * - when `from` and `to` are both non-zero, `amount` of `from`'s tokens
-     * were transferred to `to`.
-     * - when `from` is zero, `amount` tokens were minted for `to`.
-     * - when `to` is zero, `amount` of `from`'s tokens were burned.
-     * - `from` and `to` are never both zero.
-     *
-     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
-     */
-    function _afterTokenTransfer(address from, address to, uint256 amount) internal virtual { }
-
-    /**
      * @dev Hook that is called before any allowance change. This includes calls
      * to {approve} and {transferFrom}.
      *
@@ -287,16 +263,4 @@ contract ERC20 is Context, IERC20 {
      * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
      */
     function _beforeTokenApproval(address from, address to, uint256 amount) internal virtual { }
-
-    /**
-     * @dev Hook that is called after any allowance change. This includes calls
-     * to {approve} and {transferFrom}.
-     *
-     * Calling conditions:
-     *
-     * - `from` and `to` are never zero.
-     *
-     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
-     */
-    function _afterTokenApproval(address from, address to, uint256 amount) internal virtual { }
 }

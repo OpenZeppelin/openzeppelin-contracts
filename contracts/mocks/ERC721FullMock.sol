@@ -27,7 +27,11 @@ contract ERC721FullMock is ERC721Full, ERC721Burnable {
         _setBaseURI(baseURI);
     }
 
-    function _afterTokenTransfer(address from, address to, uint256 tokenId) internal virtual override(ERC721, ERC721Full) {
-        super._afterTokenTransfer(from, to, tokenId);
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal virtual override(ERC721, ERC721Full) {
+        super._beforeTokenTransfer(from, to, tokenId);
+    }
+
+    function mint(address to, uint256 tokenId) public {
+        _mint(to, tokenId);
     }
 }

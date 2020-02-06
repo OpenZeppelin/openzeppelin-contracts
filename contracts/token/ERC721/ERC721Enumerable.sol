@@ -69,8 +69,8 @@ contract ERC721Enumerable is Context, ERC165, ERC721, IERC721Enumerable {
         return _allTokens[index];
     }
 
-    function _afterTokenTransfer(address from, address to, uint256 tokenId) internal virtual override {
-        super._afterTokenTransfer(from, to, tokenId);
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal virtual override {
+        super._beforeTokenTransfer(from, to, tokenId);
 
         if (from == address(0)) {
             // When minting

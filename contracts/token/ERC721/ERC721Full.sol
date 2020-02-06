@@ -13,11 +13,11 @@ import "./ERC721Metadata.sol";
 contract ERC721Full is ERC721Enumerable, ERC721Metadata {
     constructor (string memory name, string memory symbol) public ERC721Metadata(name, symbol) { }
 
-    function _afterTokenTransfer(address from, address to, uint256 tokenId)
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId)
         virtual
         override(ERC721Enumerable, ERC721Metadata)
         internal
     {
-        super._afterTokenTransfer(from, to, tokenId);
+        super._beforeTokenTransfer(from, to, tokenId);
     }
 }

@@ -121,8 +121,6 @@ contract ERC721 is Context, ERC165, IERC721 {
 
         _operatorApprovals[_msgSender()][operator] = approved;
         emit ApprovalForAll(_msgSender(), operator, approved);
-
-        _afterOperatorApproval(_msgSender(), operator, approved);
     }
 
     /**
@@ -268,8 +266,6 @@ contract ERC721 is Context, ERC165, IERC721 {
         _ownedTokensCount[to].increment();
 
         emit Transfer(address(0), to, tokenId);
-
-        _afterTokenTransfer(address(0), to, tokenId);
     }
 
     /**
@@ -291,8 +287,6 @@ contract ERC721 is Context, ERC165, IERC721 {
         _tokenOwner[tokenId] = address(0);
 
         emit Transfer(owner, address(0), tokenId);
-
-        _afterTokenTransfer(owner, address(0), tokenId);
     }
 
     /**
@@ -326,8 +320,6 @@ contract ERC721 is Context, ERC165, IERC721 {
         _tokenOwner[tokenId] = to;
 
         emit Transfer(from, to, tokenId);
-
-        _afterTokenTransfer(from, to, tokenId);
     }
 
     /**
@@ -357,8 +349,6 @@ contract ERC721 is Context, ERC165, IERC721 {
 
         _tokenApprovals[tokenId] = to;
         emit Approval(ownerOf(tokenId), to, tokenId);
-
-        _afterTokenApproval(to, tokenId);
     }
 
     /**
@@ -378,22 +368,6 @@ contract ERC721 is Context, ERC165, IERC721 {
     function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal virtual { }
 
     /**
-     * @dev Hook that is called after any transfer of tokens. This includes
-     * minting and burning.
-     *
-     * Calling conditions:
-     *
-     * - when `from` and `to` are both non-zero, `from`'s `tokenId` will be
-     * transferred to `to`.
-     * - when `from` is zero, `tokenId` was minted for `to`.
-     * - when `to` is zero, `from`'s `tokenId` was burned.
-     * - `from` and `to` are never both zero.
-     *
-     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
-     */
-    function _afterTokenTransfer(address from, address to, uint256 tokenId) internal virtual { }
-
-    /**
      * @dev Hook that is called before the account approved to transfer
      * `tokenId` changes. This includes calls to {approve} and automatic
      * approval clears caused by {safeTransferFrom}, {transferFrom} and {_burn}.
@@ -403,27 +377,10 @@ contract ERC721 is Context, ERC165, IERC721 {
     function _beforeTokenApproval(address to, uint256 tokenId) internal virtual { }
 
     /**
-     * @dev Hook that is called after the account approved to transfer
-     * `tokenId` changes. This includes calls to {approve} and automatic
-     * approval clears caused by {safeTransferFrom}, {transferFrom} and {_burn}.
-     *
-     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
-     */
-    function _afterTokenApproval(address to, uint256 tokenId) internal virtual { }
-
-    /**
      * @dev Hook that is called before the approval status for `holder`'s
      * `operator` changes (via {setApprovalForAll}).
      *
      * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
      */
     function _beforeOperatorApproval(address holder, address operator, bool approved) internal virtual { }
-
-    /**
-     * @dev Hook that is called after the approval status for `holder`'s
-     * `operator` changes (via {setApprovalForAll}).
-     *
-     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
-     */
-    function _afterOperatorApproval(address holder, address operator, bool approved) internal virtual { }
 }
