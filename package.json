@@ -1,6 +1,6 @@
 {
   "name": "openzeppelin-solidity",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "Secure Smart Contract library for Solidity",
   "files": [
     "/contracts/**/*.sol",
@@ -42,7 +42,7 @@
   "bugs": {
     "url": "https://github.com/OpenZeppelin/openzeppelin-contracts/issues"
   },
-  "homepage": "https://github.com/OpenZeppelin/openzeppelin-contracts",
+  "homepage": "https://openzeppelin.com/contracts/",
   "devDependencies": {
     "@openzeppelin/cli": "^2.7.0-rc.2",
     "@openzeppelin/gsn-helpers": "^0.2.3",
@@ -61,11 +61,11 @@
     "ganache-core-coverage": "https://github.com/OpenZeppelin/ganache-core-coverage/releases/download/2.5.3-coverage/ganache-core-coverage-2.5.3.tgz",
     "lodash.startcase": "^4.4.0",
     "micromatch": "^4.0.2",
-    "mocha": "^7.0.0",
+    "mocha": "^7.0.1",
     "openzeppelin-docs-utils": "github:OpenZeppelin/docs-utils",
     "solhint": "^3.0.0-rc.1",
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
-    "solidity-docgen": "^0.3.13"
+    "solidity-docgen": "^0.3.14"
   },
   "dependencies": {}
 }

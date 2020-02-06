@@ -339,9 +339,28 @@ contract ERC721 is Context, ERC165, IERC721 {
         if (!to.isContract()) {
             return true;
         }
-
-        bytes4 retval = IERC721Receiver(to).onERC721Received(_msgSender(), from, tokenId, _data);
-        return (retval == _ERC721_RECEIVED);
+        // solhint-disable-next-line avoid-low-level-calls
+        (bool success, bytes memory returndata) = to.call(abi.encodeWithSelector(
+            IERC721Receiver(to).onERC721Received.selector,
+            _msgSender(),
+            from,
+            tokenId,
+            _data
+        ));
+        if (!success) {
+            if (returndata.length > 0) {
+                // solhint-disable-next-line no-inline-assembly
+                assembly {
+                    let returndata_size := mload(returndata)
+                    revert(add(32, returndata), returndata_size)
+                }
+            } else {
+                revert("ERC721: transfer to non ERC721Receiver implementer");
+            }
+        } else {
+            bytes4 retval = abi.decode(returndata, (bytes4));
+            return (retval == _ERC721_RECEIVED);
+        }
     }
 
     function _approve(address to, uint256 tokenId) private {
