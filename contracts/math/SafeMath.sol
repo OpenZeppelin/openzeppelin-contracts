@@ -29,6 +29,23 @@ library SafeMath {
 
         return c;
     }
+    
+     /**
+     * @dev Returns the addition of two unsigned integers, reverting with custom message on
+     * overflow.
+     *
+     * Counterpart to Solidity's `+` operator.
+     *
+     * Requirements:
+     * - Addition cannot overflow.
+     *
+     */
+    function add(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        uint256 c = a + b;
+        require(c >= a, errorMessage);
+
+        return c;
+    }
 
     /**
      * @dev Returns the subtraction of two unsigned integers, reverting on
