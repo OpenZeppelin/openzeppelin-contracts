@@ -34,7 +34,7 @@ contract Escrow is Secondary {
      * @dev Stores the sent amount as credit to be withdrawn.
      * @param payee The destination address of the funds.
      */
-    function deposit(address payee) public onlyPrimary virtual payable {
+    function deposit(address payee) public virtual payable onlyPrimary {
         uint256 amount = msg.value;
         _deposits[payee] = _deposits[payee].add(amount);
 
@@ -52,7 +52,7 @@ contract Escrow is Secondary {
      *
      * @param payee The address whose funds will be withdrawn and transferred to.
      */
-    function withdraw(address payable payee) public onlyPrimary virtual {
+    function withdraw(address payable payee) public virtual onlyPrimary {
         uint256 payment = _deposits[payee];
 
         _deposits[payee] = 0;
@@ -71,7 +71,7 @@ contract Escrow is Secondary {
      *
      * _Available since v2.4.0._
      */
-    function withdrawWithGas(address payable payee) public onlyPrimary virtual {
+    function withdrawWithGas(address payable payee) public virtual onlyPrimary {
         uint256 payment = _deposits[payee];
 
         _deposits[payee] = 0;

@@ -42,7 +42,7 @@ contract Secondary is Context {
      * @dev Transfers contract to a new primary.
      * @param recipient The address of new primary.
      */
-    function transferPrimary(address recipient) public onlyPrimary virtual {
+    function transferPrimary(address recipient) public virtual onlyPrimary {
         require(recipient != address(0), "Secondary: new primary is the zero address");
         _primary = recipient;
         emit PrimaryTransferred(recipient);
