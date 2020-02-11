@@ -12,7 +12,7 @@
   "scripts": {
     "compile": "scripts/compile.sh",
     "coverage": "scripts/coverage.sh",
-    "docs": "oz-docs -c docs",
+    "docs": "oz-docs",
     "docs:watch": "npm run docs watch contracts 'docs/*.hbs'",
     "prepare-docs": "scripts/prepare-docs.sh",
     "lint": "npm run lint:js && npm run lint:sol",
