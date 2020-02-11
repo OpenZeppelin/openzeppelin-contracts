@@ -24,17 +24,4 @@ contract ERC20Pausable is ERC20, Pausable {
 
         require(!paused(), "ERC20Pausable: token transfer while paused");
     }
-
-    /**
-     * @dev See {ERC20-_beforeTokenApproval}.
-     *
-     * Requirements:
-     *
-     * - the contract must not be paused.
-     */
-    function _beforeTokenApproval(address from, address to, uint256 amount) internal virtual override {
-        super._beforeTokenApproval(from, to, amount);
-
-        require(!paused(), "ERC20Pausable: token approval while paused");
-    }
 }

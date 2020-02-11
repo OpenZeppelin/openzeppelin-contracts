@@ -117,8 +117,6 @@ contract ERC721 is Context, ERC165, IERC721 {
     function setApprovalForAll(address operator, bool approved) public virtual override {
         require(operator != _msgSender(), "ERC721: approve to caller");
 
-        _beforeOperatorApproval(_msgSender(), operator, approved);
-
         _operatorApprovals[_msgSender()][operator] = approved;
         emit ApprovalForAll(_msgSender(), operator, approved);
     }
@@ -364,8 +362,6 @@ contract ERC721 is Context, ERC165, IERC721 {
     }
 
     function _approve(address to, uint256 tokenId) private {
-        _beforeTokenApproval(to, tokenId);
-
         _tokenApprovals[tokenId] = to;
         emit Approval(ownerOf(tokenId), to, tokenId);
     }
@@ -385,21 +381,4 @@ contract ERC721 is Context, ERC165, IERC721 {
      * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
      */
     function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal virtual { }
-
-    /**
-     * @dev Hook that is called before the account approved to transfer
-     * `tokenId` changes. This includes calls to {approve} and automatic
-     * approval clears caused by {safeTransferFrom}, {transferFrom} and {_burn}.
-     *
-     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
-     */
-    function _beforeTokenApproval(address to, uint256 tokenId) internal virtual { }
-
-    /**
-     * @dev Hook that is called before the approval status for `holder`'s
-     * `operator` changes (via {setApprovalForAll}).
-     *
-     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
-     */
-    function _beforeOperatorApproval(address holder, address operator, bool approved) internal virtual { }
 }

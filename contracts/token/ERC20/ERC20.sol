@@ -219,8 +219,6 @@ contract ERC20 is Context, IERC20 {
         require(owner != address(0), "ERC20: approve from the zero address");
         require(spender != address(0), "ERC20: approve to the zero address");
 
-        _beforeTokenApproval(owner, spender, amount);
-
         _allowances[owner][spender] = amount;
         emit Approval(owner, spender, amount);
     }
@@ -251,16 +249,4 @@ contract ERC20 is Context, IERC20 {
      * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
      */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual { }
-
-    /**
-     * @dev Hook that is called before any allowance change. This includes calls
-     * to {approve} and {transferFrom}.
-     *
-     * Calling conditions:
-     *
-     * - `from` and `to` are never zero.
-     *
-     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
-     */
-    function _beforeTokenApproval(address from, address to, uint256 amount) internal virtual { }
 }

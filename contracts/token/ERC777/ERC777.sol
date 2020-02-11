@@ -187,8 +187,6 @@ contract ERC777 is Context, IERC777, IERC20 {
     function authorizeOperator(address operator) public override  {
         require(_msgSender() != operator, "ERC777: authorizing self as operator");
 
-        _beforeOperatorApproval(_msgSender(), operator, true);
-
         if (_defaultOperators[operator]) {
             delete _revokedDefaultOperators[_msgSender()][operator];
         } else {
@@ -203,8 +201,6 @@ contract ERC777 is Context, IERC777, IERC20 {
      */
     function revokeOperator(address operator) public override  {
         require(operator != _msgSender(), "ERC777: revoking self as operator");
-
-        _beforeOperatorApproval(_msgSender(), operator, false);
 
         if (_defaultOperators[operator]) {
             _revokedDefaultOperators[_msgSender()][operator] = true;
@@ -420,8 +416,6 @@ contract ERC777 is Context, IERC777, IERC20 {
         //require(holder != address(0), "ERC777: approve from the zero address");
         require(spender != address(0), "ERC777: approve to the zero address");
 
-        _beforeTokenApproval(holder, spender, value);
-
         _allowances[holder][spender] = value;
         emit Approval(holder, spender, value);
     }
@@ -496,24 +490,4 @@ contract ERC777 is Context, IERC777, IERC20 {
      * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
      */
     function _beforeTokenTransfer(address operator, address from, address to, uint256 tokenId) internal virtual { }
-
-    /**
-     * @dev Hook that is called before any allowance change. This includes calls
-     * to {approve} and {transferFrom}.
-     *
-     * Calling conditions:
-     *
-     * - `from` and `to` are never zero.
-     *
-     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
-     */
-    function _beforeTokenApproval(address from, address to, uint256 amount) internal virtual { }
-
-    /**
-     * @dev Hook that is called before the approval status for `holder`'s
-     * `operator` changes (via {authorizeOperator}).
-     *
-     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
-     */
-    function _beforeOperatorApproval(address holder, address operator, bool approved) internal virtual { }
 }

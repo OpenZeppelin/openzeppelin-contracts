@@ -30,18 +30,6 @@ describe('ERC721Pausable', function () {
       await this.token.pause();
     });
 
-    it('reverts when trying to approve', async function () {
-      await expectRevert(
-        this.token.approve(receiver, firstTokenId, { from: owner }), 'ERC721Pausable: token approval while paused'
-      );
-    });
-
-    it('reverts when trying to setApprovalForAll', async function () {
-      await expectRevert(
-        this.token.setApprovalForAll(operator, true, { from: owner }), 'ERC721Pausable: operator approval while paused'
-      );
-    });
-
     it('reverts when trying to transferFrom', async function () {
       await expectRevert(
         this.token.transferFrom(owner, receiver, firstTokenId, { from: owner }),
