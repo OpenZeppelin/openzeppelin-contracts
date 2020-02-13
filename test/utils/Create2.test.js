@@ -38,7 +38,9 @@ describe('Create2', function () {
 
   it('should compute the correct contract address with deployer and bytecode hash', async function () {
     const onChainComputed = await this.factory
-    .methods['computeAddress(bytes32,bytes32,address)'](saltHex, web3.utils.keccak256(constructorByteCode), deployerAccount);
+      .methods['computeAddress(bytes32,bytes32,address)'](
+        saltHex, web3.utils.keccak256(constructorByteCode), deployerAccount
+      );
     const offChainComputed =
       computeCreate2Address(saltHex, constructorByteCode, deployerAccount);
     expect(onChainComputed).to.equal(offChainComputed);
