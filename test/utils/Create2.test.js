@@ -7,7 +7,7 @@ const Create2Impl = contract.fromArtifact('Create2Impl');
 const ERC20Mock = contract.fromArtifact('ERC20Mock');
 const ERC20 = contract.fromArtifact('ERC20');
 
-describe('Create2', function () {
+describe.only('Create2', function () {
   const [deployerAccount] = accounts;
 
   const salt = 'salt message';
@@ -30,7 +30,15 @@ describe('Create2', function () {
 
   it('should compute the correct contract address with deployer', async function () {
     const onChainComputed = await this.factory
-      .computeAddress(saltHex, constructorByteCode, deployerAccount);
+      .methods['computeAddress(bytes32,bytes,address)'](saltHex, constructorByteCode, deployerAccount);
+    const offChainComputed =
+      computeCreate2Address(saltHex, constructorByteCode, deployerAccount);
+    expect(onChainComputed).to.equal(offChainComputed);
+  });
+
+  it('should compute the correct contract address with deployer and bytecode hash', async function () {
+    const onChainComputed = await this.factory
+    .methods['computeAddress(bytes32,bytes32,address)'](saltHex, web3.utils.keccak256(constructorByteCode), deployerAccount);
     const offChainComputed =
       computeCreate2Address(saltHex, constructorByteCode, deployerAccount);
     expect(onChainComputed).to.equal(offChainComputed);

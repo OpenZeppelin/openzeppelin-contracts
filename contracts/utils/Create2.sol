@@ -39,10 +39,17 @@ library Create2 {
      * @dev Returns the address where a contract will be stored if deployed via {deploy} from a contract located at
      * `deployer`. If `deployer` is this contract's address, returns the same value as {computeAddress}.
      */
-    function computeAddress(bytes32 salt, bytes memory bytecodeHash, address deployer) internal pure returns (address) {
-        bytes32 bytecodeHashHash = keccak256(bytecodeHash);
+    function computeAddress(bytes32 salt, bytes memory bytecode, address deployer) internal pure returns (address) {
+        return computeAddress(salt, keccak256(bytecode), deployer);
+    }
+
+    /**
+     * @dev Returns the address where a contract will be stored if deployed via {deploy} from a contract located at
+     * `deployer`. If `deployer` is this contract's address, returns the same value as {computeAddress}.
+     */
+    function computeAddress(bytes32 salt, bytes32 bytecodeHash, address deployer) internal pure returns (address) {
         bytes32 _data = keccak256(
-            abi.encodePacked(bytes1(0xff), deployer, salt, bytecodeHashHash)
+            abi.encodePacked(bytes1(0xff), deployer, salt, bytecodeHash)
         );
         return address(bytes20(_data << 96));
     }
