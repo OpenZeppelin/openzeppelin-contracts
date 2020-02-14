@@ -7,7 +7,7 @@ const Create2Impl = contract.fromArtifact('Create2Impl');
 const ERC20Mock = contract.fromArtifact('ERC20Mock');
 const ERC20 = contract.fromArtifact('ERC20');
 
-describe.only('Create2', function () {
+describe('Create2', function () {
   const [deployerAccount] = accounts;
 
   const salt = 'salt message';
