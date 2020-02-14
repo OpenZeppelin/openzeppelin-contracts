@@ -100,6 +100,22 @@ elif [[ "$*" == "start minor" ]]; then
 
   push_and_publish next
 
+elif [[ "$*" == "start major" ]]; then
+  log "Creating new major pre-release"
+
+  assert_current_branch master
+
+  # Create temporary release branch
+  git checkout -b release-temp
+
+  # This bumps major and adds prerelease suffix, commits the changes, and tags the commit
+  npm version premajor --preid="$PRERELEASE_SUFFIX"
+
+  # Rename the release branch
+  git branch --move "$(current_release_branch)"
+
+  push_and_publish next
+
 elif [[ "$*" == "rc" ]]; then
   log "Bumping pre-release"
 
