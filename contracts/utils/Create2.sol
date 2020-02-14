@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 /**
  * @dev Helper to make usage of the `CREATE2` EVM opcode easier and safer.

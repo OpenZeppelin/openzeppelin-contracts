@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "../../token/ERC20/IERC20.sol";
 
@@ -18,7 +18,7 @@ contract ERC20Metadata {
         return _tokenURI;
     }
 
-    function _setTokenURI(string memory tokenURI_) internal {
+    function _setTokenURI(string memory tokenURI_) internal virtual {
         _tokenURI = tokenURI_;
     }
 }

@@ -9,6 +9,8 @@
 ** xref:erc721.adoc[ERC721]
 ** xref:erc777.adoc[ERC777]
 
+* xref:using-hooks.adoc[Using Hooks]
+
 * xref:gsn.adoc[Gas Station Network]
 ** xref:gsn-strategies.adoc[Strategies]
 

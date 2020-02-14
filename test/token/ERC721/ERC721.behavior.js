@@ -8,8 +8,6 @@ const ERC721Mock = contract.fromArtifact('ERC721Mock');
 const ERC721ReceiverMock = contract.fromArtifact('ERC721ReceiverMock');
 
 function shouldBehaveLikeERC721 (
-  creator,
-  minter,
   [owner, approved, anotherApproved, operator, other]
 ) {
   const firstTokenId = new BN(1);
@@ -19,8 +17,8 @@ function shouldBehaveLikeERC721 (
 
   describe('like an ERC721', function () {
     beforeEach(async function () {
-      await this.token.mint(owner, firstTokenId, { from: minter });
-      await this.token.mint(owner, secondTokenId, { from: minter });
+      await this.token.mint(owner, firstTokenId);
+      await this.token.mint(owner, secondTokenId);
       this.toWhom = other; // default to anyone for toWhom in context-dependent tests
     });
 
@@ -593,7 +591,7 @@ function shouldBehaveLikeERC721 (
       context('when token is not minted', async function () {
         it('reverts', async function () {
           await expectRevert(
-            this.token.getApproved(unknownTokenId, { from: minter }),
+            this.token.getApproved(unknownTokenId),
             'ERC721: approved query for nonexistent token'
           );
         });

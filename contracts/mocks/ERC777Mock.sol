@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "../GSN/Context.sol";
 import "../token/ERC777/ERC777.sol";

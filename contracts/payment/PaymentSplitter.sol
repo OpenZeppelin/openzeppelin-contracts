@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "../GSN/Context.sol";
 import "../math/SafeMath.sol";
@@ -56,7 +56,7 @@ contract PaymentSplitter is Context {
      * https://solidity.readthedocs.io/en/latest/contracts.html#fallback-function[fallback
      * functions].
      */
-    function () external payable {
+    receive () external payable virtual {
         emit PaymentReceived(_msgSender(), msg.value);
     }
 
@@ -99,7 +99,7 @@ contract PaymentSplitter is Context {
      * @dev Triggers a transfer to `account` of the amount of Ether they are owed, according to their percentage of the
      * total shares and their previous withdrawals.
      */
-    function release(address payable account) public {
+    function release(address payable account) public virtual {
         require(_shares[account] > 0, "PaymentSplitter: account has no shares");
 
         uint256 totalReceived = address(this).balance.add(_totalReleased);

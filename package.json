@@ -44,7 +44,7 @@
   },
   "homepage": "https://openzeppelin.com/contracts/",
   "devDependencies": {
-    "@openzeppelin/cli": "^2.5.3",
+    "@openzeppelin/cli": "^2.7.0-rc.2",
     "@openzeppelin/gsn-helpers": "^0.2.3",
     "@openzeppelin/gsn-provider": "^0.1.9",
     "@openzeppelin/test-environment": "^0.1.2",
@@ -63,7 +63,7 @@
     "micromatch": "^4.0.2",
     "mocha": "^7.0.1",
     "openzeppelin-docs-utils": "github:OpenZeppelin/docs-utils",
-    "solhint": "2.3.0",
+    "solhint": "^3.0.0-rc.2",
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
     "solidity-docgen": "^0.3.14"
   },

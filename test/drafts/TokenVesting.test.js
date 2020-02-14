@@ -5,7 +5,7 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const ERC20Mintable = contract.fromArtifact('ERC20Mintable');
+const ERC20Mock = contract.fromArtifact('ERC20Mock');
 const TokenVesting = contract.fromArtifact('TokenVesting');
 
 describe('TokenVesting', function () {
@@ -61,8 +61,7 @@ describe('TokenVesting', function () {
       this.vesting = await TokenVesting.new(
         beneficiary, this.start, this.cliffDuration, this.duration, true, { from: owner });
 
-      this.token = await ERC20Mintable.new({ from: owner });
-      await this.token.mint(this.vesting.address, amount, { from: owner });
+      this.token = await ERC20Mock.new(this.vesting.address, amount);
     });
 
     it('can get state', async function () {

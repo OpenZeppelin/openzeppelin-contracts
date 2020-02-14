@@ -1,7 +1,6 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "../GSN/Context.sol";
-import "../access/roles/PauserRole.sol";
 
 /**
  * @dev Contract module which allows children to implement an emergency stop
@@ -12,7 +11,7 @@ import "../access/roles/PauserRole.sol";
  * the functions of your contract. Note that they will not be pausable by
  * simply including this module, only once the modifiers are put in place.
  */
-contract Pausable is Context, PauserRole {
+contract Pausable is Context {
     /**
      * @dev Emitted when the pause is triggered by a pauser (`account`).
      */
@@ -59,7 +58,7 @@ contract Pausable is Context, PauserRole {
     /**
      * @dev Called by a pauser to pause, triggers stopped state.
      */
-    function pause() public onlyPauser whenNotPaused {
+    function _pause() internal virtual whenNotPaused {
         _paused = true;
         emit Paused(_msgSender());
     }
@@ -67,7 +66,7 @@ contract Pausable is Context, PauserRole {
     /**
      * @dev Called by a pauser to unpause, returns to normal state.
      */
-    function unpause() public onlyPauser whenPaused {
+    function _unpause() internal virtual whenPaused {
         _paused = false;
         emit Unpaused(_msgSender());
     }

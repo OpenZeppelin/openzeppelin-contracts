@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "../GSN/Context.sol";
 /**
@@ -42,7 +42,7 @@ contract Secondary is Context {
      * @dev Transfers contract to a new primary.
      * @param recipient The address of new primary.
      */
-    function transferPrimary(address recipient) public onlyPrimary {
+    function transferPrimary(address recipient) public virtual onlyPrimary {
         require(recipient != address(0), "Secondary: new primary is the zero address");
         _primary = recipient;
         emit PrimaryTransferred(recipient);

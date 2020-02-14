@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "../../GSN/Context.sol";
 import "./ERC20.sol";
@@ -14,14 +14,14 @@ contract ERC20Burnable is Context, ERC20 {
      *
      * See {ERC20-_burn}.
      */
-    function burn(uint256 amount) public {
+    function burn(uint256 amount) public virtual {
         _burn(_msgSender(), amount);
     }
 
     /**
      * @dev See {ERC20-_burnFrom}.
      */
-    function burnFrom(address account, uint256 amount) public {
+    function burnFrom(address account, uint256 amount) public virtual {
         _burnFrom(account, amount);
     }
 }

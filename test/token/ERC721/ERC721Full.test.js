@@ -9,14 +9,7 @@ const { shouldSupportInterfaces } = require('../../introspection/SupportsInterfa
 const ERC721FullMock = contract.fromArtifact('ERC721FullMock');
 
 describe('ERC721Full', function () {
-  const [ creator, ...otherAccounts ] = accounts;
-  const minter = creator;
-
-  const [
-    owner,
-    newOwner,
-    other,
-  ] = otherAccounts;
+  const [owner, newOwner, other ] = accounts;
 
   const name = 'Non Fungible Token';
   const symbol = 'NFT';
@@ -26,18 +19,18 @@ describe('ERC721Full', function () {
   const nonExistentTokenId = new BN(999);
 
   beforeEach(async function () {
-    this.token = await ERC721FullMock.new(name, symbol, { from: creator });
+    this.token = await ERC721FullMock.new(name, symbol);
   });
 
   describe('like a full ERC721', function () {
     beforeEach(async function () {
-      await this.token.mint(owner, firstTokenId, { from: minter });
-      await this.token.mint(owner, secondTokenId, { from: minter });
+      await this.token.mint(owner, firstTokenId);
+      await this.token.mint(owner, secondTokenId);
     });
 
     describe('mint', function () {
       beforeEach(async function () {
-        await this.token.mint(newOwner, thirdTokenId, { from: minter });
+        await this.token.mint(newOwner, thirdTokenId);
       });
 
       it('adjusts owner tokens by index', async function () {
@@ -228,8 +221,8 @@ describe('ERC721Full', function () {
           const anotherNewTokenId = new BN(400);
 
           await this.token.burn(tokenId, { from: owner });
-          await this.token.mint(newOwner, newTokenId, { from: minter });
-          await this.token.mint(newOwner, anotherNewTokenId, { from: minter });
+          await this.token.mint(newOwner, newTokenId);
+          await this.token.mint(newOwner, anotherNewTokenId);
 
           expect(await this.token.totalSupply()).to.be.bignumber.equal('3');
 
@@ -245,7 +238,7 @@ describe('ERC721Full', function () {
     });
   });
 
-  shouldBehaveLikeERC721(creator, minter, otherAccounts);
+  shouldBehaveLikeERC721(accounts);
 
   shouldSupportInterfaces([
     'ERC165',

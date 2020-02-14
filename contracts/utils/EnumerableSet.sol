@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 /**
  * @dev Library for managing
@@ -36,8 +36,11 @@ library EnumerableSet {
         internal
         returns (bool)
     {
-        if (!contains(set, value)){
-            set.index[value] = set.values.push(value);
+        if (!contains(set, value)) {
+            set.values.push(value);
+            // The element is stored at length-1, but we add 1 to all indexes
+            // and use 0 as a sentinel value
+            set.index[value] = set.values.length;
             return true;
         } else {
             return false;
