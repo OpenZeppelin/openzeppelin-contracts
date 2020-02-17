@@ -146,7 +146,7 @@ interface IERC777 {
     ) external;
 
     /**
-     * @dev Destoys `amount` tokens from `account`, reducing the total supply.
+     * @dev Destroys `amount` tokens from `account`, reducing the total supply.
      * The caller must be an operator of `account`.
      *
      * If a send hook is registered for `account`, the corresponding function
