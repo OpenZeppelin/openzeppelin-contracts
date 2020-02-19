@@ -12,11 +12,11 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
     // Token symbol
     string private _symbol;
 
-    // Base URI
-    string private _baseURI;
-
     // Optional mapping for token URIs
     mapping(uint256 => string) private _tokenURIs;
+
+    // Base URI
+    string private _baseURI;
 
     /*
      *     bytes4(keccak256('name()')) == 0x06fdde03
