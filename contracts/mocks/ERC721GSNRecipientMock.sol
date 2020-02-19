@@ -1,18 +1,25 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "../token/ERC721/ERC721.sol";
 import "../GSN/GSNRecipient.sol";
-import "../GSN/bouncers/GSNBouncerSignature.sol";
+import "../GSN/GSNRecipientSignature.sol";
 
 /**
  * @title ERC721GSNRecipientMock
  * A simple ERC721 mock that has GSN support enabled
  */
-contract ERC721GSNRecipientMock is ERC721, GSNRecipient, GSNBouncerSignature {
-    constructor(address trustedSigner) public GSNBouncerSignature(trustedSigner) { }
-    // solhint-disable-previous-line no-empty-blocks
+contract ERC721GSNRecipientMock is ERC721, GSNRecipient, GSNRecipientSignature {
+    constructor(address trustedSigner) public GSNRecipientSignature(trustedSigner) { }
 
     function mint(uint256 tokenId) public {
         _mint(_msgSender(), tokenId);
+    }
+
+    function _msgSender() internal view override(Context, GSNRecipient) returns (address payable) {
+        return GSNRecipient._msgSender();
+    }
+
+    function _msgData() internal view override(Context, GSNRecipient) returns (bytes memory) {
+        return GSNRecipient._msgData();
     }
 }

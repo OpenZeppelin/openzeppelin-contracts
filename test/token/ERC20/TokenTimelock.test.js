@@ -1,16 +1,20 @@
-const { BN, expectRevert, time } = require('openzeppelin-test-helpers');
+const { accounts, contract } = require('@openzeppelin/test-environment');
+
+const { BN, expectRevert, time } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ERC20Mintable = artifacts.require('ERC20Mintable');
-const TokenTimelock = artifacts.require('TokenTimelock');
+const ERC20Mock = contract.fromArtifact('ERC20Mock');
+const TokenTimelock = contract.fromArtifact('TokenTimelock');
 
-contract('TokenTimelock', function ([_, minter, beneficiary]) {
+describe('TokenTimelock', function () {
+  const [ beneficiary ] = accounts;
+
   const amount = new BN(100);
 
   context('with token', function () {
     beforeEach(async function () {
-      this.token = await ERC20Mintable.new({ from: minter });
+      this.token = await ERC20Mock.new(beneficiary, 0); // We're not using the preminted tokens
     });
 
     it('rejects a release time in the past', async function () {
@@ -25,7 +29,7 @@ contract('TokenTimelock', function ([_, minter, beneficiary]) {
       beforeEach(async function () {
         this.releaseTime = (await time.latest()).add(time.duration.years(1));
         this.timelock = await TokenTimelock.new(this.token.address, beneficiary, this.releaseTime);
-        await this.token.mint(this.timelock.address, amount, { from: minter });
+        await this.token.mint(this.timelock.address, amount);
       });
 
       it('can get state', async function () {

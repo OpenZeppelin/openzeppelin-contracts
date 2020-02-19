@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 /**
  * @dev Interface of the ERC777Token standard as defined in the EIP.
@@ -146,7 +146,7 @@ interface IERC777 {
     ) external;
 
     /**
-     * @dev Destoys `amount` tokens from `account`, reducing the total supply.
+     * @dev Destroys `amount` tokens from `account`, reducing the total supply.
      * The caller must be an operator of `account`.
      *
      * If a send hook is registered for `account`, the corresponding function

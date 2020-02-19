@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "../../GSN/Context.sol";
 import "./IERC721Enumerable.sol";
@@ -45,7 +45,7 @@ contract ERC721Enumerable is Context, ERC165, ERC721, IERC721Enumerable {
      * @param index uint256 representing the index to be accessed of the requested tokens list
      * @return uint256 token ID at the given index of the tokens list owned by the requested address
      */
-    function tokenOfOwnerByIndex(address owner, uint256 index) public view returns (uint256) {
+    function tokenOfOwnerByIndex(address owner, uint256 index) public view override returns (uint256) {
         require(index < balanceOf(owner), "ERC721Enumerable: owner index out of bounds");
         return _ownedTokens[owner][index];
     }
@@ -54,7 +54,7 @@ contract ERC721Enumerable is Context, ERC165, ERC721, IERC721Enumerable {
      * @dev Gets the total amount of tokens stored by the contract.
      * @return uint256 representing the total amount of tokens
      */
-    function totalSupply() public view returns (uint256) {
+    function totalSupply() public view override returns (uint256) {
         return _allTokens.length;
     }
 
@@ -64,55 +64,29 @@ contract ERC721Enumerable is Context, ERC165, ERC721, IERC721Enumerable {
      * @param index uint256 representing the index to be accessed of the tokens list
      * @return uint256 token ID at the given index of the tokens list
      */
-    function tokenByIndex(uint256 index) public view returns (uint256) {
+    function tokenByIndex(uint256 index) public view override returns (uint256) {
         require(index < totalSupply(), "ERC721Enumerable: global index out of bounds");
         return _allTokens[index];
     }
 
-    /**
-     * @dev Internal function to transfer ownership of a given token ID to another address.
-     * As opposed to transferFrom, this imposes no restrictions on msg.sender.
-     * @param from current owner of the token
-     * @param to address to receive the ownership of the given token ID
-     * @param tokenId uint256 ID of the token to be transferred
-     */
-    function _transferFrom(address from, address to, uint256 tokenId) internal {
-        super._transferFrom(from, to, tokenId);
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal virtual override {
+        super._beforeTokenTransfer(from, to, tokenId);
 
-        _removeTokenFromOwnerEnumeration(from, tokenId);
+        if (from == address(0)) {
+            // When minting
+            _addTokenToOwnerEnumeration(to, tokenId);
+            _addTokenToAllTokensEnumeration(tokenId);
+        } else if (to == address(0)) {
+            // When burning
+            _removeTokenFromOwnerEnumeration(from, tokenId);
+            // Since tokenId will be deleted, we can clear its slot in _ownedTokensIndex to trigger a gas refund
+            _ownedTokensIndex[tokenId] = 0;
 
-        _addTokenToOwnerEnumeration(to, tokenId);
-    }
-
-    /**
-     * @dev Internal function to mint a new token.
-     * Reverts if the given token ID already exists.
-     * @param to address the beneficiary that will own the minted token
-     * @param tokenId uint256 ID of the token to be minted
-     */
-    function _mint(address to, uint256 tokenId) internal {
-        super._mint(to, tokenId);
-
-        _addTokenToOwnerEnumeration(to, tokenId);
-
-        _addTokenToAllTokensEnumeration(tokenId);
-    }
-
-    /**
-     * @dev Internal function to burn a specific token.
-     * Reverts if the token does not exist.
-     * Deprecated, use {ERC721-_burn} instead.
-     * @param owner owner of the token to burn
-     * @param tokenId uint256 ID of the token being burned
-     */
-    function _burn(address owner, uint256 tokenId) internal {
-        super._burn(owner, tokenId);
-
-        _removeTokenFromOwnerEnumeration(owner, tokenId);
-        // Since tokenId will be deleted, we can clear its slot in _ownedTokensIndex to trigger a gas refund
-        _ownedTokensIndex[tokenId] = 0;
-
-        _removeTokenFromAllTokensEnumeration(tokenId);
+            _removeTokenFromAllTokensEnumeration(tokenId);
+        } else {
+            _removeTokenFromOwnerEnumeration(from, tokenId);
+            _addTokenToOwnerEnumeration(to, tokenId);
+        }
     }
 
     /**
@@ -166,8 +140,8 @@ contract ERC721Enumerable is Context, ERC165, ERC721, IERC721Enumerable {
             _ownedTokensIndex[lastTokenId] = tokenIndex; // Update the moved token's index
         }
 
-        // This also deletes the contents at the last position of the array
-        _ownedTokens[from].length--;
+        // Deletes the contents at the last position of the array
+        _ownedTokens[from].pop();
 
         // Note that _ownedTokensIndex[tokenId] hasn't been cleared: it still points to the old slot (now occupied by
         // lastTokenId, or just over the end of the array if the token was the last one).
@@ -193,8 +167,9 @@ contract ERC721Enumerable is Context, ERC165, ERC721, IERC721Enumerable {
         _allTokens[tokenIndex] = lastTokenId; // Move the last token to the slot of the to-delete token
         _allTokensIndex[lastTokenId] = tokenIndex; // Update the moved token's index
 
-        // This also deletes the contents at the last position of the array
-        _allTokens.length--;
+        // Delete the contents at the last position of the array
+        _allTokens.pop();
+
         _allTokensIndex[tokenId] = 0;
     }
 }

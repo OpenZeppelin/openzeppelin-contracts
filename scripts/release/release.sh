@@ -81,7 +81,10 @@ environment_check() {
 
 environment_check
 
-if [[ "$*" == "start minor" ]]; then
+if [[ "$*" == "push" ]]; then
+  push_and_publish next
+
+elif [[ "$*" == "start minor" ]]; then
   log "Creating new minor pre-release"
 
   assert_current_branch master
@@ -91,6 +94,22 @@ if [[ "$*" == "start minor" ]]; then
 
   # This bumps minor and adds prerelease suffix, commits the changes, and tags the commit
   npm version preminor --preid="$PRERELEASE_SUFFIX"
+
+  # Rename the release branch
+  git branch --move "$(current_release_branch)"
+
+  push_and_publish next
+
+elif [[ "$*" == "start major" ]]; then
+  log "Creating new major pre-release"
+
+  assert_current_branch master
+
+  # Create temporary release branch
+  git checkout -b release-temp
+
+  # This bumps major and adds prerelease suffix, commits the changes, and tags the commit
+  npm version premajor --preid="$PRERELEASE_SUFFIX"
 
   # Rename the release branch
   git branch --move "$(current_release_branch)"

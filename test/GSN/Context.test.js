@@ -1,11 +1,15 @@
-require('openzeppelin-test-helpers');
+const { accounts, contract } = require('@openzeppelin/test-environment');
 
-const ContextMock = artifacts.require('ContextMock');
-const ContextMockCaller = artifacts.require('ContextMockCaller');
+require('@openzeppelin/test-helpers');
+
+const ContextMock = contract.fromArtifact('ContextMock');
+const ContextMockCaller = contract.fromArtifact('ContextMockCaller');
 
 const { shouldBehaveLikeRegularContext } = require('./Context.behavior');
 
-contract('Context', function ([_, sender]) {
+describe('Context', function () {
+  const [ sender ] = accounts;
+
   beforeEach(async function () {
     this.context = await ContextMock.new();
     this.caller = await ContextMockCaller.new();

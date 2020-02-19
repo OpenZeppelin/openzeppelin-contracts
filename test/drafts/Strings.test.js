@@ -1,10 +1,11 @@
-const { constants } = require('openzeppelin-test-helpers');
+const { contract } = require('@openzeppelin/test-environment');
+const { constants } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const StringsMock = artifacts.require('StringsMock');
+const StringsMock = contract.fromArtifact('StringsMock');
 
-contract('Strings', function () {
+describe('Strings', function () {
   beforeEach(async function () {
     this.strings = await StringsMock.new();
   });

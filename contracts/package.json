@@ -1,15 +1,16 @@
 {
   "name": "@openzeppelin/contracts",
-  "version": "2.3.0",
+  "version": "2.5.0",
   "description": "Secure Smart Contract library for Solidity",
   "files": [
     "**/*.sol",
-    "/build/*.json",
+    "/build/contracts/*.json",
     "!/mocks",
     "!/examples"
   ],
   "scripts": {
-    "prepare": "bash ../scripts/prepare-contracts-package.sh"
+    "prepare": "bash ../scripts/prepare-contracts-package.sh",
+    "prepare-docs": "cd ..; npm run prepare-docs"
   },
   "repository": {
     "type": "git",
@@ -28,5 +29,5 @@
   "bugs": {
     "url": "https://github.com/OpenZeppelin/openzeppelin-contracts/issues"
   },
-  "homepage": "https://github.com/OpenZeppelin/openzeppelin-contracts"
+  "homepage": "https://openzeppelin.com/contracts/"
 }

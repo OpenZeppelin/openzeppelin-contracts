@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "../utils/Address.sol";
 
@@ -10,4 +10,11 @@ contract AddressImpl {
     function toPayable(address account) external pure returns (address payable) {
         return Address.toPayable(account);
     }
+
+    function sendValue(address payable receiver, uint256 amount) external {
+        Address.sendValue(receiver, amount);
+    }
+
+    // sendValue's tests require the contract to hold Ether
+    receive () external payable { }
 }

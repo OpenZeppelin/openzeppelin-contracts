@@ -1,15 +1,15 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 /**
  * @dev Base interface for a contract that will be called via the GSN from {IRelayHub}.
  *
  * TIP: You don't need to write an implementation yourself! Inherit from {GSNRecipient} instead.
  */
-contract IRelayRecipient {
+interface IRelayRecipient {
     /**
      * @dev Returns the address of the {IRelayHub} instance this recipient interacts with.
      */
-    function getHubAddr() public view returns (address);
+    function getHubAddr() external view returns (address);
 
     /**
      * @dev Called by {IRelayHub} to validate if this recipient accepts being charged for a relayed call. Note that the

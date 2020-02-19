@@ -1,17 +1,21 @@
-const { BN, constants, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
+const { accounts, contract } = require('@openzeppelin/test-environment');
+
+const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
-const ERC721Mock = artifacts.require('ERC721Mock.sol');
+const ERC721Mock = contract.fromArtifact('ERC721Mock');
 
-contract('ERC721', function ([_, creator, owner, other, ...accounts]) {
+describe('ERC721', function () {
+  const [ owner, other ] = accounts;
+
   beforeEach(async function () {
-    this.token = await ERC721Mock.new({ from: creator });
+    this.token = await ERC721Mock.new();
   });
 
-  shouldBehaveLikeERC721(creator, creator, accounts);
+  shouldBehaveLikeERC721(accounts);
 
   describe('internal functions', function () {
     const tokenId = new BN('5042');

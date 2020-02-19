@@ -1,15 +1,16 @@
-const { BN, expectRevert } = require('openzeppelin-test-helpers');
+const { accounts, contract } = require('@openzeppelin/test-environment');
+
+const { BN, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 
-const ERC721FullMock = artifacts.require('ERC721FullMock.sol');
+const ERC721FullMock = contract.fromArtifact('ERC721FullMock');
 
-contract('ERC721Full', function ([
-  creator,
-  ...accounts
-]) {
+describe('ERC721Full', function () {
+  const [owner, newOwner, other ] = accounts;
+
   const name = 'Non Fungible Token';
   const symbol = 'NFT';
   const firstTokenId = new BN(100);
@@ -17,27 +18,19 @@ contract('ERC721Full', function ([
   const thirdTokenId = new BN(300);
   const nonExistentTokenId = new BN(999);
 
-  const minter = creator;
-
-  const [
-    owner,
-    newOwner,
-    other,
-  ] = accounts;
-
   beforeEach(async function () {
-    this.token = await ERC721FullMock.new(name, symbol, { from: creator });
+    this.token = await ERC721FullMock.new(name, symbol);
   });
 
   describe('like a full ERC721', function () {
     beforeEach(async function () {
-      await this.token.mint(owner, firstTokenId, { from: minter });
-      await this.token.mint(owner, secondTokenId, { from: minter });
+      await this.token.mint(owner, firstTokenId);
+      await this.token.mint(owner, secondTokenId);
     });
 
     describe('mint', function () {
       beforeEach(async function () {
-        await this.token.mint(newOwner, thirdTokenId, { from: minter });
+        await this.token.mint(newOwner, thirdTokenId);
       });
 
       it('adjusts owner tokens by index', async function () {
@@ -72,8 +65,6 @@ contract('ERC721Full', function ([
     });
 
     describe('metadata', function () {
-      const sampleUri = 'mock://mytoken';
-
       it('has a name', async function () {
         expect(await this.token.name()).to.be.equal(name);
       });
@@ -82,31 +73,68 @@ contract('ERC721Full', function ([
         expect(await this.token.symbol()).to.be.equal(symbol);
       });
 
-      it('sets and returns metadata for a token id', async function () {
-        await this.token.setTokenURI(firstTokenId, sampleUri);
-        expect(await this.token.tokenURI(firstTokenId)).to.be.equal(sampleUri);
-      });
+      describe('token URI', function () {
+        const baseURI = 'https://api.com/v1/';
+        const sampleUri = 'mock://mytoken';
 
-      it('reverts when setting metadata for non existent token id', async function () {
-        await expectRevert(
-          this.token.setTokenURI(nonExistentTokenId, sampleUri), 'ERC721Metadata: URI set of nonexistent token'
-        );
-      });
+        it('it is empty by default', async function () {
+          expect(await this.token.tokenURI(firstTokenId)).to.be.equal('');
+        });
 
-      it('can burn token with metadata', async function () {
-        await this.token.setTokenURI(firstTokenId, sampleUri);
-        await this.token.burn(firstTokenId, { from: owner });
-        expect(await this.token.exists(firstTokenId)).to.equal(false);
-      });
+        it('reverts when queried for non existent token id', async function () {
+          await expectRevert(
+            this.token.tokenURI(nonExistentTokenId), 'ERC721Metadata: URI query for nonexistent token'
+          );
+        });
 
-      it('returns empty metadata for token', async function () {
-        expect(await this.token.tokenURI(firstTokenId)).to.be.equal('');
-      });
+        it('can be set for a token id', async function () {
+          await this.token.setTokenURI(firstTokenId, sampleUri);
+          expect(await this.token.tokenURI(firstTokenId)).to.be.equal(sampleUri);
+        });
 
-      it('reverts when querying metadata for non existent token id', async function () {
-        await expectRevert(
-          this.token.tokenURI(nonExistentTokenId), 'ERC721Metadata: URI query for nonexistent token'
-        );
+        it('reverts when setting for non existent token id', async function () {
+          await expectRevert(
+            this.token.setTokenURI(nonExistentTokenId, sampleUri), 'ERC721Metadata: URI set of nonexistent token'
+          );
+        });
+
+        it('base URI can be set', async function () {
+          await this.token.setBaseURI(baseURI);
+          expect(await this.token.baseURI()).to.equal(baseURI);
+        });
+
+        it('base URI is added as a prefix to the token URI', async function () {
+          await this.token.setBaseURI(baseURI);
+          await this.token.setTokenURI(firstTokenId, sampleUri);
+
+          expect(await this.token.tokenURI(firstTokenId)).to.be.equal(baseURI + sampleUri);
+        });
+
+        it('token URI can be changed by changing the base URI', async function () {
+          await this.token.setBaseURI(baseURI);
+          await this.token.setTokenURI(firstTokenId, sampleUri);
+
+          const newBaseURI = 'https://api.com/v2/';
+          await this.token.setBaseURI(newBaseURI);
+          expect(await this.token.tokenURI(firstTokenId)).to.be.equal(newBaseURI + sampleUri);
+        });
+
+        it('token URI is empty for tokens with no URI but with base URI', async function () {
+          await this.token.setBaseURI(baseURI);
+
+          expect(await this.token.tokenURI(firstTokenId)).to.be.equal('');
+        });
+
+        it('tokens with URI can be burnt ', async function () {
+          await this.token.setTokenURI(firstTokenId, sampleUri);
+
+          await this.token.burn(firstTokenId, { from: owner });
+
+          expect(await this.token.exists(firstTokenId)).to.equal(false);
+          await expectRevert(
+            this.token.tokenURI(firstTokenId), 'ERC721Metadata: URI query for nonexistent token'
+          );
+        });
       });
     });
 
@@ -193,8 +221,8 @@ contract('ERC721Full', function ([
           const anotherNewTokenId = new BN(400);
 
           await this.token.burn(tokenId, { from: owner });
-          await this.token.mint(newOwner, newTokenId, { from: minter });
-          await this.token.mint(newOwner, anotherNewTokenId, { from: minter });
+          await this.token.mint(newOwner, newTokenId);
+          await this.token.mint(newOwner, anotherNewTokenId);
 
           expect(await this.token.totalSupply()).to.be.bignumber.equal('3');
 
@@ -210,7 +238,7 @@ contract('ERC721Full', function ([
     });
   });
 
-  shouldBehaveLikeERC721(creator, minter, accounts);
+  shouldBehaveLikeERC721(accounts);
 
   shouldSupportInterfaces([
     'ERC165',

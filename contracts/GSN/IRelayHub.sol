@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 /**
  * @dev Interface for `RelayHub`, the core contract of the GSN. Users should not need to interact with this contract
@@ -7,7 +7,7 @@ pragma solidity ^0.5.0;
  * See the https://github.com/OpenZeppelin/openzeppelin-gsn-helpers[OpenZeppelin GSN helpers] for more information on
  * how to deploy an instance of `RelayHub` on your local test network.
  */
-contract IRelayHub {
+interface IRelayHub {
     // Relay management
 
     /**
@@ -36,7 +36,7 @@ contract IRelayHub {
      *
      * Emits a {RelayAdded} event.
      */
-    function registerRelay(uint256 transactionFee, string memory url) public;
+    function registerRelay(uint256 transactionFee, string calldata url) external;
 
     /**
      * @dev Emitted when a relay is registered or re-registerd. Looking at these events (and filtering out
@@ -52,7 +52,7 @@ contract IRelayHub {
      *
      * Emits a {RelayRemoved} event.
      */
-    function removeRelayByOwner(address relay) public;
+    function removeRelayByOwner(address relay) external;
 
     /**
      * @dev Emitted when a relay is removed (deregistered). `unstakeTime` is the time when unstake will be callable.
@@ -65,7 +65,7 @@ contract IRelayHub {
      *
      * Emits an {Unstaked} event.
      */
-    function unstake(address relay) public;
+    function unstake(address relay) external;
 
     /**
      * @dev Emitted when a relay is unstaked for, including the returned stake.
@@ -95,7 +95,7 @@ contract IRelayHub {
      *
      * Emits a {Deposited} event.
      */
-    function depositFor(address target) public payable;
+    function depositFor(address target) external payable;
 
     /**
      * @dev Emitted when {depositFor} is called, including the amount and account that was funded.
@@ -113,7 +113,7 @@ contract IRelayHub {
      *
      * Emits a {Withdrawn} event.
      */
-    function withdraw(uint256 amount, address payable dest) public;
+    function withdraw(uint256 amount, address payable dest) external;
 
     /**
      * @dev Emitted when an account withdraws funds from `RelayHub`.
@@ -136,14 +136,14 @@ contract IRelayHub {
         address relay,
         address from,
         address to,
-        bytes memory encodedFunction,
+        bytes calldata encodedFunction,
         uint256 transactionFee,
         uint256 gasPrice,
         uint256 gasLimit,
         uint256 nonce,
-        bytes memory signature,
-        bytes memory approvalData
-    ) public view returns (uint256 status, bytes memory recipientContext);
+        bytes calldata signature,
+        bytes calldata approvalData
+    ) external view returns (uint256 status, bytes memory recipientContext);
 
     // Preconditions for relaying, checked by canRelay and returned as the corresponding numeric values.
     enum PreconditionCheck {
@@ -186,14 +186,14 @@ contract IRelayHub {
     function relayCall(
         address from,
         address to,
-        bytes memory encodedFunction,
+        bytes calldata encodedFunction,
         uint256 transactionFee,
         uint256 gasPrice,
         uint256 gasLimit,
         uint256 nonce,
-        bytes memory signature,
-        bytes memory approvalData
-    ) public;
+        bytes calldata signature,
+        bytes calldata approvalData
+    ) external;
 
     /**
      * @dev Emitted when an attempt to relay a call failed.
@@ -207,7 +207,7 @@ contract IRelayHub {
     event CanRelayFailed(address indexed relay, address indexed from, address indexed to, bytes4 selector, uint256 reason);
 
     /**
-     * @dev Emitted when a transaction is relayed. 
+     * @dev Emitted when a transaction is relayed.
      * Useful when monitoring a relay's operation and relayed calls to a contract
      *
      * Note that the actual encoded function might be reverted: this is indicated in the `status` parameter.
@@ -229,14 +229,14 @@ contract IRelayHub {
      * @dev Returns how much gas should be forwarded to a call to {relayCall}, in order to relay a transaction that will
      * spend up to `relayedCallStipend` gas.
      */
-    function requiredGas(uint256 relayedCallStipend) public view returns (uint256);
+    function requiredGas(uint256 relayedCallStipend) external view returns (uint256);
 
     /**
      * @dev Returns the maximum recipient charge, given the amount of gas forwarded, gas price and relay fee.
      */
-    function maxPossibleCharge(uint256 relayedCallStipend, uint256 gasPrice, uint256 transactionFee) public view returns (uint256);
+    function maxPossibleCharge(uint256 relayedCallStipend, uint256 gasPrice, uint256 transactionFee) external view returns (uint256);
 
-     // Relay penalization. 
+     // Relay penalization.
      // Any account can penalize relays, removing them from the system immediately, and rewarding the
     // reporter with half of the relay's stake. The other half is burned so that, even if the relay penalizes itself, it
     // still loses half of its stake.
@@ -247,12 +247,12 @@ contract IRelayHub {
      *
      * The (unsigned) transaction data and signature for both transactions must be provided.
      */
-    function penalizeRepeatedNonce(bytes memory unsignedTx1, bytes memory signature1, bytes memory unsignedTx2, bytes memory signature2) public;
+    function penalizeRepeatedNonce(bytes calldata unsignedTx1, bytes calldata signature1, bytes calldata unsignedTx2, bytes calldata signature2) external;
 
     /**
      * @dev Penalize a relay that sent a transaction that didn't target `RelayHub`'s {registerRelay} or {relayCall}.
      */
-    function penalizeIllegalTransaction(bytes memory unsignedTx, bytes memory signature) public;
+    function penalizeIllegalTransaction(bytes calldata unsignedTx, bytes calldata signature) external;
 
     /**
      * @dev Emitted when a relay is penalized.

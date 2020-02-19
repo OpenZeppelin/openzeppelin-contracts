@@ -1,19 +1,29 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "./IRelayRecipient.sol";
 import "./IRelayHub.sol";
 import "./Context.sol";
-import "./bouncers/GSNBouncerBase.sol";
 
 /**
- * @dev Base GSN recipient contract: includes the {IRelayRecipient} interface and enables GSN support on all contracts
- * in the inheritance tree.
+ * @dev Base GSN recipient contract: includes the {IRelayRecipient} interface
+ * and enables GSN support on all contracts in the inheritance tree.
  *
- * Not all interface methods are implemented (e.g. {acceptRelayedCall}, derived contracts must provide one themselves.
+ * TIP: This contract is abstract. The functions {IRelayRecipient-acceptRelayedCall},
+ *  {_preRelayedCall}, and {_postRelayedCall} are not implemented and must be
+ * provided by derived contracts. See the
+ * xref:ROOT:gsn-strategies.adoc#gsn-strategies[GSN strategies] for more
+ * information on how to use the pre-built {GSNRecipientSignature} and
+ * {GSNRecipientERC20Fee}, or how to write your own.
  */
-contract GSNRecipient is IRelayRecipient, Context, GSNBouncerBase {
+abstract contract GSNRecipient is IRelayRecipient, Context {
     // Default RelayHub address, deployed on mainnet and all testnets at the same address
     address private _relayHub = 0xD216153c06E857cD7f72665E0aF1d7D82172F494;
+
+    uint256 constant private RELAYED_CALL_ACCEPTED = 0;
+    uint256 constant private RELAYED_CALL_REJECTED = 11;
+
+    // How much gas is forwarded to postRelayedCall
+    uint256 constant internal POST_RELAYED_CALL_MAX_GAS = 100000;
 
     /**
      * @dev Emitted when a contract changes its {IRelayHub} contract to a new one.
@@ -23,7 +33,7 @@ contract GSNRecipient is IRelayRecipient, Context, GSNBouncerBase {
     /**
      * @dev Returns the address of the {IRelayHub} contract for this recipient.
      */
-    function getHubAddr() public view returns (address) {
+    function getHubAddr() public view override returns (address) {
         return _relayHub;
     }
 
@@ -34,7 +44,7 @@ contract GSNRecipient is IRelayRecipient, Context, GSNBouncerBase {
      * IMPORTANT: After upgrading, the {GSNRecipient} will no longer be able to receive relayed calls from the old
      * {IRelayHub} instance. Additionally, all funds should be previously withdrawn via {_withdrawDeposits}.
      */
-    function _upgradeRelayHub(address newRelayHub) internal {
+    function _upgradeRelayHub(address newRelayHub) internal virtual {
         address currentRelayHub = _relayHub;
         require(newRelayHub != address(0), "GSNRecipient: new RelayHub is the zero address");
         require(newRelayHub != currentRelayHub, "GSNRecipient: new RelayHub is the current one");
@@ -60,7 +70,7 @@ contract GSNRecipient is IRelayRecipient, Context, GSNBouncerBase {
      *
      * Derived contracts should expose this in an external interface with proper access control.
      */
-    function _withdrawDeposits(uint256 amount, address payable payee) internal {
+    function _withdrawDeposits(uint256 amount, address payable payee) internal virtual {
         IRelayHub(_relayHub).withdraw(amount, payee);
     }
 
@@ -75,7 +85,7 @@ contract GSNRecipient is IRelayRecipient, Context, GSNBouncerBase {
      *
      * IMPORTANT: Contracts derived from {GSNRecipient} should never use `msg.sender`, and use {_msgSender} instead.
      */
-    function _msgSender() internal view returns (address payable) {
+    function _msgSender() internal view virtual override returns (address payable) {
         if (msg.sender != _relayHub) {
             return msg.sender;
         } else {
@@ -89,12 +99,95 @@ contract GSNRecipient is IRelayRecipient, Context, GSNBouncerBase {
      *
      * IMPORTANT: Contracts derived from {GSNRecipient} should never use `msg.data`, and use {_msgData} instead.
      */
-    function _msgData() internal view returns (bytes memory) {
+    function _msgData() internal view virtual override returns (bytes memory) {
         if (msg.sender != _relayHub) {
             return msg.data;
         } else {
             return _getRelayedCallData();
         }
+    }
+
+    // Base implementations for pre and post relayedCall: only RelayHub can invoke them, and data is forwarded to the
+    // internal hook.
+
+    /**
+     * @dev See `IRelayRecipient.preRelayedCall`.
+     *
+     * This function should not be overriden directly, use `_preRelayedCall` instead.
+     *
+     * * Requirements:
+     *
+     * - the caller must be the `RelayHub` contract.
+     */
+    function preRelayedCall(bytes calldata context) external virtual override returns (bytes32) {
+        require(msg.sender == getHubAddr(), "GSNRecipient: caller is not RelayHub");
+        return _preRelayedCall(context);
+    }
+
+    /**
+     * @dev See `IRelayRecipient.preRelayedCall`.
+     *
+     * Called by `GSNRecipient.preRelayedCall`, which asserts the caller is the `RelayHub` contract. Derived contracts
+     * must implement this function with any relayed-call preprocessing they may wish to do.
+     *
+     */
+    function _preRelayedCall(bytes memory context) internal virtual returns (bytes32);
+
+    /**
+     * @dev See `IRelayRecipient.postRelayedCall`.
+     *
+     * This function should not be overriden directly, use `_postRelayedCall` instead.
+     *
+     * * Requirements:
+     *
+     * - the caller must be the `RelayHub` contract.
+     */
+    function postRelayedCall(bytes calldata context, bool success, uint256 actualCharge, bytes32 preRetVal) external virtual override {
+        require(msg.sender == getHubAddr(), "GSNRecipient: caller is not RelayHub");
+        _postRelayedCall(context, success, actualCharge, preRetVal);
+    }
+
+    /**
+     * @dev See `IRelayRecipient.postRelayedCall`.
+     *
+     * Called by `GSNRecipient.postRelayedCall`, which asserts the caller is the `RelayHub` contract. Derived contracts
+     * must implement this function with any relayed-call postprocessing they may wish to do.
+     *
+     */
+    function _postRelayedCall(bytes memory context, bool success, uint256 actualCharge, bytes32 preRetVal) internal virtual;
+
+    /**
+     * @dev Return this in acceptRelayedCall to proceed with the execution of a relayed call. Note that this contract
+     * will be charged a fee by RelayHub
+     */
+    function _approveRelayedCall() internal pure returns (uint256, bytes memory) {
+        return _approveRelayedCall("");
+    }
+
+    /**
+     * @dev See `GSNRecipient._approveRelayedCall`.
+     *
+     * This overload forwards `context` to _preRelayedCall and _postRelayedCall.
+     */
+    function _approveRelayedCall(bytes memory context) internal pure returns (uint256, bytes memory) {
+        return (RELAYED_CALL_ACCEPTED, context);
+    }
+
+    /**
+     * @dev Return this in acceptRelayedCall to impede execution of a relayed call. No fees will be charged.
+     */
+    function _rejectRelayedCall(uint256 errorCode) internal pure returns (uint256, bytes memory) {
+        return (RELAYED_CALL_REJECTED + errorCode, "");
+    }
+
+    /*
+     * @dev Calculates how much RelayHub will charge a recipient for using `gas` at a `gasPrice`, given a relayer's
+     * `serviceFee`.
+     */
+    function _computeCharge(uint256 gas, uint256 gasPrice, uint256 serviceFee) internal pure returns (uint256) {
+        // The fee is expressed as a percentage. E.g. a value of 40 stands for a 40% fee, so the recipient will be
+        // charged for 1.4 times the spent amount.
+        return (gas * gasPrice * (100 + serviceFee)) / 100;
     }
 
     function _getRelayedCallSender() private pure returns (address payable result) {

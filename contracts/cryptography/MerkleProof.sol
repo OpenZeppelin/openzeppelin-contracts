@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 /**
  * @dev These functions deal with verification of Merkle trees (hash trees),
@@ -16,7 +16,7 @@ library MerkleProof {
         for (uint256 i = 0; i < proof.length; i++) {
             bytes32 proofElement = proof[i];
 
-            if (computedHash < proofElement) {
+            if (computedHash <= proofElement) {
                 // Hash(current computed hash + current element of the proof)
                 computedHash = keccak256(abi.encodePacked(computedHash, proofElement));
             } else {

@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "../../introspection/IERC165.sol";
 
@@ -34,7 +34,7 @@ contract SupportsInterfaceWithLookupMock is IERC165 {
     /**
      * @dev Implement supportsInterface(bytes4) using a lookup table.
      */
-    function supportsInterface(bytes4 interfaceId) external view returns (bool) {
+    function supportsInterface(bytes4 interfaceId) external view override returns (bool) {
         return _supportedInterfaces[interfaceId];
     }
 

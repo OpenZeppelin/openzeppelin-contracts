@@ -7,15 +7,11 @@ const path = require('path');
 const cp = require('child_process');
 const match = require('micromatch');
 
-function exec (cmd, ...args) {
-  cp.execFileSync(cmd, args, { stdio: 'inherit' });
-}
-
 function readJSON (path) {
   return JSON.parse(fs.readFileSync(path));
 }
 
-exec('npm', 'run', 'compile');
+cp.spawnSync('npm', ['run', 'compile'], { stdio: 'inherit' });
 
 const pkgFiles = readJSON('package.json').files;
 
