@@ -1,4 +1,72 @@
- assets token:4k2dMRZjZsJGGEpm36Mx 
+#------------------------------------------------------------------------------
+# TravisCI configuration file for solidity.
+#
+# The documentation for solidity is hosted at:
+#
+# http://solidity.readthedocs.org
+#
+# ------------------------------------------------------------------------------
+# This file is part of solidity.
+#
+# solidity is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# solidity is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with solidity.  If not, see <http://www.gnu.org/licenses/>
+#
+# (c) 2016-2017 solidity contributors.
+#------------------------------------------------------------------------------ 
+language: cpp 
+branches:     # We need to whitelist the branches which we want to have "push" automation,     # this includes tags (which are treated as branches by travis).     # Pull request automation is not constrained to this set of branches.     only:         - develop         - release         - /^v[0-9]/ 
+env:     global:         - ENCRYPTION_LABEL="6d4541b72666"         - SOLC_BUILD_TYPE=RelWithDebInfo         - SOLC_EMSCRIPTEN=On        - SOLC_INSTALL_DEPS_TRAVIS=On         - SOLC_RELEASE=On         - SOLC_TESTS=On         - SOLC_STOREBYTECODE=On         - SOLC_DOCKER=On
+matrix:     include:         - os: linux           dist: trusty           sudo: required           compiler: gcc           env:               - ZIP_SUFFIX=ubuntu-trusty               - SOLC_STOREBYTECODE=On           before_install:               - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test               - sudo add-apt-repository -y ppa:mhier/libboost-latest               - sudo apt-get update -qq           install:               - sudo apt-get install -qq g++-8 gcc-8               - sudo apt-get install -qq libboost1.67-dev               - sudo apt-get install -qq libleveldb1               - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90               - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 90          - os: linux           dist: trusty           sudo: required           compiler: clang           env:               - ZIP_SUFFIX=ubuntu-trusty-clang               - SOLC_STOREBYTECODE=On           before_install:               - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test               - sudo add-apt-repository -y ppa:mhier/libboost-latest               - sudo apt-get update -qq           install:               - sudo apt-get install -qq g++-8 gcc-8               - sudo apt-get install -qq libboost1.67-dev               - sudo apt-get install -qq libleveldb1               - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90               - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 90          # Docker target, which generates a statically linked alpine image         - os: linux           dist: trusty           sudo: required           services:             - docker           env:             - SOLC_DOCKER=On             - SOLC_INSTALL_DEPS_TRAVIS=On.              - SOLC_RELEASE=On             - SOLC_TESTS=Off          # Emscripten target, which compiles 'solc' to javascript and uploads the resulting .js         # files to https://github.com/ethereum/solc-bin.  These binaries are used in Browser-Solidity         # and in other Ethereum web-based development contexts.         - os: linux           dist: trusty           sudo: required           compiler: gcc           node_js:             - "8"           services:               - docker           before_install:               - nvm install 8               - nvm use 8               - docker pull trzeci/emscripten:sdk-tag-1.39.3-64bit           env:               - SOLC_EMSCRIPTEN=On               - SOLC_INSTALL_DEPS_TRAVIS=On              - SOLC_RELEASE=On               - SOLC_TESTS=On               - ZIP_SUFFIX=emscripten               - SOLC_STOREBYTECODE=On               # Travis doesn't seem to support "dynamic" cache keys where we could include               # the hashes of certain files. Our CircleCI configuration contains the hash of               # relevant emscripten files.               #               # It is important to invalidate the cache with each emscripten update, because               # dependencies, such as boost, might be broken otherwise.               #               # This key here has no significant on anything, apart from caching. Please keep               # it in sync with the version above.               - EMSCRIPTEN_VERSION_KEY="1.39.3"          # OS X Mavericks (10.9)         # https://en.wikipedia.org/wiki/OS_X_Mavericks         #
+# Disabled because of problems on travis.
+#        - os: osx
+#          osx_image: beta-xcode6.2
+#          env:
+#              - ZIP_SUFFIX=osx-mavericks          # OS X Yosemite (10.10)         # https://en.wikipedia.org/wiki/OS_X_Yosemite         #
+#        - os: osx
+#          osx_image: xcode7.1
+#          env:
+#              # Workaround for "macOS - Yosemite, El Capitan and Sierra hanging?"
+#              # https://github.com/ethereum/solidity/issues/894
+#              - SOLC_TESTS=Off
+#              - ZIP_SUFFIX=osx-yosemite          # OS X El Capitan (10.11)         # https://en.wikipedia.org/wiki/OS_X_El_Capitan         #
+#        - os: osx
+#          osx_image: xcode7.3
+#          env:
+#              # The use of Debug config here ONLY for El Capitan is a workaround for "The Heisenbug"
+#              # See https://github.com/ethereum/webthree-umbrella/issues/565
+#              - SOLC_BUILD_TYPE=Debug
+#              # Workaround for "macOS - Yosemite, El Capitan and Sierra hanging?"
+#              # https://github.com/ethereum/solidity/issues/894
+#              - SOLC_TESTS=On
+#              - ZIP_SUFFIX=osx-elcapitan          # macOS Sierra (10.12)         # https://en.wikipedia.org/wiki/MacOS_Sierra         #
+#       - os: osx
+#          osx_image: xcode8
+#          env:
+#              # Look like "The Heisenbug" is occurring here too, so we'll do the same workaround.
+#              # See https://travis-ci.org/ethereum/solidity/jobs/150240930
+#              - SOLC_BUILD_TYPE=Debug
+#              # Workaround for "macOS - Yosemite, El Capitan and Sierra hanging?"
+#              # https://github.com/ethereum/solidity/issues/894
+#              - SOLC_TESTS=Off
+#              - ZIP_SUFFIX=macos-sierra 
+git:     depth: 2 
+cache:     ccache: true     directories:         - boost_1_70_0_install         - $HOME/.local 
+install:     - test $SOLC_INSTALL_DEPS_TRAVIS != On || (scripts/install_deps.sh)     - test "$TRAVIS_OS_NAME" != "linux" || (sudo scripts/install_cmake.sh) 
+before_script:     # Disable tests unless run on the release branch, on tags or with daily cron     - if [ "$TRAVIS_BRANCH" != release -a -z "$TRAVIS_TAG" -a "$TRAVIS_EVENT_TYPE" != cron ]; then SOLC_TESTS=Off; fi     - if [ "$TRAVIS_BRANCH" = release -o -n "$TRAVIS_TAG" ]; then echo -n > prerelease.txt; else date -u +"nightly.%Y.%-m.%-d" > prerelease.txt; fi     - echo -n "$TRAVIS_COMMIT" > commit_hash.txt     - test $SOLC_EMSCRIPTEN != On || (scripts/build_emscripten.sh)     - test $SOLC_DOCKER != On || (scripts/docker_build.sh)     - test $SOLC_RELEASE != On || (scripts/build.sh $SOLC_BUILD_TYPE -DBoost_USE_STATIC_LIBS=OFF && scripts/create_source_tarball.sh) 
+script:     - test $SOLC_EMSCRIPTEN != On -o $SOLC_TESTS != On || (scripts/test_emscripten.sh)     - test $SOLC_TESTS != On || (cd $TRAVIS_BUILD_DIR && scripts/tests.sh)     - test $SOLC_STOREBYTECODE != On || (cd $TRAVIS_BUILD_DIR && scripts/bytecodecompare/storebytecode.sh) 
+deploy:     # This is the deploy target for the Emscripten build.     # It publishes the JS file which was compiled as part of the earlier 'build_emscripten.sh'     # step to https://github.com/ethereum/solc-bin/tree/gh-pages/bin.     # Both the build and deploy steps for Emscripten are only run within the Ubuntu     # configurations (not for macOS).  That is controlled by conditionals within the bash     # scripts because TravisCI doesn't provide much in the way of conditional logic.      - provider: script       script: test $SOLC_EMSCRIPTEN != On || (scripts/release_emscripten.sh)       skip_cleanup: true       on:           branch:             - develop             - release     # This is the deploy target for the dockerfile. If we are pushing into a develop branch, it will be tagged     # as a nightly and appended the commit of the branch it was pushed in. If we are pushing to master it will     # be tagged as "stable" and given the version tag as well.     - provider: script       script: test $SOLC_DOCKER != On || (scripts/docker_deploy.sh)       skip_cleanup: true       on:           branch:             - develop             - release             - /^v\d/     # This is the deploy target for the native build (Linux and macOS)     # which generates the source tarball.     #     # This runs for each tag that is created and adds the corresponding files.     - provider: releases       api_key:           secure: PWH37xVBCF0XiSjl+eH7XIdkrfxZXjzvqF4PiBOnD3VnFz+odrdnIwBmCeBYTHTWF8efpp8fmzWJk2UVq1JcpyZiC+SVxO8dx91W2ia1a+wKrEQuDgkUrZBkl5IQNCv0QS81DDQhliyZEaYh8wHO/7RReyMpGpw2U2u85WkFiZ+LdlHEZPfzUeh9lxQ9n8qwFL8Rja+Q05d4cQ8zaVEtofJJT4T6DUWhc3TzuxDYxOmjwg37rC9CkGSLn6VadSh8b3j5R0SZupFsAEvBL/imBLP9r9ewoo7o4p6By3jwiIgH9yNg7LM618xbffcNaYF/KtLBi9uPHfqF7hRD4PlECz+D0PR78nQItOX5HKm1QMg5kCnghRVCA0IVjpV5fiYQnMLM7dCRv34I5b3zLpa69wQ/GLYB2FViqNUfvPeiZTEeIJ2OmATlFx8AH2JoqpY1XJknWb35+vMfa8LSiJJW++SLWeV+ncC92hrvyZ1cy3trepRRZIfyYepxHifnfdWMkddQUJk5b2WS5Fy/TJLZNPeombnpvRhUC38dsYItarKeXTc6k4oADCEDZ2rgGIcEiqRxXV11Y5xHJekLDWzUs+YJNcCuL4pnAP//LOnbnH2w9rLpwhQYSl0anCd097NivAXQJXO2JI/byIYz1kiCVQWnW6EM8+72mLOklf/Qr8k=        overwrite: true       file_glob: true       file: $TRAVIS_BUILD_DIR/upload/*       skip_cleanup: true       on:           all_branches: true           tags: true
+
+assets token:4k2dMRZjZsJGGEpm36Mx 
 apitoken:YmoAMr2i-Uesvgy4qUm8Yg  
 POST request to /repo/{slug|id}/requests: 
 body='{ "request": { "branch":"master" }}'  
