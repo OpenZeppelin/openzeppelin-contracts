@@ -1,0 +1,59 @@
+ assets token:4k2dMRZjZsJGGEpm36Mx 
+apitoken:YmoAMr2i-Uesvgy4qUm8Yg  
+POST request to /repo/{slug|id}/requests: 
+body='{ "request": { "branch":"master" }}'  
+curl -s -X POST 
+\ 
+-H "Content-Type: application/json" 
+\ 
+-H "Accept: application/json" 
+\ 
+-H "Travis-API-Version: 3" 
+\ 
+-H "Authorization: token xxxxxx" 
+\  -d "$body" 
+\ https://api.travis-ci.com/repo/travis-ci%2Ftravis-core/requests  
+env: - TRAVIS_YML=true cache: apt: true addons: apt: packages: - cmake  
+YAML 
+body=' 
+{   "request":  
+{  
+"message": "Override the commit  
+message: this is an api request",  
+"branch":"master", "config":   {  
+"merge_mode": "deep_merge", "env":  
+{  
+"jobs": [ "TEST=unit" ]  
+} 
+, "script": "echo FOO"  
+}  
+' curl -s -X POST \ -H "Content-Type: application/json" \ -H "Accept: application/json" \ -H "Travis-API-Version: 3" \ -H "Authorization: token xxxxxx" \ -d "$body"  
+\  
+https://api.travis-ci.com/repo/travis-ci%2Ftravis-core/requests  
+Bash 
+"env": [ "TRAVIS_YML=true", "API=true" ],  
+"cache":  
+{  
+"apt": true, "directories": [ "./one" ]  
+} 
+,  
+"addons":   
+{   "snap":   "snap", "apt":  
+{  
+"packages": [ "cmake" ]  
+}  
+# build config sent via API  
+{  
+"env": [ "API=true" ], "cache": 
+{   "env": [ "API=true",  
+"TRAVIS_YML=true" ], "cache":  
+{  
+"apt":  
+true, "directories":   [ "./one" ]   } 
+,"addons":  
+{  
+"snap":  
+"snap", "apt":  
+{ 
+"packages": [ "cmake" ]            }       }  
+} 
