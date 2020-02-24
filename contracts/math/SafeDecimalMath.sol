@@ -79,29 +79,6 @@ library SafeDecimalMath {
 
     /**
      * @return The result of safely multiplying x and y, interpreting the operands
-     * as fixed-point decimals of the specified precision unit.
-     *
-     * @dev The operands should be in the form of a the specified unit factor which will be
-     * divided out after the product of x and y is evaluated, so that product must be
-     * less than 2**256.
-     *
-     * Unlike multiplyDecimal, this function rounds the result to the nearest increment.
-     * Rounding is useful when you need to retain fidelity for small decimal numbers
-     * (eg. small fractions or percentages).
-     */
-    function _multiplyDecimalRound(uint x, uint y, uint precisionUnit) private pure returns (uint) {
-        /* Divide by UNIT to remove the extra factor introduced by the product. */
-        uint quotientTimesTen = x.mul(y) / (precisionUnit / 10);
-
-        if (quotientTimesTen % 10 >= 5) {
-            quotientTimesTen += 10;
-        }
-
-        return quotientTimesTen / 10;
-    }
-
-    /**
-     * @return The result of safely multiplying x and y, interpreting the operands
      * as fixed-point decimals of a precise unit.
      *
      * @dev The operands should be in the precise unit factor which will be
@@ -148,24 +125,6 @@ library SafeDecimalMath {
 
     /**
      * @return The result of safely dividing x and y. The return value is as a rounded
-     * decimal in the precision unit specified in the parameter.
-     *
-     * @dev y is divided after the product of x and the specified precision unit
-     * is evaluated, so the product of x and the specified precision unit must
-     * be less than 2**256. The result is rounded to the nearest increment.
-     */
-    function _divideDecimalRound(uint x, uint y, uint precisionUnit) private pure returns (uint) {
-        uint resultTimesTen = x.mul(precisionUnit * 10).div(y);
-
-        if (resultTimesTen % 10 >= 5) {
-            resultTimesTen += 10;
-        }
-
-        return resultTimesTen / 10;
-    }
-
-    /**
-     * @return The result of safely dividing x and y. The return value is as a rounded
      * standard precision decimal.
      *
      * @dev y is divided after the product of x and the standard precision unit
@@ -206,5 +165,46 @@ library SafeDecimalMath {
         }
 
         return quotientTimesTen / 10;
+    }
+
+    /**
+     * @return The result of safely multiplying x and y, interpreting the operands
+     * as fixed-point decimals of the specified precision unit.
+     *
+     * @dev The operands should be in the form of a the specified unit factor which will be
+     * divided out after the product of x and y is evaluated, so that product must be
+     * less than 2**256.
+     *
+     * Unlike multiplyDecimal, this function rounds the result to the nearest increment.
+     * Rounding is useful when you need to retain fidelity for small decimal numbers
+     * (eg. small fractions or percentages).
+     */
+    function _multiplyDecimalRound(uint x, uint y, uint precisionUnit) private pure returns (uint) {
+        /* Divide by UNIT to remove the extra factor introduced by the product. */
+        uint quotientTimesTen = x.mul(y) / (precisionUnit / 10);
+
+        if (quotientTimesTen % 10 >= 5) {
+            quotientTimesTen += 10;
+        }
+
+        return quotientTimesTen / 10;
+    }
+
+    /**
+     * @return The result of safely dividing x and y. The return value is as a rounded
+     * decimal in the precision unit specified in the parameter.
+     *
+     * @dev y is divided after the product of x and the specified precision unit
+     * is evaluated, so the product of x and the specified precision unit must
+     * be less than 2**256. The result is rounded to the nearest increment.
+     */
+    function _divideDecimalRound(uint x, uint y, uint precisionUnit) private pure returns (uint) {
+        uint resultTimesTen = x.mul(precisionUnit * 10).div(y);
+
+        if (resultTimesTen % 10 >= 5) {
+            resultTimesTen += 10;
+        }
+
+        return resultTimesTen / 10;
     }
 }
