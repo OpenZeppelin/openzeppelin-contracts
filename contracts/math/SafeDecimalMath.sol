@@ -47,7 +47,7 @@ library SafeDecimalMath {
 
     /* The number representing 1.0 for higher fidelity numbers. */
     uint public constant PRECISE_UNIT = 10**uint(highPrecisionDecimals);
-    uint private constant UNIT_TO_HIGH_PRECISION_CONVERSION_FACTOR = 10**uint(highPrecisionDecimals - decimals);
+    uint private constant _PRECISION_CONVERSION_FACTOR = 10**uint(highPrecisionDecimals - decimals);
 
     /** 
      * @return Provides an interface to UNIT.
@@ -72,7 +72,7 @@ library SafeDecimalMath {
      * the internal division always rounds down. This helps save on gas. Rounding
      * is more expensive on gas.
      */
-    function multiplyDecimal(uint x, uint y) internal pure returns (uint) {
+    function _multiplyDecimal(uint x, uint y) internal pure returns (uint) {
         /* Divide by UNIT to remove the extra factor introduced by the product. */
         return x.mul(y) / UNIT;
     }
