@@ -23,7 +23,7 @@
     "prepare": "node scripts/prepare.js",
     "release": "scripts/release/release.sh",
     "version": "scripts/release/version.sh",
-    "test": "mocha --exit --recursive test"
+    "test": "mocha --exit --recursive"
   },
   "repository": {
     "type": "git",
