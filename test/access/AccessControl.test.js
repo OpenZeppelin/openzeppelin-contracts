@@ -21,7 +21,7 @@ describe('AccessControl', function () {
       expect(await this.accessControl.hasRole(DEFAULT_ADMIN_ROLE_ID, defaultAdmin)).to.equal(true);
     });
 
-    it('other roles admin\'s is the default admin role', async function () {
+    it('other roles\'s admin is the default admin role', async function () {
       expect(await this.accessControl.getRoleAdmin(OTHER_ROLE_ID)).to.equal(DEFAULT_ADMIN_ROLE_ID);
     });
 
