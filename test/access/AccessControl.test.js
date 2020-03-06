@@ -45,21 +45,19 @@ describe('AccessControl', function () {
       );
     });
 
-    it('accounts with a role cannot have it granted', async function () {
+    it('accounts can be granted a role multiple times', async function () {
       await this.accessControl.grantRole(OTHER_ROLE_ID, authorized, { from: defaultAdmin });
-      await expectRevert(
-        this.accessControl.grantRole(OTHER_ROLE_ID, authorized, { from: defaultAdmin }),
-        'AccessControl: account already has granted role'
-      );
+      const receipt = await this.accessControl.grantRole(OTHER_ROLE_ID, authorized, { from: defaultAdmin });
+      expectEvent(receipt, 'RoleGranted', { account: authorized, roleId: OTHER_ROLE_ID });
     });
   });
 
   describe('revoking', function () {
-    it('roles that are not had cannot be revoked', async function () {
-      await expectRevert(
-        this.accessControl.revokeRole(OTHER_ROLE_ID, authorized, { from: defaultAdmin }),
-        'AccessControl: account does not have revoked role'
-      );
+    it('roles that are not had can be revoked', async function () {
+      expect(await this.accessControl.hasRole(OTHER_ROLE_ID, authorized)).to.equal(false);
+
+      const receipt = await this.accessControl.revokeRole(OTHER_ROLE_ID, authorized, { from: defaultAdmin });
+      expectEvent(receipt, 'RoleRevoked', { account: authorized, roleId: OTHER_ROLE_ID });
     });
 
     context('with granted role', function () {
@@ -81,22 +79,19 @@ describe('AccessControl', function () {
         );
       });
 
-      it('a role cannot be revoked multiple times', async function () {
+      it('a role can be revoked multiple times', async function () {
         await this.accessControl.revokeRole(OTHER_ROLE_ID, authorized, { from: defaultAdmin });
-        await expectRevert(
-          this.accessControl.revokeRole(OTHER_ROLE_ID, authorized, { from: defaultAdmin }),
-          'AccessControl: account does not have revoked role'
-        );
+
+        const receipt = await this.accessControl.revokeRole(OTHER_ROLE_ID, authorized, { from: defaultAdmin });
+        expectEvent(receipt, 'RoleRevoked', { account: authorized, roleId: OTHER_ROLE_ID });
       });
     });
   });
 
   describe('renouncing', function () {
-    it('roles that are not had cannot be renounced', async function () {
-      await expectRevert(
-        this.accessControl.renounceRole(OTHER_ROLE_ID, authorized, { from: authorized }),
-        'AccessControl: account does not have revoked role'
-      );
+    it('roles that are not had can be renounced', async function () {
+      const receipt = await this.accessControl.renounceRole(OTHER_ROLE_ID, authorized, { from: authorized });
+      expectEvent(receipt, 'RoleRevoked', { account: authorized, roleId: OTHER_ROLE_ID });
     });
 
     context('with granted role', function () {
@@ -118,12 +113,11 @@ describe('AccessControl', function () {
         );
       });
 
-      it('a role cannot be renounced multiple times', async function () {
+      it('a role can be renounced multiple times', async function () {
         await this.accessControl.renounceRole(OTHER_ROLE_ID, authorized, { from: authorized });
-        await expectRevert(
-          this.accessControl.renounceRole(OTHER_ROLE_ID, authorized, { from: authorized }),
-          'AccessControl: account does not have revoked role'
-        );
+
+        const receipt = await this.accessControl.renounceRole(OTHER_ROLE_ID, authorized, { from: authorized });
+        expectEvent(receipt, 'RoleRevoked', { account: authorized, roleId: OTHER_ROLE_ID });
       });
     });
   });

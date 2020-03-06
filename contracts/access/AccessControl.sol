@@ -59,15 +59,13 @@ abstract contract AccessControl {
     }
 
     function _grantRole(bytes32 roleId, address account) internal virtual {
-        bool added = _roles[roleId].members.add(account);
-        require(added, "AccessControl: account already has granted role");
+        _roles[roleId].members.add(account);
 
         emit RoleGranted(roleId, account);
     }
 
     function _revokeRole(bytes32 roleId, address account) internal virtual {
-        bool removed = _roles[roleId].members.remove(account);
-        require(removed, "AccessControl: account does not have revoked role");
+        _roles[roleId].members.remove(account);
 
         emit RoleRevoked(roleId, account);
     }
