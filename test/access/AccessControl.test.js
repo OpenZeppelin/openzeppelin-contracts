@@ -11,6 +11,7 @@ describe('AccessControl', function () {
 
   const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000';
   const ROLE = web3.utils.soliditySha3('ROLE');
+  const OTHER_ROLE = web3.utils.soliditySha3('OTHER_ROLE');
 
   beforeEach(async function () {
     this.accessControl = await AccessControlMock.new({ from: admin });
@@ -136,6 +137,23 @@ describe('AccessControl', function () {
       }
 
       expect(bearers).to.have.members([authorized, otherAuthorized]);
+    });
+  });
+
+  describe('setting role admin', function () {
+    it('a role\'s admin role can be changed', async function () {
+      await this.accessControl.setRoleAdmin(ROLE, OTHER_ROLE);
+
+      expect(await this.accessControl.getRoleAdmin(ROLE)).to.equal(OTHER_ROLE);
+    });
+
+    it('a role\'s previous admins no longer control it', async function () {
+      await this.accessControl.setRoleAdmin(ROLE, OTHER_ROLE);
+
+      await expectRevert(
+        this.accessControl.grantRole(ROLE, authorized, { from: admin }),
+        'AccessControl: sender must be an admin to grant'
+      );
     });
   });
 });
