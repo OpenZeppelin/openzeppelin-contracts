@@ -1,9 +1,8 @@
 pragma solidity ^0.6.0;
 
-import "./IAccessControl.sol";
 import "../utils/EnumerableSet.sol";
 
-abstract contract AccessControl is IAccessControl {
+abstract contract AccessControl {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     struct Role {
@@ -15,35 +14,42 @@ abstract contract AccessControl is IAccessControl {
 
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
 
-    function hasRole(bytes32 roleId, address account) public view override returns (bool) {
+    // Returns true if an account has a role
+    function hasRole(bytes32 roleId, address account) public view returns (bool) {
         return _roles[roleId].members.contains(account);
     }
 
-    function getRoleMembersCount(bytes32 roleId) public view override returns (uint256) {
+    // Returns the number of accounts with a role
+    function getRoleMembersCount(bytes32 roleId) public view returns (uint256) {
         return _roles[roleId].members.length();
     }
 
-    function getRoleMember(bytes32 roleId, uint256 index) public view override returns (address) {
+    // Returns an account with a role at index
+    function getRoleMember(bytes32 roleId, uint256 index) public view returns (address) {
         return _roles[roleId].members.get(index);
     }
 
-    function getRoleAdmin(bytes32 roleId) external view override returns (bytes32) {
+    // Returns a role's admin role
+    function getRoleAdmin(bytes32 roleId) external view returns (bytes32) {
         return _roles[roleId].admin;
     }
 
-    function grantRole(bytes32 roleId, address account) external virtual override {
+    // Gives a role to an account. Caller must have its admin role
+    function grantRole(bytes32 roleId, address account) external virtual {
         require(hasRole(_roles[roleId].admin, msg.sender), "AccessControl: sender must be an admin to grant");
 
         _grantRole(roleId, account);
     }
 
-    function revokeRole(bytes32 roleId, address account) external virtual override {
+    // Revokes a role from an account. Caller must have its admin role
+    function revokeRole(bytes32 roleId, address account) external virtual {
         require(hasRole(_roles[roleId].admin, msg.sender), "AccessControl: sender must be an admin to revoke");
 
         _revokeRole(roleId, account);
     }
 
-    function renounceRole(bytes32 roleId, address account) external virtual override {
+    // Renounces a role. Caller must be `account`
+    function renounceRole(bytes32 roleId, address account) external virtual {
         require(account == msg.sender, "AccessControl: can only renounce roles for self");
 
         _revokeRole(roleId, account);
