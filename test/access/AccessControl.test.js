@@ -1,6 +1,6 @@
 const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
 
-const { expectRevert } = require('@openzeppelin/test-helpers');
+const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
@@ -32,7 +32,9 @@ describe('AccessControl', function () {
 
   describe('granting', function () {
     it('admin can grant role to other accounts', async function () {
-      await this.accessControl.grantRole(OTHER_ROLE_ID, authorized, { from: defaultAdmin });
+      const receipt = await this.accessControl.grantRole(OTHER_ROLE_ID, authorized, { from: defaultAdmin });
+      expectEvent(receipt, 'RoleGranted', { account: authorized, roleId: OTHER_ROLE_ID });
+
       expect(await this.accessControl.hasRole(OTHER_ROLE_ID, authorized)).to.equal(true);
     });
 
@@ -66,7 +68,9 @@ describe('AccessControl', function () {
       });
 
       it('admin can revoke role', async function () {
-        await this.accessControl.revokeRole(OTHER_ROLE_ID, authorized, { from: defaultAdmin });
+        const receipt = await this.accessControl.revokeRole(OTHER_ROLE_ID, authorized, { from: defaultAdmin });
+        expectEvent(receipt, 'RoleRevoked', { account: authorized, roleId: OTHER_ROLE_ID });
+
         expect(await this.accessControl.hasRole(OTHER_ROLE_ID, authorized)).to.equal(false);
       });
 
@@ -101,7 +105,9 @@ describe('AccessControl', function () {
       });
 
       it('bearer can renounce role', async function () {
-        await this.accessControl.renounceRole(OTHER_ROLE_ID, authorized, { from: authorized });
+        const receipt = await this.accessControl.renounceRole(OTHER_ROLE_ID, authorized, { from: authorized });
+        expectEvent(receipt, 'RoleRevoked', { account: authorized, roleId: OTHER_ROLE_ID });
+
         expect(await this.accessControl.hasRole(OTHER_ROLE_ID, authorized)).to.equal(false);
       });
 

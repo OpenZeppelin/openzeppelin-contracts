@@ -14,6 +14,9 @@ abstract contract AccessControl {
 
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
 
+    event RoleGranted(bytes32 indexed roleId, address indexed account);
+    event RoleRevoked(bytes32 indexed roleId, address indexed account);
+
     // Returns true if an account has a role
     function hasRole(bytes32 roleId, address account) public view returns (bool) {
         return _roles[roleId].members.contains(account);
@@ -58,11 +61,15 @@ abstract contract AccessControl {
     function _grantRole(bytes32 roleId, address account) internal virtual {
         bool added = _roles[roleId].members.add(account);
         require(added, "AccessControl: account already has granted role");
+
+        emit RoleGranted(roleId, account);
     }
 
     function _revokeRole(bytes32 roleId, address account) internal virtual {
         bool removed = _roles[roleId].members.remove(account);
         require(removed, "AccessControl: account does not have revoked role");
+
+        emit RoleRevoked(roleId, account);
     }
 
     function _setRoleAdmin(bytes32 roleId, bytes32 adminRoleId) internal virtual {
