@@ -5,7 +5,7 @@ import "../../introspection/IERC165.sol";
 /**
  * @dev Required interface of an ERC721 compliant contract.
  */
-abstract contract IERC721 is IERC165 {
+interface IERC721 is IERC165 {
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
     event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
@@ -13,12 +13,12 @@ abstract contract IERC721 is IERC165 {
     /**
      * @dev Returns the number of NFTs in `owner`'s account.
      */
-    function balanceOf(address owner) public view virtual returns (uint256 balance);
+    function balanceOf(address owner) external view returns (uint256 balance);
 
     /**
      * @dev Returns the owner of the NFT specified by `tokenId`.
      */
-    function ownerOf(uint256 tokenId) public view virtual returns (address owner);
+    function ownerOf(uint256 tokenId) external view returns (address owner);
 
     /**
      * @dev Transfers a specific NFT (`tokenId`) from one account (`from`) to
@@ -32,7 +32,7 @@ abstract contract IERC721 is IERC165 {
      * - If the caller is not `from`, it must be have been allowed to move this
      * NFT by either {approve} or {setApprovalForAll}.
      */
-    function safeTransferFrom(address from, address to, uint256 tokenId) public virtual;
+    function safeTransferFrom(address from, address to, uint256 tokenId) external;
     /**
      * @dev Transfers a specific NFT (`tokenId`) from one account (`from`) to
      * another (`to`).
@@ -41,13 +41,13 @@ abstract contract IERC721 is IERC165 {
      * - If the caller is not `from`, it must be approved to move this NFT by
      * either {approve} or {setApprovalForAll}.
      */
-    function transferFrom(address from, address to, uint256 tokenId) public virtual;
-    function approve(address to, uint256 tokenId) public virtual;
-    function getApproved(uint256 tokenId) public view virtual returns (address operator);
+    function transferFrom(address from, address to, uint256 tokenId) external;
+    function approve(address to, uint256 tokenId) external;
+    function getApproved(uint256 tokenId) external view returns (address operator);
 
-    function setApprovalForAll(address operator, bool _approved) public virtual;
-    function isApprovedForAll(address owner, address operator) public view virtual returns (bool);
+    function setApprovalForAll(address operator, bool _approved) external;
+    function isApprovedForAll(address owner, address operator) external view returns (bool);
 
 
-    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public virtual;
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes calldata data) external;
 }
