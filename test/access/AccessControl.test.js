@@ -131,7 +131,7 @@ describe('AccessControl', function () {
       const memberCount = await this.accessControl.getRoleMembersCount(ROLE);
       expect(memberCount).to.bignumber.equal('2');
 
-      let bearers = [];
+      const bearers = [];
       for (let i = 0; i < memberCount; ++i) {
         bearers.push(await this.accessControl.getRoleMember(ROLE, i));
       }
