@@ -22,7 +22,7 @@ describe('Create2', function () {
 
   it('should compute the correct contract address', async function () {
     const onChainComputed = await this.factory
-      .computeAddress(saltHex, constructorByteCode);
+      .computeAddress(saltHex, web3.utils.keccak256(constructorByteCode));
     const offChainComputed =
       computeCreate2Address(saltHex, constructorByteCode, this.factory.address);
     expect(onChainComputed).to.equal(offChainComputed);
@@ -30,17 +30,7 @@ describe('Create2', function () {
 
   it('should compute the correct contract address with deployer', async function () {
     const onChainComputed = await this.factory
-      .methods['computeAddress(bytes32,bytes,address)'](saltHex, constructorByteCode, deployerAccount);
-    const offChainComputed =
-      computeCreate2Address(saltHex, constructorByteCode, deployerAccount);
-    expect(onChainComputed).to.equal(offChainComputed);
-  });
-
-  it('should compute the correct contract address with deployer and bytecode hash', async function () {
-    const onChainComputed = await this.factory
-      .methods['computeAddress(bytes32,bytes32,address)'](
-        saltHex, web3.utils.keccak256(constructorByteCode), deployerAccount
-      );
+      .computeAddressWithDeployer(saltHex, web3.utils.keccak256(constructorByteCode), deployerAccount);
     const offChainComputed =
       computeCreate2Address(saltHex, constructorByteCode, deployerAccount);
     expect(onChainComputed).to.equal(offChainComputed);

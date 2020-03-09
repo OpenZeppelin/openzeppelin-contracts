@@ -28,19 +28,11 @@ library Create2 {
     }
 
     /**
-     * @dev Returns the address where a contract will be stored if deployed via {deploy}. Any change in the `bytecode`
+     * @dev Returns the address where a contract will be stored if deployed via {deploy}. Any change in the `bytecodeHash`
      * or `salt` will result in a new destination address.
      */
-    function computeAddress(bytes32 salt, bytes memory bytecode) internal view returns (address) {
-        return computeAddress(salt, bytecode, address(this));
-    }
-
-    /**
-     * @dev Returns the address where a contract will be stored if deployed via {deploy} from a contract located at
-     * `deployer`. If `deployer` is this contract's address, returns the same value as {computeAddress}.
-     */
-    function computeAddress(bytes32 salt, bytes memory bytecode, address deployer) internal pure returns (address) {
-        return computeAddress(salt, keccak256(bytecode), deployer);
+    function computeAddress(bytes32 salt, bytes32 bytecodeHash) internal view returns (address) {
+        return computeAddress(salt, bytecodeHash, address(this));
     }
 
     /**
