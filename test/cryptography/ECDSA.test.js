@@ -131,18 +131,6 @@ describe('ECDSA', function () {
         });
       });
     });
-
-    context('with small hash', function () {
-      // @TODO - remove `skip` once we upgrade to solc^0.5
-      it.skip('reverts', async function () {
-        // Create the signature
-        const signature = await web3.eth.sign(TEST_MESSAGE, other);
-        await expectRevert(
-          this.ecdsa.recover(TEST_MESSAGE.substring(2), signature),
-          'Failure message'
-        );
-      });
-    });
   });
 
   context('toEthSignedMessage', function () {
