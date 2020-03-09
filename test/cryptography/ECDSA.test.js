@@ -121,13 +121,17 @@ describe('ECDSA', function () {
         });
       });
 
-      context('with wrong signature', function () {
-        it('reverts', async function () {
-          // Create the signature
+      context('with wrong message', function () {
+        it('returns a different address', async function () {
           const signature = fixSignature(await web3.eth.sign(TEST_MESSAGE, other));
-
-          // Recover the signer address from the generated message and wrong signature.
           expect(await this.ecdsa.recover(WRONG_MESSAGE, signature)).to.not.equal(other);
+        });
+      });
+
+      context('with invalid signature', function () {
+        it('reverts', async function () {
+          const signature = '0x332ce75a821c982f9127538858900d87d3ec1f9f737338ad67cad133fa48feff48e6fa0c18abc62e42820f05943e47af3e9fbe306ce74d64094bdf1691ee53e01c'
+          await expectRevert(this.ecdsa.recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature');
         });
       });
     });
