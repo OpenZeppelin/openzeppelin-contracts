@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.0 (unreleased)
+
+### Breaking Changes
+ * `ECDSA`: when receiving an invalid signature, `recover` now reverts instead of returning the zero address. ([#2114](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2114))
+
 ## 2.5.0 (2020-02-04)
 
 ### New features
