@@ -7,7 +7,7 @@ const { expect } = require('chai');
 const AccessControlMock = contract.fromArtifact('AccessControlMock');
 
 describe('AccessControl', function () {
-  const [ admin, authorized, otherAuthorized, other ] = accounts;
+  const [ admin, authorized, otherAuthorized, other, otherAdmin ] = accounts;
 
   const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000';
   const ROLE = web3.utils.soliditySha3('ROLE');
@@ -141,18 +141,36 @@ describe('AccessControl', function () {
   });
 
   describe('setting role admin', function () {
-    it('a role\'s admin role can be changed', async function () {
+    beforeEach(async function () {
       await this.accessControl.setRoleAdmin(ROLE, OTHER_ROLE);
+      await this.accessControl.grantRole(OTHER_ROLE, otherAdmin, { from: admin });
+    });
 
+    it('a role\'s admin role can be changed', async function () {
       expect(await this.accessControl.getRoleAdmin(ROLE)).to.equal(OTHER_ROLE);
     });
 
-    it('a role\'s previous admins no longer control it', async function () {
-      await this.accessControl.setRoleAdmin(ROLE, OTHER_ROLE);
+    it('the new admin can grant roles', async function () {
+      const receipt = await this.accessControl.grantRole(ROLE, authorized, { from: otherAdmin });
+      expectEvent(receipt, 'RoleGranted', { account: authorized, roleId: ROLE });
+    });
 
+    it('the new admin can revoke roles', async function () {
+      const receipt = await this.accessControl.revokeRole(ROLE, authorized, { from: otherAdmin });
+      expectEvent(receipt, 'RoleRevoked', { account: authorized, roleId: ROLE });
+    });
+
+    it('a role\'s previous admins no longer grant roles', async function () {
       await expectRevert(
         this.accessControl.grantRole(ROLE, authorized, { from: admin }),
         'AccessControl: sender must be an admin to grant'
+      );
+    });
+
+    it('a role\'s previous admins no longer revoke roles', async function () {
+      await expectRevert(
+        this.accessControl.revokeRole(ROLE, authorized, { from: admin }),
+        'AccessControl: sender must be an admin to revoke'
       );
     });
   });
