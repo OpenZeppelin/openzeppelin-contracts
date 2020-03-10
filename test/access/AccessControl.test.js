@@ -128,7 +128,7 @@ describe('AccessControl', function () {
       await this.accessControl.grantRole(ROLE, authorized, { from: admin });
       await this.accessControl.grantRole(ROLE, otherAuthorized, { from: admin });
 
-      const memberCount = await this.accessControl.getRoleMembersCount(ROLE);
+      const memberCount = await this.accessControl.getRoleMemberCount(ROLE);
       expect(memberCount).to.bignumber.equal('2');
 
       const bearers = [];
