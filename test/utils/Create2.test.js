@@ -59,6 +59,11 @@ describe('Create2', function () {
       this.factory.deploy(saltHex, constructorByteCode, { from: deployerAccount }), 'Create2: Failed on deploy'
     );
   });
+  it('should failed deploying a contract if the bytecode length is zero', async function () {
+    await expectRevert(
+      this.factory.deploy(saltHex, '0x', { from: deployerAccount }), 'Create2: bytecode must have a length'
+    );
+  });
 });
 
 function computeCreate2Address (saltHex, bytecode, deployer) {

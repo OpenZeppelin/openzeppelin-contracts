@@ -19,6 +19,7 @@ library Create2 {
      */
     function deploy(bytes32 salt, bytes memory bytecode) internal returns (address) {
         address addr;
+        require(bytecode.length > 0, "Create2: bytecode must have a length");
         // solhint-disable-next-line no-inline-assembly
         assembly {
             addr := create2(0, add(bytecode, 0x20), mload(bytecode), salt)
