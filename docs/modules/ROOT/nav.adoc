@@ -5,7 +5,6 @@
 * xref:tokens.adoc[Tokens]
 ** xref:erc20.adoc[ERC20]
 *** xref:erc20-supply.adoc[Creating Supply]
-*** xref:crowdsales.adoc[Crowdsales]
 ** xref:erc721.adoc[ERC721]
 ** xref:erc777.adoc[ERC777]
 
