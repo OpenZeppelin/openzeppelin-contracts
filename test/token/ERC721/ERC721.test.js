@@ -9,7 +9,7 @@ const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
 const ERC721Mock = contract.fromArtifact('ERC721Mock');
 
 describe('ERC721', function () {
-  const [ owner, other ] = accounts;
+  const [ owner ] = accounts;
 
   beforeEach(async function () {
     this.token = await ERC721Mock.new();
