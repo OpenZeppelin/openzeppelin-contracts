@@ -159,23 +159,24 @@ abstract contract AccessControl is Context {
     /**
      * @dev Grants `role` to `account`.
      *
-     * Emits a {RoleGranted} event.
+     * If `account` had not been already granted `role`, emits a {RoleGranted}
+     * event.
      */
     function _grantRole(bytes32 role, address account) internal virtual {
-        _roles[role].members.add(account);
-
-        emit RoleGranted(role, account, msg.sender);
+        if (_roles[role].members.add(account)) {
+            emit RoleGranted(role, account, msg.sender);
+        }
     }
 
     /**
      * @dev Revokes `role` from `account`.
      *
-     * Emits a {RoleRevoked} event.
+     * If `account` had been granted `role`, emits a {RoleRevoked} event.
      */
     function _revokeRole(bytes32 role, address account) internal virtual {
-        _roles[role].members.remove(account);
-
-        emit RoleRevoked(role, account, msg.sender);
+        if (_roles[role].members.remove(account)) {
+            emit RoleRevoked(role, account, msg.sender);
+        }
     }
 
     /**
