@@ -19,9 +19,20 @@ contract ERC20Burnable is Context, ERC20 {
     }
 
     /**
-     * @dev See {ERC20-_burnFrom}.
+     * @dev Destroys `amount` tokens from `account`, deducting from the caller's
+     * allowance.
+     *
+     * See {ERC20-_burn} and {ERC20-allowance}.
+     *
+     * Requirements:
+     *
+     * - the caller must have allowance for `accounts`'s tokens of at least
+     * `amount`.
      */
     function burnFrom(address account, uint256 amount) public virtual {
-        _burnFrom(account, amount);
+        uint256 decreasedAllowance = allowance(account, _msgSender()).sub(amount, "ERC20: burn amount exceeds allowance");
+
+        _approve(account, _msgSender(), decreasedAllowance);
+        _burn(account, amount);
     }
 }
