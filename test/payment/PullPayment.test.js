@@ -46,16 +46,4 @@ describe('PullPayment', function () {
     expect(await balanceTracker.delta()).to.be.bignumber.equal(amount);
     expect(await this.contract.payments(payee1)).to.be.bignumber.equal('0');
   });
-
-  it('can withdraw payment forwarding all gas', async function () {
-    const balanceTracker = await balance.tracker(payee1);
-
-    await this.contract.callTransfer(payee1, amount, { from: payer });
-    expect(await this.contract.payments(payee1)).to.be.bignumber.equal(amount);
-
-    await this.contract.withdrawPaymentsWithGas(payee1);
-
-    expect(await balanceTracker.delta()).to.be.bignumber.equal(amount);
-    expect(await this.contract.payments(payee1)).to.be.bignumber.equal('0');
-  });
 });
