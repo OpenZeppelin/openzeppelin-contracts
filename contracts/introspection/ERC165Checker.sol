@@ -1,4 +1,4 @@
-pragma solidity ^0.6.0;
+pragma solidity ^0.6.2;
 
 /**
  * @dev Library used to query support of an interface declared via {IERC165}.
@@ -97,7 +97,7 @@ library ERC165Checker {
         returns (bool, bool)
     {
         bytes memory encodedParams = abi.encodeWithSelector(_INTERFACE_ID_ERC165, interfaceId);
-        (bool success, bytes memory result) = account.staticcall.gas(30000)(encodedParams);
+        (bool success, bytes memory result) = account.staticcall{ gas: 30000 }(encodedParams);
         if (result.length < 32) return (false, false);
         return (success, abi.decode(result, (bool)));
     }
