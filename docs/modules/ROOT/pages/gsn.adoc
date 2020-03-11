@@ -6,7 +6,7 @@ If you're new to the GSN, you probably want to first take a look at the xref:lea
 
 == Receiving a Relayed Call
 
-The first step to writing a recipient is to inherit from our GSNRecipient contract. If you're also inheriting from other contracts, such as ERC20 or Crowdsale, this will work just fine: adding GSNRecipient to all of your token or crowdsale functions will make them GSN-callable.
+The first step to writing a recipient is to inherit from our GSNRecipient contract. If you're also inheriting from other contracts, such as ERC20, this will work just fine: adding GSNRecipient will make all of your token functions GSN-callable.
 
 ```solidity
 import "@openzeppelin/contracts/GSN/GSNRecipient.sol";
