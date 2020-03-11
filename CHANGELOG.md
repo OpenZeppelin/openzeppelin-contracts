@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.0 (unreleased)
+
+### Breaking changes
+ * `ERC20`: removed `_burnFrom`. ([#2119](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2119))
+
 ## 2.5.0 (2020-02-04)
 
 ### New features
