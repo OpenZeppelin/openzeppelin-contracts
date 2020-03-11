@@ -42,7 +42,7 @@ abstract contract AccessControl is Context {
 
     struct Role {
         EnumerableSet.AddressSet members;
-        bytes32 admin; // This role's admin role
+        bytes32 adminRole;
     }
 
     mapping (bytes32 => Role) private _roles;
@@ -97,7 +97,7 @@ abstract contract AccessControl is Context {
      * To change a role's admin, use {_setRoleAdmin}.
      */
     function getRoleAdmin(bytes32 roleId) external view returns (bytes32) {
-        return _roles[roleId].admin;
+        return _roles[roleId].adminRole;
     }
 
     /**
@@ -110,7 +110,7 @@ abstract contract AccessControl is Context {
      * - the caller must have `roleId`'s admin role.
      */
     function grantRole(bytes32 roleId, address account) external virtual {
-        require(hasRole(_roles[roleId].admin, _msgSender()), "AccessControl: sender must be an admin to grant");
+        require(hasRole(_roles[roleId].adminRole, _msgSender()), "AccessControl: sender must be an admin to grant");
 
         _grantRole(roleId, account);
     }
@@ -125,7 +125,7 @@ abstract contract AccessControl is Context {
      * - the caller must have `roleId`'s admin role.
      */
     function revokeRole(bytes32 roleId, address account) external virtual {
-        require(hasRole(_roles[roleId].admin, _msgSender()), "AccessControl: sender must be an admin to revoke");
+        require(hasRole(_roles[roleId].adminRole, _msgSender()), "AccessControl: sender must be an admin to revoke");
 
         _revokeRole(roleId, account);
     }
@@ -173,6 +173,6 @@ abstract contract AccessControl is Context {
      * @dev Sets `adminRoleId` as `roleId` role's admin role.
      */
     function _setRoleAdmin(bytes32 roleId, bytes32 adminRoleId) internal virtual {
-        _roles[roleId].admin = adminRoleId;
+        _roles[roleId].adminRole = adminRoleId;
     }
 }
