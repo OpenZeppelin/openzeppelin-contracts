@@ -1,6 +1,7 @@
 pragma solidity ^0.6.0;
 
 import "../utils/EnumerableSet.sol";
+import "../GSN/Context.sol";
 
 /**
  * @dev Contract module that allows children to implement role-based access
@@ -19,7 +20,7 @@ import "../utils/EnumerableSet.sol";
  *
  * ```
  * function foo() public {
- *     require(hasRole(MY_ROLE, msg.sender));
+ *     require(hasRole(MY_ROLE, _msgSender()));
  *     ...
  * }
  * ```
@@ -36,7 +37,7 @@ import "../utils/EnumerableSet.sol";
  * roles. More complex role relationships can be created by using
  * {_setRoleAdmin}.
  */
-abstract contract AccessControl {
+abstract contract AccessControl is Context {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     struct Role {
@@ -109,7 +110,7 @@ abstract contract AccessControl {
      * - the caller must have `roleId`'s admin role.
      */
     function grantRole(bytes32 roleId, address account) external virtual {
-        require(hasRole(_roles[roleId].admin, msg.sender), "AccessControl: sender must be an admin to grant");
+        require(hasRole(_roles[roleId].admin, _msgSender()), "AccessControl: sender must be an admin to grant");
 
         _grantRole(roleId, account);
     }
@@ -124,7 +125,7 @@ abstract contract AccessControl {
      * - the caller must have `roleId`'s admin role.
      */
     function revokeRole(bytes32 roleId, address account) external virtual {
-        require(hasRole(_roles[roleId].admin, msg.sender), "AccessControl: sender must be an admin to revoke");
+        require(hasRole(_roles[roleId].admin, _msgSender()), "AccessControl: sender must be an admin to revoke");
 
         _revokeRole(roleId, account);
     }
@@ -141,7 +142,7 @@ abstract contract AccessControl {
      * - the caller must be `account`.
      */
     function renounceRole(bytes32 roleId, address account) external virtual {
-        require(account == msg.sender, "AccessControl: can only renounce roles for self");
+        require(account == _msgSender(), "AccessControl: can only renounce roles for self");
 
         _revokeRole(roleId, account);
     }
