@@ -40,43 +40,43 @@ import "../GSN/Context.sol";
 abstract contract AccessControl is Context {
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    struct Role {
+    struct RoleData {
         EnumerableSet.AddressSet members;
         bytes32 adminRole;
     }
 
-    mapping (bytes32 => Role) private _roles;
+    mapping (bytes32 => RoleData) private _roles;
 
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
 
     /**
-     * @dev Emitted when `account` is granted `roleId` role.
+     * @dev Emitted when `account` is granted `role`.
      */
-    event RoleGranted(bytes32 indexed roleId, address indexed account);
+    event RoleGranted(bytes32 indexed role, address indexed account);
 
     /**
-     * @dev Emitted when `account` is revoked the `roleId` role.
+     * @dev Emitted when `account` is revoked `role`.
      */
-    event RoleRevoked(bytes32 indexed roleId, address indexed account);
+    event RoleRevoked(bytes32 indexed role, address indexed account);
 
     /**
-     * @dev Returns `true` if `account` has the `roleId` role.
+     * @dev Returns `true` if `account` has been granted `role`.
      */
-    function hasRole(bytes32 roleId, address account) public view returns (bool) {
-        return _roles[roleId].members.contains(account);
+    function hasRole(bytes32 role, address account) public view returns (bool) {
+        return _roles[role].members.contains(account);
     }
 
     /**
-     * @dev Returns the number of accounts that have the `roleId` role. Can be
-     * used together with {getRoleMember} to enumerate all bearers of a role.
+     * @dev Returns the number of accounts that have `role`. Can be used
+     * together with {getRoleMember} to enumerate all bearers of a role.
      */
-    function getRoleMemberCount(bytes32 roleId) public view returns (uint256) {
-        return _roles[roleId].members.length();
+    function getRoleMemberCount(bytes32 role) public view returns (uint256) {
+        return _roles[role].members.length();
     }
 
     /**
-     * @dev Returns one of the accounts that has the `roleId` role. `index` must
-     * be a value between 0 and {getRoleMemberCount}, non-inclusive.
+     * @dev Returns one of the accounts that have `role`. `index` must be a
+     * value between 0 and {getRoleMemberCount}, non-inclusive.
      *
      * Role bearers are not sorted in any particular way, and their ordering may
      * change at any point.
@@ -86,52 +86,52 @@ abstract contract AccessControl is Context {
      * https://forum.openzeppelin.com/t/iterating-over-elements-on-enumerableset-in-openzeppelin-contracts/2296[forum post]
      * for more information.
      */
-    function getRoleMember(bytes32 roleId, uint256 index) public view returns (address) {
-        return _roles[roleId].members.get(index);
+    function getRoleMember(bytes32 role, uint256 index) public view returns (address) {
+        return _roles[role].members.get(index);
     }
 
     /**
-     * @dev Returns the role identifier for the admin role that controls
-     * `roleId` role. See {grantRole} and {revokeRole}.
+     * @dev Returns the admin role that controls `role`. See {grantRole} and
+     * {revokeRole}.
      *
      * To change a role's admin, use {_setRoleAdmin}.
      */
-    function getRoleAdmin(bytes32 roleId) external view returns (bytes32) {
-        return _roles[roleId].adminRole;
+    function getRoleAdmin(bytes32 role) external view returns (bytes32) {
+        return _roles[role].adminRole;
     }
 
     /**
-     * @dev Grants the `roleId` role to `account`.
+     * @dev Grants `role` to `account`.
      *
      * Calls {_grantRole} internally.
      *
      * Requirements:
      *
-     * - the caller must have `roleId`'s admin role.
+     * - the caller must have `role`'s admin role.
      */
-    function grantRole(bytes32 roleId, address account) external virtual {
-        require(hasRole(_roles[roleId].adminRole, _msgSender()), "AccessControl: sender must be an admin to grant");
+    function grantRole(bytes32 role, address account) external virtual {
+        require(hasRole(_roles[role].adminRole, _msgSender()), "AccessControl: sender must be an admin to grant");
 
-        _grantRole(roleId, account);
+        _grantRole(role, account);
     }
 
     /**
-     * @dev Revokes the `roleId` role from `account`.
+     * @dev Revokes `role` from `account`.
      *
      * Calls {_revokeRole} internally.
      *
      * Requirements:
      *
-     * - the caller must have `roleId`'s admin role.
+     * - the caller must have `role`'s admin role.
      */
-    function revokeRole(bytes32 roleId, address account) external virtual {
-        require(hasRole(_roles[roleId].adminRole, _msgSender()), "AccessControl: sender must be an admin to revoke");
+    function revokeRole(bytes32 role, address account) external virtual {
+        require(hasRole(_roles[role].adminRole, _msgSender()), "AccessControl: sender must be an admin to revoke");
 
-        _revokeRole(roleId, account);
+        _revokeRole(role, account);
     }
 
     /**
-     * @dev Revokes a role from calling account.
+     * @dev Revokes `role` from the calling account.
      *
      * Roles are often managed via {grantRole} and {revokeRole}: this function's
      * purpose is to provide a mechanism for accounts to lose their privileges
@@ -141,38 +141,38 @@ abstract contract AccessControl is Context {
      *
      * - the caller must be `account`.
      */
-    function renounceRole(bytes32 roleId, address account) external virtual {
+    function renounceRole(bytes32 role, address account) external virtual {
         require(account == _msgSender(), "AccessControl: can only renounce roles for self");
 
-        _revokeRole(roleId, account);
+        _revokeRole(role, account);
     }
 
     /**
-     * @dev Grants the `roleId` role to `account`.
+     * @dev Grants `role` to `account`.
      *
      * Emits a {RoleGranted} event.
      */
-    function _grantRole(bytes32 roleId, address account) internal virtual {
-        _roles[roleId].members.add(account);
+    function _grantRole(bytes32 role, address account) internal virtual {
+        _roles[role].members.add(account);
 
-        emit RoleGranted(roleId, account);
+        emit RoleGranted(role, account);
     }
 
     /**
-     * @dev Revokes the `roleId` role from `account`.
+     * @dev Revokes `role` from `account`.
      *
      * Emits a {RoleRevoked} event.
      */
-    function _revokeRole(bytes32 roleId, address account) internal virtual {
-        _roles[roleId].members.remove(account);
+    function _revokeRole(bytes32 role, address account) internal virtual {
+        _roles[role].members.remove(account);
 
-        emit RoleRevoked(roleId, account);
+        emit RoleRevoked(role, account);
     }
 
     /**
-     * @dev Sets `adminRoleId` as `roleId` role's admin role.
+     * @dev Sets `adminRole` as `role`'s admin role.
      */
-    function _setRoleAdmin(bytes32 roleId, bytes32 adminRoleId) internal virtual {
-        _roles[roleId].adminRole = adminRoleId;
+    function _setRoleAdmin(bytes32 role, bytes32 adminRole) internal virtual {
+        _roles[role].adminRole = adminRole;
     }
 }
