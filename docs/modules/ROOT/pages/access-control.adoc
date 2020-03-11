@@ -141,6 +141,8 @@ contract MyToken is ERC20, AccessControl {
     bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
 
     constructor() public {
+        // Grant the contract deployer the default admin role: it will be able
+        // to grant and revoke any roles
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
@@ -156,8 +158,25 @@ contract MyToken is ERC20, AccessControl {
 }
 ----
 
+Note that, unlike the previous examples, no accounts are granted the 'minter' or 'burner' roles. However, because those roles' admin role is the default admin role, and _that_ role was granted to `msg.sender`, that same account can call `grantRole` to give minting or burning permission, and `revokeRole` to remove it.
+
+Dynamic role allocation is a often a desirable property, for example in systems where trust in a participant may vary over time. It can also be used to support use cases such as https://en.wikipedia.org/wiki/Know_your_customer[KYC], where the list of role-bearers may not be known up-front, or may be prohibitively expensive to include in a single transaction.
+
 [[querying-privileged-accounts]]
 === Querying Privileged Accounts
+
+Because accounts might <<granting-and-revoking, grant and revoke roles>> dynamically, it is not always possible to determine which accounts hold a particular role. This is important as it allows to prove certain properties about a system, such as that an administrative account is a multisig or a DAO, or that a certain role has been removed from all users, effectively disabling any associated functionality.
+
+Under the hood, `AccessControl` uses `EnumerableSet`, a more powerful variant of Solidity's `mapping` type, which allows for key enumeration. `getRoleMemberCount` can be used to retrieve the number of accounts that have a particular role, and `getRoleMember` can then be called to get the address of each of these accounts.
+
+```javascript
+const minterCount = await myToken.getRoleMemberCount(MINTER_ROLE);
+
+const members = [];
+for (let i = 0; i < minterCount; ++i) {
+    members.push(await myToken.getRoleMember(MINTER_ROLE, i));
+}
+```
 
 [[usage-in-openzeppelin]]
 == Usage in OpenZeppelin
