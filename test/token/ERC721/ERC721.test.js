@@ -47,10 +47,10 @@ describe('ERC721', function () {
       });
     });
 
-    describe('_burn(address, uint256)', function () {
+    describe('_burn', function () {
       it('reverts when burning a non-existent token id', async function () {
         await expectRevert(
-          this.token.methods['burn(address,uint256)'](owner, tokenId), 'ERC721: owner query for nonexistent token'
+          this.token.burn(tokenId), 'ERC721: owner query for nonexistent token'
         );
       });
 
@@ -59,15 +59,9 @@ describe('ERC721', function () {
           await this.token.mint(owner, tokenId);
         });
 
-        it('reverts when the account is not the owner', async function () {
-          await expectRevert(
-            this.token.methods['burn(address,uint256)'](other, tokenId), 'ERC721: burn of token that is not own'
-          );
-        });
-
         context('with burnt token', function () {
           beforeEach(async function () {
-            ({ logs: this.logs } = await this.token.methods['burn(address,uint256)'](owner, tokenId));
+            ({ logs: this.logs } = await this.token.burn(tokenId));
           });
 
           it('emits a Transfer event', function () {
@@ -83,45 +77,7 @@ describe('ERC721', function () {
 
           it('reverts when burning a token id that has been deleted', async function () {
             await expectRevert(
-              this.token.methods['burn(address,uint256)'](owner, tokenId),
-              'ERC721: owner query for nonexistent token'
-            );
-          });
-        });
-      });
-    });
-
-    describe('_burn(uint256)', function () {
-      it('reverts when burning a non-existent token id', async function () {
-        await expectRevert(
-          this.token.methods['burn(uint256)'](tokenId), 'ERC721: owner query for nonexistent token'
-        );
-      });
-
-      context('with minted token', function () {
-        beforeEach(async function () {
-          await this.token.mint(owner, tokenId);
-        });
-
-        context('with burnt token', function () {
-          beforeEach(async function () {
-            ({ logs: this.logs } = await this.token.methods['burn(uint256)'](tokenId));
-          });
-
-          it('emits a Transfer event', function () {
-            expectEvent.inLogs(this.logs, 'Transfer', { from: owner, to: ZERO_ADDRESS, tokenId });
-          });
-
-          it('deletes the token', async function () {
-            expect(await this.token.balanceOf(owner)).to.be.bignumber.equal('0');
-            await expectRevert(
-              this.token.ownerOf(tokenId), 'ERC721: owner query for nonexistent token'
-            );
-          });
-
-          it('reverts when burning a token id that has been deleted', async function () {
-            await expectRevert(
-              this.token.methods['burn(uint256)'](tokenId), 'ERC721: owner query for nonexistent token'
+              this.token.burn(tokenId), 'ERC721: owner query for nonexistent token'
             );
           });
         });

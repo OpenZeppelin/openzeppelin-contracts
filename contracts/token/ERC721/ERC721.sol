@@ -269,12 +269,10 @@ contract ERC721 is Context, ERC165, IERC721 {
     /**
      * @dev Internal function to burn a specific token.
      * Reverts if the token does not exist.
-     * Deprecated, use {_burn} instead.
-     * @param owner owner of the token to burn
      * @param tokenId uint256 ID of the token being burned
      */
-    function _burn(address owner, uint256 tokenId) internal virtual {
-        require(ownerOf(tokenId) == owner, "ERC721: burn of token that is not own");
+    function _burn(uint256 tokenId) internal virtual {
+        address owner = ownerOf(tokenId);
 
         _beforeTokenTransfer(owner, address(0), tokenId);
 
@@ -285,15 +283,6 @@ contract ERC721 is Context, ERC165, IERC721 {
         _tokenOwner[tokenId] = address(0);
 
         emit Transfer(owner, address(0), tokenId);
-    }
-
-    /**
-     * @dev Internal function to burn a specific token.
-     * Reverts if the token does not exist.
-     * @param tokenId uint256 ID of the token being burned
-     */
-    function _burn(uint256 tokenId) internal virtual {
-        _burn(ownerOf(tokenId), tokenId);
     }
 
     /**
