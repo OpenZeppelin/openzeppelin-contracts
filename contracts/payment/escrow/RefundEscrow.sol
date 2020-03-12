@@ -7,10 +7,10 @@ import "./ConditionalEscrow.sol";
  * @dev Escrow that holds funds for a beneficiary, deposited from multiple
  * parties.
  * @dev Intended usage: See {Escrow}. Same usage guidelines apply here.
- * @dev The primary account (that is, the contract that instantiates this
+ * @dev The owner account (that is, the contract that instantiates this
  * contract) may deposit, close the deposit period, and allow for either
  * withdrawal by the beneficiary, or refunds to the depositors. All interactions
- * with `RefundEscrow` will be made through the primary contract.
+ * with `RefundEscrow` will be made through the owner contract.
  */
 contract RefundEscrow is ConditionalEscrow {
     enum State { Active, Refunding, Closed }
@@ -58,7 +58,7 @@ contract RefundEscrow is ConditionalEscrow {
      * @dev Allows for the beneficiary to withdraw their funds, rejecting
      * further deposits.
      */
-    function close() public onlyPrimary virtual {
+    function close() public onlyOwner virtual {
         require(_state == State.Active, "RefundEscrow: can only close while active");
         _state = State.Closed;
         emit RefundsClosed();
@@ -67,7 +67,7 @@ contract RefundEscrow is ConditionalEscrow {
     /**
      * @dev Allows for refunds to take place, rejecting further deposits.
      */
-    function enableRefunds() public onlyPrimary virtual {
+    function enableRefunds() public onlyOwner virtual {
         require(_state == State.Active, "RefundEscrow: can only enable refunds while active");
         _state = State.Refunding;
         emit RefundsEnabled();
