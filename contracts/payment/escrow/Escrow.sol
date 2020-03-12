@@ -1,7 +1,7 @@
 pragma solidity ^0.6.0;
 
 import "../../math/SafeMath.sol";
-import "../../ownership/Ownable.sol";
+import "../../access/Ownable.sol";
 import "../../utils/Address.sol";
 
  /**

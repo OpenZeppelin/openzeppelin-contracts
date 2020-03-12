@@ -2,7 +2,7 @@ pragma solidity ^0.6.0;
 
 import "./GSNRecipient.sol";
 import "../math/SafeMath.sol";
-import "../ownership/Ownable.sol";
+import "../access/Ownable.sol";
 import "../token/ERC20/SafeERC20.sol";
 import "../token/ERC20/ERC20.sol";
 import "../token/ERC20/ERC20Detailed.sol";
