@@ -94,4 +94,17 @@ library SafeCast {
         require(value < 2**8, "SafeCast: value doesn\'t fit in 8 bits");
         return uint8(value);
     }
+
+    /**
+     * @dev Returns the unsigned uint256 from int256, reverting if
+     * the input is negative.
+     *
+     * Requirements:
+     *
+     * - input must be greater or equal than 0.
+     */
+    function toUint256(int256 value) internal pure returns (uint256) {
+        require(value >= 0, "SafeCast: value is negative");
+        return uint256(value);
+    }
 }
