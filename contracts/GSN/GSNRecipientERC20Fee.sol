@@ -2,7 +2,7 @@ pragma solidity ^0.6.0;
 
 import "./GSNRecipient.sol";
 import "../math/SafeMath.sol";
-import "../ownership/Secondary.sol";
+import "../ownership/Ownable.sol";
 import "../token/ERC20/SafeERC20.sol";
 import "../token/ERC20/ERC20.sol";
 import "../token/ERC20/ERC20Detailed.sol";
@@ -17,20 +17,20 @@ import "../token/ERC20/ERC20Detailed.sol";
  * internal {_mint} function.
  */
 contract GSNRecipientERC20Fee is GSNRecipient {
-    using SafeERC20 for __unstable__ERC20PrimaryAdmin;
+    using SafeERC20 for __unstable__ERC20Owned;
     using SafeMath for uint256;
 
     enum GSNRecipientERC20FeeErrorCodes {
         INSUFFICIENT_BALANCE
     }
 
-    __unstable__ERC20PrimaryAdmin private _token;
+    __unstable__ERC20Owned private _token;
 
     /**
      * @dev The arguments to the constructor are the details that the gas payment token will have: `name` and `symbol`. `decimals` is hard-coded to 18.
      */
     constructor(string memory name, string memory symbol) public {
-        _token = new __unstable__ERC20PrimaryAdmin(name, symbol, 18);
+        _token = new __unstable__ERC20Owned(name, symbol, 18);
     }
 
     /**
@@ -106,42 +106,42 @@ contract GSNRecipientERC20Fee is GSNRecipient {
 }
 
 /**
- * @title __unstable__ERC20PrimaryAdmin
+ * @title __unstable__ERC20Owned
  * @dev An ERC20 token owned by another contract, which has minting permissions and can use transferFrom to receive
  * anyone's tokens. This contract is an internal helper for GSNRecipientERC20Fee, and should not be used
  * outside of this context.
  */
 // solhint-disable-next-line contract-name-camelcase
-contract __unstable__ERC20PrimaryAdmin is ERC20, ERC20Detailed, Secondary {
+contract __unstable__ERC20Owned is ERC20, ERC20Detailed, Ownable {
     uint256 private constant UINT256_MAX = 2**256 - 1;
 
     constructor(string memory name, string memory symbol, uint8 decimals) public ERC20Detailed(name, symbol, decimals) { }
 
-    // The primary account (GSNRecipientERC20Fee) can mint tokens
-    function mint(address account, uint256 amount) public onlyPrimary {
+    // The owner (GSNRecipientERC20Fee) can mint tokens
+    function mint(address account, uint256 amount) public onlyOwner {
         _mint(account, amount);
     }
 
-    // The primary account has 'infinite' allowance for all token holders
-    function allowance(address owner, address spender) public view override(ERC20, IERC20) returns (uint256) {
-        if (spender == primary()) {
+    // The owner has 'infinite' allowance for all token holders
+    function allowance(address tokenOwner, address spender) public view override(ERC20, IERC20) returns (uint256) {
+        if (spender == owner()) {
             return UINT256_MAX;
         } else {
-            return super.allowance(owner, spender);
+            return super.allowance(tokenOwner, spender);
         }
     }
 
-    // Allowance for the primary account cannot be changed (it is always 'infinite')
-    function _approve(address owner, address spender, uint256 value) internal override {
-        if (spender == primary()) {
+    // Allowance for the owner cannot be changed (it is always 'infinite')
+    function _approve(address tokenOwner, address spender, uint256 value) internal override {
+        if (spender == owner()) {
             return;
         } else {
-            super._approve(owner, spender, value);
+            super._approve(tokenOwner, spender, value);
         }
     }
 
     function transferFrom(address sender, address recipient, uint256 amount) public override(ERC20, IERC20) returns (bool) {
-        if (recipient == primary()) {
+        if (recipient == owner()) {
             _transfer(sender, recipient, amount);
             return true;
         } else {
