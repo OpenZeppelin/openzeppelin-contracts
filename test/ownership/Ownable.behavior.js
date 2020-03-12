@@ -10,12 +10,10 @@ function shouldBehaveLikeOwnable (owner, [other]) {
     });
 
     it('changes owner after transfer', async function () {
-      expect(await this.ownable.isOwner({ from: other })).to.equal(false);
       const receipt = await this.ownable.transferOwnership(other, { from: owner });
       expectEvent(receipt, 'OwnershipTransferred');
 
       expect(await this.ownable.owner()).to.equal(other);
-      expect(await this.ownable.isOwner({ from: other })).to.equal(true);
     });
 
     it('should prevent non-owners from transferring', async function () {
