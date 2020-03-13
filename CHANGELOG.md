@@ -4,6 +4,11 @@
 
 ### Breaking Changes
  * `ECDSA`: when receiving an invalid signature, `recover` now reverts instead of returning the zero address. ([#2114](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2114))
+ * `Pausable`: moved to the `utils` directory. ([#2122](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2122))
+ * `Strings`: moved to the `utils` directory. ([#2122](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2122))
+ * `Counters`: moved to the `utils` directory. ([#2122](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2122))
+ * `SignedSafeMath`: moved to the `math` directory. ([#2122](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2122))
+ * `ERC20Snapshot`: moved to the `token/ERC20` directory. `snapshot` was changed into an `internal` function. ([#2122](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2122))
 
 ## 2.5.0 (2020-02-04)
 
