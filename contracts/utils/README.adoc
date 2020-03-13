@@ -15,3 +15,5 @@ Miscellaneous contracts containing utility functions, often related to working w
 {{Create2}}
 
 {{ReentrancyGuard}}
+
+{{Pausable}}
