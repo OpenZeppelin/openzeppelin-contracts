@@ -34,7 +34,7 @@ describe('AccessControl', function () {
   describe('granting', function () {
     it('admin can grant role to other accounts', async function () {
       const receipt = await this.accessControl.grantRole(ROLE, authorized, { from: admin });
-      expectEvent(receipt, 'RoleGranted', { account: authorized, role: ROLE, operator: admin });
+      expectEvent(receipt, 'RoleGranted', { account: authorized, role: ROLE, sender: admin });
 
       expect(await this.accessControl.hasRole(ROLE, authorized)).to.equal(true);
     });
@@ -68,7 +68,7 @@ describe('AccessControl', function () {
 
       it('admin can revoke role', async function () {
         const receipt = await this.accessControl.revokeRole(ROLE, authorized, { from: admin });
-        expectEvent(receipt, 'RoleRevoked', { account: authorized, role: ROLE, operator: admin });
+        expectEvent(receipt, 'RoleRevoked', { account: authorized, role: ROLE, sender: admin });
 
         expect(await this.accessControl.hasRole(ROLE, authorized)).to.equal(false);
       });
@@ -102,7 +102,7 @@ describe('AccessControl', function () {
 
       it('bearer can renounce role', async function () {
         const receipt = await this.accessControl.renounceRole(ROLE, authorized, { from: authorized });
-        expectEvent(receipt, 'RoleRevoked', { account: authorized, role: ROLE, operator: authorized });
+        expectEvent(receipt, 'RoleRevoked', { account: authorized, role: ROLE, sender: authorized });
 
         expect(await this.accessControl.hasRole(ROLE, authorized)).to.equal(false);
       });
@@ -152,13 +152,13 @@ describe('AccessControl', function () {
 
     it('the new admin can grant roles', async function () {
       const receipt = await this.accessControl.grantRole(ROLE, authorized, { from: otherAdmin });
-      expectEvent(receipt, 'RoleGranted', { account: authorized, role: ROLE, operator: otherAdmin });
+      expectEvent(receipt, 'RoleGranted', { account: authorized, role: ROLE, sender: otherAdmin });
     });
 
     it('the new admin can revoke roles', async function () {
       await this.accessControl.grantRole(ROLE, authorized, { from: otherAdmin });
       const receipt = await this.accessControl.revokeRole(ROLE, authorized, { from: otherAdmin });
-      expectEvent(receipt, 'RoleRevoked', { account: authorized, role: ROLE, operator: otherAdmin });
+      expectEvent(receipt, 'RoleRevoked', { account: authorized, role: ROLE, sender: otherAdmin });
     });
 
     it('a role\'s previous admins no longer grant roles', async function () {
