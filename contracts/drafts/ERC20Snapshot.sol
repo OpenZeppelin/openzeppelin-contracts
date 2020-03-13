@@ -2,7 +2,7 @@ pragma solidity ^0.6.0;
 
 import "../math/SafeMath.sol";
 import "../utils/Arrays.sol";
-import "../drafts/Counters.sol";
+import "../utils/Counters.sol";
 import "../token/ERC20/ERC20.sol";
 
 /**
