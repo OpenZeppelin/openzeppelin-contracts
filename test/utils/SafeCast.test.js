@@ -42,5 +42,54 @@ describe('SafeCast', async () => {
     });
   }
 
+  function testSignedToUint (bits) {
+    describe(`toUint${bits}`, () => {
+      const maxValue = new BN('2').pow(new BN(bits)).subn(1);
+      const minValue = new BN('2').pow(new BN(bits - 1));
+
+      it('downcasts 0', async function () {
+        expect(await this.safeCast[`toUint${bits}`](0)).to.be.bignumber.equal('0');
+      });
+
+      it('downcasts 1', async function () {
+        expect(await this.safeCast[`toUint${bits}`](1)).to.be.bignumber.equal('1');
+      });
+
+      it(`downcasts -2^${bits - 1} - 1 (${minValue.subn(1)})`, async function () {
+        expect(await this.safeCast[`toUint${bits}`](minValue.subn(1))).to.be.bignumber.equal(minValue.subn(1));
+      });
+
+      it('reverts when downcasting -1', async function () {
+        await expectRevert(
+          this.safeCast[`toUint${bits}`](-1),
+          `SafeCast: negative value cannot be cast to uint${bits}`
+        );
+      });
+
+      it(`reverts when downcasting 2^${bits} - 1 (-1 in Two's complement)`, async function () {
+        await expectRevert(
+          this.safeCast[`toUint${bits}`](maxValue),
+          `SafeCast: negative value cannot be cast to uint${bits}`
+        );
+      });
+
+      it(`reverts when downcasting 2^${bits - 1} (-${minValue})`, async function () {
+        await expectRevert(
+          this.safeCast[`toUint${bits}`](minValue),
+          `SafeCast: negative value cannot be cast to uint${bits}`
+        );
+      });
+
+      it(`reverts when downcasting -2^${bits - 1} (-${minValue})`, async function () {
+        await expectRevert(
+          this.safeCast[`toUint${bits}`](minValue.neg()),
+          `SafeCast: negative value cannot be cast to uint${bits}`
+        );
+      });
+    });
+  }
+
   [8, 16, 32, 64, 128].forEach(bits => testToUint(bits));
+
+  [256].forEach(bits => testSignedToUint(bits));
 });
