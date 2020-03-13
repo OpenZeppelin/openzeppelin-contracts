@@ -104,7 +104,7 @@ library SafeCast {
      * - input must be greater or equal than 0.
      */
     function toUint256(int256 value) internal pure returns (uint256) {
-        require(value >= 0, "SafeCast: value is negative");
+        require(value >= 0, "SafeCast: negative value cannot be cast to uint256");
         return uint256(value);
     }
 }
