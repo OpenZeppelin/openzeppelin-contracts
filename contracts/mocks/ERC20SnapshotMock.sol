@@ -8,6 +8,10 @@ contract ERC20SnapshotMock is ERC20Snapshot {
         _mint(initialAccount, initialBalance);
     }
 
+    function snapshot() public {
+        _snapshot();
+    }
+
     function mint(address account, uint256 amount) public {
         _mint(account, amount);
     }

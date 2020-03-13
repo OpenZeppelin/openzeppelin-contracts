@@ -6,10 +6,7 @@ import "../utils/Counters.sol";
 import "../token/ERC20/ERC20.sol";
 
 /**
- * @title ERC20 token with snapshots.
- * @dev Inspired by Jordi Baylina's
- * https://github.com/Giveth/minimd/blob/ea04d950eea153a04c51fa510b068b9dded390cb/contracts/MiniMeToken.sol[MiniMeToken]
- * to record historical balances.
+ * @dev ERC20 token with snapshots.
  *
  * When a snapshot is made, the balances and total supply at the time of the snapshot are recorded for later
  * access.
@@ -21,6 +18,9 @@ import "../token/ERC20/ERC20.sol";
  * @author Validity Labs AG <info@validitylabs.org>
  */
 contract ERC20Snapshot is ERC20 {
+    // Inspired by Jordi Baylina's MiniMeToken to record historical balances:
+    // https://github.com/Giveth/minimd/blob/ea04d950eea153a04c51fa510b068b9dded390cb/contracts/MiniMeToken.sol
+
     using SafeMath for uint256;
     using Arrays for uint256[];
     using Counters for Counters.Counter;
@@ -40,10 +40,12 @@ contract ERC20Snapshot is ERC20 {
 
     event Snapshot(uint256 id);
 
-    // Creates a new snapshot id. Balances are only stored in snapshots on demand: unless a snapshot was taken, a
-    // balance change will not be recorded. This means the extra added cost of storing snapshotted balances is only paid
-    // when required, but is also flexible enough that it allows for e.g. daily snapshots.
-    function snapshot() public virtual returns (uint256) {
+    /**
+     * @dev Creates a new snapshot id. Balances are only stored in snapshots on demand: unless a snapshot was taken, a
+     * balance change will not be recorded. This means the extra added cost of storing snapshotted balances is only paid
+     * when required, but is also flexible enough that it allows for e.g. daily snapshots.
+     */
+    function _snapshot() internal virtual returns (uint256) {
         _currentSnapshotId.increment();
 
         uint256 currentId = _currentSnapshotId.current();
@@ -87,25 +89,26 @@ contract ERC20Snapshot is ERC20 {
         super._burn(account, value);
     }
 
-    // When a valid snapshot is queried, there are three possibilities:
-    //  a) The queried value was not modified after the snapshot was taken. Therefore, a snapshot entry was never
-    //  created for this id, and all stored snapshot ids are smaller than the requested one. The value that corresponds
-    //  to this id is the current one.
-    //  b) The queried value was modified after the snapshot was taken. Therefore, there will be an entry with the
-    //  requested id, and its value is the one to return.
-    //  c) More snapshots were created after the requested one, and the queried value was later modified. There will be
-    //  no entry for the requested id: the value that corresponds to it is that of the smallest snapshot id that is
-    //  larger than the requested one.
-    //
-    // In summary, we need to find an element in an array, returning the index of the smallest value that is larger if
-    // it is not found, unless said value doesn't exist (e.g. when all values are smaller). Arrays.findUpperBound does
-    // exactly this.
     function _valueAt(uint256 snapshotId, Snapshots storage snapshots)
         private view returns (bool, uint256)
     {
         require(snapshotId > 0, "ERC20Snapshot: id is 0");
         // solhint-disable-next-line max-line-length
         require(snapshotId <= _currentSnapshotId.current(), "ERC20Snapshot: nonexistent id");
+
+        // When a valid snapshot is queried, there are three possibilities:
+        //  a) The queried value was not modified after the snapshot was taken. Therefore, a snapshot entry was never
+        //  created for this id, and all stored snapshot ids are smaller than the requested one. The value that corresponds
+        //  to this id is the current one.
+        //  b) The queried value was modified after the snapshot was taken. Therefore, there will be an entry with the
+        //  requested id, and its value is the one to return.
+        //  c) More snapshots were created after the requested one, and the queried value was later modified. There will be
+        //  no entry for the requested id: the value that corresponds to it is that of the smallest snapshot id that is
+        //  larger than the requested one.
+        //
+        // In summary, we need to find an element in an array, returning the index of the smallest value that is larger if
+        // it is not found, unless said value doesn't exist (e.g. when all values are smaller). Arrays.findUpperBound does
+        // exactly this.
 
         uint256 index = snapshots.ids.findUpperBound(snapshotId);
 
