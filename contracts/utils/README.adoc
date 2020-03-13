@@ -10,6 +10,8 @@ Miscellaneous contracts containing utility functions, often related to working w
 
 {{Arrays}}
 
+{{Strings}}
+
 {{EnumerableSet}}
 
 {{Create2}}
