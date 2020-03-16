@@ -15,8 +15,6 @@ pragma solidity ^0.6.0;
  *
  * Include with `using EnumerableSet for EnumerableSet.AddressSet;`.
  *
- * _Available since v2.5.0._
- *
  * @author Alberto Cuesta Cañada
  */
 library EnumerableSet {
