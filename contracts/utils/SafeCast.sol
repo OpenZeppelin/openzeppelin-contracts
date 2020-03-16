@@ -96,15 +96,14 @@ library SafeCast {
     }
 
     /**
-     * @dev Returns the unsigned uint256 from int256, reverting if
-     * the input is negative.
+     * @dev Converts an unsigned uint256 into a signed int256.
      *
      * Requirements:
      *
-     * - input must be greater or equal than 0.
+     * - input must be greater than or equal to 0.
      */
     function toUint256(int256 value) internal pure returns (uint256) {
-        require(value >= 0, "SafeCast: negative value cannot be cast to uint256");
+        require(value >= 0, "SafeCast: value must be positive");
         return uint256(value);
     }
 }
