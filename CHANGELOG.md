@@ -2,12 +2,13 @@
 
 ## 3.0.0 (unreleased)
 
-### Breaking Changes
+### Breaking changes
  * `ECDSA`: when receiving an invalid signature, `recover` now reverts instead of returning the zero address. ([#2114](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2114))
  * `Ownable`: moved to the `access` directory. ([#2120](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2120))
  * `Ownable`: removed `isOwner`. ([#2120](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2120))
  * `Secondary`: removed from the library, use `Ownable` instead. ([#2120](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2120))
  * `Escrow`, `ConditionalEscrow`, `RefundEscrow`: these now use `Ownable` instead of `Secondary`, their external API changed accordingly. ([#2120](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2120))
+ * `ERC20`: removed `_burnFrom`. ([#2119](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2119))
 
 ## 2.5.0 (2020-02-04)
 
