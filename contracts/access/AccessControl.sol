@@ -164,7 +164,7 @@ abstract contract AccessControl is Context {
      */
     function _grantRole(bytes32 role, address account) internal virtual {
         if (_roles[role].members.add(account)) {
-            emit RoleGranted(role, account, msg.sender);
+            emit RoleGranted(role, account, _msgSender());
         }
     }
 
@@ -175,7 +175,7 @@ abstract contract AccessControl is Context {
      */
     function _revokeRole(bytes32 role, address account) internal virtual {
         if (_roles[role].members.remove(account)) {
-            emit RoleRevoked(role, account, msg.sender);
+            emit RoleRevoked(role, account, _msgSender());
         }
     }
 
