@@ -47,7 +47,7 @@ To keep your system secure, you should **always** use the installed code as-is, 
 The guides in the sidebar will teach about different concepts, and how to use the related contracts that OpenZeppelin Contracts provides:
 
 * xref:access-control.adoc[Access Control]: decide who can perform each of the actions on your system.
-* xref:tokens.adoc[Tokens]: create tradeable assets or collectives, and distribute them via xref:crowdsales.adoc[Crowdsales].
+* xref:tokens.adoc[Tokens]: create tradeable assets or collectibles, like the well known xref:erc20.adoc[ERC20] and xref:erc721.adoc[ERC721] standards.
 * xref:gsn.adoc[Gas Station Network]: let your users interact with your contracts without having to pay for gas themselves.
 * xref:utilities.adoc[Utilities]: generic useful tools, including non-overflowing math, signature verification, and trustless paying systems.
 
