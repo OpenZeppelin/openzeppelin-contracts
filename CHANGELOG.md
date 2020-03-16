@@ -4,6 +4,7 @@
 
 ### Breaking Changes
  * `ECDSA`: when receiving an invalid signature, `recover` now reverts instead of returning the zero address. ([#2114](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2114))
+ * `ERC20`: removed `_burnFrom`. ([#2119](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2119))
 
 ## 2.5.0 (2020-02-04)
 
