@@ -1,6 +1,6 @@
 {
   "package_name": "zeppelin",
-  "version": "2.5.0",
+  "version": "3.0.0-rc.0",
   "description": "Secure Smart Contract library for Solidity",
   "authors": [
     "OpenZeppelin Community <maintainers@openzeppelin.org>"
