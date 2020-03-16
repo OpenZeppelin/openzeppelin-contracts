@@ -33,16 +33,6 @@ library Address {
     }
 
     /**
-     * @dev Converts an `address` into `address payable`. Note that this is
-     * simply a type cast: the actual underlying value is not changed.
-     *
-     * _Available since v2.4.0._
-     */
-    function toPayable(address account) internal pure returns (address payable) {
-        return address(uint160(account));
-    }
-
-    /**
      * @dev Replacement for Solidity's `transfer`: sends `amount` wei to
      * `recipient`, forwarding all available gas and reverting on errors.
      *
