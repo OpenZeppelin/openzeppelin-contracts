@@ -135,7 +135,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      * Also emits a {IERC20-Transfer} event for ERC20 compatibility.
      */
     function send(address recipient, uint256 amount, bytes memory data) public override  {
-        _send(_msgSender(), _msgSender(), recipient, amount, data, "", true);
+        _send(_msgSender(), recipient, amount, data, "", true);
     }
 
     /**
@@ -166,7 +166,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      * Also emits a {IERC20-Transfer} event for ERC20 compatibility.
      */
     function burn(uint256 amount, bytes memory data) public override  {
-        _burn(_msgSender(), _msgSender(), amount, data, "");
+        _burn(_msgSender(), amount, data, "");
     }
 
     /**
@@ -233,7 +233,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     public override
     {
         require(isOperatorFor(_msgSender(), sender), "ERC777: caller is not an operator for holder");
-        _send(_msgSender(), sender, recipient, amount, data, operatorData, true);
+        _send(sender, recipient, amount, data, operatorData, true);
     }
 
     /**
@@ -243,7 +243,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      */
     function operatorBurn(address account, uint256 amount, bytes memory data, bytes memory operatorData) public override {
         require(isOperatorFor(_msgSender(), account), "ERC777: caller is not an operator for holder");
-        _burn(_msgSender(), account, amount, data, operatorData);
+        _burn(account, amount, data, operatorData);
     }
 
     /**
@@ -311,7 +311,6 @@ contract ERC777 is Context, IERC777, IERC20 {
      * interface.
      */
     function _mint(
-        address operator,
         address account,
         uint256 amount,
         bytes memory userData,
@@ -320,6 +319,8 @@ contract ERC777 is Context, IERC777, IERC20 {
     internal virtual
     {
         require(account != address(0), "ERC777: mint to the zero address");
+
+        address operator = _msgSender();
 
         // Update state variables
         _totalSupply = _totalSupply.add(amount);
@@ -333,7 +334,6 @@ contract ERC777 is Context, IERC777, IERC20 {
 
     /**
      * @dev Send tokens
-     * @param operator address operator requesting the transfer
      * @param from address token holder address
      * @param to address recipient address
      * @param amount uint256 amount of tokens to transfer
@@ -342,7 +342,6 @@ contract ERC777 is Context, IERC777, IERC20 {
      * @param requireReceptionAck if true, contract recipients are required to implement ERC777TokensRecipient
      */
     function _send(
-        address operator,
         address from,
         address to,
         uint256 amount,
@@ -355,6 +354,8 @@ contract ERC777 is Context, IERC777, IERC20 {
         require(from != address(0), "ERC777: send from the zero address");
         require(to != address(0), "ERC777: send to the zero address");
 
+        address operator = _msgSender();
+
         _callTokensToSend(operator, from, to, amount, userData, operatorData);
 
         _move(operator, from, to, amount, userData, operatorData);
@@ -364,14 +365,12 @@ contract ERC777 is Context, IERC777, IERC20 {
 
     /**
      * @dev Burn tokens
-     * @param operator address operator requesting the operation
      * @param from address token holder address
      * @param amount uint256 amount of tokens to burn
      * @param data bytes extra information provided by the token holder
      * @param operatorData bytes extra information provided by the operator (if any)
      */
     function _burn(
-        address operator,
         address from,
         uint256 amount,
         bytes memory data,
@@ -380,6 +379,8 @@ contract ERC777 is Context, IERC777, IERC20 {
         internal virtual
     {
         require(from != address(0), "ERC777: burn from the zero address");
+
+        address operator = _msgSender();
 
         _callTokensToSend(operator, from, address(0), amount, data, operatorData);
 
