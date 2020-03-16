@@ -6,4 +6,4 @@ Contract modules for authorization and access control mechanisms.
 
 {{Ownable}}
 
-{{Roles}}
+{{AccessControl}}
