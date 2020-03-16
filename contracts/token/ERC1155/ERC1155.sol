@@ -24,17 +24,22 @@ contract ERC1155 is ERC165, IERC1155
     // Mapping from account to operator approvals
     mapping (address => mapping(address => bool)) private _operatorApprovals;
 
-    constructor()
-        public
-    {
-        _registerInterface(
-            ERC1155(0).safeTransferFrom.selector ^
-            ERC1155(0).safeBatchTransferFrom.selector ^
-            ERC1155(0).balanceOf.selector ^
-            ERC1155(0).balanceOfBatch.selector ^
-            ERC1155(0).setApprovalForAll.selector ^
-            ERC1155(0).isApprovedForAll.selector
-        );
+    /*
+     *     bytes4(keccak256('balanceOf(address,uint256)')) == 0x00fdd58e
+     *     bytes4(keccak256('balanceOfBatch(address[],uint256[])')) == 0x4e1273f4
+     *     bytes4(keccak256('setApprovalForAll(address,bool)')) == 0xa22cb465
+     *     bytes4(keccak256('isApprovedForAll(address,address)')) == 0xe985e9c5
+     *     bytes4(keccak256('safeTransferFrom(address,address,uint256,uint256,bytes)')) == 0xf242432a
+     *     bytes4(keccak256('safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)')) == 0x2eb2c2d6
+     *
+     *     => 0x00fdd58e ^ 0x4e1273f4 ^ 0xa22cb465 ^
+     *        0xe985e9c5 ^ 0xf242432a ^ 0x2eb2c2d6 == 0xd9b67a26
+     */
+    bytes4 private constant _INTERFACE_ID_ERC1155 = 0xd9b67a26;
+
+    constructor() public {
+        // register the supported interfaces to conform to ERC1155 via ERC165
+        _registerInterface(_INTERFACE_ID_ERC1155);
     }
 
     /**
