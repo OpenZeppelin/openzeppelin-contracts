@@ -6,7 +6,7 @@ pragma solidity ^0.6.0;
  */
 library Strings {
     /**
-     * @dev Converts a `uint256` to a `string`.
+     * @dev Converts a `uint256` to its ASCII `string` representation.
      */
     function fromUint256(uint256 value) internal pure returns (string memory) {
         // Inspired by OraclizeAPI's implementation - MIT licence
