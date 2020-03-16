@@ -1,6 +1,6 @@
 pragma solidity ^0.6.0;
 
-import "../lifecycle/Pausable.sol";
+import "../utils/Pausable.sol";
 
 contract PausableMock is Pausable {
     bool public drasticMeasureTaken;
