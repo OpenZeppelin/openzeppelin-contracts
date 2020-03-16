@@ -13,15 +13,11 @@ contract Create2Impl {
         Create2.deploy(salt, type(ERC20).creationCode);
     }
 
-    function computeAddress(bytes32 salt, bytes memory code) public view returns (address) {
-        return Create2.computeAddress(salt, code);
+    function computeAddress(bytes32 salt, bytes32 codeHash) public view returns (address) {
+        return Create2.computeAddress(salt, codeHash);
     }
 
-    function computeAddress(bytes32 salt, bytes memory code, address deployer) public pure returns (address) {
-        return Create2.computeAddress(salt, code, deployer);
-    }
-
-    function computeAddress(bytes32 salt, bytes32 codeHash, address deployer) public pure returns (address) {
+    function computeAddressWithDeployer(bytes32 salt, bytes32 codeHash, address deployer) public pure returns (address) {
         return Create2.computeAddress(salt, codeHash, deployer);
     }
 }

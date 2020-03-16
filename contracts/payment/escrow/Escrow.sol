@@ -1,7 +1,7 @@
 pragma solidity ^0.6.0;
 
 import "../../math/SafeMath.sol";
-import "../../ownership/Secondary.sol";
+import "../../access/Ownable.sol";
 import "../../utils/Address.sol";
 
  /**
@@ -14,10 +14,10 @@ import "../../utils/Address.sol";
   * it. That way, it is guaranteed that all Ether will be handled according to
   * the `Escrow` rules, and there is no need to check for payable functions or
   * transfers in the inheritance tree. The contract that uses the escrow as its
-  * payment method should be its primary, and provide public methods redirecting
+  * payment method should be its owner, and provide public methods redirecting
   * to the escrow's deposit and withdraw.
   */
-contract Escrow is Secondary {
+contract Escrow is Ownable {
     using SafeMath for uint256;
     using Address for address payable;
 
@@ -34,7 +34,7 @@ contract Escrow is Secondary {
      * @dev Stores the sent amount as credit to be withdrawn.
      * @param payee The destination address of the funds.
      */
-    function deposit(address payee) public virtual payable onlyPrimary {
+    function deposit(address payee) public virtual payable onlyOwner {
         uint256 amount = msg.value;
         _deposits[payee] = _deposits[payee].add(amount);
 
@@ -51,7 +51,7 @@ contract Escrow is Secondary {
      *
      * @param payee The address whose funds will be withdrawn and transferred to.
      */
-    function withdraw(address payable payee) public virtual onlyPrimary {
+    function withdraw(address payable payee) public virtual onlyOwner {
         uint256 payment = _deposits[payee];
 
         _deposits[payee] = 0;
