@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.0.0 (unreleased)
+
+### New features
+ * `AccessControl`: new contract for managing permissions in a system, replacement for `Ownable` and `Roles`. ([#2112](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2112))
+
+### Breaking changes
+ * `Roles` was removed, use `AccessControl` as a replacement. ([#2112](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2112))
+
 ## 2.5.0 (2020-02-04)
 
 ### New features
