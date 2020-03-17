@@ -65,7 +65,7 @@
     "mocha": "^7.1.0",
     "solhint": "^3.0.0-rc.5",
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
-    "solidity-docgen": "^0.3.14"
+    "solidity-docgen": "^0.4.0-beta.1"
   },
   "dependencies": {}
 }
