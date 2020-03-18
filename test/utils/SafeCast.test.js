@@ -42,44 +42,44 @@ describe('SafeCast', async () => {
     });
   }
 
+  [8, 16, 32, 64, 128].forEach(bits => testToUint(bits));
+
   describe('toUint256', () => {
     const maxInt256 = new BN('1').shln(255).notn(256);
     const minInt256 = new BN('1').shln(255);
     const maxUint256 = new BN('0').notn(256);
 
-    it('downcasts 0', async function () {
+    it('casts 0', async function () {
       expect(await this.safeCast.toUint256(0)).to.be.bignumber.equal('0');
     });
 
-    it('downcasts 1', async function () {
+    it('casts 1', async function () {
       expect(await this.safeCast.toUint256(1)).to.be.bignumber.equal('1');
     });
 
-    it(`downcasts INT256_MAX ${maxInt256}`, async function () {
+    it(`casts INT256_MAX ${maxInt256}`, async function () {
       expect(await this.safeCast.toUint256(maxInt256)).to.be.bignumber.equal(maxInt256);
     });
 
-    it('reverts when downcasting -1', async function () {
+    it('reverts when casting -1', async function () {
       await expectRevert(
         this.safeCast.toUint256(-1),
         'SafeCast: value must be positive'
       );
     });
 
-    it(`reverts when downcasting INT256_MIN ${minInt256}`, async function () {
+    it(`reverts when casting INT256_MIN ${minInt256}`, async function () {
       await expectRevert(
         this.safeCast.toUint256(minInt256),
         'SafeCast: value must be positive'
       );
     });
 
-    it(`reverts when downcasting UINT256_MAX ${maxUint256}`, async function () {
+    it(`reverts when casting UINT256_MAX ${maxUint256}`, async function () {
       await expectRevert(
         this.safeCast.toUint256(maxUint256),
         'SafeCast: value must be positive'
       );
     });
   });
-
-  [8, 16, 32, 64, 128].forEach(bits => testToUint(bits));
 });
