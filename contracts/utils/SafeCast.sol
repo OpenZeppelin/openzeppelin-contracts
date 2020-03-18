@@ -106,5 +106,4 @@ library SafeCast {
         require(value >= 0, "SafeCast: value must be positive");
         return uint256(value);
     }
-    }
 }
