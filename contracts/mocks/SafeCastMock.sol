@@ -10,6 +10,10 @@ contract SafeCastMock {
         return a.toUint256();
     }
 
+    function toInt256(uint a) public pure returns (int256) {
+        return a.toInt256();
+    }
+
     function toUint128(uint a) public pure returns (uint128) {
         return a.toUint128();
     }

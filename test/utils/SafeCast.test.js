@@ -82,4 +82,35 @@ describe('SafeCast', async () => {
       );
     });
   });
+
+  describe('toInt256', () => {
+    const maxUint256 = new BN('0').notn(256);
+    const maxInt256 = new BN('1').shln(255).notn(256);
+
+    it('casts 0', async function () {
+      expect(await this.safeCast.toInt256(0)).to.be.bignumber.equal('0');
+    });
+
+    it('casts 1', async function () {
+      expect(await this.safeCast.toInt256(1)).to.be.bignumber.equal('1');
+    });
+
+    it(`casts INT256_MAX ${maxInt256}`, async function () {
+      expect(await this.safeCast.toInt256(maxInt256)).to.be.bignumber.equal(maxInt256);
+    });
+
+    it(`reverts when casting INT256_MAX + 1 ${maxInt256.addn(1)}`, async function () {
+      await expectRevert(
+        this.safeCast.toInt256(maxInt256.addn(1)),
+        'SafeCast: value doesn\'t fit in 255 bits'
+      );
+    });
+
+    it(`reverts when casting UINT256_MAX ${maxUint256}`, async function () {
+      await expectRevert(
+        this.safeCast.toInt256(maxUint256),
+        'SafeCast: value doesn\'t fit in 255 bits'
+      );
+    });
+  });
 });
