@@ -19,10 +19,6 @@ contract ERC721Mock is ERC721 {
         _mint(to, tokenId);
     }
 
-    function burn(address owner, uint256 tokenId) public {
-        _burn(owner, tokenId);
-    }
-
     function burn(uint256 tokenId) public {
         _burn(tokenId);
     }

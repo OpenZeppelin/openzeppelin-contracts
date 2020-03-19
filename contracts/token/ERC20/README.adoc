@@ -43,6 +43,8 @@ NOTE: This page is incomplete. We're working to improve it for the next release.
 
 {{ERC20Capped}}
 
+{{ERC20Snapshot}}
+
 == Utilities
 
 {{SafeERC20}}

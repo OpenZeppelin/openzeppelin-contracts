@@ -1,7 +1,7 @@
 pragma solidity ^0.6.0;
 
 import "./ERC20.sol";
-import "../../lifecycle/Pausable.sol";
+import "../../utils/Pausable.sol";
 
 /**
  * @title Pausable token

@@ -6,11 +6,11 @@ const { shouldBehaveLikeEscrow } = require('./Escrow.behavior');
 const Escrow = contract.fromArtifact('Escrow');
 
 describe('Escrow', function () {
-  const [ primary, ...otherAccounts ] = accounts;
+  const [ owner, ...otherAccounts ] = accounts;
 
   beforeEach(async function () {
-    this.escrow = await Escrow.new({ from: primary });
+    this.escrow = await Escrow.new({ from: owner });
   });
 
-  shouldBehaveLikeEscrow(primary, otherAccounts);
+  shouldBehaveLikeEscrow(owner, otherAccounts);
 });

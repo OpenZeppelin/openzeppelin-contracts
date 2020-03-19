@@ -1,5 +1,5 @@
 pragma solidity ^0.6.0;
 
-import "../ownership/Ownable.sol";
+import "../access/Ownable.sol";
 
 contract OwnableMock is Ownable { }

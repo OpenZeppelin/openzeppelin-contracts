@@ -300,7 +300,7 @@ describe('ERC777', function () {
 
             it('mint (internal) reverts', async function () {
               await expectRevert(
-                this.token.mintInternal(operator, this.recipient, amount, data, operatorData),
+                this.token.mintInternal(this.recipient, amount, data, operatorData, { from: operator }),
                 'ERC777: token recipient contract has no implementer for ERC777TokensRecipient',
               );
             });
