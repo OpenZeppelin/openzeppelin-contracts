@@ -17,13 +17,13 @@ library Create2 {
      * will be deployed can be known in advance via {computeAddress}. Note that
      * a contract cannot be deployed twice using the same salt.
      */
-    function deploy(uint256 value, bytes32 salt, bytes memory bytecode) internal returns (address) {
+    function deploy(uint256 amount, bytes32 salt, bytes memory bytecode) internal returns (address) {
         address addr;
-        require(address(this).balance >= value, "Factory does not have enough funds to fufill deposit");
-        require(bytecode.length > 0, "Create2: bytecode length is zero");
+        require(address(this).balance >= amount, "Factory does not have enough funds to fufill deposit");
+        require(bytecode.length != 0, "Create2: bytecode length is zero");
         // solhint-disable-next-line no-inline-assembly
         assembly {
-            addr := create2(value, add(bytecode, 0x20), mload(bytecode), salt)
+            addr := create2(amount, add(bytecode, 0x20), mload(bytecode), salt)
         }
         require(addr != address(0), "Create2: Failed on deploy");
         return addr;
