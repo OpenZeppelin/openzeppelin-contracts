@@ -113,7 +113,7 @@ library SafeCast {
      * - input must be less than or equal to maxInt256.
      */
     function toInt256(uint256 value) internal pure returns (int256) {
-        require(value < 2**255, "SafeCast: value doesn\'t fit in 255 bits");
+        require(value < 2**255, "SafeCast: value doesn't fit in an int256");
         return int256(value);
     }
 }
