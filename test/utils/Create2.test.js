@@ -59,12 +59,10 @@ describe('Create2', function () {
     expect(await balance.current(this.factory.address)).to.be.bignumber.equal(deposit);
 
     const onChainComputed = await this.factory
-      .computeAddressWithDeployer(saltHex, web3.utils.keccak256(constructorByteCode), deployerAccount);
+      .computeAddressWithDeployer(saltHex, web3.utils.keccak256(constructorByteCode), this.factory.address);
 
-    const amount = new BN(0);
-
-    await this.factory.deploy(amount, saltHex, constructorByteCode, { from: deployerAccount });
-    expect(await balance.current(onChainComputed)).to.be.bignumber.equal(amount);
+    await this.factory.deploy(deposit, saltHex, constructorByteCode, { from: deployerAccount });
+    expect(await balance.current(onChainComputed)).to.be.bignumber.equal(deposit);
   });
 
   it('should failed deploying a contract in an existent address', async function () {
