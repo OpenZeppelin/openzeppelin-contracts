@@ -8,8 +8,6 @@ pragma solidity ^0.6.0;
  *
  * See the https://eips.ethereum.org/EIPS/eip-1014#motivation[EIP] for more
  * information.
- *
- * _Available since v2.5.0._
  */
 library Create2 {
     /**

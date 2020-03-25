@@ -5,7 +5,7 @@ import "./IERC721.sol";
 import "./IERC721Receiver.sol";
 import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";
-import "../../drafts/Counters.sol";
+import "../../utils/Counters.sol";
 import "../../introspection/ERC165.sol";
 
 /**
@@ -269,12 +269,10 @@ contract ERC721 is Context, ERC165, IERC721 {
     /**
      * @dev Internal function to burn a specific token.
      * Reverts if the token does not exist.
-     * Deprecated, use {_burn} instead.
-     * @param owner owner of the token to burn
      * @param tokenId uint256 ID of the token being burned
      */
-    function _burn(address owner, uint256 tokenId) internal virtual {
-        require(ownerOf(tokenId) == owner, "ERC721: burn of token that is not own");
+    function _burn(uint256 tokenId) internal virtual {
+        address owner = ownerOf(tokenId);
 
         _beforeTokenTransfer(owner, address(0), tokenId);
 
@@ -285,15 +283,6 @@ contract ERC721 is Context, ERC165, IERC721 {
         _tokenOwner[tokenId] = address(0);
 
         emit Transfer(owner, address(0), tokenId);
-    }
-
-    /**
-     * @dev Internal function to burn a specific token.
-     * Reverts if the token does not exist.
-     * @param tokenId uint256 ID of the token being burned
-     */
-    function _burn(uint256 tokenId) internal virtual {
-        _burn(ownerOf(tokenId), tokenId);
     }
 
     /**
@@ -324,7 +313,6 @@ contract ERC721 is Context, ERC165, IERC721 {
      * @dev Internal function to invoke {IERC721Receiver-onERC721Received} on a target address.
      * The call is not executed if the target address is not a contract.
      *
-     * This is an internal detail of the `ERC721` contract and its use is deprecated.
      * @param from address representing the previous owner of the given token ID
      * @param to target address that will receive the tokens
      * @param tokenId uint256 ID of the token to be transferred
@@ -332,7 +320,7 @@ contract ERC721 is Context, ERC165, IERC721 {
      * @return bool whether the call correctly returned the expected magic value
      */
     function _checkOnERC721Received(address from, address to, uint256 tokenId, bytes memory _data)
-        internal virtual returns (bool)
+        private returns (bool)
     {
         if (!to.isContract()) {
             return true;

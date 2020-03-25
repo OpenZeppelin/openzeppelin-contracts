@@ -15,8 +15,6 @@ pragma solidity ^0.6.0;
  *
  * Can be combined with {SafeMath} to extend it to smaller types, by performing
  * all math on `uint256` and then downcasting.
- *
- * _Available since v2.5.0._
  */
 library SafeCast {
 
