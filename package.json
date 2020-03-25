@@ -52,7 +52,7 @@
     "@openzeppelin/test-helpers": "^0.5.5",
     "chai": "^4.2.0",
     "eslint": "^6.5.1",
-    "eslint-config-standard": "^14.1.0",
+    "eslint-config-standard": "^14.1.1",
     "eslint-plugin-import": "^2.20.0",
     "eslint-plugin-mocha-no-only": "^1.1.0",
     "eslint-plugin-node": "^10.0.0",
