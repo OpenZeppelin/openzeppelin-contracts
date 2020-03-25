@@ -19,7 +19,7 @@ library Create2 {
      */
     function deploy(uint256 amount, bytes32 salt, bytes memory bytecode) internal returns (address) {
         address addr;
-        require(address(this).balance >= amount, "Factory does not have enough funds to fufill deposit");
+        require(address(this).balance >= amount, "Create2: insufficient balance");
         require(bytecode.length != 0, "Create2: bytecode length is zero");
         // solhint-disable-next-line no-inline-assembly
         assembly {

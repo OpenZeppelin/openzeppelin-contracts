@@ -81,7 +81,7 @@ describe('Create2', function () {
   it('should fail deploying a contract if factory contract does not have sufficient balance', async function () {
     await expectRevert(
       this.factory.deploy(1, saltHex, constructorByteCode, { from: deployerAccount }),
-      'Factory does not have enough funds to fufill deposit'
+      'Create2: insufficient balance'
     );
   });
 });
