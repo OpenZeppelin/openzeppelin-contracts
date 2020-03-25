@@ -14,8 +14,17 @@ pragma solidity ^0.6.0;
 library Create2 {
     /**
      * @dev Deploys a contract using `CREATE2`. The address where the contract
-     * will be deployed can be known in advance via {computeAddress}. Note that
-     * a contract cannot be deployed twice using the same salt.
+     * will be deployed can be known in advance via {computeAddress}.
+     *
+     * The bytecode for a contract can be obtained from Solidity with
+     * `type(contractName).creationCode`.
+     *
+     * Requirements:
+     *
+     * - `bytecode` must not be empty.
+     * - `salt` must have not been used for `bytecode` already.
+     * - the factory must have a balance of at least `amount`.
+     * - if `amount` is non-zero, `bytecode` must have a `payable` constructor.
      */
     function deploy(uint256 amount, bytes32 salt, bytes memory bytecode) internal returns (address) {
         address addr;
@@ -30,8 +39,8 @@ library Create2 {
     }
 
     /**
-     * @dev Returns the address where a contract will be stored if deployed via {deploy}. Any change in the `bytecodeHash`
-     * or `salt` will result in a new destination address.
+     * @dev Returns the address where a contract will be stored if deployed via {deploy}. Any change in the
+     * `bytecodeHash` or `salt` will result in a new destination address.
      */
     function computeAddress(bytes32 salt, bytes32 bytecodeHash) internal view returns (address) {
         return computeAddress(salt, bytecodeHash, address(this));
