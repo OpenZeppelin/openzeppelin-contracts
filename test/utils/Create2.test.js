@@ -71,11 +71,13 @@ describe('Create2', function () {
       this.factory.deploy(0, saltHex, constructorByteCode, { from: deployerAccount }), 'Create2: Failed on deploy'
     );
   });
+
   it('should fail deploying a contract if the bytecode length is zero', async function () {
     await expectRevert(
       this.factory.deploy(0, saltHex, '0x', { from: deployerAccount }), 'Create2: bytecode length is zero'
     );
   });
+
   it('should fail deploying a contract if factory contract does not have sufficient balance', async function () {
     await expectRevert(
       this.factory.deploy(1, saltHex, constructorByteCode, { from: deployerAccount }),
