@@ -61,7 +61,7 @@ describe('Create2', function () {
     const onChainComputed = await this.factory
       .computeAddressWithDeployer(saltHex, web3.utils.keccak256(constructorByteCode), this.factory.address);
 
-    await this.factory.deploy(deposit, saltHex, constructorByteCode, { from: deployerAccount });
+    await this.factory.deploy(deposit, saltHex, constructorByteCode);
     expect(await balance.current(onChainComputed)).to.be.bignumber.equal(deposit);
   });
 
