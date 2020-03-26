@@ -121,7 +121,8 @@ library EnumerableSet {
         return set.values.length;
     }
 
-   /** @dev Returns the element stored at position `index` in the set. O(1).
+    /**
+    * @dev Returns the element stored at position `index` in the set. O(1).
     * Note that there are no guarantees on the ordering of values inside the
     * array, and it may change when more values are added or removed.
     *
@@ -134,6 +135,7 @@ library EnumerableSet {
         view
         returns (address)
     {
+        require(set.values.length > index, "EnumerableSet: index out of bounds");
         return set.values[index];
     }
 }
