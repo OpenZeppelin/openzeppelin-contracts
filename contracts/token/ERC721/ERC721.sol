@@ -2,17 +2,18 @@ pragma solidity ^0.6.0;
 
 import "../../GSN/Context.sol";
 import "./IERC721.sol";
+import "./IERC721Metadata.sol";
 import "./IERC721Receiver.sol";
+import "../../introspection/ERC165.sol";
 import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";
 import "../../utils/Counters.sol";
-import "../../introspection/ERC165.sol";
 
 /**
  * @title ERC721 Non-Fungible Token Standard basic implementation
  * @dev see https://eips.ethereum.org/EIPS/eip-721
  */
-contract ERC721 is Context, ERC165, IERC721 {
+contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     using SafeMath for uint256;
     using Address for address;
     using Counters for Counters.Counter;
@@ -33,6 +34,27 @@ contract ERC721 is Context, ERC165, IERC721 {
     // Mapping from owner to operator approvals
     mapping (address => mapping (address => bool)) private _operatorApprovals;
 
+    // Token name
+    string private _name;
+
+    // Token symbol
+    string private _symbol;
+
+    // Optional mapping for token URIs
+    mapping(uint256 => string) private _tokenURIs;
+
+    // Base URI
+    string private _baseURI;
+
+    /*
+     *     bytes4(keccak256('name()')) == 0x06fdde03
+     *     bytes4(keccak256('symbol()')) == 0x95d89b41
+     *     bytes4(keccak256('tokenURI(uint256)')) == 0xc87b56dd
+     *
+     *     => 0x06fdde03 ^ 0x95d89b41 ^ 0xc87b56dd == 0x5b5e139f
+     */
+    bytes4 private constant _INTERFACE_ID_ERC721_METADATA = 0x5b5e139f;
+
     /*
      *     bytes4(keccak256('balanceOf(address)')) == 0x70a08231
      *     bytes4(keccak256('ownerOf(uint256)')) == 0x6352211e
@@ -49,9 +71,13 @@ contract ERC721 is Context, ERC165, IERC721 {
      */
     bytes4 private constant _INTERFACE_ID_ERC721 = 0x80ac58cd;
 
-    constructor () public {
+    constructor (string memory name, string memory symbol) public {
+        _name = name;
+        _symbol = symbol;
+
         // register the supported interfaces to conform to ERC721 via ERC165
         _registerInterface(_INTERFACE_ID_ERC721);
+        _registerInterface(_INTERFACE_ID_ERC721_METADATA);
     }
 
     /**
@@ -75,6 +101,53 @@ contract ERC721 is Context, ERC165, IERC721 {
         require(owner != address(0), "ERC721: owner query for nonexistent token");
 
         return owner;
+    }
+
+    /**
+     * @dev Gets the token name.
+     * @return string representing the token name
+     */
+    function name() external view override returns (string memory) {
+        return _name;
+    }
+
+    /**
+     * @dev Gets the token symbol.
+     * @return string representing the token symbol
+     */
+    function symbol() external view override returns (string memory) {
+        return _symbol;
+    }
+
+    /**
+     * @dev Returns the URI for a given token ID. May return an empty string.
+     *
+     * If the token's URI is non-empty and a base URI was set (via
+     * {_setBaseURI}), it will be added to the token ID's URI as a prefix.
+     *
+     * Reverts if the token ID does not exist.
+     */
+    function tokenURI(uint256 tokenId) external view override returns (string memory) {
+        require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
+
+        string memory _tokenURI = _tokenURIs[tokenId];
+
+        // Even if there is a base URI, it is only appended to non-empty token-specific URIs
+        if (bytes(_tokenURI).length == 0) {
+            return "";
+        } else {
+            // abi.encodePacked is being used to concatenate strings
+            return string(abi.encodePacked(_baseURI, _tokenURI));
+        }
+    }
+
+    /**
+    * @dev Returns the base URI set via {_setBaseURI}. This will be
+    * automatically added as a preffix in {tokenURI} to each token's URI, when
+    * they are non-empty.
+    */
+    function baseURI() external view returns (string memory) {
+        return _baseURI;
     }
 
     /**
@@ -276,6 +349,11 @@ contract ERC721 is Context, ERC165, IERC721 {
 
         _beforeTokenTransfer(owner, address(0), tokenId);
 
+        // Clear metadata (if any)
+        if (bytes(_tokenURIs[tokenId]).length != 0) {
+            delete _tokenURIs[tokenId];
+        }
+
         // Clear approvals
         _approve(address(0), tokenId);
 
@@ -307,6 +385,28 @@ contract ERC721 is Context, ERC165, IERC721 {
         _tokenOwner[tokenId] = to;
 
         emit Transfer(from, to, tokenId);
+    }
+
+    /**
+     * @dev Internal function to set the token URI for a given token.
+     *
+     * Reverts if the token ID does not exist.
+     *
+     * TIP: if all token IDs share a prefix (e.g. if your URIs look like
+     * `http://api.myproject.com/token/<id>`), use {_setBaseURI} to store
+     * it and save gas.
+     */
+    function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
+        require(_exists(tokenId), "ERC721Metadata: URI set of nonexistent token");
+        _tokenURIs[tokenId] = _tokenURI;
+    }
+
+    /**
+     * @dev Internal function to set the base URI for all token IDs. It is
+     * automatically added as a prefix to the value returned in {tokenURI}.
+     */
+    function _setBaseURI(string memory baseURI) internal virtual {
+        _baseURI = baseURI;
     }
 
     /**
