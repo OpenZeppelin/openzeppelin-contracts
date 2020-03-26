@@ -8,6 +8,8 @@ import "./ERC721.sol";
  * @dev ERC721 Token that can be irreversibly burned (destroyed).
  */
 contract ERC721Burnable is Context, ERC721 {
+    constructor (string memory name, string memory symbol) public ERC721(name, symbol) { }
+
     /**
      * @dev Burns a specific ERC721 token.
      * @param tokenId uint256 id of the ERC721 token to be burned.
