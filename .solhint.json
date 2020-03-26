@@ -4,6 +4,7 @@
     "func-order": "off",
     "mark-callable-contracts": "off",
     "no-empty-blocks": "off",
-    "compiler-version": ["error", "^0.6.0"]
+    "compiler-version": ["error", "^0.6.0"],
+    "private-vars-leading-underscore": "error"
   }
 }
