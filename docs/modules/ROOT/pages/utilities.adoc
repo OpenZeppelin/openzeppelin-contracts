@@ -83,13 +83,18 @@ Easy!
 
 Want to split some payments between multiple people? Maybe you have an app that sends 30% of art purchases to the original creator and 70% of the profits to the current owner; you can build that with xref:api:payment.adoc#PaymentSplitter[`PaymentSplitter`]!
 
-In solidity, there are some security concerns with blindly sending money to accounts, since it allows them to execute arbitrary code. You can read up on these security concerns in the https://consensys.github.io/smart-contract-best-practices/[Ethereum Smart Contract Best Practices] website. One of the ways to fix reentrancy and stalling problems is, instead of immediately sending Ether to accounts that need it, you can use xref:api:payment.adoc#PullPayment[`PullPayment`], which offers an xref:api:payment.adoc#PullPayment-_asyncTransfer-address-uint256-[`_asyncTransfer`] function for sending money to something and requesting that they xref:api:payment.adoc#PullPayment-withdrawPayments-address-payable-[`withdrawPayments()`] it later.
+In Solidity, there are some security concerns with blindly sending money to accounts, since it allows them to execute arbitrary code. You can read up on these security concerns in the https://consensys.github.io/smart-contract-best-practices/[Ethereum Smart Contract Best Practices] website. One of the ways to fix reentrancy and stalling problems is, instead of immediately sending Ether to accounts that need it, you can use xref:api:payment.adoc#PullPayment[`PullPayment`], which offers an xref:api:payment.adoc#PullPayment-_asyncTransfer-address-uint256-[`_asyncTransfer`] function for sending money to something and requesting that they xref:api:payment.adoc#PullPayment-withdrawPayments-address-payable-[`withdrawPayments()`] it later.
 
 If you want to Escrow some funds, check out xref:api:payment.adoc#Escrow[`Escrow`] and xref:api:payment.adoc#ConditionalEscrow[`ConditionalEscrow`] for governing the release of some escrowed Ether.
 
+[[collections]]
+== Collections
+
+If you need support for more powerful collections than Solidity's native arrays and mappings, take a look at xref:api:utils.adoc#EnumerableSet[`EnumerableSet`]. It is similar to a mapping in that it stores and removes elements in constant time and doesn't allow for repeated entries, but it also supports _enumeration_, which means you can easily query all elements of the set both on and off-chain.
+
 [[misc]]
-=== Misc
+== Misc
 
 Want to check if an address is a contract? Use xref:api:utils.adoc#Address[`Address`] and xref:api:utils.adoc#Address-isContract-address-[`Address.isContract()`].
 
-Want to keep track of some numbers that increment by 1 every time you want another one? Check out xref:api:drafts.adoc#Counter[`Counter`]. This is especially useful for creating incremental ERC721 `tokenId` s like we did in the last section.
+Want to keep track of some numbers that increment by 1 every time you want another one? Check out xref:api:drafts.adoc#Counter[`Counter`]. This is useful for lots of things, like creating incremental identifiers, as shown on the xref:721.adoc[ERC721 guide].

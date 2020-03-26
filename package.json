@@ -1,6 +1,6 @@
 {
   "name": "openzeppelin-solidity",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "Secure Smart Contract library for Solidity",
   "files": [
     "/contracts/**/*.sol",
@@ -12,7 +12,7 @@
   "scripts": {
     "compile": "scripts/compile.sh",
     "coverage": "scripts/coverage.sh",
-    "docs": "oz-docs -c docs",
+    "docs": "oz-docs",
     "docs:watch": "npm run docs watch contracts 'docs/*.hbs'",
     "prepare-docs": "scripts/prepare-docs.sh",
     "lint": "npm run lint:js && npm run lint:sol",
@@ -23,7 +23,7 @@
     "prepare": "node scripts/prepare.js",
     "release": "scripts/release/release.sh",
     "version": "scripts/release/version.sh",
-    "test": "mocha --exit --recursive test"
+    "test": "mocha --exit --recursive"
   },
   "repository": {
     "type": "git",
@@ -42,16 +42,17 @@
   "bugs": {
     "url": "https://github.com/OpenZeppelin/openzeppelin-contracts/issues"
   },
-  "homepage": "https://github.com/OpenZeppelin/openzeppelin-contracts",
+  "homepage": "https://openzeppelin.com/contracts/",
   "devDependencies": {
-    "@openzeppelin/cli": "^2.5.3",
+    "@openzeppelin/cli": "^2.7.2",
+    "@openzeppelin/docs-utils": "^0.1.0",
     "@openzeppelin/gsn-helpers": "^0.2.3",
-    "@openzeppelin/gsn-provider": "^0.1.9",
-    "@openzeppelin/test-environment": "^0.1.1",
-    "@openzeppelin/test-helpers": "^0.5.4",
+    "@openzeppelin/gsn-provider": "^0.1.10",
+    "@openzeppelin/test-environment": "^0.1.3",
+    "@openzeppelin/test-helpers": "^0.5.5",
     "chai": "^4.2.0",
     "eslint": "^6.5.1",
-    "eslint-config-standard": "^14.1.0",
+    "eslint-config-standard": "^14.1.1",
     "eslint-plugin-import": "^2.20.0",
     "eslint-plugin-mocha-no-only": "^1.1.0",
     "eslint-plugin-node": "^10.0.0",
@@ -61,11 +62,10 @@
     "ganache-core-coverage": "https://github.com/OpenZeppelin/ganache-core-coverage/releases/download/2.5.3-coverage/ganache-core-coverage-2.5.3.tgz",
     "lodash.startcase": "^4.4.0",
     "micromatch": "^4.0.2",
-    "mocha": "^7.0.0",
-    "openzeppelin-docs-utils": "github:OpenZeppelin/docs-utils",
-    "solhint": "2.3.0",
+    "mocha": "^7.1.1",
+    "solhint": "^3.0.0-rc.5",
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
-    "solidity-docgen": "^0.3.13"
+    "solidity-docgen": "^0.4.1"
   },
   "dependencies": {}
 }

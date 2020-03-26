@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "./SafeERC20.sol";
 
@@ -55,7 +55,7 @@ contract TokenTimelock {
     /**
      * @notice Transfers tokens held by timelock to beneficiary.
      */
-    function release() public {
+    function release() public virtual {
         // solhint-disable-next-line not-rely-on-time
         require(block.timestamp >= _releaseTime, "TokenTimelock: current time is before release time");
 

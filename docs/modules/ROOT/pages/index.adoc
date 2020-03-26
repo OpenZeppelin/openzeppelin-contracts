@@ -28,16 +28,18 @@ Once installed, you can use the contracts in the library by importing them:
 ----
 pragma solidity ^0.5.0;
 
-import "@openzeppelin/contracts/ownership/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721Full.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721Mintable.sol";
 
-contract MyContract is Ownable {
-  ...
+contract MyNFT is ERC721Full, ERC721Mintable {
+    constructor() ERC721Full("MyNFT", "MNFT") public {
+    }
 }
 ----
 
 TIP: If you're new to smart contract development, head to xref:learn::developing-smart-contracts.adoc[Developing Smart Contracts] to learn about creating a new project and compiling your contracts.
 
-To keep your system secure, you should **always** use the installed code as-is, and neither copy-paste it from online sources, nor modify it yourself.
+To keep your system secure, you should **always** use the installed code as-is, and neither copy-paste it from online sources, nor modify it yourself. The library is designed so that only the contracts and functions you use are deployed, so you don't need to worry about it needlessly increasing gas costs.
 
 [[next-steps]]
 == Learn More
@@ -45,7 +47,7 @@ To keep your system secure, you should **always** use the installed code as-is, 
 The guides in the sidebar will teach about different concepts, and how to use the related contracts that OpenZeppelin Contracts provides:
 
 * xref:access-control.adoc[Access Control]: decide who can perform each of the actions on your system.
-* xref:tokens.adoc[Tokens]: create tradeable assets or collectives, and distribute them via xref:crowdsales.adoc[Crowdsales].
+* xref:tokens.adoc[Tokens]: create tradeable assets or collectibles, like the well known xref:erc20.adoc[ERC20] and xref:erc721.adoc[ERC721] standards.
 * xref:gsn.adoc[Gas Station Network]: let your users interact with your contracts without having to pay for gas themselves.
 * xref:utilities.adoc[Utilities]: generic useful tools, including non-overflowing math, signature verification, and trustless paying systems.
 

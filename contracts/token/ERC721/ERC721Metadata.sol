@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "../../GSN/Context.sol";
 import "./ERC721.sol";
@@ -12,11 +12,11 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
     // Token symbol
     string private _symbol;
 
-    // Base URI
-    string private _baseURI;
-
     // Optional mapping for token URIs
     mapping(uint256 => string) private _tokenURIs;
+
+    // Base URI
+    string private _baseURI;
 
     /*
      *     bytes4(keccak256('name()')) == 0x06fdde03
@@ -42,7 +42,7 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
      * @dev Gets the token name.
      * @return string representing the token name
      */
-    function name() external view returns (string memory) {
+    function name() external view override returns (string memory) {
         return _name;
     }
 
@@ -50,7 +50,7 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
      * @dev Gets the token symbol.
      * @return string representing the token symbol
      */
-    function symbol() external view returns (string memory) {
+    function symbol() external view override returns (string memory) {
         return _symbol;
     }
 
@@ -62,7 +62,7 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
      *
      * Reverts if the token ID does not exist.
      */
-    function tokenURI(uint256 tokenId) external view returns (string memory) {
+    function tokenURI(uint256 tokenId) external view override returns (string memory) {
         require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
 
         string memory _tokenURI = _tokenURIs[tokenId];
@@ -77,15 +77,6 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
     }
 
     /**
-    * @dev Returns the base URI set via {_setBaseURI}. This will be
-    * automatically added as a preffix in {tokenURI} to each token's URI, when
-    * they are non-empty.
-    */
-    function baseURI() external view returns (string memory) {
-        return _baseURI;
-    }
-
-    /**
      * @dev Internal function to set the token URI for a given token.
      *
      * Reverts if the token ID does not exist.
@@ -94,7 +85,7 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
      * `http://api.myproject.com/token/<id>`), use {_setBaseURI} to store
      * it and save gas.
      */
-    function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal {
+    function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
         require(_exists(tokenId), "ERC721Metadata: URI set of nonexistent token");
         _tokenURIs[tokenId] = _tokenURI;
     }
@@ -102,26 +93,29 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
     /**
      * @dev Internal function to set the base URI for all token IDs. It is
      * automatically added as a prefix to the value returned in {tokenURI}.
-     *
-     * _Available since v2.5.0._
      */
-    function _setBaseURI(string memory baseURI) internal {
+    function _setBaseURI(string memory baseURI) internal virtual {
         _baseURI = baseURI;
     }
 
     /**
-     * @dev Internal function to burn a specific token.
-     * Reverts if the token does not exist.
-     * Deprecated, use _burn(uint256) instead.
-     * @param owner owner of the token to burn
-     * @param tokenId uint256 ID of the token being burned by the msg.sender
-     */
-    function _burn(address owner, uint256 tokenId) internal {
-        super._burn(owner, tokenId);
+    * @dev Returns the base URI set via {_setBaseURI}. This will be
+    * automatically added as a preffix in {tokenURI} to each token's URI, when
+    * they are non-empty.
+    */
+    function baseURI() external view returns (string memory) {
+        return _baseURI;
+    }
 
-        // Clear metadata (if any)
-        if (bytes(_tokenURIs[tokenId]).length != 0) {
-            delete _tokenURIs[tokenId];
+
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal virtual override {
+        super._beforeTokenTransfer(from, to, tokenId);
+
+        if (to == address(0)) { // When burning tokens
+            // Clear metadata (if any)
+            if (bytes(_tokenURIs[tokenId]).length != 0) {
+                delete _tokenURIs[tokenId];
+            }
         }
     }
 }

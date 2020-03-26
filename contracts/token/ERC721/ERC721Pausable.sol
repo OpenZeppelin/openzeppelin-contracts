@@ -1,22 +1,16 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "./ERC721.sol";
-import "../../lifecycle/Pausable.sol";
+import "../../utils/Pausable.sol";
 
 /**
  * @title ERC721 Non-Fungible Pausable token
  * @dev ERC721 modified with pausable transfers.
  */
 contract ERC721Pausable is ERC721, Pausable {
-    function approve(address to, uint256 tokenId) public whenNotPaused {
-        super.approve(to, tokenId);
-    }
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal virtual override {
+        super._beforeTokenTransfer(from, to, tokenId);
 
-    function setApprovalForAll(address to, bool approved) public whenNotPaused {
-        super.setApprovalForAll(to, approved);
-    }
-
-    function _transferFrom(address from, address to, uint256 tokenId) internal whenNotPaused {
-        super._transferFrom(from, to, tokenId);
+        require(!paused(), "ERC721Pausable: token transfer while paused");
     }
 }

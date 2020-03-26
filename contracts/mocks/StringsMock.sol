@@ -1,6 +1,6 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
-import "../drafts/Strings.sol";
+import "../utils/Strings.sol";
 
 contract StringsMock {
     function fromUint256(uint256 value) public pure returns (string memory) {

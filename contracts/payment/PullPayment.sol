@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "./escrow/Escrow.sol";
 
@@ -12,6 +12,10 @@ import "./escrow/Escrow.sol";
  * Ether, security-wise. It prevents recipients from blocking execution, and
  * eliminates reentrancy concerns.
  *
+ * TIP: If you would like to learn more about reentrancy and alternative ways
+ * to protect against it, check out our blog post
+ * https://blog.openzeppelin.com/reentrancy-after-istanbul/[Reentrancy After Istanbul].
+ *
  * To use, derive from the `PullPayment` contract, and use {_asyncTransfer}
  * instead of Solidity's `transfer` function. Payees can query their due
  * payments with {payments}, and retrieve them with {withdrawPayments}.
@@ -24,35 +28,21 @@ contract PullPayment {
     }
 
     /**
-     * @dev Withdraw accumulated payments.
+     * @dev Withdraw accumulated payments, forwarding all gas to the recipient.
      *
      * Note that _any_ account can call this function, not just the `payee`.
      * This means that contracts unaware of the `PullPayment` protocol can still
      * receive funds this way, by having a separate account call
      * {withdrawPayments}.
      *
-     * NOTE: This function has been deprecated, use {withdrawPaymentsWithGas}
-     * instead. Calling contracts with fixed gas limits is an anti-pattern and
-     * may break contract interactions in network upgrades (hardforks).
-     * https://diligence.consensys.net/blog/2019/09/stop-using-soliditys-transfer-now/[Learn more.]
-     *
-     * @param payee Whose payments will be withdrawn.
-     */
-    function withdrawPayments(address payable payee) public {
-        _escrow.withdraw(payee);
-    }
-
-    /**
-     * @dev Same as {withdrawPayments}, but forwarding all gas to the recipient.
-     *
      * WARNING: Forwarding all gas opens the door to reentrancy vulnerabilities.
      * Make sure you trust the recipient, or are either following the
      * checks-effects-interactions pattern or using {ReentrancyGuard}.
      *
-     * _Available since v2.4.0._
+     * @param payee Whose payments will be withdrawn.
      */
-    function withdrawPaymentsWithGas(address payable payee) external {
-        _escrow.withdrawWithGas(payee);
+    function withdrawPayments(address payable payee) public virtual {
+        _escrow.withdraw(payee);
     }
 
     /**
@@ -71,7 +61,7 @@ contract PullPayment {
      * @param dest The destination address of the funds.
      * @param amount The amount to transfer.
      */
-    function _asyncTransfer(address dest, uint256 amount) internal {
+    function _asyncTransfer(address dest, uint256 amount) internal virtual {
         _escrow.deposit.value(amount)(dest);
     }
 }
