@@ -19,11 +19,11 @@ abstract contract GSNRecipient is IRelayRecipient, Context {
     // Default RelayHub address, deployed on mainnet and all testnets at the same address
     address private _relayHub = 0xD216153c06E857cD7f72665E0aF1d7D82172F494;
 
-    uint256 constant private RELAYED_CALL_ACCEPTED = 0;
-    uint256 constant private RELAYED_CALL_REJECTED = 11;
+    uint256 constant private _RELAYED_CALL_ACCEPTED = 0;
+    uint256 constant private _RELAYED_CALL_REJECTED = 11;
 
     // How much gas is forwarded to postRelayedCall
-    uint256 constant internal POST_RELAYED_CALL_MAX_GAS = 100000;
+    uint256 constant internal _POST_RELAYED_CALL_MAX_GAS = 100000;
 
     /**
      * @dev Emitted when a contract changes its {IRelayHub} contract to a new one.
@@ -170,14 +170,14 @@ abstract contract GSNRecipient is IRelayRecipient, Context {
      * This overload forwards `context` to _preRelayedCall and _postRelayedCall.
      */
     function _approveRelayedCall(bytes memory context) internal pure returns (uint256, bytes memory) {
-        return (RELAYED_CALL_ACCEPTED, context);
+        return (_RELAYED_CALL_ACCEPTED, context);
     }
 
     /**
      * @dev Return this in acceptRelayedCall to impede execution of a relayed call. No fees will be charged.
      */
     function _rejectRelayedCall(uint256 errorCode) internal pure returns (uint256, bytes memory) {
-        return (RELAYED_CALL_REJECTED + errorCode, "");
+        return (_RELAYED_CALL_REJECTED + errorCode, "");
     }
 
     /*
