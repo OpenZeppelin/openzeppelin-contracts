@@ -165,4 +165,57 @@ library EnumerableSet {
     function at(AddressSet storage set, uint256 index) internal view returns (address) {
         return address(uint256(at(set._inner, index)));
     }
+
+
+    // Uint256Set
+
+    struct Uint256Set {
+        Set _inner;
+    }
+
+    /**
+     * @dev Add a value to a set. O(1).
+     *
+     * Returns false if the value was already in the set.
+     */
+    function add(Uint256Set storage set, uint256 value) internal returns (bool) {
+        return add(set._inner, bytes32(value));
+    }
+
+    /**
+     * @dev Removes a value from a set. O(1).
+     *
+     * Returns false if the value was not present in the set.
+     */
+    function remove(Uint256Set storage set, uint256 value) internal returns (bool) {
+        return remove(set._inner, bytes32(value));
+    }
+
+    /**
+     * @dev Returns true if the value is in the set. O(1).
+     */
+    function contains(Uint256Set storage set, uint256 value) internal view returns (bool) {
+        return contains(set._inner, bytes32(value));
+    }
+
+    /**
+     * @dev Returns the number of values on the set. O(1).
+     */
+    function length(Uint256Set storage set) internal view returns (uint256) {
+        return length(set._inner);
+    }
+
+   /**
+    * @dev Returns the value stored at position `index` in the set. O(1).
+    *
+    * Note that there are no guarantees on the ordering of values inside the
+    * array, and it may change when more values are added or removed.
+    *
+    * Requirements:
+    *
+    * - `index` must be strictly less than {length}.
+    */
+    function at(Uint256Set storage set, uint256 index) internal view returns (uint256) {
+        return uint256(at(set._inner, index));
+    }
 }
