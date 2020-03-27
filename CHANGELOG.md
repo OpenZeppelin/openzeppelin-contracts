@@ -25,6 +25,7 @@
  * `Address`: removed `toPayable`, use `payable(address)` instead. ([#2133](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2133))
  * `ERC777`: `_send`, `_mint` and `_burn` now use the caller as the operator. ([#2134](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2134))
  * `ERC777`: removed `_callsTokensToSend` and `_callTokensReceived`. ([#2134](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2134))
+ * `ERC165Checker`: functions no longer have a leading underscore. ([#2150](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2150))
 
 ## 2.5.0 (2020-02-04)
 

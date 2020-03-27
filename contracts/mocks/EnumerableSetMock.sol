@@ -7,31 +7,31 @@ contract EnumerableSetMock{
 
     event TransactionResult(bool result);
 
-    EnumerableSet.AddressSet private set;
+    EnumerableSet.AddressSet private _set;
 
     function contains(address value) public view returns (bool) {
-        return set.contains(value);
+        return _set.contains(value);
     }
 
     function add(address value) public {
-        bool result = set.add(value);
+        bool result = _set.add(value);
         emit TransactionResult(result);
     }
 
     function remove(address value) public {
-        bool result = set.remove(value);
+        bool result = _set.remove(value);
         emit TransactionResult(result);
     }
 
     function enumerate() public view returns (address[] memory) {
-        return set.enumerate();
+        return _set.enumerate();
     }
 
     function length() public view returns (uint256) {
-        return set.length();
+        return _set.length();
     }
 
     function get(uint256 index) public view returns (address) {
-        return set.get(index);
+        return _set.get(index);
     }
 }
