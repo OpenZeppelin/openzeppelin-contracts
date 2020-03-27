@@ -457,8 +457,8 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      *
      * Reverts if the token ID does not exist.
      *
-     * TIP: if all token IDs share a prefix (e.g. if your URIs look like
-     * `http://api.myproject.com/token/<id>`), use {_setBaseURI} to store
+     * TIP: If all token IDs share a prefix (for example, if your URIs look like
+     * `https://api.myproject.com/token/<id>`), use {_setBaseURI} to store
      * it and save gas.
      */
     function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
