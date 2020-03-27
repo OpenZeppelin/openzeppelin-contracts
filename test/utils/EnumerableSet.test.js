@@ -21,7 +21,7 @@ describe('EnumerableSet', function () {
     expect(await set.length()).to.bignumber.equal(members.length.toString());
 
     expect(await Promise.all([...Array(members.length).keys()].map(index =>
-      set.get(index)
+      set.at(index)
     ))).to.have.same.members(members);
   }
 
@@ -56,7 +56,7 @@ describe('EnumerableSet', function () {
   });
 
   it('reverts when retrieving non-existent elements', async function () {
-    await expectRevert(this.set.get(0), 'EnumerableSet: index out of bounds');
+    await expectRevert(this.set.at(0), 'EnumerableSet: index out of bounds');
   });
 
   it('removes added values', async function () {

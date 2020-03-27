@@ -31,7 +31,7 @@ contract EnumerableSetMock{
         return set.length();
     }
 
-    function get(uint256 index) public view returns (address) {
-        return set.get(index);
+    function at(uint256 index) public view returns (address) {
+        return set.at(index);
     }
 }

@@ -99,7 +99,7 @@ library EnumerableSet {
      * array, and it may change when more keys are added or removed.
 
      * WARNING: This function may run out of gas on large sets: use {length} and
-     * {get} instead in these cases.
+     * {at} instead in these cases.
      */
     function enumerate(AddressSet storage set)
         internal
@@ -134,7 +134,7 @@ library EnumerableSet {
     *
     * - `index` must be strictly less than {length}.
     */
-    function get(AddressSet storage set, uint256 index)
+    function at(AddressSet storage set, uint256 index)
         internal
         view
         returns (address)
