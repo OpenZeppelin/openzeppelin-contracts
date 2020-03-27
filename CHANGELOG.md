@@ -4,6 +4,7 @@
 
 ### New features
  * `AccessControl`: new contract for managing permissions in a system, replacement for `Ownable` and `Roles`. ([#2112](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2112))
+ * `SafeCast`: new functions to convert to and from signed and unsigned values: `toUint256` and `toInt256`. ([#2123](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2123))
 
 ### Breaking changes
  * `ERC721`: `burn(owner, tokenId)` was removed, use `burn(owner)` instead. ([#2125](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2125))

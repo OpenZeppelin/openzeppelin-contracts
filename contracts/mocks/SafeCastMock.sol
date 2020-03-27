@@ -4,6 +4,15 @@ import "../utils/SafeCast.sol";
 
 contract SafeCastMock {
     using SafeCast for uint;
+    using SafeCast for int;
+
+    function toUint256(int a) public pure returns (uint256) {
+        return a.toUint256();
+    }
+
+    function toInt256(uint a) public pure returns (int256) {
+        return a.toInt256();
+    }
 
     function toUint128(uint a) public pure returns (uint128) {
         return a.toUint128();
