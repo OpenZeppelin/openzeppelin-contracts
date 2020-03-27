@@ -7,7 +7,7 @@ import "../../utils/Pausable.sol";
  * @title ERC721 Non-Fungible Pausable token
  * @dev ERC721 modified with pausable transfers.
  */
-contract ERC721Pausable is ERC721, Pausable {
+abstract contract ERC721Pausable is ERC721, Pausable {
     function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal virtual override {
         super._beforeTokenTransfer(from, to, tokenId);
 
