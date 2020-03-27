@@ -46,7 +46,7 @@ describe('SafeCast', async () => {
 
   describe('toUint256', () => {
     const maxInt256 = new BN('2').pow(new BN(255)).subn(1);
-    const minInt256 = new BN('2').pow(new BN(255));
+    const minInt256 = new BN('2').pow(new BN(255)).neg();
     const maxUint256 = new BN('2').pow(new BN(256)).subn(1);
 
     it('casts 0', async function () {
