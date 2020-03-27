@@ -43,4 +43,74 @@ describe('SafeCast', async () => {
   }
 
   [8, 16, 32, 64, 128].forEach(bits => testToUint(bits));
+
+  describe('toUint256', () => {
+    const maxInt256 = new BN('2').pow(new BN(255)).subn(1);
+    const minInt256 = new BN('2').pow(new BN(255)).neg();
+    const maxUint256 = new BN('2').pow(new BN(256)).subn(1);
+
+    it('casts 0', async function () {
+      expect(await this.safeCast.toUint256(0)).to.be.bignumber.equal('0');
+    });
+
+    it('casts 1', async function () {
+      expect(await this.safeCast.toUint256(1)).to.be.bignumber.equal('1');
+    });
+
+    it(`casts INT256_MAX (${maxInt256})`, async function () {
+      expect(await this.safeCast.toUint256(maxInt256)).to.be.bignumber.equal(maxInt256);
+    });
+
+    it('reverts when casting -1', async function () {
+      await expectRevert(
+        this.safeCast.toUint256(-1),
+        'SafeCast: value must be positive'
+      );
+    });
+
+    it(`reverts when casting INT256_MIN (${minInt256})`, async function () {
+      await expectRevert(
+        this.safeCast.toUint256(minInt256),
+        'SafeCast: value must be positive'
+      );
+    });
+
+    it(`reverts when casting UINT256_MAX (${maxUint256})`, async function () {
+      await expectRevert(
+        this.safeCast.toUint256(maxUint256),
+        'SafeCast: value must be positive'
+      );
+    });
+  });
+
+  describe('toInt256', () => {
+    const maxUint256 = new BN('2').pow(new BN(256)).subn(1);
+    const maxInt256 = new BN('2').pow(new BN(255)).subn(1);
+
+    it('casts 0', async function () {
+      expect(await this.safeCast.toInt256(0)).to.be.bignumber.equal('0');
+    });
+
+    it('casts 1', async function () {
+      expect(await this.safeCast.toInt256(1)).to.be.bignumber.equal('1');
+    });
+
+    it(`casts INT256_MAX (${maxInt256})`, async function () {
+      expect(await this.safeCast.toInt256(maxInt256)).to.be.bignumber.equal(maxInt256);
+    });
+
+    it(`reverts when casting INT256_MAX + 1 (${maxInt256.addn(1)})`, async function () {
+      await expectRevert(
+        this.safeCast.toInt256(maxInt256.addn(1)),
+        'SafeCast: value doesn\'t fit in an int256'
+      );
+    });
+
+    it(`reverts when casting UINT256_MAX (${maxUint256})`, async function () {
+      await expectRevert(
+        this.safeCast.toInt256(maxUint256),
+        'SafeCast: value doesn\'t fit in an int256'
+      );
+    });
+  });
 });
