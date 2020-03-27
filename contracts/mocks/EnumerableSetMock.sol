@@ -2,7 +2,7 @@ pragma solidity ^0.6.0;
 
 import "../utils/EnumerableSet.sol";
 
-contract EnumerableSetMock{
+contract EnumerableSetMock {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     event TransactionResult(bool result);
@@ -31,7 +31,7 @@ contract EnumerableSetMock{
         return _set.length();
     }
 
-    function get(uint256 index) public view returns (address) {
-        return _set.get(index);
+    function at(uint256 index) public view returns (address) {
+        return _set.at(index);
     }
 }
