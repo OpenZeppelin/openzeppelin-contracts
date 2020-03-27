@@ -20,10 +20,10 @@ pragma solidity ^0.6.0;
 library EnumerableSet {
 
     struct AddressSet {
-        address[] values;
+        address[] _values;
         // Position of the value in the `values` array, plus 1 because index 0
         // means a value is not in the set.
-        mapping (address => uint256) indexes;
+        mapping (address => uint256) _indexes;
     }
 
     /**
@@ -36,10 +36,10 @@ library EnumerableSet {
         returns (bool)
     {
         if (!contains(set, value)) {
-            set.values.push(value);
+            set._values.push(value);
             // The value is stored at length-1, but we add 1 to all indexes
             // and use 0 as a sentinel value
-            set.indexes[value] = set.values.length;
+            set._indexes[value] = set._values.length;
             return true;
         } else {
             return false;
@@ -56,24 +56,24 @@ library EnumerableSet {
         returns (bool)
     {
         if (contains(set, value)){
-            uint256 toDeleteIndex = set.indexes[value] - 1;
-            uint256 lastIndex = set.values.length - 1;
+            uint256 toDeleteIndex = set._indexes[value] - 1;
+            uint256 lastIndex = set._values.length - 1;
 
             // If the value we're deleting is the last one, we can just remove it without doing a swap
             if (lastIndex != toDeleteIndex) {
-                address lastvalue = set.values[lastIndex];
+                address lastvalue = set._values[lastIndex];
 
                 // Move the last value to the index where the deleted value is
-                set.values[toDeleteIndex] = lastvalue;
+                set._values[toDeleteIndex] = lastvalue;
                 // Update the index for the moved value
-                set.indexes[lastvalue] = toDeleteIndex + 1; // All indexes are 1-based
+                set._indexes[lastvalue] = toDeleteIndex + 1; // All indexes are 1-based
             }
 
             // Delete the slot where the moved value was stored
-            set.values.pop();
+            set._values.pop();
 
             // Delete the index for the deleted slot
-            delete set.indexes[value];
+            delete set._indexes[value];
 
             return true;
         } else {
@@ -89,7 +89,7 @@ library EnumerableSet {
         view
         returns (bool)
     {
-        return set.indexes[value] != 0;
+        return set._indexes[value] != 0;
     }
 
     /**
@@ -106,9 +106,9 @@ library EnumerableSet {
         view
         returns (address[] memory)
     {
-        address[] memory output = new address[](set.values.length);
-        for (uint256 i; i < set.values.length; i++){
-            output[i] = set.values[i];
+        address[] memory output = new address[](set._values.length);
+        for (uint256 i; i < set._values.length; i++){
+            output[i] = set._values[i];
         }
         return output;
     }
@@ -121,7 +121,7 @@ library EnumerableSet {
         view
         returns (uint256)
     {
-        return set.values.length;
+        return set._values.length;
     }
 
    /**
@@ -139,7 +139,7 @@ library EnumerableSet {
         view
         returns (address)
     {
-        require(set.values.length > index, "EnumerableSet: index out of bounds");
-        return set.values[index];
+        require(set._values.length > index, "EnumerableSet: index out of bounds");
+        return set._values[index];
     }
 }
