@@ -12,6 +12,7 @@
  * `PullPayment`, `Escrow`: `withdrawWithGas` was removed. The old `withdraw` function now forwards all gas. ([#2125](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2125))
  * `Roles` was removed, use `AccessControl` as a replacement. ([#2112](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2112))
  * `ECDSA`: when receiving an invalid signature, `recover` now reverts instead of returning the zero address. ([#2114](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2114))
+ * `Create2`: added an `amount` argument to `deploy` for contracts with `payable` constructors. ([#2117](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2117))
  * `Pausable`: moved to the `utils` directory. ([#2122](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2122))
  * `Strings`: moved to the `utils` directory. ([#2122](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2122))
  * `Counters`: moved to the `utils` directory. ([#2122](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2122))
