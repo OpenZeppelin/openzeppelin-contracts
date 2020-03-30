@@ -8,7 +8,7 @@ import "./ERC20.sol";
  * tokens and those that they have an allowance for, in a way that can be
  * recognized off-chain (via event analysis).
  */
-contract ERC20Burnable is Context, ERC20 {
+abstract contract ERC20Burnable is Context, ERC20 {
     /**
      * @dev Destroys `amount` tokens from the caller.
      *

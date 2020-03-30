@@ -10,8 +10,12 @@ describe('ERC20Snapshot', function () {
 
   const initialSupply = new BN(100);
 
+  const name = 'My Token';
+  const symbol = 'MTKN';
+  const decimals = new BN(18);
+
   beforeEach(async function () {
-    this.token = await ERC20SnapshotMock.new(initialHolder, initialSupply);
+    this.token = await ERC20SnapshotMock.new(name, symbol, decimals, initialHolder, initialSupply);
   });
 
   describe('snapshot', function () {
