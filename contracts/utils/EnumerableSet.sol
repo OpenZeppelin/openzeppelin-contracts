@@ -146,7 +146,7 @@ library EnumerableSet {
     }
 
     /**
-     * @dev Returns the number of values on the set. O(1).
+     * @dev Returns the number of values in the set. O(1).
      */
     function length(AddressSet storage set) internal view returns (uint256) {
         return length(set._inner);

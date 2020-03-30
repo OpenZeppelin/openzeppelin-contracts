@@ -23,10 +23,6 @@ contract EnumerableSetMock {
         emit TransactionResult(result);
     }
 
-    function enumerate() public view returns (address[] memory) {
-        return _set.enumerate();
-    }
-
     function length() public view returns (uint256) {
         return _set.length();
     }
