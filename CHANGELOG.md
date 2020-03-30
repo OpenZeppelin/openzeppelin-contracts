@@ -7,7 +7,7 @@
  * `SafeCast`: new functions to convert to and from signed and unsigned values: `toUint256` and `toInt256`. ([#2123](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2123))
 
 ### Breaking changes
- * `ERC721`: `burn(owner, tokenId)` was removed, use `burn(owner)` instead. ([#2125](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2125))
+ * `ERC721`: `burn(owner, tokenId)` was removed, use `burn(tokenId)` instead. ([#2125](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2125))
  * `ERC721`: `_checkOnERC721Received` was removed. ([#2125](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2125))
  * `PullPayment`, `Escrow`: `withdrawWithGas` was removed. The old `withdraw` function now forwards all gas. ([#2125](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2125))
  * `Roles` was removed, use `AccessControl` as a replacement. ([#2112](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2112))
