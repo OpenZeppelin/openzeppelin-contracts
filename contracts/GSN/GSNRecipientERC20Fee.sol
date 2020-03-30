@@ -61,7 +61,7 @@ contract GSNRecipientERC20Fee is GSNRecipient {
         bytes calldata,
         uint256 maxPossibleCharge
     )
-        external
+        public
         view
         virtual
         override

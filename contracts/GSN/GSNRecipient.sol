@@ -119,7 +119,7 @@ abstract contract GSNRecipient is IRelayRecipient, Context {
      *
      * - the caller must be the `RelayHub` contract.
      */
-    function preRelayedCall(bytes calldata context) external virtual override returns (bytes32) {
+    function preRelayedCall(bytes calldata context) public virtual override returns (bytes32) {
         require(msg.sender == getHubAddr(), "GSNRecipient: caller is not RelayHub");
         return _preRelayedCall(context);
     }
@@ -142,7 +142,7 @@ abstract contract GSNRecipient is IRelayRecipient, Context {
      *
      * - the caller must be the `RelayHub` contract.
      */
-    function postRelayedCall(bytes calldata context, bool success, uint256 actualCharge, bytes32 preRetVal) external virtual override {
+    function postRelayedCall(bytes calldata context, bool success, uint256 actualCharge, bytes32 preRetVal) public virtual override {
         require(msg.sender == getHubAddr(), "GSNRecipient: caller is not RelayHub");
         _postRelayedCall(context, success, actualCharge, preRetVal);
     }

@@ -40,7 +40,7 @@ contract GSNRecipientSignature is GSNRecipient {
         bytes calldata approvalData,
         uint256
     )
-        external
+        public
         view
         virtual
         override
