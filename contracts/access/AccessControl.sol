@@ -100,7 +100,7 @@ abstract contract AccessControl is Context {
      *
      * To change a role's admin, use {_setRoleAdmin}.
      */
-    function getRoleAdmin(bytes32 role) external view returns (bytes32) {
+    function getRoleAdmin(bytes32 role) public view returns (bytes32) {
         return _roles[role].adminRole;
     }
 
@@ -114,7 +114,7 @@ abstract contract AccessControl is Context {
      *
      * - the caller must have `role`'s admin role.
      */
-    function grantRole(bytes32 role, address account) external virtual {
+    function grantRole(bytes32 role, address account) public virtual {
         require(hasRole(_roles[role].adminRole, _msgSender()), "AccessControl: sender must be an admin to grant");
 
         _grantRole(role, account);
@@ -129,7 +129,7 @@ abstract contract AccessControl is Context {
      *
      * - the caller must have `role`'s admin role.
      */
-    function revokeRole(bytes32 role, address account) external virtual {
+    function revokeRole(bytes32 role, address account) public virtual {
         require(hasRole(_roles[role].adminRole, _msgSender()), "AccessControl: sender must be an admin to revoke");
 
         _revokeRole(role, account);
@@ -149,7 +149,7 @@ abstract contract AccessControl is Context {
      *
      * - the caller must be `account`.
      */
-    function renounceRole(bytes32 role, address account) external virtual {
+    function renounceRole(bytes32 role, address account) public virtual {
         require(account == _msgSender(), "AccessControl: can only renounce roles for self");
 
         _revokeRole(role, account);
