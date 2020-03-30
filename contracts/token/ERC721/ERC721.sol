@@ -130,7 +130,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      * @dev Gets the token name.
      * @return string representing the token name
      */
-    function name() external view override returns (string memory) {
+    function name() public view override returns (string memory) {
         return _name;
     }
 
@@ -138,7 +138,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      * @dev Gets the token symbol.
      * @return string representing the token symbol
      */
-    function symbol() external view override returns (string memory) {
+    function symbol() public view override returns (string memory) {
         return _symbol;
     }
 
@@ -150,7 +150,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      *
      * Reverts if the token ID does not exist.
      */
-    function tokenURI(uint256 tokenId) external view override returns (string memory) {
+    function tokenURI(uint256 tokenId) public view override returns (string memory) {
         require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
 
         string memory _tokenURI = _tokenURIs[tokenId];
@@ -169,7 +169,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     * automatically added as a preffix in {tokenURI} to each token's URI, when
     * they are non-empty.
     */
-    function baseURI() external view returns (string memory) {
+    function baseURI() public view returns (string memory) {
         return _baseURI;
     }
 
