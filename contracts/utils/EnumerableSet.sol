@@ -20,14 +20,15 @@ pragma solidity ^0.6.0;
 library EnumerableSet {
 
     struct AddressSet {
+        address[] _values;
         // Position of the value in the `values` array, plus 1 because index 0
         // means a value is not in the set.
-        mapping (address => uint256) index;
-        address[] values;
+        mapping (address => uint256) _indexes;
     }
 
     /**
      * @dev Add a value to a set. O(1).
+     *
      * Returns false if the value was already in the set.
      */
     function add(AddressSet storage set, address value)
@@ -35,10 +36,10 @@ library EnumerableSet {
         returns (bool)
     {
         if (!contains(set, value)) {
-            set.values.push(value);
-            // The element is stored at length-1, but we add 1 to all indexes
+            set._values.push(value);
+            // The value is stored at length-1, but we add 1 to all indexes
             // and use 0 as a sentinel value
-            set.index[value] = set.values.length;
+            set._indexes[value] = set._values.length;
             return true;
         } else {
             return false;
@@ -47,6 +48,7 @@ library EnumerableSet {
 
     /**
      * @dev Removes a value from a set. O(1).
+     *
      * Returns false if the value was not present in the set.
      */
     function remove(AddressSet storage set, address value)
@@ -54,24 +56,24 @@ library EnumerableSet {
         returns (bool)
     {
         if (contains(set, value)){
-            uint256 toDeleteIndex = set.index[value] - 1;
-            uint256 lastIndex = set.values.length - 1;
+            uint256 toDeleteIndex = set._indexes[value] - 1;
+            uint256 lastIndex = set._values.length - 1;
 
-            // If the element we're deleting is the last one, we can just remove it without doing a swap
+            // If the value we're deleting is the last one, we can just remove it without doing a swap
             if (lastIndex != toDeleteIndex) {
-                address lastValue = set.values[lastIndex];
+                address lastvalue = set._values[lastIndex];
 
                 // Move the last value to the index where the deleted value is
-                set.values[toDeleteIndex] = lastValue;
+                set._values[toDeleteIndex] = lastvalue;
                 // Update the index for the moved value
-                set.index[lastValue] = toDeleteIndex + 1; // All indexes are 1-based
+                set._indexes[lastvalue] = toDeleteIndex + 1; // All indexes are 1-based
             }
 
-            // Delete the index entry for the deleted value
-            delete set.index[value];
+            // Delete the slot where the moved value was stored
+            set._values.pop();
 
-            // Delete the old entry for the moved value
-            set.values.pop();
+            // Delete the index for the deleted slot
+            delete set._indexes[value];
 
             return true;
         } else {
@@ -87,41 +89,44 @@ library EnumerableSet {
         view
         returns (bool)
     {
-        return set.index[value] != 0;
+        return set._indexes[value] != 0;
     }
 
     /**
      * @dev Returns an array with all values in the set. O(N).
+     *
      * Note that there are no guarantees on the ordering of values inside the
      * array, and it may change when more values are added or removed.
 
      * WARNING: This function may run out of gas on large sets: use {length} and
-     * {get} instead in these cases.
+     * {at} instead in these cases.
      */
     function enumerate(AddressSet storage set)
         internal
         view
         returns (address[] memory)
     {
-        address[] memory output = new address[](set.values.length);
-        for (uint256 i; i < set.values.length; i++){
-            output[i] = set.values[i];
+        address[] memory output = new address[](set._values.length);
+        for (uint256 i; i < set._values.length; i++){
+            output[i] = set._values[i];
         }
         return output;
     }
 
     /**
-     * @dev Returns the number of elements on the set. O(1).
+     * @dev Returns the number of values on the set. O(1).
      */
     function length(AddressSet storage set)
         internal
         view
         returns (uint256)
     {
-        return set.values.length;
+        return set._values.length;
     }
 
-   /** @dev Returns the element stored at position `index` in the set. O(1).
+   /**
+    * @dev Returns the value stored at position `index` in the set. O(1).
+    *
     * Note that there are no guarantees on the ordering of values inside the
     * array, and it may change when more values are added or removed.
     *
@@ -129,11 +134,12 @@ library EnumerableSet {
     *
     * - `index` must be strictly less than {length}.
     */
-    function get(AddressSet storage set, uint256 index)
+    function at(AddressSet storage set, uint256 index)
         internal
         view
         returns (address)
     {
-        return set.values[index];
+        require(set._values.length > index, "EnumerableSet: index out of bounds");
+        return set._values[index];
     }
 }

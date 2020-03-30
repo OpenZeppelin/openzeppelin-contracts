@@ -1,5 +1,5 @@
 const { accounts, contract } = require('@openzeppelin/test-environment');
-const { expectEvent } = require('@openzeppelin/test-helpers');
+const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const EnumerableSetMock = contract.fromArtifact('EnumerableSetMock');
@@ -21,7 +21,7 @@ describe('EnumerableSet', function () {
     expect(await set.length()).to.bignumber.equal(members.length.toString());
 
     expect(await Promise.all([...Array(members.length).keys()].map(index =>
-      set.get(index)
+      set.at(index)
     ))).to.have.same.members(members);
   }
 
@@ -53,6 +53,10 @@ describe('EnumerableSet', function () {
     expectEvent(receipt, 'TransactionResult', { result: false });
 
     await expectMembersMatch(this.set, [accountA]);
+  });
+
+  it('reverts when retrieving non-existent elements', async function () {
+    await expectRevert(this.set.at(0), 'EnumerableSet: index out of bounds');
   });
 
   it('removes added values', async function () {
