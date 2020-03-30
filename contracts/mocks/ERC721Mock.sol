@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "../token/ERC721/ERC721.sol";
 
@@ -7,20 +7,34 @@ import "../token/ERC721/ERC721.sol";
  * This mock just provides a public safeMint, mint, and burn functions for testing purposes
  */
 contract ERC721Mock is ERC721 {
-    function safeMint(address to, uint256 tokenId) public {
-        _safeMint(to, tokenId);
+    constructor (string memory name, string memory symbol) public ERC721(name, symbol) { }
+
+    function exists(uint256 tokenId) public view returns (bool) {
+        return _exists(tokenId);
     }
 
-    function safeMint(address to, uint256 tokenId, bytes memory _data) public {
-        _safeMint(to, tokenId, _data);
+    function tokensOfOwner(address owner) public view returns (uint256[] memory) {
+        return _tokensOfOwner(owner);
+    }
+
+    function setTokenURI(uint256 tokenId, string memory uri) public {
+        _setTokenURI(tokenId, uri);
+    }
+
+    function setBaseURI(string memory baseURI) public {
+        _setBaseURI(baseURI);
     }
 
     function mint(address to, uint256 tokenId) public {
         _mint(to, tokenId);
     }
 
-    function burn(address owner, uint256 tokenId) public {
-        _burn(owner, tokenId);
+    function safeMint(address to, uint256 tokenId) public {
+        _safeMint(to, tokenId);
+    }
+
+    function safeMint(address to, uint256 tokenId, bytes memory _data) public {
+        _safeMint(to, tokenId, _data);
     }
 
     function burn(uint256 tokenId) public {

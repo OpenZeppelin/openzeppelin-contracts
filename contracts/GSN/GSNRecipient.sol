@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "./IRelayRecipient.sol";
 import "./IRelayHub.sol";
@@ -15,15 +15,15 @@ import "./Context.sol";
  * information on how to use the pre-built {GSNRecipientSignature} and
  * {GSNRecipientERC20Fee}, or how to write your own.
  */
-contract GSNRecipient is IRelayRecipient, Context {
+abstract contract GSNRecipient is IRelayRecipient, Context {
     // Default RelayHub address, deployed on mainnet and all testnets at the same address
     address private _relayHub = 0xD216153c06E857cD7f72665E0aF1d7D82172F494;
 
-    uint256 constant private RELAYED_CALL_ACCEPTED = 0;
-    uint256 constant private RELAYED_CALL_REJECTED = 11;
+    uint256 constant private _RELAYED_CALL_ACCEPTED = 0;
+    uint256 constant private _RELAYED_CALL_REJECTED = 11;
 
     // How much gas is forwarded to postRelayedCall
-    uint256 constant internal POST_RELAYED_CALL_MAX_GAS = 100000;
+    uint256 constant internal _POST_RELAYED_CALL_MAX_GAS = 100000;
 
     /**
      * @dev Emitted when a contract changes its {IRelayHub} contract to a new one.
@@ -33,7 +33,7 @@ contract GSNRecipient is IRelayRecipient, Context {
     /**
      * @dev Returns the address of the {IRelayHub} contract for this recipient.
      */
-    function getHubAddr() public view returns (address) {
+    function getHubAddr() public view override returns (address) {
         return _relayHub;
     }
 
@@ -44,7 +44,7 @@ contract GSNRecipient is IRelayRecipient, Context {
      * IMPORTANT: After upgrading, the {GSNRecipient} will no longer be able to receive relayed calls from the old
      * {IRelayHub} instance. Additionally, all funds should be previously withdrawn via {_withdrawDeposits}.
      */
-    function _upgradeRelayHub(address newRelayHub) internal {
+    function _upgradeRelayHub(address newRelayHub) internal virtual {
         address currentRelayHub = _relayHub;
         require(newRelayHub != address(0), "GSNRecipient: new RelayHub is the zero address");
         require(newRelayHub != currentRelayHub, "GSNRecipient: new RelayHub is the current one");
@@ -70,7 +70,7 @@ contract GSNRecipient is IRelayRecipient, Context {
      *
      * Derived contracts should expose this in an external interface with proper access control.
      */
-    function _withdrawDeposits(uint256 amount, address payable payee) internal {
+    function _withdrawDeposits(uint256 amount, address payable payee) internal virtual {
         IRelayHub(_relayHub).withdraw(amount, payee);
     }
 
@@ -85,7 +85,7 @@ contract GSNRecipient is IRelayRecipient, Context {
      *
      * IMPORTANT: Contracts derived from {GSNRecipient} should never use `msg.sender`, and use {_msgSender} instead.
      */
-    function _msgSender() internal view returns (address payable) {
+    function _msgSender() internal view virtual override returns (address payable) {
         if (msg.sender != _relayHub) {
             return msg.sender;
         } else {
@@ -99,7 +99,7 @@ contract GSNRecipient is IRelayRecipient, Context {
      *
      * IMPORTANT: Contracts derived from {GSNRecipient} should never use `msg.data`, and use {_msgData} instead.
      */
-    function _msgData() internal view returns (bytes memory) {
+    function _msgData() internal view virtual override returns (bytes memory) {
         if (msg.sender != _relayHub) {
             return msg.data;
         } else {
@@ -119,7 +119,7 @@ contract GSNRecipient is IRelayRecipient, Context {
      *
      * - the caller must be the `RelayHub` contract.
      */
-    function preRelayedCall(bytes calldata context) external returns (bytes32) {
+    function preRelayedCall(bytes calldata context) external virtual override returns (bytes32) {
         require(msg.sender == getHubAddr(), "GSNRecipient: caller is not RelayHub");
         return _preRelayedCall(context);
     }
@@ -131,7 +131,7 @@ contract GSNRecipient is IRelayRecipient, Context {
      * must implement this function with any relayed-call preprocessing they may wish to do.
      *
      */
-    function _preRelayedCall(bytes memory context) internal returns (bytes32);
+    function _preRelayedCall(bytes memory context) internal virtual returns (bytes32);
 
     /**
      * @dev See `IRelayRecipient.postRelayedCall`.
@@ -142,7 +142,7 @@ contract GSNRecipient is IRelayRecipient, Context {
      *
      * - the caller must be the `RelayHub` contract.
      */
-    function postRelayedCall(bytes calldata context, bool success, uint256 actualCharge, bytes32 preRetVal) external {
+    function postRelayedCall(bytes calldata context, bool success, uint256 actualCharge, bytes32 preRetVal) external virtual override {
         require(msg.sender == getHubAddr(), "GSNRecipient: caller is not RelayHub");
         _postRelayedCall(context, success, actualCharge, preRetVal);
     }
@@ -154,7 +154,7 @@ contract GSNRecipient is IRelayRecipient, Context {
      * must implement this function with any relayed-call postprocessing they may wish to do.
      *
      */
-    function _postRelayedCall(bytes memory context, bool success, uint256 actualCharge, bytes32 preRetVal) internal;
+    function _postRelayedCall(bytes memory context, bool success, uint256 actualCharge, bytes32 preRetVal) internal virtual;
 
     /**
      * @dev Return this in acceptRelayedCall to proceed with the execution of a relayed call. Note that this contract
@@ -170,14 +170,14 @@ contract GSNRecipient is IRelayRecipient, Context {
      * This overload forwards `context` to _preRelayedCall and _postRelayedCall.
      */
     function _approveRelayedCall(bytes memory context) internal pure returns (uint256, bytes memory) {
-        return (RELAYED_CALL_ACCEPTED, context);
+        return (_RELAYED_CALL_ACCEPTED, context);
     }
 
     /**
      * @dev Return this in acceptRelayedCall to impede execution of a relayed call. No fees will be charged.
      */
     function _rejectRelayedCall(uint256 errorCode) internal pure returns (uint256, bytes memory) {
-        return (RELAYED_CALL_REJECTED + errorCode, "");
+        return (_RELAYED_CALL_REJECTED + errorCode, "");
     }
 
     /*

@@ -6,4 +6,6 @@ These are math-related utilities.
 
 {{SafeMath}}
 
+{{SignedSafeMath}}
+
 {{Math}}

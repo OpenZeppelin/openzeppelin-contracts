@@ -1,33 +1,37 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "../utils/EnumerableSet.sol";
 
-contract EnumerableSetMock{
+contract EnumerableSetMock {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     event TransactionResult(bool result);
 
-    EnumerableSet.AddressSet private set;
-
-    constructor() public {
-        set = EnumerableSet.newAddressSet();
-    }
+    EnumerableSet.AddressSet private _set;
 
     function contains(address value) public view returns (bool) {
-        return EnumerableSet.contains(set, value);
+        return _set.contains(value);
     }
 
     function add(address value) public {
-        bool result = EnumerableSet.add(set, value);
+        bool result = _set.add(value);
         emit TransactionResult(result);
     }
 
     function remove(address value) public {
-        bool result = EnumerableSet.remove(set, value);
+        bool result = _set.remove(value);
         emit TransactionResult(result);
     }
 
     function enumerate() public view returns (address[] memory) {
-        return EnumerableSet.enumerate(set);
+        return _set.enumerate();
+    }
+
+    function length() public view returns (uint256) {
+        return _set.length();
+    }
+
+    function at(uint256 index) public view returns (address) {
+        return _set.at(index);
     }
 }

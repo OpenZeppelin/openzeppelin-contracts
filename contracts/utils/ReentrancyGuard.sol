@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 /**
  * @dev Contract module that helps prevent reentrant calls to a function.
@@ -15,9 +15,6 @@ pragma solidity ^0.5.0;
  * TIP: If you would like to learn more about reentrancy and alternative ways
  * to protect against it, check out our blog post
  * https://blog.openzeppelin.com/reentrancy-after-istanbul/[Reentrancy After Istanbul].
- *
- * _Since v2.5.0:_ this module is now much more gas efficient, given net gas
- * metering changes introduced in the Istanbul hardfork.
  */
 contract ReentrancyGuard {
     bool private _notEntered;

@@ -1,6 +1,8 @@
 = Payment
 
-NOTE: This page is incomplete. We're working to improve it for the next release. Stay tuned!
+Utilities related to sending and receiving payments. Examples are {PullPayment}, which implements the best security practices when sending funds to third parties, and {PaymentSplitter} to receive incoming payments among a number of beneficiaries.
+
+TIP: When transferring funds to and from untrusted third parties, there is always a security risk of reentrancy. If you would like to learn more about this and ways to protect against it, check out our blog post https://blog.openzeppelin.com/reentrancy-after-istanbul/[Reentrancy After Istanbul].
 
 == Utilities
 
