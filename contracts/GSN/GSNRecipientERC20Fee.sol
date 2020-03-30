@@ -53,12 +53,12 @@ contract GSNRecipientERC20Fee is GSNRecipient {
     function acceptRelayedCall(
         address,
         address from,
-        bytes calldata,
+        bytes memory,
         uint256 transactionFee,
         uint256 gasPrice,
         uint256,
         uint256,
-        bytes calldata,
+        bytes memory,
         uint256 maxPossibleCharge
     )
         public
