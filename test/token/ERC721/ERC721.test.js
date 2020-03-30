@@ -715,7 +715,7 @@ describe('ERC721', function () {
       describe('when the index is greater than or equal to the total tokens owned by the given address', function () {
         it('reverts', async function () {
           await expectRevert(
-            this.token.tokenOfOwnerByIndex(owner, 2), 'ERC721Enumerable: owner index out of bounds'
+            this.token.tokenOfOwnerByIndex(owner, 2), 'Enumerableset: index out of bounds'
           );
         });
       });
@@ -723,7 +723,7 @@ describe('ERC721', function () {
       describe('when the given address does not own any token', function () {
         it('reverts', async function () {
           await expectRevert(
-            this.token.tokenOfOwnerByIndex(other, 0), 'ERC721Enumerable: owner index out of bounds'
+            this.token.tokenOfOwnerByIndex(other, 0), 'Enumerableset: index out of bounds'
           );
         });
       });
@@ -746,7 +746,7 @@ describe('ERC721', function () {
         it('returns empty collection for original owner', async function () {
           expect(await this.token.balanceOf(owner)).to.be.bignumber.equal('0');
           await expectRevert(
-            this.token.tokenOfOwnerByIndex(owner, 0), 'ERC721Enumerable: owner index out of bounds'
+            this.token.tokenOfOwnerByIndex(owner, 0), 'Enumerableset: index out of bounds'
           );
         });
       });
@@ -763,7 +763,7 @@ describe('ERC721', function () {
 
       it('should revert if index is greater than supply', async function () {
         await expectRevert(
-          this.token.tokenByIndex(2), 'ERC721Enumerable: global index out of bounds'
+          this.token.tokenByIndex(2), 'EnumerableMap: index out of bounds'
         );
       });
 
@@ -870,7 +870,7 @@ describe('ERC721', function () {
           await this.token.burn(secondTokenId, { from: owner });
           expect(await this.token.totalSupply()).to.be.bignumber.equal('0');
           await expectRevert(
-            this.token.tokenByIndex(0), 'ERC721Enumerable: global index out of bounds'
+            this.token.tokenByIndex(0), 'EnumerableMap: index out of bounds'
           );
         });
 
