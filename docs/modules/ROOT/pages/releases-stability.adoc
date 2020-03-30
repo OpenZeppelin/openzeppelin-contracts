@@ -54,7 +54,7 @@ Finally, sometimes language limitations will force us to e.g. make `internal` a 
 [[libraries]]
 === Libraries
 
-Some of our Solidity libraries use `struct`s to handle internal data that should not be accessed directly (e.g. `Roles`). There's an https://github.com/ethereum/solidity/issues/4637[open issue] in the Solidity repository requesting a language feature to prevent said access, but it looks like it won't be implemented any time soon. Because of this, we will use leading underscores and mark said `struct` s to make it clear to the user that its contents and layout are _not_ part of the API.
+Some of our Solidity libraries use ``struct``s to handle internal data that should not be accessed directly (e.g. `Roles`). There's an https://github.com/ethereum/solidity/issues/4637[open issue] in the Solidity repository requesting a language feature to prevent said access, but it looks like it won't be implemented any time soon. Because of this, we will use leading underscores and mark said `struct` s to make it clear to the user that its contents and layout are _not_ part of the API.
 
 [[events]]
 === Events
