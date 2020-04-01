@@ -110,8 +110,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      * @return address currently marked as the owner of the given token ID
      */
     function ownerOf(uint256 tokenId) public view override returns (address) {
-        require(_tokenOwners.contains(tokenId), "ERC721: owner query for nonexistent token");
-        return _tokenOwners.get(tokenId);
+        return _tokenOwners.get(tokenId, "ERC721: owner query for nonexistent token");
     }
 
     /**
