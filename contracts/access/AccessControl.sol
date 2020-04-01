@@ -162,7 +162,7 @@ abstract contract AccessControl is Context {
      * event.
      *
      * NOTE: Unlike {grantRole}, this function doesn't perform any checks on the
-     * calling account. Its usage should be restricted to grating the initial
+     * calling account. Its usage should be restricted to granting the initial
      * set of rules during contract construction.
      */
     function _setupRole(bytes32 role, address account) internal virtual {
