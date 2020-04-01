@@ -184,11 +184,8 @@ describe('ERC721', function () {
           expect(await this.token.getApproved(tokenId)).to.be.equal(ZERO_ADDRESS);
         });
 
-
         it('emits an Approval event', async function () {
-          expectEvent.inLogs(logs, 'Approval', {
-            owner, approved: ZERO_ADDRESS, tokenId: tokenId
-          });
+          expectEvent.inLogs(logs, 'Approval', { owner, approved: ZERO_ADDRESS, tokenId: tokenId });
         });
 
         it('adjusts owners balances', async function () {

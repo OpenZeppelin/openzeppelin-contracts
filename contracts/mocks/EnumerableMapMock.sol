@@ -7,32 +7,32 @@ contract EnumerableMapMock {
 
     event TransactionResult(bool result);
 
-    EnumerableMap.UintToAddressMap private map;
+    EnumerableMap.UintToAddressMap private _map;
 
     function contains(uint256 key) public view returns (bool) {
-        return map.contains(key);
+        return _map.contains(key);
     }
 
     function add(uint256 key, address value) public {
-        bool result = map.add(key, value);
+        bool result = _map.add(key, value);
         emit TransactionResult(result);
     }
 
     function remove(uint256 key) public {
-        bool result = map.remove(key);
+        bool result = _map.remove(key);
         emit TransactionResult(result);
     }
 
     function length() public view returns (uint256) {
-        return map.length();
+        return _map.length();
     }
 
     function at(uint256 index) public view returns (uint256 key, address value) {
-        return map.at(index);
+        return _map.at(index);
     }
 
 
     function get(uint256 key) public view returns (address) {
-        return map.get(key);
+        return _map.get(key);
     }
 }

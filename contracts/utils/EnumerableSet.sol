@@ -41,8 +41,8 @@ library EnumerableSet {
      *
      * Returns false if the value was already in the set.
      */
-    function add(Set storage set, bytes32 value) private returns (bool) {
-        if (!contains(set, value)) {
+    function _add(Set storage set, bytes32 value) private returns (bool) {
+        if (!_contains(set, value)) {
             set._values.push(value);
             // The value is stored at length-1, but we add 1 to all indexes
             // and use 0 as a sentinel value
@@ -58,7 +58,7 @@ library EnumerableSet {
      *
      * Returns false if the value was not present in the set.
      */
-    function remove(Set storage set, bytes32 value) private returns (bool) {
+    function _remove(Set storage set, bytes32 value) private returns (bool) {
         // We read and store the value's index to prevent multiple reads from the same storage slot
         uint256 valueIndex = set._indexes[value];
 
@@ -95,14 +95,14 @@ library EnumerableSet {
     /**
      * @dev Returns true if the value is in the set. O(1).
      */
-    function contains(Set storage set, bytes32 value) private view returns (bool) {
+    function _contains(Set storage set, bytes32 value) private view returns (bool) {
         return set._indexes[value] != 0;
     }
 
     /**
      * @dev Returns the number of values on the set. O(1).
      */
-    function length(Set storage set) private view returns (uint256) {
+    function _length(Set storage set) private view returns (uint256) {
         return set._values.length;
     }
 
@@ -116,7 +116,7 @@ library EnumerableSet {
     *
     * - `index` must be strictly less than {length}.
     */
-    function at(Set storage set, uint256 index) private view returns (bytes32) {
+    function _at(Set storage set, uint256 index) private view returns (bytes32) {
         require(set._values.length > index, "EnumerableSet: index out of bounds");
         return set._values[index];
     }
@@ -133,7 +133,7 @@ library EnumerableSet {
      * Returns false if the value was already in the set.
      */
     function add(AddressSet storage set, address value) internal returns (bool) {
-        return add(set._inner, bytes32(uint256(value)));
+        return _add(set._inner, bytes32(uint256(value)));
     }
 
     /**
@@ -142,21 +142,21 @@ library EnumerableSet {
      * Returns false if the value was not present in the set.
      */
     function remove(AddressSet storage set, address value) internal returns (bool) {
-        return remove(set._inner, bytes32(uint256(value)));
+        return _remove(set._inner, bytes32(uint256(value)));
     }
 
     /**
      * @dev Returns true if the value is in the set. O(1).
      */
     function contains(AddressSet storage set, address value) internal view returns (bool) {
-        return contains(set._inner, bytes32(uint256(value)));
+        return _contains(set._inner, bytes32(uint256(value)));
     }
 
     /**
      * @dev Returns the number of values in the set. O(1).
      */
     function length(AddressSet storage set) internal view returns (uint256) {
-        return length(set._inner);
+        return _length(set._inner);
     }
 
    /**
@@ -170,7 +170,7 @@ library EnumerableSet {
     * - `index` must be strictly less than {length}.
     */
     function at(AddressSet storage set, uint256 index) internal view returns (address) {
-        return address(uint256(at(set._inner, index)));
+        return address(uint256(_at(set._inner, index)));
     }
 
 
@@ -186,7 +186,7 @@ library EnumerableSet {
      * Returns false if the value was already in the set.
      */
     function add(Uint256Set storage set, uint256 value) internal returns (bool) {
-        return add(set._inner, bytes32(value));
+        return _add(set._inner, bytes32(value));
     }
 
     /**
@@ -195,21 +195,21 @@ library EnumerableSet {
      * Returns false if the value was not present in the set.
      */
     function remove(Uint256Set storage set, uint256 value) internal returns (bool) {
-        return remove(set._inner, bytes32(value));
+        return _remove(set._inner, bytes32(value));
     }
 
     /**
      * @dev Returns true if the value is in the set. O(1).
      */
     function contains(Uint256Set storage set, uint256 value) internal view returns (bool) {
-        return contains(set._inner, bytes32(value));
+        return _contains(set._inner, bytes32(value));
     }
 
     /**
      * @dev Returns the number of values on the set. O(1).
      */
     function length(Uint256Set storage set) internal view returns (uint256) {
-        return length(set._inner);
+        return _length(set._inner);
     }
 
    /**
@@ -223,6 +223,6 @@ library EnumerableSet {
     * - `index` must be strictly less than {length}.
     */
     function at(Uint256Set storage set, uint256 index) internal view returns (uint256) {
-        return uint256(at(set._inner, index));
+        return uint256(_at(set._inner, index));
     }
 }
