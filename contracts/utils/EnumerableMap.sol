@@ -124,8 +124,9 @@ library EnumerableMap {
      * - `key` must be in the map.
      */
     function get(Map storage map, bytes32 key) private view returns (bytes32) {
-        require(contains(map, key), "EnumerableMap: nonexistent key");
-        return map._entries[map._indexes[key] - 1]._value; // All indexes are 1-based
+        uint256 keyIndex = map._indexes[key];
+        require(keyIndex != 0, "EnumerableMap: nonexistent key"); // Equivalent to contains(map, key)
+        return map._entries[keyIndex - 1]._value; // All indexes are 1-based
     }
 
     // UintToAddressMap
