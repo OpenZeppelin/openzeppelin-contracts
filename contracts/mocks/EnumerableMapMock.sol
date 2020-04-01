@@ -13,8 +13,8 @@ contract EnumerableMapMock {
         return _map.contains(key);
     }
 
-    function add(uint256 key, address value) public {
-        bool result = _map.add(key, value);
+    function set(uint256 key, address value) public {
+        bool result = _map.set(key, value);
         emit OperationResult(result);
     }
 

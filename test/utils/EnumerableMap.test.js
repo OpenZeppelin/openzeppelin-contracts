@@ -47,39 +47,39 @@ describe('EnumerableMap', function () {
   });
 
   it('adds a key', async function () {
-    const receipt = await this.map.add(keyA, accountA);
+    const receipt = await this.map.set(keyA, accountA);
     expectEvent(receipt, 'OperationResult', { result: true });
 
     await expectMembersMatch(this.map, [keyA], [accountA]);
   });
 
   it('adds several keys', async function () {
-    await this.map.add(keyA, accountA);
-    await this.map.add(keyB, accountB);
+    await this.map.set(keyA, accountA);
+    await this.map.set(keyB, accountB);
 
     await expectMembersMatch(this.map, [keyA, keyB], [accountA, accountB]);
     expect(await this.map.contains(keyC)).to.equal(false);
   });
 
   it('returns false when adding keys already in the set', async function () {
-    await this.map.add(keyA, accountA);
+    await this.map.set(keyA, accountA);
 
-    const receipt = (await this.map.add(keyA, accountA));
+    const receipt = (await this.map.set(keyA, accountA));
     expectEvent(receipt, 'OperationResult', { result: false });
 
     await expectMembersMatch(this.map, [keyA], [accountA]);
   });
 
   it('updates values for keys already in the set', async function () {
-    await this.map.add(keyA, accountA);
+    await this.map.set(keyA, accountA);
 
-    await this.map.add(keyA, accountB);
+    await this.map.set(keyA, accountB);
 
     await expectMembersMatch(this.map, [keyA], [accountB]);
   });
 
   it('removes added keys', async function () {
-    await this.map.add(keyA, accountA);
+    await this.map.set(keyA, accountA);
 
     const receipt = await this.map.remove(keyA);
     expectEvent(receipt, 'OperationResult', { result: true });
@@ -98,8 +98,8 @@ describe('EnumerableMap', function () {
   it('adds and removes multiple keys', async function () {
     // []
 
-    await this.map.add(keyA, accountA);
-    await this.map.add(keyC, accountC);
+    await this.map.set(keyA, accountA);
+    await this.map.set(keyC, accountC);
 
     // [A, C]
 
@@ -108,26 +108,26 @@ describe('EnumerableMap', function () {
 
     // [C]
 
-    await this.map.add(keyB, accountB);
+    await this.map.set(keyB, accountB);
 
     // [C, B]
 
-    await this.map.add(keyA, accountA);
+    await this.map.set(keyA, accountA);
     await this.map.remove(keyC);
 
     // [A, B]
 
-    await this.map.add(keyA, accountA);
-    await this.map.add(keyB, accountB);
+    await this.map.set(keyA, accountA);
+    await this.map.set(keyB, accountB);
 
     // [A, B]
 
-    await this.map.add(keyC, accountC);
+    await this.map.set(keyC, accountC);
     await this.map.remove(keyA);
 
     // [B, C]
 
-    await this.map.add(keyA, accountA);
+    await this.map.set(keyA, accountA);
     await this.map.remove(keyB);
 
     // [A, C]

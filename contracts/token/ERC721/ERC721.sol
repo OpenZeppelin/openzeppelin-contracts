@@ -375,7 +375,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
 
         _holderTokens[to].add(tokenId);
 
-        _tokenOwners.add(tokenId, to);
+        _tokenOwners.set(tokenId, to);
 
         emit Transfer(address(0), to, tokenId);
     }
@@ -424,7 +424,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
         _holderTokens[from].remove(tokenId);
         _holderTokens[to].add(tokenId);
 
-        _tokenOwners.add(tokenId, to);
+        _tokenOwners.set(tokenId, to);
 
         emit Transfer(from, to, tokenId);
     }

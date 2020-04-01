@@ -25,12 +25,12 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Add a key-value pair to a map. O(1).
+     * @dev Adds a key-value pair to a map, or updates the value for an existing
+     * key. O(1).
      *
-     * If the key was already in the map, its value is updated and returns
-     * false.
+     * Returns false if the key was already in the map.
      */
-    function _add(Map storage map, bytes32 key, bytes32 value) private returns (bool) {
+    function _set(Map storage map, bytes32 key, bytes32 value) private returns (bool) {
         // We read and store the key's index to prevent multiple reads from the same storage slot
         uint256 keyIndex = map._indexes[key];
 
@@ -136,12 +136,13 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Add a key-value pair to a map. O(1).
-     * If the key was already in the map, its value is updated and returns
-     * false.
+     * @dev Adds a key-value pair to a map, or updates the value for an existing
+     * key. O(1).
+     *
+     * Returns false if the key was already in the map.
      */
-    function add(UintToAddressMap storage map, uint256 key, address value) internal returns (bool) {
-        return _add(map._inner, bytes32(key), bytes32(uint256(value)));
+    function set(UintToAddressMap storage map, uint256 key, address value) internal returns (bool) {
+        return _set(map._inner, bytes32(key), bytes32(uint256(value)));
     }
 
     /**
