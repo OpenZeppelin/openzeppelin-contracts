@@ -21,7 +21,7 @@ describe('ERC20Capped', function () {
 
   context('once deployed', async function () {
     beforeEach(async function () {
-      this.token = await ERC20Capped.new(name, symbol, decimals, cap, { from: minter });
+      this.token = await ERC20Capped.new(name, symbol, cap, { from: minter });
     });
 
     shouldBehaveLikeERC20Capped(minter, otherAccounts, cap);

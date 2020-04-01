@@ -282,7 +282,7 @@ contract ERC20 is Context, IERC20 {
      * - this function can only be called from a constructor.
      */
     function _setupDecimals(uint8 decimals_) internal {
-        require(isConstructor(), "ERC20: decimals cannot be changed after construction");
+        require(_isConstructor(), "ERC20: decimals cannot be changed after construction");
         _decimals = decimals_;
     }
 
@@ -303,7 +303,7 @@ contract ERC20 is Context, IERC20 {
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual { }
 
     // @dev Returns true if and only if the function is running in the constructor
-    function isConstructor() private view returns (bool) {
+    function _isConstructor() private view returns (bool) {
         // extcodesize checks the size of the code stored in an address, and
         // address returns the current address. Since the code is still not
         // deployed when running a constructor, any checks on its code size will
@@ -311,6 +311,7 @@ contract ERC20 is Context, IERC20 {
         // under construction or not.
         address self = address(this);
         uint256 cs;
+        // solhint-disable-next-line no-inline-assembly
         assembly { cs := extcodesize(self) }
         return cs == 0;
     }
