@@ -717,7 +717,7 @@ describe('ERC721', function () {
       describe('when the index is greater than or equal to the total tokens owned by the given address', function () {
         it('reverts', async function () {
           await expectRevert(
-            this.token.tokenOfOwnerByIndex(owner, 2), 'Enumerableset: index out of bounds'
+            this.token.tokenOfOwnerByIndex(owner, 2), 'EnumerableSet: index out of bounds'
           );
         });
       });
@@ -725,7 +725,7 @@ describe('ERC721', function () {
       describe('when the given address does not own any token', function () {
         it('reverts', async function () {
           await expectRevert(
-            this.token.tokenOfOwnerByIndex(other, 0), 'Enumerableset: index out of bounds'
+            this.token.tokenOfOwnerByIndex(other, 0), 'EnumerableSet: index out of bounds'
           );
         });
       });
@@ -748,7 +748,7 @@ describe('ERC721', function () {
         it('returns empty collection for original owner', async function () {
           expect(await this.token.balanceOf(owner)).to.be.bignumber.equal('0');
           await expectRevert(
-            this.token.tokenOfOwnerByIndex(owner, 0), 'Enumerableset: index out of bounds'
+            this.token.tokenOfOwnerByIndex(owner, 0), 'EnumerableSet: index out of bounds'
           );
         });
       });
