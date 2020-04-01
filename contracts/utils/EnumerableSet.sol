@@ -178,9 +178,9 @@ library EnumerableSet {
     }
 
 
-    // Uint256Set
+    // UintSet
 
-    struct Uint256Set {
+    struct UintSet {
         Set _inner;
     }
 
@@ -190,7 +190,7 @@ library EnumerableSet {
      * Returns true if the value was added to the set, that is if it was not
      * already present.
      */
-    function add(Uint256Set storage set, uint256 value) internal returns (bool) {
+    function add(UintSet storage set, uint256 value) internal returns (bool) {
         return _add(set._inner, bytes32(value));
     }
 
@@ -200,21 +200,21 @@ library EnumerableSet {
      * Returns true if the value was removed from the set, that is if it was
      * present.
      */
-    function remove(Uint256Set storage set, uint256 value) internal returns (bool) {
+    function remove(UintSet storage set, uint256 value) internal returns (bool) {
         return _remove(set._inner, bytes32(value));
     }
 
     /**
      * @dev Returns true if the value is in the set. O(1).
      */
-    function contains(Uint256Set storage set, uint256 value) internal view returns (bool) {
+    function contains(UintSet storage set, uint256 value) internal view returns (bool) {
         return _contains(set._inner, bytes32(value));
     }
 
     /**
      * @dev Returns the number of values on the set. O(1).
      */
-    function length(Uint256Set storage set) internal view returns (uint256) {
+    function length(UintSet storage set) internal view returns (uint256) {
         return _length(set._inner);
     }
 
@@ -228,7 +228,7 @@ library EnumerableSet {
     *
     * - `index` must be strictly less than {length}.
     */
-    function at(Uint256Set storage set, uint256 index) internal view returns (uint256) {
+    function at(UintSet storage set, uint256 index) internal view returns (uint256) {
         return uint256(_at(set._inner, index));
     }
 }
