@@ -5,7 +5,7 @@ import "../utils/EnumerableMap.sol";
 contract EnumerableMapMock {
     using EnumerableMap for EnumerableMap.UintToAddressMap;
 
-    event TransactionResult(bool result);
+    event OperationResult(bool result);
 
     EnumerableMap.UintToAddressMap private _map;
 
@@ -15,12 +15,12 @@ contract EnumerableMapMock {
 
     function add(uint256 key, address value) public {
         bool result = _map.add(key, value);
-        emit TransactionResult(result);
+        emit OperationResult(result);
     }
 
     function remove(uint256 key) public {
         bool result = _map.remove(key);
-        emit TransactionResult(result);
+        emit OperationResult(result);
     }
 
     function length() public view returns (uint256) {

@@ -31,7 +31,7 @@ describe('EnumerableSet', function () {
 
   it('adds a value', async function () {
     const receipt = await this.set.add(accountA);
-    expectEvent(receipt, 'TransactionResult', { result: true });
+    expectEvent(receipt, 'OperationResult', { result: true });
 
     await expectMembersMatch(this.set, [accountA]);
   });
@@ -48,7 +48,7 @@ describe('EnumerableSet', function () {
     await this.set.add(accountA);
 
     const receipt = (await this.set.add(accountA));
-    expectEvent(receipt, 'TransactionResult', { result: false });
+    expectEvent(receipt, 'OperationResult', { result: false });
 
     await expectMembersMatch(this.set, [accountA]);
   });
@@ -61,7 +61,7 @@ describe('EnumerableSet', function () {
     await this.set.add(accountA);
 
     const receipt = await this.set.remove(accountA);
-    expectEvent(receipt, 'TransactionResult', { result: true });
+    expectEvent(receipt, 'OperationResult', { result: true });
 
     expect(await this.set.contains(accountA)).to.equal(false);
     await expectMembersMatch(this.set, []);
@@ -69,7 +69,7 @@ describe('EnumerableSet', function () {
 
   it('returns false when removing values not in the set', async function () {
     const receipt = await this.set.remove(accountA);
-    expectEvent(receipt, 'TransactionResult', { result: false });
+    expectEvent(receipt, 'OperationResult', { result: false });
 
     expect(await this.set.contains(accountA)).to.equal(false);
   });

@@ -5,7 +5,7 @@ import "../utils/EnumerableSet.sol";
 contract EnumerableSetMock {
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    event TransactionResult(bool result);
+    event OperationResult(bool result);
 
     EnumerableSet.AddressSet private _set;
 
@@ -15,12 +15,12 @@ contract EnumerableSetMock {
 
     function add(address value) public {
         bool result = _set.add(value);
-        emit TransactionResult(result);
+        emit OperationResult(result);
     }
 
     function remove(address value) public {
         bool result = _set.remove(value);
-        emit TransactionResult(result);
+        emit OperationResult(result);
     }
 
     function length() public view returns (uint256) {
