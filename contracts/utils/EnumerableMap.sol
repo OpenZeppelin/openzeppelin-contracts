@@ -31,14 +31,17 @@ library EnumerableMap {
      * false.
      */
     function add(Map storage map, bytes32 key, bytes32 value) private returns (bool) {
-        if (!contains(map, key)) {
+        // We read and store the key's index to prevent multiple reads from the same storage slot
+        uint256 keyIndex = map._indexes[key];
+
+        if (keyIndex == 0) { // Equivalent to !contains(map, key)
             map._entries.push(MapEntry({ _key: key, _value: value }));
             // The entry is stored at length-1, but we add 1 to all indexes
             // and use 0 as a sentinel value
             map._indexes[key] = map._entries.length;
             return true;
         } else {
-            map._entries[map._indexes[key] - 1]._value = value;
+            map._entries[keyIndex - 1]._value = value;
             return false;
         }
     }
@@ -49,8 +52,11 @@ library EnumerableMap {
      * Returns false if the key was not present in the map.
      */
     function remove(Map storage map, bytes32 key) private returns (bool) {
-        if (contains(map, key)){
-            uint256 toDeleteIndex = map._indexes[key] - 1;
+        // We read and store the key's index to prevent multiple reads from the same storage slot
+        uint256 keyIndex = map._indexes[key];
+
+        if (keyIndex != 0) { // Equivalent to contains(map, key)
+            uint256 toDeleteIndex = keyIndex - 1;
             uint256 lastIndex = map._entries.length - 1;
 
             // If the element we're deleting is the last one, we can just remove it without doing a swap
