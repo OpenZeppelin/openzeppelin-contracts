@@ -159,13 +159,15 @@ abstract contract AccessControl is Context {
      * @dev Grants `role` to `account`.
      *
      * If `account` had not been already granted `role`, emits a {RoleGranted}
-     * event.
+     * event. Note that unlike {grantRole}, this function doesn't perform any
+     * checks on the calling account.
      *
-     * NOTE: Unlike {grantRole}, this function doesn't perform any checks on the
-     * calling account. Its usage should be restricted to granting the initial
-     * set of rules during contract construction.
+     * Requirements:
+     *
+     * - this function can only be called from a constructor.
      */
     function _setupRole(bytes32 role, address account) internal virtual {
+        require(_isConstructor(), "AccessControl: roles cannot be setup after construction");
         _grantRole(role, account);
     }
 
@@ -186,5 +188,19 @@ abstract contract AccessControl is Context {
         if (_roles[role].members.remove(account)) {
             emit RoleRevoked(role, account, _msgSender());
         }
+    }
+
+    // @dev Returns true if and only if the function is running in the constructor
+    function _isConstructor() private view returns (bool) {
+        // extcodesize checks the size of the code stored in an address, and
+        // address returns the current address. Since the code is still not
+        // deployed when running a constructor, any checks on its code size will
+        // yield zero, making it an effective way to detect if a contract is
+        // under construction or not.
+        address self = address(this);
+        uint256 cs;
+        // solhint-disable-next-line no-inline-assembly
+        assembly { cs := extcodesize(self) }
+        return cs == 0;
     }
 }
