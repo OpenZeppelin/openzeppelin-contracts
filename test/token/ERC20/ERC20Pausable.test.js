@@ -13,10 +13,9 @@ describe('ERC20Pausable', function () {
 
   const name = 'My Token';
   const symbol = 'MTKN';
-  const decimals = new BN(18);
 
   beforeEach(async function () {
-    this.token = await ERC20PausableMock.new(name, symbol, decimals, holder, initialSupply);
+    this.token = await ERC20PausableMock.new(name, symbol, holder, initialSupply);
   });
 
   describe('pausable token', function () {

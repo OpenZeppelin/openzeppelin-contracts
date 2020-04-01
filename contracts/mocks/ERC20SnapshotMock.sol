@@ -7,10 +7,9 @@ contract ERC20SnapshotMock is ERC20Snapshot {
     constructor(
         string memory name,
         string memory symbol,
-        uint8 decimals,
         address initialAccount,
         uint256 initialBalance
-    ) public ERC20(name, symbol, decimals) {
+    ) public ERC20(name, symbol) {
         _mint(initialAccount, initialBalance);
     }
 

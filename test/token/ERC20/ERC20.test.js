@@ -17,12 +17,11 @@ describe('ERC20', function () {
 
   const name = 'My Token';
   const symbol = 'MTKN';
-  const decimals = new BN(18);
 
   const initialSupply = new BN(100);
 
   beforeEach(async function () {
-    this.token = await ERC20Mock.new(name, symbol, decimals, initialHolder, initialSupply);
+    this.token = await ERC20Mock.new(name, symbol, initialHolder, initialSupply);
   });
 
   it('has a name', async function () {
@@ -33,8 +32,8 @@ describe('ERC20', function () {
     expect(await this.token.symbol()).to.equal(symbol);
   });
 
-  it('has an amount of decimals', async function () {
-    expect(await this.token.decimals()).to.be.bignumber.equal(decimals);
+  it('has 18 decimals', async function () {
+    expect(await this.token.decimals()).to.be.bignumber.equal(18);
   });
 
   shouldBehaveLikeERC20('ERC20', initialSupply, initialHolder, recipient, anotherAccount);

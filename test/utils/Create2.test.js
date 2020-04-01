@@ -14,8 +14,8 @@ describe('Create2', function () {
   const saltHex = web3.utils.soliditySha3(salt);
 
   const encodedParams = web3.eth.abi.encodeParameters(
-    ['string', 'string', 'uint8', 'address', 'uint256'],
-    ['MyToken', 'MTKN', 18, deployerAccount, 100]
+    ['string', 'string', 'address', 'uint256'],
+    ['MyToken', 'MTKN', deployerAccount, 100]
   ).slice(2);
 
   const constructorByteCode = `${ERC20Mock.bytecode}${encodedParams}`;

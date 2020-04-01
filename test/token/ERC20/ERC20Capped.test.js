@@ -12,11 +12,10 @@ describe('ERC20Capped', function () {
 
   const name = 'My Token';
   const symbol = 'MTKN';
-  const decimals = new BN(18);
 
   it('requires a non-zero cap', async function () {
     await expectRevert(
-      ERC20Capped.new(name, symbol, decimals, new BN(0), { from: minter }), 'ERC20Capped: cap is 0'
+      ERC20Capped.new(name, symbol, new BN(0), { from: minter }), 'ERC20Capped: cap is 0'
     );
   });
 
