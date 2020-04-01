@@ -59,8 +59,11 @@ library EnumerableSet {
      * Returns false if the value was not present in the set.
      */
     function remove(Set storage set, bytes32 value) private returns (bool) {
-        if (contains(set, value)){
-            uint256 toDeleteIndex = set._indexes[value] - 1;
+        // We read and store the value's index to prevent multiple reads from the same storage slot
+        uint256 valueIndex = set._indexes[value];
+
+        if (valueIndex != 0) { // Equivalent to contains(set, value)
+            uint256 toDeleteIndex = valueIndex - 1;
             uint256 lastIndex = set._values.length - 1;
 
             // If the value we're deleting is the last one, we can just remove it without doing a swap
