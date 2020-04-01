@@ -39,7 +39,8 @@ library EnumerableSet {
     /**
      * @dev Add a value to a set. O(1).
      *
-     * Returns false if the value was already in the set.
+     * Returns true if the value was added to the set, that is if it was not
+     * already present.
      */
     function _add(Set storage set, bytes32 value) private returns (bool) {
         if (!_contains(set, value)) {
@@ -56,7 +57,8 @@ library EnumerableSet {
     /**
      * @dev Removes a value from a set. O(1).
      *
-     * Returns false if the value was not present in the set.
+     * Returns true if the value was removed from the set, that is if it was
+     * present.
      */
     function _remove(Set storage set, bytes32 value) private returns (bool) {
         // We read and store the value's index to prevent multiple reads from the same storage slot
@@ -130,7 +132,8 @@ library EnumerableSet {
     /**
      * @dev Add a value to a set. O(1).
      *
-     * Returns false if the value was already in the set.
+     * Returns true if the value was added to the set, that is if it was not
+     * already present.
      */
     function add(AddressSet storage set, address value) internal returns (bool) {
         return _add(set._inner, bytes32(uint256(value)));
@@ -139,7 +142,8 @@ library EnumerableSet {
     /**
      * @dev Removes a value from a set. O(1).
      *
-     * Returns false if the value was not present in the set.
+     * Returns true if the value was removed from the set, that is if it was
+     * present.
      */
     function remove(AddressSet storage set, address value) internal returns (bool) {
         return _remove(set._inner, bytes32(uint256(value)));
@@ -183,7 +187,8 @@ library EnumerableSet {
     /**
      * @dev Add a value to a set. O(1).
      *
-     * Returns false if the value was already in the set.
+     * Returns true if the value was added to the set, that is if it was not
+     * already present.
      */
     function add(Uint256Set storage set, uint256 value) internal returns (bool) {
         return _add(set._inner, bytes32(value));
@@ -192,7 +197,8 @@ library EnumerableSet {
     /**
      * @dev Removes a value from a set. O(1).
      *
-     * Returns false if the value was not present in the set.
+     * Returns true if the value was removed from the set, that is if it was
+     * present.
      */
     function remove(Uint256Set storage set, uint256 value) internal returns (bool) {
         return _remove(set._inner, bytes32(value));

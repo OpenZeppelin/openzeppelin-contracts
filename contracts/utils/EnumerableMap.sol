@@ -28,7 +28,8 @@ library EnumerableMap {
      * @dev Adds a key-value pair to a map, or updates the value for an existing
      * key. O(1).
      *
-     * Returns false if the key was already in the map.
+     * Returns true if the key was added to the map, that is if it was not
+     * already present.
      */
     function _set(Map storage map, bytes32 key, bytes32 value) private returns (bool) {
         // We read and store the key's index to prevent multiple reads from the same storage slot
@@ -49,7 +50,7 @@ library EnumerableMap {
     /**
      * @dev Removes a key-value pair from a map. O(1).
      *
-     * Returns false if the key was not present in the map.
+     * Returns true if the key was removed from the map, that is if it was present.
      */
     function _remove(Map storage map, bytes32 key) private returns (bool) {
         // We read and store the key's index to prevent multiple reads from the same storage slot
@@ -146,7 +147,8 @@ library EnumerableMap {
      * @dev Adds a key-value pair to a map, or updates the value for an existing
      * key. O(1).
      *
-     * Returns false if the key was already in the map.
+     * Returns true if the key was added to the map, that is if it was not
+     * already present.
      */
     function set(UintToAddressMap storage map, uint256 key, address value) internal returns (bool) {
         return _set(map._inner, bytes32(key), bytes32(uint256(value)));
@@ -154,7 +156,8 @@ library EnumerableMap {
 
     /**
      * @dev Removes a value from a set. O(1).
-     * Returns false if the value was not present in the set.
+     *
+     * Returns true if the key was removed from the map, that is if it was present.
      */
     function remove(UintToAddressMap storage map, uint256 key) internal returns (bool) {
         return _remove(map._inner, bytes32(key));
