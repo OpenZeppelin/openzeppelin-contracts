@@ -10,11 +10,15 @@ const TokenTimelock = contract.fromArtifact('TokenTimelock');
 describe('TokenTimelock', function () {
   const [ beneficiary ] = accounts;
 
+  const name = 'My Token';
+  const symbol = 'MTKN';
+  const decimals = new BN(18);
+
   const amount = new BN(100);
 
   context('with token', function () {
     beforeEach(async function () {
-      this.token = await ERC20Mock.new(beneficiary, 0); // We're not using the preminted tokens
+      this.token = await ERC20Mock.new(name, symbol, decimals, beneficiary, 0); // We're not using the preminted tokens
     });
 
     it('rejects a release time in the past', async function () {
