@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "./ERC1155.sol";
 import "./IERC1155MetadataURI.sol";
@@ -8,7 +8,7 @@ contract ERC1155MetadataURICatchAll is ERC165, ERC1155, IERC1155MetadataURI {
     // Catch-all URI with placeholders, e.g. https://example.com/{locale}/{id}.json
     string private _uri;
 
-    /*
+     /*
      *     bytes4(keccak256('uri(uint256)')) == 0x0e89341c
      */
     bytes4 private constant _INTERFACE_ID_ERC1155_METADATA_URI = 0x0e89341c;
@@ -31,7 +31,7 @@ contract ERC1155MetadataURICatchAll is ERC165, ERC1155, IERC1155MetadataURI {
      * as an {id} parameter in the string is expected)
      * @return URI string
     */
-    function uri(uint256 /*id*/) external view returns (string memory) {
+    function uri(uint256 /*id*/) external view override returns (string memory) {
         return _uri;
     }
 
