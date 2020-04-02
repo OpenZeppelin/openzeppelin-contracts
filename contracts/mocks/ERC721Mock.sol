@@ -13,10 +13,6 @@ contract ERC721Mock is ERC721 {
         return _exists(tokenId);
     }
 
-    function tokensOfOwner(address owner) public view returns (uint256[] memory) {
-        return _tokensOfOwner(owner);
-    }
-
     function setTokenURI(uint256 tokenId, string memory uri) public {
         _setTokenURI(tokenId, uri);
     }
