@@ -28,6 +28,8 @@
  * `ERC777`: removed `_callsTokensToSend` and `_callTokensReceived`. ([#2134](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2134))
  * `EnumerableSet`: renamed `get` to `at`. ([#2151](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2151))
  * `ERC165Checker`: functions no longer have a leading underscore. ([#2150](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2150))
+ * `ERC20Detailed`: this contract was removed and its functionality merged into `ERC20`. ([#2161](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2161))
+ * `ERC20`: added a constructor for `name` and `symbols`, `decimals` default to 18. ([#2161](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2161))
 
 ## 2.5.0 (2020-02-04)
 
