@@ -5,7 +5,7 @@ import "./ERC20.sol";
 /**
  * @dev Extension of {ERC20} that adds a cap to the supply of tokens.
  */
-contract ERC20Capped is ERC20 {
+abstract contract ERC20Capped is ERC20 {
     uint256 private _cap;
 
     /**
