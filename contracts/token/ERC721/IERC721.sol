@@ -6,72 +6,103 @@ import "../../introspection/IERC165.sol";
  * @dev Required interface of an ERC721 compliant contract.
  */
 interface IERC721 is IERC165 {
+    /**
+     * @dev Emitted when `tokenId` token is transfered from `from` to `to`.
+     */
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
+
+    /**
+     * @dev Emitted when `owner` enables `approved` to manage `tokenId` token.
+     */
     event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
+
+    /**
+     * @dev Emitted when `owner` enables or disables (`approved`) `operator` to manage all of its assets.
+     */
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
 
     /**
-     * @dev Returns the number of NFTs in `owner`'s account.
+     * @dev Returns the number of tokens in `owner`'s account.
      */
     function balanceOf(address owner) external view returns (uint256 balance);
 
     /**
-     * @dev Returns the owner of the NFT specified by `tokenId`.
+     * @dev Returns the owner of the `tokenId` token.
      */
     function ownerOf(uint256 tokenId) external view returns (address owner);
 
     /**
-     * @dev Transfers a specific NFT (`tokenId`) from one account (`from`) to
-     * another (`to`).
+     * @dev Safely transfers `tokenId` token from `from` to `to`.
+     * 'Safely' means that, if `to` refers to a smart contract, the token won't be forever locked in it.
+     * It ensures that the receiving contract knows how to properly handle ERC721 tokens by checking if it returns the correct function selector.
      *
      * Requirements:
      * - `from`, `to` cannot be zero.
-     * - `tokenId` must be owned by `from`.
-     * - If the caller is not `from`, it must be have been allowed to move this
-     * NFT by either {approve} or {setApprovalForAll}.
+     * - `tokenId` token must exist and be owned by `from`.
+     * - If the caller is not `from`, it must be have been allowed to move this token by either {approve} or {setApprovalForAll}.
+     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
+     *
+     * Emits a {Transfer} event.
      */
     function safeTransferFrom(address from, address to, uint256 tokenId) external;
 
     /**
-     * @dev Transfers a specific NFT (`tokenId`) from one account (`from`) to
-     * another (`to`).
+     * @dev Transfers `tokenId` token from `from` to `to`.
+     * Usage of this method is discouraged, use {safeTransferFrom} whenever possible.
      *
      * Requirements:
-     * - If the caller is not `from`, it must be approved to move this NFT by
-     * either {approve} or {setApprovalForAll}.
+     * - `from`, `to` cannot be zero.
+     * - `tokenId` token must be owned by `from`.
+     * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
+     *
+     * Emits a {Transfer} event.
      */
     function transferFrom(address from, address to, uint256 tokenId) external;
 
     /**
-     * @dev Approves the transfer of a specific NFT (`tokenId`) to an account (`to`)
+     * @dev Gives permission to `to` to transfer `tokenId` token to another account.
+     * A single account can be approved at a time.
+     * Approvals are cleared on transfer.
+     * Approving the zero address clears approvals.
      *
      * Requirements:
-     * - The caller must own the token or be an approved operator
+     * - The caller must own the token or be an approved operator.
+     *
+     * Emits an {Approval} event.
      */
     function approve(address to, uint256 tokenId) external;
 
     /**
-     * @dev Gets the approved account for a specific NFT (`tokenId`)
+     * @dev Returns the account approved for `tokenId` token.
      */
     function getApproved(uint256 tokenId) external view returns (address operator);
 
     /**
-     * @dev Enable or disable (`_approved`) an account (`operator`) to manage all of the assets of the sender (`msg.sender`).
+     * @dev Approve or remove `operator` as an operator for the caller.
+     * Operators can call {transferFrom} or {safeTransferFrom} for any token owned by the caller.
+     *
+     * Requirements:
+     * - The `operator` cannot be the caller.
      *
      * Emits an {ApprovalForAll} event.
      */
     function setApprovalForAll(address operator, bool _approved) external;
 
     /**
-     * @dev Queries if an account (`operator`) is allowed to manage all of the assets of another account (`owner`)
+     * @dev Returns if the `operator` is allowed to manage all of the assets of `owner`.
      */
     function isApprovedForAll(address owner, address operator) external view returns (bool);
 
     /**
-     * @dev Safely transfers a specific NFT (`tokenId`) from one account (`from`) to another (`to`)
-     *
-     * Requirements:
-     *  - If the caller is not `from`, it must be approved to move this NFT by etheir {approve} or {setApprovalForAll}
-     */
+      * @dev Safely transfers `tokenId` token from `from` to `to`.
+      *
+      * Requirements:
+      * - `from`, `to` cannot be zero.
+      * - `tokenId` token must exist and be owned by `from`.
+      * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
+      * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
+      *
+      * Emits a {Transfer} event.
+      */
     function safeTransferFrom(address from, address to, uint256 tokenId, bytes calldata data) external;
 }
