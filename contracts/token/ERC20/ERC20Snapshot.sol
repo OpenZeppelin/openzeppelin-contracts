@@ -17,7 +17,7 @@ import "./ERC20.sol";
  * account address.
  * @author Validity Labs AG <info@validitylabs.org>
  */
-contract ERC20Snapshot is ERC20 {
+abstract contract ERC20Snapshot is ERC20 {
     // Inspired by Jordi Baylina's MiniMeToken to record historical balances:
     // https://github.com/Giveth/minimd/blob/ea04d950eea153a04c51fa510b068b9dded390cb/contracts/MiniMeToken.sol
 
