@@ -6,6 +6,21 @@ import "../token/ERC721/ERC721.sol";
 import "../token/ERC721/ERC721Burnable.sol";
 import "../token/ERC721/ERC721Pausable.sol";
 
+/**
+ * @dev Full-fledged {ERC721} token, including:
+ *
+ *  - ability for holders to burn (destroy) their tokens
+ *  - a minter role that allows for token minting (creation)
+ *  - a pauser role that allows to stop all token transfers
+ *
+ * The account that deploys the contract will be granted the minter role, the
+ * pauser role, and the default admin role, meaning it will be able to grant
+ * both the minter and pauser roles. See {AccessControl} for details.
+ *
+ * This contract serves as an example of how to integrate different {ERC721}
+ * modules and use the {AccessControl} contract to create different permissions.
+ * It can be deployed as-is for quick prototyping or testing.
+ */
 contract ERC721DeployReady is Context, AccessControl, ERC721Burnable, ERC721Pausable {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
