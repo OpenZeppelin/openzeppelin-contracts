@@ -3,6 +3,7 @@ pragma solidity ^0.6.0;
 import "../../GSN/Context.sol";
 import "./IERC20.sol";
 import "../../math/SafeMath.sol";
+import "../../utils/Address.sol";
 
 /**
  * @dev Implementation of the {IERC20} interface.
@@ -30,6 +31,7 @@ import "../../math/SafeMath.sol";
  */
 contract ERC20 is Context, IERC20 {
     using SafeMath for uint256;
+    using Address for address;
 
     mapping (address => uint256) private _balances;
 
@@ -282,7 +284,7 @@ contract ERC20 is Context, IERC20 {
      * - this function can only be called from a constructor.
      */
     function _setupDecimals(uint8 decimals_) internal {
-        require(_isConstructor(), "ERC20: decimals cannot be changed after construction");
+        require(!address(this).isContract(), "ERC20: decimals cannot be changed after construction");
         _decimals = decimals_;
     }
 
@@ -301,18 +303,4 @@ contract ERC20 is Context, IERC20 {
      * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
      */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual { }
-
-    // @dev Returns true if and only if the function is running in the constructor
-    function _isConstructor() private view returns (bool) {
-        // extcodesize checks the size of the code stored in an address, and
-        // address returns the current address. Since the code is still not
-        // deployed when running a constructor, any checks on its code size will
-        // yield zero, making it an effective way to detect if a contract is
-        // under construction or not.
-        address self = address(this);
-        uint256 cs;
-        // solhint-disable-next-line no-inline-assembly
-        assembly { cs := extcodesize(self) }
-        return cs == 0;
-    }
 }
