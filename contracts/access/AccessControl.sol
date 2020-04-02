@@ -1,6 +1,7 @@
 pragma solidity ^0.6.0;
 
 import "../utils/EnumerableSet.sol";
+import "../utils/Address.sol";
 import "../GSN/Context.sol";
 
 /**
@@ -36,6 +37,7 @@ import "../GSN/Context.sol";
  */
 abstract contract AccessControl is Context {
     using EnumerableSet for EnumerableSet.AddressSet;
+    using Address for address;
 
     struct RoleData {
         EnumerableSet.AddressSet members;
@@ -167,7 +169,7 @@ abstract contract AccessControl is Context {
      * - this function can only be called from a constructor.
      */
     function _setupRole(bytes32 role, address account) internal virtual {
-        require(_isConstructor(), "AccessControl: roles cannot be setup after construction");
+        require(!address(this).isContract(), "AccessControl: roles cannot be setup after construction");
         _grantRole(role, account);
     }
 
@@ -188,19 +190,5 @@ abstract contract AccessControl is Context {
         if (_roles[role].members.remove(account)) {
             emit RoleRevoked(role, account, _msgSender());
         }
-    }
-
-    // @dev Returns true if and only if the function is running in the constructor
-    function _isConstructor() private view returns (bool) {
-        // extcodesize checks the size of the code stored in an address, and
-        // address returns the current address. Since the code is still not
-        // deployed when running a constructor, any checks on its code size will
-        // yield zero, making it an effective way to detect if a contract is
-        // under construction or not.
-        address self = address(this);
-        uint256 cs;
-        // solhint-disable-next-line no-inline-assembly
-        assembly { cs := extcodesize(self) }
-        return cs == 0;
     }
 }
