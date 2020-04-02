@@ -34,7 +34,7 @@ contract SupportsInterfaceWithLookupMock is IERC165 {
     /**
      * @dev Implement supportsInterface(bytes4) using a lookup table.
      */
-    function supportsInterface(bytes4 interfaceId) external view override returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
         return _supportedInterfaces[interfaceId];
     }
 

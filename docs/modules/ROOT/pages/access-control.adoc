@@ -69,7 +69,7 @@ contract MyToken is ERC20, AccessControl {
 
     constructor(address minter) public {
         // Grant the minter role to a specified account
-        _grantRole(MINTER_ROLE, minter);
+        _setupRole(MINTER_ROLE, minter);
     }
 
     function mint(address to, uint256 amount) public {
@@ -98,8 +98,8 @@ contract MyToken is ERC20, AccessControl {
     bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
 
     constructor(address minter, address burner) public {
-        _grantRole(MINTER_ROLE, minter);
-        _grantRole(BURNER_ROLE, burner);
+        _setupRole(MINTER_ROLE, minter);
+        _setupRole(BURNER_ROLE, burner);
     }
 
     function mint(address to, uint256 amount) public {
@@ -119,11 +119,11 @@ So clean! By splitting concerns this way, more granular levels of permission may
 [[granting-and-revoking]]
 === Granting and Revoking Roles
 
-The ERC20 token example above uses `\_grantRole`, an `internal` function that is useful when programmatically asigning roles (such as during construction). But what if we later want to grant the 'minter' role to additional accounts?
+The ERC20 token example above uses `\_setupRole`, an `internal` function that is useful when programmatically asigning roles (such as during construction). But what if we later want to grant the 'minter' role to additional accounts?
 
 By default, **accounts with a role cannot grant it or revoke it from other accounts**: all having a role does is making the `hasRole` check pass. To grant and revoke roles dynamically, you will need help from the _role's admin_.
 
-Every role has an associated admin role, which grants permission to call the `grantRole` and `revokeRole` `external` functions. A role can be granted or revoked by using these if the calling account has the corresponding admin role. Multiple roles may have the same admin role to make management easier. A role's admin can even be the same role itself, which would cause accounts with that role to be able to also grant and revoke it.
+Every role has an associated admin role, which grants permission to call the `grantRole` and `revokeRole` functions. A role can be granted or revoked by using these if the calling account has the corresponding admin role. Multiple roles may have the same admin role to make management easier. A role's admin can even be the same role itself, which would cause accounts with that role to be able to also grant and revoke it.
 
 This mechanism can be used to create complex permissioning structures resembling organizational charts, but it also provides an easy way to manage simpler applications. `AccessControl` includes a special role, called `DEFAULT_ADMIN_ROLE`, which acts as the **default admin role for all roles**. An account with this role will be able to manage any other role, unless `\_setRoleAdmin` is used to select a new admin role.
 
@@ -143,7 +143,7 @@ contract MyToken is ERC20, AccessControl {
     constructor() public {
         // Grant the contract deployer the default admin role: it will be able
         // to grant and revoke any roles
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
     function mint(address to, uint256 amount) public {
