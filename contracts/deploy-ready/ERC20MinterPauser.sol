@@ -14,7 +14,7 @@ import "../token/ERC20/ERC20Pausable.sol";
  *  - a pauser role that allows to stop all token transfers
  *
  * This contract uses {AccessControl} to lock permissioned functions using the
- * different roles. See {AccessControl} for details.
+ * different roles - head to its documentation for details.
  *
  * The account that deploys the contract will be granted the minter role, the
  * pauser role, and the default admin role, meaning it will be able to grant
