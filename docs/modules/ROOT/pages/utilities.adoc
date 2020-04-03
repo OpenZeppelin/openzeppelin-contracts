@@ -90,7 +90,7 @@ If you want to Escrow some funds, check out xref:api:payment.adoc#Escrow[`Escrow
 [[collections]]
 == Collections
 
-If you need support for more powerful collections than Solidity's native arrays and mappings, take a look at xref:api:utils.adoc#EnumerableSet[`EnumerableSet`]. It is similar to a mapping in that it stores and removes elements in constant time and doesn't allow for repeated entries, but it also supports _enumeration_, which means you can easily query all elements of the set both on and off-chain.
+If you need support for more powerful collections than Solidity's native arrays and mappings, take a look at xref:api:utils.adoc#EnumerableSet[`EnumerableSet`] and xref:api:utils.adoc#EnumerableMap[`EnumerableMap`]. They are similar to mappings in that they store and remove elements in constant time and don't allow for repeated entries, but they also supports _enumeration_, which means you can easily query all stored entries both on and off-chain.
 
 [[misc]]
 == Misc
