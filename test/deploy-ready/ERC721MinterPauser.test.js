@@ -5,22 +5,22 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const ERC20DeployReady = contract.fromArtifact('ERC20DeployReady');
+const ERC721MinterPauser = contract.fromArtifact('ERC721MinterPauser');
 
-describe('ERC20DeployReady', function () {
+describe('ERC721MinterPauser', function () {
   const [ deployer, other ] = accounts;
 
-  const name = 'DeployReadyToken';
+  const name = 'MinterPauserToken';
   const symbol = 'DRT';
 
-  const amount = new BN('5000');
+  const tokenId = new BN('1337');
 
   const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000';
   const MINTER_ROLE = web3.utils.soliditySha3('MINTER_ROLE');
   const PAUSER_ROLE = web3.utils.soliditySha3('PAUSER_ROLE');
 
   beforeEach(async function () {
-    this.token = await ERC20DeployReady.new(name, symbol, { from: deployer });
+    this.token = await ERC721MinterPauser.new(name, symbol, { from: deployer });
   });
 
   it('deployer has the default admin role', async function () {
@@ -45,16 +45,17 @@ describe('ERC20DeployReady', function () {
 
   describe('minting', function () {
     it('deployer can mint tokens', async function () {
-      const receipt = await this.token.mint(other, amount, { from: deployer });
-      expectEvent(receipt, 'Transfer', { from: ZERO_ADDRESS, to: other, value: amount });
+      const receipt = await this.token.mint(other, tokenId, { from: deployer });
+      expectEvent(receipt, 'Transfer', { from: ZERO_ADDRESS, to: other, tokenId });
 
-      expect(await this.token.balanceOf(other)).to.be.bignumber.equal(amount);
+      expect(await this.token.balanceOf(other)).to.be.bignumber.equal('1');
+      expect(await this.token.ownerOf(tokenId)).to.equal(other);
     });
 
     it('other accounts cannot mint tokens', async function () {
       await expectRevert(
-        this.token.mint(other, amount, { from: other }),
-        'ERC20DeployReady: must have minter role to mint'
+        this.token.mint(other, tokenId, { from: other }),
+        'ERC721MinterPauser: must have minter role to mint'
       );
     });
   });
@@ -80,24 +81,26 @@ describe('ERC20DeployReady', function () {
       await this.token.pause({ from: deployer });
 
       await expectRevert(
-        this.token.mint(other, amount, { from: deployer }),
-        'ERC20Pausable: token transfer while paused'
+        this.token.mint(other, tokenId, { from: deployer }),
+        'ERC721Pausable: token transfer while paused'
       );
     });
 
     it('other accounts cannot pause', async function () {
-      await expectRevert(this.token.pause({ from: other }), 'ERC20DeployReady: must have pauser role to pause');
+      await expectRevert(this.token.pause({ from: other }), 'ERC721MinterPauser: must have pauser role to pause');
     });
   });
 
   describe('burning', function () {
     it('holders can burn their tokens', async function () {
-      await this.token.mint(other, amount, { from: deployer });
+      await this.token.mint(other, tokenId, { from: deployer });
 
-      const receipt = await this.token.burn(amount.subn(1), { from: other });
-      expectEvent(receipt, 'Transfer', { from: other, to: ZERO_ADDRESS, value: amount.subn(1) });
+      const receipt = await this.token.burn(tokenId, { from: other });
 
-      expect(await this.token.balanceOf(other)).to.be.bignumber.equal('1');
+      expectEvent(receipt, 'Transfer', { from: other, to: ZERO_ADDRESS, tokenId });
+
+      expect(await this.token.balanceOf(other)).to.be.bignumber.equal('0');
+      expect(await this.token.totalSupply()).to.be.bignumber.equal('0');
     });
   });
 });
