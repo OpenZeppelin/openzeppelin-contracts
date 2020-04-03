@@ -12,8 +12,21 @@ const files = proc.execFileSync(
 
 console.log('.API');
 
-for (const file of files) {
-  const doc = file.replace(baseDir, '');
-  const title = path.parse(file).name;
-  console.log(`* xref:${doc}[${startCase(title)}]`);
+const links = files.map((file) => {
+    const doc = file.replace(baseDir, '');
+    const title = path.parse(file).name;
+
+    return {
+      xref: `* xref:${doc}[${startCase(title)}]`,
+      title,
+    };
+});
+
+// Case-insensitive sort based on titles (so 'token/ERC20' gets sorted as 'erc20')
+const sortedLinks = links.sort(function (a, b) {
+  return a.title.toLowerCase().localeCompare(b.title.toLowerCase());
+});
+
+for (const link of sortedLinks) {
+   console.log(link.xref);
 }
