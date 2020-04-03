@@ -61,6 +61,7 @@
     "ethereumjs-util": "^6.2.0",
     "ganache-core-coverage": "https://github.com/OpenZeppelin/ganache-core-coverage/releases/download/2.5.3-coverage/ganache-core-coverage-2.5.3.tgz",
     "lodash.startcase": "^4.4.0",
+    "lodash.zip": "^4.2.0",
     "micromatch": "^4.0.2",
     "mocha": "^7.1.1",
     "solhint": "^3.0.0-rc.6",
