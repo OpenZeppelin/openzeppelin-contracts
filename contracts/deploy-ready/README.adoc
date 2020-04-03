@@ -8,6 +8,6 @@ TIP: Intermediate and advanced users can use these as starting points when writi
 
 == Tokens
 
- * {ERC20MinterPauser}: an {ERC20} token that can grant permission to mint (create) tokens and pause all token transfers.
+{{ERC20MinterPauser}}
 
- * {ERC721MinterPauser}: an {ERC721} token that can grant permission to mint (create) tokens and pause all token transfers.
+{{ERC721MinterPauser}}
