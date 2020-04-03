@@ -10,8 +10,11 @@ describe('ERC20Burnable', function () {
 
   const initialBalance = new BN(1000);
 
+  const name = 'My Token';
+  const symbol = 'MTKN';
+
   beforeEach(async function () {
-    this.token = await ERC20BurnableMock.new(owner, initialBalance, { from: owner });
+    this.token = await ERC20BurnableMock.new(name, symbol, owner, initialBalance, { from: owner });
   });
 
   shouldBehaveLikeERC20Burnable(owner, initialBalance, otherAccounts);

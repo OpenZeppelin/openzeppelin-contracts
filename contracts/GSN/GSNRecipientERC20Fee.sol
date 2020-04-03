@@ -5,7 +5,6 @@ import "../math/SafeMath.sol";
 import "../access/Ownable.sol";
 import "../token/ERC20/SafeERC20.sol";
 import "../token/ERC20/ERC20.sol";
-import "../token/ERC20/ERC20Detailed.sol";
 
 /**
  * @dev A xref:ROOT:gsn-strategies.adoc#gsn-strategies[GSN strategy] that charges transaction fees in a special purpose ERC20
@@ -30,7 +29,7 @@ contract GSNRecipientERC20Fee is GSNRecipient {
      * @dev The arguments to the constructor are the details that the gas payment token will have: `name` and `symbol`. `decimals` is hard-coded to 18.
      */
     constructor(string memory name, string memory symbol) public {
-        _token = new __unstable__ERC20Owned(name, symbol, 18);
+        _token = new __unstable__ERC20Owned(name, symbol);
     }
 
     /**
@@ -53,15 +52,15 @@ contract GSNRecipientERC20Fee is GSNRecipient {
     function acceptRelayedCall(
         address,
         address from,
-        bytes calldata,
+        bytes memory,
         uint256 transactionFee,
         uint256 gasPrice,
         uint256,
         uint256,
-        bytes calldata,
+        bytes memory,
         uint256 maxPossibleCharge
     )
-        external
+        public
         view
         virtual
         override
@@ -97,7 +96,7 @@ contract GSNRecipientERC20Fee is GSNRecipient {
         // actualCharge is an _estimated_ charge, which assumes postRelayedCall will use all available gas.
         // This implementation's gas cost can be roughly estimated as 10k gas, for the two SSTORE operations in an
         // ERC20 transfer.
-        uint256 overestimation = _computeCharge(POST_RELAYED_CALL_MAX_GAS.sub(10000), gasPrice, transactionFee);
+        uint256 overestimation = _computeCharge(_POST_RELAYED_CALL_MAX_GAS.sub(10000), gasPrice, transactionFee);
         actualCharge = actualCharge.sub(overestimation);
 
         // After the relayed call has been executed and the actual charge estimated, the excess pre-charge is returned
@@ -112,10 +111,10 @@ contract GSNRecipientERC20Fee is GSNRecipient {
  * outside of this context.
  */
 // solhint-disable-next-line contract-name-camelcase
-contract __unstable__ERC20Owned is ERC20, ERC20Detailed, Ownable {
-    uint256 private constant UINT256_MAX = 2**256 - 1;
+contract __unstable__ERC20Owned is ERC20, Ownable {
+    uint256 private constant _UINT256_MAX = 2**256 - 1;
 
-    constructor(string memory name, string memory symbol, uint8 decimals) public ERC20Detailed(name, symbol, decimals) { }
+    constructor(string memory name, string memory symbol) public ERC20(name, symbol) { }
 
     // The owner (GSNRecipientERC20Fee) can mint tokens
     function mint(address account, uint256 amount) public onlyOwner {
@@ -123,9 +122,9 @@ contract __unstable__ERC20Owned is ERC20, ERC20Detailed, Ownable {
     }
 
     // The owner has 'infinite' allowance for all token holders
-    function allowance(address tokenOwner, address spender) public view override(ERC20, IERC20) returns (uint256) {
+    function allowance(address tokenOwner, address spender) public view override returns (uint256) {
         if (spender == owner()) {
-            return UINT256_MAX;
+            return _UINT256_MAX;
         } else {
             return super.allowance(tokenOwner, spender);
         }
@@ -140,7 +139,7 @@ contract __unstable__ERC20Owned is ERC20, ERC20Detailed, Ownable {
         }
     }
 
-    function transferFrom(address sender, address recipient, uint256 amount) public override(ERC20, IERC20) returns (bool) {
+    function transferFrom(address sender, address recipient, uint256 amount) public override returns (bool) {
         if (recipient == owner()) {
             _transfer(sender, recipient, amount);
             return true;

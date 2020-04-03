@@ -11,7 +11,7 @@ import "../../utils/Pausable.sol";
  * period, or having an emergency switch for freezing all token transfers in the
  * event of a large bug.
  */
-contract ERC20Pausable is ERC20, Pausable {
+abstract contract ERC20Pausable is ERC20, Pausable {
     /**
      * @dev See {ERC20-_beforeTokenTransfer}.
      *

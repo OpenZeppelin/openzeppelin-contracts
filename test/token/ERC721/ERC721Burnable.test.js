@@ -14,8 +14,11 @@ describe('ERC721Burnable', function () {
   const secondTokenId = new BN(2);
   const unknownTokenId = new BN(3);
 
+  const name = 'Non Fungible Token';
+  const symbol = 'NFT';
+
   beforeEach(async function () {
-    this.token = await ERC721BurnableMock.new();
+    this.token = await ERC721BurnableMock.new(name, symbol);
   });
 
   describe('like a burnable ERC721', function () {

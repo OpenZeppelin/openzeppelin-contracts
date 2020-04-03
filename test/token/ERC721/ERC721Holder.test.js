@@ -10,8 +10,11 @@ const ERC721Mock = contract.fromArtifact('ERC721Mock');
 describe('ERC721Holder', function () {
   const [ owner ] = accounts;
 
+  const name = 'Non Fungible Token';
+  const symbol = 'NFT';
+
   it('receives an ERC721 token', async function () {
-    const token = await ERC721Mock.new();
+    const token = await ERC721Mock.new(name, symbol);
     const tokenId = new BN(1);
     await token.mint(owner, tokenId);
 
