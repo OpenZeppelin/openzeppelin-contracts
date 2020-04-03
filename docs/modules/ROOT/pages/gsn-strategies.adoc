@@ -102,7 +102,7 @@ NOTE: Always use `_preRelayedCall` and `_postRelayedCall` functions.  Internal `
 
 === How to Use `GSNRecipientERC20Fee`
 
-Your GSN recipient contract needs to inherit from `GSNRecipientERC20Fee` along with appropriate xref:access-control.adoc[access control] (for token minting), set the token details in the constructor of `GSNRecipientERC20Fee` and create a public `mint` function suitably protected by your chosen access control as per the following sample code (which uses xref:api:access.adoc#AccessControl[``AccessControl`]):
+Your GSN recipient contract needs to inherit from `GSNRecipientERC20Fee` along with appropriate xref:access-control.adoc[access control] (for token minting), set the token details in the constructor of `GSNRecipientERC20Fee` and create a public `mint` function suitably protected by your chosen access control as per the following sample code (which uses xref:api:access.adoc#AccessControl[`AccessControl`]):
 
 [source,solidity]
 ----
@@ -113,7 +113,7 @@ contract MyContract is GSNRecipientERC20Fee, AccessControl {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     constructor() public GSNRecipientERC20Fee("FeeToken", "FEE") {
-        _setupRole(MINTER_ROLE, _msgSender());_
+        _setupRole(MINTER_ROLE, _msgSender());
     }
 
     function mint(address account, uint256 amount) public {
