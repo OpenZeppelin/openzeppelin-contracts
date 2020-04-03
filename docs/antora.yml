@@ -1,7 +1,8 @@
 name: contracts
 title: Contracts
 version: 3.x
-prerelease: -rc
+prerelease: true
+display_version: 3.x-rc
 nav:
   - modules/ROOT/nav.adoc
   - modules/api/nav.adoc
