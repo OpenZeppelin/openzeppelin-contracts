@@ -28,7 +28,7 @@ import "../GSN/Context.sol";
  *
  * Roles can be granted and revoked dynamically via the {grantRole} and
  * {revokeRole} functions. Each role has an associated admin role, and only
- * accounts that have a role's admin role can call {grantRole} and {revokeRoke}.
+ * accounts that have a role's admin role can call {grantRole} and {revokeRole}.
  *
  * By default, the admin role for all roles is `DEFAULT_ADMIN_ROLE`, which means
  * that only accounts with this role will be able to grant or revoke other

@@ -97,7 +97,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     }
 
     /**
-     * @dev See {ERC20Detailed-decimals}.
+     * @dev See {ERC20-decimals}.
      *
      * Always returns 18, as per the
      * [ERC777 EIP](https://eips.ethereum.org/EIPS/eip-777#backward-compatibility).
