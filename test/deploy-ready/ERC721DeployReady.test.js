@@ -57,7 +57,7 @@ describe('ERC721DeployReady', function () {
         this.token.mint(other, tokenId, { from: other }),
         'ERC721DeployReady: must have minter role to mint'
       );
-    })
+    });
   });
 
   describe('pausing', function () {
@@ -88,7 +88,7 @@ describe('ERC721DeployReady', function () {
 
     it('other accounts cannot pause', async function () {
       await expectRevert(this.token.pause({ from: other }), 'ERC721DeployReady: must have pauser role to pause');
-    })
+    });
   });
 
   describe('burning', function () {
