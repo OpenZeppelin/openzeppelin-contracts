@@ -482,10 +482,10 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * Calling conditions:
      *
-     * - when `from` and `to` are both non-zero, `from`'s `tokenId` will be
+     * - when `from` and `to` are both non-zero, ``from``'s `tokenId` will be
      * transferred to `to`.
      * - when `from` is zero, `tokenId` will be minted for `to`.
-     * - when `to` is zero, `from`'s `tokenId` will be burned.
+     * - when `to` is zero, ``from``'s `tokenId` will be burned.
      * - `from` and `to` are never both zero.
      *
      * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
