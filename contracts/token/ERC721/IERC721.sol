@@ -11,7 +11,7 @@ interface IERC721 is IERC165 {
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
 
     /**
-     * @dev Returns the number of NFTs in `owner`'s account.
+     * @dev Returns the number of NFTs in ``owner``'s account.
      */
     function balanceOf(address owner) external view returns (uint256 balance);
 
