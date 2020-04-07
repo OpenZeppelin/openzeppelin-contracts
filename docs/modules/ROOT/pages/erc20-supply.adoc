@@ -92,11 +92,13 @@ Adding to our previous supply mechanism, we can use this to mint a miner reward 
 [source,solidity]
 ----
 contract ERC20WithAutoMinerReward is ERC20 {
+    constructor() public ERC20("Reward", "RWD") {}
+
     function _mintMinerReward() internal {
         _mint(block.coinbase, 1000);
     }
 
-    function _transfer(address from, address to, uint256 value) internal {
+    function _transfer(address from, address to, uint256 value) internal override {
         _mintMinerReward();
         super._transfer(from, to, value);
     }
