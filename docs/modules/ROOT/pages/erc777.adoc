@@ -18,7 +18,7 @@ We will replicate the `GLD` example of the xref:erc20.adoc#constructing-an-erc20
 
 [source,solidity]
 ----
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "@openzeppelin/contracts/token/ERC777/ERC777.sol";
 
@@ -30,7 +30,7 @@ contract GLDToken is ERC777 {
         ERC777("Gold", "GLD", defaultOperators)
         public
     {
-        _mint(msg.sender, msg.sender, initialSupply, "", "");
+        _mint(msg.sender, initialSupply, "", "");
     }
 }
 ----
