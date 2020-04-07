@@ -59,7 +59,7 @@ Instead of using `GSNRecipient` directly, your GSN recipient contract will inste
 
 [source,solidity]
 ----
-import "@openzeppelin/contracts/GSN/GSNRecipientSignature";
+import "@openzeppelin/contracts/GSN/GSNRecipientSignature.sol";
 
 contract MyContract is GSNRecipientSignature {
     constructor(address trustedSigner) public GSNRecipientSignature(trustedSigner) {
