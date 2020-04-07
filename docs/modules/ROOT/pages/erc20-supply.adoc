@@ -26,7 +26,7 @@ Starting with Contracts v2 this pattern is not only discouraged, but disallowed.
 [source,solidity]
 ----
 contract ERC20FixedSupply is ERC20 {
-    constructor() public {
+    constructor() public ERC20("Fixed", "FIX") {
         _mint(msg.sender, 1000);
     }
 }
