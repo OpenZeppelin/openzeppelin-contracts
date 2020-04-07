@@ -44,6 +44,8 @@ The mechanism we will implement is a token reward for the miners that produce Et
 [source,solidity]
 ----
 contract ERC20WithMinerReward is ERC20 {
+    constructor() public ERC20("Reward", "RWD") {}
+
     function mintMinerReward() public {
         _mint(block.coinbase, 1000);
     }
