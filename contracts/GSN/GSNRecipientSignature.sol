@@ -32,15 +32,15 @@ contract GSNRecipientSignature is GSNRecipient {
     function acceptRelayedCall(
         address relay,
         address from,
-        bytes calldata encodedFunction,
+        bytes memory encodedFunction,
         uint256 transactionFee,
         uint256 gasPrice,
         uint256 gasLimit,
         uint256 nonce,
-        bytes calldata approvalData,
+        bytes memory approvalData,
         uint256
     )
-        external
+        public
         view
         virtual
         override

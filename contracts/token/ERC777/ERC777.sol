@@ -28,7 +28,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     using SafeMath for uint256;
     using Address for address;
 
-    IERC1820Registry constant internal ERC1820_REGISTRY = IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
+    IERC1820Registry constant internal _ERC1820_REGISTRY = IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
 
     mapping(address => uint256) private _balances;
 
@@ -41,11 +41,11 @@ contract ERC777 is Context, IERC777, IERC20 {
     // See https://github.com/ethereum/solidity/issues/4024.
 
     // keccak256("ERC777TokensSender")
-    bytes32 constant private TOKENS_SENDER_INTERFACE_HASH =
+    bytes32 constant private _TOKENS_SENDER_INTERFACE_HASH =
         0x29ddb589b1fb5fc7cf394961c1adf5f8c6454761adf795e67fe149f658abe895;
 
     // keccak256("ERC777TokensRecipient")
-    bytes32 constant private TOKENS_RECIPIENT_INTERFACE_HASH =
+    bytes32 constant private _TOKENS_RECIPIENT_INTERFACE_HASH =
         0xb281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b;
 
     // This isn't ever read from - it's only used to respond to the defaultOperators query.
@@ -78,8 +78,8 @@ contract ERC777 is Context, IERC777, IERC20 {
         }
 
         // register interfaces
-        ERC1820_REGISTRY.setInterfaceImplementer(address(this), keccak256("ERC777Token"), address(this));
-        ERC1820_REGISTRY.setInterfaceImplementer(address(this), keccak256("ERC20Token"), address(this));
+        _ERC1820_REGISTRY.setInterfaceImplementer(address(this), keccak256("ERC777Token"), address(this));
+        _ERC1820_REGISTRY.setInterfaceImplementer(address(this), keccak256("ERC20Token"), address(this));
     }
 
     /**
@@ -97,7 +97,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     }
 
     /**
-     * @dev See {ERC20Detailed-decimals}.
+     * @dev See {ERC20-decimals}.
      *
      * Always returns 18, as per the
      * [ERC777 EIP](https://eips.ethereum.org/EIPS/eip-777#backward-compatibility).
@@ -440,7 +440,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     )
         private
     {
-        address implementer = ERC1820_REGISTRY.getInterfaceImplementer(from, TOKENS_SENDER_INTERFACE_HASH);
+        address implementer = _ERC1820_REGISTRY.getInterfaceImplementer(from, _TOKENS_SENDER_INTERFACE_HASH);
         if (implementer != address(0)) {
             IERC777Sender(implementer).tokensToSend(operator, from, to, amount, userData, operatorData);
         }
@@ -468,7 +468,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     )
         private
     {
-        address implementer = ERC1820_REGISTRY.getInterfaceImplementer(to, TOKENS_RECIPIENT_INTERFACE_HASH);
+        address implementer = _ERC1820_REGISTRY.getInterfaceImplementer(to, _TOKENS_RECIPIENT_INTERFACE_HASH);
         if (implementer != address(0)) {
             IERC777Recipient(implementer).tokensReceived(operator, from, to, amount, userData, operatorData);
         } else if (requireReceptionAck) {
@@ -482,10 +482,10 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * Calling conditions:
      *
-     * - when `from` and `to` are both non-zero, `from`'s `tokenId` will be
+     * - when `from` and `to` are both non-zero, ``from``'s `tokenId` will be
      * transferred to `to`.
      * - when `from` is zero, `tokenId` will be minted for `to`.
-     * - when `to` is zero, `from`'s `tokenId` will be burned.
+     * - when `to` is zero, ``from``'s `tokenId` will be burned.
      * - `from` and `to` are never both zero.
      *
      * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].

@@ -17,7 +17,7 @@ interface IRelayRecipient {
      *
      * The relay request was originated by `from` and will be served by `relay`. `encodedFunction` is the relayed call
      * calldata, so its first four bytes are the function selector. The relayed call will be forwarded `gasLimit` gas,
-     * and the transaction executed with a gas price of at least `gasPrice`. `relay`'s fee is `transactionFee`, and the
+     * and the transaction executed with a gas price of at least `gasPrice`. ``relay``'s fee is `transactionFee`, and the
      * recipient will be charged at most `maxPossibleCharge` (in wei). `nonce` is the sender's (`from`) nonce for
      * replay attack protection in {IRelayHub}, and `approvalData` is a optional parameter that can be used to hold a signature
      * over all or some of the previous values.

@@ -5,19 +5,16 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
-
 const ERC721PausableMock = contract.fromArtifact('ERC721PausableMock');
 
 describe('ERC721Pausable', function () {
   const [ owner, receiver, operator ] = accounts;
 
-  beforeEach(async function () {
-    this.token = await ERC721PausableMock.new();
-  });
+  const name = 'Non Fungible Token';
+  const symbol = 'NFT';
 
-  context('when token is not paused yet', function () {
-    shouldBehaveLikeERC721(accounts);
+  beforeEach(async function () {
+    this.token = await ERC721PausableMock.new(name, symbol);
   });
 
   context('when token is paused', function () {
