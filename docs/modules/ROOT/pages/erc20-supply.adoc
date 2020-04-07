@@ -26,7 +26,7 @@ Starting with Contracts v2 this pattern is not only discouraged, but disallowed.
 [source,solidity]
 ----
 contract ERC20FixedSupply is ERC20 {
-    constructor() public {
+    constructor() public ERC20("Fixed", "FIX") {
         _mint(msg.sender, 1000);
     }
 }
@@ -44,6 +44,8 @@ The mechanism we will implement is a token reward for the miners that produce Et
 [source,solidity]
 ----
 contract ERC20WithMinerReward is ERC20 {
+    constructor() public ERC20("Reward", "RWD") {}
+
     function mintMinerReward() public {
         _mint(block.coinbase, 1000);
     }
@@ -64,9 +66,9 @@ The accounts with the minter role don't need to be externally owned, though, and
 [source,solidity]
 ----
 contract MinerRewardMinter {
-    ERC20DeployReady _token;
+    ERC20MinterPauser _token;
 
-    constructor(ERC20DeployReady token) public {
+    constructor(ERC20MinterPauser token) public {
         _token = token;
     }
 
@@ -90,11 +92,13 @@ Adding to our previous supply mechanism, we can use this to mint a miner reward 
 [source,solidity]
 ----
 contract ERC20WithAutoMinerReward is ERC20 {
+    constructor() public ERC20("Reward", "RWD") {}
+
     function _mintMinerReward() internal {
         _mint(block.coinbase, 1000);
     }
 
-    function _transfer(address from, address to, uint256 value) internal {
+    function _transfer(address from, address to, uint256 value) internal override {
         _mintMinerReward();
         super._transfer(from, to, value);
     }
