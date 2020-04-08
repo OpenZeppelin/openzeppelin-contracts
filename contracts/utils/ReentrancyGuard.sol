@@ -17,7 +17,10 @@ pragma solidity ^0.6.0;
  * https://blog.openzeppelin.com/reentrancy-after-istanbul/[Reentrancy After Istanbul].
  */
 contract ReentrancyGuard {
-    bool private _notEntered;
+    uint256 constant NOT_ENTERED = 1;
+    uint256 constant ENTERED = uint256(int256(-1));
+    
+    uint256 private _status;
 
     constructor () internal {
         // Storing an initial non-zero value makes deployment a bit more
@@ -26,7 +29,7 @@ contract ReentrancyGuard {
         // the total transaction's gas, it is best to keep them low in cases
         // like this one, to increase the likelihood of the full refund coming
         // into effect.
-        _notEntered = true;
+        _status = NOT_ENTERED;
     }
 
     /**
@@ -38,15 +41,15 @@ contract ReentrancyGuard {
      */
     modifier nonReentrant() {
         // On the first call to nonReentrant, _notEntered will be true
-        require(_notEntered, "ReentrancyGuard: reentrant call");
+        require(_status != ENTERED, "ReentrancyGuard: reentrant call");
 
         // Any calls to nonReentrant after this point will fail
-        _notEntered = false;
+        _status = ENTERED;
 
         _;
 
         // By storing the original value once again, a refund is triggered (see
         // https://eips.ethereum.org/EIPS/eip-2200)
-        _notEntered = true;
+        _status = NOT_ENTERED;
     }
 }
