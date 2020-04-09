@@ -27,7 +27,7 @@ describe('Pausable', function () {
 
     it('cannot take drastic measure in non-pause', async function () {
       await expectRevert(this.pausable.drasticMeasure(),
-        'Pausable: not paused'
+        'Pausable: not paused',
       );
       expect(await this.pausable.drasticMeasureTaken()).to.equal(false);
     });
@@ -77,7 +77,7 @@ describe('Pausable', function () {
 
           it('should prevent drastic measure', async function () {
             await expectRevert(this.pausable.drasticMeasure(),
-              'Pausable: not paused'
+              'Pausable: not paused',
             );
           });
 

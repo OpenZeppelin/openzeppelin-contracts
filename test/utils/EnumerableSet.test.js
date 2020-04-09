@@ -13,13 +13,13 @@ describe('EnumerableSet', function () {
 
   async function expectMembersMatch (set, values) {
     await Promise.all(values.map(async account =>
-      expect(await set.contains(account)).to.equal(true)
+      expect(await set.contains(account)).to.equal(true),
     ));
 
     expect(await set.length()).to.bignumber.equal(values.length.toString());
 
     expect(await Promise.all([...Array(values.length).keys()].map(index =>
-      set.at(index)
+      set.at(index),
     ))).to.have.same.members(values);
   }
 

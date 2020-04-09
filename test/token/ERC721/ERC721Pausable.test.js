@@ -30,22 +30,22 @@ describe('ERC721Pausable', function () {
     it('reverts when trying to transferFrom', async function () {
       await expectRevert(
         this.token.transferFrom(owner, receiver, firstTokenId, { from: owner }),
-        'ERC721Pausable: token transfer while paused'
+        'ERC721Pausable: token transfer while paused',
       );
     });
 
     it('reverts when trying to safeTransferFrom', async function () {
       await expectRevert(
         this.token.safeTransferFrom(owner, receiver, firstTokenId, { from: owner }),
-        'ERC721Pausable: token transfer while paused'
+        'ERC721Pausable: token transfer while paused',
       );
     });
 
     it('reverts when trying to safeTransferFrom with data', async function () {
       await expectRevert(
         this.token.methods['safeTransferFrom(address,address,uint256,bytes)'](
-          owner, receiver, firstTokenId, mockData, { from: owner }
-        ), 'ERC721Pausable: token transfer while paused'
+          owner, receiver, firstTokenId, mockData, { from: owner },
+        ), 'ERC721Pausable: token transfer while paused',
       );
     });
 

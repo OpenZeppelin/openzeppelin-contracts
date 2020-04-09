@@ -47,7 +47,7 @@ const getSignFor = (contract, signer) => (redeemer, methodName, methodArgs = [])
     if (methodArgs.length > 0) {
       parts.push(
         contract.contract.methods[methodName](...methodArgs.concat([DUMMY_SIGNATURE])).encodeABI()
-          .slice(0, -1 * PADDED_SIGNATURE_SIZE)
+          .slice(0, -1 * PADDED_SIGNATURE_SIZE),
       );
     } else {
       const abi = contract.abi.find(abi => abi.name === methodName);

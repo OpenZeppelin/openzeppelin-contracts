@@ -15,7 +15,7 @@ describe('Create2', function () {
 
   const encodedParams = web3.eth.abi.encodeParameters(
     ['string', 'string', 'address', 'uint256'],
-    ['MyToken', 'MTKN', deployerAccount, 100]
+    ['MyToken', 'MTKN', deployerAccount, 100],
   ).slice(2);
 
   const constructorByteCode = `${ERC20Mock.bytecode}${encodedParams}`;
@@ -73,20 +73,20 @@ describe('Create2', function () {
   it('should failed deploying a contract in an existent address', async function () {
     await this.factory.deploy(0, saltHex, constructorByteCode, { from: deployerAccount });
     await expectRevert(
-      this.factory.deploy(0, saltHex, constructorByteCode, { from: deployerAccount }), 'Create2: Failed on deploy'
+      this.factory.deploy(0, saltHex, constructorByteCode, { from: deployerAccount }), 'Create2: Failed on deploy',
     );
   });
 
   it('should fail deploying a contract if the bytecode length is zero', async function () {
     await expectRevert(
-      this.factory.deploy(0, saltHex, '0x', { from: deployerAccount }), 'Create2: bytecode length is zero'
+      this.factory.deploy(0, saltHex, '0x', { from: deployerAccount }), 'Create2: bytecode length is zero',
     );
   });
 
   it('should fail deploying a contract if factory contract does not have sufficient balance', async function () {
     await expectRevert(
       this.factory.deploy(1, saltHex, constructorByteCode, { from: deployerAccount }),
-      'Create2: insufficient balance'
+      'Create2: insufficient balance',
     );
   });
 });

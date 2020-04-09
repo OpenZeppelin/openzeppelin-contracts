@@ -54,7 +54,7 @@ describe('ERC20MinterPauser', function () {
     it('other accounts cannot mint tokens', async function () {
       await expectRevert(
         this.token.mint(other, amount, { from: other }),
-        'ERC20MinterPauser: must have minter role to mint'
+        'ERC20MinterPauser: must have minter role to mint',
       );
     });
   });
@@ -81,7 +81,7 @@ describe('ERC20MinterPauser', function () {
 
       await expectRevert(
         this.token.mint(other, amount, { from: deployer }),
-        'ERC20Pausable: token transfer while paused'
+        'ERC20Pausable: token transfer while paused',
       );
     });
 

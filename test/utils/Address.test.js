@@ -84,7 +84,7 @@ describe('Address', function () {
           await this.contractRecipient.setAcceptEther(false);
           await expectRevert(
             this.mock.sendValue(this.contractRecipient.address, funds),
-            'Address: unable to send value, recipient may have reverted'
+            'Address: unable to send value, recipient may have reverted',
           );
         });
       });

@@ -164,13 +164,13 @@ describe('ERC777', function () {
 
       it('reverts when self-authorizing', async function () {
         await expectRevert(
-          this.token.authorizeOperator(holder, { from: holder }), 'ERC777: authorizing self as operator'
+          this.token.authorizeOperator(holder, { from: holder }), 'ERC777: authorizing self as operator',
         );
       });
 
       it('reverts when self-revoking', async function () {
         await expectRevert(
-          this.token.revokeOperator(holder, { from: holder }), 'ERC777: revoking self as operator'
+          this.token.revokeOperator(holder, { from: holder }), 'ERC777: revoking self as operator',
         );
       });
 
@@ -234,7 +234,7 @@ describe('ERC777', function () {
         it('cannot be revoked for themselves', async function () {
           await expectRevert(
             this.token.revokeOperator(defaultOperatorA, { from: defaultOperatorA }),
-            'ERC777: revoking self as operator'
+            'ERC777: revoking self as operator',
           );
         });
 
