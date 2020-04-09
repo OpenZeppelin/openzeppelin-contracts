@@ -10,6 +10,7 @@ import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";
 import "../../utils/EnumerableSet.sol";
 import "../../utils/EnumerableMap.sol";
+import "../../utils/Strings.sol";
 
 /**
  * @title ERC721 Non-Fungible Token Standard basic implementation
@@ -142,19 +143,19 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
 
         string memory _tokenURI = _tokenURIs[tokenId];
 
-        // Even if there is a base URI, it is only appended to non-empty token-specific URIs
-        if (bytes(_tokenURI).length == 0) {
-            return "";
+        // If there is no token-specific URI but a base URI, append the token ID to the base URI.
+        // Otherwise, append the token URI to the base URI.
+        // In both cases, abi.encodePacked is being used to concatenate strings.
+        if (bytes(_tokenURI).length == 0 && bytes(_baseURI).length > 0) {
+            return string(abi.encodePacked(_baseURI, Strings.fromUint256(tokenId)));
         } else {
-            // abi.encodePacked is being used to concatenate strings
             return string(abi.encodePacked(_baseURI, _tokenURI));
         }
     }
 
     /**
     * @dev Returns the base URI set via {_setBaseURI}. This will be
-    * automatically added as a preffix in {tokenURI} to each token's URI, when
-    * they are non-empty.
+    * automatically added as a preffix in {tokenURI} to each token's URI.
     */
     function baseURI() public view returns (string memory) {
         return _baseURI;
