@@ -12,7 +12,7 @@ interface IERC721 is IERC165 {
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
 
     /**
-     * @dev Emitted when `owner` enables `approved` to manage `tokenId` token.
+     * @dev Emitted when `owner` enables `approved` to manage the `tokenId` token.
      */
     event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
 
@@ -37,6 +37,7 @@ interface IERC721 is IERC165 {
      * It ensures that the receiving contract knows how to properly handle ERC721 tokens by checking if it returns the correct function selector.
      *
      * Requirements:
+     *
      * - `from`, `to` cannot be zero.
      * - `tokenId` token must exist and be owned by `from`.
      * - If the caller is not `from`, it must be have been allowed to move this token by either {approve} or {setApprovalForAll}.
@@ -48,9 +49,11 @@ interface IERC721 is IERC165 {
 
     /**
      * @dev Transfers `tokenId` token from `from` to `to`.
-     * Usage of this method is discouraged, use {safeTransferFrom} whenever possible.
+     *
+     * WARNING: Usage of this method is discouraged, use {safeTransferFrom} whenever possible.
      *
      * Requirements:
+     *
      * - `from`, `to` cannot be zero.
      * - `tokenId` token must be owned by `from`.
      * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
@@ -66,6 +69,7 @@ interface IERC721 is IERC165 {
      * Approving the zero address clears approvals.
      *
      * Requirements:
+     *
      * - The caller must own the token or be an approved operator.
      *
      * Emits an {Approval} event.
@@ -82,6 +86,7 @@ interface IERC721 is IERC165 {
      * Operators can call {transferFrom} or {safeTransferFrom} for any token owned by the caller.
      *
      * Requirements:
+     *
      * - The `operator` cannot be the caller.
      *
      * Emits an {ApprovalForAll} event.
@@ -97,6 +102,7 @@ interface IERC721 is IERC165 {
       * @dev Safely transfers `tokenId` token from `from` to `to`.
       *
       * Requirements:
+      *
       * - `from`, `to` cannot be zero.
       * - `tokenId` token must exist and be owned by `from`.
       * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
