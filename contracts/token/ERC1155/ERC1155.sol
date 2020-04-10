@@ -97,7 +97,7 @@ contract ERC1155 is ERC165, IERC1155
      * @param operator address to set the approval
      * @param approved representing the status of the approval to be set
      */
-    function setApprovalForAll(address operator, bool approved) external override {
+    function setApprovalForAll(address operator, bool approved) external override virtual {
         require(msg.sender != operator, "ERC1155: cannot set approval status for self");
         _operatorApprovals[msg.sender][operator] = approved;
         emit ApprovalForAll(msg.sender, operator, approved);
@@ -132,6 +132,7 @@ contract ERC1155 is ERC165, IERC1155
     )
         external
         override
+        virtual
     {
         require(to != address(0), "ERC1155: target address must be non-zero");
         require(
@@ -167,6 +168,7 @@ contract ERC1155 is ERC165, IERC1155
     )
         external
         override
+        virtual
     {
         require(ids.length == values.length, "ERC1155: IDs and values must have same lengths");
         require(to != address(0), "ERC1155: target address must be non-zero");
@@ -198,7 +200,7 @@ contract ERC1155 is ERC165, IERC1155
      * @param value Amount of the token to be minted
      * @param data Data forwarded to `onERC1155Received` if `to` is a contract receiver
      */
-    function _mint(address to, uint256 id, uint256 value, bytes memory data) internal {
+    function _mint(address to, uint256 id, uint256 value, bytes memory data) internal virtual {
         require(to != address(0), "ERC1155: mint to the zero address");
 
         _balances[id][to] = _balances[id][to].add(value);
@@ -214,7 +216,7 @@ contract ERC1155 is ERC165, IERC1155
      * @param values Amounts of the tokens to be minted
      * @param data Data forwarded to `onERC1155Received` if `to` is a contract receiver
      */
-    function _mintBatch(address to, uint256[] memory ids, uint256[] memory values, bytes memory data) internal {
+    function _mintBatch(address to, uint256[] memory ids, uint256[] memory values, bytes memory data) internal virtual {
         require(to != address(0), "ERC1155: batch mint to the zero address");
         require(ids.length == values.length, "ERC1155: minted IDs and values must have same lengths");
 
@@ -233,7 +235,7 @@ contract ERC1155 is ERC165, IERC1155
      * @param id ID of the token to be burnt
      * @param value Amount of the token to be burnt
      */
-    function _burn(address account, uint256 id, uint256 value) internal {
+    function _burn(address account, uint256 id, uint256 value) internal virtual {
         require(account != address(0), "ERC1155: attempting to burn tokens on zero account");
 
         _balances[id][account] = _balances[id][account].sub(
@@ -249,7 +251,7 @@ contract ERC1155 is ERC165, IERC1155
      * @param ids IDs of the tokens to be burnt
      * @param values Amounts of the tokens to be burnt
      */
-    function _burnBatch(address account, uint256[] memory ids, uint256[] memory values) internal {
+    function _burnBatch(address account, uint256[] memory ids, uint256[] memory values) internal virtual {
         require(account != address(0), "ERC1155: attempting to burn batch of tokens on zero account");
         require(ids.length == values.length, "ERC1155: burnt IDs and values must have same lengths");
 
@@ -272,6 +274,7 @@ contract ERC1155 is ERC165, IERC1155
         bytes memory data
     )
         internal
+        virtual
     {
         if(to.isContract()) {
             require(
@@ -291,6 +294,7 @@ contract ERC1155 is ERC165, IERC1155
         bytes memory data
     )
         internal
+        virtual
     {
         if(to.isContract()) {
             require(
