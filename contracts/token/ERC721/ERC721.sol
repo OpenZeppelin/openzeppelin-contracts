@@ -143,14 +143,16 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
 
         string memory _tokenURI = _tokenURIs[tokenId];
 
-        // If there is no token-specific URI but a base URI, append the token ID to the base URI.
-        // Otherwise, append the token URI to the base URI.
-        // In both cases, abi.encodePacked is being used to concatenate strings.
-        if (bytes(_tokenURI).length == 0 && bytes(_baseURI).length > 0) {
-            return string(abi.encodePacked(_baseURI, Strings.fromUint256(tokenId)));
-        } else {
+        // If there is no base URI, return the token URI.
+        if (bytes(_baseURI).length == 0) {
+            return _tokenURI;
+        }
+        // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
+        if (bytes(_tokenURI).length > 0) {
             return string(abi.encodePacked(_baseURI, _tokenURI));
         }
+        // If there is a baseURI but no tokenURI, concatenate the tokenID to the baseURI.
+        return string(abi.encodePacked(_baseURI, Strings.fromUint256(tokenId)));
     }
 
     /**
