@@ -10,15 +10,18 @@ describe('ERC20Capped', function () {
 
   const cap = ether('1000');
 
+  const name = 'My Token';
+  const symbol = 'MTKN';
+
   it('requires a non-zero cap', async function () {
     await expectRevert(
-      ERC20Capped.new(new BN(0), { from: minter }), 'ERC20Capped: cap is 0'
+      ERC20Capped.new(name, symbol, new BN(0), { from: minter }), 'ERC20Capped: cap is 0'
     );
   });
 
   context('once deployed', async function () {
     beforeEach(async function () {
-      this.token = await ERC20Capped.new(cap, { from: minter });
+      this.token = await ERC20Capped.new(name, symbol, cap, { from: minter });
     });
 
     shouldBehaveLikeERC20Capped(minter, otherAccounts, cap);

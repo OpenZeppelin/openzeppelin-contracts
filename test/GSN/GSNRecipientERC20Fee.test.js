@@ -6,7 +6,7 @@ const gsn = require('@openzeppelin/gsn-helpers');
 const { expect } = require('chai');
 
 const GSNRecipientERC20FeeMock = contract.fromArtifact('GSNRecipientERC20FeeMock');
-const ERC20Detailed = contract.fromArtifact('ERC20Detailed');
+const ERC20 = contract.fromArtifact('ERC20');
 const IRelayHub = contract.fromArtifact('IRelayHub');
 
 describe('GSNRecipientERC20Fee', function () {
@@ -17,7 +17,7 @@ describe('GSNRecipientERC20Fee', function () {
 
   beforeEach(async function () {
     this.recipient = await GSNRecipientERC20FeeMock.new(name, symbol);
-    this.token = await ERC20Detailed.at(await this.recipient.token());
+    this.token = await ERC20.at(await this.recipient.token());
   });
 
   describe('token', function () {

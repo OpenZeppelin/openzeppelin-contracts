@@ -59,7 +59,7 @@ Instead of using `GSNRecipient` directly, your GSN recipient contract will inste
 
 [source,solidity]
 ----
-import "@openzeppelin/contracts/GSN/GSNRecipientSignature";
+import "@openzeppelin/contracts/GSN/GSNRecipientSignature.sol";
 
 contract MyContract is GSNRecipientSignature {
     constructor(address trustedSigner) public GSNRecipientSignature(trustedSigner) {
@@ -102,17 +102,30 @@ NOTE: Always use `_preRelayedCall` and `_postRelayedCall` functions.  Internal `
 
 === How to Use `GSNRecipientERC20Fee`
 
-Your GSN recipient contract needs to inherit from `GSNRecipientERC20Fee` along with appropriate xref:access-control.adoc[access control] (for token minting), set the token details in the constructor of `GSNRecipientERC20Fee` and create a public `mint` function suitably protected by your chosen access control as per the following sample code (which uses the xref:api:access.adoc#MinterRole[MinterRole]):
+Your GSN recipient contract needs to inherit from `GSNRecipientERC20Fee` along with appropriate xref:access-control.adoc[access control] (for token minting), set the token details in the constructor of `GSNRecipientERC20Fee` and create a public `mint` function suitably protected by your chosen access control as per the following sample code (which uses xref:api:access.adoc#AccessControl[`AccessControl`]):
 
 [source,solidity]
 ----
-import "@openzeppelin/contracts/GSN/GSNRecipientERC20Fee";
+import "@openzeppelin/contracts/GSN/GSNRecipientERC20Fee.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract MyContract is GSNRecipientERC20Fee, MinterRole {
+contract MyContract is GSNRecipientERC20Fee, AccessControl {
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+
     constructor() public GSNRecipientERC20Fee("FeeToken", "FEE") {
+        _setupRole(MINTER_ROLE, _msgSender());
     }
 
-    function mint(address account, uint256 amount) public onlyMinter {
+    function _msgSender() internal view override(Context, GSNRecipient) returns (address payable) {
+        return GSNRecipient._msgSender();
+    }
+
+    function _msgData() internal view override(Context, GSNRecipient) returns (bytes memory) {
+        return GSNRecipient._msgData();
+    }
+
+    function mint(address account, uint256 amount) public {
+        require(hasRole(MINTER_ROLE, _msgSender()), "Caller is not a minter");
         _mint(account, amount);
     }
 }

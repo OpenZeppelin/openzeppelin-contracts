@@ -5,16 +5,20 @@ const { expect } = require('chai');
 
 const Create2Impl = contract.fromArtifact('Create2Impl');
 const ERC20Mock = contract.fromArtifact('ERC20Mock');
-const ERC20 = contract.fromArtifact('ERC20');
+const ERC1820Implementer = contract.fromArtifact('ERC1820Implementer');
 
 describe('Create2', function () {
   const [deployerAccount] = accounts;
 
   const salt = 'salt message';
   const saltHex = web3.utils.soliditySha3(salt);
-  const constructorByteCode = `${ERC20Mock.bytecode}${web3.eth.abi
-    .encodeParameters(['address', 'uint256'], [deployerAccount, 100]).slice(2)
-  }`;
+
+  const encodedParams = web3.eth.abi.encodeParameters(
+    ['string', 'string', 'address', 'uint256'],
+    ['MyToken', 'MTKN', deployerAccount, 100]
+  ).slice(2);
+
+  const constructorByteCode = `${ERC20Mock.bytecode}${encodedParams}`;
 
   beforeEach(async function () {
     this.factory = await Create2Impl.new();
@@ -36,19 +40,20 @@ describe('Create2', function () {
     expect(onChainComputed).to.equal(offChainComputed);
   });
 
-  it('should deploy a ERC20 from inline assembly code', async function () {
+  it('should deploy a ERC1820Implementer from inline assembly code', async function () {
     const offChainComputed =
-      computeCreate2Address(saltHex, ERC20.bytecode, this.factory.address);
-    await this.factory
-      .deploy(0, saltHex, ERC20.bytecode, { from: deployerAccount });
-    expect(ERC20.bytecode).to.include((await web3.eth.getCode(offChainComputed)).slice(2));
+      computeCreate2Address(saltHex, ERC1820Implementer.bytecode, this.factory.address);
+
+    await this.factory.deployERC1820Implementer(0, saltHex);
+
+    expect(ERC1820Implementer.bytecode).to.include((await web3.eth.getCode(offChainComputed)).slice(2));
   });
 
   it('should deploy a ERC20Mock with correct balances', async function () {
-    const offChainComputed =
-      computeCreate2Address(saltHex, constructorByteCode, this.factory.address);
-    await this.factory
-      .deploy(0, saltHex, constructorByteCode, { from: deployerAccount });
+    const offChainComputed = computeCreate2Address(saltHex, constructorByteCode, this.factory.address);
+
+    await this.factory.deploy(0, saltHex, constructorByteCode);
+
     const erc20 = await ERC20Mock.at(offChainComputed);
     expect(await erc20.balanceOf(deployerAccount)).to.be.bignumber.equal(new BN(100));
   });

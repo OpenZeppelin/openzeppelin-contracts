@@ -38,7 +38,7 @@ interface IERC1820Registry {
     function getManager(address account) external view returns (address);
 
     /**
-     * @dev Sets the `implementer` contract as `account`'s implementer for
+     * @dev Sets the `implementer` contract as ``account``'s implementer for
      * `interfaceHash`.
      *
      * `account` being the zero address is an alias for the caller's address.

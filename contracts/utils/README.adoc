@@ -16,6 +16,8 @@ Miscellaneous contracts containing utility functions, often related to working w
 
 {{EnumerableSet}}
 
+{{EnumerableMap}}
+
 {{Create2}}
 
 {{ReentrancyGuard}}
