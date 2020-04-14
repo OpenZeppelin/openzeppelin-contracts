@@ -92,7 +92,7 @@ describe('ERC721', function () {
         expect(await this.token.tokenURI(firstTokenId)).to.be.equal(newBaseURI + sampleUri);
       });
 
-      it('token URI is appended to base URI for tokens with no URI', async function () {
+      it('tokenId is appended to base URI for tokens with no URI', async function () {
         await this.token.setBaseURI(baseURI);
 
         expect(await this.token.tokenURI(firstTokenId)).to.be.equal(baseURI + firstTokenId);

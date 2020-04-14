@@ -133,8 +133,9 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     /**
      * @dev Returns the URI for a given token ID. May return an empty string.
      *
-     * If the token's URI is non-empty and a base URI was set (via
-     * {_setBaseURI}), it will be added to the token ID's URI as a prefix.
+     * If no base URI was set (via {_setBaseURI}), return the token ID's URI.
+     * If a base URI was set, it will be added as a prefix to the token ID's URI,
+     * or to the token ID itself, if no URI is set for that token ID.
      *
      * Reverts if the token ID does not exist.
      */
@@ -157,7 +158,8 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
 
     /**
     * @dev Returns the base URI set via {_setBaseURI}. This will be
-    * automatically added as a preffix in {tokenURI} to each token's URI.
+    * automatically added as a prefix in {tokenURI} to each token's URI, or
+    * to the token ID if no specific URI is set for that token ID.
     */
     function baseURI() public view returns (string memory) {
         return _baseURI;
@@ -447,7 +449,8 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
 
     /**
      * @dev Internal function to set the base URI for all token IDs. It is
-     * automatically added as a prefix to the value returned in {tokenURI}.
+     * automatically added as a prefix to the value returned in {tokenURI},
+     * or to the token ID if {tokenURI} is empty.
      */
     function _setBaseURI(string memory baseURI_) internal virtual {
         _baseURI = baseURI_;
