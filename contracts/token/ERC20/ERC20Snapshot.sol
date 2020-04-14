@@ -59,7 +59,7 @@ abstract contract ERC20Snapshot is ERC20 {
     Counters.Counter private _currentSnapshotId;
 
     /**
-     * @dev Emitted by {_snapshot} when a snapshot is created. Contains the snapshot id that can be used for retrieval.
+     * @dev Emitted by {_snapshot} when a snapshot identified by `id` is created.
      */
     event Snapshot(uint256 id);
 
