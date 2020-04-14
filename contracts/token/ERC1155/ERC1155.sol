@@ -31,6 +31,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     // Used as the URI for all token types by relying on ID substition, e.g. https://token-cdn-domain/{id}.json
     string private _uri;
 
+    // Mapping token ID to that token being registered as existing
+    mapping (uint256 => bool) private _tokenExists;
+
     /*
      *     bytes4(keccak256('balanceOf(address,uint256)')) == 0x00fdd58e
      *     bytes4(keccak256('balanceOfBatch(address[],uint256[])')) == 0x4e1273f4
@@ -85,6 +88,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      */
     function balanceOf(address account, uint256 id) public view override returns (uint256) {
         require(account != address(0), "ERC1155: balance query for the zero address");
+        require(_exists(id), "ERC1155: balance query for nonexistent token");
         return _balances[id][account];
     }
 
@@ -230,6 +234,31 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     }
 
     /**
+     * @dev Register a token ID so other contract functionality knows this token
+     * actually exists and this ID is valid. Minting will automatically call this.
+     * Also emits an event to flag the existence, see the spec:
+     * "To broadcast the existence of a token ID with no initial balance, the contract
+     * SHOULD emit the TransferSingle event from 0x0 to 0x0, with the token creator as
+     * _operator, and a _value of 0."
+     * @param id uint256 ID of the token to register
+     */
+    function _registerToken(uint256 id) internal virtual {
+        if (!_tokenExists[id]) {
+            _tokenExists[id] = true;
+            emit TransferSingle(msg.sender, address(0), address(0), id, 0);
+        }
+    }
+
+    /**
+     * @dev Returns whether the specified token exists. Use {_registerTokenID} to set this flag.
+     * @param id uint256 ID of the token to query the existence of
+     * @return bool whether the token exists
+     */
+    function _exists(uint256 id) internal view returns (bool) {
+        return _tokenExists[id];
+    }
+
+    /**
      * @dev Creates `amount` tokens of token type `id`, and assigns them to `account`.
      *
      * Emits a {TransferSingle} event.
@@ -247,6 +276,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
         _beforeTokenTransfer(operator, address(0), account, _asSingletonArray(id), _asSingletonArray(amount), data);
 
+        if (!_exists(id)) {
+            _registerToken(id);
+        }
         _balances[id][account] = _balances[id][account].add(amount);
         emit TransferSingle(operator, address(0), account, id, amount);
 
@@ -271,6 +303,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         _beforeTokenTransfer(operator, address(0), to, ids, amounts, data);
 
         for (uint i = 0; i < ids.length; i++) {
+            if (!_exists(ids[i])) {
+                _registerToken(ids[i]);
+            }
             _balances[ids[i]][to] = amounts[i].add(_balances[ids[i]][to]);
         }
 
