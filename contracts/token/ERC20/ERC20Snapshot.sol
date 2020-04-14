@@ -58,10 +58,13 @@ abstract contract ERC20Snapshot is ERC20 {
     // Snapshot ids increase monotonically, with the first value being 1. An id of 0 is invalid.
     Counters.Counter private _currentSnapshotId;
 
+    /**
+     * @dev Emitted by {_snapshot} when a snapshot is created. Contains the snapshot id that can be used for retrieval.
+     */
     event Snapshot(uint256 id);
 
     /**
-     * @dev Creates a new snapshot.
+     * @dev Creates a new snapshot and returns its snapshot id. Emits a {Snapshot} event that contains the same id.
      */
     function _snapshot() internal virtual returns (uint256) {
         _currentSnapshotId.increment();
