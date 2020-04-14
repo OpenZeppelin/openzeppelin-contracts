@@ -19,14 +19,6 @@ import "./ERC20.sol";
  * id. To get the balance of an account at the time of a snapshot, call the {balanceOfAt} function with the snapshot id
  * and the account address.
  *
- * {_snapshot} is internal so that you can decide if and how to expose it externally. If it is exposed, it can be
- * guarded by something like {AccessControl} or open to the public. The latter is required for implementing certain
- * trust minimization mechanisms such as forking, but you must consider that it can potentially be used by attackers in
- * two ways. First, it can be used to increase the cost of retrieval of values from snapshots, although it will grow
- * logarithmically thus rendering this attack ineffective in the long term. Second, it can be used to target specific
- * accounts and increase the cost of ERC20 transfers for them. (We haven't measured the actual numbers. If this is
- * something you're interested in please reach out to us.)
- *
  * ==== Gas Costs
  *
  * Snapshots are efficient. Snapshot creation is _O(1)_. Retrieval of balances or total supply from a snapshot is _O(log
@@ -64,9 +56,17 @@ abstract contract ERC20Snapshot is ERC20 {
     event Snapshot(uint256 id);
 
     /**
-     * @dev Creates a new snapshot and returns its snapshot id. 
+     * @dev Creates a new snapshot and returns its snapshot id.
      *
      * Emits a {Snapshot} event that contains the same id.
+     *
+     * {_snapshot} is internal so that you can decide if and how to expose it externally. If it is exposed, it can be
+     * guarded by something like {AccessControl} or open to the public. The latter is required for implementing certain
+     * trust minimization mechanisms such as forking, but you must consider that it can potentially be used by attackers in
+     * two ways. First, it can be used to increase the cost of retrieval of values from snapshots, although it will grow
+     * logarithmically thus rendering this attack ineffective in the long term. Second, it can be used to target specific
+     * accounts and increase the cost of ERC20 transfers for them, in the ways specified in the Gas Costs secion above.
+     * We haven't measured the actual numbers; if this is something you're interested in please reach out to us.
      */
     function _snapshot() internal virtual returns (uint256) {
         _currentSnapshotId.increment();
