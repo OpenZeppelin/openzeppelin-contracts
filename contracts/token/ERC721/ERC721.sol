@@ -153,7 +153,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
             return string(abi.encodePacked(_baseURI, _tokenURI));
         }
         // If there is a baseURI but no tokenURI, concatenate the tokenID to the baseURI.
-        return string(abi.encodePacked(_baseURI, Strings.fromUint256(tokenId)));
+        return string(abi.encodePacked(_baseURI, Strings.toString(tokenId)));
     }
 
     /**
