@@ -322,6 +322,8 @@ contract ERC777 is Context, IERC777, IERC20 {
 
         address operator = _msgSender();
 
+        _beforeTokenTransfer(operator, address(0), account, amount);
+
         // Update state variables
         _totalSupply = _totalSupply.add(amount);
         _balances[account] = _balances[account].add(amount);
@@ -381,6 +383,8 @@ contract ERC777 is Context, IERC777, IERC20 {
         require(from != address(0), "ERC777: burn from the zero address");
 
         address operator = _msgSender();
+
+        _beforeTokenTransfer(operator, from, address(0), amount);
 
         _callTokensToSend(operator, from, address(0), amount, data, operatorData);
 
