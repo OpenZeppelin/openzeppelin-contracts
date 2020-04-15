@@ -92,10 +92,10 @@ describe('ERC721', function () {
         expect(await this.token.tokenURI(firstTokenId)).to.be.equal(newBaseURI + sampleUri);
       });
 
-      it('token URI is empty for tokens with no URI but with base URI', async function () {
+      it('tokenId is appended to base URI for tokens with no URI', async function () {
         await this.token.setBaseURI(baseURI);
 
-        expect(await this.token.tokenURI(firstTokenId)).to.be.equal('');
+        expect(await this.token.tokenURI(firstTokenId)).to.be.equal(baseURI + firstTokenId);
       });
 
       it('tokens with URI can be burnt ', async function () {

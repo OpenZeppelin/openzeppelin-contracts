@@ -10,6 +10,7 @@ import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";
 import "../../utils/EnumerableSet.sol";
 import "../../utils/EnumerableMap.sol";
+import "../../utils/Strings.sol";
 
 /**
  * @title ERC721 Non-Fungible Token Standard basic implementation
@@ -132,8 +133,9 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     /**
      * @dev Returns the URI for a given token ID. May return an empty string.
      *
-     * If the token's URI is non-empty and a base URI was set (via
-     * {_setBaseURI}), it will be added to the token ID's URI as a prefix.
+     * If no base URI was set (via {_setBaseURI}), return the token ID's URI.
+     * If a base URI was set, it will be added as a prefix to the token ID's URI,
+     * or to the token ID itself, if no URI is set for that token ID.
      *
      * Reverts if the token ID does not exist.
      */
@@ -142,19 +144,22 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
 
         string memory _tokenURI = _tokenURIs[tokenId];
 
-        // Even if there is a base URI, it is only appended to non-empty token-specific URIs
-        if (bytes(_tokenURI).length == 0) {
-            return "";
-        } else {
-            // abi.encodePacked is being used to concatenate strings
+        // If there is no base URI, return the token URI.
+        if (bytes(_baseURI).length == 0) {
+            return _tokenURI;
+        }
+        // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
+        if (bytes(_tokenURI).length > 0) {
             return string(abi.encodePacked(_baseURI, _tokenURI));
         }
+        // If there is a baseURI but no tokenURI, concatenate the tokenID to the baseURI.
+        return string(abi.encodePacked(_baseURI, Strings.fromUint256(tokenId)));
     }
 
     /**
     * @dev Returns the base URI set via {_setBaseURI}. This will be
-    * automatically added as a preffix in {tokenURI} to each token's URI, when
-    * they are non-empty.
+    * automatically added as a prefix in {tokenURI} to each token's URI, or
+    * to the token ID if no specific URI is set for that token ID.
     */
     function baseURI() public view returns (string memory) {
         return _baseURI;
@@ -444,7 +449,8 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
 
     /**
      * @dev Internal function to set the base URI for all token IDs. It is
-     * automatically added as a prefix to the value returned in {tokenURI}.
+     * automatically added as a prefix to the value returned in {tokenURI},
+     * or to the token ID if {tokenURI} is empty.
      */
     function _setBaseURI(string memory baseURI_) internal virtual {
         _baseURI = baseURI_;
