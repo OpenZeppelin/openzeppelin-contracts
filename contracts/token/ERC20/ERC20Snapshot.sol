@@ -60,7 +60,7 @@ abstract contract ERC20Snapshot is ERC20 {
      *
      * Emits a {Snapshot} event that contains the same id.
      *
-     * {_snapshot} is `internal` and you have to decide how to expose it externally. It's usage may be restricted to a
+     * {_snapshot} is `internal` and you have to decide how to expose it externally. Its usage may be restricted to a
      * set of accounts, for example using {AccessControl}, or it may be open to the public.
      *
      * [WARNING]
