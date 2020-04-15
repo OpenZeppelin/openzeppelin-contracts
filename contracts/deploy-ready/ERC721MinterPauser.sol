@@ -42,17 +42,18 @@ contract ERC721MinterPauser is Context, AccessControl, ERC721Burnable, ERC721Pau
     }
 
     /**
-     * @dev Creates the `tokenId` tokens for `to`.
+     * @dev Creates the `tokenId` tokens for `to`, assigning it `tokenURI`.
      *
-     * See {ERC721-_mint}.
+     * See {ERC721-_mint} and {ERC721-_setTokenURI}.
      *
      * Requirements:
      *
      * - the caller must have the `MINTER_ROLE`.
      */
-    function mint(address to, uint256 tokenId) public {
+    function mint(address to, uint256 tokenId, string memory tokenURI) public {
         require(hasRole(MINTER_ROLE, _msgSender()), "ERC721MinterPauser: must have minter role to mint");
         _mint(to, tokenId);
+        _setTokenURI(tokenId, tokenURI);
     }
 
     /**

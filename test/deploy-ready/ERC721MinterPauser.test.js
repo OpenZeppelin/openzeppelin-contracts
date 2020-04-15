@@ -15,6 +15,7 @@ describe('ERC721MinterPauser', function () {
   const baseURI = 'my.app/';
 
   const tokenId = new BN('1337');
+  const tokenURI = 'my-token-uri';
 
   const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000';
   const MINTER_ROLE = web3.utils.soliditySha3('MINTER_ROLE');
@@ -58,16 +59,28 @@ describe('ERC721MinterPauser', function () {
 
   describe('minting', function () {
     it('deployer can mint tokens', async function () {
-      const receipt = await this.token.mint(other, tokenId, { from: deployer });
+      const receipt = await this.token.mint(other, tokenId, tokenURI, { from: deployer });
       expectEvent(receipt, 'Transfer', { from: ZERO_ADDRESS, to: other, tokenId });
 
       expect(await this.token.balanceOf(other)).to.be.bignumber.equal('1');
       expect(await this.token.ownerOf(tokenId)).to.equal(other);
+
+      expect(await this.token.tokenURI(tokenId)).to.equal(baseURI + tokenURI);
+    });
+
+    it('deployer can mint tokens with no token URI', async function () {
+      const receipt = await this.token.mint(other, tokenId, '', { from: deployer });
+      expectEvent(receipt, 'Transfer', { from: ZERO_ADDRESS, to: other, tokenId });
+
+      expect(await this.token.balanceOf(other)).to.be.bignumber.equal('1');
+      expect(await this.token.ownerOf(tokenId)).to.equal(other);
+
+      expect(await this.token.tokenURI(tokenId)).to.equal(baseURI + tokenId.toString());
     });
 
     it('other accounts cannot mint tokens', async function () {
       await expectRevert(
-        this.token.mint(other, tokenId, { from: other }),
+        this.token.mint(other, tokenId, tokenURI, { from: other }),
         'ERC721MinterPauser: must have minter role to mint'
       );
     });
@@ -94,7 +107,7 @@ describe('ERC721MinterPauser', function () {
       await this.token.pause({ from: deployer });
 
       await expectRevert(
-        this.token.mint(other, tokenId, { from: deployer }),
+        this.token.mint(other, tokenId, tokenURI, { from: deployer }),
         'ERC721Pausable: token transfer while paused'
       );
     });
@@ -106,7 +119,7 @@ describe('ERC721MinterPauser', function () {
 
   describe('burning', function () {
     it('holders can burn their tokens', async function () {
-      await this.token.mint(other, tokenId, { from: deployer });
+      await this.token.mint(other, tokenId, tokenURI, { from: deployer });
 
       const receipt = await this.token.burn(tokenId, { from: other });
 
