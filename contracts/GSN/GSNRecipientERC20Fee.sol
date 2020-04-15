@@ -2,10 +2,9 @@ pragma solidity ^0.6.0;
 
 import "./GSNRecipient.sol";
 import "../math/SafeMath.sol";
-import "../ownership/Secondary.sol";
+import "../access/Ownable.sol";
 import "../token/ERC20/SafeERC20.sol";
 import "../token/ERC20/ERC20.sol";
-import "../token/ERC20/ERC20Detailed.sol";
 
 /**
  * @dev A xref:ROOT:gsn-strategies.adoc#gsn-strategies[GSN strategy] that charges transaction fees in a special purpose ERC20
@@ -17,20 +16,20 @@ import "../token/ERC20/ERC20Detailed.sol";
  * internal {_mint} function.
  */
 contract GSNRecipientERC20Fee is GSNRecipient {
-    using SafeERC20 for __unstable__ERC20PrimaryAdmin;
+    using SafeERC20 for __unstable__ERC20Owned;
     using SafeMath for uint256;
 
     enum GSNRecipientERC20FeeErrorCodes {
         INSUFFICIENT_BALANCE
     }
 
-    __unstable__ERC20PrimaryAdmin private _token;
+    __unstable__ERC20Owned private _token;
 
     /**
      * @dev The arguments to the constructor are the details that the gas payment token will have: `name` and `symbol`. `decimals` is hard-coded to 18.
      */
     constructor(string memory name, string memory symbol) public {
-        _token = new __unstable__ERC20PrimaryAdmin(name, symbol, 18);
+        _token = new __unstable__ERC20Owned(name, symbol);
     }
 
     /**
@@ -53,15 +52,15 @@ contract GSNRecipientERC20Fee is GSNRecipient {
     function acceptRelayedCall(
         address,
         address from,
-        bytes calldata,
+        bytes memory,
         uint256 transactionFee,
         uint256 gasPrice,
         uint256,
         uint256,
-        bytes calldata,
+        bytes memory,
         uint256 maxPossibleCharge
     )
-        external
+        public
         view
         virtual
         override
@@ -97,7 +96,7 @@ contract GSNRecipientERC20Fee is GSNRecipient {
         // actualCharge is an _estimated_ charge, which assumes postRelayedCall will use all available gas.
         // This implementation's gas cost can be roughly estimated as 10k gas, for the two SSTORE operations in an
         // ERC20 transfer.
-        uint256 overestimation = _computeCharge(POST_RELAYED_CALL_MAX_GAS.sub(10000), gasPrice, transactionFee);
+        uint256 overestimation = _computeCharge(_POST_RELAYED_CALL_MAX_GAS.sub(10000), gasPrice, transactionFee);
         actualCharge = actualCharge.sub(overestimation);
 
         // After the relayed call has been executed and the actual charge estimated, the excess pre-charge is returned
@@ -106,42 +105,42 @@ contract GSNRecipientERC20Fee is GSNRecipient {
 }
 
 /**
- * @title __unstable__ERC20PrimaryAdmin
+ * @title __unstable__ERC20Owned
  * @dev An ERC20 token owned by another contract, which has minting permissions and can use transferFrom to receive
  * anyone's tokens. This contract is an internal helper for GSNRecipientERC20Fee, and should not be used
  * outside of this context.
  */
 // solhint-disable-next-line contract-name-camelcase
-contract __unstable__ERC20PrimaryAdmin is ERC20, ERC20Detailed, Secondary {
-    uint256 private constant UINT256_MAX = 2**256 - 1;
+contract __unstable__ERC20Owned is ERC20, Ownable {
+    uint256 private constant _UINT256_MAX = 2**256 - 1;
 
-    constructor(string memory name, string memory symbol, uint8 decimals) public ERC20Detailed(name, symbol, decimals) { }
+    constructor(string memory name, string memory symbol) public ERC20(name, symbol) { }
 
-    // The primary account (GSNRecipientERC20Fee) can mint tokens
-    function mint(address account, uint256 amount) public onlyPrimary {
+    // The owner (GSNRecipientERC20Fee) can mint tokens
+    function mint(address account, uint256 amount) public onlyOwner {
         _mint(account, amount);
     }
 
-    // The primary account has 'infinite' allowance for all token holders
-    function allowance(address owner, address spender) public view override(ERC20, IERC20) returns (uint256) {
-        if (spender == primary()) {
-            return UINT256_MAX;
+    // The owner has 'infinite' allowance for all token holders
+    function allowance(address tokenOwner, address spender) public view override returns (uint256) {
+        if (spender == owner()) {
+            return _UINT256_MAX;
         } else {
-            return super.allowance(owner, spender);
+            return super.allowance(tokenOwner, spender);
         }
     }
 
-    // Allowance for the primary account cannot be changed (it is always 'infinite')
-    function _approve(address owner, address spender, uint256 value) internal override {
-        if (spender == primary()) {
+    // Allowance for the owner cannot be changed (it is always 'infinite')
+    function _approve(address tokenOwner, address spender, uint256 value) internal override {
+        if (spender == owner()) {
             return;
         } else {
-            super._approve(owner, spender, value);
+            super._approve(tokenOwner, spender, value);
         }
     }
 
-    function transferFrom(address sender, address recipient, uint256 amount) public override(ERC20, IERC20) returns (bool) {
-        if (recipient == primary()) {
+    function transferFrom(address sender, address recipient, uint256 amount) public override returns (bool) {
+        if (recipient == owner()) {
             _transfer(sender, recipient, amount);
             return true;
         } else {

@@ -15,8 +15,6 @@ pragma solidity ^0.6.0;
  *
  * Can be combined with {SafeMath} to extend it to smaller types, by performing
  * all math on `uint256` and then downcasting.
- *
- * _Available since v2.5.0._
  */
 library SafeCast {
 
@@ -93,5 +91,29 @@ library SafeCast {
     function toUint8(uint256 value) internal pure returns (uint8) {
         require(value < 2**8, "SafeCast: value doesn\'t fit in 8 bits");
         return uint8(value);
+    }
+
+    /**
+     * @dev Converts a signed int256 into an unsigned uint256.
+     *
+     * Requirements:
+     *
+     * - input must be greater than or equal to 0.
+     */
+    function toUint256(int256 value) internal pure returns (uint256) {
+        require(value >= 0, "SafeCast: value must be positive");
+        return uint256(value);
+    }
+
+    /**
+     * @dev Converts an unsigned uint256 into a signed int256.
+     *
+     * Requirements:
+     *
+     * - input must be less than or equal to maxInt256.
+     */
+    function toInt256(uint256 value) internal pure returns (int256) {
+        require(value < 2**255, "SafeCast: value doesn't fit in an int256");
+        return int256(value);
     }
 }

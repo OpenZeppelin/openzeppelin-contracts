@@ -5,24 +5,22 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
-
 const ERC721PausableMock = contract.fromArtifact('ERC721PausableMock');
 
 describe('ERC721Pausable', function () {
   const [ owner, receiver, operator ] = accounts;
 
-  beforeEach(async function () {
-    this.token = await ERC721PausableMock.new();
-  });
+  const name = 'Non Fungible Token';
+  const symbol = 'NFT';
 
-  context('when token is not paused yet', function () {
-    shouldBehaveLikeERC721(accounts);
+  beforeEach(async function () {
+    this.token = await ERC721PausableMock.new(name, symbol);
   });
 
   context('when token is paused', function () {
     const firstTokenId = new BN(1);
-    const mintedTokens = new BN(1);
+    const secondTokenId = new BN(1337);
+
     const mockData = '0x42';
 
     beforeEach(async function () {
@@ -52,6 +50,20 @@ describe('ERC721Pausable', function () {
       );
     });
 
+    it('reverts when trying to mint', async function () {
+      await expectRevert(
+        this.token.mint(receiver, secondTokenId),
+        'ERC721Pausable: token transfer while paused'
+      );
+    });
+
+    it('reverts when trying to burn', async function () {
+      await expectRevert(
+        this.token.burn(firstTokenId),
+        'ERC721Pausable: token transfer while paused'
+      );
+    });
+
     describe('getApproved', function () {
       it('returns approved address', async function () {
         const approvedAccount = await this.token.getApproved(firstTokenId);
@@ -62,7 +74,7 @@ describe('ERC721Pausable', function () {
     describe('balanceOf', function () {
       it('returns the amount of tokens owned by the given address', async function () {
         const balance = await this.token.balanceOf(owner);
-        expect(balance).to.be.bignumber.equal(mintedTokens);
+        expect(balance).to.be.bignumber.equal('1');
       });
     });
 

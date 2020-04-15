@@ -2,36 +2,32 @@ pragma solidity ^0.6.0;
 
 import "../utils/EnumerableSet.sol";
 
-contract EnumerableSetMock{
+contract EnumerableSetMock {
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    event TransactionResult(bool result);
+    event OperationResult(bool result);
 
-    EnumerableSet.AddressSet private set;
+    EnumerableSet.AddressSet private _set;
 
     function contains(address value) public view returns (bool) {
-        return set.contains(value);
+        return _set.contains(value);
     }
 
     function add(address value) public {
-        bool result = set.add(value);
-        emit TransactionResult(result);
+        bool result = _set.add(value);
+        emit OperationResult(result);
     }
 
     function remove(address value) public {
-        bool result = set.remove(value);
-        emit TransactionResult(result);
-    }
-
-    function enumerate() public view returns (address[] memory) {
-        return set.enumerate();
+        bool result = _set.remove(value);
+        emit OperationResult(result);
     }
 
     function length() public view returns (uint256) {
-        return set.length();
+        return _set.length();
     }
 
-    function get(uint256 index) public view returns (address) {
-        return set.get(index);
+    function at(uint256 index) public view returns (address) {
+        return _set.at(index);
     }
 }

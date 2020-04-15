@@ -1,5 +1,0 @@
-= Lifecycle
-
-== Pausable
-
-{{Pausable}}

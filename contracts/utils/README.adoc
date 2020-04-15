@@ -10,8 +10,16 @@ Miscellaneous contracts containing utility functions, often related to working w
 
 {{Arrays}}
 
+{{Counters}}
+
+{{Strings}}
+
 {{EnumerableSet}}
+
+{{EnumerableMap}}
 
 {{Create2}}
 
 {{ReentrancyGuard}}
+
+{{Pausable}}

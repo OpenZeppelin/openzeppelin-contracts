@@ -1,17 +1,16 @@
 pragma solidity ^0.6.0;
 
 import "./ERC20.sol";
-import "../../lifecycle/Pausable.sol";
+import "../../utils/Pausable.sol";
 
 /**
- * @title Pausable token
- * @dev ERC20 with pausable transfers and allowances.
+ * @dev ERC20 token with pausable token transfers, minting and burning.
  *
- * Useful if you want to stop trades until the end of a crowdsale, or have
- * an emergency switch for freezing all token transfers in the event of a large
- * bug.
+ * Useful for scenarios such as preventing trades until the end of an evaluation
+ * period, or having an emergency switch for freezing all token transfers in the
+ * event of a large bug.
  */
-contract ERC20Pausable is ERC20, Pausable {
+abstract contract ERC20Pausable is ERC20, Pausable {
     /**
      * @dev See {ERC20-_beforeTokenTransfer}.
      *

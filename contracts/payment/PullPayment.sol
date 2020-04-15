@@ -28,35 +28,21 @@ contract PullPayment {
     }
 
     /**
-     * @dev Withdraw accumulated payments.
+     * @dev Withdraw accumulated payments, forwarding all gas to the recipient.
      *
      * Note that _any_ account can call this function, not just the `payee`.
      * This means that contracts unaware of the `PullPayment` protocol can still
      * receive funds this way, by having a separate account call
      * {withdrawPayments}.
      *
-     * NOTE: This function has been deprecated, use {withdrawPaymentsWithGas}
-     * instead. Calling contracts with fixed gas limits is an anti-pattern and
-     * may break contract interactions in network upgrades (hardforks).
-     * https://diligence.consensys.net/blog/2019/09/stop-using-soliditys-transfer-now/[Learn more.]
+     * WARNING: Forwarding all gas opens the door to reentrancy vulnerabilities.
+     * Make sure you trust the recipient, or are either following the
+     * checks-effects-interactions pattern or using {ReentrancyGuard}.
      *
      * @param payee Whose payments will be withdrawn.
      */
     function withdrawPayments(address payable payee) public virtual {
         _escrow.withdraw(payee);
-    }
-
-    /**
-     * @dev Same as {withdrawPayments}, but forwarding all gas to the recipient.
-     *
-     * WARNING: Forwarding all gas opens the door to reentrancy vulnerabilities.
-     * Make sure you trust the recipient, or are either following the
-     * checks-effects-interactions pattern or using {ReentrancyGuard}.
-     *
-     * _Available since v2.4.0._
-     */
-    function withdrawPaymentsWithGas(address payable payee) external virtual {
-        _escrow.withdrawWithGas(payee);
     }
 
     /**
