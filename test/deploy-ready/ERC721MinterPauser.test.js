@@ -12,6 +12,7 @@ describe('ERC721MinterPauser', function () {
 
   const name = 'MinterPauserToken';
   const symbol = 'DRT';
+  const baseURI = 'my.app/';
 
   const tokenId = new BN('1337');
 
@@ -20,7 +21,19 @@ describe('ERC721MinterPauser', function () {
   const PAUSER_ROLE = web3.utils.soliditySha3('PAUSER_ROLE');
 
   beforeEach(async function () {
-    this.token = await ERC721MinterPauser.new(name, symbol, { from: deployer });
+    this.token = await ERC721MinterPauser.new(name, symbol, baseURI, { from: deployer });
+  });
+
+  it('token has correct name', async function () {
+    expect(await this.token.name()).to.equal(name);
+  });
+
+  it('token has correct symbol', async function () {
+    expect(await this.token.symbol()).to.equal(symbol);
+  });
+
+  it('token has correct base URI', async function () {
+    expect(await this.token.baseURI()).to.equal(baseURI);
   });
 
   it('deployer has the default admin role', async function () {

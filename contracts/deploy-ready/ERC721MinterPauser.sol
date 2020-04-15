@@ -28,13 +28,17 @@ contract ERC721MinterPauser is Context, AccessControl, ERC721Burnable, ERC721Pau
      * @dev Grants `DEFAULT_ADMIN_ROLE`, `MINTER_ROLE` and `PAUSER_ROLE` to the
      * account that deploys the contract.
      *
-     * See {ERC721-constructor}.
+     * You can specify a `baseURI` to add it as a prefix to all token URIs (and
+     * potentially autogenerate those, leading to large gas savings), or leave
+     * it empty for individual token URIs. See {ERC721-tokenURI}.
      */
-    constructor(string memory name, string memory symbol) public ERC721(name, symbol) {
+    constructor(string memory name, string memory symbol, string memory baseURI) public ERC721(name, symbol) {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
 
         _setupRole(MINTER_ROLE, _msgSender());
         _setupRole(PAUSER_ROLE, _msgSender());
+
+        _setBaseURI(baseURI);
     }
 
     /**
