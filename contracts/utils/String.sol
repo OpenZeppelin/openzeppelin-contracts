@@ -1,10 +1,9 @@
 pragma solidity ^0.6.0;
 
 /**
- * @title Strings
  * @dev String operations.
  */
-library Strings {
+library String {
     /**
      * @dev Converts a `uint256` to its ASCII `string` representation.
      */

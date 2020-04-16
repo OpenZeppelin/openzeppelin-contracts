@@ -10,7 +10,7 @@ import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";
 import "../../utils/EnumerableSet.sol";
 import "../../utils/EnumerableMap.sol";
-import "../../utils/Strings.sol";
+import "../../utils/String.sol";
 
 /**
  * @title ERC721 Non-Fungible Token Standard basic implementation
@@ -153,7 +153,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
             return string(abi.encodePacked(_baseURI, _tokenURI));
         }
         // If there is a baseURI but no tokenURI, concatenate the tokenID to the baseURI.
-        return string(abi.encodePacked(_baseURI, Strings.fromUint256(tokenId)));
+        return string(abi.encodePacked(_baseURI, String.fromUint256(tokenId)));
     }
 
     /**

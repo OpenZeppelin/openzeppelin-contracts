@@ -1,9 +1,9 @@
 pragma solidity ^0.6.0;
 
-import "../utils/Strings.sol";
+import "../utils/String.sol";
 
-contract StringsMock {
+contract StringMock {
     function fromUint256(uint256 value) public pure returns (string memory) {
-        return Strings.fromUint256(value);
+        return String.fromUint256(value);
     }
 }

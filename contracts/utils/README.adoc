@@ -12,7 +12,7 @@ Miscellaneous contracts containing utility functions, often related to working w
 
 {{Counters}}
 
-{{Strings}}
+{{String}}
 
 {{EnumerableSet}}
 
