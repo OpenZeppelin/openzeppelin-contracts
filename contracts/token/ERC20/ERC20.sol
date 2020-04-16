@@ -279,12 +279,11 @@ contract ERC20 is Context, IERC20 {
     /**
      * @dev Sets {decimals} to a value other than the default one of 18.
      *
-     * Requirements:
-     *
-     * - this function can only be called from a constructor.
+     * WARNING: This function should only be called from the constructor. Most
+     * applications that interact with token contracts will not expect
+     * {decimals} to ever change, and may work incorrectly if it does.
      */
     function _setupDecimals(uint8 decimals_) internal {
-        require(!address(this).isContract(), "ERC20: decimals cannot be changed after construction");
         _decimals = decimals_;
     }
 
