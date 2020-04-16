@@ -3,17 +3,15 @@ pragma solidity ^0.6.0;
 import "../math/SafeMath.sol";
 
 /**
- * @title Counters
- * @author Matt Condon (@shrugs)
- * @dev Provides counters that can only be incremented or decremented by one. This can be used e.g. to track the number
+ * @dev Provides counter that can only be incremented or decremented by one. This can be used e.g. to track the number
  * of elements in a mapping, issuing ERC721 ids, or counting request ids.
  *
- * Include with `using Counters for Counters.Counter;`
+ * Include with `using Counter for Counter.Counter;`
  * Since it is not possible to overflow a 256 bit integer with increments of one, `increment` can skip the {SafeMath}
  * overflow check, thereby saving gas. This does assume however correct usage, in that the underlying `_value` is never
  * directly accessed.
  */
-library Counters {
+library Counter {
     using SafeMath for uint256;
 
     struct Counter {

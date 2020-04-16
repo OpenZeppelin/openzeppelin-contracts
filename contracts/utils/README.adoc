@@ -10,7 +10,7 @@ Miscellaneous contracts containing utility functions, often related to working w
 
 {{Array}}
 
-{{Counters}}
+{{Counter}}
 
 {{String}}
 

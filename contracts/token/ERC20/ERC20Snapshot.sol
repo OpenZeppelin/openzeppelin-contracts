@@ -2,7 +2,7 @@ pragma solidity ^0.6.0;
 
 import "../../math/SafeMath.sol";
 import "../../utils/Array.sol";
-import "../../utils/Counters.sol";
+import "../../utils/Counter.sol";
 import "./ERC20.sol";
 
 /**
@@ -35,7 +35,7 @@ abstract contract ERC20Snapshot is ERC20 {
 
     using SafeMath for uint256;
     using Array for uint256[];
-    using Counters for Counters.Counter;
+    using Counter for Counter.Counter;
 
     // Snapshotted values have arrays of ids and the value corresponding to that id. These could be an array of a
     // Snapshot struct, but that would impede usage of functions that work on an array.
@@ -48,7 +48,7 @@ abstract contract ERC20Snapshot is ERC20 {
     Snapshots private _totalSupplySnapshots;
 
     // Snapshot ids increase monotonically, with the first value being 1. An id of 0 is invalid.
-    Counters.Counter private _currentSnapshotId;
+    Counter.Counter private _currentSnapshotId;
 
     /**
      * @dev Emitted by {_snapshot} when a snapshot identified by `id` is created.
