@@ -8,7 +8,7 @@ Miscellaneous contracts containing utility functions, often related to working w
 
 {{SafeCast}}
 
-{{Arrays}}
+{{Array}}
 
 {{Counters}}
 

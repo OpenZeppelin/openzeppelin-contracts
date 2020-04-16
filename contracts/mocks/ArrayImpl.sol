@@ -1,9 +1,9 @@
 pragma solidity ^0.6.0;
 
-import "../utils/Arrays.sol";
+import "../utils/Array.sol";
 
-contract ArraysImpl {
-    using Arrays for uint256[];
+contract ArrayImpl {
+    using Array for uint256[];
 
     uint256[] private _array;
 

@@ -1,7 +1,7 @@
 pragma solidity ^0.6.0;
 
 import "../../math/SafeMath.sol";
-import "../../utils/Arrays.sol";
+import "../../utils/Array.sol";
 import "../../utils/Counters.sol";
 import "./ERC20.sol";
 
@@ -34,7 +34,7 @@ abstract contract ERC20Snapshot is ERC20 {
     // https://github.com/Giveth/minimd/blob/ea04d950eea153a04c51fa510b068b9dded390cb/contracts/MiniMeToken.sol
 
     using SafeMath for uint256;
-    using Arrays for uint256[];
+    using Array for uint256[];
     using Counters for Counters.Counter;
 
     // Snapshotted values have arrays of ids and the value corresponding to that id. These could be an array of a
@@ -144,7 +144,7 @@ abstract contract ERC20Snapshot is ERC20 {
         //  larger than the requested one.
         //
         // In summary, we need to find an element in an array, returning the index of the smallest value that is larger if
-        // it is not found, unless said value doesn't exist (e.g. when all values are smaller). Arrays.findUpperBound does
+        // it is not found, unless said value doesn't exist (e.g. when all values are smaller). Array.findUpperBound does
         // exactly this.
 
         uint256 index = snapshots.ids.findUpperBound(snapshotId);
