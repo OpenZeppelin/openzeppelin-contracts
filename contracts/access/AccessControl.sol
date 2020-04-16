@@ -164,12 +164,17 @@ abstract contract AccessControl is Context {
      * event. Note that unlike {grantRole}, this function doesn't perform any
      * checks on the calling account.
      *
-     * Requirements:
+     * [WARNING]
+     * ====
+     * This function should only be called from the constructor when setting
+     * up the initial roles for the system.
      *
-     * - this function can only be called from a constructor.
+     * It being callable by other means goes against the spirit of
+     * {AccessControl}, as there would be ways to grant roles not tracked by
+     * {getRoleMemberCount} and {getRoleMember}.
+     * ====
      */
     function _setupRole(bytes32 role, address account) internal virtual {
-        require(!address(this).isContract(), "AccessControl: roles cannot be setup after construction");
         _grantRole(role, account);
     }
 
