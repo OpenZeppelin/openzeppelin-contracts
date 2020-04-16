@@ -35,6 +35,7 @@
  * `ERC721`: added a constructor for `name` and `symbol`. ([#2160](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2160))
  * `ERC20Detailed`: this contract was removed and its functionality merged into `ERC20`. ([#2161](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2161))
  * `ERC20`: added a constructor for `name` and `symbol`. `decimals` now defaults to 18. ([#2161](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2161))
+ * `Arrays`, `Counters`, `Strings`: these libraries were renamed to their singular form (`Array`, `Counter`, `String`). ([#2196](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2196))
 
 ## 2.5.0 (2020-02-04)
 
