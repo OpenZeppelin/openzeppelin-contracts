@@ -180,7 +180,7 @@ abstract contract AccessControl is Context {
         _roles[role].adminRole = adminRole;
     }
 
-    function _grantRole(bytes32 role, address account) private {
+    function _grantRole(bytes32 role, address account) internal {
         if (_roles[role].members.add(account)) {
             emit RoleGranted(role, account, _msgSender());
         }
