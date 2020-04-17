@@ -1,4 +1,4 @@
-pragma solidity ^0.6.0;
+pragma solidity ^0.5.0;
 
 /**
  * @dev Wrappers over Solidity's arithmetic operations with added overflow
@@ -23,11 +23,8 @@ library SafeMath {
      * Requirements:
      * - Addition cannot overflow.
      */
-    function add(uint256 a, uint256 b) internal pure returns (uint256) {
-        uint256 c = a + b;
-        require(c >= a, "SafeMath: addition overflow");
-
-        return c;
+    function add(uint256 a, uint256 b) internal pure returns (uint256 c) {
+        require((c = a + b) >= a, "SafeMath: addition overflow");
     }
 
     /**
@@ -39,8 +36,8 @@ library SafeMath {
      * Requirements:
      * - Subtraction cannot overflow.
      */
-    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
-        return sub(a, b, "SafeMath: subtraction overflow");
+    function sub(uint256 a, uint256 b) internal pure returns (uint256 c) {
+        require((c = a - b) <= a, "SafeMath: subtraction overflow");
     }
 
     /**
@@ -52,11 +49,8 @@ library SafeMath {
      * Requirements:
      * - Subtraction cannot overflow.
      */
-    function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
-        require(b <= a, errorMessage);
-        uint256 c = a - b;
-
-        return c;
+    function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256 c) {
+        require((c = a - b) <= a, errorMessage);
     }
 
     /**
@@ -68,7 +62,7 @@ library SafeMath {
      * Requirements:
      * - Multiplication cannot overflow.
      */
-    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+    function mul(uint256 a, uint256 b) internal pure returns (uint256 c) {
         // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
         // benefit is lost if 'b' is also tested.
         // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522
@@ -78,8 +72,6 @@ library SafeMath {
 
         uint256 c = a * b;
         require(c / a == b, "SafeMath: multiplication overflow");
-
-        return c;
     }
 
     /**
@@ -93,8 +85,9 @@ library SafeMath {
      * Requirements:
      * - The divisor cannot be zero.
      */
-    function div(uint256 a, uint256 b) internal pure returns (uint256) {
-        return div(a, b, "SafeMath: division by zero");
+    function div(uint256 a, uint256 b) internal pure returns (uint256 c) {
+        require(b > 0, "SafeMath: division by zero");
+        c = a / b;
     }
 
     /**
@@ -108,13 +101,11 @@ library SafeMath {
      * Requirements:
      * - The divisor cannot be zero.
      */
-    function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+    function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256 c) {
         // Solidity only automatically asserts when dividing by 0
         require(b > 0, errorMessage);
-        uint256 c = a / b;
+        c = a / b;
         // assert(a == b * c + a % b); // There is no case in which this doesn't hold
-
-        return c;
     }
 
     /**
@@ -129,7 +120,8 @@ library SafeMath {
      * - The divisor cannot be zero.
      */
     function mod(uint256 a, uint256 b) internal pure returns (uint256) {
-        return mod(a, b, "SafeMath: modulo by zero");
+        require(b != 0, "SafeMath: modulo by zero");
+        return a % b;
     }
 
     /**

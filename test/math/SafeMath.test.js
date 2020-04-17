@@ -35,6 +35,13 @@ describe('SafeMath', function () {
 
       await testFailsCommutative(this.safeMath.add, a, b, 'SafeMath: addition overflow');
     });
+
+    it.only('gas cost', async function () {
+      const a = new BN('5678');
+      const b = new BN('1234');
+      const tx = await this.safeMath.add(a, b);
+      expect(tx.receipt.gasUsed).to.eq('123');
+    });
   });
 
   describe('sub', function () {
