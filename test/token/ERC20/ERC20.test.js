@@ -44,12 +44,6 @@ describe('ERC20', function () {
       const token = await ERC20DecimalsMock.new(name, symbol, decimals);
       expect(await token.decimals()).to.be.bignumber.equal(decimals);
     });
-
-    it('reverts if setting decimals after construction', async function () {
-      const token = await ERC20DecimalsMock.new(name, symbol, decimals);
-
-      await expectRevert(token.setupDecimals(decimals.addn(1)), 'ERC20: decimals cannot be changed after construction');
-    });
   });
 
   shouldBehaveLikeERC20('ERC20', initialSupply, initialHolder, recipient, anotherAccount);
