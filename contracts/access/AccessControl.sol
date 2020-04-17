@@ -169,9 +169,8 @@ abstract contract AccessControl is Context {
      * This function should only be called from the constructor when setting
      * up the initial roles for the system.
      *
-     * It being callable by other means goes against the spirit of
-     * {AccessControl}, as there would be ways to grant roles not tracked by
-     * {getRoleMemberCount} and {getRoleMember}.
+     * Using this function in any other way is effectively circumventing the admin
+     * system imposed by {AccessControl}.
      * ====
      */
     function _setupRole(bytes32 role, address account) internal virtual {
