@@ -11,9 +11,10 @@ pragma solidity ^0.6.0;
  * (O(1)).
  * - Elements are enumerated in O(n). No guarantees are made on the ordering.
  *
- * As of v2.5.0, only `address` sets are supported.
+ * As of v3.0.0, `address` and `uint256` sets are supported.
  *
- * Include with `using EnumerableSet for EnumerableSet.AddressSet;`.
+ * Include with `using EnumerableSet for EnumerableSet.AddressSet;` or
+ * `using EnumerableSet for EnumerableSet.UintSet;`.
  *
  * @author Alberto Cuesta Cañada
  */
