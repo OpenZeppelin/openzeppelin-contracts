@@ -10,4 +10,4 @@ TIP: Intermediate and advanced users can use these as starting points when writi
 
 {{ERC20MinterPauser}}
 
-{{ERC721MinterPauser}}
+{{ERC721MinterAutoID}}

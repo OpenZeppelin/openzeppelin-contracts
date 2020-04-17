@@ -5,21 +5,20 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const ERC721MinterPauser = contract.fromArtifact('ERC721MinterPauser');
+const ERC721MinterAutoID = contract.fromArtifact('ERC721MinterAutoID');
 
-describe('ERC721MinterPauser', function () {
+describe('ERC721MinterAutoID', function () {
   const [ deployer, other ] = accounts;
 
-  const name = 'MinterPauserToken';
-  const symbol = 'DRT';
+  const name = 'MinterAutoIDToken';
+  const symbol = 'MAIT';
   const baseURI = 'my.app/';
 
   const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000';
   const MINTER_ROLE = web3.utils.soliditySha3('MINTER_ROLE');
-  const PAUSER_ROLE = web3.utils.soliditySha3('PAUSER_ROLE');
 
   beforeEach(async function () {
-    this.token = await ERC721MinterPauser.new(name, symbol, baseURI, { from: deployer });
+    this.token = await ERC721MinterAutoID.new(name, symbol, baseURI, { from: deployer });
   });
 
   it('token has correct name', async function () {
@@ -44,14 +43,8 @@ describe('ERC721MinterPauser', function () {
     expect(await this.token.getRoleMember(MINTER_ROLE, 0)).to.equal(deployer);
   });
 
-  it('deployer has the pauser role', async function () {
-    expect(await this.token.getRoleMemberCount(PAUSER_ROLE)).to.be.bignumber.equal('1');
-    expect(await this.token.getRoleMember(PAUSER_ROLE, 0)).to.equal(deployer);
-  });
-
-  it('minter and pauser role admin is the default admin', async function () {
+  it('minter role admin is the default admin', async function () {
     expect(await this.token.getRoleAdmin(MINTER_ROLE)).to.equal(DEFAULT_ADMIN_ROLE);
-    expect(await this.token.getRoleAdmin(PAUSER_ROLE)).to.equal(DEFAULT_ADMIN_ROLE);
   });
 
   describe('minting', function () {
@@ -70,39 +63,8 @@ describe('ERC721MinterPauser', function () {
     it('other accounts cannot mint tokens', async function () {
       await expectRevert(
         this.token.mint(other, { from: other }),
-        'ERC721MinterPauser: must have minter role to mint'
+        'ERC721MinterAutoID: must have minter role to mint'
       );
-    });
-  });
-
-  describe('pausing', function () {
-    it('deployer can pause', async function () {
-      const receipt = await this.token.pause({ from: deployer });
-      expectEvent(receipt, 'Paused', { account: deployer });
-
-      expect(await this.token.paused()).to.equal(true);
-    });
-
-    it('deployer can unpause', async function () {
-      await this.token.pause({ from: deployer });
-
-      const receipt = await this.token.unpause({ from: deployer });
-      expectEvent(receipt, 'Unpaused', { account: deployer });
-
-      expect(await this.token.paused()).to.equal(false);
-    });
-
-    it('cannot mint while paused', async function () {
-      await this.token.pause({ from: deployer });
-
-      await expectRevert(
-        this.token.mint(other, { from: deployer }),
-        'ERC721Pausable: token transfer while paused'
-      );
-    });
-
-    it('other accounts cannot pause', async function () {
-      await expectRevert(this.token.pause({ from: other }), 'ERC721MinterPauser: must have pauser role to pause');
     });
   });
 
