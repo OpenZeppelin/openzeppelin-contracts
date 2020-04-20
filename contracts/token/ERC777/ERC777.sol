@@ -492,7 +492,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      * - when `to` is zero, ``from``'s `tokenId` will be burned.
      * - `from` and `to` are never both zero.
      *
-     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
+     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
     function _beforeTokenTransfer(address operator, address from, address to, uint256 tokenId) internal virtual { }
 }
