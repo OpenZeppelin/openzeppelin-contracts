@@ -11,12 +11,20 @@ pragma solidity ^0.6.0;
  * (O(1)).
  * - Elements are enumerated in O(n). No guarantees are made on the ordering.
  *
- * As of v3.0.0, `address` and `uint256` sets are supported.
+ * ```
+ * import "@openzeppelin/contracts/utils/EnumerableSet.sol";
  *
- * Include with `using EnumerableSet for EnumerableSet.AddressSet;` or
- * `using EnumerableSet for EnumerableSet.UintSet;`.
+ * contract Example {
+ *     // Add the library methods
+ *     using EnumerableSet for EnumerableSet.AddressSet;
  *
- * @author Alberto Cuesta Cañada
+ *     // Declare a set state variable
+ *     EnumerableSet.AddressSet private mySet;
+ * }
+ * ```
+ *
+ * As of v3.0.0, only sets of type `address` (`AddressSet`) and `uint256`
+ * (`UintSet`) are supported.
  */
 library EnumerableSet {
     // To implement this library for multiple types with as little code

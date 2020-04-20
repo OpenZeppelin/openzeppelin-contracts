@@ -11,9 +11,20 @@ pragma solidity ^0.6.0;
  * (O(1)).
  * - Entries are enumerated in O(n). No guarantees are made on the ordering.
  *
- * As of v3.0.0, only `uint256 -> address` maps are supported.
+ * ```
+ * import "@openzeppelin/contracts/utils/EnumerableMap.sol";
  *
- * Include with `using EnumerableMap for EnumerableMap.UintToAddressMap;`.
+ * contract Example {
+ *     // Add the library methods
+ *     using EnumerableMap for EnumerableMap.UintToAddressMap;
+ *
+ *     // Declare a set state variable
+ *     EnumerableMap.UintToAddressMap private myMap;
+ * }
+ * ```
+ *
+ * As of v3.0.0, only maps of type `uint256 -> address` (`UintToAddressMap`) are
+ * supported.
  */
 library EnumerableMap {
     // To implement this library for multiple types with as little code
