@@ -22,7 +22,7 @@ import "../token/ERC721/ERC721Pausable.sol";
  * roles, as well as the default admin role, which will let it grant both minter
  * and pauser roles to aother accounts
  */
-contract ERC721MinterAutoIdPauser is Context, AccessControl, ERC721Burnable, ERC721Pausable {
+contract ERC721PresetMinterAutoIdPauser is Context, AccessControl, ERC721Burnable, ERC721Pausable {
     using Counters for Counters.Counter;
 
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
@@ -58,7 +58,7 @@ contract ERC721MinterAutoIdPauser is Context, AccessControl, ERC721Burnable, ERC
      * - the caller must have the `MINTER_ROLE`.
      */
     function mint(address to) public {
-        require(hasRole(MINTER_ROLE, _msgSender()), "ERC721MinterAutoIdPauser: must have minter role to mint");
+        require(hasRole(MINTER_ROLE, _msgSender()), "ERC721PresetMinterAutoIdPauser: must have minter role to mint");
 
         // We can just use balanceOf to create the new tokenId because tokens
         // can be burned (destroyed), so we need a separate counter.
@@ -76,7 +76,7 @@ contract ERC721MinterAutoIdPauser is Context, AccessControl, ERC721Burnable, ERC
      * - the caller must have the `PAUSER_ROLE`.
      */
     function pause() public {
-        require(hasRole(PAUSER_ROLE, _msgSender()), "ERC721MinterAutoIdPauser: must have pauser role to pause");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "ERC721PresetMinterAutoIdPauser: must have pauser role to pause");
         _pause();
     }
 
@@ -90,7 +90,7 @@ contract ERC721MinterAutoIdPauser is Context, AccessControl, ERC721Burnable, ERC
      * - the caller must have the `PAUSER_ROLE`.
      */
     function unpause() public {
-        require(hasRole(PAUSER_ROLE, _msgSender()), "ERC721MinterAutoIdPauser: must have pauser role to unpause");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "ERC721PresetMinterAutoIdPauser: must have pauser role to unpause");
         _unpause();
     }
 

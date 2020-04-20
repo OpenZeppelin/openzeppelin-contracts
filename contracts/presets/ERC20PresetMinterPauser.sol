@@ -20,7 +20,7 @@ import "../token/ERC20/ERC20Pausable.sol";
  * roles, as well as the default admin role, which will let it grant both minter
  * and pauser roles to aother accounts
  */
-contract ERC20MinterPauser is Context, AccessControl, ERC20Burnable, ERC20Pausable {
+contract ERC20PresetMinterPauser is Context, AccessControl, ERC20Burnable, ERC20Pausable {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
@@ -47,7 +47,7 @@ contract ERC20MinterPauser is Context, AccessControl, ERC20Burnable, ERC20Pausab
      * - the caller must have the `MINTER_ROLE`.
      */
     function mint(address to, uint256 amount) public {
-        require(hasRole(MINTER_ROLE, _msgSender()), "ERC20MinterPauser: must have minter role to mint");
+        require(hasRole(MINTER_ROLE, _msgSender()), "ERC20PresetMinterPauser: must have minter role to mint");
         _mint(to, amount);
     }
 
@@ -61,7 +61,7 @@ contract ERC20MinterPauser is Context, AccessControl, ERC20Burnable, ERC20Pausab
      * - the caller must have the `PAUSER_ROLE`.
      */
     function pause() public {
-        require(hasRole(PAUSER_ROLE, _msgSender()), "ERC20MinterPauser: must have pauser role to pause");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "ERC20PresetMinterPauser: must have pauser role to pause");
         _pause();
     }
 
@@ -75,7 +75,7 @@ contract ERC20MinterPauser is Context, AccessControl, ERC20Burnable, ERC20Pausab
      * - the caller must have the `PAUSER_ROLE`.
      */
     function unpause() public {
-        require(hasRole(PAUSER_ROLE, _msgSender()), "ERC20MinterPauser: must have pauser role to unpause");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "ERC20PresetMinterPauser: must have pauser role to unpause");
         _unpause();
     }
 
