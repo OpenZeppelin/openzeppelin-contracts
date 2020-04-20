@@ -59,7 +59,7 @@ Instead of using `GSNRecipient` directly, your GSN recipient contract will inste
 
 [source,solidity]
 ----
-import "@openzeppelin/contracts/GSN/GSNRecipientSignature";
+import "@openzeppelin/contracts/GSN/GSNRecipientSignature.sol";
 
 contract MyContract is GSNRecipientSignature {
     constructor(address trustedSigner) public GSNRecipientSignature(trustedSigner) {
@@ -106,8 +106,8 @@ Your GSN recipient contract needs to inherit from `GSNRecipientERC20Fee` along w
 
 [source,solidity]
 ----
-import "@openzeppelin/contracts/GSN/GSNRecipientERC20Fee";
-import "@openzeppelin/contracts/access/AccessControl";
+import "@openzeppelin/contracts/GSN/GSNRecipientERC20Fee.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
 contract MyContract is GSNRecipientERC20Fee, AccessControl {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
@@ -116,8 +116,16 @@ contract MyContract is GSNRecipientERC20Fee, AccessControl {
         _setupRole(MINTER_ROLE, _msgSender());
     }
 
+    function _msgSender() internal view override(Context, GSNRecipient) returns (address payable) {
+        return GSNRecipient._msgSender();
+    }
+
+    function _msgData() internal view override(Context, GSNRecipient) returns (bytes memory) {
+        return GSNRecipient._msgData();
+    }
+
     function mint(address account, uint256 amount) public {
-        require(hasRole(MINTER_ROLE, _msgSender()));
+        require(hasRole(MINTER_ROLE, _msgSender()), "Caller is not a minter");
         _mint(account, amount);
     }
 }

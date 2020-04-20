@@ -145,7 +145,7 @@ contract ERC20 is Context, IERC20 {
      * Requirements:
      * - `sender` and `recipient` cannot be the zero address.
      * - `sender` must have a balance of at least `amount`.
-     * - the caller must have allowance for `sender`'s tokens of at least
+     * - the caller must have allowance for ``sender``'s tokens of at least
      * `amount`.
      */
     function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
@@ -279,12 +279,11 @@ contract ERC20 is Context, IERC20 {
     /**
      * @dev Sets {decimals} to a value other than the default one of 18.
      *
-     * Requirements:
-     *
-     * - this function can only be called from a constructor.
+     * WARNING: This function should only be called from the constructor. Most
+     * applications that interact with token contracts will not expect
+     * {decimals} to ever change, and may work incorrectly if it does.
      */
     function _setupDecimals(uint8 decimals_) internal {
-        require(!address(this).isContract(), "ERC20: decimals cannot be changed after construction");
         _decimals = decimals_;
     }
 
@@ -294,13 +293,13 @@ contract ERC20 is Context, IERC20 {
      *
      * Calling conditions:
      *
-     * - when `from` and `to` are both non-zero, `amount` of `from`'s tokens
+     * - when `from` and `to` are both non-zero, `amount` of ``from``'s tokens
      * will be to transferred to `to`.
      * - when `from` is zero, `amount` tokens will be minted for `to`.
-     * - when `to` is zero, `amount` of `from`'s tokens will be burned.
+     * - when `to` is zero, `amount` of ``from``'s tokens will be burned.
      * - `from` and `to` are never both zero.
      *
-     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
+     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual { }
 }

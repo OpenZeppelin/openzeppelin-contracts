@@ -1,14 +1,13 @@
 pragma solidity ^0.6.0;
 
 /**
- * @title Strings
  * @dev String operations.
  */
 library Strings {
     /**
      * @dev Converts a `uint256` to its ASCII `string` representation.
      */
-    function fromUint256(uint256 value) internal pure returns (string memory) {
+    function toString(uint256 value) internal pure returns (string memory) {
         // Inspired by OraclizeAPI's implementation - MIT licence
         // https://github.com/oraclize/ethereum-api/blob/b42146b063c7d6ee1358846c198246239e9360e8/oraclizeAPI_0.4.25.sol
 

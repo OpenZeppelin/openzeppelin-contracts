@@ -44,11 +44,11 @@
   },
   "homepage": "https://openzeppelin.com/contracts/",
   "devDependencies": {
-    "@openzeppelin/cli": "^2.8.0",
+    "@openzeppelin/cli": "^2.8.2",
     "@openzeppelin/docs-utils": "^0.1.0",
     "@openzeppelin/gsn-helpers": "^0.2.3",
     "@openzeppelin/gsn-provider": "^0.1.10",
-    "@openzeppelin/test-environment": "^0.1.3",
+    "@openzeppelin/test-environment": "^0.1.4",
     "@openzeppelin/test-helpers": "^0.5.5",
     "chai": "^4.2.0",
     "eslint": "^6.5.1",
@@ -64,7 +64,7 @@
     "lodash.zip": "^4.2.0",
     "micromatch": "^4.0.2",
     "mocha": "^7.1.1",
-    "solhint": "^3.0.0-rc.6",
+    "solhint": "^3.0.0-rc.8",
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
     "solidity-docgen": "^0.4.1"
   },

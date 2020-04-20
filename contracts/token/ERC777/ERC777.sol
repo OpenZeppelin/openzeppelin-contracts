@@ -322,6 +322,8 @@ contract ERC777 is Context, IERC777, IERC20 {
 
         address operator = _msgSender();
 
+        _beforeTokenTransfer(operator, address(0), account, amount);
+
         // Update state variables
         _totalSupply = _totalSupply.add(amount);
         _balances[account] = _balances[account].add(amount);
@@ -381,6 +383,8 @@ contract ERC777 is Context, IERC777, IERC20 {
         require(from != address(0), "ERC777: burn from the zero address");
 
         address operator = _msgSender();
+
+        _beforeTokenTransfer(operator, from, address(0), amount);
 
         _callTokensToSend(operator, from, address(0), amount, data, operatorData);
 
@@ -482,13 +486,13 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * Calling conditions:
      *
-     * - when `from` and `to` are both non-zero, `from`'s `tokenId` will be
+     * - when `from` and `to` are both non-zero, ``from``'s `tokenId` will be
      * transferred to `to`.
      * - when `from` is zero, `tokenId` will be minted for `to`.
-     * - when `to` is zero, `from`'s `tokenId` will be burned.
+     * - when `to` is zero, ``from``'s `tokenId` will be burned.
      * - `from` and `to` are never both zero.
      *
-     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
+     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
     function _beforeTokenTransfer(address operator, address from, address to, uint256 tokenId) internal virtual { }
 }

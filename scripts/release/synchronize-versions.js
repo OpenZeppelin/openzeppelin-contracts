@@ -1,14 +1,12 @@
 #!/usr/bin/env node
 
-// Synchronizes the versions in ethpm.json and contracts/package.json with the
-// one in package.json.
+// Synchronizes the version in contracts/package.json with the one in package.json.
 // This is run automatically when npm version is run.
 
 const fs = require('fs');
 const cp = require('child_process');
 
 setVersion('contracts/package.json');
-setVersion('ethpm.json');
 
 function setVersion (file) {
   const json = JSON.parse(fs.readFileSync(file));

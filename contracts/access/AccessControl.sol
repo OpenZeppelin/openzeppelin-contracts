@@ -114,7 +114,7 @@ abstract contract AccessControl is Context {
      *
      * Requirements:
      *
-     * - the caller must have `role`'s admin role.
+     * - the caller must have ``role``'s admin role.
      */
     function grantRole(bytes32 role, address account) public virtual {
         require(hasRole(_roles[role].adminRole, _msgSender()), "AccessControl: sender must be an admin to grant");
@@ -129,7 +129,7 @@ abstract contract AccessControl is Context {
      *
      * Requirements:
      *
-     * - the caller must have `role`'s admin role.
+     * - the caller must have ``role``'s admin role.
      */
     function revokeRole(bytes32 role, address account) public virtual {
         require(hasRole(_roles[role].adminRole, _msgSender()), "AccessControl: sender must be an admin to revoke");
@@ -164,17 +164,21 @@ abstract contract AccessControl is Context {
      * event. Note that unlike {grantRole}, this function doesn't perform any
      * checks on the calling account.
      *
-     * Requirements:
+     * [WARNING]
+     * ====
+     * This function should only be called from the constructor when setting
+     * up the initial roles for the system.
      *
-     * - this function can only be called from a constructor.
+     * Using this function in any other way is effectively circumventing the admin
+     * system imposed by {AccessControl}.
+     * ====
      */
     function _setupRole(bytes32 role, address account) internal virtual {
-        require(!address(this).isContract(), "AccessControl: roles cannot be setup after construction");
         _grantRole(role, account);
     }
 
     /**
-     * @dev Sets `adminRole` as `role`'s admin role.
+     * @dev Sets `adminRole` as ``role``'s admin role.
      */
     function _setRoleAdmin(bytes32 role, bytes32 adminRole) internal virtual {
         _roles[role].adminRole = adminRole;
