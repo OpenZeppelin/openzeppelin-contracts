@@ -143,7 +143,7 @@ Not all GSN strategies use `_preRelayedCall` and `_postRelayedCall` (though they
 
 `_preRelayedCall` should take the maximum possible charge, with `_postRelayedCall` refunding any difference from the actual charge once the relayed call has been made.
 When returning `_approveRelayedCall` to approve the relayed call, the end users address, `maxPossibleCharge`, `transactionFee` and `gasPrice` data can also be returned so that the data can be used in `_preRelayedCall` and `_postRelayedCall`.
-See https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v2.4.0/contracts/GSN/GSNRecipientERC20Fee.sol[the code for `GSNRecipientERC20Fee`] as an example implementation.
+See https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v3.0.0/contracts/GSN/GSNRecipientERC20Fee.sol[the code for `GSNRecipientERC20Fee`] as an example implementation.
 
 Once your strategy is ready, all your GSN recipient needs to do is inherit from it:
 
