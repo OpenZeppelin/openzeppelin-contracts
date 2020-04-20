@@ -36,9 +36,9 @@ The old `revokeRole` is then replaced by our override, and any calls to it will 
 
 Sometimes you want to _extend_ a parent's behavior, instead of outright changing it to something else. This is where `super` comes in.
 
-The `super` keyword will let you call functions defined in a parent contract, even if they overridden. This mechanism can be used to add additional checks to a function, emit events, or otherwise add functionality as you see fit.
+The `super` keyword will let you call functions defined in a parent contract, even if they are overridden. This mechanism can be used to add additional checks to a function, emit events, or otherwise add functionality as you see fit.
 
-TIP: For more information on how overrides work, head to the https://solidity.readthedocs.io/en/latest/contracts.html#index-17[official Solidity documentation].
+TIP: For more information on how overrides work, head over to the https://solidity.readthedocs.io/en/latest/contracts.html#index-17[official Solidity documentation].
 
 Here is a modified version of xref:api:access.adoc#AccessControl[`AccessControl`] where xref:api:access.adoc#AccessControl-revokeRole-bytes32-address-[`revokeRole`] cannot be used to revoke the `DEFAULT_ADMIN_ROLE`:
 
@@ -108,7 +108,7 @@ So far, the only available hook is `_beforeTransferHook`, in all of xref:api:tok
 There's a few guidelines you should follow when writing code that uses hooks in order to prevent issues. They are very simple, but do make sure you follow them:
 
 1. Whenever you override a parent's hook, re-apply the `virtual` attribute to the hook. That will allow child contracts to add more functionality to the hook.
-2. **Always** call the parent's hook in your override. This will make sure all hooks in the inheritance tree are called: contracts like xref:api:token/ERC20.adoc#ERC20Pausable[`ERC20Pausable`] rely on this behavior.
+2. **Always** call the parent's hook in your override using `super`. This will make sure all hooks in the inheritance tree are called: contracts like xref:api:token/ERC20.adoc#ERC20Pausable[`ERC20Pausable`] rely on this behavior.
 
 ```solidity
 contract MyToken is ERC20 {

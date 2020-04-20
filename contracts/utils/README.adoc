@@ -5,7 +5,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
 Security tools include:
 
  * {Pausable}: provides a simple way to halt activity in your contracts (often in reponse to an external threat).
- * {ReentrancyGuard}: protects you from https://blog.openzeppelin.com/reentrancy-after-istanbul/[attackers performing reentrant calls].
+ * {ReentrancyGuard}: protects you from https://blog.openzeppelin.com/reentrancy-after-istanbul/[reentrant calls].
 
 The {Address}, {Arrays} and {Strings} libraries provide more operations related to these native data types, while {SafeCast} adds ways to safely convert between the different signed and unsigned numeric types.
 
@@ -19,7 +19,7 @@ For new data types:
 ====
 Because Solidity does not support generic types, {EnumerableMap} and {EnumerableSet} are specialized to a limited number of key-value types.
 
-As of v3.0, {EnumerableMap} supports `uint256 -> address` (`UintToAddressMap`), and {EnumerableSet} supports sets of both `address` and `uint256` (`AddressSet` and `UintSet`).
+As of v3.0, {EnumerableMap} supports `uint256 -> address` (`UintToAddressMap`), and {EnumerableSet} supports `address` and `uint256` (`AddressSet` and `UintSet`).
 ====
 
 Finally, {Create2} contains all necessary utilities to safely use the https://blog.openzeppelin.com/getting-the-most-out-of-create2/[`CREATE2` EVM opcode], without having to deal with low-level assembly.
