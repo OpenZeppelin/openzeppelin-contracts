@@ -12,8 +12,6 @@ pragma solidity ^0.6.0;
  * - Entries are enumerated in O(n). No guarantees are made on the ordering.
  *
  * ```
- * import "@openzeppelin/contracts/utils/EnumerableMap.sol";
- *
  * contract Example {
  *     // Add the library methods
  *     using EnumerableMap for EnumerableMap.UintToAddressMap;

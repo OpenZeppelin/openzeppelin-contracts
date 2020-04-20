@@ -12,8 +12,6 @@ pragma solidity ^0.6.0;
  * - Elements are enumerated in O(n). No guarantees are made on the ordering.
  *
  * ```
- * import "@openzeppelin/contracts/utils/EnumerableSet.sol";
- *
  * contract Example {
  *     // Add the library methods
  *     using EnumerableSet for EnumerableSet.AddressSet;
