@@ -16,9 +16,9 @@ import "../token/ERC20/ERC20Pausable.sol";
  * This contract uses {AccessControl} to lock permissioned functions using the
  * different roles - head to its documentation for details.
  *
- * The account that deploys the contract will be granted the minter role, the
- * pauser role, and the default admin role, meaning it will be able to grant
- * both the minter and pauser roles.
+ * The account that deploys the contract will be granted the minter and pauser
+ * roles, as well as the default admin role, which will let it grant both minter
+ * and pauser roles to aother accounts
  */
 contract ERC20MinterPauser is Context, AccessControl, ERC20Burnable, ERC20Pausable {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");

@@ -5,6 +5,7 @@ import "../GSN/Context.sol";
 import "../utils/Counters.sol";
 import "../token/ERC721/ERC721.sol";
 import "../token/ERC721/ERC721Burnable.sol";
+import "../token/ERC721/ERC721Pausable.sol";
 
 /**
  * @dev {ERC721} token, including:
@@ -12,18 +13,20 @@ import "../token/ERC721/ERC721Burnable.sol";
  *  - ability for holders to burn (destroy) their tokens
  *  - a minter role that allows for token minting (creation)
  *  - token ID and URI autogeneration
+ *  - a pauser role that allows to stop all token transfers
  *
- * This contract uses {AccessControl} to lock the minting functions using the
- * minter role - head to its documentation for details.
+ * This contract uses {AccessControl} to lock permissioned functions using the
+ * different roles - head to its documentation for details.
  *
- * The account that deploys the contract will be granted the minter role and the
- * default admin role, meaning it will be able to both mint and grant the minter
- * role to other accounts.
+ * The account that deploys the contract will be granted the minter and pauser
+ * roles, as well as the default admin role, which will let it grant both minter
+ * and pauser roles to aother accounts
  */
-contract ERC721MinterAutoID is Context, AccessControl, ERC721Burnable {
+contract ERC721MinterAutoIdPauser is Context, AccessControl, ERC721Burnable, ERC721Pausable {
     using Counters for Counters.Counter;
 
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
     Counters.Counter private _tokenIdTracker;
 
@@ -38,6 +41,7 @@ contract ERC721MinterAutoID is Context, AccessControl, ERC721Burnable {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
 
         _setupRole(MINTER_ROLE, _msgSender());
+        _setupRole(PAUSER_ROLE, _msgSender());
 
         _setBaseURI(baseURI);
     }
@@ -54,11 +58,43 @@ contract ERC721MinterAutoID is Context, AccessControl, ERC721Burnable {
      * - the caller must have the `MINTER_ROLE`.
      */
     function mint(address to) public {
-        require(hasRole(MINTER_ROLE, _msgSender()), "ERC721MinterAutoID: must have minter role to mint");
+        require(hasRole(MINTER_ROLE, _msgSender()), "ERC721MinterAutoIdPauser: must have minter role to mint");
 
         // We can just use balanceOf to create the new tokenId because tokens
         // can be burned (destroyed), so we need a separate counter.
         _mint(to, _tokenIdTracker.current());
         _tokenIdTracker.increment();
+    }
+
+    /**
+     * @dev Pauses all token transfers.
+     *
+     * See {ERC721Pausable} and {Pausable-_pause}.
+     *
+     * Requirements:
+     *
+     * - the caller must have the `PAUSER_ROLE`.
+     */
+    function pause() public {
+        require(hasRole(PAUSER_ROLE, _msgSender()), "ERC721MinterAutoIdPauser: must have pauser role to pause");
+        _pause();
+    }
+
+    /**
+     * @dev Unpauses all token transfers.
+     *
+     * See {ERC721Pausable} and {Pausable-_unpause}.
+     *
+     * Requirements:
+     *
+     * - the caller must have the `PAUSER_ROLE`.
+     */
+    function unpause() public {
+        require(hasRole(PAUSER_ROLE, _msgSender()), "ERC721MinterAutoIdPauser: must have pauser role to unpause");
+        _unpause();
+    }
+
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal override(ERC721, ERC721Pausable) {
+        super._beforeTokenTransfer(from, to, tokenId);
     }
 }

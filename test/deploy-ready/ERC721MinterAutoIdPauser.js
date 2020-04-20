@@ -5,9 +5,9 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const ERC721MinterAutoID = contract.fromArtifact('ERC721MinterAutoID');
+const ERC721MinterAutoIdPauser = contract.fromArtifact('ERC721MinterAutoIdPauser');
 
-describe('ERC721MinterAutoID', function () {
+describe('ERC721MinterAutoIdPauser', function () {
   const [ deployer, other ] = accounts;
 
   const name = 'MinterAutoIDToken';
@@ -18,7 +18,7 @@ describe('ERC721MinterAutoID', function () {
   const MINTER_ROLE = web3.utils.soliditySha3('MINTER_ROLE');
 
   beforeEach(async function () {
-    this.token = await ERC721MinterAutoID.new(name, symbol, baseURI, { from: deployer });
+    this.token = await ERC721MinterAutoIdPauser.new(name, symbol, baseURI, { from: deployer });
   });
 
   it('token has correct name', async function () {
@@ -63,8 +63,39 @@ describe('ERC721MinterAutoID', function () {
     it('other accounts cannot mint tokens', async function () {
       await expectRevert(
         this.token.mint(other, { from: other }),
-        'ERC721MinterAutoID: must have minter role to mint'
+        'ERC721MinterAutoIdPauser: must have minter role to mint'
       );
+    });
+  });
+
+  describe('pausing', function () {
+    it('deployer can pause', async function () {
+      const receipt = await this.token.pause({ from: deployer });
+      expectEvent(receipt, 'Paused', { account: deployer });
+
+      expect(await this.token.paused()).to.equal(true);
+    });
+
+    it('deployer can unpause', async function () {
+      await this.token.pause({ from: deployer });
+
+      const receipt = await this.token.unpause({ from: deployer });
+      expectEvent(receipt, 'Unpaused', { account: deployer });
+
+      expect(await this.token.paused()).to.equal(false);
+    });
+
+    it('cannot mint while paused', async function () {
+      await this.token.pause({ from: deployer });
+
+      await expectRevert(
+        this.token.mint(other, { from: deployer }),
+        'ERC721Pausable: token transfer while paused'
+      );
+    });
+
+    it('other accounts cannot pause', async function () {
+      await expectRevert(this.token.pause({ from: other }), 'ERC721MinterAutoIdPauser: must have pauser role to pause');
     });
   });
 
