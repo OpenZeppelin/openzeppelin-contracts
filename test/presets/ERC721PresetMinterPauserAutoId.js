@@ -5,9 +5,9 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const ERC721PresetMinterAutoIdPauser = contract.fromArtifact('ERC721PresetMinterAutoIdPauser');
+const ERC721PresetMinterPauserAutoId = contract.fromArtifact('ERC721PresetMinterPauserAutoId');
 
-describe('ERC721PresetMinterAutoIdPauser', function () {
+describe('ERC721PresetMinterPauserAutoId', function () {
   const [ deployer, other ] = accounts;
 
   const name = 'MinterAutoIDToken';
@@ -18,7 +18,7 @@ describe('ERC721PresetMinterAutoIdPauser', function () {
   const MINTER_ROLE = web3.utils.soliditySha3('MINTER_ROLE');
 
   beforeEach(async function () {
-    this.token = await ERC721PresetMinterAutoIdPauser.new(name, symbol, baseURI, { from: deployer });
+    this.token = await ERC721PresetMinterPauserAutoId.new(name, symbol, baseURI, { from: deployer });
   });
 
   it('token has correct name', async function () {
@@ -63,7 +63,7 @@ describe('ERC721PresetMinterAutoIdPauser', function () {
     it('other accounts cannot mint tokens', async function () {
       await expectRevert(
         this.token.mint(other, { from: other }),
-        'ERC721PresetMinterAutoIdPauser: must have minter role to mint'
+        'ERC721PresetMinterPauserAutoId: must have minter role to mint'
       );
     });
   });
@@ -97,7 +97,7 @@ describe('ERC721PresetMinterAutoIdPauser', function () {
     it('other accounts cannot pause', async function () {
       await expectRevert(
         this.token.pause({ from: other }),
-        'ERC721PresetMinterAutoIdPauser: must have pauser role to pause'
+        'ERC721PresetMinterPauserAutoId: must have pauser role to pause'
       );
     });
   });
