@@ -22,19 +22,22 @@ interface IERC721 is IERC165 {
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
 
     /**
-     * @dev Returns the number of tokens in `owner`'s account.
+     * @dev Returns the number of tokens in ``owner``'s account.
      */
     function balanceOf(address owner) external view returns (uint256 balance);
 
     /**
      * @dev Returns the owner of the `tokenId` token.
+     *
+     * Requirements:
+     *
+     * - `tokenId` must exist.
      */
     function ownerOf(uint256 tokenId) external view returns (address owner);
 
     /**
-     * @dev Safely transfers `tokenId` token from `from` to `to`.
-     * 'Safely' means that, if `to` refers to a smart contract, the token won't be forever locked in it.
-     * It ensures that the receiving contract knows how to properly handle ERC721 tokens by checking if it returns the correct function selector.
+     * @dev Safely transfers `tokenId` token from `from` to `to`, checking first that contract recipients
+     * are aware of the ERC721 protocol to prevent tokens from being forever locked.
      *
      * Requirements:
      *
@@ -64,13 +67,14 @@ interface IERC721 is IERC165 {
 
     /**
      * @dev Gives permission to `to` to transfer `tokenId` token to another account.
-     * A single account can be approved at a time.
-     * Approvals are cleared on transfer.
-     * Approving the zero address clears approvals.
+     * The approval is cleared when the token is transferred.
+     *
+     * Only a single account can be approved at a time, so approving the zero address clears previous approvals.
      *
      * Requirements:
      *
      * - The caller must own the token or be an approved operator.
+     * - `tokenId` must exist.
      *
      * Emits an {Approval} event.
      */
@@ -78,6 +82,10 @@ interface IERC721 is IERC165 {
 
     /**
      * @dev Returns the account approved for `tokenId` token.
+     *
+     * Requirements:
+     *
+     * - `tokenId` must exist.
      */
     function getApproved(uint256 tokenId) external view returns (address operator);
 
@@ -95,6 +103,8 @@ interface IERC721 is IERC165 {
 
     /**
      * @dev Returns if the `operator` is allowed to manage all of the assets of `owner`.
+     *
+     * See {setApprovalForAll}
      */
     function isApprovedForAll(address owner, address operator) external view returns (bool);
 
