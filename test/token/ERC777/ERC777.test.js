@@ -1,6 +1,7 @@
 const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
 
-const { BN, expectEvent, expectRevert, singletons } = require('@openzeppelin/test-helpers');
+const { BN, constants, expectEvent, expectRevert, singletons } = require('@openzeppelin/test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
@@ -15,6 +16,7 @@ const {
 
 const {
   shouldBehaveLikeERC20,
+  shouldBehaveLikeERC20Approve,
 } = require('../ERC20/ERC20.behavior');
 
 const ERC777 = contract.fromArtifact('ERC777Mock');
@@ -40,7 +42,23 @@ describe('ERC777', function () {
       this.token = await ERC777.new(holder, initialSupply, name, symbol, defaultOperators);
     });
 
-    shouldBehaveLikeERC20('ERC777', initialSupply, holder, anyone, defaultOperatorA);
+    describe('as an ERC20 token', function () {
+      shouldBehaveLikeERC20('ERC777', initialSupply, holder, anyone, defaultOperatorA);
+
+      describe('_approve', function () {
+        shouldBehaveLikeERC20Approve('ERC777', holder, anyone, initialSupply, function (owner, spender, amount) {
+          return this.token.approveInternal(owner, spender, amount);
+        });
+
+        describe('when the owner is the zero address', function () {
+          it('reverts', async function () {
+            await expectRevert(this.token.approveInternal(ZERO_ADDRESS, anyone, initialSupply),
+              'ERC777: approve from the zero address'
+            );
+          });
+        });
+      });
+    });
 
     it.skip('does not emit AuthorizedOperator events for default operators', async function () {
       expectEvent.not.inConstructor(this.token, 'AuthorizedOperator'); // This helper needs to be implemented

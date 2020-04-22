@@ -408,10 +408,13 @@ contract ERC777 is Context, IERC777, IERC20 {
         emit Transfer(from, to, amount);
     }
 
+    /**
+     * @dev See {ERC20-_approve}.
+     *
+     * Note that accounts cannot have allowance issued by their operators.
+     */
     function _approve(address holder, address spender, uint256 value) internal {
-        // TODO: restore this require statement if this function becomes internal, or is called at a new callsite. It is
-        // currently unnecessary.
-        //require(holder != address(0), "ERC777: approve from the zero address");
+        require(holder != address(0), "ERC777: approve from the zero address");
         require(spender != address(0), "ERC777: approve to the zero address");
 
         _allowances[holder][spender] = value;
