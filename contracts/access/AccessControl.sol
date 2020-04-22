@@ -34,6 +34,10 @@ import "../GSN/Context.sol";
  * that only accounts with this role will be able to grant or revoke other
  * roles. More complex role relationships can be created by using
  * {_setRoleAdmin}.
+ *
+ * WARNING: The `DEFAULT_ADMIN_ROLE` is also its own admin: it has permission to
+ * grant and revoke this role. Extra precautions should be taken to secure
+ * accounts that have been granted it.
  */
 abstract contract AccessControl is Context {
     using EnumerableSet for EnumerableSet.AddressSet;
