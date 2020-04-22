@@ -36,7 +36,7 @@ import "../GSN/Context.sol";
  * {_setRoleAdmin}.
  *
  * WARNING: The `DEFAULT_ADMIN_ROLE` is also its own admin: it has permission to
- * grant and revoke this role. Extra precautions should be taken when managing
+ * grant and revoke this role. Extra precautions should be taken to secure
  * accounts that have been granted it.
  */
 abstract contract AccessControl is Context {
