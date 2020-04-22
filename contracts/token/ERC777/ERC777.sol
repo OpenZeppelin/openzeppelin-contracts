@@ -352,6 +352,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     )
         internal
     {
+        require(operator != address(0), "ERC777: operator is the zero address");
         require(from != address(0), "ERC777: send from the zero address");
         require(to != address(0), "ERC777: send to the zero address");
 
