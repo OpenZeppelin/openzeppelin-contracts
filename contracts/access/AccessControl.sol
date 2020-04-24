@@ -53,6 +53,11 @@ abstract contract AccessControl is Context {
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
 
     /**
+     * @dev Emitted when `adminRole` is set as ``role``'s admin role.
+     */
+    event RoleAdminChanged(bytes32 indexed role, bytes32 indexed adminRole);
+
+    /**
      * @dev Emitted when `account` is granted `role`.
      *
      * `sender` is the account that originated the contract call, an admin role
@@ -183,9 +188,12 @@ abstract contract AccessControl is Context {
 
     /**
      * @dev Sets `adminRole` as ``role``'s admin role.
+     *
+     * Emits a {RoleAdminChanged} event.
      */
     function _setRoleAdmin(bytes32 role, bytes32 adminRole) internal virtual {
         _roles[role].adminRole = adminRole;
+        emit RoleAdminChanged(role, adminRole);
     }
 
     function _grantRole(bytes32 role, address account) private {
