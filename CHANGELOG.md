@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.5.1 (unreleased)
+## 2.5.1 (2020-04-24)
 
 ### Bugfixes
  * `ERC777`: fixed the `_send` and `_approve` internal functions not validating some of their arguments for non-zero addresses. ([#2212](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2212))
