@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.1 (unreleased)
+
+### Bugfixes
+ * `ERC777`: fixed the `_approve` internal function not validating some of their arguments for non-zero addresses. ([#2213](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2213))
+
 ## 3.0.0 (2020-04-20)
 
 ### New features
@@ -36,6 +41,11 @@
  * `ERC20Detailed`: this contract was removed and its functionality merged into `ERC20`. ([#2161](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2161))
  * `ERC20`: added a constructor for `name` and `symbol`. `decimals` now defaults to 18. ([#2161](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2161))
  * `Strings`: renamed `fromUint256` to `toString` ([#2188](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2188))
+
+## 2.5.1 (2020-04-24)
+
+### Bugfixes
+ * `ERC777`: fixed the `_send` and `_approve` internal functions not validating some of their arguments for non-zero addresses. ([#2212](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2212))
 
 ## 2.5.0 (2020-02-04)
 
