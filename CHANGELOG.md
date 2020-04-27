@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.1 (unreleased)
+## 3.0.1 (2020-04-27)
 
 ### Bugfixes
  * `ERC777`: fixed the `_approve` internal function not validating some of their arguments for non-zero addresses. ([#2213](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2213))
