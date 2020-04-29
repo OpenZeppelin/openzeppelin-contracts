@@ -129,7 +129,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     /**
      * @dev Returns the token collection symbol.
      */
-    function symbol() public view override returns (tring memory) {
+    function symbol() public view override returns (string memory) {
         return _symbol;
     }
 
