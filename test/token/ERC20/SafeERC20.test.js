@@ -107,13 +107,6 @@ function shouldOnlyRevertOnErrors () {
         await this.wrapper.setAllowance(100);
       });
 
-      it('reverts when approving a non-zero allowance', async function () {
-        await expectRevert(
-          this.wrapper.approve(20),
-          'SafeERC20: approve from non-zero to non-zero allowance'
-        );
-      });
-
       it('doesn\'t revert when approving a zero allowance', async function () {
         await this.wrapper.approve(0);
       });
