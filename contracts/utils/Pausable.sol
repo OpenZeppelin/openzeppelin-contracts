@@ -40,6 +40,10 @@ contract Pausable is Context {
 
     /**
      * @dev Modifier to make a function callable only when the contract is not paused.
+     *
+     * Requirements:
+     *
+     * - The contract must not be paused.
      */
     modifier whenNotPaused() {
         require(!_paused, "Pausable: paused");
@@ -48,6 +52,10 @@ contract Pausable is Context {
 
     /**
      * @dev Modifier to make a function callable only when the contract is paused.
+     *
+     * Requirements:
+     *
+     * - The contract must be paused.
      */
     modifier whenPaused() {
         require(_paused, "Pausable: not paused");
@@ -56,6 +64,10 @@ contract Pausable is Context {
 
     /**
      * @dev Triggers stopped state.
+     *
+     * Requirements:
+     *
+     * - The contract must not be paused.
      */
     function _pause() internal virtual whenNotPaused {
         _paused = true;
@@ -64,6 +76,10 @@ contract Pausable is Context {
 
     /**
      * @dev Returns to normal state.
+     *
+     * Requirements:
+     *
+     * - The contract must be paused.
      */
     function _unpause() internal virtual whenPaused {
         _paused = false;
