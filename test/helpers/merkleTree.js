@@ -1,4 +1,4 @@
-const { keccakFromString, bufferToHex } = require('ethereumjs-util');
+const { keccak256, keccakFromString, bufferToHex } = require('ethereumjs-util');
 
 class MerkleTree {
   constructor (elements) {
@@ -45,7 +45,7 @@ class MerkleTree {
     if (!first) { return second; }
     if (!second) { return first; }
 
-    return keccakFromString(this.sortAndConcat(first, second));
+    return keccak256(this.sortAndConcat(first, second));
   }
 
   getRoot () {
