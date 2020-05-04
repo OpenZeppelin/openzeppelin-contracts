@@ -54,6 +54,9 @@ abstract contract AccessControl is Context {
 
     /**
      * @dev Emitted when `adminRole` is set as ``role``'s admin role.
+     *
+     * `DEFAULT_ADMIN_ROLE` is the starting admin for all roles, despite
+     * {RoleAdminChanged} not being emitted signaling this.
      */
     event RoleAdminChanged(bytes32 indexed role, bytes32 indexed adminRole);
 
