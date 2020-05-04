@@ -1,7 +1,7 @@
 const { accounts, contract } = require('@openzeppelin/test-environment');
 
 const { expectRevert, singletons } = require('@openzeppelin/test-helpers');
-const { bufferToHex, keccak256 } = require('ethereumjs-util');
+const { bufferToHex, keccakFromString } = require('ethereumjs-util');
 
 const { expect } = require('chai');
 
@@ -10,14 +10,14 @@ const ERC1820ImplementerMock = contract.fromArtifact('ERC1820ImplementerMock');
 describe('ERC1820Implementer', function () {
   const [ registryFunder, implementee, other ] = accounts;
 
-  const ERC1820_ACCEPT_MAGIC = bufferToHex(keccak256('ERC1820_ACCEPT_MAGIC'));
+  const ERC1820_ACCEPT_MAGIC = bufferToHex(keccakFromString('ERC1820_ACCEPT_MAGIC'));
 
   beforeEach(async function () {
     this.implementer = await ERC1820ImplementerMock.new();
     this.registry = await singletons.ERC1820Registry(registryFunder);
 
-    this.interfaceA = bufferToHex(keccak256('interfaceA'));
-    this.interfaceB = bufferToHex(keccak256('interfaceB'));
+    this.interfaceA = bufferToHex(keccakFromString('interfaceA'));
+    this.interfaceB = bufferToHex(keccakFromString('interfaceB'));
   });
 
   context('with no registered interfaces', function () {
