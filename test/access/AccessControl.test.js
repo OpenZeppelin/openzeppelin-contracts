@@ -143,10 +143,12 @@ describe('AccessControl', function () {
   describe('setting role admin', function () {
     beforeEach(async function () {
       const receipt = await this.accessControl.setRoleAdmin(ROLE, OTHER_ROLE);
-      expectEvent(receipt,
-        'RoleAdminChanged',
-        { role: ROLE, previousAdminRole: DEFAULT_ADMIN_ROLE, newAdminRole: OTHER_ROLE }
-      );
+      expectEvent(receipt, 'RoleAdminChanged', {
+        role: ROLE, 
+        previousAdminRole: DEFAULT_ADMIN_ROLE, 
+        newAdminRole: OTHER_ROLE 
+      });
+      
       await this.accessControl.grantRole(OTHER_ROLE, otherAdmin, { from: admin });
     });
 
