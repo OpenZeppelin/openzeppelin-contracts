@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.0 (unreleased)
+
+### Improvements
+ * `AccessControl`: added a `RoleAdminChanged` event to `_setAdminRole`. ([#2214](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2214))
+
 ## 3.0.1 (2020-04-27)
 
 ### Bugfixes
