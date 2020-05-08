@@ -20,7 +20,7 @@ interface IRelayHub {
      *
      * Emits a {Staked} event.
      */
-    function stake(address relayaddr, uint256 unstakeDelay) external payable;
+    function stake(address relayaddr, uint256 unstakeDelay) external payable virtual;
 
     /**
      * @dev Emitted when a relay's stake or unstakeDelay are increased
@@ -36,7 +36,7 @@ interface IRelayHub {
      *
      * Emits a {RelayAdded} event.
      */
-    function registerRelay(uint256 transactionFee, string calldata url) external;
+    function registerRelay(uint256 transactionFee, string calldata url) virtual external;
 
     /**
      * @dev Emitted when a relay is registered or re-registerd. Looking at these events (and filtering out
@@ -52,7 +52,7 @@ interface IRelayHub {
      *
      * Emits a {RelayRemoved} event.
      */
-    function removeRelayByOwner(address relay) external;
+    function removeRelayByOwner(address relay) virtual external;
 
     /**
      * @dev Emitted when a relay is removed (deregistered). `unstakeTime` is the time when unstake will be callable.
@@ -65,7 +65,7 @@ interface IRelayHub {
      *
      * Emits an {Unstaked} event.
      */
-    function unstake(address relay) external;
+    function unstake(address relay) virtual external;
 
     /**
      * @dev Emitted when a relay is unstaked for, including the returned stake.
@@ -84,7 +84,7 @@ interface IRelayHub {
      * @dev Returns a relay's status. Note that relays can be deleted when unstaked or penalized, causing this function
      * to return an empty entry.
      */
-    function getRelay(address relay) external view returns (uint256 totalStake, uint256 unstakeDelay, uint256 unstakeTime, address payable owner, RelayState state);
+    function getRelay(address relay) external view virtual returns (uint256 totalStake, uint256 unstakeDelay, uint256 unstakeTime, address payable owner, RelayState state);
 
     // Balance management
 
@@ -95,7 +95,7 @@ interface IRelayHub {
      *
      * Emits a {Deposited} event.
      */
-    function depositFor(address target) external payable;
+    function depositFor(address target) external payable virtual;
 
     /**
      * @dev Emitted when {depositFor} is called, including the amount and account that was funded.
@@ -105,7 +105,7 @@ interface IRelayHub {
     /**
      * @dev Returns an account's deposits. These can be either a contracts's funds, or a relay owner's revenue.
      */
-    function balanceOf(address target) external view returns (uint256);
+    function balanceOf(address target) external view virtual returns (uint256);
 
     /**
      * Withdraws from an account's balance, sending it back to it. Relay owners call this to retrieve their revenue, and
@@ -264,4 +264,3 @@ interface IRelayHub {
      */
     function getNonce(address from) external view returns (uint256);
 }
-
