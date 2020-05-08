@@ -85,6 +85,9 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      */
     bytes4 private constant _INTERFACE_ID_ERC721_ENUMERABLE = 0x780e9d63;
 
+    /**
+     * @dev Initializes the contract by setting a `name` and a `symbol` to the token collection.
+     */
     constructor (string memory name, string memory symbol) public {
         _name = name;
         _symbol = symbol;
