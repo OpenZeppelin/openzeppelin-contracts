@@ -496,21 +496,23 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     }
 
     /**
-     * @dev Sets `baseURI_` as the base URI for all tokens in this contract.
-     * The base URI is automaticly added as a prefix to the value returned by {tokenURI},
-     * or to the token ID if no specific URI is set for that token.
+     * @dev Internal function to set the base URI for all token IDs. It is
+     * automatically added as a prefix to the value returned in {tokenURI},
+     * or to the token ID if {tokenURI} is empty.
      */
     function _setBaseURI(string memory baseURI_) internal virtual {
         _baseURI = baseURI_;
     }
 
     /**
-     * @dev Invokes {IERC721Receiver-onReceived} on a target address.
+     * @dev Internal function to invoke {IERC721Receiver-onERC721Received} on a target address.
      * The call is not executed if the target address is not a contract.
      *
-     * Requirements:
-     *
-     * - `to` should be the address of a smart contract.
+     * @param from address representing the previous owner of the given token ID
+     * @param to target address that will receive the tokens
+     * @param tokenId uint256 ID of the token to be transferred
+     * @param _data bytes optional data to send along with the call
+     * @return bool whether the call correctly returned the expected magic value
      */
     function _checkOnERC721Received(address from, address to, uint256 tokenId, bytes memory _data)
         private returns (bool)
@@ -542,11 +544,6 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
         }
     }
 
-    /**
-     * @dev Gives permission to `to` to transfer `tokenID` to another account.
-     *
-     * Emits an {Approval} event.
-     */
     function _approve(address to, uint256 tokenId) private {
         _tokenApprovals[tokenId] = to;
         emit Approval(ownerOf(tokenId), to, tokenId);
