@@ -6,7 +6,7 @@
  * Flexible xref:access-control.adoc[role-based permissioning] scheme.
  * Reusable xref:utilities.adoc[Solidity components] to build custom contracts and complex decentralized systems.
  * First-class integration with the xref:gsn.adoc[Gas Station Network] for systems with no gas fees!
- * Audited by leading security firms.
+ * Audited by leading security firms (_last full audit on v2.0.0_).
 
 == Overview
 
@@ -26,13 +26,12 @@ Once installed, you can use the contracts in the library by importing them:
 
 [source,solidity]
 ----
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721Full.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721Mintable.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-contract MyNFT is ERC721Full, ERC721Mintable {
-    constructor() ERC721Full("MyNFT", "MNFT") public {
+contract MyNFT is ERC721 {
+    constructor() ERC721("MyNFT", "MNFT") public {
     }
 }
 ----

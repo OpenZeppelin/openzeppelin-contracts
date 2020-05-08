@@ -22,4 +22,8 @@ contract ERC777Mock is Context, ERC777 {
     ) public {
         _mint(to, amount, userData, operatorData);
     }
+
+    function approveInternal(address holder, address spender, uint256 value) public {
+        _approve(holder, spender, value);
+    }
 }

@@ -250,7 +250,7 @@ interface IRelayHub {
     function penalizeRepeatedNonce(bytes calldata unsignedTx1, bytes calldata signature1, bytes calldata unsignedTx2, bytes calldata signature2) external;
 
     /**
-     * @dev Penalize a relay that sent a transaction that didn't target `RelayHub`'s {registerRelay} or {relayCall}.
+     * @dev Penalize a relay that sent a transaction that didn't target ``RelayHub``'s {registerRelay} or {relayCall}.
      */
     function penalizeIllegalTransaction(bytes calldata unsignedTx, bytes calldata signature) external;
 

@@ -11,14 +11,39 @@ const {
 } = require('./ERC20.behavior');
 
 const ERC20Mock = contract.fromArtifact('ERC20Mock');
+const ERC20DecimalsMock = contract.fromArtifact('ERC20DecimalsMock');
 
 describe('ERC20', function () {
   const [ initialHolder, recipient, anotherAccount ] = accounts;
 
+  const name = 'My Token';
+  const symbol = 'MTKN';
+
   const initialSupply = new BN(100);
 
   beforeEach(async function () {
-    this.token = await ERC20Mock.new(initialHolder, initialSupply);
+    this.token = await ERC20Mock.new(name, symbol, initialHolder, initialSupply);
+  });
+
+  it('has a name', async function () {
+    expect(await this.token.name()).to.equal(name);
+  });
+
+  it('has a symbol', async function () {
+    expect(await this.token.symbol()).to.equal(symbol);
+  });
+
+  it('has 18 decimals', async function () {
+    expect(await this.token.decimals()).to.be.bignumber.equal('18');
+  });
+
+  describe('_setupDecimals', function () {
+    const decimals = new BN(6);
+
+    it('can set decimals during construction', async function () {
+      const token = await ERC20DecimalsMock.new(name, symbol, decimals);
+      expect(await token.decimals()).to.be.bignumber.equal(decimals);
+    });
   });
 
   shouldBehaveLikeERC20('ERC20', initialSupply, initialHolder, recipient, anotherAccount);
