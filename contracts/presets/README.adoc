@@ -1,0 +1,13 @@
+= Presets
+
+These contracts integrate different Ethereum standards (ERCs) with custom extensions and modules, showcasing common configurations that are ready to deploy **without having to write any Solidity code**.
+
+They can be used as-is for quick prototyping and testing, but are **also suitable for production environments**.
+
+TIP: Intermediate and advanced users can use these as starting points when writing their own contracts, extending them with custom functionality as they see fit.
+
+== Tokens
+
+{{ERC20PresetMinterPauser}}
+
+{{ERC721PresetMinterPauserAutoId}}

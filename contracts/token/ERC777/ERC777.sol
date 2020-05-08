@@ -97,7 +97,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     }
 
     /**
-     * @dev See {ERC20Detailed-decimals}.
+     * @dev See {ERC20-decimals}.
      *
      * Always returns 18, as per the
      * [ERC777 EIP](https://eips.ethereum.org/EIPS/eip-777#backward-compatibility).
@@ -322,6 +322,8 @@ contract ERC777 is Context, IERC777, IERC20 {
 
         address operator = _msgSender();
 
+        _beforeTokenTransfer(operator, address(0), account, amount);
+
         // Update state variables
         _totalSupply = _totalSupply.add(amount);
         _balances[account] = _balances[account].add(amount);
@@ -382,6 +384,8 @@ contract ERC777 is Context, IERC777, IERC20 {
 
         address operator = _msgSender();
 
+        _beforeTokenTransfer(operator, from, address(0), amount);
+
         _callTokensToSend(operator, from, address(0), amount, data, operatorData);
 
         // Update state variables
@@ -411,10 +415,13 @@ contract ERC777 is Context, IERC777, IERC20 {
         emit Transfer(from, to, amount);
     }
 
+    /**
+     * @dev See {ERC20-_approve}.
+     *
+     * Note that accounts cannot have allowance issued by their operators.
+     */
     function _approve(address holder, address spender, uint256 value) internal {
-        // TODO: restore this require statement if this function becomes internal, or is called at a new callsite. It is
-        // currently unnecessary.
-        //require(holder != address(0), "ERC777: approve from the zero address");
+        require(holder != address(0), "ERC777: approve from the zero address");
         require(spender != address(0), "ERC777: approve to the zero address");
 
         _allowances[holder][spender] = value;
@@ -482,13 +489,13 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * Calling conditions:
      *
-     * - when `from` and `to` are both non-zero, `from`'s `tokenId` will be
+     * - when `from` and `to` are both non-zero, ``from``'s `tokenId` will be
      * transferred to `to`.
      * - when `from` is zero, `tokenId` will be minted for `to`.
-     * - when `to` is zero, `from`'s `tokenId` will be burned.
+     * - when `to` is zero, ``from``'s `tokenId` will be burned.
      * - `from` and `to` are never both zero.
      *
-     * To learn more about hooks, head to xref:ROOT:using-hooks.adoc[Using Hooks].
+     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
     function _beforeTokenTransfer(address operator, address from, address to, uint256 tokenId) internal virtual { }
 }
