@@ -23,7 +23,8 @@ const ignorePatterns = pkgFiles
 
 const ignorePatternsSubtrees = ignorePatterns
 // Add **/* to ignore all files contained in the directories.
-  .concat(ignorePatterns.map(pat => path.join(pat, '**/*')));
+  .concat(ignorePatterns.map(pat => path.join(pat, '**/*')))
+  .map(p => p.replace(/^\//, ''));
 
 const artifactsDir = 'build/contracts';
 
