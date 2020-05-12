@@ -3,6 +3,7 @@
 ## 3.1.0 (unreleased)
 
 ### Improvements
+ * `ReentrancyGuard`: reduced overhead of using the `nonReentrant` modifier. ([#2171](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2171))
  * `AccessControl`: added a `RoleAdminChanged` event to `_setAdminRole`. ([#2214](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2214))
 
 ## 3.0.1 (2020-04-27)
