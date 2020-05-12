@@ -21,7 +21,7 @@ import "../GSN/Context.sol";
  *
  * ```
  * function foo() public {
- *     require(hasRole(MY_ROLE, _msgSender()));
+ *     require(hasRole(MY_ROLE, msg.sender));
  *     ...
  * }
  * ```
@@ -34,6 +34,10 @@ import "../GSN/Context.sol";
  * that only accounts with this role will be able to grant or revoke other
  * roles. More complex role relationships can be created by using
  * {_setRoleAdmin}.
+ *
+ * WARNING: The `DEFAULT_ADMIN_ROLE` is also its own admin: it has permission to
+ * grant and revoke this role. Extra precautions should be taken to secure
+ * accounts that have been granted it.
  */
 abstract contract AccessControl is Context {
     using EnumerableSet for EnumerableSet.AddressSet;
@@ -47,6 +51,14 @@ abstract contract AccessControl is Context {
     mapping (bytes32 => RoleData) private _roles;
 
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
+
+    /**
+     * @dev Emitted when `newAdminRole` is set as ``role``'s admin role, replacing `previousAdminRole`
+     *
+     * `DEFAULT_ADMIN_ROLE` is the starting admin for all roles, despite
+     * {RoleAdminChanged} not being emitted signaling this.
+     */
+    event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole);
 
     /**
      * @dev Emitted when `account` is granted `role`.
@@ -164,19 +176,26 @@ abstract contract AccessControl is Context {
      * event. Note that unlike {grantRole}, this function doesn't perform any
      * checks on the calling account.
      *
-     * Requirements:
+     * [WARNING]
+     * ====
+     * This function should only be called from the constructor when setting
+     * up the initial roles for the system.
      *
-     * - this function can only be called from a constructor.
+     * Using this function in any other way is effectively circumventing the admin
+     * system imposed by {AccessControl}.
+     * ====
      */
     function _setupRole(bytes32 role, address account) internal virtual {
-        require(!address(this).isContract(), "AccessControl: roles cannot be setup after construction");
         _grantRole(role, account);
     }
 
     /**
      * @dev Sets `adminRole` as ``role``'s admin role.
+     *
+     * Emits a {RoleAdminChanged} event.
      */
     function _setRoleAdmin(bytes32 role, bytes32 adminRole) internal virtual {
+        emit RoleAdminChanged(role, _roles[role].adminRole, adminRole);
         _roles[role].adminRole = adminRole;
     }
 

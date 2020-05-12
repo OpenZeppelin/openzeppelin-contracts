@@ -17,15 +17,6 @@ describe('AccessControl', function () {
     this.accessControl = await AccessControlMock.new({ from: admin });
   });
 
-  describe('_setupRole', function () {
-    it('cannot be called outside the constructor', async function () {
-      await expectRevert(
-        this.accessControl.setupRole(OTHER_ROLE, other),
-        'AccessControl: roles cannot be setup after construction'
-      );
-    });
-  });
-
   describe('default admin', function () {
     it('deployer has default admin role', async function () {
       expect(await this.accessControl.hasRole(DEFAULT_ADMIN_ROLE, admin)).to.equal(true);
@@ -151,7 +142,13 @@ describe('AccessControl', function () {
 
   describe('setting role admin', function () {
     beforeEach(async function () {
-      await this.accessControl.setRoleAdmin(ROLE, OTHER_ROLE);
+      const receipt = await this.accessControl.setRoleAdmin(ROLE, OTHER_ROLE);
+      expectEvent(receipt, 'RoleAdminChanged', {
+        role: ROLE,
+        previousAdminRole: DEFAULT_ADMIN_ROLE,
+        newAdminRole: OTHER_ROLE,
+      });
+
       await this.accessControl.grantRole(OTHER_ROLE, otherAdmin, { from: admin });
     });
 

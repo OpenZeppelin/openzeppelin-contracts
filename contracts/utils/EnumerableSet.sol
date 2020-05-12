@@ -11,11 +11,18 @@ pragma solidity ^0.6.0;
  * (O(1)).
  * - Elements are enumerated in O(n). No guarantees are made on the ordering.
  *
- * As of v2.5.0, only `address` sets are supported.
+ * ```
+ * contract Example {
+ *     // Add the library methods
+ *     using EnumerableSet for EnumerableSet.AddressSet;
  *
- * Include with `using EnumerableSet for EnumerableSet.AddressSet;`.
+ *     // Declare a set state variable
+ *     EnumerableSet.AddressSet private mySet;
+ * }
+ * ```
  *
- * @author Alberto Cuesta Cañada
+ * As of v3.0.0, only sets of type `address` (`AddressSet`) and `uint256`
+ * (`UintSet`) are supported.
  */
 library EnumerableSet {
     // To implement this library for multiple types with as little code

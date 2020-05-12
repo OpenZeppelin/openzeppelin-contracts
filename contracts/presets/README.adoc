@@ -1,4 +1,4 @@
-= Deploy Ready
+= Presets
 
 These contracts integrate different Ethereum standards (ERCs) with custom extensions and modules, showcasing common configurations that are ready to deploy **without having to write any Solidity code**.
 
@@ -8,6 +8,6 @@ TIP: Intermediate and advanced users can use these as starting points when writi
 
 == Tokens
 
-{{ERC20MinterPauser}}
+{{ERC20PresetMinterPauser}}
 
-{{ERC721MinterPauser}}
+{{ERC721PresetMinterPauserAutoId}}

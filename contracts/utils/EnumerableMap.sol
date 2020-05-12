@@ -1,5 +1,29 @@
 pragma solidity ^0.6.0;
 
+/**
+ * @dev Library for managing an enumerable variant of Solidity's
+ * https://solidity.readthedocs.io/en/latest/types.html#mapping-types[`mapping`]
+ * type.
+ *
+ * Maps have the following properties:
+ *
+ * - Entries are added, removed, and checked for existence in constant time
+ * (O(1)).
+ * - Entries are enumerated in O(n). No guarantees are made on the ordering.
+ *
+ * ```
+ * contract Example {
+ *     // Add the library methods
+ *     using EnumerableMap for EnumerableMap.UintToAddressMap;
+ *
+ *     // Declare a set state variable
+ *     EnumerableMap.UintToAddressMap private myMap;
+ * }
+ * ```
+ *
+ * As of v3.0.0, only maps of type `uint256 -> address` (`UintToAddressMap`) are
+ * supported.
+ */
 library EnumerableMap {
     // To implement this library for multiple types with as little code
     // repetition as possible, we write it in terms of a generic Map type with

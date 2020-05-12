@@ -5,9 +5,9 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const ERC20MinterPauser = contract.fromArtifact('ERC20MinterPauser');
+const ERC20PresetMinterPauser = contract.fromArtifact('ERC20PresetMinterPauser');
 
-describe('ERC20MinterPauser', function () {
+describe('ERC20PresetMinterPauser', function () {
   const [ deployer, other ] = accounts;
 
   const name = 'MinterPauserToken';
@@ -20,7 +20,7 @@ describe('ERC20MinterPauser', function () {
   const PAUSER_ROLE = web3.utils.soliditySha3('PAUSER_ROLE');
 
   beforeEach(async function () {
-    this.token = await ERC20MinterPauser.new(name, symbol, { from: deployer });
+    this.token = await ERC20PresetMinterPauser.new(name, symbol, { from: deployer });
   });
 
   it('deployer has the default admin role', async function () {
@@ -54,7 +54,7 @@ describe('ERC20MinterPauser', function () {
     it('other accounts cannot mint tokens', async function () {
       await expectRevert(
         this.token.mint(other, amount, { from: other }),
-        'ERC20MinterPauser: must have minter role to mint'
+        'ERC20PresetMinterPauser: must have minter role to mint'
       );
     });
   });
@@ -86,7 +86,7 @@ describe('ERC20MinterPauser', function () {
     });
 
     it('other accounts cannot pause', async function () {
-      await expectRevert(this.token.pause({ from: other }), 'ERC20MinterPauser: must have pauser role to pause');
+      await expectRevert(this.token.pause({ from: other }), 'ERC20PresetMinterPauser: must have pauser role to pause');
     });
   });
 
