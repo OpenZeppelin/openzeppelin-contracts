@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.0 (unreleased)
+
+### Improvements
+ * `ReentrancyGuard`: reduced overhead of using the `nonReentrant` modifier. ([#2171](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2171))
+
 ## 3.0.0 (unreleased)
 
 ### New features
