@@ -18,7 +18,7 @@ import "../token/ERC20/ERC20Pausable.sol";
  *
  * The account that deploys the contract will be granted the minter and pauser
  * roles, as well as the default admin role, which will let it grant both minter
- * and pauser roles to aother accounts
+ * and pauser roles to other accounts
  */
 contract ERC20PresetMinterPauser is Context, AccessControl, ERC20Burnable, ERC20Pausable {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
