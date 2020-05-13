@@ -20,7 +20,7 @@ import "../token/ERC721/ERC721Pausable.sol";
  *
  * The account that deploys the contract will be granted the minter and pauser
  * roles, as well as the default admin role, which will let it grant both minter
- * and pauser roles to aother accounts
+ * and pauser roles to other accounts
  */
 contract ERC721PresetMinterPauserAutoId is Context, AccessControl, ERC721Burnable, ERC721Pausable {
     using Counters for Counters.Counter;
