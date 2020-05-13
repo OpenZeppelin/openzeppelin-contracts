@@ -4,14 +4,11 @@
 
 const fs = require('fs');
 const path = require('path');
-const cp = require('child_process');
 const match = require('micromatch');
 
 function readJSON (path) {
   return JSON.parse(fs.readFileSync(path));
 }
-
-cp.spawnSync('npm', ['run', 'compile'], { stdio: 'inherit' });
 
 const pkgFiles = readJSON('package.json').files;
 
