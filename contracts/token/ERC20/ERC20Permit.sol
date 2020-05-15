@@ -4,48 +4,47 @@ import "./ERC20.sol";
 import "./IERC2612Permit.sol";
 import "../../cryptography/ECDSA.sol";
 
+/**
+ * @dev Extension of {ERC20} that allows token holders to use their tokens
+ * without sending any transactions by setting {IERC20-allowance} with a
+ * signature using the {permit} method, and then spend them via
+ * {IERC20-transferFrom}.
+ *
+ * The {permit} signature mechanism conforms to the {IERC2612Permit} interface.
+ */
 abstract contract ERC20Permit is ERC20, IERC2612Permit {
     mapping (address => uint256) private _nonces;
 
     bytes32 private immutable _PERMIT_TYPEHASH = keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
-    string private constant _VERSION = "1";
 
-    bytes32 public DOMAIN_SEPARATOR;
+    // Mapping of ChainID to domain separators. This is a very gas efficient way
+    // to not recalculate the domain separator on every call, while still
+    // automatically detecting ChainID changes.
+    mapping (uint256 => bytes32) private _domainSeparators;
 
     constructor() internal {
-        updateDomainSeparator();
+        _updateDomainSeparator();
     }
 
-    function updateDomainSeparator() public {
-        uint256 chainID;
-        assembly {
-            chainID := chainid()
-        }
-
-        DOMAIN_SEPARATOR = keccak256(
-            abi.encodePacked(
-                keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
-                keccak256(bytes(name())),
-                keccak256(bytes(_VERSION)),
-                chainID,
-                address(this)
-            )
-        );
-    }
-
-    function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) public override {
+    /**
+     * @dev See {IERC2612Permit-permit}.
+     *
+     * If https://eips.ethereum.org/EIPS/eip-1344[ChainID] ever changes, the
+     * EIP712 Domain Separator is automatically recalculated.
+     */
+    function permit(address owner, address spender, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) public virtual override {
         require(block.timestamp <= deadline, "ERC20Permit: expired deadline");
 
         bytes32 hash = keccak256(
             abi.encodePacked(
-                "\x19\x01",
-                DOMAIN_SEPARATOR,
+                uint16(0x1901),
+                _domainSeparator(),
                 keccak256(
                     abi.encodePacked(
                         _PERMIT_TYPEHASH,
                         owner,
                         spender,
-                        value,
+                        amount,
                         _nonces[owner],
                         deadline
                     )
@@ -57,6 +56,49 @@ abstract contract ERC20Permit is ERC20, IERC2612Permit {
         require(signer == owner, "ERC20Permit: invalid signature");
 
         _nonces[owner] += 1;
-        _approve(owner, spender, value);
+        _approve(owner, spender, amount);
+    }
+
+    /**
+     * @dev See {IERC2612Permit-nonces}.
+     */
+    function nonces(address owner) public view override returns (uint256) {
+        return _nonces[owner];
+    }
+
+    function _updateDomainSeparator() private returns (bytes32) {
+        uint256 chainID = _chainID();
+
+        bytes32 newDomainSeparator = keccak256(
+            abi.encodePacked(
+                keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+                keccak256(bytes(name())),
+                keccak256(bytes("1")), // Version
+                chainID,
+                address(this)
+            )
+        );
+
+        _domainSeparators[chainID] = newDomainSeparator;
+
+        return newDomainSeparator;
+    }
+
+    // Returns the domain separator, updating it if chainID changes
+    function _domainSeparator() private returns (bytes32) {
+        bytes32 domainSeparator = _domainSeparators[_chainID()];
+        if (domainSeparator != 0x00) {
+            return domainSeparator;
+        } else {
+            return _updateDomainSeparator();
+        }
+    }
+
+    function _chainID() private pure returns (uint256) {
+        uint256 chainID;
+        assembly {
+            chainID := chainid()
+        }
+        return chainID;
     }
 }

@@ -12,6 +12,7 @@ There a few core contracts that implement the behavior specified in the EIP:
 Additionally there are multiple custom extensions, including:
 
 * designation of addresses that can pause token transfers for all users ({ERC20Pausable}).
+* usage of tokens without sending any transactions ({ERC20Permit}).
 * efficient storage of past token balances to be later queried at any point in time ({ERC20Snapshot}).
 * destruction of own tokens ({ERC20Burnable}).
 * enforcement of a cap to the total supply when minting tokens ({ERC20Capped}).
@@ -31,14 +32,21 @@ Finally, there are some utilities to interact with ERC20 contracts in various wa
 
 {{ERC20Snapshot}}
 
+{{ERC20Permit}}
+
 {{ERC20Pausable}}
 
 {{ERC20Burnable}}
 
 {{ERC20Capped}}
 
+== Standard Extensions
+
+{{IERC2612Permit}}
+
 == Utilities
 
 {{SafeERC20}}
 
 {{TokenTimelock}}
+
