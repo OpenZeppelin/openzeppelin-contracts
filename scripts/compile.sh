@@ -6,4 +6,4 @@ fi
 
 export OPENZEPPELIN_NON_INTERACTIVE=true
 
-npx oz compile
+npx oz compile --evm-version istanbul --solc-version 0.6.7
