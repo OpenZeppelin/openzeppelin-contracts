@@ -9,14 +9,11 @@ import "./ERC721.sol";
  */
 abstract contract ERC721Burnable is Context, ERC721 {
     /**
-     * @dev Burns `tokenId`.
+     * @dev See {ERC721-_burn}.
      *
      * Requirements:
      *
      * - The caller must own `tokenId` or be an approved operator.
-     * - `tokenId` must exist
-     *
-     * Emits a {Transfer} event.
      */
     function burn(uint256 tokenId) public virtual {
         //solhint-disable-next-line max-line-length
