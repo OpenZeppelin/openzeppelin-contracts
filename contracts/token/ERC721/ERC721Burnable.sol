@@ -9,7 +9,7 @@ import "./ERC721.sol";
  */
 abstract contract ERC721Burnable is Context, ERC721 {
     /**
-     * @dev See {ERC721-_burn}.
+     * @dev Burns `tokenId`. See {ERC721-_burn}.
      *
      * Requirements:
      *

@@ -267,6 +267,9 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
 
     /**
      * @dev Returns whether `tokenId` exists.
+     *
+     * Tokens start existing when they are minted (`_mint`), 
+     * and stop existing when they are burned (`_burn`).
      */
     function _exists(uint256 tokenId) internal view returns (bool) {
         return _tokenOwners.contains(tokenId);
@@ -467,13 +470,13 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      * @dev Hook that is called before any token transfer. This includes minting
      * and burning.
      *
-     * Requirements:
+     * Calling conditions:
      *
      * - When `from` and `to` are both non-zero, ``from``'s `tokenId` will be
      * transferred to `to`.
      * - When `from` is zero, `tokenId` will be minted for `to`.
      * - When `to` is zero, ``from``'s `tokenId` will be burned.
-     * - `from` and `to` cannot be both zero.
+     * - `from` and `to` are never both zero.
      *
      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
