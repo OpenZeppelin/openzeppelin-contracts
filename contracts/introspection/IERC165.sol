@@ -19,6 +19,9 @@ interface IERC165 {
      * to learn more about how these ids are created.
      *
      * This function call must use less than 30 000 gas.
+     * @param interfaceId The interface identifier
+     * @return true if the contract implements `interfaceID` and
+     * `interfaceID` is not 0xffffffff, false otherwise
      */
     function supportsInterface(bytes4 interfaceId) external view returns (bool);
 }

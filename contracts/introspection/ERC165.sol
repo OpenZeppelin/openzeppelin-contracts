@@ -5,6 +5,7 @@ pragma solidity ^0.6.0;
 import "./IERC165.sol";
 
 /**
+ * @title Creates a standard method to publish and detect what interfaces a smart contract implements.
  * @dev Implementation of the {IERC165} interface.
  *
  * Contracts may inherit from this and call {_registerInterface} to declare
@@ -31,6 +32,9 @@ contract ERC165 is IERC165 {
      * @dev See {IERC165-supportsInterface}.
      *
      * Time complexity O(1), guaranteed to always use less than 30 000 gas.
+     * @param interfaceId The interface identifier
+     * @return true if the contract implements `interfaceID` and
+     * `interfaceID` is not 0xffffffff, false otherwise
      */
     function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
         return _supportedInterfaces[interfaceId];
@@ -46,6 +50,7 @@ contract ERC165 is IERC165 {
      * Requirements:
      *
      * - `interfaceId` cannot be the ERC165 invalid interface (`0xffffffff`).
+     * @param interfaceId The interface identifier
      */
     function _registerInterface(bytes4 interfaceId) internal virtual {
         require(interfaceId != 0xffffffff, "ERC165: invalid interface id");
