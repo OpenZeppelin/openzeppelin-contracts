@@ -16,7 +16,7 @@ pragma solidity ^0.6.0;
  * class of bugs, so it's recommended to use it always.
  *
  * Can be combined with {SafeMath} and {SignedSafeMath} to extend it to smaller types, by performing
- * all math on `uint256/int256` and then downcasting.
+ * all math on `uint256` and `int256` and then downcasting.
  */
 library SafeCast {
 
