@@ -40,7 +40,7 @@ abstract contract ERC20Permit is ERC20, IERC2612Permit {
                 uint16(0x1901),
                 _domainSeparator(),
                 keccak256(
-                    abi.encodePacked(
+                    abi.encode(
                         _PERMIT_TYPEHASH,
                         owner,
                         spender,
@@ -70,7 +70,7 @@ abstract contract ERC20Permit is ERC20, IERC2612Permit {
         uint256 chainID = _chainID();
 
         bytes32 newDomainSeparator = keccak256(
-            abi.encodePacked(
+            abi.encode(
                 keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
                 keccak256(bytes(name())),
                 keccak256(bytes("1")), // Version
