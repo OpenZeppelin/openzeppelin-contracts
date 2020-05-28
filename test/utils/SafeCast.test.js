@@ -83,6 +83,63 @@ describe('SafeCast', async () => {
     });
   });
 
+  function testToInt (bits) {
+    describe(`toInt${bits}`, () => {
+      const minValue = new BN('-2').pow(new BN(bits - 1));
+      const maxValue = new BN('2').pow(new BN(bits - 1)).subn(1);
+
+      it('downcasts 0', async function () {
+        expect(await this.safeCast[`toInt${bits}`](0)).to.be.bignumber.equal('0');
+      });
+
+      it('downcasts 1', async function () {
+        expect(await this.safeCast[`toInt${bits}`](1)).to.be.bignumber.equal('1');
+      });
+
+      it('downcasts -1', async function () {
+        expect(await this.safeCast[`toInt${bits}`](-1)).to.be.bignumber.equal('-1');
+      });
+
+      it(`downcasts -2^${bits - 1} (${minValue})`, async function () {
+        expect(await this.safeCast[`toInt${bits}`](minValue)).to.be.bignumber.equal(minValue);
+      });
+
+      it(`downcasts 2^${bits - 1} - 1 (${maxValue})`, async function () {
+        expect(await this.safeCast[`toInt${bits}`](maxValue)).to.be.bignumber.equal(maxValue);
+      });
+
+      it(`reverts when downcasting -2^${bits - 1} - 1 (${minValue.subn(1)})`, async function () {
+        await expectRevert(
+          this.safeCast[`toInt${bits}`](minValue.subn(1)),
+          `SafeCast: value doesn't fit in ${bits} bits`
+        );
+      });
+
+      it(`reverts when downcasting -2^${bits - 1} - 2 (${minValue.subn(2)})`, async function () {
+        await expectRevert(
+          this.safeCast[`toInt${bits}`](minValue.subn(2)),
+          `SafeCast: value doesn't fit in ${bits} bits`
+        );
+      });
+
+      it(`reverts when downcasting 2^${bits - 1} (${maxValue.addn(1)})`, async function () {
+        await expectRevert(
+          this.safeCast[`toInt${bits}`](maxValue.addn(1)),
+          `SafeCast: value doesn't fit in ${bits} bits`
+        );
+      });
+
+      it(`reverts when downcasting 2^${bits - 1} + 1 (${maxValue.addn(2)})`, async function () {
+        await expectRevert(
+          this.safeCast[`toInt${bits}`](maxValue.addn(2)),
+          `SafeCast: value doesn't fit in ${bits} bits`
+        );
+      });
+    });
+  }
+
+  [8, 16, 32, 64, 128].forEach(bits => testToInt(bits));
+
   describe('toInt256', () => {
     const maxUint256 = new BN('2').pow(new BN(256)).subn(1);
     const maxInt256 = new BN('2').pow(new BN(255)).subn(1);
