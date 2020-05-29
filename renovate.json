@@ -1,5 +1,13 @@
 {
+  "rangeStrategy": "update-lockfile",
   "extends": [
-    "config:base"
+    "config:base",
+    "group:allNonMajor"
+  ],
+  "packageRules": [
+    {
+      "extends": ["packages:eslint"],
+      "enabled": false
+    }
   ]
 }
