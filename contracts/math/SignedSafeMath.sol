@@ -20,7 +20,7 @@ library SignedSafeMath {
             return 0;
         }
 
-        require(!(a == -1 && b == _INT256_MIN), "SignedSafeMath: multiplication overflow");
+        require(!((a == -1 && b == _INT256_MIN) || (b == -1 && a == _INT256_MIN)), "SignedSafeMath: multiplication overflow");
 
         int256 c = a * b;
         require(c / a == b, "SignedSafeMath: multiplication overflow");
