@@ -4,7 +4,8 @@ pragma solidity ^0.6.0;
 
 import "../utils/EnumerableSet.sol";
 
-contract EnumerableSetMock {
+// AddressSet
+contract EnumerableAddressSetMock {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     event OperationResult(bool result);
