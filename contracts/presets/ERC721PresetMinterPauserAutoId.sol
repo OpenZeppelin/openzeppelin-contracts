@@ -59,7 +59,7 @@ contract ERC721PresetMinterPauserAutoId is Context, AccessControl, ERC721Burnabl
      *
      * - the caller must have the `MINTER_ROLE`.
      */
-    function mint(address to) public {
+    function mint(address to) public virtual {
         require(hasRole(MINTER_ROLE, _msgSender()), "ERC721PresetMinterPauserAutoId: must have minter role to mint");
 
         // We can just use balanceOf to create the new tokenId because tokens
