@@ -50,7 +50,7 @@
     "@openzeppelin/gsn-helpers": "^0.2.3",
     "@openzeppelin/gsn-provider": "^0.1.10",
     "@openzeppelin/test-environment": "^0.1.4",
-    "@openzeppelin/test-helpers": "^0.5.6-rc.0",
+    "@openzeppelin/test-helpers": "^0.5.6",
     "chai": "^4.2.0",
     "eslint": "^6.5.1",
     "eslint-config-standard": "^14.1.1",
