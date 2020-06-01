@@ -61,7 +61,7 @@ describe('ERC777', function () {
     });
 
     it.only('does not emit AuthorizedOperator events for default operators', async function () {
-      expectEvent.notEmitted.inConstruction(this.token, 'AuthorizedOperator'); // This helper needs to be implemented
+      expectEvent.notEmitted.inConstruction(this.token, 'AuthorizedOperator');
     });
 
     describe('basic information', function () {
