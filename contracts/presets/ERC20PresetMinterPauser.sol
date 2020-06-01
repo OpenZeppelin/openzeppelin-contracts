@@ -62,7 +62,7 @@ contract ERC20PresetMinterPauser is Context, AccessControl, ERC20Burnable, ERC20
      *
      * - the caller must have the `PAUSER_ROLE`.
      */
-    function pause() public {
+    function pause() public virtual {
         require(hasRole(PAUSER_ROLE, _msgSender()), "ERC20PresetMinterPauser: must have pauser role to pause");
         _pause();
     }
@@ -76,12 +76,12 @@ contract ERC20PresetMinterPauser is Context, AccessControl, ERC20Burnable, ERC20
      *
      * - the caller must have the `PAUSER_ROLE`.
      */
-    function unpause() public {
+    function unpause() public virtual {
         require(hasRole(PAUSER_ROLE, _msgSender()), "ERC20PresetMinterPauser: must have pauser role to unpause");
         _unpause();
     }
 
-    function _beforeTokenTransfer(address from, address to, uint256 amount) internal override(ERC20, ERC20Pausable) {
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override(ERC20, ERC20Pausable) {
         super._beforeTokenTransfer(from, to, amount);
     }
 }
