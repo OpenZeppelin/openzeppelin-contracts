@@ -49,7 +49,7 @@ describe('AccessControl', function () {
     it('accounts can be granted a role multiple times', async function () {
       await this.accessControl.grantRole(ROLE, authorized, { from: admin });
       const receipt = await this.accessControl.grantRole(ROLE, authorized, { from: admin });
-      await expectEvent.not.inTransaction(receipt.tx, AccessControlMock, 'RoleGranted');
+      await expectEvent.notEmitted(receipt, AccessControlMock, 'RoleGranted');
     });
   });
 
@@ -58,7 +58,7 @@ describe('AccessControl', function () {
       expect(await this.accessControl.hasRole(ROLE, authorized)).to.equal(false);
 
       const receipt = await this.accessControl.revokeRole(ROLE, authorized, { from: admin });
-      await expectEvent.not.inTransaction(receipt.tx, AccessControlMock, 'RoleRevoked');
+      await expectEvent.notEmitted(receipt, AccessControlMock, 'RoleRevoked');
     });
 
     context('with granted role', function () {
@@ -84,7 +84,7 @@ describe('AccessControl', function () {
         await this.accessControl.revokeRole(ROLE, authorized, { from: admin });
 
         const receipt = await this.accessControl.revokeRole(ROLE, authorized, { from: admin });
-        await expectEvent.not.inTransaction(receipt.tx, AccessControlMock, 'RoleRevoked');
+        await expectEvent.notEmitted(receipt, AccessControlMock, 'RoleRevoked');
       });
     });
   });
@@ -92,7 +92,7 @@ describe('AccessControl', function () {
   describe('renouncing', function () {
     it('roles that are not had can be renounced', async function () {
       const receipt = await this.accessControl.renounceRole(ROLE, authorized, { from: authorized });
-      await expectEvent.not.inTransaction(receipt.tx, AccessControlMock, 'RoleRevoked');
+      await expectEvent.notEmitted(receipt, AccessControlMock, 'RoleRevoked');
     });
 
     context('with granted role', function () {
@@ -118,7 +118,7 @@ describe('AccessControl', function () {
         await this.accessControl.renounceRole(ROLE, authorized, { from: authorized });
 
         const receipt = await this.accessControl.renounceRole(ROLE, authorized, { from: authorized });
-        await expectEvent.not.inTransaction(receipt.tx, AccessControlMock, 'RoleRevoked');
+        await expectEvent.notEmitted(receipt, AccessControlMock, 'RoleRevoked');
       });
     });
   });
