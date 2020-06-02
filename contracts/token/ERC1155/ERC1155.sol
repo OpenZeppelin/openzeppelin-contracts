@@ -275,8 +275,7 @@ contract ERC1155 is ERC165, IERC1155
         uint256 value,
         bytes memory data
     )
-        internal
-        virtual
+        private
     {
         if(to.isContract()) {
             require(
@@ -295,8 +294,7 @@ contract ERC1155 is ERC165, IERC1155
         uint256[] memory values,
         bytes memory data
     )
-        internal
-        virtual
+        private
     {
         if(to.isContract()) {
             require(
