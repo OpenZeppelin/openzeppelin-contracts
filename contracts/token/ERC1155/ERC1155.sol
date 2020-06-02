@@ -42,41 +42,36 @@ contract ERC1155 is ERC165, IERC1155, IERC1155MetadataURI {
      */
     bytes4 private constant _INTERFACE_ID_ERC1155 = 0xd9b67a26;
 
-
-     /*
+    /*
      *     bytes4(keccak256('uri(uint256)')) == 0x0e89341c
      */
     bytes4 private constant _INTERFACE_ID_ERC1155_METADATA_URI = 0x0e89341c;
 
-
+    /**
+     * @dev See {_setURI}.
+     */
     constructor (string memory uri) public {
-        // register the supported interfaces to conform to ERC1155 via ERC165
-        _registerInterface(_INTERFACE_ID_ERC1155);
-
         _setURI(uri);
 
         // register the supported interfaces to conform to ERC1155 via ERC165
+        _registerInterface(_INTERFACE_ID_ERC1155);
+
+        // register the supported interfaces to conform to ERC1155MetadataURI via ERC165
         _registerInterface(_INTERFACE_ID_ERC1155_METADATA_URI);
     }
 
     /**
-     * @notice A distinct Uniform Resource Identifier (URI) for a given token.
-     * @dev URIs are defined in RFC 3986.
-     * The URI MUST point to a JSON file that conforms to the "ERC-1155 Metadata URI JSON Schema".
-     * param id uint256 ID of the token to query (ignored in this particular implementation,
-     * as an {id} parameter in the string is expected)
-     * @return URI string
-    */
-    function uri(uint256 /*id*/) external view override returns (string memory) {
-        return _uri;
-    }
-
-    /**
-     * @dev Internal function to set a new URI
-     * @param newuri New URI to be set
+     * @dev See {IERC1155MetadataURI-uri}.
+     *
+     * This implementation returns the same URI for *all* token types. It relies
+     * on the token type ID substituion mechanism
+     * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
+     *
+     * Clients calling this function must replace the `{id}` substring with the
+     * actual token type ID.
      */
-    function _setURI(string memory newuri) internal virtual {
-        _uri = newuri;
+    function uri(uint256) external view override returns (string memory) {
+        return _uri;
     }
 
     /**
@@ -228,6 +223,22 @@ contract ERC1155 is ERC165, IERC1155, IERC1155MetadataURI {
         emit TransferBatch(msg.sender, from, to, ids, values);
 
         _doSafeBatchTransferAcceptanceCheck(msg.sender, from, to, ids, values, data);
+    }
+
+    /**
+     * @dev Sets a new URI for all token types, by relying on the token type ID
+     * substituion mechanism
+     * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
+     *
+     * To use this mechanism, make sure `newURI` contains the `{id}` substring.
+     *
+     * See {uri}.
+     *
+     * Because these URIs cannot be meaningfully represented by the {URI} event,
+     * this function emits no events.
+     */
+    function _setURI(string memory newuri) internal virtual {
+        _uri = newuri;
     }
 
     /**
