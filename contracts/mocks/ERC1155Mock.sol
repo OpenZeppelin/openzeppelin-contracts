@@ -24,12 +24,4 @@ contract ERC1155Mock is ERC1155 {
     function burnBatch(address owner, uint256[] memory ids, uint256[] memory values) public {
         _burnBatch(owner, ids, values);
     }
-
-    function doSafeTransferAcceptanceCheck(address operator, address from, address to, uint256 id, uint256 value, bytes memory data) public {
-        _doSafeTransferAcceptanceCheck(operator, from, to, id, value, data);
-    }
-
-    function doSafeBatchTransferAcceptanceCheck(address operator, address from, address to, uint256[] memory ids, uint256[] memory values, bytes memory data) public {
-        _doSafeBatchTransferAcceptanceCheck(operator, from, to, ids, values, data);
-    }
 }
