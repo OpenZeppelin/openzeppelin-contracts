@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 pragma solidity ^0.6.0;
 
 /**
@@ -52,6 +54,6 @@ library Create2 {
         bytes32 _data = keccak256(
             abi.encodePacked(bytes1(0xff), deployer, salt, bytecodeHash)
         );
-        return address(bytes20(_data << 96));
+        return address(uint256(_data));
     }
 }

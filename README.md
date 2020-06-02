@@ -28,13 +28,12 @@ OpenZeppelin Contracts features a [stable API](https://docs.openzeppelin.com/con
 Once installed, you can use the contracts in the library by importing them:
 
 ```solidity
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721Full.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721Mintable.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-contract MyNFT is ERC721Full, ERC721Mintable {
-    constructor() ERC721Full("MyNFT", "MNFT") public {
+contract MyNFT is ERC721 {
+    constructor() ERC721("MyNFT", "MNFT") public {
     }
 }
 ```
