@@ -16,11 +16,8 @@ describe('ERC1155MetadataURICatchAll', function () {
     this.token = await ERC1155MetadataURICatchAllMock.new(uriInit, { from: creator });
   });
 
-  it('emits a URI event in constructor', async function () {
-    await expectEvent.inConstruction(this.token, 'URI', {
-      value: uriInit,
-      id: tokenId,
-    });
+  it('emits no URI events in constructor', async function () {
+    await expectEvent.notEmitted.inConstruction(this.token, 'URI');
   });
 
   shouldBehaveLikeERC1155(otherAccounts);
@@ -43,11 +40,8 @@ describe('ERC1155MetadataURICatchAll', function () {
         );
       });
 
-      it('emits a URI event', function () {
-        expectEvent(receipt, 'URI', {
-          value: uriNew,
-          id: tokenId,
-        });
+      it('emits no URI event', function () {
+        expectEvent.notEmitted(receipt, 'URI');
       });
 
       it('has correct URI set', async function () {

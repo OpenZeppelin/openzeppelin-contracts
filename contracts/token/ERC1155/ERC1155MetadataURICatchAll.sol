@@ -43,6 +43,5 @@ contract ERC1155MetadataURICatchAll is ERC165, ERC1155, IERC1155MetadataURI {
      */
     function _setURI(string memory newuri) internal virtual {
         _uri = newuri;
-        emit URI(_uri, 0);
     }
 }
