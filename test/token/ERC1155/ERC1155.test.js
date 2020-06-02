@@ -11,10 +11,10 @@ const ERC1155Mock = contract.fromArtifact('ERC1155Mock');
 describe('ERC1155', function () {
   const [creator, tokenHolder, tokenBatchHolder, ...otherAccounts] = accounts;
 
-  const uri = 'https://token-cdn-domain/{id}.json';
+  const initialURI = 'https://token-cdn-domain/{id}.json';
 
   beforeEach(async function () {
-    this.token = await ERC1155Mock.new(uri, { from: creator });
+    this.token = await ERC1155Mock.new(initialURI, { from: creator });
   });
 
   shouldBehaveLikeERC1155(otherAccounts);
@@ -215,6 +215,37 @@ describe('ERC1155', function () {
             expect(holderBatchBalances[i]).to.be.bignumber.equal(mintAmounts[i].sub(burnAmounts[i]));
           }
         });
+      });
+    });
+  });
+
+  describe('ERC1155MetadataURI', function () {
+    const firstTokenID = new BN('42');
+    const secondTokenID = new BN('1337');
+
+    it('emits no URI event in constructor', async function () {
+      await expectEvent.notEmitted.inConstruction(this.token, 'URI');
+    });
+
+    it('sets the initial URI for all token types', async function () {
+      expect(await this.token.uri(firstTokenID)).to.be.equal(initialURI);
+      expect(await this.token.uri(secondTokenID)).to.be.equal(initialURI);
+    });
+
+    describe('_setURI', function () {
+      const newURI = 'https://token-cdn-domain/{locale}/{id}.json';
+
+      it('emits no URI event', async function () {
+        const receipt = await this.token.setURI(newURI);
+
+        expectEvent.notEmitted(receipt, 'URI');
+      });
+
+      it('sets the new URI for all token types', async function () {
+        await this.token.setURI(newURI);
+
+        expect(await this.token.uri(firstTokenID)).to.be.equal(newURI);
+        expect(await this.token.uri(secondTokenID)).to.be.equal(newURI);
       });
     });
   });
