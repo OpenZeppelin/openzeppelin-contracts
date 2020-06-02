@@ -99,7 +99,7 @@ contract ERC1155 is ERC165, IERC1155
      * @param operator address to set the approval
      * @param approved representing the status of the approval to be set
      */
-    function setApprovalForAll(address operator, bool approved) external override virtual {
+    function setApprovalForAll(address operator, bool approved) public virtual override {
         require(msg.sender != operator, "ERC1155: cannot set approval status for self");
         _operatorApprovals[msg.sender][operator] = approved;
         emit ApprovalForAll(msg.sender, operator, approved);
@@ -130,11 +130,11 @@ contract ERC1155 is ERC165, IERC1155
         address to,
         uint256 id,
         uint256 value,
-        bytes calldata data
+        bytes memory data
     )
-        external
-        override
+        public
         virtual
+        override
     {
         require(to != address(0), "ERC1155: target address must be non-zero");
         require(
@@ -164,13 +164,13 @@ contract ERC1155 is ERC165, IERC1155
     function safeBatchTransferFrom(
         address from,
         address to,
-        uint256[] calldata ids,
-        uint256[] calldata values,
-        bytes calldata data
+        uint256[] memory ids,
+        uint256[] memory values,
+        bytes memory data
     )
-        external
-        override
+        public
         virtual
+        override
     {
         require(ids.length == values.length, "ERC1155: IDs and values must have same lengths");
         require(to != address(0), "ERC1155: target address must be non-zero");
