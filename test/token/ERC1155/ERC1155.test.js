@@ -11,8 +11,10 @@ const ERC1155Mock = contract.fromArtifact('ERC1155Mock');
 describe('ERC1155', function () {
   const [creator, tokenHolder, tokenBatchHolder, ...otherAccounts] = accounts;
 
+  const uri = 'https://token-cdn-domain/{id}.json';
+
   beforeEach(async function () {
-    this.token = await ERC1155Mock.new({ from: creator });
+    this.token = await ERC1155Mock.new(uri, { from: creator });
   });
 
   shouldBehaveLikeERC1155(otherAccounts);

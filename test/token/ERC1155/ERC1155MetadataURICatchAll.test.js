@@ -4,7 +4,7 @@ const { BN, expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const { shouldBehaveLikeERC1155 } = require('./ERC1155.behavior');
-const ERC1155MetadataURICatchAllMock = contract.fromArtifact('ERC1155MetadataURICatchAllMock');
+const ERC1155Mock = contract.fromArtifact('ERC1155Mock');
 
 describe('ERC1155MetadataURICatchAll', function () {
   const [creator, ...otherAccounts] = accounts;
@@ -13,7 +13,7 @@ describe('ERC1155MetadataURICatchAll', function () {
   const tokenId = new BN(0); // catch-all always uses id 0 in event
 
   beforeEach(async function () {
-    this.token = await ERC1155MetadataURICatchAllMock.new(uriInit, { from: creator });
+    this.token = await ERC1155Mock.new(uriInit, { from: creator });
   });
 
   it('emits no URI events in constructor', async function () {
