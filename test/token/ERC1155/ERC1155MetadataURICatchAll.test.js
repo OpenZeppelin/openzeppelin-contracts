@@ -1,54 +1,43 @@
-const { accounts, contract } = require('@openzeppelin/test-environment');
+const { contract } = require('@openzeppelin/test-environment');
 const { BN, expectEvent } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const { shouldBehaveLikeERC1155 } = require('./ERC1155.behavior');
 const ERC1155Mock = contract.fromArtifact('ERC1155Mock');
 
 describe('ERC1155MetadataURICatchAll', function () {
-  const [creator, ...otherAccounts] = accounts;
+  const initialURI = 'https://example.com/{id}.json';
 
-  const uriInit = 'https://example.com/{id}.json';
-  const tokenId = new BN(0); // catch-all always uses id 0 in event
+  const firstTokenID = new BN('42');
+  const secondTokenID = new BN('1337');
 
   beforeEach(async function () {
-    this.token = await ERC1155Mock.new(uriInit, { from: creator });
+    this.token = await ERC1155Mock.new(initialURI);
   });
 
-  it('emits no URI events in constructor', async function () {
+  it('emits no URI event in constructor', async function () {
     await expectEvent.notEmitted.inConstruction(this.token, 'URI');
   });
 
-  shouldBehaveLikeERC1155(otherAccounts);
-
-  it('has a uri', async function () {
-    expect(await this.token.uri(
-      tokenId
-    )).to.be.equal(uriInit);
+  it('sets the initial URI for all token types', async function () {
+    expect(await this.token.uri(firstTokenID)).to.be.equal(initialURI);
+    expect(await this.token.uri(secondTokenID)).to.be.equal(initialURI);
   });
 
-  describe('internal functions', function () {
-    const uriNew = 'https://example.com/{locale}/{id}.json';
+  describe('_setURI', function () {
+    const newURI = 'https://example.com/{locale}/{id}.json';
 
-    describe('_setURI(string memory newuri)', function () {
-      let receipt;
-      beforeEach(async function () {
-        receipt = await this.token.setURI(
-          uriNew,
-          { from: creator }
-        );
-      });
+    it('emits no URI event', async function () {
+      const receipt = await this.token.setURI(newURI);
 
-      it('emits no URI event', function () {
-        expectEvent.notEmitted(receipt, 'URI');
-      });
+      expectEvent.notEmitted(receipt, 'URI');
+    });
 
-      it('has correct URI set', async function () {
-        expect(await this.token.uri(
-          tokenId
-        )).to.be.equal(uriNew);
-      });
+    it('sets the new URI for all token types', async function () {
+      await this.token.setURI(newURI);
+
+      expect(await this.token.uri(firstTokenID)).to.be.equal(newURI);
+      expect(await this.token.uri(secondTokenID)).to.be.equal(newURI);
     });
   });
 });
