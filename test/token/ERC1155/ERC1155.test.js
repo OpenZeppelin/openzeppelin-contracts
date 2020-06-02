@@ -70,7 +70,7 @@ describe('ERC1155', function () {
       it('reverts if length of inputs do not match', async function () {
         await expectRevert(
           this.token.mintBatch(tokenBatchHolder, tokenBatchIds, mintAmounts.slice(1), data),
-          'ERC1155: ids and values length mismatch'
+          'ERC1155: ids and amounts length mismatch'
         );
       });
 
@@ -162,7 +162,7 @@ describe('ERC1155', function () {
       it('reverts if length of inputs do not match', async function () {
         await expectRevert(
           this.token.burnBatch(tokenBatchHolder, tokenBatchIds, burnAmounts.slice(1)),
-          'ERC1155: ids and values length mismatch'
+          'ERC1155: ids and amounts length mismatch'
         );
       });
 

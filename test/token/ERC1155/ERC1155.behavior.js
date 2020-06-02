@@ -462,7 +462,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             [firstAmount, secondAmount],
             '0x', { from: multiTokenHolder }
           ),
-          'ERC1155: ids and values length mismatch'
+          'ERC1155: ids and amounts length mismatch'
         );
       });
 
