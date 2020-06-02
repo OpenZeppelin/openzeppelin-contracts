@@ -60,8 +60,8 @@ describe('ERC777', function () {
       });
     });
 
-    it.skip('does not emit AuthorizedOperator events for default operators', async function () {
-      expectEvent.not.inConstructor(this.token, 'AuthorizedOperator'); // This helper needs to be implemented
+    it('does not emit AuthorizedOperator events for default operators', async function () {
+      await expectEvent.notEmitted.inConstruction(this.token, 'AuthorizedOperator');
     });
 
     describe('basic information', function () {
