@@ -323,7 +323,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      * Requirements:
      *
      * - `tokenId` must not exist.
-     * - `to` cannot be zero.
+     * - `to` cannot be the zero address.
      *
      * Emits a {Transfer} event.
      */
@@ -375,7 +375,8 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      *  As opposed to {transferFrom}, this imposes no restrictions on msg.sender.
      *
      * Requirements:
-     * - `to` cannot be zero.
+     *
+     * - `to` cannot be the zero address.
      * - `tokenId` token must be owned by `from`.
      *
      * Emits a {Transfer} event.
