@@ -169,7 +169,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     {
         require(to != address(0), "ERC1155: target address must be non-zero");
         require(
-            from == _msgSender() || isApprovedForAll(from, _msgSender()) == true,
+            from == _msgSender() || isApprovedForAll(from, _msgSender()),
             "ERC1155: need operator approval for 3rd party transfers"
         );
 
@@ -210,7 +210,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         require(ids.length == values.length, "ERC1155: IDs and values must have same lengths");
         require(to != address(0), "ERC1155: target address must be non-zero");
         require(
-            from == _msgSender() || isApprovedForAll(from, _msgSender()) == true,
+            from == _msgSender() || isApprovedForAll(from, _msgSender()),
             "ERC1155: need operator approval for 3rd party transfers"
         );
 
