@@ -5,9 +5,10 @@ pragma solidity ^0.6.0;
 import "./IERC1155.sol";
 import "./IERC1155MetadataURI.sol";
 import "./IERC1155Receiver.sol";
+import "../../GSN/Context.sol";
+import "../../introspection/ERC165.sol";
 import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";
-import "../../introspection/ERC165.sol";
 
 /**
  * @title Standard ERC1155 token
@@ -16,7 +17,7 @@ import "../../introspection/ERC165.sol";
  * See https://eips.ethereum.org/EIPS/eip-1155
  * Originally based on code by Enjin: https://github.com/enjin/erc-1155
  */
-contract ERC1155 is ERC165, IERC1155, IERC1155MetadataURI {
+contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     using SafeMath for uint256;
     using Address for address;
 
@@ -130,9 +131,9 @@ contract ERC1155 is ERC165, IERC1155, IERC1155MetadataURI {
      * @param approved representing the status of the approval to be set
      */
     function setApprovalForAll(address operator, bool approved) public virtual override {
-        require(msg.sender != operator, "ERC1155: cannot set approval status for self");
-        _operatorApprovals[msg.sender][operator] = approved;
-        emit ApprovalForAll(msg.sender, operator, approved);
+        require(_msgSender() != operator, "ERC1155: cannot set approval status for self");
+        _operatorApprovals[_msgSender()][operator] = approved;
+        emit ApprovalForAll(_msgSender(), operator, approved);
     }
 
     /**
@@ -168,16 +169,16 @@ contract ERC1155 is ERC165, IERC1155, IERC1155MetadataURI {
     {
         require(to != address(0), "ERC1155: target address must be non-zero");
         require(
-            from == msg.sender || isApprovedForAll(from, msg.sender) == true,
+            from == _msgSender() || isApprovedForAll(from, _msgSender()) == true,
             "ERC1155: need operator approval for 3rd party transfers"
         );
 
         _balances[id][from] = _balances[id][from].sub(value, "ERC1155: insufficient balance for transfer");
         _balances[id][to] = _balances[id][to].add(value);
 
-        emit TransferSingle(msg.sender, from, to, id, value);
+        emit TransferSingle(_msgSender(), from, to, id, value);
 
-        _doSafeTransferAcceptanceCheck(msg.sender, from, to, id, value, data);
+        _doSafeTransferAcceptanceCheck(from, to, id, value, data);
     }
 
     /**
@@ -205,7 +206,7 @@ contract ERC1155 is ERC165, IERC1155, IERC1155MetadataURI {
         require(ids.length == values.length, "ERC1155: IDs and values must have same lengths");
         require(to != address(0), "ERC1155: target address must be non-zero");
         require(
-            from == msg.sender || isApprovedForAll(from, msg.sender) == true,
+            from == _msgSender() || isApprovedForAll(from, _msgSender()) == true,
             "ERC1155: need operator approval for 3rd party transfers"
         );
 
@@ -220,9 +221,9 @@ contract ERC1155 is ERC165, IERC1155, IERC1155MetadataURI {
             _balances[id][to] = _balances[id][to].add(value);
         }
 
-        emit TransferBatch(msg.sender, from, to, ids, values);
+        emit TransferBatch(_msgSender(), from, to, ids, values);
 
-        _doSafeBatchTransferAcceptanceCheck(msg.sender, from, to, ids, values, data);
+        _doSafeBatchTransferAcceptanceCheck(from, to, ids, values, data);
     }
 
     /**
@@ -259,9 +260,9 @@ contract ERC1155 is ERC165, IERC1155, IERC1155MetadataURI {
         require(to != address(0), "ERC1155: mint to the zero address");
 
         _balances[id][to] = _balances[id][to].add(value);
-        emit TransferSingle(msg.sender, address(0), to, id, value);
+        emit TransferSingle(_msgSender(), address(0), to, id, value);
 
-        _doSafeTransferAcceptanceCheck(msg.sender, address(0), to, id, value, data);
+        _doSafeTransferAcceptanceCheck(address(0), to, id, value, data);
     }
 
     /**
@@ -279,9 +280,9 @@ contract ERC1155 is ERC165, IERC1155, IERC1155MetadataURI {
             _balances[ids[i]][to] = values[i].add(_balances[ids[i]][to]);
         }
 
-        emit TransferBatch(msg.sender, address(0), to, ids, values);
+        emit TransferBatch(_msgSender(), address(0), to, ids, values);
 
-        _doSafeBatchTransferAcceptanceCheck(msg.sender, address(0), to, ids, values, data);
+        _doSafeBatchTransferAcceptanceCheck(address(0), to, ids, values, data);
     }
 
     /**
@@ -297,7 +298,7 @@ contract ERC1155 is ERC165, IERC1155, IERC1155MetadataURI {
             value,
             "ERC1155: attempting to burn more than balance"
         );
-        emit TransferSingle(msg.sender, account, address(0), id, value);
+        emit TransferSingle(_msgSender(), account, address(0), id, value);
     }
 
     /**
@@ -317,11 +318,10 @@ contract ERC1155 is ERC165, IERC1155, IERC1155MetadataURI {
             );
         }
 
-        emit TransferBatch(msg.sender, account, address(0), ids, values);
+        emit TransferBatch(_msgSender(), account, address(0), ids, values);
     }
 
     function _doSafeTransferAcceptanceCheck(
-        address operator,
         address from,
         address to,
         uint256 id,
@@ -332,7 +332,7 @@ contract ERC1155 is ERC165, IERC1155, IERC1155MetadataURI {
     {
         if(to.isContract()) {
             require(
-                IERC1155Receiver(to).onERC1155Received(operator, from, id, value, data) ==
+                IERC1155Receiver(to).onERC1155Received(_msgSender(), from, id, value, data) ==
                     IERC1155Receiver(to).onERC1155Received.selector,
                 "ERC1155: got unknown value from onERC1155Received"
             );
@@ -340,7 +340,6 @@ contract ERC1155 is ERC165, IERC1155, IERC1155MetadataURI {
     }
 
     function _doSafeBatchTransferAcceptanceCheck(
-        address operator,
         address from,
         address to,
         uint256[] memory ids,
@@ -351,7 +350,7 @@ contract ERC1155 is ERC165, IERC1155, IERC1155MetadataURI {
     {
         if(to.isContract()) {
             require(
-                IERC1155Receiver(to).onERC1155BatchReceived(operator, from, ids, values, data) ==
+                IERC1155Receiver(to).onERC1155BatchReceived(_msgSender(), from, ids, values, data) ==
                     IERC1155Receiver(to).onERC1155BatchReceived.selector,
                 "ERC1155: got unknown value from onERC1155BatchReceived"
             );
