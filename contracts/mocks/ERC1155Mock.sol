@@ -9,6 +9,14 @@ import "../token/ERC1155/ERC1155.sol";
  * This mock just publicizes internal functions for testing purposes
  */
 contract ERC1155Mock is ERC1155 {
+    constructor (string memory uri) public ERC1155(uri) {
+        // solhint-disable-previous-line no-empty-blocks
+    }
+
+    function setURI(string memory newuri) public {
+        _setURI(newuri);
+    }
+
     function mint(address to, uint256 id, uint256 value, bytes memory data) public {
         _mint(to, id, value, data);
     }

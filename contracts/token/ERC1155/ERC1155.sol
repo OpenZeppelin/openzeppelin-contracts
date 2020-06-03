@@ -3,6 +3,7 @@
 pragma solidity ^0.6.0;
 
 import "./IERC1155.sol";
+import "./IERC1155MetadataURI.sol";
 import "./IERC1155Receiver.sol";
 import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";
@@ -15,8 +16,7 @@ import "../../introspection/ERC165.sol";
  * See https://eips.ethereum.org/EIPS/eip-1155
  * Originally based on code by Enjin: https://github.com/enjin/erc-1155
  */
-contract ERC1155 is ERC165, IERC1155
-{
+contract ERC1155 is ERC165, IERC1155, IERC1155MetadataURI {
     using SafeMath for uint256;
     using Address for address;
 
@@ -25,6 +25,9 @@ contract ERC1155 is ERC165, IERC1155
 
     // Mapping from account to operator approvals
     mapping (address => mapping(address => bool)) private _operatorApprovals;
+
+    // Used as the URI for all token types by relying on ID substition, e.g. https://token-cdn-domain/{id}.json
+    string private _uri;
 
     /*
      *     bytes4(keccak256('balanceOf(address,uint256)')) == 0x00fdd58e
@@ -39,9 +42,36 @@ contract ERC1155 is ERC165, IERC1155
      */
     bytes4 private constant _INTERFACE_ID_ERC1155 = 0xd9b67a26;
 
-    constructor() public {
+    /*
+     *     bytes4(keccak256('uri(uint256)')) == 0x0e89341c
+     */
+    bytes4 private constant _INTERFACE_ID_ERC1155_METADATA_URI = 0x0e89341c;
+
+    /**
+     * @dev See {_setURI}.
+     */
+    constructor (string memory uri) public {
+        _setURI(uri);
+
         // register the supported interfaces to conform to ERC1155 via ERC165
         _registerInterface(_INTERFACE_ID_ERC1155);
+
+        // register the supported interfaces to conform to ERC1155MetadataURI via ERC165
+        _registerInterface(_INTERFACE_ID_ERC1155_METADATA_URI);
+    }
+
+    /**
+     * @dev See {IERC1155MetadataURI-uri}.
+     *
+     * This implementation returns the same URI for *all* token types. It relies
+     * on the token type ID substituion mechanism
+     * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
+     *
+     * Clients calling this function must replace the `{id}` substring with the
+     * actual token type ID.
+     */
+    function uri(uint256) external view override returns (string memory) {
+        return _uri;
     }
 
     /**
@@ -193,6 +223,29 @@ contract ERC1155 is ERC165, IERC1155
         emit TransferBatch(msg.sender, from, to, ids, values);
 
         _doSafeBatchTransferAcceptanceCheck(msg.sender, from, to, ids, values, data);
+    }
+
+    /**
+     * @dev Sets a new URI for all token types, by relying on the token type ID
+     * substituion mechanism
+     * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
+     *
+     * By this mechanism, any occurence of the `{id}` substring in either the
+     * URI or any of the values in the JSON file at said URI will be replaced by
+     * clients with the token type ID.
+     *
+     * For example, the `https://token-cdn-domain/{id}.json` URI would be
+     * interpreted by clients as
+     * `https://token-cdn-domain/000000000000000000000000000000000000000000000000000000000004cce0.json`
+     * for token type ID 0x4cce0.
+     *
+     * See {uri}.
+     *
+     * Because these URIs cannot be meaningfully represented by the {URI} event,
+     * this function emits no events.
+     */
+    function _setURI(string memory newuri) internal virtual {
+        _uri = newuri;
     }
 
     /**
