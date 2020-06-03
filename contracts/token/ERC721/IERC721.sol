@@ -41,7 +41,8 @@ interface IERC721 is IERC165 {
      *
      * Requirements:
      *
-     * - `from`, `to` cannot be zero.
+     * - `from` cannot be the zero address.
+     * - `to` cannot be the zero address.
      * - `tokenId` token must exist and be owned by `from`.
      * - If the caller is not `from`, it must be have been allowed to move this token by either {approve} or {setApprovalForAll}.
      * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
@@ -57,7 +58,8 @@ interface IERC721 is IERC165 {
      *
      * Requirements:
      *
-     * - `from`, `to` cannot be zero.
+     * - `from` cannot be the zero address.
+     * - `to` cannot be the zero address.
      * - `tokenId` token must be owned by `from`.
      * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
      *
@@ -113,7 +115,8 @@ interface IERC721 is IERC165 {
       *
       * Requirements:
       *
-      * - `from`, `to` cannot be zero.
+     * - `from` cannot be the zero address.
+     * - `to` cannot be the zero address.
       * - `tokenId` token must exist and be owned by `from`.
       * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
       * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.

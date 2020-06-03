@@ -251,11 +251,14 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      *
      * `_data` is additional data, it has no specified format and it is sent in call to `to`.
      *
+     * This internal function is equivalent to {safeTransfertFrom}, and can be used to e.g.
+     * implement alternative mecanisms to perform token transfer, such as signature-based.
+     *
      * Requirements:
      *
-     * - `from`, `to` cannot be zero.
+     * - `from` cannot be the zero address.
+     * - `to` cannot be the zero address.
      * - `tokenId` token must exist and be owned by `from`.
-     * - If the caller is not `from`, it must be have been allowed to move this token by either {approve} or {setApprovalForAll}.
      * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
      *
      * Emits a {Transfer} event.
@@ -267,6 +270,8 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
 
     /**
      * @dev Returns whether `tokenId` exists.
+     *
+     * Tokens can be managed by their owner or approved accounts via {approve} or {setApprovalForAll}.
      *
      * Tokens start existing when they are minted (`_mint`), 
      * and stop existing when they are burned (`_burn`).
@@ -292,8 +297,8 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      * @dev Safely mints `tokenId` and transfers it to `to`.
      *
      * Requirements:
-     *
-     * - `tokenId` should not exist.
+     d*
+     * - `tokenId` must not exist.
      * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
      *
      * Emits a {Transfer} event.
@@ -303,15 +308,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     }
 
     /**
-     * @dev Safely mints `tokenId` and transfers it to `to`.
-     *
-     * Requirements:
-     *
-     * - `tokenId` should not exist.
-     * - `to` cannot be zero.
-     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
-     *
-     * Emits a {Transfer} event.
+     * @dev Same as {_safeMint-address-uint256-}, with an additional `data` parameter which is forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
      */
     function _safeMint(address to, uint256 tokenId, bytes memory _data) internal virtual {
         _mint(to, tokenId);
@@ -325,7 +322,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      *
      * Requirements:
      *
-     * - `tokenId` should not exist.
+     * - `tokenId` must not exist.
      * - `to` cannot be zero.
      *
      * Emits a {Transfer} event.
@@ -476,7 +473,8 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      * transferred to `to`.
      * - When `from` is zero, `tokenId` will be minted for `to`.
      * - When `to` is zero, ``from``'s `tokenId` will be burned.
-     * - `from` and `to` are never both zero.
+     * - `from` cannot be the zero address.
+     * - `to` cannot be the zero address.
      *
      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
