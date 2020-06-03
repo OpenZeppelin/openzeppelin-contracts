@@ -230,7 +230,14 @@ contract ERC1155 is ERC165, IERC1155, IERC1155MetadataURI {
      * substituion mechanism
      * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
      *
-     * To use this mechanism, make sure `newURI` contains the `{id}` substring.
+     * By this mechanism, any occurence of the `{id}` substring in either the
+     * URI or any of the values in the JSON file at said URI will be replaced by
+     * clients with the token type ID.
+     *
+     * For example, the `https://token-cdn-domain/{id}.json` URI would be
+     * interpreted by clients as
+     * `https://token-cdn-domain/000000000000000000000000000000000000000000000000000000000004cce0.json`
+     * for token type ID 0x4cce0.
      *
      * See {uri}.
      *
