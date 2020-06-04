@@ -20,8 +20,10 @@ describe('ERC1155PresetMinterPauser', function () {
   const MINTER_ROLE = web3.utils.soliditySha3('MINTER_ROLE');
   const PAUSER_ROLE = web3.utils.soliditySha3('PAUSER_ROLE');
 
+  const uri = 'https://token.com';
+
   beforeEach(async function () {
-    this.token = await ERC1155PresetMinterPauser.new({ from: deployer });
+    this.token = await ERC1155PresetMinterPauser.new(uri, { from: deployer });
   });
 
   it('deployer has the default admin role', async function () {

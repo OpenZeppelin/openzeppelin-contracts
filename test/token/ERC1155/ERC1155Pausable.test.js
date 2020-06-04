@@ -9,8 +9,10 @@ const ERC1155PausableMock = contract.fromArtifact('ERC1155PausableMock');
 describe('ERC1155Pausable', function () {
   const [ holder, operator, receiver, other ] = accounts;
 
+  const uri = 'https://token.com';
+
   beforeEach(async function () {
-    this.token = await ERC1155PausableMock.new();
+    this.token = await ERC1155PausableMock.new(uri);
   });
 
   context('when token is paused', function () {
