@@ -404,7 +404,7 @@ describe('ERC721', function () {
             const nonReceiver = this.token;
             await expectRevert(
               this.token.safeTransferFrom(owner, nonReceiver.address, tokenId, { from: owner }),
-              'ERC721: transfer to non ERC721Receiver implementer'
+              'Address: low-level call failed'
             );
           });
         });
@@ -463,7 +463,7 @@ describe('ERC721', function () {
             const nonReceiver = this.token;
             await expectRevert(
               this.token.safeMint(nonReceiver.address, tokenId),
-              'ERC721: transfer to non ERC721Receiver implementer'
+              'Address: low-level call failed'
             );
           });
         });

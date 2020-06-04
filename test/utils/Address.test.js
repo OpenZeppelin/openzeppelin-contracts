@@ -90,4 +90,8 @@ describe('Address', function () {
       });
     });
   });
+
+  describe('functionCall', function () {
+    // TODO
+  });
 });

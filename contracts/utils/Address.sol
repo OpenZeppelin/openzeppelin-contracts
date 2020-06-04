@@ -57,4 +57,31 @@ library Address {
         (bool success, ) = recipient.call{ value: amount }("");
         require(success, "Address: unable to send value, recipient may have reverted");
     }
+
+    /**
+     * @dev Replacement for Solidity's low-level `call`: performs a low-level
+     * call with `data` to the target address `target`. Returns the `returndata`
+     * provided by the low-level call.
+     *
+     * The call is not executed if the target address is not a contract.
+     */
+    function functionCall(address target, bytes memory data) internal returns (bytes memory) {
+        require(isContract(target), "Address: call to non-contract");
+
+        // solhint-disable-next-line avoid-low-level-calls
+        (bool success, bytes memory returndata) = target.call(data);
+        if (!success) {
+            if (returndata.length > 0) {
+                // solhint-disable-next-line no-inline-assembly
+                assembly {
+                    let returndata_size := mload(returndata)
+                    revert(add(32, returndata), returndata_size)
+                }
+            } else {
+                revert("Address: low-level call failed");
+            }
+        } else {
+            return returndata;
+        }      
+    }
 }

@@ -13,6 +13,10 @@ contract AddressImpl {
         Address.sendValue(receiver, amount);
     }
 
+    function functionCall(address target, bytes calldata data) external {
+        Address.functionCall(target, data);
+    }
+
     // sendValue's tests require the contract to hold Ether
     receive () external payable { }
 }
