@@ -3,6 +3,7 @@ pragma solidity ^0.6.0;
 import "./ERC20.sol";
 import "./IERC2612Permit.sol";
 import "../../cryptography/ECDSA.sol";
+import "../../utils/Counters.sol";
 
 /**
  * @dev Extension of {ERC20} that allows token holders to use their tokens
@@ -13,7 +14,9 @@ import "../../cryptography/ECDSA.sol";
  * The {permit} signature mechanism conforms to the {IERC2612Permit} interface.
  */
 abstract contract ERC20Permit is ERC20, IERC2612Permit {
-    mapping (address => uint256) private _nonces;
+    using Counters for Counters.Counter;
+
+    mapping (address => Counters.Counter) private _nonces;
 
     bytes32 private immutable _PERMIT_TYPEHASH = keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
 
@@ -35,27 +38,29 @@ abstract contract ERC20Permit is ERC20, IERC2612Permit {
     function permit(address owner, address spender, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) public virtual override {
         require(block.timestamp <= deadline, "ERC20Permit: expired deadline");
 
+        bytes32 hashStruct = keccak256(
+            abi.encode(
+                _PERMIT_TYPEHASH,
+                owner,
+                spender,
+                amount,
+                _nonces[owner].current(),
+                deadline
+            )
+        );
+
         bytes32 hash = keccak256(
             abi.encodePacked(
                 uint16(0x1901),
                 _domainSeparator(),
-                keccak256(
-                    abi.encode(
-                        _PERMIT_TYPEHASH,
-                        owner,
-                        spender,
-                        amount,
-                        _nonces[owner],
-                        deadline
-                    )
-                )
+                hashStruct
             )
         );
 
         address signer = ECDSA.recover(hash, v, r, s);
         require(signer == owner, "ERC20Permit: invalid signature");
 
-        _nonces[owner] += 1;
+        _nonces[owner].increment();
         _approve(owner, spender, amount);
     }
 
@@ -63,7 +68,7 @@ abstract contract ERC20Permit is ERC20, IERC2612Permit {
      * @dev See {IERC2612Permit-nonces}.
      */
     function nonces(address owner) public view override returns (uint256) {
-        return _nonces[owner];
+        return _nonces[owner].current();
     }
 
     function _updateDomainSeparator() private returns (bytes32) {
