@@ -1,5 +1,6 @@
 # <img src="logo.png" alt="OpenZeppelin" height="40px">
 
+[![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](https://docs.openzeppelin.com/contracts)
 [![NPM Package](https://img.shields.io/npm/v/@openzeppelin/contracts.svg)](https://www.npmjs.org/package/@openzeppelin/contracts)
 [![Build Status](https://circleci.com/gh/OpenZeppelin/openzeppelin-contracts.svg?style=shield)](https://circleci.com/gh/OpenZeppelin/openzeppelin-contracts)
 [![Coverage Status](https://codecov.io/gh/OpenZeppelin/openzeppelin-contracts/graph/badge.svg)](https://codecov.io/gh/OpenZeppelin/openzeppelin-contracts)
@@ -10,7 +11,7 @@
  * Flexible [role-based permissioning](https://docs.openzeppelin.com/contracts/access-control) scheme.
  * Reusable [Solidity components](https://docs.openzeppelin.com/contracts/utilities) to build custom contracts and complex decentralized systems.
  * First-class integration with the [Gas Station Network](https://docs.openzeppelin.com/contracts/gsn) for systems with no gas fees!
- * Audited by leading security firms.
+ * Audited by leading security firms (_last full audit on v2.0.0_).
 
 ## Overview
 
@@ -27,13 +28,12 @@ OpenZeppelin Contracts features a [stable API](https://docs.openzeppelin.com/con
 Once installed, you can use the contracts in the library by importing them:
 
 ```solidity
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721Full.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721Mintable.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-contract MyNFT is ERC721Full, ERC721Mintable {
-    constructor() ERC721Full("MyNFT", "MNFT") public {
+contract MyNFT is ERC721 {
+    constructor() ERC721("MyNFT", "MNFT") public {
     }
 }
 ```
