@@ -114,7 +114,10 @@ describe('ERC1155PresetMinterPauser', function () {
     });
 
     it('other accounts cannot pause', async function () {
-      await expectRevert(this.token.pause({ from: other }), 'ERC1155PresetMinterPauser: must have pauser role to pause');
+      await expectRevert(
+        this.token.pause({ from: other }),
+        'ERC1155PresetMinterPauser: must have pauser role to pause'
+      );
     });
   });
 

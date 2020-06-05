@@ -52,7 +52,9 @@ describe('ERC1155Pausable', function () {
 
     it('reverts when trying to safeBatchTransferFrom from operator', async function () {
       await expectRevert(
-        this.token.safeBatchTransferFrom(holder, receiver, [firstTokenId], [firstTokenAmount], '0x', { from: operator }),
+        this.token.safeBatchTransferFrom(
+          holder, receiver, [firstTokenId], [firstTokenAmount], '0x', { from: operator }
+        ),
         'ERC1155Pausable: token transfer while paused'
       );
     });
