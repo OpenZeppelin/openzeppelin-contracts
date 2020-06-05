@@ -11,3 +11,5 @@ TIP: Intermediate and advanced users can use these as starting points when writi
 {{ERC20PresetMinterPauser}}
 
 {{ERC721PresetMinterPauserAutoId}}
+
+{{ERC1155PresetMinterPauser}}
