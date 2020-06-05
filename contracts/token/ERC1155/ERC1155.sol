@@ -89,6 +89,10 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
     /**
      * @dev See {IERC1155-balanceOfBatch}.
+     *
+     * Requirements:
+     *
+     * - `accounts` and `ids` must have the same length.
      */
     function balanceOfBatch(
         address[] memory accounts,
