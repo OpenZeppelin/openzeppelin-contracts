@@ -27,7 +27,7 @@ contract ERC1155PresetMinterPauser is Context, AccessControl, ERC1155Burnable, E
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
     /**
-     * @dev Grants `DEFAULT_ADMIN_ROLE` and `MINTER_ROLE` to the account that
+     * @dev Grants `DEFAULT_ADMIN_ROLE`, `MINTER_ROLE`, and `PAUSER_ROLE` to the account that
      * deploys the contract.
      */
     constructor(string memory uri) public ERC1155(uri) {

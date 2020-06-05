@@ -331,9 +331,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      *
      * Calling conditions (for each `id` and `amount` pair):
      *
-     * - when `from` and `to` are both non-zero, `amount` of ``from``'s tokens
+     * - When `from` and `to` are both non-zero, `amount` of ``from``'s tokens
      * of token type `id` will be  transferred to `to`.
-     * - when `from` is zero, `amount` tokens of token type `id` will be minted
+     * - When `from` is zero, `amount` tokens of token type `id` will be minted
      * for `to`.
      * - when `to` is zero, `amount` of ``from``'s tokens of token type `id`
      * will be burned.
