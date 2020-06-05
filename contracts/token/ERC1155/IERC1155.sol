@@ -77,6 +77,7 @@ interface IERC1155 is IERC165 {
      * Emits a {TransferSingle} event.
      *
      * Requirements:
+     *
      * - `to` cannot be the zero address.
      * - If the caller is not `from`, it must be have been approved to spend ``from``'s tokens via {setApprovalForAll}.
      * - `from` must have a balance of tokens of type `id` of at least `amount`.
