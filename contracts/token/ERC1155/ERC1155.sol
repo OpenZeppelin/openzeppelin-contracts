@@ -364,11 +364,15 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         private
     {
         if (to.isContract()) {
-            require(
-                IERC1155Receiver(to).onERC1155Received(operator, from, id, amount, data) ==
-                    IERC1155Receiver(to).onERC1155Received.selector,
-                "ERC1155: ERC1155Receiver rejected tokens"
-            );
+            try IERC1155Receiver(to).onERC1155Received(operator, from, id, amount, data) returns (bytes4 response) {
+                if (response != IERC1155Receiver(to).onERC1155Received.selector) {
+                    revert("ERC1155: ERC1155Receiver rejected tokens");
+                }
+            } catch Error(string memory reason) {
+                revert(reason);
+            } catch {
+                revert("ERC1155: transfer to non ERC1155Receiver implementer");
+            }
         }
     }
 
@@ -383,11 +387,15 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         private
     {
         if (to.isContract()) {
-            require(
-                IERC1155Receiver(to).onERC1155BatchReceived(operator, from, ids, amounts, data) ==
-                    IERC1155Receiver(to).onERC1155BatchReceived.selector,
-                "ERC1155: ERC1155Receiver rejected tokens"
-            );
+            try IERC1155Receiver(to).onERC1155BatchReceived(operator, from, ids, amounts, data) returns (bytes4 response) {
+                if (response != IERC1155Receiver(to).onERC1155BatchReceived.selector) {
+                    revert("ERC1155: ERC1155Receiver rejected tokens");
+                }
+            } catch Error(string memory reason) {
+                revert(reason);
+            } catch {
+                revert("ERC1155: transfer to non ERC1155Receiver implementer");
+            }
         }
     }
 
