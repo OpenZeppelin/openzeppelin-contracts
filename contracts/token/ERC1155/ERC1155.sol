@@ -107,12 +107,12 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         override
         returns (uint256[] memory)
     {
-        require(accounts.length == ids.length, "ERC1155: accounts and IDs must have same lengths");
+        require(accounts.length == ids.length, "ERC1155: accounts and ids length mismatch");
 
         uint256[] memory batchBalances = new uint256[](accounts.length);
 
         for (uint256 i = 0; i < accounts.length; ++i) {
-            require(accounts[i] != address(0), "ERC1155: some address in batch balance query is zero");
+            require(accounts[i] != address(0), "ERC1155: batch balance query for the zero address");
             batchBalances[i] = _balances[ids[i]][accounts[i]];
         }
 
@@ -131,7 +131,8 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * @param approved representing the status of the approval to be set
      */
     function setApprovalForAll(address operator, bool approved) public virtual override {
-        require(_msgSender() != operator, "ERC1155: cannot set approval status for self");
+        require(_msgSender() != operator, "ERC1155: setting approval status for self");
+
         _operatorApprovals[_msgSender()][operator] = approved;
         emit ApprovalForAll(_msgSender(), operator, approved);
     }
@@ -167,10 +168,10 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         virtual
         override
     {
-        require(to != address(0), "ERC1155: target address must be non-zero");
+        require(to != address(0), "ERC1155: transfer to the zero address");
         require(
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
-            "ERC1155: need operator approval for 3rd party transfers"
+            "ERC1155: caller is not owner nor approved"
         );
 
         address operator = _msgSender();
@@ -207,11 +208,11 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         virtual
         override
     {
-        require(ids.length == values.length, "ERC1155: IDs and values must have same lengths");
-        require(to != address(0), "ERC1155: target address must be non-zero");
+        require(ids.length == values.length, "ERC1155: ids and values length mismatch");
+        require(to != address(0), "ERC1155: transfer to the zero address");
         require(
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
-            "ERC1155: need operator approval for 3rd party transfers"
+            "ERC1155: transfer caller is not owner nor approved"
         );
 
         address operator = _msgSender();
@@ -224,7 +225,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
             _balances[id][from] = _balances[id][from].sub(
                 value,
-                "ERC1155: insufficient balance of some token type for transfer"
+                "ERC1155: insufficient balance for transfer"
             );
             _balances[id][to] = _balances[id][to].add(value);
         }
@@ -285,8 +286,8 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * @param data Data forwarded to `onERC1155Received` if `to` is a contract receiver
      */
     function _mintBatch(address to, uint256[] memory ids, uint256[] memory values, bytes memory data) internal virtual {
-        require(to != address(0), "ERC1155: batch mint to the zero address");
-        require(ids.length == values.length, "ERC1155: minted IDs and values must have same lengths");
+        require(to != address(0), "ERC1155: mint to the zero address");
+        require(ids.length == values.length, "ERC1155: ids and values length mismatch");
 
         address operator = _msgSender();
 
@@ -308,7 +309,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * @param value Amount of the token to be burnt
      */
     function _burn(address account, uint256 id, uint256 value) internal virtual {
-        require(account != address(0), "ERC1155: attempting to burn tokens on zero account");
+        require(account != address(0), "ERC1155: burn from the zero address");
 
         address operator = _msgSender();
 
@@ -316,7 +317,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
         _balances[id][account] = _balances[id][account].sub(
             value,
-            "ERC1155: attempting to burn more than balance"
+            "ERC1155: burn amount exceeds balance"
         );
 
         emit TransferSingle(operator, account, address(0), id, value);
@@ -329,8 +330,8 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * @param values Amounts of the tokens to be burnt
      */
     function _burnBatch(address account, uint256[] memory ids, uint256[] memory values) internal virtual {
-        require(account != address(0), "ERC1155: attempting to burn batch of tokens on zero account");
-        require(ids.length == values.length, "ERC1155: burnt IDs and values must have same lengths");
+        require(account != address(0), "ERC1155: burn from the zero address");
+        require(ids.length == values.length, "ERC1155: ids and values length mismatch");
 
         address operator = _msgSender();
 
@@ -339,7 +340,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         for (uint i = 0; i < ids.length; i++) {
             _balances[ids[i]][account] = _balances[ids[i]][account].sub(
                 values[i],
-                "ERC1155: attempting to burn more than balance for some token"
+                "ERC1155: burn amount exceeds balance"
             );
         }
 
@@ -391,7 +392,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
             require(
                 IERC1155Receiver(to).onERC1155Received(operator, from, id, value, data) ==
                     IERC1155Receiver(to).onERC1155Received.selector,
-                "ERC1155: got unknown value from onERC1155Received"
+                "ERC1155: ERC1155Receiver rejected tokens"
             );
         }
     }
@@ -410,7 +411,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
             require(
                 IERC1155Receiver(to).onERC1155BatchReceived(operator, from, ids, values, data) ==
                     IERC1155Receiver(to).onERC1155BatchReceived.selector,
-                "ERC1155: got unknown value from onERC1155BatchReceived"
+                "ERC1155: ERC1155Receiver rejected tokens"
             );
         }
     }

@@ -90,7 +90,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             [firstTokenHolder, secondTokenHolder, firstTokenHolder, secondTokenHolder],
             [firstTokenId, secondTokenId, unknownTokenId]
           ),
-          'ERC1155: accounts and IDs must have same lengths'
+          'ERC1155: accounts and ids length mismatch'
         );
       });
 
@@ -100,7 +100,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             [firstTokenHolder, secondTokenHolder, ZERO_ADDRESS],
             [firstTokenId, secondTokenId, unknownTokenId]
           ),
-          'ERC1155: some address in batch balance query is zero'
+          'ERC1155: batch balance query for the zero address'
         );
       });
 
@@ -168,7 +168,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
       it('reverts if attempting to approve self as an operator', async function () {
         await expectRevert(
           this.token.setApprovalForAll(multiTokenHolder, true, { from: multiTokenHolder }),
-          'ERC1155: cannot set approval status for self'
+          'ERC1155: setting approval status for self'
         );
       });
     });
@@ -213,7 +213,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             '0x',
             { from: multiTokenHolder },
           ),
-          'ERC1155: target address must be non-zero'
+          'ERC1155: transfer to the zero address'
         );
       });
 
@@ -275,7 +275,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
               this.token.safeTransferFrom(multiTokenHolder, recipient, firstTokenId, firstAmount, '0x', {
                 from: proxy,
               }),
-              'ERC1155: need operator approval for 3rd party transfers'
+              'ERC1155: caller is not owner nor approved'
             );
           });
         });
@@ -391,7 +391,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             this.token.safeTransferFrom(multiTokenHolder, this.receiver.address, firstTokenId, firstAmount, '0x', {
               from: multiTokenHolder,
             }),
-            'ERC1155: got unknown value from onERC1155Received'
+            'ERC1155: ERC1155Receiver rejected tokens'
           );
         });
       });
@@ -450,7 +450,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             [firstAmount, secondAmount.addn(1)],
             '0x', { from: multiTokenHolder }
           ),
-          'ERC1155: insufficient balance of some token type for transfer'
+          'ERC1155: insufficient balance for transfer'
         );
       });
 
@@ -462,7 +462,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             [firstAmount, secondAmount],
             '0x', { from: multiTokenHolder }
           ),
-          'ERC1155: IDs and values must have same lengths'
+          'ERC1155: ids and values length mismatch'
         );
       });
 
@@ -474,7 +474,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             [firstAmount, secondAmount],
             '0x', { from: multiTokenHolder }
           ),
-          'ERC1155: target address must be non-zero'
+          'ERC1155: transfer to the zero address'
         );
       });
 
@@ -538,7 +538,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
                 [firstAmount, secondAmount],
                 '0x', { from: proxy }
               ),
-              'ERC1155: need operator approval for 3rd party transfers'
+              'ERC1155: transfer caller is not owner nor approved'
             );
           });
         });
@@ -658,7 +658,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
               [firstAmount, secondAmount],
               '0x', { from: multiTokenHolder },
             ),
-            'ERC1155: got unknown value from onERC1155BatchReceived'
+            'ERC1155: ERC1155Receiver rejected tokens'
           );
         });
       });

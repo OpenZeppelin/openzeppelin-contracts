@@ -63,14 +63,14 @@ describe('ERC1155', function () {
       it('reverts with a zero destination address', async function () {
         await expectRevert(
           this.token.mintBatch(ZERO_ADDRESS, tokenBatchIds, mintAmounts, data),
-          'ERC1155: batch mint to the zero address'
+          'ERC1155: mint to the zero address'
         );
       });
 
       it('reverts if length of inputs do not match', async function () {
         await expectRevert(
           this.token.mintBatch(tokenBatchHolder, tokenBatchIds, mintAmounts.slice(1), data),
-          'ERC1155: minted IDs and values must have same lengths'
+          'ERC1155: ids and values length mismatch'
         );
       });
 
@@ -110,14 +110,14 @@ describe('ERC1155', function () {
       it('reverts when burning the zero account\'s tokens', async function () {
         await expectRevert(
           this.token.burn(ZERO_ADDRESS, tokenId, mintAmount),
-          'ERC1155: attempting to burn tokens on zero account'
+          'ERC1155: burn from the zero address'
         );
       });
 
       it('reverts when burning a non-existent token id', async function () {
         await expectRevert(
           this.token.burn(tokenHolder, tokenId, mintAmount),
-          'ERC1155: attempting to burn more than balance'
+          'ERC1155: burn amount exceeds balance'
         );
       });
 
@@ -155,21 +155,21 @@ describe('ERC1155', function () {
       it('reverts when burning the zero account\'s tokens', async function () {
         await expectRevert(
           this.token.burnBatch(ZERO_ADDRESS, tokenBatchIds, burnAmounts),
-          'ERC1155: attempting to burn batch of tokens on zero account'
+          'ERC1155: burn from the zero address'
         );
       });
 
       it('reverts if length of inputs do not match', async function () {
         await expectRevert(
           this.token.burnBatch(tokenBatchHolder, tokenBatchIds, burnAmounts.slice(1)),
-          'ERC1155: burnt IDs and values must have same lengths'
+          'ERC1155: ids and values length mismatch'
         );
       });
 
       it('reverts when burning a non-existent token id', async function () {
         await expectRevert(
           this.token.burnBatch(tokenBatchHolder, tokenBatchIds, burnAmounts),
-          'ERC1155: attempting to burn more than balance for some token'
+          'ERC1155: burn amount exceeds balance'
         );
       });
 
