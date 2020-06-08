@@ -65,7 +65,7 @@ interface IERC1155 is IERC165 {
     function setApprovalForAll(address operator, bool approved) external;
 
     /**
-     * @dev Returns true if {operator} is approved to transfer ``account``'s tokens.
+     * @dev Returns true if `operator` is approved to transfer ``account``'s tokens.
      *
      * See {setApprovalForAll}.
      */
@@ -89,7 +89,7 @@ interface IERC1155 is IERC165 {
     /**
      * @dev Batched version of {safeTransferFrom}.
      *
-     * Emits a {TransferBatched} event.
+     * Emits a {TransferBatch} event.
      *
      * Requirements:
      *
