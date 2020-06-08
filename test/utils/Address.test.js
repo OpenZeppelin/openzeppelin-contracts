@@ -109,25 +109,25 @@ describe('Address', function () {
       });
 
       it('reverts when the called function reverts', async function () {
-        const data = web3.eth.abi.encodeFunctionCall({
+        const abiEncodedCall = web3.eth.abi.encodeFunctionCall({
           name: 'mockFunctionReverts',
           type: 'function',
           inputs: [],
         }, []);
         await expectRevert(
-          this.mock.functionCall(this.contractRecipient.address, data),
+          this.mock.functionCall(this.contractRecipient.address, abiEncodedCall),
           'Address: low-level call failed'
         );
       });
 
       it('reverts when function does not exist', async function () {
-        const data = web3.eth.abi.encodeFunctionCall({
+        const abiEncodedCall = web3.eth.abi.encodeFunctionCall({
           name: 'mockFunctionDoesNotExist',
           type: 'function',
           inputs: [],
         }, []);
         await expectRevert(
-          this.mock.functionCall(this.contractRecipient.address, data),
+          this.mock.functionCall(this.contractRecipient.address, abiEncodedCall),
           'Address: low-level call failed'
         );
       });
@@ -136,12 +136,12 @@ describe('Address', function () {
     context('with non-contract receiver', function () {
       it('reverts when address is not a contract', async function () {
         const [ recipient ] = accounts;
-        const data = web3.eth.abi.encodeFunctionCall({
+        const abiEncodedCall = web3.eth.abi.encodeFunctionCall({
           name: 'mockFunction',
           type: 'function',
           inputs: [],
         }, []);
-        await expectRevert(this.mock.functionCall(recipient, data), 'Address: call to non-contract');
+        await expectRevert(this.mock.functionCall(recipient, abiEncodedCall), 'Address: call to non-contract');
       });
     });
   });
