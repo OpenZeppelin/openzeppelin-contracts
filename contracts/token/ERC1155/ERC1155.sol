@@ -68,7 +68,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * on the token type ID substituion mechanism
      * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
      *
-     * Clients calling this function must replace the `{id}` substring with the
+     * Clients calling this function must replace the `\{id\}` substring with the
      * actual token type ID.
      */
     function uri(uint256) external view override returns (string memory) {
@@ -210,11 +210,11 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * substituion mechanism
      * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
      *
-     * By this mechanism, any occurence of the `{id}` substring in either the
+     * By this mechanism, any occurence of the `\{id\}` substring in either the
      * URI or any of the amounts in the JSON file at said URI will be replaced by
      * clients with the token type ID.
      *
-     * For example, the `https://token-cdn-domain/{id}.json` URI would be
+     * For example, the `https://token-cdn-domain/\{id\}.json` URI would be
      * interpreted by clients as
      * `https://token-cdn-domain/000000000000000000000000000000000000000000000000000000000004cce0.json`
      * for token type ID 0x4cce0.
