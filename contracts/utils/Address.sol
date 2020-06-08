@@ -66,6 +66,17 @@ library Address {
      * The call is not executed if the target address is not a contract.
      */
     function functionCall(address target, bytes memory data) internal returns (bytes memory) {
+      return functionCall(target, data, "Address: low-level call failed");
+    }
+
+    /**
+     * @dev Replacement for Solidity's low-level `call`: performs a low-level
+     * call with `data` to the target address `target`. Returns the `returndata`
+     * provided by the low-level call. Uses `errorMessage` as default revert message.
+     
+     * The call is not executed if the target address is not a contract.
+     */
+    function functionCall(address target, bytes memory data, string memory errorMessage) internal returns (bytes memory) {
         require(isContract(target), "Address: call to non-contract");
 
         // solhint-disable-next-line avoid-low-level-calls
@@ -78,7 +89,7 @@ library Address {
                     revert(add(32, returndata), returndata_size)
                 }
             } else {
-                revert("Address: low-level call failed");
+                revert(errorMessage);
             }
         } else {
             return returndata;
