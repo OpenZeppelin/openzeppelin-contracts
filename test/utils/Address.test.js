@@ -1,10 +1,11 @@
-const { accounts, contract } = require('@openzeppelin/test-environment');
+const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
 
-const { balance, ether, expectRevert, send } = require('@openzeppelin/test-helpers');
+const { balance, ether, expectRevert, send, expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const AddressImpl = contract.fromArtifact('AddressImpl');
 const EtherReceiver = contract.fromArtifact('EtherReceiverMock');
+const CallReceiver = contract.fromArtifact('CallReceiverMock');
 
 describe('Address', function () {
   const [ recipient, other ] = accounts;
@@ -92,6 +93,56 @@ describe('Address', function () {
   });
 
   describe('functionCall', function () {
-    // TODO
+    beforeEach(async function () {
+      this.contractRecipient = await CallReceiver.new();
+    });
+
+    context('with valid contract receiver', function () {
+      it('calls the requested function', async function () {
+        const abiEncodedCall = web3.eth.abi.encodeFunctionCall({
+          name: 'mockFunction',
+          type: 'function',
+          inputs: [],
+        }, []);
+        const { tx } = await this.mock.functionCall(this.contractRecipient.address, abiEncodedCall);
+        await expectEvent.inTransaction(tx, CallReceiver, 'MockFunctionCalled');
+      });
+
+      it('reverts when the called function reverts', async function () {
+        const data = web3.eth.abi.encodeFunctionCall({
+          name: 'mockFunctionReverts',
+          type: 'function',
+          inputs: [],
+        }, []);
+        await expectRevert(
+          this.mock.functionCall(this.contractRecipient.address, data),
+          'Address: low-level call failed'
+        );
+      });
+
+      it('reverts when function does not exist', async function () {
+        const data = web3.eth.abi.encodeFunctionCall({
+          name: 'mockFunctionDoesNotExist',
+          type: 'function',
+          inputs: [],
+        }, []);
+        await expectRevert(
+          this.mock.functionCall(this.contractRecipient.address, data),
+          'Address: low-level call failed'
+        );
+      });
+    });
+
+    context('with non-contract receiver', function () {
+      it('reverts when address is not a contract', async function () {
+        const [ recipient ] = accounts;
+        const data = web3.eth.abi.encodeFunctionCall({
+          name: 'mockFunction',
+          type: 'function',
+          inputs: [],
+        }, []);
+        await expectRevert(this.mock.functionCall(recipient, data), 'Address: call to non-contract');
+      });
+    });
   });
 });

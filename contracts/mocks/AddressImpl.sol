@@ -13,8 +13,8 @@ contract AddressImpl {
         Address.sendValue(receiver, amount);
     }
 
-    function functionCall(address target, bytes calldata data) external {
-        Address.functionCall(target, data);
+    function functionCall(address target, bytes calldata data) external returns (bytes memory) {
+        return Address.functionCall(target, data);
     }
 
     // sendValue's tests require the contract to hold Ether
