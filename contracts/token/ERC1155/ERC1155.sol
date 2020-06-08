@@ -253,7 +253,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     }
 
     /**
-     * @dev Batched version of {_mint}.
+     * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {_mint}.
      *
      * Requirements:
      *
@@ -302,7 +302,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     }
 
     /**
-     * @dev Batched version of {_burn}.
+     * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {_burn}.
      *
      * Requirements:
      *

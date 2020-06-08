@@ -1,0 +1,21 @@
+= ERC1155
+
+ERC1155 is a novel token standard that aims to take the best from previous standards to create a xref:tokens.adoc#different-kinds-of-tokens[*fungibility-agnostic*] and *gas-efficient* xref:tokens.adoc#but_first_coffee_a_primer_on_token_contracts[token contract].
+
+TIP: ERC1155 draws ideas from all of xref:erc20.adoc[ERC20], xref:721.adoc[ERC721], and xref:erc777.adoc[ERC777]. If you're unfamiliar with those standards, head to their guides before moving on.
+
+[[multi-token-standard]]
+== Multi Token Standard
+
+The distinctive feature of ERC1155 is that it uses a single smart contract to represent multiple tokens at once. This is why its xref:api:token/ERC1155.adoc#IERC1155-balanceOf-address-uint256-[`balanceOf`] function differs from ERC20's and ERC777's: it has an additional `id` argument for the identifier of the token that you want to query the balance of.
+
+This is similar to how ERC721 does things, but in that standard a token `id` has no concept of balance: each token is non-fungible and exists or doesn't. The xref:api:token/ERC721.adoc#IERC721-balanceOf-address-[`balanceOf`] function refers to _how many different tokens_ an account has, not how many of each. On the other hand, in ERC1155 accounts have a distinct balance for each token `id`, and non-fungible tokens are implemented by simply minting a single one of them.
+
+This approach leads to massive gas savings for projects that require multiple tokens. Instead of deploying a new contract for each token type, a single ERC1155 token contract can hold the entire system state, reducing deployment costs and complexity.
+
+[[batch-operations]]
+== Batch Operations
+
+Because all state is held in a single contract, it is possible to operate over multiple tokens in a single transaction very efficiently. The standard provides two functions, xref:api:token/ERC1155.adoc#IERC1155-balanceOfBatch-address---uint256---[`balanceOfBatch`] and xref:api:token/ERC1155.adoc#IERC1155-safeBatchTransferFrom-address-address-uint256---uint256---bytes-[`safeBatchTransferFrom`], that make querying multiple balances and multi-token transfers simpler and less gas-intensive.
+
+In the spirit of the standard, we've also included batch operations in our extension methods, such as xref:api:token/ERC1155.adoc#ERC1155-_mintBatch-address-uint256---uint256---bytes-[`_mintBatch`].

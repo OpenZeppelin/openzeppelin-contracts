@@ -45,7 +45,7 @@ interface IERC1155 is IERC165 {
     function balanceOf(address account, uint256 id) external view returns (uint256);
 
     /**
-     * @dev Batched version of {balanceOf}.
+     * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {balanceOf}.
      *
      * Requirements:
      *
@@ -87,7 +87,7 @@ interface IERC1155 is IERC165 {
     function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes calldata data) external;
 
     /**
-     * @dev Batched version of {safeTransferFrom}.
+     * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {safeTransferFrom}.
      *
      * Emits a {TransferBatch} event.
      *
