@@ -13,6 +13,11 @@
 ### Deprecations
  * `SafeERC20`: deprecated `safeApprove`. ([#2268](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2268))
 
+## 3.0.2 (2020-06-08)
+
+### Improvements
+ * Added SPX license identifier to all contracts. ([#2235](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2235))
+
 ## 3.0.1 (2020-04-27)
 
 ### Bugfixes
