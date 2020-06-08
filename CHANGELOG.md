@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.2 (unreleased)
+## 3.0.2 (2020-06-08)
 
 ### Improvements
  * Added SPX license identifier to all contracts. ([#2235](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2235))
