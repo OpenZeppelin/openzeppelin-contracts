@@ -7,6 +7,7 @@
 *** xref:erc20-supply.adoc[Creating Supply]
 ** xref:erc721.adoc[ERC721]
 ** xref:erc777.adoc[ERC777]
+** xref:erc1155.adoc[ERC1155]
 
 * xref:gsn.adoc[Gas Station Network]
 ** xref:gsn-strategies.adoc[Strategies]
