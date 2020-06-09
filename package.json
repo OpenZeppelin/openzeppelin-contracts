@@ -20,7 +20,8 @@
     "lint:js": "eslint --ignore-path .gitignore .",
     "lint:js:fix": "eslint --ignore-path .gitignore . --fix",
     "lint:sol": "solhint --max-warnings 0 \"contracts/**/*.sol\"",
-    "prepare": "node scripts/prepare.js",
+    "prepare": "npm run compile",
+    "prepack": "node scripts/remove-ignored-artifacts.js",
     "release": "scripts/release/release.sh",
     "version": "scripts/release/version.sh",
     "test": "mocha --exit --recursive"
@@ -49,7 +50,7 @@
     "@openzeppelin/gsn-helpers": "^0.2.3",
     "@openzeppelin/gsn-provider": "^0.1.10",
     "@openzeppelin/test-environment": "^0.1.4",
-    "@openzeppelin/test-helpers": "^0.5.5",
+    "@openzeppelin/test-helpers": "^0.5.6",
     "chai": "^4.2.0",
     "eslint": "^6.5.1",
     "eslint-config-standard": "^14.1.1",
@@ -58,15 +59,15 @@
     "eslint-plugin-node": "^10.0.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
-    "ethereumjs-util": "^6.2.0",
+    "ethereumjs-util": "^7.0.1",
     "ganache-core-coverage": "https://github.com/OpenZeppelin/ganache-core-coverage/releases/download/2.5.3-coverage/ganache-core-coverage-2.5.3.tgz",
     "lodash.startcase": "^4.4.0",
     "lodash.zip": "^4.2.0",
     "micromatch": "^4.0.2",
-    "mocha": "^7.1.2",
-    "solhint": "^3.0.0-rc.8",
+    "mocha": "^7.2.0",
+    "solhint": "^3.0.0",
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
-    "solidity-docgen": "^0.4.1"
+    "solidity-docgen": "^0.5.3"
   },
   "dependencies": {}
 }

@@ -3,7 +3,7 @@ const { contract } = require('@openzeppelin/test-environment');
 require('@openzeppelin/test-helpers');
 
 const { MerkleTree } = require('../helpers/merkleTree.js');
-const { keccak256, bufferToHex } = require('ethereumjs-util');
+const { keccakFromString, bufferToHex } = require('ethereumjs-util');
 
 const { expect } = require('chai');
 
@@ -23,7 +23,7 @@ describe('MerkleProof', function () {
 
       const proof = merkleTree.getHexProof(elements[0]);
 
-      const leaf = bufferToHex(keccak256(elements[0]));
+      const leaf = bufferToHex(keccakFromString(elements[0]));
 
       expect(await this.merkleProof.verify(proof, root, leaf)).to.equal(true);
     });
@@ -34,7 +34,7 @@ describe('MerkleProof', function () {
 
       const correctRoot = correctMerkleTree.getHexRoot();
 
-      const correctLeaf = bufferToHex(keccak256(correctElements[0]));
+      const correctLeaf = bufferToHex(keccakFromString(correctElements[0]));
 
       const badElements = ['d', 'e', 'f'];
       const badMerkleTree = new MerkleTree(badElements);
@@ -53,7 +53,7 @@ describe('MerkleProof', function () {
       const proof = merkleTree.getHexProof(elements[0]);
       const badProof = proof.slice(0, proof.length - 5);
 
-      const leaf = bufferToHex(keccak256(elements[0]));
+      const leaf = bufferToHex(keccakFromString(elements[0]));
 
       expect(await this.merkleProof.verify(badProof, root, leaf)).to.equal(false);
     });
