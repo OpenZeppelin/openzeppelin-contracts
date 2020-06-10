@@ -59,30 +59,38 @@ library Address {
     }
 
     /**
-     * @dev Replacement for Solidity's low-level `call`: performs a low-level
-     * call with `data` to the target address `target`. Returns the `returndata`
-     * provided by the low-level call.
+     * @dev Performs a Solidity function call using a low level `call`. A
+     * plain`call` is an unsafe replacement for a function call: use this
+     * function instead.
      *
-     * The call is not executed if the target address is not a contract.
+     * If `target` reverts with a revert reason, it is bubbled up by this
+     * function (like regular Solidity function calls).
+     *
+     * Requirements:
+     *
+     * - `target` must be a contract.
+     * - calling `target` with `data` must not revert.
      */
     function functionCall(address target, bytes memory data) internal returns (bytes memory) {
       return functionCall(target, data, "Address: low-level call failed");
     }
 
     /**
-     * @dev Replacement for Solidity's low-level `call`: performs a low-level
-     * call with `data` to the target address `target`. Returns the `returndata`
-     * provided by the low-level call. Uses `errorMessage` as default revert message.
-     
-     * The call is not executed if the target address is not a contract.
+     * @dev Same as {Address-functionCall-address-bytes-}, but with
+     * `errorMessage` as a custom revert reason when `target` reverts.
      */
     function functionCall(address target, bytes memory data, string memory errorMessage) internal returns (bytes memory) {
         require(isContract(target), "Address: call to non-contract");
 
         // solhint-disable-next-line avoid-low-level-calls
         (bool success, bytes memory returndata) = target.call(data);
-        if (!success) {
+        if (success) {
+            return returndata;
+        } else {
+            // Look for revert reason and bubble it up if present
             if (returndata.length > 0) {
+                // The easiest way to bubble the revert reason is using memory via assembly
+
                 // solhint-disable-next-line no-inline-assembly
                 assembly {
                     let returndata_size := mload(returndata)
@@ -91,8 +99,6 @@ library Address {
             } else {
                 revert(errorMessage);
             }
-        } else {
-            return returndata;
-        }      
+        }
     }
 }
