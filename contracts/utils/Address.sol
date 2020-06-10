@@ -72,7 +72,7 @@ library Address {
      * - calling `target` with `data` must not revert.
      */
     function functionCall(address target, bytes memory data) internal returns (bytes memory) {
-      return functionCall(target, data, "Address: low-level call failed");
+      return _functionCallWithValue(target, data, 0, "Address: low-level call failed");
     }
 
     /**
@@ -80,10 +80,28 @@ library Address {
      * `errorMessage` as a custom revert reason when `target` reverts.
      */
     function functionCall(address target, bytes memory data, string memory errorMessage) internal returns (bytes memory) {
+        return _functionCallWithValue(target, data, 0, errorMessage);
+    }
+
+    function functionCallWithValue(address target, bytes memory data, uint256 value) internal returns (bytes memory) {
+        return _functionCallWithValue(target, data, value, "Address: low-level call with value failed");
+    }
+
+    /**
+     * @dev Same as {Address-functionCallWithValue-address-bytes-uint256-}, but
+     * with `errorMessage` as a custom revert reason when `target` reverts.
+     */
+    function functionCallWithValue(address target, bytes memory data, uint256 value, string memory errorMessage) internal returns (bytes memory) {
+        return _functionCallWithValue(target, data, value, errorMessage);
+    }
+
+    function _functionCallWithValue(address target, bytes memory data, uint256 weiValue, string memory errorMessage) private returns (bytes memory) {
         require(isContract(target), "Address: call to non-contract");
 
+        require(address(this).balance >= weiValue, "Address: insufficient balance for call");
+
         // solhint-disable-next-line avoid-low-level-calls
-        (bool success, bytes memory returndata) = target.call(data);
+        (bool success, bytes memory returndata) = target.call{ value: weiValue }(data);
         if (success) {
             return returndata;
         } else {
