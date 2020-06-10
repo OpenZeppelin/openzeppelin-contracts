@@ -83,6 +83,20 @@ library Address {
         return _functionCallWithValue(target, data, 0, errorMessage);
     }
 
+    /**
+     * @dev Performs a Solidity function call using a low level `call`,
+     * transferring `value` wei. A plain`call` is an unsafe replacement for a
+     * function call: use this function instead.
+     *
+     * If `target` reverts with a revert reason, it is bubbled up by this
+     * function (like regular Solidity function calls).
+     *
+     * Requirements:
+     *
+     * - `target` must be a contract.
+     * - the calling contract must have an ETH balance of at least `value`.
+     * - calling `target` with `data` must not revert.
+     */
     function functionCallWithValue(address target, bytes memory data, uint256 value) internal returns (bytes memory) {
         return _functionCallWithValue(target, data, value, "Address: low-level call with value failed");
     }

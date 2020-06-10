@@ -21,7 +21,7 @@ contract AddressImpl {
         emit CallReturnValue(abi.decode(returnData, (string)));
     }
 
-    function functionCallWithValue(address target, bytes calldata data, uint256 value) external {
+    function functionCallWithValue(address target, bytes calldata data, uint256 value) external payable {
         bytes memory returnData = Address.functionCallWithValue(target, data, value);
 
         emit CallReturnValue(abi.decode(returnData, (string)));

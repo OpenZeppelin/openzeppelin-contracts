@@ -226,7 +226,7 @@ describe('Address', function () {
         );
       });
 
-      it('calls the requested function', async function () {
+      it('calls the requested function with existing value', async function () {
         const abiEncodedCall = web3.eth.abi.encodeFunctionCall({
           name: 'mockFunction',
           type: 'function',
@@ -235,6 +235,22 @@ describe('Address', function () {
 
         await send.ether(other, this.mock.address, amount);
         const receipt = await this.mock.functionCallWithValue(this.contractRecipient.address, abiEncodedCall, amount);
+
+        expectEvent(receipt, 'CallReturnValue', { data: '0x1234' });
+        await expectEvent.inTransaction(receipt.tx, CallReceiverMock, 'MockFunctionCalled');
+      });
+
+      it('calls the requested function with transaction funds', async function () {
+        const abiEncodedCall = web3.eth.abi.encodeFunctionCall({
+          name: 'mockFunction',
+          type: 'function',
+          inputs: [],
+        }, []);
+
+        expect(await balance.current(this.mock.address)).to.be.bignumber.equal('0');
+        const receipt = await this.mock.functionCallWithValue(
+          this.contractRecipient.address, abiEncodedCall, amount, { from: other, value: amount }
+        );
 
         expectEvent(receipt, 'CallReturnValue', { data: '0x1234' });
         await expectEvent.inTransaction(receipt.tx, CallReceiverMock, 'MockFunctionCalled');
