@@ -5,7 +5,7 @@ const { expect } = require('chai');
 
 const AddressImpl = contract.fromArtifact('AddressImpl');
 const EtherReceiver = contract.fromArtifact('EtherReceiverMock');
-const CallReceiver = contract.fromArtifact('CallReceiverMock');
+const CallReceiverMock = contract.fromArtifact('CallReceiverMock');
 
 describe('Address', function () {
   const [ recipient, other ] = accounts;
@@ -94,7 +94,7 @@ describe('Address', function () {
 
   describe('functionCall', function () {
     beforeEach(async function () {
-      this.contractRecipient = await CallReceiver.new();
+      this.contractRecipient = await CallReceiverMock.new();
     });
 
     context('with valid contract receiver', function () {
@@ -104,16 +104,59 @@ describe('Address', function () {
           type: 'function',
           inputs: [],
         }, []);
-        const { tx } = await this.mock.functionCall(this.contractRecipient.address, abiEncodedCall);
-        await expectEvent.inTransaction(tx, CallReceiver, 'MockFunctionCalled');
+
+        const receipt = await this.mock.functionCall(this.contractRecipient.address, abiEncodedCall);
+
+        expectEvent(receipt, 'CallReturnValue', { data: '0x1234' });
+        await expectEvent.inTransaction(receipt.tx, CallReceiverMock, 'MockFunctionCalled');
       });
 
-      it('reverts when the called function reverts', async function () {
+      it('reverts when the called function reverts with no reason', async function () {
         const abiEncodedCall = web3.eth.abi.encodeFunctionCall({
-          name: 'mockFunctionReverts',
+          name: 'mockFunctionRevertsNoReason',
           type: 'function',
           inputs: [],
         }, []);
+
+        await expectRevert(
+          this.mock.functionCall(this.contractRecipient.address, abiEncodedCall),
+          'Address: low-level call failed'
+        );
+      });
+
+      it('reverts when the called function reverts, bubbling up the revert reason', async function () {
+        const abiEncodedCall = web3.eth.abi.encodeFunctionCall({
+          name: 'mockFunctionRevertsReason',
+          type: 'function',
+          inputs: [],
+        }, []);
+
+        await expectRevert(
+          this.mock.functionCall(this.contractRecipient.address, abiEncodedCall),
+          'CallReceiverMock: reverting'
+        );
+      });
+
+      it('reverts when the called function runs out of gas', async function () {
+        const abiEncodedCall = web3.eth.abi.encodeFunctionCall({
+          name: 'mockFunctionOutOfGas',
+          type: 'function',
+          inputs: [],
+        }, []);
+
+        await expectRevert(
+          this.mock.functionCall(this.contractRecipient.address, abiEncodedCall),
+          'Address: low-level call failed'
+        );
+      });
+
+      it('reverts when the called function throws', async function () {
+        const abiEncodedCall = web3.eth.abi.encodeFunctionCall({
+          name: 'mockFunctionThrows',
+          type: 'function',
+          inputs: [],
+        }, []);
+
         await expectRevert(
           this.mock.functionCall(this.contractRecipient.address, abiEncodedCall),
           'Address: low-level call failed'
@@ -126,6 +169,7 @@ describe('Address', function () {
           type: 'function',
           inputs: [],
         }, []);
+
         await expectRevert(
           this.mock.functionCall(this.contractRecipient.address, abiEncodedCall),
           'Address: low-level call failed'

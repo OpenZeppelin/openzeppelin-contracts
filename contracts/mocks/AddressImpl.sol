@@ -5,6 +5,8 @@ pragma solidity ^0.6.0;
 import "../utils/Address.sol";
 
 contract AddressImpl {
+    event CallReturnValue(string data);
+
     function isContract(address account) external view returns (bool) {
         return Address.isContract(account);
     }
@@ -13,8 +15,10 @@ contract AddressImpl {
         Address.sendValue(receiver, amount);
     }
 
-    function functionCall(address target, bytes calldata data) external returns (bytes memory) {
-        return Address.functionCall(target, data);
+    function functionCall(address target, bytes calldata data) external {
+        bytes memory returnData = Address.functionCall(target, data);
+
+        emit CallReturnValue(abi.decode(returnData, (string)));
     }
 
     // sendValue's tests require the contract to hold Ether
