@@ -9,10 +9,12 @@ const { shouldBehaveLikeERC1155 } = require('./ERC1155.behavior');
 const ERC1155Mock = contract.fromArtifact('ERC1155Mock');
 
 describe('ERC1155', function () {
-  const [creator, tokenHolder, tokenBatchHolder, ...otherAccounts] = accounts;
+  const [operator, tokenHolder, tokenBatchHolder, ...otherAccounts] = accounts;
+
+  const initialURI = 'https://token-cdn-domain/{id}.json';
 
   beforeEach(async function () {
-    this.token = await ERC1155Mock.new({ from: creator });
+    this.token = await ERC1155Mock.new(initialURI);
   });
 
   shouldBehaveLikeERC1155(otherAccounts);
@@ -28,8 +30,8 @@ describe('ERC1155', function () {
 
     const data = '0xcafebabe';
 
-    describe('_mint(address, uint256, uint256, bytes memory)', function () {
-      it('reverts with a null destination address', async function () {
+    describe('_mint', function () {
+      it('reverts with a zero destination address', async function () {
         await expectRevert(
           this.token.mint(ZERO_ADDRESS, tokenId, mintAmount, data),
           'ERC1155: mint to the zero address'
@@ -38,18 +40,12 @@ describe('ERC1155', function () {
 
       context('with minted tokens', function () {
         beforeEach(async function () {
-          ({ logs: this.logs } = await this.token.mint(
-            tokenHolder,
-            tokenId,
-            mintAmount,
-            data,
-            { from: creator }
-          ));
+          ({ logs: this.logs } = await this.token.mint(tokenHolder, tokenId, mintAmount, data, { from: operator }));
         });
 
         it('emits a TransferSingle event', function () {
           expectEvent.inLogs(this.logs, 'TransferSingle', {
-            operator: creator,
+            operator,
             from: ZERO_ADDRESS,
             to: tokenHolder,
             id: tokenId,
@@ -58,26 +54,23 @@ describe('ERC1155', function () {
         });
 
         it('credits the minted amount of tokens', async function () {
-          expect(await this.token.balanceOf(
-            tokenHolder,
-            tokenId
-          )).to.be.bignumber.equal(mintAmount);
+          expect(await this.token.balanceOf(tokenHolder, tokenId)).to.be.bignumber.equal(mintAmount);
         });
       });
     });
 
-    describe('_mintBatch(address, uint256[] memory, uint256[] memory, bytes memory)', function () {
-      it('reverts with a null destination address', async function () {
+    describe('_mintBatch', function () {
+      it('reverts with a zero destination address', async function () {
         await expectRevert(
           this.token.mintBatch(ZERO_ADDRESS, tokenBatchIds, mintAmounts, data),
-          'ERC1155: batch mint to the zero address'
+          'ERC1155: mint to the zero address'
         );
       });
 
       it('reverts if length of inputs do not match', async function () {
         await expectRevert(
           this.token.mintBatch(tokenBatchHolder, tokenBatchIds, mintAmounts.slice(1), data),
-          'ERC1155: minted IDs and values must have same lengths'
+          'ERC1155: ids and amounts length mismatch'
         );
       });
 
@@ -88,17 +81,15 @@ describe('ERC1155', function () {
             tokenBatchIds,
             mintAmounts,
             data,
-            { from: creator }
+            { from: operator }
           ));
         });
 
         it('emits a TransferBatch event', function () {
           expectEvent.inLogs(this.logs, 'TransferBatch', {
-            operator: creator,
+            operator,
             from: ZERO_ADDRESS,
             to: tokenBatchHolder,
-            // ids: tokenBatchIds,
-            // values: mintAmounts,
           });
         });
 
@@ -115,18 +106,18 @@ describe('ERC1155', function () {
       });
     });
 
-    describe('_burn(address, uint256, uint256)', function () {
+    describe('_burn', function () {
       it('reverts when burning the zero account\'s tokens', async function () {
         await expectRevert(
           this.token.burn(ZERO_ADDRESS, tokenId, mintAmount),
-          'ERC1155: attempting to burn tokens on zero account'
+          'ERC1155: burn from the zero address'
         );
       });
 
       it('reverts when burning a non-existent token id', async function () {
         await expectRevert(
           this.token.burn(tokenHolder, tokenId, mintAmount),
-          'ERC1155: attempting to burn more than balance'
+          'ERC1155: burn amount exceeds balance'
         );
       });
 
@@ -137,13 +128,13 @@ describe('ERC1155', function () {
             tokenHolder,
             tokenId,
             burnAmount,
-            { from: creator }
+            { from: operator }
           ));
         });
 
         it('emits a TransferSingle event', function () {
           expectEvent.inLogs(this.logs, 'TransferSingle', {
-            operator: creator,
+            operator,
             from: tokenHolder,
             to: ZERO_ADDRESS,
             id: tokenId,
@@ -160,25 +151,25 @@ describe('ERC1155', function () {
       });
     });
 
-    describe('_burnBatch(address, uint256[] memory, uint256[] memory)', function () {
+    describe('_burnBatch', function () {
       it('reverts when burning the zero account\'s tokens', async function () {
         await expectRevert(
           this.token.burnBatch(ZERO_ADDRESS, tokenBatchIds, burnAmounts),
-          'ERC1155: attempting to burn batch of tokens on zero account'
+          'ERC1155: burn from the zero address'
         );
       });
 
       it('reverts if length of inputs do not match', async function () {
         await expectRevert(
           this.token.burnBatch(tokenBatchHolder, tokenBatchIds, burnAmounts.slice(1)),
-          'ERC1155: burnt IDs and values must have same lengths'
+          'ERC1155: ids and amounts length mismatch'
         );
       });
 
       it('reverts when burning a non-existent token id', async function () {
         await expectRevert(
           this.token.burnBatch(tokenBatchHolder, tokenBatchIds, burnAmounts),
-          'ERC1155: attempting to burn more than balance for some token'
+          'ERC1155: burn amount exceeds balance'
         );
       });
 
@@ -189,13 +180,13 @@ describe('ERC1155', function () {
             tokenBatchHolder,
             tokenBatchIds,
             burnAmounts,
-            { from: creator }
+            { from: operator }
           ));
         });
 
         it('emits a TransferBatch event', function () {
           expectEvent.inLogs(this.logs, 'TransferBatch', {
-            operator: creator,
+            operator,
             from: tokenBatchHolder,
             to: ZERO_ADDRESS,
             // ids: tokenBatchIds,
@@ -213,6 +204,37 @@ describe('ERC1155', function () {
             expect(holderBatchBalances[i]).to.be.bignumber.equal(mintAmounts[i].sub(burnAmounts[i]));
           }
         });
+      });
+    });
+  });
+
+  describe('ERC1155MetadataURI', function () {
+    const firstTokenID = new BN('42');
+    const secondTokenID = new BN('1337');
+
+    it('emits no URI event in constructor', async function () {
+      await expectEvent.notEmitted.inConstruction(this.token, 'URI');
+    });
+
+    it('sets the initial URI for all token types', async function () {
+      expect(await this.token.uri(firstTokenID)).to.be.equal(initialURI);
+      expect(await this.token.uri(secondTokenID)).to.be.equal(initialURI);
+    });
+
+    describe('_setURI', function () {
+      const newURI = 'https://token-cdn-domain/{locale}/{id}.json';
+
+      it('emits no URI event', async function () {
+        const receipt = await this.token.setURI(newURI);
+
+        expectEvent.notEmitted(receipt, 'URI');
+      });
+
+      it('sets the new URI for all token types', async function () {
+        await this.token.setURI(newURI);
+
+        expect(await this.token.uri(firstTokenID)).to.be.equal(newURI);
+        expect(await this.token.uri(secondTokenID)).to.be.equal(newURI);
       });
     });
   });

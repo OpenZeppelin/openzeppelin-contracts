@@ -10,7 +10,9 @@ describe('ERC1155Holder', function () {
   const [creator] = accounts;
 
   it('receives ERC1155 tokens', async function () {
-    const multiToken = await ERC1155Mock.new({ from: creator });
+    const uri = 'https://token-cdn-domain/{id}.json';
+
+    const multiToken = await ERC1155Mock.new(uri, { from: creator });
     const multiTokenIds = [new BN(1), new BN(2), new BN(3)];
     const multiTokenAmounts = [new BN(1000), new BN(2000), new BN(3000)];
     await multiToken.mintBatch(creator, multiTokenIds, multiTokenAmounts, '0x', { from: creator });

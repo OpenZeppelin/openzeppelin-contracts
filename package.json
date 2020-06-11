@@ -1,6 +1,6 @@
 {
   "name": "openzeppelin-solidity",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Secure Smart Contract library for Solidity",
   "files": [
     "/contracts/**/*.sol",
@@ -50,7 +50,7 @@
     "@openzeppelin/gsn-helpers": "^0.2.3",
     "@openzeppelin/gsn-provider": "^0.1.10",
     "@openzeppelin/test-environment": "^0.1.4",
-    "@openzeppelin/test-helpers": "^0.5.5",
+    "@openzeppelin/test-helpers": "^0.5.6",
     "chai": "^4.2.0",
     "eslint": "^6.5.1",
     "eslint-config-standard": "^14.1.1",
