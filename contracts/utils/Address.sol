@@ -72,7 +72,7 @@ library Address {
      * - calling `target` with `data` must not revert.
      */
     function functionCall(address target, bytes memory data) internal returns (bytes memory) {
-      return _functionCallWithValue(target, data, 0, "Address: low-level call failed");
+      return functionCall(target, data, "Address: low-level call failed");
     }
 
     /**
@@ -98,7 +98,7 @@ library Address {
      * - calling `target` with `data` must not revert.
      */
     function functionCallWithValue(address target, bytes memory data, uint256 value) internal returns (bytes memory) {
-        return _functionCallWithValue(target, data, value, "Address: low-level call with value failed");
+        return functionCallWithValue(target, data, value, "Address: low-level call with value failed");
     }
 
     /**
@@ -106,7 +106,7 @@ library Address {
      * with `errorMessage` as a custom revert reason when `target` reverts.
      */
     function functionCallWithValue(address target, bytes memory data, uint256 value, string memory errorMessage) internal returns (bytes memory) {
-        require(address(this).balance >= balance, "Address: insufficient balance for call");
+        require(address(this).balance >= value, "Address: insufficient balance for call");
         return _functionCallWithValue(target, data, value, errorMessage);
     }
 
