@@ -233,8 +233,12 @@ describe('Address', function () {
           inputs: [],
         }, []);
 
+        const tracker = await balance.tracker(this.contractRecipient.address);
+
         await send.ether(other, this.mock.address, amount);
         const receipt = await this.mock.functionCallWithValue(this.contractRecipient.address, abiEncodedCall, amount);
+
+        expect(await tracker.delta()).to.be.bignumber.equal(amount);
 
         expectEvent(receipt, 'CallReturnValue', { data: '0x1234' });
         await expectEvent.inTransaction(receipt.tx, CallReceiverMock, 'MockFunctionCalled');
@@ -247,10 +251,14 @@ describe('Address', function () {
           inputs: [],
         }, []);
 
+        const tracker = await balance.tracker(this.contractRecipient.address);
+
         expect(await balance.current(this.mock.address)).to.be.bignumber.equal('0');
         const receipt = await this.mock.functionCallWithValue(
           this.contractRecipient.address, abiEncodedCall, amount, { from: other, value: amount }
         );
+
+        expect(await tracker.delta()).to.be.bignumber.equal(amount);
 
         expectEvent(receipt, 'CallReturnValue', { data: '0x1234' });
         await expectEvent.inTransaction(receipt.tx, CallReceiverMock, 'MockFunctionCalled');
