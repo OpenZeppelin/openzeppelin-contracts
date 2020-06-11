@@ -5,11 +5,20 @@
 ### New features
  * `SafeCast`: added functions to downcast signed integers (e.g. `toInt32`), improving usability of `SignedSafeMath`. ([#2243](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2243))
  * `functionCall`: new helpers that replicate Solidity's function call semantics, reducing the need to rely on `call`. ([#2264](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2264))
+ * `ERC1155`: added support for a base implementation, non-standard extensions and a preset contract. ([#2014](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2014), [#2230](https://github.com/OpenZeppelin/openzeppelin-contracts/issues/2230))
 
 ### Improvements
  * `ReentrancyGuard`: reduced overhead of using the `nonReentrant` modifier. ([#2171](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2171))
  * `AccessControl`: added a `RoleAdminChanged` event to `_setAdminRole`. ([#2214](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2214))
  * Made all `public` functions in the token preset contracts `virtual`. ([#2257](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2257))
+
+### Deprecations
+ * `SafeERC20`: deprecated `safeApprove`. ([#2268](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2268))
+
+## 3.0.2 (2020-06-08)
+
+### Improvements
+ * Added SPX license identifier to all contracts. ([#2235](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2235))
 
 ## 3.0.1 (2020-04-27)
 
