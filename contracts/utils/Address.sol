@@ -76,7 +76,7 @@ library Address {
     }
 
     /**
-     * @dev Same as {Address-functionCall-address-bytes-}, but with
+     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`], but with
      * `errorMessage` as a fallback revert reason when `target` reverts.
      */
     function functionCall(address target, bytes memory data, string memory errorMessage) internal returns (bytes memory) {
@@ -102,7 +102,7 @@ library Address {
     }
 
     /**
-     * @dev Same as {Address-functionCallWithValue-address-bytes-uint256-}, but
+     * @dev Same as {xref-Address-functionCallWithValue-address-bytes-uint256-}[`functionCallWithValue`], but
      * with `errorMessage` as a fallback revert reason when `target` reverts.
      */
     function functionCallWithValue(address target, bytes memory data, uint256 value, string memory errorMessage) internal returns (bytes memory) {
