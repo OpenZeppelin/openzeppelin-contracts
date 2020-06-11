@@ -70,6 +70,8 @@ library Address {
      *
      * - `target` must be a contract.
      * - calling `target` with `data` must not revert.
+     *
+     * _Available since v3.1._
      */
     function functionCall(address target, bytes memory data) internal returns (bytes memory) {
       return functionCall(target, data, "Address: low-level call failed");
@@ -78,6 +80,8 @@ library Address {
     /**
      * @dev Same as {Address-functionCall-address-bytes-}, but with
      * `errorMessage` as a fallback revert reason when `target` reverts.
+     *
+     * _Available since v3.1._
      */
     function functionCall(address target, bytes memory data, string memory errorMessage) internal returns (bytes memory) {
         return _functionCallWithValue(target, data, 0, errorMessage);
@@ -96,6 +100,8 @@ library Address {
      * - `target` must be a contract.
      * - the calling contract must have an ETH balance of at least `value`.
      * - calling `target` with `data` must not revert.
+     *
+     * _Available since v3.1._
      */
     function functionCallWithValue(address target, bytes memory data, uint256 value) internal returns (bytes memory) {
         return functionCallWithValue(target, data, value, "Address: low-level call with value failed");
@@ -104,6 +110,8 @@ library Address {
     /**
      * @dev Same as {Address-functionCallWithValue-address-bytes-uint256-}, but
      * with `errorMessage` as a fallback revert reason when `target` reverts.
+     *
+     * _Available since v3.1._
      */
     function functionCallWithValue(address target, bytes memory data, uint256 value, string memory errorMessage) internal returns (bytes memory) {
         require(address(this).balance >= value, "Address: insufficient balance for call");

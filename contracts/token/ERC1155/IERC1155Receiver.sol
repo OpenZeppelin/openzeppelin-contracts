@@ -5,9 +5,8 @@ pragma solidity ^0.6.0;
 import "../../introspection/IERC165.sol";
 
 /**
-    @title ERC-1155 Multi Token Receiver Interface
-    @dev See https://eips.ethereum.org/EIPS/eip-1155
-*/
+ * _Available since v3.1._
+ */
 interface IERC1155Receiver is IERC165 {
 
     /**

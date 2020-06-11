@@ -7,6 +7,8 @@ import "./ERC1155.sol";
 /**
  * @dev Extension of {ERC1155} that allows token holders to destroy both their
  * own tokens and those that they have been approved to use.
+ *
+ * _Available since v3.1._
  */
 abstract contract ERC1155Burnable is ERC1155 {
     function burn(address account, uint256 id, uint256 value) public virtual {

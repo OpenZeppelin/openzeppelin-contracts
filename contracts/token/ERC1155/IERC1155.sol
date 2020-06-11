@@ -7,6 +7,8 @@ import "../../introspection/IERC165.sol";
 /**
  * @dev Required interface of an ERC1155 compliant contract, as defined in the
  * https://eips.ethereum.org/EIPS/eip-1155[EIP].
+ *
+ * _Available since v3.1._
  */
 interface IERC1155 is IERC165 {
     /**
