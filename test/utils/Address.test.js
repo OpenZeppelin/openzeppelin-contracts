@@ -148,7 +148,7 @@ describe('Address', function () {
           this.mock.functionCall(this.contractRecipient.address, abiEncodedCall),
           'Address: low-level call failed'
         );
-      });
+      }).timeout(5000);
 
       it('reverts when the called function throws', async function () {
         const abiEncodedCall = web3.eth.abi.encodeFunctionCall({
