@@ -101,7 +101,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     }
 
     /**
-     * @dev See {IERC721-balanceOf}. 
+     * @dev See {IERC721-balanceOf}.
      */
     function balanceOf(address owner) public view override returns (uint256) {
         require(owner != address(0), "ERC721: balance query for the zero address");
@@ -253,7 +253,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      *
      * `_data` is additional data, it has no specified format and it is sent in call to `to`.
      *
-     * This internal function is equivalent to {safeTransfertFrom}, and can be used to e.g.
+     * This internal function is equivalent to {safeTransferFrom}, and can be used to e.g.
      * implement alternative mecanisms to perform token transfer, such as signature-based.
      *
      * Requirements:
@@ -275,7 +275,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      *
      * Tokens can be managed by their owner or approved accounts via {approve} or {setApprovalForAll}.
      *
-     * Tokens start existing when they are minted (`_mint`), 
+     * Tokens start existing when they are minted (`_mint`),
      * and stop existing when they are burned (`_burn`).
      */
     function _exists(uint256 tokenId) internal view returns (bool) {
@@ -310,7 +310,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     }
 
     /**
-     * @dev Same as {_safeMint-address-uint256-}, with an additional `data` parameter which is forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
+     * @dev Same as {ERC721-_safeMint-address-uint256-}, with an additional `data` parameter which is forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
      */
     function _safeMint(address to, uint256 tokenId, bytes memory _data) internal virtual {
         _mint(to, tokenId);
