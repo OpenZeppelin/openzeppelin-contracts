@@ -78,7 +78,7 @@ library Address {
     }
 
     /**
-     * @dev Same as {Address-functionCall-address-bytes-}, but with
+     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`], but with
      * `errorMessage` as a fallback revert reason when `target` reverts.
      *
      * _Available since v3.1._
@@ -108,7 +108,7 @@ library Address {
     }
 
     /**
-     * @dev Same as {Address-functionCallWithValue-address-bytes-uint256-}, but
+     * @dev Same as {xref-Address-functionCallWithValue-address-bytes-uint256-}[`functionCallWithValue`], but
      * with `errorMessage` as a fallback revert reason when `target` reverts.
      *
      * _Available since v3.1._
