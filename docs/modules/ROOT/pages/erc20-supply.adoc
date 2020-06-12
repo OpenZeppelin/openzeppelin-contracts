@@ -57,18 +57,18 @@ As we can see, `_mint` makes it super easy to do this correctly.
 [[modularizing-the-mechanism]]
 == Modularizing the Mechanism
 
-There is one supply mechanism already included in Contracts: `ERC20DeployReady`. This is a generic mechanism in which a set of accounts is assigned the `minter` role, granting them the permission to call a `mint` function, an external version of `_mint`.
+There is one supply mechanism already included in Contracts: `ERC20PresetMinterPauser`. This is a generic mechanism in which a set of accounts is assigned the `minter` role, granting them the permission to call a `mint` function, an external version of `_mint`.
 
-This can be used for centralized minting, where an externally owned account (i.e. someone with a pair of cryptographic keys) decides how much supply to create and to whom. There are very legitimate use cases for this mechanism, such as https://medium.com/reserve-currency/why-another-stablecoin-866f774afede#3aea[traditional asset-backed stablecoins].
+This can be used for centralized minting, where an externally owned account (i.e. someone with a pair of cryptographic keys) decides how much supply to create and for whom. There are very legitimate use cases for this mechanism, such as https://medium.com/reserve-currency/why-another-stablecoin-866f774afede#3aea[traditional asset-backed stablecoins].
 
 The accounts with the minter role don't need to be externally owned, though, and can just as well be smart contracts that implement a trustless mechanism. We can in fact implement the same behavior as the previous section.
 
 [source,solidity]
 ----
 contract MinerRewardMinter {
-    ERC20MinterPauser _token;
+    ERC20PresetMinterPauser _token;
 
-    constructor(ERC20MinterPauser token) public {
+    constructor(ERC20PresetMinterPauser token) public {
         _token = token;
     }
 
@@ -78,16 +78,16 @@ contract MinerRewardMinter {
 }
 ----
 
-This contract, when initialized with an `ERC20DeployReady` instance, will result in exactly the same behavior implemented in the previous section. What is interesting about using `ERC20DeployReady` is that we can easily combine multiple supply mechanisms by assigning the role to multiple contracts, and moreover that we can do this dynamically.
+This contract, when initialized with an `ERC20PresetMinterPauser` instance, and granted the `minter` role for that contract, will result in exactly the same behavior implemented in the previous section. What is interesting about using `ERC20PresetMinterPauser` is that we can easily combine multiple supply mechanisms by assigning the role to multiple contracts, and moreover that we can do this dynamically.
 
 TIP: To learn more about roles and permissioned systems, head to our xref:access-control.adoc[Access Control guide].
 
 [[automating-the-reward]]
 == Automating the Reward
 
-Additionally to `_mint`, `ERC20` provides other internal functions that can be used or extended, such as xref:api:token/ERC20.adoc#ERC20-_transfer-address-address-uint256-[`_transfer`]. This function implements token transfers and is used by `ERC20`, so it can be used to trigger functionality automatically. This is something that can't be done with the `ERC20Mintable` approach.
+So far our supply mechanisms were triggered manually, but `ERC20` also allows us to extend the core functionality of the token through the xref:api:token/ERC20.adoc#ERC20-_beforeTokenTransfer-address-address-uint256-[`_beforeTokenTransfer`] hook (see xref:extending-contracts.adoc#using-hooks[Using Hooks]).
 
-Adding to our previous supply mechanism, we can use this to mint a miner reward for every token transfer that is included in the blockchain.
+Adding to the supply mechanism from previous sections, we can use this hook to mint a miner reward for every token transfer that is included in the blockchain.
 
 [source,solidity]
 ----
@@ -98,16 +98,14 @@ contract ERC20WithAutoMinerReward is ERC20 {
         _mint(block.coinbase, 1000);
     }
 
-    function _transfer(address from, address to, uint256 value) internal override {
+    function _beforeTokenTransfer(address from, address to, uint256 value) internal virtual override {
         _mintMinerReward();
-        super._transfer(from, to, value);
+        super._beforeTokenTransfer(from, to, value);
     }
 }
 ----
 
-Note how we override `_transfer` to first mint the miner reward and then run the original implementation by calling `super._transfer`. This last step is very important to preserve the original semantics of ERC20 transfers.
-
 [[wrapping-up]]
 == Wrapping Up
 
-We've seen two ways to implement ERC20 supply mechanisms: internally through `_mint`, and externally through `ERC20Mintable`. Hopefully this has helped you understand how to use OpenZeppelin and some of the design principles behind it, and you can apply them to your own smart contracts.
+We've seen two ways to implement ERC20 supply mechanisms: internally through `_mint`, and externally through `ERC20PresetMinterPauser`. Hopefully this has helped you understand how to use OpenZeppelin and some of the design principles behind it, and you can apply them to your own smart contracts.
