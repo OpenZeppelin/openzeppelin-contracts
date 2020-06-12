@@ -85,9 +85,9 @@ TIP: To learn more about roles and permissioned systems, head to our xref:access
 [[automating-the-reward]]
 == Automating the Reward
 
-Additionally to `_mint`, `ERC20` provides other internal functions that can be used or extended, such as xref:api:token/ERC20.adoc#ERC20-_transfer-address-address-uint256-[`_transfer`]. This function implements token transfers and is used by `ERC20`, so it can be used to trigger functionality automatically. This is something that can't be done with the `ERC20Mintable` approach.
+So far our supply mechanisms were triggered manually, but `ERC20` also allows us to extend the core functionality of the token through the xref:api:token/ERC20.adoc#ERC20-_beforeTokenTransfer-address-address-uint256-[`_beforeTokenTransfer`] hook (see xref:extending-contracts.adoc#using-hooks[Using Hooks]).
 
-Adding to our previous supply mechanism, we can use this to mint a miner reward for every token transfer that is included in the blockchain.
+Adding to the supply mechanism from previous sections, we can use this hook to mint a miner reward for every token transfer that is included in the blockchain.
 
 [source,solidity]
 ----
@@ -98,16 +98,14 @@ contract ERC20WithAutoMinerReward is ERC20 {
         _mint(block.coinbase, 1000);
     }
 
-    function _transfer(address from, address to, uint256 value) internal override {
+    function _beforeTokenTransfer(address from, address to, uint256 value) internal virtual override {
         _mintMinerReward();
-        super._transfer(from, to, value);
+        super._beforeTokenTransfer(from, to, value);
     }
 }
 ----
 
-Note how we override `_transfer` to first mint the miner reward and then run the original implementation by calling `super._transfer`. This last step is very important to preserve the original semantics of ERC20 transfers.
-
 [[wrapping-up]]
 == Wrapping Up
 
-We've seen two ways to implement ERC20 supply mechanisms: internally through `_mint`, and externally through `ERC20Mintable`. Hopefully this has helped you understand how to use OpenZeppelin and some of the design principles behind it, and you can apply them to your own smart contracts.
+We've seen two ways to implement ERC20 supply mechanisms: internally through `_mint`, and externally through `ERC20PresetMinterPauser`. Hopefully this has helped you understand how to use OpenZeppelin and some of the design principles behind it, and you can apply them to your own smart contracts.
