@@ -64,7 +64,7 @@
     "lodash.startcase": "^4.4.0",
     "lodash.zip": "^4.2.0",
     "micromatch": "^4.0.2",
-    "mocha": "^7.2.0",
+    "mocha": "^8.0.0",
     "solhint": "^3.0.0",
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
     "solidity-docgen": "^0.5.3"
