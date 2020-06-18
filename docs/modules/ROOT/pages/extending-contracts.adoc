@@ -18,6 +18,8 @@ Inheritance is often used to add the parent contract's functionality to your own
 For example, imagine you want to change xref:api:access.adoc#AccessControl[`AccessControl`] so that xref:api:access.adoc#AccessControl-revokeRole-bytes32-address-[`revokeRole`] can no longer be called. This can be achieved using overrides:
 
 ```solidity
+// contracts/ModifiedAccessControl.sol
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.6.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
@@ -44,6 +46,8 @@ Here is a modified version of xref:api:access.adoc#AccessControl[`AccessControl`
 
 
 ```solidity
+// contracts/ModifiedAccessControl.sol
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.6.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
@@ -62,7 +66,7 @@ contract ModifiedAccessControl is AccessControl {
 
 The `super.revokeRole` statement at the end will invoke ``AccessControl``'s original version of `revokeRole`, the same code that would've run if there were no overrides in place.
 
-NOTE: As of v3.0.0, `view` functions are not `virtual` in OpenZeppelin, and therefore cannot be overriden. We're considering https://github.com/OpenZeppelin/openzeppelin-contracts/issues/2154[lifting this restriction] in an upcoming release. Let us know if this is something you care about!
+NOTE: As of v3.0.0, `view` functions are not `virtual` in OpenZeppelin, and therefore cannot be overridden. We're considering https://github.com/OpenZeppelin/openzeppelin-contracts/issues/2154[lifting this restriction] in an upcoming release. Let us know if this is something you care about!
 
 [[using-hooks]]
 == Using Hooks
@@ -92,6 +96,9 @@ contract ERC20WithSafeTransfer is ERC20 {
     function _validRecipient(address to) private view returns (bool) {
         ...
     }
+    
+    ...
+}
 ```
 
 Using hooks this way leads to cleaner and safer code, without having to rely on a deep understanding of the parent's internals.
@@ -100,7 +107,7 @@ Using hooks this way leads to cleaner and safer code, without having to rely on 
 ====
 Hooks are a new feature of OpenZeppelin Contracts v3.0.0, and we're eager to learn how you plan to use them!
 
-So far, the only available hook is `_beforeTransferHook`, in all of xref:api:token/ERC20.adoc#ERC20-_beforeTokenTransfer-address-address-uint256-[`ERC20`], xref:api:token/ERC721.adoc#ERC721-_beforeTokenTransfer-address-address-uint256-[ERC721] and xref:api:token/ERC777.adoc#ERC777-_beforeTokenTransfer-address-address-address-uint256-[ERC777]. If you have ideas for new hooks, let us know!
+So far, the only available hook is `_beforeTransferHook`, in all of xref:api:token/ERC20.adoc#ERC20-_beforeTokenTransfer-address-address-uint256-[`ERC20`], xref:api:token/ERC721.adoc#ERC721-_beforeTokenTransfer-address-address-uint256-[`ERC721`] and xref:api:token/ERC777.adoc#ERC777-_beforeTokenTransfer-address-address-address-uint256-[`ERC777`]. If you have ideas for new hooks, let us know!
 ====
 
 === Rules of Hooks
@@ -121,3 +128,4 @@ contract MyToken is ERC20 {
 }
 ```
 That's it! Enjoy simpler code using hooks!
+
