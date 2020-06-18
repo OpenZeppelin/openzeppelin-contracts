@@ -53,7 +53,7 @@ contract GameItems is ERC1155 {
 }
 ----
 
-Note, that for our Game Items, Gold is a fungible token whilst Thor's Hammer is a non-fungible token as we minted only one.
+Note that for our Game Items, Gold is a fungible token whilst Thor's Hammer is a non-fungible token as we minted only one.
 
 The xref:api:token/ERC1155.adoc#ERC1155[`ERC1155`] contract includes the optional extension xref:api:token/ERC1155.adoc#IERC1155MetadataURI[`IERC1155MetadataURI`]. That's where the xref:api:token/ERC1155.adoc#IERC1155MetadataURI-uri-uint256-[`uri`] function comes from: we use it to retrieve the metadata uri.
 
@@ -116,4 +116,4 @@ NOTE: you'll notice that the item's information is included in the metadata, but
 == Preset ERC1155 contract
 A preset ERC1155 is available, xref:api:presets/ERC1155PresetMinterPauser[ERC1155PresetMinterPauser]. It is preset to allow for token minting (create) - including batch minting, stop all token transfers (pause) and allow holders to burn (destroy) their tokens. The contract uses xref:access-control.adoc[Access Control] to control access to the minting and pausing functionality.  The account that deploys the contract will be granted the minter and pauser roles, as well as the default admin role.
 
-This contract is ready to deploy without having to write any Solidity code.  It can can be used as-is for quick prototyping and testing, but is also suitable for production environments.
+This contract is ready to deploy without having to write any Solidity code.  It can be used as-is for quick prototyping and testing, but is also suitable for production environments.
