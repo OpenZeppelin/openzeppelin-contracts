@@ -19,3 +19,9 @@ This approach leads to massive gas savings for projects that require multiple to
 Because all state is held in a single contract, it is possible to operate over multiple tokens in a single transaction very efficiently. The standard provides two functions, xref:api:token/ERC1155.adoc#IERC1155-balanceOfBatch-address---uint256---[`balanceOfBatch`] and xref:api:token/ERC1155.adoc#IERC1155-safeBatchTransferFrom-address-address-uint256---uint256---bytes-[`safeBatchTransferFrom`], that make querying multiple balances and transferring multiple tokens simpler and less gas-intensive.
 
 In the spirit of the standard, we've also included batch operations in the non-standard functions, such as xref:api:token/ERC1155.adoc#ERC1155-_mintBatch-address-uint256---uint256---bytes-[`_mintBatch`].
+
+[[Presets]]
+== Preset ERC1155 contract
+A preset ERC1155 is available, xref:api:presets/ERC1155PresetMinterPauser[ERC1155PresetMinterPauser]. It is preset to allow for token minting (create) - including batch minting, stop all token transfers (pause) and allow holders to burn (destroy) their tokens. The contract uses xref:access-control.adoc[Access Control] to control access to the minting and pausing functionality.  The account that deploys the contract will be granted the minter and pauser roles, as well as the default admin role.
+
+This contract is ready to deploy without having to write any Solidity code.  It can can be used as-is for quick prototyping and testing, but is also suitable for production environments.
