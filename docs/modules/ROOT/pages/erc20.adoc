@@ -74,4 +74,4 @@ transfer(recipient, 5 * 10^18);
 == Preset ERC20 contract
 A preset ERC20 is available, xref:api:presets/ERC20PresetMinterPauser[ERC20PresetMinterPauser]. It is preset to allow for token minting (create), stop all token transfers (pause) and allow holders to burn (destroy) their tokens. The contract uses xref:access-control.adoc[Access Control] to control access to the minting and pausing functionality.  The account that deploys the contract will be granted the minter and pauser roles, as well as the default admin role.
 
-This contract is ready to deploy without having to write any Solidity code.  It can can be used as-is for quick prototyping and testing, but is also suitable for production environments.
+This contract is ready to deploy without having to write any Solidity code.  It can be used as-is for quick prototyping and testing, but is also suitable for production environments.
