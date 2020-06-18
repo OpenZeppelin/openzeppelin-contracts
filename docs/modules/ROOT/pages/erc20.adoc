@@ -13,12 +13,14 @@ Here's what our GLD token might look like.
 
 [source,solidity]
 ----
+// contracts/GLDToken.sol
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.6.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract GLDToken is ERC20 {
-    constructor(uint256 initialSupply) ERC20("Gold", "GLD") public {
+    constructor(uint256 initialSupply) public ERC20("Gold", "GLD") {
         _mint(msg.sender, initialSupply);
     }
 }
@@ -33,18 +35,18 @@ That's it! Once deployed, we will be able to query the deployer's balance:
 [source,javascript]
 ----
 > GLDToken.balanceOf(deployerAddress)
-1000
+1000000000000000000000
 ----
 
 We can also xref:api:token/ERC20.adoc#IERC20-transfer-address-uint256-[transfer] these tokens to other accounts:
 
 [source,javascript]
 ----
-> GLDToken.transfer(otherAddress, 300)
+> GLDToken.transfer(otherAddress, 300000000000000000000)
 > GLDToken.balanceOf(otherAddress)
-300
+300000000000000000000
 > GLDToken.balanceOf(deployerAddress)
-700
+700000000000000000000
 ----
 
 [[a-note-on-decimals]]
