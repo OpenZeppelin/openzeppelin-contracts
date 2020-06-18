@@ -107,7 +107,7 @@ Using hooks this way leads to cleaner and safer code, without having to rely on 
 ====
 Hooks are a new feature of OpenZeppelin Contracts v3.0.0, and we're eager to learn how you plan to use them!
 
-So far, the only available hook is `_beforeTransferHook`, in all of xref:api:token/ERC20.adoc#ERC20-_beforeTokenTransfer-address-address-uint256-[`ERC20`], xref:api:token/ERC721.adoc#ERC721-_beforeTokenTransfer-address-address-uint256-[`ERC721`] and xref:api:token/ERC777.adoc#ERC777-_beforeTokenTransfer-address-address-address-uint256-[`ERC777`]. If you have ideas for new hooks, let us know!
+So far, the only available hook is `_beforeTransferHook`, in all of xref:api:token/ERC20.adoc#ERC20-_beforeTokenTransfer-address-address-uint256-[`ERC20`], xref:api:token/ERC721.adoc#ERC721-_beforeTokenTransfer-address-address-uint256-[`ERC721`], xref:api:token/ERC777.adoc#ERC777-_beforeTokenTransfer-address-address-address-uint256-[`ERC777`] and xref:api:token/ERC1155.adoc#ERC1155-_beforeTokenTransfer-address-address-address-uint256---uint256---bytes-[`ERC1155`]. If you have ideas for new hooks, let us know!
 ====
 
 === Rules of Hooks
