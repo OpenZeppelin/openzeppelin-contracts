@@ -112,6 +112,34 @@ For more information about the metadata JSON Schema, check out the https://githu
 
 NOTE: you'll notice that the item's information is included in the metadata, but that information isn't on-chain! So a game developer could change the underlying metadata, changing the rules of the game!
 
+[[sending-to-contracts]]
+== Sending Tokens to Contracts
+
+A key difference when using xref:api:token/ERC1155.adoc#IERC1155-safeTransferFrom-address-address-uint256-uint256-bytes-[`safeTransferFrom`] is that token transfers to other contracts may revert with the following message:
+
+[source,text]
+----
+ERC1155: transfer to non ERC1155Receiver implementer
+----
+
+This is a good thing! It means that the recipient contract has not registered itself as aware of the ERC1155 protocol, so transfers to it are disabled to *prevent tokens from being locked forever*. As an example, https://etherscan.io/token/0xa74476443119A942dE498590Fe1f2454d7D4aC0d?a=0xa74476443119A942dE498590Fe1f2454d7D4aC0d[the Golem contract currently holds over 350k `GNT` tokens], worth multiple tens of thousands of dollars, and lacks methods to get them out of there. This has happened to virtually every ERC20-backed project, usually due to user error.
+
+In order for our contract to receive ERC1155 tokens we can inherit from the convenience contract xref:api:token/ERC1155.adoc#ERC1155Holder[`ERC1155Holder`] which handles the registering for us.  Though we need to remember to implement functionality to allow tokens to be transferred out of our contract:
+
+[source,solidity]
+----
+// contracts/MyContract.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.6.0;
+
+import "@openzeppelin/contracts/token/ERC1155/ERC1155Holder.sol";
+
+contract MyContract is ERC1155Holder {
+}
+----
+
+We can also implement more complex scenarios using the xref:api:token/ERC1155.adoc#IERC1155Receiver-onERC1155Received-address-address-uint256-uint256-bytes-[`onERC1155Received`] and xref:api:token/ERC1155.adoc#IERC1155Receiver-onERC1155BatchReceived-address-address-uint256---uint256---bytes-[`onERC1155BatchReceived`] hooks.
+
 [[Presets]]
 == Preset ERC1155 contract
 A preset ERC1155 is available, xref:api:presets/ERC1155PresetMinterPauser[ERC1155PresetMinterPauser]. It is preset to allow for token minting (create) - including batch minting, stop all token transfers (pause) and allow holders to burn (destroy) their tokens. The contract uses xref:access-control.adoc[Access Control] to control access to the minting and pausing functionality.  The account that deploys the contract will be granted the minter and pauser roles, as well as the default admin role.
