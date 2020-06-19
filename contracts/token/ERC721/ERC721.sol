@@ -48,7 +48,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     string private _symbol;
 
     // Optional mapping for token URIs
-    mapping(uint256 => string) private _tokenURIs;
+    mapping (uint256 => string) private _tokenURIs;
 
     // Base URI
     string private _baseURI;
