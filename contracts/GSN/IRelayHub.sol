@@ -180,7 +180,7 @@ interface IRelayHub {
      *  - `gasLimit`: gas to forward when calling the encoded function
      *  - `nonce`: client's nonce
      *  - `signature`: client's signature over all previous params, plus the relay and RelayHub addresses
-     *  - `approvalData`: dapp-specific data forwared to {acceptRelayedCall}. This value is *not* verified by the
+     *  - `approvalData`: dapp-specific data forwarded to {acceptRelayedCall}. This value is *not* verified by the
      * `RelayHub`, but it still can be used for e.g. a signature.
      *
      * Emits a {TransactionRelayed} event.
