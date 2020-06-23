@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.1.0 (unreleased)
+## 3.1.0 (2020-06-23)
 
 ### New features
  * `SafeCast`: added functions to downcast signed integers (e.g. `toInt32`), improving usability of `SignedSafeMath`. ([#2243](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2243))
