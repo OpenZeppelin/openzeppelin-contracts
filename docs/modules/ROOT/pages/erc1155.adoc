@@ -22,7 +22,7 @@ In the spirit of the standard, we've also included batch operations in the non-s
 
 == Constructing an ERC1155 Token Contract
 
-We'll use ERC1155 to track multiple items in our game, which will each have their own unique attributes. We mint all items to the deployer of the contract, we can transfer them to players. Players are free to keep their tokens or trade them with other people as they see fit, as they would any other asset on the blockchain!  
+We'll use ERC1155 to track multiple items in our game, which will each have their own unique attributes. We mint all items to the deployer of the contract, which we can later transfer to players. Players are free to keep their tokens or trade them with other people as they see fit, as they would any other asset on the blockchain!  
 
 For simplicity we will mint all items in the constructor but you could add minting functionality to the contract to mint on demand to players.
 
