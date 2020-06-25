@@ -7,6 +7,8 @@ const AddressImpl = contract.fromArtifact('AddressImpl');
 const EtherReceiver = contract.fromArtifact('EtherReceiverMock');
 const CallReceiverMock = contract.fromArtifact('CallReceiverMock');
 
+const coverage = process.env.OZ_TEST_ENV_COVERAGE;
+
 describe('Address', function () {
   const [ recipient, other ] = accounts;
 
@@ -138,6 +140,7 @@ describe('Address', function () {
       });
 
       it('reverts when the called function runs out of gas', async function () {
+        if (coverage) { return this.skip(); }
         const abiEncodedCall = web3.eth.abi.encodeFunctionCall({
           name: 'mockFunctionOutOfGas',
           type: 'function',
