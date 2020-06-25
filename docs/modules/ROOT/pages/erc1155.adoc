@@ -91,7 +91,7 @@ The metadata uri can be obtained:
 [source,javascript]
 ----
 > gameItems.uri(2)
-"https://game.example/api/item/{0}.json"
+"https://game.example/api/item/{id}.json"
 ----
 
 The `uri` can include the string `{id}` which clients must replace with the actual token ID, in lowercase hexadecimal (with no 0x prefix) and leading zero padded to 64 hex characters.
