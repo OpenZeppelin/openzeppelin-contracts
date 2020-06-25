@@ -140,7 +140,7 @@ contract MyContract is ERC1155Holder {
 }
 ----
 
-We can also implement more complex scenarios using the xref:api:token/ERC1155.adoc#IERC1155Receiver-onERC1155Received-address-address-uint256-uint256-bytes-[`onERC1155Received`] and xref:api:token/ERC1155.adoc#IERC1155Receiver-onERC1155BatchReceived-address-address-uint256---uint256---bytes-[`onERC1155BatchReceived`] hooks.
+We can also implement more complex scenarios using the xref:api:token/ERC1155.adoc#IERC1155Receiver-onERC1155Received-address-address-uint256-uint256-bytes-[`onERC1155Received`] and xref:api:token/ERC1155.adoc#IERC1155Receiver-onERC1155BatchReceived-address-address-uint256---uint256---bytes-[`onERC1155BatchReceived`] functions.
 
 [[Presets]]
 == Preset ERC1155 contract
