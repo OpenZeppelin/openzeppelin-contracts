@@ -1,4 +1,4 @@
-const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
+const { accounts, contract, web3, config } = require('@openzeppelin/test-environment');
 
 const { balance, ether, expectRevert, send, expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
@@ -7,7 +7,7 @@ const AddressImpl = contract.fromArtifact('AddressImpl');
 const EtherReceiver = contract.fromArtifact('EtherReceiverMock');
 const CallReceiverMock = contract.fromArtifact('CallReceiverMock');
 
-const coverage = process.env.OZ_TEST_ENV_COVERAGE;
+const coverage = config.coverage;
 
 describe('Address', function () {
   const [ recipient, other ] = accounts;
