@@ -11,6 +11,8 @@ OpenZeppelin provides xref:api:access.adoc#Ownable[`Ownable`] for implementing o
 
 [source,solidity]
 ----
+// contracts/MyContract.sol
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.6.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -46,7 +48,7 @@ While the simplicity of _ownership_ can be useful for simple systems or quick pr
 
 In essence, we will be defining multiple _roles_, each allowed to perform different sets of actions. An account may have, for example, 'moderator', 'minter' or 'admin' roles, which you will then check for instead of simply using `onlyOwner`. Separately, you will be able to define rules for how accounts can be granted a role, have it revoked, and more.
 
-Most of software development uses access control systems that are role-based: some users are regular users, some may be supervisors or managers, and a few will often have administrative privileges.
+Most software uses access control systems that are role-based: some users are regular users, some may be supervisors or managers, and a few will often have administrative privileges.
 
 [[using-access-control]]
 === Using `AccessControl`
@@ -58,6 +60,8 @@ Here's a simple example of using `AccessControl` in an xref:tokens.adoc#ERC20[`E
 
 [source,solidity]
 ----
+// contracts/MyToken.sol
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.6.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
@@ -88,6 +92,8 @@ Let's augment our ERC20 token example by also defining a 'burner' role, which le
 
 [source,solidity]
 ----
+// contracts/MyToken.sol
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.6.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
@@ -119,7 +125,7 @@ So clean! By splitting concerns this way, more granular levels of permission may
 [[granting-and-revoking]]
 === Granting and Revoking Roles
 
-The ERC20 token example above uses `\_setupRole`, an `internal` function that is useful when programmatically asigning roles (such as during construction). But what if we later want to grant the 'minter' role to additional accounts?
+The ERC20 token example above uses `_setupRole`, an `internal` function that is useful when programmatically assigning roles (such as during construction). But what if we later want to grant the 'minter' role to additional accounts?
 
 By default, **accounts with a role cannot grant it or revoke it from other accounts**: all having a role does is making the `hasRole` check pass. To grant and revoke roles dynamically, you will need help from the _role's admin_.
 
@@ -131,6 +137,8 @@ Let's take a look at the ERC20 token example, this time taking advantage of the 
 
 [source,solidity]
 ----
+// contracts/MyToken.sol
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.6.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
@@ -160,7 +168,7 @@ contract MyToken is ERC20, AccessControl {
 
 Note that, unlike the previous examples, no accounts are granted the 'minter' or 'burner' roles. However, because those roles' admin role is the default admin role, and _that_ role was granted to `msg.sender`, that same account can call `grantRole` to give minting or burning permission, and `revokeRole` to remove it.
 
-Dynamic role allocation is a often a desirable property, for example in systems where trust in a participant may vary over time. It can also be used to support use cases such as https://en.wikipedia.org/wiki/Know_your_customer[KYC], where the list of role-bearers may not be known up-front, or may be prohibitively expensive to include in a single transaction.
+Dynamic role allocation is often a desirable property, for example in systems where trust in a participant may vary over time. It can also be used to support use cases such as https://en.wikipedia.org/wiki/Know_your_customer[KYC], where the list of role-bearers may not be known up-front, or may be prohibitively expensive to include in a single transaction.
 
 [[querying-privileged-accounts]]
 === Querying Privileged Accounts

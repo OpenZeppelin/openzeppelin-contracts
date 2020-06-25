@@ -16,4 +16,4 @@ Removed contracts are still available on the v2.5 release of OpenZeppelin Contra
 $ npm install @openzeppelin/contracts@v2.5
 ```
 
-Refer to the xref:2.x@contracts:api:utils.adoc[v2.x documentation] when working with them.
+Refer to the xref:2.x@contracts:api:drafts.adoc[v2.x documentation] when working with them.
