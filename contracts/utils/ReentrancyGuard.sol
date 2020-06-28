@@ -30,8 +30,8 @@ contract ReentrancyGuard {
     // amount. Since refunds are capped to a percentage of the total
     // transaction's gas, it is best to keep them low in cases like this one, to
     // increase the likelihood of the full refund coming into effect.
-    uint256 private constant _NOT_ENTERED = 1;
-    uint256 private constant _ENTERED = 2;
+    uint256 private constant _NOT_ENTERED;
+    uint256 private constant _ENTERED = 1;
 
     uint256 private _status;
 
