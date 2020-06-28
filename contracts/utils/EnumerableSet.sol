@@ -158,6 +158,21 @@ library EnumerableSet {
         return _remove(set._inner, bytes32(uint256(value)));
     }
 
+	/**
+	 * @dev Returns an array with all values in the set. O(N).
+	 * Note that there are no guarantees on the ordering of values inside the
+	 * array, and it may change when more values are added or removed.
+	 * WARNING: This function may run out of gas on large sets: use {length} and
+	 * {at} instead in these cases.
+	 */
+	function enumerate(AddressSet storage set) internal view returns (address[] memory) {
+		address[] memory output = new address[](set._inner._values.length);
+		for (uint256 i; i < set._inner._values.length; i++) {
+			output[i] = address(uint256(set._inner._values[i]));
+		}
+		return output;
+	}
+
     /**
      * @dev Returns true if the value is in the set. O(1).
      */
@@ -212,6 +227,21 @@ library EnumerableSet {
     function remove(UintSet storage set, uint256 value) internal returns (bool) {
         return _remove(set._inner, bytes32(value));
     }
+
+	/**
+	 * @dev Returns an array with all values in the set. O(N).
+	 * Note that there are no guarantees on the ordering of values inside the
+	 * array, and it may change when more values are added or removed.
+	 * WARNING: This function may run out of gas on large sets: use {length} and
+	 * {at} instead in these cases.
+	 */
+	function enumerate(UintSet storage set) internal view returns (uint256[] memory) {
+		uint256[] memory output = new uint256[](set._inner._values.length);
+		for (uint256 i; i < set._inner._values.length; i++) {
+			output[i] = uint256(set._inner._values[i]);
+		}
+		return output;
+	}
 
     /**
      * @dev Returns true if the value is in the set. O(1).
