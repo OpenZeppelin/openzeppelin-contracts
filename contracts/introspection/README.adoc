@@ -1,7 +1,7 @@
 = Introspection
 
 [.readme-notice]
-NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/introspection.
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/introspection
 
 This set of interfaces and contracts deal with https://en.wikipedia.org/wiki/Type_introspection[type introspection] of contracts, that is, examining which functions can be called on them. This is usually referred to as a contract's _interface_.
 

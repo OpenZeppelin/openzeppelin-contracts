@@ -1,7 +1,7 @@
 = Payment
 
 [.readme-notice]
-NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/payment.
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/payment
 
 Utilities related to sending and receiving payments. Examples are {PullPayment}, which implements the best security practices when sending funds to third parties, and {PaymentSplitter} to receive incoming payments among a number of beneficiaries.
 

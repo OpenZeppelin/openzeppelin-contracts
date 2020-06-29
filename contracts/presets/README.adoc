@@ -1,7 +1,7 @@
 = Presets
 
 [.readme-notice]
-NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/presets.
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/presets
 
 These contracts integrate different Ethereum standards (ERCs) with custom extensions and modules, showcasing common configurations that are ready to deploy **without having to write any Solidity code**.
 
