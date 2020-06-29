@@ -43,6 +43,7 @@ import "../GSN/Context.sol";
  */
 abstract contract AccessControl is Context {
     using EnumerableSet for EnumerableSet.AddressSet;
+    using EnumerableSet for EnumerableSet.Bytes32Set;
     using Address for address;
 
     struct RoleData {
@@ -51,6 +52,8 @@ abstract contract AccessControl is Context {
     }
 
     mapping (bytes32 => RoleData) private _roles;
+
+    mapping (address => EnumerableSet.Bytes32Set) private _accountRoles;
 
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
 
@@ -120,6 +123,30 @@ abstract contract AccessControl is Context {
      */
     function getRoleAdmin(bytes32 role) public view returns (bytes32) {
         return _roles[role].adminRole;
+    }
+
+    /**
+     * @dev Returns the number of roles that `account` has. Can be used
+     * together with {getAccountRole} to enumerate all roles beared by an account.
+     */
+    function getAccountRoleCount(address account) public view returns (uint256) {
+        return _accountRoles[account].length();
+    }
+
+    /**
+     * @dev Returns one of the roles that `account` has. `index` must be a
+     * value between 0 and {getAccountRoleCount}, non-inclusive.
+     *
+     * Roles are not sorted in any particular way, and their ordering may
+     * change at any point.
+     *
+     * WARNING: When using {getAccountRole} and {getAccountRoleCount}, make sure
+     * you perform all queries on the same block. See the following
+     * https://forum.openzeppelin.com/t/iterating-over-elements-on-enumerableset-in-openzeppelin-contracts/2296[forum post]
+     * for more information.
+     */
+    function getAccountRole(address account, uint256 index) public view returns (bytes32) {
+        return _accountRoles[account].at(index);
     }
 
     /**
@@ -204,13 +231,13 @@ abstract contract AccessControl is Context {
     }
 
     function _grantRole(bytes32 role, address account) private {
-        if (_roles[role].members.add(account)) {
+        if (_roles[role].members.add(account) && _accountRoles[account].add(role)) {
             emit RoleGranted(role, account, _msgSender());
         }
     }
 
     function _revokeRole(bytes32 role, address account) private {
-        if (_roles[role].members.remove(account)) {
+        if (_roles[role].members.remove(account) && _accountRoles[account].remove(role)) {
             emit RoleRevoked(role, account, _msgSender());
         }
     }

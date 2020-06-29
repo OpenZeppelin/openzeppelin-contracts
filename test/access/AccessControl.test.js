@@ -138,6 +138,21 @@ describe('AccessControl', function () {
 
       expect(bearers).to.have.members([authorized, otherAuthorized]);
     });
+
+    it('account roles can be enumerated', async function () {
+      await this.accessControl.grantRole(ROLE, authorized, { from: admin });
+      await this.accessControl.grantRole(OTHER_ROLE, authorized, { from: admin });
+
+      const roleCount = await this.accessControl.getAccountRoleCount(authorized);
+      expect(roleCount).to.bignumber.equal('2');
+
+      const roles = [];
+      for (let i = 0; i < roleCount; ++i) {
+        roles.push(await this.accessControl.getAccountRole(authorized, i));
+      }
+
+      expect(roles).to.have.members([ROLE, OTHER_ROLE]);
+    });
   });
 
   describe('setting role admin', function () {
