@@ -82,6 +82,6 @@ NOTE: you'll notice that the item's information is included in the metadata, but
 
 [[Presets]]
 == Preset ERC721 contract
-A preset ERC721 is available, xref:api:presets/ERC721PresetMinterPauserAutoId[ERC721PresetMinterPauserAutoId]. It is preset to allow for token minting (create) with token ID and URI auto generation, stop all token transfers (pause) and allow holders to burn (destroy) their tokens. The contract uses xref:access-control.adoc[Access Control] to control access to the minting and pausing functionality.  The account that deploys the contract will be granted the minter and pauser roles, as well as the default admin role.
+A preset ERC721 is available, xref:api:presets#ERC721PresetMinterPauserAutoId[`ERC721PresetMinterPauserAutoId`]. It is preset to allow for token minting (create) with token ID and URI auto generation, stop all token transfers (pause) and allow holders to burn (destroy) their tokens. The contract uses xref:access-control.adoc[Access Control] to control access to the minting and pausing functionality.  The account that deploys the contract will be granted the minter and pauser roles, as well as the default admin role.
 
 This contract is ready to deploy without having to write any Solidity code.  It can be used as-is for quick prototyping and testing, but is also suitable for production environments.
