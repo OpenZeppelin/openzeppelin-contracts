@@ -42,7 +42,7 @@ describe('AccessControl', function () {
     it('non-admin cannot grant role to other accounts', async function () {
       await expectRevert(
         this.accessControl.grantRole(ROLE, authorized, { from: other }),
-        'AccessControl: sender must be an admin to grant'
+        'AccessControl: caller must be an admin of the role'
       );
     });
 
@@ -76,7 +76,7 @@ describe('AccessControl', function () {
       it('non-admin cannot revoke role', async function () {
         await expectRevert(
           this.accessControl.revokeRole(ROLE, authorized, { from: other }),
-          'AccessControl: sender must be an admin to revoke'
+          'AccessControl: caller must be an admin of the role'
         );
       });
 
@@ -170,14 +170,14 @@ describe('AccessControl', function () {
     it('a role\'s previous admins no longer grant roles', async function () {
       await expectRevert(
         this.accessControl.grantRole(ROLE, authorized, { from: admin }),
-        'AccessControl: sender must be an admin to grant'
+        'AccessControl: caller must be an admin of the role'
       );
     });
 
     it('a role\'s previous admins no longer revoke roles', async function () {
       await expectRevert(
         this.accessControl.revokeRole(ROLE, authorized, { from: admin }),
-        'AccessControl: sender must be an admin to revoke'
+        'AccessControl: caller must be an admin of the role'
       );
     });
   });
