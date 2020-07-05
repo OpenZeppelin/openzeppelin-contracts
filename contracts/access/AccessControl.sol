@@ -92,7 +92,7 @@ abstract contract AccessControl is Context {
      * @dev Throws if called by any account without the ``role``'s adminRole.
      */
     modifier onlyAdminOf(bytes32 role) {
-        require(hasRole(_roles[role].adminRole, _msgSender()), "AccessControl: caller must be the admin of the role");
+        require(hasRole(_roles[role].adminRole, _msgSender()), "AccessControl: caller must be an admin of the role");
         _;
     }
 
