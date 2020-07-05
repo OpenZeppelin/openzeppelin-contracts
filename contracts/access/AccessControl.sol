@@ -89,6 +89,14 @@ abstract contract AccessControl is Context {
     }
 
     /**
+     * @dev Throws if called by any account whitout the ``role``'s adminRole.
+     */
+    modifier onlyAdminOf(bytes32 role) {
+        require(hasRole(_roles[role].adminRole, _msgSender()), "AccessControl: caller must be the admin of the role");
+        _;
+    }
+
+    /**
      * @dev Returns the number of accounts that have `role`. Can be used
      * together with {getRoleMember} to enumerate all bearers of a role.
      */
@@ -132,9 +140,7 @@ abstract contract AccessControl is Context {
      *
      * - the caller must have ``role``'s admin role.
      */
-    function grantRole(bytes32 role, address account) public virtual {
-        require(hasRole(_roles[role].adminRole, _msgSender()), "AccessControl: sender must be an admin to grant");
-
+    function grantRole(bytes32 role, address account) public virtual onlyAdminOf(role) {
         _grantRole(role, account);
     }
 
@@ -147,9 +153,7 @@ abstract contract AccessControl is Context {
      *
      * - the caller must have ``role``'s admin role.
      */
-    function revokeRole(bytes32 role, address account) public virtual {
-        require(hasRole(_roles[role].adminRole, _msgSender()), "AccessControl: sender must be an admin to revoke");
-
+    function revokeRole(bytes32 role, address account) public virtual onlyAdminOf(role) {
         _revokeRole(role, account);
     }
 
