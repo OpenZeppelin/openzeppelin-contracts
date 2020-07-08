@@ -20,6 +20,7 @@
     "lint:js": "eslint --ignore-path .gitignore .",
     "lint:js:fix": "eslint --ignore-path .gitignore . --fix",
     "lint:sol": "solhint --max-warnings 0 \"contracts/**/*.sol\"",
+    "prepublish": "rimraf build contracts/build",
     "prepare": "npm run compile",
     "prepack": "node scripts/remove-ignored-artifacts.js",
     "release": "scripts/release/release.sh",
@@ -65,6 +66,7 @@
     "lodash.zip": "^4.2.0",
     "micromatch": "^4.0.2",
     "mocha": "^8.0.1",
+    "rimraf": "^3.0.2",
     "solhint": "^3.0.0",
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
     "solidity-docgen": "^0.5.3"
