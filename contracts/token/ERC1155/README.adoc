@@ -14,6 +14,8 @@ Additionally there are multiple custom extensions, including:
 * designation of addresses that can pause token transfers for all users ({ERC1155Pausable}).
 * destruction of own tokens ({ERC1155Burnable}).
 
+NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC1155 (such as <<ERC1155-_mint,`_mint`>>) and expose them as external functions in the way they prefer. On the other hand, xref:ROOT:erc1155.adoc#Presets[ERC1155 Presets] (such as {ERC1155PresetMinterPauser}) are designed using opinionated patterns to provide developers with ready to use, deployable contracts.
+
 == Core
 
 {{IERC1155}}
