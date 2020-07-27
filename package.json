@@ -68,7 +68,7 @@
     "mocha": "^8.0.1",
     "rimraf": "^3.0.2",
     "solhint": "^3.0.0",
-    "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
+    "solidity-coverage": "github:rotcivegaf/solidity-coverage#026fa7abf9ea2482d4153bf3b8e33dd2587409a5",
     "solidity-docgen": "^0.5.3"
   },
   "dependencies": {}
