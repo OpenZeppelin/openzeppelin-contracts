@@ -11,6 +11,8 @@ import "./ERC20.sol";
  * recognized off-chain (via event analysis).
  */
 abstract contract ERC20Burnable is Context, ERC20 {
+    using SafeMath for uint256;
+
     /**
      * @dev Destroys `amount` tokens from the caller.
      *
