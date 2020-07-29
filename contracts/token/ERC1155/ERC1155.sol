@@ -52,7 +52,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     /**
      * @dev See {_setURI}.
      */
-    constructor (string memory uri) public {
+    constructor (string memory uri) {
         _setURI(uri);
 
         // register the supported interfaces to conform to ERC1155 via ERC165

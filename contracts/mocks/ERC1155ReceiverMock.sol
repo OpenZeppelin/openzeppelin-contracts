@@ -20,7 +20,6 @@ contract ERC1155ReceiverMock is IERC1155Receiver, ERC165Mock {
         bytes4 batRetval,
         bool batReverts
     )
-        public
     {
         _recRetval = recRetval;
         _recReverts = recReverts;

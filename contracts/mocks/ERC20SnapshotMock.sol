@@ -11,7 +11,7 @@ contract ERC20SnapshotMock is ERC20Snapshot {
         string memory symbol,
         address initialAccount,
         uint256 initialBalance
-    ) public ERC20(name, symbol) {
+    ) ERC20(name, symbol) {
         _mint(initialAccount, initialBalance);
     }
 

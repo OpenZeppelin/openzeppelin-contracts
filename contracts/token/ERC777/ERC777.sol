@@ -70,7 +70,7 @@ contract ERC777 is Context, IERC777, IERC20 {
         string memory name,
         string memory symbol,
         address[] memory defaultOperators
-    ) public {
+    ) {
         _name = name;
         _symbol = symbol;
 

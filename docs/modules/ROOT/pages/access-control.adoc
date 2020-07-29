@@ -71,7 +71,7 @@ contract MyToken is ERC20, AccessControl {
     // Create a new role identifier for the minter role
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
-    constructor(address minter) public ERC20("MyToken", "TKN") {
+    constructor(address minter) ERC20("MyToken", "TKN") {
         // Grant the minter role to a specified account
         _setupRole(MINTER_ROLE, minter);
     }
@@ -103,7 +103,7 @@ contract MyToken is ERC20, AccessControl {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
 
-    constructor(address minter, address burner) public ERC20("MyToken", "TKN") {
+    constructor(address minter, address burner) ERC20("MyToken", "TKN") {
         _setupRole(MINTER_ROLE, minter);
         _setupRole(BURNER_ROLE, burner);
     }
@@ -148,7 +148,7 @@ contract MyToken is ERC20, AccessControl {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
 
-    constructor() public ERC20("MyToken", "TKN") {
+    constructor() ERC20("MyToken", "TKN") {
         // Grant the contract deployer the default admin role: it will be able
         // to grant and revoke any roles
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);

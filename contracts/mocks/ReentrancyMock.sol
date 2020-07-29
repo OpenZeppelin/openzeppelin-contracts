@@ -8,7 +8,7 @@ import "./ReentrancyAttack.sol";
 contract ReentrancyMock is ReentrancyGuard {
     uint256 public counter;
 
-    constructor () public {
+    constructor () {
         counter = 0;
     }
 

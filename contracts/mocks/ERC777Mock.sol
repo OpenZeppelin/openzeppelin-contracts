@@ -12,7 +12,7 @@ contract ERC777Mock is Context, ERC777 {
         string memory name,
         string memory symbol,
         address[] memory defaultOperators
-    ) public ERC777(name, symbol, defaultOperators) {
+    ) ERC777(name, symbol, defaultOperators) {
         _mint(initialHolder, initialBalance, "", "");
     }
 
