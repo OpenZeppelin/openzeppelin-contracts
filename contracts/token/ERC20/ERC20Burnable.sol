@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.0;
+pragma solidity ^0.7.0;
 
 import "../../GSN/Context.sol";
 import "./ERC20.sol";
@@ -11,6 +11,8 @@ import "./ERC20.sol";
  * recognized off-chain (via event analysis).
  */
 abstract contract ERC20Burnable is Context, ERC20 {
+    using SafeMath for uint256;
+
     /**
      * @dev Destroys `amount` tokens from the caller.
      *

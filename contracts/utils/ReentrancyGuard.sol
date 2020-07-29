@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.0;
+pragma solidity ^0.7.0;
 
 /**
  * @dev Contract module that helps prevent reentrant calls to a function.
@@ -35,7 +35,7 @@ contract ReentrancyGuard {
 
     uint256 private _status;
 
-    constructor () internal {
+    constructor () {
         _status = _NOT_ENTERED;
     }
 

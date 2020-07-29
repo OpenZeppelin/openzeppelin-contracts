@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.0;
+pragma solidity ^0.7.0;
 
 import "./ConditionalEscrow.sol";
 
@@ -27,7 +27,7 @@ contract RefundEscrow is ConditionalEscrow {
      * @dev Constructor.
      * @param beneficiary The beneficiary of the deposits.
      */
-    constructor (address payable beneficiary) public {
+    constructor (address payable beneficiary) {
         require(beneficiary != address(0), "RefundEscrow: beneficiary is the zero address");
         _beneficiary = beneficiary;
         _state = State.Active;

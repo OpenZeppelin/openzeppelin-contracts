@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.0;
+pragma solidity ^0.7.0;
 
 import "../../GSN/Context.sol";
 import "./IERC777.sol";
@@ -70,7 +70,7 @@ contract ERC777 is Context, IERC777, IERC20 {
         string memory name,
         string memory symbol,
         address[] memory defaultOperators
-    ) public {
+    ) {
         _name = name;
         _symbol = symbol;
 

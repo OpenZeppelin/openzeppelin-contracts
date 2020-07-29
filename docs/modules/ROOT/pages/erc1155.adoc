@@ -34,7 +34,7 @@ Here's what a contract for tokenized items might look like:
 ----
 // contracts/GameItems.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.0;
+pragma solidity ^0.7.0;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
@@ -45,7 +45,7 @@ contract GameItems is ERC1155 {
     uint256 public constant SWORD = 3;
     uint256 public constant SHIELD = 4;
 
-    constructor() public ERC1155("https://game.example/api/item/{1}.json") {
+    constructor() ERC1155("https://game.example/api/item/{1}.json") {
         _mint(msg.sender, GOLD, 10**18, "");
         _mint(msg.sender, SILVER, 10**27, "");
         _mint(msg.sender, THORS_HAMMER, 1, "");
@@ -132,7 +132,7 @@ In order for our contract to receive ERC1155 tokens we can inherit from the conv
 ----
 // contracts/MyContract.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.0;
+pragma solidity ^0.7.0;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155Holder.sol";
 

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.2;
+pragma solidity ^0.7.0;
 
 import "./escrow/Escrow.sol";
 
@@ -25,7 +25,7 @@ import "./escrow/Escrow.sol";
 contract PullPayment {
     Escrow private _escrow;
 
-    constructor () internal {
+    constructor () {
         _escrow = new Escrow();
     }
 

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.0;
+pragma solidity ^0.7.0;
 
 import "./GSNRecipient.sol";
 import "../math/SafeMath.sol";
@@ -30,7 +30,7 @@ contract GSNRecipientERC20Fee is GSNRecipient {
     /**
      * @dev The arguments to the constructor are the details that the gas payment token will have: `name` and `symbol`. `decimals` is hard-coded to 18.
      */
-    constructor(string memory name, string memory symbol) public {
+    constructor(string memory name, string memory symbol) {
         _token = new __unstable__ERC20Owned(name, symbol);
     }
 
@@ -116,7 +116,7 @@ contract GSNRecipientERC20Fee is GSNRecipient {
 contract __unstable__ERC20Owned is ERC20, Ownable {
     uint256 private constant _UINT256_MAX = 2**256 - 1;
 
-    constructor(string memory name, string memory symbol) public ERC20(name, symbol) { }
+    constructor(string memory name, string memory symbol) ERC20(name, symbol) { }
 
     // The owner (GSNRecipientERC20Fee) can mint tokens
     function mint(address account, uint256 amount) public onlyOwner {

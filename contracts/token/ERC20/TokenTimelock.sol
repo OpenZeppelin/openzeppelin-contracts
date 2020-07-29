@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.0;
+pragma solidity ^0.7.0;
 
 import "./SafeERC20.sol";
 
@@ -23,7 +23,7 @@ contract TokenTimelock {
     // timestamp when token release is enabled
     uint256 private _releaseTime;
 
-    constructor (IERC20 token, address beneficiary, uint256 releaseTime) public {
+    constructor (IERC20 token, address beneficiary, uint256 releaseTime) {
         // solhint-disable-next-line not-rely-on-time
         require(releaseTime > block.timestamp, "TokenTimelock: release time is before current time");
         _token = token;

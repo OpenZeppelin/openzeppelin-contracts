@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.0;
+pragma solidity ^0.7.0;
 
 import "../token/ERC721/IERC721Receiver.sol";
 
@@ -10,7 +10,7 @@ contract ERC721ReceiverMock is IERC721Receiver {
 
     event Received(address operator, address from, uint256 tokenId, bytes data, uint256 gas);
 
-    constructor (bytes4 retval, bool reverts) public {
+    constructor (bytes4 retval, bool reverts) {
         _retval = retval;
         _reverts = reverts;
     }

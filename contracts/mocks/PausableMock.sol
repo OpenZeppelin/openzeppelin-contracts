@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.0;
+pragma solidity ^0.7.0;
 
 import "../utils/Pausable.sol";
 
@@ -8,7 +8,7 @@ contract PausableMock is Pausable {
     bool public drasticMeasureTaken;
     uint256 public count;
 
-    constructor () public {
+    constructor () {
         drasticMeasureTaken = false;
         count = 0;
     }
