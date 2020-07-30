@@ -1,10 +1,5 @@
 # Changelog
 
-## 3.1.1 (Unreleased)
-
-### Improvements
- * `Address.isContract`: switched from `extcodehash` to `extcodesize` for less gas usage. ([#2311](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2311))
-
 ## 3.1.0 (2020-06-23)
 
 ### New features
