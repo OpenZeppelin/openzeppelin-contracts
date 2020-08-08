@@ -53,9 +53,9 @@ Any exception or additions specific to our project are documented below.
   represent, and consequently they should be named in past tense.
 
     ```
-    function _burn(address _who, uint256 _value) internal {
-      super._burn(_who, _value);
-      emit TokensBurned(_who, _value);
+    function _burn(address who, uint256 value) internal {
+      super._burn(who, value);
+      emit TokensBurned(who, value);
     }
     ```
 
