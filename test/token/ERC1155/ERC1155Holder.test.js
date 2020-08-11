@@ -29,7 +29,8 @@ describe('ERC1155Holder', function () {
       { from: creator },
     );
 
-    expect(await this.multiToken.balanceOf(this.holder.address, multiTokenIds[0])).to.be.bignumber.equal(multiTokenAmounts[0]);
+    expect(await this.multiToken.balanceOf(this.holder.address, multiTokenIds[0]))
+      .to.be.bignumber.equal(multiTokenAmounts[0]);
 
     for (let i = 1; i < multiTokenIds.length; i++) {
       expect(await this.multiToken.balanceOf(this.holder.address, multiTokenIds[i])).to.be.bignumber.equal(new BN(0));
@@ -51,7 +52,8 @@ describe('ERC1155Holder', function () {
     );
 
     for (let i = 0; i < multiTokenIds.length; i++) {
-      expect(await this.multiToken.balanceOf(this.holder.address, multiTokenIds[i])).to.be.bignumber.equal(multiTokenAmounts[i]);
+      expect(await this.multiToken.balanceOf(this.holder.address, multiTokenIds[i]))
+        .to.be.bignumber.equal(multiTokenAmounts[i]);
     }
   });
 });
