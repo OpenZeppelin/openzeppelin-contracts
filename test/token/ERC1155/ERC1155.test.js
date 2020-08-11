@@ -29,6 +29,8 @@ describe('ERC1155', function () {
     const burnAmounts = [new BN(5000), new BN(9001), new BN(195)];
 
     const data = '0x12345678';
+
+    describe('_mint', function () {
       it('reverts with a zero destination address', async function () {
         await expectRevert(
           this.token.mint(ZERO_ADDRESS, tokenId, mintAmount, data),
