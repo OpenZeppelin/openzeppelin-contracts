@@ -1,4 +1,6 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.6.0;
 
 /**
  * @dev Interface of the global ERC1820 Registry, as defined in the
@@ -38,7 +40,7 @@ interface IERC1820Registry {
     function getManager(address account) external view returns (address);
 
     /**
-     * @dev Sets the `implementer` contract as `account`'s implementer for
+     * @dev Sets the `implementer` contract as ``account``'s implementer for
      * `interfaceHash`.
      *
      * `account` being the zero address is an alias for the caller's address.

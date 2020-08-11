@@ -6,7 +6,7 @@ If you're new to the GSN, you probably want to first take a look at the xref:lea
 
 == Receiving a Relayed Call
 
-The first step to writing a recipient is to inherit from our GSNRecipient contract. If you're also inheriting from other contracts, such as ERC20 or Crowdsale, this will work just fine: adding GSNRecipient to all of your token or crowdsale functions will make them GSN-callable.
+The first step to writing a recipient is to inherit from our GSNRecipient contract. If you're also inheriting from other contracts, such as ERC20, this will work just fine: adding GSNRecipient will make all of your token functions GSN-callable.
 
 ```solidity
 import "@openzeppelin/contracts/GSN/GSNRecipient.sol";
@@ -34,17 +34,17 @@ First, RelayHub will ask your recipient contract if it wants to receive a relaye
 
 [source,solidity]
 ----
-function acceptRelayedCall(
-  address relay,
-  address from,
-  bytes calldata encodedFunction,
-  uint256 transactionFee,
-  uint256 gasPrice,
-  uint256 gasLimit,
-  uint256 nonce,
-  bytes calldata approvalData,
-  uint256 maxPossibleCharge
-) external view returns (uint256, bytes memory);
+    function acceptRelayedCall(
+        address relay,
+        address from,
+        bytes calldata encodedFunction,
+        uint256 transactionFee,
+        uint256 gasPrice,
+        uint256 gasLimit,
+        uint256 nonce,
+        bytes calldata approvalData,
+        uint256 maxPossibleCharge
+    ) external view returns (uint256, bytes memory);
 ----
 
 There are multiple ways to make this work, including:
@@ -60,7 +60,7 @@ In this function, you return a number indicating whether you accept the call (0)
 
 === pre and postRelayedCall
 
-After a relayed call is accepted, RelayHub will give your contract two opportunities to charge your user for their call, perform some bookeeping, etc.: _before_ and _after_ the actual relayed call is made. These functions are aptly named `preRelayedCall` and `postRelayedCall`.
+After a relayed call is accepted, RelayHub will give your contract two opportunities to charge your user for their call, perform some bookkeeping, etc.: _before_ and _after_ the actual relayed call is made. These functions are aptly named `preRelayedCall` and `postRelayedCall`.
 
 [source,solidity]
 ----
@@ -72,13 +72,12 @@ function preRelayedCall(bytes calldata context) external returns (bytes32);
 
 [source,solidity]
 ----
-
-function postRelayedCall(
-  bytes calldata context,
-  bool success,
-  uint actualCharge,
-  bytes32 preRetVal
-) external;
+    function postRelayedCall(
+        bytes calldata context,
+        bool success,
+        uint256 actualCharge,
+        bytes32 preRetVal
+    ) external;
 ----
 
 `postRelayedCall` will give you an accurate estimate of the transaction cost, making it a natural place to charge users. It will also let you know if the relayed call reverted or not. This allows you, for instance, to not charge users for reverted calls - but remember that you will be charged by the relayer nonetheless.
@@ -88,3 +87,4 @@ These functions allow you to implement, for instance, a flow where you charge yo
 == Further reading
 
 Read our xref:gsn-strategies.adoc[guide on the payment strategies] pre-built and shipped in OpenZeppelin Contracts, or check out xref:api:GSN.adoc[the API reference of the GSN base contracts].
+

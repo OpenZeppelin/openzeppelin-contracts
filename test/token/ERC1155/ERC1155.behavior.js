@@ -29,7 +29,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
         );
       });
 
-      context('when accounts do not own tokens', function () {
+      context('when accounts don\'t own tokens', function () {
         it('returns zero for given addresses', async function () {
           expect(await this.token.balanceOf(
             firstTokenHolder,
@@ -48,32 +48,11 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
         });
       });
 
-      context('when accounts own tokens', function () {
+      context('when accounts own some tokens', function () {
         beforeEach(async function () {
-          expect(await this.token.balanceOf(
-            firstTokenHolder,
-            firstTokenId
-          )).to.be.bignumber.equal('0');
-
-          expect(await this.token.balanceOf(
-            secondTokenHolder,
-            secondTokenId
-          )).to.be.bignumber.equal('0');
-
-          expect(await this.token.balanceOf(
-            firstTokenHolder,
-            unknownTokenId
-          )).to.be.bignumber.equal('0');
-
-          await this.token.mint(
-            firstTokenHolder,
-            firstTokenId,
-            firstAmount,
-            '0x',
-            {
-              from: minter,
-            });
-
+          await this.token.mint(firstTokenHolder, firstTokenId, firstAmount, '0x', {
+            from: minter,
+          });
           await this.token.mint(
             secondTokenHolder,
             secondTokenId,
@@ -105,13 +84,13 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
     });
 
     describe('balanceOfBatch', function () {
-      it('reverts when input arrays do not match up in length', async function () {
+      it('reverts when input arrays don\'t match up', async function () {
         await expectRevert(
           this.token.balanceOfBatch(
             [firstTokenHolder, secondTokenHolder, firstTokenHolder, secondTokenHolder],
             [firstTokenId, secondTokenId, unknownTokenId]
           ),
-          'ERC1155: accounts and IDs must have same lengths'
+          'ERC1155: accounts and ids length mismatch'
         );
 
         await expectRevert(
@@ -119,7 +98,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             [firstTokenHolder, secondTokenHolder],
             [firstTokenId, secondTokenId, unknownTokenId]
           ),
-          'ERC1155: accounts and IDs must have same lengths'
+          'ERC1155: accounts and ids length mismatch'
         );
       });
 
@@ -129,11 +108,11 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             [firstTokenHolder, secondTokenHolder, ZERO_ADDRESS],
             [firstTokenId, secondTokenId, unknownTokenId]
           ),
-          'ERC1155: some address in batch balance query is zero'
+          'ERC1155: batch balance query for the zero address'
         );
       });
 
-      context('when accounts do not own tokens', function () {
+      context('when accounts don\'t own tokens', function () {
         it('returns zeros for each account', async function () {
           const result = await this.token.balanceOfBatch(
             [firstTokenHolder, secondTokenHolder, firstTokenHolder],
@@ -209,22 +188,16 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
       it('reverts if attempting to approve self as an operator', async function () {
         await expectRevert(
           this.token.setApprovalForAll(multiTokenHolder, true, { from: multiTokenHolder }),
-          'ERC1155: cannot set approval status for self'
+          'ERC1155: setting approval status for self'
         );
       });
     });
 
     describe('safeTransferFrom', function () {
       beforeEach(async function () {
-        await this.token.mint(
-          multiTokenHolder,
-          firstTokenId,
-          firstAmount,
-          '0x',
-          {
-            from: minter,
-          });
-
+        await this.token.mint(multiTokenHolder, firstTokenId, firstAmount, '0x', {
+          from: minter,
+        });
         await this.token.mint(
           multiTokenHolder,
           secondTokenId,
@@ -260,7 +233,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             '0x',
             { from: multiTokenHolder },
           ),
-          'ERC1155: target address must be non-zero'
+          'ERC1155: transfer to the zero address'
         );
       });
 
@@ -308,25 +281,21 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
 
           const balance2 = await this.token.balanceOf(recipient, secondTokenId);
           expect(balance2).to.be.a.bignumber.equal('0');
-
-          const balance3 = await this.token.balanceOf(proxy, firstTokenId);
-          expect(balance3).to.be.a.bignumber.equal('0');
-
-          const balance4 = await this.token.balanceOf(proxy, secondTokenId);
-          expect(balance4).to.be.a.bignumber.equal('0');
         });
       });
 
       context('when called by an operator on behalf of the multiTokenHolder', function () {
         context('when operator is not approved by multiTokenHolder', function () {
-          it('reverts', async function () {
-            expect(await this.token.isApprovedForAll(multiTokenHolder, proxy)).to.be.equal(false);
+          beforeEach(async function () {
+            await this.token.setApprovalForAll(proxy, false, { from: multiTokenHolder });
+          });
 
+          it('reverts', async function () {
             await expectRevert(
               this.token.safeTransferFrom(multiTokenHolder, recipient, firstTokenId, firstAmount, '0x', {
                 from: proxy,
               }),
-              'ERC1155: need operator approval for 3rd party transfers'
+              'ERC1155: caller is not owner nor approved'
             );
           });
         });
@@ -445,7 +414,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             this.token.safeTransferFrom(multiTokenHolder, this.receiver.address, firstTokenId, firstAmount, '0x', {
               from: multiTokenHolder,
             }),
-            'ERC1155: got unknown value from onERC1155Received'
+            'ERC1155: ERC1155Receiver rejected tokens'
           );
         });
       });
@@ -482,15 +451,9 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
 
     describe('safeBatchTransferFrom', function () {
       beforeEach(async function () {
-        await this.token.mint(
-          multiTokenHolder,
-          firstTokenId,
-          firstAmount,
-          '0x',
-          {
-            from: minter,
-          });
-
+        await this.token.mint(multiTokenHolder, firstTokenId, firstAmount, '0x', {
+          from: minter,
+        });
         await this.token.mint(
           multiTokenHolder,
           secondTokenId,
@@ -510,11 +473,11 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             [firstAmount, secondAmount.addn(1)],
             '0x', { from: multiTokenHolder }
           ),
-          'ERC1155: insufficient balance of some token type for transfer'
+          'ERC1155: insufficient balance for transfer'
         );
       });
 
-      it('reverts when ids array length does not match amounts array length', async function () {
+      it('reverts when ids array length doesn\'t match amounts array length', async function () {
         await expectRevert(
           this.token.safeBatchTransferFrom(
             multiTokenHolder, recipient,
@@ -522,7 +485,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             [firstAmount, secondAmount],
             '0x', { from: multiTokenHolder }
           ),
-          'ERC1155: IDs and values must have same lengths'
+          'ERC1155: ids and amounts length mismatch'
         );
 
         await expectRevert(
@@ -532,7 +495,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             [firstAmount],
             '0x', { from: multiTokenHolder }
           ),
-          'ERC1155: IDs and values must have same lengths'
+          'ERC1155: ids and amounts length mismatch'
         );
       });
 
@@ -544,11 +507,11 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             [firstAmount, secondAmount],
             '0x', { from: multiTokenHolder }
           ),
-          'ERC1155: target address must be non-zero'
+          'ERC1155: transfer to the zero address'
         );
       });
 
-      function batchTransferWasSuccessful({ operator, from, ids, values }) {
+      function batchTransferWasSuccessful ({ operator, from, ids, values }) {
         it('debits transferred balances from sender', async function () {
           const newBalances = await this.token.balanceOfBatch(new Array(ids.length).fill(from), ids);
           for (const newBalance of newBalances) {
@@ -608,7 +571,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
                 [firstAmount, secondAmount],
                 '0x', { from: proxy }
               ),
-              'ERC1155: need operator approval for 3rd party transfers'
+              'ERC1155: transfer caller is not owner nor approved'
             );
           });
         });
@@ -728,7 +691,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
               [firstAmount, secondAmount],
               '0x', { from: multiTokenHolder },
             ),
-            'ERC1155: got unknown value from onERC1155BatchReceived'
+            'ERC1155: ERC1155Receiver rejected tokens'
           );
         });
       });

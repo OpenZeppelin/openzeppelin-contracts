@@ -1,4 +1,6 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.6.0;
 
 import "../utils/ReentrancyGuard.sol";
 import "./ReentrancyAttack.sol";
@@ -11,19 +13,19 @@ contract ReentrancyMock is ReentrancyGuard {
     }
 
     function callback() external nonReentrant {
-        count();
+        _count();
     }
 
     function countLocalRecursive(uint256 n) public nonReentrant {
         if (n > 0) {
-            count();
+            _count();
             countLocalRecursive(n - 1);
         }
     }
 
     function countThisRecursive(uint256 n) public nonReentrant {
         if (n > 0) {
-            count();
+            _count();
             // solhint-disable-next-line avoid-low-level-calls
             (bool success,) = address(this).call(abi.encodeWithSignature("countThisRecursive(uint256)", n - 1));
             require(success, "ReentrancyMock: failed call");
@@ -31,12 +33,12 @@ contract ReentrancyMock is ReentrancyGuard {
     }
 
     function countAndCall(ReentrancyAttack attacker) public nonReentrant {
-        count();
+        _count();
         bytes4 func = bytes4(keccak256("callback()"));
         attacker.callSender(func);
     }
 
-    function count() private {
+    function _count() private {
         counter += 1;
     }
 }

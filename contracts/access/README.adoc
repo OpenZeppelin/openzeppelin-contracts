@@ -1,21 +1,12 @@
 = Access
 
-NOTE: This page is incomplete. We're working to improve it for the next release. Stay tuned!
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/access
 
-== Library
+Contract modules for authorization and access control mechanisms.
 
-{{Roles}}
+== Contracts
 
-== Roles
+{{Ownable}}
 
-{{CapperRole}}
-
-{{MinterRole}}
-
-{{PauserRole}}
-
-{{SignerRole}}
-
-{{WhitelistAdminRole}}
-
-{{WhitelistedRole}}
+{{AccessControl}}

@@ -6,7 +6,7 @@
  * Flexible xref:access-control.adoc[role-based permissioning] scheme.
  * Reusable xref:utilities.adoc[Solidity components] to build custom contracts and complex decentralized systems.
  * First-class integration with the xref:gsn.adoc[Gas Station Network] for systems with no gas fees!
- * Audited by leading security firms.
+ * Audited by leading security firms (_last full audit on v2.0.0_).
 
 == Overview
 
@@ -26,20 +26,21 @@ Once installed, you can use the contracts in the library by importing them:
 
 [source,solidity]
 ----
-pragma solidity ^0.5.0;
+// contracts/MyNFT.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.6.0;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721Full.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721Mintable.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-contract MyNFT is ERC721Full, ERC721Mintable {
-    constructor() ERC721Full("MyNFT", "MNFT") public {
+contract MyNFT is ERC721 {
+    constructor() ERC721("MyNFT", "MNFT") public {
     }
 }
 ----
 
 TIP: If you're new to smart contract development, head to xref:learn::developing-smart-contracts.adoc[Developing Smart Contracts] to learn about creating a new project and compiling your contracts.
 
-To keep your system secure, you should **always** use the installed code as-is, and neither copy-paste it from online sources, nor modify it yourself.
+To keep your system secure, you should **always** use the installed code as-is, and neither copy-paste it from online sources, nor modify it yourself. The library is designed so that only the contracts and functions you use are deployed, so you don't need to worry about it needlessly increasing gas costs.
 
 [[next-steps]]
 == Learn More
@@ -47,7 +48,7 @@ To keep your system secure, you should **always** use the installed code as-is, 
 The guides in the sidebar will teach about different concepts, and how to use the related contracts that OpenZeppelin Contracts provides:
 
 * xref:access-control.adoc[Access Control]: decide who can perform each of the actions on your system.
-* xref:tokens.adoc[Tokens]: create tradeable assets or collectives, and distribute them via xref:crowdsales.adoc[Crowdsales].
+* xref:tokens.adoc[Tokens]: create tradable assets or collectibles, like the well known xref:erc20.adoc[ERC20] and xref:erc721.adoc[ERC721] standards.
 * xref:gsn.adoc[Gas Station Network]: let your users interact with your contracts without having to pay for gas themselves.
 * xref:utilities.adoc[Utilities]: generic useful tools, including non-overflowing math, signature verification, and trustless paying systems.
 
@@ -58,3 +59,4 @@ Finally, you may want to take a look at the https://blog.openzeppelin.com/guides
 * https://blog.openzeppelin.com/the-hitchhikers-guide-to-smart-contracts-in-ethereum-848f08001f05[The Hitchhiker’s Guide to Smart Contracts in Ethereum] will help you get an overview of the various tools available for smart contract development, and help you set up your environment.
 * https://blog.openzeppelin.com/a-gentle-introduction-to-ethereum-programming-part-1-783cc7796094[A Gentle Introduction to Ethereum Programming, Part 1] provides very useful information on an introductory level, including many basic concepts from the Ethereum platform.
 * For a more in-depth dive, you may read the guide https://blog.openzeppelin.com/designing-the-architecture-for-your-ethereum-application-9cec086f8317[Designing the architecture for your Ethereum application], which discusses how to better structure your application and its relationship to the real world.
+

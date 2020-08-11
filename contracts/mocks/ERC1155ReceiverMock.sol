@@ -1,4 +1,6 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.6.0;
 
 import "../token/ERC1155/IERC1155Receiver.sol";
 import "./ERC165Mock.sol";
@@ -34,6 +36,7 @@ contract ERC1155ReceiverMock is IERC1155Receiver, ERC165Mock {
         bytes calldata data
     )
         external
+        override
         returns(bytes4)
     {
         require(!_recReverts, "ERC1155ReceiverMock: reverting on receive");
@@ -49,6 +52,7 @@ contract ERC1155ReceiverMock is IERC1155Receiver, ERC165Mock {
         bytes calldata data
     )
         external
+        override
         returns(bytes4)
     {
         require(!_batReverts, "ERC1155ReceiverMock: reverting on batch receive");

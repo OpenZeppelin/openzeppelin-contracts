@@ -11,14 +11,39 @@ const {
 } = require('./ERC20.behavior');
 
 const ERC20Mock = contract.fromArtifact('ERC20Mock');
+const ERC20DecimalsMock = contract.fromArtifact('ERC20DecimalsMock');
 
 describe('ERC20', function () {
   const [ initialHolder, recipient, anotherAccount ] = accounts;
 
+  const name = 'My Token';
+  const symbol = 'MTKN';
+
   const initialSupply = new BN(100);
 
   beforeEach(async function () {
-    this.token = await ERC20Mock.new(initialHolder, initialSupply);
+    this.token = await ERC20Mock.new(name, symbol, initialHolder, initialSupply);
+  });
+
+  it('has a name', async function () {
+    expect(await this.token.name()).to.equal(name);
+  });
+
+  it('has a symbol', async function () {
+    expect(await this.token.symbol()).to.equal(symbol);
+  });
+
+  it('has 18 decimals', async function () {
+    expect(await this.token.decimals()).to.be.bignumber.equal('18');
+  });
+
+  describe('_setupDecimals', function () {
+    const decimals = new BN(6);
+
+    it('can set decimals during construction', async function () {
+      const token = await ERC20DecimalsMock.new(name, symbol, decimals);
+      expect(await token.decimals()).to.be.bignumber.equal(decimals);
+    });
   });
 
   shouldBehaveLikeERC20('ERC20', initialSupply, initialHolder, recipient, anotherAccount);
@@ -259,80 +284,6 @@ describe('ERC20', function () {
 
       describeBurn('for entire balance', initialSupply);
       describeBurn('for less amount than balance', initialSupply.subn(1));
-    });
-  });
-
-  describe('_burnFrom', function () {
-    const allowance = new BN(70);
-
-    const spender = anotherAccount;
-
-    beforeEach('approving', async function () {
-      await this.token.approve(spender, allowance, { from: initialHolder });
-    });
-
-    it('rejects a null account', async function () {
-      await expectRevert(this.token.burnFrom(ZERO_ADDRESS, new BN(1)),
-        'ERC20: burn from the zero address'
-      );
-    });
-
-    describe('for a non zero account', function () {
-      it('rejects burning more than allowance', async function () {
-        await expectRevert(this.token.burnFrom(initialHolder, allowance.addn(1)),
-          'ERC20: burn amount exceeds allowance'
-        );
-      });
-
-      it('rejects burning more than balance', async function () {
-        await expectRevert(this.token.burnFrom(initialHolder, initialSupply.addn(1)),
-          'ERC20: burn amount exceeds balance'
-        );
-      });
-
-      const describeBurnFrom = function (description, amount) {
-        describe(description, function () {
-          beforeEach('burning', async function () {
-            const { logs } = await this.token.burnFrom(initialHolder, amount, { from: spender });
-            this.logs = logs;
-          });
-
-          it('decrements totalSupply', async function () {
-            const expectedSupply = initialSupply.sub(amount);
-            expect(await this.token.totalSupply()).to.be.bignumber.equal(expectedSupply);
-          });
-
-          it('decrements initialHolder balance', async function () {
-            const expectedBalance = initialSupply.sub(amount);
-            expect(await this.token.balanceOf(initialHolder)).to.be.bignumber.equal(expectedBalance);
-          });
-
-          it('decrements spender allowance', async function () {
-            const expectedAllowance = allowance.sub(amount);
-            expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal(expectedAllowance);
-          });
-
-          it('emits a Transfer event', async function () {
-            const event = expectEvent.inLogs(this.logs, 'Transfer', {
-              from: initialHolder,
-              to: ZERO_ADDRESS,
-            });
-
-            expect(event.args.value).to.be.bignumber.equal(amount);
-          });
-
-          it('emits an Approval event', async function () {
-            expectEvent.inLogs(this.logs, 'Approval', {
-              owner: initialHolder,
-              spender: spender,
-              value: await this.token.allowance(initialHolder, spender),
-            });
-          });
-        });
-      };
-
-      describeBurnFrom('for entire allowance', allowance);
-      describeBurnFrom('for less amount than allowance', allowance.subn(1));
     });
   });
 

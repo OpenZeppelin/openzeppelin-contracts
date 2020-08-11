@@ -281,7 +281,9 @@ function shouldBehaveLikeERC777InternalMint (recipient, operator, amount, data, 
   shouldInternalMintTokens(operator, recipient, amount, data, operatorData);
 
   it('reverts when minting tokens for the zero address', async function () {
-    await expectRevert.unspecified(this.token.mintInternal(operator, ZERO_ADDRESS, amount, data, operatorData));
+    await expectRevert.unspecified(
+      this.token.mintInternal(ZERO_ADDRESS, amount, data, operatorData, { from: operator })
+    );
   });
 }
 
@@ -290,7 +292,7 @@ function shouldInternalMintTokens (operator, to, amount, data, operatorData) {
     const initialTotalSupply = await this.token.totalSupply();
     const initialToBalance = await this.token.balanceOf(to);
 
-    const { logs } = await this.token.mintInternal(operator, to, amount, data, operatorData);
+    const { logs } = await this.token.mintInternal(to, amount, data, operatorData, { from: operator });
 
     expectEvent.inLogs(logs, 'Minted', {
       operator,
@@ -332,7 +334,7 @@ function shouldBehaveLikeERC777SendBurnMintInternalWithReceiveHook (operator, am
 
     it('mint (internal) reverts', async function () {
       await expectRevert.unspecified(
-        this.token.mintInternal(operator, this.recipient, amount, data, operatorData)
+        this.token.mintInternal(this.recipient, amount, data, operatorData, { from: operator })
       );
     });
   });
@@ -387,7 +389,7 @@ function shouldBehaveLikeERC777SendBurnMintInternalWithReceiveHook (operator, am
 
     it('TokensRecipient receives mint (internal) data and is called after state mutation', async function () {
       const { tx } = await this.token.mintInternal(
-        operator, this.recipient, amount, data, operatorData,
+        this.recipient, amount, data, operatorData, { from: operator }
       );
 
       const postRecipientBalance = await this.token.balanceOf(this.recipient);
