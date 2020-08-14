@@ -110,8 +110,12 @@ abstract contract ERC20Snapshot is ERC20 {
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
       super._beforeTokenTransfer(from, to, amount);
 
-      if (from == address(0) || to == address(0)) {
-        // mint or burn
+      if (from == address(0)) {
+        // mint
+        _updateAccountSnapshot(to);
+        _updateTotalSupplySnapshot();
+      } else if (to == address(0)) {
+        // burn
         _updateAccountSnapshot(from);
         _updateTotalSupplySnapshot();
       } else {
