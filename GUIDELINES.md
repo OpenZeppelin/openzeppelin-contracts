@@ -28,37 +28,78 @@ Consistency on the way classes are used is paramount to an easier understanding 
 #### D6 - Regular Audits
 Following good programming practices is a way to reduce the risk of vulnerabilities, but professional code audits are still needed. We will perform regular code audits on major releases, and hire security professionals to provide independent review.
 
-## Style Guidelines
+# Style Guidelines
 
-The design guidelines have quite a high abstraction level. These style guidelines are more concrete and easier to apply, and also more opinionated.
+The design guidelines have quite a high abstraction level. These style guidelines are more concrete and easier to apply, and also more opinionated. We value clean code and consistency, and those are prerequisites for us to include new code in the repository. Before proposing a change, please read these guidelines and take some time to familiarize yourself with the style of the existing codebase.
 
-### General
+## Solidity code
 
-#### G0 - Default to Solidity's official style guide.
+In order to be consistent with all the other Solidity projects, we follow the
+[official recommendations documented in the Solidity style guide](http://solidity.readthedocs.io/en/latest/style-guide.html).
 
-Follow the official Solidity style guide: https://solidity.readthedocs.io/en/latest/style-guide.html
+Any exception or additions specific to our project are documented below.
 
-#### G1 - No Magic Constants
+* Try to avoid acronyms and abbreviations.
 
-Avoid constants in the code as much as possible. Magic strings are also magic constants.
+* All state variables should be private.
 
-#### G2 - Code that Fails Early
+* Private state variables should have an underscore prefix.
 
-We ask our code to fail as soon as possible when an unexpected input was provided or unexpected state was found.
+    ```
+    contract TestContract {
+      uint256 private _privateVar;
+      uint256 internal _internalVar;
+    }
+    ```
 
-#### G3 - Internal Amounts Must be Signed Integers and Represent the Smallest Units.
+* Parameters must not be prefixed with an underscore.
 
-Avoid representation errors by always dealing with weis when handling ether. GUIs can convert to more human-friendly representations. Use Signed Integers (int) to prevent underflow problems.
+    ```
+    function test(uint256 testParameter1, uint256 testParameter2) {
+    ...
+    }
+    ```
+
+* Internal and private functions should have an underscore prefix.
+
+    ```
+    function _testInternal() internal {
+      ...
+    }
+    ```
+
+    ```
+    function _testPrivate() private {
+      ...
+    }
+    ```
+
+* Events should be emitted immediately after the state change that they
+  represent, and consequently they should be named in past tense.
+
+    ```
+    function _burn(address _who, uint256 _value) internal {
+      super._burn(_who, _value);
+      emit TokensBurned(_who, _value);
+    }
+    ```
+
+  Some standards (e.g. ERC20) use present tense, and in those cases the
+  standard specification prevails.
+  
+* Interface names should have a capital I prefix.
+
+    ```
+    interface IERC777 {
+    ```
 
 
-### Testing
+## Tests
 
-#### T1 - Tests Must be Written Elegantly
+* Tests Must be Written Elegantly
 
-Style guidelines are not relaxed for tests. Tests are a good way to show how to use the library, and maintaining them is extremely necessary.
+    Tests are a good way to show how to use the library, and maintaining them is extremely necessary. Don't write long tests, write helper functions to make them be as short and concise as possible (they should take just a few lines each), and use good variable names.
 
-Don't write long tests, write helper functions to make them be as short and concise as possible (they should take just a few lines each), and use good variable names.
+* Tests Must not be Random
 
-#### T2 - Tests Must not be Random
-
-Inputs for tests should not be generated randomly. Accounts used to create test contracts are an exception, those can be random. Also, the type and structure of outputs should be checked.
+    Inputs for tests should not be generated randomly. Accounts used to create test contracts are an exception, those can be random. Also, the type and structure of outputs should be checked.
