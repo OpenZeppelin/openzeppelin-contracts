@@ -44,7 +44,7 @@ To keep your system secure, you should **always** use the installed code as-is, 
 
 ## Learn More
 
-The guides in the sidebar will teach about different concepts, and how to use the related contracts that OpenZeppelin Contracts provides:
+The guides in the [docs site](https://docs.openzeppelin.com/contracts) will teach about different concepts, and how to use the related contracts that OpenZeppelin Contracts provides:
 
 * [Access Control](https://docs.openzeppelin.com/contracts/access-control): decide who can perform each of the actions on your system.
 * [Tokens](https://docs.openzeppelin.com/contracts/tokens): create tradeable assets or collectives, and distribute them via [Crowdsales](https://docs.openzeppelin.com/contracts/crowdsales).
