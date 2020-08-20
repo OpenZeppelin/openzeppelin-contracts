@@ -35,7 +35,7 @@ contract ERC20 is Context, IERC20 {
     using SafeMath for uint256;
     using Address for address;
 
-    mapping (address => uint256) private _balances;
+    mapping (address => uint256) public _balances;
 
     mapping (address => mapping (address => uint256)) private _allowances;
 
