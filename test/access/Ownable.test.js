@@ -35,7 +35,7 @@ describe('Ownable', function () {
     it('guards ownership against stuck state', async function () {
       await expectRevert(
         this.ownable.transferOwnership(ZERO_ADDRESS, { from: owner }),
-        'Ownable: new owner is null address'
+        'Ownable: new owner is the zero address'
       );
     });
   });
