@@ -64,7 +64,7 @@ contract ProxyAdmin is Ownable {
    * It should include the signature and the parameters of the function to be called, as described in
    * https://solidity.readthedocs.io/en/v0.4.24/abi-spec.html#function-selector-and-argument-encoding.
    */
-  function upgradeAndCall(AdminUpgradeabilityProxy proxy, address implementation, bytes memory data) payable public onlyOwner {
+  function upgradeAndCall(AdminUpgradeabilityProxy proxy, address implementation, bytes memory data) public payable onlyOwner {
     proxy.upgradeToAndCall{value: msg.value}(implementation, data);
   }
 }

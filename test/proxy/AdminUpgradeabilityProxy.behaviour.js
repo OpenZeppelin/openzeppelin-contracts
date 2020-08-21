@@ -433,4 +433,4 @@ module.exports = function shouldBehaveLikeAdminUpgradeabilityProxy (createProxy,
       expect(res.toString()).to.eq('0');
     });
   });
-}
+};

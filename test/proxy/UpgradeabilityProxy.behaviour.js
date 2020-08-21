@@ -5,7 +5,6 @@ const { toChecksumAddress, keccak256 } = require('ethereumjs-util');
 
 const { expect } = require('chai');
 
-const Proxy = contract.fromArtifact('Proxy');
 const DummyImplementation = contract.fromArtifact('DummyImplementation');
 
 const IMPLEMENTATION_LABEL = 'eip1967.proxy.implementation';
@@ -146,7 +145,8 @@ module.exports = function shouldBehaveLikeUpgradeabilityProxy (createProxy, prox
   describe('initialization with parameters', function () {
     describe('non payable', function () {
       const expectedInitializedValue = 10;
-      const initializeData = new DummyImplementation('').contract.methods['initializeNonPayable(uint256)'](expectedInitializedValue).encodeABI();
+      const initializeData = new DummyImplementation('').contract
+        .methods['initializeNonPayable(uint256)'](expectedInitializedValue).encodeABI();
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
@@ -176,7 +176,8 @@ module.exports = function shouldBehaveLikeUpgradeabilityProxy (createProxy, prox
 
     describe('payable', function () {
       const expectedInitializedValue = 42;
-      const initializeData = new DummyImplementation('').contract.methods['initializePayable(uint256)'](expectedInitializedValue).encodeABI();
+      const initializeData = new DummyImplementation('').contract
+        .methods['initializePayable(uint256)'](expectedInitializedValue).encodeABI();
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
@@ -212,4 +213,4 @@ module.exports = function shouldBehaveLikeUpgradeabilityProxy (createProxy, prox
       });
     });
   });
-}
+};

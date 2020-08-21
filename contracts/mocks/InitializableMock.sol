@@ -33,8 +33,4 @@ contract InitializableMock is Initializable {
     require(false, "InitializableMock forced failure");
   }
 
-  function secret() private pure returns (string memory) {
-    return 'Im secret';
-  }
-
 }

@@ -2,8 +2,8 @@
 
 pragma solidity ^0.6.0;
 
-import './Proxy.sol';
-import '../utils/Address.sol';
+import "./Proxy.sol";
+import "../utils/Address.sol";
 
 /**
  * @title UpgradeabilityProxy
@@ -21,9 +21,10 @@ contract UpgradeabilityProxy is Proxy {
    * This parameter is optional, if no data is given the initialization call to proxied contract will be skipped.
    */
   constructor(address _logic, bytes memory _data) public payable {
-    assert(IMPLEMENTATION_SLOT == bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1));
+    assert(_IMPLEMENTATION_SLOT == bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1));
     _setImplementation(_logic);
     if(_data.length > 0) {
+      // solhint-disable-next-line avoid-low-level-calls
       (bool success,) = _logic.delegatecall(_data);
       require(success);
     }
@@ -40,14 +41,15 @@ contract UpgradeabilityProxy is Proxy {
    * This is the keccak-256 hash of "eip1967.proxy.implementation" subtracted by 1, and is
    * validated in the constructor.
    */
-  bytes32 internal constant IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
+  bytes32 private constant _IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
 
   /**
    * @dev Returns the current implementation.
    * @return impl Address of the current implementation
    */
   function _implementation() internal override view returns (address impl) {
-    bytes32 slot = IMPLEMENTATION_SLOT;
+    bytes32 slot = _IMPLEMENTATION_SLOT;
+    // solhint-disable-next-line no-inline-assembly
     assembly {
       impl := sload(slot)
     }
@@ -69,8 +71,9 @@ contract UpgradeabilityProxy is Proxy {
   function _setImplementation(address newImplementation) internal {
     require(Address.isContract(newImplementation), "UpgradeabilityProxy: new implementation is not a contract");
 
-    bytes32 slot = IMPLEMENTATION_SLOT;
+    bytes32 slot = _IMPLEMENTATION_SLOT;
 
+    // solhint-disable-next-line no-inline-assembly
     assembly {
       sstore(slot, newImplementation)
     }

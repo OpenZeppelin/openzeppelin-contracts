@@ -2,7 +2,7 @@
 
 pragma solidity ^0.6.0;
 
-import './UpgradeabilityProxy.sol';
+import "./UpgradeabilityProxy.sol";
 
 /**
  * @title AdminUpgradeabilityProxy
@@ -22,8 +22,8 @@ contract AdminUpgradeabilityProxy is UpgradeabilityProxy {
    * https://solidity.readthedocs.io/en/v0.4.24/abi-spec.html#function-selector-and-argument-encoding.
    * This parameter is optional, if no data is given the initialization call to proxied contract will be skipped.
    */
-  constructor(address _logic, address _admin, bytes memory _data) UpgradeabilityProxy(_logic, _data) public payable {
-    assert(ADMIN_SLOT == bytes32(uint256(keccak256('eip1967.proxy.admin')) - 1));
+  constructor(address _logic, address _admin, bytes memory _data) public payable UpgradeabilityProxy(_logic, _data) {
+    assert(_ADMIN_SLOT == bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1));
     _setAdmin(_admin);
   }
 
@@ -40,7 +40,7 @@ contract AdminUpgradeabilityProxy is UpgradeabilityProxy {
    * validated in the constructor.
    */
 
-  bytes32 internal constant ADMIN_SLOT = 0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103;
+  bytes32 private constant _ADMIN_SLOT = 0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103;
 
   /**
    * @dev Modifier to check whether the `msg.sender` is the admin.
@@ -98,8 +98,9 @@ contract AdminUpgradeabilityProxy is UpgradeabilityProxy {
    * It should include the signature and the parameters of the function to be called, as described in
    * https://solidity.readthedocs.io/en/v0.4.24/abi-spec.html#function-selector-and-argument-encoding.
    */
-  function upgradeToAndCall(address newImplementation, bytes calldata data) payable external ifAdmin {
+  function upgradeToAndCall(address newImplementation, bytes calldata data) external payable ifAdmin {
     _upgradeTo(newImplementation);
+    // solhint-disable-next-line avoid-low-level-calls
     (bool success,) = newImplementation.delegatecall(data);
     require(success);
   }
@@ -108,7 +109,8 @@ contract AdminUpgradeabilityProxy is UpgradeabilityProxy {
    * @return adm The admin slot.
    */
   function _admin() internal view returns (address adm) {
-    bytes32 slot = ADMIN_SLOT;
+    bytes32 slot = _ADMIN_SLOT;
+    // solhint-disable-next-line no-inline-assembly
     assembly {
       adm := sload(slot)
     }
@@ -119,8 +121,9 @@ contract AdminUpgradeabilityProxy is UpgradeabilityProxy {
    * @param newAdmin Address of the new proxy admin.
    */
   function _setAdmin(address newAdmin) internal {
-    bytes32 slot = ADMIN_SLOT;
+    bytes32 slot = _ADMIN_SLOT;
 
+    // solhint-disable-next-line no-inline-assembly
     assembly {
       sstore(slot, newAdmin)
     }

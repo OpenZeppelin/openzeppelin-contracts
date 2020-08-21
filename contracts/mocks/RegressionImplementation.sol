@@ -5,61 +5,62 @@ pragma solidity ^0.6.0;
 import "../proxy/Initializable.sol";
 
 contract Implementation1 is Initializable {
-  uint value;
+  uint internal _value;
 
-  function initialize() initializer public {
+  function initialize() public initializer {
   }
 
   function setValue(uint _number) public {
-    value = _number;
+    _value = _number;
   }
 }
 
 contract Implementation2 is Initializable {
-  uint value;
+  uint internal _value;
 
-  function initialize() initializer public {
+  function initialize() public initializer {
   }
 
   function setValue(uint _number) public {
-    value = _number;
+    _value = _number;
   }
 
   function getValue() public view returns (uint) {
-    return value;
+    return _value;
   }
 }
 
 contract Implementation3 is Initializable {
-  uint value;
+  uint internal _value;
 
-  function initialize() initializer public {
+  function initialize() public initializer {
   }
 
   function setValue(uint _number) public {
-    value = _number;
+    _value = _number;
   }
 
   function getValue(uint _number) public view returns (uint) {
-    return value + _number;
+    return _value + _number;
   }
 }
 
 contract Implementation4 is Initializable {
-  uint value;
+  uint internal _value;
 
-  function initialize() initializer public {
+  function initialize() public initializer {
   }
 
   function setValue(uint _number) public {
-    value = _number;
+    _value = _number;
   }
 
   function getValue() public view returns (uint) {
-    return value;
+    return _value;
   }
 
+  // solhint-disable-next-line payable-fallback
   fallback() external {
-    value = 1;
+    _value = 1;
   }
 }
