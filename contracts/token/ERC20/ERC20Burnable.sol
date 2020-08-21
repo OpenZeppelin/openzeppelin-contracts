@@ -1,40 +1,26 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT	
 
-pragma solidity ^0.6.0;
+pragma solidity ^0.4.19;
 
-import "../../GSN/Context.sol";
-import "./ERC20.sol";
+import "../../GSN/Context.sol";	
+import "./ERC20.sol";	import "./ERC20.sol";
 
 /**
- * @dev Extension of {ERC20} that allows token holders to destroy both their own
- * tokens and those that they have an allowance for, in a way that can be
- * recognized off-chain (via event analysis).
+ * @dev Extension of {ERC20} that adds a set of accounts with the {MinterRole},
+ * which have permission to mint (create) new tokens as they see fit.
+ *
+ * At construction, the deployer of the contract is the only minter.
  */
-abstract contract ERC20Burnable is Context, ERC20 {
+contract ERC20Mintable is ERC20, MinterRole {
     /**
-     * @dev Destroys `amount` tokens from the caller.
-     *
-     * See {ERC20-_burn}.
-     */
-    function burn(uint256 amount) public virtual {
-        _burn(_msgSender(), amount);
-    }
-
-    /**
-     * @dev Destroys `amount` tokens from `account`, deducting from the caller's
-     * allowance.
-     *
-     * See {ERC20-_burn} and {ERC20-allowance}.
+     * @dev See {ERC20-_mint}.
      *
      * Requirements:
      *
-     * - the caller must have allowance for ``accounts``'s tokens of at least
-     * `amount`.
+     * - the caller must have the {MinterRole}.
      */
-    function burnFrom(address account, uint256 amount) public virtual {
-        uint256 decreasedAllowance = allowance(account, _msgSender()).sub(amount, "ERC20: burn amount exceeds allowance");
-
-        _approve(account, _msgSender(), decreasedAllowance);
-        _burn(account, amount);
+    function mint(address account, uint256 amount) public onlyMinter returns (bool) {
+        _mint(account, amount);
+        return true;
     }
 }
