@@ -54,45 +54,48 @@ describe('PaymentSplitter', function () {
       this.contract = await PaymentSplitter.new(this.payees, this.shares);
     });
 
-    it('should have total shares', async function () {
+    it('has total shares', async function () {
       expect(await this.contract.totalShares()).to.be.bignumber.equal('100');
     });
 
-    it('should have payees', async function () {
+    it('has payees', async function () {
       await Promise.all(this.payees.map(async (payee, index) => {
         expect(await this.contract.payee(index)).to.equal(payee);
         expect(await this.contract.released(payee)).to.be.bignumber.equal('0');
       }));
     });
 
-    it('should accept payments', async function () {
+    it('accepts payments', async function () {
       await send.ether(owner, this.contract.address, amount);
 
       expect(await balance.current(this.contract.address)).to.be.bignumber.equal(amount);
     });
 
-    it('should store shares if address is payee', async function () {
-      expect(await this.contract.shares(payee1)).to.be.bignumber.not.equal('0');
+    describe('shares', async function () {
+      it('stores shares if address is payee', async function () {
+        expect(await this.contract.shares(payee1)).to.be.bignumber.not.equal('0');
+      });
+
+      it('does not store shares if address is not payee', async function () {
+        expect(await this.contract.shares(nonpayee1)).to.be.bignumber.equal('0');
+      });
     });
 
-    it('should not store shares if address is not payee', async function () {
-      expect(await this.contract.shares(nonpayee1)).to.be.bignumber.equal('0');
+    describe('release', async function () {
+      it('does revert if no funds to claim', async function () {
+        await expectRevert(this.contract.release(payee1),
+          'PaymentSplitter: account is not due payment'
+        );
+      });
+      it('does revert if non-payee want to claim', async function () {
+        await send.ether(payer1, this.contract.address, amount);
+        await expectRevert(this.contract.release(nonpayee1),
+          'PaymentSplitter: account has no shares'
+        );
+      });
     });
 
-    it('should throw if no funds to claim', async function () {
-      await expectRevert(this.contract.release(payee1),
-        'PaymentSplitter: account is not due payment'
-      );
-    });
-
-    it('should throw if non-payee want to claim', async function () {
-      await send.ether(payer1, this.contract.address, amount);
-      await expectRevert(this.contract.release(nonpayee1),
-        'PaymentSplitter: account has no shares'
-      );
-    });
-
-    it('should distribute funds to payees', async function () {
+    it('distributes funds to payees', async function () {
       await send.ether(payer1, this.contract.address, amount);
 
       // receive funds
