@@ -29,7 +29,7 @@ describe('Initializable', function () {
       });
 
       it('initializer does not run again', async function () {
-        await expectRevert(this.contract.initialize(), 'Contract instance has already been initialized');
+        await expectRevert(this.contract.initialize(), 'Initializable: contract is already initialized');
       });
     });
 

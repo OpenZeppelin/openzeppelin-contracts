@@ -78,7 +78,7 @@ module.exports = function shouldBehaveLikeAdminUpgradeabilityProxy (createProxy,
         it('reverts', async function () {
           await expectRevert(
             this.proxy.upgradeTo(ZERO_ADDRESS, { from }),
-            'Cannot set a proxy implementation to a non-contract address',
+            'UpgradeabilityProxy: new implementation is not a contract',
           );
         });
       });
@@ -302,7 +302,7 @@ module.exports = function shouldBehaveLikeAdminUpgradeabilityProxy (createProxy,
       it('reverts', async function () {
         await expectRevert(
           this.proxy.changeAdmin(ZERO_ADDRESS, { from: proxyAdminAddress }),
-          'Cannot change the admin of a proxy to the zero address',
+          'AdminUpgradeabilityProxy: new admin is the zero address',
         );
       });
     });
@@ -334,7 +334,7 @@ module.exports = function shouldBehaveLikeAdminUpgradeabilityProxy (createProxy,
     it('proxy admin cannot call delegated functions', async function () {
       await expectRevert(
         this.clashing.delegatedFunction({ from: proxyAdminAddress }),
-        'Cannot call fallback function from the proxy admin',
+        'AdminUpgradeabilityProxy: admin cannot fallback to proxy target',
       );
     });
 
