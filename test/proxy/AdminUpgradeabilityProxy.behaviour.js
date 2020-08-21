@@ -2,6 +2,7 @@ const { contract, web3 } = require('@openzeppelin/test-environment');
 
 const { BN, expectRevert, expectEvent, constants } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
+const { toChecksumAddress, keccak256 } = require('ethereumjs-util');
 
 const { expect } = require('chai');
 
@@ -16,6 +17,9 @@ const MigratableMockV3 = contract.fromArtifact('MigratableMockV3');
 const InitializableMock = contract.fromArtifact('InitializableMock');
 const DummyImplementation = contract.fromArtifact('DummyImplementation');
 const ClashingImplementation = contract.fromArtifact('ClashingImplementation');
+
+const IMPLEMENTATION_LABEL = 'eip1967.proxy.implementation';
+const ADMIN_LABEL = 'eip1967.proxy.admin';
 
 module.exports = function shouldBehaveLikeAdminUpgradeabilityProxy (createProxy, accounts) {
   const [proxyAdminAddress, proxyAdminOwner, anotherAccount] = accounts;
@@ -304,14 +308,16 @@ module.exports = function shouldBehaveLikeAdminUpgradeabilityProxy (createProxy,
     });
   });
 
-  describe.skip('storage', function () {
+  describe('storage', function () {
     it('should store the implementation address in specified location', async function () {
-      const implementation = await Proxy.at(this.proxyAddress).implementation();
+      const slot = '0x' + new BN(keccak256(Buffer.from(IMPLEMENTATION_LABEL))).subn(1).toString(16);
+      const implementation = toChecksumAddress(await web3.eth.getStorageAt(this.proxyAddress, slot));
       expect(implementation).to.be.equal(this.implementationV0);
     });
 
     it('should store the admin proxy in specified location', async function () {
-      const proxyAdmin = await Proxy.at(this.proxyAddress).admin();
+      const slot = '0x' + new BN(keccak256(Buffer.from(ADMIN_LABEL))).subn(1).toString(16);
+      const proxyAdmin = toChecksumAddress(await web3.eth.getStorageAt(this.proxyAddress, slot));
       expect(proxyAdmin).to.be.equal(proxyAdminAddress);
     });
   });

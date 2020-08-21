@@ -5,8 +5,6 @@ const shouldBehaveLikeAdminUpgradeabilityProxy = require('./AdminUpgradeabilityP
 
 const AdminUpgradeabilityProxy = contract.fromArtifact('AdminUpgradeabilityProxy');
 
-const ADMIN_LABEL = 'eip1967.proxy.admin';
-
 describe('AdminUpgradeabilityProxy', function () {
   const [proxyAdminAddress, proxyAdminOwner] = accounts;
 

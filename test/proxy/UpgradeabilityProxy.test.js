@@ -4,8 +4,6 @@ const shouldBehaveLikeUpgradeabilityProxy = require('./UpgradeabilityProxy.behav
 
 const UpgradeabilityProxy = contract.fromArtifact('UpgradeabilityProxy');
 
-const IMPLEMENTATION_LABEL = 'eip1967.proxy.implementation';
-
 describe('UpgradeabilityProxy', function () {
   const [proxyAdminOwner] = accounts;
 

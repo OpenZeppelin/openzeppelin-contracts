@@ -1,11 +1,14 @@
 const { contract, web3 } = require('@openzeppelin/test-environment');
 
-const { expectRevert } = require('@openzeppelin/test-helpers');
+const { BN, expectRevert } = require('@openzeppelin/test-helpers');
+const { toChecksumAddress, keccak256 } = require('ethereumjs-util');
 
 const { expect } = require('chai');
 
 const Proxy = contract.fromArtifact('Proxy');
 const DummyImplementation = contract.fromArtifact('DummyImplementation');
+
+const IMPLEMENTATION_LABEL = 'eip1967.proxy.implementation';
 
 module.exports = function shouldBehaveLikeUpgradeabilityProxy (createProxy, proxyAdminAddress, proxyCreator) {
   it('cannot be initialized with a non-contract address', async function () {
@@ -23,8 +26,9 @@ module.exports = function shouldBehaveLikeUpgradeabilityProxy (createProxy, prox
   });
 
   const assertProxyInitialization = function ({ value, balance }) {
-    it.skip('sets the implementation address', async function () {
-      const implementation = await new Proxy(this.proxy).implementation();
+    it('sets the implementation address', async function () {
+      const slot = '0x' + new BN(keccak256(Buffer.from(IMPLEMENTATION_LABEL))).subn(1).toString(16);
+      const implementation = toChecksumAddress(await web3.eth.getStorageAt(this.proxy, slot));
       expect(implementation).to.be.equal(this.implementation);
     });
 
