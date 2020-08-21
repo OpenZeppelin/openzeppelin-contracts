@@ -17,97 +17,112 @@ function shouldBehaveLikeSet (valueA, valueB, valueC) {
     }))).to.have.same.members(values.map(v => v.toString()));
   }
 
-  it('starts empty', async function () {
-    expect(await this.set.contains(valueA)).to.equal(false);
+  context('once deployed', function () {
+    it('starts empty', async function () {
+      expect(await this.set.contains(valueA)).to.equal(false);
 
-    await expectMembersMatch(this.set, []);
+      await expectMembersMatch(this.set, []);
+    });
   });
 
-  it('adds a value', async function () {
-    const receipt = await this.set.add(valueA);
-    expectEvent(receipt, 'OperationResult', { result: true });
+  describe('add', function () {
+    context('once deployed', function () {
+      it('adds a value', async function () {
+        const receipt = await this.set.add(valueA);
+        expectEvent(receipt, 'OperationResult', { result: true });
 
-    await expectMembersMatch(this.set, [valueA]);
+        await expectMembersMatch(this.set, [valueA]);
+      });
+
+      it('adds several values', async function () {
+        await this.set.add(valueA);
+        await this.set.add(valueB);
+
+        await expectMembersMatch(this.set, [valueA, valueB]);
+        expect(await this.set.contains(valueC)).to.equal(false);
+      });
+
+      it('returns false when adding values already in the set', async function () {
+        await this.set.add(valueA);
+
+        const receipt = (await this.set.add(valueA));
+        expectEvent(receipt, 'OperationResult', { result: false });
+
+        await expectMembersMatch(this.set, [valueA]);
+      });
+    });
   });
 
-  it('adds several values', async function () {
-    await this.set.add(valueA);
-    await this.set.add(valueB);
-
-    await expectMembersMatch(this.set, [valueA, valueB]);
-    expect(await this.set.contains(valueC)).to.equal(false);
+  describe('at', function () {
+    context('once deployed', function () {
+      it('reverts when retrieving non-existent elements', async function () {
+        await expectRevert(this.set.at(0), 'EnumerableSet: index out of bounds');
+      });
+    });
   });
 
-  it('returns false when adding values already in the set', async function () {
-    await this.set.add(valueA);
+  describe('remove', function () {
+    context('once deployed and added one value', function () {
+      it('removes added values', async function () {
+        await this.set.add(valueA);
 
-    const receipt = (await this.set.add(valueA));
-    expectEvent(receipt, 'OperationResult', { result: false });
+        const receipt = await this.set.remove(valueA);
+        expectEvent(receipt, 'OperationResult', { result: true });
 
-    await expectMembersMatch(this.set, [valueA]);
-  });
+        expect(await this.set.contains(valueA)).to.equal(false);
+        await expectMembersMatch(this.set, []);
+      });
 
-  it('reverts when retrieving non-existent elements', async function () {
-    await expectRevert(this.set.at(0), 'EnumerableSet: index out of bounds');
-  });
+      it('returns false when removing values not in the set', async function () {
+        const receipt = await this.set.remove(valueA);
+        expectEvent(receipt, 'OperationResult', { result: false });
 
-  it('removes added values', async function () {
-    await this.set.add(valueA);
+        expect(await this.set.contains(valueA)).to.equal(false);
+      });
+    });
+    context('once deployed', function () {
+      it('adds and removes multiple values', async function () {
+        // []
 
-    const receipt = await this.set.remove(valueA);
-    expectEvent(receipt, 'OperationResult', { result: true });
+        await this.set.add(valueA);
+        await this.set.add(valueC);
 
-    expect(await this.set.contains(valueA)).to.equal(false);
-    await expectMembersMatch(this.set, []);
-  });
+        // [A, C]
 
-  it('returns false when removing values not in the set', async function () {
-    const receipt = await this.set.remove(valueA);
-    expectEvent(receipt, 'OperationResult', { result: false });
+        await this.set.remove(valueA);
+        await this.set.remove(valueB);
 
-    expect(await this.set.contains(valueA)).to.equal(false);
-  });
+        // [C]
 
-  it('adds and removes multiple values', async function () {
-    // []
+        await this.set.add(valueB);
 
-    await this.set.add(valueA);
-    await this.set.add(valueC);
+        // [C, B]
 
-    // [A, C]
+        await this.set.add(valueA);
+        await this.set.remove(valueC);
 
-    await this.set.remove(valueA);
-    await this.set.remove(valueB);
+        // [A, B]
 
-    // [C]
+        await this.set.add(valueA);
+        await this.set.add(valueB);
 
-    await this.set.add(valueB);
+        // [A, B]
 
-    // [C, B]
+        await this.set.add(valueC);
+        await this.set.remove(valueA);
 
-    await this.set.add(valueA);
-    await this.set.remove(valueC);
+        // [B, C]
 
-    // [A, B]
+        await this.set.add(valueA);
+        await this.set.remove(valueB);
 
-    await this.set.add(valueA);
-    await this.set.add(valueB);
+        // [A, C]
 
-    // [A, B]
+        await expectMembersMatch(this.set, [valueA, valueC]);
 
-    await this.set.add(valueC);
-    await this.set.remove(valueA);
-
-    // [B, C]
-
-    await this.set.add(valueA);
-    await this.set.remove(valueB);
-
-    // [A, C]
-
-    await expectMembersMatch(this.set, [valueA, valueC]);
-
-    expect(await this.set.contains(valueB)).to.equal(false);
+        expect(await this.set.contains(valueB)).to.equal(false);
+      });
+    });
   });
 }
 
