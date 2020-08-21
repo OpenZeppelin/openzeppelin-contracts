@@ -41,7 +41,7 @@ module.exports = function shouldBehaveLikeAdminUpgradeabilityProxy (createProxy,
     });
 
     it('delegates to the implementation', async function () {
-      const dummy = await DummyImplementation.at(this.proxyAddress);
+      const dummy = new DummyImplementation(this.proxyAddress);
       const value = await dummy.get();
 
       expect(value).to.equal(true);
@@ -180,7 +180,7 @@ module.exports = function shouldBehaveLikeAdminUpgradeabilityProxy (createProxy,
           });
 
           it('calls the \'initialize\' function and sends given value to the proxy', async function () {
-            const migratable = await MigratableMockV1.at(this.proxyAddress);
+            const migratable = new MigratableMockV1(this.proxyAddress);
 
             const x = await migratable.x();
             expect(x).to.be.bignumber.equal('42');
@@ -206,7 +206,7 @@ module.exports = function shouldBehaveLikeAdminUpgradeabilityProxy (createProxy,
             });
 
             it('calls the \'migrate\' function and sends given value to the proxy', async function () {
-              const migratable = await MigratableMockV2.at(this.proxyAddress);
+              const migratable = new MigratableMockV2(this.proxyAddress);
 
               const x = await migratable.x();
               expect(x).to.be.bignumber.equal('10');
@@ -235,7 +235,7 @@ module.exports = function shouldBehaveLikeAdminUpgradeabilityProxy (createProxy,
               });
 
               it('calls the \'migrate\' function and sends given value to the proxy', async function () {
-                const migratable = await MigratableMockV3.at(this.proxyAddress);
+                const migratable = new MigratableMockV3(this.proxyAddress);
 
                 const x = await migratable.x();
                 expect(x).to.be.bignumber.equal('42');
@@ -322,7 +322,7 @@ module.exports = function shouldBehaveLikeAdminUpgradeabilityProxy (createProxy,
       this.impl = await ClashingImplementation.new();
       this.proxy = await createProxy(this.impl.address, proxyAdminAddress, initializeData, { from: proxyAdminOwner });
 
-      this.clashing = await ClashingImplementation.at(this.proxy.address);
+      this.clashing = new ClashingImplementation(this.proxy.address);
     });
 
     it('proxy admin cannot call delegated functions', async function () {
@@ -352,13 +352,13 @@ module.exports = function shouldBehaveLikeAdminUpgradeabilityProxy (createProxy,
       const instance1 = await Implementation1.new();
       const proxy = await createProxy(instance1.address, proxyAdminAddress, initializeData, { from: proxyAdminOwner });
 
-      const proxyInstance1 = await Implementation1.at(proxy.address);
+      const proxyInstance1 = new Implementation1(proxy.address);
       await proxyInstance1.setValue(42);
 
       const instance2 = await Implementation2.new();
       await proxy.upgradeTo(instance2.address, { from: proxyAdminAddress });
 
-      const proxyInstance2 = await Implementation2.at(proxy.address);
+      const proxyInstance2 = new Implementation2(proxy.address);
       const res = await proxyInstance2.getValue();
       expect(res.toString()).to.eq('42');
     });
@@ -367,7 +367,7 @@ module.exports = function shouldBehaveLikeAdminUpgradeabilityProxy (createProxy,
       const instance2 = await Implementation2.new();
       const proxy = await createProxy(instance2.address, proxyAdminAddress, initializeData, { from: proxyAdminOwner });
 
-      const proxyInstance2 = await Implementation2.at(proxy.address);
+      const proxyInstance2 = new Implementation2(proxy.address);
       await proxyInstance2.setValue(42);
       const res = await proxyInstance2.getValue();
       expect(res.toString()).to.eq('42');
@@ -375,7 +375,7 @@ module.exports = function shouldBehaveLikeAdminUpgradeabilityProxy (createProxy,
       const instance1 = await Implementation1.new();
       await proxy.upgradeTo(instance1.address, { from: proxyAdminAddress });
 
-      const proxyInstance1 = await Implementation2.at(proxy.address);
+      const proxyInstance1 = new Implementation2(proxy.address);
       await expectRevert.unspecified(proxyInstance1.getValue());
     });
 
@@ -383,12 +383,12 @@ module.exports = function shouldBehaveLikeAdminUpgradeabilityProxy (createProxy,
       const instance1 = await Implementation1.new();
       const proxy = await createProxy(instance1.address, proxyAdminAddress, initializeData, { from: proxyAdminOwner });
 
-      const proxyInstance1 = await Implementation1.at(proxy.address);
+      const proxyInstance1 = new Implementation1(proxy.address);
       await proxyInstance1.setValue(42);
 
       const instance3 = await Implementation3.new();
       await proxy.upgradeTo(instance3.address, { from: proxyAdminAddress });
-      const proxyInstance3 = await Implementation3.at(proxy.address);
+      const proxyInstance3 = new Implementation3(proxy.address);
 
       const res = await proxyInstance3.getValue(8);
       expect(res.toString()).to.eq('50');
@@ -401,7 +401,7 @@ module.exports = function shouldBehaveLikeAdminUpgradeabilityProxy (createProxy,
 
       const instance4 = await Implementation4.new();
       await proxy.upgradeTo(instance4.address, { from: proxyAdminAddress });
-      const proxyInstance4 = await Implementation4.at(proxy.address);
+      const proxyInstance4 = new Implementation4(proxy.address);
 
       const data = '';
       await web3.eth.sendTransaction({ to: proxy.address, from: anotherAccount, data });
@@ -422,7 +422,7 @@ module.exports = function shouldBehaveLikeAdminUpgradeabilityProxy (createProxy,
         web3.eth.sendTransaction({ to: proxy.address, from: anotherAccount, data }),
       );
 
-      const proxyInstance2 = await Implementation2.at(proxy.address);
+      const proxyInstance2 = new Implementation2(proxy.address);
       const res = await proxyInstance2.getValue();
       expect(res.toString()).to.eq('0');
     });
