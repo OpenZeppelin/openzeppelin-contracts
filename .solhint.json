@@ -6,6 +6,9 @@
     "no-empty-blocks": "off",
     "compiler-version": ["error", "^0.7.0"],
     "private-vars-leading-underscore": "error",
-    "reason-string": "off"
+    "reason-string": "off",
+    "func-visibility": ["warn", {
+      "ignoreConstructors": true
+    }]
   }
 }
