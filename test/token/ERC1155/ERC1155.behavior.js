@@ -92,6 +92,14 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
           ),
           'ERC1155: accounts and ids length mismatch'
         );
+
+        await expectRevert(
+          this.token.balanceOfBatch(
+            [firstTokenHolder, secondTokenHolder],
+            [firstTokenId, secondTokenId, unknownTokenId]
+          ),
+          'ERC1155: accounts and ids length mismatch'
+        );
       });
 
       it('reverts when one of the addresses is the zero address', async function () {
@@ -142,6 +150,18 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
           expect(result[0]).to.be.a.bignumber.equal(secondAmount);
           expect(result[1]).to.be.a.bignumber.equal(firstAmount);
           expect(result[2]).to.be.a.bignumber.equal('0');
+        });
+
+        it('returns multiple times the balance of the same address when asked', async function () {
+          const result = await this.token.balanceOfBatch(
+            [firstTokenHolder, secondTokenHolder, firstTokenHolder],
+            [firstTokenId, secondTokenId, firstTokenId]
+          );
+          expect(result).to.be.an('array');
+          expect(result[0]).to.be.a.bignumber.equal(result[2]);
+          expect(result[0]).to.be.a.bignumber.equal(firstAmount);
+          expect(result[1]).to.be.a.bignumber.equal(secondAmount);
+          expect(result[2]).to.be.a.bignumber.equal(firstAmount);
         });
       });
     });
@@ -298,8 +318,11 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
           });
 
           it('preserves operator\'s balances not involved in the transfer', async function () {
-            const balance = await this.token.balanceOf(proxy, firstTokenId);
-            expect(balance).to.be.a.bignumber.equal('0');
+            const balance1 = await this.token.balanceOf(proxy, firstTokenId);
+            expect(balance1).to.be.a.bignumber.equal('0');
+
+            const balance2 = await this.token.balanceOf(proxy, secondTokenId);
+            expect(balance2).to.be.a.bignumber.equal('0');
           });
         });
       });
@@ -460,6 +483,16 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             multiTokenHolder, recipient,
             [firstTokenId],
             [firstAmount, secondAmount],
+            '0x', { from: multiTokenHolder }
+          ),
+          'ERC1155: ids and amounts length mismatch'
+        );
+
+        await expectRevert(
+          this.token.safeBatchTransferFrom(
+            multiTokenHolder, recipient,
+            [firstTokenId, secondTokenId],
+            [firstAmount],
             '0x', { from: multiTokenHolder }
           ),
           'ERC1155: ids and amounts length mismatch'
@@ -681,6 +714,41 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             ),
             'ERC1155ReceiverMock: reverting on batch receive'
           );
+        });
+      });
+
+      context('to a receiver contract that reverts only on single transfers', function () {
+        beforeEach(async function () {
+          this.receiver = await ERC1155ReceiverMock.new(
+            RECEIVER_SINGLE_MAGIC_VALUE, true,
+            RECEIVER_BATCH_MAGIC_VALUE, false,
+          );
+
+          this.toWhom = this.receiver.address;
+          this.transferReceipt = await this.token.safeBatchTransferFrom(
+            multiTokenHolder, this.receiver.address,
+            [firstTokenId, secondTokenId],
+            [firstAmount, secondAmount],
+            '0x', { from: multiTokenHolder },
+          );
+          ({ logs: this.transferLogs } = this.transferReceipt);
+        });
+
+        batchTransferWasSuccessful.call(this, {
+          operator: multiTokenHolder,
+          from: multiTokenHolder,
+          ids: [firstTokenId, secondTokenId],
+          values: [firstAmount, secondAmount],
+        });
+
+        it('should call onERC1155BatchReceived', async function () {
+          await expectEvent.inTransaction(this.transferReceipt.tx, ERC1155ReceiverMock, 'BatchReceived', {
+            operator: multiTokenHolder,
+            from: multiTokenHolder,
+            // ids: [firstTokenId, secondTokenId],
+            // values: [firstAmount, secondAmount],
+            data: null,
+          });
         });
       });
 
