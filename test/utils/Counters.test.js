@@ -15,17 +15,19 @@ describe('Counters', function () {
   });
 
   describe('increment', function () {
-    it('increments the current value by one', async function () {
-      await this.counter.increment();
-      expect(await this.counter.current()).to.be.bignumber.equal('1');
-    });
+    context('starting from 0', function () {
+      it('increments the current value by one', async function () {
+        await this.counter.increment();
+        expect(await this.counter.current()).to.be.bignumber.equal('1');
+      });
 
-    it('can be called multiple times', async function () {
-      await this.counter.increment();
-      await this.counter.increment();
-      await this.counter.increment();
+      it('can be called multiple times', async function () {
+        await this.counter.increment();
+        await this.counter.increment();
+        await this.counter.increment();
 
-      expect(await this.counter.current()).to.be.bignumber.equal('3');
+        expect(await this.counter.current()).to.be.bignumber.equal('3');
+      });
     });
   });
 
@@ -34,28 +36,30 @@ describe('Counters', function () {
       await this.counter.increment();
       expect(await this.counter.current()).to.be.bignumber.equal('1');
     });
+    context('starting from 1', function () {
+      it('decrements the current value by one', async function () {
+        await this.counter.decrement();
+        expect(await this.counter.current()).to.be.bignumber.equal('0');
+      });
 
-    it('decrements the current value by one', async function () {
-      await this.counter.decrement();
-      expect(await this.counter.current()).to.be.bignumber.equal('0');
+      it('reverts if the current value is 0', async function () {
+        await this.counter.decrement();
+        await expectRevert(this.counter.decrement(), 'SafeMath: subtraction overflow');
+      });
     });
+    context('after incremented to 3', function () {
+      it('can be called multiple times', async function () {
+        await this.counter.increment();
+        await this.counter.increment();
 
-    it('reverts if the current value is 0', async function () {
-      await this.counter.decrement();
-      await expectRevert(this.counter.decrement(), 'SafeMath: subtraction overflow');
-    });
+        expect(await this.counter.current()).to.be.bignumber.equal('3');
 
-    it('can be called multiple times', async function () {
-      await this.counter.increment();
-      await this.counter.increment();
+        await this.counter.decrement();
+        await this.counter.decrement();
+        await this.counter.decrement();
 
-      expect(await this.counter.current()).to.be.bignumber.equal('3');
-
-      await this.counter.decrement();
-      await this.counter.decrement();
-      await this.counter.decrement();
-
-      expect(await this.counter.current()).to.be.bignumber.equal('0');
+        expect(await this.counter.current()).to.be.bignumber.equal('0');
+      });
     });
   });
 });
