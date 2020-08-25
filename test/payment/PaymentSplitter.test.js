@@ -87,7 +87,7 @@ describe('PaymentSplitter', function () {
           'PaymentSplitter: account is not due payment'
         );
       });
-      it('does revert if non-payee want to claim', async function () {
+      it('reverts if non-payee want to claim', async function () {
         await send.ether(payer1, this.contract.address, amount);
         await expectRevert(this.contract.release(nonpayee1),
           'PaymentSplitter: account has no shares'
