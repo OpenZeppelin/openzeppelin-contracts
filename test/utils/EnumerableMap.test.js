@@ -39,52 +39,49 @@ describe('EnumerableMap', function () {
       zip(keys.map(k => k.toString()), values)
     );
   }
-  context('once deployed', function () {
-    it('starts empty', async function () {
-      expect(await this.map.contains(keyA)).to.equal(false);
 
-      await expectMembersMatch(this.map, [], []);
-    });
+  it('starts empty', async function () {
+    expect(await this.map.contains(keyA)).to.equal(false);
+
+    await expectMembersMatch(this.map, [], []);
   });
 
   describe('set', function () {
-    context('once deployed', function () {
-      it('adds a key', async function () {
-        const receipt = await this.map.set(keyA, accountA);
-        expectEvent(receipt, 'OperationResult', { result: true });
+    it('adds a key', async function () {
+      const receipt = await this.map.set(keyA, accountA);
+      expectEvent(receipt, 'OperationResult', { result: true });
 
-        await expectMembersMatch(this.map, [keyA], [accountA]);
-      });
+      await expectMembersMatch(this.map, [keyA], [accountA]);
+    });
 
-      it('adds several keys', async function () {
-        await this.map.set(keyA, accountA);
-        await this.map.set(keyB, accountB);
+    it('adds several keys', async function () {
+      await this.map.set(keyA, accountA);
+      await this.map.set(keyB, accountB);
 
-        await expectMembersMatch(this.map, [keyA, keyB], [accountA, accountB]);
-        expect(await this.map.contains(keyC)).to.equal(false);
-      });
+      await expectMembersMatch(this.map, [keyA, keyB], [accountA, accountB]);
+      expect(await this.map.contains(keyC)).to.equal(false);
+    });
 
-      it('returns false when adding keys already in the set', async function () {
-        await this.map.set(keyA, accountA);
+    it('returns false when adding keys already in the set', async function () {
+      await this.map.set(keyA, accountA);
 
-        const receipt = (await this.map.set(keyA, accountA));
-        expectEvent(receipt, 'OperationResult', { result: false });
+      const receipt = (await this.map.set(keyA, accountA));
+      expectEvent(receipt, 'OperationResult', { result: false });
 
-        await expectMembersMatch(this.map, [keyA], [accountA]);
-      });
+      await expectMembersMatch(this.map, [keyA], [accountA]);
+    });
 
-      it('updates values for keys already in the set', async function () {
-        await this.map.set(keyA, accountA);
+    it('updates values for keys already in the set', async function () {
+      await this.map.set(keyA, accountA);
 
-        await this.map.set(keyA, accountB);
+      await this.map.set(keyA, accountB);
 
-        await expectMembersMatch(this.map, [keyA], [accountB]);
-      });
+      await expectMembersMatch(this.map, [keyA], [accountB]);
     });
   });
 
   describe('remove', function () {
-    context('once deployed and added one keys', function () {
+    context('after adding one key', function () {
       it('removes added keys', async function () {
         await this.map.set(keyA, accountA);
 
@@ -103,48 +100,46 @@ describe('EnumerableMap', function () {
       });
     });
 
-    context('once deployed', function () {
-      it('adds and removes multiple keys', async function () {
-        // []
+    it('adds and removes multiple keys', async function () {
+      // []
 
-        await this.map.set(keyA, accountA);
-        await this.map.set(keyC, accountC);
+      await this.map.set(keyA, accountA);
+      await this.map.set(keyC, accountC);
 
-        // [A, C]
+      // [A, C]
 
-        await this.map.remove(keyA);
-        await this.map.remove(keyB);
+      await this.map.remove(keyA);
+      await this.map.remove(keyB);
 
-        // [C]
+      // [C]
 
-        await this.map.set(keyB, accountB);
+      await this.map.set(keyB, accountB);
 
-        // [C, B]
+      // [C, B]
 
-        await this.map.set(keyA, accountA);
-        await this.map.remove(keyC);
+      await this.map.set(keyA, accountA);
+      await this.map.remove(keyC);
 
-        // [A, B]
+      // [A, B]
 
-        await this.map.set(keyA, accountA);
-        await this.map.set(keyB, accountB);
+      await this.map.set(keyA, accountA);
+      await this.map.set(keyB, accountB);
 
-        // [A, B]
+      // [A, B]
 
-        await this.map.set(keyC, accountC);
-        await this.map.remove(keyA);
+      await this.map.set(keyC, accountC);
+      await this.map.remove(keyA);
 
-        // [B, C]
+      // [B, C]
 
-        await this.map.set(keyA, accountA);
-        await this.map.remove(keyB);
+      await this.map.set(keyA, accountA);
+      await this.map.remove(keyB);
 
-        // [A, C]
+      // [A, C]
 
-        await expectMembersMatch(this.map, [keyA, keyC], [accountA, accountC]);
+      await expectMembersMatch(this.map, [keyA, keyC], [accountA, accountC]);
 
-        expect(await this.map.contains(keyB)).to.equal(false);
-      });
+      expect(await this.map.contains(keyB)).to.equal(false);
     });
   });
 });
