@@ -82,7 +82,7 @@ describe('PaymentSplitter', function () {
     });
 
     describe('release', async function () {
-      it('does revert if no funds to claim', async function () {
+      it('reverts if no funds to claim', async function () {
         await expectRevert(this.contract.release(payee1),
           'PaymentSplitter: account is not due payment'
         );
