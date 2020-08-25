@@ -56,23 +56,21 @@ function shouldBehaveLikeSet (valueA, valueB, valueC) {
   });
 
   describe('remove', function () {
-    context('after adding one value', function () {
-      it('removes added values', async function () {
-        await this.set.add(valueA);
+    it('removes added values', async function () {
+      await this.set.add(valueA);
 
-        const receipt = await this.set.remove(valueA);
-        expectEvent(receipt, 'OperationResult', { result: true });
+      const receipt = await this.set.remove(valueA);
+      expectEvent(receipt, 'OperationResult', { result: true });
 
-        expect(await this.set.contains(valueA)).to.equal(false);
-        await expectMembersMatch(this.set, []);
-      });
+      expect(await this.set.contains(valueA)).to.equal(false);
+      await expectMembersMatch(this.set, []);
+    });
 
-      it('returns false when removing values not in the set', async function () {
-        const receipt = await this.set.remove(valueA);
-        expectEvent(receipt, 'OperationResult', { result: false });
+    it('returns false when removing values not in the set', async function () {
+      const receipt = await this.set.remove(valueA);
+      expectEvent(receipt, 'OperationResult', { result: false });
 
-        expect(await this.set.contains(valueA)).to.equal(false);
-      });
+      expect(await this.set.contains(valueA)).to.equal(false);
     });
 
     it('adds and removes multiple values', async function () {

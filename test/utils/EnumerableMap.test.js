@@ -81,23 +81,21 @@ describe('EnumerableMap', function () {
   });
 
   describe('remove', function () {
-    context('after adding one key', function () {
-      it('removes added keys', async function () {
-        await this.map.set(keyA, accountA);
+    it('removes added keys', async function () {
+      await this.map.set(keyA, accountA);
 
-        const receipt = await this.map.remove(keyA);
-        expectEvent(receipt, 'OperationResult', { result: true });
+      const receipt = await this.map.remove(keyA);
+      expectEvent(receipt, 'OperationResult', { result: true });
 
-        expect(await this.map.contains(keyA)).to.equal(false);
-        await expectMembersMatch(this.map, [], []);
-      });
+      expect(await this.map.contains(keyA)).to.equal(false);
+      await expectMembersMatch(this.map, [], []);
+    });
 
-      it('returns false when removing keys not in the set', async function () {
-        const receipt = await this.map.remove(keyA);
-        expectEvent(receipt, 'OperationResult', { result: false });
+    it('returns false when removing keys not in the set', async function () {
+      const receipt = await this.map.remove(keyA);
+      expectEvent(receipt, 'OperationResult', { result: false });
 
-        expect(await this.map.contains(keyA)).to.equal(false);
-      });
+      expect(await this.map.contains(keyA)).to.equal(false);
     });
 
     it('adds and removes multiple keys', async function () {
