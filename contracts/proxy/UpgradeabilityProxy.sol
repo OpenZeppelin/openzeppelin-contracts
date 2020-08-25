@@ -2,7 +2,7 @@
 
 pragma solidity ^0.6.0;
 
-import "./Proxy.sol";
+import "./DelegateProxy.sol";
 import "../utils/Address.sol";
 
 /**
@@ -11,7 +11,7 @@ import "../utils/Address.sol";
  * implementation address to which it will delegate.
  * Such a change is called an implementation upgrade.
  */
-contract UpgradeabilityProxy is Proxy {
+contract UpgradeabilityProxy is DelegateProxy {
     /**
      * @dev Contract constructor.
      * @param _logic Address of the initial implementation.
