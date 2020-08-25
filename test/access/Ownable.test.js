@@ -48,7 +48,7 @@ describe('Ownable', function () {
       expect(await this.ownable.owner()).to.equal(ZERO_ADDRESS);
     });
 
-    it('prevent non-owners from renouncement', async function () {
+    it('prevents non-owners from renouncement', async function () {
       await expectRevert(
         this.ownable.renounceOwnership({ from: other }),
         'Ownable: caller is not the owner'
