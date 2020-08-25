@@ -41,18 +41,14 @@ describe('Create2', function () {
     });
   });
 
-  describe('deployERC1820Implementer', function () {
+  describe('deploy', function () {
     it('deploys a ERC1820Implementer from inline assembly code', async function () {
       const offChainComputed =
         computeCreate2Address(saltHex, ERC1820Implementer.bytecode, this.factory.address);
-
       await this.factory.deployERC1820Implementer(0, saltHex);
-
       expect(ERC1820Implementer.bytecode).to.include((await web3.eth.getCode(offChainComputed)).slice(2));
     });
-  });
 
-  describe('deploy', function () {
     it('deploys a ERC20Mock with correct balances', async function () {
       const offChainComputed = computeCreate2Address(saltHex, constructorByteCode, this.factory.address);
 
