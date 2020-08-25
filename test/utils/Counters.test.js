@@ -9,10 +9,9 @@ describe('Counters', function () {
   beforeEach(async function () {
     this.counter = await CountersImpl.new();
   });
-  context('once deployed', function () {
-    it('starts at zero', async function () {
-      expect(await this.counter.current()).to.be.bignumber.equal('0');
-    });
+
+  it('starts at zero', async function () {
+    expect(await this.counter.current()).to.be.bignumber.equal('0');
   });
 
   describe('increment', function () {
