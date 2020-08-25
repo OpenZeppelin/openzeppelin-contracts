@@ -15,15 +15,13 @@ describe('Address', function () {
   });
 
   describe('isContract', function () {
-    context('once deployed', function () {
-      it('returns false for account address', async function () {
-        expect(await this.mock.isContract(other)).to.equal(false);
-      });
+    it('returns false for account address', async function () {
+      expect(await this.mock.isContract(other)).to.equal(false);
+    });
 
-      it('returns true for contract address', async function () {
-        const contract = await AddressImpl.new();
-        expect(await this.mock.isContract(contract.address)).to.equal(true);
-      });
+    it('returns true for contract address', async function () {
+      const contract = await AddressImpl.new();
+      expect(await this.mock.isContract(contract.address)).to.equal(true);
     });
   });
 
