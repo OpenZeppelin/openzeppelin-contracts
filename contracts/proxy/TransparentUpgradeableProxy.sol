@@ -5,14 +5,14 @@ pragma solidity ^0.6.0;
 import "./UpgradeabilityProxy.sol";
 
 /**
- * @title AdminUpgradeabilityProxy
+ * @title TransparentUpgradeableProxy
  * @dev This contract combines an upgradeability proxy with an authorization
  * mechanism for administrative tasks.
  * All external functions in this contract must be guarded by the
  * `ifAdmin` modifier. See ethereum/solidity#3864 for a Solidity
  * feature proposal that would enable this to be done automatically.
  */
-contract AdminUpgradeabilityProxy is UpgradeabilityProxy {
+contract TransparentUpgradeableProxy is UpgradeabilityProxy {
     /**
      * Contract constructor.
      * @param _logic address of the initial implementation.
@@ -75,7 +75,7 @@ contract AdminUpgradeabilityProxy is UpgradeabilityProxy {
      * @param newAdmin Address to transfer proxy administration to.
      */
     function changeAdmin(address newAdmin) external ifAdmin {
-        require(newAdmin != address(0), "AdminUpgradeabilityProxy: new admin is the zero address");
+        require(newAdmin != address(0), "TransparentUpgradeableProxy: new admin is the zero address");
         emit AdminChanged(_admin(), newAdmin);
         _setAdmin(newAdmin);
     }
@@ -133,7 +133,7 @@ contract AdminUpgradeabilityProxy is UpgradeabilityProxy {
      * @dev Only fallback when the sender is not the admin.
      */
     function _willFallback() internal override virtual {
-        require(msg.sender != _admin(), "AdminUpgradeabilityProxy: admin cannot fallback to proxy target");
+        require(msg.sender != _admin(), "TransparentUpgradeableProxy: admin cannot fallback to proxy target");
         super._willFallback();
     }
 }

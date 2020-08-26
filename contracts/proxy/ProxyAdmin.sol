@@ -3,7 +3,7 @@
 pragma solidity ^0.6.0;
 
 import "../access/Ownable.sol";
-import "./AdminUpgradeabilityProxy.sol";
+import "./TransparentUpgradeableProxy.sol";
 
 /**
  * @title ProxyAdmin
@@ -17,7 +17,7 @@ contract ProxyAdmin is Ownable {
      * This is needed because only the proxy admin can query it.
      * @return The address of the current implementation of the proxy.
      */
-    function getProxyImplementation(AdminUpgradeabilityProxy proxy) public view returns (address) {
+    function getProxyImplementation(TransparentUpgradeableProxy proxy) public view returns (address) {
         // We need to manually run the static call since the getter cannot be flagged as view
         // bytes4(keccak256("implementation()")) == 0x5c60da1b
         (bool success, bytes memory returndata) = address(proxy).staticcall(hex"5c60da1b");
@@ -29,7 +29,7 @@ contract ProxyAdmin is Ownable {
      * @dev Returns the admin of a proxy. Only the admin can query it.
      * @return The address of the current admin of the proxy.
      */
-    function getProxyAdmin(AdminUpgradeabilityProxy proxy) public view returns (address) {
+    function getProxyAdmin(TransparentUpgradeableProxy proxy) public view returns (address) {
         // We need to manually run the static call since the getter cannot be flagged as view
         // bytes4(keccak256("admin()")) == 0xf851a440
         (bool success, bytes memory returndata) = address(proxy).staticcall(hex"f851a440");
@@ -42,7 +42,7 @@ contract ProxyAdmin is Ownable {
      * @param proxy Proxy to change admin.
      * @param newAdmin Address to transfer proxy administration to.
      */
-    function changeProxyAdmin(AdminUpgradeabilityProxy proxy, address newAdmin) public onlyOwner {
+    function changeProxyAdmin(TransparentUpgradeableProxy proxy, address newAdmin) public onlyOwner {
         proxy.changeAdmin(newAdmin);
     }
 
@@ -51,7 +51,7 @@ contract ProxyAdmin is Ownable {
      * @param proxy Proxy to be upgraded.
      * @param implementation the address of the Implementation.
      */
-    function upgrade(AdminUpgradeabilityProxy proxy, address implementation) public onlyOwner {
+    function upgrade(TransparentUpgradeableProxy proxy, address implementation) public onlyOwner {
         proxy.upgradeTo(implementation);
     }
 
@@ -64,7 +64,7 @@ contract ProxyAdmin is Ownable {
      * It should include the signature and the parameters of the function to be called, as described in
      * https://solidity.readthedocs.io/en/v0.4.24/abi-spec.html#function-selector-and-argument-encoding.
      */
-    function upgradeAndCall(AdminUpgradeabilityProxy proxy, address implementation, bytes memory data) public payable onlyOwner {
+    function upgradeAndCall(TransparentUpgradeableProxy proxy, address implementation, bytes memory data) public payable onlyOwner {
         proxy.upgradeToAndCall{value: msg.value}(implementation, data);
     }
 }

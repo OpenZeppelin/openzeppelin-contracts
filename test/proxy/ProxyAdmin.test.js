@@ -7,7 +7,7 @@ const { expect } = require('chai');
 const ImplV1 = contract.fromArtifact('DummyImplementation');
 const ImplV2 = contract.fromArtifact('DummyImplementationV2');
 const ProxyAdmin = contract.fromArtifact('ProxyAdmin');
-const AdminUpgradeabilityProxy = contract.fromArtifact('AdminUpgradeabilityProxy');
+const TransparentUpgradeableProxy = contract.fromArtifact('TransparentUpgradeableProxy');
 
 describe('ProxyAdmin', function () {
   const [proxyAdminOwner, newAdmin, anotherAccount] = accounts;
@@ -20,7 +20,7 @@ describe('ProxyAdmin', function () {
   beforeEach(async function () {
     const initializeData = Buffer.from('');
     this.proxyAdmin = await ProxyAdmin.new({ from: proxyAdminOwner });
-    this.proxy = await AdminUpgradeabilityProxy.new(
+    this.proxy = await TransparentUpgradeableProxy.new(
       this.implementationV1.address,
       this.proxyAdmin.address,
       initializeData,

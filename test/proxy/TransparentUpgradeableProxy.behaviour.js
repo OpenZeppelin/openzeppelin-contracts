@@ -21,7 +21,7 @@ const ClashingImplementation = contract.fromArtifact('ClashingImplementation');
 const IMPLEMENTATION_LABEL = 'eip1967.proxy.implementation';
 const ADMIN_LABEL = 'eip1967.proxy.admin';
 
-module.exports = function shouldBehaveLikeAdminUpgradeabilityProxy (createProxy, accounts) {
+module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createProxy, accounts) {
   const [proxyAdminAddress, proxyAdminOwner, anotherAccount] = accounts;
 
   before(async function () {
@@ -302,7 +302,7 @@ module.exports = function shouldBehaveLikeAdminUpgradeabilityProxy (createProxy,
       it('reverts', async function () {
         await expectRevert(
           this.proxy.changeAdmin(ZERO_ADDRESS, { from: proxyAdminAddress }),
-          'AdminUpgradeabilityProxy: new admin is the zero address',
+          'TransparentUpgradeableProxy: new admin is the zero address',
         );
       });
     });
@@ -334,7 +334,7 @@ module.exports = function shouldBehaveLikeAdminUpgradeabilityProxy (createProxy,
     it('proxy admin cannot call delegated functions', async function () {
       await expectRevert(
         this.clashing.delegatedFunction({ from: proxyAdminAddress }),
-        'AdminUpgradeabilityProxy: admin cannot fallback to proxy target',
+        'TransparentUpgradeableProxy: admin cannot fallback to proxy target',
       );
     });
 
