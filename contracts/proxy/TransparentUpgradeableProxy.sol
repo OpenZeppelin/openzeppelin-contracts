@@ -2,7 +2,7 @@
 
 pragma solidity ^0.6.0;
 
-import "./UpgradeabilityProxy.sol";
+import "./UpgradeableProxy.sol";
 
 /**
  * @title TransparentUpgradeableProxy
@@ -12,7 +12,7 @@ import "./UpgradeabilityProxy.sol";
  * `ifAdmin` modifier. See ethereum/solidity#3864 for a Solidity
  * feature proposal that would enable this to be done automatically.
  */
-contract TransparentUpgradeableProxy is UpgradeabilityProxy {
+contract TransparentUpgradeableProxy is UpgradeableProxy {
     /**
      * Contract constructor.
      * @param _logic address of the initial implementation.
@@ -22,7 +22,7 @@ contract TransparentUpgradeableProxy is UpgradeabilityProxy {
      * https://solidity.readthedocs.io/en/v0.4.24/abi-spec.html#function-selector-and-argument-encoding.
      * This parameter is optional, if no data is given the initialization call to proxied contract will be skipped.
      */
-    constructor(address _logic, address _admin, bytes memory _data) public payable UpgradeabilityProxy(_logic, _data) {
+    constructor(address _logic, address _admin, bytes memory _data) public payable UpgradeableProxy(_logic, _data) {
         assert(_ADMIN_SLOT == bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1));
         _setAdmin(_admin);
     }

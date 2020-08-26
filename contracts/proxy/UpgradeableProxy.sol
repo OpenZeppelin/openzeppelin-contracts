@@ -6,12 +6,12 @@ import "./Proxy.sol";
 import "../utils/Address.sol";
 
 /**
- * @title UpgradeabilityProxy
+ * @title UpgradeableProxy
  * @dev This contract implements a proxy that allows to change the
  * implementation address to which it will delegate.
  * Such a change is called an implementation upgrade.
  */
-contract UpgradeabilityProxy is Proxy {
+contract UpgradeableProxy is Proxy {
     /**
      * @dev Contract constructor.
      * @param _logic Address of the initial implementation.
@@ -69,7 +69,7 @@ contract UpgradeabilityProxy is Proxy {
      * @param newImplementation Address of the new implementation.
      */
     function _setImplementation(address newImplementation) internal {
-        require(Address.isContract(newImplementation), "UpgradeabilityProxy: new implementation is not a contract");
+        require(Address.isContract(newImplementation), "UpgradeableProxy: new implementation is not a contract");
 
         bytes32 slot = _IMPLEMENTATION_SLOT;
 

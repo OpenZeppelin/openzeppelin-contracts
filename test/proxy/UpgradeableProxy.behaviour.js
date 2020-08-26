@@ -9,7 +9,7 @@ const DummyImplementation = contract.fromArtifact('DummyImplementation');
 
 const IMPLEMENTATION_LABEL = 'eip1967.proxy.implementation';
 
-module.exports = function shouldBehaveLikeUpgradeabilityProxy (createProxy, proxyAdminAddress, proxyCreator) {
+module.exports = function shouldBehaveLikeUpgradeableProxy (createProxy, proxyAdminAddress, proxyCreator) {
   it('cannot be initialized with a non-contract address', async function () {
     const nonContractAddress = proxyCreator;
     const initializeData = Buffer.from('');

@@ -78,7 +78,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
         it('reverts', async function () {
           await expectRevert(
             this.proxy.upgradeTo(ZERO_ADDRESS, { from }),
-            'UpgradeabilityProxy: new implementation is not a contract',
+            'UpgradeableProxy: new implementation is not a contract',
           );
         });
       });
