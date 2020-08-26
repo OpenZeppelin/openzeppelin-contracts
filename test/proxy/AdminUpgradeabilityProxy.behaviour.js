@@ -6,8 +6,7 @@ const { toChecksumAddress, keccak256 } = require('ethereumjs-util');
 
 const { expect } = require('chai');
 
-const DelegateProxy = contract.fromArtifact('DelegateProxy');
-
+const Proxy = contract.fromArtifact('Proxy');
 const Implementation1 = contract.fromArtifact('Implementation1');
 const Implementation2 = contract.fromArtifact('Implementation2');
 const Implementation3 = contract.fromArtifact('Implementation3');
@@ -139,7 +138,7 @@ module.exports = function shouldBehaveLikeAdminUpgradeabilityProxy (createProxy,
             //  - 1-50: Initailizable reserved storage (50 slots)
             //  - 51: initializerRan
             //  - 52: x
-            const storedValue = await DelegateProxy.at(this.proxyAddress).getStorageAt(52);
+            const storedValue = await Proxy.at(this.proxyAddress).getStorageAt(52);
             expect(parseInt(storedValue)).to.eq(42);
           });
         });
