@@ -69,7 +69,7 @@ While attempts will generally be made to lower the gas costs of working with Ope
 [[bugfixes]]
 === Bug Fixes
 
-The API stability guarantees may need to be broken in order to fix a bug, and we will do so. This decision won't be made lightly however, and all options will be explored to make the change as non-disruptive as possible. When sufficient, contracts or functions which may result in unsafe behaviour will be deprecated instead of removed (e.g. https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1543[#1543] and https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1550[#1550]).
+The API stability guarantees may need to be broken in order to fix a bug, and we will do so. This decision won't be made lightly however, and all options will be explored to make the change as non-disruptive as possible. When sufficient, contracts or functions which may result in unsafe behavior will be deprecated instead of removed (e.g. https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1543[#1543] and https://github.com/OpenZeppelin/openzeppelin-contracts/pull/1550[#1550]).
 
 [[solidity-compiler-version]]
 === Solidity Compiler Version
