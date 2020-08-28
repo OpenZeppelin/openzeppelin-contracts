@@ -9,296 +9,638 @@ const CallReceiverMock = contract.fromArtifact('CallReceiverMock');
 const Implementation2  = contract.fromArtifact('Implementation2');
 const LOCKDURATION = time.duration.days(1);
 
+
+function genCommitment(target, value, data, salt) {
+  const id = web3.utils.keccak256(web3.eth.abi.encodeParameters([
+    'address',
+    'uint256',
+    'bytes',
+    'bytes32',
+  ],[
+    target,
+    value,
+    data,
+    salt,
+  ]));
+  return { id, target, value, data, salt };
+}
+
+function genCommitmentBatch(targets, values, datas, salt) {
+  const id = web3.utils.keccak256(web3.eth.abi.encodeParameters([
+    'address[]',
+    'uint256[]',
+    'bytes[]',
+    'bytes32',
+  ],[
+    targets,
+    values,
+    datas,
+    salt,
+  ]));
+  return { id, targets, values, datas, salt };
+}
+
 describe('Timelock', function () {
   const [ owner, other ] = accounts;
 
   beforeEach(async function () {
     this.timelock = await Timelock.new(LOCKDURATION, { from: owner });
+    this.callreceivermock = await CallReceiverMock.new({ from: owner });
+    this.implementation2 = await Implementation2.new({ from: owner });
   });
 
   it('initial state', async function () {
-    expect(await this.timelock.lockDuration()).to.be.bignumber.equal(LOCKDURATION);
-    expect(await this.timelock.nextTX()).to.be.bignumber.equal(web3.utils.toBN(0));
-    expect(await this.timelock.totalTX()).to.be.bignumber.equal(web3.utils.toBN(0));
+    expect(await this.timelock.viewLockDuration()).to.be.bignumber.equal(LOCKDURATION);
   });
 
   describe('methods', function () {
-    describe('scheduleTX', function () {
-      it('prevents non-owners from scheduling', async function () {
-        const target = web3.utils.toChecksumAddress(web3.utils.randomHex(20));
-        const value  = web3.utils.randomHex(16);
-        const data   = web3.utils.randomHex(64);
-
-        await expectRevert(
-          this.timelock.scheduleTX(target, value, data, { from: other }),
-          'Ownable: caller is not the owner'
+    describe('commit', function () {
+      beforeEach(async function () {
+        this.commitment = genCommitment(
+          ZERO_ADDRESS,
+          0,
+          web3.utils.randomHex(4),
+          web3.utils.randomHex(32),
         );
+      })
+
+      it('owner can commit', async function () {
+        const receipt = await this.timelock.commit(this.commitment.id, { from: owner });
+        expectEvent(receipt, 'Commitment', { id: this.commitment.id });
       });
 
-      it('scheduled operation is registered', async function () {
-        for (let i = 0; i<8; ++i)
-        {
-          const target = web3.utils.toChecksumAddress(web3.utils.randomHex(20));
-          const value  = web3.utils.randomHex(16);
-          const data   = web3.utils.randomHex(64);
+      it('commitment is registered', async function () {
+        const receipt = await this.timelock.commit(this.commitment.id, { from: owner });
+        expectEvent(receipt, 'Commitment', { id: this.commitment.id });
 
-          const receipt = await this.timelock.scheduleTX(target, value, data, { from: owner });
-          const block = await web3.eth.getBlock(receipt.receipt.blockHash);
+        const block = await web3.eth.getBlock(receipt.receipt.blockHash);
 
-          expectEvent(receipt, 'TXScheduled', { index: web3.utils.toBN(i) });
+        expect(await this.timelock.viewCommitment(this.commitment.id)).to.be.bignumber.equal(web3.utils.toBN(block.timestamp).add(LOCKDURATION));
+      });
 
-          expect(await this.timelock.nextTX()).to.be.bignumber.equal(web3.utils.toBN(0))
-          expect(await this.timelock.totalTX()).to.be.bignumber.equal(web3.utils.toBN(i+1))
-
-          const operation = await this.timelock.viewTX(i)
-          expect(operation.target).to.be.equal(target);
-          expect(operation.value).to.be.bignumber.equal(web3.utils.toBN(value));
-          expect(operation.data).to.be.equal(data);
-          expect(operation.timestamp).to.be.bignumber.equal(web3.utils.toBN(block.timestamp).add(LOCKDURATION));
-        }
+      it('prevent non-owner from commiting', async function () {
+        await expectRevert(
+          this.timelock.commit(this.commitment.id, { from: other }),
+          'Ownable: caller is not the owner -- Reason given: Ownable: caller is not the owner.'
+        );
       });
     });
 
-    describe('executeTX', function () {
-      describe('empty queue', function () {
+    describe('reveal', function () {
+      beforeEach(async function () {
+        this.commitment = genCommitment(
+          ZERO_ADDRESS,
+          0,
+          web3.utils.randomHex(4),
+          web3.utils.randomHex(32),
+        );
+      })
+
+      describe('no commitment', function () {
         it('reverts', async function () {
           await expectRevert(
-            this.timelock.executeTX({ from: owner }),
-            'empty-queue'
+            this.timelock.reveal(
+              this.commitment.target,
+              this.commitment.value,
+              this.commitment.data,
+              this.commitment.salt,
+              { from: owner }
+            ),
+            'no-matching-commitment'
           );
         });
       });
 
-      describe('non-empty queue', function () {
+      describe('with commitment', function () {
         beforeEach(async function () {
-          const target = web3.utils.toChecksumAddress(web3.utils.randomHex(20));
-          const value  = web3.utils.randomHex(16);
-          const data   = web3.utils.randomHex(64);
-          ({ logs: this.logs } = await this.timelock.scheduleTX(target, value, data, { from: owner }));
-        });
+          ({ logs: this.logs } = await this.timelock.commit(this.commitment.id, { from: owner }));
+        })
 
-        describe('early execution', function () {
-          Array(8).fill().forEach((_, i) => {
-            it(`reverts #${i}`, async function () {
-              await expectRevert(
-                this.timelock.executeTX({ from: owner }),
-                'too-early-to-execute'
-              );
-            });
+        describe('to early', function () {
+          it('reverts', async function () {
+            await expectRevert(
+              this.timelock.reveal(
+                this.commitment.target,
+                this.commitment.value,
+                this.commitment.data,
+                this.commitment.salt,
+                { from: owner }
+              ),
+              'too-early-to-execute'
+            );
           });
         });
 
         describe('almost but not quite', function () {
           beforeEach(async function () {
-            const { timestamp } = await this.timelock.viewTX(0);
-            await time.increaseTo(timestamp - 2) // -1 is to tight, test sometime fails
+            const timestamp = await this.timelock.viewCommitment(this.commitment.id);
+            await time.increaseTo(timestamp - 2); // -1 is to tight, test sometime fails
           });
 
-
-          Array(8).fill().forEach((_, i) => {
-            it(`reverts #${i}`, async function () {
-              await expectRevert(
-                this.timelock.executeTX({ from: owner }),
-                'too-early-to-execute'
-              );
-            });
-          });
+          it('reverts', async function () {
+            await expectRevert(
+              this.timelock.reveal(
+                this.commitment.target,
+                this.commitment.value,
+                this.commitment.data,
+                this.commitment.salt,
+                { from: owner }
+              ),
+              'too-early-to-execute'
+            );
+          })
         });
 
         describe('on time', function () {
           beforeEach(async function () {
-            const { timestamp } = await this.timelock.viewTX(0);
-            await time.increaseTo(timestamp)
+            const timestamp = await this.timelock.viewCommitment(this.commitment.id);
+            await time.increaseTo(timestamp);
           });
 
-          Array(8).fill().forEach((_, i) => {
-            it(`owner can execute #${i}`, async function () {
-              const receipt = await this.timelock.executeTX({ from: owner });
-              expectEvent(receipt, 'TXExecuted', { index: web3.utils.toBN(0), success: false }); // random call at random address fails
-
-              expect(await this.timelock.nextTX()).to.be.bignumber.equal(web3.utils.toBN(1))
-              expect(await this.timelock.totalTX()).to.be.bignumber.equal(web3.utils.toBN(1))
-
-              const operation = await this.timelock.viewTX(0)
-              expect(operation.target).to.be.equal(ZERO_ADDRESS);
-              expect(operation.value).to.be.bignumber.equal(web3.utils.toBN(0));
-              expect(operation.data).to.be.equal(null);
-              expect(operation.timestamp).to.be.bignumber.equal(web3.utils.toBN(0));
+          it('owner can reveal', async function () {
+            const receipt = await this.timelock.reveal(
+              this.commitment.target,
+              this.commitment.value,
+              this.commitment.data,
+              this.commitment.salt,
+              { from: owner }
+            );
+            expectEvent(receipt, 'Executed', {
+              id:      this.commitment.id,
+              index:   web3.utils.toBN(0),
+              target:  this.commitment.target,
+              value:   web3.utils.toBN(this.commitment.value),
+              data:    this.commitment.data,
+              success: true,
             });
           });
 
-          it('prevents non-owners from executing', async function () {
+          it('commitment is cleared', async function () {
+            const receipt = await this.timelock.reveal(
+              this.commitment.target,
+              this.commitment.value,
+              this.commitment.data,
+              this.commitment.salt,
+              { from: owner }
+            );
+            expectEvent(receipt, 'Executed', {
+              id:      this.commitment.id,
+              index:   web3.utils.toBN(0),
+              target:  this.commitment.target,
+              value:   web3.utils.toBN(this.commitment.value),
+              data:    this.commitment.data,
+              success: true,
+            });
+
+            expect(await this.timelock.viewCommitment(this.commitment.id)).to.be.bignumber.equal(web3.utils.toBN(0));
+          });
+
+          it('prevent non-owner from revealing', async function () {
             await expectRevert(
-              this.timelock.executeTX({ from: other }),
-              'Ownable: caller is not the owner.'
+              this.timelock.reveal(
+                this.commitment.target,
+                this.commitment.value,
+                this.commitment.data,
+                this.commitment.salt,
+                { from: other }
+              ),
+              'Ownable: caller is not the owner -- Reason given: Ownable: caller is not the owner.'
             );
           });
         });
       });
     });
 
-    describe('cancelTX', function () {
-      describe('empty queue', function () {
+    describe('revealBatch', function () {
+      beforeEach(async function () {
+        this.commitment = genCommitmentBatch(
+          Array(8).fill().map(() => ZERO_ADDRESS),
+          Array(8).fill().map(() => 0),
+          Array(8).fill().map(() => web3.utils.randomHex(4)),
+          web3.utils.randomHex(32),
+        );
+      })
+
+      describe('no commitment', function () {
         it('reverts', async function () {
           await expectRevert(
-            this.timelock.cancelTX({ from: owner }),
-            'empty-queue'
+            this.timelock.revealBatch(
+              this.commitment.targets,
+              this.commitment.values,
+              this.commitment.datas,
+              this.commitment.salt,
+              { from: owner }
+            ),
+            'no-matching-commitment'
           );
         });
       });
 
-      describe('non-empty queue', function () {
+
+      describe('with commitment', function () {
         beforeEach(async function () {
-          const target = web3.utils.toChecksumAddress(web3.utils.randomHex(20));
-          const value  = web3.utils.randomHex(16);
-          const data   = web3.utils.randomHex(64);
-          ({ logs: this.logs } = await this.timelock.scheduleTX(target, value, data, { from: owner }));
+          ({ logs: this.logs } = await this.timelock.commit(this.commitment.id, { from: owner }));
+        })
+
+        describe('to early', function () {
+          it('reverts', async function () {
+            await expectRevert(
+              this.timelock.revealBatch(
+                this.commitment.targets,
+                this.commitment.values,
+                this.commitment.datas,
+                this.commitment.salt,
+                { from: owner }
+              ),
+              'too-early-to-execute'
+            );
+          });
         });
 
-        it('owner can cancel', async function () {
-          const receipt = await this.timelock.cancelTX({ from: owner });
-          expectEvent(receipt, 'TXCanceled', { index: web3.utils.toBN(0) });
+        describe('almost but not quite', function () {
+          beforeEach(async function () {
+            const timestamp = await this.timelock.viewCommitment(this.commitment.id);
+            await time.increaseTo(timestamp - 2); // -1 is to tight, test sometime fails
+          });
 
-          expect(await this.timelock.nextTX()).to.be.bignumber.equal(web3.utils.toBN(1))
-          expect(await this.timelock.totalTX()).to.be.bignumber.equal(web3.utils.toBN(1))
-
-          const operation = await this.timelock.viewTX(0)
-          expect(operation.target).to.be.equal(ZERO_ADDRESS);
-          expect(operation.value).to.be.bignumber.equal(web3.utils.toBN(0));
-          expect(operation.data).to.be.equal(null);
-          expect(operation.timestamp).to.be.bignumber.equal(web3.utils.toBN(0));
+          it('reverts', async function () {
+            await expectRevert(
+              this.timelock.revealBatch(
+                this.commitment.targets,
+                this.commitment.values,
+                this.commitment.datas,
+                this.commitment.salt,
+                { from: owner }
+              ),
+              'too-early-to-execute'
+            );
+          })
         });
 
-        it('prevents non-owners from executing', async function () {
-          await expectRevert(
-            this.timelock.executeTX({ from: other }),
-            'Ownable: caller is not the owner.'
-          );
+        describe('on time', function () {
+          beforeEach(async function () {
+            const timestamp = await this.timelock.viewCommitment(this.commitment.id);
+            await time.increaseTo(timestamp);
+          });
+
+          it('owner can reveal', async function () {
+            const receipt = await this.timelock.revealBatch(
+              this.commitment.targets,
+              this.commitment.values,
+              this.commitment.datas,
+              this.commitment.salt,
+              { from: owner }
+            );
+            for (i in this.commitment.targets)
+            {
+              expectEvent(receipt, 'Executed', {
+                id:      this.commitment.id,
+                index:   web3.utils.toBN(i),
+                target:  this.commitment.targets[i],
+                value:   web3.utils.toBN(this.commitment.values[i]),
+                data:    this.commitment.datas[i],
+                success: true,
+              });
+            }
+          });
+
+          it('commitment is cleared', async function () {
+            const receipt = await this.timelock.revealBatch(
+              this.commitment.targets,
+              this.commitment.values,
+              this.commitment.datas,
+              this.commitment.salt,
+              { from: owner }
+            );
+            for (i in this.commitment.targets)
+            {
+              expectEvent(receipt, 'Executed', {
+                id:      this.commitment.id,
+                index:   web3.utils.toBN(i),
+                target:  this.commitment.targets[i],
+                value:   web3.utils.toBN(this.commitment.values[i]),
+                data:    this.commitment.datas[i],
+                success: true,
+              });
+            }
+
+            expect(await this.timelock.viewCommitment(this.commitment.id)).to.be.bignumber.equal(web3.utils.toBN(0));
+          });
+
+          it('prevent non-owner from revealing', async function () {
+            await expectRevert(
+              this.timelock.revealBatch(
+                this.commitment.targets,
+                this.commitment.values,
+                this.commitment.datas,
+                this.commitment.salt,
+                { from: other }
+              ),
+              'Ownable: caller is not the owner -- Reason given: Ownable: caller is not the owner.'
+            );
+          });
+
+          it('length missmatch #1', async function () {
+            await expectRevert(
+              this.timelock.revealBatch(
+                [],
+                this.commitment.values,
+                this.commitment.datas,
+                this.commitment.salt,
+                { from: owner }
+              ),
+              'length-missmatch'
+            );
+          });
+
+          it('length missmatch #2', async function () {
+            await expectRevert(
+              this.timelock.revealBatch(
+                this.commitment.targets,
+                [],
+                this.commitment.datas,
+                this.commitment.salt,
+                { from: owner }
+              ),
+              'length-missmatch'
+            );
+          });
+
+          it('length missmatch #3', async function () {
+            await expectRevert(
+              this.timelock.revealBatch(
+                this.commitment.targets,
+                this.commitment.values,
+                [],
+                this.commitment.salt,
+                { from: owner }
+              ),
+              'length-missmatch'
+            );
+          });
         });
+      });
+
+      it('partial execution', async function () {
+        const commitment = genCommitmentBatch(
+          [
+            this.callreceivermock.address,
+            this.callreceivermock.address,
+            this.callreceivermock.address,
+          ],
+          [
+            0,
+            0,
+            0,
+          ],
+          [
+            this.callreceivermock.contract.methods.mockFunction().encodeABI(),
+            this.callreceivermock.contract.methods.mockFunctionThrows().encodeABI(),
+            this.callreceivermock.contract.methods.mockFunction().encodeABI(),
+          ],
+          web3.utils.randomHex(32),
+        );
+
+        await this.timelock.commit(commitment.id, { from: owner });
+        await time.increase(LOCKDURATION);
+        const receipt = await this.timelock.revealBatch(
+          commitment.targets,
+          commitment.values,
+          commitment.datas,
+          commitment.salt,
+          { from: owner }
+        );
+        expect(receipt.logs.length).to.be.equal(2);
+        expectEvent(receipt, 'Executed', { id: commitment.id, index: web3.utils.toBN(0), success: true });
+        expectEvent(receipt, 'Executed', { id: commitment.id, index: web3.utils.toBN(1), success: false });
+        // expectEvent.notEmitted(receipt, 'Executed', { id: commitment.id, index: web3.utils.toBN(2), success: true }); // fails
+      });
+    });
+
+    describe('cancel', function () {
+      beforeEach(async function () {
+        this.commitment = genCommitment(
+          ZERO_ADDRESS,
+          0,
+          web3.utils.randomHex(4),
+          web3.utils.randomHex(32),
+        );
+        ({ logs: this.logs } = await this.timelock.commit(this.commitment.id, { from: owner }));
+      })
+
+      it('owner can cancel', async function () {
+        const receipt = await this.timelock.cancel(this.commitment.id, { from: owner });
+        expectEvent(receipt, 'Canceled', { id: this.commitment.id });
+      });
+
+      it('commitment is cleared', async function () {
+        const receipt = await this.timelock.cancel(this.commitment.id, { from: owner });
+        expectEvent(receipt, 'Canceled', { id: this.commitment.id });
+
+        expect(await this.timelock.viewCommitment(this.commitment.id)).to.be.bignumber.equal(web3.utils.toBN(0));
+      });
+
+      it('prevent non-owner from canceling', async function () {
+        await expectRevert(
+          this.timelock.cancel(this.commitment.id, { from: other }),
+          'Ownable: caller is not the owner -- Reason given: Ownable: caller is not the owner.'
+        );
       });
     });
   });
 
-  describe('scenari', function () {
-    beforeEach(async function () {
-      this.callreceivermock = await CallReceiverMock.new({ from: owner });
-      this.implementation2 = await Implementation2.new({ from: owner });
+  describe('maintenance', function () {
+    it('owner cannot perform maintenance', async function () {
+      await expectRevert(
+        this.timelock.updateDuration(0, { from: other }),
+        'only-self-calls'
+      );
     });
 
+    it('timelock can perform maintenance', async function () {
+      const randomBN = web3.utils.randomHex(16);
+      const commitment = genCommitment(
+        this.timelock.address,
+        0,
+        this.timelock.contract.methods.updateDuration(randomBN).encodeABI(),
+        web3.utils.randomHex(32),
+      );
+
+      await this.timelock.commit(commitment.id, { from: owner });
+      await time.increase(LOCKDURATION);
+      const receipt = await this.timelock.reveal(
+        commitment.target,
+        commitment.value,
+        commitment.data,
+        commitment.salt,
+        { from: owner }
+      );
+      expectEvent(receipt, 'Executed', { success: true });
+
+      expect(await this.timelock.viewLockDuration()).to.be.bignumber.equal(web3.utils.toBN(randomBN));
+    });
+  });
+
+  describe('scenari', function () {
     it('call', async function () {
       const randomBN = web3.utils.randomHex(16);
-      await this.timelock.scheduleTX(
+      const commitment = genCommitment(
         this.implementation2.address,
         0,
         this.implementation2.contract.methods.setValue(randomBN).encodeABI(),
-        { from: owner }
+        web3.utils.randomHex(32),
       );
 
+      await this.timelock.commit(commitment.id, { from: owner });
       await time.increase(LOCKDURATION);
-
-      const receipt = await this.timelock.executeTX({ from: owner });
-      expectEvent(receipt, 'TXExecuted', { index: web3.utils.toBN(0), success: true });
+      const receipt = await this.timelock.reveal(
+        commitment.target,
+        commitment.value,
+        commitment.data,
+        commitment.salt,
+        { from: owner }
+      );
+      expectEvent(receipt, 'Executed', { success: true });
 
       expect(await this.implementation2.getValue()).to.be.bignumber.equal(web3.utils.toBN(randomBN));
     });
 
     it('call reverting', async function () {
-      await this.timelock.scheduleTX(
+      const commitment = genCommitment(
         this.callreceivermock.address,
         0,
         this.callreceivermock.contract.methods.mockFunctionRevertsNoReason().encodeABI(),
-        { from: owner }
+        web3.utils.randomHex(32),
       );
 
+      await this.timelock.commit(commitment.id, { from: owner });
       await time.increase(LOCKDURATION);
-
-      const receipt = await this.timelock.executeTX({ from: owner });
-      expectEvent(receipt, 'TXExecuted', { index: web3.utils.toBN(0), success: false });
+      const receipt = await this.timelock.reveal(
+        commitment.target,
+        commitment.value,
+        commitment.data,
+        commitment.salt,
+        { from: owner }
+      );
+      expectEvent(receipt, 'Executed', { success: false });
     });
 
     it('call throw', async function () {
-      await this.timelock.scheduleTX(
+      const commitment = genCommitment(
         this.callreceivermock.address,
         0,
         this.callreceivermock.contract.methods.mockFunctionThrows().encodeABI(),
-        { from: owner }
+        web3.utils.randomHex(32),
       );
 
+      await this.timelock.commit(commitment.id, { from: owner });
       await time.increase(LOCKDURATION);
-
-      const receipt = await this.timelock.executeTX({ from: owner });
-      expectEvent(receipt, 'TXExecuted', { index: web3.utils.toBN(0), success: false });
+      const receipt = await this.timelock.reveal(
+        commitment.target,
+        commitment.value,
+        commitment.data,
+        commitment.salt,
+        { from: owner }
+      );
+      expectEvent(receipt, 'Executed', { success: false });
     });
 
     it('call out of gas', async function () {
-      await this.timelock.scheduleTX(
+      const commitment = genCommitment(
         this.callreceivermock.address,
         0,
         this.callreceivermock.contract.methods.mockFunctionOutOfGas().encodeABI(),
-        { from: owner }
+        web3.utils.randomHex(32),
       );
 
+      await this.timelock.commit(commitment.id, { from: owner });
       await time.increase(LOCKDURATION);
-
-      const receipt = await this.timelock.executeTX({ from: owner });
-      expectEvent(receipt, 'TXExecuted', { index: web3.utils.toBN(0), success: false });
+      const receipt = await this.timelock.reveal(
+        commitment.target,
+        commitment.value,
+        commitment.data,
+        commitment.salt,
+        { from: owner }
+      );
+      expectEvent(receipt, 'Executed', { success: false });
     });
 
     it('call payable with eth', async function () {
-      await this.timelock.scheduleTX(
+      const commitment = genCommitment(
         this.callreceivermock.address,
         1,
         this.callreceivermock.contract.methods.mockFunction().encodeABI(),
-        { from: owner }
+        web3.utils.randomHex(32),
       );
 
+      await this.timelock.commit(commitment.id, { from: owner });
       await time.increase(LOCKDURATION);
 
       expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
       expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
 
-      const receipt = await this.timelock.executeTX({ from: owner, value: 1 });
-      expectEvent(receipt, 'TXExecuted', { index: web3.utils.toBN(0), success: true });
+      const receipt = await this.timelock.reveal(
+        commitment.target,
+        commitment.value,
+        commitment.data,
+        commitment.salt,
+        { from: owner, value: 1 }
+      );
+      expectEvent(receipt, 'Executed', { success: true });
 
       expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
       expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(web3.utils.toBN(1));
     });
 
     it('call nonpayable with eth', async function () {
-      await this.timelock.scheduleTX(
+      const commitment = genCommitment(
         this.callreceivermock.address,
         1,
         this.callreceivermock.contract.methods.mockFunctionNonPayable().encodeABI(),
-        { from: owner }
+        web3.utils.randomHex(32),
       );
 
+      await this.timelock.commit(commitment.id, { from: owner });
       await time.increase(LOCKDURATION);
 
       expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
       expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
 
-      const receipt = await this.timelock.executeTX({ from: owner, value: 1 });
-      expectEvent(receipt, 'TXExecuted', { index: web3.utils.toBN(0), success: false });
+      const receipt = await this.timelock.reveal(
+        commitment.target,
+        commitment.value,
+        commitment.data,
+        commitment.salt,
+        { from: owner, value: 1 }
+      );
+      expectEvent(receipt, 'Executed', { success: false });
 
       expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(web3.utils.toBN(1));
       expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
     });
 
     it('call reverting with eth', async function () {
-      await this.timelock.scheduleTX(
+      const commitment = genCommitment(
         this.callreceivermock.address,
         1,
         this.callreceivermock.contract.methods.mockFunctionRevertsNoReason().encodeABI(),
-        { from: owner }
+        web3.utils.randomHex(32),
       );
 
+      await this.timelock.commit(commitment.id, { from: owner });
       await time.increase(LOCKDURATION);
 
       expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
       expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
 
-      const receipt = await this.timelock.executeTX({ from: owner, value: 1 });
-      expectEvent(receipt, 'TXExecuted', { index: web3.utils.toBN(0), success: false });
+      const receipt = await this.timelock.reveal(
+        commitment.target,
+        commitment.value,
+        commitment.data,
+        commitment.salt,
+        { from: owner, value: 1 }
+      );
+      expectEvent(receipt, 'Executed', { success: false });
 
       expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(web3.utils.toBN(1));
       expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(web3.utils.toBN(0));

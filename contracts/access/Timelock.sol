@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.6.0;
+pragma experimental ABIEncoderV2;
 
 import "./Ownable.sol";
 
@@ -12,146 +13,126 @@ import "./Ownable.sol";
  */
 contract Timelock is Ownable
 {
-	struct TX
-	{
-		address target;
-		uint256 value;
-		bytes   data;
-		uint256 timestamp;
-	}
+    mapping(bytes32 => uint256) private _commitments;
+    uint256 private _lockDuration;
 
-	TX[]    private _ops;
-	uint256 private _next;
-	uint256 private _lockDuration;
+    event Commitment(bytes32 indexed id);
+    event Executed(bytes32 indexed id, uint256 indexed index, address target, uint256 value, bytes data, bool success);
+    event Canceled(bytes32 indexed id);
+    event LockDurationChange(uint256 newDuration, uint256 oldDuration);
 
-	event TXScheduled(uint256 index);
-	event TXExecuted(uint256 index, bool success);
-	event TXCanceled(uint256 index);
-	event LockDurationChange(uint256 newDuration, uint256 oldDuration);
+    /**
+     * @dev Modifier to make a function callable only when the contract itself.
+     */
+    modifier onlySelf() {
+        require(msg.sender == address(this), 'only-self-calls');
+        _;
+    }
 
-	/**
-	 * @dev Modifier to make a function callable only when the contract itself.
-	 */
-	modifier onlySelf()
-	{
-		require(msg.sender == address(this));
-		_;
-	}
+    /**
+     * @dev Initializes the contract
+     */
+    constructor(uint256 lockDuration) public {
+        _lockDuration = lockDuration;
+    }
 
-	modifier dequeue()
-	{
-		require(_next < _ops.length, "empty-queue");
-		_;
-		delete _ops[_next];
-		++_next;
-	}
+    /*
+     * @dev Contract might receive/hold ETH as part of the maintenance process
+     */
+    receive() external payable {}
 
-	/**
-	 * @dev Initializes the contract
-	 */
-	constructor(uint256 lockDuration)
-	public
-	{
-		_next = 0;
-		_lockDuration = lockDuration;
-	}
+    /**
+     * @dev
+     */
+    function viewCommitment(bytes32 id) external view returns (uint256 timestamp) {
+        return _commitments[id];
+    }
 
-	/*
-	 * @dev Contract might hold ETH
-	 */
-	receive()
-	external payable
-	{}
+    /**
+     * @dev
+     */
+    function viewLockDuration() external view returns (uint256 duration) {
+        return _lockDuration;
+    }
 
+    /**
+     * @dev
+     */
+    function commit(bytes32 id) external onlyOwner() {
+        require(_commitments[id] == 0);
+        _commitments[id] = block.timestamp + _lockDuration;
 
+        emit Commitment(id);
+    }
 
+    /**
+    * @dev
+    */
+    function cancel(bytes32 id) external onlyOwner() {
+        delete _commitments[id];
 
+        emit Canceled(id);
+    }
 
+    /**
+     * @dev
+     */
+    function reveal(address target, uint256 value, bytes calldata data, bytes32 salt) external payable onlyOwner() {
+        bytes32 id = keccak256(abi.encode(target, value, data, salt));
+        require(_commitments[id] > 0, 'no-matching-commitment');
+        require(_commitments[id] <= block.timestamp, 'too-early-to-execute');
 
-	function lockDuration()
-	external view returns (uint256 duration)
-	{
-		return _lockDuration;
-	}
+        _execute(id, 0, target, value, data);
 
-	function nextTX()
-	external view returns (uint256 index)
-	{
-		return _next;
-	}
+        delete _commitments[id];
+    }
 
-	function totalTX()
-	external view returns (uint256 index)
-	{
-		return _ops.length;
-	}
+    /**
+     * @dev
+     */
+    function revealBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 salt) external payable onlyOwner() {
+        require(targets.length == values.length, 'length-missmatch');
+        require(targets.length == datas.length, 'length-missmatch');
 
-	function viewTX(uint256 index)
-	external view returns (address target, uint256 value, bytes memory data, uint256 timestamp)
-	{
-		TX storage op = _ops[index];
-		return (op.target, op.value, op.data, op.timestamp);
-	}
+        bytes32 id = keccak256(abi.encode(targets, values, datas, salt));
+        require(_commitments[id] > 0, 'no-matching-commitment');
+        require(_commitments[id] <= block.timestamp, 'too-early-to-execute');
 
+        for (uint256 i = 0; i < targets.length; ++i) {
+            if (!_execute(id, i, targets[i], values[i], datas[i])) {
+                break;
+            }
+        }
 
+        delete _commitments[id];
+    }
 
+    /**
+     * @dev
+     */
+     function _execute(bytes32 id, uint256 index, address target, uint256 value, bytes calldata data) internal returns (bool)
+     {
+        // solhint-disable-next-line avoid-low-level-calls
+        (bool success,) = target.call{value: value}(data);
+        emit Executed(id, index, target, value, data, success);
 
+        return success;
+     }
 
-
-
-
-
-	/**
-	 * @dev Adds a new operation to the queue.
-	 */
-	function scheduleTX(address target, uint256 value, bytes calldata data)
-	external onlyOwner()
-	{
-		// solhint-disable-next-line not-rely-on-time
-		uint256 executeTime = block.timestamp + _lockDuration;
-		_ops.push(TX(target, value, data, executeTime));
-
-		emit TXScheduled(_ops.length - 1);
-	}
-
-	/**
-	 * @dev Executes the next scheduled operation
-	 */
-	function executeTX()
-	external payable onlyOwner() dequeue()
-	{
-		TX storage op = _ops[_next];
-		// solhint-disable-next-line not-rely-on-time
-		require(op.timestamp <= now, 'too-early-to-execute');
-		// solhint-disable-next-line avoid-low-level-calls
-		(bool success,) = op.target.call{value: op.value}(op.data);
-
-		emit TXExecuted(_next, success);
-	}
-
-	/**
-	 * @dev Cancel the next scheduled operation
-	 */
-	function cancelTX()
-	external onlyOwner() dequeue()
-	{
-		emit TXCanceled(_next);
-	}
-
-	/**
-	 * @dev Changes the timelock duration for future operations.
-	 *
-	 * Requirements:
-	 *
-	 * - This operation can only be called by the contract itself. It has to be
-	 * scheduled and the timelock applies.
-	 */
-	function updateDuration(uint256 newLockDuration)
-	external onlySelf()
-	{
-		emit LockDurationChange(newLockDuration, _lockDuration);
-		_lockDuration = newLockDuration;
-	}
+    /**
+     * @dev Changes the timelock duration for future operations.
+     *
+     * Requirements:
+     *
+     * - This operation can only be called by the contract itself. It has to be
+     * scheduled and the timelock applies.
+     */
+    function updateDuration(uint256 newLockDuration)
+    external onlySelf()
+    {
+        emit LockDurationChange(newLockDuration, _lockDuration);
+        _lockDuration = newLockDuration;
+    }
 }
 
 
@@ -163,3 +144,5 @@ contract Timelock is Ownable
 // - don't lock the system on transaction faillure
 // - reentry ?
 // - commit/reveal
+
+// 28/08: 3h+2h
