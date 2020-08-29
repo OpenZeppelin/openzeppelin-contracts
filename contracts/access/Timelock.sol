@@ -14,12 +14,12 @@ import "./Ownable.sol";
 contract Timelock is Ownable
 {
     mapping(bytes32 => uint256) private _commitments;
-    uint256 private _lockDuration;
+    uint256 private _minDelay;
 
     event Commitment(bytes32 indexed id);
-    event Executed(bytes32 indexed id, uint256 indexed index, address target, uint256 value, bytes data, bool success);
+    event Executed(bytes32 indexed id, uint256 indexed index, address target, uint256 value, bytes data);
     event Canceled(bytes32 indexed id);
-    event LockDurationChange(uint256 newDuration, uint256 oldDuration);
+    event MinDelayChange(uint256 newDuration, uint256 oldDuration);
 
     /**
      * @dev Modifier to make a function callable only when the contract itself.
@@ -32,8 +32,8 @@ contract Timelock is Ownable
     /**
      * @dev Initializes the contract
      */
-    constructor(uint256 lockDuration) public {
-        _lockDuration = lockDuration;
+    constructor(uint256 minDelay) public {
+        _minDelay = minDelay;
     }
 
     /*
@@ -51,16 +51,17 @@ contract Timelock is Ownable
     /**
      * @dev
      */
-    function viewLockDuration() external view returns (uint256 duration) {
-        return _lockDuration;
+    function viewMinDelay() external view returns (uint256 duration) {
+        return _minDelay;
     }
 
     /**
      * @dev
      */
-    function commit(bytes32 id) external onlyOwner() {
-        require(_commitments[id] == 0);
-        _commitments[id] = block.timestamp + _lockDuration;
+    function commit(bytes32 id, uint256 delay) external onlyOwner() {
+        require(_commitments[id] == 0, 'commitment-already-exists');
+        require(delay >= _minDelay, 'inssuficient-delay');
+        _commitments[id] = block.timestamp + delay;
 
         emit Commitment(id);
     }
@@ -99,9 +100,7 @@ contract Timelock is Ownable
         require(_commitments[id] <= block.timestamp, 'too-early-to-execute');
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            if (!_execute(id, i, targets[i], values[i], datas[i])) {
-                break;
-            }
+            _execute(id, i, targets[i], values[i], datas[i]);
         }
 
         delete _commitments[id];
@@ -114,9 +113,9 @@ contract Timelock is Ownable
      {
         // solhint-disable-next-line avoid-low-level-calls
         (bool success,) = target.call{value: value}(data);
-        emit Executed(id, index, target, value, data, success);
+        require(success, 'underlying-transaction-failled');
 
-        return success;
+        emit Executed(id, index, target, value, data);
      }
 
     /**
@@ -127,11 +126,11 @@ contract Timelock is Ownable
      * - This operation can only be called by the contract itself. It has to be
      * scheduled and the timelock applies.
      */
-    function updateDuration(uint256 newLockDuration)
+    function updateDelay(uint256 newDelay)
     external onlySelf()
     {
-        emit LockDurationChange(newLockDuration, _lockDuration);
-        _lockDuration = newLockDuration;
+        emit MinDelayChange(newDelay, _minDelay);
+        _minDelay = newDelay;
     }
 }
 
