@@ -78,6 +78,16 @@ describe('Timelock', function () {
         expect(await this.timelock.viewCommitment(this.commitment.id)).to.be.bignumber.equal(web3.utils.toBN(block.timestamp).add(MINDELAY));
       });
 
+      it('prevent overwritting active commitments', async function () {
+        const receipt = await this.timelock.commit(this.commitment.id, MINDELAY, { from: owner });
+        expectEvent(receipt, 'Commitment', { id: this.commitment.id });
+
+        await expectRevert(
+          this.timelock.commit(this.commitment.id, MINDELAY, { from: owner }),
+          'commitment-already-exists'
+        );
+      });
+
       it('prevent non-owner from commiting', async function () {
         await expectRevert(
           this.timelock.commit(this.commitment.id, MINDELAY, { from: other }),
