@@ -13,8 +13,8 @@ import "./AccessControl.sol";
  */
 contract Timelock is AccessControl
 {
-    bytes32 public constant PROPOSER_ROLE = keccak256("TIMELOCK_PROPOSER_ROLE");
-    bytes32 public constant EXECUTER_ROLE = keccak256("TIMELOCK_EXECUTER_ROLE");
+    bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
+    bytes32 public constant EXECUTER_ROLE = keccak256("EXECUTER_ROLE");
 
     mapping(bytes32 => uint256) private _commitments;
     uint256 private _minDelay;
@@ -38,8 +38,6 @@ contract Timelock is AccessControl
     constructor(uint256 minDelay) public {
         _minDelay = minDelay;
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
-        _setRoleAdmin(PROPOSER_ROLE, DEFAULT_ADMIN_ROLE);
-        _setRoleAdmin(EXECUTER_ROLE, DEFAULT_ADMIN_ROLE);
     }
 
     /*
