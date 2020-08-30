@@ -1,6 +1,6 @@
 const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
 const { constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
-const { ZERO_ADDRESS } = constants;
+const { ZERO_ADDRESS, ZERO_BYTES32 } = constants;
 
 const { expect } = require('chai');
 
@@ -44,9 +44,15 @@ describe('Timelock', function () {
   const [ admin, proposer, executer, other ] = accounts;
 
   beforeEach(async function () {
+    // Deploy new timelock
     this.timelock = await Timelock.new(MINDELAY, { from: admin });
+   // Grand proposer & executer role
     await this.timelock.grantRole(await this.timelock.PROPOSER_ROLE(), proposer, { from: admin });
     await this.timelock.grantRole(await this.timelock.EXECUTER_ROLE(), executer, { from: admin });
+    // Transfer administration to timelock
+    await this.timelock.grantRole(ZERO_BYTES32, this.timelock.address, { from: admin });
+    await this.timelock.renounceRole(ZERO_BYTES32, admin, { from: admin });
+    // Mocks
     this.callreceivermock = await CallReceiverMock.new({ from: admin });
     this.implementation2 = await Implementation2.new({ from: admin });
   });
@@ -93,7 +99,7 @@ describe('Timelock', function () {
       it('prevent non-proposer from commiting', async function () {
         await expectRevert(
           this.timelock.commit(this.commitment.id, MINDELAY, { from: other }),
-          'Timelock: sender must have proposer role'
+          'Timelock: sender requiers permission'
         );
       });
     });
@@ -214,7 +220,7 @@ describe('Timelock', function () {
                 this.commitment.salt,
                 { from: other }
               ),
-              'Timelock: sender must have executer role'
+              'Timelock: sender requiers permission'
             );
           });
         });
@@ -344,7 +350,7 @@ describe('Timelock', function () {
                 this.commitment.salt,
                 { from: other }
               ),
-              'Timelock: sender must have executer role'
+              'Timelock: sender requiers permission'
             );
           });
 
@@ -450,21 +456,21 @@ describe('Timelock', function () {
       it('prevent non-proposer from canceling', async function () {
         await expectRevert(
           this.timelock.cancel(this.commitment.id, { from: other }),
-          'Timelock: sender must have proposer role'
+          'Timelock: sender requiers permission'
         );
       });
     });
   });
 
   describe('maintenance', function () {
-    it('admin cannot perform maintenance', async function () {
+    it('prevent unauthorized maintenance', async function () {
       await expectRevert(
         this.timelock.updateDelay(0, { from: other }),
-        'Timelock: maintenance restricted to timelock calls'
+        'Timelock: sender requiers permission'
       );
     });
 
-    it('timelock can perform maintenance', async function () {
+    it('timelock scheduled maintenance', async function () {
       const randomBN = web3.utils.randomHex(16);
       const commitment = genCommitment(
         this.timelock.address,

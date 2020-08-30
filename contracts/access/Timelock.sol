@@ -27,8 +27,8 @@ contract Timelock is AccessControl
     /**
      * @dev Modifier to make a function callable only when the contract itself.
      */
-    modifier onlySelf() {
-        require(msg.sender == address(this), 'Timelock: maintenance restricted to timelock calls');
+    modifier onlyRole(bytes32 role) {
+        require(hasRole(role, _msgSender()), "Timelock: sender requiers permission");
         _;
     }
 
@@ -62,9 +62,7 @@ contract Timelock is AccessControl
     /**
      * @dev
      */
-    function commit(bytes32 id, uint256 delay) external {
-        require(hasRole(PROPOSER_ROLE, _msgSender()), "Timelock: sender must have proposer role");
-
+    function commit(bytes32 id, uint256 delay) external onlyRole(PROPOSER_ROLE) {
         require(_commitments[id] == 0, 'Timelock: commitment already exists');
         require(delay >= _minDelay, 'Timelock: insufficient delay');
         _commitments[id] = block.timestamp + delay;
@@ -75,8 +73,7 @@ contract Timelock is AccessControl
     /**
     * @dev
     */
-    function cancel(bytes32 id) external {
-        require(hasRole(PROPOSER_ROLE, _msgSender()), "Timelock: sender must have proposer role");
+    function cancel(bytes32 id) external onlyRole(PROPOSER_ROLE) {
         delete _commitments[id];
 
         emit Canceled(id);
@@ -85,9 +82,7 @@ contract Timelock is AccessControl
     /**
      * @dev
      */
-    function reveal(address target, uint256 value, bytes calldata data, bytes32 salt) external payable {
-        require(hasRole(EXECUTER_ROLE, _msgSender()), "Timelock: sender must have executer role");
-
+    function reveal(address target, uint256 value, bytes calldata data, bytes32 salt) external payable onlyRole(EXECUTER_ROLE) {
         bytes32 id = keccak256(abi.encode(target, value, data, salt));
         require(_commitments[id] > 0, 'Timelock: no matching commitment');
         require(_commitments[id] <= block.timestamp, 'Timelock: too early to execute');
@@ -100,9 +95,7 @@ contract Timelock is AccessControl
     /**
      * @dev
      */
-    function revealBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 salt) external payable {
-        require(hasRole(EXECUTER_ROLE, _msgSender()), "Timelock: sender must have executer role");
-
+    function revealBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 salt) external payable onlyRole(EXECUTER_ROLE) {
         require(targets.length == values.length, 'Timelock: length missmatch');
         require(targets.length == datas.length, 'Timelock: length missmatch');
 
@@ -120,8 +113,7 @@ contract Timelock is AccessControl
     /**
      * @dev
      */
-     function _execute(bytes32 id, uint256 index, address target, uint256 value, bytes calldata data) internal returns (bool)
-     {
+    function _execute(bytes32 id, uint256 index, address target, uint256 value, bytes calldata data) internal returns (bool) {
         // solhint-disable-next-line avoid-low-level-calls
         (bool success,) = target.call{value: value}(data);
         require(success, 'Timelock: underlying transaction reverted');
@@ -137,9 +129,7 @@ contract Timelock is AccessControl
      * - This operation can only be called by the contract itself. It has to be
      * scheduled and the timelock applies.
      */
-    function updateDelay(uint256 newDelay)
-    external onlySelf()
-    {
+    function updateDelay(uint256 newDelay) external onlyRole(DEFAULT_ADMIN_ROLE) {
         emit MinDelayChange(newDelay, _minDelay);
         _minDelay = newDelay;
     }
