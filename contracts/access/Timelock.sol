@@ -63,8 +63,9 @@ contract Timelock is AccessControl
      * @dev
      */
     function commit(bytes32 id, uint256 delay) external onlyRole(PROPOSER_ROLE) {
-        require(_commitments[id] == 0, 'Timelock: commitment already exists');
-        require(delay >= _minDelay, 'Timelock: insufficient delay');
+        require(_commitments[id] == 0, "Timelock: commitment already exists");
+        require(delay >= _minDelay, "Timelock: insufficient delay");
+        // solhint-disable-next-line not-rely-on-time
         _commitments[id] = block.timestamp + delay;
 
         emit Commitment(id);
@@ -84,8 +85,9 @@ contract Timelock is AccessControl
      */
     function reveal(address target, uint256 value, bytes calldata data, bytes32 salt) external payable onlyRole(EXECUTER_ROLE) {
         bytes32 id = keccak256(abi.encode(target, value, data, salt));
-        require(_commitments[id] > 0, 'Timelock: no matching commitment');
-        require(_commitments[id] <= block.timestamp, 'Timelock: too early to execute');
+        require(_commitments[id] > 0, "Timelock: no matching commitment");
+        // solhint-disable-next-line not-rely-on-time
+        require(_commitments[id] <= block.timestamp, "Timelock: too early to execute");
 
         _execute(id, 0, target, value, data);
 
@@ -96,12 +98,13 @@ contract Timelock is AccessControl
      * @dev
      */
     function revealBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 salt) external payable onlyRole(EXECUTER_ROLE) {
-        require(targets.length == values.length, 'Timelock: length missmatch');
-        require(targets.length == datas.length, 'Timelock: length missmatch');
+        require(targets.length == values.length, "Timelock: length missmatch");
+        require(targets.length == datas.length, "Timelock: length missmatch");
 
         bytes32 id = keccak256(abi.encode(targets, values, datas, salt));
-        require(_commitments[id] > 0, 'Timelock: no matching commitment');
-        require(_commitments[id] <= block.timestamp, 'Timelock: too early to execute');
+        require(_commitments[id] > 0, "Timelock: no matching commitment");
+        // solhint-disable-next-line not-rely-on-time
+        require(_commitments[id] <= block.timestamp, "Timelock: too early to execute");
 
         for (uint256 i = 0; i < targets.length; ++i) {
             _execute(id, i, targets[i], values[i], datas[i]);
@@ -116,7 +119,7 @@ contract Timelock is AccessControl
     function _execute(bytes32 id, uint256 index, address target, uint256 value, bytes calldata data) internal returns (bool) {
         // solhint-disable-next-line avoid-low-level-calls
         (bool success,) = target.call{value: value}(data);
-        require(success, 'Timelock: underlying transaction reverted');
+        require(success, "Timelock: underlying transaction reverted");
 
         emit Executed(id, index, target, value, data);
      }
@@ -132,6 +135,14 @@ contract Timelock is AccessControl
     function updateDelay(uint256 newDelay) external onlyRole(DEFAULT_ADMIN_ROLE) {
         emit MinDelayChange(newDelay, _minDelay);
         _minDelay = newDelay;
+    }
+
+    /**
+     * @dev
+     */
+    function makeLive() external onlyRole(DEFAULT_ADMIN_ROLE) {
+        grantRole(DEFAULT_ADMIN_ROLE, address(this));
+        revokeRole(DEFAULT_ADMIN_ROLE, _msgSender());
     }
 }
 

@@ -1,22 +1,21 @@
 const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
 const { constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
-const { ZERO_ADDRESS, ZERO_BYTES32 } = constants;
+const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
 const Timelock = contract.fromArtifact('TimelockMock');
 const CallReceiverMock = contract.fromArtifact('CallReceiverMock');
-const Implementation2  = contract.fromArtifact('Implementation2');
+const Implementation2 = contract.fromArtifact('Implementation2');
 const MINDELAY = time.duration.days(1);
 
-
-function genCommitment(target, value, data, salt) {
+function genCommitment (target, value, data, salt) {
   const id = web3.utils.keccak256(web3.eth.abi.encodeParameters([
     'address',
     'uint256',
     'bytes',
     'bytes32',
-  ],[
+  ], [
     target,
     value,
     data,
@@ -25,13 +24,13 @@ function genCommitment(target, value, data, salt) {
   return { id, target, value, data, salt };
 }
 
-function genCommitmentBatch(targets, values, datas, salt) {
+function genCommitmentBatch (targets, values, datas, salt) {
   const id = web3.utils.keccak256(web3.eth.abi.encodeParameters([
     'address[]',
     'uint256[]',
     'bytes[]',
     'bytes32',
-  ],[
+  ], [
     targets,
     values,
     datas,
@@ -46,12 +45,11 @@ describe('Timelock', function () {
   beforeEach(async function () {
     // Deploy new timelock
     this.timelock = await Timelock.new(MINDELAY, { from: admin });
-   // Grand proposer & executer role
+    // Grand proposer & executer role
     await this.timelock.grantRole(await this.timelock.PROPOSER_ROLE(), proposer, { from: admin });
     await this.timelock.grantRole(await this.timelock.EXECUTER_ROLE(), executer, { from: admin });
     // Transfer administration to timelock
-    await this.timelock.grantRole(ZERO_BYTES32, this.timelock.address, { from: admin });
-    await this.timelock.renounceRole(ZERO_BYTES32, admin, { from: admin });
+    await this.timelock.makeLive({ from: admin });
     // Mocks
     this.callreceivermock = await CallReceiverMock.new({ from: admin });
     this.implementation2 = await Implementation2.new({ from: admin });
@@ -70,7 +68,7 @@ describe('Timelock', function () {
           web3.utils.randomHex(4),
           web3.utils.randomHex(32),
         );
-      })
+      });
 
       it('proposer can commit', async function () {
         const receipt = await this.timelock.commit(this.commitment.id, MINDELAY, { from: proposer });
@@ -83,7 +81,8 @@ describe('Timelock', function () {
 
         const block = await web3.eth.getBlock(receipt.receipt.blockHash);
 
-        expect(await this.timelock.viewCommitment(this.commitment.id)).to.be.bignumber.equal(web3.utils.toBN(block.timestamp).add(MINDELAY));
+        expect(await this.timelock.viewCommitment(this.commitment.id))
+          .to.be.bignumber.equal(web3.utils.toBN(block.timestamp).add(MINDELAY));
       });
 
       it('prevent overwritting active commitments', async function () {
@@ -112,7 +111,7 @@ describe('Timelock', function () {
           web3.utils.randomHex(4),
           web3.utils.randomHex(32),
         );
-      })
+      });
 
       describe('no commitment', function () {
         it('reverts', async function () {
@@ -132,7 +131,7 @@ describe('Timelock', function () {
       describe('with commitment', function () {
         beforeEach(async function () {
           ({ logs: this.logs } = await this.timelock.commit(this.commitment.id, MINDELAY, { from: proposer }));
-        })
+        });
 
         describe('to early', function () {
           it('reverts', async function () {
@@ -166,7 +165,7 @@ describe('Timelock', function () {
               ),
               'Timelock: too early to execute'
             );
-          })
+          });
         });
 
         describe('on time', function () {
@@ -184,11 +183,11 @@ describe('Timelock', function () {
               { from: executer }
             );
             expectEvent(receipt, 'Executed', {
-              id:      this.commitment.id,
-              index:   web3.utils.toBN(0),
-              target:  this.commitment.target,
-              value:   web3.utils.toBN(this.commitment.value),
-              data:    this.commitment.data
+              id: this.commitment.id,
+              index: web3.utils.toBN(0),
+              target: this.commitment.target,
+              value: web3.utils.toBN(this.commitment.value),
+              data: this.commitment.data,
             });
           });
 
@@ -201,11 +200,11 @@ describe('Timelock', function () {
               { from: executer }
             );
             expectEvent(receipt, 'Executed', {
-              id:      this.commitment.id,
-              index:   web3.utils.toBN(0),
-              target:  this.commitment.target,
-              value:   web3.utils.toBN(this.commitment.value),
-              data:    this.commitment.data
+              id: this.commitment.id,
+              index: web3.utils.toBN(0),
+              target: this.commitment.target,
+              value: web3.utils.toBN(this.commitment.value),
+              data: this.commitment.data,
             });
 
             expect(await this.timelock.viewCommitment(this.commitment.id)).to.be.bignumber.equal(web3.utils.toBN(0));
@@ -235,7 +234,7 @@ describe('Timelock', function () {
           Array(8).fill().map(() => web3.utils.randomHex(4)),
           web3.utils.randomHex(32),
         );
-      })
+      });
 
       describe('no commitment', function () {
         it('reverts', async function () {
@@ -252,11 +251,10 @@ describe('Timelock', function () {
         });
       });
 
-
       describe('with commitment', function () {
         beforeEach(async function () {
           ({ logs: this.logs } = await this.timelock.commit(this.commitment.id, MINDELAY, { from: proposer }));
-        })
+        });
 
         describe('to early', function () {
           it('reverts', async function () {
@@ -290,7 +288,7 @@ describe('Timelock', function () {
               ),
               'Timelock: too early to execute'
             );
-          })
+          });
         });
 
         describe('on time', function () {
@@ -307,14 +305,13 @@ describe('Timelock', function () {
               this.commitment.salt,
               { from: executer }
             );
-            for (i in this.commitment.targets)
-            {
+            for (const i in this.commitment.targets) {
               expectEvent(receipt, 'Executed', {
-                id:      this.commitment.id,
-                index:   web3.utils.toBN(i),
-                target:  this.commitment.targets[i],
-                value:   web3.utils.toBN(this.commitment.values[i]),
-                data:    this.commitment.datas[i]
+                id: this.commitment.id,
+                index: web3.utils.toBN(i),
+                target: this.commitment.targets[i],
+                value: web3.utils.toBN(this.commitment.values[i]),
+                data: this.commitment.datas[i],
               });
             }
           });
@@ -327,14 +324,13 @@ describe('Timelock', function () {
               this.commitment.salt,
               { from: executer }
             );
-            for (i in this.commitment.targets)
-            {
+            for (const i in this.commitment.targets) {
               expectEvent(receipt, 'Executed', {
-                id:      this.commitment.id,
-                index:   web3.utils.toBN(i),
-                target:  this.commitment.targets[i],
-                value:   web3.utils.toBN(this.commitment.values[i]),
-                data:    this.commitment.datas[i]
+                id: this.commitment.id,
+                index: web3.utils.toBN(i),
+                target: this.commitment.targets[i],
+                value: web3.utils.toBN(this.commitment.values[i]),
+                data: this.commitment.datas[i],
               });
             }
 
@@ -439,7 +435,7 @@ describe('Timelock', function () {
           web3.utils.randomHex(32),
         );
         ({ logs: this.logs } = await this.timelock.commit(this.commitment.id, MINDELAY, { from: proposer }));
-      })
+      });
 
       it('proposer can cancel', async function () {
         const receipt = await this.timelock.cancel(this.commitment.id, { from: proposer });
