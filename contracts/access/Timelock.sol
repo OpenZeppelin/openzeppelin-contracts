@@ -3,7 +3,7 @@
 pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
-import "./Ownable.sol";
+import "./AccessControl.sol";
 
 /**
  * @dev Contract module which acts as an ownership proxy, enforcing a timelock
@@ -11,8 +11,11 @@ import "./Ownable.sol";
  * contract to exit before a potentially dangerous maintenance operation is
  * applied.
  */
-contract Timelock is Ownable
+contract Timelock is AccessControl
 {
+    bytes32 public constant PROPOSER_ROLE = keccak256("TIMELOCK_PROPOSER_ROLE");
+    bytes32 public constant EXECUTER_ROLE = keccak256("TIMELOCK_EXECUTER_ROLE");
+
     mapping(bytes32 => uint256) private _commitments;
     uint256 private _minDelay;
 
@@ -25,7 +28,7 @@ contract Timelock is Ownable
      * @dev Modifier to make a function callable only when the contract itself.
      */
     modifier onlySelf() {
-        require(msg.sender == address(this), 'only-self-calls');
+        require(msg.sender == address(this), 'Timelock: maintenance restricted to timelock calls');
         _;
     }
 
@@ -34,6 +37,9 @@ contract Timelock is Ownable
      */
     constructor(uint256 minDelay) public {
         _minDelay = minDelay;
+        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+        _setRoleAdmin(PROPOSER_ROLE, DEFAULT_ADMIN_ROLE);
+        _setRoleAdmin(EXECUTER_ROLE, DEFAULT_ADMIN_ROLE);
     }
 
     /*
@@ -58,9 +64,11 @@ contract Timelock is Ownable
     /**
      * @dev
      */
-    function commit(bytes32 id, uint256 delay) external onlyOwner() {
-        require(_commitments[id] == 0, 'commitment-already-exists');
-        require(delay >= _minDelay, 'inssuficient-delay');
+    function commit(bytes32 id, uint256 delay) external {
+        require(hasRole(PROPOSER_ROLE, _msgSender()), "Timelock: sender must have proposer role");
+
+        require(_commitments[id] == 0, 'Timelock: commitment already exists');
+        require(delay >= _minDelay, 'Timelock: insufficient delay');
         _commitments[id] = block.timestamp + delay;
 
         emit Commitment(id);
@@ -69,7 +77,8 @@ contract Timelock is Ownable
     /**
     * @dev
     */
-    function cancel(bytes32 id) external onlyOwner() {
+    function cancel(bytes32 id) external {
+        require(hasRole(PROPOSER_ROLE, _msgSender()), "Timelock: sender must have proposer role");
         delete _commitments[id];
 
         emit Canceled(id);
@@ -78,10 +87,12 @@ contract Timelock is Ownable
     /**
      * @dev
      */
-    function reveal(address target, uint256 value, bytes calldata data, bytes32 salt) external payable onlyOwner() {
+    function reveal(address target, uint256 value, bytes calldata data, bytes32 salt) external payable {
+        require(hasRole(EXECUTER_ROLE, _msgSender()), "Timelock: sender must have executer role");
+
         bytes32 id = keccak256(abi.encode(target, value, data, salt));
-        require(_commitments[id] > 0, 'no-matching-commitment');
-        require(_commitments[id] <= block.timestamp, 'too-early-to-execute');
+        require(_commitments[id] > 0, 'Timelock: no matching commitment');
+        require(_commitments[id] <= block.timestamp, 'Timelock: too early to execute');
 
         _execute(id, 0, target, value, data);
 
@@ -91,13 +102,15 @@ contract Timelock is Ownable
     /**
      * @dev
      */
-    function revealBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 salt) external payable onlyOwner() {
-        require(targets.length == values.length, 'length-missmatch');
-        require(targets.length == datas.length, 'length-missmatch');
+    function revealBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 salt) external payable {
+        require(hasRole(EXECUTER_ROLE, _msgSender()), "Timelock: sender must have executer role");
+
+        require(targets.length == values.length, 'Timelock: length missmatch');
+        require(targets.length == datas.length, 'Timelock: length missmatch');
 
         bytes32 id = keccak256(abi.encode(targets, values, datas, salt));
-        require(_commitments[id] > 0, 'no-matching-commitment');
-        require(_commitments[id] <= block.timestamp, 'too-early-to-execute');
+        require(_commitments[id] > 0, 'Timelock: no matching commitment');
+        require(_commitments[id] <= block.timestamp, 'Timelock: too early to execute');
 
         for (uint256 i = 0; i < targets.length; ++i) {
             _execute(id, i, targets[i], values[i], datas[i]);
@@ -113,7 +126,7 @@ contract Timelock is Ownable
      {
         // solhint-disable-next-line avoid-low-level-calls
         (bool success,) = target.call{value: value}(data);
-        require(success, 'underlying-transaction-failled');
+        require(success, 'Timelock: underlying transaction reverted');
 
         emit Executed(id, index, target, value, data);
      }
