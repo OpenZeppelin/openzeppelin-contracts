@@ -60,7 +60,8 @@ contract Timelock is AccessControl
     }
 
     /**
-     * @dev Initializes the contract
+     * @dev Initializes the contract with a given `minDelay`. Deploying address
+     * gets the administrator role.
      */
     constructor(uint256 minDelay) public {
         _minDelay = minDelay;
@@ -68,13 +69,13 @@ contract Timelock is AccessControl
     }
 
     /*
-     * @dev Contract might receive/hold ETH as part of the maintenance process
+     * @dev Contract might receive/hold ETH as part of the maintenance process.
      */
     receive() external payable {}
 
     /**
      * @dev Returns the timestamp at with a commitment becomes valid (0 for
-     * invalid commitments)
+     * invalid commitments).
      */
     function viewCommitment(bytes32 id) external view returns (uint256 timestamp) {
         return _commitments[id];
