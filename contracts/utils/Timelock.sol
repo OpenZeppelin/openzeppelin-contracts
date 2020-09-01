@@ -113,6 +113,6 @@ abstract contract Timelock {
 }
 
 // Time tracking
-// 28/08: 3h+2h
+// 28/08: 5h
 // 30/08: 1h
-//  1/09: 1h
+//  1/09: 2h

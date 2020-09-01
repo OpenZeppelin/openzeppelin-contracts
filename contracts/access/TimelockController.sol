@@ -32,7 +32,12 @@ contract TimelockController is Timelock, AccessControl {
     /**
     * @dev Emitted when call is performed as part of operation `id`.
     */
-    event Call(bytes32 indexed id, uint256 indexed index, address target, uint256 value, bytes data);
+    event CallScheduled(bytes32 indexed id, uint256 indexed index, address target, uint256 value, bytes data);
+
+    /**
+    * @dev Emitted when call is performed as part of operation `id`.
+    */
+    event CallExecuted(bytes32 indexed id, uint256 indexed index, address target, uint256 value, bytes data);
 
     /**
      * @dev Modifier to make a function callable only by a certain role.
@@ -57,16 +62,39 @@ contract TimelockController is Timelock, AccessControl {
     receive() external payable {}
 
     /**
-     * @dev Schedule an operation.
+     * @dev Schedule an operation containing a single transaction.
+     *
+     * Emits a {CallScheduled} event.
      *
      * Requirements:
      *
      * - the caller must have the 'proposer' role.
      */
-    function schedule(bytes32 id, uint256 delay) external onlyRole(PROPOSER_ROLE) {
+    function schedule(address target, uint256 value, bytes calldata data, bytes32 salt, uint256 delay) external payable onlyRole(PROPOSER_ROLE) {
+        bytes32 id = keccak256(abi.encode(target, value, data, salt));
         _schedule(id, delay);
+        emit CallScheduled(id, 0, target, value, data);
     }
 
+    /**
+     * @dev Schedule an operation containing a batch of transactions.
+     *
+     * Emits one {CallScheduled} event per entry in the batch.
+     *
+     * Requirements:
+     *
+     * - the caller must have the 'proposer' role.
+     */
+    function scheduleBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 salt, uint256 delay) external payable onlyRole(PROPOSER_ROLE) {
+        require(targets.length == values.length, "TimelockController: length missmatch");
+        require(targets.length == datas.length, "TimelockController: length missmatch");
+
+        bytes32 id = keccak256(abi.encode(targets, values, datas, salt));
+        _schedule(id, delay);
+        for (uint256 i = 0; i < targets.length; ++i) {
+            emit CallScheduled(id, i, targets[i], values[i], datas[i]);
+        }
+    }
 
     /**
     * @dev Cancel an operation.
@@ -82,7 +110,7 @@ contract TimelockController is Timelock, AccessControl {
     /**
      * @dev Execute an (ready) operation containing a single transaction.
      *
-     * Emits a {Call} event.
+     * Emits a {CallExecuted} event.
      *
      * Requirements:
      *
@@ -97,7 +125,7 @@ contract TimelockController is Timelock, AccessControl {
     /**
      * @dev Execute an (ready) operation containing a batch of transactions.
      *
-     * Emits one {Call} event per entry in the batch.
+     * Emits one {CallExecuted} event per entry in the batch.
      *
      * Requirements:
      *
@@ -117,14 +145,14 @@ contract TimelockController is Timelock, AccessControl {
     /**
      * @dev Execute a transaction.
      *
-     * Emits a {Call} event.
+     * Emits a {CallExecuted} event.
      */
     function _call(bytes32 id, uint256 index, address target, uint256 value, bytes calldata data) internal returns (bool) {
         // solhint-disable-next-line avoid-low-level-calls
         (bool success,) = target.call{value: value}(data);
         require(success, "TimelockController: underlying transaction reverted");
 
-        emit Call(id, index, target, value, data);
+        emit CallExecuted(id, index, target, value, data);
     }
 
 
