@@ -28,7 +28,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     // Mapping from account to operator approvals
     mapping (address => mapping(address => bool)) private _operatorApprovals;
 
-    // Used as the URI for all token types by relying on ID substition, e.g. https://token-cdn-domain/{id}.json
+    // Used as the URI for all token types by relying on ID substitution, e.g. https://token-cdn-domain/{id}.json
     string private _uri;
 
     /*
@@ -66,7 +66,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * @dev See {IERC1155MetadataURI-uri}.
      *
      * This implementation returns the same URI for *all* token types. It relies
-     * on the token type ID substituion mechanism
+     * on the token type ID substitution mechanism
      * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
      *
      * Clients calling this function must replace the `\{id\}` substring with the
@@ -208,10 +208,10 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
     /**
      * @dev Sets a new URI for all token types, by relying on the token type ID
-     * substituion mechanism
+     * substitution mechanism
      * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
      *
-     * By this mechanism, any occurence of the `\{id\}` substring in either the
+     * By this mechanism, any occurrence of the `\{id\}` substring in either the
      * URI or any of the amounts in the JSON file at said URI will be replaced by
      * clients with the token type ID.
      *

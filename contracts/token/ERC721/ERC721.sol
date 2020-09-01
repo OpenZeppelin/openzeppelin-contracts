@@ -254,7 +254,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      * `_data` is additional data, it has no specified format and it is sent in call to `to`.
      *
      * This internal function is equivalent to {safeTransferFrom}, and can be used to e.g.
-     * implement alternative mecanisms to perform token transfer, such as signature-based.
+     * implement alternative mechanisms to perform token transfer, such as signature-based.
      *
      * Requirements:
      *
