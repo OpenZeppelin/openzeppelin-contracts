@@ -38,7 +38,7 @@ const getSignFor = (contract, signer) => (redeemer, methodName, methodArgs = [])
     redeemer,
   ];
 
-  const REAL_SIGNATURE_SIZE = 2 * 65; // 65 bytes in hexadecimal string legnth
+  const REAL_SIGNATURE_SIZE = 2 * 65; // 65 bytes in hexadecimal string length
   const PADDED_SIGNATURE_SIZE = 2 * 96; // 96 bytes in hexadecimal string length
   const DUMMY_SIGNATURE = `0x${web3.utils.padLeft('', REAL_SIGNATURE_SIZE)}`;
 
