@@ -11,4 +11,4 @@ Contract modules for authorization and access control mechanisms.
 
 {{AccessControl}}
 
-{{Timelock}}
+{{TimelockController}}

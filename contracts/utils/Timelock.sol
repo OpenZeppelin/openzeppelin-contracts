@@ -4,27 +4,24 @@ pragma solidity ^0.6.0;
 
 /**
  * @dev Contract module provide tolling for building timelocked operation.
-
- * Operation are described using a bytes32 identifier. They can be committed,
- * revealed or canceled. This
-
+ *
  * This module is used through inheritance. It will make available the methods
- * `_commit`, `_reveal` and `_cancel`, which can be used to control the
- * lifecycle of timelocked commitment identified using bytes32.
+ * `_schedule`, `_execute` and `_cancel`, which can be used to control the
+ * lifecycle of timelocked operations identified using bytes32.
  */
 abstract contract Timelock {
-    mapping(bytes32 => uint256) private _commitments;
+    mapping(bytes32 => uint256) private _timestamps;
     uint256 private _minDelay;
 
     /**
      * @dev Emitted when entity `id` is submitted.
      */
-    event Commit(bytes32 indexed id);
+    event Scheduled(bytes32 indexed id);
 
     /**
     * @dev Emitted when entity `id` is revealed.
     */
-    event Reveal(bytes32 indexed id);
+    event Executed(bytes32 indexed id);
 
     /**
     * @dev Emitted when entity `id` is canceled.
@@ -32,7 +29,7 @@ abstract contract Timelock {
     event Cancel(bytes32 indexed id);
 
     /**
-    * @dev Emitted when the minimum deplay for future commitments is modified.
+    * @dev Emitted when the minimum deplay for future operations is modified.
     */
     event MinDelayChange(uint256 newDuration, uint256 oldDuration);
 
@@ -44,19 +41,19 @@ abstract contract Timelock {
     }
 
     /**
-     * @dev Returns the timestamp at with an entity becomes valid (0 for
-     * unscheduled entity).
+     * @dev Returns weither an entity is ready or not.
      */
-    function viewCommitment(bytes32 id) public view returns (uint256 timestamp) {
-        return _commitments[id];
+    function isOperationReady(bytes32 id) public view returns (bool ready) {
+        // solhint-disable-next-line not-rely-on-time
+        return _timestamps[id] <= block.timestamp;
     }
 
     /**
-    * @dev Returns weither an entity is ready or not.
-    */
-    function isCommitmentReady(bytes32 id) public view returns (bool ready) {
-        // solhint-disable-next-line not-rely-on-time
-        return _commitments[id] <= block.timestamp;
+     * @dev Returns the timestamp at with an entity becomes valid (0 for
+     * unscheduled entity).
+     */
+    function viewTimestamp(bytes32 id) public view returns (uint256 timestamp) {
+        return _timestamps[id];
     }
 
     /**
@@ -67,17 +64,30 @@ abstract contract Timelock {
     }
 
     /**
-     * @dev Submit an entity that is to becomes valid after a given delay.
+     * @dev Schedule an entity that is to becomes valid after a given delay.
      *
-     * Emits a {Commit} event.
+     * Emits a {Scheduled} event.
      */
-    function _commit(bytes32 id, uint256 delay) internal {
-        require(_commitments[id] == 0, "Timelock: commitment already exists");
+    function _schedule(bytes32 id, uint256 delay) internal {
+        require(_timestamps[id] == 0, "Timelock: operation already scheduled");
         require(delay >= _minDelay, "Timelock: insufficient delay");
         // solhint-disable-next-line not-rely-on-time
-        _commitments[id] = block.timestamp + delay;
+        _timestamps[id] = block.timestamp + delay;
 
-        emit Commit(id);
+        emit Scheduled(id);
+    }
+
+    /**
+     * @dev Execute a ready entity.
+     *
+     * Emits a {Executed} event.
+     */
+    function _execute(bytes32 id) internal {
+        require(_timestamps[id] != 0, "Timelock: no matching operation");
+        require(isOperationReady(id), "Timelock: too early to execute");
+        delete _timestamps[id];
+
+        emit Executed(id);
     }
 
     /**
@@ -86,22 +96,9 @@ abstract contract Timelock {
      * Emits a {Cancel} event.
     */
     function _cancel(bytes32 id) internal {
-        delete _commitments[id];
+        delete _timestamps[id];
 
         emit Cancel(id);
-    }
-
-    /**
-     * @dev Reveal a ready entity.
-     *
-     * Emits a {Reveal} event.
-     */
-    function _reveal(bytes32 id) internal {
-        require(_commitments[id] > 0, "Timelock: no matching commitment");
-        require(isCommitmentReady(id), "Timelock: too early to execute");
-        delete _commitments[id];
-
-        emit Reveal(id);
     }
 
     /**
