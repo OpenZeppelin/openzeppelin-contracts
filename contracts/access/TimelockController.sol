@@ -4,12 +4,13 @@ pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
 import "./AccessControl.sol";
+import "../utils/Timelock.sol";
 
 /**
- * @dev Contract module which acts as an ownership proxy, enforcing a timelock
- * on all proxied operations. This gives time for users of the controled
- * contract to exit before a potentially dangerous maintenance operation is
- * applied.
+ * @dev Contract module which acts as timelocked controller. When set as the
+ * owner of an `Ownable` smartcontract, it enforces a timelock on all proxied
+ * operations. This gives time for users of the controled contract to exit
+ * before a potentially dangerous maintenance operation is applied.
  *
  * This contract is designed to be self administered, with maintenance
  * operations being proposed my a DAO or a multisig. A proposer and an executer
@@ -23,33 +24,15 @@ import "./AccessControl.sol";
  * {Timelock} contract is live, role management is performed through timelocked
  * operations.
  */
-contract Timelock is AccessControl
-{
+
+contract TimelockController is Timelock, AccessControl {
     bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
     bytes32 public constant EXECUTER_ROLE = keccak256("EXECUTER_ROLE");
 
-    mapping(bytes32 => uint256) private _commitments;
-    uint256 private _minDelay;
-
     /**
-     * @dev Emitted when commitment `id` is submitted.
-     */
-    event Commitment(bytes32 indexed id);
-
-    /**
-    * @dev Emitted when an operation is performed as part of commitment `id`.
+    * @dev Emitted when call is performed as part of operation `id`.
     */
     event Executed(bytes32 indexed id, uint256 indexed index, address target, uint256 value, bytes data);
-
-    /**
-    * @dev Emitted when commitment `id` is canceled.
-    */
-    event Canceled(bytes32 indexed id);
-
-    /**
-    * @dev Emitted when the minimum deplay for future commitments is modified.
-    */
-    event MinDelayChange(uint256 newDuration, uint256 oldDuration);
 
     /**
      * @dev Modifier to make a function callable only by a certain role.
@@ -62,11 +45,9 @@ contract Timelock is AccessControl
     }
 
     /**
-     * @dev Initializes the contract with a given `minDelay`. Deploying address
-     * gets the administrator role.
+     * @dev Initializes the contract.
      */
-    constructor(uint256 minDelay) public {
-        _minDelay = minDelay;
+    constructor(uint256 minDelay) public Timelock(minDelay) {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
     }
 
@@ -76,57 +57,36 @@ contract Timelock is AccessControl
     receive() external payable {}
 
     /**
-     * @dev Returns the timestamp at with a commitment becomes valid (0 for
-     * invalid commitments).
-     */
-    function viewCommitment(bytes32 id) external view returns (uint256 timestamp) {
-        return _commitments[id];
-    }
-
-    /**
-     * @dev Returns the minimum delay for a commitment to become valid.
-     */
-    function viewMinDelay() external view returns (uint256 duration) {
-        return _minDelay;
-    }
-
-    /**
-     * @dev Submit a commitment that is to becomes valid after a given delay.
+     * @dev Submit an operation.
      *
-     * Emits a {Commitment} event.
+     * Emits a {Commit} event.
      *
      * Requirements:
      *
      * - the caller must have the 'proposer' role.
      */
     function commit(bytes32 id, uint256 delay) external onlyRole(PROPOSER_ROLE) {
-        require(_commitments[id] == 0, "Timelock: commitment already exists");
-        require(delay >= _minDelay, "Timelock: insufficient delay");
-        // solhint-disable-next-line not-rely-on-time
-        _commitments[id] = block.timestamp + delay;
-
-        emit Commitment(id);
+        _commit(id, delay);
     }
 
+
     /**
-    * @dev Cancel a commitment.
+    * @dev Cancel an operation.
      *
-     * Emits a {Canceled} event.
+     * Emits a {Cancel} event.
      *
      * Requirements:
      *
      * - the caller must have the 'proposer' role.
     */
     function cancel(bytes32 id) external onlyRole(PROPOSER_ROLE) {
-        delete _commitments[id];
-
-        emit Canceled(id);
+        _cancel(id);
     }
 
     /**
-     * @dev Executse the operation corresponding to a previous (valid) commit.
+     * @dev Execute an (ready) operation containing a single transaction.
      *
-     * Emits a {Executed} event.
+     * Emits a {Reveal} and a {Executed} event.
      *
      * Requirements:
      *
@@ -134,20 +94,15 @@ contract Timelock is AccessControl
      */
     function reveal(address target, uint256 value, bytes calldata data, bytes32 salt) external payable onlyRole(EXECUTER_ROLE) {
         bytes32 id = keccak256(abi.encode(target, value, data, salt));
-        require(_commitments[id] > 0, "Timelock: no matching commitment");
-        // solhint-disable-next-line not-rely-on-time
-        require(_commitments[id] <= block.timestamp, "Timelock: too early to execute");
-
+        _reveal(id);
         _execute(id, 0, target, value, data);
-
-        delete _commitments[id];
     }
 
     /**
-     * @dev Executes a batch of operations corresponding to a previous (valid)
-     * commit.
+     * @dev Execute an (ready) operation containing a batch of transactions.
      *
-     * Emits one {Executed} event per operation in the batch.
+     * Emits a {Reveal} event and one {Executed} event per operation in the
+     * batch.
      *
      * Requirements:
      *
@@ -158,19 +113,14 @@ contract Timelock is AccessControl
         require(targets.length == datas.length, "Timelock: length missmatch");
 
         bytes32 id = keccak256(abi.encode(targets, values, datas, salt));
-        require(_commitments[id] > 0, "Timelock: no matching commitment");
-        // solhint-disable-next-line not-rely-on-time
-        require(_commitments[id] <= block.timestamp, "Timelock: too early to execute");
-
+        _reveal(id);
         for (uint256 i = 0; i < targets.length; ++i) {
             _execute(id, i, targets[i], values[i], datas[i]);
         }
-
-        delete _commitments[id];
     }
 
     /**
-     * @dev Execute a (timelocked) operation.
+     * @dev Execute a transaction.
      *
      * Emits a {Executed} event.
      */
@@ -180,7 +130,8 @@ contract Timelock is AccessControl
         require(success, "Timelock: underlying transaction reverted");
 
         emit Executed(id, index, target, value, data);
-     }
+    }
+
 
     /**
      * @dev Changes the timelock duration for future operations.
@@ -188,8 +139,7 @@ contract Timelock is AccessControl
      * Emits a {MinDelayChange} event.
      */
     function updateDelay(uint256 newDelay) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        emit MinDelayChange(newDelay, _minDelay);
-        _minDelay = newDelay;
+        _updateDelay(newDelay);
     }
 
     /**
@@ -213,7 +163,3 @@ contract Timelock is AccessControl
         revokeRole(DEFAULT_ADMIN_ROLE, _msgSender());
     }
 }
-
-// Time tracking
-// 28/08: 3h+2h
-// 30/08: 1h

@@ -4,7 +4,7 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const Timelock = contract.fromArtifact('TimelockMock');
+const Timelock = contract.fromArtifact('TimelockControllerMock');
 const CallReceiverMock = contract.fromArtifact('CallReceiverMock');
 const Implementation2 = contract.fromArtifact('Implementation2');
 const MINDELAY = time.duration.days(1);
@@ -39,24 +39,24 @@ function genCommitmentBatch (targets, values, datas, salt) {
   return { id, targets, values, datas, salt };
 }
 
-describe('Timelock', function () {
+describe('TimelockController', function () {
   const [ admin, proposer, executer, other ] = accounts;
 
   beforeEach(async function () {
     // Deploy new timelock
-    this.timelock = await Timelock.new(MINDELAY, { from: admin });
+    this.tlctrl = await Timelock.new(MINDELAY, { from: admin });
     // Grand proposer & executer role
-    await this.timelock.grantRole(await this.timelock.PROPOSER_ROLE(), proposer, { from: admin });
-    await this.timelock.grantRole(await this.timelock.EXECUTER_ROLE(), executer, { from: admin });
+    await this.tlctrl.grantRole(await this.tlctrl.PROPOSER_ROLE(), proposer, { from: admin });
+    await this.tlctrl.grantRole(await this.tlctrl.EXECUTER_ROLE(), executer, { from: admin });
     // Transfer administration to timelock
-    await this.timelock.makeLive({ from: admin });
+    await this.tlctrl.makeLive({ from: admin });
     // Mocks
     this.callreceivermock = await CallReceiverMock.new({ from: admin });
     this.implementation2 = await Implementation2.new({ from: admin });
   });
 
   it('initial state', async function () {
-    expect(await this.timelock.viewMinDelay()).to.be.bignumber.equal(MINDELAY);
+    expect(await this.tlctrl.viewMinDelay()).to.be.bignumber.equal(MINDELAY);
   });
 
   describe('methods', function () {
@@ -71,33 +71,33 @@ describe('Timelock', function () {
       });
 
       it('proposer can commit', async function () {
-        const receipt = await this.timelock.commit(this.commitment.id, MINDELAY, { from: proposer });
-        expectEvent(receipt, 'Commitment', { id: this.commitment.id });
+        const receipt = await this.tlctrl.commit(this.commitment.id, MINDELAY, { from: proposer });
+        expectEvent(receipt, 'Commit', { id: this.commitment.id });
       });
 
       it('commitment is registered', async function () {
-        const receipt = await this.timelock.commit(this.commitment.id, MINDELAY, { from: proposer });
-        expectEvent(receipt, 'Commitment', { id: this.commitment.id });
+        const receipt = await this.tlctrl.commit(this.commitment.id, MINDELAY, { from: proposer });
+        expectEvent(receipt, 'Commit', { id: this.commitment.id });
 
         const block = await web3.eth.getBlock(receipt.receipt.blockHash);
 
-        expect(await this.timelock.viewCommitment(this.commitment.id))
+        expect(await this.tlctrl.viewCommitment(this.commitment.id))
           .to.be.bignumber.equal(web3.utils.toBN(block.timestamp).add(MINDELAY));
       });
 
       it('prevent overwritting active commitments', async function () {
-        const receipt = await this.timelock.commit(this.commitment.id, MINDELAY, { from: proposer });
-        expectEvent(receipt, 'Commitment', { id: this.commitment.id });
+        const receipt = await this.tlctrl.commit(this.commitment.id, MINDELAY, { from: proposer });
+        expectEvent(receipt, 'Commit', { id: this.commitment.id });
 
         await expectRevert(
-          this.timelock.commit(this.commitment.id, MINDELAY, { from: proposer }),
+          this.tlctrl.commit(this.commitment.id, MINDELAY, { from: proposer }),
           'Timelock: commitment already exists'
         );
       });
 
       it('prevent non-proposer from commiting', async function () {
         await expectRevert(
-          this.timelock.commit(this.commitment.id, MINDELAY, { from: other }),
+          this.tlctrl.commit(this.commitment.id, MINDELAY, { from: other }),
           'Timelock: sender requiers permission'
         );
       });
@@ -116,7 +116,7 @@ describe('Timelock', function () {
       describe('no commitment', function () {
         it('reverts', async function () {
           await expectRevert(
-            this.timelock.reveal(
+            this.tlctrl.reveal(
               this.commitment.target,
               this.commitment.value,
               this.commitment.data,
@@ -130,13 +130,13 @@ describe('Timelock', function () {
 
       describe('with commitment', function () {
         beforeEach(async function () {
-          ({ logs: this.logs } = await this.timelock.commit(this.commitment.id, MINDELAY, { from: proposer }));
+          ({ logs: this.logs } = await this.tlctrl.commit(this.commitment.id, MINDELAY, { from: proposer }));
         });
 
         describe('to early', function () {
           it('reverts', async function () {
             await expectRevert(
-              this.timelock.reveal(
+              this.tlctrl.reveal(
                 this.commitment.target,
                 this.commitment.value,
                 this.commitment.data,
@@ -150,13 +150,13 @@ describe('Timelock', function () {
 
         describe('almost but not quite', function () {
           beforeEach(async function () {
-            const timestamp = await this.timelock.viewCommitment(this.commitment.id);
+            const timestamp = await this.tlctrl.viewCommitment(this.commitment.id);
             await time.increaseTo(timestamp - 2); // -1 is to tight, test sometime fails
           });
 
           it('reverts', async function () {
             await expectRevert(
-              this.timelock.reveal(
+              this.tlctrl.reveal(
                 this.commitment.target,
                 this.commitment.value,
                 this.commitment.data,
@@ -170,18 +170,19 @@ describe('Timelock', function () {
 
         describe('on time', function () {
           beforeEach(async function () {
-            const timestamp = await this.timelock.viewCommitment(this.commitment.id);
+            const timestamp = await this.tlctrl.viewCommitment(this.commitment.id);
             await time.increaseTo(timestamp);
           });
 
           it('executer can reveal', async function () {
-            const receipt = await this.timelock.reveal(
+            const receipt = await this.tlctrl.reveal(
               this.commitment.target,
               this.commitment.value,
               this.commitment.data,
               this.commitment.salt,
               { from: executer }
             );
+            expectEvent(receipt, 'Reveal', { id: this.commitment.id });
             expectEvent(receipt, 'Executed', {
               id: this.commitment.id,
               index: web3.utils.toBN(0),
@@ -192,13 +193,14 @@ describe('Timelock', function () {
           });
 
           it('commitment is cleared', async function () {
-            const receipt = await this.timelock.reveal(
+            const receipt = await this.tlctrl.reveal(
               this.commitment.target,
               this.commitment.value,
               this.commitment.data,
               this.commitment.salt,
               { from: executer }
             );
+            expectEvent(receipt, 'Reveal', { id: this.commitment.id });
             expectEvent(receipt, 'Executed', {
               id: this.commitment.id,
               index: web3.utils.toBN(0),
@@ -207,12 +209,12 @@ describe('Timelock', function () {
               data: this.commitment.data,
             });
 
-            expect(await this.timelock.viewCommitment(this.commitment.id)).to.be.bignumber.equal(web3.utils.toBN(0));
+            expect(await this.tlctrl.viewCommitment(this.commitment.id)).to.be.bignumber.equal(web3.utils.toBN(0));
           });
 
           it('prevent non-executer from revealing', async function () {
             await expectRevert(
-              this.timelock.reveal(
+              this.tlctrl.reveal(
                 this.commitment.target,
                 this.commitment.value,
                 this.commitment.data,
@@ -239,7 +241,7 @@ describe('Timelock', function () {
       describe('no commitment', function () {
         it('reverts', async function () {
           await expectRevert(
-            this.timelock.revealBatch(
+            this.tlctrl.revealBatch(
               this.commitment.targets,
               this.commitment.values,
               this.commitment.datas,
@@ -253,13 +255,13 @@ describe('Timelock', function () {
 
       describe('with commitment', function () {
         beforeEach(async function () {
-          ({ logs: this.logs } = await this.timelock.commit(this.commitment.id, MINDELAY, { from: proposer }));
+          ({ logs: this.logs } = await this.tlctrl.commit(this.commitment.id, MINDELAY, { from: proposer }));
         });
 
         describe('to early', function () {
           it('reverts', async function () {
             await expectRevert(
-              this.timelock.revealBatch(
+              this.tlctrl.revealBatch(
                 this.commitment.targets,
                 this.commitment.values,
                 this.commitment.datas,
@@ -273,13 +275,13 @@ describe('Timelock', function () {
 
         describe('almost but not quite', function () {
           beforeEach(async function () {
-            const timestamp = await this.timelock.viewCommitment(this.commitment.id);
+            const timestamp = await this.tlctrl.viewCommitment(this.commitment.id);
             await time.increaseTo(timestamp - 2); // -1 is to tight, test sometime fails
           });
 
           it('reverts', async function () {
             await expectRevert(
-              this.timelock.revealBatch(
+              this.tlctrl.revealBatch(
                 this.commitment.targets,
                 this.commitment.values,
                 this.commitment.datas,
@@ -293,18 +295,19 @@ describe('Timelock', function () {
 
         describe('on time', function () {
           beforeEach(async function () {
-            const timestamp = await this.timelock.viewCommitment(this.commitment.id);
+            const timestamp = await this.tlctrl.viewCommitment(this.commitment.id);
             await time.increaseTo(timestamp);
           });
 
           it('executer can reveal', async function () {
-            const receipt = await this.timelock.revealBatch(
+            const receipt = await this.tlctrl.revealBatch(
               this.commitment.targets,
               this.commitment.values,
               this.commitment.datas,
               this.commitment.salt,
               { from: executer }
             );
+            expectEvent(receipt, 'Reveal', { id: this.commitment.id });
             for (const i in this.commitment.targets) {
               expectEvent(receipt, 'Executed', {
                 id: this.commitment.id,
@@ -317,13 +320,14 @@ describe('Timelock', function () {
           });
 
           it('commitment is cleared', async function () {
-            const receipt = await this.timelock.revealBatch(
+            const receipt = await this.tlctrl.revealBatch(
               this.commitment.targets,
               this.commitment.values,
               this.commitment.datas,
               this.commitment.salt,
               { from: executer }
             );
+            expectEvent(receipt, 'Reveal', { id: this.commitment.id });
             for (const i in this.commitment.targets) {
               expectEvent(receipt, 'Executed', {
                 id: this.commitment.id,
@@ -334,12 +338,12 @@ describe('Timelock', function () {
               });
             }
 
-            expect(await this.timelock.viewCommitment(this.commitment.id)).to.be.bignumber.equal(web3.utils.toBN(0));
+            expect(await this.tlctrl.viewCommitment(this.commitment.id)).to.be.bignumber.equal(web3.utils.toBN(0));
           });
 
           it('prevent non-executer from revealing', async function () {
             await expectRevert(
-              this.timelock.revealBatch(
+              this.tlctrl.revealBatch(
                 this.commitment.targets,
                 this.commitment.values,
                 this.commitment.datas,
@@ -352,7 +356,7 @@ describe('Timelock', function () {
 
           it('length missmatch #1', async function () {
             await expectRevert(
-              this.timelock.revealBatch(
+              this.tlctrl.revealBatch(
                 [],
                 this.commitment.values,
                 this.commitment.datas,
@@ -365,7 +369,7 @@ describe('Timelock', function () {
 
           it('length missmatch #2', async function () {
             await expectRevert(
-              this.timelock.revealBatch(
+              this.tlctrl.revealBatch(
                 this.commitment.targets,
                 [],
                 this.commitment.datas,
@@ -378,7 +382,7 @@ describe('Timelock', function () {
 
           it('length missmatch #3', async function () {
             await expectRevert(
-              this.timelock.revealBatch(
+              this.tlctrl.revealBatch(
                 this.commitment.targets,
                 this.commitment.values,
                 [],
@@ -411,10 +415,10 @@ describe('Timelock', function () {
           web3.utils.randomHex(32),
         );
 
-        await this.timelock.commit(commitment.id, MINDELAY, { from: proposer });
+        await this.tlctrl.commit(commitment.id, MINDELAY, { from: proposer });
         await time.increase(MINDELAY);
         await expectRevert(
-          this.timelock.revealBatch(
+          this.tlctrl.revealBatch(
             commitment.targets,
             commitment.values,
             commitment.datas,
@@ -434,24 +438,24 @@ describe('Timelock', function () {
           web3.utils.randomHex(4),
           web3.utils.randomHex(32),
         );
-        ({ logs: this.logs } = await this.timelock.commit(this.commitment.id, MINDELAY, { from: proposer }));
+        ({ logs: this.logs } = await this.tlctrl.commit(this.commitment.id, MINDELAY, { from: proposer }));
       });
 
       it('proposer can cancel', async function () {
-        const receipt = await this.timelock.cancel(this.commitment.id, { from: proposer });
-        expectEvent(receipt, 'Canceled', { id: this.commitment.id });
+        const receipt = await this.tlctrl.cancel(this.commitment.id, { from: proposer });
+        expectEvent(receipt, 'Cancel', { id: this.commitment.id });
       });
 
       it('commitment is cleared', async function () {
-        const receipt = await this.timelock.cancel(this.commitment.id, { from: proposer });
-        expectEvent(receipt, 'Canceled', { id: this.commitment.id });
+        const receipt = await this.tlctrl.cancel(this.commitment.id, { from: proposer });
+        expectEvent(receipt, 'Cancel', { id: this.commitment.id });
 
-        expect(await this.timelock.viewCommitment(this.commitment.id)).to.be.bignumber.equal(web3.utils.toBN(0));
+        expect(await this.tlctrl.viewCommitment(this.commitment.id)).to.be.bignumber.equal(web3.utils.toBN(0));
       });
 
       it('prevent non-proposer from canceling', async function () {
         await expectRevert(
-          this.timelock.cancel(this.commitment.id, { from: other }),
+          this.tlctrl.cancel(this.commitment.id, { from: other }),
           'Timelock: sender requiers permission'
         );
       });
@@ -461,7 +465,7 @@ describe('Timelock', function () {
   describe('maintenance', function () {
     it('prevent unauthorized maintenance', async function () {
       await expectRevert(
-        this.timelock.updateDelay(0, { from: other }),
+        this.tlctrl.updateDelay(0, { from: other }),
         'Timelock: sender requiers permission'
       );
     });
@@ -469,25 +473,26 @@ describe('Timelock', function () {
     it('timelock scheduled maintenance', async function () {
       const randomBN = web3.utils.randomHex(16);
       const commitment = genCommitment(
-        this.timelock.address,
+        this.tlctrl.address,
         0,
-        this.timelock.contract.methods.updateDelay(randomBN).encodeABI(),
+        this.tlctrl.contract.methods.updateDelay(randomBN).encodeABI(),
         web3.utils.randomHex(32),
       );
 
-      await this.timelock.commit(commitment.id, MINDELAY, { from: proposer });
+      await this.tlctrl.commit(commitment.id, MINDELAY, { from: proposer });
       await time.increase(MINDELAY);
-      const receipt = await this.timelock.reveal(
+      const receipt = await this.tlctrl.reveal(
         commitment.target,
         commitment.value,
         commitment.data,
         commitment.salt,
         { from: executer }
       );
-      expectEvent(receipt, 'Executed', {});
+      expectEvent(receipt, 'Reveal', { id: commitment.id });
+      expectEvent(receipt, 'Executed', { id: commitment.id });
       expectEvent(receipt, 'MinDelayChange', { newDuration: web3.utils.toBN(randomBN), oldDuration: MINDELAY });
 
-      expect(await this.timelock.viewMinDelay()).to.be.bignumber.equal(web3.utils.toBN(randomBN));
+      expect(await this.tlctrl.viewMinDelay()).to.be.bignumber.equal(web3.utils.toBN(randomBN));
     });
   });
 
@@ -501,16 +506,17 @@ describe('Timelock', function () {
         web3.utils.randomHex(32),
       );
 
-      await this.timelock.commit(commitment.id, MINDELAY, { from: proposer });
+      await this.tlctrl.commit(commitment.id, MINDELAY, { from: proposer });
       await time.increase(MINDELAY);
-      const receipt = await this.timelock.reveal(
+      const receipt = await this.tlctrl.reveal(
         commitment.target,
         commitment.value,
         commitment.data,
         commitment.salt,
         { from: executer }
       );
-      expectEvent(receipt, 'Executed');
+      expectEvent(receipt, 'Reveal', { id: commitment.id });
+      expectEvent(receipt, 'Executed', { id: commitment.id });
 
       expect(await this.implementation2.getValue()).to.be.bignumber.equal(web3.utils.toBN(randomBN));
     });
@@ -523,10 +529,10 @@ describe('Timelock', function () {
         web3.utils.randomHex(32),
       );
 
-      await this.timelock.commit(commitment.id, MINDELAY, { from: proposer });
+      await this.tlctrl.commit(commitment.id, MINDELAY, { from: proposer });
       await time.increase(MINDELAY);
       await expectRevert(
-        this.timelock.reveal(
+        this.tlctrl.reveal(
           commitment.target,
           commitment.value,
           commitment.data,
@@ -545,10 +551,10 @@ describe('Timelock', function () {
         web3.utils.randomHex(32),
       );
 
-      await this.timelock.commit(commitment.id, MINDELAY, { from: proposer });
+      await this.tlctrl.commit(commitment.id, MINDELAY, { from: proposer });
       await time.increase(MINDELAY);
       await expectRevert(
-        this.timelock.reveal(
+        this.tlctrl.reveal(
           commitment.target,
           commitment.value,
           commitment.data,
@@ -567,10 +573,10 @@ describe('Timelock', function () {
         web3.utils.randomHex(32),
       );
 
-      await this.timelock.commit(commitment.id, MINDELAY, { from: proposer });
+      await this.tlctrl.commit(commitment.id, MINDELAY, { from: proposer });
       await time.increase(MINDELAY);
       await expectRevert(
-        this.timelock.reveal(
+        this.tlctrl.reveal(
           commitment.target,
           commitment.value,
           commitment.data,
@@ -589,22 +595,23 @@ describe('Timelock', function () {
         web3.utils.randomHex(32),
       );
 
-      await this.timelock.commit(commitment.id, MINDELAY, { from: proposer });
+      await this.tlctrl.commit(commitment.id, MINDELAY, { from: proposer });
       await time.increase(MINDELAY);
 
-      expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
+      expect(await web3.eth.getBalance(this.tlctrl.address)).to.be.bignumber.equal(web3.utils.toBN(0));
       expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
 
-      const receipt = await this.timelock.reveal(
+      const receipt = await this.tlctrl.reveal(
         commitment.target,
         commitment.value,
         commitment.data,
         commitment.salt,
         { from: executer, value: 1 }
       );
-      expectEvent(receipt, 'Executed', {});
+      expectEvent(receipt, 'Reveal', { id: commitment.id });
+      expectEvent(receipt, 'Executed', { id: commitment.id });
 
-      expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
+      expect(await web3.eth.getBalance(this.tlctrl.address)).to.be.bignumber.equal(web3.utils.toBN(0));
       expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(web3.utils.toBN(1));
     });
 
@@ -616,14 +623,14 @@ describe('Timelock', function () {
         web3.utils.randomHex(32),
       );
 
-      await this.timelock.commit(commitment.id, MINDELAY, { from: proposer });
+      await this.tlctrl.commit(commitment.id, MINDELAY, { from: proposer });
       await time.increase(MINDELAY);
 
-      expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
+      expect(await web3.eth.getBalance(this.tlctrl.address)).to.be.bignumber.equal(web3.utils.toBN(0));
       expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
 
       await expectRevert(
-        this.timelock.reveal(
+        this.tlctrl.reveal(
           commitment.target,
           commitment.value,
           commitment.data,
@@ -633,7 +640,7 @@ describe('Timelock', function () {
         'Timelock: underlying transaction reverted'
       );
 
-      expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
+      expect(await web3.eth.getBalance(this.tlctrl.address)).to.be.bignumber.equal(web3.utils.toBN(0));
       expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
     });
 
@@ -645,14 +652,14 @@ describe('Timelock', function () {
         web3.utils.randomHex(32),
       );
 
-      await this.timelock.commit(commitment.id, MINDELAY, { from: proposer });
+      await this.tlctrl.commit(commitment.id, MINDELAY, { from: proposer });
       await time.increase(MINDELAY);
 
-      expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
+      expect(await web3.eth.getBalance(this.tlctrl.address)).to.be.bignumber.equal(web3.utils.toBN(0));
       expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
 
       await expectRevert(
-        this.timelock.reveal(
+        this.tlctrl.reveal(
           commitment.target,
           commitment.value,
           commitment.data,
@@ -662,7 +669,7 @@ describe('Timelock', function () {
         'Timelock: underlying transaction reverted'
       );
 
-      expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
+      expect(await web3.eth.getBalance(this.tlctrl.address)).to.be.bignumber.equal(web3.utils.toBN(0));
       expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
     });
   });
