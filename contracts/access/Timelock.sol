@@ -53,9 +53,11 @@ contract Timelock is AccessControl
 
     /**
      * @dev Modifier to make a function callable only by a certain role.
+     * In addition to looking to the sender's role, address(0)'s role is also considered.
+     * Granting a role to Address(0) is thus equivalent to enabling this role for everyone.
      */
     modifier onlyRole(bytes32 role) {
-        require(hasRole(role, _msgSender()), "Timelock: sender requiers permission");
+        require(hasRole(role, _msgSender()) || hasRole(role, address(0)), "Timelock: sender requiers permission");
         _;
     }
 
