@@ -60,80 +60,117 @@ describe('TimelockController', function () {
   });
 
   describe('methods', function () {
-    describe('schedule', function () {
-      beforeEach(async function () {
-        this.operation = genOperation(
-          ZERO_ADDRESS,
-          0,
-          web3.utils.randomHex(4),
-          web3.utils.randomHex(32),
-        );
-      });
+    describe('simple', function () {
+      describe('schedule', function () {
+        beforeEach(async function () {
+          this.operation = genOperation(
+            ZERO_ADDRESS,
+            0,
+            web3.utils.randomHex(4),
+            web3.utils.randomHex(32),
+          );
+        });
 
-      it('proposer can schedule', async function () {
-        const receipt = await this.tlctrl.schedule(this.operation.id, MINDELAY, { from: proposer });
-        expectEvent(receipt, 'Scheduled', { id: this.operation.id });
-      });
+        it('proposer can schedule', async function () {
+          const receipt = await this.tlctrl.schedule(
+            this.operation.target,
+            this.operation.value,
+            this.operation.data,
+            this.operation.salt,
+            MINDELAY,
+            { from: proposer }
+          );
+          expectEvent(receipt, 'Scheduled', { id: this.operation.id });
+          expectEvent(receipt, 'CallScheduled', {
+            id: this.operation.id,
+            index: web3.utils.toBN(0),
+            target: this.operation.target,
+            value: web3.utils.toBN(this.operation.value),
+            data: this.operation.data,
+          });
+        });
 
-      it('operation is registered', async function () {
-        const receipt = await this.tlctrl.schedule(this.operation.id, MINDELAY, { from: proposer });
-        expectEvent(receipt, 'Scheduled', { id: this.operation.id });
+        it('operation is registered', async function () {
+          const receipt = await this.tlctrl.schedule(
+            this.operation.target,
+            this.operation.value,
+            this.operation.data,
+            this.operation.salt,
+            MINDELAY,
+            { from: proposer }
+          );
+          expectEvent(receipt, 'Scheduled', { id: this.operation.id });
+          expectEvent(receipt, 'CallScheduled', {
+            id: this.operation.id,
+            index: web3.utils.toBN(0),
+            target: this.operation.target,
+            value: web3.utils.toBN(this.operation.value),
+            data: this.operation.data,
+          });
 
-        const block = await web3.eth.getBlock(receipt.receipt.blockHash);
+          const block = await web3.eth.getBlock(receipt.receipt.blockHash);
 
-        expect(await this.tlctrl.viewTimestamp(this.operation.id))
-          .to.be.bignumber.equal(web3.utils.toBN(block.timestamp).add(MINDELAY));
-      });
+          expect(await this.tlctrl.viewTimestamp(this.operation.id))
+            .to.be.bignumber.equal(web3.utils.toBN(block.timestamp).add(MINDELAY));
+        });
 
-      it('prevent overwritting active operation', async function () {
-        const receipt = await this.tlctrl.schedule(this.operation.id, MINDELAY, { from: proposer });
-        expectEvent(receipt, 'Scheduled', { id: this.operation.id });
+        it('prevent overwritting active operation', async function () {
+          const receipt = await this.tlctrl.schedule(
+            this.operation.target,
+            this.operation.value,
+            this.operation.data,
+            this.operation.salt,
+            MINDELAY,
+            { from: proposer }
+          );
+          expectEvent(receipt, 'Scheduled', { id: this.operation.id });
+          expectEvent(receipt, 'CallScheduled', {
+            id: this.operation.id,
+            index: web3.utils.toBN(0),
+            target: this.operation.target,
+            value: web3.utils.toBN(this.operation.value),
+            data: this.operation.data,
+          });
 
-        await expectRevert(
-          this.tlctrl.schedule(this.operation.id, MINDELAY, { from: proposer }),
-          'Timelock: operation already scheduled'
-        );
-      });
-
-      it('prevent non-proposer from commiting', async function () {
-        await expectRevert(
-          this.tlctrl.schedule(this.operation.id, MINDELAY, { from: other }),
-          'TimelockController: sender requiers permission'
-        );
-      });
-    });
-
-    describe('execute', function () {
-      beforeEach(async function () {
-        this.operation = genOperation(
-          ZERO_ADDRESS,
-          0,
-          web3.utils.randomHex(4),
-          web3.utils.randomHex(32),
-        );
-      });
-
-      describe('no operation scheduled', function () {
-        it('reverts', async function () {
           await expectRevert(
-            this.tlctrl.execute(
+            this.tlctrl.schedule(
               this.operation.target,
               this.operation.value,
               this.operation.data,
               this.operation.salt,
-              { from: executer }
+              MINDELAY,
+              { from: proposer }
             ),
-            'Timelock: no matching operation'
+            'Timelock: operation already scheduled'
+          );
+        });
+
+        it('prevent non-proposer from commiting', async function () {
+          await expectRevert(
+            this.tlctrl.schedule(
+              this.operation.target,
+              this.operation.value,
+              this.operation.data,
+              this.operation.salt,
+              MINDELAY,
+              { from: other }
+            ),
+            'TimelockController: sender requiers permission'
           );
         });
       });
 
-      describe('with scheduled operation', function () {
+      describe('execute', function () {
         beforeEach(async function () {
-          ({ logs: this.logs } = await this.tlctrl.schedule(this.operation.id, MINDELAY, { from: proposer }));
+          this.operation = genOperation(
+            ZERO_ADDRESS,
+            0,
+            web3.utils.randomHex(4),
+            web3.utils.randomHex(32),
+          );
         });
 
-        describe('to early', function () {
+        describe('no operation scheduled', function () {
           it('reverts', async function () {
             await expectRevert(
               this.tlctrl.execute(
@@ -143,122 +180,236 @@ describe('TimelockController', function () {
                 this.operation.salt,
                 { from: executer }
               ),
-              'Timelock: too early to execute'
+              'Timelock: no matching operation'
             );
           });
         });
 
-        describe('almost but not quite', function () {
+        describe('with scheduled operation', function () {
           beforeEach(async function () {
-            const timestamp = await this.tlctrl.viewTimestamp(this.operation.id);
-            await time.increaseTo(timestamp - 2); // -1 is to tight, test sometime fails
+            ({ logs: this.logs } = await this.tlctrl.schedule(
+              this.operation.target,
+              this.operation.value,
+              this.operation.data,
+              this.operation.salt,
+              MINDELAY,
+              { from: proposer }
+            ));
           });
 
-          it('reverts', async function () {
-            await expectRevert(
-              this.tlctrl.execute(
+          describe('to early', function () {
+            it('reverts', async function () {
+              await expectRevert(
+                this.tlctrl.execute(
+                  this.operation.target,
+                  this.operation.value,
+                  this.operation.data,
+                  this.operation.salt,
+                  { from: executer }
+                ),
+                'Timelock: too early to execute'
+              );
+            });
+          });
+
+          describe('almost but not quite', function () {
+            beforeEach(async function () {
+              const timestamp = await this.tlctrl.viewTimestamp(this.operation.id);
+              await time.increaseTo(timestamp - 2); // -1 is to tight, test sometime fails
+            });
+
+            it('reverts', async function () {
+              await expectRevert(
+                this.tlctrl.execute(
+                  this.operation.target,
+                  this.operation.value,
+                  this.operation.data,
+                  this.operation.salt,
+                  { from: executer }
+                ),
+                'Timelock: too early to execute'
+              );
+            });
+          });
+
+          describe('on time', function () {
+            beforeEach(async function () {
+              const timestamp = await this.tlctrl.viewTimestamp(this.operation.id);
+              await time.increaseTo(timestamp);
+            });
+
+            it('executer can reveal', async function () {
+              const receipt = await this.tlctrl.execute(
                 this.operation.target,
                 this.operation.value,
                 this.operation.data,
                 this.operation.salt,
                 { from: executer }
-              ),
-              'Timelock: too early to execute'
-            );
-          });
-        });
-
-        describe('on time', function () {
-          beforeEach(async function () {
-            const timestamp = await this.tlctrl.viewTimestamp(this.operation.id);
-            await time.increaseTo(timestamp);
-          });
-
-          it('executer can reveal', async function () {
-            const receipt = await this.tlctrl.execute(
-              this.operation.target,
-              this.operation.value,
-              this.operation.data,
-              this.operation.salt,
-              { from: executer }
-            );
-            expectEvent(receipt, 'Executed', { id: this.operation.id });
-            expectEvent(receipt, 'Call', {
-              id: this.operation.id,
-              index: web3.utils.toBN(0),
-              target: this.operation.target,
-              value: web3.utils.toBN(this.operation.value),
-              data: this.operation.data,
-            });
-          });
-
-          it('timestamp is cleared', async function () {
-            const receipt = await this.tlctrl.execute(
-              this.operation.target,
-              this.operation.value,
-              this.operation.data,
-              this.operation.salt,
-              { from: executer }
-            );
-            expectEvent(receipt, 'Executed', { id: this.operation.id });
-            expectEvent(receipt, 'Call', {
-              id: this.operation.id,
-              index: web3.utils.toBN(0),
-              target: this.operation.target,
-              value: web3.utils.toBN(this.operation.value),
-              data: this.operation.data,
+              );
+              expectEvent(receipt, 'Executed', { id: this.operation.id });
+              expectEvent(receipt, 'CallExecuted', {
+                id: this.operation.id,
+                index: web3.utils.toBN(0),
+                target: this.operation.target,
+                value: web3.utils.toBN(this.operation.value),
+                data: this.operation.data,
+              });
             });
 
-            expect(await this.tlctrl.viewTimestamp(this.operation.id)).to.be.bignumber.equal(web3.utils.toBN(0));
-          });
-
-          it('prevent non-executer from revealing', async function () {
-            await expectRevert(
-              this.tlctrl.execute(
+            it('timestamp is cleared', async function () {
+              const receipt = await this.tlctrl.execute(
                 this.operation.target,
                 this.operation.value,
                 this.operation.data,
                 this.operation.salt,
-                { from: other }
-              ),
-              'TimelockController: sender requiers permission'
-            );
+                { from: executer }
+              );
+              expectEvent(receipt, 'Executed', { id: this.operation.id });
+              expectEvent(receipt, 'CallExecuted', {
+                id: this.operation.id,
+                index: web3.utils.toBN(0),
+                target: this.operation.target,
+                value: web3.utils.toBN(this.operation.value),
+                data: this.operation.data,
+              });
+
+              expect(await this.tlctrl.viewTimestamp(this.operation.id)).to.be.bignumber.equal(web3.utils.toBN(0));
+            });
+
+            it('prevent non-executer from revealing', async function () {
+              await expectRevert(
+                this.tlctrl.execute(
+                  this.operation.target,
+                  this.operation.value,
+                  this.operation.data,
+                  this.operation.salt,
+                  { from: other }
+                ),
+                'TimelockController: sender requiers permission'
+              );
+            });
           });
         });
       });
     });
 
-    describe('executeBatch', function () {
-      beforeEach(async function () {
-        this.operation = genOperationBatch(
-          Array(8).fill().map(() => ZERO_ADDRESS),
-          Array(8).fill().map(() => 0),
-          Array(8).fill().map(() => web3.utils.randomHex(4)),
-          web3.utils.randomHex(32),
-        );
-      });
+    describe('batch', function () {
+      describe('schedule', function () {
+        beforeEach(async function () {
+          this.operation = genOperationBatch(
+            Array(8).fill().map(() => ZERO_ADDRESS),
+            Array(8).fill().map(() => 0),
+            Array(8).fill().map(() => web3.utils.randomHex(4)),
+            web3.utils.randomHex(32),
+          );
+        });
 
-      describe('no scheduled operation', function () {
-        it('reverts', async function () {
+        it('proposer can schedule', async function () {
+          const receipt = await this.tlctrl.scheduleBatch(
+            this.operation.targets,
+            this.operation.values,
+            this.operation.datas,
+            this.operation.salt,
+            MINDELAY,
+            { from: proposer }
+          );
+          expectEvent(receipt, 'Scheduled', { id: this.operation.id });
+          for (const i in this.operation.targets) {
+            expectEvent(receipt, 'CallScheduled', {
+              id: this.operation.id,
+              index: web3.utils.toBN(i),
+              target: this.operation.targets[i],
+              value: web3.utils.toBN(this.operation.values[i]),
+              data: this.operation.datas[i],
+            });
+          }
+        });
+
+        it('operation is registered', async function () {
+          const receipt = await this.tlctrl.scheduleBatch(
+            this.operation.targets,
+            this.operation.values,
+            this.operation.datas,
+            this.operation.salt,
+            MINDELAY,
+            { from: proposer }
+          );
+          expectEvent(receipt, 'Scheduled', { id: this.operation.id });
+          for (const i in this.operation.targets) {
+            expectEvent(receipt, 'CallScheduled', {
+              id: this.operation.id,
+              index: web3.utils.toBN(i),
+              target: this.operation.targets[i],
+              value: web3.utils.toBN(this.operation.values[i]),
+              data: this.operation.datas[i],
+            });
+          }
+
+          const block = await web3.eth.getBlock(receipt.receipt.blockHash);
+
+          expect(await this.tlctrl.viewTimestamp(this.operation.id))
+            .to.be.bignumber.equal(web3.utils.toBN(block.timestamp).add(MINDELAY));
+        });
+
+        it('prevent overwritting active operation', async function () {
+          const receipt = await this.tlctrl.scheduleBatch(
+            this.operation.targets,
+            this.operation.values,
+            this.operation.datas,
+            this.operation.salt,
+            MINDELAY,
+            { from: proposer }
+          );
+          expectEvent(receipt, 'Scheduled', { id: this.operation.id });
+          for (const i in this.operation.targets) {
+            expectEvent(receipt, 'CallScheduled', {
+              id: this.operation.id,
+              index: web3.utils.toBN(i),
+              target: this.operation.targets[i],
+              value: web3.utils.toBN(this.operation.values[i]),
+              data: this.operation.datas[i],
+            });
+          }
+
           await expectRevert(
-            this.tlctrl.executeBatch(
+            this.tlctrl.scheduleBatch(
               this.operation.targets,
               this.operation.values,
               this.operation.datas,
               this.operation.salt,
-              { from: executer }
+              MINDELAY,
+              { from: proposer }
             ),
-            'Timelock: no matching operation'
+            'Timelock: operation already scheduled'
+          );
+        });
+
+        it('prevent non-proposer from commiting', async function () {
+          await expectRevert(
+            this.tlctrl.scheduleBatch(
+              this.operation.targets,
+              this.operation.values,
+              this.operation.datas,
+              this.operation.salt,
+              MINDELAY,
+              { from: other }
+            ),
+            'TimelockController: sender requiers permission'
           );
         });
       });
 
-      describe('with scheduled operation', function () {
+      describe('execute', function () {
         beforeEach(async function () {
-          ({ logs: this.logs } = await this.tlctrl.schedule(this.operation.id, MINDELAY, { from: proposer }));
+          this.operation = genOperationBatch(
+            Array(8).fill().map(() => ZERO_ADDRESS),
+            Array(8).fill().map(() => 0),
+            Array(8).fill().map(() => web3.utils.randomHex(4)),
+            web3.utils.randomHex(32),
+          );
         });
 
-        describe('to early', function () {
+        describe('no scheduled operation', function () {
           it('reverts', async function () {
             await expectRevert(
               this.tlctrl.executeBatch(
@@ -268,165 +419,200 @@ describe('TimelockController', function () {
                 this.operation.salt,
                 { from: executer }
               ),
-              'Timelock: too early to execute'
+              'Timelock: no matching operation'
             );
           });
         });
 
-        describe('almost but not quite', function () {
+        describe('with scheduled operation', function () {
           beforeEach(async function () {
-            const timestamp = await this.tlctrl.viewTimestamp(this.operation.id);
-            await time.increaseTo(timestamp - 2); // -1 is to tight, test sometime fails
-          });
-
-          it('reverts', async function () {
-            await expectRevert(
-              this.tlctrl.executeBatch(
-                this.operation.targets,
-                this.operation.values,
-                this.operation.datas,
-                this.operation.salt,
-                { from: executer }
-              ),
-              'Timelock: too early to execute'
-            );
-          });
-        });
-
-        describe('on time', function () {
-          beforeEach(async function () {
-            const timestamp = await this.tlctrl.viewTimestamp(this.operation.id);
-            await time.increaseTo(timestamp);
-          });
-
-          it('executer can reveal', async function () {
-            const receipt = await this.tlctrl.executeBatch(
+            ({ logs: this.logs } = await this.tlctrl.scheduleBatch(
               this.operation.targets,
               this.operation.values,
               this.operation.datas,
               this.operation.salt,
-              { from: executer }
-            );
-            expectEvent(receipt, 'Executed', { id: this.operation.id });
-            for (const i in this.operation.targets) {
-              expectEvent(receipt, 'Call', {
-                id: this.operation.id,
-                index: web3.utils.toBN(i),
-                target: this.operation.targets[i],
-                value: web3.utils.toBN(this.operation.values[i]),
-                data: this.operation.datas[i],
-              });
-            }
+              MINDELAY,
+              { from: proposer }
+            ));
           });
 
-          it('timestamp is cleared', async function () {
-            const receipt = await this.tlctrl.executeBatch(
-              this.operation.targets,
-              this.operation.values,
-              this.operation.datas,
-              this.operation.salt,
-              { from: executer }
-            );
-            expectEvent(receipt, 'Executed', { id: this.operation.id });
-            for (const i in this.operation.targets) {
-              expectEvent(receipt, 'Call', {
-                id: this.operation.id,
-                index: web3.utils.toBN(i),
-                target: this.operation.targets[i],
-                value: web3.utils.toBN(this.operation.values[i]),
-                data: this.operation.datas[i],
-              });
-            }
-
-            expect(await this.tlctrl.viewTimestamp(this.operation.id)).to.be.bignumber.equal(web3.utils.toBN(0));
+          describe('to early', function () {
+            it('reverts', async function () {
+              await expectRevert(
+                this.tlctrl.executeBatch(
+                  this.operation.targets,
+                  this.operation.values,
+                  this.operation.datas,
+                  this.operation.salt,
+                  { from: executer }
+                ),
+                'Timelock: too early to execute'
+              );
+            });
           });
 
-          it('prevent non-executer from revealing', async function () {
-            await expectRevert(
-              this.tlctrl.executeBatch(
+          describe('almost but not quite', function () {
+            beforeEach(async function () {
+              const timestamp = await this.tlctrl.viewTimestamp(this.operation.id);
+              await time.increaseTo(timestamp - 2); // -1 is to tight, test sometime fails
+            });
+
+            it('reverts', async function () {
+              await expectRevert(
+                this.tlctrl.executeBatch(
+                  this.operation.targets,
+                  this.operation.values,
+                  this.operation.datas,
+                  this.operation.salt,
+                  { from: executer }
+                ),
+                'Timelock: too early to execute'
+              );
+            });
+          });
+
+          describe('on time', function () {
+            beforeEach(async function () {
+              const timestamp = await this.tlctrl.viewTimestamp(this.operation.id);
+              await time.increaseTo(timestamp);
+            });
+
+            it('executer can reveal', async function () {
+              const receipt = await this.tlctrl.executeBatch(
                 this.operation.targets,
                 this.operation.values,
                 this.operation.datas,
                 this.operation.salt,
-                { from: other }
-              ),
-              'TimelockController: sender requiers permission'
-            );
-          });
+                { from: executer }
+              );
+              expectEvent(receipt, 'Executed', { id: this.operation.id });
+              for (const i in this.operation.targets) {
+                expectEvent(receipt, 'CallExecuted', {
+                  id: this.operation.id,
+                  index: web3.utils.toBN(i),
+                  target: this.operation.targets[i],
+                  value: web3.utils.toBN(this.operation.values[i]),
+                  data: this.operation.datas[i],
+                });
+              }
+            });
 
-          it('length missmatch #1', async function () {
-            await expectRevert(
-              this.tlctrl.executeBatch(
-                [],
+            it('timestamp is cleared', async function () {
+              const receipt = await this.tlctrl.executeBatch(
+                this.operation.targets,
                 this.operation.values,
                 this.operation.datas,
                 this.operation.salt,
                 { from: executer }
-              ),
-              'TimelockController: length missmatch'
-            );
-          });
+              );
+              expectEvent(receipt, 'Executed', { id: this.operation.id });
+              for (const i in this.operation.targets) {
+                expectEvent(receipt, 'CallExecuted', {
+                  id: this.operation.id,
+                  index: web3.utils.toBN(i),
+                  target: this.operation.targets[i],
+                  value: web3.utils.toBN(this.operation.values[i]),
+                  data: this.operation.datas[i],
+                });
+              }
 
-          it('length missmatch #2', async function () {
-            await expectRevert(
-              this.tlctrl.executeBatch(
-                this.operation.targets,
-                [],
-                this.operation.datas,
-                this.operation.salt,
-                { from: executer }
-              ),
-              'TimelockController: length missmatch'
-            );
-          });
+              expect(await this.tlctrl.viewTimestamp(this.operation.id)).to.be.bignumber.equal(web3.utils.toBN(0));
+            });
 
-          it('length missmatch #3', async function () {
-            await expectRevert(
-              this.tlctrl.executeBatch(
-                this.operation.targets,
-                this.operation.values,
-                [],
-                this.operation.salt,
-                { from: executer }
-              ),
-              'TimelockController: length missmatch'
-            );
+            it('prevent non-executer from revealing', async function () {
+              await expectRevert(
+                this.tlctrl.executeBatch(
+                  this.operation.targets,
+                  this.operation.values,
+                  this.operation.datas,
+                  this.operation.salt,
+                  { from: other }
+                ),
+                'TimelockController: sender requiers permission'
+              );
+            });
+
+            it('length missmatch #1', async function () {
+              await expectRevert(
+                this.tlctrl.executeBatch(
+                  [],
+                  this.operation.values,
+                  this.operation.datas,
+                  this.operation.salt,
+                  { from: executer }
+                ),
+                'TimelockController: length missmatch'
+              );
+            });
+
+            it('length missmatch #2', async function () {
+              await expectRevert(
+                this.tlctrl.executeBatch(
+                  this.operation.targets,
+                  [],
+                  this.operation.datas,
+                  this.operation.salt,
+                  { from: executer }
+                ),
+                'TimelockController: length missmatch'
+              );
+            });
+
+            it('length missmatch #3', async function () {
+              await expectRevert(
+                this.tlctrl.executeBatch(
+                  this.operation.targets,
+                  this.operation.values,
+                  [],
+                  this.operation.salt,
+                  { from: executer }
+                ),
+                'TimelockController: length missmatch'
+              );
+            });
           });
         });
-      });
 
-      it('partial execution', async function () {
-        const operation = genOperationBatch(
-          [
-            this.callreceivermock.address,
-            this.callreceivermock.address,
-            this.callreceivermock.address,
-          ],
-          [
-            0,
-            0,
-            0,
-          ],
-          [
-            this.callreceivermock.contract.methods.mockFunction().encodeABI(),
-            this.callreceivermock.contract.methods.mockFunctionThrows().encodeABI(),
-            this.callreceivermock.contract.methods.mockFunction().encodeABI(),
-          ],
-          web3.utils.randomHex(32),
-        );
+        it('partial execution', async function () {
+          const operation = genOperationBatch(
+            [
+              this.callreceivermock.address,
+              this.callreceivermock.address,
+              this.callreceivermock.address,
+            ],
+            [
+              0,
+              0,
+              0,
+            ],
+            [
+              this.callreceivermock.contract.methods.mockFunction().encodeABI(),
+              this.callreceivermock.contract.methods.mockFunctionThrows().encodeABI(),
+              this.callreceivermock.contract.methods.mockFunction().encodeABI(),
+            ],
+            web3.utils.randomHex(32),
+          );
 
-        await this.tlctrl.schedule(operation.id, MINDELAY, { from: proposer });
-        await time.increase(MINDELAY);
-        await expectRevert(
-          this.tlctrl.executeBatch(
+          await this.tlctrl.scheduleBatch(
             operation.targets,
             operation.values,
             operation.datas,
             operation.salt,
-            { from: executer }
-          ),
-          'TimelockController: underlying transaction reverted'
-        );
+            MINDELAY,
+            { from: proposer }
+          );
+          await time.increase(MINDELAY);
+          await expectRevert(
+            this.tlctrl.executeBatch(
+              operation.targets,
+              operation.values,
+              operation.datas,
+              operation.salt,
+              { from: executer }
+            ),
+            'TimelockController: underlying transaction reverted'
+          );
+        });
       });
     });
 
@@ -438,7 +624,14 @@ describe('TimelockController', function () {
           web3.utils.randomHex(4),
           web3.utils.randomHex(32),
         );
-        ({ logs: this.logs } = await this.tlctrl.schedule(this.operation.id, MINDELAY, { from: proposer }));
+        ({ logs: this.logs } = await this.tlctrl.schedule(
+          this.operation.target,
+          this.operation.value,
+          this.operation.data,
+          this.operation.salt,
+          MINDELAY,
+          { from: proposer }
+        ));
       });
 
       it('proposer can cancel', async function () {
@@ -479,7 +672,14 @@ describe('TimelockController', function () {
         web3.utils.randomHex(32),
       );
 
-      await this.tlctrl.schedule(operation.id, MINDELAY, { from: proposer });
+      await this.tlctrl.schedule(
+        operation.target,
+        operation.value,
+        operation.data,
+        operation.salt,
+        MINDELAY,
+        { from: proposer }
+      );
       await time.increase(MINDELAY);
       const receipt = await this.tlctrl.execute(
         operation.target,
@@ -489,7 +689,7 @@ describe('TimelockController', function () {
         { from: executer }
       );
       expectEvent(receipt, 'Executed', { id: operation.id });
-      expectEvent(receipt, 'Call', { id: operation.id });
+      expectEvent(receipt, 'CallExecuted', { id: operation.id });
       expectEvent(receipt, 'MinDelayChange', { newDuration: web3.utils.toBN(randomBN), oldDuration: MINDELAY });
 
       expect(await this.tlctrl.viewMinDelay()).to.be.bignumber.equal(web3.utils.toBN(randomBN));
@@ -506,7 +706,14 @@ describe('TimelockController', function () {
         web3.utils.randomHex(32),
       );
 
-      await this.tlctrl.schedule(operation.id, MINDELAY, { from: proposer });
+      await this.tlctrl.schedule(
+        operation.target,
+        operation.value,
+        operation.data,
+        operation.salt,
+        MINDELAY,
+        { from: proposer }
+      );
       await time.increase(MINDELAY);
       const receipt = await this.tlctrl.execute(
         operation.target,
@@ -516,7 +723,7 @@ describe('TimelockController', function () {
         { from: executer }
       );
       expectEvent(receipt, 'Executed', { id: operation.id });
-      expectEvent(receipt, 'Call', { id: operation.id });
+      expectEvent(receipt, 'CallExecuted', { id: operation.id });
 
       expect(await this.implementation2.getValue()).to.be.bignumber.equal(web3.utils.toBN(randomBN));
     });
@@ -529,7 +736,14 @@ describe('TimelockController', function () {
         web3.utils.randomHex(32),
       );
 
-      await this.tlctrl.schedule(operation.id, MINDELAY, { from: proposer });
+      await this.tlctrl.schedule(
+        operation.target,
+        operation.value,
+        operation.data,
+        operation.salt,
+        MINDELAY,
+        { from: proposer }
+      );
       await time.increase(MINDELAY);
       await expectRevert(
         this.tlctrl.execute(
@@ -551,7 +765,14 @@ describe('TimelockController', function () {
         web3.utils.randomHex(32),
       );
 
-      await this.tlctrl.schedule(operation.id, MINDELAY, { from: proposer });
+      await this.tlctrl.schedule(
+        operation.target,
+        operation.value,
+        operation.data,
+        operation.salt,
+        MINDELAY,
+        { from: proposer }
+      );
       await time.increase(MINDELAY);
       await expectRevert(
         this.tlctrl.execute(
@@ -573,7 +794,14 @@ describe('TimelockController', function () {
         web3.utils.randomHex(32),
       );
 
-      await this.tlctrl.schedule(operation.id, MINDELAY, { from: proposer });
+      await this.tlctrl.schedule(
+        operation.target,
+        operation.value,
+        operation.data,
+        operation.salt,
+        MINDELAY,
+        { from: proposer }
+      );
       await time.increase(MINDELAY);
       await expectRevert(
         this.tlctrl.execute(
@@ -595,7 +823,14 @@ describe('TimelockController', function () {
         web3.utils.randomHex(32),
       );
 
-      await this.tlctrl.schedule(operation.id, MINDELAY, { from: proposer });
+      await this.tlctrl.schedule(
+        operation.target,
+        operation.value,
+        operation.data,
+        operation.salt,
+        MINDELAY,
+        { from: proposer }
+      );
       await time.increase(MINDELAY);
 
       expect(await web3.eth.getBalance(this.tlctrl.address)).to.be.bignumber.equal(web3.utils.toBN(0));
@@ -609,7 +844,7 @@ describe('TimelockController', function () {
         { from: executer, value: 1 }
       );
       expectEvent(receipt, 'Executed', { id: operation.id });
-      expectEvent(receipt, 'Call', { id: operation.id });
+      expectEvent(receipt, 'CallExecuted', { id: operation.id });
 
       expect(await web3.eth.getBalance(this.tlctrl.address)).to.be.bignumber.equal(web3.utils.toBN(0));
       expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(web3.utils.toBN(1));
@@ -623,7 +858,14 @@ describe('TimelockController', function () {
         web3.utils.randomHex(32),
       );
 
-      await this.tlctrl.schedule(operation.id, MINDELAY, { from: proposer });
+      await this.tlctrl.schedule(
+        operation.target,
+        operation.value,
+        operation.data,
+        operation.salt,
+        MINDELAY,
+        { from: proposer }
+      );
       await time.increase(MINDELAY);
 
       expect(await web3.eth.getBalance(this.tlctrl.address)).to.be.bignumber.equal(web3.utils.toBN(0));
@@ -652,7 +894,14 @@ describe('TimelockController', function () {
         web3.utils.randomHex(32),
       );
 
-      await this.tlctrl.schedule(operation.id, MINDELAY, { from: proposer });
+      await this.tlctrl.schedule(
+        operation.target,
+        operation.value,
+        operation.data,
+        operation.salt,
+        MINDELAY,
+        { from: proposer }
+      );
       await time.increase(MINDELAY);
 
       expect(await web3.eth.getBalance(this.tlctrl.address)).to.be.bignumber.equal(web3.utils.toBN(0));
