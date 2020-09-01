@@ -40,7 +40,7 @@ contract TimelockController is Timelock, AccessControl {
      * Granting a role to Address(0) is thus equivalent to enabling this role for everyone.
      */
     modifier onlyRole(bytes32 role) {
-        require(hasRole(role, _msgSender()) || hasRole(role, address(0)), "Timelock: sender requiers permission");
+        require(hasRole(role, _msgSender()) || hasRole(role, address(0)), "TimelockController: sender requiers permission");
         _;
     }
 
@@ -59,8 +59,6 @@ contract TimelockController is Timelock, AccessControl {
     /**
      * @dev Schedule an operation.
      *
-     * Emits a {Commit} event.
-     *
      * Requirements:
      *
      * - the caller must have the 'proposer' role.
@@ -73,8 +71,6 @@ contract TimelockController is Timelock, AccessControl {
     /**
     * @dev Cancel an operation.
      *
-     * Emits a {Cancel} event.
-     *
      * Requirements:
      *
      * - the caller must have the 'proposer' role.
@@ -86,7 +82,7 @@ contract TimelockController is Timelock, AccessControl {
     /**
      * @dev Execute an (ready) operation containing a single transaction.
      *
-     * Emits a {Reveal} and a {Executed} event.
+     * Emits a {Call} event.
      *
      * Requirements:
      *
@@ -101,16 +97,15 @@ contract TimelockController is Timelock, AccessControl {
     /**
      * @dev Execute an (ready) operation containing a batch of transactions.
      *
-     * Emits a {Reveal} event and one {Executed} event per operation in the
-     * batch.
+     * Emits one {Call} event per entry in the batch.
      *
      * Requirements:
      *
      * - the caller must have the 'executer' role.
      */
     function executeBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 salt) external payable onlyRole(EXECUTER_ROLE) {
-        require(targets.length == values.length, "Timelock: length missmatch");
-        require(targets.length == datas.length, "Timelock: length missmatch");
+        require(targets.length == values.length, "TimelockController: length missmatch");
+        require(targets.length == datas.length, "TimelockController: length missmatch");
 
         bytes32 id = keccak256(abi.encode(targets, values, datas, salt));
         _execute(id);
@@ -122,12 +117,12 @@ contract TimelockController is Timelock, AccessControl {
     /**
      * @dev Execute a transaction.
      *
-     * Emits a {Executed} event.
+     * Emits a {Call} event.
      */
     function _call(bytes32 id, uint256 index, address target, uint256 value, bytes calldata data) internal returns (bool) {
         // solhint-disable-next-line avoid-low-level-calls
         (bool success,) = target.call{value: value}(data);
-        require(success, "Timelock: underlying transaction reverted");
+        require(success, "TimelockController: underlying transaction reverted");
 
         emit Call(id, index, target, value, data);
     }
@@ -135,8 +130,6 @@ contract TimelockController is Timelock, AccessControl {
 
     /**
      * @dev Changes the timelock duration for future operations.
-     *
-     * Emits a {MinDelayChange} event.
      */
     function updateDelay(uint256 newDelay) external onlyRole(DEFAULT_ADMIN_ROLE) {
         _updateDelay(newDelay);
@@ -156,9 +149,9 @@ contract TimelockController is Timelock, AccessControl {
       *   role 'executer'.
      */
     function makeLive() external /* onlyRole(DEFAULT_ADMIN_ROLE) */ {
-        require(getRoleMemberCount(DEFAULT_ADMIN_ROLE) == 1, "Timelock: there should not be any other administrator");
-        require(getRoleMemberCount(PROPOSER_ROLE) > 0, "Timelock: at least one proposer is requied to make the contract live");
-        require(getRoleMemberCount(EXECUTER_ROLE) > 0, "Timelock: at least one executer is requied to make the contract live");
+        require(getRoleMemberCount(DEFAULT_ADMIN_ROLE) == 1, "TimelockController: there should not be any other administrator");
+        require(getRoleMemberCount(PROPOSER_ROLE) > 0, "TimelockController: at least one proposer is requied to make the contract live");
+        require(getRoleMemberCount(EXECUTER_ROLE) > 0, "TimelockController: at least one executer is requied to make the contract live");
         grantRole(DEFAULT_ADMIN_ROLE, address(this));
         revokeRole(DEFAULT_ADMIN_ROLE, _msgSender());
     }

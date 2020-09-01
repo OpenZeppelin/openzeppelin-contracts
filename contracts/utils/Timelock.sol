@@ -6,30 +6,30 @@ pragma solidity ^0.6.0;
  * @dev Contract module provide tolling for building timelocked operation.
  *
  * This module is used through inheritance. It will make available the methods
- * `_schedule`, `_execute` and `_cancel`, which can be used to control the
- * lifecycle of timelocked operations identified using bytes32.
+ * {_schedule}, {_execute} and {_cancel}, which can be used to control the
+ * lifecycle of timelocked operations identified using `bytes32`.
  */
 abstract contract Timelock {
     mapping(bytes32 => uint256) private _timestamps;
     uint256 private _minDelay;
 
     /**
-     * @dev Emitted when entity `id` is submitted.
+     * @dev Emitted when operation `id` is submitted.
      */
     event Scheduled(bytes32 indexed id);
 
     /**
-    * @dev Emitted when entity `id` is revealed.
+    * @dev Emitted when operation `id` is revealed.
     */
     event Executed(bytes32 indexed id);
 
     /**
-    * @dev Emitted when entity `id` is canceled.
+    * @dev Emitted when operation `id` is canceled.
     */
     event Cancel(bytes32 indexed id);
 
     /**
-    * @dev Emitted when the minimum deplay for future operations is modified.
+    * @dev Emitted when the minimum delay for future operations is modified.
     */
     event MinDelayChange(uint256 newDuration, uint256 oldDuration);
 
@@ -41,7 +41,7 @@ abstract contract Timelock {
     }
 
     /**
-     * @dev Returns weither an entity is ready or not.
+     * @dev Returns weither an operation is ready or not.
      */
     function isOperationReady(bytes32 id) public view returns (bool ready) {
         // solhint-disable-next-line not-rely-on-time
@@ -49,22 +49,22 @@ abstract contract Timelock {
     }
 
     /**
-     * @dev Returns the timestamp at with an entity becomes valid (0 for
-     * unscheduled entity).
+     * @dev Returns the timestamp at with an operation becomes valid (0 for
+     * unscheduled operation).
      */
     function viewTimestamp(bytes32 id) public view returns (uint256 timestamp) {
         return _timestamps[id];
     }
 
     /**
-     * @dev Returns the minimum delay for a entity to become valid.
+     * @dev Returns the minimum delay for a operation to become valid.
      */
     function viewMinDelay() public view returns (uint256 duration) {
         return _minDelay;
     }
 
     /**
-     * @dev Schedule an entity that is to becomes valid after a given delay.
+     * @dev Schedule an operation that is to becomes valid after a given delay.
      *
      * Emits a {Scheduled} event.
      */
@@ -78,7 +78,7 @@ abstract contract Timelock {
     }
 
     /**
-     * @dev Execute a ready entity.
+     * @dev Execute an operation. Operation must be ready.
      *
      * Emits a {Executed} event.
      */
@@ -91,7 +91,7 @@ abstract contract Timelock {
     }
 
     /**
-    * @dev Cancel a entity.
+    * @dev Cancel an operation.
      *
      * Emits a {Cancel} event.
     */

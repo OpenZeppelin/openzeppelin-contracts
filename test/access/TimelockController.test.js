@@ -98,7 +98,7 @@ describe('TimelockController', function () {
       it('prevent non-proposer from commiting', async function () {
         await expectRevert(
           this.tlctrl.schedule(this.operation.id, MINDELAY, { from: other }),
-          'Timelock: sender requiers permission'
+          'TimelockController: sender requiers permission'
         );
       });
     });
@@ -221,7 +221,7 @@ describe('TimelockController', function () {
                 this.operation.salt,
                 { from: other }
               ),
-              'Timelock: sender requiers permission'
+              'TimelockController: sender requiers permission'
             );
           });
         });
@@ -350,7 +350,7 @@ describe('TimelockController', function () {
                 this.operation.salt,
                 { from: other }
               ),
-              'Timelock: sender requiers permission'
+              'TimelockController: sender requiers permission'
             );
           });
 
@@ -363,7 +363,7 @@ describe('TimelockController', function () {
                 this.operation.salt,
                 { from: executer }
               ),
-              'Timelock: length missmatch'
+              'TimelockController: length missmatch'
             );
           });
 
@@ -376,7 +376,7 @@ describe('TimelockController', function () {
                 this.operation.salt,
                 { from: executer }
               ),
-              'Timelock: length missmatch'
+              'TimelockController: length missmatch'
             );
           });
 
@@ -389,7 +389,7 @@ describe('TimelockController', function () {
                 this.operation.salt,
                 { from: executer }
               ),
-              'Timelock: length missmatch'
+              'TimelockController: length missmatch'
             );
           });
         });
@@ -425,7 +425,7 @@ describe('TimelockController', function () {
             operation.salt,
             { from: executer }
           ),
-          'Timelock: underlying transaction reverted'
+          'TimelockController: underlying transaction reverted'
         );
       });
     });
@@ -456,7 +456,7 @@ describe('TimelockController', function () {
       it('prevent non-proposer from canceling', async function () {
         await expectRevert(
           this.tlctrl.cancel(this.operation.id, { from: other }),
-          'Timelock: sender requiers permission'
+          'TimelockController: sender requiers permission'
         );
       });
     });
@@ -466,7 +466,7 @@ describe('TimelockController', function () {
     it('prevent unauthorized maintenance', async function () {
       await expectRevert(
         this.tlctrl.updateDelay(0, { from: other }),
-        'Timelock: sender requiers permission'
+        'TimelockController: sender requiers permission'
       );
     });
 
@@ -539,7 +539,7 @@ describe('TimelockController', function () {
           operation.salt,
           { from: executer }
         ),
-        'Timelock: underlying transaction reverted'
+        'TimelockController: underlying transaction reverted'
       );
     });
 
@@ -561,7 +561,7 @@ describe('TimelockController', function () {
           operation.salt,
           { from: executer }
         ),
-        'Timelock: underlying transaction reverted'
+        'TimelockController: underlying transaction reverted'
       );
     });
 
@@ -583,7 +583,7 @@ describe('TimelockController', function () {
           operation.salt,
           { from: executer }
         ),
-        'Timelock: underlying transaction reverted'
+        'TimelockController: underlying transaction reverted'
       );
     });
 
@@ -637,7 +637,7 @@ describe('TimelockController', function () {
           operation.salt,
           { from: executer }
         ),
-        'Timelock: underlying transaction reverted'
+        'TimelockController: underlying transaction reverted'
       );
 
       expect(await web3.eth.getBalance(this.tlctrl.address)).to.be.bignumber.equal(web3.utils.toBN(0));
@@ -666,7 +666,7 @@ describe('TimelockController', function () {
           operation.salt,
           { from: executer }
         ),
-        'Timelock: underlying transaction reverted'
+        'TimelockController: underlying transaction reverted'
       );
 
       expect(await web3.eth.getBalance(this.tlctrl.address)).to.be.bignumber.equal(web3.utils.toBN(0));
