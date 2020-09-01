@@ -9,7 +9,7 @@ pragma solidity ^0.6.0;
 library SignedSafeMath {
     int256 constant private _INT256_MIN = -2**255;
 
-        /**
+    /**
      * @dev Returns the multiplication of two signed integers, reverting on
      * overflow.
      *
