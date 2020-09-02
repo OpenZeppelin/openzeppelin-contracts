@@ -15,7 +15,7 @@ pragma solidity >=0.4.24 <0.7.0;
  * CAUTION: When used with inheritance, manual care must be taken to not invoke a parent initializer twice, or to ensure
  * that all initializers are idempotent. This is not verified automatically as constructors are by Solidity.
  */
-abstract contract Initializable {
+contract Initializable {
 
     /**
      * @dev Indicates that the contract has been initialized.
