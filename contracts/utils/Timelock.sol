@@ -11,6 +11,7 @@ pragma solidity ^0.6.0;
  */
 abstract contract Timelock {
     mapping(bytes32 => uint256) private _timestamps;
+    mapping(bytes32 => bool) private _done;
     uint256 private _minDelay;
 
     /**
@@ -19,18 +20,18 @@ abstract contract Timelock {
     event Scheduled(bytes32 indexed id);
 
     /**
-    * @dev Emitted when operation `id` is revealed.
-    */
+     * @dev Emitted when operation `id` is revealed.
+     */
     event Executed(bytes32 indexed id);
 
     /**
-    * @dev Emitted when operation `id` is canceled.
-    */
+     * @dev Emitted when operation `id` is canceled.
+     */
     event Cancel(bytes32 indexed id);
 
     /**
-    * @dev Emitted when the minimum delay for future operations is modified.
-    */
+     * @dev Emitted when the minimum delay for future operations is modified.
+     */
     event MinDelayChange(uint256 newDuration, uint256 oldDuration);
 
     /**
@@ -57,6 +58,13 @@ abstract contract Timelock {
     }
 
     /**
+     * @dev Returns the completion status of an operation.
+     */
+    function viewDone(bytes32 id) public view returns (bool done) {
+        return _done[id];
+    }
+
+    /**
      * @dev Returns the minimum delay for a operation to become valid.
      */
     function viewMinDelay() public view returns (uint256 duration) {
@@ -71,6 +79,7 @@ abstract contract Timelock {
     function _schedule(bytes32 id, uint256 delay) internal {
         require(_timestamps[id] == 0, "Timelock: operation already scheduled");
         require(delay >= _minDelay, "Timelock: insufficient delay");
+        require(!_done[id], "Timelock: operation already executed");
         // solhint-disable-next-line not-rely-on-time
         _timestamps[id] = block.timestamp + delay;
 
@@ -82,19 +91,21 @@ abstract contract Timelock {
      *
      * Emits a {Executed} event.
      */
-    function _execute(bytes32 id) internal {
+    function _execute(bytes32 id, bytes32 predecessor) internal {
         require(_timestamps[id] != 0, "Timelock: no matching operation");
         require(isOperationReady(id), "Timelock: too early to execute");
+        require(predecessor == bytes32(0) || viewDone(predecessor), "Timelock: missing dependency");
         delete _timestamps[id];
+        _done[id] = true;
 
         emit Executed(id);
     }
 
     /**
-    * @dev Cancel an operation.
+     * @dev Cancel an operation.
      *
      * Emits a {Cancel} event.
-    */
+     */
     function _cancel(bytes32 id) internal {
         delete _timestamps[id];
 
@@ -116,3 +127,4 @@ abstract contract Timelock {
 // 28/08: 5h
 // 30/08: 1h
 //  1/09: 2h
+//  2/09: 1h

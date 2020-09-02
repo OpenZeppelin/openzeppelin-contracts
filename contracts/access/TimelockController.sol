@@ -70,8 +70,8 @@ contract TimelockController is Timelock, AccessControl {
      *
      * - the caller must have the 'proposer' role.
      */
-    function schedule(address target, uint256 value, bytes calldata data, bytes32 salt, uint256 delay) external payable onlyRole(PROPOSER_ROLE) {
-        bytes32 id = keccak256(abi.encode(target, value, data, salt));
+    function schedule(address target, uint256 value, bytes calldata data, bytes32 predecessor, bytes32 salt, uint256 delay) external payable onlyRole(PROPOSER_ROLE) {
+        bytes32 id = keccak256(abi.encode(target, value, data, predecessor, salt));
         _schedule(id, delay);
         emit CallScheduled(id, 0, target, value, data);
     }
@@ -86,11 +86,11 @@ contract TimelockController is Timelock, AccessControl {
      *
      * - the caller must have the 'proposer' role.
      */
-    function scheduleBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 salt, uint256 delay) external payable onlyRole(PROPOSER_ROLE) {
+    function scheduleBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 predecessor, bytes32 salt, uint256 delay) external payable onlyRole(PROPOSER_ROLE) {
         require(targets.length == values.length, "TimelockController: length missmatch");
         require(targets.length == datas.length, "TimelockController: length missmatch");
 
-        bytes32 id = keccak256(abi.encode(targets, values, datas, salt));
+        bytes32 id = keccak256(abi.encode(targets, values, datas, predecessor, salt));
         _schedule(id, delay);
         for (uint256 i = 0; i < targets.length; ++i) {
             emit CallScheduled(id, i, targets[i], values[i], datas[i]);
@@ -103,7 +103,7 @@ contract TimelockController is Timelock, AccessControl {
      * Requirements:
      *
      * - the caller must have the 'proposer' role.
-    */
+     */
     function cancel(bytes32 id) external onlyRole(PROPOSER_ROLE) {
         _cancel(id);
     }
@@ -117,9 +117,9 @@ contract TimelockController is Timelock, AccessControl {
      *
      * - the caller must have the 'executer' role.
      */
-    function execute(address target, uint256 value, bytes calldata data, bytes32 salt) external payable onlyRole(EXECUTER_ROLE) {
-        bytes32 id = keccak256(abi.encode(target, value, data, salt));
-        _execute(id);
+    function execute(address target, uint256 value, bytes calldata data, bytes32 predecessor, bytes32 salt) external payable onlyRole(EXECUTER_ROLE) {
+        bytes32 id = keccak256(abi.encode(target, value, data, predecessor, salt));
+        _execute(id, predecessor);
         _call(id, 0, target, value, data);
     }
 
@@ -133,12 +133,12 @@ contract TimelockController is Timelock, AccessControl {
      *
      * - the caller must have the 'executer' role.
      */
-    function executeBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 salt) external payable onlyRole(EXECUTER_ROLE) {
+    function executeBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 predecessor, bytes32 salt) external payable onlyRole(EXECUTER_ROLE) {
         require(targets.length == values.length, "TimelockController: length missmatch");
         require(targets.length == datas.length, "TimelockController: length missmatch");
 
-        bytes32 id = keccak256(abi.encode(targets, values, datas, salt));
-        _execute(id);
+        bytes32 id = keccak256(abi.encode(targets, values, datas, predecessor, salt));
+        _execute(id, predecessor);
         for (uint256 i = 0; i < targets.length; ++i) {
             _call(id, i, targets[i], values[i], datas[i]);
         }
@@ -171,14 +171,14 @@ contract TimelockController is Timelock, AccessControl {
      * @dev Revocake the sender's administrative power, and give this role to
      * the timelock itself. All further maintenance will have to be performed
      * by the timelock itself using the commit/reveal workflow.
-      *
-      * Emits one {RoleGranted} and one {RoleRevoked} event.
-      *
-      * Requirements:
-      *
-      * - the caller must be the only address with 'administration' role.
-      * - there must be at least one account with role 'proposer' and one with
-      *   role 'executer'.
+     *
+     * Emits one {RoleGranted} and one {RoleRevoked} event.
+     *
+     * Requirements:
+     *
+     * - the caller must be the only address with 'administration' role.
+     * - there must be at least one account with role 'proposer' and one with
+     *   role 'executer'.
      */
     function makeLive() external /* onlyRole(DEFAULT_ADMIN_ROLE) */ {
         require(getRoleMemberCount(DEFAULT_ADMIN_ROLE) == 1, "TimelockController: there should not be any other administrator");

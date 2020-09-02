@@ -1,6 +1,6 @@
 const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
 const { constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
-const { ZERO_ADDRESS } = constants;
+const { ZERO_ADDRESS, ZERO_BYTES32 } = constants;
 
 const { expect } = require('chai');
 
@@ -9,34 +9,38 @@ const CallReceiverMock = contract.fromArtifact('CallReceiverMock');
 const Implementation2 = contract.fromArtifact('Implementation2');
 const MINDELAY = time.duration.days(1);
 
-function genOperation (target, value, data, salt) {
+function genOperation (target, value, data, predecessor, salt) {
   const id = web3.utils.keccak256(web3.eth.abi.encodeParameters([
     'address',
     'uint256',
     'bytes',
+    'uint256',
     'bytes32',
   ], [
     target,
     value,
     data,
+    predecessor,
     salt,
   ]));
-  return { id, target, value, data, salt };
+  return { id, target, value, data, predecessor, salt };
 }
 
-function genOperationBatch (targets, values, datas, salt) {
+function genOperationBatch (targets, values, datas, predecessor, salt) {
   const id = web3.utils.keccak256(web3.eth.abi.encodeParameters([
     'address[]',
     'uint256[]',
     'bytes[]',
+    'uint256',
     'bytes32',
   ], [
     targets,
     values,
     datas,
+    predecessor,
     salt,
   ]));
-  return { id, targets, values, datas, salt };
+  return { id, targets, values, datas, predecessor, salt };
 }
 
 describe('TimelockController', function () {
@@ -67,6 +71,7 @@ describe('TimelockController', function () {
             ZERO_ADDRESS,
             0,
             web3.utils.randomHex(4),
+            ZERO_BYTES32,
             web3.utils.randomHex(32),
           );
         });
@@ -76,6 +81,7 @@ describe('TimelockController', function () {
             this.operation.target,
             this.operation.value,
             this.operation.data,
+            this.operation.predecessor,
             this.operation.salt,
             MINDELAY,
             { from: proposer }
@@ -95,6 +101,7 @@ describe('TimelockController', function () {
             this.operation.target,
             this.operation.value,
             this.operation.data,
+            this.operation.predecessor,
             this.operation.salt,
             MINDELAY,
             { from: proposer }
@@ -119,6 +126,7 @@ describe('TimelockController', function () {
             this.operation.target,
             this.operation.value,
             this.operation.data,
+            this.operation.predecessor,
             this.operation.salt,
             MINDELAY,
             { from: proposer }
@@ -137,6 +145,7 @@ describe('TimelockController', function () {
               this.operation.target,
               this.operation.value,
               this.operation.data,
+              this.operation.predecessor,
               this.operation.salt,
               MINDELAY,
               { from: proposer }
@@ -151,6 +160,7 @@ describe('TimelockController', function () {
               this.operation.target,
               this.operation.value,
               this.operation.data,
+              this.operation.predecessor,
               this.operation.salt,
               MINDELAY,
               { from: other }
@@ -166,6 +176,7 @@ describe('TimelockController', function () {
             ZERO_ADDRESS,
             0,
             web3.utils.randomHex(4),
+            ZERO_BYTES32,
             web3.utils.randomHex(32),
           );
         });
@@ -177,6 +188,7 @@ describe('TimelockController', function () {
                 this.operation.target,
                 this.operation.value,
                 this.operation.data,
+                this.operation.predecessor,
                 this.operation.salt,
                 { from: executer }
               ),
@@ -191,6 +203,7 @@ describe('TimelockController', function () {
               this.operation.target,
               this.operation.value,
               this.operation.data,
+              this.operation.predecessor,
               this.operation.salt,
               MINDELAY,
               { from: proposer }
@@ -204,6 +217,7 @@ describe('TimelockController', function () {
                   this.operation.target,
                   this.operation.value,
                   this.operation.data,
+                  this.operation.predecessor,
                   this.operation.salt,
                   { from: executer }
                 ),
@@ -224,6 +238,7 @@ describe('TimelockController', function () {
                   this.operation.target,
                   this.operation.value,
                   this.operation.data,
+                  this.operation.predecessor,
                   this.operation.salt,
                   { from: executer }
                 ),
@@ -243,6 +258,7 @@ describe('TimelockController', function () {
                 this.operation.target,
                 this.operation.value,
                 this.operation.data,
+                this.operation.predecessor,
                 this.operation.salt,
                 { from: executer }
               );
@@ -261,6 +277,7 @@ describe('TimelockController', function () {
                 this.operation.target,
                 this.operation.value,
                 this.operation.data,
+                this.operation.predecessor,
                 this.operation.salt,
                 { from: executer }
               );
@@ -282,6 +299,7 @@ describe('TimelockController', function () {
                   this.operation.target,
                   this.operation.value,
                   this.operation.data,
+                  this.operation.predecessor,
                   this.operation.salt,
                   { from: other }
                 ),
@@ -300,6 +318,7 @@ describe('TimelockController', function () {
             Array(8).fill().map(() => ZERO_ADDRESS),
             Array(8).fill().map(() => 0),
             Array(8).fill().map(() => web3.utils.randomHex(4)),
+            ZERO_BYTES32,
             web3.utils.randomHex(32),
           );
         });
@@ -309,6 +328,7 @@ describe('TimelockController', function () {
             this.operation.targets,
             this.operation.values,
             this.operation.datas,
+            this.operation.predecessor,
             this.operation.salt,
             MINDELAY,
             { from: proposer }
@@ -330,6 +350,7 @@ describe('TimelockController', function () {
             this.operation.targets,
             this.operation.values,
             this.operation.datas,
+            this.operation.predecessor,
             this.operation.salt,
             MINDELAY,
             { from: proposer }
@@ -356,6 +377,7 @@ describe('TimelockController', function () {
             this.operation.targets,
             this.operation.values,
             this.operation.datas,
+            this.operation.predecessor,
             this.operation.salt,
             MINDELAY,
             { from: proposer }
@@ -376,6 +398,7 @@ describe('TimelockController', function () {
               this.operation.targets,
               this.operation.values,
               this.operation.datas,
+              this.operation.predecessor,
               this.operation.salt,
               MINDELAY,
               { from: proposer }
@@ -390,6 +413,7 @@ describe('TimelockController', function () {
               this.operation.targets,
               this.operation.values,
               this.operation.datas,
+              this.operation.predecessor,
               this.operation.salt,
               MINDELAY,
               { from: other }
@@ -405,6 +429,7 @@ describe('TimelockController', function () {
             Array(8).fill().map(() => ZERO_ADDRESS),
             Array(8).fill().map(() => 0),
             Array(8).fill().map(() => web3.utils.randomHex(4)),
+            ZERO_BYTES32,
             web3.utils.randomHex(32),
           );
         });
@@ -416,6 +441,7 @@ describe('TimelockController', function () {
                 this.operation.targets,
                 this.operation.values,
                 this.operation.datas,
+                this.operation.predecessor,
                 this.operation.salt,
                 { from: executer }
               ),
@@ -430,6 +456,7 @@ describe('TimelockController', function () {
               this.operation.targets,
               this.operation.values,
               this.operation.datas,
+              this.operation.predecessor,
               this.operation.salt,
               MINDELAY,
               { from: proposer }
@@ -443,6 +470,7 @@ describe('TimelockController', function () {
                   this.operation.targets,
                   this.operation.values,
                   this.operation.datas,
+                  this.operation.predecessor,
                   this.operation.salt,
                   { from: executer }
                 ),
@@ -463,6 +491,7 @@ describe('TimelockController', function () {
                   this.operation.targets,
                   this.operation.values,
                   this.operation.datas,
+                  this.operation.predecessor,
                   this.operation.salt,
                   { from: executer }
                 ),
@@ -482,6 +511,7 @@ describe('TimelockController', function () {
                 this.operation.targets,
                 this.operation.values,
                 this.operation.datas,
+                this.operation.predecessor,
                 this.operation.salt,
                 { from: executer }
               );
@@ -502,6 +532,7 @@ describe('TimelockController', function () {
                 this.operation.targets,
                 this.operation.values,
                 this.operation.datas,
+                this.operation.predecessor,
                 this.operation.salt,
                 { from: executer }
               );
@@ -525,6 +556,7 @@ describe('TimelockController', function () {
                   this.operation.targets,
                   this.operation.values,
                   this.operation.datas,
+                  this.operation.predecessor,
                   this.operation.salt,
                   { from: other }
                 ),
@@ -538,6 +570,7 @@ describe('TimelockController', function () {
                   [],
                   this.operation.values,
                   this.operation.datas,
+                  this.operation.predecessor,
                   this.operation.salt,
                   { from: executer }
                 ),
@@ -551,6 +584,7 @@ describe('TimelockController', function () {
                   this.operation.targets,
                   [],
                   this.operation.datas,
+                  this.operation.predecessor,
                   this.operation.salt,
                   { from: executer }
                 ),
@@ -564,6 +598,7 @@ describe('TimelockController', function () {
                   this.operation.targets,
                   this.operation.values,
                   [],
+                  this.operation.predecessor,
                   this.operation.salt,
                   { from: executer }
                 ),
@@ -590,6 +625,7 @@ describe('TimelockController', function () {
               this.callreceivermock.contract.methods.mockFunctionThrows().encodeABI(),
               this.callreceivermock.contract.methods.mockFunction().encodeABI(),
             ],
+            ZERO_BYTES32,
             web3.utils.randomHex(32),
           );
 
@@ -597,6 +633,7 @@ describe('TimelockController', function () {
             operation.targets,
             operation.values,
             operation.datas,
+            operation.predecessor,
             operation.salt,
             MINDELAY,
             { from: proposer }
@@ -607,6 +644,7 @@ describe('TimelockController', function () {
               operation.targets,
               operation.values,
               operation.datas,
+              operation.predecessor,
               operation.salt,
               { from: executer }
             ),
@@ -622,12 +660,14 @@ describe('TimelockController', function () {
           ZERO_ADDRESS,
           0,
           web3.utils.randomHex(4),
+          ZERO_BYTES32,
           web3.utils.randomHex(32),
         );
         ({ logs: this.logs } = await this.tlctrl.schedule(
           this.operation.target,
           this.operation.value,
           this.operation.data,
+          this.operation.predecessor,
           this.operation.salt,
           MINDELAY,
           { from: proposer }
@@ -669,6 +709,7 @@ describe('TimelockController', function () {
         this.tlctrl.address,
         0,
         this.tlctrl.contract.methods.updateDelay(randomBN).encodeABI(),
+        ZERO_BYTES32,
         web3.utils.randomHex(32),
       );
 
@@ -676,6 +717,7 @@ describe('TimelockController', function () {
         operation.target,
         operation.value,
         operation.data,
+        operation.predecessor,
         operation.salt,
         MINDELAY,
         { from: proposer }
@@ -685,6 +727,7 @@ describe('TimelockController', function () {
         operation.target,
         operation.value,
         operation.data,
+        operation.predecessor,
         operation.salt,
         { from: executer }
       );
@@ -703,6 +746,7 @@ describe('TimelockController', function () {
         this.implementation2.address,
         0,
         this.implementation2.contract.methods.setValue(randomBN).encodeABI(),
+        ZERO_BYTES32,
         web3.utils.randomHex(32),
       );
 
@@ -710,6 +754,7 @@ describe('TimelockController', function () {
         operation.target,
         operation.value,
         operation.data,
+        operation.predecessor,
         operation.salt,
         MINDELAY,
         { from: proposer }
@@ -719,6 +764,7 @@ describe('TimelockController', function () {
         operation.target,
         operation.value,
         operation.data,
+        operation.predecessor,
         operation.salt,
         { from: executer }
       );
@@ -733,6 +779,7 @@ describe('TimelockController', function () {
         this.callreceivermock.address,
         0,
         this.callreceivermock.contract.methods.mockFunctionRevertsNoReason().encodeABI(),
+        ZERO_BYTES32,
         web3.utils.randomHex(32),
       );
 
@@ -740,6 +787,7 @@ describe('TimelockController', function () {
         operation.target,
         operation.value,
         operation.data,
+        operation.predecessor,
         operation.salt,
         MINDELAY,
         { from: proposer }
@@ -750,6 +798,7 @@ describe('TimelockController', function () {
           operation.target,
           operation.value,
           operation.data,
+          operation.predecessor,
           operation.salt,
           { from: executer }
         ),
@@ -762,6 +811,7 @@ describe('TimelockController', function () {
         this.callreceivermock.address,
         0,
         this.callreceivermock.contract.methods.mockFunctionThrows().encodeABI(),
+        ZERO_BYTES32,
         web3.utils.randomHex(32),
       );
 
@@ -769,6 +819,7 @@ describe('TimelockController', function () {
         operation.target,
         operation.value,
         operation.data,
+        operation.predecessor,
         operation.salt,
         MINDELAY,
         { from: proposer }
@@ -779,6 +830,7 @@ describe('TimelockController', function () {
           operation.target,
           operation.value,
           operation.data,
+          operation.predecessor,
           operation.salt,
           { from: executer }
         ),
@@ -791,6 +843,7 @@ describe('TimelockController', function () {
         this.callreceivermock.address,
         0,
         this.callreceivermock.contract.methods.mockFunctionOutOfGas().encodeABI(),
+        ZERO_BYTES32,
         web3.utils.randomHex(32),
       );
 
@@ -798,6 +851,7 @@ describe('TimelockController', function () {
         operation.target,
         operation.value,
         operation.data,
+        operation.predecessor,
         operation.salt,
         MINDELAY,
         { from: proposer }
@@ -808,6 +862,7 @@ describe('TimelockController', function () {
           operation.target,
           operation.value,
           operation.data,
+          operation.predecessor,
           operation.salt,
           { from: executer }
         ),
@@ -820,6 +875,7 @@ describe('TimelockController', function () {
         this.callreceivermock.address,
         1,
         this.callreceivermock.contract.methods.mockFunction().encodeABI(),
+        ZERO_BYTES32,
         web3.utils.randomHex(32),
       );
 
@@ -827,6 +883,7 @@ describe('TimelockController', function () {
         operation.target,
         operation.value,
         operation.data,
+        operation.predecessor,
         operation.salt,
         MINDELAY,
         { from: proposer }
@@ -840,6 +897,7 @@ describe('TimelockController', function () {
         operation.target,
         operation.value,
         operation.data,
+        operation.predecessor,
         operation.salt,
         { from: executer, value: 1 }
       );
@@ -855,6 +913,7 @@ describe('TimelockController', function () {
         this.callreceivermock.address,
         1,
         this.callreceivermock.contract.methods.mockFunctionNonPayable().encodeABI(),
+        ZERO_BYTES32,
         web3.utils.randomHex(32),
       );
 
@@ -862,6 +921,7 @@ describe('TimelockController', function () {
         operation.target,
         operation.value,
         operation.data,
+        operation.predecessor,
         operation.salt,
         MINDELAY,
         { from: proposer }
@@ -876,6 +936,7 @@ describe('TimelockController', function () {
           operation.target,
           operation.value,
           operation.data,
+          operation.predecessor,
           operation.salt,
           { from: executer }
         ),
@@ -891,6 +952,7 @@ describe('TimelockController', function () {
         this.callreceivermock.address,
         1,
         this.callreceivermock.contract.methods.mockFunctionRevertsNoReason().encodeABI(),
+        ZERO_BYTES32,
         web3.utils.randomHex(32),
       );
 
@@ -898,6 +960,7 @@ describe('TimelockController', function () {
         operation.target,
         operation.value,
         operation.data,
+        operation.predecessor,
         operation.salt,
         MINDELAY,
         { from: proposer }
@@ -912,6 +975,7 @@ describe('TimelockController', function () {
           operation.target,
           operation.value,
           operation.data,
+          operation.predecessor,
           operation.salt,
           { from: executer }
         ),
