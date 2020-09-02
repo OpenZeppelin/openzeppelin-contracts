@@ -7,7 +7,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
 
 Security tools include:
 
- * {Pausable}: provides a simple way to halt activity in your contracts (often in reponse to an external threat).
+ * {Pausable}: provides a simple way to halt activity in your contracts (often in response to an external threat).
  * {ReentrancyGuard}: protects you from https://blog.openzeppelin.com/reentrancy-after-istanbul/[reentrant calls].
  * {Timelock}: provides mechanism to enable timelocked operations.
 
