@@ -134,7 +134,7 @@ contract TransparentUpgradeableProxy is UpgradeableProxy {
     /**
      * @dev Stores a new address in the EIP1967 admin slot.
      */
-    function _setAdmin(address newAdmin) private {
+    function _setAdmin(address newAdmin) internal {
         bytes32 slot = _ADMIN_SLOT;
 
         // solhint-disable-next-line no-inline-assembly
