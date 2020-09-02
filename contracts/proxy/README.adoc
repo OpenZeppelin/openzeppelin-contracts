@@ -1,0 +1,26 @@
+= Proxies
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/proxy
+
+This is a low-level set of contracts implementing the proxy pattern for upgradeability. For an in-depth overview of this pattern check out the xref:upgrades-plugins::proxies.adoc[Proxy Upgrade Pattern] page.
+
+The abstract {Proxy} contract implements the core delegation functionality. If the concrete proxies that we provide below are not suitable, we encourage building on top of this base contract since it contains an assembly block that may be hard to get right.
+
+Upgradeability is implemented in the {UpgradeableProxy} contract, although it provides only an internal upgrade interface. For an upgrade interface exposed externally to an admin, we provide {TransparentUpgradeableProxy}. Both of these contracts use the storage slots specified in https://eips.ethereum.org/EIPS/eip-1967[EIP1967] to avoid clashes with the storage of the implementation contract behind the proxy.
+
+CAUTION: Using upgradeable proxies correctly and securely is a difficult task that requires deep knowledge of the proxy pattern, Solidity, and the EVM. Unless you want a lot of low level control, we recommend using the xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugins] for Truffle and Buidler.
+
+== Core
+
+{{Proxy}}
+
+{{UpgradeableProxy}}
+
+{{TransparentUpgradeableProxy}}
+
+== Utilities
+
+{{Initializable}}
+
+{{ProxyAdmin}}
