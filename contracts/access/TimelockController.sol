@@ -64,7 +64,7 @@ contract TimelockController is Timelock, AccessControl {
     /**
      * @dev Schedule an operation containing a single transaction.
      *
-     * Emits a {CallScheduled} event.
+     * Emits a {Timelock-Scheduled} and a {CallScheduled} event.
      *
      * Requirements:
      *
@@ -79,7 +79,8 @@ contract TimelockController is Timelock, AccessControl {
     /**
      * @dev Schedule an operation containing a batch of transactions.
      *
-     * Emits one {CallScheduled} event per entry in the batch.
+     * Emits a {Timelock-Scheduled} event and one {CallScheduled} event per
+     * entry in the batch.
      *
      * Requirements:
      *
@@ -110,7 +111,7 @@ contract TimelockController is Timelock, AccessControl {
     /**
      * @dev Execute an (ready) operation containing a single transaction.
      *
-     * Emits a {CallExecuted} event.
+     * Emits a {Timelock-Executed} and a {CallExecuted} event.
      *
      * Requirements:
      *
@@ -125,7 +126,8 @@ contract TimelockController is Timelock, AccessControl {
     /**
      * @dev Execute an (ready) operation containing a batch of transactions.
      *
-     * Emits one {CallExecuted} event per entry in the batch.
+     * Emits a {Timelock-Executed} event and one {CallExecuted} event per
+     * entry in the batch.
      *
      * Requirements:
      *
@@ -158,6 +160,8 @@ contract TimelockController is Timelock, AccessControl {
 
     /**
      * @dev Changes the timelock duration for future operations.
+     *
+     * Emits a {Timelock-MinDelayChange} event.
      */
     function updateDelay(uint256 newDelay) external onlyRole(DEFAULT_ADMIN_ROLE) {
         _updateDelay(newDelay);
