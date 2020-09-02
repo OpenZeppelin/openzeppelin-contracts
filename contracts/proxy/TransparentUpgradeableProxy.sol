@@ -144,10 +144,10 @@ contract TransparentUpgradeableProxy is UpgradeableProxy {
     }
 
     /**
-     * @dev Makes sure the admin cannot access the fallback function. See {Proxy-_beforeFallback}.
+     * @dev Makes sure the admin cannot access the fallback function. See {Proxy-_willFallback}.
      */
-    function _beforeFallback() internal override virtual {
+    function _willFallback() internal override virtual {
         require(msg.sender != _admin(), "TransparentUpgradeableProxy: admin cannot fallback to proxy target");
-        super._beforeFallback();
+        super._willFallback();
     }
 }

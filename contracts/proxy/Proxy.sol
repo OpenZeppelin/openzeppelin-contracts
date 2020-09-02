@@ -52,7 +52,7 @@ abstract contract Proxy {
      * This function does not return to its internall call site, it will return directly to the external caller.
      */
     function _fallback() internal {
-        _beforeFallback();
+        _willFallback();
         _delegate(_implementation());
     }
 
@@ -76,8 +76,8 @@ abstract contract Proxy {
      * @dev Hook that is called before falling back to the implementation. Can happen as part of a manual `_fallback`
      * call, or as part of the Solidity `fallback` or `receive` functions.
      * 
-     * If overriden should call `super._beforeFallback()`.
+     * If overriden should call `super._willFallback()`.
      */
-    function _beforeFallback() internal virtual {
+    function _willFallback() internal virtual {
     }
 }
