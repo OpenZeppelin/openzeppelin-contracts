@@ -10,7 +10,7 @@ pragma solidity ^0.6.0;
  * lifecycle of timelocked operations identified using `bytes32`.
  */
 abstract contract Timelock {
-    uint256 constant internal DONE_TIMESTAMP = uint256(-1);
+    uint256 constant internal DONE_TIMESTAMP = uint256(1);
 
     mapping(bytes32 => uint256) private _timestamps;
     uint256 private _minDelay;
@@ -46,17 +46,15 @@ abstract contract Timelock {
      * @dev Returns weither an operation is pending or not.
      */
     function isOperationPending(bytes32 id) public view returns (bool pending) {
-        uint256 timestamp = viewTimestamp(id);
-        return timestamp != 0 && timestamp != DONE_TIMESTAMP;
+        return _timestamps[id] > DONE_TIMESTAMP;
     }
 
     /**
      * @dev Returns weither an operation is ready or not.
      */
     function isOperationReady(bytes32 id) public view returns (bool ready) {
-        uint256 timestamp = viewTimestamp(id);
         // solhint-disable-next-line not-rely-on-time
-        return timestamp != 0 && timestamp <= block.timestamp;
+        return _timestamps[id] > DONE_TIMESTAMP && _timestamps[id] <= block.timestamp;
     }
 
     /**
