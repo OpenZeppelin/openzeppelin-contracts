@@ -11,7 +11,7 @@ pragma solidity ^0.6.0;
  */
 abstract contract Timelock {
     mapping(bytes32 => uint256) private _timestamps;
-    mapping(bytes32 => bool) private _done;
+    mapping(bytes32 => bool) private _pending;
     uint256 private _minDelay;
 
     /**
@@ -27,7 +27,7 @@ abstract contract Timelock {
     /**
      * @dev Emitted when operation `id` is canceled.
      */
-    event Cancel(bytes32 indexed id);
+    event Canceled(bytes32 indexed id);
 
     /**
      * @dev Emitted when the minimum delay for future operations is modified.
@@ -42,11 +42,26 @@ abstract contract Timelock {
     }
 
     /**
+     * @dev Returns weither an operation is pending or not.
+     */
+    function isOperationPending(bytes32 id) public view returns (bool pending) {
+        // solhint-disable-next-line not-rely-on-time
+        return _pending[id];
+    }
+
+    /**
      * @dev Returns weither an operation is ready or not.
      */
     function isOperationReady(bytes32 id) public view returns (bool ready) {
         // solhint-disable-next-line not-rely-on-time
-        return _timestamps[id] <= block.timestamp;
+        return _pending[id] && _timestamps[id] <= block.timestamp;
+    }
+
+    /**
+    * @dev Returns weither an operation is done or not.
+    */
+    function isOperationDone(bytes32 id) public view returns (bool done) {
+        return !_pending[id] && _timestamps[id] != 0;
     }
 
     /**
@@ -55,13 +70,6 @@ abstract contract Timelock {
      */
     function viewTimestamp(bytes32 id) public view returns (uint256 timestamp) {
         return _timestamps[id];
-    }
-
-    /**
-     * @dev Returns the completion status of an operation.
-     */
-    function viewDone(bytes32 id) public view returns (bool done) {
-        return _done[id];
     }
 
     /**
@@ -79,9 +87,9 @@ abstract contract Timelock {
     function _schedule(bytes32 id, uint256 delay) internal {
         require(_timestamps[id] == 0, "Timelock: operation already scheduled");
         require(delay >= _minDelay, "Timelock: insufficient delay");
-        require(!_done[id], "Timelock: operation already executed");
         // solhint-disable-next-line not-rely-on-time
         _timestamps[id] = block.timestamp + delay;
+        _pending[id] = true;
 
         emit Scheduled(id);
     }
@@ -92,11 +100,9 @@ abstract contract Timelock {
      * Emits a {Executed} event.
      */
     function _execute(bytes32 id, bytes32 predecessor) internal {
-        require(_timestamps[id] != 0, "Timelock: no matching operation");
-        require(isOperationReady(id), "Timelock: too early to execute");
-        require(predecessor == bytes32(0) || viewDone(predecessor), "Timelock: missing dependency");
-        delete _timestamps[id];
-        _done[id] = true;
+        require(isOperationReady(id), "Timelock: operation is not ready");
+        require(predecessor == bytes32(0) || isOperationDone(predecessor), "Timelock: missing dependency");
+        delete _pending[id];
 
         emit Executed(id);
     }
@@ -104,12 +110,14 @@ abstract contract Timelock {
     /**
      * @dev Cancel an operation.
      *
-     * Emits a {Cancel} event.
+     * Emits a {Canceled} event.
      */
     function _cancel(bytes32 id) internal {
+        require(!isOperationDone(id), "Timelock: operation is already executed");
         delete _timestamps[id];
+        delete _pending[id];
 
-        emit Cancel(id);
+        emit Canceled(id);
     }
 
     /**

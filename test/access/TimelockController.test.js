@@ -4,7 +4,7 @@ const { ZERO_ADDRESS, ZERO_BYTES32 } = constants;
 
 const { expect } = require('chai');
 
-const Timelock = contract.fromArtifact('TimelockControllerMock');
+const TimelockController = contract.fromArtifact('TimelockController');
 const CallReceiverMock = contract.fromArtifact('CallReceiverMock');
 const Implementation2 = contract.fromArtifact('Implementation2');
 const MINDELAY = time.duration.days(1);
@@ -48,7 +48,7 @@ describe('TimelockController', function () {
 
   beforeEach(async function () {
     // Deploy new timelock
-    this.tlctrl = await Timelock.new(MINDELAY, { from: admin });
+    this.tlctrl = await TimelockController.new(MINDELAY, { from: admin });
     // Grand proposer & executer role
     await this.tlctrl.grantRole(await this.tlctrl.PROPOSER_ROLE(), proposer, { from: admin });
     await this.tlctrl.grantRole(await this.tlctrl.EXECUTER_ROLE(), executer, { from: admin });
@@ -192,7 +192,7 @@ describe('TimelockController', function () {
                 this.operation.salt,
                 { from: executer }
               ),
-              'Timelock: no matching operation'
+              'Timelock: operation is not ready'
             );
           });
         });
@@ -221,7 +221,7 @@ describe('TimelockController', function () {
                   this.operation.salt,
                   { from: executer }
                 ),
-                'Timelock: too early to execute'
+                'Timelock: operation is not ready'
               );
             });
           });
@@ -242,7 +242,7 @@ describe('TimelockController', function () {
                   this.operation.salt,
                   { from: executer }
                 ),
-                'Timelock: too early to execute'
+                'Timelock: operation is not ready'
               );
             });
           });
@@ -270,27 +270,6 @@ describe('TimelockController', function () {
                 value: web3.utils.toBN(this.operation.value),
                 data: this.operation.data,
               });
-            });
-
-            it('timestamp is cleared', async function () {
-              const receipt = await this.tlctrl.execute(
-                this.operation.target,
-                this.operation.value,
-                this.operation.data,
-                this.operation.predecessor,
-                this.operation.salt,
-                { from: executer }
-              );
-              expectEvent(receipt, 'Executed', { id: this.operation.id });
-              expectEvent(receipt, 'CallExecuted', {
-                id: this.operation.id,
-                index: web3.utils.toBN(0),
-                target: this.operation.target,
-                value: web3.utils.toBN(this.operation.value),
-                data: this.operation.data,
-              });
-
-              expect(await this.tlctrl.viewTimestamp(this.operation.id)).to.be.bignumber.equal(web3.utils.toBN(0));
             });
 
             it('prevent non-executer from revealing', async function () {
@@ -445,7 +424,7 @@ describe('TimelockController', function () {
                 this.operation.salt,
                 { from: executer }
               ),
-              'Timelock: no matching operation'
+              'Timelock: operation is not ready'
             );
           });
         });
@@ -474,7 +453,7 @@ describe('TimelockController', function () {
                   this.operation.salt,
                   { from: executer }
                 ),
-                'Timelock: too early to execute'
+                'Timelock: operation is not ready'
               );
             });
           });
@@ -495,7 +474,7 @@ describe('TimelockController', function () {
                   this.operation.salt,
                   { from: executer }
                 ),
-                'Timelock: too early to execute'
+                'Timelock: operation is not ready'
               );
             });
           });
@@ -525,29 +504,6 @@ describe('TimelockController', function () {
                   data: this.operation.datas[i],
                 });
               }
-            });
-
-            it('timestamp is cleared', async function () {
-              const receipt = await this.tlctrl.executeBatch(
-                this.operation.targets,
-                this.operation.values,
-                this.operation.datas,
-                this.operation.predecessor,
-                this.operation.salt,
-                { from: executer }
-              );
-              expectEvent(receipt, 'Executed', { id: this.operation.id });
-              for (const i in this.operation.targets) {
-                expectEvent(receipt, 'CallExecuted', {
-                  id: this.operation.id,
-                  index: web3.utils.toBN(i),
-                  target: this.operation.targets[i],
-                  value: web3.utils.toBN(this.operation.values[i]),
-                  data: this.operation.datas[i],
-                });
-              }
-
-              expect(await this.tlctrl.viewTimestamp(this.operation.id)).to.be.bignumber.equal(web3.utils.toBN(0));
             });
 
             it('prevent non-executer from revealing', async function () {
@@ -676,14 +632,7 @@ describe('TimelockController', function () {
 
       it('proposer can cancel', async function () {
         const receipt = await this.tlctrl.cancel(this.operation.id, { from: proposer });
-        expectEvent(receipt, 'Cancel', { id: this.operation.id });
-      });
-
-      it('timestamp is cleared', async function () {
-        const receipt = await this.tlctrl.cancel(this.operation.id, { from: proposer });
-        expectEvent(receipt, 'Cancel', { id: this.operation.id });
-
-        expect(await this.tlctrl.viewTimestamp(this.operation.id)).to.be.bignumber.equal(web3.utils.toBN(0));
+        expectEvent(receipt, 'Canceled', { id: this.operation.id });
       });
 
       it('prevent non-proposer from canceling', async function () {
