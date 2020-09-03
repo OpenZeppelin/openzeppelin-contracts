@@ -92,7 +92,9 @@ contract TransparentUpgradeableProxy is UpgradeableProxy {
      * NOTE: Only the admin can call this function. See {ProxyAdmin-changeProxyAdmin}.
      */
     function changeAdmin(address newAdmin) external ifAdmin {
-        _changeAdmin(newAdmin);
+        require(newAdmin != address(0), "TransparentUpgradeableProxy: new admin is the zero address");
+        emit AdminChanged(_admin(), newAdmin);
+        _setAdmin(newAdmin);
     }
 
     /**
@@ -127,17 +129,6 @@ contract TransparentUpgradeableProxy is UpgradeableProxy {
         assembly {
             adm := sload(slot)
         }
-    }
-
-    /**
-     * @dev Changes the admin of the proxy.
-     * 
-     * Emits an {AdminChanged} event.
-     */
-    function _changeAdmin(address newAdmin) internal {
-        require(newAdmin != address(0), "TransparentUpgradeableProxy: new admin is the zero address");
-        emit AdminChanged(_admin(), newAdmin);
-        _setAdmin(newAdmin);
     }
 
     /**
