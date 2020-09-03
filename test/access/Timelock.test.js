@@ -1,6 +1,6 @@
 const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
 const { constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
-const { ZERO_ADDRESS, ZERO_BYTES32 } = constants;
+const { ZERO_BYTES32 } = constants;
 
 const { expect } = require('chai');
 
@@ -15,7 +15,7 @@ describe('Timelock', function () {
     this.timelock = await Timelock.new(MINDELAY, { from: admin });
   });
 
-  describe('delay', function() {
+  describe('delay', function () {
     it('initial state', async function () {
       expect(await this.timelock.viewMinDelay()).to.be.bignumber.equal(MINDELAY);
     });
@@ -28,7 +28,7 @@ describe('Timelock', function () {
     });
   });
 
-  describe('schedule', function() {
+  describe('schedule', function () {
     beforeEach(async function () {
       this.id = web3.utils.randomHex(32);
     });
@@ -41,7 +41,8 @@ describe('Timelock', function () {
       const receipt = await this.timelock.schedule(this.id, MINDELAY, { from: admin });
       const block = await web3.eth.getBlock(receipt.receipt.blockHash);
       expectEvent(receipt, 'Scheduled', { id: this.id });
-      expect(await this.timelock.viewTimestamp(this.id)).to.be.bignumber.equal(web3.utils.toBN(block.timestamp).add(MINDELAY));
+      expect(await this.timelock.viewTimestamp(this.id))
+        .to.be.bignumber.equal(web3.utils.toBN(block.timestamp).add(MINDELAY));
       expect(await this.timelock.isOperationPending(this.id)).to.be.equal(true);
       expect(await this.timelock.isOperationReady(this.id)).to.be.equal(false);
       expect(await this.timelock.isOperationDone(this.id)).to.be.equal(false);
@@ -72,7 +73,6 @@ describe('Timelock', function () {
       );
     });
   });
-
 
   describe('execute', function () {
     beforeEach(async function () {
