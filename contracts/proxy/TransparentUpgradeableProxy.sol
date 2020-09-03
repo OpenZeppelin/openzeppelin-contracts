@@ -134,7 +134,7 @@ contract TransparentUpgradeableProxy is UpgradeableProxy {
     /**
      * @dev Stores a new address in the EIP1967 admin slot.
      */
-    function _setAdmin(address newAdmin) internal {
+    function _setAdmin(address newAdmin) private {
         bytes32 slot = _ADMIN_SLOT;
 
         // solhint-disable-next-line no-inline-assembly
@@ -144,10 +144,10 @@ contract TransparentUpgradeableProxy is UpgradeableProxy {
     }
 
     /**
-     * @dev Makes sure the admin cannot access the fallback function. See {Proxy-_willFallback}.
+     * @dev Makes sure the admin cannot access the fallback function. See {Proxy-_beforeFallback}.
      */
-    function _willFallback() internal override virtual {
+    function _beforeFallback() internal override virtual {
         require(msg.sender != _admin(), "TransparentUpgradeableProxy: admin cannot fallback to proxy target");
-        super._willFallback();
+        super._beforeFallback();
     }
 }
