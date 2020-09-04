@@ -21,8 +21,8 @@ import "../utils/Timelock.sol";
  * WARNING: A live contract without at least one proposer and one executer is
  * locked. Make sure these role are filled by reliable entities. See the
  * {AccessControl} documentation to learn more about role management. Once the
- * {Timelock} contract is live, role management is performed through timelocked
- * operations.
+ * {TimelockController} contract is live, role management is performed through
+ * timelocked operations.
  */
 
 contract TimelockController is Timelock, AccessControl {
