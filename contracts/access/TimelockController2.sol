@@ -29,7 +29,7 @@ contract TimelockController2 is AccessControl {
 
     bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
     bytes32 public constant EXECUTER_ROLE = keccak256("EXECUTER_ROLE");
-    uint256 internal constant DONE_TIMESTAMP = uint256(1);
+    uint256 internal constant _DONE_TIMESTAMP = uint256(1);
 
     mapping(bytes32 => uint256) private _timestamps;
     uint256 private _minDelay;
@@ -82,7 +82,7 @@ contract TimelockController2 is AccessControl {
      * @dev Returns weither an operation is pending or not.
      */
     function isOperationPending(bytes32 id) public view returns (bool pending) {
-        return _timestamps[id] > DONE_TIMESTAMP;
+        return _timestamps[id] > _DONE_TIMESTAMP;
     }
 
     /**
@@ -90,14 +90,14 @@ contract TimelockController2 is AccessControl {
      */
     function isOperationReady(bytes32 id) public view returns (bool ready) {
         // solhint-disable-next-line not-rely-on-time
-        return _timestamps[id] > DONE_TIMESTAMP && _timestamps[id] <= block.timestamp;
+        return _timestamps[id] > _DONE_TIMESTAMP && _timestamps[id] <= block.timestamp;
     }
 
     /**
      * @dev Returns weither an operation is done or not.
      */
     function isOperationDone(bytes32 id) public view returns (bool done) {
-        return _timestamps[id] == DONE_TIMESTAMP;
+        return _timestamps[id] == _DONE_TIMESTAMP;
     }
 
     /**
@@ -217,7 +217,7 @@ contract TimelockController2 is AccessControl {
     function _execute(bytes32 id, bytes32 predecessor) internal {
         require(isOperationReady(id), "TimelockController: operation is not ready");
         require(predecessor == bytes32(0) || isOperationDone(predecessor), "TimelockController: missing dependency");
-        _timestamps[id] = DONE_TIMESTAMP;
+        _timestamps[id] = _DONE_TIMESTAMP;
     }
 
     /**

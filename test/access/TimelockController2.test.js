@@ -697,21 +697,21 @@ describe('TimelockController', function () {
 
       expect(await this.tlctrl.viewMinDelay()).to.be.bignumber.equal(randomBN);
 
-      console.log(`Gas cost schedule:`, receipt1.receipt.gasUsed);
-      console.log(`Gas cost execute:`, receipt2.receipt.gasUsed);
+      console.log('Gas cost schedule:', receipt1.receipt.gasUsed);
+      console.log('Gas cost execute:', receipt2.receipt.gasUsed);
     });
   });
 
   describe('dependency', function () {
     beforeEach(async function () {
-      this.operation_1 = genOperation(
+      this.operation1 = genOperation(
         ZERO_ADDRESS,
         0,
         web3.utils.randomHex(4),
         ZERO_BYTES32,
         web3.utils.randomHex(32),
       );
-      this.operation_2 = genOperation(
+      this.operation2 = genOperation(
         ZERO_ADDRESS,
         0,
         web3.utils.randomHex(4),
@@ -719,20 +719,20 @@ describe('TimelockController', function () {
         web3.utils.randomHex(32),
       );
       await this.tlctrl.schedule(
-        this.operation_1.target,
-        this.operation_1.value,
-        this.operation_1.data,
-        this.operation_1.predecessor,
-        this.operation_1.salt,
+        this.operation1.target,
+        this.operation1.value,
+        this.operation1.data,
+        this.operation1.predecessor,
+        this.operation1.salt,
         MINDELAY,
         { from: proposer }
       );
       await this.tlctrl.schedule(
-        this.operation_2.target,
-        this.operation_2.value,
-        this.operation_2.data,
-        this.operation_2.predecessor,
-        this.operation_2.salt,
+        this.operation2.target,
+        this.operation2.value,
+        this.operation2.data,
+        this.operation2.predecessor,
+        this.operation2.salt,
         MINDELAY,
         { from: proposer }
       );
@@ -742,11 +742,11 @@ describe('TimelockController', function () {
     it('cannot execute before dependency', async function () {
       await expectRevert(
         this.tlctrl.execute(
-          this.operation_2.target,
-          this.operation_2.value,
-          this.operation_2.data,
-          this.operation_2.predecessor,
-          this.operation_2.salt,
+          this.operation2.target,
+          this.operation2.value,
+          this.operation2.data,
+          this.operation2.predecessor,
+          this.operation2.salt,
           { from: executer }
         ),
         'TimelockController: missing dependency'
@@ -755,19 +755,19 @@ describe('TimelockController', function () {
 
     it('can execute after dependency', async function () {
       await this.tlctrl.execute(
-        this.operation_1.target,
-        this.operation_1.value,
-        this.operation_1.data,
-        this.operation_1.predecessor,
-        this.operation_1.salt,
+        this.operation1.target,
+        this.operation1.value,
+        this.operation1.data,
+        this.operation1.predecessor,
+        this.operation1.salt,
         { from: executer }
       );
       await this.tlctrl.execute(
-        this.operation_2.target,
-        this.operation_2.value,
-        this.operation_2.data,
-        this.operation_2.predecessor,
-        this.operation_2.salt,
+        this.operation2.target,
+        this.operation2.value,
+        this.operation2.data,
+        this.operation2.predecessor,
+        this.operation2.salt,
         { from: executer }
       );
     });

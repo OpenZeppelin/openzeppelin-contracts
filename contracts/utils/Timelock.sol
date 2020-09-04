@@ -10,7 +10,7 @@ pragma solidity ^0.6.0;
  * lifecycle of timelocked operations identified using `bytes32`.
  */
 abstract contract Timelock {
-    uint256 constant internal DONE_TIMESTAMP = uint256(1);
+    uint256 constant internal _DONE_TIMESTAMP = uint256(1);
 
     mapping(bytes32 => uint256) private _timestamps;
     uint256 private _minDelay;
@@ -46,7 +46,7 @@ abstract contract Timelock {
      * @dev Returns weither an operation is pending or not.
      */
     function isOperationPending(bytes32 id) public view returns (bool pending) {
-        return _timestamps[id] > DONE_TIMESTAMP;
+        return _timestamps[id] > _DONE_TIMESTAMP;
     }
 
     /**
@@ -54,14 +54,14 @@ abstract contract Timelock {
      */
     function isOperationReady(bytes32 id) public view returns (bool ready) {
         // solhint-disable-next-line not-rely-on-time
-        return _timestamps[id] > DONE_TIMESTAMP && _timestamps[id] <= block.timestamp;
+        return _timestamps[id] > _DONE_TIMESTAMP && _timestamps[id] <= block.timestamp;
     }
 
     /**
     * @dev Returns weither an operation is done or not.
     */
     function isOperationDone(bytes32 id) public view returns (bool done) {
-        return _timestamps[id] == DONE_TIMESTAMP;
+        return _timestamps[id] == _DONE_TIMESTAMP;
     }
 
     /**
@@ -101,7 +101,7 @@ abstract contract Timelock {
     function _execute(bytes32 id, bytes32 predecessor) internal {
         require(isOperationReady(id), "Timelock: operation is not ready");
         require(predecessor == bytes32(0) || isOperationDone(predecessor), "Timelock: missing dependency");
-        _timestamps[id] = DONE_TIMESTAMP;
+        _timestamps[id] = _DONE_TIMESTAMP;
 
         emit Executed(id);
     }
