@@ -651,7 +651,7 @@ describe('TimelockController', function () {
     });
 
     it('timelock scheduled maintenance', async function () {
-      const randomBN = web3.utils.toBN(web3.utils.randomHex(8));
+      const randomBN = web3.utils.toBN(web3.utils.randomHex(8)).toString();
       const operation = genOperation(
         this.tlctrl.address,
         0,
@@ -775,11 +775,11 @@ describe('TimelockController', function () {
 
   describe('scenari', function () {
     it('call', async function () {
-      const randomBN = web3.utils.toBN(web3.utils.randomHex(8));
+      const randomBN = web3.utils.toBN(web3.utils.randomHex(8)).toString();
       const operation = genOperation(
         this.implementation2.address,
         0,
-        this.implementation2.contract.methods.setValue(randomBN.toString()).encodeABI(),
+        this.implementation2.contract.methods.setValue(randomBN).encodeABI(),
         ZERO_BYTES32,
         web3.utils.randomHex(32),
       );
