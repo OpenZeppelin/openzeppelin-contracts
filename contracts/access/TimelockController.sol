@@ -30,13 +30,13 @@ contract TimelockController is Timelock, AccessControl {
     bytes32 public constant EXECUTER_ROLE = keccak256("EXECUTER_ROLE");
 
     /**
-    * @dev Emitted when call is performed as part of operation `id`.
-    */
+     * @dev Emitted when call is performed as part of operation `id`.
+     */
     event CallScheduled(bytes32 indexed id, uint256 indexed index, address target, uint256 value, bytes data);
 
     /**
-    * @dev Emitted when call is performed as part of operation `id`.
-    */
+     * @dev Emitted when call is performed as part of operation `id`.
+     */
     event CallExecuted(bytes32 indexed id, uint256 indexed index, address target, uint256 value, bytes data);
 
     /**
@@ -98,7 +98,7 @@ contract TimelockController is Timelock, AccessControl {
     }
 
     /**
-    * @dev Cancel an operation.
+     * @dev Cancel an operation.
      *
      * Requirements:
      *

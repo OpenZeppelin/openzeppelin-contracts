@@ -58,8 +58,8 @@ abstract contract Timelock {
     }
 
     /**
-    * @dev Returns weither an operation is done or not.
-    */
+     * @dev Returns weither an operation is done or not.
+     */
     function isOperationDone(bytes32 id) public view returns (bool done) {
         return _timestamps[id] == _DONE_TIMESTAMP;
     }
@@ -130,8 +130,8 @@ abstract contract Timelock {
 }
 
 // Time tracking
-// 28/08: 5h
-// 30/08: 1h
-//  1/09: 2h
-//  2/09: 1h
-//  3/09: 1h
+// 28/08: 5h (5h)
+// 30/08: 1h (6h)
+//  1/09: 2h (8h)
+//  2/09: 1h (9h)
+//  3/09: 1h (10h)
