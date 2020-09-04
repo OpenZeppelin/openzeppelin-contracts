@@ -7,7 +7,7 @@ const { expect } = require('chai');
 const TimelockController = contract.fromArtifact('TimelockController2');
 const CallReceiverMock = contract.fromArtifact('CallReceiverMock');
 const Implementation2 = contract.fromArtifact('Implementation2');
-const MINDELAY = time.duration.days(1);
+const MINDELAY = web3.utils.toBN(web3.utils.randomHex(4));
 
 function genOperation (target, value, data, predecessor, salt) {
   const id = web3.utils.keccak256(web3.eth.abi.encodeParameters([
@@ -651,11 +651,11 @@ describe('TimelockController', function () {
     });
 
     it('timelock scheduled maintenance', async function () {
-      const randomBN = web3.utils.randomHex(16);
+      const randomBN = web3.utils.toBN(web3.utils.randomHex(8));
       const operation = genOperation(
         this.tlctrl.address,
         0,
-        this.tlctrl.contract.methods.updateDelay(randomBN).encodeABI(),
+        this.tlctrl.contract.methods.updateDelay(randomBN.toString()).encodeABI(),
         ZERO_BYTES32,
         web3.utils.randomHex(32),
       );
@@ -693,9 +693,9 @@ describe('TimelockController', function () {
         value: web3.utils.toBN(operation.value),
         data: operation.data,
       });
-      expectEvent(receipt2, 'MinDelayChange', { newDuration: web3.utils.toBN(randomBN), oldDuration: MINDELAY });
+      expectEvent(receipt2, 'MinDelayChange', { newDuration: randomBN, oldDuration: MINDELAY });
 
-      expect(await this.tlctrl.viewMinDelay()).to.be.bignumber.equal(web3.utils.toBN(randomBN));
+      expect(await this.tlctrl.viewMinDelay()).to.be.bignumber.equal(randomBN);
 
       console.log(`Gas cost schedule:`, receipt1.receipt.gasUsed);
       console.log(`Gas cost execute:`, receipt2.receipt.gasUsed);
@@ -704,8 +704,20 @@ describe('TimelockController', function () {
 
   describe('dependency', function () {
     beforeEach(async function () {
-      this.operation_1 = genOperation(ZERO_ADDRESS, 0, web3.utils.randomHex(4), ZERO_BYTES32, web3.utils.randomHex(32));
-      this.operation_2 = genOperation(ZERO_ADDRESS, 0, web3.utils.randomHex(4), this.operation_1.id, web3.utils.randomHex(32));
+      this.operation_1 = genOperation(
+        ZERO_ADDRESS,
+        0,
+        web3.utils.randomHex(4),
+        ZERO_BYTES32,
+        web3.utils.randomHex(32),
+      );
+      this.operation_2 = genOperation(
+        ZERO_ADDRESS,
+        0,
+        web3.utils.randomHex(4),
+        this.operation_1.id,
+        web3.utils.randomHex(32),
+      );
       await this.tlctrl.schedule(
         this.operation_1.target,
         this.operation_1.value,
@@ -763,11 +775,11 @@ describe('TimelockController', function () {
 
   describe('scenari', function () {
     it('call', async function () {
-      const randomBN = web3.utils.randomHex(16);
+      const randomBN = web3.utils.toBN(web3.utils.randomHex(8));
       const operation = genOperation(
         this.implementation2.address,
         0,
-        this.implementation2.contract.methods.setValue(randomBN).encodeABI(),
+        this.implementation2.contract.methods.setValue(randomBN.toString()).encodeABI(),
         ZERO_BYTES32,
         web3.utils.randomHex(32),
       );
@@ -798,7 +810,7 @@ describe('TimelockController', function () {
         data: operation.data,
       });
 
-      expect(await this.implementation2.getValue()).to.be.bignumber.equal(web3.utils.toBN(randomBN));
+      expect(await this.implementation2.getValue()).to.be.bignumber.equal(randomBN);
     });
 
     it('call reverting', async function () {
