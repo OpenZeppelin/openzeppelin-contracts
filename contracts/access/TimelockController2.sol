@@ -77,7 +77,6 @@ contract TimelockController2 is AccessControl {
      */
     receive() external payable {}
 
-
     /**
      * @dev Returns weither an operation is pending or not.
      */
