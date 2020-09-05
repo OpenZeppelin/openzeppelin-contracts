@@ -3,6 +3,7 @@
 pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
+import "./../math/SafeMath.sol";
 import "./AccessControl.sol";
 
 /**
@@ -189,7 +190,7 @@ contract TimelockController is AccessControl {
         require(_timestamps[id] == 0, "TimelockController: operation already scheduled");
         require(delay >= _minDelay, "TimelockController: insufficient delay");
         // solhint-disable-next-line not-rely-on-time
-        _timestamps[id] = block.timestamp + delay;
+        _timestamps[id] = SafeMath.add(block.timestamp, delay);
     }
 
     /**
