@@ -264,7 +264,7 @@ describe('TimelockController', function () {
           describe('almost but not quite', function () {
             beforeEach(async function () {
               const timestamp = await this.timelock.viewTimestamp(this.operation.id);
-              await time.increaseTo(timestamp - 2); // -1 is to tight, test sometime fails
+              await time.increaseTo(timestamp - 2); // -1 is too tight, test sometime fails
             });
 
             it('reverts', async function () {
