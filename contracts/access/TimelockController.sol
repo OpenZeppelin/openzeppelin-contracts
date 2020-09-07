@@ -7,40 +7,45 @@ import "./../math/SafeMath.sol";
 import "./AccessControl.sol";
 
 /**
- * @dev Contract module which acts as timelocked controller. When set as the
- * owner of an `Ownable` smartcontract, it enforces a timelock on all proxied
- * operations. This gives time for users of the controled contract to exit
- * before a potentially dangerous maintenance operation is applied.
+ * @dev Contract module which acts as a timelocked controller. When set as the
+ * owner of an `Ownable` smart contract, it enforces a timelock on all
+ * `onlyOwner` maintenance operations. This gives time for users of the
+ * controlled contract to exit before a potentially dangerous maintenance
+ * operation is applied.
  *
- * Timelock operations are identified by a unique id (their hash) and follow
+ * Timelocked operations are identified by a unique id (their hash) and follow
  * a specific lifecycle: `Unset` → `Pending` → `Ready` → `Done`
  *
- * - `Unset`: The operation in not part of the timelock mechanism
+ * - `Unset`: The operation is not part of the timelock mechanism
  *
- * - `Pending`: By calling the {schedule} or {scheduleBatch} method, the
- * operation moves from the `Unset` to the `Pending` state. This states a timer
+ * - `Pending`: By calling the {schedule} (or {scheduleBatch}) method, the
+ * operation moves from the `Unset` to the `Pending` state. This starts a timer
  * of at least `minDelay`.
  *
  * - `Ready`: After the timer expires, the operation moves from the `Pending` to
- * the `Ready` state. At this point it can be executed.
+ * the `Ready` state. At this point, it can be executed.
  *
- * - `Done`: Once an operation is ready, calling the {execute} or {executeBatch}
- * method will process it and move it to the `Done` state. If the operation has
- * a predecessor, it should be in the `Done` state. The operation shall not be
- * executed twice. To do so, restart the cycle with a different salt (thus
- * producing a dirrefent operation id).
+ * - `Done`: Once an operation is ready, calling the {execute} (or
+ * {executeBatch}) method will process it and move it to the `Done` state. If
+ * the operation has a predecessor, it should be in the `Done` state. The
+ * operation shall not be executed twice. To execute the same instruction a
+ * second time, restart the cycle with a different salt (thus producing a
+ * different operation id).
  *
- * `Pending` and `Ready` operation can be canceled using the {cancel} method.
- * This resets the operation to the `Unset` state, making it possibly reschedule
+ * `Pending` and `Ready` operations can be cancelled using the {cancel} method.
+ * This resets the operation to the `Unset` state, making it possibly
+ * reschedule.
  *
- * This contract is designed to be self administered, with maintenance
- * operations being proposed my a DAO or a multisig. A proposer and an executer
- * should be designed as soon as possible by the deployer. Administration
- * should then be handed to the contract itself by using the `makeLive`
+ * This contract is designed to be self administered, meaning it should be its
+ * own administrator. The proposer (resp executor) role is in charge of
+ * proposing (resp executing) operation. A common use case is to position this
+ * {TimelockController} as the owner of a smart contract, with a multisig or a
+ * DAO as the sole proposer. Once at least one executer and one proposer have
+ * been appointed, self-administration can be enable using the `makeLive`
  * function.
  *
  * WARNING: A live contract without at least one proposer and one executer is
- * locked. Make sure these role are filled by reliable entities. See the
+ * locked. Make sure these roles are filled by reliable entities. See the
  * {AccessControl} documentation to learn more about role management. Once the
  * {TimelockController} contract is live, role management is performed through
  * timelocked operations.
@@ -57,7 +62,7 @@ contract TimelockController is AccessControl {
     uint256 private _minDelay;
 
     /**
-     * @dev Emitted when call is scheduled as part of operation `id`.
+     * @dev Emitted when a call is scheduled as part of operation `id`.
      */
     event CallScheduled(bytes32 indexed id, uint256 indexed index, address target, uint256 value, bytes data, bytes32 predecessor);
 
@@ -67,9 +72,9 @@ contract TimelockController is AccessControl {
     event CallExecuted(bytes32 indexed id, uint256 indexed index, address target, uint256 value, bytes data);
 
     /**
-     * @dev Emitted when operation `id` is canceled.
+     * @dev Emitted when operation `id` is cancelled.
      */
-    event Canceled(bytes32 indexed id);
+    event Cancelled(bytes32 indexed id);
 
     /**
      * @dev Emitted when the minimum delay for future operations is modified.
@@ -90,9 +95,10 @@ contract TimelockController is AccessControl {
     }
 
     /**
-     * @dev Modifier to make a function callable only by a certain role.
-     * In addition to looking to the sender's role, address(0)'s role is also considered.
-     * Granting a role to Address(0) is thus equivalent to enabling this role for everyone.
+     * @dev Modifier to make a function callable only by a certain role. In
+     * addition to checking the sender's role, address(0)'s role is also
+     * considered. Granting a role to Address(0) is equivalent to enabling this
+     * role for everyone.
      */
     modifier onlyRole(bytes32 role) {
         require(hasRole(role, _msgSender()) || hasRole(role, address(0)), "TimelockController: sender requiers permission");
@@ -105,14 +111,14 @@ contract TimelockController is AccessControl {
     receive() external payable {}
 
     /**
-     * @dev Returns weither an operation is pending or not.
+     * @dev Returns whether an operation is pending or not.
      */
     function isOperationPending(bytes32 id) public view returns (bool pending) {
         return _timestamps[id] > _DONE_TIMESTAMP;
     }
 
     /**
-     * @dev Returns weither an operation is ready or not.
+     * @dev Returns whether an operation is ready or not.
      */
     function isOperationReady(bytes32 id) public view returns (bool ready) {
         // solhint-disable-next-line not-rely-on-time
@@ -120,22 +126,22 @@ contract TimelockController is AccessControl {
     }
 
     /**
-     * @dev Returns weither an operation is done or not.
+     * @dev Returns whether an operation is done or not.
      */
     function isOperationDone(bytes32 id) public view returns (bool done) {
         return _timestamps[id] == _DONE_TIMESTAMP;
     }
 
     /**
-     * @dev Returns the timestamp at with an operation becomes valid (0 for
-     * unscheduled operation).
+     * @dev Returns the timestamp at with an operation becomes ready (0 for
+     * unset operations, 1 for done operations).
      */
     function viewTimestamp(bytes32 id) public view returns (uint256 timestamp) {
         return _timestamps[id];
     }
 
     /**
-     * @dev Returns the minimum delay for a operation to become valid.
+     * @dev Returns the minimum delay for an operation to become valid.
      */
     function viewMinDelay() public view returns (uint256 duration) {
         return _minDelay;
@@ -175,8 +181,7 @@ contract TimelockController is AccessControl {
     /**
      * @dev Schedule an operation containing a batch of transactions.
      *
-     * Emits one {CallScheduled} event per
-     * entry in the batch.
+     * Emits one {CallScheduled} event per transaction in the batch.
      *
      * Requirements:
      *
@@ -214,7 +219,7 @@ contract TimelockController is AccessControl {
         require(!isOperationDone(id), "TimelockController: operation is already executed");
         delete _timestamps[id];
 
-        emit Canceled(id);
+        emit Cancelled(id);
     }
 
     /**
@@ -235,8 +240,7 @@ contract TimelockController is AccessControl {
     /**
      * @dev Execute an (ready) operation containing a batch of transactions.
      *
-     * Emits one {CallExecuted} event per
-     * entry in the batch.
+     * Emits one {CallExecuted} event per transaction in the batch.
      *
      * Requirements:
      *
@@ -287,7 +291,7 @@ contract TimelockController is AccessControl {
     }
 
     /**
-     * @dev Revocake the sender's administrative power, and give this role to
+     * @dev Revocate the sender's administrative power, and give this role to
      * the timelock itself. All further maintenance will have to be performed
      * by the timelock itself using the commit/reveal workflow.
      *
@@ -295,9 +299,9 @@ contract TimelockController is AccessControl {
      *
      * Requirements:
      *
-     * - the caller must be the only address with 'administration' role.
-     * - there must be at least one account with role 'proposer' and one with
-     *   role 'executer'.
+     * - the caller must be the only address with `ADMIN_ROLE`.
+     * - there must be at least one account with 'PROPOSER_ROLE' and one with
+     *   'EXECUTER_ROLE'.
      */
     function makeLive() external /* onlyRole(ADMIN_ROLE) */ {
         require(getRoleMemberCount(ADMIN_ROLE) == 1, "TimelockController: there should not be any other administrator");
@@ -315,3 +319,4 @@ contract TimelockController is AccessControl {
 //  2/09: 1h (9h)
 //  3/09: 1h (10h)
 //  5/09: 2h (12h)
+//  7/09: 2h (14h)
