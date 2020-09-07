@@ -665,7 +665,7 @@ describe('TimelockController', function () {
 
       it('proposer can cancel', async function () {
         const receipt = await this.timelock.cancel(this.operation.id, { from: proposer });
-        expectEvent(receipt, 'Canceled', { id: this.operation.id });
+        expectEvent(receipt, 'Cancelled', { id: this.operation.id });
       });
 
       it('prevent non-proposer from canceling', async function () {
