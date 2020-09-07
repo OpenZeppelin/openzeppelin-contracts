@@ -84,7 +84,9 @@ contract TimelockController is AccessControl {
         _setRoleAdmin(PROPOSER_ROLE, ADMIN_ROLE);
         _setRoleAdmin(EXECUTER_ROLE, ADMIN_ROLE);
         _setupRole(ADMIN_ROLE, _msgSender());
+
         _minDelay = minDelay;
+        emit MinDelayChange(minDelay, 0);
     }
 
     /**
@@ -164,7 +166,7 @@ contract TimelockController is AccessControl {
      *
      * - the caller must have the 'proposer' role.
      */
-    function schedule(address target, uint256 value, bytes calldata data, bytes32 predecessor, bytes32 salt, uint256 delay) public payable onlyRole(PROPOSER_ROLE) {
+    function schedule(address target, uint256 value, bytes calldata data, bytes32 predecessor, bytes32 salt, uint256 delay) public onlyRole(PROPOSER_ROLE) {
         bytes32 id = hashOperation(target, value, data, predecessor, salt);
         _schedule(id, delay);
         emit CallScheduled(id, 0, target, value, data, predecessor);
@@ -180,7 +182,7 @@ contract TimelockController is AccessControl {
      *
      * - the caller must have the 'proposer' role.
      */
-    function scheduleBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 predecessor, bytes32 salt, uint256 delay) public payable onlyRole(PROPOSER_ROLE) {
+    function scheduleBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 predecessor, bytes32 salt, uint256 delay) public onlyRole(PROPOSER_ROLE) {
         require(targets.length == values.length, "TimelockController: length missmatch");
         require(targets.length == datas.length, "TimelockController: length missmatch");
 
