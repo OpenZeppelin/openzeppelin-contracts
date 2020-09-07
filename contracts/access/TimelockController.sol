@@ -40,11 +40,11 @@ import "./AccessControl.sol";
  * own administrator. The proposer (resp executor) role is in charge of
  * proposing (resp executing) operation. A common use case is to position this
  * {TimelockController} as the owner of a smart contract, with a multisig or a
- * DAO as the sole proposer. Once at least one executer and one proposer have
+ * DAO as the sole proposer. Once at least one proposer and one executor have
  * been appointed, self-administration can be enable using the `makeLive`
  * function.
  *
- * WARNING: A live contract without at least one proposer and one executer is
+ * WARNING: A live contract without at least one proposer and one executor is
  * locked. Make sure these roles are filled by reliable entities. See the
  * {AccessControl} documentation to learn more about role management. Once the
  * {TimelockController} contract is live, role management is performed through
@@ -55,7 +55,7 @@ contract TimelockController is AccessControl {
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
-    bytes32 public constant EXECUTER_ROLE = keccak256("EXECUTER_ROLE");
+    bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
     uint256 internal constant _DONE_TIMESTAMP = uint256(1);
 
     mapping(bytes32 => uint256) private _timestamps;
@@ -87,7 +87,7 @@ contract TimelockController is AccessControl {
     constructor(uint256 minDelay) public {
         _setRoleAdmin(ADMIN_ROLE, ADMIN_ROLE);
         _setRoleAdmin(PROPOSER_ROLE, ADMIN_ROLE);
-        _setRoleAdmin(EXECUTER_ROLE, ADMIN_ROLE);
+        _setRoleAdmin(EXECUTOR_ROLE, ADMIN_ROLE);
         _setupRole(ADMIN_ROLE, _msgSender());
 
         _minDelay = minDelay;
@@ -229,9 +229,9 @@ contract TimelockController is AccessControl {
      *
      * Requirements:
      *
-     * - the caller must have the 'executer' role.
+     * - the caller must have the 'executor' role.
      */
-    function execute(address target, uint256 value, bytes calldata data, bytes32 predecessor, bytes32 salt) public payable onlyRole(EXECUTER_ROLE) {
+    function execute(address target, uint256 value, bytes calldata data, bytes32 predecessor, bytes32 salt) public payable onlyRole(EXECUTOR_ROLE) {
         bytes32 id = hashOperation(target, value, data, predecessor, salt);
         _execute(id, predecessor);
         _call(id, 0, target, value, data);
@@ -244,9 +244,9 @@ contract TimelockController is AccessControl {
      *
      * Requirements:
      *
-     * - the caller must have the 'executer' role.
+     * - the caller must have the 'executor' role.
      */
-    function executeBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 predecessor, bytes32 salt) public payable onlyRole(EXECUTER_ROLE) {
+    function executeBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 predecessor, bytes32 salt) public payable onlyRole(EXECUTOR_ROLE) {
         require(targets.length == values.length, "TimelockController: length missmatch");
         require(targets.length == datas.length, "TimelockController: length missmatch");
 
@@ -301,12 +301,12 @@ contract TimelockController is AccessControl {
      *
      * - the caller must be the only address with `ADMIN_ROLE`.
      * - there must be at least one account with 'PROPOSER_ROLE' and one with
-     *   'EXECUTER_ROLE'.
+     *   'EXECUTOR_ROLE'.
      */
     function makeLive() external /* onlyRole(ADMIN_ROLE) */ {
         require(getRoleMemberCount(ADMIN_ROLE) == 1, "TimelockController: there should not be any other administrator");
         require(getRoleMemberCount(PROPOSER_ROLE) > 0, "TimelockController: at least one proposer is requied to make the contract live");
-        require(getRoleMemberCount(EXECUTER_ROLE) > 0, "TimelockController: at least one executer is requied to make the contract live");
+        require(getRoleMemberCount(EXECUTOR_ROLE) > 0, "TimelockController: at least one executor is requied to make the contract live");
         grantRole(ADMIN_ROLE, address(this));
         revokeRole(ADMIN_ROLE, _msgSender());
     }

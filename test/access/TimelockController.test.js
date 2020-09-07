@@ -44,14 +44,14 @@ function genOperationBatch (targets, values, datas, predecessor, salt) {
 }
 
 describe('TimelockController', function () {
-  const [ admin, proposer, executer, other ] = accounts;
+  const [ admin, proposer, executor, other ] = accounts;
 
   beforeEach(async function () {
     // Deploy new timelock
     this.timelock = await TimelockController.new(MINDELAY, { from: admin });
-    // Grand proposer & executer role
+    // Grand proposer & executor role
     await this.timelock.grantRole(await this.timelock.PROPOSER_ROLE(), proposer, { from: admin });
-    await this.timelock.grantRole(await this.timelock.EXECUTER_ROLE(), executer, { from: admin });
+    await this.timelock.grantRole(await this.timelock.EXECUTOR_ROLE(), executor, { from: admin });
     // Transfer administration to timelock
     await this.timelock.makeLive({ from: admin });
     // Mocks
@@ -225,7 +225,7 @@ describe('TimelockController', function () {
                 this.operation.data,
                 this.operation.predecessor,
                 this.operation.salt,
-                { from: executer }
+                { from: executor }
               ),
               'TimelockController: operation is not ready'
             );
@@ -254,7 +254,7 @@ describe('TimelockController', function () {
                   this.operation.data,
                   this.operation.predecessor,
                   this.operation.salt,
-                  { from: executer }
+                  { from: executor }
                 ),
                 'TimelockController: operation is not ready'
               );
@@ -275,7 +275,7 @@ describe('TimelockController', function () {
                   this.operation.data,
                   this.operation.predecessor,
                   this.operation.salt,
-                  { from: executer }
+                  { from: executor }
                 ),
                 'TimelockController: operation is not ready'
               );
@@ -288,14 +288,14 @@ describe('TimelockController', function () {
               await time.increaseTo(timestamp);
             });
 
-            it('executer can reveal', async function () {
+            it('executor can reveal', async function () {
               const receipt = await this.timelock.execute(
                 this.operation.target,
                 this.operation.value,
                 this.operation.data,
                 this.operation.predecessor,
                 this.operation.salt,
-                { from: executer }
+                { from: executor }
               );
               expectEvent(receipt, 'CallExecuted', {
                 id: this.operation.id,
@@ -306,7 +306,7 @@ describe('TimelockController', function () {
               });
             });
 
-            it('prevent non-executer from revealing', async function () {
+            it('prevent non-executor from revealing', async function () {
               await expectRevert(
                 this.timelock.execute(
                   this.operation.target,
@@ -456,7 +456,7 @@ describe('TimelockController', function () {
                 this.operation.datas,
                 this.operation.predecessor,
                 this.operation.salt,
-                { from: executer }
+                { from: executor }
               ),
               'TimelockController: operation is not ready'
             );
@@ -485,7 +485,7 @@ describe('TimelockController', function () {
                   this.operation.datas,
                   this.operation.predecessor,
                   this.operation.salt,
-                  { from: executer }
+                  { from: executor }
                 ),
                 'TimelockController: operation is not ready'
               );
@@ -506,7 +506,7 @@ describe('TimelockController', function () {
                   this.operation.datas,
                   this.operation.predecessor,
                   this.operation.salt,
-                  { from: executer }
+                  { from: executor }
                 ),
                 'TimelockController: operation is not ready'
               );
@@ -519,14 +519,14 @@ describe('TimelockController', function () {
               await time.increaseTo(timestamp);
             });
 
-            it('executer can reveal', async function () {
+            it('executor can reveal', async function () {
               const receipt = await this.timelock.executeBatch(
                 this.operation.targets,
                 this.operation.values,
                 this.operation.datas,
                 this.operation.predecessor,
                 this.operation.salt,
-                { from: executer }
+                { from: executor }
               );
               for (const i in this.operation.targets) {
                 expectEvent(receipt, 'CallExecuted', {
@@ -539,7 +539,7 @@ describe('TimelockController', function () {
               }
             });
 
-            it('prevent non-executer from revealing', async function () {
+            it('prevent non-executor from revealing', async function () {
               await expectRevert(
                 this.timelock.executeBatch(
                   this.operation.targets,
@@ -561,7 +561,7 @@ describe('TimelockController', function () {
                   this.operation.datas,
                   this.operation.predecessor,
                   this.operation.salt,
-                  { from: executer }
+                  { from: executor }
                 ),
                 'TimelockController: length missmatch'
               );
@@ -575,7 +575,7 @@ describe('TimelockController', function () {
                   this.operation.datas,
                   this.operation.predecessor,
                   this.operation.salt,
-                  { from: executer }
+                  { from: executor }
                 ),
                 'TimelockController: length missmatch'
               );
@@ -589,7 +589,7 @@ describe('TimelockController', function () {
                   [],
                   this.operation.predecessor,
                   this.operation.salt,
-                  { from: executer }
+                  { from: executor }
                 ),
                 'TimelockController: length missmatch'
               );
@@ -635,7 +635,7 @@ describe('TimelockController', function () {
               operation.datas,
               operation.predecessor,
               operation.salt,
-              { from: executer }
+              { from: executor }
             ),
             'TimelockController: underlying transaction reverted'
           );
@@ -719,7 +719,7 @@ describe('TimelockController', function () {
         operation.data,
         operation.predecessor,
         operation.salt,
-        { from: executer }
+        { from: executor }
       );
       expectEvent(receipt2, 'CallExecuted', {
         id: operation.id,
@@ -782,7 +782,7 @@ describe('TimelockController', function () {
           this.operation2.data,
           this.operation2.predecessor,
           this.operation2.salt,
-          { from: executer }
+          { from: executor }
         ),
         'TimelockController: missing dependency'
       );
@@ -795,7 +795,7 @@ describe('TimelockController', function () {
         this.operation1.data,
         this.operation1.predecessor,
         this.operation1.salt,
-        { from: executer }
+        { from: executor }
       );
       await this.timelock.execute(
         this.operation2.target,
@@ -803,7 +803,7 @@ describe('TimelockController', function () {
         this.operation2.data,
         this.operation2.predecessor,
         this.operation2.salt,
-        { from: executer }
+        { from: executor }
       );
     });
   });
@@ -834,7 +834,7 @@ describe('TimelockController', function () {
         operation.data,
         operation.predecessor,
         operation.salt,
-        { from: executer }
+        { from: executor }
       );
       expectEvent(receipt, 'CallExecuted', {
         id: operation.id,
@@ -873,7 +873,7 @@ describe('TimelockController', function () {
           operation.data,
           operation.predecessor,
           operation.salt,
-          { from: executer }
+          { from: executor }
         ),
         'TimelockController: underlying transaction reverted'
       );
@@ -905,7 +905,7 @@ describe('TimelockController', function () {
           operation.data,
           operation.predecessor,
           operation.salt,
-          { from: executer }
+          { from: executor }
         ),
         'TimelockController: underlying transaction reverted'
       );
@@ -937,7 +937,7 @@ describe('TimelockController', function () {
           operation.data,
           operation.predecessor,
           operation.salt,
-          { from: executer }
+          { from: executor }
         ),
         'TimelockController: underlying transaction reverted'
       );
@@ -972,7 +972,7 @@ describe('TimelockController', function () {
         operation.data,
         operation.predecessor,
         operation.salt,
-        { from: executer, value: 1 }
+        { from: executor, value: 1 }
       );
       expectEvent(receipt, 'CallExecuted', {
         id: operation.id,
@@ -1016,7 +1016,7 @@ describe('TimelockController', function () {
           operation.data,
           operation.predecessor,
           operation.salt,
-          { from: executer }
+          { from: executor }
         ),
         'TimelockController: underlying transaction reverted'
       );
@@ -1055,7 +1055,7 @@ describe('TimelockController', function () {
           operation.data,
           operation.predecessor,
           operation.salt,
-          { from: executer }
+          { from: executor }
         ),
         'TimelockController: underlying transaction reverted'
       );
