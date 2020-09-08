@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.0;
+pragma solidity ^0.7.0;
 
 import "./UpgradeableProxy.sol";
 
@@ -30,7 +30,7 @@ contract TransparentUpgradeableProxy is UpgradeableProxy {
      * @dev Initializes an upgradeable proxy managed by `_admin`, backed by the implementation at `_logic`, and
      * optionally initialized with `_data` as explained in {UpgradeableProxy-constructor}.
      */
-    constructor(address _logic, address _admin, bytes memory _data) public payable UpgradeableProxy(_logic, _data) {
+    constructor(address _logic, address _admin, bytes memory _data) payable UpgradeableProxy(_logic, _data) {
         assert(_ADMIN_SLOT == bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1));
         _setAdmin(_admin);
     }
