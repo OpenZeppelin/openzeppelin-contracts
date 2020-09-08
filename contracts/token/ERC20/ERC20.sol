@@ -258,9 +258,9 @@ contract ERC20 is Context, IERC20 {
     }
 
     /**
-     * @dev Sets `amount` as the allowance of `spender` over the `owner`s tokens.
+     * @dev Sets `amount` as the allowance of `spender` over the `owner` s tokens.
      *
-     * This is internal function is equivalent to `approve`, and can be used to
+     * This internal function is equivalent to `approve`, and can be used to
      * e.g. set automatic allowances for certain subsystems, etc.
      *
      * Emits an {Approval} event.

@@ -1,5 +1,19 @@
 # Changelog
 
+## 3.2.0 (unreleased)
+
+### New features
+ * Proxies: added the proxy contracts from OpenZeppelin SDK. ([#2335](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2335))
+
+### Improvements
+ * `Address.isContract`: switched from `extcodehash` to `extcodesize` for less gas usage. ([#2311](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2311))
+
+### Breaking changes
+ * `ERC20Snapshot`: switched to using `_beforeTokenTransfer` hook instead of overriding ERC20 operations. ([#2312](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2312))
+
+This small change in the way we implemented `ERC20Snapshot` may affect users who are combining this contract with
+other ERC20 flavors, since it no longer overrides `_transfer`, `_mint`, and `_burn`. This can result in having to remove Solidity `override(...)` specifiers in derived contracts for these functions, and to instead have to add it for `_beforeTokenTransfer`. See [Using Hooks](https://docs.openzeppelin.com/contracts/3.x/extending-contracts#using-hooks) in the documentation.
+
 ## 3.1.0 (2020-06-23)
 
 ### New features

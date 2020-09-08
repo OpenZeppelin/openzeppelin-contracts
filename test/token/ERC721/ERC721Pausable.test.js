@@ -86,7 +86,7 @@ describe('ERC721Pausable', function () {
     });
 
     describe('exists', function () {
-      it('should return token existence', async function () {
+      it('returns token existence', async function () {
         expect(await this.token.exists(firstTokenId)).to.equal(true);
       });
     });

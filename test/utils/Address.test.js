@@ -15,11 +15,11 @@ describe('Address', function () {
   });
 
   describe('isContract', function () {
-    it('should return false for account address', async function () {
+    it('returns false for account address', async function () {
       expect(await this.mock.isContract(other)).to.equal(false);
     });
 
-    it('should return true for contract address', async function () {
+    it('returns true for contract address', async function () {
       const contract = await AddressImpl.new();
       expect(await this.mock.isContract(contract.address)).to.equal(true);
     });

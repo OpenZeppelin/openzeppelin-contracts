@@ -28,7 +28,7 @@ describe('ERC1155', function () {
     const mintAmounts = [new BN(5000), new BN(10000), new BN(42195)];
     const burnAmounts = [new BN(5000), new BN(9001), new BN(195)];
 
-    const data = '0xcafebabe';
+    const data = '0x12345678';
 
     describe('_mint', function () {
       it('reverts with a zero destination address', async function () {
@@ -70,6 +70,11 @@ describe('ERC1155', function () {
       it('reverts if length of inputs do not match', async function () {
         await expectRevert(
           this.token.mintBatch(tokenBatchHolder, tokenBatchIds, mintAmounts.slice(1), data),
+          'ERC1155: ids and amounts length mismatch'
+        );
+
+        await expectRevert(
+          this.token.mintBatch(tokenBatchHolder, tokenBatchIds.slice(1), mintAmounts, data),
           'ERC1155: ids and amounts length mismatch'
         );
       });
@@ -121,6 +126,21 @@ describe('ERC1155', function () {
         );
       });
 
+      it('reverts when burning more than available tokens', async function () {
+        await this.token.mint(
+          tokenHolder,
+          tokenId,
+          mintAmount,
+          data,
+          { from: operator }
+        );
+
+        await expectRevert(
+          this.token.burn(tokenHolder, tokenId, mintAmount.addn(1)),
+          'ERC1155: burn amount exceeds balance'
+        );
+      });
+
       context('with minted-then-burnt tokens', function () {
         beforeEach(async function () {
           await this.token.mint(tokenHolder, tokenId, mintAmount, data);
@@ -162,6 +182,11 @@ describe('ERC1155', function () {
       it('reverts if length of inputs do not match', async function () {
         await expectRevert(
           this.token.burnBatch(tokenBatchHolder, tokenBatchIds, burnAmounts.slice(1)),
+          'ERC1155: ids and amounts length mismatch'
+        );
+
+        await expectRevert(
+          this.token.burnBatch(tokenBatchHolder, tokenBatchIds.slice(1), burnAmounts),
           'ERC1155: ids and amounts length mismatch'
         );
       });

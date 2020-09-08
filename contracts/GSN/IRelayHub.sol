@@ -41,7 +41,7 @@ interface IRelayHub {
     function registerRelay(uint256 transactionFee, string calldata url) external;
 
     /**
-     * @dev Emitted when a relay is registered or re-registerd. Looking at these events (and filtering out
+     * @dev Emitted when a relay is registered or re-registered. Looking at these events (and filtering out
      * {RelayRemoved} events) lets a client discover the list of available relays.
      */
     event RelayAdded(address indexed relay, address indexed owner, uint256 transactionFee, uint256 stake, uint256 unstakeDelay, string url);
@@ -105,7 +105,7 @@ interface IRelayHub {
     event Deposited(address indexed recipient, address indexed from, uint256 amount);
 
     /**
-     * @dev Returns an account's deposits. These can be either a contracts's funds, or a relay owner's revenue.
+     * @dev Returns an account's deposits. These can be either a contract's funds, or a relay owner's revenue.
      */
     function balanceOf(address target) external view returns (uint256);
 

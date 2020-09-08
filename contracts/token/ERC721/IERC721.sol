@@ -9,7 +9,7 @@ import "../../introspection/IERC165.sol";
  */
 interface IERC721 is IERC165 {
     /**
-     * @dev Emitted when `tokenId` token is transfered from `from` to `to`.
+     * @dev Emitted when `tokenId` token is transferred from `from` to `to`.
      */
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
 

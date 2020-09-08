@@ -53,7 +53,7 @@ interface IRelayRecipient {
      *
      * Returns a value to be passed to {postRelayedCall}.
      *
-     * {preRelayedCall} is called with 100k gas: if it runs out during exection or otherwise reverts, the relayed call
+     * {preRelayedCall} is called with 100k gas: if it runs out during execution or otherwise reverts, the relayed call
      * will not be executed, but the recipient will still be charged for the transaction's cost.
      */
     function preRelayedCall(bytes calldata context) external returns (bytes32);

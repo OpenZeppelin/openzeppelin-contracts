@@ -52,7 +52,7 @@ The guides in the sidebar will teach about different concepts, and how to use th
 * xref:gsn.adoc[Gas Station Network]: let your users interact with your contracts without having to pay for gas themselves.
 * xref:utilities.adoc[Utilities]: generic useful tools, including non-overflowing math, signature verification, and trustless paying systems.
 
-The xref:api:token/ERC20.adoc[full API] is also thoroughly documented, and serves as a great reference when developing your smart contract application. You can also ask for help or follow Contracts's development in the https://forum.openzeppelin.com[community forum].
+The xref:api:token/ERC20.adoc[full API] is also thoroughly documented, and serves as a great reference when developing your smart contract application. You can also ask for help or follow Contracts' development in the https://forum.openzeppelin.com[community forum].
 
 Finally, you may want to take a look at the https://blog.openzeppelin.com/guides/[guides on our blog], which cover several common use cases and good practices.. The following articles provide great background reading, though please note, some of the referenced tools have changed as the tooling in the ecosystem continues to rapidly evolve.
 
