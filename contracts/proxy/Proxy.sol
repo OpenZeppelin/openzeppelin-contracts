@@ -3,39 +3,20 @@
 pragma solidity ^0.6.0;
 
 /**
- * @title Proxy
- * @dev Implements delegation of calls to other contracts, with proper
- * forwarding of return values and bubbling of failures.
- * It defines a fallback function that delegates all calls to the address
- * returned by the abstract _implementation() internal function.
+ * @dev This abstract contract provides a fallback function that delegates all calls to another contract using the EVM
+ * instruction `delegatecall`. We refer to the second contract as the _implementation_ behind the proxy, and it has to
+ * be specified by overriding the virtual {_implementation} function.
+ * 
+ * Additionally, delegation to the implementation can be triggered manually through the {_fallback} function, or to a
+ * different contract through the {_delegate} function.
+ * 
+ * The success and return data of the delegated call will be returned back to the caller of the proxy.
  */
 abstract contract Proxy {
     /**
-     * @dev Fallback function.
-     * Implemented entirely in `_fallback`.
-     */
-    fallback () payable external {
-        _fallback();
-    }
-
-    /**
-     * @dev Receive function.
-     * Implemented entirely in `_fallback`.
-     */
-    receive () payable external {
-        _fallback();
-    }
-
-    /**
-     * @return The Address of the implementation.
-     */
-    function _implementation() internal virtual view returns (address);
-
-    /**
-     * @dev Delegates execution to an implementation contract.
-     * This is a low level function that doesn't return to its internal call site.
-     * It will return to the external caller whatever the implementation returns.
-     * @param implementation Address to delegate.
+     * @dev Delegates the current call to `implementation`.
+     * 
+     * This function does not return to its internall call site, it will return directly to the external caller.
      */
     function _delegate(address implementation) internal {
         // solhint-disable-next-line no-inline-assembly
@@ -60,19 +41,43 @@ abstract contract Proxy {
     }
 
     /**
-     * @dev Function that is run as the first thing in the fallback function.
-     * Can be redefined in derived contracts to add functionality.
-     * Redefinitions must call super._willFallback().
+     * @dev This is a virtual function that should be overriden so it returns the address to which the fallback function
+     * and {_fallback} should delegate.
      */
-    function _willFallback() internal virtual {
+    function _implementation() internal virtual view returns (address);
+
+    /**
+     * @dev Delegates the current call to the address returned by `_implementation()`.
+     * 
+     * This function does not return to its internall call site, it will return directly to the external caller.
+     */
+    function _fallback() internal {
+        _beforeFallback();
+        _delegate(_implementation());
     }
 
     /**
-     * @dev fallback implementation.
-     * Extracted to enable manual triggering.
+     * @dev Fallback function that delegates calls to the address returned by `_implementation()`. Will run if no other
+     * function in the contract matches the call data.
      */
-    function _fallback() internal {
-        _willFallback();
-        _delegate(_implementation());
+    fallback () payable external {
+        _fallback();
+    }
+
+    /**
+     * @dev Fallback function that delegates calls to the address returned by `_implementation()`. Will run if call data
+     * is empty.
+     */
+    receive () payable external {
+        _fallback();
+    }
+
+    /**
+     * @dev Hook that is called before falling back to the implementation. Can happen as part of a manual `_fallback`
+     * call, or as part of the Solidity `fallback` or `receive` functions.
+     * 
+     * If overriden should call `super._beforeFallback()`.
+     */
+    function _beforeFallback() internal virtual {
     }
 }
