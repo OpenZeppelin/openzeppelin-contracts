@@ -282,7 +282,7 @@ contract TimelockController is AccessControl {
     /**
      * @dev Changes the timelock duration for future operations.
      *
-     * Emits a {Timelock-MinDelayChange} event.
+     * Emits a {MinDelayChange} event.
      */
     function updateDelay(uint256 newDelay) external {
         require(msg.sender == address(this), "TimelockController: restricted maintenance access");
@@ -320,3 +320,4 @@ contract TimelockController is AccessControl {
 //  3/09: 1h (10h)
 //  5/09: 2h (12h)
 //  7/09: 4h (16h)
+//  9/09: 1h (17h)
