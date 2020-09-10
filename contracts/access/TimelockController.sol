@@ -20,7 +20,7 @@ import "./AccessControl.sol";
  * {TimelockController} as the owner of a smart contract, with a multisig or a
  * DAO as the sole proposer. Once at least one proposer and one executor have
  * been appointed, self-administration can be enable using the `makeLive`
- * function. 
+ * function.
  */
 contract TimelockController is AccessControl {
 
@@ -67,9 +67,9 @@ contract TimelockController is AccessControl {
 
     /**
      * @dev Modifier to make a function callable only by a certain role. In
-     * addition to checking the sender's role, address(0)'s role is also
-     * considered. Granting a role to Address(0) is equivalent to enabling this
-     * role for everyone.
+     * addition to checking the sender's role, `address(0)` 's role is also
+     * considered. Granting a role to `address(0)` is equivalent to enabling
+     * this role for everyone.
      */
     modifier onlyRole(bytes32 role) {
         require(hasRole(role, _msgSender()) || hasRole(role, address(0)), "TimelockController: sender requiers permission");

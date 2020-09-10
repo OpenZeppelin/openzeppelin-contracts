@@ -215,25 +215,3 @@ TIP: A common/recommended configuration is to grant both roles to a secure gover
 Operation executed by the xref:api:access.adoc#TimelockController[`TimelockControler`] are not subject to a fix delay but rather a minimum delay. Some major updates might call for a longer delay. For example, if a delay of just a few days might be sufficient for users to audit a minting operation, it makes sense to use a delay of a few weeks, or even a few months, when scheduling a smart contract update.
 
 The minimum delay (accessible through the xref:api:access.adoc#TimelockController-viewMinDelay--[viewMinDelay] method) can be updated by calling the xref:api:access.adoc#TimelockController-updateDelay-uint256-[updateDelay] function. Bear in mind that access to this function is only accessible by the timelock itself, meaning this maintenance operation has to go through the timelock itself.
-
-=== Roles
-
-==== Admin
-
-The admins are in charge of managing proposers and executors. For the timelock to be self-governed, this role should only be given to the timelock itself. This is the purpose of the xref:api:access.adoc#TimelockController-makeLive--[`makeLive`] function.
-
-This role is identified by the *ADMIN_ROLE* value: `0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775`
-
-==== Proposer
-
-The proposers are in charge of scheduling (and cancelling) operations. This is a critical role, that should be given to governing entities. This could be an EOA, a multisig, or a DAO.
-
-WARNING: *Proposer fight:* Having multiple proposers, while providing redundancy in case one becomes unavailable, can be dangerous. As proposer have their say on all operations, they could cancel operations they disagree with, including operations to remove them for the proposers.
-
-This role is identified by the *PROPOSER_ROLE* value: `0xb09aa5aeb3702cfd50b6b62bc4532604938f21248a27a1d5ca736082b6819cc1`
-
-==== Executor
-
-The executors are in charge of executing the operations scheduled by the proposers once the timelock expires. Logic dictates that multisig or DAO that are proposers should also be executors in order to guarantee operations that have been scheduled will eventually be executed. However, having additional executor can reduce the cost (the executing transaction does not requier validation by the multisig or DAO that proposed it), while ensuring whoever is in charge of execution cannot trigger actions that have not been scheduled by the proposers.
-
-This role is identified by the *EXECUTOR_ROLE* value: `0xd8aa0f3194971a2a116679f7c2090f6939c8d4e01a2a8d7e41d55e5351469e63`
