@@ -1,6 +1,6 @@
 {
   "name": "@openzeppelin/contracts",
-  "version": "3.2.0",
+  "version": "3.2.0-solc-0.7",
   "description": "Secure Smart Contract library for Solidity",
   "files": [
     "**/*.sol",
