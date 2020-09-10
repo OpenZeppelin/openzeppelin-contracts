@@ -9,7 +9,6 @@ Security tools include:
 
  * {Pausable}: provides a simple way to halt activity in your contracts (often in response to an external threat).
  * {ReentrancyGuard}: protects you from https://blog.openzeppelin.com/reentrancy-after-istanbul/[reentrant calls].
- * {Timelock}: provides mechanism to enable timelocked operations.
 
 The {Address}, {Arrays} and {Strings} libraries provide more operations related to these native data types, while {SafeCast} adds ways to safely convert between the different signed and unsigned numeric types.
 
@@ -33,8 +32,6 @@ Finally, {Create2} contains all necessary utilities to safely use the https://bl
 {{Pausable}}
 
 {{ReentrancyGuard}}
-
-{{Timelock}}
 
 == Libraries
 

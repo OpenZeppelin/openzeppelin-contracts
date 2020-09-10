@@ -13,28 +13,6 @@ import "./AccessControl.sol";
  * controlled contract to exit before a potentially dangerous maintenance
  * operation is applied.
  *
- * Timelocked operations are identified by a unique id (their hash) and follow
- * a specific lifecycle: `Unset` → `Pending` → `Ready` → `Done`
- *
- * - `Unset`: The operation is not part of the timelock mechanism
- *
- * - `Pending`: By calling the {schedule} (or {scheduleBatch}) method, the
- * operation moves from the `Unset` to the `Pending` state. This starts a timer
- * of at least `minDelay`.
- *
- * - `Ready`: After the timer expires, the operation moves from the `Pending` to
- * the `Ready` state. At this point, it can be executed.
- *
- * - `Done`: Once an operation is ready, calling the {execute} (or
- * {executeBatch}) method will process it and move it to the `Done` state. If
- * the operation has a predecessor, it should be in the `Done` state. The
- * operation shall not be executed twice. To execute the same instruction a
- * second time, restart the cycle with a different salt (thus producing a
- * different operation id).
- *
- * `Pending` and `Ready` operations can be cancelled using the {cancel} method.
- * This resets the operation to the `Unset` state, making it possibly
- * reschedule.
  *
  * This contract is designed to be self administered, meaning it should be its
  * own administrator. The proposer (resp executor) role is in charge of
@@ -42,15 +20,8 @@ import "./AccessControl.sol";
  * {TimelockController} as the owner of a smart contract, with a multisig or a
  * DAO as the sole proposer. Once at least one proposer and one executor have
  * been appointed, self-administration can be enable using the `makeLive`
- * function.
- *
- * WARNING: A live contract without at least one proposer and one executor is
- * locked. Make sure these roles are filled by reliable entities. See the
- * {AccessControl} documentation to learn more about role management. Once the
- * {TimelockController} contract is live, role management is performed through
- * timelocked operations.
+ * function. 
  */
-
 contract TimelockController is AccessControl {
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
