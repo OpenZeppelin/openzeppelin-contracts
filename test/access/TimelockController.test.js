@@ -48,19 +48,19 @@ describe('TimelockController', function () {
 
   beforeEach(async function () {
     // Deploy new timelock
-    this.timelock = await TimelockController.new(MINDELAY, { from: admin });
-    // Grand proposer & executor role
-    await this.timelock.grantRole(await this.timelock.PROPOSER_ROLE(), proposer, { from: admin });
-    await this.timelock.grantRole(await this.timelock.EXECUTOR_ROLE(), executor, { from: admin });
-    // Transfer administration to timelock
-    await this.timelock.makeLive({ from: admin });
+    this.timelock = await TimelockController.new(
+      MINDELAY,
+      [ proposer ],
+      [ executor ],
+      { from: admin }
+    );
     // Mocks
     this.callreceivermock = await CallReceiverMock.new({ from: admin });
     this.implementation2 = await Implementation2.new({ from: admin });
   });
 
   it('initial state', async function () {
-    expect(await this.timelock.viewMinDelay()).to.be.bignumber.equal(MINDELAY);
+    expect(await this.timelock.getMinDelay()).to.be.bignumber.equal(MINDELAY);
   });
 
   describe('methods', function () {
@@ -152,7 +152,7 @@ describe('TimelockController', function () {
 
           const block = await web3.eth.getBlock(receipt.receipt.blockHash);
 
-          expect(await this.timelock.viewTimestamp(this.operation.id))
+          expect(await this.timelock.getTimestamp(this.operation.id))
             .to.be.bignumber.equal(web3.utils.toBN(block.timestamp).add(MINDELAY));
         });
 
@@ -263,7 +263,7 @@ describe('TimelockController', function () {
 
           describe('almost but not quite', function () {
             beforeEach(async function () {
-              const timestamp = await this.timelock.viewTimestamp(this.operation.id);
+              const timestamp = await this.timelock.getTimestamp(this.operation.id);
               await time.increaseTo(timestamp - 2); // -1 is too tight, test sometime fails
             });
 
@@ -284,7 +284,7 @@ describe('TimelockController', function () {
 
           describe('on time', function () {
             beforeEach(async function () {
-              const timestamp = await this.timelock.viewTimestamp(this.operation.id);
+              const timestamp = await this.timelock.getTimestamp(this.operation.id);
               await time.increaseTo(timestamp);
             });
 
@@ -381,7 +381,7 @@ describe('TimelockController', function () {
 
           const block = await web3.eth.getBlock(receipt.receipt.blockHash);
 
-          expect(await this.timelock.viewTimestamp(this.operation.id))
+          expect(await this.timelock.getTimestamp(this.operation.id))
             .to.be.bignumber.equal(web3.utils.toBN(block.timestamp).add(MINDELAY));
         });
 
@@ -494,7 +494,7 @@ describe('TimelockController', function () {
 
           describe('almost but not quite', function () {
             beforeEach(async function () {
-              const timestamp = await this.timelock.viewTimestamp(this.operation.id);
+              const timestamp = await this.timelock.getTimestamp(this.operation.id);
               await time.increaseTo(timestamp - 2); // -1 is to tight, test sometime fails
             });
 
@@ -515,7 +515,7 @@ describe('TimelockController', function () {
 
           describe('on time', function () {
             beforeEach(async function () {
-              const timestamp = await this.timelock.viewTimestamp(this.operation.id);
+              const timestamp = await this.timelock.getTimestamp(this.operation.id);
               await time.increaseTo(timestamp);
             });
 
@@ -730,7 +730,7 @@ describe('TimelockController', function () {
       });
       expectEvent(receipt2, 'MinDelayChange', { newDuration: newDelay.toString(), oldDuration: MINDELAY });
 
-      expect(await this.timelock.viewMinDelay()).to.be.bignumber.equal(newDelay);
+      expect(await this.timelock.getMinDelay()).to.be.bignumber.equal(newDelay);
 
       console.log('Gas cost schedule:', receipt1.receipt.gasUsed);
       console.log('Gas cost execute:', receipt2.receipt.gasUsed);

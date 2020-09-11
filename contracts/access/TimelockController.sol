@@ -50,19 +50,33 @@ contract TimelockController is AccessControl {
     /**
      * @dev Emitted when the minimum delay for future operations is modified.
      */
-    event MinDelayChange(uint256 newDuration, uint256 oldDuration);
+    event MinDelayChange(uint256 oldDuration, uint256 newDuration);
 
     /**
      * @dev Initializes the contract with a given `minDelay`.
      */
-    constructor(uint256 minDelay) public {
+    constructor(uint256 minDelay, address[] memory proposers, address[] memory executors) public {
         _setRoleAdmin(ADMIN_ROLE, ADMIN_ROLE);
         _setRoleAdmin(PROPOSER_ROLE, ADMIN_ROLE);
         _setRoleAdmin(EXECUTOR_ROLE, ADMIN_ROLE);
-        _setupRole(ADMIN_ROLE, _msgSender());
+
+        // Self administration
+        _setupRole(ADMIN_ROLE, address(this));
+
+        // register proposers
+        require(proposers.length > 0, "TimelockController: needs at least one proposer");
+        for (uint256 i = 0; i < proposers.length; ++i) {
+            _setupRole(PROPOSER_ROLE, proposers[i]);
+        }
+
+        // register executors
+        require(executors.length > 0, "TimelockController: needs at least one executor");
+        for (uint256 i = 0; i < executors.length; ++i) {
+            _setupRole(EXECUTOR_ROLE, executors[i]);
+        }
 
         _minDelay = minDelay;
-        emit MinDelayChange(minDelay, 0);
+        emit MinDelayChange(0, minDelay);
     }
 
     /**
@@ -107,14 +121,14 @@ contract TimelockController is AccessControl {
      * @dev Returns the timestamp at with an operation becomes ready (0 for
      * unset operations, 1 for done operations).
      */
-    function viewTimestamp(bytes32 id) public view returns (uint256 timestamp) {
+    function getTimestamp(bytes32 id) public view returns (uint256 timestamp) {
         return _timestamps[id];
     }
 
     /**
      * @dev Returns the minimum delay for an operation to become valid.
      */
-    function viewMinDelay() public view returns (uint256 duration) {
+    function getMinDelay() public view returns (uint256 duration) {
         return _minDelay;
     }
 
@@ -143,7 +157,7 @@ contract TimelockController is AccessControl {
      *
      * - the caller must have the 'proposer' role.
      */
-    function schedule(address target, uint256 value, bytes calldata data, bytes32 predecessor, bytes32 salt, uint256 delay) public onlyRole(PROPOSER_ROLE) {
+    function schedule(address target, uint256 value, bytes calldata data, bytes32 predecessor, bytes32 salt, uint256 delay) public virtual onlyRole(PROPOSER_ROLE) {
         bytes32 id = hashOperation(target, value, data, predecessor, salt);
         _schedule(id, delay);
         emit CallScheduled(id, 0, target, value, data, predecessor);
@@ -158,7 +172,7 @@ contract TimelockController is AccessControl {
      *
      * - the caller must have the 'proposer' role.
      */
-    function scheduleBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 predecessor, bytes32 salt, uint256 delay) public onlyRole(PROPOSER_ROLE) {
+    function scheduleBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 predecessor, bytes32 salt, uint256 delay) public virtual onlyRole(PROPOSER_ROLE) {
         require(targets.length == values.length, "TimelockController: length missmatch");
         require(targets.length == datas.length, "TimelockController: length missmatch");
 
@@ -172,7 +186,7 @@ contract TimelockController is AccessControl {
     /**
      * @dev Schedule an operation that is to becomes valid after a given delay.
      */
-    function _schedule(bytes32 id, uint256 delay) internal {
+    function _schedule(bytes32 id, uint256 delay) private {
         require(_timestamps[id] == 0, "TimelockController: operation already scheduled");
         require(delay >= _minDelay, "TimelockController: insufficient delay");
         // solhint-disable-next-line not-rely-on-time
@@ -186,7 +200,7 @@ contract TimelockController is AccessControl {
      *
      * - the caller must have the 'proposer' role.
      */
-    function cancel(bytes32 id) public onlyRole(PROPOSER_ROLE) {
+    function cancel(bytes32 id) public virtual onlyRole(PROPOSER_ROLE) {
         require(!isOperationDone(id), "TimelockController: operation is already executed");
         delete _timestamps[id];
 
@@ -202,7 +216,7 @@ contract TimelockController is AccessControl {
      *
      * - the caller must have the 'executor' role.
      */
-    function execute(address target, uint256 value, bytes calldata data, bytes32 predecessor, bytes32 salt) public payable onlyRole(EXECUTOR_ROLE) {
+    function execute(address target, uint256 value, bytes calldata data, bytes32 predecessor, bytes32 salt) public payable virtual onlyRole(EXECUTOR_ROLE) {
         bytes32 id = hashOperation(target, value, data, predecessor, salt);
         _execute(id, predecessor);
         _call(id, 0, target, value, data);
@@ -217,7 +231,7 @@ contract TimelockController is AccessControl {
      *
      * - the caller must have the 'executor' role.
      */
-    function executeBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 predecessor, bytes32 salt) public payable onlyRole(EXECUTOR_ROLE) {
+    function executeBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 predecessor, bytes32 salt) public payable virtual onlyRole(EXECUTOR_ROLE) {
         require(targets.length == values.length, "TimelockController: length missmatch");
         require(targets.length == datas.length, "TimelockController: length missmatch");
 
@@ -231,7 +245,7 @@ contract TimelockController is AccessControl {
     /**
      * @dev Execute an operation. Operation must be ready.
      */
-    function _execute(bytes32 id, bytes32 predecessor) internal {
+    function _execute(bytes32 id, bytes32 predecessor) private {
         require(isOperationReady(id), "TimelockController: operation is not ready");
         require(predecessor == bytes32(0) || isOperationDone(predecessor), "TimelockController: missing dependency");
         _timestamps[id] = _DONE_TIMESTAMP;
@@ -242,7 +256,7 @@ contract TimelockController is AccessControl {
      *
      * Emits a {CallExecuted} event.
      */
-    function _call(bytes32 id, uint256 index, address target, uint256 value, bytes calldata data) internal returns (bool) {
+    function _call(bytes32 id, uint256 index, address target, uint256 value, bytes calldata data) private returns (bool) {
         // solhint-disable-next-line avoid-low-level-calls
         (bool success,) = target.call{value: value}(data);
         require(success, "TimelockController: underlying transaction reverted");
@@ -255,31 +269,10 @@ contract TimelockController is AccessControl {
      *
      * Emits a {MinDelayChange} event.
      */
-    function updateDelay(uint256 newDelay) external {
+    function updateDelay(uint256 newDelay) external virtual {
         require(msg.sender == address(this), "TimelockController: restricted maintenance access");
-        emit MinDelayChange(newDelay, _minDelay);
+        emit MinDelayChange(_minDelay, newDelay);
         _minDelay = newDelay;
-    }
-
-    /**
-     * @dev Revocate the sender's administrative power, and give this role to
-     * the timelock itself. All further maintenance will have to be performed
-     * by the timelock itself using the commit/reveal workflow.
-     *
-     * Emits one {RoleGranted} and one {RoleRevoked} event.
-     *
-     * Requirements:
-     *
-     * - the caller must be the only address with `ADMIN_ROLE`.
-     * - there must be at least one account with 'PROPOSER_ROLE' and one with
-     *   'EXECUTOR_ROLE'.
-     */
-    function makeLive() external /* onlyRole(ADMIN_ROLE) */ {
-        require(getRoleMemberCount(ADMIN_ROLE) == 1, "TimelockController: there should not be any other administrator");
-        require(getRoleMemberCount(PROPOSER_ROLE) > 0, "TimelockController: at least one proposer is requied to make the contract live");
-        require(getRoleMemberCount(EXECUTOR_ROLE) > 0, "TimelockController: at least one executor is requied to make the contract live");
-        grantRole(ADMIN_ROLE, address(this));
-        revokeRole(ADMIN_ROLE, _msgSender());
     }
 }
 
@@ -292,3 +285,4 @@ contract TimelockController is AccessControl {
 //  5/09: 2h (12h)
 //  7/09: 4h (16h)
 //  9/09: 1h (17h)
+//  12/09: 2h (19h)
