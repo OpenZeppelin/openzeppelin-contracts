@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "compile": "scripts/compile.sh",
-    "coverage": "truffle build && truffle run coverage",
+    "coverage": "node_modules/.bin/truffle build && node_modules/.bin/truffle run coverage",
     "docs": "oz-docs",
     "docs:watch": "npm run docs watch contracts 'docs/*.hbs'",
     "prepare-docs": "scripts/prepare-docs.sh",
@@ -68,7 +68,8 @@
     "rimraf": "^3.0.2",
     "solhint": "^3.2.0",
     "solidity-coverage": "^0.7.10",
-    "solidity-docgen": "^0.5.3"
+    "solidity-docgen": "^0.5.3",
+    "truffle": "^5.1.44"
   },
   "dependencies": {}
 }
