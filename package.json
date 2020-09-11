@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "compile": "scripts/compile.sh",
-    "coverage": "scripts/coverage.sh",
+    "coverage": "truffle build && truffle run coverage",
     "docs": "oz-docs",
     "docs:watch": "npm run docs watch contracts 'docs/*.hbs'",
     "prepare-docs": "scripts/prepare-docs.sh",
@@ -61,14 +61,13 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
     "ethereumjs-util": "^7.0.1",
-    "ganache-core-coverage": "https://github.com/OpenZeppelin/ganache-core-coverage/releases/download/2.5.3-coverage/ganache-core-coverage-2.5.3.tgz",
     "lodash.startcase": "^4.4.0",
     "lodash.zip": "^4.2.0",
     "micromatch": "^4.0.2",
     "mocha": "^8.0.1",
     "rimraf": "^3.0.2",
     "solhint": "^3.2.0",
-    "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
+    "solidity-coverage": "^0.7.10",
     "solidity-docgen": "^0.5.3"
   },
   "dependencies": {}
