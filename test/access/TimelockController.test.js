@@ -128,6 +128,7 @@ describe('TimelockController', function () {
             value: web3.utils.toBN(this.operation.value),
             data: this.operation.data,
             predecessor: this.operation.predecessor,
+            delay: MINDELAY,
           });
         });
 
@@ -148,6 +149,7 @@ describe('TimelockController', function () {
             value: web3.utils.toBN(this.operation.value),
             data: this.operation.data,
             predecessor: this.operation.predecessor,
+            delay: MINDELAY,
           });
 
           const block = await web3.eth.getBlock(receipt.receipt.blockHash);
@@ -173,6 +175,7 @@ describe('TimelockController', function () {
             value: web3.utils.toBN(this.operation.value),
             data: this.operation.data,
             predecessor: this.operation.predecessor,
+            delay: MINDELAY,
           });
 
           await expectRevert(
@@ -201,6 +204,21 @@ describe('TimelockController', function () {
               { from: other }
             ),
             'TimelockController: sender requiers permission'
+          );
+        });
+
+        it('enforce minimum delay', async function () {
+          await expectRevert(
+            this.timelock.schedule(
+              this.operation.target,
+              this.operation.value,
+              this.operation.data,
+              this.operation.predecessor,
+              this.operation.salt,
+              MINDELAY - 1,
+              { from: proposer }
+            ),
+            'TimelockController: insufficient delay'
           );
         });
       });
@@ -354,6 +372,7 @@ describe('TimelockController', function () {
               value: web3.utils.toBN(this.operation.values[i]),
               data: this.operation.datas[i],
               predecessor: this.operation.predecessor,
+              delay: MINDELAY,
             });
           }
         });
@@ -376,6 +395,7 @@ describe('TimelockController', function () {
               value: web3.utils.toBN(this.operation.values[i]),
               data: this.operation.datas[i],
               predecessor: this.operation.predecessor,
+              delay: MINDELAY,
             });
           }
 
@@ -403,6 +423,7 @@ describe('TimelockController', function () {
               value: web3.utils.toBN(this.operation.values[i]),
               data: this.operation.datas[i],
               predecessor: this.operation.predecessor,
+              delay: MINDELAY,
             });
           }
 
@@ -711,6 +732,7 @@ describe('TimelockController', function () {
         value: web3.utils.toBN(operation.value),
         data: operation.data,
         predecessor: operation.predecessor,
+        delay: MINDELAY,
       });
       await time.increase(MINDELAY);
       const receipt2 = await this.timelock.execute(
