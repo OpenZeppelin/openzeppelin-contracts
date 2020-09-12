@@ -63,13 +63,11 @@ contract TimelockController is AccessControl {
         _setupRole(ADMIN_ROLE, address(this));
 
         // register proposers
-        require(proposers.length > 0, "TimelockController: needs at least one proposer");
         for (uint256 i = 0; i < proposers.length; ++i) {
             _setupRole(PROPOSER_ROLE, proposers[i]);
         }
 
         // register executors
-        require(executors.length > 0, "TimelockController: needs at least one executor");
         for (uint256 i = 0; i < executors.length; ++i) {
             _setupRole(EXECUTOR_ROLE, executors[i]);
         }
