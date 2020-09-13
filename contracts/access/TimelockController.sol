@@ -215,9 +215,8 @@ contract TimelockController is AccessControl {
      */
     function execute(address target, uint256 value, bytes calldata data, bytes32 predecessor, bytes32 salt) public payable virtual onlyRole(EXECUTOR_ROLE) {
         bytes32 id = hashOperation(target, value, data, predecessor, salt);
-        _beforeCall(id, predecessor);
         _call(id, 0, target, value, data);
-        _afterCall(id);
+        _checkCall(id, predecessor);
     }
 
     /**
@@ -234,19 +233,19 @@ contract TimelockController is AccessControl {
         require(targets.length == datas.length, "TimelockController: length missmatch");
 
         bytes32 id = hashOperationBatch(targets, values, datas, predecessor, salt);
-        _beforeCall(id, predecessor);
         for (uint256 i = 0; i < targets.length; ++i) {
             _call(id, i, targets[i], values[i], datas[i]);
         }
-        _afterCall(id);
+        _checkCall(id, predecessor);
     }
 
     /**
-     * @dev Pre-flight checks before execution an operation's calls.
+     * @dev Checks an operation status.
      */
-    function _beforeCall(bytes32 id, bytes32 predecessor) private view {
+    function _checkCall(bytes32 id, bytes32 predecessor) private view {
         require(isOperationReady(id), "TimelockController: operation is not ready");
         require(predecessor == bytes32(0) || isOperationDone(predecessor), "TimelockController: missing dependency");
+        _timestamps[id] = _DONE_TIMESTAMP;
     }
 
     /**
@@ -260,13 +259,6 @@ contract TimelockController is AccessControl {
         require(success, "TimelockController: underlying transaction reverted");
 
         emit CallExecuted(id, index, target, value, data);
-    }
-
-    /**
-     * @dev Post-flight checks after execution an operation's calls.
-     */
-    function _afterCall(bytes32 id) private {
-        _timestamps[id] = _DONE_TIMESTAMP;
     }
 
     /**
