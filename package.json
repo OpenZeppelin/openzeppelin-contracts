@@ -1,6 +1,6 @@
 {
   "name": "openzeppelin-solidity",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "Secure Smart Contract library for Solidity",
   "files": [
     "/contracts/**/*.sol",
@@ -67,7 +67,7 @@
     "micromatch": "^4.0.2",
     "mocha": "^8.0.1",
     "rimraf": "^3.0.2",
-    "solhint": "^3.0.0",
+    "solhint": "^3.2.0",
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
     "solidity-docgen": "^0.5.3"
   },
