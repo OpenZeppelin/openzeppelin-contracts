@@ -215,8 +215,9 @@ contract TimelockController is AccessControl {
      */
     function execute(address target, uint256 value, bytes calldata data, bytes32 predecessor, bytes32 salt) public payable virtual onlyRole(EXECUTOR_ROLE) {
         bytes32 id = hashOperation(target, value, data, predecessor, salt);
+        _beforeCall(predecessor);
         _call(id, 0, target, value, data);
-        _checkCall(id, predecessor);
+        _afterCall(id);
     }
 
     /**
@@ -233,18 +234,25 @@ contract TimelockController is AccessControl {
         require(targets.length == datas.length, "TimelockController: length missmatch");
 
         bytes32 id = hashOperationBatch(targets, values, datas, predecessor, salt);
+        _beforeCall(predecessor);
         for (uint256 i = 0; i < targets.length; ++i) {
             _call(id, i, targets[i], values[i], datas[i]);
         }
-        _checkCall(id, predecessor);
+        _afterCall(id);
     }
 
     /**
-     * @dev Checks an operation status.
+     * @dev Checks before execution of an operation's calls.
      */
-    function _checkCall(bytes32 id, bytes32 predecessor) private {
-        require(isOperationReady(id), "TimelockController: operation is not ready");
+    function _beforeCall(bytes32 predecessor) private view {
         require(predecessor == bytes32(0) || isOperationDone(predecessor), "TimelockController: missing dependency");
+    }
+
+    /**
+     * @dev Checks after execution of an operation's calls.
+     */
+    function _afterCall(bytes32 id) private {
+        require(isOperationReady(id), "TimelockController: operation is not ready");
         _timestamps[id] = _DONE_TIMESTAMP;
     }
 
