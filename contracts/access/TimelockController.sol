@@ -280,14 +280,3 @@ contract TimelockController is AccessControl {
         _minDelay = newDelay;
     }
 }
-
-// Time tracking
-// 28/08: 5h (5h)
-// 30/08: 1h (6h)
-//  1/09: 2h (8h)
-//  2/09: 1h (9h)
-//  3/09: 1h (10h)
-//  5/09: 2h (12h)
-//  7/09: 4h (16h)
-//  9/09: 1h (17h)
-//  12/09: 2h (19h)
