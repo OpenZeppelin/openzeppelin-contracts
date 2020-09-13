@@ -242,7 +242,7 @@ contract TimelockController is AccessControl {
     /**
      * @dev Checks an operation status.
      */
-    function _checkCall(bytes32 id, bytes32 predecessor) private view {
+    function _checkCall(bytes32 id, bytes32 predecessor) private {
         require(isOperationReady(id), "TimelockController: operation is not ready");
         require(predecessor == bytes32(0) || isOperationDone(predecessor), "TimelockController: missing dependency");
         _timestamps[id] = _DONE_TIMESTAMP;
