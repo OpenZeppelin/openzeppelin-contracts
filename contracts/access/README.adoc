@@ -29,7 +29,7 @@ Contract modules for authorization and access control mechanisms.
 
 === Operation structure
 
-Operation executed by the xref:api:access.adoc#TimelockController[`TimelockControler`] can contain one or multiple subsequent calls. Depending on weither you need to multiple calls to be executed atomically, you can either use simple or batched operations.
+Operation executed by the xref:api:access.adoc#TimelockController[`TimelockControler`] can contain one or multiple subsequent calls. Depending on whether you need to multiple calls to be executed atomically, you can either use simple or batched operations.
 
 ==== Simple operations contain:
 
@@ -89,10 +89,10 @@ This role is identified by the *PROPOSER_ROLE* value: `0xb09aa5aeb3702cfd50b6b62
 
 ==== Executor
 
-The executors are in charge of executing the operations scheduled by the proposers once the timelock expires. Logic dictates that multisig or DAO that are proposers should also be executors in order to guarantee operations that have been scheduled will eventually be executed. However, having additional executor can reduce the cost (the executing transaction does not requier validation by the multisig or DAO that proposed it), while ensuring whoever is in charge of execution cannot trigger actions that have not been scheduled by the proposers.
+The executors are in charge of executing the operations scheduled by the proposers once the timelock expires. Logic dictates that multisig or DAO that are proposers should also be executors in order to guarantee operations that have been scheduled will eventually be executed. However, having additional executor can reduce the cost (the executing transaction does not require validation by the multisig or DAO that proposed it), while ensuring whoever is in charge of execution cannot trigger actions that have not been scheduled by the proposers.
 
 This role is identified by the *EXECUTOR_ROLE* value: `0xd8aa0f3194971a2a116679f7c2090f6939c8d4e01a2a8d7e41d55e5351469e63`
 
 ==== Warning
 
-WARNING: A live contract without at least one proposer and one executor is locked. Make sure these roles are filled by reliable entities before the deployer renounces its administrative rights in favor of the timelock contract itself. See the {AccessControl} documentation to learn more about role management.
+WARNING: A live contract without at least one proposer and one executor is locked. Make sure these roles are filled by reliable entities before the deployer renounces its administrative rights in favour of the timelock contract itself. See the {AccessControl} documentation to learn more about role management.

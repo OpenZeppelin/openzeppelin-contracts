@@ -13,7 +13,6 @@ import "./AccessControl.sol";
  * controlled contract to exit before a potentially dangerous maintenance
  * operation is applied.
  *
- *
  * By default, this contract is self administered, meaning administration tasks
  * have to go through the timelock process. The proposer (resp executor) role
  * is in charge of proposing (resp executing) operations. A common use case is
