@@ -62,16 +62,16 @@ interface IERC20 {
     function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
 
     /**
-     * @dev Emitted when `value` tokens are moved from one account (`from`) to
-     * another (`to`).
+     * @dev Emitted when `amount` tokens are moved from one account (`sender`) to
+     * another (`recipient`).
      *
-     * Note that `value` may be zero.
+     * Note that `amount` may be zero.
      */
-    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Transfer(address indexed sender, address indexed recipient, uint256 amount);
 
     /**
      * @dev Emitted when the allowance of a `spender` for an `owner` is set by
-     * a call to {approve}. `value` is the new allowance.
+     * a call to {approve}. `amount` is the new allowance.
      */
-    event Approval(address indexed owner, address indexed spender, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 amount);
 }
