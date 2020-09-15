@@ -142,15 +142,6 @@ describe('TimelockController', function () {
             MINDELAY,
             { from: proposer }
           );
-          expectEvent(receipt, 'CallScheduled', {
-            id: this.operation.id,
-            index: web3.utils.toBN(0),
-            target: this.operation.target,
-            value: web3.utils.toBN(this.operation.value),
-            data: this.operation.data,
-            predecessor: this.operation.predecessor,
-            delay: MINDELAY,
-          });
 
           const block = await web3.eth.getBlock(receipt.receipt.blockHash);
 
@@ -168,15 +159,6 @@ describe('TimelockController', function () {
             MINDELAY,
             { from: proposer }
           );
-          expectEvent(receipt, 'CallScheduled', {
-            id: this.operation.id,
-            index: web3.utils.toBN(0),
-            target: this.operation.target,
-            value: web3.utils.toBN(this.operation.value),
-            data: this.operation.data,
-            predecessor: this.operation.predecessor,
-            delay: MINDELAY,
-          });
 
           await expectRevert(
             this.timelock.schedule(
@@ -387,17 +369,6 @@ describe('TimelockController', function () {
             MINDELAY,
             { from: proposer }
           );
-          for (const i in this.operation.targets) {
-            expectEvent(receipt, 'CallScheduled', {
-              id: this.operation.id,
-              index: web3.utils.toBN(i),
-              target: this.operation.targets[i],
-              value: web3.utils.toBN(this.operation.values[i]),
-              data: this.operation.datas[i],
-              predecessor: this.operation.predecessor,
-              delay: MINDELAY,
-            });
-          }
 
           const block = await web3.eth.getBlock(receipt.receipt.blockHash);
 
@@ -415,17 +386,6 @@ describe('TimelockController', function () {
             MINDELAY,
             { from: proposer }
           );
-          for (const i in this.operation.targets) {
-            expectEvent(receipt, 'CallScheduled', {
-              id: this.operation.id,
-              index: web3.utils.toBN(i),
-              target: this.operation.targets[i],
-              value: web3.utils.toBN(this.operation.values[i]),
-              data: this.operation.datas[i],
-              predecessor: this.operation.predecessor,
-              delay: MINDELAY,
-            });
-          }
 
           await expectRevert(
             this.timelock.scheduleBatch(
@@ -725,15 +685,6 @@ describe('TimelockController', function () {
         MINDELAY,
         { from: proposer }
       );
-      expectEvent(receipt1, 'CallScheduled', {
-        id: operation.id,
-        index: web3.utils.toBN(0),
-        target: operation.target,
-        value: web3.utils.toBN(operation.value),
-        data: operation.data,
-        predecessor: operation.predecessor,
-        delay: MINDELAY,
-      });
       await time.increase(MINDELAY);
       const receipt2 = await this.timelock.execute(
         operation.target,
@@ -743,13 +694,6 @@ describe('TimelockController', function () {
         operation.salt,
         { from: executor }
       );
-      expectEvent(receipt2, 'CallExecuted', {
-        id: operation.id,
-        index: web3.utils.toBN(0),
-        target: operation.target,
-        value: web3.utils.toBN(operation.value),
-        data: operation.data,
-      });
       expectEvent(receipt2, 'MinDelayChange', { newDuration: newDelay.toString(), oldDuration: MINDELAY });
 
       expect(await this.timelock.getMinDelay()).to.be.bignumber.equal(newDelay);
@@ -858,13 +802,6 @@ describe('TimelockController', function () {
         operation.salt,
         { from: executor }
       );
-      expectEvent(receipt, 'CallExecuted', {
-        id: operation.id,
-        index: web3.utils.toBN(0),
-        target: operation.target,
-        value: web3.utils.toBN(operation.value),
-        data: operation.data,
-      });
 
       expect(await this.implementation2.getValue()).to.be.bignumber.equal(web3.utils.toBN(42));
     });
@@ -996,13 +933,6 @@ describe('TimelockController', function () {
         operation.salt,
         { from: executor, value: 1 }
       );
-      expectEvent(receipt, 'CallExecuted', {
-        id: operation.id,
-        index: web3.utils.toBN(0),
-        target: operation.target,
-        value: web3.utils.toBN(operation.value),
-        data: operation.data,
-      });
 
       expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
       expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(web3.utils.toBN(1));
