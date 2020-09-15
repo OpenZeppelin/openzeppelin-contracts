@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.2.1-solc-0.7 (unreleased)
+## 3.2.1-solc-0.7 (2020-09-15)
 
 * `ERC777`: Remove a warning about function state visibility in Solidity 0.7. ([#2327](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2327))
 
