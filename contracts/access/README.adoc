@@ -93,6 +93,5 @@ The executors are in charge of executing the operations scheduled by the propose
 
 This role is identified by the *EXECUTOR_ROLE* value: `0xd8aa0f3194971a2a116679f7c2090f6939c8d4e01a2a8d7e41d55e5351469e63`
 
-==== Warning
 
 WARNING: A live contract without at least one proposer and one executor is locked. Make sure these roles are filled by reliable entities before the deployer renounces its administrative rights in favour of the timelock contract itself. See the {AccessControl} documentation to learn more about role management.
