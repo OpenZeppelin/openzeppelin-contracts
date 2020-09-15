@@ -150,7 +150,7 @@ describe('TimelockController', function () {
         });
 
         it('prevent overwritting active operation', async function () {
-          const receipt = await this.timelock.schedule(
+          await this.timelock.schedule(
             this.operation.target,
             this.operation.value,
             this.operation.data,
@@ -377,7 +377,7 @@ describe('TimelockController', function () {
         });
 
         it('prevent overwritting active operation', async function () {
-          const receipt = await this.timelock.scheduleBatch(
+          await this.timelock.scheduleBatch(
             this.operation.targets,
             this.operation.values,
             this.operation.datas,
@@ -794,7 +794,7 @@ describe('TimelockController', function () {
         { from: proposer }
       );
       await time.increase(MINDELAY);
-      const receipt = await this.timelock.execute(
+      await this.timelock.execute(
         operation.target,
         operation.value,
         operation.data,
@@ -925,7 +925,7 @@ describe('TimelockController', function () {
       expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
       expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
 
-      const receipt = await this.timelock.execute(
+      await this.timelock.execute(
         operation.target,
         operation.value,
         operation.data,
