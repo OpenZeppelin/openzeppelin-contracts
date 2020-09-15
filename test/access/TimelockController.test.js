@@ -346,9 +346,9 @@ describe('TimelockController', function () {
       describe('schedule', function () {
         beforeEach(async function () {
           this.operation = genOperationBatch(
-            Array(8).fill().map(() => '0xEd912250835c812D4516BBD80BdaEA1bB63a293C'),
-            Array(8).fill().map(() => 0),
-            Array(8).fill().map(() => '0x2fcb7a88'),
+            Array(8).fill('0xEd912250835c812D4516BBD80BdaEA1bB63a293C'),
+            Array(8).fill(0),
+            Array(8).fill('0x2fcb7a88'),
             ZERO_BYTES32,
             '0x6cf9d042ade5de78bed9ffd075eb4b2a4f6b1736932c2dc8af517d6e066f51f5',
           );
