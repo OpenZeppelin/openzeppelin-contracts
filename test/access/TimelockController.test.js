@@ -84,9 +84,9 @@ describe('TimelockController', function () {
 
       it('hashOperationBatch', async function () {
         this.operation = genOperationBatch(
-          Array(8).fill().map(() => '0x2d5f21620e56531c1d59c2df9b8e95d129571f71'),
-          Array(8).fill().map(() => '0x2b993cfce932ccee'),
-          Array(8).fill().map(() => '0xcf51966b'),
+          Array(8).fill('0x2d5f21620e56531c1d59c2df9b8e95d129571f71'),
+          Array(8).fill('0x2b993cfce932ccee'),
+          Array(8).fill('0xcf51966b'),
           '0xce8f45069cc71d25f71ba05062de1a3974f9849b004de64a70998bca9d29c2e7',
           '0x8952d74c110f72bfe5accdf828c74d53a7dfb71235dfa8a1e8c75d8576b372ff',
         );
