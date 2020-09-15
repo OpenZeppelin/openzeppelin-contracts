@@ -263,7 +263,7 @@ describe('TimelockController', function () {
             ));
           });
 
-          describe('to early', function () {
+          describe('too early', function () {
             it('reverts', async function () {
               await expectRevert(
                 this.timelock.execute(
