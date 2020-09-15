@@ -15,7 +15,7 @@ describe('MerkleProof', function () {
   });
 
   describe('verify', function () {
-    it('should return true for a valid Merkle proof', async function () {
+    it('returns true for a valid Merkle proof', async function () {
       const elements = ['a', 'b', 'c', 'd'];
       const merkleTree = new MerkleTree(elements);
 
@@ -28,7 +28,7 @@ describe('MerkleProof', function () {
       expect(await this.merkleProof.verify(proof, root, leaf)).to.equal(true);
     });
 
-    it('should return false for an invalid Merkle proof', async function () {
+    it('returns false for an invalid Merkle proof', async function () {
       const correctElements = ['a', 'b', 'c'];
       const correctMerkleTree = new MerkleTree(correctElements);
 
@@ -44,7 +44,7 @@ describe('MerkleProof', function () {
       expect(await this.merkleProof.verify(badProof, correctRoot, correctLeaf)).to.equal(false);
     });
 
-    it('should return false for a Merkle proof of invalid length', async function () {
+    it('returns false for a Merkle proof of invalid length', async function () {
       const elements = ['a', 'b', 'c'];
       const merkleTree = new MerkleTree(elements);
 

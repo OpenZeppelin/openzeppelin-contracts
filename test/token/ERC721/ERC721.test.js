@@ -332,7 +332,7 @@ describe('ERC721', function () {
 
             shouldTransferTokensByUsers(transferFun);
 
-            it('should call onERC721Received', async function () {
+            it('calls onERC721Received', async function () {
               const receipt = await transferFun.call(this, owner, this.receiver.address, tokenId, { from: owner });
 
               await expectEvent.inTransaction(receipt.tx, ERC721ReceiverMock, 'Received', {
@@ -343,7 +343,7 @@ describe('ERC721', function () {
               });
             });
 
-            it('should call onERC721Received from approved', async function () {
+            it('calls onERC721Received from approved', async function () {
               const receipt = await transferFun.call(this, owner, this.receiver.address, tokenId, { from: approved });
 
               await expectEvent.inTransaction(receipt.tx, ERC721ReceiverMock, 'Received', {
@@ -417,7 +417,7 @@ describe('ERC721', function () {
       const data = '0x42';
 
       describe('via safeMint', function () { // regular minting is tested in ERC721Mintable.test.js and others
-        it('should call onERC721Received — with data', async function () {
+        it('calls onERC721Received — with data', async function () {
           this.receiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, false);
           const receipt = await this.token.safeMint(this.receiver.address, tokenId, data);
 
@@ -428,7 +428,7 @@ describe('ERC721', function () {
           });
         });
 
-        it('should call onERC721Received — without data', async function () {
+        it('calls onERC721Received — without data', async function () {
           this.receiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, false);
           const receipt = await this.token.safeMint(this.receiver.address, tokenId);
 
@@ -691,7 +691,7 @@ describe('ERC721', function () {
             await this.token.approve(approved, firstTokenId, { from: owner });
           });
 
-          it('should return approved account', async function () {
+          it('returns approved account', async function () {
             expect(await this.token.getApproved(firstTokenId)).to.be.equal(approved);
           });
         });
@@ -752,7 +752,7 @@ describe('ERC721', function () {
     });
 
     describe('tokenByIndex', function () {
-      it('should return all tokens', async function () {
+      it('returns all tokens', async function () {
         const tokensListed = await Promise.all(
           [0, 1].map(i => this.token.tokenByIndex(i))
         );
@@ -760,14 +760,14 @@ describe('ERC721', function () {
           secondTokenId.toNumber()]);
       });
 
-      it('should revert if index is greater than supply', async function () {
+      it('reverts if index is greater than supply', async function () {
         await expectRevert(
           this.token.tokenByIndex(2), 'EnumerableMap: index out of bounds'
         );
       });
 
       [firstTokenId, secondTokenId].forEach(function (tokenId) {
-        it(`should return all tokens after burning token ${tokenId} and minting new tokens`, async function () {
+        it(`returns all tokens after burning token ${tokenId} and minting new tokens`, async function () {
           const newTokenId = new BN(300);
           const anotherNewTokenId = new BN(400);
 

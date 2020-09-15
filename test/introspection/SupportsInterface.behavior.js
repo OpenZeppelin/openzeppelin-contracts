@@ -57,11 +57,11 @@ function shouldSupportInterfaces (interfaces = []) {
       const interfaceId = INTERFACE_IDS[k];
       describe(k, function () {
         describe('ERC165\'s supportsInterface(bytes4)', function () {
-          it('should use less than 30k gas', async function () {
+          it('uses less than 30k gas', async function () {
             expect(await this.contractUnderTest.supportsInterface.estimateGas(interfaceId)).to.be.lte(30000);
           });
 
-          it('should claim support', async function () {
+          it('claims support', async function () {
             expect(await this.contractUnderTest.supportsInterface(interfaceId)).to.equal(true);
           });
         });
@@ -69,7 +69,7 @@ function shouldSupportInterfaces (interfaces = []) {
         for (const fnName of INTERFACES[k]) {
           const fnSig = FN_SIGNATURES[fnName];
           describe(fnName, function () {
-            it('should be implemented', function () {
+            it('has to be implemented', function () {
               expect(this.contractUnderTest.abi.filter(fn => fn.signature === fnSig).length).to.equal(1);
             });
           });

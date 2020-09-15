@@ -1,4 +1,4 @@
-# <img src="logo.png" alt="OpenZeppelin" height="40px">
+# <img src="logo.svg" alt="OpenZeppelin" height="40px">
 
 [![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](https://docs.openzeppelin.com/contracts)
 [![NPM Package](https://img.shields.io/npm/v/@openzeppelin/contracts.svg)](https://www.npmjs.org/package/@openzeppelin/contracts)
@@ -32,8 +32,8 @@ pragma solidity ^0.6.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-contract MyNFT is ERC721 {
-    constructor() ERC721("MyNFT", "MNFT") public {
+contract MyCollectible is ERC721 {
+    constructor() ERC721("MyCollectible", "MCO") public {
     }
 }
 ```
@@ -44,7 +44,7 @@ To keep your system secure, you should **always** use the installed code as-is, 
 
 ## Learn More
 
-The guides in the sidebar will teach about different concepts, and how to use the related contracts that OpenZeppelin Contracts provides:
+The guides in the [docs site](https://docs.openzeppelin.com/contracts) will teach about different concepts, and how to use the related contracts that OpenZeppelin Contracts provides:
 
 * [Access Control](https://docs.openzeppelin.com/contracts/access-control): decide who can perform each of the actions on your system.
 * [Tokens](https://docs.openzeppelin.com/contracts/tokens): create tradeable assets or collectives, and distribute them via [Crowdsales](https://docs.openzeppelin.com/contracts/crowdsales).

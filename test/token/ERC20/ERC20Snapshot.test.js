@@ -134,7 +134,7 @@ describe('ERC20Snapshot', function () {
       context('with balance changes after the snapshot', function () {
         beforeEach(async function () {
           await this.token.transfer(recipient, new BN('10'), { from: initialHolder });
-          await this.token.mint(recipient, new BN('50'));
+          await this.token.mint(other, new BN('50'));
           await this.token.burn(initialHolder, new BN('20'));
         });
 

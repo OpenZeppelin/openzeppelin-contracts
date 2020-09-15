@@ -1,5 +1,8 @@
 = Gas Station Network (GSN)
 
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/gsn
+
 This set of contracts provide all the tools required to make a contract callable via the https://gsn.openzeppelin.com[Gas Station Network].
 
 TIP: If you're new to the GSN, head over to our xref:learn::sending-gasless-transactions.adoc[overview of the system] and basic guide to xref:ROOT:gsn.adoc[creating a GSN-capable contract].

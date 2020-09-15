@@ -1,6 +1,6 @@
 {
   "name": "openzeppelin-solidity",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "Secure Smart Contract library for Solidity",
   "files": [
     "/contracts/**/*.sol",
@@ -20,6 +20,7 @@
     "lint:js": "eslint --ignore-path .gitignore .",
     "lint:js:fix": "eslint --ignore-path .gitignore . --fix",
     "lint:sol": "solhint --max-warnings 0 \"contracts/**/*.sol\"",
+    "prepublish": "rimraf build contracts/build",
     "prepare": "npm run compile",
     "prepack": "node scripts/remove-ignored-artifacts.js",
     "release": "scripts/release/release.sh",
@@ -65,7 +66,8 @@
     "lodash.zip": "^4.2.0",
     "micromatch": "^4.0.2",
     "mocha": "^8.0.1",
-    "solhint": "^3.0.0",
+    "rimraf": "^3.0.2",
+    "solhint": "^3.2.0",
     "solidity-coverage": "^0.7.8",
     "solidity-docgen": "^0.5.3"
   },
