@@ -1,4 +1,4 @@
-const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
+const { accounts, contract, web3, config } = require('@openzeppelin/test-environment');
 const { constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const { ZERO_BYTES32 } = constants;
 
@@ -870,7 +870,11 @@ describe('TimelockController', function () {
       );
     });
 
+		// Skipped in a coverage mode due to coverage mode setting a block gas limit to 0xffffffffff
+    // which cause a mockFunctionOutOfGas function to crash Ganache and the
+    // subsequent tests before running out of gas.
     it('call out of gas', async function () {
+      if (config.coverage) { return this.skip(); }
       const operation = genOperation(
         this.callreceivermock.address,
         0,
