@@ -63,7 +63,7 @@ describe('ERC721PresetMinterPauserAutoId', function () {
     it('other accounts cannot mint tokens', async function () {
       await expectRevert(
         this.token.mint(other, { from: other }),
-        'ERC721PresetMinterPauserAutoId: must have minter role to mint'
+        'ERC721PresetMinterPauserAutoId: must have minter role to mint',
       );
     });
   });
@@ -90,14 +90,14 @@ describe('ERC721PresetMinterPauserAutoId', function () {
 
       await expectRevert(
         this.token.mint(other, { from: deployer }),
-        'ERC721Pausable: token transfer while paused'
+        'ERC721Pausable: token transfer while paused',
       );
     });
 
     it('other accounts cannot pause', async function () {
       await expectRevert(
         this.token.pause({ from: other }),
-        'ERC721PresetMinterPauserAutoId: must have pauser role to pause'
+        'ERC721PresetMinterPauserAutoId: must have pauser role to pause',
       );
     });
   });

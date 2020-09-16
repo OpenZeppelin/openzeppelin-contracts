@@ -1,4 +1,4 @@
-const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
+const { accounts, contract, web3, config } = require('@openzeppelin/test-environment');
 
 const { balance, ether, expectRevert, send, expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
@@ -6,6 +6,8 @@ const { expect } = require('chai');
 const AddressImpl = contract.fromArtifact('AddressImpl');
 const EtherReceiver = contract.fromArtifact('EtherReceiverMock');
 const CallReceiverMock = contract.fromArtifact('CallReceiverMock');
+
+const coverage = config.coverage;
 
 describe('Address', function () {
   const [ recipient, other ] = accounts;
@@ -15,11 +17,11 @@ describe('Address', function () {
   });
 
   describe('isContract', function () {
-    it('should return false for account address', async function () {
+    it('returns false for account address', async function () {
       expect(await this.mock.isContract(other)).to.equal(false);
     });
 
-    it('should return true for contract address', async function () {
+    it('returns true for contract address', async function () {
       const contract = await AddressImpl.new();
       expect(await this.mock.isContract(contract.address)).to.equal(true);
     });
@@ -85,7 +87,7 @@ describe('Address', function () {
           await this.contractRecipient.setAcceptEther(false);
           await expectRevert(
             this.mock.sendValue(this.contractRecipient.address, funds),
-            'Address: unable to send value, recipient may have reverted'
+            'Address: unable to send value, recipient may have reverted',
           );
         });
       });
@@ -120,7 +122,7 @@ describe('Address', function () {
 
         await expectRevert(
           this.mock.functionCall(this.contractRecipient.address, abiEncodedCall),
-          'Address: low-level call failed'
+          'Address: low-level call failed',
         );
       });
 
@@ -133,11 +135,15 @@ describe('Address', function () {
 
         await expectRevert(
           this.mock.functionCall(this.contractRecipient.address, abiEncodedCall),
-          'CallReceiverMock: reverting'
+          'CallReceiverMock: reverting',
         );
       });
 
+      // Skipped in a coverage mode due to coverage mode setting a block gas limit to 0xffffffffff
+      // which cause a mockFunctionOutOfGas function to crash Ganache and the
+      // subsequent tests before running out of gas.
       it('reverts when the called function runs out of gas', async function () {
+        if (coverage) { return this.skip(); }
         const abiEncodedCall = web3.eth.abi.encodeFunctionCall({
           name: 'mockFunctionOutOfGas',
           type: 'function',
@@ -146,7 +152,7 @@ describe('Address', function () {
 
         await expectRevert(
           this.mock.functionCall(this.contractRecipient.address, abiEncodedCall),
-          'Address: low-level call failed'
+          'Address: low-level call failed',
         );
       }).timeout(5000);
 
@@ -159,7 +165,7 @@ describe('Address', function () {
 
         await expectRevert(
           this.mock.functionCall(this.contractRecipient.address, abiEncodedCall),
-          'Address: low-level call failed'
+          'Address: low-level call failed',
         );
       });
 
@@ -172,7 +178,7 @@ describe('Address', function () {
 
         await expectRevert(
           this.mock.functionCall(this.contractRecipient.address, abiEncodedCall),
-          'Address: low-level call failed'
+          'Address: low-level call failed',
         );
       });
     });
@@ -222,7 +228,7 @@ describe('Address', function () {
 
         await expectRevert(
           this.mock.functionCallWithValue(this.contractRecipient.address, abiEncodedCall, amount),
-          'Address: insufficient balance for call'
+          'Address: insufficient balance for call',
         );
       });
 
@@ -255,7 +261,7 @@ describe('Address', function () {
 
         expect(await balance.current(this.mock.address)).to.be.bignumber.equal('0');
         const receipt = await this.mock.functionCallWithValue(
-          this.contractRecipient.address, abiEncodedCall, amount, { from: other, value: amount }
+          this.contractRecipient.address, abiEncodedCall, amount, { from: other, value: amount },
         );
 
         expect(await tracker.delta()).to.be.bignumber.equal(amount);
@@ -274,7 +280,7 @@ describe('Address', function () {
         await send.ether(other, this.mock.address, amount);
         await expectRevert(
           this.mock.functionCallWithValue(this.contractRecipient.address, abiEncodedCall, amount),
-          'Address: low-level call with value failed'
+          'Address: low-level call with value failed',
         );
       });
     });

@@ -1,6 +1,6 @@
 {
   "name": "openzeppelin-solidity",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "Secure Smart Contract library for Solidity",
   "files": [
     "/contracts/**/*.sol",
@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "compile": "scripts/compile.sh",
-    "coverage": "scripts/coverage.sh",
+    "coverage": "scripts/coverage.js",
     "docs": "oz-docs",
     "docs:watch": "npm run docs watch contracts 'docs/*.hbs'",
     "prepare-docs": "scripts/prepare-docs.sh",
@@ -50,7 +50,7 @@
     "@openzeppelin/docs-utils": "^0.1.0",
     "@openzeppelin/gsn-helpers": "^0.2.3",
     "@openzeppelin/gsn-provider": "^0.1.10",
-    "@openzeppelin/test-environment": "^0.1.4",
+    "@openzeppelin/test-environment": "^0.1.5",
     "@openzeppelin/test-helpers": "^0.5.6",
     "chai": "^4.2.0",
     "eslint": "^6.5.1",
@@ -61,14 +61,14 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
     "ethereumjs-util": "^7.0.1",
-    "ganache-core-coverage": "https://github.com/OpenZeppelin/ganache-core-coverage/releases/download/2.5.3-coverage/ganache-core-coverage-2.5.3.tgz",
+    "ganache-cli": "^6.9.1",
     "lodash.startcase": "^4.4.0",
     "lodash.zip": "^4.2.0",
     "micromatch": "^4.0.2",
     "mocha": "^8.0.1",
     "rimraf": "^3.0.2",
-    "solhint": "^3.0.0",
-    "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
+    "solhint": "^3.2.0",
+    "solidity-coverage": "^0.7.8",
     "solidity-docgen": "^0.5.3"
   },
   "dependencies": {}

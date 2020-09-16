@@ -1,9 +1,27 @@
 # Changelog
 
-## 3.1.1 (Unreleased)
+## 3.2.0 (2020-09-10)
+
+### New features
+ * Proxies: added the proxy contracts from OpenZeppelin SDK. ([#2335](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2335))
+
+#### Proxy changes with respect to OpenZeppelin SDK
+
+Aside from upgrading them from Solidity 0.5 to 0.6, we've changed a few minor things from the proxy contracts as they were found in OpenZeppelin SDK.
+
+- `UpgradeabilityProxy` was renamed to `UpgradeableProxy`.
+- `AdminUpgradeabilityProxy` was renamed to `TransparentUpgradeableProxy`.
+- `Proxy._willFallback` was renamed to `Proxy._beforeFallback`.
+- `UpgradeabilityProxy._setImplementation` and `AdminUpgradeabilityProxy._setAdmin` were made private.
 
 ### Improvements
  * `Address.isContract`: switched from `extcodehash` to `extcodesize` for less gas usage. ([#2311](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2311))
+
+### Breaking changes
+ * `ERC20Snapshot`: switched to using `_beforeTokenTransfer` hook instead of overriding ERC20 operations. ([#2312](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2312))
+
+This small change in the way we implemented `ERC20Snapshot` may affect users who are combining this contract with
+other ERC20 flavors, since it no longer overrides `_transfer`, `_mint`, and `_burn`. This can result in having to remove Solidity `override(...)` specifiers in derived contracts for these functions, and to instead have to add it for `_beforeTokenTransfer`. See [Using Hooks](https://docs.openzeppelin.com/contracts/3.x/extending-contracts#using-hooks) in the documentation.
 
 ## 3.1.0 (2020-06-23)
 

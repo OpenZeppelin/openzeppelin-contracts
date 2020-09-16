@@ -21,7 +21,7 @@ function shouldBehaveLikeEscrow (owner, [payee1, payee2]) {
 
       it('only the owner can deposit', async function () {
         await expectRevert(this.escrow.deposit(payee1, { from: payee2 }),
-          'Ownable: caller is not the owner'
+          'Ownable: caller is not the owner',
         );
       });
 
@@ -73,7 +73,7 @@ function shouldBehaveLikeEscrow (owner, [payee1, payee2]) {
 
       it('only the owner can withdraw', async function () {
         await expectRevert(this.escrow.withdraw(payee1, { from: payee1 }),
-          'Ownable: caller is not the owner'
+          'Ownable: caller is not the owner',
         );
       });
 

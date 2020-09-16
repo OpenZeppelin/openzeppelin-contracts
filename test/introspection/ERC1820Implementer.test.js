@@ -29,9 +29,9 @@ describe('ERC1820Implementer', function () {
     it('reverts when attempting to set as implementer in the registry', async function () {
       await expectRevert(
         this.registry.setInterfaceImplementer(
-          implementee, this.interfaceA, this.implementer.address, { from: implementee }
+          implementee, this.interfaceA, this.implementer.address, { from: implementee },
         ),
-        'Does not implement the interface'
+        'Does not implement the interface',
       );
     });
   });
@@ -58,7 +58,7 @@ describe('ERC1820Implementer', function () {
 
     it('can be set as an implementer for supported interfaces in the registry', async function () {
       await this.registry.setInterfaceImplementer(
-        implementee, this.interfaceA, this.implementer.address, { from: implementee }
+        implementee, this.interfaceA, this.implementer.address, { from: implementee },
       );
 
       expect(await this.registry.getInterfaceImplementer(implementee, this.interfaceA))
