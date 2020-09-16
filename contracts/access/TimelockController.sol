@@ -21,7 +21,7 @@ import "./AccessControl.sol";
  */
 contract TimelockController is AccessControl {
 
-    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+    bytes32 public constant TIMELOCK_ADMIN_ROLE = keccak256("TIMELOCK_ADMIN_ROLE");
     bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
     bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
     uint256 internal constant _DONE_TIMESTAMP = uint256(1);
@@ -53,13 +53,13 @@ contract TimelockController is AccessControl {
      * @dev Initializes the contract with a given `minDelay`.
      */
     constructor(uint256 minDelay, address[] memory proposers, address[] memory executors) public {
-        _setRoleAdmin(ADMIN_ROLE, ADMIN_ROLE);
-        _setRoleAdmin(PROPOSER_ROLE, ADMIN_ROLE);
-        _setRoleAdmin(EXECUTOR_ROLE, ADMIN_ROLE);
+        _setRoleAdmin(TIMELOCK_ADMIN_ROLE, TIMELOCK_ADMIN_ROLE);
+        _setRoleAdmin(PROPOSER_ROLE, TIMELOCK_ADMIN_ROLE);
+        _setRoleAdmin(EXECUTOR_ROLE, TIMELOCK_ADMIN_ROLE);
 
         // deployer + self administration
-        _setupRole(ADMIN_ROLE, _msgSender());
-        _setupRole(ADMIN_ROLE, address(this));
+        _setupRole(TIMELOCK_ADMIN_ROLE, _msgSender());
+        _setupRole(TIMELOCK_ADMIN_ROLE, address(this));
 
         // register proposers
         for (uint256 i = 0; i < proposers.length; ++i) {
