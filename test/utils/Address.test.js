@@ -87,7 +87,7 @@ describe('Address', function () {
           await this.contractRecipient.setAcceptEther(false);
           await expectRevert(
             this.mock.sendValue(this.contractRecipient.address, funds),
-            'Address: unable to send value, recipient may have reverted'
+            'Address: unable to send value, recipient may have reverted',
           );
         });
       });
@@ -122,7 +122,7 @@ describe('Address', function () {
 
         await expectRevert(
           this.mock.functionCall(this.contractRecipient.address, abiEncodedCall),
-          'Address: low-level call failed'
+          'Address: low-level call failed',
         );
       });
 
@@ -135,7 +135,7 @@ describe('Address', function () {
 
         await expectRevert(
           this.mock.functionCall(this.contractRecipient.address, abiEncodedCall),
-          'CallReceiverMock: reverting'
+          'CallReceiverMock: reverting',
         );
       });
 
@@ -152,7 +152,7 @@ describe('Address', function () {
 
         await expectRevert(
           this.mock.functionCall(this.contractRecipient.address, abiEncodedCall),
-          'Address: low-level call failed'
+          'Address: low-level call failed',
         );
       }).timeout(5000);
 
@@ -165,7 +165,7 @@ describe('Address', function () {
 
         await expectRevert(
           this.mock.functionCall(this.contractRecipient.address, abiEncodedCall),
-          'Address: low-level call failed'
+          'Address: low-level call failed',
         );
       });
 
@@ -178,7 +178,7 @@ describe('Address', function () {
 
         await expectRevert(
           this.mock.functionCall(this.contractRecipient.address, abiEncodedCall),
-          'Address: low-level call failed'
+          'Address: low-level call failed',
         );
       });
     });
@@ -228,7 +228,7 @@ describe('Address', function () {
 
         await expectRevert(
           this.mock.functionCallWithValue(this.contractRecipient.address, abiEncodedCall, amount),
-          'Address: insufficient balance for call'
+          'Address: insufficient balance for call',
         );
       });
 
@@ -261,7 +261,7 @@ describe('Address', function () {
 
         expect(await balance.current(this.mock.address)).to.be.bignumber.equal('0');
         const receipt = await this.mock.functionCallWithValue(
-          this.contractRecipient.address, abiEncodedCall, amount, { from: other, value: amount }
+          this.contractRecipient.address, abiEncodedCall, amount, { from: other, value: amount },
         );
 
         expect(await tracker.delta()).to.be.bignumber.equal(amount);
@@ -280,7 +280,7 @@ describe('Address', function () {
         await send.ether(other, this.mock.address, amount);
         await expectRevert(
           this.mock.functionCallWithValue(this.contractRecipient.address, abiEncodedCall, amount),
-          'Address: low-level call with value failed'
+          'Address: low-level call with value failed',
         );
       });
     });

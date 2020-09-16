@@ -41,9 +41,9 @@ describe('ERC721GSNRecipient (integration)', function () {
           await web3.eth.sign(
             web3.utils.soliditySha3(
               // eslint-disable-next-line max-len
-              data.relayerAddress, data.from, data.encodedFunctionCall, toBN(data.txFee), toBN(data.gasPrice), toBN(data.gas), toBN(data.nonce), data.relayHubAddress, this.token.address
-            ), signer
-          )
+              data.relayerAddress, data.from, data.encodedFunctionCall, toBN(data.txFee), toBN(data.gasPrice), toBN(data.gas), toBN(data.nonce), data.relayHubAddress, this.token.address,
+            ), signer,
+          ),
         );
 
       await testMintToken(this.token, sender, tokenId, { useGSN: true, approveFunction });

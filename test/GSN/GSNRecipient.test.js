@@ -38,13 +38,13 @@ describe('GSNRecipient', function () {
     it('cannot upgrade to the same RelayHub', async function () {
       await expectRevert(
         this.recipient.upgradeRelayHub(singletonRelayHub),
-        'GSNRecipient: new RelayHub is the current one'
+        'GSNRecipient: new RelayHub is the current one',
       );
     });
 
     it('cannot upgrade to the zero address', async function () {
       await expectRevert(
-        this.recipient.upgradeRelayHub(ZERO_ADDRESS), 'GSNRecipient: new RelayHub is the zero address'
+        this.recipient.upgradeRelayHub(ZERO_ADDRESS), 'GSNRecipient: new RelayHub is the zero address',
       );
     });
 
