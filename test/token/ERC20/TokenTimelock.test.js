@@ -24,7 +24,7 @@ describe('TokenTimelock', function () {
       const pastReleaseTime = (await time.latest()).sub(time.duration.years(1));
       await expectRevert(
         TokenTimelock.new(this.token.address, beneficiary, pastReleaseTime),
-        'TokenTimelock: release time is before current time'
+        'TokenTimelock: release time is before current time',
       );
     });
 

@@ -27,7 +27,7 @@ if (changelog.indexOf(`## ${version} (unreleased)`) === -1) {
 
 fs.writeFileSync('CHANGELOG.md', changelog.replace(
   `## ${version} (unreleased)`,
-  `## ${version} (${new Date().toISOString().split('T')[0]})`)
+  `## ${version} (${new Date().toISOString().split('T')[0]})`),
 );
 
 cp.execSync('git add CHANGELOG.md', { stdio: 'inherit' });

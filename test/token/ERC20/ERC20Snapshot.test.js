@@ -76,7 +76,7 @@ describe('ERC20Snapshot', function () {
             expect(await this.token.totalSupplyAt(this.initialSnapshotId)).to.be.bignumber.equal(initialSupply);
 
             expect(await this.token.totalSupplyAt(this.secondSnapshotId)).to.be.bignumber.equal(
-              await this.token.totalSupply()
+              await this.token.totalSupply(),
             );
           });
         });
@@ -160,13 +160,13 @@ describe('ERC20Snapshot', function () {
             expect(await this.token.balanceOfAt(other, this.initialSnapshotId)).to.be.bignumber.equal('0');
 
             expect(await this.token.balanceOfAt(initialHolder, this.secondSnapshotId)).to.be.bignumber.equal(
-              await this.token.balanceOf(initialHolder)
+              await this.token.balanceOf(initialHolder),
             );
             expect(await this.token.balanceOfAt(recipient, this.secondSnapshotId)).to.be.bignumber.equal(
-              await this.token.balanceOf(recipient)
+              await this.token.balanceOf(recipient),
             );
             expect(await this.token.balanceOfAt(other, this.secondSnapshotId)).to.be.bignumber.equal(
-              await this.token.balanceOf(other)
+              await this.token.balanceOf(other),
             );
           });
         });
@@ -189,13 +189,13 @@ describe('ERC20Snapshot', function () {
 
             for (const id of this.secondSnapshotIds) {
               expect(await this.token.balanceOfAt(initialHolder, id)).to.be.bignumber.equal(
-                await this.token.balanceOf(initialHolder)
+                await this.token.balanceOf(initialHolder),
               );
               expect(await this.token.balanceOfAt(recipient, id)).to.be.bignumber.equal(
-                await this.token.balanceOf(recipient)
+                await this.token.balanceOf(recipient),
               );
               expect(await this.token.balanceOfAt(other, id)).to.be.bignumber.equal(
-                await this.token.balanceOf(other)
+                await this.token.balanceOf(other),
               );
             }
           });

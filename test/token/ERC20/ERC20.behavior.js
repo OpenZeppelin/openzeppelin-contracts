@@ -27,7 +27,7 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
     shouldBehaveLikeERC20Transfer(errorPrefix, initialHolder, recipient, initialSupply,
       function (from, to, value) {
         return this.token.transfer(to, value, { from });
-      }
+      },
     );
   });
 
@@ -88,7 +88,7 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
 
             it('reverts', async function () {
               await expectRevert(this.token.transferFrom(
-                tokenOwner, to, amount, { from: spender }), `${errorPrefix}: transfer amount exceeds balance`
+                tokenOwner, to, amount, { from: spender }), `${errorPrefix}: transfer amount exceeds balance`,
               );
             });
           });
@@ -104,7 +104,7 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
 
             it('reverts', async function () {
               await expectRevert(this.token.transferFrom(
-                tokenOwner, to, amount, { from: spender }), `${errorPrefix}: transfer amount exceeds allowance`
+                tokenOwner, to, amount, { from: spender }), `${errorPrefix}: transfer amount exceeds allowance`,
               );
             });
           });
@@ -114,7 +114,7 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
 
             it('reverts', async function () {
               await expectRevert(this.token.transferFrom(
-                tokenOwner, to, amount, { from: spender }), `${errorPrefix}: transfer amount exceeds balance`
+                tokenOwner, to, amount, { from: spender }), `${errorPrefix}: transfer amount exceeds balance`,
               );
             });
           });
@@ -131,7 +131,7 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
 
         it('reverts', async function () {
           await expectRevert(this.token.transferFrom(
-            tokenOwner, to, amount, { from: spender }), `${errorPrefix}: transfer to the zero address`
+            tokenOwner, to, amount, { from: spender }), `${errorPrefix}: transfer to the zero address`,
           );
         });
       });
@@ -144,7 +144,7 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
 
       it('reverts', async function () {
         await expectRevert(this.token.transferFrom(
-          tokenOwner, to, amount, { from: spender }), `${errorPrefix}: transfer from the zero address`
+          tokenOwner, to, amount, { from: spender }), `${errorPrefix}: transfer from the zero address`,
         );
       });
     });
@@ -154,7 +154,7 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
     shouldBehaveLikeERC20Approve(errorPrefix, initialHolder, recipient, initialSupply,
       function (owner, spender, amount) {
         return this.token.approve(spender, amount, { from: owner });
-      }
+      },
     );
   });
 }
@@ -166,7 +166,7 @@ function shouldBehaveLikeERC20Transfer (errorPrefix, from, to, balance, transfer
 
       it('reverts', async function () {
         await expectRevert(transfer.call(this, from, to, amount),
-          `${errorPrefix}: transfer amount exceeds balance`
+          `${errorPrefix}: transfer amount exceeds balance`,
         );
       });
     });
@@ -219,7 +219,7 @@ function shouldBehaveLikeERC20Transfer (errorPrefix, from, to, balance, transfer
   describe('when the recipient is the zero address', function () {
     it('reverts', async function () {
       await expectRevert(transfer.call(this, from, ZERO_ADDRESS, balance),
-        `${errorPrefix}: transfer to the zero address`
+        `${errorPrefix}: transfer to the zero address`,
       );
     });
   });
@@ -299,7 +299,7 @@ function shouldBehaveLikeERC20Approve (errorPrefix, owner, spender, supply, appr
   describe('when the spender is the zero address', function () {
     it('reverts', async function () {
       await expectRevert(approve.call(this, owner, ZERO_ADDRESS, supply),
-        `${errorPrefix}: approve to the zero address`
+        `${errorPrefix}: approve to the zero address`,
       );
     });
   });

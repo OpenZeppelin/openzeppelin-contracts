@@ -1,7 +1,8 @@
 {
-  "rangeStrategy": "update-lockfile",
+  "rangeStrategy": "replace",
   "extends": [
     "config:base",
+    ":maintainLockFilesWeekly",
     "group:allNonMajor",
     "schedule:weekly"
   ],

@@ -23,13 +23,13 @@ describe('ReentrancyGuard', function () {
   // in the side-effects.
   it('does not allow local recursion', async function () {
     await expectRevert(
-      this.reentrancyMock.countLocalRecursive(10), 'ReentrancyGuard: reentrant call'
+      this.reentrancyMock.countLocalRecursive(10), 'ReentrancyGuard: reentrant call',
     );
   });
 
   it('does not allow indirect local recursion', async function () {
     await expectRevert(
-      this.reentrancyMock.countThisRecursive(10), 'ReentrancyMock: failed call'
+      this.reentrancyMock.countThisRecursive(10), 'ReentrancyMock: failed call',
     );
   });
 });

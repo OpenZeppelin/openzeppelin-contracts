@@ -26,7 +26,7 @@ describe('ECDSA', function () {
       await expectRevert(
         // eslint-disable-next-line max-len
         this.ecdsa.recover(TEST_MESSAGE, '0x01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789'),
-        'ECDSA: invalid signature length'
+        'ECDSA: invalid signature length',
       );
     });
   });
@@ -116,7 +116,7 @@ describe('ECDSA', function () {
           // Recover the signer address from the generated message and signature.
           expect(await this.ecdsa.recover(
             toEthSignedMessageHash(TEST_MESSAGE),
-            signature
+            signature,
           )).to.equal(other);
         });
       });
