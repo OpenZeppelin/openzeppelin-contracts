@@ -89,7 +89,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
 
       it('reverts', async function () {
         await expectRevert.unspecified(
-          this.proxy.upgradeTo(this.implementationV1, { from })
+          this.proxy.upgradeTo(this.implementationV1, { from }),
         );
       });
     });
