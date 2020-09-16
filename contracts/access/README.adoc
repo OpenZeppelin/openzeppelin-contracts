@@ -14,9 +14,9 @@ Contract modules for authorization and access control mechanisms.
 
 {{TimelockController}}
 
-=== Terminology
+==== Terminology
 
-* *Operation:* A transaction (or a set of transactions) that is the subject of the timelock. It has to be scheduled by a proposer and executed by an executor. The timelock enforces a minimum delay between the proposition and the execution (see xref:access-control.adoc#operation_lifecycle[operation lifecycle]). If the operation contains multiple transaction (batch mode), they are executed atomically. Operations are identified by the hash of their content.
+* *Operation:* A transaction (or a set of transactions) that is the subject of the timelock. It has to be scheduled by a proposer and executed by an executor. The timelock enforces a minimum delay between the proposition and the execution (see xref:access-control.adoc#operation_lifecycle[operation lifecycle]). If the operation contains multiple transactions (batch mode), they are executed atomically. Operations are identified by the hash of their content.
 * *Operation status:*
 ** *Unset:* An operation that is not part of the timelock mechanism.
 ** *Pending:* An operation that has been scheduled, before the timer expires.
@@ -25,7 +25,7 @@ Contract modules for authorization and access control mechanisms.
 * *Predecessor*: An (optional) dependency between operations. An operation can depend on another operation (its predecessor), forcing the execution order of these two operations.
 * *Role*:
 ** *Proposer:* An address (smart contract or EOA) that is in charge of scheduling (and cancelling) operations.
-** *executor:* An address (smart contract or EOA) that is in charge of executing operations.
+** *Executor:* An address (smart contract or EOA) that is in charge of executing operations.
 
 === Operation structure
 

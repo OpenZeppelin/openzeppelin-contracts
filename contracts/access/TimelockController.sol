@@ -82,7 +82,7 @@ contract TimelockController is AccessControl {
      * this role for everyone.
      */
     modifier onlyRole(bytes32 role) {
-        require(hasRole(role, _msgSender()) || hasRole(role, address(0)), "TimelockController: sender requiers permission");
+        require(hasRole(role, _msgSender()) || hasRole(role, address(0)), "TimelockController: sender requires permission");
         _;
     }
 
@@ -169,8 +169,8 @@ contract TimelockController is AccessControl {
      * - the caller must have the 'proposer' role.
      */
     function scheduleBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 predecessor, bytes32 salt, uint256 delay) public virtual onlyRole(PROPOSER_ROLE) {
-        require(targets.length == values.length, "TimelockController: length missmatch");
-        require(targets.length == datas.length, "TimelockController: length missmatch");
+        require(targets.length == values.length, "TimelockController: length mismatch");
+        require(targets.length == datas.length, "TimelockController: length mismatch");
 
         bytes32 id = hashOperationBatch(targets, values, datas, predecessor, salt);
         _schedule(id, delay);
@@ -229,8 +229,8 @@ contract TimelockController is AccessControl {
      * - the caller must have the 'executor' role.
      */
     function executeBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 predecessor, bytes32 salt) public payable virtual onlyRole(EXECUTOR_ROLE) {
-        require(targets.length == values.length, "TimelockController: length missmatch");
-        require(targets.length == datas.length, "TimelockController: length missmatch");
+        require(targets.length == values.length, "TimelockController: length mismatch");
+        require(targets.length == datas.length, "TimelockController: length mismatch");
 
         bytes32 id = hashOperationBatch(targets, values, datas, predecessor, salt);
         _beforeCall(predecessor);
@@ -274,7 +274,7 @@ contract TimelockController is AccessControl {
      * Emits a {MinDelayChange} event.
      */
     function updateDelay(uint256 newDelay) external virtual {
-        require(msg.sender == address(this), "TimelockController: restricted maintenance access");
+        require(msg.sender == address(this), "TimelockController: caller must be timelock");
         emit MinDelayChange(_minDelay, newDelay);
         _minDelay = newDelay;
     }
