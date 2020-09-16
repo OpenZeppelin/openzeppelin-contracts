@@ -870,7 +870,7 @@ describe('TimelockController', function () {
       );
     });
 
-		// Skipped in a coverage mode due to coverage mode setting a block gas limit to 0xffffffffff
+    // Skipped in a coverage mode due to coverage mode setting a block gas limit to 0xffffffffff
     // which cause a mockFunctionOutOfGas function to crash Ganache and the
     // subsequent tests before running out of gas.
     it('call out of gas', async function () {
