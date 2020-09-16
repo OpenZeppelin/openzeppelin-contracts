@@ -105,14 +105,6 @@ library Address {
         return functionCallWithValue(target, data, value, "Address: low-level call with value failed");
     }
 
-    function functionStaticCall(address target, bytes memory data) internal view returns (bytes memory) {
-        functionStaticCall(target, data, "Address: low-level static call failed");
-    }
-
-    function functionDelegateCall(address target, bytes memory data) internal returns (bytes memory) {
-        functionDelegateCall(target, data, "Address: low-level delegate call failed");
-    }
-
     /**
      * @dev Same as {xref-Address-functionCallWithValue-address-bytes-uint256-}[`functionCallWithValue`], but
      * with `errorMessage` as a fallback revert reason when `target` reverts.
@@ -128,12 +120,20 @@ library Address {
         return _verifyCallResult(success, returndata, errorMessage);
     }
 
+    function functionStaticCall(address target, bytes memory data) internal view returns (bytes memory) {
+        functionStaticCall(target, data, "Address: low-level static call failed");
+    }
+
     function functionStaticCall(address target, bytes memory data, string memory errorMessage) internal view returns (bytes memory) {
         require(isContract(target), "Address: static call to non-contract");
 
         // solhint-disable-next-line avoid-low-level-calls
         (bool success, bytes memory returndata) = target.staticcall(data);
         return _verifyCallResult(success, returndata, errorMessage);
+    }
+
+    function functionDelegateCall(address target, bytes memory data) internal returns (bytes memory) {
+        functionDelegateCall(target, data, "Address: low-level delegate call failed");
     }
 
     function functionDelegateCall(address target, bytes memory data, string memory errorMessage) internal returns (bytes memory) {
