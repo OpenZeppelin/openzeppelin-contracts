@@ -185,7 +185,7 @@ describe('TimelockController', function () {
               MINDELAY,
               { from: other }
             ),
-            'TimelockController: sender requiers permission'
+            'TimelockController: sender requires permission'
           );
         });
 
@@ -316,7 +316,7 @@ describe('TimelockController', function () {
                   this.operation.salt,
                   { from: other }
                 ),
-                'TimelockController: sender requiers permission'
+                'TimelockController: sender requires permission'
               );
             });
           });
@@ -412,7 +412,7 @@ describe('TimelockController', function () {
               MINDELAY,
               { from: other }
             ),
-            'TimelockController: sender requiers permission'
+            'TimelockController: sender requires permission'
           );
         });
       });
@@ -530,11 +530,11 @@ describe('TimelockController', function () {
                   this.operation.salt,
                   { from: other }
                 ),
-                'TimelockController: sender requiers permission'
+                'TimelockController: sender requires permission'
               );
             });
 
-            it('length missmatch #1', async function () {
+            it('length mismatch #1', async function () {
               await expectRevert(
                 this.timelock.executeBatch(
                   [],
@@ -544,11 +544,11 @@ describe('TimelockController', function () {
                   this.operation.salt,
                   { from: executor }
                 ),
-                'TimelockController: length missmatch'
+                'TimelockController: length mismatch'
               );
             });
 
-            it('length missmatch #2', async function () {
+            it('length mismatch #2', async function () {
               await expectRevert(
                 this.timelock.executeBatch(
                   this.operation.targets,
@@ -558,11 +558,11 @@ describe('TimelockController', function () {
                   this.operation.salt,
                   { from: executor }
                 ),
-                'TimelockController: length missmatch'
+                'TimelockController: length mismatch'
               );
             });
 
-            it('length missmatch #3', async function () {
+            it('length mismatch #3', async function () {
               await expectRevert(
                 this.timelock.executeBatch(
                   this.operation.targets,
@@ -572,7 +572,7 @@ describe('TimelockController', function () {
                   this.operation.salt,
                   { from: executor }
                 ),
-                'TimelockController: length missmatch'
+                'TimelockController: length mismatch'
               );
             });
           });
@@ -652,7 +652,7 @@ describe('TimelockController', function () {
       it('prevent non-proposer from canceling', async function () {
         await expectRevert(
           this.timelock.cancel(this.operation.id, { from: other }),
-          'TimelockController: sender requiers permission'
+          'TimelockController: sender requires permission'
         );
       });
     });
@@ -662,7 +662,7 @@ describe('TimelockController', function () {
     it('prevent unauthorized maintenance', async function () {
       await expectRevert(
         this.timelock.updateDelay(0, { from: other }),
-        'TimelockController: restricted maintenance access'
+        'TimelockController: caller must be timelock'
       );
     });
 
