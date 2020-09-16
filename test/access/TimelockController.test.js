@@ -52,7 +52,7 @@ describe('TimelockController', function () {
       MINDELAY,
       [ proposer ],
       [ executor ],
-      { from: admin }
+      { from: admin },
     );
     // Mocks
     this.callreceivermock = await CallReceiverMock.new({ from: admin });
@@ -119,7 +119,7 @@ describe('TimelockController', function () {
             this.operation.predecessor,
             this.operation.salt,
             MINDELAY,
-            { from: proposer }
+            { from: proposer },
           );
           expectEvent(receipt, 'CallScheduled', {
             id: this.operation.id,
@@ -140,7 +140,7 @@ describe('TimelockController', function () {
             this.operation.predecessor,
             this.operation.salt,
             MINDELAY,
-            { from: proposer }
+            { from: proposer },
           );
 
           const block = await web3.eth.getBlock(receipt.receipt.blockHash);
@@ -157,7 +157,7 @@ describe('TimelockController', function () {
             this.operation.predecessor,
             this.operation.salt,
             MINDELAY,
-            { from: proposer }
+            { from: proposer },
           );
 
           await expectRevert(
@@ -168,9 +168,9 @@ describe('TimelockController', function () {
               this.operation.predecessor,
               this.operation.salt,
               MINDELAY,
-              { from: proposer }
+              { from: proposer },
             ),
-            'TimelockController: operation already scheduled'
+            'TimelockController: operation already scheduled',
           );
         });
 
@@ -183,9 +183,9 @@ describe('TimelockController', function () {
               this.operation.predecessor,
               this.operation.salt,
               MINDELAY,
-              { from: other }
+              { from: other },
             ),
-            'TimelockController: sender requires permission'
+            'TimelockController: sender requires permission',
           );
         });
 
@@ -198,9 +198,9 @@ describe('TimelockController', function () {
               this.operation.predecessor,
               this.operation.salt,
               MINDELAY - 1,
-              { from: proposer }
+              { from: proposer },
             ),
-            'TimelockController: insufficient delay'
+            'TimelockController: insufficient delay',
           );
         });
       });
@@ -225,9 +225,9 @@ describe('TimelockController', function () {
                 this.operation.data,
                 this.operation.predecessor,
                 this.operation.salt,
-                { from: executor }
+                { from: executor },
               ),
-              'TimelockController: operation is not ready'
+              'TimelockController: operation is not ready',
             );
           });
         });
@@ -241,7 +241,7 @@ describe('TimelockController', function () {
               this.operation.predecessor,
               this.operation.salt,
               MINDELAY,
-              { from: proposer }
+              { from: proposer },
             ));
           });
 
@@ -254,9 +254,9 @@ describe('TimelockController', function () {
                   this.operation.data,
                   this.operation.predecessor,
                   this.operation.salt,
-                  { from: executor }
+                  { from: executor },
                 ),
-                'TimelockController: operation is not ready'
+                'TimelockController: operation is not ready',
               );
             });
           });
@@ -275,9 +275,9 @@ describe('TimelockController', function () {
                   this.operation.data,
                   this.operation.predecessor,
                   this.operation.salt,
-                  { from: executor }
+                  { from: executor },
                 ),
-                'TimelockController: operation is not ready'
+                'TimelockController: operation is not ready',
               );
             });
           });
@@ -295,7 +295,7 @@ describe('TimelockController', function () {
                 this.operation.data,
                 this.operation.predecessor,
                 this.operation.salt,
-                { from: executor }
+                { from: executor },
               );
               expectEvent(receipt, 'CallExecuted', {
                 id: this.operation.id,
@@ -314,9 +314,9 @@ describe('TimelockController', function () {
                   this.operation.data,
                   this.operation.predecessor,
                   this.operation.salt,
-                  { from: other }
+                  { from: other },
                 ),
-                'TimelockController: sender requires permission'
+                'TimelockController: sender requires permission',
               );
             });
           });
@@ -344,7 +344,7 @@ describe('TimelockController', function () {
             this.operation.predecessor,
             this.operation.salt,
             MINDELAY,
-            { from: proposer }
+            { from: proposer },
           );
           for (const i in this.operation.targets) {
             expectEvent(receipt, 'CallScheduled', {
@@ -367,7 +367,7 @@ describe('TimelockController', function () {
             this.operation.predecessor,
             this.operation.salt,
             MINDELAY,
-            { from: proposer }
+            { from: proposer },
           );
 
           const block = await web3.eth.getBlock(receipt.receipt.blockHash);
@@ -384,7 +384,7 @@ describe('TimelockController', function () {
             this.operation.predecessor,
             this.operation.salt,
             MINDELAY,
-            { from: proposer }
+            { from: proposer },
           );
 
           await expectRevert(
@@ -395,9 +395,9 @@ describe('TimelockController', function () {
               this.operation.predecessor,
               this.operation.salt,
               MINDELAY,
-              { from: proposer }
+              { from: proposer },
             ),
-            'TimelockController: operation already scheduled'
+            'TimelockController: operation already scheduled',
           );
         });
 
@@ -410,9 +410,9 @@ describe('TimelockController', function () {
               this.operation.predecessor,
               this.operation.salt,
               MINDELAY,
-              { from: other }
+              { from: other },
             ),
-            'TimelockController: sender requires permission'
+            'TimelockController: sender requires permission',
           );
         });
       });
@@ -437,9 +437,9 @@ describe('TimelockController', function () {
                 this.operation.datas,
                 this.operation.predecessor,
                 this.operation.salt,
-                { from: executor }
+                { from: executor },
               ),
-              'TimelockController: operation is not ready'
+              'TimelockController: operation is not ready',
             );
           });
         });
@@ -453,7 +453,7 @@ describe('TimelockController', function () {
               this.operation.predecessor,
               this.operation.salt,
               MINDELAY,
-              { from: proposer }
+              { from: proposer },
             ));
           });
 
@@ -466,9 +466,9 @@ describe('TimelockController', function () {
                   this.operation.datas,
                   this.operation.predecessor,
                   this.operation.salt,
-                  { from: executor }
+                  { from: executor },
                 ),
-                'TimelockController: operation is not ready'
+                'TimelockController: operation is not ready',
               );
             });
           });
@@ -487,9 +487,9 @@ describe('TimelockController', function () {
                   this.operation.datas,
                   this.operation.predecessor,
                   this.operation.salt,
-                  { from: executor }
+                  { from: executor },
                 ),
-                'TimelockController: operation is not ready'
+                'TimelockController: operation is not ready',
               );
             });
           });
@@ -507,7 +507,7 @@ describe('TimelockController', function () {
                 this.operation.datas,
                 this.operation.predecessor,
                 this.operation.salt,
-                { from: executor }
+                { from: executor },
               );
               for (const i in this.operation.targets) {
                 expectEvent(receipt, 'CallExecuted', {
@@ -528,9 +528,9 @@ describe('TimelockController', function () {
                   this.operation.datas,
                   this.operation.predecessor,
                   this.operation.salt,
-                  { from: other }
+                  { from: other },
                 ),
-                'TimelockController: sender requires permission'
+                'TimelockController: sender requires permission',
               );
             });
 
@@ -542,9 +542,9 @@ describe('TimelockController', function () {
                   this.operation.datas,
                   this.operation.predecessor,
                   this.operation.salt,
-                  { from: executor }
+                  { from: executor },
                 ),
-                'TimelockController: length mismatch'
+                'TimelockController: length mismatch',
               );
             });
 
@@ -556,9 +556,9 @@ describe('TimelockController', function () {
                   this.operation.datas,
                   this.operation.predecessor,
                   this.operation.salt,
-                  { from: executor }
+                  { from: executor },
                 ),
-                'TimelockController: length mismatch'
+                'TimelockController: length mismatch',
               );
             });
 
@@ -570,9 +570,9 @@ describe('TimelockController', function () {
                   [],
                   this.operation.predecessor,
                   this.operation.salt,
-                  { from: executor }
+                  { from: executor },
                 ),
-                'TimelockController: length mismatch'
+                'TimelockController: length mismatch',
               );
             });
           });
@@ -606,7 +606,7 @@ describe('TimelockController', function () {
             operation.predecessor,
             operation.salt,
             MINDELAY,
-            { from: proposer }
+            { from: proposer },
           );
           await time.increase(MINDELAY);
           await expectRevert(
@@ -616,9 +616,9 @@ describe('TimelockController', function () {
               operation.datas,
               operation.predecessor,
               operation.salt,
-              { from: executor }
+              { from: executor },
             ),
-            'TimelockController: underlying transaction reverted'
+            'TimelockController: underlying transaction reverted',
           );
         });
       });
@@ -640,7 +640,7 @@ describe('TimelockController', function () {
           this.operation.predecessor,
           this.operation.salt,
           MINDELAY,
-          { from: proposer }
+          { from: proposer },
         ));
       });
 
@@ -652,7 +652,7 @@ describe('TimelockController', function () {
       it('prevent non-proposer from canceling', async function () {
         await expectRevert(
           this.timelock.cancel(this.operation.id, { from: other }),
-          'TimelockController: sender requires permission'
+          'TimelockController: sender requires permission',
         );
       });
     });
@@ -662,7 +662,7 @@ describe('TimelockController', function () {
     it('prevent unauthorized maintenance', async function () {
       await expectRevert(
         this.timelock.updateDelay(0, { from: other }),
-        'TimelockController: caller must be timelock'
+        'TimelockController: caller must be timelock',
       );
     });
 
@@ -683,7 +683,7 @@ describe('TimelockController', function () {
         operation.predecessor,
         operation.salt,
         MINDELAY,
-        { from: proposer }
+        { from: proposer },
       );
       await time.increase(MINDELAY);
       const receipt2 = await this.timelock.execute(
@@ -692,7 +692,7 @@ describe('TimelockController', function () {
         operation.data,
         operation.predecessor,
         operation.salt,
-        { from: executor }
+        { from: executor },
       );
       expectEvent(receipt2, 'MinDelayChange', { newDuration: newDelay.toString(), oldDuration: MINDELAY });
 
@@ -726,7 +726,7 @@ describe('TimelockController', function () {
         this.operation1.predecessor,
         this.operation1.salt,
         MINDELAY,
-        { from: proposer }
+        { from: proposer },
       );
       await this.timelock.schedule(
         this.operation2.target,
@@ -735,7 +735,7 @@ describe('TimelockController', function () {
         this.operation2.predecessor,
         this.operation2.salt,
         MINDELAY,
-        { from: proposer }
+        { from: proposer },
       );
       await time.increase(MINDELAY);
     });
@@ -748,9 +748,9 @@ describe('TimelockController', function () {
           this.operation2.data,
           this.operation2.predecessor,
           this.operation2.salt,
-          { from: executor }
+          { from: executor },
         ),
-        'TimelockController: missing dependency'
+        'TimelockController: missing dependency',
       );
     });
 
@@ -761,7 +761,7 @@ describe('TimelockController', function () {
         this.operation1.data,
         this.operation1.predecessor,
         this.operation1.salt,
-        { from: executor }
+        { from: executor },
       );
       await this.timelock.execute(
         this.operation2.target,
@@ -769,7 +769,7 @@ describe('TimelockController', function () {
         this.operation2.data,
         this.operation2.predecessor,
         this.operation2.salt,
-        { from: executor }
+        { from: executor },
       );
     });
   });
@@ -791,7 +791,7 @@ describe('TimelockController', function () {
         operation.predecessor,
         operation.salt,
         MINDELAY,
-        { from: proposer }
+        { from: proposer },
       );
       await time.increase(MINDELAY);
       await this.timelock.execute(
@@ -800,7 +800,7 @@ describe('TimelockController', function () {
         operation.data,
         operation.predecessor,
         operation.salt,
-        { from: executor }
+        { from: executor },
       );
 
       expect(await this.implementation2.getValue()).to.be.bignumber.equal(web3.utils.toBN(42));
@@ -822,7 +822,7 @@ describe('TimelockController', function () {
         operation.predecessor,
         operation.salt,
         MINDELAY,
-        { from: proposer }
+        { from: proposer },
       );
       await time.increase(MINDELAY);
       await expectRevert(
@@ -832,9 +832,9 @@ describe('TimelockController', function () {
           operation.data,
           operation.predecessor,
           operation.salt,
-          { from: executor }
+          { from: executor },
         ),
-        'TimelockController: underlying transaction reverted'
+        'TimelockController: underlying transaction reverted',
       );
     });
 
@@ -854,7 +854,7 @@ describe('TimelockController', function () {
         operation.predecessor,
         operation.salt,
         MINDELAY,
-        { from: proposer }
+        { from: proposer },
       );
       await time.increase(MINDELAY);
       await expectRevert(
@@ -864,9 +864,9 @@ describe('TimelockController', function () {
           operation.data,
           operation.predecessor,
           operation.salt,
-          { from: executor }
+          { from: executor },
         ),
-        'TimelockController: underlying transaction reverted'
+        'TimelockController: underlying transaction reverted',
       );
     });
 
@@ -886,7 +886,7 @@ describe('TimelockController', function () {
         operation.predecessor,
         operation.salt,
         MINDELAY,
-        { from: proposer }
+        { from: proposer },
       );
       await time.increase(MINDELAY);
       await expectRevert(
@@ -896,9 +896,9 @@ describe('TimelockController', function () {
           operation.data,
           operation.predecessor,
           operation.salt,
-          { from: executor }
+          { from: executor },
         ),
-        'TimelockController: underlying transaction reverted'
+        'TimelockController: underlying transaction reverted',
       );
     });
 
@@ -918,7 +918,7 @@ describe('TimelockController', function () {
         operation.predecessor,
         operation.salt,
         MINDELAY,
-        { from: proposer }
+        { from: proposer },
       );
       await time.increase(MINDELAY);
 
@@ -931,7 +931,7 @@ describe('TimelockController', function () {
         operation.data,
         operation.predecessor,
         operation.salt,
-        { from: executor, value: 1 }
+        { from: executor, value: 1 },
       );
 
       expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
@@ -954,7 +954,7 @@ describe('TimelockController', function () {
         operation.predecessor,
         operation.salt,
         MINDELAY,
-        { from: proposer }
+        { from: proposer },
       );
       await time.increase(MINDELAY);
 
@@ -968,9 +968,9 @@ describe('TimelockController', function () {
           operation.data,
           operation.predecessor,
           operation.salt,
-          { from: executor }
+          { from: executor },
         ),
-        'TimelockController: underlying transaction reverted'
+        'TimelockController: underlying transaction reverted',
       );
 
       expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
@@ -993,7 +993,7 @@ describe('TimelockController', function () {
         operation.predecessor,
         operation.salt,
         MINDELAY,
-        { from: proposer }
+        { from: proposer },
       );
       await time.increase(MINDELAY);
 
@@ -1007,9 +1007,9 @@ describe('TimelockController', function () {
           operation.data,
           operation.predecessor,
           operation.salt,
-          { from: executor }
+          { from: executor },
         ),
-        'TimelockController: underlying transaction reverted'
+        'TimelockController: underlying transaction reverted',
       );
 
       expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
