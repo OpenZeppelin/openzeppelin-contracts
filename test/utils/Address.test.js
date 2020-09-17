@@ -285,4 +285,81 @@ describe('Address', function () {
       });
     });
   });
+
+  describe('functionStaticCall', function () {
+    beforeEach(async function () {
+      this.contractRecipient = await CallReceiverMock.new();
+    });
+
+    it('calls the requested function', async function () {
+      const abiEncodedCall = web3.eth.abi.encodeFunctionCall({
+        name: 'mockStaticFunction',
+        type: 'function',
+        inputs: [],
+      }, []);
+
+      const receipt = await this.mock.functionStaticCall(this.contractRecipient.address, abiEncodedCall);
+
+      expectEvent(receipt, 'CallReturnValue', { data: '0x1234' });
+    });
+
+    it('reverts on a non-static function', async function () {
+      const abiEncodedCall = web3.eth.abi.encodeFunctionCall({
+        name: 'mockFunction',
+        type: 'function',
+        inputs: [],
+      }, []);
+
+      await expectRevert(
+        this.mock.functionStaticCall(this.contractRecipient.address, abiEncodedCall),
+        'Address: low-level static call failed',
+      );
+    });
+
+    it('bubbles up revert reason', async function () {
+      const abiEncodedCall = web3.eth.abi.encodeFunctionCall({
+        name: 'mockFunctionRevertsReason',
+        type: 'function',
+        inputs: [],
+      }, []);
+
+      await expectRevert(
+        this.mock.functionStaticCall(this.contractRecipient.address, abiEncodedCall),
+        'CallReceiverMock: reverting',
+      );
+    });
+  });
+
+  describe('functionDelegateCall', function () {
+    beforeEach(async function () {
+      this.contractRecipient = await CallReceiverMock.new();
+    });
+
+    it('delegate calls the requested function', async function () {
+      const abiEncodedCall = web3.eth.abi.encodeFunctionCall({
+        name: 'mockFunctionWritesStorage',
+        type: 'function',
+        inputs: [],
+      }, []);
+
+      const receipt = await this.mock.functionDelegateCall(this.contractRecipient.address, abiEncodedCall);
+
+      expectEvent(receipt, 'CallReturnValue', { data: '0x1234' });
+
+      expect(await this.mock.sharedAnswer()).to.equal('42');
+    });
+
+    it('bubbles up revert reason', async function () {
+      const abiEncodedCall = web3.eth.abi.encodeFunctionCall({
+        name: 'mockFunctionRevertsReason',
+        type: 'function',
+        inputs: [],
+      }, []);
+
+      await expectRevert(
+        this.mock.functionDelegateCall(this.contractRecipient.address, abiEncodedCall),
+        'CallReceiverMock: reverting',
+      );
+    });
+  });
 });

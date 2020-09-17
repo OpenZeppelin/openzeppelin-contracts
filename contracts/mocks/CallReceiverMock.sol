@@ -3,6 +3,7 @@
 pragma solidity ^0.6.0;
 
 contract CallReceiverMock {
+    string sharedAnswer;
 
     event MockFunctionCalled();
 
@@ -17,6 +18,10 @@ contract CallReceiverMock {
     function mockFunctionNonPayable() public returns (string memory) {
         emit MockFunctionCalled();
 
+        return "0x1234";
+    }
+
+    function mockStaticFunction() public pure returns (string memory) {
         return "0x1234";
     }
 
@@ -36,5 +41,10 @@ contract CallReceiverMock {
         for (uint256 i = 0; ; ++i) {
             _array.push(i);
         }
+    }
+
+    function mockFunctionWritesStorage() public returns (string memory) {
+        sharedAnswer = '42';
+        return "0x1234";
     }
 }
