@@ -143,6 +143,7 @@ describe('Address', function () {
       // which cause a mockFunctionOutOfGas function to crash Ganache and the
       // subsequent tests before running out of gas.
       it('reverts when the called function runs out of gas', async function () {
+        this.timeout(10000);
         if (coverage) { return this.skip(); }
         const abiEncodedCall = web3.eth.abi.encodeFunctionCall({
           name: 'mockFunctionOutOfGas',
@@ -154,7 +155,7 @@ describe('Address', function () {
           this.mock.functionCall(this.contractRecipient.address, abiEncodedCall),
           'Address: low-level call failed',
         );
-      }).timeout(5000);
+      });
 
       it('reverts when the called function throws', async function () {
         const abiEncodedCall = web3.eth.abi.encodeFunctionCall({
