@@ -130,18 +130,6 @@ describe('TimelockController', function () {
             predecessor: this.operation.predecessor,
             delay: MINDELAY,
           });
-        });
-
-        it('operation is registered', async function () {
-          const receipt = await this.timelock.schedule(
-            this.operation.target,
-            this.operation.value,
-            this.operation.data,
-            this.operation.predecessor,
-            this.operation.salt,
-            MINDELAY,
-            { from: proposer },
-          );
 
           const block = await web3.eth.getBlock(receipt.receipt.blockHash);
 
@@ -216,20 +204,18 @@ describe('TimelockController', function () {
           );
         });
 
-        describe('no operation scheduled', function () {
-          it('reverts', async function () {
-            await expectRevert(
-              this.timelock.execute(
-                this.operation.target,
-                this.operation.value,
-                this.operation.data,
-                this.operation.predecessor,
-                this.operation.salt,
-                { from: executor },
-              ),
-              'TimelockController: operation is not ready',
-            );
-          });
+        it('revert if operation is not scheduled', async function () {
+          await expectRevert(
+            this.timelock.execute(
+              this.operation.target,
+              this.operation.value,
+              this.operation.data,
+              this.operation.predecessor,
+              this.operation.salt,
+              { from: executor },
+            ),
+            'TimelockController: operation is not ready',
+          );
         });
 
         describe('with scheduled operation', function () {
@@ -245,41 +231,35 @@ describe('TimelockController', function () {
             ));
           });
 
-          describe('too early', function () {
-            it('reverts', async function () {
-              await expectRevert(
-                this.timelock.execute(
-                  this.operation.target,
-                  this.operation.value,
-                  this.operation.data,
-                  this.operation.predecessor,
-                  this.operation.salt,
-                  { from: executor },
-                ),
-                'TimelockController: operation is not ready',
-              );
-            });
+          it('revert if execution comes too early 1/2', async function () {
+            await expectRevert(
+              this.timelock.execute(
+                this.operation.target,
+                this.operation.value,
+                this.operation.data,
+                this.operation.predecessor,
+                this.operation.salt,
+                { from: executor },
+              ),
+              'TimelockController: operation is not ready',
+            );
           });
 
-          describe('almost but not quite', function () {
-            beforeEach(async function () {
-              const timestamp = await this.timelock.getTimestamp(this.operation.id);
-              await time.increaseTo(timestamp - 2); // -1 is too tight, test sometime fails
-            });
+          it('revert if execution comes too early 2/2', async function () {
+            const timestamp = await this.timelock.getTimestamp(this.operation.id);
+            await time.increaseTo(timestamp - 2); // -1 is too tight, test sometime fails
 
-            it('reverts', async function () {
-              await expectRevert(
-                this.timelock.execute(
-                  this.operation.target,
-                  this.operation.value,
-                  this.operation.data,
-                  this.operation.predecessor,
-                  this.operation.salt,
-                  { from: executor },
-                ),
-                'TimelockController: operation is not ready',
-              );
-            });
+            await expectRevert(
+              this.timelock.execute(
+                this.operation.target,
+                this.operation.value,
+                this.operation.data,
+                this.operation.predecessor,
+                this.operation.salt,
+                { from: executor },
+              ),
+              'TimelockController: operation is not ready',
+            );
           });
 
           describe('on time', function () {
@@ -357,18 +337,6 @@ describe('TimelockController', function () {
               delay: MINDELAY,
             });
           }
-        });
-
-        it('operation is registered', async function () {
-          const receipt = await this.timelock.scheduleBatch(
-            this.operation.targets,
-            this.operation.values,
-            this.operation.datas,
-            this.operation.predecessor,
-            this.operation.salt,
-            MINDELAY,
-            { from: proposer },
-          );
 
           const block = await web3.eth.getBlock(receipt.receipt.blockHash);
 
@@ -415,6 +383,21 @@ describe('TimelockController', function () {
             'TimelockController: sender requires permission',
           );
         });
+
+        it('enforce minimum delay', async function () {
+          await expectRevert(
+            this.timelock.scheduleBatch(
+              this.operation.targets,
+              this.operation.values,
+              this.operation.datas,
+              this.operation.predecessor,
+              this.operation.salt,
+              MINDELAY - 1,
+              { from: proposer },
+            ),
+            'TimelockController: insufficient delay',
+          );
+        });
       });
 
       describe('execute', function () {
@@ -428,20 +411,18 @@ describe('TimelockController', function () {
           );
         });
 
-        describe('no scheduled operation', function () {
-          it('reverts', async function () {
-            await expectRevert(
-              this.timelock.executeBatch(
-                this.operation.targets,
-                this.operation.values,
-                this.operation.datas,
-                this.operation.predecessor,
-                this.operation.salt,
-                { from: executor },
-              ),
-              'TimelockController: operation is not ready',
-            );
-          });
+        it('revert if operation is not scheduled', async function () {
+          await expectRevert(
+            this.timelock.executeBatch(
+              this.operation.targets,
+              this.operation.values,
+              this.operation.datas,
+              this.operation.predecessor,
+              this.operation.salt,
+              { from: executor },
+            ),
+            'TimelockController: operation is not ready',
+          );
         });
 
         describe('with scheduled operation', function () {
@@ -457,41 +438,35 @@ describe('TimelockController', function () {
             ));
           });
 
-          describe('to early', function () {
-            it('reverts', async function () {
-              await expectRevert(
-                this.timelock.executeBatch(
-                  this.operation.targets,
-                  this.operation.values,
-                  this.operation.datas,
-                  this.operation.predecessor,
-                  this.operation.salt,
-                  { from: executor },
-                ),
-                'TimelockController: operation is not ready',
-              );
-            });
+          it('revert if execution comes too early 1/2', async function () {
+            await expectRevert(
+              this.timelock.executeBatch(
+                this.operation.targets,
+                this.operation.values,
+                this.operation.datas,
+                this.operation.predecessor,
+                this.operation.salt,
+                { from: executor },
+              ),
+              'TimelockController: operation is not ready',
+            );
           });
 
-          describe('almost but not quite', function () {
-            beforeEach(async function () {
-              const timestamp = await this.timelock.getTimestamp(this.operation.id);
-              await time.increaseTo(timestamp - 2); // -1 is to tight, test sometime fails
-            });
+          it('revert if execution comes too early 2/2', async function () {
+            const timestamp = await this.timelock.getTimestamp(this.operation.id);
+            await time.increaseTo(timestamp - 2); // -1 is to tight, test sometime fails
 
-            it('reverts', async function () {
-              await expectRevert(
-                this.timelock.executeBatch(
-                  this.operation.targets,
-                  this.operation.values,
-                  this.operation.datas,
-                  this.operation.predecessor,
-                  this.operation.salt,
-                  { from: executor },
-                ),
-                'TimelockController: operation is not ready',
-              );
-            });
+            await expectRevert(
+              this.timelock.executeBatch(
+                this.operation.targets,
+                this.operation.values,
+                this.operation.datas,
+                this.operation.predecessor,
+                this.operation.salt,
+                { from: executor },
+              ),
+              'TimelockController: operation is not ready',
+            );
           });
 
           describe('on time', function () {
@@ -676,7 +651,7 @@ describe('TimelockController', function () {
         '0xf8e775b2c5f4d66fb5c7fa800f35ef518c262b6014b3c0aee6ea21bff157f108',
       );
 
-      const receipt1 = await this.timelock.schedule(
+      await this.timelock.schedule(
         operation.target,
         operation.value,
         operation.data,
@@ -686,7 +661,7 @@ describe('TimelockController', function () {
         { from: proposer },
       );
       await time.increase(MINDELAY);
-      const receipt2 = await this.timelock.execute(
+      const receipt = await this.timelock.execute(
         operation.target,
         operation.value,
         operation.data,
@@ -694,12 +669,9 @@ describe('TimelockController', function () {
         operation.salt,
         { from: executor },
       );
-      expectEvent(receipt2, 'MinDelayChange', { newDuration: newDelay.toString(), oldDuration: MINDELAY });
+      expectEvent(receipt, 'MinDelayChange', { newDuration: newDelay.toString(), oldDuration: MINDELAY });
 
       expect(await this.timelock.getMinDelay()).to.be.bignumber.equal(newDelay);
-
-      console.log('Gas cost schedule:', receipt1.receipt.gasUsed);
-      console.log('Gas cost execute:', receipt2.receipt.gasUsed);
     });
   });
 
@@ -774,7 +746,7 @@ describe('TimelockController', function () {
     });
   });
 
-  describe('scenari', function () {
+  describe('usage scenari', function () {
     it('call', async function () {
       const operation = genOperation(
         this.implementation2.address,
