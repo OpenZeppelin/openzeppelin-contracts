@@ -746,7 +746,9 @@ describe('TimelockController', function () {
     });
   });
 
-  describe('usage scenari', function () {
+  describe('usage scenario', function () {
+    this.timeout(10000);
+
     it('call', async function () {
       const operation = genOperation(
         this.implementation2.address,
