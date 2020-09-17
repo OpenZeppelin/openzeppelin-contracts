@@ -336,7 +336,10 @@ describe('Address', function () {
         type: 'function',
         inputs: [],
       }, []);
-      await expectRevert(this.mock.functionStaticCall(recipient, abiEncodedCall), 'Address: static call to non-contract');
+      await expectRevert(
+        this.mock.functionStaticCall(recipient, abiEncodedCall),
+        'Address: static call to non-contract',
+      );
     });
   });
 
@@ -379,7 +382,10 @@ describe('Address', function () {
         type: 'function',
         inputs: [],
       }, []);
-      await expectRevert(this.mock.functionDelegateCall(recipient, abiEncodedCall), 'Address: delegate call to non-contract');
+      await expectRevert(
+        this.mock.functionDelegateCall(recipient, abiEncodedCall),
+        'Address: delegate call to non-contract',
+      );
     });
   });
 });
