@@ -127,7 +127,7 @@ library Address {
      * _Available since v3.3._
      */
     function functionStaticCall(address target, bytes memory data) internal view returns (bytes memory) {
-        functionStaticCall(target, data, "Address: low-level static call failed");
+        return functionStaticCall(target, data, "Address: low-level static call failed");
     }
 
     /**
@@ -151,7 +151,7 @@ library Address {
      * _Available since v3.3._
      */
     function functionDelegateCall(address target, bytes memory data) internal returns (bytes memory) {
-        functionDelegateCall(target, data, "Address: low-level delegate call failed");
+        return functionDelegateCall(target, data, "Address: low-level delegate call failed");
     }
 
     /**
