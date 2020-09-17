@@ -328,6 +328,16 @@ describe('Address', function () {
         'CallReceiverMock: reverting',
       );
     });
+
+    it('reverts when address is not a contract', async function () {
+      const [ recipient ] = accounts;
+      const abiEncodedCall = web3.eth.abi.encodeFunctionCall({
+        name: 'mockFunction',
+        type: 'function',
+        inputs: [],
+      }, []);
+      await expectRevert(this.mock.functionStaticCall(recipient, abiEncodedCall), 'Address: static call to non-contract');
+    });
   });
 
   describe('functionDelegateCall', function () {
@@ -360,6 +370,16 @@ describe('Address', function () {
         this.mock.functionDelegateCall(this.contractRecipient.address, abiEncodedCall),
         'CallReceiverMock: reverting',
       );
+    });
+
+    it('reverts when address is not a contract', async function () {
+      const [ recipient ] = accounts;
+      const abiEncodedCall = web3.eth.abi.encodeFunctionCall({
+        name: 'mockFunction',
+        type: 'function',
+        inputs: [],
+      }, []);
+      await expectRevert(this.mock.functionDelegateCall(recipient, abiEncodedCall), 'Address: delegate call to non-contract');
     });
   });
 });
