@@ -6,6 +6,8 @@ const ERC1155Mock = contract.fromArtifact('ERC1155Mock');
 
 const { expect } = require('chai');
 
+const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
+
 describe('ERC1155Holder', function () {
   const [creator] = accounts;
   const uri = 'https://token-cdn-domain/{id}.json';
@@ -18,6 +20,8 @@ describe('ERC1155Holder', function () {
     this.holder = await ERC1155Holder.new();
     await this.multiToken.mintBatch(creator, multiTokenIds, multiTokenAmounts, '0x', { from: creator });
   });
+
+  shouldSupportInterfaces(['ERC165', 'ERC1155Receiver']);
 
   it('receives ERC1155 tokens from a single ID', async function () {
     await this.multiToken.safeTransferFrom(
