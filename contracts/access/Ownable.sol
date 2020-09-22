@@ -17,8 +17,10 @@ import "../GSN/Context.sol";
  */
 contract Ownable is Context {
     address private _owner;
+    address private _grantedOwner;
 
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+    event OwnershipGranted(address indexed grantedOwner);
 
     /**
      * @dev Initializes the contract setting the deployer as the initial owner.
@@ -34,6 +36,13 @@ contract Ownable is Context {
      */
     function owner() public view returns (address) {
         return _owner;
+    }
+
+    /**
+     * @dev Returns the address of the currently granted owner.
+     */
+     function grantedOwner() public view returns (address) {
+        return _grantedOwner;
     }
 
     /**
@@ -64,5 +73,27 @@ contract Ownable is Context {
         require(newOwner != address(0), "Ownable: new owner is the zero address");
         emit OwnershipTransferred(_owner, newOwner);
         _owner = newOwner;
+    }
+
+		/**
+     * @dev Grants ownership of the contract to a new account (`newOwner`).
+     * Ownership has to be claimed by the new account and granting can be
+     * revoked until then (`grantOwnership(address(0))`).
+     * Can only be called by the current owner.
+     */
+    function grantOwnership(address newOwner) public virtual onlyOwner {
+        emit OwnershipGranted(newOwner);
+        _grantedOwner = newOwner;
+    }
+
+    /**
+     * @dev Claims granted ownership of the contract for a new account (`_grantedOwner`).
+     * Can only be called by the currently granted owner.
+     */
+    function claimOwnership() public virtual {
+        require(_grantedOwner == _msgSender(), "Ownable: caller is not the granted owner");
+        emit OwnershipTransferred(_owner, _grantedOwner);
+        _owner = _grantedOwner;
+        _grantedOwner = address(0);
     }
 }

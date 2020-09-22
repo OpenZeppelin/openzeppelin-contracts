@@ -55,4 +55,40 @@ describe('Ownable', function () {
       );
     });
   });
+
+  describe('grant and claim ownership', function () {
+    it('grants ownership', async function () {
+      const receipt = await this.ownable.grantOwnership(other, { from: owner });
+      expectEvent(receipt, 'OwnershipGranted');
+
+      expect(await this.ownable.grantedOwner()).to.equal(other);
+    });
+
+    it('prevents non-owners from granting', async function () {
+      await expectRevert(
+        this.ownable.grantOwnership(other, { from: other }),
+        'Ownable: caller is not the owner',
+      );
+    });
+
+    it('prevents non-granted-owners from claiming ownership', async function () {
+      await expectRevert(
+        this.ownable.claimOwnership({ from: owner }),
+        'Ownable: caller is not the granted owner',
+      );
+    });
+
+    it('grants ownership and claims it', async function () {
+      let receipt = await this.ownable.grantOwnership(other, { from: owner });
+      expectEvent(receipt, 'OwnershipGranted');
+
+      expect(await this.ownable.grantedOwner()).to.equal(other);
+
+      receipt = await this.ownable.claimOwnership({ from: other });
+      expectEvent(receipt, 'OwnershipTransferred');
+
+      expect(await this.ownable.owner()).to.equal(other);
+      expect(await this.ownable.grantedOwner()).to.equal(ZERO_ADDRESS);
+    });
+  });
 });
