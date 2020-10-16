@@ -20,11 +20,13 @@ library SafeERC20 {
     using Address for address;
 
     function safeTransfer(IERC20 token, address to, uint256 value) internal {
-        _callOptionalReturn(token, abi.encodeWithSelector(token.transfer.selector, to, value));
+        // bytes4(keccak256(bytes('transfer(address,uint256)'))) = 0xa9059cbb
+        _callOptionalReturn(token, abi.encodeWithSelector(0xa9059cbb, to, value));
     }
 
     function safeTransferFrom(IERC20 token, address from, address to, uint256 value) internal {
-        _callOptionalReturn(token, abi.encodeWithSelector(token.transferFrom.selector, from, to, value));
+        // bytes4(keccak256(bytes('transferFrom(address,address,uint256)'))) = 0x23b872dd
+        _callOptionalReturn(token, abi.encodeWithSelector(0x23b872dd, from, to, value));
     }
 
     /**
@@ -39,20 +41,24 @@ library SafeERC20 {
         // or when resetting it to zero. To increase and decrease it, use
         // 'safeIncreaseAllowance' and 'safeDecreaseAllowance'
         // solhint-disable-next-line max-line-length
-        require((value == 0) || (token.allowance(address(this), spender) == 0),
+        require(
+            (value == 0) || (token.allowance(address(this), spender) == 0),
             "SafeERC20: approve from non-zero to non-zero allowance"
         );
-        _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, value));
+        // bytes4(keccak256(bytes('approve(address,uint256)'))) = 0x095ea7b3
+        _callOptionalReturn(token, abi.encodeWithSelector(0x095ea7b3, spender, value));
     }
 
     function safeIncreaseAllowance(IERC20 token, address spender, uint256 value) internal {
         uint256 newAllowance = token.allowance(address(this), spender).add(value);
-        _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, newAllowance));
+        // bytes4(keccak256(bytes('approve(address,uint256)'))) = 0x095ea7b3
+        _callOptionalReturn(token, abi.encodeWithSelector(0x095ea7b3, spender, newAllowance));
     }
 
     function safeDecreaseAllowance(IERC20 token, address spender, uint256 value) internal {
         uint256 newAllowance = token.allowance(address(this), spender).sub(value, "SafeERC20: decreased allowance below zero");
-        _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, newAllowance));
+        // bytes4(keccak256(bytes('approve(address,uint256)'))) = 0x095ea7b3
+        _callOptionalReturn(token, abi.encodeWithSelector(0x095ea7b3, spender, newAllowance));
     }
 
     /**
@@ -67,7 +73,8 @@ library SafeERC20 {
         // the target address contains contract code and also asserts for success in the low-level call.
 
         bytes memory returndata = address(token).functionCall(data, "SafeERC20: low-level call failed");
-        if (returndata.length > 0) { // Return data is optional
+        if (returndata.length > 0) {
+            // Return data is optional
             // solhint-disable-next-line max-line-length
             require(abi.decode(returndata, (bool)), "SafeERC20: ERC20 operation did not succeed");
         }
