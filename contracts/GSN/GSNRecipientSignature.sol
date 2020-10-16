@@ -14,7 +14,7 @@ import "../cryptography/ECDSA.sol";
 contract GSNRecipientSignature is GSNRecipient {
     using ECDSA for bytes32;
 
-    address private _trustedSigner;
+    address immutable private _trustedSigner;
 
     enum GSNRecipientSignatureErrorCodes {
         INVALID_SIGNER

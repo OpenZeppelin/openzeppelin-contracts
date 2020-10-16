@@ -21,7 +21,7 @@ contract RefundEscrow is ConditionalEscrow {
     event RefundsEnabled();
 
     State private _state;
-    address payable private _beneficiary;
+    address payable immutable private _beneficiary;
 
     /**
      * @dev Constructor.

@@ -25,7 +25,7 @@ contract GSNRecipientERC20Fee is GSNRecipient {
         INSUFFICIENT_BALANCE
     }
 
-    __unstable__ERC20Owned private _token;
+    __unstable__ERC20Owned immutable private _token;
 
     /**
      * @dev The arguments to the constructor are the details that the gas payment token will have: `name` and `symbol`. `decimals` is hard-coded to 18.
