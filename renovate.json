@@ -11,5 +11,8 @@
       "extends": ["packages:eslint"],
       "enabled": false
     }
-  ]
+  ],
+  "lockFileMaintenance": {
+    "commitMessageAction": "Update lockfile"
+  }
 }
