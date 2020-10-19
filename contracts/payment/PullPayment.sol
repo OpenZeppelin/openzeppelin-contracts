@@ -22,7 +22,7 @@ import "./escrow/Escrow.sol";
  * instead of Solidity's `transfer` function. Payees can query their due
  * payments with {payments}, and retrieve them with {withdrawPayments}.
  */
-contract PullPayment {
+abstract contract PullPayment {
     Escrow private _escrow;
 
     constructor () {
