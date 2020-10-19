@@ -1,4 +1,6 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.6.0;
 
 import "../../GSN/Context.sol";
 import "./ERC20.sol";
@@ -8,20 +10,31 @@ import "./ERC20.sol";
  * tokens and those that they have an allowance for, in a way that can be
  * recognized off-chain (via event analysis).
  */
-contract ERC20Burnable is Context, ERC20 {
+abstract contract ERC20Burnable is Context, ERC20 {
     /**
      * @dev Destroys `amount` tokens from the caller.
      *
      * See {ERC20-_burn}.
      */
-    function burn(uint256 amount) public {
+    function burn(uint256 amount) public virtual {
         _burn(_msgSender(), amount);
     }
 
     /**
-     * @dev See {ERC20-_burnFrom}.
+     * @dev Destroys `amount` tokens from `account`, deducting from the caller's
+     * allowance.
+     *
+     * See {ERC20-_burn} and {ERC20-allowance}.
+     *
+     * Requirements:
+     *
+     * - the caller must have allowance for ``accounts``'s tokens of at least
+     * `amount`.
      */
-    function burnFrom(address account, uint256 amount) public {
-        _burnFrom(account, amount);
+    function burnFrom(address account, uint256 amount) public virtual {
+        uint256 decreasedAllowance = allowance(account, _msgSender()).sub(amount, "ERC20: burn amount exceeds allowance");
+
+        _approve(account, _msgSender(), decreasedAllowance);
+        _burn(account, amount);
     }
 }

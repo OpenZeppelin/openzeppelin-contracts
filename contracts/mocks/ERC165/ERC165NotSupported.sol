@@ -1,5 +1,5 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
 
-contract ERC165NotSupported {
-    // solhint-disable-previous-line no-empty-blocks
-}
+pragma solidity ^0.6.0;
+
+contract ERC165NotSupported { }

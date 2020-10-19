@@ -1,4 +1,6 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.6.0;
 
 import "./GSNRecipient.sol";
 import "../cryptography/ECDSA.sol";
@@ -32,16 +34,18 @@ contract GSNRecipientSignature is GSNRecipient {
     function acceptRelayedCall(
         address relay,
         address from,
-        bytes calldata encodedFunction,
+        bytes memory encodedFunction,
         uint256 transactionFee,
         uint256 gasPrice,
         uint256 gasLimit,
         uint256 nonce,
-        bytes calldata approvalData,
+        bytes memory approvalData,
         uint256
     )
-        external
+        public
         view
+        virtual
+        override
         returns (uint256, bytes memory)
     {
         bytes memory blob = abi.encodePacked(
@@ -62,11 +66,7 @@ contract GSNRecipientSignature is GSNRecipient {
         }
     }
 
-    function _preRelayedCall(bytes memory) internal returns (bytes32) {
-        // solhint-disable-previous-line no-empty-blocks
-    }
+    function _preRelayedCall(bytes memory) internal virtual override returns (bytes32) { }
 
-    function _postRelayedCall(bytes memory, bool, uint256, bytes32) internal {
-        // solhint-disable-previous-line no-empty-blocks
-    }
+    function _postRelayedCall(bytes memory, bool, uint256, bytes32) internal virtual override { }
 }

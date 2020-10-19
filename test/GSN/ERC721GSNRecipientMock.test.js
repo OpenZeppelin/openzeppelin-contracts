@@ -11,10 +11,12 @@ const ERC721GSNRecipientMock = contract.fromArtifact('ERC721GSNRecipientMock');
 describe('ERC721GSNRecipient (integration)', function () {
   const [ signer, sender ] = accounts;
 
+  const name = 'Non Fungible Token';
+  const symbol = 'NFT';
   const tokenId = '42';
 
   beforeEach(async function () {
-    this.token = await ERC721GSNRecipientMock.new(signer);
+    this.token = await ERC721GSNRecipientMock.new(name, symbol, signer);
   });
 
   async function testMintToken (token, from, tokenId, options = {}) {
@@ -39,9 +41,9 @@ describe('ERC721GSNRecipient (integration)', function () {
           await web3.eth.sign(
             web3.utils.soliditySha3(
               // eslint-disable-next-line max-len
-              data.relayerAddress, data.from, data.encodedFunctionCall, toBN(data.txFee), toBN(data.gasPrice), toBN(data.gas), toBN(data.nonce), data.relayHubAddress, this.token.address
-            ), signer
-          )
+              data.relayerAddress, data.from, data.encodedFunctionCall, toBN(data.txFee), toBN(data.gasPrice), toBN(data.gas), toBN(data.nonce), data.relayHubAddress, this.token.address,
+            ), signer,
+          ),
         );
 
       await testMintToken(this.token, sender, tokenId, { useGSN: true, approveFunction });

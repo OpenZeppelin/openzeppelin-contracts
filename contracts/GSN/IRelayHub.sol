@@ -1,4 +1,6 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.6.0;
 
 /**
  * @dev Interface for `RelayHub`, the core contract of the GSN. Users should not need to interact with this contract
@@ -39,7 +41,7 @@ interface IRelayHub {
     function registerRelay(uint256 transactionFee, string calldata url) external;
 
     /**
-     * @dev Emitted when a relay is registered or re-registerd. Looking at these events (and filtering out
+     * @dev Emitted when a relay is registered or re-registered. Looking at these events (and filtering out
      * {RelayRemoved} events) lets a client discover the list of available relays.
      */
     event RelayAdded(address indexed relay, address indexed owner, uint256 transactionFee, uint256 stake, uint256 unstakeDelay, string url);
@@ -103,7 +105,7 @@ interface IRelayHub {
     event Deposited(address indexed recipient, address indexed from, uint256 amount);
 
     /**
-     * @dev Returns an account's deposits. These can be either a contracts's funds, or a relay owner's revenue.
+     * @dev Returns an account's deposits. These can be either a contract's funds, or a relay owner's revenue.
      */
     function balanceOf(address target) external view returns (uint256);
 
@@ -178,7 +180,7 @@ interface IRelayHub {
      *  - `gasLimit`: gas to forward when calling the encoded function
      *  - `nonce`: client's nonce
      *  - `signature`: client's signature over all previous params, plus the relay and RelayHub addresses
-     *  - `approvalData`: dapp-specific data forwared to {acceptRelayedCall}. This value is *not* verified by the
+     *  - `approvalData`: dapp-specific data forwarded to {acceptRelayedCall}. This value is *not* verified by the
      * `RelayHub`, but it still can be used for e.g. a signature.
      *
      * Emits a {TransactionRelayed} event.
@@ -207,7 +209,7 @@ interface IRelayHub {
     event CanRelayFailed(address indexed relay, address indexed from, address indexed to, bytes4 selector, uint256 reason);
 
     /**
-     * @dev Emitted when a transaction is relayed. 
+     * @dev Emitted when a transaction is relayed.
      * Useful when monitoring a relay's operation and relayed calls to a contract
      *
      * Note that the actual encoded function might be reverted: this is indicated in the `status` parameter.
@@ -236,7 +238,7 @@ interface IRelayHub {
      */
     function maxPossibleCharge(uint256 relayedCallStipend, uint256 gasPrice, uint256 transactionFee) external view returns (uint256);
 
-     // Relay penalization. 
+     // Relay penalization.
      // Any account can penalize relays, removing them from the system immediately, and rewarding the
     // reporter with half of the relay's stake. The other half is burned so that, even if the relay penalizes itself, it
     // still loses half of its stake.
@@ -250,7 +252,7 @@ interface IRelayHub {
     function penalizeRepeatedNonce(bytes calldata unsignedTx1, bytes calldata signature1, bytes calldata unsignedTx2, bytes calldata signature2) external;
 
     /**
-     * @dev Penalize a relay that sent a transaction that didn't target `RelayHub`'s {registerRelay} or {relayCall}.
+     * @dev Penalize a relay that sent a transaction that didn't target ``RelayHub``'s {registerRelay} or {relayCall}.
      */
     function penalizeIllegalTransaction(bytes calldata unsignedTx, bytes calldata signature) external;
 

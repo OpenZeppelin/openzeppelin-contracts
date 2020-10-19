@@ -1,4 +1,6 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.6.0;
 
 import "../payment/escrow/ConditionalEscrow.sol";
 
@@ -10,7 +12,7 @@ contract ConditionalEscrowMock is ConditionalEscrow {
         _allowed[payee] = allowed;
     }
 
-    function withdrawalAllowed(address payee) public view returns (bool) {
+    function withdrawalAllowed(address payee) public view override returns (bool) {
         return _allowed[payee];
     }
 }

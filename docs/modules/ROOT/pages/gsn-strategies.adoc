@@ -47,7 +47,7 @@ On the other hand, you need to have a backend server, microservice, or lambda fu
 
 `GSNRecipientSignature` decides whether or not to accept the relayed call based on the included signature.
 
-The `acceptRelayedCall` implementation recovers the address from the signature of the relayed call parameters in `approvalData` and compares to the trusted signer.
+The `acceptRelayedCall` implementation recovers the address from the signature of the relayed call parameters in `approvalData` and compares it to the trusted signer.
 If the included signature matches the trusted signer, the relayed call is approved.
 On the other hand, when the included signature doesn't match the trusted signer, the relayed call gets rejected with an error code of `INVALID_SIGNER`.
 
@@ -59,7 +59,7 @@ Instead of using `GSNRecipient` directly, your GSN recipient contract will inste
 
 [source,solidity]
 ----
-import "@openzeppelin/contracts/GSN/GSNRecipientSignature";
+import "@openzeppelin/contracts/GSN/GSNRecipientSignature.sol";
 
 contract MyContract is GSNRecipientSignature {
     constructor(address trustedSigner) public GSNRecipientSignature(trustedSigner) {
@@ -102,17 +102,34 @@ NOTE: Always use `_preRelayedCall` and `_postRelayedCall` functions.  Internal `
 
 === How to Use `GSNRecipientERC20Fee`
 
-Your GSN recipient contract needs to inherit from `GSNRecipientERC20Fee` along with appropriate xref:access-control.adoc[access control] (for token minting), set the token details in the constructor of `GSNRecipientERC20Fee` and create a public `mint` function suitably protected by your chosen access control as per the following sample code (which uses the xref:api:access.adoc#MinterRole[MinterRole]):
+Your GSN recipient contract needs to inherit from `GSNRecipientERC20Fee` along with appropriate xref:access-control.adoc[access control] (for token minting), set the token details in the constructor of `GSNRecipientERC20Fee` and create a public `mint` function suitably protected by your chosen access control as per the following sample code (which uses xref:api:access.adoc#AccessControl[`AccessControl`]):
 
 [source,solidity]
 ----
-import "@openzeppelin/contracts/GSN/GSNRecipientERC20Fee";
+// contracts/MyContract.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.6.0;
 
-contract MyContract is GSNRecipientERC20Fee, MinterRole {
+import "@openzeppelin/contracts/GSN/GSNRecipientERC20Fee.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
+
+contract MyContract is GSNRecipientERC20Fee, AccessControl {
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+
     constructor() public GSNRecipientERC20Fee("FeeToken", "FEE") {
+        _setupRole(MINTER_ROLE, _msgSender());
     }
 
-    function mint(address account, uint256 amount) public onlyMinter {
+    function _msgSender() internal view override(Context, GSNRecipient) returns (address payable) {
+        return GSNRecipient._msgSender();
+    }
+
+    function _msgData() internal view override(Context, GSNRecipient) returns (bytes memory) {
+        return GSNRecipient._msgData();
+    }
+
+    function mint(address account, uint256 amount) public {
+        require(hasRole(MINTER_ROLE, _msgSender()), "Caller is not a minter");
         _mint(account, amount);
     }
 }
@@ -130,7 +147,7 @@ Not all GSN strategies use `_preRelayedCall` and `_postRelayedCall` (though they
 
 `_preRelayedCall` should take the maximum possible charge, with `_postRelayedCall` refunding any difference from the actual charge once the relayed call has been made.
 When returning `_approveRelayedCall` to approve the relayed call, the end users address, `maxPossibleCharge`, `transactionFee` and `gasPrice` data can also be returned so that the data can be used in `_preRelayedCall` and `_postRelayedCall`.
-See https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v2.4.0/contracts/GSN/GSNRecipientERC20Fee.sol[the code for `GSNRecipientERC20Fee`] as an example implementation.
+See https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v3.0.0/contracts/GSN/GSNRecipientERC20Fee.sol[the code for `GSNRecipientERC20Fee`] as an example implementation.
 
 Once your strategy is ready, all your GSN recipient needs to do is inherit from it:
 

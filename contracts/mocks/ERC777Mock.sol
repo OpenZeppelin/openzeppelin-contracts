@@ -1,4 +1,6 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.6.0;
 
 import "../GSN/Context.sol";
 import "../token/ERC777/ERC777.sol";
@@ -11,16 +13,19 @@ contract ERC777Mock is Context, ERC777 {
         string memory symbol,
         address[] memory defaultOperators
     ) public ERC777(name, symbol, defaultOperators) {
-        _mint(_msgSender(), initialHolder, initialBalance, "", "");
+        _mint(initialHolder, initialBalance, "", "");
     }
 
     function mintInternal (
-        address operator,
         address to,
         uint256 amount,
         bytes memory userData,
         bytes memory operatorData
     ) public {
-        _mint(operator, to, amount, userData, operatorData);
+        _mint(to, amount, userData, operatorData);
+    }
+
+    function approveInternal(address holder, address spender, uint256 value) public {
+        _approve(holder, spender, value);
     }
 }

@@ -15,7 +15,7 @@ describe('SafeERC20', function () {
       this.wrapper = await SafeERC20Wrapper.new(hasNoCode);
     });
 
-    shouldRevertOnAllCalls('SafeERC20: call to non-contract');
+    shouldRevertOnAllCalls('Address: call to non-contract');
   });
 
   describe('with token that returns false on all calls', function () {
@@ -97,7 +97,7 @@ function shouldOnlyRevertOnErrors () {
       it('reverts when decreasing the allowance', async function () {
         await expectRevert(
           this.wrapper.decreaseAllowance(10),
-          'SafeERC20: decreased allowance below zero'
+          'SafeERC20: decreased allowance below zero',
         );
       });
     });
@@ -110,7 +110,7 @@ function shouldOnlyRevertOnErrors () {
       it('reverts when approving a non-zero allowance', async function () {
         await expectRevert(
           this.wrapper.approve(20),
-          'SafeERC20: approve from non-zero to non-zero allowance'
+          'SafeERC20: approve from non-zero to non-zero allowance',
         );
       });
 
@@ -129,7 +129,7 @@ function shouldOnlyRevertOnErrors () {
       it('reverts when decreasing the allowance to a negative value', async function () {
         await expectRevert(
           this.wrapper.decreaseAllowance(200),
-          'SafeERC20: decreased allowance below zero'
+          'SafeERC20: decreased allowance below zero',
         );
       });
     });

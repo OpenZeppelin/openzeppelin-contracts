@@ -1,4 +1,6 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.6.0;
 
 /**
  * @dev Base interface for a contract that will be called via the GSN from {IRelayHub}.
@@ -17,7 +19,7 @@ interface IRelayRecipient {
      *
      * The relay request was originated by `from` and will be served by `relay`. `encodedFunction` is the relayed call
      * calldata, so its first four bytes are the function selector. The relayed call will be forwarded `gasLimit` gas,
-     * and the transaction executed with a gas price of at least `gasPrice`. `relay`'s fee is `transactionFee`, and the
+     * and the transaction executed with a gas price of at least `gasPrice`. ``relay``'s fee is `transactionFee`, and the
      * recipient will be charged at most `maxPossibleCharge` (in wei). `nonce` is the sender's (`from`) nonce for
      * replay attack protection in {IRelayHub}, and `approvalData` is a optional parameter that can be used to hold a signature
      * over all or some of the previous values.
@@ -51,7 +53,7 @@ interface IRelayRecipient {
      *
      * Returns a value to be passed to {postRelayedCall}.
      *
-     * {preRelayedCall} is called with 100k gas: if it runs out during exection or otherwise reverts, the relayed call
+     * {preRelayedCall} is called with 100k gas: if it runs out during execution or otherwise reverts, the relayed call
      * will not be executed, but the recipient will still be charged for the transaction's cost.
      */
     function preRelayedCall(bytes calldata context) external returns (bytes32);

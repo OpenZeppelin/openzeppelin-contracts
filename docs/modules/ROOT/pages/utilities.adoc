@@ -1,13 +1,13 @@
 = Utilities
 
-The OpenZeppelin Contracs provide a ton of useful utilities that you can use in your project. Here are some of the more popular ones.
+The OpenZeppelin Contracts provide a ton of useful utilities that you can use in your project. Here are some of the more popular ones.
 
 [[cryptography]]
 == Cryptography
 
 === Checking Signatures On-Chain
 
-xref:api:cryptography.adoc#ECDSA[`ECDSA`] provides functions for recovering and managing Ethereum account ECDSA signatures. These are often generated via https://web3js.readthedocs.io/en/v1.2.4/web3-eth.html#sign[`web3.eth.sign`], and are a 65 byte array (of type `bytes` in Solidity) arranged the follwing way: `[[v (1)], [r (32)], [s (32)]]`.
+xref:api:cryptography.adoc#ECDSA[`ECDSA`] provides functions for recovering and managing Ethereum account ECDSA signatures. These are often generated via https://web3js.readthedocs.io/en/v1.2.4/web3-eth.html#sign[`web3.eth.sign`], and are a 65 byte array (of type `bytes` in Solidity) arranged the following way: `[[v (1)], [r (32)], [s (32)]]`.
 
 The data signer can be recovered with xref:api:cryptography.adoc#ECDSA-recover-bytes32-bytes-[`ECDSA.recover`], and its address compared to verify the signature. Most wallets will hash the data to sign and add the prefix '\x19Ethereum Signed Message:\n', so when attempting to recover the signer of an Ethereum signed message hash, you'll want to use xref:api:cryptography.adoc#ECDSA-toEthSignedMessageHash-bytes32-[`toEthSignedMessageHash`].
 
@@ -83,13 +83,19 @@ Easy!
 
 Want to split some payments between multiple people? Maybe you have an app that sends 30% of art purchases to the original creator and 70% of the profits to the current owner; you can build that with xref:api:payment.adoc#PaymentSplitter[`PaymentSplitter`]!
 
-In solidity, there are some security concerns with blindly sending money to accounts, since it allows them to execute arbitrary code. You can read up on these security concerns in the https://consensys.github.io/smart-contract-best-practices/[Ethereum Smart Contract Best Practices] website. One of the ways to fix reentrancy and stalling problems is, instead of immediately sending Ether to accounts that need it, you can use xref:api:payment.adoc#PullPayment[`PullPayment`], which offers an xref:api:payment.adoc#PullPayment-_asyncTransfer-address-uint256-[`_asyncTransfer`] function for sending money to something and requesting that they xref:api:payment.adoc#PullPayment-withdrawPayments-address-payable-[`withdrawPayments()`] it later.
+In Solidity, there are some security concerns with blindly sending money to accounts, since it allows them to execute arbitrary code. You can read up on these security concerns in the https://consensys.github.io/smart-contract-best-practices/[Ethereum Smart Contract Best Practices] website. One of the ways to fix reentrancy and stalling problems is, instead of immediately sending Ether to accounts that need it, you can use xref:api:payment.adoc#PullPayment[`PullPayment`], which offers an xref:api:payment.adoc#PullPayment-_asyncTransfer-address-uint256-[`_asyncTransfer`] function for sending money to something and requesting that they xref:api:payment.adoc#PullPayment-withdrawPayments-address-payable-[`withdrawPayments()`] it later.
 
 If you want to Escrow some funds, check out xref:api:payment.adoc#Escrow[`Escrow`] and xref:api:payment.adoc#ConditionalEscrow[`ConditionalEscrow`] for governing the release of some escrowed Ether.
 
+[[collections]]
+== Collections
+
+If you need support for more powerful collections than Solidity's native arrays and mappings, take a look at xref:api:utils.adoc#EnumerableSet[`EnumerableSet`] and xref:api:utils.adoc#EnumerableMap[`EnumerableMap`]. They are similar to mappings in that they store and remove elements in constant time and don't allow for repeated entries, but they also support _enumeration_, which means you can easily query all stored entries both on and off-chain.
+
 [[misc]]
-=== Misc
+== Misc
 
 Want to check if an address is a contract? Use xref:api:utils.adoc#Address[`Address`] and xref:api:utils.adoc#Address-isContract-address-[`Address.isContract()`].
 
-Want to keep track of some numbers that increment by 1 every time you want another one? Check out xref:api:drafts.adoc#Counter[`Counter`]. This is especially useful for creating incremental ERC721 `tokenId` s like we did in the last section.
+Want to keep track of some numbers that increment by 1 every time you want another one? Check out xref:api:utils.adoc#Counters[`Counters`]. This is useful for lots of things, like creating incremental identifiers, as shown on the xref:erc721.adoc[ERC721 guide].
+

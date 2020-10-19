@@ -1,4 +1,6 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.6.0;
 
 import "../GSN/Context.sol";
 import "../token/ERC777/IERC777.sol";
@@ -37,8 +39,8 @@ contract ERC777SenderRecipientMock is Context, IERC777Sender, IERC777Recipient, 
 
     IERC1820Registry private _erc1820 = IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
 
-    bytes32 constant private TOKENS_SENDER_INTERFACE_HASH = keccak256("ERC777TokensSender");
-    bytes32 constant private TOKENS_RECIPIENT_INTERFACE_HASH = keccak256("ERC777TokensRecipient");
+    bytes32 constant private _TOKENS_SENDER_INTERFACE_HASH = keccak256("ERC777TokensSender");
+    bytes32 constant private _TOKENS_RECIPIENT_INTERFACE_HASH = keccak256("ERC777TokensRecipient");
 
     function tokensToSend(
         address operator,
@@ -47,7 +49,7 @@ contract ERC777SenderRecipientMock is Context, IERC777Sender, IERC777Recipient, 
         uint256 amount,
         bytes calldata userData,
         bytes calldata operatorData
-    ) external {
+    ) external override {
         if (_shouldRevertSend) {
             revert();
         }
@@ -78,7 +80,7 @@ contract ERC777SenderRecipientMock is Context, IERC777Sender, IERC777Recipient, 
         uint256 amount,
         bytes calldata userData,
         bytes calldata operatorData
-    ) external{
+    ) external override {
         if (_shouldRevertReceive) {
             revert();
         }
@@ -103,7 +105,7 @@ contract ERC777SenderRecipientMock is Context, IERC777Sender, IERC777Recipient, 
     }
 
     function senderFor(address account) public {
-        _registerInterfaceForAddress(TOKENS_SENDER_INTERFACE_HASH, account);
+        _registerInterfaceForAddress(_TOKENS_SENDER_INTERFACE_HASH, account);
 
         address self = address(this);
         if (account == self) {
@@ -112,11 +114,11 @@ contract ERC777SenderRecipientMock is Context, IERC777Sender, IERC777Recipient, 
     }
 
     function registerSender(address sender) public {
-        _erc1820.setInterfaceImplementer(address(this), TOKENS_SENDER_INTERFACE_HASH, sender);
+        _erc1820.setInterfaceImplementer(address(this), _TOKENS_SENDER_INTERFACE_HASH, sender);
     }
 
     function recipientFor(address account) public {
-        _registerInterfaceForAddress(TOKENS_RECIPIENT_INTERFACE_HASH, account);
+        _registerInterfaceForAddress(_TOKENS_RECIPIENT_INTERFACE_HASH, account);
 
         address self = address(this);
         if (account == self) {
@@ -125,7 +127,7 @@ contract ERC777SenderRecipientMock is Context, IERC777Sender, IERC777Recipient, 
     }
 
     function registerRecipient(address recipient) public {
-        _erc1820.setInterfaceImplementer(address(this), TOKENS_RECIPIENT_INTERFACE_HASH, recipient);
+        _erc1820.setInterfaceImplementer(address(this), _TOKENS_RECIPIENT_INTERFACE_HASH, recipient);
     }
 
     function setShouldRevertSend(bool shouldRevert) public {

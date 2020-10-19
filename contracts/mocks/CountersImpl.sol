@@ -1,6 +1,8 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
 
-import "../drafts/Counters.sol";
+pragma solidity ^0.6.0;
+
+import "../utils/Counters.sol";
 
 contract CountersImpl {
     using Counters for Counters.Counter;

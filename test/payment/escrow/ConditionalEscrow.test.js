@@ -31,7 +31,7 @@ describe('ConditionalEscrow', function () {
       await this.escrow.deposit(payee, { from: owner, value: amount });
 
       await expectRevert(this.escrow.withdraw(payee, { from: owner }),
-        'ConditionalEscrow: payee is not allowed to withdraw'
+        'ConditionalEscrow: payee is not allowed to withdraw',
       );
     });
   });
