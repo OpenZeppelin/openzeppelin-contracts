@@ -11,7 +11,7 @@
  * Flexible [role-based permissioning](https://docs.openzeppelin.com/contracts/access-control) scheme.
  * Reusable [Solidity components](https://docs.openzeppelin.com/contracts/utilities) to build custom contracts and complex decentralized systems.
  * First-class integration with the [Gas Station Network](https://docs.openzeppelin.com/contracts/gsn) for systems with no gas fees!
- * Audited by leading security firms (_last full audit on v2.0.0_).
+ * [Audited](https://github.com/OpenZeppelin/openzeppelin-contracts/tree/master/audit) by leading security firms (_last full audit on v2.0.0_).
 
 ## Overview
 
