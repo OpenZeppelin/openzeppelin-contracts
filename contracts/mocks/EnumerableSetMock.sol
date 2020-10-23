@@ -4,6 +4,37 @@ pragma solidity ^0.6.0;
 
 import "../utils/EnumerableSet.sol";
 
+// BytesSet
+contract EnumerableBytesSetMock {
+    using EnumerableSet for EnumerableSet.BytesSet;
+
+    event OperationResult(bool result);
+
+    EnumerableSet.BytesSet private _set;
+
+    function contains(bytes32 value) public view returns (bool) {
+        return _set.contains(value);
+    }
+
+    function add(bytes32 value) public {
+        bool result = _set.add(value);
+        emit OperationResult(result);
+    }
+
+    function remove(bytes32 value) public {
+        bool result = _set.remove(value);
+        emit OperationResult(result);
+    }
+
+    function length() public view returns (uint256) {
+        return _set.length();
+    }
+
+    function at(uint256 index) public view returns (bytes32) {
+        return _set.at(index);
+    }
+}
+
 // AddressSet
 contract EnumerableAddressSetMock {
     using EnumerableSet for EnumerableSet.AddressSet;
