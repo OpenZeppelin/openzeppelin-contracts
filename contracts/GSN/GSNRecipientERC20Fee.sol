@@ -86,6 +86,8 @@ contract GSNRecipientERC20Fee is GSNRecipient {
 
         // The maximum token charge is pre-charged from the user
         _token.safeTransferFrom(from, address(this), maxPossibleCharge);
+
+        return 0;
     }
 
     /**
