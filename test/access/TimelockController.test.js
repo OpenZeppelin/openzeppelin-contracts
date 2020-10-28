@@ -246,7 +246,7 @@ contract('TimelockController', function (accounts) {
 
           it('revert if execution comes too early 2/2', async function () {
             const timestamp = await this.timelock.getTimestamp(this.operation.id);
-            await time.increaseTo(timestamp - 2); // -1 is too tight, test sometime fails
+            await time.increaseTo(timestamp - 5); // -1 is too tight, test sometime fails
 
             await expectRevert(
               this.timelock.execute(
@@ -453,7 +453,7 @@ contract('TimelockController', function (accounts) {
 
           it('revert if execution comes too early 2/2', async function () {
             const timestamp = await this.timelock.getTimestamp(this.operation.id);
-            await time.increaseTo(timestamp - 2); // -1 is to tight, test sometime fails
+            await time.increaseTo(timestamp - 5); // -1 is to tight, test sometime fails
 
             await expectRevert(
               this.timelock.executeBatch(
