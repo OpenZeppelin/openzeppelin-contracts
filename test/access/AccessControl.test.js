@@ -1,12 +1,10 @@
-const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
-
 const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const AccessControlMock = contract.fromArtifact('AccessControlMock');
+const AccessControlMock = artifacts.require('AccessControlMock');
 
-describe('AccessControl', function () {
+contract('AccessControl', function (accounts) {
   const [ admin, authorized, otherAuthorized, other, otherAdmin ] = accounts;
 
   const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000';

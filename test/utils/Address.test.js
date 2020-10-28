@@ -1,15 +1,11 @@
-const { accounts, contract, web3, config } = require('@openzeppelin/test-environment');
-
 const { balance, ether, expectRevert, send, expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
-const AddressImpl = contract.fromArtifact('AddressImpl');
-const EtherReceiver = contract.fromArtifact('EtherReceiverMock');
-const CallReceiverMock = contract.fromArtifact('CallReceiverMock');
+const AddressImpl = artifacts.require('AddressImpl');
+const EtherReceiver = artifacts.require('EtherReceiverMock');
+const CallReceiverMock = artifacts.require('CallReceiverMock');
 
-const coverage = config.coverage;
-
-describe('Address', function () {
+contract('Address', function (accounts) {
   const [ recipient, other ] = accounts;
 
   beforeEach(async function () {
@@ -139,12 +135,7 @@ describe('Address', function () {
         );
       });
 
-      // Skipped in a coverage mode due to coverage mode setting a block gas limit to 0xffffffffff
-      // which cause a mockFunctionOutOfGas function to crash Ganache and the
-      // subsequent tests before running out of gas.
       it('reverts when the called function runs out of gas', async function () {
-        this.timeout(10000);
-        if (coverage) { return this.skip(); }
         const abiEncodedCall = web3.eth.abi.encodeFunctionCall({
           name: 'mockFunctionOutOfGas',
           type: 'function',
@@ -152,7 +143,7 @@ describe('Address', function () {
         }, []);
 
         await expectRevert(
-          this.mock.functionCall(this.contractRecipient.address, abiEncodedCall),
+          this.mock.functionCall(this.contractRecipient.address, abiEncodedCall, { gas: '90000' }),
           'Address: low-level call failed',
         );
       });

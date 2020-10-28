@@ -1,5 +1,3 @@
-const { accounts, contract } = require('@openzeppelin/test-environment');
-
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
@@ -7,10 +5,10 @@ const { expect } = require('chai');
 
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 
-const ERC721Mock = contract.fromArtifact('ERC721Mock');
-const ERC721ReceiverMock = contract.fromArtifact('ERC721ReceiverMock');
+const ERC721Mock = artifacts.require('ERC721Mock');
+const ERC721ReceiverMock = artifacts.require('ERC721ReceiverMock');
 
-describe('ERC721', function () {
+contract('ERC721', function (accounts) {
   const [owner, newOwner, approved, anotherApproved, operator, other] = accounts;
 
   const name = 'Non Fungible Token';

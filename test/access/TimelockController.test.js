@@ -1,12 +1,11 @@
-const { accounts, contract, web3, config } = require('@openzeppelin/test-environment');
 const { constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const { ZERO_BYTES32 } = constants;
 
 const { expect } = require('chai');
 
-const TimelockController = contract.fromArtifact('TimelockController');
-const CallReceiverMock = contract.fromArtifact('CallReceiverMock');
-const Implementation2 = contract.fromArtifact('Implementation2');
+const TimelockController = artifacts.require('TimelockController');
+const CallReceiverMock = artifacts.require('CallReceiverMock');
+const Implementation2 = artifacts.require('Implementation2');
 const MINDELAY = time.duration.days(1);
 
 function genOperation (target, value, data, predecessor, salt) {
@@ -43,7 +42,7 @@ function genOperationBatch (targets, values, datas, predecessor, salt) {
   return { id, targets, values, datas, predecessor, salt };
 }
 
-describe('TimelockController', function () {
+contract('TimelockController', function (accounts) {
   const [ admin, proposer, executor, other ] = accounts;
 
   beforeEach(async function () {
@@ -247,7 +246,7 @@ describe('TimelockController', function () {
 
           it('revert if execution comes too early 2/2', async function () {
             const timestamp = await this.timelock.getTimestamp(this.operation.id);
-            await time.increaseTo(timestamp - 2); // -1 is too tight, test sometime fails
+            await time.increaseTo(timestamp - 5); // -1 is too tight, test sometime fails
 
             await expectRevert(
               this.timelock.execute(
@@ -454,7 +453,7 @@ describe('TimelockController', function () {
 
           it('revert if execution comes too early 2/2', async function () {
             const timestamp = await this.timelock.getTimestamp(this.operation.id);
-            await time.increaseTo(timestamp - 2); // -1 is to tight, test sometime fails
+            await time.increaseTo(timestamp - 5); // -1 is to tight, test sometime fails
 
             await expectRevert(
               this.timelock.executeBatch(
@@ -844,11 +843,7 @@ describe('TimelockController', function () {
       );
     });
 
-    // Skipped in a coverage mode due to coverage mode setting a block gas limit to 0xffffffffff
-    // which cause a mockFunctionOutOfGas function to crash Ganache and the
-    // subsequent tests before running out of gas.
     it('call out of gas', async function () {
-      if (config.coverage) { return this.skip(); }
       const operation = genOperation(
         this.callreceivermock.address,
         0,
@@ -874,7 +869,7 @@ describe('TimelockController', function () {
           operation.data,
           operation.predecessor,
           operation.salt,
-          { from: executor },
+          { from: executor, gas: '70000' },
         ),
         'TimelockController: underlying transaction reverted',
       );

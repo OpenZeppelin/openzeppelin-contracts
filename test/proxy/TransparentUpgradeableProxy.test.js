@@ -1,11 +1,9 @@
-const { accounts, contract } = require('@openzeppelin/test-environment');
-
 const shouldBehaveLikeUpgradeableProxy = require('./UpgradeableProxy.behaviour');
 const shouldBehaveLikeTransparentUpgradeableProxy = require('./TransparentUpgradeableProxy.behaviour');
 
-const TransparentUpgradeableProxy = contract.fromArtifact('TransparentUpgradeableProxy');
+const TransparentUpgradeableProxy = artifacts.require('TransparentUpgradeableProxy');
 
-describe('TransparentUpgradeableProxy', function () {
+contract('TransparentUpgradeableProxy', function (accounts) {
   const [proxyAdminAddress, proxyAdminOwner] = accounts;
 
   const createProxy = async function (logic, admin, initData, opts) {
