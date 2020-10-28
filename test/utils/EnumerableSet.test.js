@@ -1,13 +1,12 @@
-const { accounts, contract } = require('@openzeppelin/test-environment');
 const { BN } = require('@openzeppelin/test-helpers');
 
-const EnumerableBytesSetMock = contract.fromArtifact('EnumerableBytesSetMock');
-const EnumerableAddressSetMock = contract.fromArtifact('EnumerableAddressSetMock');
-const EnumerableUintSetMock = contract.fromArtifact('EnumerableUintSetMock');
+const EnumerableBytesSetMock = artifacts.require('EnumerableBytesSetMock');
+const EnumerableAddressSetMock = artifacts.require('EnumerableAddressSetMock');
+const EnumerableUintSetMock = artifacts.require('EnumerableUintSetMock');
 
 const { shouldBehaveLikeSet } = require('./EnumerableSet.behavior');
 
-describe('EnumerableSet', function() {
+contract('EnumerableSet', function (accounts) {
   // BytesSet
   describe('EnumerableBytesSet', function() {
     const bytesA = '0xdeadbeef'.padEnd(66, '0');

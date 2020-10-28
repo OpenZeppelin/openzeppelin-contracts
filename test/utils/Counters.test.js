@@ -1,11 +1,10 @@
-const { contract } = require('@openzeppelin/test-environment');
 const { expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const CountersImpl = contract.fromArtifact('CountersImpl');
+const CountersImpl = artifacts.require('CountersImpl');
 
-describe('Counters', function () {
+contract('Counters', function (accounts) {
   beforeEach(async function () {
     this.counter = await CountersImpl.new();
   });

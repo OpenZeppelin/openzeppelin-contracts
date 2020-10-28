@@ -1,13 +1,11 @@
-const { accounts, contract } = require('@openzeppelin/test-environment');
-
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const ERC721BurnableMock = contract.fromArtifact('ERC721BurnableMock');
+const ERC721BurnableMock = artifacts.require('ERC721BurnableMock');
 
-describe('ERC721Burnable', function () {
+contract('ERC721Burnable', function (accounts) {
   const [owner, approved] = accounts;
 
   const firstTokenId = new BN(1);

@@ -1,13 +1,11 @@
-const { accounts, contract } = require('@openzeppelin/test-environment');
-
 const { expectRevert, singletons } = require('@openzeppelin/test-helpers');
 const { bufferToHex, keccakFromString } = require('ethereumjs-util');
 
 const { expect } = require('chai');
 
-const ERC1820ImplementerMock = contract.fromArtifact('ERC1820ImplementerMock');
+const ERC1820ImplementerMock = artifacts.require('ERC1820ImplementerMock');
 
-describe('ERC1820Implementer', function () {
+contract('ERC1820Implementer', function (accounts) {
   const [ registryFunder, implementee, other ] = accounts;
 
   const ERC1820_ACCEPT_MAGIC = bufferToHex(keccakFromString('ERC1820_ACCEPT_MAGIC'));
