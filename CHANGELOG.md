@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.2.2-solc-0.7 (unreleased)
+## Unreleased
  * Resolve warnings introduced by Solidity 0.7.4. ([#2396](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2396))
 
 ## 3.2.1-solc-0.7 (2020-09-15)
