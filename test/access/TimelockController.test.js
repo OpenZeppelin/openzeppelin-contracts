@@ -1,12 +1,11 @@
-const { accounts, contract, web3, config } = require('@openzeppelin/test-environment');
 const { constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const { ZERO_BYTES32 } = constants;
 
 const { expect } = require('chai');
 
-const TimelockController = contract.fromArtifact('TimelockController');
-const CallReceiverMock = contract.fromArtifact('CallReceiverMock');
-const Implementation2 = contract.fromArtifact('Implementation2');
+const TimelockController = artifacts.require('TimelockController');
+const CallReceiverMock = artifacts.require('CallReceiverMock');
+const Implementation2 = artifacts.require('Implementation2');
 const MINDELAY = time.duration.days(1);
 
 function genOperation (target, value, data, predecessor, salt) {
@@ -43,7 +42,7 @@ function genOperationBatch (targets, values, datas, predecessor, salt) {
   return { id, targets, values, datas, predecessor, salt };
 }
 
-describe('TimelockController', function () {
+contract('TimelockController', function (accounts) {
   const [ admin, proposer, executor, other ] = accounts;
 
   beforeEach(async function () {

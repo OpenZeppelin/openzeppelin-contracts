@@ -1,11 +1,9 @@
-const { contract, web3 } = require('@openzeppelin/test-environment');
-
 const { BN, expectRevert } = require('@openzeppelin/test-helpers');
 const { toChecksumAddress, keccak256 } = require('ethereumjs-util');
 
 const { expect } = require('chai');
 
-const DummyImplementation = contract.fromArtifact('DummyImplementation');
+const DummyImplementation = artifacts.require('DummyImplementation');
 
 const IMPLEMENTATION_LABEL = 'eip1967.proxy.implementation';
 

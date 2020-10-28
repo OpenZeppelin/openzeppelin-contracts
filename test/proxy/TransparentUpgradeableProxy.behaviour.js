@@ -1,22 +1,20 @@
-const { contract, web3 } = require('@openzeppelin/test-environment');
-
 const { BN, expectRevert, expectEvent, constants } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 const { toChecksumAddress, keccak256 } = require('ethereumjs-util');
 
 const { expect } = require('chai');
 
-const Proxy = contract.fromArtifact('Proxy');
-const Implementation1 = contract.fromArtifact('Implementation1');
-const Implementation2 = contract.fromArtifact('Implementation2');
-const Implementation3 = contract.fromArtifact('Implementation3');
-const Implementation4 = contract.fromArtifact('Implementation4');
-const MigratableMockV1 = contract.fromArtifact('MigratableMockV1');
-const MigratableMockV2 = contract.fromArtifact('MigratableMockV2');
-const MigratableMockV3 = contract.fromArtifact('MigratableMockV3');
-const InitializableMock = contract.fromArtifact('InitializableMock');
-const DummyImplementation = contract.fromArtifact('DummyImplementation');
-const ClashingImplementation = contract.fromArtifact('ClashingImplementation');
+const Proxy = artifacts.require('Proxy');
+const Implementation1 = artifacts.require('Implementation1');
+const Implementation2 = artifacts.require('Implementation2');
+const Implementation3 = artifacts.require('Implementation3');
+const Implementation4 = artifacts.require('Implementation4');
+const MigratableMockV1 = artifacts.require('MigratableMockV1');
+const MigratableMockV2 = artifacts.require('MigratableMockV2');
+const MigratableMockV3 = artifacts.require('MigratableMockV3');
+const InitializableMock = artifacts.require('InitializableMock');
+const DummyImplementation = artifacts.require('DummyImplementation');
+const ClashingImplementation = artifacts.require('ClashingImplementation');
 
 const IMPLEMENTATION_LABEL = 'eip1967.proxy.implementation';
 const ADMIN_LABEL = 'eip1967.proxy.admin';

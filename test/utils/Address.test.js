@@ -1,15 +1,13 @@
-const { accounts, contract, web3, config } = require('@openzeppelin/test-environment');
-
 const { balance, ether, expectRevert, send, expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
-const AddressImpl = contract.fromArtifact('AddressImpl');
-const EtherReceiver = contract.fromArtifact('EtherReceiverMock');
-const CallReceiverMock = contract.fromArtifact('CallReceiverMock');
+const AddressImpl = artifacts.require('AddressImpl');
+const EtherReceiver = artifacts.require('EtherReceiverMock');
+const CallReceiverMock = artifacts.require('CallReceiverMock');
 
 const coverage = config.coverage;
 
-describe('Address', function () {
+contract('Address', function (accounts) {
   const [ recipient, other ] = accounts;
 
   beforeEach(async function () {

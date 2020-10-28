@@ -1,14 +1,12 @@
-const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
-
 const { constants, expectEvent } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 const gsn = require('@openzeppelin/gsn-helpers');
 const { fixSignature } = require('../helpers/sign');
 const { utils: { toBN } } = require('web3');
 
-const ERC721GSNRecipientMock = contract.fromArtifact('ERC721GSNRecipientMock');
+const ERC721GSNRecipientMock = artifacts.require('ERC721GSNRecipientMock');
 
-describe('ERC721GSNRecipient (integration)', function () {
+contract('ERC721GSNRecipient (integration)', function (accounts) {
   const [ signer, sender ] = accounts;
 
   const name = 'Non Fungible Token';

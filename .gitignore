@@ -50,3 +50,7 @@ contracts/README.md
 
 # temporary artifact from solidity-coverage
 allFiredEvents
+
+# buidler
+cache
+artifacts
