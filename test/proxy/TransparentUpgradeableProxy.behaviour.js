@@ -407,7 +407,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
       await proxy.upgradeTo(instance4.address, { from: proxyAdminAddress });
       const proxyInstance4 = new Implementation4(proxy.address);
 
-      const data = '';
+      const data = '0x';
       await web3.eth.sendTransaction({ to: proxy.address, from: anotherAccount, data });
 
       const res = await proxyInstance4.getValue();
@@ -421,7 +421,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
       const instance2 = await Implementation2.new();
       await proxy.upgradeTo(instance2.address, { from: proxyAdminAddress });
 
-      const data = '';
+      const data = '0x';
       await expectRevert.unspecified(
         web3.eth.sendTransaction({ to: proxy.address, from: anotherAccount, data }),
       );
