@@ -1,9 +1,15 @@
 usePlugin('@nomiclabs/buidler-truffle5');
 
+extendEnvironment(hre => {
+  const { contract } = hre;
+  hre.contract = function (name, body) {
+    contract(name, accounts => body(accounts.slice(1)));
+  };
+});
+
 module.exports = {
   networks: {
     buidlerevm: {
-      from: '0x26C43a1D431A4e5eE86cD55Ed7Ef9Edf3641e901',
       blockGasLimit: 10000000,
     },
   },
