@@ -1,15 +1,13 @@
-const { accounts, contract } = require('@openzeppelin/test-environment');
-
 const { expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ImplV1 = contract.fromArtifact('DummyImplementation');
-const ImplV2 = contract.fromArtifact('DummyImplementationV2');
-const ProxyAdmin = contract.fromArtifact('ProxyAdmin');
-const TransparentUpgradeableProxy = contract.fromArtifact('TransparentUpgradeableProxy');
+const ImplV1 = artifacts.require('DummyImplementation');
+const ImplV2 = artifacts.require('DummyImplementationV2');
+const ProxyAdmin = artifacts.require('ProxyAdmin');
+const TransparentUpgradeableProxy = artifacts.require('TransparentUpgradeableProxy');
 
-describe('ProxyAdmin', function () {
+contract('ProxyAdmin', function (accounts) {
   const [proxyAdminOwner, newAdmin, anotherAccount] = accounts;
 
   before('set implementations', async function () {

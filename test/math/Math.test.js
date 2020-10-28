@@ -1,11 +1,10 @@
-const { contract } = require('@openzeppelin/test-environment');
 const { BN } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const MathMock = contract.fromArtifact('MathMock');
+const MathMock = artifacts.require('MathMock');
 
-describe('Math', function () {
+contract('Math', function (accounts) {
   const min = new BN('1234');
   const max = new BN('5678');
 

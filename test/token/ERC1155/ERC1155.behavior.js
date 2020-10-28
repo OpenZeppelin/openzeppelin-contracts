@@ -1,5 +1,3 @@
-const { contract } = require('@openzeppelin/test-environment');
-
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
@@ -7,7 +5,7 @@ const { expect } = require('chai');
 
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 
-const ERC1155ReceiverMock = contract.fromArtifact('ERC1155ReceiverMock');
+const ERC1155ReceiverMock = artifacts.require('ERC1155ReceiverMock');
 
 function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, multiTokenHolder, recipient, proxy]) {
   const firstTokenId = new BN(1);
