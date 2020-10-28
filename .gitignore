@@ -51,6 +51,6 @@ contracts/README.md
 # temporary artifact from solidity-coverage
 allFiredEvents
 
-# buidler
+# hardhat
 cache
 artifacts
