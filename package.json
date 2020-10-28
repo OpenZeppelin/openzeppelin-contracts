@@ -22,7 +22,7 @@
     "lint:sol": "solhint --max-warnings 0 \"contracts/**/*.sol\"",
     "prepublish": "rimraf build contracts/build",
     "prepare": "npm run compile",
-    "prepack": "node scripts/remove-ignored-artifacts.js",
+    "prepack": "scripts/prepack.sh",
     "release": "scripts/release/release.sh",
     "version": "scripts/release/version.sh",
     "test": "buidler test"
