@@ -1,12 +1,11 @@
-const { accounts, contract } = require('@openzeppelin/test-environment');
 const { BN, expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const zip = require('lodash.zip');
 
-const EnumerableMapMock = contract.fromArtifact('EnumerableMapMock');
+const EnumerableMapMock = artifacts.require('EnumerableMapMock');
 
-describe('EnumerableMap', function () {
+contract('EnumerableMap', function (accounts) {
   const [ accountA, accountB, accountC ] = accounts;
 
   const keyA = new BN('7891');

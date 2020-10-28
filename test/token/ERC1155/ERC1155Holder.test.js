@@ -1,12 +1,11 @@
-const { accounts, contract } = require('@openzeppelin/test-environment');
 const { BN } = require('@openzeppelin/test-helpers');
 
-const ERC1155Holder = contract.fromArtifact('ERC1155Holder');
-const ERC1155Mock = contract.fromArtifact('ERC1155Mock');
+const ERC1155Holder = artifacts.require('ERC1155Holder');
+const ERC1155Mock = artifacts.require('ERC1155Mock');
 
 const { expect } = require('chai');
 
-describe('ERC1155Holder', function () {
+contract('ERC1155Holder', function (accounts) {
   const [creator] = accounts;
   const uri = 'https://token-cdn-domain/{id}.json';
   const multiTokenIds = [new BN(1), new BN(2), new BN(3)];

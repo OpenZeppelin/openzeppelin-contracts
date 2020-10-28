@@ -1,12 +1,11 @@
-const { accounts, contract } = require('@openzeppelin/test-environment');
 const { BN } = require('@openzeppelin/test-helpers');
 
-const EnumerableAddressSetMock = contract.fromArtifact('EnumerableAddressSetMock');
-const EnumerableUintSetMock = contract.fromArtifact('EnumerableUintSetMock');
+const EnumerableAddressSetMock = artifacts.require('EnumerableAddressSetMock');
+const EnumerableUintSetMock = artifacts.require('EnumerableUintSetMock');
 
 const { shouldBehaveLikeSet } = require('./EnumerableSet.behavior');
 
-describe('EnumerableSet', function () {
+contract('EnumerableSet', function (accounts) {
   // AddressSet
   describe('EnumerableAddressSet', function () {
     const [ accountA, accountB, accountC ] = accounts;

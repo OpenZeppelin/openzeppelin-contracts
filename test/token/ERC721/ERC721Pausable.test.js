@@ -1,13 +1,11 @@
-const { accounts, contract } = require('@openzeppelin/test-environment');
-
 const { BN, constants, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const ERC721PausableMock = contract.fromArtifact('ERC721PausableMock');
+const ERC721PausableMock = artifacts.require('ERC721PausableMock');
 
-describe('ERC721Pausable', function () {
+contract('ERC721Pausable', function (accounts) {
   const [ owner, receiver, operator ] = accounts;
 
   const name = 'Non Fungible Token';

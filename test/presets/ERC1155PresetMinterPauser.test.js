@@ -1,13 +1,11 @@
-const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
-
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const ERC1155PresetMinterPauser = contract.fromArtifact('ERC1155PresetMinterPauser');
+const ERC1155PresetMinterPauser = artifacts.require('ERC1155PresetMinterPauser');
 
-describe('ERC1155PresetMinterPauser', function () {
+contract('ERC1155PresetMinterPauser', function (accounts) {
   const [ deployer, other ] = accounts;
 
   const firstTokenId = new BN('845');

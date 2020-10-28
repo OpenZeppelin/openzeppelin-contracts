@@ -1,12 +1,11 @@
-const { contract } = require('@openzeppelin/test-environment');
 const { BN, constants, expectRevert } = require('@openzeppelin/test-helpers');
 const { MAX_UINT256 } = constants;
 
 const { expect } = require('chai');
 
-const SafeMathMock = contract.fromArtifact('SafeMathMock');
+const SafeMathMock = artifacts.require('SafeMathMock');
 
-describe('SafeMath', function () {
+contract('SafeMath', function (accounts) {
   beforeEach(async function () {
     this.safeMath = await SafeMathMock.new();
   });

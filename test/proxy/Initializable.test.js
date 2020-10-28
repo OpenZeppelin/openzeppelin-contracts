@@ -1,13 +1,11 @@
-const { contract } = require('@openzeppelin/test-environment');
-
 const { expectRevert } = require('@openzeppelin/test-helpers');
 
 const { assert } = require('chai');
 
-const InitializableMock = contract.fromArtifact('InitializableMock');
-const SampleChild = contract.fromArtifact('SampleChild');
+const InitializableMock = artifacts.require('InitializableMock');
+const SampleChild = artifacts.require('SampleChild');
 
-describe('Initializable', function () {
+contract('Initializable', function (accounts) {
   describe('basic testing without inheritance', function () {
     beforeEach('deploying', async function () {
       this.contract = await InitializableMock.new();
