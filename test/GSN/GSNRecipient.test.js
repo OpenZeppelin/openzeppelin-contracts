@@ -2,6 +2,7 @@ const { balance, BN, constants, ether, expectEvent, expectRevert } = require('@o
 const { ZERO_ADDRESS } = constants;
 
 const gsn = require('@openzeppelin/gsn-helpers');
+const { setGSNProvider } = require('../helpers/set-gsn-provider');
 
 const { expect } = require('chai');
 
@@ -12,6 +13,11 @@ const { shouldBehaveLikeRegularContext } = require('./Context.behavior');
 
 contract('GSNRecipient', function (accounts) {
   const [ payee, sender, newRelayHub ] = accounts;
+
+  before(function () {
+    setGSNProvider(GSNRecipientMock, accounts);
+    setGSNProvider(ContextMockCaller, accounts);
+  });
 
   beforeEach(async function () {
     this.recipient = await GSNRecipientMock.new();

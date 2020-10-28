@@ -1,6 +1,7 @@
 const { expectEvent, expectRevert, constants } = require('@openzeppelin/test-helpers');
 const gsn = require('@openzeppelin/gsn-helpers');
 const { fixSignature } = require('../helpers/sign');
+const { setGSNProvider } = require('../helpers/set-gsn-provider');
 const { utils: { toBN } } = require('web3');
 const { ZERO_ADDRESS } = constants;
 
@@ -8,6 +9,10 @@ const GSNRecipientSignatureMock = artifacts.require('GSNRecipientSignatureMock')
 
 contract('GSNRecipientSignature', function (accounts) {
   const [ signer, other ] = accounts;
+
+  before(function () {
+    setGSNProvider(GSNRecipientSignatureMock, accounts);
+  });
 
   beforeEach(async function () {
     this.recipient = await GSNRecipientSignatureMock.new(signer);
