@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "compile": "buidler compile",
-    "coverage": "scripts/coverage.js",
+    "coverage": "scripts/coverage.sh",
     "docs": "oz-docs",
     "docs:watch": "npm run docs watch contracts 'docs/*.hbs'",
     "prepare-docs": "scripts/prepare-docs.sh",
@@ -69,7 +69,7 @@
     "mocha": "^8.0.1",
     "rimraf": "^3.0.2",
     "solhint": "^3.2.0",
-    "solidity-coverage": "^0.7.8",
+    "solidity-coverage": "^0.7.11",
     "solidity-docgen": "^0.5.3"
   },
   "dependencies": {}

@@ -5,8 +5,6 @@ const AddressImpl = artifacts.require('AddressImpl');
 const EtherReceiver = artifacts.require('EtherReceiverMock');
 const CallReceiverMock = artifacts.require('CallReceiverMock');
 
-const coverage = config.coverage;
-
 contract('Address', function (accounts) {
   const [ recipient, other ] = accounts;
 
@@ -137,12 +135,7 @@ contract('Address', function (accounts) {
         );
       });
 
-      // Skipped in a coverage mode due to coverage mode setting a block gas limit to 0xffffffffff
-      // which cause a mockFunctionOutOfGas function to crash Ganache and the
-      // subsequent tests before running out of gas.
       it('reverts when the called function runs out of gas', async function () {
-        this.timeout(10000);
-        if (coverage) { return this.skip(); }
         const abiEncodedCall = web3.eth.abi.encodeFunctionCall({
           name: 'mockFunctionOutOfGas',
           type: 'function',
@@ -150,7 +143,7 @@ contract('Address', function (accounts) {
         }, []);
 
         await expectRevert(
-          this.mock.functionCall(this.contractRecipient.address, abiEncodedCall),
+          this.mock.functionCall(this.contractRecipient.address, abiEncodedCall, { gas: '90000' }),
           'Address: low-level call failed',
         );
       });

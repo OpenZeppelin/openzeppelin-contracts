@@ -843,11 +843,7 @@ contract('TimelockController', function (accounts) {
       );
     });
 
-    // Skipped in a coverage mode due to coverage mode setting a block gas limit to 0xffffffffff
-    // which cause a mockFunctionOutOfGas function to crash Ganache and the
-    // subsequent tests before running out of gas.
     it('call out of gas', async function () {
-      if (config.coverage) { return this.skip(); }
       const operation = genOperation(
         this.callreceivermock.address,
         0,
@@ -873,7 +869,7 @@ contract('TimelockController', function (accounts) {
           operation.data,
           operation.predecessor,
           operation.salt,
-          { from: executor },
+          { from: executor, gas: '70000' },
         ),
         'TimelockController: underlying transaction reverted',
       );

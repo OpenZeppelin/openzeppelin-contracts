@@ -1,3 +1,4 @@
+usePlugin('solidity-coverage');
 usePlugin('@nomiclabs/buidler-truffle5');
 
 extendEnvironment(hre => {
