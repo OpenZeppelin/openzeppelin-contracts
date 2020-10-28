@@ -16,9 +16,9 @@ abstract contract ERC20Capped is ERC20 {
      * @dev Sets the value of the `cap`. This value is immutable, it can only be
      * set once during construction.
      */
-    constructor (uint256 cap) {
-        require(cap > 0, "ERC20Capped: cap is 0");
-        _cap = cap;
+    constructor (uint256 cap_) {
+        require(cap_ > 0, "ERC20Capped: cap is 0");
+        _cap = cap_;
     }
 
     /**
