@@ -6,27 +6,24 @@
 const fs = require('fs');
 const cp = require('child_process');
 
-const pkg = require('../../package.json');
-const suffix = process.env.PRERELEASE_SUFFIX || 'rc';
-if (pkg.version.indexOf('-' + suffix) !== -1) {
-  process.exit(0);
-}
-
-const version = pkg.version.replace(/-.*/, ''); // Remove the rc suffix
-
 const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
 
 // The changelog entry to be updated looks like this:
-// ## 2.5.3 (unreleased)
-// We need to add the date in a YYYY-MM-DD format, so that it looks like this:
+// ## Unreleased
+// We need to add the version and release date in a YYYY-MM-DD format, so that it looks like this:
 // ## 2.5.3 (2019-04-25)
 
-if (changelog.indexOf(`## ${version} (unreleased)`) === -1) {
-  throw Error(`Found no changelog entry for version ${version}`);
+const unreleased = /^## Unreleased$/im;
+
+if (!unreleased.test(changelog)) {
+  console.error('Missing changelog entry');
+  process.exit(1);
 }
 
+const { version } = require('../../package.json');
+
 fs.writeFileSync('CHANGELOG.md', changelog.replace(
-  `## ${version} (unreleased)`,
+  unreleased,
   `## ${version} (${new Date().toISOString().split('T')[0]})`),
 );
 
