@@ -23,7 +23,7 @@ pragma solidity ^0.6.0;
  * }
  * ```
  *
- * As of v3.3.0, sets of type `bytes32` (`BytesSet`), `address` (`AddressSet`)
+ * As of v3.3.0, sets of type `bytes32` (`Bytes32Set`), `address` (`AddressSet`)
  * and `uint256` (`UintSet`) are supported.
  */
 library EnumerableSet {
@@ -132,9 +132,9 @@ library EnumerableSet {
         return set._values[index];
     }
 
-    // BytesSet
+    // Bytes32Set
 
-    struct BytesSet {
+    struct Bytes32Set {
         Set _inner;
     }
 
@@ -144,7 +144,7 @@ library EnumerableSet {
      * Returns true if the value was added to the set, that is if it was not
      * already present.
      */
-    function add(BytesSet storage set, bytes32 value) internal returns (bool) {
+    function add(Bytes32Set storage set, bytes32 value) internal returns (bool) {
         return _add(set._inner, value);
     }
 
@@ -154,21 +154,21 @@ library EnumerableSet {
      * Returns true if the value was removed from the set, that is if it was
      * present.
      */
-    function remove(BytesSet storage set, bytes32 value) internal returns (bool) {
+    function remove(Bytes32Set storage set, bytes32 value) internal returns (bool) {
         return _remove(set._inner, value);
     }
 
     /**
      * @dev Returns true if the value is in the set. O(1).
      */
-    function contains(BytesSet storage set, bytes32 value) internal view returns (bool) {
+    function contains(Bytes32Set storage set, bytes32 value) internal view returns (bool) {
         return _contains(set._inner, value);
     }
 
     /**
      * @dev Returns the number of values in the set. O(1).
      */
-    function length(BytesSet storage set) internal view returns (uint256) {
+    function length(Bytes32Set storage set) internal view returns (uint256) {
         return _length(set._inner);
     }
 
@@ -182,7 +182,7 @@ library EnumerableSet {
     *
     * - `index` must be strictly less than {length}.
     */
-    function at(BytesSet storage set, uint256 index) internal view returns (bytes32) {
+    function at(Bytes32Set storage set, uint256 index) internal view returns (bytes32) {
         return _at(set._inner, index);
     }
 

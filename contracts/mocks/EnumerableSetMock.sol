@@ -4,13 +4,13 @@ pragma solidity ^0.6.0;
 
 import "../utils/EnumerableSet.sol";
 
-// BytesSet
-contract EnumerableBytesSetMock {
-    using EnumerableSet for EnumerableSet.BytesSet;
+// Bytes32Set
+contract EnumerableBytes32SetMock {
+    using EnumerableSet for EnumerableSet.Bytes32Set;
 
     event OperationResult(bool result);
 
-    EnumerableSet.BytesSet private _set;
+    EnumerableSet.Bytes32Set private _set;
 
     function contains(bytes32 value) public view returns (bool) {
         return _set.contains(value);
