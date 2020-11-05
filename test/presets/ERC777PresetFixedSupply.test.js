@@ -4,8 +4,8 @@ const { expect } = require('chai');
 
 const ERC777PresetFixedSupply = artifacts.require('ERC777PresetFixedSupply');
 
-contract('ERC777', function (accounts) {
-  const [defaultOperatorA, defaultOperatorB, anyone] = accounts;
+contract('ERC777PresetFixedSupply', function (accounts) {
+  const [owner, defaultOperatorA, defaultOperatorB, anyone] = accounts;
 
   const initialSupply = new BN('10000');
   const name = 'ERC777Preset';
@@ -15,7 +15,7 @@ contract('ERC777', function (accounts) {
 
   context('with default operators', function () {
     beforeEach(async function () {
-      this.token = await ERC777PresetFixedSupply.new(name, symbol, initialSupply, defaultOperators);
+      this.token = await ERC777PresetFixedSupply.new(name, symbol, initialSupply, owner, defaultOperators);
     });
 
     describe('token is created', function () {
@@ -43,6 +43,10 @@ contract('ERC777', function (accounts) {
 
       it('returns the total supply equal to initial supply', async function () {
         expect(await this.token.totalSupply()).to.be.bignumber.equal(initialSupply);
+      });
+
+      it('returns the balance of owner equal to initial supply', async function () {
+        expect(await this.token.balanceOf(owner)).to.be.bignumber.equal(initialSupply);
       });
 
       it('returns 18 when decimals is called', async function () {
