@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "compile": "buidler compile",
-    "coverage": "scripts/coverage.sh",
+    "coverage": "buidler coverage",
     "docs": "oz-docs",
     "docs:watch": "npm run docs watch contracts 'docs/*.hbs'",
     "prepare-docs": "scripts/prepare-docs.sh",
