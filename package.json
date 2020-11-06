@@ -6,7 +6,6 @@
     "/contracts/**/*.sol",
     "/build/contracts/*.json",
     "!/contracts/mocks",
-    "!/contracts/examples",
     "/test/behaviors"
   ],
   "scripts": {
