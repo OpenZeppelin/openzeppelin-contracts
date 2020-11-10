@@ -37,7 +37,7 @@ Constructors are replaced by internal initializer functions following the naming
 
 [CAUTION]
 ====
-Use with multiple inheritance requires special care. Initializer functions are not linearized by the compiler like constructors. Because of thus, each `+__{ContractName}_init+` function embeds the linearized calls to all parent initializers. As a consequence, calling two of these `init` functions can potentially initialize the same contract twice.
+Use with multiple inheritance requires special care. Initializer functions are not linearized by the compiler like constructors. Because of this, each `+__{ContractName}_init+` function embeds the linearized calls to all parent initializers. As a consequence, calling two of these `init` functions can potentially initialize the same contract twice.
 
 The function `+__{ContractName}_init_unchained+` found in every contract is the initializer function minus the calls to parent initializers, and can be used to avoid the double initialization problem, but doing this manually is not recommended. We hope to be able to implement safety checks for this in future versions of the Upgrades Plugins.
 ====
