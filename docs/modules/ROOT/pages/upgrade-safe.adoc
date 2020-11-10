@@ -37,6 +37,24 @@ Constructors are replaced by internal initializer functions following the naming
 
 CAUTION: Use with multiple inheritance requires special attention. See the section below titled <<multiple-inheritance>>.
 
+Once this contract is set up and compiled, you can deploy it using the xref:upgrades-plugins::index.adoc[Upgrades Plugins]. The following snippet shows an example deployment script using Hardhat.
+
+```js
+// scripts/deploy-my-collectible.js
+const { ethers, upgrades } = require("hardhat");
+
+async function main() {
+  const MyCollectible = await ethers.getContractFactory("MyCollectible");
+
+  const mc = await upgrades.deployProxy(MyCollectible);
+
+  await mc.deployed();
+  console.log("MyCollectible deployed to:", mc.address);
+}
+
+main();
+```
+
 == Further Notes
 
 [[multiple-inheritance]]
