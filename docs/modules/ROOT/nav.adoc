@@ -1,4 +1,5 @@
 * xref:index.adoc[Overview]
+* xref:upgrade-safe.adoc[Upgrade Safety]
 
 * xref:access-control.adoc[Access Control]
 
