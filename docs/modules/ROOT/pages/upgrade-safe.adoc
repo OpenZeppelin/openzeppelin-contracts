@@ -1,6 +1,6 @@
 = Upgrade Safety
 
-If your contract is going to be deployed with upgradeability, such as using the OpenZeppelin Upgrades Plugins, you will need to use the Upgrade Safe variant of OpenZeppelin Contracts.
+If your contract is going to be deployed with upgradeability, such as using the xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugins], you will need to use the Upgrade Safe variant of OpenZeppelin Contracts.
 
 This variant is available as separate package called `@openzeppelin/contracts-upgrade-safe`, which is hosted in the repository https://github.com/OpenZeppelin/openzeppelin-contracts-upgrade-safe[OpenZeppelin/openzeppelin-contracts-upgrade-safe].
 
