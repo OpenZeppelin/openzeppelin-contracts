@@ -4,7 +4,7 @@ If your contract is going to be deployed with upgradeability, such as using the 
 
 This variant is available as a separate package called `@openzeppelin/contracts-upgrade-safe`, which is hosted in the repository https://github.com/OpenZeppelin/openzeppelin-contracts-upgrade-safe[OpenZeppelin/openzeppelin-contracts-upgrade-safe].
 
-It follows all of the rules for xref:upgrades-plugins::writing-upgradeable.adoc[Writing Upgradeable Contracts]: constructors are replaced by initializer functions, state variables are initialized in initializer functions, and we additionally check for storage incompatibilities across versions.
+It follows all of the rules for xref:upgrades-plugins::writing-upgradeable.adoc[Writing Upgradeable Contracts]: constructors are replaced by initializer functions, state variables are initialized in initializer functions, and we additionally check for storage incompatibilities across minor versions.
 
 == Overview
 
