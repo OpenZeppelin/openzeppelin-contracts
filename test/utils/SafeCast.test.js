@@ -73,13 +73,6 @@ contract('SafeCast', async (accounts) => {
         'SafeCast: value must be positive',
       );
     });
-
-    it(`reverts when casting UINT256_MAX (${maxUint256})`, async function () {
-      await expectRevert(
-        this.safeCast.toUint256(maxUint256),
-        'SafeCast: value must be positive',
-      );
-    });
   });
 
   function testToInt (bits) {
