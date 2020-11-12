@@ -2,7 +2,7 @@
 
 If your contract is going to be deployed with upgradeability, such as using the xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugins], you will need to use the Upgrade Safe variant of OpenZeppelin Contracts.
 
-This variant is available as a separate package called `@openzeppelin/contracts-upgrade-safe`, which is hosted in the repository https://github.com/OpenZeppelin/openzeppelin-contracts-upgrade-safe[OpenZeppelin/openzeppelin-contracts-upgrade-safe].
+This variant is available as a separate package called `@openzeppelin/contracts-upgradeable`, which is hosted in the repository https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable[OpenZeppelin/openzeppelin-contracts-upgradeable].
 
 It follows all of the rules for xref:upgrades-plugins::writing-upgradeable.adoc[Writing Upgradeable Contracts]: constructors are replaced by initializer functions, state variables are initialized in initializer functions, and we additionally check for storage incompatibilities across minor versions.
 
@@ -11,19 +11,19 @@ It follows all of the rules for xref:upgrades-plugins::writing-upgradeable.adoc[
 === Installation
 
 ```console
-$ npm install @openzeppelin/contracts-upgrade-safe
+$ npm install @openzeppelin/contracts-upgradeable
 ```
 
 === Usage
 
-The package replicates the structure of the main OpenZeppelin Contracts package, but every file and contract has the suffix `UpgradeSafe`.
+The package replicates the structure of the main OpenZeppelin Contracts package, but every file and contract has the suffix `Upgradeable`.
 
 ```diff
 -import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-+import "@openzeppelin/contracts-upgrade-safe/token/ERC721/ERC721UpgradeSafe.sol";
++import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
  
 -contract MyCollectible is ERC721 {
-+contract MyCollectible is ERC721UpgradeSafe {
++contract MyCollectible is ERC721Upgradeable {
 ```
 
 Constructors are replaced by internal initializer functions following the naming convention `+__{ContractName}_init+`. Since these are internal, you must always define your own public initializer function and call the parent initializer of the contract you extend.

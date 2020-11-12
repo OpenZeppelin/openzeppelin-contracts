@@ -1,6 +1,6 @@
 * xref:index.adoc[Overview]
 * xref:extending-contracts.adoc[Extending Contracts]
-* xref:upgrade-safe.adoc[Using with Upgrades]
+* xref:upgradeable.adoc[Using with Upgrades]
 
 * xref:releases-stability.adoc[Releases & Stability]
 
