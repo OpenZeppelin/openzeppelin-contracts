@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.6.2;
 
-import "../token/ERC20/ERC20.sol";
 import "../token/ERC20/ERC20Burnable.sol";
 
 /**
@@ -10,7 +9,7 @@ import "../token/ERC20/ERC20Burnable.sol";
  * Tip: Contract is preconfigured with fixed initial supply.
  * minting / pausing functionality is not supported. This removes the need of access control and thereby governance.
  */
-contract ERC20PresetFixedSupply is ERC20, ERC20Burnable {
+contract ERC20PresetFixedSupply is ERC20Burnable {
     constructor(
         string memory name,
         string memory symbol,
