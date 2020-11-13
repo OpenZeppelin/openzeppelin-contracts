@@ -1,7 +1,9 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.6.0;
 
 import './IBeacon.sol';
-import '../ownership/Ownable.sol';
+import '../access/Ownable.sol';
 import '../utils/Address.sol';
 
 /**
@@ -9,7 +11,7 @@ import '../utils/Address.sol';
  * @notice Defines the implementation for one or more `BeaconUpgradeabilityProxy` instances.
  * @dev There is one Beacon for each like-kind contract.
  */
-contract Beacon is IBeacon, OpenZeppelinUpgradesOwnable {
+contract Beacon is IBeacon, Ownable {
   /**
    * @dev Stores the address of the logic implementation to be used by all `BeaconUpgradeabilityProxy` pointing to this `Beacon`.
    */
@@ -27,7 +29,7 @@ contract Beacon is IBeacon, OpenZeppelinUpgradesOwnable {
   /**
    * @notice Returns the logic implementation to be used by each `BeaconUpgradeabilityProxy` pointing to this `Beacon`.
    */
-  function implementation() public view returns (address) {
+  function implementation() public view override returns (address) {
     return _implementation;
   }
 
@@ -44,7 +46,7 @@ contract Beacon is IBeacon, OpenZeppelinUpgradesOwnable {
    * @dev Confirms that the logic implementation is a valid contract before setting the associated variable.
    */
   function _setImplementation(address newImplementation) private {
-    require(OpenZeppelinUpgradesAddress.isContract(newImplementation), "Cannot set a proxy implementation to a non-contract address");
+    require(Address.isContract(newImplementation), "Cannot set a proxy implementation to a non-contract address");
     _implementation = newImplementation;
   }
 }

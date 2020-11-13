@@ -1,15 +1,16 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
 
-import './UpgradeabilityBeaconProxy.sol';
-import '../utils/Address.sol';
+pragma solidity ^0.6.0;
+
+import './BeaconUpgradeableProxy.sol';
 import './IBeacon.sol';
 
 /**
- * @title AdminUpgradeabilityBeaconProxy
- * @notice A UpgradeabilityBeaconProxy with the ability for an admin to change the Beacon used.
+ * @title AdminBeaconUpgradeableProxy
+ * @notice A BeaconUpgradeableProxy with the ability for an admin to change the Beacon used.
  * @dev All external functions in this contract must be guarded by the `ifAdmin` modifier.
  */
-contract AdminUpgradeabilityBeaconProxy is UpgradeabilityBeaconProxy {
+contract AdminBeaconUpgradeableProxy is BeaconUpgradeableProxy {
   /**
    * @dev Emitted when the administration has been transferred.
    * @param previousAdmin Address of the previous admin.
@@ -37,7 +38,7 @@ contract AdminUpgradeabilityBeaconProxy is UpgradeabilityBeaconProxy {
    * @param admin Address of the proxy administrator.
    * @param data The calldata to initialize this proxy, or empty if no initialization is required.
    */
-  constructor(address beacon, address admin, bytes memory data) public payable UpgradeabilityBeaconProxy(beacon, data) {
+  constructor(address beacon, address admin, bytes memory data) public payable BeaconUpgradeableProxy(beacon, data) {
     assert(ADMIN_SLOT == bytes32(uint256(keccak256('eip1967.proxy.admin')) - 1));
     require(admin != address(0), "An admin address is required");
     _setAdmin(admin);
@@ -99,9 +100,6 @@ contract AdminUpgradeabilityBeaconProxy is UpgradeabilityBeaconProxy {
     emit BeaconChanged(newBeacon, data);
   }
 
-  /**
-   * @return The admin slot.
-   */
   function _admin() internal view returns (address adm) {
     bytes32 slot = ADMIN_SLOT;
     assembly {
@@ -124,8 +122,8 @@ contract AdminUpgradeabilityBeaconProxy is UpgradeabilityBeaconProxy {
   /**
    * @dev Only fall back when the sender is not the admin.
    */
-  function _willFallback() internal {
+  function _beforeFallback() internal override {
     require(msg.sender != _admin(), "Cannot call fallback function from the proxy admin");
-    super._willFallback();
+    super._beforeFallback();
   }
 }

@@ -1,14 +1,16 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.6.0;
 
 import './Proxy.sol';
 import '../utils/Address.sol';
 import './IBeacon.sol';
 
 /**
- * @title UpgradeabilityBeaconProxy
+ * @title BeaconUpgradeableProxy
  * @notice An individual contract instance for the implementation defined by the associated `Beacon` contract.
  */
-contract UpgradeabilityBeaconProxy is Proxy {
+contract BeaconUpgradeableProxy is Proxy {
   /**
    * @dev The storage slot of the Beacon contract which defines the implementation for this proxy.
    * This is bytes32(uint256(keccak256('eip1967.proxy.beacon')) - 1)) and is validated in the constructor.
@@ -39,7 +41,7 @@ contract UpgradeabilityBeaconProxy is Proxy {
    * @dev Returns the address of the logic for this proxy, as defined by the Beacon.
    * This function is leveraged by the inherited `Proxy` implementation.
    */
-  function _implementation() internal view returns (address) {
+  function _implementation() internal view override returns (address) {
     return IBeacon(_beacon()).implementation();
   }
 
@@ -50,7 +52,7 @@ contract UpgradeabilityBeaconProxy is Proxy {
    */
   function _setBeacon(address beacon, bytes memory data) internal {
     require(
-      OpenZeppelinUpgradesAddress.isContract(IBeacon(beacon).implementation()),
+      Address.isContract(IBeacon(beacon).implementation()),
       "Cannot set a proxy beacon which points to a non-contract address"
     );
     bytes32 slot = BEACON_SLOT;
