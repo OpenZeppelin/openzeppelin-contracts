@@ -1,23 +1,16 @@
-'use strict';
+const shouldBehaveLikeBeaconUpgradeableProxy = require('./BeaconUpgradeableProxy.behaviour');
 
-require('../../setup');
+const BeaconUpgradeableProxy = artifacts.require('BeaconUpgradeableProxy');
+const Beacon = artifacts.require('Beacon');
 
-import { accounts } from '@openzeppelin/test-environment';
-
-import Contracts from '../../../src/artifacts/Contracts';
-import shouldBehaveLikeUpgradeabilityBeaconProxy from './UpgradeabilityBeaconProxy.behaviour';
-
-const UpgradeabilityBeaconProxy = Contracts.getFromLocal('UpgradeabilityBeaconProxy');
-const Beacon = Contracts.getFromLocal('Beacon');
-
-describe('UpgradeabilityBeaconProxy', function() {
-  const createBeacon = async function(logic, opts) {
+contract('BeaconUpgradeableProxy', function (accounts) {
+  const createBeacon = async function (logic, opts) {
     return Beacon.new(logic, opts);
   };
 
-  const createProxy = async function(beacon, initData, opts) {
-    return UpgradeabilityBeaconProxy.new(beacon, initData, opts);
+  const createProxy = async function (beacon, initData, opts) {
+    return BeaconUpgradeableProxy.new(beacon, initData, opts);
   };
 
-  shouldBehaveLikeUpgradeabilityBeaconProxy(createBeacon, createProxy, accounts);
+  shouldBehaveLikeBeaconUpgradeableProxy(createBeacon, createProxy, accounts);
 });

@@ -1,29 +1,25 @@
-'use strict';
-
-require('../../setup');
-
 import { accounts } from '@openzeppelin/test-environment';
 
 import Contracts from '../../../src/artifacts/Contracts';
-import shouldBehaveLikeUpgradeabilityBeaconProxy from './UpgradeabilityBeaconProxy.behaviour';
-import shouldBehaveLikeAdminUpgradeabilityBeaconProxy from './AdminUpgradeabilityBeaconProxy.behaviour';
+import shouldBehaveLikeBeaconUpgradeableProxy from './BeaconUpgradeableProxy.behaviour';
+import shouldBehaveLikeAdminBeaconUpgradeableProxy from './AdminBeaconUpgradeableProxy.behaviour';
 
-const AdminUpgradeabilityBeaconProxy = Contracts.getFromLocal('AdminUpgradeabilityBeaconProxy');
-const Beacon = Contracts.getFromLocal('Beacon');
+const AdminBeaconUpgradeableProxy = artifacts.require('AdminBeaconUpgradeableProxy');
+const Beacon = artifacts.require('Beacon');
 
-describe('AdminUpgradeabilityBeaconProxy', function() {
-  const createBeacon = async function(logic, opts) {
+describe('AdminBeaconUpgradeableProxy', function () {
+  const createBeacon = async function (logic, opts) {
     return Beacon.new(logic, opts);
   };
 
-  const createProxy = async function(beacon, initData, opts) {
-    return AdminUpgradeabilityBeaconProxy.new(beacon, accounts[0], initData, opts);
+  const createProxy = async function (beacon, initData, opts) {
+    return AdminBeaconUpgradeableProxy.new(beacon, accounts[0], initData, opts);
   };
 
-  const createProxyWithAdmin = async function(beacon, admin, initData, opts) {
-    return AdminUpgradeabilityBeaconProxy.new(beacon, admin, initData, opts);
+  const createProxyWithAdmin = async function (beacon, admin, initData, opts) {
+    return AdminBeaconUpgradeableProxy.new(beacon, admin, initData, opts);
   };
 
-  shouldBehaveLikeUpgradeabilityBeaconProxy(createBeacon, createProxy, accounts);
-  shouldBehaveLikeAdminUpgradeabilityBeaconProxy(createBeacon, createProxyWithAdmin, accounts);
+  shouldBehaveLikeBeaconUpgradeableProxy(createBeacon, createProxy, accounts);
+  shouldBehaveLikeAdminBeaconUpgradeableProxy(createBeacon, createProxyWithAdmin, accounts);
 });
