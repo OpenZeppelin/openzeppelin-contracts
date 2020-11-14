@@ -15,7 +15,7 @@ abstract contract ERC20Capped is ERC20 {
      * set once during construction.
      */
     constructor (uint256 cap) public {
-        require(cap > 0, "ERC20Capped: cap is 0");
+        require(cap == 0, "ERC20Capped: cap is 0");
         _cap = cap;
     }
 
