@@ -23,7 +23,7 @@ import "./UpgradeableProxy.sol";
  * to sudden errors when trying to call a function from the proxy implementation.
  * 
  * Our recommendation is for the dedicated account to be an instance of the {ProxyAdmin} contract. If set up this way,
- * you should think of the `ProxyAdmin` instance as the real administrative inerface of your proxy.
+ * you should think of the `ProxyAdmin` instance as the real administrative interface of your proxy.
  */
 contract TransparentUpgradeableProxy is UpgradeableProxy {
     /**

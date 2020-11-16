@@ -1,5 +1,3 @@
-const { accounts, contract } = require('@openzeppelin/test-environment');
-
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
@@ -7,10 +5,10 @@ const { expect } = require('chai');
 
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 
-const ERC721Mock = contract.fromArtifact('ERC721Mock');
-const ERC721ReceiverMock = contract.fromArtifact('ERC721ReceiverMock');
+const ERC721Mock = artifacts.require('ERC721Mock');
+const ERC721ReceiverMock = artifacts.require('ERC721ReceiverMock');
 
-describe('ERC721', function () {
+contract('ERC721', function (accounts) {
   const [owner, newOwner, approved, anotherApproved, operator, other] = accounts;
 
   const name = 'Non Fungible Token';
@@ -56,7 +54,7 @@ describe('ERC721', function () {
 
       it('reverts when queried for non existent token id', async function () {
         await expectRevert(
-          this.token.tokenURI(nonExistentTokenId), 'ERC721Metadata: URI query for nonexistent token'
+          this.token.tokenURI(nonExistentTokenId), 'ERC721Metadata: URI query for nonexistent token',
         );
       });
 
@@ -67,7 +65,7 @@ describe('ERC721', function () {
 
       it('reverts when setting for non existent token id', async function () {
         await expectRevert(
-          this.token.setTokenURI(nonExistentTokenId, sampleUri), 'ERC721Metadata: URI set of nonexistent token'
+          this.token.setTokenURI(nonExistentTokenId, sampleUri), 'ERC721Metadata: URI set of nonexistent token',
         );
       });
 
@@ -105,7 +103,7 @@ describe('ERC721', function () {
 
         expect(await this.token.exists(firstTokenId)).to.equal(false);
         await expectRevert(
-          this.token.tokenURI(firstTokenId), 'ERC721Metadata: URI query for nonexistent token'
+          this.token.tokenURI(firstTokenId), 'ERC721Metadata: URI query for nonexistent token',
         );
       });
     });
@@ -134,7 +132,7 @@ describe('ERC721', function () {
       context('when querying the zero address', function () {
         it('throws', async function () {
           await expectRevert(
-            this.token.balanceOf(ZERO_ADDRESS), 'ERC721: balance query for the zero address'
+            this.token.balanceOf(ZERO_ADDRESS), 'ERC721: balance query for the zero address',
           );
         });
       });
@@ -154,7 +152,7 @@ describe('ERC721', function () {
 
         it('reverts', async function () {
           await expectRevert(
-            this.token.ownerOf(tokenId), 'ERC721: owner query for nonexistent token'
+            this.token.ownerOf(tokenId), 'ERC721: owner query for nonexistent token',
           );
         });
       });
@@ -259,10 +257,10 @@ describe('ERC721', function () {
           it('keeps same tokens by index', async function () {
             if (!this.token.tokenOfOwnerByIndex) return;
             const tokensListed = await Promise.all(
-              [0, 1].map(i => this.token.tokenOfOwnerByIndex(owner, i))
+              [0, 1].map(i => this.token.tokenOfOwnerByIndex(owner, i)),
             );
             expect(tokensListed.map(t => t.toNumber())).to.have.members(
-              [firstTokenId.toNumber(), secondTokenId.toNumber()]
+              [firstTokenId.toNumber(), secondTokenId.toNumber()],
             );
           });
         });
@@ -271,7 +269,7 @@ describe('ERC721', function () {
           it('reverts', async function () {
             await expectRevert(
               transferFunction.call(this, other, other, tokenId, { from: owner }),
-              'ERC721: transfer of token that is not own'
+              'ERC721: transfer of token that is not own',
             );
           });
         });
@@ -280,7 +278,7 @@ describe('ERC721', function () {
           it('reverts', async function () {
             await expectRevert(
               transferFunction.call(this, owner, other, tokenId, { from: other }),
-              'ERC721: transfer caller is not owner nor approved'
+              'ERC721: transfer caller is not owner nor approved',
             );
           });
         });
@@ -289,7 +287,7 @@ describe('ERC721', function () {
           it('reverts', async function () {
             await expectRevert(
               transferFunction.call(this, owner, other, nonExistentTokenId, { from: owner }),
-              'ERC721: operator query for nonexistent token'
+              'ERC721: operator query for nonexistent token',
             );
           });
         });
@@ -298,7 +296,7 @@ describe('ERC721', function () {
           it('reverts', async function () {
             await expectRevert(
               transferFunction.call(this, owner, ZERO_ADDRESS, tokenId, { from: owner }),
-              'ERC721: transfer to the zero address'
+              'ERC721: transfer to the zero address',
             );
           });
         });
@@ -364,7 +362,7 @@ describe('ERC721', function () {
                     nonExistentTokenId,
                     { from: owner },
                   ),
-                  'ERC721: operator query for nonexistent token'
+                  'ERC721: operator query for nonexistent token',
                 );
               });
             });
@@ -384,7 +382,7 @@ describe('ERC721', function () {
             const invalidReceiver = await ERC721ReceiverMock.new('0x42', false);
             await expectRevert(
               this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner }),
-              'ERC721: transfer to non ERC721Receiver implementer'
+              'ERC721: transfer to non ERC721Receiver implementer',
             );
           });
         });
@@ -394,7 +392,7 @@ describe('ERC721', function () {
             const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, true);
             await expectRevert(
               this.token.safeTransferFrom(owner, revertingReceiver.address, tokenId, { from: owner }),
-              'ERC721ReceiverMock: reverting'
+              'ERC721ReceiverMock: reverting',
             );
           });
         });
@@ -404,7 +402,7 @@ describe('ERC721', function () {
             const nonReceiver = this.token;
             await expectRevert(
               this.token.safeTransferFrom(owner, nonReceiver.address, tokenId, { from: owner }),
-              'ERC721: transfer to non ERC721Receiver implementer'
+              'ERC721: transfer to non ERC721Receiver implementer',
             );
           });
         });
@@ -443,7 +441,7 @@ describe('ERC721', function () {
             const invalidReceiver = await ERC721ReceiverMock.new('0x42', false);
             await expectRevert(
               this.token.safeMint(invalidReceiver.address, tokenId),
-              'ERC721: transfer to non ERC721Receiver implementer'
+              'ERC721: transfer to non ERC721Receiver implementer',
             );
           });
         });
@@ -453,7 +451,7 @@ describe('ERC721', function () {
             const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, true);
             await expectRevert(
               this.token.safeMint(revertingReceiver.address, tokenId),
-              'ERC721ReceiverMock: reverting'
+              'ERC721ReceiverMock: reverting',
             );
           });
         });
@@ -463,7 +461,7 @@ describe('ERC721', function () {
             const nonReceiver = this.token;
             await expectRevert(
               this.token.safeMint(nonReceiver.address, tokenId),
-              'ERC721: transfer to non ERC721Receiver implementer'
+              'ERC721: transfer to non ERC721Receiver implementer',
             );
           });
         });
@@ -552,7 +550,7 @@ describe('ERC721', function () {
       context('when the address that receives the approval is the owner', function () {
         it('reverts', async function () {
           await expectRevert(
-            this.token.approve(owner, tokenId, { from: owner }), 'ERC721: approval to current owner'
+            this.token.approve(owner, tokenId, { from: owner }), 'ERC721: approval to current owner',
           );
         });
       });
@@ -674,7 +672,7 @@ describe('ERC721', function () {
         it('reverts', async function () {
           await expectRevert(
             this.token.getApproved(nonExistentTokenId),
-            'ERC721: approved query for nonexistent token'
+            'ERC721: approved query for nonexistent token',
           );
         });
       });
@@ -682,7 +680,7 @@ describe('ERC721', function () {
       context('when token has been minted ', async function () {
         it('should return the zero address', async function () {
           expect(await this.token.getApproved(firstTokenId)).to.be.equal(
-            ZERO_ADDRESS
+            ZERO_ADDRESS,
           );
         });
 
@@ -714,7 +712,7 @@ describe('ERC721', function () {
       describe('when the index is greater than or equal to the total tokens owned by the given address', function () {
         it('reverts', async function () {
           await expectRevert(
-            this.token.tokenOfOwnerByIndex(owner, 2), 'EnumerableSet: index out of bounds'
+            this.token.tokenOfOwnerByIndex(owner, 2), 'EnumerableSet: index out of bounds',
           );
         });
       });
@@ -722,7 +720,7 @@ describe('ERC721', function () {
       describe('when the given address does not own any token', function () {
         it('reverts', async function () {
           await expectRevert(
-            this.token.tokenOfOwnerByIndex(other, 0), 'EnumerableSet: index out of bounds'
+            this.token.tokenOfOwnerByIndex(other, 0), 'EnumerableSet: index out of bounds',
           );
         });
       });
@@ -736,7 +734,7 @@ describe('ERC721', function () {
         it('returns correct token IDs for target', async function () {
           expect(await this.token.balanceOf(other)).to.be.bignumber.equal('2');
           const tokensListed = await Promise.all(
-            [0, 1].map(i => this.token.tokenOfOwnerByIndex(other, i))
+            [0, 1].map(i => this.token.tokenOfOwnerByIndex(other, i)),
           );
           expect(tokensListed.map(t => t.toNumber())).to.have.members([firstTokenId.toNumber(),
             secondTokenId.toNumber()]);
@@ -745,7 +743,7 @@ describe('ERC721', function () {
         it('returns empty collection for original owner', async function () {
           expect(await this.token.balanceOf(owner)).to.be.bignumber.equal('0');
           await expectRevert(
-            this.token.tokenOfOwnerByIndex(owner, 0), 'EnumerableSet: index out of bounds'
+            this.token.tokenOfOwnerByIndex(owner, 0), 'EnumerableSet: index out of bounds',
           );
         });
       });
@@ -754,7 +752,7 @@ describe('ERC721', function () {
     describe('tokenByIndex', function () {
       it('returns all tokens', async function () {
         const tokensListed = await Promise.all(
-          [0, 1].map(i => this.token.tokenByIndex(i))
+          [0, 1].map(i => this.token.tokenByIndex(i)),
         );
         expect(tokensListed.map(t => t.toNumber())).to.have.members([firstTokenId.toNumber(),
           secondTokenId.toNumber()]);
@@ -762,7 +760,7 @@ describe('ERC721', function () {
 
       it('reverts if index is greater than supply', async function () {
         await expectRevert(
-          this.token.tokenByIndex(2), 'EnumerableMap: index out of bounds'
+          this.token.tokenByIndex(2), 'EnumerableMap: index out of bounds',
         );
       });
 
@@ -778,10 +776,10 @@ describe('ERC721', function () {
           expect(await this.token.totalSupply()).to.be.bignumber.equal('3');
 
           const tokensListed = await Promise.all(
-            [0, 1, 2].map(i => this.token.tokenByIndex(i))
+            [0, 1, 2].map(i => this.token.tokenByIndex(i)),
           );
           const expectedTokens = [firstTokenId, secondTokenId, newTokenId, anotherNewTokenId].filter(
-            x => (x !== tokenId)
+            x => (x !== tokenId),
           );
           expect(tokensListed.map(t => t.toNumber())).to.have.members(expectedTokens.map(t => t.toNumber()));
         });
@@ -792,7 +790,7 @@ describe('ERC721', function () {
   describe('_mint(address, uint256)', function () {
     it('reverts with a null destination address', async function () {
       await expectRevert(
-        this.token.mint(ZERO_ADDRESS, firstTokenId), 'ERC721: mint to the zero address'
+        this.token.mint(ZERO_ADDRESS, firstTokenId), 'ERC721: mint to the zero address',
       );
     });
 
@@ -827,7 +825,7 @@ describe('ERC721', function () {
   describe('_burn', function () {
     it('reverts when burning a non-existent token id', async function () {
       await expectRevert(
-        this.token.burn(firstTokenId), 'ERC721: owner query for nonexistent token'
+        this.token.burn(firstTokenId), 'ERC721: owner query for nonexistent token',
       );
     });
 
@@ -853,7 +851,7 @@ describe('ERC721', function () {
         it('deletes the token', async function () {
           expect(await this.token.balanceOf(owner)).to.be.bignumber.equal('1');
           await expectRevert(
-            this.token.ownerOf(firstTokenId), 'ERC721: owner query for nonexistent token'
+            this.token.ownerOf(firstTokenId), 'ERC721: owner query for nonexistent token',
           );
         });
 
@@ -869,13 +867,13 @@ describe('ERC721', function () {
           await this.token.burn(secondTokenId, { from: owner });
           expect(await this.token.totalSupply()).to.be.bignumber.equal('0');
           await expectRevert(
-            this.token.tokenByIndex(0), 'EnumerableMap: index out of bounds'
+            this.token.tokenByIndex(0), 'EnumerableMap: index out of bounds',
           );
         });
 
         it('reverts when burning a token id that has been deleted', async function () {
           await expectRevert(
-            this.token.burn(firstTokenId), 'ERC721: owner query for nonexistent token'
+            this.token.burn(firstTokenId), 'ERC721: owner query for nonexistent token',
           );
         });
       });

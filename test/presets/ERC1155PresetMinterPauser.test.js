@@ -1,13 +1,11 @@
-const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
-
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const ERC1155PresetMinterPauser = contract.fromArtifact('ERC1155PresetMinterPauser');
+const ERC1155PresetMinterPauser = artifacts.require('ERC1155PresetMinterPauser');
 
-describe('ERC1155PresetMinterPauser', function () {
+contract('ERC1155PresetMinterPauser', function (accounts) {
   const [ deployer, other ] = accounts;
 
   const firstTokenId = new BN('845');
@@ -50,7 +48,7 @@ describe('ERC1155PresetMinterPauser', function () {
     it('deployer can mint tokens', async function () {
       const receipt = await this.token.mint(other, firstTokenId, firstTokenIdAmount, '0x', { from: deployer });
       expectEvent(receipt, 'TransferSingle',
-        { operator: deployer, from: ZERO_ADDRESS, to: other, value: firstTokenIdAmount, id: firstTokenId }
+        { operator: deployer, from: ZERO_ADDRESS, to: other, value: firstTokenIdAmount, id: firstTokenId },
       );
 
       expect(await this.token.balanceOf(other, firstTokenId)).to.be.bignumber.equal(firstTokenIdAmount);
@@ -59,7 +57,7 @@ describe('ERC1155PresetMinterPauser', function () {
     it('other accounts cannot mint tokens', async function () {
       await expectRevert(
         this.token.mint(other, firstTokenId, firstTokenIdAmount, '0x', { from: other }),
-        'ERC1155PresetMinterPauser: must have minter role to mint'
+        'ERC1155PresetMinterPauser: must have minter role to mint',
       );
     });
   });
@@ -67,11 +65,11 @@ describe('ERC1155PresetMinterPauser', function () {
   describe('batched minting', function () {
     it('deployer can batch mint tokens', async function () {
       const receipt = await this.token.mintBatch(
-        other, [firstTokenId, secondTokenId], [firstTokenIdAmount, secondTokenIdAmount], '0x', { from: deployer }
+        other, [firstTokenId, secondTokenId], [firstTokenIdAmount, secondTokenIdAmount], '0x', { from: deployer },
       );
 
       expectEvent(receipt, 'TransferBatch',
-        { operator: deployer, from: ZERO_ADDRESS, to: other }
+        { operator: deployer, from: ZERO_ADDRESS, to: other },
       );
 
       expect(await this.token.balanceOf(other, firstTokenId)).to.be.bignumber.equal(firstTokenIdAmount);
@@ -80,9 +78,9 @@ describe('ERC1155PresetMinterPauser', function () {
     it('other accounts cannot batch mint tokens', async function () {
       await expectRevert(
         this.token.mintBatch(
-          other, [firstTokenId, secondTokenId], [firstTokenIdAmount, secondTokenIdAmount], '0x', { from: other }
+          other, [firstTokenId, secondTokenId], [firstTokenIdAmount, secondTokenIdAmount], '0x', { from: other },
         ),
-        'ERC1155PresetMinterPauser: must have minter role to mint'
+        'ERC1155PresetMinterPauser: must have minter role to mint',
       );
     });
   });
@@ -109,14 +107,14 @@ describe('ERC1155PresetMinterPauser', function () {
 
       await expectRevert(
         this.token.mint(other, firstTokenId, firstTokenIdAmount, '0x', { from: deployer }),
-        'ERC1155Pausable: token transfer while paused'
+        'ERC1155Pausable: token transfer while paused',
       );
     });
 
     it('other accounts cannot pause', async function () {
       await expectRevert(
         this.token.pause({ from: other }),
-        'ERC1155PresetMinterPauser: must have pauser role to pause'
+        'ERC1155PresetMinterPauser: must have pauser role to pause',
       );
     });
   });
@@ -127,7 +125,7 @@ describe('ERC1155PresetMinterPauser', function () {
 
       const receipt = await this.token.burn(other, firstTokenId, firstTokenIdAmount.subn(1), { from: other });
       expectEvent(receipt, 'TransferSingle',
-        { operator: other, from: other, to: ZERO_ADDRESS, value: firstTokenIdAmount.subn(1), id: firstTokenId }
+        { operator: other, from: other, to: ZERO_ADDRESS, value: firstTokenIdAmount.subn(1), id: firstTokenId },
       );
 
       expect(await this.token.balanceOf(other, firstTokenId)).to.be.bignumber.equal('1');

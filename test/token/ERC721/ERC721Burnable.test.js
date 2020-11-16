@@ -1,13 +1,11 @@
-const { accounts, contract } = require('@openzeppelin/test-environment');
-
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const ERC721BurnableMock = contract.fromArtifact('ERC721BurnableMock');
+const ERC721BurnableMock = artifacts.require('ERC721BurnableMock');
 
-describe('ERC721Burnable', function () {
+contract('ERC721Burnable', function (accounts) {
   const [owner, approved] = accounts;
 
   const firstTokenId = new BN(1);
@@ -40,7 +38,7 @@ describe('ERC721Burnable', function () {
         it('burns the given token ID and adjusts the balance of the owner', async function () {
           await expectRevert(
             this.token.ownerOf(tokenId),
-            'ERC721: owner query for nonexistent token'
+            'ERC721: owner query for nonexistent token',
           );
           expect(await this.token.balanceOf(owner)).to.be.bignumber.equal('1');
         });
@@ -64,7 +62,7 @@ describe('ERC721Burnable', function () {
         context('getApproved', function () {
           it('reverts', async function () {
             await expectRevert(
-              this.token.getApproved(tokenId), 'ERC721: approved query for nonexistent token'
+              this.token.getApproved(tokenId), 'ERC721: approved query for nonexistent token',
             );
           });
         });
@@ -73,7 +71,7 @@ describe('ERC721Burnable', function () {
       describe('when the given token ID was not tracked by this contract', function () {
         it('reverts', async function () {
           await expectRevert(
-            this.token.burn(unknownTokenId, { from: owner }), 'ERC721: operator query for nonexistent token'
+            this.token.burn(unknownTokenId, { from: owner }), 'ERC721: operator query for nonexistent token',
           );
         });
       });

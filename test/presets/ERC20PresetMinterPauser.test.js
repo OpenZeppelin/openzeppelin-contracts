@@ -1,13 +1,11 @@
-const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
-
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const ERC20PresetMinterPauser = contract.fromArtifact('ERC20PresetMinterPauser');
+const ERC20PresetMinterPauser = artifacts.require('ERC20PresetMinterPauser');
 
-describe('ERC20PresetMinterPauser', function () {
+contract('ERC20PresetMinterPauser', function (accounts) {
   const [ deployer, other ] = accounts;
 
   const name = 'MinterPauserToken';
@@ -54,7 +52,7 @@ describe('ERC20PresetMinterPauser', function () {
     it('other accounts cannot mint tokens', async function () {
       await expectRevert(
         this.token.mint(other, amount, { from: other }),
-        'ERC20PresetMinterPauser: must have minter role to mint'
+        'ERC20PresetMinterPauser: must have minter role to mint',
       );
     });
   });
@@ -81,7 +79,7 @@ describe('ERC20PresetMinterPauser', function () {
 
       await expectRevert(
         this.token.mint(other, amount, { from: deployer }),
-        'ERC20Pausable: token transfer while paused'
+        'ERC20Pausable: token transfer while paused',
       );
     });
 

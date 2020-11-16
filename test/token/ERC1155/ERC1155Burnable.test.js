@@ -1,12 +1,10 @@
-const { accounts, contract } = require('@openzeppelin/test-environment');
-
 const { BN, expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ERC1155BurnableMock = contract.fromArtifact('ERC1155BurnableMock');
+const ERC1155BurnableMock = artifacts.require('ERC1155BurnableMock');
 
-describe('ERC1155Burnable', function () {
+contract('ERC1155Burnable', function (accounts) {
   const [ holder, operator, other ] = accounts;
 
   const uri = 'https://token.com';
@@ -38,7 +36,7 @@ describe('ERC1155Burnable', function () {
     it('unapproved accounts cannot burn the holder\'s tokens', async function () {
       await expectRevert(
         this.token.burn(holder, tokenIds[0], amounts[0].subn(1), { from: other }),
-        'ERC1155: caller is not owner nor approved'
+        'ERC1155: caller is not owner nor approved',
       );
     });
   });
@@ -62,7 +60,7 @@ describe('ERC1155Burnable', function () {
     it('unapproved accounts cannot burn the holder\'s tokens', async function () {
       await expectRevert(
         this.token.burnBatch(holder, tokenIds, [ amounts[0].subn(1), amounts[1].subn(2) ], { from: other }),
-        'ERC1155: caller is not owner nor approved'
+        'ERC1155: caller is not owner nor approved',
       );
     });
   });

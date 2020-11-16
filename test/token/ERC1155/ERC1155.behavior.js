@@ -1,5 +1,3 @@
-const { contract } = require('@openzeppelin/test-environment');
-
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
@@ -7,7 +5,7 @@ const { expect } = require('chai');
 
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 
-const ERC1155ReceiverMock = contract.fromArtifact('ERC1155ReceiverMock');
+const ERC1155ReceiverMock = artifacts.require('ERC1155ReceiverMock');
 
 function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, multiTokenHolder, recipient, proxy]) {
   const firstTokenId = new BN(1);
@@ -25,7 +23,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
       it('reverts when queried about the zero address', async function () {
         await expectRevert(
           this.token.balanceOf(ZERO_ADDRESS, firstTokenId),
-          'ERC1155: balance query for the zero address'
+          'ERC1155: balance query for the zero address',
         );
       });
 
@@ -33,17 +31,17 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
         it('returns zero for given addresses', async function () {
           expect(await this.token.balanceOf(
             firstTokenHolder,
-            firstTokenId
+            firstTokenId,
           )).to.be.bignumber.equal('0');
 
           expect(await this.token.balanceOf(
             secondTokenHolder,
-            secondTokenId
+            secondTokenId,
           )).to.be.bignumber.equal('0');
 
           expect(await this.token.balanceOf(
             firstTokenHolder,
-            unknownTokenId
+            unknownTokenId,
           )).to.be.bignumber.equal('0');
         });
       });
@@ -60,24 +58,24 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             '0x',
             {
               from: minter,
-            }
+            },
           );
         });
 
         it('returns the amount of tokens owned by the given addresses', async function () {
           expect(await this.token.balanceOf(
             firstTokenHolder,
-            firstTokenId
+            firstTokenId,
           )).to.be.bignumber.equal(firstAmount);
 
           expect(await this.token.balanceOf(
             secondTokenHolder,
-            secondTokenId
+            secondTokenId,
           )).to.be.bignumber.equal(secondAmount);
 
           expect(await this.token.balanceOf(
             firstTokenHolder,
-            unknownTokenId
+            unknownTokenId,
           )).to.be.bignumber.equal('0');
         });
       });
@@ -88,17 +86,17 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
         await expectRevert(
           this.token.balanceOfBatch(
             [firstTokenHolder, secondTokenHolder, firstTokenHolder, secondTokenHolder],
-            [firstTokenId, secondTokenId, unknownTokenId]
+            [firstTokenId, secondTokenId, unknownTokenId],
           ),
-          'ERC1155: accounts and ids length mismatch'
+          'ERC1155: accounts and ids length mismatch',
         );
 
         await expectRevert(
           this.token.balanceOfBatch(
             [firstTokenHolder, secondTokenHolder],
-            [firstTokenId, secondTokenId, unknownTokenId]
+            [firstTokenId, secondTokenId, unknownTokenId],
           ),
-          'ERC1155: accounts and ids length mismatch'
+          'ERC1155: accounts and ids length mismatch',
         );
       });
 
@@ -106,9 +104,9 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
         await expectRevert(
           this.token.balanceOfBatch(
             [firstTokenHolder, secondTokenHolder, ZERO_ADDRESS],
-            [firstTokenId, secondTokenId, unknownTokenId]
+            [firstTokenId, secondTokenId, unknownTokenId],
           ),
-          'ERC1155: batch balance query for the zero address'
+          'ERC1155: batch balance query for the zero address',
         );
       });
 
@@ -116,7 +114,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
         it('returns zeros for each account', async function () {
           const result = await this.token.balanceOfBatch(
             [firstTokenHolder, secondTokenHolder, firstTokenHolder],
-            [firstTokenId, secondTokenId, unknownTokenId]
+            [firstTokenId, secondTokenId, unknownTokenId],
           );
           expect(result).to.be.an('array');
           expect(result[0]).to.be.a.bignumber.equal('0');
@@ -137,14 +135,14 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             '0x',
             {
               from: minter,
-            }
+            },
           );
         });
 
         it('returns amounts owned by each account in order passed', async function () {
           const result = await this.token.balanceOfBatch(
             [secondTokenHolder, firstTokenHolder, firstTokenHolder],
-            [secondTokenId, firstTokenId, unknownTokenId]
+            [secondTokenId, firstTokenId, unknownTokenId],
           );
           expect(result).to.be.an('array');
           expect(result[0]).to.be.a.bignumber.equal(secondAmount);
@@ -155,7 +153,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
         it('returns multiple times the balance of the same address when asked', async function () {
           const result = await this.token.balanceOfBatch(
             [firstTokenHolder, secondTokenHolder, firstTokenHolder],
-            [firstTokenId, secondTokenId, firstTokenId]
+            [firstTokenId, secondTokenId, firstTokenId],
           );
           expect(result).to.be.an('array');
           expect(result[0]).to.be.a.bignumber.equal(result[2]);
@@ -188,7 +186,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
       it('reverts if attempting to approve self as an operator', async function () {
         await expectRevert(
           this.token.setApprovalForAll(multiTokenHolder, true, { from: multiTokenHolder }),
-          'ERC1155: setting approval status for self'
+          'ERC1155: setting approval status for self',
         );
       });
     });
@@ -205,7 +203,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
           '0x',
           {
             from: minter,
-          }
+          },
         );
       });
 
@@ -219,7 +217,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             '0x',
             { from: multiTokenHolder },
           ),
-          'ERC1155: insufficient balance for transfer'
+          'ERC1155: insufficient balance for transfer',
         );
       });
 
@@ -233,7 +231,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             '0x',
             { from: multiTokenHolder },
           ),
-          'ERC1155: transfer to the zero address'
+          'ERC1155: transfer to the zero address',
         );
       });
 
@@ -295,7 +293,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
               this.token.safeTransferFrom(multiTokenHolder, recipient, firstTokenId, firstAmount, '0x', {
                 from: proxy,
               }),
-              'ERC1155: caller is not owner nor approved'
+              'ERC1155: caller is not owner nor approved',
             );
           });
         });
@@ -344,7 +342,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
               firstTokenId,
               firstAmount,
               '0x',
-              { from: multiTokenHolder }
+              { from: multiTokenHolder },
             );
             ({ logs: this.transferLogs } = this.transferReceipt);
           });
@@ -377,7 +375,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
               firstTokenId,
               firstAmount,
               data,
-              { from: multiTokenHolder }
+              { from: multiTokenHolder },
             );
             ({ logs: this.transferLogs } = this.transferReceipt);
           });
@@ -414,7 +412,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             this.token.safeTransferFrom(multiTokenHolder, this.receiver.address, firstTokenId, firstAmount, '0x', {
               from: multiTokenHolder,
             }),
-            'ERC1155: ERC1155Receiver rejected tokens'
+            'ERC1155: ERC1155Receiver rejected tokens',
           );
         });
       });
@@ -432,7 +430,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             this.token.safeTransferFrom(multiTokenHolder, this.receiver.address, firstTokenId, firstAmount, '0x', {
               from: multiTokenHolder,
             }),
-            'ERC1155ReceiverMock: reverting on receive'
+            'ERC1155ReceiverMock: reverting on receive',
           );
         });
       });
@@ -443,7 +441,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
           await expectRevert.unspecified(
             this.token.safeTransferFrom(multiTokenHolder, invalidReceiver.address, firstTokenId, firstAmount, '0x', {
               from: multiTokenHolder,
-            })
+            }),
           );
         });
       });
@@ -461,7 +459,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
           '0x',
           {
             from: minter,
-          }
+          },
         );
       });
 
@@ -471,9 +469,9 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             multiTokenHolder, recipient,
             [firstTokenId, secondTokenId],
             [firstAmount, secondAmount.addn(1)],
-            '0x', { from: multiTokenHolder }
+            '0x', { from: multiTokenHolder },
           ),
-          'ERC1155: insufficient balance for transfer'
+          'ERC1155: insufficient balance for transfer',
         );
       });
 
@@ -483,9 +481,9 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             multiTokenHolder, recipient,
             [firstTokenId],
             [firstAmount, secondAmount],
-            '0x', { from: multiTokenHolder }
+            '0x', { from: multiTokenHolder },
           ),
-          'ERC1155: ids and amounts length mismatch'
+          'ERC1155: ids and amounts length mismatch',
         );
 
         await expectRevert(
@@ -493,9 +491,9 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             multiTokenHolder, recipient,
             [firstTokenId, secondTokenId],
             [firstAmount],
-            '0x', { from: multiTokenHolder }
+            '0x', { from: multiTokenHolder },
           ),
-          'ERC1155: ids and amounts length mismatch'
+          'ERC1155: ids and amounts length mismatch',
         );
       });
 
@@ -505,9 +503,9 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             multiTokenHolder, ZERO_ADDRESS,
             [firstTokenId, secondTokenId],
             [firstAmount, secondAmount],
-            '0x', { from: multiTokenHolder }
+            '0x', { from: multiTokenHolder },
           ),
-          'ERC1155: transfer to the zero address'
+          'ERC1155: transfer to the zero address',
         );
       });
 
@@ -545,7 +543,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
               multiTokenHolder, recipient,
               [firstTokenId, secondTokenId],
               [firstAmount, secondAmount],
-              '0x', { from: multiTokenHolder }
+              '0x', { from: multiTokenHolder },
             ));
         });
 
@@ -569,9 +567,9 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
                 multiTokenHolder, recipient,
                 [firstTokenId, secondTokenId],
                 [firstAmount, secondAmount],
-                '0x', { from: proxy }
+                '0x', { from: proxy },
               ),
-              'ERC1155: transfer caller is not owner nor approved'
+              'ERC1155: transfer caller is not owner nor approved',
             );
           });
         });
@@ -691,7 +689,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
               [firstAmount, secondAmount],
               '0x', { from: multiTokenHolder },
             ),
-            'ERC1155: ERC1155Receiver rejected tokens'
+            'ERC1155: ERC1155Receiver rejected tokens',
           );
         });
       });
@@ -712,7 +710,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
               [firstAmount, secondAmount],
               '0x', { from: multiTokenHolder },
             ),
-            'ERC1155ReceiverMock: reverting on batch receive'
+            'ERC1155ReceiverMock: reverting on batch receive',
           );
         });
       });
@@ -761,7 +759,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
               [firstTokenId, secondTokenId],
               [firstAmount, secondAmount],
               '0x', { from: multiTokenHolder },
-            )
+            ),
           );
         });
       });

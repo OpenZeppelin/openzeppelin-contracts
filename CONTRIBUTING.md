@@ -44,13 +44,6 @@ npm test
 npm run lint
 ```
 
-or you can simply run CircleCI locally
-```bash
-circleci local execute --job build
-circleci local execute --job test
-```
-*Note*: requires installing CircleCI and docker locally on your machine.
-
 5) Go to [github.com/OpenZeppelin/openzeppelin-contracts](https://github.com/OpenZeppelin/openzeppelin-contracts) in your web browser and issue a new pull request.
 
 *IMPORTANT* Read the PR template very carefully and make sure to follow all the instructions. These instructions

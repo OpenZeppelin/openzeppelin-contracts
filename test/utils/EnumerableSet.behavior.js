@@ -4,7 +4,7 @@ const { expect } = require('chai');
 function shouldBehaveLikeSet (valueA, valueB, valueC) {
   async function expectMembersMatch (set, values) {
     await Promise.all(values.map(async value =>
-      expect(await set.contains(value)).to.equal(true)
+      expect(await set.contains(value)).to.equal(true),
     ));
 
     expect(await set.length()).to.bignumber.equal(values.length.toString());

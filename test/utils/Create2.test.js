@@ -1,13 +1,12 @@
-const { contract, accounts, web3 } = require('@openzeppelin/test-environment');
 const { balance, BN, ether, expectRevert, send } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const Create2Impl = contract.fromArtifact('Create2Impl');
-const ERC20Mock = contract.fromArtifact('ERC20Mock');
-const ERC1820Implementer = contract.fromArtifact('ERC1820Implementer');
+const Create2Impl = artifacts.require('Create2Impl');
+const ERC20Mock = artifacts.require('ERC20Mock');
+const ERC1820Implementer = artifacts.require('ERC1820Implementer');
 
-describe('Create2', function () {
+contract('Create2', function (accounts) {
   const [deployerAccount] = accounts;
 
   const salt = 'salt message';
@@ -15,7 +14,7 @@ describe('Create2', function () {
 
   const encodedParams = web3.eth.abi.encodeParameters(
     ['string', 'string', 'address', 'uint256'],
-    ['MyToken', 'MTKN', deployerAccount, 100]
+    ['MyToken', 'MTKN', deployerAccount, 100],
   ).slice(2);
 
   const constructorByteCode = `${ERC20Mock.bytecode}${encodedParams}`;
@@ -73,20 +72,20 @@ describe('Create2', function () {
     it('fails deploying a contract in an existent address', async function () {
       await this.factory.deploy(0, saltHex, constructorByteCode, { from: deployerAccount });
       await expectRevert(
-        this.factory.deploy(0, saltHex, constructorByteCode, { from: deployerAccount }), 'Create2: Failed on deploy'
+        this.factory.deploy(0, saltHex, constructorByteCode, { from: deployerAccount }), 'Create2: Failed on deploy',
       );
     });
 
     it('fails deploying a contract if the bytecode length is zero', async function () {
       await expectRevert(
-        this.factory.deploy(0, saltHex, '0x', { from: deployerAccount }), 'Create2: bytecode length is zero'
+        this.factory.deploy(0, saltHex, '0x', { from: deployerAccount }), 'Create2: bytecode length is zero',
       );
     });
 
     it('fails deploying a contract if factory contract does not have sufficient balance', async function () {
       await expectRevert(
         this.factory.deploy(1, saltHex, constructorByteCode, { from: deployerAccount }),
-        'Create2: insufficient balance'
+        'Create2: insufficient balance',
       );
     });
   });

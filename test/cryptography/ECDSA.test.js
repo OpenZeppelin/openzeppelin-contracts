@@ -1,16 +1,14 @@
-const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
-
 const { expectRevert } = require('@openzeppelin/test-helpers');
 const { toEthSignedMessageHash, fixSignature } = require('../helpers/sign');
 
 const { expect } = require('chai');
 
-const ECDSAMock = contract.fromArtifact('ECDSAMock');
+const ECDSAMock = artifacts.require('ECDSAMock');
 
 const TEST_MESSAGE = web3.utils.sha3('OpenZeppelin');
 const WRONG_MESSAGE = web3.utils.sha3('Nope');
 
-describe('ECDSA', function () {
+contract('ECDSA', function (accounts) {
   const [ other ] = accounts;
 
   beforeEach(async function () {
@@ -26,7 +24,7 @@ describe('ECDSA', function () {
       await expectRevert(
         // eslint-disable-next-line max-len
         this.ecdsa.recover(TEST_MESSAGE, '0x01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789'),
-        'ECDSA: invalid signature length'
+        'ECDSA: invalid signature length',
       );
     });
   });
@@ -116,7 +114,7 @@ describe('ECDSA', function () {
           // Recover the signer address from the generated message and signature.
           expect(await this.ecdsa.recover(
             toEthSignedMessageHash(TEST_MESSAGE),
-            signature
+            signature,
           )).to.equal(other);
         });
       });

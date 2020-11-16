@@ -1,12 +1,11 @@
-const { accounts, contract } = require('@openzeppelin/test-environment');
 const { BN, expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const zip = require('lodash.zip');
 
-const EnumerableMapMock = contract.fromArtifact('EnumerableMapMock');
+const EnumerableMapMock = artifacts.require('EnumerableMapMock');
 
-describe('EnumerableMap', function () {
+contract('EnumerableMap', function (accounts) {
   const [ accountA, accountB, accountC ] = accounts;
 
   const keyA = new BN('7891');
@@ -21,13 +20,13 @@ describe('EnumerableMap', function () {
     expect(keys.length).to.equal(values.length);
 
     await Promise.all(keys.map(async key =>
-      expect(await map.contains(key)).to.equal(true)
+      expect(await map.contains(key)).to.equal(true),
     ));
 
     expect(await map.length()).to.bignumber.equal(keys.length.toString());
 
     expect(await Promise.all(keys.map(key =>
-      map.get(key)
+      map.get(key),
     ))).to.have.same.members(values);
 
     // To compare key-value pairs, we zip keys and values, and convert BNs to
@@ -36,7 +35,7 @@ describe('EnumerableMap', function () {
       const entry = await map.at(index);
       return [entry.key.toString(), entry.value];
     }))).to.have.same.deep.members(
-      zip(keys.map(k => k.toString()), values)
+      zip(keys.map(k => k.toString()), values),
     );
   }
 

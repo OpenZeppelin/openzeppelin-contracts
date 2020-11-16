@@ -1,12 +1,10 @@
-const { accounts, contract } = require('@openzeppelin/test-environment');
-
 const { BN, expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ERC20PausableMock = contract.fromArtifact('ERC20PausableMock');
+const ERC20PausableMock = artifacts.require('ERC20PausableMock');
 
-describe('ERC20Pausable', function () {
+contract('ERC20Pausable', function (accounts) {
   const [ holder, recipient, anotherAccount ] = accounts;
 
   const initialSupply = new BN(100);
@@ -41,7 +39,7 @@ describe('ERC20Pausable', function () {
         await this.token.pause();
 
         await expectRevert(this.token.transfer(recipient, initialSupply, { from: holder }),
-          'ERC20Pausable: token transfer while paused'
+          'ERC20Pausable: token transfer while paused',
         );
       });
     });
@@ -74,7 +72,7 @@ describe('ERC20Pausable', function () {
         await this.token.pause();
 
         await expectRevert(this.token.transferFrom(
-          holder, recipient, allowance, { from: anotherAccount }), 'ERC20Pausable: token transfer while paused'
+          holder, recipient, allowance, { from: anotherAccount }), 'ERC20Pausable: token transfer while paused',
         );
       });
     });
@@ -101,7 +99,7 @@ describe('ERC20Pausable', function () {
         await this.token.pause();
 
         await expectRevert(this.token.mint(recipient, amount),
-          'ERC20Pausable: token transfer while paused'
+          'ERC20Pausable: token transfer while paused',
         );
       });
     });
@@ -128,7 +126,7 @@ describe('ERC20Pausable', function () {
         await this.token.pause();
 
         await expectRevert(this.token.burn(holder, amount),
-          'ERC20Pausable: token transfer while paused'
+          'ERC20Pausable: token transfer while paused',
         );
       });
     });

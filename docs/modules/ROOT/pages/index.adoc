@@ -6,7 +6,7 @@
  * Flexible xref:access-control.adoc[role-based permissioning] scheme.
  * Reusable xref:utilities.adoc[Solidity components] to build custom contracts and complex decentralized systems.
  * First-class integration with the xref:gsn.adoc[Gas Station Network] for systems with no gas fees!
- * Audited by leading security firms (_last full audit on v2.0.0_).
+ * https://github.com/OpenZeppelin/openzeppelin-contracts/tree/master/audit[Audited] by leading security firms (_last full audit on v2.0.0_).
 
 == Overview
 

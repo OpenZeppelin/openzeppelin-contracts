@@ -1,14 +1,12 @@
-const { accounts, contract } = require('@openzeppelin/test-environment');
-
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
 const { shouldBehaveLikeERC1155 } = require('./ERC1155.behavior');
-const ERC1155Mock = contract.fromArtifact('ERC1155Mock');
+const ERC1155Mock = artifacts.require('ERC1155Mock');
 
-describe('ERC1155', function () {
+contract('ERC1155', function (accounts) {
   const [operator, tokenHolder, tokenBatchHolder, ...otherAccounts] = accounts;
 
   const initialURI = 'https://token-cdn-domain/{id}.json';
@@ -34,7 +32,7 @@ describe('ERC1155', function () {
       it('reverts with a zero destination address', async function () {
         await expectRevert(
           this.token.mint(ZERO_ADDRESS, tokenId, mintAmount, data),
-          'ERC1155: mint to the zero address'
+          'ERC1155: mint to the zero address',
         );
       });
 
@@ -63,19 +61,19 @@ describe('ERC1155', function () {
       it('reverts with a zero destination address', async function () {
         await expectRevert(
           this.token.mintBatch(ZERO_ADDRESS, tokenBatchIds, mintAmounts, data),
-          'ERC1155: mint to the zero address'
+          'ERC1155: mint to the zero address',
         );
       });
 
       it('reverts if length of inputs do not match', async function () {
         await expectRevert(
           this.token.mintBatch(tokenBatchHolder, tokenBatchIds, mintAmounts.slice(1), data),
-          'ERC1155: ids and amounts length mismatch'
+          'ERC1155: ids and amounts length mismatch',
         );
 
         await expectRevert(
           this.token.mintBatch(tokenBatchHolder, tokenBatchIds.slice(1), mintAmounts, data),
-          'ERC1155: ids and amounts length mismatch'
+          'ERC1155: ids and amounts length mismatch',
         );
       });
 
@@ -86,7 +84,7 @@ describe('ERC1155', function () {
             tokenBatchIds,
             mintAmounts,
             data,
-            { from: operator }
+            { from: operator },
           ));
         });
 
@@ -101,7 +99,7 @@ describe('ERC1155', function () {
         it('credits the minted batch of tokens', async function () {
           const holderBatchBalances = await this.token.balanceOfBatch(
             new Array(tokenBatchIds.length).fill(tokenBatchHolder),
-            tokenBatchIds
+            tokenBatchIds,
           );
 
           for (let i = 0; i < holderBatchBalances.length; i++) {
@@ -115,14 +113,14 @@ describe('ERC1155', function () {
       it('reverts when burning the zero account\'s tokens', async function () {
         await expectRevert(
           this.token.burn(ZERO_ADDRESS, tokenId, mintAmount),
-          'ERC1155: burn from the zero address'
+          'ERC1155: burn from the zero address',
         );
       });
 
       it('reverts when burning a non-existent token id', async function () {
         await expectRevert(
           this.token.burn(tokenHolder, tokenId, mintAmount),
-          'ERC1155: burn amount exceeds balance'
+          'ERC1155: burn amount exceeds balance',
         );
       });
 
@@ -132,12 +130,12 @@ describe('ERC1155', function () {
           tokenId,
           mintAmount,
           data,
-          { from: operator }
+          { from: operator },
         );
 
         await expectRevert(
           this.token.burn(tokenHolder, tokenId, mintAmount.addn(1)),
-          'ERC1155: burn amount exceeds balance'
+          'ERC1155: burn amount exceeds balance',
         );
       });
 
@@ -148,7 +146,7 @@ describe('ERC1155', function () {
             tokenHolder,
             tokenId,
             burnAmount,
-            { from: operator }
+            { from: operator },
           ));
         });
 
@@ -165,7 +163,7 @@ describe('ERC1155', function () {
         it('accounts for both minting and burning', async function () {
           expect(await this.token.balanceOf(
             tokenHolder,
-            tokenId
+            tokenId,
           )).to.be.bignumber.equal(mintAmount.sub(burnAmount));
         });
       });
@@ -175,26 +173,26 @@ describe('ERC1155', function () {
       it('reverts when burning the zero account\'s tokens', async function () {
         await expectRevert(
           this.token.burnBatch(ZERO_ADDRESS, tokenBatchIds, burnAmounts),
-          'ERC1155: burn from the zero address'
+          'ERC1155: burn from the zero address',
         );
       });
 
       it('reverts if length of inputs do not match', async function () {
         await expectRevert(
           this.token.burnBatch(tokenBatchHolder, tokenBatchIds, burnAmounts.slice(1)),
-          'ERC1155: ids and amounts length mismatch'
+          'ERC1155: ids and amounts length mismatch',
         );
 
         await expectRevert(
           this.token.burnBatch(tokenBatchHolder, tokenBatchIds.slice(1), burnAmounts),
-          'ERC1155: ids and amounts length mismatch'
+          'ERC1155: ids and amounts length mismatch',
         );
       });
 
       it('reverts when burning a non-existent token id', async function () {
         await expectRevert(
           this.token.burnBatch(tokenBatchHolder, tokenBatchIds, burnAmounts),
-          'ERC1155: burn amount exceeds balance'
+          'ERC1155: burn amount exceeds balance',
         );
       });
 
@@ -205,7 +203,7 @@ describe('ERC1155', function () {
             tokenBatchHolder,
             tokenBatchIds,
             burnAmounts,
-            { from: operator }
+            { from: operator },
           ));
         });
 
@@ -222,7 +220,7 @@ describe('ERC1155', function () {
         it('accounts for both minting and burning', async function () {
           const holderBatchBalances = await this.token.balanceOfBatch(
             new Array(tokenBatchIds.length).fill(tokenBatchHolder),
-            tokenBatchIds
+            tokenBatchIds,
           );
 
           for (let i = 0; i < holderBatchBalances.length; i++) {

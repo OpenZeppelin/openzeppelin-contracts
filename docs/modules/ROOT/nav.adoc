@@ -1,4 +1,8 @@
 * xref:index.adoc[Overview]
+* xref:extending-contracts.adoc[Extending Contracts]
+* xref:upgradeable.adoc[Using with Upgrades]
+
+* xref:releases-stability.adoc[Releases & Stability]
 
 * xref:access-control.adoc[Access Control]
 
@@ -12,8 +16,4 @@
 * xref:gsn.adoc[Gas Station Network]
 ** xref:gsn-strategies.adoc[Strategies]
 
-* xref:extending-contracts.adoc[Extending Contracts]
-
 * xref:utilities.adoc[Utilities]
-
-* xref:releases-stability.adoc[Releases & Stability]

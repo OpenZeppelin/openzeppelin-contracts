@@ -24,7 +24,7 @@ const { version } = require('../../package.json');
 
 fs.writeFileSync('CHANGELOG.md', changelog.replace(
   unreleased,
-  `## ${version} (${new Date().toISOString().split('T')[0]})`)
+  `## ${version} (${new Date().toISOString().split('T')[0]})`),
 );
 
 cp.execSync('git add CHANGELOG.md', { stdio: 'inherit' });
