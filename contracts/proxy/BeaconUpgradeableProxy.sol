@@ -61,22 +61,7 @@ contract BeaconUpgradeableProxy is Proxy {
     }
 
     if(data.length > 0) {
-      address _logic = _implementation();
-      (bool success, bytes memory returndata) = _logic.delegatecall(data);
-      if (!success) {
-        // Look for revert reason and bubble it up if present
-        if (returndata.length > 0) {
-          // The easiest way to bubble the revert reason is using memory via assembly
-
-          // solhint-disable-next-line no-inline-assembly
-          assembly {
-            let returndata_size := mload(returndata)
-            revert(add(32, returndata), returndata_size)
-          }
-        } else {
-          revert("Unknown revert reason");
-        }
-      }
+      Address.functionDelegateCall(_implementation(), data);
     }
   }
 }
