@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.0;
+pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import "./../math/SafeMath.sol";
@@ -52,7 +52,7 @@ contract TimelockController is AccessControl {
     /**
      * @dev Initializes the contract with a given `minDelay`.
      */
-    constructor(uint256 minDelay, address[] memory proposers, address[] memory executors) public {
+    constructor(uint256 minDelay, address[] memory proposers, address[] memory executors) {
         _setRoleAdmin(TIMELOCK_ADMIN_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(PROPOSER_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(EXECUTOR_ROLE, TIMELOCK_ADMIN_ROLE);
