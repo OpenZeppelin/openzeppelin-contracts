@@ -12,41 +12,41 @@ import '../utils/Address.sol';
  * @dev There is one Beacon for each like-kind contract.
  */
 contract Beacon is IBeacon, Ownable {
-  /**
-   * @dev Stores the address of the logic implementation to be used by all `BeaconUpgradeabilityProxy` pointing to this `Beacon`.
-   */
-  address private _implementation;
+    /**
+     * @dev Stores the address of the logic implementation to be used by all `BeaconUpgradeabilityProxy` pointing to this `Beacon`.
+     */
+    address private _implementation;
 
-  event Upgraded(address indexed implementation);
+    event Upgraded(address indexed implementation);
 
-  /**
-   * @notice Sets the owner to msg.sender and the initial logic implementaion to use.
-   */
-  constructor(address implementation) public {
-    _setImplementation(implementation);
-  }
+    /**
+     * @notice Sets the owner to msg.sender and the initial logic implementaion to use.
+     */
+    constructor(address implementation) public {
+        _setImplementation(implementation);
+    }
 
-  /**
-   * @notice Returns the logic implementation to be used by each `BeaconUpgradeabilityProxy` pointing to this `Beacon`.
-   */
-  function implementation() public view override returns (address) {
-    return _implementation;
-  }
+    /**
+     * @notice Returns the logic implementation to be used by each `BeaconUpgradeabilityProxy` pointing to this `Beacon`.
+     */
+    function implementation() public view override returns (address) {
+        return _implementation;
+    }
 
-  /**
-   * @notice Allows the owner to change the logic implementation.
-   * @dev The owner may or may not be another contract, e.g. allowing for a multi-sig or more sophisticated upgrade logic.
-   */
-  function upgradeTo(address newImplementation) public onlyOwner {
-    _setImplementation(newImplementation);
-    emit Upgraded(newImplementation);
-  }
+    /**
+     * @notice Allows the owner to change the logic implementation.
+     * @dev The owner may or may not be another contract, e.g. allowing for a multi-sig or more sophisticated upgrade logic.
+     */
+    function upgradeTo(address newImplementation) public onlyOwner {
+        _setImplementation(newImplementation);
+        emit Upgraded(newImplementation);
+    }
 
-  /**
-   * @dev Confirms that the logic implementation is a valid contract before setting the associated variable.
-   */
-  function _setImplementation(address newImplementation) private {
-    require(Address.isContract(newImplementation), "Cannot set a proxy implementation to a non-contract address");
-    _implementation = newImplementation;
-  }
+    /**
+     * @dev Confirms that the logic implementation is a valid contract before setting the associated variable.
+     */
+    function _setImplementation(address newImplementation) private {
+        require(Address.isContract(newImplementation), "Cannot set a proxy implementation to a non-contract address");
+        _implementation = newImplementation;
+    }
 }

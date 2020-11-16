@@ -3,5 +3,5 @@
 pragma solidity ^0.6.0;
 
 interface IBeacon {
-  function implementation() external view returns (address);
+    function implementation() external view returns (address);
 }
