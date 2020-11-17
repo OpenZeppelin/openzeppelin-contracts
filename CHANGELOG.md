@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.3.0 (2020-11-17)
+## 3.3.0
 
  * `Address`: added `functionStaticCall` and `functionDelegateCall`, similar to the existing `functionCall`. ([#2333](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2333))
  * `TimelockController`: added a contract to augment access control schemes with a delay. ([#2364](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2364))
