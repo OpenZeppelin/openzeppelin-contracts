@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.0;
+pragma solidity >=0.6.0 <0.8.0;
 
 import "../../GSN/Context.sol";
 import "./IERC721.sol";
@@ -90,9 +90,9 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     /**
      * @dev Initializes the contract by setting a `name` and a `symbol` to the token collection.
      */
-    constructor (string memory name, string memory symbol) public {
-        _name = name;
-        _symbol = symbol;
+    constructor (string memory name_, string memory symbol_) public {
+        _name = name_;
+        _symbol = symbol_;
 
         // register the supported interfaces to conform to ERC721 via ERC165
         _registerInterface(_INTERFACE_ID_ERC721);
