@@ -18,21 +18,19 @@ const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
 const pkg = require('../../package.json');
 const version = pkg.version.replace(new RegExp('-' + suffix + '\\..*'), '');
 
-const unreleased = /^## Unreleased$/im;
-const released = new RegExp(`^## ${version} \\([-\\d]*\\)$`, 'm');
+const header = new RegExp(`^## (Unreleased|${version})$`, 'm');
 
-if (released.test(changelog)) {
-  process.exit(0);
-}
-
-if (!unreleased.test(changelog)) {
+if (!header.test(changelog)) {
   console.error('Missing changelog entry');
   process.exit(1);
 }
 
-fs.writeFileSync('CHANGELOG.md', changelog.replace(
-  unreleased,
-  `## ${version} (${new Date().toISOString().split('T')[0]})`),
+const newHeader = pkg.version.indexOf(suffix) === -1
+  ? `## ${version} (${new Date().toISOString().split('T')[0]})`
+  : `## ${version}`;
+
+fs.writeFileSync('CHANGELOG.md',
+  changelog.replace(header, newHeader)
 );
 
 cp.execSync('git add CHANGELOG.md', { stdio: 'inherit' });
