@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.0;
+pragma solidity >=0.6.0 <0.8.0;
 
 import "./IERC1155.sol";
 import "./IERC1155MetadataURI.sol";
@@ -52,8 +52,8 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     /**
      * @dev See {_setURI}.
      */
-    constructor (string memory uri) public {
-        _setURI(uri);
+    constructor (string memory uri_) public {
+        _setURI(uri_);
 
         // register the supported interfaces to conform to ERC1155 via ERC165
         _registerInterface(_INTERFACE_ID_ERC1155);
