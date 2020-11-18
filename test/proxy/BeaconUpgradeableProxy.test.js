@@ -32,18 +32,20 @@ async function getBeacon (proxyAddress) {
 contract('BeaconUpgradeableProxy', function (accounts) {
   const [proxyCreator, anotherAccount] = accounts;
 
-  it('Beacon cannot be initialized with a non-contract address', async function () {
+  it('beacon cannot be initialized with a non-contract address', async function () {
     const nonContractAddress = proxyCreator;
-    await expectRevert.unspecified(
+    await expectRevert(
       Beacon.new(nonContractAddress, { from: proxyCreator }),
+      'Beacon: implementation is not a contract',
     );
   });
 
-  it('Proxy cannot be initialized with a non-contract address', async function () {
+  it('proxy cannot be initialized with a non-contract address', async function () {
     const nonContractAddress = proxyCreator;
     const initializeData = Buffer.from('');
-    await expectRevert.unspecified(
+    await expectRevert(
       BeaconProxy.new(nonContractAddress, initializeData, { from: proxyCreator }),
+      'BeaconUpgradeableProxy: beacon is not a contract',
     );
   });
 
@@ -129,10 +131,10 @@ contract('BeaconUpgradeableProxy', function (accounts) {
 
         it('reverts', async function () {
           const beacon = await Beacon.new(this.implementationV0.address, { from: proxyCreator });
-          await expectRevert.unspecified(BeaconProxy.new(beacon.address, this.initializeData, {
-            from: proxyCreator,
-            value,
-          }));
+          await expectRevert(
+            BeaconProxy.new(beacon.address, this.initializeData, { value, from: proxyCreator }),
+            'BeaconUpgradeableProxy: function call failed',
+          );
         });
       });
     });
@@ -210,7 +212,10 @@ contract('BeaconUpgradeableProxy', function (accounts) {
 
         it('reverts', async function () {
           const beacon = await Beacon.new(this.implementationV0.address, { from: proxyCreator });
-          await expectRevert.unspecified(BeaconProxy.new(beacon.address, this.initializeData, { from: proxyCreator, value }));
+          await expectRevert(
+            BeaconProxy.new(beacon.address, this.initializeData, { from: proxyCreator, value }),
+            'BeaconUpgradeableProxy: function call failed',
+          );
         });
       });
     });
@@ -307,7 +312,10 @@ contract('BeaconUpgradeableProxy', function (accounts) {
         describe('when the given implementation is the zero address', function () {
           it('reverts', async function () {
             const beacon = new Beacon(await getBeacon(this.proxy.address));
-            await expectRevert.unspecified(beacon.upgradeTo(ZERO_ADDRESS, { from: proxyCreator }));
+            await expectRevert(
+              beacon.upgradeTo(ZERO_ADDRESS, { from: proxyCreator }),
+              'Beacon: implementation is not a contract',
+            );
           });
         });
       });
@@ -317,7 +325,10 @@ contract('BeaconUpgradeableProxy', function (accounts) {
 
         it('reverts', async function () {
           const beacon = new Beacon(await getBeacon(this.proxy.address));
-          await expectRevert.unspecified(beacon.upgradeTo(this.implementationV1.address, { from: anotherAccount }));
+          await expectRevert(
+            beacon.upgradeTo(this.implementationV1.address, { from }),
+            'Ownable: caller is not the owner',
+          );
         });
       });
     });
@@ -365,7 +376,7 @@ contract('BeaconUpgradeableProxy', function (accounts) {
         await beaconContract.upgradeTo(instance1.address, { from: proxyCreator });
 
         const proxyInstance1 = await new Implementation2(proxy.address);
-        await expectRevert.unspecified(proxyInstance1.getValue());
+        await expectRevert(proxyInstance1.getValue(), 'function selector was not recognized');
       });
 
       it('should change function signature', async () => {
@@ -411,7 +422,10 @@ contract('BeaconUpgradeableProxy', function (accounts) {
         const beaconContract = new Beacon(await getBeacon(proxy.address));
         await beaconContract.upgradeTo(instance2.address, { from: proxyCreator });
 
-        await expectRevert.unspecified(sendTransaction(proxy, '', [], [], { from: anotherAccount }));
+        await expectRevert(
+          sendTransaction(proxy, '', [], [], { from: anotherAccount }),
+          'there\'s no fallback function',
+        );
 
         const proxyInstance2 = await new Implementation2(proxy.address);
         const res = await proxyInstance2.getValue();
@@ -468,12 +482,12 @@ contract('BeaconUpgradeableProxy', function (accounts) {
 
       it('should remove function from proxy 1', async function () {
         const instance2 = await new Implementation2(this.proxy1.address);
-        await expectRevert.unspecified(instance2.getValue());
+        await expectRevert(instance2.getValue(), 'function selector was not recognized');
       });
 
       it('should remove function from proxy 2', async function () {
         const instance2 = await new Implementation2(this.proxy2.address);
-        await expectRevert.unspecified(instance2.getValue());
+        await expectRevert(instance2.getValue(), 'function selector was not recognized');
       });
     });
   });

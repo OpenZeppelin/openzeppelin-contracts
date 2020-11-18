@@ -52,8 +52,12 @@ contract BeaconUpgradeableProxy is Proxy {
      */
     function _setBeacon(address beacon, bytes memory data) internal {
         require(
+            Address.isContract(beacon),
+            "BeaconUpgradeableProxy: beacon is not a contract"
+        );
+        require(
             Address.isContract(IBeacon(beacon).implementation()),
-            "Cannot set a proxy beacon which points to a non-contract address"
+            "BeaconUpgradeableProxy: beacon implementation is not a contract"
         );
         bytes32 slot = BEACON_SLOT;
         assembly {
@@ -61,7 +65,7 @@ contract BeaconUpgradeableProxy is Proxy {
         }
 
         if (data.length > 0) {
-            Address.functionDelegateCall(_implementation(), data);
+            Address.functionDelegateCall(_implementation(), data, "BeaconUpgradeableProxy: function call failed");
         }
     }
 }

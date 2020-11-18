@@ -46,7 +46,7 @@ contract Beacon is IBeacon, Ownable {
      * @dev Confirms that the logic implementation is a valid contract before setting the associated variable.
      */
     function _setImplementation(address newImplementation) private {
-        require(Address.isContract(newImplementation), "Cannot set a proxy implementation to a non-contract address");
+        require(Address.isContract(newImplementation), "Beacon: implementation is not a contract");
         _implementation = newImplementation;
     }
 }
