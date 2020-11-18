@@ -4,7 +4,7 @@
 
  * `Address`: added `functionStaticCall` and `functionDelegateCall`, similar to the existing `functionCall`. ([#2333](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2333))
  * `TimelockController`: added a contract to augment access control schemes with a delay. ([#2364](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2364))
- * `EnumerableSet`: added `BytesSet`, for sets of `bytes32`. ([#2395](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2395))
+ * `EnumerableSet`: added `Bytes32Set`, for sets of `bytes32`. ([#2395](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2395))
 
 ## 3.2.2-solc-0.7 (2020-10-28)
  * Resolve warnings introduced by Solidity 0.7.4. ([#2396](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2396))

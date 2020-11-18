@@ -17,7 +17,7 @@ current_version() {
 
 current_release_branch() {
   v="$(current_version)"
-  echo "release-${v%%-"$PRERELEASE_SUFFIX".*}"
+  echo "release-${v%.*-"$PRERELEASE_SUFFIX".*}"
 }
 
 assert_current_branch() {
