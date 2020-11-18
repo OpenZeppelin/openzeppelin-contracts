@@ -6,6 +6,8 @@
 const fs = require('fs');
 const cp = require('child_process');
 
+const suffix = process.env.PRERELEASE_SUFFIX || 'rc';
+
 const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
 
 // The changelog entry to be updated looks like this:
@@ -13,18 +15,20 @@ const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
 // We need to add the version and release date in a YYYY-MM-DD format, so that it looks like this:
 // ## 2.5.3 (2019-04-25)
 
-const unreleased = /^## Unreleased$/im;
+const pkg = require('../../package.json');
+const version = pkg.version.replace(new RegExp('-' + suffix + '\\..*'), '');
 
-if (!unreleased.test(changelog)) {
+const header = new RegExp(`^## (Unreleased|${version})$`, 'm');
+
+if (!header.test(changelog)) {
   console.error('Missing changelog entry');
   process.exit(1);
 }
 
-const { version } = require('../../package.json');
+const newHeader = pkg.version.indexOf(suffix) === -1
+  ? `## ${version} (${new Date().toISOString().split('T')[0]})`
+  : `## ${version}`;
 
-fs.writeFileSync('CHANGELOG.md', changelog.replace(
-  unreleased,
-  `## ${version} (${new Date().toISOString().split('T')[0]})`),
-);
+fs.writeFileSync('CHANGELOG.md', changelog.replace(header, newHeader));
 
 cp.execSync('git add CHANGELOG.md', { stdio: 'inherit' });

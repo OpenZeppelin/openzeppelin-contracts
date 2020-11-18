@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.0;
+pragma solidity >=0.6.0 <0.8.0;
 
 import "../GSN/Context.sol";
 
@@ -13,7 +13,7 @@ import "../GSN/Context.sol";
  * the functions of your contract. Note that they will not be pausable by
  * simply including this module, only once the modifiers are put in place.
  */
-contract Pausable is Context {
+abstract contract Pausable is Context {
     /**
      * @dev Emitted when the pause is triggered by `account`.
      */

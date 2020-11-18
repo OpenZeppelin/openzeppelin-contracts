@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.0;
+pragma solidity >=0.6.0 <0.8.0;
 
 abstract contract Impl {
   function version() public pure virtual returns (string memory); 
@@ -15,7 +15,7 @@ contract DummyImplementation {
     value = 10;
   }
 
-  function initializePayable() payable public {
+  function initializePayable() public payable {
     value = 100;
   }
 
@@ -23,7 +23,7 @@ contract DummyImplementation {
     value = _value;
   }
 
-  function initializePayableWithValue(uint256 _value) payable public {
+  function initializePayableWithValue(uint256 _value) public payable {
     value = _value;
   }
 
@@ -47,7 +47,7 @@ contract DummyImplementation {
 }
 
 contract DummyImplementationV2 is DummyImplementation {
-  function migrate(uint256 newVal) payable public {
+  function migrate(uint256 newVal) public payable {
     value = newVal;
   }
 
