@@ -22,8 +22,8 @@ contract Beacon is IBeacon, Ownable {
     /**
      * @notice Sets the owner to msg.sender and the initial logic implementaion to use.
      */
-    constructor(address implementation) public {
-        _setImplementation(implementation);
+    constructor(address implementation_) public {
+        _setImplementation(implementation_);
     }
 
     /**
