@@ -34,6 +34,7 @@
 .Functions
 --
 {{#each inheritedItems}}
+{{#if (or @first (ne contract.name "Context"))}}
 {{#unless @first}}
 [.contract-subindex-inherited]
 .{{contract.name}}
@@ -42,6 +43,7 @@
 * {xref-{{slug anchor~}} }[`++{{name}}({{args.names}})++`]
 {{/each}}
 
+{{/if}}
 {{/each}}
 --
 {{/if}}
