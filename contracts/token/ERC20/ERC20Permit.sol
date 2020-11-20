@@ -20,6 +20,7 @@ abstract contract ERC20Permit is ERC20, IERC2612Permit {
 
     mapping (address => Counters.Counter) private _nonces;
 
+    // solhint-disable-next-line var-name-mixedcase
     bytes32 private immutable _PERMIT_TYPEHASH = keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
 
     // Mapping of ChainID to domain separators. This is a very gas efficient way
@@ -38,6 +39,7 @@ abstract contract ERC20Permit is ERC20, IERC2612Permit {
      * EIP712 Domain Separator is automatically recalculated.
      */
     function permit(address owner, address spender, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) public virtual override {
+        // solhint-disable-next-line not-rely-on-time
         require(block.timestamp <= deadline, "ERC20Permit: expired deadline");
 
         bytes32 hashStruct = keccak256(
@@ -103,6 +105,7 @@ abstract contract ERC20Permit is ERC20, IERC2612Permit {
 
     function _chainID() private pure returns (uint256) {
         uint256 chainID;
+        // solhint-disable-next-line no-inline-assembly
         assembly {
             chainID := chainid()
         }
