@@ -7,12 +7,12 @@ import "../access/Ownable.sol";
 import "../utils/Address.sol";
 
 /**
- * @dev This contract is used in conjunction with one or more instances of {BeaconUpgradeableProxy} to determine their
+ * @dev This contract is used in conjunction with one or more instances of {BeaconProxy} to determine their
  * implementation contract, which is where they will delegate all function calls.
  *
  * An owner is able to change the implementation the beacon points to, thus upgrading the proxies that use this beacon.
  */
-contract Beacon is IBeacon, Ownable {
+contract UpgradeableBeacon is IBeacon, Ownable {
     address private _implementation;
 
     /**
@@ -58,7 +58,7 @@ contract Beacon is IBeacon, Ownable {
      * - `newImplementation` must be a contract.
      */
     function _setImplementation(address newImplementation) private {
-        require(Address.isContract(newImplementation), "Beacon: implementation is not a contract");
+        require(Address.isContract(newImplementation), "UpgradeableBeacon: implementation is not a contract");
         _implementation = newImplementation;
     }
 }

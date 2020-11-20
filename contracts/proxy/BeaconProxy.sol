@@ -7,14 +7,14 @@ import "../utils/Address.sol";
 import "./IBeacon.sol";
 
 /**
- * @dev This contract implements a proxy that gets the implementation address for each call from a {Beacon}.
+ * @dev This contract implements a proxy that gets the implementation address for each call from a {UpgradeableBeacon}.
  *
  * The beacon address is stored in storage slot `uint256(keccak256('eip1967.proxy.beacon')) - 1`, so that it doesn't
  * conflict with the storage layout of the implementation behind the proxy.
  */
-contract BeaconUpgradeableProxy is Proxy {
+contract BeaconProxy is Proxy {
     /**
-     * @dev The storage slot of the Beacon contract which defines the implementation for this proxy.
+     * @dev The storage slot of the UpgradeableBeacon contract which defines the implementation for this proxy.
      * This is bytes32(uint256(keccak256('eip1967.proxy.beacon')) - 1)) and is validated in the constructor.
      */
     bytes32 private constant _BEACON_SLOT = 0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50;
@@ -66,11 +66,11 @@ contract BeaconUpgradeableProxy is Proxy {
     function _setBeacon(address beacon, bytes memory data) internal {
         require(
             Address.isContract(beacon),
-            "BeaconUpgradeableProxy: beacon is not a contract"
+            "BeaconProxy: beacon is not a contract"
         );
         require(
             Address.isContract(IBeacon(beacon).implementation()),
-            "BeaconUpgradeableProxy: beacon implementation is not a contract"
+            "BeaconProxy: beacon implementation is not a contract"
         );
         bytes32 slot = _BEACON_SLOT;
 
@@ -80,7 +80,7 @@ contract BeaconUpgradeableProxy is Proxy {
         }
 
         if (data.length > 0) {
-            Address.functionDelegateCall(_implementation(), data, "BeaconUpgradeableProxy: function call failed");
+            Address.functionDelegateCall(_implementation(), data, "BeaconProxy: function call failed");
         }
     }
 }
