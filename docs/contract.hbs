@@ -12,19 +12,12 @@
 
 {{natspec.devdoc}}
 
-{{#if modifiers}}
+{{#if ownModifiers}}
 [.contract-index]
 .Modifiers
 --
-{{#each inheritedItems}}
-{{#unless @first}}
-[.contract-subindex-inherited]
-.{{contract.name}}
-{{/unless}}
-{{#each modifiers}}
+{{#each ownModifiers}}
 * {xref-{{slug anchor~}} }[`++{{name}}({{args.names}})++`]
-{{/each}}
-
 {{/each}}
 --
 {{/if}}
