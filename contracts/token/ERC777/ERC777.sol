@@ -1,4 +1,6 @@
-pragma solidity ^0.6.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity >=0.6.0 <0.8.0;
 
 import "../../GSN/Context.sol";
 import "./IERC777.sol";
@@ -65,14 +67,14 @@ contract ERC777 is Context, IERC777, IERC20 {
      * @dev `defaultOperators` may be an empty array.
      */
     constructor(
-        string memory name,
-        string memory symbol,
-        address[] memory defaultOperators
+        string memory name_,
+        string memory symbol_,
+        address[] memory defaultOperators_
     ) public {
-        _name = name;
-        _symbol = symbol;
+        _name = name_;
+        _symbol = symbol_;
 
-        _defaultOperatorsArray = defaultOperators;
+        _defaultOperatorsArray = defaultOperators_;
         for (uint256 i = 0; i < _defaultOperatorsArray.length; i++) {
             _defaultOperators[_defaultOperatorsArray[i]] = true;
         }
@@ -489,13 +491,13 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * Calling conditions:
      *
-     * - when `from` and `to` are both non-zero, ``from``'s `tokenId` will be
-     * transferred to `to`.
-     * - when `from` is zero, `tokenId` will be minted for `to`.
-     * - when `to` is zero, ``from``'s `tokenId` will be burned.
+     * - when `from` and `to` are both non-zero, `amount` of ``from``'s tokens
+     * will be to transferred to `to`.
+     * - when `from` is zero, `amount` tokens will be minted for `to`.
+     * - when `to` is zero, `amount` of ``from``'s tokens will be burned.
      * - `from` and `to` are never both zero.
      *
      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
-    function _beforeTokenTransfer(address operator, address from, address to, uint256 tokenId) internal virtual { }
+    function _beforeTokenTransfer(address operator, address from, address to, uint256 amount) internal virtual { }
 }

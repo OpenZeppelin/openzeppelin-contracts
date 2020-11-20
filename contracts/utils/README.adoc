@@ -1,10 +1,13 @@
 = Utilities
 
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/utils
+
 Miscellaneous contracts and libraries containing utility functions you can use to improve security, work with new data types, or safely use low-level primitives.
 
 Security tools include:
 
- * {Pausable}: provides a simple way to halt activity in your contracts (often in reponse to an external threat).
+ * {Pausable}: provides a simple way to halt activity in your contracts (often in response to an external threat).
  * {ReentrancyGuard}: protects you from https://blog.openzeppelin.com/reentrancy-after-istanbul/[reentrant calls].
 
 The {Address}, {Arrays} and {Strings} libraries provide more operations related to these native data types, while {SafeCast} adds ways to safely convert between the different signed and unsigned numeric types.

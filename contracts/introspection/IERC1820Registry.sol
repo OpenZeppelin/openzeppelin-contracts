@@ -1,4 +1,6 @@
-pragma solidity ^0.6.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity >=0.6.0 <0.8.0;
 
 /**
  * @dev Interface of the global ERC1820 Registry, as defined in the
@@ -57,7 +59,7 @@ interface IERC1820Registry {
      * queried for support, unless `implementer` is the caller. See
      * {IERC1820Implementer-canImplementInterfaceForAddress}.
      */
-    function setInterfaceImplementer(address account, bytes32 interfaceHash, address implementer) external;
+    function setInterfaceImplementer(address account, bytes32 _interfaceHash, address implementer) external;
 
     /**
      * @dev Returns the implementer of `interfaceHash` for `account`. If no such
@@ -68,7 +70,7 @@ interface IERC1820Registry {
      *
      * `account` being the zero address is an alias for the caller's address.
      */
-    function getInterfaceImplementer(address account, bytes32 interfaceHash) external view returns (address);
+    function getInterfaceImplementer(address account, bytes32 _interfaceHash) external view returns (address);
 
     /**
      * @dev Returns the interface hash for an `interfaceName`, as defined in the

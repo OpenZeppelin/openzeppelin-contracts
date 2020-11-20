@@ -1,16 +1,17 @@
-pragma solidity ^0.6.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity >=0.6.0 <0.8.0;
 
 import "../../GSN/Context.sol";
 import "./IERC20.sol";
 import "../../math/SafeMath.sol";
-import "../../utils/Address.sol";
 
 /**
  * @dev Implementation of the {IERC20} interface.
  *
  * This implementation is agnostic to the way tokens are created. This means
  * that a supply mechanism has to be added in a derived contract using {_mint}.
- * For a generic mechanism see {ERC20MinterPauser}.
+ * For a generic mechanism see {ERC20PresetMinterPauser}.
  *
  * TIP: For a detailed writeup see our guide
  * https://forum.zeppelin.solutions/t/how-to-implement-erc20-supply-mechanisms/226[How
@@ -31,7 +32,6 @@ import "../../utils/Address.sol";
  */
 contract ERC20 is Context, IERC20 {
     using SafeMath for uint256;
-    using Address for address;
 
     mapping (address => uint256) private _balances;
 
@@ -52,9 +52,9 @@ contract ERC20 is Context, IERC20 {
      * All three of these values are immutable: they can only be set once during
      * construction.
      */
-    constructor (string memory name, string memory symbol) public {
-        _name = name;
-        _symbol = symbol;
+    constructor (string memory name_, string memory symbol_) public {
+        _name = name_;
+        _symbol = symbol_;
         _decimals = 18;
     }
 
@@ -140,9 +140,10 @@ contract ERC20 is Context, IERC20 {
      * @dev See {IERC20-transferFrom}.
      *
      * Emits an {Approval} event indicating the updated allowance. This is not
-     * required by the EIP. See the note at the beginning of {ERC20};
+     * required by the EIP. See the note at the beginning of {ERC20}.
      *
      * Requirements:
+     *
      * - `sender` and `recipient` cannot be the zero address.
      * - `sender` must have a balance of at least `amount`.
      * - the caller must have allowance for ``sender``'s tokens of at least
@@ -220,7 +221,7 @@ contract ERC20 is Context, IERC20 {
      *
      * Emits a {Transfer} event with `from` set to the zero address.
      *
-     * Requirements
+     * Requirements:
      *
      * - `to` cannot be the zero address.
      */
@@ -240,7 +241,7 @@ contract ERC20 is Context, IERC20 {
      *
      * Emits a {Transfer} event with `to` set to the zero address.
      *
-     * Requirements
+     * Requirements:
      *
      * - `account` cannot be the zero address.
      * - `account` must have at least `amount` tokens.
@@ -256,9 +257,9 @@ contract ERC20 is Context, IERC20 {
     }
 
     /**
-     * @dev Sets `amount` as the allowance of `spender` over the `owner`s tokens.
+     * @dev Sets `amount` as the allowance of `spender` over the `owner` s tokens.
      *
-     * This is internal function is equivalent to `approve`, and can be used to
+     * This internal function is equivalent to `approve`, and can be used to
      * e.g. set automatic allowances for certain subsystems, etc.
      *
      * Emits an {Approval} event.

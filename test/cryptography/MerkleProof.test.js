@@ -1,5 +1,3 @@
-const { contract } = require('@openzeppelin/test-environment');
-
 require('@openzeppelin/test-helpers');
 
 const { MerkleTree } = require('../helpers/merkleTree.js');
@@ -7,15 +5,15 @@ const { keccakFromString, bufferToHex } = require('ethereumjs-util');
 
 const { expect } = require('chai');
 
-const MerkleProofWrapper = contract.fromArtifact('MerkleProofWrapper');
+const MerkleProofWrapper = artifacts.require('MerkleProofWrapper');
 
-describe('MerkleProof', function () {
+contract('MerkleProof', function (accounts) {
   beforeEach(async function () {
     this.merkleProof = await MerkleProofWrapper.new();
   });
 
   describe('verify', function () {
-    it('should return true for a valid Merkle proof', async function () {
+    it('returns true for a valid Merkle proof', async function () {
       const elements = ['a', 'b', 'c', 'd'];
       const merkleTree = new MerkleTree(elements);
 
@@ -28,7 +26,7 @@ describe('MerkleProof', function () {
       expect(await this.merkleProof.verify(proof, root, leaf)).to.equal(true);
     });
 
-    it('should return false for an invalid Merkle proof', async function () {
+    it('returns false for an invalid Merkle proof', async function () {
       const correctElements = ['a', 'b', 'c'];
       const correctMerkleTree = new MerkleTree(correctElements);
 
@@ -44,7 +42,7 @@ describe('MerkleProof', function () {
       expect(await this.merkleProof.verify(badProof, correctRoot, correctLeaf)).to.equal(false);
     });
 
-    it('should return false for a Merkle proof of invalid length', async function () {
+    it('returns false for a Merkle proof of invalid length', async function () {
       const elements = ['a', 'b', 'c'];
       const merkleTree = new MerkleTree(elements);
 

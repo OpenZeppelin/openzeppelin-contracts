@@ -1,4 +1,6 @@
-pragma solidity ^0.6.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity >=0.6.0 <0.8.0;
 
 /**
  * @dev Interface of the ERC777TokensSender standard as defined in the EIP.

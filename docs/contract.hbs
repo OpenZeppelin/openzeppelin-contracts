@@ -12,19 +12,12 @@
 
 {{natspec.devdoc}}
 
-{{#if modifiers}}
+{{#if ownModifiers}}
 [.contract-index]
 .Modifiers
 --
-{{#each inheritedItems}}
-{{#unless @first}}
-[.contract-subindex-inherited]
-.{{contract.name}}
-{{/unless}}
-{{#each modifiers}}
-* {xref-{{slug fullName~}} }[`++{{name}}({{args.names}})++`]
-{{/each}}
-
+{{#each ownModifiers}}
+* {xref-{{slug anchor~}} }[`++{{name}}({{args.names}})++`]
 {{/each}}
 --
 {{/if}}
@@ -34,14 +27,16 @@
 .Functions
 --
 {{#each inheritedItems}}
+{{#if (or @first (ne contract.name "Context"))}}
 {{#unless @first}}
 [.contract-subindex-inherited]
 .{{contract.name}}
 {{/unless}}
 {{#each functions}}
-* {xref-{{slug fullName~}} }[`++{{name}}({{args.names}})++`]
+* {xref-{{slug anchor~}} }[`++{{name}}({{args.names}})++`]
 {{/each}}
 
+{{/if}}
 {{/each}}
 --
 {{/if}}
@@ -56,7 +51,7 @@
 .{{contract.name}}
 {{/unless}}
 {{#each events}}
-* {xref-{{slug fullName~}} }[`++{{name}}({{args.names}})++`]
+* {xref-{{slug anchor~}} }[`++{{name}}({{args.names}})++`]
 {{/each}}
 
 {{/each}}

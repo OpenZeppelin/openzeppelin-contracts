@@ -1,19 +1,23 @@
-const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
-
 const { balance, BN, constants, ether, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 const gsn = require('@openzeppelin/gsn-helpers');
+const { setGSNProvider } = require('../helpers/set-gsn-provider');
 
 const { expect } = require('chai');
 
-const GSNRecipientMock = contract.fromArtifact('GSNRecipientMock');
-const ContextMockCaller = contract.fromArtifact('ContextMockCaller');
+const GSNRecipientMock = artifacts.require('GSNRecipientMock');
+const ContextMockCaller = artifacts.require('ContextMockCaller');
 
 const { shouldBehaveLikeRegularContext } = require('./Context.behavior');
 
-describe('GSNRecipient', function () {
+contract('GSNRecipient', function (accounts) {
   const [ payee, sender, newRelayHub ] = accounts;
+
+  before(function () {
+    setGSNProvider(GSNRecipientMock, accounts);
+    setGSNProvider(ContextMockCaller, accounts);
+  });
 
   beforeEach(async function () {
     this.recipient = await GSNRecipientMock.new();
@@ -38,13 +42,13 @@ describe('GSNRecipient', function () {
     it('cannot upgrade to the same RelayHub', async function () {
       await expectRevert(
         this.recipient.upgradeRelayHub(singletonRelayHub),
-        'GSNRecipient: new RelayHub is the current one'
+        'GSNRecipient: new RelayHub is the current one',
       );
     });
 
     it('cannot upgrade to the zero address', async function () {
       await expectRevert(
-        this.recipient.upgradeRelayHub(ZERO_ADDRESS), 'GSNRecipient: new RelayHub is the zero address'
+        this.recipient.upgradeRelayHub(ZERO_ADDRESS), 'GSNRecipient: new RelayHub is the zero address',
       );
     });
 

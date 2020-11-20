@@ -47,7 +47,7 @@ On the other hand, you need to have a backend server, microservice, or lambda fu
 
 `GSNRecipientSignature` decides whether or not to accept the relayed call based on the included signature.
 
-The `acceptRelayedCall` implementation recovers the address from the signature of the relayed call parameters in `approvalData` and compares to the trusted signer.
+The `acceptRelayedCall` implementation recovers the address from the signature of the relayed call parameters in `approvalData` and compares it to the trusted signer.
 If the included signature matches the trusted signer, the relayed call is approved.
 On the other hand, when the included signature doesn't match the trusted signer, the relayed call gets rejected with an error code of `INVALID_SIGNER`.
 
@@ -106,6 +106,10 @@ Your GSN recipient contract needs to inherit from `GSNRecipientERC20Fee` along w
 
 [source,solidity]
 ----
+// contracts/MyContract.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.6.0;
+
 import "@openzeppelin/contracts/GSN/GSNRecipientERC20Fee.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 

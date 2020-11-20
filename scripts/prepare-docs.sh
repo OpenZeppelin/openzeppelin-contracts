@@ -9,5 +9,12 @@ if [ ! -d node_modules ]; then
 fi
 
 rm -rf "$OUTDIR"
-solidity-docgen -t docs -o "$OUTDIR" -e contracts/mocks,contracts/examples --output-structure readmes
+
+solidity-docgen \
+  -t docs \
+  -o "$OUTDIR" \
+  -e contracts/mocks,contracts/examples \
+  --output-structure readmes \
+  --solc-module scripts/prepare-docs-solc.js
+
 node scripts/gen-nav.js "$OUTDIR" > "$OUTDIR/../nav.adoc"

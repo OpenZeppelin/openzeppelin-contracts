@@ -1,13 +1,11 @@
-const { accounts, contract } = require('@openzeppelin/test-environment');
-
 const { expectRevert, singletons } = require('@openzeppelin/test-helpers');
 const { bufferToHex, keccakFromString } = require('ethereumjs-util');
 
 const { expect } = require('chai');
 
-const ERC1820ImplementerMock = contract.fromArtifact('ERC1820ImplementerMock');
+const ERC1820ImplementerMock = artifacts.require('ERC1820ImplementerMock');
 
-describe('ERC1820Implementer', function () {
+contract('ERC1820Implementer', function (accounts) {
   const [ registryFunder, implementee, other ] = accounts;
 
   const ERC1820_ACCEPT_MAGIC = bufferToHex(keccakFromString('ERC1820_ACCEPT_MAGIC'));
@@ -29,9 +27,9 @@ describe('ERC1820Implementer', function () {
     it('reverts when attempting to set as implementer in the registry', async function () {
       await expectRevert(
         this.registry.setInterfaceImplementer(
-          implementee, this.interfaceA, this.implementer.address, { from: implementee }
+          implementee, this.interfaceA, this.implementer.address, { from: implementee },
         ),
-        'Does not implement the interface'
+        'Does not implement the interface',
       );
     });
   });
@@ -58,7 +56,7 @@ describe('ERC1820Implementer', function () {
 
     it('can be set as an implementer for supported interfaces in the registry', async function () {
       await this.registry.setInterfaceImplementer(
-        implementee, this.interfaceA, this.implementer.address, { from: implementee }
+        implementee, this.interfaceA, this.implementer.address, { from: implementee },
       );
 
       expect(await this.registry.getInterfaceImplementer(implementee, this.interfaceA))

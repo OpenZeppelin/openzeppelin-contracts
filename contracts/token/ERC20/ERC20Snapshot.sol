@@ -1,4 +1,6 @@
-pragma solidity ^0.6.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity >=0.6.0 <0.8.0;
 
 import "../../math/SafeMath.sol";
 import "../../utils/Arrays.sol";
@@ -102,28 +104,25 @@ abstract contract ERC20Snapshot is ERC20 {
         return snapshotted ? value : totalSupply();
     }
 
-    // _transfer, _mint and _burn are the only functions where the balances are modified, so it is there that the
-    // snapshots are updated. Note that the update happens _before_ the balance change, with the pre-modified value.
-    // The same is true for the total supply and _mint and _burn.
-    function _transfer(address from, address to, uint256 value) internal virtual override {
+
+    // Update balance and/or total supply snapshots before the values are modified. This is implemented
+    // in the _beforeTokenTransfer hook, which is executed for _mint, _burn, and _transfer operations.
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
+      super._beforeTokenTransfer(from, to, amount);
+
+      if (from == address(0)) {
+        // mint
+        _updateAccountSnapshot(to);
+        _updateTotalSupplySnapshot();
+      } else if (to == address(0)) {
+        // burn
+        _updateAccountSnapshot(from);
+        _updateTotalSupplySnapshot();
+      } else {
+        // transfer
         _updateAccountSnapshot(from);
         _updateAccountSnapshot(to);
-
-        super._transfer(from, to, value);
-    }
-
-    function _mint(address account, uint256 value) internal virtual override {
-        _updateAccountSnapshot(account);
-        _updateTotalSupplySnapshot();
-
-        super._mint(account, value);
-    }
-
-    function _burn(address account, uint256 value) internal virtual override {
-        _updateAccountSnapshot(account);
-        _updateTotalSupplySnapshot();
-
-        super._burn(account, value);
+      }
     }
 
     function _valueAt(uint256 snapshotId, Snapshots storage snapshots)

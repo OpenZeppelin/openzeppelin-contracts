@@ -1,4 +1,6 @@
-pragma solidity ^0.6.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity >=0.6.0 <0.8.0;
 
 import "../utils/EnumerableSet.sol";
 import "../utils/Address.sol";
@@ -57,6 +59,8 @@ abstract contract AccessControl is Context {
      *
      * `DEFAULT_ADMIN_ROLE` is the starting admin for all roles, despite
      * {RoleAdminChanged} not being emitted signaling this.
+     *
+     * _Available since v3.1._
      */
     event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole);
 

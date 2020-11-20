@@ -1,9 +1,54 @@
 # Changelog
 
-## 3.1.0 (unreleased)
+## Unreleased
+
+ * Now supports both Solidity 0.6 and 0.7. Compiling with solc 0.7 will result in warnings. Install the `solc-0.7` tag to compile without warnings.
+ * `Address`: added `functionStaticCall` and `functionDelegateCall`, similar to the existing `functionCall`. ([#2333](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2333))
+ * `TimelockController`: added a contract to augment access control schemes with a delay. ([#2354](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2354))
+ * `EnumerableSet`: added `Bytes32Set`, for sets of `bytes32`. ([#2395](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2395))
+
+## 3.2.0 (2020-09-10)
+
+### New features
+ * Proxies: added the proxy contracts from OpenZeppelin SDK. ([#2335](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2335))
+
+#### Proxy changes with respect to OpenZeppelin SDK
+
+Aside from upgrading them from Solidity 0.5 to 0.6, we've changed a few minor things from the proxy contracts as they were found in OpenZeppelin SDK.
+
+- `UpgradeabilityProxy` was renamed to `UpgradeableProxy`.
+- `AdminUpgradeabilityProxy` was renamed to `TransparentUpgradeableProxy`.
+- `Proxy._willFallback` was renamed to `Proxy._beforeFallback`.
+- `UpgradeabilityProxy._setImplementation` and `AdminUpgradeabilityProxy._setAdmin` were made private.
 
 ### Improvements
+ * `Address.isContract`: switched from `extcodehash` to `extcodesize` for less gas usage. ([#2311](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2311))
+
+### Breaking changes
+ * `ERC20Snapshot`: switched to using `_beforeTokenTransfer` hook instead of overriding ERC20 operations. ([#2312](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2312))
+
+This small change in the way we implemented `ERC20Snapshot` may affect users who are combining this contract with
+other ERC20 flavors, since it no longer overrides `_transfer`, `_mint`, and `_burn`. This can result in having to remove Solidity `override(...)` specifiers in derived contracts for these functions, and to instead have to add it for `_beforeTokenTransfer`. See [Using Hooks](https://docs.openzeppelin.com/contracts/3.x/extending-contracts#using-hooks) in the documentation.
+
+## 3.1.0 (2020-06-23)
+
+### New features
+ * `SafeCast`: added functions to downcast signed integers (e.g. `toInt32`), improving usability of `SignedSafeMath`. ([#2243](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2243))
+ * `functionCall`: new helpers that replicate Solidity's function call semantics, reducing the need to rely on `call`. ([#2264](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2264))
+ * `ERC1155`: added support for a base implementation, non-standard extensions and a preset contract. ([#2014](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2014), [#2230](https://github.com/OpenZeppelin/openzeppelin-contracts/issues/2230))
+
+### Improvements
+ * `ReentrancyGuard`: reduced overhead of using the `nonReentrant` modifier. ([#2171](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2171))
  * `AccessControl`: added a `RoleAdminChanged` event to `_setAdminRole`. ([#2214](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2214))
+ * Made all `public` functions in the token preset contracts `virtual`. ([#2257](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2257))
+
+### Deprecations
+ * `SafeERC20`: deprecated `safeApprove`. ([#2268](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2268))
+
+## 3.0.2 (2020-06-08)
+
+### Improvements
+ * Added SPX license identifier to all contracts. ([#2235](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2235))
 
 ## 3.0.1 (2020-04-27)
 

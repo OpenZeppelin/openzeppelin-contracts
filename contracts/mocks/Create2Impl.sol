@@ -1,4 +1,6 @@
-pragma solidity ^0.6.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity >=0.6.0 <0.8.0;
 
 import "../utils/Create2.sol";
 import "../introspection/ERC1820Implementer.sol";
@@ -21,5 +23,5 @@ contract Create2Impl {
         return Create2.computeAddress(salt, codeHash, deployer);
     }
 
-    receive() payable external {}
+    receive() external payable {}
 }

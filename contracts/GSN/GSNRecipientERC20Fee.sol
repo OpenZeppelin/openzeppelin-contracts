@@ -1,4 +1,6 @@
-pragma solidity ^0.6.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity >=0.6.0 <0.8.0;
 
 import "./GSNRecipient.sol";
 import "../math/SafeMath.sol";
@@ -84,6 +86,8 @@ contract GSNRecipientERC20Fee is GSNRecipient {
 
         // The maximum token charge is pre-charged from the user
         _token.safeTransferFrom(from, address(this), maxPossibleCharge);
+
+        return 0;
     }
 
     /**

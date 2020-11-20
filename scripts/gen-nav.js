@@ -7,7 +7,7 @@ const startCase = require('lodash.startcase');
 const baseDir = process.argv[2];
 
 const files = proc.execFileSync(
-  'find', [baseDir, '-type', 'f'], { encoding: 'utf8' }
+  'find', [baseDir, '-type', 'f'], { encoding: 'utf8' },
 ).split('\n').filter(s => s !== '');
 
 console.log('.API');
@@ -24,7 +24,7 @@ const links = files.map((file) => {
 
 // Case-insensitive sort based on titles (so 'token/ERC20' gets sorted as 'erc20')
 const sortedLinks = links.sort(function (a, b) {
-  return a.title.toLowerCase().localeCompare(b.title.toLowerCase());
+  return a.title.toLowerCase().localeCompare(b.title.toLowerCase(), undefined, { numeric: true });
 });
 
 for (const link of sortedLinks) {
