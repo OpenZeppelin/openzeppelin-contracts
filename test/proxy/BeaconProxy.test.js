@@ -422,9 +422,8 @@ contract('BeaconProxy', function (accounts) {
         const beaconContract = new UpgradeableBeacon(await getBeacon(proxy.address));
         await beaconContract.upgradeTo(instance2.address, { from: proxyCreator });
 
-        await expectRevert(
+        await expectRevert.unspecified(
           sendTransaction(proxy, '', [], [], { from: anotherAccount }),
-          'there\'s no fallback function',
         );
 
         const proxyInstance2 = await new Implementation2(proxy.address);
