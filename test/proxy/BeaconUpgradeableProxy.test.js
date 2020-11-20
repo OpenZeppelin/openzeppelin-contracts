@@ -376,7 +376,7 @@ contract('BeaconUpgradeableProxy', function (accounts) {
         await beaconContract.upgradeTo(instance1.address, { from: proxyCreator });
 
         const proxyInstance1 = await new Implementation2(proxy.address);
-        await expectRevert(proxyInstance1.getValue(), 'function selector was not recognized');
+        await expectRevert.unspecified(proxyInstance1.getValue());
       });
 
       it('should change function signature', async () => {
@@ -482,12 +482,12 @@ contract('BeaconUpgradeableProxy', function (accounts) {
 
       it('should remove function from proxy 1', async function () {
         const instance2 = await new Implementation2(this.proxy1.address);
-        await expectRevert(instance2.getValue(), 'function selector was not recognized');
+        await expectRevert.unspecified(instance2.getValue());
       });
 
       it('should remove function from proxy 2', async function () {
         const instance2 = await new Implementation2(this.proxy2.address);
-        await expectRevert(instance2.getValue(), 'function selector was not recognized');
+        await expectRevert.unspecified(instance2.getValue());
       });
     });
   });
