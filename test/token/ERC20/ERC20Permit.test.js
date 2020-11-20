@@ -1,14 +1,12 @@
-const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
-
 const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const { MAX_UINT256, ZERO_ADDRESS } = constants;
 
 const { keccakFromString, bufferToHex } = require('ethereumjs-util');
 
-const ERC20PermitMock = contract.fromArtifact('ERC20PermitMock');
+const ERC20PermitMock = artifacts.require('ERC20PermitMock');
 
-describe('ERC20Permit', function () {
+contract('ERC20Permit', function (accounts) {
   const [ initialHolder, spender, recipient, other ] = accounts;
 
   const name = 'My Token';
