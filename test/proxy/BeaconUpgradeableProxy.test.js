@@ -293,7 +293,7 @@ contract('BeaconUpgradeableProxy', function (accounts) {
         describe('when the given implementation is different from the current one', function () {
           it('upgrades to the requested implementation', async function () {
             const beacon = new Beacon(await getBeacon(this.proxy.address));
-            await beacon.upgradeTo(this.implementationV1.address, { from: proxyCreator });
+            await beacon.upgradeTo(this.implementationV1.address, { from });
 
             const implementation = await beacon.implementation();
             expect(implementation).to.be.equal(this.implementationV1.address);
@@ -302,7 +302,7 @@ contract('BeaconUpgradeableProxy', function (accounts) {
           it('emits an event', async function () {
             const beacon = new Beacon(await getBeacon(this.proxy.address));
             expectEvent(
-              await beacon.upgradeTo(this.implementationV1.address, { from: proxyCreator }),
+              await beacon.upgradeTo(this.implementationV1.address, { from }),
               'Upgraded',
               { implementation: this.implementationV1.address },
             );
@@ -313,7 +313,7 @@ contract('BeaconUpgradeableProxy', function (accounts) {
           it('reverts', async function () {
             const beacon = new Beacon(await getBeacon(this.proxy.address));
             await expectRevert(
-              beacon.upgradeTo(ZERO_ADDRESS, { from: proxyCreator }),
+              beacon.upgradeTo(ZERO_ADDRESS, { from }),
               'Beacon: implementation is not a contract',
             );
           });

@@ -2,9 +2,9 @@
 
 pragma solidity >=0.6.0 <0.8.0;
 
-import './Proxy.sol';
-import '../utils/Address.sol';
-import './IBeacon.sol';
+import "./Proxy.sol";
+import "../utils/Address.sol";
+import "./IBeacon.sol";
 
 /**
  * @dev This contract implements a proxy that gets the implementation address for each call from a {Beacon}.
@@ -17,7 +17,7 @@ contract BeaconUpgradeableProxy is Proxy {
      * @dev The storage slot of the Beacon contract which defines the implementation for this proxy.
      * This is bytes32(uint256(keccak256('eip1967.proxy.beacon')) - 1)) and is validated in the constructor.
      */
-    bytes32 private constant BEACON_SLOT = 0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50;
+    bytes32 private constant _BEACON_SLOT = 0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50;
 
     /**
      * @dev Initializes the proxy with `beacon`.
@@ -31,7 +31,7 @@ contract BeaconUpgradeableProxy is Proxy {
      * - `beacon` must be a contract with the interface {IBeacon}.
      */
     constructor(address beacon, bytes memory data) public payable {
-        assert(BEACON_SLOT == bytes32(uint256(keccak256('eip1967.proxy.beacon')) - 1));
+        assert(_BEACON_SLOT == bytes32(uint256(keccak256("eip1967.proxy.beacon")) - 1));
         _setBeacon(beacon, data);
     }
 
@@ -39,7 +39,8 @@ contract BeaconUpgradeableProxy is Proxy {
      * @dev Returns the current beacon address.
      */
     function _beacon() internal view returns (address beacon) {
-        bytes32 slot = BEACON_SLOT;
+        bytes32 slot = _BEACON_SLOT;
+        // solhint-disable-next-line no-inline-assembly
         assembly {
             beacon := sload(slot)
         }
@@ -71,7 +72,9 @@ contract BeaconUpgradeableProxy is Proxy {
             Address.isContract(IBeacon(beacon).implementation()),
             "BeaconUpgradeableProxy: beacon implementation is not a contract"
         );
-        bytes32 slot = BEACON_SLOT;
+        bytes32 slot = _BEACON_SLOT;
+
+        // solhint-disable-next-line no-inline-assembly
         assembly {
             sstore(slot, beacon)
         }
