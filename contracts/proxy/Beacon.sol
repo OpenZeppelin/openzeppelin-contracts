@@ -7,35 +7,43 @@ import '../access/Ownable.sol';
 import '../utils/Address.sol';
 
 /**
- * @title Beacon
- * @notice Defines the implementation for one or more `BeaconUpgradeabilityProxy` instances.
- * @dev There is one Beacon for each like-kind contract.
+ * @dev This contract is used in conjunction with one or more instances of {BeaconUpgradeableProxy} to determine their
+ * implementation contract, which is where they will delegate all function calls.
+ *
+ * An owner is able to change the implementation the beacon points to, thus upgrading the proxies that use this beacon.
  */
 contract Beacon is IBeacon, Ownable {
-    /**
-     * @dev Stores the address of the logic implementation to be used by all `BeaconUpgradeabilityProxy` pointing to this `Beacon`.
-     */
     address private _implementation;
 
+    /**
+     * @dev Emitted when the implementation returned by the beacon is changed.
+     */
     event Upgraded(address indexed implementation);
 
     /**
-     * @notice Sets the owner to msg.sender and the initial logic implementaion to use.
+     * @dev Sets the address of the initial implementation, and the deployer account as the owner who can upgrade the
+     * beacon.
      */
     constructor(address implementation_) public {
         _setImplementation(implementation_);
     }
 
     /**
-     * @notice Returns the logic implementation to be used by each `BeaconUpgradeabilityProxy` pointing to this `Beacon`.
+     * @dev Returns the current implementation address.
      */
     function implementation() public view override returns (address) {
         return _implementation;
     }
 
     /**
-     * @notice Allows the owner to change the logic implementation.
-     * @dev The owner may or may not be another contract, e.g. allowing for a multi-sig or more sophisticated upgrade logic.
+     * @dev Upgrades the beacon to a new implementation.
+     *
+     * Emits an {Upgraded} event.
+     *
+     * Requirements:
+     *
+     * - msg.sender must be the owner of the contract.
+     * - `newImplementation` must be a contract.
      */
     function upgradeTo(address newImplementation) public onlyOwner {
         _setImplementation(newImplementation);
@@ -43,7 +51,11 @@ contract Beacon is IBeacon, Ownable {
     }
 
     /**
-     * @dev Confirms that the logic implementation is a valid contract before setting the associated variable.
+     * @dev Sets the 
+     *
+     * Requirements:
+     *
+     * - `newImplementation` must be a contract.
      */
     function _setImplementation(address newImplementation) private {
         require(Address.isContract(newImplementation), "Beacon: implementation is not a contract");
