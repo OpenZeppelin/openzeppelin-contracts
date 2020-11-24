@@ -3,11 +3,16 @@
 [.readme-notice]
 NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/access
 
-Contract modules for authorization and access control mechanisms.
+This directory provides ways to restrict who can access the functions of a contract or when they can do it.
+
+- {AccessControl} provides a general role based access control mechanism. Multiple hierarchical roles can be created and assigned each to multiple accounts.
+- {Ownable} is a simpler mechanism with a single owner "role" that can be assigned to a single account. This simpler mechanism can be useful for quick tests but projects with production concerns are likely to outgrow it.
+- {TimelockController} is used in combination with one of the above two mechanisms. By assigning a role to an instance of the `TimelockController` contract, the access to the functions controlled by that role will be delayed by some amount of time.
 
 == Authorization
 
 {{Ownable}}
+
 {{AccessControl}}
 
 == Timelock
