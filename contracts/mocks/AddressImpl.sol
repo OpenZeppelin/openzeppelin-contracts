@@ -32,11 +32,6 @@ contract AddressImpl {
         emit CallReturnValue(abi.decode(returnData, (string)));
     }
 
-    function functionDelegateCall(address target, bytes calldata data) external {
-        bytes memory returnData = Address.functionDelegateCall(target, data);
-        emit CallReturnValue(abi.decode(returnData, (string)));
-    }
-
     // sendValue's tests require the contract to hold Ether
     receive () external payable { }
 }
