@@ -365,7 +365,7 @@ contract('BeaconProxy', function (accounts) {
     });
   });
 
-  describe('one this.beacon for many proxies', function () {
+  describe('one beacon for many proxies', function () {
     describe('initialize', function () {
       const proxy1ExpectedInitializedValue = '10';
       const proxy2ExpectedInitializedValue = '42';
