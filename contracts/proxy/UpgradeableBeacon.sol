@@ -51,7 +51,7 @@ contract UpgradeableBeacon is IBeacon, Ownable {
     }
 
     /**
-     * @dev Sets the 
+     * @dev Sets the implementation contract address for this beacon
      *
      * Requirements:
      *
