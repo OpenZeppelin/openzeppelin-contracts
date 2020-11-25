@@ -488,6 +488,12 @@ contract('BeaconProxy', function (accounts) {
         const instance2 = await new Implementation2(this.proxy2.address);
         await expectRevert.unspecified(instance2.getValue());
       });
+
+      it('should succeed with an available function', async function () {
+        const instance3 = new Implementation3(this.proxy2.address);
+        const value = await instance3.getValue('3');
+        expect(value).to.bignumber.equal('3');
+      });
     });
   });
 });
