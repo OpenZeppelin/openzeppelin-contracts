@@ -1,7 +1,6 @@
-const { BN, constants, expectRevert, expectEvent } = require('@openzeppelin/test-helpers');
+const { BN, constants, expectRevert } = require('@openzeppelin/test-helpers');
 const ethereumjsUtil = require('ethereumjs-util');
 const { keccak256 } = ethereumjsUtil;
-const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
@@ -9,10 +8,6 @@ const UpgradeableBeacon = artifacts.require('UpgradeableBeacon');
 const BeaconProxy = artifacts.require('BeaconProxy');
 const DummyImplementation = artifacts.require('DummyImplementation');
 const DummyImplementationV2 = artifacts.require('DummyImplementationV2');
-const Implementation1 = artifacts.require('Implementation1');
-const Implementation2 = artifacts.require('Implementation2');
-const Implementation3 = artifacts.require('Implementation3');
-const Implementation4 = artifacts.require('Implementation4');
 
 function toChecksumAddress(address) {
   return ethereumjsUtil.toChecksumAddress('0x' + address.replace(/^0x/, '').padStart(40, '0'));
