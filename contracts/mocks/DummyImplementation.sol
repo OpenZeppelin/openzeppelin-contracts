@@ -42,7 +42,7 @@ contract DummyImplementation {
   }
 
   function reverts() public pure {
-    require(false);
+    require(false, "DummyImplementation reverted");
   }
 }
 

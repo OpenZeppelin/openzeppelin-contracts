@@ -1,5 +1,6 @@
 const { BN, constants, expectRevert, expectEvent } = require('@openzeppelin/test-helpers');
-const { toChecksumAddress, keccak256 } = require('ethereumjs-util');
+const ethereumjsUtil = require('ethereumjs-util');
+const { keccak256 } = ethereumjsUtil;
 const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
@@ -12,6 +13,10 @@ const Implementation1 = artifacts.require('Implementation1');
 const Implementation2 = artifacts.require('Implementation2');
 const Implementation3 = artifacts.require('Implementation3');
 const Implementation4 = artifacts.require('Implementation4');
+
+function toChecksumAddress(address) {
+  return ethereumjsUtil.toChecksumAddress('0x' + address.replace(/^0x/, '').padStart(40, '0'));
+}
 
 function encodeCall (name, inputs, values) {
   return web3.eth.abi.encodeFunctionCall({ type: 'function', name, inputs }, values);
@@ -42,212 +47,55 @@ contract('BeaconProxy', function (accounts) {
     this.implementationV1 = await DummyImplementationV2.new();
   });
 
-  const assertProxyInitialization = function ({ value, balance }) {
-    it('sets the proxy beacon', async function () {
-      const beaconAddress = toChecksumAddress(await web3.eth.getStorageAt(this.proxy, BEACON_SLOT));
-      expect(beaconAddress).to.equal(this.beacon.address);
+  describe('initialization', function () {
+    before(function () {
+      this.assertInitialized = async ({ value, balance }) => {
+        const beaconAddress = toChecksumAddress(await web3.eth.getStorageAt(this.proxy.address, BEACON_SLOT));
+        expect(beaconAddress).to.equal(this.beacon.address);
+
+        const dummy = new DummyImplementation(this.proxy.address);
+        expect(await dummy.value()).to.bignumber.eq(value);
+
+        expect(await web3.eth.getBalance(this.proxy.address)).to.bignumber.eq(balance);
+      };
     });
 
-    it('initializes the proxy', async function () {
-      const dummy = new DummyImplementation(this.proxy);
-      expect(await dummy.value()).to.bignumber.eq(value);
+    beforeEach('deploy beacon', async function () {
+      this.beacon = await UpgradeableBeacon.new(this.implementationV0.address);
     });
 
-    it('has expected balance', async function () {
-      expect(await web3.eth.getBalance(this.proxy)).to.bignumber.eq(balance);
-    });
-  };
-
-  describe('without initialization', function () {
-    const initializeData = Buffer.from('');
-
-    describe('when not sending balance', function () {
-      beforeEach('creating proxy', async function () {
-        this.beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
-        this.proxy = (
-          await BeaconProxy.new(this.beacon.address, initializeData, { from: proxyCreator })
-        ).address;
-      });
-
-      assertProxyInitialization({ value: '0', balance: '0' });
+    it('no initialization', async function () {
+      const data = Buffer.from('');
+      const balance = '10';
+      this.proxy = await BeaconProxy.new(this.beacon.address, data, { value: balance });
+      await this.assertInitialized({ value: '0', balance });
     });
 
-    describe('when sending some balance', function () {
-      const value = 10e5.toString();
-
-      beforeEach('creating proxy', async function () {
-        this.beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
-        this.proxy = (
-          await BeaconProxy.new(this.beacon.address, initializeData, {
-            from: proxyCreator,
-            value,
-          })
-        ).address;
-      });
-
-      assertProxyInitialization({ value: '0', balance: value });
-    });
-  });
-
-  describe('initialization without parameters', function () {
-    describe('non payable', function () {
-      const expectedInitializedValue = '10';
-
-      beforeEach(function () {
-        this.initializeData = this.implementationV0.contract.methods
-          .initializeNonPayable()
-          .encodeABI();
-      });
-
-      describe('when not sending balance', function () {
-        beforeEach('creating proxy', async function () {
-          this.beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
-          this.proxy = (
-            await BeaconProxy.new(this.beacon.address, this.initializeData, { from: proxyCreator })
-          ).address;
-        });
-
-        assertProxyInitialization({
-          value: expectedInitializedValue,
-          balance: '0',
-        });
-      });
-
-      describe('when sending some balance', function () {
-        const value = 10e5.toString();
-
-        it('reverts', async function () {
-          this.beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
-          await expectRevert(
-            BeaconProxy.new(this.beacon.address, this.initializeData, { value, from: proxyCreator }),
-            'BeaconProxy: function call failed',
-          );
-        });
-      });
+    it('non-payable initialization', async function () {
+      const value = '55';
+      const data = this.implementationV0.contract.methods
+        .initializeNonPayableWithValue(value)
+        .encodeABI();
+      this.proxy = await BeaconProxy.new(this.beacon.address, data);
+      await this.assertInitialized({ value, balance: '0' });
     });
 
-    describe('payable', function () {
-      const expectedInitializedValue = '100';
-
-      beforeEach(function () {
-        this.initializeData = this.implementationV0.contract.methods
-          .initializePayable()
-          .encodeABI();
-      });
-
-      describe('when not sending balance', function () {
-        beforeEach('creating proxy', async function () {
-          this.beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
-          this.proxy = (
-            await BeaconProxy.new(this.beacon.address, this.initializeData, { from: proxyCreator })
-          ).address;
-        });
-
-        assertProxyInitialization({
-          value: expectedInitializedValue,
-          balance: '0',
-        });
-      });
-
-      describe('when sending some balance', function () {
-        const value = 10e5.toString();
-
-        beforeEach('creating proxy', async function () {
-          this.beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
-          this.proxy = (
-            await BeaconProxy.new(this.beacon.address, this.initializeData, {
-              from: proxyCreator,
-              value,
-            })
-          ).address;
-        });
-
-        assertProxyInitialization({
-          value: expectedInitializedValue,
-          balance: value,
-        });
-      });
-    });
-  });
-
-  describe('initialization with parameters', function () {
-    describe('non payable', function () {
-      const expectedInitializedValue = '10';
-
-      beforeEach(function () {
-        this.initializeData = this.implementationV0.contract.methods
-          .initializeNonPayableWithValue(expectedInitializedValue)
-          .encodeABI();
-      });
-
-      describe('when not sending balance', function () {
-        beforeEach('creating proxy', async function () {
-          this.beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
-          this.proxy = (
-            await BeaconProxy.new(this.beacon.address, this.initializeData, { from: proxyCreator })
-          ).address;
-        });
-
-        assertProxyInitialization({
-          value: expectedInitializedValue,
-          balance: '0',
-        });
-      });
-
-      describe('when sending some balance', function () {
-        const value = 10e5.toString();
-
-        it('reverts', async function () {
-          this.beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
-          await expectRevert(
-            BeaconProxy.new(this.beacon.address, this.initializeData, { from: proxyCreator, value }),
-            'BeaconProxy: function call failed',
-          );
-        });
-      });
+    it('payable initialization', async function () {
+      const value = '55';
+      const data = this.implementationV0.contract.methods
+        .initializePayableWithValue(value)
+        .encodeABI();
+      const balance = '100';
+      this.proxy = await BeaconProxy.new(this.beacon.address, data, { value: balance });
+      await this.assertInitialized({ value, balance });
     });
 
-    describe('payable', function () {
-      const expectedInitializedValue = '42';
-
-      beforeEach(function () {
-        this.initializeData = this.implementationV0.contract.methods
-          .initializePayableWithValue(expectedInitializedValue)
-          .encodeABI();
-      });
-
-      describe('when not sending balance', function () {
-        beforeEach('creating proxy', async function () {
-          this.beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
-          this.proxy = (
-            await BeaconProxy.new(this.beacon.address, this.initializeData, { from: proxyCreator })
-          ).address;
-        });
-
-        assertProxyInitialization({
-          value: expectedInitializedValue,
-          balance: '0',
-        });
-      });
-
-      describe('when sending some balance', function () {
-        const value = 10e5.toString();
-
-        beforeEach('creating proxy', async function () {
-          this.beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
-          this.proxy = (
-            await BeaconProxy.new(this.beacon.address, this.initializeData, {
-              from: proxyCreator,
-              value,
-            })
-          ).address;
-        });
-
-        assertProxyInitialization({
-          value: expectedInitializedValue,
-          balance: value,
-        });
-      });
+    it('reverting initialization', async function () {
+      const data = this.implementationV0.contract.methods.reverts().encodeABI();
+      await expectRevert(
+        BeaconProxy.new(this.beacon.address, data),
+        'DummyImplementation reverted',
+      );
     });
   });
 
