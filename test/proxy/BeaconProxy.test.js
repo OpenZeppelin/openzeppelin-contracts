@@ -99,122 +99,31 @@ contract('BeaconProxy', function (accounts) {
     });
   });
 
-  describe('upgrades', function () {
-    beforeEach(async function () {
-      const initializeData = Buffer.from('');
-      this.beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
-      this.proxy = await BeaconProxy.new(this.beacon.address, initializeData, { from: proxyCreator });
-    });
+  it('upgrade a proxy by upgrading beacon', async function () {
+    const beacon = await UpgradeableBeacon.new(this.implementationV0.address);
 
-    describe('implementation', function () {
-      it('returns the current implementation address', async function () {
-        const implementation = await this.beacon.implementation();
-        expect(implementation).to.be.equal(this.implementationV0.address);
-      });
+    const value = '10';
+    const data = this.implementationV0.contract.methods
+      .initializeNonPayableWithValue(value)
+      .encodeABI();
+    const proxy = await BeaconProxy.new(beacon.address, data);
 
-      it('delegates to the implementation', async function () {
-        const dummy = new DummyImplementation(this.proxy.address);
-        const value = await dummy.get();
+    const dummy = new DummyImplementation(proxy.address);
 
-        expect(value).to.equal(true);
-      });
-    });
+    // test initial values
+    expect(await dummy.value()).to.bignumber.eq(value);
 
-    describe('storage', function () {
-      it('should store the implementation address in specified location', async function () {
-        const implementation = await this.beacon.implementation();
-        expect(implementation).to.be.equal(this.implementationV0.address);
-      });
-    });
+    // test initial version
+    expect(await dummy.version()).to.eq('V1');
 
-    describe('regression', () => {
-      const initializeData = Buffer.from('');
+    // upgrade beacon
+    await beacon.upgradeTo(this.implementationV1.address);
 
-      it('should add new function', async () => {
-        const instance1 = await Implementation1.new();
-        this.beacon = await UpgradeableBeacon.new(instance1.address, { from: proxyCreator });
-        const proxy = await BeaconProxy.new(this.beacon.address, initializeData, { from: proxyCreator });
-
-        const proxyInstance1 = new Implementation1(proxy.address);
-        await proxyInstance1.setValue(42);
-
-        const instance2 = await Implementation2.new();
-        await this.beacon.upgradeTo(instance2.address, { from: proxyCreator });
-
-        const proxyInstance2 = new Implementation2(proxy.address);
-        const res = await proxyInstance2.getValue();
-        expect(res).to.bignumber.eq('42');
-      });
-
-      it('should remove function', async () => {
-        const instance2 = await Implementation2.new();
-        this.beacon = await UpgradeableBeacon.new(instance2.address, { from: proxyCreator });
-        const proxy = await BeaconProxy.new(this.beacon.address, initializeData, { from: proxyCreator });
-
-        const proxyInstance2 = new Implementation2(proxy.address);
-        await proxyInstance2.setValue(42);
-        const res = await proxyInstance2.getValue();
-        expect(res).to.bignumber.eq('42');
-
-        const instance1 = await Implementation1.new();
-        await this.beacon.upgradeTo(instance1.address, { from: proxyCreator });
-
-        const proxyInstance1 = new Implementation2(proxy.address);
-        await expectRevert.unspecified(proxyInstance1.getValue());
-      });
-
-      it('should change function signature', async () => {
-        const instance1 = await Implementation1.new();
-        this.beacon = await UpgradeableBeacon.new(instance1.address, { from: proxyCreator });
-        const proxy = await BeaconProxy.new(this.beacon.address, initializeData, { from: proxyCreator });
-
-        const proxyInstance1 = new Implementation1(proxy.address);
-        await proxyInstance1.setValue(42);
-
-        const instance3 = await Implementation3.new();
-        await this.beacon.upgradeTo(instance3.address, { from: proxyCreator });
-        const proxyInstance3 = new Implementation3(proxy.address);
-
-        const res = await proxyInstance3.getValue(8);
-        expect(res).to.bignumber.eq('50');
-      });
-
-      it('should add fallback function', async () => {
-        const initializeData = Buffer.from('');
-        const instance1 = await Implementation1.new();
-        this.beacon = await UpgradeableBeacon.new(instance1.address, { from: proxyCreator });
-        const proxy = await BeaconProxy.new(this.beacon.address, initializeData, { from: proxyCreator });
-
-        const instance4 = await Implementation4.new();
-        await this.beacon.upgradeTo(instance4.address, { from: proxyCreator });
-        const proxyInstance4 = new Implementation4(proxy.address);
-
-        await sendTransaction(proxy, '', [], [], { from: anotherAccount });
-
-        const res = await proxyInstance4.getValue();
-        expect(res).to.bignumber.eq('1');
-      });
-
-      it('should remove fallback function', async () => {
-        const instance4 = await Implementation4.new();
-        this.beacon = await UpgradeableBeacon.new(instance4.address, { from: proxyCreator });
-        const proxy = await BeaconProxy.new(this.beacon.address, initializeData, { from: proxyCreator });
-
-        const instance2 = await Implementation2.new();
-        await this.beacon.upgradeTo(instance2.address, { from: proxyCreator });
-
-        await expectRevert.unspecified(
-          sendTransaction(proxy, '', [], [], { from: anotherAccount }),
-        );
-
-        const proxyInstance2 = new Implementation2(proxy.address);
-        const res = await proxyInstance2.getValue();
-        expect(res).to.bignumber.eq('0');
-      });
-    });
+    // test upgraded version
+    expect(await dummy.version()).to.eq('V2');
   });
 
-  it('one beacon shared by two proxies', async function () {
+  it('upgrade 2 proxies by upgrading shared beacon', async function () {
     const value1 = '10';
     const value2 = '42';
 
