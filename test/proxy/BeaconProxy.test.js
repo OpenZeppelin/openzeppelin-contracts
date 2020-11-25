@@ -1,4 +1,4 @@
-const { BN, constants, expectRevert } = require('@openzeppelin/test-helpers');
+const { BN, expectRevert } = require('@openzeppelin/test-helpers');
 const ethereumjsUtil = require('ethereumjs-util');
 const { keccak256 } = ethereumjsUtil;
 
@@ -11,24 +11,15 @@ const DummyImplementationV2 = artifacts.require('DummyImplementationV2');
 const BadBeaconNoImpl = artifacts.require('BadBeaconNoImpl');
 const BadBeaconNotContract = artifacts.require('BadBeaconNotContract');
 
-function toChecksumAddress(address) {
+function toChecksumAddress (address) {
   return ethereumjsUtil.toChecksumAddress('0x' + address.replace(/^0x/, '').padStart(40, '0'));
 }
-
-function encodeCall (name, inputs, values) {
-  return web3.eth.abi.encodeFunctionCall({ type: 'function', name, inputs }, values);
-}
-
-const sendTransaction = (target, method, args, values, opts) => {
-  const data = encodeCall(method, args, values);
-  return web3.eth.sendTransaction({ ...opts, to: target.address, data });
-};
 
 const BEACON_LABEL = 'eip1967.proxy.beacon';
 const BEACON_SLOT = '0x' + new BN(keccak256(Buffer.from(BEACON_LABEL))).subn(1).toString(16);
 
 contract('BeaconProxy', function (accounts) {
-  const [proxyCreator, anotherAccount] = accounts;
+  const [anotherAccount] = accounts;
 
   describe('bad beacon is not accepted', async function () {
     it('non-contract beacon', async function () {
