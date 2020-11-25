@@ -33,7 +33,7 @@ const BEACON_SLOT = '0x' + new BN(keccak256(Buffer.from(BEACON_LABEL))).subn(1).
 contract('BeaconProxy', function (accounts) {
   const [proxyCreator, anotherAccount] = accounts;
 
-  it('proxy cannot be initialized with a non-contract address', async function () {
+  it('cannot be initialized with a non-contract address', async function () {
     const nonContractAddress = proxyCreator;
     const initializeData = Buffer.from('');
     await expectRevert(
