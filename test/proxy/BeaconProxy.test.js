@@ -22,12 +22,7 @@ const sendTransaction = (target, method, args, values, opts) => {
 };
 
 const BEACON_LABEL = 'eip1967.proxy.beacon';
-
-const slot = '0x' + new BN(keccak256(Buffer.from(BEACON_LABEL))).subn(1).toString(16);
-
-async function getBeacon (proxyAddress) {
-  return toChecksumAddress(await web3.eth.getStorageAt(proxyAddress, slot));
-}
+const BEACON_SLOT = '0x' + new BN(keccak256(Buffer.from(BEACON_LABEL))).subn(1).toString(16);
 
 contract('BeaconProxy', function (accounts) {
   const [proxyCreator, anotherAccount] = accounts;
@@ -55,9 +50,13 @@ contract('BeaconProxy', function (accounts) {
   });
 
   const assertProxyInitialization = function ({ value, balance }) {
+    it('sets the proxy beacon', async function () {
+      const beaconAddress = toChecksumAddress(await web3.eth.getStorageAt(this.proxy, BEACON_SLOT));
+      expect(beaconAddress).to.equal(this.beacon.address);
+    });
+
     it('sets the implementation address', async function () {
-      const beacon = await getBeacon(this.proxy);
-      const implementation = new UpgradeableBeacon(beacon).implementation();
+      const implementation = await this.beacon.implementation();
       expect(implementation).to.be.equal(this.implementationV0.address);
     });
 
@@ -76,9 +75,9 @@ contract('BeaconProxy', function (accounts) {
 
     describe('when not sending balance', function () {
       beforeEach('creating proxy', async function () {
-        const beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
+        this.beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
         this.proxy = (
-          await BeaconProxy.new(beacon.address, initializeData, { from: proxyCreator })
+          await BeaconProxy.new(this.beacon.address, initializeData, { from: proxyCreator })
         ).address;
       });
 
@@ -89,9 +88,9 @@ contract('BeaconProxy', function (accounts) {
       const value = 10e5.toString();
 
       beforeEach('creating proxy', async function () {
-        const beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
+        this.beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
         this.proxy = (
-          await BeaconProxy.new(beacon.address, initializeData, {
+          await BeaconProxy.new(this.beacon.address, initializeData, {
             from: proxyCreator,
             value,
           })
@@ -114,9 +113,9 @@ contract('BeaconProxy', function (accounts) {
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
-          const beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
+          this.beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
           this.proxy = (
-            await BeaconProxy.new(beacon.address, this.initializeData, { from: proxyCreator })
+            await BeaconProxy.new(this.beacon.address, this.initializeData, { from: proxyCreator })
           ).address;
         });
 
@@ -130,9 +129,9 @@ contract('BeaconProxy', function (accounts) {
         const value = 10e5.toString();
 
         it('reverts', async function () {
-          const beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
+          this.beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
           await expectRevert(
-            BeaconProxy.new(beacon.address, this.initializeData, { value, from: proxyCreator }),
+            BeaconProxy.new(this.beacon.address, this.initializeData, { value, from: proxyCreator }),
             'BeaconProxy: function call failed',
           );
         });
@@ -150,9 +149,9 @@ contract('BeaconProxy', function (accounts) {
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
-          const beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
+          this.beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
           this.proxy = (
-            await BeaconProxy.new(beacon.address, this.initializeData, { from: proxyCreator })
+            await BeaconProxy.new(this.beacon.address, this.initializeData, { from: proxyCreator })
           ).address;
         });
 
@@ -166,9 +165,9 @@ contract('BeaconProxy', function (accounts) {
         const value = 10e5.toString();
 
         beforeEach('creating proxy', async function () {
-          const beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
+          this.beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
           this.proxy = (
-            await BeaconProxy.new(beacon.address, this.initializeData, {
+            await BeaconProxy.new(this.beacon.address, this.initializeData, {
               from: proxyCreator,
               value,
             })
@@ -195,9 +194,9 @@ contract('BeaconProxy', function (accounts) {
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
-          const beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
+          this.beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
           this.proxy = (
-            await BeaconProxy.new(beacon.address, this.initializeData, { from: proxyCreator })
+            await BeaconProxy.new(this.beacon.address, this.initializeData, { from: proxyCreator })
           ).address;
         });
 
@@ -211,9 +210,9 @@ contract('BeaconProxy', function (accounts) {
         const value = 10e5.toString();
 
         it('reverts', async function () {
-          const beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
+          this.beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
           await expectRevert(
-            BeaconProxy.new(beacon.address, this.initializeData, { from: proxyCreator, value }),
+            BeaconProxy.new(this.beacon.address, this.initializeData, { from: proxyCreator, value }),
             'BeaconProxy: function call failed',
           );
         });
@@ -231,9 +230,9 @@ contract('BeaconProxy', function (accounts) {
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
-          const beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
+          this.beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
           this.proxy = (
-            await BeaconProxy.new(beacon.address, this.initializeData, { from: proxyCreator })
+            await BeaconProxy.new(this.beacon.address, this.initializeData, { from: proxyCreator })
           ).address;
         });
 
@@ -247,9 +246,9 @@ contract('BeaconProxy', function (accounts) {
         const value = 10e5.toString();
 
         beforeEach('creating proxy', async function () {
-          const beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
+          this.beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
           this.proxy = (
-            await BeaconProxy.new(beacon.address, this.initializeData, {
+            await BeaconProxy.new(this.beacon.address, this.initializeData, {
               from: proxyCreator,
               value,
             })
@@ -267,14 +266,13 @@ contract('BeaconProxy', function (accounts) {
   describe('upgrades', function () {
     beforeEach(async function () {
       const initializeData = Buffer.from('');
-      const beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
-      this.proxy = await BeaconProxy.new(beacon.address, initializeData, { from: proxyCreator });
+      this.beacon = await UpgradeableBeacon.new(this.implementationV0.address, { from: proxyCreator });
+      this.proxy = await BeaconProxy.new(this.beacon.address, initializeData, { from: proxyCreator });
     });
 
     describe('implementation', function () {
       it('returns the current implementation address', async function () {
-        const beacon = new UpgradeableBeacon(await getBeacon(this.proxy.address));
-        const implementation = await beacon.implementation();
+        const implementation = await this.beacon.implementation();
         expect(implementation).to.be.equal(this.implementationV0.address);
       });
 
@@ -292,17 +290,15 @@ contract('BeaconProxy', function (accounts) {
 
         describe('when the given implementation is different from the current one', function () {
           it('upgrades to the requested implementation', async function () {
-            const beacon = new UpgradeableBeacon(await getBeacon(this.proxy.address));
-            await beacon.upgradeTo(this.implementationV1.address, { from });
+            await this.beacon.upgradeTo(this.implementationV1.address, { from });
 
-            const implementation = await beacon.implementation();
+            const implementation = await this.beacon.implementation();
             expect(implementation).to.be.equal(this.implementationV1.address);
           });
 
           it('emits an event', async function () {
-            const beacon = new UpgradeableBeacon(await getBeacon(this.proxy.address));
             expectEvent(
-              await beacon.upgradeTo(this.implementationV1.address, { from }),
+              await this.beacon.upgradeTo(this.implementationV1.address, { from }),
               'Upgraded',
               { implementation: this.implementationV1.address },
             );
@@ -311,9 +307,8 @@ contract('BeaconProxy', function (accounts) {
 
         describe('when the given implementation is the zero address', function () {
           it('reverts', async function () {
-            const beacon = new UpgradeableBeacon(await getBeacon(this.proxy.address));
             await expectRevert(
-              beacon.upgradeTo(ZERO_ADDRESS, { from }),
+              this.beacon.upgradeTo(ZERO_ADDRESS, { from }),
               'UpgradeableBeacon: implementation is not a contract',
             );
           });
@@ -324,9 +319,8 @@ contract('BeaconProxy', function (accounts) {
         const from = anotherAccount;
 
         it('reverts', async function () {
-          const beacon = new UpgradeableBeacon(await getBeacon(this.proxy.address));
           await expectRevert(
-            beacon.upgradeTo(this.implementationV1.address, { from }),
+            this.beacon.upgradeTo(this.implementationV1.address, { from }),
             'Ownable: caller is not the owner',
           );
         });
@@ -335,8 +329,7 @@ contract('BeaconProxy', function (accounts) {
 
     describe('storage', function () {
       it('should store the implementation address in specified location', async function () {
-        const beacon = new UpgradeableBeacon(await getBeacon(this.proxy.address));
-        const implementation = await beacon.implementation();
+        const implementation = await this.beacon.implementation();
         expect(implementation).to.be.equal(this.implementationV0.address);
       });
     });
@@ -346,15 +339,14 @@ contract('BeaconProxy', function (accounts) {
 
       it('should add new function', async () => {
         const instance1 = await Implementation1.new();
-        const beacon = await UpgradeableBeacon.new(instance1.address, { from: proxyCreator });
-        const proxy = await BeaconProxy.new(beacon.address, initializeData, { from: proxyCreator });
+        this.beacon = await UpgradeableBeacon.new(instance1.address, { from: proxyCreator });
+        const proxy = await BeaconProxy.new(this.beacon.address, initializeData, { from: proxyCreator });
 
         const proxyInstance1 = new Implementation1(proxy.address);
         await proxyInstance1.setValue(42);
 
         const instance2 = await Implementation2.new();
-        const beaconContract = new UpgradeableBeacon(await getBeacon(proxy.address));
-        await beaconContract.upgradeTo(instance2.address, { from: proxyCreator });
+        await this.beacon.upgradeTo(instance2.address, { from: proxyCreator });
 
         const proxyInstance2 = new Implementation2(proxy.address);
         const res = await proxyInstance2.getValue();
@@ -363,8 +355,8 @@ contract('BeaconProxy', function (accounts) {
 
       it('should remove function', async () => {
         const instance2 = await Implementation2.new();
-        const beacon = await UpgradeableBeacon.new(instance2.address, { from: proxyCreator });
-        const proxy = await BeaconProxy.new(beacon.address, initializeData, { from: proxyCreator });
+        this.beacon = await UpgradeableBeacon.new(instance2.address, { from: proxyCreator });
+        const proxy = await BeaconProxy.new(this.beacon.address, initializeData, { from: proxyCreator });
 
         const proxyInstance2 = new Implementation2(proxy.address);
         await proxyInstance2.setValue(42);
@@ -372,8 +364,7 @@ contract('BeaconProxy', function (accounts) {
         expect(res).to.bignumber.eq('42');
 
         const instance1 = await Implementation1.new();
-        const beaconContract = new UpgradeableBeacon(await getBeacon(proxy.address));
-        await beaconContract.upgradeTo(instance1.address, { from: proxyCreator });
+        await this.beacon.upgradeTo(instance1.address, { from: proxyCreator });
 
         const proxyInstance1 = new Implementation2(proxy.address);
         await expectRevert.unspecified(proxyInstance1.getValue());
@@ -381,15 +372,14 @@ contract('BeaconProxy', function (accounts) {
 
       it('should change function signature', async () => {
         const instance1 = await Implementation1.new();
-        const beacon = await UpgradeableBeacon.new(instance1.address, { from: proxyCreator });
-        const proxy = await BeaconProxy.new(beacon.address, initializeData, { from: proxyCreator });
+        this.beacon = await UpgradeableBeacon.new(instance1.address, { from: proxyCreator });
+        const proxy = await BeaconProxy.new(this.beacon.address, initializeData, { from: proxyCreator });
 
         const proxyInstance1 = new Implementation1(proxy.address);
         await proxyInstance1.setValue(42);
 
         const instance3 = await Implementation3.new();
-        const beaconContract = new UpgradeableBeacon(await getBeacon(proxy.address));
-        await beaconContract.upgradeTo(instance3.address, { from: proxyCreator });
+        await this.beacon.upgradeTo(instance3.address, { from: proxyCreator });
         const proxyInstance3 = new Implementation3(proxy.address);
 
         const res = await proxyInstance3.getValue(8);
@@ -399,12 +389,11 @@ contract('BeaconProxy', function (accounts) {
       it('should add fallback function', async () => {
         const initializeData = Buffer.from('');
         const instance1 = await Implementation1.new();
-        const beacon = await UpgradeableBeacon.new(instance1.address, { from: proxyCreator });
-        const proxy = await BeaconProxy.new(beacon.address, initializeData, { from: proxyCreator });
+        this.beacon = await UpgradeableBeacon.new(instance1.address, { from: proxyCreator });
+        const proxy = await BeaconProxy.new(this.beacon.address, initializeData, { from: proxyCreator });
 
         const instance4 = await Implementation4.new();
-        const beaconContract = new UpgradeableBeacon(await getBeacon(proxy.address));
-        await beaconContract.upgradeTo(instance4.address, { from: proxyCreator });
+        await this.beacon.upgradeTo(instance4.address, { from: proxyCreator });
         const proxyInstance4 = new Implementation4(proxy.address);
 
         await sendTransaction(proxy, '', [], [], { from: anotherAccount });
@@ -415,12 +404,11 @@ contract('BeaconProxy', function (accounts) {
 
       it('should remove fallback function', async () => {
         const instance4 = await Implementation4.new();
-        const beacon = await UpgradeableBeacon.new(instance4.address, { from: proxyCreator });
-        const proxy = await BeaconProxy.new(beacon.address, initializeData, { from: proxyCreator });
+        this.beacon = await UpgradeableBeacon.new(instance4.address, { from: proxyCreator });
+        const proxy = await BeaconProxy.new(this.beacon.address, initializeData, { from: proxyCreator });
 
         const instance2 = await Implementation2.new();
-        const beaconContract = new UpgradeableBeacon(await getBeacon(proxy.address));
-        await beaconContract.upgradeTo(instance2.address, { from: proxyCreator });
+        await this.beacon.upgradeTo(instance2.address, { from: proxyCreator });
 
         await expectRevert.unspecified(
           sendTransaction(proxy, '', [], [], { from: anotherAccount }),
@@ -433,7 +421,7 @@ contract('BeaconProxy', function (accounts) {
     });
   });
 
-  describe('one beacon for many proxies', function () {
+  describe('one this.beacon for many proxies', function () {
     describe('initialize', function () {
       const proxy1ExpectedInitializedValue = '10';
       const proxy2ExpectedInitializedValue = '42';
@@ -470,8 +458,7 @@ contract('BeaconProxy', function (accounts) {
         this.proxy2 = await BeaconProxy.new(this.beacon.address, initializeData, { from: proxyCreator });
 
         this.instance3 = await Implementation3.new();
-        const beacon = new UpgradeableBeacon(this.beacon.address);
-        await beacon.upgradeTo(this.instance3.address, { from: proxyCreator });
+        await this.beacon.upgradeTo(this.instance3.address, { from: proxyCreator });
       });
 
       it('UpgradeableBeacon has the correct implementation', async function () {
