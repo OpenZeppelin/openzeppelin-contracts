@@ -27,14 +27,6 @@ const BEACON_SLOT = '0x' + new BN(keccak256(Buffer.from(BEACON_LABEL))).subn(1).
 contract('BeaconProxy', function (accounts) {
   const [proxyCreator, anotherAccount] = accounts;
 
-  it('beacon cannot be initialized with a non-contract address', async function () {
-    const nonContractAddress = proxyCreator;
-    await expectRevert(
-      UpgradeableBeacon.new(nonContractAddress, { from: proxyCreator }),
-      'UpgradeableBeacon: implementation is not a contract',
-    );
-  });
-
   it('proxy cannot be initialized with a non-contract address', async function () {
     const nonContractAddress = proxyCreator;
     const initializeData = Buffer.from('');
@@ -53,11 +45,6 @@ contract('BeaconProxy', function (accounts) {
     it('sets the proxy beacon', async function () {
       const beaconAddress = toChecksumAddress(await web3.eth.getStorageAt(this.proxy, BEACON_SLOT));
       expect(beaconAddress).to.equal(this.beacon.address);
-    });
-
-    it('sets the implementation address', async function () {
-      const implementation = await this.beacon.implementation();
-      expect(implementation).to.be.equal(this.implementationV0.address);
     });
 
     it('initializes the proxy', async function () {
@@ -281,49 +268,6 @@ contract('BeaconProxy', function (accounts) {
         const value = await dummy.get();
 
         expect(value).to.equal(true);
-      });
-    });
-
-    describe('upgrade', function () {
-      describe('when the sender is the admin', function () {
-        const from = proxyCreator;
-
-        describe('when the given implementation is different from the current one', function () {
-          it('upgrades to the requested implementation', async function () {
-            await this.beacon.upgradeTo(this.implementationV1.address, { from });
-
-            const implementation = await this.beacon.implementation();
-            expect(implementation).to.be.equal(this.implementationV1.address);
-          });
-
-          it('emits an event', async function () {
-            expectEvent(
-              await this.beacon.upgradeTo(this.implementationV1.address, { from }),
-              'Upgraded',
-              { implementation: this.implementationV1.address },
-            );
-          });
-        });
-
-        describe('when the given implementation is the zero address', function () {
-          it('reverts', async function () {
-            await expectRevert(
-              this.beacon.upgradeTo(ZERO_ADDRESS, { from }),
-              'UpgradeableBeacon: implementation is not a contract',
-            );
-          });
-        });
-      });
-
-      describe('when the sender is not the admin', function () {
-        const from = anotherAccount;
-
-        it('reverts', async function () {
-          await expectRevert(
-            this.beacon.upgradeTo(this.implementationV1.address, { from }),
-            'Ownable: caller is not the owner',
-          );
-        });
       });
     });
 
