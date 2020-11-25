@@ -57,7 +57,7 @@ contract('BeaconProxy', function (accounts) {
   const assertProxyInitialization = function ({ value, balance }) {
     it('sets the implementation address', async function () {
       const beacon = await getBeacon(this.proxy);
-      const implementation = await new UpgradeableBeacon(beacon).implementation();
+      const implementation = new UpgradeableBeacon(beacon).implementation();
       expect(implementation).to.be.equal(this.implementationV0.address);
     });
 
@@ -279,7 +279,7 @@ contract('BeaconProxy', function (accounts) {
       });
 
       it('delegates to the implementation', async function () {
-        const dummy = await new DummyImplementation(this.proxy.address);
+        const dummy = new DummyImplementation(this.proxy.address);
         const value = await dummy.get();
 
         expect(value).to.equal(true);
@@ -349,14 +349,14 @@ contract('BeaconProxy', function (accounts) {
         const beacon = await UpgradeableBeacon.new(instance1.address, { from: proxyCreator });
         const proxy = await BeaconProxy.new(beacon.address, initializeData, { from: proxyCreator });
 
-        const proxyInstance1 = await new Implementation1(proxy.address);
+        const proxyInstance1 = new Implementation1(proxy.address);
         await proxyInstance1.setValue(42);
 
         const instance2 = await Implementation2.new();
         const beaconContract = new UpgradeableBeacon(await getBeacon(proxy.address));
         await beaconContract.upgradeTo(instance2.address, { from: proxyCreator });
 
-        const proxyInstance2 = await new Implementation2(proxy.address);
+        const proxyInstance2 = new Implementation2(proxy.address);
         const res = await proxyInstance2.getValue();
         expect(res).to.bignumber.eq('42');
       });
@@ -366,7 +366,7 @@ contract('BeaconProxy', function (accounts) {
         const beacon = await UpgradeableBeacon.new(instance2.address, { from: proxyCreator });
         const proxy = await BeaconProxy.new(beacon.address, initializeData, { from: proxyCreator });
 
-        const proxyInstance2 = await new Implementation2(proxy.address);
+        const proxyInstance2 = new Implementation2(proxy.address);
         await proxyInstance2.setValue(42);
         const res = await proxyInstance2.getValue();
         expect(res).to.bignumber.eq('42');
@@ -375,7 +375,7 @@ contract('BeaconProxy', function (accounts) {
         const beaconContract = new UpgradeableBeacon(await getBeacon(proxy.address));
         await beaconContract.upgradeTo(instance1.address, { from: proxyCreator });
 
-        const proxyInstance1 = await new Implementation2(proxy.address);
+        const proxyInstance1 = new Implementation2(proxy.address);
         await expectRevert.unspecified(proxyInstance1.getValue());
       });
 
@@ -384,7 +384,7 @@ contract('BeaconProxy', function (accounts) {
         const beacon = await UpgradeableBeacon.new(instance1.address, { from: proxyCreator });
         const proxy = await BeaconProxy.new(beacon.address, initializeData, { from: proxyCreator });
 
-        const proxyInstance1 = await new Implementation1(proxy.address);
+        const proxyInstance1 = new Implementation1(proxy.address);
         await proxyInstance1.setValue(42);
 
         const instance3 = await Implementation3.new();
@@ -405,7 +405,7 @@ contract('BeaconProxy', function (accounts) {
         const instance4 = await Implementation4.new();
         const beaconContract = new UpgradeableBeacon(await getBeacon(proxy.address));
         await beaconContract.upgradeTo(instance4.address, { from: proxyCreator });
-        const proxyInstance4 = await new Implementation4(proxy.address);
+        const proxyInstance4 = new Implementation4(proxy.address);
 
         await sendTransaction(proxy, '', [], [], { from: anotherAccount });
 
@@ -426,7 +426,7 @@ contract('BeaconProxy', function (accounts) {
           sendTransaction(proxy, '', [], [], { from: anotherAccount }),
         );
 
-        const proxyInstance2 = await new Implementation2(proxy.address);
+        const proxyInstance2 = new Implementation2(proxy.address);
         const res = await proxyInstance2.getValue();
         expect(res).to.bignumber.eq('0');
       });
@@ -451,12 +451,12 @@ contract('BeaconProxy', function (accounts) {
       });
 
       it('initializes the proxy1', async function () {
-        const dummy = await new DummyImplementation(this.proxy1.address);
+        const dummy = new DummyImplementation(this.proxy1.address);
         expect(await dummy.value()).to.bignumber.eq(proxy1ExpectedInitializedValue);
       });
 
       it('initializes the proxy2 with a different value', async function () {
-        const dummy = await new DummyImplementation(this.proxy2.address);
+        const dummy = new DummyImplementation(this.proxy2.address);
         expect(await dummy.value()).to.bignumber.eq(proxy2ExpectedInitializedValue);
       });
     });
@@ -480,12 +480,12 @@ contract('BeaconProxy', function (accounts) {
       });
 
       it('should remove function from proxy 1', async function () {
-        const instance2 = await new Implementation2(this.proxy1.address);
+        const instance2 = new Implementation2(this.proxy1.address);
         await expectRevert.unspecified(instance2.getValue());
       });
 
       it('should remove function from proxy 2', async function () {
-        const instance2 = await new Implementation2(this.proxy2.address);
+        const instance2 = new Implementation2(this.proxy2.address);
         await expectRevert.unspecified(instance2.getValue());
       });
 
