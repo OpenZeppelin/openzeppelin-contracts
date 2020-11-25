@@ -8,6 +8,8 @@ const UpgradeableBeacon = artifacts.require('UpgradeableBeacon');
 const BeaconProxy = artifacts.require('BeaconProxy');
 const DummyImplementation = artifacts.require('DummyImplementation');
 const DummyImplementationV2 = artifacts.require('DummyImplementationV2');
+const BadBeaconNoImpl = artifacts.require('BadBeaconNoImpl');
+const BadBeaconNotContract = artifacts.require('BadBeaconNotContract');
 
 function toChecksumAddress(address) {
   return ethereumjsUtil.toChecksumAddress('0x' + address.replace(/^0x/, '').padStart(40, '0'));
@@ -28,13 +30,28 @@ const BEACON_SLOT = '0x' + new BN(keccak256(Buffer.from(BEACON_LABEL))).subn(1).
 contract('BeaconProxy', function (accounts) {
   const [proxyCreator, anotherAccount] = accounts;
 
-  it('cannot be initialized with a non-contract address', async function () {
-    const nonContractAddress = proxyCreator;
-    const initializeData = Buffer.from('');
-    await expectRevert(
-      BeaconProxy.new(nonContractAddress, initializeData, { from: proxyCreator }),
-      'BeaconProxy: beacon is not a contract',
-    );
+  describe('bad beacon is not accepted', async function () {
+    it('non-contract beacon', async function () {
+      await expectRevert(
+        BeaconProxy.new(anotherAccount, '0x'),
+        'BeaconProxy: beacon is not a contract',
+      );
+    });
+
+    it('non-compliant beacon', async function () {
+      const beacon = await BadBeaconNoImpl.new();
+      await expectRevert.unspecified(
+        BeaconProxy.new(beacon.address, '0x'),
+      );
+    });
+
+    it('non-contract implementation', async function () {
+      const beacon = await BadBeaconNotContract.new();
+      await expectRevert(
+        BeaconProxy.new(beacon.address, '0x'),
+        'BeaconProxy: beacon implementation is not a contract',
+      );
+    });
   });
 
   before('deploy implementation', async function () {
@@ -94,7 +111,7 @@ contract('BeaconProxy', function (accounts) {
     });
   });
 
-  it('upgrade a proxy by upgrading beacon', async function () {
+  it('upgrade a proxy by upgrading its beacon', async function () {
     const beacon = await UpgradeableBeacon.new(this.implementationV0.address);
 
     const value = '10';
