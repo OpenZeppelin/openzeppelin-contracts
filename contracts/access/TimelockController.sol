@@ -86,7 +86,7 @@ contract TimelockController is AccessControl {
         _;
     }
 
-    /*
+    /**
      * @dev Contract might receive/hold ETH as part of the maintenance process.
      */
     receive() external payable {}
