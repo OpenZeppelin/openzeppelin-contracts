@@ -20,16 +20,19 @@ abstract contract ERC20Permit is ERC20, IERC2612Permit {
 
     mapping (address => Counters.Counter) private _nonces;
 
-    // solhint-disable-next-line var-name-mixedcase
+    /* solhint-disable var-name-mixedcase */
     bytes32 private immutable _PERMIT_TYPEHASH = keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
 
-    // Mapping of ChainID to domain separators. This is a very gas efficient way
-    // to not recalculate the domain separator on every call, while still
-    // automatically detecting ChainID changes.
-    mapping (uint256 => bytes32) private _domainSeparators;
+    // Cache the domain separator as an immutable value, but also store the chain id that it corresponds to, in order to
+    // invalidate the cached domain separator if the chain id changes.
+    bytes32 private immutable _DOMAIN_SEPARATOR;
+    uint256 private immutable _CHAIN_ID;
+    /* solhint-enable var-name-mixedcase */
 
     constructor() internal {
-        _updateDomainSeparator();
+        uint256 chainId = _getChainId();
+        _CHAIN_ID = chainId; 
+        _DOMAIN_SEPARATOR = _buildDomainSeparator(chainId);
     }
 
     /**
@@ -56,7 +59,7 @@ abstract contract ERC20Permit is ERC20, IERC2612Permit {
         bytes32 hash = keccak256(
             abi.encodePacked(
                 uint16(0x1901),
-                _domainSeparator(),
+                _getDomainSeparator(),
                 hashStruct
             )
         );
@@ -75,40 +78,31 @@ abstract contract ERC20Permit is ERC20, IERC2612Permit {
         return _nonces[owner].current();
     }
 
-    function _updateDomainSeparator() private returns (bytes32) {
-        uint256 chainID = _chainID();
 
-        bytes32 newDomainSeparator = keccak256(
+    function _getDomainSeparator() private view returns (bytes32) {
+        if (_getChainId() == _CHAIN_ID) {
+            return _DOMAIN_SEPARATOR;
+        } else {
+            return _buildDomainSeparator(_getChainId());
+        }
+    }
+
+    function _buildDomainSeparator(uint256 chainId) private view returns (bytes32) {
+        return keccak256(
             abi.encode(
                 keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
                 keccak256(bytes(name())),
                 keccak256(bytes("1")), // Version
-                chainID,
+                chainId,
                 address(this)
             )
         );
-
-        _domainSeparators[chainID] = newDomainSeparator;
-
-        return newDomainSeparator;
     }
 
-    // Returns the domain separator, updating it if chainID changes
-    function _domainSeparator() private returns (bytes32) {
-        bytes32 domainSeparator = _domainSeparators[_chainID()];
-        if (domainSeparator != 0x00) {
-            return domainSeparator;
-        } else {
-            return _updateDomainSeparator();
-        }
-    }
-
-    function _chainID() private pure returns (uint256) {
-        uint256 chainID;
+    function _getChainId() private pure returns (uint256 chainId) {
         // solhint-disable-next-line no-inline-assembly
         assembly {
-            chainID := chainid()
+            chainId := chainid()
         }
-        return chainID;
     }
 }
