@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.7.0;
 
 import "./ERC20.sol";
 
@@ -16,7 +16,7 @@ abstract contract ERC20Capped is ERC20 {
      * @dev Sets the value of the `cap`. This value is immutable, it can only be
      * set once during construction.
      */
-    constructor (uint256 cap_) internal {
+    constructor (uint256 cap_) {
         require(cap_ > 0, "ERC20Capped: cap is 0");
         _cap = cap_;
     }

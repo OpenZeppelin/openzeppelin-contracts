@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.7.0;
 
 import "../utils/Arrays.sol";
 
@@ -9,7 +9,7 @@ contract ArraysImpl {
 
     uint256[] private _array;
 
-    constructor (uint256[] memory array) public {
+    constructor (uint256[] memory array) {
         _array = array;
     }
 

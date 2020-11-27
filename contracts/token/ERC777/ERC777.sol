@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.7.0;
 
 import "../../GSN/Context.sol";
 import "./IERC777.sol";
@@ -70,7 +70,7 @@ contract ERC777 is Context, IERC777, IERC20 {
         string memory name_,
         string memory symbol_,
         address[] memory defaultOperators_
-    ) public {
+    ) {
         _name = name_;
         _symbol = symbol_;
 
@@ -113,7 +113,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * This implementation always returns `1`.
      */
-    function granularity() public view override returns (uint256) {
+    function granularity() public pure override returns (uint256) {
         return 1;
     }
 

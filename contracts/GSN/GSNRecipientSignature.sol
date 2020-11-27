@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.7.0;
 
 import "./GSNRecipient.sol";
 import "../cryptography/ECDSA.sol";
@@ -23,7 +23,7 @@ contract GSNRecipientSignature is GSNRecipient {
     /**
      * @dev Sets the trusted signer that is going to be producing signatures to approve relayed calls.
      */
-    constructor(address trustedSigner) public {
+    constructor(address trustedSigner) {
         require(trustedSigner != address(0), "GSNRecipientSignature: trusted signer is the zero address");
         _trustedSigner = trustedSigner;
     }

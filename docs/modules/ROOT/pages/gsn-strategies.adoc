@@ -62,7 +62,7 @@ Instead of using `GSNRecipient` directly, your GSN recipient contract will inste
 import "@openzeppelin/contracts/GSN/GSNRecipientSignature.sol";
 
 contract MyContract is GSNRecipientSignature {
-    constructor(address trustedSigner) public GSNRecipientSignature(trustedSigner) {
+    constructor(address trustedSigner) GSNRecipientSignature(trustedSigner) {
     }
 }
 ----
@@ -108,7 +108,7 @@ Your GSN recipient contract needs to inherit from `GSNRecipientERC20Fee` along w
 ----
 // contracts/MyContract.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.0;
+pragma solidity ^0.7.0;
 
 import "@openzeppelin/contracts/GSN/GSNRecipientERC20Fee.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
@@ -116,7 +116,7 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 contract MyContract is GSNRecipientERC20Fee, AccessControl {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
-    constructor() public GSNRecipientERC20Fee("FeeToken", "FEE") {
+    constructor() GSNRecipientERC20Fee("FeeToken", "FEE") {
         _setupRole(MINTER_ROLE, _msgSender());
     }
 
@@ -154,7 +154,7 @@ Once your strategy is ready, all your GSN recipient needs to do is inherit from 
 [source,solidity]
 ----
 contract MyContract is MyCustomGSNStrategy {
-    constructor() public MyCustomGSNStrategy() {
+    constructor() MyCustomGSNStrategy() {
     }
 }
 ----

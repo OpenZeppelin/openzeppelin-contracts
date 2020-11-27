@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.7.0;
 
 /**
  * @dev Base interface for a contract that will be called via the GSN from {IRelayHub}.
