@@ -80,7 +80,7 @@ contract('ERC1155Pausable', function (accounts) {
 
     it('reverts when trying to burnBatch', async function () {
       await expectRevert(
-        this.token.burn(holder, [firstTokenId], [firstTokenAmount]),
+        this.token.burnBatch(holder, [firstTokenId], [firstTokenAmount]),
         'ERC1155Pausable: token transfer while paused',
       );
     });
