@@ -123,6 +123,8 @@ contract TimelockController is AccessControl {
 
     /**
      * @dev Returns the minimum delay for an operation to become valid.
+     *
+     * This value can be changed by executing an operation that calls `updateDelay`.
      */
     function getMinDelay() public view returns (uint256 duration) {
         return _minDelay;
@@ -269,9 +271,14 @@ contract TimelockController is AccessControl {
     }
 
     /**
-     * @dev Changes the timelock duration for future operations.
+     * @dev Changes the minimum timelock duration for future operations.
      *
      * Emits a {MinDelayChange} event.
+     *
+     * Requirements:
+     *
+     * - the caller must be the timelock itself. This can only be achieved by scheduling and later executing
+     * an operation where the timelock is the target and the data is the ABI-encoded call to this function.
      */
     function updateDelay(uint256 newDelay) external virtual {
         require(msg.sender == address(this), "TimelockController: caller must be timelock");
