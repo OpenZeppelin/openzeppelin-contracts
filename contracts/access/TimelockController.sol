@@ -277,8 +277,8 @@ contract TimelockController is AccessControl {
      *
      * Requirements:
      *
-     * - the caller must be the timelock itself. This can only be achieved by executing an operation
-     * where the timelock is the target and the data is the ABI-encoded call to this function.
+     * - the caller must be the timelock itself. This can only be achieved by scheduling and later executing
+     * an operation where the timelock is the target and the data is the ABI-encoded call to this function.
      */
     function updateDelay(uint256 newDelay) external virtual {
         require(msg.sender == address(this), "TimelockController: caller must be timelock");
