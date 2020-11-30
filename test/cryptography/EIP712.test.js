@@ -2,20 +2,17 @@ const ethSigUtil = require('eth-sig-util');
 
 const EIP712 = artifacts.require('EIP712External');
 
-async function domainSeparator (name, version, chainId, verifyingContract, salt) {
+async function domainSeparator (name, version, chainId, verifyingContract) {
   const EIP712Domain = [
     { name: 'name', type: 'string' },
     { name: 'version', type: 'string' },
     { name: 'chainId', type: 'uint256' },
     { name: 'verifyingContract', type: 'address' },
   ];
-  if (salt !== undefined) {
-    EIP712Domain.push({ name: 'salt', type: 'bytes32' });
-  }
 
   return '0x' + ethSigUtil.TypedDataUtils.hashStruct(
     'EIP712Domain',
-    { name, version, chainId, verifyingContract, salt },
+    { name, version, chainId, verifyingContract },
     { EIP712Domain },
   ).toString('hex');
 }
@@ -33,20 +30,11 @@ contract('EIP712', function (accounts) {
     this.chainId = await this.eip712.getChainId();
   });
 
-  it('unsalted domain separator', async function () {
+  it('domain separator', async function () {
     expect(
       await this.eip712.domainSeparator(),
     ).to.equal(
       await domainSeparator(name, version, this.chainId, this.eip712.address),
-    );
-  });
-
-  it('salted domain separator', async function () {
-    const salt = '0x1234';
-    expect(
-      await this.eip712.domainSeparator(salt),
-    ).to.equal(
-      await domainSeparator(name, version, this.chainId, this.eip712.address, salt),
     );
   });
 });

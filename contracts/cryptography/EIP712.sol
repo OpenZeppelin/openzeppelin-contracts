@@ -23,7 +23,6 @@ abstract contract EIP712 {
     bytes32 private immutable _HASHED_NAME;
     bytes32 private immutable _HASHED_VERSION;
     bytes32 private immutable _TYPE_HASH;
-    bytes32 private immutable _TYPE_HASH_SALT;
     /* solhint-enable var-name-mixedcase */
 
     /**
@@ -47,7 +46,6 @@ abstract contract EIP712 {
         _CACHED_CHAIN_ID = _getChainId();
         _CACHED_DOMAIN_SEPARATOR = _buildDomainSeparator(typeHash, hashedName, hashedVersion);
         _TYPE_HASH = typeHash;
-        _TYPE_HASH_SALT = keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,bytes32 salt)");
     }
 
     /**
@@ -59,25 +57,6 @@ abstract contract EIP712 {
         } else {
             return _buildDomainSeparator(_TYPE_HASH, _HASHED_NAME, _HASHED_VERSION);
         }
-    }
-
-    /**
-     * @dev Returns the domain separator for the current chain, containing a salt as defined in 
-     * https://eips.ethereum.org/EIPS/eip-712#definition-of-domainseparator[EIP 712]:
-     *
-     * - `salt`: a disambiguating salt for the protocol.
-     */
-    function _domainSeparator(bytes32 salt) internal view returns (bytes32) {
-        return keccak256(
-            abi.encode(
-                _TYPE_HASH_SALT,
-                _HASHED_NAME,
-                _HASHED_VERSION,
-                _getChainId(),
-                address(this),
-                salt
-            )
-        );
     }
 
     function _buildDomainSeparator(bytes32 typeHash, bytes32 name, bytes32 version) private view returns (bytes32) {

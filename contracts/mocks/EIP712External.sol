@@ -11,10 +11,6 @@ contract EIP712External is EIP712 {
         return _domainSeparator();
     }
 
-    function domainSeparator(bytes32 salt) external view returns (bytes32) {
-        return _domainSeparator(salt);
-    }
-
     function getChainId() external pure returns (uint256 chainId) {
         // solhint-disable-next-line no-inline-assembly
         assembly {
