@@ -62,6 +62,7 @@
     "eslint-plugin-standard": "^4.0.1",
     "eth-sig-util": "^3.0.0",
     "ethereumjs-util": "^7.0.7",
+    "ethereumjs-wallet": "^1.0.1",
     "lodash.startcase": "^4.4.0",
     "lodash.zip": "^4.2.0",
     "micromatch": "^4.0.2",

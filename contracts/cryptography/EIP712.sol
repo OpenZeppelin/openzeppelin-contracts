@@ -71,6 +71,25 @@ abstract contract EIP712 {
         );
     }
 
+    /**
+     * @dev Given an already https://eips.ethereum.org/EIPS/eip-712#definition-of-hashstruct[hashed struct], this
+     * function returns the hash of the fully encoded EIP712 message for this domain.
+     *
+     * This hash can be used together with {ECDSA-recover} to obtain the signer of a message. For example:
+     *
+     * ```solidity
+     * bytes32 digest = _digest(keccak256(abi.encode(
+     *     keccak256("Mail(address to,string contents)"),
+     *     mailTo,
+     *     keccak256(bytes(mailContents))
+     * )));
+     * address signer = ECDSA.recover(digest, signature);
+     * ```
+     */
+    function _digest(bytes32 structHash) internal view returns (bytes32) {
+        return keccak256(abi.encodePacked("\x19\x01", _domainSeparator(), structHash));
+    }
+
     function _getChainId() private pure returns (uint256 chainId) {
         // solhint-disable-next-line no-inline-assembly
         assembly {
