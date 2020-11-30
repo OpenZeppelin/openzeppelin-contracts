@@ -1,3 +1,11 @@
 comment: off
+github_checks:
+  annotations: false
 coverage:
-  range: "100...100"
+  status:
+    patch:
+      default:
+        target: 95%
+    project:
+      default:
+        threshold: 1%
