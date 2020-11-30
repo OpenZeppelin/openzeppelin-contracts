@@ -3,6 +3,7 @@
 pragma solidity >=0.6.0 <0.8.0;
 
 abstract contract EIP712 {
+    /* solhint-disable var-name-mixedcase */
     // Cache the domain separator as an immutable value, but also store the chain id that it corresponds to, in order to
     // invalidate the cached domain separator if the chain id changes.
     bytes32 private immutable _CACHED_DOMAIN_SEPARATOR;
@@ -12,6 +13,7 @@ abstract contract EIP712 {
     bytes32 private immutable _HASHED_VERSION;
     bytes32 private immutable _TYPE_HASH;
     bytes32 private immutable _TYPE_HASH_SALT;
+    /* solhint-enable var-name-mixedcase */
 
     constructor(string memory name, string memory version) internal {
         bytes32 hashedName = keccak256(bytes(name));

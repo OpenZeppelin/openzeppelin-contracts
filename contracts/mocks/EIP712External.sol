@@ -2,10 +2,10 @@
 
 pragma solidity >=0.6.0 <0.8.0;
 
-import '../cryptography/EIP712.sol';
+import "../cryptography/EIP712.sol";
 
 contract EIP712External is EIP712 {
-    constructor(string memory name, string memory version) EIP712(name, version) public {}
+    constructor(string memory name, string memory version) public EIP712(name, version) {}
 
     function domainSeparator() external view returns (bytes32) {
         return _domainSeparator();
