@@ -44,4 +44,9 @@ interface IERC2612Permit {
      * prevents a signature from being used multiple times.
      */
     function nonces(address owner) external view returns (uint256);
+
+    /**
+     * @dev Returns the domain separator used in the encoding of the signature for `permit`, as defined by {EIP712}.
+     */
+    function DOMAIN_SEPARATOR() external view returns (bytes32);
 }

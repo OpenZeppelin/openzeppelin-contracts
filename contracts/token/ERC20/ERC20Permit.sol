@@ -78,6 +78,12 @@ abstract contract ERC20Permit is ERC20, IERC2612Permit {
         return _nonces[owner].current();
     }
 
+    /**
+     * @dev See {IERC2612Permit-DOMAIN_SEPARATOR}.
+     */
+    function DOMAIN_SEPARATOR() external view override returns (bytes32) {
+        return _getDomainSeparator();
+    }
 
     function _getDomainSeparator() private view returns (bytes32) {
         if (_getChainId() == _CHAIN_ID) {
