@@ -12,7 +12,7 @@ contract EIP712External is EIP712 {
         return _domainSeparator_v4();
     }
 
-    function verify(bytes memory signature, address signer, address mailTo, string memory mailContents) external {
+    function verify(bytes memory signature, address signer, address mailTo, string memory mailContents) external view {
         bytes32 digest = _hashTypedData_v4(keccak256(abi.encode(
             keccak256("Mail(address to,string contents)"),
             mailTo,
