@@ -6,6 +6,7 @@ import "../token/ERC20/ERC20.sol";
 import "./IERC2612Permit.sol";
 import "../cryptography/ECDSA.sol";
 import "../utils/Counters.sol";
+import "./EIP712.sol";
 
 /**
  * @dev Extension of {ERC20} that allows token holders to use their tokens
@@ -15,24 +16,15 @@ import "../utils/Counters.sol";
  *
  * The {permit} signature mechanism conforms to the {IERC2612Permit} interface.
  */
-abstract contract ERC20Permit is ERC20, IERC2612Permit {
+abstract contract ERC20Permit is ERC20, IERC2612Permit, EIP712 {
     using Counters for Counters.Counter;
 
     mapping (address => Counters.Counter) private _nonces;
 
-    /* solhint-disable var-name-mixedcase */
+    // solhint-disable-next-line var-name-mixedcase
     bytes32 private immutable _PERMIT_TYPEHASH = keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
 
-    // Cache the domain separator as an immutable value, but also store the chain id that it corresponds to, in order to
-    // invalidate the cached domain separator if the chain id changes.
-    bytes32 private immutable _DOMAIN_SEPARATOR;
-    uint256 private immutable _CHAIN_ID;
-    /* solhint-enable var-name-mixedcase */
-
-    constructor() internal {
-        uint256 chainId = _getChainId();
-        _CHAIN_ID = chainId; 
-        _DOMAIN_SEPARATOR = _buildDomainSeparator(chainId);
+    constructor() internal EIP712(name(), "1") {
     }
 
     /**
@@ -45,7 +37,7 @@ abstract contract ERC20Permit is ERC20, IERC2612Permit {
         // solhint-disable-next-line not-rely-on-time
         require(block.timestamp <= deadline, "ERC20Permit: expired deadline");
 
-        bytes32 hashStruct = keccak256(
+        bytes32 structHash = keccak256(
             abi.encode(
                 _PERMIT_TYPEHASH,
                 owner,
@@ -56,13 +48,7 @@ abstract contract ERC20Permit is ERC20, IERC2612Permit {
             )
         );
 
-        bytes32 hash = keccak256(
-            abi.encodePacked(
-                uint16(0x1901),
-                _getDomainSeparator(),
-                hashStruct
-            )
-        );
+        bytes32 hash = _hashTypedDataV4(structHash);
 
         address signer = ECDSA.recover(hash, v, r, s);
         require(signer == owner, "ERC20Permit: invalid signature");
@@ -82,33 +68,6 @@ abstract contract ERC20Permit is ERC20, IERC2612Permit {
      * @dev See {IERC2612Permit-DOMAIN_SEPARATOR}.
      */
     function DOMAIN_SEPARATOR() external view override returns (bytes32) {
-        return _getDomainSeparator();
-    }
-
-    function _getDomainSeparator() private view returns (bytes32) {
-        if (_getChainId() == _CHAIN_ID) {
-            return _DOMAIN_SEPARATOR;
-        } else {
-            return _buildDomainSeparator(_getChainId());
-        }
-    }
-
-    function _buildDomainSeparator(uint256 chainId) private view returns (bytes32) {
-        return keccak256(
-            abi.encode(
-                keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
-                keccak256(bytes(name())),
-                keccak256(bytes("1")), // Version
-                chainId,
-                address(this)
-            )
-        );
-    }
-
-    function _getChainId() private pure returns (uint256 chainId) {
-        // solhint-disable-next-line no-inline-assembly
-        assembly {
-            chainId := chainid()
-        }
+        return _domainSeparatorV4();
     }
 }
