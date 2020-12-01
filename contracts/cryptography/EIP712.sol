@@ -51,7 +51,7 @@ abstract contract EIP712 {
     /**
      * @dev Returns the domain separator for the current chain.
      */
-    function _domainSeparator() internal view returns (bytes32) {
+    function _domainSeparator_v4() internal view returns (bytes32) {
         if (_getChainId() == _CACHED_CHAIN_ID) {
             return _CACHED_DOMAIN_SEPARATOR;
         } else {
@@ -78,7 +78,7 @@ abstract contract EIP712 {
      * This hash can be used together with {ECDSA-recover} to obtain the signer of a message. For example:
      *
      * ```solidity
-     * bytes32 digest = _digest(keccak256(abi.encode(
+     * bytes32 digest = _hashTypedData_v4(keccak256(abi.encode(
      *     keccak256("Mail(address to,string contents)"),
      *     mailTo,
      *     keccak256(bytes(mailContents))
@@ -86,8 +86,8 @@ abstract contract EIP712 {
      * address signer = ECDSA.recover(digest, signature);
      * ```
      */
-    function _digest(bytes32 structHash) internal view returns (bytes32) {
-        return keccak256(abi.encodePacked("\x19\x01", _domainSeparator(), structHash));
+    function _hashTypedData_v4(bytes32 structHash) internal view returns (bytes32) {
+        return keccak256(abi.encodePacked("\x19\x01", _domainSeparator_v4(), structHash));
     }
 
     function _getChainId() private pure returns (uint256 chainId) {

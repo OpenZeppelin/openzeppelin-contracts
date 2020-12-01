@@ -9,11 +9,11 @@ contract EIP712External is EIP712 {
     constructor(string memory name, string memory version) public EIP712(name, version) {}
 
     function domainSeparator() external view returns (bytes32) {
-        return _domainSeparator();
+        return _domainSeparator_v4();
     }
 
     function verify(bytes memory signature, address signer, address mailTo, string memory mailContents) external {
-        bytes32 digest = _digest(keccak256(abi.encode(
+        bytes32 digest = _hashTypedData_v4(keccak256(abi.encode(
             keccak256("Mail(address to,string contents)"),
             mailTo,
             keccak256(bytes(mailContents))
