@@ -1,0 +1,9 @@
+= Draft EIPS
+
+This directory contains implementations of EIPs that are still in Draft status.
+
+Due to their nature as drafts, the details of these contracts may change and we cannot guarantee their xref::releases-stability.adoc[stability]: minor releases of OpenZeppelin Contracts may contain breaking changes. The EIPs included here are used by projects in production and this may make them less likely to change significantly.
+
+== Cryptography
+
+{{EIP712}}
