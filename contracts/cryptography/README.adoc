@@ -10,3 +10,5 @@ This collection of libraries provides simple and safe ways to use different cryp
 {{ECDSA}}
 
 {{MerkleProof}}
+
+{{EIP712}}
