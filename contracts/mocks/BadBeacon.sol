@@ -6,7 +6,7 @@ contract BadBeaconNoImpl {
 }
 
 contract BadBeaconNotContract {
-    function implementation() external view returns (address) {
+    function implementation() external pure returns (address) {
         return address(0x1);
     }
 }
