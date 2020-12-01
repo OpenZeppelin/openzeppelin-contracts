@@ -1,12 +1,10 @@
-const { accounts, contract } = require('@openzeppelin/test-environment');
-
 const { BN, expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ERC1155BurnableMock = contract.fromArtifact('ERC1155BurnableMock');
+const ERC1155BurnableMock = artifacts.require('ERC1155BurnableMock');
 
-describe('ERC1155Burnable', function () {
+contract('ERC1155Burnable', function (accounts) {
   const [ holder, operator, other ] = accounts;
 
   const uri = 'https://token.com';

@@ -1,11 +1,9 @@
-const { contract, web3 } = require('@openzeppelin/test-environment');
-
 const { BN, expectRevert } = require('@openzeppelin/test-helpers');
 const { toChecksumAddress, keccak256 } = require('ethereumjs-util');
 
 const { expect } = require('chai');
 
-const DummyImplementation = contract.fromArtifact('DummyImplementation');
+const DummyImplementation = artifacts.require('DummyImplementation');
 
 const IMPLEMENTATION_LABEL = 'eip1967.proxy.implementation';
 
@@ -146,7 +144,7 @@ module.exports = function shouldBehaveLikeUpgradeableProxy (createProxy, proxyAd
     describe('non payable', function () {
       const expectedInitializedValue = 10;
       const initializeData = new DummyImplementation('').contract
-        .methods['initializeNonPayable(uint256)'](expectedInitializedValue).encodeABI();
+        .methods.initializeNonPayableWithValue(expectedInitializedValue).encodeABI();
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
@@ -177,7 +175,7 @@ module.exports = function shouldBehaveLikeUpgradeableProxy (createProxy, proxyAd
     describe('payable', function () {
       const expectedInitializedValue = 42;
       const initializeData = new DummyImplementation('').contract
-        .methods['initializePayable(uint256)'](expectedInitializedValue).encodeABI();
+        .methods.initializePayableWithValue(expectedInitializedValue).encodeABI();
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {

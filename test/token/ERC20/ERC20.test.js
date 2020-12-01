@@ -1,5 +1,3 @@
-const { accounts, contract } = require('@openzeppelin/test-environment');
-
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const { ZERO_ADDRESS } = constants;
@@ -10,10 +8,10 @@ const {
   shouldBehaveLikeERC20Approve,
 } = require('./ERC20.behavior');
 
-const ERC20Mock = contract.fromArtifact('ERC20Mock');
-const ERC20DecimalsMock = contract.fromArtifact('ERC20DecimalsMock');
+const ERC20Mock = artifacts.require('ERC20Mock');
+const ERC20DecimalsMock = artifacts.require('ERC20DecimalsMock');
 
-describe('ERC20', function () {
+contract('ERC20', function (accounts) {
   const [ initialHolder, recipient, anotherAccount ] = accounts;
 
   const name = 'My Token';

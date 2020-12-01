@@ -9,6 +9,8 @@ The abstract {Proxy} contract implements the core delegation functionality. If t
 
 Upgradeability is implemented in the {UpgradeableProxy} contract, although it provides only an internal upgrade interface. For an upgrade interface exposed externally to an admin, we provide {TransparentUpgradeableProxy}. Both of these contracts use the storage slots specified in https://eips.ethereum.org/EIPS/eip-1967[EIP1967] to avoid clashes with the storage of the implementation contract behind the proxy.
 
+An alternative upgradeability mechanism is provided in <<UpgradeableBeacon>>. This pattern, popularized by Dharma, allows multiple proxies to be upgraded to a different implementation in a single transaction. In this pattern, the proxy contract doesn't hold the implementation address in storage like {UpgradeableProxy}, but the address of a {UpgradeableBeacon} contract, which is where the implementation address is actually stored and retrieved from. The `upgrade` operations that change the implementation contract address are then sent to the beacon instead of to the proxy contract, and all proxies that follow that beacon are automatically upgraded.
+
 CAUTION: Using upgradeable proxies correctly and securely is a difficult task that requires deep knowledge of the proxy pattern, Solidity, and the EVM. Unless you want a lot of low level control, we recommend using the xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugins] for Truffle and Buidler.
 
 == Core
@@ -18,6 +20,14 @@ CAUTION: Using upgradeable proxies correctly and securely is a difficult task th
 {{UpgradeableProxy}}
 
 {{TransparentUpgradeableProxy}}
+
+== UpgradeableBeacon
+
+{{BeaconProxy}}
+
+{{IBeacon}}
+
+{{UpgradeableBeacon}}
 
 == Utilities
 

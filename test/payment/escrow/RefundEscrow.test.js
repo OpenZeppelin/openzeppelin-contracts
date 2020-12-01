@@ -1,13 +1,11 @@
-const { accounts, contract } = require('@openzeppelin/test-environment');
-
 const { balance, constants, ether, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const RefundEscrow = contract.fromArtifact('RefundEscrow');
+const RefundEscrow = artifacts.require('RefundEscrow');
 
-describe('RefundEscrow', function () {
+contract('RefundEscrow', function (accounts) {
   const [ owner, beneficiary, refundee1, refundee2 ] = accounts;
 
   const amount = ether('54');

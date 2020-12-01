@@ -1,9 +1,16 @@
 # Changelog
 
-## 3.3.0 (unreleased)
+## Unreleased
 
- * `Address`: added `functionStaticCall` and `functionDelegateCall`, similar to the existing `functionCall`. ([#2333](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2333))
- * `TimelockController`: added a contract to augment access control schemes with a delay. ([#2364](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2364))
+ * Add beacon proxy. ([#2411](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2411))
+ * `Address`: added `functionDelegateCall`, similar to the existing `functionCall`. ([#2333](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2333))
+
+## 3.3.0 (2020-11-26)
+
+ * Now supports both Solidity 0.6 and 0.7. Compiling with solc 0.7 will result in warnings. Install the `solc-0.7` tag to compile without warnings.
+ * `Address`: added `functionStaticCall`, similar to the existing `functionCall`. ([#2333](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2333))
+ * `TimelockController`: added a contract to augment access control schemes with a delay. ([#2354](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2354))
+ * `EnumerableSet`: added `Bytes32Set`, for sets of `bytes32`. ([#2395](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2395))
 
 ## 3.2.0 (2020-09-10)
 

@@ -1,15 +1,13 @@
-const { accounts, contract } = require('@openzeppelin/test-environment');
-
 const { expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ImplV1 = contract.fromArtifact('DummyImplementation');
-const ImplV2 = contract.fromArtifact('DummyImplementationV2');
-const ProxyAdmin = contract.fromArtifact('ProxyAdmin');
-const TransparentUpgradeableProxy = contract.fromArtifact('TransparentUpgradeableProxy');
+const ImplV1 = artifacts.require('DummyImplementation');
+const ImplV2 = artifacts.require('DummyImplementationV2');
+const ProxyAdmin = artifacts.require('ProxyAdmin');
+const TransparentUpgradeableProxy = artifacts.require('TransparentUpgradeableProxy');
 
-describe('ProxyAdmin', function () {
+contract('ProxyAdmin', function (accounts) {
   const [proxyAdminOwner, newAdmin, anotherAccount] = accounts;
 
   before('set implementations', async function () {
@@ -82,7 +80,7 @@ describe('ProxyAdmin', function () {
   describe('#upgradeAndCall', function () {
     context('with unauthorized account', function () {
       it('fails to upgrade', async function () {
-        const callData = new ImplV1('').contract.methods['initializeNonPayable(uint256)'](1337).encodeABI();
+        const callData = new ImplV1('').contract.methods.initializeNonPayableWithValue(1337).encodeABI();
         await expectRevert(
           this.proxyAdmin.upgradeAndCall(this.proxy.address, this.implementationV2.address, callData,
             { from: anotherAccount },
@@ -106,7 +104,7 @@ describe('ProxyAdmin', function () {
 
       context('with valid callData', function () {
         it('upgrades implementation', async function () {
-          const callData = new ImplV1('').contract.methods['initializeNonPayable(uint256)'](1337).encodeABI();
+          const callData = new ImplV1('').contract.methods.initializeNonPayableWithValue(1337).encodeABI();
           await this.proxyAdmin.upgradeAndCall(this.proxy.address, this.implementationV2.address, callData,
             { from: proxyAdminOwner },
           );

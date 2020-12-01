@@ -1,12 +1,11 @@
-const { accounts, contract } = require('@openzeppelin/test-environment');
 const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const Ownable = contract.fromArtifact('OwnableMock');
+const Ownable = artifacts.require('OwnableMock');
 
-describe('Ownable', function () {
+contract('Ownable', function (accounts) {
   const [ owner, other ] = accounts;
 
   beforeEach(async function () {
