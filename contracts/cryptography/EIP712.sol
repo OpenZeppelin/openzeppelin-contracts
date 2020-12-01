@@ -15,6 +15,9 @@ pragma solidity >=0.6.0 <0.8.0;
  *
  * The implementation of the domain separator was designed to be as efficient as possible while still properly updating
  * the chain id to protect against replay attacks on an eventual fork of the chain.
+ *
+ * NOTE: This contract implements the version of the encoding known as "v4", as implemented by the JSON RPC method
+ * https://docs.metamask.io/guide/signing-data.html[`eth_signTypedData_v4` in MetaMask].
  */
 abstract contract EIP712 {
     /* solhint-disable var-name-mixedcase */
