@@ -9,9 +9,12 @@ pragma solidity >=0.6.0 <0.8.0;
  * thus this contract does not implement the encoding itself. Protocols need to implement the type-specific encoding
  * they need in their contracts using a combination of `abi.encode` and `keccak256`.
  *
- * This contract only implements the EIP 712 domain separator that is used as part of the encoding scheme. The
- * implementation contained here was designed to be as efficient as possible while still properly updating the chain id
- * to protect against replay attacks on an eventual fork of the chain.
+ * This contract implements the EIP 712 domain separator ({_domainSeparator_v4}) that is used as part of the encoding
+ * scheme, and the final step of the encoding to obtain the message digest that is then signed via ECDSA
+ * ({_hashTypedData_v4}).
+ *
+ * The implementation of the domain separator was designed to be as efficient as possible while still properly updating
+ * the chain id to protect against replay attacks on an eventual fork of the chain.
  */
 abstract contract EIP712 {
     /* solhint-disable var-name-mixedcase */
