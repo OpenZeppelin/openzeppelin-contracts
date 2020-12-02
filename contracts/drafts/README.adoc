@@ -1,4 +1,4 @@
-= Draft EIPS
+= Draft EIPs
 
 This directory contains implementations of EIPs that are still in Draft status.
 
