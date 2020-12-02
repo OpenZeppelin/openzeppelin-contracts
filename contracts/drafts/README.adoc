@@ -7,3 +7,9 @@ Due to their nature as drafts, the details of these contracts may change and we 
 == Cryptography
 
 {{EIP712}}
+
+== ERC 20
+
+{{IERC2612Permit}}
+
+{{ERC20Permit}}

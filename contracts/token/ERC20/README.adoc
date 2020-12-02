@@ -25,6 +25,11 @@ Finally, there are some utilities to interact with ERC20 contracts in various wa
 * {SafeERC20} is a wrapper around the interface that eliminates the need to handle boolean return values.
 * {TokenTimelock} can hold tokens for a beneficiary until a specified time.
 
+The following related EIPs are in draft status and can be found in the drafts directory.
+
+- {IERC2612Permit}
+- {ERC20Permit}
+
 NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC20 (such as <<ERC20-_mint-address-uint256-,`_mint`>>) and expose them as external functions in the way they prefer. On the other hand, xref:ROOT:erc20.adoc#Presets[ERC20 Presets] (such as {ERC20PresetMinterPauser}) are designed using opinionated patterns to provide developers with ready to use, deployable contracts.
 
 == Core
@@ -37,17 +42,11 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 {{ERC20Snapshot}}
 
-{{ERC20Permit}}
-
 {{ERC20Pausable}}
 
 {{ERC20Burnable}}
 
 {{ERC20Capped}}
-
-== Standard Extensions
-
-{{IERC2612Permit}}
 
 == Utilities
 
