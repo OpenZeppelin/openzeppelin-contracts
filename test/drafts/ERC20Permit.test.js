@@ -4,20 +4,43 @@ const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppeli
 const { expect } = require('chai');
 const { MAX_UINT256, ZERO_ADDRESS } = constants;
 
-const { keccakFromString, bufferToHex } = require('ethereumjs-util');
+const { fromRpcSig } = require('ethereumjs-util');
+const ethSigUtil = require('eth-sig-util');
+const Wallet = require('ethereumjs-wallet').default;
 
 const ERC20PermitMock = artifacts.require('ERC20PermitMock');
+
+const EIP712Domain = [
+  { name: 'name', type: 'string' },
+  { name: 'version', type: 'string' },
+  { name: 'chainId', type: 'uint256' },
+  { name: 'verifyingContract', type: 'address' },
+];
+
+const Permit = [
+  { name: 'owner', type: 'address' },
+  { name: 'spender', type: 'address' },
+  { name: 'value', type: 'uint256' },
+  { name: 'nonce', type: 'uint256' },
+  { name: 'deadline', type: 'uint256' },
+];
 
 contract('ERC20Permit', function (accounts) {
   const [ initialHolder, spender, recipient, other ] = accounts;
 
   const name = 'My Token';
   const symbol = 'MTKN';
+  const version = '1';
 
   const initialSupply = new BN(100);
 
   beforeEach(async function () {
     this.token = await ERC20PermitMock.new(name, symbol, initialHolder, initialSupply);
+
+    // We get the chain id from the contract because Ganache (used for coverage) does not return the same chain id
+    // from within the EVM as from the JSON RPC interface.
+    // See https://github.com/trufflesuite/ganache-core/issues/515
+    this.chainId = await this.token.getChainId();
   });
 
   it('initial nonce is 0', async function () {
@@ -25,31 +48,27 @@ contract('ERC20Permit', function (accounts) {
   });
 
   it('permits', async function () {
-    const amount = new BN(42);
+    const wallet = Wallet.generate();
 
-    console.log(EIP712DomainSeparator(await this.token.name(), '1', await web3.eth.net.getId(), this.token.address));
+    const owner = wallet.getAddressString();
+    const value = new BN(42);
+    const nonce = 0;
+    const deadline = MAX_UINT256;
 
-    const receipt = await this.token.permit(initialHolder, spender, amount, MAX_UINT256, 0, '0x00000000000000000000000000000000', '0x00000000000000000000000000000000');
+    const chainId = this.chainId;
+    const verifyingContract = this.token.address;
+
+    const data = {
+      primaryType: 'Permit',
+      types: { EIP712Domain, Permit },
+      domain: { name, version, chainId, verifyingContract },
+      message: { owner, spender, value, nonce, deadline },
+    };
+
+    const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
+
+    const { v, r, s } = fromRpcSig(signature);
+
+    const receipt = await this.token.permit(owner, spender, value, deadline, v, r, s);
   });
 });
-
-function EIP712DomainSeparator(name, version, chainID, address) {
-  return bufferToHex(keccakFromString(
-    bufferToHex(keccakFromString('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)')) +
-    bufferToHex(keccakFromString(name)) +
-    bufferToHex(keccakFromString(version)) +
-    chainID.toString() +
-    address
-  ));
-}
-
-function ERC2612StructHash(owner, spender, value, nonce, deadline) {
-  return bufferToHex(keccakFromString(
-    bufferToHex(keccakFromString('Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)')) +
-    owner +
-    spender +
-    value +
-    nonce +
-    deadline
-  ));
-}

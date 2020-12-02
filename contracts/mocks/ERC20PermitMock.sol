@@ -10,7 +10,14 @@ contract ERC20PermitMock is ERC20Permit {
         string memory symbol,
         address initialAccount,
         uint256 initialBalance
-    ) public payable ERC20(name, symbol) {
+    ) public payable ERC20(name, symbol) ERC20Permit(name) {
         _mint(initialAccount, initialBalance);
+    }
+
+    function getChainId() external pure returns (uint256 chainId) {
+        // solhint-disable-next-line no-inline-assembly
+        assembly {
+            chainId := chainid()
+        }
     }
 }
