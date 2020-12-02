@@ -6,21 +6,18 @@ import "../token/ERC20/ERC20Burnable.sol";
 /**
  * @dev {ERC20} token, including:
  *
- *  - Preconfigured initial supply
- *  - ability for holders to burn (destroy) their tokens
- *  - NO access control mechanism (for minting/pausing) and hence NO governance
+ *  - Preminted initial supply
+ *  - Ability for holders to burn (destroy) their tokens
+ *  - No access control mechanism (for minting/pausing) and hence no governance
  *
  * This contract uses {ERC20Burnable} to include burn capabilities - head to
  * its documentation for details.
  */
 contract ERC20PresetFixedSupply is ERC20Burnable {
     /**
-     * @dev Mints initialSupply amount of token and transfers to address owner.  
+     * @dev Mints `initialSupply` amount of token and transfers them to `owner`.  
      *
      * See {ERC20-constructor}.
-     * 
-     * Accepts additional parameter owner of type address to facilitate the usage
-     * with factory patterns. 
      */
     constructor(
         string memory name,
