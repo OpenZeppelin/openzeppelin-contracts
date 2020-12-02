@@ -18,9 +18,9 @@ contract ERC777PresetFixedSupply is ERC777 {
     constructor(
         string memory name,
         string memory symbol,
+        address[] memory defaultOperators,
         uint256 initialSupply,
-        address owner,
-        address[] memory defaultOperators
+        address owner
     ) public ERC777(name, symbol, defaultOperators) {
         _mint(owner, initialSupply, "", "");
     }
