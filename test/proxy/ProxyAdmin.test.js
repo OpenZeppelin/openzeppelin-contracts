@@ -80,7 +80,7 @@ contract('ProxyAdmin', function (accounts) {
   describe('#upgradeAndCall', function () {
     context('with unauthorized account', function () {
       it('fails to upgrade', async function () {
-        const callData = new ImplV1('').contract.methods['initializeNonPayable(uint256)'](1337).encodeABI();
+        const callData = new ImplV1('').contract.methods.initializeNonPayableWithValue(1337).encodeABI();
         await expectRevert(
           this.proxyAdmin.upgradeAndCall(this.proxy.address, this.implementationV2.address, callData,
             { from: anotherAccount },
@@ -104,7 +104,7 @@ contract('ProxyAdmin', function (accounts) {
 
       context('with valid callData', function () {
         it('upgrades implementation', async function () {
-          const callData = new ImplV1('').contract.methods['initializeNonPayable(uint256)'](1337).encodeABI();
+          const callData = new ImplV1('').contract.methods.initializeNonPayableWithValue(1337).encodeABI();
           await this.proxyAdmin.upgradeAndCall(this.proxy.address, this.implementationV2.address, callData,
             { from: proxyAdminOwner },
           );

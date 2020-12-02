@@ -144,7 +144,7 @@ module.exports = function shouldBehaveLikeUpgradeableProxy (createProxy, proxyAd
     describe('non payable', function () {
       const expectedInitializedValue = 10;
       const initializeData = new DummyImplementation('').contract
-        .methods['initializeNonPayable(uint256)'](expectedInitializedValue).encodeABI();
+        .methods.initializeNonPayableWithValue(expectedInitializedValue).encodeABI();
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
@@ -175,7 +175,7 @@ module.exports = function shouldBehaveLikeUpgradeableProxy (createProxy, proxyAd
     describe('payable', function () {
       const expectedInitializedValue = 42;
       const initializeData = new DummyImplementation('').contract
-        .methods['initializePayable(uint256)'](expectedInitializedValue).encodeABI();
+        .methods.initializePayableWithValue(expectedInitializedValue).encodeABI();
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {

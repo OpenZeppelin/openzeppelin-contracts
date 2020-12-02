@@ -16,8 +16,10 @@ current_version() {
 }
 
 current_release_branch() {
-  v="$(current_version)"
-  echo "release-${v%%-"$PRERELEASE_SUFFIX".*}"
+  v="$(current_version)"            # 3.3.0-rc.0
+  vf="${v%-"$PRERELEASE_SUFFIX".*}" # 3.3.0
+  r="${vf%.*}"                      # 3.3
+  echo "release-$r"
 }
 
 assert_current_branch() {

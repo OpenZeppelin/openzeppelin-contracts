@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.0;
+pragma solidity >=0.6.0 <0.8.0;
 
 /**
  * @dev This abstract contract provides a fallback function that delegates all calls to another contract using the EVM
@@ -60,7 +60,7 @@ abstract contract Proxy {
      * @dev Fallback function that delegates calls to the address returned by `_implementation()`. Will run if no other
      * function in the contract matches the call data.
      */
-    fallback () payable external {
+    fallback () external payable {
         _fallback();
     }
 
@@ -68,7 +68,7 @@ abstract contract Proxy {
      * @dev Fallback function that delegates calls to the address returned by `_implementation()`. Will run if call data
      * is empty.
      */
-    receive () payable external {
+    receive () external payable {
         _fallback();
     }
 

@@ -46,7 +46,6 @@ contract('SafeCast', async (accounts) => {
   describe('toUint256', () => {
     const maxInt256 = new BN('2').pow(new BN(255)).subn(1);
     const minInt256 = new BN('2').pow(new BN(255)).neg();
-    const maxUint256 = new BN('2').pow(new BN(256)).subn(1);
 
     it('casts 0', async function () {
       expect(await this.safeCast.toUint256(0)).to.be.bignumber.equal('0');
@@ -70,13 +69,6 @@ contract('SafeCast', async (accounts) => {
     it(`reverts when casting INT256_MIN (${minInt256})`, async function () {
       await expectRevert(
         this.safeCast.toUint256(minInt256),
-        'SafeCast: value must be positive',
-      );
-    });
-
-    it(`reverts when casting UINT256_MAX (${maxUint256})`, async function () {
-      await expectRevert(
-        this.safeCast.toUint256(maxUint256),
         'SafeCast: value must be positive',
       );
     });
