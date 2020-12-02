@@ -1,17 +1,21 @@
-const { BN } = require('@openzeppelin/test-helpers');
+const { BN, singletons } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
 const ERC777PresetFixedSupply = artifacts.require('ERC777PresetFixedSupply');
 
 contract('ERC777PresetFixedSupply', function (accounts) {
-  const [owner, defaultOperatorA, defaultOperatorB, anyone] = accounts;
+  const [registryFunder, owner, defaultOperatorA, defaultOperatorB, anyone] = accounts;
 
   const initialSupply = new BN('10000');
   const name = 'ERC777Preset';
   const symbol = '777P';
 
   const defaultOperators = [defaultOperatorA, defaultOperatorB];
+
+  before(async function () {
+    await singletons.ERC1820Registry(registryFunder);
+  });
 
   beforeEach(async function () {
     this.token = await ERC777PresetFixedSupply.new(name, symbol, initialSupply, owner, defaultOperators);
