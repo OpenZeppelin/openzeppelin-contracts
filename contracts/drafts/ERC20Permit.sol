@@ -34,9 +34,6 @@ abstract contract ERC20Permit is ERC20, IERC2612Permit, EIP712 {
 
     /**
      * @dev See {IERC2612Permit-permit}.
-     *
-     * If https://eips.ethereum.org/EIPS/eip-1344[ChainID] ever changes, the
-     * EIP712 Domain Separator is automatically recalculated.
      */
     function permit(address owner, address spender, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) public virtual override {
         // solhint-disable-next-line not-rely-on-time
