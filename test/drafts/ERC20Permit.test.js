@@ -39,7 +39,7 @@ contract('ERC20Permit', function (accounts) {
   });
 
   it('initial nonce is 0', async function () {
-    expect(await this.token.nonces(spender)).to.be.bignumber.equal('0');
+    expect(await this.token.nonces(initialHolder)).to.be.bignumber.equal('0');
   });
 
   it('domain separator', async function () {
