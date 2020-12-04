@@ -16,3 +16,7 @@ TIP: Intermediate and advanced users can use these as starting points when writi
 {{ERC721PresetMinterPauserAutoId}}
 
 {{ERC1155PresetMinterPauser}}
+
+{{ERC20PresetFixedSupply}}
+
+{{ERC777PresetFixedSupply}}

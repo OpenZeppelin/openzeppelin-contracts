@@ -2,7 +2,9 @@
 
 ## Unreleased
 
- * Add beacon proxy. ([#2411](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2411))
+ * `BeaconProxy`: added new kind of proxy that allows simultaneous atomic upgrades. ([#2411](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2411))
+ * `EIP712`: added helpers to verify EIP712 typed data signatures on chain. ([#2418](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2418))
+ * Presets: added token presets with preminted fixed supply `ERC20PresetFixedSupply` and `ERC777PresetFixedSupply`. ([#2399](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2399))
  * `Address`: added `functionDelegateCall`, similar to the existing `functionCall`. ([#2333](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2333))
 
 ## 3.3.0 (2020-11-26)
