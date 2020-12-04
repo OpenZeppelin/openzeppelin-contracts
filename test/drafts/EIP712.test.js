@@ -1,22 +1,9 @@
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
+const { EIP712Domain, domainSeparator } = require('../helpers/eip712');
+
 const EIP712 = artifacts.require('EIP712External');
-
-const EIP712Domain = [
-  { name: 'name', type: 'string' },
-  { name: 'version', type: 'string' },
-  { name: 'chainId', type: 'uint256' },
-  { name: 'verifyingContract', type: 'address' },
-];
-
-async function domainSeparator (name, version, chainId, verifyingContract) {
-  return '0x' + ethSigUtil.TypedDataUtils.hashStruct(
-    'EIP712Domain',
-    { name, version, chainId, verifyingContract },
-    { EIP712Domain },
-  ).toString('hex');
-}
 
 contract('EIP712', function (accounts) {
   const [mailTo] = accounts;
