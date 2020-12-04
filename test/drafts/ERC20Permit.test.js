@@ -50,7 +50,7 @@ contract('ERC20Permit', function (accounts) {
     );
   });
 
-  it('permits', async function () {
+  describe('permit', function () {
     const wallet = Wallet.generate();
 
     const owner = wallet.getAddressString();
@@ -58,23 +58,34 @@ contract('ERC20Permit', function (accounts) {
     const nonce = 0;
     const deadline = MAX_UINT256;
 
-    const chainId = this.chainId;
-    const verifyingContract = this.token.address;
-
-    const data = {
+    const buildData = (chainId, verifyingContract) => ({
       primaryType: 'Permit',
       types: { EIP712Domain, Permit },
       domain: { name, version, chainId, verifyingContract },
       message: { owner, spender, value, nonce, deadline },
-    };
+    });
 
-    const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
+    it('accepts owner signature', async function () {
+      const data = buildData(this.chainId, this.token.address);
+      const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
+      const { v, r, s } = fromRpcSig(signature);
 
-    const { v, r, s } = fromRpcSig(signature);
+      const receipt = await this.token.permit(owner, spender, value, deadline, v, r, s);
 
-    const receipt = await this.token.permit(owner, spender, value, deadline, v, r, s);
+      expect(await this.token.nonces(owner)).to.be.bignumber.equal('1');
+      expect(await this.token.allowance(owner, spender)).to.be.bignumber.equal(value);
+    });
 
-    expect(await this.token.nonces(owner)).to.be.bignumber.equal('1');
-    expect(await this.token.allowance(owner, spender)).to.be.bignumber.equal(value);
+    it('rejects other signature', async function () {
+      const otherWallet = Wallet.generate();
+      const data = buildData(this.chainId, this.token.address);
+      const signature = ethSigUtil.signTypedMessage(otherWallet.getPrivateKey(), { data });
+      const { v, r, s } = fromRpcSig(signature);
+
+      await expectRevert(
+        this.token.permit(owner, spender, value, deadline, v, r, s),
+        'ERC20Permit: invalid signature',
+      );
+    });
   });
 });
