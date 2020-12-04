@@ -10,12 +10,7 @@ const Wallet = require('ethereumjs-wallet').default;
 
 const ERC20PermitMock = artifacts.require('ERC20PermitMock');
 
-const EIP712Domain = [
-  { name: 'name', type: 'string' },
-  { name: 'version', type: 'string' },
-  { name: 'chainId', type: 'uint256' },
-  { name: 'verifyingContract', type: 'address' },
-];
+const { EIP712Domain, domainSeparator } = require('../helpers/eip712');
 
 const Permit = [
   { name: 'owner', type: 'address' },
@@ -45,6 +40,14 @@ contract('ERC20Permit', function (accounts) {
 
   it('initial nonce is 0', async function () {
     expect(await this.token.nonces(spender)).to.be.bignumber.equal('0');
+  });
+
+  it('domain separator', async function () {
+    expect(
+      await this.token.DOMAIN_SEPARATOR(),
+    ).to.equal(
+      await domainSeparator(name, version, this.chainId, this.token.address),
+    );
   });
 
   it('permits', async function () {
