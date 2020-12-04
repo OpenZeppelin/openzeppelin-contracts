@@ -2,7 +2,7 @@
 
 const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
-const { MAX_UINT256, ZERO_ADDRESS } = constants;
+const { MAX_UINT256, ZERO_ADDRESS, ZERO_BYTES32 } = constants;
 
 const { fromRpcSig } = require('ethereumjs-util');
 const ethSigUtil = require('eth-sig-util');
@@ -85,6 +85,15 @@ contract('ERC20Permit', function (accounts) {
       await expectRevert(
         this.token.permit(owner, spender, value, deadline, v, r, s),
         'ERC20Permit: invalid signature',
+      );
+    });
+
+    it('rejects expired permit', async function () {
+      const deadline = await time.latest();
+
+      await expectRevert(
+        this.token.permit(owner, spender, value, deadline, 0, ZERO_BYTES32, ZERO_BYTES32),
+        'ERC20Permit: expired deadline',
       );
     });
   });
