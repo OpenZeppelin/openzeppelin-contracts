@@ -89,7 +89,7 @@ contract('ERC20Permit', function (accounts) {
     });
 
     it('rejects expired permit', async function () {
-      const deadline = await time.latest();
+      const deadline = (await time.latest()) - time.duration.weeks(1);
 
       await expectRevert(
         this.token.permit(owner, spender, value, deadline, 0, ZERO_BYTES32, ZERO_BYTES32),
