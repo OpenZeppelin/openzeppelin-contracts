@@ -73,5 +73,8 @@ contract('ERC20Permit', function (accounts) {
     const { v, r, s } = fromRpcSig(signature);
 
     const receipt = await this.token.permit(owner, spender, value, deadline, v, r, s);
+
+    expect(await this.token.nonces(owner)).to.be.bignumber.equal('1');
+    expect(await this.token.allowance(owner, spender)).to.be.bignumber.equal(value);
   });
 });
