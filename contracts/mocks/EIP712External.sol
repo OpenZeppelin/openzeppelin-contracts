@@ -22,7 +22,8 @@ contract EIP712External is EIP712 {
         require(recoveredSigner == signer);
     }
 
-    function getChainId() external pure returns (uint256 chainId) {
+    function getChainId() external view returns (uint256 chainId) {
+        this; // silence state mutability warning without generating bytecode - see https://github.com/ethereum/solidity/issues/2691
         // solhint-disable-next-line no-inline-assembly
         assembly {
             chainId := chainid()
