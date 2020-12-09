@@ -41,6 +41,36 @@ library ERC165Checker {
     }
 
     /**
+     * @dev Returns a boolean array where each value corresponds to the
+     * interfaces passed in and whether they're supported or not. This allows
+     * you to batch check interfaces for a contract where your expectation
+     * is that some interfaces may not be supported.
+     *
+     * See {IERC165-supportsInterface}.
+     */
+    function getSupportedInterfaces(address account, bytes4[] memory interfaceIds) public view returns (bool[] memory) {
+        // query support of ERC165 itself
+        if (!supportsERC165(account)) {
+            //return an empty array to signify no checks...
+            return new bool[](0);
+        }
+
+        // an array of booleans corresponding to interfaceIds and whether they're supported or not
+        bool[] memory interfaceIdsSupported = new bool[](interfaceIds.length);
+
+        // query support of each interface in interfaceIds
+        for (uint256 i = 0; i < interfaceIds.length; i++) {
+            if (!_supportsERC165Interface(account, interfaceIds[i])) {
+                interfaceIdsSupported[i] = false;
+            } else {
+                interfaceIdsSupported[i] = true;
+            }
+        }
+        
+        return interfaceIdsSupported;
+    }
+
+    /**
      * @dev Returns true if `account` supports all the interfaces defined in
      * `interfaceIds`. Support for {IERC165} itself is queried automatically.
      *
