@@ -76,6 +76,19 @@ contract('ERC20Permit', function (accounts) {
       expect(await this.token.allowance(owner, spender)).to.be.bignumber.equal(value);
     });
 
+    it('rejects reused signature', async function () {
+      const data = buildData(this.chainId, this.token.address);
+      const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
+      const { v, r, s } = fromRpcSig(signature);
+
+      await this.token.permit(owner, spender, value, deadline, v, r, s);
+
+      await expectRevert(
+        this.token.permit(owner, spender, value, deadline, v, r, s),
+        'ERC20Permit: invalid signature',
+      );
+    });
+
     it('rejects other signature', async function () {
       const otherWallet = Wallet.generate();
       const data = buildData(this.chainId, this.token.address);
