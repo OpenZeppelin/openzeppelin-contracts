@@ -9,12 +9,12 @@ import "../utils/Counters.sol";
 import "./EIP712.sol";
 
 /**
- * @dev Extension of {ERC20} that allows token holders to use their tokens
- * without sending any transactions by setting {IERC20-allowance} with a
- * signature using the {permit} method, and then spend them via
- * {IERC20-transferFrom}.
+ * @dev Implementation of the ERC20 Permit extension allowing approvals to be made via signatures, as defined in
+ * https://eips.ethereum.org/EIPS/eip-2612[EIP-2612].
  *
- * The {permit} signature mechanism conforms to the {IERC20Permit} interface.
+ * Adds the {permit} method, which can be used to change an account's ERC20 allowance (see {IERC20-allowance}) by
+ * presenting a message signed by the account. By not relying on `{IERC20-approve}`, the token holder account doesn't
+ * need to send a transaction, and thus is not required to hold Ether at all.
  */
 abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
     using Counters for Counters.Counter;

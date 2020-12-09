@@ -3,13 +3,12 @@
 pragma solidity >=0.6.0 <0.8.0;
 
 /**
- * @dev Interface of the ERC2612 standard as defined in the EIP.
+ * @dev Interface of the ERC20 Permit extension allowing approvals to be made via signatures, as defined in
+ * https://eips.ethereum.org/EIPS/eip-2612[EIP-2612].
  *
- * Adds the {permit} method, which can be used to change one's
- * {IERC20-allowance} without having to send a transaction, by signing a
- * message. This allows users to spend tokens without having to hold Ether.
- *
- * See https://eips.ethereum.org/EIPS/eip-2612.
+ * Adds the {permit} method, which can be used to change an account's ERC20 allowance (see {IERC20-allowance}) by
+ * presenting a message signed by the account. By not relying on `{IERC20-approve}`, the token holder account doesn't
+ * need to send a transaction, and thus is not required to hold Ether at all.
  */
 interface IERC20Permit {
     /**
@@ -23,7 +22,6 @@ interface IERC20Permit {
      *
      * Requirements:
      *
-     * - `owner` cannot be the zero address.
      * - `spender` cannot be the zero address.
      * - `deadline` must be a timestamp in the future.
      * - `v`, `r` and `s` must be a valid `secp256k1` signature from `owner`
@@ -37,7 +35,7 @@ interface IERC20Permit {
     function permit(address owner, address spender, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external;
 
     /**
-     * @dev Returns the current ERC2612 nonce for `owner`. This value must be
+     * @dev Returns the current nonce for `owner`. This value must be
      * included whenever a signature is generated for {permit}.
      *
      * Every successful call to {permit} increases ``owner``'s nonce by one. This
