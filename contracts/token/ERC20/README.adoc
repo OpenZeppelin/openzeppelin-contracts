@@ -27,7 +27,7 @@ Finally, there are some utilities to interact with ERC20 contracts in various wa
 
 The following related EIPs are in draft status and can be found in the drafts directory.
 
-- {IERC2612Permit}
+- {IERC20Permit}
 - {ERC20Permit}
 
 NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC20 (such as <<ERC20-_mint-address-uint256-,`_mint`>>) and expose them as external functions in the way they prefer. On the other hand, xref:ROOT:erc20.adoc#Presets[ERC20 Presets] (such as {ERC20PresetMinterPauser}) are designed using opinionated patterns to provide developers with ready to use, deployable contracts.

@@ -11,7 +11,7 @@ pragma solidity >=0.6.0 <0.8.0;
  *
  * See https://eips.ethereum.org/EIPS/eip-2612.
  */
-interface IERC2612Permit {
+interface IERC20Permit {
     /**
      * @dev Sets `amount` as the allowance of `spender` over `owner`'s tokens,
      * given `owner`'s signed approval.

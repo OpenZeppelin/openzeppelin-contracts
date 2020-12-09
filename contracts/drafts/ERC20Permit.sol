@@ -3,7 +3,7 @@
 pragma solidity >=0.6.5 <0.8.0;
 
 import "../token/ERC20/ERC20.sol";
-import "./IERC2612Permit.sol";
+import "./IERC20Permit.sol";
 import "../cryptography/ECDSA.sol";
 import "../utils/Counters.sol";
 import "./EIP712.sol";
@@ -14,9 +14,9 @@ import "./EIP712.sol";
  * signature using the {permit} method, and then spend them via
  * {IERC20-transferFrom}.
  *
- * The {permit} signature mechanism conforms to the {IERC2612Permit} interface.
+ * The {permit} signature mechanism conforms to the {IERC20Permit} interface.
  */
-abstract contract ERC20Permit is ERC20, IERC2612Permit, EIP712 {
+abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
     using Counters for Counters.Counter;
 
     mapping (address => Counters.Counter) private _nonces;
@@ -33,7 +33,7 @@ abstract contract ERC20Permit is ERC20, IERC2612Permit, EIP712 {
     }
 
     /**
-     * @dev See {IERC2612Permit-permit}.
+     * @dev See {IERC20Permit-permit}.
      */
     function permit(address owner, address spender, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) public virtual override {
         // solhint-disable-next-line not-rely-on-time
@@ -60,14 +60,14 @@ abstract contract ERC20Permit is ERC20, IERC2612Permit, EIP712 {
     }
 
     /**
-     * @dev See {IERC2612Permit-nonces}.
+     * @dev See {IERC20Permit-nonces}.
      */
     function nonces(address owner) public view override returns (uint256) {
         return _nonces[owner].current();
     }
 
     /**
-     * @dev See {IERC2612Permit-DOMAIN_SEPARATOR}.
+     * @dev See {IERC20Permit-DOMAIN_SEPARATOR}.
      */
     // solhint-disable-next-line func-name-mixedcase
     function DOMAIN_SEPARATOR() external view override returns (bytes32) {

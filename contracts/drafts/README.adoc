@@ -10,6 +10,6 @@ Due to their nature as drafts, the details of these contracts may change and we 
 
 == ERC 20
 
-{{IERC2612Permit}}
+{{IERC20Permit}}
 
 {{ERC20Permit}}
