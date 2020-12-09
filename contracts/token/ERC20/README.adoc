@@ -14,15 +14,15 @@ There a few core contracts that implement the behavior specified in the EIP:
 
 Additionally there are multiple custom extensions, including:
 
-* designation of addresses that can pause token transfers for all users ({ERC20Pausable}).
-* efficient storage of past token balances to be later queried at any point in time ({ERC20Snapshot}).
-* destruction of own tokens ({ERC20Burnable}).
-* enforcement of a cap to the total supply when minting tokens ({ERC20Capped}).
+* {ERC20Snapshot}: efficient storage of past token balances to be later queried at any point in time.
+* {ERC20Burnable}: destruction of own tokens.
+* {ERC20Capped}: enforcement of a cap to the total supply when minting tokens.
+* {ERC20Pausable}: ability to pause token transfers.
 
 Finally, there are some utilities to interact with ERC20 contracts in various ways.
 
-* {SafeERC20} is a wrapper around the interface that eliminates the need to handle boolean return values.
-* {TokenTimelock} can hold tokens for a beneficiary until a specified time.
+* {SafeERC20}: a wrapper around the interface that eliminates the need to handle boolean return values.
+* {TokenTimelock}: hold tokens for a beneficiary until a specified time.
 
 NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC20 (such as <<ERC20-_mint-address-uint256-,`_mint`>>) and expose them as external functions in the way they prefer. On the other hand, xref:ROOT:erc20.adoc#Presets[ERC20 Presets] (such as {ERC20PresetMinterPauser}) are designed using opinionated patterns to provide developers with ready to use, deployable contracts.
 
