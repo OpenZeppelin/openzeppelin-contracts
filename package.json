@@ -24,7 +24,7 @@
     "prepack": "scripts/prepack.sh",
     "release": "scripts/release/release.sh",
     "version": "scripts/release/version.sh",
-    "test": "buidler test test/introspection/ERC165Checker.test.js"
+    "test": "buidler test"
   },
   "repository": {
     "type": "git",
