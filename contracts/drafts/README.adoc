@@ -1,4 +1,4 @@
-= Draft EIPS
+= Draft EIPs
 
 This directory contains implementations of EIPs that are still in Draft status.
 
@@ -7,3 +7,9 @@ Due to their nature as drafts, the details of these contracts may change and we 
 == Cryptography
 
 {{EIP712}}
+
+== ERC 20
+
+{{IERC20Permit}}
+
+{{ERC20Permit}}
