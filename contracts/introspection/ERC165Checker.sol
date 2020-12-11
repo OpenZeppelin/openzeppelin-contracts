@@ -48,7 +48,7 @@ library ERC165Checker {
      *
      * See {IERC165-supportsInterface}.
      */
-    function getSupportedInterfaces(address account, bytes4[] memory interfaceIds) public view returns (bool[] memory) {
+    function getSupportedInterfaces(address account, bytes4[] memory interfaceIds) internal view returns (bool[] memory) {
         // query support of ERC165 itself
         if (!supportsERC165(account)) {
             //return an array with false values
