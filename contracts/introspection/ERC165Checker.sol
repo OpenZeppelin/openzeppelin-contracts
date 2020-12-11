@@ -51,8 +51,12 @@ library ERC165Checker {
     function getSupportedInterfaces(address account, bytes4[] memory interfaceIds) public view returns (bool[] memory) {
         // query support of ERC165 itself
         if (!supportsERC165(account)) {
-            //return an empty array to signify no checks...
-            return new bool[](0);
+            //return an array with false values
+            bool[] memory supportedInterfaces = new bool[](interfaceIds.length);
+            for(uint256 i = 0; i < interfaceIds.length; i++) {
+                supportedInterfaces[i] = false;
+            }
+            return supportedInterfaces;
         }
 
         // an array of booleans corresponding to interfaceIds and whether they're supported or not
