@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity >=0.6.0 <0.9.0;
 
 /**
  * @dev Helper to make usage of the `CREATE2` EVM opcode easier and safer.
