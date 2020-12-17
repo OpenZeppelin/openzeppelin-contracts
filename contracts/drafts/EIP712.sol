@@ -96,7 +96,7 @@ abstract contract EIP712 {
         return keccak256(abi.encodePacked("\x19\x01", _domainSeparatorV4(), structHash));
     }
 
-    function _getChainId() private pure returns (uint256 chainId) {
+    function _getChainId() private view returns (uint256 chainId) {
         // solhint-disable-next-line no-inline-assembly
         assembly {
             chainId := chainid()

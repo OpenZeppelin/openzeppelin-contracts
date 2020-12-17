@@ -14,7 +14,7 @@ contract ERC20PermitMock is ERC20Permit {
         _mint(initialAccount, initialBalance);
     }
 
-    function getChainId() external pure returns (uint256 chainId) {
+    function getChainId() external view returns (uint256 chainId) {
         // solhint-disable-next-line no-inline-assembly
         assembly {
             chainId := chainid()

@@ -22,7 +22,7 @@ contract EIP712External is EIP712 {
         require(recoveredSigner == signer);
     }
 
-    function getChainId() external pure returns (uint256 chainId) {
+    function getChainId() external view returns (uint256 chainId) {
         // solhint-disable-next-line no-inline-assembly
         assembly {
             chainId := chainid()
