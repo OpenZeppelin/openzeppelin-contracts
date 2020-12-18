@@ -13,7 +13,7 @@ OpenZeppelin provides xref:api:access.adoc#Ownable[`Ownable`] for implementing o
 ----
 // contracts/MyContract.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.0;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
@@ -62,7 +62,7 @@ Here's a simple example of using `AccessControl` in an xref:tokens.adoc#ERC20[`E
 ----
 // contracts/MyToken.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.0;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -94,7 +94,7 @@ Let's augment our ERC20 token example by also defining a 'burner' role, which le
 ----
 // contracts/MyToken.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.0;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -139,7 +139,7 @@ Let's take a look at the ERC20 token example, this time taking advantage of the 
 ----
 // contracts/MyToken.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.0;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";

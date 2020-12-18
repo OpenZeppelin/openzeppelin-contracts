@@ -108,7 +108,7 @@ Your GSN recipient contract needs to inherit from `GSNRecipientERC20Fee` along w
 ----
 // contracts/MyContract.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.0;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/GSN/GSNRecipientERC20Fee.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";

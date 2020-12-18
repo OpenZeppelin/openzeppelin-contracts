@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.9.0;
+pragma solidity ^0.8.0;
 
 import "../token/ERC1155/IERC1155Receiver.sol";
 import "./ERC165Mock.sol";
