@@ -8,7 +8,6 @@ import "./IERC721Metadata.sol";
 import "./IERC721Enumerable.sol";
 import "./IERC721Receiver.sol";
 import "../../introspection/ERC165.sol";
-import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";
 import "../../utils/EnumerableSet.sol";
 import "../../utils/EnumerableMap.sol";
@@ -19,7 +18,6 @@ import "../../utils/Strings.sol";
  * @dev see https://eips.ethereum.org/EIPS/eip-721
  */
 contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable {
-    using SafeMath for uint256;
     using Address for address;
     using EnumerableSet for EnumerableSet.UintSet;
     using EnumerableMap for EnumerableMap.UintToAddressMap;

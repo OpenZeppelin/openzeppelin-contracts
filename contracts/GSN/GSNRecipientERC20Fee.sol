@@ -3,7 +3,6 @@
 pragma solidity ^0.8.0;
 
 import "./GSNRecipient.sol";
-import "../math/SafeMath.sol";
 import "../access/Ownable.sol";
 import "../token/ERC20/SafeERC20.sol";
 import "../token/ERC20/ERC20.sol";
@@ -19,7 +18,6 @@ import "../token/ERC20/ERC20.sol";
  */
 contract GSNRecipientERC20Fee is GSNRecipient {
     using SafeERC20 for __unstable__ERC20Owned;
-    using SafeMath for uint256;
 
     enum GSNRecipientERC20FeeErrorCodes {
         INSUFFICIENT_BALANCE
@@ -100,11 +98,11 @@ contract GSNRecipientERC20Fee is GSNRecipient {
         // actualCharge is an _estimated_ charge, which assumes postRelayedCall will use all available gas.
         // This implementation's gas cost can be roughly estimated as 10k gas, for the two SSTORE operations in an
         // ERC20 transfer.
-        uint256 overestimation = _computeCharge(_POST_RELAYED_CALL_MAX_GAS.sub(10000), gasPrice, transactionFee);
-        actualCharge = actualCharge.sub(overestimation);
+        uint256 overestimation = _computeCharge(_POST_RELAYED_CALL_MAX_GAS - 10000, gasPrice, transactionFee);
+        actualCharge = actualCharge - overestimation;
 
         // After the relayed call has been executed and the actual charge estimated, the excess pre-charge is returned
-        _token.safeTransfer(from, maxPossibleCharge.sub(actualCharge));
+        _token.safeTransfer(from, maxPossibleCharge - actualCharge);
     }
 }
 

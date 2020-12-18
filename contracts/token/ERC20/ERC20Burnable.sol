@@ -11,8 +11,6 @@ import "./ERC20.sol";
  * recognized off-chain (via event analysis).
  */
 abstract contract ERC20Burnable is Context, ERC20 {
-    using SafeMath for uint256;
-
     /**
      * @dev Destroys `amount` tokens from the caller.
      *
@@ -34,7 +32,7 @@ abstract contract ERC20Burnable is Context, ERC20 {
      * `amount`.
      */
     function burnFrom(address account, uint256 amount) public virtual {
-        uint256 decreasedAllowance = allowance(account, _msgSender()).sub(amount, "ERC20: burn amount exceeds allowance");
+        uint256 decreasedAllowance = allowance(account, _msgSender()) - amount;
 
         _approve(account, _msgSender(), decreasedAllowance);
         _burn(account, amount);
