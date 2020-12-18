@@ -97,9 +97,6 @@ abstract contract EIP712 {
     }
 
     function _getChainId() private view returns (uint256 chainId) {
-        // solhint-disable-next-line no-inline-assembly
-        assembly {
-            chainId := chainid()
-        }
+        chainId = block.chainid;
     }
 }
