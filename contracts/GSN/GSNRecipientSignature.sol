@@ -23,7 +23,7 @@ contract GSNRecipientSignature is GSNRecipient {
     /**
      * @dev Sets the trusted signer that is going to be producing signatures to approve relayed calls.
      */
-    constructor(address trustedSigner) public {
+    constructor(address trustedSigner) {
         require(trustedSigner != address(0), "GSNRecipientSignature: trusted signer is the zero address");
         _trustedSigner = trustedSigner;
     }

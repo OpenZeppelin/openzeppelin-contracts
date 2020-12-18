@@ -12,7 +12,6 @@ import "../GSN/GSNRecipientSignature.sol";
  */
 contract ERC721GSNRecipientMock is ERC721, GSNRecipient, GSNRecipientSignature {
     constructor(string memory name, string memory symbol, address trustedSigner)
-        public
         ERC721(name, symbol)
         GSNRecipientSignature(trustedSigner)
     { }

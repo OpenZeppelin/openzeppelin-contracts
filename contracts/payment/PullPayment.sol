@@ -25,7 +25,7 @@ import "./escrow/Escrow.sol";
 abstract contract PullPayment {
     Escrow private _escrow;
 
-    constructor () internal {
+    constructor () {
         _escrow = new Escrow();
     }
 

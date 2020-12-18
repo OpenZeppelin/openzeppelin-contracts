@@ -14,7 +14,7 @@ Let's say we want a token with a fixed supply of 1000, initially allocated to th
 [source,solidity]
 ----
 contract ERC20FixedSupply is ERC20 {
-    constructor() public {
+    constructor() {
         totalSupply += 1000;
         balances[msg.sender] += 1000;
     }
@@ -26,7 +26,7 @@ Starting with Contracts v2 this pattern is not only discouraged, but disallowed.
 [source,solidity]
 ----
 contract ERC20FixedSupply is ERC20 {
-    constructor() public ERC20("Fixed", "FIX") {
+    constructor() ERC20("Fixed", "FIX") {
         _mint(msg.sender, 1000);
     }
 }
@@ -44,7 +44,7 @@ The mechanism we will implement is a token reward for the miners that produce Et
 [source,solidity]
 ----
 contract ERC20WithMinerReward is ERC20 {
-    constructor() public ERC20("Reward", "RWD") {}
+    constructor() ERC20("Reward", "RWD") {}
 
     function mintMinerReward() public {
         _mint(block.coinbase, 1000);
@@ -92,7 +92,7 @@ Adding to the supply mechanism from previous sections, we can use this hook to m
 [source,solidity]
 ----
 contract ERC20WithAutoMinerReward is ERC20 {
-    constructor() public ERC20("Reward", "RWD") {}
+    constructor() ERC20("Reward", "RWD") {}
 
     function _mintMinerReward() internal {
         _mint(block.coinbase, 1000);

@@ -30,7 +30,7 @@ contract BeaconProxy is Proxy {
      *
      * - `beacon` must be a contract with the interface {IBeacon}.
      */
-    constructor(address beacon, bytes memory data) public payable {
+    constructor(address beacon, bytes memory data) payable {
         assert(_BEACON_SLOT == bytes32(uint256(keccak256("eip1967.proxy.beacon")) - 1));
         _setBeacon(beacon, data);
     }

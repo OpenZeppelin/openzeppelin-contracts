@@ -10,7 +10,7 @@ contract ERC20PermitMock is ERC20Permit {
         string memory symbol,
         address initialAccount,
         uint256 initialBalance
-    ) public payable ERC20(name, symbol) ERC20Permit(name) {
+    ) payable ERC20(name, symbol) ERC20Permit(name) {
         _mint(initialAccount, initialBalance);
     }
 

@@ -6,7 +6,7 @@ import "../drafts/EIP712.sol";
 import "../cryptography/ECDSA.sol";
 
 contract EIP712External is EIP712 {
-    constructor(string memory name, string memory version) public EIP712(name, version) {}
+    constructor(string memory name, string memory version) EIP712(name, version) {}
 
     function domainSeparator() external view returns (bytes32) {
         return _domainSeparatorV4();
