@@ -120,7 +120,7 @@ contract MyContract is GSNRecipientERC20Fee, AccessControl {
         _setupRole(MINTER_ROLE, _msgSender());
     }
 
-    function _msgSender() internal view override(Context, GSNRecipient) returns (address payable) {
+    function _msgSender() internal view override(Context, GSNRecipient) returns (address) {
         return GSNRecipient._msgSender();
     }
 
