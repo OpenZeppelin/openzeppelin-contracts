@@ -35,7 +35,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
     /**
      * @dev See {IERC20Permit-permit}.
      */
-    function permit(address owner, address spender, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) public virtual override {
+    function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) public virtual override {
         // solhint-disable-next-line not-rely-on-time
         require(block.timestamp <= deadline, "ERC20Permit: expired deadline");
 
@@ -44,7 +44,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
                 _PERMIT_TYPEHASH,
                 owner,
                 spender,
-                amount,
+                value,
                 _nonces[owner].current(),
                 deadline
             )
@@ -56,7 +56,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
         require(signer == owner, "ERC20Permit: invalid signature");
 
         _nonces[owner].increment();
-        _approve(owner, spender, amount);
+        _approve(owner, spender, value);
     }
 
     /**
