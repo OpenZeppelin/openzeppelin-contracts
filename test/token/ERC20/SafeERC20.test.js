@@ -93,9 +93,9 @@ function shouldOnlyRevertOnErrors () {
       });
 
       it('reverts when decreasing the allowance', async function () {
-        await expectRevert(
+        await expectRevert.unspecified(
           this.wrapper.decreaseAllowance(10),
-          'SafeERC20: decreased allowance below zero',
+
         );
       });
     });
@@ -125,9 +125,8 @@ function shouldOnlyRevertOnErrors () {
       });
 
       it('reverts when decreasing the allowance to a negative value', async function () {
-        await expectRevert(
+        await expectRevert.unspecified(
           this.wrapper.decreaseAllowance(200),
-          'SafeERC20: decreased allowance below zero',
         );
       });
     });

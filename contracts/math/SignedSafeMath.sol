@@ -32,7 +32,7 @@ library SignedSafeMath {
      * - The divisor cannot be zero.
      */
     function div(int256 a, int256 b) internal pure returns (int256) {
-        return = a / b;
+        return a / b;
     }
 
     /**

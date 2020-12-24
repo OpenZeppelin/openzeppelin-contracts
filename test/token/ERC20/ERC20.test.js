@@ -53,8 +53,8 @@ contract('ERC20', function (accounts) {
       function shouldDecreaseApproval (amount) {
         describe('when there was no approved amount before', function () {
           it('reverts', async function () {
-            await expectRevert(this.token.decreaseAllowance(
-              spender, amount, { from: initialHolder }), 'ERC20: decreased allowance below zero',
+            await expectRevert.unspecified(this.token.decreaseAllowance(
+              spender, amount, { from: initialHolder }),
             );
           });
         });
@@ -88,9 +88,9 @@ contract('ERC20', function (accounts) {
           });
 
           it('reverts when more than the full allowance is removed', async function () {
-            await expectRevert(
+            await expectRevert.unspecified(
               this.token.decreaseAllowance(spender, approvedAmount.addn(1), { from: initialHolder }),
-              'ERC20: decreased allowance below zero',
+
             );
           });
         });
@@ -114,8 +114,8 @@ contract('ERC20', function (accounts) {
       const spender = ZERO_ADDRESS;
 
       it('reverts', async function () {
-        await expectRevert(this.token.decreaseAllowance(
-          spender, amount, { from: initialHolder }), 'ERC20: decreased allowance below zero',
+        await expectRevert.unspecified(this.token.decreaseAllowance(
+          spender, amount, { from: initialHolder }),
         );
       });
     });
@@ -247,8 +247,8 @@ contract('ERC20', function (accounts) {
 
     describe('for a non zero account', function () {
       it('rejects burning more than balance', async function () {
-        await expectRevert(this.token.burn(
-          initialHolder, initialSupply.addn(1)), 'ERC20: burn amount exceeds balance',
+        await expectRevert.unspecified(this.token.burn(
+          initialHolder, initialSupply.addn(1)),
         );
       });
 
