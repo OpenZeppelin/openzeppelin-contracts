@@ -9,8 +9,7 @@ pragma solidity >=0.6.0 <0.8.0;
  * This contract provide tooling to deploy proxies following the EIP 1167
  * proposed bytecode. This is possible using both create and create2.
  */
-library Clones
-{
+library Clones {
     function clone(address master) internal returns (address instance) {
         // solhint-disable-next-line no-inline-assembly
         assembly {
