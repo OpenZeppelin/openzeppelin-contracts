@@ -5,7 +5,7 @@ pragma solidity >=0.6.0 <0.8.0;
 import "./IERC1155.sol";
 import "./IERC1155MetadataURI.sol";
 import "./IERC1155Receiver.sol";
-import "../../GSN/Context.sol";
+import "../../utils/Context.sol";
 import "../../introspection/ERC165.sol";
 import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";

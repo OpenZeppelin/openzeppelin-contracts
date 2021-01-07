@@ -2,7 +2,7 @@
 
 pragma solidity >=0.6.0 <0.8.0;
 
-import "../GSN/Context.sol";
+import "../utils/Context.sol";
 import "../token/ERC777/IERC777.sol";
 import "../token/ERC777/IERC777Sender.sol";
 import "../token/ERC777/IERC777Recipient.sol";
