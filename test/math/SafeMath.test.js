@@ -143,4 +143,26 @@ contract('SafeMath', function (accounts) {
       await expectRevert(this.safeMath.mod(a, b), 'SafeMath: modulo by zero');
     });
   });
+
+  describe('memory leakage', function () {
+    it('add does not leak', async function () {
+      expect(await this.safeMath.addMemoryCheck()).to.be.bignumber.equal('0');
+    });
+
+    it('sub does not leak', async function () {
+      expect(await this.safeMath.subMemoryCheck()).to.be.bignumber.equal('0');
+    });
+
+    it('mul does not leak', async function () {
+      expect(await this.safeMath.mulMemoryCheck()).to.be.bignumber.equal('0');
+    });
+
+    it('div does not leak', async function () {
+      expect(await this.safeMath.divMemoryCheck()).to.be.bignumber.equal('0');
+    });
+
+    it('mod does not leak', async function () {
+      expect(await this.safeMath.modMemoryCheck()).to.be.bignumber.equal('0');
+    });
+  });
 });
