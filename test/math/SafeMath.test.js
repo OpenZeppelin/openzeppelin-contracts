@@ -5,6 +5,18 @@ const { expect } = require('chai');
 
 const SafeMathMock = artifacts.require('SafeMathMock');
 
+async function deepExpect (value, expected) {
+  for (const key in expected) {
+    if (BN.isBN(value[key])) {
+      expect(value[key]).to.be.bignumber.equal(expected[key]);
+    } else if (Symbol.iterator in Object(value)) {
+      deepExpect(value[key], expected[key]);
+    } else {
+      expect(value[key]).to.be.equal(expected[key]);
+    }
+  }
+}
+
 contract('SafeMath', function (accounts) {
   beforeEach(async function () {
     this.safeMath = await SafeMathMock.new();
@@ -19,6 +31,137 @@ contract('SafeMath', function (accounts) {
     await expectRevert(fn(lhs, rhs, ...extra), reason);
     await expectRevert(fn(rhs, lhs, ...extra), reason);
   }
+
+  async function testCommutativeIterable (fn, lhs, rhs, expected, ...extra) {
+    deepExpect(await fn(lhs, rhs, ...extra), expected);
+    deepExpect(await fn(rhs, lhs, ...extra), expected);
+  }
+
+  describe('with flag', function () {
+    describe('add', function () {
+      it('adds correctly', async function () {
+        const a = new BN('5678');
+        const b = new BN('1234');
+
+        testCommutativeIterable(this.safeMath.addWithFlag, a, b, { flag: true, value: a.add(b) });
+      });
+
+      it('reverts on addition overflow', async function () {
+        const a = MAX_UINT256;
+        const b = new BN('1');
+
+        testCommutativeIterable(this.safeMath.addWithFlag, a, b, { flag: false, value: '0' });
+      });
+    });
+
+    describe('sub', function () {
+      it('subtracts correctly', async function () {
+        const a = new BN('5678');
+        const b = new BN('1234');
+
+        deepExpect(await this.safeMath.subWithFlag(a, b), { flag: true, value: a.sub(b) });
+      });
+
+      it('reverts if subtraction result would be negative', async function () {
+        const a = new BN('1234');
+        const b = new BN('5678');
+
+        deepExpect(await this.safeMath.subWithFlag(a, b), { flag: false, value: '0' });
+      });
+    });
+
+    describe('mul', function () {
+      it('multiplies correctly', async function () {
+        const a = new BN('1234');
+        const b = new BN('5678');
+
+        testCommutativeIterable(this.safeMath.mulWithFlag, a, b, { flag: true, value: a.mul(b) });
+      });
+
+      it('multiplies by zero correctly', async function () {
+        const a = new BN('0');
+        const b = new BN('5678');
+
+        testCommutativeIterable(this.safeMath.mulWithFlag, a, b, { flag: true, value: a.mul(b) });
+      });
+
+      it('reverts on multiplication overflow', async function () {
+        const a = MAX_UINT256;
+        const b = new BN('2');
+
+        testCommutativeIterable(this.safeMath.mulWithFlag, a, b, { flag: false, value: '0' });
+      });
+    });
+
+    describe('div', function () {
+      it('divides correctly', async function () {
+        const a = new BN('5678');
+        const b = new BN('5678');
+
+        deepExpect(await this.safeMath.divWithFlag(a, b), { flag: true, value: a.div(b) });
+      });
+
+      it('divides zero correctly', async function () {
+        const a = new BN('0');
+        const b = new BN('5678');
+
+        deepExpect(await this.safeMath.divWithFlag(a, b), { flag: true, value: a.div(b) });
+      });
+
+      it('returns complete number result on non-even division', async function () {
+        const a = new BN('7000');
+        const b = new BN('5678');
+
+        deepExpect(await this.safeMath.divWithFlag(a, b), { flag: true, value: a.div(b) });
+      });
+
+      it('reverts on division by zero', async function () {
+        const a = new BN('5678');
+        const b = new BN('0');
+
+        deepExpect(await this.safeMath.divWithFlag(a, b), { flag: false, value: '0' });
+      });
+    });
+
+    describe('mod', function () {
+      describe('modulos correctly', async function () {
+        it('when the dividend is smaller than the divisor', async function () {
+          const a = new BN('284');
+          const b = new BN('5678');
+
+          deepExpect(await this.safeMath.modWithFlag(a, b), { flag: true, value: a.mod(b) });
+        });
+
+        it('when the dividend is equal to the divisor', async function () {
+          const a = new BN('5678');
+          const b = new BN('5678');
+
+          deepExpect(await this.safeMath.modWithFlag(a, b), { flag: true, value: a.mod(b) });
+        });
+
+        it('when the dividend is larger than the divisor', async function () {
+          const a = new BN('7000');
+          const b = new BN('5678');
+
+          deepExpect(await this.safeMath.modWithFlag(a, b), { flag: true, value: a.mod(b) });
+        });
+
+        it('when the dividend is a multiple of the divisor', async function () {
+          const a = new BN('17034'); // 17034 == 5678 * 3
+          const b = new BN('5678');
+
+          deepExpect(await this.safeMath.modWithFlag(a, b), { flag: true, value: a.mod(b) });
+        });
+      });
+
+      it('reverts with a 0 divisor', async function () {
+        const a = new BN('5678');
+        const b = new BN('0');
+
+        deepExpect(await this.safeMath.modWithFlag(a, b), { flag: false, value: '0' });
+      });
+    });
+  });
 
   describe('with default revert message', function () {
     describe('add', function () {

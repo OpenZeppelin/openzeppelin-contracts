@@ -5,6 +5,26 @@ pragma solidity >=0.6.0 <0.8.0;
 import "../math/SafeMath.sol";
 
 contract SafeMathMock {
+    function addWithFlag(uint256 a, uint256 b) public pure returns (bool flag, uint256 value) {
+        return SafeMath.addX(a, b);
+    }
+
+    function subWithFlag(uint256 a, uint256 b) public pure returns (bool flag, uint256 value) {
+        return SafeMath.subX(a, b);
+    }
+
+    function mulWithFlag(uint256 a, uint256 b) public pure returns (bool flag, uint256 value) {
+        return SafeMath.mulX(a, b);
+    }
+
+    function divWithFlag(uint256 a, uint256 b) public pure returns (bool flag, uint256 value) {
+        return SafeMath.divX(a, b);
+    }
+
+    function modWithFlag(uint256 a, uint256 b) public pure returns (bool flag, uint256 value) {
+        return SafeMath.modX(a, b);
+    }
+
     function add(uint256 a, uint256 b) public pure returns (uint256) {
         return SafeMath.add(a, b);
     }
@@ -72,7 +92,7 @@ contract SafeMathMock {
         // solhint-disable-next-line no-inline-assembly
         assembly { mem := sub(mload(0x40), mem) }
     }
-    
+
     function modMemoryCheck() public pure returns (uint256 mem) {
         uint256 length = 32;
         // solhint-disable-next-line no-inline-assembly
