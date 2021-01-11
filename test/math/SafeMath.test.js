@@ -147,22 +147,6 @@ contract('SafeMath', function (accounts) {
   });
 
   describe('with custom revert message', function () {
-    describe('add', function () {
-      it('adds correctly', async function () {
-        const a = new BN('5678');
-        const b = new BN('1234');
-
-        await testCommutative(this.safeMath.addWithMessage, a, b, a.add(b), 'MyErrorMessage');
-      });
-
-      it('reverts on addition overflow', async function () {
-        const a = MAX_UINT256;
-        const b = new BN('1');
-
-        await testFailsCommutative(this.safeMath.addWithMessage, a, b, 'MyErrorMessage', 'MyErrorMessage');
-      });
-    });
-
     describe('sub', function () {
       it('subtracts correctly', async function () {
         const a = new BN('5678');
@@ -176,29 +160,6 @@ contract('SafeMath', function (accounts) {
         const b = new BN('5678');
 
         await expectRevert(this.safeMath.subWithMessage(a, b, 'MyErrorMessage'), 'MyErrorMessage');
-      });
-    });
-
-    describe('mul', function () {
-      it('multiplies correctly', async function () {
-        const a = new BN('1234');
-        const b = new BN('5678');
-
-        await testCommutative(this.safeMath.mulWithMessage, a, b, a.mul(b), 'MyErrorMessage');
-      });
-
-      it('multiplies by zero correctly', async function () {
-        const a = new BN('0');
-        const b = new BN('5678');
-
-        await testCommutative(this.safeMath.mulWithMessage, a, b, '0', 'MyErrorMessage');
-      });
-
-      it('reverts on multiplication overflow', async function () {
-        const a = MAX_UINT256;
-        const b = new BN('2');
-
-        await testFailsCommutative(this.safeMath.mulWithMessage, a, b, 'MyErrorMessage', 'MyErrorMessage');
       });
     });
 
