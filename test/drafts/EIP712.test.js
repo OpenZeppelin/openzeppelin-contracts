@@ -14,7 +14,10 @@ contract('EIP712', function (accounts) {
   beforeEach('deploying', async function () {
     this.eip712 = await EIP712.new(name, version);
 
-    this.chainId = await web3.eth.getChainId();
+    // We get the chain id from the contract because Ganache (used for coverage) does not return the same chain id
+    // from within the EVM as from the JSON RPC interface.
+    // See https://github.com/trufflesuite/ganache-core/issues/515
+    this.chainId = await this.eip712.getChainId();
   });
 
   it('domain separator', async function () {

@@ -32,7 +32,10 @@ contract('ERC20Permit', function (accounts) {
   beforeEach(async function () {
     this.token = await ERC20PermitMock.new(name, symbol, initialHolder, initialSupply);
 
-    this.chainId = await web3.eth.getChainId();
+    // We get the chain id from the contract because Ganache (used for coverage) does not return the same chain id
+    // from within the EVM as from the JSON RPC interface.
+    // See https://github.com/trufflesuite/ganache-core/issues/515
+    this.chainId = await this.token.getChainId();
   });
 
   it('initial nonce is 0', async function () {

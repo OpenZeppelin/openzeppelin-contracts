@@ -13,4 +13,8 @@ contract ERC20PermitMock is ERC20Permit {
     ) payable ERC20(name, symbol) ERC20Permit(name) {
         _mint(initialAccount, initialBalance);
     }
+
+    function getChainId() external view returns (uint256) {
+        return block.chainid;
+    }
 }
