@@ -91,7 +91,7 @@ contract TransparentUpgradeableProxy is UpgradeableProxy {
      *
      * NOTE: Only the admin can call this function. See {ProxyAdmin-changeProxyAdmin}.
      */
-    function changeAdmin(address newAdmin) external ifAdmin {
+    function changeAdmin(address newAdmin) external virtual ifAdmin {
         require(newAdmin != address(0), "TransparentUpgradeableProxy: new admin is the zero address");
         emit AdminChanged(_admin(), newAdmin);
         _setAdmin(newAdmin);
@@ -102,7 +102,7 @@ contract TransparentUpgradeableProxy is UpgradeableProxy {
      *
      * NOTE: Only the admin can call this function. See {ProxyAdmin-upgrade}.
      */
-    function upgradeTo(address newImplementation) external ifAdmin {
+    function upgradeTo(address newImplementation) external virtual ifAdmin {
         _upgradeTo(newImplementation);
     }
 
@@ -113,7 +113,7 @@ contract TransparentUpgradeableProxy is UpgradeableProxy {
      *
      * NOTE: Only the admin can call this function. See {ProxyAdmin-upgradeAndCall}.
      */
-    function upgradeToAndCall(address newImplementation, bytes calldata data) external payable ifAdmin {
+    function upgradeToAndCall(address newImplementation, bytes calldata data) external payable virtual ifAdmin {
         _upgradeTo(newImplementation);
         Address.functionDelegateCall(newImplementation, data);
     }
@@ -144,7 +144,7 @@ contract TransparentUpgradeableProxy is UpgradeableProxy {
     /**
      * @dev Makes sure the admin cannot access the fallback function. See {Proxy-_beforeFallback}.
      */
-    function _beforeFallback() internal override virtual {
+    function _beforeFallback() internal virtual override {
         require(msg.sender != _admin(), "TransparentUpgradeableProxy: admin cannot fallback to proxy target");
         super._beforeFallback();
     }
