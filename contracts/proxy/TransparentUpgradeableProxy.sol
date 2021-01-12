@@ -67,7 +67,7 @@ contract TransparentUpgradeableProxy is UpgradeableProxy {
      * https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
      * `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
      */
-    function admin() external ifAdmin returns (address admin_) {
+    function admin() external virtual ifAdmin returns (address admin_) {
         admin_ = _admin();
     }
 
@@ -80,7 +80,7 @@ contract TransparentUpgradeableProxy is UpgradeableProxy {
      * https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
      * `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
      */
-    function implementation() external ifAdmin returns (address implementation_) {
+    function implementation() external virtual ifAdmin returns (address implementation_) {
         implementation_ = _implementation();
     }
 
@@ -91,7 +91,7 @@ contract TransparentUpgradeableProxy is UpgradeableProxy {
      *
      * NOTE: Only the admin can call this function. See {ProxyAdmin-changeProxyAdmin}.
      */
-    function changeAdmin(address newAdmin) external ifAdmin {
+    function changeAdmin(address newAdmin) external virtual ifAdmin {
         require(newAdmin != address(0), "TransparentUpgradeableProxy: new admin is the zero address");
         emit AdminChanged(_admin(), newAdmin);
         _setAdmin(newAdmin);
@@ -102,7 +102,7 @@ contract TransparentUpgradeableProxy is UpgradeableProxy {
      *
      * NOTE: Only the admin can call this function. See {ProxyAdmin-upgrade}.
      */
-    function upgradeTo(address newImplementation) external ifAdmin {
+    function upgradeTo(address newImplementation) external virtual ifAdmin {
         _upgradeTo(newImplementation);
     }
 
@@ -113,7 +113,7 @@ contract TransparentUpgradeableProxy is UpgradeableProxy {
      *
      * NOTE: Only the admin can call this function. See {ProxyAdmin-upgradeAndCall}.
      */
-    function upgradeToAndCall(address newImplementation, bytes calldata data) external payable ifAdmin {
+    function upgradeToAndCall(address newImplementation, bytes calldata data) external payable virtual ifAdmin {
         _upgradeTo(newImplementation);
         Address.functionDelegateCall(newImplementation, data);
     }
@@ -121,7 +121,7 @@ contract TransparentUpgradeableProxy is UpgradeableProxy {
     /**
      * @dev Returns the current admin.
      */
-    function _admin() internal view returns (address adm) {
+    function _admin() internal view virtual returns (address adm) {
         bytes32 slot = _ADMIN_SLOT;
         // solhint-disable-next-line no-inline-assembly
         assembly {
@@ -144,7 +144,7 @@ contract TransparentUpgradeableProxy is UpgradeableProxy {
     /**
      * @dev Makes sure the admin cannot access the fallback function. See {Proxy-_beforeFallback}.
      */
-    function _beforeFallback() internal override virtual {
+    function _beforeFallback() internal virtual override virtual {
         require(msg.sender != _admin(), "TransparentUpgradeableProxy: admin cannot fallback to proxy target");
         super._beforeFallback();
     }
