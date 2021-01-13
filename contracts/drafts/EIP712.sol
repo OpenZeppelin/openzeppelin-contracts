@@ -46,7 +46,7 @@ abstract contract EIP712 {
     constructor(string memory name, string memory version) internal {
         bytes32 hashedName = keccak256(bytes(name));
         bytes32 hashedVersion = keccak256(bytes(version));
-        bytes32 typeHash = keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"); 
+        bytes32 typeHash = keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
         _HASHED_NAME = hashedName;
         _HASHED_VERSION = hashedVersion;
         _CACHED_CHAIN_ID = _getChainId();
@@ -57,7 +57,7 @@ abstract contract EIP712 {
     /**
      * @dev Returns the domain separator for the current chain.
      */
-    function _domainSeparatorV4() internal view returns (bytes32) {
+    function _domainSeparatorV4() internal view virtual returns (bytes32) {
         if (_getChainId() == _CACHED_CHAIN_ID) {
             return _CACHED_DOMAIN_SEPARATOR;
         } else {
@@ -92,7 +92,7 @@ abstract contract EIP712 {
      * address signer = ECDSA.recover(digest, signature);
      * ```
      */
-    function _hashTypedDataV4(bytes32 structHash) internal view returns (bytes32) {
+    function _hashTypedDataV4(bytes32 structHash) internal view virtual returns (bytes32) {
         return keccak256(abi.encodePacked("\x19\x01", _domainSeparatorV4(), structHash));
     }
 
