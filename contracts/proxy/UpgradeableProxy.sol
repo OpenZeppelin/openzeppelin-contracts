@@ -44,7 +44,7 @@ contract UpgradeableProxy is Proxy {
     /**
      * @dev Returns the current implementation address.
      */
-    function _implementation() internal override view returns (address impl) {
+    function _implementation() internal view override returns (address impl) {
         bytes32 slot = _IMPLEMENTATION_SLOT;
         // solhint-disable-next-line no-inline-assembly
         assembly {
@@ -57,7 +57,7 @@ contract UpgradeableProxy is Proxy {
      *
      * Emits an {Upgraded} event.
      */
-    function _upgradeTo(address newImplementation) internal {
+    function _upgradeTo(address newImplementation) internal virtual {
         _setImplementation(newImplementation);
         emit Upgraded(newImplementation);
     }
