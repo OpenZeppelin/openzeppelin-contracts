@@ -45,7 +45,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
                 owner,
                 spender,
                 value,
-                _nonces[owner].current(),
+                nonces(owner),
                 deadline
             )
         );
@@ -62,7 +62,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
     /**
      * @dev See {IERC20Permit-nonces}.
      */
-    function nonces(address owner) public view override returns (uint256) {
+    function nonces(address owner) public view virtual override returns (uint256) {
         return _nonces[owner].current();
     }
 
@@ -70,7 +70,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
      * @dev See {IERC20Permit-DOMAIN_SEPARATOR}.
      */
     // solhint-disable-next-line func-name-mixedcase
-    function DOMAIN_SEPARATOR() external view override returns (bytes32) {
+    function DOMAIN_SEPARATOR() external view virtual override returns (bytes32) {
         return _domainSeparatorV4();
     }
 }
