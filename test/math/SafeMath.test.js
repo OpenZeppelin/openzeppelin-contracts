@@ -15,9 +15,9 @@ contract('SafeMath', function (accounts) {
     expect(await fn(rhs, lhs)).to.be.bignumber.equal(expected);
   }
 
-  async function testFailsCommutative (fn, lhs, rhs, reason) {
-    await expectRevert(fn(lhs, rhs), reason);
-    await expectRevert(fn(rhs, lhs), reason);
+  async function testFailsCommutative (fn, lhs, rhs) {
+    await expectRevert.unspecified(fn(lhs, rhs));
+    await expectRevert.unspecified(fn(rhs, lhs));
   }
 
   describe('add', function () {
@@ -32,7 +32,7 @@ contract('SafeMath', function (accounts) {
       const a = MAX_UINT256;
       const b = new BN('1');
 
-      await testFailsCommutative(this.safeMath.add, a, b, 'SafeMath: addition overflow');
+      await testFailsCommutative(this.safeMath.add, a, b);
     });
   });
 
@@ -48,7 +48,7 @@ contract('SafeMath', function (accounts) {
       const a = new BN('1234');
       const b = new BN('5678');
 
-      await expectRevert(this.safeMath.sub(a, b), 'SafeMath: subtraction overflow');
+      await expectRevert.unspecified(this.safeMath.sub(a, b));
     });
   });
 
@@ -71,7 +71,7 @@ contract('SafeMath', function (accounts) {
       const a = MAX_UINT256;
       const b = new BN('2');
 
-      await testFailsCommutative(this.safeMath.mul, a, b, 'SafeMath: multiplication overflow');
+      await testFailsCommutative(this.safeMath.mul, a, b);
     });
   });
 
@@ -101,7 +101,7 @@ contract('SafeMath', function (accounts) {
       const a = new BN('5678');
       const b = new BN('0');
 
-      await expectRevert(this.safeMath.div(a, b), 'SafeMath: division by zero');
+      await expectRevert.unspecified(this.safeMath.div(a, b));
     });
   });
 
@@ -140,7 +140,7 @@ contract('SafeMath', function (accounts) {
       const a = new BN('5678');
       const b = new BN('0');
 
-      await expectRevert(this.safeMath.mod(a, b), 'SafeMath: modulo by zero');
+      await expectRevert.unspecified(this.safeMath.mod(a, b));
     });
   });
 });

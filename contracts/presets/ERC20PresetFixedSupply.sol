@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.2;
+pragma solidity ^0.8.0;
 
 import "../token/ERC20/ERC20Burnable.sol";
 
@@ -24,7 +24,7 @@ contract ERC20PresetFixedSupply is ERC20Burnable {
         string memory symbol,
         uint256 initialSupply,
         address owner
-    ) public ERC20(name, symbol) {
+    ) ERC20(name, symbol) {
         _mint(owner, initialSupply);
     }
 }

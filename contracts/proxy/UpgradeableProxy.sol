@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.8.0;
 
 import "./Proxy.sol";
 import "../utils/Address.sol";
@@ -21,7 +21,7 @@ contract UpgradeableProxy is Proxy {
      * If `_data` is nonempty, it's used as data in a delegate call to `_logic`. This will typically be an encoded
      * function call, and allows initializating the storage of the proxy like a Solidity constructor.
      */
-    constructor(address _logic, bytes memory _data) public payable {
+    constructor(address _logic, bytes memory _data) payable {
         assert(_IMPLEMENTATION_SLOT == bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1));
         _setImplementation(_logic);
         if(_data.length > 0) {

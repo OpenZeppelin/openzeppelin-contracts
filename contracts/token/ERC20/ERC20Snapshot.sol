@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.8.0;
 
-import "../../math/SafeMath.sol";
 import "../../utils/Arrays.sol";
 import "../../utils/Counters.sol";
 import "./ERC20.sol";
@@ -35,7 +34,6 @@ abstract contract ERC20Snapshot is ERC20 {
     // Inspired by Jordi Baylina's MiniMeToken to record historical balances:
     // https://github.com/Giveth/minimd/blob/ea04d950eea153a04c51fa510b068b9dded390cb/contracts/MiniMeToken.sol
 
-    using SafeMath for uint256;
     using Arrays for uint256[];
     using Counters for Counters.Counter;
 

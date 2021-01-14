@@ -42,4 +42,6 @@ jobs:
       - run: npm ci
         if: steps.cache.outputs.cache-hit != 'true'
       - run: npm run coverage
+        env:
+          NODE_OPTIONS: --max_old_space_size=4096
       - uses: codecov/codecov-action@v1

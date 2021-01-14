@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.8.0;
 
 import "../../GSN/Context.sol";
 import "./IERC721.sol";
@@ -8,7 +8,6 @@ import "./IERC721Metadata.sol";
 import "./IERC721Enumerable.sol";
 import "./IERC721Receiver.sol";
 import "../../introspection/ERC165.sol";
-import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";
 import "../../utils/EnumerableSet.sol";
 import "../../utils/EnumerableMap.sol";
@@ -19,7 +18,6 @@ import "../../utils/Strings.sol";
  * @dev see https://eips.ethereum.org/EIPS/eip-721
  */
 contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable {
-    using SafeMath for uint256;
     using Address for address;
     using EnumerableSet for EnumerableSet.UintSet;
     using EnumerableMap for EnumerableMap.UintToAddressMap;
@@ -90,7 +88,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     /**
      * @dev Initializes the contract by setting a `name` and a `symbol` to the token collection.
      */
-    constructor (string memory name_, string memory symbol_) public {
+    constructor (string memory name_, string memory symbol_) {
         _name = name_;
         _symbol = symbol_;
 
