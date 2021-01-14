@@ -3,6 +3,7 @@
 // solhint-disable-next-line compiler-version
 pragma solidity >=0.4.24 <0.8.0;
 
+import "../utils/Address.sol";
 
 /**
  * @dev This is a base contract to aid in writing upgradeable contracts, or any kind of contract that will be deployed
@@ -49,15 +50,6 @@ abstract contract Initializable {
 
     /// @dev Returns true if and only if the function is running in the constructor
     function _isConstructor() private view returns (bool) {
-        // extcodesize checks the size of the code stored in an address, and
-        // address returns the current address. Since the code is still not
-        // deployed when running a constructor, any checks on its code size will
-        // yield zero, making it an effective way to detect if a contract is
-        // under construction or not.
-        address self = address(this);
-        uint256 cs;
-        // solhint-disable-next-line no-inline-assembly
-        assembly { cs := extcodesize(self) }
-        return cs == 0;
+        return !Address.isContract(address(this));
     }
 }
