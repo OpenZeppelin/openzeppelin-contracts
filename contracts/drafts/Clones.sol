@@ -24,7 +24,7 @@ library Clones {
         }
     }
 
-    function clone2(address master, bytes32 salt) internal returns (address instance) {
+    function cloneDeterministic(address master, bytes32 salt) internal returns (address instance) {
         // solhint-disable-next-line no-inline-assembly
         assembly {
             let ptr := mload(0x40)
