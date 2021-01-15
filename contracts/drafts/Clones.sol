@@ -6,6 +6,9 @@ pragma solidity >=0.6.0 <0.8.0;
  * @dev https://eips.ethereum.org/EIPS/eip-1167[EIP 1167] is a standard for
  * deploying minimal proxy contracts, also known as "clones".
  *
+ * > To simply and cheaply clone contract functionality in an immutable way, this standard specifie
+ * > a minimal bytecode implementation that delegates all calls to a known, fixed address.
+ *
  * This contract provide tooling to deploy proxies following the EIP 1167
  * proposed bytecode. This is possible using both create and create2.
  */
