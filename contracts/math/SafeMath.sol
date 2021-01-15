@@ -181,7 +181,6 @@ library SafeMath {
     }
 
     /**
-     * @notice DEPRECATED: causes memory leak
      * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
      * reverting with custom message when dividing by zero.
      *
