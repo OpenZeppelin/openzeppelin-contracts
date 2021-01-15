@@ -145,9 +145,11 @@ library SafeMath {
     }
 
     /**
-     * @notice DEPRECATED: causes memory leak
      * @dev Returns the subtraction of two unsigned integers, reverting with custom message on
      * overflow (when the result is negative).
+     *
+     * CAUTION: This function is deprecated because it requires allocating memory for the error
+     * message unnecessarily. For custom revert reasons use {trySub}.
      *
      * Counterpart to Solidity's `-` operator.
      *
