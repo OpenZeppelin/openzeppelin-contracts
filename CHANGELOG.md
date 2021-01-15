@@ -7,9 +7,11 @@
  * `ERC20Permit`: added an implementation of the ERC20 permit extension for gasless token approvals. ([#2237](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2237))
  * Presets: added token presets with preminted fixed supply `ERC20PresetFixedSupply` and `ERC777PresetFixedSupply`. ([#2399](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2399))
  * `Address`: added `functionDelegateCall`, similar to the existing `functionCall`. ([#2333](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2333))
- * `Context`: moved from `contracts/GSN` to `contracts/utils`. ([#2453](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2453)) 
+ * `Context`: moved from `contracts/GSN` to `contracts/utils`. ([#2453](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2453))
  * `PaymentSplitter`: replace usage of `.transfer()` with `Address.sendValue` for improved compatibility with smart wallets. ([#2455](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2455))
- * `UpgradeableProxy`: bubble revert reasons from initialization calls. ([#2454](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2454)) 
+ * `UpgradeableProxy`: bubble revert reasons from initialization calls. ([#2454](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2454))
+ * `SafeMath`: fix a memory allocation issue by adding new `SafeMath.tryXXX(uint,uint)→(bool,uint)` function. `SafeMath.XXX(uint,uint,string)→(uint)` are not deprecated. ([#2462](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2462))
+ * `EnumerableMap`: fix a memory allocation issue by adding new `EnumerableMap.tryGet(uint)→(bool,address)` function. `SafeMath.get(uint)→(string)` is now deprecated. ([#2462](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2462))
 
 ## 3.3.0 (2020-11-26)
 
