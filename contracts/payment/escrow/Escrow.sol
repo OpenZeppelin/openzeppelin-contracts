@@ -28,7 +28,7 @@ contract Escrow is Ownable {
 
     mapping(address => uint256) private _deposits;
 
-    function depositsOf(address payee) public view returns (uint256) {
+    function depositsOf(address payee) public view virtual returns (uint256) {
         return _deposits[payee];
     }
 
