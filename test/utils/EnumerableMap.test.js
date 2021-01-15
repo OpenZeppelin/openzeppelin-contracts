@@ -1,4 +1,4 @@
-const { BN, expectEvent } = require('@openzeppelin/test-helpers');
+const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const zip = require('lodash.zip');
@@ -138,5 +138,45 @@ contract('EnumerableMap', function (accounts) {
 
       expect(await this.map.contains(keyB)).to.equal(false);
     });
+  });
+
+  describe('read', function () {
+    beforeEach(async function () {
+      await this.map.set(keyA, accountA);
+    });
+
+    describe('get', function () {
+      it('existing value', async function () {
+        expect(await this.map.get(keyA)).to.be.equal(accountA);
+      });
+      it('missing value', async function () {
+        await expectRevert(this.map.get(keyB), "EnumerableMap: nonexistent key");
+      });
+    });
+
+    describe('get with message', function () {
+      it('existing value', async function () {
+        expect(await this.map.getWithMessage(keyA, "custom error string")).to.be.equal(accountA);
+      });
+      it('missing value', async function () {
+        await expectRevert(this.map.getWithMessage(keyB, "custom error string"), "custom error string");
+      });
+    });
+
+    describe('tryGet', function () {
+      it('existing value', async function () {
+        expect(await this.map.tryGet(keyA)).to.be.deep.equal({
+          '0': true,
+          '1': accountA
+        });
+      });
+      it('missing value', async function () {
+        expect(await this.map.tryGet(keyB)).to.be.deep.equal({
+          '0': false,
+          '1': constants.ZERO_ADDRESS
+        });
+      });
+    });
+
   });
 });
