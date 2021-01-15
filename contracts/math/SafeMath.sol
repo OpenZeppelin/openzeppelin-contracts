@@ -19,7 +19,7 @@ library SafeMath {
     /**
      * @dev Returns the addition of two unsigned integers, with an overflow flag.
      */
-    function addX(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) {
         uint256 c = a + b;
         if (c < a) return (false, 0);
         return (true, c);
@@ -28,7 +28,7 @@ library SafeMath {
     /**
      * @dev Returns the substraction of two unsigned integers, with an overflow flag.
      */
-    function subX(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function trySub(uint256 a, uint256 b) internal pure returns (bool, uint256) {
         if (b > a) return (false, 0);
         return (true, a - b);
     }
@@ -36,7 +36,7 @@ library SafeMath {
     /**
      * @dev Returns the multiplication of two unsigned integers, with an overflow flag.
      */
-    function mulX(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function tryMul(uint256 a, uint256 b) internal pure returns (bool, uint256) {
         // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
         // benefit is lost if 'b' is also tested.
         // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522
@@ -49,7 +49,7 @@ library SafeMath {
     /**
      * @dev Returns the division of two unsigned integers, with a division by zero flag.
      */
-    function divX(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function tryDiv(uint256 a, uint256 b) internal pure returns (bool, uint256) {
         if (b == 0) return (false, 0);
         return (true, a / b);
     }
@@ -57,7 +57,7 @@ library SafeMath {
     /**
      * @dev Returns the remainder of dividing two unsigned integers, with a division by zero flag.
      */
-    function modX(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function tryMod(uint256 a, uint256 b) internal pure returns (bool, uint256) {
         if (b == 0) return (false, 0);
         return (true, a % b);
     }
