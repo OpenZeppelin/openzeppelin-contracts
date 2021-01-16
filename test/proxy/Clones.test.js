@@ -1,5 +1,4 @@
 const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
-const { assert } = require('chai');
 
 const shouldBehaveLikeClone = require('./Clones.behaviour');
 
@@ -13,24 +12,24 @@ contract('Clones', function (accounts) {
     shouldBehaveLikeClone(async (implementation, initData, opts = {}) => {
       const factory = await ClonesMock.new();
       const receipt = await factory.clone(implementation, initData, { value: opts.value });
-      const address = receipt.logs.find(({ event }) => event == 'NewInstance').args.instance;
+      const address = receipt.logs.find(({ event }) => event === 'NewInstance').args.instance;
       return { address };
     });
   });
 
   describe('cloneDeterministic', function () {
     shouldBehaveLikeClone(async (implementation, initData, opts = {}) => {
-      const salt    = web3.utils.randomHex(32);
+      const salt = web3.utils.randomHex(32);
       const factory = await ClonesMock.new();
       const receipt = await factory.cloneDeterministic(implementation, salt, initData, { value: opts.value });
-      const address = receipt.logs.find(({ event }) => event == 'NewInstance').args.instance;
+      const address = receipt.logs.find(({ event }) => event === 'NewInstance').args.instance;
       return { address };
     });
 
-    it ('address already used', async function () {
+    it('address already used', async function () {
       const implementation = web3.utils.randomHex(20);
-      const salt           = web3.utils.randomHex(32);
-      const factory        = await ClonesMock.new();
+      const salt = web3.utils.randomHex(32);
+      const factory = await ClonesMock.new();
       // deploy once
       expectEvent(
         await factory.cloneDeterministic(implementation, salt, '0x'),
@@ -43,13 +42,13 @@ contract('Clones', function (accounts) {
       );
     });
 
-    it ('address prediction', async function () {
+    it('address prediction', async function () {
       const implementation = web3.utils.randomHex(20);
-      const salt           = web3.utils.randomHex(32);
-      const factory        = await ClonesMock.new();
-      const predicted      = await factory.predictDeterministicAddress(implementation, salt);
+      const salt = web3.utils.randomHex(32);
+      const factory = await ClonesMock.new();
+      const predicted = await factory.predictDeterministicAddress(implementation, salt);
       expectEvent(
-        await factory.cloneDeterministic(implementation, salt, "0x"),
+        await factory.cloneDeterministic(implementation, salt, '0x'),
         'NewInstance',
         { instance: predicted },
       );
