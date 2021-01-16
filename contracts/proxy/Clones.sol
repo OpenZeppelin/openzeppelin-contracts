@@ -36,7 +36,7 @@ library Clones {
         require(instance != address(0), "ERC1167: create2 failed");
     }
 
-    function predict2(address master, bytes32 salt, address deployer) internal pure returns (address predicted) {
+    function predictDeterministicAddress(address master, bytes32 salt, address deployer) internal pure returns (address predicted) {
         // solhint-disable-next-line no-inline-assembly
         assembly {
             let ptr := mload(0x40)
@@ -50,7 +50,7 @@ library Clones {
         }
     }
 
-    function predict2(address master, bytes32 salt) internal view returns (address predicted) {
-        return predict2(master, salt, address(this));
+    function predictDeterministicAddress(address master, bytes32 salt) internal view returns (address predicted) {
+        return predictDeterministicAddress(master, salt, address(this));
     }
 }
