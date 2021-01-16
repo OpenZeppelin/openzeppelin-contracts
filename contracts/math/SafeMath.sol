@@ -163,7 +163,6 @@ library SafeMath {
     }
 
     /**
-     * @notice DEPRECATED: causes memory leak
      * @dev Returns the integer division of two unsigned integers, reverting with custom message on
      * division by zero. The result is rounded towards zero.
      *

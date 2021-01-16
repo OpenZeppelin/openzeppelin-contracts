@@ -5,12 +5,10 @@ const { expect } = require('chai');
 
 const SafeMathMock = artifacts.require('SafeMathMock');
 
-async function deepExpect (value, expected) {
+function expectStruct(value, expected) {
   for (const key in expected) {
     if (BN.isBN(value[key])) {
       expect(value[key]).to.be.bignumber.equal(expected[key]);
-    } else if (Symbol.iterator in Object(value)) {
-      deepExpect(value[key], expected[key]);
     } else {
       expect(value[key]).to.be.equal(expected[key]);
     }
@@ -33,8 +31,8 @@ contract('SafeMath', function (accounts) {
   }
 
   async function testCommutativeIterable (fn, lhs, rhs, expected, ...extra) {
-    deepExpect(await fn(lhs, rhs, ...extra), expected);
-    deepExpect(await fn(rhs, lhs, ...extra), expected);
+    expectStruct(await fn(lhs, rhs, ...extra), expected);
+    expectStruct(await fn(rhs, lhs, ...extra), expected);
   }
 
   describe('with flag', function () {
@@ -59,14 +57,14 @@ contract('SafeMath', function (accounts) {
         const a = new BN('5678');
         const b = new BN('1234');
 
-        deepExpect(await this.safeMath.trySub(a, b), { flag: true, value: a.sub(b) });
+        expectStruct(await this.safeMath.trySub(a, b), { flag: true, value: a.sub(b) });
       });
 
       it('reverts if subtraction result would be negative', async function () {
         const a = new BN('1234');
         const b = new BN('5678');
 
-        deepExpect(await this.safeMath.trySub(a, b), { flag: false, value: '0' });
+        expectStruct(await this.safeMath.trySub(a, b), { flag: false, value: '0' });
       });
     });
 
@@ -98,28 +96,28 @@ contract('SafeMath', function (accounts) {
         const a = new BN('5678');
         const b = new BN('5678');
 
-        deepExpect(await this.safeMath.tryDiv(a, b), { flag: true, value: a.div(b) });
+        expectStruct(await this.safeMath.tryDiv(a, b), { flag: true, value: a.div(b) });
       });
 
       it('divides zero correctly', async function () {
         const a = new BN('0');
         const b = new BN('5678');
 
-        deepExpect(await this.safeMath.tryDiv(a, b), { flag: true, value: a.div(b) });
+        expectStruct(await this.safeMath.tryDiv(a, b), { flag: true, value: a.div(b) });
       });
 
       it('returns complete number result on non-even division', async function () {
         const a = new BN('7000');
         const b = new BN('5678');
 
-        deepExpect(await this.safeMath.tryDiv(a, b), { flag: true, value: a.div(b) });
+        expectStruct(await this.safeMath.tryDiv(a, b), { flag: true, value: a.div(b) });
       });
 
       it('reverts on division by zero', async function () {
         const a = new BN('5678');
         const b = new BN('0');
 
-        deepExpect(await this.safeMath.tryDiv(a, b), { flag: false, value: '0' });
+        expectStruct(await this.safeMath.tryDiv(a, b), { flag: false, value: '0' });
       });
     });
 
@@ -129,28 +127,28 @@ contract('SafeMath', function (accounts) {
           const a = new BN('284');
           const b = new BN('5678');
 
-          deepExpect(await this.safeMath.tryMod(a, b), { flag: true, value: a.mod(b) });
+          expectStruct(await this.safeMath.tryMod(a, b), { flag: true, value: a.mod(b) });
         });
 
         it('when the dividend is equal to the divisor', async function () {
           const a = new BN('5678');
           const b = new BN('5678');
 
-          deepExpect(await this.safeMath.tryMod(a, b), { flag: true, value: a.mod(b) });
+          expectStruct(await this.safeMath.tryMod(a, b), { flag: true, value: a.mod(b) });
         });
 
         it('when the dividend is larger than the divisor', async function () {
           const a = new BN('7000');
           const b = new BN('5678');
 
-          deepExpect(await this.safeMath.tryMod(a, b), { flag: true, value: a.mod(b) });
+          expectStruct(await this.safeMath.tryMod(a, b), { flag: true, value: a.mod(b) });
         });
 
         it('when the dividend is a multiple of the divisor', async function () {
           const a = new BN('17034'); // 17034 == 5678 * 3
           const b = new BN('5678');
 
-          deepExpect(await this.safeMath.tryMod(a, b), { flag: true, value: a.mod(b) });
+          expectStruct(await this.safeMath.tryMod(a, b), { flag: true, value: a.mod(b) });
         });
       });
 
@@ -158,7 +156,7 @@ contract('SafeMath', function (accounts) {
         const a = new BN('5678');
         const b = new BN('0');
 
-        deepExpect(await this.safeMath.tryMod(a, b), { flag: false, value: '0' });
+        expectStruct(await this.safeMath.tryMod(a, b), { flag: false, value: '0' });
       });
     });
   });
