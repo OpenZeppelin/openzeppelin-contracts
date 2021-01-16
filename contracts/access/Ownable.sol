@@ -24,7 +24,7 @@ abstract contract Ownable is Context {
      * @dev Initializes the contract setting the deployer as the initial owner.
      */
     constructor () internal {
-        _transferOwnership(_msgSender());
+        _setOwner(_msgSender());
     }
 
     /**
@@ -50,7 +50,7 @@ abstract contract Ownable is Context {
      * thereby removing any functionality that is only available to the owner.
      */
     function renounceOwnership() public virtual onlyOwner {
-        _transferOwnership(address(0));
+        _setOwner(address(0));
     }
 
     /**
@@ -59,14 +59,14 @@ abstract contract Ownable is Context {
      */
     function transferOwnership(address newOwner) public virtual onlyOwner {
         require(newOwner != address(0), "Ownable: new owner is the zero address");
-        _transferOwnership(newOwner);
+        _setOwner(newOwner);
     }
 
     /**
      * @dev Internal function that forces an ownership change. Can be used to
      * implement custom ownership management logic in childs contracts.
      */
-    function _transferOwnership(address newOwner) internal virtual {
+    function _setOwner(address newOwner) internal virtual {
         emit OwnershipTransferred(_owner, newOwner);
         _owner = newOwner;
     }
