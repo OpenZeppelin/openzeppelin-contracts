@@ -5,7 +5,7 @@ const { expect } = require('chai');
 
 const SafeMathMock = artifacts.require('SafeMathMock');
 
-function expectStruct(value, expected) {
+function expectStruct (value, expected) {
   for (const key in expected) {
     if (BN.isBN(value[key])) {
       expect(value[key]).to.be.bignumber.equal(expected[key]);
