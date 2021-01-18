@@ -49,28 +49,17 @@ library ERC165Checker {
      * See {IERC165-supportsInterface}.
      */
     function getSupportedInterfaces(address account, bytes4[] memory interfaceIds) internal view returns (bool[] memory) {
-        // query support of ERC165 itself
-        if (!supportsERC165(account)) {
-            //return an array with false values
-            bool[] memory supportedInterfaces = new bool[](interfaceIds.length);
-            for(uint256 i = 0; i < interfaceIds.length; i++) {
-                supportedInterfaces[i] = false;
-            }
-            return supportedInterfaces;
-        }
-
         // an array of booleans corresponding to interfaceIds and whether they're supported or not
         bool[] memory interfaceIdsSupported = new bool[](interfaceIds.length);
 
-        // query support of each interface in interfaceIds
-        for (uint256 i = 0; i < interfaceIds.length; i++) {
-            if (!_supportsERC165Interface(account, interfaceIds[i])) {
-                interfaceIdsSupported[i] = false;
-            } else {
-                interfaceIdsSupported[i] = true;
+        // query support of ERC165 itself
+        if (supportsERC165(account)) {
+            // query support of each interface in interfaceIds
+            for (uint256 i = 0; i < interfaceIds.length; i++) {
+                interfaceIdsSupported[i] = _supportsERC165Interface(account, interfaceIds[i]);
             }
         }
-        
+
         return interfaceIdsSupported;
     }
 

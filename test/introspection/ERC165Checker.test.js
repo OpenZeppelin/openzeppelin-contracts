@@ -33,6 +33,11 @@ contract('ERC165Checker', function (accounts) {
       expect(supported).to.equal(false);
     });
 
+    it('does not support mock interface via supportsAllInterfaces', async function () {
+      const supported = await this.mock.supportsAllInterfaces(this.target.address, [DUMMY_ID]);
+      expect(supported).to.equal(false);
+    });
+
     it('does not support mock interface via getSupportedInterfaces', async function () {
       const supported = await this.mock.getSupportedInterfaces(this.target.address, [DUMMY_ID]);
       expect(supported.length).to.equal(1);
