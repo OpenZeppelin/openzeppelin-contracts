@@ -59,7 +59,7 @@ contract TokenTimelock {
         // solhint-disable-next-line not-rely-on-time
         require(block.timestamp >= releaseTime(), "TokenTimelock: current time is before release time");
 
-        uint256 amount = beneficiary().balanceOf(address(this));
+        uint256 amount = token().balanceOf(address(this));
         require(amount > 0, "TokenTimelock: no tokens to release");
 
         token().safeTransfer(beneficiary(), amount);
