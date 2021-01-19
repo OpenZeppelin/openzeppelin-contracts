@@ -15,7 +15,7 @@ pragma solidity >=0.6.0 <0.8.0;
  */
 library Clones {
     /**
-     * @dev Deploys and return the address of a clone that mimics the behaviour of `master`.
+     * @dev Deploys and returns the address of a clone that mimics the behaviour of `master`.
      *
      * This function uses the create opcode, which should never revert.
      */
@@ -32,7 +32,7 @@ library Clones {
     }
 
     /**
-     * @dev Deploys and return the address of a clone that mimics the behaviour of `master`.
+     * @dev Deploys and returns the address of a clone that mimics the behaviour of `master`.
      *
      * This function uses the create2 opcode and a `salt` to deterministically deploy
      * the clone. Using the same `master` and `salt` multiple time will revert, since
