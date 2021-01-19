@@ -5,14 +5,6 @@ const { expect } = require('chai');
 const DummyImplementation = artifacts.require('DummyImplementation');
 
 module.exports = function shouldBehaveLikeClone (createClone) {
-  // it('cannot be initialized with a non-contract address', async function () {
-  //   const nonContractAddress = proxyCreator;
-  //   const initializeData = Buffer.from('');
-  //   await expectRevert.unspecified(
-  //     createClone(nonContractAddress),
-  //   );
-  // });
-
   before('deploy implementation', async function () {
     this.implementation = web3.utils.toChecksumAddress((await DummyImplementation.new()).address);
   });

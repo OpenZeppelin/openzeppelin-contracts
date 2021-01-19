@@ -5,9 +5,6 @@ const shouldBehaveLikeClone = require('./Clones.behaviour');
 const ClonesMock = artifacts.require('ClonesMock');
 
 contract('Clones', function (accounts) {
-  beforeEach('deploying', async function () {
-  });
-
   describe('clone', function () {
     shouldBehaveLikeClone(async (implementation, initData, opts = {}) => {
       const factory = await ClonesMock.new();
