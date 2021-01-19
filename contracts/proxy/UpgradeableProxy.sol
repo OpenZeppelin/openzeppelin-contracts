@@ -10,14 +10,14 @@ import "../utils/Address.sol";
  * implementation address that can be changed. This address is stored in storage in the location specified by
  * https://eips.ethereum.org/EIPS/eip-1967[EIP1967], so that it doesn't conflict with the storage layout of the
  * implementation behind the proxy.
- * 
+ *
  * Upgradeability is only provided internally through {_upgradeTo}. For an externally upgradeable proxy see
  * {TransparentUpgradeableProxy}.
  */
 contract UpgradeableProxy is Proxy {
     /**
      * @dev Initializes the upgradeable proxy with an initial implementation specified by `_logic`.
-     * 
+     *
      * If `_data` is nonempty, it's used as data in a delegate call to `_logic`. This will typically be an encoded
      * function call, and allows initializating the storage of the proxy like a Solidity constructor.
      */
@@ -25,9 +25,7 @@ contract UpgradeableProxy is Proxy {
         assert(_IMPLEMENTATION_SLOT == bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1));
         _setImplementation(_logic);
         if(_data.length > 0) {
-            // solhint-disable-next-line avoid-low-level-calls
-            (bool success,) = _logic.delegatecall(_data);
-            require(success);
+            Address.functionDelegateCall(_logic, _data);
         }
     }
 
@@ -46,7 +44,7 @@ contract UpgradeableProxy is Proxy {
     /**
      * @dev Returns the current implementation address.
      */
-    function _implementation() internal override view returns (address impl) {
+    function _implementation() internal view override returns (address impl) {
         bytes32 slot = _IMPLEMENTATION_SLOT;
         // solhint-disable-next-line no-inline-assembly
         assembly {
@@ -56,10 +54,10 @@ contract UpgradeableProxy is Proxy {
 
     /**
      * @dev Upgrades the proxy to a new implementation.
-     * 
+     *
      * Emits an {Upgraded} event.
      */
-    function _upgradeTo(address newImplementation) internal {
+    function _upgradeTo(address newImplementation) internal virtual {
         _setImplementation(newImplementation);
         emit Upgraded(newImplementation);
     }

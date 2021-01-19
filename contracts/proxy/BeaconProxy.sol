@@ -56,14 +56,14 @@ contract BeaconProxy is Proxy {
     /**
      * @dev Changes the proxy to use a new beacon.
      *
-     * If `data` is nonempty, it's used as data in a delegate call to the implementation returned by the beacon. 
+     * If `data` is nonempty, it's used as data in a delegate call to the implementation returned by the beacon.
      *
      * Requirements:
      *
      * - `beacon` must be a contract.
      * - The implementation returned by `beacon` must be a contract.
      */
-    function _setBeacon(address beacon, bytes memory data) internal {
+    function _setBeacon(address beacon, bytes memory data) internal virtual {
         require(
             Address.isContract(beacon),
             "BeaconProxy: beacon is not a contract"

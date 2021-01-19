@@ -214,5 +214,17 @@ module.exports = function shouldBehaveLikeUpgradeableProxy (createProxy, proxyAd
         });
       });
     });
+
+    describe('reverting initialization', function () {
+      const initializeData = new DummyImplementation('').contract
+        .methods.reverts().encodeABI();
+
+      it('reverts', async function () {
+        await expectRevert(
+          createProxy(this.implementation, proxyAdminAddress, initializeData, { from: proxyCreator }),
+          'DummyImplementation reverted',
+        );
+      });
+    });
   });
 };

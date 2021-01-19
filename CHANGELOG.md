@@ -8,6 +8,11 @@
  * Presets: added token presets with preminted fixed supply `ERC20PresetFixedSupply` and `ERC777PresetFixedSupply`. ([#2399](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2399))
  * `Address`: added `functionDelegateCall`, similar to the existing `functionCall`. ([#2333](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2333))
  * `Clones`: added a library for deploying EIP 1167 minimal proxies. ([#2449](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2449))
+ * `Context`: moved from `contracts/GSN` to `contracts/utils`. ([#2453](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2453))
+ * `PaymentSplitter`: replace usage of `.transfer()` with `Address.sendValue` for improved compatibility with smart wallets. ([#2455](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2455))
+ * `UpgradeableProxy`: bubble revert reasons from initialization calls. ([#2454](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2454))
+ * `SafeMath`: fix a memory allocation issue by adding new `SafeMath.tryOp(uint,uint)→(bool,uint)` functions. `SafeMath.op(uint,uint,string)→uint` are now deprecated. ([#2462](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2462))
+ * `EnumerableMap`: fix a memory allocation issue by adding new `EnumerableMap.tryGet(uint)→(bool,address)` functions. `EnumerableMap.get(uint)→string` is now deprecated. ([#2462](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2462))
 
 ## 3.3.0 (2020-11-26)
 

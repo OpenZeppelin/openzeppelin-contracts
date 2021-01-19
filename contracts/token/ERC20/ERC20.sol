@@ -2,7 +2,7 @@
 
 pragma solidity >=0.6.0 <0.8.0;
 
-import "../../GSN/Context.sol";
+import "../../utils/Context.sol";
 import "./IERC20.sol";
 import "../../math/SafeMath.sol";
 
@@ -284,7 +284,7 @@ contract ERC20 is Context, IERC20 {
      * applications that interact with token contracts will not expect
      * {decimals} to ever change, and may work incorrectly if it does.
      */
-    function _setupDecimals(uint8 decimals_) internal {
+    function _setupDecimals(uint8 decimals_) internal virtual {
         _decimals = decimals_;
     }
 
