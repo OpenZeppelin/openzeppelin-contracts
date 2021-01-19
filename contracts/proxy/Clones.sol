@@ -13,6 +13,11 @@ pragma solidity >=0.6.0 <0.8.0;
  * proposed bytecode. This is possible using both create and create2.
  */
 library Clones {
+    /**
+     * @dev Deploys and return the address of a clone that mimics the behaviour of `master`.
+     *
+     * This function uses the create opcode, which should never revert.
+     */
     function clone(address master) internal returns (address instance) {
         // solhint-disable-next-line no-inline-assembly
         assembly {
@@ -24,6 +29,13 @@ library Clones {
         }
     }
 
+    /**
+     * @dev Deploys and return the address of a clone that mimics the behaviour of `master`.
+     *
+     * This function uses the create2 opcode and a `salt` to deterministically deploy
+     * the clone. Using the same `master` and `salt` multiple time will revert, since
+     * the clones cannot be deployed twice at the same address.
+     */
     function cloneDeterministic(address master, bytes32 salt) internal returns (address instance) {
         // solhint-disable-next-line no-inline-assembly
         assembly {
@@ -36,6 +48,9 @@ library Clones {
         require(instance != address(0), "ERC1167: create2 failed");
     }
 
+    /**
+     * @dev Computes the address of a clone deployed using {Clones-cloneDeterministic}.
+     */
     function predictDeterministicAddress(address master, bytes32 salt, address deployer) internal pure returns (address predicted) {
         // solhint-disable-next-line no-inline-assembly
         assembly {
@@ -50,6 +65,9 @@ library Clones {
         }
     }
 
+    /**
+     * @dev Computes the address of a clone deployed using {Clones-cloneDeterministic}.
+     */
     function predictDeterministicAddress(address master, bytes32 salt) internal view returns (address predicted) {
         return predictDeterministicAddress(master, salt, address(this));
     }

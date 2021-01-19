@@ -29,6 +29,16 @@ CAUTION: Using upgradeable proxies correctly and securely is a difficult task th
 
 {{UpgradeableBeacon}}
 
+== Clones (ERC1167)
+
+The clone library provides a way to deploy minimal, non-upgradeable, proxies for cheap. This can be useful for applications that require deploying many instances of the same contract (for example one per user, or one per task).
+
+These instances are designed to be both cheap to deploy, and cheap to call. The drawback being that they are not upgradeable. If upgradeability is necessary, it is possible to use this library to clone an updradeable proxy logic.
+
+The clone library includes functions to deploy proxy using either `create` (traditional deployment) or `create2` (salted deterministic deployment). It also includes tools to predict the addresses of clones deployed using the deterministic method.
+
+{{Clones}}
+
 == Utilities
 
 {{Initializable}}
