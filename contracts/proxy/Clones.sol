@@ -27,6 +27,7 @@ library Clones {
             mstore(add(ptr, 0x28), 0x5af43d82803e903d91602b57fd5bf30000000000000000000000000000000000)
             instance := create(0, ptr, 0x37)
         }
+        require(instance != address(0), "ERC1167: create failed");
     }
 
     /**
