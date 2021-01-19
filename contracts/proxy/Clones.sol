@@ -9,7 +9,7 @@ pragma solidity >=0.6.0 <0.8.0;
  * > To simply and cheaply clone contract functionality in an immutable way, this standard specifies
  * > a minimal bytecode implementation that delegates all calls to a known, fixed address.
  *
- * The clone library includes functions to deploy proxy using either `create` (traditional deployment) or `create2`
+ * The library includes functions to deploy a proxy using either `create` (traditional deployment) or `create2`
  * (salted deterministic deployment). It also includes functions to predict the addresses of clones deployed using the
  * deterministic method.
  */
