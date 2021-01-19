@@ -37,6 +37,12 @@ contract('ERC165Checker', function (accounts) {
       const supported = await this.mock.supportsAllInterfaces(this.target.address, [DUMMY_ID]);
       expect(supported).to.equal(false);
     });
+
+    it('does not support mock interface via getSupportedInterfaces', async function () {
+      const supported = await this.mock.getSupportedInterfaces(this.target.address, [DUMMY_ID]);
+      expect(supported.length).to.equal(1);
+      expect(supported[0]).to.equal(false);
+    });
   });
 
   context('ERC165 supported', function () {
@@ -58,6 +64,12 @@ contract('ERC165Checker', function (accounts) {
       const supported = await this.mock.supportsAllInterfaces(this.target.address, [DUMMY_ID]);
       expect(supported).to.equal(false);
     });
+
+    it('does not support mock interface via getSupportedInterfaces', async function () {
+      const supported = await this.mock.getSupportedInterfaces(this.target.address, [DUMMY_ID]);
+      expect(supported.length).to.equal(1);
+      expect(supported[0]).to.equal(false);
+    });
   });
 
   context('ERC165 and single interface supported', function () {
@@ -78,6 +90,12 @@ contract('ERC165Checker', function (accounts) {
     it('supports mock interface via supportsAllInterfaces', async function () {
       const supported = await this.mock.supportsAllInterfaces(this.target.address, [DUMMY_ID]);
       expect(supported).to.equal(true);
+    });
+
+    it('supports mock interface via getSupportedInterfaces', async function () {
+      const supported = await this.mock.getSupportedInterfaces(this.target.address, [DUMMY_ID]);
+      expect(supported.length).to.equal(1);
+      expect(supported[0]).to.equal(true);
     });
   });
 
@@ -117,6 +135,34 @@ contract('ERC165Checker', function (accounts) {
       const supported = await this.mock.supportsAllInterfaces(this.target.address, interfaceIdsToTest);
       expect(supported).to.equal(false);
     });
+
+    it('supports all interfaceIds via getSupportedInterfaces', async function () {
+      const supported = await this.mock.getSupportedInterfaces(this.target.address, this.supportedInterfaces);
+      expect(supported.length).to.equal(3);
+      expect(supported[0]).to.equal(true);
+      expect(supported[1]).to.equal(true);
+      expect(supported[2]).to.equal(true);
+    });
+
+    it('supports none of the interfaces queried via getSupportedInterfaces', async function () {
+      const interfaceIdsToTest = [DUMMY_UNSUPPORTED_ID, DUMMY_UNSUPPORTED_ID_2];
+
+      const supported = await this.mock.getSupportedInterfaces(this.target.address, interfaceIdsToTest);
+      expect(supported.length).to.equal(2);
+      expect(supported[0]).to.equal(false);
+      expect(supported[1]).to.equal(false);
+    });
+
+    it('supports not all of the interfaces queried via getSupportedInterfaces', async function () {
+      const interfaceIdsToTest = [...this.supportedInterfaces, DUMMY_UNSUPPORTED_ID];
+
+      const supported = await this.mock.getSupportedInterfaces(this.target.address, interfaceIdsToTest);
+      expect(supported.length).to.equal(4);
+      expect(supported[0]).to.equal(true);
+      expect(supported[1]).to.equal(true);
+      expect(supported[2]).to.equal(true);
+      expect(supported[3]).to.equal(false);
+    });
   });
 
   context('account address does not support ERC165', function () {
@@ -133,6 +179,12 @@ contract('ERC165Checker', function (accounts) {
     it('does not support mock interface via supportsAllInterfaces', async function () {
       const supported = await this.mock.supportsAllInterfaces(DUMMY_ACCOUNT, [DUMMY_ID]);
       expect(supported).to.equal(false);
+    });
+
+    it('does not support mock interface via getSupportedInterfaces', async function () {
+      const supported = await this.mock.getSupportedInterfaces(DUMMY_ACCOUNT, [DUMMY_ID]);
+      expect(supported.length).to.equal(1);
+      expect(supported[0]).to.equal(false);
     });
   });
 });
