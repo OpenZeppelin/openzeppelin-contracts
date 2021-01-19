@@ -1,22 +1,20 @@
-<!-- 0. 🎉 Thank you for submitting a PR! -->
+<!-- Thank you for your interest in contributing to OpenZeppelin! -->
 
-<!-- 1. Does this close any open issues? Please list them below. -->
+<!-- Consider opening an issue for discussion prior to submitting a PR. -->
+<!-- New features will be merged faster if they were first discussed and designed with the team. -->
 
-<!-- Keep in mind that new features have a better chance of being merged fast if
-they were first discussed and designed with the maintainers. If there is no
-corresponding issue, please consider opening one for discussion first! -->
+Fixes #???? <!-- Fill in with issue number -->
 
-Fixes #
+<!-- Describe the changes introduced in this pull request. -->
+<!-- Include any context necessary for understanding the PR's purpose. -->
 
-<!-- 2. Describe the changes introduced in this pull request. -->
-<!--    Include any context necessary for understanding the PR's purpose. -->
 
-<!-- 3. Before submitting, please make sure that you have:
-  - reviewed the OpenZeppelin Contributor Guidelines
-    (https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CONTRIBUTING.md),
-  - added tests where applicable to test new functionality,
-  - made sure that your contracts are well-documented,
-  - run the Solidity linter (`npm run lint:sol`) and fixed any issues,
-  - run the JS linter and fixed any issues (`npm run lint:fix`), and
-  - updated the changelog, if applicable.
--->
+#### PR Checklist
+
+<!-- Before merging the pull request all of the following must be complete. -->
+<!-- Feel free to submit a PR or Draft PR even if some items are pending. -->
+<!-- Some of the items may not apply. -->
+
+- [ ] Tests
+- [ ] Documentation
+- [ ] Changelog entry
