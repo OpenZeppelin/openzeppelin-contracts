@@ -38,13 +38,12 @@ contract ERC20 is Context, IERC20 {
 
     string private _name;
     string private _symbol;
-    uint8 private _decimals;
 
     /**
-     * @dev Sets the values for {name} and {symbol}, initializes {decimals} with
-     * a default value of 18.
+     * @dev Sets the values for {name} and {symbol}
      *
-     * To select a different value for {decimals}, use {_setupDecimals}.
+     * The defaut value of {decimals} is 18, to select a different value for
+     * {decimals} you should overload it.
      *
      * All three of these values are immutable: they can only be set once during
      * construction.
@@ -52,7 +51,6 @@ contract ERC20 is Context, IERC20 {
     constructor (string memory name_, string memory symbol_) {
         _name = name_;
         _symbol = symbol_;
-        _decimals = 18;
     }
 
     /**
@@ -76,15 +74,15 @@ contract ERC20 is Context, IERC20 {
      * be displayed to a user as `5,05` (`505 / 10 ** 2`).
      *
      * Tokens usually opt for a value of 18, imitating the relationship between
-     * Ether and Wei. This is the value {ERC20} uses, unless {_setupDecimals} is
-     * called.
+     * Ether and Wei. This is the value {ERC20} uses, unless this function is
+     * overloaded;
      *
      * NOTE: This information is only used for _display_ purposes: it in
      * no way affects any of the arithmetic of the contract, including
      * {IERC20-balanceOf} and {IERC20-transfer}.
      */
     function decimals() public view virtual returns (uint8) {
-        return _decimals;
+        return 18;
     }
 
     /**
@@ -272,17 +270,6 @@ contract ERC20 is Context, IERC20 {
 
         _allowances[owner][spender] = amount;
         emit Approval(owner, spender, amount);
-    }
-
-    /**
-     * @dev Sets {decimals} to a value other than the default one of 18.
-     *
-     * WARNING: This function should only be called from the constructor. Most
-     * applications that interact with token contracts will not expect
-     * {decimals} to ever change, and may work incorrectly if it does.
-     */
-    function _setupDecimals(uint8 decimals_) internal virtual {
-        _decimals = decimals_;
     }
 
     /**
