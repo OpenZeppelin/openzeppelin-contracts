@@ -448,7 +448,7 @@ contract('ERC777', function (accounts) {
     });
   });
 
-  describe.only('relative order of hooks', function () {
+  describe('relative order of hooks', function () {
     beforeEach(async function () {
       await singletons.ERC1820Registry(registryFunder);
       this.sender = await ERC777SenderRecipientMock.new();
