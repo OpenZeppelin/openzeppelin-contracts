@@ -85,7 +85,7 @@ contract GSNRecipientERC20Fee is GSNRecipient {
         (address from, uint256 maxPossibleCharge) = abi.decode(context, (address, uint256));
 
         // The maximum token charge is pre-charged from the user
-        SafeERC20.safeTransferFrom(token(), from, address(this), maxPossibleCharge);
+        token().safeTransferFrom(from, address(this), maxPossibleCharge);
 
         return 0;
     }
