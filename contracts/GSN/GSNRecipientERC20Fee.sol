@@ -18,13 +18,14 @@ import "../token/ERC20/ERC20.sol";
  * internal {_mint} function.
  */
 contract GSNRecipientERC20Fee is GSNRecipient {
+    using SafeERC20 for __unstable__ERC20Owned;
     using SafeMath for uint256;
 
     enum GSNRecipientERC20FeeErrorCodes {
         INSUFFICIENT_BALANCE
     }
 
-    IERC20 private _token;
+    __unstable__ERC20Owned private _token;
 
     /**
      * @dev The arguments to the constructor are the details that the gas payment token will have: `name` and `symbol`. `decimals` is hard-coded to 18.
@@ -36,7 +37,7 @@ contract GSNRecipientERC20Fee is GSNRecipient {
     /**
      * @dev Returns the gas payment token.
      */
-    function token() public view virtual returns (IERC20) {
+    function token() public view virtual returns (__unstable__ERC20Owned) {
         return _token;
     }
 
@@ -44,7 +45,7 @@ contract GSNRecipientERC20Fee is GSNRecipient {
      * @dev Internal function that mints the gas payment token. Derived contracts should expose this function in their public API, with proper access control mechanisms.
      */
     function _mint(address account, uint256 amount) internal virtual {
-        __unstable__ERC20Owned(address(token())).mint(account, amount);
+        token().mint(account, amount);
     }
 
     /**
@@ -103,7 +104,7 @@ contract GSNRecipientERC20Fee is GSNRecipient {
         actualCharge = actualCharge.sub(overestimation);
 
         // After the relayed call has been executed and the actual charge estimated, the excess pre-charge is returned
-        SafeERC20.safeTransfer(token(), from, maxPossibleCharge.sub(actualCharge));
+        token().safeTransfer(from, maxPossibleCharge.sub(actualCharge));
     }
 }
 
