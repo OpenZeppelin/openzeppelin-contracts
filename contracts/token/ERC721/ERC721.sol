@@ -110,9 +110,16 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     }
 
     /**
-     * @dev See {IERC721-ownerOf}.
+     * @dev See {IERC721-ownerOf}. Overridable
      */
     function ownerOf(uint256 tokenId) public view virtual override returns (address) {
+        return _ownerOf(tokenId);
+    }
+
+    /**
+     * @dev Owner of the token, as stored internally. Not overridable
+     */
+    function _ownerOf(uint256 tokenId) internal view returns (address) {
         return _tokenOwners.get(tokenId, "ERC721: owner query for nonexistent token");
     }
 
@@ -354,7 +361,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      * Emits a {Transfer} event.
      */
     function _burn(uint256 tokenId) internal virtual {
-        address owner = ownerOf(tokenId);
+        address owner = _ownerOf(tokenId); // internal owner
 
         _beforeTokenTransfer(owner, address(0), tokenId);
 
@@ -385,7 +392,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      * Emits a {Transfer} event.
      */
     function _transfer(address from, address to, uint256 tokenId) internal virtual {
-        require(ownerOf(tokenId) == from, "ERC721: transfer of token that is not own");
+        require(_ownerOf(tokenId) == from, "ERC721: transfer of token that is not own"); // internal owner
         require(to != address(0), "ERC721: transfer to the zero address");
 
         _beforeTokenTransfer(from, to, tokenId);
@@ -451,7 +458,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
 
     function _approve(address to, uint256 tokenId) private {
         _tokenApprovals[tokenId] = to;
-        emit Approval(ownerOf(tokenId), to, tokenId);
+        emit Approval(_ownerOf(tokenId), to, tokenId); // internal owner
     }
 
     /**
