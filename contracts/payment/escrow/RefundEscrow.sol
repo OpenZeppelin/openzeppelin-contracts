@@ -80,14 +80,14 @@ contract RefundEscrow is ConditionalEscrow {
      */
     function beneficiaryWithdraw() public virtual {
         require(state() == State.Closed, "RefundEscrow: beneficiary can only withdraw while closed");
-        Address.sendValue(payable(beneficiary()), address(this).balance);
+        _beneficiary.transfer(address(this).balance);
     }
 
     /**
      * @dev Returns whether refundees can withdraw their deposits (be refunded). The overridden function receives a
      * 'payee' argument, but we ignore it here since the condition is global, not per-payee.
      */
-    function withdrawalAllowed(address) public view virtual override returns (bool) {
+    function withdrawalAllowed(address) public view override returns (bool) {
         return state() == State.Refunding;
     }
 }

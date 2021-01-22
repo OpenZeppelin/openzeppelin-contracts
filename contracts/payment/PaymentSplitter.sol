@@ -66,35 +66,35 @@ contract PaymentSplitter is Context {
     /**
      * @dev Getter for the total shares held by payees.
      */
-    function totalShares() public view virtual returns (uint256) {
+    function totalShares() public view returns (uint256) {
         return _totalShares;
     }
 
     /**
      * @dev Getter for the total amount of Ether already released.
      */
-    function totalReleased() public view virtual returns (uint256) {
+    function totalReleased() public view returns (uint256) {
         return _totalReleased;
     }
 
     /**
      * @dev Getter for the amount of shares held by an account.
      */
-    function shares(address account) public view virtual returns (uint256) {
+    function shares(address account) public view returns (uint256) {
         return _shares[account];
     }
 
     /**
      * @dev Getter for the amount of Ether already released to a payee.
      */
-    function released(address account) public view virtual returns (uint256) {
+    function released(address account) public view returns (uint256) {
         return _released[account];
     }
 
     /**
      * @dev Getter for the address of the payee number `index`.
      */
-    function payee(uint256 index) public view virtual returns (address) {
+    function payee(uint256 index) public view returns (address) {
         return _payees[index];
     }
 
