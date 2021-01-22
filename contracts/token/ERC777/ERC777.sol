@@ -122,14 +122,14 @@ contract ERC777 is Context, IERC777, IERC20 {
     /**
      * @dev See {IERC777-totalSupply}.
      */
-    function totalSupply() public view virtual override(IERC20, IERC777) returns (uint256) {
+    function totalSupply() public view override(IERC20, IERC777) returns (uint256) {
         return _totalSupply;
     }
 
     /**
      * @dev Returns the amount of tokens owned by an account (`tokenHolder`).
      */
-    function balanceOf(address tokenHolder) public view virtual override(IERC20, IERC777) returns (uint256) {
+    function balanceOf(address tokenHolder) public view override(IERC20, IERC777) returns (uint256) {
         return _balances[tokenHolder];
     }
 
