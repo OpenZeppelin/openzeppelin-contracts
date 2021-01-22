@@ -103,7 +103,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     /**
      * @dev See {IERC721-balanceOf}.
      */
-    function balanceOf(address owner) public view virtual override returns (uint256) {
+    function balanceOf(address owner) public view override returns (uint256) {
         require(owner != address(0), "ERC721: balance query for the zero address");
 
         return _holderTokens[owner].length();
@@ -162,14 +162,14 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     /**
      * @dev See {IERC721Enumerable-tokenOfOwnerByIndex}.
      */
-    function tokenOfOwnerByIndex(address owner, uint256 index) public view virtual override returns (uint256) {
+    function tokenOfOwnerByIndex(address owner, uint256 index) public view override returns (uint256) {
         return _holderTokens[owner].at(index);
     }
 
     /**
      * @dev See {IERC721Enumerable-totalSupply}.
      */
-    function totalSupply() public view virtual override returns (uint256) {
+    function totalSupply() public view override returns (uint256) {
         // _tokenOwners are indexed by tokenIds, so .length() returns the number of tokenIds
         return _tokenOwners.length();
     }
@@ -177,7 +177,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     /**
      * @dev See {IERC721Enumerable-tokenByIndex}.
      */
-    function tokenByIndex(uint256 index) public view virtual override returns (uint256) {
+    function tokenByIndex(uint256 index) public view override returns (uint256) {
         (uint256 tokenId, ) = _tokenOwners.at(index);
         return tokenId;
     }
