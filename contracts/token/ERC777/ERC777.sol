@@ -122,15 +122,15 @@ contract ERC777 is Context, IERC777, IERC20 {
     /**
      * @dev See {IERC777-totalSupply}.
      */
-    function totalSupply() public view override(IERC20, IERC777) returns (uint256) {
-        return _totalSupply;
+    function totalSupply() public view virtual override(IERC20, IERC777) returns (uint256) {
+        return _getTotalSupply();
     }
 
     /**
      * @dev Returns the amount of tokens owned by an account (`tokenHolder`).
      */
-    function balanceOf(address tokenHolder) public view override(IERC20, IERC777) returns (uint256) {
-        return _balances[tokenHolder];
+    function balanceOf(address tokenHolder) public view virtual override(IERC20, IERC777) returns (uint256) {
+        return _getBalanceOf(tokenHolder);
     }
 
     /**
@@ -432,6 +432,22 @@ contract ERC777 is Context, IERC777, IERC20 {
 
         _allowances[holder][spender] = value;
         emit Approval(holder, spender, value);
+    }
+
+    /**
+     * @dev Internal, non-virtual, getter for totalSupply. Provide an access to
+     * the stored values in case the public getter in overloaded.
+     */
+    function _getTotalSupply() internal view returns (uint256) {
+        return _totalSupply;
+    }
+
+    /**
+     * @dev Internal, non-virtual, getter for balanceOf. Provide an access to
+     * the stored values in case the public getter in overloaded.
+     */
+    function _getBalanceOf(address tokenHolder) internal view returns (uint256) {
+        return _balances[tokenHolder];
     }
 
     /**
