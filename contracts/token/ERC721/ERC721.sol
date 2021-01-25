@@ -185,7 +185,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
         address owner = _readOwnerOf(tokenId);
         require(to != owner, "ERC721: approval to current owner");
 
-        require(_msgSender() == owner || isApprovedForAll(owner, _msgSender()),
+        require(_msgSender() == owner || _readIsApprovedForAll(owner, _msgSender()),
             "ERC721: approve caller is not owner nor approved for all"
         );
 
@@ -215,7 +215,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      * @dev See {IERC721-isApprovedForAll}.
      */
     function isApprovedForAll(address owner, address operator) public view virtual override returns (bool) {
-        return _operatorApprovals[owner][operator];
+        return _readIsApprovedForAll(owner, operator);
     }
 
     /**
@@ -288,7 +288,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     function _isApprovedOrOwner(address spender, uint256 tokenId) internal view virtual returns (bool) {
         require(_exists(tokenId), "ERC721: operator query for nonexistent token");
         address owner = _readOwnerOf(tokenId);
-        return (spender == owner || getApproved(tokenId) == spender || isApprovedForAll(owner, spender));
+        return (spender == owner || getApproved(tokenId) == spender || _readIsApprovedForAll(owner, spender));
     }
 
     /**
@@ -460,6 +460,14 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     function _readTokenByIndex(uint256 index) internal view returns (uint256) {
         (uint256 tokenId, ) = _tokenOwners.at(index);
         return tokenId;
+    }
+
+    /**
+     * @dev Internal, non-virtual, getter for isApprovedForAll. Provide an
+     * access to the stored values in case the public getter in overloaded.
+     */
+    function _readIsApprovedForAll(address owner, address operator) internal view returns (bool) {
+        return _operatorApprovals[owner][operator];
     }
 
     /**
