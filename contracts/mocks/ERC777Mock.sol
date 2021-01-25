@@ -31,7 +31,7 @@ contract ERC777Mock is Context, ERC777 {
         _approve(holder, spender, value);
     }
 
-    function _beforeTokenTransfer(address operator, address from, address to, uint256 amount) internal override {
+    function _beforeTokenTransfer(address, address, address, uint256) internal override {
         emit BeforeTokenTransfer();
     }
 }
