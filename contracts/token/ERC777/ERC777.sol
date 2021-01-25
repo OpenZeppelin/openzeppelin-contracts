@@ -289,7 +289,10 @@ contract ERC777 is Context, IERC777, IERC20 {
         _callTokensToSend(spender, holder, recipient, amount, "", "");
 
         _move(spender, holder, recipient, amount, "", "");
-        _approve(holder, spender, _allowances[holder][spender].sub(amount, "ERC777: transfer amount exceeds allowance"));
+
+        (bool success, uint256 newApproval) = _allowances[holder][spender].trySub(amount);
+        require(success, "ERC777: transfer amount exceeds allowance");
+        _approve(holder, spender, newApproval);
 
         _callTokensReceived(spender, holder, recipient, amount, "", "", false);
 
@@ -395,7 +398,10 @@ contract ERC777 is Context, IERC777, IERC20 {
         _callTokensToSend(operator, from, address(0), amount, data, operatorData);
 
         // Update state variables
-        _balances[from] = _balances[from].sub(amount, "ERC777: burn amount exceeds balance");
+        (bool success, uint256 newBalance) = _balances[from].trySub(amount);
+        require(success, "ERC777: burn amount exceeds balance");
+        _balances[from] = newBalance;
+
         _totalSupply = _totalSupply.sub(amount);
 
         emit Burned(operator, from, amount, data, operatorData);
@@ -414,7 +420,10 @@ contract ERC777 is Context, IERC777, IERC20 {
     {
         _beforeTokenTransfer(operator, from, to, amount);
 
-        _balances[from] = _balances[from].sub(amount, "ERC777: transfer amount exceeds balance");
+        (bool success, uint256 newBalance) = _balances[from].trySub(amount);
+        require(success, "ERC777: transfer amount exceeds balance");
+        _balances[from] = newBalance;
+
         _balances[to] = _balances[to].add(amount);
 
         emit Sent(operator, from, to, amount, userData, operatorData);

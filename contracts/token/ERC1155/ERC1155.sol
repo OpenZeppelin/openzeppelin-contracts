@@ -157,7 +157,10 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
         _beforeTokenTransfer(operator, from, to, _asSingletonArray(id), _asSingletonArray(amount), data);
 
-        _balances[id][from] = _balances[id][from].sub(amount, "ERC1155: insufficient balance for transfer");
+        (bool success, uint256 newBalance) = _balances[id][from].trySub(amount);
+        require(success, "ERC1155: insufficient balance for transfer");
+        _balances[id][from] = newBalance;
+
         _balances[id][to] = _balances[id][to].add(amount);
 
         emit TransferSingle(operator, from, to, id, amount);
