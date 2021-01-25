@@ -94,14 +94,14 @@ contract ERC20 is Context, IERC20 {
      * @dev See {IERC20-totalSupply}.
      */
     function totalSupply() public view virtual override returns (uint256) {
-        return _getTotalSupply();
+        return _readTotalSupply();
     }
 
     /**
      * @dev See {IERC20-balanceOf}.
      */
     function balanceOf(address account) public view virtual override returns (uint256) {
-        return _getBalanceOf(account);
+        return _readBalanceOf(account);
     }
 
     /**
@@ -292,7 +292,7 @@ contract ERC20 is Context, IERC20 {
     * @dev Internal, non-virtual, getter for tokenByIndex. Provide an access to
     * the stored values in case the public getter in overloaded.
     */
-    function _getTotalSupply() internal view returns (uint256) {
+    function _readTotalSupply() internal view returns (uint256) {
         return _totalSupply;
     }
 
@@ -300,7 +300,7 @@ contract ERC20 is Context, IERC20 {
      * @dev Internal, non-virtual, getter for tokenByIndex. Provide an access to
      * the stored values in case the public getter in overloaded.
      */
-    function _getBalanceOf(address account) internal view returns (uint256) {
+    function _readBalanceOf(address account) internal view returns (uint256) {
         return _balances[account];
     }
 
