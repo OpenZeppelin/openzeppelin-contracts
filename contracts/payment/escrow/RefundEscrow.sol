@@ -43,7 +43,7 @@ contract RefundEscrow is ConditionalEscrow {
     /**
      * @return The beneficiary of the escrow.
      */
-    function beneficiary() public view virtual returns (address) {
+    function beneficiary() public view virtual returns (address payable) {
         return _beneficiary;
     }
 
@@ -79,8 +79,8 @@ contract RefundEscrow is ConditionalEscrow {
      * @dev Withdraws the beneficiary's funds.
      */
     function beneficiaryWithdraw() public virtual {
-        require(state() == State.Closed, "RefundEscrow: beneficiary can only withdraw while closed");
-        payable(beneficiary()).transfer(address(this).balance);
+        require(_state == State.Closed, "RefundEscrow: beneficiary can only withdraw while closed");
+        beneficiary().sendValue(address(this).balance);
     }
 
     /**
