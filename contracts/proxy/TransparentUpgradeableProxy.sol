@@ -121,7 +121,7 @@ contract TransparentUpgradeableProxy is UpgradeableProxy {
     /**
      * @dev Returns the current admin.
      */
-    function _admin() internal view returns (address adm) {
+    function _admin() internal view virtual returns (address adm) {
         bytes32 slot = _ADMIN_SLOT;
         // solhint-disable-next-line no-inline-assembly
         assembly {

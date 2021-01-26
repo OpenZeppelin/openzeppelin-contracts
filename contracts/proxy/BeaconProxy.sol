@@ -38,7 +38,7 @@ contract BeaconProxy is Proxy {
     /**
      * @dev Returns the current beacon address.
      */
-    function _beacon() internal view returns (address beacon) {
+    function _beacon() internal view virtual returns (address beacon) {
         bytes32 slot = _BEACON_SLOT;
         // solhint-disable-next-line no-inline-assembly
         assembly {
@@ -49,7 +49,7 @@ contract BeaconProxy is Proxy {
     /**
      * @dev Returns the current implementation address of the associated beacon.
      */
-    function _implementation() internal view override returns (address) {
+    function _implementation() internal view virtual override returns (address) {
         return IBeacon(_beacon()).implementation();
     }
 

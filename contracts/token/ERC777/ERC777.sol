@@ -89,14 +89,14 @@ contract ERC777 is Context, IERC777, IERC20 {
     /**
      * @dev See {IERC777-name}.
      */
-    function name() public view override returns (string memory) {
+    function name() public view virtual override returns (string memory) {
         return _name;
     }
 
     /**
      * @dev See {IERC777-symbol}.
      */
-    function symbol() public view override returns (string memory) {
+    function symbol() public view virtual override returns (string memory) {
         return _symbol;
     }
 
@@ -106,7 +106,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      * Always returns 18, as per the
      * [ERC777 EIP](https://eips.ethereum.org/EIPS/eip-777#backward-compatibility).
      */
-    function decimals() public pure returns (uint8) {
+    function decimals() public pure virtual returns (uint8) {
         return 18;
     }
 
@@ -115,21 +115,21 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * This implementation always returns `1`.
      */
-    function granularity() public view override returns (uint256) {
+    function granularity() public view virtual override returns (uint256) {
         return 1;
     }
 
     /**
      * @dev See {IERC777-totalSupply}.
      */
-    function totalSupply() public view override(IERC20, IERC777) returns (uint256) {
+    function totalSupply() public view virtual override(IERC20, IERC777) returns (uint256) {
         return _totalSupply;
     }
 
     /**
      * @dev Returns the amount of tokens owned by an account (`tokenHolder`).
      */
-    function balanceOf(address tokenHolder) public view override(IERC20, IERC777) returns (uint256) {
+    function balanceOf(address tokenHolder) public view virtual override(IERC20, IERC777) returns (uint256) {
         return _balances[tokenHolder];
     }
 
@@ -176,7 +176,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     /**
      * @dev See {IERC777-isOperatorFor}.
      */
-    function isOperatorFor(address operator, address tokenHolder) public view override returns (bool) {
+    function isOperatorFor(address operator, address tokenHolder) public view virtual override returns (bool) {
         return operator == tokenHolder ||
             (_defaultOperators[operator] && !_revokedDefaultOperators[tokenHolder][operator]) ||
             _operators[tokenHolder][operator];
@@ -215,7 +215,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     /**
      * @dev See {IERC777-defaultOperators}.
      */
-    function defaultOperators() public view override returns (address[] memory) {
+    function defaultOperators() public view virtual override returns (address[] memory) {
         return _defaultOperatorsArray;
     }
 
@@ -256,7 +256,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      * not have allowance, and accounts with allowance may not be operators
      * themselves.
      */
-    function allowance(address holder, address spender) public view override returns (uint256) {
+    function allowance(address holder, address spender) public view virtual override returns (uint256) {
         return _allowances[holder][spender];
     }
 

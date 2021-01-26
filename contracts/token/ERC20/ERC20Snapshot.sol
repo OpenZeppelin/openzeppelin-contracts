@@ -89,7 +89,7 @@ abstract contract ERC20Snapshot is ERC20 {
     /**
      * @dev Retrieves the balance of `account` at the time `snapshotId` was created.
      */
-    function balanceOfAt(address account, uint256 snapshotId) public view returns (uint256) {
+    function balanceOfAt(address account, uint256 snapshotId) public view virtual returns (uint256) {
         (bool snapshotted, uint256 value) = _valueAt(snapshotId, _accountBalanceSnapshots[account]);
 
         return snapshotted ? value : balanceOf(account);
@@ -98,7 +98,7 @@ abstract contract ERC20Snapshot is ERC20 {
     /**
      * @dev Retrieves the total supply at the time `snapshotId` was created.
      */
-    function totalSupplyAt(uint256 snapshotId) public view returns(uint256) {
+    function totalSupplyAt(uint256 snapshotId) public view virtual returns(uint256) {
         (bool snapshotted, uint256 value) = _valueAt(snapshotId, _totalSupplySnapshots);
 
         return snapshotted ? value : totalSupply();
