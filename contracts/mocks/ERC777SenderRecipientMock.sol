@@ -34,6 +34,9 @@ contract ERC777SenderRecipientMock is Context, IERC777Sender, IERC777Recipient, 
         uint256 toBalance
     );
 
+    // Emitted in ERC777Mock. Here for easier decoding
+    event BeforeTokenTransfer();
+
     bool private _shouldRevertSend;
     bool private _shouldRevertReceive;
 
