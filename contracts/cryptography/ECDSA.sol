@@ -43,6 +43,14 @@ library ECDSA {
             v := byte(0, mload(add(signature, 0x60)))
         }
 
+        return recover(hash, v, r, s);
+    }
+
+    /**
+     * @dev Overload of {ECDSA-recover-bytes32-bytes-} that receives the `v`,
+     * `r` and `s` signature fields separately.
+     */
+    function recover(bytes32 hash, uint8 v, bytes32 r, bytes32 s) internal pure returns (address) {
         // EIP-2 still allows signature malleability for ecrecover(). Remove this possibility and make the signature
         // unique. Appendix F in the Ethereum Yellow paper (https://ethereum.github.io/yellowpaper/paper.pdf), defines
         // the valid range for s in (281): 0 < s < secp256k1n ÷ 2 + 1, and for v in (282): v ∈ {27, 28}. Most

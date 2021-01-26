@@ -1,11 +1,15 @@
 const { BN, expectRevert } = require('@openzeppelin/test-helpers');
-const { toChecksumAddress, keccak256 } = require('ethereumjs-util');
+const ethereumjsUtil = require('ethereumjs-util');
 
 const { expect } = require('chai');
 
 const DummyImplementation = artifacts.require('DummyImplementation');
 
 const IMPLEMENTATION_LABEL = 'eip1967.proxy.implementation';
+
+function toChecksumAddress (address) {
+  return ethereumjsUtil.toChecksumAddress('0x' + address.replace(/^0x/, '').padStart(40, '0'));
+}
 
 module.exports = function shouldBehaveLikeUpgradeableProxy (createProxy, proxyAdminAddress, proxyCreator) {
   it('cannot be initialized with a non-contract address', async function () {
@@ -24,7 +28,7 @@ module.exports = function shouldBehaveLikeUpgradeableProxy (createProxy, proxyAd
 
   const assertProxyInitialization = function ({ value, balance }) {
     it('sets the implementation address', async function () {
-      const slot = '0x' + new BN(keccak256(Buffer.from(IMPLEMENTATION_LABEL))).subn(1).toString(16);
+      const slot = '0x' + new BN(ethereumjsUtil.keccak256(Buffer.from(IMPLEMENTATION_LABEL))).subn(1).toString(16);
       const implementation = toChecksumAddress(await web3.eth.getStorageAt(this.proxy, slot));
       expect(implementation).to.be.equal(this.implementation);
     });
@@ -144,7 +148,7 @@ module.exports = function shouldBehaveLikeUpgradeableProxy (createProxy, proxyAd
     describe('non payable', function () {
       const expectedInitializedValue = 10;
       const initializeData = new DummyImplementation('').contract
-        .methods['initializeNonPayable(uint256)'](expectedInitializedValue).encodeABI();
+        .methods.initializeNonPayableWithValue(expectedInitializedValue).encodeABI();
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
@@ -175,7 +179,7 @@ module.exports = function shouldBehaveLikeUpgradeableProxy (createProxy, proxyAd
     describe('payable', function () {
       const expectedInitializedValue = 42;
       const initializeData = new DummyImplementation('').contract
-        .methods['initializePayable(uint256)'](expectedInitializedValue).encodeABI();
+        .methods.initializePayableWithValue(expectedInitializedValue).encodeABI();
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
@@ -208,6 +212,18 @@ module.exports = function shouldBehaveLikeUpgradeableProxy (createProxy, proxyAd
           value: expectedInitializedValue,
           balance: value,
         });
+      });
+    });
+
+    describe('reverting initialization', function () {
+      const initializeData = new DummyImplementation('').contract
+        .methods.reverts().encodeABI();
+
+      it('reverts', async function () {
+        await expectRevert(
+          createProxy(this.implementation, proxyAdminAddress, initializeData, { from: proxyCreator }),
+          'DummyImplementation reverted',
+        );
       });
     });
   });

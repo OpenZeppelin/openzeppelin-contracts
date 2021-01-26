@@ -18,6 +18,8 @@ import "./AccessControl.sol";
  * is in charge of proposing (resp executing) operations. A common use case is
  * to position this {TimelockController} as the owner of a smart contract, with
  * a multisig or a DAO as the sole proposer.
+ *
+ * _Available since v3.3._
  */
 contract TimelockController is AccessControl {
 
@@ -86,45 +88,56 @@ contract TimelockController is AccessControl {
         _;
     }
 
-    /*
+    /**
      * @dev Contract might receive/hold ETH as part of the maintenance process.
      */
     receive() external payable {}
 
     /**
+     * @dev Returns whether an id correspond to a registered operation. This
+     * includes both Pending, Ready and Done operations.
+     */
+    function isOperation(bytes32 id) public view virtual returns (bool pending) {
+        return getTimestamp(id) > 0;
+    }
+
+    /**
      * @dev Returns whether an operation is pending or not.
      */
-    function isOperationPending(bytes32 id) public view returns (bool pending) {
-        return _timestamps[id] > _DONE_TIMESTAMP;
+    function isOperationPending(bytes32 id) public view virtual returns (bool pending) {
+        return getTimestamp(id) > _DONE_TIMESTAMP;
     }
 
     /**
      * @dev Returns whether an operation is ready or not.
      */
-    function isOperationReady(bytes32 id) public view returns (bool ready) {
+    function isOperationReady(bytes32 id) public view virtual returns (bool ready) {
+        uint256 timestamp = getTimestamp(id);
         // solhint-disable-next-line not-rely-on-time
-        return _timestamps[id] > _DONE_TIMESTAMP && _timestamps[id] <= block.timestamp;
+        return timestamp > _DONE_TIMESTAMP && timestamp <= block.timestamp;
     }
 
     /**
      * @dev Returns whether an operation is done or not.
      */
-    function isOperationDone(bytes32 id) public view returns (bool done) {
-        return _timestamps[id] == _DONE_TIMESTAMP;
+    function isOperationDone(bytes32 id) public view virtual returns (bool done) {
+        return getTimestamp(id) == _DONE_TIMESTAMP;
     }
 
     /**
      * @dev Returns the timestamp at with an operation becomes ready (0 for
      * unset operations, 1 for done operations).
      */
-    function getTimestamp(bytes32 id) public view returns (uint256 timestamp) {
+    function getTimestamp(bytes32 id) public view virtual returns (uint256 timestamp) {
         return _timestamps[id];
     }
 
     /**
      * @dev Returns the minimum delay for an operation to become valid.
+     *
+     * This value can be changed by executing an operation that calls `updateDelay`.
      */
-    function getMinDelay() public view returns (uint256 duration) {
+    function getMinDelay() public view virtual returns (uint256 duration) {
         return _minDelay;
     }
 
@@ -132,7 +145,7 @@ contract TimelockController is AccessControl {
      * @dev Returns the identifier of an operation containing a single
      * transaction.
      */
-    function hashOperation(address target, uint256 value, bytes calldata data, bytes32 predecessor, bytes32 salt) public pure returns (bytes32 hash) {
+    function hashOperation(address target, uint256 value, bytes calldata data, bytes32 predecessor, bytes32 salt) public pure virtual returns (bytes32 hash) {
         return keccak256(abi.encode(target, value, data, predecessor, salt));
     }
 
@@ -140,7 +153,7 @@ contract TimelockController is AccessControl {
      * @dev Returns the identifier of an operation containing a batch of
      * transactions.
      */
-    function hashOperationBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 predecessor, bytes32 salt) public pure returns (bytes32 hash) {
+    function hashOperationBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 predecessor, bytes32 salt) public pure virtual returns (bytes32 hash) {
         return keccak256(abi.encode(targets, values, datas, predecessor, salt));
     }
 
@@ -183,8 +196,8 @@ contract TimelockController is AccessControl {
      * @dev Schedule an operation that is to becomes valid after a given delay.
      */
     function _schedule(bytes32 id, uint256 delay) private {
-        require(_timestamps[id] == 0, "TimelockController: operation already scheduled");
-        require(delay >= _minDelay, "TimelockController: insufficient delay");
+        require(!isOperation(id), "TimelockController: operation already scheduled");
+        require(delay >= getMinDelay(), "TimelockController: insufficient delay");
         // solhint-disable-next-line not-rely-on-time
         _timestamps[id] = SafeMath.add(block.timestamp, delay);
     }
@@ -269,9 +282,14 @@ contract TimelockController is AccessControl {
     }
 
     /**
-     * @dev Changes the timelock duration for future operations.
+     * @dev Changes the minimum timelock duration for future operations.
      *
      * Emits a {MinDelayChange} event.
+     *
+     * Requirements:
+     *
+     * - the caller must be the timelock itself. This can only be achieved by scheduling and later executing
+     * an operation where the timelock is the target and the data is the ABI-encoded call to this function.
      */
     function updateDelay(uint256 newDelay) external virtual {
         require(msg.sender == address(this), "TimelockController: caller must be timelock");

@@ -2,7 +2,7 @@
 
 pragma solidity ^0.7.0;
 
-import "../../GSN/Context.sol";
+import "../../utils/Context.sol";
 import "./IERC20.sol";
 import "../../math/SafeMath.sol";
 
@@ -61,7 +61,7 @@ contract ERC20 is Context, IERC20 {
     /**
      * @dev Returns the name of the token.
      */
-    function name() public view returns (string memory) {
+    function name() public view virtual returns (string memory) {
         return _name;
     }
 
@@ -69,7 +69,7 @@ contract ERC20 is Context, IERC20 {
      * @dev Returns the symbol of the token, usually a shorter version of the
      * name.
      */
-    function symbol() public view returns (string memory) {
+    function symbol() public view virtual returns (string memory) {
         return _symbol;
     }
 
@@ -86,21 +86,21 @@ contract ERC20 is Context, IERC20 {
      * no way affects any of the arithmetic of the contract, including
      * {IERC20-balanceOf} and {IERC20-transfer}.
      */
-    function decimals() public view returns (uint8) {
+    function decimals() public view virtual returns (uint8) {
         return _decimals;
     }
 
     /**
      * @dev See {IERC20-totalSupply}.
      */
-    function totalSupply() public view override returns (uint256) {
+    function totalSupply() public view virtual override returns (uint256) {
         return _totalSupply;
     }
 
     /**
      * @dev See {IERC20-balanceOf}.
      */
-    function balanceOf(address account) public view override returns (uint256) {
+    function balanceOf(address account) public view virtual override returns (uint256) {
         return _balances[account];
     }
 
@@ -284,7 +284,7 @@ contract ERC20 is Context, IERC20 {
      * applications that interact with token contracts will not expect
      * {decimals} to ever change, and may work incorrectly if it does.
      */
-    function _setupDecimals(uint8 decimals_) internal {
+    function _setupDecimals(uint8 decimals_) internal virtual {
         _decimals = decimals_;
     }
 

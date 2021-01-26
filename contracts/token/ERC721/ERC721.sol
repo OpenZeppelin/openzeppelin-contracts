@@ -2,7 +2,7 @@
 
 pragma solidity ^0.7.0;
 
-import "../../GSN/Context.sol";
+import "../../utils/Context.sol";
 import "./IERC721.sol";
 import "./IERC721Metadata.sol";
 import "./IERC721Enumerable.sol";
@@ -103,51 +103,51 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     /**
      * @dev See {IERC721-balanceOf}.
      */
-    function balanceOf(address owner) public view override returns (uint256) {
+    function balanceOf(address owner) public view virtual override returns (uint256) {
         require(owner != address(0), "ERC721: balance query for the zero address");
-
         return _holderTokens[owner].length();
     }
 
     /**
      * @dev See {IERC721-ownerOf}.
      */
-    function ownerOf(uint256 tokenId) public view override returns (address) {
+    function ownerOf(uint256 tokenId) public view virtual override returns (address) {
         return _tokenOwners.get(tokenId, "ERC721: owner query for nonexistent token");
     }
 
     /**
      * @dev See {IERC721Metadata-name}.
      */
-    function name() public view override returns (string memory) {
+    function name() public view virtual override returns (string memory) {
         return _name;
     }
 
     /**
      * @dev See {IERC721Metadata-symbol}.
      */
-    function symbol() public view override returns (string memory) {
+    function symbol() public view virtual override returns (string memory) {
         return _symbol;
     }
 
     /**
      * @dev See {IERC721Metadata-tokenURI}.
      */
-    function tokenURI(uint256 tokenId) public view override returns (string memory) {
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
 
         string memory _tokenURI = _tokenURIs[tokenId];
+        string memory base = baseURI();
 
         // If there is no base URI, return the token URI.
-        if (bytes(_baseURI).length == 0) {
+        if (bytes(base).length == 0) {
             return _tokenURI;
         }
         // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
         if (bytes(_tokenURI).length > 0) {
-            return string(abi.encodePacked(_baseURI, _tokenURI));
+            return string(abi.encodePacked(base, _tokenURI));
         }
         // If there is a baseURI but no tokenURI, concatenate the tokenID to the baseURI.
-        return string(abi.encodePacked(_baseURI, tokenId.toString()));
+        return string(abi.encodePacked(base, tokenId.toString()));
     }
 
     /**
@@ -155,21 +155,21 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     * automatically added as a prefix in {tokenURI} to each token's URI, or
     * to the token ID if no specific URI is set for that token ID.
     */
-    function baseURI() public view returns (string memory) {
+    function baseURI() public view virtual returns (string memory) {
         return _baseURI;
     }
 
     /**
      * @dev See {IERC721Enumerable-tokenOfOwnerByIndex}.
      */
-    function tokenOfOwnerByIndex(address owner, uint256 index) public view override returns (uint256) {
+    function tokenOfOwnerByIndex(address owner, uint256 index) public view virtual override returns (uint256) {
         return _holderTokens[owner].at(index);
     }
 
     /**
      * @dev See {IERC721Enumerable-totalSupply}.
      */
-    function totalSupply() public view override returns (uint256) {
+    function totalSupply() public view virtual override returns (uint256) {
         // _tokenOwners are indexed by tokenIds, so .length() returns the number of tokenIds
         return _tokenOwners.length();
     }
@@ -177,7 +177,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     /**
      * @dev See {IERC721Enumerable-tokenByIndex}.
      */
-    function tokenByIndex(uint256 index) public view override returns (uint256) {
+    function tokenByIndex(uint256 index) public view virtual override returns (uint256) {
         (uint256 tokenId, ) = _tokenOwners.at(index);
         return tokenId;
     }
@@ -186,10 +186,10 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      * @dev See {IERC721-approve}.
      */
     function approve(address to, uint256 tokenId) public virtual override {
-        address owner = ownerOf(tokenId);
+        address owner = ERC721.ownerOf(tokenId);
         require(to != owner, "ERC721: approval to current owner");
 
-        require(_msgSender() == owner || isApprovedForAll(owner, _msgSender()),
+        require(_msgSender() == owner || ERC721.isApprovedForAll(owner, _msgSender()),
             "ERC721: approve caller is not owner nor approved for all"
         );
 
@@ -199,7 +199,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     /**
      * @dev See {IERC721-getApproved}.
      */
-    function getApproved(uint256 tokenId) public view override returns (address) {
+    function getApproved(uint256 tokenId) public view virtual override returns (address) {
         require(_exists(tokenId), "ERC721: approved query for nonexistent token");
 
         return _tokenApprovals[tokenId];
@@ -218,7 +218,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     /**
      * @dev See {IERC721-isApprovedForAll}.
      */
-    function isApprovedForAll(address owner, address operator) public view override returns (bool) {
+    function isApprovedForAll(address owner, address operator) public view virtual override returns (bool) {
         return _operatorApprovals[owner][operator];
     }
 
@@ -278,7 +278,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      * Tokens start existing when they are minted (`_mint`),
      * and stop existing when they are burned (`_burn`).
      */
-    function _exists(uint256 tokenId) internal view returns (bool) {
+    function _exists(uint256 tokenId) internal view virtual returns (bool) {
         return _tokenOwners.contains(tokenId);
     }
 
@@ -289,10 +289,10 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      *
      * - `tokenId` must exist.
      */
-    function _isApprovedOrOwner(address spender, uint256 tokenId) internal view returns (bool) {
+    function _isApprovedOrOwner(address spender, uint256 tokenId) internal view virtual returns (bool) {
         require(_exists(tokenId), "ERC721: operator query for nonexistent token");
-        address owner = ownerOf(tokenId);
-        return (spender == owner || getApproved(tokenId) == spender || isApprovedForAll(owner, spender));
+        address owner = ERC721.ownerOf(tokenId);
+        return (spender == owner || getApproved(tokenId) == spender || ERC721.isApprovedForAll(owner, spender));
     }
 
     /**
@@ -354,7 +354,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      * Emits a {Transfer} event.
      */
     function _burn(uint256 tokenId) internal virtual {
-        address owner = ownerOf(tokenId);
+        address owner = ERC721.ownerOf(tokenId); // internal owner
 
         _beforeTokenTransfer(owner, address(0), tokenId);
 
@@ -385,7 +385,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      * Emits a {Transfer} event.
      */
     function _transfer(address from, address to, uint256 tokenId) internal virtual {
-        require(ownerOf(tokenId) == from, "ERC721: transfer of token that is not own");
+        require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer of token that is not own"); // internal owner
         require(to != address(0), "ERC721: transfer to the zero address");
 
         _beforeTokenTransfer(from, to, tokenId);
@@ -451,7 +451,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
 
     function _approve(address to, uint256 tokenId) private {
         _tokenApprovals[tokenId] = to;
-        emit Approval(ownerOf(tokenId), to, tokenId);
+        emit Approval(ERC721.ownerOf(tokenId), to, tokenId); // internal owner
     }
 
     /**
