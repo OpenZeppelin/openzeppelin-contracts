@@ -103,10 +103,10 @@ contract PaymentSplitter is Context {
      * total shares and their previous withdrawals.
      */
     function release(address payable account) public virtual {
-        require(shares(account) > 0, "PaymentSplitter: account has no shares");
+        require(_shares[account] > 0, "PaymentSplitter: account has no shares");
 
-        uint256 totalReceived = address(this).balance.add(totalReleased());
-        uint256 payment = totalReceived.mul(shares(account)).div(totalShares()).sub(released(account));
+        uint256 totalReceived = address(this).balance.add(_totalReleased);
+        uint256 payment = totalReceived.mul(_shares[account]).div(_totalShares).sub(_released[account]);
 
         require(payment != 0, "PaymentSplitter: account is not due payment");
 

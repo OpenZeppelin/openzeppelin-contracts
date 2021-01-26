@@ -92,7 +92,7 @@ abstract contract AccessControl is Context {
      * @dev Returns the number of accounts that have `role`. Can be used
      * together with {getRoleMember} to enumerate all bearers of a role.
      */
-    function getRoleMemberCount(bytes32 role) public view virtual returns (uint256) {
+    function getRoleMemberCount(bytes32 role) public view returns (uint256) {
         return _roles[role].members.length();
     }
 
@@ -108,7 +108,7 @@ abstract contract AccessControl is Context {
      * https://forum.openzeppelin.com/t/iterating-over-elements-on-enumerableset-in-openzeppelin-contracts/2296[forum post]
      * for more information.
      */
-    function getRoleMember(bytes32 role, uint256 index) public view virtual returns (address) {
+    function getRoleMember(bytes32 role, uint256 index) public view returns (address) {
         return _roles[role].members.at(index);
     }
 
@@ -118,7 +118,7 @@ abstract contract AccessControl is Context {
      *
      * To change a role's admin, use {_setRoleAdmin}.
      */
-    function getRoleAdmin(bytes32 role) public view virtual returns (bytes32) {
+    function getRoleAdmin(bytes32 role) public view returns (bytes32) {
         return _roles[role].adminRole;
     }
 
@@ -133,7 +133,7 @@ abstract contract AccessControl is Context {
      * - the caller must have ``role``'s admin role.
      */
     function grantRole(bytes32 role, address account) public virtual {
-        require(hasRole(getRoleAdmin(role), _msgSender()), "AccessControl: sender must be an admin to grant");
+        require(hasRole(_roles[role].adminRole, _msgSender()), "AccessControl: sender must be an admin to grant");
 
         _grantRole(role, account);
     }
@@ -148,7 +148,7 @@ abstract contract AccessControl is Context {
      * - the caller must have ``role``'s admin role.
      */
     function revokeRole(bytes32 role, address account) public virtual {
-        require(hasRole(getRoleAdmin(role), _msgSender()), "AccessControl: sender must be an admin to revoke");
+        require(hasRole(_roles[role].adminRole, _msgSender()), "AccessControl: sender must be an admin to revoke");
 
         _revokeRole(role, account);
     }

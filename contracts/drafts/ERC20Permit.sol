@@ -45,7 +45,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
                 owner,
                 spender,
                 value,
-                nonces(owner),
+                _nonces[owner].current(),
                 deadline
             )
         );
