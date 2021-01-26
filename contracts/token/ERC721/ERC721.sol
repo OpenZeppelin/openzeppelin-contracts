@@ -104,14 +104,15 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      * @dev See {IERC721-balanceOf}.
      */
     function balanceOf(address owner) public view virtual override returns (uint256) {
-        return _readBalanceOf(owner);
+        require(owner != address(0), "ERC721: balance query for the zero address");
+        return _holderTokens[owner].length();
     }
 
     /**
      * @dev See {IERC721-ownerOf}.
      */
     function ownerOf(uint256 tokenId) public view virtual override returns (address) {
-        return _readOwnerOf(tokenId);
+        return _tokenOwners.get(tokenId, "ERC721: owner query for nonexistent token");
     }
 
     /**
@@ -162,31 +163,33 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      * @dev See {IERC721Enumerable-tokenOfOwnerByIndex}.
      */
     function tokenOfOwnerByIndex(address owner, uint256 index) public view virtual override returns (uint256) {
-        return _readTokenOfOwnerByIndex(owner, index);
+        return _holderTokens[owner].at(index);
     }
 
     /**
      * @dev See {IERC721Enumerable-totalSupply}.
      */
     function totalSupply() public view virtual override returns (uint256) {
-        return _readTotalSupply();
+        // _tokenOwners are indexed by tokenIds, so .length() returns the number of tokenIds
+        return _tokenOwners.length();
     }
 
     /**
      * @dev See {IERC721Enumerable-tokenByIndex}.
      */
     function tokenByIndex(uint256 index) public view virtual override returns (uint256) {
-        return _readTokenByIndex(index);
+        (uint256 tokenId, ) = _tokenOwners.at(index);
+        return tokenId;
     }
 
     /**
      * @dev See {IERC721-approve}.
      */
     function approve(address to, uint256 tokenId) public virtual override {
-        address owner = _readOwnerOf(tokenId);
+        address owner = ERC721.ownerOf(tokenId);
         require(to != owner, "ERC721: approval to current owner");
 
-        require(_msgSender() == owner || _readIsApprovedForAll(owner, _msgSender()),
+        require(_msgSender() == owner || ERC721.isApprovedForAll(owner, _msgSender()),
             "ERC721: approve caller is not owner nor approved for all"
         );
 
@@ -216,7 +219,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      * @dev See {IERC721-isApprovedForAll}.
      */
     function isApprovedForAll(address owner, address operator) public view virtual override returns (bool) {
-        return _readIsApprovedForAll(owner, operator);
+        return _operatorApprovals[owner][operator];
     }
 
     /**
@@ -288,8 +291,8 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      */
     function _isApprovedOrOwner(address spender, uint256 tokenId) internal view virtual returns (bool) {
         require(_exists(tokenId), "ERC721: operator query for nonexistent token");
-        address owner = _readOwnerOf(tokenId);
-        return (spender == owner || getApproved(tokenId) == spender || _readIsApprovedForAll(owner, spender));
+        address owner = ERC721.ownerOf(tokenId);
+        return (spender == owner || getApproved(tokenId) == spender || ERC721.isApprovedForAll(owner, spender));
     }
 
     /**
@@ -351,7 +354,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      * Emits a {Transfer} event.
      */
     function _burn(uint256 tokenId) internal virtual {
-        address owner = _readOwnerOf(tokenId); // internal owner
+        address owner = ERC721.ownerOf(tokenId); // internal owner
 
         _beforeTokenTransfer(owner, address(0), tokenId);
 
@@ -382,7 +385,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      * Emits a {Transfer} event.
      */
     function _transfer(address from, address to, uint256 tokenId) internal virtual {
-        require(_readOwnerOf(tokenId) == from, "ERC721: transfer of token that is not own"); // internal owner
+        require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer of token that is not own"); // internal owner
         require(to != address(0), "ERC721: transfer to the zero address");
 
         _beforeTokenTransfer(from, to, tokenId);
@@ -419,58 +422,6 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
         _baseURI = baseURI_;
     }
 
-
-    /**
-     * @dev Internal, non-virtual, getter for balanceOf. Provide an access to
-     * the stored values in case the public getter in overloaded.
-     */
-    function _readBalanceOf(address owner) internal view returns (uint256) {
-        require(owner != address(0), "ERC721: balance query for the zero address");
-        return _holderTokens[owner].length();
-    }
-
-    /**
-     * @dev Internal, non-virtual, getter for ownerOf. Provide an access to the
-     * stored values in case the public getter in overloaded.
-     */
-    function _readOwnerOf(uint256 tokenId) internal view returns (address) {
-        return _tokenOwners.get(tokenId, "ERC721: owner query for nonexistent token");
-    }
-
-    /**
-     * @dev Internal, non-virtual, getter for tokenOfOwnerByIndex. Provide an
-     * access to the stored values in case the public getter in overloaded.
-     */
-    function _readTokenOfOwnerByIndex(address owner, uint256 index) internal view returns (uint256) {
-        return _holderTokens[owner].at(index);
-    }
-
-    /**
-     * @dev Internal, non-virtual, getter for totalSupply. Provide an access to
-     * the stored values in case the public getter in overloaded.
-     */
-    function _readTotalSupply() internal view returns (uint256) {
-        // _tokenOwners are indexed by tokenIds, so .length() returns the number of tokenIds
-        return _tokenOwners.length();
-    }
-
-    /**
-     * @dev Internal, non-virtual, getter for tokenByIndex. Provide an access to
-     * the stored values in case the public getter in overloaded.
-     */
-    function _readTokenByIndex(uint256 index) internal view returns (uint256) {
-        (uint256 tokenId, ) = _tokenOwners.at(index);
-        return tokenId;
-    }
-
-    /**
-     * @dev Internal, non-virtual, getter for isApprovedForAll. Provide an
-     * access to the stored values in case the public getter in overloaded.
-     */
-    function _readIsApprovedForAll(address owner, address operator) internal view returns (bool) {
-        return _operatorApprovals[owner][operator];
-    }
-
     /**
      * @dev Internal function to invoke {IERC721Receiver-onERC721Received} on a target address.
      * The call is not executed if the target address is not a contract.
@@ -500,7 +451,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
 
     function _approve(address to, uint256 tokenId) private {
         _tokenApprovals[tokenId] = to;
-        emit Approval(_readOwnerOf(tokenId), to, tokenId); // internal owner
+        emit Approval(ERC721.ownerOf(tokenId), to, tokenId); // internal owner
     }
 
     /**

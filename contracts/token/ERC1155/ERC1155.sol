@@ -84,7 +84,8 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * - `account` cannot be the zero address.
      */
     function balanceOf(address account, uint256 id) public view virtual override returns (uint256) {
-        return _readBalanceOf(account, id);
+        require(account != address(0), "ERC1155: balance query for the zero address");
+        return _balances[id][account];
     }
 
     /**
@@ -357,15 +358,6 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         internal
         virtual
     { }
-
-    /**
-     * @dev Internal, non-virtual, getter for tokenByIndex. Provide an access to
-     * the stored values in case the public getter in overloaded.
-     */
-    function _readBalanceOf(address account, uint256 id) internal view returns (uint256) {
-        require(account != address(0), "ERC1155: balance query for the zero address");
-        return _balances[id][account];
-    }
 
     function _doSafeTransferAcceptanceCheck(
         address operator,
