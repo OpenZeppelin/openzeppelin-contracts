@@ -79,7 +79,7 @@ contract RefundEscrow is ConditionalEscrow {
      * @dev Withdraws the beneficiary's funds.
      */
     function beneficiaryWithdraw() public virtual {
-        require(_state == State.Closed, "RefundEscrow: beneficiary can only withdraw while closed");
+        require(state() == State.Closed, "RefundEscrow: beneficiary can only withdraw while closed");
         beneficiary().sendValue(address(this).balance);
     }
 
