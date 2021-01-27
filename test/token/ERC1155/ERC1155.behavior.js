@@ -208,7 +208,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
       });
 
       it('reverts when transferring more than balance', async function () {
-        await expectRevert.unspecified(
+        await expectRevert(
           this.token.safeTransferFrom(
             multiTokenHolder,
             recipient,
@@ -217,6 +217,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             '0x',
             { from: multiTokenHolder },
           ),
+          'ERC1155: insufficient balance for transfer',
         );
       });
 
@@ -463,13 +464,14 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
       });
 
       it('reverts when transferring amount more than any of balances', async function () {
-        await expectRevert.unspecified(
+        await expectRevert(
           this.token.safeBatchTransferFrom(
             multiTokenHolder, recipient,
             [firstTokenId, secondTokenId],
             [firstAmount, secondAmount.addn(1)],
             '0x', { from: multiTokenHolder },
           ),
+          'ERC1155: insufficient balance for transfer',
         );
       });
 

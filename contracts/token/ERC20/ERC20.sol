@@ -148,7 +148,11 @@ contract ERC20 is Context, IERC20 {
      */
     function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
         _transfer(sender, recipient, amount);
-        _approve(sender, _msgSender(), _allowances[sender][_msgSender()] - amount);
+
+        unchecked {
+            require(_allowances[sender][_msgSender()] >= amount, "ERC20: transfer amount exceeds allowance");
+            _approve(sender, _msgSender(), _allowances[sender][_msgSender()] - amount);
+        }
         return true;
     }
 
@@ -184,7 +188,10 @@ contract ERC20 is Context, IERC20 {
      * `subtractedValue`.
      */
     function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
-        _approve(_msgSender(), spender, _allowances[_msgSender()][spender] - subtractedValue);
+        unchecked {
+            require(_allowances[_msgSender()][spender] >= subtractedValue, "ERC20: decreased allowance below zero");
+            _approve(_msgSender(), spender, _allowances[_msgSender()][spender] - subtractedValue);
+        }
         return true;
     }
 
@@ -208,8 +215,12 @@ contract ERC20 is Context, IERC20 {
 
         _beforeTokenTransfer(sender, recipient, amount);
 
-        _balances[sender] = _balances[sender] - amount;
-        _balances[recipient] = _balances[recipient] + amount;
+        unchecked {
+            require(_balances[sender] >= amount, "ERC20: transfer amount exceeds balance");
+            _balances[sender] = _balances[sender] - amount;
+            _balances[recipient] = _balances[recipient] + amount;
+        }
+
         emit Transfer(sender, recipient, amount);
     }
 
@@ -248,8 +259,11 @@ contract ERC20 is Context, IERC20 {
 
         _beforeTokenTransfer(account, address(0), amount);
 
-        _balances[account] = _balances[account] - amount;
-        _totalSupply = _totalSupply - amount;
+        unchecked {
+            require(_balances[account] >= amount, "ERC20: burn amount exceeds balance");
+            _balances[account] = _balances[account] - amount;
+            _totalSupply = _totalSupply - amount;
+        }
         emit Transfer(account, address(0), amount);
     }
 

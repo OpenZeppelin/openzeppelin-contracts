@@ -118,8 +118,9 @@ contract('ERC1155', function (accounts) {
       });
 
       it('reverts when burning a non-existent token id', async function () {
-        await expectRevert.unspecified(
+        await expectRevert(
           this.token.burn(tokenHolder, tokenId, mintAmount),
+          'ERC1155: burn amount exceeds balance',
         );
       });
 
@@ -132,8 +133,9 @@ contract('ERC1155', function (accounts) {
           { from: operator },
         );
 
-        await expectRevert.unspecified(
+        await expectRevert(
           this.token.burn(tokenHolder, tokenId, mintAmount.addn(1)),
+          'ERC1155: burn amount exceeds balance',
         );
       });
 
@@ -188,8 +190,9 @@ contract('ERC1155', function (accounts) {
       });
 
       it('reverts when burning a non-existent token id', async function () {
-        await expectRevert.unspecified(
+        await expectRevert(
           this.token.burnBatch(tokenBatchHolder, tokenBatchIds, burnAmounts),
+          'ERC1155: burn amount exceeds balance',
         );
       });
 

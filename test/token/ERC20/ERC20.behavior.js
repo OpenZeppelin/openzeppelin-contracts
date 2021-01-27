@@ -87,8 +87,8 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
             const amount = initialSupply.addn(1);
 
             it('reverts', async function () {
-              await expectRevert.unspecified(this.token.transferFrom(
-                tokenOwner, to, amount, { from: spender }),
+              await expectRevert(this.token.transferFrom(
+                tokenOwner, to, amount, { from: spender }), `${errorPrefix}: transfer amount exceeds balance`,
               );
             });
           });
@@ -103,8 +103,8 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
             const amount = initialSupply;
 
             it('reverts', async function () {
-              await expectRevert.unspecified(this.token.transferFrom(
-                tokenOwner, to, amount, { from: spender }),
+              await expectRevert(this.token.transferFrom(
+                tokenOwner, to, amount, { from: spender }), `${errorPrefix}: transfer amount exceeds allowance`,
               );
             });
           });
@@ -113,8 +113,8 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
             const amount = initialSupply.addn(1);
 
             it('reverts', async function () {
-              await expectRevert.unspecified(this.token.transferFrom(
-                tokenOwner, to, amount, { from: spender }),
+              await expectRevert(this.token.transferFrom(
+                tokenOwner, to, amount, { from: spender }), `${errorPrefix}: transfer amount exceeds balance`,
               );
             });
           });
@@ -165,8 +165,8 @@ function shouldBehaveLikeERC20Transfer (errorPrefix, from, to, balance, transfer
       const amount = balance.addn(1);
 
       it('reverts', async function () {
-        await expectRevert.unspecified(transfer.call(this, from, to, amount),
-
+        await expectRevert(transfer.call(this, from, to, amount),
+          `${errorPrefix}: transfer amount exceeds balance`,
         );
       });
     });
