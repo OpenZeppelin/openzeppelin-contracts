@@ -5,6 +5,10 @@ const { expect } = require('chai');
 
 const DummyImplementation = artifacts.require('DummyImplementation');
 
+function toChecksumAddress (address) {
+  return ethereumjsUtil.toChecksumAddress('0x' + address.replace(/^0x/, '').padStart(40, '0').substr(-40));
+}
+
 const IMPLEMENTATION_LABEL = 'eip1967.proxy.implementation';
 
 function toChecksumAddress (address) {
@@ -29,7 +33,7 @@ module.exports = function shouldBehaveLikeUpgradeableProxy (createProxy, proxyAd
   const assertProxyInitialization = function ({ value, balance }) {
     it('sets the implementation address', async function () {
       const slot = '0x' + new BN(ethereumjsUtil.keccak256(Buffer.from(IMPLEMENTATION_LABEL))).subn(1).toString(16);
-      const implementation = toChecksumAddress(await web3.eth.getStorageAt(this.proxy, slot));
+      const implementation = toChecksumAddress((await web3.eth.getStorageAt(this.proxy, slot)).substr(-40));
       expect(implementation).to.be.equal(this.implementation);
     });
 
