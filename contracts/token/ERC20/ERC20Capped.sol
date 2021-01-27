@@ -37,7 +37,7 @@ abstract contract ERC20Capped is ERC20 {
         super._beforeTokenTransfer(from, to, amount);
 
         if (from == address(0)) { // When minting tokens
-            require(totalSupply() + amount <= _cap, "ERC20Capped: cap exceeded");
+            require(totalSupply() + amount <= cap(), "ERC20Capped: cap exceeded");
         }
     }
 }
