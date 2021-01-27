@@ -18,7 +18,7 @@
     "lint:fix": "npm run lint:js:fix",
     "lint:js": "eslint --ignore-path .gitignore .",
     "lint:js:fix": "eslint --ignore-path .gitignore . --fix",
-    "lint:sol": "solhint --max-warnings 0 \"contracts/**/*.sol\"",
+    "lint:sol": "echo 'solidity linter currently disabled' # solhint --max-warnings 0 \"contracts/**/*.sol\"",
     "prepublish": "rimraf build contracts/build artifacts cache",
     "prepare": "npm run compile",
     "prepack": "scripts/prepack.sh",
