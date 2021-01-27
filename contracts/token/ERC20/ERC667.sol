@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.8.0;
 
 import "../../GSN/Context.sol";
 import "../../utils/Address.sol";
@@ -27,9 +27,9 @@ abstract contract ERC667 is Context, ERC20, IERC667 {
      *
      * Emits a {Transfer} event.
      */
-    function transferAndCall(address receiver, uint amount, bytes memory _data) public virtual override returns (bool) {
+    function transferAndCall(address receiver, uint amount, bytes memory data) public virtual override returns (bool) {
         _transfer(_msgSender(), receiver, amount);
-        require(_checkOnERC667Received(_msgSender(), receiver, amount, _data), "ERC667: transferAndCall to non ERC667Receiver implementer");
+        require(_checkOnERC667Received(_msgSender(), receiver, amount, data), "ERC667: transferAndCall to non ERC667Receiver implementer");
         return true;
     }
 
@@ -40,17 +40,15 @@ abstract contract ERC667 is Context, ERC20, IERC667 {
      * @param from address representing the tokens sender
      * @param receiver target address that will receive the tokens
      * @param amount quantity of tokens transfered
-     * @param _data bytes optional data to send along with the call
+     * @param data bytes optional data to send along with the call
      * @return bool whether the call correctly returned the expected value
      */
-    function _checkOnERC667Received(address from, address receiver, uint256 amount, bytes memory _data) private returns (bool)
+    function _checkOnERC667Received(address from, address receiver, uint256 amount, bytes memory data) private returns (bool)
     {
-        bytes memory returndata = receiver.functionCall(abi.encodeWithSelector(
-            IERC667Receiver.onTokenTransfer.selector,
-            from,
-            amount,
-            _data
-        ), "ERC667: transferAndCall to non ERC667Receiver implementer");
-        return abi.decode(returndata, (bool));
+        try IERC667Receiver(receiver).onTokenTransfer(from, amount, data) returns (bool success) {
+            return success;
+        } catch {
+            return false;
+        }
     }
 }
