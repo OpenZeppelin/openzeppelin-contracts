@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import "./IERC1155.sol";
 import "./IERC1155MetadataURI.sol";
 import "./IERC1155Receiver.sol";
-import "../../GSN/Context.sol";
+import "../../utils/Context.sol";
 import "../../introspection/ERC165.sol";
 import "../../utils/Address.sol";
 
@@ -70,7 +70,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * Clients calling this function must replace the `\{id\}` substring with the
      * actual token type ID.
      */
-    function uri(uint256) external view override returns (string memory) {
+    function uri(uint256) external view virtual override returns (string memory) {
         return _uri;
     }
 
@@ -81,7 +81,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      *
      * - `account` cannot be the zero address.
      */
-    function balanceOf(address account, uint256 id) public view override returns (uint256) {
+    function balanceOf(address account, uint256 id) public view virtual override returns (uint256) {
         require(account != address(0), "ERC1155: balance query for the zero address");
         return _balances[id][account];
     }
@@ -99,6 +99,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     )
         public
         view
+        virtual
         override
         returns (uint256[] memory)
     {
@@ -107,8 +108,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256[] memory batchBalances = new uint256[](accounts.length);
 
         for (uint256 i = 0; i < accounts.length; ++i) {
-            require(accounts[i] != address(0), "ERC1155: batch balance query for the zero address");
-            batchBalances[i] = _balances[ids[i]][accounts[i]];
+            batchBalances[i] = balanceOf(accounts[i], ids[i]);
         }
 
         return batchBalances;
@@ -127,7 +127,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     /**
      * @dev See {IERC1155-isApprovedForAll}.
      */
-    function isApprovedForAll(address account, address operator) public view override returns (bool) {
+    function isApprovedForAll(address account, address operator) public view virtual override returns (bool) {
         return _operatorApprovals[account][operator];
     }
 
@@ -344,7 +344,8 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256[] memory amounts,
         bytes memory data
     )
-        internal virtual
+        internal
+        virtual
     { }
 
     function _doSafeTransferAcceptanceCheck(

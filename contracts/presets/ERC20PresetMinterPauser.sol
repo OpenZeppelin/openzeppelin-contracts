@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "../access/AccessControl.sol";
-import "../GSN/Context.sol";
+import "../utils/Context.sol";
 import "../token/ERC20/ERC20.sol";
 import "../token/ERC20/ERC20Burnable.sol";
 import "../token/ERC20/ERC20Pausable.sol";

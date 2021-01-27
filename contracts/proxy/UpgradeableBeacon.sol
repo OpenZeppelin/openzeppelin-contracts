@@ -31,7 +31,7 @@ contract UpgradeableBeacon is IBeacon, Ownable {
     /**
      * @dev Returns the current implementation address.
      */
-    function implementation() public view override returns (address) {
+    function implementation() public view virtual override returns (address) {
         return _implementation;
     }
 
@@ -45,7 +45,7 @@ contract UpgradeableBeacon is IBeacon, Ownable {
      * - msg.sender must be the owner of the contract.
      * - `newImplementation` must be a contract.
      */
-    function upgradeTo(address newImplementation) public onlyOwner {
+    function upgradeTo(address newImplementation) public virtual onlyOwner {
         _setImplementation(newImplementation);
         emit Upgraded(newImplementation);
     }

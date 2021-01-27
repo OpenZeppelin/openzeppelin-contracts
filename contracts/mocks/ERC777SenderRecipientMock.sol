@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../GSN/Context.sol";
+import "../utils/Context.sol";
 import "../token/ERC777/IERC777.sol";
 import "../token/ERC777/IERC777Sender.sol";
 import "../token/ERC777/IERC777Recipient.sol";
@@ -33,6 +33,9 @@ contract ERC777SenderRecipientMock is Context, IERC777Sender, IERC777Recipient, 
         uint256 fromBalance,
         uint256 toBalance
     );
+
+    // Emitted in ERC777Mock. Here for easier decoding
+    event BeforeTokenTransfer();
 
     bool private _shouldRevertSend;
     bool private _shouldRevertReceive;

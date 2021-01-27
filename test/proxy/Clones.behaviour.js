@@ -1,38 +1,15 @@
-const { BN, expectRevert } = require('@openzeppelin/test-helpers');
-const ethereumjsUtil = require('ethereumjs-util');
+const { expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
 const DummyImplementation = artifacts.require('DummyImplementation');
 
-const IMPLEMENTATION_LABEL = 'eip1967.proxy.implementation';
-
-function toChecksumAddress (address) {
-  return ethereumjsUtil.toChecksumAddress('0x' + address.replace(/^0x/, '').padStart(40, '0'));
-}
-
-module.exports = function shouldBehaveLikeUpgradeableProxy (createProxy, proxyAdminAddress, proxyCreator) {
-  it('cannot be initialized with a non-contract address', async function () {
-    const nonContractAddress = proxyCreator;
-    const initializeData = Buffer.from('');
-    await expectRevert.unspecified(
-      createProxy(nonContractAddress, proxyAdminAddress, initializeData, {
-        from: proxyCreator,
-      }),
-    );
-  });
-
+module.exports = function shouldBehaveLikeClone (createClone) {
   before('deploy implementation', async function () {
     this.implementation = web3.utils.toChecksumAddress((await DummyImplementation.new()).address);
   });
 
   const assertProxyInitialization = function ({ value, balance }) {
-    it('sets the implementation address', async function () {
-      const slot = '0x' + new BN(ethereumjsUtil.keccak256(Buffer.from(IMPLEMENTATION_LABEL))).subn(1).toString(16);
-      const implementation = toChecksumAddress((await web3.eth.getStorageAt(this.proxy, slot)).substr(-40));
-      expect(implementation).to.be.equal(this.implementation);
-    });
-
     it('initializes the proxy', async function () {
       const dummy = new DummyImplementation(this.proxy);
       expect(await dummy.value()).to.be.bignumber.equal(value.toString());
@@ -43,37 +20,6 @@ module.exports = function shouldBehaveLikeUpgradeableProxy (createProxy, proxyAd
     });
   };
 
-  describe('without initialization', function () {
-    const initializeData = Buffer.from('');
-
-    describe('when not sending balance', function () {
-      beforeEach('creating proxy', async function () {
-        this.proxy = (
-          await createProxy(this.implementation, proxyAdminAddress, initializeData, {
-            from: proxyCreator,
-          })
-        ).address;
-      });
-
-      assertProxyInitialization({ value: 0, balance: 0 });
-    });
-
-    describe('when sending some balance', function () {
-      const value = 10e5;
-
-      beforeEach('creating proxy', async function () {
-        this.proxy = (
-          await createProxy(this.implementation, proxyAdminAddress, initializeData, {
-            from: proxyCreator,
-            value,
-          })
-        ).address;
-      });
-
-      assertProxyInitialization({ value: 0, balance: value });
-    });
-  });
-
   describe('initialization without parameters', function () {
     describe('non payable', function () {
       const expectedInitializedValue = 10;
@@ -82,9 +28,7 @@ module.exports = function shouldBehaveLikeUpgradeableProxy (createProxy, proxyAd
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
           this.proxy = (
-            await createProxy(this.implementation, proxyAdminAddress, initializeData, {
-              from: proxyCreator,
-            })
+            await createClone(this.implementation, initializeData)
           ).address;
         });
 
@@ -99,7 +43,7 @@ module.exports = function shouldBehaveLikeUpgradeableProxy (createProxy, proxyAd
 
         it('reverts', async function () {
           await expectRevert.unspecified(
-            createProxy(this.implementation, proxyAdminAddress, initializeData, { from: proxyCreator, value }),
+            createClone(this.implementation, initializeData, { value }),
           );
         });
       });
@@ -112,9 +56,7 @@ module.exports = function shouldBehaveLikeUpgradeableProxy (createProxy, proxyAd
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
           this.proxy = (
-            await createProxy(this.implementation, proxyAdminAddress, initializeData, {
-              from: proxyCreator,
-            })
+            await createClone(this.implementation, initializeData)
           ).address;
         });
 
@@ -129,10 +71,7 @@ module.exports = function shouldBehaveLikeUpgradeableProxy (createProxy, proxyAd
 
         beforeEach('creating proxy', async function () {
           this.proxy = (
-            await createProxy(this.implementation, proxyAdminAddress, initializeData, {
-              from: proxyCreator,
-              value,
-            })
+            await createClone(this.implementation, initializeData, { value })
           ).address;
         });
 
@@ -153,9 +92,7 @@ module.exports = function shouldBehaveLikeUpgradeableProxy (createProxy, proxyAd
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
           this.proxy = (
-            await createProxy(this.implementation, proxyAdminAddress, initializeData, {
-              from: proxyCreator,
-            })
+            await createClone(this.implementation, initializeData)
           ).address;
         });
 
@@ -170,7 +107,7 @@ module.exports = function shouldBehaveLikeUpgradeableProxy (createProxy, proxyAd
 
         it('reverts', async function () {
           await expectRevert.unspecified(
-            createProxy(this.implementation, proxyAdminAddress, initializeData, { from: proxyCreator, value }),
+            createClone(this.implementation, initializeData, { value }),
           );
         });
       });
@@ -184,9 +121,7 @@ module.exports = function shouldBehaveLikeUpgradeableProxy (createProxy, proxyAd
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
           this.proxy = (
-            await createProxy(this.implementation, proxyAdminAddress, initializeData, {
-              from: proxyCreator,
-            })
+            await createClone(this.implementation, initializeData)
           ).address;
         });
 
@@ -201,10 +136,7 @@ module.exports = function shouldBehaveLikeUpgradeableProxy (createProxy, proxyAd
 
         beforeEach('creating proxy', async function () {
           this.proxy = (
-            await createProxy(this.implementation, proxyAdminAddress, initializeData, {
-              from: proxyCreator,
-              value,
-            })
+            await createClone(this.implementation, initializeData, { value })
           ).address;
         });
 
@@ -212,18 +144,6 @@ module.exports = function shouldBehaveLikeUpgradeableProxy (createProxy, proxyAd
           value: expectedInitializedValue,
           balance: value,
         });
-      });
-    });
-
-    describe('reverting initialization', function () {
-      const initializeData = new DummyImplementation('').contract
-        .methods.reverts().encodeABI();
-
-      it('reverts', async function () {
-        await expectRevert(
-          createProxy(this.implementation, proxyAdminAddress, initializeData, { from: proxyCreator }),
-          'DummyImplementation reverted',
-        );
       });
     });
   });

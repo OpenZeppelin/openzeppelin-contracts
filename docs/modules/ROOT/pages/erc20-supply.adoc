@@ -68,7 +68,7 @@ The accounts with the minter role don't need to be externally owned, though, and
 contract MinerRewardMinter {
     ERC20PresetMinterPauser _token;
 
-    constructor(ERC20PresetMinterPauser token) public {
+    constructor(ERC20PresetMinterPauser token) {
         _token = token;
     }
 

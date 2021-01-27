@@ -11,7 +11,7 @@ import "../token/ERC777/ERC777.sol";
  */
 contract ERC777PresetFixedSupply is ERC777 {
     /**
-     * @dev Mints `initialSupply` amount of token and transfers them to `owner`.  
+     * @dev Mints `initialSupply` amount of token and transfers them to `owner`.
      *
      * See {ERC777-constructor}.
      */

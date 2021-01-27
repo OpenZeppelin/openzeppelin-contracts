@@ -2,10 +2,12 @@
 
 pragma solidity ^0.8.0;
 
-import "../GSN/Context.sol";
+import "../utils/Context.sol";
 import "../token/ERC777/ERC777.sol";
 
 contract ERC777Mock is Context, ERC777 {
+    event BeforeTokenTransfer();
+
     constructor(
         address initialHolder,
         uint256 initialBalance,
@@ -27,5 +29,9 @@ contract ERC777Mock is Context, ERC777 {
 
     function approveInternal(address holder, address spender, uint256 value) public {
         _approve(holder, spender, value);
+    }
+
+    function _beforeTokenTransfer(address, address, address, uint256) internal override {
+        emit BeforeTokenTransfer();
     }
 }

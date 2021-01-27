@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.0;
 
+import "../utils/Context.sol";
 import "./IRelayRecipient.sol";
 import "./IRelayHub.sol";
-import "./Context.sol";
 
 /**
  * @dev Base GSN recipient contract: includes the {IRelayRecipient} interface
@@ -35,7 +35,7 @@ abstract contract GSNRecipient is IRelayRecipient, Context {
     /**
      * @dev Returns the address of the {IRelayHub} contract for this recipient.
      */
-    function getHubAddr() public view override returns (address) {
+    function getHubAddr() public view virtual override returns (address) {
         return _relayHub;
     }
 
@@ -62,7 +62,7 @@ abstract contract GSNRecipient is IRelayRecipient, Context {
      */
     // This function is view for future-proofing, it may require reading from
     // storage in the future.
-    function relayHubVersion() public view returns (string memory) {
+    function relayHubVersion() public view virtual returns (string memory) {
         this; // silence state mutability warning without generating bytecode - see https://github.com/ethereum/solidity/issues/2691
         return "1.0.0";
     }
@@ -73,7 +73,7 @@ abstract contract GSNRecipient is IRelayRecipient, Context {
      * Derived contracts should expose this in an external interface with proper access control.
      */
     function _withdrawDeposits(uint256 amount, address payable payee) internal virtual {
-        IRelayHub(_relayHub).withdraw(amount, payee);
+        IRelayHub(getHubAddr()).withdraw(amount, payee);
     }
 
     // Overrides for Context's functions: when called from RelayHub, sender and
@@ -88,7 +88,7 @@ abstract contract GSNRecipient is IRelayRecipient, Context {
      * IMPORTANT: Contracts derived from {GSNRecipient} should never use `msg.sender`, and use {_msgSender} instead.
      */
     function _msgSender() internal view virtual override returns (address) {
-        if (msg.sender != _relayHub) {
+        if (msg.sender != getHubAddr()) {
             return msg.sender;
         } else {
             return _getRelayedCallSender();
@@ -102,7 +102,7 @@ abstract contract GSNRecipient is IRelayRecipient, Context {
      * IMPORTANT: Contracts derived from {GSNRecipient} should never use `msg.data`, and use {_msgData} instead.
      */
     function _msgData() internal view virtual override returns (bytes memory) {
-        if (msg.sender != _relayHub) {
+        if (msg.sender != getHubAddr()) {
             return msg.data;
         } else {
             return _getRelayedCallData();
@@ -162,7 +162,7 @@ abstract contract GSNRecipient is IRelayRecipient, Context {
      * @dev Return this in acceptRelayedCall to proceed with the execution of a relayed call. Note that this contract
      * will be charged a fee by RelayHub
      */
-    function _approveRelayedCall() internal pure returns (uint256, bytes memory) {
+    function _approveRelayedCall() internal pure virtual returns (uint256, bytes memory) {
         return _approveRelayedCall("");
     }
 
@@ -171,14 +171,14 @@ abstract contract GSNRecipient is IRelayRecipient, Context {
      *
      * This overload forwards `context` to _preRelayedCall and _postRelayedCall.
      */
-    function _approveRelayedCall(bytes memory context) internal pure returns (uint256, bytes memory) {
+    function _approveRelayedCall(bytes memory context) internal pure virtual returns (uint256, bytes memory) {
         return (_RELAYED_CALL_ACCEPTED, context);
     }
 
     /**
      * @dev Return this in acceptRelayedCall to impede execution of a relayed call. No fees will be charged.
      */
-    function _rejectRelayedCall(uint256 errorCode) internal pure returns (uint256, bytes memory) {
+    function _rejectRelayedCall(uint256 errorCode) internal pure virtual returns (uint256, bytes memory) {
         return (_RELAYED_CALL_REJECTED + errorCode, "");
     }
 
@@ -186,7 +186,7 @@ abstract contract GSNRecipient is IRelayRecipient, Context {
      * @dev Calculates how much RelayHub will charge a recipient for using `gas` at a `gasPrice`, given a relayer's
      * `serviceFee`.
      */
-    function _computeCharge(uint256 gas, uint256 gasPrice, uint256 serviceFee) internal pure returns (uint256) {
+    function _computeCharge(uint256 gas, uint256 gasPrice, uint256 serviceFee) internal pure virtual returns (uint256) {
         // The fee is expressed as a percentage. E.g. a value of 40 stands for a 40% fee, so the recipient will be
         // charged for 1.4 times the spent amount.
         return (gas * gasPrice * (100 + serviceFee)) / 100;
