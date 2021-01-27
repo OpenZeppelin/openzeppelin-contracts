@@ -5,10 +5,6 @@ const { expect } = require('chai');
 
 const DummyImplementation = artifacts.require('DummyImplementation');
 
-function toChecksumAddress (address) {
-  return ethereumjsUtil.toChecksumAddress('0x' + address.replace(/^0x/, '').padStart(40, '0').substr(-40));
-}
-
 const IMPLEMENTATION_LABEL = 'eip1967.proxy.implementation';
 
 function toChecksumAddress (address) {

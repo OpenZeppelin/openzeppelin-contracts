@@ -26,7 +26,7 @@ contract('SafeMath', function (accounts) {
   }
 
   async function testFailsCommutative (fn, lhs, rhs, reason, ...extra) {
-    if (reason == undefined) {
+    if (reason === undefined) {
       await expectRevert.unspecified(fn(lhs, rhs, ...extra));
       await expectRevert.unspecified(fn(rhs, lhs, ...extra));
     } else {
