@@ -12,7 +12,7 @@ pragma solidity ^0.8.0;
  */
 interface IERC20Permit {
     /**
-     * @dev Sets `amount` as the allowance of `spender` over `owner`'s tokens,
+     * @dev Sets `value` as the allowance of `spender` over `owner`'s tokens,
      * given `owner`'s signed approval.
      *
      * IMPORTANT: The same issues {IERC20-approve} has related to transaction
@@ -32,7 +32,7 @@ interface IERC20Permit {
      * https://eips.ethereum.org/EIPS/eip-2612#specification[relevant EIP
      * section].
      */
-    function permit(address owner, address spender, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external;
+    function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external;
 
     /**
      * @dev Returns the current nonce for `owner`. This value must be

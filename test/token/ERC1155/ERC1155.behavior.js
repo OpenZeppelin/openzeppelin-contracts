@@ -106,7 +106,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             [firstTokenHolder, secondTokenHolder, ZERO_ADDRESS],
             [firstTokenId, secondTokenId, unknownTokenId],
           ),
-          'ERC1155: batch balance query for the zero address',
+          'ERC1155: balance query for the zero address',
         );
       });
 

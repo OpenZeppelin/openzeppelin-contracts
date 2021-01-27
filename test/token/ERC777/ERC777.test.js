@@ -447,4 +447,37 @@ contract('ERC777', function (accounts) {
       expect(await this.token.defaultOperators()).to.deep.equal([]);
     });
   });
+
+  describe('relative order of hooks', function () {
+    beforeEach(async function () {
+      await singletons.ERC1820Registry(registryFunder);
+      this.sender = await ERC777SenderRecipientMock.new();
+      await this.sender.registerRecipient(this.sender.address);
+      await this.sender.registerSender(this.sender.address);
+      this.token = await ERC777.new(holder, initialSupply, name, symbol, []);
+      await this.token.send(this.sender.address, 1, '0x', { from: holder });
+    });
+
+    it('send', async function () {
+      const { receipt } = await this.sender.send(this.token.address, anyone, 1, '0x');
+
+      const internalBeforeHook = receipt.logs.findIndex(l => l.event === 'BeforeTokenTransfer');
+      expect(internalBeforeHook).to.be.gte(0);
+      const externalSendHook = receipt.logs.findIndex(l => l.event === 'TokensToSendCalled');
+      expect(externalSendHook).to.be.gte(0);
+
+      expect(externalSendHook).to.be.lt(internalBeforeHook);
+    });
+
+    it('burn', async function () {
+      const { receipt } = await this.sender.burn(this.token.address, 1, '0x');
+
+      const internalBeforeHook = receipt.logs.findIndex(l => l.event === 'BeforeTokenTransfer');
+      expect(internalBeforeHook).to.be.gte(0);
+      const externalSendHook = receipt.logs.findIndex(l => l.event === 'TokensToSendCalled');
+      expect(externalSendHook).to.be.gte(0);
+
+      expect(externalSendHook).to.be.lt(internalBeforeHook);
+    });
+  });
 });

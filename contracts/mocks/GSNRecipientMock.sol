@@ -13,7 +13,7 @@ contract GSNRecipientMock is ContextMock, GSNRecipient {
 
     function acceptRelayedCall(address, address, bytes calldata, uint256, uint256, uint256, uint256, bytes calldata, uint256)
         external
-        view
+        pure
         override
         returns (uint256, bytes memory)
     {

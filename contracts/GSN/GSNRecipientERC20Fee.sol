@@ -35,15 +35,15 @@ contract GSNRecipientERC20Fee is GSNRecipient {
     /**
      * @dev Returns the gas payment token.
      */
-    function token() public view returns (IERC20) {
-        return IERC20(_token);
+    function token() public view virtual returns (__unstable__ERC20Owned) {
+        return _token;
     }
 
     /**
      * @dev Internal function that mints the gas payment token. Derived contracts should expose this function in their public API, with proper access control mechanisms.
      */
     function _mint(address account, uint256 amount) internal virtual {
-        _token.mint(account, amount);
+        token().mint(account, amount);
     }
 
     /**
@@ -66,7 +66,7 @@ contract GSNRecipientERC20Fee is GSNRecipient {
         override
         returns (uint256, bytes memory)
     {
-        if (_token.balanceOf(from) < maxPossibleCharge) {
+        if (token().balanceOf(from) < maxPossibleCharge) {
             return _rejectRelayedCall(uint256(GSNRecipientERC20FeeErrorCodes.INSUFFICIENT_BALANCE));
         }
 
@@ -83,7 +83,7 @@ contract GSNRecipientERC20Fee is GSNRecipient {
         (address from, uint256 maxPossibleCharge) = abi.decode(context, (address, uint256));
 
         // The maximum token charge is pre-charged from the user
-        _token.safeTransferFrom(from, address(this), maxPossibleCharge);
+        token().safeTransferFrom(from, address(this), maxPossibleCharge);
 
         return 0;
     }
@@ -102,7 +102,7 @@ contract GSNRecipientERC20Fee is GSNRecipient {
         actualCharge = actualCharge - overestimation;
 
         // After the relayed call has been executed and the actual charge estimated, the excess pre-charge is returned
-        _token.safeTransfer(from, maxPossibleCharge - actualCharge);
+        token().safeTransfer(from, maxPossibleCharge - actualCharge);
     }
 }
 
@@ -119,12 +119,12 @@ contract __unstable__ERC20Owned is ERC20, Ownable {
     constructor(string memory name, string memory symbol) ERC20(name, symbol) { }
 
     // The owner (GSNRecipientERC20Fee) can mint tokens
-    function mint(address account, uint256 amount) public onlyOwner {
+    function mint(address account, uint256 amount) public virtual onlyOwner {
         _mint(account, amount);
     }
 
     // The owner has 'infinite' allowance for all token holders
-    function allowance(address tokenOwner, address spender) public view override returns (uint256) {
+    function allowance(address tokenOwner, address spender) public view virtual override returns (uint256) {
         if (spender == owner()) {
             return _UINT256_MAX;
         } else {
@@ -133,7 +133,7 @@ contract __unstable__ERC20Owned is ERC20, Ownable {
     }
 
     // Allowance for the owner cannot be changed (it is always 'infinite')
-    function _approve(address tokenOwner, address spender, uint256 value) internal override {
+    function _approve(address tokenOwner, address spender, uint256 value) internal virtual override {
         if (spender == owner()) {
             return;
         } else {
@@ -141,7 +141,7 @@ contract __unstable__ERC20Owned is ERC20, Ownable {
         }
     }
 
-    function transferFrom(address sender, address recipient, uint256 amount) public override returns (bool) {
+    function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
         if (recipient == owner()) {
             _transfer(sender, recipient, amount);
             return true;

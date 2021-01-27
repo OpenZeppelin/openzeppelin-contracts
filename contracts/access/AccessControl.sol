@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import "../utils/EnumerableSet.sol";
 import "../utils/Address.sol";
-import "../GSN/Context.sol";
+import "../utils/Context.sol";
 
 /**
  * @dev Contract module that allows children to implement role-based access
