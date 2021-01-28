@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.0;
 
+import "./IERC165.sol";
+
 /**
  * @dev Library used to query support of an interface declared via {IERC165}.
  *
@@ -16,7 +18,7 @@ library ERC165Checker {
     /*
      * bytes4(keccak256('supportsInterface(bytes4)')) == 0x01ffc9a7
      */
-    bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
+    bytes4 private constant _INTERFACE_ID_ERC165 = type(IERC165).interfaceId;
 
     /**
      * @dev Returns true if `account` supports the {IERC165} interface,
