@@ -20,21 +20,9 @@ import "./AccessControl.sol";
  * _Available since v3.3._
  */
 contract TimelockController is AccessControl {
-    // We inline the result of the following hashes because Solidity doesn't resolve them at compile time.
-    // See https://github.com/ethereum/solidity/issues/4024.
-
-    // keccak256("TIMELOCK_ADMIN_ROLE");
-    bytes32 public constant TIMELOCK_ADMIN_ROLE =
-        0xd8aa0f3194971a2a116679f7c2090f6939c8d4e01a2a8d7e41d55e5351469e63;
-
-    // keccak256("PROPOSER_ROLE");
-    bytes32 public constant PROPOSER_ROLE =
-        0xb09aa5aeb3702cfd50b6b62bc4532604938f21248a27a1d5ca736082b6819cc1;
-
-    // keccak256("EXECUTOR_ROLE");
-    bytes32 public constant EXECUTOR_ROLE =
-        0x29ddb589b1fb5fc7cf394961c1adf5f8c6454761adf795e67fe149f658abe895;
-
+    bytes32 public constant TIMELOCK_ADMIN_ROLE = keccak256("TIMELOCK_ADMIN_ROLE");
+    bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
+    bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
     uint256 private constant _DONE_TIMESTAMP = uint256(1);
 
     mapping(bytes32 => uint256) private _timestamps;
