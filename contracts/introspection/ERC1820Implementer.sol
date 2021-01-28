@@ -13,7 +13,9 @@ import "./IERC1820Implementer.sol";
  * registration to be complete.
  */
 contract ERC1820Implementer is IERC1820Implementer {
-    bytes32 private constant _ERC1820_ACCEPT_MAGIC = keccak256("ERC1820_ACCEPT_MAGIC");
+    // keccak256("ERC1820_ACCEPT_MAGIC");
+    bytes32 private constant _ERC1820_ACCEPT_MAGIC =
+        0xa2ef4600d742022d532d4747cb3547474667d6f13804902513b2ec01c848f4b4;
 
     mapping(bytes32 => mapping(address => bool)) private _supportedInterfaces;
 
