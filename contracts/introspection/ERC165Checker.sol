@@ -3,7 +3,6 @@
 pragma solidity ^0.8.0;
 
 import "./IERC165.sol";
-import "../utils/Address.sol";
 
 /**
  * @dev Library used to query support of an interface declared via {IERC165}.
@@ -13,8 +12,6 @@ import "../utils/Address.sol";
  * what to do in these cases.
  */
 library ERC165Checker {
-    using Address for address;
-
     /**
      * @dev Returns true if `account` supports the {IERC165} interface,
      */
@@ -98,15 +95,8 @@ library ERC165Checker {
      * Interface identification is specified in ERC-165.
      */
     function _supportsERC165Interface(address account, bytes4 interfaceId) private view returns (bool) {
-        if (account.isContract())
-        {
-            try IERC165(account).supportsInterface{gas: 30000}(interfaceId) returns (bool supported) {
-                return supported;
-            } catch {
-                return false;
-            }
-        } else {
-            return false;
-        }
+        (bool success, bytes memory result) = account.staticcall{ gas: 30000 }(abi.encodeWithSelector(IERC165(account).supportsInterface.selector, interfaceId));
+        if (result.length < 32) return false;
+        return success && abi.decode(result, (bool));
     }
 }
