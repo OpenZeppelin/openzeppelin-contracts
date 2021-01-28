@@ -23,10 +23,6 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     using EnumerableMap for EnumerableMap.UintToAddressMap;
     using Strings for uint256;
 
-    // Equals to `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`
-    // which can be also obtained as `IERC721Receiver(0).onERC721Received.selector`
-    bytes4 private constant _ERC721_RECEIVED = 0x150b7a02;
-
     // Mapping from holder address to their (enumerable) set of owned tokens
     mapping (address => EnumerableSet.UintSet) private _holderTokens;
 
@@ -399,18 +395,17 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     function _checkOnERC721Received(address from, address to, uint256 tokenId, bytes memory _data)
         private returns (bool)
     {
-        if (!to.isContract()) {
+        if (to.isContract()) {
+            try IERC721Receiver(to).onERC721Received(_msgSender(), from, tokenId, _data) returns (bytes4 retval) {
+                return retval == IERC721Receiver(to).onERC721Received.selector;
+            } catch Error (string memory reason) {
+                revert(reason);
+            } catch {
+                revert("ERC721: transfer to non ERC721Receiver implementer");
+            }
+        } else {
             return true;
         }
-        bytes memory returndata = to.functionCall(abi.encodeWithSelector(
-            IERC721Receiver(to).onERC721Received.selector,
-            _msgSender(),
-            from,
-            tokenId,
-            _data
-        ), "ERC721: transfer to non ERC721Receiver implementer");
-        bytes4 retval = abi.decode(returndata, (bytes4));
-        return (retval == _ERC721_RECEIVED);
     }
 
     function _approve(address to, uint256 tokenId) private {
