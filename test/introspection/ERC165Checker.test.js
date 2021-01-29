@@ -3,6 +3,7 @@ require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const ERC165CheckerMock = artifacts.require('ERC165CheckerMock');
+const ERC165MissingData = artifacts.require('ERC165MissingData');
 const ERC165NotSupported = artifacts.require('ERC165NotSupported');
 const ERC165InterfacesSupported = artifacts.require('ERC165InterfacesSupported');
 
@@ -16,6 +17,33 @@ const DUMMY_ACCOUNT = '0x1111111111111111111111111111111111111111';
 contract('ERC165Checker', function (accounts) {
   beforeEach(async function () {
     this.mock = await ERC165CheckerMock.new();
+  });
+
+  context('ERC165 missing return data', function () {
+    beforeEach(async function () {
+      this.target = await ERC165MissingData.new();
+    });
+
+    it('does not support ERC165', async function () {
+      const supported = await this.mock.supportsERC165(this.target.address);
+      expect(supported).to.equal(false);
+    });
+
+    it('does not support mock interface via supportsInterface', async function () {
+      const supported = await this.mock.supportsInterface(this.target.address, DUMMY_ID);
+      expect(supported).to.equal(false);
+    });
+
+    it('does not support mock interface via supportsAllInterfaces', async function () {
+      const supported = await this.mock.supportsAllInterfaces(this.target.address, [DUMMY_ID]);
+      expect(supported).to.equal(false);
+    });
+
+    it('does not support mock interface via getSupportedInterfaces', async function () {
+      const supported = await this.mock.getSupportedInterfaces(this.target.address, [DUMMY_ID]);
+      expect(supported.length).to.equal(1);
+      expect(supported[0]).to.equal(false);
+    });
   });
 
   context('ERC165 not supported', function () {
