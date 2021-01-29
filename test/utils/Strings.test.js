@@ -33,7 +33,8 @@ contract('Strings', function (accounts) {
     });
 
     it('converts MAX_UINT256', async function () {
-      expect(await this.strings.fromUint256Hex(constants.MAX_UINT256)).to.equal(web3.utils.toHex(constants.MAX_UINT256));
+      expect(await this.strings.fromUint256Hex(constants.MAX_UINT256))
+        .to.equal(web3.utils.toHex(constants.MAX_UINT256));
     });
   });
 });
