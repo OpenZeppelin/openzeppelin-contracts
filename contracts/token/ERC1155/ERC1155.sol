@@ -155,11 +155,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
         _beforeTokenTransfer(operator, from, to, _asSingletonArray(id), _asSingletonArray(amount), data);
 
-        unchecked {
-            require(_balances[id][from] >= amount, "ERC1155: insufficient balance for transfer");
-            _balances[id][from] = _balances[id][from] - amount;
-            _balances[id][to] = _balances[id][to] + amount;
-        }
+        require(_balances[id][from] >= amount, "ERC1155: insufficient balance for transfer");
+        _balances[id][from] -= amount;
+        _balances[id][to] += amount;
 
         emit TransferSingle(operator, from, to, id, amount);
 
@@ -195,11 +193,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
             uint256 id = ids[i];
             uint256 amount = amounts[i];
 
-            unchecked {
-                require(_balances[id][from] >= amount, "ERC1155: insufficient balance for transfer");
-                _balances[id][from] = _balances[id][from] - amount;
-                _balances[id][to] = _balances[id][to] + amount;
-            }
+            require(_balances[id][from] >= amount, "ERC1155: insufficient balance for transfer");
+            _balances[id][from] -= amount;
+            _balances[id][to] += amount;
         }
 
         emit TransferBatch(operator, from, to, ids, amounts);
@@ -248,7 +244,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
         _beforeTokenTransfer(operator, address(0), account, _asSingletonArray(id), _asSingletonArray(amount), data);
 
-        _balances[id][account] = _balances[id][account] + amount;
+        _balances[id][account] += amount;
         emit TransferSingle(operator, address(0), account, id, amount);
 
         _doSafeTransferAcceptanceCheck(operator, address(0), account, id, amount, data);
@@ -272,7 +268,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         _beforeTokenTransfer(operator, address(0), to, ids, amounts, data);
 
         for (uint i = 0; i < ids.length; i++) {
-            _balances[ids[i]][to] = amounts[i] + _balances[ids[i]][to];
+            _balances[ids[i]][to] += amounts[i];
         }
 
         emit TransferBatch(operator, address(0), to, ids, amounts);
@@ -295,10 +291,8 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
         _beforeTokenTransfer(operator, account, address(0), _asSingletonArray(id), _asSingletonArray(amount), "");
 
-        unchecked {
-            require(_balances[id][account] >= amount, "ERC1155: burn amount exceeds balance");
-            _balances[id][account] = _balances[id][account] - amount;
-        }
+        require(_balances[id][account] >= amount, "ERC1155: burn amount exceeds balance");
+        _balances[id][account] -= amount;
 
         emit TransferSingle(operator, account, address(0), id, amount);
     }
@@ -322,10 +316,8 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
             uint256 id = ids[i];
             uint256 amount = amounts[i];
 
-            unchecked {
-                require(_balances[id][account] >= amount, "ERC1155: burn amount exceeds balance");
-                _balances[id][account] = _balances[id][account] - amount;
-            }
+            require(_balances[id][account] >= amount, "ERC1155: burn amount exceeds balance");
+            _balances[id][account] -= amount;
         }
 
         emit TransferBatch(operator, account, address(0), ids, amounts);
