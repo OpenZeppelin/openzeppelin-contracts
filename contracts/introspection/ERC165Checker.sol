@@ -12,6 +12,8 @@ import "./IERC165.sol";
  * what to do in these cases.
  */
 library ERC165Checker {
+    bytes4 private constant _INTERFACE_ID_INVALID = 0xffffffff;
+
     /**
      * @dev Returns true if `account` supports the {IERC165} interface,
      */
@@ -19,7 +21,7 @@ library ERC165Checker {
         // Any contract that implements ERC165 must explicitly indicate support of
         // InterfaceId_ERC165 and explicitly indicate non-support of InterfaceId_Invalid
         return _supportsERC165Interface(account, type(IERC165).interfaceId) &&
-            !_supportsERC165Interface(account, 0xffffffff);
+            !_supportsERC165Interface(account, _INTERFACE_ID_INVALID);
     }
 
     /**
@@ -95,7 +97,8 @@ library ERC165Checker {
      * Interface identification is specified in ERC-165.
      */
     function _supportsERC165Interface(address account, bytes4 interfaceId) private view returns (bool) {
-        (bool success, bytes memory result) = account.staticcall{ gas: 30000 }(abi.encodeWithSelector(IERC165(account).supportsInterface.selector, interfaceId));
+        bytes memory encodedParams = abi.encodeWithSelector(IERC165(account).supportsInterface.selector, interfaceId);
+        (bool success, bytes memory result) = account.staticcall{ gas: 30000 }(encodedParams);
         if (result.length < 32) return false;
         return success && abi.decode(result, (bool));
     }
