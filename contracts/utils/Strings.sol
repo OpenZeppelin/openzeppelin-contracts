@@ -40,18 +40,26 @@ library Strings {
             return "0x00";
         }
         uint256 temp = value;
-        uint256 digits = 2;
+        uint256 length = 0;
         while (temp != 0) {
-            digits += 2;
+            length++;
             temp >>= 8;
         }
-        bytes memory buffer = new bytes(digits);
+        return toHexString(value, length);
+    }
+
+    /**
+     * @dev Converts a `uint256` to its ASCII `hexadecimal string` representation with fixed length.
+     */
+    function toHexString(uint256 value, uint256 length) internal pure returns (string memory) {
+        bytes memory buffer = new bytes(2 * length + 2);
         buffer[0] = "0";
         buffer[1] = "x";
-        while (value != 0) {
-            buffer[--digits] = alphabet[value & 0xf];
+        for (uint256 i = 2 * length + 1; i > 1; --i) {
+            buffer[i] = alphabet[value & 0xf];
             value >>= 4;
         }
         return string(buffer);
     }
+
 }
