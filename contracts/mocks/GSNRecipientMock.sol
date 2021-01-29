@@ -32,7 +32,7 @@ contract GSNRecipientMock is ContextMock, GSNRecipient {
         return GSNRecipient._msgSender();
     }
 
-    function _msgData() internal override(Context, GSNRecipient) view virtual returns (bytes memory) {
+    function _msgData() internal override(Context, GSNRecipient) view virtual returns (bytes calldata) {
         return GSNRecipient._msgData();
     }
 }
