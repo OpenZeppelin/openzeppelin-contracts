@@ -49,7 +49,7 @@ library Strings {
         buffer[0] = "0";
         buffer[1] = "x";
         while (value != 0) {
-            buffer[--digits] = alphabet[value % 16];
+            buffer[--digits] = alphabet[value & 0xf];
             value >>= 4;
         }
         return string(buffer);
