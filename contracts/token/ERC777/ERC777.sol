@@ -285,7 +285,11 @@ contract ERC777 is Context, IERC777, IERC20 {
         _callTokensToSend(spender, holder, recipient, amount, "", "");
 
         _move(spender, holder, recipient, amount, "", "");
-        _approve(holder, spender, _allowances[holder][spender] - amount);
+
+        unchecked {
+            require(_allowances[holder][spender] >= amount, "ERC777: transfer amount exceeds allowance");
+            _approve(holder, spender, _allowances[holder][spender] - amount);
+        }
 
         _callTokensReceived(spender, holder, recipient, amount, "", "", false);
 
@@ -391,8 +395,11 @@ contract ERC777 is Context, IERC777, IERC20 {
         _beforeTokenTransfer(operator, from, address(0), amount);
 
         // Update state variables
-        _balances[from] = _balances[from] - amount;
-        _totalSupply = _totalSupply - amount;
+        unchecked {
+            require(_balances[from] >= amount, "ERC777: burn amount exceeds balance");
+            _balances[from] = _balances[from] - amount;
+            _totalSupply = _totalSupply - amount;
+        }
 
         emit Burned(operator, from, amount, data, operatorData);
         emit Transfer(from, address(0), amount);
@@ -410,8 +417,11 @@ contract ERC777 is Context, IERC777, IERC20 {
     {
         _beforeTokenTransfer(operator, from, to, amount);
 
-        _balances[from] = _balances[from] - amount;
-        _balances[to] = _balances[to] + amount;
+        unchecked {
+            require(_balances[from] >= amount, "ERC777: transfer amount exceeds balance");
+            _balances[from] = _balances[from] - amount;
+            _balances[to] = _balances[to] + amount;
+        }
 
         emit Sent(operator, from, to, amount, userData, operatorData);
         emit Transfer(from, to, amount);
