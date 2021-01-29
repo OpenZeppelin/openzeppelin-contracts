@@ -400,8 +400,9 @@ contract('ERC721', function (accounts) {
         describe('to a receiver contract that reverts without message', function () {
           it('reverts', async function () {
             const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, 2);
-            await expectRevert.unspecified(
+            await expectRevert(
               this.token.safeTransferFrom(owner, revertingReceiver.address, tokenId, { from: owner }),
+              'ERC721: transfer to non ERC721Receiver implementer',
             );
           });
         });
@@ -477,8 +478,9 @@ contract('ERC721', function (accounts) {
         context('to a receiver contract that reverts without message', function () {
           it('reverts', async function () {
             const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, 2);
-            await expectRevert.unspecified(
+            await expectRevert(
               this.token.safeMint(revertingReceiver.address, tokenId),
+              'ERC721: transfer to non ERC721Receiver implementer',
             );
           });
         });
