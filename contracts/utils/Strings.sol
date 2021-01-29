@@ -6,6 +6,8 @@ pragma solidity ^0.8.0;
  * @dev String operations.
  */
 library Strings {
+    bytes16 private constant alphabet = 0x30313233343536373839616263646566;
+
     /**
      * @dev Converts a `uint256` to its ASCII `string` representation.
      */
@@ -23,11 +25,32 @@ library Strings {
             temp /= 10;
         }
         bytes memory buffer = new bytes(digits);
-        uint256 index = digits;
-        temp = value;
+        while (value != 0) {
+            buffer[--digits] = bytes1(uint8(48 + uint256(value % 10)));
+            value /= 10;
+        }
+        return string(buffer);
+    }
+
+    /**
+     * @dev Converts a `uint256` to its ASCII `hexadecimal string` representation.
+     */
+    function toHexString(uint256 value) internal pure returns (string memory) {
+        if (value == 0) {
+            return "0x00";
+        }
+        uint256 temp = value;
+        uint256 digits = 2;
         while (temp != 0) {
-            buffer[--index] = bytes1(uint8(48 + uint256(temp % 10)));
-            temp /= 10;
+            digits += 2;
+            temp >>= 8;
+        }
+        bytes memory buffer = new bytes(digits);
+        buffer[0] = "0";
+        buffer[1] = "x";
+        while (value != 0) {
+            buffer[--digits] = alphabet[value % 16];
+            value >>= 4;
         }
         return string(buffer);
     }

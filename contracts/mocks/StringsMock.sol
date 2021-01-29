@@ -8,4 +8,7 @@ contract StringsMock {
     function fromUint256(uint256 value) public pure returns (string memory) {
         return Strings.toString(value);
     }
+    function fromUint256Hex(uint256 value) public pure returns (string memory) {
+        return Strings.toHexString(value);
+    }
 }
