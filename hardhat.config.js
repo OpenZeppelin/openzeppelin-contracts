@@ -13,7 +13,7 @@ for (const f of fs.readdirSync(path.join(__dirname, 'hardhat'))) {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  solidity: '0.8.0',
+  solidity: '0.8.1',
   settings: {
     optimizer: {
       enabled: false,

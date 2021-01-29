@@ -400,6 +400,8 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
                 return retval == IERC721Receiver(to).onERC721Received.selector;
             } catch Error (string memory reason) {
                 revert(reason);
+            } catch Panic (uint256) {
+                revert("ERC721: receiver panic");
             } catch {
                 revert("ERC721: transfer to non ERC721Receiver implementer");
             }
