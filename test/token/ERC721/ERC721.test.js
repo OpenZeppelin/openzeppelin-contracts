@@ -400,9 +400,8 @@ contract('ERC721', function (accounts) {
         describe('to a receiver contract that reverts without message', function () {
           it('reverts', async function () {
             const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, 2);
-            await expectRevert(
+            await expectRevert.unspecified(
               this.token.safeTransferFrom(owner, revertingReceiver.address, tokenId, { from: owner }),
-              'ERC721: transfer to non ERC721Receiver implementer',
             );
           });
         });
@@ -410,11 +409,8 @@ contract('ERC721', function (accounts) {
         describe('to a receiver contract that panics', function () {
           it('reverts', async function () {
             const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, 3);
-            await expectRevert(
+            await expectRevert.unspecified(
               this.token.safeTransferFrom(owner, revertingReceiver.address, tokenId, { from: owner }),
-              // TODO: panic filtering requiers 0.8.1, currently not supported by coverage
-              // 'ERC721: receiver panic',
-              'ERC721: transfer to non ERC721Receiver implementer',
             );
           });
         });
@@ -481,9 +477,8 @@ contract('ERC721', function (accounts) {
         context('to a receiver contract that reverts without message', function () {
           it('reverts', async function () {
             const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, 2);
-            await expectRevert(
+            await expectRevert.unspecified(
               this.token.safeMint(revertingReceiver.address, tokenId),
-              'ERC721: transfer to non ERC721Receiver implementer',
             );
           });
         });
@@ -491,11 +486,8 @@ contract('ERC721', function (accounts) {
         context('to a receiver contract that panics', function () {
           it('reverts', async function () {
             const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, 3);
-            await expectRevert(
+            await expectRevert.unspecified(
               this.token.safeMint(revertingReceiver.address, tokenId),
-              // TODO: panic filtering requiers 0.8.1, currently not supported by coverage
-              // 'ERC721: receiver panic',
-              'ERC721: transfer to non ERC721Receiver implementer',
             );
           });
         });

@@ -398,13 +398,15 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
         if (to.isContract()) {
             try IERC721Receiver(to).onERC721Received(_msgSender(), from, tokenId, _data) returns (bytes4 retval) {
                 return retval == IERC721Receiver(to).onERC721Received.selector;
-            } catch Error (string memory reason) {
-                revert(reason);
-            // TODO: panic filtering requiers 0.8.1, currently not supported by coverage
-            // } catch Panic (uint256) {
-            //     revert("ERC721: receiver panic");
-            } catch {
-                revert("ERC721: transfer to non ERC721Receiver implementer");
+            } catch (bytes memory reason) {
+                if (reason.length == 0) {
+                    revert("ERC721: transfer to non ERC721Receiver implementer");
+                } else {
+                    // solhint-disable-next-line no-inline-assembly
+                    assembly {
+                        revert(add(32, reason), mload(reason))
+                    }
+                }
             }
         } else {
             return true;
