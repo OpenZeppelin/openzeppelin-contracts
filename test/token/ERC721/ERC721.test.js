@@ -412,7 +412,9 @@ contract('ERC721', function (accounts) {
             const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, 3);
             await expectRevert(
               this.token.safeTransferFrom(owner, revertingReceiver.address, tokenId, { from: owner }),
-              'ERC721: receiver panic',
+              // TODO: panic filtering requiers 0.8.1, currently not supported by coverage
+              // 'ERC721: receiver panic',
+              'ERC721: transfer to non ERC721Receiver implementer',
             );
           });
         });
@@ -491,7 +493,9 @@ contract('ERC721', function (accounts) {
             const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, 3);
             await expectRevert(
               this.token.safeMint(revertingReceiver.address, tokenId),
-              'ERC721: receiver panic',
+              // TODO: panic filtering requiers 0.8.1, currently not supported by coverage
+              // 'ERC721: receiver panic',
+              'ERC721: transfer to non ERC721Receiver implementer',
             );
           });
         });
