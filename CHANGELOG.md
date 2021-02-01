@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+ * `ERC20`: Removing the `_setDecimals` functions and the storage slot associated to decimals. ([#2495](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2495))
+
+## Unreleased
+
  * `BeaconProxy`: added new kind of proxy that allows simultaneous atomic upgrades. ([#2411](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2411))
  * `EIP712`: added helpers to verify EIP712 typed data signatures on chain. ([#2418](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2418))
  * `ERC20Permit`: added an implementation of the ERC20 permit extension for gasless token approvals. ([#2237](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2237))
