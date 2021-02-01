@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../token/ERC721/IERC721Receiver.sol";
+import "../token/ERC721/utils/IERC721Receiver.sol";
 
 contract ERC721ReceiverMock is IERC721Receiver {
     enum Error {

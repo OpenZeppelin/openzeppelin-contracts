@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.0;
 
-import "../GSN/GSNRecipient.sol";
-import "../GSN/GSNRecipientSignature.sol";
+import "../utils/GSN/GSNRecipient.sol";
+import "../utils/GSN/GSNRecipientSignature.sol";
 
 contract GSNRecipientSignatureMock is GSNRecipient, GSNRecipientSignature {
     constructor(address trustedSigner) GSNRecipientSignature(trustedSigner) { }

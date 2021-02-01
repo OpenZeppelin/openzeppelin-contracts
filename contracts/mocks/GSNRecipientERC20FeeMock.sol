@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.0;
 
-import "../GSN/GSNRecipient.sol";
-import "../GSN/GSNRecipientERC20Fee.sol";
+import "../utils/GSN/GSNRecipient.sol";
+import "../utils/GSN/GSNRecipientERC20Fee.sol";
 
 contract GSNRecipientERC20FeeMock is GSNRecipient, GSNRecipientERC20Fee {
     constructor(string memory name, string memory symbol) GSNRecipientERC20Fee(name, symbol) { }
