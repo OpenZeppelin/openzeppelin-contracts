@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.0;
 
-import "../drafts/EIP712.sol";
-import "../cryptography/ECDSA.sol";
+import "../utils/draft-EIP712.sol";
+import "../utils/cryptography/ECDSA.sol";
 
 contract EIP712External is EIP712 {
     constructor(string memory name, string memory version) EIP712(name, version) {}

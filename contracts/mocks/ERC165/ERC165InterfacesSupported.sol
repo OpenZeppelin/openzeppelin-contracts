@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../../introspection/IERC165.sol";
+import "../../utils/introspection/IERC165.sol";
 
 /**
  * https://eips.ethereum.org/EIPS/eip-214#specification

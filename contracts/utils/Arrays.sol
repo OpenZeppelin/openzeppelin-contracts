@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../math/Math.sol";
+import "./math/Math.sol";
 
 /**
  * @dev Collection of functions related to array types.

@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "./ContextMock.sol";
-import "../GSN/GSNRecipient.sol";
+import "../utils/GSN/GSNRecipient.sol";
 
 // By inheriting from GSNRecipient, Context's internal functions are overridden automatically
 contract GSNRecipientMock is ContextMock, GSNRecipient {

@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../access/AccessControl.sol";
+import "../utils/access/AccessControl.sol";
 
 contract AccessControlMock is AccessControl {
     constructor() {

@@ -2,13 +2,13 @@
 
 pragma solidity ^0.8.0;
 
-import "../../utils/Context.sol";
 import "./IERC777.sol";
-import "./IERC777Recipient.sol";
-import "./IERC777Sender.sol";
-import "../../token/ERC20/IERC20.sol";
+import "./utils/IERC777Sender.sol";
+import "./utils/IERC777Recipient.sol";
+import "../ERC20/IERC20.sol";
 import "../../utils/Address.sol";
-import "../../introspection/IERC1820Registry.sol";
+import "../../utils/Context.sol";
+import "../../utils/introspection/IERC1820Registry.sol";
 
 /**
  * @dev Implementation of the {IERC777} interface.
@@ -278,8 +278,9 @@ contract ERC777 is Context, IERC777, IERC20 {
 
         _move(spender, holder, recipient, amount, "", "");
 
-        require(_allowances[holder][spender] >= amount, "ERC777: transfer amount exceeds allowance");
-        _approve(holder, spender, _allowances[holder][spender] - amount);
+        uint256 allowance_ = _allowances[holder][spender];
+        require(allowance_ >= amount, "ERC777: transfer amount exceeds allowance");
+        _approve(holder, spender, allowance_ - amount);
 
         _callTokensReceived(spender, holder, recipient, amount, "", "", false);
 
@@ -385,8 +386,9 @@ contract ERC777 is Context, IERC777, IERC20 {
         _beforeTokenTransfer(operator, from, address(0), amount);
 
         // Update state variables
-        require(_balances[from] >= amount, "ERC777: burn amount exceeds balance");
-        _balances[from] -= amount;
+        uint256 balance_ = _balances[from];
+        require(balance_ >= amount, "ERC777: burn amount exceeds balance");
+        _balances[from] = balance_ - amount;
         _totalSupply -= amount;
 
         emit Burned(operator, from, amount, data, operatorData);
@@ -405,8 +407,9 @@ contract ERC777 is Context, IERC777, IERC20 {
     {
         _beforeTokenTransfer(operator, from, to, amount);
 
-        require(_balances[from] >= amount, "ERC777: transfer amount exceeds balance");
-        _balances[from] -= amount;
+        uint256 balance_ = _balances[from];
+        require(balance_ >= amount, "ERC777: transfer amount exceeds balance");
+        _balances[from] = balance_ - amount;
         _balances[to] += amount;
 
         emit Sent(operator, from, to, amount, userData, operatorData);
