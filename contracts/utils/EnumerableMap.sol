@@ -235,6 +235,8 @@ library EnumerableMap {
     /**
      * @dev Tries to returns the value associated with `key`.  O(1).
      * Does not revert if `key` is not in the map.
+     *
+     * _Available since v3.4._
      */
     function tryGet(UintToAddressMap storage map, uint256 key) internal view returns (bool, address) {
         (bool success, bytes32 value) = _tryGet(map._inner, bytes32(key));

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.4.0 (2021-02-02)
 
 * `Context`: making `_msgData` return `bytes calldata` instead of `bytes memory` ([#2492](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2492))
 

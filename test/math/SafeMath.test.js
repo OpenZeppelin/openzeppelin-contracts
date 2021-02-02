@@ -172,7 +172,7 @@ contract('SafeMath', function (accounts) {
         const a = new BN('5678');
         const b = new BN('1234');
 
-        await testCommutative(this.safeMath.add, a, b, a.add(b));
+        await testCommutative(this.safeMath.doAdd, a, b, a.add(b));
       });
 
       it('reverts on addition overflow', async function () {
@@ -188,7 +188,7 @@ contract('SafeMath', function (accounts) {
         const a = new BN('5678');
         const b = new BN('1234');
 
-        expect(await this.safeMath.sub(a, b)).to.be.bignumber.equal(a.sub(b));
+        expect(await this.safeMath.doSub(a, b)).to.be.bignumber.equal(a.sub(b));
       });
 
       it('reverts if subtraction result would be negative', async function () {
@@ -204,14 +204,14 @@ contract('SafeMath', function (accounts) {
         const a = new BN('1234');
         const b = new BN('5678');
 
-        await testCommutative(this.safeMath.mul, a, b, a.mul(b));
+        await testCommutative(this.safeMath.doMul, a, b, a.mul(b));
       });
 
       it('multiplies by zero correctly', async function () {
         const a = new BN('0');
         const b = new BN('5678');
 
-        await testCommutative(this.safeMath.mul, a, b, '0');
+        await testCommutative(this.safeMath.doMul, a, b, '0');
       });
 
       it('reverts on multiplication overflow', async function () {
@@ -227,21 +227,21 @@ contract('SafeMath', function (accounts) {
         const a = new BN('5678');
         const b = new BN('5678');
 
-        expect(await this.safeMath.div(a, b)).to.be.bignumber.equal(a.div(b));
+        expect(await this.safeMath.doDiv(a, b)).to.be.bignumber.equal(a.div(b));
       });
 
       it('divides zero correctly', async function () {
         const a = new BN('0');
         const b = new BN('5678');
 
-        expect(await this.safeMath.div(a, b)).to.be.bignumber.equal('0');
+        expect(await this.safeMath.doDiv(a, b)).to.be.bignumber.equal('0');
       });
 
       it('returns complete number result on non-even division', async function () {
         const a = new BN('7000');
         const b = new BN('5678');
 
-        expect(await this.safeMath.div(a, b)).to.be.bignumber.equal('1');
+        expect(await this.safeMath.doDiv(a, b)).to.be.bignumber.equal('1');
       });
 
       it('reverts on division by zero', async function () {
@@ -258,28 +258,28 @@ contract('SafeMath', function (accounts) {
           const a = new BN('284');
           const b = new BN('5678');
 
-          expect(await this.safeMath.mod(a, b)).to.be.bignumber.equal(a.mod(b));
+          expect(await this.safeMath.doMod(a, b)).to.be.bignumber.equal(a.mod(b));
         });
 
         it('when the dividend is equal to the divisor', async function () {
           const a = new BN('5678');
           const b = new BN('5678');
 
-          expect(await this.safeMath.mod(a, b)).to.be.bignumber.equal(a.mod(b));
+          expect(await this.safeMath.doMod(a, b)).to.be.bignumber.equal(a.mod(b));
         });
 
         it('when the dividend is larger than the divisor', async function () {
           const a = new BN('7000');
           const b = new BN('5678');
 
-          expect(await this.safeMath.mod(a, b)).to.be.bignumber.equal(a.mod(b));
+          expect(await this.safeMath.doMod(a, b)).to.be.bignumber.equal(a.mod(b));
         });
 
         it('when the dividend is a multiple of the divisor', async function () {
           const a = new BN('17034'); // 17034 == 5678 * 3
           const b = new BN('5678');
 
-          expect(await this.safeMath.mod(a, b)).to.be.bignumber.equal(a.mod(b));
+          expect(await this.safeMath.doMod(a, b)).to.be.bignumber.equal(a.mod(b));
         });
       });
 

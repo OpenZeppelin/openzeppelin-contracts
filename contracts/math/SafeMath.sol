@@ -8,6 +8,8 @@ pragma solidity ^0.8.0;
 library SafeMath {
     /**
      * @dev Returns the addition of two unsigned integers, with an overflow flag.
+     *
+     * _Available since v3.4._
      */
     function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) {
         unchecked {
@@ -19,6 +21,8 @@ library SafeMath {
 
     /**
      * @dev Returns the substraction of two unsigned integers, with an overflow flag.
+     *
+     * _Available since v3.4._
      */
     function trySub(uint256 a, uint256 b) internal pure returns (bool, uint256) {
         unchecked {
@@ -29,6 +33,8 @@ library SafeMath {
 
     /**
      * @dev Returns the multiplication of two unsigned integers, with an overflow flag.
+     *
+     * _Available since v3.4._
      */
     function tryMul(uint256 a, uint256 b) internal pure returns (bool, uint256) {
         unchecked {
@@ -44,6 +50,8 @@ library SafeMath {
 
     /**
      * @dev Returns the division of two unsigned integers, with a division by zero flag.
+     *
+     * _Available since v3.4._
      */
     function tryDiv(uint256 a, uint256 b) internal pure returns (bool, uint256) {
         unchecked {
@@ -54,6 +62,8 @@ library SafeMath {
 
     /**
      * @dev Returns the remainder of dividing two unsigned integers, with a division by zero flag.
+     *
+     * _Available since v3.4._
      */
     function tryMod(uint256 a, uint256 b) internal pure returns (bool, uint256) {
         unchecked {
