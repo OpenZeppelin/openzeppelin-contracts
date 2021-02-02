@@ -43,7 +43,7 @@ contract('Counters', function (accounts) {
 
       it('reverts if the current value is 0', async function () {
         await this.counter.decrement();
-        await expectRevert.unspecified(this.counter.decrement());
+        await expectRevert(this.counter.decrement(), 'Counter: decrement underflow');
       });
     });
     context('after incremented to 3', function () {
