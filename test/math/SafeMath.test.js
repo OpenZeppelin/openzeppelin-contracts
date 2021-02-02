@@ -179,7 +179,7 @@ contract('SafeMath', function (accounts) {
         const a = MAX_UINT256;
         const b = new BN('1');
 
-        await testFailsCommutative(this.safeMath.add, a, b, undefined);
+        await testFailsCommutative(this.safeMath.doAdd, a, b, undefined);
       });
     });
 
@@ -195,7 +195,7 @@ contract('SafeMath', function (accounts) {
         const a = new BN('1234');
         const b = new BN('5678');
 
-        await expectRevert.unspecified(this.safeMath.sub(a, b));
+        await expectRevert.unspecified(this.safeMath.doSub(a, b));
       });
     });
 
@@ -218,7 +218,7 @@ contract('SafeMath', function (accounts) {
         const a = MAX_UINT256;
         const b = new BN('2');
 
-        await testFailsCommutative(this.safeMath.mul, a, b, undefined);
+        await testFailsCommutative(this.safeMath.doMul, a, b, undefined);
       });
     });
 
@@ -248,7 +248,7 @@ contract('SafeMath', function (accounts) {
         const a = new BN('5678');
         const b = new BN('0');
 
-        await expectRevert.unspecified(this.safeMath.div(a, b));
+        await expectRevert.unspecified(this.safeMath.doDiv(a, b));
       });
     });
 
@@ -287,7 +287,7 @@ contract('SafeMath', function (accounts) {
         const a = new BN('5678');
         const b = new BN('0');
 
-        await expectRevert.unspecified(this.safeMath.mod(a, b));
+        await expectRevert.unspecified(this.safeMath.doMod(a, b));
       });
     });
   });
