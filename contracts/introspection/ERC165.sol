@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.8.0;
 
 import "./IERC165.sol";
 
@@ -11,20 +11,15 @@ import "./IERC165.sol";
  * their support of an interface.
  */
 abstract contract ERC165 is IERC165 {
-    /*
-     * bytes4(keccak256('supportsInterface(bytes4)')) == 0x01ffc9a7
-     */
-    bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
-
     /**
      * @dev Mapping of interface ids to whether or not it's supported.
      */
     mapping(bytes4 => bool) private _supportedInterfaces;
 
-    constructor () internal {
+    constructor () {
         // Derived contracts need only register support for their own interfaces,
         // we register support for ERC165 itself here
-        _registerInterface(_INTERFACE_ID_ERC165);
+        _registerInterface(type(IERC165).interfaceId);
     }
 
     /**

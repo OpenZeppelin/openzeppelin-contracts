@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.8.0;
 
 import "../../utils/Context.sol";
 import "./IERC777.sol";
 import "./IERC777Recipient.sol";
 import "./IERC777Sender.sol";
 import "../../token/ERC20/IERC20.sol";
-import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";
 import "../../introspection/IERC1820Registry.sol";
 
@@ -27,7 +26,6 @@ import "../../introspection/IERC1820Registry.sol";
  * destroyed. This makes integration with ERC20 applications seamless.
  */
 contract ERC777 is Context, IERC777, IERC20 {
-    using SafeMath for uint256;
     using Address for address;
 
     IERC1820Registry constant internal _ERC1820_REGISTRY = IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
@@ -39,16 +37,8 @@ contract ERC777 is Context, IERC777, IERC20 {
     string private _name;
     string private _symbol;
 
-    // We inline the result of the following hashes because Solidity doesn't resolve them at compile time.
-    // See https://github.com/ethereum/solidity/issues/4024.
-
-    // keccak256("ERC777TokensSender")
-    bytes32 constant private _TOKENS_SENDER_INTERFACE_HASH =
-        0x29ddb589b1fb5fc7cf394961c1adf5f8c6454761adf795e67fe149f658abe895;
-
-    // keccak256("ERC777TokensRecipient")
-    bytes32 constant private _TOKENS_RECIPIENT_INTERFACE_HASH =
-        0xb281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b;
+    bytes32 private constant _TOKENS_SENDER_INTERFACE_HASH = keccak256("ERC777TokensSender");
+    bytes32 private constant _TOKENS_RECIPIENT_INTERFACE_HASH = keccak256("ERC777TokensRecipient");
 
     // This isn't ever read from - it's only used to respond to the defaultOperators query.
     address[] private _defaultOperatorsArray;
@@ -70,9 +60,7 @@ contract ERC777 is Context, IERC777, IERC20 {
         string memory name_,
         string memory symbol_,
         address[] memory defaultOperators_
-    )
-        public
-    {
+    ) {
         _name = name_;
         _symbol = symbol_;
 
@@ -289,7 +277,9 @@ contract ERC777 is Context, IERC777, IERC20 {
         _callTokensToSend(spender, holder, recipient, amount, "", "");
 
         _move(spender, holder, recipient, amount, "", "");
-        _approve(holder, spender, _allowances[holder][spender].sub(amount, "ERC777: transfer amount exceeds allowance"));
+
+        require(_allowances[holder][spender] >= amount, "ERC777: transfer amount exceeds allowance");
+        _approve(holder, spender, _allowances[holder][spender] - amount);
 
         _callTokensReceived(spender, holder, recipient, amount, "", "", false);
 
@@ -329,8 +319,8 @@ contract ERC777 is Context, IERC777, IERC20 {
         _beforeTokenTransfer(operator, address(0), account, amount);
 
         // Update state variables
-        _totalSupply = _totalSupply.add(amount);
-        _balances[account] = _balances[account].add(amount);
+        _totalSupply += amount;
+        _balances[account] += amount;
 
         _callTokensReceived(operator, address(0), account, amount, userData, operatorData, true);
 
@@ -395,8 +385,9 @@ contract ERC777 is Context, IERC777, IERC20 {
         _beforeTokenTransfer(operator, from, address(0), amount);
 
         // Update state variables
-        _balances[from] = _balances[from].sub(amount, "ERC777: burn amount exceeds balance");
-        _totalSupply = _totalSupply.sub(amount);
+        require(_balances[from] >= amount, "ERC777: burn amount exceeds balance");
+        _balances[from] -= amount;
+        _totalSupply -= amount;
 
         emit Burned(operator, from, amount, data, operatorData);
         emit Transfer(from, address(0), amount);
@@ -414,8 +405,9 @@ contract ERC777 is Context, IERC777, IERC20 {
     {
         _beforeTokenTransfer(operator, from, to, amount);
 
-        _balances[from] = _balances[from].sub(amount, "ERC777: transfer amount exceeds balance");
-        _balances[to] = _balances[to].add(amount);
+        require(_balances[from] >= amount, "ERC777: transfer amount exceeds balance");
+        _balances[from] -= amount;
+        _balances[to] += amount;
 
         emit Sent(operator, from, to, amount, userData, operatorData);
         emit Transfer(from, to, amount);

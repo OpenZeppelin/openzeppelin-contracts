@@ -8,6 +8,9 @@ const { shouldSupportInterfaces } = require('../../introspection/SupportsInterfa
 const ERC721Mock = artifacts.require('ERC721Mock');
 const ERC721ReceiverMock = artifacts.require('ERC721ReceiverMock');
 
+const Error = [ 'None', 'RevertWithMessage', 'RevertWithoutMessage', 'Panic' ]
+  .reduce((acc, entry, idx) => Object.assign({ [entry]: idx }, acc), {});
+
 contract('ERC721', function (accounts) {
   const [owner, newOwner, approved, anotherApproved, operator, other] = accounts;
 
@@ -324,7 +327,7 @@ contract('ERC721', function (accounts) {
 
           describe('to a valid receiver contract', function () {
             beforeEach(async function () {
-              this.receiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, false);
+              this.receiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, Error.None);
               this.toWhom = this.receiver.address;
             });
 
@@ -379,7 +382,7 @@ contract('ERC721', function (accounts) {
 
         describe('to a receiver contract returning unexpected value', function () {
           it('reverts', async function () {
-            const invalidReceiver = await ERC721ReceiverMock.new('0x42', false);
+            const invalidReceiver = await ERC721ReceiverMock.new('0x42', Error.None);
             await expectRevert(
               this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, { from: owner }),
               'ERC721: transfer to non ERC721Receiver implementer',
@@ -387,12 +390,31 @@ contract('ERC721', function (accounts) {
           });
         });
 
-        describe('to a receiver contract that throws', function () {
+        describe('to a receiver contract that reverts with message', function () {
           it('reverts', async function () {
-            const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, true);
+            const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, Error.RevertWithMessage);
             await expectRevert(
               this.token.safeTransferFrom(owner, revertingReceiver.address, tokenId, { from: owner }),
               'ERC721ReceiverMock: reverting',
+            );
+          });
+        });
+
+        describe('to a receiver contract that reverts without message', function () {
+          it('reverts', async function () {
+            const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, Error.RevertWithoutMessage);
+            await expectRevert(
+              this.token.safeTransferFrom(owner, revertingReceiver.address, tokenId, { from: owner }),
+              'ERC721: transfer to non ERC721Receiver implementer',
+            );
+          });
+        });
+
+        describe('to a receiver contract that panics', function () {
+          it('reverts', async function () {
+            const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, Error.Panic);
+            await expectRevert.unspecified(
+              this.token.safeTransferFrom(owner, revertingReceiver.address, tokenId, { from: owner }),
             );
           });
         });
@@ -416,7 +438,7 @@ contract('ERC721', function (accounts) {
 
       describe('via safeMint', function () { // regular minting is tested in ERC721Mintable.test.js and others
         it('calls onERC721Received — with data', async function () {
-          this.receiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, false);
+          this.receiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, Error.None);
           const receipt = await this.token.safeMint(this.receiver.address, tokenId, data);
 
           await expectEvent.inTransaction(receipt.tx, ERC721ReceiverMock, 'Received', {
@@ -427,7 +449,7 @@ contract('ERC721', function (accounts) {
         });
 
         it('calls onERC721Received — without data', async function () {
-          this.receiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, false);
+          this.receiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, Error.None);
           const receipt = await this.token.safeMint(this.receiver.address, tokenId);
 
           await expectEvent.inTransaction(receipt.tx, ERC721ReceiverMock, 'Received', {
@@ -438,7 +460,7 @@ contract('ERC721', function (accounts) {
 
         context('to a receiver contract returning unexpected value', function () {
           it('reverts', async function () {
-            const invalidReceiver = await ERC721ReceiverMock.new('0x42', false);
+            const invalidReceiver = await ERC721ReceiverMock.new('0x42', Error.None);
             await expectRevert(
               this.token.safeMint(invalidReceiver.address, tokenId),
               'ERC721: transfer to non ERC721Receiver implementer',
@@ -446,12 +468,31 @@ contract('ERC721', function (accounts) {
           });
         });
 
-        context('to a receiver contract that throws', function () {
+        context('to a receiver contract that reverts with message', function () {
           it('reverts', async function () {
-            const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, true);
+            const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, Error.RevertWithMessage);
             await expectRevert(
               this.token.safeMint(revertingReceiver.address, tokenId),
               'ERC721ReceiverMock: reverting',
+            );
+          });
+        });
+
+        context('to a receiver contract that reverts without message', function () {
+          it('reverts', async function () {
+            const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, Error.RevertWithoutMessage);
+            await expectRevert(
+              this.token.safeMint(revertingReceiver.address, tokenId),
+              'ERC721: transfer to non ERC721Receiver implementer',
+            );
+          });
+        });
+
+        context('to a receiver contract that panics', function () {
+          it('reverts', async function () {
+            const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, Error.Panic);
+            await expectRevert.unspecified(
+              this.token.safeMint(revertingReceiver.address, tokenId),
             );
           });
         });

@@ -15,9 +15,9 @@ contract('SignedSafeMath', function (accounts) {
     expect(await fn(rhs, lhs)).to.be.bignumber.equal(expected);
   }
 
-  async function testFailsCommutative (fn, lhs, rhs, reason) {
-    await expectRevert(fn(lhs, rhs), reason);
-    await expectRevert(fn(rhs, lhs), reason);
+  async function testFailsCommutative (fn, lhs, rhs) {
+    await expectRevert.unspecified(fn(lhs, rhs));
+    await expectRevert.unspecified(fn(rhs, lhs));
   }
 
   describe('add', function () {
@@ -39,14 +39,14 @@ contract('SignedSafeMath', function (accounts) {
       const a = MAX_INT256;
       const b = new BN('1');
 
-      await testFailsCommutative(this.safeMath.add, a, b, 'SignedSafeMath: addition overflow');
+      await testFailsCommutative(this.safeMath.add, a, b);
     });
 
     it('reverts on negative addition overflow', async function () {
       const a = MIN_INT256;
       const b = new BN('-1');
 
-      await testFailsCommutative(this.safeMath.add, a, b, 'SignedSafeMath: addition overflow');
+      await testFailsCommutative(this.safeMath.add, a, b);
     });
   });
 
@@ -71,14 +71,14 @@ contract('SignedSafeMath', function (accounts) {
       const a = MAX_INT256;
       const b = new BN('-1');
 
-      await expectRevert(this.safeMath.sub(a, b), 'SignedSafeMath: subtraction overflow');
+      await expectRevert.unspecified(this.safeMath.sub(a, b));
     });
 
     it('reverts on negative subtraction overflow', async function () {
       const a = MIN_INT256;
       const b = new BN('1');
 
-      await expectRevert(this.safeMath.sub(a, b), 'SignedSafeMath: subtraction overflow');
+      await expectRevert.unspecified(this.safeMath.sub(a, b));
     });
   });
 
@@ -101,14 +101,14 @@ contract('SignedSafeMath', function (accounts) {
       const a = MAX_INT256;
       const b = new BN('2');
 
-      await testFailsCommutative(this.safeMath.mul, a, b, 'SignedSafeMath: multiplication overflow');
+      await testFailsCommutative(this.safeMath.mul, a, b);
     });
 
     it('reverts when minimum integer is multiplied by -1', async function () {
       const a = MIN_INT256;
       const b = new BN('-1');
 
-      await testFailsCommutative(this.safeMath.mul, a, b, 'SignedSafeMath: multiplication overflow');
+      await testFailsCommutative(this.safeMath.mul, a, b);
     });
   });
 
@@ -139,14 +139,14 @@ contract('SignedSafeMath', function (accounts) {
       const a = new BN('-5678');
       const b = new BN('0');
 
-      await expectRevert(this.safeMath.div(a, b), 'SignedSafeMath: division by zero');
+      await expectRevert.unspecified(this.safeMath.div(a, b));
     });
 
     it('reverts on overflow, negative second', async function () {
       const a = new BN(MIN_INT256);
       const b = new BN('-1');
 
-      await expectRevert(this.safeMath.div(a, b), 'SignedSafeMath: division overflow');
+      await expectRevert.unspecified(this.safeMath.div(a, b));
     });
   });
 });

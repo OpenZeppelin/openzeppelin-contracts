@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.2;
+pragma solidity ^0.8.0;
 
 import "../token/ERC777/ERC777.sol";
 
@@ -13,7 +13,7 @@ import "../token/ERC777/ERC777.sol";
  */
 contract ERC777PresetFixedSupply is ERC777 {
     /**
-     * @dev Mints `initialSupply` amount of token and transfers them to `owner`.  
+     * @dev Mints `initialSupply` amount of token and transfers them to `owner`.
      *
      * See {ERC777-constructor}.
      */
@@ -23,7 +23,7 @@ contract ERC777PresetFixedSupply is ERC777 {
         address[] memory defaultOperators,
         uint256 initialSupply,
         address owner
-    ) public ERC777(name, symbol, defaultOperators) {
+    ) ERC777(name, symbol, defaultOperators) {
         _mint(owner, initialSupply, "", "");
     }
 }

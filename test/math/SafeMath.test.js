@@ -26,8 +26,13 @@ contract('SafeMath', function (accounts) {
   }
 
   async function testFailsCommutative (fn, lhs, rhs, reason, ...extra) {
-    await expectRevert(fn(lhs, rhs, ...extra), reason);
-    await expectRevert(fn(rhs, lhs, ...extra), reason);
+    if (reason === undefined) {
+      await expectRevert.unspecified(fn(lhs, rhs, ...extra));
+      await expectRevert.unspecified(fn(rhs, lhs, ...extra));
+    } else {
+      await expectRevert(fn(lhs, rhs, ...extra), reason);
+      await expectRevert(fn(rhs, lhs, ...extra), reason);
+    }
   }
 
   async function testCommutativeIterable (fn, lhs, rhs, expected, ...extra) {
@@ -174,7 +179,7 @@ contract('SafeMath', function (accounts) {
         const a = MAX_UINT256;
         const b = new BN('1');
 
-        await testFailsCommutative(this.safeMath.doAdd, a, b, 'SafeMath: addition overflow');
+        await testFailsCommutative(this.safeMath.doAdd, a, b, undefined);
       });
     });
 
@@ -190,7 +195,7 @@ contract('SafeMath', function (accounts) {
         const a = new BN('1234');
         const b = new BN('5678');
 
-        await expectRevert(this.safeMath.doSub(a, b), 'SafeMath: subtraction overflow');
+        await expectRevert.unspecified(this.safeMath.doSub(a, b));
       });
     });
 
@@ -213,7 +218,7 @@ contract('SafeMath', function (accounts) {
         const a = MAX_UINT256;
         const b = new BN('2');
 
-        await testFailsCommutative(this.safeMath.doMul, a, b, 'SafeMath: multiplication overflow');
+        await testFailsCommutative(this.safeMath.doMul, a, b, undefined);
       });
     });
 
@@ -243,7 +248,7 @@ contract('SafeMath', function (accounts) {
         const a = new BN('5678');
         const b = new BN('0');
 
-        await expectRevert(this.safeMath.doDiv(a, b), 'SafeMath: division by zero');
+        await expectRevert.unspecified(this.safeMath.doDiv(a, b));
       });
     });
 
@@ -282,7 +287,7 @@ contract('SafeMath', function (accounts) {
         const a = new BN('5678');
         const b = new BN('0');
 
-        await expectRevert(this.safeMath.doMod(a, b), 'SafeMath: modulo by zero');
+        await expectRevert.unspecified(this.safeMath.doMod(a, b));
       });
     });
   });

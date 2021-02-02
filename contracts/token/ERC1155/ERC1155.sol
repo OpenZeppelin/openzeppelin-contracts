@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.8.0;
 
 import "./IERC1155.sol";
 import "./IERC1155MetadataURI.sol";
 import "./IERC1155Receiver.sol";
 import "../../utils/Context.sol";
 import "../../introspection/ERC165.sol";
-import "../../math/SafeMath.sol";
 import "../../utils/Address.sol";
 
 /**
@@ -19,7 +18,6 @@ import "../../utils/Address.sol";
  * _Available since v3.1._
  */
 contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
-    using SafeMath for uint256;
     using Address for address;
 
     // Mapping from token ID to account balances
@@ -31,35 +29,17 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     // Used as the URI for all token types by relying on ID substitution, e.g. https://token-cdn-domain/{id}.json
     string private _uri;
 
-    /*
-     *     bytes4(keccak256('balanceOf(address,uint256)')) == 0x00fdd58e
-     *     bytes4(keccak256('balanceOfBatch(address[],uint256[])')) == 0x4e1273f4
-     *     bytes4(keccak256('setApprovalForAll(address,bool)')) == 0xa22cb465
-     *     bytes4(keccak256('isApprovedForAll(address,address)')) == 0xe985e9c5
-     *     bytes4(keccak256('safeTransferFrom(address,address,uint256,uint256,bytes)')) == 0xf242432a
-     *     bytes4(keccak256('safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)')) == 0x2eb2c2d6
-     *
-     *     => 0x00fdd58e ^ 0x4e1273f4 ^ 0xa22cb465 ^
-     *        0xe985e9c5 ^ 0xf242432a ^ 0x2eb2c2d6 == 0xd9b67a26
-     */
-    bytes4 private constant _INTERFACE_ID_ERC1155 = 0xd9b67a26;
-
-    /*
-     *     bytes4(keccak256('uri(uint256)')) == 0x0e89341c
-     */
-    bytes4 private constant _INTERFACE_ID_ERC1155_METADATA_URI = 0x0e89341c;
-
     /**
      * @dev See {_setURI}.
      */
-    constructor (string memory uri_) public {
+    constructor (string memory uri_) {
         _setURI(uri_);
 
         // register the supported interfaces to conform to ERC1155 via ERC165
-        _registerInterface(_INTERFACE_ID_ERC1155);
+        _registerInterface(type(IERC1155).interfaceId);
 
         // register the supported interfaces to conform to ERC1155MetadataURI via ERC165
-        _registerInterface(_INTERFACE_ID_ERC1155_METADATA_URI);
+        _registerInterface(type(IERC1155MetadataURI).interfaceId);
     }
 
     /**
@@ -157,8 +137,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
         _beforeTokenTransfer(operator, from, to, _asSingletonArray(id), _asSingletonArray(amount), data);
 
-        _balances[id][from] = _balances[id][from].sub(amount, "ERC1155: insufficient balance for transfer");
-        _balances[id][to] = _balances[id][to].add(amount);
+        require(_balances[id][from] >= amount, "ERC1155: insufficient balance for transfer");
+        _balances[id][from] -= amount;
+        _balances[id][to] += amount;
 
         emit TransferSingle(operator, from, to, id, amount);
 
@@ -194,11 +175,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
             uint256 id = ids[i];
             uint256 amount = amounts[i];
 
-            _balances[id][from] = _balances[id][from].sub(
-                amount,
-                "ERC1155: insufficient balance for transfer"
-            );
-            _balances[id][to] = _balances[id][to].add(amount);
+            require(_balances[id][from] >= amount, "ERC1155: insufficient balance for transfer");
+            _balances[id][from] -= amount;
+            _balances[id][to] += amount;
         }
 
         emit TransferBatch(operator, from, to, ids, amounts);
@@ -247,7 +226,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
         _beforeTokenTransfer(operator, address(0), account, _asSingletonArray(id), _asSingletonArray(amount), data);
 
-        _balances[id][account] = _balances[id][account].add(amount);
+        _balances[id][account] += amount;
         emit TransferSingle(operator, address(0), account, id, amount);
 
         _doSafeTransferAcceptanceCheck(operator, address(0), account, id, amount, data);
@@ -271,7 +250,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         _beforeTokenTransfer(operator, address(0), to, ids, amounts, data);
 
         for (uint i = 0; i < ids.length; i++) {
-            _balances[ids[i]][to] = amounts[i].add(_balances[ids[i]][to]);
+            _balances[ids[i]][to] += amounts[i];
         }
 
         emit TransferBatch(operator, address(0), to, ids, amounts);
@@ -294,10 +273,8 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
         _beforeTokenTransfer(operator, account, address(0), _asSingletonArray(id), _asSingletonArray(amount), "");
 
-        _balances[id][account] = _balances[id][account].sub(
-            amount,
-            "ERC1155: burn amount exceeds balance"
-        );
+        require(_balances[id][account] >= amount, "ERC1155: burn amount exceeds balance");
+        _balances[id][account] -= amount;
 
         emit TransferSingle(operator, account, address(0), id, amount);
     }
@@ -318,10 +295,11 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         _beforeTokenTransfer(operator, account, address(0), ids, amounts, "");
 
         for (uint i = 0; i < ids.length; i++) {
-            _balances[ids[i]][account] = _balances[ids[i]][account].sub(
-                amounts[i],
-                "ERC1155: burn amount exceeds balance"
-            );
+            uint256 id = ids[i];
+            uint256 amount = amounts[i];
+
+            require(_balances[id][account] >= amount, "ERC1155: burn amount exceeds balance");
+            _balances[id][account] -= amount;
         }
 
         emit TransferBatch(operator, account, address(0), ids, amounts);

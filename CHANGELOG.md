@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+* Now targeting the 0.8.x line of Solidity compilers. For 0.6.x (resp 0.7.x) support, use version 3.4.0 (resp 3.4.0-solc-0.7) of OpenZeppelin.
+* `Context`: making `_msgData` return `bytes calldata` instead of `bytes memory` ([#2492](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2492))
+
 ## 3.4.0 (2021-02-02)
 
  * `BeaconProxy`: added new kind of proxy that allows simultaneous atomic upgrades. ([#2411](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2411))
@@ -29,6 +34,12 @@ If you're using our implementation of ERC777 from version 3.3.0 or earlier, and 
  * `Address`: added `functionStaticCall`, similar to the existing `functionCall`. ([#2333](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2333))
  * `TimelockController`: added a contract to augment access control schemes with a delay. ([#2354](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2354))
  * `EnumerableSet`: added `Bytes32Set`, for sets of `bytes32`. ([#2395](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2395))
+
+## 3.2.2-solc-0.7 (2020-10-28)
+ * Resolve warnings introduced by Solidity 0.7.4. ([#2396](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2396))
+
+## 3.2.1-solc-0.7 (2020-09-15)
+ * `ERC777`: Remove a warning about function state visibility in Solidity 0.7. ([#2327](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2327))
 
 ## 3.2.0 (2020-09-10)
 

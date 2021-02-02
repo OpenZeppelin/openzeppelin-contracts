@@ -20,7 +20,7 @@ const IMPLEMENTATION_LABEL = 'eip1967.proxy.implementation';
 const ADMIN_LABEL = 'eip1967.proxy.admin';
 
 function toChecksumAddress (address) {
-  return ethereumjsUtil.toChecksumAddress('0x' + address.replace(/^0x/, '').padStart(40, '0'));
+  return ethereumjsUtil.toChecksumAddress('0x' + address.replace(/^0x/, '').padStart(40, '0').substr(-40));
 }
 
 module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createProxy, accounts) {

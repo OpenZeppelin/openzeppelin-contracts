@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.8.0;
 
 import "../token/ERC721/ERC721Pausable.sol";
 
@@ -9,7 +9,7 @@ import "../token/ERC721/ERC721Pausable.sol";
  * This mock just provides a public mint, burn and exists functions for testing purposes
  */
 contract ERC721PausableMock is ERC721Pausable {
-    constructor (string memory name, string memory symbol) public ERC721(name, symbol) { }
+    constructor (string memory name, string memory symbol) ERC721(name, symbol) { }
 
     function mint(address to, uint256 tokenId) public {
         super._mint(to, tokenId);

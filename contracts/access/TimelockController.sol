@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.9 <0.8.0;
-pragma experimental ABIEncoderV2;
+pragma solidity ^0.8.0;
 
-import "./../math/SafeMath.sol";
 import "./AccessControl.sol";
 
 /**
@@ -22,7 +20,6 @@ import "./AccessControl.sol";
  * _Available since v3.3._
  */
 contract TimelockController is AccessControl {
-
     bytes32 public constant TIMELOCK_ADMIN_ROLE = keccak256("TIMELOCK_ADMIN_ROLE");
     bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
     bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
@@ -54,7 +51,7 @@ contract TimelockController is AccessControl {
     /**
      * @dev Initializes the contract with a given `minDelay`.
      */
-    constructor(uint256 minDelay, address[] memory proposers, address[] memory executors) public {
+    constructor(uint256 minDelay, address[] memory proposers, address[] memory executors) {
         _setRoleAdmin(TIMELOCK_ADMIN_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(PROPOSER_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(EXECUTOR_ROLE, TIMELOCK_ADMIN_ROLE);
@@ -199,7 +196,7 @@ contract TimelockController is AccessControl {
         require(!isOperation(id), "TimelockController: operation already scheduled");
         require(delay >= getMinDelay(), "TimelockController: insufficient delay");
         // solhint-disable-next-line not-rely-on-time
-        _timestamps[id] = SafeMath.add(block.timestamp, delay);
+        _timestamps[id] = block.timestamp + delay;
     }
 
     /**

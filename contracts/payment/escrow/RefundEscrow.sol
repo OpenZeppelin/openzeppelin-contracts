@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.8.0;
 
 import "./ConditionalEscrow.sol";
 
@@ -15,6 +15,8 @@ import "./ConditionalEscrow.sol";
  * with `RefundEscrow` will be made through the owner contract.
  */
 contract RefundEscrow is ConditionalEscrow {
+    using Address for address payable;
+
     enum State { Active, Refunding, Closed }
 
     event RefundsClosed();
@@ -27,7 +29,7 @@ contract RefundEscrow is ConditionalEscrow {
      * @dev Constructor.
      * @param beneficiary_ The beneficiary of the deposits.
      */
-    constructor (address payable beneficiary_) public {
+    constructor (address payable beneficiary_) {
         require(beneficiary_ != address(0), "RefundEscrow: beneficiary is the zero address");
         _beneficiary = beneficiary_;
         _state = State.Active;
