@@ -23,10 +23,16 @@ library Counters {
     }
 
     function increment(Counter storage counter) internal {
-        counter._value += 1;
+        unchecked {
+            counter._value += 1;
+        }
     }
 
     function decrement(Counter storage counter) internal {
-        counter._value = counter._value - 1;
+        unchecked {
+            uint256 value_ = counter._value;
+            require(value_ > 0, "Counter: decrement underflow");
+            counter._value = value_ - 1;
+        }
     }
 }
