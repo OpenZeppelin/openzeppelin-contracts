@@ -11,6 +11,8 @@ import "./IBeacon.sol";
  *
  * The beacon address is stored in storage slot `uint256(keccak256('eip1967.proxy.beacon')) - 1`, so that it doesn't
  * conflict with the storage layout of the implementation behind the proxy.
+ *
+ * _Available since v3.4._
  */
 contract BeaconProxy is Proxy {
     /**
