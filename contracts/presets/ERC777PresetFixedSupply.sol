@@ -8,6 +8,8 @@ import "../token/ERC777/ERC777.sol";
  *
  *  - Preminted initial supply
  *  - No access control mechanism (for minting/pausing) and hence no governance
+ *
+ * _Available since v3.4._
  */
 contract ERC777PresetFixedSupply is ERC777 {
     /**
