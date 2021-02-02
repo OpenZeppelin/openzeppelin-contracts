@@ -25,23 +25,25 @@ contract SafeMathMock {
         return SafeMath.tryMod(a, b);
     }
 
-    function add(uint256 a, uint256 b) public pure returns (uint256) {
+    // using the do* naming convention to avoid warnings due to clashing opcode names
+
+    function doAdd(uint256 a, uint256 b) public pure returns (uint256) {
         return SafeMath.add(a, b);
     }
 
-    function sub(uint256 a, uint256 b) public pure returns (uint256) {
+    function doSub(uint256 a, uint256 b) public pure returns (uint256) {
         return SafeMath.sub(a, b);
     }
 
-    function mul(uint256 a, uint256 b) public pure returns (uint256) {
+    function doMul(uint256 a, uint256 b) public pure returns (uint256) {
         return SafeMath.mul(a, b);
     }
 
-    function div(uint256 a, uint256 b) public pure returns (uint256) {
+    function doDiv(uint256 a, uint256 b) public pure returns (uint256) {
         return SafeMath.div(a, b);
     }
 
-    function mod(uint256 a, uint256 b) public pure returns (uint256) {
+    function doMod(uint256 a, uint256 b) public pure returns (uint256) {
         return SafeMath.mod(a, b);
     }
 
