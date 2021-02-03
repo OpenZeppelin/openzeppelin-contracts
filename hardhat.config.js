@@ -14,11 +14,13 @@ for (const f of fs.readdirSync(path.join(__dirname, 'hardhat'))) {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  solidity: '0.8.0',
-  settings: {
-    optimizer: {
-      enabled: !!process.env.REPORT_GAS,
-      runs: 200,
+  solidity: {
+    version: '0.8.0',
+    settings: {
+      optimizer: {
+        enabled: !!process.env.REPORT_GAS,
+        runs: 200,
+      },
     },
   },
   networks: {
@@ -28,7 +30,8 @@ module.exports = {
   },
   gasReporter: {
     enabled: !!process.env.REPORT_GAS,
-    outputFile: path.join(__dirname, 'ethgasreport.md'),
+    outputFile: path.join(__dirname, 'ETH_GAS_REPORT.txt'),
     noColors: true,
+    currency: 'USD',
   },
 };
