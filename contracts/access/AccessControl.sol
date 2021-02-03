@@ -42,7 +42,6 @@ import "../utils/EnumerableSet.sol";
  */
 abstract contract AccessControl is AccessControlLight {
     using EnumerableSet for EnumerableSet.AddressSet;
-    using Address for address;
 
     struct RoleData {
         EnumerableSet.AddressSet members;

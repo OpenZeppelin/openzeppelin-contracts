@@ -2,7 +2,6 @@
 
 pragma solidity ^0.8.0;
 
-import "../utils/Address.sol";
 import "../utils/Context.sol";
 
 /**
@@ -41,12 +40,10 @@ import "../utils/Context.sol";
  * accounts that have been granted it.
  */
 abstract contract AccessControlLight is Context {
-    using Address for address;
+    bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
 
     mapping (bytes32 => bytes32) private _admins;
     mapping (bytes32 => mapping (address => bool)) private _members;
-
-    bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
 
     /**
      * @dev Emitted when `newAdminRole` is set as ``role``'s admin role, replacing `previousAdminRole`
