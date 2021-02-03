@@ -28,5 +28,7 @@ module.exports = {
   },
   gasReporter: {
     enabled: !!process.env.REPORT_GAS,
+    outputFile: path.join(__dirname, 'ethgasreport.md'),
+    noColors: true,
   },
 };
