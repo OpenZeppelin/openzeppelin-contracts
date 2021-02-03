@@ -20,5 +20,4 @@ contract('ERC721', function (accounts) {
   });
 
   shouldBehaveLikeERC721('ERC721', ...accounts);
-  shouldBehaveLikeERC721Enumerable('ERC721', ...accounts);
 });

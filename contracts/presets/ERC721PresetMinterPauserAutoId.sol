@@ -6,6 +6,7 @@ import "../access/AccessControl.sol";
 import "../utils/Context.sol";
 import "../utils/Counters.sol";
 import "../token/ERC721/ERC721.sol";
+import "../token/ERC721/ERC721Enumerable.sol";
 import "../token/ERC721/ERC721Metadata.sol";
 import "../token/ERC721/ERC721Burnable.sol";
 import "../token/ERC721/ERC721Pausable.sol";
@@ -25,7 +26,7 @@ import "../token/ERC721/ERC721Pausable.sol";
  * roles, as well as the default admin role, which will let it grant both minter
  * and pauser roles to other accounts.
  */
-contract ERC721PresetMinterPauserAutoId is Context, AccessControl, ERC721Metadata, ERC721Burnable, ERC721Pausable {
+contract ERC721PresetMinterPauserAutoId is Context, AccessControl, ERC721Enumerable, ERC721Metadata, ERC721Burnable, ERC721Pausable {
     using Counters for Counters.Counter;
 
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
@@ -95,6 +96,30 @@ contract ERC721PresetMinterPauserAutoId is Context, AccessControl, ERC721Metadat
     function unpause() public virtual {
         require(hasRole(PAUSER_ROLE, _msgSender()), "ERC721PresetMinterPauserAutoId: must have pauser role to unpause");
         _unpause();
+    }
+
+    function balanceOf(address owner) public view virtual override(ERC721, ERC721Enumerable) returns (uint256) {
+        return ERC721Enumerable.balanceOf(owner);
+    }
+
+    function ownerOf(uint256 tokenId) public view virtual override(ERC721, ERC721Enumerable) returns (address) {
+        return ERC721Enumerable.ownerOf(tokenId);
+    }
+
+    function _exists(uint256 tokenId) internal view virtual override(ERC721, ERC721Enumerable) returns (bool) {
+        return ERC721Enumerable._exists(tokenId);
+    }
+
+    function _mint(address to, uint256 tokenId) internal virtual override(ERC721, ERC721Enumerable) {
+        ERC721Enumerable._mint(to, tokenId);
+    }
+
+    function _burn(uint256 tokenId) internal virtual override(ERC721, ERC721Enumerable) {
+        ERC721Enumerable._burn(tokenId);
+    }
+
+    function _transfer(address from, address to, uint256 tokenId) internal virtual override(ERC721, ERC721Enumerable) {
+        ERC721Enumerable._transfer(from, to, tokenId);
     }
 
     function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal virtual override(ERC721, ERC721Metadata, ERC721Pausable) {

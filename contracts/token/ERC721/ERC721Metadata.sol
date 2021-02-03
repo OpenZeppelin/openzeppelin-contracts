@@ -3,6 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "./ERC721.sol";
+import "./IERC721Metadata.sol";
 import "../../utils/Strings.sol";
 
 contract ERC721Metadata is ERC721, IERC721Metadata {

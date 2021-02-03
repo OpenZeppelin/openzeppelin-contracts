@@ -4,8 +4,6 @@ pragma solidity ^0.8.0;
 
 import "../../utils/Context.sol";
 import "./IERC721.sol";
-import "./IERC721Metadata.sol";
-import "./IERC721Enumerable.sol";
 import "./IERC721Receiver.sol";
 import "../../introspection/ERC165.sol";
 import "../../utils/Address.sol";
@@ -16,16 +14,15 @@ import "../../utils/EnumerableMap.sol";
  * @title ERC721 Non-Fungible Token Standard enumerable implementation
  * @dev see https://eips.ethereum.org/EIPS/eip-721
  */
-contract ERC721 is Context, ERC165, IERC721, IERC721Enumerable {
+contract ERC721 is Context, ERC165, IERC721 {
     using Address for address;
-    using EnumerableSet for EnumerableSet.UintSet;
-    using EnumerableMap for EnumerableMap.UintToAddressMap;
 
-    // Mapping from holder address to their (enumerable) set of owned tokens
-    mapping (address => EnumerableSet.UintSet) private _holderTokens;
+    // Mapping from token ID to owner address
+    mapping (uint256 => address) private _owners;
 
-    // Enumerable mapping from token ids to their owners
-    EnumerableMap.UintToAddressMap private _tokenOwners;
+    // Mapping owner address to token count
+    mapping (address => uint256) private _balances;
+
 
     // Mapping from token ID to approved address
     mapping (uint256 => address) private _tokenApprovals;
@@ -39,7 +36,6 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Enumerable {
     constructor () {
         // register the supported interfaces to conform to ERC721 via ERC165
         _registerInterface(type(IERC721).interfaceId);
-        _registerInterface(type(IERC721Enumerable).interfaceId);
     }
 
     /**
@@ -47,44 +43,23 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Enumerable {
      */
     function balanceOf(address owner) public view virtual override returns (uint256) {
         require(owner != address(0), "ERC721: balance query for the zero address");
-        return _holderTokens[owner].length();
+        return _balances[owner];
     }
 
     /**
      * @dev See {IERC721-ownerOf}.
      */
     function ownerOf(uint256 tokenId) public view virtual override returns (address) {
-        return _tokenOwners.get(tokenId, "ERC721: owner query for nonexistent token");
-    }
-
-    /**
-     * @dev See {IERC721Enumerable-tokenOfOwnerByIndex}.
-     */
-    function tokenOfOwnerByIndex(address owner, uint256 index) public view virtual override returns (uint256) {
-        return _holderTokens[owner].at(index);
-    }
-
-    /**
-     * @dev See {IERC721Enumerable-totalSupply}.
-     */
-    function totalSupply() public view virtual override returns (uint256) {
-        // _tokenOwners are indexed by tokenIds, so .length() returns the number of tokenIds
-        return _tokenOwners.length();
-    }
-
-    /**
-     * @dev See {IERC721Enumerable-tokenByIndex}.
-     */
-    function tokenByIndex(uint256 index) public view virtual override returns (uint256) {
-        (uint256 tokenId, ) = _tokenOwners.at(index);
-        return tokenId;
+        address owner = _owners[tokenId];
+        require(owner != address(0), "ERC721: owner query for nonexistent token");
+        return owner;
     }
 
     /**
      * @dev See {IERC721-approve}.
      */
     function approve(address to, uint256 tokenId) public virtual override {
-        address owner = ERC721.ownerOf(tokenId);
+        address owner = ownerOf(tokenId);
         require(to != owner, "ERC721: approval to current owner");
 
         require(_msgSender() == owner || ERC721.isApprovedForAll(owner, _msgSender()),
@@ -177,7 +152,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Enumerable {
      * and stop existing when they are burned (`_burn`).
      */
     function _exists(uint256 tokenId) internal view virtual returns (bool) {
-        return _tokenOwners.contains(tokenId);
+        return _owners[tokenId] != address(0);
     }
 
     /**
@@ -189,7 +164,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Enumerable {
      */
     function _isApprovedOrOwner(address spender, uint256 tokenId) internal view virtual returns (bool) {
         require(_exists(tokenId), "ERC721: operator query for nonexistent token");
-        address owner = ERC721.ownerOf(tokenId);
+        address owner = ownerOf(tokenId);
         return (spender == owner || getApproved(tokenId) == spender || ERC721.isApprovedForAll(owner, spender));
     }
 
@@ -234,9 +209,8 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Enumerable {
 
         _beforeTokenTransfer(address(0), to, tokenId);
 
-        _holderTokens[to].add(tokenId);
-
-        _tokenOwners.set(tokenId, to);
+        _balances[to] += 1;
+        _owners[tokenId] = to;
 
         emit Transfer(address(0), to, tokenId);
     }
@@ -252,16 +226,15 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Enumerable {
      * Emits a {Transfer} event.
      */
     function _burn(uint256 tokenId) internal virtual {
-        address owner = ERC721.ownerOf(tokenId); // internal owner
+        address owner = ownerOf(tokenId); // internal owner
 
         _beforeTokenTransfer(owner, address(0), tokenId);
 
         // Clear approvals
         _approve(address(0), tokenId);
 
-        _holderTokens[owner].remove(tokenId);
-
-        _tokenOwners.remove(tokenId);
+        _balances[owner] -= 1;
+        delete _owners[tokenId];
 
         emit Transfer(owner, address(0), tokenId);
     }
@@ -278,7 +251,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Enumerable {
      * Emits a {Transfer} event.
      */
     function _transfer(address from, address to, uint256 tokenId) internal virtual {
-        require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer of token that is not own"); // internal owner
+        require(ownerOf(tokenId) == from, "ERC721: transfer of token that is not own"); // internal owner
         require(to != address(0), "ERC721: transfer to the zero address");
 
         _beforeTokenTransfer(from, to, tokenId);
@@ -286,12 +259,21 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Enumerable {
         // Clear approvals from the previous owner
         _approve(address(0), tokenId);
 
-        _holderTokens[from].remove(tokenId);
-        _holderTokens[to].add(tokenId);
-
-        _tokenOwners.set(tokenId, to);
+        _balances[from] -= 1;
+        _balances[to] += 1;
+        _owners[tokenId] = to;
 
         emit Transfer(from, to, tokenId);
+    }
+
+    /**
+     * @dev Approve `to` to operate on `tokenId`
+     *
+     * Emits a {Approval} event.
+     */
+    function _approve(address to, uint256 tokenId) internal virtual {
+        _tokenApprovals[tokenId] = to;
+        emit Approval(ownerOf(tokenId), to, tokenId); // internal owner
     }
 
     /**
@@ -323,11 +305,6 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Enumerable {
         } else {
             return true;
         }
-    }
-
-    function _approve(address to, uint256 tokenId) private {
-        _tokenApprovals[tokenId] = to;
-        emit Approval(ERC721.ownerOf(tokenId), to, tokenId); // internal owner
     }
 
     /**
