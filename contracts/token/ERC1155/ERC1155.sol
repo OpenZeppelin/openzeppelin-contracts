@@ -137,8 +137,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
         _beforeTokenTransfer(operator, from, to, _asSingletonArray(id), _asSingletonArray(amount), data);
 
-        require(_balances[id][from] >= amount, "ERC1155: insufficient balance for transfer");
-        _balances[id][from] -= amount;
+        uint256 balance_ = _balances[id][from];
+        require(balance_ >= amount, "ERC1155: insufficient balance for transfer");
+        _balances[id][from] = balance_ - amount;
         _balances[id][to] += amount;
 
         emit TransferSingle(operator, from, to, id, amount);
@@ -175,8 +176,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
             uint256 id = ids[i];
             uint256 amount = amounts[i];
 
-            require(_balances[id][from] >= amount, "ERC1155: insufficient balance for transfer");
-            _balances[id][from] -= amount;
+            uint256 balance_ = _balances[id][from];
+            require(balance_ >= amount, "ERC1155: insufficient balance for transfer");
+            _balances[id][from] = balance_ - amount;
             _balances[id][to] += amount;
         }
 
@@ -273,8 +275,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
         _beforeTokenTransfer(operator, account, address(0), _asSingletonArray(id), _asSingletonArray(amount), "");
 
-        require(_balances[id][account] >= amount, "ERC1155: burn amount exceeds balance");
-        _balances[id][account] -= amount;
+        uint256 balance_ = _balances[id][account];
+        require(balance_ >= amount, "ERC1155: burn amount exceeds balance");
+        _balances[id][account] = balance_ - amount;
 
         emit TransferSingle(operator, account, address(0), id, amount);
     }
@@ -298,8 +301,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
             uint256 id = ids[i];
             uint256 amount = amounts[i];
 
-            require(_balances[id][account] >= amount, "ERC1155: burn amount exceeds balance");
-            _balances[id][account] -= amount;
+            uint256 balance_ = _balances[id][account];
+            require(balance_ >= amount, "ERC1155: burn amount exceeds balance");
+            _balances[id][account] = balance_ - amount;
         }
 
         emit TransferBatch(operator, account, address(0), ids, amounts);
