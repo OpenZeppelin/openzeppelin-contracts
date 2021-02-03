@@ -8,12 +8,10 @@ import "./IERC721Metadata.sol";
 import "./IERC721Receiver.sol";
 import "../../introspection/ERC165.sol";
 import "../../utils/Address.sol";
-import "../../utils/EnumerableSet.sol";
-import "../../utils/EnumerableMap.sol";
 import "../../utils/Strings.sol";
 
 /**
- * @title ERC721 Non-Fungible Token Standard basic implementation
+ * @title ERC721 Non-Fungible Token Standard light implementation
  * @dev see https://eips.ethereum.org/EIPS/eip-721
  */
 contract ERC721Light is Context, ERC165, IERC721, IERC721Metadata {

@@ -8,7 +8,7 @@ const {
   shouldBehaveLikeERC721Metadata,
 } = require('./ERC721.behavior');
 
-const ERC721Mock = artifacts.require('ERC721Mock');
+const ERC721Mock = artifacts.require('ERC721MetadataMock');
 
 contract('ERC721', function (accounts) {
 
@@ -21,4 +21,5 @@ contract('ERC721', function (accounts) {
 
   shouldBehaveLikeERC721('ERC721', ...accounts);
   shouldBehaveLikeERC721Enumerable('ERC721', ...accounts);
+  shouldBehaveLikeERC721Metadata('ERC721', name, symbol, ...accounts);
 });
