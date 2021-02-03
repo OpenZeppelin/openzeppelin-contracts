@@ -62,7 +62,10 @@ jobs:
           restore-keys: npm-v2-
       - run: npm ci
         if: steps.cache.outputs.cache-hit != 'true'
-      - run: echo "::set-output name=ethgasrepport::$(npm run test)"
-        id: ethgasreport
+      - run: npm run test
         env:
           REPORT_GAS: 1
+      - uses: actions/upload-artifact@v2
+        with:
+          name: eth-gas-report
+          path: ETH_GAS_REPORT.txt
