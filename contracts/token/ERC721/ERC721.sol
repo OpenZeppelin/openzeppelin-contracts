@@ -226,7 +226,7 @@ contract ERC721 is Context, ERC165, IERC721 {
      * Emits a {Transfer} event.
      */
     function _burn(uint256 tokenId) internal virtual {
-        address owner = ownerOf(tokenId); // internal owner
+        address owner = ownerOf(tokenId);
 
         _beforeTokenTransfer(owner, address(0), tokenId);
 
@@ -251,7 +251,7 @@ contract ERC721 is Context, ERC165, IERC721 {
      * Emits a {Transfer} event.
      */
     function _transfer(address from, address to, uint256 tokenId) internal virtual {
-        require(ownerOf(tokenId) == from, "ERC721: transfer of token that is not own"); // internal owner
+        require(ownerOf(tokenId) == from, "ERC721: transfer of token that is not own");
         require(to != address(0), "ERC721: transfer to the zero address");
 
         _beforeTokenTransfer(from, to, tokenId);
@@ -273,7 +273,7 @@ contract ERC721 is Context, ERC165, IERC721 {
      */
     function _approve(address to, uint256 tokenId) internal virtual {
         _tokenApprovals[tokenId] = to;
-        emit Approval(ownerOf(tokenId), to, tokenId); // internal owner
+        emit Approval(ownerOf(tokenId), to, tokenId);
     }
 
     /**
