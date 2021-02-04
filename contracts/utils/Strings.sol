@@ -33,7 +33,7 @@ library Strings {
     }
 
     /**
-     * @dev Converts a `uint256` to its ASCII `hexadecimal string` representation.
+     * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation.
      */
     function toHexString(uint256 value) internal pure returns (string memory) {
         if (value == 0) {
