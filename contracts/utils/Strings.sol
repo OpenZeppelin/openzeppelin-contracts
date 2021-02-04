@@ -49,7 +49,7 @@ library Strings {
     }
 
     /**
-     * @dev Converts a `uint256` to its ASCII `hexadecimal string` representation with fixed length.
+     * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation with fixed length.
      */
     function toHexString(uint256 value, uint256 length) internal pure returns (string memory) {
         bytes memory buffer = new bytes(2 * length + 2);
