@@ -42,7 +42,7 @@ contract ERC20 is Context, IERC20 {
     /**
      * @dev Sets the values for {name} and {symbol}
      *
-     * The defaut value of {decimals} is 18, to select a different value for
+     * The defaut value of {decimals} is 18. To select a different value for
      * {decimals} you should overload it.
      *
      * All three of these values are immutable: they can only be set once during
