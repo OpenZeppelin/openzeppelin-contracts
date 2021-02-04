@@ -6,7 +6,7 @@ pragma solidity ^0.8.0;
  * @dev String operations.
  */
 library Strings {
-    bytes16 private constant alphabet = 0x30313233343536373839616263646566;
+    bytes16 private constant alphabet = "0123456789abcdef";
 
     /**
      * @dev Converts a `uint256` to its ASCII `string` representation.
