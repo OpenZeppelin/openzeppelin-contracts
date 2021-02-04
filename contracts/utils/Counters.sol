@@ -29,9 +29,9 @@ library Counters {
     }
 
     function decrement(Counter storage counter) internal {
+        uint256 value = counter._value;
+        require(value > 0, "Counter: decrement underflow");
         unchecked {
-            uint256 value = counter._value;
-            require(value > 0, "Counter: decrement underflow");
             counter._value = value - 1;
         }
     }
