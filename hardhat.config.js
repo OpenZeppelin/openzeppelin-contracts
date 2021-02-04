@@ -29,9 +29,6 @@ module.exports = {
     },
   },
   gasReporter: {
-    enabled: !!process.env.REPORT_GAS,
     currency: 'USD',
-    outputFile: path.join(__dirname, 'ETH_GAS_REPORT.txt'),
-    noColors: true,
   },
 };
