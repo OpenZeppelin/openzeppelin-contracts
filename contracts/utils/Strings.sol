@@ -9,7 +9,7 @@ library Strings {
     bytes16 private constant alphabet = "0123456789abcdef";
 
     /**
-     * @dev Converts a `uint256` to its ASCII `string` representation.
+     * @dev Converts a `uint256` to its ASCII `string` decimal representation.
      */
     function toString(uint256 value) internal pure returns (string memory) {
         // Inspired by OraclizeAPI's implementation - MIT licence
