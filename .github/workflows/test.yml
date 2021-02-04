@@ -26,6 +26,8 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
       - run: npm run lint
       - run: npm run test
+        env:
+          ENABLE_GAS_REPORT: 1
 
   coverage:
     runs-on: ubuntu-latest
