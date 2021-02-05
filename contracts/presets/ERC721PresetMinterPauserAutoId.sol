@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../access/AccessControl.sol";
+import "../access/AccessControlEnumerable.sol";
 import "../utils/Context.sol";
 import "../utils/Counters.sol";
 import "../token/ERC721/ERC721.sol";
@@ -24,7 +24,7 @@ import "../token/ERC721/ERC721Pausable.sol";
  * roles, as well as the default admin role, which will let it grant both minter
  * and pauser roles to other accounts.
  */
-contract ERC721PresetMinterPauserAutoId is Context, AccessControl, ERC721Burnable, ERC721Pausable {
+contract ERC721PresetMinterPauserAutoId is Context, AccessControlEnumerable, ERC721Burnable, ERC721Pausable {
     using Counters for Counters.Counter;
 
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");

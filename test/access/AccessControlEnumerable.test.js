@@ -2,9 +2,9 @@ const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const AccessControlMock = artifacts.require('AccessControlLightMock');
+const AccessControlMock = artifacts.require('AccessControlEnumerableMock');
 
-contract('AccessControl', function (accounts) {
+contract('AccessControlEnumerable', function (accounts) {
   const [ admin, authorized, otherAuthorized, other, otherAdmin ] = accounts;
 
   const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000';
@@ -118,6 +118,23 @@ contract('AccessControl', function (accounts) {
         const receipt = await this.accessControl.renounceRole(ROLE, authorized, { from: authorized });
         expectEvent.notEmitted(receipt, 'RoleRevoked');
       });
+    });
+  });
+
+  describe('enumerating', function () {
+    it('role bearers can be enumerated', async function () {
+      await this.accessControl.grantRole(ROLE, authorized, { from: admin });
+      await this.accessControl.grantRole(ROLE, otherAuthorized, { from: admin });
+
+      const memberCount = await this.accessControl.getRoleMemberCount(ROLE);
+      expect(memberCount).to.bignumber.equal('2');
+
+      const bearers = [];
+      for (let i = 0; i < memberCount; ++i) {
+        bearers.push(await this.accessControl.getRoleMember(ROLE, i));
+      }
+
+      expect(bearers).to.have.members([authorized, otherAuthorized]);
     });
   });
 

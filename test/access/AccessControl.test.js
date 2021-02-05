@@ -121,23 +121,6 @@ contract('AccessControl', function (accounts) {
     });
   });
 
-  describe('enumerating', function () {
-    it('role bearers can be enumerated', async function () {
-      await this.accessControl.grantRole(ROLE, authorized, { from: admin });
-      await this.accessControl.grantRole(ROLE, otherAuthorized, { from: admin });
-
-      const memberCount = await this.accessControl.getRoleMemberCount(ROLE);
-      expect(memberCount).to.bignumber.equal('2');
-
-      const bearers = [];
-      for (let i = 0; i < memberCount; ++i) {
-        bearers.push(await this.accessControl.getRoleMember(ROLE, i));
-      }
-
-      expect(bearers).to.have.members([authorized, otherAuthorized]);
-    });
-  });
-
   describe('setting role admin', function () {
     beforeEach(async function () {
       const receipt = await this.accessControl.setRoleAdmin(ROLE, OTHER_ROLE);
