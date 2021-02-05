@@ -5,7 +5,7 @@ const { expect } = require('chai');
 const AccessControlMock = artifacts.require('AccessControlMock');
 
 contract('AccessControl', function (accounts) {
-  const [ admin, authorized, otherAuthorized, other, otherAdmin ] = accounts;
+  const [ admin, authorized, other, otherAdmin ] = accounts;
 
   const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000';
   const ROLE = web3.utils.soliditySha3('ROLE');
