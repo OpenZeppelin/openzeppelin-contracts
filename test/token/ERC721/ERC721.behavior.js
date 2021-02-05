@@ -15,7 +15,6 @@ const nonExistentTokenId = new BN('13');
 
 const RECEIVER_MAGIC_VALUE = '0x150b7a02';
 
-
 function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, anotherApproved, operator, other) {
   shouldSupportInterfaces([
     'ERC165',
@@ -964,7 +963,6 @@ function shouldBehaveLikeERC721Metadata (errorPrefix, name, symbol, owner) {
     });
   });
 }
-
 
 module.exports = {
   shouldBehaveLikeERC721,
