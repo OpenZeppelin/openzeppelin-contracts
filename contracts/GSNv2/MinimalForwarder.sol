@@ -38,7 +38,7 @@ contract MinimalForwarder is EIP712 {
             req.value,
             req.gas,
             req.nonce,
-            req.data
+            keccak256(req.data)
         ))).recover(signature);
         return _nonces[req.from] == req.nonce && signer == req.from;
     }
