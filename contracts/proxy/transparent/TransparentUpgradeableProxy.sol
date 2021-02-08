@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "./UpgradeableProxy.sol";
+import "../UpgradeableProxy.sol";
 
 /**
  * @dev This contract implements a proxy that is upgradeable by an admin.

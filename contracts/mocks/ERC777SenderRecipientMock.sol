@@ -3,8 +3,8 @@
 pragma solidity ^0.8.0;
 
 import "../token/ERC777/IERC777.sol";
-import "../token/ERC777/utils/IERC777Sender.sol";
-import "../token/ERC777/utils/IERC777Recipient.sol";
+import "../token/ERC777/IERC777Sender.sol";
+import "../token/ERC777/IERC777Recipient.sol";
 import "../utils/Context.sol";
 import "../utils/introspection/IERC1820Registry.sol";
 import "../utils/introspection/ERC1820Implementer.sol";

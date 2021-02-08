@@ -3,13 +3,13 @@
 pragma solidity ^0.8.0;
 
 import "./IERC721.sol";
+import "./IERC721Receiver.sol";
 import "./extensions/IERC721Metadata.sol";
 import "./extensions/IERC721Enumerable.sol";
-import "./utils/IERC721Receiver.sol";
 import "../../utils/Address.sol";
 import "../../utils/Context.sol";
-import "../../utils/EnumerableSet.sol";
-import "../../utils/EnumerableMap.sol";
+import "../../utils/enumerable/EnumerableSet.sol";
+import "../../utils/enumerable/EnumerableMap.sol";
 import "../../utils/Strings.sol";
 import "../../utils/introspection/ERC165.sol";
 

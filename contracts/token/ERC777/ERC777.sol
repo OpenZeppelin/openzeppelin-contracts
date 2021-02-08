@@ -3,8 +3,8 @@
 pragma solidity ^0.8.0;
 
 import "./IERC777.sol";
-import "./utils/IERC777Sender.sol";
-import "./utils/IERC777Recipient.sol";
+import "./IERC777Recipient.sol";
+import "./IERC777Sender.sol";
 import "../ERC20/IERC20.sol";
 import "../../utils/Address.sol";
 import "../../utils/Context.sol";
