@@ -1,4 +1,4 @@
-const { constants } = require('@openzeppelin/test-helpers');
+const { constants, expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
@@ -45,8 +45,10 @@ contract('Strings', function (accounts) {
     });
 
     it('converts a positive number (short)', async function () {
-      expect(await this.strings.fromUint256HexFixed(0x4132, 1))
-        .to.equal('0x32');
+      await expectRevert(
+        this.strings.fromUint256HexFixed(0x4132, 1),
+        'Strings: hex length insufficient',
+      );
     });
 
     it('converts MAX_UINT256', async function () {
