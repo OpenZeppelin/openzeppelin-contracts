@@ -6,14 +6,11 @@ const VTableOwnershipModule = artifacts.require('VTableOwnershipModule');
 const VTableUpdateModule = artifacts.require('VTableUpdateModule');
 const EtherReceiverMock = artifacts.require('EtherReceiverMock');
 
-
-const extractSelectors = function (abi) {
-  return [
-    abi.find(({ type }) => type == "receive") && "0x00000000",
-    abi.find(({ type }) => type == "fallback") && "0xffffffff",
-    ...abi.filter(({ type }) => type == "function").map(({ signature }) => signature),
-  ].filter(Boolean);
-}
+const extractSelectors = (abi) => [
+  abi.find(({ type }) => type === 'receive') && '0x00000000',
+  abi.find(({ type }) => type === 'fallback') && '0xffffffff',
+  ...abi.filter(({ type }) => type === 'function').map(({ signature }) => signature),
+].filter(Boolean);
 
 contract('VTableProxy', function (accounts) {
   const [ admin, other ] = accounts;
@@ -28,20 +25,26 @@ contract('VTableProxy', function (accounts) {
   });
 
   it('missing implementation', async function () {
-    await expectRevert(this.proxy.send(), "VTableProxy: No implementation found");
+    await expectRevert(this.proxy.send(), 'VTableProxy: No implementation found');
   });
 
   describe('vtable update', function () {
     it('authorized', async function () {
-      selectors = extractSelectors(this.modules.ownership.abi);
-      const { receipt } = await this.proxy.updateVTable([[ this.modules.ownership.address, selectors ]], { from: admin });
+      const selectors = extractSelectors(this.modules.ownership.abi);
+      const { receipt } = await this.proxy.updateVTable(
+        [[ this.modules.ownership.address, selectors ]],
+        { from: admin },
+      );
       // events are not decoded :/
       expect(receipt.rawLogs.length).to.be.equal(selectors.length);
     });
 
     it('unauthorized', async function () {
-      selectors = extractSelectors(this.modules.ownership.abi);
-      await expectRevert(this.proxy.updateVTable([[ this.modules.ownership.address, selectors ]], { from: other }), "VTableOwnership: caller is not the owner");
+      const selectors = extractSelectors(this.modules.ownership.abi);
+      await expectRevert(
+        this.proxy.updateVTable([[ this.modules.ownership.address, selectors ]], { from: other }),
+        'VTableOwnership: caller is not the owner',
+      );
     });
 
     it('empty update', async function () {
@@ -51,7 +54,10 @@ contract('VTableProxy', function (accounts) {
 
     it('receive', async function () {
       const receiver = await EtherReceiverMock.new();
-      const { receipt } = await this.proxy.updateVTable([[ receiver.address, extractSelectors(receiver.abi) ]], { from: admin });
+      await this.proxy.updateVTable(
+        [[ receiver.address, extractSelectors(receiver.abi) ]],
+        { from: admin },
+      );
 
       // does not accept eth
       await expectRevert.unspecified(this.proxy.send());
@@ -63,7 +69,10 @@ contract('VTableProxy', function (accounts) {
 
     it('fallback', async function () {
       const receiver = await EtherReceiverMock.new();
-      const { receipt } = await this.proxy.updateVTable([[ receiver.address, [ '0xffffffff' ] ]], { from: admin });
+      await this.proxy.updateVTable(
+        [[ receiver.address, [ '0xffffffff' ] ]],
+        { from: admin },
+      );
 
       // does not accept eth
       await expectRevert.unspecified(this.proxy.send());
@@ -72,11 +81,14 @@ contract('VTableProxy', function (accounts) {
       // accept eth
       await this.proxy.send();
     });
-  })
+  });
 
   describe('with ownership module', function () {
     beforeEach(async function () {
-      await this.proxy.updateVTable([[ this.modules.ownership.address, extractSelectors(this.modules.ownership.abi) ]], { from: admin });
+      await this.proxy.updateVTable(
+        [[ this.modules.ownership.address, extractSelectors(this.modules.ownership.abi) ]],
+        { from: admin },
+      );
       this.instance = await VTableOwnershipModule.at(this.proxy.address);
     });
 
@@ -122,8 +134,5 @@ contract('VTableProxy', function (accounts) {
         );
       });
     });
-
   });
-
-
 });
