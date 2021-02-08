@@ -28,7 +28,7 @@ import "./EnumerableSet.sol";
  * As of v3.0.0, only maps of type `uint256 -> address` (`UintToAddressMap`) are
  * supported.
  */
-library NewEnumerableMap {
+library EnumerableMap2 {
     using EnumerableSet for EnumerableSet.Bytes32Set;
 
     // To implement this library for multiple types with as little code

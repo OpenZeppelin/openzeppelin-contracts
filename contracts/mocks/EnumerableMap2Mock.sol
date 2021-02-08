@@ -2,14 +2,14 @@
 
 pragma solidity ^0.8.0;
 
-import "../utils/NewEnumerableMap.sol";
+import "../utils/EnumerableMap2.sol";
 
-contract NewEnumerableMapMock {
-    using NewEnumerableMap for NewEnumerableMap.UintToAddressMap;
+contract EnumerableMap2Mock {
+    using EnumerableMap2 for EnumerableMap2.UintToAddressMap;
 
     event OperationResult(bool result);
 
-    NewEnumerableMap.UintToAddressMap private _map;
+    EnumerableMap2.UintToAddressMap private _map;
 
     function contains(uint256 key) public view returns (bool) {
         return _map.contains(key);

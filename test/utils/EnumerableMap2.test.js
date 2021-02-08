@@ -3,7 +3,7 @@ const { expect } = require('chai');
 
 const zip = require('lodash.zip');
 
-const EnumerableMapMock = artifacts.require('NewEnumerableMapMock');
+const EnumerableMapMock = artifacts.require('EnumerableMap2Mock');
 
 contract('EnumerableMap', function (accounts) {
   const [ accountA, accountB, accountC ] = accounts;
