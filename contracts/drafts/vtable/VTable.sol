@@ -7,7 +7,8 @@ pragma solidity ^0.8.0;
 * @dev TODO
 */
 library VTable {
-    bytes32 private constant _VTABLE_SLOT = bytes32(uint256(keccak256("openzeppelin.vtable.location")) - 1);
+    // bytes32 private constant _VTABLE_SLOT = bytes32(uint256(keccak256("openzeppelin.vtable.location")) - 1);
+    bytes32 private constant _VTABLE_SLOT = 0x13f1d5ea37b1d7aca82fcc2879c3bddc731555698dfc87ad6057b416547bc657;
 
     event VTableUpdate(bytes4 indexed selector, address oldImplementation, address newImplementation);
 
