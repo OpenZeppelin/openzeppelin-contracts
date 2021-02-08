@@ -36,7 +36,7 @@ contract('VTableProxy', function (accounts) {
         [[ this.modules.ownership.address, selectors ]],
         { from: admin },
       );
-      for (selector of selectors) {
+      for (const selector of selectors) {
         await expectEvent.inTransaction(tx, VTable, 'VTableUpdate', {
           selector: web3.utils.padRight(selector, 64),
           oldImplementation: constants.ZERO_ADDRESS,
