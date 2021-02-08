@@ -31,5 +31,6 @@ module.exports = {
   gasReporter: {
     enable: !!process.env.ENABLE_GAS_REPORT,
     currency: 'USD',
+    outputFile: process.env.CI ? 'gas-report.txt' : undefined,
   },
 };
