@@ -44,7 +44,7 @@ contract MinimalForwarder is EIP712 {
     }
 
     function execute(ForwardRequest calldata req, bytes calldata signature) public payable returns (bool, bytes memory) {
-        require(verify(req, signature));
+        require(verify(req, signature), "MinimalForwarder: signature does not match request");
         _nonces[req.from] = req.nonce + 1;
 
         // solhint-disable-next-line avoid-low-level-calls

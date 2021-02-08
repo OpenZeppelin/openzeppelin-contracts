@@ -20,10 +20,10 @@ abstract contract BaseRelayRecipient is Context {
 
     function _msgSender() internal view virtual override returns (address sender) {
         if (isTrustedForwarder(msg.sender)) {
-            // return abi.decode(abi.encodePacked(bytes12(0), msg.data[msg.data.length-20:]), (address));
+            // The assembly code is more direct than the Solidity version using `abi.decode`.
             assembly { sender := shr(96, calldataload(sub(calldatasize(), 20))) }
         } else {
-            return Context._msgSender();
+            return super._msgSender();
         }
     }
 
@@ -31,7 +31,7 @@ abstract contract BaseRelayRecipient is Context {
         if (isTrustedForwarder(msg.sender)) {
             return msg.data[:msg.data.length-20];
         } else {
-            return Context._msgData();
+            return super._msgData();
         }
     }
 }
