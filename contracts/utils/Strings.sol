@@ -60,6 +60,7 @@ library Strings {
             buffer[i] = alphabet[value & 0xf];
             value >>= 4;
         }
+        require(value == 0, "Strings: hex length insufficient");
         return string(buffer);
     }
 
