@@ -1,6 +1,7 @@
 const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
+const VTable = artifacts.require('VTable');
 const VTableProxy = artifacts.require('VTableProxy');
 const VTableOwnershipModule = artifacts.require('VTableOwnershipModule');
 const VTableUpdateModule = artifacts.require('VTableUpdateModule');
@@ -31,12 +32,17 @@ contract('VTableProxy', function (accounts) {
   describe('vtable update', function () {
     it('authorized', async function () {
       const selectors = extractSelectors(this.modules.ownership.abi);
-      const { receipt } = await this.proxy.updateVTable(
+      const { tx } = await this.proxy.updateVTable(
         [[ this.modules.ownership.address, selectors ]],
         { from: admin },
       );
-      // events are not decoded :/
-      expect(receipt.rawLogs.length).to.be.equal(selectors.length);
+      for (selector of selectors) {
+        await expectEvent.inTransaction(tx, VTable, 'VTableUpdate', {
+          selector: web3.utils.padRight(selector, 64),
+          oldImplementation: constants.ZERO_ADDRESS,
+          newImplementation: this.modules.ownership.address,
+        });
+      }
     });
 
     it('unauthorized', async function () {
