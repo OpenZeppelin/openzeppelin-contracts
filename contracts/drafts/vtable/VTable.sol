@@ -17,8 +17,7 @@ library VTable {
         mapping (bytes4 => address) delegates;
     }
 
-    function instance() internal pure returns (VTableStore storage vtable)
-    {
+    function instance() internal pure returns (VTableStore storage vtable) {
         bytes32 position = _VTABLE_SLOT;
         assembly {
             vtable.slot := position
