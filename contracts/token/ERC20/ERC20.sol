@@ -147,8 +147,9 @@ contract ERC20 is Context, IERC20 {
     function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
         _transfer(sender, recipient, amount);
 
-        require(_allowances[sender][_msgSender()] >= amount, "ERC20: transfer amount exceeds allowance");
-        _approve(sender, _msgSender(), _allowances[sender][_msgSender()] - amount);
+        uint256 currentAllowance = _allowances[sender][_msgSender()];
+        require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
+        _approve(sender, _msgSender(), currentAllowance - amount);
 
         return true;
     }
@@ -185,8 +186,9 @@ contract ERC20 is Context, IERC20 {
      * `subtractedValue`.
      */
     function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
-        require(_allowances[_msgSender()][spender] >= subtractedValue, "ERC20: decreased allowance below zero");
-        _approve(_msgSender(), spender, _allowances[_msgSender()][spender] - subtractedValue);
+        uint256 currentAllowance = _allowances[_msgSender()][spender];
+        require(currentAllowance >= subtractedValue, "ERC20: decreased allowance below zero");
+        _approve(_msgSender(), spender, currentAllowance - subtractedValue);
 
         return true;
     }
@@ -211,8 +213,9 @@ contract ERC20 is Context, IERC20 {
 
         _beforeTokenTransfer(sender, recipient, amount);
 
-        require(_balances[sender] >= amount, "ERC20: transfer amount exceeds balance");
-        _balances[sender] -= amount;
+        uint256 senderBalance = _balances[sender];
+        require(senderBalance >= amount, "ERC20: transfer amount exceeds balance");
+        _balances[sender] = senderBalance - amount;
         _balances[recipient] += amount;
 
         emit Transfer(sender, recipient, amount);
@@ -253,8 +256,9 @@ contract ERC20 is Context, IERC20 {
 
         _beforeTokenTransfer(account, address(0), amount);
 
-        require(_balances[account] >= amount, "ERC20: burn amount exceeds balance");
-        _balances[account] -= amount;
+        uint256 accountBalance = _balances[account];
+        require(accountBalance >= amount, "ERC20: burn amount exceeds balance");
+        _balances[account] = accountBalance - amount;
         _totalSupply -= amount;
 
         emit Transfer(account, address(0), amount);
