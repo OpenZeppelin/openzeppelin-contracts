@@ -83,4 +83,13 @@ library ECDSA {
         // enforced by the type signature above
         return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
     }
+
+    /**
+     * @dev TODO.
+     *
+     * See {recover}.
+     */
+    function toTypedDataHash(bytes32 domainSeparator, bytes32 structHash) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked("\x19\x01", domainSeparator, structHash));
+    }
 }

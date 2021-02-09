@@ -11,14 +11,48 @@ const ContextMockCaller = artifacts.require('ContextMockCaller');
 
 const { shouldBehaveLikeRegularContext } = require('../GSN/Context.behavior');
 
+
+const name = 'GSNv2 Forwarder';
+const version = '0.0.1';
+
 contract('GSNRecipient', function (accounts) {
   beforeEach(async function () {
-    this.forwarder = await MinimalForwarder.new();
+    this.forwarder = await MinimalForwarder.new(name, version);
     this.recipient = await BaseRelayRecipientMock.new(this.forwarder.address);
+
+    this.domain = {
+      name,
+      version,
+      chainId: await web3.eth.getChainId(),
+      verifyingContract: this.forwarder.address,
+    };
+    this.types = {
+      EIP712Domain,
+      ForwardRequest: [
+        { name: 'from', type: 'address' },
+        { name: 'to', type: 'address' },
+        { name: 'value', type: 'uint256' },
+        { name: 'gas', type: 'uint256' },
+        { name: 'nonce', type: 'uint256' },
+        { name: 'data', type: 'bytes' },
+      ],
+    };
+    this.domainSeparator = ethSigUtil.TypedDataUtils.hashStruct('EIP712Domain', this.domain, this.types);
+    this.requestTypeHash = ethSigUtil.TypedDataUtils.hashType('ForwardRequest', this.types);
   });
 
   it('recognize trusted forwarder', async function () {
     expect(await this.recipient.isTrustedForwarder(this.forwarder.address));
+  });
+
+  context('configuration', function () {
+    it('domainSeparator whitelisted', async function () {
+      expect(await this.forwarder._domains(this.domainSeparator)).to.be.true;
+    });
+
+    it('typeHash whitelisted', async function () {
+      expect(await this.forwarder._typeHashes(this.requestTypeHash)).to.be.true;
+    });
   });
 
   context('when called directly', function () {
@@ -35,23 +69,8 @@ contract('GSNRecipient', function (accounts) {
       this.wallet = Wallet.generate();
       this.sender = web3.utils.toChecksumAddress(this.wallet.getAddressString());
       this.data = {
-        types: {
-          EIP712Domain,
-          ForwardRequest: [
-            { name: 'from', type: 'address' },
-            { name: 'to', type: 'address' },
-            { name: 'value', type: 'uint256' },
-            { name: 'gas', type: 'uint256' },
-            { name: 'nonce', type: 'uint256' },
-            { name: 'data', type: 'bytes' },
-          ],
-        },
-        domain: {
-          name: 'GSNv2 Forwarder',
-          version: '0.0.1',
-          chainId: await web3.eth.getChainId(),
-          verifyingContract: this.forwarder.address,
-        },
+        types: this.types,
+        domain: this.domain,
         primaryType: 'ForwardRequest',
       };
     });
@@ -74,7 +93,13 @@ contract('GSNRecipient', function (accounts) {
         // rejected by lint :/
         // expect(await this.forwarder.verify(req, sign)).to.be.true;
 
-        const { tx } = await this.forwarder.execute(req, sign);
+        const { tx } = await this.forwarder.execute(
+          req,
+          this.domainSeparator,
+          this.requestTypeHash,
+          "0x",
+          sign,
+        );
         await expectEvent.inTransaction(tx, BaseRelayRecipientMock, 'Sender', { sender: this.sender });
       });
     });
@@ -99,7 +124,13 @@ contract('GSNRecipient', function (accounts) {
         // rejected by lint :/
         // expect(await this.forwarder.verify(req, sign)).to.be.true;
 
-        const { tx } = await this.forwarder.execute(req, sign);
+        const { tx } = await this.forwarder.execute(
+          req,
+          this.domainSeparator,
+          this.requestTypeHash,
+          "0x",
+          sign,
+        );
         await expectEvent.inTransaction(tx, BaseRelayRecipientMock, 'Data', { data, integerValue, stringValue });
       });
     });
