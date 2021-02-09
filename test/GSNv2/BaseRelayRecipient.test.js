@@ -11,7 +11,6 @@ const ContextMockCaller = artifacts.require('ContextMockCaller');
 
 const { shouldBehaveLikeRegularContext } = require('../GSN/Context.behavior');
 
-
 const name = 'GSNv2 Forwarder';
 const version = '0.0.1';
 
@@ -47,11 +46,11 @@ contract('GSNRecipient', function (accounts) {
 
   context('configuration', function () {
     it('domainSeparator whitelisted', async function () {
-      expect(await this.forwarder._domains(this.domainSeparator)).to.be.true;
+      expect(await this.forwarder._domains(this.domainSeparator)).to.be.equal(true);
     });
 
     it('typeHash whitelisted', async function () {
-      expect(await this.forwarder._typeHashes(this.requestTypeHash)).to.be.true;
+      expect(await this.forwarder._typeHashes(this.requestTypeHash)).to.be.equal(true);
     });
   });
 
@@ -90,14 +89,20 @@ contract('GSNRecipient', function (accounts) {
 
         const sign = ethSigUtil.signTypedMessage(this.wallet.getPrivateKey(), { data: { ...this.data, message: req } });
 
-        // rejected by lint :/
-        // expect(await this.forwarder.verify(req, sign)).to.be.true;
+        // expect not throw
+        await this.forwarder.verify(
+          req,
+          this.domainSeparator,
+          this.requestTypeHash,
+          '0x',
+          sign,
+        );
 
         const { tx } = await this.forwarder.execute(
           req,
           this.domainSeparator,
           this.requestTypeHash,
-          "0x",
+          '0x',
           sign,
         );
         await expectEvent.inTransaction(tx, BaseRelayRecipientMock, 'Sender', { sender: this.sender });
@@ -121,14 +126,20 @@ contract('GSNRecipient', function (accounts) {
 
         const sign = ethSigUtil.signTypedMessage(this.wallet.getPrivateKey(), { data: { ...this.data, message: req } });
 
-        // rejected by lint :/
-        // expect(await this.forwarder.verify(req, sign)).to.be.true;
+        // expect not throw
+        await this.forwarder.verify(
+          req,
+          this.domainSeparator,
+          this.requestTypeHash,
+          '0x',
+          sign,
+        );
 
         const { tx } = await this.forwarder.execute(
           req,
           this.domainSeparator,
           this.requestTypeHash,
-          "0x",
+          '0x',
           sign,
         );
         await expectEvent.inTransaction(tx, BaseRelayRecipientMock, 'Data', { data, integerValue, stringValue });

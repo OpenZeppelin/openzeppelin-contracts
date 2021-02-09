@@ -22,7 +22,6 @@ contract MinimalForwarder is IForwarder {
     event RequestTypeRegistered(bytes32 indexed typeHash, string typeStr);
     event DomainRegistered(bytes32 indexed domainSeparator, bytes domainValue);
 
-
     constructor(string memory name, string memory version) {
         registerDomainSeparator(name, version);
         registerRequestType("ForwardRequest", "", "");
