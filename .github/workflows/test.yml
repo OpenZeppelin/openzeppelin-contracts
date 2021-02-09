@@ -29,7 +29,8 @@ jobs:
         env:
           FORCE_COLOR: 1
           ENABLE_GAS_REPORT: 1
-      - run: cat gas-report.txt
+      - name: Print gas report
+        run: cat gas-report.txt
 
   coverage:
     runs-on: ubuntu-latest
