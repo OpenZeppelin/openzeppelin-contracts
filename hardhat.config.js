@@ -10,6 +10,8 @@ for (const f of fs.readdirSync(path.join(__dirname, 'hardhat'))) {
   require(path.join(__dirname, 'hardhat', f));
 }
 
+const enableGasReport = !!process.env.ENABLE_GAS_REPORT;
+
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
@@ -18,7 +20,7 @@ module.exports = {
     version: '0.8.0',
     settings: {
       optimizer: {
-        enabled: !!process.env.REPORT_GAS,
+        enabled: enableGasReport,
         runs: 200,
       },
     },
@@ -29,7 +31,8 @@ module.exports = {
     },
   },
   gasReporter: {
-    enable: !!process.env.ENABLE_GAS_REPORT,
+    enable: enableGasReport,
     currency: 'USD',
+    outputFile: process.env.CI ? 'gas-report.txt' : undefined,
   },
 };
