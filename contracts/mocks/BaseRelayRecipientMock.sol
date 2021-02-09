@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "./ContextMock.sol";
-import "../GSNv2/BaseRelayRecipient.sol";
+import "../metatx/BaseRelayRecipient.sol";
 
 // By inheriting from BaseRelayRecipient, Context's internal functions are overridden automatically
 contract BaseRelayRecipientMock is ContextMock, BaseRelayRecipient {

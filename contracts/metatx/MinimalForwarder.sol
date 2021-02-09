@@ -19,8 +19,9 @@ contract MinimalForwarder is IForwarder {
     mapping(bytes32 => bool) public _typeHashes;
     mapping(bytes32 => bool) public _domains;
 
-    event NewTypeHash(bytes32 typeHash);
-    event NewDomainSeparator(bytes32 domainSeparator);
+    event RequestTypeRegistered(bytes32 indexed typeHash, string typeStr);
+    event DomainRegistered(bytes32 indexed domainSeparator, bytes domainValue);
+
 
     constructor(string memory name, string memory version) {
         registerDomainSeparator(name, version);
@@ -93,15 +94,16 @@ contract MinimalForwarder is IForwarder {
     )
     public
     {
-        bytes32 domainSeparator = keccak256(abi.encode(
+        bytes memory domainValue = abi.encode(
             _EIP721DOMAIN_TYPEHASH,
             keccak256(bytes(name)),
             keccak256(bytes(version)),
             block.chainid,
             address(this)
-        ));
+        );
+        bytes32 domainSeparator = keccak256(domainValue);
         _domains[domainSeparator] = true;
-        emit NewDomainSeparator(domainSeparator);
+        emit DomainRegistered(domainSeparator, domainValue);
     }
 
     function registerRequestType(
@@ -111,14 +113,15 @@ contract MinimalForwarder is IForwarder {
     )
     public
     {
-        bytes32 typeHash = keccak256(abi.encodePacked(
+        bytes memory requestType = abi.encodePacked(
             typeName,
             "(address from,address to,uint256 value,uint256 gas,uint256 nonce,bytes data",
             extraFields,
             ")",
             extraTypes
-        ));
-        _typeHashes[typeHash] = true;
-        emit NewTypeHash(typeHash);
+        );
+        bytes32 requestTypehash = keccak256(requestType);
+        _typeHashes[requestTypehash] = true;
+        emit RequestTypeRegistered(requestTypehash, string(requestType));
     }
 }
