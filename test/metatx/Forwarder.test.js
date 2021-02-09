@@ -6,7 +6,7 @@ const { expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const BaseRelayRecipientMock = artifacts.require('BaseRelayRecipientMock');
-const MinimalForwarder = artifacts.require('MinimalForwarder');
+const MinimalForwarder = artifacts.require('Forwarder');
 const ContextMockCaller = artifacts.require('ContextMockCaller');
 
 const { shouldBehaveLikeRegularContext } = require('../GSN/Context.behavior');

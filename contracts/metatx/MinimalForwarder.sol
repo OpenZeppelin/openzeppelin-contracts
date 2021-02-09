@@ -2,82 +2,50 @@
 
 pragma solidity ^0.8.0;
 
-import "./IForwarder.sol";
 import "../cryptography/ECDSA.sol";
-import "../utils/Counters.sol";
+import "../drafts/EIP712.sol";
 
 /*
  * @dev Minimal forwarder for GSNv2
  */
-contract MinimalForwarder is IForwarder {
+contract MinimalForwarder is EIP712 {
     using ECDSA for bytes32;
-    using Counters for Counters.Counter;
 
-    bytes32 private constant _EIP721DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
-
-    mapping(address => Counters.Counter) private _nonces;
-    mapping(bytes32 => bool) public _typeHashes;
-    mapping(bytes32 => bool) public _domains;
-
-    event RequestTypeRegistered(bytes32 indexed typeHash, string typeStr);
-    event DomainRegistered(bytes32 indexed domainSeparator, bytes domainValue);
-
-    constructor(string memory name, string memory version) {
-        registerDomainSeparator(name, version);
-        registerRequestType("ForwardRequest", "", "");
+    struct ForwardRequest {
+        address from;
+        address to;
+        uint256 value;
+        uint256 gas;
+        uint256 nonce;
+        bytes data;
     }
 
-    function getNonce(address from) public view override returns (uint256) {
-        return _nonces[from].current();
+    bytes32 private constant TYPEHASH = keccak256("ForwardRequest(address from,address to,uint256 value,uint256 gas,uint256 nonce,bytes data)");
+
+    mapping(address => uint256) private _nonces;
+
+    constructor() EIP712("GSNv2 Forwarder", "0.0.1") {}
+
+    function getNonce(address from) public view returns (uint256) {
+        return _nonces[from];
     }
 
-    function verify(
-        ForwardRequest calldata req,
-        bytes32 domainSeparator,
-        bytes32 requestTypeHash,
-        bytes calldata suffixData,
-        bytes calldata signature
-    )
-    public view override
-    {
-        require(_domains[domainSeparator], "Forwarder: invalid domainSeparator");
-        require(_typeHashes[requestTypeHash], "Forwarder: invalid requestTypeHash");
-        bytes32 structhash = ECDSA.toTypedDataHash(
-            domainSeparator,
-            keccak256(abi.encodePacked(
-                requestTypeHash,
-                abi.encode(
-                    req.from,
-                    req.to,
-                    req.value,
-                    req.gas,
-                    req.nonce,
-                    keccak256(req.data)
-                ),
-                suffixData
-            ))
-        );
-        require(_nonces[req.from].current() == req.nonce, "Forwarder: invalid nonce");
-        require(structhash.recover(signature) == req.from, "Forwarder: invalid signature");
+    function verify(ForwardRequest calldata req, bytes calldata signature) public view returns (bool) {
+        address signer = _hashTypedDataV4(keccak256(abi.encode(
+            TYPEHASH,
+            req.from,
+            req.to,
+            req.value,
+            req.gas,
+            req.nonce,
+            keccak256(req.data)
+        ))).recover(signature);
+        return _nonces[req.from] == req.nonce && signer == req.from;
     }
 
-    function execute(
-        ForwardRequest calldata req,
-        bytes32 domainSeparator,
-        bytes32 requestTypeHash,
-        bytes calldata suffixData,
-        bytes calldata signature
-    )
-    public payable override returns (bool, bytes memory)
-    {
-        verify(
-            req,
-            domainSeparator,
-            requestTypeHash,
-            suffixData,
-            signature
-        );
-        _nonces[req.from].increment();
+    function execute(ForwardRequest calldata req, bytes calldata signature) public payable returns (bool, bytes memory) {
+        require(verify(req, signature), "MinimalForwarder: signature does not match request");
+        _nonces[req.from] = req.nonce + 1;
 
         // solhint-disable-next-line avoid-low-level-calls
         (bool success, bytes memory returndata) = req.to.call{gas: req.gas, value: req.value}(abi.encodePacked(req.data, req.from));
@@ -85,42 +53,5 @@ contract MinimalForwarder is IForwarder {
         assert(gasleft() > req.gas / 63);
 
         return (success, returndata);
-    }
-
-    function registerDomainSeparator(
-        string memory name,
-        string memory version
-    )
-    public
-    {
-        bytes memory domainValue = abi.encode(
-            _EIP721DOMAIN_TYPEHASH,
-            keccak256(bytes(name)),
-            keccak256(bytes(version)),
-            block.chainid,
-            address(this)
-        );
-        bytes32 domainSeparator = keccak256(domainValue);
-        _domains[domainSeparator] = true;
-        emit DomainRegistered(domainSeparator, domainValue);
-    }
-
-    function registerRequestType(
-        string memory typeName,
-        string memory extraFields,
-        string memory extraTypes
-    )
-    public
-    {
-        bytes memory requestType = abi.encodePacked(
-            typeName,
-            "(address from,address to,uint256 value,uint256 gas,uint256 nonce,bytes data",
-            extraFields,
-            ")",
-            extraTypes
-        );
-        bytes32 requestTypehash = keccak256(requestType);
-        _typeHashes[requestTypehash] = true;
-        emit RequestTypeRegistered(requestTypehash, string(requestType));
     }
 }
