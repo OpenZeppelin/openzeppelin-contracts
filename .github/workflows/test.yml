@@ -26,11 +26,18 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
       - run: npm run lint
       - run: npm run test
+        env:
+          FORCE_COLOR: 1
+          ENABLE_GAS_REPORT: 1
+      - name: Print gas report
+        run: cat gas-report.txt
 
   coverage:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
       - uses: actions/setup-node@v2
         with:
           node-version: 10.x
