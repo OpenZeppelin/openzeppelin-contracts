@@ -11,10 +11,31 @@ const ContextMockCaller = artifacts.require('ContextMockCaller');
 
 const { shouldBehaveLikeRegularContext } = require('../GSN/Context.behavior');
 
+const name = 'MinimalForwarder';
+const version = '0.0.1';
+
 contract('GSNRecipient', function (accounts) {
   beforeEach(async function () {
     this.forwarder = await MinimalForwarder.new();
     this.recipient = await BaseRelayRecipientMock.new(this.forwarder.address);
+
+    this.domain = {
+      name,
+      version,
+      chainId: await web3.eth.getChainId(),
+      verifyingContract: this.forwarder.address,
+    };
+    this.types = {
+      EIP712Domain,
+      ForwardRequest: [
+        { name: 'from', type: 'address' },
+        { name: 'to', type: 'address' },
+        { name: 'value', type: 'uint256' },
+        { name: 'gas', type: 'uint256' },
+        { name: 'nonce', type: 'uint256' },
+        { name: 'data', type: 'bytes' },
+      ],
+    };
   });
 
   it('recognize trusted forwarder', async function () {
@@ -35,23 +56,8 @@ contract('GSNRecipient', function (accounts) {
       this.wallet = Wallet.generate();
       this.sender = web3.utils.toChecksumAddress(this.wallet.getAddressString());
       this.data = {
-        types: {
-          EIP712Domain,
-          ForwardRequest: [
-            { name: 'from', type: 'address' },
-            { name: 'to', type: 'address' },
-            { name: 'value', type: 'uint256' },
-            { name: 'gas', type: 'uint256' },
-            { name: 'nonce', type: 'uint256' },
-            { name: 'data', type: 'bytes' },
-          ],
-        },
-        domain: {
-          name: 'GSNv2 Forwarder',
-          version: '0.0.1',
-          chainId: await web3.eth.getChainId(),
-          verifyingContract: this.forwarder.address,
-        },
+        types: this.types,
+        domain: this.domain,
         primaryType: 'ForwardRequest',
       };
     });
