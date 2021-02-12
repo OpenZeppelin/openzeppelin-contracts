@@ -38,13 +38,12 @@ contract ERC20 is Context, IERC20 {
 
     string private _name;
     string private _symbol;
-    uint8 private _decimals;
 
     /**
-     * @dev Sets the values for {name} and {symbol}, initializes {decimals} with
-     * a default value of 18.
+     * @dev Sets the values for {name} and {symbol}.
      *
-     * To select a different value for {decimals}, use {_setupDecimals}.
+     * The defaut value of {decimals} is 18. To select a different value for
+     * {decimals} you should overload it.
      *
      * All three of these values are immutable: they can only be set once during
      * construction.
@@ -52,7 +51,6 @@ contract ERC20 is Context, IERC20 {
     constructor (string memory name_, string memory symbol_) {
         _name = name_;
         _symbol = symbol_;
-        _decimals = 18;
     }
 
     /**
@@ -76,15 +74,15 @@ contract ERC20 is Context, IERC20 {
      * be displayed to a user as `5,05` (`505 / 10 ** 2`).
      *
      * Tokens usually opt for a value of 18, imitating the relationship between
-     * Ether and Wei. This is the value {ERC20} uses, unless {_setupDecimals} is
-     * called.
+     * Ether and Wei. This is the value {ERC20} uses, unless this function is
+     * overloaded;
      *
      * NOTE: This information is only used for _display_ purposes: it in
      * no way affects any of the arithmetic of the contract, including
      * {IERC20-balanceOf} and {IERC20-transfer}.
      */
     function decimals() public view virtual returns (uint8) {
-        return _decimals;
+        return 18;
     }
 
     /**
@@ -149,9 +147,9 @@ contract ERC20 is Context, IERC20 {
     function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
         _transfer(sender, recipient, amount);
 
-        uint256 allowance_ = _allowances[sender][_msgSender()];
-        require(allowance_ >= amount, "ERC20: transfer amount exceeds allowance");
-        _approve(sender, _msgSender(), allowance_ - amount);
+        uint256 currentAllowance = _allowances[sender][_msgSender()];
+        require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
+        _approve(sender, _msgSender(), currentAllowance - amount);
 
         return true;
     }
@@ -188,9 +186,9 @@ contract ERC20 is Context, IERC20 {
      * `subtractedValue`.
      */
     function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
-        uint256 allowanceSpender = _allowances[_msgSender()][spender];
-        require(allowanceSpender >= subtractedValue, "ERC20: decreased allowance below zero");
-        _approve(_msgSender(), spender, allowanceSpender - subtractedValue);
+        uint256 currentAllowance = _allowances[_msgSender()][spender];
+        require(currentAllowance >= subtractedValue, "ERC20: decreased allowance below zero");
+        _approve(_msgSender(), spender, currentAllowance - subtractedValue);
 
         return true;
     }
@@ -215,9 +213,9 @@ contract ERC20 is Context, IERC20 {
 
         _beforeTokenTransfer(sender, recipient, amount);
 
-        uint256 balance_ = _balances[sender];
-        require(balance_ >= amount, "ERC20: transfer amount exceeds balance");
-        _balances[sender] = balance_ - amount;
+        uint256 senderBalance = _balances[sender];
+        require(senderBalance >= amount, "ERC20: transfer amount exceeds balance");
+        _balances[sender] = senderBalance - amount;
         _balances[recipient] += amount;
 
         emit Transfer(sender, recipient, amount);
@@ -258,9 +256,9 @@ contract ERC20 is Context, IERC20 {
 
         _beforeTokenTransfer(account, address(0), amount);
 
-        uint256 balance_ = _balances[account];
-        require(balance_ >= amount, "ERC20: burn amount exceeds balance");
-        _balances[account] = balance_ - amount;
+        uint256 accountBalance = _balances[account];
+        require(accountBalance >= amount, "ERC20: burn amount exceeds balance");
+        _balances[account] = accountBalance - amount;
         _totalSupply -= amount;
 
         emit Transfer(account, address(0), amount);
@@ -285,17 +283,6 @@ contract ERC20 is Context, IERC20 {
 
         _allowances[owner][spender] = amount;
         emit Approval(owner, spender, amount);
-    }
-
-    /**
-     * @dev Sets {decimals} to a value other than the default one of 18.
-     *
-     * WARNING: This function should only be called from the constructor. Most
-     * applications that interact with token contracts will not expect
-     * {decimals} to ever change, and may work incorrectly if it does.
-     */
-    function _setupDecimals(uint8 decimals_) internal virtual {
-        _decimals = decimals_;
     }
 
     /**
