@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "./SafeERC20.sol";
+import "../token/ERC20/utils/SafeERC20.sol";
 
 /**
  * @dev A token holder contract that will allow a beneficiary to extract the
@@ -15,13 +15,13 @@ contract TokenTimelock {
     using SafeERC20 for IERC20;
 
     // ERC20 basic token contract being held
-    IERC20 private _token;
+    IERC20 private immutable _token;
 
     // beneficiary of tokens after they are released
-    address private _beneficiary;
+    address private immutable _beneficiary;
 
     // timestamp when token release is enabled
-    uint256 private _releaseTime;
+    uint256 private immutable _releaseTime;
 
     constructor (IERC20 token_, address beneficiary_, uint256 releaseTime_) {
         // solhint-disable-next-line not-rely-on-time
