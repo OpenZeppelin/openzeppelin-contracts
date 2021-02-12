@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.8.0;
 
-import "../../math/SafeMath.sol";
 import "../../access/Ownable.sol";
 import "../../utils/Address.sol";
 
@@ -20,7 +19,6 @@ import "../../utils/Address.sol";
   * to the escrow's deposit and withdraw.
   */
 contract Escrow is Ownable {
-    using SafeMath for uint256;
     using Address for address payable;
 
     event Deposited(address indexed payee, uint256 weiAmount);
@@ -36,9 +34,9 @@ contract Escrow is Ownable {
      * @dev Stores the sent amount as credit to be withdrawn.
      * @param payee The destination address of the funds.
      */
-    function deposit(address payee) public virtual payable onlyOwner {
+    function deposit(address payee) public payable virtual onlyOwner {
         uint256 amount = msg.value;
-        _deposits[payee] = _deposits[payee].add(amount);
+        _deposits[payee] = _deposits[payee] + amount;
 
         emit Deposited(payee, amount);
     }

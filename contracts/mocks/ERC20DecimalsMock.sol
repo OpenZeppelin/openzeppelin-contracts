@@ -1,11 +1,17 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.8.0;
 
 import "../token/ERC20/ERC20.sol";
 
 contract ERC20DecimalsMock is ERC20 {
-    constructor (string memory name, string memory symbol, uint8 decimals) public ERC20(name, symbol) {
-        _setupDecimals(decimals);
+    uint8 immutable private _decimals;
+
+    constructor (string memory name_, string memory symbol_, uint8 decimals_) ERC20(name_, symbol_) {
+        _decimals = decimals_;
+    }
+
+    function decimals() public view virtual override returns (uint8) {
+        return _decimals;
     }
 }

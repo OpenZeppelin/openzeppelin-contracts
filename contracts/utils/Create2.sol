@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.8.0;
 
 /**
  * @dev Helper to make usage of the `CREATE2` EVM opcode easier and safer.
@@ -54,6 +54,6 @@ library Create2 {
         bytes32 _data = keccak256(
             abi.encodePacked(bytes1(0xff), deployer, salt, bytecodeHash)
         );
-        return address(uint256(_data));
+        return address(uint160(uint256(_data)));
     }
 }

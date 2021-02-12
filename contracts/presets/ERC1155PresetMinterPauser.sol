@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.8.0;
 
 import "../access/AccessControl.sol";
-import "../GSN/Context.sol";
+import "../utils/Context.sol";
 import "../token/ERC1155/ERC1155.sol";
 import "../token/ERC1155/ERC1155Burnable.sol";
 import "../token/ERC1155/ERC1155Pausable.sol";
@@ -30,7 +30,7 @@ contract ERC1155PresetMinterPauser is Context, AccessControl, ERC1155Burnable, E
      * @dev Grants `DEFAULT_ADMIN_ROLE`, `MINTER_ROLE`, and `PAUSER_ROLE` to the account that
      * deploys the contract.
      */
-    constructor(string memory uri) public ERC1155(uri) {
+    constructor(string memory uri) ERC1155(uri) {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
 
         _setupRole(MINTER_ROLE, _msgSender());

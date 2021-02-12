@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.8.0;
 
-import "../../GSN/Context.sol";
+import "../../utils/Context.sol";
 import "./ERC20.sol";
 
 /**
@@ -11,8 +11,6 @@ import "./ERC20.sol";
  * recognized off-chain (via event analysis).
  */
 abstract contract ERC20Burnable is Context, ERC20 {
-    using SafeMath for uint256;
-
     /**
      * @dev Destroys `amount` tokens from the caller.
      *
@@ -34,9 +32,9 @@ abstract contract ERC20Burnable is Context, ERC20 {
      * `amount`.
      */
     function burnFrom(address account, uint256 amount) public virtual {
-        uint256 decreasedAllowance = allowance(account, _msgSender()).sub(amount, "ERC20: burn amount exceeds allowance");
-
-        _approve(account, _msgSender(), decreasedAllowance);
+        uint256 currentAllowance = allowance(account, _msgSender());
+        require(currentAllowance >= amount, "ERC20: burn amount exceeds allowance");
+        _approve(account, _msgSender(), currentAllowance - amount);
         _burn(account, amount);
     }
 }

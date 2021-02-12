@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.8.0;
 
-import "../GSN/Context.sol";
+import "./Context.sol";
 
 /**
  * @dev Contract module which allows children to implement an emergency stop
@@ -29,14 +29,14 @@ abstract contract Pausable is Context {
     /**
      * @dev Initializes the contract in unpaused state.
      */
-    constructor () internal {
+    constructor () {
         _paused = false;
     }
 
     /**
      * @dev Returns true if the contract is paused, and false otherwise.
      */
-    function paused() public view returns (bool) {
+    function paused() public view virtual returns (bool) {
         return _paused;
     }
 
@@ -48,7 +48,7 @@ abstract contract Pausable is Context {
      * - The contract must not be paused.
      */
     modifier whenNotPaused() {
-        require(!_paused, "Pausable: paused");
+        require(!paused(), "Pausable: paused");
         _;
     }
 
@@ -60,7 +60,7 @@ abstract contract Pausable is Context {
      * - The contract must be paused.
      */
     modifier whenPaused() {
-        require(_paused, "Pausable: not paused");
+        require(paused(), "Pausable: not paused");
         _;
     }
 

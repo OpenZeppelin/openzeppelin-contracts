@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.8.0;
 
 import "../utils/EnumerableMap.sol";
 
@@ -34,7 +34,15 @@ contract EnumerableMapMock {
     }
 
 
+    function tryGet(uint256 key) public view returns (bool, address) {
+        return _map.tryGet(key);
+    }
+
     function get(uint256 key) public view returns (address) {
         return _map.get(key);
+    }
+
+    function getWithMessage(uint256 key, string calldata errorMessage) public view returns (address) {
+        return _map.get(key, errorMessage);
     }
 }

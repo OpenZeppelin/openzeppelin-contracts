@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.8.0;
 
 import "../access/AccessControl.sol";
-import "../GSN/Context.sol";
+import "../utils/Context.sol";
 import "../token/ERC20/ERC20.sol";
 import "../token/ERC20/ERC20Burnable.sol";
 import "../token/ERC20/ERC20Pausable.sol";
@@ -32,7 +32,7 @@ contract ERC20PresetMinterPauser is Context, AccessControl, ERC20Burnable, ERC20
      *
      * See {ERC20-constructor}.
      */
-    constructor(string memory name, string memory symbol) public ERC20(name, symbol) {
+    constructor(string memory name, string memory symbol) ERC20(name, symbol) {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
 
         _setupRole(MINTER_ROLE, _msgSender());

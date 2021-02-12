@@ -1,6 +1,6 @@
 const { BN, expectRevert, expectEvent, constants } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
-const { toChecksumAddress, keccak256 } = require('ethereumjs-util');
+const ethereumjsUtil = require('ethereumjs-util');
 
 const { expect } = require('chai');
 
@@ -18,6 +18,10 @@ const ClashingImplementation = artifacts.require('ClashingImplementation');
 
 const IMPLEMENTATION_LABEL = 'eip1967.proxy.implementation';
 const ADMIN_LABEL = 'eip1967.proxy.admin';
+
+function toChecksumAddress (address) {
+  return ethereumjsUtil.toChecksumAddress('0x' + address.replace(/^0x/, '').padStart(40, '0').substr(-40));
+}
 
 module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createProxy, accounts) {
   const [proxyAdminAddress, proxyAdminOwner, anotherAccount] = accounts;
@@ -308,13 +312,13 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
 
   describe('storage', function () {
     it('should store the implementation address in specified location', async function () {
-      const slot = '0x' + new BN(keccak256(Buffer.from(IMPLEMENTATION_LABEL))).subn(1).toString(16);
+      const slot = '0x' + new BN(ethereumjsUtil.keccak256(Buffer.from(IMPLEMENTATION_LABEL))).subn(1).toString(16);
       const implementation = toChecksumAddress(await web3.eth.getStorageAt(this.proxyAddress, slot));
       expect(implementation).to.be.equal(this.implementationV0);
     });
 
     it('should store the admin proxy in specified location', async function () {
-      const slot = '0x' + new BN(keccak256(Buffer.from(ADMIN_LABEL))).subn(1).toString(16);
+      const slot = '0x' + new BN(ethereumjsUtil.keccak256(Buffer.from(ADMIN_LABEL))).subn(1).toString(16);
       const proxyAdmin = toChecksumAddress(await web3.eth.getStorageAt(this.proxyAddress, slot));
       expect(proxyAdmin).to.be.equal(proxyAdminAddress);
     });

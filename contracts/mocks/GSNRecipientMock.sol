@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.8.0;
 
 import "./ContextMock.sol";
 import "../GSN/GSNRecipient.sol";
@@ -13,7 +13,7 @@ contract GSNRecipientMock is ContextMock, GSNRecipient {
 
     function acceptRelayedCall(address, address, bytes calldata, uint256, uint256, uint256, uint256, bytes calldata, uint256)
         external
-        view
+        pure
         override
         returns (uint256, bytes memory)
     {
@@ -28,11 +28,11 @@ contract GSNRecipientMock is ContextMock, GSNRecipient {
         return _upgradeRelayHub(newRelayHub);
     }
 
-    function _msgSender() internal override(Context, GSNRecipient) view virtual returns (address payable) {
+    function _msgSender() internal override(Context, GSNRecipient) view virtual returns (address) {
         return GSNRecipient._msgSender();
     }
 
-    function _msgData() internal override(Context, GSNRecipient) view virtual returns (bytes memory) {
+    function _msgData() internal override(Context, GSNRecipient) view virtual returns (bytes calldata) {
         return GSNRecipient._msgData();
     }
 }

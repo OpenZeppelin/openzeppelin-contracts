@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity ^0.8.0;
 
-import "../../math/SafeMath.sol";
 import "../../utils/Arrays.sol";
 import "../../utils/Counters.sol";
 import "./ERC20.sol";
@@ -35,7 +34,6 @@ abstract contract ERC20Snapshot is ERC20 {
     // Inspired by Jordi Baylina's MiniMeToken to record historical balances:
     // https://github.com/Giveth/minimd/blob/ea04d950eea153a04c51fa510b068b9dded390cb/contracts/MiniMeToken.sol
 
-    using SafeMath for uint256;
     using Arrays for uint256[];
     using Counters for Counters.Counter;
 
@@ -89,7 +87,7 @@ abstract contract ERC20Snapshot is ERC20 {
     /**
      * @dev Retrieves the balance of `account` at the time `snapshotId` was created.
      */
-    function balanceOfAt(address account, uint256 snapshotId) public view returns (uint256) {
+    function balanceOfAt(address account, uint256 snapshotId) public view virtual returns (uint256) {
         (bool snapshotted, uint256 value) = _valueAt(snapshotId, _accountBalanceSnapshots[account]);
 
         return snapshotted ? value : balanceOf(account);
@@ -98,7 +96,7 @@ abstract contract ERC20Snapshot is ERC20 {
     /**
      * @dev Retrieves the total supply at the time `snapshotId` was created.
      */
-    function totalSupplyAt(uint256 snapshotId) public view returns(uint256) {
+    function totalSupplyAt(uint256 snapshotId) public view virtual returns(uint256) {
         (bool snapshotted, uint256 value) = _valueAt(snapshotId, _totalSupplySnapshots);
 
         return snapshotted ? value : totalSupply();
