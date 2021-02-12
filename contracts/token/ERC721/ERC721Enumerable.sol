@@ -7,7 +7,7 @@ import "./IERC721Enumerable.sol";
 
 contract ERC721Enumerable is ERC721, IERC721Enumerable {
     // Mapping from owner to list of owned token IDs
-    mapping(address => uint256[]) private _ownedTokens;
+    mapping(address => mapping(uint256 => uint256)) private _ownedTokens;
 
     // Mapping from token ID to index of the owner tokens list
     mapping(uint256 => uint256) private _ownedTokensIndex;
@@ -66,12 +66,12 @@ contract ERC721Enumerable is ERC721, IERC721Enumerable {
 
         if (from == address(0)) {
             _addTokenToAllTokensEnumeration(tokenId);
-        } else {
+        } else if (from != to) {
             _removeTokenFromOwnerEnumeration(from, tokenId);
         }
         if (to == address(0)) {
             _removeTokenFromAllTokensEnumeration(tokenId);
-        } else {
+        } else if (to != from) {
             _addTokenToOwnerEnumeration(to, tokenId);
         }
     }
@@ -82,8 +82,9 @@ contract ERC721Enumerable is ERC721, IERC721Enumerable {
      * @param tokenId uint256 ID of the token to be added to the tokens list of the given address
      */
     function _addTokenToOwnerEnumeration(address to, uint256 tokenId) private {
-        _ownedTokensIndex[tokenId] = _ownedTokens[to].length;
-        _ownedTokens[to].push(tokenId);
+        uint256 length = ERC721.balanceOf(to);
+        _ownedTokens[to][length] = tokenId;
+        _ownedTokensIndex[tokenId] = length;
     }
 
     /**
@@ -107,7 +108,7 @@ contract ERC721Enumerable is ERC721, IERC721Enumerable {
         // To prevent a gap in from's tokens array, we store the last token in the index of the token to delete, and
         // then delete the last slot (swap and pop).
 
-        uint256 lastTokenIndex = _ownedTokens[from].length - 1;
+        uint256 lastTokenIndex = ERC721.balanceOf(from) - 1;
         uint256 tokenIndex = _ownedTokensIndex[tokenId];
 
         // When the token to delete is the last token, the swap operation is unnecessary
@@ -120,7 +121,7 @@ contract ERC721Enumerable is ERC721, IERC721Enumerable {
 
         // This also deletes the contents at the last position of the array
         delete _ownedTokensIndex[tokenId];
-        _ownedTokens[from].pop();
+        delete _ownedTokens[from][lastTokenIndex];
     }
 
     /**
