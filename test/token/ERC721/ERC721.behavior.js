@@ -745,7 +745,7 @@ function shouldBehaveLikeERC721Enumerable (errorPrefix, owner, newOwner, approve
       describe('when the index is greater than or equal to the total tokens owned by the given address', function () {
         it('reverts', async function () {
           await expectRevert(
-            this.token.tokenOfOwnerByIndex(owner, 2), 'EnumerableSet: index out of bounds',
+            this.token.tokenOfOwnerByIndex(owner, 2), 'ERC721Enumerable: owner index out of bounds',
           );
         });
       });
@@ -753,7 +753,7 @@ function shouldBehaveLikeERC721Enumerable (errorPrefix, owner, newOwner, approve
       describe('when the given address does not own any token', function () {
         it('reverts', async function () {
           await expectRevert(
-            this.token.tokenOfOwnerByIndex(other, 0), 'EnumerableSet: index out of bounds',
+            this.token.tokenOfOwnerByIndex(other, 0), 'ERC721Enumerable: owner index out of bounds',
           );
         });
       });
@@ -776,7 +776,7 @@ function shouldBehaveLikeERC721Enumerable (errorPrefix, owner, newOwner, approve
         it('returns empty collection for original owner', async function () {
           expect(await this.token.balanceOf(owner)).to.be.bignumber.equal('0');
           await expectRevert(
-            this.token.tokenOfOwnerByIndex(owner, 0), 'EnumerableSet: index out of bounds',
+            this.token.tokenOfOwnerByIndex(owner, 0), 'ERC721Enumerable: owner index out of bounds',
           );
         });
       });
@@ -793,7 +793,7 @@ function shouldBehaveLikeERC721Enumerable (errorPrefix, owner, newOwner, approve
 
       it('reverts if index is greater than supply', async function () {
         await expectRevert(
-          this.token.tokenByIndex(2), 'EnumerableMap: index out of bounds',
+          this.token.tokenByIndex(2), 'ERC721Enumerable: global index out of bounds',
         );
       });
 
@@ -872,7 +872,7 @@ function shouldBehaveLikeERC721Enumerable (errorPrefix, owner, newOwner, approve
           await this.token.burn(secondTokenId, { from: owner });
           expect(await this.token.totalSupply()).to.be.bignumber.equal('0');
           await expectRevert(
-            this.token.tokenByIndex(0), 'EnumerableMap: index out of bounds',
+            this.token.tokenByIndex(0), 'ERC721Enumerable: global index out of bounds',
           );
         });
       });

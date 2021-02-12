@@ -98,31 +98,7 @@ contract ERC721PresetMinterPauserAutoId is Context, AccessControl, ERC721Enumera
         _unpause();
     }
 
-    function balanceOf(address owner) public view virtual override(ERC721, ERC721Enumerable) returns (uint256) {
-        return ERC721Enumerable.balanceOf(owner);
-    }
-
-    function ownerOf(uint256 tokenId) public view virtual override(ERC721, ERC721Enumerable) returns (address) {
-        return ERC721Enumerable.ownerOf(tokenId);
-    }
-
-    function _exists(uint256 tokenId) internal view virtual override(ERC721, ERC721Enumerable) returns (bool) {
-        return ERC721Enumerable._exists(tokenId);
-    }
-
-    function _mint(address to, uint256 tokenId) internal virtual override(ERC721, ERC721Enumerable) {
-        ERC721Enumerable._mint(to, tokenId);
-    }
-
-    function _burn(uint256 tokenId) internal virtual override(ERC721, ERC721Enumerable) {
-        ERC721Enumerable._burn(tokenId);
-    }
-
-    function _transfer(address from, address to, uint256 tokenId) internal virtual override(ERC721, ERC721Enumerable) {
-        ERC721Enumerable._transfer(from, to, tokenId);
-    }
-
-    function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal virtual override(ERC721, ERC721Metadata, ERC721Pausable) {
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal virtual override(ERC721, ERC721Enumerable, ERC721Metadata, ERC721Pausable) {
         super._beforeTokenTransfer(from, to, tokenId);
     }
 }
