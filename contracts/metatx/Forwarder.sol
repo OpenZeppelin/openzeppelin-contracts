@@ -16,8 +16,8 @@ contract Forwarder is IForwarder {
     bytes32 private constant _EIP721DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
 
     mapping(address => Counters.Counter) private _nonces;
-    mapping(bytes32 => bool) public _typeHashes;
-    mapping(bytes32 => bool) public _domains;
+    mapping(bytes32 => bool) private _typeHashes;
+    mapping(bytes32 => bool) private _domains;
 
     event RequestTypeRegistered(bytes32 indexed typeHash, string typeStr);
     event DomainRegistered(bytes32 indexed domainSeparator, bytes domainValue);

@@ -44,16 +44,6 @@ contract('GSNRecipient', function (accounts) {
     expect(await this.recipient.isTrustedForwarder(this.forwarder.address));
   });
 
-  context('configuration', function () {
-    it('domainSeparator whitelisted', async function () {
-      expect(await this.forwarder._domains(this.domainSeparator)).to.be.equal(true);
-    });
-
-    it('typeHash whitelisted', async function () {
-      expect(await this.forwarder._typeHashes(this.requestTypeHash)).to.be.equal(true);
-    });
-  });
-
   context('when called directly', function () {
     beforeEach(async function () {
       this.context = this.recipient; // The Context behavior expects the contract in this.context
