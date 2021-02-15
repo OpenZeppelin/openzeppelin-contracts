@@ -26,18 +26,17 @@ abstract contract ERC20Capped is ERC20 {
         return _cap;
     }
 
-    /**
-     * @dev See {ERC20-_beforeTokenTransfer}.
+    /** @dev Creates `amount` tokens and assigns them to `account`, increasing
+     * the total supply.
+     *
+     * Emits a {Transfer} event with `from` set to the zero address.
      *
      * Requirements:
      *
-     * - minted tokens must not cause the total supply to go over the cap.
+     * - `to` cannot be the zero address.
      */
-    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
-        super._beforeTokenTransfer(from, to, amount);
-
-        if (from == address(0)) { // When minting tokens
-            require(totalSupply() + amount <= cap(), "ERC20Capped: cap exceeded");
-        }
+    function _mint(address account, uint256 amount) internal virtual override {
+        require(totalSupply() + amount <= cap(), "ERC20Capped: cap exceeded");
+        super._mint(account, amount);
     }
 }
