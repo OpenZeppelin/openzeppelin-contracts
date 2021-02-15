@@ -43,27 +43,7 @@ import "../utils/EnumerableSet.sol";
 abstract contract AccessControlEnumerable is AccessControl {
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    struct RoleData {
-        EnumerableSet.AddressSet members;
-        bytes32 adminRole;
-    }
-
-    mapping (bytes32 => RoleData) private _roles;
-
-    /**
-     * @dev Returns `true` if `account` has been granted `role`.
-     */
-    function hasRole(bytes32 role, address account) public view virtual override returns (bool) {
-        return _roles[role].members.contains(account);
-    }
-
-    /**
-     * @dev Returns the number of accounts that have `role`. Can be used
-     * together with {getRoleMember} to enumerate all bearers of a role.
-     */
-    function getRoleMemberCount(bytes32 role) public view returns (uint256) {
-        return _roles[role].members.length();
-    }
+    mapping (bytes32 => EnumerableSet.AddressSet) private _roleMembers;
 
     /**
      * @dev Returns one of the accounts that have `role`. `index` must be a
@@ -78,38 +58,30 @@ abstract contract AccessControlEnumerable is AccessControl {
      * for more information.
      */
     function getRoleMember(bytes32 role, uint256 index) public view returns (address) {
-        return _roles[role].members.at(index);
+        return _roleMembers[role].at(index);
     }
 
     /**
-     * @dev Returns the admin role that controls `role`. See {grantRole} and
-     * {revokeRole}.
-     *
-     * To change a role's admin, use {_setRoleAdmin}.
+     * @dev Returns the number of accounts that have `role`. Can be used
+     * together with {getRoleMember} to enumerate all bearers of a role.
      */
-    function getRoleAdmin(bytes32 role) public view virtual override returns (bytes32) {
-        return _roles[role].adminRole;
+    function getRoleMemberCount(bytes32 role) public view returns (uint256) {
+        return _roleMembers[role].length();
     }
 
     /**
-     * @dev Sets `adminRole` as ``role``'s admin role.
-     *
-     * Emits a {RoleAdminChanged} event.
+     * @dev Overload {_grantRole} to track enumerable memberships
      */
-    function _setRoleAdmin(bytes32 role, bytes32 adminRole) internal virtual override {
-        emit RoleAdminChanged(role, _roles[role].adminRole, adminRole);
-        _roles[role].adminRole = adminRole;
-    }
-
     function _grantRole(bytes32 role, address account) internal virtual override {
-        if (_roles[role].members.add(account)) {
-            emit RoleGranted(role, account, _msgSender());
-        }
+        super._grantRole(role, account);
+        _roleMembers[role].add(account);
     }
 
+    /**
+     * @dev Overload {_revokeRole} to track enumerable memberships
+     */
     function _revokeRole(bytes32 role, address account) internal virtual override {
-        if (_roles[role].members.remove(account)) {
-            emit RoleRevoked(role, account, _msgSender());
-        }
+        super._revokeRole(role, account);
+        _roleMembers[role].remove(account);
     }
 }

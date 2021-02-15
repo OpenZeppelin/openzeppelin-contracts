@@ -100,7 +100,7 @@ abstract contract AccessControl is Context {
      * - the caller must have ``role``'s admin role.
      */
     function grantRole(bytes32 role, address account) public virtual {
-        require(hasRole(getRoleAdmin(role), _msgSender()), "AccessControl: sender must be an admin to grant");
+        require(AccessControl.hasRole(AccessControl.getRoleAdmin(role), _msgSender()), "AccessControl: sender must be an admin to grant");
 
         _grantRole(role, account);
     }
@@ -115,7 +115,7 @@ abstract contract AccessControl is Context {
      * - the caller must have ``role``'s admin role.
      */
     function revokeRole(bytes32 role, address account) public virtual {
-        require(hasRole(getRoleAdmin(role), _msgSender()), "AccessControl: sender must be an admin to revoke");
+        require(AccessControl.hasRole(AccessControl.getRoleAdmin(role), _msgSender()), "AccessControl: sender must be an admin to revoke");
 
         _revokeRole(role, account);
     }
@@ -166,19 +166,19 @@ abstract contract AccessControl is Context {
      * Emits a {RoleAdminChanged} event.
      */
     function _setRoleAdmin(bytes32 role, bytes32 adminRole) internal virtual {
-        emit RoleAdminChanged(role, getRoleAdmin(role), adminRole);
+        emit RoleAdminChanged(role, AccessControl.getRoleAdmin(role), adminRole);
         _admins[role] = adminRole;
     }
 
     function _grantRole(bytes32 role, address account) internal virtual {
-        if (!_members[role][account]) {
+        if (!AccessControl.hasRole(role, account)) {
             _members[role][account] = true;
             emit RoleGranted(role, account, _msgSender());
         }
     }
 
     function _revokeRole(bytes32 role, address account) internal virtual {
-        if (_members[role][account]) {
+        if (AccessControl.hasRole(role, account)) {
             _members[role][account] = false;
             emit RoleRevoked(role, account, _msgSender());
         }
