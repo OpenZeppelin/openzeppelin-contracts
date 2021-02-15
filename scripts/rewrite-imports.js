@@ -1,177 +1,112 @@
+const debug = require('debug');
 const path = require('path');
 const replace = require('replace-in-file');
 
+const versions = [
+  '@openzeppelin/contracts',
+  '@openzeppelin/contracts-upgradeable',
+];
+
 const updates = {
-  '@openzeppelin/contracts/access/AccessControl.sol':
-    '@openzeppelin/contracts/utils/access/AccessControl.sol',
-  '@openzeppelin/contracts/access/Ownable.sol':
-    '@openzeppelin/contracts/utils/access/Ownable.sol',
-  '@openzeppelin/contracts/access/TimelockController.sol':
-    '@openzeppelin/contracts/standalone/TimelockController.sol',
-  '@openzeppelin/contracts/cryptography/ECDSA.sol':
-    '@openzeppelin/contracts/utils/cryptography/ECDSA.sol',
-  '@openzeppelin/contracts/cryptography/MerkleProof.sol':
-    '@openzeppelin/contracts/utils/cryptography/MerkleProof.sol',
-  '@openzeppelin/contracts/drafts/EIP712.sol':
-    '@openzeppelin/contracts/utils/drafts-EIP712.sol',
-  '@openzeppelin/contracts/drafts/ERC20Permit.sol':
-    '@openzeppelin/contracts/tokens/ERC20/extensions/draft-ERC20Permit.sol',
-  '@openzeppelin/contracts/drafts/IERC20Permit.sol':
-    '@openzeppelin/contracts/tokens/ERC20/extensions/draft-IERC20Permit.sol',
-  '@openzeppelin/contracts/GSN/Context.sol':
-    '@openzeppelin/contracts/utils/Context.sol',
-  '@openzeppelin/contracts/GSN/GSNRecipientERC20Fee.sol':
-    '@openzeppelin/contracts/utils/GSN/GSNRecipientERC20Fee.sol',
-  '@openzeppelin/contracts/GSN/GSNRecipientSignature.sol':
-    '@openzeppelin/contracts/utils/GSN/GSNRecipientSignature.sol',
-  '@openzeppelin/contracts/GSN/GSNRecipient.sol':
-    '@openzeppelin/contracts/utils/GSN/GSNRecipient.sol',
-  '@openzeppelin/contracts/GSN/IRelayHub.sol':
-    '@openzeppelin/contracts/utils/GSN/IRelayHub.sol',
-  '@openzeppelin/contracts/GSN/IRelayRecipient.sol':
-    '@openzeppelin/contracts/utils/GSN/IRelayRecipient.sol',
-  '@openzeppelin/contracts/introspection/ERC165Checker.sol':
-    '@openzeppelin/contracts/utils/introspection/ERC165Checker.sol',
-  '@openzeppelin/contracts/introspection/ERC165.sol':
-    '@openzeppelin/contracts/utils/introspection/ERC165.sol',
-  '@openzeppelin/contracts/introspection/ERC1820Implementer.sol':
-    '@openzeppelin/contracts/utils/introspection/ERC1820Implementer.sol',
-  '@openzeppelin/contracts/introspection/IERC165.sol':
-    '@openzeppelin/contracts/utils/introspection/IERC165.sol',
-  '@openzeppelin/contracts/introspection/IERC1820Implementer.sol':
-    '@openzeppelin/contracts/utils/introspection/IERC1820Implementer.sol',
-  '@openzeppelin/contracts/introspection/IERC1820Registry.sol':
-    '@openzeppelin/contracts/utils/introspection/IERC1820Registry.sol',
-  '@openzeppelin/contracts/math/Math.sol':
-    '@openzeppelin/contracts/utils/math/Math.sol',
-  '@openzeppelin/contracts/math/SafeMath.sol':
-    '@openzeppelin/contracts/utils/math/SafeMath.sol',
-  '@openzeppelin/contracts/math/SignedSafeMath.sol':
-    '@openzeppelin/contracts/utils/math/SignedSafeMath.sol',
-  '@openzeppelin/contracts/payment/escrow/ConditionalEscrow.sol':
-    '@openzeppelin/contracts/utils/payment/escrow/ConditionalEscrow.sol',
-  '@openzeppelin/contracts/payment/escrow/Escrow.sol':
-    '@openzeppelin/contracts/utils/payment/escrow/Escrow.sol',
-  '@openzeppelin/contracts/payment/escrow/RefundEscrow.sol':
-    '@openzeppelin/contracts/utils/payment/escrow/RefundEscrow.sol',
-  '@openzeppelin/contracts/payment/PaymentSplitter.sol':
-    '@openzeppelin/contracts/standalone/PaymentSplitter.sol',
-  '@openzeppelin/contracts/payment/PullPayment.sol':
-    '@openzeppelin/contracts/utils/payment/PullPayment.sol',
-  '@openzeppelin/contracts/presets/ERC1155PresetMinterPauser.sol':
-    '@openzeppelin/contracts/tokens/ERC1155/presets/ERC1155PresetMinterPauser.sol',
-  '@openzeppelin/contracts/presets/ERC20PresetFixedSupply.sol':
-    '@openzeppelin/contracts/tokens/ERC20/presets/ERC20PresetFixedSupply.sol',
-  '@openzeppelin/contracts/presets/ERC20PresetMinterPauser.sol':
-    '@openzeppelin/contracts/tokens/ERC20/presets/ERC20PresetMinterPauser.sol',
-  '@openzeppelin/contracts/presets/ERC721PresetMinterPauserAutoId.sol':
-    '@openzeppelin/contracts/tokens/ERC721/presets/ERC721PresetMinterPauserAutoId.sol',
-  '@openzeppelin/contracts/presets/ERC777PresetFixedSupply.sol':
-    '@openzeppelin/contracts/tokens/ERC777/presets/ERC777PresetFixedSupply.sol',
-  '@openzeppelin/contracts/proxy/BeaconProxy.sol':
-    '@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol',
-  '@openzeppelin/contracts/proxy/Clones.sol':
-    null,
-  '@openzeppelin/contracts/proxy/IBeacon.sol':
-    '@openzeppelin/contracts/proxy/beacon/IBeacon.sol',
-  '@openzeppelin/contracts/proxy/Initializable.sol':
-    '@openzeppelin/contracts/utils/Initializable.sol',
-  '@openzeppelin/contracts/proxy/ProxyAdmin.sol':
-    '@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol',
-  '@openzeppelin/contracts/proxy/Proxy.sol':
-    null,
-  '@openzeppelin/contracts/proxy/TransparentUpgradeableProxy.sol':
-    '@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol',
-  '@openzeppelin/contracts/proxy/UpgradeableBeacon.sol':
-    '@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol',
-  '@openzeppelin/contracts/proxy/UpgradeableProxy.sol':
-    null,
-  '@openzeppelin/contracts/token/ERC1155/ERC1155Burnable.sol':
-    '@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol',
-  '@openzeppelin/contracts/token/ERC1155/ERC1155Holder.sol':
-    '@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol',
-  '@openzeppelin/contracts/token/ERC1155/ERC1155Pausable.sol':
-    '@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Pausable.sol',
-  '@openzeppelin/contracts/token/ERC1155/ERC1155Receiver.sol':
-    '@openzeppelin/contracts/token/ERC1155/utils/ERC1155Receiver.sol',
-  '@openzeppelin/contracts/token/ERC1155/ERC1155.sol':
-    null,
-  '@openzeppelin/contracts/token/ERC1155/IERC1155MetadataURI.sol':
-    '@openzeppelin/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol',
-  '@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol':
-    null,
-  '@openzeppelin/contracts/token/ERC1155/IERC1155.sol':
-    null,
-  '@openzeppelin/contracts/token/ERC20/ERC20Burnable.sol':
-    '@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol',
-  '@openzeppelin/contracts/token/ERC20/ERC20Capped.sol':
-    '@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol',
-  '@openzeppelin/contracts/token/ERC20/ERC20Pausable.sol':
-    '@openzeppelin/contracts/token/ERC20/extensions/ERC20Pausable.sol',
-  '@openzeppelin/contracts/token/ERC20/ERC20Snapshot.sol':
-    '@openzeppelin/contracts/token/ERC20/extensions/ERC20Snapshot.sol',
-  '@openzeppelin/contracts/token/ERC20/ERC20.sol':
-    null,
-  '@openzeppelin/contracts/token/ERC20/IERC20.sol':
-    null,
-  '@openzeppelin/contracts/token/ERC20/SafeERC20.sol':
-    '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol',
-  '@openzeppelin/contracts/token/ERC20/TokenTimelock.sol':
-    '@openzeppelin/contracts/standalone/TokenTimelock.sol',
-  '@openzeppelin/contracts/token/ERC721/ERC721Burnable.sol':
-    '@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol',
-  '@openzeppelin/contracts/token/ERC721/ERC721Holder.sol':
-    '@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol',
-  '@openzeppelin/contracts/token/ERC721/ERC721Pausable.sol':
-    '@openzeppelin/contracts/token/ERC721/extensions/ERC721Pausable.sol',
-  '@openzeppelin/contracts/token/ERC721/ERC721.sol':
-    null,
-  '@openzeppelin/contracts/token/ERC721/IERC721Enumerable.sol':
-    '@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol',
-  '@openzeppelin/contracts/token/ERC721/IERC721Metadata.sol':
-    '@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol',
-  '@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol':
-    null,
-  '@openzeppelin/contracts/token/ERC721/IERC721.sol':
-    null,
-  '@openzeppelin/contracts/token/ERC777/ERC777.sol':
-    null,
-  '@openzeppelin/contracts/token/ERC777/IERC777Recipient.sol':
-    null,
-  '@openzeppelin/contracts/token/ERC777/IERC777Sender.sol':
-    null,
-  '@openzeppelin/contracts/token/ERC777/IERC777.sol':
-    null,
-  '@openzeppelin/contracts/utils/Address.sol':
-    null,
-  '@openzeppelin/contracts/utils/Arrays.sol':
-    null,
-  '@openzeppelin/contracts/utils/Context.sol':
-    null,
-  '@openzeppelin/contracts/utils/Counters.sol':
-    null,
-  '@openzeppelin/contracts/utils/Create2.sol':
-    null,
-  '@openzeppelin/contracts/utils/EnumerableMap.sol':
-    '@openzeppelin/contracts/utils/enumerable/EnumerableMap.sol',
-  '@openzeppelin/contracts/utils/EnumerableSet.sol':
-    '@openzeppelin/contracts/utils/enumerable/EnumerableSet.sol',
-  '@openzeppelin/contracts/utils/Pausable.sol':
-    null,
-  '@openzeppelin/contracts/utils/ReentrancyGuard.sol':
-    null,
-  '@openzeppelin/contracts/utils/SafeCast.sol':
-    null,
-  '@openzeppelin/contracts/utils/Strings.sol':
-    null,
+  'access/AccessControl.sol': 'utils/access/AccessControl.sol',
+  'access/Ownable.sol': 'utils/access/Ownable.sol',
+  'access/TimelockController.sol': 'standalone/TimelockController.sol',
+  'cryptography/ECDSA.sol': 'utils/cryptography/ECDSA.sol',
+  'cryptography/MerkleProof.sol': 'utils/cryptography/MerkleProof.sol',
+  'drafts/EIP712.sol': 'utils/drafts-EIP712.sol',
+  'drafts/ERC20Permit.sol': 'tokens/ERC20/extensions/draft-ERC20Permit.sol',
+  'drafts/IERC20Permit.sol': 'tokens/ERC20/extensions/draft-IERC20Permit.sol',
+  'GSN/Context.sol': 'utils/Context.sol',
+  'GSN/GSNRecipientERC20Fee.sol': 'utils/GSN/GSNRecipientERC20Fee.sol',
+  'GSN/GSNRecipientSignature.sol': 'utils/GSN/GSNRecipientSignature.sol',
+  'GSN/GSNRecipient.sol': 'utils/GSN/GSNRecipient.sol',
+  'GSN/IRelayHub.sol': 'utils/GSN/IRelayHub.sol',
+  'GSN/IRelayRecipient.sol': 'utils/GSN/IRelayRecipient.sol',
+  'introspection/ERC165Checker.sol': 'utils/introspection/ERC165Checker.sol',
+  'introspection/ERC165.sol': 'utils/introspection/ERC165.sol',
+  'introspection/ERC1820Implementer.sol': 'utils/introspection/ERC1820Implementer.sol',
+  'introspection/IERC165.sol': 'utils/introspection/IERC165.sol',
+  'introspection/IERC1820Implementer.sol': 'utils/introspection/IERC1820Implementer.sol',
+  'introspection/IERC1820Registry.sol': 'utils/introspection/IERC1820Registry.sol',
+  'math/Math.sol': 'utils/math/Math.sol',
+  'math/SafeMath.sol': 'utils/math/SafeMath.sol',
+  'math/SignedSafeMath.sol': 'utils/math/SignedSafeMath.sol',
+  'payment/escrow/ConditionalEscrow.sol': 'utils/payment/escrow/ConditionalEscrow.sol',
+  'payment/escrow/Escrow.sol': 'utils/payment/escrow/Escrow.sol',
+  'payment/escrow/RefundEscrow.sol': 'utils/payment/escrow/RefundEscrow.sol',
+  'payment/PaymentSplitter.sol': 'standalone/PaymentSplitter.sol',
+  'payment/PullPayment.sol': 'utils/payment/PullPayment.sol',
+  'presets/ERC1155PresetMinterPauser.sol': 'tokens/ERC1155/presets/ERC1155PresetMinterPauser.sol',
+  'presets/ERC20PresetFixedSupply.sol': 'tokens/ERC20/presets/ERC20PresetFixedSupply.sol',
+  'presets/ERC20PresetMinterPauser.sol': 'tokens/ERC20/presets/ERC20PresetMinterPauser.sol',
+  'presets/ERC721PresetMinterPauserAutoId.sol': 'tokens/ERC721/presets/ERC721PresetMinterPauserAutoId.sol',
+  'presets/ERC777PresetFixedSupply.sol': 'tokens/ERC777/presets/ERC777PresetFixedSupply.sol',
+  'proxy/BeaconProxy.sol': 'proxy/beacon/BeaconProxy.sol',
+  'proxy/Clones.sol': null,
+  'proxy/IBeacon.sol': 'proxy/beacon/IBeacon.sol',
+  'proxy/Initializable.sol': 'utils/Initializable.sol',
+  'proxy/ProxyAdmin.sol': 'proxy/transparent/ProxyAdmin.sol',
+  'proxy/Proxy.sol': null,
+  'proxy/TransparentUpgradeableProxy.sol': 'proxy/transparent/TransparentUpgradeableProxy.sol',
+  'proxy/UpgradeableBeacon.sol': 'proxy/beacon/UpgradeableBeacon.sol',
+  'proxy/UpgradeableProxy.sol': null,
+  'token/ERC1155/ERC1155Burnable.sol': 'token/ERC1155/extensions/ERC1155Burnable.sol',
+  'token/ERC1155/ERC1155Holder.sol': 'token/ERC1155/utils/ERC1155Holder.sol',
+  'token/ERC1155/ERC1155Pausable.sol': 'token/ERC1155/extensions/ERC1155Pausable.sol',
+  'token/ERC1155/ERC1155Receiver.sol': 'token/ERC1155/utils/ERC1155Receiver.sol',
+  'token/ERC1155/ERC1155.sol': null,
+  'token/ERC1155/IERC1155MetadataURI.sol': 'token/ERC1155/extensions/IERC1155MetadataURI.sol',
+  'token/ERC1155/IERC1155Receiver.sol': null,
+  'token/ERC1155/IERC1155.sol': null,
+  'token/ERC20/ERC20Burnable.sol': 'token/ERC20/extensions/ERC20Burnable.sol',
+  'token/ERC20/ERC20Capped.sol': 'token/ERC20/extensions/ERC20Capped.sol',
+  'token/ERC20/ERC20Pausable.sol': 'token/ERC20/extensions/ERC20Pausable.sol',
+  'token/ERC20/ERC20Snapshot.sol': 'token/ERC20/extensions/ERC20Snapshot.sol',
+  'token/ERC20/ERC20.sol': null,
+  'token/ERC20/IERC20.sol': null,
+  'token/ERC20/SafeERC20.sol': 'token/ERC20/utils/SafeERC20.sol',
+  'token/ERC20/TokenTimelock.sol': 'standalone/TokenTimelock.sol',
+  'token/ERC721/ERC721Burnable.sol': 'token/ERC721/extensions/ERC721Burnable.sol',
+  'token/ERC721/ERC721Holder.sol': 'token/ERC721/utils/ERC721Holder.sol',
+  'token/ERC721/ERC721Pausable.sol': 'token/ERC721/extensions/ERC721Pausable.sol',
+  'token/ERC721/ERC721.sol': null,
+  'token/ERC721/IERC721Enumerable.sol': 'token/ERC721/extensions/IERC721Enumerable.sol',
+  'token/ERC721/IERC721Metadata.sol': 'token/ERC721/extensions/IERC721Metadata.sol',
+  'token/ERC721/IERC721Receiver.sol': null,
+  'token/ERC721/IERC721.sol': null,
+  'token/ERC777/ERC777.sol': null,
+  'token/ERC777/IERC777Recipient.sol': null,
+  'token/ERC777/IERC777Sender.sol': null,
+  'token/ERC777/IERC777.sol': null,
+  'utils/Address.sol': null,
+  'utils/Arrays.sol': null,
+  'utils/Context.sol': null,
+  'utils/Counters.sol': null,
+  'utils/Create2.sol': null,
+  'utils/EnumerableMap.sol': 'utils/enumerable/EnumerableMap.sol',
+  'utils/EnumerableSet.sol': 'utils/enumerable/EnumerableSet.sol',
+  'utils/Pausable.sol': null,
+  'utils/ReentrancyGuard.sol': null,
+  'utils/SafeCast.sol': null,
+  'utils/Strings.sol': null,
 };
 
 (async () => {
-  const base = process.argv[1] || process.env.LOCATION || '.';
-  const files = path.join(base, '**', '*.sol');
-  for (const [ from, to ] of Object.entries(updates)) {
-    if (to) {
-      await replace({ files, from, to });
-    }
-  }
+  const logs = await replace({
+    files: (
+      process.argv.length > 2
+        ? process.argv.slice(2)
+        : [ 'contracts' ]
+    ).map(file => path.extname(file) === '.sol' ? file : path.join(file, '**', '*.sol')),
+    from: Object.entries(updates)
+      .filter(([ from, to ]) => to)
+      .flatMap(([ from, to ]) => versions.map(version => path.join(version, from))),
+    to: Object.entries(updates)
+      .filter(([ from, to ]) => to)
+      .flatMap(([ from, to ]) => versions.map(version => path.join(version, to))),
+  });
+
+  debug('rewrite-migration')('started');
+  logs.filter(({ hasChanged }) => hasChanged).forEach(({ file }) => debug('rewrite-migration:updated')(file));
+  debug('rewrite-migration')('finished');
 })().catch(console.error);
