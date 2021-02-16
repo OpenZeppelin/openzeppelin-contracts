@@ -1,4 +1,5 @@
 const debug = require('debug');
+const fs = require('fs');
 const path = require('path');
 const replace = require('replace-in-file');
 
@@ -92,12 +93,10 @@ const updates = {
 };
 
 (async () => {
+  debug('rewrite-migration')('started');
   const logs = await replace({
-    files: (
-      process.argv.length > 2
-        ? process.argv.slice(2)
-        : [ 'contracts' ]
-    ).map(file => path.extname(file) === '.sol' ? file : path.join(file, '**', '*.sol')),
+    files: (process.argv.length > 2 ? process.argv.slice(2) : [ 'contracts' ])
+      .map(file => fs.statSync(file).isDirectory() ? path.join(file, '**', '*.sol') : file),
     from: Object.entries(updates)
       .filter(([ from, to ]) => to)
       .flatMap(([ from, to ]) => versions.map(version => path.join(version, from))),
@@ -105,8 +104,6 @@ const updates = {
       .filter(([ from, to ]) => to)
       .flatMap(([ from, to ]) => versions.map(version => path.join(version, to))),
   });
-
-  debug('rewrite-migration')('started');
   logs.filter(({ hasChanged }) => hasChanged).forEach(({ file }) => debug('rewrite-migration:updated')(file));
   debug('rewrite-migration')('finished');
 })().catch(console.error);
