@@ -1,5 +1,3 @@
-const { expectRevert } = require('@openzeppelin/test-helpers');
-
 const { shouldSupportInterfaces } = require('./SupportsInterface.behavior');
 
 const ERC165Mock = artifacts.require('ERC165Mock');
