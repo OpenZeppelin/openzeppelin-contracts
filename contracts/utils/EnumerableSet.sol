@@ -55,7 +55,7 @@ library EnumerableSet {
         if (!_contains(set, value)) {
             uint256 last;
             assembly {
-                let p := sload(0x40)
+                let p := mload(0x40)
                 mstore(p, set.slot)
                 let blk := keccak256(p, 0x20)
                 // push new value
