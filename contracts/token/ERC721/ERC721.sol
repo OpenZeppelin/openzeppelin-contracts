@@ -4,23 +4,31 @@ pragma solidity ^0.8.0;
 
 import "../../utils/Context.sol";
 import "./IERC721.sol";
+import "./IERC721Metadata.sol";
 import "./IERC721Receiver.sol";
 import "../../introspection/ERC165.sol";
 import "../../utils/Address.sol";
+import "../../utils/Strings.sol";
 
 /**
  * @title ERC721 Non-Fungible Token Standard enumerable implementation
  * @dev see https://eips.ethereum.org/EIPS/eip-721
  */
-contract ERC721 is Context, ERC165, IERC721 {
+contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     using Address for address;
+    using Strings for uint256;
+
+    // Token name
+    string private _name;
+
+    // Token symbol
+    string private _symbol;
 
     // Mapping from token ID to owner address
     mapping (uint256 => address) private _owners;
 
     // Mapping owner address to token count
     mapping (address => uint256) private _balances;
-
 
     // Mapping from token ID to approved address
     mapping (uint256 => address) private _tokenApprovals;
@@ -31,9 +39,39 @@ contract ERC721 is Context, ERC165, IERC721 {
     /**
      * @dev Initializes the contract by setting a `name` and a `symbol` to the token collection.
      */
-    constructor () {
+    constructor (string memory name_, string memory symbol_) {
+        _name = name_;
+        _symbol = symbol_;
+
         // register the supported interfaces to conform to ERC721 via ERC165
         _registerInterface(type(IERC721).interfaceId);
+        _registerInterface(type(IERC721Metadata).interfaceId);
+    }
+
+    /**
+     * @dev See {IERC721Metadata-name}.
+     */
+    function name() public view virtual override returns (string memory) {
+        return _name;
+    }
+
+    /**
+     * @dev See {IERC721Metadata-symbol}.
+     */
+    function symbol() public view virtual override returns (string memory) {
+        return _symbol;
+    }
+
+    function _baseURI() internal view virtual returns (string memory) {
+        return "";
+    }
+
+    /**
+     * @dev See {IERC721Metadata-tokenURI}.
+     */
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+        require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
+        return string(abi.encodePacked(_baseURI(), tokenId.toString()));
     }
 
     /**

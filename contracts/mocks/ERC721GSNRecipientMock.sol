@@ -11,7 +11,8 @@ import "../GSN/GSNRecipientSignature.sol";
  * A simple ERC721 mock that has GSN support enabled
  */
 contract ERC721GSNRecipientMock is ERC721, GSNRecipient, GSNRecipientSignature {
-    constructor(address trustedSigner)
+    constructor(string memory name, string memory symbol, address trustedSigner)
+        ERC721(name, symbol)
         GSNRecipientSignature(trustedSigner)
     { }
 

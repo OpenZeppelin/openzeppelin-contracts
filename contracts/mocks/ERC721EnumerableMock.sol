@@ -9,6 +9,8 @@ import "../token/ERC721/ERC721Enumerable.sol";
  * This mock just provides a public safeMint, mint, and burn functions for testing purposes
  */
 contract ERC721EnumerableMock is ERC721Enumerable {
+    constructor(string memory name, string memory symbol) ERC721(name, symbol) { }
+
     function exists(uint256 tokenId) public view returns (bool) {
         return _exists(tokenId);
     }
