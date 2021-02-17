@@ -10,6 +10,8 @@ const ERC721GSNRecipientMock = artifacts.require('ERC721GSNRecipientMock');
 contract('ERC721GSNRecipient (integration)', function (accounts) {
   const [ signer, sender ] = accounts;
 
+  const name = 'Non Fungible Token';
+  const symbol = 'NFT';
   const tokenId = '42';
 
   before(function () {
@@ -17,7 +19,7 @@ contract('ERC721GSNRecipient (integration)', function (accounts) {
   });
 
   beforeEach(async function () {
-    this.token = await ERC721GSNRecipientMock.new(signer);
+    this.token = await ERC721GSNRecipientMock.new(name, symbol, signer);
   });
 
   async function testMintToken (token, from, tokenId, options = {}) {
