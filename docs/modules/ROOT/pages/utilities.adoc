@@ -16,7 +16,7 @@ The data signer can be recovered with xref:api:cryptography.adoc#ECDSA-recover-b
 using ECDSA for bytes32;
 
 function _verify(bytes32 data, address account) pure returns (bool) {
-    return keccack256(data)
+    return keccak256(data)
         .toEthSignedMessageHash()
         .recover(signature) == account;
 }
