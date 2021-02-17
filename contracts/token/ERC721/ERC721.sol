@@ -62,16 +62,20 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         return _symbol;
     }
 
-    function _baseURI() internal view virtual returns (string memory) {
-        return "";
-    }
-
     /**
      * @dev See {IERC721Metadata-tokenURI}.
      */
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
         return string(abi.encodePacked(_baseURI(), tokenId.toString()));
+    }
+
+    /**
+     * @dev Base URI for computing tokenURI. Empty by default, can be overriden
+     * in child contracts.
+     */
+    function _baseURI() internal view virtual returns (string memory) {
+        return "";
     }
 
     /**
