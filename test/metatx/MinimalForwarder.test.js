@@ -2,23 +2,17 @@ const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 const { EIP712Domain } = require('../helpers/eip712');
 
-const { expectEvent } = require('@openzeppelin/test-helpers');
+const { expectRevert, constants } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
-const BaseRelayRecipientMock = artifacts.require('BaseRelayRecipientMock');
 const MinimalForwarder = artifacts.require('MinimalForwarder');
-const ContextMockCaller = artifacts.require('ContextMockCaller');
-
-const { shouldBehaveLikeRegularContext } = require('../GSN/Context.behavior');
 
 const name = 'MinimalForwarder';
 const version = '0.0.1';
 
-contract('GSNRecipient', function (accounts) {
+contract('MinimalForwarder', function (accounts) {
   beforeEach(async function () {
     this.forwarder = await MinimalForwarder.new();
-    this.recipient = await BaseRelayRecipientMock.new(this.forwarder.address);
-
     this.domain = {
       name,
       version,
@@ -38,75 +32,134 @@ contract('GSNRecipient', function (accounts) {
     };
   });
 
-  it('recognize trusted forwarder', async function () {
-    expect(await this.recipient.isTrustedForwarder(this.forwarder.address));
-  });
-
-  context('when called directly', function () {
-    beforeEach(async function () {
-      this.context = this.recipient; // The Context behavior expects the contract in this.context
-      this.caller = await ContextMockCaller.new();
-    });
-
-    shouldBehaveLikeRegularContext(...accounts);
-  });
-
-  context('when receiving a relayed call', function () {
+  context('with message', function () {
     beforeEach(async function () {
       this.wallet = Wallet.generate();
       this.sender = web3.utils.toChecksumAddress(this.wallet.getAddressString());
-      this.data = {
-        types: this.types,
-        domain: this.domain,
-        primaryType: 'ForwardRequest',
+      this.req = {
+        from: this.sender,
+        to: constants.ZERO_ADDRESS,
+        value: '0',
+        gas: '100000',
+        nonce: Number(await this.forwarder.getNonce(this.sender)),
+        data: '0x',
       };
+      this.sign = ethSigUtil.signTypedMessage(
+        this.wallet.getPrivateKey(),
+        {
+          data: {
+            types: this.types,
+            domain: this.domain,
+            primaryType: 'ForwardRequest',
+            message: this.req,
+          },
+        },
+      );
     });
 
-    describe('msgSender', function () {
-      it('returns the relayed transaction original sender', async function () {
-        const data = this.recipient.contract.methods.msgSender().encodeABI();
+    context('verify', function () {
+      context('valid signature', function () {
+        beforeEach(async function () {
+          expect(await this.forwarder.getNonce(this.req.from))
+            .to.be.bignumber.equal(web3.utils.toBN(this.req.nonce));
+        });
 
-        const req = {
-          from: this.sender,
-          to: this.recipient.address,
-          value: '0',
-          gas: '100000',
-          nonce: (await this.forwarder.getNonce(this.sender)).toString(),
-          data,
-        };
+        it('success', async function () {
+          expect(await this.forwarder.verify(this.req, this.sign)).to.be.equal(true);
+        });
 
-        const sign = ethSigUtil.signTypedMessage(this.wallet.getPrivateKey(), { data: { ...this.data, message: req } });
+        afterEach(async function () {
+          expect(await this.forwarder.getNonce(this.req.from))
+            .to.be.bignumber.equal(web3.utils.toBN(this.req.nonce));
+        });
+      });
 
-        // rejected by lint :/
-        // expect(await this.forwarder.verify(req, sign)).to.be.true;
-
-        const { tx } = await this.forwarder.execute(req, sign);
-        await expectEvent.inTransaction(tx, BaseRelayRecipientMock, 'Sender', { sender: this.sender });
+      context('invalid signature', function () {
+        it('tampered from', async function () {
+          expect(await this.forwarder.verify({ ...this.req, from: accounts[0] }, this.sign))
+            .to.be.equal(false);
+        });
+        it('tampered to', async function () {
+          expect(await this.forwarder.verify({ ...this.req, to: accounts[0] }, this.sign))
+            .to.be.equal(false);
+        });
+        it('tampered value', async function () {
+          expect(await this.forwarder.verify({ ...this.req, value: web3.utils.toWei('1') }, this.sign))
+            .to.be.equal(false);
+        });
+        it('tampered nonce', async function () {
+          expect(await this.forwarder.verify({ ...this.req, nonce: this.req.nonce + 1 }, this.sign))
+            .to.be.equal(false);
+        });
+        it('tampered data', async function () {
+          expect(await this.forwarder.verify({ ...this.req, data: '0x1742' }, this.sign))
+            .to.be.equal(false);
+        });
+        it('tampered signature', async function () {
+          const tamperedsign = web3.utils.hexToBytes(this.sign);
+          tamperedsign[42] ^= 0xff;
+          expect(await this.forwarder.verify(this.req, web3.utils.bytesToHex(tamperedsign)))
+            .to.be.equal(false);
+        });
       });
     });
 
-    describe('msgData', function () {
-      it('returns the relayed transaction original data', async function () {
-        const integerValue = '42';
-        const stringValue = 'OpenZeppelin';
-        const data = this.recipient.contract.methods.msgData(integerValue, stringValue).encodeABI();
+    context('execute', function () {
+      context('valid signature', function () {
+        beforeEach(async function () {
+          expect(await this.forwarder.getNonce(this.req.from))
+            .to.be.bignumber.equal(web3.utils.toBN(this.req.nonce));
+        });
 
-        const req = {
-          from: this.sender,
-          to: this.recipient.address,
-          value: '0',
-          gas: '100000',
-          nonce: (await this.forwarder.getNonce(this.sender)).toString(),
-          data,
-        };
+        it('success', async function () {
+          await this.forwarder.execute(this.req, this.sign); // expect to not revert
+        });
 
-        const sign = ethSigUtil.signTypedMessage(this.wallet.getPrivateKey(), { data: { ...this.data, message: req } });
+        afterEach(async function () {
+          expect(await this.forwarder.getNonce(this.req.from))
+            .to.be.bignumber.equal(web3.utils.toBN(this.req.nonce + 1));
+        });
+      });
 
-        // rejected by lint :/
-        // expect(await this.forwarder.verify(req, sign)).to.be.true;
-
-        const { tx } = await this.forwarder.execute(req, sign);
-        await expectEvent.inTransaction(tx, BaseRelayRecipientMock, 'Data', { data, integerValue, stringValue });
+      context('invalid signature', function () {
+        it('tampered from', async function () {
+          await expectRevert(
+            this.forwarder.execute({ ...this.req, from: accounts[0] }, this.sign),
+            'MinimalForwarder: signature does not match request',
+          );
+        });
+        it('tampered to', async function () {
+          await expectRevert(
+            this.forwarder.execute({ ...this.req, to: accounts[0] }, this.sign),
+            'MinimalForwarder: signature does not match request',
+          );
+        });
+        it('tampered value', async function () {
+          await expectRevert(
+            this.forwarder.execute({ ...this.req, value: web3.utils.toWei('1') }, this.sign),
+            'MinimalForwarder: signature does not match request',
+          );
+        });
+        it('tampered nonce', async function () {
+          await expectRevert(
+            this.forwarder.execute({ ...this.req, nonce: this.req.nonce + 1 }, this.sign),
+            'MinimalForwarder: signature does not match request',
+          );
+        });
+        it('tampered data', async function () {
+          await expectRevert(
+            this.forwarder.execute({ ...this.req, data: '0x1742' }, this.sign),
+            'MinimalForwarder: signature does not match request',
+          );
+        });
+        it('tampered signature', async function () {
+          const tamperedsign = web3.utils.hexToBytes(this.sign);
+          tamperedsign[42] ^= 0xff;
+          await expectRevert(
+            this.forwarder.execute(this.req, web3.utils.bytesToHex(tamperedsign)),
+            'MinimalForwarder: signature does not match request',
+          );
+        });
       });
     });
   });
