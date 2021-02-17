@@ -2,10 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../introspection/ERC165Storage.sol";
+import "../introspection/ERC165.sol";
 
-contract ERC165Mock is ERC165Storage {
-    function registerInterface(bytes4 interfaceId) public {
-        _registerInterface(interfaceId);
-    }
+contract ERC165Mock is ERC165 {
 }
