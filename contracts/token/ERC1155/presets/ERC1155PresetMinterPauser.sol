@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import "../ERC1155.sol";
 import "../extensions/ERC1155Burnable.sol";
 import "../extensions/ERC1155Pausable.sol";
-import "../../../utils/access/AccessControl.sol";
+import "../../../access/AccessControl.sol";
 import "../../../utils/Context.sol";
 
 /**

@@ -8,8 +8,8 @@ import "./extensions/IERC721Metadata.sol";
 import "./extensions/IERC721Enumerable.sol";
 import "../../utils/Address.sol";
 import "../../utils/Context.sol";
-import "../../utils/enumerable/EnumerableSet.sol";
-import "../../utils/enumerable/EnumerableMap.sol";
+import "../../utils/structs/EnumerableSet.sol";
+import "../../utils/structs/EnumerableMap.sol";
 import "../../utils/Strings.sol";
 import "../../utils/introspection/ERC165.sol";
 
