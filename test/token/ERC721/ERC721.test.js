@@ -801,7 +801,7 @@ contract('ERC721', function (accounts) {
 
       it('reverts if index is greater than supply', async function () {
         await expectRevert(
-          this.token.tokenByIndex(2), 'EnumerableMap: index out of bounds',
+          this.token.tokenByIndex(2), 'EnumerableSet: index out of bounds',
         );
       });
 
@@ -908,7 +908,7 @@ contract('ERC721', function (accounts) {
           await this.token.burn(secondTokenId, { from: owner });
           expect(await this.token.totalSupply()).to.be.bignumber.equal('0');
           await expectRevert(
-            this.token.tokenByIndex(0), 'EnumerableMap: index out of bounds',
+            this.token.tokenByIndex(0), 'EnumerableSet: index out of bounds',
           );
         });
 
