@@ -2,7 +2,6 @@
 
 pragma solidity ^0.8.0;
 
-
 /**
  * @dev Wrappers over Solidity's uintXX/intXX casting operators with added overflow
  * checks.
@@ -19,7 +18,6 @@ pragma solidity ^0.8.0;
  * all math on `uint256` and `int256` and then downcasting.
  */
 library SafeCast {
-
     /**
      * @dev Returns the downcasted uint128 from uint256, reverting on
      * overflow (when the input is greater than largest uint128).
