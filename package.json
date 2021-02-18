@@ -50,8 +50,6 @@
     "@nomiclabs/hardhat-truffle5": "^2.0.0",
     "@nomiclabs/hardhat-web3": "^2.0.0",
     "@openzeppelin/docs-utils": "^0.1.0",
-    "@openzeppelin/gsn-helpers": "^0.2.3",
-    "@openzeppelin/gsn-provider": "^0.1.10",
     "@openzeppelin/test-helpers": "^0.5.9",
     "chai": "^4.2.0",
     "eslint": "^6.5.1",
