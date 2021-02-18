@@ -1,6 +1,3 @@
-const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
-const { expect } = require('chai');
-
 const {
   shouldBehaveLikeAccessControl,
   shouldBehaveLikeAccessControlEnumerable,
@@ -10,7 +7,6 @@ const {
 const AccessControlMock = artifacts.require('AccessControlEnumerableMock');
 
 contract('AccessControl', function (accounts) {
-
   beforeEach(async function () {
     this.accessControl = await AccessControlMock.new({ from: accounts[0] });
   });
