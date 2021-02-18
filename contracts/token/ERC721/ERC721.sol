@@ -53,11 +53,16 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     constructor (string memory name_, string memory symbol_) {
         _name = name_;
         _symbol = symbol_;
+    }
 
-        // register the supported interfaces to conform to ERC721 via ERC165
-        _registerInterface(type(IERC721).interfaceId);
-        _registerInterface(type(IERC721Metadata).interfaceId);
-        _registerInterface(type(IERC721Enumerable).interfaceId);
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
+        return interfaceId == type(IERC721).interfaceId
+            || interfaceId == type(IERC721Metadata).interfaceId
+            || interfaceId == type(IERC721Enumerable).interfaceId
+            || super.supportsInterface(interfaceId);
     }
 
     /**
