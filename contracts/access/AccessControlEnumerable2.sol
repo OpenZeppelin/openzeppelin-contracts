@@ -7,7 +7,7 @@ import "../utils/EnumerableSet.sol";
 
 /**
  * @dev Contract module that allows children to implement role-based access
- * control mechanisms. Role to account enumerable version.
+ * control mechanisms. Account to role enumerable version.
  *
  * Roles are referred to by their `bytes32` identifier. These should be exposed
  * in the external API and be unique. The best way to achieve this is by
@@ -40,33 +40,33 @@ import "../utils/EnumerableSet.sol";
  * grant and revoke this role. Extra precautions should be taken to secure
  * accounts that have been granted it.
  */
-abstract contract AccessControlEnumerable is AccessControl {
-    using EnumerableSet for EnumerableSet.AddressSet;
+abstract contract AccessControlEnumerable2 is AccessControl {
+    using EnumerableSet for EnumerableSet.Bytes32Set;
 
-    mapping (bytes32 => EnumerableSet.AddressSet) private _roleMembers;
+    mapping (address => EnumerableSet.Bytes32Set) private _addressRoles;
 
     /**
-     * @dev Returns one of the accounts that have `role`. `index` must be a
-     * value between 0 and {getRoleMemberCount}, non-inclusive.
+     * @dev Returns one of the roles that `account` has. `index` must be a
+     * value between 0 and {getAddressRoleCount}, non-inclusive.
      *
-     * Role bearers are not sorted in any particular way, and their ordering may
-     * change at any point.
+     * Role not sorted in any particular way, and their ordering may change at
+     * any point.
      *
-     * WARNING: When using {getRoleMember} and {getRoleMemberCount}, make sure
+     * WARNING: When using {getAddressRole} and {getAddressRoleCount}, make sure
      * you perform all queries on the same block. See the following
      * https://forum.openzeppelin.com/t/iterating-over-elements-on-enumerableset-in-openzeppelin-contracts/2296[forum post]
      * for more information.
      */
-    function getRoleMember(bytes32 role, uint256 index) public view returns (address) {
-        return _roleMembers[role].at(index);
+    function getAddressRole(address account, uint256 index) public view returns (bytes32) {
+        return _addressRoles[account].at(index);
     }
 
     /**
-     * @dev Returns the number of accounts that have `role`. Can be used
-     * together with {getRoleMember} to enumerate all bearers of a role.
+     * @dev Returns the number of role that `account` has. Can be used
+     * together with {getAddressRole} to enumerate all role of an account.
      */
-    function getRoleMemberCount(bytes32 role) public view returns (uint256) {
-        return _roleMembers[role].length();
+    function getAddressRoleCount(address account) public view returns (uint256) {
+        return _addressRoles[account].length();
     }
 
     /**
@@ -74,7 +74,7 @@ abstract contract AccessControlEnumerable is AccessControl {
      */
     function _grantRole(bytes32 role, address account) internal virtual override {
         super._grantRole(role, account);
-        _roleMembers[role].add(account);
+        _addressRoles[account].add(role);
     }
 
     /**
@@ -82,6 +82,6 @@ abstract contract AccessControlEnumerable is AccessControl {
      */
     function _revokeRole(bytes32 role, address account) internal virtual override {
         super._revokeRole(role, account);
-        _roleMembers[role].remove(account);
+        _addressRoles[account].remove(role);
     }
 }
