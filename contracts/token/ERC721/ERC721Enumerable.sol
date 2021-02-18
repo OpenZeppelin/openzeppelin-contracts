@@ -18,9 +18,12 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
     // Mapping from token id to position in the allTokens array
     mapping(uint256 => uint256) private _allTokensIndex;
 
-    constructor () {
-        // register the supported interfaces to conform to ERC721 via ERC165
-        _registerInterface(type(IERC721Enumerable).interfaceId);
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC721) returns (bool) {
+        return interfaceId == type(IERC721Enumerable).interfaceId
+            || super.supportsInterface(interfaceId);
     }
 
     /**

@@ -50,7 +50,6 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
         return interfaceId == type(IERC721).interfaceId
             || interfaceId == type(IERC721Metadata).interfaceId
-            || interfaceId == type(IERC721Enumerable).interfaceId
             || super.supportsInterface(interfaceId);
     }
 
@@ -59,14 +58,16 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      */
     function balanceOf(address owner) public view virtual override returns (uint256) {
         require(owner != address(0), "ERC721: balance query for the zero address");
-        return _holderTokens[owner].length();
+        return _balances[owner];
     }
 
     /**
      * @dev See {IERC721-ownerOf}.
      */
     function ownerOf(uint256 tokenId) public view virtual override returns (address) {
-        return _tokenOwners.get(tokenId, "ERC721: owner query for nonexistent token");
+        address owner = _owners[tokenId];
+        require(owner != address(0), "ERC721: owner query for nonexistent token");
+        return owner;
     }
 
     /**
@@ -97,23 +98,6 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      */
     function _baseURI() internal view virtual returns (string memory) {
         return "";
-    }
-
-    /**
-     * @dev See {IERC721-balanceOf}.
-     */
-    function balanceOf(address owner) public view virtual override returns (uint256) {
-        require(owner != address(0), "ERC721: balance query for the zero address");
-        return _balances[owner];
-    }
-
-    /**
-     * @dev See {IERC721-ownerOf}.
-     */
-    function ownerOf(uint256 tokenId) public view virtual override returns (address) {
-        address owner = _owners[tokenId];
-        require(owner != address(0), "ERC721: owner query for nonexistent token");
-        return owner;
     }
 
     /**
