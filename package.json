@@ -70,7 +70,6 @@
     "lodash.zip": "^4.2.0",
     "micromatch": "^4.0.2",
     "mocha": "^8.0.1",
-    "replace-in-file": "^6.2.0",
     "rimraf": "^3.0.2",
     "solhint": "^3.2.0",
     "solidity-coverage": "^0.7.11",
