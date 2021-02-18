@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../utils/draft-EIP712.sol";
+import "../utils/cryptography/draft-EIP712.sol";
 import "../utils/cryptography/ECDSA.sol";
 
 contract EIP712External is EIP712 {
