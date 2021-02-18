@@ -8,6 +8,7 @@
  * `Strings`: addition of a `toHexString` function.  ([#2504](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2504))
  * `EnumerableMap`: change implementation to optimize for `key → value` lookups instead of enumeration. ([#2518](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2518))
  * `GSN`: Deprecate GSNv1 support in favor of upcomming support for GSNv2. ([#2521](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2521))
+ * `Initializable`: Make initializer check stricter during construction. ([#2531](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2531))
 
 ## 3.4.0 (2021-02-02)
 
