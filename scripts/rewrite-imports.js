@@ -1,14 +1,8 @@
-'use strict';
-
-// const debug = require('debug');
 const fs = require('fs');
+const glob = require('glob');
 const path = require('path');
-// const replace = require('replace-in-file');
-const replace = require('./replace-in-file')
-const successHandler = require('./replace-in-file/helpers/success-handler')
 
 const versions = [
-  '',
   '@openzeppelin/contracts',
   '@openzeppelin/contracts-upgradeable',
 ];
@@ -97,19 +91,61 @@ const updates = {
   'utils/Strings.sol': undefined,
 };
 
+const globAsync = (pattern) =>
+  new Promise((resolve, reject) => {
+    glob(pattern, (error, files) => error ? reject(error) : resolve(files));
+  });
+
+const getPathsAsync = (patterns) =>
+  Promise.all(patterns.map(globAsync)).then(paths => [].concat.apply([], paths));
+
+const replaceAsync = (file, from, to, encoding = 'utf-8') =>
+  new Promise((resolve, reject) => {
+    fs.readFile(file, encoding, (error, contents) => {
+      if (error) {
+        return reject(error);
+      }
+
+      const newContents = from.reduce((contents, item, i) => contents.replace(item, to[i]), contents);
+
+      if (contents === newContents) {
+        return resolve({ file, hasChanged: false });
+      }
+
+      fs.writeFile(file, newContents, encoding, error => error ? reject(error) : resolve({ file, hasChanged: true }));
+    });
+  });
+
+const replaceInFiles = (files, from, to) =>
+  getPathsAsync(files)
+    .then(paths => Promise.all(paths.map(file => replaceAsync(file, from, to))))
+    .then(results => {
+      return results;
+    })
+    .catch(error => {
+      throw error;
+    });
+
 (async () => {
-  // debug('rewrite-migration')('started');
-  const results = await replace({
-    files: (process.argv.length > 2 ? process.argv.slice(2) : [ 'contracts' ])
+  const results = await replaceInFiles(
+    /* files */
+    (process.argv.length > 2 ? process.argv.slice(2) : [ 'contracts' ])
       .map(file => fs.statSync(file).isDirectory() ? path.join(file, '**', '*.sol') : file),
-    from: Object.entries(updates)
+    /* from */
+    Object.entries(updates)
       .filter(([ from, to ]) => to)
       .flatMap(([ from, to ]) => versions.map(version => path.join(version, from))),
-    to: Object.entries(updates)
+    /* to */
+    Object.entries(updates)
       .filter(([ from, to ]) => to)
       .flatMap(([ from, to ]) => versions.map(version => path.join(version, to))),
-  });
-  successHandler(results, true);
-  // results.filter(({ hasChanged }) => hasChanged).forEach(({ file }) => debug('rewrite-migration:updated')(file));
-  // debug('rewrite-migration')('finished');
+  );
+
+  const changed = results.filter(result => result.hasChanged);
+  if (changed.length) {
+    console.log(`${changed.length} file(s) were changed`);
+    changed.forEach(result => console.log('-', result.file));
+  } else {
+    console.log('No files were changed');
+  }
 })().catch(console.error);
