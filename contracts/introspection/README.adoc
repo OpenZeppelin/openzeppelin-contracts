@@ -20,6 +20,8 @@ Note that, in all cases, accounts simply _declare_ their interfaces, but they ar
 
 {{ERC165}}
 
+{{ERC165Storage}}
+
 {{ERC165Checker}}
 
 == Global
