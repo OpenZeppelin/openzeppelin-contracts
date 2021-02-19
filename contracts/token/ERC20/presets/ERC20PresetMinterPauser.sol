@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import "../ERC20.sol";
 import "../extensions/ERC20Burnable.sol";
 import "../extensions/ERC20Pausable.sol";
-import "../../../access/AccessControl.sol";
+import "../../../access/AccessControlEnumerable.sol";
 import "../../../utils/Context.sol";
 
 /**
@@ -22,7 +22,7 @@ import "../../../utils/Context.sol";
  * roles, as well as the default admin role, which will let it grant both minter
  * and pauser roles to other accounts.
  */
-contract ERC20PresetMinterPauser is Context, AccessControl, ERC20Burnable, ERC20Pausable {
+contract ERC20PresetMinterPauser is Context, AccessControlEnumerable, ERC20Burnable, ERC20Pausable {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 

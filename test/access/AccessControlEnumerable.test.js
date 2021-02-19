@@ -1,8 +1,9 @@
 const {
   shouldBehaveLikeAccessControl,
+  shouldBehaveLikeAccessControlEnumerable,
 } = require('./AccessControl.behavior.js');
 
-const AccessControlMock = artifacts.require('AccessControlMock');
+const AccessControlMock = artifacts.require('AccessControlEnumerableMock');
 
 contract('AccessControl', function (accounts) {
   beforeEach(async function () {
@@ -10,4 +11,5 @@ contract('AccessControl', function (accounts) {
   });
 
   shouldBehaveLikeAccessControl('AccessControl', ...accounts);
+  shouldBehaveLikeAccessControlEnumerable('AccessControl', ...accounts);
 });
