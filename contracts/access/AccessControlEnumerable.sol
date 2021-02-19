@@ -38,18 +38,18 @@ abstract contract AccessControlEnumerable is AccessControl {
     }
 
     /**
-     * @dev Overload {_grantRole} to track enumerable memberships
+     * @dev Overload {grantRole} to track enumerable memberships
      */
-    function _grantRole(bytes32 role, address account) internal virtual override {
-        super._grantRole(role, account);
+    function grantRole(bytes32 role, address account) public virtual override {
+        super.grantRole(role, account);
         _roleMembers[role].add(account);
     }
 
     /**
-     * @dev Overload {_revokeRole} to track enumerable memberships
+     * @dev Overload {revokeRole} to track enumerable memberships
      */
-    function _revokeRole(bytes32 role, address account) internal virtual override {
-        super._revokeRole(role, account);
+    function revokeRole(bytes32 role, address account) public virtual override {
+        super.revokeRole(role, account);
         _roleMembers[role].remove(account);
     }
 }

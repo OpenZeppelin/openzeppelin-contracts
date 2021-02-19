@@ -44,6 +44,7 @@ abstract contract AccessControl is Context {
         mapping (address => bool) members;
         bytes32 adminRole;
     }
+
     mapping (bytes32 => RoleData) private _roles;
 
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
@@ -78,7 +79,7 @@ abstract contract AccessControl is Context {
     /**
      * @dev Returns `true` if `account` has been granted `role`.
      */
-    function hasRole(bytes32 role, address account) public view virtual returns (bool) {
+    function hasRole(bytes32 role, address account) public view returns (bool) {
         return _roles[role].members[account];
     }
 
@@ -88,7 +89,7 @@ abstract contract AccessControl is Context {
      *
      * To change a role's admin, use {_setRoleAdmin}.
      */
-    function getRoleAdmin(bytes32 role) public view virtual returns (bytes32) {
+    function getRoleAdmin(bytes32 role) public view returns (bytes32) {
         return _roles[role].adminRole;
     }
 
@@ -103,7 +104,7 @@ abstract contract AccessControl is Context {
      * - the caller must have ``role``'s admin role.
      */
     function grantRole(bytes32 role, address account) public virtual {
-        require(AccessControl.hasRole(AccessControl.getRoleAdmin(role), _msgSender()), "AccessControl: sender must be an admin to grant");
+        require(hasRole(getRoleAdmin(role), _msgSender()), "AccessControl: sender must be an admin to grant");
 
         _grantRole(role, account);
     }
@@ -118,7 +119,7 @@ abstract contract AccessControl is Context {
      * - the caller must have ``role``'s admin role.
      */
     function revokeRole(bytes32 role, address account) public virtual {
-        require(AccessControl.hasRole(AccessControl.getRoleAdmin(role), _msgSender()), "AccessControl: sender must be an admin to revoke");
+        require(hasRole(getRoleAdmin(role), _msgSender()), "AccessControl: sender must be an admin to revoke");
 
         _revokeRole(role, account);
     }
@@ -169,19 +170,19 @@ abstract contract AccessControl is Context {
      * Emits a {RoleAdminChanged} event.
      */
     function _setRoleAdmin(bytes32 role, bytes32 adminRole) internal virtual {
-        emit RoleAdminChanged(role, AccessControl.getRoleAdmin(role), adminRole);
+        emit RoleAdminChanged(role, getRoleAdmin(role), adminRole);
         _roles[role].adminRole = adminRole;
     }
 
-    function _grantRole(bytes32 role, address account) internal virtual {
-        if (!AccessControl.hasRole(role, account)) {
+    function _grantRole(bytes32 role, address account) private {
+        if (!hasRole(role, account)) {
             _roles[role].members[account] = true;
             emit RoleGranted(role, account, _msgSender());
         }
     }
 
-    function _revokeRole(bytes32 role, address account) internal virtual {
-        if (AccessControl.hasRole(role, account)) {
+    function _revokeRole(bytes32 role, address account) private {
+        if (hasRole(role, account)) {
             _roles[role].members[account] = false;
             emit RoleRevoked(role, account, _msgSender());
         }
