@@ -3,11 +3,6 @@
 const { promises: fs } = require('fs');
 const path = require('path');
 
-const versions = [
-  '@openzeppelin/contracts',
-  '@openzeppelin/contracts-upgradeable',
-];
-
 const pathUpdates = {
   // 'access/AccessControl.sol': undefined,
   // 'access/Ownable.sol': undefined,
@@ -112,15 +107,15 @@ async function main (paths = [ 'contracts' ]) {
   }
 }
 
-async function listFilesRecursively (paths, filter = undefined) {
-  const queue = Array.isArray(paths) ? paths : [ paths ];
+async function listFilesRecursively (paths, filter) {
+  const queue = paths;
   const files = [];
 
   while (queue.length > 0) {
     const top = queue.shift();
     const stat = await fs.stat(top);
     if (stat.isFile()) {
-      if (!filter || top.match(filter)) {
+      if (top.match(filter)) {
         files.push(top);
       }
     } else if (stat.isDirectory()) {
@@ -146,18 +141,29 @@ async function updateFile (file, update) {
 
 function updateImportPaths (source) {
   for (const [ oldPath, newPath ] of Object.entries(pathUpdates)) {
-    for (const version of versions) {
-      source = source.replace(
-        path.join(version, oldPath),
-        path.join(version, newPath),
-      );
-    }
+    source = source.replace(
+      path.join('@openzeppelin/contracts', oldPath),
+      path.join('@openzeppelin/contracts', newPath),
+    );
+    source = source.replace(
+      path.join('@openzeppelin/contracts-upgradeable', getUpgradeablePath(oldPath)),
+      path.join('@openzeppelin/contracts-upgradeable', getUpgradeablePath(newPath)),
+    );
   }
 
   return source;
 }
 
-module.exports = main;
+function getUpgradeablePath (file) {
+  const { dir, name, ext } = path.parse(file);
+  const upgradeableName = name + 'Upgradeable';
+  return path.format({ dir, ext, name: upgradeableName });
+}
+
+module.exports = {
+  pathUpdates,
+  updateImportPaths,
+};
 
 if (require.main === module) {
   const args = process.argv.length > 2 ? process.argv.slice(2) : undefined;
