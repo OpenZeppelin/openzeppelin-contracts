@@ -11,6 +11,7 @@
  * `ERC165`: Remove uses of storage in the base ERC165 implementation. ERC165 based contracts now use storage-less virtual functions. Old behaviour remains available in the `ERC165Storage` extension. ([#2505](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2505))
  * `Initializable`: Make initializer check stricter during construction. ([#2531](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2531))
  * `ERC721`: remove enumerability of tokens from the base implementation. This feature is now provided separately through the `ERC721Enumerable` extension. ([#2511](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2511))
+ * `AccessControl`: removed enumerability by default for a more lightweight contract. It is now opt-in through `AccessControlEnumerable`. ([#2512](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2512))
 
 ## 3.4.0 (2021-02-02)
 
