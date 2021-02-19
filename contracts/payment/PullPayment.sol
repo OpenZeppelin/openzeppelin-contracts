@@ -23,7 +23,7 @@ import "./escrow/Escrow.sol";
  * payments with {payments}, and retrieve them with {withdrawPayments}.
  */
 abstract contract PullPayment {
-    Escrow private _escrow;
+    Escrow immutable private _escrow;
 
     constructor () {
         _escrow = new Escrow();

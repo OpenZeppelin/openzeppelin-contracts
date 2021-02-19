@@ -27,10 +27,6 @@ contract('ERC721PresetMinterPauserAutoId', function (accounts) {
     expect(await this.token.symbol()).to.equal(symbol);
   });
 
-  it('token has correct base URI', async function () {
-    expect(await this.token.baseURI()).to.equal(baseURI);
-  });
-
   it('deployer has the default admin role', async function () {
     expect(await this.token.getRoleMemberCount(DEFAULT_ADMIN_ROLE)).to.be.bignumber.equal('1');
     expect(await this.token.getRoleMember(DEFAULT_ADMIN_ROLE, 0)).to.equal(deployer);
