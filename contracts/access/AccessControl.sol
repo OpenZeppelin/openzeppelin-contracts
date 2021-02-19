@@ -40,10 +40,13 @@ import "../utils/Context.sol";
  * accounts that have been granted it.
  */
 abstract contract AccessControl is Context {
-    bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
+    struct RoleData {
+        mapping (address => bool) members;
+        bytes32 adminRole;
+    }
+    mapping (bytes32 => RoleData) private _roles;
 
-    mapping (bytes32 => bytes32) private _admins;
-    mapping (bytes32 => mapping (address => bool)) private _members;
+    bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
 
     /**
      * @dev Emitted when `newAdminRole` is set as ``role``'s admin role, replacing `previousAdminRole`
@@ -76,7 +79,7 @@ abstract contract AccessControl is Context {
      * @dev Returns `true` if `account` has been granted `role`.
      */
     function hasRole(bytes32 role, address account) public view virtual returns (bool) {
-        return _members[role][account];
+        return _roles[role].members[account];
     }
 
     /**
@@ -86,7 +89,7 @@ abstract contract AccessControl is Context {
      * To change a role's admin, use {_setRoleAdmin}.
      */
     function getRoleAdmin(bytes32 role) public view virtual returns (bytes32) {
-        return _admins[role];
+        return _roles[role].adminRole;
     }
 
     /**
@@ -167,19 +170,19 @@ abstract contract AccessControl is Context {
      */
     function _setRoleAdmin(bytes32 role, bytes32 adminRole) internal virtual {
         emit RoleAdminChanged(role, AccessControl.getRoleAdmin(role), adminRole);
-        _admins[role] = adminRole;
+        _roles[role].adminRole = adminRole;
     }
 
     function _grantRole(bytes32 role, address account) internal virtual {
         if (!AccessControl.hasRole(role, account)) {
-            _members[role][account] = true;
+            _roles[role].members[account] = true;
             emit RoleGranted(role, account, _msgSender());
         }
     }
 
     function _revokeRole(bytes32 role, address account) internal virtual {
         if (AccessControl.hasRole(role, account)) {
-            _members[role][account] = false;
+            _roles[role].members[account] = false;
             emit RoleRevoked(role, account, _msgSender());
         }
     }
