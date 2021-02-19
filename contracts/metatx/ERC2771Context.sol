@@ -7,7 +7,7 @@ import "../utils/Context.sol";
 /*
  * @dev Context variant with ERC2771 support.
  */
-abstract contract BaseRelayRecipient is Context {
+abstract contract ERC2771Context is Context {
     address immutable _trustedForwarder;
 
     constructor(address trustedForwarder) {

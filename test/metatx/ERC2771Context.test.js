@@ -5,7 +5,7 @@ const { EIP712Domain } = require('../helpers/eip712');
 const { expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
-const BaseRelayRecipientMock = artifacts.require('BaseRelayRecipientMock');
+const ERC2771ContextMock = artifacts.require('ERC2771ContextMock');
 const MinimalForwarder = artifacts.require('MinimalForwarder');
 const ContextMockCaller = artifacts.require('ContextMockCaller');
 
@@ -14,10 +14,10 @@ const { shouldBehaveLikeRegularContext } = require('../utils/Context.behavior');
 const name = 'MinimalForwarder';
 const version = '0.0.1';
 
-contract('BaseRelayRecipient', function (accounts) {
+contract('ERC2771Context', function (accounts) {
   beforeEach(async function () {
     this.forwarder = await MinimalForwarder.new();
-    this.recipient = await BaseRelayRecipientMock.new(this.forwarder.address);
+    this.recipient = await ERC2771ContextMock.new(this.forwarder.address);
 
     this.domain = {
       name,
@@ -81,7 +81,7 @@ contract('BaseRelayRecipient', function (accounts) {
         // expect(await this.forwarder.verify(req, sign)).to.be.true;
 
         const { tx } = await this.forwarder.execute(req, sign);
-        await expectEvent.inTransaction(tx, BaseRelayRecipientMock, 'Sender', { sender: this.sender });
+        await expectEvent.inTransaction(tx, ERC2771ContextMock, 'Sender', { sender: this.sender });
       });
     });
 
@@ -106,7 +106,7 @@ contract('BaseRelayRecipient', function (accounts) {
         // expect(await this.forwarder.verify(req, sign)).to.be.true;
 
         const { tx } = await this.forwarder.execute(req, sign);
-        await expectEvent.inTransaction(tx, BaseRelayRecipientMock, 'Data', { data, integerValue, stringValue });
+        await expectEvent.inTransaction(tx, ERC2771ContextMock, 'Data', { data, integerValue, stringValue });
       });
     });
   });
