@@ -911,16 +911,19 @@ function shouldBehaveLikeERC721Metadata (errorPrefix, name, symbol, owner) {
       });
 
       it('base URI can be set', async function () {
+        this.token.setBaseURI ?? this.skip();
         await this.token.setBaseURI(baseURI);
         expect(await this.token.baseURI()).to.equal(baseURI);
       });
 
       it('base URI is added as a prefix to the token URI', async function () {
+        this.token.setBaseURI ?? this.skip();
         await this.token.setBaseURI(baseURI);
         expect(await this.token.tokenURI(firstTokenId)).to.be.equal(baseURI + firstTokenId.toString());
       });
 
       it('token URI can be changed by changing the base URI', async function () {
+        this.token.setBaseURI ?? this.skip();
         await this.token.setBaseURI(baseURI);
         const newBaseURI = 'https://api.com/v2/';
         await this.token.setBaseURI(newBaseURI);
