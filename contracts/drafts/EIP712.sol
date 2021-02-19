@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.0;
 
+import "../cryptography/ECDSA.sol";
+
 /**
  * @dev https://eips.ethereum.org/EIPS/eip-712[EIP 712] is a standard for hashing and signing of typed structured data.
  *
@@ -95,6 +97,6 @@ abstract contract EIP712 {
      * ```
      */
     function _hashTypedDataV4(bytes32 structHash) internal view virtual returns (bytes32) {
-        return keccak256(abi.encodePacked("\x19\x01", _domainSeparatorV4(), structHash));
+        return ECDSA.toTypedDataHash(_domainSeparatorV4(), structHash);
     }
 }
