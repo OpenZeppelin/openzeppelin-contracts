@@ -28,7 +28,7 @@ const filenames = fs.readdirSync(buildinfo);
 if (filenames.length !== 1) {
   throw new Error(`There should only be one file in ${buildinfo}`);
 }
-const solcOutput = readJSON(path.join(buildinfo, filenames[0]));
+const solcOutput = readJSON(path.join(buildinfo, filenames[0])).output;
 
 const artifactsDir = 'build/contracts';
 
