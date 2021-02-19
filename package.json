@@ -9,7 +9,7 @@
     "/test/behaviors"
   ],
   "bin": {
-    "rewrite-imports": "scripts/rewrite-imports.js"
+    "openzeppelin-contracts-migrate-imports": "scripts/migrate-imports.js"
   },
   "scripts": {
     "compile": "hardhat compile",
