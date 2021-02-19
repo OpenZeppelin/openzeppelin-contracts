@@ -189,7 +189,9 @@ function shouldBehaveLikeAccessControlEnumerable (errorPrefix, admin, authorized
   });
 }
 
-function shouldBehaveLikeAccessControlEnumerableExtra (errorPrefix, admin, authorized, other, otherAdmin, otherAuthorized) {
+function shouldBehaveLikeAccessControlEnumerableExtra (errorPrefix, admin, authorized) {
+  shouldSupportInterfaces(['AccessControlEnumerableExtra']);
+
   describe('enumerating', function () {
     it('role beared can be enumerated', async function () {
       await this.accessControl.grantRole(ROLE, authorized, { from: admin });

@@ -50,6 +50,10 @@ const INTERFACES = {
     'getRoleMember(bytes32,uint256)',
     'getRoleMemberCount(bytes32)',
   ],
+  AccessControlEnumerableExtra: [
+    'getAddressRole(address,uint256)',
+    'getAddressRoleCount(address)',
+  ],
 };
 
 const INTERFACE_IDS = {};
