@@ -2,9 +2,9 @@
 
 pragma solidity >=0.6.0 <0.9.0;
 
-import "../cryptography/ECDSA.sol";
+import "./ECDSA.sol";
 import "../interfaces/IERC1271.sol";
-import "./Address.sol";
+import "../utils/Address.sol";
 
 library SignatureChecker {
     function isValidSignature(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
