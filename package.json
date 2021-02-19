@@ -8,6 +8,9 @@
     "!/contracts/mocks",
     "/test/behaviors"
   ],
+  "bin": {
+    "rewrite-imports": "scripts/rewrite-imports.js"
+  },
   "scripts": {
     "compile": "hardhat compile",
     "coverage": "hardhat coverage",

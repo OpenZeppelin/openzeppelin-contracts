@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const { promises: fs } = require('fs');
 const path = require('path');
 
@@ -90,8 +92,7 @@ const pathUpdates = {
   // 'utils/Strings.sol': undefined,
 };
 
-async function main () {
-  const paths = process.argv.length > 2 ? process.argv.slice(2) : [ 'contracts' ];
+async function main (paths = [ 'contracts' ]) {
   const files = await listFilesRecursively(paths, /\.sol$/);
 
   const updatedFiles = [];
@@ -156,7 +157,12 @@ function updateImportPaths (source) {
   return source;
 }
 
-main().catch(e => {
-  console.error(e);
-  process.exit(1);
-});
+module.exports = main;
+
+if (require.main === module) {
+  const args = process.argv.length > 2 ? process.argv.slice(2) : undefined;
+  main(args).catch(e => {
+    console.error(e);
+    process.exit(1);
+  });
+}
