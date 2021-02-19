@@ -8,7 +8,7 @@ import "../ERC20.sol";
  * @dev Extension of {ERC20} that adds a cap to the supply of tokens.
  */
 abstract contract ERC20Capped is ERC20 {
-    uint256 private _cap;
+    uint256 immutable private _cap;
 
     /**
      * @dev Sets the value of the `cap`. This value is immutable, it can only be
