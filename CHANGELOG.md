@@ -9,7 +9,7 @@
  * `EnumerableMap`: change implementation to optimize for `key → value` lookups instead of enumeration. ([#2518](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2518))
  * `GSN`: Deprecate GSNv1 support in favor of upcomming support for GSNv2. ([#2521](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2521))
  * `ERC165`: Remove uses of storage in the base ERC165 implementation. ERC165 based contracts now use storage-less virtual functions. Old behaviour remains available in the `ERC165Storage` extension. ([#2505](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2505))
- * `ERC721`: remove enumerability of tokens from de base implementation. This feature is now provided through the `ERC721Enumerable` extension. ([#2511](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2511))
+ * `ERC721`: remove enumerability of tokens from the base implementation. This feature is now provided separately through the `ERC721Enumerable` extension. ([#2511](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2511))
 
 ## 3.4.0 (2021-02-02)
 
