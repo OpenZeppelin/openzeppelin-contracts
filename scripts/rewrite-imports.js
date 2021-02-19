@@ -7,8 +7,8 @@ const versions = [
 ];
 
 const pathUpdates = {
-  'access/AccessControl.sol': undefined,
-  'access/Ownable.sol': undefined,
+  // 'access/AccessControl.sol': undefined,
+  // 'access/Ownable.sol': undefined,
   'access/TimelockController.sol': 'governance/TimelockController.sol',
   'cryptography/ECDSA.sol': 'utils/cryptography/ECDSA.sol',
   'cryptography/MerkleProof.sol': 'utils/cryptography/MerkleProof.sol',
@@ -16,11 +16,11 @@ const pathUpdates = {
   'drafts/ERC20Permit.sol': 'token/ERC20/extensions/draft-ERC20Permit.sol',
   'drafts/IERC20Permit.sol': 'token/ERC20/extensions/draft-IERC20Permit.sol',
   'GSN/Context.sol': 'utils/Context.sol',
-  'GSN/GSNRecipientERC20Fee.sol': undefined,
-  'GSN/GSNRecipientSignature.sol': undefined,
-  'GSN/GSNRecipient.sol': undefined,
-  'GSN/IRelayHub.sol': undefined,
-  'GSN/IRelayRecipient.sol': undefined,
+  // 'GSN/GSNRecipientERC20Fee.sol': undefined,
+  // 'GSN/GSNRecipientSignature.sol': undefined,
+  // 'GSN/GSNRecipient.sol': undefined,
+  // 'GSN/IRelayHub.sol': undefined,
+  // 'GSN/IRelayRecipient.sol': undefined,
   'introspection/ERC165Checker.sol': 'utils/introspection/ERC165Checker.sol',
   'introspection/ERC165.sol': 'utils/introspection/ERC165.sol',
   'introspection/ERC1820Implementer.sol': 'utils/introspection/ERC1820Implementer.sol',
@@ -91,14 +91,12 @@ const pathUpdates = {
 };
 
 async function main () {
-  const files = await listFilesRecursively('contracts');
-  const solidityFiles = files.filter(f => f.match(/\.sol$/));
+  const paths = process.argv.length > 2 ? process.argv.slice(2) : [ 'contracts' ];
+  const files = await listFilesRecursively(paths, /\.sol$/);
 
   const updatedFiles = [];
-
-  for (const file of solidityFiles) {
-    const updated = await updateFile(file, updateImportPaths);
-    if (updated) {
+  for (const file of files) {
+    if (await updateFile(file, updateImportPaths)) {
       updatedFiles.push(file);
     }
   }
@@ -113,18 +111,20 @@ async function main () {
   }
 }
 
-async function listFilesRecursively (dir) {
-  const queue = [dir];
+async function listFilesRecursively (paths, filter = undefined) {
+  const queue = Array.isArray(paths) ? paths : [ paths ];
   const files = [];
 
   while (queue.length > 0) {
     const top = queue.shift();
-    for (const e of await fs.readdir(top, { withFileTypes: true })) {
-      const p = path.join(top, e.name);
-      if (e.isDirectory()) {
-        queue.push(p);
-      } else if (e.isFile()) {
-        files.push(p);
+    const stat = await fs.stat(top);
+    if (stat.isFile()) {
+      if (!filter || top.match(filter)) {
+        files.push(top);
+      }
+    } else if (stat.isDirectory()) {
+      for (const name of await fs.readdir(top)) {
+        queue.push(path.join(top, name));
       }
     }
   }
@@ -144,11 +144,11 @@ async function updateFile (file, update) {
 }
 
 function updateImportPaths (source) {
-  for (const [oldPath, newPath] of Object.entries(pathUpdates)) {
-    for (const ver of versions) {
+  for (const [ oldPath, newPath ] of Object.entries(pathUpdates)) {
+    for (const version of versions) {
       source = source.replace(
-        ver + '/' + oldPath,
-        ver + '/' + newPath,
+        path.join(version, oldPath),
+        path.join(version, newPath),
       );
     }
   }
