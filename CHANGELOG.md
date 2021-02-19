@@ -12,6 +12,16 @@
  * `Initializable`: Make initializer check stricter during construction. ([#2531](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2531))
  * Overall reorganisation of the contract folder to improve clarity and discoverability. ([#2503](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2503))
 
+### How to upgrade from 3.x
+
+Since this version has moved a few contracts to different directories, users upgrading from a previous version will need to adjust their import statements. To make this easier, the package includes a script that will migrate import statements automatically. After upgrading to the latest version of the package, run:
+
+```
+npx openzeppelin-contracts-migrate-imports
+```
+
+Make sure you're using git or another version control system to be able to recover from any potential error in our script.
+
 ## 3.4.0 (2021-02-02)
 
  * `BeaconProxy`: added new kind of proxy that allows simultaneous atomic upgrades. ([#2411](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2411))
