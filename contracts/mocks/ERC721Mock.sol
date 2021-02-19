@@ -9,7 +9,21 @@ import "../token/ERC721/ERC721.sol";
  * This mock just provides a public safeMint, mint, and burn functions for testing purposes
  */
 contract ERC721Mock is ERC721 {
+    string private _baseTokenURI;
+
     constructor (string memory name, string memory symbol) ERC721(name, symbol) { }
+
+    function _baseURI() internal view virtual override returns (string memory) {
+        return _baseTokenURI;
+    }
+
+    function setBaseURI(string calldata newBaseTokenURI) public {
+        _baseTokenURI = newBaseTokenURI;
+    }
+
+    function baseURI() public view returns (string memory) {
+        return _baseURI();
+    }
 
     function exists(uint256 tokenId) public view returns (bool) {
         return _exists(tokenId);
