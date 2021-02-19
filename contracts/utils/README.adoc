@@ -67,11 +67,15 @@ Note that, in all cases, accounts simply _declare_ their interfaces, but they ar
 
 {{ERC1820Implementer}}
 
-== General
+== Data Structures
 
-{{Initializable}}
+{{EnumerableMap}}
+
+{{EnumerableSet}}
 
 == Libraries
+
+{{Create2}}
 
 {{Address}}
 
@@ -79,12 +83,8 @@ Note that, in all cases, accounts simply _declare_ their interfaces, but they ar
 
 {{Counters}}
 
-{{Create2}}
-
-{{EnumerableMap}}
-
-{{EnumerableSet}}
-
-{{SafeCast}}
-
 {{Strings}}
+
+== Other
+
+{{Initializable}}
