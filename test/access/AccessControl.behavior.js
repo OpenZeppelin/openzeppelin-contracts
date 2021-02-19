@@ -176,29 +176,7 @@ function shouldBehaveLikeAccessControlEnumerable (errorPrefix, admin, authorized
   });
 }
 
-function shouldBehaveLikeAccessControlEnumerable2 (errorPrefix, admin, authorized, other, otherAdmin, otherAuthorized) {
-  describe('enumerating', function () {
-    it('role beared can be enumerated', async function () {
-      await this.accessControl.grantRole(ROLE, authorized, { from: admin });
-      await this.accessControl.grantRole(DEFAULT_ADMIN_ROLE, authorized, { from: admin });
-      await this.accessControl.grantRole(OTHER_ROLE, authorized, { from: admin });
-      await this.accessControl.revokeRole(DEFAULT_ADMIN_ROLE, authorized, { from: admin });
-
-      const roleCount = await this.accessControl.getAddressRoleCount(authorized);
-      expect(roleCount).to.bignumber.equal('2');
-
-      const beared = [];
-      for (let i = 0; i < roleCount; ++i) {
-        beared.push(await this.accessControl.getAddressRole(authorized, i));
-      }
-
-      expect(beared).to.have.members([ROLE, OTHER_ROLE]);
-    });
-  });
-}
-
 module.exports = {
   shouldBehaveLikeAccessControl,
   shouldBehaveLikeAccessControlEnumerable,
-  shouldBehaveLikeAccessControlEnumerable2,
 };
