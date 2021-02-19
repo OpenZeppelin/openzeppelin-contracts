@@ -47,7 +47,7 @@ library ECDSA {
     }
 
     /**
-     * @dev Overload of {ECDSA-recover-bytes32-bytes-} that receives the `v`,
+     * @dev Overload of {ECDSA-recover} that receives the `v`,
      * `r` and `s` signature fields separately.
      */
     function recover(bytes32 hash, uint8 v, bytes32 r, bytes32 s) internal pure returns (address) {
