@@ -6,7 +6,7 @@ import "../cryptography/ECDSA.sol";
 import "../drafts/EIP712.sol";
 
 /*
- * @dev Minimal forwarder for GSNv2
+ * @dev Simple minimal forwarder to be used together with an ERC2771 compatible contract. See {ERC2771Context}.
  */
 contract MinimalForwarder is EIP712 {
     using ECDSA for bytes32;
