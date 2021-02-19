@@ -899,8 +899,8 @@ function shouldBehaveLikeERC721Metadata (errorPrefix, name, symbol, owner) {
         await this.token.mint(owner, firstTokenId);
       });
 
-      it('return tokenId as string by default', async function () {
-        expect(await this.token.tokenURI(firstTokenId)).to.be.equal(firstTokenId.toString());
+      it('return empty string by default', async function () {
+        expect(await this.token.tokenURI(firstTokenId)).to.be.equal('');
       });
 
       it('reverts when queried for non existent token id', async function () {

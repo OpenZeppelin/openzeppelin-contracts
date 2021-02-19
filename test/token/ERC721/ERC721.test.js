@@ -1,6 +1,5 @@
 const {
   shouldBehaveLikeERC721,
-  // shouldBehaveLikeERC721Enumerable,
   shouldBehaveLikeERC721Metadata,
 } = require('./ERC721.behavior');
 
