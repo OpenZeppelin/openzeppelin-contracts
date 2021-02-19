@@ -66,7 +66,7 @@ const pathUpdates = {
   // 'token/ERC20/ERC20.sol': undefined,
   // 'token/ERC20/IERC20.sol': undefined,
   'token/ERC20/SafeERC20.sol': 'token/ERC20/utils/SafeERC20.sol',
-  'token/ERC20/TokenTimelock.sol': 'token/ERC20/utils//TokenTimelock.sol',
+  'token/ERC20/TokenTimelock.sol': 'token/ERC20/utils/TokenTimelock.sol',
   'token/ERC721/ERC721Burnable.sol': 'token/ERC721/extensions/ERC721Burnable.sol',
   'token/ERC721/ERC721Holder.sol': 'token/ERC721/utils/ERC721Holder.sol',
   'token/ERC721/ERC721Pausable.sol': 'token/ERC721/extensions/ERC721Pausable.sol',

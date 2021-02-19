@@ -3,8 +3,10 @@
 pragma solidity ^0.8.0;
 
 /**
- * @title SignedSafeMath
- * @dev Signed math operations that revert on error.
+ * @dev Wrappers over Solidity's arithmetic operations.
+ *
+ * NOTE: `SignedSafeMath` is no longer needed starting with Solidity 0.8. The compiler
+ * now has built in overflow checking.
  */
 library SignedSafeMath {
     /**

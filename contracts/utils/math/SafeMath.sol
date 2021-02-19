@@ -4,6 +4,9 @@ pragma solidity ^0.8.0;
 
 /**
  * @dev Wrappers over Solidity's arithmetic operations.
+ *
+ * NOTE: `SafeMath` is no longer needed starting with Solidity 0.8. The compiler
+ * now has built in overflow checking.
  */
 library SafeMath {
     /**

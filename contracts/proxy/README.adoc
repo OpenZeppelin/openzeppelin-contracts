@@ -21,7 +21,11 @@ CAUTION: Using upgradeable proxies correctly and securely is a difficult task th
 
 {{UpgradeableProxy}}
 
+== Transparent Proxy
+
 {{TransparentUpgradeableProxy}}
+
+{{ProxyAdmin}}
 
 == Beacon
 
@@ -34,9 +38,3 @@ CAUTION: Using upgradeable proxies correctly and securely is a difficult task th
 == Minimal Clones
 
 {{Clones}}
-
-== Utilities
-
-{{Initializable}}
-
-{{ProxyAdmin}}

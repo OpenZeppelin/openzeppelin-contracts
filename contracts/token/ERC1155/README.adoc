@@ -32,6 +32,12 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 {{ERC1155Burnable}}
 
-== Convenience
+== Presets
+
+These contracts are preconfigured combinations of the above features. They can be used through inheritance or as models to copy and paste their source code.
+
+{{ERC1155PresetMinterPauser}}
+
+== Utilities
 
 {{ERC1155Holder}}
