@@ -1,5 +1,5 @@
 const { expectRevert } = require('@openzeppelin/test-helpers');
-const { toEthSignedMessageHash, fixSignature } = require('../helpers/sign');
+const { toEthSignedMessageHash, fixSignature } = require('../../helpers/sign');
 
 const { expect } = require('chai');
 

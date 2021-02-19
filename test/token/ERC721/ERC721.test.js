@@ -3,7 +3,7 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
+const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
 
 const ERC721Mock = artifacts.require('ERC721Mock');
 const ERC721ReceiverMock = artifacts.require('ERC721ReceiverMock');

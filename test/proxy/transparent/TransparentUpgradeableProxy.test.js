@@ -1,4 +1,4 @@
-const shouldBehaveLikeUpgradeableProxy = require('./UpgradeableProxy.behaviour');
+const shouldBehaveLikeUpgradeableProxy = require('../UpgradeableProxy.behaviour');
 const shouldBehaveLikeTransparentUpgradeableProxy = require('./TransparentUpgradeableProxy.behaviour');
 
 const TransparentUpgradeableProxy = artifacts.require('TransparentUpgradeableProxy');

@@ -5,7 +5,7 @@ const ERC1155Mock = artifacts.require('ERC1155Mock');
 
 const { expect } = require('chai');
 
-const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
+const { shouldSupportInterfaces } = require('../../../utils/introspection/SupportsInterface.behavior');
 
 contract('ERC1155Holder', function (accounts) {
   const [creator] = accounts;
