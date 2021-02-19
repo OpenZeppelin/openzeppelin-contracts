@@ -9,7 +9,7 @@ const BaseRelayRecipientMock = artifacts.require('BaseRelayRecipientMock');
 const MinimalForwarder = artifacts.require('MinimalForwarder');
 const ContextMockCaller = artifacts.require('ContextMockCaller');
 
-const { shouldBehaveLikeRegularContext } = require('../GSN/Context.behavior');
+const { shouldBehaveLikeRegularContext } = require('../utils/Context.behavior');
 
 const name = 'MinimalForwarder';
 const version = '0.0.1';
