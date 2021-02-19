@@ -6,7 +6,10 @@ import "../utils/Context.sol";
 
 /**
  * @dev Contract module that allows children to implement role-based access
- * control mechanisms. Light, not enumerable, version.
+ * control mechanisms. This is a lightweight version that doesn't allow enumerating role
+ * members except through off-chain means by accessing the contract event logs. Some
+ * applications may benefit from on-chain enumerability, for those cases see
+ * {AccessControlEnumerable}.
  *
  * Roles are referred to by their `bytes32` identifier. These should be exposed
  * in the external API and be unique. The best way to achieve this is by
