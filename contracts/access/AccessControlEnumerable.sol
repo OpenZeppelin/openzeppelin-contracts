@@ -52,4 +52,12 @@ abstract contract AccessControlEnumerable is AccessControl {
         super.revokeRole(role, account);
         _roleMembers[role].remove(account);
     }
+
+    /**
+     * @dev Overload {_setupRole} to track enumerable memberships
+     */
+    function _setupRole(bytes32 role, address account) internal virtual override {
+        super._setupRole(role, account);
+        _roleMembers[role].add(account);
+    }
 }
