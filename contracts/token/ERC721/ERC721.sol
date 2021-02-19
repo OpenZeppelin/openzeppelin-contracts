@@ -11,8 +11,9 @@ import "../../utils/Address.sol";
 import "../../utils/Strings.sol";
 
 /**
- * @title ERC721 Non-Fungible Token Standard enumerable implementation
- * @dev see https://eips.ethereum.org/EIPS/eip-721
+ * @dev Implementation of https://eips.ethereum.org/EIPS/eip-721[ERC721] Non-Fungible Token Standard, including
+ * the Metadata extension, but not including the Enumerable extension, which is available separately as
+ * {ERC721Enumerable}.
  */
 contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     using Address for address;
