@@ -5,35 +5,19 @@ pragma solidity ^0.8.0;
 import "../../utils/Context.sol";
 import "./IERC721.sol";
 import "./IERC721Metadata.sol";
-import "./IERC721Enumerable.sol";
 import "./IERC721Receiver.sol";
 import "../../introspection/ERC165.sol";
 import "../../utils/Address.sol";
-import "../../utils/EnumerableSet.sol";
-import "../../utils/EnumerableMap.sol";
 import "../../utils/Strings.sol";
 
 /**
- * @title ERC721 Non-Fungible Token Standard basic implementation
- * @dev see https://eips.ethereum.org/EIPS/eip-721
+ * @dev Implementation of https://eips.ethereum.org/EIPS/eip-721[ERC721] Non-Fungible Token Standard, including
+ * the Metadata extension, but not including the Enumerable extension, which is available separately as
+ * {ERC721Enumerable}.
  */
-contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable {
+contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     using Address for address;
-    using EnumerableSet for EnumerableSet.UintSet;
-    using EnumerableMap for EnumerableMap.UintToAddressMap;
     using Strings for uint256;
-
-    // Mapping from holder address to their (enumerable) set of owned tokens
-    mapping (address => EnumerableSet.UintSet) private _holderTokens;
-
-    // Enumerable mapping from token ids to their owners
-    EnumerableMap.UintToAddressMap private _tokenOwners;
-
-    // Mapping from token ID to approved address
-    mapping (uint256 => address) private _tokenApprovals;
-
-    // Mapping from owner to operator approvals
-    mapping (address => mapping (address => bool)) private _operatorApprovals;
 
     // Token name
     string private _name;
@@ -41,11 +25,17 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     // Token symbol
     string private _symbol;
 
-    // Optional mapping for token URIs
-    mapping (uint256 => string) private _tokenURIs;
+    // Mapping from token ID to owner address
+    mapping (uint256 => address) private _owners;
 
-    // Base URI
-    string private _baseURI;
+    // Mapping owner address to token count
+    mapping (address => uint256) private _balances;
+
+    // Mapping from token ID to approved address
+    mapping (uint256 => address) private _tokenApprovals;
+
+    // Mapping from owner to operator approvals
+    mapping (address => mapping (address => bool)) private _operatorApprovals;
 
     /**
      * @dev Initializes the contract by setting a `name` and a `symbol` to the token collection.
@@ -61,7 +51,6 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
         return interfaceId == type(IERC721).interfaceId
             || interfaceId == type(IERC721Metadata).interfaceId
-            || interfaceId == type(IERC721Enumerable).interfaceId
             || super.supportsInterface(interfaceId);
     }
 
@@ -70,14 +59,16 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      */
     function balanceOf(address owner) public view virtual override returns (uint256) {
         require(owner != address(0), "ERC721: balance query for the zero address");
-        return _holderTokens[owner].length();
+        return _balances[owner];
     }
 
     /**
      * @dev See {IERC721-ownerOf}.
      */
     function ownerOf(uint256 tokenId) public view virtual override returns (address) {
-        return _tokenOwners.get(tokenId, "ERC721: owner query for nonexistent token");
+        address owner = _owners[tokenId];
+        require(owner != address(0), "ERC721: owner query for nonexistent token");
+        return owner;
     }
 
     /**
@@ -100,51 +91,18 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
 
-        string memory _tokenURI = _tokenURIs[tokenId];
-        string memory base = baseURI();
-
-        // If there is no base URI, return the token URI.
-        if (bytes(base).length == 0) {
-            return _tokenURI;
-        }
-        // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
-        if (bytes(_tokenURI).length > 0) {
-            return string(abi.encodePacked(base, _tokenURI));
-        }
-        // If there is a baseURI but no tokenURI, concatenate the tokenID to the baseURI.
-        return string(abi.encodePacked(base, tokenId.toString()));
+        string memory baseURI = _baseURI();
+        return bytes(baseURI).length > 0
+            ? string(abi.encodePacked(baseURI, tokenId.toString()))
+            : '';
     }
 
     /**
-    * @dev Returns the base URI set via {_setBaseURI}. This will be
-    * automatically added as a prefix in {tokenURI} to each token's URI, or
-    * to the token ID if no specific URI is set for that token ID.
-    */
-    function baseURI() public view virtual returns (string memory) {
-        return _baseURI;
-    }
-
-    /**
-     * @dev See {IERC721Enumerable-tokenOfOwnerByIndex}.
+     * @dev Base URI for computing {tokenURI}. Empty by default, can be overriden
+     * in child contracts.
      */
-    function tokenOfOwnerByIndex(address owner, uint256 index) public view virtual override returns (uint256) {
-        return _holderTokens[owner].at(index);
-    }
-
-    /**
-     * @dev See {IERC721Enumerable-totalSupply}.
-     */
-    function totalSupply() public view virtual override returns (uint256) {
-        // _tokenOwners are indexed by tokenIds, so .length() returns the number of tokenIds
-        return _tokenOwners.length();
-    }
-
-    /**
-     * @dev See {IERC721Enumerable-tokenByIndex}.
-     */
-    function tokenByIndex(uint256 index) public view virtual override returns (uint256) {
-        (uint256 tokenId, ) = _tokenOwners.at(index);
-        return tokenId;
+    function _baseURI() internal view virtual returns (string memory) {
+        return "";
     }
 
     /**
@@ -244,7 +202,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      * and stop existing when they are burned (`_burn`).
      */
     function _exists(uint256 tokenId) internal view virtual returns (bool) {
-        return _tokenOwners.contains(tokenId);
+        return _owners[tokenId] != address(0);
     }
 
     /**
@@ -301,9 +259,8 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
 
         _beforeTokenTransfer(address(0), to, tokenId);
 
-        _holderTokens[to].add(tokenId);
-
-        _tokenOwners.set(tokenId, to);
+        _balances[to] += 1;
+        _owners[tokenId] = to;
 
         emit Transfer(address(0), to, tokenId);
     }
@@ -319,21 +276,15 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      * Emits a {Transfer} event.
      */
     function _burn(uint256 tokenId) internal virtual {
-        address owner = ERC721.ownerOf(tokenId); // internal owner
+        address owner = ERC721.ownerOf(tokenId);
 
         _beforeTokenTransfer(owner, address(0), tokenId);
 
         // Clear approvals
         _approve(address(0), tokenId);
 
-        // Clear metadata (if any)
-        if (bytes(_tokenURIs[tokenId]).length != 0) {
-            delete _tokenURIs[tokenId];
-        }
-
-        _holderTokens[owner].remove(tokenId);
-
-        _tokenOwners.remove(tokenId);
+        _balances[owner] -= 1;
+        delete _owners[tokenId];
 
         emit Transfer(owner, address(0), tokenId);
     }
@@ -350,7 +301,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      * Emits a {Transfer} event.
      */
     function _transfer(address from, address to, uint256 tokenId) internal virtual {
-        require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer of token that is not own"); // internal owner
+        require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer of token that is not own");
         require(to != address(0), "ERC721: transfer to the zero address");
 
         _beforeTokenTransfer(from, to, tokenId);
@@ -358,33 +309,21 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
         // Clear approvals from the previous owner
         _approve(address(0), tokenId);
 
-        _holderTokens[from].remove(tokenId);
-        _holderTokens[to].add(tokenId);
-
-        _tokenOwners.set(tokenId, to);
+        _balances[from] -= 1;
+        _balances[to] += 1;
+        _owners[tokenId] = to;
 
         emit Transfer(from, to, tokenId);
     }
 
     /**
-     * @dev Sets `_tokenURI` as the tokenURI of `tokenId`.
+     * @dev Approve `to` to operate on `tokenId`
      *
-     * Requirements:
-     *
-     * - `tokenId` must exist.
+     * Emits a {Approval} event.
      */
-    function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
-        require(_exists(tokenId), "ERC721Metadata: URI set of nonexistent token");
-        _tokenURIs[tokenId] = _tokenURI;
-    }
-
-    /**
-     * @dev Internal function to set the base URI for all token IDs. It is
-     * automatically added as a prefix to the value returned in {tokenURI},
-     * or to the token ID if {tokenURI} is empty.
-     */
-    function _setBaseURI(string memory baseURI_) internal virtual {
-        _baseURI = baseURI_;
+    function _approve(address to, uint256 tokenId) internal virtual {
+        _tokenApprovals[tokenId] = to;
+        emit Approval(ERC721.ownerOf(tokenId), to, tokenId);
     }
 
     /**
@@ -416,11 +355,6 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
         } else {
             return true;
         }
-    }
-
-    function _approve(address to, uint256 tokenId) private {
-        _tokenApprovals[tokenId] = to;
-        emit Approval(ERC721.ownerOf(tokenId), to, tokenId); // internal owner
     }
 
     /**
