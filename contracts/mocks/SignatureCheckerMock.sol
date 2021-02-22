@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../cryptography/SignatureChecker.sol";
+import "../utils/cryptography/SignatureChecker.sol";
 
 contract SignatureCheckerMock {
     using SignatureChecker for address;

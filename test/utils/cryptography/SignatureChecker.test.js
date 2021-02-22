@@ -1,4 +1,4 @@
-const { toEthSignedMessageHash, fixSignature } = require('../helpers/sign');
+const { toEthSignedMessageHash, fixSignature } = require('../../helpers/sign');
 
 const { expect } = require('chai');
 
