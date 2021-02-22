@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import "./VTable.sol";
 import "./modules/VTableUpdateModule.sol";
-import "../../proxy/Proxy.sol";
+import "../Proxy.sol";
 import "../../utils/Context.sol";
 
 /**
