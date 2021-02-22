@@ -2,13 +2,13 @@
 
 pragma solidity ^0.8.0;
 
-import "../../utils/Context.sol";
 import "./IERC777.sol";
 import "./IERC777Recipient.sol";
 import "./IERC777Sender.sol";
-import "../../token/ERC20/IERC20.sol";
+import "../ERC20/IERC20.sol";
 import "../../utils/Address.sol";
-import "../../introspection/IERC1820Registry.sol";
+import "../../utils/Context.sol";
+import "../../utils/introspection/IERC1820Registry.sol";
 
 /**
  * @dev Implementation of the {IERC777} interface.

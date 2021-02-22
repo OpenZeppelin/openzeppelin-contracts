@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "./AccessControl.sol";
-import "../utils/EnumerableSet.sol";
+import "../utils/structs/EnumerableSet.sol";
 
 /**
  * @dev Extension of {AccessControl} that allows enumerating the members of each role.

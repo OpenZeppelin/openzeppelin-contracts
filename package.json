@@ -8,6 +8,9 @@
     "!/contracts/mocks",
     "/test/behaviors"
   ],
+  "bin": {
+    "openzeppelin-contracts-migrate-imports": "scripts/migrate-imports.js"
+  },
   "scripts": {
     "compile": "hardhat compile",
     "coverage": "hardhat coverage",

@@ -48,6 +48,22 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 {{ERC20Capped}}
 
+== Draft EIPs
+
+The following EIPs are still in Draft status. Due to their nature as drafts, the details of these contracts may change and we cannot guarantee their xref:ROOT:releases-stability.adoc[stability]. Minor releases of OpenZeppelin Contracts may contain breaking changes for the contracts in this directory, which will be duly announced in the https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CHANGELOG.md[changelog]. The EIPs included here are used by projects in production and this may make them less likely to change significantly.
+
+{{IERC20Permit}}
+
+{{ERC20Permit}}
+
+== Presets
+
+These contracts are preconfigured combinations of the above features. They can be used through inheritance or as models to copy and paste their source code.
+
+{{ERC20PresetMinterPauser}}
+
+{{ERC20PresetFixedSupply}}
+
 == Utilities
 
 {{SafeERC20}}

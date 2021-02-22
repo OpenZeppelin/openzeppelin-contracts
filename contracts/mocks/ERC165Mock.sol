@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../introspection/ERC165.sol";
+import "../utils/introspection/ERC165.sol";
 
 contract ERC165Mock is ERC165 {
 }

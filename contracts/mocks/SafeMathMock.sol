@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../math/SafeMath.sol";
+import "../utils/math/SafeMath.sol";
 
 contract SafeMathMock {
     function tryAdd(uint256 a, uint256 b) public pure returns (bool flag, uint256 value) {
