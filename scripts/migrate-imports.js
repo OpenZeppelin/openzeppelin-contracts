@@ -163,6 +163,7 @@ function getUpgradeablePath (file) {
 module.exports = {
   pathUpdates,
   updateImportPaths,
+  getUpgradeablePath,
 };
 
 if (require.main === module) {
