@@ -11,7 +11,13 @@ function toChecksumAddress (address) {
   return ethereumjsUtil.toChecksumAddress('0x' + address.replace(/^0x/, '').padStart(40, '0'));
 }
 
-module.exports = function shouldBehaveLikeProxy (createProxy, proxyAdminAddress, proxyCreator) {
+module.exports = function shouldBehaveLikeProxy (createProxy, proxyAdminAddress, proxyCreator, opts = {}) {
+  const { artefact, slot } = Object.assign({
+    artefact: DummyImplementation,
+    slot: '0x' + new BN(ethereumjsUtil.keccak256(Buffer.from(IMPLEMENTATION_LABEL))).subn(1).toString(16),
+  }, opts);
+
+
   it('cannot be initialized with a non-contract address', async function () {
     const nonContractAddress = proxyCreator;
     const initializeData = Buffer.from('');
@@ -23,18 +29,17 @@ module.exports = function shouldBehaveLikeProxy (createProxy, proxyAdminAddress,
   });
 
   before('deploy implementation', async function () {
-    this.implementation = web3.utils.toChecksumAddress((await DummyImplementation.new()).address);
+    this.implementation = web3.utils.toChecksumAddress((await artefact.new()).address);
   });
 
   const assertProxyInitialization = function ({ value, balance }) {
     it('sets the implementation address', async function () {
-      const slot = '0x' + new BN(ethereumjsUtil.keccak256(Buffer.from(IMPLEMENTATION_LABEL))).subn(1).toString(16);
       const implementation = toChecksumAddress((await web3.eth.getStorageAt(this.proxy, slot)).substr(-40));
       expect(implementation).to.be.equal(this.implementation);
     });
 
     it('initializes the proxy', async function () {
-      const dummy = new DummyImplementation(this.proxy);
+      const dummy = new artefact(this.proxy);
       expect(await dummy.value()).to.be.bignumber.equal(value.toString());
     });
 
@@ -77,7 +82,7 @@ module.exports = function shouldBehaveLikeProxy (createProxy, proxyAdminAddress,
   describe('initialization without parameters', function () {
     describe('non payable', function () {
       const expectedInitializedValue = 10;
-      const initializeData = new DummyImplementation('').contract.methods['initializeNonPayable()']().encodeABI();
+      const initializeData = new artefact('').contract.methods['initializeNonPayable()']().encodeABI();
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
@@ -107,7 +112,7 @@ module.exports = function shouldBehaveLikeProxy (createProxy, proxyAdminAddress,
 
     describe('payable', function () {
       const expectedInitializedValue = 100;
-      const initializeData = new DummyImplementation('').contract.methods['initializePayable()']().encodeABI();
+      const initializeData = new artefact('').contract.methods['initializePayable()']().encodeABI();
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
@@ -147,7 +152,7 @@ module.exports = function shouldBehaveLikeProxy (createProxy, proxyAdminAddress,
   describe('initialization with parameters', function () {
     describe('non payable', function () {
       const expectedInitializedValue = 10;
-      const initializeData = new DummyImplementation('').contract
+      const initializeData = new artefact('').contract
         .methods.initializeNonPayableWithValue(expectedInitializedValue).encodeABI();
 
       describe('when not sending balance', function () {
@@ -178,7 +183,7 @@ module.exports = function shouldBehaveLikeProxy (createProxy, proxyAdminAddress,
 
     describe('payable', function () {
       const expectedInitializedValue = 42;
-      const initializeData = new DummyImplementation('').contract
+      const initializeData = new artefact('').contract
         .methods.initializePayableWithValue(expectedInitializedValue).encodeABI();
 
       describe('when not sending balance', function () {
@@ -216,7 +221,7 @@ module.exports = function shouldBehaveLikeProxy (createProxy, proxyAdminAddress,
     });
 
     describe('reverting initialization', function () {
-      const initializeData = new DummyImplementation('').contract
+      const initializeData = new artefact('').contract
         .methods.reverts().encodeABI();
 
       it('reverts', async function () {
