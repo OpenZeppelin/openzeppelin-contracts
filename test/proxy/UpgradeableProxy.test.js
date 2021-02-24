@@ -1,4 +1,4 @@
-const shouldBehaveLikeUpgradeableProxy = require('./UpgradeableProxy.behaviour');
+const shouldBehaveLikeProxy = require('./Proxy.behaviour');
 
 const UpgradeableProxy = artifacts.require('UpgradeableProxy');
 
@@ -9,5 +9,5 @@ contract('UpgradeableProxy', function (accounts) {
     return UpgradeableProxy.new(implementation, initData, opts);
   };
 
-  shouldBehaveLikeUpgradeableProxy(createProxy, undefined, proxyAdminOwner);
+  shouldBehaveLikeProxy(createProxy, undefined, proxyAdminOwner);
 });

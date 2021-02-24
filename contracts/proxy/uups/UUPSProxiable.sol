@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import "./UUPS.sol";
 
-contract UUPSProxiable {
+abstract contract UUPSProxiable {
     function proxiableUUID() public pure returns (bytes32) {
         return UUPS.uuid();
     }
