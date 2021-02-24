@@ -10,7 +10,7 @@ describe('migrate-imports.js', function () {
       try {
         await fs.access(path.join('contracts', p), F_OK);
       } catch (e) {
-        await fs.access(path.join('contracts', getUpgradeablePath), F_OK);
+        await fs.access(path.join('contracts', getUpgradeablePath(p)), F_OK);
       }
     }
   });
