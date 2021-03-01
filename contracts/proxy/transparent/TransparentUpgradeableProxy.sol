@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../uups/UUPSProxy.sol";
+import "../ERC1967/ERC1967Proxy.sol";
 
 /**
  * @dev This contract implements a proxy that is upgradeable by an admin.
@@ -25,12 +25,12 @@ import "../uups/UUPSProxy.sol";
  * Our recommendation is for the dedicated account to be an instance of the {ProxyAdmin} contract. If set up this way,
  * you should think of the `ProxyAdmin` instance as the real administrative interface of your proxy.
  */
-contract TransparentUpgradeableProxy is UUPSProxy {
+contract TransparentUpgradeableProxy is ERC1967Proxy {
     /**
      * @dev Initializes an upgradeable proxy managed by `_admin`, backed by the implementation at `_logic`, and
      * optionally initialized with `_data` as explained in {UpgradeableProxy-constructor}.
      */
-    constructor(address _logic, address admin_, bytes memory _data) payable UUPSProxy(_logic, _data) {
+    constructor(address _logic, address admin_, bytes memory _data) payable ERC1967Proxy(_logic, _data) {
         assert(_ADMIN_SLOT == bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1));
         _setAdmin(admin_);
     }

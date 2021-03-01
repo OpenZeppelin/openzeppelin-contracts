@@ -1,12 +1,12 @@
 const shouldBehaveLikeProxy = require('../Proxy.behaviour');
 
-const UUPSProxy = artifacts.require('UUPSProxy');
+const ERC1967Proxy = artifacts.require('ERC1967Proxy');
 
-contract('UUPSProxy', function (accounts) {
+contract('ERC1967Proxy', function (accounts) {
   const [proxyAdminOwner] = accounts;
 
   const createProxy = async function (implementation, _admin, initData, opts) {
-    return UUPSProxy.new(implementation, initData, opts);
+    return ERC1967Proxy.new(implementation, initData, opts);
   };
 
   shouldBehaveLikeProxy(createProxy, undefined, proxyAdminOwner);
