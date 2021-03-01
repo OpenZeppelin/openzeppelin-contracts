@@ -6,36 +6,70 @@ import "./draft-IERC3156.sol";
 import "../ERC20.sol";
 
 /**
- * @dev TODO
+ * @dev Implementation of the ERC3156 Flash loans extension, as defined in
+ * https://eips.ethereum.org/EIPS/eip-3156[ERC-3156].
+ *
+ * Adds the {flashLoan} method, which provide flash loan support, at the token
+ * level, with no fee.
  */
 abstract contract ERC3156 is ERC20, IERC3156FlashLender {
     bytes32 constant internal RETURN_VALUE = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
-    function maxFlashLoan(address token) external view override returns (uint256) {
+    /**
+     * @dev Return the maximum amount of token available for loan.
+     * @param token The address of the token that is requested.
+     * @return The amont of token that can be loaned.
+     */
+    function maxFlashLoan(address token) public view override returns (uint256) {
         return token == address(this) ? type(uint256).max - ERC20.totalSupply() : 0;
     }
 
-    function flashFee(address /*token*/, uint256 /*amount*/) external pure override returns (uint256) {
+    /**
+     * @dev Return the fee applied when doing flash loans. By default this
+     * implementation has 0 fees. This function can be overloaded to make have
+     * the flash loan mechnism be deflationary.
+     * @param token The token to be flash loaned.
+     * @param amount The amount of tokens to be loaned.
+     * @return The fees applied to the corresponding flash loan.
+     */
+    function flashFee(address token, uint256 amount) public pure virtual override returns (uint256) {
+        token;
+        amount;
         return 0;
     }
 
+    /**
+     * @dev Perform a flash loan. New token are minted and send to the
+     * `receiver`, who is expected to implement the {IERC3156FlashBorrower}
+     * interface. By the end of the flash loan, the receiver is expected to own
+     * the tokens and have them approved back to the token contract itself so
+     * they can be burned at the end of the flash loan.
+     * @param receiver The receiver of the flash loan. Should implement the
+     * {IERC3156FlashBorrower.onFlashLoan} interface.
+     * @param token The token to be flash loaned. Only `address(this)` is
+     * supported.
+     * @param amount The amount of tokens to be loaned.
+     * @param data An arbitrary datafield that is passed to the receiver.
+     * @return `true` is the flash loan was successfull.
+     */
     function flashLoan(
         IERC3156FlashBorrower receiver,
         address token,
         uint256 amount,
         bytes calldata data
     )
-    external override returns (bool)
+    public virtual override returns (bool)
     {
         require(token == address(this));
+        uint256 fee = flashFee(token, amount);
         // mint tokens - will revert on overflow
         _mint(address(receiver), amount);
         // call the flashLoan borrower
-        require(receiver.onFlashLoan(msg.sender, token, amount, 0, data)  == RETURN_VALUE);
+        require(receiver.onFlashLoan(msg.sender, token, amount, fee, data)  == RETURN_VALUE);
         // update approval (equivalent of burnFrom #1) - will revert on overflow
-        _approve(address(receiver), address(this), allowance(msg.sender, address(this)) - amount);
+        _approve(address(receiver), address(this), allowance(msg.sender, address(this)) - amount - fee);
         // burn tokens (equivalent of burnFrom #2)
-        _burn(address(receiver), amount);
+        _burn(address(receiver), amount + fee);
         return true;
     }
 }

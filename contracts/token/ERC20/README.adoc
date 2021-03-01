@@ -59,6 +59,10 @@ The following EIPs are still in Draft status. Due to their nature as drafts, the
 
 {{ERC20Permit}}
 
+{{ERC3156}}
+
+{{IERC3156}}
+
 == Presets
 
 These contracts are preconfigured combinations of the above features. They can be used through inheritance or as models to copy and paste their source code.
