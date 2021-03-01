@@ -12,12 +12,20 @@ const files = proc.execFileSync(
 
 console.log('.API');
 
+function getPageTitle (directory) {
+  if (directory === 'metatx') {
+    return 'Meta Transactions';
+  } else {
+    return startCase(directory);
+  }
+}
+
 const links = files.map((file) => {
   const doc = file.replace(baseDir, '');
   const title = path.parse(file).name;
 
   return {
-    xref: `* xref:${doc}[${startCase(title)}]`,
+    xref: `* xref:${doc}[${getPageTitle(title)}]`,
     title,
   };
 });

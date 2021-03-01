@@ -14,6 +14,7 @@
  * `AccessControl`: removed enumerability by default for a more lightweight contract. It is now opt-in through `AccessControlEnumerable`. ([#2512](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2512))
  * Meta Transactions: add `ERC2771Context` and a `MinimalForwarder` for meta-transactions. ([#2508](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2508))
  * Overall reorganisation of the contract folder to improve clarity and discoverability. ([#2503](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2503))
+ * `ERC20Capped`: optimize gas usage of by enforcing te check directly in `_mint`. ([#2524](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2524))
  * Rename `UpgradeableProxy` to `ERC1967Proxy`. ([#2547](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2547))
 
 ### How to upgrade from 3.x
