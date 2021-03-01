@@ -28,8 +28,8 @@ Finally, there are some utilities to interact with ERC20 contracts in various wa
 
 The following related EIPs are in draft status and can be found in the drafts directory.
 
-- {IERC20Permit}
 - {ERC20Permit}
+- {ERC20FlashLoan}
 
 NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC20 (such as <<ERC20-_mint-address-uint256-,`_mint`>>) and expose them as external functions in the way they prefer. On the other hand, xref:ROOT:erc20.adoc#Presets[ERC20 Presets] (such as {ERC20PresetMinterPauser}) are designed using opinionated patterns to provide developers with ready to use, deployable contracts.
 
@@ -55,13 +55,9 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 The following EIPs are still in Draft status. Due to their nature as drafts, the details of these contracts may change and we cannot guarantee their xref:ROOT:releases-stability.adoc[stability]. Minor releases of OpenZeppelin Contracts may contain breaking changes for the contracts in this directory, which will be duly announced in the https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CHANGELOG.md[changelog]. The EIPs included here are used by projects in production and this may make them less likely to change significantly.
 
-{{IERC20Permit}}
-
 {{ERC20Permit}}
 
-{{ERC3156}}
-
-{{IERC3156}}
+{{ERC20FlashLoan}}
 
 == Presets
 
