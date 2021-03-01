@@ -12,7 +12,7 @@ import "../ERC20.sol";
  * Adds the {flashLoan} method, which provide flash loan support, at the token
  * level, with no fee.
  */
-abstract contract ERC3156 is ERC20, IERC3156FlashLender {
+abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
     bytes32 constant internal RETURN_VALUE = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
     /**
@@ -60,14 +60,16 @@ abstract contract ERC3156 is ERC20, IERC3156FlashLender {
     )
     public virtual override returns (bool)
     {
-        require(token == address(this));
+        require(token == address(this), "ERC20FlashMint: wrong token");
         uint256 fee = flashFee(token, amount);
         // mint tokens - will revert on overflow
         _mint(address(receiver), amount);
         // call the flashLoan borrower
-        require(receiver.onFlashLoan(msg.sender, token, amount, fee, data)  == RETURN_VALUE);
+        require(receiver.onFlashLoan(msg.sender, token, amount, fee, data) == RETURN_VALUE, "ERC20FlashMint: invalid return value");
         // update approval (equivalent of burnFrom #1) - will revert on overflow
-        _approve(address(receiver), address(this), allowance(msg.sender, address(this)) - amount - fee);
+        uint256 currentAllowance = allowance(address(receiver), address(this));
+        require(currentAllowance >= amount + fee, "ERC20FlashMint: allowance does not allow refund");
+        _approve(address(receiver), address(this), currentAllowance - amount - fee);
         // burn tokens (equivalent of burnFrom #2)
         _burn(address(receiver), amount + fee);
         return true;
