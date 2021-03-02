@@ -16,6 +16,7 @@
  * Overall reorganisation of the contract folder to improve clarity and discoverability. ([#2503](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2503))
  * `ERC20Capped`: optimize gas usage of by enforcing te check directly in `_mint`. ([#2524](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2524))
  * Rename `UpgradeableProxy` to `ERC1967Proxy`. ([#2547](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2547))
+ * `ERC777`: Optimize the gas costs of the constructor. ([#2551](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2551))
 
 ### How to upgrade from 3.x
 
