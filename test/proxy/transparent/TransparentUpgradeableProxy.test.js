@@ -1,4 +1,4 @@
-const shouldBehaveLikeUpgradeableProxy = require('../UpgradeableProxy.behaviour');
+const shouldBehaveLikeProxy = require('../Proxy.behaviour');
 const shouldBehaveLikeTransparentUpgradeableProxy = require('./TransparentUpgradeableProxy.behaviour');
 
 const TransparentUpgradeableProxy = artifacts.require('TransparentUpgradeableProxy');
@@ -10,6 +10,6 @@ contract('TransparentUpgradeableProxy', function (accounts) {
     return TransparentUpgradeableProxy.new(logic, admin, initData, opts);
   };
 
-  shouldBehaveLikeUpgradeableProxy(createProxy, proxyAdminAddress, proxyAdminOwner);
+  shouldBehaveLikeProxy(createProxy, proxyAdminAddress, proxyAdminOwner);
   shouldBehaveLikeTransparentUpgradeableProxy(createProxy, accounts);
 });
