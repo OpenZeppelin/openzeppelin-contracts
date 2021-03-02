@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.0;
 
-import "./Proxy.sol";
-import "../utils/Address.sol";
+import "../Proxy.sol";
+import "../../utils/Address.sol";
 
 /**
  * @dev This contract implements an upgradeable proxy. It is upgradeable because calls are delegated to an
@@ -14,7 +14,7 @@ import "../utils/Address.sol";
  * Upgradeability is only provided internally through {_upgradeTo}. For an externally upgradeable proxy see
  * {TransparentUpgradeableProxy}.
  */
-contract UpgradeableProxy is Proxy {
+contract ERC1967Proxy is Proxy {
     /**
      * @dev Initializes the upgradeable proxy with an initial implementation specified by `_logic`.
      *
@@ -66,7 +66,7 @@ contract UpgradeableProxy is Proxy {
      * @dev Stores a new address in the EIP1967 implementation slot.
      */
     function _setImplementation(address newImplementation) private {
-        require(Address.isContract(newImplementation), "UpgradeableProxy: new implementation is not a contract");
+        require(Address.isContract(newImplementation), "ERC1967Proxy: new implementation is not a contract");
 
         bytes32 slot = _IMPLEMENTATION_SLOT;
 

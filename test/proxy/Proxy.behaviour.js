@@ -11,7 +11,7 @@ function toChecksumAddress (address) {
   return ethereumjsUtil.toChecksumAddress('0x' + address.replace(/^0x/, '').padStart(40, '0'));
 }
 
-module.exports = function shouldBehaveLikeUpgradeableProxy (createProxy, proxyAdminAddress, proxyCreator) {
+module.exports = function shouldBehaveLikeProxy (createProxy, proxyAdminAddress, proxyCreator) {
   it('cannot be initialized with a non-contract address', async function () {
     const nonContractAddress = proxyCreator;
     const initializeData = Buffer.from('');
