@@ -38,7 +38,7 @@ abstract contract UUPS {
      * @dev Stores a new address in the EIP1967 implementation slot.
      */
     function _setImplementation(address newImplementation) private {
-        require(Address.isContract(newImplementation), "UUPS: new implementation is not a contract");
+        require(Address.isContract(newImplementation), "ERC1967: new implementation is not a contract");
 
         bytes32 slot = _IMPLEMENTATION_SLOT;
 
