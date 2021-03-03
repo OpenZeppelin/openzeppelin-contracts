@@ -18,7 +18,7 @@ const enableProduction = process.env.MODE === 'PROD';
  */
 module.exports = {
   paths: {
-    sources: enableProduction ? 'contracts' : 'mocks',
+    sources: enableProduction ? 'contracts' : 'test/mocks',
   },
   solidity: {
     version: '0.8.0',
