@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.4.1 (2021-03-03)
 
  * `ERC721`: made `_approve` an internal function (was private).
 
