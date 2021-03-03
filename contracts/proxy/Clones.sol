@@ -12,6 +12,8 @@ pragma solidity >=0.6.0 <0.8.0;
  * The library includes functions to deploy a proxy using either `create` (traditional deployment) or `create2`
  * (salted deterministic deployment). It also includes functions to predict the addresses of clones deployed using the
  * deterministic method.
+ *
+ * _Available since v3.4._
  */
 library Clones {
     /**

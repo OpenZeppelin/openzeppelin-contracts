@@ -12,6 +12,8 @@ import "../token/ERC20/ERC20Burnable.sol";
  *
  * This contract uses {ERC20Burnable} to include burn capabilities - head to
  * its documentation for details.
+ *
+ * _Available since v3.4._
  */
 contract ERC20PresetFixedSupply is ERC20Burnable {
     /**
