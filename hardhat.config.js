@@ -11,6 +11,7 @@ for (const f of fs.readdirSync(path.join(__dirname, 'hardhat'))) {
 }
 
 const enableGasReport = !!process.env.ENABLE_GAS_REPORT;
+const enableProduction = process.env.COMPILE_MODE === 'production';
 
 /**
  * @type import('hardhat/config').HardhatUserConfig
@@ -20,7 +21,7 @@ module.exports = {
     version: '0.8.0',
     settings: {
       optimizer: {
-        enabled: enableGasReport,
+        enabled: enableGasReport || enableProduction,
         runs: 200,
       },
     },
