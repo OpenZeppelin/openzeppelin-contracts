@@ -22,7 +22,7 @@
     "lint:js:fix": "eslint --ignore-path .gitignore . --fix",
     "lint:sol": "echo 'solidity linter currently disabled' # solhint --max-warnings 0 \"contracts/**/*.sol\"",
     "prepublish": "rimraf build contracts/build artifacts cache",
-    "prepare": "npm run compile",
+    "prepare": "env COMPILE_MODE=production npm run compile",
     "prepack": "scripts/prepack.sh",
     "release": "scripts/release/release.sh",
     "version": "scripts/release/version.sh",
