@@ -23,23 +23,21 @@ const ignorePatternsSubtrees = ignorePatterns
   .concat(ignorePatterns.map(pat => path.join(pat, '**/*')))
   .map(p => p.replace(/^\//, ''));
 
+const artifactsDir = 'build/contracts';
 const buildinfo = 'artifacts/build-info';
 const filenames = fs.readdirSync(buildinfo);
-if (filenames.length !== 1) {
-  throw new Error(`There should only be one file in ${buildinfo}`);
-}
-const solcOutput = readJSON(path.join(buildinfo, filenames[0])).output;
-
-const artifactsDir = 'build/contracts';
 
 let n = 0;
 
-for (const sourcePath in solcOutput.contracts) {
-  const ignore = match.any(sourcePath, ignorePatternsSubtrees);
-  if (ignore) {
-    for (const contract in solcOutput.contracts[sourcePath]) {
-      fs.unlinkSync(path.join(artifactsDir, contract + '.json'));
-      n += 1;
+for (const filename of filenames) {
+  const solcOutput = readJSON(path.join(buildinfo, filename)).output;
+  for (const sourcePath in solcOutput.contracts) {
+    const ignore = match.any(sourcePath, ignorePatternsSubtrees);
+    if (ignore) {
+      for (const contract in solcOutput.contracts[sourcePath]) {
+        fs.unlinkSync(path.join(artifactsDir, contract + '.json'));
+        n += 1;
+      }
     }
   }
 }
