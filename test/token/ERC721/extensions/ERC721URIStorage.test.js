@@ -2,9 +2,9 @@ const { BN, expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ERC721TokenUriMock = artifacts.require('ERC721TokenUriMock');
+const ERC721URIStorageMock = artifacts.require('ERC721URIStorageMock');
 
-contract('ERC721TokenUri', function (accounts) {
+contract('ERC721URIStorage', function (accounts) {
   const [ owner ] = accounts;
 
   const name = 'Non Fungible Token';
@@ -14,7 +14,7 @@ contract('ERC721TokenUri', function (accounts) {
   const nonExistentTokenId = new BN('13');
 
   beforeEach(async function () {
-    this.token = await ERC721TokenUriMock.new(name, symbol);
+    this.token = await ERC721URIStorageMock.new(name, symbol);
   });
 
   describe('token URI', function () {
@@ -31,7 +31,7 @@ contract('ERC721TokenUri', function (accounts) {
 
     it('reverts when queried for non existent token id', async function () {
       await expectRevert(
-        this.token.tokenURI(nonExistentTokenId), 'ERC721TokenUri: URI query for nonexistent token',
+        this.token.tokenURI(nonExistentTokenId), 'ERC721URIStorage: URI query for nonexistent token',
       );
     });
 
@@ -42,7 +42,7 @@ contract('ERC721TokenUri', function (accounts) {
 
     it('reverts when setting for non existent token id', async function () {
       await expectRevert(
-        this.token.setTokenURI(nonExistentTokenId, sampleUri), 'ERC721TokenUri: URI set of nonexistent token',
+        this.token.setTokenURI(nonExistentTokenId, sampleUri), 'ERC721URIStorage: URI set of nonexistent token',
       );
     });
 
@@ -80,7 +80,7 @@ contract('ERC721TokenUri', function (accounts) {
 
       expect(await this.token.exists(firstTokenId)).to.equal(false);
       await expectRevert(
-        this.token.tokenURI(firstTokenId), 'ERC721TokenUri: URI query for nonexistent token',
+        this.token.tokenURI(firstTokenId), 'ERC721URIStorage: URI query for nonexistent token',
       );
     });
   });
