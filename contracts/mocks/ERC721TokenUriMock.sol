@@ -2,21 +2,21 @@
 
 pragma solidity ^0.8.0;
 
-import "../token/ERC721/extensions/ERC721Pausable.sol";
+import "../token/ERC721/extensions/ERC721TokenUri.sol";
 
 /**
- * @title ERC721PausableMock
- * This mock just provides a public mint, burn and exists functions for testing purposes
+ * @title ERC721Mock
+ * This mock just provides a public safeMint, mint, and burn functions for testing purposes
  */
-contract ERC721PausableMock is ERC721Pausable {
+contract ERC721TokenUriMock is ERC721TokenUri {
     constructor (string memory name, string memory symbol) ERC721(name, symbol) { }
 
-    function pause() external {
-        _pause();
+    function setBaseURI(string calldata newBaseTokenURI) public {
+        _setBaseURI(newBaseTokenURI);
     }
 
-    function unpause() external {
-        _unpause();
+    function setTokenURI(uint256 tokenId, string memory _tokenURI) public {
+        _setTokenURI(tokenId, _tokenURI);
     }
 
     function exists(uint256 tokenId) public view returns (bool) {

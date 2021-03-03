@@ -25,6 +25,10 @@ contract ERC721EnumerableMock is ERC721Enumerable {
         return _baseURI();
     }
 
+    function exists(uint256 tokenId) public view returns (bool) {
+        return _exists(tokenId);
+    }
+
     function mint(address to, uint256 tokenId) public {
         _mint(to, tokenId);
     }
