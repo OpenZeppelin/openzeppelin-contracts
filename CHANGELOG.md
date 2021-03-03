@@ -17,6 +17,7 @@
  * `ERC20Capped`: optimize gas usage of by enforcing te check directly in `_mint`. ([#2524](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2524))
  * Rename `UpgradeableProxy` to `ERC1967Proxy`. ([#2547](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2547))
  * `ERC777`: Optimize the gas costs of the constructor. ([#2551](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2551))
+ * `ERC721TokenUri`: Add a new extension ERC721TokenUri that implements the tokenURI behavior as it was available in 3.4.0. ([#2555](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2555))
 
 ### How to upgrade from 3.x
 
