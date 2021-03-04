@@ -81,26 +81,6 @@ contract TransparentUpgradeableProxy is ERC1967Proxy, ERC1967Upgrade {
     }
 
     /**
-     * @dev Upgrade the implementation of the proxy.
-     *
-     * NOTE: Only the admin can call this function. See {ProxyAdmin-upgrade}.
-     */
-    function upgradeTo(address newImplementation) public virtual override ifAdmin {
-        super.upgradeTo(newImplementation);
-    }
-
-    /**
-     * @dev Upgrade the implementation of the proxy, and then call a function from the new implementation as specified
-     * by `data`, which should be an encoded function call. This is useful to initialize new storage variables in the
-     * proxied contract.
-     *
-     * NOTE: Only the admin can call this function. See {ProxyAdmin-upgradeAndCall}.
-     */
-    function upgradeToAndCall(address newImplementation, bytes calldata data) public payable virtual override ifAdmin {
-        super.upgradeToAndCall(newImplementation, data);
-    }
-
-    /**
      * @dev Changes the admin of the proxy.
      *
      * Emits an {AdminChanged} event.
@@ -112,11 +92,9 @@ contract TransparentUpgradeableProxy is ERC1967Proxy, ERC1967Upgrade {
     }
 
     /**
-     *
+     * @dev overload the beforeUpgrade hook to enable upgrades, and make it ifAdmin.
      */
-    function beforeUpgrade(address) internal virtual override {
-        // no super call = enable upgrades (policy is enacted in upgradeTo's and upgradeToAndCall's ifAdmin)
-    }
+    function beforeUpgrade(address) internal virtual override ifAdmin {}
 
     /**
      * @dev Makes sure the admin cannot access the fallback function. See {Proxy-_beforeFallback}.
