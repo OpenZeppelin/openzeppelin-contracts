@@ -3,6 +3,18 @@
 pragma solidity ^0.8.0;
 
 import "../utils/Context.sol";
+import "../utils/introspection/ERC165.sol";
+
+/**
+ * @dev External interface of AccessControl declared to support ERC165 detection.
+ */
+interface IAccessControl {
+    function hasRole(bytes32 role, address account) external view returns (bool);
+    function getRoleAdmin(bytes32 role) external view returns (bytes32);
+    function grantRole(bytes32 role, address account) external;
+    function revokeRole(bytes32 role, address account) external;
+    function renounceRole(bytes32 role, address account) external;
+}
 
 /**
  * @dev Contract module that allows children to implement role-based access
@@ -42,7 +54,7 @@ import "../utils/Context.sol";
  * grant and revoke this role. Extra precautions should be taken to secure
  * accounts that have been granted it.
  */
-abstract contract AccessControl is Context {
+abstract contract AccessControl is Context, IAccessControl, ERC165 {
     struct RoleData {
         mapping (address => bool) members;
         bytes32 adminRole;
@@ -80,9 +92,17 @@ abstract contract AccessControl is Context {
     event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender);
 
     /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return interfaceId == type(IAccessControl).interfaceId
+            || super.supportsInterface(interfaceId);
+    }
+
+    /**
      * @dev Returns `true` if `account` has been granted `role`.
      */
-    function hasRole(bytes32 role, address account) public view returns (bool) {
+    function hasRole(bytes32 role, address account) public view override returns (bool) {
         return _roles[role].members[account];
     }
 
@@ -92,7 +112,7 @@ abstract contract AccessControl is Context {
      *
      * To change a role's admin, use {_setRoleAdmin}.
      */
-    function getRoleAdmin(bytes32 role) public view returns (bytes32) {
+    function getRoleAdmin(bytes32 role) public view override returns (bytes32) {
         return _roles[role].adminRole;
     }
 
@@ -106,7 +126,7 @@ abstract contract AccessControl is Context {
      *
      * - the caller must have ``role``'s admin role.
      */
-    function grantRole(bytes32 role, address account) public virtual {
+    function grantRole(bytes32 role, address account) public virtual override {
         require(hasRole(getRoleAdmin(role), _msgSender()), "AccessControl: sender must be an admin to grant");
 
         _grantRole(role, account);
@@ -121,7 +141,7 @@ abstract contract AccessControl is Context {
      *
      * - the caller must have ``role``'s admin role.
      */
-    function revokeRole(bytes32 role, address account) public virtual {
+    function revokeRole(bytes32 role, address account) public virtual override {
         require(hasRole(getRoleAdmin(role), _msgSender()), "AccessControl: sender must be an admin to revoke");
 
         _revokeRole(role, account);
@@ -141,7 +161,7 @@ abstract contract AccessControl is Context {
      *
      * - the caller must be `account`.
      */
-    function renounceRole(bytes32 role, address account) public virtual {
+    function renounceRole(bytes32 role, address account) public virtual override {
         require(account == _msgSender(), "AccessControl: can only renounce roles for self");
 
         _revokeRole(role, account);
