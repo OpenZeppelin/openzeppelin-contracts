@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import "./ERC1967Utils.sol";
 
-abstract contract Proxiable is ERC1967Utils {
+abstract contract ERC1967Upgrade is ERC1967Utils {
     /**
      * @dev Upgrade the implementation of the proxy.
      */

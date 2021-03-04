@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "../ERC1967/ERC1967Proxy.sol";
-import "../ERC1967/Proxiable.sol";
+import "../ERC1967/ERC1967Upgrade.sol";
 
 /**
  * @dev This contract implements a proxy that is upgradeable by an admin.
@@ -26,7 +26,7 @@ import "../ERC1967/Proxiable.sol";
  * Our recommendation is for the dedicated account to be an instance of the {ProxyAdmin} contract. If set up this way,
  * you should think of the `ProxyAdmin` instance as the real administrative interface of your proxy.
  */
-contract TransparentUpgradeableProxy is ERC1967Proxy, Proxiable {
+contract TransparentUpgradeableProxy is ERC1967Proxy, ERC1967Upgrade {
     /**
      * @dev Initializes an upgradeable proxy managed by `_admin`, backed by the implementation at `_logic`, and
      * optionally initialized with `_data` as explained in {UpgradeableProxy-constructor}.
