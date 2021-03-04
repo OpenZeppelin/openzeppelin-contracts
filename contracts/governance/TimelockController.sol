@@ -85,7 +85,7 @@ contract TimelockController is AccessControl, Timers {
     }
 
     modifier onlyBeforeTimer(bytes32 id) virtual override {
-        require(_beforeTimer(id), "TimelockController: operation already scheduled");
+        require(_isTimerBefore(id), "TimelockController: operation already scheduled");
         _;
     }
 
@@ -99,28 +99,28 @@ contract TimelockController is AccessControl, Timers {
      * includes both Pending, Ready and Done operations.
      */
     function isOperation(bytes32 id) public view virtual returns (bool pending) {
-        return !_beforeTimer(id);
+        return !_isTimerBefore(id);
     }
 
     /**
      * @dev Returns whether an operation is pending or not.
      */
     function isOperationPending(bytes32 id) public view virtual returns (bool pending) {
-        return _duringTimer(id);
+        return _isTimerDuring(id);
     }
 
     /**
      * @dev Returns whether an operation is ready or not.
      */
     function isOperationReady(bytes32 id) public view virtual returns (bool ready) {
-        return _afterTimer(id);
+        return _isTimerAfter(id);
     }
 
     /**
      * @dev Returns whether an operation is done or not.
      */
     function isOperationDone(bytes32 id) public view virtual returns (bool done) {
-        return _lockedTimer(id);
+        return _isTimerLocked(id);
     }
 
     /**
