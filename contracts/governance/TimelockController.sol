@@ -3,6 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "../access/AccessControl.sol";
+import "../utils/draft-Timers.sol";
 
 /**
  * @dev Contract module which acts as a timelocked controller. When set as the
@@ -19,13 +20,11 @@ import "../access/AccessControl.sol";
  *
  * _Available since v3.3._
  */
-contract TimelockController is AccessControl {
+contract TimelockController is AccessControl, Timers {
     bytes32 public constant TIMELOCK_ADMIN_ROLE = keccak256("TIMELOCK_ADMIN_ROLE");
     bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
     bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
-    uint256 internal constant _DONE_TIMESTAMP = uint256(1);
 
-    mapping(bytes32 => uint256) private _timestamps;
     uint256 private _minDelay;
 
     /**
@@ -85,6 +84,11 @@ contract TimelockController is AccessControl {
         _;
     }
 
+    modifier onlyBeforeTimer(bytes32 id) virtual override {
+        require(_beforeTimer(id), "TimelockController: operation already scheduled");
+        _;
+    }
+
     /**
      * @dev Contract might receive/hold ETH as part of the maintenance process.
      */
@@ -95,30 +99,28 @@ contract TimelockController is AccessControl {
      * includes both Pending, Ready and Done operations.
      */
     function isOperation(bytes32 id) public view virtual returns (bool pending) {
-        return getTimestamp(id) > 0;
+        return !_beforeTimer(id);
     }
 
     /**
      * @dev Returns whether an operation is pending or not.
      */
     function isOperationPending(bytes32 id) public view virtual returns (bool pending) {
-        return getTimestamp(id) > _DONE_TIMESTAMP;
+        return _duringTimer(id);
     }
 
     /**
      * @dev Returns whether an operation is ready or not.
      */
     function isOperationReady(bytes32 id) public view virtual returns (bool ready) {
-        uint256 timestamp = getTimestamp(id);
-        // solhint-disable-next-line not-rely-on-time
-        return timestamp > _DONE_TIMESTAMP && timestamp <= block.timestamp;
+        return _afterTimer(id);
     }
 
     /**
      * @dev Returns whether an operation is done or not.
      */
     function isOperationDone(bytes32 id) public view virtual returns (bool done) {
-        return getTimestamp(id) == _DONE_TIMESTAMP;
+        return _lockedTimer(id);
     }
 
     /**
@@ -126,7 +128,7 @@ contract TimelockController is AccessControl {
      * unset operations, 1 for done operations).
      */
     function getTimestamp(bytes32 id) public view virtual returns (uint256 timestamp) {
-        return _timestamps[id];
+        return _getDeadline(id);
     }
 
     /**
@@ -193,10 +195,8 @@ contract TimelockController is AccessControl {
      * @dev Schedule an operation that is to becomes valid after a given delay.
      */
     function _schedule(bytes32 id, uint256 delay) private {
-        require(!isOperation(id), "TimelockController: operation already scheduled");
         require(delay >= getMinDelay(), "TimelockController: insufficient delay");
-        // solhint-disable-next-line not-rely-on-time
-        _timestamps[id] = block.timestamp + delay;
+        _startTimer(id, delay);
     }
 
     /**
@@ -207,9 +207,7 @@ contract TimelockController is AccessControl {
      * - the caller must have the 'proposer' role.
      */
     function cancel(bytes32 id) public virtual onlyRole(PROPOSER_ROLE) {
-        require(isOperationPending(id), "TimelockController: operation cannot be cancelled");
-        delete _timestamps[id];
-
+        _resetTimer(id);
         emit Cancelled(id);
     }
 
@@ -262,7 +260,8 @@ contract TimelockController is AccessControl {
      */
     function _afterCall(bytes32 id) private {
         require(isOperationReady(id), "TimelockController: operation is not ready");
-        _timestamps[id] = _DONE_TIMESTAMP;
+        _resetTimer(id);
+        _lockTimer(id);
     }
 
     /**

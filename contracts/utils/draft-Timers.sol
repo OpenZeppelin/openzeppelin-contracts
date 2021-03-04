@@ -26,22 +26,27 @@ abstract contract Timers {
     event TimerReset(bytes32 indexed timer);
     event TimerLocked(bytes32 indexed timer);
 
-    modifier onlyActiveTimer(bytes32 id) {
+    modifier onlyActiveTimer(bytes32 id) virtual {
+        require(_activeTimer(id), "Timers: onlyActiveTimer");
+        _;
+    }
+
+    modifier onlyLockedTimer(bytes32 id) virtual {
+        require(_lockedTimer(id), "Timers: onlyLockedTimer");
+        _;
+    }
+
+    modifier onlyBeforeTimer(bytes32 id) virtual {
         require(_beforeTimer(id), "Timers: onlyBeforeTimer");
         _;
     }
 
-    modifier onlyBeforeTimer(bytes32 id) {
-        require(_beforeTimer(id), "Timers: onlyBeforeTimer");
-        _;
-    }
-
-    modifier onlyDuringTimer(bytes32 id) {
+    modifier onlyDuringTimer(bytes32 id) virtual {
         require(_duringTimer(id), "Timers: onlyDuringTimer");
         _;
     }
 
-    modifier onlyAfterTimer(bytes32 id) {
+    modifier onlyAfterTimer(bytes32 id) virtual {
         require(_afterTimer(id), "Timers: onlyAfterTimer");
         _;
     }
@@ -76,7 +81,7 @@ abstract contract Timers {
         // solhint-disable-next-line not-rely-on-time
         uint256 deadline = block.timestamp + delay;
 
-        _beforeTimer(id, deadline);
+        _beforeTimerHook(id, deadline);
 
         _deadlines[id] = deadline;
         emit TimerStarted(id, deadline);
@@ -87,15 +92,8 @@ abstract contract Timers {
         emit TimerLocked(id);
     }
 
-    function _stopTimer(bytes32 id) internal virtual onlyDuringTimer(id) {
-        _afterTimer(id, false);
-
-        delete _deadlines[id];
-        emit TimerStopped(id);
-    }
-
-    function _resetTimer(bytes32 id) internal virtual onlyAfterTimer(id) {
-        _afterTimer(id, true);
+    function _resetTimer(bytes32 id) internal virtual onlyActiveTimer(id) {
+        _afterTimerHook(id, _afterTimer(id));
 
         delete _deadlines[id];
         emit TimerReset(id);
@@ -111,7 +109,7 @@ abstract contract Timers {
      *
      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
-    function _beforeTimer(bytes32 id, uint256 deadline) internal virtual { }
+    function _beforeTimerHook(bytes32 id, uint256 deadline) internal virtual { }
 
     /**
      * @dev Hook that is called when a timmer stops or is reset.
@@ -124,5 +122,5 @@ abstract contract Timers {
      *
      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
-    function _afterTimer(bytes32 id, bool success) internal virtual { }
+    function _afterTimerHook(bytes32 id, bool success) internal virtual { }
 }
