@@ -1,5 +1,6 @@
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
+const { shouldSupportInterfaces } = require('../../../utils/introspection/SupportsInterface.behavior');
 
 const { expect } = require('chai');
 
@@ -23,6 +24,8 @@ contract('ERC1155PresetMinterPauser', function (accounts) {
   beforeEach(async function () {
     this.token = await ERC1155PresetMinterPauser.new(uri, { from: deployer });
   });
+
+  shouldSupportInterfaces(['ERC1155', 'AccessControl', 'AccessControlEnumerable']);
 
   it('deployer has the default admin role', async function () {
     expect(await this.token.getRoleMemberCount(DEFAULT_ADMIN_ROLE)).to.be.bignumber.equal('1');
