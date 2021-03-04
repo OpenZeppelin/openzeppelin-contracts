@@ -2,8 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "./IERC20.sol";
-import "./extensions/IERC20Metadata.sol";
+import "./IERC20Extended.sol";
 import "../../utils/Context.sol";
 
 /**
@@ -30,7 +29,7 @@ import "../../utils/Context.sol";
  * functions have been added to mitigate the well-known issues around setting
  * allowances. See {IERC20-approve}.
  */
-contract ERC20 is Context, IERC20, IERC20Metadata {
+contract ERC20 is Context, IERC20Extended {
     mapping (address => uint256) private _balances;
 
     mapping (address => mapping (address => uint256)) private _allowances;

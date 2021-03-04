@@ -10,7 +10,7 @@ TIP: For an overview of ERC20 tokens and a walk through on how to create a token
 There a few core contracts that implement the behavior specified in the EIP:
 
 * {IERC20}: the interface all ERC20 implementations should conform to.
-* {IERC20Metadata}: the extended ERC20 interface including the <<ERC20-name,`name`>>, <<ERC20-symbol,`symbol`>> and <<ERC20-decimals,`decimals`>> functions.
+* {IERC20Extended}: the extended ERC20 interface including the <<ERC20-name,`name`>>, <<ERC20-symbol,`symbol`>> and <<ERC20-decimals,`decimals`>> functions.
 * {ERC20}: the implementation of the ERC20 interface, including the <<ERC20-name,`name`>>, <<ERC20-symbol,`symbol`>> and <<ERC20-decimals,`decimals`>> optional standard extension to the base interface.
 
 Additionally there are multiple custom extensions, including:
