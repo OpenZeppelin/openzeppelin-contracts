@@ -184,11 +184,25 @@ contract('ERC777', function (accounts) {
             const operator = defaultOperatorA;
 
             it('without requireReceptionAck', async function () {
-              await this.token.mintInternalExtended(this.recipient, amount, data, operatorData, false, { from: operator });
+              await this.token.mintInternalExtended(
+                this.recipient,
+                amount,
+                data,
+                operatorData,
+                false,
+                { from: operator },
+              );
             });
 
             it('with requireReceptionAck', async function () {
-              await this.token.mintInternalExtended(this.recipient, amount, data, operatorData, true, { from: operator });
+              await this.token.mintInternalExtended(
+                this.recipient,
+                amount,
+                data,
+                operatorData,
+                true,
+                { from: operator },
+              );
             });
           });
 
@@ -196,11 +210,25 @@ contract('ERC777', function (accounts) {
             const operator = newOperator;
 
             it('without requireReceptionAck', async function () {
-              await this.token.mintInternalExtended(this.recipient, amount, data, operatorData, false, { from: operator });
+              await this.token.mintInternalExtended(
+                this.recipient,
+                amount,
+                data,
+                operatorData,
+                false,
+                { from: operator },
+              );
             });
 
             it('with requireReceptionAck', async function () {
-              await this.token.mintInternalExtended(this.recipient, amount, data, operatorData, true, { from: operator });
+              await this.token.mintInternalExtended(
+                this.recipient,
+                amount,
+                data,
+                operatorData,
+                true,
+                { from: operator },
+              );
             });
           });
         });
@@ -215,12 +243,26 @@ contract('ERC777', function (accounts) {
             const operator = defaultOperatorA;
 
             it('without requireReceptionAck', async function () {
-              await this.token.mintInternalExtended(this.recipient, amount, data, operatorData, false, { from: operator });
+              await this.token.mintInternalExtended(
+                this.recipient,
+                amount,
+                data,
+                operatorData,
+                false,
+                { from: operator },
+              );
             });
 
             it('with requireReceptionAck', async function () {
               await expectRevert(
-                this.token.mintInternalExtended(this.recipient, amount, data, operatorData, true, { from: operator }),
+                this.token.mintInternalExtended(
+                  this.recipient,
+                  amount,
+                  data,
+                  operatorData,
+                  true,
+                  { from: operator },
+                ),
                 'ERC777: token recipient contract has no implementer for ERC777TokensRecipient',
               );
             });
@@ -230,12 +272,26 @@ contract('ERC777', function (accounts) {
             const operator = newOperator;
 
             it('without requireReceptionAck', async function () {
-              await this.token.mintInternalExtended(this.recipient, amount, data, operatorData, false, { from: operator });
+              await this.token.mintInternalExtended(
+                this.recipient,
+                amount,
+                data,
+                operatorData,
+                false,
+                { from: operator },
+              );
             });
 
             it('with requireReceptionAck', async function () {
               await expectRevert(
-                this.token.mintInternalExtended(this.recipient, amount, data, operatorData, true, { from: operator }),
+                this.token.mintInternalExtended(
+                  this.recipient,
+                  amount,
+                  data,
+                  operatorData,
+                  true,
+                  { from: operator },
+                ),
                 'ERC777: token recipient contract has no implementer for ERC777TokensRecipient',
               );
             });
