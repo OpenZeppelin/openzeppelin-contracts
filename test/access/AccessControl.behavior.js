@@ -1,11 +1,15 @@
 const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
+const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
+
 const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000';
 const ROLE = web3.utils.soliditySha3('ROLE');
 const OTHER_ROLE = web3.utils.soliditySha3('OTHER_ROLE');
 
 function shouldBehaveLikeAccessControl (errorPrefix, admin, authorized, other, otherAdmin, otherAuthorized) {
+  shouldSupportInterfaces(['AccessControl']);
+
   describe('default admin', function () {
     it('deployer has default admin role', async function () {
       expect(await this.accessControl.hasRole(DEFAULT_ADMIN_ROLE, admin)).to.equal(true);
@@ -156,6 +160,8 @@ function shouldBehaveLikeAccessControl (errorPrefix, admin, authorized, other, o
 }
 
 function shouldBehaveLikeAccessControlEnumerable (errorPrefix, admin, authorized, other, otherAdmin, otherAuthorized) {
+  shouldSupportInterfaces(['AccessControlEnumerable']);
+
   describe('enumerating', function () {
     it('role bearers can be enumerated', async function () {
       await this.accessControl.grantRole(ROLE, authorized, { from: admin });
