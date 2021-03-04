@@ -20,7 +20,7 @@ contract('ERC721PresetMinterPauserAutoId', function (accounts) {
     this.token = await ERC721PresetMinterPauserAutoId.new(name, symbol, baseURI, { from: deployer });
   });
 
-  shouldSupportInterfaces(['ERC721', 'ERC721Enumerable',  'AccessControl', 'AccessControlEnumerable']);
+  shouldSupportInterfaces(['ERC721', 'ERC721Enumerable', 'AccessControl', 'AccessControlEnumerable']);
 
   it('token has correct name', async function () {
     expect(await this.token.name()).to.equal(name);
