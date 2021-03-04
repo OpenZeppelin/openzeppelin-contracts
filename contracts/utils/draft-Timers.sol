@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.0 <0.8.0;
-
-import "../math/SafeMath.sol";
+pragma solidity ^0.8.0;
 
 /**
  * @dev Tooling for timming delays
@@ -20,26 +18,31 @@ import "../math/SafeMath.sol";
  * contract to publicly expose this data or not.
  */
 abstract contract Timers {
-    using SafeMath for uint256;
-
+    uint256 internal constant _DONE_TIMESTAMP = uint256(1);
     mapping(bytes32 => uint256) private _deadlines;
 
     event TimerStarted(bytes32 indexed timer, uint256 deadline);
     event TimerStopped(bytes32 indexed timer);
     event TimerReset(bytes32 indexed timer);
+    event TimerLocked(bytes32 indexed timer);
+
+    modifier onlyActiveTimer(bytes32 id) {
+        require(_beforeTimer(id), "Timers: onlyBeforeTimer");
+        _;
+    }
 
     modifier onlyBeforeTimer(bytes32 id) {
-        require(_beforeTimer(id), "WithTimers: onlyBeforeTimer");
+        require(_beforeTimer(id), "Timers: onlyBeforeTimer");
         _;
     }
 
     modifier onlyDuringTimer(bytes32 id) {
-        require(_duringTimer(id), "WithTimers: onlyDuringTimer");
+        require(_duringTimer(id), "Timers: onlyDuringTimer");
         _;
     }
 
     modifier onlyAfterTimer(bytes32 id) {
-        require(_afterTimer(id), "WithTimers: onlyAfterTimer");
+        require(_afterTimer(id), "Timers: onlyAfterTimer");
         _;
     }
 
@@ -47,30 +50,41 @@ abstract contract Timers {
         return _deadlines[id];
     }
 
+    function _activeTimer(bytes32 id) internal view returns (bool) {
+        return _getDeadline(id) > _DONE_TIMESTAMP;
+    }
+
+    function _lockedTimer(bytes32 id) internal view returns (bool) {
+        return _getDeadline(id) == _DONE_TIMESTAMP;
+    }
+
     function _beforeTimer(bytes32 id) internal view returns (bool) {
         return _getDeadline(id) == 0;
     }
 
     function _duringTimer(bytes32 id) internal view returns (bool) {
-        uint256 deadline = _getDeadline(id);
         // solhint-disable-next-line not-rely-on-time
-        return deadline != 0 && deadline > block.timestamp;
+        return _activeTimer(id) && _getDeadline(id) > block.timestamp;
     }
 
     function _afterTimer(bytes32 id) internal view returns (bool) {
-        uint256 deadline = _getDeadline(id);
         // solhint-disable-next-line not-rely-on-time
-        return deadline != 0 && deadline <= block.timestamp;
+        return _activeTimer(id) && _getDeadline(id) <= block.timestamp;
     }
 
     function _startTimer(bytes32 id, uint256 delay) internal virtual onlyBeforeTimer(id) {
         // solhint-disable-next-line not-rely-on-time
-        uint256 deadline = block.timestamp.add(delay);
+        uint256 deadline = block.timestamp + delay;
 
         _beforeTimer(id, deadline);
 
         _deadlines[id] = deadline;
         emit TimerStarted(id, deadline);
+    }
+
+    function _lockTimer(bytes32 id) internal virtual onlyBeforeTimer(id) {
+        _deadlines[id] = _DONE_TIMESTAMP;
+        emit TimerLocked(id);
     }
 
     function _stopTimer(bytes32 id) internal virtual onlyDuringTimer(id) {
