@@ -47,7 +47,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
                 owner,
                 spender,
                 value,
-                nonces(owner),
+                _useNonce(owner),
                 deadline
             )
         );
@@ -57,7 +57,6 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
         address signer = ECDSA.recover(hash, v, r, s);
         require(signer == owner, "ERC20Permit: invalid signature");
 
-        _incrementNonces(owner);
         _approve(owner, spender, value);
     }
 
@@ -77,9 +76,11 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
     }
 
     /**
-     * @dev internal: increment the nonce of a user.
+     * @dev "Consume a nonce": return the current value and increment.
      */
-    function _incrementNonces(address owner) internal virtual {
-        _nonces[owner].increment();
+    function _useNonce(address owner) internal  virtual returns (uint256 current) {
+        Counters.Counter storage nonce = _nonces[owner];
+        current = nonce.current();
+        nonce.increment();
     }
 }
