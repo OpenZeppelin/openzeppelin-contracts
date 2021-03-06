@@ -4,8 +4,8 @@
 
  * `IERC20Metadata`: add a new extended interface that includes the optional `name()`, `symbol()` and `decimals()` functions. ([#2561](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2561))
  * `ERC777`: make reception acquirement optional in `_mint`. ([#2552](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2552))
- * `Ownable`: added `_transferOwnership` to Ownable. ([#2464](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2464))
- * `AccessControl`: made some private functions internal. ([#2464](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2464))
+ * `Ownable`: add `_transferOwnership` to Ownable. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
+ * `AccessControl`: make some private functions internal. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
 
 ## Unreleased
 
