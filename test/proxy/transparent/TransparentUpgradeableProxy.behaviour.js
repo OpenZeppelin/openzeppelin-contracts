@@ -304,7 +304,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
       it('reverts', async function () {
         await expectRevert(
           this.proxy.changeAdmin(ZERO_ADDRESS, { from: proxyAdminAddress }),
-          'TransparentUpgradeableProxy: new admin is the zero address',
+          'ERC1967: new admin is the zero address',
         );
       });
     });

@@ -40,7 +40,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy, ERC1967Upgrade {
      * @dev Modifier used internally that will delegate the call to the implementation unless the sender is the admin.
      */
     modifier ifAdmin() {
-        if (msg.sender == _admin()) {
+        if (msg.sender == _getAdmin()) {
             _;
         } else {
             _fallback();
@@ -57,7 +57,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy, ERC1967Upgrade {
      * `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
      */
     function admin() external ifAdmin returns (address admin_) {
-        admin_ = _admin();
+        admin_ = _getAdmin();
     }
 
     /**
@@ -70,14 +70,14 @@ contract TransparentUpgradeableProxy is ERC1967Proxy, ERC1967Upgrade {
      * `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
      */
     function implementation() external ifAdmin returns (address implementation_) {
-        implementation_ = _implementation();
+        implementation_ = _getImplementation();
     }
 
     /**
      * @dev Returns the current implementation address.
      */
-    function _implementation() internal view virtual override(ERC1967Proxy, ERC1967Utils) returns (address implementation_) {
-        return ERC1967Utils._implementation();
+    function _implementation() internal view virtual override returns (address) {
+        return _getImplementation();
     }
 
     /**
@@ -100,7 +100,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy, ERC1967Upgrade {
      * @dev Makes sure the admin cannot access the fallback function. See {Proxy-_beforeFallback}.
      */
     function _beforeFallback() internal virtual override {
-        require(msg.sender != _admin(), "TransparentUpgradeableProxy: admin cannot fallback to proxy target");
+        require(msg.sender != _getAdmin(), "TransparentUpgradeableProxy: admin cannot fallback to proxy target");
         super._beforeFallback();
     }
 }
