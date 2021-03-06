@@ -3,6 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "../../utils/Address.sol";
+import "../../utils/StorageSlot.sol";
 
 abstract contract ERC1967Utils {
     /**
@@ -32,12 +33,16 @@ abstract contract ERC1967Utils {
     /**
      * @dev Returns the current implementation address.
      */
-    function _implementation() internal view virtual returns (address impl) {
-        bytes32 slot = _IMPLEMENTATION_SLOT;
-        // solhint-disable-next-line no-inline-assembly
-        assembly {
-            impl := sload(slot)
-        }
+    function _implementation() internal view virtual returns (address) {
+        return StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value;
+    }
+
+    /**
+     * @dev Stores a new address in the EIP1967 implementation slot.
+     */
+    function _setImplementation(address newImplementation) private {
+        require(Address.isContract(newImplementation), "ERC1967: new implementation is not a contract");
+        StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;
     }
 
     /**
@@ -65,28 +70,18 @@ abstract contract ERC1967Utils {
     }
 
     /**
-     * @dev Stores a new address in the EIP1967 implementation slot.
+     * @dev Returns the current admin.
      */
-    function _setImplementation(address newImplementation) private {
-        require(Address.isContract(newImplementation), "ERC1967: new implementation is not a contract");
-
-        bytes32 slot = _IMPLEMENTATION_SLOT;
-
-        // solhint-disable-next-line no-inline-assembly
-        assembly {
-            sstore(slot, newImplementation)
-        }
+    function _admin() internal view virtual returns (address) {
+        return StorageSlot.getAddressSlot(_ADMIN_SLOT).value;
     }
 
     /**
-     * @dev Returns the current admin.
+     * @dev Stores a new address in the EIP1967 admin slot.
      */
-    function _admin() internal view virtual returns (address adm) {
-        bytes32 slot = _ADMIN_SLOT;
-        // solhint-disable-next-line no-inline-assembly
-        assembly {
-            adm := sload(slot)
-        }
+    function _setAdmin(address newAdmin) private {
+        require(newAdmin != address(0), "TransparentUpgradeableProxy: new admin is the zero address");
+        StorageSlot.getAddressSlot(_ADMIN_SLOT).value = newAdmin;
     }
 
     /**
@@ -98,24 +93,4 @@ abstract contract ERC1967Utils {
         emit AdminChanged(_admin(), newAdmin);
         _setAdmin(newAdmin);
     }
-
-
-    /**
-     * @dev Stores a new address in the EIP1967 admin slot.
-     */
-    function _setAdmin(address newAdmin) private {
-        require(newAdmin != address(0), "TransparentUpgradeableProxy: new admin is the zero address");
-
-        bytes32 slot = _ADMIN_SLOT;
-
-        // solhint-disable-next-line no-inline-assembly
-        assembly {
-            sstore(slot, newAdmin)
-        }
-    }
-
-
-
-
-
 }
