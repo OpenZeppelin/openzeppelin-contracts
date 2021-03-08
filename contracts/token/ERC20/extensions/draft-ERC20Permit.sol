@@ -78,7 +78,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
     /**
      * @dev "Consume a nonce": return the current value and increment.
      */
-    function _useNonce(address owner) internal  virtual returns (uint256 current) {
+    function _useNonce(address owner) internal virtual returns (uint256 current) {
         Counters.Counter storage nonce = _nonces[owner];
         current = nonce.current();
         nonce.increment();
