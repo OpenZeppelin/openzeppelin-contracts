@@ -23,9 +23,13 @@
  * `ERC777`: Optimize the gas costs of the constructor. ([#2551](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2551))
  * `ERC721URIStorage`: Add a new extension that implements the `_setTokenURI` behavior as it was available in 3.4.0. ([#2555](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2555))
  * `AccessControl`: Added ERC165 interface detection. ([#2562](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2562))
- * `AccessControlEnumerable`: Fixed `renounceRole` not updated underlying set. ([#2572](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2572))
  * `ERC1155`: Make `uri` public so overloading function can call it using super. ([#2576](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2576))
  * `ERC777`: Make reception acquirement optional in `_mint`. ([#2552](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2552))
+
+### Bug fixes for beta releases
+
+ * `AccessControlEnumerable`: Fixed `renounceRole` not updating enumerable set of addresses for a role. ([#2572](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2572))
+
 
 ### How to upgrade from 3.x
 
