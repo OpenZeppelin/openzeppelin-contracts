@@ -13,5 +13,15 @@ library StorageSlot {
         }
     }
 
+    struct BooleanSlot {
+        bool value;
+    }
+
+    function getBooleanSlot(bytes32 slot) internal pure returns (BooleanSlot storage result) {
+        assembly {
+            result.slot := slot
+        }
+    }
+
     // TODO: add other types (bytes32, uint256, ...)
 }
