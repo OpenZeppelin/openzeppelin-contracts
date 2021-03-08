@@ -37,6 +37,10 @@ npx openzeppelin-contracts-migrate-imports
 
 Make sure you're using git or another version control system to be able to recover from any potential error in our script.
 
+### How to upgrade from 4.0-beta.x
+
+Some further changes have been done during the beta the 4.0-beta.x phase. Transitions made during this period are also configured in the `migrate-imports` script. Consequently, you can upgrade from the 4.0-beta.x stage using the same script as described in the *How to upgrade from 3.x* section.
+
 ## 3.4.0 (2021-02-02)
 
  * `BeaconProxy`: added new kind of proxy that allows simultaneous atomic upgrades. ([#2411](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2411))
