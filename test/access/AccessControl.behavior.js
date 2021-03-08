@@ -179,6 +179,13 @@ function shouldBehaveLikeAccessControlEnumerable (errorPrefix, admin, authorized
 
       expect(bearers).to.have.members([authorized, otherAuthorized]);
     });
+    it('role enumeration should be in sync after renounceRole call', async function () {
+      expect(await this.accessControl.getRoleMemberCount(ROLE)).to.bignumber.equal('0');
+      await this.accessControl.grantRole(ROLE, admin, { from: admin });
+      expect(await this.accessControl.getRoleMemberCount(ROLE)).to.bignumber.equal('1');
+      await this.accessControl.renounceRole(ROLE, admin, { from: admin });
+      expect(await this.accessControl.getRoleMemberCount(ROLE)).to.bignumber.equal('0');
+    });
   });
 }
 
