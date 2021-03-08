@@ -39,6 +39,17 @@ const INTERFACES = {
     'onERC1155Received(address,address,uint256,uint256,bytes)',
     'onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)',
   ],
+  AccessControl: [
+    'hasRole(bytes32,address)',
+    'getRoleAdmin(bytes32)',
+    'grantRole(bytes32,address)',
+    'revokeRole(bytes32,address)',
+    'renounceRole(bytes32,address)',
+  ],
+  AccessControlEnumerable: [
+    'getRoleMember(bytes32,uint256)',
+    'getRoleMemberCount(bytes32)',
+  ],
 };
 
 const INTERFACE_IDS = {};
@@ -54,7 +65,7 @@ for (const k of Object.getOwnPropertyNames(INTERFACES)) {
 function shouldSupportInterfaces (interfaces = []) {
   describe('Contract interface', function () {
     beforeEach(function () {
-      this.contractUnderTest = this.mock || this.token || this.holder;
+      this.contractUnderTest = this.mock || this.token || this.holder || this.accessControl;
     });
 
     for (const k of interfaces) {
