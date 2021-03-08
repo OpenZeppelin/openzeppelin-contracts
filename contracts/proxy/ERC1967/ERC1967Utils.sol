@@ -57,10 +57,14 @@ abstract contract ERC1967ImplementationUtils {
      */
     function _upgradeToAndCallSecure(address newImplementation, bytes memory data) internal virtual {
         address oldImplementation = _getImplementation();
-        // do inital upgrade
-        _upgradeToAndCall(newImplementation, data);
         // check if nested in an upgrade check
         StorageSlot.BooleanSlot storage upgradePending = StorageSlot.getBooleanSlot(_UPGRADE_PENDING_SLOT);
+        // do inital upgrade
+        _setImplementation(newImplementation);
+        // do setup call
+        if (data.length > 0) {
+            Address.functionDelegateCall(newImplementation, data);
+        }
         if (!upgradePending.value) {
             // trigger upgrade check with flag set to true
             upgradePending.value = true;
@@ -75,11 +79,11 @@ abstract contract ERC1967ImplementationUtils {
             upgradePending.value = false;
             // check upgrade was effective
             require(oldImplementation == _getImplementation(), "ERC1967Upgrade: upgrade breaks further upgrades");
-            // reset
+            // reset upgrade
             _setImplementation(newImplementation);
+            // emit event
+            emit Upgraded(newImplementation);
         }
-        // emit event
-        emit Upgraded(newImplementation);
     }
 }
 

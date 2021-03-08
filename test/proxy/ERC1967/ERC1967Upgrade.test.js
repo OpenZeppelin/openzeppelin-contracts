@@ -21,11 +21,14 @@ contract('ERC1967Upgrade', function (accounts) {
 
     it('upgrade to basic implementation', async function () {
       const { receipt } = await this.instance.upgradeToAndCall(this.testimpl1.address, '0x');
+      // console.log(receipt.logs.filter(({ event }) => event === 'Upgraded').length);
       expectEvent(receipt, 'Upgraded', { implementation: this.testimpl1.address });
     });
 
     it('upgrade to secure implementation', async function () {
       const { receipt } = await this.instance.upgradeToAndCall(this.testimpl2.address, '0x');
+      // console.log(receipt.logs.filter(({ event }) => event === 'Upgraded').length);
+      expect(receipt.logs.filter(({ event }) => event === 'Upgraded').length).to.be.equal(1);
       expectEvent(receipt, 'Upgraded', { implementation: this.testimpl2.address });
     });
 
