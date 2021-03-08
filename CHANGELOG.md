@@ -19,6 +19,7 @@
  * `ERC777`: Optimize the gas costs of the constructor. ([#2551](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2551))
  * `ERC721URIStorage`: Add a new extension that implements the `_setTokenURI` behavior as it was available in 3.4.0. ([#2555](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2555))
  * `AccessControl`: Added ERC165 interface detection. ([#2562](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2562))
+ * `ERC1155`: Make `uri` public so overloading function can call it using super. ([#2576](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2576))
 
 ### Bug fixes for beta releases
 
