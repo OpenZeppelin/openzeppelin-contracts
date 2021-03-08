@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../utils/Initializable.sol";
+import "../proxy/utils/Initializable.sol";
 
 // Sample contracts showing upgradeability with multiple inheritance.
 // Child contract inherits from Father and Mother contracts, and Father extends from Gramps.

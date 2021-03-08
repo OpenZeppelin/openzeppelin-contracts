@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../utils/Initializable.sol";
+import "../proxy/utils/Initializable.sol";
 
 contract Implementation1 is Initializable {
   uint internal _value;

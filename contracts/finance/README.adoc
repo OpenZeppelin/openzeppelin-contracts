@@ -1,0 +1,10 @@
+= Finance
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/finance
+
+This directory includes primitives for financial systems. We currently only offer the {PaymentSplitter} contract, but we want to grow this directory so we welcome ideas.
+
+== PaymentSplitter
+
+{{PaymentSplitter}}
