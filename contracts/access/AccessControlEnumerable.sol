@@ -70,6 +70,14 @@ abstract contract AccessControlEnumerable is IAccessControlEnumerable, AccessCon
     }
 
     /**
+     * @dev Overload {renounceRole} to track enumerable memberships
+     */
+    function renounceRole(bytes32 role, address account) public virtual override {
+        super.renounceRole(role, account);
+        _roleMembers[role].remove(account);
+    }
+
+    /**
      * @dev Overload {_setupRole} to track enumerable memberships
      */
     function _setupRole(bytes32 role, address account) internal virtual override {
