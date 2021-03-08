@@ -2,15 +2,15 @@ const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 
 const ERC1967Proxy = artifacts.require('ERC1967Proxy');
 const ERC1967UpgradeMock = artifacts.require('ERC1967UpgradeMock');
-const ERC1967UpgradeTestInProdMock = artifacts.require('ERC1967UpgradeTestInProdMock');
-const ERC1967UpgradeTestInProdBrokenMock = artifacts.require('ERC1967UpgradeTestInProdBrokenMock');
+const ERC1967UpgradeSecureMock = artifacts.require('ERC1967UpgradeSecureMock');
+const ERC1967UpgradeBrokenMock = artifacts.require('ERC1967UpgradeBrokenMock');
 
 contract('ERC1967Upgrade', function (accounts) {
   before(async function () {
-    this.testimpl0 = await ERC1967UpgradeTestInProdMock.new();
+    this.testimpl0 = await ERC1967UpgradeSecureMock.new();
     this.testimpl1 = await ERC1967UpgradeMock.new();
-    this.testimpl2 = await ERC1967UpgradeTestInProdMock.new();
-    this.testimpl3 = await ERC1967UpgradeTestInProdBrokenMock.new();
+    this.testimpl2 = await ERC1967UpgradeSecureMock.new();
+    this.testimpl3 = await ERC1967UpgradeBrokenMock.new();
   });
 
   describe('Check test-in-prod upgrade securisation', function () {
@@ -20,17 +20,13 @@ contract('ERC1967Upgrade', function (accounts) {
     });
 
     it('upgrade to basic implementation', async function () {
-      const { logs } = await this.instance.upgradeToAndCall(this.testimpl1.address, '0x');
-      expectEvent.inLogs([ logs[0] ], 'Upgraded', { implementation: this.testimpl1.address });
-      expectEvent.inLogs([ logs[1] ], 'Upgraded', { implementation: this.testimpl0.address });
-      expectEvent.inLogs([ logs[2] ], 'Upgraded', { implementation: this.testimpl1.address });
+      const { receipt } = await this.instance.upgradeToAndCall(this.testimpl1.address, '0x');
+      expectEvent(receipt, 'Upgraded', { implementation: this.testimpl1.address });
     });
 
     it('upgrade to secure implementation', async function () {
-      const { logs } = await this.instance.upgradeToAndCall(this.testimpl2.address, '0x');
-      expectEvent.inLogs([ logs[0] ], 'Upgraded', { implementation: this.testimpl2.address });
-      expectEvent.inLogs([ logs[1] ], 'Upgraded', { implementation: this.testimpl0.address });
-      expectEvent.inLogs([ logs[2] ], 'Upgraded', { implementation: this.testimpl2.address });
+      const { receipt } = await this.instance.upgradeToAndCall(this.testimpl2.address, '0x');
+      expectEvent(receipt, 'Upgraded', { implementation: this.testimpl2.address });
     });
 
     it('upgrade to broken implementation', async function () {

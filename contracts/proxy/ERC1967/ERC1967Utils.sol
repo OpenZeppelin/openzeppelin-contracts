@@ -35,27 +35,48 @@ abstract contract ERC1967ImplementationUtils {
     }
 
     /**
-     * @dev Perform implementation upgrade
-     *
-     * Emits an {Upgraded} event.
-     */
-    function _upgradeTo(address newImplementation) internal virtual {
-        _upgradeToAndCall(newImplementation, bytes(""));
-    }
-
-    /**
-     * @dev Perform implementation upgrade (with addition delegate call)
+     * @dev Perform implementation upgrade (with additional setup call)
      *
      * Emits an {Upgraded} event.
      */
     function _upgradeToAndCall(address newImplementation, bytes memory data) internal virtual {
-        // TODO: additional security checks ?
         _setImplementation(newImplementation);
-        // TODO: change event to match AdminChanged ?
-        emit Upgraded(newImplementation);
         if (data.length > 0) {
             Address.functionDelegateCall(newImplementation, data);
         }
+        emit Upgraded(newImplementation);
+    }
+
+    /**
+     * @dev Perform implementation upgrade (with security checks and additional setup call)
+     *
+     * Emits an {Upgraded} event.
+     */
+    function _upgradeToAndCallSecure(address newImplementation, bytes memory data) internal virtual {
+        address oldImplementation = _getImplementation();
+        // do inital upgrade
+        _upgradeToAndCall(newImplementation, data);
+        // check if nested in an upgrade check
+        StorageSlot.BooleanSlot storage doingUpgrade = StorageSlot.getBooleanSlot(keccak256("eip1967.proxy.doingUpgrade"));
+        if (!doingUpgrade.value) {
+            // trigger upgrade check with flag set to true
+            doingUpgrade.value = true;
+            Address.functionDelegateCall(
+                newImplementation,
+                abi.encodeWithSignature(
+                    "upgradeToAndCall(address,bytes)", // ERC1967Upgrade(address(0)).upgrateToAndCall.selector,
+                    oldImplementation,
+                    bytes("")
+                )
+            );
+            doingUpgrade.value = false;
+            // check upgrade was effective
+            require(oldImplementation == _getImplementation(), "ERC1967Upgrade: upgrade breaks further upgrades");
+            // reset
+            _setImplementation(newImplementation);
+        }
+        // emit event
+        emit Upgraded(newImplementation);
     }
 }
 

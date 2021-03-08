@@ -9,8 +9,7 @@ abstract contract ERC1967Upgrade is ERC1967Utils {
      * @dev Upgrade the implementation of the proxy.
      */
     function upgradeTo(address newImplementation) public virtual {
-        beforeUpgrade(newImplementation);
-        _upgradeTo(newImplementation);
+        upgradeToAndCall(newImplementation, bytes(""));
     }
 
     /**
@@ -18,7 +17,7 @@ abstract contract ERC1967Upgrade is ERC1967Utils {
      * by `data`, which should be an encoded function call. This is useful to initialize new storage variables in the
      * proxied contract.
      */
-    function upgradeToAndCall(address newImplementation, bytes calldata data) public payable virtual {
+    function upgradeToAndCall(address newImplementation, bytes memory data) public payable virtual {
         beforeUpgrade(newImplementation);
         _upgradeToAndCall(newImplementation, data);
     }
