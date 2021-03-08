@@ -40,3 +40,7 @@ CAUTION: Using upgradeable proxies correctly and securely is a difficult task th
 == Minimal Clones
 
 {{Clones}}
+
+== Utils
+
+{{Initializable}}

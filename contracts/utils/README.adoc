@@ -40,6 +40,14 @@ Finally, {Create2} contains all necessary utilities to safely use the https://bl
 
 {{EIP712}}
 
+== Escrow
+
+{{ConditionalEscrow}}
+
+{{Escrow}}
+
+{{RefundEscrow}}
+
 == Introspection
 
 This set of interfaces and contracts deal with https://en.wikipedia.org/wiki/Type_introspection[type introspection] of contracts, that is, examining which functions can be called on them. This is usually referred to as a contract's _interface_.
@@ -84,7 +92,3 @@ Note that, in all cases, accounts simply _declare_ their interfaces, but they ar
 {{Counters}}
 
 {{Strings}}
-
-== Other
-
-{{Initializable}}
