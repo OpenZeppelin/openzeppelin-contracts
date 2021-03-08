@@ -14,6 +14,9 @@ abstract contract ERC1967ImplementationUtils {
      */
     bytes32 internal constant _IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
 
+    // This is the keccak-256 hash of "eip1967.proxy.upgradePending" subtracted by 1
+    bytes32 internal constant _UPGRADE_PENDING_SLOT = 0x39c07022fef61edd40345eccc814df883dce06b1b65a92ff48ae275074d292ee;
+
     /**
      * @dev Emitted when the implementation is upgraded.
      */
@@ -57,10 +60,10 @@ abstract contract ERC1967ImplementationUtils {
         // do inital upgrade
         _upgradeToAndCall(newImplementation, data);
         // check if nested in an upgrade check
-        StorageSlot.BooleanSlot storage doingUpgrade = StorageSlot.getBooleanSlot(keccak256("eip1967.proxy.doingUpgrade"));
-        if (!doingUpgrade.value) {
+        StorageSlot.BooleanSlot storage upgradePending = StorageSlot.getBooleanSlot(_UPGRADE_PENDING_SLOT);
+        if (!upgradePending.value) {
             // trigger upgrade check with flag set to true
-            doingUpgrade.value = true;
+            upgradePending.value = true;
             Address.functionDelegateCall(
                 newImplementation,
                 abi.encodeWithSignature(
@@ -69,7 +72,7 @@ abstract contract ERC1967ImplementationUtils {
                     bytes("")
                 )
             );
-            doingUpgrade.value = false;
+            upgradePending.value = false;
             // check upgrade was effective
             require(oldImplementation == _getImplementation(), "ERC1967Upgrade: upgrade breaks further upgrades");
             // reset
