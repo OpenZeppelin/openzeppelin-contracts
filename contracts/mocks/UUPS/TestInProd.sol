@@ -6,9 +6,13 @@ import "../../proxy/ERC1967/ERC1967Upgrade.sol";
 import "../../utils/Address.sol";
 import "../../utils/StorageSlot.sol";
 
-contract ERC1967UpgradeTestInProd is ERC1967Upgrade {
-    string public constant name = type(ERC1967UpgradeTestInProd).name;
+contract ERC1967UpgradeMock is ERC1967Upgrade {
+    function beforeUpgrade(address) internal virtual override {
+        // do nothing → enable upgrapdes without security
+    }
+}
 
+contract ERC1967UpgradeTestInProdMock is ERC1967Upgrade {
     function upgradeToAndCall(address newImplementation, bytes calldata data) public payable virtual override {
         address oldImplementation = _getImplementation();
 
@@ -37,9 +41,7 @@ contract ERC1967UpgradeTestInProd is ERC1967Upgrade {
     }
 }
 
-contract ERC1967UpgradeTestInProdBroken is ERC1967Upgrade {
-    string public constant name = type(ERC1967UpgradeTestInProdBroken).name;
-
+contract ERC1967UpgradeTestInProdBrokenMock is ERC1967Upgrade {
     function upgradeToAndCall(address newImplementation, bytes calldata data) public payable virtual override {
         // Do not upgrade
     }
