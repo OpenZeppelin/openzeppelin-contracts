@@ -70,14 +70,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy, ERC1967Upgrade {
      * `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
      */
     function implementation() external ifAdmin returns (address implementation_) {
-        implementation_ = _getImplementation();
-    }
-
-    /**
-     * @dev Returns the current implementation address.
-     */
-    function _implementation() internal view virtual override returns (address) {
-        return _getImplementation();
+        return _implementation();
     }
 
     /**

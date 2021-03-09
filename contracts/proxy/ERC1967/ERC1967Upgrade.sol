@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.0;
 
-import "./ERC1967Utils.sol";
+import "./ERC1967Storage.sol";
 
-abstract contract ERC1967Upgrade is ERC1967Utils {
+abstract contract ERC1967Upgrade is ERC1967Storage {
     /**
      * @dev Upgrade the implementation of the proxy.
      */

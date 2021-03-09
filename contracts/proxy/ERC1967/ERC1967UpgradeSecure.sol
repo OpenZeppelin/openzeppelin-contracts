@@ -12,6 +12,6 @@ abstract contract ERC1967UpgradeSecure is ERC1967Upgrade {
      */
     function upgradeToAndCall(address newImplementation, bytes memory data) public payable virtual override {
         beforeUpgrade(newImplementation);
-        _upgradeToAndCallSecure(newImplementation, data);
+        ERC1967Storage._upgradeToAndCallSecure(newImplementation, data);
     }
 }
