@@ -3,7 +3,6 @@
 pragma solidity ^0.8.0;
 
 import "../ERC1967/ERC1967Proxy.sol";
-import "../ERC1967/ERC1967Upgrade.sol";
 
 /**
  * @dev This contract implements a proxy that is upgradeable by an admin.
@@ -26,7 +25,7 @@ import "../ERC1967/ERC1967Upgrade.sol";
  * Our recommendation is for the dedicated account to be an instance of the {ProxyAdmin} contract. If set up this way,
  * you should think of the `ProxyAdmin` instance as the real administrative interface of your proxy.
  */
-contract TransparentUpgradeableProxy is ERC1967Proxy, ERC1967Upgrade {
+contract TransparentUpgradeableProxy is IERC1967Upgradeable, ERC1967Proxy {
     /**
      * @dev Initializes an upgradeable proxy managed by `_admin`, backed by the implementation at `_logic`, and
      * optionally initialized with `_data` as explained in {UpgradeableProxy-constructor}.
@@ -85,9 +84,17 @@ contract TransparentUpgradeableProxy is ERC1967Proxy, ERC1967Upgrade {
     }
 
     /**
-     * @dev overload the beforeUpgrade hook to enable upgrades, and make it ifAdmin.
+     * @dev Upgrade the implementation of the proxy, and then call a function from the new implementation as specified
+     * by `data`, which should be an encoded function call. This is useful to initialize new storage variables in the
+     * proxied contract.
      */
-    function beforeUpgrade(address) internal virtual override ifAdmin {}
+    function upgradeTo(address newImplementation) external override ifAdmin {
+        _upgradeToAndCall(newImplementation, bytes(""));
+    }
+
+    function upgradeToAndCall(address newImplementation, bytes calldata data) external payable override ifAdmin {
+        _upgradeToAndCall(newImplementation, data);
+    }
 
     /**
      * @dev Makes sure the admin cannot access the fallback function. See {Proxy-_beforeFallback}.
