@@ -20,7 +20,6 @@
  * `ERC721URIStorage`: add a new extension that implements the `_setTokenURI` behavior as it was available in 3.4.0. ([#2555](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2555))
  * `AccessControl`: added ERC165 interface detection. ([#2562](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2562))
  * `ERC1155`: make `uri` public so overloading function can call it using super. ([#2576](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2576))
- * `ERC777`: make reception acquirement optional in `_mint`. ([#2552](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2552))
 
 ### Bug fixes for beta releases
 
