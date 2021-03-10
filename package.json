@@ -66,8 +66,10 @@
     "ethereumjs-wallet": "^1.0.1",
     "hardhat": "^2.0.6",
     "hardhat-gas-reporter": "^1.0.4",
+    "keccak256": "^1.0.2",
     "lodash.startcase": "^4.4.0",
     "lodash.zip": "^4.2.0",
+    "merkletreejs": "^0.2.13",
     "micromatch": "^4.0.2",
     "mocha": "^8.0.1",
     "rimraf": "^3.0.2",
@@ -75,6 +77,5 @@
     "solidity-coverage": "^0.7.11",
     "solidity-docgen": "^0.5.3",
     "web3": "^1.3.0"
-  },
-  "dependencies": {}
+  }
 }
