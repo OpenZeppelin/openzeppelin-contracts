@@ -6,6 +6,8 @@ import "../VTable.sol";
 import "../../../utils/Context.sol";
 
 contract VTableOwnershipModule is Context {
+    using VTable for VTable.VTableStore;
+
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
     /**
@@ -20,7 +22,7 @@ contract VTableOwnershipModule is Context {
      * @dev Reads ownership for the vtable
      */
     function owner() public view virtual returns (address) {
-        return VTable.instance().owner;
+        return VTable.instance().getOwner();
     }
 
     /**
@@ -31,10 +33,7 @@ contract VTableOwnershipModule is Context {
      * thereby removing any functionality that is only available to the owner.
      */
     function renounceOwnership() public virtual onlyOwner {
-        VTable.VTableStore storage vtable = VTable.instance();
-
-        emit OwnershipTransferred(vtable.owner, address(0));
-        vtable.owner = address(0);
+        VTable.instance().setOwner(address(0));
     }
 
     /**
@@ -42,10 +41,7 @@ contract VTableOwnershipModule is Context {
      * Can only be called by the current owner.
      */
     function transferOwnership(address newOwner) public virtual onlyOwner {
-        VTable.VTableStore storage vtable = VTable.instance();
-
         require(newOwner != address(0), "VTableOwnership: new owner is the zero address");
-        emit OwnershipTransferred(vtable.owner, newOwner);
-        vtable.owner = newOwner;
+        VTable.instance().setOwner(newOwner);
     }
 }

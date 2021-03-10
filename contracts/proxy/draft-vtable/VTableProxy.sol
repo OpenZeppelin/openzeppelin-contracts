@@ -16,15 +16,11 @@ contract VTableProxy is Proxy, Context {
 
     bytes4 private constant _FALLBACK_SIGN = 0xffffffff;
 
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-
     constructor(address updatemodule) {
         VTable.VTableStore storage vtable = VTable.instance();
 
-        vtable.owner = _msgSender();
+        vtable.setOwner(_msgSender());
         vtable.setFunction(VTableUpdateModule(updatemodule).updateVTable.selector, updatemodule);
-
-        emit OwnershipTransferred(address(0), _msgSender());
     }
 
     function _implementation() internal view virtual override returns (address module) {

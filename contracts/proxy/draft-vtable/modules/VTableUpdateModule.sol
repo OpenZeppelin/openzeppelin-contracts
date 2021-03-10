@@ -8,6 +8,8 @@ import "../../../utils/Context.sol";
 contract VTableUpdateModule is Context {
     using VTable for VTable.VTableStore;
 
+    event VTableUpdate(bytes4 indexed selector, address oldImplementation, address newImplementation);
+
     struct ModuleDefinition {
         address implementation;
         bytes4[] selectors;
@@ -18,7 +20,7 @@ contract VTableUpdateModule is Context {
      */
     function updateVTable(ModuleDefinition[] calldata modules) public {
         VTable.VTableStore storage vtable = VTable.instance();
-        require(VTable.instance().owner == _msgSender(), "VTableOwnership: caller is not the owner");
+        require(VTable.instance().getOwner() == _msgSender(), "VTableOwnership: caller is not the owner");
 
         for (uint256 i = 0; i < modules.length; ++i) {
             ModuleDefinition memory module = modules[i];
