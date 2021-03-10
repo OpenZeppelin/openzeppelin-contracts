@@ -12,7 +12,7 @@ pragma solidity ^0.8.0;
  */
 interface IERC20Permit {
     /**
-     * @dev Sets `value` as the allowance of `spender` over `owner`'s tokens,
+     * @dev Sets `value` as the allowance of `spender` over ``owner``'s tokens,
      * given `owner`'s signed approval.
      *
      * IMPORTANT: The same issues {IERC20-approve} has related to transaction
@@ -38,7 +38,7 @@ interface IERC20Permit {
      * @dev Returns the current nonce for `owner`. This value must be
      * included whenever a signature is generated for {permit}.
      *
-     * Every successful call to {permit} increases `owner`'s nonce by one. This
+     * Every successful call to {permit} increases ``owner``'s nonce by one. This
      * prevents a signature from being used multiple times.
      */
     function nonces(address owner) external view returns (uint256);
