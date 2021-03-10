@@ -13,7 +13,7 @@ pragma solidity ^0.8.0;
 interface IERC20Permit {
     /**
      * @dev Sets `value` as the allowance of `spender` over ``owner``'s tokens,
-     * given `owner`'s signed approval.
+     * given ``owner``'s signed approval.
      *
      * IMPORTANT: The same issues {IERC20-approve} has related to transaction
      * ordering also apply here.
@@ -26,7 +26,7 @@ interface IERC20Permit {
      * - `deadline` must be a timestamp in the future.
      * - `v`, `r` and `s` must be a valid `secp256k1` signature from `owner`
      * over the EIP712-formatted function arguments.
-     * - the signature must use `owner`'s current nonce (see {nonces}).
+     * - the signature must use ``owner``'s current nonce (see {nonces}).
      *
      * For more information on the signature format, see the
      * https://eips.ethereum.org/EIPS/eip-2612#specification[relevant EIP
