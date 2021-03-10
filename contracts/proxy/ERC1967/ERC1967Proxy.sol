@@ -30,28 +30,4 @@ contract ERC1967Proxy is Proxy, ERC1967Upgrade {
     function _implementation() internal view virtual override returns (address impl) {
         return ERC1967Storage._getImplementation();
     }
-
-    /**
-     * @dev Upgrades the proxy to a new implementation.
-     *
-     * Emits an {Upgraded} event.
-     */
-    function _upgradeTo(address newImplementation) internal virtual {
-        _setImplementation(newImplementation);
-        emit Upgraded(newImplementation);
-    }
-
-    /**
-     * @dev Stores a new address in the EIP1967 implementation slot.
-     */
-    function _setImplementation(address newImplementation) private {
-        require(Address.isContract(newImplementation), "ERC1967Proxy: new implementation is not a contract");
-
-        bytes32 slot = _IMPLEMENTATION_SLOT;
-
-        // solhint-disable-next-line no-inline-assembly
-        assembly {
-            sstore(slot, newImplementation)
-        }
-    }
 }
