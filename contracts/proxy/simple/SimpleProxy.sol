@@ -2,9 +2,8 @@
 
 pragma solidity ^0.8.0;
 
-import "./ERC1967Upgrade.sol";
 import "../Proxy.sol";
-import "../../utils/Address.sol";
+import "../ERC1967/ERC1967Upgrade.sol";
 
 /**
  * @dev This contract implements an upgradeable proxy. It is upgradeable because calls are delegated to an
@@ -15,7 +14,7 @@ import "../../utils/Address.sol";
  * Upgradeability is only provided internally through {_upgradeTo}. For an externally upgradeable proxy see
  * {TransparentUpgradeableProxy}.
  */
-contract ERC1967Proxy is Proxy, ERC1967Upgrade {
+contract SimpleProxy is Proxy, ERC1967Upgrade {
     /**
      * @dev Initializes the upgradeable proxy with an initial implementation specified by `_logic`.
      *
@@ -27,6 +26,9 @@ contract ERC1967Proxy is Proxy, ERC1967Upgrade {
         _upgradeToAndCall(_logic, _data);
     }
 
+    /**
+     * @dev Returns the current implementation address of the associated beacon.
+     */
     function _implementation() internal view virtual override returns (address impl) {
         return ERC1967Storage._getImplementation();
     }
