@@ -46,7 +46,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * The defaut value of {decimals} is 18. To select a different value for
      * {decimals} you should overload it.
      *
-     * All three of these values are immutable: they can only be set once during
+     * All two of these values are immutable: they can only be set once during
      * construction.
      */
     constructor (string memory name_, string memory symbol_) {
