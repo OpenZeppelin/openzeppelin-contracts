@@ -8,6 +8,22 @@ const ECDSAMock = artifacts.require('ECDSAMock');
 const TEST_MESSAGE = web3.utils.sha3('OpenZeppelin');
 const WRONG_MESSAGE = web3.utils.sha3('Nope');
 
+function to2098Format (signature) {
+  const long = web3.utils.hexToBytes(signature);
+  expect(long.length).to.be.equal(65);
+  const short = long.slice(0, 64);
+  short[32] |= (long[64] % 27) << 7;
+  return web3.utils.bytesToHex(short);
+}
+
+function from2098Format (signature) {
+  const short = web3.utils.hexToBytes(signature);
+  expect(short.length).to.be.equal(64);
+  short.push((short[32] >> 7) + 27);
+  short[32] &= (1 << 7) - 1;
+  return web3.utils.bytesToHex(short);
+}
+
 contract('ECDSA', function (accounts) {
   const [ other ] = accounts;
 
@@ -61,6 +77,15 @@ contract('ECDSA', function (accounts) {
           await expectRevert(this.ecdsa.recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature \'v\' value');
         });
       });
+
+      context('short 2098 format', function () {
+        it('works', async function () {
+          const version = '1b'; // 27 = 1b.
+          const signature = signatureWithoutVersion + version;
+          expect(await this.ecdsa.recover(TEST_MESSAGE, to2098Format(signature))).to.equal(signer);
+          expect(await this.ecdsa.recover(TEST_MESSAGE, from2098Format(to2098Format(signature)))).to.equal(signer);
+        });
+      });
     });
 
     context('with v1 signature', function () {
@@ -91,6 +116,15 @@ contract('ECDSA', function (accounts) {
           const version = '02';
           const signature = signatureWithoutVersion + version;
           await expectRevert(this.ecdsa.recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature \'v\' value');
+        });
+      });
+
+      context('short 2098 format', function () {
+        it('works', async function () {
+          const version = '1c'; // 27 = 1b.
+          const signature = signatureWithoutVersion + version;
+          expect(await this.ecdsa.recover(TEST_MESSAGE, to2098Format(signature))).to.equal(signer);
+          expect(await this.ecdsa.recover(TEST_MESSAGE, from2098Format(to2098Format(signature)))).to.equal(signer);
         });
       });
     });
