@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../introspection/IERC165.sol";
+import "../utils/introspection/IERC165.sol";
 
 interface IERC173 is IERC165 {
     /// @dev This emits when ownership of a contract changes.
