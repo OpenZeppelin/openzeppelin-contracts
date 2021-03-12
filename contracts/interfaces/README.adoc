@@ -1,0 +1,29 @@
+= Utilities
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/utils
+
+List of standardized interfaces, usefull to interract with third party contracts that implement them.
+
+{{IERC20}}
+{{IERC20Metadata}}
+{{IERC165}}
+{{IERC173}}
+{{IERC721}}
+{{IERC721Receiver}}
+{{IERC721Enumerable}}
+{{IERC721Metadata}}
+{{IERC725}}
+{{IERC777}}
+{{IERC777Recipient}}
+{{IERC777Sender}}
+{{IERC1155}}
+{{IERC1155Receiver}}
+{{IERC1155MetadataURI}}
+{{IERC1271}}
+{{IERC1363}}
+{{IERC1820Implementer}}
+{{IERC1820Registry}}
+{{IERC2612}}
+{{IERC3156FlashLender}}
+{{IERC3156FlashBorrower}}
