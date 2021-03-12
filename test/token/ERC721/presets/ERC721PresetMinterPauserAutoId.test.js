@@ -97,6 +97,15 @@ contract('ERC721PresetMinterPauserAutoId', function (accounts) {
         'ERC721PresetMinterPauserAutoId: must have pauser role to pause',
       );
     });
+
+    it('other accounts cannot unpause', async function () {
+      await this.token.pause({ from: deployer });
+
+      await expectRevert(
+        this.token.unpause({ from: other }),
+        'ERC721PresetMinterPauserAutoId: must have pauser role to unpause',
+      );
+    });
   });
 
   describe('burning', function () {
