@@ -2,13 +2,14 @@
 
 pragma solidity ^0.8.0;
 
+import "../CountersImpl.sol";
 import "../../proxy/UUPS/Proxiable.sol";
 
-contract ProxiableMock is Proxiable {
+contract ProxiableMock is CountersImpl, Proxiable {
     function _beforeUpgrade() internal virtual override {}
 }
 
-contract ProxiableUnsafeMock is Proxiable {
+contract ProxiableUnsafeMock is CountersImpl, Proxiable {
     function upgradeTo(address newImplementation) external virtual override {
         ERC1967Upgrade._upgradeToAndCall(newImplementation, bytes(""));
     }
@@ -20,7 +21,7 @@ contract ProxiableUnsafeMock is Proxiable {
     function _beforeUpgrade() internal virtual override {}
 }
 
-contract ProxiableBrokenMock is Proxiable {
+contract ProxiableBrokenMock is CountersImpl, Proxiable {
     function upgradeTo(address) external virtual override {
         // pass
     }
