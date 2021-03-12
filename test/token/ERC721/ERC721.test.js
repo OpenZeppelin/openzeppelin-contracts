@@ -15,19 +15,4 @@ contract('ERC721', function (accounts) {
 
   shouldBehaveLikeERC721('ERC721', ...accounts);
   shouldBehaveLikeERC721Metadata('ERC721', name, symbol, ...accounts);
-
-  describe('default tokenUri', function () {
-    beforeEach(async function () {
-      this.tokenId = '5042';
-      await this.token.mint(accounts[0], this.tokenId);
-    });
-
-    it('baseURI is empty', async function () {
-      expect(await this.token.baseURI()).to.be.equal('');
-    });
-
-    it('tokenURI', async function () {
-      expect(await this.token.tokenURI(this.tokenId)).to.be.equal('');
-    });
-  });
 });
