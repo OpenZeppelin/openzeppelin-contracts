@@ -1,6 +1,6 @@
 const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 
-const SimpleProxy = artifacts.require('SimpleProxy');
+const ERC1967Proxy = artifacts.require('ERC1967Proxy');
 const ProxiableMock = artifacts.require('ProxiableMock');
 const ProxiableUnsafeMock = artifacts.require('ProxiableUnsafeMock');
 const ProxiableBrokenMock = artifacts.require('ProxiableBrokenMock');
@@ -15,7 +15,7 @@ contract('ERC1967Upgrade', function (accounts) {
 
   describe('Check test-in-prod upgrade securisation', function () {
     beforeEach(async function () {
-      const { address } = await SimpleProxy.new(this.testimpl0.address, '0x');
+      const { address } = await ERC1967Proxy.new(this.testimpl0.address, '0x');
       this.instance = await ProxiableMock.at(address);
     });
 

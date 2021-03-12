@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../../proxy/simple/Proxiable.sol";
+import "../../proxy/UUPS/Proxiable.sol";
 
 contract ProxiableMock is Proxiable {
     function _beforeUpgrade() internal virtual override {}

@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "../Proxy.sol";
-import "../ERC1967/ERC1967Upgrade.sol";
+import "./ERC1967Upgrade.sol";
 
 /**
  * @dev This contract implements an upgradeable proxy. It is upgradeable because calls are delegated to an
@@ -14,7 +14,7 @@ import "../ERC1967/ERC1967Upgrade.sol";
  * Upgradeability is only provided internally through {_upgradeTo}. For an externally upgradeable proxy see
  * {TransparentUpgradeableProxy}.
  */
-contract SimpleProxy is Proxy, ERC1967Upgrade {
+contract ERC1967Proxy is Proxy, ERC1967Upgrade {
     /**
      * @dev Initializes the upgradeable proxy with an initial implementation specified by `_logic`.
      *
