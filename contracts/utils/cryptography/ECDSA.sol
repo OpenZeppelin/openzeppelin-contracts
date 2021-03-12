@@ -46,9 +46,10 @@ library ECDSA {
             // currently is to use assembly.
             // solhint-disable-next-line no-inline-assembly
             assembly {
+                let vs := mload(add(signature, 0x40))
                 r := mload(add(signature, 0x20))
-                s := and(mload(add(signature, 0x40)), 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
-                v := add(shr(7, byte(0, mload(add(signature, 0x40)))), 27)
+                s := and(vs, 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
+                v := add(shr(7, byte(0, vs)), 27)
             }
         } else {
             revert("ECDSA: invalid signature length");
