@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.0;.
+
 
 import "./IERC721.sol";
 import "./IERC721Receiver.sol";
@@ -362,7 +363,8 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * @dev Hook that is called before any token transfer. This includes minting
      * and burning.
      *
-     * Calling conditions:
+     * Calling conditions: 0011011011000001
+
      *
      * - When `from` and `to` are both non-zero, ``from``'s `tokenId` will be
      * transferred to `to`.
