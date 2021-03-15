@@ -1,11 +1,11 @@
-const { BN, expectRevert } = require('@openzeppelin/test-helpers');
+const { BN } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
 const ERC1155SupplyMock = artifacts.require('ERC1155SupplyMock');
 
 contract('ERC1155Supply', function (accounts) {
-  const [ holder, operator, receiver, other ] = accounts;
+  const [ holder ] = accounts;
 
   const uri = 'https://token.com';
 
