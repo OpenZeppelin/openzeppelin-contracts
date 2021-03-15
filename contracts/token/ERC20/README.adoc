@@ -15,11 +15,12 @@ There a few core contracts that implement the behavior specified in the EIP:
 
 Additionally there are multiple custom extensions, including:
 
-* {ERC20Permit}: gasless approval of tokens.
-* {ERC20Snapshot}: efficient storage of past token balances to be later queried at any point in time.
 * {ERC20Burnable}: destruction of own tokens.
 * {ERC20Capped}: enforcement of a cap to the total supply when minting tokens.
 * {ERC20Pausable}: ability to pause token transfers.
+* {ERC20Snapshot}: efficient storage of past token balances to be later queried at any point in time.
+* {ERC20Permit}: gasless approval of tokens (standardized as ERC2612).
+* {ERC20FlashMint}: token level support for flash loan through the minting and burning ephemeral tokens (standardized as ERC3156).
 
 Finally, there are some utilities to interact with ERC20 contracts in various ways.
 
@@ -43,13 +44,13 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 == Extensions
 
-{{ERC20Snapshot}}
-
-{{ERC20Pausable}}
-
 {{ERC20Burnable}}
 
 {{ERC20Capped}}
+
+{{ERC20Pausable}}
+
+{{ERC20Snapshot}}
 
 == Draft EIPs
 
