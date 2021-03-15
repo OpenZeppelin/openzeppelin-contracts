@@ -368,6 +368,36 @@ contract('TimelockController', function (accounts) {
           );
         });
 
+        it('length of batch parameter must match #1', async function () {
+          await expectRevert(
+            this.timelock.scheduleBatch(
+              this.operation.targets,
+              [],
+              this.operation.datas,
+              this.operation.predecessor,
+              this.operation.salt,
+              MINDELAY,
+              { from: proposer },
+            ),
+            'TimelockController: length mismatch',
+          );
+        });
+
+        it('length of batch parameter must match #1', async function () {
+          await expectRevert(
+            this.timelock.scheduleBatch(
+              this.operation.targets,
+              this.operation.values,
+              [],
+              this.operation.predecessor,
+              this.operation.salt,
+              MINDELAY,
+              { from: proposer },
+            ),
+            'TimelockController: length mismatch',
+          );
+        });
+
         it('prevent non-proposer from commiting', async function () {
           await expectRevert(
             this.timelock.scheduleBatch(
@@ -621,6 +651,13 @@ contract('TimelockController', function (accounts) {
       it('proposer can cancel', async function () {
         const receipt = await this.timelock.cancel(this.operation.id, { from: proposer });
         expectEvent(receipt, 'Cancelled', { id: this.operation.id });
+      });
+
+      it('cannot cancel invalid operation', async function () {
+        await expectRevert(
+          this.timelock.cancel(constants.ZERO_BYTES32, { from: proposer }),
+          'TimelockController: operation cannot be cancelled',
+        );
       });
 
       it('prevent non-proposer from canceling', async function () {
