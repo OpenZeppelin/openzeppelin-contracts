@@ -39,7 +39,7 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 {{ERC721Burnable}}
 
-{{ERC721TokenUri}}
+{{ERC721URIStorage}}
 
 == Presets
 

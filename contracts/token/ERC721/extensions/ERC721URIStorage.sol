@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import "../ERC721.sol";
 
 /**
- * @dev ERC721 token with storage based token uri management.
+ * @dev ERC721 token with storage based token URI management.
  */
 abstract contract ERC721URIStorage is ERC721 {
     using Strings for uint256;
