@@ -9,11 +9,28 @@ The abstract {Proxy} contract implements the core delegation functionality. If t
 
 {ERC1967Proxy} provides a simple, fully functioning, proxy. While this proxy is not by itself upgradeable, it includes an internal upgrade interface. For an upgrade interface exposed externally to an admin, we provide {TransparentUpgradeableProxy}. Both of these contracts use the storage slots specified in https://eips.ethereum.org/EIPS/eip-1967[EIP1967] to avoid clashes with the storage of the implementation contract behind the proxy.
 
-An alternative upgradeability mechanism is provided in <<Beacon>>. This pattern, popularized by Dharma, allows multiple proxies to be upgraded to a different implementation in a single transaction. In this pattern, the proxy contract doesn't hold the implementation address in storage like {UpgradeableProxy}, but the address of a {UpgradeableBeacon} contract, which is where the implementation address is actually stored and retrieved from. The `upgrade` operations that change the implementation contract address are then sent to the beacon instead of to the proxy contract, and all proxies that follow that beacon are automatically upgraded.
+An alternative upgradeability mechanism is provided in <<Beacon>>. This pattern, popularized by Dharma, allows multiple proxies to be upgraded to a different implementation in a single transaction. In this pattern, the proxy contract doesn't hold the implementation address in storage like {ERC1967Proxy}, but the address of a {UpgradeableBeacon} contract, which is where the implementation address is actually stored and retrieved from. The `upgrade` operations that change the implementation contract address are then sent to the beacon instead of to the proxy contract, and all proxies that follow that beacon are automatically upgraded.
 
 The {Clones} library provides a way to deploy minimal non-upgradeable proxies for cheap. This can be useful for applications that require deploying many instances of the same contract (for example one per user, or one per task). These instances are designed to be both cheap to deploy, and cheap to call. The drawback being that they are not upgradeable.
 
 CAUTION: Using upgradeable proxies correctly and securely is a difficult task that requires deep knowledge of the proxy pattern, Solidity, and the EVM. Unless you want a lot of low level control, we recommend using the xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugins] for Truffle and Hardhat.
+
+= UUPS design: upgradeability as an implementation feature
+
+Upgradeable smart contracts rely on proxies to relay the calls in a way that is programmable. As discussed previously, we provide different proxy contracts that each come with a specific set of features. Other designs, not (yet) proposed as part of the OpenZeppelin products, also exist.
+
+The most simple, and common, design is known as Universal Upgradeable Proxy Standard (UUPS). This design is both lightweight and versatile and is proposed through the {ERC1967Proxy} and the {Proxiable} contract.
+
+According to this design, the {ERC1967Proxy} is only capable of forwarding calls to an implementation contract. Unlike the more complex and expensive to deploy {TransparentUpgradeableProxy}, the {ERC1967Proxy} doesn't by itself provide any upgradeability mechanism. It is the role of the implementation to include, alongside the contract's logic, all the code necessary to update the implementation's address that is stored at a specific slot in the proxy's storage space. This is where the {Proxiable} contract comes in. Inheriting from it (and overriding the {_beforeUpgrade} function with the relevant access control mechanism) will turn your contract logic into a UUPS compliant implementation.
+
+By default, the upgrade mechanism included in {Proxiable} contains a security mechanism that will prevent any upgrades to a non UUPS compliant implementation. This prevents upgrades to a logic that wouldn't contain the necessary upgrade mechanism as it would lock the proxy forever. This security mechanism can however be bypassed, either by:
+
+- Adding a flag mechanism in the implementation that will disable the upgrade function when triggered;
+- Upgrading to an implementation that features an upgrade mechanism without the additional security check, and then upgrade again to another implementation without the upgrade mechanism.
+
+When doing an upgrade, the second parameter of the {upgradeToAndCall} function allows for the atomic execution of an optional initialization/migration call.
+
+While {Proxiable} uses the same interface as {TransparentUpgradeableProxy}, in the first case the upgrade is handled by the implementation, and can eventually be removed. {TransparentUpgradeableProxy}, on the other hand, includes the upgrade logic in the proxy. This means {TransparentUpgradeableProxy} is more expensive to deploy. Note that, since both proxies use the same storage slot for the implementation address, using a UUPS compliant implementation with a {TransparentUpgradeableProxy} might allow non-admins to perform upgrade operations.
 
 == Core
 

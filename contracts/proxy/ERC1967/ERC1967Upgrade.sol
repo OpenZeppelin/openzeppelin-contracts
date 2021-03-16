@@ -4,6 +4,10 @@ pragma solidity ^0.8.0;
 
 import "./ERC1967Storage.sol";
 
+/**
+ * @dev This abstract contract provides event emiting update functions for
+ * https://eips.ethereum.org/EIPS/eip-1967[EIP1967] slots.
+ */
 abstract contract ERC1967Upgrade is ERC1967Storage {
     // This is the keccak-256 hash of "eip1967.proxy.upgradePending" subtracted by 1
     bytes32 internal constant _UPGRADE_PENDING_SLOT = 0x39c07022fef61edd40345eccc814df883dce06b1b65a92ff48ae275074d292ee;

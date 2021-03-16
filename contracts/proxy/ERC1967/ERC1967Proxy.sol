@@ -10,9 +10,6 @@ import "./ERC1967Upgrade.sol";
  * implementation address that can be changed. This address is stored in storage in the location specified by
  * https://eips.ethereum.org/EIPS/eip-1967[EIP1967], so that it doesn't conflict with the storage layout of the
  * implementation behind the proxy.
- *
- * Upgradeability is only provided internally through {_upgradeTo}. For an externally upgradeable proxy see
- * {TransparentUpgradeableProxy}.
  */
 contract ERC1967Proxy is Proxy, ERC1967Upgrade {
     /**

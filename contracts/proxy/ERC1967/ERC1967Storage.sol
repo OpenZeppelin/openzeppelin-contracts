@@ -6,6 +6,10 @@ import "../beacon/IBeacon.sol";
 import "../../utils/Address.sol";
 import "../../utils/StorageSlot.sol";
 
+/**
+ * @dev This abstract contract provide setters and getters for the different
+ * https://eips.ethereum.org/EIPS/eip-1967[EIP1967] storage slots.
+ */
 abstract contract ERC1967Storage {
     /**
      * @dev Storage slot with the address of the current implementation.
