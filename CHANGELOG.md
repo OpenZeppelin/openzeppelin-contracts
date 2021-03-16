@@ -3,6 +3,7 @@
 ## Unreleased
 
  * `ERC721`: made `_approve` an internal function (was private).
+ * `SafeSignedMath`: added `neg` unary operator ([#2596](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2596))
 
 ## 3.4.0 (2021-02-02)
 
