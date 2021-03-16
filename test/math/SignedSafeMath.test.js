@@ -149,4 +149,19 @@ contract('SignedSafeMath', function (accounts) {
       await expectRevert(this.safeMath.div(a, b), 'SignedSafeMath: division overflow');
     });
   });
+
+  describe('neg', function () {
+    it('negates correctly', async function () {
+      const a = new BN('-42');
+
+      const result = await this.safeMath.neg(a);
+      expect(result).to.be.bignumber.equal(a.neg());
+    });
+
+    it('reverts on overflow', async function () {
+      const a = new BN(MIN_INT256);
+
+      await expectRevert(this.safeMath.neg(a), 'SignedSafeMath: unary negation overflow');
+    });
+  });
 });

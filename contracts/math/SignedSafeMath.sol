@@ -89,4 +89,19 @@ library SignedSafeMath {
 
         return c;
     }
+
+    /**
+     * @dev Returns the opposite of a signed integer, reverting on overflow.
+     *
+     * Counterpart to Solidity's unary `-` operator.
+     *
+     * Requirements:
+     *
+     * - Unary negation cannot overflow.
+     */
+    function neg(int256 a) internal pure returns (int256) {
+        require(a != _INT256_MIN, "SignedSafeMath: unary negation overflow");
+
+        return -a;
+    }
 }

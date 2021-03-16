@@ -20,4 +20,8 @@ contract SignedSafeMathMock {
     function add(int256 a, int256 b) public pure returns (int256) {
         return SignedSafeMath.add(a, b);
     }
+
+    function neg(int256 a) public pure returns (int256) {
+        return SignedSafeMath.neg(a);
+    }
 }
