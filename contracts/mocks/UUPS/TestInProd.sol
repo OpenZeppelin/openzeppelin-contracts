@@ -6,7 +6,7 @@ import "../CountersImpl.sol";
 import "../../proxy/UUPS/Proxiable.sol";
 
 contract ProxiableMock is CountersImpl, Proxiable {
-    function _beforeUpgrade() internal virtual override {}
+    function _beforeUpgrade(address) internal virtual override {}
 }
 
 contract ProxiableUnsafeMock is CountersImpl, Proxiable {
@@ -18,7 +18,7 @@ contract ProxiableUnsafeMock is CountersImpl, Proxiable {
         ERC1967Upgrade._upgradeToAndCall(newImplementation, data);
     }
 
-    function _beforeUpgrade() internal virtual override {}
+    function _beforeUpgrade(address) internal virtual override {}
 }
 
 contract ProxiableBrokenMock is CountersImpl, Proxiable {
@@ -30,5 +30,5 @@ contract ProxiableBrokenMock is CountersImpl, Proxiable {
         // pass
     }
 
-    function _beforeUpgrade() internal virtual override {}
+    function _beforeUpgrade(address) internal virtual override {}
 }
