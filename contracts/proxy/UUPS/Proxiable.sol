@@ -15,12 +15,12 @@ import "../ERC1967/ERC1967Upgrade.sol";
 abstract contract Proxiable is IProxiable, ERC1967Upgrade {
     function upgradeTo(address newImplementation) external virtual override {
         _beforeUpgrade(newImplementation);
-        ERC1967Upgrade._upgradeToAndCallSecure(newImplementation, bytes(""));
+        _upgradeToAndCallSecure(newImplementation, bytes(""));
     }
 
     function upgradeToAndCall(address newImplementation, bytes memory data) external payable virtual override {
         _beforeUpgrade(newImplementation);
-        ERC1967Upgrade._upgradeToAndCallSecure(newImplementation, data);
+        _upgradeToAndCallSecure(newImplementation, data, true);
     }
 
     function _beforeUpgrade(address newImplementation) internal virtual;

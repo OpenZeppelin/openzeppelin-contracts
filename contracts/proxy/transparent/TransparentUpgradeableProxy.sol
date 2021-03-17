@@ -94,7 +94,7 @@ contract TransparentUpgradeableProxy is IProxiable, ERC1967Proxy {
     }
 
     function upgradeToAndCall(address newImplementation, bytes calldata data) external payable override ifAdmin {
-        _upgradeToAndCall(newImplementation, data);
+        _upgradeToAndCall(newImplementation, data, true);
     }
 
     /**

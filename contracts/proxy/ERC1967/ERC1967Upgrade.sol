@@ -33,9 +33,13 @@ abstract contract ERC1967Upgrade is ERC1967Storage {
      * Emits an {Upgraded} event.
      */
     function _upgradeToAndCall(address newImplementation, bytes memory data) internal {
+        _upgradeToAndCall(newImplementation, data, false);
+    }
+
+    function _upgradeToAndCall(address newImplementation, bytes memory data, bool forceCall) internal {
         _setImplementation(newImplementation);
         emit Upgraded(newImplementation);
-        if (data.length > 0) {
+        if (data.length > 0 || forceCall) {
             Address.functionDelegateCall(newImplementation, data);
         }
     }
@@ -46,13 +50,17 @@ abstract contract ERC1967Upgrade is ERC1967Storage {
      * Emits an {Upgraded} event.
      */
     function _upgradeToAndCallSecure(address newImplementation, bytes memory data) internal {
+        _upgradeToAndCallSecure(newImplementation, data, false);
+    }
+
+    function _upgradeToAndCallSecure(address newImplementation, bytes memory data, bool forceCall) internal {
         address oldImplementation = _getImplementation();
         // check if nested in an upgrade check
         StorageSlot.BooleanSlot storage upgradePending = StorageSlot.getBooleanSlot(_UPGRADE_PENDING_SLOT);
         // do inital upgrade
         _setImplementation(newImplementation);
         // do setup call
-        if (data.length > 0) {
+        if (data.length > 0 || forceCall) {
             Address.functionDelegateCall(newImplementation, data);
         }
         if (!upgradePending.value) {
@@ -82,9 +90,13 @@ abstract contract ERC1967Upgrade is ERC1967Storage {
      * Emits an {Upgraded} event.
      */
     function _upgradeBeaconToAndCall(address newBeacon, bytes memory data) internal {
+        _upgradeBeaconToAndCall(newBeacon, data, false);
+    }
+
+    function _upgradeBeaconToAndCall(address newBeacon, bytes memory data, bool forceCall) internal {
         _setBeacon(newBeacon);
         emit BeaconUpgraded(newBeacon);
-        if (data.length > 0) {
+        if (data.length > 0 || forceCall) {
             Address.functionDelegateCall(IBeacon(newBeacon).implementation(), data);
         }
     }
