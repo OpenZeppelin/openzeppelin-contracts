@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 
 import "../token/ERC20/IERC20.sol";
-import "../token/ERC20/extensions/draft-IERC3156.sol";
+import "../interfaces/IERC3156.sol";
 import "../utils/Address.sol";
 
 contract ERC3156FlashBorrowerMock is IERC3156FlashBorrower {
@@ -28,6 +28,8 @@ contract ERC3156FlashBorrowerMock is IERC3156FlashBorrower {
         uint256 fee,
         bytes calldata data
     ) public override returns (bytes32) {
+        require(msg.sender == token);
+
         emit BalanceOf(token, address(this), IERC20(token).balanceOf(address(this)));
         emit TotalSupply(token, IERC20(token).totalSupply());
 

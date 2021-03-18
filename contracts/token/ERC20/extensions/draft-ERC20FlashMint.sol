@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "./draft-IERC3156.sol";
+import "../../../interfaces/IERC3156.sol";
 import "../ERC20.sol";
 
 /**
@@ -62,15 +62,11 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
     {
         require(token == address(this), "ERC20FlashMint: wrong token");
         uint256 fee = flashFee(token, amount);
-        // mint tokens - will revert on overflow
         _mint(address(receiver), amount);
-        // call the flashLoan borrower
         require(receiver.onFlashLoan(msg.sender, token, amount, fee, data) == RETURN_VALUE, "ERC20FlashMint: invalid return value");
-        // update approval (equivalent of burnFrom #1) - will revert on overflow
         uint256 currentAllowance = allowance(address(receiver), address(this));
         require(currentAllowance >= amount + fee, "ERC20FlashMint: allowance does not allow refund");
         _approve(address(receiver), address(this), currentAllowance - amount - fee);
-        // burn tokens (equivalent of burnFrom #2)
         _burn(address(receiver), amount + fee);
         return true;
     }
