@@ -58,7 +58,7 @@ The following EIPs are still in Draft status. Due to their nature as drafts, the
 
 {{ERC20Permit}}
 
-{{ERC20FlashLoan}}
+{{ERC20FlashMint}}
 
 == Presets
 
