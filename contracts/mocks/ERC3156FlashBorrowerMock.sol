@@ -32,6 +32,7 @@ contract ERC3156FlashBorrowerMock is IERC3156FlashBorrower {
         emit TotalSupply(token, IERC20(token).totalSupply());
 
         if (data.length > 0) {
+            // WARNING: This code is for testing purposes only! Do not use.
             Address.functionCall(token, data);
         }
 
