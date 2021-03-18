@@ -27,7 +27,7 @@ Finally, there are some utilities to interact with ERC20 contracts in various wa
 * {SafeERC20}: a wrapper around the interface that eliminates the need to handle boolean return values.
 * {TokenTimelock}: hold tokens for a beneficiary until a specified time.
 
-The following related EIPs are in draft status and can be found in the drafts directory.
+The following related EIPs are in draft status.
 
 - {ERC20Permit}
 - {ERC20FlashMint}
