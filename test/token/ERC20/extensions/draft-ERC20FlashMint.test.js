@@ -25,7 +25,7 @@ contract('ERC20FlashMint', function (accounts) {
       expect(await this.token.maxFlashLoan(this.token.address)).to.be.bignumber.equal(MAX_UINT256.sub(initialSupply));
     });
 
-    it('token missmatch', async function () {
+    it('token mismatch', async function () {
       expect(await this.token.maxFlashLoan(ZERO_ADDRESS)).to.be.bignumber.equal('0');
     });
   });
