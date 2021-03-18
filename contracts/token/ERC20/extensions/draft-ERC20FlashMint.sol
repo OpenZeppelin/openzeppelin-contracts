@@ -13,7 +13,7 @@ import "../ERC20.sol";
  * level, with no fee.
  */
 abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
-    bytes32 constant internal RETURN_VALUE = keccak256("ERC3156FlashBorrower.onFlashLoan");
+    bytes32 constant private RETURN_VALUE = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
     /**
      * @dev Return the maximum amount of token available for loan.
