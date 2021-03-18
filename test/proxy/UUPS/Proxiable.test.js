@@ -5,7 +5,7 @@ const ProxiableMock = artifacts.require('ProxiableMock');
 const ProxiableUnsafeMock = artifacts.require('ProxiableUnsafeMock');
 const ProxiableBrokenMock = artifacts.require('ProxiableBrokenMock');
 
-contract('ERC1967Upgrade', function (accounts) {
+contract('Proxiable', function (accounts) {
   before(async function () {
     this.testimpl0 = await ProxiableMock.new();
     this.testimpl1 = await ProxiableMock.new();

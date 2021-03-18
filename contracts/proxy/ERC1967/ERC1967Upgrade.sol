@@ -69,9 +69,8 @@ abstract contract ERC1967Upgrade is ERC1967Storage {
             Address.functionDelegateCall(
                 newImplementation,
                 abi.encodeWithSignature(
-                    "upgradeToAndCall(address,bytes)",
-                    oldImplementation,
-                    bytes("")
+                    "upgradeTo(address)",
+                    oldImplementation
                 )
             );
             upgradePending.value = false;
