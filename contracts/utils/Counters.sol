@@ -22,17 +22,32 @@ library Counters {
         return counter._value;
     }
 
-    function increment(Counter storage counter) internal {
+    function increment(Counter storage counter) internal returns (uint256) {
         unchecked {
-            counter._value += 1;
+            return counter._value++;
+        }
+    }
+    
+    function incremented(Counter storage counter) internal returns (uint256) {
+        unchecked {
+            return ++counter._value;
         }
     }
 
-    function decrement(Counter storage counter) internal {
+    function decrement(Counter storage counter) internal returns (uint256) {
         uint256 value = counter._value;
         require(value > 0, "Counter: decrement overflow");
         unchecked {
             counter._value = value - 1;
+            return value;
+        }
+    }
+    
+    function decremented(Counter storage counter) internal returns (uint256) {
+        uint256 value = counter._value;
+        require(value > 0, "Counter: decrement overflow");
+        unchecked {
+            return counter._value = value - 1;
         }
     }
 }
