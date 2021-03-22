@@ -68,7 +68,7 @@ library EnumerableSet {
         while (last --> 0) {
             delete set._indexes[set._values[last]];
         }
-        set._values.length = 0;
+        delete set._values;
     }
 
     /**
