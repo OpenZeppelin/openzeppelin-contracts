@@ -63,6 +63,14 @@ library EnumerableSet {
         }
     }
 
+    function _clear(Set storage set) private {
+        uint256 last = set._values.length;
+        while (last --> 0) {
+            delete set.indexes[_set._values[last]];
+        }
+        set._values.length = 0;
+    }
+
     /**
      * @dev Removes a value from a set. O(1).
      *
@@ -186,6 +194,10 @@ library EnumerableSet {
         return _at(set._inner, index);
     }
 
+    function clear(Bytes32Set storage set) internal {
+        return _clear(set._inner);
+    }
+
     // AddressSet
 
     struct AddressSet {
@@ -240,6 +252,9 @@ library EnumerableSet {
         return address(uint160(uint256(_at(set._inner, index))));
     }
 
+    function clear(AddressSet storage set) internal {
+        return _clear(set._inner);
+    }
 
     // UintSet
 
@@ -293,5 +308,9 @@ library EnumerableSet {
     */
     function at(UintSet storage set, uint256 index) internal view returns (uint256) {
         return uint256(_at(set._inner, index));
+    }
+
+    function clear(UintSet storage set) internal {
+        return _clear(set._inner);
     }
 }
