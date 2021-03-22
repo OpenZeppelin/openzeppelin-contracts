@@ -3,6 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "../utils/Context.sol";
+import "../utils/Strings.sol";
 import "../utils/introspection/ERC165.sol";
 
 /**
@@ -92,6 +93,15 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender);
 
     /**
+     * @dev Modifier that checks that an account has a specific role. Reverts
+     * with a standardized message including the required role.
+     */
+    modifier onlySenderWithRole(bytes32 role) {
+        _checkRole(role, _msgSender());
+        _;
+    }
+
+    /**
      * @dev See {IERC165-supportsInterface}.
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
@@ -104,6 +114,21 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      */
     function hasRole(bytes32 role, address account) public view override returns (bool) {
         return _roles[role].members[account];
+    }
+
+    /**
+     * @dev Revert with a standard message if `account` is missing `role`.
+     */
+    function _checkRole(bytes32 role, address account) public view {
+        require(
+            hasRole(role, account),
+            string(abi.encodePacked(
+                "AccessControl: account ",
+                Strings.toHexString(uint160(account), 20),
+                " is missing role ",
+                Strings.toHexString(uint256(role), 32)
+            ))
+        );
     }
 
     /**
