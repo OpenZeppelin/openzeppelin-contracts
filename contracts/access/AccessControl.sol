@@ -96,7 +96,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * @dev Modifier that checks that an account has a specific role. Reverts
      * with a standardized message including the required role.
      */
-    modifier onlySenderWithRole(bytes32 role) {
+    modifier onlyRole(bytes32 role) {
         _checkRole(role, _msgSender());
         _;
     }
