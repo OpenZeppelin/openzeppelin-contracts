@@ -119,7 +119,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     /**
      * @dev Revert with a standard message if `account` is missing `role`.
      */
-    function _checkRole(bytes32 role, address account) public view {
+    function _checkRole(bytes32 role, address account) internal view {
         require(
             hasRole(role, account),
             string(abi.encodePacked(
