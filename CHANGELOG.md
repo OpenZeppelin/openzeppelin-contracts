@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.0.0 (2021-03-23)
 
  * `IERC20Metadata`: add a new extended interface that includes the optional `name()`, `symbol()` and `decimals()` functions. ([#2561](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2561))
  * `ERC777`: make reception acquirement optional in `_mint`. ([#2552](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2552))
@@ -30,7 +30,6 @@
 ### Bug fixes for beta releases
 
  * `AccessControlEnumerable`: Fixed `renounceRole` not updating enumerable set of addresses for a role. ([#2572](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2572))
-
 
 ### How to upgrade from 3.x
 
