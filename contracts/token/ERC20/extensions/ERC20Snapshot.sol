@@ -75,4 +75,25 @@ abstract contract ERC20Snapshot is ERC20SnapshotEveryBlock {
     function _getCurrentSnapshotId() internal view virtual override returns (uint256) {
         return _currentSnapshotId.current();
     }
+
+    /**
+     * @dev Retrieves the balance of `account` at the time `snapshotId` was created.
+     */
+    function balanceOfAt(address account, uint256 snapshotId) public view virtual override returns (uint256) {
+        require(snapshotId > 0, "ERC20Snapshot: id is 0");
+        // solhint-disable-next-line max-line-length
+        require(snapshotId <= _getCurrentSnapshotId(), "ERC20Snapshot: nonexistent id");
+        return super.balanceOfAt(account, snapshotId);
+    }
+
+    /**
+     * @dev Retrieves the total supply at the time `snapshotId` was created.
+     */
+    function totalSupplyAt(uint256 snapshotId) public view virtual override returns(uint256) {
+        require(snapshotId > 0, "ERC20Snapshot: id is 0");
+        // solhint-disable-next-line max-line-length
+        require(snapshotId <= _getCurrentSnapshotId(), "ERC20Snapshot: nonexistent id");
+        return super.totalSupplyAt(snapshotId);
+    }
+
 }
