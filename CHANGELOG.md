@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.0.0
+## 4.0.0 (2021-03-23)
 
  * Now targeting the 0.8.x line of Solidity compilers. For 0.6.x (resp 0.7.x) support, use version 3.4.0 (resp 3.4.0-solc-0.7) of OpenZeppelin.
  * `Context`: making `_msgData` return `bytes calldata` instead of `bytes memory` ([#2492](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2492))
