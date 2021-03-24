@@ -6,7 +6,7 @@ contract('BatchCallToken', function (accounts) {
   const amount = 12000;
 
   beforeEach(async function () {
-    this.batchCallToken = await BatchCallTokenMock.new(new BN(amount));
+    this.batchCallToken = await BatchCallTokenMock.new(new BN(amount), { from: deployer });
   });
 
   it('batches transactions', async function () {
@@ -25,9 +25,9 @@ contract('BatchCallToken', function (accounts) {
   it('bubbles up revert reasons', async function () {
     const call = this.batchCallToken.batchCall([
       this.batchCallToken.contract.methods.transfer(alice, amount).encodeABI(),
-      this.batchCallToken.contract.methods.transfer(bob, amount).encodeABI()
+      this.batchCallToken.contract.methods.transfer(bob, amount).encodeABI(),
     ]);
 
-    await expectRevert(call, "ERC20: transfer amount exceeds balance");
+    await expectRevert(call, 'ERC20: transfer amount exceeds balance');
   });
 });
