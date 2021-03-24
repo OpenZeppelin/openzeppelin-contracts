@@ -26,6 +26,10 @@ contract EnumerableBytes32SetMock {
         emit OperationResult(result);
     }
 
+    function clear() public {
+        _set.clear();
+    }
+
     function length() public view returns (uint256) {
         return _set.length();
     }
@@ -57,6 +61,10 @@ contract EnumerableAddressSetMock {
         emit OperationResult(result);
     }
 
+    function clear() public {
+        _set.clear();
+    }
+
     function length() public view returns (uint256) {
         return _set.length();
     }
@@ -86,6 +94,10 @@ contract EnumerableUintSetMock {
     function remove(uint256 value) public {
         bool result = _set.remove(value);
         emit OperationResult(result);
+    }
+
+    function clear() public {
+        _set.clear();
     }
 
     function length() public view returns (uint256) {
