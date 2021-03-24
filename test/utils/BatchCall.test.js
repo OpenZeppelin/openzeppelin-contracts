@@ -16,7 +16,7 @@ contract('BatchCallToken', function (accounts) {
     await this.batchCallToken.batchCall([
       this.batchCallToken.contract.methods.transfer(alice, amount / 2).encodeABI(),
       this.batchCallToken.contract.methods.transfer(bob, amount / 3).encodeABI(),
-    ]);
+    ], { from: deployer });
 
     expect(await this.batchCallToken.balanceOf(alice)).to.be.bignumber.equal(new BN(amount / 2));
     expect(await this.batchCallToken.balanceOf(bob)).to.be.bignumber.equal(new BN(amount / 3));
@@ -26,7 +26,7 @@ contract('BatchCallToken', function (accounts) {
     const call = this.batchCallToken.batchCall([
       this.batchCallToken.contract.methods.transfer(alice, amount).encodeABI(),
       this.batchCallToken.contract.methods.transfer(bob, amount).encodeABI(),
-    ]);
+    ], { from: deployer });
 
     await expectRevert(call, 'ERC20: transfer amount exceeds balance');
   });
