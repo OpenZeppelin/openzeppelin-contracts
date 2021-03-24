@@ -116,12 +116,12 @@ function shouldBehaveLikeSet (valueA, valueB, valueC) {
     });
   });
 
-  describe('clear', function() {
+  describe('clear', function () {
     it('sets length to 0', async function () {
       await this.set.add(valueA);
       await this.set.clear();
       expect(await this.set.length()).to.be.bignumber.equal('0');
-    })
+    });
 
     it('removes all items', async function () {
       await this.set.add(valueA);
@@ -129,7 +129,7 @@ function shouldBehaveLikeSet (valueA, valueB, valueC) {
       await this.set.clear();
       expect(await this.set.contains(valueA)).to.equal(false);
       expect(await this.set.contains(valueB)).to.equal(false);
-    })
+    });
   });
 }
 
