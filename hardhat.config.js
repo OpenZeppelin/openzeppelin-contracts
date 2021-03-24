@@ -18,7 +18,7 @@ const enableProduction = process.env.COMPILE_MODE === 'production';
  */
 module.exports = {
   solidity: {
-    version: '0.8.0',
+    version: '0.8.3',
     settings: {
       optimizer: {
         enabled: enableGasReport || enableProduction,

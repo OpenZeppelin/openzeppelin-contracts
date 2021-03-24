@@ -48,7 +48,7 @@ abstract contract ERC20SnapshotEveryBlock is ERC20 {
      * @dev Get the current snapshotId
      */
     function _getCurrentSnapshotId() internal view virtual returns (uint256) {
-        return block.number - 1;
+        return block.number;
     }
 
     /**
@@ -92,6 +92,9 @@ abstract contract ERC20SnapshotEveryBlock is ERC20 {
     function _valueAt(uint256 snapshotId, Snapshots storage snapshots)
         private view returns (bool, uint256)
     {
+        require(snapshotId > 0, "ERC20Snapshot: id is 0");
+        require(snapshotId <= _getCurrentSnapshotId(), "ERC20Snapshot: nonexistent id");
+
         // When a valid snapshot is queried, there are three possibilities:
         //  a) The queried value was not modified after the snapshot was taken. Therefore, a snapshot entry was never
         //  created for this id, and all stored snapshot ids are smaller than the requested one. The value that corresponds
