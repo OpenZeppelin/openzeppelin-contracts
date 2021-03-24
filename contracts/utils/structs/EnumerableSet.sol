@@ -65,8 +65,10 @@ library EnumerableSet {
 
     function _clear(Set storage set) private {
         uint256 last = set._values.length;
-        while (last --> 0) {
-            delete set._indexes[set._values[last]];
+        unchecked {
+            while (last --> 0) {
+                delete set._indexes[set._values[last]];
+            }
         }
         delete set._values;
     }
