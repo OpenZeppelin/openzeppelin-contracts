@@ -9,7 +9,7 @@ contract('BatchCallToken', function (accounts) {
     this.batchCallToken = await BatchCallTokenMock.new(new BN(amount), { from: deployer });
   });
 
-  it('batches transactions', async function () {
+  it('batches function calls', async function () {
     expect(await this.batchCallToken.balanceOf(alice)).to.be.bignumber.equal(new BN('0'));
     expect(await this.batchCallToken.balanceOf(bob)).to.be.bignumber.equal(new BN('0'));
 
