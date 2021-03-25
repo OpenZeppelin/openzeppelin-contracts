@@ -101,9 +101,7 @@ Want to keep track of some numbers that increment by 1 every time you want anoth
 
 === BatchCall
 
-The `BatchCall` abstract contract comes with a `batchCall` function that bundles together multiple calls in a single external call. With it, external accounts may perform atomic operations comprising several function calls.
-
-This is not only useful for EOAs to make multiple calls in a single transaction, it's also a way to revert a previous call if a later one fails.
+The `BatchCall` abstract contract comes with a `batchCall` function that bundles together multiple calls in a single external call. With it, external accounts may perform atomic operations comprising several function calls. This is not only useful for EOAs to make multiple calls in a single transaction, it's also a way to revert a previous call if a later one fails.
 
 Consider this dummy contract:
 
@@ -137,5 +135,5 @@ const instance = await Box.new();
 await instance.batchCall([
     instance.contract.methods.foo().encodeABI(),
     instance.contract.methods.bar().encodeABI()
-], { from: deployer });
+]);
 ----
