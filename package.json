@@ -27,7 +27,7 @@
     "release": "scripts/release/release.sh",
     "version": "scripts/release/version.sh",
     "test": "hardhat test",
-    "gas-report": "env ENABLE_GAS_REPORT=1 npm run test"
+    "gas-report": "env ENABLE_GAS_REPORT=true npm run test"
   },
   "repository": {
     "type": "git",
