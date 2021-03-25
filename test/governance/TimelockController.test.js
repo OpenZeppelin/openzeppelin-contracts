@@ -157,7 +157,7 @@ contract('TimelockController', function (accounts) {
               MINDELAY,
               { from: proposer },
             ),
-            'TimelockController: operation already scheduled',
+            'Timelock: operation already scheduled',
           );
         });
 
@@ -187,7 +187,7 @@ contract('TimelockController', function (accounts) {
               MINDELAY - 1,
               { from: proposer },
             ),
-            'TimelockController: insufficient delay',
+            'Timelock: insufficient delay',
           );
         });
       });
@@ -213,7 +213,7 @@ contract('TimelockController', function (accounts) {
               this.operation.salt,
               { from: executor },
             ),
-            'TimelockController: operation is not ready',
+            'Timelock: operation is not ready',
           );
         });
 
@@ -240,7 +240,7 @@ contract('TimelockController', function (accounts) {
                 this.operation.salt,
                 { from: executor },
               ),
-              'TimelockController: operation is not ready',
+              'Timelock: operation is not ready',
             );
           });
 
@@ -257,7 +257,7 @@ contract('TimelockController', function (accounts) {
                 this.operation.salt,
                 { from: executor },
               ),
-              'TimelockController: operation is not ready',
+              'Timelock: operation is not ready',
             );
           });
 
@@ -364,7 +364,7 @@ contract('TimelockController', function (accounts) {
               MINDELAY,
               { from: proposer },
             ),
-            'TimelockController: operation already scheduled',
+            'Timelock: operation already scheduled',
           );
         });
 
@@ -394,7 +394,7 @@ contract('TimelockController', function (accounts) {
               MINDELAY - 1,
               { from: proposer },
             ),
-            'TimelockController: insufficient delay',
+            'Timelock: insufficient delay',
           );
         });
       });
@@ -420,7 +420,7 @@ contract('TimelockController', function (accounts) {
               this.operation.salt,
               { from: executor },
             ),
-            'TimelockController: operation is not ready',
+            'Timelock: operation is not ready',
           );
         });
 
@@ -447,7 +447,7 @@ contract('TimelockController', function (accounts) {
                 this.operation.salt,
                 { from: executor },
               ),
-              'TimelockController: operation is not ready',
+              'Timelock: operation is not ready',
             );
           });
 
@@ -464,7 +464,7 @@ contract('TimelockController', function (accounts) {
                 this.operation.salt,
                 { from: executor },
               ),
-              'TimelockController: operation is not ready',
+              'Timelock: operation is not ready',
             );
           });
 
@@ -518,7 +518,7 @@ contract('TimelockController', function (accounts) {
                   this.operation.salt,
                   { from: executor },
                 ),
-                'TimelockController: length mismatch',
+                'Timelock: length mismatch',
               );
             });
 
@@ -532,7 +532,7 @@ contract('TimelockController', function (accounts) {
                   this.operation.salt,
                   { from: executor },
                 ),
-                'TimelockController: length mismatch',
+                'Timelock: length mismatch',
               );
             });
 
@@ -546,7 +546,7 @@ contract('TimelockController', function (accounts) {
                   this.operation.salt,
                   { from: executor },
                 ),
-                'TimelockController: length mismatch',
+                'Timelock: length mismatch',
               );
             });
           });
@@ -592,7 +592,7 @@ contract('TimelockController', function (accounts) {
               operation.salt,
               { from: executor },
             ),
-            'TimelockController: underlying transaction reverted',
+            'Timelock: underlying transaction reverted',
           );
         });
       });
@@ -721,7 +721,7 @@ contract('TimelockController', function (accounts) {
           this.operation2.salt,
           { from: executor },
         ),
-        'TimelockController: missing dependency',
+        'Timelock: missing dependency',
       );
     });
 
@@ -807,7 +807,7 @@ contract('TimelockController', function (accounts) {
           operation.salt,
           { from: executor },
         ),
-        'TimelockController: underlying transaction reverted',
+        'Timelock: underlying transaction reverted',
       );
     });
 
@@ -839,7 +839,7 @@ contract('TimelockController', function (accounts) {
           operation.salt,
           { from: executor },
         ),
-        'TimelockController: underlying transaction reverted',
+        'Timelock: underlying transaction reverted',
       );
     });
 
@@ -871,7 +871,7 @@ contract('TimelockController', function (accounts) {
           operation.salt,
           { from: executor, gas: '70000' },
         ),
-        'TimelockController: underlying transaction reverted',
+        'Timelock: underlying transaction reverted',
       );
     });
 
@@ -943,7 +943,7 @@ contract('TimelockController', function (accounts) {
           operation.salt,
           { from: executor },
         ),
-        'TimelockController: underlying transaction reverted',
+        'Timelock: underlying transaction reverted',
       );
 
       expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
@@ -982,7 +982,7 @@ contract('TimelockController', function (accounts) {
           operation.salt,
           { from: executor },
         ),
-        'TimelockController: underlying transaction reverted',
+        'Timelock: underlying transaction reverted',
       );
 
       expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
