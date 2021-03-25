@@ -11,7 +11,7 @@ abstract contract BatchCall {
     /**
     * @dev Receives and executes a batch of function calls on this contract.
     */
-    function batchCall(bytes[] calldata data) external returns(bytes[] memory results) {
+    function batchCall(bytes[] calldata data) external payable returns(bytes[] memory results) {
         results = new bytes[](data.length);
         for (uint i = 0; i < data.length; i++) {
             results[i] = Address.functionDelegateCall(address(this), data[i]);
