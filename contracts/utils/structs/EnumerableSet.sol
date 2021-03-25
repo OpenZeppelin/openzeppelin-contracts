@@ -63,6 +63,12 @@ library EnumerableSet {
         }
     }
 
+    /**
+     * @dev Removes all elements from the set. O(n).
+     *
+     * Note that this can run out of gas for large sets.
+     * First use `remove` to reduce the size of a large set in this case.
+     */
     function _clear(Set storage set) private {
         uint256 last = set._values.length;
         unchecked {
@@ -70,7 +76,11 @@ library EnumerableSet {
                 delete set._indexes[set._values[last]];
             }
         }
-        delete set._values;
+        // Only set the _values.length to zero
+        // No need to clear _values from state: they will be overridden on push
+        assembly {
+            sstore(set.slot, 0)
+        }
     }
 
     /**
