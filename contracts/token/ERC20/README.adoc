@@ -20,7 +20,7 @@ Additionally there are multiple custom extensions, including:
 * {ERC20Pausable}: ability to pause token transfers.
 * {ERC20Snapshot}: efficient storage of past token balances to be later queried at any point in time.
 * {ERC20Permit}: gasless approval of tokens (standardized as ERC2612).
-* {ERC20FlashMint}: token level support for flash loan through the minting and burning ephemeral tokens (standardized as ERC3156).
+* {ERC20FlashMint}: token level support for flash loans through the minting and burning of ephemeral tokens (standardized as ERC3156).
 
 Finally, there are some utilities to interact with ERC20 contracts in various ways.
 
