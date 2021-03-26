@@ -32,7 +32,7 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
      * @param amount The amount of tokens to be loaned.
      * @return The fees applied to the corresponding flash loan.
      */
-    function flashFee(address token, uint256 amount) public pure virtual override returns (uint256) {
+    function flashFee(address token, uint256 amount) public view virtual override returns (uint256) {
         require(token == address(this), "ERC20FlashMint: wrong token");
         // silence warning about unused variable without the addition of bytecode.
         amount;

@@ -36,7 +36,7 @@ contract('ERC20FlashMint', function (accounts) {
     });
 
     it('token mismatch', async function () {
-      expect(await this.token.flashFee(ZERO_ADDRESS, loanAmount)).to.be.bignumber.equal('0');
+      await expectRevert(this.token.flashFee(ZERO_ADDRESS, loanAmount), 'ERC20FlashMint: wrong token');
     });
   });
 
