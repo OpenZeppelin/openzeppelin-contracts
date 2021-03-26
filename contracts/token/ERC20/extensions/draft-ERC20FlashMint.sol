@@ -58,7 +58,7 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
         uint256 amount,
         bytes calldata data
     )
-    public virtual override returns (bool)
+        public virtual override returns (bool)
     {
         require(token == address(this), "ERC20FlashMint: wrong token");
         uint256 fee = flashFee(token, amount);
