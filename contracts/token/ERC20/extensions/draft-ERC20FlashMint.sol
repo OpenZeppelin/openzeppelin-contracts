@@ -16,7 +16,7 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
     bytes32 constant private RETURN_VALUE = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
     /**
-     * @dev Return the maximum amount of token available for loan.
+     * @dev Returns the maximum amount of tokens available for loan.
      * @param token The address of the token that is requested.
      * @return The amont of token that can be loaned.
      */
