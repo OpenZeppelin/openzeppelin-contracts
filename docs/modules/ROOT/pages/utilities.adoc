@@ -99,9 +99,9 @@ Want to check if an address is a contract? Use xref:api:utils.adoc#Address[`Addr
 
 Want to keep track of some numbers that increment by 1 every time you want another one? Check out xref:api:utils.adoc#Counters[`Counters`]. This is useful for lots of things, like creating incremental identifiers, as shown on the xref:erc721.adoc[ERC721 guide].
 
-=== BatchCall
+=== Multicall
 
-The `BatchCall` abstract contract comes with a `batchCall` function that bundles together multiple calls in a single external call. With it, external accounts may perform atomic operations comprising several function calls. This is not only useful for EOAs to make multiple calls in a single transaction, it's also a way to revert a previous call if a later one fails.
+The `Multicall` abstract contract comes with a `multicall` function that bundles together multiple calls in a single external call. With it, external accounts may perform atomic operations comprising several function calls. This is not only useful for EOAs to make multiple calls in a single transaction, it's also a way to revert a previous call if a later one fails.
 
 Consider this dummy contract:
 
@@ -111,9 +111,9 @@ Consider this dummy contract:
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/utils/BatchCall.sol";
+import "@openzeppelin/contracts/utils/Multicall.sol";
 
-contract Box is BatchCall {
+contract Box is Multicall {
     function foo() public {
         ...
     }
@@ -124,7 +124,7 @@ contract Box is BatchCall {
 }
 ----
 
-This is how to call the `batchCall` function using Truffle, allowing `foo` and `bar` to be called in a single transaction:
+This is how to call the `multicall` function using Truffle, allowing `foo` and `bar` to be called in a single transaction:
 [source,javascript]
 ----
 // scripts/foobar.js
@@ -132,7 +132,7 @@ This is how to call the `batchCall` function using Truffle, allowing `foo` and `
 const Box = artifacts.require('Box');
 const instance = await Box.new();
 
-await instance.batchCall([
+await instance.multicall([
     instance.contract.methods.foo().encodeABI(),
     instance.contract.methods.bar().encodeABI()
 ]);

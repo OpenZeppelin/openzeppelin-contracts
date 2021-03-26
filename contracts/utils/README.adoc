@@ -6,7 +6,7 @@ NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/
 Miscellaneous contracts and libraries containing utility functions you can use to improve security, work with new data types, or safely use low-level primitives.
 
 The {Address}, {Arrays} and {Strings} libraries provide more operations related to these native data types, while {SafeCast} adds ways to safely convert between the different signed and unsigned numeric types.
-{BatchCall} provides a function to batch together multiple calls in a single external call.
+{Multicall} provides a function to batch together multiple calls in a single external call.
 
 For new data types:
 
@@ -94,4 +94,4 @@ Note that, in all cases, accounts simply _declare_ their interfaces, but they ar
 
 {{Strings}}
 
-{{BatchCall}}
+{{Multicall}}
