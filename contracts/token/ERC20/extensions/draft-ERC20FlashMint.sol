@@ -9,14 +9,14 @@ import "../ERC20.sol";
  * @dev Implementation of the ERC3156 Flash loans extension, as defined in
  * https://eips.ethereum.org/EIPS/eip-3156[ERC-3156].
  *
- * Adds the {flashLoan} method, which provide flash loan support, at the token
- * level, with no fee.
+ * Adds the {flashLoan} method, which provides flash loan support at the token
+ * level. By default there is no fee, but this can be changed by overriding {flashFee}.
  */
 abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
     bytes32 constant private RETURN_VALUE = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
     /**
-     * @dev Return the maximum amount of token available for loan.
+     * @dev Returns the maximum amount of tokens available for loan.
      * @param token The address of the token that is requested.
      * @return The amont of token that can be loaned.
      */
@@ -25,9 +25,9 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
     }
 
     /**
-     * @dev Return the fee applied when doing flash loans. By default this
-     * implementation has 0 fees. This function can be overloaded to make have
-     * the flash loan mechnism be deflationary.
+     * @dev Returns the fee applied when doing flash loans. By default this
+     * implementation has 0 fees. This function can be overloaded to make
+     * the flash loan mechanism deflationary.
      * @param token The token to be flash loaned.
      * @param amount The amount of tokens to be loaned.
      * @return The fees applied to the corresponding flash loan.
@@ -40,11 +40,11 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
     }
 
     /**
-     * @dev Perform a flash loan. New token are minted and send to the
-     * `receiver`, who is expected to implement the {IERC3156FlashBorrower}
+     * @dev Performs a flash loan. New tokens are minted and sent to the
+     * `receiver`, who is required to implement the {IERC3156FlashBorrower}
      * interface. By the end of the flash loan, the receiver is expected to own
-     * the tokens and have them approved back to the token contract itself so
-     * they can be burned at the end of the flash loan.
+     * amount + fee tokens and have them approved back to the token contract itself so
+     * they can be burned.
      * @param receiver The receiver of the flash loan. Should implement the
      * {IERC3156FlashBorrower.onFlashLoan} interface.
      * @param token The token to be flash loaned. Only `address(this)` is
@@ -59,7 +59,7 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
         uint256 amount,
         bytes calldata data
     )
-    public virtual override returns (bool)
+        public virtual override returns (bool)
     {
         uint256 fee = flashFee(token, amount);
         _mint(address(receiver), amount);
