@@ -13,7 +13,7 @@ contract('MulticallToken', function (accounts) {
     expect(await this.multicallToken.balanceOf(alice)).to.be.bignumber.equal(new BN('0'));
     expect(await this.multicallToken.balanceOf(bob)).to.be.bignumber.equal(new BN('0'));
 
-    await this.multicallToken.Multicall([
+    await this.multicallToken.multicall([
       this.multicallToken.contract.methods.transfer(alice, amount / 2).encodeABI(),
       this.multicallToken.contract.methods.transfer(bob, amount / 3).encodeABI(),
     ], { from: deployer });
@@ -23,7 +23,7 @@ contract('MulticallToken', function (accounts) {
   });
 
   it('bubbles up revert reasons', async function () {
-    const call = this.multicallToken.Multicall([
+    const call = this.multicallToken.multicall([
       this.multicallToken.contract.methods.transfer(alice, amount).encodeABI(),
       this.multicallToken.contract.methods.transfer(bob, amount).encodeABI(),
     ], { from: deployer });
