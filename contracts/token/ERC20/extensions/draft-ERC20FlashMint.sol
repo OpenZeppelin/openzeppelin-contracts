@@ -39,11 +39,11 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
     }
 
     /**
-     * @dev Perform a flash loan. New token are minted and send to the
-     * `receiver`, who is expected to implement the {IERC3156FlashBorrower}
+     * @dev Performs a flash loan. New tokens are minted and sent to the
+     * `receiver`, who is required to implement the {IERC3156FlashBorrower}
      * interface. By the end of the flash loan, the receiver is expected to own
-     * the tokens and have them approved back to the token contract itself so
-     * they can be burned at the end of the flash loan.
+     * amount + fee tokens and have them approved back to the token contract itself so
+     * they can be burned.
      * @param receiver The receiver of the flash loan. Should implement the
      * {IERC3156FlashBorrower.onFlashLoan} interface.
      * @param token The token to be flash loaned. Only `address(this)` is
