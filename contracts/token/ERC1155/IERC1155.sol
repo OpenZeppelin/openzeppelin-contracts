@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../../introspection/IERC165.sol";
+import "../../utils/introspection/IERC165.sol";
 
 /**
  * @dev Required interface of an ERC1155 compliant contract, as defined in the

@@ -54,6 +54,6 @@ allFiredEvents
 .coverage_cache
 .coverage_contracts
 
-# buidler
+# hardhat
 cache
 artifacts

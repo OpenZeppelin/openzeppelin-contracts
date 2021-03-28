@@ -2,13 +2,13 @@
 
 pragma solidity ^0.8.0;
 
-import "../../utils/Context.sol";
 import "./IERC777.sol";
 import "./IERC777Recipient.sol";
 import "./IERC777Sender.sol";
-import "../../token/ERC20/IERC20.sol";
+import "../ERC20/IERC20.sol";
 import "../../utils/Address.sol";
-import "../../introspection/IERC1820Registry.sol";
+import "../../utils/Context.sol";
+import "../../utils/introspection/IERC1820Registry.sol";
 
 /**
  * @dev Implementation of the {IERC777} interface.
@@ -65,8 +65,8 @@ contract ERC777 is Context, IERC777, IERC20 {
         _symbol = symbol_;
 
         _defaultOperatorsArray = defaultOperators_;
-        for (uint256 i = 0; i < _defaultOperatorsArray.length; i++) {
-            _defaultOperators[_defaultOperatorsArray[i]] = true;
+        for (uint256 i = 0; i < defaultOperators_.length; i++) {
+            _defaultOperators[defaultOperators_[i]] = true;
         }
 
         // register interfaces
@@ -313,6 +313,37 @@ contract ERC777 is Context, IERC777, IERC20 {
         internal
         virtual
     {
+        _mint(account, amount, userData, operatorData, true);
+    }
+
+    /**
+     * @dev Creates `amount` tokens and assigns them to `account`, increasing
+     * the total supply.
+     *
+     * If `requireReceptionAck` is set to true, and if a send hook is
+     * registered for `account`, the corresponding function will be called with
+     * `operator`, `data` and `operatorData`.
+     *
+     * See {IERC777Sender} and {IERC777Recipient}.
+     *
+     * Emits {Minted} and {IERC20-Transfer} events.
+     *
+     * Requirements
+     *
+     * - `account` cannot be the zero address.
+     * - if `account` is a contract, it must implement the {IERC777Recipient}
+     * interface.
+     */
+    function _mint(
+        address account,
+        uint256 amount,
+        bytes memory userData,
+        bytes memory operatorData,
+        bool requireReceptionAck
+    )
+        internal
+        virtual
+    {
         require(account != address(0), "ERC777: mint to the zero address");
 
         address operator = _msgSender();
@@ -323,7 +354,7 @@ contract ERC777 is Context, IERC777, IERC20 {
         _totalSupply += amount;
         _balances[account] += amount;
 
-        _callTokensReceived(operator, address(0), account, amount, userData, operatorData, true);
+        _callTokensReceived(operator, address(0), account, amount, userData, operatorData, requireReceptionAck);
 
         emit Minted(operator, account, amount, userData, operatorData);
         emit Transfer(address(0), account, amount);

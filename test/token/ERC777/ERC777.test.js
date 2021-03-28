@@ -171,6 +171,133 @@ contract('ERC777', function (accounts) {
           shouldBehaveLikeERC777InternalMint(to, operator, amount, data, operatorData);
         });
       });
+
+      describe('mint (internal extended)', function () {
+        const amount = new BN('5');
+
+        context('to anyone', function () {
+          beforeEach(async function () {
+            this.recipient = anyone;
+          });
+
+          context('with default operator', function () {
+            const operator = defaultOperatorA;
+
+            it('without requireReceptionAck', async function () {
+              await this.token.mintInternalExtended(
+                this.recipient,
+                amount,
+                data,
+                operatorData,
+                false,
+                { from: operator },
+              );
+            });
+
+            it('with requireReceptionAck', async function () {
+              await this.token.mintInternalExtended(
+                this.recipient,
+                amount,
+                data,
+                operatorData,
+                true,
+                { from: operator },
+              );
+            });
+          });
+
+          context('with non operator', function () {
+            const operator = newOperator;
+
+            it('without requireReceptionAck', async function () {
+              await this.token.mintInternalExtended(
+                this.recipient,
+                amount,
+                data,
+                operatorData,
+                false,
+                { from: operator },
+              );
+            });
+
+            it('with requireReceptionAck', async function () {
+              await this.token.mintInternalExtended(
+                this.recipient,
+                amount,
+                data,
+                operatorData,
+                true,
+                { from: operator },
+              );
+            });
+          });
+        });
+
+        context('to non ERC777TokensRecipient implementer', function () {
+          beforeEach(async function () {
+            this.tokensRecipientImplementer = await ERC777SenderRecipientMock.new();
+            this.recipient = this.tokensRecipientImplementer.address;
+          });
+
+          context('with default operator', function () {
+            const operator = defaultOperatorA;
+
+            it('without requireReceptionAck', async function () {
+              await this.token.mintInternalExtended(
+                this.recipient,
+                amount,
+                data,
+                operatorData,
+                false,
+                { from: operator },
+              );
+            });
+
+            it('with requireReceptionAck', async function () {
+              await expectRevert(
+                this.token.mintInternalExtended(
+                  this.recipient,
+                  amount,
+                  data,
+                  operatorData,
+                  true,
+                  { from: operator },
+                ),
+                'ERC777: token recipient contract has no implementer for ERC777TokensRecipient',
+              );
+            });
+          });
+
+          context('with non operator', function () {
+            const operator = newOperator;
+
+            it('without requireReceptionAck', async function () {
+              await this.token.mintInternalExtended(
+                this.recipient,
+                amount,
+                data,
+                operatorData,
+                false,
+                { from: operator },
+              );
+            });
+
+            it('with requireReceptionAck', async function () {
+              await expectRevert(
+                this.token.mintInternalExtended(
+                  this.recipient,
+                  amount,
+                  data,
+                  operatorData,
+                  true,
+                  { from: operator },
+                ),
+                'ERC777: token recipient contract has no implementer for ERC777TokensRecipient',
+              );
+            });
+          });
+        });
+      });
     });
 
     describe('operator management', function () {

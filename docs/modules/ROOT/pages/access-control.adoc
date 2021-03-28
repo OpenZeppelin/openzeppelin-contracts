@@ -190,15 +190,15 @@ for (let i = 0; i < minterCount; ++i) {
 
 Access control is essential to prevent unauthorized access to critical functions. These functions may be used to mint tokens, freeze transfers or perform an upgrade that completely changes the smart contract logic. While xref:api:access.adoc#Ownable[`Ownable`] and xref:api:access.adoc#AccessControl[`AccessControl`] can prevent unauthorized access, they do not address the issue of a misbehaving administrator attacking their own system to the prejudice of their users.
 
-This is the issue the xref:api:access.adoc#TimelockController[`TimelockControler`] is addressing.
+This is the issue the xref:api:governance.adoc#TimelockController[`TimelockController`] is addressing.
 
-The xref:api:access.adoc#TimelockController[`TimelockControler`] is a proxy that is governed by proposers and executors. When set as the owner/admin/controller of a smart contract, it ensures that whichever maintenance operation is ordered by the proposers is subject to a delay. This delay protects the users of the smart contract by giving them time to review the maintenance operation and exit the system if they consider it is in their best interest to do so.
+The xref:api:governance.adoc#TimelockController[`TimelockController`] is a proxy that is governed by proposers and executors. When set as the owner/admin/controller of a smart contract, it ensures that whichever maintenance operation is ordered by the proposers is subject to a delay. This delay protects the users of the smart contract by giving them time to review the maintenance operation and exit the system if they consider it is in their best interest to do so.
 
-=== Using `TimelockControler`
+=== Using `TimelockController`
 
-By default, the address that deployed the xref:api:access.adoc#TimelockController[`TimelockControler`] gets administration privileges over the timelock. This role grants the right to assign proposers, executors, and other administrators.
+By default, the address that deployed the xref:api:governance.adoc#TimelockController[`TimelockController`] gets administration privileges over the timelock. This role grants the right to assign proposers, executors, and other administrators.
 
-The first step in configuring the xref:api:access.adoc#TimelockController[`TimelockControler`] is to assign at least one proposer and one executor. These can be assigned during construction or later by anyone with the administrator role. These roles are not exclusive, meaning an account can have both roles.
+The first step in configuring the xref:api:governance.adoc#TimelockController[`TimelockController`] is to assign at least one proposer and one executor. These can be assigned during construction or later by anyone with the administrator role. These roles are not exclusive, meaning an account can have both roles.
 
 Roles are managed using the xref:api:access.adoc#AccessControl[`AccessControl`] interface and the `bytes32` values for each role are accessible through the `ADMIN_ROLE`, `PROPOSER_ROLE` and `EXECUTOR_ROLE` constants.
 
@@ -216,6 +216,6 @@ TIP: A recommended configuration is to grant both roles to a secure governance c
 
 === Minimum delay
 
-Operations executed by the xref:api:access.adoc#TimelockController[`TimelockControler`] are not subject to a fixed delay but rather a minimum delay. Some major updates might call for a longer delay. For example, if a delay of just a few days might be sufficient for users to audit a minting operation, it makes sense to use a delay of a few weeks, or even a few months, when scheduling a smart contract upgrade.
+Operations executed by the xref:api:governance.adoc#TimelockController[`TimelockController`] are not subject to a fixed delay but rather a minimum delay. Some major updates might call for a longer delay. For example, if a delay of just a few days might be sufficient for users to audit a minting operation, it makes sense to use a delay of a few weeks, or even a few months, when scheduling a smart contract upgrade.
 
-The minimum delay (accessible through the xref:api:access.adoc#TimelockController-getMinDelay--[`getMinDelay`] method) can be updated by calling the xref:api:access.adoc#TimelockController-updateDelay-uint256-[`updateDelay`] function. Bear in mind that access to this function is only accessible by the timelock itself, meaning this maintenance operation has to go through the timelock itself.
+The minimum delay (accessible through the xref:api:governance.adoc#TimelockController-getMinDelay--[`getMinDelay`] method) can be updated by calling the xref:api:governance.adoc#TimelockController-updateDelay-uint256-[`updateDelay`] function. Bear in mind that access to this function is only accessible by the timelock itself, meaning this maintenance operation has to go through the timelock itself.

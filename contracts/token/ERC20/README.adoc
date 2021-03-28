@@ -10,6 +10,7 @@ TIP: For an overview of ERC20 tokens and a walk through on how to create a token
 There a few core contracts that implement the behavior specified in the EIP:
 
 * {IERC20}: the interface all ERC20 implementations should conform to.
+* {IERC20Metadata}: the extended ERC20 interface including the <<ERC20-name,`name`>>, <<ERC20-symbol,`symbol`>> and <<ERC20-decimals,`decimals`>> functions.
 * {ERC20}: the implementation of the ERC20 interface, including the <<ERC20-name,`name`>>, <<ERC20-symbol,`symbol`>> and <<ERC20-decimals,`decimals`>> optional standard extension to the base interface.
 
 Additionally there are multiple custom extensions, including:
@@ -36,6 +37,8 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 {{IERC20}}
 
+{{IERC20Metadata}}
+
 {{ERC20}}
 
 == Extensions
@@ -47,6 +50,22 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 {{ERC20Burnable}}
 
 {{ERC20Capped}}
+
+== Draft EIPs
+
+The following EIPs are still in Draft status. Due to their nature as drafts, the details of these contracts may change and we cannot guarantee their xref:ROOT:releases-stability.adoc[stability]. Minor releases of OpenZeppelin Contracts may contain breaking changes for the contracts in this directory, which will be duly announced in the https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CHANGELOG.md[changelog]. The EIPs included here are used by projects in production and this may make them less likely to change significantly.
+
+{{IERC20Permit}}
+
+{{ERC20Permit}}
+
+== Presets
+
+These contracts are preconfigured combinations of the above features. They can be used through inheritance or as models to copy and paste their source code.
+
+{{ERC20PresetMinterPauser}}
+
+{{ERC20PresetFixedSupply}}
 
 == Utilities
 

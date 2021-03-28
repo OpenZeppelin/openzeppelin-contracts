@@ -11,16 +11,12 @@ import "../token/ERC721/ERC721.sol";
 contract ERC721Mock is ERC721 {
     constructor (string memory name, string memory symbol) ERC721(name, symbol) { }
 
+    function baseURI() public view returns (string memory) {
+        return _baseURI();
+    }
+
     function exists(uint256 tokenId) public view returns (bool) {
         return _exists(tokenId);
-    }
-
-    function setTokenURI(uint256 tokenId, string memory uri) public {
-        _setTokenURI(tokenId, uri);
-    }
-
-    function setBaseURI(string memory baseURI) public {
-        _setBaseURI(baseURI);
     }
 
     function mint(address to, uint256 tokenId) public {

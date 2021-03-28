@@ -3,11 +3,11 @@
 pragma solidity ^0.8.0;
 
 import "./IERC1155.sol";
-import "./IERC1155MetadataURI.sol";
 import "./IERC1155Receiver.sol";
-import "../../utils/Context.sol";
-import "../../introspection/ERC165.sol";
+import "./extensions/IERC1155MetadataURI.sol";
 import "../../utils/Address.sol";
+import "../../utils/Context.sol";
+import "../../utils/introspection/ERC165.sol";
 
 /**
  *
@@ -34,12 +34,15 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      */
     constructor (string memory uri_) {
         _setURI(uri_);
+    }
 
-        // register the supported interfaces to conform to ERC1155 via ERC165
-        _registerInterface(type(IERC1155).interfaceId);
-
-        // register the supported interfaces to conform to ERC1155MetadataURI via ERC165
-        _registerInterface(type(IERC1155MetadataURI).interfaceId);
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
+        return interfaceId == type(IERC1155).interfaceId
+            || interfaceId == type(IERC1155MetadataURI).interfaceId
+            || super.supportsInterface(interfaceId);
     }
 
     /**
@@ -52,7 +55,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * Clients calling this function must replace the `\{id\}` substring with the
      * actual token type ID.
      */
-    function uri(uint256) external view virtual override returns (string memory) {
+    function uri(uint256) public view virtual override returns (string memory) {
         return _uri;
     }
 

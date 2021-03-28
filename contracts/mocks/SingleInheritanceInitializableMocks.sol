@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../proxy/Initializable.sol";
+import "../proxy/utils/Initializable.sol";
 
 /**
  * @title MigratableMockV1

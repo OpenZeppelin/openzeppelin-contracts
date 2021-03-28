@@ -23,18 +23,21 @@ const ignorePatternsSubtrees = ignorePatterns
   .concat(ignorePatterns.map(pat => path.join(pat, '**/*')))
   .map(p => p.replace(/^\//, ''));
 
-const solcOutput = readJSON('cache/solc-output.json');
-
 const artifactsDir = 'build/contracts';
+const buildinfo = 'artifacts/build-info';
+const filenames = fs.readdirSync(buildinfo);
 
 let n = 0;
 
-for (const sourcePath in solcOutput.contracts) {
-  const ignore = match.any(sourcePath, ignorePatternsSubtrees);
-  if (ignore) {
-    for (const contract in solcOutput.contracts[sourcePath]) {
-      fs.unlinkSync(path.join(artifactsDir, contract + '.json'));
-      n += 1;
+for (const filename of filenames) {
+  const solcOutput = readJSON(path.join(buildinfo, filename)).output;
+  for (const sourcePath in solcOutput.contracts) {
+    const ignore = match.any(sourcePath, ignorePatternsSubtrees);
+    if (ignore) {
+      for (const contract in solcOutput.contracts[sourcePath]) {
+        fs.unlinkSync(path.join(artifactsDir, contract + '.json'));
+        n += 1;
+      }
     }
   }
 }
