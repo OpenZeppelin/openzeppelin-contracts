@@ -7,6 +7,8 @@ import "./ERC1967Storage.sol";
 /**
  * @dev This abstract contract provides event emiting update functions for
  * https://eips.ethereum.org/EIPS/eip-1967[EIP1967] slots.
+ *
+ * @custom:openzeppelin-upgrade-allow-unsafe delegatecall
  */
 abstract contract ERC1967Upgrade is ERC1967Storage {
     // This is the keccak-256 hash of "eip1967.proxy.upgradePending" subtracted by 1
