@@ -7,7 +7,7 @@ import "../Address.sol";
 import "../../interfaces/IERC1271.sol";
 
 library SignatureChecker {
-    function isValidSignature(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
+    function isValidSignatureNow(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
         if (Address.isContract(signer)) {
             try IERC1271(signer).isValidSignature(hash, signature) returns (bytes4 magicValue) {
                 return magicValue == IERC1271(signer).isValidSignature.selector;

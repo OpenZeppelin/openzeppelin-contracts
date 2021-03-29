@@ -19,7 +19,7 @@ contract('SignatureChecker (ERC1271)', function (accounts) {
 
   context('EOA account', function () {
     it('with matching signer and signature', async function () {
-      expect(await this.signaturechecker.isValidSignature(
+      expect(await this.signaturechecker.isValidSignatureNow(
         signer,
         toEthSignedMessageHash(TEST_MESSAGE),
         this.signature,
@@ -27,7 +27,7 @@ contract('SignatureChecker (ERC1271)', function (accounts) {
     });
 
     it('with invalid signer', async function () {
-      expect(await this.signaturechecker.isValidSignature(
+      expect(await this.signaturechecker.isValidSignatureNow(
         other,
         toEthSignedMessageHash(TEST_MESSAGE),
         this.signature,
@@ -35,7 +35,7 @@ contract('SignatureChecker (ERC1271)', function (accounts) {
     });
 
     it('with invalid signature', async function () {
-      expect(await this.signaturechecker.isValidSignature(
+      expect(await this.signaturechecker.isValidSignatureNow(
         signer,
         toEthSignedMessageHash(WRONG_MESSAGE),
         this.signature,
@@ -45,7 +45,7 @@ contract('SignatureChecker (ERC1271)', function (accounts) {
 
   context('ERC1271 wallet', function () {
     it('with matching signer and signature', async function () {
-      expect(await this.signaturechecker.isValidSignature(
+      expect(await this.signaturechecker.isValidSignatureNow(
         this.wallet.address,
         toEthSignedMessageHash(TEST_MESSAGE),
         this.signature,
@@ -53,7 +53,7 @@ contract('SignatureChecker (ERC1271)', function (accounts) {
     });
 
     it('with invalid signer', async function () {
-      expect(await this.signaturechecker.isValidSignature(
+      expect(await this.signaturechecker.isValidSignatureNow(
         this.signaturechecker.address,
         toEthSignedMessageHash(TEST_MESSAGE),
         this.signature,
@@ -61,7 +61,7 @@ contract('SignatureChecker (ERC1271)', function (accounts) {
     });
 
     it('with invalid signature', async function () {
-      expect(await this.signaturechecker.isValidSignature(
+      expect(await this.signaturechecker.isValidSignatureNow(
         this.wallet.address,
         toEthSignedMessageHash(WRONG_MESSAGE),
         this.signature,

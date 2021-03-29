@@ -7,7 +7,7 @@ import "../utils/cryptography/SignatureChecker.sol";
 contract SignatureCheckerMock {
     using SignatureChecker for address;
 
-    function isValidSignature(address signer, bytes32 hash, bytes memory signature) public view returns (bool) {
-        return signer.isValidSignature(hash, signature);
+    function isValidSignatureNow(address signer, bytes32 hash, bytes memory signature) public view returns (bool) {
+        return signer.isValidSignatureNow(hash, signature);
     }
 }
