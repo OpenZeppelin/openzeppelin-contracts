@@ -3,7 +3,6 @@
 pragma solidity ^0.8.0;
 
 import "./MulticallTokenMock.sol";
-import "hardhat/console.sol";
 
 contract MulticallTest {
     function testReturnValues(MulticallTokenMock multicallToken, address[] calldata recipients, uint256[] calldata amounts) external {
