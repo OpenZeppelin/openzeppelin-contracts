@@ -206,6 +206,12 @@ library EnumerableSet {
         return _at(set._inner, index);
     }
 
+    /**
+     * @dev Removes all elements from the set. O(n).
+     *
+     * Note that this can run out of gas for large sets.
+     * First use `remove` to reduce the size of a large set in this case.
+     */
     function clear(Bytes32Set storage set) internal {
         return _clear(set._inner);
     }
