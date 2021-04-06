@@ -20,7 +20,7 @@ function from2098Format (signature) {
   const short = web3.utils.hexToBytes(signature);
   expect(short.length).to.be.equal(64);
   short.push((short[32] >> 7) + 27);
-  short[32] &= (1 << 7) - 1;
+  short[32] &= (1 << 7) - 1; // zero out the first bit of 1 the 32nd byte
   return web3.utils.bytesToHex(short);
 }
 
