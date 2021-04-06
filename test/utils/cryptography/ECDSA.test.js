@@ -12,7 +12,7 @@ function to2098Format (signature) {
   const long = web3.utils.hexToBytes(signature);
   expect(long.length).to.be.equal(65);
   const short = long.slice(0, 64);
-  short[32] |= (long[64] % 27) << 7;
+  short[32] |= (long[64] % 27) << 7; // set the first bit of the 32nd byte to the v parity bit
   return web3.utils.bytesToHex(short);
 }
 
