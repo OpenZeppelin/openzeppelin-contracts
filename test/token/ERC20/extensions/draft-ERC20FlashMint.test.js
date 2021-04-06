@@ -80,7 +80,7 @@ contract('ERC20FlashMint', function (accounts) {
       );
     });
 
-    it ('more then maxFlashLoan', async function () {
+    it ('more than maxFlashLoan', async function () {
       const receiver = await ERC3156FlashBorrowerMock.new(true, true);
       const data = this.token.contract.methods.transfer(other, 10).encodeABI();
       // _mint overflow reverts using a panic code. No reason string.
