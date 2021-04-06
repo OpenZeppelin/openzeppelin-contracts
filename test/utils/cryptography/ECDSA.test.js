@@ -78,7 +78,7 @@ contract('ECDSA', function (accounts) {
         });
       });
 
-      context('short 2098 format', function () {
+      context('short EIP2098 format', function () {
         it('works', async function () {
           const version = '1b'; // 27 = 1b.
           const signature = signatureWithoutVersion + version;
