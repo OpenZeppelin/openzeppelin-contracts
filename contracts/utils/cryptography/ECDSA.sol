@@ -49,7 +49,7 @@ library ECDSA {
                 let vs := mload(add(signature, 0x40))
                 r := mload(add(signature, 0x20))
                 s := and(vs, 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
-                v := add(shr(vs, 255), 27)
+                v := add(shr(255, vs), 27)
             }
         } else {
             revert("ECDSA: invalid signature length");
