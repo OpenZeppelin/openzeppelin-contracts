@@ -37,6 +37,8 @@ Finally, {Create2} contains all necessary utilities to safely use the https://bl
 
 {{ECDSA}}
 
+{{SignatureChecker}}
+
 {{MerkleProof}}
 
 {{EIP712}}
