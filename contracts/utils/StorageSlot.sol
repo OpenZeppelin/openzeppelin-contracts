@@ -12,6 +12,4 @@ library StorageSlot {
     function getBooleanSlot(bytes32 slot) internal pure returns (BooleanSlot storage r) { assembly { r.slot := slot } }
     function getBytes32Slot(bytes32 slot) internal pure returns (Bytes32Slot storage r) { assembly { r.slot := slot } }
     function getUint256Slot(bytes32 slot) internal pure returns (Uint256Slot storage r) { assembly { r.slot := slot } }
-
-    // TODO: add other types
 }
