@@ -8,6 +8,7 @@
  * `ERC20FlashMint`: add an implementation of the ERC3156 extension for flash-minting ERC20 tokens. ([#2543](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2543))
  * `SignatureChecker`: add a signature verification library that supports both EOA and ERC1271 compliant contracts as signers. ([#2532](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2532))
  * `Multicall`: add abstract contract with `multicall(bytes[] calldata data)` function to bundle multiple calls together ([#2608](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2608))
+ * `ECDSA`: add support for ERC2098 short-signatures. ([#2582](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2582))
 
 ## 4.0.0 (2021-03-23)
 
