@@ -29,7 +29,6 @@ jobs:
         env:
           FORCE_COLOR: 1
           ENABLE_GAS_REPORT: true
-          CI: true
       - name: Print gas report
         run: cat gas-report.txt
 
