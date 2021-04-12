@@ -155,7 +155,7 @@ function shouldBehaveLikeAccessControl (errorPrefix, admin, authorized, other, o
     });
   });
 
-  describe('onlySenderWithRole modifier', function () {
+  describe('onlyRole modifier', function () {
     beforeEach(async function () {
       await this.accessControl.grantRole(ROLE, authorized, { from: admin });
     });
