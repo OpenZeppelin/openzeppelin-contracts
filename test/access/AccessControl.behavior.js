@@ -32,7 +32,7 @@ function shouldBehaveLikeAccessControl (errorPrefix, admin, authorized, other, o
     it('non-admin cannot grant role to other accounts', async function () {
       await expectRevert(
         this.accessControl.grantRole(ROLE, authorized, { from: other }),
-        `${errorPrefix}: sender must be an admin to grant`,
+        `${errorPrefix}: account ${other.toLowerCase()} is missing role ${DEFAULT_ADMIN_ROLE} for operating on ${ROLE}`,
       );
     });
 
@@ -66,7 +66,7 @@ function shouldBehaveLikeAccessControl (errorPrefix, admin, authorized, other, o
       it('non-admin cannot revoke role', async function () {
         await expectRevert(
           this.accessControl.revokeRole(ROLE, authorized, { from: other }),
-          `${errorPrefix}: sender must be an admin to revoke`,
+          `${errorPrefix}: account ${other.toLowerCase()} is missing role ${DEFAULT_ADMIN_ROLE} for operating on ${ROLE}`,
         );
       });
 
@@ -143,14 +143,14 @@ function shouldBehaveLikeAccessControl (errorPrefix, admin, authorized, other, o
     it('a role\'s previous admins no longer grant roles', async function () {
       await expectRevert(
         this.accessControl.grantRole(ROLE, authorized, { from: admin }),
-        'AccessControl: sender must be an admin to grant',
+        `${errorPrefix}: account ${admin.toLowerCase()} is missing role ${OTHER_ROLE} for operating on ${ROLE}`,
       );
     });
 
     it('a role\'s previous admins no longer revoke roles', async function () {
       await expectRevert(
         this.accessControl.revokeRole(ROLE, authorized, { from: admin }),
-        'AccessControl: sender must be an admin to revoke',
+        `${errorPrefix}: account ${admin.toLowerCase()} is missing role ${OTHER_ROLE} for operating on ${ROLE}`,
       );
     });
   });
