@@ -95,6 +95,10 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     /**
      * @dev Modifier that checks that an account has a specific role. Reverts
      * with a standardized message including the required role.
+     *
+     * The format of the revert reason is given by the following regular expression:
+     *
+     *  /^AccessControl: account (0x[0-9a-f]{20}) is missing role (0x[0-9a-f]{32})$/
      */
     modifier onlyRole(bytes32 role) {
         _checkRole(role, _msgSender());
@@ -118,6 +122,10 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
 
     /**
      * @dev Revert with a standard message if `account` is missing `role`.
+     *
+     * The format of the revert reason is given by the following regular expression:
+     *
+     *  /^AccessControl: account (0x[0-9a-f]{20}) is missing role (0x[0-9a-f]{32})$/
      */
     function _checkRole(bytes32 role, address account) internal view {
         if(!hasRole(role, account)) {
