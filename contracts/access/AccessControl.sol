@@ -102,15 +102,6 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     }
 
     /**
-     * @dev Modifier that checks that an account has a specific role. Reverts
-     * with a standardized message including the required role.
-     */
-    modifier onlyRoleAdmin(bytes32 role) {
-        _checkRoleAdmin(role, _msgSender());
-        _;
-    }
-
-    /**
      * @dev See {IERC165-supportsInterface}.
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
@@ -140,22 +131,6 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     }
 
     /**
-     * @dev Revert with a standard message if `account` is missing admin privileges over `role`.
-     */
-    function _checkRoleAdmin(bytes32 role, address account) internal view {
-        if(!hasRole(_roles[role].adminRole, account)) {
-            revert(string(abi.encodePacked(
-                "AccessControl: account ",
-                Strings.toHexString(uint160(account), 20),
-                " is missing role ",
-                Strings.toHexString(uint256(_roles[role].adminRole), 32),
-                " for operating on ",
-                Strings.toHexString(uint256(role), 32)
-            )));
-        }
-    }
-
-    /**
      * @dev Returns the admin role that controls `role`. See {grantRole} and
      * {revokeRole}.
      *
@@ -175,7 +150,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      *
      * - the caller must have ``role``'s admin role.
      */
-    function grantRole(bytes32 role, address account) public virtual override onlyRoleAdmin(role) {
+    function grantRole(bytes32 role, address account) public virtual override onlyRole(getRoleAdmin(role)) {
         _grantRole(role, account);
     }
 
@@ -188,7 +163,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      *
      * - the caller must have ``role``'s admin role.
      */
-    function revokeRole(bytes32 role, address account) public virtual override onlyRoleAdmin(role) {
+    function revokeRole(bytes32 role, address account) public virtual override onlyRole(getRoleAdmin(role)) {
         _revokeRole(role, account);
     }
 
