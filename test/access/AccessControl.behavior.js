@@ -167,14 +167,14 @@ function shouldBehaveLikeAccessControl (errorPrefix, admin, authorized, other, o
     it('revert if sender doesn\'t have role #1', async function () {
       await expectRevert(
         this.accessControl.senderProtected(ROLE, { from: other }),
-        `AccessControl: account ${other.toLowerCase()} is missing role ${ROLE}`,
+        `${errorPrefix}: account ${other.toLowerCase()} is missing role ${ROLE}`,
       );
     });
 
     it('revert if sender doesn\'t have role #2', async function () {
       await expectRevert(
         this.accessControl.senderProtected(OTHER_ROLE, { from: authorized }),
-        `AccessControl: account ${authorized.toLowerCase()} is missing role ${OTHER_ROLE}`,
+        `${errorPrefix}: account ${authorized.toLowerCase()} is missing role ${OTHER_ROLE}`,
       );
     });
   });
