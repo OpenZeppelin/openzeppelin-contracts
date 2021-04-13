@@ -48,7 +48,7 @@ When doing an upgrade, the second parameter of the {upgradeToAndCall} function a
 
 {{IProxiable}}
 
-{{Proxiable}}
+{{UUPSUpgradeable}}
 
 == Transparent Proxy
 

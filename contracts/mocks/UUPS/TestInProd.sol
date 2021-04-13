@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import "../CountersImpl.sol";
 import "../../proxy/UUPS/UUPSUpgradeable.sol";
 
-contract ProxiableMock is CountersImpl, UUPSUpgradeable {
+contract ProxiableMock is UUPSUpgradeable {
     // Not having any checks in this function is dangerous! Do not do this outside tests!
     function _authorizeUpgrade(address) internal virtual override {}
 }

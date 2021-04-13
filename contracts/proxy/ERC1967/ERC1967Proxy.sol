@@ -24,7 +24,7 @@ contract ERC1967Proxy is Proxy, ERC1967Upgrade {
     }
 
     /**
-     * @dev Returns the current implementation address of the associated beacon.
+     * @dev Returns the current implementation address.
      */
     function _implementation() internal view virtual override returns (address impl) {
         return ERC1967Storage._getImplementation();

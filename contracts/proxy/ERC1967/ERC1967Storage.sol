@@ -7,7 +7,7 @@ import "../../utils/Address.sol";
 import "../../utils/StorageSlot.sol";
 
 /**
- * @dev This abstract contract provide setters and getters for the different
+ * @dev This abstract contract provides setters and getters for the different
  * https://eips.ethereum.org/EIPS/eip-1967[EIP1967] storage slots.
  */
 abstract contract ERC1967Storage {

@@ -5,7 +5,7 @@ pragma solidity ^0.8.3;
 import "./ERC1967Storage.sol";
 
 /**
- * @dev This abstract contract provides event emiting update functions for
+ * @dev This abstract contract provides event emitting update functions for
  * https://eips.ethereum.org/EIPS/eip-1967[EIP1967] slots.
  *
  * @custom:oz-upgrades-unsafe-allow delegatecall
