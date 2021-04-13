@@ -14,6 +14,9 @@ abstract contract ERC1967Upgrade is ERC1967Storage {
     // This is the keccak-256 hash of "eip1967.proxy.upgradePending" subtracted by 1
     bytes32 internal constant _UPGRADE_PENDING_SLOT = 0x39c07022fef61edd40345eccc814df883dce06b1b65a92ff48ae275074d292ee;
 
+    /// @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
+    address immutable self = address(this);
+
     /**
      * @dev Emitted when the implementation is upgraded.
      */
@@ -28,6 +31,16 @@ abstract contract ERC1967Upgrade is ERC1967Storage {
      * @dev Emitted when the admin account has changed.
      */
     event AdminChanged(address previousAdmin, address newAdmin);
+
+    /**
+     * @dev Perform implementation upgrade
+     *
+     * Emits an {Upgraded} event.
+     */
+    function _upgradeTo(address newImplementation) internal {
+        _setImplementation(newImplementation);
+        emit Upgraded(newImplementation);
+    }
 
     /**
      * @dev Perform implementation upgrade (with additional setup call)
@@ -56,32 +69,17 @@ abstract contract ERC1967Upgrade is ERC1967Storage {
     }
 
     function _upgradeToAndCallSecure(address newImplementation, bytes memory data, bool forceCall) internal {
-        address oldImplementation = _getImplementation();
-        // check if nested in an upgrade check
-        StorageSlot.BooleanSlot storage upgradePending = StorageSlot.getBooleanSlot(_UPGRADE_PENDING_SLOT);
-        // do inital upgrade
-        _setImplementation(newImplementation);
-        // do setup call
-        if (data.length > 0 || forceCall) {
-            Address.functionDelegateCall(newImplementation, data);
-        }
-        if (!upgradePending.value) {
-            // trigger upgrade check with flag set to true
-            upgradePending.value = true;
+        if (newImplementation == self) {
+            _upgradeToAndCall(newImplementation, data, forceCall);
+        } else {
             Address.functionDelegateCall(
                 newImplementation,
-                abi.encodeWithSignature(
-                    "upgradeTo(address)",
-                    oldImplementation
-                )
+                abi.encodeWithSignature("upgradeTo(address)", newImplementation)
             );
-            upgradePending.value = false;
-            // check upgrade was effective
-            require(oldImplementation == _getImplementation(), "ERC1967Upgrade: upgrade breaks further upgrades");
-            // reset upgrade
-            _setImplementation(newImplementation);
-            // emit event
-            emit Upgraded(newImplementation);
+            require(_getImplementation() == newImplementation, "ERC1967Upgrade: upgrade breaks further upgrades");
+            if (data.length > 0 || forceCall) {
+                Address.functionDelegateCall(newImplementation, data);
+            }
         }
     }
 

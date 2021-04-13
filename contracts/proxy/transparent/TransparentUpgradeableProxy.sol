@@ -3,7 +3,6 @@
 pragma solidity ^0.8.0;
 
 import "../ERC1967/ERC1967Proxy.sol";
-import "../UUPS/IUUPSUpgradeable.sol";
 
 /**
  * @dev This contract implements a proxy that is upgradeable by an admin.
@@ -26,7 +25,7 @@ import "../UUPS/IUUPSUpgradeable.sol";
  * Our recommendation is for the dedicated account to be an instance of the {ProxyAdmin} contract. If set up this way,
  * you should think of the `ProxyAdmin` instance as the real administrative interface of your proxy.
  */
-contract TransparentUpgradeableProxy is IUUPSUpgradeable, ERC1967Proxy {
+contract TransparentUpgradeableProxy is ERC1967Proxy {
     /**
      * @dev Initializes an upgradeable proxy managed by `_admin`, backed by the implementation at `_logic`, and
      * optionally initialized with `_data` as explained in {ERC1967Proxy-constructor}.
@@ -85,16 +84,30 @@ contract TransparentUpgradeableProxy is IUUPSUpgradeable, ERC1967Proxy {
     }
 
     /**
-     * @dev Upgrade the implementation of the proxy, and then call a function from the new implementation as specified
-     * by `data`, which should be an encoded function call. This is useful to initialize new storage variables in the
-     * proxied contract.
+     * @dev Upgrade the implementation of the proxy.
+     *
+     * NOTE: Only the admin can call this function. See {ProxyAdmin-upgrade}.
      */
-    function upgradeTo(address newImplementation) external override ifAdmin {
+    function upgradeTo(address newImplementation) external ifAdmin {
         _upgradeToAndCall(newImplementation, bytes(""));
     }
 
-    function upgradeToAndCall(address newImplementation, bytes calldata data) external payable override ifAdmin {
+    /**
+     * @dev Upgrade the implementation of the proxy, and then call a function from the new implementation as specified
+     * by `data`, which should be an encoded function call. This is useful to initialize new storage variables in the
+     * proxied contract.
+     *
+     * NOTE: Only the admin can call this function. See {ProxyAdmin-upgradeAndCall}.
+     */
+    function upgradeToAndCall(address newImplementation, bytes calldata data) external payable ifAdmin {
         _upgradeToAndCall(newImplementation, data, true);
+    }
+
+    /**
+     * @dev Returns the current admin.
+     */
+    function _admin() internal view virtual returns (address) {
+        return _getAdmin();
     }
 
     /**

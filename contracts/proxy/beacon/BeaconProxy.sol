@@ -32,6 +32,13 @@ contract BeaconProxy is Proxy, ERC1967Upgrade {
     }
 
     /**
+     * @dev Returns the current beacon address.
+     */
+    function _beacon() internal view virtual returns (address) {
+        return _getBeacon();
+    }
+
+    /**
      * @dev Returns the current implementation address of the associated beacon.
      */
     function _implementation() internal view virtual override returns (address) {

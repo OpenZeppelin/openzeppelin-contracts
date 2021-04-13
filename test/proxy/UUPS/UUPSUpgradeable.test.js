@@ -1,22 +1,22 @@
 const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 
 const ERC1967Proxy = artifacts.require('ERC1967Proxy');
-const ProxiableMock = artifacts.require('ProxiableMock');
-const ProxiableUnsafeMock = artifacts.require('ProxiableUnsafeMock');
-const ProxiableBrokenMock = artifacts.require('ProxiableBrokenMock');
+const UUPSUpgradeableMock = artifacts.require('UUPSUpgradeableMock');
+const UUPSUpgradeableUnsafeMock = artifacts.require('UUPSUpgradeableUnsafeMock');
+const UUPSUpgradeableBrokenMock = artifacts.require('UUPSUpgradeableBrokenMock');
 
-contract('Proxiable', function (accounts) {
+contract('UUPSUpgradeable', function (accounts) {
   before(async function () {
-    this.testimpl0 = await ProxiableMock.new();
-    this.testimpl1 = await ProxiableMock.new();
-    this.testimpl2 = await ProxiableUnsafeMock.new();
-    this.testimpl3 = await ProxiableBrokenMock.new();
+    this.testimpl0 = await UUPSUpgradeableMock.new();
+    this.testimpl1 = await UUPSUpgradeableMock.new();
+    this.testimpl2 = await UUPSUpgradeableUnsafeMock.new();
+    this.testimpl3 = await UUPSUpgradeableBrokenMock.new();
   });
 
   describe('Check test-in-prod upgrade securisation', function () {
     beforeEach(async function () {
       const { address } = await ERC1967Proxy.new(this.testimpl0.address, '0x');
-      this.instance = await ProxiableMock.at(address);
+      this.instance = await UUPSUpgradeableMock.at(address);
     });
 
     it('upgrade to proxiable implementation', async function () {

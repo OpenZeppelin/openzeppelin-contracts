@@ -2,7 +2,6 @@
 
 pragma solidity ^0.8.0;
 
-import "./IUUPSUpgradeable.sol";
 import "../ERC1967/ERC1967Upgrade.sol";
 
 /**
@@ -12,13 +11,13 @@ import "../ERC1967/ERC1967Upgrade.sol";
  *
  * The {_beforeUpgrade} function MUST be overridden to include access restriction to the upgrade mechanism.
  */
-abstract contract UUPSUpgradeable is IUUPSUpgradeable, ERC1967Upgrade {
-    function upgradeTo(address newImplementation) external virtual override {
+abstract contract UUPSUpgradeable is ERC1967Upgrade {
+    function upgradeTo(address newImplementation) external virtual {
         _authorizeUpgrade(newImplementation);
         _upgradeToAndCallSecure(newImplementation, bytes(""), false);
     }
 
-    function upgradeToAndCall(address newImplementation, bytes memory data) external payable virtual override {
+    function upgradeToAndCall(address newImplementation, bytes memory data) external payable virtual {
         _authorizeUpgrade(newImplementation);
         _upgradeToAndCallSecure(newImplementation, data, true);
     }

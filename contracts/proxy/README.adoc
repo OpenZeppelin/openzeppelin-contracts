@@ -19,13 +19,13 @@ CAUTION: Using upgradeable proxies correctly and securely is a difficult task th
 
 Upgradeable smart contracts rely on proxies to relay the calls in a way that is programmable. As discussed previously, we provide different proxy contracts that each come with a specific set of features. Other designs, not (yet) proposed as part of the OpenZeppelin products, also exist.
 
-The most simple, and common, design is known as Universal Upgradeable Proxy Standard (UUPS). This design is both lightweight and versatile and is proposed through the {ERC1967Proxy} and the {Proxiable} contract.
+The most simple, and common, design is known as Universal Upgradeable Proxy Standard (UUPS). This design is both lightweight and versatile and is proposed through the {ERC1967Proxy} and the {UUPSUpgradeable} contract.
 
-While {Proxiable} uses the same interface as {TransparentUpgradeableProxy}, in the first case the upgrade is handled by the implementation, and can eventually be removed. {TransparentUpgradeableProxy}, on the other hand, includes the upgrade logic in the proxy. This means {TransparentUpgradeableProxy} is more expensive to deploy. Note that, since both proxies use the same storage slot for the implementation address, using a UUPS compliant implementation with a {TransparentUpgradeableProxy} might allow non-admins to perform upgrade operations.
+While {UUPSUpgradeable} uses the same interface as {TransparentUpgradeableProxy}, in the first case the upgrade is handled by the implementation, and can eventually be removed. {TransparentUpgradeableProxy}, on the other hand, includes the upgrade logic in the proxy. This means {TransparentUpgradeableProxy} is more expensive to deploy. Note that, since both proxies use the same storage slot for the implementation address, using a UUPS compliant implementation with a {TransparentUpgradeableProxy} might allow non-admins to perform upgrade operations.
 
-According to this design, the {ERC1967Proxy} is only capable of forwarding calls to an implementation contract. Unlike the more complex and expensive to deploy {TransparentUpgradeableProxy}, the {ERC1967Proxy} doesn't by itself provide any upgradeability mechanism. It is the role of the implementation to include, alongside the contract's logic, all the code necessary to update the implementation's address that is stored at a specific slot in the proxy's storage space. This is where the {Proxiable} contract comes in. Inheriting from it (and overriding the {_beforeUpgrade} function with the relevant access control mechanism) will turn your contract logic into a UUPS compliant implementation.
+According to this design, the {ERC1967Proxy} is only capable of forwarding calls to an implementation contract. Unlike the more complex and expensive to deploy {TransparentUpgradeableProxy}, the {ERC1967Proxy} doesn't by itself provide any upgradeability mechanism. It is the role of the implementation to include, alongside the contract's logic, all the code necessary to update the implementation's address that is stored at a specific slot in the proxy's storage space. This is where the {UUPSUpgradeable} contract comes in. Inheriting from it (and overriding the {_beforeUpgrade} function with the relevant access control mechanism) will turn your contract logic into a UUPS compliant implementation.
 
-By default, the upgrade mechanism included in {Proxiable} contains a security mechanism that will prevent any upgrades to a non UUPS compliant implementation. This prevents upgrades to a logic that wouldn't contain the necessary upgrade mechanism as it would lock the proxy forever. This security mechanism can however be bypassed, either by:
+By default, the upgrade mechanism included in {UUPSUpgradeable} contains a security mechanism that will prevent any upgrades to a non UUPS compliant implementation. This prevents upgrades to a logic that wouldn't contain the necessary upgrade mechanism as it would lock the proxy forever. This security mechanism can however be bypassed, either by:
 
 - Adding a flag mechanism in the implementation that will disable the upgrade function when triggered;
 - Upgrading to an implementation that features an upgrade mechanism without the additional security check, and then upgrade again to another implementation without the upgrade mechanism.
@@ -45,8 +45,6 @@ When doing an upgrade, the second parameter of the {upgradeToAndCall} function a
 {{ERC1967Upgrade}}
 
 == UUPS
-
-{{IProxiable}}
 
 {{UUPSUpgradeable}}
 
