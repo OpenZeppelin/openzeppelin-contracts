@@ -81,7 +81,9 @@ contract TimelockController is AccessControl {
      * this role for everyone.
      */
     modifier onlyRoleOrOpenRole(bytes32 role) {
-        require(hasRole(role, _msgSender()) || hasRole(role, address(0)), "TimelockController: sender requires permission");
+        if (!hasRole(role, address(0))) {
+            _checkRole(role, _msgSender());
+        }
         _;
     }
 
