@@ -35,7 +35,7 @@ contract('ERC20', function (accounts) {
     expect(await this.token.decimals()).to.be.bignumber.equal('18');
   });
 
-  describe('_setupDecimals', function () {
+  describe('set decimals', function () {
     const decimals = new BN(6);
 
     it('can set decimals during construction', async function () {
