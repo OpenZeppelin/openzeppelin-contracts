@@ -62,7 +62,13 @@ It is important to understand that `decimals` is _only used for display purposes
 
 You'll probably want to use a `decimals` value of `18`, just like Ether and most ERC20 token contracts in use, unless you have a very special reason not to. When minting tokens or transferring them around, you will be actually sending the number `num GLD * 10^decimals`.
 
-NOTE: By default, `ERC20` uses a value of `18` for `decimals`. To use a different value, you will need to call xref:api:token/ERC20.adoc#ERC20-_setupDecimals-uint8-[_setupDecimals] in your constructor.
+NOTE: By default, `ERC20` uses a value of `18` for `decimals`. To use a different value, you will need to override the `decimals()` function in your contract.
+
+```solidity
+function decimals() public view virtual override returns (uint8) {
+  return 16;
+}
+```
 
 So if you want to send `5` tokens using a token contract with 18 decimals, the the method to call will actually be:
 

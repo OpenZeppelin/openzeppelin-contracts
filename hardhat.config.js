@@ -1,17 +1,28 @@
+/// ENVVAR
+// - ENABLE_GAS_REPORT
+// - CI
+// - COMPILE_MODE
+
 const fs = require('fs');
 const path = require('path');
+const argv = require('yargs/yargs')()
+  .env('')
+  .boolean('enableGasReport')
+  .boolean('ci')
+  .string('compileMode')
+  .argv;
 
 require('@nomiclabs/hardhat-truffle5');
 require('@nomiclabs/hardhat-solhint');
 require('solidity-coverage');
-require('hardhat-gas-reporter');
+
+if (argv.enableGasReport) {
+  require('hardhat-gas-reporter');
+}
 
 for (const f of fs.readdirSync(path.join(__dirname, 'hardhat'))) {
   require(path.join(__dirname, 'hardhat', f));
 }
-
-const enableGasReport = !!process.env.ENABLE_GAS_REPORT;
-const enableProduction = process.env.COMPILE_MODE === 'production';
 
 /**
  * @type import('hardhat/config').HardhatUserConfig
@@ -21,7 +32,7 @@ module.exports = {
     version: '0.8.3',
     settings: {
       optimizer: {
-        enabled: enableGasReport || enableProduction,
+        enabled: argv.enableGasReport || argv.compileMode === 'production',
         runs: 200,
       },
     },
@@ -32,8 +43,7 @@ module.exports = {
     },
   },
   gasReporter: {
-    enable: enableGasReport,
     currency: 'USD',
-    outputFile: process.env.CI ? 'gas-report.txt' : undefined,
+    outputFile: argv.ci ? 'gas-report.txt' : undefined,
   },
 };
