@@ -11,8 +11,8 @@ import "./ERC1967Storage.sol";
  * @custom:oz-upgrades-unsafe-allow delegatecall
  */
 abstract contract ERC1967Upgrade is ERC1967Storage {
-    /// @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
-    address immutable self = address(this);
+    // This is the keccak-256 hash of "eip1967.proxy.rollback" subtracted by 1
+    bytes32 internal constant _ROLLBACK_SLOT = 0x4910fdfa16fed3260ed0e7147f7cc6da11a60208b5b9406d12a635614ffd9143;
 
     /**
      * @dev Emitted when the implementation is upgraded.
@@ -66,17 +66,32 @@ abstract contract ERC1967Upgrade is ERC1967Storage {
     }
 
     function _upgradeToAndCallSecure(address newImplementation, bytes memory data, bool forceCall) internal {
-        if (newImplementation == self) {
-            _upgradeToAndCall(newImplementation, data, forceCall);
-        } else {
+        address oldImplementation = _getImplementation();
+        // do inital upgrade
+        _setImplementation(newImplementation);
+        // do setup call
+        if (data.length > 0 || forceCall) {
+            Address.functionDelegateCall(newImplementation, data);
+        }
+        // check if nested in an upgrade check
+        StorageSlot.BooleanSlot storage rollbackTesting = StorageSlot.getBooleanSlot(_ROLLBACK_SLOT);
+        if (!rollbackTesting.value) {
+            // trigger upgrade check with flag set to true
+            rollbackTesting.value = true;
             Address.functionDelegateCall(
                 newImplementation,
-                abi.encodeWithSignature("upgradeTo(address)", newImplementation)
+                abi.encodeWithSignature(
+                    "upgradeTo(address)",
+                    oldImplementation
+                )
             );
-            require(_getImplementation() == newImplementation, "ERC1967Upgrade: upgrade breaks further upgrades");
-            if (data.length > 0 || forceCall) {
-                Address.functionDelegateCall(newImplementation, data);
-            }
+            rollbackTesting.value = false;
+            // check upgrade was effective
+            require(oldImplementation == _getImplementation(), "ERC1967Upgrade: upgrade breaks further upgrades");
+            // reset upgrade
+            _setImplementation(newImplementation);
+            // emit event
+            emit Upgraded(newImplementation);
         }
     }
 
