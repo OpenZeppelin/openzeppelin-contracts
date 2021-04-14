@@ -11,9 +11,6 @@ import "./ERC1967Storage.sol";
  * @custom:oz-upgrades-unsafe-allow delegatecall
  */
 abstract contract ERC1967Upgrade is ERC1967Storage {
-    // This is the keccak-256 hash of "eip1967.proxy.upgradePending" subtracted by 1
-    bytes32 internal constant _UPGRADE_PENDING_SLOT = 0x39c07022fef61edd40345eccc814df883dce06b1b65a92ff48ae275074d292ee;
-
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
     address immutable self = address(this);
 

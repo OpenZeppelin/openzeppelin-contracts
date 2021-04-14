@@ -52,5 +52,16 @@ contract('UUPSUpgradeable', function (accounts) {
         'ERC1967Upgrade: upgrade breaks further upgrades',
       );
     });
+
+    it('use proxy address as implementation', async function () {
+      const { address } = await ERC1967Proxy.new(this.testimpl0.address, '0x');
+      const otherInstance = await UUPSUpgradeableMock.at(address);
+
+      // infinite loop reverts when a nested call is out-of-gas
+      await expectRevert(
+        this.instance.upgradeTo(otherInstance.address),
+        'Address: low-level delegate call failed',
+      );
+    });
   });
 });
