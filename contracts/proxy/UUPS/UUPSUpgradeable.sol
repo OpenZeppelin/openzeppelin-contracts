@@ -9,7 +9,7 @@ import "../ERC1967/ERC1967Upgrade.sol";
  * publicly available upgrade functions that are called by the plugin and by the secure upgrade mechanism to verify
  * continuation of the upgradability.
  *
- * The {_beforeUpgrade} function MUST be overridden to include access restriction to the upgrade mechanism.
+ * The {_authorizeUpgrade} function MUST be overridden to include access restriction to the upgrade mechanism.
  */
 abstract contract UUPSUpgradeable is ERC1967Upgrade {
     function upgradeTo(address newImplementation) external virtual {
