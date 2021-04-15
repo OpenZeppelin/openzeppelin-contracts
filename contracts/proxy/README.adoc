@@ -15,7 +15,7 @@ The {Clones} library provides a way to deploy minimal non-upgradeable proxies fo
 
 CAUTION: Using upgradeable proxies correctly and securely is a difficult task that requires deep knowledge of the proxy pattern, Solidity, and the EVM. Unless you want a lot of low level control, we recommend using the xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugins] for Truffle and Hardhat.
 
-= UUPS design: upgradeability as an implementation feature
+== UUPS Design: Upgradeability as an Implementation Feature
 
 Upgradeable smart contracts rely on proxies to relay the calls in a way that is programmable. As discussed previously, we provide different proxy contracts that each come with a specific set of features. Other designs, not (yet) proposed as part of the OpenZeppelin products, also exist.
 
