@@ -3,12 +3,12 @@
 pragma solidity ^0.8.0;
 
 /**
- * @dev Library for reading and writting primitive types to specific storage slots.
+ * @dev Library for reading and writing primitive types to specific storage slots.
  *
- * Storage slots are often used to avoid storage conflict when dealind with upgradeable contracts.
- * This library helps with reading and writting to such slots without the need for inline assembly.
+ * Storage slots are often used to avoid storage conflict when dealing with upgradeable contracts.
+ * This library helps with reading and writing to such slots without the need for inline assembly.
  *
- * Example of usage for ERC1967
+ * Example usage to set ERC1967 implementation slot:
  * ```
  * contract ERC1967 {
  *     bytes32 internal constant _IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
@@ -24,7 +24,7 @@ pragma solidity ^0.8.0;
  * }
  * ```
  *
- * As of v4.1.0, `address`, `bool`, `bytes32` and `uint256` are supported.
+ * Available since v4.1.0 for `address`, `bool`, `bytes32`, and `uint256`.
  */
 library StorageSlot {
     struct AddressSlot {
