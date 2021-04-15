@@ -1,4 +1,4 @@
-const { toEthSignedMessageHash, fixSignature } = require('../../helpers/sign');
+const { toEthSignedMessageHash } = require('../../helpers/sign');
 
 const { expect } = require('chai');
 
@@ -14,7 +14,7 @@ contract('SignatureChecker (ERC1271)', function (accounts) {
   before('deploying', async function () {
     this.signaturechecker = await SignatureCheckerMock.new();
     this.wallet = await ERC1271WalletMock.new(signer);
-    this.signature = fixSignature(await web3.eth.sign(TEST_MESSAGE, signer));
+    this.signature = await web3.eth.sign(TEST_MESSAGE, signer);
   });
 
   context('EOA account', function () {
