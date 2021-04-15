@@ -1,5 +1,5 @@
 const { expectRevert } = require('@openzeppelin/test-helpers');
-const { toEthSignedMessageHash, fixSignature } = require('../../helpers/sign');
+const { toEthSignedMessageHash } = require('../../helpers/sign');
 
 const { expect } = require('chai');
 
@@ -14,8 +14,6 @@ contract('ECDSA', function (accounts) {
   beforeEach(async function () {
     this.ecdsa = await ECDSAMock.new();
   });
-
-
 
   context('recover with invalid signature', function () {
     it('with short signature', async function () {
@@ -36,7 +34,7 @@ contract('ECDSA', function (accounts) {
       context('with correct signature', function () {
         it('returns signer address', async function () {
           // Create the signature
-          const signature = fixSignature(await web3.eth.sign(TEST_MESSAGE, other));
+          const signature = await web3.eth.sign(TEST_MESSAGE, other);
 
           // Recover the signer address from the generated message and signature.
           expect(await this.ecdsa.recover(
@@ -48,7 +46,7 @@ contract('ECDSA', function (accounts) {
 
       context('with wrong message', function () {
         it('returns a different address', async function () {
-          const signature = fixSignature(await web3.eth.sign(TEST_MESSAGE, other));
+          const signature = await web3.eth.sign(TEST_MESSAGE, other);
           expect(await this.ecdsa.recover(WRONG_MESSAGE, signature)).to.not.equal(other);
         });
       });
