@@ -57,7 +57,7 @@ contract('ECDSA', function (accounts) {
           signature,
         )).to.equal(other);
       });
-      
+
       it('returns a different address', async function () {
         const signature = await web3.eth.sign(TEST_MESSAGE, other);
         expect(await this.ecdsa.recover(WRONG_MESSAGE, signature)).to.not.equal(other);
