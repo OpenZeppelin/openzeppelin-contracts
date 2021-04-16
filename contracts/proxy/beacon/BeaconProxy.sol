@@ -28,7 +28,7 @@ contract BeaconProxy is Proxy, ERC1967Upgrade {
      */
     constructor(address beacon, bytes memory data) payable {
         assert(_BEACON_SLOT == bytes32(uint256(keccak256("eip1967.proxy.beacon")) - 1));
-        _upgradeBeaconToAndCall(beacon, data);
+        _upgradeBeaconToAndCall(beacon, data, false);
     }
 
     /**
@@ -56,6 +56,6 @@ contract BeaconProxy is Proxy, ERC1967Upgrade {
      * - The implementation returned by `beacon` must be a contract.
      */
     function _setBeacon(address beacon, bytes memory data) internal virtual {
-        _upgradeBeaconToAndCall(beacon, data);
+        _upgradeBeaconToAndCall(beacon, data, false);
     }
 }

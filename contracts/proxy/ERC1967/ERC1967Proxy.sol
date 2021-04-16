@@ -20,7 +20,7 @@ contract ERC1967Proxy is Proxy, ERC1967Upgrade {
      */
     constructor(address _logic, bytes memory _data) payable {
         assert(_IMPLEMENTATION_SLOT == bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1));
-        _upgradeToAndCall(_logic, _data);
+        _upgradeToAndCall(_logic, _data, false);
     }
 
     /**

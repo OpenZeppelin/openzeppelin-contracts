@@ -12,11 +12,11 @@ contract UUPSUpgradeableMock is CountersImpl, UUPSUpgradeable {
 
 contract UUPSUpgradeableUnsafeMock is UUPSUpgradeableMock {
     function upgradeTo(address newImplementation) external virtual override {
-        ERC1967Upgrade._upgradeToAndCall(newImplementation, bytes(""));
+        ERC1967Upgrade._upgradeToAndCall(newImplementation, bytes(""), false);
     }
 
     function upgradeToAndCall(address newImplementation, bytes memory data) external payable virtual override {
-        ERC1967Upgrade._upgradeToAndCall(newImplementation, data);
+        ERC1967Upgrade._upgradeToAndCall(newImplementation, data, false);
     }
 }
 
