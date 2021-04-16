@@ -12,7 +12,7 @@ import "../../utils/Address.sol";
  * function so it can only be called once. The {initializer} modifier provided by this contract will have this effect.
  *
  * TIP: To avoid leaving the proxy in an uninitialized state, the initializer function should be called as early as
- * possible by providing the encoded function call as the `_data` argument to {UpgradeableProxy-constructor}.
+ * possible by providing the encoded function call as the `_data` argument to {ERC1967Proxy-constructor}.
  *
  * CAUTION: When used with inheritance, manual care must be taken to not invoke a parent initializer twice, or to ensure
  * that all initializers are idempotent. This is not verified automatically as constructors are by Solidity.
