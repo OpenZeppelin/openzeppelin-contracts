@@ -10,6 +10,8 @@
  * `Multicall`: add abstract contract with `multicall(bytes[] calldata data)` function to bundle multiple calls together ([#2608](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2608))
  * `ECDSA`: add support for ERC2098 short-signatures. ([#2582](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2582))
  * `AccessControl`: add a `onlyRole` modifier to restrict specific function to callers bearing a specific role. ([#2609](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2609))
+ * `StorageSlot`: add a library for reading and writing primitive types to specific storage slots. ([#2542](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2542))
+ * UUPS Proxies: add `UUPSUpgradeable` to implement the UUPS proxy pattern together with `EIP1967Proxy`. ([#2542](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2542))
 
 ### Breaking changes
 
