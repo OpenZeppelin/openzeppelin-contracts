@@ -40,7 +40,7 @@ abstract contract ERC1967Upgrade is ERC1967Storage {
     }
 
     /**
-     * @dev Perform implementation upgrade (with additional setup call)
+     * @dev Perform implementation upgrade with additional setup call.
      *
      * Emits an {Upgraded} event.
      */
@@ -57,7 +57,7 @@ abstract contract ERC1967Upgrade is ERC1967Storage {
     }
 
     /**
-     * @dev Perform implementation upgrade (with security checks and additional setup call)
+     * @dev Perform implementation upgrade with security checks for UUPS proxies, and additional setup call.
      *
      * Emits an {Upgraded} event.
      */
@@ -96,9 +96,10 @@ abstract contract ERC1967Upgrade is ERC1967Storage {
     }
 
     /**
-     * @dev Perform implementation upgrade (with addition delegate call)
+     * @dev Perform beacon upgrade with additional setup call. Note: This upgrades the address of the beacon, it does
+     * not upgrade the implementation contained in the beacon (see {UpgradeableBeacon-_setImplementation} for that).
      *
-     * Emits an {Upgraded} event.
+     * Emits a {BeaconUpgraded} event.
      */
     function _upgradeBeaconToAndCall(address newBeacon, bytes memory data) internal {
         _upgradeBeaconToAndCall(newBeacon, data, false);
