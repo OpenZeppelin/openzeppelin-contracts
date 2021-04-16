@@ -11,6 +11,19 @@
  * `ECDSA`: add support for ERC2098 short-signatures. ([#2582](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2582))
  * `AccessControl`: add a `onlyRole` modifier to restrict specific function to callers bearing a specific role. ([#2609](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2609))
 
+### Breaking changes
+
+This release includes two small breaking changes in `TimelockController`.
+
+1. The `onlyRole` modifier in this contract was designed to let anyone through if the role was granted to `address(0)`,
+   allowing the possibility to to make a role "open", which can be used for `EXECUTOR_ROLE`. This modifier is now
+   replaced by `AccessControl.onlyRole`, which does not have this ability. The previous behavior was moved to the
+   modifier `TimelockController.onlyRoleOrOpenRole`.
+2. It was possible to make `PROPOSER_ROLE` an open role (as described in the previous item) if it was granted to
+   `address(0)`. This would affect the `schedule`, `scheduleBatch`, and `cancel` operations in `TimelockController`.
+   This ability was removed as it does not make sense to open up the `PROPOSER_ROLE` in the same way that it does for
+   `EXECUTOR_ROLE`.
+
 ## 4.0.0 (2021-03-23)
 
  * Now targeting the 0.8.x line of Solidity compilers. For 0.6.x (resp 0.7.x) support, use version 3.4.0 (resp 3.4.0-solc-0.7) of OpenZeppelin.
