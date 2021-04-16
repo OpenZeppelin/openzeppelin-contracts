@@ -18,13 +18,13 @@ contract('UUPSUpgradeable', function (accounts) {
     this.instance = await UUPSUpgradeableMock.at(address);
   });
 
-  it('upgrade to proxiable implementation', async function () {
+  it('upgrade to upgradeable implementation', async function () {
     const { receipt } = await this.instance.upgradeTo(this.implUpgradeOk.address);
     expect(receipt.logs.filter(({ event }) => event === 'Upgraded').length).to.be.equal(1);
     expectEvent(receipt, 'Upgraded', { implementation: this.implUpgradeOk.address });
   });
 
-  it('upgrade to proxiable implementation with call', async function () {
+  it('upgrade to upgradeable implementation with call', async function () {
     expect(await this.instance.current()).to.be.bignumber.equal('0');
 
     const { receipt } = await this.instance.upgradeToAndCall(
@@ -37,12 +37,12 @@ contract('UUPSUpgradeable', function (accounts) {
     expect(await this.instance.current()).to.be.bignumber.equal('1');
   });
 
-  it('upgrade to and unsafe proxiable implementation', async function () {
+  it('upgrade to and unsafe upgradeable implementation', async function () {
     const { receipt } = await this.instance.upgradeTo(this.implUpgradeUnsafe.address);
     expectEvent(receipt, 'Upgraded', { implementation: this.implUpgradeUnsafe.address });
   });
 
-  it('upgrade to broken proxiable implementation', async function () {
+  it('upgrade to broken upgradeable implementation', async function () {
     await expectRevert(
       this.instance.upgradeTo(this.implUpgradeBroken.address),
       'ERC1967Upgrade: upgrade breaks further upgrades',
