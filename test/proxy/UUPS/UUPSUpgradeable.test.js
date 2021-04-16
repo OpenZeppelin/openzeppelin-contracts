@@ -21,7 +21,6 @@ contract('UUPSUpgradeable', function (accounts) {
 
     it('upgrade to proxiable implementation', async function () {
       const { receipt } = await this.instance.upgradeTo(this.implUpgradeOk.address);
-      // console.log(receipt.logs.filter(({ event }) => event === 'Upgraded').length);
       expect(receipt.logs.filter(({ event }) => event === 'Upgraded').length).to.be.equal(1);
       expectEvent(receipt, 'Upgraded', { implementation: this.implUpgradeOk.address });
     });
@@ -33,7 +32,6 @@ contract('UUPSUpgradeable', function (accounts) {
         this.implUpgradeOk.address,
         this.implUpgradeOk.contract.methods.increment().encodeABI(),
       );
-      // console.log(receipt.logs.filter(({ event }) => event === 'Upgraded').length);
       expect(receipt.logs.filter(({ event }) => event === 'Upgraded').length).to.be.equal(1);
       expectEvent(receipt, 'Upgraded', { implementation: this.implUpgradeOk.address });
 
@@ -42,7 +40,6 @@ contract('UUPSUpgradeable', function (accounts) {
 
     it('upgrade to and unsafe proxiable implementation', async function () {
       const { receipt } = await this.instance.upgradeTo(this.implUpgradeUnsafe.address);
-      // console.log(receipt.logs.filter(({ event }) => event === 'Upgraded').length);
       expectEvent(receipt, 'Upgraded', { implementation: this.implUpgradeUnsafe.address });
     });
 
