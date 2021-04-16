@@ -7,54 +7,54 @@ const UUPSUpgradeableBrokenMock = artifacts.require('UUPSUpgradeableBrokenMock')
 
 contract('UUPSUpgradeable', function (accounts) {
   before(async function () {
-    this.testimpl0 = await UUPSUpgradeableMock.new();
-    this.testimpl1 = await UUPSUpgradeableMock.new();
-    this.testimpl2 = await UUPSUpgradeableUnsafeMock.new();
-    this.testimpl3 = await UUPSUpgradeableBrokenMock.new();
+    this.implInitial = await UUPSUpgradeableMock.new();
+    this.implUpgradeOk = await UUPSUpgradeableMock.new();
+    this.implUpgradeUnsafe = await UUPSUpgradeableUnsafeMock.new();
+    this.implUpgradeBroken = await UUPSUpgradeableBrokenMock.new();
   });
 
   describe('Check test-in-prod upgrade securisation', function () {
     beforeEach(async function () {
-      const { address } = await ERC1967Proxy.new(this.testimpl0.address, '0x');
+      const { address } = await ERC1967Proxy.new(this.implInitial.address, '0x');
       this.instance = await UUPSUpgradeableMock.at(address);
     });
 
     it('upgrade to proxiable implementation', async function () {
-      const { receipt } = await this.instance.upgradeTo(this.testimpl1.address);
+      const { receipt } = await this.instance.upgradeTo(this.implUpgradeOk.address);
       // console.log(receipt.logs.filter(({ event }) => event === 'Upgraded').length);
       expect(receipt.logs.filter(({ event }) => event === 'Upgraded').length).to.be.equal(1);
-      expectEvent(receipt, 'Upgraded', { implementation: this.testimpl1.address });
+      expectEvent(receipt, 'Upgraded', { implementation: this.implUpgradeOk.address });
     });
 
     it('upgrade to proxiable implementation with call', async function () {
       expect(await this.instance.current()).to.be.bignumber.equal('0');
 
       const { receipt } = await this.instance.upgradeToAndCall(
-        this.testimpl1.address,
-        this.testimpl1.contract.methods.increment().encodeABI(),
+        this.implUpgradeOk.address,
+        this.implUpgradeOk.contract.methods.increment().encodeABI(),
       );
       // console.log(receipt.logs.filter(({ event }) => event === 'Upgraded').length);
       expect(receipt.logs.filter(({ event }) => event === 'Upgraded').length).to.be.equal(1);
-      expectEvent(receipt, 'Upgraded', { implementation: this.testimpl1.address });
+      expectEvent(receipt, 'Upgraded', { implementation: this.implUpgradeOk.address });
 
       expect(await this.instance.current()).to.be.bignumber.equal('1');
     });
 
     it('upgrade to and unsafe proxiable implementation', async function () {
-      const { receipt } = await this.instance.upgradeTo(this.testimpl2.address);
+      const { receipt } = await this.instance.upgradeTo(this.implUpgradeUnsafe.address);
       // console.log(receipt.logs.filter(({ event }) => event === 'Upgraded').length);
-      expectEvent(receipt, 'Upgraded', { implementation: this.testimpl2.address });
+      expectEvent(receipt, 'Upgraded', { implementation: this.implUpgradeUnsafe.address });
     });
 
     it('upgrade to broken proxiable implementation', async function () {
       await expectRevert(
-        this.instance.upgradeTo(this.testimpl3.address),
+        this.instance.upgradeTo(this.implUpgradeBroken.address),
         'ERC1967Upgrade: upgrade breaks further upgrades',
       );
     });
 
     it('use proxy address as implementation', async function () {
-      const { address } = await ERC1967Proxy.new(this.testimpl0.address, '0x');
+      const { address } = await ERC1967Proxy.new(this.implInitial.address, '0x');
       const otherInstance = await UUPSUpgradeableMock.at(address);
 
       // infinite loop reverts when a nested call is out-of-gas
