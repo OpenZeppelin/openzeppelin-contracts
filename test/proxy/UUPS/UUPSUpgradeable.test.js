@@ -4,6 +4,7 @@ const ERC1967Proxy = artifacts.require('ERC1967Proxy');
 const UUPSUpgradeableMock = artifacts.require('UUPSUpgradeableMock');
 const UUPSUpgradeableUnsafeMock = artifacts.require('UUPSUpgradeableUnsafeMock');
 const UUPSUpgradeableBrokenMock = artifacts.require('UUPSUpgradeableBrokenMock');
+const CountersImpl = artifacts.require('CountersImpl');
 
 contract('UUPSUpgradeable', function (accounts) {
   before(async function () {
@@ -11,6 +12,7 @@ contract('UUPSUpgradeable', function (accounts) {
     this.implUpgradeOk = await UUPSUpgradeableMock.new();
     this.implUpgradeUnsafe = await UUPSUpgradeableUnsafeMock.new();
     this.implUpgradeBroken = await UUPSUpgradeableBrokenMock.new();
+    this.implUpgradeNonUUPS = await CountersImpl.new();
   });
 
   beforeEach(async function () {
@@ -46,6 +48,14 @@ contract('UUPSUpgradeable', function (accounts) {
     await expectRevert(
       this.instance.upgradeTo(this.implUpgradeBroken.address),
       'ERC1967Upgrade: upgrade breaks further upgrades',
+    );
+  });
+
+  // delegate to a non existing upgradeTo function causes a low level revert
+  it('reject upgrade to non uups implementation', async function () {
+    await expectRevert(
+      this.instance.upgradeTo(this.implUpgradeNonUUPS.address),
+      'Address: low-level delegate call failed',
     );
   });
 
