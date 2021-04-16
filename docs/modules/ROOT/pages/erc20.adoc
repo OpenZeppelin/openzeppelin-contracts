@@ -70,7 +70,7 @@ function decimals() public view virtual override returns (uint8) {
 }
 ```
 
-So if you want to send `5` tokens using a token contract with 18 decimals, the the method to call will actually be:
+So if you want to send `5` tokens using a token contract with 18 decimals, the method to call will actually be:
 
 ```solidity
 transfer(recipient, 5 * 10^18);
