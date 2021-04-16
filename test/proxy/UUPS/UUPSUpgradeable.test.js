@@ -42,14 +42,14 @@ contract('UUPSUpgradeable', function (accounts) {
     expectEvent(receipt, 'Upgraded', { implementation: this.implUpgradeUnsafe.address });
   });
 
-  it('upgrade to broken upgradeable implementation', async function () {
+  it('reject upgrade to broken upgradeable implementation', async function () {
     await expectRevert(
       this.instance.upgradeTo(this.implUpgradeBroken.address),
       'ERC1967Upgrade: upgrade breaks further upgrades',
     );
   });
 
-  it('use proxy address as implementation', async function () {
+  it('reject proxy address as implementation', async function () {
     const { address } = await ERC1967Proxy.new(this.implInitial.address, '0x');
     const otherInstance = await UUPSUpgradeableMock.at(address);
 
