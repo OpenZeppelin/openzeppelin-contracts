@@ -13,52 +13,50 @@ contract('UUPSUpgradeable', function (accounts) {
     this.implUpgradeBroken = await UUPSUpgradeableBrokenMock.new();
   });
 
-  describe('Check test-in-prod upgrade securisation', function () {
-    beforeEach(async function () {
-      const { address } = await ERC1967Proxy.new(this.implInitial.address, '0x');
-      this.instance = await UUPSUpgradeableMock.at(address);
-    });
+  beforeEach(async function () {
+    const { address } = await ERC1967Proxy.new(this.implInitial.address, '0x');
+    this.instance = await UUPSUpgradeableMock.at(address);
+  });
 
-    it('upgrade to proxiable implementation', async function () {
-      const { receipt } = await this.instance.upgradeTo(this.implUpgradeOk.address);
-      expect(receipt.logs.filter(({ event }) => event === 'Upgraded').length).to.be.equal(1);
-      expectEvent(receipt, 'Upgraded', { implementation: this.implUpgradeOk.address });
-    });
+  it('upgrade to proxiable implementation', async function () {
+    const { receipt } = await this.instance.upgradeTo(this.implUpgradeOk.address);
+    expect(receipt.logs.filter(({ event }) => event === 'Upgraded').length).to.be.equal(1);
+    expectEvent(receipt, 'Upgraded', { implementation: this.implUpgradeOk.address });
+  });
 
-    it('upgrade to proxiable implementation with call', async function () {
-      expect(await this.instance.current()).to.be.bignumber.equal('0');
+  it('upgrade to proxiable implementation with call', async function () {
+    expect(await this.instance.current()).to.be.bignumber.equal('0');
 
-      const { receipt } = await this.instance.upgradeToAndCall(
-        this.implUpgradeOk.address,
-        this.implUpgradeOk.contract.methods.increment().encodeABI(),
-      );
-      expect(receipt.logs.filter(({ event }) => event === 'Upgraded').length).to.be.equal(1);
-      expectEvent(receipt, 'Upgraded', { implementation: this.implUpgradeOk.address });
+    const { receipt } = await this.instance.upgradeToAndCall(
+      this.implUpgradeOk.address,
+      this.implUpgradeOk.contract.methods.increment().encodeABI(),
+    );
+    expect(receipt.logs.filter(({ event }) => event === 'Upgraded').length).to.be.equal(1);
+    expectEvent(receipt, 'Upgraded', { implementation: this.implUpgradeOk.address });
 
-      expect(await this.instance.current()).to.be.bignumber.equal('1');
-    });
+    expect(await this.instance.current()).to.be.bignumber.equal('1');
+  });
 
-    it('upgrade to and unsafe proxiable implementation', async function () {
-      const { receipt } = await this.instance.upgradeTo(this.implUpgradeUnsafe.address);
-      expectEvent(receipt, 'Upgraded', { implementation: this.implUpgradeUnsafe.address });
-    });
+  it('upgrade to and unsafe proxiable implementation', async function () {
+    const { receipt } = await this.instance.upgradeTo(this.implUpgradeUnsafe.address);
+    expectEvent(receipt, 'Upgraded', { implementation: this.implUpgradeUnsafe.address });
+  });
 
-    it('upgrade to broken proxiable implementation', async function () {
-      await expectRevert(
-        this.instance.upgradeTo(this.implUpgradeBroken.address),
-        'ERC1967Upgrade: upgrade breaks further upgrades',
-      );
-    });
+  it('upgrade to broken proxiable implementation', async function () {
+    await expectRevert(
+      this.instance.upgradeTo(this.implUpgradeBroken.address),
+      'ERC1967Upgrade: upgrade breaks further upgrades',
+    );
+  });
 
-    it('use proxy address as implementation', async function () {
-      const { address } = await ERC1967Proxy.new(this.implInitial.address, '0x');
-      const otherInstance = await UUPSUpgradeableMock.at(address);
+  it('use proxy address as implementation', async function () {
+    const { address } = await ERC1967Proxy.new(this.implInitial.address, '0x');
+    const otherInstance = await UUPSUpgradeableMock.at(address);
 
-      // infinite loop reverts when a nested call is out-of-gas
-      await expectRevert(
-        this.instance.upgradeTo(otherInstance.address),
-        'Address: low-level delegate call failed',
-      );
-    });
+    // infinite loop reverts when a nested call is out-of-gas
+    await expectRevert(
+      this.instance.upgradeTo(otherInstance.address),
+      'Address: low-level delegate call failed',
+    );
   });
 });
