@@ -32,6 +32,10 @@ contract('ERC20', function (accounts) {
     expect(await this.token.decimals()).to.be.bignumber.equal('18');
   });
 
+  it('has underlying', async function () {
+    expect(await this.token.underlying()).to.be.bignumber.equal(this.underlying.address);
+  });
+
   describe('deposit', function () {
     it('valid', async function () {
       await this.underlying.approve(this.token.address, initialSupply, { from: initialHolder });
