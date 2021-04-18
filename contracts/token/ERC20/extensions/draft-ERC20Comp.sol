@@ -14,8 +14,9 @@ abstract contract ERC20Comp is IComp, ERC20Permit {
     mapping (address => uint256[]) private _checkpointBlocks;
     mapping (address => mapping (uint256 => uint256)) private _checkpointWeights;
 
-    function delegates(address account) external view override returns (address) {
-        return _delegates[account];
+    function delegates(address account) public view override returns (address) {
+        address delegatee = _delegates[account];
+        return delegatee == address(0) ? account : delegatee;
     }
 
     function getCurrentVotes(address account) external view override returns (uint256) {
@@ -51,7 +52,7 @@ abstract contract ERC20Comp is IComp, ERC20Permit {
     }
 
     function _delegate(address delegator, address delegatee) internal {
-        address currentDelegate = _delegates[delegator] == address(0) ? delegator : _delegates[delegator];
+        address currentDelegate = delegates(delegator);
         uint256 delegatorBalance = balanceOf(delegator);
         _delegates[delegator] = delegatee;
 
@@ -90,12 +91,6 @@ abstract contract ERC20Comp is IComp, ERC20Permit {
     }
 
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
-        address fromDelegate = _delegates[from];
-        address toDelegate   = _delegates[to];
-        _moveDelegates(
-            fromDelegate == address(0) ? from : fromDelegate,
-            toDelegate   == address(0) ? to   : toDelegate,
-            amount
-        );
+        _moveDelegates(delegates(from), delegates(to), amount);
     }
 }
