@@ -151,7 +151,6 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         virtual
         override
     {
-        require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
         require(
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
             "ERC1155: transfer caller is not owner nor approved"
@@ -217,6 +216,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         internal
         virtual
     {
+        require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
         require(to != address(0), "ERC1155: transfer to the zero address");
 
         address operator = _msgSender();
