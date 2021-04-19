@@ -11,6 +11,8 @@ import "../ERC20.sol";
  *
  * Adds the {flashLoan} method, which provides flash loan support at the token
  * level. By default there is no fee, but this can be changed by overriding {flashFee}.
+ *
+ * _Available since v4.1._
  */
 abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
     bytes32 constant private RETURN_VALUE = keccak256("ERC3156FlashBorrower.onFlashLoan");

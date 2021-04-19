@@ -99,6 +99,8 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * The format of the revert reason is given by the following regular expression:
      *
      *  /^AccessControl: account (0x[0-9a-f]{20}) is missing role (0x[0-9a-f]{32})$/
+     *
+     * _Available since v4.1._
      */
     modifier onlyRole(bytes32 role) {
         _checkRole(role, _msgSender());

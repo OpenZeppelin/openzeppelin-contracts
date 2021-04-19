@@ -26,7 +26,7 @@ pragma solidity ^0.8.0;
  * }
  * ```
  *
- * Available since v4.1.0 for `address`, `bool`, `bytes32`, and `uint256`.
+ * _Available since v4.1 for `address`, `bool`, `bytes32`, and `uint256`._
  */
 library StorageSlot {
     struct AddressSlot {

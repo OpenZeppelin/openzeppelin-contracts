@@ -13,6 +13,8 @@ import "../../interfaces/IERC1271.sol";
  *
  * Note: unlike ECDSA signatures, contract signature's are revocable, and the outcome of this function can thus change
  * through time. It could return true at block N and false at block N+1 (or the opposite).
+ *
+ * _Available since v4.1._
  */
 library SignatureChecker {
     function isValidSignatureNow(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
