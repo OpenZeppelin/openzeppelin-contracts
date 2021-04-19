@@ -46,7 +46,7 @@ In this way you can use _composability_ to add additional layers of access contr
 
 While the simplicity of _ownership_ can be useful for simple systems or quick prototyping, different levels of authorization are often needed. You may want for an account to have permission to ban users from a system, but not create new tokens. https://en.wikipedia.org/wiki/Role-based_access_control[_Role-Based Access Control (RBAC)_] offers flexibility in this regard.
 
-In essence, we will be defining multiple _roles_, each allowed to perform different sets of actions. An account may have, for example, 'moderator', 'minter' or 'admin' roles, which you will then check for instead of simply using `onlyOwner`. Separately, you will be able to define rules for how accounts can be granted a role, have it revoked, and more.
+In essence, we will be defining multiple _roles_, each allowed to perform different sets of actions. An account may have, for example, 'moderator', 'minter' or 'admin' roles, which you will then check for instead of simply using `onlyOwner`. This check can be enforced through the `onlyRole` modifier. Separately, you will be able to define rules for how accounts can be granted a role, have it revoked, and more.
 
 Most software uses access control systems that are role-based: some users are regular users, some may be supervisors or managers, and a few will often have administrative privileges.
 
@@ -88,7 +88,7 @@ NOTE: Make sure you fully understand how xref:api:access.adoc#AccessControl[`Acc
 
 While clear and explicit, this isn't anything we wouldn't have been able to achieve with `Ownable`. Indeed, where `AccessControl` shines is in scenarios where granular permissions are required, which can be implemented by defining _multiple_ roles.
 
-Let's augment our ERC20 token example by also defining a 'burner' role, which lets accounts destroy tokens:
+Let's augment our ERC20 token example by also defining a 'burner' role, which lets accounts destroy tokens, and by using the `onlyRole` modifier:
 
 [source,solidity]
 ----
@@ -108,13 +108,11 @@ contract MyToken is ERC20, AccessControl {
         _setupRole(BURNER_ROLE, burner);
     }
 
-    function mint(address to, uint256 amount) public {
-        require(hasRole(MINTER_ROLE, msg.sender), "Caller is not a minter");
+    function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {
         _mint(to, amount);
     }
 
-    function burn(address from, uint256 amount) public {
-        require(hasRole(BURNER_ROLE, msg.sender), "Caller is not a burner");
+    function burn(address from, uint256 amount) public onlyRole(BURNER_ROLE) {
         _burn(from, amount);
     }
 }
@@ -154,13 +152,11 @@ contract MyToken is ERC20, AccessControl {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    function mint(address to, uint256 amount) public {
-        require(hasRole(MINTER_ROLE, msg.sender), "Caller is not a minter");
+    function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {
         _mint(to, amount);
     }
 
-    function burn(address from, uint256 amount) public {
-        require(hasRole(BURNER_ROLE, msg.sender), "Caller is not a burner");
+    function burn(address from, uint256 amount) public onlyRole(BURNER_ROLE) {
         _burn(from, amount);
     }
 }

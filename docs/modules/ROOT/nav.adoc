@@ -1,4 +1,5 @@
 * xref:index.adoc[Overview]
+* xref:wizard.adoc[Wizard]
 * xref:extending-contracts.adoc[Extending Contracts]
 * xref:upgradeable.adoc[Using with Upgrades]
 

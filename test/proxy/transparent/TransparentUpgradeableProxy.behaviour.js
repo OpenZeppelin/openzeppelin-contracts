@@ -80,7 +80,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
         it('reverts', async function () {
           await expectRevert(
             this.proxy.upgradeTo(ZERO_ADDRESS, { from }),
-            'ERC1967Proxy: new implementation is not a contract',
+            'ERC1967: new implementation is not a contract',
           );
         });
       });
@@ -304,7 +304,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
       it('reverts', async function () {
         await expectRevert(
           this.proxy.changeAdmin(ZERO_ADDRESS, { from: proxyAdminAddress }),
-          'TransparentUpgradeableProxy: new admin is the zero address',
+          'ERC1967: new admin is the zero address',
         );
       });
     });
