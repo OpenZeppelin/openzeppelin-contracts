@@ -108,7 +108,6 @@ contract('ERC20Comp', function (accounts) {
     const delegator = Wallet.generate();
     const delegatorAddress = web3.utils.toChecksumAddress(delegator.getAddressString());
     const nonce = 0;
-    const maxExpiry = MAX_UINT256;
 
     const buildData = (chainId, verifyingContract, message) => ({ data: {
       primaryType: 'Delegation',
@@ -123,12 +122,12 @@ contract('ERC20Comp', function (accounts) {
         buildData(this.chainId, this.token.address, {
           delegatee: holderDelegatee,
           nonce,
-          expiry: maxExpiry,
+          expiry: MAX_UINT256,
         }),
       ));
 
       await this.token.transfer(delegatorAddress, supply, { from: holder });
-      const { receipt } = await this.token.delegateFromBySig(holderDelegatee, nonce, maxExpiry, v, r, s);
+      const { receipt } = await this.token.delegateFromBySig(holderDelegatee, nonce, MAX_UINT256, v, r, s);
       expectEvent(receipt, 'DelegateChanged', {
         delegator: delegatorAddress,
         fromDelegate: delegatorAddress,
@@ -163,14 +162,14 @@ contract('ERC20Comp', function (accounts) {
         buildData(this.chainId, this.token.address, {
           delegatee: holderDelegatee,
           nonce,
-          expiry: maxExpiry,
+          expiry: MAX_UINT256,
         }),
       ));
 
-      await this.token.delegateFromBySig(holderDelegatee, nonce, maxExpiry, v, r, s);
+      await this.token.delegateFromBySig(holderDelegatee, nonce, MAX_UINT256, v, r, s);
 
       await expectRevert(
-        this.token.delegateFromBySig(holderDelegatee, nonce, maxExpiry, v, r, s),
+        this.token.delegateFromBySig(holderDelegatee, nonce, MAX_UINT256, v, r, s),
         'ERC20Comp::delegateBySig: invalid nonce',
       );
     });
