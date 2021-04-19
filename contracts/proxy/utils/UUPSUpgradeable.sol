@@ -10,6 +10,8 @@ import "../ERC1967/ERC1967Upgrade.sol";
  * continuation of the upgradability.
  *
  * The {_authorizeUpgrade} function MUST be overridden to include access restriction to the upgrade mechanism.
+ *
+ * _Available since v4.1._
  */
 abstract contract UUPSUpgradeable is ERC1967Upgrade {
     function upgradeTo(address newImplementation) external virtual {

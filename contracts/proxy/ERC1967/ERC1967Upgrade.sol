@@ -8,6 +8,8 @@ import "./ERC1967Storage.sol";
  * @dev This abstract contract provides event emitting update functions for
  * https://eips.ethereum.org/EIPS/eip-1967[EIP1967] slots.
  *
+ * _Available since v4.1._
+ *
  * @custom:oz-upgrades-unsafe-allow delegatecall
  */
 abstract contract ERC1967Upgrade is ERC1967Storage {
