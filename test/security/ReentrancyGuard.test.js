@@ -11,6 +11,12 @@ contract('ReentrancyGuard', function (accounts) {
     expect(await this.reentrancyMock.counter()).to.be.bignumber.equal('0');
   });
 
+  it('nonReentrant function can be called', async function () {
+    expect(await this.reentrancyMock.counter()).to.be.bignumber.equal('0');
+    await this.reentrancyMock.callback();
+    expect(await this.reentrancyMock.counter()).to.be.bignumber.equal('1');
+  });
+
   it('does not allow remote callback', async function () {
     const attacker = await ReentrancyAttack.new();
     await expectRevert(

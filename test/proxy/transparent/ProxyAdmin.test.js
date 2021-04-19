@@ -35,6 +35,10 @@ contract('ProxyAdmin', function (accounts) {
       const admin = await this.proxyAdmin.getProxyAdmin(this.proxy.address);
       expect(admin).to.be.equal(this.proxyAdmin.address);
     });
+
+    it('call to invalid proxy', async function () {
+      await expectRevert.unspecified(this.proxyAdmin.getProxyAdmin(this.implementationV1.address));
+    });
   });
 
   describe('#changeProxyAdmin', function () {
@@ -55,6 +59,10 @@ contract('ProxyAdmin', function (accounts) {
     it('returns proxy implementation address', async function () {
       const implementationAddress = await this.proxyAdmin.getProxyImplementation(this.proxy.address);
       expect(implementationAddress).to.be.equal(this.implementationV1.address);
+    });
+
+    it('call to invalid proxy', async function () {
+      await expectRevert.unspecified(this.proxyAdmin.getProxyImplementation(this.implementationV1.address));
     });
   });
 
