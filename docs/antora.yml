@@ -1,6 +1,6 @@
 name: contracts
 title: Contracts
-version: 3.x
+version: 4.x
 nav:
   - modules/ROOT/nav.adoc
   - modules/api/nav.adoc
