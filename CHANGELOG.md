@@ -2,7 +2,7 @@
 
 ## Unreleased
  * Enumerables: Improve gas cost of removal in `EnumerableSet` and `EnumerableMap`.
- * Enumerables: Improve gas cost of lookup `EnumerableSet` and `EnumerableMap`.
+ * Enumerables: Improve gas cost of lookup in `EnumerableSet` and `EnumerableMap`.
 
 ## Unreleased
 
