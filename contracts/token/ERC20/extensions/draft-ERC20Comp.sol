@@ -14,10 +14,14 @@ abstract contract ERC20Comp is IComp, ERC20Permit {
     mapping (address => uint256[]) private _checkpointBlocks;
     mapping (address => mapping (uint256 => uint256)) private _checkpointWeights;
 
-    function delegates(address account) public view override returns (address) {
-        address delegatee = _delegates[account];
-        return delegatee == address(0) ? account : delegatee;
+    function delegates(address account) public view virtual override returns (address) {
+        return _delegates[account];
     }
+    // autodelegation, more expensive
+    // function delegates(address account) public view override returns (address) {
+    //     address delegatee = _delegates[account];
+    //     return delegatee == address(0) ? account : delegatee;
+    // }
 
     function getCurrentVotes(address account) external view override returns (uint256) {
         uint256 pos = _checkpointBlocks[account].length;
@@ -51,7 +55,7 @@ abstract contract ERC20Comp is IComp, ERC20Permit {
         return _delegate(signatory, delegatee);
     }
 
-    function _delegate(address delegator, address delegatee) internal {
+    function _delegate(address delegator, address delegatee) internal virtual {
         address currentDelegate = delegates(delegator);
         uint256 delegatorBalance = balanceOf(delegator);
         _delegates[delegator] = delegatee;
@@ -61,25 +65,25 @@ abstract contract ERC20Comp is IComp, ERC20Permit {
         _moveDelegates(currentDelegate, delegatee, delegatorBalance);
     }
 
-    function _moveDelegates(address srcRep, address dstRep, uint256 amount) internal {
+    function _moveDelegates(address srcRep, address dstRep, uint256 amount) private {
         if (srcRep != dstRep && amount > 0) {
             if (srcRep != address(0)) {
                 uint256 srcRepNum = _checkpointBlocks[srcRep].length;
-                uint256 srcRepOld = srcRepNum == 0 ? 0 : _checkpointWeights[srcRep][srcRepNum - 1];
+                uint256 srcRepOld = srcRepNum > 0 ? _checkpointWeights[srcRep][srcRepNum - 1] : 0;
                 uint256 srcRepNew = srcRepOld - amount;
                 _writeCheckpoint(srcRep, srcRepNum, srcRepOld, srcRepNew);
             }
 
             if (dstRep != address(0)) {
                 uint256 dstRepNum = _checkpointBlocks[dstRep].length;
-                uint256 dstRepOld = dstRepNum == 0 ? 0 : _checkpointWeights[dstRep][dstRepNum - 1];
+                uint256 dstRepOld = dstRepNum > 0 ? _checkpointWeights[dstRep][dstRepNum - 1] : 0;
                 uint256 dstRepNew = dstRepOld + amount;
                 _writeCheckpoint(dstRep, dstRepNum, dstRepOld, dstRepNew);
             }
         }
     }
 
-    function _writeCheckpoint(address delegatee, uint256 pos, uint256 oldWeight, uint256 newWeight) internal {
+    function _writeCheckpoint(address delegatee, uint256 pos, uint256 oldWeight, uint256 newWeight) private {
       if (pos > 0 && _checkpointBlocks[delegatee][pos - 1] == block.number) {
           _checkpointWeights[delegatee][pos - 1] = newWeight;
       } else {
