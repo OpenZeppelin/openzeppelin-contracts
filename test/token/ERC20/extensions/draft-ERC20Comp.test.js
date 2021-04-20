@@ -48,22 +48,173 @@ contract('ERC20Comp', function (accounts) {
     );
   });
 
-  describe('delegate', function () {
-    it('check voting', async function () {
-      const blockNumber = await web3.eth.getBlockNumber();
+  describe('set delegation', function () {
+    describe('call', function () {
+      it('delegation with balance', async function () {
+        expect(await this.token.delegates(holder)).to.be.equal(ZERO_ADDRESS);
 
-      expect(await this.token.getCurrentVotes(holder)).to.be.bignumber.equal(supply);
-      expect(await this.token.getPriorVotes(holder, blockNumber - 1)).to.be.bignumber.equal('0');
-      await expectRevert(this.token.getPriorVotes(holder, blockNumber), 'ERC20Comp::getPriorVotes: not yet determined');
+        const { receipt } = await this.token.delegate(holder, { from: holder });
+        expectEvent(receipt, 'DelegateChanged', {
+          delegator: holder,
+          fromDelegate: ZERO_ADDRESS,
+          toDelegate: holder,
+        });
+        expectEvent(receipt, 'DelegateVotesChanged', {
+          delegate: holder,
+          previousBalance: '0',
+          newBalance: supply,
+        });
 
-      await time.advanceBlock();
-      expect(await this.token.getPriorVotes(holder, blockNumber)).to.be.bignumber.equal('0');
+        expect(await this.token.delegates(holder)).to.be.equal(holder);
 
-      await time.advanceBlock();
-      expect(await this.token.getPriorVotes(holder, blockNumber + 1)).to.be.bignumber.equal(supply);
+        expect(await this.token.getCurrentVotes(holder)).to.be.bignumber.equal(supply);
+        await time.advanceBlock();
+        expect(await this.token.getPriorVotes(holder, receipt.blockNumber)).to.be.bignumber.equal('0');
+        await time.advanceBlock();
+        expect(await this.token.getPriorVotes(holder, receipt.blockNumber + 1)).to.be.bignumber.equal(supply);
+      });
+
+      it('delegation without balance', async function () {
+        expect(await this.token.delegates(recipient)).to.be.equal(ZERO_ADDRESS);
+
+        const { receipt } = await this.token.delegate(recipient, { from: recipient });
+        expectEvent(receipt, 'DelegateChanged', {
+          delegator: recipient,
+          fromDelegate: ZERO_ADDRESS,
+          toDelegate: recipient,
+        });
+        expectEvent.notEmitted(receipt, 'DelegateVotesChanged');
+
+        expect(await this.token.delegates(recipient)).to.be.equal(recipient);
+      });
     });
 
-    it('delegation with balance', async function () {
+    describe('with signature', function () {
+      const delegator = Wallet.generate();
+      const delegatorAddress = web3.utils.toChecksumAddress(delegator.getAddressString());
+      const nonce = 0;
+
+      const buildData = (chainId, verifyingContract, message) => ({ data: {
+        primaryType: 'Delegation',
+        types: { EIP712Domain, Delegation },
+        domain: { name, version, chainId, verifyingContract },
+        message,
+      }});
+
+      beforeEach(async function () {
+        await this.token.transfer(delegatorAddress, supply, { from: holder });
+      });
+
+      it('accept signed delegation', async function () {
+        const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
+          delegator.getPrivateKey(),
+          buildData(this.chainId, this.token.address, {
+            delegatee: delegatorAddress,
+            nonce,
+            expiry: MAX_UINT256,
+          }),
+        ));
+
+        expect(await this.token.delegates(delegatorAddress)).to.be.equal(ZERO_ADDRESS);
+
+        const { receipt } = await this.token.delegateFromBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s);
+        expectEvent(receipt, 'DelegateChanged', {
+          delegator: delegatorAddress,
+          fromDelegate: ZERO_ADDRESS,
+          toDelegate: delegatorAddress,
+        });
+        expectEvent(receipt, 'DelegateVotesChanged', {
+          delegate: delegatorAddress,
+          previousBalance: '0',
+          newBalance: supply,
+        });
+
+        expect(await this.token.delegates(delegatorAddress)).to.be.equal(delegatorAddress);
+
+        expect(await this.token.getCurrentVotes(delegatorAddress)).to.be.bignumber.equal(supply);
+        await time.advanceBlock();
+        expect(await this.token.getPriorVotes(delegatorAddress, receipt.blockNumber)).to.be.bignumber.equal('0');
+        await time.advanceBlock();
+        expect(await this.token.getPriorVotes(delegatorAddress, receipt.blockNumber + 1)).to.be.bignumber.equal(supply);
+      });
+
+      it('rejects reused signature', async function () {
+        const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
+          delegator.getPrivateKey(),
+          buildData(this.chainId, this.token.address, {
+            delegatee: delegatorAddress,
+            nonce,
+            expiry: MAX_UINT256,
+          }),
+        ));
+
+        await this.token.delegateFromBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s);
+
+        await expectRevert(
+          this.token.delegateFromBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s),
+          'ERC20Comp::delegateBySig: invalid nonce',
+        );
+      });
+
+      it('rejects bad delegatee', async function () {
+        const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
+          delegator.getPrivateKey(),
+          buildData(this.chainId, this.token.address, {
+            delegatee: delegatorAddress,
+            nonce,
+            expiry: MAX_UINT256,
+          }),
+        ));
+
+        const { logs } = await this.token.delegateFromBySig(holderDelegatee, nonce, MAX_UINT256, v, r, s);
+        const { args } = logs.find(({ event }) => event == 'DelegateChanged');
+        expect(args.delegator).to.not.be.equal(delegatorAddress);
+        expect(args.fromDelegate).to.be.equal(ZERO_ADDRESS);
+        expect(args.toDelegate).to.be.equal(holderDelegatee);
+      });
+
+      it('rejects bad nonce', async function () {
+        const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
+          delegator.getPrivateKey(),
+          buildData(this.chainId, this.token.address, {
+            delegatee: delegatorAddress,
+            nonce,
+            expiry: MAX_UINT256,
+          }),
+        ));
+        await expectRevert(
+          this.token.delegateFromBySig(delegatorAddress, nonce + 1, MAX_UINT256, v, r, s),
+          'ERC20Comp::delegateBySig: invalid nonce',
+        );
+      });
+
+      it('rejects expired permit', async function () {
+        const expiry = (await time.latest()) - time.duration.weeks(1);
+        const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
+          delegator.getPrivateKey(),
+          buildData(this.chainId, this.token.address, {
+            delegatee: delegatorAddress,
+            nonce,
+            expiry,
+          }),
+        ));
+
+        await expectRevert(
+          this.token.delegateFromBySig(delegatorAddress, nonce, expiry, v, r, s),
+          'ERC20Comp::delegateBySig: signature expired',
+        );
+      });
+    });
+  });
+
+  describe('change delegation', function () {
+    beforeEach(async function () {
+      await this.token.delegate(holder, { from: holder });
+    });
+
+    it('call', async function () {
+      expect(await this.token.delegates(holder)).to.be.equal(holder);
+
       const { receipt } = await this.token.delegate(holderDelegatee, { from: holder });
       expectEvent(receipt, 'DelegateChanged', {
         delegator: holder,
@@ -81,158 +232,74 @@ contract('ERC20Comp', function (accounts) {
         newBalance: supply,
       });
 
+      expect(await this.token.delegates(holder)).to.be.equal(holderDelegatee);
+
       expect(await this.token.getCurrentVotes(holder)).to.be.bignumber.equal('0');
       expect(await this.token.getCurrentVotes(holderDelegatee)).to.be.bignumber.equal(supply);
-
       await time.advanceBlock();
       expect(await this.token.getPriorVotes(holder, receipt.blockNumber)).to.be.bignumber.equal(supply);
       expect(await this.token.getPriorVotes(holderDelegatee, receipt.blockNumber)).to.be.bignumber.equal('0');
-
       await time.advanceBlock();
       expect(await this.token.getPriorVotes(holder, receipt.blockNumber + 1)).to.be.bignumber.equal('0');
       expect(await this.token.getPriorVotes(holderDelegatee, receipt.blockNumber + 1)).to.be.bignumber.equal(supply);
     });
-
-    it('delegation without balance', async function () {
-      const { receipt } = await this.token.delegate(recipientDelegatee, { from: recipient });
-      expectEvent(receipt, 'DelegateChanged', {
-        delegator: recipient,
-        fromDelegate: recipient,
-        toDelegate: recipientDelegatee,
-      });
-      expectEvent.notEmitted(receipt, 'DelegateVotesChanged');
-    });
-  });
-
-  describe('delegateFromBySig', function () {
-    const delegator = Wallet.generate();
-    const delegatorAddress = web3.utils.toChecksumAddress(delegator.getAddressString());
-    const nonce = 0;
-
-    const buildData = (chainId, verifyingContract, message) => ({ data: {
-      primaryType: 'Delegation',
-      types: { EIP712Domain, Delegation },
-      domain: { name, version, chainId, verifyingContract },
-      message,
-    }});
-
-    it('accept signed delegation', async function () {
-      const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-        delegator.getPrivateKey(),
-        buildData(this.chainId, this.token.address, {
-          delegatee: holderDelegatee,
-          nonce,
-          expiry: MAX_UINT256,
-        }),
-      ));
-
-      await this.token.transfer(delegatorAddress, supply, { from: holder });
-      const { receipt } = await this.token.delegateFromBySig(holderDelegatee, nonce, MAX_UINT256, v, r, s);
-      expectEvent(receipt, 'DelegateChanged', {
-        delegator: delegatorAddress,
-        fromDelegate: delegatorAddress,
-        toDelegate: holderDelegatee,
-      });
-      expectEvent(receipt, 'DelegateVotesChanged', {
-        delegate: delegatorAddress,
-        previousBalance: supply,
-        newBalance: '0',
-      });
-      expectEvent(receipt, 'DelegateVotesChanged', {
-        delegate: holderDelegatee,
-        previousBalance: '0',
-        newBalance: supply,
-      });
-
-      expect(await this.token.getCurrentVotes(delegatorAddress)).to.be.bignumber.equal('0');
-      expect(await this.token.getCurrentVotes(holderDelegatee)).to.be.bignumber.equal(supply);
-
-      await time.advanceBlock();
-      expect(await this.token.getPriorVotes(delegatorAddress, receipt.blockNumber)).to.be.bignumber.equal(supply);
-      expect(await this.token.getPriorVotes(holderDelegatee, receipt.blockNumber)).to.be.bignumber.equal('0');
-
-      await time.advanceBlock();
-      expect(await this.token.getPriorVotes(delegatorAddress, receipt.blockNumber + 1)).to.be.bignumber.equal('0');
-      expect(await this.token.getPriorVotes(holderDelegatee, receipt.blockNumber + 1)).to.be.bignumber.equal(supply);
-    });
-
-    it('rejects reused signature', async function () {
-      const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-        delegator.getPrivateKey(),
-        buildData(this.chainId, this.token.address, {
-          delegatee: holderDelegatee,
-          nonce,
-          expiry: MAX_UINT256,
-        }),
-      ));
-
-      await this.token.delegateFromBySig(holderDelegatee, nonce, MAX_UINT256, v, r, s);
-
-      await expectRevert(
-        this.token.delegateFromBySig(holderDelegatee, nonce, MAX_UINT256, v, r, s),
-        'ERC20Comp::delegateBySig: invalid nonce',
-      );
-    });
-
-    it('rejects expired permit', async function () {
-      const expiry = (await time.latest()) - time.duration.weeks(1);
-      const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-        delegator.getPrivateKey(),
-        buildData(this.chainId, this.token.address, {
-          delegatee: holderDelegatee,
-          nonce,
-          expiry,
-        }),
-      ));
-
-      await expectRevert(
-        this.token.delegateFromBySig(holderDelegatee, nonce, expiry, v, r, s),
-        'ERC20Comp::delegateBySig: signature expired',
-      );
-    });
   });
 
   describe('transfers', function () {
-    beforeEach(async function () {
-      this.fromDelegatee = holder;
-      this.toDelegatee = recipient;
-    });
-
     it('no delegation', async function () {
+      const { receipt } = await this.token.transfer(recipient, 1, { from: holder });
+      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, value: '1' });
+      expectEvent.notEmitted(receipt, 'DelegateVotesChanged');
+
+      this.holderVotes = '0';
+      this.recipientVotes = '0';
     });
 
-    it('sender has delegatee', async function () {
-      this.fromDelegatee = holderDelegatee;
-      await this.token.delegate(holderDelegatee, { from: holder });
+    it('sender delegation', async function () {
+      await this.token.delegate(holder, { from: holder });
+
+      const { receipt } = await this.token.transfer(recipient, 1, { from: holder });
+      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, value: '1' });
+      expectEvent(receipt, 'DelegateVotesChanged', { delegate: holder, previousBalance: supply, newBalance: supply.subn(1) });
+
+      this.holderVotes = supply.subn(1);
+      this.recipientVotes = '0';
     });
 
-    it('recipient has delegatee', async function () {
-      this.toDelegatee = recipientDelegatee;
-      await this.token.delegate(recipientDelegatee, { from: recipient });
+    it('receiver delegation', async function () {
+      await this.token.delegate(recipient, { from: recipient });
+
+      const { receipt } = await this.token.transfer(recipient, 1, { from: holder });
+      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, value: '1' });
+      expectEvent(receipt, 'DelegateVotesChanged', { delegate: recipient, previousBalance: '0', newBalance: '1' });
+
+      this.holderVotes = '0';
+      this.recipientVotes = '1';
     });
 
-    it('sender and recipient have delegatee', async function () {
-      this.fromDelegatee = holderDelegatee;
-      this.toDelegatee = recipientDelegatee;
-      await this.token.delegate(holderDelegatee, { from: holder });
-      await this.token.delegate(recipientDelegatee, { from: recipient });
+    it('full delegation', async function () {
+      await this.token.delegate(holder, { from: holder });
+      await this.token.delegate(recipient, { from: recipient });
+
+      const { receipt } = await this.token.transfer(recipient, 1, { from: holder });
+      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, value: '1' });
+      expectEvent(receipt, 'DelegateVotesChanged', { delegate: holder, previousBalance: supply, newBalance: supply.subn(1) });
+      expectEvent(receipt, 'DelegateVotesChanged', { delegate: recipient, previousBalance: '0', newBalance: '1' });
+
+      this.holderVotes = supply.subn(1);
+      this.recipientVotes = '1';
     });
 
     afterEach(async function () {
-      const { receipt } = await this.token.transfer(recipient, 1, { from: holder });
-      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, value: '1' });
-      expectEvent(receipt, 'DelegateVotesChanged', { delegate: this.fromDelegatee, previousBalance: supply, newBalance: supply.subn(1) });
-      expectEvent(receipt, 'DelegateVotesChanged', { delegate: this.toDelegatee, previousBalance: '0', newBalance: '1' });
-
-      expect(await this.token.getCurrentVotes(this.fromDelegatee)).to.be.bignumber.equal(supply.subn(1));
-      expect(await this.token.getCurrentVotes(this.toDelegatee)).to.be.bignumber.equal('1');
+      expect(await this.token.getCurrentVotes(holder)).to.be.bignumber.equal(this.holderVotes);
+      expect(await this.token.getCurrentVotes(recipient)).to.be.bignumber.equal(this.recipientVotes);
 
       // need to advance 2 blocks to see the effect of a transfer on "getPriorVotes"
       time.advanceBlock();
       const blockNumber = await web3.eth.getBlockNumber();
       time.advanceBlock();
-      expect(await this.token.getPriorVotes(this.fromDelegatee, blockNumber)).to.be.bignumber.equal(supply.subn(1));
-      expect(await this.token.getPriorVotes(this.toDelegatee, blockNumber)).to.be.bignumber.equal('1');
+      expect(await this.token.getPriorVotes(holder, blockNumber)).to.be.bignumber.equal(this.holderVotes);
+      expect(await this.token.getPriorVotes(recipient, blockNumber)).to.be.bignumber.equal(this.recipientVotes);
     });
   });
 });

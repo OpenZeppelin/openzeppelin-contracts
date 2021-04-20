@@ -17,7 +17,12 @@ abstract contract ERC20Comp is IComp, ERC20Permit {
     function delegates(address account) public view virtual override returns (address) {
         return _delegates[account];
     }
-    // autodelegation, more expensive
+
+    /**
+     * Example: This enables autodelegation, makes each transfer more expensive but doesn't require user to delegate to
+     * themselves. Can be usefull for tokens useds exclusivelly for governance, such as voting wrappers of pre-existing
+     * ERC20.
+     */
     // function delegates(address account) public view override returns (address) {
     //     address delegatee = _delegates[account];
     //     return delegatee == address(0) ? account : delegatee;
