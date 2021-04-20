@@ -7,7 +7,7 @@ import "./IComp.sol";
 import "../../../utils/Arrays.sol";
 import "../../../utils/cryptography/ECDSA.sol";
 
-abstract contract ERC20Comp is IComp, ERC20Permit {
+abstract contract ERC20Votes is IComp, ERC20Permit {
     bytes32 private constant _DELEGATION_TYPEHASH = keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
     mapping (address => address) private _delegates;
@@ -34,7 +34,7 @@ abstract contract ERC20Comp is IComp, ERC20Permit {
     }
 
     function getPriorVotes(address account, uint blockNumber) external view override returns (uint256) {
-        require(blockNumber < block.number, "ERC20Comp::getPriorVotes: not yet determined");
+        require(blockNumber < block.number, "ERC20Votes::getPriorVotes: not yet determined");
         uint256 pos = Arrays.findUpperBound(_checkpointBlocks[account], blockNumber);
         return pos == 0 ? 0 : _checkpointWeights[account][pos - 1];
     }
@@ -46,7 +46,7 @@ abstract contract ERC20Comp is IComp, ERC20Permit {
     function delegateFromBySig(address delegatee, uint nonce, uint expiry, uint8 v, bytes32 r, bytes32 s)
     public virtual override
     {
-        require(block.timestamp <= expiry, "ERC20Comp::delegateBySig: signature expired");
+        require(block.timestamp <= expiry, "ERC20Votes::delegateBySig: signature expired");
         address signatory = ECDSA.recover(
             _hashTypedDataV4(keccak256(abi.encode(
                 _DELEGATION_TYPEHASH,
@@ -56,7 +56,7 @@ abstract contract ERC20Comp is IComp, ERC20Permit {
             ))),
             v, r, s
         );
-        require(nonce == _useNonce(signatory), "ERC20Comp::delegateBySig: invalid nonce");
+        require(nonce == _useNonce(signatory), "ERC20Votes::delegateBySig: invalid nonce");
         return _delegate(signatory, delegatee);
     }
 

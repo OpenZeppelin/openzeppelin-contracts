@@ -8,7 +8,7 @@ const { fromRpcSig } = require('ethereumjs-util');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
-const ERC20CompMock = artifacts.require('ERC20CompMock');
+const ERC20VotesMock = artifacts.require('ERC20VotesMock');
 
 const { EIP712Domain, domainSeparator } = require('../../../helpers/eip712');
 
@@ -18,7 +18,7 @@ const Delegation = [
   { name: 'expiry', type: 'uint256' },
 ];
 
-contract('ERC20Comp', function (accounts) {
+contract('ERC20Votes', function (accounts) {
   const [ holder, recipient, holderDelegatee, recipientDelegatee ] = accounts;
 
   const name = 'My Token';
@@ -28,7 +28,7 @@ contract('ERC20Comp', function (accounts) {
   const supply = new BN(100);
 
   beforeEach(async function () {
-    this.token = await ERC20CompMock.new(name, symbol, holder, supply);
+    this.token = await ERC20VotesMock.new(name, symbol, holder, supply);
 
     // We get the chain id from the contract because Ganache (used for coverage) does not return the same chain id
     // from within the EVM as from the JSON RPC interface.
@@ -152,7 +152,7 @@ contract('ERC20Comp', function (accounts) {
 
         await expectRevert(
           this.token.delegateFromBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s),
-          'ERC20Comp::delegateBySig: invalid nonce',
+          'ERC20Votes::delegateBySig: invalid nonce',
         );
       });
 
@@ -184,7 +184,7 @@ contract('ERC20Comp', function (accounts) {
         ));
         await expectRevert(
           this.token.delegateFromBySig(delegatorAddress, nonce + 1, MAX_UINT256, v, r, s),
-          'ERC20Comp::delegateBySig: invalid nonce',
+          'ERC20Votes::delegateBySig: invalid nonce',
         );
       });
 
@@ -201,7 +201,7 @@ contract('ERC20Comp', function (accounts) {
 
         await expectRevert(
           this.token.delegateFromBySig(delegatorAddress, nonce, expiry, v, r, s),
-          'ERC20Comp::delegateBySig: signature expired',
+          'ERC20Votes::delegateBySig: signature expired',
         );
       });
     });
