@@ -40,8 +40,6 @@ When doing an upgrade, the second parameter of the {upgradeToAndCall} function a
 
 {{ERC1967Proxy}}
 
-{{ERC1967Storage}}
-
 {{ERC1967Upgrade}}
 
 == UUPS
