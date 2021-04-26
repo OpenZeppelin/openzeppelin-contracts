@@ -7,7 +7,7 @@ import "../../utils/Address.sol";
 import "../../utils/StorageSlot.sol";
 
 /**
- * @dev This abstract contract provides setters and event emitting update functions for
+ * @dev This abstract contract provides getters and event emitting update functions for
  * https://eips.ethereum.org/EIPS/eip-1967[EIP1967] slots.
  *
  * _Available since v4.1._
