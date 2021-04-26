@@ -18,7 +18,7 @@ contract ERC1820Implementer is IERC1820Implementer {
     mapping(bytes32 => mapping(address => bool)) private _supportedInterfaces;
 
     /**
-     * See {IERC1820Implementer-canImplementInterfaceForAddress}.
+     * @dev See {IERC1820Implementer-canImplementInterfaceForAddress}.
      */
     function canImplementInterfaceForAddress(bytes32 interfaceHash, address account) public view virtual override returns (bytes32) {
         return _supportedInterfaces[interfaceHash][account] ? _ERC1820_ACCEPT_MAGIC : bytes32(0x00);
