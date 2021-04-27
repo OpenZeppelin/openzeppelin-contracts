@@ -36,8 +36,7 @@ contract Escrow is Ownable {
      */
     function deposit(address payee) public payable virtual onlyOwner {
         uint256 amount = msg.value;
-        _deposits[payee] = _deposits[payee] + amount;
-
+        _deposits[payee] += amount;
         emit Deposited(payee, amount);
     }
 
