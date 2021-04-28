@@ -80,8 +80,10 @@ contract TimelockController is AccessControl {
      * considered. Granting a role to `address(0)` is equivalent to enabling
      * this role for everyone.
      */
-    modifier onlyRole(bytes32 role) {
-        require(hasRole(role, _msgSender()) || hasRole(role, address(0)), "TimelockController: sender requires permission");
+    modifier onlyRoleOrOpenRole(bytes32 role) {
+        if (!hasRole(role, address(0))) {
+            _checkRole(role, _msgSender());
+        }
         _;
     }
 
@@ -222,7 +224,7 @@ contract TimelockController is AccessControl {
      *
      * - the caller must have the 'executor' role.
      */
-    function execute(address target, uint256 value, bytes calldata data, bytes32 predecessor, bytes32 salt) public payable virtual onlyRole(EXECUTOR_ROLE) {
+    function execute(address target, uint256 value, bytes calldata data, bytes32 predecessor, bytes32 salt) public payable virtual onlyRoleOrOpenRole(EXECUTOR_ROLE) {
         bytes32 id = hashOperation(target, value, data, predecessor, salt);
         _beforeCall(predecessor);
         _call(id, 0, target, value, data);
@@ -238,7 +240,7 @@ contract TimelockController is AccessControl {
      *
      * - the caller must have the 'executor' role.
      */
-    function executeBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 predecessor, bytes32 salt) public payable virtual onlyRole(EXECUTOR_ROLE) {
+    function executeBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 predecessor, bytes32 salt) public payable virtual onlyRoleOrOpenRole(EXECUTOR_ROLE) {
         require(targets.length == values.length, "TimelockController: length mismatch");
         require(targets.length == datas.length, "TimelockController: length mismatch");
 

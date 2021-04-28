@@ -1,12 +1,36 @@
 # Changelog
 
 ## Unreleased
+ * Enumerables: Improve gas cost of removal in `EnumerableSet` and `EnumerableMap`.
+ * Enumerables: Improve gas cost of lookup in `EnumerableSet` and `EnumerableMap`.
+
+## Unreleased
 
  * `IERC20Metadata`: add a new extended interface that includes the optional `name()`, `symbol()` and `decimals()` functions. ([#2561](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2561))
  * `ERC777`: make reception acquirement optional in `_mint`. ([#2552](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2552))
  * `ERC20Permit`: add a `_useNonce` to enable further usage of ERC712 signatures. ([#2565](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2565))
+ * `ERC20FlashMint`: add an implementation of the ERC3156 extension for flash-minting ERC20 tokens. ([#2543](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2543))
+ * `SignatureChecker`: add a signature verification library that supports both EOA and ERC1271 compliant contracts as signers. ([#2532](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2532))
+ * `Multicall`: add abstract contract with `multicall(bytes[] calldata data)` function to bundle multiple calls together ([#2608](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2608))
+ * `ECDSA`: add support for ERC2098 short-signatures. ([#2582](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2582))
+ * `AccessControl`: add a `onlyRole` modifier to restrict specific function to callers bearing a specific role. ([#2609](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2609))
+ * `StorageSlot`: add a library for reading and writing primitive types to specific storage slots. ([#2542](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2542))
+ * UUPS Proxies: add `UUPSUpgradeable` to implement the UUPS proxy pattern together with `EIP1967Proxy`. ([#2542](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2542))
 
-## Unreleased
+### Breaking changes
+
+This release includes two small breaking changes in `TimelockController`.
+
+1. The `onlyRole` modifier in this contract was designed to let anyone through if the role was granted to `address(0)`,
+   allowing the possibility to to make a role "open", which can be used for `EXECUTOR_ROLE`. This modifier is now
+   replaced by `AccessControl.onlyRole`, which does not have this ability. The previous behavior was moved to the
+   modifier `TimelockController.onlyRoleOrOpenRole`.
+2. It was possible to make `PROPOSER_ROLE` an open role (as described in the previous item) if it was granted to
+   `address(0)`. This would affect the `schedule`, `scheduleBatch`, and `cancel` operations in `TimelockController`.
+   This ability was removed as it does not make sense to open up the `PROPOSER_ROLE` in the same way that it does for
+   `EXECUTOR_ROLE`.
+
+## 4.0.0 (2021-03-23)
 
  * Now targeting the 0.8.x line of Solidity compilers. For 0.6.x (resp 0.7.x) support, use version 3.4.0 (resp 3.4.0-solc-0.7) of OpenZeppelin.
  * `Context`: making `_msgData` return `bytes calldata` instead of `bytes memory` ([#2492](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2492))
@@ -30,7 +54,6 @@
 ### Bug fixes for beta releases
 
  * `AccessControlEnumerable`: Fixed `renounceRole` not updating enumerable set of addresses for a role. ([#2572](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2572))
-
 
 ### How to upgrade from 3.x
 

@@ -51,7 +51,7 @@ function shouldBehaveLikeSet (valueA, valueB, valueC) {
 
   describe('at', function () {
     it('reverts when retrieving non-existent elements', async function () {
-      await expectRevert(this.set.at(0), 'EnumerableSet: index out of bounds');
+      await expectRevert.unspecified(this.set.at(0));
     });
   });
 
