@@ -85,7 +85,7 @@ abstract contract ERC20Votes is IComp, ERC20Permit {
             }
         }
 
-        return low == 0 ? 0 : _checkpoints[account][low - 1].votes;
+        return low == 0 ? 0 : ckpts[low - 1].votes;
     }
 
     /**
