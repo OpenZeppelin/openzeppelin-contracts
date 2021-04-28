@@ -27,19 +27,19 @@ abstract contract ERC20Votes is IComp, ERC20Permit {
     mapping (address => address) private _delegates;
     mapping (address => Checkpoint[]) private _checkpoints;
 
-    /**
-     * @dev Get the address `account` is currently delegating to.
-     */
-    function delegates(address account) public view virtual override returns (address) {
-        return _delegates[account];
-    }
-
     function checkpoints(address account, uint32 pos) external view virtual override returns (Checkpoint memory) {
         return _checkpoints[account][pos];
     }
 
     function numCheckpoints(address account) external view virtual override returns (uint32) {
         return uint32(_checkpoints[account].length);
+    }
+
+    /**
+    * @dev Get the address `account` is currently delegating to.
+    */
+    function delegates(address account) public view virtual override returns (address) {
+        return _delegates[account];
     }
 
     /**
