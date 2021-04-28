@@ -32,7 +32,7 @@ async function batchInBlock (txs) {
   await send('evm_setAutomine', [true]);
   await send('evm_setIntervalMining', [false]);
 
-  expect(await web3.eth.getBlockNumber()).to.be.equal(before + 1);
+  expect(receipts.map(({ blockNumber }) => blockNumber).every((val, _, arr) => val === arr[0]));
 
   return receipts;
 }
@@ -311,9 +311,8 @@ contract('ERC20Votes', function (accounts) {
       expect(await this.token.getCurrentVotes(recipient)).to.be.bignumber.equal(this.recipientVotes);
 
       // need to advance 2 blocks to see the effect of a transfer on "getPriorVotes"
-      time.advanceBlock();
-      const blockNumber = await web3.eth.getBlockNumber();
-      time.advanceBlock();
+      const blockNumber = await time.latestBlock();
+      await time.advanceBlock();
       expect(await this.token.getPriorVotes(holder, blockNumber)).to.be.bignumber.equal(this.holderVotes);
       expect(await this.token.getPriorVotes(recipient, blockNumber)).to.be.bignumber.equal(this.recipientVotes);
     });
