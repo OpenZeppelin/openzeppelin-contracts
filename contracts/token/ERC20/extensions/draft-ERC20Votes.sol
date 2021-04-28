@@ -71,8 +71,21 @@ abstract contract ERC20Votes is IComp, ERC20Permit {
      */
     function getPriorVotes(address account, uint256 blockNumber) external view override returns (uint256) {
         require(blockNumber < block.number, "ERC20Votes::getPriorVotes: not yet determined");
-        uint256 pos = _findUpperBound(_checkpoints[account], blockNumber);
-        return pos == 0 ? 0 : _checkpoints[account][pos - 1].votes;
+
+        Checkpoint[] storage ckpts = _checkpoints[account];
+
+        uint256 high = ckpts.length;
+        uint256 low = 0;
+        while (low < high) {
+            uint256 mid = Math.average(low, high);
+            if (ckpts[mid].fromBlock > blockNumber) {
+                high = mid;
+            } else {
+                low = mid + 1;
+            }
+        }
+
+        return low == 0 ? 0 : _checkpoints[account][low - 1].votes;
     }
 
     /**
@@ -148,24 +161,6 @@ abstract contract ERC20Votes is IComp, ERC20Permit {
       }
 
       emit DelegateVotesChanged(delegatee, oldWeight, newWeight);
-    }
-
-    /**
-     * @dev Specialization of Array.findUpperBound to work on Checkpoint[].fromBlock
-     * See {{Array}} for more details.
-     */
-    function _findUpperBound(Checkpoint[] storage ckpts, uint256 blockNumber) private view returns (uint256) {
-        uint256 high = ckpts.length;
-        uint256 low = 0;
-        while (low < high) {
-            uint256 mid = Math.average(low, high);
-            if (ckpts[mid].fromBlock > blockNumber) {
-                high = mid;
-            } else {
-                low = mid + 1;
-            }
-        }
-        return low;
     }
 
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
