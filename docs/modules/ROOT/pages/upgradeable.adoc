@@ -6,6 +6,8 @@ This variant is available as a separate package called `@openzeppelin/contracts-
 
 It follows all of the rules for xref:upgrades-plugins::writing-upgradeable.adoc[Writing Upgradeable Contracts]: constructors are replaced by initializer functions, state variables are initialized in initializer functions, and we additionally check for storage incompatibilities across minor versions.
 
+TIP: OpenZeppelin provides a full suite of tools for deploying and securing upgradeable smart contracts. xref:openzeppelin::upgrades.adoc[Check out the full list of resources].
+
 == Overview
 
 === Installation
