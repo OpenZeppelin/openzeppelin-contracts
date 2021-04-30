@@ -58,10 +58,6 @@ By default, the upgrade functionality included in {UUPSUpgradeable} contains a s
 
 {{ERC1967Upgrade}}
 
-== UUPS
-
-{{UUPSUpgradeable}}
-
 == Transparent Proxy
 
 {{TransparentUpgradeableProxy}}
@@ -83,3 +79,5 @@ By default, the upgrade functionality included in {UUPSUpgradeable} contains a s
 == Utils
 
 {{Initializable}}
+
+{{UUPSUpgradeable}}
