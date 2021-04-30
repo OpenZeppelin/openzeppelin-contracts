@@ -169,7 +169,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      */
     function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
         require(address(spender) != address(0), 'ERC20 : Invalid Spender address');
-        require(addedValue < type(uint).max && addedValue < address(_msgSender()).balance, 'ERC20 : Invalid allowance provided');
+        require(addedValue < type(uint).max && addedValue <= address(_msgSender()).balance, 'ERC20 : Invalid allowance provided');
         _approve(_msgSender(), spender, _allowances[_msgSender()][spender] + addedValue);
         return true;
     }
