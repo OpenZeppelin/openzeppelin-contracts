@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "./draft-ERC20Permit.sol";
-import "./IComp.sol";
+import "./draft-IERC20Votes.sol";
 import "../../../utils/math/Math.sol";
 import "../../../utils/cryptography/ECDSA.sol";
 
@@ -21,7 +21,7 @@ import "../../../utils/cryptography/ECDSA.sol";
  *
  * _Available since v4.2._
  */
-abstract contract ERC20Votes is IComp, ERC20Permit {
+abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
     bytes32 private constant _DELEGATION_TYPEHASH = keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
     mapping (address => address) private _delegates;

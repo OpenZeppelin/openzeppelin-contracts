@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import "../IERC20.sol";
 
-interface IComp is IERC20 {
+interface IERC20Votes is IERC20 {
     struct Checkpoint {
         uint32  fromBlock;
         uint224 votes;
