@@ -1,4 +1,4 @@
-= Access
+= Access Control
 
 [.readme-notice]
 NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/access

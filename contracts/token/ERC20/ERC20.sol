@@ -46,7 +46,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * The defaut value of {decimals} is 18. To select a different value for
      * {decimals} you should overload it.
      *
-     * All three of these values are immutable: they can only be set once during
+     * All two of these values are immutable: they can only be set once during
      * construction.
      */
     constructor (string memory name_, string memory symbol_) {
@@ -76,7 +76,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      *
      * Tokens usually opt for a value of 18, imitating the relationship between
      * Ether and Wei. This is the value {ERC20} uses, unless this function is
-     * overloaded;
+     * overridden;
      *
      * NOTE: This information is only used for _display_ purposes: it in
      * no way affects any of the arithmetic of the contract, including

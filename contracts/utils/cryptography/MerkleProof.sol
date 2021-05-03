@@ -3,7 +3,13 @@
 pragma solidity ^0.8.0;
 
 /**
- * @dev These functions deal with verification of Merkle trees (hash trees),
+ * @dev These functions deal with verification of Merkle Trees proofs.
+ *
+ * The proofs can be generated using the JavaScript library
+ * https://github.com/miguelmota/merkletreejs[merkletreejs].
+ * Note: the hashing algorithm should be keccak256 and pair sorting should be enabled.
+ *
+ * See `test/utils/cryptography/MerkleProof.test.js` for some examples.
  */
 library MerkleProof {
     /**

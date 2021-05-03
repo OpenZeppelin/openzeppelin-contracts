@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import "../../utils/introspection/IERC165.sol";
 
 /**
- * _Available since v3.1._
+ * @dev _Available since v3.1._
  */
 interface IERC1155Receiver is IERC165 {
 

@@ -53,6 +53,9 @@ contract('TimelockController', function (accounts) {
       [ executor ],
       { from: admin },
     );
+    this.TIMELOCK_ADMIN_ROLE = await this.timelock.TIMELOCK_ADMIN_ROLE();
+    this.PROPOSER_ROLE = await this.timelock.PROPOSER_ROLE();
+    this.EXECUTOR_ROLE = await this.timelock.EXECUTOR_ROLE();
     // Mocks
     this.callreceivermock = await CallReceiverMock.new({ from: admin });
     this.implementation2 = await Implementation2.new({ from: admin });
@@ -172,7 +175,7 @@ contract('TimelockController', function (accounts) {
               MINDELAY,
               { from: other },
             ),
-            'TimelockController: sender requires permission',
+            `AccessControl: account ${other.toLowerCase()} is missing role ${this.PROPOSER_ROLE}`,
           );
         });
 
@@ -295,7 +298,7 @@ contract('TimelockController', function (accounts) {
                   this.operation.salt,
                   { from: other },
                 ),
-                'TimelockController: sender requires permission',
+                `AccessControl: account ${other.toLowerCase()} is missing role ${this.EXECUTOR_ROLE}`,
               );
             });
           });
@@ -368,6 +371,36 @@ contract('TimelockController', function (accounts) {
           );
         });
 
+        it('length of batch parameter must match #1', async function () {
+          await expectRevert(
+            this.timelock.scheduleBatch(
+              this.operation.targets,
+              [],
+              this.operation.datas,
+              this.operation.predecessor,
+              this.operation.salt,
+              MINDELAY,
+              { from: proposer },
+            ),
+            'TimelockController: length mismatch',
+          );
+        });
+
+        it('length of batch parameter must match #1', async function () {
+          await expectRevert(
+            this.timelock.scheduleBatch(
+              this.operation.targets,
+              this.operation.values,
+              [],
+              this.operation.predecessor,
+              this.operation.salt,
+              MINDELAY,
+              { from: proposer },
+            ),
+            'TimelockController: length mismatch',
+          );
+        });
+
         it('prevent non-proposer from commiting', async function () {
           await expectRevert(
             this.timelock.scheduleBatch(
@@ -379,7 +412,7 @@ contract('TimelockController', function (accounts) {
               MINDELAY,
               { from: other },
             ),
-            'TimelockController: sender requires permission',
+            `AccessControl: account ${other.toLowerCase()} is missing role ${this.PROPOSER_ROLE}`,
           );
         });
 
@@ -504,7 +537,7 @@ contract('TimelockController', function (accounts) {
                   this.operation.salt,
                   { from: other },
                 ),
-                'TimelockController: sender requires permission',
+                `AccessControl: account ${other.toLowerCase()} is missing role ${this.EXECUTOR_ROLE}`,
               );
             });
 
@@ -623,10 +656,17 @@ contract('TimelockController', function (accounts) {
         expectEvent(receipt, 'Cancelled', { id: this.operation.id });
       });
 
+      it('cannot cancel invalid operation', async function () {
+        await expectRevert(
+          this.timelock.cancel(constants.ZERO_BYTES32, { from: proposer }),
+          'TimelockController: operation cannot be cancelled',
+        );
+      });
+
       it('prevent non-proposer from canceling', async function () {
         await expectRevert(
           this.timelock.cancel(this.operation.id, { from: other }),
-          'TimelockController: sender requires permission',
+          `AccessControl: account ${other.toLowerCase()} is missing role ${this.PROPOSER_ROLE}`,
         );
       });
     });

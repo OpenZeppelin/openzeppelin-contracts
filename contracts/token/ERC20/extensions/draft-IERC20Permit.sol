@@ -7,13 +7,13 @@ pragma solidity ^0.8.0;
  * https://eips.ethereum.org/EIPS/eip-2612[EIP-2612].
  *
  * Adds the {permit} method, which can be used to change an account's ERC20 allowance (see {IERC20-allowance}) by
- * presenting a message signed by the account. By not relying on `{IERC20-approve}`, the token holder account doesn't
+ * presenting a message signed by the account. By not relying on {IERC20-approve}, the token holder account doesn't
  * need to send a transaction, and thus is not required to hold Ether at all.
  */
 interface IERC20Permit {
     /**
-     * @dev Sets `value` as the allowance of `spender` over `owner`'s tokens,
-     * given `owner`'s signed approval.
+     * @dev Sets `value` as the allowance of `spender` over ``owner``'s tokens,
+     * given ``owner``'s signed approval.
      *
      * IMPORTANT: The same issues {IERC20-approve} has related to transaction
      * ordering also apply here.
@@ -44,7 +44,7 @@ interface IERC20Permit {
     function nonces(address owner) external view returns (uint256);
 
     /**
-     * @dev Returns the domain separator used in the encoding of the signature for `permit`, as defined by {EIP712}.
+     * @dev Returns the domain separator used in the encoding of the signature for {permit}, as defined by {EIP712}.
      */
     // solhint-disable-next-line func-name-mixedcase
     function DOMAIN_SEPARATOR() external view returns (bytes32);
