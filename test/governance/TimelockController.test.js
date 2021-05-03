@@ -190,7 +190,7 @@ contract('TimelockController', function (accounts) {
               MINDELAY - 1,
               { from: proposer },
             ),
-            'Timelock: insufficient delay',
+            'TimelockController: insufficient delay',
           );
         });
       });
@@ -427,7 +427,7 @@ contract('TimelockController', function (accounts) {
               MINDELAY - 1,
               { from: proposer },
             ),
-            'Timelock: insufficient delay',
+            'TimelockController: insufficient delay',
           );
         });
       });
@@ -657,9 +657,9 @@ contract('TimelockController', function (accounts) {
       });
 
       it('cannot cancel invalid operation', async function () {
-        // TODO: check low level error
-        await expectRevert.unspecified(
+        await expectRevert(
           this.timelock.cancel(constants.ZERO_BYTES32, { from: proposer }),
+          'Timelock: operation not scheduled yet',
         );
       });
 

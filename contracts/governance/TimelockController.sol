@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "../access/AccessControl.sol";
-import "./TimelockModule.sol";
+import "./Timelock.sol";
 
 /**
  * @dev Contract module which acts as a timelocked controller. When set as the
@@ -20,10 +20,17 @@ import "./TimelockModule.sol";
  *
  * _Available since v3.3._
  */
-contract TimelockController is AccessControl, TimelockModule {
+contract TimelockController is AccessControl, Timelock {
     bytes32 public constant TIMELOCK_ADMIN_ROLE = keccak256("TIMELOCK_ADMIN_ROLE");
     bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
     bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
+
+    uint256 private _minDelay;
+
+    /**
+     * @dev Emitted when the minimum delay for future operations is modified.
+     */
+    event MinDelayChange(uint256 oldDuration, uint256 newDuration);
 
     /**
      * @dev Modifier to make a function callable only by a certain role. In
@@ -42,8 +49,9 @@ contract TimelockController is AccessControl, TimelockModule {
      * @dev Initializes the contract with a given `minDelay`.
      */
     constructor(uint256 minDelay, address[] memory proposers, address[] memory executors)
-    TimelockModule(minDelay)
     {
+        _updateDelay(minDelay);
+
         _setRoleAdmin(TIMELOCK_ADMIN_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(PROPOSER_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(EXECUTOR_ROLE, TIMELOCK_ADMIN_ROLE);
@@ -66,7 +74,16 @@ contract TimelockController is AccessControl, TimelockModule {
     /**
      * @dev Contract might receive/hold ETH as part of the maintenance process.
      */
-    receive() external payable {}
+    receive() external payable virtual {}
+
+    /**
+     * @dev Returns the minimum delay for an operation to become valid.
+     *
+     * This value can be changed by executing an operation that calls `updateDelay`.
+     */
+    function getMinDelay() public view virtual returns (uint256 duration) {
+        return _minDelay;
+    }
 
     /**
      * @dev Returns the identifier of an operation containing a single
@@ -100,6 +117,7 @@ contract TimelockController is AccessControl, TimelockModule {
     function schedule(address target, uint256 value, bytes calldata data, bytes32 predecessor, bytes32 salt, uint256 delay)
     public virtual onlyRole(PROPOSER_ROLE)
     {
+        require(delay >= getMinDelay(), "TimelockController: insufficient delay");
         _schedule(target, value, data, predecessor, salt, delay);
     }
 
@@ -115,6 +133,7 @@ contract TimelockController is AccessControl, TimelockModule {
     function scheduleBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 predecessor, bytes32 salt, uint256 delay)
     public virtual onlyRole(PROPOSER_ROLE)
     {
+        require(delay >= getMinDelay(), "TimelockController: insufficient delay");
         _scheduleBatch(targets, values, datas, predecessor, salt, delay);
     }
 
@@ -174,5 +193,10 @@ contract TimelockController is AccessControl, TimelockModule {
     function updateDelay(uint256 newDelay) external virtual {
         require(msg.sender == address(this), "TimelockController: caller must be timelock");
         _updateDelay(newDelay);
+    }
+
+    function _updateDelay(uint256 newDelay) internal virtual {
+        emit MinDelayChange(_minDelay, newDelay);
+        _minDelay = newDelay;
     }
 }

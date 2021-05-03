@@ -7,9 +7,7 @@ import "../utils/draft-Timers.sol";
 /**
  * @dev TODO
  */
-abstract contract TimelockModule is Timers {
-    uint256 private _minDelay;
-
+abstract contract Timelock is Timers {
     /**
      * @dev Emitted when a call is scheduled as part of operation `id`.
      */
@@ -26,17 +24,16 @@ abstract contract TimelockModule is Timers {
     event Cancelled(bytes32 indexed id);
 
     /**
-     * @dev Emitted when the minimum delay for future operations is modified.
+     * @dev Override modifier to customize revert reason
      */
-    event MinDelayChange(uint256 oldDuration, uint256 newDuration);
-
-    /**
-     * @dev Initializes the contract with a given `minDelay`.
-     */
-    constructor(uint256 minDelay) {
-        _updateDelay(minDelay);
+    modifier onlyActiveTimer(bytes32 id) virtual override {
+        require(_isTimerActive(id), "Timelock: operation not scheduled yet");
+        _;
     }
 
+    /**
+     * @dev Override modifier to customize revert reason
+     */
     modifier onlyBeforeTimer(bytes32 id) virtual override {
         require(_isTimerBefore(id), "Timelock: operation already scheduled");
         _;
@@ -80,15 +77,6 @@ abstract contract TimelockModule is Timers {
     }
 
     /**
-     * @dev Returns the minimum delay for an operation to become valid.
-     *
-     * This value can be changed by executing an operation that calls `updateDelay`.
-     */
-    function getMinDelay() public view virtual returns (uint256 duration) {
-        return _minDelay;
-    }
-
-    /**
      * @dev Returns the identifier of an operation containing a single
      * transaction.
      */
@@ -115,7 +103,7 @@ abstract contract TimelockModule is Timers {
      */
     function _schedule(address target, uint256 value, bytes memory data, bytes32 predecessor, bytes32 salt, uint256 delay) internal virtual {
         bytes32 id = _hashOperation(target, value, data, predecessor, salt);
-        _schedule(id, delay);
+        _startTimer(id, delay);
         emit CallScheduled(id, 0, target, value, data, predecessor, delay);
     }
 
@@ -133,18 +121,10 @@ abstract contract TimelockModule is Timers {
         require(targets.length == datas.length, "Timelock: length mismatch");
 
         bytes32 id = _hashOperationBatch(targets, values, datas, predecessor, salt);
-        _schedule(id, delay);
+        _startTimer(id, delay);
         for (uint256 i = 0; i < targets.length; ++i) {
             emit CallScheduled(id, i, targets[i], values[i], datas[i], predecessor, delay);
         }
-    }
-
-    /**
-     * @dev Schedule an operation that is to becomes valid after a given delay.
-     */
-    function _schedule(bytes32 id, uint256 delay) private {
-        require(delay >= getMinDelay(), "Timelock: insufficient delay");
-        _startTimer(id, delay);
     }
 
     /**
@@ -190,9 +170,7 @@ abstract contract TimelockModule is Timers {
 
         bytes32 id = _hashOperationBatch(targets, values, datas, predecessor, salt);
         _beforeCall(predecessor);
-        for (uint256 i = 0; i < targets.length; ++i) {
-            _call(id, i, targets[i], values[i], datas[i]);
-        }
+        _callBatch(id, targets, values, datas);
         _afterCall(id);
     }
 
@@ -217,7 +195,7 @@ abstract contract TimelockModule is Timers {
      *
      * Emits a {CallExecuted} event.
      */
-    function _call(bytes32 id, uint256 index, address target, uint256 value, bytes memory data) private {
+    function _call(bytes32 id, uint256 index, address target, uint256 value, bytes memory data) internal virtual {
         // solhint-disable-next-line avoid-low-level-calls
         (bool success,) = target.call{value: value}(data);
         require(success, "Timelock: underlying transaction reverted");
@@ -226,12 +204,13 @@ abstract contract TimelockModule is Timers {
     }
 
     /**
-     * @dev Changes the minimum timelock duration for future operations.
+     * @dev Execute a batch of calls.
      *
-     * Emits a {MinDelayChange} event.
+     * Emits a {CallExecuted} event per call.
      */
-    function _updateDelay(uint256 newDelay) internal virtual {
-        emit MinDelayChange(_minDelay, newDelay);
-        _minDelay = newDelay;
+    function _callBatch(bytes32 id, address[] memory targets, uint256[] memory values, bytes[] memory datas) internal virtual {
+        for (uint256 i = 0; i < targets.length; ++i) {
+            _call(id, i, targets[i], values[i], datas[i]);
+        }
     }
 }

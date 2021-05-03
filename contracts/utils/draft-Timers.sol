@@ -68,28 +68,28 @@ abstract contract Timers {
         _;
     }
 
-    function _getDeadline(bytes32 id) internal view returns (uint256) {
+    function _getDeadline(bytes32 id) internal view virtual returns (uint256) {
         return _deadlines[id];
     }
 
-    function _isTimerActive(bytes32 id) internal view returns (bool) {
+    function _isTimerActive(bytes32 id) internal view virtual returns (bool) {
         return _getDeadline(id) > _DONE_TIMESTAMP;
     }
 
-    function _isTimerLocked(bytes32 id) internal view returns (bool) {
+    function _isTimerLocked(bytes32 id) internal view virtual returns (bool) {
         return _getDeadline(id) == _DONE_TIMESTAMP;
     }
 
-    function _isTimerBefore(bytes32 id) internal view returns (bool) {
+    function _isTimerBefore(bytes32 id) internal view virtual returns (bool) {
         return _getDeadline(id) == 0;
     }
 
-    function _isTimerDuring(bytes32 id) internal view returns (bool) {
+    function _isTimerDuring(bytes32 id) internal view virtual returns (bool) {
         // solhint-disable-next-line not-rely-on-time
         return _getDeadline(id) > block.timestamp;
     }
 
-    function _isTimerAfter(bytes32 id) internal view returns (bool) {
+    function _isTimerAfter(bytes32 id) internal view virtual returns (bool) {
         uint256 deadline = _getDeadline(id);
         // solhint-disable-next-line not-rely-on-time
         return _DONE_TIMESTAMP < deadline && deadline <= block.timestamp;
