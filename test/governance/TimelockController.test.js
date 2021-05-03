@@ -382,7 +382,7 @@ contract('TimelockController', function (accounts) {
               MINDELAY,
               { from: proposer },
             ),
-            'TimelockController: length mismatch',
+            'Timelock: length mismatch',
           );
         });
 
@@ -397,7 +397,7 @@ contract('TimelockController', function (accounts) {
               MINDELAY,
               { from: proposer },
             ),
-            'TimelockController: length mismatch',
+            'Timelock: length mismatch',
           );
         });
 
@@ -657,9 +657,9 @@ contract('TimelockController', function (accounts) {
       });
 
       it('cannot cancel invalid operation', async function () {
-        await expectRevert(
+        // TODO: check low level error
+        await expectRevert.unspecified(
           this.timelock.cancel(constants.ZERO_BYTES32, { from: proposer }),
-          'TimelockController: operation cannot be cancelled',
         );
       });
 

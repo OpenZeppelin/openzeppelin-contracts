@@ -31,8 +31,10 @@ contract TimelockController is AccessControl, TimelockModule {
      * considered. Granting a role to `address(0)` is equivalent to enabling
      * this role for everyone.
      */
-    modifier onlyRole(bytes32 role) {
-        require(hasRole(role, _msgSender()) || hasRole(role, address(0)), "TimelockController: sender requires permission");
+    modifier onlyRoleOrOpenRole(bytes32 role) {
+        if (!hasRole(role, address(0))) {
+            _checkRole(role, _msgSender());
+        }
         _;
     }
 
@@ -59,19 +61,6 @@ contract TimelockController is AccessControl, TimelockModule {
         for (uint256 i = 0; i < executors.length; ++i) {
             _setupRole(EXECUTOR_ROLE, executors[i]);
         }
-    }
-
-    /**
-     * @dev Modifier to make a function callable only by a certain role. In
-     * addition to checking the sender's role, `address(0)` 's role is also
-     * considered. Granting a role to `address(0)` is equivalent to enabling
-     * this role for everyone.
-     */
-    modifier onlyRoleOrOpenRole(bytes32 role) {
-        if (!hasRole(role, address(0))) {
-            _checkRole(role, _msgSender());
-        }
-        _;
     }
 
     /**
@@ -136,7 +125,9 @@ contract TimelockController is AccessControl, TimelockModule {
      *
      * - the caller must have the 'proposer' role.
      */
-    function cancel(bytes32 id) public virtual onlyRole(PROPOSER_ROLE) {
+    function cancel(bytes32 id)
+    public virtual onlyRole(PROPOSER_ROLE)
+    {
         _cancel(id);
     }
 
@@ -149,11 +140,10 @@ contract TimelockController is AccessControl, TimelockModule {
      *
      * - the caller must have the 'executor' role.
      */
-    function execute(address target, uint256 value, bytes calldata data, bytes32 predecessor, bytes32 salt) public payable virtual onlyRole(EXECUTOR_ROLE) {
-        bytes32 id = hashOperation(target, value, data, predecessor, salt);
-        _beforeCall(predecessor);
-        _call(id, 0, target, value, data);
-        _afterCall(id);
+    function execute(address target, uint256 value, bytes calldata data, bytes32 predecessor, bytes32 salt)
+    public payable virtual onlyRoleOrOpenRole(EXECUTOR_ROLE)
+    {
+        _execute(target, value, data, predecessor, salt);
     }
 
     /**
@@ -165,16 +155,10 @@ contract TimelockController is AccessControl, TimelockModule {
      *
      * - the caller must have the 'executor' role.
      */
-    function executeBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 predecessor, bytes32 salt) public payable virtual onlyRole(EXECUTOR_ROLE) {
-        require(targets.length == values.length, "TimelockController: length mismatch");
-        require(targets.length == datas.length, "TimelockController: length mismatch");
-
-        bytes32 id = hashOperationBatch(targets, values, datas, predecessor, salt);
-        _beforeCall(predecessor);
-        for (uint256 i = 0; i < targets.length; ++i) {
-            _call(id, i, targets[i], values[i], datas[i]);
-        }
-        _afterCall(id);
+    function executeBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata datas, bytes32 predecessor, bytes32 salt)
+    public payable virtual onlyRoleOrOpenRole(EXECUTOR_ROLE)
+    {
+        _executeBatch(targets, values, datas, predecessor, salt);
     }
 
     /**
