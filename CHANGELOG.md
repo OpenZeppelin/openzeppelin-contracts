@@ -6,6 +6,10 @@
 
 ## 4.1.0 (2021-04-29)
 
+ * `ERC20SnapshotEveryBlock`: add a variation of the `ERC20Snapshot` contract that does snapshot at every block. ([#2583](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2583))
+
+## Unreleased
+
  * `IERC20Metadata`: add a new extended interface that includes the optional `name()`, `symbol()` and `decimals()` functions. ([#2561](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2561))
  * `ERC777`: make reception acquirement optional in `_mint`. ([#2552](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2552))
  * `ERC20Permit`: add a `_useNonce` to enable further usage of ERC712 signatures. ([#2565](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2565))
