@@ -35,7 +35,6 @@ contract Escrow is Ownable {
      * @param payee The destination address of the funds.
      */
     function deposit(address payee) public payable virtual onlyOwner {
-        require(payee != address(0), 'Escrow : Invalid Payee address');
         uint256 amount = msg.value;
         _deposits[payee] += amount;
         emit Deposited(payee, amount);
