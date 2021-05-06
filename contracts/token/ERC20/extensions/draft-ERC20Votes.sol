@@ -43,16 +43,6 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
     }
 
     /**
-     * @dev Example: This enables autodelegation, makes each transfer more expensive but doesn't require user to
-     * delegate to themselves. Can be usefull for tokens useds exclusivelly for governance, such as voting wrappers of
-     * pre-existing ERC20.
-     */
-    // function delegates(address account) public view override returns (address) {
-    //     address delegatee = _delegates[account];
-    //     return delegatee == address(0) ? account : delegatee;
-    // }
-
-    /**
      * @notice Gets the current votes balance for `account`
      * @param account The address to get votes balance
      * @return The number of current votes for `account`
