@@ -10,13 +10,13 @@ import "../../../utils/cryptography/ECDSA.sol";
 /**
  * @dev Extension of the ERC20 token contract to support Compound's voting and delegation.
  *
- * This extensions keeps an history (snapshots) of each account's vote power. Vote power can be delegated either
+ * This extensions keeps a history (checkpoints) of each account's vote power. Vote power can be delegated either
  * by calling the {delegate} directly, or by providing a signature that can later be verified and processed using
- * {delegateFromBySig}. Voting power, can be checked through the public accessors {getCurrentVotes} and {getPriorVotes}.
+ * {delegateFromBySig}. Voting power can be checked through the public accessors {getCurrentVotes} and {getPriorVotes}.
  *
- * By default, delegation is disabled. This makes transfers cheaper. The downside is that it requires users to delegate
- * to themselves in order to activate snapshots and have their voting power snapshoted. Enabling self-delegation can
- * easily be done by overloading the {delegates} function. Keep in mind however that this will significantly increass
+ * By default, token balance does not account for voting power. This makes transfers cheaper. The downside is that it requires users to delegate
+ * to themselves in order to activate checkpoints and have their voting power tracked. Enabling self-delegation can
+ * easily be done by overriding the {delegates} function. Keep in mind however that this will significantly increase
  * the base gas cost of transfers.
  *
  * _Available since v4.2._
