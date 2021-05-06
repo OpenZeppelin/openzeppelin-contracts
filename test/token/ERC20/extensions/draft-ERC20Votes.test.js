@@ -135,7 +135,7 @@ contract('ERC20Votes', function (accounts) {
 
         expect(await this.token.delegates(delegatorAddress)).to.be.equal(ZERO_ADDRESS);
 
-        const { receipt } = await this.token.delegateFromBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s);
+        const { receipt } = await this.token.delegateBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s);
         expectEvent(receipt, 'DelegateChanged', {
           delegator: delegatorAddress,
           fromDelegate: ZERO_ADDRESS,
@@ -165,10 +165,10 @@ contract('ERC20Votes', function (accounts) {
           }),
         ));
 
-        await this.token.delegateFromBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s);
+        await this.token.delegateBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s);
 
         await expectRevert(
-          this.token.delegateFromBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s),
+          this.token.delegateBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s),
           'ERC20Votes::delegateBySig: invalid nonce',
         );
       });
@@ -183,7 +183,7 @@ contract('ERC20Votes', function (accounts) {
           }),
         ));
 
-        const { logs } = await this.token.delegateFromBySig(holderDelegatee, nonce, MAX_UINT256, v, r, s);
+        const { logs } = await this.token.delegateBySig(holderDelegatee, nonce, MAX_UINT256, v, r, s);
         const { args } = logs.find(({ event }) => event == 'DelegateChanged');
         expect(args.delegator).to.not.be.equal(delegatorAddress);
         expect(args.fromDelegate).to.be.equal(ZERO_ADDRESS);
@@ -200,7 +200,7 @@ contract('ERC20Votes', function (accounts) {
           }),
         ));
         await expectRevert(
-          this.token.delegateFromBySig(delegatorAddress, nonce + 1, MAX_UINT256, v, r, s),
+          this.token.delegateBySig(delegatorAddress, nonce + 1, MAX_UINT256, v, r, s),
           'ERC20Votes::delegateBySig: invalid nonce',
         );
       });
@@ -217,7 +217,7 @@ contract('ERC20Votes', function (accounts) {
         ));
 
         await expectRevert(
-          this.token.delegateFromBySig(delegatorAddress, nonce, expiry, v, r, s),
+          this.token.delegateBySig(delegatorAddress, nonce, expiry, v, r, s),
           'ERC20Votes::delegateBySig: signature expired',
         );
       });

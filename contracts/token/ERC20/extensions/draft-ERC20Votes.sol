@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 import "./draft-ERC20Permit.sol";
 import "./draft-IERC20Votes.sol";
 import "../../../utils/math/Math.sol";
+import "../../../utils/math/SafeCast.sol";
 import "../../../utils/cryptography/ECDSA.sol";
 
 /**
@@ -32,7 +33,7 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
     }
 
     function numCheckpoints(address account) external view virtual override returns (uint32) {
-        return uint32(_checkpoints[account].length);
+        return SafeCast.toUint32(_checkpoints[account].length);
     }
 
     /**
@@ -142,11 +143,11 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
 
     function _writeCheckpoint(address delegatee, uint256 pos, uint256 oldWeight, uint256 newWeight) private {
       if (pos > 0 && _checkpoints[delegatee][pos - 1].fromBlock == block.number) {
-          _checkpoints[delegatee][pos - 1].votes = uint224(newWeight); // TODO: test overflow ?
+          _checkpoints[delegatee][pos - 1].votes = SafeCast.toUint224(newWeight);
       } else {
           _checkpoints[delegatee].push(Checkpoint({
-              fromBlock: uint32(block.number),
-              votes: uint224(newWeight)
+              fromBlock: SafeCast.toUint32(block.number),
+              votes: SafeCast.toUint224(newWeight)
           }));
       }
 
