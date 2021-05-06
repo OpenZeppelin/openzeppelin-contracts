@@ -2,7 +2,7 @@
 
 ## Unreleased
 
- * `ERC20SnapshotEveryBlock`: add a variation of the `ERC20Snapshot` contract that does snapshot at every block. ([#2583](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2583))
+ * `ERC20Votes`: add a new extension of the `ERC20` token with support for voting snapshots and delegation. This extension is compatible with Compound's `Comp` token interface. ([#2632](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2632))
 
 ## Unreleased
 
