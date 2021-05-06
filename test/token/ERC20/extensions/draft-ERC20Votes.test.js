@@ -347,6 +347,12 @@ contract('ERC20Votes', function (accounts) {
         expect(await this.token.checkpoints(other1, 1)).to.be.deep.equal([ t2.receipt.blockNumber.toString(), '90' ]);
         expect(await this.token.checkpoints(other1, 2)).to.be.deep.equal([ t3.receipt.blockNumber.toString(), '80' ]);
         expect(await this.token.checkpoints(other1, 3)).to.be.deep.equal([ t4.receipt.blockNumber.toString(), '100' ]);
+
+        await time.advanceBlock();
+        expect(await this.token.getPriorVotes(other1, t1.receipt.blockNumber)).to.be.bignumber.equal('100');
+        expect(await this.token.getPriorVotes(other1, t2.receipt.blockNumber)).to.be.bignumber.equal('90');
+        expect(await this.token.getPriorVotes(other1, t3.receipt.blockNumber)).to.be.bignumber.equal('80');
+        expect(await this.token.getPriorVotes(other1, t4.receipt.blockNumber)).to.be.bignumber.equal('100');
       });
 
       it('does not add more than one checkpoint in a block', async function () {
