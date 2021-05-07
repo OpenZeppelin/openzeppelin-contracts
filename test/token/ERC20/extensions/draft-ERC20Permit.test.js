@@ -9,6 +9,7 @@ const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
 const ERC20PermitMock = artifacts.require('ERC20PermitMock');
+const ERC1271WalletMock = artifacts.require('ERC1271WalletMock');
 
 const { EIP712Domain, domainSeparator } = require('../../../helpers/eip712');
 
@@ -65,53 +66,123 @@ contract('ERC20Permit', function (accounts) {
       message: { owner, spender, value, nonce, deadline },
     });
 
-    it('accepts owner signature', async function () {
-      const data = buildData(this.chainId, this.token.address);
-      const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
-      const { v, r, s } = fromRpcSig(signature);
+    describe('EOA', function () {
+      it('accepts owner signature', async function () {
+        const data = buildData(this.chainId, this.token.address);
+        const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
+        const { v, r, s } = fromRpcSig(signature);
 
-      const receipt = await this.token.permit(owner, spender, value, maxDeadline, v, r, s);
+        const receipt = await this.token.permit(owner, spender, value, maxDeadline, v, r, s);
 
-      expect(await this.token.nonces(owner)).to.be.bignumber.equal('1');
-      expect(await this.token.allowance(owner, spender)).to.be.bignumber.equal(value);
+        expect(await this.token.nonces(owner)).to.be.bignumber.equal('1');
+        expect(await this.token.allowance(owner, spender)).to.be.bignumber.equal(value);
+      });
+
+      it('rejects reused signature', async function () {
+        const data = buildData(this.chainId, this.token.address);
+        const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
+        const { v, r, s } = fromRpcSig(signature);
+
+        await this.token.permit(owner, spender, value, maxDeadline, v, r, s);
+
+        await expectRevert(
+          this.token.permit(owner, spender, value, maxDeadline, v, r, s),
+          'ERC20Permit: invalid signature',
+        );
+      });
+
+      it('rejects other signature', async function () {
+        const otherWallet = Wallet.generate();
+        const data = buildData(this.chainId, this.token.address);
+        const signature = ethSigUtil.signTypedMessage(otherWallet.getPrivateKey(), { data });
+        const { v, r, s } = fromRpcSig(signature);
+
+        await expectRevert(
+          this.token.permit(owner, spender, value, maxDeadline, v, r, s),
+          'ERC20Permit: invalid signature',
+        );
+      });
+
+      it('rejects expired permit', async function () {
+        const deadline = (await time.latest()) - time.duration.weeks(1);
+
+        const data = buildData(this.chainId, this.token.address, deadline);
+        const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
+        const { v, r, s } = fromRpcSig(signature);
+
+        await expectRevert(
+          this.token.permit(owner, spender, value, deadline, v, r, s),
+          'ERC20Permit: expired deadline',
+        );
+      });
     });
 
-    it('rejects reused signature', async function () {
-      const data = buildData(this.chainId, this.token.address);
-      const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
-      const { v, r, s } = fromRpcSig(signature);
+    describe('ERC1271Wallet', function () {
+      beforeEach(async function () {
+        this.wallet = await ERC1271WalletMock.new(owner);
+      });
 
-      await this.token.permit(owner, spender, value, maxDeadline, v, r, s);
+      it('accepts owner signature', async function () {
+        const owner = this.wallet.address;
+        const data = buildData(this.chainId, this.token.address);
+        data.message.owner = owner; // override
 
-      await expectRevert(
-        this.token.permit(owner, spender, value, maxDeadline, v, r, s),
-        'ERC20Permit: invalid signature',
-      );
-    });
+        const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
+        const { v, r, s } = fromRpcSig(signature);
 
-    it('rejects other signature', async function () {
-      const otherWallet = Wallet.generate();
-      const data = buildData(this.chainId, this.token.address);
-      const signature = ethSigUtil.signTypedMessage(otherWallet.getPrivateKey(), { data });
-      const { v, r, s } = fromRpcSig(signature);
+        const receipt = await this.token.permit(owner, spender, value, maxDeadline, v, r, s);
 
-      await expectRevert(
-        this.token.permit(owner, spender, value, maxDeadline, v, r, s),
-        'ERC20Permit: invalid signature',
-      );
-    });
+        expect(await this.token.nonces(owner)).to.be.bignumber.equal('1');
+        expect(await this.token.allowance(owner, spender)).to.be.bignumber.equal(value);
+      });
 
-    it('rejects expired permit', async function () {
-      const deadline = (await time.latest()) - time.duration.weeks(1);
+      it('rejects reused signature', async function () {
+        const owner = this.wallet.address;
+        const data = buildData(this.chainId, this.token.address);
+        data.message.owner = owner; // override
 
-      const data = buildData(this.chainId, this.token.address, deadline);
-      const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
-      const { v, r, s } = fromRpcSig(signature);
+        const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
+        const { v, r, s } = fromRpcSig(signature);
 
-      await expectRevert(
-        this.token.permit(owner, spender, value, deadline, v, r, s),
-        'ERC20Permit: expired deadline',
-      );
+        await this.token.permit(owner, spender, value, maxDeadline, v, r, s);
+
+        await expectRevert(
+          this.token.permit(owner, spender, value, maxDeadline, v, r, s),
+          'ERC20Permit: invalid signature',
+        );
+      });
+
+      it('rejects other signature', async function () {
+        const otherWallet = Wallet.generate();
+
+        const owner = this.wallet.address;
+        const data = buildData(this.chainId, this.token.address);
+        data.message.owner = owner; // override
+
+        const signature = ethSigUtil.signTypedMessage(otherWallet.getPrivateKey(), { data });
+        const { v, r, s } = fromRpcSig(signature);
+
+        await expectRevert(
+          this.token.permit(owner, spender, value, maxDeadline, v, r, s),
+          'ERC20Permit: invalid signature',
+        );
+      });
+
+      it('rejects expired permit', async function () {
+        const deadline = (await time.latest()) - time.duration.weeks(1);
+
+        const owner = this.wallet.address;
+        const data = buildData(this.chainId, this.token.address);
+        data.message.owner = owner; // override
+
+        const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
+        const { v, r, s } = fromRpcSig(signature);
+
+        await expectRevert(
+          this.token.permit(owner, spender, value, deadline, v, r, s),
+          'ERC20Permit: expired deadline',
+        );
+      });
     });
   });
 });

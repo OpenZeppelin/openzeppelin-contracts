@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+ * `ERC20Permit`: use `SignatureChecker.isValidSignatureNow` to support signatures by ERC1271 wallets. ([#2846](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2846))
+
 ## 4.3.1
 
  * `TimelockController`: Add additional isOperationReady check.

@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import "./draft-IERC20Permit.sol";
 import "../ERC20.sol";
 import "../../../utils/cryptography/draft-EIP712.sol";
-import "../../../utils/cryptography/ECDSA.sol";
+import "../../../utils/cryptography/SignatureChecker.sol";
 import "../../../utils/Counters.sol";
 
 /**
@@ -52,8 +52,10 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
 
         bytes32 hash = _hashTypedDataV4(structHash);
 
-        address signer = ECDSA.recover(hash, v, r, s);
-        require(signer == owner, "ERC20Permit: invalid signature");
+        require(
+            SignatureChecker.isValidSignatureNow(owner, hash, abi.encodePacked(r, s, v)),
+            "ERC20Permit: invalid signature"
+        );
 
         _approve(owner, spender, value);
     }
