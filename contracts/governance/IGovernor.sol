@@ -9,9 +9,10 @@ abstract contract IGovernor {
     event Vote(bytes32 indexed id, address account, uint256 balance, uint8 support);
 
     // settings
-    function votingOffset()   public view virtual returns (uint256);
-    function votingDuration() public view virtual returns (uint256);
-    function quorum()         public view virtual returns (uint256);
-    function maxScore()       public view virtual returns (uint8);
-    function requiredScore()  public view virtual returns (uint8);
+    function votingOffset()            public view virtual returns (uint256);
+    function votingDuration()          public view virtual returns (uint256);
+    function quorum()                  public view virtual returns (uint256);
+    function maxScore()                public view virtual returns (uint8);
+    function requiredScore()           public view virtual returns (uint8);
+    function getVotes(address,uint256) public view virtual returns (uint256);
 }

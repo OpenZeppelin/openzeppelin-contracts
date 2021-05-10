@@ -26,6 +26,10 @@ contract GovernanceMock is Governor, EIP712 {
     function maxScore()       public pure override returns (uint8)   { return 100;    } // default: 255 ?
     function requiredScore()  public pure override returns (uint8)   { return 50;     } // default: 128 ?
 
+    function getVotes(address account, uint256 blockNumber) public view virtual override returns(uint256) {
+        return _token.getPriorVotes(account, blockNumber);
+    }
+
     function propose(
         address[] calldata target,
         uint256[] calldata value,
@@ -62,11 +66,5 @@ contract GovernanceMock is Governor, EIP712 {
             v, r, s
         );
         _castVote(bytes32(proposalId), voter, support);
-    }
-
-    function _getVotes(address account, uint256 blockNumber)
-    internal view virtual override returns(uint256)
-    {
-        return _token.getPriorVotes(account, blockNumber);
     }
 }
