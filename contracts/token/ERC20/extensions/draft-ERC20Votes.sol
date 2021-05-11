@@ -65,6 +65,16 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
 
         Checkpoint[] storage ckpts = _checkpoints[account];
 
+        // Property: low and high converge on the first (earliest) checkpoint that is AFTER (or equal) `blockNumber`.
+        // - If all checkpoints are before `blockNumber`, low and high converge toward `ckpts.length`
+        // - If all checkpoints are after `blockNumber`, low and high will converge toward `0`
+        // - If there are no checkpoints, low = high = 0 = ckpts.length, and the 2 properties above do hold
+        // At each iteration:
+        // - If checkpoints[mid].fromBlock is equal or after `blockNumber`, we look in [low, mid] (mid is a candidate)
+        // - If checkpoints[mid].fromBlock is before `blockNumber`, we look in [mid+1, high] (mid is not a candidate)
+        // Once we have found the first checkpoint AFTER (or equal) `blockNumber`, we get the value at the beginning of
+        // `blockNumber` by reading the checkpoint just before that. If there is no checkpoint before, then we return 0
+        // (no value).
         uint256 high = ckpts.length;
         uint256 low = 0;
         while (low < high) {
@@ -76,7 +86,7 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
             }
         }
 
-        return low == 0 ? 0 : ckpts[low - 1].votes;
+        return high == 0 ? 0 : ckpts[high - 1].votes;
     }
 
     /**
