@@ -28,25 +28,29 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
     mapping (address => address) private _delegates;
     mapping (address => Checkpoint[]) private _checkpoints;
 
+    /**
+     * @dev Get the `pos`-th checkpoint for `account`.
+     */
     function checkpoints(address account, uint32 pos) external view virtual override returns (Checkpoint memory) {
         return _checkpoints[account][pos];
     }
 
+    /**
+     * @dev Get number of checkpoints for `account`.
+     */
     function numCheckpoints(address account) external view virtual override returns (uint32) {
         return SafeCast.toUint32(_checkpoints[account].length);
     }
 
     /**
-    * @dev Get the address `account` is currently delegating to.
-    */
+     * @dev Get the address `account` is currently delegating to.
+     */
     function delegates(address account) public view virtual override returns (address) {
         return _delegates[account];
     }
 
     /**
-     * @notice Gets the current votes balance for `account`
-     * @param account The address to get votes balance
-     * @return The number of current votes for `account`
+     * @dev Gets the current votes balance for `account`
      */
     function getCurrentVotes(address account) external view override returns (uint256) {
         uint256 pos = _checkpoints[account].length;
@@ -54,11 +58,7 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
     }
 
     /**
-     * @notice Determine the prior number of votes for an account as of a block number
-     * @dev Block number must be a finalized block or else this function will revert to prevent misinformation.
-     * @param account The address of the account to check
-     * @param blockNumber The block number to get the vote balance at
-     * @return The number of votes the account had as of the given block
+     * @dev Determine the number of votes for `account` at the begining of `blockNumber`.
      */
     function getPriorVotes(address account, uint256 blockNumber) external view override returns (uint256) {
         require(blockNumber < block.number, "ERC20Votes::getPriorVotes: not yet determined");
@@ -90,21 +90,14 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
     }
 
     /**
-    * @notice Delegate votes from the sender to `delegatee`
-    * @param delegatee The address to delegate votes to
-    */
+     * @dev Delegate votes from the sender to `delegatee`.
+     */
     function delegate(address delegatee) public virtual override {
         return _delegate(_msgSender(), delegatee);
     }
 
     /**
-     * @notice Delegates votes from signatory to `delegatee`
-     * @param delegatee The address to delegate votes to
-     * @param nonce The contract state required to match the signature
-     * @param expiry The time at which to expire the signature
-     * @param v The recovery byte of the signature
-     * @param r Half of the ECDSA signature pair
-     * @param s Half of the ECDSA signature pair
+     * @dev Delegates votes from signatory to `delegatee`
      */
     function delegateBySig(address delegatee, uint256 nonce, uint256 expiry, uint8 v, bytes32 r, bytes32 s)
     public virtual override
@@ -123,6 +116,9 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
         return _delegate(signatory, delegatee);
     }
 
+    /**
+     * @dev Change delegation for `delegator` to `delegatee`.
+     */
     function _delegate(address delegator, address delegatee) internal virtual {
         address currentDelegate = delegates(delegator);
         uint256 delegatorBalance = balanceOf(delegator);
