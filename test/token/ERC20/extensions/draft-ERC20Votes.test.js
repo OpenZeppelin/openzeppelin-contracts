@@ -4,6 +4,7 @@ const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppeli
 const { expect } = require('chai');
 const { MAX_UINT256, ZERO_ADDRESS, ZERO_BYTES32 } = constants;
 
+const events = require('events');
 const { fromRpcSig } = require('ethereumjs-util');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
@@ -23,13 +24,11 @@ function send (method, params = []) {
 }
 
 async function batchInBlock (txs) {
-  const before = await web3.eth.getBlockNumber();
-
   await send('evm_setAutomine', [false]);
-  const promises = Promise.all(txs.map(fn => fn()));
-  await (new Promise(resolve => setTimeout(resolve, 1000)));
+  const promises = txs.map(fn => fn());
+  await Promise.all(promises.map(p => events.once(p, 'transactionHash')));
   await send('evm_mine');
-  const receipts = await promises;
+  const receipts = await Promise.all(promises);
   await send('evm_setAutomine', [true]);
 
   expect(receipts.map(({ receipt }) => receipt.blockNumber).every((val, _, arr) => val === arr[0]));
