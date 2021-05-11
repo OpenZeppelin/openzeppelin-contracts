@@ -3,6 +3,7 @@
 ## Unreleased
  * Enumerables: Improve gas cost of removal in `EnumerableSet` and `EnumerableMap`.
  * Enumerables: Improve gas cost of lookup in `EnumerableSet` and `EnumerableMap`.
+ * Tokens: Wrap definitely safe subtractions in `unchecked` blocks. 
 
 ## 4.1.0 (2021-04-29)
 
