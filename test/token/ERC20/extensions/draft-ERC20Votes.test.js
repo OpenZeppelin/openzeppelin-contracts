@@ -25,15 +25,19 @@ function send (method, params = []) {
 
 async function batchInBlock (txs) {
   await send('evm_setAutomine', [false]);
-  const promises = txs.map(fn => fn());
-  await Promise.all(promises.map(p => events.once(p, 'transactionHash')));
-  await send('evm_mine');
-  const receipts = await Promise.all(promises);
-  await send('evm_setAutomine', [true]);
 
-  expect(receipts.map(({ receipt }) => receipt.blockNumber).every((val, _, arr) => val === arr[0]));
+  try {
+    const promises = txs.map(fn => fn());
+    await Promise.all(promises.map(p => events.once(p, 'transactionHash')));
+    await send('evm_mine');
+    const receipts = await Promise.all(promises);
 
-  return receipts;
+    expect(receipts.map(({ receipt }) => receipt.blockNumber).every((val, _, arr) => val === arr[0]));
+
+    return receipts;
+  } finally {
+    await send('evm_setAutomine', [true]);
+  }
 }
 
 contract('ERC20Votes', function (accounts) {
