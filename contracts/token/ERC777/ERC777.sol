@@ -51,7 +51,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     mapping(address => mapping(address => bool)) private _revokedDefaultOperators;
 
     // ERC20-allowances
-    mapping (address => mapping (address => uint256)) private _allowances;
+    mapping(address => mapping(address => uint256)) private _allowances;
 
     /**
      * @dev `defaultOperators` may be an empty array.
