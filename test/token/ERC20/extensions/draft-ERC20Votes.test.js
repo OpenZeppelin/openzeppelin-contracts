@@ -29,10 +29,10 @@ async function batchInBlock (txs) {
   const promises = Promise.all(txs.map(fn => fn()));
   await send('evm_setIntervalMining', [1000]);
   const receipts = await promises;
-  await send('evm_setAutomine', [true]);
   await send('evm_setIntervalMining', [false]);
+  await send('evm_setAutomine', [true]);
 
-  expect(receipts.map(({ blockNumber }) => blockNumber).every((val, _, arr) => val === arr[0]));
+  expect(receipts.map(({ receipt }) => receipt.blockNumber).every((val, _, arr) => val === arr[0]));
 
   return receipts;
 }
