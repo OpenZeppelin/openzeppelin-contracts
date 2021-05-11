@@ -32,7 +32,8 @@ async function batchInBlock (txs) {
     await send('evm_mine');
     const receipts = await Promise.all(promises);
 
-    expect(receipts.map(({ receipt }) => receipt.blockNumber).every((val, _, arr) => val === arr[0]));
+    const minedBlocks = new Set(receipts.map(({ receipt }) => receipt.blockNumber));
+    expect(minedBlocks.size).to.equal(1);
 
     return receipts;
   } finally {
