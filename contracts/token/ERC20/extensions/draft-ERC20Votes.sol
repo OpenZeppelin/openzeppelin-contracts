@@ -72,7 +72,7 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
         // - If the middle checkpoint is after `blockNumber`, we look in [low, mid)
         // - If the middle checkpoint is before `blockNumber`, we look in [mid+1, high)
         // Once we reach a single value (when low == high), we've found the right checkpoint at the index high-1, if not
-        // out of bounds (in which we're looking too far in the past and the result is 0).
+        // out of bounds (in which case we're looking too far in the past and the result is 0).
         // Note that if the latest checkpoint available is exactly for `blockNumber`, we end up with an index that is
         // past the end of the array, so we technically don't find the earliest checkpoint after `blockNumber`, but it
         // works out the same.
