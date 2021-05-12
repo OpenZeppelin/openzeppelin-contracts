@@ -133,17 +133,17 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
     function _moveVotingPower(address src, address dst, uint256 amount) private {
         if (src != dst && amount > 0) {
             if (src != address(0)) {
-                uint256 srcNum = _checkpoints[src].length;
-                uint256 srcOld = srcNum == 0 ? 0 : _checkpoints[src][srcNum - 1].votes;
-                uint256 srcNew = srcOld - amount;
-                _writeCheckpoint(src, srcNum, srcOld, srcNew);
+                uint256 srcCkptLen = _checkpoints[src].length;
+                uint256 srcCkptOld = srcCkptLen == 0 ? 0 : _checkpoints[src][srcCkptLen - 1].votes;
+                uint256 srcCkptNew = srcCkptOld - amount;
+                _writeCheckpoint(src, srcCkptLen, srcCkptOld, srcCkptNew);
             }
 
             if (dst != address(0)) {
-                uint256 dstNum = _checkpoints[dst].length;
-                uint256 dstOld = dstNum == 0 ? 0 : _checkpoints[dst][dstNum - 1].votes;
-                uint256 dstNew = dstOld + amount;
-                _writeCheckpoint(dst, dstNum, dstOld, dstNew);
+                uint256 dstCkptLen = _checkpoints[dst].length;
+                uint256 dstCkptOld = dstCkptLen == 0 ? 0 : _checkpoints[dst][dstCkptLen - 1].votes;
+                uint256 dstCkptNew = dstCkptOld + amount;
+                _writeCheckpoint(dst, dstCkptLen, dstCkptOld, dstCkptNew);
             }
         }
     }
