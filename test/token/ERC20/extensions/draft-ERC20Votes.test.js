@@ -19,17 +19,13 @@ const Delegation = [
   { name: 'expiry', type: 'uint256' },
 ];
 
-function send (method, params = []) {
-  return new Promise(resolve => web3.currentProvider.send({ jsonrpc: '2.0', method, params }, resolve));
-}
-
 async function batchInBlock (txs) {
-  await send('evm_setAutomine', [false]);
+  await network.provider.send('evm_setAutomine', [false]);
 
   try {
     const promises = txs.map(fn => fn());
     await Promise.all(promises.map(p => events.once(p, 'transactionHash')));
-    await send('evm_mine');
+    await network.provider.send('evm_mine');
     const receipts = await Promise.all(promises);
 
     const minedBlocks = new Set(receipts.map(({ receipt }) => receipt.blockNumber));
@@ -37,7 +33,7 @@ async function batchInBlock (txs) {
 
     return receipts;
   } finally {
-    await send('evm_setAutomine', [true]);
+    await network.provider.send('evm_setAutomine', [true]);
   }
 }
 
