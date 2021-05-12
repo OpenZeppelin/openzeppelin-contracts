@@ -100,7 +100,7 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
      * @dev Delegates votes from signatory to `delegatee`
      */
     function delegateBySig(address delegatee, uint256 nonce, uint256 expiry, uint8 v, bytes32 r, bytes32 s)
-    public virtual override
+        public virtual override
     {
         require(block.timestamp <= expiry, "ERC20Votes::delegateBySig: signature expired");
         address signatory = ECDSA.recover(
