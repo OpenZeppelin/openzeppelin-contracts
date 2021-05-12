@@ -65,16 +65,17 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
 
         Checkpoint[] storage ckpts = _checkpoints[account];
 
-        // Property: low and high converge on the first (earliest) checkpoint that is AFTER (or equal) `blockNumber`.
-        // - If all checkpoints are before `blockNumber`, low and high converge toward `ckpts.length`
-        // - If all checkpoints are after `blockNumber`, low and high will converge toward `0`
-        // - If there are no checkpoints, low = high = 0 = ckpts.length, and the 2 properties above do hold
-        // At each iteration:
-        // - If checkpoints[mid].fromBlock is equal or after `blockNumber`, we look in [low, mid] (mid is a candidate)
-        // - If checkpoints[mid].fromBlock is before `blockNumber`, we look in [mid+1, high] (mid is not a candidate)
-        // Once we have found the first checkpoint AFTER (or equal) `blockNumber`, we get the value at the beginning of
-        // `blockNumber` by reading the checkpoint just before that. If there is no checkpoint before, then we return 0
-        // (no value).
+        // We run a binary search to look for the earliest checkpoint taken after `blockNumber`.
+        //
+        // During the loop, the index of the wanted checkpoint remains in the range [low, high).
+        // With each iteration, either `low` or `high` is moved towards the middle of the range to maintain the invariant.
+        // - If the middle checkpoint is after `blockNumber`, we look in [low, mid)
+        // - If the middle checkpoint is before `blockNumber`, we look in [mid+1, high)
+        // Once we reach a single value (when low == high), we've found the right checkpoint at the index high-1, if not
+        // out of bounds (in which we're looking too far in the past and the result is 0).
+        // Note that if the latest checkpoint available is exactly for `blockNumber`, we end up with an index that is
+        // past the end of the array, so we technically don't find the earliest checkpoint after `blockNumber`, but it
+        // works out the same.
         uint256 high = ckpts.length;
         uint256 low = 0;
         while (low < high) {
