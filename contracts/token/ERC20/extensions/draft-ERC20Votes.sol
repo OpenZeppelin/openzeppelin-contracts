@@ -127,23 +127,23 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
 
         emit DelegateChanged(delegator, currentDelegate, delegatee);
 
-        _moveDelegates(currentDelegate, delegatee, delegatorBalance);
+        _moveVotingPower(currentDelegate, delegatee, delegatorBalance);
     }
 
-    function _moveDelegates(address srcRep, address dstRep, uint256 amount) private {
-        if (srcRep != dstRep && amount > 0) {
-            if (srcRep != address(0)) {
-                uint256 srcRepNum = _checkpoints[srcRep].length;
-                uint256 srcRepOld = srcRepNum == 0 ? 0 : _checkpoints[srcRep][srcRepNum - 1].votes;
-                uint256 srcRepNew = srcRepOld - amount;
-                _writeCheckpoint(srcRep, srcRepNum, srcRepOld, srcRepNew);
+    function _moveVotingPower(address src, address dst, uint256 amount) private {
+        if (src != dst && amount > 0) {
+            if (src != address(0)) {
+                uint256 srcNum = _checkpoints[src].length;
+                uint256 srcOld = srcNum == 0 ? 0 : _checkpoints[src][srcNum - 1].votes;
+                uint256 srcNew = srcOld - amount;
+                _writeCheckpoint(src, srcNum, srcOld, srcNew);
             }
 
-            if (dstRep != address(0)) {
-                uint256 dstRepNum = _checkpoints[dstRep].length;
-                uint256 dstRepOld = dstRepNum == 0 ? 0 : _checkpoints[dstRep][dstRepNum - 1].votes;
-                uint256 dstRepNew = dstRepOld + amount;
-                _writeCheckpoint(dstRep, dstRepNum, dstRepOld, dstRepNew);
+            if (dst != address(0)) {
+                uint256 dstNum = _checkpoints[dst].length;
+                uint256 dstOld = dstNum == 0 ? 0 : _checkpoints[dst][dstNum - 1].votes;
+                uint256 dstNew = dstOld + amount;
+                _writeCheckpoint(dst, dstNum, dstOld, dstNew);
             }
         }
     }
@@ -161,7 +161,12 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
       emit DelegateVotesChanged(delegatee, oldWeight, newWeight);
     }
 
+    function _mint(address account, uint256 amount) internal virtual override {
+        super._mint(account, amount);
+        require(totalSupply() <= type(uint224).max, "ERC20Votes: total supply exceeds 2**224");
+    }
+
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
-        _moveDelegates(delegates(from), delegates(to), amount);
+        _moveVotingPower(delegates(from), delegates(to), amount);
     }
 }

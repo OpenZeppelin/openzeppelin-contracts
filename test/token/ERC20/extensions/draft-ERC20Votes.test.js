@@ -77,6 +77,14 @@ contract('ERC20Votes', function (accounts) {
     );
   });
 
+  it('minting restriction', async function () {
+    const amount = new BN('2').pow(new BN('224'));
+    await expectRevert(
+      ERC20VotesMock.new(name, symbol, holder, amount),
+      'ERC20Votes: total supply exceeds 2**224',
+    );
+  });
+
   describe('set delegation', function () {
     describe('call', function () {
       it('delegation with balance', async function () {
