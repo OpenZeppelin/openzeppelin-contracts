@@ -4,10 +4,12 @@ const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppeli
 const { expect } = require('chai');
 const { MAX_UINT256, ZERO_ADDRESS, ZERO_BYTES32 } = constants;
 
-const events = require('events');
 const { fromRpcSig } = require('ethereumjs-util');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
+
+const { promisify } = require('util');
+const queue = promisify(setImmediate);
 
 const ERC20VotesMock = artifacts.require('ERC20VotesMock');
 
@@ -19,12 +21,20 @@ const Delegation = [
   { name: 'expiry', type: 'uint256' },
 ];
 
+async function countPendingTransactions() {
+  return parseInt(
+    await network.provider.send('eth_getBlockTransactionCountByNumber', ['pending'])
+  );
+}
+
 async function batchInBlock (txs) {
   await network.provider.send('evm_setAutomine', [false]);
 
   try {
     const promises = txs.map(fn => fn());
-    await Promise.all(promises.map(p => events.once(p, 'transactionHash')));
+    do {
+      await queue();
+    } while (txs.length > await countPendingTransactions());
     await network.provider.send('evm_mine');
     const receipts = await Promise.all(promises);
 
@@ -360,9 +370,9 @@ contract('ERC20Votes', function (accounts) {
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('0');
 
         const [ t1, t2, t3 ] = await batchInBlock([
-          () => this.token.delegate(other1, { from: recipient }),
-          () => this.token.transfer(other2, 10, { from: recipient }),
-          () => this.token.transfer(other2, 10, { from: recipient }),
+          () => this.token.delegate(other1, { from: recipient, gas: 100000 }),
+          () => this.token.transfer(other2, 10, { from: recipient, gas: 100000 }),
+          () => this.token.transfer(other2, 10, { from: recipient, gas: 100000 }),
         ]);
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('1');
         expect(await this.token.checkpoints(other1, 0)).to.be.deep.equal([ t1.receipt.blockNumber.toString(), '80' ]);
