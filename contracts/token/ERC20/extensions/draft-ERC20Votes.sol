@@ -74,8 +74,8 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
         // Once we reach a single value (when low == high), we've found the right checkpoint at the index high-1, if not
         // out of bounds (in which case we're looking too far in the past and the result is 0).
         // Note that if the latest checkpoint available is exactly for `blockNumber`, we end up with an index that is
-        // past the end of the array, so we technically don't find the earliest checkpoint after `blockNumber`, but it
-        // works out the same.
+        // past the end of the array, so we technically don't find a checkpoint after `blockNumber`, but it works out
+        // the same.
         uint256 high = ckpts.length;
         uint256 low = 0;
         while (low < high) {
