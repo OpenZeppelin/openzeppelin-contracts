@@ -2,36 +2,30 @@
 
 pragma solidity ^0.8.0;
 
-import "../governance/extensions/GovernorIntegratedTimelock.sol";
-import "./GovernanceMock.sol";
+import "../token/ERC20/extensions/IComp.sol";
+import "../governance/governor/Governor.sol";
+import "../governance/governor/extensions/GovernorWithTimelockExternal.sol";
 
-contract GovernanceWithTimelockMock is GovernanceMock, GovernorIntegratedTimelock {
+contract GovernorWithTimelockExternalMock is GovernorWithTimelockExternal {
+    IComp immutable internal _token;
 
-    constructor(string memory name_, string memory version_, IComp token_, uint256 delay_)
-    GovernanceMock(name_, version_, token_)
-    GovernorIntegratedTimelock(delay_)
-    {}
-
-    function queue(
-        address[] calldata target,
-        uint256[] calldata value,
-        bytes[] calldata data,
-        bytes32 salt
-    )
-    public returns (bytes32)
+    constructor(string memory name_, string memory version_, IComp token_, address timelock_)
+    EIP712(name_, version_)
+    GovernorWithTimelockExternal(timelock_)
     {
-        return _queue(target, value, data, salt);
+        _token = token_;
     }
 
-    function _execute(
-        bytes32 id,
-        address[] calldata target,
-        uint256[] calldata value,
-        bytes[] calldata data,
-        bytes32 salt
-    )
-    internal virtual override(Governor, GovernorIntegratedTimelock)
-    {
-        GovernorIntegratedTimelock._execute(id, target, value, data, salt);
+    receive() external payable {}
+
+    function token()          public view          returns (IComp)   { return _token; }
+    function votingOffset()   public pure override returns (uint256) { return 0;      }
+    function votingDuration() public pure override returns (uint256) { return 10;     } // FOR TESTING ONLY
+    function quorum()         public pure override returns (uint256) { return 1;      }
+    function maxScore()       public pure override returns (uint8)   { return 100;    } // default: 255 ?
+    function requiredScore()  public pure override returns (uint8)   { return 50;     } // default: 128 ?
+
+    function getVotes(address account, uint256 blockNumber) public view virtual override returns(uint256) {
+        return _token.getPriorVotes(account, blockNumber);
     }
 }

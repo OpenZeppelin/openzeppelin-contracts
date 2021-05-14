@@ -2,9 +2,10 @@
 
 pragma solidity ^0.8.0;
 
+import "./IGovernorWithTimelock.sol";
 import "../Governor.sol";
 
-abstract contract GovernorIntegratedTimelock is Governor {
+abstract contract GovernorWithTimelockInternal is IGovernorWithTimelock, Governor {
     uint256 private _delay;
 
     /**
@@ -30,13 +31,13 @@ abstract contract GovernorIntegratedTimelock is Governor {
         _delay = newDelay;
     }
 
-    function _queue(
+    function queue(
         address[] calldata target,
         uint256[] calldata value,
         bytes[] calldata data,
         bytes32 salt
     )
-    internal virtual returns (bytes32)
+    public virtual override returns (bytes32)
     {
         bytes32 id = hashProposal(target, value, data, salt);
 
@@ -47,6 +48,8 @@ abstract contract GovernorIntegratedTimelock is Governor {
         require(score >= supply * requiredScore(), "Governance: required score not reached");
 
         _startTimer(bytes32(uint256(id) + 1), delay());
+
+        emit ProposalQueued(id, _getDeadline(bytes32(uint256(id) + 1)));
 
         return id;
     }

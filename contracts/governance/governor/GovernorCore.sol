@@ -2,14 +2,13 @@
 
 pragma solidity ^0.8.0;
 
-import "../utils/cryptography/ECDSA.sol";
-import "../utils/Address.sol";
-import "../utils/Context.sol";
-import "../utils/draft-Timers.sol";
+import "../../utils/cryptography/ECDSA.sol";
+import "../../utils/Address.sol";
+import "../../utils/Context.sol";
+import "../../utils/draft-Timers.sol";
 import "./IGovernor.sol";
 
-abstract contract Governor is IGovernor, Context, Timers {
-
+abstract contract GovernorCore is IGovernor, Context, Timers {
     struct Proposal {
         uint256 block;
         uint256 supply;
@@ -37,7 +36,7 @@ abstract contract Governor is IGovernor, Context, Timers {
     /*************************************************************************
      *                            View functions                             *
      *************************************************************************/
-    function viewProposalStatus(bytes32 id) public view returns (uint8 status) {
+    function viewProposalStatus(bytes32 id) public view virtual override returns (uint8 status) {
         if (_isTimerBefore(id)) return uint8(0x0);
         if (_isTimerDuring(id)) return uint8(0x1);
         if (_isTimerAfter(id))  return uint8(0x2);
@@ -46,13 +45,13 @@ abstract contract Governor is IGovernor, Context, Timers {
     }
 
     function viewProposal(bytes32 id)
-    public view returns (uint256 startBlock, uint256 deadline, uint256 supply, uint256 score)
+    public view virtual override returns (uint256 startBlock, uint256 deadline, uint256 supply, uint256 score)
     {
         return ( _proposals[id].block, _getDeadline(id), _proposals[id].supply, _proposals[id].score);
     }
 
     function hashProposal(address[] calldata, uint256[] calldata, bytes[] calldata, bytes32)
-    public view virtual returns (bytes32)
+    public view  virtual override returns (bytes32)
     {
         // This is cheaper and works just as well
         return keccak256(_msgData()[4:]);
@@ -94,7 +93,7 @@ abstract contract Governor is IGovernor, Context, Timers {
         _startTimer(id, block.number + offset + duration); // internal checks prevent double proposal
         _proposals[id].block = block.number + offset;
 
-        emit Proposed(id, target, value, data, salt);
+        _afterPropose(id, target, value, data, salt);
     }
 
     function _execute(
@@ -132,7 +131,7 @@ abstract contract Governor is IGovernor, Context, Timers {
 
         _calls(id, target, value, data, salt);
 
-        emit Executed(id);
+        _afterPropose(id, target, value, data, salt);
     }
 
     function _castVote(
@@ -153,7 +152,7 @@ abstract contract Governor is IGovernor, Context, Timers {
         proposal.supply += balance;
         proposal.score += balance * support;
 
-        emit Vote(id, account, balance, support);
+        _afterVote(id, account, support, balance);
     }
 
     function _calls(
@@ -182,5 +181,40 @@ abstract contract Governor is IGovernor, Context, Timers {
         } else {
             Address.functionCallWithValue(target, data, value);
         }
+    }
+
+    function _afterPropose(
+        bytes32 id,
+        address[] calldata target,
+        uint256[] calldata value,
+        bytes[] calldata data,
+        bytes32 salt
+    )
+    internal virtual
+    {
+        emit ProposalCreated(id, target, value, data, salt);
+    }
+
+    function _afterExecute(
+        bytes32 id,
+        address[] calldata target,
+        uint256[] calldata value,
+        bytes[] calldata data,
+        bytes32 salt
+    )
+    internal virtual
+    {
+        emit ProposalExecuted(id);
+    }
+
+    function _afterVote(
+        bytes32 id,
+        address account,
+        uint8 support,
+        uint256 balance
+    )
+    internal virtual
+    {
+        emit VoteCast(account, id, support, balance);
     }
 }
