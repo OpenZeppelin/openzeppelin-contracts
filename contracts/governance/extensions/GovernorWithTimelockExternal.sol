@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import "./IGovernorWithTimelock.sol";
 import "../Governor.sol";
-import "../../TimelockController.sol";
+import "../TimelockController.sol";
 
 abstract contract GovernorWithTimelockExternal is IGovernorWithTimelock, Governor {
     TimelockController private _timelock;
@@ -41,6 +41,7 @@ abstract contract GovernorWithTimelockExternal is IGovernorWithTimelock, Governo
     )
     public virtual override returns (uint256 proposalId)
     {
+        // _call is overriden to customize _execute action (while keeping the checks)
         proposalId = _execute(target, value, data, salt);
         uint256 eta = block.timestamp + _timelock.getMinDelay();
         emit ProposalQueued(proposalId, eta);

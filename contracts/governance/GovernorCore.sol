@@ -2,10 +2,10 @@
 
 pragma solidity ^0.8.0;
 
-import "../../utils/cryptography/ECDSA.sol";
-import "../../utils/Address.sol";
-import "../../utils/Context.sol";
-import "../../utils/Time.sol";
+import "../utils/cryptography/ECDSA.sol";
+import "../utils/Address.sol";
+import "../utils/Context.sol";
+import "../utils/Time.sol";
 import "./IGovernor.sol";
 
 abstract contract GovernorCore is IGovernor, Context {

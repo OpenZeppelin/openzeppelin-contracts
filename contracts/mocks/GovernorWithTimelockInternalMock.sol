@@ -4,14 +4,14 @@ pragma solidity ^0.8.0;
 
 import "../token/ERC20/extensions/IComp.sol";
 import "../governance/Governor.sol";
-import "../governance/extensions/GovernorWithTimelockExternal.sol";
+import "../governance/extensions/GovernorWithTimelockInternal.sol";
 
-contract GovernorWithTimelockExternalMock is GovernorWithTimelockExternal {
+contract GovernorWithTimelockInternalMock is GovernorWithTimelockInternal {
     IComp immutable internal _token;
 
-    constructor(string memory name_, string memory version_, IComp token_, address timelock_)
+    constructor(string memory name_, string memory version_, IComp token_, uint256 delay_)
     EIP712(name_, version_)
-    GovernorWithTimelockExternal(timelock_)
+    GovernorWithTimelockInternal(delay_)
     {
         _token = token_;
     }

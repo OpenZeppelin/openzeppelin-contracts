@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../../utils/cryptography/draft-EIP712.sol";
+import "../utils/cryptography/draft-EIP712.sol";
 import "./GovernorCore.sol";
 
 abstract contract Governor is GovernorCore, EIP712 {
