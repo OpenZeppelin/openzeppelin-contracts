@@ -89,7 +89,7 @@ abstract contract GovernorCore is IGovernor, Context, Timers {
         uint256 duration = votingDuration();
         uint256 offset   = votingOffset();
 
-        _startTimer(bytes32(proposalId), block.number + offset + duration); // internal checks prevent double proposal
+        _startTimer(bytes32(proposalId), block.timestamp + duration); // internal checks prevent double proposal
         _proposals[proposalId].block = block.number + offset;
     }
 
