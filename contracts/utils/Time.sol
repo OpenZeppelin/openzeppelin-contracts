@@ -28,24 +28,24 @@ library Time {
         timer._deadline = _DONE_TIMESTAMP;
     }
 
-    function isActive(Timer memory timer) internal pure returns (bool) {
-        return timer._deadline > _DONE_TIMESTAMP;
+    function isUnset(Timer memory timer) internal pure returns (bool) {
+        return timer._deadline == 0;
     }
 
     function isLocked(Timer memory timer) internal pure returns (bool) {
         return timer._deadline == _DONE_TIMESTAMP;
     }
 
-    function isBefore(Timer memory timer) internal pure returns (bool) {
-        return timer._deadline == 0;
+    function isStarted(Timer memory timer) internal pure returns (bool) {
+        return timer._deadline > _DONE_TIMESTAMP;
     }
 
-    function isDuring(Timer memory timer) internal view returns (bool) {
+    function isPending(Timer memory timer) internal view returns (bool) {
         // solhint-disable-next-line not-rely-on-time
         return timer._deadline > block.timestamp;
     }
 
-    function isAfter(Timer memory timer) internal view returns (bool) {
+    function isExpired(Timer memory timer) internal view returns (bool) {
         // solhint-disable-next-line not-rely-on-time
         return _DONE_TIMESTAMP < timer._deadline && timer._deadline <= block.timestamp;
     }

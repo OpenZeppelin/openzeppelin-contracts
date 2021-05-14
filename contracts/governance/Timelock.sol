@@ -32,21 +32,21 @@ abstract contract Timelock {
      * includes both Pending, Ready and Done operations.
      */
     function isOperation(bytes32 id) public view virtual returns (bool pending) {
-        return !_deadlines[id].isBefore();
+        return !_deadlines[id].isUnset();
     }
 
     /**
      * @dev Returns whether an operation is pending or not.
      */
     function isOperationPending(bytes32 id) public view virtual returns (bool pending) {
-        return _deadlines[id].isDuring();
+        return _deadlines[id].isPending();
     }
 
     /**
      * @dev Returns whether an operation is ready or not.
      */
     function isOperationReady(bytes32 id) public view virtual returns (bool ready) {
-        return _deadlines[id].isAfter();
+        return _deadlines[id].isExpired();
     }
 
     /**
@@ -93,7 +93,7 @@ abstract contract Timelock {
         bytes32 id = _hashOperation(target, value, data, predecessor, salt);
         Time.Timer storage timer = _deadlines[id];
 
-        require(timer.isBefore(), "Timelock: operation already scheduled");
+        require(timer.isUnset(), "Timelock: operation already scheduled");
         timer.setDeadline(block.timestamp + delay);
 
         emit CallScheduled(id, 0, target, value, data, predecessor, delay);
@@ -115,7 +115,7 @@ abstract contract Timelock {
         bytes32 id = _hashOperationBatch(targets, values, datas, predecessor, salt);
         Time.Timer storage timer = _deadlines[id];
 
-        require(timer.isBefore(), "Timelock: operation already scheduled");
+        require(timer.isUnset(), "Timelock: operation already scheduled");
         timer.setDeadline(block.timestamp + delay);
 
         for (uint256 i = 0; i < targets.length; ++i) {
@@ -133,7 +133,7 @@ abstract contract Timelock {
     function _cancel(bytes32 id) internal virtual {
         Time.Timer storage timer = _deadlines[id];
 
-        require(timer.isActive(), "Timelock: operation not scheduled yet");
+        require(timer.isStarted(), "Timelock: operation not scheduled yet");
         timer.reset();
 
         emit Cancelled(id);
@@ -187,7 +187,7 @@ abstract contract Timelock {
     function _afterCall(bytes32 id) internal virtual {
         Time.Timer storage timer = _deadlines[id];
 
-        require(timer.isAfter(), "Timelock: operation is not ready");
+        require(timer.isExpired(), "Timelock: operation is not ready");
         timer.lock();
     }
 

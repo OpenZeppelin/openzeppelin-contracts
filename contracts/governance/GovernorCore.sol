@@ -20,20 +20,15 @@ abstract contract GovernorCore is IGovernor, Context {
     }
 
     mapping (uint256 => Proposal) private _proposals;
-    //
-    // modifier onlyActiveTimer(bytes32 id) virtual override {
-    //     require(_isTimerActive(id), "Governance: invalid proposal");
-    //     _;
-    // }
 
     /*************************************************************************
      *                            View functions                             *
      *************************************************************************/
     function viewProposalStatus(uint256 proposalId) public view virtual override returns (uint8 status) {
         Time.Timer memory timer = _proposals[proposalId].timer;
-        if (timer.isBefore()) return uint8(0x0);
-        if (timer.isDuring()) return uint8(0x1);
-        if (timer.isAfter())  return uint8(0x2);
+        if (timer.isUnset()) return uint8(0x0);
+        if (timer.isPending()) return uint8(0x1);
+        if (timer.isExpired())  return uint8(0x2);
         if (timer.isLocked()) return uint8(0x3);
         revert();
     }
@@ -87,7 +82,7 @@ abstract contract GovernorCore is IGovernor, Context {
         require(target.length > 0,             "Governance: empty proposal");
 
         Proposal storage proposal = _proposals[proposalId];
-        require(proposal.timer.isBefore(), "TOTO#1");
+        require(proposal.timer.isUnset(), "Governance: proposal already exists");
 
         proposal.timer.setDeadline(block.timestamp + votingDuration());
         proposal.snapshot = block.number + votingOffset();
@@ -119,7 +114,7 @@ abstract contract GovernorCore is IGovernor, Context {
         require(target.length > 0,             "Governance: empty proposal");
 
         Proposal storage proposal = _proposals[proposalId];
-        require(proposal.timer.isAfter(), "Governance: proposal not ready to execute");
+        require(proposal.timer.isExpired(), "Governance: proposal not ready to execute");
         require(proposal.supply >= quorum(), "Governance: quorum not reached");
         require(proposal.score >= proposal.supply * requiredScore(), "Governance: required score not reached");
         proposal.timer.lock();
@@ -137,7 +132,7 @@ abstract contract GovernorCore is IGovernor, Context {
         require(support <= maxScore(), "Governance: invalid score");
 
         Proposal storage proposal = _proposals[proposalId];
-        require(proposal.timer.isDuring(), "Governance: vote not currently active");
+        require(proposal.timer.isPending(), "Governance: vote not currently active");
         require(!proposal.voters[account], "Governance: vote already casted");
 
         proposal.voters[account] = true;
