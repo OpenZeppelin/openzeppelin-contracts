@@ -2,12 +2,16 @@
 
 pragma solidity ^0.8.0;
 
-import "../utils/draft-Timers.sol";
+import "../utils/Time.sol";
 
 /**
  * @dev TODO
  */
-abstract contract Timelock is Timers {
+abstract contract Timelock {
+    using Time for Time.Timer;
+
+    mapping(bytes32 => Time.Timer) private _deadlines;
+
     /**
      * @dev Emitted when a call is scheduled as part of operation `id`.
      */
@@ -24,48 +28,32 @@ abstract contract Timelock is Timers {
     event Cancelled(bytes32 indexed id);
 
     /**
-     * @dev Override modifier to customize revert reason
-     */
-    modifier onlyActiveTimer(bytes32 id) virtual override {
-        require(_isTimerActive(id), "Timelock: operation not scheduled yet");
-        _;
-    }
-
-    /**
-     * @dev Override modifier to customize revert reason
-     */
-    modifier onlyBeforeTimer(bytes32 id) virtual override {
-        require(_isTimerBefore(id), "Timelock: operation already scheduled");
-        _;
-    }
-
-    /**
      * @dev Returns whether an id correspond to a registered operation. This
      * includes both Pending, Ready and Done operations.
      */
     function isOperation(bytes32 id) public view virtual returns (bool pending) {
-        return !_isTimerBefore(id);
+        return !_deadlines[id].isBefore();
     }
 
     /**
      * @dev Returns whether an operation is pending or not.
      */
     function isOperationPending(bytes32 id) public view virtual returns (bool pending) {
-        return _isTimerDuring(id);
+        return _deadlines[id].isDuring();
     }
 
     /**
      * @dev Returns whether an operation is ready or not.
      */
     function isOperationReady(bytes32 id) public view virtual returns (bool ready) {
-        return _isTimerAfter(id);
+        return _deadlines[id].isAfter();
     }
 
     /**
      * @dev Returns whether an operation is done or not.
      */
     function isOperationDone(bytes32 id) public view virtual returns (bool done) {
-        return _isTimerLocked(id);
+        return _deadlines[id].isLocked();
     }
 
     /**
@@ -73,7 +61,7 @@ abstract contract Timelock is Timers {
      * unset operations, 1 for done operations).
      */
     function getTimestamp(bytes32 id) public view virtual returns (uint256 timestamp) {
-        return _getDeadline(id);
+        return _deadlines[id].getDeadline();
     }
 
     /**
@@ -103,7 +91,11 @@ abstract contract Timelock is Timers {
      */
     function _schedule(address target, uint256 value, bytes memory data, bytes32 predecessor, bytes32 salt, uint256 delay) internal virtual {
         bytes32 id = _hashOperation(target, value, data, predecessor, salt);
-        _startTimer(id, delay);
+        Time.Timer storage timer = _deadlines[id];
+
+        require(timer.isBefore(), "Timelock: operation already scheduled");
+        timer.setDeadline(block.timestamp + delay);
+
         emit CallScheduled(id, 0, target, value, data, predecessor, delay);
     }
 
@@ -121,7 +113,11 @@ abstract contract Timelock is Timers {
         require(targets.length == datas.length, "Timelock: length mismatch");
 
         bytes32 id = _hashOperationBatch(targets, values, datas, predecessor, salt);
-        _startTimer(id, delay);
+        Time.Timer storage timer = _deadlines[id];
+
+        require(timer.isBefore(), "Timelock: operation already scheduled");
+        timer.setDeadline(block.timestamp + delay);
+
         for (uint256 i = 0; i < targets.length; ++i) {
             emit CallScheduled(id, i, targets[i], values[i], datas[i], predecessor, delay);
         }
@@ -135,7 +131,11 @@ abstract contract Timelock is Timers {
      * - the caller must have the 'proposer' role.
      */
     function _cancel(bytes32 id) internal virtual {
-        _resetTimer(id);
+        Time.Timer storage timer = _deadlines[id];
+
+        require(timer.isActive(), "Timelock: operation not scheduled yet");
+        timer.reset();
+
         emit Cancelled(id);
     }
 
@@ -185,9 +185,10 @@ abstract contract Timelock is Timers {
      * @dev Checks after execution of an operation's calls.
      */
     function _afterCall(bytes32 id) internal virtual {
-        require(isOperationReady(id), "Timelock: operation is not ready");
-        _resetTimer(id);
-        _lockTimer(id);
+        Time.Timer storage timer = _deadlines[id];
+
+        require(timer.isAfter(), "Timelock: operation is not ready");
+        timer.lock();
     }
 
     /**

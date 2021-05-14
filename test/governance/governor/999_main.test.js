@@ -1,11 +1,10 @@
 const { BN, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
-const { expect } = require('chai');
 
-const Token        = artifacts.require('ERC20VotesMock');
-const Governance   = artifacts.require('GovernanceMock');
+const Token = artifacts.require('ERC20VotesMock');
+const Governance = artifacts.require('GovernanceMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
-async function getReceiptOrReason(promise, reason = undefined) {
+async function getReceiptOrReason (promise, reason = undefined) {
   if (reason) {
     await expectRevert(promise, reason);
     return undefined;
@@ -15,7 +14,7 @@ async function getReceiptOrReason(promise, reason = undefined) {
   }
 }
 
-function governanceWorkflow() {
+function governanceWorkflow () {
   describe('with deposits', () => {
     beforeEach(async () => {
       this.receipts = {};
@@ -28,7 +27,10 @@ function governanceWorkflow() {
     describe('with proposed', () => {
       beforeEach(async () => {
         if (this.settings.steps.propose.enable) {
-          this.receipts.propose = await getReceiptOrReason(this.governance.propose(...this.settings.proposal), this.settings.steps.propose.reason);
+          this.receipts.propose = await getReceiptOrReason(
+            this.governance.propose(...this.settings.proposal),
+            this.settings.steps.propose.reason,
+          );
         }
       });
 
@@ -37,8 +39,11 @@ function governanceWorkflow() {
           this.receipts.castVote = [];
           for (const voter of this.settings.voters) {
             this.receipts.castVote.push(
-              await getReceiptOrReason(this.governance.castVote(this.id, voter.support, { from: voter.address }), voter.reason)
-            )
+              await getReceiptOrReason(
+                this.governance.castVote(this.id, voter.support, { from: voter.address }),
+                voter.reason,
+              ),
+            );
           }
         });
 
@@ -53,12 +58,15 @@ function governanceWorkflow() {
           describe('with execute', () => {
             beforeEach(async () => {
               if (this.settings.steps.execute.enable) {
-                this.receipts.execute = await getReceiptOrReason(this.governance.execute(...this.settings.proposal), this.settings.steps.execute.reason);
+                this.receipts.execute = await getReceiptOrReason(
+                  this.governance.execute(...this.settings.proposal),
+                  this.settings.steps.execute.reason,
+                );
               }
             });
 
             it('check', async () => {
-              await this.settings.check();
+              this.settings.check && await this.settings.check();
             });
           });
         });
@@ -69,17 +77,17 @@ function governanceWorkflow() {
 
 contract('Governance', function (accounts) {
   const [ owner, voter, other ] = accounts;
-  const name        = 'BosonGovernance'
-  const version     = '0.0.1';
-  const tokenName   = 'MockToken';
+  const name = 'BosonGovernance';
+  const version = '0.0.1';
+  const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
   const tokenSupply = web3.utils.toWei('100');
 
   beforeEach(async () => {
-    this.owner      = owner;
-    this.token      = await Token.new(tokenName, tokenSymbol, owner, tokenSupply);
+    this.owner = owner;
+    this.token = await Token.new(tokenName, tokenSymbol, owner, tokenSupply);
     this.governance = await Governance.new(name, version, this.token.address);
-    this.receiver   = await CallReceiver.new();
+    this.receiver = await CallReceiver.new();
     await this.token.delegate(voter, { from: voter });
     await this.token.delegate(other, { from: other });
   });
@@ -95,25 +103,36 @@ contract('Governance', function (accounts) {
         ],
         voters: [
           { address: voter, weight: web3.utils.toWei('1'), support: new BN('100') },
-          { address: other, weight: web3.utils.toWei('1'), support: new BN('40')  },
+          { address: other, weight: web3.utils.toWei('1'), support: new BN('40') },
         ],
         steps: {
           propose: { enable: true },
-          wait:    { enable: true },
+          wait: { enable: true },
           execute: { enable: true },
         },
         check: async () => {
-          expectEvent(this.receipts.propose, 'TimerStarted', { timer: web3.utils.toHex(this.id), deadline: this.deadline });
-          expectEvent(this.receipts.execute, 'TimerReset', { timer: web3.utils.toHex(this.id) });
-          expectEvent(this.receipts.execute, 'TimerLocked', { timer: web3.utils.toHex(this.id) });
-          expectEvent.inTransaction(this.receipts.execute.transactionHash,
+          expectEvent(
+            this.receipts.propose,
+            'ProposalCreated',
+            { proposalId: this.id, votingDeadline: this.deadline },
+          );
+          expectEvent(
+            this.receipts.execute,
+            'ProposalExecuted',
+            { proposalId: this.id },
+          );
+          expectEvent.inTransaction(
+            this.receipts.execute.transactionHash,
             this.receiver,
             'MockFunctionCalled',
           );
 
-          await expectRevert(this.governance.castVote(this.id, new BN('0'), { from: accounts[2] }), "Governance: vote not currently active");
-        }
-      }
+          await expectRevert(
+            this.governance.castVote(this.id, new BN('0'), { from: accounts[2] }),
+            'Governance: vote not currently active',
+          );
+        },
+      };
     });
     governanceWorkflow();
   });
@@ -128,16 +147,25 @@ contract('Governance', function (accounts) {
           web3.utils.randomHex(32),
         ],
         voters: [
-          { address: voter, weight: web3.utils.toWei('1'), support: new BN('100'), reason: 'Governance: vote not currently active' },
-          { address: other, weight: web3.utils.toWei('1'), support: new BN('40'),  reason: 'Governance: vote not currently active' },
+          {
+            address: voter,
+            weight: web3.utils.toWei('1'),
+            support: new BN('100'),
+            reason: 'Governance: vote not currently active',
+          },
+          {
+            address: other,
+            weight: web3.utils.toWei('1'),
+            support: new BN('40'),
+            reason: 'Governance: vote not currently active',
+          },
         ],
         steps: {
           propose: { enable: false },
-          wait:    { enable: false },
+          wait: { enable: false },
           execute: { enable: true, reason: 'Governance: proposal not ready to execute' },
         },
-        check: () => {}
-      }
+      };
     });
     governanceWorkflow();
   });
@@ -152,16 +180,24 @@ contract('Governance', function (accounts) {
           web3.utils.randomHex(32),
         ],
         voters: [
-          { address: voter, weight: web3.utils.toWei('1'), support: new BN('100') },
-          { address: voter, weight: web3.utils.toWei('1'), support: new BN('100'), reason: 'Governance: vote already casted' },
+          {
+            address: voter,
+            weight: web3.utils.toWei('1'),
+            support: new BN('100'),
+          },
+          {
+            address: voter,
+            weight: web3.utils.toWei('1'),
+            support: new BN('100'),
+            reason: 'Governance: vote already casted',
+          },
         ],
         steps: {
           propose: { enable: true },
-          wait:    { enable: true },
+          wait: { enable: true },
           execute: { enable: true },
         },
-        check: () => {}
-      }
+      };
     });
     governanceWorkflow();
   });
@@ -181,11 +217,10 @@ contract('Governance', function (accounts) {
         ],
         steps: {
           propose: { enable: true },
-          wait:    { enable: true },
+          wait: { enable: true },
           execute: { enable: true, reason: 'Governance: quorum not reached' },
         },
-        check: () => {}
-      }
+      };
     });
     governanceWorkflow();
   });
@@ -205,11 +240,10 @@ contract('Governance', function (accounts) {
         ],
         steps: {
           propose: { enable: true },
-          wait:    { enable: true },
+          wait: { enable: true },
           execute: { enable: true, reason: 'Governance: required score not reached' },
         },
-        check: () => {}
-      }
+      };
     });
     governanceWorkflow();
   });
@@ -228,11 +262,10 @@ contract('Governance', function (accounts) {
         ],
         steps: {
           propose: { enable: true },
-          wait:    { enable: false },
+          wait: { enable: false },
           execute: { enable: true, reason: 'Governance: proposal not ready to execute' },
         },
-        check: () => {}
-      }
+      };
     });
     governanceWorkflow();
   });

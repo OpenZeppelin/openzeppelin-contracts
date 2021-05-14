@@ -17,7 +17,8 @@ abstract contract Governor is GovernorCore, EIP712 {
     public virtual override returns (uint256 proposalId)
     {
         proposalId = _propose(target, value, data, salt);
-        emit ProposalCreated(proposalId, target, value, data, salt);
+        (uint256 snapshot, uint256 deadline,,) = viewProposal(proposalId);
+        emit ProposalCreated(proposalId, target, value, data, salt, snapshot, deadline);
         return proposalId;
     }
 

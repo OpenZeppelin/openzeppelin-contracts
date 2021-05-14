@@ -1,23 +1,22 @@
-const { BN, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
-const { expect } = require('chai');
+const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 
-const Token        = artifacts.require('ERC20VotesMock');
-const Governance   = artifacts.require('GovernanceMock');
+const Token = artifacts.require('ERC20VotesMock');
+const Governance = artifacts.require('GovernanceMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
 contract('Governance - schedule', function (accounts) {
   const [ voter ] = accounts;
 
-  const name        = 'OZ-Governance'
-  const version     = '0.0.1';
-  const tokenName   = 'MockToken';
+  const name = 'OZ-Governance';
+  const version = '0.0.1';
+  const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
   const tokenSupply = web3.utils.toWei('100');
 
   beforeEach(async () => {
-    this.token      = await Token.new(tokenName, tokenSymbol, voter, tokenSupply);
+    this.token = await Token.new(tokenName, tokenSymbol, voter, tokenSupply);
     this.governance = await Governance.new(name, version, this.token.address);
-    this.receiver   = await CallReceiver.new();
+    this.receiver = await CallReceiver.new();
     await this.token.delegate(voter, { from: voter });
   });
 
@@ -29,9 +28,9 @@ contract('Governance - schedule', function (accounts) {
         [ this.receiver.contract.methods.mockFunction().encodeABI() ],
         web3.utils.randomHex(32),
       ];
-      const proposalid = await this.governance.hashProposal(...proposal);
+      const proposalId = await this.governance.hashProposal(...proposal);
       const { receipt } = await this.governance.propose(...proposal);
-      expectEvent(receipt, 'TimerStarted', { timer: web3.utils.toHex(proposalid) });
+      expectEvent(receipt, 'ProposalCreated', { proposalId });
     });
 
     it('invalid proposal', async () => {
@@ -41,10 +40,9 @@ contract('Governance - schedule', function (accounts) {
         [ this.receiver.contract.methods.mockFunction().encodeABI() ],
         web3.utils.randomHex(32),
       ];
-      const proposalid = await this.governance.hashProposal(...proposal);
       await expectRevert(
         this.governance.propose(...proposal),
-        "Governance: invalid proposal length",
+        'Governance: invalid proposal length',
       );
     });
 
@@ -55,10 +53,9 @@ contract('Governance - schedule', function (accounts) {
         [],
         web3.utils.randomHex(32),
       ];
-      const proposalid = await this.governance.hashProposal(...proposal);
       await expectRevert(
         this.governance.propose(...proposal),
-        "Governance: empty proposal",
+        'Governance: empty proposal',
       );
     });
   });

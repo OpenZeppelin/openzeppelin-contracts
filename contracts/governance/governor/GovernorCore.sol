@@ -5,49 +5,49 @@ pragma solidity ^0.8.0;
 import "../../utils/cryptography/ECDSA.sol";
 import "../../utils/Address.sol";
 import "../../utils/Context.sol";
-import "../../utils/draft-Timers.sol";
+import "../../utils/Time.sol";
 import "./IGovernor.sol";
 
-abstract contract GovernorCore is IGovernor, Context, Timers {
+abstract contract GovernorCore is IGovernor, Context {
+    using Time for Time.Timer;
+
     struct Proposal {
-        uint256 block;
+        Time.Timer timer;
+        uint256 snapshot;
         uint256 supply;
         uint256 score;
         mapping (address => bool) voters;
     }
 
     mapping (uint256 => Proposal) private _proposals;
-
-    modifier onlyActiveTimer(bytes32 id) virtual override {
-        require(_isTimerActive(id), "Governance: invalid proposal");
-        _;
-    }
-
-    modifier onlyDuringTimer(bytes32 id) virtual override {
-        require(_isTimerDuring(id), "Governance: vote not currently active");
-        _;
-    }
-
-    modifier onlyAfterTimer(bytes32 id) virtual override {
-        require(_isTimerAfter(id), "Governance: proposal not ready to execute");
-        _;
-    }
+    //
+    // modifier onlyActiveTimer(bytes32 id) virtual override {
+    //     require(_isTimerActive(id), "Governance: invalid proposal");
+    //     _;
+    // }
 
     /*************************************************************************
      *                            View functions                             *
      *************************************************************************/
     function viewProposalStatus(uint256 proposalId) public view virtual override returns (uint8 status) {
-        if (_isTimerBefore(bytes32(proposalId))) return uint8(0x0);
-        if (_isTimerDuring(bytes32(proposalId))) return uint8(0x1);
-        if (_isTimerAfter(bytes32(proposalId)))  return uint8(0x2);
-        if (_isTimerLocked(bytes32(proposalId))) return uint8(0x3);
+        Time.Timer memory timer = _proposals[proposalId].timer;
+        if (timer.isBefore()) return uint8(0x0);
+        if (timer.isDuring()) return uint8(0x1);
+        if (timer.isAfter())  return uint8(0x2);
+        if (timer.isLocked()) return uint8(0x3);
         revert();
     }
 
     function viewProposal(uint256 proposalId)
-    public view virtual override returns (uint256 startBlock, uint256 deadline, uint256 supply, uint256 score)
+    public view virtual override returns (uint256 snapshot, uint256 deadline, uint256 supply, uint256 score)
     {
-        return ( _proposals[proposalId].block, _getDeadline(bytes32(proposalId)), _proposals[proposalId].supply, _proposals[proposalId].score);
+        Proposal storage proposal = _proposals[proposalId];
+        return (
+            proposal.snapshot,
+            proposal.timer.getDeadline(),
+            proposal.supply,
+            proposal.score
+        );
     }
 
     function hashProposal(address[] calldata, uint256[] calldata, bytes[] calldata, bytes32)
@@ -86,11 +86,11 @@ abstract contract GovernorCore is IGovernor, Context, Timers {
         require(target.length == data.length,  "Governance: invalid proposal length");
         require(target.length > 0,             "Governance: empty proposal");
 
-        uint256 duration = votingDuration();
-        uint256 offset   = votingOffset();
+        Proposal storage proposal = _proposals[proposalId];
+        require(proposal.timer.isBefore(), "TOTO#1");
 
-        _startTimer(bytes32(proposalId), block.timestamp + duration); // internal checks prevent double proposal
-        _proposals[proposalId].block = block.number + offset;
+        proposal.timer.setDeadline(block.timestamp + votingDuration());
+        proposal.snapshot = block.number + votingOffset();
     }
 
     function _execute(
@@ -112,18 +112,17 @@ abstract contract GovernorCore is IGovernor, Context, Timers {
         bytes[] calldata data,
         bytes32 salt
     )
-    internal virtual onlyAfterTimer(bytes32(proposalId))
+    internal virtual
     {
         require(target.length == value.length, "Governance: invalid proposal length");
         require(target.length == data.length,  "Governance: invalid proposal length");
         require(target.length > 0,             "Governance: empty proposal");
 
-        _resetTimer(bytes32(proposalId)); // check timer expired + reset
-        _lockTimer(bytes32(proposalId)); // avoid double execution
-
         Proposal storage proposal = _proposals[proposalId];
+        require(proposal.timer.isAfter(), "Governance: proposal not ready to execute");
         require(proposal.supply >= quorum(), "Governance: quorum not reached");
         require(proposal.score >= proposal.supply * requiredScore(), "Governance: required score not reached");
+        proposal.timer.lock();
 
         _calls(proposalId, target, value, data, salt);
     }
@@ -133,16 +132,16 @@ abstract contract GovernorCore is IGovernor, Context, Timers {
         address account,
         uint8 support
     )
-    internal virtual onlyDuringTimer(bytes32(proposalId)) returns (uint256 balance)
+    internal virtual returns (uint256 balance)
     {
         require(support <= maxScore(), "Governance: invalid score");
 
         Proposal storage proposal = _proposals[proposalId];
+        require(proposal.timer.isDuring(), "Governance: vote not currently active");
         require(!proposal.voters[account], "Governance: vote already casted");
-        proposal.voters[account] = true;
 
-        require(proposal.block < block.number, "Governance: too early to vote");
-        balance = getVotes(account, proposal.block);
+        proposal.voters[account] = true;
+        balance = getVotes(account, proposal.snapshot);
         proposal.supply += balance;
         proposal.score += balance * support;
     }
