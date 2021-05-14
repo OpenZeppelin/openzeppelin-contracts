@@ -20,9 +20,12 @@ import "../../../utils/Counters.sol";
  * id. To get the balance of an account at the time of a snapshot, call the {balanceOfAt} function with the snapshot id
  * and the account address.
  *
- * Note: snapshot policy can be customized by overriding the {_getCurrentSnapshotId} method. For example, having it
+ * NOTE: Snapshot policy can be customized by overriding the {_getCurrentSnapshotId} method. For example, having it
  * return `block.number` will trigger the creation of snapshot at the begining of each new block. When overridding this
- * function, be carefull about the monotonicity of its result. Non-monotonic snapshot ids will break the contract.
+ * function, be careful about the monotonicity of its result. Non-monotonic snapshot ids will break the contract.
+ *
+ * Implementing snapshots for every block using this method will incur significant gas costs. For a gas-efficient
+ * alternative consider {ERC20Votes}.
  *
  * ==== Gas Costs
  *

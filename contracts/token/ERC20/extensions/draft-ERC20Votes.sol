@@ -3,59 +3,54 @@
 pragma solidity ^0.8.0;
 
 import "./draft-ERC20Permit.sol";
-import "./IComp.sol";
+import "./draft-IERC20Votes.sol";
 import "../../../utils/math/Math.sol";
+import "../../../utils/math/SafeCast.sol";
 import "../../../utils/cryptography/ECDSA.sol";
 
 /**
  * @dev Extension of the ERC20 token contract to support Compound's voting and delegation.
  *
- * This extensions keeps an history (snapshots) of each account's vote power. Vote power can be delegated either
- * by calling the {delegate} directly, or by providing a signature that can later be verified and processed using
- * {delegateFromBySig}. Voting power, can be checked through the public accessors {getCurrentVotes} and {getPriorVotes}.
+ * This extensions keeps a history (checkpoints) of each account's vote power. Vote power can be delegated either
+ * by calling the {delegate} function directly, or by providing a signature to be used with {delegateBySig}. Voting
+ * power can be queried through the public accessors {getCurrentVotes} and {getPriorVotes}.
  *
- * By default, delegation is disabled. This makes transfers cheaper. The downside is that it requires users to delegate
- * to themselves in order to activate snapshots and have their voting power snapshoted. Enabling self-delegation can
- * easily be done by overloading the {delegates} function. Keep in mind however that this will significantly increass
- * the base gas cost of transfers.
+ * By default, token balance does not account for voting power. This makes transfers cheaper. The downside is that it
+ * requires users to delegate to themselves in order to activate checkpoints and have their voting power tracked.
+ * Enabling self-delegation can easily be done by overriding the {delegates} function. Keep in mind however that this
+ * will significantly increase the base gas cost of transfers.
  *
  * _Available since v4.2._
  */
-abstract contract ERC20Votes is IComp, ERC20Permit {
+abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
     bytes32 private constant _DELEGATION_TYPEHASH = keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
     mapping (address => address) private _delegates;
     mapping (address => Checkpoint[]) private _checkpoints;
 
+    /**
+     * @dev Get the `pos`-th checkpoint for `account`.
+     */
     function checkpoints(address account, uint32 pos) external view virtual override returns (Checkpoint memory) {
         return _checkpoints[account][pos];
     }
 
+    /**
+     * @dev Get number of checkpoints for `account`.
+     */
     function numCheckpoints(address account) external view virtual override returns (uint32) {
-        return uint32(_checkpoints[account].length);
+        return SafeCast.toUint32(_checkpoints[account].length);
     }
 
     /**
-    * @dev Get the address `account` is currently delegating to.
-    */
+     * @dev Get the address `account` is currently delegating to.
+     */
     function delegates(address account) public view virtual override returns (address) {
         return _delegates[account];
     }
 
     /**
-     * @dev Example: This enables autodelegation, makes each transfer more expensive but doesn't require user to
-     * delegate to themselves. Can be usefull for tokens useds exclusivelly for governance, such as voting wrappers of
-     * pre-existing ERC20.
-     */
-    // function delegates(address account) public view override returns (address) {
-    //     address delegatee = _delegates[account];
-    //     return delegatee == address(0) ? account : delegatee;
-    // }
-
-    /**
-     * @notice Gets the current votes balance for `account`
-     * @param account The address to get votes balance
-     * @return The number of current votes for `account`
+     * @dev Gets the current votes balance for `account`
      */
     function getCurrentVotes(address account) external view override returns (uint256) {
         uint256 pos = _checkpoints[account].length;
@@ -63,17 +58,24 @@ abstract contract ERC20Votes is IComp, ERC20Permit {
     }
 
     /**
-     * @notice Determine the prior number of votes for an account as of a block number
-     * @dev Block number must be a finalized block or else this function will revert to prevent misinformation.
-     * @param account The address of the account to check
-     * @param blockNumber The block number to get the vote balance at
-     * @return The number of votes the account had as of the given block
+     * @dev Determine the number of votes for `account` at the begining of `blockNumber`.
      */
     function getPriorVotes(address account, uint256 blockNumber) external view override returns (uint256) {
         require(blockNumber < block.number, "ERC20Votes::getPriorVotes: not yet determined");
 
         Checkpoint[] storage ckpts = _checkpoints[account];
 
+        // We run a binary search to look for the earliest checkpoint taken after `blockNumber`.
+        //
+        // During the loop, the index of the wanted checkpoint remains in the range [low, high).
+        // With each iteration, either `low` or `high` is moved towards the middle of the range to maintain the invariant.
+        // - If the middle checkpoint is after `blockNumber`, we look in [low, mid)
+        // - If the middle checkpoint is before `blockNumber`, we look in [mid+1, high)
+        // Once we reach a single value (when low == high), we've found the right checkpoint at the index high-1, if not
+        // out of bounds (in which case we're looking too far in the past and the result is 0).
+        // Note that if the latest checkpoint available is exactly for `blockNumber`, we end up with an index that is
+        // past the end of the array, so we technically don't find a checkpoint after `blockNumber`, but it works out
+        // the same.
         uint256 high = ckpts.length;
         uint256 low = 0;
         while (low < high) {
@@ -85,31 +87,24 @@ abstract contract ERC20Votes is IComp, ERC20Permit {
             }
         }
 
-        return low == 0 ? 0 : ckpts[low - 1].votes;
+        return high == 0 ? 0 : ckpts[high - 1].votes;
     }
 
     /**
-    * @notice Delegate votes from the sender to `delegatee`
-    * @param delegatee The address to delegate votes to
-    */
+     * @dev Delegate votes from the sender to `delegatee`.
+     */
     function delegate(address delegatee) public virtual override {
         return _delegate(_msgSender(), delegatee);
     }
 
     /**
-     * @notice Delegates votes from signatory to `delegatee`
-     * @param delegatee The address to delegate votes to
-     * @param nonce The contract state required to match the signature
-     * @param expiry The time at which to expire the signature
-     * @param v The recovery byte of the signature
-     * @param r Half of the ECDSA signature pair
-     * @param s Half of the ECDSA signature pair
+     * @dev Delegates votes from signer to `delegatee`
      */
-    function delegateFromBySig(address delegatee, uint256 nonce, uint256 expiry, uint8 v, bytes32 r, bytes32 s)
-    public virtual override
+    function delegateBySig(address delegatee, uint256 nonce, uint256 expiry, uint8 v, bytes32 r, bytes32 s)
+        public virtual override
     {
         require(block.timestamp <= expiry, "ERC20Votes::delegateBySig: signature expired");
-        address signatory = ECDSA.recover(
+        address signer = ECDSA.recover(
             _hashTypedDataV4(keccak256(abi.encode(
                 _DELEGATION_TYPEHASH,
                 delegatee,
@@ -118,10 +113,13 @@ abstract contract ERC20Votes is IComp, ERC20Permit {
             ))),
             v, r, s
         );
-        require(nonce == _useNonce(signatory), "ERC20Votes::delegateBySig: invalid nonce");
-        return _delegate(signatory, delegatee);
+        require(nonce == _useNonce(signer), "ERC20Votes::delegateBySig: invalid nonce");
+        return _delegate(signer, delegatee);
     }
 
+    /**
+     * @dev Change delegation for `delegator` to `delegatee`.
+     */
     function _delegate(address delegator, address delegatee) internal virtual {
         address currentDelegate = delegates(delegator);
         uint256 delegatorBalance = balanceOf(delegator);
@@ -129,41 +127,46 @@ abstract contract ERC20Votes is IComp, ERC20Permit {
 
         emit DelegateChanged(delegator, currentDelegate, delegatee);
 
-        _moveDelegates(currentDelegate, delegatee, delegatorBalance);
+        _moveVotingPower(currentDelegate, delegatee, delegatorBalance);
     }
 
-    function _moveDelegates(address srcRep, address dstRep, uint256 amount) private {
-        if (srcRep != dstRep && amount > 0) {
-            if (srcRep != address(0)) {
-                uint256 srcRepNum = _checkpoints[srcRep].length;
-                uint256 srcRepOld = srcRepNum == 0 ? 0 : _checkpoints[srcRep][srcRepNum - 1].votes;
-                uint256 srcRepNew = srcRepOld - amount;
-                _writeCheckpoint(srcRep, srcRepNum, srcRepOld, srcRepNew);
+    function _moveVotingPower(address src, address dst, uint256 amount) private {
+        if (src != dst && amount > 0) {
+            if (src != address(0)) {
+                uint256 srcCkptLen = _checkpoints[src].length;
+                uint256 srcCkptOld = srcCkptLen == 0 ? 0 : _checkpoints[src][srcCkptLen - 1].votes;
+                uint256 srcCkptNew = srcCkptOld - amount;
+                _writeCheckpoint(src, srcCkptLen, srcCkptOld, srcCkptNew);
             }
 
-            if (dstRep != address(0)) {
-                uint256 dstRepNum = _checkpoints[dstRep].length;
-                uint256 dstRepOld = dstRepNum == 0 ? 0 : _checkpoints[dstRep][dstRepNum - 1].votes;
-                uint256 dstRepNew = dstRepOld + amount;
-                _writeCheckpoint(dstRep, dstRepNum, dstRepOld, dstRepNew);
+            if (dst != address(0)) {
+                uint256 dstCkptLen = _checkpoints[dst].length;
+                uint256 dstCkptOld = dstCkptLen == 0 ? 0 : _checkpoints[dst][dstCkptLen - 1].votes;
+                uint256 dstCkptNew = dstCkptOld + amount;
+                _writeCheckpoint(dst, dstCkptLen, dstCkptOld, dstCkptNew);
             }
         }
     }
 
     function _writeCheckpoint(address delegatee, uint256 pos, uint256 oldWeight, uint256 newWeight) private {
       if (pos > 0 && _checkpoints[delegatee][pos - 1].fromBlock == block.number) {
-          _checkpoints[delegatee][pos - 1].votes = uint224(newWeight); // TODO: test overflow ?
+          _checkpoints[delegatee][pos - 1].votes = SafeCast.toUint224(newWeight);
       } else {
           _checkpoints[delegatee].push(Checkpoint({
-              fromBlock: uint32(block.number),
-              votes: uint224(newWeight)
+              fromBlock: SafeCast.toUint32(block.number),
+              votes: SafeCast.toUint224(newWeight)
           }));
       }
 
       emit DelegateVotesChanged(delegatee, oldWeight, newWeight);
     }
 
+    function _mint(address account, uint256 amount) internal virtual override {
+        super._mint(account, amount);
+        require(totalSupply() <= type(uint224).max, "ERC20Votes: total supply exceeds 2**224");
+    }
+
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
-        _moveDelegates(delegates(from), delegates(to), amount);
+        _moveVotingPower(delegates(from), delegates(to), amount);
     }
 }

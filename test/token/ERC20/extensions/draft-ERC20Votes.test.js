@@ -8,6 +8,9 @@ const { fromRpcSig } = require('ethereumjs-util');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
+const { promisify } = require('util');
+const queue = promisify(setImmediate);
+
 const ERC20VotesMock = artifacts.require('ERC20VotesMock');
 
 const { EIP712Domain, domainSeparator } = require('../../../helpers/eip712');
@@ -18,23 +21,35 @@ const Delegation = [
   { name: 'expiry', type: 'uint256' },
 ];
 
-function send (method, params = []) {
-  return new Promise(resolve => web3.currentProvider.send({ jsonrpc: '2.0', method, params }, resolve));
+async function countPendingTransactions() {
+  return parseInt(
+    await network.provider.send('eth_getBlockTransactionCountByNumber', ['pending'])
+  );
 }
 
 async function batchInBlock (txs) {
-  const before = await web3.eth.getBlockNumber();
+  try {
+    // disable auto-mining
+    await network.provider.send('evm_setAutomine', [false]);
+    // send all transactions
+    const promises = txs.map(fn => fn());
+    // wait for node to have all pending transactions
+    while (txs.length > await countPendingTransactions()) {
+      await queue();
+    }
+    // mine one block
+    await network.provider.send('evm_mine');
+    // fetch receipts
+    const receipts = await Promise.all(promises);
+    // Sanity check, all tx should be in the same block
+    const minedBlocks = new Set(receipts.map(({ receipt }) => receipt.blockNumber));
+    expect(minedBlocks.size).to.equal(1);
 
-  await send('evm_setAutomine', [false]);
-  const promises = Promise.all(txs.map(fn => fn()));
-  await send('evm_setIntervalMining', [1000]);
-  const receipts = await promises;
-  await send('evm_setAutomine', [true]);
-  await send('evm_setIntervalMining', [false]);
-
-  expect(receipts.map(({ blockNumber }) => blockNumber).every((val, _, arr) => val === arr[0]));
-
-  return receipts;
+    return receipts;
+  } finally {
+    // enable auto-mining
+    await network.provider.send('evm_setAutomine', [true]);
+  }
 }
 
 contract('ERC20Votes', function (accounts) {
@@ -64,6 +79,14 @@ contract('ERC20Votes', function (accounts) {
       await this.token.DOMAIN_SEPARATOR(),
     ).to.equal(
       await domainSeparator(name, version, this.chainId, this.token.address),
+    );
+  });
+
+  it('minting restriction', async function () {
+    const amount = new BN('2').pow(new BN('224'));
+    await expectRevert(
+      ERC20VotesMock.new(name, symbol, holder, amount),
+      'ERC20Votes: total supply exceeds 2**224',
     );
   });
 
@@ -135,7 +158,7 @@ contract('ERC20Votes', function (accounts) {
 
         expect(await this.token.delegates(delegatorAddress)).to.be.equal(ZERO_ADDRESS);
 
-        const { receipt } = await this.token.delegateFromBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s);
+        const { receipt } = await this.token.delegateBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s);
         expectEvent(receipt, 'DelegateChanged', {
           delegator: delegatorAddress,
           fromDelegate: ZERO_ADDRESS,
@@ -165,10 +188,10 @@ contract('ERC20Votes', function (accounts) {
           }),
         ));
 
-        await this.token.delegateFromBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s);
+        await this.token.delegateBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s);
 
         await expectRevert(
-          this.token.delegateFromBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s),
+          this.token.delegateBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s),
           'ERC20Votes::delegateBySig: invalid nonce',
         );
       });
@@ -183,7 +206,7 @@ contract('ERC20Votes', function (accounts) {
           }),
         ));
 
-        const { logs } = await this.token.delegateFromBySig(holderDelegatee, nonce, MAX_UINT256, v, r, s);
+        const { logs } = await this.token.delegateBySig(holderDelegatee, nonce, MAX_UINT256, v, r, s);
         const { args } = logs.find(({ event }) => event == 'DelegateChanged');
         expect(args.delegator).to.not.be.equal(delegatorAddress);
         expect(args.fromDelegate).to.be.equal(ZERO_ADDRESS);
@@ -200,7 +223,7 @@ contract('ERC20Votes', function (accounts) {
           }),
         ));
         await expectRevert(
-          this.token.delegateFromBySig(delegatorAddress, nonce + 1, MAX_UINT256, v, r, s),
+          this.token.delegateBySig(delegatorAddress, nonce + 1, MAX_UINT256, v, r, s),
           'ERC20Votes::delegateBySig: invalid nonce',
         );
       });
@@ -217,7 +240,7 @@ contract('ERC20Votes', function (accounts) {
         ));
 
         await expectRevert(
-          this.token.delegateFromBySig(delegatorAddress, nonce, expiry, v, r, s),
+          this.token.delegateBySig(delegatorAddress, nonce, expiry, v, r, s),
           'ERC20Votes::delegateBySig: signature expired',
         );
       });
@@ -347,6 +370,12 @@ contract('ERC20Votes', function (accounts) {
         expect(await this.token.checkpoints(other1, 1)).to.be.deep.equal([ t2.receipt.blockNumber.toString(), '90' ]);
         expect(await this.token.checkpoints(other1, 2)).to.be.deep.equal([ t3.receipt.blockNumber.toString(), '80' ]);
         expect(await this.token.checkpoints(other1, 3)).to.be.deep.equal([ t4.receipt.blockNumber.toString(), '100' ]);
+
+        await time.advanceBlock();
+        expect(await this.token.getPriorVotes(other1, t1.receipt.blockNumber)).to.be.bignumber.equal('100');
+        expect(await this.token.getPriorVotes(other1, t2.receipt.blockNumber)).to.be.bignumber.equal('90');
+        expect(await this.token.getPriorVotes(other1, t3.receipt.blockNumber)).to.be.bignumber.equal('80');
+        expect(await this.token.getPriorVotes(other1, t4.receipt.blockNumber)).to.be.bignumber.equal('100');
       });
 
       it('does not add more than one checkpoint in a block', async function () {
@@ -354,9 +383,9 @@ contract('ERC20Votes', function (accounts) {
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('0');
 
         const [ t1, t2, t3 ] = await batchInBlock([
-          () => this.token.delegate(other1, { from: recipient }),
-          () => this.token.transfer(other2, 10, { from: recipient }),
-          () => this.token.transfer(other2, 10, { from: recipient }),
+          () => this.token.delegate(other1, { from: recipient, gas: 100000 }),
+          () => this.token.transfer(other2, 10, { from: recipient, gas: 100000 }),
+          () => this.token.transfer(other2, 10, { from: recipient, gas: 100000 }),
         ]);
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('1');
         expect(await this.token.checkpoints(other1, 0)).to.be.deep.equal([ t1.receipt.blockNumber.toString(), '80' ]);
