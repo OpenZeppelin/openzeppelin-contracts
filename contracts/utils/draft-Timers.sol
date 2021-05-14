@@ -95,9 +95,9 @@ abstract contract Timers {
         return _DONE_TIMESTAMP < deadline && deadline <= block.timestamp;
     }
 
-    function _startTimer(bytes32 id, uint256 delay) internal virtual onlyBeforeTimer(id) {
+    function _startTimer(bytes32 id, uint256 delay) internal virtual onlyBeforeTimer(id) returns (uint256 deadline) {
         // solhint-disable-next-line not-rely-on-time
-        uint256 deadline = block.timestamp + delay;
+        deadline = block.timestamp + delay;
 
         _beforeTimer(id, deadline);
 

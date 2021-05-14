@@ -14,9 +14,11 @@ abstract contract Governor is GovernorCore, EIP712 {
         bytes[] calldata data,
         bytes32 salt
     )
-    public virtual override returns (bytes32)
+    public virtual override returns (uint256 proposalId)
     {
-        return _propose(target, value, data, salt);
+        proposalId = _propose(target, value, data, salt);
+        emit ProposalCreated(proposalId, target, value, data, salt);
+        return proposalId;
     }
 
     function execute(
@@ -25,15 +27,18 @@ abstract contract Governor is GovernorCore, EIP712 {
         bytes[] calldata data,
         bytes32 salt
     )
-    public virtual override returns (bytes32)
+    public virtual override returns (uint256 proposalId)
     {
-        return _execute(target, value, data, salt);
+        proposalId = _execute(target, value, data, salt);
+        emit ProposalExecuted(proposalId);
     }
 
     function castVote(uint256 proposalId, uint8 support)
     public virtual override
     {
-        _castVote(bytes32(proposalId), _msgSender(), support);
+        address voter = _msgSender();
+        uint256 balance = _castVote(proposalId, voter, support);
+        emit VoteCast(voter, proposalId, support, balance);
     }
 
     function castVoteBySig(uint256 proposalId, uint8 support, uint8 v, bytes32 r, bytes32 s)
@@ -43,6 +48,7 @@ abstract contract Governor is GovernorCore, EIP712 {
             _hashTypedDataV4(keccak256(abi.encodePacked(_BALLOT_TYPEHASH, proposalId, support))),
             v, r, s
         );
-        _castVote(bytes32(proposalId), voter, support);
+        uint256 balance = _castVote(proposalId, voter, support);
+        emit VoteCast(voter, proposalId, support, balance);
     }
 }

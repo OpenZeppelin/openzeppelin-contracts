@@ -37,33 +37,31 @@ abstract contract GovernorWithTimelockInternal is IGovernorWithTimelock, Governo
         bytes[] calldata data,
         bytes32 salt
     )
-    public virtual override returns (bytes32)
+    public virtual override returns (uint256 proposalId)
     {
-        bytes32 id = hashProposal(target, value, data, salt);
+        proposalId = hashProposal(target, value, data, salt);
 
         // check proposal readyness
-        require(_isTimerAfter(id), "GovernorIntegratedTimelock: too early to queue");
-        (,,uint256 supply, uint256 score) = viewProposal(id);
+        require(_isTimerAfter(bytes32(proposalId)), "GovernorIntegratedTimelock: too early to queue");
+        (,,uint256 supply, uint256 score) = viewProposal(proposalId);
         require(supply >= quorum(), "Governance: quorum not reached");
         require(score >= supply * requiredScore(), "Governance: required score not reached");
 
-        _startTimer(bytes32(uint256(id) + 1), delay());
+        uint256 deadline = _startTimer(bytes32(proposalId + 1), delay());
 
-        emit ProposalQueued(id, _getDeadline(bytes32(uint256(id) + 1)));
-
-        return id;
+        emit ProposalQueued(proposalId, deadline);
     }
 
     function _execute(
-        bytes32 id,
+        uint256 proposalId,
         address[] calldata target,
         uint256[] calldata value,
         bytes[] calldata data,
         bytes32 salt
     )
-    internal virtual override onlyAfterTimer(bytes32(uint256(id) + 1))
+    internal virtual override onlyAfterTimer(bytes32(proposalId + 1))
     {
-        _resetTimer(bytes32(uint256(id) + 1));
-        super._execute(id, target, value, data, salt);
+        _resetTimer(bytes32(proposalId + 1));
+        super._execute(proposalId, target, value, data, salt);
     }
 }

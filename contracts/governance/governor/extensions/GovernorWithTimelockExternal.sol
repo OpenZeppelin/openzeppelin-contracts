@@ -39,9 +39,11 @@ abstract contract GovernorWithTimelockExternal is IGovernorWithTimelock, Governo
         bytes[] calldata data,
         bytes32 salt
     )
-    public virtual override returns (bytes32)
+    public virtual override returns (uint256 proposalId)
     {
-        return super._execute(target, value, data, salt);
+        proposalId = _execute(target, value, data, salt);
+        uint256 eta = block.timestamp + _timelock.getMinDelay();
+        emit ProposalQueued(proposalId, eta);
     }
 
     function execute(
@@ -50,14 +52,15 @@ abstract contract GovernorWithTimelockExternal is IGovernorWithTimelock, Governo
         bytes[] calldata data,
         bytes32 salt
     )
-    public virtual override returns (bytes32)
+    public virtual override returns (uint256 proposalId)
     {
+        proposalId = hashProposal(target, value, data, salt);
         _timelock.executeBatch(target, value, data, 0, salt);
-        emit ProposalExecuted(hashProposal(target, value, data, salt));
+        emit ProposalExecuted(proposalId);
     }
 
     function _calls(
-        bytes32 id,
+        uint256 /*proposalId*/,
         address[] calldata target,
         uint256[] calldata value,
         bytes[] calldata data,
@@ -73,19 +76,5 @@ abstract contract GovernorWithTimelockExternal is IGovernorWithTimelock, Governo
             salt,
             _timelock.getMinDelay()
         );
-    }
-
-    function _afterExecute(
-        bytes32 id,
-        address[] calldata target,
-        uint256[] calldata value,
-        bytes[] calldata data,
-        bytes32 salt
-    )
-    internal virtual override
-    {
-        // solhint-disable-next-line not-rely-on-time
-        uint256 eta = block.timestamp + _timelock.getMinDelay();
-        emit ProposalQueued(id, eta);
     }
 }
