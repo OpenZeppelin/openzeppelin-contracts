@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 
-import "../token/ERC20/extensions/draft-ERC20Votes.sol";
+import "../token/ERC20/extensions/ERC20Votes.sol";
 
 contract ERC20VotesMock is ERC20Votes {
     constructor (
