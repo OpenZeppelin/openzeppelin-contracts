@@ -2,8 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-interface IERC725
-{
+interface IERC725 {
     event DataChanged(bytes32 indexed key, bytes32 indexed value);
     event ContractCreated(address indexed contractAddress);
 
