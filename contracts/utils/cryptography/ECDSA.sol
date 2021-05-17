@@ -31,7 +31,7 @@ library ECDSA {
 
         // Check the signature length
         // - case 65: r,s,v signature (standard)
-        // - case 64: r,vs signature (cf https://eips.ethereum.org/EIPS/eip-2098)
+        // - case 64: r,vs signature (cf https://eips.ethereum.org/EIPS/eip-2098) _Available since v4.1._
         if (signature.length == 65) {
             // ecrecover takes the signature parameters, and the only way to get them
             // currently is to use assembly.

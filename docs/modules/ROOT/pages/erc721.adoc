@@ -16,7 +16,6 @@ Here's what a contract for tokenized items might look like:
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
@@ -41,7 +40,7 @@ contract GameItem is ERC721URIStorage {
 }
 ----
 
-The xref:api:token/ERC721.adoc#ERC721[`ERC721`] contract includes all standard extensions (xref:api:token/ERC721.adoc#IERC721Metadata[`IERC721Metadata`] and xref:api:token/ERC721.adoc#IERC721Enumerable[`IERC721Enumerable`]). That's where the xref:api:token/ERC721.adoc#ERC721-_setTokenURI-uint256-string-[`_setTokenURI`] method comes from: we use it to store an item's metadata.
+The xref:api:token/ERC721.adoc#ERC721URIStorage[`ERC721URIStorage`] contract is an implementation of ERC721 that includes all standard extensions (xref:api:token/ERC721.adoc#IERC721Metadata[`IERC721Metadata`] and xref:api:token/ERC721.adoc#IERC721Enumerable[`IERC721Enumerable`]). That's where the xref:api:token/ERC721.adoc#ERC721-_setTokenURI-uint256-string-[`_setTokenURI`] method comes from: we use it to store an item's metadata.
 
 Also note that, unlike ERC20, ERC721 lacks a `decimals` field, since each token is distinct and cannot be partitioned.
 
