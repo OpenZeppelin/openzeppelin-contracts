@@ -35,4 +35,10 @@ library Counters {
             counter._value = value - 1;
         }
     }
+
+    function reset(Counter storage counter) internal {
+        unchecked {
+            counter._value = 0;
+        }
+    }
 }
