@@ -160,7 +160,7 @@ contract('TimelockController', function (accounts) {
               MINDELAY,
               { from: proposer },
             ),
-            'Timelock: operation already scheduled',
+            'TimelockController: operation already scheduled',
           );
         });
 
@@ -216,7 +216,7 @@ contract('TimelockController', function (accounts) {
               this.operation.salt,
               { from: executor },
             ),
-            'Timelock: operation is not ready',
+            'TimelockController: operation is not ready',
           );
         });
 
@@ -243,7 +243,7 @@ contract('TimelockController', function (accounts) {
                 this.operation.salt,
                 { from: executor },
               ),
-              'Timelock: operation is not ready',
+              'TimelockController: operation is not ready',
             );
           });
 
@@ -260,7 +260,7 @@ contract('TimelockController', function (accounts) {
                 this.operation.salt,
                 { from: executor },
               ),
-              'Timelock: operation is not ready',
+              'TimelockController: operation is not ready',
             );
           });
 
@@ -367,7 +367,7 @@ contract('TimelockController', function (accounts) {
               MINDELAY,
               { from: proposer },
             ),
-            'Timelock: operation already scheduled',
+            'TimelockController: operation already scheduled',
           );
         });
 
@@ -382,7 +382,7 @@ contract('TimelockController', function (accounts) {
               MINDELAY,
               { from: proposer },
             ),
-            'Timelock: length mismatch',
+            'TimelockController: length mismatch',
           );
         });
 
@@ -397,7 +397,7 @@ contract('TimelockController', function (accounts) {
               MINDELAY,
               { from: proposer },
             ),
-            'Timelock: length mismatch',
+            'TimelockController: length mismatch',
           );
         });
 
@@ -453,7 +453,7 @@ contract('TimelockController', function (accounts) {
               this.operation.salt,
               { from: executor },
             ),
-            'Timelock: operation is not ready',
+            'TimelockController: operation is not ready',
           );
         });
 
@@ -480,7 +480,7 @@ contract('TimelockController', function (accounts) {
                 this.operation.salt,
                 { from: executor },
               ),
-              'Timelock: operation is not ready',
+              'TimelockController: operation is not ready',
             );
           });
 
@@ -497,7 +497,7 @@ contract('TimelockController', function (accounts) {
                 this.operation.salt,
                 { from: executor },
               ),
-              'Timelock: operation is not ready',
+              'TimelockController: operation is not ready',
             );
           });
 
@@ -551,7 +551,7 @@ contract('TimelockController', function (accounts) {
                   this.operation.salt,
                   { from: executor },
                 ),
-                'Timelock: length mismatch',
+                'TimelockController: length mismatch',
               );
             });
 
@@ -565,7 +565,7 @@ contract('TimelockController', function (accounts) {
                   this.operation.salt,
                   { from: executor },
                 ),
-                'Timelock: length mismatch',
+                'TimelockController: length mismatch',
               );
             });
 
@@ -579,7 +579,7 @@ contract('TimelockController', function (accounts) {
                   this.operation.salt,
                   { from: executor },
                 ),
-                'Timelock: length mismatch',
+                'TimelockController: length mismatch',
               );
             });
           });
@@ -625,7 +625,7 @@ contract('TimelockController', function (accounts) {
               operation.salt,
               { from: executor },
             ),
-            'Timelock: underlying transaction reverted',
+            'TimelockController: underlying transaction reverted',
           );
         });
       });
@@ -659,7 +659,7 @@ contract('TimelockController', function (accounts) {
       it('cannot cancel invalid operation', async function () {
         await expectRevert(
           this.timelock.cancel(constants.ZERO_BYTES32, { from: proposer }),
-          'Timelock: operation not scheduled yet',
+          'TimelockController: operation cannot be cancelled',
         );
       });
 
@@ -761,7 +761,7 @@ contract('TimelockController', function (accounts) {
           this.operation2.salt,
           { from: executor },
         ),
-        'Timelock: missing dependency',
+        'TimelockController: missing dependency',
       );
     });
 
@@ -847,7 +847,7 @@ contract('TimelockController', function (accounts) {
           operation.salt,
           { from: executor },
         ),
-        'Timelock: underlying transaction reverted',
+        'TimelockController: underlying transaction reverted',
       );
     });
 
@@ -879,7 +879,7 @@ contract('TimelockController', function (accounts) {
           operation.salt,
           { from: executor },
         ),
-        'Timelock: underlying transaction reverted',
+        'TimelockController: underlying transaction reverted',
       );
     });
 
@@ -911,7 +911,7 @@ contract('TimelockController', function (accounts) {
           operation.salt,
           { from: executor, gas: '70000' },
         ),
-        'Timelock: underlying transaction reverted',
+        'TimelockController: underlying transaction reverted',
       );
     });
 
@@ -983,7 +983,7 @@ contract('TimelockController', function (accounts) {
           operation.salt,
           { from: executor },
         ),
-        'Timelock: underlying transaction reverted',
+        'TimelockController: underlying transaction reverted',
       );
 
       expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
@@ -1022,7 +1022,7 @@ contract('TimelockController', function (accounts) {
           operation.salt,
           { from: executor },
         ),
-        'Timelock: underlying transaction reverted',
+        'TimelockController: underlying transaction reverted',
       );
 
       expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
