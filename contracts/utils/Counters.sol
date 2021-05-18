@@ -37,8 +37,6 @@ library Counters {
     }
 
     function reset(Counter storage counter) internal {
-        unchecked {
-            counter._value = 0;
-        }
+        counter._value = 0;
     }
 }
