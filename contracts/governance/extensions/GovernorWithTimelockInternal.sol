@@ -63,7 +63,7 @@ abstract contract GovernorWithTimelockInternal is IGovernorWithTimelock, Governo
         timer.lock();
 
         // Use the non overloaded version
-        GovernorCore._calls(proposalId, target, value, data, salt);
+        Governor._calls(proposalId, target, value, data, salt);
 
         emit ProposalExecuted(proposalId);
     }
