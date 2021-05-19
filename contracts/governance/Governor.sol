@@ -37,7 +37,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
     {
         proposalId = _propose(target, value, data, salt);
         (uint256 snapshot, uint256 deadline,,) = viewProposal(proposalId);
-        emit ProposalCreated(proposalId, target, value, data, salt, snapshot, deadline);
+        emit ProposalCreated(proposalId, _msgSender(), target, value, data, salt, snapshot, deadline);
         return proposalId;
     }
 
@@ -79,7 +79,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
         Time.Timer memory timer = _proposals[proposalId].timer;
         if (timer.isUnset()) return uint8(0x0);
         if (timer.isPending()) return uint8(0x1);
-        if (timer.isExpired())  return uint8(0x2);
+        if (timer.isExpired()) return uint8(0x2);
         if (timer.isLocked()) return uint8(0x3);
         revert();
     }
