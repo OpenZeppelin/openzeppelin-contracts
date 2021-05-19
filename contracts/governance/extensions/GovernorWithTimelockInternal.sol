@@ -34,6 +34,10 @@ abstract contract GovernorWithTimelockInternal is IGovernorWithTimelock, Governo
         _delay = newDelay;
     }
 
+    function timelock() public virtual override returns (address) {
+        return address(this);
+    }
+
     function queue(
         address[] calldata target,
         uint256[] calldata value,

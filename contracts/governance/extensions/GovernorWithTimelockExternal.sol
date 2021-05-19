@@ -19,10 +19,6 @@ abstract contract GovernorWithTimelockExternal is IGovernorWithTimelock, Governo
         _updateTimelock(timelock_);
     }
 
-    function timelock() public view  returns (TimelockController) {
-        return _timelock;
-    }
-
     function updateTimelock(address newTimelock) external virtual {
         require(msg.sender == address(this), "GovernorIntegratedTimelock: caller must be governor");
         _updateTimelock(newTimelock);
@@ -31,6 +27,10 @@ abstract contract GovernorWithTimelockExternal is IGovernorWithTimelock, Governo
     function _updateTimelock(address newTimelock) internal virtual {
         emit TimelockChange(address(_timelock), newTimelock);
         _timelock = TimelockController(payable(newTimelock));
+    }
+
+    function timelock() public virtual override returns (address) {
+        return address(_timelock);
     }
 
     function queue(
