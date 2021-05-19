@@ -8,6 +8,7 @@ abstract contract IGovernor {
      */
     event ProposalCreated(uint256 indexed proposalId, address[] targets, uint256[] values, bytes[] calldatas, bytes32 salt, uint256 votingSnapshot, uint256 votingDeadline);
     event ProposalExecuted(uint256 indexed proposalId);
+    event ProposalCanceled(uint256 indexed proposalId);
     event VoteCast(address indexed voter, uint256 indexed proposalId, uint8 support, uint256 votes);
 
     /**

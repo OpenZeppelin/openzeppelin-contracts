@@ -97,7 +97,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
     }
 
     function hashProposal(address[] calldata, uint256[] calldata, bytes[] calldata, bytes32)
-    public view  virtual override returns (uint256 proposalId)
+    public view virtual override returns (uint256 proposalId)
     {
         // This is cheaper and works just as well
         return uint256(keccak256(_msgData()[4:]));
@@ -113,21 +113,10 @@ abstract contract Governor is IGovernor, EIP712, Context {
         bytes[] calldata data,
         bytes32 salt
     )
-    internal virtual returns (uint256 proposalId)
+    internal virtual returns (uint256)
     {
-        proposalId = hashProposal(target, value, data, salt);
-        _propose(proposalId, target, value, data, salt);
-    }
+        uint256 proposalId = hashProposal(target, value, data, salt);
 
-    function _propose(
-        uint256 proposalId,
-        address[] calldata target,
-        uint256[] calldata value,
-        bytes[] calldata data,
-        bytes32 /*salt*/
-    )
-    internal virtual
-    {
         require(target.length == value.length, "Governance: invalid proposal length");
         require(target.length == data.length,  "Governance: invalid proposal length");
         require(target.length > 0,             "Governance: empty proposal");
@@ -137,6 +126,23 @@ abstract contract Governor is IGovernor, EIP712, Context {
 
         proposal.timer.setDeadline(block.timestamp + votingDuration());
         proposal.snapshot = block.number + votingOffset();
+
+        return proposalId;
+    }
+
+    function _cancel(
+        address[] calldata target,
+        uint256[] calldata value,
+        bytes[] calldata data,
+        bytes32 salt
+    )
+    internal virtual returns (uint256)
+    {
+        uint256 proposalId = hashProposal(target, value, data, salt);
+
+        _proposals[proposalId].timer.lock();
+
+        return proposalId;
     }
 
     function _execute(
@@ -145,21 +151,10 @@ abstract contract Governor is IGovernor, EIP712, Context {
         bytes[] calldata data,
         bytes32 salt
     )
-    internal virtual returns (uint256 proposalId)
+    internal virtual returns (uint256)
     {
-        proposalId = hashProposal(target, value, data, salt);
-        _execute(proposalId, target, value, data, salt);
-    }
+        uint256 proposalId = hashProposal(target, value, data, salt);
 
-    function _execute(
-        uint256 proposalId,
-        address[] calldata target,
-        uint256[] calldata value,
-        bytes[] calldata data,
-        bytes32 salt
-    )
-    internal virtual
-    {
         require(target.length == value.length, "Governance: invalid proposal length");
         require(target.length == data.length,  "Governance: invalid proposal length");
         require(target.length > 0,             "Governance: empty proposal");
@@ -171,6 +166,8 @@ abstract contract Governor is IGovernor, EIP712, Context {
         proposal.timer.lock();
 
         _calls(proposalId, target, value, data, salt);
+
+        return proposalId;
     }
 
     function _castVote(
