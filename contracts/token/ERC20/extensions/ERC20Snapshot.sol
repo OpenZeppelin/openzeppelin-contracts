@@ -20,6 +20,13 @@ import "../../../utils/Counters.sol";
  * id. To get the balance of an account at the time of a snapshot, call the {balanceOfAt} function with the snapshot id
  * and the account address.
  *
+ * NOTE: Snapshot policy can be customized by overriding the {_getCurrentSnapshotId} method. For example, having it
+ * return `block.number` will trigger the creation of snapshot at the begining of each new block. When overridding this
+ * function, be careful about the monotonicity of its result. Non-monotonic snapshot ids will break the contract.
+ *
+ * Implementing snapshots for every block using this method will incur significant gas costs. For a gas-efficient
+ * alternative consider {ERC20Votes}.
+ *
  * ==== Gas Costs
  *
  * Snapshots are efficient. Snapshot creation is _O(1)_. Retrieval of balances or total supply from a snapshot is _O(log
@@ -30,6 +37,7 @@ import "../../../utils/Counters.sol";
  * only significant for the first transfer that immediately follows a snapshot for a particular account. Subsequent
  * transfers will have normal cost until the next snapshot, and so on.
  */
+
 abstract contract ERC20Snapshot is ERC20 {
     // Inspired by Jordi Baylina's MiniMeToken to record historical balances:
     // https://github.com/Giveth/minimd/blob/ea04d950eea153a04c51fa510b068b9dded390cb/contracts/MiniMeToken.sol
@@ -79,9 +87,16 @@ abstract contract ERC20Snapshot is ERC20 {
     function _snapshot() internal virtual returns (uint256) {
         _currentSnapshotId.increment();
 
-        uint256 currentId = _currentSnapshotId.current();
+        uint256 currentId = _getCurrentSnapshotId();
         emit Snapshot(currentId);
         return currentId;
+    }
+
+    /**
+     * @dev Get the current snapshotId
+     */
+    function _getCurrentSnapshotId() internal view virtual returns (uint256) {
+        return _currentSnapshotId.current();
     }
 
     /**
@@ -101,7 +116,6 @@ abstract contract ERC20Snapshot is ERC20 {
 
         return snapshotted ? value : totalSupply();
     }
-
 
     // Update balance and/or total supply snapshots before the values are modified. This is implemented
     // in the _beforeTokenTransfer hook, which is executed for _mint, _burn, and _transfer operations.
@@ -127,8 +141,7 @@ abstract contract ERC20Snapshot is ERC20 {
         private view returns (bool, uint256)
     {
         require(snapshotId > 0, "ERC20Snapshot: id is 0");
-        // solhint-disable-next-line max-line-length
-        require(snapshotId <= _currentSnapshotId.current(), "ERC20Snapshot: nonexistent id");
+        require(snapshotId <= _getCurrentSnapshotId(), "ERC20Snapshot: nonexistent id");
 
         // When a valid snapshot is queried, there are three possibilities:
         //  a) The queried value was not modified after the snapshot was taken. Therefore, a snapshot entry was never
@@ -162,7 +175,7 @@ abstract contract ERC20Snapshot is ERC20 {
     }
 
     function _updateSnapshot(Snapshots storage snapshots, uint256 currentValue) private {
-        uint256 currentId = _currentSnapshotId.current();
+        uint256 currentId = _getCurrentSnapshotId();
         if (_lastSnapshotId(snapshots.ids) < currentId) {
             snapshots.ids.push(currentId);
             snapshots.values.push(currentValue);
