@@ -53,30 +53,11 @@ abstract contract GovernorWithTimelockExternal is IGovernorWithTimelock, Governo
         bytes[] memory calldatas,
         bytes32 salt
     )
-    public virtual override returns (uint256 proposalId)
+    public payable virtual override returns (uint256 proposalId)
     {
         proposalId = hashProposal(targets, values, calldatas, salt);
-        _timelock.executeBatch(targets, values, calldatas, 0, salt);
+        _timelock.executeBatch{ value: msg.value }(targets, values, calldatas, 0, salt);
         emit ProposalExecuted(proposalId);
-    }
-
-    function _calls(
-        uint256 /*proposalId*/,
-        address[] memory target,
-        uint256[] memory value,
-        bytes[] memory data,
-        bytes32 salt
-    )
-    internal virtual override
-    {
-        _timelock.scheduleBatch(
-            target,
-            value,
-            data,
-            0,
-            salt,
-            _timelock.getMinDelay()
-        );
     }
 
     function _cancel(
@@ -94,4 +75,24 @@ abstract contract GovernorWithTimelockExternal is IGovernorWithTimelock, Governo
             _timelock.cancel(timelockProposalId);
         }
     }
+
+    function _calls(
+        uint256 /*proposalId*/,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 salt
+    )
+    internal virtual override
+    {
+        _timelock.scheduleBatch(
+            targets,
+            values,
+            calldatas,
+            0,
+            salt,
+            _timelock.getMinDelay()
+        );
+    }
+
 }

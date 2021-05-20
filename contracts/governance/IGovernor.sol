@@ -38,7 +38,7 @@ abstract contract IGovernor {
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 salt
-    ) public virtual returns (uint256 proposalId);
+    ) public payable virtual returns (uint256 proposalId);
 
     function castVote(uint256 proposalId, uint8 support)
         public virtual;

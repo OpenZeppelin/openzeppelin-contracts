@@ -48,7 +48,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
         bytes[] memory calldatas,
         bytes32 salt
     )
-    public virtual override returns (uint256 proposalId)
+    public payable virtual override returns (uint256 proposalId)
     {
         proposalId = _execute(targets, values, calldatas, salt);
         emit ProposalExecuted(proposalId);
