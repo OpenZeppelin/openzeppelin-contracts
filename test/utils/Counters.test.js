@@ -61,4 +61,24 @@ contract('Counters', function (accounts) {
       });
     });
   });
+
+  describe('reset', function () {
+    context('null counter', function () {
+      it('does not throw', async function () {
+        await this.counter.reset();
+        expect(await this.counter.current()).to.be.bignumber.equal('0');
+      });
+    });
+
+    context('non null counter', function () {
+      beforeEach(async function () {
+        await this.counter.increment();
+        expect(await this.counter.current()).to.be.bignumber.equal('1');
+      });
+      it('reset to 0', async function () {
+        await this.counter.reset();
+        expect(await this.counter.current()).to.be.bignumber.equal('0');
+      });
+    });
+  });
 });
