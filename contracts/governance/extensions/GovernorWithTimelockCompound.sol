@@ -7,7 +7,7 @@ import "./ICompTimelock.sol";
 import "../Governor.sol";
 import "../TimelockController.sol";
 
-abstract contract GovernorWithTimelockExternal is IGovernorWithTimelock, Governor {
+abstract contract GovernorWithTimelockCompound is IGovernorWithTimelock, Governor {
     ICompTimelock private _timelock;
     mapping(uint256 => uint256) _proposalETA;
 
@@ -44,7 +44,7 @@ abstract contract GovernorWithTimelockExternal is IGovernorWithTimelock, Governo
     )
     public virtual returns (uint256 proposalId)
     {
-        // _call is overriden to customize _execute action (while keeping the checks)
+        // _call is overriden have no action (while keeping the checks)
         proposalId = _execute(targets, values, calldatas, salt);
 
         uint256 eta = block.timestamp + _timelock.delay();
