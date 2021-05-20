@@ -2,15 +2,16 @@
 
 pragma solidity ^0.8.0;
 
-import "./IGovernorWithTimelock.sol";
 import "./ICompTimelock.sol";
 import "../Governor.sol";
 import "../TimelockController.sol";
 
-abstract contract GovernorWithTimelockCompound is IGovernorWithTimelock, Governor {
+// cannot inherit `IGovernorWithTimelock` since we are not implementing the same interface.
+abstract contract GovernorWithTimelockCompound is Governor {
     ICompTimelock private _timelock;
     mapping(uint256 => uint256) _proposalETA;
 
+    event ProposalQueued(uint256 indexed proposalId, uint256 eta);
     /**
      * @dev Emitted when the minimum delay for future operations is modified.
      */
@@ -31,7 +32,7 @@ abstract contract GovernorWithTimelockCompound is IGovernorWithTimelock, Governo
         _timelock = ICompTimelock(payable(newTimelock));
     }
 
-    function timelock() public virtual override returns (address) {
+    function timelock() public virtual returns (address) {
         return address(_timelock);
     }
 
@@ -63,6 +64,17 @@ abstract contract GovernorWithTimelockCompound is IGovernorWithTimelock, Governo
         }
 
         emit ProposalQueued(proposalId, eta);
+    }
+
+    function execute(
+        address[] memory /*targets*/,
+        uint256[] memory /*values*/,
+        bytes[] memory /*calldatas*/,
+        bytes32 /*salt*/
+    )
+    public payable virtual override returns (uint256)
+    {
+        revert("function-is-disabled");
     }
 
     function execute(
