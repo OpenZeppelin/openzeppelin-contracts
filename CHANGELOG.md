@@ -6,6 +6,7 @@
  * Enumerables: Improve gas cost of removal in `EnumerableSet` and `EnumerableMap`.
  * Enumerables: Improve gas cost of lookup in `EnumerableSet` and `EnumerableMap`.
  * `Counter`: add a reset method. ([#2678](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2678))
+ * Tokens: Wrap definitely safe subtractions in `unchecked` blocks. 
  * `Math`: Add a `ceilDiv` method for performing ceiling division.
 
 ## 4.1.0 (2021-04-29)
