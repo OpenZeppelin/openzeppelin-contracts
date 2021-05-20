@@ -16,4 +16,8 @@ contract MathMock {
     function average(uint256 a, uint256 b) public pure returns (uint256) {
         return Math.average(a, b);
     }
+
+    function ceilDiv(uint256 a, uint256 b) public pure returns (uint256) {
+        return Math.ceilDiv(a, b);
+    }
 }
