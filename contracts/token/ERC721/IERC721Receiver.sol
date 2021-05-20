@@ -2,4 +2,4 @@
 
 pragma solidity ^0.8.0;
 
-import "../../interfaces/IERC721.sol";
+import "../../interfaces/IERC721Receiver.sol";
