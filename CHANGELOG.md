@@ -9,6 +9,14 @@
  * Tokens: Wrap definitely safe subtractions in `unchecked` blocks. 
  * `Math`: Add a `ceilDiv` method for performing ceiling division.
 
+ ### Breaking Changes
+ 
+ * `ERC20FlashMint` is no longer a Draft ERC. ([#2673](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2673)))
+ 
+**How to update:** Change your import paths by removing the `draft-` prefix from `@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20FlashMint.sol`.
+
+> See [Releases and Stability: Drafts](https://docs.openzeppelin.com/contracts/4.x/releases-stability#drafts).
+
 ## 4.1.0 (2021-04-29)
 
  * `IERC20Metadata`: add a new extended interface that includes the optional `name()`, `symbol()` and `decimals()` functions. ([#2561](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2561))
