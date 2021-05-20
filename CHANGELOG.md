@@ -5,7 +5,14 @@
 * `ERC20Votes`: add a new extension of the `ERC20` token with support for voting snapshots and delegation. This extension is compatible with Compound's `Comp` token interface. ([#2632](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2632))
  * Enumerables: Improve gas cost of removal in `EnumerableSet` and `EnumerableMap`.
  * Enumerables: Improve gas cost of lookup in `EnumerableSet` and `EnumerableMap`.
- * `ERC20Votes` is no longer marked as draft. ([#2673](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2673))) 
+
+ ### Breaking Changes
+ 
+ * `ERC20FlashMint` is no longer a Draft ERC. ([#2673](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2673)))
+ 
+**How to update:** Change your import paths by removing the `draft-` prefix from `@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20FlashMint.sol`.
+
+> See [Releases and Stability: Drafts](https://docs.openzeppelin.com/contracts/4.x/releases-stability#drafts).
 
 ## 4.1.0 (2021-04-29)
 
