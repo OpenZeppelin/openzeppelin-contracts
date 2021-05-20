@@ -8,6 +8,7 @@
  * `Counter`: add a reset method. ([#2678](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2678))
  * Tokens: Wrap definitely safe subtractions in `unchecked` blocks. 
  * `Math`: Add a `ceilDiv` method for performing ceiling division.
+ * `ERC1155Supply`: add a new `ERC1155` extension that keeps track of the totalSupply of each tokenId. ([#2593](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2593))
 
  ### Breaking Changes
  
