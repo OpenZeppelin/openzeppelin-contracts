@@ -2,11 +2,12 @@
 
 ## Unreleased
 
-* `ERC20Votes`: add a new extension of the `ERC20` token with support for voting snapshots and delegation. This extension is compatible with Compound's `Comp` token interface. ([#2632](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2632))
+ * `ERC20Votes`: add a new extension of the `ERC20` token with support for voting snapshots and delegation. This extension is compatible with Compound's `Comp` token interface. ([#2632](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2632))
  * Enumerables: Improve gas cost of removal in `EnumerableSet` and `EnumerableMap`.
  * Enumerables: Improve gas cost of lookup in `EnumerableSet` and `EnumerableMap`.
  * `Counter`: add a reset method. ([#2678](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2678))
  * Tokens: Wrap definitely safe subtractions in `unchecked` blocks. 
+ * `Math`: Add a `ceilDiv` method for performing ceiling division.
 
 ## 4.1.0 (2021-04-29)
 
