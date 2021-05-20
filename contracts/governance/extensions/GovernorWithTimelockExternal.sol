@@ -78,4 +78,20 @@ abstract contract GovernorWithTimelockExternal is IGovernorWithTimelock, Governo
             _timelock.getMinDelay()
         );
     }
+
+    function _cancel(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 salt
+    )
+    internal virtual override returns (uint256 proposalId)
+    {
+        proposalId = super._cancel(targets, values, calldatas, salt);
+
+        bytes32 timelockProposalId = _timelock.hashOperationBatch(targets, values, calldatas, 0, salt);
+        if (_timelock.isOperationPending(timelockProposalId)) {
+            _timelock.cancel(timelockProposalId);
+        }
+    }
 }

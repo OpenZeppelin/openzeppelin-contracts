@@ -84,4 +84,16 @@ abstract contract GovernorWithTimelockInternal is IGovernorWithTimelock, Governo
         // DO NOT EXECUTE, instead, start the execution timer
         _executionTimers[proposalId].setDeadline(block.timestamp + delay());
     }
+
+    function _cancel(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 salt
+    )
+    internal virtual override returns (uint256 proposalId)
+    {
+        proposalId = super._cancel(targets, values, calldatas, salt);
+        _executionTimers[proposalId].lock();
+    }
 }
