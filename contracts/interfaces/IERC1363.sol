@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.0;
 
-import "../token/ERC20/IERC20.sol";
-import "../utils/introspection/IERC165.sol";
+import "./IERC20.sol";
+import "./IERC165.sol";
 
 interface IERC1363 is IERC20, IERC165 {
   /*
