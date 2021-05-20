@@ -23,10 +23,15 @@ library Math {
     /**
      * @dev Returns the average of two numbers. The result is rounded towards
      * zero.
+     *
+     * Counterpart to Solidity's `+` operator.
+     *
+     * Requirements:
+     *
+     * - Addition cannot overflow.
      */
     function average(uint256 a, uint256 b) internal pure returns (uint256) {
-        // (a + b) / 2 can overflow, so we distribute.
-        return (a / 2) + (b / 2) + ((a % 2 + b % 2) / 2);
+        return (a + b) / 2;
     }
 
     /**
