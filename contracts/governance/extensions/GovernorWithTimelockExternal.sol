@@ -34,37 +34,37 @@ abstract contract GovernorWithTimelockExternal is IGovernorWithTimelock, Governo
     }
 
     function queue(
-        address[] calldata target,
-        uint256[] calldata value,
-        bytes[] calldata data,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
         bytes32 salt
     )
     public virtual override returns (uint256 proposalId)
     {
         // _call is overriden to customize _execute action (while keeping the checks)
-        proposalId = _execute(target, value, data, salt);
+        proposalId = _execute(targets, values, calldatas, salt);
         uint256 eta = block.timestamp + _timelock.getMinDelay();
         emit ProposalQueued(proposalId, eta);
     }
 
     function execute(
-        address[] calldata target,
-        uint256[] calldata value,
-        bytes[] calldata data,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
         bytes32 salt
     )
     public virtual override returns (uint256 proposalId)
     {
-        proposalId = hashProposal(target, value, data, salt);
-        _timelock.executeBatch(target, value, data, 0, salt);
+        proposalId = hashProposal(targets, values, calldatas, salt);
+        _timelock.executeBatch(targets, values, calldatas, 0, salt);
         emit ProposalExecuted(proposalId);
     }
 
     function _calls(
         uint256 /*proposalId*/,
-        address[] calldata target,
-        uint256[] calldata value,
-        bytes[] calldata data,
+        address[] memory target,
+        uint256[] memory value,
+        bytes[] memory data,
         bytes32 salt
     )
     internal virtual override

@@ -46,7 +46,10 @@ contract('Governance', function (accounts) {
 
       describe('with proposed', () => {
         beforeEach(async () => {
-          ({ receipt: this.receipts.propose } = await this.governance.propose(...this.proposal));
+          ({ receipt: this.receipts.propose } = await this.governance.propose(
+            ...this.proposal,
+            '<proposal description>',
+          ));
           expectEvent(this.receipts.propose, 'ProposalCreated');
         });
 

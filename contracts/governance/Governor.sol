@@ -28,28 +28,29 @@ abstract contract Governor is IGovernor, EIP712, Context {
      *                           Public interface                            *
      *************************************************************************/
     function propose(
-        address[] calldata target,
-        uint256[] calldata value,
-        bytes[] calldata data,
-        bytes32 salt
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 salt,
+        string memory description
     )
     public virtual override returns (uint256 proposalId)
     {
-        proposalId = _propose(target, value, data, salt);
-        (uint256 snapshot, uint256 deadline,,) = viewProposal(proposalId);
-        emit ProposalCreated(proposalId, _msgSender(), target, value, data, salt, snapshot, deadline);
-        return proposalId;
+        uint256 snapshot;
+        uint256 deadline;
+        (proposalId, snapshot, deadline) = _propose(targets, values, calldatas, salt);
+        emit ProposalCreated(proposalId, _msgSender(), targets, values, calldatas, salt, snapshot, deadline, description);
     }
 
     function execute(
-        address[] calldata target,
-        uint256[] calldata value,
-        bytes[] calldata data,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
         bytes32 salt
     )
     public virtual override returns (uint256 proposalId)
     {
-        proposalId = _execute(target, value, data, salt);
+        proposalId = _execute(targets, values, calldatas, salt);
         emit ProposalExecuted(proposalId);
     }
 
@@ -96,68 +97,66 @@ abstract contract Governor is IGovernor, EIP712, Context {
         );
     }
 
-    function hashProposal(address[] calldata, uint256[] calldata, bytes[] calldata, bytes32)
+    function hashProposal(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 salt)
     public view virtual override returns (uint256 proposalId)
     {
         // This is cheaper and works just as well
-        return uint256(keccak256(_msgData()[4:]));
-        // return uint256(keccak256(abi.encode(target, value, data, salt)));
+        // return uint256(keccak256(_msgData()[4:]));
+        return uint256(keccak256(abi.encode(targets, values, calldatas, salt)));
     }
 
     /*************************************************************************
      *                               Internal                                *
      *************************************************************************/
     function _propose(
-        address[] calldata target,
-        uint256[] calldata value,
-        bytes[] calldata data,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
         bytes32 salt
     )
-    internal virtual returns (uint256)
+    internal virtual returns (uint256 proposalId, uint256 snapshot, uint256 deadline)
     {
-        uint256 proposalId = hashProposal(target, value, data, salt);
+        proposalId = hashProposal(targets, values, calldatas, salt);
 
-        require(target.length == value.length, "Governance: invalid proposal length");
-        require(target.length == data.length,  "Governance: invalid proposal length");
-        require(target.length > 0,             "Governance: empty proposal");
+        require(targets.length == values.length,    "Governance: invalid proposal length");
+        require(targets.length == calldatas.length, "Governance: invalid proposal length");
+        require(targets.length > 0,                 "Governance: empty proposal");
 
         Proposal storage proposal = _proposals[proposalId];
         require(proposal.timer.isUnset(), "Governance: proposal already exists");
 
-        proposal.timer.setDeadline(block.timestamp + votingDuration());
-        proposal.snapshot = block.number + votingOffset();
+        snapshot = block.number + votingOffset();
+        deadline = block.timestamp + votingDuration();
 
-        return proposalId;
+        proposal.snapshot = snapshot;
+        proposal.timer.setDeadline(deadline);
     }
 
     function _cancel(
-        address[] calldata target,
-        uint256[] calldata value,
-        bytes[] calldata data,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
         bytes32 salt
     )
-    internal virtual returns (uint256)
+    internal virtual returns (uint256 proposalId)
     {
-        uint256 proposalId = hashProposal(target, value, data, salt);
-
+        proposalId = hashProposal(targets, values, calldatas, salt);
         _proposals[proposalId].timer.lock();
-
-        return proposalId;
     }
 
     function _execute(
-        address[] calldata target,
-        uint256[] calldata value,
-        bytes[] calldata data,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
         bytes32 salt
     )
-    internal virtual returns (uint256)
+    internal virtual returns (uint256 proposalId)
     {
-        uint256 proposalId = hashProposal(target, value, data, salt);
+        proposalId = hashProposal(targets, values, calldatas, salt);
 
-        require(target.length == value.length, "Governance: invalid proposal length");
-        require(target.length == data.length,  "Governance: invalid proposal length");
-        require(target.length > 0,             "Governance: empty proposal");
+        require(targets.length == values.length,    "Governance: invalid proposal length");
+        require(targets.length == calldatas.length, "Governance: invalid proposal length");
+        require(targets.length > 0,                 "Governance: empty proposal");
 
         Proposal storage proposal = _proposals[proposalId];
         require(proposal.timer.isExpired(), "Governance: proposal not ready to execute");
@@ -165,7 +164,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
         require(proposal.score >= proposal.supply * requiredScore(), "Governance: required score not reached");
         proposal.timer.lock();
 
-        _calls(proposalId, target, value, data, salt);
+        _calls(proposalId, targets, values, calldatas, salt);
 
         return proposalId;
     }
@@ -191,15 +190,15 @@ abstract contract Governor is IGovernor, EIP712, Context {
 
     function _calls(
         uint256 /*proposalId*/,
-        address[] calldata target,
-        uint256[] calldata value,
-        bytes[] calldata data,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
         bytes32 /*salt*/
     )
     internal virtual
     {
-        for (uint256 i = 0; i < target.length; ++i) {
-            _call(target[i], value[i], data[i]);
+        for (uint256 i = 0; i < targets.length; ++i) {
+            _call(targets[i], values[i], calldatas[i]);
         }
     }
 

@@ -39,44 +39,44 @@ abstract contract GovernorWithTimelockInternal is IGovernorWithTimelock, Governo
     }
 
     function queue(
-        address[] calldata target,
-        uint256[] calldata value,
-        bytes[] calldata data,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
         bytes32 salt
     )
     public virtual override returns (uint256 proposalId)
     {
         // _call is overriden to customize _execute action (while keeping the checks)
-        proposalId = _execute(target, value, data, salt);
+        proposalId = _execute(targets, values, calldatas, salt);
         uint256 eta = block.timestamp + delay();
         emit ProposalQueued(proposalId, eta);
     }
 
     function execute(
-        address[] calldata target,
-        uint256[] calldata value,
-        bytes[] calldata data,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
         bytes32 salt
     )
     public virtual override returns (uint256 proposalId)
     {
-        proposalId = hashProposal(target, value, data, salt);
+        proposalId = hashProposal(targets, values, calldatas, salt);
 
         Time.Timer storage timer = _executionTimers[proposalId];
         require(timer.isExpired(), "Governance: proposal not ready to execute");
         timer.lock();
 
         // Use the non overloaded version
-        Governor._calls(proposalId, target, value, data, salt);
+        Governor._calls(proposalId, targets, values, calldatas, salt);
 
         emit ProposalExecuted(proposalId);
     }
 
     function _calls(
         uint256 proposalId,
-        address[] calldata /*target*/,
-        uint256[] calldata /*value*/,
-        bytes[] calldata /*data*/,
+        address[] memory /*targets*/,
+        uint256[] memory /*values*/,
+        bytes[] memory /*calldatas*/,
         bytes32 /*salt*/
     )
     internal virtual override

@@ -6,7 +6,7 @@ abstract contract IGovernor {
     /**
      * Events
      */
-    event ProposalCreated(uint256 indexed proposalId, address indexed proposer, address[] targets, uint256[] values, bytes[] calldatas, bytes32 salt, uint256 votingSnapshot, uint256 votingDeadline);
+    event ProposalCreated(uint256 indexed proposalId, address indexed proposer, address[] targets, uint256[] values, bytes[] calldatas, bytes32 salt, uint256 votingSnapshot, uint256 votingDeadline, string description);
     event ProposalCanceled(uint256 indexed proposalId);
     event ProposalExecuted(uint256 indexed proposalId);
     event VoteCast(address indexed voter, uint256 indexed proposalId, uint8 support, uint256 votes);
@@ -20,22 +20,23 @@ abstract contract IGovernor {
     function viewProposal(uint256 proposalId)
         public view virtual returns (uint256 startBlock, uint256 deadline, uint256 supply, uint256 score);
 
-    function hashProposal(address[] calldata target, uint256[] calldata value, bytes[] calldata data, bytes32 salt)
+    function hashProposal(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 salt)
         public view virtual returns (uint256 proposalId);
 
     // No checks, can be added through inheritance
     function propose(
-        address[] calldata targets,
-        uint256[] calldata values,
-        bytes[] calldata calldatas,
-        bytes32 salt
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 salt,
+        string memory description
     ) public virtual returns (uint256 proposalId);
 
     // No checks, can be added through inheritance
     function execute(
-        address[] calldata targets,
-        uint256[] calldata values,
-        bytes[] calldata calldatas,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
         bytes32 salt
     ) public virtual returns (uint256 proposalId);
 

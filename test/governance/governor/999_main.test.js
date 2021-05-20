@@ -28,7 +28,7 @@ function governanceWorkflow () {
       beforeEach(async () => {
         if (this.settings.steps.propose.enable) {
           this.receipts.propose = await getReceiptOrReason(
-            this.governance.propose(...this.settings.proposal),
+            this.governance.propose(...this.settings.proposal, '<proposal description>'),
             this.settings.steps.propose.reason,
           );
         }

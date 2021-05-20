@@ -29,7 +29,7 @@ contract('Governance - schedule', function (accounts) {
         web3.utils.randomHex(32),
       ];
       const proposalId = await this.governance.hashProposal(...proposal);
-      const { receipt } = await this.governance.propose(...proposal);
+      const { receipt } = await this.governance.propose(...proposal, '<proposal description>');
       expectEvent(receipt, 'ProposalCreated', { proposalId });
     });
 
@@ -41,7 +41,7 @@ contract('Governance - schedule', function (accounts) {
         web3.utils.randomHex(32),
       ];
       await expectRevert(
-        this.governance.propose(...proposal),
+        this.governance.propose(...proposal, '<proposal description>'),
         'Governance: invalid proposal length',
       );
     });
@@ -54,7 +54,7 @@ contract('Governance - schedule', function (accounts) {
         web3.utils.randomHex(32),
       ];
       await expectRevert(
-        this.governance.propose(...proposal),
+        this.governance.propose(...proposal, ''),
         'Governance: empty proposal',
       );
     });

@@ -14,9 +14,9 @@ abstract contract IGovernorWithTimelock {
     // Only available through a "timelock" modules (internal / external OZ / external Compound)
     // No checks, can be added through inheritance
     function queue(
-        address[] calldata targets,
-        uint256[] calldata values,
-        bytes[] calldata calldatas,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
         bytes32 salt
     ) public virtual returns (uint256 proposalId);
 }
