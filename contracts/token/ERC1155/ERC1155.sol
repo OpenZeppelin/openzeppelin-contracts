@@ -10,7 +10,6 @@ import "../../utils/Context.sol";
 import "../../utils/introspection/ERC165.sol";
 
 /**
- *
  * @dev Implementation of the basic standard multi-token.
  * See https://eips.ethereum.org/EIPS/eip-1155
  * Originally based on code by Enjin: https://github.com/enjin/erc-1155
@@ -130,24 +129,11 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         virtual
         override
     {
-        require(to != address(0), "ERC1155: transfer to the zero address");
         require(
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
             "ERC1155: caller is not owner nor approved"
         );
-
-        address operator = _msgSender();
-
-        _beforeTokenTransfer(operator, from, to, _asSingletonArray(id), _asSingletonArray(amount), data);
-
-        uint256 fromBalance = _balances[id][from];
-        require(fromBalance >= amount, "ERC1155: insufficient balance for transfer");
-        _balances[id][from] = fromBalance - amount;
-        _balances[id][to] += amount;
-
-        emit TransferSingle(operator, from, to, id, amount);
-
-        _doSafeTransferAcceptanceCheck(operator, from, to, id, amount, data);
+        _safeTransferFrom(from, to, id, amount, data);
     }
 
     /**
@@ -164,12 +150,75 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         virtual
         override
     {
-        require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
-        require(to != address(0), "ERC1155: transfer to the zero address");
         require(
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
             "ERC1155: transfer caller is not owner nor approved"
         );
+        _safeBatchTransferFrom(from, to, ids, amounts, data);
+    }
+
+    /**
+     * @dev Transfers `amount` tokens of token type `id` from `from` to `to`.
+     *
+     * Emits a {TransferSingle} event.
+     *
+     * Requirements:
+     *
+     * - `to` cannot be the zero address.
+     * - `from` must have a balance of tokens of type `id` of at least `amount`.
+     * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155Received} and return the
+     * acceptance magic value.
+     */
+    function _safeTransferFrom(
+        address from,
+        address to,
+        uint256 id,
+        uint256 amount,
+        bytes memory data
+    )
+        internal
+        virtual
+    {
+        require(to != address(0), "ERC1155: transfer to the zero address");
+
+        address operator = _msgSender();
+
+        _beforeTokenTransfer(operator, from, to, _asSingletonArray(id), _asSingletonArray(amount), data);
+
+        uint256 fromBalance = _balances[id][from];
+        require(fromBalance >= amount, "ERC1155: insufficient balance for transfer");
+        unchecked {
+            _balances[id][from] = fromBalance - amount;
+        }
+        _balances[id][to] += amount;
+
+        emit TransferSingle(operator, from, to, id, amount);
+
+        _doSafeTransferAcceptanceCheck(operator, from, to, id, amount, data);
+    }
+
+    /**
+     * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {_safeTransferFrom}.
+     *
+     * Emits a {TransferBatch} event.
+     *
+     * Requirements:
+     *
+     * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155BatchReceived} and return the
+     * acceptance magic value.
+     */
+    function _safeBatchTransferFrom(
+        address from,
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    )
+        internal
+        virtual
+    {
+        require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
+        require(to != address(0), "ERC1155: transfer to the zero address");
 
         address operator = _msgSender();
 
@@ -181,7 +230,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
             uint256 fromBalance = _balances[id][from];
             require(fromBalance >= amount, "ERC1155: insufficient balance for transfer");
-            _balances[id][from] = fromBalance - amount;
+            unchecked {
+                _balances[id][from] = fromBalance - amount;
+            }
             _balances[id][to] += amount;
         }
 
@@ -280,7 +331,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
         uint256 accountBalance = _balances[id][account];
         require(accountBalance >= amount, "ERC1155: burn amount exceeds balance");
-        _balances[id][account] = accountBalance - amount;
+        unchecked {
+            _balances[id][account] = accountBalance - amount;
+        }
 
         emit TransferSingle(operator, account, address(0), id, amount);
     }
@@ -306,7 +359,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
             uint256 accountBalance = _balances[id][account];
             require(accountBalance >= amount, "ERC1155: burn amount exceeds balance");
-            _balances[id][account] = accountBalance - amount;
+            unchecked {
+                _balances[id][account] = accountBalance - amount;
+            }
         }
 
         emit TransferBatch(operator, account, address(0), ids, amounts);

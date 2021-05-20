@@ -51,7 +51,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     mapping(address => mapping(address => bool)) private _revokedDefaultOperators;
 
     // ERC20-allowances
-    mapping (address => mapping (address => uint256)) private _allowances;
+    mapping(address => mapping(address => uint256)) private _allowances;
 
     /**
      * @dev `defaultOperators` may be an empty array.
@@ -419,7 +419,9 @@ contract ERC777 is Context, IERC777, IERC20 {
         // Update state variables
         uint256 fromBalance = _balances[from];
         require(fromBalance >= amount, "ERC777: burn amount exceeds balance");
-        _balances[from] = fromBalance - amount;
+        unchecked {
+            _balances[from] = fromBalance - amount;
+        }
         _totalSupply -= amount;
 
         emit Burned(operator, from, amount, data, operatorData);
@@ -440,7 +442,9 @@ contract ERC777 is Context, IERC777, IERC20 {
 
         uint256 fromBalance = _balances[from];
         require(fromBalance >= amount, "ERC777: transfer amount exceeds balance");
-        _balances[from] = fromBalance - amount;
+        unchecked {
+            _balances[from] = fromBalance - amount;
+        }
         _balances[to] += amount;
 
         emit Sent(operator, from, to, amount, userData, operatorData);

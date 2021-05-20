@@ -6,10 +6,11 @@ NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/
 Miscellaneous contracts and libraries containing utility functions you can use to improve security, work with new data types, or safely use low-level primitives.
 
 The {Address}, {Arrays} and {Strings} libraries provide more operations related to these native data types, while {SafeCast} adds ways to safely convert between the different signed and unsigned numeric types.
+{Multicall} provides a function to batch together multiple calls in a single external call.
 
 For new data types:
 
- * {Counters}: a simple way to get a counter that can only be incremented or decremented. Very useful for ID generation, counting contract activity, among others.
+ * {Counters}: a simple way to get a counter that can only be incremented, decremented or reset. Very useful for ID generation, counting contract activity, among others.
  * {EnumerableMap}: like Solidity's https://solidity.readthedocs.io/en/latest/types.html#mapping-types[`mapping`] type, but with key-value _enumeration_: this will let you know how many entries a mapping has, and iterate over them (which is not possible with `mapping`).
  * {EnumerableSet}: like {EnumerableMap}, but for https://en.wikipedia.org/wiki/Set_(abstract_data_type)[sets]. Can be used to store privileged accounts, issued IDs, etc.
 
@@ -35,6 +36,8 @@ Finally, {Create2} contains all necessary utilities to safely use the https://bl
 == Cryptography
 
 {{ECDSA}}
+
+{{SignatureChecker}}
 
 {{MerkleProof}}
 
@@ -92,3 +95,7 @@ Note that, in all cases, accounts simply _declare_ their interfaces, but they ar
 {{Counters}}
 
 {{Strings}}
+
+{{StorageSlot}}
+
+{{Multicall}}

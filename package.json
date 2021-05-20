@@ -1,7 +1,7 @@
 {
   "name": "openzeppelin-solidity",
   "description": "Secure Smart Contract library for Solidity",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "files": [
     "/contracts/**/*.sol",
     "/build/contracts/*.json",
@@ -27,7 +27,7 @@
     "release": "scripts/release/release.sh",
     "version": "scripts/release/version.sh",
     "test": "hardhat test",
-    "gas-report": "env ENABLE_GAS_REPORT=1 npm run test"
+    "gas-report": "env ENABLE_GAS_REPORT=true npm run test"
   },
   "repository": {
     "type": "git",
@@ -76,6 +76,7 @@
     "solhint": "^3.2.0",
     "solidity-coverage": "^0.7.11",
     "solidity-docgen": "^0.5.3",
-    "web3": "^1.3.0"
+    "web3": "^1.3.0",
+    "yargs": "^17.0.0"
   }
 }
