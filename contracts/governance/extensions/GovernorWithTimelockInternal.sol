@@ -63,7 +63,7 @@ abstract contract GovernorWithTimelockInternal is IGovernorWithTimelock, Governo
         proposalId = hashProposal(targets, values, calldatas, salt);
 
         Time.Timer storage timer = _executionTimers[proposalId];
-        require(timer.isExpired(), "Governance: proposal not ready to execute");
+        require(timer.isExpired(), "Governance: proposal timelock not ready");
         timer.lock();
 
         // Use the non overloaded version

@@ -225,7 +225,7 @@ contract('Governance', function (accounts) {
           steps: {
             propose: { enable: false },
             wait: { enable: false },
-            execute: { reason: 'Governance: proposal not ready to execute' },
+            execute: { reason: 'Governance: proposal not ready' },
           },
         };
       });
@@ -394,7 +394,7 @@ contract('Governance', function (accounts) {
           ],
           steps: {
             wait: { enable: false },
-            execute: { reason: 'Governance: proposal not ready to execute' },
+            execute: { reason: 'Governance: proposal not ready' },
           },
         };
       });
@@ -574,7 +574,7 @@ contract('Governance', function (accounts) {
 
             await expectRevert(
               this.governor.execute(...this.settings.proposal.slice(0, -1)),
-              'Governance: proposal not ready to execute',
+              'Governance: proposal not ready',
             );
           },
         };
@@ -605,7 +605,7 @@ contract('Governance', function (accounts) {
 
             await expectRevert(
               this.governor.execute(...this.settings.proposal.slice(0, -1)),
-              'Governance: proposal not ready to execute',
+              'Governance: proposal not ready',
             );
           },
         };
@@ -633,7 +633,7 @@ contract('Governance', function (accounts) {
 
             await expectRevert(
               this.governor.execute(...this.settings.proposal.slice(0, -1)),
-              'Governance: proposal not ready to execute',
+              'Governance: proposal not ready',
             );
           },
         };

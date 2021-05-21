@@ -153,7 +153,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
         proposalId = hashProposal(targets, values, calldatas, salt);
 
         Proposal storage proposal = _proposals[proposalId];
-        require(proposal.timer.isExpired(), "Governance: proposal not ready to execute");
+        require(proposal.timer.isExpired(), "Governance: proposal not ready");
         require(proposal.supply >= quorum(), "Governance: quorum not reached");
         require(proposal.score >= proposal.supply * requiredScore(), "Governance: required score not reached");
         proposal.timer.lock();
