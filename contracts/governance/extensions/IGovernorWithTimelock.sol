@@ -9,7 +9,7 @@ abstract contract IGovernorWithTimelock {
     event ProposalQueued(uint256 indexed proposalId, uint256 eta);
 
     function timelock()
-    public virtual returns (address);
+    public view virtual returns (address);
 
     // Only available through a "timelock" modules (internal / external OZ / external Compound)
     // No checks, can be added through inheritance

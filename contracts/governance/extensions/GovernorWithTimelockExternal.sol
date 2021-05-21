@@ -29,7 +29,7 @@ abstract contract GovernorWithTimelockExternal is IGovernorWithTimelock, Governo
         _timelock = TimelockController(payable(newTimelock));
     }
 
-    function timelock() public virtual override returns (address) {
+    function timelock() public view virtual override returns (address) {
         return address(_timelock);
     }
 

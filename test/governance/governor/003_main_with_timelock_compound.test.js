@@ -1,10 +1,15 @@
 const { BN, expectEvent, time } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
+const RLP = require('rlp');
 
 const Token = artifacts.require('ERC20VotesMock');
-const Timelock = artifacts.require('TimelockController');
-const Governance = artifacts.require('GovernorWithTimelockInternalMock');
+const Timelock = artifacts.require('CompTimelock');
+const Governance = artifacts.require('GovernorWithTimelockCompoundMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
+
+function makeContractAddress (creator, nonce) {
+  return web3.utils.toChecksumAddress(web3.utils.sha3(RLP.encode([creator, nonce])).slice(12).substring(14));
+}
 
 contract('Governance', function (accounts) {
   const [ voter ] = accounts;
@@ -17,7 +22,14 @@ contract('Governance', function (accounts) {
 
   beforeEach(async () => {
     this.token = await Token.new(tokenName, tokenSymbol, voter, tokenSupply);
-    this.governance = await Governance.new(name, version, this.token.address, 3600);
+
+    // Need to predict governance address to set it as timelock admin
+    const [ deployer ] = await web3.eth.getAccounts();
+    const nonce = await web3.eth.getTransactionCount(deployer);
+    const predictGovernance = makeContractAddress(deployer, nonce + 1);
+
+    this.timelock = await Timelock.new(predictGovernance, 2 * 86400);
+    this.governance = await Governance.new(name, version, this.token.address, this.timelock.address);
     this.receiver = await CallReceiver.new();
     await this.token.delegate(voter, { from: voter });
   });
@@ -28,6 +40,9 @@ contract('Governance', function (accounts) {
     expect(await this.governance.quorum()).to.be.bignumber.equal('1');
     expect(await this.governance.maxScore()).to.be.bignumber.equal('100');
     expect(await this.governance.requiredScore()).to.be.bignumber.equal('50');
+
+    expect(await this.governance.timelock()).to.be.equal(this.timelock.address);
+    expect(await this.timelock.admin()).to.be.equal(this.governance.address);
   });
 
   describe('workflow', () => {
@@ -73,20 +88,19 @@ contract('Governance', function (accounts) {
               beforeEach(async () => {
                 ({ receipt: this.receipts.queue } = await this.governance.queue(...this.proposal));
                 expectEvent(this.receipts.queue, 'ProposalQueued');
-                // expectEvent(this.receipts.queue, 'CallScheduled'); // not parsed, see postcheck for check
               });
 
               describe('after timelock', () => {
                 beforeEach(async () => {
-                  const { eta } = this.receipts.queue.logs.find(({ event }) => event === 'ProposalQueued').args;
-                  await time.increaseTo(eta);
+                  this.eta = await this.governance.proposalEta(this.id);
+                  await time.increaseTo(this.eta.addn(1));
+                  await time.increase(2 * 86400);
                 });
 
                 describe('with execute', () => {
                   beforeEach(async () => {
                     ({ receipt: this.receipts.execute } = await this.governance.execute(...this.proposal));
                     expectEvent(this.receipts.execute, 'ProposalExecuted');
-                    // expectEvent(this.receipts.execute, 'CallExecuted'); // not parsed, see postcheck for check
                   });
 
                   it('post check', async () => {

@@ -34,7 +34,7 @@ abstract contract GovernorWithTimelockInternal is IGovernorWithTimelock, Governo
         _delay = newDelay;
     }
 
-    function timelock() public virtual override returns (address) {
+    function timelock() public view virtual override returns (address) {
         return address(this);
     }
 

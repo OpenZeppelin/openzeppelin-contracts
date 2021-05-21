@@ -9,7 +9,7 @@ import "../TimelockController.sol";
 
 abstract contract GovernorWithTimelockCompound is IGovernorWithTimelock, Governor {
     ICompTimelock private _timelock;
-    mapping(uint256 => uint256) _proposalETA;
+    mapping(uint256 => uint256) private _proposalEtas;
 
     /**
      * @dev Emitted when the minimum delay for future operations is modified.
@@ -31,8 +31,12 @@ abstract contract GovernorWithTimelockCompound is IGovernorWithTimelock, Governo
         _timelock = ICompTimelock(payable(newTimelock));
     }
 
-    function timelock() public virtual override returns (address) {
+    function timelock() public view virtual override returns (address) {
         return address(_timelock);
+    }
+
+    function proposalEta(uint256 proposalId) public view virtual returns (uint256) {
+        return _proposalEtas[proposalId];
     }
 
     function queue(
@@ -47,7 +51,7 @@ abstract contract GovernorWithTimelockCompound is IGovernorWithTimelock, Governo
         proposalId = _execute(targets, values, calldatas, salt);
 
         uint256 eta = block.timestamp + _timelock.delay();
-        _proposalETA[proposalId] = eta;
+        _proposalEtas[proposalId] = eta;
 
         for (uint256 i = 0; i < targets.length; ++i) {
             _timelock.queueTransaction(
@@ -73,7 +77,7 @@ abstract contract GovernorWithTimelockCompound is IGovernorWithTimelock, Governo
         proposalId = hashProposal(targets, values, calldatas, salt);
         Address.sendValue(payable(_timelock), msg.value);
 
-        uint256 eta = _proposalETA[proposalId];
+        uint256 eta = _proposalEtas[proposalId];
         if (eta > 0) {
             for (uint256 i = 0; i < targets.length; ++i) {
                 _timelock.executeTransaction(
@@ -99,7 +103,7 @@ abstract contract GovernorWithTimelockCompound is IGovernorWithTimelock, Governo
     {
         proposalId = super._cancel(targets, values, calldatas, salt);
 
-        uint256 eta = _proposalETA[proposalId];
+        uint256 eta = _proposalEtas[proposalId];
         if (eta > 0) {
             for (uint256 i = 0; i < targets.length; ++i) {
                 _timelock.cancelTransaction(
@@ -123,5 +127,10 @@ abstract contract GovernorWithTimelockCompound is IGovernorWithTimelock, Governo
     internal virtual override
     {
         // don't do anything here to avoid sload of `eta`
+    }
+
+    // TODO: Does this need access control? Make it part of updateTimelock ?
+    function __acceptAdmin() public {
+        _timelock.acceptAdmin();
     }
 }
