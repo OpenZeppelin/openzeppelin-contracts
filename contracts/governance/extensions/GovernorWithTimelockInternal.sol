@@ -25,7 +25,7 @@ abstract contract GovernorWithTimelockInternal is IGovernorWithTimelock, Governo
     }
 
     function updateDelay(uint256 newDelay) external virtual {
-        require(msg.sender == address(this), "GovernorIntegratedTimelock: caller must be governor");
+        require(msg.sender == address(this), "GovernorWithTimelockInternal: caller must be governor");
         _updateDelay(newDelay);
     }
 

@@ -24,18 +24,18 @@ contract('Governance', function (accounts) {
   beforeEach(async () => {
     this.owner = owner;
     this.token = await Token.new(tokenName, tokenSymbol, owner, tokenSupply);
-    this.governance = await Governance.new(name, version, this.token.address);
+    this.governor = await Governance.new(name, version, this.token.address);
     this.receiver = await CallReceiver.new();
     await this.token.delegate(voter1, { from: voter1 });
     await this.token.delegate(voter2, { from: voter2 });
   });
 
   it('deployment check', async () => {
-    expect(await this.governance.token()).to.be.bignumber.equal(this.token.address);
-    expect(await this.governance.votingDuration()).to.be.bignumber.equal('604800');
-    expect(await this.governance.quorum()).to.be.bignumber.equal('1');
-    expect(await this.governance.maxScore()).to.be.bignumber.equal('100');
-    expect(await this.governance.requiredScore()).to.be.bignumber.equal('50');
+    expect(await this.governor.token()).to.be.bignumber.equal(this.token.address);
+    expect(await this.governor.votingDuration()).to.be.bignumber.equal('604800');
+    expect(await this.governor.quorum()).to.be.bignumber.equal('1');
+    expect(await this.governor.maxScore()).to.be.bignumber.equal('100');
+    expect(await this.governor.requiredScore()).to.be.bignumber.equal('50');
   });
 
   describe('scenario', () => {
@@ -115,7 +115,7 @@ contract('Governance', function (accounts) {
                     { name: 'support', type: 'uint8' },
                   ],
                 },
-                domain: { name, version, chainId, verifyingContract: this.governance.address },
+                domain: { name, version, chainId, verifyingContract: this.governor.address },
                 primaryType: 'Ballot',
                 message,
               },
@@ -159,11 +159,11 @@ contract('Governance', function (accounts) {
 
     describe('send ethers', () => {
       beforeEach(async () => {
-        const receiver = web3.utils.randomHex(20);
+        const receiver = web3.utils.toChecksumAddress(web3.utils.randomHex(20));
         const value = web3.utils.toWei('1');
 
-        await web3.eth.sendTransaction({ from: owner, to: this.governance.address, value });
-        expect(await web3.eth.getBalance(this.governance.address)).to.be.bignumber.equal(value);
+        await web3.eth.sendTransaction({ from: owner, to: this.governor.address, value });
+        expect(await web3.eth.getBalance(this.governor.address)).to.be.bignumber.equal(value);
 
         this.settings = {
           proposal: [
@@ -189,7 +189,7 @@ contract('Governance', function (accounts) {
               'ProposalExecuted',
               { proposalId: this.id },
             );
-            expect(await web3.eth.getBalance(this.governance.address)).to.be.bignumber.equal('0');
+            expect(await web3.eth.getBalance(this.governor.address)).to.be.bignumber.equal('0');
             expect(await web3.eth.getBalance(receiver)).to.be.bignumber.equal(value);
           },
         };
@@ -247,7 +247,7 @@ contract('Governance', function (accounts) {
             execute: { enable: false },
           },
           after: async () => {
-            await expectRevert(this.governance.propose(...this.settings.proposal), 'Governance: proposal already exists');
+            await expectRevert(this.governor.propose(...this.settings.proposal), 'Governance: proposal already exists');
           },
         };
       });
@@ -270,7 +270,7 @@ contract('Governance', function (accounts) {
             { address: voter2, weight: web3.utils.toWei('1'), support: new BN('40') },
           ],
           after: async () => {
-            await expectRevert(this.governance.propose(...this.settings.proposal), 'Governance: proposal already exists');
+            await expectRevert(this.governor.propose(...this.settings.proposal), 'Governance: proposal already exists');
           },
         };
       });
@@ -419,7 +419,7 @@ contract('Governance', function (accounts) {
             execute: { enable: false },
           },
           after: async () => {
-            expect(await this.governance.viewProposalStatus(this.id)).to.be.bignumber.equal('0');
+            expect(await this.governor.viewProposalStatus(this.id)).to.be.bignumber.equal('0');
           },
         };
       });
@@ -441,7 +441,7 @@ contract('Governance', function (accounts) {
             execute: { enable: false },
           },
           after: async () => {
-            expect(await this.governance.viewProposalStatus(this.id)).to.be.bignumber.equal('1');
+            expect(await this.governor.viewProposalStatus(this.id)).to.be.bignumber.equal('1');
           },
         };
       });
@@ -462,7 +462,7 @@ contract('Governance', function (accounts) {
             execute: { enable: false },
           },
           after: async () => {
-            expect(await this.governance.viewProposalStatus(this.id)).to.be.bignumber.equal('2');
+            expect(await this.governor.viewProposalStatus(this.id)).to.be.bignumber.equal('2');
           },
         };
       });
@@ -484,7 +484,157 @@ contract('Governance', function (accounts) {
             { address: voter1, weight: web3.utils.toWei('1'), support: new BN('100') },
           ],
           after: async () => {
-            expect(await this.governance.viewProposalStatus(this.id)).to.be.bignumber.equal('3');
+            expect(await this.governor.viewProposalStatus(this.id)).to.be.bignumber.equal('3');
+          },
+        };
+      });
+      runGovernorWorkflow();
+    });
+  });
+
+  describe('Cancel', () => {
+    describe('Before proposal', () => {
+      beforeEach(async () => {
+        this.settings = {
+          proposal: [
+            [ this.receiver.address ],
+            [ web3.utils.toWei('0') ],
+            [ this.receiver.contract.methods.mockFunction().encodeABI() ],
+            web3.utils.randomHex(32),
+            '<proposal description>',
+          ],
+          steps: {
+            propose: { enable: false },
+            wait: { enable: false },
+            execute: { enable: false },
+          },
+          after: async () => {
+            await this.governor.cancel(...this.settings.proposal.slice(0, -1));
+            expect(await this.governor.viewProposalStatus(this.id)).to.be.bignumber.equal('3');
+
+            await expectRevert(
+              this.governor.propose(...this.settings.proposal),
+              'Governance: proposal already exists',
+            );
+          },
+        };
+      });
+      runGovernorWorkflow();
+    });
+
+    describe('After proposal', () => {
+      beforeEach(async () => {
+        this.settings = {
+          proposal: [
+            [ this.receiver.address ],
+            [ web3.utils.toWei('0') ],
+            [ this.receiver.contract.methods.mockFunction().encodeABI() ],
+            web3.utils.randomHex(32),
+            '<proposal description>',
+          ],
+          steps: {
+            wait: { enable: false },
+            execute: { enable: false },
+          },
+          after: async () => {
+            await this.governor.cancel(...this.settings.proposal.slice(0, -1));
+            expect(await this.governor.viewProposalStatus(this.id)).to.be.bignumber.equal('3');
+
+            await expectRevert(
+              this.governor.castVote(this.id, new BN('100'), { from: voter1 }),
+              'Governance: vote not currently active',
+            );
+          },
+        };
+      });
+      runGovernorWorkflow();
+    });
+
+    describe('After vote', () => {
+      beforeEach(async () => {
+        this.settings = {
+          proposal: [
+            [ this.receiver.address ],
+            [ web3.utils.toWei('0') ],
+            [ this.receiver.contract.methods.mockFunction().encodeABI() ],
+            web3.utils.randomHex(32),
+            '<proposal description>',
+          ],
+          tokenHolder: owner,
+          voters: [
+            { address: voter1, weight: web3.utils.toWei('1'), support: new BN('100') },
+          ],
+          steps: {
+            wait: { enable: false },
+            execute: { enable: false },
+          },
+          after: async () => {
+            await this.governor.cancel(...this.settings.proposal.slice(0, -1));
+            expect(await this.governor.viewProposalStatus(this.id)).to.be.bignumber.equal('3');
+
+            await expectRevert(
+              this.governor.execute(...this.settings.proposal.slice(0, -1)),
+              'Governance: proposal not ready to execute',
+            );
+          },
+        };
+      });
+      runGovernorWorkflow();
+    });
+
+    describe('After deadline', () => {
+      beforeEach(async () => {
+        this.settings = {
+          proposal: [
+            [ this.receiver.address ],
+            [ web3.utils.toWei('0') ],
+            [ this.receiver.contract.methods.mockFunction().encodeABI() ],
+            web3.utils.randomHex(32),
+            '<proposal description>',
+          ],
+          tokenHolder: owner,
+          voters: [
+            { address: voter1, weight: web3.utils.toWei('1'), support: new BN('100') },
+          ],
+          steps: {
+            execute: { enable: false },
+          },
+          after: async () => {
+            await this.governor.cancel(...this.settings.proposal.slice(0, -1));
+            expect(await this.governor.viewProposalStatus(this.id)).to.be.bignumber.equal('3');
+
+            await expectRevert(
+              this.governor.execute(...this.settings.proposal.slice(0, -1)),
+              'Governance: proposal not ready to execute',
+            );
+          },
+        };
+      });
+      runGovernorWorkflow();
+    });
+
+    describe('After execution', () => {
+      beforeEach(async () => {
+        this.settings = {
+          proposal: [
+            [ this.receiver.address ],
+            [ web3.utils.toWei('0') ],
+            [ this.receiver.contract.methods.mockFunction().encodeABI() ],
+            web3.utils.randomHex(32),
+            '<proposal description>',
+          ],
+          tokenHolder: owner,
+          voters: [
+            { address: voter1, weight: web3.utils.toWei('1'), support: new BN('100') },
+          ],
+          after: async () => {
+            await this.governor.cancel(...this.settings.proposal.slice(0, -1));
+            expect(await this.governor.viewProposalStatus(this.id)).to.be.bignumber.equal('3');
+
+            await expectRevert(
+              this.governor.execute(...this.settings.proposal.slice(0, -1)),
+              'Governance: proposal not ready to execute',
+            );
           },
         };
       });
@@ -495,7 +645,7 @@ contract('Governance', function (accounts) {
   describe('Proposal length', () => {
     it('empty', async () => {
       await expectRevert(
-        this.governance.propose(
+        this.governor.propose(
           [],
           [],
           [],
@@ -508,7 +658,7 @@ contract('Governance', function (accounts) {
 
     it('missmatch #1', async () => {
       await expectRevert(
-        this.governance.propose(
+        this.governor.propose(
           [ ],
           [ web3.utils.toWei('0') ],
           [ this.receiver.contract.methods.mockFunction().encodeABI() ],
@@ -521,7 +671,7 @@ contract('Governance', function (accounts) {
 
     it('missmatch #2', async () => {
       await expectRevert(
-        this.governance.propose(
+        this.governor.propose(
           [ this.receiver.address ],
           [ ],
           [ this.receiver.contract.methods.mockFunction().encodeABI() ],
@@ -534,7 +684,7 @@ contract('Governance', function (accounts) {
 
     it('missmatch #3', async () => {
       await expectRevert(
-        this.governance.propose(
+        this.governor.propose(
           [ this.receiver.address ],
           [ web3.utils.toWei('0') ],
           [ ],

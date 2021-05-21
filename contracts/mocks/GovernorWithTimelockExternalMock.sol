@@ -28,4 +28,13 @@ contract GovernorWithTimelockExternalMock is GovernorWithTimelockExternal {
     function getVotes(address account, uint256 blockNumber) public view virtual override returns(uint256) {
         return _token.getPriorVotes(account, blockNumber);
     }
+
+    function cancel(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 salt
+    ) public returns (uint256 proposalId) {
+        return _cancel(targets, values, calldatas, salt);
+    }
 }

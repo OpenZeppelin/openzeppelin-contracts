@@ -1,4 +1,4 @@
-const { BN, expectEvent, time } = require('@openzeppelin/test-helpers');
+const { BN, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const Token = artifacts.require('ERC20VotesMock');
@@ -16,17 +16,19 @@ contract('Governance', function (accounts) {
 
   beforeEach(async () => {
     this.token = await Token.new(tokenName, tokenSymbol, voter, tokenSupply);
-    this.governance = await Governance.new(name, version, this.token.address, 3600);
+    this.governor = await Governance.new(name, version, this.token.address, 3600);
     this.receiver = await CallReceiver.new();
     await this.token.delegate(voter, { from: voter });
   });
 
   it('post deployment check', async () => {
-    expect(await this.governance.token()).to.be.bignumber.equal(this.token.address);
-    expect(await this.governance.votingDuration()).to.be.bignumber.equal('604800');
-    expect(await this.governance.quorum()).to.be.bignumber.equal('1');
-    expect(await this.governance.maxScore()).to.be.bignumber.equal('100');
-    expect(await this.governance.requiredScore()).to.be.bignumber.equal('50');
+    expect(await this.governor.token()).to.be.bignumber.equal(this.token.address);
+    expect(await this.governor.votingDuration()).to.be.bignumber.equal('604800');
+    expect(await this.governor.quorum()).to.be.bignumber.equal('1');
+    expect(await this.governor.maxScore()).to.be.bignumber.equal('100');
+    expect(await this.governor.requiredScore()).to.be.bignumber.equal('50');
+
+    expect(await this.governor.timelock()).to.be.equal(this.governor.address);
   });
 
   describe('workflow', () => {
@@ -37,24 +39,22 @@ contract('Governance', function (accounts) {
           [ new BN('0') ],
           [ this.receiver.contract.methods.mockFunction().encodeABI() ],
           web3.utils.randomHex(32),
+          '<proposal description>',
         ];
-        this.id = await this.governance.hashProposal(...this.proposal);
+        this.id = await this.governor.hashProposal(...this.proposal.slice(0, -1));
         this.voteSupport = new BN(100);
         this.receipts = {};
       });
 
       describe('with proposed', () => {
         beforeEach(async () => {
-          ({ receipt: this.receipts.propose } = await this.governance.propose(
-            ...this.proposal,
-            '<proposal description>',
-          ));
+          ({ receipt: this.receipts.propose } = await this.governor.propose(...this.proposal));
           expectEvent(this.receipts.propose, 'ProposalCreated');
         });
 
         describe('with vote', () => {
           beforeEach(async () => {
-            ({ receipt: this.receipts.castVote } = await this.governance.castVote(
+            ({ receipt: this.receipts.castVote } = await this.governor.castVote(
               this.id,
               this.voteSupport,
               { from: voter },
@@ -64,13 +64,13 @@ contract('Governance', function (accounts) {
 
           describe('after deadline', () => {
             beforeEach(async () => {
-              ({ deadline: this.deadline } = await this.governance.viewProposal(this.id));
+              ({ deadline: this.deadline } = await this.governor.viewProposal(this.id));
               await time.increaseTo(this.deadline.addn(1));
             });
 
             describe('with queue', () => {
               beforeEach(async () => {
-                ({ receipt: this.receipts.queue } = await this.governance.queue(...this.proposal));
+                ({ receipt: this.receipts.queue } = await this.governor.queue(...this.proposal.slice(0, -1)));
                 expectEvent(this.receipts.queue, 'ProposalQueued');
                 // expectEvent(this.receipts.queue, 'CallScheduled'); // not parsed, see postcheck for check
               });
@@ -83,7 +83,7 @@ contract('Governance', function (accounts) {
 
                 describe('with execute', () => {
                   beforeEach(async () => {
-                    ({ receipt: this.receipts.execute } = await this.governance.execute(...this.proposal));
+                    ({ receipt: this.receipts.execute } = await this.governor.execute(...this.proposal.slice(0, -1)));
                     expectEvent(this.receipts.execute, 'ProposalExecuted');
                     // expectEvent(this.receipts.execute, 'CallExecuted'); // not parsed, see postcheck for check
                   });
@@ -121,6 +121,35 @@ contract('Governance', function (accounts) {
           });
         });
       });
+    });
+  });
+
+  describe('updateDelay', () => {
+    it('protected', async () => {
+      await expectRevert(this.governor.updateDelay(0), 'GovernorWithTimelockInternal: caller must be governor');
+    });
+
+    it('update by proposal', async () => {
+      const proposal = [
+        [ this.governor.address ],
+        [ new BN('0') ],
+        [ this.governor.contract.methods.updateDelay(7200).encodeABI() ],
+        web3.utils.randomHex(32),
+        '<proposal description>',
+      ];
+      const proposalId = await this.governor.hashProposal(...proposal.slice(0, -1));
+
+      await this.governor.propose(...proposal);
+      await this.governor.castVote(proposalId, new BN('100'), { from: voter });
+      const { deadline } = await this.governor.viewProposal(proposalId);
+      await time.increaseTo(deadline.addn(1));
+      const { receipt: receiptQueue } = await this.governor.queue(...proposal.slice(0, -1));
+      const { eta } = receiptQueue.logs.find(({ event }) => event === 'ProposalQueued').args;
+      await time.increaseTo(eta);
+      const { receipt: receiptExecute } = await this.governor.execute(...proposal.slice(0, -1));
+
+      await expectEvent(receiptExecute, 'DelayChange', { oldDuration: '3600', newDuration: '7200' });
+      expect(await this.governor.delay()).to.be.bignumber.equal('7200');
     });
   });
 });

@@ -81,8 +81,8 @@ abstract contract Governor is IGovernor, EIP712, Context {
         if (timer.isUnset()) return uint8(0x0);
         if (timer.isPending()) return uint8(0x1);
         if (timer.isExpired()) return uint8(0x2);
-        if (timer.isLocked()) return uint8(0x3);
-        revert();
+        // default: timer.isLocked()
+        return uint8(0x3);
     }
 
     function viewProposal(uint256 proposalId)
@@ -100,8 +100,6 @@ abstract contract Governor is IGovernor, EIP712, Context {
     function hashProposal(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 salt)
     public view virtual override returns (uint256 proposalId)
     {
-        // This is cheaper and works just as well
-        // return uint256(keccak256(_msgData()[4:]));
         return uint256(keccak256(abi.encode(targets, values, calldatas, salt)));
     }
 
