@@ -25,7 +25,7 @@ contract('Governance', function (accounts) {
     await this.token.delegate(voter, { from: voter });
   });
 
-  it('governance', async () => {
+  it('post deployment check', async () => {
     expect(await this.governance.token()).to.be.bignumber.equal(this.token.address);
     expect(await this.governance.votingDuration()).to.be.bignumber.equal('604800');
     expect(await this.governance.quorum()).to.be.bignumber.equal('1');

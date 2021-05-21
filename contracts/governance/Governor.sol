@@ -66,7 +66,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
     public virtual override
     {
         address voter = ECDSA.recover(
-            _hashTypedDataV4(keccak256(abi.encodePacked(_BALLOT_TYPEHASH, proposalId, support))),
+            _hashTypedDataV4(keccak256(abi.encode(_BALLOT_TYPEHASH, proposalId, support))),
             v, r, s
         );
         uint256 balance = _castVote(proposalId, voter, support);
@@ -153,10 +153,6 @@ abstract contract Governor is IGovernor, EIP712, Context {
     internal virtual returns (uint256 proposalId)
     {
         proposalId = hashProposal(targets, values, calldatas, salt);
-
-        require(targets.length == values.length,    "Governance: invalid proposal length");
-        require(targets.length == calldatas.length, "Governance: invalid proposal length");
-        require(targets.length > 0,                 "Governance: empty proposal");
 
         Proposal storage proposal = _proposals[proposalId];
         require(proposal.timer.isExpired(), "Governance: proposal not ready to execute");
