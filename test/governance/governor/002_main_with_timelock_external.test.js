@@ -31,6 +31,8 @@ contract('Governance', function (accounts) {
     expect(await this.governance.quorum()).to.be.bignumber.equal('1');
     expect(await this.governance.maxScore()).to.be.bignumber.equal('100');
     expect(await this.governance.requiredScore()).to.be.bignumber.equal('50');
+
+    expect(await this.governance.timelock()).to.be.equal(this.timelock.address);
   });
 
   describe('workflow', () => {
