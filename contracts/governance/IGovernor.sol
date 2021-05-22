@@ -53,14 +53,14 @@ abstract contract IGovernor {
     function votingDuration()
         public view virtual returns (uint256);
 
-    function quorum()
-        public view virtual returns (uint256);
-
     function maxScore()
         public view virtual returns (uint8);
 
     function requiredScore()
         public view virtual returns (uint8);
+
+    function quorum(uint256 blockNumber)
+        public view virtual returns (uint256);
 
     function getVotes(address account, uint256 blockNumber)
         public view virtual returns(uint256);
