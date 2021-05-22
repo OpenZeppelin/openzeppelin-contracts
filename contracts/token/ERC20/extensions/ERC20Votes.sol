@@ -27,6 +27,7 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
 
     mapping (address => address) private _delegates;
     mapping (address => Checkpoint[]) private _checkpoints;
+    Checkpoint[] private _totalSupplyCheckpoints;
 
     /**
      * @dev Get the `pos`-th checkpoint for `account`.
@@ -76,6 +77,26 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
         // Note that if the latest checkpoint available is exactly for `blockNumber`, we end up with an index that is
         // past the end of the array, so we technically don't find a checkpoint after `blockNumber`, but it works out
         // the same.
+        uint256 high = ckpts.length;
+        uint256 low = 0;
+        while (low < high) {
+            uint256 mid = Math.average(low, high);
+            if (ckpts[mid].fromBlock > blockNumber) {
+                high = mid;
+            } else {
+                low = mid + 1;
+            }
+        }
+
+        return high == 0 ? 0 : ckpts[high - 1].votes;
+    }
+
+    function getPriorTotalSupply(uint256 blockNumber) public view virtual returns(uint256) {
+        require(blockNumber < block.number, "ERC20Votes::getPriorTotalSupply: not yet determined");
+
+        Checkpoint[] storage ckpts = _totalSupplyCheckpoints;
+
+        // For details, see `getPriorVotes(address,uint256)`
         uint256 high = ckpts.length;
         uint256 low = 0;
         while (low < high) {
@@ -148,22 +169,44 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
         }
     }
 
+    /**
+     * @dev Create a checkpoint for the delegatee balance balance. Votes that are delegated to address(0) are not
+     * considered or save (see `_moveVotingPower(address,address,uint256)`). For this function, delegatee == 0 is used
+     * to perform checkpoints on the totalSupply (see `_mint(address,uint256)` and `_burn(address,uint256)`).
+     */
     function _writeCheckpoint(address delegatee, uint256 pos, uint256 oldWeight, uint256 newWeight) private {
-      if (pos > 0 && _checkpoints[delegatee][pos - 1].fromBlock == block.number) {
-          _checkpoints[delegatee][pos - 1].votes = SafeCast.toUint224(newWeight);
-      } else {
-          _checkpoints[delegatee].push(Checkpoint({
-              fromBlock: SafeCast.toUint32(block.number),
-              votes: SafeCast.toUint224(newWeight)
-          }));
-      }
+        Checkpoint[] storage ckpts = delegatee == address(0) ? _totalSupplyCheckpoints : _checkpoints[delegatee];
 
-      emit DelegateVotesChanged(delegatee, oldWeight, newWeight);
+        if (pos > 0 && ckpts[pos - 1].fromBlock == block.number) {
+            ckpts[pos - 1].votes = SafeCast.toUint224(newWeight);
+        } else {
+            ckpts.push(Checkpoint({
+                fromBlock: SafeCast.toUint32(block.number),
+                votes: SafeCast.toUint224(newWeight)
+            }));
+        }
+        if (delegatee != address(0)) {
+            emit DelegateVotesChanged(delegatee, oldWeight, newWeight);
+        }
     }
 
     function _mint(address account, uint256 amount) internal virtual override {
         super._mint(account, amount);
         require(totalSupply() <= type(uint224).max, "ERC20Votes: total supply exceeds 2**224");
+
+        uint256 srcCkptLen = _totalSupplyCheckpoints.length;
+        uint256 srcCkptOld = srcCkptLen == 0 ? 0 : _totalSupplyCheckpoints[srcCkptLen - 1].votes;
+        uint256 srcCkptNew = srcCkptOld + amount;
+        _writeCheckpoint(address(0), srcCkptLen, srcCkptOld, srcCkptNew);
+    }
+
+    function _burn(address account, uint256 amount) internal virtual override {
+        super._burn(account, amount);
+
+        uint256 srcCkptLen = _totalSupplyCheckpoints.length;
+        uint256 srcCkptOld = srcCkptLen == 0 ? 0 : _totalSupplyCheckpoints[srcCkptLen - 1].votes;
+        uint256 srcCkptNew = srcCkptOld - amount;
+        _writeCheckpoint(address(0), srcCkptLen, srcCkptOld, srcCkptNew);
     }
 
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
