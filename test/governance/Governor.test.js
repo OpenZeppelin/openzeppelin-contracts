@@ -162,13 +162,13 @@ contract('Governance', function (accounts) {
         this.receiver = web3.utils.toChecksumAddress(web3.utils.randomHex(20));
         this.value = web3.utils.toWei('1');
 
-        await web3.eth.sendTransaction({ from: owner, to: this.governor.address, value });
-        expect(await web3.eth.getBalance(this.governor.address)).to.be.bignumber.equal(value);
+        await web3.eth.sendTransaction({ from: owner, to: this.governor.address, value: this.value });
+        expect(await web3.eth.getBalance(this.governor.address)).to.be.bignumber.equal(this.value);
 
         this.settings = {
           proposal: [
-            [ receiver ],
-            [ value ],
+            [ this.receiver ],
+            [ this.value ],
             [ '0x' ],
             web3.utils.randomHex(32),
             '<proposal description>',
