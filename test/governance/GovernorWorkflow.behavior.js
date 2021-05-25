@@ -20,7 +20,9 @@ function runGovernorWorkflow () {
     // transfer tokens
     if (this.settings?.voters) {
       for (const voter of this.settings.voters) {
-        await this.token.transfer(voter.address, voter.weight, { from: this.settings.tokenHolder });
+        if (voter.weight) {
+          await this.token.transfer(voter.address, voter.weight, { from: this.settings.tokenHolder });
+        }
       }
     }
 
@@ -30,6 +32,9 @@ function runGovernorWorkflow () {
         this.governor.propose(...this.settings.proposal),
         this.settings?.steps?.propose?.reason,
       );
+      if (this.settings?.steps?.propose?.delay) {
+        await time.increase(this.settings?.steps?.propose?.delay);
+      }
     }
 
     // vote
@@ -61,12 +66,26 @@ function runGovernorWorkflow () {
       await time.increaseTo(this.deadline.addn(1));
     }
 
+    // queue (off by default)
+    if (this.settings?.steps?.queue?.enable == true) {
+      this.receipts.queue = await getReceiptOrReason(
+        this.governor.queue(...this.settings.proposal.slice(0, -1)),
+        this.settings?.steps?.queue?.reason,
+      );
+      if (this.settings?.steps?.queue?.delay) {
+        await time.increase(this.settings?.steps?.queue?.delay);
+      }
+    }
+
     // execute
     if (this.settings?.steps?.execute?.enable != false) {
       this.receipts.execute = await getReceiptOrReason(
         this.governor.execute(...this.settings.proposal.slice(0, -1)),
         this.settings?.steps?.execute?.reason,
       );
+      if (this.settings?.steps?.execute?.delay) {
+        await time.increase(this.settings?.steps?.execute?.delay);
+      }
     }
   });
 

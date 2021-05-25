@@ -1,6 +1,10 @@
 const { BN, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
+const {
+  runGovernorWorkflow,
+} = require('../GovernorWorkflow.behavior');
+
 const Token = artifacts.require('ERC20VotesMock');
 const Timelock = artifacts.require('TimelockController');
 const Governance = artifacts.require('GovernorWithTimelockExternalMock');
@@ -35,112 +39,196 @@ contract('Governance', function (accounts) {
     expect(await this.governor.timelock()).to.be.equal(this.timelock.address);
   });
 
-  describe('workflow', () => {
-    describe('with proposal', () => {
-      beforeEach(async () => {
-        this.proposal = [
+  describe('nominal', () => {
+    beforeEach(async () => {
+      this.settings = {
+        proposal: [
           [ this.receiver.address ],
-          [ new BN('0') ],
+          [ web3.utils.toWei('0') ],
           [ this.receiver.contract.methods.mockFunction().encodeABI() ],
           web3.utils.randomHex(32),
-        ];
-        this.id = await this.governor.hashProposal(...this.proposal);
-        this.timelockid = await this.timelock.hashOperationBatch(...this.proposal.slice(0, 3), '0x0', this.proposal[3]);
-        this.voteSupport = new BN(100);
-        this.receipts = {};
-      });
+          '<proposal description>',
+        ],
+        voters: [
+          { address: voter, support: new BN('100') },
+        ],
+        steps: {
+          queue: { enable: true, delay: 3600 },
+        },
+        after: async () => {
+          const timelockid = await this.timelock.hashOperationBatch(
+            ...this.settings.proposal.slice(0, 3),
+            '0x0',
+            this.settings.proposal[3],
+          );
 
-      describe('with proposed', () => {
-        beforeEach(async () => {
-          ({ receipt: this.receipts.propose } = await this.governor.propose(
-            ...this.proposal,
-            '<proposal description>',
-          ));
-          expectEvent(this.receipts.propose, 'ProposalCreated');
-        });
-
-        describe('with vote', () => {
-          beforeEach(async () => {
-            ({ receipt: this.receipts.castVote } = await this.governor.castVote(
-              this.id,
-              this.voteSupport,
-              { from: voter },
-            ));
-            expectEvent(this.receipts.castVote, 'VoteCast');
-          });
-
-          describe('after deadline', () => {
-            beforeEach(async () => {
-              ({ deadline: this.deadline } = await this.governor.viewProposal(this.id));
-              await time.increaseTo(this.deadline.addn(1));
-            });
-
-            describe('with queue', () => {
-              beforeEach(async () => {
-                ({ receipt: this.receipts.queue } = await this.governor.queue(...this.proposal));
-                expectEvent(this.receipts.queue, 'ProposalQueued');
-                // expectEvent(this.receipts.queue, 'CallScheduled'); // not parsed, see postcheck for check
-              });
-
-              describe('after timelock', () => {
-                beforeEach(async () => {
-                  this.timelockDeadline = await this.timelock.getTimestamp(this.timelockid);
-                  await time.increaseTo(this.timelockDeadline.addn(1));
-                });
-
-                describe('with execute', () => {
-                  beforeEach(async () => {
-                    ({ receipt: this.receipts.execute } = await this.governor.execute(...this.proposal));
-                    expectEvent(this.receipts.execute, 'ProposalExecuted');
-                    // expectEvent(this.receipts.execute, 'CallExecuted'); // not parsed, see postcheck for check
-                  });
-
-                  it('post check', async () => {
-                    expectEvent(this.receipts.propose, 'ProposalCreated', {
-                      proposalId: this.id,
-                      targets: this.proposal[0],
-                      // values: this.proposal[1],
-                      calldatas: this.proposal[2],
-                      salt: this.proposal[3],
-                      votingDeadline: this.deadline,
-                    });
-                    expectEvent(this.receipts.castVote, 'VoteCast', {
-                      proposalId: this.id,
-                      voter: voter,
-                      support: this.voteSupport,
-                      votes: tokenSupply,
-                    });
-                    expectEvent(this.receipts.queue, 'ProposalQueued', {
-                      proposalId: this.id,
-                    });
-                    expectEvent.inTransaction(
-                      this.receipts.queue.transactionHash,
-                      this.timelock,
-                      'CallScheduled',
-                      { id: this.timelockid },
-                    );
-                    expectEvent(this.receipts.execute, 'ProposalExecuted', {
-                      proposalId: this.id,
-                    });
-                    expectEvent.inTransaction(
-                      this.receipts.execute.transactionHash,
-                      this.timelock,
-                      'CallExecuted',
-                      { id: this.timelockid },
-                    );
-                    expectEvent.inTransaction(
-                      this.receipts.execute.transactionHash,
-                      this.receiver,
-                      'MockFunctionCalled',
-                    );
-                  });
-                });
-              });
-            });
-          });
-        });
-      });
+          expectEvent(
+            this.receipts.propose,
+            'ProposalCreated',
+            { proposalId: this.id, votingDeadline: this.deadline },
+          );
+          expectEvent(
+            this.receipts.queue,
+            'ProposalQueued',
+            { proposalId: this.id },
+          );
+          expectEvent.inTransaction(
+            this.receipts.queue.transactionHash,
+            this.timelock,
+            'CallScheduled',
+            { id: timelockid },
+          );
+          expectEvent(
+            this.receipts.execute,
+            'ProposalExecuted',
+            { proposalId: this.id },
+          );
+          expectEvent.inTransaction(
+            this.receipts.execute.transactionHash,
+            this.timelock,
+            'CallExecuted',
+            { id: timelockid },
+          );
+          expectEvent.inTransaction(
+            this.receipts.execute.transactionHash,
+            this.receiver,
+            'MockFunctionCalled',
+          );
+        },
+      };
     });
+    runGovernorWorkflow();
+  });
+
+  describe('to early', () => {
+    beforeEach(async () => {
+      this.settings = {
+        proposal: [
+          [ this.receiver.address ],
+          [ web3.utils.toWei('0') ],
+          [ this.receiver.contract.methods.mockFunction().encodeABI() ],
+          web3.utils.randomHex(32),
+          '<proposal description>',
+        ],
+        voters: [
+          { address: voter, support: new BN('100') },
+        ],
+        steps: {
+          queue: { enable: true },
+          execute: { reason: 'TimelockController: operation is not ready' },
+        },
+      };
+    });
+    runGovernorWorkflow();
+  });
+
+  describe('re-queue / re-execute', () => {
+    beforeEach(async () => {
+      this.settings = {
+        proposal: [
+          [ this.receiver.address ],
+          [ web3.utils.toWei('0') ],
+          [ this.receiver.contract.methods.mockFunction().encodeABI() ],
+          web3.utils.randomHex(32),
+          '<proposal description>',
+        ],
+        voters: [
+          { address: voter, support: new BN('100') },
+        ],
+        steps: {
+          queue: { enable: true, delay: 3600 },
+        },
+        after: async () => {
+          await expectRevert(
+            this.governor.queue(...this.settings.proposal.slice(0, -1)),
+            'Governance: proposal not ready',
+          );
+          await expectRevert(
+            this.governor.execute(...this.settings.proposal.slice(0, -1)),
+            'TimelockController: operation is not ready',
+          );
+        },
+      };
+    });
+    runGovernorWorkflow();
+  });
+
+  describe('cancel before queue prevents scheduling', () => {
+    beforeEach(async () => {
+      this.settings = {
+        proposal: [
+          [ this.receiver.address ],
+          [ web3.utils.toWei('0') ],
+          [ this.receiver.contract.methods.mockFunction().encodeABI() ],
+          web3.utils.randomHex(32),
+          '<proposal description>',
+        ],
+        voters: [
+          { address: voter, support: new BN('100') },
+        ],
+        steps: {
+          execute: { enable: false },
+        },
+        after: async () => {
+          expectEvent(
+            await this.governor.cancel(...this.settings.proposal.slice(0, -1)),
+            'ProposalCanceled',
+            { proposalId: this.id },
+          );
+          await expectRevert(
+            this.governor.queue(...this.settings.proposal.slice(0, -1)),
+            'Governance: proposal not ready',
+          );
+        },
+      };
+    });
+    runGovernorWorkflow();
+  });
+
+  describe('cancel after queue prevents executin', () => {
+    beforeEach(async () => {
+      this.settings = {
+        proposal: [
+          [ this.receiver.address ],
+          [ web3.utils.toWei('0') ],
+          [ this.receiver.contract.methods.mockFunction().encodeABI() ],
+          web3.utils.randomHex(32),
+          '<proposal description>',
+        ],
+        voters: [
+          { address: voter, support: new BN('100') },
+        ],
+        steps: {
+          queue: { enable: true, delay: 3600 },
+          execute: { enable: false },
+        },
+        after: async () => {
+          const timelockid = await this.timelock.hashOperationBatch(
+            ...this.settings.proposal.slice(0, 3),
+            '0x0',
+            this.settings.proposal[3],
+          );
+
+          const receipt = await this.governor.cancel(...this.settings.proposal.slice(0, -1));
+          expectEvent(
+            receipt,
+            'ProposalCanceled',
+            { proposalId: this.id },
+          );
+          expectEvent.inTransaction(
+            receipt.receipt.transactionHash,
+            this.timelock,
+            'Cancelled',
+            { id: timelockid },
+          );
+          await expectRevert(
+            this.governor.execute(...this.settings.proposal.slice(0, -1)),
+            'TimelockController: operation is not ready',
+          );
+        },
+      };
+    });
+    runGovernorWorkflow();
   });
 
   describe('updateTimelock', () => {
@@ -155,31 +243,43 @@ contract('Governance', function (accounts) {
       );
     });
 
-    it('update by proposal', async () => {
-      const proposal = [
-        [ this.governor.address ],
-        [ new BN('0') ],
-        [ this.governor.contract.methods.updateTimelock(this.newTimelock.address).encodeABI() ],
-        web3.utils.randomHex(32),
-        '<proposal description>',
-      ];
-      const proposalId = await this.governor.hashProposal(...proposal.slice(0, -1));
-
-      await this.governor.propose(...proposal);
-      await this.governor.castVote(proposalId, new BN('100'), { from: voter });
-      const { deadline } = await this.governor.viewProposal(proposalId);
-      await time.increaseTo(deadline.addn(1));
-      const { receipt: receiptQueue } = await this.governor.queue(...proposal.slice(0, -1));
-      const { eta } = receiptQueue.logs.find(({ event }) => event === 'ProposalQueued').args;
-      await time.increaseTo(eta);
-      const { receipt: receiptExecute } = await this.governor.execute(...proposal.slice(0, -1));
-
-      await expectEvent(
-        receiptExecute,
-        'TimelockChange',
-        { oldTimelock: this.timelock.address, newTimelock: this.newTimelock.address },
-      );
-      expect(await this.governor.timelock()).to.be.bignumber.equal(this.newTimelock.address);
+    describe('using workflow', () => {
+      beforeEach(async () => {
+        this.settings = {
+          proposal: [
+            [ this.governor.address ],
+            [ web3.utils.toWei('0') ],
+            [ this.governor.contract.methods.updateTimelock(this.newTimelock.address).encodeABI() ],
+            web3.utils.randomHex(32),
+            '<proposal description>',
+          ],
+          voters: [
+            { address: voter, support: new BN('100') },
+          ],
+          steps: {
+            queue: { enable: true, delay: 3600 },
+          },
+          after: async () => {
+            expectEvent(
+              this.receipts.propose,
+              'ProposalCreated',
+              { proposalId: this.id, votingDeadline: this.deadline },
+            );
+            expectEvent(
+              this.receipts.execute,
+              'ProposalExecuted',
+              { proposalId: this.id },
+            );
+            expectEvent(
+              this.receipts.execute,
+              'TimelockChange',
+              { oldTimelock: this.timelock.address, newTimelock: this.newTimelock.address },
+            );
+            expect(await this.governor.timelock()).to.be.bignumber.equal(this.newTimelock.address);
+          },
+        };
+      });
+      runGovernorWorkflow();
     });
   });
 });

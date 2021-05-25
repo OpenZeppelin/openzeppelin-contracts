@@ -140,6 +140,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
     {
         proposalId = hashProposal(targets, values, calldatas, salt);
         _proposals[proposalId].timer.lock();
+        emit ProposalCanceled(proposalId);
     }
 
     function _execute(
