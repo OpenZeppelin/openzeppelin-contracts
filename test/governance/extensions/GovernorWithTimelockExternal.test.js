@@ -1,4 +1,4 @@
-const { BN, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
+const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const {
@@ -55,45 +55,66 @@ contract('Governance', function (accounts) {
         steps: {
           queue: { enable: true, delay: 3600 },
         },
-        after: async () => {
-          const timelockid = await this.timelock.hashOperationBatch(
-            ...this.settings.proposal.slice(0, 3),
-            '0x0',
-            this.settings.proposal[3],
-          );
+      };
+    });
+    afterEach(async () => {
+      const timelockid = await this.timelock.hashOperationBatch(
+        ...this.settings.proposal.slice(0, 3),
+        '0x0',
+        this.settings.proposal[3],
+      );
 
-          expectEvent(
-            this.receipts.propose,
-            'ProposalCreated',
-            { proposalId: this.id, votingDeadline: this.deadline },
-          );
-          expectEvent(
-            this.receipts.queue,
-            'ProposalQueued',
-            { proposalId: this.id },
-          );
-          expectEvent.inTransaction(
-            this.receipts.queue.transactionHash,
-            this.timelock,
-            'CallScheduled',
-            { id: timelockid },
-          );
-          expectEvent(
-            this.receipts.execute,
-            'ProposalExecuted',
-            { proposalId: this.id },
-          );
-          expectEvent.inTransaction(
-            this.receipts.execute.transactionHash,
-            this.timelock,
-            'CallExecuted',
-            { id: timelockid },
-          );
-          expectEvent.inTransaction(
-            this.receipts.execute.transactionHash,
-            this.receiver,
-            'MockFunctionCalled',
-          );
+      expectEvent(
+        this.receipts.propose,
+        'ProposalCreated',
+        { proposalId: this.id, votingDeadline: this.deadline },
+      );
+      expectEvent(
+        this.receipts.queue,
+        'ProposalQueued',
+        { proposalId: this.id },
+      );
+      expectEvent.inTransaction(
+        this.receipts.queue.transactionHash,
+        this.timelock,
+        'CallScheduled',
+        { id: timelockid },
+      );
+      expectEvent(
+        this.receipts.execute,
+        'ProposalExecuted',
+        { proposalId: this.id },
+      );
+      expectEvent.inTransaction(
+        this.receipts.execute.transactionHash,
+        this.timelock,
+        'CallExecuted',
+        { id: timelockid },
+      );
+      expectEvent.inTransaction(
+        this.receipts.execute.transactionHash,
+        this.receiver,
+        'MockFunctionCalled',
+      );
+    });
+    runGovernorWorkflow();
+  });
+
+  describe('not queued', () => {
+    beforeEach(async () => {
+      this.settings = {
+        proposal: [
+          [ this.receiver.address ],
+          [ web3.utils.toWei('0') ],
+          [ this.receiver.contract.methods.mockFunction().encodeABI() ],
+          web3.utils.randomHex(32),
+          '<proposal description>',
+        ],
+        voters: [
+          { address: voter, support: new BN('100') },
+        ],
+        steps: {
+          execute: { reason: 'TimelockController: operation is not ready' },
         },
       };
     });
@@ -138,17 +159,17 @@ contract('Governance', function (accounts) {
         steps: {
           queue: { enable: true, delay: 3600 },
         },
-        after: async () => {
-          await expectRevert(
-            this.governor.queue(...this.settings.proposal.slice(0, -1)),
-            'Governance: proposal not ready',
-          );
-          await expectRevert(
-            this.governor.execute(...this.settings.proposal.slice(0, -1)),
-            'TimelockController: operation is not ready',
-          );
-        },
       };
+    });
+    afterEach(async () => {
+      await expectRevert(
+        this.governor.queue(...this.settings.proposal.slice(0, -1)),
+        'Governance: proposal not ready',
+      );
+      await expectRevert(
+        this.governor.execute(...this.settings.proposal.slice(0, -1)),
+        'TimelockController: operation is not ready',
+      );
     });
     runGovernorWorkflow();
   });
@@ -169,18 +190,18 @@ contract('Governance', function (accounts) {
         steps: {
           execute: { enable: false },
         },
-        after: async () => {
-          expectEvent(
-            await this.governor.cancel(...this.settings.proposal.slice(0, -1)),
-            'ProposalCanceled',
-            { proposalId: this.id },
-          );
-          await expectRevert(
-            this.governor.queue(...this.settings.proposal.slice(0, -1)),
-            'Governance: proposal not ready',
-          );
-        },
       };
+    });
+    afterEach(async () => {
+      expectEvent(
+        await this.governor.cancel(...this.settings.proposal.slice(0, -1)),
+        'ProposalCanceled',
+        { proposalId: this.id },
+      );
+      await expectRevert(
+        this.governor.queue(...this.settings.proposal.slice(0, -1)),
+        'Governance: proposal not ready',
+      );
     });
     runGovernorWorkflow();
   });
@@ -202,31 +223,31 @@ contract('Governance', function (accounts) {
           queue: { enable: true, delay: 3600 },
           execute: { enable: false },
         },
-        after: async () => {
-          const timelockid = await this.timelock.hashOperationBatch(
-            ...this.settings.proposal.slice(0, 3),
-            '0x0',
-            this.settings.proposal[3],
-          );
-
-          const receipt = await this.governor.cancel(...this.settings.proposal.slice(0, -1));
-          expectEvent(
-            receipt,
-            'ProposalCanceled',
-            { proposalId: this.id },
-          );
-          expectEvent.inTransaction(
-            receipt.receipt.transactionHash,
-            this.timelock,
-            'Cancelled',
-            { id: timelockid },
-          );
-          await expectRevert(
-            this.governor.execute(...this.settings.proposal.slice(0, -1)),
-            'TimelockController: operation is not ready',
-          );
-        },
       };
+    });
+    afterEach(async () => {
+      const timelockid = await this.timelock.hashOperationBatch(
+        ...this.settings.proposal.slice(0, 3),
+        '0x0',
+        this.settings.proposal[3],
+      );
+
+      const receipt = await this.governor.cancel(...this.settings.proposal.slice(0, -1));
+      expectEvent(
+        receipt,
+        'ProposalCanceled',
+        { proposalId: this.id },
+      );
+      expectEvent.inTransaction(
+        receipt.receipt.transactionHash,
+        this.timelock,
+        'Cancelled',
+        { id: timelockid },
+      );
+      await expectRevert(
+        this.governor.execute(...this.settings.proposal.slice(0, -1)),
+        'TimelockController: operation is not ready',
+      );
     });
     runGovernorWorkflow();
   });
@@ -259,25 +280,25 @@ contract('Governance', function (accounts) {
           steps: {
             queue: { enable: true, delay: 3600 },
           },
-          after: async () => {
-            expectEvent(
-              this.receipts.propose,
-              'ProposalCreated',
-              { proposalId: this.id, votingDeadline: this.deadline },
-            );
-            expectEvent(
-              this.receipts.execute,
-              'ProposalExecuted',
-              { proposalId: this.id },
-            );
-            expectEvent(
-              this.receipts.execute,
-              'TimelockChange',
-              { oldTimelock: this.timelock.address, newTimelock: this.newTimelock.address },
-            );
-            expect(await this.governor.timelock()).to.be.bignumber.equal(this.newTimelock.address);
-          },
         };
+      });
+      afterEach(async () => {
+        expectEvent(
+          this.receipts.propose,
+          'ProposalCreated',
+          { proposalId: this.id, votingDeadline: this.deadline },
+        );
+        expectEvent(
+          this.receipts.execute,
+          'ProposalExecuted',
+          { proposalId: this.id },
+        );
+        expectEvent(
+          this.receipts.execute,
+          'TimelockChange',
+          { oldTimelock: this.timelock.address, newTimelock: this.newTimelock.address },
+        );
+        expect(await this.governor.timelock()).to.be.bignumber.equal(this.newTimelock.address);
       });
       runGovernorWorkflow();
     });

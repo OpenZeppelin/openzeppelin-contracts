@@ -78,16 +78,15 @@ abstract contract GovernorWithTimelockCompound is IGovernorWithTimelock, Governo
         Address.sendValue(payable(_timelock), msg.value);
 
         uint256 eta = _proposalEtas[proposalId];
-        if (eta > 0) {
-            for (uint256 i = 0; i < targets.length; ++i) {
-                _timelock.executeTransaction(
-                    targets[i],
-                    values[i],
-                    "",
-                    calldatas[i],
-                    eta
-                );
-            }
+        require(eta > 0, "GovernorWithTimelockCompound:execute: proposal not yet queued");
+        for (uint256 i = 0; i < targets.length; ++i) {
+            _timelock.executeTransaction(
+                targets[i],
+                values[i],
+                "",
+                calldatas[i],
+                eta
+            );
         }
 
         emit ProposalExecuted(proposalId);

@@ -57,6 +57,9 @@ function runGovernorWorkflow () {
             ),
           );
         }
+        if (voter?.delay) {
+          await time.increase(voter?.delay);
+        }
       }
     }
 
@@ -90,7 +93,7 @@ function runGovernorWorkflow () {
   });
 
   afterEach(async () => {
-    this.settings.after && await this.settings.after();
+    if(this.settings.after) { throw new Error('GOT AFTER'); }
   });
 }
 

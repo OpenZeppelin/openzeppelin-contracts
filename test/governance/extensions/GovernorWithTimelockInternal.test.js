@@ -51,27 +51,48 @@ contract('Governance', function (accounts) {
         steps: {
           queue: { enable: true, delay: 3600 },
         },
-        after: async () => {
-          expectEvent(
-            this.receipts.propose,
-            'ProposalCreated',
-            { proposalId: this.id, votingDeadline: this.deadline },
-          );
-          expectEvent(
-            this.receipts.queue,
-            'ProposalQueued',
-            { proposalId: this.id },
-          );
-          expectEvent(
-            this.receipts.execute,
-            'ProposalExecuted',
-            { proposalId: this.id },
-          );
-          expectEvent.inTransaction(
-            this.receipts.execute.transactionHash,
-            this.receiver,
-            'MockFunctionCalled',
-          );
+      };
+    });
+    afterEach(async () => {
+      expectEvent(
+        this.receipts.propose,
+        'ProposalCreated',
+        { proposalId: this.id, votingDeadline: this.deadline },
+      );
+      expectEvent(
+        this.receipts.queue,
+        'ProposalQueued',
+        { proposalId: this.id },
+      );
+      expectEvent(
+        this.receipts.execute,
+        'ProposalExecuted',
+        { proposalId: this.id },
+      );
+      expectEvent.inTransaction(
+        this.receipts.execute.transactionHash,
+        this.receiver,
+        'MockFunctionCalled',
+      );
+    });
+    runGovernorWorkflow();
+  });
+
+  describe('not queued', () => {
+    beforeEach(async () => {
+      this.settings = {
+        proposal: [
+          [ this.receiver.address ],
+          [ web3.utils.toWei('0') ],
+          [ this.receiver.contract.methods.mockFunction().encodeABI() ],
+          web3.utils.randomHex(32),
+          '<proposal description>',
+        ],
+        voters: [
+          { address: voter, support: new BN('100') },
+        ],
+        steps: {
+          execute: { reason: 'Governance: proposal timelock not ready' },
         },
       };
     });
@@ -116,17 +137,17 @@ contract('Governance', function (accounts) {
         steps: {
           queue: { enable: true, delay: 3600 },
         },
-        after: async () => {
-          await expectRevert(
-            this.governor.queue(...this.settings.proposal.slice(0, -1)),
-            'Governance: proposal not ready',
-          );
-          await expectRevert(
-            this.governor.execute(...this.settings.proposal.slice(0, -1)),
-            'Governance: proposal timelock not ready',
-          );
-        },
       };
+    });
+    afterEach(async () => {
+      await expectRevert(
+        this.governor.queue(...this.settings.proposal.slice(0, -1)),
+        'Governance: proposal not ready',
+      );
+      await expectRevert(
+        this.governor.execute(...this.settings.proposal.slice(0, -1)),
+        'Governance: proposal timelock not ready',
+      );
     });
     runGovernorWorkflow();
   });
@@ -147,18 +168,18 @@ contract('Governance', function (accounts) {
         steps: {
           execute: { enable: false },
         },
-        after: async () => {
-          expectEvent(
-            await this.governor.cancel(...this.settings.proposal.slice(0, -1)),
-            'ProposalCanceled',
-            { proposalId: this.id },
-          );
-          await expectRevert(
-            this.governor.queue(...this.settings.proposal.slice(0, -1)),
-            'Governance: proposal not ready',
-          );
-        },
       };
+    });
+    afterEach(async () => {
+      expectEvent(
+        await this.governor.cancel(...this.settings.proposal.slice(0, -1)),
+        'ProposalCanceled',
+        { proposalId: this.id },
+      );
+      await expectRevert(
+        this.governor.queue(...this.settings.proposal.slice(0, -1)),
+        'Governance: proposal not ready',
+      );
     });
     runGovernorWorkflow();
   });
@@ -180,18 +201,18 @@ contract('Governance', function (accounts) {
           queue: { enable: true, delay: 3600 },
           execute: { enable: false },
         },
-        after: async () => {
-          expectEvent(
-            await this.governor.cancel(...this.settings.proposal.slice(0, -1)),
-            'ProposalCanceled',
-            { proposalId: this.id },
-          );
-          await expectRevert(
-            this.governor.execute(...this.settings.proposal.slice(0, -1)),
-            'Governance: proposal timelock not ready',
-          );
-        },
       };
+    });
+    afterEach(async () => {
+      expectEvent(
+        await this.governor.cancel(...this.settings.proposal.slice(0, -1)),
+        'ProposalCanceled',
+        { proposalId: this.id },
+      );
+      await expectRevert(
+        this.governor.execute(...this.settings.proposal.slice(0, -1)),
+        'Governance: proposal timelock not ready',
+      );
     });
     runGovernorWorkflow();
   });
@@ -217,25 +238,25 @@ contract('Governance', function (accounts) {
           steps: {
             queue: { enable: true, delay: 3600 },
           },
-          after: async () => {
-            expectEvent(
-              this.receipts.propose,
-              'ProposalCreated',
-              { proposalId: this.id, votingDeadline: this.deadline },
-            );
-            expectEvent(
-              this.receipts.execute,
-              'ProposalExecuted',
-              { proposalId: this.id },
-            );
-            expectEvent(
-              this.receipts.execute,
-              'DelayChange',
-              { oldDuration: '3600', newDuration: '7200' },
-            );
-            expect(await this.governor.delay()).to.be.bignumber.equal('7200');
-          },
         };
+      });
+      afterEach(async () => {
+        expectEvent(
+          this.receipts.propose,
+          'ProposalCreated',
+          { proposalId: this.id, votingDeadline: this.deadline },
+        );
+        expectEvent(
+          this.receipts.execute,
+          'ProposalExecuted',
+          { proposalId: this.id },
+        );
+        expectEvent(
+          this.receipts.execute,
+          'DelayChange',
+          { oldDuration: '3600', newDuration: '7200' },
+        );
+        expect(await this.governor.delay()).to.be.bignumber.equal('7200');
       });
       runGovernorWorkflow();
     });
