@@ -1,4 +1,4 @@
-const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 const { EIP712Domain } = require('../helpers/eip712');
@@ -11,6 +11,17 @@ const {
 const Token = artifacts.require('ERC20VotesMock');
 const Governance = artifacts.require('GovernanceMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
+
+const PROPOSAL_STATE = [
+  'Pending',
+  'Active',
+  'Canceled',
+  'Defeated',
+  'Succeeded',
+  'Queued',
+  'Expired',
+  'Executed',
+].reduce((acc, key, i) => ({ ...acc, [key]: new BN(i) }), {});
 
 contract('Governance', function (accounts) {
   const [ owner, voter1, voter2 ] = accounts;
@@ -402,7 +413,7 @@ contract('Governance', function (accounts) {
     });
   });
 
-  describe('viewProposalStatus', () => {
+  describe('state', () => {
     describe('Unset', () => {
       beforeEach(async () => {
         this.settings = {
@@ -421,12 +432,12 @@ contract('Governance', function (accounts) {
         };
       });
       afterEach(async () => {
-        expect(await this.governor.viewProposalStatus(this.id)).to.be.bignumber.equal('0');
+        await expectRevert(this.governor.state(this.id), 'Governor::state: invalid proposal id');
       });
       runGovernorWorkflow();
     });
 
-    describe('Pending', () => {
+    describe('Active', () => {
       beforeEach(async () => {
         this.settings = {
           proposal: [
@@ -443,12 +454,14 @@ contract('Governance', function (accounts) {
         };
       });
       afterEach(async () => {
-        expect(await this.governor.viewProposalStatus(this.id)).to.be.bignumber.equal('1');
+        expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Pending);
+        await time.advanceBlock();
+        expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Active);
       });
       runGovernorWorkflow();
     });
 
-    describe('Expired', () => {
+    describe('Defeated', () => {
       beforeEach(async () => {
         this.settings = {
           proposal: [
@@ -464,12 +477,37 @@ contract('Governance', function (accounts) {
         };
       });
       afterEach(async () => {
-        expect(await this.governor.viewProposalStatus(this.id)).to.be.bignumber.equal('2');
+        expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Defeated);
       });
       runGovernorWorkflow();
     });
 
-    describe('Locked', () => {
+    describe('Succeeded', () => {
+      beforeEach(async () => {
+        this.settings = {
+          proposal: [
+            [ this.receiver.address ],
+            [ web3.utils.toWei('0') ],
+            [ this.receiver.contract.methods.mockFunction().encodeABI() ],
+            web3.utils.randomHex(32),
+            '<proposal description>',
+          ],
+          tokenHolder: owner,
+          voters: [
+            { address: voter1, weight: web3.utils.toWei('1'), support: new BN('100') },
+          ],
+          steps: {
+            execute: { enable: false },
+          },
+        };
+      });
+      afterEach(async () => {
+        expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Succeeded);
+      });
+      runGovernorWorkflow();
+    });
+
+    describe('Executed', () => {
       beforeEach(async () => {
         this.settings = {
           proposal: [
@@ -486,7 +524,7 @@ contract('Governance', function (accounts) {
         };
       });
       afterEach(async () => {
-        expect(await this.governor.viewProposalStatus(this.id)).to.be.bignumber.equal('3');
+        expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Executed);
       });
       runGovernorWorkflow();
     });
@@ -512,7 +550,7 @@ contract('Governance', function (accounts) {
       });
       afterEach(async () => {
         await this.governor.cancel(...this.settings.proposal.slice(0, -1));
-        expect(await this.governor.viewProposalStatus(this.id)).to.be.bignumber.equal('3');
+        expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Canceled);
 
         await expectRevert(
           this.governor.propose(...this.settings.proposal),
@@ -540,7 +578,7 @@ contract('Governance', function (accounts) {
       });
       afterEach(async () => {
         await this.governor.cancel(...this.settings.proposal.slice(0, -1));
-        expect(await this.governor.viewProposalStatus(this.id)).to.be.bignumber.equal('3');
+        expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Canceled);
 
         await expectRevert(
           this.governor.castVote(this.id, new BN('100'), { from: voter1 }),
@@ -572,7 +610,7 @@ contract('Governance', function (accounts) {
       });
       afterEach(async () => {
         await this.governor.cancel(...this.settings.proposal.slice(0, -1));
-        expect(await this.governor.viewProposalStatus(this.id)).to.be.bignumber.equal('3');
+        expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Canceled);
 
         await expectRevert(
           this.governor.execute(...this.settings.proposal.slice(0, -1)),
@@ -603,7 +641,7 @@ contract('Governance', function (accounts) {
       });
       afterEach(async () => {
         await this.governor.cancel(...this.settings.proposal.slice(0, -1));
-        expect(await this.governor.viewProposalStatus(this.id)).to.be.bignumber.equal('3');
+        expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Canceled);
 
         await expectRevert(
           this.governor.execute(...this.settings.proposal.slice(0, -1)),
@@ -631,7 +669,7 @@ contract('Governance', function (accounts) {
       });
       afterEach(async () => {
         await this.governor.cancel(...this.settings.proposal.slice(0, -1));
-        expect(await this.governor.viewProposalStatus(this.id)).to.be.bignumber.equal('3');
+        expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Canceled);
 
         await expectRevert(
           this.governor.execute(...this.settings.proposal.slice(0, -1)),

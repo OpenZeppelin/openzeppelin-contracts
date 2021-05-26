@@ -83,6 +83,7 @@ function runGovernorWorkflow () {
         this.governor.queue(...this.settings.proposal.slice(0, -1)),
         tryGet(this.settings, 'steps.queue.reason'),
       );
+      this.eta = await this.governor.proposalEta(this.id);
       if (tryGet(this.settings, 'steps.queue.delay')) {
         await time.increase(tryGet(this.settings, 'steps.queue.delay'));
       }

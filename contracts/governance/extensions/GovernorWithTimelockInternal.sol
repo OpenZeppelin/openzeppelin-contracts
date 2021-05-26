@@ -20,22 +20,22 @@ abstract contract GovernorWithTimelockInternal is IGovernorWithTimelock, Governo
         _updateDelay(delay_);
     }
 
-    function delay() public view virtual returns (uint256) {
-        return _delay;
-    }
+    function state(uint256 proposalId)
+    public view virtual override returns (ProposalState)
+    {
+        ProposalState proposalState = super.state(proposalId);
 
-    function updateDelay(uint256 newDelay) external virtual {
-        require(msg.sender == address(this), "GovernorWithTimelockInternal: caller must be governor");
-        _updateDelay(newDelay);
-    }
-
-    function _updateDelay(uint256 newDelay) internal virtual {
-        emit DelayChange(_delay, newDelay);
-        _delay = newDelay;
+        return (proposalState == ProposalState.Executed && _executionTimers[proposalId].isStarted())
+            ? ProposalState.Queued
+            : proposalState;
     }
 
     function timelock() public view virtual override returns (address) {
         return address(this);
+    }
+
+    function proposalEta(uint256 proposalId) public view virtual returns (uint256) {
+        return _executionTimers[proposalId].getDeadline();
     }
 
     function queue(
@@ -95,5 +95,19 @@ abstract contract GovernorWithTimelockInternal is IGovernorWithTimelock, Governo
     {
         // DO NOT EXECUTE, instead, start the execution timer
         _executionTimers[proposalId].setDeadline(block.timestamp + delay());
+    }
+
+    function delay() public view virtual returns (uint256) {
+        return _delay;
+    }
+
+    function updateDelay(uint256 newDelay) external virtual {
+        require(msg.sender == address(this), "GovernorWithTimelockInternal: caller must be governor");
+        _updateDelay(newDelay);
+    }
+
+    function _updateDelay(uint256 newDelay) internal virtual {
+        emit DelayChange(_delay, newDelay);
+        _delay = newDelay;
     }
 }

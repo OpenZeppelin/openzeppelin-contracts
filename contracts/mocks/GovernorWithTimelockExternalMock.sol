@@ -19,7 +19,6 @@ contract GovernorWithTimelockExternalMock is GovernorWithTimelockExternal {
     receive() external payable {}
 
     function token()          public view          returns (IComp)   { return _token; }
-    function votingOffset()   public pure override returns (uint256) { return 0;      }
     function votingDuration() public pure override returns (uint256) { return 7 days; } // FOR TESTING ONLY
     function maxScore()       public pure override returns (uint8)   { return 100;    } // default: 255 ?
     function requiredScore()  public pure override returns (uint8)   { return 50;     } // default: 128 ?

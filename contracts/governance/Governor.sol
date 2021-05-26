@@ -19,10 +19,11 @@ abstract contract Governor is IGovernor, EIP712, Context {
         uint256 snapshot;
         uint256 supply;
         uint256 score;
-        mapping (address => bool) voters;
+        bool canceled;
     }
 
     mapping (uint256 => Proposal) private _proposals;
+    mapping (uint256 => mapping (address => bool)) private _votes;
 
     /*************************************************************************
      *                           Public interface                            *
@@ -76,13 +77,26 @@ abstract contract Governor is IGovernor, EIP712, Context {
     /*************************************************************************
      *                            View functions                             *
      *************************************************************************/
-    function viewProposalStatus(uint256 proposalId) public view virtual override returns (uint8 status) {
-        Time.Timer memory timer = _proposals[proposalId].timer;
-        if (timer.isUnset()) return uint8(0x0);
-        if (timer.isPending()) return uint8(0x1);
-        if (timer.isExpired()) return uint8(0x2);
-        // default: timer.isLocked()
-        return uint8(0x3);
+    function state(uint256 proposalId)
+    public view virtual override returns (ProposalState)
+    {
+        Proposal memory proposal = _proposals[proposalId];
+
+        if (proposal.timer.isUnset()) {
+            revert("Governor::state: invalid proposal id");
+        } else if (block.number <= proposal.snapshot) {
+            return ProposalState.Pending;
+        } else if (proposal.timer.isPending()) {
+            return ProposalState.Active;
+        } else if (proposal.timer.isExpired()) {
+            return (proposal.supply >= quorum(proposal.snapshot) && proposal.score >= proposal.supply * requiredScore())
+                ? ProposalState.Succeeded
+                : ProposalState.Defeated;
+        } else if (proposal.canceled) {
+            return ProposalState.Canceled;
+        } else {
+            return ProposalState.Executed;
+        }
     }
 
     function viewProposal(uint256 proposalId)
@@ -140,6 +154,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
     {
         proposalId = hashProposal(targets, values, calldatas, salt);
         _proposals[proposalId].timer.lock();
+        _proposals[proposalId].canceled = true;
         emit ProposalCanceled(proposalId);
     }
 
@@ -175,9 +190,9 @@ abstract contract Governor is IGovernor, EIP712, Context {
 
         Proposal storage proposal = _proposals[proposalId];
         require(proposal.timer.isPending(), "Governance: vote not currently active");
-        require(!proposal.voters[account], "Governance: vote already casted");
+        require(!_votes[proposalId][account], "Governance: vote already casted");
 
-        proposal.voters[account] = true;
+        _votes[proposalId][account] = true;
         balance = getVotes(account, proposal.snapshot);
         proposal.supply += balance;
         proposal.score += balance * support;

@@ -8,8 +8,10 @@ import "../Governor.sol";
 import "../TimelockController.sol";
 
 abstract contract GovernorWithTimelockCompound is IGovernorWithTimelock, Governor {
+    using Time for Time.Timer;
+
     ICompTimelock private _timelock;
-    mapping(uint256 => uint256) private _proposalEtas;
+    mapping (uint256 => Time.Timer) private _executionTimers;
 
     /**
      * @dev Emitted when the minimum delay for future operations is modified.
@@ -21,14 +23,14 @@ abstract contract GovernorWithTimelockCompound is IGovernorWithTimelock, Governo
         _updateTimelock(timelock_);
     }
 
-    function updateTimelock(address newTimelock) external virtual {
-        require(msg.sender == address(_timelock), "GovernorWithTimelockCompound: caller must be timelock");
-        _updateTimelock(newTimelock);
-    }
+    function state(uint256 proposalId)
+    public view virtual override returns (ProposalState)
+    {
+        ProposalState proposalState = super.state(proposalId);
 
-    function _updateTimelock(address newTimelock) internal virtual {
-        emit TimelockChange(address(_timelock), newTimelock);
-        _timelock = ICompTimelock(payable(newTimelock));
+        return (proposalState == ProposalState.Executed && _executionTimers[proposalId].isStarted())
+            ? ProposalState.Queued
+            : proposalState;
     }
 
     function timelock() public view virtual override returns (address) {
@@ -36,7 +38,7 @@ abstract contract GovernorWithTimelockCompound is IGovernorWithTimelock, Governo
     }
 
     function proposalEta(uint256 proposalId) public view virtual returns (uint256) {
-        return _proposalEtas[proposalId];
+        return _executionTimers[proposalId].getDeadline();
     }
 
     function queue(
@@ -51,7 +53,7 @@ abstract contract GovernorWithTimelockCompound is IGovernorWithTimelock, Governo
         proposalId = _execute(targets, values, calldatas, salt);
 
         uint256 eta = block.timestamp + _timelock.delay();
-        _proposalEtas[proposalId] = eta;
+        _executionTimers[proposalId].setDeadline(eta);
 
         for (uint256 i = 0; i < targets.length; ++i) {
             _timelock.queueTransaction(
@@ -77,7 +79,7 @@ abstract contract GovernorWithTimelockCompound is IGovernorWithTimelock, Governo
         proposalId = hashProposal(targets, values, calldatas, salt);
         Address.sendValue(payable(_timelock), msg.value);
 
-        uint256 eta = _proposalEtas[proposalId];
+        uint256 eta = proposalEta(proposalId);
         require(eta > 0, "GovernorWithTimelockCompound:execute: proposal not yet queued");
         for (uint256 i = 0; i < targets.length; ++i) {
             _timelock.executeTransaction(
@@ -88,6 +90,7 @@ abstract contract GovernorWithTimelockCompound is IGovernorWithTimelock, Governo
                 eta
             );
         }
+        _executionTimers[proposalId].reset();
 
         emit ProposalExecuted(proposalId);
     }
@@ -102,7 +105,7 @@ abstract contract GovernorWithTimelockCompound is IGovernorWithTimelock, Governo
     {
         proposalId = super._cancel(targets, values, calldatas, salt);
 
-        uint256 eta = _proposalEtas[proposalId];
+        uint256 eta = proposalEta(proposalId);
         if (eta > 0) {
             for (uint256 i = 0; i < targets.length; ++i) {
                 _timelock.cancelTransaction(
@@ -113,6 +116,7 @@ abstract contract GovernorWithTimelockCompound is IGovernorWithTimelock, Governo
                     eta
                 );
             }
+            _executionTimers[proposalId].reset();
         }
     }
 
@@ -131,5 +135,15 @@ abstract contract GovernorWithTimelockCompound is IGovernorWithTimelock, Governo
     // TODO: Does this need access control? Make it part of updateTimelock ?
     function __acceptAdmin() public {
         _timelock.acceptAdmin();
+    }
+
+    function updateTimelock(address newTimelock) external virtual {
+        require(msg.sender == address(_timelock), "GovernorWithTimelockCompound: caller must be timelock");
+        _updateTimelock(newTimelock);
+    }
+
+    function _updateTimelock(address newTimelock) internal virtual {
+        emit TimelockChange(address(_timelock), newTimelock);
+        _timelock = ICompTimelock(payable(newTimelock));
     }
 }

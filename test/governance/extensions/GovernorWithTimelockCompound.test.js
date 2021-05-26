@@ -68,7 +68,6 @@ contract('Governance', function (accounts) {
       };
     });
     afterEach(async () => {
-      const eta = await this.governor.proposalEta(this.id);
       expectEvent(
         this.receipts.propose,
         'ProposalCreated',
@@ -83,7 +82,7 @@ contract('Governance', function (accounts) {
         this.receipts.queue.transactionHash,
         this.timelock,
         'QueueTransaction',
-        { eta },
+        { eta: this.eta },
       );
       expectEvent(
         this.receipts.execute,
@@ -94,7 +93,7 @@ contract('Governance', function (accounts) {
         this.receipts.execute.transactionHash,
         this.timelock,
         'ExecuteTransaction',
-        { eta },
+        { eta: this.eta },
       );
       expectEvent.inTransaction(
         this.receipts.execute.transactionHash,
@@ -173,7 +172,7 @@ contract('Governance', function (accounts) {
       );
       await expectRevert(
         this.governor.execute(...this.settings.proposal.slice(0, -1)),
-        'Timelock::executeTransaction: Transaction hasn\'t been queued',
+        'GovernorWithTimelockCompound:execute: proposal not yet queued',
       );
     });
     runGovernorWorkflow();
@@ -211,7 +210,7 @@ contract('Governance', function (accounts) {
     runGovernorWorkflow();
   });
 
-  describe('cancel after queue prevents executin', () => {
+  describe('cancel after queue prevents executing', () => {
     beforeEach(async () => {
       this.settings = {
         proposal: [
@@ -244,7 +243,7 @@ contract('Governance', function (accounts) {
       );
       await expectRevert(
         this.governor.execute(...this.settings.proposal.slice(0, -1)),
-        'Timelock::executeTransaction: Transaction hasn\'t been queued',
+        'GovernorWithTimelockCompound:execute: proposal not yet queued',
       );
     });
     runGovernorWorkflow();
