@@ -78,7 +78,7 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
     /**
      * @dev Lookup a value in a list of (sorted) checkpoints.
      */
-    function _checkpointsLookup(Checkpoint[] storage ckpts, uint256 blockNumber) internal view virtual returns (uint256) {
+    function _checkpointsLookup(Checkpoint[] storage ckpts, uint256 blockNumber) private view virtual returns (uint256) {
         // We run a binary search to look for the earliest checkpoint taken after `blockNumber`.
         //
         // During the loop, the index of the wanted checkpoint remains in the range [low, high).
