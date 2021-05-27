@@ -125,6 +125,31 @@ contract('ERC20', function (accounts) {
     });
   });
 
+  describe('recover', function () {
+    it('nothing to recover', async function () {
+      await this.underlying.approve(this.token.address, initialSupply, { from: initialHolder });
+      await this.token.depositFor(initialHolder, initialSupply, { from: initialHolder });
+
+      const { tx } = await this.token.recover(anotherAccount);
+      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: ZERO_ADDRESS,
+        to: anotherAccount,
+        value: '0',
+      });
+    });
+
+    it('something to recover', async function () {
+      await this.underlying.transfer(this.token.address, initialSupply, { from: initialHolder });
+
+      const { tx } = await this.token.recover(anotherAccount);
+      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: ZERO_ADDRESS,
+        to: anotherAccount,
+        value: initialSupply,
+      });
+    });
+  });
+
   describe('erc20 behaviour', function () {
     beforeEach(async function () {
       await this.underlying.approve(this.token.address, initialSupply, { from: initialHolder });

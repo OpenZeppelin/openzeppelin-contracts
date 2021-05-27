@@ -9,4 +9,8 @@ contract ERC20WrapperMock is ERC20Wrapper {
     ERC20(name, symbol)
     ERC20Wrapper(_underlyingToken)
     {}
+
+    function recover(address account) public returns (uint256) {
+        return _recover(account);
+    }
 }
