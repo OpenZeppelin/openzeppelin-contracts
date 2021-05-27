@@ -189,7 +189,7 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
         function (uint256, uint256) view returns (uint256) op,
         uint256 delta
     )
-    private returns (uint256 oldWeight, uint256 newWeight)
+        private returns (uint256 oldWeight, uint256 newWeight)
     {
         uint256 pos = ckpts.length;
         oldWeight = pos == 0 ? 0 : ckpts[pos - 1].votes;
