@@ -1,4 +1,4 @@
-const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const {
@@ -31,12 +31,16 @@ contract('Governance', function (accounts) {
   const tokenSupply = web3.utils.toWei('100');
 
   beforeEach(async () => {
+    const [ deployer ] = await web3.eth.getAccounts();
+
     this.token = await Token.new(tokenName, tokenSymbol, voter, tokenSupply);
     this.timelock = await Timelock.new(3600, [], []);
     this.governor = await Governance.new(name, version, this.token.address, this.timelock.address);
     this.receiver = await CallReceiver.new();
+    // normal setup: governor is proposer, everyone is executor, timelock is its own admin
     await this.timelock.grantRole(await this.timelock.PROPOSER_ROLE(), this.governor.address);
-    await this.timelock.grantRole(await this.timelock.EXECUTOR_ROLE(), this.governor.address);
+    await this.timelock.grantRole(await this.timelock.EXECUTOR_ROLE(), constants.ZERO_ADDRESS);
+    await this.timelock.revokeRole(await this.timelock.TIMELOCK_ADMIN_ROLE(), deployer);
     await this.token.delegate(voter, { from: voter });
   });
 

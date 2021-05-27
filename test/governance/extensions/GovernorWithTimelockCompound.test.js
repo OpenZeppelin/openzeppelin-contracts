@@ -36,10 +36,11 @@ contract('Governance', function (accounts) {
   const tokenSupply = web3.utils.toWei('100');
 
   beforeEach(async () => {
+    const [ deployer ] = await web3.eth.getAccounts();
+
     this.token = await Token.new(tokenName, tokenSymbol, voter, tokenSupply);
 
     // Need to predict governance address to set it as timelock admin with a delayed transfer
-    const [ deployer ] = await web3.eth.getAccounts();
     const nonce = await web3.eth.getTransactionCount(deployer);
     const predictGovernance = makeContractAddress(deployer, nonce + 1);
 
