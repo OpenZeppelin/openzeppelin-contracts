@@ -138,7 +138,7 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
         super._mint(account, amount);
         require(totalSupply() <= type(uint224).max, "ERC20Votes: total supply exceeds 2**224");
 
-        _writeCheckpoint(_totalSupplyCheckpoints, increase, amount);
+        _writeCheckpoint(_totalSupplyCheckpoints, add, amount);
     }
 
     /**
@@ -147,7 +147,7 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
     function _burn(address account, uint256 amount) internal virtual override {
         super._burn(account, amount);
 
-        _writeCheckpoint(_totalSupplyCheckpoints, decrease, amount);
+        _writeCheckpoint(_totalSupplyCheckpoints, subtract, amount);
     }
 
     /**
@@ -173,12 +173,12 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
     function _moveVotingPower(address src, address dst, uint256 amount) private {
         if (src != dst && amount > 0) {
             if (src != address(0)) {
-                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[src], decrease, amount);
+                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[src], subtract, amount);
                 emit DelegateVotesChanged(src, oldWeight, newWeight);
             }
 
             if (dst != address(0)) {
-                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[dst], increase, amount);
+                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[dst], add, amount);
                 emit DelegateVotesChanged(dst, oldWeight, newWeight);
             }
         }
@@ -205,11 +205,11 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
         }
     }
 
-    function increase(uint256 a, uint256 b) private pure returns (uint256) {
+    function add(uint256 a, uint256 b) private pure returns (uint256) {
         return a + b;
     }
 
-    function decrease(uint256 a, uint256 b) private pure returns (uint256) {
+    function subtract(uint256 a, uint256 b) private pure returns (uint256) {
         return a - b;
     }
 }
