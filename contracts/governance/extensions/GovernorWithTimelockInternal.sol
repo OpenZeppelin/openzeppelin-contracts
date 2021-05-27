@@ -20,9 +20,7 @@ abstract contract GovernorWithTimelockInternal is IGovernorWithTimelock, Governo
         _updateDelay(delay_);
     }
 
-    function state(uint256 proposalId)
-    public view virtual override returns (ProposalState)
-    {
+    function state(uint256 proposalId) public view virtual override returns (ProposalState) {
         ProposalState proposalState = super.state(proposalId);
 
         return (proposalState == ProposalState.Executed && _executionTimers[proposalId].isStarted())
@@ -44,7 +42,7 @@ abstract contract GovernorWithTimelockInternal is IGovernorWithTimelock, Governo
         bytes[] memory calldatas,
         bytes32 salt
     )
-    public virtual override returns (uint256 proposalId)
+        public virtual override returns (uint256 proposalId)
     {
         // _call is overriden to customize _execute action (while keeping the checks)
         proposalId = _execute(targets, values, calldatas, salt);
@@ -58,7 +56,7 @@ abstract contract GovernorWithTimelockInternal is IGovernorWithTimelock, Governo
         bytes[] memory calldatas,
         bytes32 salt
     )
-    public payable virtual override returns (uint256 proposalId)
+        public payable virtual override returns (uint256 proposalId)
     {
         proposalId = hashProposal(targets, values, calldatas, salt);
 
@@ -78,7 +76,7 @@ abstract contract GovernorWithTimelockInternal is IGovernorWithTimelock, Governo
         bytes[] memory calldatas,
         bytes32 salt
     )
-    internal virtual override returns (uint256 proposalId)
+        internal virtual override returns (uint256 proposalId)
     {
         proposalId = super._cancel(targets, values, calldatas, salt);
         _executionTimers[proposalId].lock();
@@ -91,7 +89,7 @@ abstract contract GovernorWithTimelockInternal is IGovernorWithTimelock, Governo
         bytes[] memory /*calldatas*/,
         bytes32 /*salt*/
     )
-    internal virtual override
+        internal virtual override
     {
         // DO NOT EXECUTE, instead, start the execution timer
         _executionTimers[proposalId].setDeadline(block.timestamp + delay());

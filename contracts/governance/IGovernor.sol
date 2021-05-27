@@ -25,28 +25,18 @@ abstract contract IGovernor {
     /**
      * Public
      */
-    function state(uint256 proposalId)
-        public view virtual returns (ProposalState);
-
-    function proposalDeadline(uint256 proposalId)
-        public view virtual returns (uint256);
-
-    function proposalSnapshot(uint256 proposalId)
-        public view virtual returns (uint256);
-
-    function proposalSupply(uint256 proposalId)
-        public view virtual returns (uint256);
-
-    function proposalScore(uint256 proposalId)
-        public view virtual returns (uint256);
-
-    function hasVoted(uint256 proposalId, address account)
-        public view virtual returns (bool);
-
-    function hashProposal(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 salt)
-        public view virtual returns (uint256 proposalId);
-
-    // No checks, can be added through inheritance
+    function state(uint256 proposalId) public view virtual returns (ProposalState);
+    function proposalDeadline(uint256 proposalId) public view virtual returns (uint256);
+    function proposalSnapshot(uint256 proposalId) public view virtual returns (uint256);
+    function proposalSupply(uint256 proposalId) public view virtual returns (uint256);
+    function proposalScore(uint256 proposalId) public view virtual returns (uint256);
+    function hasVoted(uint256 proposalId, address account) public view virtual returns (bool);
+    function hashProposal(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 salt
+    ) public view virtual returns (uint256 proposalId);
     function propose(
         address[] memory targets,
         uint256[] memory values,
@@ -54,37 +44,20 @@ abstract contract IGovernor {
         bytes32 salt,
         string memory description
     ) public virtual returns (uint256 proposalId);
-
-    // No checks, can be added through inheritance
     function execute(
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 salt
     ) public payable virtual returns (uint256 proposalId);
-
-    function castVote(uint256 proposalId, uint8 support)
-        public virtual;
-
-    function castVoteBySig(uint256 proposalId, uint8 support, uint8 v, bytes32 r, bytes32 s)
-        public virtual;
+    function castVote(uint256 proposalId, uint8 support) public virtual;
+    function castVoteBySig(uint256 proposalId, uint8 support, uint8 v, bytes32 r, bytes32 s) public virtual;
 
     // Abstract (required)
-    function votingDelay()
-        public view virtual returns (uint256) { return 0; }
-
-    function votingDuration()
-        public view virtual returns (uint256);
-
-    function maxScore()
-        public view virtual returns (uint8);
-
-    function requiredScore()
-        public view virtual returns (uint8);
-
-    function quorum(uint256 blockNumber)
-        public view virtual returns (uint256);
-
-    function getVotes(address account, uint256 blockNumber)
-        public view virtual returns(uint256);
+    function votingDelay() public view virtual returns (uint256) { return 0; }
+    function votingDuration() public view virtual returns (uint256);
+    function maxScore() public view virtual returns (uint8);
+    function requiredScore() public view virtual returns (uint8);
+    function quorum(uint256 blockNumber) public view virtual returns (uint256);
+    function getVotes(address account, uint256 blockNumber) public view virtual returns(uint256);
 }

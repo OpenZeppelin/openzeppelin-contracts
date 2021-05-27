@@ -35,7 +35,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
         bytes32 salt,
         string memory description
     )
-    public virtual override returns (uint256 proposalId)
+        public virtual override returns (uint256 proposalId)
     {
         uint256 snapshot;
         uint256 deadline;
@@ -49,23 +49,19 @@ abstract contract Governor is IGovernor, EIP712, Context {
         bytes[] memory calldatas,
         bytes32 salt
     )
-    public payable virtual override returns (uint256 proposalId)
+        public payable virtual override returns (uint256 proposalId)
     {
         proposalId = _execute(targets, values, calldatas, salt);
         emit ProposalExecuted(proposalId);
     }
 
-    function castVote(uint256 proposalId, uint8 support)
-    public virtual override
-    {
+    function castVote(uint256 proposalId, uint8 support) public virtual override {
         address voter = _msgSender();
         uint256 balance = _castVote(proposalId, voter, support);
         emit VoteCast(voter, proposalId, support, balance);
     }
 
-    function castVoteBySig(uint256 proposalId, uint8 support, uint8 v, bytes32 r, bytes32 s)
-    public virtual override
-    {
+    function castVoteBySig(uint256 proposalId, uint8 support, uint8 v, bytes32 r, bytes32 s) public virtual override {
         address voter = ECDSA.recover(
             _hashTypedDataV4(keccak256(abi.encode(_BALLOT_TYPEHASH, proposalId, support))),
             v, r, s
@@ -77,9 +73,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
     /*************************************************************************
      *                            View functions                             *
      *************************************************************************/
-    function state(uint256 proposalId)
-    public view virtual override returns (ProposalState)
-    {
+    function state(uint256 proposalId) public view virtual override returns (ProposalState) {
         Proposal memory proposal = _proposals[proposalId];
 
         if (proposal.timer.isUnset()) {
@@ -116,14 +110,17 @@ abstract contract Governor is IGovernor, EIP712, Context {
         return _proposals[proposalId].score;
     }
 
-    function hasVoted(uint256 proposalId, address account)
-    public view virtual override returns (bool)
-    {
+    function hasVoted(uint256 proposalId, address account) public view virtual override returns (bool) {
         return _votes[proposalId][account];
     }
 
-    function hashProposal(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 salt)
-    public view virtual override returns (uint256 proposalId)
+    function hashProposal(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 salt
+    )
+        public view virtual override returns (uint256 proposalId)
     {
         return uint256(keccak256(abi.encode(targets, values, calldatas, salt)));
     }
@@ -137,7 +134,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
         bytes[] memory calldatas,
         bytes32 salt
     )
-    internal virtual returns (uint256 proposalId, uint256 snapshot, uint256 deadline)
+        internal virtual returns (uint256 proposalId, uint256 snapshot, uint256 deadline)
     {
         proposalId = hashProposal(targets, values, calldatas, salt);
 
@@ -161,7 +158,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
         bytes[] memory calldatas,
         bytes32 salt
     )
-    internal virtual returns (uint256 proposalId)
+        internal virtual returns (uint256 proposalId)
     {
         proposalId = hashProposal(targets, values, calldatas, salt);
         _proposals[proposalId].timer.lock();
@@ -175,7 +172,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
         bytes[] memory calldatas,
         bytes32 salt
     )
-    internal virtual returns (uint256 proposalId)
+        internal virtual returns (uint256 proposalId)
     {
         proposalId = hashProposal(targets, values, calldatas, salt);
 
@@ -195,7 +192,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
         address account,
         uint8 support
     )
-    internal virtual returns (uint256 balance)
+        internal virtual returns (uint256 balance)
     {
         require(support <= maxScore(), "Governance: invalid score");
 
@@ -216,7 +213,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
         bytes[] memory calldatas,
         bytes32 /*salt*/
     )
-    internal virtual
+        internal virtual
     {
         for (uint256 i = 0; i < targets.length; ++i) {
             _call(targets[i], values[i], calldatas[i]);
@@ -228,7 +225,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
         uint256 value,
         bytes memory data
     )
-    internal virtual
+        internal virtual
     {
         if (data.length == 0) {
             Address.sendValue(payable(target), value);
