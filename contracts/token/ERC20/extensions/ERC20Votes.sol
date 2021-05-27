@@ -59,7 +59,11 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
     }
 
     /**
-     * @dev Determine the number of votes for `account` at the begining of `blockNumber`.
+     * @dev Retrieve the number of votes for `account` at the end of `blockNumber`.
+     *
+     * Requirements:
+     *
+     * - `blockNumber` must have been already mined
      */
     function getPriorVotes(address account, uint256 blockNumber) external view override returns (uint256) {
         require(blockNumber < block.number, "ERC20Votes: block not yet mined");
@@ -67,8 +71,12 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
     }
 
     /**
-     * @dev Determine the totalSupply at the begining of `blockNumber`. Note, this value is the sum of all balances.
+     * @dev Retrieve the `totalSupply` at the end of `blockNumber`. Note, this value is the sum of all balances.
      * It is but NOT the sum of all the delegated votes!
+     *
+     * Requirements:
+     *
+     * - `blockNumber` must have been already mined
      */
     function getPriorTotalSupply(uint256 blockNumber) external view override returns (uint256) {
         require(blockNumber < block.number, "ERC20Votes: block not yet mined");
