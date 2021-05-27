@@ -139,6 +139,7 @@ abstract contract GovernorWithTimelockCompound is IGovernorWithTimelock, Governo
 
     function updateTimelock(address newTimelock) external virtual {
         require(msg.sender == address(_timelock), "GovernorWithTimelockCompound: caller must be timelock");
+        require(_timelock.pendingAdmin() != address(0), "GovernorWithTimelockCompound: old timelock must be transfered before update");
         _updateTimelock(newTimelock);
     }
 

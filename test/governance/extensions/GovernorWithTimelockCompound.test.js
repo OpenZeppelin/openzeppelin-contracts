@@ -27,7 +27,7 @@ function makeContractAddress (creator, nonce) {
 }
 
 contract('Governance', function (accounts) {
-  const [ voter ] = accounts;
+  const [ admin, voter ] = accounts;
 
   const name = 'OZ-Governance';
   const version = '0.0.1';
@@ -319,9 +319,18 @@ contract('Governance', function (accounts) {
       beforeEach(async () => {
         this.settings = {
           proposal: [
-            [ this.governor.address ],
-            [ web3.utils.toWei('0') ],
-            [ this.governor.contract.methods.updateTimelock(this.newTimelock.address).encodeABI() ],
+            [
+              this.timelock.address,
+              this.governor.address,
+            ],
+            [
+              web3.utils.toWei('0'),
+              web3.utils.toWei('0'),
+            ],
+            [
+              this.timelock.contract.methods.setPendingAdmin(admin).encodeABI(),
+              this.governor.contract.methods.updateTimelock(this.newTimelock.address).encodeABI(),
+            ],
             web3.utils.randomHex(32),
             '<proposal description>',
           ],
