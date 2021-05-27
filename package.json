@@ -73,7 +73,7 @@
     "merkletreejs": "^0.2.13",
     "micromatch": "^4.0.2",
     "mocha": "^8.0.1",
-    "prettier": "^1.19.1",
+    "prettier": "^2.3.0",
     "prettier-plugin-solidity": "*",
     "rimraf": "^3.0.2",
     "solhint": "^3.2.0",
