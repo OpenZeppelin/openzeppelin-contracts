@@ -192,7 +192,7 @@ contract('ERC20Votes', function (accounts) {
 
         await expectRevert(
           this.token.delegateBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s),
-          'ERC20Votes::delegateBySig: invalid nonce',
+          'ERC20Votes: invalid nonce',
         );
       });
 
@@ -224,7 +224,7 @@ contract('ERC20Votes', function (accounts) {
         ));
         await expectRevert(
           this.token.delegateBySig(delegatorAddress, nonce + 1, MAX_UINT256, v, r, s),
-          'ERC20Votes::delegateBySig: invalid nonce',
+          'ERC20Votes: invalid nonce',
         );
       });
 
@@ -241,7 +241,7 @@ contract('ERC20Votes', function (accounts) {
 
         await expectRevert(
           this.token.delegateBySig(delegatorAddress, nonce, expiry, v, r, s),
-          'ERC20Votes::delegateBySig: signature expired',
+          'ERC20Votes: signature expired',
         );
       });
     });
@@ -411,7 +411,7 @@ contract('ERC20Votes', function (accounts) {
       it('reverts if block number >= current block', async function () {
         await expectRevert(
           this.token.getPriorVotes(other1, 5e10),
-          'ERC20Votes::getPriorVotes: not yet determined',
+          'ERC20Votes: block not yet mined',
         );
       });
 
@@ -473,7 +473,7 @@ contract('ERC20Votes', function (accounts) {
     it('reverts if block number >= current block', async function () {
       await expectRevert(
         this.token.getPriorTotalSupply(5e10),
-        'ERC20Votes::getPriorTotalSupply: not yet determined',
+        'ERC20Votes: block not yet mined',
       );
     });
 
