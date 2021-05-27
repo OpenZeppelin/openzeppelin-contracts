@@ -70,7 +70,7 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
      * @dev Determine the totalSupply at the begining of `blockNumber`. Note, this value is the sum of all balances.
      * It is but NOT the sum of all the delegated votes!
      */
-    function getPriorTotalSupply(uint256 blockNumber) external view virtual returns(uint256) {
+    function getPriorTotalSupply(uint256 blockNumber) external view override returns(uint256) {
         require(blockNumber < block.number, "ERC20Votes::getPriorTotalSupply: not yet determined");
         return _checkpointsLookup(_totalSupplyCheckpoints, blockNumber);
     }
