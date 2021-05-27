@@ -29,7 +29,9 @@ abstract contract GovernorWithTimelockCompound is IGovernorWithTimelock, Governo
         ProposalState proposalState = super.state(proposalId);
 
         return (proposalState == ProposalState.Executed && _executionTimers[proposalId].isStarted())
-            ? ProposalState.Queued
+            ? block.timestamp >= proposalEta(proposalId) + _timelock.GRACE_PERIOD()
+            ? ProposalState.Expired
+            : ProposalState.Queued
             : proposalState;
     }
 

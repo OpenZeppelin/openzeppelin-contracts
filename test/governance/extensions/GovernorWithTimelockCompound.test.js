@@ -11,6 +11,17 @@ const Timelock = artifacts.require('CompTimelock');
 const Governance = artifacts.require('GovernorWithTimelockCompoundMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
+const PROPOSAL_STATE = [
+  'Pending',
+  'Active',
+  'Canceled',
+  'Defeated',
+  'Succeeded',
+  'Queued',
+  'Expired',
+  'Executed',
+].reduce((acc, key, i) => ({ ...acc, [key]: new BN(i) }), {});
+
 function makeContractAddress (creator, nonce) {
   return web3.utils.toChecksumAddress(web3.utils.sha3(RLP.encode([creator, nonce])).slice(12).substring(14));
 }
@@ -122,6 +133,9 @@ contract('Governance', function (accounts) {
         },
       };
     });
+    afterEach(async () => {
+      expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Succeeded);
+    });
     runGovernorWorkflow();
   });
 
@@ -143,6 +157,34 @@ contract('Governance', function (accounts) {
           execute: { reason: 'Timelock::executeTransaction: Transaction hasn\'t surpassed time lock' },
         },
       };
+    });
+    afterEach(async () => {
+      expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Queued);
+    });
+    runGovernorWorkflow();
+  });
+
+  describe('to late', () => {
+    beforeEach(async () => {
+      this.settings = {
+        proposal: [
+          [ this.receiver.address ],
+          [ web3.utils.toWei('0') ],
+          [ this.receiver.contract.methods.mockFunction().encodeABI() ],
+          web3.utils.randomHex(32),
+          '<proposal description>',
+        ],
+        voters: [
+          { address: voter, support: new BN('100') },
+        ],
+        steps: {
+          queue: { enable: true, delay: 30 * 86400 },
+          execute: { reason: 'Timelock::executeTransaction: Transaction is stale.' },
+        },
+      };
+    });
+    afterEach(async () => {
+      expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Expired);
     });
     runGovernorWorkflow();
   });
@@ -166,6 +208,8 @@ contract('Governance', function (accounts) {
       };
     });
     afterEach(async () => {
+      expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Executed);
+
       await expectRevert(
         this.governor.queue(...this.settings.proposal.slice(0, -1)),
         'Governance: proposal not ready',
@@ -197,11 +241,16 @@ contract('Governance', function (accounts) {
       };
     });
     afterEach(async () => {
+      expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Succeeded);
+
       expectEvent(
         await this.governor.cancel(...this.settings.proposal.slice(0, -1)),
         'ProposalCanceled',
         { proposalId: this.id },
       );
+
+      expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Canceled);
+
       await expectRevert(
         this.governor.queue(...this.settings.proposal.slice(0, -1)),
         'Governance: proposal not ready',
@@ -230,6 +279,8 @@ contract('Governance', function (accounts) {
       };
     });
     afterEach(async () => {
+      expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Queued);
+
       const receipt = await this.governor.cancel(...this.settings.proposal.slice(0, -1));
       expectEvent(
         receipt,
@@ -241,6 +292,9 @@ contract('Governance', function (accounts) {
         this.timelock,
         'CancelTransaction',
       );
+
+      expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Canceled);
+
       await expectRevert(
         this.governor.execute(...this.settings.proposal.slice(0, -1)),
         'GovernorWithTimelockCompound:execute: proposal not yet queued',

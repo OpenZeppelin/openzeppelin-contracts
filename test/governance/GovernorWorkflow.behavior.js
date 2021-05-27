@@ -40,6 +40,12 @@ function runGovernorWorkflow () {
         this.governor.propose(...this.settings.proposal),
         tryGet(this.settings, 'steps.propose.reason'),
       );
+
+      if (tryGet(this.settings, 'steps.propose.reason') === undefined) {
+        this.deadline = await this.governor.proposalDeadline(this.id);
+        this.snapshot = await this.governor.proposalSnapshot(this.id);
+      }
+
       if (tryGet(this.settings, 'steps.propose.delay')) {
         await time.increase(tryGet(this.settings, 'steps.propose.delay'));
       }
@@ -72,7 +78,6 @@ function runGovernorWorkflow () {
     }
 
     // fast forward
-    ({ deadline: this.deadline } = await this.governor.viewProposal(this.id));
     if (tryGet(this.settings, 'steps.wait.enable') !== false) {
       await time.increaseTo(this.deadline.addn(1));
     }

@@ -83,6 +83,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
         Proposal memory proposal = _proposals[proposalId];
 
         if (proposal.timer.isUnset()) {
+            // There is no ProposalState for unset proposals
             revert("Governor::state: invalid proposal id");
         } else if (block.number <= proposal.snapshot) {
             return ProposalState.Pending;
@@ -99,16 +100,26 @@ abstract contract Governor is IGovernor, EIP712, Context {
         }
     }
 
-    function viewProposal(uint256 proposalId)
-    public view virtual override returns (uint256 snapshot, uint256 deadline, uint256 supply, uint256 score)
+    function proposalDeadline(uint256 proposalId) public view virtual override returns (uint256) {
+        return _proposals[proposalId].timer.getDeadline();
+    }
+
+    function proposalSnapshot(uint256 proposalId) public view virtual override returns (uint256) {
+        return _proposals[proposalId].snapshot;
+    }
+
+    function proposalSupply(uint256 proposalId) public view virtual override returns (uint256) {
+        return _proposals[proposalId].supply;
+    }
+
+    function proposalScore(uint256 proposalId) public view virtual override returns (uint256) {
+        return _proposals[proposalId].score;
+    }
+
+    function hasVoted(uint256 proposalId, address account)
+    public view virtual override returns (bool)
     {
-        Proposal storage proposal = _proposals[proposalId];
-        return (
-            proposal.snapshot,
-            proposal.timer.getDeadline(),
-            proposal.supply,
-            proposal.score
-        );
+        return _votes[proposalId][account];
     }
 
     function hashProposal(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 salt)
@@ -137,7 +148,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
         Proposal storage proposal = _proposals[proposalId];
         require(proposal.timer.isUnset(), "Governance: proposal already exists");
 
-        snapshot = block.number + votingOffset();
+        snapshot = block.number + votingDelay();
         deadline = block.timestamp + votingDuration();
 
         proposal.snapshot = snapshot;

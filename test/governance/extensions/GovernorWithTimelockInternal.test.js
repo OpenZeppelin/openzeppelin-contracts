@@ -9,6 +9,17 @@ const Token = artifacts.require('ERC20VotesMock');
 const Governance = artifacts.require('GovernorWithTimelockInternalMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
+const PROPOSAL_STATE = [
+  'Pending',
+  'Active',
+  'Canceled',
+  'Defeated',
+  'Succeeded',
+  'Queued',
+  'Expired',
+  'Executed',
+].reduce((acc, key, i) => ({ ...acc, [key]: new BN(i) }), {});
+
 contract('Governance', function (accounts) {
   const [ voter ] = accounts;
 
@@ -96,6 +107,9 @@ contract('Governance', function (accounts) {
         },
       };
     });
+    afterEach(async () => {
+      expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Succeeded);
+    });
     runGovernorWorkflow();
   });
 
@@ -117,6 +131,9 @@ contract('Governance', function (accounts) {
           execute: { reason: 'Governance: proposal timelock not ready' },
         },
       };
+    });
+    afterEach(async () => {
+      expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Queued);
     });
     runGovernorWorkflow();
   });
@@ -140,6 +157,8 @@ contract('Governance', function (accounts) {
       };
     });
     afterEach(async () => {
+      expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Executed);
+
       await expectRevert(
         this.governor.queue(...this.settings.proposal.slice(0, -1)),
         'Governance: proposal not ready',
@@ -171,11 +190,16 @@ contract('Governance', function (accounts) {
       };
     });
     afterEach(async () => {
+      expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Succeeded);
+
       expectEvent(
         await this.governor.cancel(...this.settings.proposal.slice(0, -1)),
         'ProposalCanceled',
         { proposalId: this.id },
       );
+
+      expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Canceled);
+
       await expectRevert(
         this.governor.queue(...this.settings.proposal.slice(0, -1)),
         'Governance: proposal not ready',
@@ -204,11 +228,16 @@ contract('Governance', function (accounts) {
       };
     });
     afterEach(async () => {
+      expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Queued);
+
       expectEvent(
         await this.governor.cancel(...this.settings.proposal.slice(0, -1)),
         'ProposalCanceled',
         { proposalId: this.id },
       );
+
+      expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Canceled);
+
       await expectRevert(
         this.governor.execute(...this.settings.proposal.slice(0, -1)),
         'Governance: proposal timelock not ready',

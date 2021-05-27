@@ -2,18 +2,18 @@
 
 pragma solidity ^0.8.0;
 
-abstract contract IGovernor {
-    enum ProposalState {
-        Pending,
-        Active,
-        Canceled,
-        Defeated,
-        Succeeded,
-        Queued,
-        Expired,
-        Executed
-    }
+enum ProposalState {
+    Pending,
+    Active,
+    Canceled,
+    Defeated,
+    Succeeded,
+    Queued,
+    Expired,
+    Executed
+}
 
+abstract contract IGovernor {
     /**
      * Events
      */
@@ -28,8 +28,20 @@ abstract contract IGovernor {
     function state(uint256 proposalId)
         public view virtual returns (ProposalState);
 
-    function viewProposal(uint256 proposalId)
-        public view virtual returns (uint256 startBlock, uint256 deadline, uint256 supply, uint256 score);
+    function proposalDeadline(uint256 proposalId)
+        public view virtual returns (uint256);
+
+    function proposalSnapshot(uint256 proposalId)
+        public view virtual returns (uint256);
+
+    function proposalSupply(uint256 proposalId)
+        public view virtual returns (uint256);
+
+    function proposalScore(uint256 proposalId)
+        public view virtual returns (uint256);
+
+    function hasVoted(uint256 proposalId, address account)
+        public view virtual returns (bool);
 
     function hashProposal(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 salt)
         public view virtual returns (uint256 proposalId);
@@ -58,7 +70,7 @@ abstract contract IGovernor {
         public virtual;
 
     // Abstract (required)
-    function votingOffset()
+    function votingDelay()
         public view virtual returns (uint256) { return 0; }
 
     function votingDuration()

@@ -68,6 +68,22 @@ contract('Governance', function (accounts) {
         };
       });
       afterEach(async () => {
+        expect(await this.governor.hasVoted(this.id, owner)).to.be.equal(false);
+        expect(await this.governor.hasVoted(this.id, voter1)).to.be.equal(true);
+        expect(await this.governor.hasVoted(this.id, voter2)).to.be.equal(true);
+
+        expect(await this.governor.proposalSupply(this.id))
+          .to.be.bignumber.equal(Object.values(this.settings.voters).reduce(
+            (acc, { weight }) => acc.add(new BN(weight)),
+            new BN('0'),
+          ));
+
+        expect(await this.governor.proposalScore(this.id))
+          .to.be.bignumber.equal(Object.values(this.settings.voters).reduce(
+            (acc, { weight, support }) => acc.add(new BN(weight).mul(support)),
+            new BN('0'),
+          ));
+
         expectEvent(
           this.receipts.propose,
           'ProposalCreated',
@@ -92,7 +108,7 @@ contract('Governance', function (accounts) {
         const chainId = await web3.eth.getChainId();
         // generate voter by signature wallet
         const voterBySig = Wallet.generate();
-        const voterBySigAddress = web3.utils.toChecksumAddress(voterBySig.getAddressString());
+        this.voter = web3.utils.toChecksumAddress(voterBySig.getAddressString());
         // use delegateBySig to enable vote delegation for this wallet
         const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
           voterBySig.getPrivateKey(),
@@ -108,11 +124,11 @@ contract('Governance', function (accounts) {
               },
               domain: { name: tokenName, version: '1', chainId, verifyingContract: this.token.address },
               primaryType: 'Delegation',
-              message: { delegatee: voterBySigAddress, nonce: 0, expiry: constants.MAX_UINT256 },
+              message: { delegatee: this.voter, nonce: 0, expiry: constants.MAX_UINT256 },
             },
           },
         ));
-        await this.token.delegateBySig(voterBySigAddress, 0, constants.MAX_UINT256, v, r, s);
+        await this.token.delegateBySig(this.voter, 0, constants.MAX_UINT256, v, r, s);
         // prepare signature for vote by signature
         const signature = async (message) => {
           return fromRpcSig(ethSigUtil.signTypedMessage(
@@ -144,11 +160,28 @@ contract('Governance', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { address: voterBySigAddress, signature, weight: web3.utils.toWei('1'), support: new BN('100') },
+            { address: this.voter, signature, weight: web3.utils.toWei('1'), support: new BN('100') },
           ],
         };
       });
       afterEach(async () => {
+        expect(await this.governor.hasVoted(this.id, owner)).to.be.equal(false);
+        expect(await this.governor.hasVoted(this.id, voter1)).to.be.equal(false);
+        expect(await this.governor.hasVoted(this.id, voter2)).to.be.equal(false);
+        expect(await this.governor.hasVoted(this.id, this.voter)).to.be.equal(true);
+
+        expect(await this.governor.proposalSupply(this.id))
+          .to.be.bignumber.equal(Object.values(this.settings.voters).reduce(
+            (acc, { weight }) => acc.add(new BN(weight)),
+            new BN('0'),
+          ));
+
+        expect(await this.governor.proposalScore(this.id))
+          .to.be.bignumber.equal(Object.values(this.settings.voters).reduce(
+            (acc, { weight, support }) => acc.add(new BN(weight).mul(support)),
+            new BN('0'),
+          ));
+
         expectEvent(
           this.receipts.propose,
           'ProposalCreated',
