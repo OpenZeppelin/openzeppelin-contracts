@@ -18,6 +18,7 @@ interface IERC20Votes is IERC20 {
     function numCheckpoints(address account) external view returns (uint32);
     function getCurrentVotes(address account) external view returns (uint256);
     function getPriorVotes(address account, uint256 blockNumber) external view returns (uint256);
+    function getPriorTotalSupply(uint256 blockNumber) external view returns(uint256);
     function delegate(address delegatee) external;
     function delegateBySig(address delegatee, uint nonce, uint expiry, uint8 v, bytes32 r, bytes32 s) external;
 }
