@@ -2,7 +2,6 @@
 
 pragma solidity ^0.8.0;
 
-
 import "../token/ERC20/IERC20.sol";
 import "../interfaces/IERC3156.sol";
 import "../utils/Address.sol";
@@ -15,7 +14,7 @@ import "../utils/Address.sol";
  * live networks.
  */
 contract ERC3156FlashBorrowerMock is IERC3156FlashBorrower {
-    bytes32 constant internal RETURN_VALUE = keccak256("ERC3156FlashBorrower.onFlashLoan");
+    bytes32 internal constant RETURN_VALUE = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
     bool immutable _enableApprove;
     bool immutable _enableReturn;
@@ -29,7 +28,7 @@ contract ERC3156FlashBorrowerMock is IERC3156FlashBorrower {
     }
 
     function onFlashLoan(
-        address /*initiator*/,
+        address, /*initiator*/
         address token,
         uint256 amount,
         uint256 fee,

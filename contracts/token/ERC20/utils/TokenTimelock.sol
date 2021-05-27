@@ -15,15 +15,19 @@ contract TokenTimelock {
     using SafeERC20 for IERC20;
 
     // ERC20 basic token contract being held
-    IERC20 immutable private _token;
+    IERC20 private immutable _token;
 
     // beneficiary of tokens after they are released
-    address immutable private _beneficiary;
+    address private immutable _beneficiary;
 
     // timestamp when token release is enabled
-    uint256 immutable private _releaseTime;
+    uint256 private immutable _releaseTime;
 
-    constructor (IERC20 token_, address beneficiary_, uint256 releaseTime_) {
+    constructor(
+        IERC20 token_,
+        address beneficiary_,
+        uint256 releaseTime_
+    ) {
         // solhint-disable-next-line not-rely-on-time
         require(releaseTime_ > block.timestamp, "TokenTimelock: release time is before current time");
         _token = token_;

@@ -16,7 +16,6 @@ pragma solidity ^0.8.0;
  * that all initializers are idempotent. This is not verified automatically as constructors are by Solidity.
  */
 abstract contract Initializable {
-
     /**
      * @dev Indicates that the contract has been initialized.
      */

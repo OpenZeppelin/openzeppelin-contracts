@@ -60,7 +60,11 @@ abstract contract ERC1967Upgrade {
      *
      * Emits an {Upgraded} event.
      */
-    function _upgradeToAndCall(address newImplementation, bytes memory data, bool forceCall) internal {
+    function _upgradeToAndCall(
+        address newImplementation,
+        bytes memory data,
+        bool forceCall
+    ) internal {
         _setImplementation(newImplementation);
         emit Upgraded(newImplementation);
         if (data.length > 0 || forceCall) {
@@ -73,7 +77,11 @@ abstract contract ERC1967Upgrade {
      *
      * Emits an {Upgraded} event.
      */
-    function _upgradeToAndCallSecure(address newImplementation, bytes memory data, bool forceCall) internal {
+    function _upgradeToAndCallSecure(
+        address newImplementation,
+        bytes memory data,
+        bool forceCall
+    ) internal {
         address oldImplementation = _getImplementation();
 
         // Initial upgrade and setup call
@@ -89,10 +97,7 @@ abstract contract ERC1967Upgrade {
             rollbackTesting.value = true;
             Address.functionDelegateCall(
                 newImplementation,
-                abi.encodeWithSignature(
-                    "upgradeTo(address)",
-                    oldImplementation
-                )
+                abi.encodeWithSignature("upgradeTo(address)", oldImplementation)
             );
             rollbackTesting.value = false;
             // Check rollback was effective
@@ -109,7 +114,11 @@ abstract contract ERC1967Upgrade {
      *
      * Emits a {BeaconUpgraded} event.
      */
-    function _upgradeBeaconToAndCall(address newBeacon, bytes memory data, bool forceCall) internal {
+    function _upgradeBeaconToAndCall(
+        address newBeacon,
+        bytes memory data,
+        bool forceCall
+    ) internal {
         _setBeacon(newBeacon);
         emit BeaconUpgraded(newBeacon);
         if (data.length > 0 || forceCall) {
@@ -176,10 +185,7 @@ abstract contract ERC1967Upgrade {
      * @dev Stores a new beacon in the EIP1967 beacon slot.
      */
     function _setBeacon(address newBeacon) private {
-        require(
-            Address.isContract(newBeacon),
-            "ERC1967: new beacon is not a contract"
-        );
+        require(Address.isContract(newBeacon), "ERC1967: new beacon is not a contract");
         require(
             Address.isContract(IBeacon(newBeacon).implementation()),
             "ERC1967: beacon implementation is not a contract"

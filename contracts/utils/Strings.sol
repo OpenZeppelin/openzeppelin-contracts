@@ -63,5 +63,4 @@ library Strings {
         require(value == 0, "Strings: hex length insufficient");
         return string(buffer);
     }
-
 }

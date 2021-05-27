@@ -12,12 +12,18 @@ contract EIP712External is EIP712 {
         return _domainSeparatorV4();
     }
 
-    function verify(bytes memory signature, address signer, address mailTo, string memory mailContents) external view {
-        bytes32 digest = _hashTypedDataV4(keccak256(abi.encode(
-            keccak256("Mail(address to,string contents)"),
-            mailTo,
-            keccak256(bytes(mailContents))
-        )));
+    function verify(
+        bytes memory signature,
+        address signer,
+        address mailTo,
+        string memory mailContents
+    ) external view {
+        bytes32 digest =
+            _hashTypedDataV4(
+                keccak256(
+                    abi.encode(keccak256("Mail(address to,string contents)"), mailTo, keccak256(bytes(mailContents)))
+                )
+            );
         address recoveredSigner = ECDSA.recover(digest, signature);
         require(recoveredSigner == signer);
     }
