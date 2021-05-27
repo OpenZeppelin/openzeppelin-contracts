@@ -62,7 +62,7 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
      * @dev Determine the number of votes for `account` at the begining of `blockNumber`.
      */
     function getPriorVotes(address account, uint256 blockNumber) external view override returns (uint256) {
-        require(blockNumber < block.number, "ERC20Votes::getPriorVotes: not yet determined");
+        require(blockNumber < block.number, "ERC20Votes: block not yet mined");
         return _checkpointsLookup(_checkpoints[account], blockNumber);
     }
 
@@ -71,7 +71,7 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
      * It is but NOT the sum of all the delegated votes!
      */
     function getPriorTotalSupply(uint256 blockNumber) external view override returns(uint256) {
-        require(blockNumber < block.number, "ERC20Votes::getPriorTotalSupply: not yet determined");
+        require(blockNumber < block.number, "ERC20Votes: block not yet mined");
         return _checkpointsLookup(_totalSupplyCheckpoints, blockNumber);
     }
 
@@ -117,7 +117,7 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
     function delegateBySig(address delegatee, uint256 nonce, uint256 expiry, uint8 v, bytes32 r, bytes32 s)
         public virtual override
     {
-        require(block.timestamp <= expiry, "ERC20Votes::delegateBySig: signature expired");
+        require(block.timestamp <= expiry, "ERC20Votes: signature expired");
         address signer = ECDSA.recover(
             _hashTypedDataV4(keccak256(abi.encode(
                 _DELEGATION_TYPEHASH,
@@ -127,7 +127,7 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
             ))),
             v, r, s
         );
-        require(nonce == _useNonce(signer), "ERC20Votes::delegateBySig: invalid nonce");
+        require(nonce == _useNonce(signer), "ERC20Votes: invalid nonce");
         return _delegate(signer, delegatee);
     }
 
