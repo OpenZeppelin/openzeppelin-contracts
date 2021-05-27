@@ -4,7 +4,8 @@
       "files": "*.sol",
       "options": {
         "printWidth": 120,
-        "explicitTypes": "always"
+        "explicitTypes": "always",
+        "bracketSpacing": true
       }
     }
   ]

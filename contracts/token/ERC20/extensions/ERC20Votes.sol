@@ -208,7 +208,9 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
         if (pos > 0 && ckpts[pos - 1].fromBlock == block.number) {
             ckpts[pos - 1].votes = SafeCast.toUint224(newWeight);
         } else {
-            ckpts.push(Checkpoint({fromBlock: SafeCast.toUint32(block.number), votes: SafeCast.toUint224(newWeight)}));
+            ckpts.push(
+                Checkpoint({ fromBlock: SafeCast.toUint32(block.number), votes: SafeCast.toUint224(newWeight) })
+            );
         }
     }
 

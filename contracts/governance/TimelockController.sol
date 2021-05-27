@@ -330,7 +330,7 @@ contract TimelockController is AccessControl {
         bytes calldata data
     ) private {
         // solhint-disable-next-line avoid-low-level-calls
-        (bool success, ) = target.call{value: value}(data);
+        (bool success, ) = target.call{ value: value }(data);
         require(success, "TimelockController: underlying transaction reverted");
 
         emit CallExecuted(id, index, target, value, data);
