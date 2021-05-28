@@ -24,6 +24,10 @@ abstract contract ScoreVoting is IGovernor {
         return _votings[proposalId].supply;
     }
 
+    function proposalScore(uint256 proposalId) public view virtual returns (uint256) {
+        return _votings[proposalId].score;
+    }
+
     function _voteSuccess(uint256 proposalId) internal view virtual override returns (bool) {
         return _votings[proposalId].score >= _votings[proposalId].supply * requiredScore(); // > vs >=
     }
