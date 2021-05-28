@@ -29,8 +29,6 @@ contract('Governance', function (accounts) {
   it('post deployment check', async () => {
     expect(await this.governor.token()).to.be.bignumber.equal(this.token.address);
     expect(await this.governor.votingDuration()).to.be.bignumber.equal('604800');
-    expect(await this.governor.maxScore()).to.be.bignumber.equal('100');
-    expect(await this.governor.requiredScore()).to.be.bignumber.equal('50');
     expect(await this.governor.quorum(0)).to.be.bignumber.equal('1');
 
     expect(await this.governor.timelock()).to.be.equal(this.governor.address);

@@ -13,12 +13,6 @@ enum ProposalState {
     Executed
 }
 
-enum VoteType {
-    Against,
-    For,
-    Abstain
-}
-
 abstract contract IGovernor {
     /**
      * Events
@@ -26,7 +20,7 @@ abstract contract IGovernor {
     event ProposalCreated(uint256 indexed proposalId, address indexed proposer, address[] targets, uint256[] values, bytes[] calldatas, bytes32 salt, uint256 votingSnapshot, uint256 votingDeadline, string description);
     event ProposalCanceled(uint256 indexed proposalId);
     event ProposalExecuted(uint256 indexed proposalId);
-    event VoteCast(address indexed voter, uint256 indexed proposalId, uint8 support, uint256 votes);
+    event VoteCast(address indexed voter, uint256 indexed proposalId, uint8 support, uint256 weight);
 
     /**
      * Public
@@ -34,8 +28,7 @@ abstract contract IGovernor {
     function state(uint256 proposalId) public view virtual returns (ProposalState);
     function proposalDeadline(uint256 proposalId) public view virtual returns (uint256);
     function proposalSnapshot(uint256 proposalId) public view virtual returns (uint256);
-    function proposalSupply(uint256 proposalId) public view virtual returns (uint256);
-    function proposalScore(uint256 proposalId) public view virtual returns (uint256);
+    function proposalWeight(uint256 proposalId) public view virtual returns (uint256);
     function hasVoted(uint256 proposalId, address account) public view virtual returns (bool);
 
     function hashProposal(
@@ -74,10 +67,12 @@ abstract contract IGovernor {
     ) public virtual returns (uint256 balance);
 
     // Vote configuration
-    function maxScore() public view virtual returns (uint8) { return 100; }
-    function requiredScore() public view virtual returns (uint8) { return 50;}
     function votingDelay() public view virtual returns (uint256) { return 0; }
     function votingDuration() public view virtual returns (uint256);
     function quorum(uint256 blockNumber) public view virtual returns (uint256);
     function getVotes(address account, uint256 blockNumber) public view virtual returns(uint256);
+
+    // Binding to voting system (internal)
+    function _voteSuccess(uint256 proposalId) internal view virtual returns (bool);
+    function _pushVote(uint256 proposalId, uint8 support, uint256 weight) internal virtual;
 }

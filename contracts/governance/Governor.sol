@@ -17,8 +17,6 @@ abstract contract Governor is IGovernor, EIP712, Context {
     struct Proposal {
         Time.Timer timer;
         uint256 snapshot;
-        uint256 supply;
-        uint256 score;
         bool canceled;
     }
 
@@ -90,7 +88,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
         } else if (proposal.timer.isPending()) {
             return ProposalState.Active;
         } else if (proposal.timer.isExpired()) {
-            return (proposal.supply >= quorum(proposal.snapshot) && proposal.score >= proposal.supply * requiredScore())
+            return (proposalWeight(proposalId) >= quorum(proposal.snapshot) && _voteSuccess(proposalId))
                 ? ProposalState.Succeeded
                 : ProposalState.Defeated;
         } else if (proposal.canceled) {
@@ -106,14 +104,6 @@ abstract contract Governor is IGovernor, EIP712, Context {
 
     function proposalSnapshot(uint256 proposalId) public view virtual override returns (uint256) {
         return _proposals[proposalId].snapshot;
-    }
-
-    function proposalSupply(uint256 proposalId) public view virtual override returns (uint256) {
-        return _proposals[proposalId].supply;
-    }
-
-    function proposalScore(uint256 proposalId) public view virtual override returns (uint256) {
-        return _proposals[proposalId].score;
     }
 
     function hasVoted(uint256 proposalId, address account) public view virtual override returns (bool) {
@@ -184,8 +174,8 @@ abstract contract Governor is IGovernor, EIP712, Context {
 
         Proposal storage proposal = _proposals[proposalId];
         require(proposal.timer.isExpired(), "Governance: proposal not ready");
-        require(proposal.supply >= quorum(proposal.snapshot), "Governance: quorum not reached");
-        require(proposal.score >= proposal.supply * requiredScore(), "Governance: required score not reached");
+        require(proposalWeight(proposalId) >= quorum(proposal.snapshot), "Governance: quorum not reached");
+        require(_voteSuccess(proposalId), "Governance: required score not reached");
         proposal.timer.lock();
 
         _calls(proposalId, targets, values, calldatas, salt);
@@ -196,31 +186,18 @@ abstract contract Governor is IGovernor, EIP712, Context {
         address account,
         uint8 support
     )
-        internal virtual returns (uint256 balance)
+        internal virtual returns (uint256 weight)
     {
         Proposal storage proposal = _proposals[proposalId];
         require(proposal.timer.isPending(), "Governance: vote not currently active");
+
         require(!_votes[proposalId][account], "Governance: vote already casted");
-
         _votes[proposalId][account] = true;
-        balance = getVotes(account, proposal.snapshot);
-        uint8 score = _supportToScore(support);
-        proposal.supply += balance;
-        proposal.score += balance * score;
 
-        emit VoteCast(account, proposalId, score, balance);
-    }
+        weight = getVotes(account, proposal.snapshot);
+        _pushVote(proposalId, support, weight);
 
-    function _supportToScore(uint8 support) internal view virtual returns (uint8 score) {
-        if (support == uint8(VoteType.Against)) {
-            return 0;
-        } else if (support == uint8(VoteType.For)) {
-            return maxScore();
-        } else if (support == uint8(VoteType.Abstain)) {
-            return requiredScore();
-        } else {
-            revert("Governor: invalid value for enum VoteType");
-        }
+        emit VoteCast(account, proposalId, support, weight);
     }
 
     function _calls(

@@ -29,19 +29,11 @@ contract('Governance', function (accounts) {
     this.receiver = await CallReceiver.new();
     await this.token.delegate(voter1, { from: voter1 });
     await this.token.delegate(voter2, { from: voter2 });
-
-    this.supportToScore = {
-      [Enums.VoteType.Against]: new BN('0'),
-      [Enums.VoteType.For]: await this.governor.maxScore(),
-      [Enums.VoteType.Abstain]: await this.governor.requiredScore(),
-    };
   });
 
   it('deployment check', async () => {
     expect(await this.governor.token()).to.be.bignumber.equal(this.token.address);
     expect(await this.governor.votingDuration()).to.be.bignumber.equal('604800');
-    expect(await this.governor.maxScore()).to.be.bignumber.equal('100');
-    expect(await this.governor.requiredScore()).to.be.bignumber.equal('50');
     expect(await this.governor.quorum(0)).to.be.bignumber.equal('1');
   });
 
@@ -68,15 +60,9 @@ contract('Governance', function (accounts) {
         expect(await this.governor.hasVoted(this.id, voter1)).to.be.equal(true);
         expect(await this.governor.hasVoted(this.id, voter2)).to.be.equal(true);
 
-        expect(await this.governor.proposalSupply(this.id))
+        expect(await this.governor.proposalWeight(this.id))
           .to.be.bignumber.equal(Object.values(this.settings.voters).reduce(
             (acc, { weight }) => acc.add(new BN(weight)),
-            new BN('0'),
-          ));
-
-        expect(await this.governor.proposalScore(this.id))
-          .to.be.bignumber.equal(Object.values(this.settings.voters).reduce(
-            (acc, { weight, support }) => acc.add(new BN(weight).mul(this.supportToScore[support])),
             new BN('0'),
           ));
 
@@ -166,15 +152,9 @@ contract('Governance', function (accounts) {
         expect(await this.governor.hasVoted(this.id, voter2)).to.be.equal(false);
         expect(await this.governor.hasVoted(this.id, this.voter)).to.be.equal(true);
 
-        expect(await this.governor.proposalSupply(this.id))
+        expect(await this.governor.proposalWeight(this.id))
           .to.be.bignumber.equal(Object.values(this.settings.voters).reduce(
             (acc, { weight }) => acc.add(new BN(weight)),
-            new BN('0'),
-          ));
-
-        expect(await this.governor.proposalScore(this.id))
-          .to.be.bignumber.equal(Object.values(this.settings.voters).reduce(
-            (acc, { weight, support }) => acc.add(new BN(weight).mul(this.supportToScore[support])),
             new BN('0'),
           ));
 
@@ -317,7 +297,7 @@ contract('Governance', function (accounts) {
       runGovernorWorkflow();
     });
 
-    describe('Invalide vote type', () => {
+    describe('Invalid vote type', () => {
       beforeEach(async () => {
         this.settings = {
           proposal: [
@@ -333,7 +313,7 @@ contract('Governance', function (accounts) {
               address: voter1,
               weight: web3.utils.toWei('1'),
               support: new BN('255'),
-              reason: 'Governor: invalid value for enum VoteType',
+              reason: 'SimpleVoting: invalid value for enum VoteType',
             },
           ],
           steps: {

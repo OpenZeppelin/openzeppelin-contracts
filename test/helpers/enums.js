@@ -1,7 +1,7 @@
 const { BN } = require('@openzeppelin/test-helpers');
 
 function Enum (...options) {
-  return options.reduce((acc, key, i) => ({ ...acc, [key]: new BN(i) }), {});
+  return Object.fromEntries(options.map((key, i) => [ key, new BN(i) ]));
 }
 
 module.exports = {
