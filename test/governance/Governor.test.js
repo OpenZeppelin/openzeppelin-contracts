@@ -24,9 +24,10 @@ contract('Governance', function (accounts) {
 
   beforeEach(async () => {
     this.owner = owner;
-    this.token = await Token.new(tokenName, tokenSymbol, owner, tokenSupply);
+    this.token = await Token.new(tokenName, tokenSymbol);
     this.governor = await Governance.new(name, version, this.token.address);
     this.receiver = await CallReceiver.new();
+    await this.token.mint(owner, tokenSupply);
     await this.token.delegate(voter1, { from: voter1 });
     await this.token.delegate(voter2, { from: voter2 });
   });

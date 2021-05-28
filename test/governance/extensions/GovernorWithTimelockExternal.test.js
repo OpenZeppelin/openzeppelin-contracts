@@ -23,7 +23,7 @@ contract('Governance', function (accounts) {
   beforeEach(async () => {
     const [ deployer ] = await web3.eth.getAccounts();
 
-    this.token = await Token.new(tokenName, tokenSymbol, voter, tokenSupply);
+    this.token = await Token.new(tokenName, tokenSymbol);
     this.timelock = await Timelock.new(3600, [], []);
     this.governor = await Governance.new(name, version, this.token.address, this.timelock.address);
     this.receiver = await CallReceiver.new();
@@ -31,6 +31,7 @@ contract('Governance', function (accounts) {
     await this.timelock.grantRole(await this.timelock.PROPOSER_ROLE(), this.governor.address);
     await this.timelock.grantRole(await this.timelock.EXECUTOR_ROLE(), constants.ZERO_ADDRESS);
     await this.timelock.revokeRole(await this.timelock.TIMELOCK_ADMIN_ROLE(), deployer);
+    await this.token.mint(voter, tokenSupply);
     await this.token.delegate(voter, { from: voter });
   });
 

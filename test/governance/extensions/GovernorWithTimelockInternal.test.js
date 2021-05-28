@@ -20,9 +20,10 @@ contract('Governance', function (accounts) {
   const tokenSupply = web3.utils.toWei('100');
 
   beforeEach(async () => {
-    this.token = await Token.new(tokenName, tokenSymbol, voter, tokenSupply);
+    this.token = await Token.new(tokenName, tokenSymbol);
     this.governor = await Governance.new(name, version, this.token.address, 3600);
     this.receiver = await CallReceiver.new();
+    await this.token.mint(voter, tokenSupply);
     await this.token.delegate(voter, { from: voter });
   });
 
