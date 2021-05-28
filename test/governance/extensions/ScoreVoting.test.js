@@ -1,4 +1,4 @@
-const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
+const { BN, constants, expectEvent } = require('@openzeppelin/test-helpers');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 const { EIP712Domain } = require('../../helpers/eip712');
