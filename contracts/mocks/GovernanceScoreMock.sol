@@ -4,13 +4,13 @@ pragma solidity ^0.8.0;
 
 import "../token/ERC20/extensions/IComp.sol";
 import "../governance/Governor.sol";
-import "../governance/extensions/ScoreVoting.sol";
-import "../governance/extensions/WithVoteToken.sol";
+import "../governance/extensions/GovernorVotingScore.sol";
+import "../governance/extensions/GovernorWithToken.sol";
 
-contract GovernanceScoreMock is Governor, ScoreVoting, WithVoteToken {
+contract GovernanceScoreMock is Governor, GovernorVotingScore, GovernorWithToken {
     constructor(string memory name_, string memory version_, IComp token_)
-    EIP712(name_, version_)
-    WithVoteToken(token_)
+    Governor(name_, version_)
+    GovernorWithToken(token_)
     {
     }
 

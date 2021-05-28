@@ -2,22 +2,24 @@
 
 pragma solidity ^0.8.0;
 
-import "./IGovernorWithTimelock.sol";
+import "./IGovernorTimelock.sol";
 import "../Governor.sol";
+import "../TimelockController.sol";
 
-abstract contract GovernorWithTimelockInternal is IGovernorWithTimelock, Governor {
+abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
     using Time for Time.Timer;
 
+    TimelockController private _timelock;
     mapping (uint256 => Time.Timer) private _executionTimers;
-    uint256 private _delay;
 
     /**
      * @dev Emitted when the minimum delay for future operations is modified.
      */
-    event DelayChange(uint256 oldDuration, uint256 newDuration);
+    event TimelockChange(address oldTimelock, address newTimelock);
 
-    constructor(uint256 delay_) {
-        _updateDelay(delay_);
+    constructor(address timelock_)
+    {
+        _updateTimelock(timelock_);
     }
 
     function state(uint256 proposalId) public view virtual override returns (ProposalState) {
@@ -29,7 +31,7 @@ abstract contract GovernorWithTimelockInternal is IGovernorWithTimelock, Governo
     }
 
     function timelock() public view virtual override returns (address) {
-        return address(this);
+        return address(_timelock);
     }
 
     function proposalEta(uint256 proposalId) public view virtual returns (uint256) {
@@ -46,7 +48,9 @@ abstract contract GovernorWithTimelockInternal is IGovernorWithTimelock, Governo
     {
         // _call is overriden to customize _execute action (while keeping the checks)
         proposalId = _execute(targets, values, calldatas, salt);
-        uint256 eta = block.timestamp + delay();
+        uint256 eta = block.timestamp + _timelock.getMinDelay();
+        _executionTimers[proposalId].setDeadline(eta);
+
         emit ProposalQueued(proposalId, eta);
     }
 
@@ -59,13 +63,8 @@ abstract contract GovernorWithTimelockInternal is IGovernorWithTimelock, Governo
         public payable virtual override returns (uint256 proposalId)
     {
         proposalId = hashProposal(targets, values, calldatas, salt);
-
-        Time.Timer storage timer = _executionTimers[proposalId];
-        require(timer.isExpired(), "Governance: proposal timelock not ready");
-        timer.lock();
-
-        // Use the non overloaded version
-        Governor._calls(proposalId, targets, values, calldatas, salt);
+        _timelock.executeBatch{ value: msg.value }(targets, values, calldatas, 0, salt);
+        _executionTimers[proposalId].reset();
 
         emit ProposalExecuted(proposalId);
     }
@@ -79,33 +78,40 @@ abstract contract GovernorWithTimelockInternal is IGovernorWithTimelock, Governo
         internal virtual override returns (uint256 proposalId)
     {
         proposalId = super._cancel(targets, values, calldatas, salt);
-        _executionTimers[proposalId].lock();
+
+        bytes32 timelockProposalId = _timelock.hashOperationBatch(targets, values, calldatas, 0, salt);
+        if (_timelock.isOperationPending(timelockProposalId)) {
+            _timelock.cancel(timelockProposalId);
+            _executionTimers[proposalId].reset();
+        }
     }
 
     function _calls(
-        uint256 proposalId,
-        address[] memory /*targets*/,
-        uint256[] memory /*values*/,
-        bytes[] memory /*calldatas*/,
-        bytes32 /*salt*/
+        uint256 /*proposalId*/,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 salt
     )
         internal virtual override
     {
-        // DO NOT EXECUTE, instead, start the execution timer
-        _executionTimers[proposalId].setDeadline(block.timestamp + delay());
+        _timelock.scheduleBatch(
+            targets,
+            values,
+            calldatas,
+            0,
+            salt,
+            _timelock.getMinDelay()
+        );
     }
 
-    function delay() public view virtual returns (uint256) {
-        return _delay;
+    function updateTimelock(address newTimelock) external virtual {
+        require(msg.sender == address(_timelock), "GovernorWithTimelockExternal: caller must be timelock");
+        _updateTimelock(newTimelock);
     }
 
-    function updateDelay(uint256 newDelay) external virtual {
-        require(msg.sender == address(this), "GovernorWithTimelockInternal: caller must be governor");
-        _updateDelay(newDelay);
-    }
-
-    function _updateDelay(uint256 newDelay) internal virtual {
-        emit DelayChange(_delay, newDelay);
-        _delay = newDelay;
+    function _updateTimelock(address newTimelock) internal virtual {
+        emit TimelockChange(address(_timelock), newTimelock);
+        _timelock = TimelockController(payable(newTimelock));
     }
 }

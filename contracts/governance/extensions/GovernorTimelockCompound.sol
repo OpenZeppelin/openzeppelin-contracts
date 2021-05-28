@@ -2,12 +2,33 @@
 
 pragma solidity ^0.8.0;
 
-import "./IGovernorWithTimelock.sol";
-import "./ICompTimelock.sol";
+import "./IGovernorTimelock.sol";
 import "../Governor.sol";
-import "../TimelockController.sol";
 
-abstract contract GovernorWithTimelockCompound is IGovernorWithTimelock, Governor {
+/**
+ * Compound's timelock interface
+ */
+interface ICompTimelock {
+    receive() external payable;
+
+    function GRACE_PERIOD() external view returns (uint256);
+    function MINIMUM_DELAY() external view returns (uint256);
+    function MAXIMUM_DELAY() external view returns (uint256);
+
+    function admin() external view returns (address);
+    function pendingAdmin() external view returns (address);
+    function delay() external view returns (uint256);
+
+    function setDelay(uint256) external;
+    function acceptAdmin() external;
+    function setPendingAdmin(address) external;
+
+    function queueTransaction(address target, uint value, string memory signature, bytes memory data, uint eta) external returns (bytes32);
+    function cancelTransaction(address target, uint value, string memory signature, bytes memory data, uint eta) external;
+    function executeTransaction(address target, uint value, string memory signature, bytes memory data, uint eta) external payable returns (bytes memory);
+}
+
+abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     using Time for Time.Timer;
 
     ICompTimelock private _timelock;

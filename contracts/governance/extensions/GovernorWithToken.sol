@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import "../IGovernor.sol";
 import "../../token/ERC20/extensions/IComp.sol";
 
-abstract contract WithVoteToken is IGovernor {
+abstract contract GovernorWithToken is IGovernor {
     IComp immutable public token;
 
     constructor(IComp token_) {

@@ -3,15 +3,15 @@
 pragma solidity ^0.8.0;
 
 import "../token/ERC20/extensions/IComp.sol";
-import "../governance/extensions/GovernorWithTimelockCompound.sol";
-import "../governance/extensions/SimpleVoting.sol";
-import "../governance/extensions/WithVoteToken.sol";
+import "../governance/extensions/GovernorTimelockCompound.sol";
+import "../governance/extensions/GovernorVotingSimple.sol";
+import "../governance/extensions/GovernorWithToken.sol";
 
-contract GovernorWithTimelockCompoundMock is GovernorWithTimelockCompound, SimpleVoting, WithVoteToken {
+contract GovernorTimelockCompoundMock is GovernorTimelockCompound, GovernorWithToken, GovernorVotingSimple {
     constructor(string memory name_, string memory version_, IComp token_, address timelock_)
-    EIP712(name_, version_)
-    GovernorWithTimelockCompound(timelock_)
-    WithVoteToken(token_)
+    Governor(name_, version_)
+    GovernorTimelockCompound(timelock_)
+    GovernorWithToken(token_)
     {
     }
 

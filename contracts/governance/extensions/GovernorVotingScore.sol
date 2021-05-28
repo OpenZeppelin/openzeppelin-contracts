@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import "../IGovernor.sol";
 
-abstract contract ScoreVoting is IGovernor {
+abstract contract GovernorVotingScore is IGovernor {
     struct Voting {
         uint256 supply;
         uint256 score;

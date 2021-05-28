@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-interface IGovernorWithTimelock {
+interface IGovernorTimelock {
     event ProposalQueued(uint256 indexed proposalId, uint256 eta);
 
     function timelock() external view returns (address);

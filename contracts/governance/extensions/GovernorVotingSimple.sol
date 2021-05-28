@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import "../IGovernor.sol";
 
-abstract contract SimpleVoting is IGovernor {
+abstract contract GovernorVotingSimple is IGovernor {
     enum VoteType {
         Against,
         For,

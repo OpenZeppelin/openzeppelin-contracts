@@ -14,17 +14,14 @@ enum ProposalState {
 }
 
 abstract contract IGovernor {
-    /**
-     * Events
-     */
     event ProposalCreated(uint256 indexed proposalId, address indexed proposer, address[] targets, uint256[] values, bytes[] calldatas, bytes32 salt, uint256 votingSnapshot, uint256 votingDeadline, string description);
     event ProposalCanceled(uint256 indexed proposalId);
     event ProposalExecuted(uint256 indexed proposalId);
     event VoteCast(address indexed voter, uint256 indexed proposalId, uint8 support, uint256 weight);
 
-    /**
-     * Public
-     */
+    function name() external view virtual returns (string memory);
+    function version() external view virtual returns (string memory);
+
     function state(uint256 proposalId) public view virtual returns (ProposalState);
     function proposalDeadline(uint256 proposalId) public view virtual returns (uint256);
     function proposalSnapshot(uint256 proposalId) public view virtual returns (uint256);

@@ -20,8 +20,18 @@ abstract contract Governor is IGovernor, EIP712, Context {
         bool canceled;
     }
 
+    string public override name;
+    string public override version;
+
     mapping (uint256 => Proposal) private _proposals;
     mapping (uint256 => mapping (address => bool)) private _votes;
+
+    constructor(string memory name_, string memory version_)
+    EIP712(name_, version_)
+    {
+        name = name_;
+        version = version_;
+    }
 
     /*************************************************************************
      *                           Public interface                            *
