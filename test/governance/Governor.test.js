@@ -1,6 +1,7 @@
 const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
+const Enums = require('../helpers/enums');
 const { EIP712Domain } = require('../helpers/eip712');
 const { fromRpcSig } = require('ethereumjs-util');
 
@@ -11,17 +12,6 @@ const {
 const Token = artifacts.require('ERC20VotesMock');
 const Governance = artifacts.require('GovernanceMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
-
-const PROPOSAL_STATE = [
-  'Pending',
-  'Active',
-  'Canceled',
-  'Defeated',
-  'Succeeded',
-  'Queued',
-  'Expired',
-  'Executed',
-].reduce((acc, key, i) => ({ ...acc, [key]: new BN(i) }), {});
 
 contract('Governance', function (accounts) {
   const [ owner, voter1, voter2 ] = accounts;
@@ -39,6 +29,12 @@ contract('Governance', function (accounts) {
     this.receiver = await CallReceiver.new();
     await this.token.delegate(voter1, { from: voter1 });
     await this.token.delegate(voter2, { from: voter2 });
+
+    this.supportToScore = {
+      [Enums.VoteType.Against]: new BN('0'),
+      [Enums.VoteType.For]: await this.governor.maxScore(),
+      [Enums.VoteType.Abstain]: await this.governor.requiredScore(),
+    };
   });
 
   it('deployment check', async () => {
@@ -62,8 +58,8 @@ contract('Governance', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { address: voter1, weight: web3.utils.toWei('1'), support: new BN('100') },
-            { address: voter2, weight: web3.utils.toWei('1'), support: new BN('40') },
+            { address: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+            { address: voter2, weight: web3.utils.toWei('1'), support: Enums.VoteType.Abstain },
           ],
         };
       });
@@ -80,7 +76,7 @@ contract('Governance', function (accounts) {
 
         expect(await this.governor.proposalScore(this.id))
           .to.be.bignumber.equal(Object.values(this.settings.voters).reduce(
-            (acc, { weight, support }) => acc.add(new BN(weight).mul(support)),
+            (acc, { weight, support }) => acc.add(new BN(weight).mul(this.supportToScore[support])),
             new BN('0'),
           ));
 
@@ -160,7 +156,7 @@ contract('Governance', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { address: this.voter, signature, weight: web3.utils.toWei('1'), support: new BN('100') },
+            { address: this.voter, signature, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
           ],
         };
       });
@@ -178,7 +174,7 @@ contract('Governance', function (accounts) {
 
         expect(await this.governor.proposalScore(this.id))
           .to.be.bignumber.equal(Object.values(this.settings.voters).reduce(
-            (acc, { weight, support }) => acc.add(new BN(weight).mul(support)),
+            (acc, { weight, support }) => acc.add(new BN(weight).mul(this.supportToScore[support])),
             new BN('0'),
           ));
 
@@ -219,8 +215,8 @@ contract('Governance', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { address: voter1, weight: web3.utils.toWei('1'), support: new BN('100') },
-            { address: voter2, weight: web3.utils.toWei('1'), support: new BN('40') },
+            { address: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+            { address: voter2, weight: web3.utils.toWei('1'), support: Enums.VoteType.Abstain },
           ],
         };
       });
@@ -256,13 +252,13 @@ contract('Governance', function (accounts) {
             {
               address: voter1,
               weight: web3.utils.toWei('1'),
-              support: new BN('100'),
+              support: Enums.VoteType.For,
               reason: 'Governance: vote not currently active',
             },
             {
               address: voter2,
               weight: web3.utils.toWei('1'),
-              support: new BN('40'),
+              support: Enums.VoteType.Abstain,
               reason: 'Governance: vote not currently active',
             },
           ],
@@ -310,8 +306,8 @@ contract('Governance', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { address: voter1, weight: web3.utils.toWei('1'), support: new BN('100') },
-            { address: voter2, weight: web3.utils.toWei('1'), support: new BN('40') },
+            { address: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+            { address: voter2, weight: web3.utils.toWei('1'), support: Enums.VoteType.Abstain },
           ],
         };
       });
@@ -321,7 +317,7 @@ contract('Governance', function (accounts) {
       runGovernorWorkflow();
     });
 
-    describe('vote over max', () => {
+    describe('Invalide vote type', () => {
       beforeEach(async () => {
         this.settings = {
           proposal: [
@@ -337,7 +333,7 @@ contract('Governance', function (accounts) {
               address: voter1,
               weight: web3.utils.toWei('1'),
               support: new BN('255'),
-              reason: 'Governance: invalid score',
+              reason: 'Governor: invalid value for enum VoteType',
             },
           ],
           steps: {
@@ -364,12 +360,12 @@ contract('Governance', function (accounts) {
             {
               address: voter1,
               weight: web3.utils.toWei('1'),
-              support: new BN('100'),
+              support: Enums.VoteType.For,
             },
             {
               address: voter1,
               weight: web3.utils.toWei('1'),
-              support: new BN('100'),
+              support: Enums.VoteType.For,
               reason: 'Governance: vote already casted',
             },
           ],
@@ -390,7 +386,7 @@ contract('Governance', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { address: voter1, weight: web3.utils.toWei('0'), support: new BN('100') },
+            { address: voter1, weight: web3.utils.toWei('0'), support: Enums.VoteType.For },
           ],
           steps: {
             execute: { reason: 'Governance: quorum not reached' },
@@ -412,7 +408,7 @@ contract('Governance', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { address: voter1, weight: web3.utils.toWei('1'), support: new BN('0') },
+            { address: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.Against },
           ],
           steps: {
             execute: { reason: 'Governance: required score not reached' },
@@ -434,7 +430,7 @@ contract('Governance', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { address: voter1, weight: web3.utils.toWei('1'), support: new BN('100') },
+            { address: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
           ],
           steps: {
             wait: { enable: false },
@@ -487,9 +483,9 @@ contract('Governance', function (accounts) {
         };
       });
       afterEach(async () => {
-        expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Pending);
+        expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Pending);
         await time.advanceBlock();
-        expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Active);
+        expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Active);
       });
       runGovernorWorkflow();
     });
@@ -510,7 +506,7 @@ contract('Governance', function (accounts) {
         };
       });
       afterEach(async () => {
-        expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Defeated);
+        expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Defeated);
       });
       runGovernorWorkflow();
     });
@@ -527,7 +523,7 @@ contract('Governance', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { address: voter1, weight: web3.utils.toWei('1'), support: new BN('100') },
+            { address: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
           ],
           steps: {
             execute: { enable: false },
@@ -535,7 +531,7 @@ contract('Governance', function (accounts) {
         };
       });
       afterEach(async () => {
-        expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Succeeded);
+        expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
       });
       runGovernorWorkflow();
     });
@@ -552,12 +548,12 @@ contract('Governance', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { address: voter1, weight: web3.utils.toWei('1'), support: new BN('100') },
+            { address: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
           ],
         };
       });
       afterEach(async () => {
-        expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Executed);
+        expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Executed);
       });
       runGovernorWorkflow();
     });
@@ -583,7 +579,7 @@ contract('Governance', function (accounts) {
       });
       afterEach(async () => {
         await this.governor.cancel(...this.settings.proposal.slice(0, -1));
-        expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Canceled);
+        expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
         await expectRevert(
           this.governor.propose(...this.settings.proposal),
@@ -611,7 +607,7 @@ contract('Governance', function (accounts) {
       });
       afterEach(async () => {
         await this.governor.cancel(...this.settings.proposal.slice(0, -1));
-        expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Canceled);
+        expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
         await expectRevert(
           this.governor.castVote(this.id, new BN('100'), { from: voter1 }),
@@ -633,7 +629,7 @@ contract('Governance', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { address: voter1, weight: web3.utils.toWei('1'), support: new BN('100') },
+            { address: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
           ],
           steps: {
             wait: { enable: false },
@@ -643,7 +639,7 @@ contract('Governance', function (accounts) {
       });
       afterEach(async () => {
         await this.governor.cancel(...this.settings.proposal.slice(0, -1));
-        expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Canceled);
+        expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
         await expectRevert(
           this.governor.execute(...this.settings.proposal.slice(0, -1)),
@@ -665,7 +661,7 @@ contract('Governance', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { address: voter1, weight: web3.utils.toWei('1'), support: new BN('100') },
+            { address: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
           ],
           steps: {
             execute: { enable: false },
@@ -674,7 +670,7 @@ contract('Governance', function (accounts) {
       });
       afterEach(async () => {
         await this.governor.cancel(...this.settings.proposal.slice(0, -1));
-        expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Canceled);
+        expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
         await expectRevert(
           this.governor.execute(...this.settings.proposal.slice(0, -1)),
@@ -696,13 +692,13 @@ contract('Governance', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { address: voter1, weight: web3.utils.toWei('1'), support: new BN('100') },
+            { address: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
           ],
         };
       });
       afterEach(async () => {
         await this.governor.cancel(...this.settings.proposal.slice(0, -1));
-        expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Canceled);
+        expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
         await expectRevert(
           this.governor.execute(...this.settings.proposal.slice(0, -1)),

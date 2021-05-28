@@ -55,19 +55,25 @@ abstract contract Governor is IGovernor, EIP712, Context {
         emit ProposalExecuted(proposalId);
     }
 
-    function castVote(uint256 proposalId, uint8 support) public virtual override {
+    function castVote(uint256 proposalId, uint8 support) public virtual override returns (uint256) {
         address voter = _msgSender();
-        uint256 balance = _castVote(proposalId, voter, support);
-        emit VoteCast(voter, proposalId, support, balance);
+        return _castVote(proposalId, voter, support);
     }
 
-    function castVoteBySig(uint256 proposalId, uint8 support, uint8 v, bytes32 r, bytes32 s) public virtual override {
+    function castVoteBySig(
+        uint256 proposalId,
+        uint8 support,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    )
+        public virtual override returns (uint256)
+    {
         address voter = ECDSA.recover(
             _hashTypedDataV4(keccak256(abi.encode(_BALLOT_TYPEHASH, proposalId, support))),
             v, r, s
         );
-        uint256 balance = _castVote(proposalId, voter, support);
-        emit VoteCast(voter, proposalId, support, balance);
+        return _castVote(proposalId, voter, support);
     }
 
     /*************************************************************************
@@ -183,8 +189,6 @@ abstract contract Governor is IGovernor, EIP712, Context {
         proposal.timer.lock();
 
         _calls(proposalId, targets, values, calldatas, salt);
-
-        return proposalId;
     }
 
     function _castVote(
@@ -194,16 +198,29 @@ abstract contract Governor is IGovernor, EIP712, Context {
     )
         internal virtual returns (uint256 balance)
     {
-        require(support <= maxScore(), "Governance: invalid score");
-
         Proposal storage proposal = _proposals[proposalId];
         require(proposal.timer.isPending(), "Governance: vote not currently active");
         require(!_votes[proposalId][account], "Governance: vote already casted");
 
         _votes[proposalId][account] = true;
         balance = getVotes(account, proposal.snapshot);
+        uint8 score = _supportToScore(support);
         proposal.supply += balance;
-        proposal.score += balance * support;
+        proposal.score += balance * score;
+
+        emit VoteCast(account, proposalId, score, balance);
+    }
+
+    function _supportToScore(uint8 support) internal view virtual returns (uint8 score) {
+        if (support == uint8(VoteType.Against)) {
+            return 0;
+        } else if (support == uint8(VoteType.For)) {
+            return maxScore();
+        } else if (support == uint8(VoteType.Abstain)) {
+            return requiredScore();
+        } else {
+            revert("Governor: invalid value for enum VoteType");
+        }
     }
 
     function _calls(

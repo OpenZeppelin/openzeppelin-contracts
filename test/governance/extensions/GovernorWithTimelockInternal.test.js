@@ -1,5 +1,6 @@
-const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
+const Enums = require('../../helpers/enums');
 
 const {
   runGovernorWorkflow,
@@ -8,17 +9,6 @@ const {
 const Token = artifacts.require('ERC20VotesMock');
 const Governance = artifacts.require('GovernorWithTimelockInternalMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
-
-const PROPOSAL_STATE = [
-  'Pending',
-  'Active',
-  'Canceled',
-  'Defeated',
-  'Succeeded',
-  'Queued',
-  'Expired',
-  'Executed',
-].reduce((acc, key, i) => ({ ...acc, [key]: new BN(i) }), {});
 
 contract('Governance', function (accounts) {
   const [ voter ] = accounts;
@@ -57,7 +47,7 @@ contract('Governance', function (accounts) {
           '<proposal description>',
         ],
         voters: [
-          { address: voter, support: new BN('100') },
+          { address: voter, support: Enums.VoteType.For },
         ],
         steps: {
           queue: { enable: true, delay: 3600 },
@@ -100,7 +90,7 @@ contract('Governance', function (accounts) {
           '<proposal description>',
         ],
         voters: [
-          { address: voter, support: new BN('100') },
+          { address: voter, support: Enums.VoteType.For },
         ],
         steps: {
           execute: { reason: 'Governance: proposal timelock not ready' },
@@ -108,7 +98,7 @@ contract('Governance', function (accounts) {
       };
     });
     afterEach(async () => {
-      expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Succeeded);
+      expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
     });
     runGovernorWorkflow();
   });
@@ -124,7 +114,7 @@ contract('Governance', function (accounts) {
           '<proposal description>',
         ],
         voters: [
-          { address: voter, support: new BN('100') },
+          { address: voter, support: Enums.VoteType.For },
         ],
         steps: {
           queue: { enable: true },
@@ -133,7 +123,7 @@ contract('Governance', function (accounts) {
       };
     });
     afterEach(async () => {
-      expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Queued);
+      expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Queued);
     });
     runGovernorWorkflow();
   });
@@ -149,7 +139,7 @@ contract('Governance', function (accounts) {
           '<proposal description>',
         ],
         voters: [
-          { address: voter, support: new BN('100') },
+          { address: voter, support: Enums.VoteType.For },
         ],
         steps: {
           queue: { enable: true, delay: 3600 },
@@ -157,7 +147,7 @@ contract('Governance', function (accounts) {
       };
     });
     afterEach(async () => {
-      expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Executed);
+      expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Executed);
 
       await expectRevert(
         this.governor.queue(...this.settings.proposal.slice(0, -1)),
@@ -182,7 +172,7 @@ contract('Governance', function (accounts) {
           '<proposal description>',
         ],
         voters: [
-          { address: voter, support: new BN('100') },
+          { address: voter, support: Enums.VoteType.For },
         ],
         steps: {
           execute: { enable: false },
@@ -190,7 +180,7 @@ contract('Governance', function (accounts) {
       };
     });
     afterEach(async () => {
-      expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Succeeded);
+      expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
 
       expectEvent(
         await this.governor.cancel(...this.settings.proposal.slice(0, -1)),
@@ -198,7 +188,7 @@ contract('Governance', function (accounts) {
         { proposalId: this.id },
       );
 
-      expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Canceled);
+      expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
       await expectRevert(
         this.governor.queue(...this.settings.proposal.slice(0, -1)),
@@ -219,7 +209,7 @@ contract('Governance', function (accounts) {
           '<proposal description>',
         ],
         voters: [
-          { address: voter, support: new BN('100') },
+          { address: voter, support: Enums.VoteType.For },
         ],
         steps: {
           queue: { enable: true, delay: 3600 },
@@ -228,7 +218,7 @@ contract('Governance', function (accounts) {
       };
     });
     afterEach(async () => {
-      expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Queued);
+      expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Queued);
 
       expectEvent(
         await this.governor.cancel(...this.settings.proposal.slice(0, -1)),
@@ -236,7 +226,7 @@ contract('Governance', function (accounts) {
         { proposalId: this.id },
       );
 
-      expect(await this.governor.state(this.id)).to.be.bignumber.equal(PROPOSAL_STATE.Canceled);
+      expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
       await expectRevert(
         this.governor.execute(...this.settings.proposal.slice(0, -1)),
@@ -262,7 +252,7 @@ contract('Governance', function (accounts) {
             '<proposal description>',
           ],
           voters: [
-            { address: voter, support: new BN('100') },
+            { address: voter, support: Enums.VoteType.For },
           ],
           steps: {
             queue: { enable: true, delay: 3600 },
