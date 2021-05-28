@@ -15,8 +15,6 @@ contract GovernorTimelockInternalMock is GovernorTimelockInternal, GovernorWithT
     {
     }
 
-    receive() external payable {}
-
     function votingDuration() public pure override returns (uint256) { return 7 days; } // FOR TESTING ONLY
     function quorum(uint256)  public pure override returns (uint256) { return 1;      }
 
