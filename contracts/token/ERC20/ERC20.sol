@@ -150,7 +150,9 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
         uint256 currentAllowance = _allowances[sender][_msgSender()];
         require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
-        _approve(sender, _msgSender(), currentAllowance - amount);
+        unchecked {
+            _approve(sender, _msgSender(), currentAllowance - amount);
+        }
 
         return true;
     }
@@ -189,7 +191,9 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
         uint256 currentAllowance = _allowances[_msgSender()][spender];
         require(currentAllowance >= subtractedValue, "ERC20: decreased allowance below zero");
-        _approve(_msgSender(), spender, currentAllowance - subtractedValue);
+        unchecked {
+            _approve(_msgSender(), spender, currentAllowance - subtractedValue);
+        }
 
         return true;
     }
@@ -216,7 +220,9 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
         uint256 senderBalance = _balances[sender];
         require(senderBalance >= amount, "ERC20: transfer amount exceeds balance");
-        _balances[sender] = senderBalance - amount;
+        unchecked {
+            _balances[sender] = senderBalance - amount;
+        }
         _balances[recipient] += amount;
 
         emit Transfer(sender, recipient, amount);
@@ -259,7 +265,9 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
         uint256 accountBalance = _balances[account];
         require(accountBalance >= amount, "ERC20: burn amount exceeds balance");
-        _balances[account] = accountBalance - amount;
+        unchecked {
+            _balances[account] = accountBalance - amount;
+        }
         _totalSupply -= amount;
 
         emit Transfer(account, address(0), amount);

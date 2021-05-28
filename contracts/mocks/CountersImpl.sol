@@ -20,4 +20,8 @@ contract CountersImpl {
     function decrement() public {
         _counter.decrement();
     }
+
+    function reset() public {
+        _counter.reset();
+    }
 }
