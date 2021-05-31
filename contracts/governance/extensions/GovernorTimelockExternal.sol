@@ -6,6 +6,18 @@ import "./IGovernorTimelock.sol";
 import "../Governor.sol";
 import "../TimelockController.sol";
 
+/**
+ * @dev Extension of {Governor} that binds the execution process to an instance
+ * of {TimelockController}. This adds a delay, enforced by the
+ * {TimelockController} to all successfull proposal (in addition to the voting
+ * duration). The {Governor} needs the proposer (an ideally the executor) roles
+ * for the {Governor} to work properly.
+ *
+ * Using this model means the proposal will be operated by the
+ * {TimelockController} and not by the {Governor}. Thus, the assets and
+ * permissions must be attached to the {TimelockController}. Any asset sent to
+ * the {Governor} will be inaccessible.
+ */
 abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
     using Time for Time.Timer;
 
@@ -17,11 +29,18 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
      */
     event TimelockChange(address oldTimelock, address newTimelock);
 
+    /**
+     * @dev Set the timelock.
+     */
     constructor(address timelock_)
     {
         _updateTimelock(timelock_);
     }
 
+    /**
+     * @dev Overriden version of the {Governor-state} function with added
+     * support for the `Queued` status.
+     */
     function state(uint256 proposalId) public view virtual override returns (ProposalState) {
         ProposalState proposalState = super.state(proposalId);
 
@@ -30,14 +49,26 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
             : proposalState;
     }
 
+    /**
+     * @dev Public accessor to check the address of the timelock
+     */
     function timelock() public view virtual override returns (address) {
         return address(_timelock);
     }
 
+    /**
+     * @dev Public accessor to check the eta of a queued proposal
+     */
     function proposalEta(uint256 proposalId) public view virtual returns (uint256) {
         return _executionTimers[proposalId].getDeadline();
     }
 
+    /**
+     * @dev Function to queue a proposal to the timelock. It internally uses
+     * the {Governor-_execute} function to perform all the proposal success
+     * checks. The queueing to timelock is performed by the overriden
+     * {Governor-_calls} overriden function.
+     */
     function queue(
         address[] memory targets,
         uint256[] memory values,
@@ -46,7 +77,6 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
     )
         public virtual override returns (uint256 proposalId)
     {
-        // _call is overriden to customize _execute action (while keeping the checks)
         proposalId = _execute(targets, values, calldatas, salt);
         uint256 eta = block.timestamp + _timelock.getMinDelay();
         _executionTimers[proposalId].setDeadline(eta);
@@ -54,6 +84,10 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
         emit ProposalQueued(proposalId, eta);
     }
 
+    /**
+     * @dev Overloaded execute function that run the already queued proposal
+     * through the timelock.
+     */
     function execute(
         address[] memory targets,
         uint256[] memory values,
@@ -69,6 +103,10 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
         emit ProposalExecuted(proposalId);
     }
 
+    /**
+     * @dev Overriden version of the {Governor-_cancel} function to cancel the
+     * timelocked proposal if it as already been queued.
+     */
     function _cancel(
         address[] memory targets,
         uint256[] memory values,
@@ -79,13 +117,22 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
     {
         proposalId = super._cancel(targets, values, calldatas, salt);
 
-        bytes32 timelockProposalId = _timelock.hashOperationBatch(targets, values, calldatas, 0, salt);
-        if (_timelock.isOperationPending(timelockProposalId)) {
-            _timelock.cancel(timelockProposalId);
+        if (_executionTimers[proposalId].isStarted()) {
+            _timelock.cancel(_timelock.hashOperationBatch(
+                targets,
+                values,
+                calldatas,
+                0,
+                salt
+            ));
             _executionTimers[proposalId].reset();
         }
     }
 
+    /**
+     * @dev Overriden internal {Governor-_calls} function to perform scheduling
+     * to the timelock instead of running executing the proposal.
+     */
     function _calls(
         uint256 /*proposalId*/,
         address[] memory targets,
@@ -105,12 +152,17 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
         );
     }
 
+    /**
+    * @dev Public endpoint to update the underlying timelock instance.
+    * Restricted to the timelock itself, so updates must be proposed,
+    * scheduled and executed using the {Governor} workflow.
+     */
     function updateTimelock(address newTimelock) external virtual {
         require(msg.sender == address(_timelock), "GovernorWithTimelockExternal: caller must be timelock");
         _updateTimelock(newTimelock);
     }
 
-    function _updateTimelock(address newTimelock) internal virtual {
+    function _updateTimelock(address newTimelock) private {
         emit TimelockChange(address(_timelock), newTimelock);
         _timelock = TimelockController(payable(newTimelock));
     }

@@ -6,7 +6,7 @@ import "./IGovernorTimelock.sol";
 import "../Governor.sol";
 
 /**
- * Compound's timelock interface
+ * https://github.com/compound-finance/compound-protocol/blob/master/contracts/Timelock.sol[Compound's timelock] interface
  */
 interface ICompTimelock {
     receive() external payable;
@@ -23,11 +23,44 @@ interface ICompTimelock {
     function acceptAdmin() external;
     function setPendingAdmin(address) external;
 
-    function queueTransaction(address target, uint value, string memory signature, bytes memory data, uint eta) external returns (bytes32);
-    function cancelTransaction(address target, uint value, string memory signature, bytes memory data, uint eta) external;
-    function executeTransaction(address target, uint value, string memory signature, bytes memory data, uint eta) external payable returns (bytes memory);
+    function queueTransaction(
+        address target,
+        uint value,
+        string memory signature,
+        bytes memory data,
+        uint eta
+    ) external returns (bytes32);
+
+    function cancelTransaction(
+        address target,
+        uint value,
+        string memory signature,
+        bytes memory data,
+        uint eta
+    ) external;
+
+    function executeTransaction(
+        address target,
+        uint value,
+        string memory signature,
+        bytes memory data,
+        uint eta
+    ) external payable returns (bytes memory);
 }
 
+/**
+ * @dev Extension of {Governor} that binds the execution process to a Compound
+ * Timelock. This adds a delay, enforced by the external timelock to all
+ * successfull proposal (in addition to the voting duration). The {Governor}
+ * needs to be the admin of the timelock for any operation to be performed. A
+ * public, unrestricted, {GovernorTimelockCompound-__acceptAdmin} is available
+ * to accept ownership of the timelock.
+ *
+ * Using this model means the proposal will be operated by the
+ * {TimelockController} and not by the {Governor}. Thus, the assets and
+ * permissions must be attached to the {TimelockController}. Any asset sent to
+ * the {Governor} will be inaccessible.
+ */
 abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     using Time for Time.Timer;
 
@@ -39,11 +72,18 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
      */
     event TimelockChange(address oldTimelock, address newTimelock);
 
+    /**
+     * @dev Set the timelock.
+     */
     constructor(address timelock_)
     {
         _updateTimelock(timelock_);
     }
 
+    /**
+     * @dev Overriden version of the {Governor-state} function with added
+     * support for the `Queued` and `Expired` status.
+     */
     function state(uint256 proposalId) public view virtual override returns (ProposalState) {
         ProposalState proposalState = super.state(proposalId);
 
@@ -54,14 +94,25 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
             : proposalState;
     }
 
+    /**
+     * @dev Public accessor to check the address of the timelock
+     */
     function timelock() public view virtual override returns (address) {
         return address(_timelock);
     }
 
+    /**
+     * @dev Public accessor to check the eta of a queued proposal
+     */
     function proposalEta(uint256 proposalId) public view virtual returns (uint256) {
         return _executionTimers[proposalId].getDeadline();
     }
 
+    /**
+     * @dev Function to queue a proposal to the timelock. It internally uses
+     * the {Governor-_execute} function to perform all the proposal success
+     * checks.
+     */
     function queue(
         address[] memory targets,
         uint256[] memory values,
@@ -70,9 +121,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     )
         public virtual override returns (uint256 proposalId)
     {
-        // _call is overriden have no action (while keeping the checks)
         proposalId = _execute(targets, values, calldatas, salt);
-
         uint256 eta = block.timestamp + _timelock.delay();
         _executionTimers[proposalId].setDeadline(eta);
 
@@ -89,6 +138,10 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         emit ProposalQueued(proposalId, eta);
     }
 
+    /**
+     * @dev Overloaded execute function that run the already queued proposal
+     * through the timelock.
+     */
     function execute(
         address[] memory targets,
         uint256[] memory values,
@@ -116,6 +169,10 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         emit ProposalExecuted(proposalId);
     }
 
+    /**
+     * @dev Overriden version of the {Governor-_cancel} function to cancel the
+     * timelocked proposal if it as already been queued.
+     */
     function _cancel(
         address[] memory targets,
         uint256[] memory values,
@@ -141,6 +198,13 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         }
     }
 
+    /**
+     * @dev Overriden internal {Governor-_calls} function. We don't do anything
+     * here as the proposal is not ready to be executed and queueing  it to the
+     * timelock requiers knowledge of the `eta`. For gas efficiency, the
+     * queueing is done directly in the {GovernorWithTimelockCompound-queue}
+     * function.
+     */
     function _calls(
         uint256 /*proposalId*/,
         address[] memory /*targets*/,
@@ -150,21 +214,31 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     )
         internal virtual override
     {
-        // don't do anything here to avoid sload of `eta`
     }
 
-    // TODO: Does this need access control? Make it part of updateTimelock ?
+    /**
+     * @dev Accept admin right over the timelock.
+     */
     function __acceptAdmin() public {
         _timelock.acceptAdmin();
     }
 
+    /**
+     * @dev Public endpoint to update the underlying timelock instance.
+     * Restricted to the timelock itself, so updates must be proposed,
+     * scheduled and executed using the {Governor} workflow.
+     *
+     * For security reason, the timelock must be handed over to another admin
+     * before setting up a new one. The two operations (hand over the timelock)
+     * and do the update can be batched in a single proposal.
+     */
     function updateTimelock(address newTimelock) external virtual {
         require(msg.sender == address(_timelock), "GovernorWithTimelockCompound: caller must be timelock");
         require(_timelock.pendingAdmin() != address(0), "GovernorWithTimelockCompound: old timelock must be transfered before update");
         _updateTimelock(newTimelock);
     }
 
-    function _updateTimelock(address newTimelock) internal virtual {
+    function _updateTimelock(address newTimelock) private {
         emit TimelockChange(address(_timelock), newTimelock);
         _timelock = ICompTimelock(payable(newTimelock));
     }

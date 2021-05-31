@@ -11,20 +11,19 @@ The {Governor} contract provides primitive to set an on-chain voting system simi
 
 Similarly to our other contracts, it is customizable through inheritance and comes with extensions:
 
-* {GovernorWithTimelockInternal}: A {Governor} extension that implement an internal timelock. This requires a successful proposal to be queued before then can be executed, and adds a delay between the queueing and the execution. The governor being the timelock itself, the external calls will be performed by the {Governor} itself.
+* {GovernorTimelockExternal}: A {Governor} extension that performs executions through a {TimelockController}. This requires a successful proposal to be queued before then can be executed. The {TimelockController} will enforce a delay between the queueing and the execution. With this module, proposals are executed by the external {TimelockController} contract, which would have to hold the assets that are being governed.
 
-* {GovernorWithTimelockExternal}: A {Governor} extension that performs executions through a {TimelockController}. This requires a successful proposal to be queued before then can be executed. The {TimelockController} will enforce a delay between the queueing and the execution. With this module, proposals are executed by the external {TimelockController} contract, which would have to hold the assets that are being governed.
+* {GovernorTimelockCompound}: A {Governor} extension that performs executions through a compound https://github.com/compound-finance/compound-protocol/blob/master/contracts/Timelock.sol[`Timelock`]. This requires a successful proposal to be queued before then can be executed. The `Timelock` will enforce a delay between the queueing and the execution. With this module, proposals are executed by the external `Timelock` contract, which would have to hold the assets that are being governed.
 
-* {GovernorWithTimelockCompound}: A {Governor} extension that performs executions through a compound https://github.com/compound-finance/compound-protocol/blob/master/contracts/Timelock.sol[`Timelock`]. This requires a successful proposal to be queued before then can be executed. The `Timelock` will enforce a delay between the queueing and the execution. With this module, proposals are executed by the external `Timelock` contract, which would have to hold the assets that are being governed.
+* {GovernorVotingSimple}: A simple voting mechanism for {Governor} with support 3 vote options: Against, For and Abstain.
+
+* {GovernorWithToken}: Binding to extract voting weight from a Comp or {ERC20Votes} token.
 
 In addition to modules, the {Governor} requires a few virtual functions to be implemented to your particular specifications:
 
-* <<Governor-votingOffset-,`votingOffset()`>>: Delay (number of blocks), between the proposal, is submitted and the snapshot block used for voting. This can be used to enforce a delay after a proposal is published for users to buy tokens, or delegate their votes.
+* <<Governor-votingOffset-,`votingOffset()`>>: Delay (number of blocks), between the proposal, is submitted and the snapshot block used for voting. This can be used to enforce a delay after a proposal is published for users to buy tokens, or delegate their votes (default: 0).
 * <<Governor-votingDuration-,`votingDuration()`>>: Delay (in seconds), between the proposal, is submitted and the vote ends.
-* <<Governor-maxScore-,`maxScore()`>>: Upper bound of the scale votes. Setting this to 2 will only allow simple yes/abstention/no votes. More expressive voting can be enabled by allowing users to votes on a scale from 0 to 100.
-* <<Governor-requiredScore-,`requiredScore()`>>: Minimum score a proposal needs to pass. A proposal score is the average of the voter scores, weighted by their voting power. Common behavior can be reproduced by setting the `maxScore` to 2, and the `requiredScore` to 1, but you may want to allow users to vote on a scale from 0 to 100, and require a proposal to reach a score of 66 to pass.
 * <<Governor-quorum-uint256-,`quorum(uint256 blockNumber)`>>: Quorum required for a proposal to be successful. This function includes a `blockNumber` argument so the quorum can adapt through time, for example, to follow a token's `totalSupply`.
-* <<Governor-getVotes-address-uint256-,`getVotes(address account, uint256 blockNumber)`>>: Number of votes (voting weight) for an `account` at a specific block. This value can come from a voting token's `getPriorVotes` (implemented by Comp tokens as well as {ERC20Votes}). This can also be customized to aggregate multiple tokens, or to extract voting weight from any reputation system.
 
 Note: Function of the {Governor} contract does NOT include access control. If you want to restrict access (for example to require a minimum balance to submit a proposal), you should add these checks by overloading the particular functions. For security reasons, the `_cancel` method is internal, and you will have to expose it (which the right access control mechanism) yourself if this is a mechanism you need.
 
@@ -33,9 +32,13 @@ Note: Function of the {Governor} contract does NOT include access control. If yo
 
 === Extensions
 
-{{GovernorWithTimelockInternal}}
-{{GovernorWithTimelockExternal}}
-{{GovernorWithTimelockCompound}}
+{{GovernorTimelockExternal}}
+
+{{GovernorTimelockCompound}}
+
+{{GovernorVotingSimple}}
+
+{{GovernorWithToken}}
 
 == Timelock
 
