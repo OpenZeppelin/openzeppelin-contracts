@@ -7,16 +7,13 @@ import "../Governor.sol";
 import "../TimelockController.sol";
 
 /**
- * @dev Extension of {Governor} that binds the execution process to an instance
- * of {TimelockController}. This adds a delay, enforced by the
- * {TimelockController} to all successfull proposal (in addition to the voting
- * duration). The {Governor} needs the proposer (an ideally the executor) roles
- * for the {Governor} to work properly.
+ * @dev Extension of {Governor} that binds the execution process to an instance of {TimelockController}. This adds a
+ * delay, enforced by the {TimelockController} to all successfull proposal (in addition to the voting duration). The
+ * {Governor} needs the proposer (an ideally the executor) roles for the {Governor} to work properly.
  *
- * Using this model means the proposal will be operated by the
- * {TimelockController} and not by the {Governor}. Thus, the assets and
- * permissions must be attached to the {TimelockController}. Any asset sent to
- * the {Governor} will be inaccessible.
+ * Using this model means the proposal will be operated by the {TimelockController} and not by the {Governor}. Thus,
+ * the assets and permissions must be attached to the {TimelockController}. Any asset sent to the {Governor} will be
+ * inaccessible.
  */
 abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
     using Time for Time.Timer;
@@ -38,8 +35,7 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev Overriden version of the {Governor-state} function with added
-     * support for the `Queued` status.
+     * @dev Overriden version of the {Governor-state} function with added support for the `Queued` status.
      */
     function state(uint256 proposalId) public view virtual override returns (ProposalState) {
         ProposalState proposalState = super.state(proposalId);
@@ -64,9 +60,8 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev Function to queue a proposal to the timelock. It internally uses
-     * the {Governor-_execute} function to perform all the proposal success
-     * checks. The queueing to timelock is performed by the overriden
+     * @dev Function to queue a proposal to the timelock. It internally uses the {Governor-_execute} function to
+     * perform all the proposal success checks. The queueing to timelock is performed by the overriden
      * {Governor-_calls} overriden function.
      */
     function queue(
@@ -85,8 +80,7 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev Overloaded execute function that run the already queued proposal
-     * through the timelock.
+     * @dev Overloaded execute function that run the already queued proposal through the timelock.
      */
     function execute(
         address[] memory targets,
@@ -104,8 +98,8 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev Overriden version of the {Governor-_cancel} function to cancel the
-     * timelocked proposal if it as already been queued.
+     * @dev Overriden version of the {Governor-_cancel} function to cancel the timelocked proposal if it as already
+     * been queued.
      */
     function _cancel(
         address[] memory targets,
@@ -130,8 +124,8 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev Overriden internal {Governor-_calls} function to perform scheduling
-     * to the timelock instead of running executing the proposal.
+     * @dev Overriden internal {Governor-_calls} function to perform scheduling to the timelock instead of running
+     * executing the proposal.
      */
     function _calls(
         uint256 /*proposalId*/,
@@ -153,9 +147,8 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
     }
 
     /**
-    * @dev Public endpoint to update the underlying timelock instance.
-    * Restricted to the timelock itself, so updates must be proposed,
-    * scheduled and executed using the {Governor} workflow.
+     * @dev Public endpoint to update the underlying timelock instance. Restricted to the timelock itself, so updates
+     * must be proposed, scheduled and executed using the {Governor} workflow.
      */
     function updateTimelock(address newTimelock) external virtual {
         require(msg.sender == address(_timelock), "GovernorWithTimelockExternal: caller must be timelock");

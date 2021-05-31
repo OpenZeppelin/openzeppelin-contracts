@@ -1,4 +1,4 @@
-const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const Enums = require('../../helpers/enums');
 const RLP = require('rlp');
@@ -175,6 +175,33 @@ contract('GovernorTimelockCompound', function (accounts) {
     });
     afterEach(async () => {
       expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Expired);
+    });
+    runGovernorWorkflow();
+  });
+
+  describe('deplicated underlying call', () => {
+    beforeEach(async () => {
+      this.settings = {
+        proposal: [
+          Array(2).fill(this.token.address),
+          Array(2).fill(web3.utils.toWei('0')),
+          Array(2).fill(this.token.contract.methods.approve(this.receiver.address, constants.MAX_UINT256).encodeABI()),
+          web3.utils.randomHex(32),
+          '<proposal description>',
+        ],
+        voters: [
+          { address: voter, support: Enums.VoteType.For },
+        ],
+        steps: {
+          queue: {
+            enable: true,
+            reason: 'GovernorWithTimelockCompound:queue: identical proposal action already queued',
+          },
+          execute: {
+            reason: 'GovernorWithTimelockCompound:execute: proposal not yet queued',
+          },
+        },
+      };
     });
     runGovernorWorkflow();
   });
