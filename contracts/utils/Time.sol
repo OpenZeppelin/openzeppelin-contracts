@@ -25,32 +25,32 @@ library Time {
     }
 
     function reset(Timer storage timer) internal {
-        timer._deadline = uint256(ReservedTimestamps.Unset);
+        setDeadline(timer, uint256(ReservedTimestamps.Unset));
     }
 
     function lock(Timer storage timer) internal {
-        timer._deadline = uint256(ReservedTimestamps.Locked);
+        setDeadline(timer, uint256(ReservedTimestamps.Locked));
     }
 
     function isUnset(Timer memory timer) internal pure returns (bool) {
-        return timer._deadline == uint256(ReservedTimestamps.Unset);
+        return getDeadline(timer) == uint256(ReservedTimestamps.Unset);
     }
 
     function isLocked(Timer memory timer) internal pure returns (bool) {
-        return timer._deadline == uint256(ReservedTimestamps.Locked);
+        return getDeadline(timer) == uint256(ReservedTimestamps.Locked);
     }
 
     function isStarted(Timer memory timer) internal pure returns (bool) {
-        return timer._deadline >= uint256(ReservedTimestamps.length);
+        return getDeadline(timer) >= uint256(ReservedTimestamps.length);
     }
 
     function isPending(Timer memory timer) internal view returns (bool) {
         // solhint-disable-next-line not-rely-on-time
-        return timer._deadline > block.timestamp;
+        return getDeadline(timer) > block.timestamp;
     }
 
     function isExpired(Timer memory timer) internal view returns (bool) {
         // solhint-disable-next-line not-rely-on-time
-        return uint256(ReservedTimestamps.length) <= timer._deadline && timer._deadline <= block.timestamp;
+        return uint256(ReservedTimestamps.length) <= getDeadline(timer) && getDeadline(timer) <= block.timestamp;
     }
 }
