@@ -75,8 +75,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     /**
      * @dev Set the timelock.
      */
-    constructor(address timelock_)
-    {
+    constructor(address timelock_) {
         _updateTimelock(timelock_);
     }
 

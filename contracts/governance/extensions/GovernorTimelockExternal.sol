@@ -31,8 +31,7 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
     /**
      * @dev Set the timelock.
      */
-    constructor(address timelock_)
-    {
+    constructor(address timelock_) {
         _updateTimelock(timelock_);
     }
 
