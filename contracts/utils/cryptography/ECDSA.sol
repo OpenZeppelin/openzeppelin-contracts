@@ -22,6 +22,10 @@ library ECDSA {
      * recover to arbitrary addresses for non-hashed data. A safe way to ensure
      * this is by receiving a hash of the original message (which may otherwise
      * be too long), and then calling {toEthSignedMessageHash} on it.
+     *
+     * Documentation for signature generation:
+     * - with https://web3js.readthedocs.io/en/v1.3.4/web3-eth-accounts.html#sign[Web3.js]
+     * - with https://docs.ethers.io/v5/api/signer/#Signer-signMessage[ethers]
      */
     function recover(bytes32 hash, bytes memory signature) internal pure returns (address) {
         // Divide the signature in r, s and v variables
