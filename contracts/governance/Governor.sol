@@ -10,7 +10,7 @@ import "../utils/Time.sol";
 import "./IGovernor.sol";
 
 /**
- * @dev TODO
+ * @dev Core of the governance system, designed to be extended though various modules.
  *
  * _Available since v4.2._
  */

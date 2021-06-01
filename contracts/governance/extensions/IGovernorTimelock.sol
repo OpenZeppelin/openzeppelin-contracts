@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 /**
- * @dev TODO
+ * @dev Extension of the {IGovernor} for timelock supporting modules.
  *
  * _Available since v4.2._
  */

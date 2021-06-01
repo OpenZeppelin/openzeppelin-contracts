@@ -14,7 +14,7 @@ enum ProposalState {
 }
 
 /**
- * @dev TODO
+ * @dev Interface of the {Governor} core.
  *
  * _Available since v4.2._
  */
