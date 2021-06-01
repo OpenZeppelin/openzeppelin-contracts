@@ -57,7 +57,7 @@ contract('GovernorTimelockExternal', function (accounts) {
           { address: voter, support: Enums.VoteType.For },
         ],
         steps: {
-          queue: { enable: true, delay: 3600 },
+          queue: { delay: 3600 },
         },
       };
     });
@@ -118,6 +118,7 @@ contract('GovernorTimelockExternal', function (accounts) {
           { address: voter, support: Enums.VoteType.For },
         ],
         steps: {
+          queue: { enable: false },
           execute: { reason: 'TimelockController: operation is not ready' },
         },
       };
@@ -142,7 +143,6 @@ contract('GovernorTimelockExternal', function (accounts) {
           { address: voter, support: Enums.VoteType.For },
         ],
         steps: {
-          queue: { enable: true },
           execute: { reason: 'TimelockController: operation is not ready' },
         },
       };
@@ -167,7 +167,7 @@ contract('GovernorTimelockExternal', function (accounts) {
           { address: voter, support: Enums.VoteType.For },
         ],
         steps: {
-          queue: { enable: true, delay: 3600 },
+          queue: { delay: 3600 },
         },
       };
     });
@@ -200,6 +200,7 @@ contract('GovernorTimelockExternal', function (accounts) {
           { address: voter, support: Enums.VoteType.For },
         ],
         steps: {
+          queue: { enable: false },
           execute: { enable: false },
         },
       };
@@ -237,7 +238,7 @@ contract('GovernorTimelockExternal', function (accounts) {
           { address: voter, support: Enums.VoteType.For },
         ],
         steps: {
-          queue: { enable: true, delay: 3600 },
+          queue: { delay: 3600 },
           execute: { enable: false },
         },
       };
@@ -300,7 +301,7 @@ contract('GovernorTimelockExternal', function (accounts) {
             { address: voter, support: Enums.VoteType.For },
           ],
           steps: {
-            queue: { enable: true, delay: 3600 },
+            queue: { delay: 3600 },
           },
         };
       });

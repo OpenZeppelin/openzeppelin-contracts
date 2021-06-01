@@ -6,6 +6,8 @@ import "../IGovernor.sol";
 
 /**
  * @dev Extension of {Governor} for simple, 3 options, voting.
+ *
+ * _Available since v4.2._
  */
 abstract contract GovernorVotingSimple is IGovernor {
     /**
@@ -26,8 +28,7 @@ abstract contract GovernorVotingSimple is IGovernor {
     mapping (uint256 => Voting) private _votings;
 
     /**
-     * @dev Current weight (number of votes) expressed for a proposal. FOr a proposal to be successfull, this value
-     * needs to be above the quorum threshold
+     * @dev See {IGovernor-proposalWeight}.
      */
     function proposalWeight(uint256 proposalId) public view virtual override returns (uint256) {
         return _votings[proposalId].againstVotes
@@ -36,15 +37,14 @@ abstract contract GovernorVotingSimple is IGovernor {
     }
 
     /**
-     * @dev Internal hook returning weither a vote is successfull. This is combined with the quorum check to determine
-     * if a proposal is to be executed. In this version of voting, the forVotes mush be scritly over the againstVotes.
+     * @dev See {IGovernor-_voteSuccess}. In this module, the forVotes mush be scritly over the againstVotes.
      */
     function _voteSuccess(uint256 proposalId) internal view virtual override returns (bool) {
         return _votings[proposalId].forVotes > _votings[proposalId].againstVotes;
     }
 
     /**
-     * @dev Internal hook for storing votes.
+     * @dev See {IGovernor-_pushVote}. In this module, the support follows the `VoteType` enum (from Governor Bravo).
      */
     function _pushVote(uint256 proposalId, uint8 support, uint256 weight) internal virtual override {
         if (support == uint8(VoteType.Against)) {

@@ -64,7 +64,7 @@ contract('GovernorTimelockCompound', function (accounts) {
           { address: voter, support: Enums.VoteType.For },
         ],
         steps: {
-          queue: { enable: true, delay: 7 * 86400 },
+          queue: { delay: 7 * 86400 },
         },
       };
     });
@@ -119,6 +119,7 @@ contract('GovernorTimelockCompound', function (accounts) {
           { address: voter, support: Enums.VoteType.For },
         ],
         steps: {
+          queue: { enable: false },
           execute: { reason: 'GovernorWithTimelockCompound:execute: proposal not yet queued' },
         },
       };
@@ -143,7 +144,6 @@ contract('GovernorTimelockCompound', function (accounts) {
           { address: voter, support: Enums.VoteType.For },
         ],
         steps: {
-          queue: { enable: true },
           execute: { reason: 'Timelock::executeTransaction: Transaction hasn\'t surpassed time lock' },
         },
       };
@@ -168,7 +168,7 @@ contract('GovernorTimelockCompound', function (accounts) {
           { address: voter, support: Enums.VoteType.For },
         ],
         steps: {
-          queue: { enable: true, delay: 30 * 86400 },
+          queue: { delay: 30 * 86400 },
           execute: { reason: 'Timelock::executeTransaction: Transaction is stale.' },
         },
       };
@@ -194,7 +194,6 @@ contract('GovernorTimelockCompound', function (accounts) {
         ],
         steps: {
           queue: {
-            enable: true,
             reason: 'GovernorWithTimelockCompound:queue: identical proposal action already queued',
           },
           execute: {
@@ -220,7 +219,7 @@ contract('GovernorTimelockCompound', function (accounts) {
           { address: voter, support: Enums.VoteType.For },
         ],
         steps: {
-          queue: { enable: true, delay: 7 * 86400 },
+          queue: { delay: 7 * 86400 },
         },
       };
     });
@@ -253,6 +252,7 @@ contract('GovernorTimelockCompound', function (accounts) {
           { address: voter, support: Enums.VoteType.For },
         ],
         steps: {
+          queue: { enable: false },
           execute: { enable: false },
         },
       };
@@ -290,7 +290,7 @@ contract('GovernorTimelockCompound', function (accounts) {
           { address: voter, support: Enums.VoteType.For },
         ],
         steps: {
-          queue: { enable: true, delay: 7 * 86400 },
+          queue: { delay: 7 * 86400 },
           execute: { enable: false },
         },
       };
@@ -355,7 +355,7 @@ contract('GovernorTimelockCompound', function (accounts) {
             { address: voter, support: Enums.VoteType.For },
           ],
           steps: {
-            queue: { enable: true, delay: 7 * 86400 },
+            queue: { delay: 7 * 86400 },
           },
         };
       });
@@ -394,7 +394,7 @@ contract('GovernorTimelockCompound', function (accounts) {
             { address: voter, support: Enums.VoteType.For },
           ],
           steps: {
-            queue: { enable: true, delay: 7 * 86400 },
+            queue: { delay: 7 * 86400 },
             execute: { reason: 'Timelock::executeTransaction: Transaction execution reverted.' },
           },
         };
@@ -425,7 +425,7 @@ contract('GovernorTimelockCompound', function (accounts) {
             { address: voter, support: Enums.VoteType.For },
           ],
           steps: {
-            queue: { enable: true, delay: 7 * 86400 },
+            queue: { delay: 7 * 86400 },
           },
         };
       });

@@ -58,6 +58,8 @@ interface ICompoundTimelock {
  * Using this model means the proposal will be operated by the {TimelockController} and not by the {Governor}. Thus,
  * the assets and permissions must be attached to the {TimelockController}. Any asset sent to the {Governor} will be
  * inaccessible.
+ *
+ * _Available since v4.2._
  */
 abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     using Time for Time.Timer;
@@ -206,7 +208,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     /**
      * @dev Overriden internal {Governor-_calls} function. We don't do anything here as the proposal is not ready to be
      * executed and queueing  it to the timelock requiers knowledge of the `eta`. For gas efficiency, the queueing is
-     * done directly in the {GovernorWithTimelockCompound-queue} function.
+     * done directly in the {queue} function.
      */
     function _calls(
         uint256 /*proposalId*/,

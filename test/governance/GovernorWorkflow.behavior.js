@@ -35,7 +35,7 @@ function runGovernorWorkflow () {
     }
 
     // propose
-    if (tryGet(this.settings, 'steps.propose.enable') !== false) {
+    if (this.governor.propose && tryGet(this.settings, 'steps.propose.enable') !== false) {
       this.receipts.propose = await getReceiptOrReason(
         this.governor.propose(...this.settings.proposal),
         tryGet(this.settings, 'steps.propose.reason'),
@@ -82,8 +82,8 @@ function runGovernorWorkflow () {
       await time.increaseTo(this.deadline.addn(1));
     }
 
-    // queue (off by default)
-    if (tryGet(this.settings, 'steps.queue.enable') === true) {
+    // queue
+    if (this.governor.queue && tryGet(this.settings, 'steps.queue.enable') !== false) {
       this.receipts.queue = await getReceiptOrReason(
         this.governor.queue(...this.settings.proposal.slice(0, -1)),
         tryGet(this.settings, 'steps.queue.reason'),
@@ -95,7 +95,7 @@ function runGovernorWorkflow () {
     }
 
     // execute
-    if (tryGet(this.settings, 'steps.execute.enable') !== false) {
+    if (this.governor.execute && tryGet(this.settings, 'steps.execute.enable') !== false) {
       this.receipts.execute = await getReceiptOrReason(
         this.governor.execute(...this.settings.proposal.slice(0, -1)),
         tryGet(this.settings, 'steps.execute.reason'),
