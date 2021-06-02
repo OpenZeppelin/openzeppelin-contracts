@@ -178,8 +178,8 @@ abstract contract IGovernor {
     /**
      * @dev Internal abstract interface to the voting module: register a vote with a given support and voting weight.
      *
-     * Note: The core already prevents vote duplication. Support is generic and can represent various things depending
+     * Note: Support is generic and can represent various things depending
      * on the voting system used.
      */
-    function _pushVote(uint256 proposalId, uint8 support, uint256 weight) internal virtual;
+    function _pushVote(uint256 proposalId, address account, uint8 support, uint256 weight) internal virtual;
 }

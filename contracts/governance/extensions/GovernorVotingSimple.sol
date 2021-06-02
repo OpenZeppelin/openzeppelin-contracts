@@ -23,9 +23,17 @@ abstract contract GovernorVotingSimple is IGovernor {
         uint256 againstVotes;
         uint256 forVotes;
         uint256 abstainVotes;
+        mapping (address => bool) hasVoted;
     }
 
     mapping (uint256 => Voting) private _votings;
+
+    /**
+     * @dev See {IGovernor-hasVoted}.
+     */
+    function hasVoted(uint256 proposalId, address account) public view virtual override returns (bool) {
+        return _votings[proposalId].hasVoted[account];
+    }
 
     /**
      * @dev See {IGovernor-proposalWeight}.
@@ -46,13 +54,18 @@ abstract contract GovernorVotingSimple is IGovernor {
     /**
      * @dev See {IGovernor-_pushVote}. In this module, the support follows the `VoteType` enum (from Governor Bravo).
      */
-    function _pushVote(uint256 proposalId, uint8 support, uint256 weight) internal virtual override {
+    function _pushVote(uint256 proposalId, address account, uint8 support, uint256 weight) internal virtual override {
+        Voting storage summary = _votings[proposalId];
+
+        require(!summary.hasVoted[account], "SimpleVoting: vote already casted");
+        summary.hasVoted[account] = true;
+
         if (support == uint8(VoteType.Against)) {
-            _votings[proposalId].againstVotes += weight;
+            summary.againstVotes += weight;
         } else if (support == uint8(VoteType.For)) {
-            _votings[proposalId].forVotes += weight;
+            summary.forVotes += weight;
         } else if (support == uint8(VoteType.Abstain)) {
-            _votings[proposalId].abstainVotes += weight;
+            summary.abstainVotes += weight;
         } else {
             revert("SimpleVoting: invalid value for enum VoteType");
         }

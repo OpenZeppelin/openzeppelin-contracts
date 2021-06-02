@@ -29,7 +29,6 @@ abstract contract Governor is IGovernor, EIP712, Context {
     string private _version;
 
     mapping (uint256 => Proposal) private _proposals;
-    mapping (uint256 => mapping (address => bool)) private _votes;
 
     /**
      * @dev Sets the value for {name} and {version}
@@ -91,13 +90,6 @@ abstract contract Governor is IGovernor, EIP712, Context {
      */
     function proposalSnapshot(uint256 proposalId) public view virtual override returns (uint256) {
         return _proposals[proposalId].snapshot;
-    }
-
-    /**
-     * @dev See {IGovernor-hasVoted}.
-     */
-    function hasVoted(uint256 proposalId, address account) public view virtual override returns (bool) {
-        return _votes[proposalId][account];
     }
 
     /**
@@ -267,11 +259,8 @@ abstract contract Governor is IGovernor, EIP712, Context {
         Proposal storage proposal = _proposals[proposalId];
         require(proposal.timer.isPending(), "Governance: vote not currently active");
 
-        require(!_votes[proposalId][account], "Governance: vote already casted");
-        _votes[proposalId][account] = true;
-
         weight = getVotes(account, proposal.snapshot);
-        _pushVote(proposalId, support, weight);
+        _pushVote(proposalId, account, support, weight);
 
         emit VoteCast(account, proposalId, support, weight);
     }
