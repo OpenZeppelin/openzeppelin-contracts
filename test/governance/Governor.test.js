@@ -347,7 +347,7 @@ contract('Governance', function (accounts) {
               address: voter1,
               weight: web3.utils.toWei('1'),
               support: Enums.VoteType.For,
-              reason: 'Governance: vote already casted',
+              reason: 'SimpleVoting: vote already casted',
             },
           ],
         };
