@@ -67,6 +67,17 @@ contract('Governance', function (accounts) {
             new BN('0'),
           ));
 
+        await this.governor.proposalVotes(this.id).then(result => {
+          for (const [key, value] of Object.entries(Enums.VoteType)) {
+            expect(result[`${key.toLowerCase()}Votes`]).to.be.bignumber.equal(
+              Object.values(this.settings.voters).filter(({ support }) => support === value).reduce(
+                (acc, { weight }) => acc.add(new BN(weight)),
+                new BN('0'),
+              ),
+            );
+          }
+        });
+
         expectEvent(
           this.receipts.propose,
           'ProposalCreated',
@@ -158,6 +169,17 @@ contract('Governance', function (accounts) {
             (acc, { weight }) => acc.add(new BN(weight)),
             new BN('0'),
           ));
+
+        await this.governor.proposalVotes(this.id).then(result => {
+          for (const [key, value] of Object.entries(Enums.VoteType)) {
+            expect(result[`${key.toLowerCase()}Votes`]).to.be.bignumber.equal(
+              Object.values(this.settings.voters).filter(({ support }) => support === value).reduce(
+                (acc, { weight }) => acc.add(new BN(weight)),
+                new BN('0'),
+              ),
+            );
+          }
+        });
 
         expectEvent(
           this.receipts.propose,
