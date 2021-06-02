@@ -44,6 +44,9 @@ abstract contract GovernorVotingSimple is IGovernor {
             + _votings[proposalId].abstainVotes;
     }
 
+    /**
+     * @dev Accessor to the internal vote counts.
+     */
     function proposalVotes(uint256 proposalId) public view virtual returns (uint256 againstVotes, uint256 forVotes, uint256 abstainVotes) {
         Voting storage summary = _votings[proposalId];
         return (summary.againstVotes, summary.forVotes, summary.abstainVotes);
