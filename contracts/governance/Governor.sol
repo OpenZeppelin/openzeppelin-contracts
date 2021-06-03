@@ -212,7 +212,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
         internal virtual returns (uint256 proposalId)
     {
         proposalId = hashProposal(targets, values, calldatas, salt);
-        require(_proposals[proposalId].timer.isActive(), "Governance: proposal is not active");
+        require(_proposals[proposalId].timer.isStarted(), "Governance: proposal is not active");
         _proposals[proposalId].timer.lock();
         _proposals[proposalId].canceled = true;
         emit ProposalCanceled(proposalId);
