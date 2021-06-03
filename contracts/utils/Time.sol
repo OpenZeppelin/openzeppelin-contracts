@@ -45,12 +45,11 @@ library Time {
     }
 
     function isPending(Timer memory timer) internal view returns (bool) {
-        // solhint-disable-next-line not-rely-on-time
         return getDeadline(timer) > block.timestamp;
     }
 
     function isExpired(Timer memory timer) internal view returns (bool) {
-        // solhint-disable-next-line not-rely-on-time
-        return uint256(ReservedTimestamps.length) <= getDeadline(timer) && getDeadline(timer) <= block.timestamp;
+        uint256 deadline = getDeadline(timer);
+        return uint256(ReservedTimestamps.length) <= deadline && deadline <= block.timestamp;
     }
 }
