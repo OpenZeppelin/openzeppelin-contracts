@@ -18,10 +18,8 @@ import "../TimelockController.sol";
  * _Available since v4.2._
  */
 abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
-    using Time for Time.Timer;
-
     TimelockController private _timelock;
-    mapping (uint256 => Time.Timer) private _executionTimers;
+    mapping (uint256 => bytes32) private _ids;
 
     /**
      * @dev Emitted when the minimum delay for future operations is modified.
@@ -41,8 +39,12 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
     function state(uint256 proposalId) public view virtual override returns (ProposalState) {
         ProposalState proposalState = super.state(proposalId);
 
-        return (proposalState == ProposalState.Executed && _executionTimers[proposalId].isStarted())
+        return proposalState == ProposalState.Succeeded
+            ? _timelock.isOperationPending(_ids[proposalId])
             ? ProposalState.Queued
+            : _timelock.isOperationDone(_ids[proposalId])
+            ? ProposalState.Executed
+            : proposalState
             : proposalState;
     }
 
@@ -57,7 +59,7 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
      * @dev Public accessor to check the eta of a queued proposal
      */
     function proposalEta(uint256 proposalId) public view virtual returns (uint256) {
-        return _executionTimers[proposalId].getDeadline();
+        return _timelock.getTimestamp(_ids[proposalId]);
     }
 
     /**
@@ -73,11 +75,15 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
     )
         public virtual override returns (uint256)
     {
-        uint256 proposalId = _execute(targets, values, calldatas, salt);
-        uint256 eta = block.timestamp + _timelock.getMinDelay();
-        _executionTimers[proposalId].setDeadline(eta);
+        uint256 proposalId = hashProposal(targets, values, calldatas, salt);
 
-        emit ProposalQueued(proposalId, eta);
+        require(state(proposalId) == ProposalState.Succeeded, "Governance: proposal not successfull");
+
+        uint256 delay = _timelock.getMinDelay();
+        _ids[proposalId] = _timelock.hashOperationBatch(targets, values, calldatas, 0, salt);
+        _timelock.scheduleBatch(targets, values, calldatas, 0, salt, delay);
+
+        emit ProposalQueued(proposalId, block.timestamp + delay);
 
         return proposalId;
     }
@@ -95,7 +101,6 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
     {
         uint256 proposalId = hashProposal(targets, values, calldatas, salt);
         _timelock.executeBatch{ value: msg.value }(targets, values, calldatas, 0, salt);
-        _executionTimers[proposalId].reset();
 
         emit ProposalExecuted(proposalId);
 
@@ -116,41 +121,12 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
     {
         uint256 proposalId = super._cancel(targets, values, calldatas, salt);
 
-        if (_executionTimers[proposalId].isStarted()) {
-            _timelock.cancel(_timelock.hashOperationBatch(
-                targets,
-                values,
-                calldatas,
-                0,
-                salt
-            ));
-            _executionTimers[proposalId].reset();
+        if (_ids[proposalId] != 0) {
+            _timelock.cancel(_ids[proposalId]);
+            delete _ids[proposalId];
         }
 
         return proposalId;
-    }
-
-    /**
-     * @dev Overriden internal {Governor-_calls} function to perform scheduling to the timelock instead of running
-     * executing the proposal.
-     */
-    function _calls(
-        uint256 /*proposalId*/,
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 salt
-    )
-        internal virtual override
-    {
-        _timelock.scheduleBatch(
-            targets,
-            values,
-            calldatas,
-            0,
-            salt,
-            _timelock.getMinDelay()
-        );
     }
 
     /**

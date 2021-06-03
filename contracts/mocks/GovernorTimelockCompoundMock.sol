@@ -8,14 +8,14 @@ import "../governance/extensions/GovernorVotingSimple.sol";
 import "../governance/extensions/GovernorWithToken.sol";
 
 contract GovernorTimelockCompoundMock is GovernorTimelockCompound, GovernorWithToken, GovernorVotingSimple {
-    constructor(string memory name_, string memory version_, IERC20Votes token_, address timelock_)
-    Governor(name_, version_)
+    constructor(string memory name_, IERC20Votes token_, address timelock_)
+    Governor(name_)
     GovernorTimelockCompound(timelock_)
     GovernorWithToken(token_)
     {
     }
 
-    function votingDuration() public pure override returns (uint256) { return 7 days; } // FOR TESTING ONLY
+    function votingDuration() public pure override returns (uint64)  { return 7 days; } // FOR TESTING ONLY
     function quorum(uint256)  public pure override returns (uint256) { return 1;      }
 
     function cancel(

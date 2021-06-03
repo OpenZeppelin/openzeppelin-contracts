@@ -21,37 +21,29 @@ abstract contract Governor is IGovernor, EIP712, Context {
 
     struct Proposal {
         Time.Timer timer;
-        uint256 snapshot;
+        uint64 snapshot;
+        bool executed;
         bool canceled;
     }
 
     string private _name;
-    string private _version;
 
     mapping (uint256 => Proposal) private _proposals;
 
     /**
      * @dev Sets the value for {name} and {version}
      */
-    constructor(string memory name_, string memory version_)
-    EIP712(name_, version_)
+    constructor(string memory name_)
+    EIP712(name_, _version())
     {
         _name = name_;
-        _version = version_;
     }
 
     /**
      * @dev See {IGovernor-name}.
      */
-    function name() external view virtual override returns (string memory) {
+    function name() public view virtual override returns (string memory) {
         return _name;
-    }
-
-    /**
-     * @dev See {IGovernor-version}.
-     */
-    function version() external view virtual override returns (string memory) {
-        return _version;
     }
 
     /**
@@ -60,21 +52,20 @@ abstract contract Governor is IGovernor, EIP712, Context {
     function state(uint256 proposalId) public view virtual override returns (ProposalState) {
         Proposal memory proposal = _proposals[proposalId];
 
-        if (proposal.timer.isUnset()) {
-            // There is no ProposalState for unset proposals
-            revert("Governor::state: invalid proposal id");
+        if (proposal.executed) {
+            return ProposalState.Executed;
+        } else if (proposal.canceled) {
+            return ProposalState.Canceled;
         } else if (block.number <= proposal.snapshot) {
             return ProposalState.Pending;
         } else if (proposal.timer.isPending()) {
             return ProposalState.Active;
         } else if (proposal.timer.isExpired()) {
-            return (proposalWeight(proposalId) >= quorum(proposal.snapshot) && _voteSuccess(proposalId))
+            return _quorumReached(proposalId) && _voteSuccess(proposalId)
                 ? ProposalState.Succeeded
                 : ProposalState.Defeated;
-        } else if (proposal.canceled) {
-            return ProposalState.Canceled;
         } else {
-            return ProposalState.Executed;
+            revert("Governor::state: invalid proposal id");
         }
     }
 
@@ -106,7 +97,6 @@ abstract contract Governor is IGovernor, EIP712, Context {
         return uint256(keccak256(abi.encode(targets, values, calldatas, salt)));
     }
 
-
     /**
      * @dev See {IGovernor-propose}.
      */
@@ -119,7 +109,21 @@ abstract contract Governor is IGovernor, EIP712, Context {
     )
         public virtual override returns (uint256)
     {
-        (uint256 proposalId, uint256 snapshot, uint256 deadline) = _propose(targets, values, calldatas, salt);
+        uint256 proposalId = hashProposal(targets, values, calldatas, salt);
+
+        require(targets.length == values.length,    "Governance: invalid proposal length");
+        require(targets.length == calldatas.length, "Governance: invalid proposal length");
+        require(targets.length > 0,                 "Governance: empty proposal");
+
+        Proposal storage proposal = _proposals[proposalId];
+        require(proposal.timer.isUnset(), "Governance: proposal already exists");
+
+        uint64 snapshot = uint64(block.number) + votingDelay();
+        uint64 deadline = uint64(block.timestamp) + votingDuration();
+
+        proposal.snapshot = snapshot;
+        proposal.timer.setDeadline(deadline);
+
         emit ProposalCreated(proposalId, _msgSender(), targets, values, calldatas, salt, snapshot, deadline, description);
 
         return proposalId;
@@ -136,7 +140,13 @@ abstract contract Governor is IGovernor, EIP712, Context {
     )
         public payable virtual override returns (uint256)
     {
-        uint256 proposalId = _execute(targets, values, calldatas, salt);
+        uint256 proposalId = hashProposal(targets, values, calldatas, salt);
+
+        require(state(proposalId) == ProposalState.Succeeded, "Governance: proposal not successfull");
+        _proposals[proposalId].executed = true;
+
+        _calls(proposalId, targets, values, calldatas, salt);
+
         emit ProposalExecuted(proposalId);
 
         return proposalId;
@@ -170,38 +180,6 @@ abstract contract Governor is IGovernor, EIP712, Context {
     }
 
     /**
-     * @dev Internal propose mechanism: Hashes proposal and sets snapshot and deadline. Revert if proposal is already
-     * registered.
-     *
-     * Note: does not emit any events. Events are part of the public function so they can be customized.
-     */
-    function _propose(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 salt
-    )
-        internal virtual returns (uint256,uint256,uint256)
-    {
-        uint256 proposalId = hashProposal(targets, values, calldatas, salt);
-
-        require(targets.length == values.length,    "Governance: invalid proposal length");
-        require(targets.length == calldatas.length, "Governance: invalid proposal length");
-        require(targets.length > 0,                 "Governance: empty proposal");
-
-        Proposal storage proposal = _proposals[proposalId];
-        require(proposal.timer.isUnset(), "Governance: proposal already exists");
-
-        uint256 snapshot = block.number + votingDelay();
-        uint256 deadline = block.timestamp + votingDuration();
-
-        proposal.snapshot = snapshot;
-        proposal.timer.setDeadline(deadline);
-
-        return (proposalId, snapshot, deadline);
-    }
-
-    /**
      * @dev Internal cancel mechanism: locks up the proposal timer, preventing it from being re-submitted. Marks it as
      * canceled to allow distinguishing it from executed proposals.
      *
@@ -222,37 +200,9 @@ abstract contract Governor is IGovernor, EIP712, Context {
             status != ProposalState.Canceled && status != ProposalState.Expired && status != ProposalState.Executed,
             "Governance: proposal not active"
         );
-        _proposals[proposalId].timer.lock();
         _proposals[proposalId].canceled = true;
+
         emit ProposalCanceled(proposalId);
-
-        return proposalId;
-    }
-
-    /**
-     * @dev Internal execute mechanism: verifies that a proposal is successfull, lock the timelock to prevent
-     * re-execution, and calls the {_calls} internal function.
-     *
-     * Note: does not emit any events. Events are part of the public function so they can be customized. In particular
-     * some modules can use this mechanism to queue timelocked proposals.
-     */
-    function _execute(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 salt
-    )
-        internal virtual returns (uint256)
-    {
-        uint256 proposalId = hashProposal(targets, values, calldatas, salt);
-
-        Proposal storage proposal = _proposals[proposalId];
-        require(proposal.timer.isExpired(), "Governance: proposal not ready");
-        require(proposalWeight(proposalId) >= quorum(proposal.snapshot), "Governance: quorum not reached");
-        require(_voteSuccess(proposalId), "Governance: required score not reached");
-        proposal.timer.lock();
-
-        _calls(proposalId, targets, values, calldatas, salt);
 
         return proposalId;
     }
@@ -270,8 +220,8 @@ abstract contract Governor is IGovernor, EIP712, Context {
     )
         internal virtual returns (uint256)
     {
-        Proposal storage proposal = _proposals[proposalId];
-        require(proposal.timer.isPending(), "Governance: vote not currently active");
+        Proposal memory proposal = _proposals[proposalId];
+        require(state(proposalId) == ProposalState.Active, "Governance: vote not currently active");
 
         uint256 weight = getVotes(account, proposal.snapshot);
         _pushVote(proposalId, account, support, weight);
@@ -282,8 +232,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
     }
 
     /**
-     * @dev Internal mechnism to execute multiple calls. Relies on {_call} for individual calls. Can be overriden to
-     * customized the operation to performed by {_execute} when an proposal is successfull.
+     * @dev Internal mechnism to execute multiple calls.
      */
     function _calls(
         uint256 /*proposalId*/,
@@ -295,25 +244,11 @@ abstract contract Governor is IGovernor, EIP712, Context {
         internal virtual
     {
         for (uint256 i = 0; i < targets.length; ++i) {
-            _call(targets[i], values[i], calldatas[i]);
-        }
-    }
-
-    /**
-     * @dev Internal mechnism to execute a single call. Can be overriden to customized the operation to performed by
-     * {_execute} when an proposal is successfull.
-     */
-    function _call(
-        address target,
-        uint256 value,
-        bytes memory data
-    )
-        internal virtual
-    {
-        if (data.length == 0) {
-            Address.sendValue(payable(target), value);
-        } else {
-            Address.functionCallWithValue(target, data, value);
+            if (calldatas[i].length == 0) {
+                Address.sendValue(payable(targets[i]), values[i]);
+            } else {
+                Address.functionCallWithValue(targets[i], calldatas[i], values[i]);
+            }
         }
     }
 }

@@ -15,7 +15,6 @@ contract('Time', function (accounts) {
     expect(await this.instance.isStarted()).to.be.equal(false);
     expect(await this.instance.isPending()).to.be.equal(false);
     expect(await this.instance.isExpired()).to.be.equal(false);
-    expect(await this.instance.isLocked()).to.be.equal(false);
   });
 
   it('pending', async function () {
@@ -25,7 +24,6 @@ contract('Time', function (accounts) {
     expect(await this.instance.isStarted()).to.be.equal(true);
     expect(await this.instance.isPending()).to.be.equal(true);
     expect(await this.instance.isExpired()).to.be.equal(false);
-    expect(await this.instance.isLocked()).to.be.equal(false);
   });
 
   it('expired', async function () {
@@ -35,16 +33,6 @@ contract('Time', function (accounts) {
     expect(await this.instance.isStarted()).to.be.equal(true);
     expect(await this.instance.isPending()).to.be.equal(false);
     expect(await this.instance.isExpired()).to.be.equal(true);
-    expect(await this.instance.isLocked()).to.be.equal(false);
-  });
-
-  it('locked', async function () {
-    await this.instance.lock();
-    expect(await this.instance.isUnset()).to.be.equal(false);
-    expect(await this.instance.isStarted()).to.be.equal(false);
-    expect(await this.instance.isPending()).to.be.equal(false);
-    expect(await this.instance.isExpired()).to.be.equal(false);
-    expect(await this.instance.isLocked()).to.be.equal(true);
   });
 
   it('reset', async function () {
@@ -54,7 +42,6 @@ contract('Time', function (accounts) {
     expect(await this.instance.isStarted()).to.be.equal(false);
     expect(await this.instance.isPending()).to.be.equal(false);
     expect(await this.instance.isExpired()).to.be.equal(false);
-    expect(await this.instance.isLocked()).to.be.equal(false);
   });
 
   it('fast forward', async function () {

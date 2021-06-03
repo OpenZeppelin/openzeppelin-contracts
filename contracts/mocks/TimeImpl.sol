@@ -22,16 +22,8 @@ contract TimeImpl {
         _timer.reset();
     }
 
-    function lock() public {
-        _timer.lock();
-    }
-
     function isUnset() public view returns (bool) {
         return _timer.isUnset();
-    }
-
-    function isLocked() public view returns (bool) {
-        return _timer.isLocked();
     }
 
     function isStarted() public view returns (bool) {

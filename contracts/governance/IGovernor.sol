@@ -47,11 +47,6 @@ abstract contract IGovernor {
     function name() external view virtual returns (string memory);
 
     /**
-     * @dev Version of the governor instance (used in building the ERC712 domain separator).
-     */
-    function version() external view virtual returns (string memory);
-
-    /**
      * @dev Current state of a proposal, following Compound's convention
      */
     function state(uint256 proposalId) public view virtual returns (ProposalState);
@@ -65,11 +60,6 @@ abstract contract IGovernor {
      * @dev Proposal snapshot: block number used to retrieve user's votes and quorum.
      */
     function proposalSnapshot(uint256 proposalId) public view virtual returns (uint256);
-
-    /**
-     * @dev Proposal weight: amont of votes already casted.
-     */
-    function proposalWeight(uint256 proposalId) public view virtual returns (uint256);
 
     /**
      * @dev Returns weither `account` has casted a vote on `proposalId`.
@@ -98,7 +88,7 @@ abstract contract IGovernor {
      *
      * Default: 0
      */
-    function votingDelay() public view virtual returns (uint256) { return 0; }
+    function votingDelay() public view virtual returns (uint64) { return 0; }
 
     /**
      * @dev Delay, in number of seconds, between the proposal is created and the vote ends.
@@ -106,7 +96,7 @@ abstract contract IGovernor {
      * Note: the {votingDelay} can delay the start of the vote. This must be considered when setting the voting
      * duration compared to the voting delay.
      */
-    function votingDuration() public view virtual returns (uint256);
+    function votingDuration() public view virtual returns (uint64);
 
     /**
      * @dev Hashing function used to (re)build the proposal id from the proposal details.
@@ -169,6 +159,18 @@ abstract contract IGovernor {
         bytes32 r,
         bytes32 s
     ) public virtual returns (uint256 balance);
+
+
+
+    /**
+     * @dev Version of the governor instance (used in building the ERC712 domain separator). Default: "1"
+     */
+    function _version() public view virtual returns (string memory) { return "1"; }
+
+    /**
+     * @dev Proposal weight: amont of votes already casted.
+     */
+    function _quorumReached(uint256 proposalId) public view virtual returns (bool);
 
     /**
      * @dev Internal abstract interface to the voting module: returns weither a proposal is successfull or not.

@@ -36,20 +36,21 @@ abstract contract GovernorVotingSimple is IGovernor {
     }
 
     /**
-     * @dev See {IGovernor-proposalWeight}.
-     */
-    function proposalWeight(uint256 proposalId) public view virtual override returns (uint256) {
-        return _votings[proposalId].againstVotes
-            + _votings[proposalId].forVotes
-            + _votings[proposalId].abstainVotes;
-    }
-
-    /**
      * @dev Accessor to the internal vote counts.
      */
     function proposalVotes(uint256 proposalId) public view virtual returns (uint256 againstVotes, uint256 forVotes, uint256 abstainVotes) {
         Voting storage summary = _votings[proposalId];
         return (summary.againstVotes, summary.forVotes, summary.abstainVotes);
+    }
+
+    /**
+    * @dev See {IGovernor-proposalWeight}.
+    */
+    function _quorumReached(uint256 proposalId) public view virtual override returns (bool) {
+        return quorum(proposalSnapshot(proposalId))
+            < _votings[proposalId].againstVotes
+            + _votings[proposalId].forVotes
+            + _votings[proposalId].abstainVotes;
     }
 
     /**

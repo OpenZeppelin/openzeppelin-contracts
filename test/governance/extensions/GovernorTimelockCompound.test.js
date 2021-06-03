@@ -20,7 +20,7 @@ contract('GovernorTimelockCompound', function (accounts) {
   const [ admin, voter ] = accounts;
 
   const name = 'OZ-Governance';
-  const version = '0.0.1';
+  // const version = '1';
   const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
   const tokenSupply = web3.utils.toWei('100');
@@ -35,14 +35,15 @@ contract('GovernorTimelockCompound', function (accounts) {
     const predictGovernance = makeContractAddress(deployer, nonce + 1);
 
     this.timelock = await Timelock.new(predictGovernance, 2 * 86400);
-    this.governor = await Governance.new(name, version, this.token.address, this.timelock.address);
+    this.governor = await Governance.new(name, this.token.address, this.timelock.address);
     this.receiver = await CallReceiver.new();
     await this.token.mint(voter, tokenSupply);
     await this.token.delegate(voter, { from: voter });
   });
 
   it('post deployment check', async () => {
-    expect(await this.governor.token()).to.be.bignumber.equal(this.token.address);
+    expect(await this.governor.name()).to.be.equal(name);
+    expect(await this.governor.token()).to.be.equal(this.token.address);
     expect(await this.governor.votingDuration()).to.be.bignumber.equal('604800');
     expect(await this.governor.quorum(0)).to.be.bignumber.equal('1');
 
@@ -228,11 +229,11 @@ contract('GovernorTimelockCompound', function (accounts) {
 
       await expectRevert(
         this.governor.queue(...this.settings.proposal.slice(0, -1)),
-        'Governance: proposal not ready',
+        'Governance: proposal not successfull',
       );
       await expectRevert(
         this.governor.execute(...this.settings.proposal.slice(0, -1)),
-        'GovernorWithTimelockCompound:execute: proposal not yet queued',
+        'Timelock::executeTransaction: Transaction hasn\'t been queued.',
       );
     });
     runGovernorWorkflow();
@@ -270,7 +271,7 @@ contract('GovernorTimelockCompound', function (accounts) {
 
       await expectRevert(
         this.governor.queue(...this.settings.proposal.slice(0, -1)),
-        'Governance: proposal not ready',
+        'Governance: proposal not successfull',
       );
     });
     runGovernorWorkflow();
@@ -408,7 +409,7 @@ contract('GovernorTimelockCompound', function (accounts) {
 
   describe('transfer timelock to new governor', () => {
     beforeEach(async () => {
-      this.newGovernor = await Governance.new(name, '0.0.2', this.token.address, this.timelock.address);
+      this.newGovernor = await Governance.new(name, this.token.address, this.timelock.address);
     });
 
     describe('using workflow', () => {

@@ -15,7 +15,7 @@ contract('GovernorTimelockExternal', function (accounts) {
   const [ voter ] = accounts;
 
   const name = 'OZ-Governance';
-  const version = '0.0.1';
+  // const version = '1';
   const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
   const tokenSupply = web3.utils.toWei('100');
@@ -25,7 +25,7 @@ contract('GovernorTimelockExternal', function (accounts) {
 
     this.token = await Token.new(tokenName, tokenSymbol);
     this.timelock = await Timelock.new(3600, [], []);
-    this.governor = await Governance.new(name, version, this.token.address, this.timelock.address);
+    this.governor = await Governance.new(name, this.token.address, this.timelock.address);
     this.receiver = await CallReceiver.new();
     // normal setup: governor is proposer, everyone is executor, timelock is its own admin
     await this.timelock.grantRole(await this.timelock.PROPOSER_ROLE(), this.governor.address);
@@ -36,7 +36,8 @@ contract('GovernorTimelockExternal', function (accounts) {
   });
 
   it('post deployment check', async () => {
-    expect(await this.governor.token()).to.be.bignumber.equal(this.token.address);
+    expect(await this.governor.name()).to.be.equal(name);
+    expect(await this.governor.token()).to.be.equal(this.token.address);
     expect(await this.governor.votingDuration()).to.be.bignumber.equal('604800');
     expect(await this.governor.quorum(0)).to.be.bignumber.equal('1');
 
@@ -176,7 +177,7 @@ contract('GovernorTimelockExternal', function (accounts) {
 
       await expectRevert(
         this.governor.queue(...this.settings.proposal.slice(0, -1)),
-        'Governance: proposal not ready',
+        'Governance: proposal not successfull',
       );
       await expectRevert(
         this.governor.execute(...this.settings.proposal.slice(0, -1)),
@@ -218,7 +219,7 @@ contract('GovernorTimelockExternal', function (accounts) {
 
       await expectRevert(
         this.governor.queue(...this.settings.proposal.slice(0, -1)),
-        'Governance: proposal not ready',
+        'Governance: proposal not successfull',
       );
     });
     runGovernorWorkflow();

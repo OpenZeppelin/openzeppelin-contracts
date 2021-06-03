@@ -6,12 +6,6 @@ pragma solidity ^0.8.0;
  * @dev Tooling for timepoints, timers and delays
  */
 library Time {
-    enum ReservedTimestamps {
-        Unset,  // 0
-        Locked, // 1
-        length
-    }
-
     struct Timer {
         uint256 _deadline;
     }
@@ -25,31 +19,22 @@ library Time {
     }
 
     function reset(Timer storage timer) internal {
-        setDeadline(timer, uint256(ReservedTimestamps.Unset));
-    }
-
-    function lock(Timer storage timer) internal {
-        setDeadline(timer, uint256(ReservedTimestamps.Locked));
+        timer._deadline = 0;
     }
 
     function isUnset(Timer memory timer) internal pure returns (bool) {
-        return getDeadline(timer) == uint256(ReservedTimestamps.Unset);
-    }
-
-    function isLocked(Timer memory timer) internal pure returns (bool) {
-        return getDeadline(timer) == uint256(ReservedTimestamps.Locked);
+        return timer._deadline == 0;
     }
 
     function isStarted(Timer memory timer) internal pure returns (bool) {
-        return getDeadline(timer) >= uint256(ReservedTimestamps.length);
+        return timer._deadline > 0;
     }
 
     function isPending(Timer memory timer) internal view returns (bool) {
-        return getDeadline(timer) > block.timestamp;
+        return timer._deadline > block.timestamp;
     }
 
     function isExpired(Timer memory timer) internal view returns (bool) {
-        uint256 deadline = getDeadline(timer);
-        return uint256(ReservedTimestamps.length) <= deadline && deadline <= block.timestamp;
+        return isStarted(timer) && timer._deadline <= block.timestamp;
     }
 }

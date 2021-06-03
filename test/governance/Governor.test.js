@@ -17,7 +17,7 @@ contract('Governance', function (accounts) {
   const [ owner, voter1, voter2 ] = accounts;
 
   const name = 'OZ-Governance';
-  const version = '0.0.1';
+  const version = '1';
   const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
   const tokenSupply = web3.utils.toWei('100');
@@ -25,7 +25,7 @@ contract('Governance', function (accounts) {
   beforeEach(async () => {
     this.owner = owner;
     this.token = await Token.new(tokenName, tokenSymbol);
-    this.governor = await Governance.new(name, version, this.token.address);
+    this.governor = await Governance.new(name, this.token.address);
     this.receiver = await CallReceiver.new();
     await this.token.mint(owner, tokenSupply);
     await this.token.delegate(voter1, { from: voter1 });
@@ -33,7 +33,8 @@ contract('Governance', function (accounts) {
   });
 
   it('deployment check', async () => {
-    expect(await this.governor.token()).to.be.bignumber.equal(this.token.address);
+    expect(await this.governor.name()).to.be.equal(name);
+    expect(await this.governor.token()).to.be.equal(this.token.address);
     expect(await this.governor.votingDuration()).to.be.bignumber.equal('604800');
     expect(await this.governor.quorum(0)).to.be.bignumber.equal('1');
   });
@@ -60,12 +61,6 @@ contract('Governance', function (accounts) {
         expect(await this.governor.hasVoted(this.id, owner)).to.be.equal(false);
         expect(await this.governor.hasVoted(this.id, voter1)).to.be.equal(true);
         expect(await this.governor.hasVoted(this.id, voter2)).to.be.equal(true);
-
-        expect(await this.governor.proposalWeight(this.id))
-          .to.be.bignumber.equal(Object.values(this.settings.voters).reduce(
-            (acc, { weight }) => acc.add(new BN(weight)),
-            new BN('0'),
-          ));
 
         await this.governor.proposalVotes(this.id).then(result => {
           for (const [key, value] of Object.entries(Enums.VoteType)) {
@@ -164,12 +159,6 @@ contract('Governance', function (accounts) {
         expect(await this.governor.hasVoted(this.id, voter2)).to.be.equal(false);
         expect(await this.governor.hasVoted(this.id, this.voter)).to.be.equal(true);
 
-        expect(await this.governor.proposalWeight(this.id))
-          .to.be.bignumber.equal(Object.values(this.settings.voters).reduce(
-            (acc, { weight }) => acc.add(new BN(weight)),
-            new BN('0'),
-          ));
-
         await this.governor.proposalVotes(this.id).then(result => {
           for (const [key, value] of Object.entries(Enums.VoteType)) {
             expect(result[`${key.toLowerCase()}Votes`]).to.be.bignumber.equal(
@@ -256,19 +245,19 @@ contract('Governance', function (accounts) {
               address: voter1,
               weight: web3.utils.toWei('1'),
               support: Enums.VoteType.For,
-              reason: 'Governance: vote not currently active',
+              reason: 'Governor::state: invalid proposal id',
             },
             {
               address: voter2,
               weight: web3.utils.toWei('1'),
               support: Enums.VoteType.Abstain,
-              reason: 'Governance: vote not currently active',
+              reason: 'Governor::state: invalid proposal id',
             },
           ],
           steps: {
             propose: { enable: false },
             wait: { enable: false },
-            execute: { reason: 'Governance: proposal not ready' },
+            execute: { reason: 'Governor::state: invalid proposal id' },
           },
         };
       });
@@ -392,7 +381,7 @@ contract('Governance', function (accounts) {
             { address: voter1, weight: web3.utils.toWei('0'), support: Enums.VoteType.For },
           ],
           steps: {
-            execute: { reason: 'Governance: quorum not reached' },
+            execute: { reason: 'Governance: proposal not successfull' },
           },
         };
       });
@@ -414,7 +403,7 @@ contract('Governance', function (accounts) {
             { address: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.Against },
           ],
           steps: {
-            execute: { reason: 'Governance: required score not reached' },
+            execute: { reason: 'Governance: proposal not successfull' },
           },
         };
       });
@@ -437,7 +426,7 @@ contract('Governance', function (accounts) {
           ],
           steps: {
             wait: { enable: false },
-            execute: { reason: 'Governance: proposal not ready' },
+            execute: { reason: 'Governance: proposal not successfull' },
           },
         };
       });
@@ -643,7 +632,7 @@ contract('Governance', function (accounts) {
 
         await expectRevert(
           this.governor.execute(...this.settings.proposal.slice(0, -1)),
-          'Governance: proposal not ready',
+          'Governance: proposal not successfull',
         );
       });
       runGovernorWorkflow();
@@ -674,7 +663,7 @@ contract('Governance', function (accounts) {
 
         await expectRevert(
           this.governor.execute(...this.settings.proposal.slice(0, -1)),
-          'Governance: proposal not ready',
+          'Governance: proposal not successfull',
         );
       });
       runGovernorWorkflow();
