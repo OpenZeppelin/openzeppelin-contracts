@@ -101,7 +101,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
         bytes[] memory calldatas,
         bytes32 salt
     )
-        public view virtual override returns (uint256 proposalId)
+        public view virtual override returns (uint256)
     {
         return uint256(keccak256(abi.encode(targets, values, calldatas, salt)));
     }
@@ -117,12 +117,12 @@ abstract contract Governor is IGovernor, EIP712, Context {
         bytes32 salt,
         string memory description
     )
-        public virtual override returns (uint256 proposalId)
+        public virtual override returns (uint256)
     {
-        uint256 snapshot;
-        uint256 deadline;
-        (proposalId, snapshot, deadline) = _propose(targets, values, calldatas, salt);
+        (uint256 proposalId, uint256 snapshot, uint256 deadline) = _propose(targets, values, calldatas, salt);
         emit ProposalCreated(proposalId, _msgSender(), targets, values, calldatas, salt, snapshot, deadline, description);
+
+        return proposalId;
     }
 
     /**
@@ -134,10 +134,12 @@ abstract contract Governor is IGovernor, EIP712, Context {
         bytes[] memory calldatas,
         bytes32 salt
     )
-        public payable virtual override returns (uint256 proposalId)
+        public payable virtual override returns (uint256)
     {
-        proposalId = _execute(targets, values, calldatas, salt);
+        uint256 proposalId = _execute(targets, values, calldatas, salt);
         emit ProposalExecuted(proposalId);
+
+        return proposalId;
     }
 
     /**
@@ -179,9 +181,9 @@ abstract contract Governor is IGovernor, EIP712, Context {
         bytes[] memory calldatas,
         bytes32 salt
     )
-        internal virtual returns (uint256 proposalId, uint256 snapshot, uint256 deadline)
+        internal virtual returns (uint256,uint256,uint256)
     {
-        proposalId = hashProposal(targets, values, calldatas, salt);
+        uint256 proposalId = hashProposal(targets, values, calldatas, salt);
 
         require(targets.length == values.length,    "Governance: invalid proposal length");
         require(targets.length == calldatas.length, "Governance: invalid proposal length");
@@ -190,11 +192,13 @@ abstract contract Governor is IGovernor, EIP712, Context {
         Proposal storage proposal = _proposals[proposalId];
         require(proposal.timer.isUnset(), "Governance: proposal already exists");
 
-        snapshot = block.number + votingDelay();
-        deadline = block.timestamp + votingDuration();
+        uint256 snapshot = block.number + votingDelay();
+        uint256 deadline = block.timestamp + votingDuration();
 
         proposal.snapshot = snapshot;
         proposal.timer.setDeadline(deadline);
+
+        return (proposalId, snapshot, deadline);
     }
 
     /**
@@ -209,13 +213,20 @@ abstract contract Governor is IGovernor, EIP712, Context {
         bytes[] memory calldatas,
         bytes32 salt
     )
-        internal virtual returns (uint256 proposalId)
+        internal virtual returns (uint256)
     {
-        proposalId = hashProposal(targets, values, calldatas, salt);
-        require(_proposals[proposalId].timer.isStarted(), "Governance: proposal is not active");
+        uint256 proposalId = hashProposal(targets, values, calldatas, salt);
+        ProposalState status = state(proposalId);
+
+        require(
+            status != ProposalState.Canceled && status != ProposalState.Expired && status != ProposalState.Executed,
+            "Governance: proposal not active"
+        );
         _proposals[proposalId].timer.lock();
         _proposals[proposalId].canceled = true;
         emit ProposalCanceled(proposalId);
+
+        return proposalId;
     }
 
     /**
@@ -231,9 +242,9 @@ abstract contract Governor is IGovernor, EIP712, Context {
         bytes[] memory calldatas,
         bytes32 salt
     )
-        internal virtual returns (uint256 proposalId)
+        internal virtual returns (uint256)
     {
-        proposalId = hashProposal(targets, values, calldatas, salt);
+        uint256 proposalId = hashProposal(targets, values, calldatas, salt);
 
         Proposal storage proposal = _proposals[proposalId];
         require(proposal.timer.isExpired(), "Governance: proposal not ready");
@@ -242,6 +253,8 @@ abstract contract Governor is IGovernor, EIP712, Context {
         proposal.timer.lock();
 
         _calls(proposalId, targets, values, calldatas, salt);
+
+        return proposalId;
     }
 
     /**
@@ -255,15 +268,17 @@ abstract contract Governor is IGovernor, EIP712, Context {
         address account,
         uint8 support
     )
-        internal virtual returns (uint256 weight)
+        internal virtual returns (uint256)
     {
         Proposal storage proposal = _proposals[proposalId];
         require(proposal.timer.isPending(), "Governance: vote not currently active");
 
-        weight = getVotes(account, proposal.snapshot);
+        uint256 weight = getVotes(account, proposal.snapshot);
         _pushVote(proposalId, account, support, weight);
 
         emit VoteCast(account, proposalId, support, weight);
+
+        return weight;
     }
 
     /**

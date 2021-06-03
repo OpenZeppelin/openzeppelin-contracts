@@ -116,9 +116,9 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         bytes[] memory calldatas,
         bytes32 salt
     )
-        public virtual override returns (uint256 proposalId)
+        public virtual override returns (uint256)
     {
-        proposalId = _execute(targets, values, calldatas, salt);
+        uint256 proposalId = _execute(targets, values, calldatas, salt);
         uint256 eta = block.timestamp + _timelock.delay();
         _executionTimers[proposalId].setDeadline(eta);
 
@@ -143,6 +143,8 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         }
 
         emit ProposalQueued(proposalId, eta);
+
+        return proposalId;
     }
 
     /**
@@ -154,9 +156,9 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         bytes[] memory calldatas,
         bytes32 salt
     )
-        public payable virtual override returns (uint256 proposalId)
+        public payable virtual override returns (uint256)
     {
-        proposalId = hashProposal(targets, values, calldatas, salt);
+        uint256 proposalId = hashProposal(targets, values, calldatas, salt);
         Address.sendValue(payable(_timelock), msg.value);
 
         uint256 eta = proposalEta(proposalId);
@@ -173,6 +175,8 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         _executionTimers[proposalId].reset();
 
         emit ProposalExecuted(proposalId);
+
+        return proposalId;
     }
 
     /**
@@ -185,9 +189,9 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         bytes[] memory calldatas,
         bytes32 salt
     )
-        internal virtual override returns (uint256 proposalId)
+        internal virtual override returns (uint256)
     {
-        proposalId = super._cancel(targets, values, calldatas, salt);
+        uint256 proposalId = super._cancel(targets, values, calldatas, salt);
 
         uint256 eta = proposalEta(proposalId);
         if (eta > 0) {
@@ -202,6 +206,8 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
             }
             _executionTimers[proposalId].reset();
         }
+
+        return proposalId;
     }
 
     /**

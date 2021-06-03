@@ -71,13 +71,15 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
         bytes[] memory calldatas,
         bytes32 salt
     )
-        public virtual override returns (uint256 proposalId)
+        public virtual override returns (uint256)
     {
-        proposalId = _execute(targets, values, calldatas, salt);
+        uint256 proposalId = _execute(targets, values, calldatas, salt);
         uint256 eta = block.timestamp + _timelock.getMinDelay();
         _executionTimers[proposalId].setDeadline(eta);
 
         emit ProposalQueued(proposalId, eta);
+
+        return proposalId;
     }
 
     /**
@@ -89,13 +91,15 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
         bytes[] memory calldatas,
         bytes32 salt
     )
-        public payable virtual override returns (uint256 proposalId)
+        public payable virtual override returns (uint256)
     {
-        proposalId = hashProposal(targets, values, calldatas, salt);
+        uint256 proposalId = hashProposal(targets, values, calldatas, salt);
         _timelock.executeBatch{ value: msg.value }(targets, values, calldatas, 0, salt);
         _executionTimers[proposalId].reset();
 
         emit ProposalExecuted(proposalId);
+
+        return proposalId;
     }
 
     /**
@@ -108,9 +112,9 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
         bytes[] memory calldatas,
         bytes32 salt
     )
-        internal virtual override returns (uint256 proposalId)
+        internal virtual override returns (uint256)
     {
-        proposalId = super._cancel(targets, values, calldatas, salt);
+        uint256 proposalId = super._cancel(targets, values, calldatas, salt);
 
         if (_executionTimers[proposalId].isStarted()) {
             _timelock.cancel(_timelock.hashOperationBatch(
@@ -122,6 +126,8 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
             ));
             _executionTimers[proposalId].reset();
         }
+
+        return proposalId;
     }
 
     /**

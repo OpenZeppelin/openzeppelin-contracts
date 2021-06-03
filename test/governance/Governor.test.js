@@ -581,12 +581,9 @@ contract('Governance', function (accounts) {
         };
       });
       afterEach(async () => {
-        await this.governor.cancel(...this.settings.proposal.slice(0, -1));
-        expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
-
         await expectRevert(
-          this.governor.propose(...this.settings.proposal),
-          'Governance: proposal already exists',
+          this.governor.cancel(...this.settings.proposal.slice(0, -1)),
+          'Governor::state: invalid proposal id',
         );
       });
       runGovernorWorkflow();
@@ -700,12 +697,9 @@ contract('Governance', function (accounts) {
         };
       });
       afterEach(async () => {
-        await this.governor.cancel(...this.settings.proposal.slice(0, -1));
-        expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
-
         await expectRevert(
-          this.governor.execute(...this.settings.proposal.slice(0, -1)),
-          'Governance: proposal not ready',
+          this.governor.cancel(...this.settings.proposal.slice(0, -1)),
+          'Governance: proposal not active',
         );
       });
       runGovernorWorkflow();
