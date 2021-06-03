@@ -2,23 +2,23 @@
 
 pragma solidity ^0.8.0;
 
-enum ProposalState {
-    Pending,
-    Active,
-    Canceled,
-    Defeated,
-    Succeeded,
-    Queued,
-    Expired,
-    Executed
-}
-
 /**
  * @dev Interface of the {Governor} core.
  *
  * _Available since v4.2._
  */
 abstract contract IGovernor {
+    enum ProposalState {
+        Pending,
+        Active,
+        Canceled,
+        Defeated,
+        Succeeded,
+        Queued,
+        Expired,
+        Executed
+    }
+
     /**
      * @dev Emitted when a proposal is created.
      */
