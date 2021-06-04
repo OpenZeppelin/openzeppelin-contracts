@@ -5,7 +5,10 @@ pragma solidity ^0.8.0;
 import "./ERC20Votes.sol";
 
 /**
- * @dev Extension of the ERC20 token contract to support Compound's voting and delegation.
+ * @dev Extension of the ERC20 token contract to support Compound's voting and delegation. This version exactly matches
+ * Compound's interface, which the drawback of only supporting 2**96 token. You should use this domain if you need
+ * exact compatibility (for example in other to use your token with Governor Alpha or Bravo) or if you are sure the
+ * supply cap of 2**96 is enough for you. Otherwize, use the {ERC20Votes} variant of this module.
  *
  * This extensions keeps a history (checkpoints) of each account's vote power. Vote power can be delegated either
  * by calling the {delegate} function directly, or by providing a signature to be used with {delegateBySig}. Voting
@@ -20,13 +23,13 @@ import "./ERC20Votes.sol";
  */
 abstract contract ERC20VotesComp is ERC20Votes {
     /**
-     * @dev TODO.
+     * @dev Comp version of the {getVotes} accessor, with `uint96` return type.
      */
     function getCurrentVotes(address account) external view returns (uint96) {
         return SafeCast.toUint96(getVotes(account));
     }
     /**
-     * @dev TODO.
+     * @dev Comp version of the {getPastVotes} accessor, with `uint96` return type.
      */
     function getPriorVotes(address account, uint256 blockNumber) external view returns (uint96) {
         return SafeCast.toUint96(getPastVotes(account, blockNumber));

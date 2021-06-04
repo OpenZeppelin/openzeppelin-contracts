@@ -9,7 +9,9 @@ import "../../../utils/math/SafeCast.sol";
 import "../../../utils/cryptography/ECDSA.sol";
 
 /**
- * @dev Extension of the ERC20 token contract to support Compound's voting and delegation.
+ * @dev Extension of the ERC20 token contract to support Compound like voting and delegation. This version is more
+ * generic then Compound's. It support token supply up to 2**224, while comp is limited to 2**96. If exact Compound
+ * compatibility is requiered, please use the {ERC20VotesComp} variant of this module.
  *
  * This extensions keeps a history (checkpoints) of each account's vote power. Vote power can be delegated either
  * by calling the {delegate} function directly, or by providing a signature to be used with {delegateBySig}. Voting
