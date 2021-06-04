@@ -15,7 +15,7 @@ import "../../../utils/cryptography/ECDSA.sol";
  *
  * This extension keeps a history (checkpoints) of each account's vote power. Vote power can be delegated either
  * by calling the {delegate} function directly, or by providing a signature to be used with {delegateBySig}. Voting
- * power can be queried through the public accessors {getCurrentVotes} and {getPriorVotes}.
+ * power can be queried through the public accessors {getVotes} and {getPastVotes}.
  *
  * By default, token balance does not account for voting power. This makes transfers cheaper. The downside is that it
  * requires users to delegate to themselves in order to activate checkpoints and have their voting power tracked.
