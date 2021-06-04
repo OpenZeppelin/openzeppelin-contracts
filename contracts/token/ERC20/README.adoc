@@ -34,6 +34,7 @@ The following related EIPs are in draft status.
 - {ERC20Permit}
 - {ERC20FlashMint}
 - {ERC20Votes}
+- {ERC20VotesComp}
 
 NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC20 (such as <<ERC20-_mint-address-uint256-,`_mint`>>) and expose them as external functions in the way they prefer. On the other hand, xref:ROOT:erc20.adoc#Presets[ERC20 Presets] (such as {ERC20PresetMinterPauser}) are designed using opinionated patterns to provide developers with ready to use, deployable contracts.
 
@@ -64,6 +65,8 @@ The following EIPs are still in Draft status. Due to their nature as drafts, the
 {{ERC20FlashMint}}
 
 {{ERC20Votes}}
+
+{{ERC20VotesComp}}
 
 == Presets
 

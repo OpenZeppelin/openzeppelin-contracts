@@ -5,10 +5,12 @@ pragma solidity ^0.8.0;
 import "./ERC20Votes.sol";
 
 /**
- * @dev Extension of the ERC20 token contract to support Compound's voting and delegation. This version exactly matches
- * Compound's interface, which the drawback of only supporting 2**96 token. You should use this domain if you need
- * exact compatibility (for example in other to use your token with Governor Alpha or Bravo) or if you are sure the
- * supply cap of 2**96 is enough for you. Otherwize, use the {ERC20Votes} variant of this module.
+ * @dev Extension of ERC20 to support Compound's voting and delegation. This version exactly matches Compound's
+ * interface, with the drawback of only supporting supply up to (2^96^ - 1).
+ *
+ * NOTE: You should use this contract if you need exact compatibility with COMP (for example in order to use your token
+ * with Governor Alpha or Bravo) and if you are sure the supply cap of 2^96^ is enough for you. Otherwise, use the
+ * {ERC20Votes} variant of this module.
  *
  * This extensions keeps a history (checkpoints) of each account's vote power. Vote power can be delegated either
  * by calling the {delegate} function directly, or by providing a signature to be used with {delegateBySig}. Voting
@@ -36,7 +38,7 @@ abstract contract ERC20VotesComp is ERC20Votes {
     }
 
     /**
-     * @dev Maximum token supply. Reduced to `type(uint96).max` (2**96 - 1) to fit COMP interface.
+     * @dev Maximum token supply. Reduced to `type(uint96).max` (2^96^ - 1) to fit COMP interface.
      */
     function _maxSupply() internal view virtual override returns (uint224) {
         return type(uint96).max;

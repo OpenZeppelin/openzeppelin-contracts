@@ -8,11 +8,12 @@ import "../../../utils/math/SafeCast.sol";
 import "../../../utils/cryptography/ECDSA.sol";
 
 /**
- * @dev Extension of the ERC20 token contract to support Compound like voting and delegation. This version is more
- * generic then Compound's. It support token supply up to 2**224, while comp is limited to 2**96. If exact Compound
- * compatibility is requiered, please use the {ERC20VotesComp} variant of this module.
+ * @dev Extension of ERC20 to support Compound-like voting and delegation. This version is more generic than Compound's,
+ * and supports token supply up to 2^224^ - 1, while COMP is limited to 2^96^ - 1.
  *
- * This extensions keeps a history (checkpoints) of each account's vote power. Vote power can be delegated either
+ * NOTE: If exact COMP compatibility is required, use the {ERC20VotesComp} variant of this module.
+ *
+ * This extension keeps a history (checkpoints) of each account's vote power. Vote power can be delegated either
  * by calling the {delegate} function directly, or by providing a signature to be used with {delegateBySig}. Voting
  * power can be queried through the public accessors {getCurrentVotes} and {getPriorVotes}.
  *
@@ -149,14 +150,14 @@ abstract contract ERC20Votes is ERC20Permit {
     }
 
     /**
-     * @dev Maximum token supply. Defaults to `type(uint224).max` (2**224 - 1).
+     * @dev Maximum token supply. Defaults to `type(uint224).max` (2^224^ - 1).
      */
     function _maxSupply() internal view virtual returns (uint224) {
         return type(uint224).max;
     }
 
     /**
-     * @dev snapshot the totalSupply after it has been increassed.
+     * @dev Snapshots the totalSupply after it has been increased.
      */
     function _mint(address account, uint256 amount) internal virtual override {
         super._mint(account, amount);
@@ -166,7 +167,7 @@ abstract contract ERC20Votes is ERC20Permit {
     }
 
     /**
-     * @dev snapshot the totalSupply after it has been decreased.
+     * @dev Snapshots the totalSupply after it has been decreased.
      */
     function _burn(address account, uint256 amount) internal virtual override {
         super._burn(account, amount);
@@ -175,7 +176,7 @@ abstract contract ERC20Votes is ERC20Permit {
     }
 
     /**
-     * @dev move voting power when tokens are transferred.
+     * @dev Move voting power when tokens are transferred.
      */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
         _moveVotingPower(delegates(from), delegates(to), amount);
