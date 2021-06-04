@@ -3,7 +3,6 @@
 pragma solidity ^0.8.0;
 
 import "./draft-ERC20Permit.sol";
-import "./IERC20Votes.sol";
 import "../../../utils/math/Math.sol";
 import "../../../utils/math/SafeCast.sol";
 import "../../../utils/cryptography/ECDSA.sol";
@@ -24,38 +23,46 @@ import "../../../utils/cryptography/ECDSA.sol";
  *
  * _Available since v4.2._
  */
-abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
+abstract contract ERC20Votes is ERC20Permit {
+    struct Checkpoint {
+        uint32  fromBlock;
+        uint224 votes;
+    }
+
     bytes32 private constant _DELEGATION_TYPEHASH = keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
     mapping (address => address) private _delegates;
     mapping (address => Checkpoint[]) private _checkpoints;
     Checkpoint[] private _totalSupplyCheckpoints;
 
+    event DelegateChanged(address indexed delegator, address indexed fromDelegate, address indexed toDelegate);
+    event DelegateVotesChanged(address indexed delegate, uint256 previousBalance, uint256 newBalance);
+
     /**
      * @dev Get the `pos`-th checkpoint for `account`.
      */
-    function checkpoints(address account, uint32 pos) public view virtual override returns (Checkpoint memory) {
+    function checkpoints(address account, uint32 pos) public view virtual returns (Checkpoint memory) {
         return _checkpoints[account][pos];
     }
 
     /**
      * @dev Get number of checkpoints for `account`.
      */
-    function numCheckpoints(address account) public view virtual override returns (uint32) {
+    function numCheckpoints(address account) public view virtual returns (uint32) {
         return SafeCast.toUint32(_checkpoints[account].length);
     }
 
     /**
      * @dev Get the address `account` is currently delegating to.
      */
-    function delegates(address account) public view virtual override returns (address) {
+    function delegates(address account) public view virtual returns (address) {
         return _delegates[account];
     }
 
     /**
      * @dev Gets the current votes balance for `account`
      */
-    function getVotes(address account) public view override returns (uint256) {
+    function getVotes(address account) public view returns (uint256) {
         uint256 pos = _checkpoints[account].length;
         return pos == 0 ? 0 : _checkpoints[account][pos - 1].votes;
     }
@@ -67,7 +74,7 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
      *
      * - `blockNumber` must have been already mined
      */
-    function getPastVotes(address account, uint256 blockNumber) public view override returns (uint256) {
+    function getPastVotes(address account, uint256 blockNumber) public view returns (uint256) {
         require(blockNumber < block.number, "ERC20Votes: block not yet mined");
         return _checkpointsLookup(_checkpoints[account], blockNumber);
     }
@@ -80,7 +87,7 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
      *
      * - `blockNumber` must have been already mined
      */
-    function getPastTotalSupply(uint256 blockNumber) public view override returns (uint256) {
+    function getPastTotalSupply(uint256 blockNumber) public view returns (uint256) {
         require(blockNumber < block.number, "ERC20Votes: block not yet mined");
         return _checkpointsLookup(_totalSupplyCheckpoints, blockNumber);
     }
@@ -117,7 +124,7 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
     /**
      * @dev Delegate votes from the sender to `delegatee`.
      */
-    function delegate(address delegatee) public virtual override {
+    function delegate(address delegatee) public virtual {
         return _delegate(_msgSender(), delegatee);
     }
 
@@ -125,7 +132,7 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
      * @dev Delegates votes from signer to `delegatee`
      */
     function delegateBySig(address delegatee, uint256 nonce, uint256 expiry, uint8 v, bytes32 r, bytes32 s)
-        public virtual override
+        public virtual
     {
         require(block.timestamp <= expiry, "ERC20Votes: signature expired");
         address signer = ECDSA.recover(
