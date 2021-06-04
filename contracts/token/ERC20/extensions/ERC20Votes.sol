@@ -36,7 +36,14 @@ abstract contract ERC20Votes is ERC20Permit {
     mapping (address => Checkpoint[]) private _checkpoints;
     Checkpoint[] private _totalSupplyCheckpoints;
 
+    /**
+     * @dev Emitted when an account changes their delegate.
+     */
     event DelegateChanged(address indexed delegator, address indexed fromDelegate, address indexed toDelegate);
+
+    /**
+     * @dev Emitted when a token transfer or delegate change results in changes to an account's voting power.
+     */
     event DelegateVotesChanged(address indexed delegate, uint256 previousBalance, uint256 newBalance);
 
     /**
@@ -177,6 +184,8 @@ abstract contract ERC20Votes is ERC20Permit {
 
     /**
      * @dev Move voting power when tokens are transferred.
+     *
+     * Emits a {DelegateVotesChanged} event.
      */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
         _moveVotingPower(delegates(from), delegates(to), amount);
@@ -184,6 +193,8 @@ abstract contract ERC20Votes is ERC20Permit {
 
     /**
      * @dev Change delegation for `delegator` to `delegatee`.
+     *
+     * Emits events {DelegateChanged} and {DelegateVotesChanged}.
      */
     function _delegate(address delegator, address delegatee) internal virtual {
         address currentDelegate = delegates(delegator);
