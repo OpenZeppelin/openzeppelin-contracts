@@ -8,7 +8,7 @@ import "../../../utils/structs/EnumerableSet.sol";
 /**
  * @dev Extension of {ERC1155} that allows provide enumerability of user's tokens.
  *
- * _Available since v4.2._
+ * _Available since v4.x._
  */
 abstract contract ERC1155Enumerable is ERC1155 {
     using EnumerableSet for EnumerableSet.UintSet;
