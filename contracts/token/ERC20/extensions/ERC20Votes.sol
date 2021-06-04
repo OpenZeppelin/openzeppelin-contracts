@@ -34,14 +34,14 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
     /**
      * @dev Get the `pos`-th checkpoint for `account`.
      */
-    function checkpoints(address account, uint32 pos) external view virtual override returns (Checkpoint memory) {
+    function checkpoints(address account, uint32 pos) public view virtual override returns (Checkpoint memory) {
         return _checkpoints[account][pos];
     }
 
     /**
      * @dev Get number of checkpoints for `account`.
      */
-    function numCheckpoints(address account) external view virtual override returns (uint32) {
+    function numCheckpoints(address account) public view virtual override returns (uint32) {
         return SafeCast.toUint32(_checkpoints[account].length);
     }
 
