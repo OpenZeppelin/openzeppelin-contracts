@@ -22,7 +22,6 @@ abstract contract ERC1155Enumerable is ERC1155 {
         return _ownedTokens[owner].at(index);
     }
 
-
     function _beforeTokenTransfer(
         address operator,
         address from,
@@ -44,8 +43,8 @@ abstract contract ERC1155Enumerable is ERC1155 {
                 }
             }
             if (to != address(0)) {
-                if (balanceOf(from, ids[i]) == 0) {
-                    _ownedTokens[from].add(ids[i]);
+                if (balanceOf(to, ids[i]) == 0) {
+                    _ownedTokens[to].add(ids[i]);
                 }
             }
         }
