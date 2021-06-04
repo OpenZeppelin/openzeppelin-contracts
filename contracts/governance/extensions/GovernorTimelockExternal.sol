@@ -63,9 +63,7 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev Function to queue a proposal to the timelock. It internally uses the {Governor-_execute} function to
-     * perform all the proposal success checks. The queueing to timelock is performed by the overriden
-     * {Governor-_calls} overriden function.
+     * @dev Function to queue a proposal to the timelock.
      */
     function queue(
         address[] memory targets,

@@ -120,8 +120,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev Function to queue a proposal to the timelock. It internally uses the {Governor-_execute} function to
-     * perform all the proposal success checks.
+     * @dev Function to queue a proposal to the timelock.
      */
     function queue(
         address[] memory targets,
