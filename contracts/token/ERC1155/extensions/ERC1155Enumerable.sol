@@ -6,22 +6,33 @@ import "../ERC1155.sol";
 import "../../../utils/structs/EnumerableSet.sol";
 
 /**
- * @dev TODO.
+ * @dev Extension of {ERC1155} that allows provide enumerability of user's tokens.
+ *
+ * _Available since v4.2._
  */
 abstract contract ERC1155Enumerable is ERC1155 {
     using EnumerableSet for EnumerableSet.UintSet;
 
     mapping(address => EnumerableSet.UintSet) private _ownedTokens;
 
+    /**
+     * @dev Returns the number of token kinds held by `owner`.
+     */
     function tokenCountOf(address owner) public view virtual returns (uint256) {
         return _ownedTokens[owner].length();
     }
 
+    /**
+     * @dev Returns the `index`-th tokenId held by `owner`
+     */
     function tokenOfOwnerByIndex(address owner, uint256 index) public view virtual returns (uint256) {
         require(index < tokenCountOf(owner), "ERC1155Enumerable: owner index out of bounds");
         return _ownedTokens[owner].at(index);
     }
 
+    /**
+     * @dev See {ERC1155-_beforeTokenTransfer}.
+     */
     function _beforeTokenTransfer(
         address operator,
         address from,
