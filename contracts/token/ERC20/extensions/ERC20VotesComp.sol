@@ -36,9 +36,9 @@ abstract contract ERC20VotesComp is ERC20Votes {
     }
 
     /**
-     * @dev Maximum supported values.
+     * @dev Maximum token supply. Reduced to `type(uint96).max` (2**96 - 1) to fit COMP interface.
      */
-    function _maxVotes() internal view virtual override returns (uint256) {
+    function _maxSupply() internal view virtual override returns (uint224) {
         return type(uint96).max;
     }
 }

@@ -149,9 +149,9 @@ abstract contract ERC20Votes is ERC20Permit {
     }
 
     /**
-     * @dev Maximum supported values.
+     * @dev Maximum token supply. Defaults to `type(uint224).max` (2**224 - 1).
      */
-    function _maxVotes() internal view virtual returns (uint256) {
+    function _maxSupply() internal view virtual returns (uint224) {
         return type(uint224).max;
     }
 
@@ -160,7 +160,7 @@ abstract contract ERC20Votes is ERC20Permit {
      */
     function _mint(address account, uint256 amount) internal virtual override {
         super._mint(account, amount);
-        require(totalSupply() <= _maxVotes(), "ERC20Votes: total supply risk overflowing votes");
+        require(totalSupply() <= _maxSupply(), "ERC20Votes: total supply risks overflowing votes");
 
         _writeCheckpoint(_totalSupplyCheckpoints, add, amount);
     }

@@ -85,7 +85,7 @@ contract('ERC20Votes', function (accounts) {
     const amount = new BN('2').pow(new BN('96'));
     await expectRevert(
       this.token.mint(holder, amount),
-      'ERC20Votes: total supply risk overflowing votes',
+      'ERC20Votes: total supply risks overflowing votes',
     );
   });
 
