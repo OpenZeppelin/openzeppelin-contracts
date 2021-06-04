@@ -2,16 +2,15 @@
 
 pragma solidity ^0.8.0;
 
-import "../token/ERC20/extensions/IERC20Votes.sol";
 import "../governance/extensions/GovernorTimelockExternal.sol";
 import "../governance/extensions/GovernorVotingSimple.sol";
-import "../governance/extensions/GovernorWithToken.sol";
+import "../governance/extensions/GovernorWithERC20Votes.sol";
 
-contract GovernorTimelockExternalMock is GovernorTimelockExternal, GovernorWithToken, GovernorVotingSimple {
-    constructor(string memory name_, IERC20Votes token_, address timelock_)
+contract GovernorTimelockExternalMock is GovernorTimelockExternal, GovernorWithERC20Votes, GovernorVotingSimple {
+    constructor(string memory name_, address token_, address timelock_)
     Governor(name_)
     GovernorTimelockExternal(timelock_)
-    GovernorWithToken(token_)
+    GovernorWithERC20Votes(token_)
     {
     }
 
