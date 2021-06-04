@@ -53,7 +53,7 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
     /**
      * @dev Gets the current votes balance for `account`
      */
-    function getCurrentVotes(address account) external view override returns (uint256) {
+    function getVotes(address account) public view override returns (uint256) {
         uint256 pos = _checkpoints[account].length;
         return pos == 0 ? 0 : _checkpoints[account][pos - 1].votes;
     }
@@ -65,7 +65,7 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
      *
      * - `blockNumber` must have been already mined
      */
-    function getPriorVotes(address account, uint256 blockNumber) external view override returns (uint256) {
+    function getPastVotes(address account, uint256 blockNumber) public view override returns (uint256) {
         require(blockNumber < block.number, "ERC20Votes: block not yet mined");
         return _checkpointsLookup(_checkpoints[account], blockNumber);
     }
@@ -78,7 +78,7 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
      *
      * - `blockNumber` must have been already mined
      */
-    function getPriorTotalSupply(uint256 blockNumber) external view override returns (uint256) {
+    function getPastTotalSupply(uint256 blockNumber) public view override returns (uint256) {
         require(blockNumber < block.number, "ERC20Votes: block not yet mined");
         return _checkpointsLookup(_totalSupplyCheckpoints, blockNumber);
     }
@@ -140,11 +140,18 @@ abstract contract ERC20Votes is IERC20Votes, ERC20Permit {
     }
 
     /**
+     * @dev Maximum supported values.
+     */
+    function _maxVotes() internal view virtual returns (uint256) {
+        return type(uint224).max;
+    }
+
+    /**
      * @dev snapshot the totalSupply after it has been increassed.
      */
     function _mint(address account, uint256 amount) internal virtual override {
         super._mint(account, amount);
-        require(totalSupply() <= type(uint224).max, "ERC20Votes: total supply exceeds 2**224");
+        require(totalSupply() <= _maxVotes(), "ERC20Votes: total supply risk overflowing votes");
 
         _writeCheckpoint(_totalSupplyCheckpoints, add, amount);
     }
