@@ -13,20 +13,16 @@ abstract contract GovernorVotingSimple is IGovernor {
     /**
      * @dev Supported vote types. Matches Governor Bravo ordering.
      */
-    enum VoteType {
-        Against,
-        For,
-        Abstain
-    }
+    enum VoteType {Against, For, Abstain}
 
     struct Receipt {
         uint256 againstVotes;
         uint256 forVotes;
         uint256 abstainVotes;
-        mapping (address => bool) hasVoted;
+        mapping(address => bool) hasVoted;
     }
 
-    mapping (uint256 => Receipt) private _receipts;
+    mapping(uint256 => Receipt) private _receipts;
 
     /**
      * @dev See {IGovernor-hasVoted}.
@@ -38,15 +34,24 @@ abstract contract GovernorVotingSimple is IGovernor {
     /**
      * @dev Accessor to the internal vote counts.
      */
-    function proposalVotes(uint256 proposalId) public view virtual returns (uint256 againstVotes, uint256 forVotes, uint256 abstainVotes) {
+    function proposalVotes(uint256 proposalId)
+        public
+        view
+        virtual
+        returns (
+            uint256 againstVotes,
+            uint256 forVotes,
+            uint256 abstainVotes
+        )
+    {
         Receipt storage receipt = _receipts[proposalId];
         return (receipt.againstVotes, receipt.forVotes, receipt.abstainVotes);
     }
 
     /**
-    * @dev See {IGovernor-proposalWeight}.
-    */
-    function _quorumReached(uint256 proposalId) public view virtual override returns (bool) {
+     * @dev See {IGovernor-proposalWeight}.
+     */
+    function _quorumReached(uint256 proposalId) internal view virtual override returns (bool) {
         Receipt storage receipt = _receipts[proposalId];
 
         return quorum(proposalSnapshot(proposalId)) < receipt.againstVotes + receipt.forVotes + receipt.abstainVotes;
@@ -62,7 +67,12 @@ abstract contract GovernorVotingSimple is IGovernor {
     /**
      * @dev See {IGovernor-_pushVote}. In this module, the support follows the `VoteType` enum (from Governor Bravo).
      */
-    function _pushVote(uint256 proposalId, address account, uint8 support, uint256 weight) internal virtual override {
+    function _pushVote(
+        uint256 proposalId,
+        address account,
+        uint8 support,
+        uint256 weight
+    ) internal virtual override {
         Receipt storage receipt = _receipts[proposalId];
 
         require(!receipt.hasVoted[account], "SimpleVoting: vote already casted");

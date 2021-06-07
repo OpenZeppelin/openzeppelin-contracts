@@ -9,7 +9,6 @@ contract TimeImpl {
 
     Time.Timer private _timer;
 
-
     function getDeadline() public view returns (uint256) {
         return _timer.getDeadline();
     }

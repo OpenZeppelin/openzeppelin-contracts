@@ -8,21 +8,22 @@ pragma solidity ^0.8.0;
  * _Available since v4.2._
  */
 abstract contract IGovernor {
-    enum ProposalState {
-        Pending,
-        Active,
-        Canceled,
-        Defeated,
-        Succeeded,
-        Queued,
-        Expired,
-        Executed
-    }
+    enum ProposalState {Pending, Active, Canceled, Defeated, Succeeded, Queued, Expired, Executed}
 
     /**
      * @dev Emitted when a proposal is created.
      */
-    event ProposalCreated(uint256 indexed proposalId, address indexed proposer, address[] targets, uint256[] values, bytes[] calldatas, bytes32 salt, uint256 votingSnapshot, uint256 votingDeadline, string description);
+    event ProposalCreated(
+        uint256 indexed proposalId,
+        address indexed proposer,
+        address[] targets,
+        uint256[] values,
+        bytes[] calldatas,
+        bytes32 salt,
+        uint256 votingSnapshot,
+        uint256 votingDeadline,
+        string description
+    );
 
     /**
      * @dev Emitted when a proposal is canceled.
@@ -45,6 +46,13 @@ abstract contract IGovernor {
      * @dev Name of the governor instance (used in building the ERC712 domain separator).
      */
     function name() external view virtual returns (string memory);
+
+    /**
+     * @dev Version of the governor instance (used in building the ERC712 domain separator). Default: "1"
+     */
+    function version() public view virtual returns (string memory) {
+        return "1";
+    }
 
     /**
      * @dev Current state of a proposal, following Compound's convention
@@ -80,7 +88,7 @@ abstract contract IGovernor {
      * Note: this can be implemented in a number of ways, for example by reading the delegated balance from one (or
      * multiple), {ERC20Votes} tokens.
      */
-    function getVotes(address account, uint256 blockNumber) public view virtual returns(uint256);
+    function getVotes(address account, uint256 blockNumber) public view virtual returns (uint256);
 
     /**
      * @dev Delay, in number of block, between the proposal is created and the vote starts. This can be increassed to
@@ -88,7 +96,9 @@ abstract contract IGovernor {
      *
      * Default: 0
      */
-    function votingDelay() public view virtual returns (uint64) { return 0; }
+    function votingDelay() public view virtual returns (uint64) {
+        return 0;
+    }
 
     /**
      * @dev Delay, in number of seconds, between the proposal is created and the vote ends.
@@ -142,10 +152,7 @@ abstract contract IGovernor {
      *
      * Emits a {VoteCast} event.
      */
-    function castVote(
-        uint256 proposalId,
-        uint8 support
-    ) public virtual returns (uint256 balance);
+    function castVote(uint256 proposalId, uint8 support) public virtual returns (uint256 balance);
 
     /**
      * @dev Cast a vote using the user cryptographic signature.
@@ -160,17 +167,10 @@ abstract contract IGovernor {
         bytes32 s
     ) public virtual returns (uint256 balance);
 
-
-
-    /**
-     * @dev Version of the governor instance (used in building the ERC712 domain separator). Default: "1"
-     */
-    function _version() public view virtual returns (string memory) { return "1"; }
-
     /**
      * @dev Proposal weight: amont of votes already casted.
      */
-    function _quorumReached(uint256 proposalId) public view virtual returns (bool);
+    function _quorumReached(uint256 proposalId) internal view virtual returns (bool);
 
     /**
      * @dev Internal abstract interface to the voting module: returns weither a proposal is successfull or not.
@@ -183,5 +183,10 @@ abstract contract IGovernor {
      * Note: Support is generic and can represent various things depending
      * on the voting system used.
      */
-    function _pushVote(uint256 proposalId, address account, uint8 support, uint256 weight) internal virtual;
+    function _pushVote(
+        uint256 proposalId,
+        address account,
+        uint8 support,
+        uint256 weight
+    ) internal virtual;
 }

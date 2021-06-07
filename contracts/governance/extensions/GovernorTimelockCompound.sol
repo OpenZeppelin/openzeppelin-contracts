@@ -11,41 +11,51 @@ import "../Governor.sol";
 interface ICompoundTimelock {
     receive() external payable;
 
+    // solhint-disable-next-line func-name-mixedcase
     function GRACE_PERIOD() external view returns (uint256);
+
+    // solhint-disable-next-line func-name-mixedcase
     function MINIMUM_DELAY() external view returns (uint256);
+
+    // solhint-disable-next-line func-name-mixedcase
     function MAXIMUM_DELAY() external view returns (uint256);
 
     function admin() external view returns (address);
+
     function pendingAdmin() external view returns (address);
+
     function delay() external view returns (uint256);
+
     function queuedTransactions(bytes32) external view returns (bool);
 
     function setDelay(uint256) external;
+
     function acceptAdmin() external;
+
     function setPendingAdmin(address) external;
 
     function queueTransaction(
         address target,
-        uint value,
+        uint256 value,
         string memory signature,
         bytes memory data,
-        uint eta
+        uint256 eta
     ) external returns (bytes32);
 
     function cancelTransaction(
         address target,
-        uint value,
+        uint256 value,
         string memory signature,
         bytes memory data,
-        uint eta
+        uint256 eta
     ) external;
 
     function executeTransaction(
         address target,
-        uint value,
+        uint256 value,
         string memory signature,
         bytes memory data,
-        uint eta
+        uint256 eta
     ) external payable returns (bytes memory);
 }
 
@@ -71,7 +81,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
 
     ICompoundTimelock private _timelock;
 
-    mapping (uint256 => ProposalTimelock) private _proposalTimelocks;
+    mapping(uint256 => ProposalTimelock) private _proposalTimelocks;
 
     /**
      * @dev Emitted when the minimum delay for future operations is modified.
@@ -96,13 +106,12 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         }
 
         uint256 eta = proposalEta(proposalId);
-        return eta == 0
-            ? proposalState
-            : _proposalTimelocks[proposalId].executed
-            ? ProposalState.Executed
-            : block.timestamp >= eta + _timelock.GRACE_PERIOD()
-            ? ProposalState.Expired
-            : ProposalState.Queued;
+        return
+            eta == 0 ? proposalState : _proposalTimelocks[proposalId].executed
+                ? ProposalState.Executed
+                : block.timestamp >= eta + _timelock.GRACE_PERIOD()
+                ? ProposalState.Expired
+                : ProposalState.Queued;
     }
 
     /**
@@ -127,9 +136,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 salt
-    )
-        public virtual override returns (uint256)
-    {
+    ) public virtual override returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, salt);
 
         require(state(proposalId) == ProposalState.Succeeded, "Governance: proposal not successfull");
@@ -138,22 +145,10 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         _proposalTimelocks[proposalId].timer.setDeadline(eta);
         for (uint256 i = 0; i < targets.length; ++i) {
             require(
-                !_timelock.queuedTransactions(keccak256(abi.encode(
-                    targets[i],
-                    values[i],
-                    "",
-                    calldatas[i],
-                    eta
-                ))),
+                !_timelock.queuedTransactions(keccak256(abi.encode(targets[i], values[i], "", calldatas[i], eta))),
                 "GovernorWithTimelockCompound:queue: identical proposal action already queued"
             );
-            _timelock.queueTransaction(
-                targets[i],
-                values[i],
-                "",
-                calldatas[i],
-                eta
-            );
+            _timelock.queueTransaction(targets[i], values[i], "", calldatas[i], eta);
         }
 
         emit ProposalQueued(proposalId, eta);
@@ -169,22 +164,14 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 salt
-    )
-        public payable virtual override returns (uint256)
-    {
+    ) public payable virtual override returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, salt);
         Address.sendValue(payable(_timelock), msg.value);
 
         uint256 eta = proposalEta(proposalId);
         require(eta > 0, "GovernorWithTimelockCompound:execute: proposal not yet queued");
         for (uint256 i = 0; i < targets.length; ++i) {
-            _timelock.executeTransaction(
-                targets[i],
-                values[i],
-                "",
-                calldatas[i],
-                eta
-            );
+            _timelock.executeTransaction(targets[i], values[i], "", calldatas[i], eta);
         }
         _proposalTimelocks[proposalId].executed = true;
 
@@ -202,21 +189,13 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 salt
-    )
-        internal virtual override returns (uint256)
-    {
+    ) internal virtual override returns (uint256) {
         uint256 proposalId = super._cancel(targets, values, calldatas, salt);
 
         uint256 eta = proposalEta(proposalId);
         if (eta > 0) {
             for (uint256 i = 0; i < targets.length; ++i) {
-                _timelock.cancelTransaction(
-                    targets[i],
-                    values[i],
-                    "",
-                    calldatas[i],
-                    eta
-                );
+                _timelock.cancelTransaction(targets[i], values[i], "", calldatas[i], eta);
             }
             _proposalTimelocks[proposalId].timer.reset();
         }
@@ -227,6 +206,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     /**
      * @dev Accept admin right over the timelock.
      */
+    // solhint-disable-next-line private-vars-leading-underscore
     function __acceptAdmin() public {
         _timelock.acceptAdmin();
     }
@@ -240,7 +220,10 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
      */
     function updateTimelock(address newTimelock) external virtual {
         require(msg.sender == address(_timelock), "GovernorWithTimelockCompound: caller must be timelock");
-        require(_timelock.pendingAdmin() != address(0), "GovernorWithTimelockCompound: old timelock must be transfered before update");
+        require(
+            _timelock.pendingAdmin() != address(0),
+            "GovernorWithTimelockCompound: old timelock must be transfered before update"
+        );
         _updateTimelock(newTimelock);
     }
 

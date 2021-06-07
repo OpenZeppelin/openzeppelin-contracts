@@ -19,7 +19,7 @@ import "../TimelockController.sol";
  */
 abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
     TimelockController private _timelock;
-    mapping (uint256 => bytes32) private _ids;
+    mapping(uint256 => bytes32) private _ids;
 
     /**
      * @dev Emitted when the minimum delay for future operations is modified.
@@ -39,13 +39,14 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
     function state(uint256 proposalId) public view virtual override returns (ProposalState) {
         ProposalState proposalState = super.state(proposalId);
 
-        return proposalState == ProposalState.Succeeded
-            ? _timelock.isOperationPending(_ids[proposalId])
-            ? ProposalState.Queued
-            : _timelock.isOperationDone(_ids[proposalId])
-            ? ProposalState.Executed
-            : proposalState
-            : proposalState;
+        return
+            proposalState == ProposalState.Succeeded
+                ? _timelock.isOperationPending(_ids[proposalId])
+                    ? ProposalState.Queued
+                    : _timelock.isOperationDone(_ids[proposalId])
+                    ? ProposalState.Executed
+                    : proposalState
+                : proposalState;
     }
 
     /**
@@ -70,9 +71,7 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 salt
-    )
-        public virtual override returns (uint256)
-    {
+    ) public virtual override returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, salt);
 
         require(state(proposalId) == ProposalState.Succeeded, "Governance: proposal not successfull");
@@ -94,11 +93,9 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 salt
-    )
-        public payable virtual override returns (uint256)
-    {
+    ) public payable virtual override returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, salt);
-        _timelock.executeBatch{ value: msg.value }(targets, values, calldatas, 0, salt);
+        _timelock.executeBatch{value: msg.value}(targets, values, calldatas, 0, salt);
 
         emit ProposalExecuted(proposalId);
 
@@ -114,9 +111,7 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 salt
-    )
-        internal virtual override returns (uint256)
-    {
+    ) internal virtual override returns (uint256) {
         uint256 proposalId = super._cancel(targets, values, calldatas, salt);
 
         if (_ids[proposalId] != 0) {

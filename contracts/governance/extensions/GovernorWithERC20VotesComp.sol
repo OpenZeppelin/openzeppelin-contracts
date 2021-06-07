@@ -11,7 +11,7 @@ import "../../token/ERC20/extensions/ERC20VotesComp.sol";
  * _Available since v4.2._
  */
 abstract contract GovernorWithERC20VotesComp is IGovernor {
-    ERC20VotesComp immutable public token;
+    ERC20VotesComp public immutable token;
 
     constructor(address token_) {
         token = ERC20VotesComp(token_);
@@ -20,7 +20,7 @@ abstract contract GovernorWithERC20VotesComp is IGovernor {
     /**
      * Read the voting weight from the token's built in snapshot mechanism (see {IGovernor-getVotes}).
      */
-    function getVotes(address account, uint256 blockNumber) public view virtual override returns(uint256) {
+    function getVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
         return token.getPriorVotes(account, blockNumber);
     }
 }
