@@ -57,7 +57,7 @@ contract PaymentSplitter is Context {
      * https://solidity.readthedocs.io/en/latest/contracts.html#fallback-function[fallback
      * functions].
      */
-    receive() external payable {
+    receive() external payable virtual {
         emit PaymentReceived(_msgSender(), msg.value);
     }
 
