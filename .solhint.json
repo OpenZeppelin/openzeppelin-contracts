@@ -1,12 +1,15 @@
 {
-  "extends": "solhint:recommended",
   "rules": {
-    "func-order": "off",
-    "mark-callable-contracts": "off",
-    "no-empty-blocks": "off",
-    "compiler-version": "off",
+    "no-unused-vars": "error",
     "private-vars-leading-underscore": "error",
-    "reason-string": "off",
-    "func-visibility": ["error", { "ignoreConstructors": true }]
+    "const-name-snakecase": "error",
+    "contract-name-camelcase": "error",
+    "event-name-camelcase": "error",
+    "func-name-mixedcase": "error",
+    "func-param-name-mixedcase": "error",
+    "modifier-name-mixedcase": "error",
+    "private-vars-leading-underscore": "error",
+    "var-name-mixedcase": "error",
+    "imports-on-top": "error"
   }
 }
