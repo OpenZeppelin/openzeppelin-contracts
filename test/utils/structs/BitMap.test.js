@@ -33,6 +33,17 @@ contract('BitMap', function (accounts) {
       expect(await this.bitmap.get(keyB)).to.equal(true);
       expect(await this.bitmap.get(keyC)).to.equal(false);
     });
+
+    it('adds several consecutive keys', async function () {
+      await this.bitmap.set(keyA.addn(0));
+      await this.bitmap.set(keyA.addn(1));
+      await this.bitmap.set(keyA.addn(3));
+      expect(await this.bitmap.get(keyA.addn(0))).to.equal(true);
+      expect(await this.bitmap.get(keyA.addn(1))).to.equal(true);
+      expect(await this.bitmap.get(keyA.addn(2))).to.equal(false);
+      expect(await this.bitmap.get(keyA.addn(3))).to.equal(true);
+      expect(await this.bitmap.get(keyA.addn(4))).to.equal(false);
+    });
   });
 
   describe('unset', function () {
@@ -43,6 +54,18 @@ contract('BitMap', function (accounts) {
       expect(await this.bitmap.get(keyA)).to.equal(false);
       expect(await this.bitmap.get(keyB)).to.equal(true);
       expect(await this.bitmap.get(keyC)).to.equal(false);
+    });
+
+    it('removes consecutive added keys', async function () {
+      await this.bitmap.set(keyA.addn(0));
+      await this.bitmap.set(keyA.addn(1));
+      await this.bitmap.set(keyA.addn(3));
+      await this.bitmap.unset(keyA.addn(1));
+      expect(await this.bitmap.get(keyA.addn(0))).to.equal(true);
+      expect(await this.bitmap.get(keyA.addn(1))).to.equal(false);
+      expect(await this.bitmap.get(keyA.addn(2))).to.equal(false);
+      expect(await this.bitmap.get(keyA.addn(3))).to.equal(true);
+      expect(await this.bitmap.get(keyA.addn(4))).to.equal(false);
     });
 
     it('adds and removes multiple keys', async function () {
