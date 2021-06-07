@@ -55,7 +55,6 @@ contract Implementation4 is Initializable {
         return _value;
     }
 
-    // solhint-disable-next-line payable-fallback
     fallback() external {
         _value = 1;
     }

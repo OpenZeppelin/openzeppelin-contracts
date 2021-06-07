@@ -124,7 +124,6 @@ contract TimelockController is AccessControl {
      */
     function isOperationReady(bytes32 id) public view virtual returns (bool ready) {
         uint256 timestamp = getTimestamp(id);
-        // solhint-disable-next-line not-rely-on-time
         return timestamp > _DONE_TIMESTAMP && timestamp <= block.timestamp;
     }
 
@@ -235,7 +234,6 @@ contract TimelockController is AccessControl {
     function _schedule(bytes32 id, uint256 delay) private {
         require(!isOperation(id), "TimelockController: operation already scheduled");
         require(delay >= getMinDelay(), "TimelockController: insufficient delay");
-        // solhint-disable-next-line not-rely-on-time
         _timestamps[id] = block.timestamp + delay;
     }
 
@@ -329,7 +327,6 @@ contract TimelockController is AccessControl {
         uint256 value,
         bytes calldata data
     ) private {
-        // solhint-disable-next-line avoid-low-level-calls
         (bool success, ) = target.call{value: value}(data);
         require(success, "TimelockController: underlying transaction reverted");
 

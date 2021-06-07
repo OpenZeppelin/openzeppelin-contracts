@@ -39,7 +39,6 @@ library ECDSA {
         if (signature.length == 65) {
             // ecrecover takes the signature parameters, and the only way to get them
             // currently is to use assembly.
-            // solhint-disable-next-line no-inline-assembly
             assembly {
                 r := mload(add(signature, 0x20))
                 s := mload(add(signature, 0x40))
@@ -48,7 +47,6 @@ library ECDSA {
         } else if (signature.length == 64) {
             // ecrecover takes the signature parameters, and the only way to get them
             // currently is to use assembly.
-            // solhint-disable-next-line no-inline-assembly
             assembly {
                 let vs := mload(add(signature, 0x40))
                 r := mload(add(signature, 0x20))

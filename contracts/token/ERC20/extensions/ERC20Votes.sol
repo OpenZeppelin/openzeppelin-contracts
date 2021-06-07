@@ -173,7 +173,7 @@ abstract contract ERC20Votes is ERC20Permit {
         super._mint(account, amount);
         require(totalSupply() <= _maxSupply(), "ERC20Votes: total supply risks overflowing votes");
 
-        _writeCheckpoint(_totalSupplyCheckpoints, add, amount);
+        _writeCheckpoint(_totalSupplyCheckpoints, _add, amount);
     }
 
     /**
@@ -182,7 +182,7 @@ abstract contract ERC20Votes is ERC20Permit {
     function _burn(address account, uint256 amount) internal virtual override {
         super._burn(account, amount);
 
-        _writeCheckpoint(_totalSupplyCheckpoints, subtract, amount);
+        _writeCheckpoint(_totalSupplyCheckpoints, _subtract, amount);
     }
 
     /**
@@ -220,12 +220,12 @@ abstract contract ERC20Votes is ERC20Permit {
     ) private {
         if (src != dst && amount > 0) {
             if (src != address(0)) {
-                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[src], subtract, amount);
+                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[src], _subtract, amount);
                 emit DelegateVotesChanged(src, oldWeight, newWeight);
             }
 
             if (dst != address(0)) {
-                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[dst], add, amount);
+                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[dst], _add, amount);
                 emit DelegateVotesChanged(dst, oldWeight, newWeight);
             }
         }
@@ -247,11 +247,11 @@ abstract contract ERC20Votes is ERC20Permit {
         }
     }
 
-    function add(uint256 a, uint256 b) private pure returns (uint256) {
+    function _add(uint256 a, uint256 b) private pure returns (uint256) {
         return a + b;
     }
 
-    function subtract(uint256 a, uint256 b) private pure returns (uint256) {
+    function _subtract(uint256 a, uint256 b) private pure returns (uint256) {
         return a - b;
     }
 }

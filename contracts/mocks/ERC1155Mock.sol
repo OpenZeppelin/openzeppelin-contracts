@@ -10,7 +10,6 @@ import "../token/ERC1155/ERC1155.sol";
  */
 contract ERC1155Mock is ERC1155 {
     constructor(string memory uri) ERC1155(uri) {
-        // solhint-disable-previous-line no-empty-blocks
     }
 
     function setURI(string memory newuri) public {

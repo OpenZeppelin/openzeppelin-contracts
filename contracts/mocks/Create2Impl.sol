@@ -15,7 +15,6 @@ contract Create2Impl {
     }
 
     function deployERC1820Implementer(uint256 value, bytes32 salt) public {
-        // solhint-disable-next-line indent
         Create2.deploy(value, salt, type(ERC1820Implementer).creationCode);
     }
 
