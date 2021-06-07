@@ -57,3 +57,4 @@ allFiredEvents
 # hardhat
 cache
 artifacts
+contracts-exposed

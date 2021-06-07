@@ -14,6 +14,7 @@ const argv = require('yargs/yargs')()
 
 require('@nomiclabs/hardhat-truffle5');
 require('solidity-coverage');
+require('hardhat-exposed');
 
 if (argv.enableGasReport) {
   require('hardhat-gas-reporter');
