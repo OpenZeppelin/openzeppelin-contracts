@@ -17,7 +17,11 @@ import "./ConditionalEscrow.sol";
 contract RefundEscrow is ConditionalEscrow {
     using Address for address payable;
 
-    enum State { Active, Refunding, Closed }
+    enum State {
+        Active,
+        Refunding,
+        Closed
+    }
 
     event RefundsClosed();
     event RefundsEnabled();

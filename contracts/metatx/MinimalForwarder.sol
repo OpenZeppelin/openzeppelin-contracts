@@ -32,11 +32,9 @@ contract MinimalForwarder is EIP712 {
     }
 
     function verify(ForwardRequest calldata req, bytes calldata signature) public view returns (bool) {
-        address signer =
-            _hashTypedDataV4(
-                keccak256(abi.encode(TYPEHASH, req.from, req.to, req.value, req.gas, req.nonce, keccak256(req.data)))
-            )
-                .recover(signature);
+        address signer = _hashTypedDataV4(
+            keccak256(abi.encode(TYPEHASH, req.from, req.to, req.value, req.gas, req.nonce, keccak256(req.data)))
+        ).recover(signature);
         return _nonces[req.from] == req.nonce && signer == req.from;
     }
 
@@ -49,8 +47,9 @@ contract MinimalForwarder is EIP712 {
         _nonces[req.from] = req.nonce + 1;
 
         // solhint-disable-next-line avoid-low-level-calls
-        (bool success, bytes memory returndata) =
-            req.to.call{ gas: req.gas, value: req.value }(abi.encodePacked(req.data, req.from));
+        (bool success, bytes memory returndata) = req.to.call{ gas: req.gas, value: req.value }(
+            abi.encodePacked(req.data, req.from)
+        );
         // Validate that the relayer has sent enough gas for the call.
         // See https://ronan.eth.link/blog/ethereum-gas-dangers/
         assert(gasleft() > req.gas / 63);
