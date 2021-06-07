@@ -106,12 +106,15 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         }
 
         uint256 eta = proposalEta(proposalId);
-        return
-            eta == 0 ? proposalState : _proposalTimelocks[proposalId].executed
-                ? ProposalState.Executed
-                : block.timestamp >= eta + _timelock.GRACE_PERIOD()
-                ? ProposalState.Expired
-                : ProposalState.Queued;
+        if (eta == 0) {
+            return proposalState;
+        } else if (_proposalTimelocks[proposalId].executed) {
+            return ProposalState.Executed;
+        } else if (block.timestamp >= eta + _timelock.GRACE_PERIOD()) {
+            return ProposalState.Expired;
+        } else {
+            return ProposalState.Queued;
+        }
     }
 
     /**
