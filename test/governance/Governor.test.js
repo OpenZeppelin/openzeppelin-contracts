@@ -14,7 +14,7 @@ const Governance = artifacts.require('GovernanceMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
 contract('Governance', function (accounts) {
-  const [ owner, voter1, voter2 ] = accounts;
+  const [ owner, voter1, voter2, voter3, voter4 ] = accounts;
 
   const name = 'OZ-Governance';
   const version = '1';
@@ -30,6 +30,8 @@ contract('Governance', function (accounts) {
     await this.token.mint(owner, tokenSupply);
     await this.token.delegate(voter1, { from: voter1 });
     await this.token.delegate(voter2, { from: voter2 });
+    await this.token.delegate(voter3, { from: voter3 });
+    await this.token.delegate(voter4, { from: voter4 });
   });
 
   it('deployment check', async () => {
@@ -52,8 +54,10 @@ contract('Governance', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { address: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
-            { address: voter2, weight: web3.utils.toWei('1'), support: Enums.VoteType.Abstain },
+            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+            { voter: voter2, weight: web3.utils.toWei('10'), support: Enums.VoteType.For },
+            { voter: voter3, weight: web3.utils.toWei('5'), support: Enums.VoteType.Against },
+            { voter: voter4, weight: web3.utils.toWei('2'), support: Enums.VoteType.Abstain },
           ],
         };
       });
@@ -78,6 +82,14 @@ contract('Governance', function (accounts) {
           'ProposalCreated',
           { proposalId: this.id, votingDeadline: this.deadline },
         );
+        this.receipts.castVote.forEach(vote => {
+          const { voter } = vote.logs.find(Boolean).args;
+          expectEvent(
+            vote,
+            'VoteCast',
+            this.settings.voters.find(({ address }) => address === voter),
+          );
+        });
         expectEvent(
           this.receipts.execute,
           'ProposalExecuted',
@@ -149,7 +161,7 @@ contract('Governance', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { address: this.voter, signature, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+            { voter: this.voter, signature, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
           ],
         };
       });
@@ -207,8 +219,8 @@ contract('Governance', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { address: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
-            { address: voter2, weight: web3.utils.toWei('1'), support: Enums.VoteType.Abstain },
+            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+            { voter: voter2, weight: web3.utils.toWei('1'), support: Enums.VoteType.Abstain },
           ],
         };
       });
@@ -242,13 +254,13 @@ contract('Governance', function (accounts) {
           tokenHolder: owner,
           voters: [
             {
-              address: voter1,
+              voter: voter1,
               weight: web3.utils.toWei('1'),
               support: Enums.VoteType.For,
               reason: 'Governor::state: invalid proposal id',
             },
             {
-              address: voter2,
+              voter: voter2,
               weight: web3.utils.toWei('1'),
               support: Enums.VoteType.Abstain,
               reason: 'Governor::state: invalid proposal id',
@@ -298,8 +310,8 @@ contract('Governance', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { address: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
-            { address: voter2, weight: web3.utils.toWei('1'), support: Enums.VoteType.Abstain },
+            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+            { voter: voter2, weight: web3.utils.toWei('1'), support: Enums.VoteType.Abstain },
           ],
         };
       });
@@ -322,7 +334,7 @@ contract('Governance', function (accounts) {
           tokenHolder: owner,
           voters: [
             {
-              address: voter1,
+              voter: voter1,
               weight: web3.utils.toWei('1'),
               support: new BN('255'),
               reason: 'SimpleVoting: invalid value for enum VoteType',
@@ -350,12 +362,12 @@ contract('Governance', function (accounts) {
           tokenHolder: owner,
           voters: [
             {
-              address: voter1,
+              voter: voter1,
               weight: web3.utils.toWei('1'),
               support: Enums.VoteType.For,
             },
             {
-              address: voter1,
+              voter: voter1,
               weight: web3.utils.toWei('1'),
               support: Enums.VoteType.For,
               reason: 'SimpleVoting: vote already casted',
@@ -378,7 +390,7 @@ contract('Governance', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { address: voter1, weight: web3.utils.toWei('0'), support: Enums.VoteType.For },
+            { voter: voter1, weight: web3.utils.toWei('0'), support: Enums.VoteType.For },
           ],
           steps: {
             execute: { reason: 'Governance: proposal not successfull' },
@@ -400,7 +412,7 @@ contract('Governance', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { address: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.Against },
+            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.Against },
           ],
           steps: {
             execute: { reason: 'Governance: proposal not successfull' },
@@ -422,7 +434,7 @@ contract('Governance', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { address: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
           ],
           steps: {
             wait: { enable: false },
@@ -515,7 +527,7 @@ contract('Governance', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { address: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
           ],
           steps: {
             execute: { enable: false },
@@ -540,7 +552,7 @@ contract('Governance', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { address: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
           ],
         };
       });
@@ -618,7 +630,7 @@ contract('Governance', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { address: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
           ],
           steps: {
             wait: { enable: false },
@@ -650,7 +662,7 @@ contract('Governance', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { address: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
           ],
           steps: {
             execute: { enable: false },
@@ -681,7 +693,7 @@ contract('Governance', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { address: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
           ],
         };
       });

@@ -29,7 +29,7 @@ function runGovernorWorkflow () {
     if (tryGet(this.settings, 'voters')) {
       for (const voter of this.settings.voters) {
         if (voter.weight) {
-          await this.token.transfer(voter.address, voter.weight, { from: this.settings.tokenHolder });
+          await this.token.transfer(voter.voter, voter.weight, { from: this.settings.tokenHolder });
         }
       }
     }
@@ -58,7 +58,7 @@ function runGovernorWorkflow () {
         if (!voter.signature) {
           this.receipts.castVote.push(
             await getReceiptOrReason(
-              this.governor.castVote(this.id, voter.support, { from: voter.address }),
+              this.governor.castVote(this.id, voter.support, { from: voter.voter }),
               voter.reason,
             ),
           );

@@ -55,7 +55,7 @@ contract('GovernorTimelockExternal', function (accounts) {
           '<proposal description>',
         ],
         voters: [
-          { address: voter, support: Enums.VoteType.For },
+          { voter: voter, support: Enums.VoteType.For },
         ],
         steps: {
           queue: { delay: 3600 },
@@ -116,7 +116,7 @@ contract('GovernorTimelockExternal', function (accounts) {
           '<proposal description>',
         ],
         voters: [
-          { address: voter, support: Enums.VoteType.For },
+          { voter: voter, support: Enums.VoteType.For },
         ],
         steps: {
           queue: { enable: false },
@@ -141,7 +141,7 @@ contract('GovernorTimelockExternal', function (accounts) {
           '<proposal description>',
         ],
         voters: [
-          { address: voter, support: Enums.VoteType.For },
+          { voter: voter, support: Enums.VoteType.For },
         ],
         steps: {
           execute: { reason: 'TimelockController: operation is not ready' },
@@ -165,7 +165,7 @@ contract('GovernorTimelockExternal', function (accounts) {
           '<proposal description>',
         ],
         voters: [
-          { address: voter, support: Enums.VoteType.For },
+          { voter: voter, support: Enums.VoteType.For },
         ],
         steps: {
           queue: { delay: 3600 },
@@ -198,7 +198,7 @@ contract('GovernorTimelockExternal', function (accounts) {
           '<proposal description>',
         ],
         voters: [
-          { address: voter, support: Enums.VoteType.For },
+          { voter: voter, support: Enums.VoteType.For },
         ],
         steps: {
           queue: { enable: false },
@@ -236,7 +236,7 @@ contract('GovernorTimelockExternal', function (accounts) {
           '<proposal description>',
         ],
         voters: [
-          { address: voter, support: Enums.VoteType.For },
+          { voter: voter, support: Enums.VoteType.For },
         ],
         steps: {
           queue: { delay: 3600 },
@@ -299,7 +299,7 @@ contract('GovernorTimelockExternal', function (accounts) {
             '<proposal description>',
           ],
           voters: [
-            { address: voter, support: Enums.VoteType.For },
+            { voter: voter, support: Enums.VoteType.For },
           ],
           steps: {
             queue: { delay: 3600 },
