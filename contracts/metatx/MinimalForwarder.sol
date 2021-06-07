@@ -47,7 +47,7 @@ contract MinimalForwarder is EIP712 {
         _nonces[req.from] = req.nonce + 1;
 
         // solhint-disable-next-line avoid-low-level-calls
-        (bool success, bytes memory returndata) = req.to.call{ gas: req.gas, value: req.value }(
+        (bool success, bytes memory returndata) = req.to.call{gas: req.gas, value: req.value}(
             abi.encodePacked(req.data, req.from)
         );
         // Validate that the relayer has sent enough gas for the call.

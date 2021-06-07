@@ -75,6 +75,6 @@ contract ProxyAdmin is Ownable {
         address implementation,
         bytes memory data
     ) public payable virtual onlyOwner {
-        proxy.upgradeToAndCall{ value: msg.value }(implementation, data);
+        proxy.upgradeToAndCall{value: msg.value}(implementation, data);
     }
 }
