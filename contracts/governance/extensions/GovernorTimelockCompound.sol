@@ -225,22 +225,6 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev Overriden internal {Governor-_calls} function. We don't do anything here as the proposal is not ready to be
-     * executed and queueing  it to the timelock requiers knowledge of the `eta`. For gas efficiency, the queueing is
-     * done directly in the {queue} function.
-     */
-    function _calls(
-        uint256 /*proposalId*/,
-        address[] memory /*targets*/,
-        uint256[] memory /*values*/,
-        bytes[] memory /*calldatas*/,
-        bytes32 /*salt*/
-    )
-        internal virtual override
-    {
-    }
-
-    /**
      * @dev Accept admin right over the timelock.
      */
     function __acceptAdmin() public {
