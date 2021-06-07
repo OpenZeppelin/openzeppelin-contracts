@@ -26,14 +26,15 @@ import "../../../utils/cryptography/ECDSA.sol";
  */
 abstract contract ERC20Votes is ERC20Permit {
     struct Checkpoint {
-        uint32  fromBlock;
+        uint32 fromBlock;
         uint224 votes;
     }
 
-    bytes32 private constant _DELEGATION_TYPEHASH = keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
+    bytes32 private constant _DELEGATION_TYPEHASH =
+        keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
-    mapping (address => address) private _delegates;
-    mapping (address => Checkpoint[]) private _checkpoints;
+    mapping(address => address) private _delegates;
+    mapping(address => Checkpoint[]) private _checkpoints;
     Checkpoint[] private _totalSupplyCheckpoints;
 
     /**
@@ -139,18 +140,20 @@ abstract contract ERC20Votes is ERC20Permit {
     /**
      * @dev Delegates votes from signer to `delegatee`
      */
-    function delegateBySig(address delegatee, uint256 nonce, uint256 expiry, uint8 v, bytes32 r, bytes32 s)
-        public virtual
-    {
+    function delegateBySig(
+        address delegatee,
+        uint256 nonce,
+        uint256 expiry,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public virtual {
         require(block.timestamp <= expiry, "ERC20Votes: signature expired");
         address signer = ECDSA.recover(
-            _hashTypedDataV4(keccak256(abi.encode(
-                _DELEGATION_TYPEHASH,
-                delegatee,
-                nonce,
-                expiry
-            ))),
-            v, r, s
+            _hashTypedDataV4(keccak256(abi.encode(_DELEGATION_TYPEHASH, delegatee, nonce, expiry))),
+            v,
+            r,
+            s
         );
         require(nonce == _useNonce(signer), "ERC20Votes: invalid nonce");
         return _delegate(signer, delegatee);
@@ -187,7 +190,11 @@ abstract contract ERC20Votes is ERC20Permit {
      *
      * Emits a {DelegateVotesChanged} event.
      */
-    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual override {
         _moveVotingPower(delegates(from), delegates(to), amount);
     }
 
@@ -206,7 +213,11 @@ abstract contract ERC20Votes is ERC20Permit {
         _moveVotingPower(currentDelegate, delegatee, delegatorBalance);
     }
 
-    function _moveVotingPower(address src, address dst, uint256 amount) private {
+    function _moveVotingPower(
+        address src,
+        address dst,
+        uint256 amount
+    ) private {
         if (src != dst && amount > 0) {
             if (src != address(0)) {
                 (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[src], subtract, amount);
@@ -222,11 +233,9 @@ abstract contract ERC20Votes is ERC20Permit {
 
     function _writeCheckpoint(
         Checkpoint[] storage ckpts,
-        function (uint256, uint256) view returns (uint256) op,
+        function(uint256, uint256) view returns (uint256) op,
         uint256 delta
-    )
-        private returns (uint256 oldWeight, uint256 newWeight)
-    {
+    ) private returns (uint256 oldWeight, uint256 newWeight) {
         uint256 pos = ckpts.length;
         oldWeight = pos == 0 ? 0 : ckpts[pos - 1].votes;
         newWeight = op(oldWeight, delta);
@@ -234,10 +243,9 @@ abstract contract ERC20Votes is ERC20Permit {
         if (pos > 0 && ckpts[pos - 1].fromBlock == block.number) {
             ckpts[pos - 1].votes = SafeCast.toUint224(newWeight);
         } else {
-            ckpts.push(Checkpoint({
-                fromBlock: SafeCast.toUint32(block.number),
-                votes: SafeCast.toUint224(newWeight)
-            }));
+            ckpts.push(
+                Checkpoint({ fromBlock: SafeCast.toUint32(block.number), votes: SafeCast.toUint224(newWeight) })
+            );
         }
     }
 
