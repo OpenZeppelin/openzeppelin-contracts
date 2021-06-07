@@ -13,7 +13,11 @@ abstract contract GovernorVotingSimple is IGovernor {
     /**
      * @dev Supported vote types. Matches Governor Bravo ordering.
      */
-    enum VoteType {Against, For, Abstain}
+    enum VoteType {
+        Against,
+        For,
+        Abstain
+    }
 
     struct Receipt {
         uint256 againstVotes;

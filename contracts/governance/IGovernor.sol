@@ -8,7 +8,16 @@ pragma solidity ^0.8.0;
  * _Available since v4.2._
  */
 abstract contract IGovernor {
-    enum ProposalState {Pending, Active, Canceled, Defeated, Succeeded, Queued, Expired, Executed}
+    enum ProposalState {
+        Pending,
+        Active,
+        Canceled,
+        Defeated,
+        Succeeded,
+        Queued,
+        Expired,
+        Executed
+    }
 
     /**
      * @dev Emitted when a proposal is created.

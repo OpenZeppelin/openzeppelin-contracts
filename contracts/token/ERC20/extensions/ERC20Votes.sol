@@ -149,13 +149,12 @@ abstract contract ERC20Votes is ERC20Permit {
         bytes32 s
     ) public virtual {
         require(block.timestamp <= expiry, "ERC20Votes: signature expired");
-        address signer =
-            ECDSA.recover(
-                _hashTypedDataV4(keccak256(abi.encode(_DELEGATION_TYPEHASH, delegatee, nonce, expiry))),
-                v,
-                r,
-                s
-            );
+        address signer = ECDSA.recover(
+            _hashTypedDataV4(keccak256(abi.encode(_DELEGATION_TYPEHASH, delegatee, nonce, expiry))),
+            v,
+            r,
+            s
+        );
         require(nonce == _useNonce(signer), "ERC20Votes: invalid nonce");
         return _delegate(signer, delegatee);
     }

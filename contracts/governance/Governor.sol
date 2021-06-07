@@ -173,8 +173,12 @@ abstract contract Governor is IGovernor, EIP712, Context {
         bytes32 r,
         bytes32 s
     ) public virtual override returns (uint256) {
-        address voter =
-            ECDSA.recover(_hashTypedDataV4(keccak256(abi.encode(_BALLOT_TYPEHASH, proposalId, support))), v, r, s);
+        address voter = ECDSA.recover(
+            _hashTypedDataV4(keccak256(abi.encode(_BALLOT_TYPEHASH, proposalId, support))),
+            v,
+            r,
+            s
+        );
         return _castVote(proposalId, voter, support);
     }
 

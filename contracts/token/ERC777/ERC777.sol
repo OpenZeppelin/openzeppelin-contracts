@@ -417,7 +417,9 @@ contract ERC777 is Context, IERC777, IERC20 {
         // Update state variables
         uint256 fromBalance = _balances[from];
         require(fromBalance >= amount, "ERC777: burn amount exceeds balance");
-        unchecked {_balances[from] = fromBalance - amount;}
+        unchecked {
+            _balances[from] = fromBalance - amount;
+        }
         _totalSupply -= amount;
 
         emit Burned(operator, from, amount, data, operatorData);
@@ -436,7 +438,9 @@ contract ERC777 is Context, IERC777, IERC20 {
 
         uint256 fromBalance = _balances[from];
         require(fromBalance >= amount, "ERC777: transfer amount exceeds balance");
-        unchecked {_balances[from] = fromBalance - amount;}
+        unchecked {
+            _balances[from] = fromBalance - amount;
+        }
         _balances[to] += amount;
 
         emit Sent(operator, from, to, amount, userData, operatorData);
