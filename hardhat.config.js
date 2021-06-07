@@ -13,7 +13,6 @@ const argv = require('yargs/yargs')()
   .argv;
 
 require('@nomiclabs/hardhat-truffle5');
-require('@nomiclabs/hardhat-solhint');
 require('solidity-coverage');
 
 if (argv.enableGasReport) {

@@ -5,19 +5,19 @@ pragma solidity ^0.8.0;
 import "../../access/Ownable.sol";
 import "../Address.sol";
 
- /**
-  * @title Escrow
-  * @dev Base escrow contract, holds funds designated for a payee until they
-  * withdraw them.
-  *
-  * Intended usage: This contract (and derived escrow contracts) should be a
-  * standalone contract, that only interacts with the contract that instantiated
-  * it. That way, it is guaranteed that all Ether will be handled according to
-  * the `Escrow` rules, and there is no need to check for payable functions or
-  * transfers in the inheritance tree. The contract that uses the escrow as its
-  * payment method should be its owner, and provide public methods redirecting
-  * to the escrow's deposit and withdraw.
-  */
+/**
+ * @title Escrow
+ * @dev Base escrow contract, holds funds designated for a payee until they
+ * withdraw them.
+ *
+ * Intended usage: This contract (and derived escrow contracts) should be a
+ * standalone contract, that only interacts with the contract that instantiated
+ * it. That way, it is guaranteed that all Ether will be handled according to
+ * the `Escrow` rules, and there is no need to check for payable functions or
+ * transfers in the inheritance tree. The contract that uses the escrow as its
+ * payment method should be its owner, and provide public methods redirecting
+ * to the escrow's deposit and withdraw.
+ */
 contract Escrow is Ownable {
     using Address for address payable;
 

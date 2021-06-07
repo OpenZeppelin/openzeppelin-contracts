@@ -28,5 +28,4 @@ contract UUPSUpgradeableBrokenMock is UUPSUpgradeableMock {
     function upgradeToAndCall(address, bytes memory) external payable virtual override {
         // pass
     }
-
 }

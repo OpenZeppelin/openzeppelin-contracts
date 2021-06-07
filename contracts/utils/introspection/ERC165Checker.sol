@@ -21,7 +21,8 @@ library ERC165Checker {
     function supportsERC165(address account) internal view returns (bool) {
         // Any contract that implements ERC165 must explicitly indicate support of
         // InterfaceId_ERC165 and explicitly indicate non-support of InterfaceId_Invalid
-        return _supportsERC165Interface(account, type(IERC165).interfaceId) &&
+        return
+            _supportsERC165Interface(account, type(IERC165).interfaceId) &&
             !_supportsERC165Interface(account, _INTERFACE_ID_INVALID);
     }
 
@@ -33,8 +34,7 @@ library ERC165Checker {
      */
     function supportsInterface(address account, bytes4 interfaceId) internal view returns (bool) {
         // query support of both ERC165 as per the spec and support of _interfaceId
-        return supportsERC165(account) &&
-            _supportsERC165Interface(account, interfaceId);
+        return supportsERC165(account) && _supportsERC165Interface(account, interfaceId);
     }
 
     /**
@@ -47,7 +47,11 @@ library ERC165Checker {
      *
      * _Available since v3.4._
      */
-    function getSupportedInterfaces(address account, bytes4[] memory interfaceIds) internal view returns (bool[] memory) {
+    function getSupportedInterfaces(address account, bytes4[] memory interfaceIds)
+        internal
+        view
+        returns (bool[] memory)
+    {
         // an array of booleans corresponding to interfaceIds and whether they're supported or not
         bool[] memory interfaceIdsSupported = new bool[](interfaceIds.length);
 
@@ -101,7 +105,7 @@ library ERC165Checker {
      */
     function _supportsERC165Interface(address account, bytes4 interfaceId) private view returns (bool) {
         bytes memory encodedParams = abi.encodeWithSelector(IERC165(account).supportsInterface.selector, interfaceId);
-        (bool success, bytes memory result) = account.staticcall{ gas: 30000 }(encodedParams);
+        (bool success, bytes memory result) = account.staticcall{gas: 30000}(encodedParams);
         if (result.length < 32) return false;
         return success && abi.decode(result, (bool));
     }

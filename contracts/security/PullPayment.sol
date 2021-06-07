@@ -23,9 +23,9 @@ import "../utils/escrow/Escrow.sol";
  * payments with {payments}, and retrieve them with {withdrawPayments}.
  */
 abstract contract PullPayment {
-    Escrow immutable private _escrow;
+    Escrow private immutable _escrow;
 
-    constructor () {
+    constructor() {
         _escrow = new Escrow();
     }
 
@@ -64,6 +64,6 @@ abstract contract PullPayment {
      * @param amount The amount to transfer.
      */
     function _asyncTransfer(address dest, uint256 amount) internal virtual {
-        _escrow.deposit{ value: amount }(dest);
+        _escrow.deposit{value: amount}(dest);
     }
 }
