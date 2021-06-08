@@ -11,6 +11,7 @@ const Wallet = require('ethereumjs-wallet').default;
 const ERC20PermitMock = artifacts.require('ERC20PermitMock');
 
 const { EIP712Domain, domainSeparator } = require('../../../helpers/eip712');
+const { getChainId } = require('../../../helpers/chainid');
 
 const Permit = [
   { name: 'owner', type: 'address' },
@@ -31,11 +32,6 @@ contract('ERC20Permit', function (accounts) {
 
   beforeEach(async function () {
     this.token = await ERC20PermitMock.new(name, symbol, initialHolder, initialSupply);
-
-    // We get the chain id from the contract because Ganache (used for coverage) does not return the same chain id
-    // from within the EVM as from the JSON RPC interface.
-    // See https://github.com/trufflesuite/ganache-core/issues/515
-    this.chainId = await this.token.getChainId();
   });
 
   it('initial nonce is 0', async function () {
@@ -46,7 +42,7 @@ contract('ERC20Permit', function (accounts) {
     expect(
       await this.token.DOMAIN_SEPARATOR(),
     ).to.equal(
-      await domainSeparator(name, version, this.chainId, this.token.address),
+      await domainSeparator(name, version, await getChainId(), this.token.address),
     );
   });
 
@@ -66,7 +62,7 @@ contract('ERC20Permit', function (accounts) {
     });
 
     it('accepts owner signature', async function () {
-      const data = buildData(this.chainId, this.token.address);
+      const data = buildData(await getChainId(), this.token.address);
       const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
       const { v, r, s } = fromRpcSig(signature);
 
@@ -77,7 +73,7 @@ contract('ERC20Permit', function (accounts) {
     });
 
     it('rejects reused signature', async function () {
-      const data = buildData(this.chainId, this.token.address);
+      const data = buildData(await getChainId(), this.token.address);
       const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
       const { v, r, s } = fromRpcSig(signature);
 
@@ -91,7 +87,7 @@ contract('ERC20Permit', function (accounts) {
 
     it('rejects other signature', async function () {
       const otherWallet = Wallet.generate();
-      const data = buildData(this.chainId, this.token.address);
+      const data = buildData(await getChainId(), this.token.address);
       const signature = ethSigUtil.signTypedMessage(otherWallet.getPrivateKey(), { data });
       const { v, r, s } = fromRpcSig(signature);
 
@@ -104,7 +100,7 @@ contract('ERC20Permit', function (accounts) {
     it('rejects expired permit', async function () {
       const deadline = (await time.latest()) - time.duration.weeks(1);
 
-      const data = buildData(this.chainId, this.token.address, deadline);
+      const data = buildData(await getChainId(), this.token.address, deadline);
       const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
       const { v, r, s } = fromRpcSig(signature);
 

@@ -5,6 +5,8 @@ const { EIP712Domain } = require('../helpers/eip712');
 const { expectRevert, constants } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
+const { getChainId } = require('../helpers/chainid');
+
 const MinimalForwarder = artifacts.require('MinimalForwarder');
 
 const name = 'MinimalForwarder';
@@ -16,7 +18,7 @@ contract('MinimalForwarder', function (accounts) {
     this.domain = {
       name,
       version,
-      chainId: await web3.eth.getChainId(),
+      chainId: await getChainId(),
       verifyingContract: this.forwarder.address,
     };
     this.types = {

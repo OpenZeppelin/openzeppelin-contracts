@@ -24,8 +24,4 @@ contract EIP712External is EIP712 {
         address recoveredSigner = ECDSA.recover(digest, signature);
         require(recoveredSigner == signer);
     }
-
-    function getChainId() external view returns (uint256) {
-        return block.chainid;
-    }
 }
