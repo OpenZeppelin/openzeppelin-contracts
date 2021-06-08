@@ -4,7 +4,7 @@ const Wallet = require('ethereumjs-wallet').default;
 const { EIP712Domain, domainSeparator } = require('../../helpers/eip712');
 const { getChainId } = require('../../helpers/chainid');
 
-const EIP712 = artifacts.require('EIP712External');
+const EIP712 = artifacts.require('XEIP712Verifier');
 
 contract('EIP712', function (accounts) {
   const [mailTo] = accounts;
@@ -18,7 +18,7 @@ contract('EIP712', function (accounts) {
 
   it('domain separator', async function () {
     expect(
-      await this.eip712.domainSeparator(),
+      await this.eip712.x_domainSeparatorV4(),
     ).to.equal(
       await domainSeparator(name, version, await getChainId(), this.eip712.address),
     );
