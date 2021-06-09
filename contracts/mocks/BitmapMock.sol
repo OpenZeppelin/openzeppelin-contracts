@@ -2,12 +2,12 @@
 
 pragma solidity ^0.8.0;
 
-import "../utils/structs/BitMap.sol";
+import "../utils/structs/BitMaps.sol";
 
 contract BitMapMock {
-    using BitMap for BitMap.UintBitMap;
+    using BitMaps for BitMaps.BitMap;
 
-    BitMap.UintBitMap private _bitmap;
+    BitMaps.BitMap private _bitmap;
 
     function get(uint256 index) public view returns (bool) {
         return _bitmap.get(index);
