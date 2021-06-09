@@ -15,18 +15,18 @@ library BitMap {
         uint256 pos = index % 256;
         uint256 word = bitmap._data[bucket];
         uint256 mask = (1 << pos);
-        return word & mask == mask;
+        return word & mask != 0;
     }
 
     function set(UintBitMap storage bitmap, uint256 index) internal {
         uint256 bucket = index / 256;
         uint256 pos = index % 256;
-        bitmap._data[bucket] = bitmap._data[bucket] | (1 << pos);
+        bitmap._data[bucket] |= (1 << pos);
     }
 
     function unset(UintBitMap storage bitmap, uint256 index) internal {
         uint256 bucket = index / 256;
         uint256 pos = index % 256;
-        bitmap._data[bucket] = bitmap._data[bucket] & ~(1 << pos);
+        bitmap._data[bucket] &= ~(1 << pos);
     }
 }
