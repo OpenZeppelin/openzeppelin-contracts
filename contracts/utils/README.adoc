@@ -80,6 +80,8 @@ Note that, in all cases, accounts simply _declare_ their interfaces, but they ar
 
 == Data Structures
 
+{{BitMaps}}
+
 {{EnumerableMap}}
 
 {{EnumerableSet}}
