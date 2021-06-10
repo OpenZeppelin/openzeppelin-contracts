@@ -1,11 +1,11 @@
 const { BN, time } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
-const TimeImpl = artifacts.require('TimeImpl');
+const TimersImpl = artifacts.require('TimersImpl');
 
-contract('Time', function (accounts) {
+contract('Timers', function (accounts) {
   beforeEach(async function () {
-    this.instance = await TimeImpl.new();
+    this.instance = await TimersImpl.new();
     this.now = await web3.eth.getBlock('latest').then(({ timestamp }) => timestamp);
   });
 

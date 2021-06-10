@@ -79,7 +79,7 @@ function runGovernorWorkflow () {
 
     // fast forward
     if (tryGet(this.settings, 'steps.wait.enable') !== false) {
-      await time.increaseTo(this.deadline.addn(1));
+      await time.advanceBlockTo(this.deadline);
     }
 
     // queue

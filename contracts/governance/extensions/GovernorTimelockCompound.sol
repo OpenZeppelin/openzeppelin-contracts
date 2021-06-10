@@ -72,10 +72,10 @@ interface ICompoundTimelock {
  * _Available since v4.2._
  */
 abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
-    using Time for Time.Timer;
+    using Timers for Timers.Timestamp;
 
     struct ProposalTimelock {
-        Time.Timer timer;
+        Timers.Timestamp timer;
         bool executed;
     }
 

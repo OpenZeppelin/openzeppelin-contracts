@@ -23,33 +23,38 @@ abstract contract IGovernor {
      * @dev Emitted when a proposal is created.
      */
     event ProposalCreated(
-        uint256 indexed proposalId,
-        address indexed proposer,
+        uint256 proposalId,
+        address proposer,
         address[] targets,
         uint256[] values,
+        string[] signature,
         bytes[] calldatas,
-        bytes32 salt,
         uint256 votingSnapshot,
         uint256 votingDeadline,
         string description
     );
 
+    event ProposalSalt(
+        uint256 proposalId,
+        bytes32 salt
+    );
+
     /**
      * @dev Emitted when a proposal is canceled.
      */
-    event ProposalCanceled(uint256 indexed proposalId);
+    event ProposalCanceled(uint256 proposalId);
 
     /**
      * @dev Emitted when a proposal is executed.
      */
-    event ProposalExecuted(uint256 indexed proposalId);
+    event ProposalExecuted(uint256 proposalId);
 
     /**
      * @dev Emitted when a vote is casted.
      *
      * Note: `support` values should be seen as buckets. There interpretation depends on the voting module used.
      */
-    event VoteCast(address indexed voter, uint256 indexed proposalId, uint8 support, uint256 weight);
+    event VoteCast(address indexed voter, uint256 proposalId, uint8 support, uint256 weight, string reason);
 
     /**
      * @dev Name of the governor instance (used in building the ERC712 domain separator).
@@ -110,12 +115,12 @@ abstract contract IGovernor {
     }
 
     /**
-     * @dev Delay, in number of seconds, between the proposal is created and the vote ends.
+     * @dev Delay, in number of blocks, between the vote start and vote ends.
      *
      * Note: the {votingDelay} can delay the start of the vote. This must be considered when setting the voting
      * duration compared to the voting delay.
      */
-    function votingDuration() public view virtual returns (uint64);
+    function votingPeriod() public view virtual returns (uint64);
 
     /**
      * @dev Hashing function used to (re)build the proposal id from the proposal details.
@@ -162,6 +167,13 @@ abstract contract IGovernor {
      * Emits a {VoteCast} event.
      */
     function castVote(uint256 proposalId, uint8 support) public virtual returns (uint256 balance);
+
+    /**
+     * @dev Cast a with a reason
+     *
+     * Emits a {VoteCast} event.
+     */
+    function castVoteWithReason(uint256 proposalId, uint8 support, string calldata reason) public virtual returns (uint256 balance);
 
     /**
      * @dev Cast a vote using the user cryptographic signature.

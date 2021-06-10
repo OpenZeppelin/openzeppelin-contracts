@@ -6,7 +6,7 @@ import "../utils/cryptography/ECDSA.sol";
 import "../utils/cryptography/draft-EIP712.sol";
 import "../utils/Address.sol";
 import "../utils/Context.sol";
-import "../utils/Time.sol";
+import "../utils/Timers.sol";
 import "./IGovernor.sol";
 
 /**
@@ -15,12 +15,12 @@ import "./IGovernor.sol";
  * _Available since v4.2._
  */
 abstract contract Governor is IGovernor, EIP712, Context {
-    using Time for Time.Timer;
+    using Timers for Timers.BlockNumber;
 
     bytes32 private constant _BALLOT_TYPEHASH = keccak256("Ballot(uint256 proposalId,uint8 support)");
 
     struct Proposal {
-        Time.Timer timer;
+        Timers.BlockNumber timer;
         uint64 snapshot;
         bool executed;
         bool canceled;
@@ -114,7 +114,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
         require(proposal.timer.isUnset(), "Governance: proposal already exists");
 
         uint64 snapshot = uint64(block.number) + votingDelay();
-        uint64 deadline = uint64(block.timestamp) + votingDuration();
+        uint64 deadline = snapshot + votingPeriod();
 
         proposal.snapshot = snapshot;
         proposal.timer.setDeadline(deadline);
@@ -124,11 +124,16 @@ abstract contract Governor is IGovernor, EIP712, Context {
             _msgSender(),
             targets,
             values,
+            new string[](targets.length),
             calldatas,
-            salt,
             snapshot,
             deadline,
             description
+        );
+
+        emit ProposalSalt(
+            proposalId,
+            salt
         );
 
         return proposalId;
@@ -160,7 +165,12 @@ abstract contract Governor is IGovernor, EIP712, Context {
      */
     function castVote(uint256 proposalId, uint8 support) public virtual override returns (uint256) {
         address voter = _msgSender();
-        return _castVote(proposalId, voter, support);
+        return _castVote(proposalId, voter, support, "");
+    }
+
+    function castVoteWithReason(uint256 proposalId, uint8 support, string calldata reason) public virtual override returns (uint256) {
+        address voter = _msgSender();
+        return _castVote(proposalId, voter, support, reason);
     }
 
     /**
@@ -179,7 +189,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
             r,
             s
         );
-        return _castVote(proposalId, voter, support);
+        return _castVote(proposalId, voter, support, "");
     }
 
     /**
@@ -217,7 +227,8 @@ abstract contract Governor is IGovernor, EIP712, Context {
     function _castVote(
         uint256 proposalId,
         address account,
-        uint8 support
+        uint8 support,
+        string memory reason
     ) internal virtual returns (uint256) {
         Proposal memory proposal = _proposals[proposalId];
         require(state(proposalId) == ProposalState.Active, "Governance: vote not currently active");
@@ -225,7 +236,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
         uint256 weight = getVotes(account, proposal.snapshot);
         _pushVote(proposalId, account, support, weight);
 
-        emit VoteCast(account, proposalId, support, weight);
+        emit VoteCast(account, proposalId, support, weight, reason);
 
         return weight;
     }

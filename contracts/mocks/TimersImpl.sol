@@ -2,12 +2,12 @@
 
 pragma solidity ^0.8.0;
 
-import "../utils/Time.sol";
+import "../utils/Timers.sol";
 
-contract TimeImpl {
-    using Time for Time.Timer;
+contract TimersImpl {
+    using Timers for Timers.Timestamp;
 
-    Time.Timer private _timer;
+    Timers.Timestamp private _timer;
 
     function getDeadline() public view returns (uint256) {
         return _timer.getDeadline();
