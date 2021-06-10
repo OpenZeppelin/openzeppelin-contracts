@@ -12,21 +12,19 @@ library BitMaps {
 
     function get(BitMap storage bitmap, uint256 index) internal view returns (bool) {
         uint256 bucket = index / 256;
-        uint256 pos = index % 256;
-        uint256 word = bitmap._data[bucket];
-        uint256 mask = (1 << pos);
-        return word & mask != 0;
+        uint256 mask = 1 << (index % 256);
+        return bitmap._data[bucket] & mask != 0;
     }
 
     function set(BitMap storage bitmap, uint256 index) internal {
         uint256 bucket = index / 256;
-        uint256 pos = index % 256;
-        bitmap._data[bucket] |= (1 << pos);
+        uint256 mask = 1 << (index % 256);
+        bitmap._data[bucket] |= mask;
     }
 
     function unset(BitMap storage bitmap, uint256 index) internal {
         uint256 bucket = index / 256;
-        uint256 pos = index % 256;
-        bitmap._data[bucket] &= ~(1 << pos);
+        uint256 mask = 1 << (index % 256);
+        bitmap._data[bucket] &= ~mask;
     }
 }
