@@ -27,10 +27,10 @@ abstract contract IGovernor {
         address proposer,
         address[] targets,
         uint256[] values,
-        string[] signature,
+        string[] signatures,
         bytes[] calldatas,
-        uint256 votingSnapshot,
-        uint256 votingDeadline,
+        uint256 startBlock,
+        uint256 endBlock,
         string description
     );
 

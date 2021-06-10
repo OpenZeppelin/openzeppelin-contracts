@@ -33,6 +33,7 @@ contract('Governance', function (accounts) {
   it('deployment check', async () => {
     expect(await this.governor.name()).to.be.equal(name);
     expect(await this.governor.token()).to.be.equal(this.token.address);
+    expect(await this.governor.votingDelay()).to.be.bignumber.equal('0');
     expect(await this.governor.votingPeriod()).to.be.bignumber.equal('16');
     expect(await this.governor.quorum(0)).to.be.bignumber.equal('1');
   });

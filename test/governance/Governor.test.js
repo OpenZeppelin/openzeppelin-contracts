@@ -14,7 +14,7 @@ const Governance = artifacts.require('GovernanceMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
 contract('Governance', function (accounts) {
-  const [ owner, voter1, voter2, voter3, voter4 ] = accounts;
+  const [ owner, proposer, voter1, voter2, voter3, voter4 ] = accounts;
 
   const name = 'OZ-Governance';
   const version = '1';
@@ -37,6 +37,7 @@ contract('Governance', function (accounts) {
   it('deployment check', async () => {
     expect(await this.governor.name()).to.be.equal(name);
     expect(await this.governor.token()).to.be.equal(this.token.address);
+    expect(await this.governor.votingDelay()).to.be.bignumber.equal('0');
     expect(await this.governor.votingPeriod()).to.be.bignumber.equal('16');
     expect(await this.governor.quorum(0)).to.be.bignumber.equal('1');
   });
@@ -52,6 +53,7 @@ contract('Governance', function (accounts) {
             web3.utils.randomHex(32),
             '<proposal description>',
           ],
+          proposer,
           tokenHolder: owner,
           voters: [
             { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
@@ -60,6 +62,8 @@ contract('Governance', function (accounts) {
             { voter: voter4, weight: web3.utils.toWei('2'), support: Enums.VoteType.Abstain },
           ],
         };
+        this.votingDelay = await this.governor.votingDelay();
+        this.votingPeriod = await this.governor.votingPeriod();
       });
       afterEach(async () => {
         expect(await this.governor.hasVoted(this.id, owner)).to.be.equal(false);
@@ -80,8 +84,28 @@ contract('Governance', function (accounts) {
         expectEvent(
           this.receipts.propose,
           'ProposalCreated',
-          { proposalId: this.id, votingDeadline: this.deadline },
+          {
+            proposalId: this.id,
+            proposer,
+            targets: this.settings.proposal[0],
+            // values: this.settings.proposal[1].map(value => new BN(value)),
+            signatures: this.settings.proposal[2].map(() => ''),
+            calldatas: this.settings.proposal[2],
+            startBlock: new BN(this.receipts.propose.blockNumber).add(this.votingDelay),
+            endBlock: new BN(this.receipts.propose.blockNumber).add(this.votingDelay).add(this.votingPeriod),
+            description: this.settings.proposal[4],
+          },
         );
+
+        expectEvent(
+          this.receipts.propose,
+          'ProposalSalt',
+          {
+            proposalId: this.id,
+            salt: this.settings.proposal[3],
+          },
+        );
+
         this.receipts.castVote.forEach(vote => {
           const { voter } = vote.logs.find(Boolean).args;
           expectEvent(
@@ -185,7 +209,7 @@ contract('Governance', function (accounts) {
         expectEvent(
           this.receipts.propose,
           'ProposalCreated',
-          { proposalId: this.id, votingDeadline: this.deadline },
+          { proposalId: this.id },
         );
         expectEvent(
           this.receipts.execute,
@@ -228,7 +252,7 @@ contract('Governance', function (accounts) {
         expectEvent(
           this.receipts.propose,
           'ProposalCreated',
-          { proposalId: this.id, votingDeadline: this.deadline },
+          { proposalId: this.id },
         );
         expectEvent(
           this.receipts.execute,

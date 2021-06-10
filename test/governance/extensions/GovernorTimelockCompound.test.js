@@ -44,6 +44,7 @@ contract('GovernorTimelockCompound', function (accounts) {
   it('post deployment check', async () => {
     expect(await this.governor.name()).to.be.equal(name);
     expect(await this.governor.token()).to.be.equal(this.token.address);
+    expect(await this.governor.votingDelay()).to.be.bignumber.equal('0');
     expect(await this.governor.votingPeriod()).to.be.bignumber.equal('16');
     expect(await this.governor.quorum(0)).to.be.bignumber.equal('1');
 
@@ -73,7 +74,7 @@ contract('GovernorTimelockCompound', function (accounts) {
       expectEvent(
         this.receipts.propose,
         'ProposalCreated',
-        { proposalId: this.id, votingDeadline: this.deadline },
+        { proposalId: this.id },
       );
       expectEvent(
         this.receipts.queue,
@@ -364,7 +365,7 @@ contract('GovernorTimelockCompound', function (accounts) {
         expectEvent(
           this.receipts.propose,
           'ProposalCreated',
-          { proposalId: this.id, votingDeadline: this.deadline },
+          { proposalId: this.id },
         );
         expectEvent(
           this.receipts.execute,
@@ -434,7 +435,7 @@ contract('GovernorTimelockCompound', function (accounts) {
         expectEvent(
           this.receipts.propose,
           'ProposalCreated',
-          { proposalId: this.id, votingDeadline: this.deadline },
+          { proposalId: this.id },
         );
         expectEvent(
           this.receipts.execute,
