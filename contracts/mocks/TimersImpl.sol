@@ -9,11 +9,11 @@ contract TimersImpl {
 
     Timers.Timestamp private _timer;
 
-    function getDeadline() public view returns (uint256) {
+    function getDeadline() public view returns (uint64) {
         return _timer.getDeadline();
     }
 
-    function setDeadline(uint256 timestamp) public {
+    function setDeadline(uint64 timestamp) public {
         _timer.setDeadline(timestamp);
     }
 

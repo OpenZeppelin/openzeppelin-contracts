@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 
 import "./IGovernorTimelock.sol";
 import "../Governor.sol";
+import "../../utils/math/SafeCast.sol";
 
 /**
  * https://github.com/compound-finance/compound-protocol/blob/master/contracts/Timelock.sol[Compound's timelock] interface
@@ -145,7 +146,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         require(state(proposalId) == ProposalState.Succeeded, "Governance: proposal not successfull");
 
         uint256 eta = block.timestamp + _timelock.delay();
-        _proposalTimelocks[proposalId].timer.setDeadline(eta);
+        _proposalTimelocks[proposalId].timer.setDeadline(SafeCast.toUint64(eta));
         for (uint256 i = 0; i < targets.length; ++i) {
             require(
                 !_timelock.queuedTransactions(keccak256(abi.encode(targets[i], values[i], "", calldatas[i], eta))),

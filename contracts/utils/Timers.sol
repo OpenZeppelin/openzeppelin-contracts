@@ -10,11 +10,11 @@ library Timers {
         uint64 _deadline;
     }
 
-    function getDeadline(Timestamp memory timer) internal pure returns (uint256) {
+    function getDeadline(Timestamp memory timer) internal pure returns (uint64) {
         return timer._deadline;
     }
 
-    function setDeadline(Timestamp storage timer, uint256 timestamp) internal {
+    function setDeadline(Timestamp storage timer, uint64 timestamp) internal {
         timer._deadline = timestamp;
     }
 
@@ -42,11 +42,11 @@ library Timers {
         uint64 _deadline;
     }
 
-    function getDeadline(BlockNumber memory timer) internal pure returns (uint256) {
+    function getDeadline(BlockNumber memory timer) internal pure returns (uint64) {
         return timer._deadline;
     }
 
-    function setDeadline(BlockNumber storage timer, uint256 timestamp) internal {
+    function setDeadline(BlockNumber storage timer, uint64 timestamp) internal {
         timer._deadline = timestamp;
     }
 
