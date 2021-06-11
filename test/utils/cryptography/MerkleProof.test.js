@@ -5,11 +5,11 @@ const keccak256 = require('keccak256');
 
 const { expect } = require('chai');
 
-const MerkleProofWrapper = artifacts.require('MerkleProofWrapper');
+const XMerkleProof = artifacts.require('XMerkleProof');
 
 contract('MerkleProof', function (accounts) {
   beforeEach(async function () {
-    this.merkleProof = await MerkleProofWrapper.new();
+    this.merkleProof = await XMerkleProof.new();
   });
 
   describe('verify', function () {
@@ -23,7 +23,7 @@ contract('MerkleProof', function (accounts) {
 
       const proof = merkleTree.getHexProof(leaf);
 
-      expect(await this.merkleProof.verify(proof, root, leaf)).to.equal(true);
+      expect(await this.merkleProof.xverify(proof, root, leaf)).to.equal(true);
     });
 
     it('returns false for an invalid Merkle proof', async function () {
@@ -39,7 +39,7 @@ contract('MerkleProof', function (accounts) {
 
       const badProof = badMerkleTree.getHexProof(badElements[0], keccak256, { hashLeaves: true, sortPairs: true });
 
-      expect(await this.merkleProof.verify(badProof, correctRoot, correctLeaf)).to.equal(false);
+      expect(await this.merkleProof.xverify(badProof, correctRoot, correctLeaf)).to.equal(false);
     });
 
     it('returns false for a Merkle proof of invalid length', async function () {
@@ -53,7 +53,7 @@ contract('MerkleProof', function (accounts) {
       const proof = merkleTree.getHexProof(leaf);
       const badProof = proof.slice(0, proof.length - 5);
 
-      expect(await this.merkleProof.verify(badProof, root, leaf)).to.equal(false);
+      expect(await this.merkleProof.xverify(badProof, root, leaf)).to.equal(false);
     });
   });
 });
