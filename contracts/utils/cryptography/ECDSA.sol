@@ -28,15 +28,13 @@ library ECDSA {
      * - with https://docs.ethers.io/v5/api/signer/#Signer-signMessage[ethers]
      */
     function recover(bytes32 hash, bytes memory signature) internal pure returns (address) {
-        // Divide the signature in r, s and v variables
-        bytes32 r;
-        bytes32 s;
-        uint8 v;
-
         // Check the signature length
         // - case 65: r,s,v signature (standard)
         // - case 64: r,vs signature (cf https://eips.ethereum.org/EIPS/eip-2098) _Available since v4.1._
         if (signature.length == 65) {
+            bytes32 r;
+            bytes32 s;
+            uint8 v;
             // ecrecover takes the signature parameters, and the only way to get them
             // currently is to use assembly.
             assembly {
@@ -44,25 +42,45 @@ library ECDSA {
                 s := mload(add(signature, 0x40))
                 v := byte(0, mload(add(signature, 0x60)))
             }
+            return recover(hash, v, r, s);
         } else if (signature.length == 64) {
+            bytes32 r;
+            bytes32 vs;
             // ecrecover takes the signature parameters, and the only way to get them
             // currently is to use assembly.
             assembly {
-                let vs := mload(add(signature, 0x40))
                 r := mload(add(signature, 0x20))
-                s := and(vs, 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
-                v := add(shr(255, vs), 27)
+                vs := mload(add(signature, 0x40))
             }
+            return recover(hash, r, vs);
         } else {
             revert("ECDSA: invalid signature length");
         }
+    }
 
+    /**
+     * @dev Overload of {ECDSA-recover} that receives the `r` and `vs` short-signature fields separately.
+     *
+     * See https://eips.ethereum.org/EIPS/eip-2098[EIP-2098 short signatures]
+     *
+     * _Available since v4.2._
+     */
+    function recover(
+        bytes32 hash,
+        bytes32 r,
+        bytes32 vs
+    ) internal pure returns (address) {
+        bytes32 s;
+        uint8 v;
+        assembly {
+            s := and(vs, 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
+            v := add(shr(255, vs), 27)
+        }
         return recover(hash, v, r, s);
     }
 
     /**
-     * @dev Overload of {ECDSA-recover} that receives the `v`,
-     * `r` and `s` signature fields separately.
+     * @dev Overload of {ECDSA-recover} that receives the `v`, `r` and `s` signature fields separately.
      */
     function recover(
         bytes32 hash,
