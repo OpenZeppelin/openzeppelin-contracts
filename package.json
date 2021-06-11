@@ -12,7 +12,7 @@
     "compile": "buidler compile",
     "coverage": "buidler coverage",
     "docs": "oz-docs",
-    "docs:watch": "npm run docs watch contracts 'docs/*.hbs'",
+    "docs:watch": "npm run docs watch contracts 'docs/*.hbs' docs/helpers.js",
     "prepare-docs": "scripts/prepare-docs.sh",
     "lint": "npm run lint:js && npm run lint:sol",
     "lint:fix": "npm run lint:js:fix",
