@@ -30,6 +30,7 @@ abstract contract ERC20VotesComp is ERC20Votes {
     function getCurrentVotes(address account) external view returns (uint96) {
         return SafeCast.toUint96(getVotes(account));
     }
+
     /**
      * @dev Comp version of the {getPastVotes} accessor, with `uint96` return type.
      */

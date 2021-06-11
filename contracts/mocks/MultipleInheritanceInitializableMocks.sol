@@ -19,58 +19,63 @@ import "../proxy/utils/Initializable.sol";
  * Sample base intializable contract that is a human
  */
 contract SampleHuman is Initializable {
-  bool public isHuman;
+    bool public isHuman;
 
-  function initialize() public initializer {
-    isHuman = true;
-  }
+    function initialize() public initializer {
+        isHuman = true;
+    }
 }
 
 /**
  * Sample base intializable contract that defines a field mother
  */
 contract SampleMother is Initializable, SampleHuman {
-  uint256 public mother;
+    uint256 public mother;
 
-  function initialize(uint256 value) public initializer virtual {
-    SampleHuman.initialize();
-    mother = value;
-  }
+    function initialize(uint256 value) public virtual initializer {
+        SampleHuman.initialize();
+        mother = value;
+    }
 }
 
 /**
  * Sample base intializable contract that defines a field gramps
  */
 contract SampleGramps is Initializable, SampleHuman {
-  string public gramps;
+    string public gramps;
 
-  function initialize(string memory value) public initializer virtual {
-    SampleHuman.initialize();
-    gramps = value;
-  }
+    function initialize(string memory value) public virtual initializer {
+        SampleHuman.initialize();
+        gramps = value;
+    }
 }
 
 /**
  * Sample base intializable contract that defines a field father and extends from gramps
  */
 contract SampleFather is Initializable, SampleGramps {
-  uint256 public father;
+    uint256 public father;
 
-  function initialize(string memory _gramps, uint256 _father) public initializer {
-    SampleGramps.initialize(_gramps);
-    father = _father;
-  }
+    function initialize(string memory _gramps, uint256 _father) public initializer {
+        SampleGramps.initialize(_gramps);
+        father = _father;
+    }
 }
 
 /**
  * Child extends from mother, father (gramps)
  */
 contract SampleChild is Initializable, SampleMother, SampleFather {
-  uint256 public child;
+    uint256 public child;
 
-  function initialize(uint256 _mother, string memory _gramps, uint256 _father, uint256 _child) public initializer {
-    SampleMother.initialize(_mother);
-    SampleFather.initialize(_gramps, _father);
-    child = _child;
-  }
+    function initialize(
+        uint256 _mother,
+        string memory _gramps,
+        uint256 _father,
+        uint256 _child
+    ) public initializer {
+        SampleMother.initialize(_mother);
+        SampleFather.initialize(_gramps, _father);
+        child = _child;
+    }
 }
