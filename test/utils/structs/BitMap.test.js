@@ -18,6 +18,38 @@ contract('BitMap', function (accounts) {
     expect(await this.bitmap.get(keyC)).to.equal(false);
   });
 
+  describe('setTo', function () {
+    it('set a key to true', async function () {
+      await this.bitmap.setTo(keyA, true);
+      expect(await this.bitmap.get(keyA)).to.equal(true);
+      expect(await this.bitmap.get(keyB)).to.equal(false);
+      expect(await this.bitmap.get(keyC)).to.equal(false);
+    });
+
+    it('set a key to false', async function () {
+      await this.bitmap.setTo(keyA, true);
+      await this.bitmap.setTo(keyA, false);
+      expect(await this.bitmap.get(keyA)).to.equal(false);
+      expect(await this.bitmap.get(keyB)).to.equal(false);
+      expect(await this.bitmap.get(keyC)).to.equal(false);
+    });
+
+    it('set several consecutive keys', async function () {
+      await this.bitmap.setTo(keyA.addn(0), true);
+      await this.bitmap.setTo(keyA.addn(1), true);
+      await this.bitmap.setTo(keyA.addn(2), true);
+      await this.bitmap.setTo(keyA.addn(3), true);
+      await this.bitmap.setTo(keyA.addn(4), true);
+      await this.bitmap.setTo(keyA.addn(2), false);
+      await this.bitmap.setTo(keyA.addn(4), false);
+      expect(await this.bitmap.get(keyA.addn(0))).to.equal(true);
+      expect(await this.bitmap.get(keyA.addn(1))).to.equal(true);
+      expect(await this.bitmap.get(keyA.addn(2))).to.equal(false);
+      expect(await this.bitmap.get(keyA.addn(3))).to.equal(true);
+      expect(await this.bitmap.get(keyA.addn(4))).to.equal(false);
+    });
+  });
+
   describe('set', function () {
     it('adds a key', async function () {
       await this.bitmap.set(keyA);

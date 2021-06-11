@@ -13,6 +13,10 @@ contract BitMapMock {
         return _bitmap.get(index);
     }
 
+    function setTo(uint256 index, bool value) public {
+        _bitmap.setTo(index, value);
+    }
+
     function set(uint256 index) public {
         _bitmap.set(index);
     }
