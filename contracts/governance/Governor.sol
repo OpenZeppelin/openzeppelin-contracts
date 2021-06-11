@@ -20,8 +20,8 @@ abstract contract Governor is IGovernor, EIP712, Context {
     bytes32 private constant _BALLOT_TYPEHASH = keccak256("Ballot(uint256 proposalId,uint8 support)");
 
     struct Proposal {
-        Timers.BlockNumber timer;
-        uint64 snapshot;
+        Timers.BlockNumber voteStart;
+        Timers.BlockNumber voteEnd;
         bool executed;
         bool canceled;
     }
@@ -54,11 +54,11 @@ abstract contract Governor is IGovernor, EIP712, Context {
             return ProposalState.Executed;
         } else if (proposal.canceled) {
             return ProposalState.Canceled;
-        } else if (block.number <= proposal.snapshot) {
+        } else if (proposal.voteStart.isExpired()) {
             return ProposalState.Pending;
-        } else if (proposal.timer.isPending()) {
+        } else if (proposal.voteEnd.isPending()) {
             return ProposalState.Active;
-        } else if (proposal.timer.isExpired()) {
+        } else if (proposal.voteEnd.isExpired()) {
             return
                 _quorumReached(proposalId) && _voteSuccess(proposalId)
                     ? ProposalState.Succeeded
@@ -69,17 +69,21 @@ abstract contract Governor is IGovernor, EIP712, Context {
     }
 
     /**
-     * @dev See {IGovernor-proposalDeadline}.
-     */
-    function proposalDeadline(uint256 proposalId) public view virtual override returns (uint256) {
-        return _proposals[proposalId].timer.getDeadline();
-    }
-
-    /**
      * @dev See {IGovernor-proposalSnapshot}.
      */
     function proposalSnapshot(uint256 proposalId) public view virtual override returns (uint256) {
-        return _proposals[proposalId].snapshot;
+        return _proposals[proposalId].voteStart.getDeadline();
+    }
+
+    /**
+     * @dev See {IGovernor-proposalDeadline}.
+     */
+    function proposalDeadline(uint256 proposalId) public view virtual override returns (uint256) {
+        return _proposals[proposalId].voteEnd.getDeadline();
+    }
+
+    function getProposal(uint256 proposalId) internal view returns (Proposal memory) {
+        return _proposals[proposalId];
     }
 
     /**
@@ -111,13 +115,13 @@ abstract contract Governor is IGovernor, EIP712, Context {
         require(targets.length > 0, "Governance: empty proposal");
 
         Proposal storage proposal = _proposals[proposalId];
-        require(proposal.timer.isUnset(), "Governance: proposal already exists");
+        require(proposal.voteStart.isUnset(), "Governance: proposal already exists");
 
         uint64 snapshot = uint64(block.number) + votingDelay();
         uint64 deadline = snapshot + votingPeriod();
 
-        proposal.snapshot = snapshot;
-        proposal.timer.setDeadline(deadline);
+        proposal.voteStart.setDeadline(snapshot);
+        proposal.voteEnd.setDeadline(deadline);
 
         emit ProposalCreated(
             proposalId,
@@ -234,7 +238,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
         Proposal memory proposal = _proposals[proposalId];
         require(state(proposalId) == ProposalState.Active, "Governance: vote not currently active");
 
-        uint256 weight = getVotes(account, proposal.snapshot);
+        uint256 weight = getVotes(account, proposal.voteStart.getDeadline());
         _pushVote(proposalId, account, support, weight);
 
         emit VoteCast(account, proposalId, support, weight, reason);

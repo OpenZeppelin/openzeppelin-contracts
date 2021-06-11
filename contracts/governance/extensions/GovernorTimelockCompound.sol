@@ -128,7 +128,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     /**
      * @dev Public accessor to check the eta of a queued proposal
      */
-    function proposalEta(uint256 proposalId) public view virtual returns (uint256) {
+    function proposalEta(uint256 proposalId) public view virtual override returns (uint256) {
         return _proposalTimelocks[proposalId].timer.getDeadline();
     }
 

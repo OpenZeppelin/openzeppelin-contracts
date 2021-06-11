@@ -56,7 +56,7 @@ abstract contract IGovernor {
     /**
      * @dev Name of the governor instance (used in building the ERC712 domain separator).
      */
-    function name() external view virtual returns (string memory);
+    function name() public view virtual returns (string memory);
 
     /**
      * @dev Version of the governor instance (used in building the ERC712 domain separator). Default: "1"
