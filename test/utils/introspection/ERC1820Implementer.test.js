@@ -3,7 +3,7 @@ const { bufferToHex, keccakFromString } = require('ethereumjs-util');
 
 const { expect } = require('chai');
 
-const ERC1820ImplementerMock = artifacts.require('ERC1820ImplementerMock');
+const ERC1820Implementer = artifacts.require('XERC1820Implementer');
 
 contract('ERC1820Implementer', function (accounts) {
   const [ registryFunder, implementee, other ] = accounts;
@@ -11,7 +11,7 @@ contract('ERC1820Implementer', function (accounts) {
   const ERC1820_ACCEPT_MAGIC = bufferToHex(keccakFromString('ERC1820_ACCEPT_MAGIC'));
 
   beforeEach(async function () {
-    this.implementer = await ERC1820ImplementerMock.new();
+    this.implementer = await ERC1820Implementer.new();
     this.registry = await singletons.ERC1820Registry(registryFunder);
 
     this.interfaceA = bufferToHex(keccakFromString('interfaceA'));
@@ -36,7 +36,7 @@ contract('ERC1820Implementer', function (accounts) {
 
   context('with registered interfaces', function () {
     beforeEach(async function () {
-      await this.implementer.registerInterfaceForAddress(this.interfaceA, implementee);
+      await this.implementer.x_registerInterfaceForAddress(this.interfaceA, implementee);
     });
 
     it('returns true when interface implementation is queried', async function () {
