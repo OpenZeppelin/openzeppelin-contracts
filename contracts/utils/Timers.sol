@@ -7,7 +7,7 @@ pragma solidity ^0.8.0;
  */
 library Timers {
     struct Timestamp {
-        uint256 _deadline;
+        uint64 _deadline;
     }
 
     function getDeadline(Timestamp memory timer) internal pure returns (uint256) {
@@ -39,7 +39,7 @@ library Timers {
     }
 
     struct BlockNumber {
-        uint256 _deadline;
+        uint64 _deadline;
     }
 
     function getDeadline(BlockNumber memory timer) internal pure returns (uint256) {
