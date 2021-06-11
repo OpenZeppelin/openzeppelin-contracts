@@ -2,7 +2,7 @@ const { toEthSignedMessageHash } = require('../../helpers/sign');
 
 const { expect } = require('chai');
 
-const XSignatureChecker = artifacts.require('XSignatureChecker');
+const SignatureChecker = artifacts.require('XSignatureChecker');
 const ERC1271WalletMock = artifacts.require('ERC1271WalletMock');
 
 const TEST_MESSAGE = web3.utils.sha3('OpenZeppelin');
@@ -12,7 +12,7 @@ contract('SignatureChecker (ERC1271)', function (accounts) {
   const [signer, other] = accounts;
 
   before('deploying', async function () {
-    this.signaturechecker = await XSignatureChecker.new();
+    this.signaturechecker = await SignatureChecker.new();
     this.wallet = await ERC1271WalletMock.new(signer);
     this.signature = await web3.eth.sign(TEST_MESSAGE, signer);
   });

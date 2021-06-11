@@ -5,11 +5,11 @@ const keccak256 = require('keccak256');
 
 const { expect } = require('chai');
 
-const XMerkleProof = artifacts.require('XMerkleProof');
+const MerkleProof = artifacts.require('XMerkleProof');
 
 contract('MerkleProof', function (accounts) {
   beforeEach(async function () {
-    this.merkleProof = await XMerkleProof.new();
+    this.merkleProof = await MerkleProof.new();
   });
 
   describe('verify', function () {

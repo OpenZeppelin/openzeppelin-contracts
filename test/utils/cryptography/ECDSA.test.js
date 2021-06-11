@@ -3,7 +3,7 @@ const { toEthSignedMessageHash } = require('../../helpers/sign');
 
 const { expect } = require('chai');
 
-const XECDSA = artifacts.require('XECDSA');
+const ECDSA = artifacts.require('XECDSA');
 
 const TEST_MESSAGE = web3.utils.sha3('OpenZeppelin');
 const WRONG_MESSAGE = web3.utils.sha3('Nope');
@@ -28,7 +28,7 @@ contract('ECDSA', function (accounts) {
   const [ other ] = accounts;
 
   beforeEach(async function () {
-    this.ecdsa = await XECDSA.new();
+    this.ecdsa = await ECDSA.new();
   });
 
   context('recover with invalid signature', function () {
