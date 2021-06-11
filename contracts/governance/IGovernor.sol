@@ -34,10 +34,7 @@ abstract contract IGovernor {
         string description
     );
 
-    event ProposalSalt(
-        uint256 proposalId,
-        bytes32 salt
-    );
+    event ProposalSalt(uint256 proposalId, bytes32 salt);
 
     /**
      * @dev Emitted when a proposal is canceled.
@@ -173,7 +170,11 @@ abstract contract IGovernor {
      *
      * Emits a {VoteCast} event.
      */
-    function castVoteWithReason(uint256 proposalId, uint8 support, string calldata reason) public virtual returns (uint256 balance);
+    function castVoteWithReason(
+        uint256 proposalId,
+        uint8 support,
+        string calldata reason
+    ) public virtual returns (uint256 balance);
 
     /**
      * @dev Cast a vote using the user cryptographic signature.

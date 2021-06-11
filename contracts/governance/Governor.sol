@@ -131,10 +131,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
             description
         );
 
-        emit ProposalSalt(
-            proposalId,
-            salt
-        );
+        emit ProposalSalt(proposalId, salt);
 
         return proposalId;
     }
@@ -168,7 +165,11 @@ abstract contract Governor is IGovernor, EIP712, Context {
         return _castVote(proposalId, voter, support, "");
     }
 
-    function castVoteWithReason(uint256 proposalId, uint8 support, string calldata reason) public virtual override returns (uint256) {
+    function castVoteWithReason(
+        uint256 proposalId,
+        uint8 support,
+        string calldata reason
+    ) public virtual override returns (uint256) {
         address voter = _msgSender();
         return _castVote(proposalId, voter, support, reason);
     }
