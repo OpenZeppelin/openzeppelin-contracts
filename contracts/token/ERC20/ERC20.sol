@@ -230,9 +230,11 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         require(senderBalance >= amount, "ERC20: transfer amount exceeds balance");
         unchecked {
             _balances[sender] = senderBalance - amount;
+            //UnSafeMath: no one can have a balance that exceeds the total supply
+            //Also, since we had an overflow check while minting, this is guaranted to not overflow
+            //due to the previous assumption that no one can have a balance that exceeds the total supply
+            _balances[recipient] += amount;
         }
-        _balances[recipient] += amount;
-
         emit Transfer(sender, recipient, amount);
     }
 
@@ -251,7 +253,10 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         _beforeTokenTransfer(address(0), account, amount);
 
         _totalSupply += amount;
-        _balances[account] += amount;
+        //UnSafeMath: no one can have a balance that exceeds the total supply
+        unchecked {
+            _balances[account] += amount;
+        }
         emit Transfer(address(0), account, amount);
     }
 
@@ -275,8 +280,9 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         require(accountBalance >= amount, "ERC20: burn amount exceeds balance");
         unchecked {
             _balances[account] = accountBalance - amount;
+            //UnSafeMath: no one can have a balance that exceeds the total supply
+            _totalSupply -= amount;
         }
-        _totalSupply -= amount;
 
         emit Transfer(account, address(0), amount);
     }
