@@ -236,15 +236,15 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
 
     function _grantRole(bytes32 role, address account) private {
         if (!hasRole(role, account)) {
-            _roles[role].members[account] = true;
             emit RoleGranted(role, account, _msgSender());
+            _roles[role].members[account] = true;
         }
     }
 
     function _revokeRole(bytes32 role, address account) private {
         if (hasRole(role, account)) {
-            _roles[role].members[account] = false;
             emit RoleRevoked(role, account, _msgSender());
+            _roles[role].members[account] = false;
         }
     }
 }
