@@ -65,8 +65,7 @@ abstract contract ERC1967Upgrade {
         bytes memory data,
         bool forceCall
     ) internal {
-        _setImplementation(newImplementation);
-        emit Upgraded(newImplementation);
+        _upgradeTo(newImplementation);
         if (data.length > 0 || forceCall) {
             Address.functionDelegateCall(newImplementation, data);
         }
@@ -103,8 +102,7 @@ abstract contract ERC1967Upgrade {
             // Check rollback was effective
             require(oldImplementation == _getImplementation(), "ERC1967Upgrade: upgrade breaks further upgrades");
             // Finally reset to the new implementation and log the upgrade
-            _setImplementation(newImplementation);
-            emit Upgraded(newImplementation);
+            _upgradeTo(newImplementation);
         }
     }
 
