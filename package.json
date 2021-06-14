@@ -71,7 +71,7 @@
     "lodash.zip": "^4.2.0",
     "merkletreejs": "^0.2.13",
     "micromatch": "^4.0.2",
-    "mocha": "^8.0.1",
+    "mocha": "^9.0.0",
     "prettier": "^2.3.0",
     "prettier-plugin-solidity": "^1.0.0-beta.13",
     "rimraf": "^3.0.2",
