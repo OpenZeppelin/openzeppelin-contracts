@@ -1,4 +1,3 @@
-const hre = require('hardhat');
 const { BN, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const Enums = require('../../helpers/enums');
 const RLP = require('rlp');
@@ -40,10 +39,6 @@ contract('Governance', function (accounts) {
   const tokenSupply = web3.utils.toWei('100');
 
   beforeEach(async function () {
-    if (hre.config.solidity.compilers.some(version => !version.settings.optimizer.enabled)) {
-      this.skip();
-    }
-
     const [ deployer ] = await web3.eth.getAccounts();
 
     this.token = await Token.new(tokenName, tokenSymbol);
