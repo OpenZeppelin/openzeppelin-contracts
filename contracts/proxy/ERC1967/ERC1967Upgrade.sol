@@ -192,5 +192,4 @@ abstract contract ERC1967Upgrade {
             Address.functionDelegateCall(IBeacon(newBeacon).implementation(), data);
         }
     }
-
 }
