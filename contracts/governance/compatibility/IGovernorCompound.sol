@@ -4,6 +4,11 @@ pragma solidity ^0.8.0;
 
 import "../IGovernor.sol";
 
+/**
+ * @dev Interface extension that adds missing functions to the {Governor} core to provide `GovernorBravo` compatibility.
+ *
+ * _Available since v4.2._
+ */
 abstract contract IGovernorCompound is IGovernor {
     struct CompProposal {
         uint256 id;
