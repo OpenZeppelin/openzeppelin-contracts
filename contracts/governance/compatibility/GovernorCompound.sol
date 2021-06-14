@@ -4,38 +4,18 @@ pragma solidity ^0.8.0;
 
 import "../../utils/Counters.sol";
 import "../../utils/math/SafeCast.sol";
-import "../Governor.sol";
 import "../extensions/IGovernorTimelock.sol";
+import "../Governor.sol";
+import "./IGovernorCompound.sol";
 
 /**
  * TODO
  * _Available since v4.2._
  */
-abstract contract GovernorCompCompatibility is IGovernorTimelock, Governor {
+abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Governor {
     using Counters for Counters.Counter;
     using Timers for Timers.BlockNumber;
 
-    struct CompProposal {
-        uint256 id;
-        address proposer;
-        uint256 eta;
-        address[] targets;
-        uint256[] values;
-        string[] signatures;
-        bytes[] calldatas;
-        uint256 startBlock;
-        uint256 endBlock;
-        uint256 forVotes;
-        uint256 againstVotes;
-        uint256 abstainVotes;
-        bool canceled;
-        bool executed;
-    }
-    struct CompReceipt {
-        bool hasVoted;
-        uint8 support;
-        uint96 votes;
-    }
     struct ProposalDetails {
         address proposer;
         address[] targets;
@@ -54,7 +34,7 @@ abstract contract GovernorCompCompatibility is IGovernorTimelock, Governor {
     Counters.Counter private _saltCounter;
 
     // ============================================== Proposal lifecycle ==============================================
-    function proposal(uint256 proposalId) external view returns (CompProposal memory) {
+    function proposals(uint256 proposalId) external view override returns (CompProposal memory) {
         Proposal memory core = getProposal(proposalId);
         ProposalDetails storage details = _proposalDetails[proposalId];
 
@@ -82,8 +62,9 @@ abstract contract GovernorCompCompatibility is IGovernorTimelock, Governor {
         string[] memory signatures,
         bytes[] memory calldatas,
         string memory description
-    ) public returns (uint256) {
-        bytes32 salt = bytes32(_saltCounter.current());
+    ) public override returns (uint256) {
+        // use counter to allow multiple proposal in the same block + use blockhash to (somehow) restrict DoS
+        bytes32 salt = keccak256(abi.encodePacked(blockhash(block.number - 1), _saltCounter.current()));
         _saltCounter.increment();
 
         uint256 proposalId = propose(targets, values, _encodeCalldata(signatures, calldatas), salt, description);
@@ -99,16 +80,15 @@ abstract contract GovernorCompCompatibility is IGovernorTimelock, Governor {
         return proposalId;
     }
 
-    function queue(uint256 proposalId) external {
+    function queue(uint256 proposalId) external override {
         ProposalDetails storage details = _proposalDetails[proposalId];
         queue(details.targets, details.values, _encodeCalldata(details.signatures, details.calldatas), details.salt);
     }
 
-    function execute(uint256 proposalId) external payable {
+    function execute(uint256 proposalId) external payable override {
         ProposalDetails storage details = _proposalDetails[proposalId];
         execute(details.targets, details.values, _encodeCalldata(details.signatures, details.calldatas), details.salt);
     }
-
 
     function _encodeCalldata(string[] memory signatures, bytes[] memory calldatas)
         private
@@ -130,6 +110,7 @@ abstract contract GovernorCompCompatibility is IGovernorTimelock, Governor {
     function getActions(uint256 proposalId)
         external
         view
+        override
         returns (
             address[] memory targets,
             uint256[] memory values,
@@ -141,13 +122,17 @@ abstract contract GovernorCompCompatibility is IGovernorTimelock, Governor {
         return (details.targets, details.values, details.signatures, details.calldatas);
     }
 
-    function getReceipt(uint256 proposalId, address voter) external view returns (CompReceipt memory) {
+    function getReceipt(uint256 proposalId, address voter) external view override returns (CompReceipt memory) {
         return _proposalDetails[proposalId].receipts[voter];
     }
 
     // ==================================================== Voting ====================================================
     function hasVoted(uint256 proposalId, address account) public view virtual override returns (bool) {
         return _proposalDetails[proposalId].receipts[account].hasVoted;
+    }
+
+    function quorumVotes() external view virtual override returns (uint256) {
+        return quorum(block.number);
     }
 
     function _quorumReached(uint256 proposalId) internal view virtual override returns (bool) {

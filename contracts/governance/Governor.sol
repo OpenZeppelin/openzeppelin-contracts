@@ -54,7 +54,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
             return ProposalState.Executed;
         } else if (proposal.canceled) {
             return ProposalState.Canceled;
-        } else if (proposal.voteStart.isExpired()) {
+        } else if (proposal.voteStart.isPending()) {
             return ProposalState.Pending;
         } else if (proposal.voteEnd.isPending()) {
             return ProposalState.Active;
