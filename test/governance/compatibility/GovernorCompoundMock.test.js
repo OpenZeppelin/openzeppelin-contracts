@@ -1,13 +1,7 @@
-const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
-const ethSigUtil = require('eth-sig-util');
-const Wallet = require('ethereumjs-wallet').default;
+const hre = require('hardhat');
+const { BN, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const Enums = require('../../helpers/enums');
 const RLP = require('rlp');
-
-const hre = require('hardhat');
-// const {
-//   runGovernorWorkflow,
-// } = require('./GovernorWorkflow.behavior');
 
 const Token = artifacts.require('ERC20VotesCompMock');
 const Timelock = artifacts.require('CompTimelock');
@@ -221,7 +215,10 @@ contract('Governance', function (accounts) {
       // propose
       if (this.governor.propose && tryGet(this.settings, 'steps.propose.enable') !== false) {
         this.receipts.propose = await getReceiptOrRevert(
-          this.governor.methods['propose(address[],uint256[],string[],bytes[],string)'](...this.settings.proposal, { from: this.settings.proposer }),
+          this.governor.methods['propose(address[],uint256[],string[],bytes[],string)'](
+            ...this.settings.proposal,
+            { from: this.settings.proposer },
+          ),
           tryGet(this.settings, 'steps.propose.reason'),
         );
 

@@ -35,7 +35,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
 
     // ============================================== Proposal lifecycle ==============================================
     function proposals(uint256 proposalId) external view override returns (CompProposal memory) {
-        Proposal memory core = getProposal(proposalId);
+        Proposal memory core = _getProposal(proposalId);
         ProposalState status = state(proposalId);
         ProposalDetails storage details = _proposalDetails[proposalId];
 

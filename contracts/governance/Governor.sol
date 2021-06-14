@@ -45,6 +45,13 @@ abstract contract Governor is IGovernor, EIP712, Context {
     }
 
     /**
+     * @dev Internal proposal viewer
+     */
+    function _getProposal(uint256 proposalId) internal view returns (Proposal memory) {
+        return _proposals[proposalId];
+    }
+
+    /**
      * @dev See {IGovernor-version}.
      */
     function state(uint256 proposalId) public view virtual override returns (ProposalState) {
@@ -80,10 +87,6 @@ abstract contract Governor is IGovernor, EIP712, Context {
      */
     function proposalDeadline(uint256 proposalId) public view virtual override returns (uint256) {
         return _proposals[proposalId].voteEnd.getDeadline();
-    }
-
-    function getProposal(uint256 proposalId) internal view returns (Proposal memory) {
-        return _proposals[proposalId];
     }
 
     /**

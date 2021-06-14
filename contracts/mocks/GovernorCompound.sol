@@ -7,11 +7,11 @@ import "../governance/extensions/GovernorWithERC20VotesComp.sol";
 import "../governance/extensions/GovernorTimelockCompound.sol";
 
 contract GovernorCompoundMock is GovernorCompound, GovernorTimelockCompound, GovernorWithERC20VotesComp {
-    constructor(string memory name_, address token_, address timelock_)
-    Governor(name_)
-    GovernorWithERC20VotesComp(token_)
-    GovernorTimelockCompound(timelock_)
-    {}
+    constructor(
+        string memory name_,
+        address token_,
+        address timelock_
+    ) Governor(name_) GovernorWithERC20VotesComp(token_) GovernorTimelockCompound(timelock_) {}
 
     receive() external payable {}
 
