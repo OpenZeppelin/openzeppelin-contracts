@@ -36,12 +36,13 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
     // ============================================== Proposal lifecycle ==============================================
     function proposals(uint256 proposalId) external view override returns (CompProposal memory) {
         Proposal memory core = getProposal(proposalId);
+        ProposalState status = state(proposalId);
         ProposalDetails storage details = _proposalDetails[proposalId];
 
         CompProposal memory result;
         result.id = proposalId;
         result.proposer = details.proposer;
-        result.eta = this.proposalEta(proposalId);
+        result.eta = proposalEta(proposalId);
         result.targets = details.targets;
         result.values = details.values;
         result.signatures = details.signatures;
@@ -51,8 +52,8 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
         result.forVotes = details.forVotes;
         result.againstVotes = details.againstVotes;
         result.abstainVotes = details.abstainVotes;
-        result.canceled = core.canceled;
-        result.executed = core.executed;
+        result.canceled = status == ProposalState.Canceled;
+        result.executed = status == ProposalState.Executed;
         return result;
     }
 

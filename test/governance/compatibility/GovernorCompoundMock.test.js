@@ -109,11 +109,8 @@ contract('Governance', function (accounts) {
       expect(proposal.calldatas).to.be.deep.equal(this.settings.proposal[3]);
       expect(proposal.startBlock).to.be.bignumber.equal(this.snapshot);
       expect(proposal.endBlock).to.be.bignumber.equal(this.deadline);
-      // expect(proposal.forVotes).to.be.bignumber.equal('11000000000000000000');
-      // expect(proposal.againstVotes).to.be.bignumber.equal('5000000000000000000');
-      // expect(proposal.abstainVotes).to.be.bignumber.equal('2000000000000000000');
       expect(proposal.canceled).to.be.equal(false);
-      expect(proposal.executed).to.be.equal(false); // this is broken :/
+      expect(proposal.executed).to.be.equal(true);
 
       for (const [key, value] of Object.entries(Enums.VoteType)) {
         expect(proposal[`${key.toLowerCase()}Votes`]).to.be.bignumber.equal(
