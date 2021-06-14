@@ -18,7 +18,7 @@ contract('Governance', function (accounts) {
   const tokenSymbol = 'MTKN';
   const tokenSupply = web3.utils.toWei('100');
 
-  beforeEach(async () => {
+  beforeEach(async function () {
     this.owner = owner;
     this.token = await Token.new(tokenName, tokenSymbol);
     this.governor = await Governance.new(name, this.token.address);
@@ -30,7 +30,7 @@ contract('Governance', function (accounts) {
     await this.token.delegate(voter4, { from: voter4 });
   });
 
-  it('deployment check', async () => {
+  it('deployment check', async function () {
     expect(await this.governor.name()).to.be.equal(name);
     expect(await this.governor.token()).to.be.equal(this.token.address);
     expect(await this.governor.votingDelay()).to.be.bignumber.equal('0');
@@ -38,8 +38,8 @@ contract('Governance', function (accounts) {
     expect(await this.governor.quorum(0)).to.be.bignumber.equal('1');
   });
 
-  describe('voting with comp token', () => {
-    beforeEach(async () => {
+  describe('voting with comp token', function () {
+    beforeEach(async function () {
       this.settings = {
         proposal: [
           [ this.receiver.address ],
@@ -57,7 +57,7 @@ contract('Governance', function (accounts) {
         ],
       };
     });
-    afterEach(async () => {
+    afterEach(async function () {
       expect(await this.governor.hasVoted(this.id, owner)).to.be.equal(false);
       expect(await this.governor.hasVoted(this.id, voter1)).to.be.equal(true);
       expect(await this.governor.hasVoted(this.id, voter2)).to.be.equal(true);

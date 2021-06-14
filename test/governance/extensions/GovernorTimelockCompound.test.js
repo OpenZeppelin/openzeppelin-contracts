@@ -25,7 +25,7 @@ contract('GovernorTimelockCompound', function (accounts) {
   const tokenSymbol = 'MTKN';
   const tokenSupply = web3.utils.toWei('100');
 
-  beforeEach(async () => {
+  beforeEach(async function () {
     const [ deployer ] = await web3.eth.getAccounts();
 
     this.token = await Token.new(tokenName, tokenSymbol);
@@ -41,7 +41,7 @@ contract('GovernorTimelockCompound', function (accounts) {
     await this.token.delegate(voter, { from: voter });
   });
 
-  it('post deployment check', async () => {
+  it('post deployment check', async function () {
     expect(await this.governor.name()).to.be.equal(name);
     expect(await this.governor.token()).to.be.equal(this.token.address);
     expect(await this.governor.votingDelay()).to.be.bignumber.equal('0');
@@ -52,8 +52,8 @@ contract('GovernorTimelockCompound', function (accounts) {
     expect(await this.timelock.admin()).to.be.equal(this.governor.address);
   });
 
-  describe('nominal', () => {
-    beforeEach(async () => {
+  describe('nominal', function () {
+    beforeEach(async function () {
       this.settings = {
         proposal: [
           [ this.receiver.address ],
@@ -70,7 +70,7 @@ contract('GovernorTimelockCompound', function (accounts) {
         },
       };
     });
-    afterEach(async () => {
+    afterEach(async function () {
       expectEvent(
         this.receipts.propose,
         'ProposalCreated',
@@ -107,8 +107,8 @@ contract('GovernorTimelockCompound', function (accounts) {
     runGovernorWorkflow();
   });
 
-  describe('not queued', () => {
-    beforeEach(async () => {
+  describe('not queued', function () {
+    beforeEach(async function () {
       this.settings = {
         proposal: [
           [ this.receiver.address ],
@@ -122,18 +122,18 @@ contract('GovernorTimelockCompound', function (accounts) {
         ],
         steps: {
           queue: { enable: false },
-          execute: { reason: 'GovernorWithTimelockCompound:execute: proposal not yet queued' },
+          execute: { error: 'GovernorWithTimelockCompound:execute: proposal not yet queued' },
         },
       };
     });
-    afterEach(async () => {
+    afterEach(async function () {
       expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
     });
     runGovernorWorkflow();
   });
 
-  describe('to early', () => {
-    beforeEach(async () => {
+  describe('to early', function () {
+    beforeEach(async function () {
       this.settings = {
         proposal: [
           [ this.receiver.address ],
@@ -146,18 +146,18 @@ contract('GovernorTimelockCompound', function (accounts) {
           { voter: voter, support: Enums.VoteType.For },
         ],
         steps: {
-          execute: { reason: 'Timelock::executeTransaction: Transaction hasn\'t surpassed time lock' },
+          execute: { error: 'Timelock::executeTransaction: Transaction hasn\'t surpassed time lock' },
         },
       };
     });
-    afterEach(async () => {
+    afterEach(async function () {
       expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Queued);
     });
     runGovernorWorkflow();
   });
 
-  describe('to late', () => {
-    beforeEach(async () => {
+  describe('to late', function () {
+    beforeEach(async function () {
       this.settings = {
         proposal: [
           [ this.receiver.address ],
@@ -171,18 +171,18 @@ contract('GovernorTimelockCompound', function (accounts) {
         ],
         steps: {
           queue: { delay: 30 * 86400 },
-          execute: { reason: 'Timelock::executeTransaction: Transaction is stale.' },
+          execute: { error: 'Timelock::executeTransaction: Transaction is stale.' },
         },
       };
     });
-    afterEach(async () => {
+    afterEach(async function () {
       expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Expired);
     });
     runGovernorWorkflow();
   });
 
-  describe('deplicated underlying call', () => {
-    beforeEach(async () => {
+  describe('deplicated underlying call', function () {
+    beforeEach(async function () {
       this.settings = {
         proposal: [
           Array(2).fill(this.token.address),
@@ -196,10 +196,10 @@ contract('GovernorTimelockCompound', function (accounts) {
         ],
         steps: {
           queue: {
-            reason: 'GovernorWithTimelockCompound:queue: identical proposal action already queued',
+            error: 'GovernorWithTimelockCompound:queue: identical proposal action already queued',
           },
           execute: {
-            reason: 'GovernorWithTimelockCompound:execute: proposal not yet queued',
+            error: 'GovernorWithTimelockCompound:execute: proposal not yet queued',
           },
         },
       };
@@ -207,8 +207,8 @@ contract('GovernorTimelockCompound', function (accounts) {
     runGovernorWorkflow();
   });
 
-  describe('re-queue / re-execute', () => {
-    beforeEach(async () => {
+  describe('re-queue / re-execute', function () {
+    beforeEach(async function () {
       this.settings = {
         proposal: [
           [ this.receiver.address ],
@@ -225,7 +225,7 @@ contract('GovernorTimelockCompound', function (accounts) {
         },
       };
     });
-    afterEach(async () => {
+    afterEach(async function () {
       expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Executed);
 
       await expectRevert(
@@ -240,8 +240,8 @@ contract('GovernorTimelockCompound', function (accounts) {
     runGovernorWorkflow();
   });
 
-  describe('cancel before queue prevents scheduling', () => {
-    beforeEach(async () => {
+  describe('cancel before queue prevents scheduling', function () {
+    beforeEach(async function () {
       this.settings = {
         proposal: [
           [ this.receiver.address ],
@@ -259,7 +259,7 @@ contract('GovernorTimelockCompound', function (accounts) {
         },
       };
     });
-    afterEach(async () => {
+    afterEach(async function () {
       expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
 
       expectEvent(
@@ -278,8 +278,8 @@ contract('GovernorTimelockCompound', function (accounts) {
     runGovernorWorkflow();
   });
 
-  describe('cancel after queue prevents executing', () => {
-    beforeEach(async () => {
+  describe('cancel after queue prevents executing', function () {
+    beforeEach(async function () {
       this.settings = {
         proposal: [
           [ this.receiver.address ],
@@ -297,7 +297,7 @@ contract('GovernorTimelockCompound', function (accounts) {
         },
       };
     });
-    afterEach(async () => {
+    afterEach(async function () {
       expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Queued);
 
       const receipt = await this.governor.cancel(...this.settings.proposal.slice(0, -1));
@@ -322,20 +322,20 @@ contract('GovernorTimelockCompound', function (accounts) {
     runGovernorWorkflow();
   });
 
-  describe('updateTimelock', () => {
-    beforeEach(async () => {
+  describe('updateTimelock', function () {
+    beforeEach(async function () {
       this.newTimelock = await Timelock.new(this.governor.address, 7 * 86400);
     });
 
-    it('protected', async () => {
+    it('protected', async function () {
       await expectRevert(
         this.governor.updateTimelock(this.newTimelock.address),
         'GovernorWithTimelockCompound: caller must be timelock',
       );
     });
 
-    describe('using workflow', () => {
-      beforeEach(async () => {
+    describe('using workflow', function () {
+      beforeEach(async function () {
         this.settings = {
           proposal: [
             [
@@ -361,7 +361,7 @@ contract('GovernorTimelockCompound', function (accounts) {
           },
         };
       });
-      afterEach(async () => {
+      afterEach(async function () {
         expectEvent(
           this.receipts.propose,
           'ProposalCreated',
@@ -382,8 +382,8 @@ contract('GovernorTimelockCompound', function (accounts) {
       runGovernorWorkflow();
     });
 
-    describe('prevent losing control over old timelock ', () => {
-      beforeEach(async () => {
+    describe('prevent losing control over old timelock ', function () {
+      beforeEach(async function () {
         this.settings = {
           proposal: [
             [ this.governor.address ],
@@ -397,24 +397,24 @@ contract('GovernorTimelockCompound', function (accounts) {
           ],
           steps: {
             queue: { delay: 7 * 86400 },
-            execute: { reason: 'Timelock::executeTransaction: Transaction execution reverted.' },
+            execute: { error: 'Timelock::executeTransaction: Transaction execution reverted.' },
           },
         };
       });
-      afterEach(async () => {
+      afterEach(async function () {
         expect(await this.governor.timelock()).to.be.bignumber.equal(this.timelock.address);
       });
       runGovernorWorkflow();
     });
   });
 
-  describe('transfer timelock to new governor', () => {
-    beforeEach(async () => {
+  describe('transfer timelock to new governor', function () {
+    beforeEach(async function () {
       this.newGovernor = await Governance.new(name, this.token.address, this.timelock.address);
     });
 
-    describe('using workflow', () => {
-      beforeEach(async () => {
+    describe('using workflow', function () {
+      beforeEach(async function () {
         this.settings = {
           proposal: [
             [ this.timelock.address ],
@@ -431,7 +431,7 @@ contract('GovernorTimelockCompound', function (accounts) {
           },
         };
       });
-      afterEach(async () => {
+      afterEach(async function () {
         expectEvent(
           this.receipts.propose,
           'ProposalCreated',

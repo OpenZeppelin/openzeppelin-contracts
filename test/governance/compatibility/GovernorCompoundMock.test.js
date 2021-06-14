@@ -4,6 +4,7 @@ const Wallet = require('ethereumjs-wallet').default;
 const Enums = require('../../helpers/enums');
 const RLP = require('rlp');
 
+const hre = require('hardhat');
 // const {
 //   runGovernorWorkflow,
 // } = require('./GovernorWorkflow.behavior');
@@ -13,9 +14,9 @@ const Timelock = artifacts.require('CompTimelock');
 const Governance = artifacts.require('GovernorCompoundMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
-async function getReceiptOrReason (promise, reason = undefined) {
-  if (reason) {
-    await expectRevert(promise, reason);
+async function getReceiptOrRevert (promise, error = undefined) {
+  if (error) {
+    await expectRevert(promise, error);
     return undefined;
   } else {
     const { receipt } = await promise;
@@ -39,12 +40,16 @@ contract('Governance', function (accounts) {
   const [ owner, proposer, voter1, voter2, voter3, voter4 ] = accounts;
 
   const name = 'OZ-Governance';
-  const version = '1';
+  // const version = '1';
   const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
   const tokenSupply = web3.utils.toWei('100');
 
-  beforeEach(async () => {
+  beforeEach(async function () {
+    if (hre.config.solidity.compilers.some(version => !version.settings.optimizer.enabled)) {
+      this.skip();
+    }
+
     const [ deployer ] = await web3.eth.getAccounts();
 
     this.token = await Token.new(tokenName, tokenSymbol);
@@ -63,16 +68,17 @@ contract('Governance', function (accounts) {
     await this.token.delegate(voter4, { from: voter4 });
   });
 
-  it('deployment check', async () => {
+  it('deployment check', async function () {
     expect(await this.governor.name()).to.be.equal(name);
     expect(await this.governor.token()).to.be.equal(this.token.address);
     expect(await this.governor.votingDelay()).to.be.bignumber.equal('0');
     expect(await this.governor.votingPeriod()).to.be.bignumber.equal('16');
     expect(await this.governor.quorum(0)).to.be.bignumber.equal('1');
+    expect(await this.governor.quorumVotes()).to.be.bignumber.equal('1');
   });
 
-  describe('nominal', () => {
-    beforeEach(async () => {
+  describe('nominal', function () {
+    beforeEach(async function () {
       this.settings = {
         proposal: [
           [ this.receiver.address ], // targets
@@ -84,10 +90,32 @@ contract('Governance', function (accounts) {
         proposer,
         tokenHolder: owner,
         voters: [
-          { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
-          { voter: voter2, weight: web3.utils.toWei('10'), support: Enums.VoteType.For },
-          { voter: voter3, weight: web3.utils.toWei('5'), support: Enums.VoteType.Against },
-          { voter: voter4, weight: web3.utils.toWei('2'), support: Enums.VoteType.Abstain },
+          {
+            voter: voter1,
+            weight: web3.utils.toWei('1'),
+            support: Enums.VoteType.Abstain,
+          },
+          {
+            voter: voter2,
+            weight: web3.utils.toWei('10'),
+            support: Enums.VoteType.For,
+          },
+          {
+            voter: voter3,
+            weight: web3.utils.toWei('5'),
+            support: Enums.VoteType.Against,
+          },
+          {
+            voter: voter4,
+            support: '100',
+            reason: 'GovernorCompCompatibility: invalid vote type',
+          },
+          {
+            voter: voter1,
+            support: Enums.VoteType.For,
+            reason: 'GovernorCompCompatibility: vote already casted',
+            skip: true,
+          },
         ],
         steps: {
           queue: { delay: 7 * 86400 },
@@ -98,7 +126,7 @@ contract('Governance', function (accounts) {
       this.receipts = {};
     });
 
-    afterEach(async () => {
+    afterEach(async function () {
       const proposal = await this.governor.proposals(this.id);
       expect(proposal.id).to.be.bignumber.equal(this.id);
       expect(proposal.proposer).to.be.equal(proposer);
@@ -127,11 +155,13 @@ contract('Governance', function (accounts) {
       expect(action.signatures).to.be.deep.equal(this.settings.proposal[2]);
       expect(action.calldatas).to.be.deep.equal(this.settings.proposal[3]);
 
-      for (const voter of this.settings.voters) {
+      for (const voter of this.settings.voters.filter(({ skip }) => !skip)) {
+        expect(await this.governor.hasVoted(this.id, voter.voter)).to.be.equal(voter.reason === undefined);
+
         const receipt = await this.governor.getReceipt(this.id, voter.voter);
-        expect(receipt.hasVoted).to.be.equal(true);
-        expect(receipt.support).to.be.bignumber.equal(voter.support);
-        expect(receipt.votes).to.be.bignumber.equal(voter.weight);
+        expect(receipt.hasVoted).to.be.equal(voter.reason === undefined);
+        expect(receipt.support).to.be.bignumber.equal(voter.reason === undefined ? voter.support : '0');
+        expect(receipt.votes).to.be.bignumber.equal(voter.reason === undefined ? voter.weight : '0');
       }
 
       expectEvent(
@@ -158,7 +188,7 @@ contract('Governance', function (accounts) {
         },
       );
 
-      this.receipts.castVote.forEach(vote => {
+      this.receipts.castVote.filter(Boolean).forEach(vote => {
         const { voter } = vote.logs.find(Boolean).args;
         expectEvent(
           vote,
@@ -178,7 +208,7 @@ contract('Governance', function (accounts) {
       );
     });
 
-    it('run', async () => {
+    it('run', async function () {
       // transfer tokens
       if (tryGet(this.settings, 'voters')) {
         for (const voter of this.settings.voters) {
@@ -190,7 +220,7 @@ contract('Governance', function (accounts) {
 
       // propose
       if (this.governor.propose && tryGet(this.settings, 'steps.propose.enable') !== false) {
-        this.receipts.propose = await getReceiptOrReason(
+        this.receipts.propose = await getReceiptOrRevert(
           this.governor.methods['propose(address[],uint256[],string[],bytes[],string)'](...this.settings.proposal, { from: this.settings.proposer }),
           tryGet(this.settings, 'steps.propose.reason'),
         );
@@ -212,7 +242,7 @@ contract('Governance', function (accounts) {
         for (const voter of this.settings.voters) {
           if (!voter.signature) {
             this.receipts.castVote.push(
-              await getReceiptOrReason(
+              await getReceiptOrRevert(
                 this.governor.castVote(this.id, voter.support, { from: voter.voter }),
                 voter.reason,
               ),
@@ -220,7 +250,7 @@ contract('Governance', function (accounts) {
           } else {
             const { v, r, s } = await voter.signature({ proposalId: this.id, support: voter.support });
             this.receipts.castVote.push(
-              await getReceiptOrReason(
+              await getReceiptOrRevert(
                 this.governor.castVoteBySig(this.id, voter.support, v, r, s),
                 voter.reason,
               ),
@@ -239,7 +269,7 @@ contract('Governance', function (accounts) {
 
       // queue
       if (this.governor.queue && tryGet(this.settings, 'steps.queue.enable') !== false) {
-        this.receipts.queue = await getReceiptOrReason(
+        this.receipts.queue = await getReceiptOrRevert(
           this.governor.methods['queue(uint256)'](this.id, { from: this.settings.queuer }),
           tryGet(this.settings, 'steps.queue.reason'),
         );
@@ -251,7 +281,7 @@ contract('Governance', function (accounts) {
 
       // execute
       if (this.governor.execute && tryGet(this.settings, 'steps.execute.enable') !== false) {
-        this.receipts.execute = await getReceiptOrReason(
+        this.receipts.execute = await getReceiptOrRevert(
           this.governor.methods['execute(uint256)'](this.id, { from: this.settings.executer }),
           tryGet(this.settings, 'steps.execute.reason'),
         );

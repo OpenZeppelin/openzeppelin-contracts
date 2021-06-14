@@ -20,7 +20,7 @@ contract('GovernorTimelockExternal', function (accounts) {
   const tokenSymbol = 'MTKN';
   const tokenSupply = web3.utils.toWei('100');
 
-  beforeEach(async () => {
+  beforeEach(async function () {
     const [ deployer ] = await web3.eth.getAccounts();
 
     this.token = await Token.new(tokenName, tokenSymbol);
@@ -35,7 +35,7 @@ contract('GovernorTimelockExternal', function (accounts) {
     await this.token.delegate(voter, { from: voter });
   });
 
-  it('post deployment check', async () => {
+  it('post deployment check', async function () {
     expect(await this.governor.name()).to.be.equal(name);
     expect(await this.governor.token()).to.be.equal(this.token.address);
     expect(await this.governor.votingDelay()).to.be.bignumber.equal('0');
@@ -45,8 +45,8 @@ contract('GovernorTimelockExternal', function (accounts) {
     expect(await this.governor.timelock()).to.be.equal(this.timelock.address);
   });
 
-  describe('nominal', () => {
-    beforeEach(async () => {
+  describe('nominal', function () {
+    beforeEach(async function () {
       this.settings = {
         proposal: [
           [ this.receiver.address ],
@@ -63,7 +63,7 @@ contract('GovernorTimelockExternal', function (accounts) {
         },
       };
     });
-    afterEach(async () => {
+    afterEach(async function () {
       const timelockid = await this.timelock.hashOperationBatch(
         ...this.settings.proposal.slice(0, 3),
         '0x0',
@@ -106,8 +106,8 @@ contract('GovernorTimelockExternal', function (accounts) {
     runGovernorWorkflow();
   });
 
-  describe('not queued', () => {
-    beforeEach(async () => {
+  describe('not queued', function () {
+    beforeEach(async function () {
       this.settings = {
         proposal: [
           [ this.receiver.address ],
@@ -121,18 +121,18 @@ contract('GovernorTimelockExternal', function (accounts) {
         ],
         steps: {
           queue: { enable: false },
-          execute: { reason: 'TimelockController: operation is not ready' },
+          execute: { error: 'TimelockController: operation is not ready' },
         },
       };
     });
-    afterEach(async () => {
+    afterEach(async function () {
       expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
     });
     runGovernorWorkflow();
   });
 
-  describe('to early', () => {
-    beforeEach(async () => {
+  describe('to early', function () {
+    beforeEach(async function () {
       this.settings = {
         proposal: [
           [ this.receiver.address ],
@@ -145,18 +145,18 @@ contract('GovernorTimelockExternal', function (accounts) {
           { voter: voter, support: Enums.VoteType.For },
         ],
         steps: {
-          execute: { reason: 'TimelockController: operation is not ready' },
+          execute: { error: 'TimelockController: operation is not ready' },
         },
       };
     });
-    afterEach(async () => {
+    afterEach(async function () {
       expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Queued);
     });
     runGovernorWorkflow();
   });
 
-  describe('re-queue / re-execute', () => {
-    beforeEach(async () => {
+  describe('re-queue / re-execute', function () {
+    beforeEach(async function () {
       this.settings = {
         proposal: [
           [ this.receiver.address ],
@@ -173,7 +173,7 @@ contract('GovernorTimelockExternal', function (accounts) {
         },
       };
     });
-    afterEach(async () => {
+    afterEach(async function () {
       expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Executed);
 
       await expectRevert(
@@ -188,8 +188,8 @@ contract('GovernorTimelockExternal', function (accounts) {
     runGovernorWorkflow();
   });
 
-  describe('cancel before queue prevents scheduling', () => {
-    beforeEach(async () => {
+  describe('cancel before queue prevents scheduling', function () {
+    beforeEach(async function () {
       this.settings = {
         proposal: [
           [ this.receiver.address ],
@@ -207,7 +207,7 @@ contract('GovernorTimelockExternal', function (accounts) {
         },
       };
     });
-    afterEach(async () => {
+    afterEach(async function () {
       expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
 
       expectEvent(
@@ -226,8 +226,8 @@ contract('GovernorTimelockExternal', function (accounts) {
     runGovernorWorkflow();
   });
 
-  describe('cancel after queue prevents executin', () => {
-    beforeEach(async () => {
+  describe('cancel after queue prevents executin', function () {
+    beforeEach(async function () {
       this.settings = {
         proposal: [
           [ this.receiver.address ],
@@ -245,7 +245,7 @@ contract('GovernorTimelockExternal', function (accounts) {
         },
       };
     });
-    afterEach(async () => {
+    afterEach(async function () {
       const timelockid = await this.timelock.hashOperationBatch(
         ...this.settings.proposal.slice(0, 3),
         '0x0',
@@ -277,20 +277,20 @@ contract('GovernorTimelockExternal', function (accounts) {
     runGovernorWorkflow();
   });
 
-  describe('updateTimelock', () => {
-    beforeEach(async () => {
+  describe('updateTimelock', function () {
+    beforeEach(async function () {
       this.newTimelock = await Timelock.new(3600, [], []);
     });
 
-    it('protected', async () => {
+    it('protected', async function () {
       await expectRevert(
         this.governor.updateTimelock(this.newTimelock.address),
         'GovernorWithTimelockExternal: caller must be timelock',
       );
     });
 
-    describe('using workflow', () => {
-      beforeEach(async () => {
+    describe('using workflow', function () {
+      beforeEach(async function () {
         this.settings = {
           proposal: [
             [ this.governor.address ],
@@ -307,7 +307,7 @@ contract('GovernorTimelockExternal', function (accounts) {
           },
         };
       });
-      afterEach(async () => {
+      afterEach(async function () {
         expectEvent(
           this.receipts.propose,
           'ProposalCreated',

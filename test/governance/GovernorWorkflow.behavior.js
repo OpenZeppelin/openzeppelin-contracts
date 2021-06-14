@@ -1,8 +1,8 @@
 const { expectRevert, time } = require('@openzeppelin/test-helpers');
 
-async function getReceiptOrReason (promise, reason = undefined) {
-  if (reason) {
-    await expectRevert(promise, reason);
+async function getReceiptOrRevert (promise, error = undefined) {
+  if (error) {
+    await expectRevert(promise, error);
     return undefined;
   } else {
     const { receipt } = await promise;
@@ -19,12 +19,12 @@ function tryGet (obj, path = '') {
 }
 
 function runGovernorWorkflow () {
-  beforeEach(async () => {
+  beforeEach(async function () {
     this.receipts = {};
     this.id = await this.governor.hashProposal(...this.settings.proposal.slice(0, -1));
   });
 
-  it('run', async () => {
+  it('run', async function () {
     // transfer tokens
     if (tryGet(this.settings, 'voters')) {
       for (const voter of this.settings.voters) {
@@ -36,12 +36,12 @@ function runGovernorWorkflow () {
 
     // propose
     if (this.governor.propose && tryGet(this.settings, 'steps.propose.enable') !== false) {
-      this.receipts.propose = await getReceiptOrReason(
+      this.receipts.propose = await getReceiptOrRevert(
         this.governor.propose(...this.settings.proposal, { from: this.settings.proposer }),
-        tryGet(this.settings, 'steps.propose.reason'),
+        tryGet(this.settings, 'steps.propose.error'),
       );
 
-      if (tryGet(this.settings, 'steps.propose.reason') === undefined) {
+      if (tryGet(this.settings, 'steps.propose.error') === undefined) {
         this.deadline = await this.governor.proposalDeadline(this.id);
         this.snapshot = await this.governor.proposalSnapshot(this.id);
       }
@@ -57,17 +57,19 @@ function runGovernorWorkflow () {
       for (const voter of this.settings.voters) {
         if (!voter.signature) {
           this.receipts.castVote.push(
-            await getReceiptOrReason(
-              this.governor.castVote(this.id, voter.support, { from: voter.voter }),
-              voter.reason,
+            await getReceiptOrRevert(
+              voter.reason
+                ? this.governor.castVoteWithReason(this.id, voter.support, voter.reason, { from: voter.voter })
+                : this.governor.castVote(this.id, voter.support, { from: voter.voter }),
+              voter.error,
             ),
           );
         } else {
           const { v, r, s } = await voter.signature({ proposalId: this.id, support: voter.support });
           this.receipts.castVote.push(
-            await getReceiptOrReason(
+            await getReceiptOrRevert(
               this.governor.castVoteBySig(this.id, voter.support, v, r, s),
-              voter.reason,
+              voter.error,
             ),
           );
         }
@@ -84,9 +86,9 @@ function runGovernorWorkflow () {
 
     // queue
     if (this.governor.queue && tryGet(this.settings, 'steps.queue.enable') !== false) {
-      this.receipts.queue = await getReceiptOrReason(
+      this.receipts.queue = await getReceiptOrRevert(
         this.governor.queue(...this.settings.proposal.slice(0, -1), { from: this.settings.queuer }),
-        tryGet(this.settings, 'steps.queue.reason'),
+        tryGet(this.settings, 'steps.queue.error'),
       );
       this.eta = await this.governor.proposalEta(this.id);
       if (tryGet(this.settings, 'steps.queue.delay')) {
@@ -96,9 +98,9 @@ function runGovernorWorkflow () {
 
     // execute
     if (this.governor.execute && tryGet(this.settings, 'steps.execute.enable') !== false) {
-      this.receipts.execute = await getReceiptOrReason(
+      this.receipts.execute = await getReceiptOrRevert(
         this.governor.execute(...this.settings.proposal.slice(0, -1), { from: this.settings.executer }),
-        tryGet(this.settings, 'steps.execute.reason'),
+        tryGet(this.settings, 'steps.execute.error'),
       );
       if (tryGet(this.settings, 'steps.execute.delay')) {
         await time.increase(tryGet(this.settings, 'steps.execute.delay'));

@@ -22,7 +22,7 @@ contract('Governance', function (accounts) {
   const tokenSymbol = 'MTKN';
   const tokenSupply = web3.utils.toWei('100');
 
-  beforeEach(async () => {
+  beforeEach(async function () {
     this.owner = owner;
     this.token = await Token.new(tokenName, tokenSymbol);
     this.governor = await Governance.new(name, this.token.address);
@@ -34,7 +34,7 @@ contract('Governance', function (accounts) {
     await this.token.delegate(voter4, { from: voter4 });
   });
 
-  it('deployment check', async () => {
+  it('deployment check', async function () {
     expect(await this.governor.name()).to.be.equal(name);
     expect(await this.governor.token()).to.be.equal(this.token.address);
     expect(await this.governor.votingDelay()).to.be.bignumber.equal('0');
@@ -42,9 +42,9 @@ contract('Governance', function (accounts) {
     expect(await this.governor.quorum(0)).to.be.bignumber.equal('1');
   });
 
-  describe('scenario', () => {
-    describe('nominal', () => {
-      beforeEach(async () => {
+  describe('scenario', function () {
+    describe('nominal', function () {
+      beforeEach(async function () {
         this.settings = {
           proposal: [
             [ this.receiver.address ],
@@ -56,7 +56,7 @@ contract('Governance', function (accounts) {
           proposer,
           tokenHolder: owner,
           voters: [
-            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For, reason: 'This is nice' },
             { voter: voter2, weight: web3.utils.toWei('10'), support: Enums.VoteType.For },
             { voter: voter3, weight: web3.utils.toWei('5'), support: Enums.VoteType.Against },
             { voter: voter4, weight: web3.utils.toWei('2'), support: Enums.VoteType.Abstain },
@@ -65,7 +65,7 @@ contract('Governance', function (accounts) {
         this.votingDelay = await this.governor.votingDelay();
         this.votingPeriod = await this.governor.votingPeriod();
       });
-      afterEach(async () => {
+      afterEach(async function () {
         expect(await this.governor.hasVoted(this.id, owner)).to.be.equal(false);
         expect(await this.governor.hasVoted(this.id, voter1)).to.be.equal(true);
         expect(await this.governor.hasVoted(this.id, voter2)).to.be.equal(true);
@@ -128,8 +128,8 @@ contract('Governance', function (accounts) {
       runGovernorWorkflow();
     });
 
-    describe('vote with signature', () => {
-      beforeEach(async () => {
+    describe('vote with signature', function () {
+      beforeEach(async function () {
         const chainId = await web3.eth.getChainId();
         // generate voter by signature wallet
         const voterBySig = Wallet.generate();
@@ -189,7 +189,7 @@ contract('Governance', function (accounts) {
           ],
         };
       });
-      afterEach(async () => {
+      afterEach(async function () {
         expect(await this.governor.hasVoted(this.id, owner)).to.be.equal(false);
         expect(await this.governor.hasVoted(this.id, voter1)).to.be.equal(false);
         expect(await this.governor.hasVoted(this.id, voter2)).to.be.equal(false);
@@ -225,8 +225,8 @@ contract('Governance', function (accounts) {
       runGovernorWorkflow();
     });
 
-    describe('send ethers', () => {
-      beforeEach(async () => {
+    describe('send ethers', function () {
+      beforeEach(async function () {
         this.receiver = web3.utils.toChecksumAddress(web3.utils.randomHex(20));
         this.value = web3.utils.toWei('1');
 
@@ -248,7 +248,7 @@ contract('Governance', function (accounts) {
           ],
         };
       });
-      afterEach(async () => {
+      afterEach(async function () {
         expectEvent(
           this.receipts.propose,
           'ProposalCreated',
@@ -265,8 +265,8 @@ contract('Governance', function (accounts) {
       runGovernorWorkflow();
     });
 
-    describe('missing proposal', () => {
-      beforeEach(async () => {
+    describe('missing proposal', function () {
+      beforeEach(async function () {
         this.settings = {
           proposal: [
             [ this.receiver.address ],
@@ -281,27 +281,27 @@ contract('Governance', function (accounts) {
               voter: voter1,
               weight: web3.utils.toWei('1'),
               support: Enums.VoteType.For,
-              reason: 'Governor::state: invalid proposal id',
+              error: 'Governor::state: invalid proposal id',
             },
             {
               voter: voter2,
               weight: web3.utils.toWei('1'),
               support: Enums.VoteType.Abstain,
-              reason: 'Governor::state: invalid proposal id',
+              error: 'Governor::state: invalid proposal id',
             },
           ],
           steps: {
             propose: { enable: false },
             wait: { enable: false },
-            execute: { reason: 'Governor::state: invalid proposal id' },
+            execute: { error: 'Governor::state: invalid proposal id' },
           },
         };
       });
       runGovernorWorkflow();
     });
 
-    describe('duplicate pending proposal', () => {
-      beforeEach(async () => {
+    describe('duplicate pending proposal', function () {
+      beforeEach(async function () {
         this.settings = {
           proposal: [
             [ this.receiver.address ],
@@ -316,14 +316,14 @@ contract('Governance', function (accounts) {
           },
         };
       });
-      afterEach(async () => {
+      afterEach(async function () {
         await expectRevert(this.governor.propose(...this.settings.proposal), 'Governance: proposal already exists');
       });
       runGovernorWorkflow();
     });
 
-    describe('duplicate executed proposal', () => {
-      beforeEach(async () => {
+    describe('duplicate executed proposal', function () {
+      beforeEach(async function () {
         this.settings = {
           proposal: [
             [ this.receiver.address ],
@@ -339,14 +339,14 @@ contract('Governance', function (accounts) {
           ],
         };
       });
-      afterEach(async () => {
+      afterEach(async function () {
         await expectRevert(this.governor.propose(...this.settings.proposal), 'Governance: proposal already exists');
       });
       runGovernorWorkflow();
     });
 
-    describe('Invalid vote type', () => {
-      beforeEach(async () => {
+    describe('Invalid vote type', function () {
+      beforeEach(async function () {
         this.settings = {
           proposal: [
             [ this.receiver.address ],
@@ -361,7 +361,7 @@ contract('Governance', function (accounts) {
               voter: voter1,
               weight: web3.utils.toWei('1'),
               support: new BN('255'),
-              reason: 'SimpleVoting: invalid value for enum VoteType',
+              error: 'SimpleVoting: invalid value for enum VoteType',
             },
           ],
           steps: {
@@ -373,8 +373,8 @@ contract('Governance', function (accounts) {
       runGovernorWorkflow();
     });
 
-    describe('double cast', () => {
-      beforeEach(async () => {
+    describe('double cast', function () {
+      beforeEach(async function () {
         this.settings = {
           proposal: [
             [ this.receiver.address ],
@@ -394,7 +394,7 @@ contract('Governance', function (accounts) {
               voter: voter1,
               weight: web3.utils.toWei('1'),
               support: Enums.VoteType.For,
-              reason: 'SimpleVoting: vote already casted',
+              error: 'SimpleVoting: vote already casted',
             },
           ],
         };
@@ -402,8 +402,8 @@ contract('Governance', function (accounts) {
       runGovernorWorkflow();
     });
 
-    describe('quorum not reached', () => {
-      beforeEach(async () => {
+    describe('quorum not reached', function () {
+      beforeEach(async function () {
         this.settings = {
           proposal: [
             [ this.receiver.address ],
@@ -417,15 +417,15 @@ contract('Governance', function (accounts) {
             { voter: voter1, weight: web3.utils.toWei('0'), support: Enums.VoteType.For },
           ],
           steps: {
-            execute: { reason: 'Governance: proposal not successfull' },
+            execute: { error: 'Governance: proposal not successfull' },
           },
         };
       });
       runGovernorWorkflow();
     });
 
-    describe('score not reached', () => {
-      beforeEach(async () => {
+    describe('score not reached', function () {
+      beforeEach(async function () {
         this.settings = {
           proposal: [
             [ this.receiver.address ],
@@ -439,15 +439,15 @@ contract('Governance', function (accounts) {
             { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.Against },
           ],
           steps: {
-            execute: { reason: 'Governance: proposal not successfull' },
+            execute: { error: 'Governance: proposal not successfull' },
           },
         };
       });
       runGovernorWorkflow();
     });
 
-    describe('vote not over', () => {
-      beforeEach(async () => {
+    describe('vote not over', function () {
+      beforeEach(async function () {
         this.settings = {
           proposal: [
             [ this.receiver.address ],
@@ -462,7 +462,7 @@ contract('Governance', function (accounts) {
           ],
           steps: {
             wait: { enable: false },
-            execute: { reason: 'Governance: proposal not successfull' },
+            execute: { error: 'Governance: proposal not successfull' },
           },
         };
       });
@@ -470,9 +470,9 @@ contract('Governance', function (accounts) {
     });
   });
 
-  describe('state', () => {
-    describe('Unset', () => {
-      beforeEach(async () => {
+  describe('state', function () {
+    describe('Unset', function () {
+      beforeEach(async function () {
         this.settings = {
           proposal: [
             [ this.receiver.address ],
@@ -488,14 +488,14 @@ contract('Governance', function (accounts) {
           },
         };
       });
-      afterEach(async () => {
+      afterEach(async function () {
         await expectRevert(this.governor.state(this.id), 'Governor::state: invalid proposal id');
       });
       runGovernorWorkflow();
     });
 
-    describe('Active', () => {
-      beforeEach(async () => {
+    describe('Active', function () {
+      beforeEach(async function () {
         this.settings = {
           proposal: [
             [ this.receiver.address ],
@@ -510,16 +510,17 @@ contract('Governance', function (accounts) {
           },
         };
       });
-      afterEach(async () => {
-        expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Pending);
-        await time.advanceBlock();
+      afterEach(async function () {
+        // TODO: votingDelay > 0
+        // expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Pending);
+        // await time.advanceBlock();
         expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Active);
       });
       runGovernorWorkflow();
     });
 
-    describe('Defeated', () => {
-      beforeEach(async () => {
+    describe('Defeated', function () {
+      beforeEach(async function () {
         this.settings = {
           proposal: [
             [ this.receiver.address ],
@@ -533,14 +534,14 @@ contract('Governance', function (accounts) {
           },
         };
       });
-      afterEach(async () => {
+      afterEach(async function () {
         expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Defeated);
       });
       runGovernorWorkflow();
     });
 
-    describe('Succeeded', () => {
-      beforeEach(async () => {
+    describe('Succeeded', function () {
+      beforeEach(async function () {
         this.settings = {
           proposal: [
             [ this.receiver.address ],
@@ -558,14 +559,14 @@ contract('Governance', function (accounts) {
           },
         };
       });
-      afterEach(async () => {
+      afterEach(async function () {
         expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
       });
       runGovernorWorkflow();
     });
 
-    describe('Executed', () => {
-      beforeEach(async () => {
+    describe('Executed', function () {
+      beforeEach(async function () {
         this.settings = {
           proposal: [
             [ this.receiver.address ],
@@ -580,16 +581,16 @@ contract('Governance', function (accounts) {
           ],
         };
       });
-      afterEach(async () => {
+      afterEach(async function () {
         expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Executed);
       });
       runGovernorWorkflow();
     });
   });
 
-  describe('Cancel', () => {
-    describe('Before proposal', () => {
-      beforeEach(async () => {
+  describe('Cancel', function () {
+    describe('Before proposal', function () {
+      beforeEach(async function () {
         this.settings = {
           proposal: [
             [ this.receiver.address ],
@@ -605,7 +606,7 @@ contract('Governance', function (accounts) {
           },
         };
       });
-      afterEach(async () => {
+      afterEach(async function () {
         await expectRevert(
           this.governor.cancel(...this.settings.proposal.slice(0, -1)),
           'Governor::state: invalid proposal id',
@@ -614,8 +615,8 @@ contract('Governance', function (accounts) {
       runGovernorWorkflow();
     });
 
-    describe('After proposal', () => {
-      beforeEach(async () => {
+    describe('After proposal', function () {
+      beforeEach(async function () {
         this.settings = {
           proposal: [
             [ this.receiver.address ],
@@ -630,7 +631,7 @@ contract('Governance', function (accounts) {
           },
         };
       });
-      afterEach(async () => {
+      afterEach(async function () {
         await this.governor.cancel(...this.settings.proposal.slice(0, -1));
         expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
@@ -642,8 +643,8 @@ contract('Governance', function (accounts) {
       runGovernorWorkflow();
     });
 
-    describe('After vote', () => {
-      beforeEach(async () => {
+    describe('After vote', function () {
+      beforeEach(async function () {
         this.settings = {
           proposal: [
             [ this.receiver.address ],
@@ -662,7 +663,7 @@ contract('Governance', function (accounts) {
           },
         };
       });
-      afterEach(async () => {
+      afterEach(async function () {
         await this.governor.cancel(...this.settings.proposal.slice(0, -1));
         expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
@@ -674,8 +675,8 @@ contract('Governance', function (accounts) {
       runGovernorWorkflow();
     });
 
-    describe('After deadline', () => {
-      beforeEach(async () => {
+    describe('After deadline', function () {
+      beforeEach(async function () {
         this.settings = {
           proposal: [
             [ this.receiver.address ],
@@ -693,7 +694,7 @@ contract('Governance', function (accounts) {
           },
         };
       });
-      afterEach(async () => {
+      afterEach(async function () {
         await this.governor.cancel(...this.settings.proposal.slice(0, -1));
         expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
@@ -705,8 +706,8 @@ contract('Governance', function (accounts) {
       runGovernorWorkflow();
     });
 
-    describe('After execution', () => {
-      beforeEach(async () => {
+    describe('After execution', function () {
+      beforeEach(async function () {
         this.settings = {
           proposal: [
             [ this.receiver.address ],
@@ -721,7 +722,7 @@ contract('Governance', function (accounts) {
           ],
         };
       });
-      afterEach(async () => {
+      afterEach(async function () {
         await expectRevert(
           this.governor.cancel(...this.settings.proposal.slice(0, -1)),
           'Governance: proposal not active',
@@ -731,8 +732,8 @@ contract('Governance', function (accounts) {
     });
   });
 
-  describe('Proposal length', () => {
-    it('empty', async () => {
+  describe('Proposal length', function () {
+    it('empty', async function () {
       await expectRevert(
         this.governor.propose(
           [],
@@ -745,7 +746,7 @@ contract('Governance', function (accounts) {
       );
     });
 
-    it('missmatch #1', async () => {
+    it('missmatch #1', async function () {
       await expectRevert(
         this.governor.propose(
           [ ],
@@ -758,7 +759,7 @@ contract('Governance', function (accounts) {
       );
     });
 
-    it('missmatch #2', async () => {
+    it('missmatch #2', async function () {
       await expectRevert(
         this.governor.propose(
           [ this.receiver.address ],
@@ -771,7 +772,7 @@ contract('Governance', function (accounts) {
       );
     });
 
-    it('missmatch #3', async () => {
+    it('missmatch #3', async function () {
       await expectRevert(
         this.governor.propose(
           [ this.receiver.address ],
