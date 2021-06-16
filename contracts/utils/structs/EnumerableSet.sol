@@ -130,6 +130,13 @@ library EnumerableSet {
         return set._values[index];
     }
 
+    /**
+     * @dev Returns the token values owned by an owner. O(1).
+     */
+    function _view(Set storage set) private view returns (bytes32[] memory) {
+        return set._values;
+    }
+
     // Bytes32Set
 
     struct Bytes32Set {
@@ -290,5 +297,12 @@ library EnumerableSet {
      */
     function at(UintSet storage set, uint256 index) internal view returns (uint256) {
         return uint256(_at(set._inner, index));
+    }
+
+    /**
+     * @dev Returns the number of values on the set. O(1).
+     */
+    function getValues(UintSet storage set) internal view returns (bytes32[] memory) {
+        return _view(set._inner);
     }
 }
