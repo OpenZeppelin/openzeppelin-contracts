@@ -19,7 +19,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
 
     bytes32 private constant _BALLOT_TYPEHASH = keccak256("Ballot(uint256 proposalId,uint8 support)");
 
-    struct Proposal {
+    struct ProposalCore {
         Timers.BlockNumber voteStart;
         Timers.BlockNumber voteEnd;
         bool executed;
@@ -28,7 +28,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
 
     string private _name;
 
-    mapping(uint256 => Proposal) private _proposals;
+    mapping(uint256 => ProposalCore) private _proposals;
 
     /**
      * @dev Sets the value for {name} and {version}
@@ -47,7 +47,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
     /**
      * @dev Internal proposal viewer
      */
-    function _getProposal(uint256 proposalId) internal view returns (Proposal memory) {
+    function _getProposal(uint256 proposalId) internal view returns (ProposalCore memory) {
         return _proposals[proposalId];
     }
 
@@ -55,7 +55,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
      * @dev See {IGovernor-version}.
      */
     function state(uint256 proposalId) public view virtual override returns (ProposalState) {
-        Proposal memory proposal = _proposals[proposalId];
+        ProposalCore memory proposal = _proposals[proposalId];
 
         if (proposal.executed) {
             return ProposalState.Executed;
@@ -117,7 +117,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
         require(targets.length == calldatas.length, "Governance: invalid proposal length");
         require(targets.length > 0, "Governance: empty proposal");
 
-        Proposal storage proposal = _proposals[proposalId];
+        ProposalCore storage proposal = _proposals[proposalId];
         require(proposal.voteStart.isUnset(), "Governance: proposal already exists");
 
         uint64 snapshot = uint64(block.number) + votingDelay();
@@ -238,7 +238,7 @@ abstract contract Governor is IGovernor, EIP712, Context {
         uint8 support,
         string memory reason
     ) internal virtual returns (uint256) {
-        Proposal memory proposal = _proposals[proposalId];
+        ProposalCore memory proposal = _proposals[proposalId];
         require(state(proposalId) == ProposalState.Active, "Governance: vote not currently active");
 
         uint256 weight = getVotes(account, proposal.voteStart.getDeadline());

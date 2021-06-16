@@ -10,7 +10,7 @@ import "../IGovernor.sol";
  * _Available since v4.2._
  */
 abstract contract IGovernorCompound is IGovernor {
-    struct CompProposal {
+    struct Proposal {
         uint256 id;
         address proposer;
         uint256 eta;
@@ -26,7 +26,7 @@ abstract contract IGovernorCompound is IGovernor {
         bool canceled;
         bool executed;
     }
-    struct CompReceipt {
+    struct Receipt {
         bool hasVoted;
         uint8 support;
         uint96 votes;
@@ -37,7 +37,7 @@ abstract contract IGovernorCompound is IGovernor {
 
     function quorumVotes() external view virtual returns (uint256);
 
-    function proposals(uint256) external view virtual returns (CompProposal memory);
+    function proposals(uint256) external view virtual returns (Proposal memory);
 
     function propose(
         address[] memory targets,
@@ -62,5 +62,5 @@ abstract contract IGovernorCompound is IGovernor {
             bytes[] memory calldatas
         );
 
-    function getReceipt(uint256 proposalId, address voter) external view virtual returns (CompReceipt memory);
+    function getReceipt(uint256 proposalId, address voter) external view virtual returns (Receipt memory);
 }

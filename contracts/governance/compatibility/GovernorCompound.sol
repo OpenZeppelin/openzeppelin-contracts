@@ -29,7 +29,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
         uint256 forVotes;
         uint256 againstVotes;
         uint256 abstainVotes;
-        mapping(address => CompReceipt) receipts;
+        mapping(address => Receipt) receipts;
         bytes32 salt;
     }
 
@@ -38,12 +38,15 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
     Counters.Counter private _saltCounter;
 
     // ============================================== Proposal lifecycle ==============================================
-    function proposals(uint256 proposalId) external view override returns (CompProposal memory) {
-        Proposal memory core = _getProposal(proposalId);
+    /**
+     * ~210k gas to deploy
+     */
+    function proposals(uint256 proposalId) external view override returns (Proposal memory) {
         ProposalState status = state(proposalId);
+        ProposalCore memory core = _getProposal(proposalId);
         ProposalDetails storage details = _proposalDetails[proposalId];
 
-        CompProposal memory result;
+        Proposal memory result;
         result.id = proposalId;
         result.proposer = details.proposer;
         result.eta = proposalEta(proposalId);
@@ -61,6 +64,9 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
         return result;
     }
 
+    /**
+     * ~265k gas to deploy
+     */
     function propose(
         address[] memory targets,
         uint256[] memory values,
@@ -68,8 +74,10 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
         bytes[] memory calldatas,
         string memory description
     ) public override returns (uint256) {
-        // use counter to allow multiple proposal in the same block + use blockhash to (somehow) restrict DoS
-        bytes32 salt = keccak256(abi.encodePacked(blockhash(block.number - 1), _saltCounter.current()));
+        // Enshure the same proposal can be proposed twice through this saltless interface. Proposal can be frontrun
+        // using the core interface, but the id will only be used if the frontrun proposal is identical, which makes
+        // this situation ok (the frontrunner would not prevent anything, it would activelly accellerate the proposal).
+        bytes32 salt = bytes32(_saltCounter.current());
         _saltCounter.increment();
 
         uint256 proposalId = propose(targets, values, _encodeCalldata(signatures, calldatas), salt, description);
@@ -85,16 +93,25 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
         return proposalId;
     }
 
+    /**
+     * ~130k gas to deploy
+     */
     function queue(uint256 proposalId) external override {
         ProposalDetails storage details = _proposalDetails[proposalId];
         queue(details.targets, details.values, _encodeCalldata(details.signatures, details.calldatas), details.salt);
     }
 
+    /**
+     * ~130k gas to deploy
+     */
     function execute(uint256 proposalId) external payable override {
         ProposalDetails storage details = _proposalDetails[proposalId];
         execute(details.targets, details.values, _encodeCalldata(details.signatures, details.calldatas), details.salt);
     }
 
+    /**
+     * ~90k gas to deploy
+     */
     function _encodeCalldata(string[] memory signatures, bytes[] memory calldatas)
         private
         pure
@@ -127,7 +144,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
         return (details.targets, details.values, details.signatures, details.calldatas);
     }
 
-    function getReceipt(uint256 proposalId, address voter) external view override returns (CompReceipt memory) {
+    function getReceipt(uint256 proposalId, address voter) external view override returns (Receipt memory) {
         return _proposalDetails[proposalId].receipts[voter];
     }
 
@@ -157,7 +174,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
         uint256 weight
     ) internal virtual override {
         ProposalDetails storage details = _proposalDetails[proposalId];
-        CompReceipt storage receipt = details.receipts[account];
+        Receipt storage receipt = details.receipts[account];
 
         require(!receipt.hasVoted, "GovernorCompCompatibility: vote already casted");
         receipt.hasVoted = true;
