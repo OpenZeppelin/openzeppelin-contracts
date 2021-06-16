@@ -62,7 +62,7 @@ abstract contract GovernorVotingSimple is IGovernor {
     }
 
     /**
-     * @dev See {IGovernor-_voteSuccess}. In this module, the forVotes mush be scritly over the againstVotes.
+     * @dev See {IGovernor-_voteSuccess}. In this module, the forVotes must be scritly over the againstVotes.
      */
     function _voteSuccess(uint256 proposalId) internal view virtual override returns (bool) {
         return _receipts[proposalId].forVotes > _receipts[proposalId].againstVotes;

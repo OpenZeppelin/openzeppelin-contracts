@@ -39,32 +39,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
 
     // ============================================== Proposal lifecycle ==============================================
     /**
-     * ~210k gas to deploy
-     */
-    function proposals(uint256 proposalId) external view override returns (Proposal memory) {
-        ProposalState status = state(proposalId);
-        ProposalCore memory core = _getProposal(proposalId);
-        ProposalDetails storage details = _proposalDetails[proposalId];
-
-        Proposal memory result;
-        result.id = proposalId;
-        result.proposer = details.proposer;
-        result.eta = proposalEta(proposalId);
-        result.targets = details.targets;
-        result.values = details.values;
-        result.signatures = details.signatures;
-        result.calldatas = details.calldatas;
-        result.startBlock = core.voteStart.getDeadline();
-        result.endBlock = core.voteEnd.getDeadline();
-        result.forVotes = details.forVotes;
-        result.againstVotes = details.againstVotes;
-        result.abstainVotes = details.abstainVotes;
-        result.canceled = status == ProposalState.Canceled;
-        result.executed = status == ProposalState.Executed;
-        return result;
-    }
-
-    /**
+     * @dev See {IGovernorCompound-propose}.
      * ~265k gas to deploy
      */
     function propose(
@@ -94,6 +69,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
     }
 
     /**
+     * @dev See {IGovernorCompound-queue}.
      * ~130k gas to deploy
      */
     function queue(uint256 proposalId) external override {
@@ -102,6 +78,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
     }
 
     /**
+     * @dev See {IGovernorCompound-execute}.
      * ~130k gas to deploy
      */
     function execute(uint256 proposalId) external payable override {
@@ -110,6 +87,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
     }
 
     /**
+     * @dev Encodes calldatas with optional function signature.
      * ~90k gas to deploy
      */
     function _encodeCalldata(string[] memory signatures, bytes[] memory calldatas)
@@ -129,6 +107,36 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
     }
 
     // ==================================================== Views =====================================================
+    /**
+     * @dev See {IGovernorCompound-proposals}.
+     * ~210k gas to deploy
+     */
+    function proposals(uint256 proposalId) external view override returns (Proposal memory) {
+        ProposalState status = state(proposalId);
+        ProposalCore memory core = _getProposal(proposalId);
+        ProposalDetails storage details = _proposalDetails[proposalId];
+
+        Proposal memory result;
+        result.id = proposalId;
+        result.proposer = details.proposer;
+        result.eta = proposalEta(proposalId);
+        result.targets = details.targets;
+        result.values = details.values;
+        result.signatures = details.signatures;
+        result.calldatas = details.calldatas;
+        result.startBlock = core.voteStart.getDeadline();
+        result.endBlock = core.voteEnd.getDeadline();
+        result.forVotes = details.forVotes;
+        result.againstVotes = details.againstVotes;
+        result.abstainVotes = details.abstainVotes;
+        result.canceled = status == ProposalState.Canceled;
+        result.executed = status == ProposalState.Executed;
+        return result;
+    }
+
+    /**
+     * @dev See {IGovernorCompound-getActions}.
+     */
     function getActions(uint256 proposalId)
         external
         view
@@ -144,29 +152,47 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
         return (details.targets, details.values, details.signatures, details.calldatas);
     }
 
+    /**
+     * @dev See {IGovernorCompound-getReceipt}.
+     */
     function getReceipt(uint256 proposalId, address voter) external view override returns (Receipt memory) {
         return _proposalDetails[proposalId].receipts[voter];
     }
 
-    // ==================================================== Voting ====================================================
-    function hasVoted(uint256 proposalId, address account) public view virtual override returns (bool) {
-        return _proposalDetails[proposalId].receipts[account].hasVoted;
-    }
-
+    /**
+     * @dev See {IGovernorCompound-quorumVotes}.
+     */
     function quorumVotes() external view virtual override returns (uint256) {
         return quorum(block.number);
     }
 
+    // ==================================================== Voting ====================================================
+    /**
+     * @dev See {IGovernor-hasVoted}.
+     */
+    function hasVoted(uint256 proposalId, address account) public view virtual override returns (bool) {
+        return _proposalDetails[proposalId].receipts[account].hasVoted;
+    }
+
+    /**
+     * @dev See {IGovernor-proposalWeight}. In this module, only forVotes count toward the quorum.
+     */
     function _quorumReached(uint256 proposalId) internal view virtual override returns (bool) {
         ProposalDetails storage details = _proposalDetails[proposalId];
         return quorum(proposalSnapshot(proposalId)) < details.forVotes;
     }
 
+    /**
+     * @dev See {IGovernor-_voteSuccess}. In this module, the forVotes must be scritly over the againstVotes.
+     */
     function _voteSuccess(uint256 proposalId) internal view virtual override returns (bool) {
         ProposalDetails storage details = _proposalDetails[proposalId];
         return details.forVotes > details.againstVotes;
     }
 
+    /**
+     * @dev See {IGovernor-_pushVote}. In this module, the support follows Governor Bravo.
+     */
     function _pushVote(
         uint256 proposalId,
         address account,
