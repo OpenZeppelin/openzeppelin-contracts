@@ -285,7 +285,7 @@ contract('GovernorTimelockExternal', function (accounts) {
     it('protected', async function () {
       await expectRevert(
         this.governor.updateTimelock(this.newTimelock.address),
-        'GovernorWithTimelockExternal: caller must be timelock',
+        'GovernorTimelockExternal: caller must be timelock',
       );
     });
 

@@ -29,7 +29,7 @@ function makeContractAddress (creator, nonce) {
   return web3.utils.toChecksumAddress(web3.utils.sha3(RLP.encode([creator, nonce])).slice(12).substring(14));
 }
 
-contract('Governance', function (accounts) {
+contract('GovernorCompound', function (accounts) {
   const [ owner, proposer, voter1, voter2, voter3, voter4 ] = accounts;
 
   const name = 'OZ-Governance';
@@ -97,12 +97,12 @@ contract('Governance', function (accounts) {
           {
             voter: voter4,
             support: '100',
-            reason: 'GovernorCompCompatibility: invalid vote type',
+            reason: 'GovernorCompound: invalid vote type',
           },
           {
             voter: voter1,
             support: Enums.VoteType.For,
-            reason: 'GovernorCompCompatibility: vote already casted',
+            reason: 'GovernorCompound: vote already casted',
             skip: true,
           },
         ],

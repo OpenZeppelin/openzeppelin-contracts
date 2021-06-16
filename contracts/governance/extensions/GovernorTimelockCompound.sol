@@ -150,7 +150,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         for (uint256 i = 0; i < targets.length; ++i) {
             require(
                 !_timelock.queuedTransactions(keccak256(abi.encode(targets[i], values[i], "", calldatas[i], eta))),
-                "GovernorWithTimelockCompound:queue: identical proposal action already queued"
+                "GovernorTimelockCompound: identical proposal action already queued"
             );
             _timelock.queueTransaction(targets[i], values[i], "", calldatas[i], eta);
         }
@@ -173,7 +173,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         Address.sendValue(payable(_timelock), msg.value);
 
         uint256 eta = proposalEta(proposalId);
-        require(eta > 0, "GovernorWithTimelockCompound:execute: proposal not yet queued");
+        require(eta > 0, "GovernorTimelockCompound: proposal not yet queued");
         for (uint256 i = 0; i < targets.length; ++i) {
             _timelock.executeTransaction(targets[i], values[i], "", calldatas[i], eta);
         }
@@ -223,10 +223,10 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
      * operations (hand over the timelock) and do the update can be batched in a single proposal.
      */
     function updateTimelock(address newTimelock) external virtual {
-        require(msg.sender == address(_timelock), "GovernorWithTimelockCompound: caller must be timelock");
+        require(msg.sender == address(_timelock), "GovernorTimelockCompound: caller must be timelock");
         require(
             _timelock.pendingAdmin() != address(0),
-            "GovernorWithTimelockCompound: old timelock must be transfered before update"
+            "GovernorTimelockCompound: old timelock must be transfered before update"
         );
         _updateTimelock(newTimelock);
     }

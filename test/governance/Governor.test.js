@@ -361,7 +361,7 @@ contract('Governance', function (accounts) {
               voter: voter1,
               weight: web3.utils.toWei('1'),
               support: new BN('255'),
-              error: 'SimpleVoting: invalid value for enum VoteType',
+              error: 'GovernorVotingSimple: invalid value for enum VoteType',
             },
           ],
           steps: {
@@ -394,7 +394,7 @@ contract('Governance', function (accounts) {
               voter: voter1,
               weight: web3.utils.toWei('1'),
               support: Enums.VoteType.For,
-              error: 'SimpleVoting: vote already casted',
+              error: 'GovernorVotingSimple: vote already casted',
             },
           ],
         };

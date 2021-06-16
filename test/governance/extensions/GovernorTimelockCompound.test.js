@@ -122,7 +122,7 @@ contract('GovernorTimelockCompound', function (accounts) {
         ],
         steps: {
           queue: { enable: false },
-          execute: { error: 'GovernorWithTimelockCompound:execute: proposal not yet queued' },
+          execute: { error: 'GovernorTimelockCompound: proposal not yet queued' },
         },
       };
     });
@@ -196,10 +196,10 @@ contract('GovernorTimelockCompound', function (accounts) {
         ],
         steps: {
           queue: {
-            error: 'GovernorWithTimelockCompound:queue: identical proposal action already queued',
+            error: 'GovernorTimelockCompound: identical proposal action already queued',
           },
           execute: {
-            error: 'GovernorWithTimelockCompound:execute: proposal not yet queued',
+            error: 'GovernorTimelockCompound: proposal not yet queued',
           },
         },
       };
@@ -316,7 +316,7 @@ contract('GovernorTimelockCompound', function (accounts) {
 
       await expectRevert(
         this.governor.execute(...this.settings.proposal.slice(0, -1)),
-        'GovernorWithTimelockCompound:execute: proposal not yet queued',
+        'GovernorTimelockCompound: proposal not yet queued',
       );
     });
     runGovernorWorkflow();
@@ -330,7 +330,7 @@ contract('GovernorTimelockCompound', function (accounts) {
     it('protected', async function () {
       await expectRevert(
         this.governor.updateTimelock(this.newTimelock.address),
-        'GovernorWithTimelockCompound: caller must be timelock',
+        'GovernorTimelockCompound: caller must be timelock',
       );
     });
 

@@ -127,7 +127,7 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
      * must be proposed, scheduled and executed using the {Governor} workflow.
      */
     function updateTimelock(address newTimelock) public virtual {
-        require(msg.sender == address(_timelock), "GovernorWithTimelockExternal: caller must be timelock");
+        require(msg.sender == address(_timelock), "GovernorTimelockExternal: caller must be timelock");
         _updateTimelock(newTimelock);
     }
 

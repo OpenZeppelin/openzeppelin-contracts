@@ -79,7 +79,7 @@ abstract contract GovernorVotingSimple is IGovernor {
     ) internal virtual override {
         Receipt storage receipt = _receipts[proposalId];
 
-        require(!receipt.hasVoted[account], "SimpleVoting: vote already casted");
+        require(!receipt.hasVoted[account], "GovernorVotingSimple: vote already casted");
         receipt.hasVoted[account] = true;
 
         if (support == uint8(VoteType.Against)) {
@@ -89,7 +89,7 @@ abstract contract GovernorVotingSimple is IGovernor {
         } else if (support == uint8(VoteType.Abstain)) {
             receipt.abstainVotes += weight;
         } else {
-            revert("SimpleVoting: invalid value for enum VoteType");
+            revert("GovernorVotingSimple: invalid value for enum VoteType");
         }
     }
 }

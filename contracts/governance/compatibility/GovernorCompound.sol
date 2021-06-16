@@ -202,7 +202,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
         ProposalDetails storage details = _proposalDetails[proposalId];
         Receipt storage receipt = details.receipts[account];
 
-        require(!receipt.hasVoted, "GovernorCompCompatibility: vote already casted");
+        require(!receipt.hasVoted, "GovernorCompound: vote already casted");
         receipt.hasVoted = true;
         receipt.support = support;
         receipt.votes = SafeCast.toUint96(weight);
@@ -214,7 +214,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
         } else if (support == 2) {
             details.abstainVotes += weight;
         } else {
-            revert("GovernorCompCompatibility: invalid vote type");
+            revert("GovernorCompound: invalid vote type");
         }
     }
 }
