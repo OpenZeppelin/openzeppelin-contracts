@@ -39,8 +39,22 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
 
     // ============================================== Proposal lifecycle ==============================================
     /**
+     * @dev See {IGovernor-propose}.
+     */
+    function propose(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 salt,
+        string memory description
+    ) public virtual override(IGovernor, Governor) returns (uint256) {
+        uint256 proposalId = super.propose(targets, values, calldatas, salt, description);
+        _storeProposal(proposalId, _msgSender(), targets, values, new string[](calldatas.length), calldatas, salt);
+        return proposalId;
+    }
+
+    /**
      * @dev See {IGovernorCompound-propose}.
-     * ~265k gas to deploy
      */
     function propose(
         address[] memory targets,
@@ -48,47 +62,36 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
         string[] memory signatures,
         bytes[] memory calldatas,
         string memory description
-    ) public override returns (uint256) {
+    ) public virtual override returns (uint256) {
         // Enshure the same proposal can be proposed twice through this saltless interface. Proposal can be frontrun
         // using the core interface, but the id will only be used if the frontrun proposal is identical, which makes
         // this situation ok (the frontrunner would not prevent anything, it would activelly accellerate the proposal).
         bytes32 salt = bytes32(_saltCounter.current());
         _saltCounter.increment();
 
-        uint256 proposalId = propose(targets, values, _encodeCalldata(signatures, calldatas), salt, description);
-
-        ProposalDetails storage details = _proposalDetails[proposalId];
-        details.proposer = _msgSender();
-        details.targets = targets;
-        details.values = values;
-        details.signatures = signatures;
-        details.calldatas = calldatas;
-        details.salt = salt;
-
+        uint256 proposalId = super.propose(targets, values, _encodeCalldata(signatures, calldatas), salt, description);
+        _storeProposal(proposalId, _msgSender(), targets, values, signatures, calldatas, salt);
         return proposalId;
     }
 
     /**
      * @dev See {IGovernorCompound-queue}.
-     * ~130k gas to deploy
      */
-    function queue(uint256 proposalId) external override {
+    function queue(uint256 proposalId) external virtual override {
         ProposalDetails storage details = _proposalDetails[proposalId];
         queue(details.targets, details.values, _encodeCalldata(details.signatures, details.calldatas), details.salt);
     }
 
     /**
      * @dev See {IGovernorCompound-execute}.
-     * ~130k gas to deploy
      */
-    function execute(uint256 proposalId) external payable override {
+    function execute(uint256 proposalId) external payable virtual override {
         ProposalDetails storage details = _proposalDetails[proposalId];
         execute(details.targets, details.values, _encodeCalldata(details.signatures, details.calldatas), details.salt);
     }
 
     /**
      * @dev Encodes calldatas with optional function signature.
-     * ~90k gas to deploy
      */
     function _encodeCalldata(string[] memory signatures, bytes[] memory calldatas)
         private
@@ -106,12 +109,33 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
         return fullcalldatas;
     }
 
+    /**
+     * @dev Store proposal metadata for later lookup
+     */
+    function _storeProposal(
+        uint256 proposalId,
+        address proposer,
+        address[] memory targets,
+        uint256[] memory values,
+        string[] memory signatures,
+        bytes[] memory calldatas,
+        bytes32 salt
+    ) private {
+        ProposalDetails storage details = _proposalDetails[proposalId];
+
+        details.proposer = proposer;
+        details.targets = targets;
+        details.values = values;
+        details.signatures = signatures;
+        details.calldatas = calldatas;
+        details.salt = salt;
+    }
+
     // ==================================================== Views =====================================================
     /**
      * @dev See {IGovernorCompound-proposals}.
-     * ~210k gas to deploy
      */
-    function proposals(uint256 proposalId) external view override returns (Proposal memory) {
+    function proposals(uint256 proposalId) external view virtual override returns (Proposal memory) {
         ProposalState status = state(proposalId);
         ProposalCore memory core = _getProposal(proposalId);
         ProposalDetails storage details = _proposalDetails[proposalId];
@@ -140,6 +164,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
     function getActions(uint256 proposalId)
         external
         view
+        virtual
         override
         returns (
             address[] memory targets,
@@ -155,7 +180,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
     /**
      * @dev See {IGovernorCompound-getReceipt}.
      */
-    function getReceipt(uint256 proposalId, address voter) external view override returns (Receipt memory) {
+    function getReceipt(uint256 proposalId, address voter) external view virtual override returns (Receipt memory) {
         return _proposalDetails[proposalId].receipts[voter];
     }
 

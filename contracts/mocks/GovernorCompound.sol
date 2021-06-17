@@ -23,6 +23,22 @@ contract GovernorCompoundMock is GovernorCompound, GovernorTimelockCompound, Gov
         return 1;
     }
 
+    function propose(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 salt,
+        string memory description
+    ) public virtual override(IGovernor, Governor, GovernorCompound) returns (uint256) {
+        return super.propose(
+            targets,
+            values,
+            calldatas,
+            salt,
+            description
+        );
+    }
+
     function cancel(
         address[] memory targets,
         uint256[] memory values,

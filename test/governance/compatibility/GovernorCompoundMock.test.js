@@ -2,6 +2,10 @@ const { BN, expectEvent, expectRevert, time } = require('@openzeppelin/test-help
 const Enums = require('../../helpers/enums');
 const RLP = require('rlp');
 
+const {
+  runGovernorWorkflow,
+} = require('../GovernorWorkflow.behavior');
+
 const Token = artifacts.require('ERC20VotesCompMock');
 const Timelock = artifacts.require('CompTimelock');
 const Governance = artifacts.require('GovernorCompoundMock');
@@ -72,6 +76,139 @@ contract('GovernorCompound', function (accounts) {
         proposal: [
           [ this.receiver.address ], // targets
           [ web3.utils.toWei('0') ], // values
+          [ this.receiver.contract.methods.mockFunction().encodeABI() ], // calldatas
+          web3.utils.randomHex(32),
+          '<proposal description>', // description
+        ],
+        proposer,
+        tokenHolder: owner,
+        voters: [
+          {
+            voter: voter1,
+            weight: web3.utils.toWei('1'),
+            support: Enums.VoteType.Abstain,
+          },
+          {
+            voter: voter2,
+            weight: web3.utils.toWei('10'),
+            support: Enums.VoteType.For,
+          },
+          {
+            voter: voter3,
+            weight: web3.utils.toWei('5'),
+            support: Enums.VoteType.Against,
+          },
+          {
+            voter: voter4,
+            support: '100',
+            error: 'GovernorCompound: invalid vote type',
+          },
+          {
+            voter: voter1,
+            support: Enums.VoteType.For,
+            error: 'GovernorCompound: vote already casted',
+            skip: true,
+          },
+        ],
+        steps: {
+          queue: { delay: 7 * 86400 },
+        },
+      };
+      this.votingDelay = await this.governor.votingDelay();
+      this.votingPeriod = await this.governor.votingPeriod();
+      this.receipts = {};
+    });
+    afterEach(async function () {
+      const proposal = await this.governor.proposals(this.id);
+      expect(proposal.id).to.be.bignumber.equal(this.id);
+      expect(proposal.proposer).to.be.equal(proposer);
+      expect(proposal.eta).to.be.bignumber.equal(this.eta);
+      expect(proposal.targets).to.be.deep.equal(this.settings.proposal[0]);
+      // expect(proposal.values).to.be.deep.equal(this.settings.proposal[1]);
+      expect(proposal.signatures).to.be.deep.equal(Array(this.settings.proposal[2].length).fill(''));
+      expect(proposal.calldatas).to.be.deep.equal(this.settings.proposal[2]);
+      expect(proposal.startBlock).to.be.bignumber.equal(this.snapshot);
+      expect(proposal.endBlock).to.be.bignumber.equal(this.deadline);
+      expect(proposal.canceled).to.be.equal(false);
+      expect(proposal.executed).to.be.equal(true);
+
+      for (const [key, value] of Object.entries(Enums.VoteType)) {
+        expect(proposal[`${key.toLowerCase()}Votes`]).to.be.bignumber.equal(
+          Object.values(this.settings.voters).filter(({ support }) => support === value).reduce(
+            (acc, { weight }) => acc.add(new BN(weight)),
+            new BN('0'),
+          ),
+        );
+      }
+
+      const action = await this.governor.getActions(this.id);
+      expect(action.targets).to.be.deep.equal(this.settings.proposal[0]);
+      // expect(action.values).to.be.deep.equal(this.settings.proposal[1]);
+      expect(action.signatures).to.be.deep.equal(Array(this.settings.proposal[2].length).fill(''));
+      expect(action.calldatas).to.be.deep.equal(this.settings.proposal[2]);
+
+      for (const voter of this.settings.voters.filter(({ skip }) => !skip)) {
+        expect(await this.governor.hasVoted(this.id, voter.voter)).to.be.equal(voter.error === undefined);
+
+        const receipt = await this.governor.getReceipt(this.id, voter.voter);
+        expect(receipt.hasVoted).to.be.equal(voter.error === undefined);
+        expect(receipt.support).to.be.bignumber.equal(voter.error === undefined ? voter.support : '0');
+        expect(receipt.votes).to.be.bignumber.equal(voter.error === undefined ? voter.weight : '0');
+      }
+
+      expectEvent(
+        this.receipts.propose,
+        'ProposalCreated',
+        {
+          proposalId: this.id,
+          proposer,
+          targets: this.settings.proposal[0],
+          // values: this.settings.proposal[1].map(value => new BN(value)),
+          signatures: this.settings.proposal[2].map(() => ''),
+          calldatas: this.settings.proposal[2],
+          startBlock: new BN(this.receipts.propose.blockNumber).add(this.votingDelay),
+          endBlock: new BN(this.receipts.propose.blockNumber).add(this.votingDelay).add(this.votingPeriod),
+          description: this.settings.proposal[4],
+        },
+      );
+
+      expectEvent(
+        this.receipts.propose,
+        'ProposalSalt',
+        {
+          proposalId: this.id,
+          salt: this.settings.proposal[3],
+        },
+      );
+
+      this.receipts.castVote.filter(Boolean).forEach(vote => {
+        const { voter } = vote.logs.find(Boolean).args;
+        expectEvent(
+          vote,
+          'VoteCast',
+          this.settings.voters.find(({ address }) => address === voter),
+        );
+      });
+      expectEvent(
+        this.receipts.execute,
+        'ProposalExecuted',
+        { proposalId: this.id },
+      );
+      expectEvent.inTransaction(
+        this.receipts.execute.transactionHash,
+        this.receiver,
+        'MockFunctionCalled',
+      );
+    });
+    runGovernorWorkflow();
+  });
+
+  describe('with compatibility interface', function () {
+    beforeEach(async function () {
+      this.settings = {
+        proposal: [
+          [ this.receiver.address ], // targets
+          [ web3.utils.toWei('0') ], // values
           [ '' ], // signatures
           [ this.receiver.contract.methods.mockFunction().encodeABI() ], // calldatas
           '<proposal description>', // description
@@ -97,12 +234,12 @@ contract('GovernorCompound', function (accounts) {
           {
             voter: voter4,
             support: '100',
-            reason: 'GovernorCompound: invalid vote type',
+            error: 'GovernorCompound: invalid vote type',
           },
           {
             voter: voter1,
             support: Enums.VoteType.For,
-            reason: 'GovernorCompound: vote already casted',
+            error: 'GovernorCompound: vote already casted',
             skip: true,
           },
         ],
@@ -145,12 +282,12 @@ contract('GovernorCompound', function (accounts) {
       expect(action.calldatas).to.be.deep.equal(this.settings.proposal[3]);
 
       for (const voter of this.settings.voters.filter(({ skip }) => !skip)) {
-        expect(await this.governor.hasVoted(this.id, voter.voter)).to.be.equal(voter.reason === undefined);
+        expect(await this.governor.hasVoted(this.id, voter.voter)).to.be.equal(voter.error === undefined);
 
         const receipt = await this.governor.getReceipt(this.id, voter.voter);
-        expect(receipt.hasVoted).to.be.equal(voter.reason === undefined);
-        expect(receipt.support).to.be.bignumber.equal(voter.reason === undefined ? voter.support : '0');
-        expect(receipt.votes).to.be.bignumber.equal(voter.reason === undefined ? voter.weight : '0');
+        expect(receipt.hasVoted).to.be.equal(voter.error === undefined);
+        expect(receipt.support).to.be.bignumber.equal(voter.error === undefined ? voter.support : '0');
+        expect(receipt.votes).to.be.bignumber.equal(voter.error === undefined ? voter.weight : '0');
       }
 
       expectEvent(
@@ -214,10 +351,10 @@ contract('GovernorCompound', function (accounts) {
             ...this.settings.proposal,
             { from: this.settings.proposer },
           ),
-          tryGet(this.settings, 'steps.propose.reason'),
+          tryGet(this.settings, 'steps.propose.error'),
         );
 
-        if (tryGet(this.settings, 'steps.propose.reason') === undefined) {
+        if (tryGet(this.settings, 'steps.propose.error') === undefined) {
           this.id = this.receipts.propose.logs.find(({ event }) => event === 'ProposalCreated').args.proposalId;
           this.snapshot = await this.governor.proposalSnapshot(this.id);
           this.deadline = await this.governor.proposalDeadline(this.id);
@@ -236,7 +373,7 @@ contract('GovernorCompound', function (accounts) {
             this.receipts.castVote.push(
               await getReceiptOrRevert(
                 this.governor.castVote(this.id, voter.support, { from: voter.voter }),
-                voter.reason,
+                voter.error,
               ),
             );
           } else {
@@ -244,7 +381,7 @@ contract('GovernorCompound', function (accounts) {
             this.receipts.castVote.push(
               await getReceiptOrRevert(
                 this.governor.castVoteBySig(this.id, voter.support, v, r, s),
-                voter.reason,
+                voter.error,
               ),
             );
           }
@@ -263,7 +400,7 @@ contract('GovernorCompound', function (accounts) {
       if (this.governor.queue && tryGet(this.settings, 'steps.queue.enable') !== false) {
         this.receipts.queue = await getReceiptOrRevert(
           this.governor.methods['queue(uint256)'](this.id, { from: this.settings.queuer }),
-          tryGet(this.settings, 'steps.queue.reason'),
+          tryGet(this.settings, 'steps.queue.error'),
         );
         this.eta = await this.governor.proposalEta(this.id);
         if (tryGet(this.settings, 'steps.queue.delay')) {
@@ -275,7 +412,7 @@ contract('GovernorCompound', function (accounts) {
       if (this.governor.execute && tryGet(this.settings, 'steps.execute.enable') !== false) {
         this.receipts.execute = await getReceiptOrRevert(
           this.governor.methods['execute(uint256)'](this.id, { from: this.settings.executer }),
-          tryGet(this.settings, 'steps.execute.reason'),
+          tryGet(this.settings, 'steps.execute.error'),
         );
         if (tryGet(this.settings, 'steps.execute.delay')) {
           await time.increase(tryGet(this.settings, 'steps.execute.delay'));

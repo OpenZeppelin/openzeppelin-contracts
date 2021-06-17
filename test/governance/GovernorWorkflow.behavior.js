@@ -37,7 +37,10 @@ function runGovernorWorkflow () {
     // propose
     if (this.governor.propose && tryGet(this.settings, 'steps.propose.enable') !== false) {
       this.receipts.propose = await getReceiptOrRevert(
-        this.governor.propose(...this.settings.proposal, { from: this.settings.proposer }),
+        this.governor.methods['propose(address[],uint256[],bytes[],bytes32,string)'](
+          ...this.settings.proposal,
+          { from: this.settings.proposer },
+        ),
         tryGet(this.settings, 'steps.propose.error'),
       );
 
@@ -87,7 +90,10 @@ function runGovernorWorkflow () {
     // queue
     if (this.governor.queue && tryGet(this.settings, 'steps.queue.enable') !== false) {
       this.receipts.queue = await getReceiptOrRevert(
-        this.governor.queue(...this.settings.proposal.slice(0, -1), { from: this.settings.queuer }),
+        this.governor.methods['queue(address[],uint256[],bytes[],bytes32)'](
+          ...this.settings.proposal.slice(0, -1),
+          { from: this.settings.queuer },
+        ),
         tryGet(this.settings, 'steps.queue.error'),
       );
       this.eta = await this.governor.proposalEta(this.id);
@@ -99,7 +105,10 @@ function runGovernorWorkflow () {
     // execute
     if (this.governor.execute && tryGet(this.settings, 'steps.execute.enable') !== false) {
       this.receipts.execute = await getReceiptOrRevert(
-        this.governor.execute(...this.settings.proposal.slice(0, -1), { from: this.settings.executer }),
+        this.governor.methods['execute(address[],uint256[],bytes[],bytes32)'](
+          ...this.settings.proposal.slice(0, -1),
+          { from: this.settings.executer },
+        ),
         tryGet(this.settings, 'steps.execute.error'),
       );
       if (tryGet(this.settings, 'steps.execute.delay')) {

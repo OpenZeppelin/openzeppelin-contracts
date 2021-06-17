@@ -106,7 +106,7 @@ contract('Governance', function (accounts) {
           },
         );
 
-        this.receipts.castVote.forEach(vote => {
+        this.receipts.castVote.filter(Boolean).forEach(vote => {
           const { voter } = vote.logs.find(Boolean).args;
           expectEvent(
             vote,

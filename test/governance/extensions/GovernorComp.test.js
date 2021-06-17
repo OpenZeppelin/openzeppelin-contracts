@@ -64,7 +64,7 @@ contract('Governance', function (accounts) {
       expect(await this.governor.hasVoted(this.id, voter3)).to.be.equal(true);
       expect(await this.governor.hasVoted(this.id, voter4)).to.be.equal(true);
 
-      this.receipts.castVote.forEach(vote => {
+      this.receipts.castVote.filter(Boolean).forEach(vote => {
         const { voter } = vote.logs.find(Boolean).args;
         expectEvent(
           vote,
