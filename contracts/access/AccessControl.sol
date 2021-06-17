@@ -97,6 +97,11 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender);
 
     /**
+     * @dev Custom error triggered when an access is restricted to a specific role.
+     */
+    error MissingRole(bytes32 role, address account);
+
+    /**
      * @dev Modifier that checks that an account has a specific role. Reverts
      * with a standardized message including the required role.
      *
@@ -134,16 +139,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      */
     function _checkRole(bytes32 role, address account) internal view {
         if (!hasRole(role, account)) {
-            revert(
-                string(
-                    abi.encodePacked(
-                        "AccessControl: account ",
-                        Strings.toHexString(uint160(account), 20),
-                        " is missing role ",
-                        Strings.toHexString(uint256(role), 32)
-                    )
-                )
-            );
+            revert MissingRole(role, account);
         }
     }
 
