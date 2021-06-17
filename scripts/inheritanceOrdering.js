@@ -27,7 +27,7 @@ for (const artifact of artifacts) {
     .filter(Boolean)
     .filter((obj, i, array) => array.findIndex(obj2 => obj.join() === obj2.join()) === i)
     .forEach(([a, b]) => {
-      console.log(`Conflict between ${a} and ${b} detected in the following dependecy chains:`);
+      console.log(`Conflict between ${a} and ${b} detected in the following dependency chains:`);
       chains
         .filter(chain => chain.includes(a) && chain.includes(b))
         .forEach(chain => {
