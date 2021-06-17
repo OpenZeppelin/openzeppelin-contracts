@@ -10,6 +10,7 @@ import "../utils/structs/EnumerableSet.sol";
  */
 interface IAccessControlEnumerable {
     function getRoleMember(bytes32 role, uint256 index) external view returns (address);
+
     function getRoleMemberCount(bytes32 role) external view returns (uint256);
 }
 
@@ -19,14 +20,13 @@ interface IAccessControlEnumerable {
 abstract contract AccessControlEnumerable is IAccessControlEnumerable, AccessControl {
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    mapping (bytes32 => EnumerableSet.AddressSet) private _roleMembers;
+    mapping(bytes32 => EnumerableSet.AddressSet) private _roleMembers;
 
     /**
      * @dev See {IERC165-supportsInterface}.
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IAccessControlEnumerable).interfaceId
-            || super.supportsInterface(interfaceId);
+        return interfaceId == type(IAccessControlEnumerable).interfaceId || super.supportsInterface(interfaceId);
     }
 
     /**
