@@ -34,5 +34,5 @@ for (const artifact of artifacts) {
 }
 
 if (!process.exitCode) {
-  console.log('Contract ordering is valid.');
+  console.log('Contract ordering is consistent.');
 }
