@@ -136,7 +136,6 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
      * @dev See {IGovernorCompound-proposals}.
      */
     function proposals(uint256 proposalId) external view virtual override returns (Proposal memory) {
-
         Proposal memory result;
         result.id = proposalId;
         result.eta = proposalEta(proposalId);
