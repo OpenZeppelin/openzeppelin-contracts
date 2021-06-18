@@ -66,6 +66,6 @@ abstract contract Ownable is Context {
     function _setOwner(address newOwner) private {
         address oldOwner = _owner;
         _owner = newOwner;
-				emit OwnershipTransferred(oldOwner, newOwner);
+        emit OwnershipTransferred(oldOwner, newOwner);
     }
 }
