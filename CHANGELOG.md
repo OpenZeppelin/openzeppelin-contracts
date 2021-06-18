@@ -10,6 +10,7 @@
  * Tokens: Wrap definitely safe subtractions in `unchecked` blocks.
  * `Math`: Add a `ceilDiv` method for performing ceiling division.
  * `ERC1155Supply`: add a new `ERC1155` extension that keeps track of the totalSupply of each tokenId. ([#2593](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2593))
+ * `BitMaps`: add a new `BitMaps` library that provides a storage efficient datastructure for `uint256` to `bool` mapping with contiguous keys. ([#2710](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2710))
 
  ### Breaking Changes
 
