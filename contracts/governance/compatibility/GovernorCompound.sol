@@ -136,23 +136,26 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
      * @dev See {IGovernorCompound-proposals}.
      */
     function proposals(uint256 proposalId) external view virtual override returns (Proposal memory) {
-        ProposalState status = state(proposalId);
-        ProposalCore memory core = _getProposal(proposalId);
-        ProposalDetails storage details = _proposalDetails[proposalId];
 
         Proposal memory result;
         result.id = proposalId;
-        result.proposer = details.proposer;
         result.eta = proposalEta(proposalId);
+
+        ProposalDetails storage details = _proposalDetails[proposalId];
+        result.proposer = details.proposer;
         result.targets = details.targets;
         result.values = details.values;
         result.signatures = details.signatures;
         result.calldatas = details.calldatas;
-        result.startBlock = core.voteStart.getDeadline();
-        result.endBlock = core.voteEnd.getDeadline();
         result.forVotes = details.forVotes;
         result.againstVotes = details.againstVotes;
         result.abstainVotes = details.abstainVotes;
+
+        ProposalCore memory core = _getProposal(proposalId);
+        result.startBlock = core.voteStart.getDeadline();
+        result.endBlock = core.voteEnd.getDeadline();
+
+        ProposalState status = state(proposalId);
         result.canceled = status == ProposalState.Canceled;
         result.executed = status == ProposalState.Executed;
         return result;
