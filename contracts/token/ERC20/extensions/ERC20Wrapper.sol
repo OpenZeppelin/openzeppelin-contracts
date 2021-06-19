@@ -8,7 +8,7 @@ import "../utils/SafeERC20.sol";
 /**
  * @dev Extension of the ERC20 token contract to support token wrapping.
  *
- * User can deposit and withdraw "underlying tokens" and receive a mathing number of "wrapped tokens". This is usefull
+ * User can deposit and withdraw "underlying tokens" and receive a mathing number of "wrapped tokens". This is useful
  * in conjunction with other modules. For example, combining this wrapping mechanism with ERC20Votes will allow the
  * wrapping of an existing "basic" ERC20 into a governance token.
  *
