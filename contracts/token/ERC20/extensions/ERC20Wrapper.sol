@@ -8,8 +8,8 @@ import "../utils/SafeERC20.sol";
 /**
  * @dev Extension of the ERC20 token contract to support token wrapping.
  *
- * User can deposit and withdraw "underlying tokens" and receive a mathing number of "wrapped tokens". This is useful
- * in conjunction with other modules. For example, combining this wrapping mechanism with ERC20Votes will allow the
+ * Users can deposit and withdraw "underlying tokens" and receive a matching number of "wrapped tokens". This is useful
+ * in conjunction with other modules. For example, combining this wrapping mechanism with {ERC20Votes} will allow the
  * wrapping of an existing "basic" ERC20 into a governance token.
  *
  * _Available since v4.2._
@@ -40,8 +40,8 @@ abstract contract ERC20Wrapper is ERC20 {
     }
 
     /**
-     * @dev Mint wrapped token to cover any underlyingTokens that would have been transfered by mistake. Might be
-     * exposed through access control.
+     * @dev Mint wrapped token to cover any underlyingTokens that would have been transfered by mistake. Internal
+     * function that can be exposed with access control if desired.
      */
     function _recover(address account) internal virtual returns (uint256) {
         uint256 value = underlying.balanceOf(address(this)) - totalSupply();
