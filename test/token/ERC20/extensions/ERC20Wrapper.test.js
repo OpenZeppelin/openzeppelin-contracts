@@ -20,6 +20,10 @@ contract('ERC20', function (accounts) {
     this.token = await ERC20WrapperMock.new(this.underlying.address, `Wrapped ${name}`, `W${symbol}`);
   });
 
+  afterEach(async function () {
+    expect(await this.underlying.balanceOf(this.token.address)).to.be.bignumber.equal(await this.token.totalSupply());
+  });
+
   it('has a name', async function () {
     expect(await this.token.name()).to.equal(`Wrapped ${name}`);
   });
