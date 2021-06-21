@@ -97,6 +97,22 @@ contract('ERC20', function (accounts) {
     });
 
     it('valid', async function () {
+      const value = new BN(42);
+
+      const { tx } = await this.token.withdrawTo(initialHolder, value, { from: initialHolder });
+      expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
+        from: this.token.address,
+        to: initialHolder,
+        value: value,
+      });
+      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: initialHolder,
+        to: ZERO_ADDRESS,
+        value: value,
+      });
+    });
+
+    it('entier balance', async function () {
       const { tx } = await this.token.withdrawTo(initialHolder, initialSupply, { from: initialHolder });
       expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
         from: this.token.address,
