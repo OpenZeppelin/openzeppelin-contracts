@@ -50,7 +50,6 @@ contract('Governance', function (accounts) {
             [ this.receiver.address ],
             [ web3.utils.toWei('0') ],
             [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-            web3.utils.randomHex(32),
             '<proposal description>',
           ],
           proposer,
@@ -93,7 +92,7 @@ contract('Governance', function (accounts) {
             calldatas: this.settings.proposal[2],
             startBlock: new BN(this.receipts.propose.blockNumber).add(this.votingDelay),
             endBlock: new BN(this.receipts.propose.blockNumber).add(this.votingDelay).add(this.votingPeriod),
-            description: this.settings.proposal[4],
+            description: this.settings.proposal[3],
           },
         );
 
@@ -102,7 +101,7 @@ contract('Governance', function (accounts) {
           'ProposalSalt',
           {
             proposalId: this.id,
-            salt: this.settings.proposal[3],
+            salt: web3.utils.keccak256(this.settings.proposal[3]),
           },
         );
 
@@ -180,7 +179,6 @@ contract('Governance', function (accounts) {
             [ this.receiver.address ],
             [ web3.utils.toWei('0') ],
             [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-            web3.utils.randomHex(32),
             '<proposal description>',
           ],
           tokenHolder: owner,
@@ -238,7 +236,6 @@ contract('Governance', function (accounts) {
             [ this.receiver ],
             [ this.value ],
             [ '0x' ],
-            web3.utils.randomHex(32),
             '<proposal description>',
           ],
           tokenHolder: owner,
@@ -272,7 +269,6 @@ contract('Governance', function (accounts) {
             [ this.receiver.address ],
             [ web3.utils.toWei('0') ],
             [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-            web3.utils.randomHex(32),
             '<proposal description>',
           ],
           tokenHolder: owner,
@@ -307,7 +303,6 @@ contract('Governance', function (accounts) {
             [ this.receiver.address ],
             [ web3.utils.toWei('0') ],
             [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-            web3.utils.randomHex(32),
             '<proposal description>',
           ],
           steps: {
@@ -329,7 +324,6 @@ contract('Governance', function (accounts) {
             [ this.receiver.address ],
             [ web3.utils.toWei('0') ],
             [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-            web3.utils.randomHex(32),
             '<proposal description>',
           ],
           tokenHolder: owner,
@@ -352,7 +346,6 @@ contract('Governance', function (accounts) {
             [ this.receiver.address ],
             [ web3.utils.toWei('0') ],
             [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-            web3.utils.randomHex(32),
             '<proposal description>',
           ],
           tokenHolder: owner,
@@ -380,7 +373,6 @@ contract('Governance', function (accounts) {
             [ this.receiver.address ],
             [ web3.utils.toWei('0') ],
             [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-            web3.utils.randomHex(32),
             '<proposal description>',
           ],
           tokenHolder: owner,
@@ -409,7 +401,6 @@ contract('Governance', function (accounts) {
             [ this.receiver.address ],
             [ web3.utils.toWei('0') ],
             [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-            web3.utils.randomHex(32),
             '<proposal description>',
           ],
           tokenHolder: owner,
@@ -431,7 +422,6 @@ contract('Governance', function (accounts) {
             [ this.receiver.address ],
             [ web3.utils.toWei('0') ],
             [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-            web3.utils.randomHex(32),
             '<proposal description>',
           ],
           tokenHolder: owner,
@@ -453,7 +443,6 @@ contract('Governance', function (accounts) {
             [ this.receiver.address ],
             [ web3.utils.toWei('0') ],
             [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-            web3.utils.randomHex(32),
             '<proposal description>',
           ],
           tokenHolder: owner,
@@ -478,7 +467,6 @@ contract('Governance', function (accounts) {
             [ this.receiver.address ],
             [ web3.utils.toWei('0') ],
             [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-            web3.utils.randomHex(32),
             '<proposal description>',
           ],
           steps: {
@@ -501,7 +489,6 @@ contract('Governance', function (accounts) {
             [ this.receiver.address ],
             [ web3.utils.toWei('0') ],
             [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-            web3.utils.randomHex(32),
             '<proposal description>',
           ],
           steps: {
@@ -526,7 +513,6 @@ contract('Governance', function (accounts) {
             [ this.receiver.address ],
             [ web3.utils.toWei('0') ],
             [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-            web3.utils.randomHex(32),
             '<proposal description>',
           ],
           steps: {
@@ -547,7 +533,6 @@ contract('Governance', function (accounts) {
             [ this.receiver.address ],
             [ web3.utils.toWei('0') ],
             [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-            web3.utils.randomHex(32),
             '<proposal description>',
           ],
           tokenHolder: owner,
@@ -572,7 +557,6 @@ contract('Governance', function (accounts) {
             [ this.receiver.address ],
             [ web3.utils.toWei('0') ],
             [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-            web3.utils.randomHex(32),
             '<proposal description>',
           ],
           tokenHolder: owner,
@@ -596,7 +580,6 @@ contract('Governance', function (accounts) {
             [ this.receiver.address ],
             [ web3.utils.toWei('0') ],
             [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-            web3.utils.randomHex(32),
             '<proposal description>',
           ],
           steps: {
@@ -608,7 +591,7 @@ contract('Governance', function (accounts) {
       });
       afterEach(async function () {
         await expectRevert(
-          this.governor.cancel(...this.settings.proposal.slice(0, -1)),
+          this.governor.cancel(...this.settings.proposal.slice(0, -1), this.salt),
           'Governor::state: invalid proposal id',
         );
       });
@@ -622,7 +605,6 @@ contract('Governance', function (accounts) {
             [ this.receiver.address ],
             [ web3.utils.toWei('0') ],
             [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-            web3.utils.randomHex(32),
             '<proposal description>',
           ],
           steps: {
@@ -632,7 +614,7 @@ contract('Governance', function (accounts) {
         };
       });
       afterEach(async function () {
-        await this.governor.cancel(...this.settings.proposal.slice(0, -1));
+        await this.governor.cancel(...this.settings.proposal.slice(0, -1), this.salt);
         expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
         await expectRevert(
@@ -650,7 +632,6 @@ contract('Governance', function (accounts) {
             [ this.receiver.address ],
             [ web3.utils.toWei('0') ],
             [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-            web3.utils.randomHex(32),
             '<proposal description>',
           ],
           tokenHolder: owner,
@@ -664,11 +645,11 @@ contract('Governance', function (accounts) {
         };
       });
       afterEach(async function () {
-        await this.governor.cancel(...this.settings.proposal.slice(0, -1));
+        await this.governor.cancel(...this.settings.proposal.slice(0, -1), this.salt);
         expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
         await expectRevert(
-          this.governor.execute(...this.settings.proposal.slice(0, -1)),
+          this.governor.execute(...this.settings.proposal.slice(0, -1), this.salt),
           'Governance: proposal not successfull',
         );
       });
@@ -682,7 +663,6 @@ contract('Governance', function (accounts) {
             [ this.receiver.address ],
             [ web3.utils.toWei('0') ],
             [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-            web3.utils.randomHex(32),
             '<proposal description>',
           ],
           tokenHolder: owner,
@@ -695,11 +675,11 @@ contract('Governance', function (accounts) {
         };
       });
       afterEach(async function () {
-        await this.governor.cancel(...this.settings.proposal.slice(0, -1));
+        await this.governor.cancel(...this.settings.proposal.slice(0, -1), this.salt);
         expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
         await expectRevert(
-          this.governor.execute(...this.settings.proposal.slice(0, -1)),
+          this.governor.execute(...this.settings.proposal.slice(0, -1), this.salt),
           'Governance: proposal not successfull',
         );
       });
@@ -713,7 +693,6 @@ contract('Governance', function (accounts) {
             [ this.receiver.address ],
             [ web3.utils.toWei('0') ],
             [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-            web3.utils.randomHex(32),
             '<proposal description>',
           ],
           tokenHolder: owner,
@@ -724,7 +703,7 @@ contract('Governance', function (accounts) {
       });
       afterEach(async function () {
         await expectRevert(
-          this.governor.cancel(...this.settings.proposal.slice(0, -1)),
+          this.governor.cancel(...this.settings.proposal.slice(0, -1), this.salt),
           'Governance: proposal not active',
         );
       });
@@ -739,7 +718,6 @@ contract('Governance', function (accounts) {
           [],
           [],
           [],
-          web3.utils.randomHex(32),
           '<proposal description>',
         ),
         'Governance: empty proposal',
@@ -752,7 +730,6 @@ contract('Governance', function (accounts) {
           [ ],
           [ web3.utils.toWei('0') ],
           [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-          web3.utils.randomHex(32),
           '<proposal description>',
         ),
         'Governance: invalid proposal length',
@@ -765,7 +742,6 @@ contract('Governance', function (accounts) {
           [ this.receiver.address ],
           [ ],
           [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-          web3.utils.randomHex(32),
           '<proposal description>',
         ),
         'Governance: invalid proposal length',
@@ -778,7 +754,6 @@ contract('Governance', function (accounts) {
           [ this.receiver.address ],
           [ web3.utils.toWei('0') ],
           [ ],
-          web3.utils.randomHex(32),
           '<proposal description>',
         ),
         'Governance: invalid proposal length',

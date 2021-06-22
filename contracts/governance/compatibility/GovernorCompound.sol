@@ -35,8 +35,6 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
 
     mapping(uint256 => ProposalDetails) internal _proposalDetails;
 
-    Counters.Counter private _saltCounter;
-
     // ============================================== Proposal lifecycle ==============================================
     /**
      * @dev See {IGovernor-propose}.
@@ -45,12 +43,9 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
-        bytes32 salt,
         string memory description
     ) public virtual override(IGovernor, Governor) returns (uint256) {
-        uint256 proposalId = super.propose(targets, values, calldatas, salt, description);
-        _storeProposal(proposalId, _msgSender(), targets, values, new string[](calldatas.length), calldatas, salt);
-        return proposalId;
+        return propose(targets, values, new string[](calldatas.length), calldatas, description);
     }
 
     /**
@@ -63,14 +58,8 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
         bytes[] memory calldatas,
         string memory description
     ) public virtual override returns (uint256) {
-        // Enshure the same proposal can be proposed twice through this saltless interface. Proposal can be frontrun
-        // using the core interface, but the id will only be used if the frontrun proposal is identical, which makes
-        // this situation ok (the frontrunner would not prevent anything, it would activelly accellerate the proposal).
-        bytes32 salt = bytes32(_saltCounter.current());
-        _saltCounter.increment();
-
-        uint256 proposalId = super.propose(targets, values, _encodeCalldata(signatures, calldatas), salt, description);
-        _storeProposal(proposalId, _msgSender(), targets, values, signatures, calldatas, salt);
+        uint256 proposalId = super.propose(targets, values, _encodeCalldata(signatures, calldatas), description);
+        _storeProposal(proposalId, _msgSender(), targets, values, signatures, calldatas, description);
         return proposalId;
     }
 
@@ -119,7 +108,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
         uint256[] memory values,
         string[] memory signatures,
         bytes[] memory calldatas,
-        bytes32 salt
+        string memory description
     ) private {
         ProposalDetails storage details = _proposalDetails[proposalId];
 
@@ -128,7 +117,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
         details.values = values;
         details.signatures = signatures;
         details.calldatas = calldatas;
-        details.salt = salt;
+        details.salt = keccak256(bytes(description));
     }
 
     // ==================================================== Views =====================================================

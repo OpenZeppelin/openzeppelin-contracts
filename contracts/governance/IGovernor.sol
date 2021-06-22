@@ -139,7 +139,6 @@ abstract contract IGovernor {
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
-        bytes32 salt,
         string memory description
     ) public virtual returns (uint256 proposalId);
 

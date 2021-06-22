@@ -59,7 +59,6 @@ contract('GovernorTimelockCompound', function (accounts) {
           [ this.receiver.address ],
           [ web3.utils.toWei('0') ],
           [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-          web3.utils.randomHex(32),
           '<proposal description>',
         ],
         voters: [
@@ -114,7 +113,6 @@ contract('GovernorTimelockCompound', function (accounts) {
           [ this.receiver.address ],
           [ web3.utils.toWei('0') ],
           [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-          web3.utils.randomHex(32),
           '<proposal description>',
         ],
         voters: [
@@ -139,7 +137,6 @@ contract('GovernorTimelockCompound', function (accounts) {
           [ this.receiver.address ],
           [ web3.utils.toWei('0') ],
           [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-          web3.utils.randomHex(32),
           '<proposal description>',
         ],
         voters: [
@@ -163,7 +160,6 @@ contract('GovernorTimelockCompound', function (accounts) {
           [ this.receiver.address ],
           [ web3.utils.toWei('0') ],
           [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-          web3.utils.randomHex(32),
           '<proposal description>',
         ],
         voters: [
@@ -188,7 +184,6 @@ contract('GovernorTimelockCompound', function (accounts) {
           Array(2).fill(this.token.address),
           Array(2).fill(web3.utils.toWei('0')),
           Array(2).fill(this.token.contract.methods.approve(this.receiver.address, constants.MAX_UINT256).encodeABI()),
-          web3.utils.randomHex(32),
           '<proposal description>',
         ],
         voters: [
@@ -214,7 +209,6 @@ contract('GovernorTimelockCompound', function (accounts) {
           [ this.receiver.address ],
           [ web3.utils.toWei('0') ],
           [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-          web3.utils.randomHex(32),
           '<proposal description>',
         ],
         voters: [
@@ -229,11 +223,11 @@ contract('GovernorTimelockCompound', function (accounts) {
       expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Executed);
 
       await expectRevert(
-        this.governor.queue(...this.settings.proposal.slice(0, -1)),
+        this.governor.queue(...this.settings.proposal.slice(0, -1), this.salt),
         'Governance: proposal not successfull',
       );
       await expectRevert(
-        this.governor.execute(...this.settings.proposal.slice(0, -1)),
+        this.governor.execute(...this.settings.proposal.slice(0, -1), this.salt),
         'Timelock::executeTransaction: Transaction hasn\'t been queued.',
       );
     });
@@ -247,7 +241,6 @@ contract('GovernorTimelockCompound', function (accounts) {
           [ this.receiver.address ],
           [ web3.utils.toWei('0') ],
           [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-          web3.utils.randomHex(32),
           '<proposal description>',
         ],
         voters: [
@@ -263,7 +256,7 @@ contract('GovernorTimelockCompound', function (accounts) {
       expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
 
       expectEvent(
-        await this.governor.cancel(...this.settings.proposal.slice(0, -1)),
+        await this.governor.cancel(...this.settings.proposal.slice(0, -1), this.salt),
         'ProposalCanceled',
         { proposalId: this.id },
       );
@@ -271,7 +264,7 @@ contract('GovernorTimelockCompound', function (accounts) {
       expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
       await expectRevert(
-        this.governor.queue(...this.settings.proposal.slice(0, -1)),
+        this.governor.queue(...this.settings.proposal.slice(0, -1), this.salt),
         'Governance: proposal not successfull',
       );
     });
@@ -285,7 +278,6 @@ contract('GovernorTimelockCompound', function (accounts) {
           [ this.receiver.address ],
           [ web3.utils.toWei('0') ],
           [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-          web3.utils.randomHex(32),
           '<proposal description>',
         ],
         voters: [
@@ -300,7 +292,7 @@ contract('GovernorTimelockCompound', function (accounts) {
     afterEach(async function () {
       expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Queued);
 
-      const receipt = await this.governor.cancel(...this.settings.proposal.slice(0, -1));
+      const receipt = await this.governor.cancel(...this.settings.proposal.slice(0, -1), this.salt);
       expectEvent(
         receipt,
         'ProposalCanceled',
@@ -315,7 +307,7 @@ contract('GovernorTimelockCompound', function (accounts) {
       expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
       await expectRevert(
-        this.governor.execute(...this.settings.proposal.slice(0, -1)),
+        this.governor.execute(...this.settings.proposal.slice(0, -1), this.salt),
         'GovernorTimelockCompound: proposal not yet queued',
       );
     });
@@ -350,7 +342,6 @@ contract('GovernorTimelockCompound', function (accounts) {
               this.timelock.contract.methods.setPendingAdmin(admin).encodeABI(),
               this.governor.contract.methods.updateTimelock(this.newTimelock.address).encodeABI(),
             ],
-            web3.utils.randomHex(32),
             '<proposal description>',
           ],
           voters: [
@@ -389,7 +380,6 @@ contract('GovernorTimelockCompound', function (accounts) {
             [ this.governor.address ],
             [ web3.utils.toWei('0') ],
             [ this.governor.contract.methods.updateTimelock(this.newTimelock.address).encodeABI() ],
-            web3.utils.randomHex(32),
             '<proposal description>',
           ],
           voters: [
@@ -420,7 +410,6 @@ contract('GovernorTimelockCompound', function (accounts) {
             [ this.timelock.address ],
             [ web3.utils.toWei('0') ],
             [ this.timelock.contract.methods.setPendingAdmin(this.newGovernor.address).encodeABI() ],
-            web3.utils.randomHex(32),
             '<proposal description>',
           ],
           voters: [

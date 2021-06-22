@@ -21,7 +21,8 @@ function tryGet (obj, path = '') {
 function runGovernorWorkflow () {
   beforeEach(async function () {
     this.receipts = {};
-    this.id = await this.governor.hashProposal(...this.settings.proposal.slice(0, -1));
+    this.salt = web3.utils.keccak256(this.settings.proposal.slice(-1).find(Boolean));
+    this.id = await this.governor.hashProposal(...this.settings.proposal.slice(0, -1), this.salt);
   });
 
   it('run', async function () {
@@ -37,7 +38,7 @@ function runGovernorWorkflow () {
     // propose
     if (this.governor.propose && tryGet(this.settings, 'steps.propose.enable') !== false) {
       this.receipts.propose = await getReceiptOrRevert(
-        this.governor.methods['propose(address[],uint256[],bytes[],bytes32,string)'](
+        this.governor.methods['propose(address[],uint256[],bytes[],string)'](
           ...this.settings.proposal,
           { from: this.settings.proposer },
         ),
@@ -92,6 +93,7 @@ function runGovernorWorkflow () {
       this.receipts.queue = await getReceiptOrRevert(
         this.governor.methods['queue(address[],uint256[],bytes[],bytes32)'](
           ...this.settings.proposal.slice(0, -1),
+          this.salt,
           { from: this.settings.queuer },
         ),
         tryGet(this.settings, 'steps.queue.error'),
@@ -107,6 +109,7 @@ function runGovernorWorkflow () {
       this.receipts.execute = await getReceiptOrRevert(
         this.governor.methods['execute(address[],uint256[],bytes[],bytes32)'](
           ...this.settings.proposal.slice(0, -1),
+          this.salt,
           { from: this.settings.executer },
         ),
         tryGet(this.settings, 'steps.execute.error'),

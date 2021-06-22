@@ -77,7 +77,6 @@ contract('GovernorCompound', function (accounts) {
           [ this.receiver.address ], // targets
           [ web3.utils.toWei('0') ], // values
           [ this.receiver.contract.methods.mockFunction().encodeABI() ], // calldatas
-          web3.utils.randomHex(32),
           '<proposal description>', // description
         ],
         proposer,
@@ -168,7 +167,7 @@ contract('GovernorCompound', function (accounts) {
           calldatas: this.settings.proposal[2],
           startBlock: new BN(this.receipts.propose.blockNumber).add(this.votingDelay),
           endBlock: new BN(this.receipts.propose.blockNumber).add(this.votingDelay).add(this.votingPeriod),
-          description: this.settings.proposal[4],
+          description: this.settings.proposal[3],
         },
       );
 
@@ -177,7 +176,7 @@ contract('GovernorCompound', function (accounts) {
         'ProposalSalt',
         {
           proposalId: this.id,
-          salt: this.settings.proposal[3],
+          salt: web3.utils.keccak256(this.settings.proposal[3]),
         },
       );
 

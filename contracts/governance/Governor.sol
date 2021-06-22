@@ -108,9 +108,9 @@ abstract contract Governor is IGovernor, Context, EIP712 {
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
-        bytes32 salt,
         string memory description
     ) public virtual override returns (uint256) {
+        bytes32 salt = keccak256(bytes(description));
         uint256 proposalId = hashProposal(targets, values, calldatas, salt);
 
         require(targets.length == values.length, "Governance: invalid proposal length");

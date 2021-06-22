@@ -52,7 +52,6 @@ contract('GovernorTimelockExternal', function (accounts) {
           [ this.receiver.address ],
           [ web3.utils.toWei('0') ],
           [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-          web3.utils.randomHex(32),
           '<proposal description>',
         ],
         voters: [
@@ -67,7 +66,7 @@ contract('GovernorTimelockExternal', function (accounts) {
       const timelockid = await this.timelock.hashOperationBatch(
         ...this.settings.proposal.slice(0, 3),
         '0x0',
-        this.settings.proposal[3],
+        this.salt,
       );
 
       expectEvent(
@@ -113,7 +112,6 @@ contract('GovernorTimelockExternal', function (accounts) {
           [ this.receiver.address ],
           [ web3.utils.toWei('0') ],
           [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-          web3.utils.randomHex(32),
           '<proposal description>',
         ],
         voters: [
@@ -138,7 +136,6 @@ contract('GovernorTimelockExternal', function (accounts) {
           [ this.receiver.address ],
           [ web3.utils.toWei('0') ],
           [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-          web3.utils.randomHex(32),
           '<proposal description>',
         ],
         voters: [
@@ -162,7 +159,6 @@ contract('GovernorTimelockExternal', function (accounts) {
           [ this.receiver.address ],
           [ web3.utils.toWei('0') ],
           [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-          web3.utils.randomHex(32),
           '<proposal description>',
         ],
         voters: [
@@ -177,11 +173,11 @@ contract('GovernorTimelockExternal', function (accounts) {
       expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Executed);
 
       await expectRevert(
-        this.governor.queue(...this.settings.proposal.slice(0, -1)),
+        this.governor.queue(...this.settings.proposal.slice(0, -1), this.salt),
         'Governance: proposal not successfull',
       );
       await expectRevert(
-        this.governor.execute(...this.settings.proposal.slice(0, -1)),
+        this.governor.execute(...this.settings.proposal.slice(0, -1), this.salt),
         'TimelockController: operation is not ready',
       );
     });
@@ -195,7 +191,6 @@ contract('GovernorTimelockExternal', function (accounts) {
           [ this.receiver.address ],
           [ web3.utils.toWei('0') ],
           [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-          web3.utils.randomHex(32),
           '<proposal description>',
         ],
         voters: [
@@ -211,7 +206,7 @@ contract('GovernorTimelockExternal', function (accounts) {
       expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
 
       expectEvent(
-        await this.governor.cancel(...this.settings.proposal.slice(0, -1)),
+        await this.governor.cancel(...this.settings.proposal.slice(0, -1), this.salt),
         'ProposalCanceled',
         { proposalId: this.id },
       );
@@ -219,7 +214,7 @@ contract('GovernorTimelockExternal', function (accounts) {
       expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
       await expectRevert(
-        this.governor.queue(...this.settings.proposal.slice(0, -1)),
+        this.governor.queue(...this.settings.proposal.slice(0, -1), this.salt),
         'Governance: proposal not successfull',
       );
     });
@@ -233,7 +228,6 @@ contract('GovernorTimelockExternal', function (accounts) {
           [ this.receiver.address ],
           [ web3.utils.toWei('0') ],
           [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-          web3.utils.randomHex(32),
           '<proposal description>',
         ],
         voters: [
@@ -249,12 +243,12 @@ contract('GovernorTimelockExternal', function (accounts) {
       const timelockid = await this.timelock.hashOperationBatch(
         ...this.settings.proposal.slice(0, 3),
         '0x0',
-        this.settings.proposal[3],
+        this.salt,
       );
 
       expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Queued);
 
-      const receipt = await this.governor.cancel(...this.settings.proposal.slice(0, -1));
+      const receipt = await this.governor.cancel(...this.settings.proposal.slice(0, -1), this.salt);
       expectEvent(
         receipt,
         'ProposalCanceled',
@@ -270,7 +264,7 @@ contract('GovernorTimelockExternal', function (accounts) {
       expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
       await expectRevert(
-        this.governor.execute(...this.settings.proposal.slice(0, -1)),
+        this.governor.execute(...this.settings.proposal.slice(0, -1), this.salt),
         'TimelockController: operation is not ready',
       );
     });
@@ -296,7 +290,6 @@ contract('GovernorTimelockExternal', function (accounts) {
             [ this.governor.address ],
             [ web3.utils.toWei('0') ],
             [ this.governor.contract.methods.updateTimelock(this.newTimelock.address).encodeABI() ],
-            web3.utils.randomHex(32),
             '<proposal description>',
           ],
           voters: [

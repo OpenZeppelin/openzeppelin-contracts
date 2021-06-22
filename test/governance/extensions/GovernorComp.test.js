@@ -45,7 +45,6 @@ contract('Governance', function (accounts) {
           [ this.receiver.address ],
           [ web3.utils.toWei('0') ],
           [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-          web3.utils.randomHex(32),
           '<proposal description>',
         ],
         tokenHolder: owner,
