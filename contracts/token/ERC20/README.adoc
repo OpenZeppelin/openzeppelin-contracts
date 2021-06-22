@@ -23,6 +23,7 @@ Additionally there are multiple custom extensions, including:
 * {ERC20FlashMint}: token level support for flash loans through the minting and burning of ephemeral tokens (standardized as ERC3156).
 * {ERC20Votes}: support for voting and vote delegation.
 * {ERC20VotesComp}: support for voting and vote delegation (compatible with Compound's tokenn, with uint96 restrictions).
+* {ERC20Wrapper}: wrapper to create an ERC20 backed by another ERC20, with deposit and withdraw methods. Useful in conjunction with {ERC20Votes}.
 
 Finally, there are some utilities to interact with ERC20 contracts in various ways.
 
@@ -57,6 +58,8 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 {{ERC20Votes}}
 
 {{ERC20VotesComp}}
+
+{{ERC20Wrapper}}
 
 == Draft EIPs
 
