@@ -34,8 +34,6 @@ abstract contract IGovernor {
         string description
     );
 
-    event ProposalSalt(uint256 proposalId, bytes32 salt);
-
     /**
      * @dev Emitted when a proposal is canceled.
      */

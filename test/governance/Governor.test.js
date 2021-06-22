@@ -96,15 +96,6 @@ contract('Governance', function (accounts) {
           },
         );
 
-        expectEvent(
-          this.receipts.propose,
-          'ProposalSalt',
-          {
-            proposalId: this.id,
-            salt: web3.utils.keccak256(this.settings.proposal[3]),
-          },
-        );
-
         this.receipts.castVote.filter(Boolean).forEach(vote => {
           const { voter } = vote.logs.find(Boolean).args;
           expectEvent(

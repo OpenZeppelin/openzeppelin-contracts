@@ -171,15 +171,6 @@ contract('GovernorCompound', function (accounts) {
         },
       );
 
-      expectEvent(
-        this.receipts.propose,
-        'ProposalSalt',
-        {
-          proposalId: this.id,
-          salt: web3.utils.keccak256(this.settings.proposal[3]),
-        },
-      );
-
       this.receipts.castVote.filter(Boolean).forEach(vote => {
         const { voter } = vote.logs.find(Boolean).args;
         expectEvent(
@@ -302,14 +293,6 @@ contract('GovernorCompound', function (accounts) {
           startBlock: new BN(this.receipts.propose.blockNumber).add(this.votingDelay),
           endBlock: new BN(this.receipts.propose.blockNumber).add(this.votingDelay).add(this.votingPeriod),
           description: this.settings.proposal[4],
-        },
-      );
-
-      expectEvent(
-        this.receipts.propose,
-        'ProposalSalt',
-        {
-          proposalId: this.id,
         },
       );
 
