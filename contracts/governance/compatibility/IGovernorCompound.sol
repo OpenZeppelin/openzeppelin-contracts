@@ -7,7 +7,7 @@ import "../IGovernor.sol";
 /**
  * @dev Interface extension that adds missing functions to the {Governor} core to provide `GovernorBravo` compatibility.
  *
- * _Available since v4.2._
+ * _Available since v4.3._
  */
 abstract contract IGovernorCompound is IGovernor {
     /**

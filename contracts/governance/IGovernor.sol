@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 /**
  * @dev Interface of the {Governor} core.
  *
- * _Available since v4.2._
+ * _Available since v4.3._
  */
 abstract contract IGovernor {
     enum ProposalState {

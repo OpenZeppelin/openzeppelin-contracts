@@ -12,7 +12,7 @@ import "./IGovernor.sol";
 /**
  * @dev Core of the governance system, designed to be extended though various modules.
  *
- * _Available since v4.2._
+ * _Available since v4.3._
  */
 abstract contract Governor is IGovernor, Context, EIP712 {
     using Timers for Timers.BlockNumber;

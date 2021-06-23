@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 /**
  * @dev Extension of the {IGovernor} for timelock supporting modules.
  *
- * _Available since v4.2._
+ * _Available since v4.3._
  */
 abstract contract IGovernorTimelock {
     event ProposalQueued(uint256 proposalId, uint256 eta);

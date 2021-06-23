@@ -8,7 +8,7 @@ import "../../token/ERC20/extensions/ERC20Votes.sol";
 /**
  * @dev Extension of {Governor} for voting weight extraction from a Comp or {ERC20Votes} token.
  *
- * _Available since v4.2._
+ * _Available since v4.3._
  */
 abstract contract GovernorWithERC20Votes is IGovernor {
     ERC20Votes public immutable token;

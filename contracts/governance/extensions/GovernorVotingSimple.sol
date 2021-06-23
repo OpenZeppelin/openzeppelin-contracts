@@ -7,7 +7,7 @@ import "../IGovernor.sol";
 /**
  * @dev Extension of {Governor} for simple, 3 options, voting.
  *
- * _Available since v4.2._
+ * _Available since v4.3._
  */
 abstract contract GovernorVotingSimple is IGovernor {
     /**

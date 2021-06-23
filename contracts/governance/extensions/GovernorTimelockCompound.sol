@@ -70,7 +70,7 @@ interface ICompoundTimelock {
  * the assets and permissions must be attached to the {TimelockController}. Any asset sent to the {Governor} will be
  * inaccessible.
  *
- * _Available since v4.2._
+ * _Available since v4.3._
  */
 abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     using Timers for Timers.Timestamp;
