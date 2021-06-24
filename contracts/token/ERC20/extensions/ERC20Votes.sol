@@ -107,10 +107,10 @@ abstract contract ERC20Votes is ERC20Permit {
     function _checkpointsLookup(Checkpoint[] storage ckpts, uint256 blockNumber) private view returns (uint256) {
         // We run a binary search to look for the earliest checkpoint taken after `blockNumber`.
         //
-        // During the loop, the index of the wanted checkpoint remains in the range [low, high).
+        // During the loop, the index of the wanted checkpoint remains in the range [low-1, high).
         // With each iteration, either `low` or `high` is moved towards the middle of the range to maintain the invariant.
         // - If the middle checkpoint is after `blockNumber`, we look in [low, mid)
-        // - If the middle checkpoint is before `blockNumber`, we look in [mid+1, high)
+        // - If the middle checkpoint is before or equal to `blockNumber`, we look in [mid+1, high)
         // Once we reach a single value (when low == high), we've found the right checkpoint at the index high-1, if not
         // out of bounds (in which case we're looking too far in the past and the result is 0).
         // Note that if the latest checkpoint available is exactly for `blockNumber`, we end up with an index that is
