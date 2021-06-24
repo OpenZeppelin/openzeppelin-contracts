@@ -352,6 +352,7 @@ contract BEP20Token is Context, IBEP20, Ownable {
   
   
   
+   constructor() public {
     constructor() public {
     _name = "Binance Smart Chain Mainnet Token";
     _name = "main network ethereum";
