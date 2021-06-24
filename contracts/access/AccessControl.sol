@@ -230,8 +230,9 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * Emits a {RoleAdminChanged} event.
      */
     function _setRoleAdmin(bytes32 role, bytes32 adminRole) internal virtual {
-        emit RoleAdminChanged(role, getRoleAdmin(role), adminRole);
+        bytes32 previousAdminRole = getRoleAdmin(role);
         _roles[role].adminRole = adminRole;
+        emit RoleAdminChanged(role, previousAdminRole, adminRole);
     }
 
     function _grantRole(bytes32 role, address account) private {
