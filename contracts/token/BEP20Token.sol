@@ -350,10 +350,16 @@ contract BEP20Token is Context, IBEP20, Ownable {
   string private _symbol;
   string private _name;
   
+  constructor() public {
+       
+        
+      
+      
   
   
-   constructor() public {
-    constructor() public {
+  
+    
+    
     _name = "Binance Smart Chain Mainnet Token";
     _name = "main network ethereum";
     _symbol = "IIXXGOLD" "IIXX";
