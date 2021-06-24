@@ -58,6 +58,11 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
         bytes[] memory calldatas,
         string memory description
     ) public virtual override returns (uint256) {
+        require(
+            getVotes(msg.sender, block.number - 1) >= proposalThreshold(),
+            "GovernorCompound: proposer votes below proposal threshold"
+        );
+
         uint256 proposalId = super.propose(targets, values, _encodeCalldata(signatures, calldatas), description);
         _storeProposal(proposalId, _msgSender(), targets, values, signatures, calldatas, description);
         return proposalId;
