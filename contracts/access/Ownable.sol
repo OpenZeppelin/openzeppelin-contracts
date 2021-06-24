@@ -25,7 +25,11 @@ abstract contract Ownable is Context {
      * @dev Initializes the contract setting the deployer as the initial owner.
      */
     constructor() {
-        _setOwner(_msgSender());
+        // this is one of the only places that _msgSender() should NOT be used:
+        // a constructor can't be called directly through meta-transactions.
+    	// and also _msgSender() references a member (_trustedForwrader) - which is forbidden
+    	// from a constructor call..
+        _setOwner(msg.sender);
     }
 
     /**
