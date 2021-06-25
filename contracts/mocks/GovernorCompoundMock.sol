@@ -28,7 +28,7 @@ contract GovernorCompoundMock is GovernorCompound, GovernorTimelockCompound, Gov
         uint256[] memory values,
         bytes[] memory calldatas,
         string memory description
-    ) public virtual override(IGovernor, Governor, GovernorCompound) returns (uint256) {
+    ) public virtual override(IGovernor, GovernorCompound) returns (uint256) {
         return super.propose(targets, values, calldatas, description);
     }
 

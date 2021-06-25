@@ -99,7 +99,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     /**
      * @dev Overriden version of the {Governor-state} function with added support for the `Queued` and `Expired` status.
      */
-    function state(uint256 proposalId) public view virtual override returns (ProposalState) {
+    function state(uint256 proposalId) public view virtual override(IGovernor, Governor) returns (ProposalState) {
         ProposalState proposalState = super.state(proposalId);
 
         if (proposalState != ProposalState.Succeeded) {
@@ -168,7 +168,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 salt
-    ) public payable virtual override returns (uint256) {
+    ) public payable virtual override(IGovernor, Governor) returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, salt);
         Address.sendValue(payable(_timelock), msg.value);
 

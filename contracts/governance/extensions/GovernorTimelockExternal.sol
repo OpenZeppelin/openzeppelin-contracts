@@ -36,7 +36,7 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
     /**
      * @dev Overriden version of the {Governor-state} function with added support for the `Queued` status.
      */
-    function state(uint256 proposalId) public view virtual override returns (ProposalState) {
+    function state(uint256 proposalId) public view virtual override(IGovernor, Governor) returns (ProposalState) {
         ProposalState proposalState = super.state(proposalId);
 
         return
@@ -93,7 +93,7 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 salt
-    ) public payable virtual override returns (uint256) {
+    ) public payable virtual override(IGovernor, Governor) returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, salt);
         _timelock.executeBatch{value: msg.value}(targets, values, calldatas, 0, salt);
 
