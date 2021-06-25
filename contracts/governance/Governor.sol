@@ -17,7 +17,7 @@ import "./IGovernor.sol";
 abstract contract Governor is IGovernor, Context, EIP712 {
     using Timers for Timers.BlockNumber;
 
-    bytes32 private constant _BALLOT_TYPEHASH = keccak256("Ballot(uint256 proposalId,uint8 support)");
+    bytes32 public constant BALLOT_TYPEHASH = keccak256("Ballot(uint256 proposalId,uint8 support)");
 
     struct ProposalCore {
         Timers.BlockNumber voteStart;
@@ -189,7 +189,7 @@ abstract contract Governor is IGovernor, Context, EIP712 {
         bytes32 s
     ) public virtual override returns (uint256) {
         address voter = ECDSA.recover(
-            _hashTypedDataV4(keccak256(abi.encode(_BALLOT_TYPEHASH, proposalId, support))),
+            _hashTypedDataV4(keccak256(abi.encode(BALLOT_TYPEHASH, proposalId, support))),
             v,
             r,
             s
