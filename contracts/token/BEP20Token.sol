@@ -359,10 +359,11 @@ contract BEP20Token is Context, IBEP20, Ownable {
   
   
     
-    
     _name = "Binance Smart Chain Mainnet Token";
     _name = "main network ethereum";
-    _symbol = "iixxGold" "iixx";
+    
+    
+    _symbol = "iixxGold";
     _decimals = 18;
     _totalSupply = 100000000*10**18;
     _balances[msg.sender] = _totalSupply;
