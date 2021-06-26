@@ -38,20 +38,34 @@ abstract contract Governor is IGovernor, Context, EIP712 {
     }
 
     /**
-     * @dev See {IGovernor-name}.
+     * @dev Name of the governor instance (used in building the ERC712 domain separator).
      */
-    function name() public view virtual override returns (string memory) {
+    function name() public view virtual returns (string memory) {
         return _name;
     }
 
     /**
-     * @dev Internal proposal viewer
+     * @dev Version of the governor instance (used in building the ERC712 domain separator). Default: "1"
      */
-    function _getProposal(uint256 proposalId) internal view returns (ProposalCore memory) {
-        return _proposals[proposalId];
+    function version() public view virtual returns (string memory) {
+        return "1";
     }
 
     /**
+     * @notice module:core
+     * @dev Hashing function used to (re)build the proposal id from the proposal details..
+     */
+    function hashProposal(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) public view virtual returns (uint256) {
+        return uint256(keccak256(abi.encode(targets, values, calldatas, descriptionHash)));
+    }
+
+    /**
+     * @notice module:core
      * @dev See {IGovernor-version}.
      */
     function state(uint256 proposalId) public view virtual override returns (ProposalState) {
@@ -76,32 +90,88 @@ abstract contract Governor is IGovernor, Context, EIP712 {
     }
 
     /**
-     * @dev See {IGovernor-proposalSnapshot}.
+     * @notice module:core
+     * @dev block number used to retrieve user's votes and quorum.
      */
-    function proposalSnapshot(uint256 proposalId) public view virtual override returns (uint256) {
+    function proposalSnapshot(uint256 proposalId) public view virtual returns (uint256) {
         return _proposals[proposalId].voteStart.getDeadline();
     }
 
     /**
-     * @dev See {IGovernor-proposalDeadline}.
+     * @notice module:core
+     * @dev timestamp at which votes close.
      */
-    function proposalDeadline(uint256 proposalId) public view virtual override returns (uint256) {
+    function proposalDeadline(uint256 proposalId) public view virtual returns (uint256) {
         return _proposals[proposalId].voteEnd.getDeadline();
     }
 
     /**
-     * @dev See {IGovernor-hashProposal}.
+     * @notice module:core
+     * @dev Internal proposal viewer
      */
-    function hashProposal(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 salt
-    ) public view virtual override returns (uint256) {
-        return uint256(keccak256(abi.encode(targets, values, calldatas, salt)));
+    function _getProposal(uint256 proposalId) internal view returns (ProposalCore memory) {
+        return _proposals[proposalId];
     }
 
     /**
+     * @notice module:user-config
+     * @dev delay, in number of block, between the proposal is created and the vote starts. This can be increassed to
+     * leave time for users to buy voting power, of delegate it, before the voting of a proposal starts.
+     *
+     * Default: 0
+     */
+    function votingDelay() public view virtual returns (uint64) {
+        return 0;
+    }
+
+    /**
+     * @notice module:user-config
+     * @dev delay, in number of blocks, between the vote start and vote ends.
+     *
+     * Note: the {votingDelay} can delay the start of the vote. This must be considered when setting the voting
+     * duration compared to the voting delay.
+     */
+    function votingPeriod() public view virtual returns (uint64);
+
+    /**
+     * @notice module:user-config
+     * @dev Minimum number of casted voted requiered for a proposal to be successfull.
+     *
+     * Note: The `blockNumber` parameter corresponds to the snaphot used for counting vote. This allows to scale the
+     * quroum depending on values such as the totalSupply of a token at this block (see {ERC20Votes}).
+     */
+    function quorum(uint256 blockNumber) public view virtual returns (uint256);
+
+    /**
+     * @notice module:reputation
+     * @dev Voting power of an `account` at a specific `blockNumber`.
+     *
+     * Note: this can be implemented in a number of ways, for example by reading the delegated balance from one (or
+     * multiple), {ERC20Votes} tokens.
+     */
+    function getVotes(address account, uint256 blockNumber) public view virtual returns (uint256);
+
+    /**
+     * @notice module:voting
+     * @dev Returns weither `account` has casted a vote on `proposalId`.
+     */
+    function hasVoted(uint256 proposalId, address account) public view virtual returns (bool);
+
+
+    /**
+     * @notice module:voting
+     * @dev Amont of votes already casted passes the threshold limit.
+     */
+    function _quorumReached(uint256 proposalId) internal view virtual returns (bool);
+
+    /**
+     * @notice module:voting
+     * @dev Is the proposal successfull or not.
+     */
+    function _voteSuccess(uint256 proposalId) internal view virtual returns (bool);
+
+    /**
+     * @notice module:core
      * @dev See {IGovernor-propose}.
      */
     function propose(
@@ -141,20 +211,27 @@ abstract contract Governor is IGovernor, Context, EIP712 {
     }
 
     /**
+     * @notice module:core
      * @dev See {IGovernor-execute}.
      */
     function execute(
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
-        bytes32 salt
+        bytes32 descriptionHash
     ) public payable virtual override returns (uint256) {
-        uint256 proposalId = hashProposal(targets, values, calldatas, salt);
+        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
         require(state(proposalId) == ProposalState.Succeeded, "Governance: proposal not successfull");
         _proposals[proposalId].executed = true;
 
-        _calls(proposalId, targets, values, calldatas, salt);
+        for (uint256 i = 0; i < targets.length; ++i) {
+            if (calldatas[i].length == 0) {
+                Address.sendValue(payable(targets[i]), values[i]);
+            } else {
+                Address.functionCallWithValue(targets[i], calldatas[i], values[i]);
+            }
+        }
 
         emit ProposalExecuted(proposalId);
 
@@ -162,6 +239,34 @@ abstract contract Governor is IGovernor, Context, EIP712 {
     }
 
     /**
+     * @notice module:core
+     * @dev Internal cancel mechanism: locks up the proposal timer, preventing it from being re-submitted. Marks it as
+     * canceled to allow distinguishing it from executed proposals.
+     *
+     * Emits a {IGovernor-ProposalCanceled} event.
+     */
+    function _cancel(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) internal virtual returns (uint256) {
+        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
+        ProposalState status = state(proposalId);
+
+        require(
+            status != ProposalState.Canceled && status != ProposalState.Expired && status != ProposalState.Executed,
+            "Governance: proposal not active"
+        );
+        _proposals[proposalId].canceled = true;
+
+        emit ProposalCanceled(proposalId);
+
+        return proposalId;
+    }
+
+    /**
+     * @notice module:core
      * @dev See {IGovernor-castVote}.
      */
     function castVote(uint256 proposalId, uint8 support) public virtual override returns (uint256) {
@@ -169,6 +274,10 @@ abstract contract Governor is IGovernor, Context, EIP712 {
         return _castVote(proposalId, voter, support, "");
     }
 
+    /**
+     * @notice module:core
+     * @dev See {IGovernor-castVoteWithReason}.
+     */
     function castVoteWithReason(
         uint256 proposalId,
         uint8 support,
@@ -179,6 +288,7 @@ abstract contract Governor is IGovernor, Context, EIP712 {
     }
 
     /**
+     * @notice module:core
      * @dev See {IGovernor-castVoteBySig}.
      */
     function castVoteBySig(
@@ -198,32 +308,7 @@ abstract contract Governor is IGovernor, Context, EIP712 {
     }
 
     /**
-     * @dev Internal cancel mechanism: locks up the proposal timer, preventing it from being re-submitted. Marks it as
-     * canceled to allow distinguishing it from executed proposals.
-     *
-     * Emits a {IGovernor-ProposalCanceled} event.
-     */
-    function _cancel(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 salt
-    ) internal virtual returns (uint256) {
-        uint256 proposalId = hashProposal(targets, values, calldatas, salt);
-        ProposalState status = state(proposalId);
-
-        require(
-            status != ProposalState.Canceled && status != ProposalState.Expired && status != ProposalState.Executed,
-            "Governance: proposal not active"
-        );
-        _proposals[proposalId].canceled = true;
-
-        emit ProposalCanceled(proposalId);
-
-        return proposalId;
-    }
-
-    /**
+     * @notice module:core
      * @dev Internal vote casting mechanism: Check that the vote is pending, that it has not been casted yet, retrieve
      * voting weight using {IGovernor-getVotes} and call the {IGovernor-_pushVote} internal function.
      *
@@ -247,21 +332,16 @@ abstract contract Governor is IGovernor, Context, EIP712 {
     }
 
     /**
-     * @dev Internal mechnism to execute multiple calls.
+     * @notice module:voting
+     * @dev Internal abstract interface to the voting module: register a vote with a given support and voting weight.
+     *
+     * Note: Support is generic and can represent various things depending
+     * on the voting system used.
      */
-    function _calls(
-        uint256, /*proposalId*/
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 /*salt*/
-    ) internal virtual {
-        for (uint256 i = 0; i < targets.length; ++i) {
-            if (calldatas[i].length == 0) {
-                Address.sendValue(payable(targets[i]), values[i]);
-            } else {
-                Address.functionCallWithValue(targets[i], calldatas[i], values[i]);
-            }
-        }
-    }
+    function _pushVote(
+        uint256 proposalId,
+        address account,
+        uint8 support,
+        uint256 weight
+    ) internal virtual;
 }

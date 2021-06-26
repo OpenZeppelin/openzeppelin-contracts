@@ -7,7 +7,7 @@ pragma solidity ^0.8.0;
  *
  * _Available since v4.3._
  */
-abstract contract IGovernor {
+interface IGovernor {
     enum ProposalState {
         Pending,
         Active,
@@ -52,84 +52,13 @@ abstract contract IGovernor {
     event VoteCast(address indexed voter, uint256 proposalId, uint8 support, uint256 weight, string reason);
 
     /**
-     * @dev Name of the governor instance (used in building the ERC712 domain separator).
-     */
-    function name() public view virtual returns (string memory);
-
-    /**
-     * @dev Version of the governor instance (used in building the ERC712 domain separator). Default: "1"
-     */
-    function version() public view virtual returns (string memory) {
-        return "1";
-    }
-
-    /**
      * @dev Current state of a proposal, following Compound's convention
      */
-    function state(uint256 proposalId) public view virtual returns (ProposalState);
-
-    /**
-     * @dev Proposal deadline: timestamp at which votes close.
-     */
-    function proposalDeadline(uint256 proposalId) public view virtual returns (uint256);
-
-    /**
-     * @dev Proposal snapshot: block number used to retrieve user's votes and quorum.
-     */
-    function proposalSnapshot(uint256 proposalId) public view virtual returns (uint256);
-
-    /**
-     * @dev Returns weither `account` has casted a vote on `proposalId`.
-     */
-    function hasVoted(uint256 proposalId, address account) public view virtual returns (bool);
-
-    /**
-     * @dev Minimum number of casted voted requiered for a proposal to be successfull.
-     *
-     * Note: The `blockNumber` parameter corresponds to the snaphot used for counting vote. This allows to scale the
-     * quroum depending on values such as the totalSupply of a token at this block (see {ERC20Votes}).
-     */
-    function quorum(uint256 blockNumber) public view virtual returns (uint256);
-
-    /**
-     * @dev Voting power of an `account` at a specific `blockNumber`.
-     *
-     * Note: this can be implemented in a number of ways, for example by reading the delegated balance from one (or
-     * multiple), {ERC20Votes} tokens.
-     */
-    function getVotes(address account, uint256 blockNumber) public view virtual returns (uint256);
-
-    /**
-     * @dev Delay, in number of block, between the proposal is created and the vote starts. This can be increassed to
-     * leave time for users to buy voting power, of delegate it, before the voting of a proposal starts.
-     *
-     * Default: 0
-     */
-    function votingDelay() public view virtual returns (uint64) {
-        return 0;
-    }
-
-    /**
-     * @dev Delay, in number of blocks, between the vote start and vote ends.
-     *
-     * Note: the {votingDelay} can delay the start of the vote. This must be considered when setting the voting
-     * duration compared to the voting delay.
-     */
-    function votingPeriod() public view virtual returns (uint64);
-
-    /**
-     * @dev Hashing function used to (re)build the proposal id from the proposal details.
-     */
-    function hashProposal(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 salt
-    ) public view virtual returns (uint256 proposalId);
+    function state(uint256 proposalId) external view returns (ProposalState);
 
     /**
      * @dev Create a new proposal. Vote start {IGovernor-votingDelay} blocks after the proposal is created and ends
-     * {IGovernor-votingDuration} seconds after the proposal is created.
+     * {IGovernor-votingPeriod} blocks after the voting starts.
      *
      * Emits a {ProposalCreated} event.
      */
@@ -138,7 +67,7 @@ abstract contract IGovernor {
         uint256[] memory values,
         bytes[] memory calldatas,
         string memory description
-    ) public virtual returns (uint256 proposalId);
+    ) external returns (uint256 proposalId);
 
     /**
      * @dev Execute a successfull proposal. This requiers the quorum to be reached, the vote to be successfull, and the
@@ -152,15 +81,15 @@ abstract contract IGovernor {
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
-        bytes32 salt
-    ) public payable virtual returns (uint256 proposalId);
+        bytes32 descriptionHash
+    ) external payable returns (uint256 proposalId);
 
     /**
      * @dev Cast a vote
      *
      * Emits a {VoteCast} event.
      */
-    function castVote(uint256 proposalId, uint8 support) public virtual returns (uint256 balance);
+    function castVote(uint256 proposalId, uint8 support) external returns (uint256 balance);
 
     /**
      * @dev Cast a with a reason
@@ -171,7 +100,7 @@ abstract contract IGovernor {
         uint256 proposalId,
         uint8 support,
         string calldata reason
-    ) public virtual returns (uint256 balance);
+    ) external returns (uint256 balance);
 
     /**
      * @dev Cast a vote using the user cryptographic signature.
@@ -184,28 +113,5 @@ abstract contract IGovernor {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public virtual returns (uint256 balance);
-
-    /**
-     * @dev Proposal weight: amont of votes already casted.
-     */
-    function _quorumReached(uint256 proposalId) internal view virtual returns (bool);
-
-    /**
-     * @dev Internal abstract interface to the voting module: returns weither a proposal is successfull or not.
-     */
-    function _voteSuccess(uint256 proposalId) internal view virtual returns (bool);
-
-    /**
-     * @dev Internal abstract interface to the voting module: register a vote with a given support and voting weight.
-     *
-     * Note: Support is generic and can represent various things depending
-     * on the voting system used.
-     */
-    function _pushVote(
-        uint256 proposalId,
-        address account,
-        uint8 support,
-        uint256 weight
-    ) internal virtual;
+    ) external returns (uint256 balance);
 }

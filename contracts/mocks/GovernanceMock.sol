@@ -27,4 +27,8 @@ contract GovernanceMock is Governor, GovernorWithERC20Votes, GovernorVotingSimpl
     ) public returns (uint256 proposalId) {
         return _cancel(targets, values, calldatas, salt);
     }
+
+    function getVotes(address account, uint256 blockNumber) public view virtual override(Governor, GovernorWithERC20Votes) returns (uint256) {
+        return super.getVotes(account, blockNumber);
+    }
 }

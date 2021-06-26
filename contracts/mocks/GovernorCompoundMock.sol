@@ -47,6 +47,10 @@ contract GovernorCompoundMock is GovernorCompound, GovernorTimelockCompound, Gov
         bytes[] memory calldatas,
         bytes32 salt
     ) internal virtual override(Governor, GovernorTimelockCompound) returns (uint256 proposalId) {
-        return GovernorTimelockCompound._cancel(targets, values, calldatas, salt);
+        return super._cancel(targets, values, calldatas, salt);
+    }
+
+    function getVotes(address account, uint256 blockNumber) public view virtual override(Governor, GovernorWithERC20VotesComp) returns (uint256) {
+        return super.getVotes(account, blockNumber);
     }
 }

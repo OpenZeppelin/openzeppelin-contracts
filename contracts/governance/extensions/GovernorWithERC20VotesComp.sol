@@ -2,7 +2,6 @@
 
 pragma solidity ^0.8.0;
 
-import "../IGovernor.sol";
 import "../../token/ERC20/extensions/ERC20VotesComp.sol";
 
 /**
@@ -10,7 +9,7 @@ import "../../token/ERC20/extensions/ERC20VotesComp.sol";
  *
  * _Available since v4.3._
  */
-abstract contract GovernorWithERC20VotesComp is IGovernor {
+abstract contract GovernorWithERC20VotesComp {
     ERC20VotesComp public immutable token;
 
     constructor(address token_) {
@@ -20,7 +19,7 @@ abstract contract GovernorWithERC20VotesComp is IGovernor {
     /**
      * Read the voting weight from the token's built in snapshot mechanism (see {IGovernor-getVotes}).
      */
-    function getVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
+    function getVotes(address account, uint256 blockNumber) public view virtual returns (uint256) {
         return token.getPriorVotes(account, blockNumber);
     }
 }

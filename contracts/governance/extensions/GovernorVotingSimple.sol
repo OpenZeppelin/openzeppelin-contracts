@@ -2,14 +2,14 @@
 
 pragma solidity ^0.8.0;
 
-import "../IGovernor.sol";
+import "../Governor.sol";
 
 /**
  * @dev Extension of {Governor} for simple, 3 options, voting.
  *
  * _Available since v4.3._
  */
-abstract contract GovernorVotingSimple is IGovernor {
+abstract contract GovernorVotingSimple is Governor {
     /**
      * @dev Supported vote types. Matches Governor Bravo ordering.
      */
