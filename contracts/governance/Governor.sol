@@ -15,7 +15,7 @@ import "./IGovernor.sol";
  *
  * _Available since v4.3._
  */
-abstract contract Governor is IGovernor, Context, ERC165, EIP712 {
+abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     using Timers for Timers.BlockNumber;
 
     bytes32 public constant BALLOT_TYPEHASH = keccak256("Ballot(uint256 proposalId,uint8 support)");
