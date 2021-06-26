@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 
 import "../utils/cryptography/ECDSA.sol";
 import "../utils/cryptography/draft-EIP712.sol";
+import "../utils/introspection/ERC165.sol";
 import "../utils/Address.sol";
 import "../utils/Context.sol";
 import "../utils/Timers.sol";
@@ -14,7 +15,7 @@ import "./IGovernor.sol";
  *
  * _Available since v4.3._
  */
-abstract contract Governor is IGovernor, Context, EIP712 {
+abstract contract Governor is IGovernor, Context, ERC165, EIP712 {
     using Timers for Timers.BlockNumber;
 
     bytes32 public constant BALLOT_TYPEHASH = keccak256("Ballot(uint256 proposalId,uint8 support)");
@@ -35,6 +36,13 @@ abstract contract Governor is IGovernor, Context, EIP712 {
      */
     constructor(string memory name_) EIP712(name_, version()) {
         _name = name_;
+    }
+
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC165) returns (bool) {
+        return interfaceId == type(IGovernor).interfaceId || super.supportsInterface(interfaceId);
     }
 
     /**
@@ -156,7 +164,6 @@ abstract contract Governor is IGovernor, Context, EIP712 {
      * @dev Returns weither `account` has casted a vote on `proposalId`.
      */
     function hasVoted(uint256 proposalId, address account) public view virtual returns (bool);
-
 
     /**
      * @notice module:voting

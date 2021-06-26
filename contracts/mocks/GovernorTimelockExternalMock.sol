@@ -33,7 +33,13 @@ contract GovernorTimelockExternalMock is GovernorTimelockExternal, GovernorWithE
     /**
      * Overriding nightmare
      */
-    function state(uint256 proposalId) public view virtual override(Governor, GovernorTimelockExternal) returns (ProposalState) {
+    function state(uint256 proposalId)
+        public
+        view
+        virtual
+        override(Governor, GovernorTimelockExternal)
+        returns (ProposalState)
+    {
         return super.state(proposalId);
     }
 
@@ -55,7 +61,13 @@ contract GovernorTimelockExternalMock is GovernorTimelockExternal, GovernorWithE
         return super._cancel(targets, values, calldatas, salt);
     }
 
-    function getVotes(address account, uint256 blockNumber) public view virtual override(Governor, GovernorWithERC20Votes) returns (uint256) {
+    function getVotes(address account, uint256 blockNumber)
+        public
+        view
+        virtual
+        override(Governor, GovernorWithERC20Votes)
+        returns (uint256)
+    {
         return super.getVotes(account, blockNumber);
     }
 }
