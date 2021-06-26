@@ -54,7 +54,7 @@ contract GovernorCompoundMock is GovernorCompound, GovernorTimelockCompound, Gov
         public
         view
         virtual
-        override(Governor, GovernorWithERC20VotesComp)
+        override(IGovernor, GovernorWithERC20VotesComp)
         returns (uint256)
     {
         return super.getVotes(account, blockNumber);

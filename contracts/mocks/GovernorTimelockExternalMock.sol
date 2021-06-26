@@ -13,11 +13,11 @@ contract GovernorTimelockExternalMock is GovernorTimelockExternal, GovernorWithE
         address timelock_
     ) Governor(name_) GovernorTimelockExternal(timelock_) GovernorWithERC20Votes(token_) {}
 
-    function votingPeriod() public pure override returns (uint64) {
+    function votingPeriod() public pure override(IGovernor, Governor) returns (uint64) {
         return 16; // blocks
     }
 
-    function quorum(uint256) public pure override returns (uint256) {
+    function quorum(uint256) public pure override(IGovernor, Governor) returns (uint256) {
         return 1;
     }
 
@@ -37,7 +37,7 @@ contract GovernorTimelockExternalMock is GovernorTimelockExternal, GovernorWithE
         public
         view
         virtual
-        override(Governor, GovernorTimelockExternal)
+        override(IGovernor, Governor, GovernorTimelockExternal)
         returns (ProposalState)
     {
         return super.state(proposalId);
@@ -48,7 +48,7 @@ contract GovernorTimelockExternalMock is GovernorTimelockExternal, GovernorWithE
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 salt
-    ) public payable virtual override(Governor, GovernorTimelockExternal) returns (uint256 proposalId) {
+    ) public payable virtual override(IGovernor, Governor, GovernorTimelockExternal) returns (uint256 proposalId) {
         return super.execute(targets, values, calldatas, salt);
     }
 
@@ -65,7 +65,7 @@ contract GovernorTimelockExternalMock is GovernorTimelockExternal, GovernorWithE
         public
         view
         virtual
-        override(Governor, GovernorWithERC20Votes)
+        override(IGovernor, Governor, GovernorWithERC20Votes)
         returns (uint256)
     {
         return super.getVotes(account, blockNumber);

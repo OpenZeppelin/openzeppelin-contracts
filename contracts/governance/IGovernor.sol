@@ -54,9 +54,62 @@ interface IGovernor is IERC165 {
     event VoteCast(address indexed voter, uint256 proposalId, uint8 support, uint256 weight, string reason);
 
     /**
+     * @notice module:core
      * @dev Current state of a proposal, following Compound's convention
      */
     function state(uint256 proposalId) external view returns (ProposalState);
+
+    /**
+     * @notice module:core
+     * @dev block number used to retrieve user's votes and quorum.
+     */
+    function proposalSnapshot(uint256 proposalId) external view returns (uint256);
+
+    /**
+     * @notice module:core
+     * @dev timestamp at which votes close.
+     */
+    function proposalDeadline(uint256 proposalId) external view returns (uint256);
+
+    /**
+     * @notice module:user-config
+     * @dev delay, in number of block, between the proposal is created and the vote starts. This can be increassed to
+     * leave time for users to buy voting power, of delegate it, before the voting of a proposal starts.
+     */
+    function votingDelay() external view returns (uint64);
+
+    /**
+     * @notice module:user-config
+     * @dev delay, in number of blocks, between the vote start and vote ends.
+     *
+     * Note: the {votingDelay} can delay the start of the vote. This must be considered when setting the voting
+     * duration compared to the voting delay.
+     */
+    function votingPeriod() external view returns (uint64);
+
+    /**
+     * @notice module:user-config
+     * @dev Minimum number of casted voted requiered for a proposal to be successfull.
+     *
+     * Note: The `blockNumber` parameter corresponds to the snaphot used for counting vote. This allows to scale the
+     * quroum depending on values such as the totalSupply of a token at this block (see {ERC20Votes}).
+     */
+    function quorum(uint256 blockNumber) external view returns (uint256);
+
+    /**
+     * @notice module:reputation
+     * @dev Voting power of an `account` at a specific `blockNumber`.
+     *
+     * Note: this can be implemented in a number of ways, for example by reading the delegated balance from one (or
+     * multiple), {ERC20Votes} tokens.
+     */
+    function getVotes(address account, uint256 blockNumber) external view returns (uint256);
+
+    /**
+     * @notice module:voting
+     * @dev Returns weither `account` has casted a vote on `proposalId`.
+     */
+    function hasVoted(uint256 proposalId, address account) external view returns (bool);
 
     /**
      * @dev Create a new proposal. Vote start {IGovernor-votingDelay} blocks after the proposal is created and ends

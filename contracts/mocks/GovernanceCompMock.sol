@@ -11,11 +11,11 @@ contract GovernanceCompMock is Governor, GovernorWithERC20VotesComp, GovernorVot
 
     receive() external payable {}
 
-    function votingPeriod() public pure override returns (uint64) {
+    function votingPeriod() public pure override(IGovernor, Governor) returns (uint64) {
         return 16; // blocks
     }
 
-    function quorum(uint256) public pure override returns (uint256) {
+    function quorum(uint256) public pure override(IGovernor, Governor) returns (uint256) {
         return 1;
     }
 

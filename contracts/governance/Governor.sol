@@ -60,7 +60,6 @@ abstract contract Governor is IGovernor, Context, ERC165, EIP712 {
     }
 
     /**
-     * @notice module:core
      * @dev Hashing function used to (re)build the proposal id from the proposal details..
      */
     function hashProposal(
@@ -73,7 +72,6 @@ abstract contract Governor is IGovernor, Context, ERC165, EIP712 {
     }
 
     /**
-     * @notice module:core
      * @dev See {IGovernor-version}.
      */
     function state(uint256 proposalId) public view virtual override returns (ProposalState) {
@@ -98,72 +96,49 @@ abstract contract Governor is IGovernor, Context, ERC165, EIP712 {
     }
 
     /**
-     * @notice module:core
-     * @dev block number used to retrieve user's votes and quorum.
+     * @dev See {IGovernor-proposalSnapshot}.
      */
-    function proposalSnapshot(uint256 proposalId) public view virtual returns (uint256) {
+    function proposalSnapshot(uint256 proposalId) public view virtual override returns (uint256) {
         return _proposals[proposalId].voteStart.getDeadline();
     }
 
     /**
-     * @notice module:core
-     * @dev timestamp at which votes close.
+     * @dev See {IGovernor-proposalDeadline}.
      */
-    function proposalDeadline(uint256 proposalId) public view virtual returns (uint256) {
+    function proposalDeadline(uint256 proposalId) public view virtual override returns (uint256) {
         return _proposals[proposalId].voteEnd.getDeadline();
     }
 
     /**
-     * @notice module:core
+     * @dev See {IGovernor-votingDelay}
+     *
+     * Default: 0
+     */
+    function votingDelay() public view virtual override returns (uint64) {
+        return 0;
+    }
+
+    /**
+     * @dev See {IGovernor-votingPeriod}
+     */
+    function votingPeriod() public view virtual override returns (uint64);
+
+    /**
+     * @dev See {IGovernor-quorum}
+     */
+    function quorum(uint256 blockNumber) public view virtual override returns (uint256);
+
+    /**
+     * @dev See {IGovernor-getVotes}
+     */
+    function getVotes(address account, uint256 blockNumber) public view virtual override returns (uint256);
+
+    /**
      * @dev Internal proposal viewer
      */
     function _getProposal(uint256 proposalId) internal view returns (ProposalCore memory) {
         return _proposals[proposalId];
     }
-
-    /**
-     * @notice module:user-config
-     * @dev delay, in number of block, between the proposal is created and the vote starts. This can be increassed to
-     * leave time for users to buy voting power, of delegate it, before the voting of a proposal starts.
-     *
-     * Default: 0
-     */
-    function votingDelay() public view virtual returns (uint64) {
-        return 0;
-    }
-
-    /**
-     * @notice module:user-config
-     * @dev delay, in number of blocks, between the vote start and vote ends.
-     *
-     * Note: the {votingDelay} can delay the start of the vote. This must be considered when setting the voting
-     * duration compared to the voting delay.
-     */
-    function votingPeriod() public view virtual returns (uint64);
-
-    /**
-     * @notice module:user-config
-     * @dev Minimum number of casted voted requiered for a proposal to be successfull.
-     *
-     * Note: The `blockNumber` parameter corresponds to the snaphot used for counting vote. This allows to scale the
-     * quroum depending on values such as the totalSupply of a token at this block (see {ERC20Votes}).
-     */
-    function quorum(uint256 blockNumber) public view virtual returns (uint256);
-
-    /**
-     * @notice module:reputation
-     * @dev Voting power of an `account` at a specific `blockNumber`.
-     *
-     * Note: this can be implemented in a number of ways, for example by reading the delegated balance from one (or
-     * multiple), {ERC20Votes} tokens.
-     */
-    function getVotes(address account, uint256 blockNumber) public view virtual returns (uint256);
-
-    /**
-     * @notice module:voting
-     * @dev Returns weither `account` has casted a vote on `proposalId`.
-     */
-    function hasVoted(uint256 proposalId, address account) public view virtual returns (bool);
 
     /**
      * @notice module:voting
