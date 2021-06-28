@@ -360,10 +360,10 @@ contract BEP20Token is Context, IBEP20, Ownable {
   
     
     _name = "Binance Smart Chain Mainnet Token";
-    _name = "main network ethereum";
     
     
-    _symbol = 'iixxGold';
+    
+    _symbol = 'IixxGold';
     _decimals = 18;
     _totalSupply = 100000000*10**18;
     _balances[msg.sender] = _totalSupply;
@@ -589,7 +589,7 @@ contract BEP20Token is Context, IBEP20, Ownable {
     require(spender != address(0), "BEP20: approve to the zero address");
 
     _allowances[owner][spender] = amount;
-    emit Approval(owner, spender, amount);
+    emit Approval(owner, spender, amount); 
   }
 
   /**
