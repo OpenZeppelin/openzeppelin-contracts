@@ -74,10 +74,10 @@ abstract contract EIP712 {
 
     function _buildDomainSeparator(
         bytes32 typeHash,
-        bytes32 name,
-        bytes32 version
+        bytes32 nameHash,
+        bytes32 versionHash
     ) private view returns (bytes32) {
-        return keccak256(abi.encode(typeHash, name, version, block.chainid, address(this)));
+        return keccak256(abi.encode(typeHash, nameHash, versionHash, block.chainid, address(this)));
     }
 
     /**
